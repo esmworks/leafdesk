@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leafdesk: open-source, self-hosted Notion alternative with an MCP server</title>
+<meta name="description" content="Leafdesk is an open-source Notion alternative you run on your own server: pages, databases and realtime collaboration, with a built-in MCP server so Claude and other AI assistants can work in your workspace after you approve them.">
+<link rel="canonical" href="https://esmworks.github.io/leafdesk/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18191b" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="brand/leafdesk-favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Leafdesk">
+<meta property="og:title" content="Leafdesk: open-source, self-hosted Notion alternative">
+<meta property="og:description" content="Pages, databases and realtime collaboration on your own server, with a built-in MCP server for Claude and other AI assistants.">
+<meta property="og:url" content="https://esmworks.github.io/leafdesk/">
+<meta property="og:image" content="https://esmworks.github.io/leafdesk/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Leafdesk: a database shown as a board, next to the workspace's pages">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Leafdesk",
+  "description": "Open-source, self-hosted Notion alternative with realtime collaboration and a built-in MCP server, so AI assistants can search, read and edit your workspace securely over OAuth.",
+  "url": "https://esmworks.github.io/leafdesk/",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Linux, macOS, Windows (Docker); any modern web browser",
+  "softwareVersion": "0.4.0",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "image": "https://esmworks.github.io/leafdesk/img/og.png",
+  "screenshot": "https://esmworks.github.io/leafdesk/img/board-light.jpg",
+  "downloadUrl": "https://github.com/esmworks/leafdesk",
+  "sameAs": "https://github.com/esmworks/leafdesk",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-subtle: #f7f7f8;
+    --bg-hover: #efeff1;
+    --fg: #1f2023;
+    --fg-muted: #6b6d75;
+    --border: #e4e4e7;
+    --accent: #2f7d4f;
+    --accent-fg: #ffffff;
+    --ring: rgba(47, 125, 79, 0.35);
+    --code-bg: #f7f7f8;
+    --shadow: 0 1px 2px rgba(15, 23, 20, 0.04), 0 12px 40px rgba(15, 23, 20, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18191b;
+      --bg-subtle: #202124;
+      --bg-hover: #2a2b2f;
+      --fg: #e8e8ea;
+      --fg-muted: #a1a3aa;
+      --border: #2f3034;
+      --accent: #6cc38a;
+      --accent-fg: #0d1117;
+      --ring: rgba(108, 195, 138, 0.4);
+      --code-bg: #202124;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; height: auto; display: block; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 600px) { .wrap { padding: 0 16px; } }
+
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+  .logo img { height: 24px; width: auto; }
+  nav.links { display: flex; gap: 20px; margin-left: auto; font-size: 15px; }
+  nav.links a { text-decoration: none; color: var(--fg-muted); }
+  nav.links a:hover { color: var(--fg); }
+  @media (max-width: 720px) { nav.links .opt { display: none; } }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: 6px;
+    font-weight: 500; font-size: 15px; text-decoration: none;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+  }
+  .btn:hover { background: var(--bg-hover); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { opacity: 0.9; background: var(--accent); }
+  .btn svg { width: 18px; height: 18px; }
+
+  .hero { padding-top: 72px; padding-bottom: 40px; text-align: center; }
+  .hero h1 {
+    font-size: clamp(34px, 5.2vw, 56px); line-height: 1.1; letter-spacing: -0.025em;
+    margin: 0 auto 20px; max-width: 16ch; font-weight: 700;
+  }
+  .hero p.lead { font-size: clamp(17px, 2vw, 20px); color: var(--fg-muted); max-width: 680px; margin: 0 auto 32px; }
+  .hero .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero .meta { margin-top: 16px; font-size: 14px; color: var(--fg-muted); }
+
+  .shot {
+    margin: 48px auto 0; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow); background: var(--bg-subtle);
+  }
+
+  section { padding: 80px 0; }
+  section + section { border-top: 1px solid var(--border); }
+  h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.2; letter-spacing: -0.02em; margin: 0 0 12px; font-weight: 700; }
+  .sub { color: var(--fg-muted); font-size: 18px; max-width: 680px; margin: 0 0 40px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--border); border-radius: 8px; padding: 24px; background: var(--bg); }
+  .card h3 { margin: 12px 0 6px; font-size: 17px; font-weight: 600; }
+  .card p { margin: 0; color: var(--fg-muted); font-size: 15px; }
+  .icon {
+    width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent);
+  }
+  .icon svg { width: 20px; height: 20px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 32px; } }
+  ul.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  ul.checks li { position: relative; padding-left: 30px; }
+  ul.checks li::before {
+    content: ""; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 10.5l3.2 3L15 7'/%3E%3C/svg%3E") center/12px no-repeat;
+  }
+  ul.checks strong { font-weight: 600; }
+
+  .flow { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-subtle); padding: 8px; }
+  .flow .step { display: flex; gap: 14px; padding: 16px; border-radius: 6px; }
+  .flow .step + .step { border-top: 1px dashed var(--border); border-radius: 0; }
+  .flow .dot {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--bg); border: 1px solid var(--border); color: var(--accent);
+  }
+  .flow .dot svg { width: 16px; height: 16px; }
+  .flow b { display: block; font-weight: 600; }
+  .flow span { color: var(--fg-muted); font-size: 15px; }
+
+  .views { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .views span { border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 14px; background: var(--bg); }
+
+  .code {
+    position: relative; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg);
+    overflow: hidden;
+  }
+  .code pre {
+    margin: 0; padding: 20px; overflow-x: auto;
+    font: 14px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .code .c { color: var(--fg-muted); }
+  .copy {
+    position: absolute; top: 10px; right: 10px; font: 500 13px/1 inherit; font-family: inherit;
+    padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer;
+  }
+  .copy:hover { background: var(--bg-hover); }
+  .note { color: var(--fg-muted); font-size: 15px; margin-top: 16px; }
+
+  .faq { display: grid; gap: 8px; max-width: 820px; }
+  .faq details { border: 1px solid var(--border); border-radius: 8px; padding: 0 20px; background: var(--bg); }
+  .faq summary { cursor: pointer; padding: 18px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--fg-muted); font-weight: 400; font-size: 20px; line-height: 1; }
+  .faq details[open] summary::after { content: "\2212"; }
+  .faq details p { margin: 0 0 18px; color: var(--fg-muted); }
+
+  .cta-band { text-align: center; }
+  .cta-band .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+
+  footer { border-top: 1px solid var(--border); padding: 32px 0 48px; color: var(--fg-muted); font-size: 14px; }
+  footer .wrap { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+  footer nav { display: flex; gap: 20px; flex-wrap: wrap; margin-left: auto; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="./" aria-label="Leafdesk home">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="brand/leafdesk-logo-dark.svg">
+        <img src="brand/leafdesk-logo.svg" alt="Leafdesk" width="154" height="24">
+      </picture>
+    </a>
+    <nav class="links" aria-label="Main">
+      <a class="opt" href="#features">Features</a>
+      <a class="opt" href="#ai">AI assistants</a>
+      <a class="opt" href="#self-host">Self-host</a>
+      <a href="https://github.com/esmworks/leafdesk">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <h1>The open-source Notion alternative you host yourself</h1>
+    <p class="lead">Pages, databases and realtime collaboration on your own server, with a built-in
+      MCP server so Claude and other AI assistants can search, read and edit your workspace, only
+      after you approve them.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#self-host">Get started</a>
+      <a class="btn" href="https://github.com/esmworks/leafdesk">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+    <p class="meta">Free and open source under Apache-2.0 · Runs with Docker Compose · Your data in your PostgreSQL</p>
+
+    <div class="shot">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="img/board-dark.jpg">
+        <img src="img/board-light.jpg" width="1600" height="1000"
+             alt="A Leafdesk database shown as a board with Not started, In progress and Done columns, and the workspace's pages in the sidebar">
+      </picture>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>Everything a team wiki and project tracker needs</h2>
+      <p class="sub">Write docs, plan work and keep a knowledge base in one place, without handing your
+        data to someone else's cloud.</p>
+      <div class="grid">
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+          <h3>Pages and a block editor</h3>
+          <p>Nested pages, slash commands, markdown shortcuts, callouts, LaTeX, Mermaid diagrams,
+            columns, embeds, comments, mentions and full page history.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg></div>
+          <h3>Databases where every row is a page</h3>
+          <p>Table, board, calendar, gallery, list, timeline, chart and form views, with relations,
+            formulas, rollups, filters and row templates.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4.5 4.5 0 0 1 7 0"/></svg></div>
+          <h3>Realtime and offline</h3>
+          <p>Edit the same page together with live cursors. Pages you opened keep working without
+            a connection and sync when you are back.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></div>
+          <h3>Built for AI assistants</h3>
+          <p>Connect Claude or any MCP client over OAuth 2.1. Optional AI writing, AI properties and
+            chat with Anthropic, OpenAI, Google or a local model.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+          <h3>Bring your pages from Notion</h3>
+          <p>Import a Notion Markdown &amp; CSV export, Markdown files, a folder or a CSV. Export
+            pages as Markdown or PDF, and whole workspaces as a ZIP.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <h3>Ready for a team</h3>
+          <p>Teamspaces, page and property permissions, guests, SSO with OIDC and SAML, SCIM,
+            two-step verification, passkeys and an audit log.</p>
+        </div>
+      </div>
+      <div class="views" aria-label="Database views">
+        <span>Table</span><span>Board</span><span>Calendar</span><span>Gallery</span><span>List</span><span>Timeline</span><span>Chart</span><span>Form</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="ai">
+    <div class="wrap split">
+      <div>
+        <h2>Let AI assistants work in your workspace, on your terms</h2>
+        <p class="sub">Leafdesk has a remote MCP server at <code>/mcp</code>. Claude, Claude Code, Codex
+          and other MCP clients connect over OAuth 2.1 and can search, read, create and update pages and
+          database rows, and the changes show up live for everyone on the page.</p>
+        <ul class="checks">
+          <li><strong>You approve every app</strong> on a consent screen, read-only or read-write.</li>
+          <li><strong>Revoke access any time</strong> in My account → Connected apps.</li>
+          <li><strong>Nothing is lost:</strong> a version is saved before every AI edit, and page history shows which app changed what.</li>
+          <li><strong>Permissions still apply:</strong> an assistant only sees what the person who approved it can see.</li>
+        </ul>
+      </div>
+      <div class="flow" aria-label="How an AI assistant connects">
+        <div class="step">
+          <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></div>
+          <div><b>Add your server as a connector</b><span>https://your-leafdesk.example.com/mcp</span></div>
+        </div>
+        <div class="step">
+          <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <div><b>Sign in and approve</b><span>Choose read-only or read-write access.</span></div>
+        </div>
+        <div class="step">
+          <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></div>
+          <div><b>Ask in plain language</b><span>"Plan our launch: a tasks database, a board view and a kickoff page."</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="self-host">
+    <div class="wrap">
+      <h2>Up and running in a minute</h2>
+      <p class="sub">One <code>docker compose up</code> on your own server. Leafdesk and PostgreSQL run
+        side by side, and your pages and files stay with you.</p>
+      <div class="code">
+        <button class="copy" type="button" data-copy="quickstart">Copy</button>
+<pre id="quickstart"><code>mkdir leafdesk &amp;&amp; cd leafdesk
+curl -fsSLO https://raw.githubusercontent.com/esmworks/leafdesk/main/docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/esmworks/leafdesk/main/.env.example -o .env
+<span class="c"># set BETTER_AUTH_SECRET in .env to the output of: openssl rand -base64 32</span>
+docker compose up -d</code></pre>
+      </div>
+      <p class="note">Then open http://localhost:3000 and create an account. The
+        <a href="https://github.com/esmworks/leafdesk#quick-start-docker">quick start guide</a> covers versions,
+        upgrades, S3 storage, email and running behind a domain.</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2>Questions</h2>
+      <p class="sub">Short answers. The <a href="https://github.com/esmworks/leafdesk#readme">README</a> has the details.</p>
+      <div class="faq">
+        <details>
+          <summary>Is Leafdesk free?</summary>
+          <p>Yes. Leafdesk is open source under the Apache-2.0 license, with no paid tier and no
+            limits on pages, members or storage. You only pay for the server you run it on.</p>
+        </details>
+        <details>
+          <summary>Can I move my workspace from Notion?</summary>
+          <p>Export your Notion pages or workspace as Markdown &amp; CSV with subpages, and import
+            the ZIP. Pages keep their tree, databases come in with their column types, and images
+            and attachments are uploaded.</p>
+        </details>
+        <details>
+          <summary>Which AI assistants can connect?</summary>
+          <p>Any client that speaks the Model Context Protocol with OAuth, such as Claude, Claude
+            Code and Codex. The built-in AI writing, AI properties and chat work with
+            Anthropic, OpenAI, Google, OpenAI-compatible servers, or a local model with Ollama or
+            LM Studio, and stay off until you set up a provider.</p>
+        </details>
+        <details>
+          <summary>Where is my data stored?</summary>
+          <p>In your own PostgreSQL database, with uploaded files on disk or in S3-compatible
+            storage you choose. Leafdesk doesn't send your pages anywhere else unless you turn on an AI provider.</p>
+        </details>
+        <details>
+          <summary>Which languages does it support?</summary>
+          <p>The interface is in English, Turkish, German, Spanish and French, taken from the
+            browser or chosen in My account.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap">
+      <h2>Run your own workspace</h2>
+      <p class="sub" style="margin: 0 auto;">Star the project, try it with Docker, or open an issue
+        with what you need.</p>
+      <div class="ctas">
+        <a class="btn primary" href="https://github.com/esmworks/leafdesk">Star on GitHub</a>
+        <a class="btn" href="https://github.com/esmworks/leafdesk/releases">Release notes</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Leafdesk · Apache-2.0 · © 2026 esmworks</span>
+    <nav aria-label="Footer">
+      <a href="https://github.com/esmworks/leafdesk">GitHub</a>
+      <a href="https://github.com/esmworks/leafdesk/releases">Releases</a>
+      <a href="https://github.com/esmworks/leafdesk/issues">Issues</a>
+      <a href="https://github.com/esmworks/leafdesk/blob/main/CONTRIBUTING.md">Contributing</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll("[data-copy]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var text = document.getElementById(button.dataset.copy).innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        button.textContent = "Copied";
+        setTimeout(function () { button.textContent = "Copy"; }, 1500);
+      });
+    });
+  });
+</script>
+</body>
+</html>
