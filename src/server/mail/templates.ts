@@ -194,6 +194,27 @@ export function reminderEmail(
   });
 }
 
+/** To the people a database automation names: a row was added or changed. */
+export function automationEmail(
+  locale: Locale,
+  automation: { automationName: string; actorName: string; pageTitle: string; databaseTitle: string; workspaceName: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = {
+    automation: automation.automationName,
+    actor: automation.actorName || t("automation.someone"),
+    page: automation.pageTitle,
+    database: automation.databaseTitle,
+    workspace: automation.workspaceName,
+  };
+  return renderEmail(locale, {
+    subject: t("automation.subject", names),
+    heading: t("automation.heading", names),
+    paragraphs: [t("automation.body", names), t("automation.optOut")],
+    action: { label: t("automation.action"), url: automation.link },
+  });
+}
+
 /** To the people with full access to a page: someone asked for access to it. */
 export function accessRequestEmail(
   locale: Locale,

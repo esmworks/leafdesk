@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { accessRequest, notification, pageReminder, user, workspace, workspaceJoinRequest } from "@/db/schema";
+import { accessRequest, databaseAutomation, notification, page, pageReminder, user, workspace, workspaceJoinRequest } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { commentText } from "@/lib/comments";
@@ -9,6 +9,7 @@ import { ownsWorkspace, resolvePageAccess } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import {
   accessRequestEmail,
+  automationEmail,
   commentEmail,
   joinRequestEmail,
   mailStatus,
@@ -24,10 +25,10 @@ import { wantsEmail } from "@/server/notification-preferences";
 
 /**
  * Emails people about pages shared with them, comments in their threads, mentions of them, their
- * reminders and requests for access to their pages, and owners about join requests. The queue is
- * the notification itself: `recordShare`, `recordComment`, `recordMentions`, `recordReminder`,
- * `recordAccessRequest` and `recordJoinRequest` set `email_due_at` (a little ahead, or now for
- * reminders and requests), undoing the share or the mention (or answering or deciding the request)
+ * reminders, requests for access to their pages and what database automations tell them, and owners
+ * about join requests. The queue is the notification itself: `recordShare`, `recordComment`,
+ * `recordMentions`, `recordReminder`, `recordAccessRequest`, `recordJoinRequest` and the automation
+ * worker set `email_due_at` (a little ahead, or now for reminders and requests), undoing the share or the mention (or answering or deciding the request)
  * deletes the notification, and the sweep sends what is still there once it falls due. A restart
  * delays these emails instead of losing them.
  *
@@ -51,6 +52,7 @@ type Due = Pick<
   | "mentionId"
   | "accessRequestId"
   | "joinRequestId"
+  | "automationId"
   | "workspaceId"
   | "emailLocale"
   | "readAt"
@@ -66,7 +68,7 @@ async function deliverDue(everything = false) {
     .set({ emailDueAt: null })
     .where(
       and(
-        inArray(notification.kind, ["page_shared", "comment", "mention", "reminder", "access_request", "join_request"]),
+        inArray(notification.kind, ["page_shared", "comment", "mention", "reminder", "access_request", "join_request", "automation"]),
         everything ? isNotNull(notification.emailDueAt) : lte(notification.emailDueAt, new Date()),
       ),
     )
@@ -79,6 +81,7 @@ async function deliverDue(everything = false) {
       mentionId: notification.mentionId,
       accessRequestId: notification.accessRequestId,
       joinRequestId: notification.joinRequestId,
+      automationId: notification.automationId,
       workspaceId: notification.workspaceId,
       emailLocale: notification.emailLocale,
       readAt: notification.readAt,
@@ -127,7 +130,20 @@ async function sendJoinRequest(userId: string, workspaceId: string, joinRequestI
  * it. Access requests: only while they can still answer it (full access). Join requests have no
  * page (see sendJoinRequest).
  */
-async function send({ kind, userId, actorId, pageId, threadId, mentionId, accessRequestId, joinRequestId, workspaceId, emailLocale, readAt }: Due) {
+async function send({
+  kind,
+  userId,
+  actorId,
+  pageId,
+  threadId,
+  mentionId,
+  accessRequestId,
+  joinRequestId,
+  automationId,
+  workspaceId,
+  emailLocale,
+  readAt,
+}: Due) {
   if (readAt || kind === "assignment") return;
   const locale = await recipientLocale(userId, emailLocale);
   if (kind === "join_request") return sendJoinRequest(userId, workspaceId, joinRequestId, locale);
@@ -179,6 +195,27 @@ async function send({ kind, userId, actorId, pageId, threadId, mentionId, access
       pageTitle,
       workspaceName: space?.name ?? "",
       message: request.message,
+      link,
+    });
+    await mailer({ to: recipient.email, ...content });
+    return;
+  }
+  if (kind === "automation") {
+    // Deleted since (which deletes the notification too, but the sweep may have taken it first).
+    const [automation] = automationId
+      ? await db
+          .select({ name: databaseAutomation.name, databaseTitle: page.title })
+          .from(databaseAutomation)
+          .innerJoin(page, eq(page.id, databaseAutomation.databaseId))
+          .where(eq(databaseAutomation.id, automationId))
+      : [];
+    if (!automation) return;
+    const content = automationEmail(locale, {
+      automationName: automation.name,
+      actorName: actor?.name ?? "",
+      pageTitle,
+      databaseTitle: pageLabel(automation.databaseTitle, emailTranslator(locale)("share.untitled")),
+      workspaceName: space?.name ?? "",
       link,
     });
     await mailer({ to: recipient.email, ...content });

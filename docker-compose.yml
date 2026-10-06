@@ -60,6 +60,8 @@ services:
       S3_PREFIX: ${S3_PREFIX:-}
       EXPORT_MAX_PAGES: ${EXPORT_MAX_PAGES:-}
       EXPORT_MAX_FILES_MB: ${EXPORT_MAX_FILES_MB:-}
+      # Hosts on a private network that automation webhooks may reach (see the README).
+      AUTOMATION_WEBHOOK_ALLOWED_HOSTS: ${AUTOMATION_WEBHOOK_ALLOWED_HOSTS:-}
       # AI features stay off unless AI_PROVIDER and AI_MODEL are set (see the README's AI section).
       AI_PROVIDER: ${AI_PROVIDER:-}
       AI_MODEL: ${AI_MODEL:-}

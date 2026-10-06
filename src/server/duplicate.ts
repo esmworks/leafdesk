@@ -27,6 +27,7 @@ import { positionBetween } from "@/lib/properties";
 import { stripReminders } from "@/lib/mentions";
 import { stripComments } from "@/lib/strip-comments";
 import { AccessError, pageVisibleTo, requirePageAccess } from "@/server/access";
+import { queueAutomations } from "@/server/automations/queue";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { bulkRowIds, rowsWithAccess, syncPairedRelations, withCode, type BulkResult } from "@/server/databases";
 import { copyReferences } from "@/server/mentions";
@@ -420,6 +421,8 @@ export async function duplicatePage(
   // Templates link one way only: their links would show up on the linked rows.
   if (parentKind === "database" && !root.inTemplate) {
     await syncPairedRelations(root.id, source.parentId!, {}, root.properties);
+    // A copied row is a new row: "row added" automations run for it.
+    await queueAutomations(userId, source.parentId!, [{ rowId: root.id, before: {}, after: root.properties }], true);
   }
 
   if (notify) {

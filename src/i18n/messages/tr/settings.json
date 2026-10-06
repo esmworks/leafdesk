@@ -820,6 +820,11 @@
         "created": "API anahtarı oluşturuldu: {target}",
         "revoked": "API anahtarı iptal edildi: {target}"
       },
+      "automation": {
+        "created": "{target} içinde “{name}” otomasyonu oluşturuldu",
+        "updated": "{change, select, on {{target} içindeki “{name}” otomasyonu açıldı} off {{target} içindeki “{name}” otomasyonu kapatıldı} other {{target} içindeki “{name}” otomasyonu değiştirildi}}",
+        "deleted": "{target} içindeki “{name}” otomasyonu silindi"
+      },
       "export": {
         "workspace": "Çalışma alanı dışa aktarıldı ({count, plural, other {# sayfa}})",
         "page": "Dışa aktarıldı: {target} ({format})"
@@ -852,7 +857,10 @@
     "mailOff": "Bu sunucuda e-posta gönderimi kapalı olduğu için şu an e-posta gitmiyor.",
     "joinRequestTitle": "Katılma istekleri",
     "joinRequestDescription": "Biri sahibi olduğunuz bir çalışma alanına katılmak ister ya da bir üye birini davet etmek ister.",
-    "joinRequestChannel": "Katılma istekleri: {channel}"
+    "joinRequestChannel": "Katılma istekleri: {channel}",
+    "automationTitle": "Otomasyonlar",
+    "automationDescription": "Bir veritabanı otomasyonu, birinin eklediği ya da değiştirdiği bir satır hakkında sizi bilgilendirir.",
+    "automationChannel": "Otomasyonlar: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

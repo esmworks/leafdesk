@@ -42,7 +42,15 @@ export const AUDIT_CATEGORIES = {
   settings: ["workspace.renamed", "workspace.settings_changed"],
   security: ["sso.configured", "sso.domains_verified", "sso.removed", "scim.token_created", "scim.token_revoked"],
   pages: ["page.deleted", "page.published", "page.unpublished", "page.publication_revoked", "site.saved", "site.removed"],
-  integrations: ["connected_app.connected", "connected_app.revoked", "api_token.created", "api_token.revoked"],
+  integrations: [
+    "connected_app.connected",
+    "connected_app.revoked",
+    "api_token.created",
+    "api_token.revoked",
+    "automation.created",
+    "automation.updated",
+    "automation.deleted",
+  ],
   exports: ["export.workspace", "export.page"],
 } as const;
 
@@ -330,6 +338,7 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     domains: list(d.domains).join(", "),
     slug: text(d.slug),
     property: text(d.property),
+    name: text(d.name),
   };
   switch (event.action) {
     case "member.role_changed":
@@ -355,6 +364,17 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "export.workspace":
       values.count = typeof d.pages === "number" ? d.pages : 0;
       break;
+    case "automation.updated": {
+      // Turning it on or off reads as such; any other change as a change.
+      const previous = record(d.previous);
+      values.change =
+        typeof d.enabled === "boolean" && typeof previous.enabled === "boolean" && d.enabled !== previous.enabled
+          ? d.enabled
+            ? "on"
+            : "off"
+          : "other";
+      break;
+    }
   }
   const key = `audit.actions.${event.action}`;
   return t.has(key) ? t(key, values) : event.action;

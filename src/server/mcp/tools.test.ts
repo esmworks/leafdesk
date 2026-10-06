@@ -1,5 +1,6 @@
 import { InMemoryTransport, type JSONRPCMessage } from "@modelcontextprotocol/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { MAX_MARKDOWN_CHARS } from "./format";
 import type { McpPrincipal } from "./principal";
@@ -75,12 +76,23 @@ const workspaces = vi.hoisted(() => {
       super(message);
     }
   }
-  return { WorkspaceError, listMembers: vi.fn(), addMembers: vi.fn() };
+  return { WorkspaceError, listMembers: vi.fn(), addMembers: vi.fn(), workspacePeople: vi.fn(async () => []) };
 });
 vi.mock("@/server/workspaces", () => workspaces);
 
 const notifications = vi.hoisted(() => ({ listNotifications: vi.fn() }));
 vi.mock("@/server/notifications", () => notifications);
+
+const automations = vi.hoisted(() => ({
+  listAutomations: vi.fn(),
+  createAutomation: vi.fn(),
+  updateAutomation: vi.fn(),
+  deleteAutomation: vi.fn(),
+  rotateAutomationSecret: vi.fn(),
+  testAutomationWebhooks: vi.fn(),
+  listAutomationRuns: vi.fn(),
+}));
+vi.mock("@/server/automations/manage", () => automations);
 
 const files = vi.hoisted(() => {
   class FileError extends Error {
@@ -184,6 +196,38 @@ async function callTool(principal: McpPrincipal, name: string, args: Record<stri
   const result = response.result as { isError?: boolean; content: { type: string; text: string; data?: string; mimeType?: string }[] };
   const text = result.content[0].text;
   return { isError: Boolean(result.isError), text, data: result.isError ? null : JSON.parse(text), content: result.content };
+}
+
+type ListedTool = { name: string; inputSchema: Record<string, any>; annotations?: Record<string, boolean> };
+
+/** The tools a session lists. */
+async function listTools(principal: McpPrincipal): Promise<ListedTool[]> {
+  const server = createMcpServer(principal);
+  const [client, serverSide] = InMemoryTransport.createLinkedPair();
+  const inbox: JSONRPCMessage[] = [];
+  client.onmessage = (m) => void inbox.push(m);
+  await server.connect(serverSide);
+  await client.start();
+  const waitFor = async (id: number) => {
+    for (let i = 0; i < 200; i++) {
+      const hit = inbox.find((m) => "id" in m && m.id === id);
+      if (hit) return hit as { result?: any };
+      await new Promise((r) => setTimeout(r, 5));
+    }
+    throw new Error(`no response for ${id}`);
+  };
+  await client.send({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "initialize",
+    params: { protocolVersion: "2025-11-25", capabilities: {}, clientInfo: { name: "test", version: "1" } },
+  });
+  await waitFor(1);
+  await client.send({ jsonrpc: "2.0", method: "notifications/initialized" });
+  await client.send({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
+  const response = await waitFor(2);
+  await server.close();
+  return response.result.tools;
 }
 
 beforeEach(() => {
@@ -1359,5 +1403,208 @@ describe("get_file", () => {
     files.fileForApp.mockResolvedValue(stored());
     files.readStored.mockResolvedValue(null);
     expect((await callTool(reader, "get_file", { file: FILE_ID })).text).toMatch(/File not found/);
+  });
+});
+
+describe("automations", () => {
+  const view = {
+    id: "auto-1",
+    databaseId: "db-1",
+    name: "Close out",
+    enabled: true,
+    trigger: { type: "property_changed", propertyId: "prop-status", to: "opt-done" },
+    actions: [
+      { type: "set_properties", values: { "prop-notes": "Shipped", "prop-gone": { $: "now" } } },
+      { type: "notify", userIds: ["user-2"], propertyIds: [] },
+      { type: "webhook", url: "https://hooks.example.com/leafdesk" },
+    ],
+    runAs: { id: "user-1", name: "Erhan" },
+    secret: "whsec_abc",
+    lastRun: null,
+    createdAt: "2026-10-01T00:00:00.000Z",
+    updatedAt: "2026-10-01T00:00:00.000Z",
+  };
+
+  beforeEach(() => {
+    workspaces.workspacePeople.mockResolvedValue([{ id: "user-2", name: "Ada", email: "ada@example.com", image: null, role: "member" }] as never);
+  });
+
+  it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
+    const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
+    for (const name of ["list_automations", "list_automation_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
+    for (const name of ["create_automation", "update_automation", "delete_automation"]) {
+      expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
+    }
+    expect(tools.get("delete_automation")?.annotations?.destructiveHint).toBe(true);
+    expect(tools.get("create_automation")?.annotations?.destructiveHint).toBe(false);
+    const create = tools.get("create_automation")!.inputSchema;
+    expect(create.required).toEqual(expect.arrayContaining(["database_id", "name", "trigger", "actions"]));
+    expect(JSON.stringify(create.properties.trigger)).toMatch(/property_changed/);
+    expect(JSON.stringify(create.properties.actions)).toMatch(/webhook/);
+    expect(tools.get("update_automation")!.inputSchema.required).toEqual(["automation_id"]);
+  });
+
+  it("passes create input through by name and describes the result with names", async () => {
+    automations.createAutomation.mockResolvedValue(view);
+    const actions = [
+      { type: "set_properties", values: { Notes: "Shipped", Due: { $: "now" } } },
+      { type: "notify", people: ["me", "ada@example.com"] },
+      { type: "webhook", url: "https://hooks.example.com/leafdesk" },
+    ];
+    const { isError, data } = await callTool(writer, "create_automation", {
+      database_id: "https://leafdesk.example/w/0b6f1d2e-3c4a-4b5d-8e9f-a0b1c2d3e4f5/p/9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d",
+      name: "Close out",
+      trigger: { type: "property_changed", property: "Status", to: "Done" },
+      actions,
+    });
+    expect(isError).toBe(false);
+    expect(automations.createAutomation).toHaveBeenCalledWith("user-1", "9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d", {
+      name: "Close out",
+      trigger: { type: "property_changed", property: "Status", to: "Done" },
+      actions: [actions[0], { type: "notify", people: ["me", "ada@example.com"], properties: [] }, actions[2]],
+    });
+    expect(data.trigger).toMatchObject({
+      property: { id: "prop-status", name: "Status" },
+      to: "Done",
+      summary: 'When "Status" changes to "Done"',
+    });
+    expect(data.actions[0].values).toEqual({ Notes: "Shipped", "prop-gone": { $: "now" } });
+    expect(data.actions[1].people).toEqual([{ id: "user-2", name: "Ada" }]);
+    expect(data.actions[2]).toMatchObject({ type: "webhook", url: "https://hooks.example.com/leafdesk" });
+    expect(data).toMatchObject({
+      webhook_secret: "whsec_abc",
+      run_as: { id: "user-1", name: "Erhan" },
+      url: expect.stringMatching(/\/w\/ws-1\/p\/db-1$/),
+    });
+  });
+
+  it("leaves property out for any-property triggers; update patches only what is given", async () => {
+    automations.createAutomation.mockResolvedValue({ ...view, trigger: { type: "property_changed", propertyId: null }, secret: null });
+    const created = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "Any change",
+      enabled: false,
+      trigger: { type: "property_changed" },
+      actions: [{ type: "notify", properties: ["Owner"] }],
+    });
+    expect(automations.createAutomation.mock.calls[0][2]).toEqual({
+      name: "Any change",
+      enabled: false,
+      trigger: { type: "property_changed", property: null },
+      actions: [{ type: "notify", people: [], properties: ["Owner"] }],
+    });
+    expect(created.data).not.toHaveProperty("webhook_secret");
+    expect(created.data.trigger.summary).toBe("When any property of a row changes");
+
+    automations.updateAutomation.mockResolvedValue({ ...view, enabled: false });
+    const updated = await callTool(writer, "update_automation", { automation_id: "auto-1", enabled: false });
+    expect(updated.isError).toBe(false);
+    expect(automations.updateAutomation).toHaveBeenCalledWith("user-1", "auto-1", { enabled: false });
+    const empty = await callTool(writer, "update_automation", { automation_id: "auto-1" });
+    expect(empty.isError).toBe(true);
+    expect(empty.text).toMatch(/Nothing to change/);
+  });
+
+  it("refuses writes on read-only connections and turns automation errors into tool errors", async () => {
+    const readOnly = await callTool(reader, "create_automation", {
+      database_id: "db-1",
+      name: "x",
+      trigger: { type: "row_created" },
+      actions: [{ type: "webhook", url: "https://example.com" }],
+    });
+    expect(readOnly.isError).toBe(true);
+    expect(readOnly.text).toMatch(/pages:write/);
+    expect(automations.createAutomation).not.toHaveBeenCalled();
+
+    automations.createAutomation.mockRejectedValue(
+      new PropertyValueError('Unknown property "Stage". Available: Status (select)', "unknownProperty"),
+    );
+    const unknown = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "x",
+      trigger: { type: "property_changed", property: "Stage" },
+      actions: [{ type: "notify", people: ["me"] }],
+    });
+    expect(unknown.isError).toBe(true);
+    expect(unknown.text).toMatch(/Unknown property "Stage"/);
+
+    automations.createAutomation.mockRejectedValue(
+      new PropertyValueError("Webhooks can't go to private or local addresses (10.0.0.5)", "webhookBlocked"),
+    );
+    const blocked = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "x",
+      trigger: { type: "row_created" },
+      actions: [{ type: "webhook", url: "http://10.0.0.5/hook" }],
+    });
+    expect(blocked.isError).toBe(true);
+    expect(blocked.text).toMatch(/AUTOMATION_WEBHOOK_ALLOWED_HOSTS/);
+
+    automations.deleteAutomation.mockRejectedValue(
+      new PropertyValueError("No automation with this id", "invalidAutomation", { reason: "notFound" }),
+    );
+    const missing = await callTool(writer, "delete_automation", { automation_id: "nope" });
+    expect(missing.isError).toBe(true);
+    expect(missing.text).toMatch(/list_automations/);
+  });
+
+  it("lists automations and their runs on read-only connections", async () => {
+    automations.listAutomations.mockResolvedValue([view]);
+    const list = await callTool(reader, "list_automations", { database_id: "db-1" });
+    expect(list.isError).toBe(false);
+    expect(automations.listAutomations).toHaveBeenCalledWith("user-1", "db-1");
+    expect(list.data.automations[0].actions.map((a: { summary: string }) => a.summary)).toEqual([
+      'Set "Notes" to "Shipped", "prop-gone" to the day it runs',
+      "Notify Ada",
+      "POST the row to https://hooks.example.com/leafdesk",
+    ]);
+
+    automations.listAutomationRuns.mockResolvedValue([
+      {
+        id: "run-1",
+        rowId: "row-1",
+        rowTitle: "Fix login",
+        event: "row.updated",
+        status: "failed",
+        steps: [{ type: "webhook", status: "failed", attempts: 5, code: "http", error: "Answered 500", httpStatus: 500 }],
+        createdAt: "2026-10-01T00:00:00.000Z",
+        finishedAt: "2026-10-01T03:00:00.000Z",
+      },
+    ]);
+    const runs = await callTool(reader, "list_automation_runs", { automation_id: "auto-1", limit: 5 });
+    expect(runs.isError).toBe(false);
+    expect(automations.listAutomationRuns).toHaveBeenCalledWith("user-1", "auto-1", 5);
+    expect(runs.data.runs[0]).toMatchObject({
+      row: { id: "row-1", title: "Fix login" },
+      steps: [{ type: "webhook", status: "failed", attempts: 5, code: "http", http_status: 500 }],
+    });
+  });
+
+  it("summarizes automation notifications in the inbox", async () => {
+    notifications.listNotifications.mockResolvedValue([
+      {
+        id: "n-3",
+        kind: "automation",
+        workspaceId: "ws-1",
+        workspaceName: "Team",
+        createdAt: new Date("2026-10-01T00:00:00Z"),
+        read: false,
+        actorName: "Ada",
+        pageId: "row-1",
+        pageTitle: "Fix login",
+        pageIcon: null,
+        databaseTitle: "Tasks",
+        propertyName: null,
+        automationName: "Close out",
+      },
+    ]);
+    const principal = { ...reader, scopes: ["pages:read", "notifications:read"] };
+    const { data } = await callTool(principal, "list_notifications", {});
+    expect(data.notifications[0]).toMatchObject({
+      kind: "automation",
+      summary: 'Automation "Close out": Ada added or changed "Fix login" in Tasks',
+      database: "Tasks",
+      automation: "Close out",
+    });
   });
 });

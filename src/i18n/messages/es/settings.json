@@ -820,6 +820,11 @@
         "created": "Creó el token de API {target}",
         "revoked": "Revocó el token de API {target}"
       },
+      "automation": {
+        "created": "Creó la automatización «{name}» en {target}",
+        "updated": "{change, select, on {Activó la automatización «{name}» en {target}} off {Desactivó la automatización «{name}» en {target}} other {Cambió la automatización «{name}» en {target}}}",
+        "deleted": "Eliminó la automatización «{name}» en {target}"
+      },
       "export": {
         "workspace": "Exportó el espacio de trabajo ({count, plural, one {# página} other {# páginas}})",
         "page": "Exportó {target} como {format}"
@@ -852,7 +857,10 @@
     "mailOff": "Este servidor no puede enviar correos en este momento, así que no se envía ninguno.",
     "joinRequestTitle": "Solicitudes de acceso",
     "joinRequestDescription": "Alguien pide unirse a un espacio de trabajo tuyo, o un miembro pide invitar a alguien.",
-    "joinRequestChannel": "Solicitudes de acceso: {channel}"
+    "joinRequestChannel": "Solicitudes de acceso: {channel}",
+    "automationTitle": "Automatizaciones",
+    "automationDescription": "Una automatización de una base de datos te avisa de una fila que alguien añadió o cambió.",
+    "automationChannel": "Automatizaciones: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

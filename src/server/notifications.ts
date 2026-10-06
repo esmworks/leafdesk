@@ -3,6 +3,7 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
   accessRequest,
+  databaseAutomation,
   databaseProperty,
   notification,
   page,
@@ -399,6 +400,8 @@ export type InboxItem = {
   propertyName: string | null;
   /** Reminders: the date they were set on (YYYY-MM-DD). */
   reminderDate: string | null;
+  /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
+  automationName: string | null;
   /** Access requests: what the user needs to answer it. */
   accessRequest: InboxAccessRequest | null;
   /** Join requests: someone asking to join, or a member asking to invite `requestEmail`. */
@@ -478,6 +481,7 @@ export async function listNotifications(
       databaseTitle: databasePage.title,
       propertyName: databaseProperty.name,
       reminderDate: pageReminder.date,
+      automationName: databaseAutomation.name,
       requestKind: workspaceJoinRequest.kind,
       requestEmail: workspaceJoinRequest.email,
       actorEmail: actor.email,
@@ -497,6 +501,7 @@ export async function listNotifications(
       and(eq(notification.kind, "reminder"), eq(pageReminder.pageId, notification.pageId), eq(pageReminder.mentionId, notification.mentionId)),
     )
     .leftJoin(accessRequest, eq(accessRequest.id, notification.accessRequestId))
+    .leftJoin(databaseAutomation, eq(databaseAutomation.id, notification.automationId))
     .where(
       and(
         filter,

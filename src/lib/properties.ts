@@ -76,6 +76,10 @@ export const DATABASE_ERROR_CODES = [
   "notATemplate",
   "propertyRestricted",
   "cannotRestrict",
+  "invalidAutomation",
+  "tooManyAutomations",
+  "invalidWebhookUrl",
+  "webhookBlocked",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

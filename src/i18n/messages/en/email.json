@@ -71,6 +71,14 @@
     "action": "Open page",
     "optOut": "You get these because you set a reminder. You can turn them off in My account > Preferences."
   },
+  "automation": {
+    "subject": "Automation “{automation}”: “{page}”",
+    "heading": "The automation “{automation}” is letting you know about “{page}”",
+    "body": "{actor} added or changed “{page}” in {database} ({workspace}).",
+    "action": "Open row",
+    "someone": "Someone",
+    "optOut": "You get these because a database automation notifies you. You can turn them off in My account > Preferences."
+  },
   "accessRequest": {
     "subject": "{requester} asked for access to “{page}”",
     "heading": "{requester} asked for access to “{page}”",

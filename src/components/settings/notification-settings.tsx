@@ -17,6 +17,7 @@ const KIND_KEYS = {
   reminder: "reminder",
   access_request: "accessRequest",
   join_request: "joinRequest",
+  automation: "automation",
 } as const satisfies Record<NotificationKind, string>;
 const CHANNELS: NotificationChannel[] = ["inbox", "email"];
 

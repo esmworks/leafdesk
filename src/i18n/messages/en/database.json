@@ -519,7 +519,11 @@
     "isTemplate": "Templates can’t be moved or put in the trash. Delete them from the template list instead.",
     "notATemplate": "This page is not a template of this workspace or database.",
     "propertyRestricted": "You don’t have access to change “{property}”.",
-    "cannotRestrict": "This property can’t have its own access."
+    "cannotRestrict": "This property can’t have its own access.",
+    "invalidAutomation": "This automation can’t be saved. Check its trigger and actions.",
+    "tooManyAutomations": "A database can have at most {max} automations.",
+    "invalidWebhookUrl": "“{value}” is not a valid http(s) address.",
+    "webhookBlocked": "Webhooks can’t go to private or local network addresses."
   },
   "formula": {
     "title": "Formula",
@@ -667,6 +671,119 @@
     "fullAccess": {
       "warning": "{count, plural, one {{names} has} other {{names}{more, plural, =0 {} other { and # more}} have}} full access to this database, so these rules don't apply to them. Lower their access, or the teamspace's access for members, to restrict them.",
       "share": "Change access to the database"
+    }
+  },
+  "automations": {
+    "button": "Automations",
+    "title": "Automations",
+    "editTitle": "Edit automation",
+    "new": "New automation",
+    "back": "Back",
+    "empty": "No automations yet. An automation sets values, notifies people or calls a webhook when a row is added or changes.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete the automation “{name}”? Its run history goes too.",
+    "toggle": "Run “{name}”",
+    "lastRun": "Last run: {status}, {time}",
+    "neverRun": "Hasn’t run yet",
+    "tooMany": "A database can have at most {max} automations",
+    "deletedProperty": "Deleted property",
+    "checked": "Checked",
+    "unchecked": "Unchecked",
+    "unknownPerson": "Unknown person",
+    "summary": "When {trigger} → {actions}",
+    "summaryTrigger": {
+      "rowCreated": "a row is added",
+      "anyChange": "any property changes",
+      "changes": "{property} changes",
+      "becomes": "{property} becomes {value}"
+    },
+    "summaryAction": {
+      "set": "Set {properties}",
+      "notify": "Notify",
+      "webhook": "Webhook"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "For example: Tell the team when a task is done",
+      "when": "When",
+      "then": "Then",
+      "triggerType": {
+        "row_created": "A row is added",
+        "property_changed": "A property changes"
+      },
+      "property": "Property",
+      "anyProperty": "Any property",
+      "becomes": "Becomes",
+      "anyValue": "To any value",
+      "becomesValue": "Becomes {value}",
+      "actionType": {
+        "set_properties": "Set property",
+        "notify": "Notify",
+        "webhook": "Send webhook"
+      },
+      "addAction": "Add action",
+      "removeAction": "Remove action",
+      "maxActions": "At most {max} actions",
+      "addProperty": "Add property",
+      "valueFor": "Value for {property}",
+      "choose": "Choose…",
+      "addOption": "Add option",
+      "now": "Day it runs",
+      "specificDate": "Specific date",
+      "actor": "Person who made the change",
+      "specificPeople": "Specific people",
+      "people": "People",
+      "personProperties": "People in these properties of the row",
+      "addPerson": "Add people",
+      "noMatches": "No matches",
+      "webhookUrl": "Webhook URL",
+      "webhookPlaceholder": "https://example.com/webhooks/leafdesk",
+      "enabled": "On",
+      "runsAs": "Runs with the access of {name}, who saved it last.",
+      "create": "Create",
+      "errors": {
+        "needName": "Give the automation a name.",
+        "needAction": "Add at least one action.",
+        "needProperty": "Choose at least one property to set.",
+        "needValue": "Choose a value for each property to set.",
+        "needPeople": "Choose who to notify.",
+        "needUrl": "Enter the webhook’s URL."
+      }
+    },
+    "webhook": {
+      "title": "Webhook signing",
+      "secret": "Signing secret",
+      "signatureHelp": "Each request carries a {header} header (t=…,v1=…): an HMAC-SHA256 of {signed} made with this secret, so your server can check the request came from Leafdesk.",
+      "rotate": "Replace secret",
+      "confirmRotate": "Replace the signing secret? The current one stops working right away.",
+      "test": "Send test",
+      "testing": "Sending…",
+      "testSavedOnly": "The test goes to the saved addresses. Save first to test your changes.",
+      "noWebhooks": "This automation has no saved webhooks.",
+      "testOk": "Delivered (HTTP {status})",
+      "testFailed": "Failed: {reason}",
+      "saveFirst": "Save the automation to get its signing secret and send a test."
+    },
+    "runs": {
+      "title": "Recent runs",
+      "empty": "This automation hasn’t run yet.",
+      "added": "Row added",
+      "changed": "Row changed",
+      "status": {
+        "pending": "Waiting",
+        "running": "Running",
+        "done": "Done",
+        "failed": "Failed"
+      },
+      "stepStatus": {
+        "pending": "waiting",
+        "done": "done",
+        "failed": "failed",
+        "skipped": "skipped"
+      },
+      "notified": "{count, plural, one {# person notified} other {# people notified}}",
+      "attempts": "{count, plural, one {# try} other {# tries}}"
     }
   }
 }

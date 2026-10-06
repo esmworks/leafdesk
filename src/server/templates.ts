@@ -7,7 +7,7 @@ import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
   addProperty,
   addView,
-  announceAssignments,
+  afterRowWrites,
   getProperties,
   listRowTemplateSummaries,
   normalizeRowProperties,
@@ -238,7 +238,7 @@ export async function createFromTemplate(
     }
     if (!root.inTemplate) {
       await syncPairedRelations(root.id, parentId!, {}, values);
-      await announceAssignments(userId, parentId!, [{ rowId: root.id, before: {}, after: values }]);
+      await afterRowWrites(userId, parentId!, [{ rowId: root.id, before: {}, after: values }], { created: true });
     }
     collab.broadcast(`db:${parentId}`, "rows");
   }

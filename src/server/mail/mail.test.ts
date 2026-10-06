@@ -5,6 +5,7 @@ import {
   accessDeclinedEmail,
   accessRequestEmail,
   assignmentEmail,
+  automationEmail,
   invitationEmail,
   PASSWORD_RESET_MINUTES,
   passwordResetEmail,
@@ -175,6 +176,29 @@ describe("shareEmail", () => {
     const en = shareEmail("en", { ...share, level: "full" });
     expect(en.subject).toBe("Erhan shared “Yol <haritası>” with you");
     expect(en.text).toContain("You can now view, edit and share “Yol <haritası>” in Ekip.");
+  });
+});
+
+describe("automationEmail", () => {
+  const automation = {
+    automationName: "Bitenleri bildir",
+    actorName: "Erhan",
+    pageTitle: "Teklif <hazırla>",
+    databaseTitle: "İşlerim",
+    workspaceName: "Ekip",
+    link: "https://notes.example.com/w/ws/p/row1",
+  };
+
+  it("names the automation, the row, its database and who changed it", () => {
+    const tr = automationEmail("tr", automation);
+    expect(tr.subject).toBe("“Bitenleri bildir” otomasyonu: “Teklif <hazırla>”");
+    expect(tr.text).toContain("Erhan, Ekip çalışma alanındaki İşlerim içinde “Teklif <hazırla>” satırını ekledi ya da değiştirdi.");
+    expect(tr.text).toContain("Satırı aç: https://notes.example.com/w/ws/p/row1");
+    expect(tr.html).toContain("Teklif &lt;hazırla&gt;");
+
+    const en = automationEmail("en", { ...automation, actorName: "" });
+    expect(en.subject).toBe("Automation “Bitenleri bildir”: “Teklif <hazırla>”");
+    expect(en.text).toContain("Someone added or changed “Teklif <hazırla>” in İşlerim (Ekip).");
   });
 });
 

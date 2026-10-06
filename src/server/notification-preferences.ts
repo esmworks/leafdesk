@@ -18,6 +18,7 @@ const COLUMNS = {
   reminder: { inbox: "reminderInbox", email: "reminderEmails" },
   access_request: { inbox: "accessRequestInbox", email: "accessRequestEmails" },
   join_request: { inbox: "joinRequestInbox", email: "joinRequestEmails" },
+  automation: { inbox: "automationInbox", email: "automationEmails" },
 } as const satisfies Record<NotificationKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as NotificationKind[];

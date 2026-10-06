@@ -71,6 +71,14 @@
     "action": "Abrir página",
     "optOut": "Recibes estos correos porque configuraste un recordatorio. Puedes desactivarlos en Mi cuenta > Preferencias."
   },
+  "automation": {
+    "subject": "Automatización “{automation}”: “{page}”",
+    "heading": "La automatización “{automation}” te avisa sobre “{page}”",
+    "body": "{actor} añadió o cambió “{page}” en {database} ({workspace}).",
+    "action": "Abrir fila",
+    "someone": "Alguien",
+    "optOut": "Recibes estos correos porque una automatización de una base de datos te avisa. Puedes desactivarlos en Mi cuenta > Preferencias."
+  },
   "accessRequest": {
     "subject": "{requester} pidió acceso a “{page}”",
     "heading": "{requester} pidió acceso a “{page}”",

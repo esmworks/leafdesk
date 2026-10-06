@@ -7,6 +7,7 @@ export {
   accessDeclinedEmail,
   accessRequestEmail,
   assignmentEmail,
+  automationEmail,
   commentEmail,
   emailChangeEmail,
   emailChangedEmail,

@@ -11,6 +11,7 @@ import type { LinkedView } from "@/lib/embed-blocks";
 import { applyView, defaultsFromFilters, orderProperties } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
 import { galleryCover } from "@/lib/views";
+import { AutomationsButton } from "./automations-dialog";
 import { BoardView } from "./board-view";
 import { CalendarView } from "./calendar-view";
 import { ChartView } from "./chart-view";
@@ -219,6 +220,8 @@ export function DatabasePage({
   }
 
   const setConfig = (v: View, config: ViewConfig) => baseApi.updateView(v, { config });
+  // Automations belong to the database, not to a page showing one of its views; full access only.
+  const canManageAutomations = Boolean(snapshot.canManageAccess) && !readOnly && !linked;
 
   const addView = async (type: ViewType) => {
     // Names for new views follow the UI language; existing names are stored data and stay as-is.
@@ -309,6 +312,13 @@ export function DatabasePage({
                           preview={formPreview}
                           onPreview={setFormPreview}
                         />
+                        {canManageAutomations && (
+                          <AutomationsButton
+                            workspaceId={workspaceId}
+                            databaseId={databaseId}
+                            databaseTitle={snapshot.database.title}
+                          />
+                        )}
                       </div>
                     )}
                     {view && view.type !== "form" && (
@@ -330,6 +340,13 @@ export function DatabasePage({
                           onConfig={(config) => setConfig(view, config)}
                           onCreateDateProperty={createDateProperty}
                         />
+                        {canManageAutomations && (
+                          <AutomationsButton
+                            workspaceId={workspaceId}
+                            databaseId={databaseId}
+                            databaseTitle={snapshot.database.title}
+                          />
+                        )}
                         {!readOnly && (
                           <div className="ml-1 flex items-center">
                             <Button size="sm" variant="primary" onClick={() => void newRow()} className="rounded-r-none">

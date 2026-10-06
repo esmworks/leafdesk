@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { boolean, check, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { databaseProperty, page, workspace, workspaceJoinRequest } from "./app";
 import { user } from "./auth";
+import { databaseAutomation } from "./automations";
 import { accessRequest } from "./permissions";
 
 /** Account-wide choices that follow the user across browsers (the interface language doesn't). */
@@ -43,6 +44,10 @@ export const userPreference = pgTable("user_preference", {
   joinRequestEmails: boolean("join_request_emails").notNull().default(true),
   /** Show requests to join the workspaces I own in my inbox. */
   joinRequestInbox: boolean("join_request_inbox").notNull().default(true),
+  /** Email me what database automations tell me. */
+  automationEmails: boolean("automation_emails").notNull().default(true),
+  /** Show what database automations tell me in my inbox. */
+  automationInbox: boolean("automation_inbox").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -78,6 +83,7 @@ export const NOTIFICATION_KINDS = [
   "reminder",
   "access_request",
   "join_request",
+  "automation",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -90,7 +96,8 @@ export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
  * fell due. "access_request": `actorId` asked for access to page `pageId`, which the user has full
  * access to (request `accessRequestId`); answered by anyone, it goes away, read or not.
  * "join_request": `actorId` asked to join (or to invite someone), request `joinRequestId`, which
- * waits for the workspace's owners; it has no page. Unread ones are dropped when the change is
+ * waits for the workspace's owners; it has no page. "automation": automation `automationId` told the
+ * user about row `pageId`, which `actorId` added or changed. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */
@@ -119,6 +126,8 @@ export const notification = pgTable(
     accessRequestId: text("access_request_id").references(() => accessRequest.id, { onDelete: "cascade" }),
     /** Join request notifications: the request. */
     joinRequestId: text("join_request_id").references(() => workspaceJoinRequest.id, { onDelete: "cascade" }),
+    /** Automation notifications: the automation that sent it. */
+    automationId: text("automation_id").references(() => databaseAutomation.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     readAt: timestamp("read_at", { withTimezone: true }),
     /** When to email the user about it (all but assignment); cleared once the email is handled. */

@@ -820,6 +820,11 @@
         "created": "Created the API token {target}",
         "revoked": "Revoked the API token {target}"
       },
+      "automation": {
+        "created": "Created the automation “{name}” in {target}",
+        "updated": "{change, select, on {Turned on the automation “{name}” in {target}} off {Turned off the automation “{name}” in {target}} other {Changed the automation “{name}” in {target}}}",
+        "deleted": "Deleted the automation “{name}” in {target}"
+      },
       "export": {
         "workspace": "Exported the workspace ({count, plural, one {# page} other {# pages}})",
         "page": "Exported {target} as {format}"
@@ -852,7 +857,10 @@
     "mailOff": "This server can't send email right now, so none go out.",
     "joinRequestTitle": "Join requests",
     "joinRequestDescription": "Someone asks to join a workspace you own, or a member asks to invite someone.",
-    "joinRequestChannel": "Join requests: {channel}"
+    "joinRequestChannel": "Join requests: {channel}",
+    "automationTitle": "Automations",
+    "automationDescription": "A database automation lets you know about a row someone added or changed.",
+    "automationChannel": "Automations: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

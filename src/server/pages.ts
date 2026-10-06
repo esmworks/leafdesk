@@ -31,7 +31,7 @@ import {
 import { recordAudit } from "@/server/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
-  announceAssignments,
+  afterRowWrites,
   bulkRowIds,
   normalizeRowProperties,
   rowsWithAccess,
@@ -305,7 +305,7 @@ export async function createPage(actor: WriteActor, input: CreatePageInput) {
   // Templates link one way and assign nobody: their values only seed the rows made from them.
   if (parentKind === "database" && !inTemplate) {
     await syncPairedRelations(created.id, input.parentId!, {}, properties);
-    await announceAssignments(userId, input.parentId!, [{ rowId: created.id, before: {}, after: properties }]);
+    await afterRowWrites(userId, input.parentId!, [{ rowId: created.id, before: {}, after: properties }], { created: true });
   }
 
   const collab = getCollab();

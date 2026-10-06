@@ -4,6 +4,24 @@
 
 ### Added
 
+- **Database automations.** When a row is added, or a property changes (optionally only when it
+  becomes a value: a select or status option, a checkbox state, a person or multi-select option
+  being added), an automation sets properties on the row (a date to the day it runs, a person to
+  whoever made the change), notifies people (chosen ones and those a person property names, in
+  the inbox and by email as each chooses, only if they can open the row) or sends the row to a
+  webhook. People with full access to the database manage them; an automation runs as the person
+  who saved it last, with their access when it runs, and the changes it makes start no other
+  automations. Runs are kept for 30 days with how each action went. Webhooks are JSON POSTs
+  signed with HMAC-SHA256 (`X-Leafdesk-Signature: t=<unix>,v1=<hex>`, plus `X-Leafdesk-Event`
+  and `X-Leafdesk-Delivery`), retried up to 5 times on network errors, timeouts, 408, 429 and
+  5xx, and refused for private and local addresses unless the host is listed in the new
+  `AUTOMATION_WEBHOOK_ALLOWED_HOSTS` (passed through by `docker-compose.yml`). A new inbox kind,
+  *Automations*, with its own inbox and email switches. MCP tools `list_automations`,
+  `create_automation`, `update_automation`, `delete_automation` and `list_automation_runs`, with
+  properties by name and people by id, email, name or `"me"`. Migration `0036_automations` adds
+  the tables `database_automation` and `automation_run`, `notification.automation_id`, and
+  `user_preference.automation_inbox` / `automation_emails`. See the README (Automations and
+  webhooks).
 - **Rename from the sidebar.** A page's `⋯` menu in the sidebar has *Rename*: the name turns into
   a field (Enter saves, Escape cancels). It writes the title through the page's shared doc, so an
   open page and its tab update at once. Until now the only way to rename was the title on the page

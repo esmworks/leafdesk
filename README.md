@@ -87,6 +87,9 @@ versions, upgrades and running behind a domain.
   - Put a database inside any page, or show a view of an existing one there.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
   - Row templates with preset properties and content; pick one as the default for "New".
+- **Database automations**: when a row is added, or a property changes (or changes to a given
+  value), set properties, notify people, or send the row to a webhook signed with HMAC-SHA256,
+  with a 30-day run history (see [Automations and webhooks](#automations-and-webhooks)).
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan or a project tracker.
   Templates stay out of the sidebar, search, trash and published sites.
@@ -97,8 +100,8 @@ versions, upgrades and running behind a domain.
   and dates with optional reminders; "Link to page" blocks; a "Linked from" list of backlinks on
   every page.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
-  a comment thread you're in or mentions you, asks for access to a page you manage, and when a
-  reminder you set is due, with an email a little later. Choose per kind whether it shows in the inbox and whether it comes by email.
+  a comment thread you're in or mentions you, asks for access to a page you manage, when a
+  database automation notifies you, and when a reminder you set is due, with an email a little later. Choose per kind whether it shows in the inbox and whether it comes by email.
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it.
@@ -757,6 +760,129 @@ handles database backups on its own. No compose file is involved.
 5. Deploy. Migrations run when the container starts. Turn on auto deploy to redeploy on every
    push.
 
+## Automations and webhooks
+
+A database automation does something when rows of its database are added or changed. People with
+full access to the database see and manage its automations, in the app or over MCP
+(`list_automations`, `create_automation`, `update_automation`, `delete_automation`,
+`list_automation_runs`). Creating, changing and deleting one is recorded in the audit log.
+
+**Triggers**
+
+- *A row is added*, however it is added: in the app, through a form, an import, MCP or the REST API.
+- *A property changes*: one property, or any property of an existing row. For select, status,
+  checkbox, person and multi-select properties it can wait for a value: "Status changes to Done"
+  runs only when the value becomes Done, not when the row is saved again with Done (for person
+  and multi-select, when that person or option gets added). A new row that starts out with the
+  value counts too.
+
+**Actions**, done in order, each one on its own (one failing doesn't stop the others):
+
+- *Set properties* on the row. A date can be set to the day the automation runs (UTC), a person to
+  whoever made the change (left as it is when an anonymous form answer started it). Formulas,
+  rollups and the created/edited properties can't be set.
+- *Notify* chosen people and the people the row's person properties name: an inbox notification,
+  and an email as each of them chooses in My account → Preferences. Only people who can open the
+  row are notified.
+- *Send a webhook*: a signed JSON POST to an http(s) address (below).
+
+A database has at most 50 automations, an automation at most 10 actions, and a notify action at
+most 50 chosen people.
+
+**Who it runs as.** An automation acts as the person who last saved it, with their access at the
+time it runs. If they no longer have full access to the database, its runs fail (`noAccess`)
+until someone with full access saves it again. A turned-off automation doesn't run, and runs for
+rows that were trashed in the meantime are skipped.
+
+**No chains.** Changes an automation makes don't start automations, so two automations can't
+set each other off.
+
+**Run history.** Each run is kept for 30 days after it finishes, with how each action went
+(done, failed or skipped, attempts, an error code, a webhook's HTTP status, how many people were
+notified). Runs on rows you can't open are left out.
+
+### Webhooks
+
+Each delivery is a `POST` with these headers:
+
+| Header | Value |
+| --- | --- |
+| `Content-Type` | `application/json` |
+| `User-Agent` | `Leafdesk-Webhook/1.0` |
+| `X-Leafdesk-Event` | `row.created`, `row.updated`, or `ping` for a test delivery |
+| `X-Leafdesk-Delivery` | The run id, the same on every retry; use it to ignore duplicates |
+| `X-Leafdesk-Signature` | `t=<Unix seconds>,v1=<hex HMAC-SHA256>` (below) |
+
+The body describes the row as the automation's person sees it after the run's earlier actions,
+with property values by name in the same form `query_database` returns them. `changed` lists the
+names of the properties that changed (all the properties set on a new row), and `actor` is
+`null` when an anonymous form answer started the run:
+
+```json
+{
+  "id": "0d1c6e0e-4f0b-4d55-9b7a-2f1f3c8e9a10",
+  "event": "row.updated",
+  "created_at": "2026-10-06T09:14:03.512Z",
+  "automation": { "id": "5b2f…", "name": "Tell Slack about finished tasks" },
+  "workspace_id": "8a41…",
+  "database": { "id": "c3d9…", "title": "Tasks", "url": "https://notes.example.com/w/8a41…/p/c3d9…" },
+  "row": {
+    "id": "e7f2…",
+    "title": "Fix login redirect",
+    "url": "https://notes.example.com/w/8a41…/p/e7f2…",
+    "properties": {
+      "Status": "Done",
+      "Assignee": [{ "id": "u_12…", "name": "Ada Lovelace" }],
+      "Due": "2026-10-06",
+      "Tags": ["auth", "bug"]
+    }
+  },
+  "changed": ["Status"],
+  "actor": { "id": "u_12…", "name": "Ada Lovelace" }
+}
+```
+
+A `ping` (the test button) has `id`, `event`, `created_at`, `automation`, `workspace_id` and
+`database: {id}` only.
+
+**Verifying the signature.** Each automation with a webhook has its own signing secret
+(`whsec_…`), shown with the automation; replacing it stops the old one at once. The secret is
+derived from the server's `BETTER_AUTH_SECRET`, so changing that changes every webhook secret.
+`v1` is the hex HMAC-SHA256, keyed with the secret, of the timestamp, a dot and the raw body.
+Check it over the raw bytes you received, before parsing the JSON, and refuse old timestamps
+(5 minutes is a good limit) so a captured request can't be replayed:
+
+```js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+// rawBody: the request body as received (a string or Buffer), not re-serialized JSON.
+export function verifyLeafdeskWebhook(rawBody, signatureHeader, secret, toleranceSeconds = 300) {
+  const parts = Object.fromEntries(signatureHeader.split(",").map((p) => p.split("=", 2)));
+  const timestamp = Number(parts.t);
+  if (!Number.isInteger(timestamp) || !parts.v1) return false;
+  if (Math.abs(Date.now() / 1000 - timestamp) > toleranceSeconds) return false;
+  const expected = createHmac("sha256", secret).update(`${timestamp}.${rawBody}`).digest("hex");
+  const a = Buffer.from(expected, "hex");
+  const b = Buffer.from(parts.v1, "hex");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+```
+
+**Delivery and retries.** A delivery succeeds when the address answers 2xx within 10 seconds.
+Redirects aren't followed and count as a failure. Network errors, timeouts, `408`, `429` and
+`5xx` answers are tried again after 1 minute, 5 minutes, 30 minutes and 2 hours, 5 attempts in
+all; other answers fail at once. Every attempt sends the same body with a fresh timestamp and
+signature.
+
+**Where webhooks may go.** Only `http` and `https` addresses without credentials in them, on
+ports 80, 443, 8080 or 8443, whose every address is public: private networks, loopback,
+link-local and similar addresses are refused when the automation is saved and again before each
+delivery (the connection goes to the address that was checked). To reach a service on the
+server's own network, such as an n8n container next to Leafdesk, list its host in
+`AUTOMATION_WEBHOOK_ALLOWED_HOSTS`, comma-separated, as a host name or `host:port`
+(`AUTOMATION_WEBHOOK_ALLOWED_HOSTS=n8n,localhost:5678`). Listed hosts skip the address and port
+checks.
+
 ## AI features
 
 Leafdesk can use a language model for a writing assistant in pages, database properties that AI
@@ -986,6 +1112,11 @@ The tools cover:
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
   timeline, chart or form, including a form's public link), and `set_property_access` (who may
   see and change a property).
+- **Automations:** `list_automations`, `create_automation`, `update_automation`,
+  `delete_automation` and `list_automation_runs` (see
+  [Automations and webhooks](#automations-and-webhooks)). They need full access to the database;
+  properties are named by name or id and people by id, email, name or `"me"`, and
+  `list_automations` shows names next to the stored ids.
 
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that
 change anything, and a workspace's owners can let apps only read it, or hide it from them (see

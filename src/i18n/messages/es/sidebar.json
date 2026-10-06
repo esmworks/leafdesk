@@ -76,6 +76,7 @@
     "mention": "{actor} te mencionó",
     "reminder": "Recordatorio: {date}",
     "accessRequest": "{actor} pidió acceso a esta página",
+    "automation": "Automatización “{name}”: {actor} añadió o cambió esta fila",
     "someone": "Alguien",
     "unread": "No leída",
     "unreadCount": "{count, plural, one {# notificación sin leer} other {# notificaciones sin leer}}",

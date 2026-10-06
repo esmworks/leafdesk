@@ -65,6 +65,16 @@ import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@/server/operations";
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
+import * as automations from "@/server/automations/manage";
+import {
+  automationContext,
+  automationInputs,
+  describeAutomation,
+  describeRun,
+  toAutomationInput,
+  toAutomationPatch,
+  withAutomationErrors,
+} from "./automations";
 import { env } from "@/lib/env";
 import { CONNECT_SCOPES, FILES_SCOPE, NOTIFICATIONS_SCOPE, WRITE_SCOPE, type McpPrincipal } from "./principal";
 import {
@@ -87,10 +97,11 @@ Page bodies are read and written as Markdown. Before every content change Leafde
 Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub alert (\`> [!NOTE]\`, TIP, IMPORTANT, WARNING or CAUTION on its own line, then the \`> \` text; a leading emoji becomes its icon), \`$…$\` is an inline equation and a \`$$\` line pair wraps a block equation (LaTeX), a \`\`\`mermaid fence is a diagram, and the lines \`<!-- leafdesk:toc -->\` and \`<!-- leafdesk:breadcrumb -->\` are a table of contents and the page's breadcrumb. Columns (2 to 5, side by side) are written between marker lines: \`<!-- leafdesk:columns -->\`, then \`<!-- leafdesk:column -->\` before each column's blocks (\`<!-- leafdesk:column width=2 -->\` makes a column twice as wide as a width-1 one), then \`<!-- leafdesk:/columns -->\`; keep the markers when you write a body back, or the blocks leave their columns. A web bookmark (a link card) reads as a link on a line of its own, \`[Title](url)\`, and stays a bookmark when you write the body back; to add a new one write \`[Title](url) <!-- leafdesk:bookmark -->\`. An embed (YouTube, Vimeo, Loom, Figma, published Google Docs/Sheets/Slides, CodePen, Spotify, Google Maps) is \`[url](url) <!-- leafdesk:embed -->\`. A dollar sign of the text itself is written \`\\$\`.
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block. \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates, what database automations told them, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
+Database automations do things when a row is added or a property of a row changes (to a value): set properties, notify people, or POST the row to a webhook. People with full access to a database manage them with list_automations, create_automation, update_automation and delete_automation (list_automation_runs shows how runs went); an automation acts as the person who saved it last, and the changes it makes start no other automations.
 Templates are starting points for new pages and rows: list_templates lists a workspace's page templates (and the built-in gallery) or a database's row templates; create_page and create_database_row take a template_id. A database's default row template is used by create_database_row when no properties or body are given. Templates don't show up in search or list_pages.
 Always share the returned url with the user when you create or change something.`;
 
@@ -740,7 +751,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, requests for access to pages the user can share and (for owners) join requests, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, requests for access to pages the user can share and (for owners) join requests, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -794,11 +805,14 @@ export function createMcpServer(principal: McpPrincipal) {
                         ? `Reminder the user set for ${n.reminderDate ?? "a date"} on "${title}"`
                         : n.kind === "access_request"
                           ? `${who} asked for access to "${title}", which the user can share (answer from the page's Share menu)`
-                          : `${who} shared "${title}" with the user`,
+                          : n.kind === "automation"
+                            ? `Automation "${n.automationName ?? ""}": ${who} added or changed "${title}" in ${pageLabel(n.databaseTitle)}`
+                            : `${who} shared "${title}" with the user`,
               actor: n.actorName,
               page_id: n.pageId,
               title,
               ...(n.kind === "assignment" ? { database: pageLabel(n.databaseTitle), property: n.propertyName } : {}),
+              ...(n.kind === "automation" ? { database: pageLabel(n.databaseTitle), automation: n.automationName } : {}),
               ...(n.kind === "reminder" ? { date: n.reminderDate } : {}),
               workspace_id: n.workspaceId,
               workspace_name: n.workspaceName,
@@ -1411,6 +1425,98 @@ export function createMcpServer(principal: McpPrincipal) {
         await databases.deleteProperty(userId, prop.id);
         return { database_id, deleted: { id: prop.id, name: prop.name, type: prop.type } };
       }),
+  );
+
+  const AUTOMATION_NOTE =
+    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations.";
+  const WEBHOOK_NOTE =
+    'A webhook gets a JSON POST (event row.created or row.updated, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx answers are tried again, up to 5 times in all. Addresses on private networks or local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS.';
+
+  server.registerTool(
+    "list_automations",
+    {
+      title: "List a database's automations",
+      description:
+        "List the automations of a database: each one's trigger and actions with the property, option and people names next to their ids and a one-line summary, whether it is enabled, who it runs as, its last run and, for automations with a webhook, the webhook signing secret. Needs full access to the database.",
+      inputSchema: automationInputs.list,
+      annotations: READ,
+    },
+    ({ database_id }) =>
+      runTool(async () => {
+        const list = await automations.listAutomations(userId, database_id);
+        const context = await automationContext(userId, database_id);
+        return { database_id, automations: list.map((a) => describeAutomation(context, a)) };
+      }),
+  );
+
+  server.registerTool(
+    "create_automation",
+    {
+      title: "Create a database automation",
+      description: `Create an automation on a database: when a row is added, or a property of a row changes (optionally only when it becomes a given value), do the actions in order: set properties on the row, notify people (in their inbox, and by email as each of them chooses; only people who can open the row), or send the row to a webhook. Properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for property names and options.`,
+      inputSchema: automationInputs.create,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ database_id, ...input }) =>
+      withAutomationErrors(async () => {
+        const created = await automations.createAutomation(userId, database_id, toAutomationInput(input));
+        return describeAutomation(await automationContext(userId, created.databaseId), created);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "update_automation",
+    {
+      title: "Change a database automation",
+      description: `Change an automation from list_automations: its name, whether it is enabled, its trigger or its actions (given actions replace all current ones). What you leave out stays as it is. ${AUTOMATION_NOTE}`,
+      inputSchema: automationInputs.update,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ automation_id, ...input }) =>
+      withAutomationErrors(async () => {
+        const updated = await automations.updateAutomation(userId, automation_id, toAutomationPatch(input));
+        return describeAutomation(await automationContext(userId, updated.databaseId), updated);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "delete_automation",
+    {
+      title: "Delete a database automation",
+      description:
+        "Delete an automation with its run history; webhooks still waiting to be tried again are dropped. It can't be undone, so confirm with the user first; to pause one instead, call update_automation with enabled false. Needs full access to the database.",
+      inputSchema: automationInputs.automationId,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ automation_id }) =>
+      withAutomationErrors(async () => {
+        await automations.deleteAutomation(userId, automation_id);
+        return { automation_id, deleted: true };
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "list_automation_runs",
+    {
+      title: "List an automation's runs",
+      description:
+        "List an automation's latest runs, newest first (kept for 30 days): the row and event (row.created or row.updated) that started each, its status (pending, also while a webhook waits to be tried again; running; done; failed) and how each action went (done, failed, skipped or pending, attempts, an error code and message, a webhook's HTTP status, how many people were notified). Runs on rows the user can't open are left out. Needs full access to the database.",
+      inputSchema: automationInputs.runs,
+      annotations: READ,
+    },
+    ({ automation_id, limit }) =>
+      runTool(() =>
+        withAutomationErrors(async () => ({
+          automation_id,
+          runs: (await automations.listAutomationRuns(userId, automation_id, limit)).map(describeRun),
+        })),
+      ),
   );
 
   server.registerTool(

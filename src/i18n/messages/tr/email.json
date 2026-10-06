@@ -71,6 +71,14 @@
     "action": "Sayfayı aç",
     "optOut": "Hatırlatma kurduğunuz için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
   },
+  "automation": {
+    "subject": "“{automation}” otomasyonu: “{page}”",
+    "heading": "“{automation}” otomasyonu sizi “{page}” hakkında bilgilendiriyor",
+    "body": "{actor}, {workspace} çalışma alanındaki {database} içinde “{page}” satırını ekledi ya da değiştirdi.",
+    "action": "Satırı aç",
+    "someone": "Biri",
+    "optOut": "Bir veritabanı otomasyonu sizi bilgilendirdiği için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
+  },
   "accessRequest": {
     "subject": "{requester} “{page}” sayfasına erişim istedi",
     "heading": "{requester} “{page}” sayfasına erişim istedi",

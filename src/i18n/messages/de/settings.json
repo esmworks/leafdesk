@@ -820,6 +820,11 @@
         "created": "Hat das API-Token {target} erstellt",
         "revoked": "Hat das API-Token {target} widerrufen"
       },
+      "automation": {
+        "created": "Hat die Automatisierung „{name}“ in {target} erstellt",
+        "updated": "{change, select, on {Hat die Automatisierung „{name}“ in {target} eingeschaltet} off {Hat die Automatisierung „{name}“ in {target} ausgeschaltet} other {Hat die Automatisierung „{name}“ in {target} geändert}}",
+        "deleted": "Hat die Automatisierung „{name}“ in {target} gelöscht"
+      },
       "export": {
         "workspace": "Hat den Workspace exportiert ({count, plural, one {# Seite} other {# Seiten}})",
         "page": "Hat {target} als {format} exportiert"
@@ -852,7 +857,10 @@
     "mailOff": "Dieser Server kann gerade keine E-Mails senden, daher werden keine verschickt.",
     "joinRequestTitle": "Beitrittsanfragen",
     "joinRequestDescription": "Jemand möchte einem Workspace beitreten, den du besitzt, oder ein Mitglied möchte jemanden einladen.",
-    "joinRequestChannel": "Beitrittsanfragen: {channel}"
+    "joinRequestChannel": "Beitrittsanfragen: {channel}",
+    "automationTitle": "Automatisierungen",
+    "automationDescription": "Eine Datenbank-Automatisierung benachrichtigt dich über eine Zeile, die jemand hinzugefügt oder geändert hat.",
+    "automationChannel": "Automatisierungen: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

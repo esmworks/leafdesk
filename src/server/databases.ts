@@ -1,5 +1,6 @@
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
+import { queueAutomations } from "./automations/queue";
 import {
   databaseProperty,
   databaseView,
@@ -520,7 +521,7 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   // Templates link one way and assign nobody: their values only seed the rows made from them.
   if (!row.inTemplate) {
     await syncPairedRelations(rowId, row.parentId, row.properties, next);
-    await announceAssignments(userId, row.parentId, [{ rowId, before: row.properties, after: next }]);
+    await afterRowWrites(userId, row.parentId, [{ rowId, before: row.properties, after: next }]);
   }
   notifyRows(row.parentId);
   rowChanged({ rowId, databaseId: row.parentId, userId });
@@ -630,7 +631,7 @@ export async function updateRowsProperties(
       return { rowId: row.id, before: row.properties, after };
     });
   await syncPairedRelationsMany(databaseId, changes);
-  await announceAssignments(userId, databaseId, changes);
+  await afterRowWrites(userId, databaseId, changes);
   notifyRows(databaseId);
   for (const row of rows) rowChanged({ rowId: row.id, databaseId, userId });
   return { done: rows.map((r) => r.id), skipped };
@@ -652,6 +653,20 @@ export async function announceAssignments(
   const seen = await assignmentsTheySee(databaseId, personProps.map((p) => p.id), changes);
   if (database) await recordAssignments(actorId, database.workspaceId, personProps, seen);
   await scheduleAssignmentEmails(actorId, personProps, seen);
+}
+
+/**
+ * What every saved row write sets off: assignment notices and the database's automations
+ * (server/automations/queue). `created` for new rows, whose `before` is empty.
+ */
+export async function afterRowWrites(
+  actorId: string | null,
+  databaseId: string,
+  changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
+  { created = false }: { created?: boolean } = {},
+) {
+  await announceAssignments(actorId, databaseId, changes);
+  await queueAutomations(actorId, databaseId, changes, created);
 }
 
 export type NewRow = { title: string; properties?: Record<string, unknown> };
@@ -708,10 +723,11 @@ export async function insertRows(
   await db.insert(page).values(created);
 
   for (const row of created) await syncPairedRelations(row.id, databaseId, {}, row.properties);
-  await announceAssignments(
+  await afterRowWrites(
     actorId,
     databaseId,
     created.map((row) => ({ rowId: row.id, before: {}, after: row.properties })),
+    { created: true },
   );
   notifyTree(database.workspaceId);
   notifyRows(databaseId);
@@ -1255,8 +1271,8 @@ export async function moveRow(
     .set({ properties, ...(position !== undefined ? { position } : {}), updatedBy: userId })
     .where(eq(page.id, rowId));
   if (type === "relation" && !row.inTemplate) await syncPairedRelations(rowId, row.parentId, row.properties, properties);
-  if (type === "person" && !row.inTemplate) {
-    await announceAssignments(userId, row.parentId, [{ rowId, before: row.properties, after: properties }]);
+  if (type && !row.inTemplate) {
+    await afterRowWrites(userId, row.parentId, [{ rowId, before: row.properties, after: properties }]);
   }
   notifyRows(row.parentId);
 }

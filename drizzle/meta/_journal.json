@@ -253,6 +253,13 @@
       "when": 1790767101239,
       "tag": "0035_member_sidebar",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791305407778,
+      "tag": "0036_automations",
+      "breakpoints": true
     }
   ]
 }

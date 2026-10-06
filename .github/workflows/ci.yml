@@ -133,6 +133,10 @@ jobs:
       - name: Audit log end-to-end
         run: pnpm tsx scripts/audit-e2e.ts
 
+      # Webhooks go to a server the script starts on 127.0.0.1; emails are captured, never sent.
+      - name: Database automations end-to-end
+        run: pnpm tsx scripts/automation-e2e.ts
+
       # The admin e2e's administrator, and new workspaces for administrators only (the other policy
       # is checked against the database).
       - name: Start the server

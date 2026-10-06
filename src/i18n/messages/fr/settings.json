@@ -820,6 +820,11 @@
         "created": "A créé le jeton d’API {target}",
         "revoked": "A révoqué le jeton d’API {target}"
       },
+      "automation": {
+        "created": "A créé l’automatisation « {name} » dans {target}",
+        "updated": "{change, select, on {A activé l’automatisation « {name} » dans {target}} off {A désactivé l’automatisation « {name} » dans {target}} other {A modifié l’automatisation « {name} » dans {target}}}",
+        "deleted": "A supprimé l’automatisation « {name} » dans {target}"
+      },
       "export": {
         "workspace": "A exporté l’espace de travail ({count, plural, one {# page} other {# pages}})",
         "page": "A exporté {target} en {format}"
@@ -852,7 +857,10 @@
     "mailOff": "Ce serveur ne peut pas envoyer d’e-mails pour le moment, aucun n’est donc envoyé.",
     "joinRequestTitle": "Demandes d'accès",
     "joinRequestDescription": "Quelqu'un demande à rejoindre un espace de travail dont vous êtes propriétaire, ou un membre demande à inviter quelqu'un.",
-    "joinRequestChannel": "Demandes d'accès : {channel}"
+    "joinRequestChannel": "Demandes d'accès : {channel}",
+    "automationTitle": "Automatisations",
+    "automationDescription": "Une automatisation de base de données vous prévient d’une ligne que quelqu’un a ajoutée ou modifiée.",
+    "automationChannel": "Automatisations : {channel}"
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",

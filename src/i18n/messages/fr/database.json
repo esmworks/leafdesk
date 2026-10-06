@@ -519,7 +519,11 @@
     "isTemplate": "Les modèles ne peuvent pas être déplacés ni placés dans la corbeille. Supprimez-les plutôt depuis la liste des modèles.",
     "notATemplate": "Cette page n’est pas un modèle de cet espace de travail ou de cette base de données.",
     "propertyRestricted": "Vous n’avez pas l’autorisation de modifier « {property} ».",
-    "cannotRestrict": "Cette propriété ne peut pas avoir son propre accès."
+    "cannotRestrict": "Cette propriété ne peut pas avoir son propre accès.",
+    "invalidAutomation": "Cette automatisation ne peut pas être enregistrée. Vérifiez son déclencheur et ses actions.",
+    "tooManyAutomations": "Une base de données peut avoir au plus {max} automatisations.",
+    "invalidWebhookUrl": "« {value} » n’est pas une adresse http(s) valide.",
+    "webhookBlocked": "Les webhooks ne peuvent pas viser des adresses de réseau privées ou locales."
   },
   "formula": {
     "title": "Formule",
@@ -667,6 +671,119 @@
     "fullAccess": {
       "warning": "{names}{more, plural, =0 {} other { et # autres}} {count, plural, one {a} other {ont}} un accès complet à cette base de données : ces règles ne {count, plural, one {la concernent} other {les concernent}} pas. Réduisez leur accès, ou l'accès des membres de l'espace d'équipe, pour les restreindre.",
       "share": "Modifier l'accès à la base de données"
+    }
+  },
+  "automations": {
+    "button": "Automatisations",
+    "title": "Automatisations",
+    "editTitle": "Modifier l’automatisation",
+    "new": "Nouvelle automatisation",
+    "back": "Retour",
+    "empty": "Aucune automatisation pour l’instant. Une automatisation définit des valeurs, prévient des personnes ou appelle un webhook quand une ligne est ajoutée ou modifiée.",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer l’automatisation « {name} » ? Son historique d’exécutions sera supprimé aussi.",
+    "toggle": "Exécuter « {name} »",
+    "lastRun": "Dernière exécution : {status}, {time}",
+    "neverRun": "Pas encore exécutée",
+    "tooMany": "Une base de données peut avoir au plus {max} automatisations",
+    "deletedProperty": "Propriété supprimée",
+    "checked": "Cochée",
+    "unchecked": "Non cochée",
+    "unknownPerson": "Personne inconnue",
+    "summary": "Quand {trigger} → {actions}",
+    "summaryTrigger": {
+      "rowCreated": "une ligne est ajoutée",
+      "anyChange": "une propriété change",
+      "changes": "{property} change",
+      "becomes": "{property} devient {value}"
+    },
+    "summaryAction": {
+      "set": "Définir {properties}",
+      "notify": "Prévenir",
+      "webhook": "Webhook"
+    },
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Par exemple : Prévenir l’équipe quand une tâche est terminée",
+      "when": "Quand",
+      "then": "Alors",
+      "triggerType": {
+        "row_created": "Une ligne est ajoutée",
+        "property_changed": "Une propriété change"
+      },
+      "property": "Propriété",
+      "anyProperty": "N’importe quelle propriété",
+      "becomes": "Devient",
+      "anyValue": "N’importe quelle valeur",
+      "becomesValue": "Devient {value}",
+      "actionType": {
+        "set_properties": "Définir une propriété",
+        "notify": "Prévenir",
+        "webhook": "Envoyer un webhook"
+      },
+      "addAction": "Ajouter une action",
+      "removeAction": "Retirer l’action",
+      "maxActions": "Au plus {max} actions",
+      "addProperty": "Ajouter une propriété",
+      "valueFor": "Valeur de {property}",
+      "choose": "Choisir…",
+      "addOption": "Ajouter une option",
+      "now": "Le jour de l’exécution",
+      "specificDate": "Date précise",
+      "actor": "La personne qui a fait la modification",
+      "specificPeople": "Des personnes précises",
+      "people": "Personnes",
+      "personProperties": "Les personnes de ces propriétés de la ligne",
+      "addPerson": "Ajouter des personnes",
+      "noMatches": "Aucun résultat",
+      "webhookUrl": "URL du webhook",
+      "webhookPlaceholder": "https://example.com/webhooks/leafdesk",
+      "enabled": "Activée",
+      "runsAs": "S’exécute avec l’accès de {name}, qui l’a enregistrée en dernier.",
+      "create": "Créer",
+      "errors": {
+        "needName": "Donnez un nom à l’automatisation.",
+        "needAction": "Ajoutez au moins une action.",
+        "needProperty": "Choisissez au moins une propriété à définir.",
+        "needValue": "Choisissez une valeur pour chaque propriété à définir.",
+        "needPeople": "Choisissez qui prévenir.",
+        "needUrl": "Saisissez l’URL du webhook."
+      }
+    },
+    "webhook": {
+      "title": "Signature du webhook",
+      "secret": "Secret de signature",
+      "signatureHelp": "Chaque requête porte un en-tête {header} (t=…,v1=…) : un HMAC-SHA256 de {signed} calculé avec ce secret, pour que votre serveur vérifie que la requête vient de Leafdesk.",
+      "rotate": "Remplacer le secret",
+      "confirmRotate": "Remplacer le secret de signature ? L’actuel cesse de fonctionner immédiatement.",
+      "test": "Envoyer un test",
+      "testing": "Envoi…",
+      "testSavedOnly": "Le test part vers les adresses enregistrées. Enregistrez d’abord pour tester vos modifications.",
+      "noWebhooks": "Cette automatisation n’a aucun webhook enregistré.",
+      "testOk": "Livré (HTTP {status})",
+      "testFailed": "Échec : {reason}",
+      "saveFirst": "Enregistrez l’automatisation pour voir son secret de signature et envoyer un test."
+    },
+    "runs": {
+      "title": "Exécutions récentes",
+      "empty": "Cette automatisation ne s’est pas encore exécutée.",
+      "added": "Ligne ajoutée",
+      "changed": "Ligne modifiée",
+      "status": {
+        "pending": "En attente",
+        "running": "En cours",
+        "done": "Terminée",
+        "failed": "Échouée"
+      },
+      "stepStatus": {
+        "pending": "en attente",
+        "done": "fait",
+        "failed": "échec",
+        "skipped": "ignoré"
+      },
+      "notified": "{count, plural, one {# personne prévenue} other {# personnes prévenues}}",
+      "attempts": "{count, plural, one {# tentative} other {# tentatives}}"
     }
   }
 }

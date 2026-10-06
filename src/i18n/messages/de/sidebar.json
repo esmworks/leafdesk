@@ -76,6 +76,7 @@
     "mention": "{actor} hat dich erwähnt",
     "reminder": "Erinnerung: {date}",
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
+    "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
     "someone": "Jemand",
     "unread": "Ungelesen",
     "unreadCount": "{count, plural, one {# ungelesene Benachrichtigung} other {# ungelesene Benachrichtigungen}}",

@@ -14,8 +14,9 @@ import type { InboxAccessRequest, InboxItem } from "@/server/notifications";
 
 /**
  * The workspace inbox: rows the user was assigned to, pages shared with them, comments, mentions,
- * reminders, requests for access to their pages and, for owners, join requests, newest first;
- * opening one marks it read. Access requests can be answered right here.
+ * reminders, requests for access to their pages, what database automations tell them and, for
+ * owners, join requests, newest first; opening one marks it read. Access requests can be answered
+ * right here.
  */
 export function InboxDialog({
   workspaceId,
@@ -128,6 +129,8 @@ export function InboxDialog({
                         ? t("mention", { actor: item.actorName || t("someone") })
                         : item.kind === "reminder"
                           ? t("reminder", { date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
+                          : item.kind === "automation"
+                            ? t("automation", { name: item.automationName ?? "", actor: item.actorName || t("someone") })
                             : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
                   {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
                 </span>

@@ -120,6 +120,24 @@ describe("describeAuditEvent", () => {
     expect(describeAuditEvent(event("export.page", { targetLabel: "Tasks", details: { format: "csv" } }), t)).toBe("Exported Tasks as CSV");
   });
 
+  it("names the automation and its database, and tells turning it on or off from other changes", () => {
+    const details = { name: "Notify on done", enabled: true, trigger: "row_updated", actions: "notify" };
+    expect(describeAuditEvent(event("automation.created", { targetLabel: "Tasks", details }), t)).toBe(
+      "Created the automation “Notify on done” in Tasks",
+    );
+    expect(describeAuditEvent(event("automation.deleted", { targetLabel: "Tasks", details }), tTr)).toBe(
+      "Tasks içindeki “Notify on done” otomasyonu silindi",
+    );
+    const updated = (previous: Record<string, unknown>, now: Record<string, unknown> = {}) =>
+      describeAuditEvent(
+        event("automation.updated", { targetLabel: "Tasks", details: { ...details, ...now, previous: { ...details, ...previous } } }),
+        t,
+      );
+    expect(updated({ enabled: true }, { enabled: false })).toBe("Turned off the automation “Notify on done” in Tasks");
+    expect(updated({ enabled: false })).toBe("Turned on the automation “Notify on done” in Tasks");
+    expect(updated({ name: "Old name" })).toBe("Changed the automation “Notify on done” in Tasks");
+  });
+
   it("shows an action this version doesn't know as stored", () => {
     expect(describeAuditEvent(event("future.thing"), t)).toBe("future.thing");
   });

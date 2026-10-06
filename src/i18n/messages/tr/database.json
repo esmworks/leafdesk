@@ -519,7 +519,11 @@
     "isTemplate": "Şablonlar taşınamaz ve çöp kutusuna atılamaz. Onları şablon listesinden silin.",
     "notATemplate": "Bu sayfa bu çalışma alanının ya da veritabanının bir şablonu değil.",
     "propertyRestricted": "“{property}” özelliğini değiştirme yetkiniz yok.",
-    "cannotRestrict": "Bu özelliğe ayrı erişim verilemez."
+    "cannotRestrict": "Bu özelliğe ayrı erişim verilemez.",
+    "invalidAutomation": "Bu otomasyon kaydedilemiyor. Tetikleyicisini ve eylemlerini kontrol edin.",
+    "tooManyAutomations": "Bir veritabanında en fazla {max} otomasyon olabilir.",
+    "invalidWebhookUrl": "“{value}” geçerli bir http(s) adresi değil.",
+    "webhookBlocked": "Webhook’lar özel veya yerel ağ adreslerine gönderilemez."
   },
   "formula": {
     "title": "Formül",
@@ -667,6 +671,119 @@
     "fullAccess": {
       "warning": "{names}{more, plural, =0 {} other { ve # kişi daha}} bu veritabanına tam erişime sahip, bu yüzden bu kurallar {count, plural, one {onu} other {onları}} etkilemiyor. Kısıtlamak için {count, plural, one {onun} other {onların}} erişimini ya da teamspace'in üye erişimini düşürün.",
       "share": "Veritabanının erişimini değiştir"
+    }
+  },
+  "automations": {
+    "button": "Otomasyonlar",
+    "title": "Otomasyonlar",
+    "editTitle": "Otomasyonu düzenle",
+    "new": "Yeni otomasyon",
+    "back": "Geri",
+    "empty": "Henüz otomasyon yok. Otomasyonlar, bir satır eklendiğinde veya değiştiğinde değer atar, kişilere bildirim gönderir ya da bir webhook çağırır.",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "confirmDelete": "“{name}” otomasyonu silinsin mi? Çalışma geçmişi de silinir.",
+    "toggle": "“{name}” çalışsın",
+    "lastRun": "Son çalışma: {status}, {time}",
+    "neverRun": "Henüz çalışmadı",
+    "tooMany": "Bir veritabanında en fazla {max} otomasyon olabilir",
+    "deletedProperty": "Silinmiş özellik",
+    "checked": "İşaretli",
+    "unchecked": "İşaretsiz",
+    "unknownPerson": "Bilinmeyen kişi",
+    "summary": "{trigger} → {actions}",
+    "summaryTrigger": {
+      "rowCreated": "Bir satır eklendiğinde",
+      "anyChange": "Herhangi bir özellik değiştiğinde",
+      "changes": "{property} değiştiğinde",
+      "becomes": "{property} “{value}” olduğunda"
+    },
+    "summaryAction": {
+      "set": "Ata: {properties}",
+      "notify": "Bildir",
+      "webhook": "Webhook"
+    },
+    "form": {
+      "name": "Ad",
+      "namePlaceholder": "Örneğin: Görev bitince ekibe haber ver",
+      "when": "Ne zaman",
+      "then": "Ne yapılsın",
+      "triggerType": {
+        "row_created": "Bir satır eklendiğinde",
+        "property_changed": "Bir özellik değiştiğinde"
+      },
+      "property": "Özellik",
+      "anyProperty": "Herhangi bir özellik",
+      "becomes": "Yeni değer",
+      "anyValue": "Herhangi bir değere",
+      "becomesValue": "“{value}” olduğunda",
+      "actionType": {
+        "set_properties": "Özellik ata",
+        "notify": "Bildirim gönder",
+        "webhook": "Webhook gönder"
+      },
+      "addAction": "Eylem ekle",
+      "removeAction": "Eylemi kaldır",
+      "maxActions": "En fazla {max} eylem",
+      "addProperty": "Özellik ekle",
+      "valueFor": "{property} için değer",
+      "choose": "Seçin…",
+      "addOption": "Seçenek ekle",
+      "now": "Çalıştığı gün",
+      "specificDate": "Belirli bir tarih",
+      "actor": "Değişikliği yapan kişi",
+      "specificPeople": "Belirli kişiler",
+      "people": "Kişiler",
+      "personProperties": "Satırın bu özelliklerindeki kişiler",
+      "addPerson": "Kişi ekle",
+      "noMatches": "Eşleşme yok",
+      "webhookUrl": "Webhook URL’si",
+      "webhookPlaceholder": "https://example.com/webhooks/leafdesk",
+      "enabled": "Açık",
+      "runsAs": "Son kaydeden kişinin ({name}) erişimiyle çalışır.",
+      "create": "Oluştur",
+      "errors": {
+        "needName": "Otomasyona bir ad verin.",
+        "needAction": "En az bir eylem ekleyin.",
+        "needProperty": "Atanacak en az bir özellik seçin.",
+        "needValue": "Atanacak her özellik için bir değer seçin.",
+        "needPeople": "Kime bildirim gideceğini seçin.",
+        "needUrl": "Webhook’un URL’sini girin."
+      }
+    },
+    "webhook": {
+      "title": "Webhook imzası",
+      "secret": "İmzalama anahtarı",
+      "signatureHelp": "Her istek bir {header} başlığı taşır (t=…,v1=…): {signed} metninin bu anahtarla alınmış HMAC-SHA256 imzası. Sunucunuz isteğin Leafdesk’ten geldiğini bununla doğrulayabilir.",
+      "rotate": "Anahtarı yenile",
+      "confirmRotate": "İmzalama anahtarı yenilensin mi? Mevcut anahtar hemen geçersiz olur.",
+      "test": "Test gönder",
+      "testing": "Gönderiliyor…",
+      "testSavedOnly": "Test kayıtlı adreslere gider. Değişikliklerinizi test etmek için önce kaydedin.",
+      "noWebhooks": "Bu otomasyonun kayıtlı webhook’u yok.",
+      "testOk": "Ulaştı (HTTP {status})",
+      "testFailed": "Başarısız: {reason}",
+      "saveFirst": "İmzalama anahtarını görmek ve test göndermek için otomasyonu kaydedin."
+    },
+    "runs": {
+      "title": "Son çalışmalar",
+      "empty": "Bu otomasyon henüz çalışmadı.",
+      "added": "Satır eklendi",
+      "changed": "Satır değişti",
+      "status": {
+        "pending": "Bekliyor",
+        "running": "Çalışıyor",
+        "done": "Tamamlandı",
+        "failed": "Başarısız"
+      },
+      "stepStatus": {
+        "pending": "bekliyor",
+        "done": "tamamlandı",
+        "failed": "başarısız",
+        "skipped": "atlandı"
+      },
+      "notified": "{count, plural, one {# kişiye bildirildi} other {# kişiye bildirildi}}",
+      "attempts": "{count, plural, one {# deneme} other {# deneme}}"
     }
   }
 }

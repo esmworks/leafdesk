@@ -76,6 +76,7 @@
     "mention": "{actor} vous a mentionné",
     "reminder": "Rappel : {date}",
     "accessRequest": "{actor} demande l’accès à cette page",
+    "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
     "someone": "Quelqu’un",
     "unread": "Non lue",
     "unreadCount": "{count, plural, one {# notification non lue} other {# notifications non lues}}",

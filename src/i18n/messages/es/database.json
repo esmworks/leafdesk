@@ -519,7 +519,11 @@
     "isTemplate": "Las plantillas no se pueden mover ni enviar a la papelera. Elimínalas desde la lista de plantillas.",
     "notATemplate": "Esta página no es una plantilla de este espacio de trabajo ni de esta base de datos.",
     "propertyRestricted": "No tienes permiso para cambiar «{property}».",
-    "cannotRestrict": "Esta propiedad no puede tener su propio acceso."
+    "cannotRestrict": "Esta propiedad no puede tener su propio acceso.",
+    "invalidAutomation": "Esta automatización no se puede guardar. Revisa su desencadenante y sus acciones.",
+    "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",
+    "invalidWebhookUrl": "«{value}» no es una dirección http(s) válida.",
+    "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales."
   },
   "formula": {
     "title": "Fórmula",
@@ -667,6 +671,119 @@
     "fullAccess": {
       "warning": "{names}{more, plural, =0 {} other { y # más}} {count, plural, one {tiene} other {tienen}} acceso total a esta base de datos, así que estas reglas no {count, plural, one {le} other {les}} afectan. Reduce su acceso, o el acceso de los miembros del espacio de equipo, para restringirlos.",
       "share": "Cambiar el acceso a la base de datos"
+    }
+  },
+  "automations": {
+    "button": "Automatizaciones",
+    "title": "Automatizaciones",
+    "editTitle": "Editar automatización",
+    "new": "Nueva automatización",
+    "back": "Atrás",
+    "empty": "Todavía no hay automatizaciones. Una automatización asigna valores, avisa a personas o llama a un webhook cuando se añade o cambia una fila.",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar la automatización «{name}»? También se borra su historial de ejecuciones.",
+    "toggle": "Ejecutar «{name}»",
+    "lastRun": "Última ejecución: {status}, {time}",
+    "neverRun": "Aún no se ha ejecutado",
+    "tooMany": "Una base de datos puede tener como máximo {max} automatizaciones",
+    "deletedProperty": "Propiedad eliminada",
+    "checked": "Marcada",
+    "unchecked": "Sin marcar",
+    "unknownPerson": "Persona desconocida",
+    "summary": "Cuando {trigger} → {actions}",
+    "summaryTrigger": {
+      "rowCreated": "se añade una fila",
+      "anyChange": "cambia cualquier propiedad",
+      "changes": "cambia {property}",
+      "becomes": "{property} pasa a {value}"
+    },
+    "summaryAction": {
+      "set": "Asignar {properties}",
+      "notify": "Avisar",
+      "webhook": "Webhook"
+    },
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "Por ejemplo: Avisar al equipo cuando una tarea esté hecha",
+      "when": "Cuando",
+      "then": "Entonces",
+      "triggerType": {
+        "row_created": "Se añade una fila",
+        "property_changed": "Cambia una propiedad"
+      },
+      "property": "Propiedad",
+      "anyProperty": "Cualquier propiedad",
+      "becomes": "Pasa a",
+      "anyValue": "A cualquier valor",
+      "becomesValue": "Pasa a {value}",
+      "actionType": {
+        "set_properties": "Asignar propiedad",
+        "notify": "Avisar",
+        "webhook": "Enviar webhook"
+      },
+      "addAction": "Añadir acción",
+      "removeAction": "Quitar acción",
+      "maxActions": "Como máximo {max} acciones",
+      "addProperty": "Añadir propiedad",
+      "valueFor": "Valor de {property}",
+      "choose": "Elige…",
+      "addOption": "Añadir opción",
+      "now": "El día en que se ejecuta",
+      "specificDate": "Fecha concreta",
+      "actor": "Quien hizo el cambio",
+      "specificPeople": "Personas concretas",
+      "people": "Personas",
+      "personProperties": "Personas de estas propiedades de la fila",
+      "addPerson": "Añadir personas",
+      "noMatches": "Sin resultados",
+      "webhookUrl": "URL del webhook",
+      "webhookPlaceholder": "https://example.com/webhooks/leafdesk",
+      "enabled": "Activada",
+      "runsAs": "Se ejecuta con el acceso de {name}, que la guardó por última vez.",
+      "create": "Crear",
+      "errors": {
+        "needName": "Ponle un nombre a la automatización.",
+        "needAction": "Añade al menos una acción.",
+        "needProperty": "Elige al menos una propiedad que asignar.",
+        "needValue": "Elige un valor para cada propiedad que asignar.",
+        "needPeople": "Elige a quién avisar.",
+        "needUrl": "Escribe la URL del webhook."
+      }
+    },
+    "webhook": {
+      "title": "Firma del webhook",
+      "secret": "Secreto de firma",
+      "signatureHelp": "Cada solicitud lleva un encabezado {header} (t=…,v1=…): un HMAC-SHA256 de {signed} hecho con este secreto, para que tu servidor compruebe que la solicitud viene de Leafdesk.",
+      "rotate": "Reemplazar secreto",
+      "confirmRotate": "¿Reemplazar el secreto de firma? El actual deja de funcionar de inmediato.",
+      "test": "Enviar prueba",
+      "testing": "Enviando…",
+      "testSavedOnly": "La prueba va a las direcciones guardadas. Guarda primero para probar tus cambios.",
+      "noWebhooks": "Esta automatización no tiene webhooks guardados.",
+      "testOk": "Entregado (HTTP {status})",
+      "testFailed": "Error: {reason}",
+      "saveFirst": "Guarda la automatización para ver su secreto de firma y enviar una prueba."
+    },
+    "runs": {
+      "title": "Ejecuciones recientes",
+      "empty": "Esta automatización aún no se ha ejecutado.",
+      "added": "Fila añadida",
+      "changed": "Fila cambiada",
+      "status": {
+        "pending": "En espera",
+        "running": "En curso",
+        "done": "Hecha",
+        "failed": "Fallida"
+      },
+      "stepStatus": {
+        "pending": "en espera",
+        "done": "hecho",
+        "failed": "fallido",
+        "skipped": "omitido"
+      },
+      "notified": "{count, plural, one {# persona avisada} other {# personas avisadas}}",
+      "attempts": "{count, plural, one {# intento} other {# intentos}}"
     }
   }
 }

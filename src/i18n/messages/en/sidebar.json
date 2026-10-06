@@ -76,6 +76,7 @@
     "mention": "{actor} mentioned you",
     "reminder": "Reminder: {date}",
     "accessRequest": "{actor} asked for access to this page",
+    "automation": "Automation “{name}”: {actor} added or changed this row",
     "someone": "Someone",
     "unread": "Unread",
     "unreadCount": "{count, plural, one {# unread notification} other {# unread notifications}}",

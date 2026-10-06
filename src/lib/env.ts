@@ -19,6 +19,17 @@ export const env = {
   get authSecret() {
     return required("BETTER_AUTH_SECRET");
   },
+  /**
+   * AUTOMATION_WEBHOOK_ALLOWED_HOSTS: host names (or host:port) that automation webhooks may reach
+   * even though they are on a private network or a local name (an n8n on the same server, say);
+   * comma-separated. Every other webhook goes only to public addresses on the usual web ports.
+   */
+  get automationWebhookAllowedHosts() {
+    return (process.env.AUTOMATION_WEBHOOK_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
   /** SESSION_MAX_AGE_DAYS: days a sign-in lasts without use (default 7, see lib/session-lifetime). */
   get sessionDays() {
     return sessionDaysFrom(process.env.SESSION_MAX_AGE_DAYS);
