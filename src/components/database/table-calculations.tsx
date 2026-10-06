@@ -137,31 +137,52 @@ export function CalculationCell({
         )}
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end" className="max-h-80 overflow-y-auto">
-        <MenuItem
-          icon={fn ? <span /> : <Check className="h-3.5 w-3.5" />}
-          onClick={() => {
+        <CalculationOptions
+          type={column.type}
+          fn={fn}
+          onPick={(next) => {
             menu.close();
-            if (fn) onChange(null);
+            if (next !== fn) onChange(next);
           }}
-        >
-          {t("none")}
-        </MenuItem>
-        {available.map((option, i) => (
-          <Fragment key={option}>
-            {(i === 0 || aggregateGroup(option) !== aggregateGroup(available[i - 1])) && <MenuSeparator />}
-            <MenuItem
-              active={option === fn}
-              icon={option === fn ? <Check className="h-3.5 w-3.5" /> : <span />}
-              onClick={() => {
-                menu.close();
-                if (option !== fn) onChange(option);
-              }}
-            >
-              {t(`menu.${option}`)}
-            </MenuItem>
-          </Fragment>
-        ))}
+        />
       </Floating>
+    </>
+  );
+}
+
+/**
+ * The calculations a column of `type` offers, "None" first, with the current one (`fn`) ticked:
+ * the footer cell's menu and the column header's Calculate menu.
+ */
+export function CalculationOptions({
+  type,
+  fn: stored,
+  onPick,
+}: {
+  type: string;
+  fn: string | null | undefined;
+  onPick: (fn: AggregateFn | null) => void;
+}) {
+  const t = useTranslations("database.calculate");
+  const available = aggregateFunctions(type);
+  const fn = isAggregateFn(stored) && available.includes(stored) ? stored : null;
+  return (
+    <>
+      <MenuItem icon={fn ? <span /> : <Check className="h-3.5 w-3.5" />} onClick={() => onPick(null)}>
+        {t("none")}
+      </MenuItem>
+      {available.map((option, i) => (
+        <Fragment key={option}>
+          {(i === 0 || aggregateGroup(option) !== aggregateGroup(available[i - 1])) && <MenuSeparator />}
+          <MenuItem
+            active={option === fn}
+            icon={option === fn ? <Check className="h-3.5 w-3.5" /> : <span />}
+            onClick={() => onPick(option)}
+          >
+            {t(`menu.${option}`)}
+          </MenuItem>
+        </Fragment>
+      ))}
     </>
   );
 }

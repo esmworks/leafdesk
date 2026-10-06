@@ -549,6 +549,8 @@ export type ViewConfig = {
   collapsedGroups?: string[];
   /** Table views: column widths in pixels the user dragged, keyed by property id or "title". */
   columnWidths?: Record<string, number>;
+  /** Table views: columns whose cells wrap onto more lines instead of cutting off, by property id or "title". */
+  wrapped?: string[];
   /** Table views: the footer calculation per column, keyed by property id or "title". */
   calculations?: Record<string, AggregateFn>;
   /** Form views: questions, texts and default values. */

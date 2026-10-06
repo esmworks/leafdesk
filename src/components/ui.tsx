@@ -146,6 +146,8 @@ export function MenuItem({
   active,
   disabled,
   title,
+  trailing,
+  pressed,
 }: {
   icon?: ReactNode;
   children: ReactNode;
@@ -155,6 +157,10 @@ export function MenuItem({
   disabled?: boolean;
   /** Tooltip, e.g. why the item is disabled. */
   title?: string;
+  /** Shown at the right edge: a submenu's arrow, a tick. */
+  trailing?: ReactNode;
+  /** An item that switches something on and off: whether it is on. */
+  pressed?: boolean;
 }) {
   return (
     <button
@@ -162,6 +168,7 @@ export function MenuItem({
       onClick={onClick}
       disabled={disabled}
       title={title}
+      aria-pressed={pressed}
       className={cn(
         "flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent",
         danger && "text-danger",
@@ -170,6 +177,7 @@ export function MenuItem({
     >
       {icon && <span className="flex h-4 w-4 items-center justify-center text-fg-muted">{icon}</span>}
       <span className="flex-1 truncate">{children}</span>
+      {trailing && <span className="flex shrink-0 items-center text-fg-muted">{trailing}</span>}
     </button>
   );
 }

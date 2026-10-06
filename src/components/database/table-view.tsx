@@ -23,7 +23,7 @@ import { OpenLink, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
-import { AddPropertyPanel, PropertyMenu } from "./property-menu";
+import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
 import { CalculationRow } from "./table-calculations";
 import { useNewRow } from "./use-new-row";
 import { TITLE, type Property, type Row, type View } from "./types";
@@ -61,6 +61,7 @@ export function TableView({
   filtered,
   guest,
   exportable,
+  onFilter,
 }: {
   workspaceId: string;
   databaseId: string;
@@ -79,6 +80,8 @@ export function TableView({
   guest?: boolean;
   /** Offers exporting the selection as CSV (see BulkActionBar). */
   exportable?: boolean;
+  /** Adds a filter on a column (property id or "title") and opens the view's filters. */
+  onFilter?: (columnId: string) => void;
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
@@ -166,6 +169,40 @@ export function TableView({
     else delete calculations[key];
     void setConfig({ ...view.config, calculations });
   };
+  const wrapped = new Set(view.config.wrapped ?? []);
+  const toggleWrap = (key: string) =>
+    void setConfig({
+      ...view.config,
+      wrapped: wrapped.has(key) ? [...wrapped].filter((k) => k !== key) : [...wrapped, key],
+    });
+  // A property added from a column's menu goes left or right of that column in this view.
+  const insertBeside = (target: string, sides: ("before" | "after")[]): PropertyMenuActions["insert"] => {
+    if (locked || !arrangeable) return undefined;
+    const place = (id: string | undefined, side: "before" | "after") => {
+      if (!id) return;
+      const ids = properties.map((p) => p.id).filter((p) => p !== id);
+      const propertyOrder = target === TITLE ? [id, ...ids] : moveProperty([...ids.map((p) => ({ id: p })), { id }], id, target, side);
+      void setConfig({ ...latestConfig.current, propertyOrder });
+    };
+    return {
+      sides,
+      onCreate: async (side, name, type, relation, derived) =>
+        place((await api.addProperty(name, type, undefined, relation, derived))?.id, side),
+      onCreateAutofill: ai.enabled
+        ? async (side, name, config) => place((await api.addAutofillProperty(name, config, inView.map((r) => r.id)))?.id, side)
+        : undefined,
+    };
+  };
+  // What every column's menu does to the view; none of it when the view's settings can't be saved.
+  const viewActions = (key: string, type: string): PropertyMenuActions =>
+    settingsReadOnly
+      ? {}
+      : {
+          filter: onFilter && (() => onFilter(key)),
+          calculation: { type, fn: view.config.calculations?.[key], onChange: (fn) => setCalculation(key, fn) },
+          toggleWrap: () => toggleWrap(key),
+          wrapped: wrapped.has(key),
+        };
   const createOption = api.createOption;
 
   const addRow = async (group?: Group<Row>) => {
@@ -208,6 +245,7 @@ export function TableView({
           <PropertyCell
             prop={titleProp}
             value={row.title}
+            wrap={wrapped.has(TITLE)}
             readOnly={readOnly}
             placeholder={tc("untitled")}
             autoEdit={editTitleOf === row.id}
@@ -234,6 +272,7 @@ export function TableView({
                 <PropertyCell
                   prop={p}
                   value={row.properties[p.id]}
+                  wrap={wrapped.has(p.id)}
                   readOnly={readOnly || valueAccess === "readOnly"}
                   onChange={(v) => void api.setCell(row.id, p.id, v)}
                   onCreateOption={createOption}
@@ -293,7 +332,9 @@ export function TableView({
               onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
               resizing={resizing?.key === TITLE}
               actions={{
+                ...viewActions(TITLE, TITLE),
                 sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
+                insert: insertBeside(TITLE, ["after"]),
               }}
             />
             {visible.map((p) => {
@@ -311,6 +352,13 @@ export function TableView({
                   onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
                   resizing={resizing?.key === p.id}
                   actions={{
+                    ...viewActions(p.id, valueType(p)),
+                    group:
+                      settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
+                        ? undefined
+                        : () => setConfig({ ...view.config, groupBy: p.id }),
+                    ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
+                    insert: insertBeside(p.id, ["before", "after"]),
                     rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
                     sort: isSortable(p.type)
                       ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
@@ -628,7 +676,7 @@ function HeaderCell({
           />
         </span>
       )}
-      <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
+      <Floating open={menu.open} anchor={menu.el} onClose={menu.close} className="max-h-[calc(100vh-1rem)] overflow-y-auto">
         <PropertyMenu prop={prop} actions={menuActions} onDone={menu.close} />
       </Floating>
       {prop && accessOpen && <PropertyAccessDialog prop={prop} onClose={() => setAccessOpen(false)} />}

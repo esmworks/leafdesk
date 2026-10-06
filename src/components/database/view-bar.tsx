@@ -277,11 +277,18 @@ function ToolbarButton({
   );
 }
 
+/**
+ * A request to open the filters (from a column's menu): `id` tells requests apart, `filters` is how
+ * many top-level filters the view `viewId` has once the new one is saved.
+ */
+export type FilterRequest = { id: number; viewId: string; filters: number };
+
 /** Filter, sort, group and property visibility controls for the active view. */
 export function ViewToolbar({
   view,
   properties,
   onConfig,
+  filterRequest,
   onCreateGroupProperty,
   onCreateDateProperty,
   readOnly,
@@ -290,6 +297,8 @@ export function ViewToolbar({
   view: View;
   properties: Property[];
   onConfig: (config: ViewConfig) => void;
+  /** Opens the filters once the view has the filter a column's menu added. */
+  filterRequest?: FilterRequest | null;
   onCreateGroupProperty: () => void;
   onCreateDateProperty: () => void;
   readOnly?: boolean;
@@ -304,6 +313,18 @@ export function ViewToolbar({
   const config = view.config;
   const filters = config.filters ?? [];
   const filterCount = filterRules(filters).length;
+  // The filter editor starts from the view's filters when it opens, so it waits for the new one.
+  const [handledRequest, setHandledRequest] = useState(0);
+  const requested =
+    !!filterRequest &&
+    filterRequest.viewId === view.id &&
+    filterRequest.id > handledRequest &&
+    filters.length >= filterRequest.filters;
+  const filtersOpen = filterMenu.open || requested;
+  const closeFilters = () => {
+    filterMenu.close();
+    if (filterRequest) setHandledRequest(filterRequest.id);
+  };
   const sorts = config.sorts ?? [];
   const hiddenCount = properties.filter((p) => isHiddenInView(view, p)).length;
   const columns = columnsOf(properties, t("nameColumn"));
@@ -330,9 +351,9 @@ export function ViewToolbar({
         count={filterCount}
         active={filterCount > 0}
         buttonRef={filterMenu.ref}
-        onClick={filterMenu.toggle}
+        onClick={() => (filtersOpen ? closeFilters() : filterMenu.setOpen(true))}
       />
-      <Floating open={filterMenu.open} anchor={filterMenu.el} onClose={filterMenu.close} align="end">
+      <Floating open={filtersOpen} anchor={filterMenu.el} onClose={closeFilters} align="end">
         <FilterEditor
           columns={columns}
           filters={filters}

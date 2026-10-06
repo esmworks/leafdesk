@@ -224,7 +224,7 @@ export function restoreReferences(stored: ViewConfig, next: ViewConfig, gone: Re
   if (hiddenSorts.length) out.sorts = [...(next.sorts ?? []), ...hiddenSorts];
   const hiddenFilters = stored.filters?.filter((f) => mentions(f, gone)) ?? [];
   if (hiddenFilters.length) out.filters = [...(next.filters ?? []), ...hiddenFilters];
-  for (const key of ["hidden", "shown"] as const) {
+  for (const key of ["hidden", "shown", "wrapped"] as const) {
     const ids = stored[key]?.filter((id) => gone.has(id)) ?? [];
     if (ids.length) out[key] = [...(next[key] ?? []), ...ids];
   }

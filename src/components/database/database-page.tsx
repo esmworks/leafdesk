@@ -8,7 +8,8 @@ import { Button } from "@/components/ui";
 import { markNewPage } from "@/components/page/new-page-focus";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
 import type { LinkedView } from "@/lib/embed-blocks";
-import { applyView, defaultsFromFilters, orderProperties } from "@/lib/properties";
+import { valueType } from "@/lib/derived";
+import { applyView, defaultsFromFilters, filterOperators, orderProperties } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
 import { galleryCover } from "@/lib/views";
 import { AutomationsButton } from "./automations-dialog";
@@ -30,7 +31,7 @@ import { useDatabase } from "./use-database";
 import { OfflineNotice } from "@/components/offline/offline-notice";
 import { AiAutofillProvider, type AiAutofillContextValue } from "./ai-autofill";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { ActiveRulesBar, ViewTabs, ViewToolbar } from "./view-bar";
+import { ActiveRulesBar, ViewTabs, ViewToolbar, type FilterRequest } from "./view-bar";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
@@ -76,6 +77,8 @@ export function DatabasePage({
   const [selectedViewId, setSelectedViewId] = useState<string | null>(viewParam);
   // Form views: editors switch between building the form and filling it in.
   const [formPreview, setFormPreview] = useState(false);
+  // A column's "Filter" asks the toolbar to open its filters once the new rule is in the view.
+  const [filterRequest, setFilterRequest] = useState<FilterRequest | null>(null);
   // Sidebar view links change only the query string, so the page stays mounted: follow the URL.
   useEffect(() => {
     if (viewParam) setSelectedViewId(viewParam);
@@ -220,6 +223,13 @@ export function DatabasePage({
   }
 
   const setConfig = (v: View, config: ViewConfig) => baseApi.updateView(v, { config });
+  // Adds a rule on the column with its first operator, like the filter menu's "Add filter".
+  const filterBy = (v: View, columnId: string) => {
+    const prop = snapshot.properties.find((p) => p.id === columnId);
+    const filters = [...(v.config.filters ?? []), { propertyId: columnId, op: filterOperators(prop ? valueType(prop) : "title")[0].op }];
+    void setConfig(v, { ...v.config, filters });
+    setFilterRequest((r) => ({ id: (r?.id ?? 0) + 1, viewId: v.id, filters: filters.length }));
+  };
   // Automations belong to the database, not to a page showing one of its views; full access only.
   const canManageAutomations = Boolean(snapshot.canManageAccess) && !readOnly && !linked;
 
@@ -329,6 +339,7 @@ export function DatabasePage({
                           readOnly={configReadOnly}
                           locked={locked}
                           onConfig={(config) => setConfig(view, config)}
+                          filterRequest={filterRequest}
                           onCreateGroupProperty={createGroupProperty}
                           onCreateDateProperty={createDateProperty}
                         />
@@ -496,6 +507,7 @@ export function DatabasePage({
                       filtered={rows.length > 0}
                       guest={guest}
                       exportable={exportable}
+                      onFilter={(columnId) => filterBy(view, columnId)}
                     />
                   )}
                 </div>

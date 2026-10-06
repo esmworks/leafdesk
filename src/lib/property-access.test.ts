@@ -134,6 +134,7 @@ describe("view references", () => {
       { type: "group", combinator: "or", rules: [{ propertyId: "secret", op: "is_not_empty" }, { propertyId: "notes", op: "is_empty" }] },
     ],
     hidden: ["secret"],
+    wrapped: ["secret", "notes"],
     calculations: { secret: "count_values" },
   } as ViewConfig;
   const gone = new Set(["secret"]);
@@ -144,6 +145,7 @@ describe("view references", () => {
     expect(shown.sorts).toEqual([{ propertyId: "notes", direction: "asc" }]);
     expect(shown.filters).toEqual([{ propertyId: "notes", op: "contains", value: "x" }]);
     expect(shown.hidden).toEqual([]);
+    expect(shown.wrapped).toEqual(["notes"]);
     expect(shown.calculations).toEqual({});
   });
 
@@ -154,6 +156,7 @@ describe("view references", () => {
     expect(saved.sorts).toEqual([{ propertyId: "secret", direction: "desc" }]);
     expect(saved.filters).toEqual(stored.filters);
     expect(saved.hidden).toEqual(["secret"]);
+    expect(saved.wrapped).toEqual(["notes", "secret"]);
     expect(saved.calculations).toEqual({ secret: "count_values" });
   });
 

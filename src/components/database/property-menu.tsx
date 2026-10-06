@@ -1,17 +1,42 @@
 "use client";
 
-import { ArrowDown, ArrowLeft, ArrowUp, Bot, BotOff, Combine, EyeOff, Lock, Plus, RefreshCw, Settings2, Sigma, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  ArrowUp,
+  Bot,
+  BotOff,
+  Calculator,
+  Check,
+  ChevronRight,
+  Combine,
+  EyeOff,
+  ListFilter,
+  Lock,
+  Plus,
+  RefreshCw,
+  Rows3,
+  Settings2,
+  Sigma,
+  Trash2,
+  Ungroup,
+  WrapText,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
 import type { AiAutofillConfig } from "@/lib/ai";
+import type { AggregateFn } from "@/lib/aggregate";
 import { AutofillEditor } from "./ai-autofill";
 import { FormulaEditor } from "./formula-editor";
 import { RollupEditor } from "./rollup-editor";
+import { CalculationOptions } from "./table-calculations";
 import { OptionChip } from "./property-cell";
 import { PropertyTypeIcon, usePropertyTypeLabel } from "./property-icons";
 import { RelationSetup } from "./relation-cell";
@@ -131,9 +156,25 @@ export function AddPropertyPanel({
 export type PropertyMenuActions = {
   /** Omitted when the name can't change (Name column, locked database). */
   rename?: (name: string) => void;
+  /** Adds a filter on the column and opens the view's filters. */
+  filter?: () => void;
   /** Omitted for properties that can't be sorted (relations). */
   sort?: (direction: "asc" | "desc") => void;
+  /** Groups the table by the property; `ungroup` instead while it already does. */
+  group?: () => void;
+  ungroup?: () => void;
+  /** The column's footer calculation: the type it calculates as, the current one and how to change it. */
+  calculation?: { type: string; fn: string | undefined; onChange: (fn: AggregateFn | null) => void };
   hide?: () => void;
+  /** Turns wrapping the column's cells onto more lines on and off; `wrapped` says whether it is on. */
+  toggleWrap?: () => void;
+  wrapped?: boolean;
+  /** Adds a property left ("before") or right ("after") of the column, on the sides listed. */
+  insert?: {
+    sides: ("before" | "after")[];
+    onCreate: (side: "before" | "after", ...args: Parameters<React.ComponentProps<typeof AddPropertyPanel>["onCreate"]>) => void | Promise<unknown>;
+    onCreateAutofill?: (side: "before" | "after", name: string, config: AiAutofillConfig) => void | Promise<unknown>;
+  };
   setOptions?: (options: SelectOption[]) => void;
   /** Formulas: saves a new expression (with property ids, see FormulaEditor). */
   setFormula?: (expression: string) => void;
@@ -148,7 +189,6 @@ export type PropertyMenuActions = {
   remove?: () => void;
 };
 
-/** Header menu for a property (or the Name column, which only supports sorting). */
 export function PropertyMenu({
   prop,
   actions,
@@ -163,7 +203,9 @@ export function PropertyMenu({
   const typeLabel = usePropertyTypeLabel();
   const ta = useTranslations("ai.autofill");
   const tAccess = useTranslations("database.propertyAccess");
-  const [page, setPage] = useState<"main" | "options" | "confirm" | "formula" | "rollup" | "autofill">("main");
+  const [page, setPage] = useState<
+    "main" | "options" | "confirm" | "formula" | "rollup" | "autofill" | "calculate" | "insert-before" | "insert-after"
+  >("main");
   const [name, setName] = useState(prop?.name ?? "");
   const saved = useRef(prop?.name ?? "");
   const commitName = () => {
@@ -177,6 +219,11 @@ export function PropertyMenu({
   const commitRef = useRef(commitName);
   commitRef.current = commitName;
   useEffect(() => () => commitRef.current(), []);
+  // Runs an action and closes the menu.
+  const run = (action: (() => void) | undefined) => () => {
+    action?.();
+    onDone();
+  };
 
   if (page === "options" && prop && actions.setOptions) {
     return <OptionsEditor prop={prop} onChange={actions.setOptions} onBack={() => setPage("main")} />;
@@ -224,6 +271,38 @@ export function PropertyMenu({
     );
   }
 
+  if (page === "calculate" && actions.calculation) {
+    const { type, fn, onChange } = actions.calculation;
+    return (
+      <div className="w-60">
+        <SubmenuHeader title={t("calculate")} onBack={() => setPage("main")} />
+        <MenuSeparator />
+        <div className="max-h-80 overflow-y-auto">
+          <CalculationOptions
+            type={type}
+            fn={fn}
+            onPick={(next) => {
+              if (next !== (fn ?? null)) onChange(next);
+              onDone();
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if ((page === "insert-before" || page === "insert-after") && actions.insert) {
+    const side = page === "insert-before" ? "before" : "after";
+    const { onCreate, onCreateAutofill } = actions.insert;
+    return (
+      <AddPropertyPanel
+        onCreate={(...args) => onCreate(side, ...args)}
+        onCreateAutofill={onCreateAutofill ? (name, config) => onCreateAutofill(side, name, config) : undefined}
+        onDone={onDone}
+      />
+    );
+  }
+
   if (page === "confirm" && prop && actions.remove) {
     return (
       <div className="w-64 p-2">
@@ -248,7 +327,124 @@ export function PropertyMenu({
     );
   }
 
+  const icon = (Icon: typeof ArrowUp) => <Icon className="h-3.5 w-3.5" />;
   const selectType = prop?.type === "select" || prop?.type === "multi_select" || prop?.type === "status";
+  // The property's own settings, then what the view does with the column, then its width and
+  // wrapping, then new columns beside it, then deleting it (Notion's order).
+  const settings = [
+    prop?.type === "formula" && actions.setFormula && (
+      <MenuItem key="formula" icon={icon(Sigma)} onClick={() => setPage("formula")}>
+        {t("editFormula")}
+      </MenuItem>
+    ),
+    prop?.type === "rollup" && actions.setRollup && (
+      <MenuItem key="rollup" icon={icon(Combine)} onClick={() => setPage("rollup")}>
+        {t("editRollup")}
+      </MenuItem>
+    ),
+    prop?.type === "text" && prop.options.ai && actions.updateAllAutofill && (
+      <MenuItem key="update-all" icon={icon(RefreshCw)} onClick={run(actions.updateAllAutofill)}>
+        {ta("updateAll")}
+      </MenuItem>
+    ),
+    prop?.type === "text" && actions.setAutofill && (
+      <MenuItem key="autofill" icon={icon(Bot)} onClick={() => setPage("autofill")}>
+        {ta("configure")}
+      </MenuItem>
+    ),
+    prop?.type === "text" && prop.options.ai && actions.setAutofill && (
+      <MenuItem key="autofill-off" icon={icon(BotOff)} onClick={run(() => actions.setAutofill?.(null))}>
+        {ta("turnOff")}
+      </MenuItem>
+    ),
+    selectType && actions.setOptions && (
+      <MenuItem key="options" icon={icon(Settings2)} onClick={() => setPage("options")}>
+        {t("editOptions")}
+      </MenuItem>
+    ),
+    prop && actions.openAccess && (
+      <MenuItem
+        key="access"
+        icon={icon(Lock)}
+        disabled={!canRestrict(prop.type)}
+        title={canRestrict(prop.type) ? undefined : tAccess("unavailable")}
+        onClick={run(actions.openAccess)}
+      >
+        {tAccess("menuItem")}
+      </MenuItem>
+    ),
+    prop && actions.openAccess && !canRestrict(prop.type) && (
+      <div key="access-hint" className="px-2 pb-1 text-xs text-fg-faint">
+        {tAccess("unavailable")}
+      </div>
+    ),
+  ].filter(Boolean);
+  const view = [
+    actions.filter && (
+      <MenuItem key="filter" icon={icon(ListFilter)} onClick={run(actions.filter)}>
+        {t("filter")}
+      </MenuItem>
+    ),
+    actions.sort && (
+      <MenuItem key="asc" icon={icon(ArrowUp)} onClick={run(() => actions.sort?.("asc"))}>
+        {t("sortAscending")}
+      </MenuItem>
+    ),
+    actions.sort && (
+      <MenuItem key="desc" icon={icon(ArrowDown)} onClick={run(() => actions.sort?.("desc"))}>
+        {t("sortDescending")}
+      </MenuItem>
+    ),
+    actions.group && (
+      <MenuItem key="group" icon={icon(Rows3)} onClick={run(actions.group)}>
+        {t("group")}
+      </MenuItem>
+    ),
+    actions.ungroup && (
+      <MenuItem key="ungroup" icon={icon(Ungroup)} onClick={run(actions.ungroup)}>
+        {t("ungroup")}
+      </MenuItem>
+    ),
+    actions.calculation && (
+      <MenuItem key="calculate" icon={icon(Calculator)} trailing={icon(ChevronRight)} onClick={() => setPage("calculate")}>
+        {t("calculate")}
+      </MenuItem>
+    ),
+  ].filter(Boolean);
+  const layout = [
+    actions.hide && (
+      <MenuItem key="hide" icon={icon(EyeOff)} onClick={run(actions.hide)}>
+        {t("hide")}
+      </MenuItem>
+    ),
+    actions.toggleWrap && (
+      <MenuItem
+        key="wrap"
+        icon={icon(WrapText)}
+        pressed={Boolean(actions.wrapped)}
+        trailing={actions.wrapped ? icon(Check) : undefined}
+        onClick={run(actions.toggleWrap)}
+      >
+        {t("wrap")}
+      </MenuItem>
+    ),
+  ].filter(Boolean);
+  const insert = (actions.insert?.sides ?? []).map((side) => (
+    <MenuItem
+      key={side}
+      icon={icon(side === "before" ? ArrowLeftToLine : ArrowRightToLine)}
+      onClick={() => setPage(side === "before" ? "insert-before" : "insert-after")}
+    >
+      {t(side === "before" ? "insertLeft" : "insertRight")}
+    </MenuItem>
+  ));
+  const remove = prop && actions.remove && (
+    <MenuItem key="delete" danger icon={icon(Trash2)} onClick={() => setPage("confirm")}>
+      {t("delete")}
+    </MenuItem>
+  );
+  const sections = [settings, view, layout, insert, remove ? [remove] : []].filter((s) => s.length);
+
   return (
     <div className="w-60">
       {prop && (
@@ -279,109 +475,33 @@ export function PropertyMenu({
           {isDerived(prop.type) && (
             <div className="px-2 pb-1 text-xs text-fg-faint">{t(prop.type === "rollup" ? "rollupHint" : "formulaHint")}</div>
           )}
-          <MenuSeparator />
+          {sections.length > 0 && <MenuSeparator />}
         </>
       )}
-      {actions.sort && (
-        <>
-          <MenuItem
-            icon={<ArrowUp className="h-3.5 w-3.5" />}
-            onClick={() => {
-              actions.sort?.("asc");
-              onDone();
-            }}
-          >
-            {t("sortAscending")}
-          </MenuItem>
-          <MenuItem
-            icon={<ArrowDown className="h-3.5 w-3.5" />}
-            onClick={() => {
-              actions.sort?.("desc");
-              onDone();
-            }}
-          >
-            {t("sortDescending")}
-          </MenuItem>
-        </>
-      )}
-      {actions.hide && (
-        <MenuItem
-          icon={<EyeOff className="h-3.5 w-3.5" />}
-          onClick={() => {
-            actions.hide?.();
-            onDone();
-          }}
-        >
-          {t("hide")}
-        </MenuItem>
-      )}
-      {prop?.type === "formula" && actions.setFormula && (
-        <MenuItem icon={<Sigma className="h-3.5 w-3.5" />} onClick={() => setPage("formula")}>
-          {t("editFormula")}
-        </MenuItem>
-      )}
-      {prop?.type === "rollup" && actions.setRollup && (
-        <MenuItem icon={<Combine className="h-3.5 w-3.5" />} onClick={() => setPage("rollup")}>
-          {t("editRollup")}
-        </MenuItem>
-      )}
-      {prop?.type === "text" && prop.options.ai && actions.updateAllAutofill && (
-        <MenuItem
-          icon={<RefreshCw className="h-3.5 w-3.5" />}
-          onClick={() => {
-            actions.updateAllAutofill?.();
-            onDone();
-          }}
-        >
-          {ta("updateAll")}
-        </MenuItem>
-      )}
-      {prop?.type === "text" && actions.setAutofill && (
-        <MenuItem icon={<Bot className="h-3.5 w-3.5" />} onClick={() => setPage("autofill")}>
-          {ta("configure")}
-        </MenuItem>
-      )}
-      {prop?.type === "text" && prop.options.ai && actions.setAutofill && (
-        <MenuItem
-          icon={<BotOff className="h-3.5 w-3.5" />}
-          onClick={() => {
-            actions.setAutofill?.(null);
-            onDone();
-          }}
-        >
-          {ta("turnOff")}
-        </MenuItem>
-      )}
-      {selectType && actions.setOptions && (
-        <MenuItem icon={<Settings2 className="h-3.5 w-3.5" />} onClick={() => setPage("options")}>
-          {t("editOptions")}
-        </MenuItem>
-      )}
-      {prop && actions.openAccess && (
-        <>
-          <MenuSeparator />
-          <MenuItem
-            icon={<Lock className="h-3.5 w-3.5" />}
-            disabled={!canRestrict(prop.type)}
-            title={canRestrict(prop.type) ? undefined : tAccess("unavailable")}
-            onClick={() => {
-              onDone();
-              actions.openAccess?.();
-            }}
-          >
-            {tAccess("menuItem")}
-          </MenuItem>
-          {!canRestrict(prop.type) && <div className="px-2 pb-1 text-xs text-fg-faint">{tAccess("unavailable")}</div>}
-        </>
-      )}
-      {prop && actions.remove && (
-        <>
-          <MenuSeparator />
-          <MenuItem danger icon={<Trash2 className="h-3.5 w-3.5" />} onClick={() => setPage("confirm")}>
-            {t("delete")}
-          </MenuItem>
-        </>
-      )}
+      {sections.map((items, i) => (
+        <Fragment key={i}>
+          {i > 0 && <MenuSeparator />}
+          {items}
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
+/** A submenu's title line with a way back to the menu it opened from. */
+function SubmenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
+  const t = useTranslations("database.propertyMenu");
+  return (
+    <div className="flex items-center gap-1 px-1 pb-1">
+      <button
+        type="button"
+        aria-label={t("back")}
+        onClick={onBack}
+        className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+      </button>
+      <span className="text-sm font-medium">{title}</span>
     </div>
   );
 }
