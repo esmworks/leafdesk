@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Added
+
+- **MCP: `get_file`** reads a file uploaded to Leafdesk, by its id, `/api/files/<id>` path or url
+  (what `get_page` and `query_database` show): text files (Markdown, CSV, JSON, XML, code…) and
+  PDFs come back as text (a PDF's text layer, read with `unpdf`; scans have none), cut at 30,000
+  characters with `offset` to read on; PNG, JPEG, GIF and WebP images come back as image content.
+  Other kinds, and files over 5 MB (text, images) or 25 MB (PDF), are described with their link.
+  It needs no extra permission: the user reads a file when they can see a page showing it, in a
+  workspace that doesn't hide itself from connected apps (`fileForApp`). Until now an AI app saw a
+  file's link but couldn't open it: the file route only knows browser sessions.
+- **MCP: `duplicate_page`** copies a page with everything under it beside the original, as the
+  page menu's *Duplicate* does, titled "<title> (copy)" or as given.
+- **MCP: favorites.** `list_pages` with `favorites: true` lists the user's starred pages of a
+  workspace, and `get_page` (and `GET /api/v1/pages/{id}`) says whether a page is starred
+  (`favorite`).
+- **MCP: links as ids.** Wherever a tool takes an id (`page_id`, `workspace_id`, `row_ids`,
+  `view_id`…), a Leafdesk link works too: `https://…/w/<workspace>/p/<page>`, with `?view=<view>`
+  for a view. Other arguments, such as page mentions in Markdown, are left as they are. New checks
+  in `scripts/mcp-e2e.ts` (248 in all), `src/server/mcp/tools.test.ts` and
+  `src/server/mcp/format.test.ts`.
+
 ## 0.4.0 — 2026-10-02
 
 ### Upgrading from 0.3.0

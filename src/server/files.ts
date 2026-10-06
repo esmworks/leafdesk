@@ -9,7 +9,7 @@ import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { file, fileReference, page } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileUrl, formatBytes, isFileId } from "@/lib/files";
-import { accessRank, requirePageAccess, sessionHeldBack } from "@/server/access";
+import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
 import { getStorage, uploadLimits } from "@/server/storage";
@@ -227,6 +227,32 @@ export async function fileForViewer(userId: string | null, fileId: string): Prom
     if (visible) return found;
   }
   return (await anyPagePublished(pages)) ? found : null;
+}
+
+/**
+ * `fileForViewer` for a connected app (an MCP client) acting for `userId`: only files of workspaces
+ * the user is in, and none of a workspace whose settings hide it from connected apps (see
+ * connected-app.ts); a file served only by someone else's publication reads as missing too.
+ */
+export async function fileForApp(userId: string, fileId: string): Promise<FileRow | null> {
+  const found = await fileForViewer(userId, fileId);
+  if (!found) return null;
+  try {
+    await requireMembership(userId, found.workspaceId);
+  } catch (error) {
+    if (error instanceof AccessError) return null;
+    throw error;
+  }
+  return found;
+}
+
+/** A stored file's bytes; null when the storage has nothing under its key. Read whole: callers bound `found.size` first. */
+export async function readStored(found: FileRow): Promise<Buffer | null> {
+  const body = await getStorage().get(found.storageKey);
+  if (!body) return null;
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of body) chunks.push(chunk);
+  return Buffer.concat(chunks);
 }
 
 /** Files of `workspaceId` among `ids` (any others are left out). */

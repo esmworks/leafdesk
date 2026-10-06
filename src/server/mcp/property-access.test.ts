@@ -46,6 +46,8 @@ vi.mock("@/server/workspaces", () => workspaces);
 const groups = vi.hoisted(() => ({ listGroups: vi.fn() }));
 vi.mock("@/server/groups", () => groups);
 
+vi.mock("@/server/page-meta", () => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn(async () => []) }));
+
 vi.mock("@/server/mentions", () => ({
   labelPageLinks: vi.fn(async (_: string, markdown: string) => markdown),
   listBacklinks: vi.fn(async () => []),

@@ -91,9 +91,15 @@ const files = vi.hoisted(() => {
       super(message);
     }
   }
-  return { FileError, uploadFile: vi.fn(), uploadFromUrl: vi.fn() };
+  return { FileError, uploadFile: vi.fn(), uploadFromUrl: vi.fn(), fileForApp: vi.fn(), readStored: vi.fn() };
 });
 vi.mock("@/server/files", () => files);
+
+const duplicate = vi.hoisted(() => ({ duplicatePage: vi.fn(), MAX_DUPLICATE_PAGES: 2000 }));
+vi.mock("@/server/duplicate", () => duplicate);
+
+const pageMeta = vi.hoisted(() => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn() }));
+vi.mock("@/server/page-meta", () => pageMeta);
 const mentions = vi.hoisted(() => ({
   labelPageLinks: vi.fn(async (_userId: string, markdown: string) => markdown),
   listBacklinks: vi.fn(async () => []),
@@ -175,9 +181,9 @@ async function callTool(principal: McpPrincipal, name: string, args: Record<stri
   await client.send({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name, arguments: args } });
   const response = await waitFor(2);
   await server.close();
-  const result = response.result as { isError?: boolean; content: { text: string }[] };
+  const result = response.result as { isError?: boolean; content: { type: string; text: string; data?: string; mimeType?: string }[] };
   const text = result.content[0].text;
-  return { isError: Boolean(result.isError), text, data: result.isError ? null : JSON.parse(text) };
+  return { isError: Boolean(result.isError), text, data: result.isError ? null : JSON.parse(text), content: result.content };
 }
 
 beforeEach(() => {
@@ -1170,5 +1176,188 @@ describe("attach_file", () => {
     const { isError, text } = await callTool(filer, "attach_file", { page_id: "page-1", url: "http://127.0.0.1/x" });
     expect(isError).toBe(true);
     expect(text).toMatch(/isn't public/);
+  });
+});
+
+describe("links as ids", () => {
+  const WS = "0b6f1d2e-3c4a-4b5d-8e9f-a0b1c2d3e4f5";
+  const PAGE = "9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d";
+
+  it("reads the page a pasted link points at", async () => {
+    const { isError } = await callTool(reader, "get_page", { page_id: `https://leafdesk.example/w/${WS}/p/${PAGE}?view=x` });
+    expect(isError).toBe(false);
+    expect(pages.getPage).toHaveBeenCalledWith("user-1", PAGE);
+  });
+
+  it("takes the workspace of a link for workspace_id and leaves Markdown mentions alone", async () => {
+    pages.createPage.mockResolvedValue({ ...page, id: "page-2", workspaceId: WS, teamspaceId: null });
+    const markdown = `See [Plan](/w/${WS}/p/${PAGE})`;
+    const { isError } = await callTool(writer, "create_page", { workspace_id: `https://leafdesk.example/w/${WS}`, title: "Notes", markdown });
+    expect(isError).toBe(false);
+    expect(pages.createPage).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ workspaceId: WS, markdown }));
+  });
+});
+
+describe("favorites", () => {
+  it("lists the starred pages of a workspace", async () => {
+    pageMeta.listFavorites.mockResolvedValue([
+      { id: "page-9", title: "Roadmap", icon: null, kind: "page", teamspaceId: "ts-1", updatedAt: new Date("2026-09-02T00:00:00Z") },
+    ]);
+    const { data } = await callTool(reader, "list_pages", { workspace_id: "ws-1", favorites: true });
+    expect(pageMeta.listFavorites).toHaveBeenCalledWith("user-1", "ws-1");
+    expect(pages.listChildren).not.toHaveBeenCalled();
+    expect(data.pages).toEqual([
+      expect.objectContaining({ id: "page-9", title: "Roadmap", teamspace_id: "ts-1", url: expect.stringMatching(/\/w\/ws-1\/p\/page-9$/) }),
+    ]);
+  });
+
+  it("refuses favorites under a parent or a teamspace", async () => {
+    const r = await callTool(reader, "list_pages", { workspace_id: "ws-1", favorites: true, parent_id: "page-1" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/leave out parent_id and teamspace_id/);
+  });
+
+  it("says whether a page is starred", async () => {
+    pageMeta.isFavorite.mockResolvedValueOnce(true);
+    const { data } = await callTool(reader, "get_page", { page_id: "page-1" });
+    expect(pageMeta.isFavorite).toHaveBeenCalledWith("user-1", "page-1");
+    expect(data.favorite).toBe(true);
+  });
+});
+
+describe("duplicate_page", () => {
+  const actor = { userId: "user-1", oauthClientId: "client-1" };
+
+  it("copies the page beside the original and names the copy", async () => {
+    duplicate.duplicatePage.mockResolvedValue({ id: "page-copy", workspaceId: "ws-1" });
+    pages.getPage.mockImplementation(async (_: string, id: string) =>
+      id === "page-copy" ? { ...page, id, title: "Plan (copy)", teamspaceId: null } : page,
+    );
+    const { isError, data } = await callTool(writer, "duplicate_page", { page_id: "page-1" });
+    expect(isError).toBe(false);
+    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", " (copy)");
+    expect(pages.renamePage).not.toHaveBeenCalled();
+    expect(data).toMatchObject({ id: "page-copy", title: "Plan (copy)", duplicated_from: "page-1", teamspace: "Private" });
+    expect(data.url).toMatch(/\/w\/ws-1\/p\/page-copy$/);
+  });
+
+  it("renames the copy when a title is given", async () => {
+    duplicate.duplicatePage.mockResolvedValue({ id: "page-copy", workspaceId: "ws-1" });
+    const { data } = await callTool(writer, "duplicate_page", { page_id: "page-1", title: "Plan v2" });
+    expect(pages.renamePage).toHaveBeenCalledWith(actor, "page-copy", "Plan v2");
+    expect(data.title).toBe("Plan v2");
+  });
+
+  it("refuses trashed pages, read-only tokens and too large trees with a reason", async () => {
+    pages.getPage.mockResolvedValueOnce({ ...page, archivedAt: new Date() });
+    expect((await callTool(writer, "duplicate_page", { page_id: "page-1" })).text).toMatch(/in the trash/);
+    expect((await callTool(reader, "duplicate_page", { page_id: "page-1" })).text).toMatch(/read-only/);
+    duplicate.duplicatePage.mockRejectedValue(new Error("Can't duplicate more than 2000 pages at once"));
+    const r = await callTool(writer, "duplicate_page", { page_id: "page-1" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/more than 2000 pages.*smaller part/);
+    expect(duplicate.duplicatePage).toHaveBeenCalledTimes(1);
+  });
+});
+
+/** A one-page PDF whose text layer says `text` (xref offsets computed, so pdf.js reads it cleanly). */
+function tinyPdf(text: string): Buffer {
+  const stream = `BT /F1 24 Tf 72 720 Td (${text}) Tj ET`;
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let out = "%PDF-1.4\n";
+  const offsets: number[] = [];
+  objects.forEach((body, i) => {
+    offsets.push(out.length);
+    out += `${i + 1} 0 obj\n${body}\nendobj\n`;
+  });
+  const xref = out.length;
+  out += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const offset of offsets) out += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  out += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(out, "latin1");
+}
+
+describe("get_file", () => {
+  const FILE_ID = "AbCdEfGhIjKlMnOpQrStUv_-";
+  const stored = (over: Record<string, unknown> = {}) => ({
+    id: FILE_ID,
+    name: "notes.md",
+    contentType: "text/markdown",
+    size: 12,
+    workspaceId: "ws-1",
+    storageKey: `ws-1/${FILE_ID}`,
+    ...over,
+  });
+
+  it("reads a text file by any of its links, as a reader", async () => {
+    files.fileForApp.mockResolvedValue(stored());
+    files.readStored.mockResolvedValue(Buffer.from("# Notes\nçay"));
+    for (const file of [FILE_ID, `/api/files/${FILE_ID}`, `https://leafdesk.example/api/files/${FILE_ID}`]) {
+      const { isError, data } = await callTool(reader, "get_file", { file });
+      expect(isError).toBe(false);
+      expect(data).toMatchObject({ id: FILE_ID, name: "notes.md", content_type: "text/markdown", text: "# Notes\nçay" });
+      expect(data.url).toMatch(new RegExp(`/api/files/${FILE_ID}$`));
+    }
+    expect(files.fileForApp).toHaveBeenCalledWith("user-1", FILE_ID);
+  });
+
+  it("pages through long text with offset", async () => {
+    files.fileForApp.mockResolvedValue(stored({ size: MAX_MARKDOWN_CHARS + 10 }));
+    files.readStored.mockResolvedValue(Buffer.from("a".repeat(MAX_MARKDOWN_CHARS) + "b".repeat(10)));
+    const first = await callTool(reader, "get_file", { file: FILE_ID });
+    expect(first.data).toMatchObject({ truncated: true, total_chars: MAX_MARKDOWN_CHARS + 10 });
+    expect(first.data.note).toMatch(new RegExp(`offset=${MAX_MARKDOWN_CHARS}`));
+    const rest = await callTool(reader, "get_file", { file: FILE_ID, offset: MAX_MARKDOWN_CHARS });
+    expect(rest.data.text).toBe("b".repeat(10));
+  });
+
+  it("returns images as image content", async () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    files.fileForApp.mockResolvedValue(stored({ name: "chart.png", contentType: "image/png", size: png.length }));
+    files.readStored.mockResolvedValue(png);
+    const { isError, data, content } = await callTool(reader, "get_file", { file: FILE_ID });
+    expect(isError).toBe(false);
+    expect(data).toMatchObject({ name: "chart.png", content_type: "image/png" });
+    expect(content[1]).toEqual({ type: "image", data: png.toString("base64"), mimeType: "image/png" });
+  });
+
+  it("reads a PDF's text layer", async () => {
+    const pdf = tinyPdf("Quote 2026-114 total 48500 EUR");
+    files.fileForApp.mockResolvedValue(stored({ name: "quote.pdf", contentType: "application/pdf", size: pdf.length }));
+    files.readStored.mockResolvedValue(pdf);
+    const { isError, data } = await callTool(reader, "get_file", { file: FILE_ID });
+    expect(isError).toBe(false);
+    expect(data.pages).toBe(1);
+    expect(data.text).toContain("Quote 2026-114 total 48500 EUR");
+  });
+
+  it("describes files it can't show, too large ones and unreadable PDFs without reading them", async () => {
+    files.fileForApp.mockResolvedValue(stored({ name: "offer.docx", contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }));
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/can't show this kind/);
+    files.fileForApp.mockResolvedValue(stored({ name: "big.png", contentType: "image/png", size: 6 * 1024 * 1024 }));
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/too large/);
+    expect(files.readStored).not.toHaveBeenCalled();
+    files.fileForApp.mockResolvedValue(stored({ name: "broken.pdf", contentType: "application/pdf" }));
+    files.readStored.mockResolvedValue(Buffer.from("not a pdf"));
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/couldn't be read/);
+  });
+
+  it("refuses what isn't a file link, and files the user can't read like missing ones", async () => {
+    const bad = await callTool(reader, "get_file", { file: "https://example.com/a.png" });
+    expect(bad.isError).toBe(true);
+    expect(bad.text).toMatch(/isn't a Leafdesk file/);
+    files.fileForApp.mockResolvedValue(null);
+    const hidden = await callTool(reader, "get_file", { file: FILE_ID });
+    expect(hidden.isError).toBe(true);
+    expect(hidden.text).toMatch(/File not found/);
+    files.fileForApp.mockResolvedValue(stored());
+    files.readStored.mockResolvedValue(null);
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).text).toMatch(/File not found/);
   });
 });

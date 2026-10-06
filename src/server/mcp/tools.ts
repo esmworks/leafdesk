@@ -1,5 +1,5 @@
 import { Readable } from "node:stream";
-import { McpServer, type ScopeChallengeHandler } from "@modelcontextprotocol/server";
+import { type CallToolResult, McpServer, type ScopeChallengeHandler } from "@modelcontextprotocol/server";
 import * as z from "zod";
 import {
   PROPERTY_TYPES,
@@ -50,9 +50,10 @@ import { CARD_SIZES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
 import * as databases from "@/server/databases";
+import { duplicatePage, MAX_DUPLICATE_PAGES } from "@/server/duplicate";
 import * as files from "@/server/files";
 import { uploadLimits } from "@/server/storage";
-import { asFiles, blockTypeFor, formatBytes } from "@/lib/files";
+import { asFiles, blockTypeFor, fileIdOf, fileUrl, formatBytes } from "@/lib/files";
 import * as forms from "@/server/forms";
 import { labelPageLinks } from "@/server/mentions";
 import * as notifications from "@/server/notifications";
@@ -63,7 +64,7 @@ import { AccessError } from "@/server/access";
 import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@/server/operations";
-import { MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError } from "./format";
+import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import { env } from "@/lib/env";
 import { CONNECT_SCOPES, FILES_SCOPE, NOTIFICATIONS_SCOPE, WRITE_SCOPE, type McpPrincipal } from "./principal";
 import {
@@ -80,14 +81,15 @@ import {
 
 const INSTRUCTIONS = `Leafdesk is a Notion-like workspace. Each user belongs to one or more workspaces.
 Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written.
-Start with list_workspaces or search to find ids, then get_page / list_pages / query_database.
+Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
 Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub alert (\`> [!NOTE]\`, TIP, IMPORTANT, WARNING or CAUTION on its own line, then the \`> \` text; a leading emoji becomes its icon), \`$…$\` is an inline equation and a \`$$\` line pair wraps a block equation (LaTeX), a \`\`\`mermaid fence is a diagram, and the lines \`<!-- leafdesk:toc -->\` and \`<!-- leafdesk:breadcrumb -->\` are a table of contents and the page's breadcrumb. Columns (2 to 5, side by side) are written between marker lines: \`<!-- leafdesk:columns -->\`, then \`<!-- leafdesk:column -->\` before each column's blocks (\`<!-- leafdesk:column width=2 -->\` makes a column twice as wide as a width-1 one), then \`<!-- leafdesk:/columns -->\`; keep the markers when you write a body back, or the blocks leave their columns. A web bookmark (a link card) reads as a link on a line of its own, \`[Title](url)\`, and stays a bookmark when you write the body back; to add a new one write \`[Title](url) <!-- leafdesk:bookmark -->\`. An embed (YouTube, Vimeo, Loom, Figma, published Google Docs/Sheets/Slides, CodePen, Spotify, Google Maps) is \`[url](url) <!-- leafdesk:embed -->\`. A dollar sign of the text itself is written \`\\$\`.
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block. \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
 list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates, requests for access to pages they can share and, for owners, requests to join their workspaces.
-attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>.
+attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
+duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
 Templates are starting points for new pages and rows: list_templates lists a workspace's page templates (and the built-in gallery) or a database's row templates; create_page and create_database_row take a template_id. A database's default row template is used by create_database_row when no properties or body are given. Templates don't show up in search or list_pages.
 Always share the returned url with the user when you create or change something.`;
@@ -624,17 +626,57 @@ function decodeBase64(input: string): { bytes: Buffer; contentType: string | nul
 
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 
+/** What get_file reads whole, by kind: text and PDFs come back as text, images as image content. */
+const MAX_TEXT_FILE = 5 * 1024 * 1024;
+const MAX_PDF_FILE = 25 * 1024 * 1024;
+/** Images larger than this are left to the link: models take about this much per image. */
+const MAX_IMAGE_FILE = 5 * 1024 * 1024;
+const MODEL_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp"]);
+const TEXT_TYPES = new Set([
+  "application/json",
+  "application/xml",
+  "application/x-yaml",
+  "application/yaml",
+  "application/javascript",
+  "application/sql",
+  "image/svg+xml",
+]);
+
+/** How get_file shows a file of `contentType`, or null when it only describes it. */
+function fileReading(contentType: string): "text" | "pdf" | "image" | null {
+  const type = contentType.split(";")[0].trim().toLowerCase();
+  if (type === "application/pdf") return "pdf";
+  if (MODEL_IMAGE_TYPES.has(type)) return "image";
+  if (type.startsWith("text/") || TEXT_TYPES.has(type) || type.endsWith("+json") || type.endsWith("+xml")) return "text";
+  return null;
+}
+
+/** The text of a PDF, pages joined, or null when it can't be read (damaged, encrypted). */
+async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } | null> {
+  try {
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdf = await getDocumentProxy(new Uint8Array(bytes));
+    const { totalPages, text } = await extractText(pdf, { mergePages: true });
+    return { text, pages: totalPages };
+  } catch {
+    return null;
+  }
+}
+
 export function createMcpServer(principal: McpPrincipal) {
   const server = new McpServer({ name: "leafdesk", title: "Leafdesk", version: "0.4.0" }, { instructions: INSTRUCTIONS });
   // Every tool not annotated read-only runs as a write, so a workspace that lets connected apps
   // only read refuses it in its access checks (see connected-app.ts), whatever the tool checks.
+  // Ids may be given as Leafdesk links: each handler gets the ids they point at.
   const register = server.registerTool.bind(server) as (name: string, config: unknown, handler: unknown) => unknown;
-  server.registerTool = ((name: string, config: { annotations?: { readOnlyHint?: boolean } }, handler: (...args: unknown[]) => unknown) =>
-    register(
+  server.registerTool = ((name: string, config: { annotations?: { readOnlyHint?: boolean } }, handler: (...args: unknown[]) => unknown) => {
+    const run = (args: unknown, ...rest: unknown[]) => handler(idsFromLinks(args), ...rest);
+    return register(
       name,
       config,
-      config.annotations?.readOnlyHint === true ? handler : (...args: unknown[]) => asWrite(() => handler(...args)),
-    )) as typeof server.registerTool;
+      config.annotations?.readOnlyHint === true ? run : (args: unknown, ...rest: unknown[]) => asWrite(() => run(args, ...rest)),
+    );
+  }) as typeof server.registerTool;
   const { userId } = principal;
   const actor: WriteActor = { userId, oauthClientId: principal.clientId };
 
@@ -783,7 +825,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List pages",
       description:
-        "List the pages directly under a parent page, or the top-level pages of a workspace when parent_id is omitted (of every teamspace the user can read, their private pages and pages shared with them; teamspace_id narrows it to one). Trashed pages are excluded. For database rows prefer query_database.",
+        "List the pages directly under a parent page, or the top-level pages of a workspace when parent_id is omitted (of every teamspace the user can read, their private pages and pages shared with them; teamspace_id narrows it to one). With favorites true, the pages the user starred (Favorites in the sidebar) instead. Trashed pages are excluded. For database rows prefer query_database.",
       inputSchema: ops.inputs.listPages,
       annotations: READ,
     },
@@ -973,6 +1015,73 @@ export function createMcpServer(principal: McpPrincipal) {
           page_url: pageUrl(page.workspaceId, page.id),
         };
       }),
+  );
+
+  server.registerTool(
+    "get_file",
+    {
+      title: "Read an uploaded file",
+      description: `Read a file uploaded to Leafdesk: an image, PDF or other attachment in a page body (\`/api/files/<id>\` in get_page's Markdown) or in a row's files property (the url query_database and get_page return). Text files (plain text, Markdown, CSV, JSON, XML, code…) and PDFs come back as text (a PDF's text layer: scanned pages have none), cut at ${MAX_MARKDOWN_CHARS} characters with offset to read on; PNG, JPEG, GIF and WebP images come back as images. Other kinds (Office documents, archives, video, audio) and files over the limits (text ${formatBytes(MAX_TEXT_FILE)}, PDF ${formatBytes(MAX_PDF_FILE)}, images ${formatBytes(MAX_IMAGE_FILE)}) are only described, with their link. The user can read a file when they can see a page showing it; no extra permission is needed.`,
+      inputSchema: z.object({
+        file: z.string().min(1).max(4000).describe("The file's id, its /api/files/<id> path or its full url."),
+        offset: z.number().int().min(0).default(0).describe("Character offset into the text, for long files."),
+      }),
+      annotations: READ,
+    },
+    async ({ file, offset }: { file: string; offset: number }): Promise<CallToolResult> => {
+      try {
+        const fileId = fileIdOf(file);
+        if (!fileId) {
+          throw new ToolInputError(
+            "file isn't a Leafdesk file. Give its id, or its /api/files/<id> path or url as get_page or query_database show it.",
+          );
+        }
+        const found = await files.fileForApp(userId, fileId);
+        if (!found) throw new AccessError("File not found");
+        const info = {
+          id: found.id,
+          name: found.name,
+          content_type: found.contentType,
+          size: found.size,
+          url: `${env.appUrl}${fileUrl(found.id)}`,
+        };
+        const share = "Share its url instead: the user can open it in Leafdesk.";
+        const reading = fileReading(found.contentType);
+        if (!reading) return jsonResult({ ...info, note: `Leafdesk can't show this kind of file here. ${share}` });
+        const limit = reading === "pdf" ? MAX_PDF_FILE : reading === "image" ? MAX_IMAGE_FILE : MAX_TEXT_FILE;
+        if (found.size > limit) return jsonResult({ ...info, note: `The file is larger than ${formatBytes(limit)}, too large to read here. ${share}` });
+        const bytes = await files.readStored(found);
+        if (!bytes) throw new AccessError("File not found");
+        if (reading === "image") {
+          return {
+            content: [
+              { type: "text", text: JSON.stringify(info, null, 2) },
+              { type: "image", data: bytes.toString("base64"), mimeType: found.contentType.split(";")[0].trim().toLowerCase() },
+            ],
+          };
+        }
+        let text: string;
+        let pages: number | undefined;
+        if (reading === "pdf") {
+          const pdf = await pdfText(bytes);
+          if (!pdf) return jsonResult({ ...info, note: `The PDF's text couldn't be read (it may be damaged or password-protected). ${share}` });
+          ({ text, pages } = pdf);
+          if (!text.trim()) return jsonResult({ ...info, pages, note: "The PDF has no text layer (probably a scan), so there is no text to read here." });
+        } else {
+          text = new TextDecoder("utf-8").decode(bytes);
+        }
+        const window = sliceText(text, offset);
+        return jsonResult({
+          ...info,
+          ...(pages !== undefined ? { pages } : {}),
+          text: window.text,
+          ...(window.truncated ? { truncated: true, total_chars: window.totalChars } : {}),
+          ...("note" in window ? { note: window.note } : {}),
+        });
+      } catch (error) {
+        return toolErrorFor(error);
+      }
+    },
   );
 
   server.registerTool(
@@ -1453,6 +1562,46 @@ export function createMcpServer(principal: McpPrincipal) {
       scopeChallenge: requireWrite,
     },
     write((args) => ops.movePage(ctx, args)),
+  );
+
+  server.registerTool(
+    "duplicate_page",
+    {
+      title: "Duplicate a page",
+      description: `Copy a page with everything under it the user can see (sub-pages, databases with their properties, views and rows) right after the original: under the same parent, or at the top level of the same teamspace (among the user's private pages when they can't add pages there). A database row is copied into its database with its values. Comments and the pages' sharing come along; favorites, publication, history and locks stay with the original. Needs edit access where the copy goes; at most ${MAX_DUPLICATE_PAGES} pages at once. The copy is titled "<title> (copy)" unless title is given; move it elsewhere with move_page.`,
+      inputSchema: z.object({
+        page_id: id("page"),
+        title: z.string().min(1).max(500).optional().describe('Title of the copy. Default: the original\'s title plus " (copy)".'),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(async ({ page_id, title }: { page_id: string; title?: string }) => {
+      const { page } = await ops.loadPage(ctx, page_id);
+      if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it with restore_page before duplicating it.");
+      let copy: { id: string };
+      try {
+        copy = await duplicatePage(actor, page_id, " (copy)");
+      } catch (error) {
+        // The page limit is a plain Error; everything else keeps its own mapping.
+        if (error instanceof Error && error.message.startsWith("Can't duplicate more than")) {
+          throw new ToolInputError(`${error.message}. Duplicate a smaller part of it, e.g. one of its sub-pages.`);
+        }
+        throw error;
+      }
+      if (title !== undefined) await pages.renamePage(actor, copy.id, title);
+      const created = await pages.getPage(userId, copy.id);
+      return {
+        id: created.id,
+        title: pageLabel(title ?? created.title),
+        kind: created.kind,
+        workspace_id: created.workspaceId,
+        ...(await ops.teamspaceOf(ctx, created.teamspaceId)),
+        parent_id: created.parentId,
+        duplicated_from: page_id,
+        url: pageUrl(created.workspaceId, created.id),
+      };
+    }),
   );
 
   server.registerTool(

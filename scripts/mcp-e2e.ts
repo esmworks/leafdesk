@@ -283,13 +283,13 @@ class LegacySession {
   async call(name: string, args: Record<string, unknown>) {
     const r = await this.request("tools/call", { name, arguments: args });
     if (r.status !== 200 || !r.message?.result) throw new Error(`tools/call ${name} failed: ${JSON.stringify(r)}`);
-    const result = r.message.result as { isError?: boolean; content: { type: string; text: string }[] };
+    const result = r.message.result as { isError?: boolean; content: { type: string; text: string; data?: string; mimeType?: string }[] };
     const text = result.content?.[0]?.text ?? "";
     let data: any = text;
     try {
       data = JSON.parse(text);
     } catch {}
-    return { isError: Boolean(result.isError), data, text };
+    return { isError: Boolean(result.isError), data, text, content: result.content ?? [] };
   }
   async ok(name: string, args: Record<string, unknown>) {
     const r = await this.call(name, args);
@@ -392,7 +392,7 @@ async function main() {
     "get_database", "query_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
     "update_database_property", "delete_database_property", "create_database_view", "update_database_view", "move_page",
     "list_recent_pages", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
-    "list_notifications", "attach_file", "invite_member", "set_property_access",
+    "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
   const getPageTool = list.message.result.tools.find((t: { name: string }) => t.name === "get_page");
@@ -454,12 +454,54 @@ async function main() {
     note.headers.get("content-disposition"),
   );
 
+  // ---- reading files back over MCP: images as image content, text as text, nothing for strangers
+  const image = await mcp.call("get_file", { file: attached.url });
+  check(
+    !image.isError && image.data.name === "pixel.png" && image.content[1]?.type === "image" && image.content[1].data === png.toString("base64"),
+    "get_file returns an image as image content",
+    image.text,
+  );
+  const noteFile = await mcp.ok("get_file", { file: uploaded.url });
+  check(noteFile.text === "hello" && noteFile.content_type.startsWith("text/plain"), "get_file reads a text file by its path", noteFile);
+  const pdfStream = `BT /F1 24 Tf 72 720 Td (Offer zq${RUN}) Tj ET`;
+  const pdfObjects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${pdfStream.length} >>\nstream\n${pdfStream}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let pdf = "%PDF-1.4\n";
+  const pdfOffsets = pdfObjects.map((body, i) => {
+    const at = pdf.length;
+    pdf += `${i + 1} 0 obj\n${body}\nendobj\n`;
+    return at;
+  });
+  const xref = pdf.length;
+  pdf += `xref\n0 ${pdfObjects.length + 1}\n0000000000 65535 f \n${pdfOffsets.map((o) => `${String(o).padStart(10, "0")} 00000 n \n`).join("")}`;
+  pdf += `trailer\n<< /Size ${pdfObjects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  const pdfFile = await mcp.ok("attach_file", { page_id: root.id, base64: Buffer.from(pdf, "latin1").toString("base64"), name: "offer.pdf" });
+  const pdfRead = await mcp.ok("get_file", { file: pdfFile.path });
+  check(pdfRead.pages === 1 && pdfRead.text.includes(`Offer zq${RUN}`), "get_file reads a PDF's text", pdfRead);
+  const noFile = await mcp.call("get_file", { file: "AAAAAAAAAAAAAAAAAAAAAAAA" });
+  check(noFile.isError && /not found/i.test(noFile.text), "get_file treats unknown files as missing", noFile.text);
+
+  // ---- links work wherever an id does
+  const byLink = await mcp.ok("get_page", { page_id: root.url });
+  check(byLink.id === root.id, "get_page takes the page's link as page_id", byLink.id);
+
   const hits = await mcp.ok("search", { query: `MCP e2e ${RUN}`, workspace_id: ws });
   check(hits.results.some((h: { id: string }) => h.id === root.id), "search finds the page", hits);
 
   const child = await mcp.ok("create_page", { parent_id: root.id, title: "Child page", icon: "📄" });
   const listed = await mcp.ok("list_pages", { workspace_id: ws, parent_id: root.id });
   check(listed.pages.some((p: { id: string }) => p.id === child.id), "list_pages lists the child");
+  const copy = await mcp.ok("duplicate_page", { page_id: child.id, title: "Child page v2" });
+  check(copy.id !== child.id && copy.parent_id === root.id && copy.duplicated_from === child.id, "duplicate_page copies beside the original", copy);
+  const copyPage = await mcp.ok("get_page", { page_id: copy.id });
+  check(copyPage.title === "Child page v2" && copyPage.favorite === false, "the copy has the given title and isn't starred", copyPage);
+  const starred = await mcp.ok("list_pages", { workspace_id: ws, favorites: true });
+  check(Array.isArray(starred.pages) && starred.pages.length === 0, "list_pages lists no favorites before any star", starred);
 
   // ---- databases
   const dbPage = await mcp.ok("create_database", { parent_id: root.id, title: "Tasks" });

@@ -18,6 +18,7 @@ import { resolveEmbeds } from "@/server/embeds";
 import * as forms from "@/server/forms";
 import * as groups from "@/server/groups";
 import { labelPageLinks, listBacklinks } from "@/server/mentions";
+import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as teamspaces from "@/server/teamspaces";
@@ -131,6 +132,10 @@ export const inputs = {
       .string()
       .optional()
       .describe('Top level only: just this teamspace\'s pages (from list_teamspaces), or "private" for the user\'s private pages.'),
+    favorites: z
+      .boolean()
+      .optional()
+      .describe("List the pages the user starred in this workspace instead (oldest star first). Not with parent_id or teamspace_id."),
   }),
   listTeamspaces: z.object({
     workspace_id: id("workspace"),
@@ -405,8 +410,11 @@ export async function search(
   };
 }
 
-export async function listPages(ctx: OperationContext, { workspace_id, parent_id, teamspace_id }: Args<"listPages">) {
-  const children = await pages.listChildren(ctx.userId, workspace_id, parent_id ?? null, { teamspaceId: spaceOf(teamspace_id) });
+export async function listPages(ctx: OperationContext, { workspace_id, parent_id, teamspace_id, favorites }: Args<"listPages">) {
+  if (favorites && (parent_id || teamspace_id)) throw new ToolInputError("favorites lists the starred pages of the whole workspace: leave out parent_id and teamspace_id.");
+  const children = favorites
+    ? await pageMeta.listFavorites(ctx.userId, workspace_id)
+    : await pages.listChildren(ctx.userId, workspace_id, parent_id ?? null, { teamspaceId: spaceOf(teamspace_id) });
   return {
     pages: children.map((c) => ({
       id: c.id,
@@ -428,10 +436,11 @@ export async function getPage(
 ) {
   const { userId } = ctx;
   const { page, parent, parentDatabase } = await loadPage(ctx, page_id);
-  const [crumbs, content, workspaces] = await Promise.all([
+  const [crumbs, content, workspaces, favorite] = await Promise.all([
     pages.getBreadcrumbs(userId, page_id),
     getCollab().readPage(page_id),
     pages.listWorkspaces(userId),
+    pageMeta.isFavorite(userId, page_id),
   ]);
   const workspace = workspaces.find((w) => w.id === page.workspaceId);
   // Mentioned pages read as their current title, as far as the user can see them.
@@ -447,6 +456,7 @@ export async function getPage(
     parent_id: parent?.id ?? null,
     path: [workspace?.name ?? "Workspace", ...crumbs.map((c) => pageLabel(c.title))].join(" / "),
     in_trash: Boolean(page.archivedAt),
+    favorite,
     updated_at: page.updatedAt.toISOString(),
     url: pageUrl(page.workspaceId, page.id),
   };

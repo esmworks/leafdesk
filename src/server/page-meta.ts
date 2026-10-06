@@ -84,7 +84,24 @@ export async function setFavorite(userId: string, pageId: string, favorite: bool
   return { workspaceId: found.workspaceId };
 }
 
-export type FavoritePage = { id: string; title: string; icon: string | null; kind: PageKind };
+/** Whether the user starred the page; the caller has checked they can see it. */
+export async function isFavorite(userId: string, pageId: string): Promise<boolean> {
+  const [star] = await db
+    .select({ pageId: pageFavorite.pageId })
+    .from(pageFavorite)
+    .where(and(eq(pageFavorite.userId, userId), eq(pageFavorite.pageId, pageId)))
+    .limit(1);
+  return Boolean(star);
+}
+
+export type FavoritePage = {
+  id: string;
+  title: string;
+  icon: string | null;
+  kind: PageKind;
+  teamspaceId: string | null;
+  updatedAt: Date;
+};
 
 /**
  * The user's starred pages in a workspace, oldest star first. Pages in the trash or no longer
@@ -93,7 +110,7 @@ export type FavoritePage = { id: string; title: string; icon: string | null; kin
 export async function listFavorites(userId: string, workspaceId: string): Promise<FavoritePage[]> {
   await requireMembership(userId, workspaceId);
   return db
-    .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
+    .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind, teamspaceId: page.teamspaceId, updatedAt: page.updatedAt })
     .from(pageFavorite)
     .innerJoin(page, eq(page.id, pageFavorite.pageId))
     .where(

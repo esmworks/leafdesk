@@ -204,6 +204,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       parent_id: { type: ["string", "null"], description: "Null at the top level, or when the user can't see the parent." },
       path: { type: "string", description: "Workspace and ancestors, joined with /." },
       in_trash: { type: "boolean" },
+      favorite: { type: "boolean", description: "The user starred the page (Favorites in the sidebar)." },
       updated_at: { type: "string", format: "date-time" },
       url,
       markdown: { type: "string", description: "The body (pages and rows; databases have none)." },

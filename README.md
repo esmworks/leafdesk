@@ -960,8 +960,11 @@ The tools cover:
 - **Teamspaces:** `create_page`, `create_database` and `move_page` take a `teamspace_id` for
   top-level pages (`"private"` for the user's private pages). Without one, a page an AI app
   creates at the top is private to the user, as in Notion's API; the user moves it to share it.
-- **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `archive_page`, `list_trash`,
-  `restore_page`.
+- **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
+  everything under it, beside the original), `archive_page`, `list_trash`, `restore_page`.
+  `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
+  page is starred. Wherever a tool takes an id, a Leafdesk link the user pasted works too
+  (`https://…/w/<workspace>/p/<page>`, `?view=<view>` for a view).
 - **Page history:** `list_page_history`, `get_page_version`, `diff_page_version`, `restore_page_version`.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply).
@@ -972,7 +975,9 @@ The tools cover:
   `property`, to a row's files & media property) from a public URL or base64 data, when the user
   also grants the `files:write` permission. Files properties can only be set to files already
   uploaded to the workspace. URLs that lead to
-  private or loopback addresses are refused.
+  private or loopback addresses are refused. `get_file` reads a file back: text files and PDFs (their
+  text layer) as text, PNG, JPEG, GIF and WebP images as images, anything else as a description with
+  its link. It needs no extra permission: the user reads a file when they can see a page showing it.
 - **Databases:** `get_database`, `query_database`, `create_database`, `create_database_row`,
   `create_database_rows`, `update_database_row`, `update_database_rows`, `add_database_property`
   (including one- or two-way relations), `update_database_property`, `delete_database_property`,
