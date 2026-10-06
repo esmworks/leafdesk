@@ -653,8 +653,9 @@ function fileReading(contentType: string): "text" | "pdf" | "image" | null {
 
 /** The text of a PDF, pages joined, or null when it can't be read (damaged, encrypted). */
 async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } | null> {
+  // Outside the try: a missing module is a server problem, not a damaged PDF.
+  const { extractText, getDocumentProxy } = await import("unpdf");
   try {
-    const { extractText, getDocumentProxy } = await import("unpdf");
     const pdf = await getDocumentProxy(new Uint8Array(bytes));
     const { totalPages, text } = await extractText(pdf, { mergePages: true });
     return { text, pages: totalPages };
