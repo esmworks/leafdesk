@@ -15,6 +15,7 @@ import {
   LogOut,
   LogOut as LeaveIcon,
   MoreHorizontal,
+  Pencil,
   Plus,
   Search,
   Settings,
@@ -33,7 +34,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { unreadCountAction } from "@/app/actions/notifications";
 import { listFavoritesAction } from "@/app/actions/page-menu";
-import { archivePageAction, createPageAction, getSidebarAction, movePageAction } from "@/app/actions/pages";
+import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
 import { leaveTeamspaceAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import type { FavoritePage } from "@/server/page-meta";
@@ -436,6 +437,22 @@ export function Sidebar({
     });
   }
 
+  function rename(id: string, title: string) {
+    const before = byId.get(id)?.title;
+    if (title === before) return;
+    setActionError(null);
+    // Shown right away: the saved title reaches the tree only once the page's doc is stored.
+    setTree((t) => t.map((n) => (n.id === id ? { ...n, title } : n)));
+    startTransition(async () => {
+      try {
+        await renamePageAction(id, title);
+      } catch {
+        setTree((t) => t.map((n) => (n.id === id && before !== undefined ? { ...n, title: before } : n)));
+        setActionError(t("pages.renameFailed"));
+      }
+    });
+  }
+
   function placeName(space: string | null) {
     return space ? (teamspaces.find((ts) => ts.id === space)?.name ?? t("teamspaces.another")) : t("sections.private");
   }
@@ -558,6 +575,7 @@ export function Sidebar({
     onToggle: toggle,
     onCreate: create,
     onArchive: archive,
+    onRename: rename,
     onMove: move,
     dragging,
     onDragging: setDragging,
@@ -1501,6 +1519,7 @@ type TreeContext = {
   onToggle: (id: string, open?: boolean) => void;
   onCreate: (parentId: string | null, kind?: PageKind) => void;
   onArchive: (id: string) => void;
+  onRename: (id: string, title: string) => void;
   /** `section`: the section whose top it goes to when `parentId` is null. */
   onMove: (id: string, parentId: string | null, position: number, section: TreeSection) => void;
   /** The page being dragged in this tree, if any. */
@@ -1531,13 +1550,16 @@ function TreeItem({
   next,
   ...props
 }: TreeProps & { node: TreeNode; prev?: TreeNode; next?: TreeNode }) {
-  const { depth, childrenOf, expanded, activeId, activeViewId, workspaceId, onToggle, onCreate, onArchive, onMove } = props;
+  const { depth, childrenOf, expanded, activeId, activeViewId, workspaceId, onToggle, onCreate, onArchive, onRename, onMove } = props;
   const { dragging, onDragging, canDrop } = props;
   const t = useTranslations("sidebar");
   const tc = useTranslations("common");
   const kids = childrenOf.get(node.id) ?? [];
   const isOpen = expanded.has(node.id);
   const [drop, setDrop] = useState<DropTarget>(null);
+  const [renaming, setRenaming] = useState(false);
+  // Escape closes the field without saving: the blur that follows must not save it.
+  const renameCancelled = useRef(false);
   // Database rows are not shown in the tree; dropping into a database would turn a page into a row.
   const canNest = node.kind === "page";
   // Trashing, adding subpages and moving all need edit access on the server (and the server).
@@ -1579,7 +1601,7 @@ function TreeItem({
     <li>
       <div
         data-sidebar-page={node.id}
-        draggable={editable}
+        draggable={editable && !renaming}
         onDragStart={(e) => {
           e.dataTransfer.setData(DRAG_TYPE, node.id);
           e.dataTransfer.effectAllowed = "move";
@@ -1628,13 +1650,41 @@ function TreeItem({
               <ChevronRight className="hidden h-3.5 w-3.5 group-hover:block pointer-coarse:block" />
             ))}
         </button>
-        <Link href={`/w/${workspaceId}/p/${node.id}`} className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pl-0.5">
-          {expandable && (
-            <PageIcon icon={node.icon} kind={node.kind} className="hidden text-sm pointer-coarse:inline" />
-          )}
-          <span className="truncate">{pageLabel(node.title, tc("untitled"))}</span>
-        </Link>
-        {editable && (
+        {renaming ? (
+          <input
+            autoFocus
+            defaultValue={node.title}
+            placeholder={tc("untitled")}
+            aria-label={t("pages.renameLabel")}
+            onFocus={(e) => e.currentTarget.select()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.currentTarget.blur();
+              if (e.key === "Escape") {
+                // Stops the sidebar or a dialog from closing too.
+                e.stopPropagation();
+                renameCancelled.current = true;
+                e.currentTarget.blur();
+              }
+            }}
+            onBlur={(e) => {
+              setRenaming(false);
+              if (renameCancelled.current) return void (renameCancelled.current = false);
+              onRename(node.id, e.currentTarget.value.trim());
+            }}
+            className="ml-0.5 h-6 min-w-0 flex-1 rounded border border-border bg-bg px-1.5 text-sm outline-none focus:border-accent"
+          />
+        ) : (
+          <Link
+            href={`/w/${workspaceId}/p/${node.id}`}
+            className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pl-0.5"
+          >
+            {expandable && (
+              <PageIcon icon={node.icon} kind={node.kind} className="hidden text-sm pointer-coarse:inline" />
+            )}
+            <span className="truncate">{pageLabel(node.title, tc("untitled"))}</span>
+          </Link>
+        )}
+        {editable && !renaming && (
           <div className="hidden items-center group-hover:flex pointer-coarse:flex">
             <Popover
               align="end"
@@ -1645,16 +1695,27 @@ function TreeItem({
               )}
             >
               {(close) => (
-                <MenuItem
-                  danger
-                  icon={<Trash2 className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    onArchive(node.id);
-                  }}
-                >
-                  {t("pages.moveToTrash")}
-                </MenuItem>
+                <>
+                  <MenuItem
+                    icon={<Pencil className="h-4 w-4" />}
+                    onClick={() => {
+                      close();
+                      setRenaming(true);
+                    }}
+                  >
+                    {t("pages.rename")}
+                  </MenuItem>
+                  <MenuItem
+                    danger
+                    icon={<Trash2 className="h-4 w-4" />}
+                    onClick={() => {
+                      close();
+                      onArchive(node.id);
+                    }}
+                  >
+                    {t("pages.moveToTrash")}
+                  </MenuItem>
+                </>
               )}
             </Popover>
             {canNest && (

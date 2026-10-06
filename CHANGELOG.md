@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Rename from the sidebar.** A page's `⋯` menu in the sidebar has *Rename*: the name turns into
+  a field (Enter saves, Escape cancels). It writes the title through the page's shared doc, so an
+  open page and its tab update at once. Until now the only way to rename was the title on the page
+  itself, and an untitled page showed just a grey "Untitled" that didn't read as editable.
 - **MCP: `get_file`** reads a file uploaded to Leafdesk, by its id, `/api/files/<id>` path or url
   (what `get_page` and `query_database` show): text files (Markdown, CSV, JSON, XML, code…) and
   PDFs come back as text (a PDF's text layer, read with `unpdf`; scans have none), cut at 30,000
