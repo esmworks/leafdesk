@@ -9,6 +9,8 @@ An open-source, self-hostable Notion alternative with realtime collaboration and
 MCP server, so AI assistants such as Claude can search, read and edit your workspace after you
 approve them over OAuth.
 
+**Website:** [esmworks.github.io/leafdesk](https://esmworks.github.io/leafdesk/)
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/board-dark.png">
   <img src=".github/screenshots/board-light.png" alt="A Leafdesk database shown as a board, with the workspace's pages in the sidebar">
