@@ -6,10 +6,12 @@
 
 - **Database automations.** When a row is added, or a property changes (optionally only when it
   becomes a value: a select or status option, a checkbox state, a person or multi-select option
-  being added), an automation sets properties on the row (a date to the day it runs, a person to
-  whoever made the change), notifies people (chosen ones and those a person property names, in
+  being added), an automation sets properties on the row (a date to the day it runs, in UTC, a
+  person to whoever made the change), notifies people (chosen ones and those a person property names, in
   the inbox and by email as each chooses, only if they can open the row) or sends the row to a
-  webhook. People with full access to the database manage them; an automation runs as the person
+  webhook. People with full access to the database manage them from the ⚡ *Automations* button in
+  its toolbar (each with its recent runs, and for webhooks the signing secret, *Replace secret* and
+  *Send test*); an automation runs as the person
   who saved it last, with their access when it runs, and the changes it makes start no other
   automations. Runs are kept for 30 days with how each action went. Webhooks are JSON POSTs
   signed with HMAC-SHA256 (`X-Leafdesk-Signature: t=<unix>,v1=<hex>`, plus `X-Leafdesk-Event`

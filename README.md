@@ -801,6 +801,11 @@ set each other off.
 (done, failed or skipped, attempts, an error code, a webhook's HTTP status, how many people were
 notified). Runs on rows you can't open are left out.
 
+**Not (yet) covered.** A copy of a database, or a template made from one, starts without
+automations. The REST API has no automation endpoints; use the app or MCP. Changes that aren't
+row writes don't start automations: a relation's other side updated by a two-way relation, values
+AI autofill writes, and a property or option being deleted.
+
 ### Webhooks
 
 Each delivery is a `POST` with these headers:
