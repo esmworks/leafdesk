@@ -49,7 +49,9 @@ export function useNewRow(saveTitle: (rowId: string, title: string) => void) {
       field.remove();
     });
     // Focus moving on (to the title editor, or a click elsewhere) ends the capture; the text stays.
-    field.addEventListener("blur", () => field.remove());
+    // Removing the focused field fires blur while it is being removed: removing it again from in
+    // there makes that first removal throw, so this one waits until it's done (and does nothing).
+    field.addEventListener("blur", () => queueMicrotask(() => field.remove()));
     try {
       const id = await run();
       const text = field.value.trim();
