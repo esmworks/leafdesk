@@ -99,7 +99,8 @@ export function matchesTrigger(trigger: AutomationTrigger, write: RowWrite) {
   const changed = changedProperties(write.before, write.after);
   if (trigger.propertyId === null) return !write.created && changed.length > 0;
   if (!changed.includes(trigger.propertyId)) return false;
-  if (trigger.to === undefined || trigger.to === null) return true;
+  // A new row's values weren't changed by anyone: only a "becomes" condition looks at them.
+  if (trigger.to === undefined || trigger.to === null) return !write.created;
   return holds(write.after[trigger.propertyId], trigger.to) && !holds(write.before[trigger.propertyId], trigger.to);
 }
 

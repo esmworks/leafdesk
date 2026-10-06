@@ -35,11 +35,11 @@ describe("matchesTrigger", () => {
     expect(matchesTrigger(any, create({ a: 1 }))).toBe(false);
   });
 
-  it("one property matches when it changes, whatever to", () => {
+  it("one property matches when it changes, whatever to, not on a new row", () => {
     const t = { type: "property_changed", propertyId: "a" } as const;
     expect(matchesTrigger(t, update({ a: 1, b: 1 }, { a: 2, b: 1 }))).toBe(true);
     expect(matchesTrigger(t, update({ a: 1, b: 1 }, { a: 1, b: 2 }))).toBe(false);
-    expect(matchesTrigger(t, create({ a: 1 }))).toBe(true);
+    expect(matchesTrigger(t, create({ a: 1 }))).toBe(false);
     expect(matchesTrigger(t, create({}))).toBe(false);
   });
 

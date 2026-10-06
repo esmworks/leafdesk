@@ -253,12 +253,19 @@ export async function deleteAutomation(userId: string, automationId: string) {
 
 /** A new webhook signing secret: the old one stops working at once. */
 export async function rotateAutomationSecret(userId: string, automationId: string) {
-  await manageable(userId, automationId);
+  const current = await manageable(userId, automationId);
   const [updated] = await db
     .update(databaseAutomation)
     .set({ secretSalt: newSecretSalt() })
     .where(eq(databaseAutomation.id, automationId))
     .returning();
+  await recordAudit({
+    workspaceId: current.workspaceId,
+    actorId: userId,
+    action: "automation.updated",
+    target: { type: "page", id: current.databaseId },
+    details: { ...auditDetails(updated), previous: auditDetails(current), secretRotated: true },
+  });
   return (await describe([updated]))[0];
 }
 

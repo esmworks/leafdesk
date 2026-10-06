@@ -42,6 +42,7 @@ export function useNewRow(saveTitle: (rowId: string, title: string) => void) {
     const field = captureField();
     capture.current = field;
     let finished = false;
+    let created = false;
     field.addEventListener("keydown", (e) => {
       if (e.isComposing || e.keyCode === 229 || (e.key !== "Enter" && e.key !== "Escape")) return;
       e.preventDefault();
@@ -49,11 +50,17 @@ export function useNewRow(saveTitle: (rowId: string, title: string) => void) {
       field.remove();
     });
     // Focus moving on (to the title editor, or a click elsewhere) ends the capture; the text stays.
+    // Before the row exists only a click elsewhere can take it: that saves the text as Enter does,
+    // without opening the editor (which may not be shown to take it).
     // Removing the focused field fires blur while it is being removed: removing it again from in
     // there makes that first removal throw, so this one waits until it's done (and does nothing).
-    field.addEventListener("blur", () => queueMicrotask(() => field.remove()));
+    field.addEventListener("blur", () => {
+      if (!created) finished = true;
+      queueMicrotask(() => field.remove());
+    });
     try {
       const id = await run();
+      created = true;
       const text = field.value.trim();
       if (!id || finished) {
         field.remove();

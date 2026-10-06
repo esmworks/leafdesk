@@ -1437,7 +1437,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List a database's automations",
       description:
-        "List the automations of a database: each one's trigger and actions with the property, option and people names next to their ids and a one-line summary, whether it is enabled, who it runs as, its last run and, for automations with a webhook, the webhook signing secret. Needs full access to the database.",
+        "List the automations of a database: each one's trigger and actions with the property, option and people names next to their ids and a one-line summary, whether it is enabled, who it runs as, its last run and, for automations with a webhook on a connection that may edit, the webhook signing secret. Needs full access to the database.",
       inputSchema: automationInputs.list,
       annotations: READ,
     },
@@ -1445,7 +1445,9 @@ export function createMcpServer(principal: McpPrincipal) {
       runTool(async () => {
         const list = await automations.listAutomations(userId, database_id);
         const context = await automationContext(userId, database_id);
-        return { database_id, automations: list.map((a) => describeAutomation(context, a)) };
+        // The secret signs what receivers trust: a read-only connection doesn't get it.
+        const canWrite = principal.scopes.includes(WRITE_SCOPE);
+        return { database_id, automations: list.map((a) => describeAutomation(context, canWrite ? a : { ...a, secret: null })) };
       }),
   );
 

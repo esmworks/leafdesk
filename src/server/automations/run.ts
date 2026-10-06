@@ -33,6 +33,14 @@ const SWEEP_INTERVAL_MS = 5_000;
 const BATCH = 20;
 /** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
 const STALE_MS = 10 * 60_000;
+/** A run taken this many times without finishing (one that stops the worker, say) fails. */
+const MAX_CLAIMS = 25;
+/**
+ * A new row's title is often typed after it's created (the "New" button): a run with a webhook
+ * waits up to this long, looking again every TITLE_POLL_MS, so the webhook doesn't send it untitled.
+ */
+const TITLE_WAIT_MS = 60_000;
+const TITLE_POLL_MS = 5_000;
 export const RUN_HISTORY_DAYS = 30;
 /** How long an automation's email waits, like a share's, so it isn't sent for something read at once. */
 const EMAIL_DELAY_MS = 30_000;
@@ -89,11 +97,20 @@ export async function processRun(run: Run) {
   // Actions changed while a webhook waited to be tried again: what's left belongs to the old ones.
   const edited = steps.length !== automation.actions.length || steps.some((s, i) => s.type !== automation.actions[i].type);
 
+  const waitsForTitle = () =>
+    run.created &&
+    !row?.title.trim() &&
+    Date.now() - run.createdAt.getTime() < TITLE_WAIT_MS &&
+    steps.some((s, i) => s.status === "pending" && automation.actions[i].type === "webhook");
+
   if (edited) steps = endPending(steps, "changed", "skipped");
+  else if (run.attempts > MAX_CLAIMS) steps = endPending(steps, "tooManyAttempts");
   else if (!automation.enabled) steps = endPending(steps, "disabled", "skipped");
   else if (!row || row.archivedAt || row.parentId !== automation.databaseId) steps = endPending(steps, "rowGone", "skipped");
   else if (!automation.runAs || !(await canManage(automation.runAs, automation.databaseId))) {
     steps = endPending(steps, "noAccess");
+  } else if (waitsForTitle()) {
+    retryAt = new Date(Date.now() + TITLE_POLL_MS);
   } else {
     for (const [i, action] of automation.actions.entries()) {
       const step = steps[i];
@@ -107,7 +124,8 @@ export async function processRun(run: Run) {
           step.notified = await notify(automation, run, row, action);
           step.status = "done";
         } else {
-          payload ??= await webhookPayload(automation, run, row);
+          // The row as it is now (after the actions before this one); its retries send the same.
+          if (step.attempts === 1 || !payload) payload = await webhookPayload(automation, run, row);
           const status = await sendWebhook(action.url, {
             id: run.id,
             event: webhookEvent(run.created),
@@ -129,9 +147,11 @@ export async function processRun(run: Run) {
           error.code !== "blocked" &&
           retriable(httpStatus);
         if (again) {
-          const at = new Date(Date.now() + retryDelayMs(step.attempts));
-          if (!retryAt || at < retryAt) retryAt = at;
-        } else step.status = "failed";
+          // Actions run in order: the ones after it wait for it.
+          retryAt = new Date(Date.now() + retryDelayMs(step.attempts));
+          break;
+        }
+        step.status = "failed";
       }
     }
   }
@@ -163,7 +183,8 @@ async function setProperties(automation: Automation, run: Run, values: Record<st
   const patch: Record<string, unknown> = {};
   for (const [id, value] of Object.entries(values)) {
     if (!isDynamicValue(value)) patch[id] = value;
-    else if (value.$ === "now") patch[id] = new Date().toISOString().slice(0, 10);
+    // The server's own day (its TZ), not UTC's: the same day as the server's clock shows.
+    else if (value.$ === "now") patch[id] = new Date().toLocaleDateString("en-CA");
     // Nobody to set when an anonymous form answer started it: the value stays as it is.
     else if (run.actorId) patch[id] = [run.actorId];
   }
@@ -185,12 +206,15 @@ async function notify(automation: Automation, run: Run, row: Row, action: Extrac
   const existing = new Set(
     (await db.select({ id: user.id }).from(user).where(inArray(user.id, candidates))).map((u) => u.id),
   );
-  const recipients: string[] = [];
-  for (const userId of candidates) {
-    if (!existing.has(userId)) continue;
-    const { level } = await resolvePageAccess(userId, row.id).catch(() => ({ level: "none" as const }));
-    if (level !== "none") recipients.push(userId);
-  }
+  const levels = await Promise.all(
+    candidates
+      .filter((userId) => existing.has(userId))
+      .map(async (userId) => {
+        const { level } = await resolvePageAccess(userId, row.id).catch(() => ({ level: "none" as const }));
+        return { userId, level };
+      }),
+  );
+  const recipients = levels.filter((r) => r.level !== "none").map((r) => r.userId);
   if (!recipients.length) return 0;
   const emailDueAt = new Date(Date.now() + EMAIL_DELAY_MS);
   await db.insert(notification).values(
@@ -257,7 +281,7 @@ async function sweep() {
           console.error("automation run failed", error);
           await db
             .update(automationRun)
-            .set({ status: "failed", finishedAt: new Date() })
+            .set({ status: "failed", steps: endPending(run.steps, "error"), finishedAt: new Date() })
             .where(eq(automationRun.id, run.id))
             .catch(() => undefined);
         }
