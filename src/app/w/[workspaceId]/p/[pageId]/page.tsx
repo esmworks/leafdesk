@@ -6,6 +6,7 @@ import { RowProperties } from "@/components/database/row-properties";
 import { NoAccess } from "@/components/page/no-access";
 import { PageView } from "@/components/page/page-view";
 import { pageLabel } from "@/lib/labels";
+import { pageStyleFromYdoc } from "@/lib/page-style";
 import { AccessError, WorkspacePolicyError } from "@/server/access";
 import { accessRequestsOffered } from "@/server/access-requests";
 import { getPageHeaderInfo } from "@/server/page-meta";
@@ -64,6 +65,7 @@ export default async function PageRoute({ params }: Params) {
       user={{ id: user.id, name: user.name }}
       showBody={p.kind !== "database"}
       wide={p.kind === "database"}
+      style={p.kind === "database" ? undefined : pageStyleFromYdoc(p.ydoc)}
     >
       {p.kind === "database" ? (
         <DatabasePage workspaceId={workspaceId} databaseId={p.id} canEdit={canEdit && !archived} guest={info.guest} exportable={info.exportable} />

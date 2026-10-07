@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Page style.** The page's `⋯` menu starts with a typeface for the page (*Default*, *Serif*,
+  *Mono*) and switches for *Small text* (14px body, headings scale with it) and *Full width* (the
+  text starts at the same gutter as a database). The style is kept in the page's shared document,
+  so it changes live for everyone, shows on pages kept for offline use, and travels with copies,
+  templates and published pages; no migration. The server reads it on the first render, so a
+  page opens in its style without a jump. The print view takes the typeface and text size. Shown
+  to people who can edit pages with a body; databases are unchanged. Published headings are now
+  sized relative to the body text (the same at the default size).
 - **Agents.** An agent is an AI helper of a workspace with a name, an emoji, a description and
   instructions of its own, run by a new automation action, *Run an agent* (`run_agent`, the agent
   by id or name and a task of up to 2000 characters), on the row that started the automation.

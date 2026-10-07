@@ -20,6 +20,14 @@
     "duplicateSuffix": " (copia)",
     "duplicateFailed": "No se pudo duplicar la página.",
     "moveTo": "Mover a",
+    "style": {
+      "font": "Fuente",
+      "default": "Predeterminada",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Texto pequeño",
+      "fullWidth": "Ancho completo"
+    },
     "lockDatabase": "Bloquear base de datos",
     "lockHint": "Mientras está bloqueada, las propiedades y las vistas no se pueden cambiar; las filas siguen siendo editables.",
     "locked": "Bloqueada",

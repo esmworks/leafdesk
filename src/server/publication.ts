@@ -7,6 +7,7 @@ import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { withFormulaTypes } from "@/lib/derived";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
+import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
 import { coverProperty, galleryCover } from "@/lib/views";
 import { firstImageFile } from "@/lib/files";
@@ -338,6 +339,8 @@ export type PublishedPage = {
   icon: string | null;
   kind: PageKind;
   updatedAt: Date;
+  /** Typeface, small text and full width the page has in the app (the defaults for databases). */
+  style: PageStyle;
   /** Body HTML serialized by BlockNote from the page's own document (see published-body.ts), with its database blocks. */
   body: PublishedBlock[];
   /** From the published page down to this page, both included. */
@@ -435,6 +438,7 @@ export async function getPublishedPage(
     icon: target.icon,
     kind: target.kind,
     updatedAt: target.updatedAt,
+    style: target.kind === "page" ? pageStyleFromYdoc(target.ydoc) : DEFAULT_PAGE_STYLE,
     body,
     crumbs,
     // An inline database shown in the body isn't listed again below it.

@@ -23,10 +23,11 @@ import { IconPicker } from "./icon-picker";
 import { Backlinks } from "./mentions";
 import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
-import { setDocTitle, useDocTitle, usePageDoc, type ConnectionState } from "./use-page-doc";
+import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
 import { usePagePresence } from "./use-presence";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { rememberPage } from "@/components/offline/offline-store";
+import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 
 // BlockNote touches `window` during setup; render it only in the browser.
 const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
@@ -41,6 +42,7 @@ export function PageView({
   user,
   showBody,
   wide,
+  style = DEFAULT_PAGE_STYLE,
   children,
 }: {
   workspaceId: string;
@@ -59,6 +61,8 @@ export function PageView({
   user: { id: string; name: string };
   showBody: boolean;
   wide: boolean;
+  /** The page's style as stored, so the first paint already has it (see lib/page-style.ts). */
+  style?: PageStyle;
   children?: ReactNode;
 }) {
   const router = useRouter();
@@ -82,6 +86,9 @@ export function PageView({
   // The collab server drops edits from people who may only view, so don't let them type at all.
   // Offline edits are kept in this browser: the doc syncs them when the connection comes back.
   const editable = !page.archived && canEdit && synced && connection !== "noAccess";
+  // Pages with a body only: databases always use the whole width and the app's typeface.
+  const pageStyle = usePageStyle(synced ? pageDoc?.doc : undefined, style);
+  const fullWidth = showBody && !wide && pageStyle.fullWidth;
 
   // Listed on the offline page, whose links open the copies the service worker kept.
   useEffect(() => {
@@ -198,7 +205,8 @@ export function PageView({
             variant="ghost"
             onClick={toggle}
             className={cn(
-              "-ml-2 opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100",
+              // A control, so the app's typeface rather than the page's.
+              "-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100",
               (page.archived || !canEdit || offline) && "hidden",
             )}
           >
@@ -253,6 +261,8 @@ export function PageView({
             onComments={showBody ? () => setCommentsOpen((open) => !open) : undefined}
             onMoveToTrash={moveToTrash}
             offline={offline}
+            style={showBody ? pageStyle : undefined}
+            onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
           />
         </div>
       </header>
@@ -286,7 +296,14 @@ export function PageView({
         </div>
       )}
 
-      <div className={cn("w-full flex-1 pb-32", wide ? "pt-6" : "mx-auto max-w-[900px] pt-8 md:pt-12")}>
+      <div
+        className={cn(
+          "w-full flex-1 pb-32",
+          wide ? "pt-6" : fullWidth ? "page-full-width pt-8 md:pt-12" : "mx-auto max-w-[900px] pt-8 md:pt-12",
+          fullWidth && commentsOpen && !offline && "page-beside-panel",
+          showBody && pageTextClasses(pageStyle),
+        )}
+      >
         <div className={cn(wide ? "page-gutter" : "px-4 md:px-[54px]")}>
           {(!wide || !icon) && <div className="group mb-2 flex h-8 items-end">{iconPicker}</div>}
           {!wide && icon && <div className="h-8" />}

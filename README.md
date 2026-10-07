@@ -54,6 +54,12 @@ versions, upgrades and running behind a domain.
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text, and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).
+- **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
+  mono), small text, and full width. It is set per page and everyone sees it, changing live for
+  whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
+  it, published pages show it, and the print view uses the typeface and text size (paper has no
+  full width). Restoring an older version keeps the current style. Databases always use the full
+  width.
 - **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
   live preview, a table of contents and a breadcrumb, and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in

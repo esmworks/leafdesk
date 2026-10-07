@@ -20,6 +20,14 @@
     "duplicateSuffix": " (Kopie)",
     "duplicateFailed": "Die Seite konnte nicht dupliziert werden.",
     "moveTo": "Verschieben nach",
+    "style": {
+      "font": "Schriftart",
+      "default": "Standard",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Kleiner Text",
+      "fullWidth": "Volle Breite"
+    },
     "lockDatabase": "Datenbank sperren",
     "lockHint": "Solange die Datenbank gesperrt ist, lassen sich Eigenschaften und Ansichten nicht ändern; Zeilen bleiben bearbeitbar.",
     "locked": "Gesperrt",

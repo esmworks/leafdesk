@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { page, type PageKind } from "@/db/schema";
+import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { printOrder } from "@/lib/print";
 import { pageVisibleTo, requirePageAccess } from "@/server/access";
 import type { PageBlock } from "@/server/blocknote";
@@ -41,6 +42,8 @@ export type PrintSection = {
   icon: string | null;
   kind: PageKind;
   updatedAt: Date;
+  /** Typeface and small text print as in the app; paper has no full width. */
+  style: PageStyle;
   /** How deep it lies under the printed page (0 for that page). */
   depth: number;
   body: PublishedBlock[];
@@ -175,6 +178,8 @@ async function printSection(userId: string, pageId: string, depth: number, index
     icon: target.icon,
     kind: target.kind,
     updatedAt: target.updatedAt,
+    // As last stored: the collab server stores an edit within seconds.
+    style: isDatabase ? DEFAULT_PAGE_STYLE : pageStyleFromYdoc(target.ydoc),
     depth,
     body,
     crumbs,

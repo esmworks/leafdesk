@@ -307,6 +307,46 @@
 }
 
 /*
+ * Page style (lib/page-style.ts). The typeface covers the page's title, properties and body; the
+ * editor sets the app font on its own container, so its text is given the page's by name.
+ * Menus and popovers keep the app font. Small text sizes the body only: headings scale with it,
+ * the title stays as it is.
+ */
+.page-font-serif {
+  --page-font: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+.page-font-mono {
+  --page-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+:is(.page-font-serif, .page-font-mono),
+:is(.page-font-serif, .page-font-mono) .leafdesk-editor .bn-default-styles {
+  font-family: var(--page-font);
+}
+.page-small-text .leafdesk-editor .bn-default-styles {
+  font-size: 14px;
+}
+
+/*
+ * A full-width page starts its text at the same gutter as a database: the column's padding plus the
+ * editor's own 54px (where the block handles sit) adds up to `--gutter`.
+ */
+.page-full-width {
+  --gutter: max(3rem, min(6rem, calc((100% - 1104px) / 2)));
+  padding-inline: max(0px, calc(var(--gutter) - 54px));
+}
+/* The comments panel (360px, fixed at the right) would cover the end of every line. */
+@media (min-width: 768px) {
+  .page-full-width.page-beside-panel {
+    padding-inline-end: calc(360px + max(0px, var(--gutter) - 54px));
+  }
+}
+@media (max-width: 767px) {
+  .page-full-width {
+    padding-inline: 0;
+  }
+}
+
+/*
  * Phones: the editor text lines up with the page gutter, so the block handles that live in the
  * desktop gutter have no room; blocks are added with "/" instead.
  */
