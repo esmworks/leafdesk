@@ -325,6 +325,23 @@
 .page-small-text .leafdesk-editor .bn-default-styles {
   font-size: 14px;
 }
+/* iOS zooms into editable text under 16px when it takes focus, so touch screens keep the body at 16px. */
+@media (pointer: coarse) {
+  .page-small-text .leafdesk-editor .bn-default-styles {
+    font-size: 16px;
+  }
+}
+
+/*
+ * The comments panel (360px, fixed at the right) would cover the end of every line. A page keeps
+ * its place while it clears the panel; otherwise it moves left, and narrows once it reaches the edge.
+ */
+@media (min-width: 768px) {
+  .page-column.page-beside-panel {
+    width: auto;
+    margin-inline: max(0px, min(calc((100% - 900px) / 2), calc(100% - 1260px))) 360px;
+  }
+}
 
 /*
  * A full-width page starts its text at the same gutter as a database: the column's padding plus the
@@ -334,7 +351,7 @@
   --gutter: max(3rem, min(6rem, calc((100% - 1104px) / 2)));
   padding-inline: max(0px, calc(var(--gutter) - 54px));
 }
-/* The comments panel (360px, fixed at the right) would cover the end of every line. */
+/* A full-width page leaves the comments panel its 360px. */
 @media (min-width: 768px) {
   .page-full-width.page-beside-panel {
     padding-inline-end: calc(360px + max(0px, var(--gutter) - 54px));

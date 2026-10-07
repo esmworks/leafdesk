@@ -58,8 +58,10 @@ versions, upgrades and running behind a domain.
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
   it, published pages show it, and the print view uses the typeface and text size (paper has no
-  full width). Restoring an older version keeps the current style. Databases always use the full
-  width.
+  full width). Small text applies on screens with a mouse or trackpad: on touch screens the body
+  stays at 16px, so the phone doesn't zoom in when you start typing. Restoring an older version
+  keeps the current style. Databases always use the full width. With the comments panel open, a
+  page moves left of it (and narrows when the window is too small) instead of running under it.
 - **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
   live preview, a table of contents and a breadcrumb, and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in

@@ -299,8 +299,8 @@ export function PageView({
       <div
         className={cn(
           "w-full flex-1 pb-32",
-          wide ? "pt-6" : fullWidth ? "page-full-width pt-8 md:pt-12" : "mx-auto max-w-[900px] pt-8 md:pt-12",
-          fullWidth && commentsOpen && !offline && "page-beside-panel",
+          wide ? "pt-6" : fullWidth ? "page-full-width pt-8 md:pt-12" : "page-column mx-auto max-w-[900px] pt-8 md:pt-12",
+          !wide && commentsOpen && !offline && "page-beside-panel",
           showBody && pageTextClasses(pageStyle),
         )}
       >

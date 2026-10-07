@@ -5,7 +5,8 @@
 ### Added
 
 - **Page style.** The page's `⋯` menu starts with a typeface for the page (*Default*, *Serif*,
-  *Mono*) and switches for *Small text* (14px body, headings scale with it) and *Full width* (the
+  *Mono*) and switches for *Small text* (14px body, headings scale with it; touch screens keep
+  16px so iOS doesn't zoom in on the text when typing starts) and *Full width* (the
   text starts at the same gutter as a database). The style is kept in the page's shared document,
   so it changes live for everyone, shows on pages kept for offline use, and travels with copies,
   templates and published pages; no migration. The server reads it on the first render, so a
@@ -91,6 +92,12 @@
 - **Trademark notice.** The README and the website say that Notion is a trademark of Notion Labs,
   Inc. and that Leafdesk is not affiliated with it. The MCP server's instructions describe Leafdesk
   on its own terms instead of as "Notion-like".
+
+### Fixed
+
+- **Comments panel over the page.** With the comments panel open, a page's text ran under it on
+  most screens. The page now keeps its place while it clears the panel, moves left when it
+  doesn't, and narrows once it reaches the sidebar.
 
 ## 0.4.0 — 2026-10-02
 
