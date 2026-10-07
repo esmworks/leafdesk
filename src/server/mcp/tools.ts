@@ -76,6 +76,8 @@ import {
   withAgentErrors,
   withSharingErrors,
 } from "./agents";
+import * as connections from "@/server/connections/manage";
+import { connectionInputs, describeConnection, withConnectionErrors } from "./connections";
 import { AGENT_RUN_HISTORY_DAYS, AGENT_RUN_TIMEOUT_MS, MAX_AGENT_ROUNDS, MAX_AGENT_WRITES } from "@/lib/agents";
 import {
   automationContext,
@@ -1741,7 +1743,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): the automation and row that started each (the row's title only when the user can open it), its status (pending, running, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts or error), what it did step by step (searched, read, queried, changed the row, commented, its thoughts), its final answer and the tokens it used. ${RUN_NOTE} ${AGENT_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; or a connection's event), its status (pending, running, waiting_for_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone or error), what it did step by step (searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on, its final answer and the tokens it used. A call waiting for approval is answered by an owner in the Leafdesk inbox, not here. ${RUN_NOTE} ${AGENT_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },
@@ -1753,6 +1755,43 @@ export function createMcpServer(principal: McpPrincipal) {
           return { agent_id, runs: runs.map((run) => describeAgentRun(agent.workspaceId, run)) };
         }),
       ),
+  );
+
+  server.registerTool(
+    "list_connections",
+    {
+      title: "List the workspace's connections",
+      description:
+        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools with what each does (reads: runs at once; writes: each call waits for an owner's approval in the inbox), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
+      inputSchema: connectionInputs.list,
+      annotations: READ,
+    },
+    ({ workspace_id, agent_id }) =>
+      runTool(() =>
+        withConnectionErrors(async () => {
+          const list = await connections.listConnections(userId, workspace_id);
+          const grants = agent_id ? await withAgentErrors(() => connections.listAgentGrants(userId, agent_id)) : null;
+          return { connections: list.map((conn) => describeConnection(conn, grants ? (grants.find((g) => g.connectionId === conn.id) ?? null) : undefined)) };
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "set_agent_connection_tools",
+    {
+      title: "Choose an agent's tools on a connection",
+      description:
+        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them; any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
+      inputSchema: connectionInputs.grant,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, connection_id, tools }) =>
+      withConnectionErrors(async () => {
+        const grants = await connections.setAgentGrant(userId, agent_id, connection_id, tools);
+        return { agent_id, connections: grants.map((g) => ({ connection_id: g.connectionId, tools: g.tools })) };
+      }),
+    ),
   );
 
   server.registerTool(

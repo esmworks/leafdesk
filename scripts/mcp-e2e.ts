@@ -394,7 +394,7 @@ async function main() {
     "list_recent_pages", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
-    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "list_agent_runs",
+    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "list_agent_runs", "list_connections", "set_agent_connection_tools",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
   const getPageTool = list.message.result.tools.find((t: { name: string }) => t.name === "get_page");
@@ -870,6 +870,11 @@ async function main() {
     "list_agent_runs shows the run the automation started, ended as aiOff without AI",
     agentRuns,
   );
+  // Connections: owners list them (none yet here) and choose an agent's tools on one.
+  const conns = await mcp.ok("list_connections", { workspace_id: ws, agent_id: triage.id });
+  check(Array.isArray(conns.connections) && conns.connections.length === 0, "list_connections lists the workspace's connections (none)", conns);
+  const noConn = await mcp.call("set_agent_connection_tools", { agent_id: triage.id, connection_id: "nope", tools: [] });
+  check(noConn.isError && noConn.text.includes("list_connections"), "set_agent_connection_tools on an unknown connection says how to find one", noConn.text);
   const automationRuns = await mcp.ok("list_automation_runs", { automation_id: agentAutomation.id });
   check(
     automationRuns.runs[0]?.steps?.[0]?.type === "run_agent" && automationRuns.runs[0].steps[0].agent_run_id === agentRunEntry.id,
