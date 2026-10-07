@@ -58,7 +58,8 @@ export function TemplateWizard({
   const [needsPerson, setNeedsPerson] = useState("");
   const [knowledge, setKnowledge] = useState<string[]>([]);
   const [name, setName] = useState(template.name);
-  const [problem, setProblem] = useState<string | null>(null);
+  // Set once the owner tries to go on; what's missing then shows until it's filled in.
+  const [tried, setTried] = useState(false);
   const { pending, error, run } = useAction();
   const own = template.newProperty;
   const answerer = template.key === "request-answerer";
@@ -75,7 +76,7 @@ export function TemplateWizard({
 
   const chooseDatabase = (page: PickablePage) => {
     setDatabase(page);
-    setProblem(null);
+    setTried(false);
     run(
       () => builtinAgentPropertiesAction(workspaceId, page.id),
       (loaded) => {
@@ -108,10 +109,10 @@ export function TemplateWizard({
   };
 
   const next = () => {
-    const key = missing();
-    setProblem(key && t(`errors.${key}`));
-    if (key) return;
+    setTried(true);
+    if (missing()) return;
     if (step !== last) {
+      setTried(false);
       setStep("pages");
       return;
     }
@@ -127,9 +128,12 @@ export function TemplateWizard({
   };
 
   const back = () => {
-    setProblem(null);
+    setTried(false);
     setStep(step === "pages" ? "properties" : "database");
   };
+
+  const gap = tried ? missing() : null;
+  const problem = gap && t(`errors.${gap}`);
 
   const databases = pages && pages.filter((p) => p.kind === "database");
   const knowledgePages = pages && pages.filter((p) => p.id !== database?.id);

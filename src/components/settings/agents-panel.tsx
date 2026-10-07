@@ -50,6 +50,8 @@ export function AgentsPanel({
   const [creating, setCreating] = useState(false);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [template, setTemplate] = useState<BuiltinAgentSummary | null>(null);
+  // The run a link opened (from an automation's runs), until its agent is closed.
+  const [linkedRun, setLinkedRun] = useState(initialRunId);
   const { pending, error, run } = useAction();
 
   const find = (id: string) => agents.find((a) => a.id === id) ?? (made?.id === id ? made : undefined);
@@ -172,9 +174,18 @@ export function AgentsPanel({
           workspaceId={workspaceId}
           agent={opened}
           tab={open.tab}
-          runId={initialRunId}
+          runId={linkedRun}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
-          onClose={() => setOpen(null)}
+          onClose={() => {
+            setOpen(null);
+            if (!initialAgentId) return;
+            // A reload shouldn't open it again.
+            setLinkedRun(undefined);
+            const url = new URL(window.location.href);
+            url.searchParams.delete("agent");
+            url.searchParams.delete("run");
+            window.history.replaceState(null, "", url);
+          }}
         />
       )}
       {archiving && <ArchiveDialog workspaceId={workspaceId} agent={archiving} onClose={() => setArchivingId(null)} />}
