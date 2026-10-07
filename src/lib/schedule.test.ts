@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nextOccurrence, parseRepeatRule, type RepeatRule } from "./schedule";
-import { dayNumber, isTimeZone, zonedInstant } from "./time-zone";
+import { dayNumber, isTimeZone, listTimeZones, timeZoneLabel, zonedInstant } from "./time-zone";
 
 const rule = (r: Partial<RepeatRule>): RepeatRule => ({
   frequency: "daily",
@@ -42,6 +42,23 @@ describe("isTimeZone", () => {
     expect(isTimeZone("Mars/Olympus")).toBe(false);
     expect(isTimeZone("")).toBe(false);
     expect(isTimeZone(3)).toBe(false);
+  });
+});
+
+describe("time zone names", () => {
+  it("shows a renamed zone under its current name", () => {
+    expect(timeZoneLabel("Asia/Calcutta")).toBe("Asia/Kolkata");
+    expect(timeZoneLabel("Europe/Kiev")).toBe("Europe/Kyiv");
+    expect(timeZoneLabel("America/New_York")).toBe("America/New York");
+  });
+
+  it("lists zones in label order and keeps the current one as a listed name", () => {
+    const { zones, current } = listTimeZones("Europe/Kyiv");
+    expect(zones).toContain(current);
+    expect(timeZoneLabel(current)).toBe("Europe/Kyiv");
+    const labels = zones.map(timeZoneLabel);
+    expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
+    expect(listTimeZones("Europe/Istanbul").current).toBe("Europe/Istanbul");
   });
 });
 

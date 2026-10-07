@@ -74,3 +74,56 @@ export function zonedInstant(day: number, minutes: number, timeZone: string): nu
   if (matches.length) return Math.min(...matches);
   return local - before;
 }
+
+/**
+ * Zones that runtimes still list (and resolve to) under a name that has since changed. The stored
+ * value stays the listed one, which every runtime knows; forms show the current name.
+ */
+const RENAMED_ZONES: Record<string, string> = {
+  "Africa/Asmera": "Africa/Asmara",
+  "America/Buenos_Aires": "America/Argentina/Buenos_Aires",
+  "America/Catamarca": "America/Argentina/Catamarca",
+  "America/Coral_Harbour": "America/Atikokan",
+  "America/Cordoba": "America/Argentina/Cordoba",
+  "America/Godthab": "America/Nuuk",
+  "America/Indianapolis": "America/Indiana/Indianapolis",
+  "America/Jujuy": "America/Argentina/Jujuy",
+  "America/Louisville": "America/Kentucky/Louisville",
+  "America/Mendoza": "America/Argentina/Mendoza",
+  "Asia/Calcutta": "Asia/Kolkata",
+  "Asia/Katmandu": "Asia/Kathmandu",
+  "Asia/Rangoon": "Asia/Yangon",
+  "Asia/Saigon": "Asia/Ho_Chi_Minh",
+  "Atlantic/Faeroe": "Atlantic/Faroe",
+  "Europe/Kiev": "Europe/Kyiv",
+  "Pacific/Enderbury": "Pacific/Kanton",
+  "Pacific/Ponape": "Pacific/Pohnpei",
+  "Pacific/Truk": "Pacific/Chuuk",
+};
+
+/** A zone's name for people to read: its current name, with spaces ("Asia/Ho Chi Minh"). */
+export function timeZoneLabel(timeZone: string): string {
+  return (RENAMED_ZONES[timeZone] ?? timeZone).replaceAll("_", " ");
+}
+
+/**
+ * The zones this runtime knows, as the names it lists, in the order of their labels. `current`
+ * is kept, as the listed name when it is another name of a listed zone ("Europe/Kyiv" →
+ * "Europe/Kiev").
+ */
+export function listTimeZones(current: string): { zones: string[]; current: string } {
+  let zones: string[] = [];
+  try {
+    zones = Intl.supportedValuesOf("timeZone");
+  } catch {
+    zones = [];
+  }
+  let listed = current;
+  if (!zones.includes(current) && isTimeZone(current)) {
+    const resolved = new Intl.DateTimeFormat("en-US", { timeZone: current }).resolvedOptions().timeZone;
+    if (zones.includes(resolved)) listed = resolved;
+  }
+  const all = zones.includes(listed) ? zones : [listed, ...zones];
+  const labels = new Map(all.map((zone) => [zone, timeZoneLabel(zone)]));
+  return { zones: [...all].sort((a, b) => labels.get(a)!.localeCompare(labels.get(b)!)), current: listed };
+}

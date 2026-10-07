@@ -13,7 +13,7 @@ import {
   type RepeatFrequency,
   type ScheduleError,
 } from "@/lib/schedule";
-import { dayString, isTimeZone, localDay } from "@/lib/time-zone";
+import { dayString, isTimeZone, listTimeZones, localDay, timeZoneLabel } from "@/lib/time-zone";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
 
@@ -33,16 +33,6 @@ function browserTimeZone() {
   } catch {
     return "UTC";
   }
-}
-
-function timeZones(current: string) {
-  let zones: string[] = [];
-  try {
-    zones = Intl.supportedValuesOf("timeZone");
-  } catch {
-    zones = [];
-  }
-  return zones.includes(current) ? zones : [current, ...zones];
 }
 
 /** A new rule: every week on today's weekday, at 09:00, from today, in the browser's time zone. */
@@ -114,7 +104,7 @@ export function TemplateRepeatDialog({
   );
   const valid = rule !== null && isTimeZone(form.timeZone);
   const next = useMemo(() => (rule && isTimeZone(form.timeZone) ? nextOccurrence(rule, form.timeZone, new Date()) : null), [rule, form.timeZone]);
-  const zones = useMemo(() => timeZones(form.timeZone), [form.timeZone]);
+  const zoneList = useMemo(() => listTimeZones(form.timeZone), [form.timeZone]);
 
   const formatAt = (at: Date | string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: "full", timeStyle: "short", timeZone: form.timeZone }).format(new Date(at));
@@ -267,10 +257,10 @@ export function TemplateRepeatDialog({
           <label htmlFor="repeat-zone" className={label}>
             {t("timeZone")}
           </label>
-          <select id="repeat-zone" className={selectClass} value={form.timeZone} onChange={(e) => set({ timeZone: e.target.value })}>
-            {zones.map((zone) => (
+          <select id="repeat-zone" className={selectClass} value={zoneList.current} onChange={(e) => set({ timeZone: e.target.value })}>
+            {zoneList.zones.map((zone) => (
               <option key={zone} value={zone}>
-                {zone.replaceAll("_", " ")}
+                {timeZoneLabel(zone)}
               </option>
             ))}
           </select>
