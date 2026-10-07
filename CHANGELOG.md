@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
+  row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
+  (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if
+  asked. The dialog shows when the next row comes. Rows are added as the person who set the repeat
+  and start "row added" automations; when they can't add rows any more, or their account is gone,
+  the repeat pauses with the reason shown until someone saves it again. Each server checks every 30
+  seconds; a schedule is taken with `FOR UPDATE SKIP LOCKED` and its next run moved on before the
+  row is added, so several replicas or a crash never add a run twice, and a server that was down
+  adds one row for what it missed. Up to 200 repeats per workspace. They're kept in a new
+  `schedule` table (migration `0040_schedules`), shared with what will run on a schedule later.
+- **Reordering view tabs.** A database's view tabs can be dragged into another order, which
+  everyone sees. The first tab is the one a published database shows. Not offered on a locked
+  database or to people who can't edit it. Over MCP, `update_database_view` moves a tab with
+  `before_view_id` or `after_view_id`, and MCP tools refused by a locked database now say so
+  instead of reporting a server error.
 - **Page style.** The page's `⋯` menu starts with a typeface for the page (*Default*, *Serif*,
   *Mono*) and switches for *Small text* (14px body, headings scale with it; touch screens keep
   16px so iOS doesn't zoom in on the text when typing starts) and *Full width* (the
@@ -111,7 +126,9 @@
   colors, chart groups and page history now use one palette built from the same lightness and
   saturation per role in each hue, slightly richer than before, with gray leaning toward the brand
   green. Every text and background pair reads at 4.5:1 or more in both themes; dark mode also sets
-  the editor's text colors, which came from BlockNote until now.
+  the editor's text colors, which came from BlockNote until now. In dark mode option chips are
+  mid-tone instead of near-black and board cards take more of their column's hue, so groups and
+  tags tell apart at a glance.
 - **Trademark notice.** The README and the website say that Notion is a trademark of Notion Labs,
   Inc. and that Leafdesk is not affiliated with it. The MCP server's instructions describe Leafdesk
   on its own terms instead of as "Notion-like".

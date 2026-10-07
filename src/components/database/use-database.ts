@@ -15,6 +15,7 @@ import {
   ensureOptionAction,
   loadDatabaseAction,
   moveRowAction,
+  moveViewAction,
   updatePropertyAction,
   updateRowPropertiesAction,
   updateRowsPropertiesAction,
@@ -462,6 +463,21 @@ export function useDatabase(
             ),
           }),
           () => updateViewAction(view.id, patch),
+        );
+      },
+
+      /** Moves a view's tab before or after another one. */
+      moveView(viewId: string, targetId: string, side: "before" | "after") {
+        return mutateSchema(
+          (s) => {
+            const moved = s.views.find((v) => v.id === viewId);
+            const rest = s.views.filter((v) => v.id !== viewId);
+            const at = rest.findIndex((v) => v.id === targetId);
+            if (!moved || at < 0) return s;
+            rest.splice(side === "before" ? at : at + 1, 0, moved);
+            return { ...s, views: rest.map((v, i) => ({ ...v, position: i + 1 })) };
+          },
+          () => moveViewAction(viewId, targetId, side),
         );
       },
 

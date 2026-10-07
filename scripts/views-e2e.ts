@@ -16,17 +16,26 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { inArray, sql } = await import("drizzle-orm");
+const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseView, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } = await import("@/lib/cover");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
-const { addProperty, addView, deleteProperty, deleteView, getDatabaseSnapshot, getProperties, updateRowProperties, updateView } =
-  await import("@/server/databases");
+const {
+  addProperty,
+  addView,
+  deleteProperty,
+  deleteView,
+  getDatabaseSnapshot,
+  getProperties,
+  moveView,
+  updateRowProperties,
+  updateView,
+} = await import("@/server/databases");
 const { getPublishedPage, publishPage } = await import("@/server/publication");
 const { duplicatePage } = await import("@/server/duplicate");
 const { createPage } = await import("@/server/pages");
@@ -57,6 +66,15 @@ async function rejects(fn: () => Promise<unknown>, code: string) {
     return false;
   } catch (error) {
     return error instanceof PropertyValueError && error.code === code;
+  }
+}
+
+async function deniedAccess(fn: () => Promise<unknown>) {
+  try {
+    await fn();
+    return false;
+  } catch (error) {
+    return error instanceof AccessError;
   }
 }
 
@@ -289,6 +307,44 @@ try {
     "a published list shows only the properties the list shows",
     publicColumns,
   );
+
+  // Moving view tabs
+  const tabs = async (id: string) => (await getDatabaseSnapshot(ids.owner, id)).views.map((v) => v.name);
+  const board = await addView(ids.owner, published.id, { name: "Board", type: "board" });
+  const table = await addView(ids.owner, published.id, { name: "Table", type: "table" });
+  check((await tabs(published.id)).join() === "Compact,Board,Table", "new views come last", await tabs(published.id));
+  await moveView(ids.owner, compact.id, table.id, "after");
+  check((await tabs(published.id)).join() === "Board,Table,Compact", "a view moves after another", await tabs(published.id));
+  await moveView(ids.owner, table.id, board.id, "before");
+  check((await tabs(published.id)).join() === "Table,Board,Compact", "a view moves before another", await tabs(published.id));
+  const firstColumns = (await getPublishedPage(token))?.database?.properties.map((p) => p.id);
+  check(firstColumns?.includes(notes.id), "the view moved first decides what a published database shows", firstColumns);
+  // Views that share a position are in the order they were made: Compact, Board, Table.
+  await db.update(databaseView).set({ position: 0 }).where(eq(databaseView.databaseId, published.id));
+  await moveView(ids.owner, table.id, compact.id, "before");
+  const untied = (await getDatabaseSnapshot(ids.owner, published.id)).views;
+  check(
+    untied.map((v) => v.name).join() === "Table,Compact,Board" && new Set(untied.map((v) => v.position)).size === 3,
+    "views that share a position still move, and get positions of their own",
+    untied.map((v) => [v.name, v.position]),
+  );
+  check(await deniedAccess(() => moveView(ids.owner, board.id, timeline.id, "before")), "a view can't move next to another database's view");
+  check(await deniedAccess(() => moveView(ids.guest, board.id, table.id, "before")), "a guest without access can't move views");
+  const movedOverMcp = await callTool(ids.owner, "update_database_view", { database_id: published.id, view_id: board.id, before_view_id: table.id });
+  check(!movedOverMcp.isError && (await tabs(published.id)).join() === "Board,Table,Compact", "MCP moves a view's tab", movedOverMcp.text);
+  await db.update(page).set({ lockedAt: new Date() }).where(eq(page.id, published.id));
+  const lockedMove = await callTool(ids.owner, "update_database_view", {
+    database_id: published.id,
+    view_id: compact.id,
+    before_view_id: board.id,
+    name: "Renamed",
+  });
+  check(
+    lockedMove.isError && /is locked/.test(lockedMove.text) && (await tabs(published.id)).join() === "Board,Table,Compact",
+    "a locked database keeps its tabs in place, and nothing else of the call is saved",
+    lockedMove.text,
+  );
+  await db.update(page).set({ lockedAt: null }).where(eq(page.id, published.id));
 
   console.log(`\n${passed} checks passed`);
 } finally {

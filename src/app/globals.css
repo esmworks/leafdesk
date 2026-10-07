@@ -208,15 +208,15 @@
 .opt-red, .tint-red { --opt-bg: #ffcfcc; --opt-fg: #5b2424; --opt-tint: #fef4f3; --opt-card: #ffffff; }
 
 @media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) .opt-gray, :root:not(:has([data-print-view])) .tint-gray { --opt-bg: #39433c; --opt-fg: #e6ebe7; --opt-tint: #1d1f1d; --opt-card: #282b29; }
-  :root:not(:has([data-print-view])) .opt-brown, :root:not(:has([data-print-view])) .tint-brown { --opt-bg: #573727; --opt-fg: #f6e6de; --opt-tint: #221d1b; --opt-card: #302824; }
-  :root:not(:has([data-print-view])) .opt-orange, :root:not(:has([data-print-view])) .tint-orange { --opt-bg: #613201; --opt-fg: #fce4d3; --opt-tint: #231d18; --opt-card: #33271e; }
-  :root:not(:has([data-print-view])) .opt-yellow, :root:not(:has([data-print-view])) .tint-yellow { --opt-bg: #4e3e00; --opt-fg: #f1e9d1; --opt-tint: #201e17; --opt-card: #2e2a1d; }
-  :root:not(:has([data-print-view])) .opt-green, :root:not(:has([data-print-view])) .tint-green { --opt-bg: #1b4b2b; --opt-fg: #dcf0e0; --opt-tint: #1a201b; --opt-card: #232d25; }
-  :root:not(:has([data-print-view])) .opt-blue, :root:not(:has([data-print-view])) .tint-blue { --opt-bg: #174462; --opt-fg: #daecfb; --opt-tint: #1a1f23; --opt-card: #222b33; }
-  :root:not(:has([data-print-view])) .opt-purple, :root:not(:has([data-print-view])) .tint-purple { --opt-bg: #48355d; --opt-fg: #eee5f9; --opt-tint: #1f1d22; --opt-card: #2c2832; }
-  :root:not(:has([data-print-view])) .opt-pink, :root:not(:has([data-print-view])) .tint-pink { --opt-bg: #5d2e45; --opt-fg: #fae2ec; --opt-tint: #231c1f; --opt-card: #32262b; }
-  :root:not(:has([data-print-view])) .opt-red, :root:not(:has([data-print-view])) .tint-red { --opt-bg: #652b2b; --opt-fg: #fee2e0; --opt-tint: #241c1b; --opt-card: #352625; }
+  :root:not(:has([data-print-view])) .opt-gray, :root:not(:has([data-print-view])) .tint-gray { --opt-bg: #617267; --opt-fg: #f4f6f4; --opt-tint: #1f2120; --opt-card: #2d312f; }
+  :root:not(:has([data-print-view])) .opt-brown, :root:not(:has([data-print-view])) .tint-brown { --opt-bg: #8c654f; --opt-fg: #fbf3ef; --opt-tint: #251e1b; --opt-card: #3c2c22; }
+  :root:not(:has([data-print-view])) .opt-orange, :root:not(:has([data-print-view])) .tint-orange { --opt-bg: #9d6125; --opt-fg: #fbf5ef; --opt-tint: #272019; --opt-card: #402f1e; }
+  :root:not(:has([data-print-view])) .opt-yellow, :root:not(:has([data-print-view])) .tint-yellow { --opt-bg: #886e20; --opt-fg: #fbf8ef; --opt-tint: #262319; --opt-card: #3f371f; }
+  :root:not(:has([data-print-view])) .opt-green, :root:not(:has([data-print-view])) .tint-green { --opt-bg: #3b7d51; --opt-fg: #effbf3; --opt-tint: #1c241e; --opt-card: #253a2c; }
+  :root:not(:has([data-print-view])) .opt-blue, :root:not(:has([data-print-view])) .tint-blue { --opt-bg: #3a72a4; --opt-fg: #eff5fb; --opt-tint: #1b2025; --opt-card: #23303b; }
+  :root:not(:has([data-print-view])) .opt-purple, :root:not(:has([data-print-view])) .tint-purple { --opt-bg: #8659a6; --opt-fg: #f6effb; --opt-tint: #211b25; --opt-card: #31233b; }
+  :root:not(:has([data-print-view])) .opt-pink, :root:not(:has([data-print-view])) .tint-pink { --opt-bg: #a4517a; --opt-fg: #fbeff5; --opt-tint: #251b20; --opt-card: #3b232f; }
+  :root:not(:has([data-print-view])) .opt-red, :root:not(:has([data-print-view])) .tint-red { --opt-bg: #ad514a; --opt-fg: #fbefef; --opt-tint: #251b1b; --opt-card: #3c2422; }
 }
 
 .opt-gray, .opt-brown, .opt-orange, .opt-yellow, .opt-green, .opt-blue, .opt-purple, .opt-pink, .opt-red {
@@ -420,6 +420,10 @@
 @media (prefers-color-scheme: dark) {
   :root:not(:has([data-print-view])) .board-card {
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  /* Dark chips are mid-tone, so a lighter lean keeps the hover a tint rather than a highlight. */
+  :root:not(:has([data-print-view])) .board-card:hover {
+    background: color-mix(in srgb, var(--opt-card, var(--bg)) 85%, var(--opt-bg, var(--bg-hover)));
   }
 }
 

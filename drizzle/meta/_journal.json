@@ -281,6 +281,13 @@
       "when": 1791403407113,
       "tag": "0039_agent_database_share",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1791405952383,
+      "tag": "0040_schedules",
+      "breakpoints": true
     }
   ]
 }

@@ -89,6 +89,11 @@ export function toolErrorFor(error: unknown): CallToolResult {
   if (error instanceof PropertyValueError) {
     return errorResult(`${error.message}. Call get_database to see property names, types and select options.`);
   }
+  if ((error as { code?: unknown } | null)?.code === "databaseLocked") {
+    return errorResult(
+      "The database is locked, so its properties and views can't be added, renamed, moved or removed. Rows, values and view filters and sorts can still change. Someone with full access can unlock it in the app.",
+    );
+  }
   console.error("[mcp] tool failed", error);
   return errorResult("Something went wrong on the Leafdesk server while running this tool. Try again later.");
 }

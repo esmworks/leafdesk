@@ -69,7 +69,44 @@
       "delete": "Şablonu sil",
       "confirmDelete": "Bu satır şablonu kalıcı olarak silinsin mi? Ondan oluşturulmuş satırlar olduğu gibi kalır.",
       "newTemplate": "Yeni şablon",
-      "none": "Henüz şablon yok"
+      "none": "Henüz şablon yok",
+      "repeat": "Tekrarla",
+      "repeating": "Tekrarlanıyor · sonraki satır {date}",
+      "repeatPaused": "Tekrar duraklatıldı",
+      "repeatDialog": {
+        "title": "“{title}” şablonunu tekrarla",
+        "description": "Aşağıdaki zamanlarda bu şablondan yeni bir satır eklenir; satırı sen eklemişsin gibi.",
+        "frequency": "Sıklık",
+        "frequencies": {
+          "daily": "Günlük",
+          "weekly": "Haftalık",
+          "monthly": "Aylık",
+          "yearly": "Yıllık"
+        },
+        "every": "Her",
+        "units": {
+          "daily": "{count, plural, one {gün} other {günde bir}}",
+          "weekly": "{count, plural, one {hafta} other {haftada bir}}",
+          "monthly": "{count, plural, one {ay} other {ayda bir}}",
+          "yearly": "{count, plural, one {yıl} other {yılda bir}}"
+        },
+        "on": "Günler",
+        "noWeekday": "En az bir gün seç.",
+        "start": "Başlangıç",
+        "time": "Saat",
+        "timeZone": "Saat dilimi",
+        "dateInTitle": "Satırın başlığına tarihi ekle",
+        "monthlyHint": "Ayın {day}. günü; ay daha kısaysa ayın son günü.",
+        "next": "Sonraki satır: {date}",
+        "lastRun": "Son satır: {date}",
+        "turnOff": "Tekrarı kapat",
+        "paused": {
+          "runAsGone": "Duraklatıldı: ayarlayan kişinin hesabı artık yok. Senin adına tekrarlaması için kaydet.",
+          "accessLost": "Duraklatıldı: ayarlayan kişi artık buraya satır ekleyemiyor ya da bu şablonu açamıyor. Senin adına tekrarlaması için kaydet.",
+          "templateGone": "Duraklatıldı: bu şablon artık kullanılamıyor.",
+          "failed": "Son satır eklenemedi; bir sonraki seferde yeniden denenecek."
+        }
+      }
     }
   },
   "viewTabs": {
@@ -542,7 +579,9 @@
     "tooManyAutomations": "Bir veritabanında en fazla {max} otomasyon olabilir.",
     "invalidWebhookUrl": "“{value}” geçerli bir http(s) adresi değil.",
     "webhookBlocked": "Webhook’lar özel veya yerel ağ adreslerine gönderilemez.",
-    "agentOwnersOnly": "Ajan çalıştıran eylemleri yalnızca çalışma alanı sahipleri ekleyip değiştirebilir."
+    "agentOwnersOnly": "Ajan çalıştıran eylemleri yalnızca çalışma alanı sahipleri ekleyip değiştirebilir.",
+    "invalidRepeat": "Bu tekrar ayarı geçerli değil: günleri, saati ve saat dilimini kontrol et.",
+    "tooManySchedules": "Bu çalışma alanında olabilecek en fazla sayıda tekrarlayan şablon var."
   },
   "formula": {
     "title": "Formül",

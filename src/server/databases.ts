@@ -7,6 +7,7 @@ import {
   page,
   PROPERTY_TYPES,
   propertyPermission,
+  schedule,
   user,
   type FormulaConfig,
   type PropertyOptions,
@@ -21,6 +22,7 @@ import { avatarSrc } from "@/lib/avatar";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
+import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
@@ -1489,6 +1491,34 @@ export async function deleteView(userId: string, viewId: string) {
 }
 
 /**
+ * Moves a view's tab before or after another view of the same database. The views are numbered
+ * again from the order the server has, so a tab added meanwhile keeps its place and views that
+ * share a position (older databases start them all at 0) still move.
+ */
+export async function moveView(userId: string, viewId: string, targetId: string, side: "before" | "after") {
+  const view = await requireView(userId, viewId);
+  assertUnlocked(view);
+  if (targetId === viewId) return;
+  await db.transaction(async (tx) => {
+    const views = await tx
+      .select({ id: databaseView.id, position: databaseView.position })
+      .from(databaseView)
+      .where(eq(databaseView.databaseId, view.databaseId))
+      .orderBy(asc(databaseView.position), asc(databaseView.createdAt))
+      .for("update");
+    const order = views.filter((v) => v.id !== viewId);
+    const at = order.findIndex((v) => v.id === targetId);
+    if (at < 0) throw new AccessError();
+    order.splice(side === "before" ? at : at + 1, 0, { id: viewId, position: 0 });
+    for (const [i, v] of order.entries()) {
+      if (v.position !== i + 1) await tx.update(databaseView).set({ position: i + 1 }).where(eq(databaseView.id, v.id));
+    }
+  });
+  notifySchema(view.databaseId);
+  notifyTree(view.workspaceId);
+}
+
+/**
  * Reorders a row (board drag) and optionally moves it to another group in one step. `groupValue`
  * is the target group (see groupTarget in lib/grouping): an option, person or related row id,
  * "true" / "false" for checkboxes, a day for dates, null for no value. For list values
@@ -1582,18 +1612,30 @@ export async function rowCovers(rows: { id: string; updatedAt: Date; hasImage?: 
   return covers;
 }
 
-export type RowTemplateSummary = { id: string; title: string; icon: string | null };
+export type RowTemplateSummary = { id: string; title: string; icon: string | null; repeat: TemplateRepeatSummary | null };
 
 /**
  * A database's row templates the user can see, in order (see server/templates.ts). Access to the
  * database has been checked.
  */
 export async function listRowTemplateSummaries(userId: string, databaseId: string): Promise<RowTemplateSummary[]> {
-  return db
-    .select({ id: page.id, title: page.title, icon: page.icon })
+  const rows = await db
+    .select({
+      id: page.id,
+      title: page.title,
+      icon: page.icon,
+      enabled: schedule.enabled,
+      nextRunAt: schedule.nextRunAt,
+      lastError: schedule.lastError,
+    })
     .from(page)
+    .leftJoin(schedule, eq(schedule.templateId, page.id))
     .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, true), isNull(page.archivedAt), pageVisibleTo(userId)))
     .orderBy(asc(page.position), asc(page.createdAt));
+  return rows.map(({ enabled, nextRunAt, lastError, ...template }) => ({
+    ...template,
+    repeat: enabled === null ? null : repeatSummary({ enabled, nextRunAt, lastError }),
+  }));
 }
 
 /**

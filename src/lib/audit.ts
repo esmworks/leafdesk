@@ -4,6 +4,8 @@
  * which records and lists events) and the settings tab alike.
  */
 
+import { zoneOffset } from "./time-zone";
+
 /**
  * Every recorded action, by the category the settings tab filters on. An action is stored as its
  * string, so renaming one leaves older events behind: add new ones instead.
@@ -208,23 +210,6 @@ export function auditFilterQuery(filters: AuditFilters, extra: Record<string, st
   if (filters.page > 1) params.set("page", String(filters.page));
   for (const [key, value] of Object.entries(extra)) params.set(key, value);
   return params.toString();
-}
-
-/** How far `timeZone` is ahead of UTC at `instant`, in milliseconds. */
-function zoneOffset(instant: number, timeZone: string): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).formatToParts(new Date(instant));
-  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
-  const local = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
-  return local - Math.floor(instant / 1000) * 1000;
 }
 
 /** The instant a calendar day starts in `timeZone` (midnight there, whatever daylight saving does). */

@@ -14,3 +14,4 @@ export * from "./property-access";
 export * from "./automations";
 export * from "./agents";
 export * from "./connections";
+export * from "./schedules";

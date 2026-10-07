@@ -95,6 +95,14 @@ versions, upgrades and running behind a domain.
   - Put a database inside any page, or show a view of an existing one there.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
   - Row templates with preset properties and content; pick one as the default for "New".
+  - Repeating templates: a row template adds a row by itself every day, every few weeks on chosen
+    weekdays, every month or every year, at a time in a time zone, optionally with the date in its
+    title. The rows are added as the person who set the repeat, with their access at the time, and
+    start the database's "row added" automations. If that person can no longer add rows (or their
+    account is gone) the repeat pauses and the template menu says why; anyone who can add rows sets
+    it going again, as themselves. A server that was down adds one row for the runs it missed (dated
+    the first missed day when the title carries the date), not one per run. Nothing is added while the database is in the trash. The first day of a monthly or
+    yearly repeat sets its date; months without that day use their last day.
 - **Database automations**: when a row is added, or a property changes (or changes to a given
   value), set properties, notify people, send the row to a webhook signed with HMAC-SHA256, or
   run an agent on the row, with a 30-day run history (see
@@ -1286,7 +1294,8 @@ The tools cover:
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
-  timeline, chart or form, including a form's public link), and `set_property_access` (who may
+  timeline, chart or form, including a form's public link; `update_database_view` also moves a
+  view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property).
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
   `delete_automation` and `list_automation_runs` (see

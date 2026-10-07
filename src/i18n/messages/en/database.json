@@ -69,7 +69,44 @@
       "delete": "Delete template",
       "confirmDelete": "Delete this row template for good? Rows already made from it stay as they are.",
       "newTemplate": "New template",
-      "none": "No templates yet"
+      "none": "No templates yet",
+      "repeat": "Repeat",
+      "repeating": "Repeats · next row {date}",
+      "repeatPaused": "Repeat paused",
+      "repeatDialog": {
+        "title": "Repeat “{title}”",
+        "description": "A new row is added from this template on the schedule below, as if you added it yourself.",
+        "frequency": "Repeats",
+        "frequencies": {
+          "daily": "Daily",
+          "weekly": "Weekly",
+          "monthly": "Monthly",
+          "yearly": "Yearly"
+        },
+        "every": "Every",
+        "units": {
+          "daily": "{count, plural, one {day} other {days}}",
+          "weekly": "{count, plural, one {week} other {weeks}}",
+          "monthly": "{count, plural, one {month} other {months}}",
+          "yearly": "{count, plural, one {year} other {years}}"
+        },
+        "on": "On",
+        "noWeekday": "Pick at least one day.",
+        "start": "Starting",
+        "time": "At",
+        "timeZone": "Time zone",
+        "dateInTitle": "Add the date to the row's title",
+        "monthlyHint": "On day {day} of the month, or the month's last day when it's shorter.",
+        "next": "Next row: {date}",
+        "lastRun": "Last row: {date}",
+        "turnOff": "Stop repeating",
+        "paused": {
+          "runAsGone": "Paused: the account of the person who set it is gone. Save to repeat as you.",
+          "accessLost": "Paused: the person who set it can no longer add rows here or open this template. Save to repeat as you.",
+          "templateGone": "Paused: this template can no longer be used.",
+          "failed": "The last row couldn't be added; it will try again next time."
+        }
+      }
     }
   },
   "viewTabs": {
@@ -542,7 +579,9 @@
     "tooManyAutomations": "A database can have at most {max} automations.",
     "invalidWebhookUrl": "“{value}” is not a valid http(s) address.",
     "webhookBlocked": "Webhooks can’t go to private or local network addresses.",
-    "agentOwnersOnly": "Only owners of the workspace add or change actions that run an agent."
+    "agentOwnersOnly": "Only owners of the workspace add or change actions that run an agent.",
+    "invalidRepeat": "That repeat schedule isn't valid: check the days, the time and the time zone.",
+    "tooManySchedules": "This workspace has as many repeating templates as it can have."
   },
   "formula": {
     "title": "Formula",

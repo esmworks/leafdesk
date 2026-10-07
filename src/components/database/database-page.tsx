@@ -303,6 +303,7 @@ export function DatabasePage({
                       onSelect={selectView}
                       onAdd={addView}
                       onRename={(v, name) => api.updateView(v, { name })}
+                      onMove={(id, target, side) => api.moveView(id, target, side)}
                       onDelete={async (v) => {
                         if (v.id === view?.id) {
                           const next = views.find((x) => x.id !== v.id);

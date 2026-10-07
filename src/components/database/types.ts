@@ -1,6 +1,7 @@
 import type { ChecklistItem, PropertyType, SelectOption } from "@/db/schema/app";
 import type { AiCellState } from "@/lib/ai";
 import type { PropertyAccessInfo } from "@/lib/property-access";
+import type { TemplateRepeatSummary } from "@/lib/schedule";
 import type {
   DatabaseProperty,
   DatabaseRowWithPosition,
@@ -44,7 +45,7 @@ export type DatabaseSnapshot = {
   views: View[];
   rows: Row[];
   /** Row templates of the database (see server/templates.ts), for the menu next to "New". */
-  templates: { id: string; title: string; icon: string | null }[];
+  templates: { id: string; title: string; icon: string | null; repeat: TemplateRepeatSummary | null }[];
   /** Related database and its rows, per relation property id. */
   relations: Record<string, RelationTarget>;
   /** People person properties can show and assign (see databases.getPeople). */
