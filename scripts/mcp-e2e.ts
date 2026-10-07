@@ -390,7 +390,7 @@ async function main() {
   const expected = [
     "list_workspaces", "search", "list_pages", "get_page", "create_page", "update_page", "archive_page",
     "get_database", "query_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
-    "update_database_property", "delete_database_property", "create_database_view", "update_database_view", "move_page",
+    "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page",
     "list_recent_pages", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
   ];
@@ -645,6 +645,27 @@ async function main() {
   await mcp.ok("delete_database_property", { database_id: dbPage.id, property: "estimate" });
   const schemaAfter = await mcp.ok("get_database", { database_id: dbPage.id });
   check(!schemaAfter.properties.some((p: { name: string }) => p.name === "Estimate"), "delete_database_property removes the column", schemaAfter);
+
+  await mcp.ok("add_database_property", { database_id: dbPage.id, name: "Points", type: "text" });
+  await mcp.ok("update_database_row", { row_id: rowA.id, properties: { Points: "3" } });
+  await mcp.ok("update_database_row", { row_id: rowB.id, properties: { Points: "lots" } });
+  const dryRun = await mcp.ok("change_database_property_type", { database_id: dbPage.id, property: "Points", type: "number", dry_run: true });
+  const stillText = (await mcp.ok("get_page", { page_id: rowA.id })).properties.Points;
+  check(
+    dryRun.dry_run === true && dryRun.converted === 1 && dryRun.cleared === 1 && stillText === "3",
+    "change_database_property_type dry_run counts what converts and what is cleared, and changes nothing",
+    { dryRun, stillText },
+  );
+  const retyped = await mcp.ok("change_database_property_type", { database_id: dbPage.id, property: "Points", type: "number" });
+  const [pointsA, pointsB] = [
+    (await mcp.ok("get_page", { page_id: rowA.id })).properties.Points,
+    (await mcp.ok("get_page", { page_id: rowB.id })).properties.Points,
+  ];
+  check(
+    retyped.property.type === "number" && pointsA === 3 && (pointsB === null || pointsB === undefined),
+    "change_database_property_type converts the values and clears the ones that can't be numbers",
+    { retyped, pointsA, pointsB },
+  );
 
   const board = await mcp.ok("create_database_view", {
     database_id: dbPage.id,

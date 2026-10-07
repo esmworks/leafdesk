@@ -201,7 +201,14 @@ try {
     config: { ...view.config, filters: [{ propertyId: kind.id, op: "contains", value: "Bug" }], sorts: [{ propertyId: kind.id, direction: "asc" }] },
   });
   const editedBefore = await editedAt(r1.id);
-  const kindSelect = await changePropertyType(ids.owner, kind.id, { type: "select", yes: "Yes" });
+  const preview = await changePropertyType(ids.owner, kind.id, { type: "number", yes: "Yes" }, { dryRun: true });
+  check(
+    preview.property.type === "number" && preview.cleared === 4 && preview.converted === 0 && (await getProperty(kind.id)).type === "text",
+    "a dry run counts what the rows the user sees would lose, and changes nothing",
+    preview,
+  );
+  const { property: kindSelect, converted: kindConverted } = await changePropertyType(ids.owner, kind.id, { type: "select", yes: "Yes" });
+  check(kindConverted === 4, "a type change says how many values it converted", kindConverted);
   const kindOptions = kindSelect.options.options ?? [];
   const optionOf = (name: string) => kindOptions.find((o) => o.name === name)?.id;
   const [k1, k2, k3, k4] = [await values(r1.id), await values(r2.id), await values(r3.id), await values(r4.id)];

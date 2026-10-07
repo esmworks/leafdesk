@@ -1405,6 +1405,73 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   server.registerTool(
+    "change_database_property_type",
+    {
+      title: "Change a database property's type",
+      description: `Change the type of a database property (column) and convert its value in every row, trashed rows and row templates included. Values keep their meaning where they can: select, multi_select and status keep their options; text becomes options (one per distinct value; multi_select splits at commas), numbers, dates (one format for the whole column), checkboxes (yes/no words), links, emails, phone numbers, people (by name or email) and relation links (by exact row title); options, people and linked rows become their names as text; formulas and rollups keep what they show now. Values that can't convert are cleared, as are all values when the new type fills itself in (formula, rollup, created_by, created_time, last_edited_by, last_edited_time) and files turned into anything else. Views drop their filters on the property and what the new type can't have. Run it with dry_run first and confirm with the user when cleared is not 0. For a relation, pass related_database_id (and two_way, paired_property_name); for a formula, formula; for a rollup, rollup, as for add_database_property. A property with access rules can't become a relation or a type that fills itself in. ${FORMULA_HELP} ${ROLLUP_HELP}`,
+      inputSchema: z.object({
+        database_id: id("database"),
+        property: z.string().min(1).describe("Current property name or id."),
+        type: z.enum(PROPERTY_TYPES).describe("The new type."),
+        related_database_id: z.string().optional().describe("Relation only: the database whose rows this property links to."),
+        two_way: z.boolean().default(false).describe("Relation only: also show the links on the related database."),
+        paired_property_name: z
+          .string()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe("Relation with two_way only: name of the property added to the related database. Defaults to this database's title."),
+        formula: formulaInput.optional().describe('Formula only: the expression, e.g. prop("Price") * prop("Quantity").'),
+        rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
+        dry_run: z
+          .boolean()
+          .default(false)
+          .describe("Only count what would happen (converted and cleared values in the rows you can see); nothing changes."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    ({ database_id, property, type, related_database_id, two_way, paired_property_name, formula, rollup, dry_run }) =>
+      runTool(async () => {
+        assertWrite();
+        if (type === "relation" && !related_database_id) throw new ToolInputError("A relation needs related_database_id.");
+        if (type !== "relation" && (related_database_id || paired_property_name)) {
+          throw new ToolInputError("related_database_id and paired_property_name only apply to relation properties.");
+        }
+        if (type === "formula" && !formula?.trim()) throw new ToolInputError("A formula property needs formula, its expression.");
+        if (type !== "formula" && formula !== undefined) throw new ToolInputError("formula only applies to formula properties.");
+        if (type === "rollup" && !rollup) throw new ToolInputError("A rollup property needs rollup: {relation, property, function}.");
+        if (type !== "rollup" && rollup !== undefined) throw new ToolInputError("rollup only applies to rollup properties.");
+        const { properties, access, propertyAccess } = await databases.getDatabase(userId, database_id);
+        const prop = requireProperty(properties, property);
+        if (prop.type === type) throw new ToolInputError(`"${prop.name}" is already a ${type} property.`);
+        const result = await databases.changePropertyType(
+          userId,
+          prop.id,
+          {
+            type,
+            ...(type === "relation" ? { relation: { databaseId: related_database_id!, twoWay: two_way, pairedName: paired_property_name } } : {}),
+            ...(type === "formula" ? { formula: { expression: formula! } } : {}),
+            ...(type === "rollup" ? { rollup: await rollupSettings(userId, properties, rollup!) } : {}),
+            // Agents read and write English: a ticked box becomes "Yes", which reads back as ticked.
+            yes: "Yes",
+          },
+          { dryRun: dry_run },
+        );
+        const after = withFormulaTypes(properties.map((p) => (p.id === prop.id ? result.property : p)));
+        const changed = after.find((p) => p.id === prop.id)!;
+        const lookups = await databases.getLookups(userId, [changed, ...rollupRelations(changed, after)]);
+        return {
+          database_id,
+          dry_run,
+          converted: result.converted,
+          cleared: result.cleared,
+          property: describeProperty(changed, lookups, after, { access: propertyAccess?.[changed.id], restricted: !access.open }),
+        };
+      }),
+  );
+
+  server.registerTool(
     "delete_database_property",
     {
       title: "Delete a database property",

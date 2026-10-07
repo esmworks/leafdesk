@@ -23,7 +23,7 @@ import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
-import { planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
+import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
@@ -1196,13 +1196,22 @@ export type TypeChange = {
  * keep no value. Views drop what they had set up for the old type. A two-way relation leaves its
  * other side one-way; a new two-way relation links back. Restricted properties can't become a type
  * access rules don't apply to, nor can a person property other rules name people by.
+ *
+ * Returns the property and, of the rows the user sees, how many hold a value of the new type
+ * (`converted`) and how many lose theirs (`cleared`). `dryRun` checks and counts without changing
+ * anything.
  */
-export async function changePropertyType(userId: string, propertyId: string, input: TypeChange) {
+export async function changePropertyType(
+  userId: string,
+  propertyId: string,
+  input: TypeChange,
+  { dryRun = false }: { dryRun?: boolean } = {},
+): Promise<{ property: DatabaseProperty; converted: number; cleared: number }> {
   const prop = await requireProperty(userId, propertyId);
   if (!PROPERTY_TYPES.includes(input.type)) {
     throw new PropertyValueError(`Unsupported type "${input.type}"`, "unsupportedType", { type: String(input.type) });
   }
-  if (input.type === prop.type) return prop;
+  if (input.type === prop.type) return { property: prop, converted: 0, cleared: 0 };
   const database = await requireDatabase(userId, prop.databaseId, "edit");
   const rules = await db
     .select({ propertyId: propertyPermission.propertyId, personPropertyId: propertyPermission.personPropertyId })
@@ -1240,11 +1249,11 @@ export async function changePropertyType(userId: string, propertyId: string, inp
     .where(eq(page.parentId, prop.databaseId))
     // In the table's order, so options made from the values come in the order they appear.
     .orderBy(asc(page.position), asc(page.createdAt));
+  const visible = new Set(
+    (await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), pageVisibleTo(userId)))).map((r) => r.id),
+  );
   let derived = new Map<string, unknown>();
   if (isDerived(prop.type)) {
-    const visible = new Set(
-      (await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), pageVisibleTo(userId)))).map((r) => r.id),
-    );
     const read = await withValues(userId, prop.databaseId, rows.filter((r) => visible.has(r.id)), await getProperties(prop.databaseId));
     derived = new Map(read.map((r) => [r.id, r.properties[propertyId]]));
   }
@@ -1278,7 +1287,9 @@ export async function changePropertyType(userId: string, propertyId: string, inp
 
   const options: PropertyOptions = conversion.options
     ? { options: conversion.options }
-    : formula
+    : target
+      ? { relation: { databaseId: target.id } }
+      : formula
       ? { formula }
       : rollup
         ? { rollup }
@@ -1290,6 +1301,11 @@ export async function changePropertyType(userId: string, propertyId: string, inp
     const stored = value === false ? null : value;
     if (stored !== null || propertyId in row.properties) next[row.id] = stored;
   });
+  // Counted on the rows the user sees: the others aren't theirs to know about.
+  const seen = values.filter((_, i) => visible.has(rows[i].id));
+  const cleared = lostValues(seen, conversion);
+  const converted = isReadOnlyType(input.type) ? 0 : seen.filter((v) => !isEmptyValue(conversion.convert(v))).length;
+  if (dryRun) return { property: { ...prop, type: input.type, options }, converted, cleared };
 
   const pairedId = prop.type === "relation" ? prop.options.relation?.pairedPropertyId : null;
   const [paired] = pairedId ? await db.select().from(databaseProperty).where(eq(databaseProperty.id, pairedId)) : [];
@@ -1350,7 +1366,7 @@ export async function changePropertyType(userId: string, propertyId: string, inp
   notifyRows(prop.databaseId);
   if (paired && paired.databaseId !== prop.databaseId) notifySchema(paired.databaseId);
   if (target && target.id !== prop.databaseId) notifySchema(target.id);
-  return changed;
+  return { property: changed, converted, cleared };
 }
 
 export async function addView(userId: string, databaseId: string, input: { name: string; type: ViewType }) {

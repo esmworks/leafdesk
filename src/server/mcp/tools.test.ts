@@ -46,6 +46,7 @@ const databases = vi.hoisted(() => ({
   createRows: vi.fn(),
   addProperty: vi.fn(),
   updateProperty: vi.fn(),
+  changePropertyType: vi.fn(),
   deleteProperty: vi.fn(),
   addView: vi.fn(),
   updateView: vi.fn(),
@@ -495,6 +496,40 @@ describe("database properties", () => {
     const dup = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Notes", name: "status" });
     expect(dup.text).toMatch(/already exists/);
     expect(databases.updateProperty).not.toHaveBeenCalled();
+  });
+
+  it("changes a type by name, with a dry run that changes nothing", async () => {
+    const planned = { ...notes, type: "select", options: { options: [{ id: "opt-a", name: "Alpha", color: "gray" }] } };
+    databases.changePropertyType.mockResolvedValue({ property: planned, converted: 2, cleared: 1 });
+    const dry = await callTool(writer, "change_database_property_type", { database_id: "db-1", property: "notes", type: "select", dry_run: true });
+    expect(dry.isError).toBe(false);
+    expect(databases.changePropertyType).toHaveBeenCalledWith("user-1", "prop-notes", { type: "select", yes: "Yes" }, { dryRun: true });
+    expect(dry.data).toMatchObject({ dry_run: true, converted: 2, cleared: 1, property: { name: "Notes", type: "select", options: ["Alpha"] } });
+    await callTool(writer, "change_database_property_type", {
+      database_id: "db-1",
+      property: "Notes",
+      type: "relation",
+      related_database_id: "db-2",
+      two_way: true,
+    });
+    expect(databases.changePropertyType).toHaveBeenLastCalledWith(
+      "user-1",
+      "prop-notes",
+      { type: "relation", relation: { databaseId: "db-2", twoWay: true, pairedName: undefined }, yes: "Yes" },
+      { dryRun: false },
+    );
+  });
+
+  it("asks for what the new type needs, refuses the same type and read-only tokens", async () => {
+    const formula = await callTool(writer, "change_database_property_type", { database_id: "db-1", property: "Notes", type: "formula" });
+    expect(formula.text).toMatch(/needs formula/);
+    const relation = await callTool(writer, "change_database_property_type", { database_id: "db-1", property: "Notes", type: "relation" });
+    expect(relation.text).toMatch(/related_database_id/);
+    const same = await callTool(writer, "change_database_property_type", { database_id: "db-1", property: "Notes", type: "text" });
+    expect(same.text).toMatch(/already a text property/);
+    const denied = await callTool(reader, "change_database_property_type", { database_id: "db-1", property: "Notes", type: "number" });
+    expect(denied.text).toMatch(/read-only/);
+    expect(databases.changePropertyType).not.toHaveBeenCalled();
   });
 
   it("deletes by name, and read-only tokens cannot", async () => {
