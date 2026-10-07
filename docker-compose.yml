@@ -62,6 +62,10 @@ services:
       EXPORT_MAX_FILES_MB: ${EXPORT_MAX_FILES_MB:-}
       # Hosts on a private network that automation webhooks may reach (see the README).
       AUTOMATION_WEBHOOK_ALLOWED_HOSTS: ${AUTOMATION_WEBHOOK_ALLOWED_HOSTS:-}
+      # Connections: private hosts they may reach, and the key that seals their secrets (see the README).
+      CONNECTOR_ALLOWED_HOSTS: ${CONNECTOR_ALLOWED_HOSTS:-}
+      LEAFDESK_ENCRYPTION_KEY: ${LEAFDESK_ENCRYPTION_KEY:-}
+      LEAFDESK_ENCRYPTION_OLD_KEYS: ${LEAFDESK_ENCRYPTION_OLD_KEYS:-}
       # AI features stay off unless AI_PROVIDER and AI_MODEL are set (see the README's AI section).
       AI_PROVIDER: ${AI_PROVIDER:-}
       AI_MODEL: ${AI_MODEL:-}

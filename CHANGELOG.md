@@ -39,6 +39,29 @@
   `0037_agents` (tables `workspace_agent` and `agent_run`) and `0038_agent_audit_actor`. New
   checks in `scripts/agents-e2e.ts`, `scripts/mcp-e2e.ts`, `scripts/audit-e2e.ts`,
   `src/server/mcp/tools.test.ts` and `src/lib/builtin-agents.test.ts`. See the README (Agents).
+- **Connections.** Owners link a workspace to remote MCP servers (Slack, GitHub, a CRM, another
+  Leafdesk...) in Settings → *Connections*, signing in with OAuth (dynamic client registration and
+  PKCE), a bearer token, or nothing; at most 20 per workspace. Tokens and event secrets are sealed
+  with AES-256-GCM under `LEAFDESK_ENCRYPTION_KEY` (derived from `BETTER_AUTH_SECRET` when unset;
+  `LEAFDESK_ENCRYPTION_OLD_KEYS` keeps older keys opening what they sealed) and never come back to
+  the browser. Connections reach only public `https` addresses, checked again on connecting and on
+  each redirect; `CONNECTOR_ALLOWED_HOSTS` lets through hosts on a private network. A server's
+  tools are classed *read* (marked `readOnlyHint`) or *write* (everything else), and owners can
+  change the class; on an agent's new *Connections* tab they tick the tools it may use. Read tools
+  run at once; a write tool makes the run wait (`awaiting_approval`) and puts an item in every
+  owner's inbox with the agent, the tool and its exact input, to approve, decline or send back
+  with a note; after 24 hours nothing is sent (`approvalTimeout`), nor when the tool or connection
+  goes meanwhile (`connectionGone`). Each connection has a signed events address,
+  `/api/connections/<id>/events`, for Leafdesk's own HMAC scheme, Slack's Events API or GitHub
+  webhooks; events that are unsigned, stale (over five minutes), over 256 KB, repeated or over 120
+  a minute are refused, and the others start the agents whose triggers match their type, with the
+  trigger's task and the event's body. The runs list shows a run's tool calls and answers, and
+  events are kept for 7 days. Every change, tool call and approval answer is audited. MCP tools
+  `list_connections` and `set_agent_connection_tools`; `list_notifications` and `list_agent_runs`
+  show approvals. No REST endpoints. Migration `0041_connections`. New checks in
+  `scripts/connector-e2e.ts` (against a second Leafdesk started as the MCP server) and
+  `scripts/mcp-e2e.ts`, and unit tests for the address checks, event signatures, slugs and the
+  secret box. See the README (Connections).
 - **Database automations.** When a row is added, or a property changes (optionally only when it
   becomes a value: a select or status option, a checkbox state, a person or multi-select option
   being added), an automation sets properties on the row (a date to the day it runs, in UTC, a

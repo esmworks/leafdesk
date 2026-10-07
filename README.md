@@ -102,6 +102,10 @@ versions, upgrades and running behind a domain.
 - **Agents**: AI helpers with instructions of their own that automations run on database rows.
   Each acts as a user of its own that sees only the pages shared with it, and its changes and
   comments show its name (see [Agents](#agents)).
+- **Connections**: link a workspace to any remote MCP server (Slack, GitHub, a CRM, another
+  Leafdesk) so agents can use its tools: reading tools run at once, anything else waits for an
+  owner's approval in the inbox; signed events from the service can start agents (see
+  [Connections](#connections)).
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan or a project tracker.
   Templates stay out of the sidebar, search, trash and published sites.
@@ -1078,9 +1082,9 @@ index (`vector_cosine_ops`), and order the `ranked` step of `src/server/semantic
 ## Agents
 
 An agent is an AI helper of a workspace with a name, an emoji, a description and instructions of
-its own. In this version an automation's *Run an agent* action starts it: when the automation
-runs on a row, the agent gets its instructions, the action's task, what happened to the row and
-the row itself, and works on it.
+its own. An automation's *Run an agent* action starts it: when the automation runs on a row, the
+agent gets its instructions, the action's task, what happened to the row and the row itself, and
+works on it. An event a connection receives can start it too (see [Connections](#connections)).
 
 **Its own user.** Each agent acts as a user of its own: a bot user that can't sign in (its address,
 `agent-<id>@agents.leafdesk.invalid`, can't receive mail), added to the workspace as a guest. Like
@@ -1141,6 +1145,86 @@ automation that runs it on every new row.
   sources, and sets a select or status to "answered" or "needs a person".
 - **Duplicate finder** looks for similar rows in the same database and, when it finds some, names
   them in a comment and ticks a checkbox.
+
+## Connections
+
+A connection links a workspace to a service its agents may use: any remote MCP server (Slack,
+GitHub, a CRM, another Leafdesk...). It is the other way round from *Connected apps*, where outside
+AI apps use Leafdesk; here Leafdesk's agents use the outside service. Owners of the workspace manage
+connections in Settings → *Connections*; members and guests don't see them. A workspace has at most
+20.
+
+**Adding one.** Give it a name and the server's URL (Streamable HTTP), and how it signs in:
+
+- **OAuth**: Leafdesk registers itself with the server (dynamic client registration), sends you to
+  the service to approve access (with PKCE), and keeps the tokens it gets back, refreshing them as
+  needed. Who signs in decides what the agents can reach there: they act as that account.
+- **Token**: an API key or personal token, sent as `Authorization: Bearer <token>`.
+- **None**: for servers that need nothing.
+
+Tokens and signing secrets are sealed (AES-256-GCM) before they reach the database and never come
+back to the browser. The key comes from `LEAFDESK_ENCRYPTION_KEY` (at least 32 characters), or,
+without it, is derived from `BETTER_AUTH_SECRET`. To change the key, set the new one in
+`LEAFDESK_ENCRYPTION_KEY` and put the old one in `LEAFDESK_ENCRYPTION_OLD_KEYS` (comma-separated):
+values sealed with it keep opening, and new ones (refreshed tokens, a new secret) are sealed with
+the new key. A value sealed with a key the server no longer has can't be opened: the connection
+must sign in again, or get its token or secret again.
+
+A connection only reaches public `https` addresses; local names, private and loopback addresses
+and plain `http` are refused, checked again on connecting (so a name can't resolve to a private
+address) and on every redirect (at most five).
+For a server on the same machine or network, list its host (or `host:port`) in
+`CONNECTOR_ALLOWED_HOSTS`.
+
+**Tools and approval.** Once signed in, Leafdesk lists the server's tools (at most 200) and classes
+each as *read* or *write*: a tool the server marks read-only (`readOnlyHint`) is *read*, every
+other one *write*. An owner can change the class of any tool. Then, on an agent's *Connections*
+tab, an owner ticks the tools that agent may use; an agent has no tool of a connection until then.
+
+- A *read* tool runs at once when the agent calls it.
+- A *write* tool doesn't: the run waits, and every owner of the workspace gets an item in their
+  inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
+  exact input. An owner **approves** (the call is sent as is), **declines** (the agent hears no and
+  goes on), or **sends it back with a note** (the agent gets the note and tries again, which may
+  ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent.
+  If the tool or the connection is taken away while it waits, nothing is sent either
+  (`connectionGone`).
+
+A tool's answer reaches the model cut to 8000 characters, and a run takes at most 40,000
+characters from connections in all. A call gets 30 seconds. What the agent got from a tool can end
+up in what it writes, like anything shared with it.
+
+**Events.** Each connection has an address, `<APP_URL>/api/connections/<id>/events`, where the
+service can send events signed with a secret of the connection (shown on the *Events* tab, with a
+button for a new one). Pick how they are signed:
+
+- **Leafdesk** (`hmac`): the same scheme as Leafdesk's own webhooks. `X-Leafdesk-Signature:
+  t=<unix seconds>,v1=<hex HMAC-SHA256 of "<t>.<body>">`, with the event's type in
+  `X-Leafdesk-Event` and a unique id in `X-Leafdesk-Delivery`. Use it with Zapier, Make, n8n or your
+  own code.
+- **Slack** (`slack`): the Events API's `X-Slack-Signature`; paste the app's signing secret. Slack's
+  URL check is answered.
+- **GitHub** (`github`): `X-Hub-Signature-256`, `X-GitHub-Event` and `X-GitHub-Delivery`; paste the
+  same secret in the webhook's settings.
+
+An event signed wrongly, older than five minutes, larger than 256 KB or seen before (by its delivery
+id) is refused; a connection takes at most 120 a minute. Each accepted event runs the agents whose
+triggers match its type (a trigger for `issues` also takes `issues.opened`, an empty type takes all),
+with the trigger's task and the event's body (cut to 8000 characters). Such a run reads what is
+shared with the agent but changes nothing in Leafdesk by itself; it acts through its connection
+tools, with approval as above. The *Events* tab lists what came in over the last 7 days and
+what happened to each.
+
+**Audit.** Adding, changing, signing in to and removing connections, tool classes, agents' tools,
+triggers, every connection tool call (with its input, who approved it and the outcome) and every
+approval answer are recorded in the audit log. Over MCP: `list_connections` and
+`set_agent_connection_tools`; connections are added and signed in to only in the settings.
+
+> [!WARNING]
+> An agent with a connection acts as the account that signed in. Allow it only the tools it needs,
+> keep anything that changes data as *write*, and remember that an event's body is text a stranger
+> may have written: an agent can be talked into asking for things, which is why write tools wait for
+> a person.
 
 ## Connect an AI assistant
 
