@@ -20,6 +20,14 @@
     "duplicateSuffix": " (copie)",
     "duplicateFailed": "Impossible de dupliquer la page.",
     "moveTo": "Déplacer vers",
+    "style": {
+      "font": "Police",
+      "default": "Par défaut",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Petit texte",
+      "fullWidth": "Pleine largeur"
+    },
     "lockDatabase": "Verrouiller la base de données",
     "lockHint": "Tant qu’elle est verrouillée, les propriétés et les vues ne peuvent pas changer ; les lignes restent modifiables.",
     "locked": "Verrouillée",

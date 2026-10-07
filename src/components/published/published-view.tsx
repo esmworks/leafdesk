@@ -5,6 +5,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import type { LoadedPage } from "@/app/s/[token]/load";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
+import { pageTextClasses } from "@/lib/page-style";
 import { publishedHref } from "@/lib/site";
 import { PublishedBody, PublishedRowProperties } from "./published-body";
 import { PublishedDatabaseView } from "./published-database";
@@ -107,7 +108,13 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
           </aside>
         )}
 
-        <main className={cn("w-full min-w-0 flex-1 pb-32", wide ? "pt-10" : "mx-auto max-w-[900px] pt-12")}>
+        <main
+          className={cn(
+            "w-full min-w-0 flex-1 pb-32",
+            wide ? "pt-10" : data.style.fullWidth ? "page-full-width pt-12" : "mx-auto max-w-[900px] pt-12",
+            !wide && pageTextClasses(data.style),
+          )}
+        >
           <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>
             <div className={cn(wide ? "flex items-center gap-3" : "")}>
               {data.icon && <div className={cn("leading-none", wide ? "text-4xl" : "mb-3 text-5xl")}>{data.icon}</div>}

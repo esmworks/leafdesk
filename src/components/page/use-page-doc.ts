@@ -2,12 +2,13 @@
 
 import type { HocuspocusProvider, onStatusParameters, WebSocketStatus } from "@hocuspocus/provider";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type * as Y from "yjs";
 import { acquireDoc } from "@/components/collab/socket";
 import { useOffline } from "@/components/offline/offline-context";
 import { observeDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { COLLAB_UNAUTHORIZED, syncState, type SyncState } from "@/lib/offline";
+import { observePageStyle, pageStyleKey, parsePageStyleKey, readPageStyle, type PageStyle } from "@/lib/page-style";
 
 export type PageDoc = { doc: Y.Doc; provider: HocuspocusProvider };
 
@@ -166,6 +167,20 @@ export function useDocTitle(doc: Y.Doc | undefined, fallback: string) {
 
 export function setDocTitle(doc: Y.Doc, title: string) {
   writeDocTitle(doc, title);
+}
+
+/**
+ * Live page style from the shared doc. Pass the doc only once it has synced: an empty doc reads as
+ * the defaults, and the page would jump from the server's value to them and back.
+ */
+export function usePageStyle(doc: Y.Doc | undefined, initial: PageStyle): PageStyle {
+  const initialKey = pageStyleKey(initial);
+  const key = useSyncExternalStore(
+    (onChange) => (doc ? observePageStyle(doc, onChange) : () => {}),
+    () => (doc ? pageStyleKey(readPageStyle(doc)) : initialKey),
+    () => initialKey,
+  );
+  return useMemo(() => parsePageStyleKey(key), [key]);
 }
 
 const CURSOR_COLORS = ["#e5484d", "#f76b15", "#ffc53d", "#30a46c", "#12a594", "#0090ff", "#6e56cf", "#d6409f"];

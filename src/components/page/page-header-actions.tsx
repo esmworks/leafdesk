@@ -13,11 +13,13 @@ import {
   Lock,
   MessageSquare,
   MoreHorizontal,
+  MoveHorizontal,
   Printer,
   Search,
   Sparkles,
   Star,
   Trash2,
+  Type,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -38,6 +40,7 @@ import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
 import type { Presence } from "@/lib/presence";
+import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";
 import { printPath } from "@/lib/print";
 import { relativeTime } from "@/lib/relative-time";
 import type { PageHeaderInfo } from "@/server/page-meta";
@@ -74,6 +77,8 @@ export function PageHeaderActions({
   commentsOpen = false,
   onMoveToTrash,
   offline = false,
+  style,
+  onStyle,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
@@ -90,6 +95,10 @@ export function PageHeaderActions({
   onMoveToTrash: () => void;
   /** The server can't be reached: sharing, comments, favorites and the page menu need it. */
   offline?: boolean;
+  /** The page's style, for pages with a body. */
+  style?: PageStyle;
+  /** Changes the style; unset while the page can't be edited here (the menu then leaves it out). */
+  onStyle?: (change: Partial<PageStyle>) => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
@@ -230,6 +239,8 @@ export function PageHeaderActions({
         onHistory={onHistory}
         onMoveToTrash={onMoveToTrash}
         offline={offline}
+        style={style}
+        onStyle={onStyle}
       />
     </>
   );
@@ -280,6 +291,56 @@ function ActivityLine({ label, time }: { label: string; time: string }) {
   );
 }
 
+/**
+ * Top of the page menu: the page's typeface, small text and full width. Changes go into the shared
+ * doc, so they show for everyone at once; the menu stays open to compare.
+ */
+function StyleControls({ style, onStyle }: { style: PageStyle; onStyle: (change: Partial<PageStyle>) => void }) {
+  const t = useTranslations("page.header.style");
+  return (
+    <>
+      <div className="px-1 pt-0.5 pb-1">
+        <span className="mb-1 block px-1 text-xs text-fg-muted">{t("font")}</span>
+        <div role="radiogroup" aria-label={t("font")} className="grid grid-cols-3 gap-1">
+          {PAGE_FONTS.map((font) => {
+            const selected = style.font === font;
+            return (
+              <button
+                key={font}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                aria-label={t(font)}
+                onClick={() => onStyle({ font })}
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-md border py-1.5",
+                  selected ? "border-accent bg-bg-active text-fg" : "border-transparent text-fg-muted hover:bg-bg-hover hover:text-fg",
+                )}
+              >
+                <span aria-hidden className={cn("text-xl leading-none", font !== "default" && `page-font-${font}`)}>
+                  Ag
+                </span>
+                <span className="text-xs">{t(font)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
+        <Type className="h-4 w-4 text-fg-muted" />
+        <span className="flex-1">{t("smallText")}</span>
+        <Switch checked={style.smallText} onChange={(smallText) => onStyle({ smallText })} label={t("smallText")} />
+      </div>
+      <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
+        <MoveHorizontal className="h-4 w-4 text-fg-muted" />
+        <span className="flex-1">{t("fullWidth")}</span>
+        <Switch checked={style.fullWidth} onChange={(fullWidth) => onStyle({ fullWidth })} label={t("fullWidth")} />
+      </div>
+      <MenuSeparator />
+    </>
+  );
+}
+
 function PageMenu({
   workspaceId,
   page,
@@ -288,6 +349,8 @@ function PageMenu({
   onHistory,
   onMoveToTrash,
   offline,
+  style,
+  onStyle,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
@@ -296,6 +359,8 @@ function PageMenu({
   onHistory: () => void;
   onMoveToTrash: () => void;
   offline: boolean;
+  style?: PageStyle;
+  onStyle?: (change: Partial<PageStyle>) => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
@@ -388,6 +453,7 @@ function PageMenu({
       >
         {(close) => (
           <div className={cn(pending && "pointer-events-none opacity-70")}>
+            {style && onStyle && !page.archived && <StyleControls style={style} onStyle={onStyle} />}
             <MenuItem
               icon={<Link2 className="h-4 w-4" />}
               onClick={() => {

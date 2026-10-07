@@ -5,6 +5,7 @@ import { PublishedDatabaseView } from "@/components/published/published-database
 import styles from "@/components/published/published-body.module.css";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
+import { pageTextClasses } from "@/lib/page-style";
 import { PRINT_MAX_PAGES } from "@/lib/print";
 import type { PrintDocument, PrintSection } from "@/server/print";
 import { PrintToolbar } from "./print-toolbar";
@@ -76,7 +77,7 @@ async function Section({
   const untitled = tc("untitled");
   const above = section.crumbs.slice(0, -1);
   return (
-    <article className={cn(!first && styles.newPage)} data-print-section={section.id}>
+    <article className={cn(!first && styles.newPage, pageTextClasses(section.style))} data-print-section={section.id}>
       <header className={styles.keep}>
         {!first && above.length > 0 && (
           <p className="mb-2 flex flex-wrap items-center gap-1 text-xs text-fg-faint">

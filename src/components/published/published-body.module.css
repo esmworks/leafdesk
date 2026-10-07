@@ -7,6 +7,11 @@
   overflow-wrap: anywhere;
 }
 
+/* A page set to small text (lib/page-style.ts); headings scale with it. */
+:global(.page-small-text) .body {
+  font-size: 0.875rem;
+}
+
 .body > * + *,
 .body li > * + * {
   margin-top: 0.35em;
@@ -24,21 +29,21 @@
 }
 
 .body h1 {
-  font-size: 1.875rem;
+  font-size: 1.875em;
 }
 
 .body h2 {
-  font-size: 1.5rem;
+  font-size: 1.5em;
 }
 
 .body h3 {
-  font-size: 1.25rem;
+  font-size: 1.25em;
 }
 
 .body h4,
 .body h5,
 .body h6 {
-  font-size: 1.05rem;
+  font-size: 1.05em;
 }
 
 .body > :first-child {

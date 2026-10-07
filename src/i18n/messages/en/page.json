@@ -20,6 +20,14 @@
     "duplicateSuffix": " (copy)",
     "duplicateFailed": "Couldn't duplicate the page.",
     "moveTo": "Move to",
+    "style": {
+      "font": "Font",
+      "default": "Default",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Small text",
+      "fullWidth": "Full width"
+    },
     "lockDatabase": "Lock database",
     "lockHint": "While locked, properties and views can't change; rows stay editable.",
     "locked": "Locked",

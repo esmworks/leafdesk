@@ -20,6 +20,14 @@
     "duplicateSuffix": " (kopya)",
     "duplicateFailed": "Kopya oluşturulamadı.",
     "moveTo": "Taşı",
+    "style": {
+      "font": "Yazı tipi",
+      "default": "Varsayılan",
+      "serif": "Serif",
+      "mono": "Mono",
+      "smallText": "Küçük metin",
+      "fullWidth": "Tam genişlik"
+    },
     "lockDatabase": "Veritabanını kilitle",
     "lockHint": "Kilitliyken özellikler ve görünümler değiştirilemez; satırlar düzenlenebilir.",
     "locked": "Kilitli",
