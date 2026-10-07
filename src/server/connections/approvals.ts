@@ -32,6 +32,15 @@ async function ownersOf(workspaceId: string) {
   return rows.map((r) => r.userId);
 }
 
+/** Tells the workspace's open sidebars to fetch their inbox again; the items are saved whether or not it reaches them. */
+function refreshInboxes(workspaceId: string) {
+  try {
+    signalInbox(workspaceId);
+  } catch (error) {
+    console.error("[connections] could not refresh inboxes", error);
+  }
+}
+
 /** Tells the workspace's owners a call waits for them (an inbox item each, about the run). */
 export async function notifyApprovers(run: { id: string; workspaceId: string }, agentUserId: string) {
   const owners = await ownersOf(run.workspaceId);
@@ -39,13 +48,13 @@ export async function notifyApprovers(run: { id: string; workspaceId: string }, 
   await db.insert(notification).values(
     owners.map((userId) => ({ userId, workspaceId: run.workspaceId, kind: "agent_approval" as const, actorId: agentUserId, agentRunId: run.id })),
   );
-  for (const userId of owners) signalInbox(userId);
+  refreshInboxes(run.workspaceId);
 }
 
 /** Takes a run's approval items out of the inbox (it was answered, or ran out of time). */
 export async function withdrawApproval(runId: string) {
-  const gone = await db.delete(notification).where(eq(notification.agentRunId, runId)).returning({ userId: notification.userId });
-  for (const userId of new Set(gone.map((g) => g.userId))) signalInbox(userId);
+  const gone = await db.delete(notification).where(eq(notification.agentRunId, runId)).returning({ workspaceId: notification.workspaceId });
+  for (const workspaceId of new Set(gone.map((g) => g.workspaceId))) refreshInboxes(workspaceId);
 }
 
 /**
