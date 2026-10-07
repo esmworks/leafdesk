@@ -594,7 +594,11 @@ function EventsTab({ workspaceId, conn, agents }: { workspaceId: string; conn: C
               <li key={event.id} className="flex items-baseline gap-3 px-3 py-1.5 text-sm">
                 <span className="min-w-0 flex-1 truncate">{event.eventType}</span>
                 <span className="shrink-0 text-xs text-fg-muted">
-                  {event.status === "queued" ? t("queued", { n: Number(event.note) || 1 }) : t(`ignored.${event.note === "noMatch" ? "noMatch" : "noTrigger"}`)}
+                  {event.status === "queued"
+                    ? t("queued", { n: Number(event.note) || 1 })
+                    : event.status === "received"
+                      ? t("received")
+                      : t(`ignored.${event.note === "noMatch" ? "noMatch" : "noTrigger"}`)}
                 </span>
                 <time className="shrink-0 text-xs text-fg-faint" dateTime={event.receivedAt}>
                   {format.dateTime(new Date(event.receivedAt), { dateStyle: "short", timeStyle: "short" })}
@@ -734,7 +738,7 @@ function SettingsTab({
           onAuthType={setAuthType}
           onToken={setToken}
           onEventPreset={setEventPreset}
-          tokenRequired={conn.authType !== "token"}
+          tokenRequired={conn.authType !== "token" || url.trim() !== conn.url}
         />
         {reconnects && <p className="text-xs text-fg-muted">{t("reconnectNote")}</p>}
         {error && (

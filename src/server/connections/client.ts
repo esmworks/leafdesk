@@ -2,6 +2,9 @@ import { randomBytes } from "node:crypto";
 import {
   auth,
   Client,
+  ProtocolError,
+  SdkError,
+  SdkErrorCode,
   StreamableHTTPClientTransport,
   type AuthProvider,
   type CallToolResult,
@@ -223,7 +226,9 @@ async function connect(row: ConnectionRow): Promise<Client> {
     await client.connect(transport, { timeout: CONNECT_TIMEOUT_MS });
   } catch (error) {
     await client.close().catch(() => undefined);
-    throw classify(error);
+    const failure = classify(error);
+    // An error answer while connecting (a protocol version it won't speak...) means it's no server for us.
+    throw failure.code === "tool" ? new ConnectionClientError("notMcp", failure.message) : failure;
   }
   return client;
 }
@@ -234,7 +239,11 @@ export function classify(error: unknown): ConnectionClientError {
   const name = (error as { name?: string })?.name ?? "";
   const message = error instanceof Error ? error.message : String(error);
   const status = (error as { status?: number; code?: number | string })?.status;
-  if (name === "UnauthorizedError" || status === 401 || /unauthori[sz]ed|401|invalid_token/i.test(message)) {
+  if (SdkError.isInstance(error) && error.code === SdkErrorCode.RequestTimeout) return new ConnectionClientError("timeout", message);
+  // The server answered with an error of its own (unknown tool, bad input...): it is up and the
+  // connection is fine; the call was refused.
+  if (ProtocolError.isInstance(error)) return new ConnectionClientError("tool", message);
+  if (name === "UnauthorizedError" || status === 401 || /unauthori[sz]ed|\b401\b|invalid_token/i.test(message)) {
     return new ConnectionClientError("unauthorized", message);
   }
   if (/timed? ?out|timeout/i.test(message) || name === "TimeoutError") return new ConnectionClientError("timeout", message);

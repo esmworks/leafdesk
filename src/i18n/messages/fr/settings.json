@@ -1136,6 +1136,7 @@
       "tooMany": "Il peut y en avoir {max} au plus.",
       "notFound": "Cela n’existe plus.",
       "invalidToken": "Collez le jeton ou le secret.",
+      "tokenForNewUrl": "Une nouvelle adresse a besoin de son jeton : collez-le à nouveau.",
       "invalidTrigger": "Choisissez un agent de cet espace.",
       "unknownTool": "La connexion n’a pas d’outil « {tool} ».",
       "oauthFailed": "La connexion a échoué. Réessayez.",
@@ -1228,6 +1229,7 @@
       "reload": "Recharger",
       "none": "Aucun événement pour l’instant.",
       "queued": "{n, plural, one {# exécution lancée} other {# exécutions lancées}}",
+      "received": "non traité",
       "ignored": {
         "noMatch": "aucun déclencheur pour ce type",
         "noTrigger": "aucun déclencheur"
@@ -1240,7 +1242,7 @@
       "promptPlaceholder": "Ce que l’agent doit faire de l’événement",
       "addTrigger": "Ajouter un déclencheur"
     },
-    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la connexion ; elle est réessayée à l’enregistrement.",
+    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la liaison ; elle est réessayée à l’enregistrement. Une nouvelle adresse demande aussi à nouveau le jeton, liste ses outils de zéro et retire aux agents les outils de cette connexion jusqu’à ce que vous les leur redonniez.",
     "deleteTitle": "Supprimer la connexion",
     "deleteBody": "Ses identifiants, les outils qu’y avaient les agents, ses déclencheurs et ses événements partent avec elle. Les appels en attente d’approbation échouent sans rien envoyer.",
     "deleteConfirm": "Supprimer",

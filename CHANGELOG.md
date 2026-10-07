@@ -62,18 +62,22 @@
   the browser. Connections reach only public `https` addresses, checked again on connecting and on
   each redirect; `CONNECTOR_ALLOWED_HOSTS` lets through hosts on a private network. A server's
   tools are classed *read* (marked `readOnlyHint`) or *write* (everything else), and owners can
-  change the class; on an agent's new *Connections* tab they tick the tools it may use. Read tools
-  run at once; a write tool makes the run wait (`awaiting_approval`) and puts an item in every
-  owner's inbox with the agent, the tool and its exact input, to approve, decline or send back
-  with a note; after 24 hours nothing is sent (`approvalTimeout`), nor when the tool or connection
-  goes meanwhile (`connectionGone`). Each connection has a signed events address,
-  `/api/connections/<id>/events`, for Leafdesk's own HMAC scheme, Slack's Events API or GitHub
-  webhooks; events that are unsigned, stale (over five minutes), over 256 KB, repeated or over 120
-  a minute are refused, and the others start the agents whose triggers match their type, with the
-  trigger's task and the event's body. The runs list shows a run's tool calls and answers, and
-  events are kept for 7 days. Every change, tool call and approval answer is audited. MCP tools
-  `list_connections` and `set_agent_connection_tools`; `list_notifications` and `list_agent_runs`
-  show approvals. No REST endpoints. Migration `0041_connections`. New checks in
+  change the class; on an agent's new *Connections* tab they tick the tools it may use. A new
+  address starts a connection over: its token must be pasted again, and classes and agents' tools
+  are reset. Read tools run at once; a write tool makes the run wait (`awaiting_approval`) and
+  puts an item in every owner's inbox with the agent, the tool and its exact input, to approve,
+  decline or send back with a note; after 24 hours nothing is sent (`approvalTimeout`, a later
+  answer is refused), nor when the tool or connection goes meanwhile (`connectionGone`), and a run
+  taken up again after a restart doesn't send an approved call twice. Each connection has a signed
+  events address, `/api/connections/<id>/events`, for Leafdesk's own HMAC scheme, Slack's Events
+  API or GitHub webhooks; events that are unsigned, stale (over five minutes), over 256 KB or
+  repeated (by delivery id or by signature) are refused, at most 120 signed ones a minute, and the
+  others start the agents whose triggers match their type, with the trigger's task and the event's
+  type and body as data; one the server failed on is handled when sent again. The runs list shows
+  a run's tool calls and answers, and events are kept for 7 days. Every change, tool call and
+  approval answer is audited. MCP tools `list_connections` and `set_agent_connection_tools`;
+  `list_notifications` and `list_agent_runs` show approvals. No REST endpoints. Migrations
+  `0041_connections` and `0042_connection_event_signature`. New checks in
   `scripts/connector-e2e.ts` (against a second Leafdesk started as the MCP server) and
   `scripts/mcp-e2e.ts`, and unit tests for the address checks, event signatures, slugs and the
   secret box. See the README (Connections).

@@ -104,7 +104,9 @@ export const connectionTrigger = pgTable(
 
 /**
  * An event a connection received, kept CONNECTION_EVENT_DAYS: the settings list it, and its
- * delivery id refuses the same event a second time.
+ * delivery id (the service sending it again) and its signature (the same request sent again, its
+ * unsigned delivery id changed) each refuse it a second time. `received` until its runs are queued:
+ * one the server failed on is taken again when the service retries it.
  */
 export const connectionEvent = pgTable(
   "connection_event",
@@ -116,10 +118,15 @@ export const connectionEvent = pgTable(
       .notNull()
       .references(() => connection.id, { onDelete: "cascade" }),
     deliveryId: text("delivery_id").notNull(),
+    signature: text("signature"),
     eventType: text("event_type").notNull(),
     status: text("status").$type<ConnectionEventStatus>().notNull(),
     note: text("note").notNull().default(""),
     receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("connection_event_delivery_idx").on(t.connectionId, t.deliveryId), index("connection_event_received_idx").on(t.connectionId, t.receivedAt)],
+  (t) => [
+    uniqueIndex("connection_event_delivery_idx").on(t.connectionId, t.deliveryId),
+    uniqueIndex("connection_event_signature_idx").on(t.connectionId, t.signature),
+    index("connection_event_received_idx").on(t.connectionId, t.receivedAt),
+  ],
 );

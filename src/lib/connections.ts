@@ -106,8 +106,8 @@ export type ConnectionTriggerView = {
   createdAt: string;
 };
 
-/** What became of a received event. */
-export type ConnectionEventStatus = "queued" | "ignored" | "rejected";
+/** What became of a received event: runs queued, none to queue, or not handled yet (the server failed on it). */
+export type ConnectionEventStatus = "queued" | "ignored" | "received";
 
 export type ConnectionEventView = {
   id: string;
@@ -134,6 +134,7 @@ export const CONNECTION_ERROR_CODES = [
   "tooMany",
   "notFound",
   "invalidToken",
+  "tokenForNewUrl",
   "invalidTrigger",
   "unknownTool",
   "oauthFailed",

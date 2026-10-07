@@ -1136,6 +1136,7 @@
       "tooMany": "There can be at most {max}.",
       "notFound": "It isn’t there anymore.",
       "invalidToken": "Paste the token or secret.",
+      "tokenForNewUrl": "A new address needs its token: paste it again.",
       "invalidTrigger": "Pick an agent of this workspace.",
       "unknownTool": "The connection has no tool “{tool}”.",
       "oauthFailed": "Signing in didn’t work. Try again.",
@@ -1228,6 +1229,7 @@
       "reload": "Reload",
       "none": "No events yet.",
       "queued": "{n, plural, one {started # run} other {started # runs}}",
+      "received": "not handled",
       "ignored": {
         "noMatch": "no trigger for this type",
         "noTrigger": "no triggers"
@@ -1240,7 +1242,7 @@
       "promptPlaceholder": "What the agent should do with the event",
       "addTrigger": "Add trigger"
     },
-    "reconnectNote": "Changing the address or the sign-in signs the connection out; it is tried again when you save.",
+    "reconnectNote": "Changing the address or the sign-in signs the connection out; it is tried again when you save. A new address also needs the token again, lists its tools afresh and takes this connection's tools away from agents until you give them again.",
     "deleteTitle": "Remove connection",
     "deleteBody": "Its credentials, the tools agents had on it, its triggers and its events go with it. Calls waiting for approval fail without sending anything.",
     "deleteConfirm": "Remove it",

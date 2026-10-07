@@ -1178,6 +1178,11 @@ connections in Settings → *Connections*; members and guests don't see them. A 
 - **Token**: an API key or personal token, sent as `Authorization: Bearer <token>`.
 - **None**: for servers that need nothing.
 
+Changing a connection's address signs it out, and starts it over as a new server: a token must be
+pasted again (a token is never sent to an address it wasn't given for), its tools are listed
+afresh with the classes the server marks, and agents lose its tools until an owner gives them
+again, since another server's tool of the same name may do something else.
+
 Tokens and signing secrets are sealed (AES-256-GCM) before they reach the database and never come
 back to the browser. The key comes from `LEAFDESK_ENCRYPTION_KEY` (at least 32 characters), or,
 without it, is derived from `BETTER_AUTH_SECRET`. To change the key, set the new one in
@@ -1202,13 +1207,16 @@ tab, an owner ticks the tools that agent may use; an agent has no tool of a conn
   inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
   exact input. An owner **approves** (the call is sent as is), **declines** (the agent hears no and
   goes on), or **sends it back with a note** (the agent gets the note and tries again, which may
-  ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent.
+  ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent;
+  an answer that comes later is refused. Once an approved call is sent, the run notes it, so a
+  run taken up again (its server restarted, say) doesn't send it twice.
   If the tool or the connection is taken away while it waits, nothing is sent either
   (`connectionGone`).
 
 A tool's answer reaches the model cut to 8000 characters, and a run takes at most 40,000
-characters from connections in all. A call gets 30 seconds. What the agent got from a tool can end
-up in what it writes, like anything shared with it.
+characters from connections in all. A call gets 30 seconds; when a writing call runs out of time
+the agent is told it may have been done and asked to say so in its answer. What the agent got from a tool
+can end up in what it writes, like anything shared with it.
 
 **Events.** Each connection has an address, `<APP_URL>/api/connections/<id>/events`, where the
 service can send events signed with a secret of the connection (shown on the *Events* tab, with a
@@ -1223,13 +1231,19 @@ button for a new one). Pick how they are signed:
 - **GitHub** (`github`): `X-Hub-Signature-256`, `X-GitHub-Event` and `X-GitHub-Delivery`; paste the
   same secret in the webhook's settings.
 
-An event signed wrongly, older than five minutes, larger than 256 KB or seen before (by its delivery
-id) is refused; a connection takes at most 120 a minute. Each accepted event runs the agents whose
-triggers match its type (a trigger for `issues` also takes `issues.opened`, an empty type takes all),
-with the trigger's task and the event's body (cut to 8000 characters). Such a run reads what is
-shared with the agent but changes nothing in Leafdesk by itself; it acts through its connection
-tools, with approval as above. The *Events* tab lists what came in over the last 7 days and
-what happened to each.
+An event signed wrongly, older than five minutes or larger than 256 KB is refused, and so is one
+seen before: by its delivery id (the service sending it again) or by its signature (the same
+request sent again with another delivery id). Two events with the same body signed in the same
+second are therefore one event; put an id or a time in the body when that could happen. GitHub
+signs no time, so a GitHub delivery is known as a repeat only while it is kept (7 days). A
+connection takes at most 120 signed events a minute; requests that fail the signature check don't
+count. An event the server failed on before starting its runs shows as *not handled* and is
+handled when the service sends it again. Each accepted event runs the agents whose triggers match
+its type (a trigger for `issues` also takes `issues.opened`, an empty type takes all), with the
+trigger's task and the event (its type and body, cut to 8000 characters, read as data). Such a run
+reads what is shared with the agent but changes nothing in Leafdesk by itself; it acts through
+its connection tools, with approval as above. The *Events* tab lists what came in over the last 7
+days and what happened to each.
 
 **Audit.** Adding, changing, signing in to and removing connections, tool classes, agents' tools,
 triggers, every connection tool call (with its input, who approved it and the outcome) and every

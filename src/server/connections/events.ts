@@ -13,15 +13,16 @@ import { triggerMatches, verifyEvent } from "./verify";
  * - `slack`: Slack's `X-Slack-Signature` (`v0=` HMAC of `v0:<timestamp>:<body>`) and
  *   `X-Slack-Request-Timestamp`; Slack's URL check is answered once its signature holds;
  * - `github`: GitHub's `X-Hub-Signature-256`, `X-GitHub-Event` and `X-GitHub-Delivery` (GitHub
- *   sends no timestamp: its delivery id alone keeps a replay out).
- * A timestamp more than EVENT_TOLERANCE_SECONDS away is refused, and so is a delivery id seen
- * before. Each accepted event runs the agents of the connection's triggers that match its type
- * (a trigger for "issues" also takes "issues.opened").
+ *   sends no timestamp: a request seen before is refused only while its event is kept,
+ *   CONNECTION_EVENT_DAYS).
+ * A timestamp more than EVENT_TOLERANCE_SECONDS away is refused, and so is a delivery id or a
+ * signature seen before. Each accepted event runs the agents of the connection's triggers that
+ * match its type (a trigger for "issues" also takes "issues.opened").
  */
 
 export type EventResponse = { status: number; body: Record<string, unknown> };
 
-/** Events a connection takes per minute; more are refused with 429. */
+/** Signed events a connection takes per minute; more are refused with 429. Unsigned requests don't count, so they can't crowd real events out. */
 const EVENTS_PER_MINUTE = 120;
 const EVENT_BODY_CHARS = 8_000;
 
@@ -65,7 +66,6 @@ async function readBody(request: Request): Promise<string | null> {
 export async function receiveEvent(connectionId: string, request: Request): Promise<EventResponse> {
   const [conn] = await db.select().from(connection).where(eq(connection.id, connectionId)).limit(1);
   if (!conn) return { status: 404, body: { error: "Unknown connection" } };
-  if (overRate(conn.id)) return { status: 429, body: { error: "Too many events; slow down" } };
   const body = await readBody(request);
   if (body === null) return { status: 413, body: { error: "The event is too large" } };
   let secret: string;
@@ -76,16 +76,27 @@ export async function receiveEvent(connectionId: string, request: Request): Prom
   }
   const verified = verifyEvent(conn.eventPreset, secret, request.headers, body);
   if (!verified.ok) return { status: verified.status, body: { error: verified.error } };
+  if (overRate(conn.id)) return { status: 429, body: { error: "Too many events; slow down" } };
   if (verified.reply) return { status: 200, body: verified.reply };
   const eventType = verified.type.slice(0, MAX_TRIGGER_EVENT);
+  const deliveryId = verified.deliveryId.slice(0, 200);
 
-  const [event] = await db
+  let [event] = await db
     .insert(connectionEvent)
-    .values({ connectionId: conn.id, deliveryId: verified.deliveryId.slice(0, 200), eventType, status: "ignored", note: "" })
+    .values({ connectionId: conn.id, deliveryId, signature: verified.signature.slice(0, 300), eventType, status: "received", note: "" })
+    // Either key taken (its delivery id, or its signature) means seen before.
     .onConflictDoNothing()
     .returning({ id: connectionEvent.id });
-  // Seen before (a retry, or a replay): already handled.
-  if (!event) return { status: 200, body: { ok: true, duplicate: true } };
+  if (!event) {
+    // The service sending a delivery again whose runs weren't all queued (the server failed on
+    // it) gets it handled; any other repeat, a retry of a handled one or a replay, was handled.
+    const [seen] = await db
+      .select({ id: connectionEvent.id, status: connectionEvent.status })
+      .from(connectionEvent)
+      .where(and(eq(connectionEvent.connectionId, conn.id), eq(connectionEvent.deliveryId, deliveryId)));
+    if (seen?.status !== "received") return { status: 200, body: { ok: true, duplicate: true } };
+    event = seen;
+  }
 
   const triggers = await db
     .select({ trigger: connectionTrigger, agentEnabled: workspaceAgent.enabled })

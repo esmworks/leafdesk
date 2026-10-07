@@ -1,0 +1,2 @@
+ALTER TABLE "connection_event" ADD COLUMN "signature" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "connection_event_signature_idx" ON "connection_event" USING btree ("connection_id","signature");

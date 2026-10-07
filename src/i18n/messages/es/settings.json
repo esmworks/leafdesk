@@ -1136,6 +1136,7 @@
       "tooMany": "Puede haber como máximo {max}.",
       "notFound": "Ya no existe.",
       "invalidToken": "Pega el token o el secreto.",
+      "tokenForNewUrl": "Una dirección nueva necesita su token: pégalo de nuevo.",
       "invalidTrigger": "Elige un agente de este espacio de trabajo.",
       "unknownTool": "La conexión no tiene la herramienta «{tool}».",
       "oauthFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
@@ -1228,6 +1229,7 @@
       "reload": "Recargar",
       "none": "Aún no hay eventos.",
       "queued": "{n, plural, one {inició # ejecución} other {inició # ejecuciones}}",
+      "received": "sin procesar",
       "ignored": {
         "noMatch": "ningún disparador para este tipo",
         "noTrigger": "sin disparadores"
@@ -1240,7 +1242,7 @@
       "promptPlaceholder": "Qué debe hacer el agente con el evento",
       "addTrigger": "Añadir disparador"
     },
-    "reconnectNote": "Cambiar la dirección o el inicio de sesión cierra la sesión de la conexión; se vuelve a intentar al guardar.",
+    "reconnectNote": "Cambiar la dirección o el inicio de sesión cierra la sesión de la conexión; se vuelve a intentar al guardar. Una dirección nueva también pide de nuevo el token, lista sus herramientas desde cero y quita a los agentes las herramientas de esta conexión hasta que se las vuelvas a dar.",
     "deleteTitle": "Eliminar conexión",
     "deleteBody": "Se van con ella sus credenciales, las herramientas que tenían los agentes, sus disparadores y sus eventos. Las llamadas que esperan aprobación fallan sin enviar nada.",
     "deleteConfirm": "Eliminar",

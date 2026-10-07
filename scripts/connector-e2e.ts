@@ -52,12 +52,13 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
-const { flushAgentRuns } = await import("@/server/agents/run");
+const { flushAgentRuns, processRun } = await import("@/server/agents/run");
 const manage = await import("@/server/connections/manage");
 const { ConnectionError } = manage;
 const { ApprovalError, decideApproval } = await import("@/server/connections/approvals");
-const { callConnectionTool, secretsOf } = await import("@/server/connections/client");
-const { resultText } = await import("@/server/connections/tools");
+const { callConnectionTool, classify, ConnectionClientError, secretsOf } = await import("@/server/connections/client");
+const { failureText, resultText } = await import("@/server/connections/tools");
+const { ProtocolError, SdkError, SdkErrorCode } = await import("@modelcontextprotocol/client");
 const { receiveEvent } = await import("@/server/connections/events");
 const { AccessError } = await import("@/server/access");
 const { namespacedTool } = await import("@/lib/connections");
@@ -354,6 +355,22 @@ try {
   const rowsAtPeer = async () => ((await call("query_database", { database_id: peerDb.id })).rows as { title: string }[]).map((r) => r.title);
   check((await rowsAtPeer()).length === 0, "the peer's database starts empty");
 
+  // How a failed call is told: refused by the server, timed out (maybe done), or unreachable.
+  const [callRow] = await db.select().from(connection).where(eq(connection.id, conn.id));
+  const unknownCall = await callConnectionTool(callRow, "no_such_tool", {}).then(
+    (result) => ({ result, code: null as string | null }),
+    (error: unknown) => ({ result: null, code: error instanceof ConnectionClientError ? error.code : String(error) }),
+  );
+  check(unknownCall.code === null ? unknownCall.result?.isError === true : unknownCall.code === "tool", "a call the server refuses is told as refused, not as unreachable", unknownCall);
+  check(!(await callConnectionTool(callRow, "list_workspaces", {})).isError, "and the connection keeps working after it");
+  check(classify(new ProtocolError(-32602, "Invalid params")).code === "tool", "an error answer from the server is the call refused");
+  check(classify(new SdkError(SdkErrorCode.RequestTimeout, "Request timed out")).code === "timeout", "a call with no answer in time timed out");
+  check(classify(new Error("Invalid params: field 4010 too long")).code !== "unauthorized", "a number like 4010 in a message isn't taken for a 401");
+  const writeTool = callRow.tools.find((t) => t.name === "create_database_row")!;
+  const timedOut = failureText("Peer", writeTool, new ConnectionClientError("timeout", "Request timed out"));
+  check(timedOut.includes("may have been done") && !timedOut.includes("Nothing was done"), "a write that timed out may have been done, and the agent is told so", timedOut);
+  check(failureText("Peer", writeTool, new ConnectionClientError("unreachable", "fetch failed")).includes("Nothing was done"), "a call that never got there did nothing");
+
   // ── An agent with some of the tools, and a trigger ──────────────────────────────────────────
   const agent = await agents.createAgent(ids.owner, workspaceId, { name: "Lead keeper", instructions: "Keep the leads database at the peer up to date." });
   const listTool = namespacedTool(rawRow.slug, "list_workspaces");
@@ -367,6 +384,16 @@ try {
   check(await fails(manage.createTrigger(ids.owner, conn.id, { agentId: "nope" }), (e) => isConnErr("invalidTrigger")(e) || isDenied(e)), "a trigger needs an agent of the workspace");
   const trigger = await manage.createTrigger(ids.owner, conn.id, { agentId: agent.id, eventType: "lead", prompt: "Add the lead in the event to the Leads database." });
   check(trigger.eventType === "lead" && trigger.enabled, "an owner adds a trigger for lead events", trigger);
+  await manage.updateTrigger(ids.owner, trigger.id, { prompt: "Changed task" });
+  await manage.updateTrigger(ids.owner, trigger.id, { prompt: trigger.prompt });
+  const triggerAudit = await db.select().from(auditEvent).where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "connection.updated")));
+  check(
+    triggerAudit.some((a) => {
+      const d = a.details as { triggerChanged?: { prompt?: string }; previousTrigger?: { prompt?: string } };
+      return d.triggerChanged?.prompt === "Changed task" && d.previousTrigger?.prompt === trigger.prompt;
+    }),
+    "changing a trigger is in the audit log, with what it was",
+  );
 
   const secret = await manage.revealEventSecret(ids.owner, conn.id);
   check(secret.length >= 32, "the event secret can be shown to an owner");
@@ -383,9 +410,31 @@ try {
   check(huge.status === 413, "an oversized event is refused", huge);
   const unknownConn = await receiveEvent("nope", new Request("http://x/", { method: "POST", body: "{}" }));
   check(unknownConn.status === 404, "an event for an unknown connection is refused");
-  const other = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-o`, body: {} });
+  const other = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-o`, body: { n: "o" } });
   check(other.status === 202 && other.body.runs === 0, "an event no trigger takes is kept, starting nothing", other);
   check((await db.select().from(agentRun).where(eq(agentRun.agentId, agent.id))).length === 0, "the refused events started no runs");
+
+  // Unsigned requests don't use up the connection's allowance of events.
+  for (let i = 0; i < 125; i++) await hmacEvent(conn.id, "not-the-secret", { type: "x", delivery: `${RUN}-flood-${i}`, body: {} });
+  const afterFlood = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-af`, body: { n: 1 } });
+  check(afterFlood.status === 202, "a flood of unsigned requests doesn't crowd a signed event out", afterFlood);
+
+  // The very same request again, its unsigned delivery id changed, is still a repeat.
+  const sentAt = Math.floor(Date.now() / 1000);
+  const once = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-r1`, body: { n: 2 }, at: sentAt });
+  const renamed = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-r2`, body: { n: 2 }, at: sentAt });
+  check(once.status === 202 && renamed.status === 200 && renamed.body.duplicate === true, "a replay under a new delivery id is refused as a repeat", { once, renamed });
+
+  // A delivery the server failed on before queuing its runs is handled when the service retries it.
+  const failedFirst = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-f`, body: { n: 3 } });
+  const failedWhere = and(eq(connectionEvent.connectionId, conn.id), eq(connectionEvent.deliveryId, `${RUN}-f`));
+  await db.update(connectionEvent).set({ status: "received", note: "" }).where(failedWhere);
+  // The retry is signed afresh, as a sender does.
+  const retried = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-f`, body: { n: 3 }, at: Math.floor(Date.now() / 1000) + 1 });
+  const [handled] = await db.select().from(connectionEvent).where(failedWhere);
+  check(failedFirst.status === 202 && retried.status === 202 && retried.body.duplicate !== true && handled.status === "ignored", "a delivery left unhandled is handled on the retry", { retried, handled });
+  const retriedAgain = await hmacEvent(conn.id, secret, { type: "invoice.paid", delivery: `${RUN}-f`, body: { n: 3 }, at: Math.floor(Date.now() / 1000) + 2 });
+  check(retriedAgain.body.duplicate === true, "and once handled, it is a repeat", retriedAgain);
 
   // ── A run: reads freely, waits for approval to write, then writes ───────────────────────────
   const leadName = `Lead ${RUN}`;
@@ -420,6 +469,11 @@ try {
   check(!offered.includes("update_row") && !offered.includes("add_comment"), "an event run has no row tools", offered);
   const firstPrompt = fake.chats[0].messages.map((m) => textOf(m.content)).join("\n");
   check(firstPrompt.includes("lead.created") && firstPrompt.includes(leadName), "the model reads the event", firstPrompt.slice(0, 2000));
+  check(
+    !/What happened:[^\n]*lead\.created/.test(firstPrompt) && /<event>[\s\S]*Type: lead\.created[\s\S]*<\/event>/.test(firstPrompt),
+    "the event's type, the sender's word, is read inside the event's data",
+    firstPrompt.slice(0, 1000),
+  );
   const readBack = toolMessages(fake.chats[1]).join("\n");
   check(readBack.includes("<<<EXTERNAL DATA") && readBack.includes("EXTERNAL DATA>>>") && readBack.includes(peerWs), "the tool's answer reaches the model framed as outside data", readBack.slice(0, 600));
 
@@ -443,6 +497,31 @@ try {
   check(toolCalls.length >= 2 && toolCalls.every((a) => a.actorUserId === agent.userId), "each tool call is in the audit log, by the agent", audit.map((a) => a.action));
   check(toolCalls.some((a) => (a.details as { approvedBy?: string }).approvedBy === ids.owner), "with who approved the write");
   check(audit.some((a) => a.action === "connection.approval_decided" && a.actorUserId === ids.owner), "the answer is in the audit log");
+
+  // ── Taken again after the approved call was sent (its worker stopped): not sent twice ────────
+  const onceTitle = `Once ${RUN}`;
+  let release: (reply: FakeReply) => void = () => undefined;
+  let held = 0;
+  fake.setChat((request): FakeReply | Promise<FakeReply> => {
+    if (assistantCalls(request) === 0) return { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: onceTitle } }] };
+    // The turn after the call: the first worker stalls here, as if it stopped.
+    if (held++ === 0) return new Promise<FakeReply>((resolve) => (release = resolve));
+    return { text: "Added once." };
+  });
+  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-once`, body: { name: onceTitle } });
+  await flushAgentRuns();
+  const [onceWaiting] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), eq(agentRun.status, "awaiting_approval")));
+  await decideApproval(ids.owner, { runId: onceWaiting.id, callId: onceWaiting.pending!.callId, decision: "approve" });
+  const stalled = processRun(await runOf(onceWaiting.id));
+  while (!held) await new Promise((resolve) => setTimeout(resolve, 20));
+  check((await rowsAtPeer()).filter((t) => t === onceTitle).length === 1, "the approved call is sent");
+  const retaken = await runOf(onceWaiting.id);
+  check(retaken.state !== null && !retaken.state.decision, "the run saves where it is once the approved call is sent", retaken.state);
+  await processRun(retaken);
+  check((await runOf(onceWaiting.id)).status === "done", "taken again, the run goes on from there", await runOf(onceWaiting.id));
+  check((await rowsAtPeer()).filter((t) => t === onceTitle).length === 1, "and doesn't send the approved call a second time");
+  release({ text: "late" });
+  await stalled;
 
   // ── Declined: nothing is sent ────────────────────────────────────────────────────────────────
   const before = (await rowsAtPeer()).length;
@@ -489,11 +568,16 @@ try {
 
   // ── Unanswered: runs out of time, sends nothing ──────────────────────────────────────────────
   fake.setChat((request): FakeReply => (assistantCalls(request) === 0 ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: "Never sent" } }] } : { text: "?" }));
-  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-4`, body: {} });
+  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-4`, body: { n: 4 } });
   await flushAgentRuns();
   let [late] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), eq(agentRun.status, "awaiting_approval")));
   check(late.nextAt.getTime() > Date.now() + 23 * 60 * 60_000, "a call waits a day for an answer");
   await db.update(agentRun).set({ nextAt: new Date(Date.now() - 1000) }).where(eq(agentRun.id, late.id));
+  check(
+    await fails(decideApproval(ids.owner, { runId: late.id, callId: late.pending!.callId, decision: "approve" }), isApprovalErr("decided")),
+    "an answer after the day is up is refused, before any sweep fails the run",
+  );
+  check((await runOf(late.id)).status === "awaiting_approval", "and the late answer doesn't move the run on");
   await flushAgentRuns();
   late = await runOf(late.id);
   check(late.status === "failed" && late.code === "approvalTimeout", "unanswered, the run fails when the time is up", { status: late.status, code: late.code });
@@ -507,7 +591,7 @@ try {
     if (assistantCalls(request) === 0) return { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: "Taken away" } }] };
     return { text: toolMessages(request).some((t) => t.includes("no longer allowed")) ? "Gone." : "?" };
   });
-  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-5`, body: {} });
+  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-5`, body: { n: 5 } });
   await flushAgentRuns();
   let [taken] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), eq(agentRun.status, "awaiting_approval")));
   await manage.setAgentGrant(ids.owner, agent.id, conn.id, ["list_workspaces"]);
@@ -523,6 +607,18 @@ try {
   check(byToken.status === "ready" && byToken.tools.length === conn.tools.length, "a connection with a token is ready at once", { status: byToken.status, error: byToken.statusError });
   const [tokenRow] = await db.select({ slug: connection.slug }).from(connection).where(eq(connection.id, byToken.id));
   check(tokenRow.slug !== rawRow.slug, "two connections of the same name get different slugs", tokenRow.slug);
+  // A new address: the token isn't taken there unasked, and classes and agents' tools start over.
+  check(
+    await fails(manage.updateConnection(ids.owner, byToken.id, { url: "https://tokens.example.com/mcp" }), isConnErr("tokenForNewUrl")),
+    "a token isn't sent to a new address unless pasted again",
+  );
+  check((await manage.getConnection(ids.owner, byToken.id)).url === `${PEER}/mcp`, "and the address stays as it was");
+  await manage.setToolKind(ids.owner, byToken.id, "create_database_row", "read");
+  await manage.setAgentGrant(ids.owner, agent.id, byToken.id, ["create_database_row"]);
+  const moved = await manage.updateConnection(ids.owner, byToken.id, { url: `${PEER}/mcp?moved=1`, token });
+  const movedRow = moved.tools.find((t) => t.name === "create_database_row");
+  check(moved.status === "ready" && movedRow?.kind === "write" && movedRow.kind === movedRow.hinted, "at a new address the tools are listed again, classed as the server marks them", { status: moved.status, error: moved.statusError, movedRow });
+  check(!(await manage.listAgentGrants(ids.owner, agent.id)).some((g) => g.connectionId === byToken.id), "and agents lose its tools until given them again");
   const badToken = await manage.updateConnection(ids.owner, byToken.id, { token: "not-a-real-token" });
   check(badToken.status === "error" && badToken.statusError?.startsWith("unauthorized"), "a wrong token shows as an error", badToken);
 

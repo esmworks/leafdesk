@@ -13,7 +13,22 @@ describe("verifyEvent: hmac", () => {
     new Headers({ "X-Leafdesk-Signature": `t=${t},v1=${hmac(`${t}.${body}`)}`, "X-Leafdesk-Event": "lead.created", "X-Leafdesk-Delivery": "d-1", ...extra });
 
   it("takes a signed event, with its type, delivery and body", () => {
-    expect(verifyEvent("hmac", SECRET, headers(), body, NOW)).toEqual({ ok: true, type: "lead.created", deliveryId: "d-1", payload: { lead: "Ada" } });
+    expect(verifyEvent("hmac", SECRET, headers(), body, NOW)).toEqual({
+      ok: true,
+      type: "lead.created",
+      deliveryId: "d-1",
+      signature: `${t}.${hmac(`${t}.${body}`)}`,
+      payload: { lead: "Ada" },
+    });
+  });
+
+  it("gives the same signature for the same request whatever its unsigned delivery id, and a new one when signed again", () => {
+    const first = verifyEvent("hmac", SECRET, headers(), body, NOW);
+    const renamed = verifyEvent("hmac", SECRET, headers({ "X-Leafdesk-Delivery": "d-2" }), body, NOW);
+    const later = t + 1;
+    const resigned = verifyEvent("hmac", SECRET, headers({ "X-Leafdesk-Signature": `t=${later},v1=${hmac(`${later}.${body}`)}` }), body, NOW);
+    expect(first.ok && renamed.ok && first.signature === renamed.signature && first.deliveryId !== renamed.deliveryId).toBe(true);
+    expect(resigned.ok && first.ok && resigned.signature !== first.signature && resigned.deliveryId === first.deliveryId).toBe(true);
   });
 
   it("refuses a missing, wrong or stale signature", () => {

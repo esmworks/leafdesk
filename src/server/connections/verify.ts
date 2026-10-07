@@ -19,7 +19,14 @@ function freshTimestamp(seconds: number, now = Date.now()) {
   return Number.isFinite(seconds) && Math.abs(now / 1000 - seconds) <= EVENT_TOLERANCE_SECONDS;
 }
 
-export type Verified = { ok: true; type: string; deliveryId: string; payload: unknown; reply?: Record<string, unknown> } | { ok: false; status: number; error: string };
+/**
+ * A verified event: its type, its delivery id (sent again on a retry; for `hmac` and `github` a header
+ * the signature doesn't cover) and its signature (the same only for the very same request, so a
+ * replay with a new delivery id is still caught).
+ */
+export type Verified =
+  | { ok: true; type: string; deliveryId: string; signature: string; payload: unknown; reply?: Record<string, unknown> }
+  | { ok: false; status: number; error: string };
 
 function parse(body: string): unknown {
   try {
@@ -43,7 +50,7 @@ export function verifyEvent(preset: EventPreset, secret: string, headers: Header
     if (!sameHex(hmacHex(secret, signedContent(t, body)), parts.v1)) return refused("Bad signature");
     const deliveryId = headers.get(WEBHOOK_DELIVERY_HEADER)?.trim() || parts.v1;
     const type = headers.get(WEBHOOK_EVENT_HEADER)?.trim() || "event";
-    return { ok: true, type, deliveryId, payload: parse(body) };
+    return { ok: true, type, deliveryId, signature: `${t}.${parts.v1}`, payload: parse(body) };
   }
   if (preset === "slack") {
     const signature = headers.get("x-slack-signature") ?? "";
@@ -52,12 +59,12 @@ export function verifyEvent(preset: EventPreset, secret: string, headers: Header
     if (!sameHex(`v0=${hmacHex(secret, `v0:${t}:${body}`)}`, signature)) return refused("Bad signature");
     const payload = asRecord(parse(body));
     if (payload.type === "url_verification") {
-      return { ok: true, type: "url_verification", deliveryId: `url_verification:${t}`, payload, reply: { challenge: payload.challenge } };
+      return { ok: true, type: "url_verification", deliveryId: `url_verification:${t}`, signature, payload, reply: { challenge: payload.challenge } };
     }
     const event = asRecord(payload.event);
     const type = typeof event.type === "string" ? event.type : typeof payload.type === "string" ? payload.type : "event";
     const deliveryId = typeof payload.event_id === "string" ? payload.event_id : `${t}:${signature}`;
-    return { ok: true, type, deliveryId, payload };
+    return { ok: true, type, deliveryId, signature, payload };
   }
   const signature = headers.get("x-hub-signature-256") ?? "";
   if (!signature) return refused("Missing signature");
@@ -67,7 +74,7 @@ export function verifyEvent(preset: EventPreset, secret: string, headers: Header
   const payload = parse(body);
   const action = asRecord(payload).action;
   const name = headers.get("x-github-event")?.trim() || "event";
-  return { ok: true, type: typeof action === "string" ? `${name}.${action}` : name, deliveryId, payload };
+  return { ok: true, type: typeof action === "string" ? `${name}.${action}` : name, deliveryId, signature, payload };
 }
 
 /** Whether a trigger's type takes an event's: any, the same, or its family ("issues" takes "issues.opened"). */

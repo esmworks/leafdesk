@@ -254,7 +254,8 @@ async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
     messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map }) }];
   } else {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const body = "body" in run.context ? run.context.body.slice(0, EVENT_CHARS) : "";
+    const type = "eventType" in run.context ? run.context.eventType : "event";
+    const body = `Type: ${type}\n\n${"body" in run.context ? run.context.body.slice(0, EVENT_CHARS) : ""}`;
     messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map }) }];
   }
 
@@ -284,11 +285,24 @@ async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
     return out;
   };
 
+  /**
+   * Saves where the run is, after a change it can't take back (or an owner's answer used up): a run
+   * taken again (put back for the AI allowance, or after its worker stopped) goes on from here
+   * rather than making the change a second time.
+   */
+  const checkpoint = () =>
+    db
+      .update(agentRun)
+      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars }, steps, usage })
+      .where(eq(agentRun.id, run.id));
+
   /** Answers the calls waiting in `queue`, in order; the run pauses at the first that needs approval. */
   const drain = async (decision: AgentRunState["decision"] | undefined): Promise<Paused | null> => {
     let pendingDecision = decision;
     while (queue.length) {
       const call = queue[0];
+      const writesBefore = writes;
+      const answered = Boolean(pendingDecision);
       let out: CallResult | null;
       if (pendingDecision) {
         out = await decided(call, pendingDecision, toolset, answer);
@@ -307,6 +321,7 @@ async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
       if (out.step) steps.push(out.step);
       messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: out.content, isError: out.isError });
       queue = queue.slice(1);
+      if (answered || writes !== writesBefore) await checkpoint();
     }
     return null;
   };
@@ -408,9 +423,9 @@ async function addComment(agent: Agent, run: Run, args: Record<string, unknown>)
 /** What happened, in words: the row added or the properties changed, and by whom; or the event received. */
 async function eventText(run: Run) {
   if (!isRowRun(run.source)) {
+    // The type is the sender's word (often an unsigned header): it goes with the event's data, not here.
     const [conn] = await db.select({ name: connection.name }).from(connection).where(eq(connection.id, run.source.connectionId));
-    const type = "eventType" in run.context ? run.context.eventType : "event";
-    return `The connection "${conn?.name ?? "?"}" received an event of type "${type}".`;
+    return `The connection "${conn?.name ?? "?"}" received an event.`;
   }
   if (!("created" in run.context)) return "The row changed.";
   const { created, changed, actorId } = run.context;

@@ -6,7 +6,7 @@ import type { AgentToolRecord } from "@/lib/agents";
 import { MAX_TOOL_RESULT_CHARS, namespacedTool, type ConnectionTool } from "@/lib/connections";
 import type { AiTool } from "@/server/ai";
 import { recordAudit } from "@/server/audit";
-import { callConnectionTool, classify, type ConnectionRow } from "./client";
+import { callConnectionTool, classify, type ConnectionClientError, type ConnectionRow } from "./client";
 
 /**
  * The tools of connections an agent may use, as the model sees them: `<slug>__<tool>`, only the
@@ -83,6 +83,23 @@ export function framed(connectionName: string, tool: string, text: string, max: 
 export type ToolCallOutcome = { content: string; isError?: boolean; chars: number; step: AgentToolRecord };
 
 /**
+ * What the agent hears when a call failed, saying only what is known: a call that ran out of time
+ * was sent and may have been done; one the server refused, or that never reached it, was not.
+ */
+export function failureText(connectionName: string, tool: ConnectionTool, failure: ConnectionClientError) {
+  const where = `The connection "${connectionName}"`;
+  if (failure.code === "timeout") {
+    return tool.kind === "write"
+      ? `${where} took too long to answer "${tool.name}". The call was sent and may have been done there: don't call it again in this run, and say in your answer that it may need checking.`
+      : `${where} took too long to answer "${tool.name}". Don't try it again in this run.`;
+  }
+  if (failure.code === "tool") {
+    return `${where} refused the call to "${tool.name}" (${failure.message.slice(0, 300)}). Nothing was done there. Fix the input if that's what it says, else finish without it.`;
+  }
+  return `${where} could not be reached (${failure.code}). Nothing was done there; don't try it again in this run.`;
+}
+
+/**
  * Calls a connection's tool for an agent's run and records it in the audit log: who (the agent's
  * user), which connection and tool, the input in short, who approved it, and how it went.
  * `room`: how much of the answer the run may still read.
@@ -121,13 +138,8 @@ export async function runConnectionTool(input: {
     result = await callConnectionTool(conn, tool.name, args, input.signal);
   } catch (error) {
     const failure = classify(error);
-    await audit("failed", failure.message);
-    return {
-      content: `The connection "${conn.name}" could not be reached (${failure.code}). Nothing was done there; don't try it again in this run.`,
-      isError: true,
-      chars: 0,
-      step: step("failed"),
-    };
+    await audit("failed", `${failure.code}: ${failure.message}`);
+    return { content: failureText(conn.name, tool, failure), isError: true, chars: 0, step: step("failed") };
   }
   const max = Math.min(MAX_TOOL_RESULT_CHARS, input.room);
   const text = resultText(result);

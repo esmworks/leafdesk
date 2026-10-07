@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, connection, notification, workspaceAgent } from "@/db/schema";
 import type { AgentPendingCall, ApprovalDecision } from "@/lib/agents";
@@ -64,11 +64,13 @@ export async function decideApproval(userId: string, input: { runId: string; cal
   if (!run) throw new ApprovalError("notFound", "No such run");
   if (!(await workspaceOwnerIds(run.workspaceId)).includes(userId)) throw new ApprovalError("forbidden", "Only owners of the workspace answer an agent's calls");
   const decision = { decision: input.decision, userId, ...(input.decision === "redo" ? { note } : {}) };
-  // Only the first answer to this very call counts.
+  // Only the first answer to this very call counts, and only within its time (the sweep that fails
+  // a call run out of time may not have come yet).
+  const now = new Date();
   const [taken] = await db
     .update(agentRun)
-    .set({ status: "pending", nextAt: new Date(), state: sql`jsonb_set(${agentRun.state}, '{decision}', ${JSON.stringify(decision)}::jsonb)` })
-    .where(and(eq(agentRun.id, run.id), eq(agentRun.status, "awaiting_approval"), sql`${agentRun.pending}->>'callId' = ${input.callId}`))
+    .set({ status: "pending", nextAt: now, state: sql`jsonb_set(${agentRun.state}, '{decision}', ${JSON.stringify(decision)}::jsonb)` })
+    .where(and(eq(agentRun.id, run.id), eq(agentRun.status, "awaiting_approval"), gt(agentRun.nextAt, now), sql`${agentRun.pending}->>'callId' = ${input.callId}`))
     .returning({ id: agentRun.id, pending: agentRun.pending });
   if (!taken) throw new ApprovalError("decided", "This call was already answered");
   await withdrawApproval(run.id);

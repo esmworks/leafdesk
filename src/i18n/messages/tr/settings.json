@@ -1136,6 +1136,7 @@
       "tooMany": "En fazla {max} olabilir.",
       "notFound": "Artık orada değil.",
       "invalidToken": "Token’ı ya da gizli anahtarı yapıştırın.",
+      "tokenForNewUrl": "Yeni adres için token gerekiyor: yeniden yapıştırın.",
       "invalidTrigger": "Bu çalışma alanından bir ajan seçin.",
       "unknownTool": "Bağlantıda “{tool}” diye bir araç yok.",
       "oauthFailed": "Giriş yapılamadı. Yeniden deneyin.",
@@ -1228,6 +1229,7 @@
       "reload": "Yenile",
       "none": "Henüz olay yok.",
       "queued": "{n, plural, one {# çalışma başlattı} other {# çalışma başlattı}}",
+      "received": "işlenmedi",
       "ignored": {
         "noMatch": "bu tür için tetikleyici yok",
         "noTrigger": "tetikleyici yok"
@@ -1240,7 +1242,7 @@
       "promptPlaceholder": "Ajanın olayla ne yapması gerektiği",
       "addTrigger": "Tetikleyici ekle"
     },
-    "reconnectNote": "Adresi ya da girişi değiştirmek bağlantının oturumunu kapatır; kaydettiğinizde yeniden denenir.",
+    "reconnectNote": "Adresi ya da oturum açma yolunu değiştirmek bağlantının oturumunu kapatır; kaydettiğinizde yeniden denenir. Yeni bir adres token’ı da yeniden ister, araçlarını baştan listeler ve siz yeniden verene kadar ajanlardan bu bağlantının araçlarını alır.",
     "deleteTitle": "Bağlantıyı kaldır",
     "deleteBody": "Kimlik bilgileri, ajanların bu bağlantıdaki araçları, tetikleyicileri ve olayları da gider. Onay bekleyen çağrılar hiçbir şey göndermeden başarısız olur.",
     "deleteConfirm": "Kaldır",

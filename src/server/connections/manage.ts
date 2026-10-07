@@ -158,9 +158,11 @@ async function refresh(row: ConnectionRow): Promise<ConnectionRow> {
   } catch (error) {
     const failure = error instanceof ConnectionClientError ? error : new ConnectionClientError("notMcp", String(error));
     const status = failure.code === "unauthorized" && row.authType === "oauth" ? "needsAuth" : "error";
+    // Refusing to list its tools makes it no server for agents either.
+    const code = failure.code === "tool" ? "notMcp" : failure.code;
     const [saved] = await db
       .update(connection)
-      .set({ status, statusError: `${failure.code}: ${failure.message}`.slice(0, 300) })
+      .set({ status, statusError: `${code}: ${failure.message}`.slice(0, 300) })
       .where(eq(connection.id, row.id))
       .returning();
     return saved;
@@ -211,23 +213,39 @@ export async function updateConnection(userId: string, connectionId: string, inp
   if (input.authType !== undefined && isConnectionAuthType(input.authType)) set.authType = input.authType;
   if (input.eventPreset !== undefined && isEventPreset(input.eventPreset)) set.eventPreset = input.eventPreset;
   const authType = set.authType ?? current.authType;
-  const reconnect = (set.url !== undefined && set.url !== current.url) || authType !== current.authType || input.token !== undefined;
+  const moved = set.url !== undefined && set.url !== current.url;
+  const reconnect = moved || authType !== current.authType || input.token !== undefined;
   if (reconnect) {
-    if (authType === "token") set.secrets = sealJson({ token: input.token !== undefined ? checkToken(input.token) : secretsOf(current).token ?? checkToken("") });
-    else if (authType === "none") set.secrets = null;
+    if (authType === "token") {
+      // A token goes only to the server it was given for: a new address needs it pasted again, or
+      // an owner could send a token they never saw to a server of their own.
+      if (moved && input.token === undefined) throw new ConnectionError("tokenForNewUrl", "Paste the token again for the new address");
+      set.secrets = sealJson({ token: input.token !== undefined ? checkToken(input.token) : secretsOf(current).token ?? checkToken("") });
+    } else if (authType === "none") set.secrets = null;
     // OAuth: what the old service gave is no good for a new one.
     else set.secrets = sealJson({});
     set.status = "needsAuth";
     set.statusError = null;
   }
-  const [updated] = await db.update(connection).set(set).where(eq(connection.id, connectionId)).returning();
+  if (moved) {
+    // Another server's tools may share names with these but do something else: classes and what
+    // agents were allowed start over, and its tools are listed afresh.
+    set.tools = [];
+    set.kinds = {};
+    set.toolsAt = null;
+  }
+  const { updated, grantsRemoved } = await db.transaction(async (tx) => {
+    const [row] = await tx.update(connection).set(set).where(eq(connection.id, connectionId)).returning();
+    const removed = moved ? await tx.delete(agentGrant).where(eq(agentGrant.connectionId, connectionId)).returning({ agentId: agentGrant.agentId }) : [];
+    return { updated: row, grantsRemoved: removed.length };
+  });
   if (reconnect) dropClient(connectionId);
   await recordAudit({
     workspaceId: current.workspaceId,
     actorId: userId,
     action: "connection.updated",
     target: { type: "connection", id: connectionId, label: updated.name },
-    details: { ...auditDetails(updated), previous: auditDetails(current), tokenChanged: input.token !== undefined || undefined },
+    details: { ...auditDetails(updated), previous: auditDetails(current), tokenChanged: input.token !== undefined || undefined, ...(grantsRemoved ? { grantsRemoved } : {}) },
   });
   return viewConnection(reconnect && authType !== "oauth" ? await refresh(updated) : updated);
 }
@@ -436,6 +454,15 @@ export async function updateTrigger(userId: string, triggerId: string, input: Tr
   if (input.prompt !== undefined) set.prompt = input.prompt.trim().slice(0, MAX_AGENT_PROMPT);
   if (input.enabled !== undefined) set.enabled = Boolean(input.enabled);
   const [updated] = await db.update(connectionTrigger).set(set).where(eq(connectionTrigger.id, triggerId)).returning();
+  const agentName = async (id: string) => (await db.select({ name: workspaceAgent.name }).from(workspaceAgent).where(eq(workspaceAgent.id, id)))[0]?.name ?? null;
+  const summary = async (t: typeof trigger) => ({ agent: await agentName(t.agentId), eventType: t.eventType, prompt: t.prompt.slice(0, 200), enabled: t.enabled });
+  await recordAudit({
+    workspaceId: row.workspaceId,
+    actorId: userId,
+    action: "connection.updated",
+    target: { type: "connection", id: row.id, label: row.name },
+    details: { ...auditDetails(row), triggerChanged: await summary(updated), previousTrigger: await summary(trigger) },
+  });
   return viewTrigger(updated);
 }
 

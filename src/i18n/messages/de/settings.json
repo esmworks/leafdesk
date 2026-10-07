@@ -1136,6 +1136,7 @@
       "tooMany": "Es können höchstens {max} sein.",
       "notFound": "Das gibt es nicht mehr.",
       "invalidToken": "Füge das Token oder Secret ein.",
+      "tokenForNewUrl": "Eine neue Adresse braucht ihr Token: Füge es erneut ein.",
       "invalidTrigger": "Wähle einen Agenten dieses Workspaces.",
       "unknownTool": "Die Verbindung hat kein Werkzeug „{tool}“.",
       "oauthFailed": "Die Anmeldung hat nicht geklappt. Versuche es erneut.",
@@ -1228,6 +1229,7 @@
       "reload": "Neu laden",
       "none": "Noch keine Ereignisse.",
       "queued": "{n, plural, one {# Durchlauf gestartet} other {# Durchläufe gestartet}}",
+      "received": "nicht verarbeitet",
       "ignored": {
         "noMatch": "kein Auslöser für diesen Typ",
         "noTrigger": "keine Auslöser"
@@ -1240,7 +1242,7 @@
       "promptPlaceholder": "Was der Agent mit dem Ereignis tun soll",
       "addTrigger": "Auslöser hinzufügen"
     },
-    "reconnectNote": "Eine geänderte Adresse oder Anmeldung meldet die Verbindung ab; beim Speichern wird sie erneut versucht.",
+    "reconnectNote": "Wenn du die Adresse oder die Anmeldung änderst, wird die Verbindung abgemeldet; beim Speichern wird sie erneut versucht. Eine neue Adresse braucht außerdem das Token erneut, listet ihre Werkzeuge neu auf und nimmt Agenten die Werkzeuge dieser Verbindung, bis du sie wieder freigibst.",
     "deleteTitle": "Verbindung entfernen",
     "deleteBody": "Ihre Zugangsdaten, die Werkzeuge der Agenten darauf, ihre Auslöser und Ereignisse gehen mit. Aufrufe, die auf Freigabe warten, schlagen fehl, ohne etwas zu senden.",
     "deleteConfirm": "Entfernen",
