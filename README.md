@@ -1263,3 +1263,9 @@ requests; see [CONTRIBUTING.md](CONTRIBUTING.md#translations) for the workflow.
 ## License
 
 [Apache License 2.0](LICENSE). See [NOTICE](NOTICE).
+
+## Trademarks
+
+Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
+endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
+alternative to and what it imports from.
