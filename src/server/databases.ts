@@ -64,6 +64,7 @@ import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
 import { rowChanged } from "@/server/row-events";
 import { workspacePeople, type WorkspacePerson } from "@/server/workspaces";
+import { agentMarks, isAgentUser } from "@/server/agents/users";
 import {
   assignmentsTheySee,
   propertyAccessFor,
@@ -281,6 +282,7 @@ export async function normalizeRowProperties(
   const props = access.visible(all);
   const out: Record<string, unknown> = {};
   let people: Promise<WorkspacePerson[]> | undefined;
+  let asAgent: Promise<boolean> | undefined;
   let workspace: Promise<string | null> | undefined;
   for (const [key, value] of Object.entries(input)) {
     const prop = props.find((p) => p.id === key) ?? props.find((p) => p.name.toLowerCase() === key.toLowerCase());
@@ -296,7 +298,8 @@ export async function normalizeRowProperties(
       out[prop.id] = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
     } else if (prop.type === "person" && normalized) {
       people ??= workspacePeopleOf(databaseId);
-      out[prop.id] = resolvePersonValue(userId, prop, normalized as string[], asIds(existing[prop.id]), await people);
+      asAgent ??= isAgentUser(userId);
+      out[prop.id] = resolvePersonValue(userId, prop, normalized as string[], asIds(existing[prop.id]), await people, await asAgent);
     } else if (prop.type === "files" && normalized) {
       workspace ??= workspaceOf(databaseId);
       out[prop.id] = await resolveFilesValue(userId, prop, normalized as FileValue[], asFiles(existing[prop.id]), await workspace);
@@ -342,7 +345,7 @@ async function resolveFilesValue(
   return out.length ? out : null;
 }
 
-/** Everyone in the workspace a database belongs to, guests included. */
+/** Everyone in the workspace a database belongs to, guests included (agents' users aren't people). */
 async function workspacePeopleOf(databaseId: string): Promise<WorkspacePerson[]> {
   const [database] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, databaseId));
   return database ? workspacePeople(database.workspaceId) : [];
@@ -350,10 +353,11 @@ async function workspacePeopleOf(databaseId: string): Promise<WorkspacePerson[]>
 
 /**
  * Maps person input to user ids of people in the workspace. Each entry is a user id, "me", or,
- * for agents, an email or the exact name of someone in the workspace. Ids the value already
+ * for AI clients, an email or the exact name of someone in the workspace. Ids the value already
  * holds are kept after their person left the workspace, so a former assignee never blocks
  * editing the rest of the cell. Guests can't see who is in the workspace, so they can't look
- * people up by email or name either.
+ * people up by email or name either. Agents (`asAgent`, guests of their workspace that work for
+ * it) look people up by name, never by email; they aren't people, so "me" names no one.
  */
 function resolvePersonValue(
   userId: string,
@@ -361,9 +365,11 @@ function resolvePersonValue(
   input: string[],
   existing: string[],
   people: WorkspacePerson[],
+  asAgent = false,
 ) {
   const actor = people.find((p) => p.id === userId);
-  const lookup = actor && actor.role !== "guest";
+  const byEmailToo = Boolean(actor && actor.role !== "guest");
+  const lookup = byEmailToo || asAgent;
   const out: string[] = [];
   for (const value of input) {
     let id: string | undefined;
@@ -371,11 +377,11 @@ function resolvePersonValue(
     else if (people.some((p) => p.id === value) || existing.includes(value)) id = value;
     else if (lookup) {
       const needle = value.trim().toLowerCase();
-      const byEmail = people.find((p) => p.email.toLowerCase() === needle);
+      const byEmail = byEmailToo ? people.find((p) => p.email.toLowerCase() === needle) : undefined;
       const byName = people.filter((p) => p.name.trim().toLowerCase() === needle);
       if (!byEmail && byName.length > 1) {
         throw new PropertyValueError(
-          `"${value}" matches ${byName.length} people in the workspace; pass an email or user id instead`,
+          `"${value}" matches ${byName.length} people in the workspace; pass ${byEmailToo ? "an email or " : "a "}user id instead`,
           "invalidPerson",
           { property: prop.name },
         );
@@ -1741,13 +1747,22 @@ export type PersonRef = {
   active: boolean;
   /** Their profile picture (see lib/avatar.ts), if any. */
   image?: string | null;
+  /**
+   * An agent (see server/agents), named as created by or last edited by: shown as an agent, never
+   * offered (`active` is false). Absent for people.
+   */
+  isAgent?: true;
+  /** The agent's icon, an emoji. */
+  agentIcon?: string | null;
 };
 
 /**
  * The people person properties of these properties' database can show and offer, sorted by name.
  * Owners and members get everyone in the workspace; guests, who can't see who is in the
  * workspace, get themselves and the people already assigned in rows or views they can see.
- * Former members still assigned somewhere come along as inactive, so their name keeps showing.
+ * Agents, guests that work for the workspace, get everyone's names, but no emails. Former members
+ * still assigned somewhere come along as inactive, so their name keeps showing; so do agents that
+ * created or last edited a row, marked as agents.
  */
 export async function getPeople(userId: string, properties: DatabaseProperty[]): Promise<PersonRef[]> {
   const personProps = properties.filter((p) => holdsPeople(p.type));
@@ -1779,8 +1794,9 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
     }
   }
   const guest = isGuest(membership.role);
+  const agent = guest && (await isAgentUser(userId));
   const out: PersonRef[] = members
-    .filter((m) => !guest || m.id === userId || referenced.has(m.id))
+    .filter((m) => !guest || agent || m.id === userId || referenced.has(m.id))
     .map((m) => ({
       id: m.id,
       name: m.name,
@@ -1790,8 +1806,16 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
     }));
   const former = [...referenced].filter((id) => !members.some((m) => m.id === id));
   if (former.length) {
-    const users = await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, former));
-    out.push(...users.map((u) => ({ id: u.id, name: u.name, email: null, active: false })));
+    const [users, agents] = await Promise.all([
+      db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, former)),
+      agentMarks(former),
+    ]);
+    out.push(
+      ...users.map((u) => {
+        const mark = agents.get(u.id);
+        return { id: u.id, name: u.name, email: null, active: false, ...(mark ? { isAgent: true as const, agentIcon: mark.agentIcon } : {}) };
+      }),
+    );
   }
   return out.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }

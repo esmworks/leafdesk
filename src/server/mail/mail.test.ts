@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { agentEmail } from "@/lib/agents";
 import { MailConfigError, readMailConfig } from "./config";
+import { sendMail } from "./index";
 import {
   accessApprovedEmail,
   accessDeclinedEmail,
@@ -15,6 +17,18 @@ import {
 } from "./templates";
 
 const FROM = "Leafdesk <no-reply@example.com>";
+
+describe("sendMail", () => {
+  it("drops mail to an agent's address, whatever sent it", async () => {
+    const printed = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      await expect(sendMail({ to: agentEmail("a1"), subject: "Hi", text: "Hi", html: "<p>Hi</p>" })).resolves.toBeUndefined();
+      expect(printed).not.toHaveBeenCalled();
+    } finally {
+      printed.mockRestore();
+    }
+  });
+});
 
 describe("readMailConfig", () => {
   it("is off without SMTP settings", () => {

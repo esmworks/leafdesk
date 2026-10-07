@@ -154,6 +154,12 @@ describe("auditActorName", () => {
     expect(auditActorName(event("page.deleted", { actorKind: "system", actorName: "", actorEmail: null }), t)).toBe("System");
     expect(auditActorName(event("member.left", { actorName: "", actorEmail: null }), t)).toBe("Deleted user");
   });
+
+  it("marks an agent as one", () => {
+    expect(auditActorName(event("page.permission_changed", { actorKind: "agent", actorName: "Ticket triager", actorEmail: null }), t)).toBe(
+      "Ticket triager (agent)",
+    );
+  });
 });
 
 describe("audit filters", () => {
@@ -182,7 +188,7 @@ describe("audit filters", () => {
   });
 
   it("encodes actors both ways", () => {
-    for (const actor of [{ userId: "u-1" }, { kind: "scim" as const }, { kind: "system" as const }]) {
+    for (const actor of [{ userId: "u-1" }, { kind: "agent" as const }, { kind: "scim" as const }, { kind: "system" as const }]) {
       expect(parseActorFilter(encodeActorFilter(actor))).toEqual(actor);
     }
     expect(parseActorFilter("k:admin")).toBeNull();

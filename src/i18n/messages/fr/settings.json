@@ -382,7 +382,8 @@
     "invalidDomain": "{detail} ne peut pas être autorisé : saisissez les domaines de messagerie propres à votre organisation (pas des services publics comme gmail.com).",
     "requestHandled": "Cette demande a déjà été traitée.",
     "tooManyRequests": "Trop de demandes. Réessayez plus tard.",
-    "creationRestricted": "Seuls les administrateurs du serveur peuvent créer des espaces de travail."
+    "creationRestricted": "Seuls les administrateurs du serveur peuvent créer des espaces de travail.",
+    "agentUser": "C’est un agent, pas une personne. Modifiez-le ou archivez-le dans les réglages de l’agent."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -641,11 +642,13 @@
       "apiToken": "{name} (jeton d’API {via})",
       "connectedApp": "{name} (via {via})",
       "scim": "Fournisseur d’identité (jeton SCIM {via})",
-      "system": "Système"
+      "system": "Système",
+      "agent": "{name} (agent)"
     },
     "actorKinds": {
       "scim": "Fournisseur d’identité (SCIM)",
-      "system": "Système (automatique)"
+      "system": "Système (automatique)",
+      "agent": "Agents"
     },
     "categories": {
       "members": "Membres et rôles",

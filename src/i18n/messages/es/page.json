@@ -184,7 +184,8 @@
       "accessDenied": "No puedes cambiar cómo se comparte esta página.",
       "invalidEmail": "Escribe una dirección de correo válida.",
       "invitesRestricted": "Este espacio de trabajo no permite compartir páginas con personas externas. Pregunta a un propietario.",
-      "generic": "No se pudo actualizar el uso compartido."
+      "generic": "No se pudo actualizar el uso compartido.",
+      "agentFullAccess": "Los agentes pueden ver, comentar o editar una página, pero nunca tienen acceso total."
     },
     "everyoneFromTeamspaceHint": "Lo fija el espacio de equipo. Sus propietarios y los del espacio de trabajo tienen acceso total. Elige aquí un nivel para fijarlo para esta página y sus subpáginas."
   },

@@ -184,7 +184,8 @@
       "accessDenied": "Du kannst die Freigabe dieser Seite nicht ändern.",
       "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
       "invitesRestricted": "Dieser Workspace erlaubt nicht, Seiten mit Personen außerhalb zu teilen. Frag einen Inhaber.",
-      "generic": "Die Freigabe konnte nicht aktualisiert werden."
+      "generic": "Die Freigabe konnte nicht aktualisiert werden.",
+      "agentFullAccess": "Agenten können eine Seite ansehen, kommentieren oder bearbeiten, erhalten aber nie Vollzugriff."
     },
     "everyoneFromTeamspaceHint": "Vom Teambereich festgelegt. Seine Eigentümer und die Workspace-Eigentümer haben Vollzugriff. Wählen Sie hier eine Stufe, um sie für diese Seite und ihre Unterseiten festzulegen."
   },

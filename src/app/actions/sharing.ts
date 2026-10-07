@@ -20,7 +20,14 @@ import {
 import { requireUserId } from "@/server/session";
 import { canInviteGuests, listMembers } from "@/server/workspaces";
 
-export type SharingErrorCode = "notMember" | "lastFullAccess" | "invalidEmail" | "invitesRestricted" | "accessDenied" | "generic";
+export type SharingErrorCode =
+  | "notMember"
+  | "lastFullAccess"
+  | "invalidEmail"
+  | "invitesRestricted"
+  | "agentFullAccess"
+  | "accessDenied"
+  | "generic";
 export type SharingResult<T = unknown> = { ok: true; data?: T } | { ok: false; code: SharingErrorCode };
 
 /**

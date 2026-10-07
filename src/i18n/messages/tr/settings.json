@@ -382,7 +382,8 @@
     "invalidDomain": "{detail} izin verilemez: kuruluşunuzun kendi e-posta alan adlarını girin (gmail.com gibi genel e-posta servislerini değil).",
     "requestHandled": "Bu istek zaten sonuçlandırıldı.",
     "tooManyRequests": "Çok fazla istek gönderildi. Daha sonra tekrar deneyin.",
-    "creationRestricted": "Çalışma alanlarını yalnızca sunucunun yöneticileri oluşturabilir."
+    "creationRestricted": "Çalışma alanlarını yalnızca sunucunun yöneticileri oluşturabilir.",
+    "agentUser": "Bu bir ajan, kişi değil. Ajanın kendi ayarlarından değiştirin ya da arşivleyin."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",
@@ -641,11 +642,13 @@
       "apiToken": "{name} (API anahtarı {via})",
       "connectedApp": "{name} ({via} üzerinden)",
       "scim": "Kimlik sağlayıcı (SCIM anahtarı {via})",
-      "system": "Sistem"
+      "system": "Sistem",
+      "agent": "{name} (ajan)"
     },
     "actorKinds": {
       "scim": "Kimlik sağlayıcı (SCIM)",
-      "system": "Sistem (otomatik)"
+      "system": "Sistem (otomatik)",
+      "agent": "Ajanlar"
     },
     "categories": {
       "members": "Üyeler ve roller",

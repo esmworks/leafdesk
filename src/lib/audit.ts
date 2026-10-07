@@ -76,12 +76,13 @@ export const isAuditCategory = (value: unknown): value is AuditCategory =>
 /**
  * Who made a change:
  * - `user`: a person in the app;
+ * - `agent`: one of the workspace's agents (see lib/agents.ts), acting as its own user;
  * - `api_token`, `connected_app`: a program acting for a person (a REST API token, an MCP client
  *   they authorized), which still names that person;
  * - `scim`: the workspace's identity provider, through one of its SCIM tokens;
  * - `system`: the server itself (the daily retention cleanup).
  */
-export const AUDIT_ACTOR_KINDS = ["user", "api_token", "connected_app", "scim", "system"] as const;
+export const AUDIT_ACTOR_KINDS = ["user", "agent", "api_token", "connected_app", "scim", "system"] as const;
 export type AuditActorKind = (typeof AUDIT_ACTOR_KINDS)[number];
 
 /** What an event is about: `targetId` is that thing's id (an email address for `email`). */
@@ -127,7 +128,7 @@ export const AUDIT_MAX_PAGE = 200;
 export const AUDIT_CSV_LIMIT = 10_000;
 
 /** One person (whatever they acted through), or the identity provider, or the server. */
-export type AuditActorFilter = { userId: string } | { kind: "scim" | "system" };
+export type AuditActorFilter = { userId: string } | { kind: "agent" | "scim" | "system" };
 
 export type AuditFilters = {
   actor: AuditActorFilter | null;
@@ -157,14 +158,14 @@ export function parseDay(value: string | null): string | null {
   return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d ? value : null;
 }
 
-/** `u:<user id>` for a person, `k:scim` or `k:system`; as the actor select and links write it. */
+/** `u:<user id>` for a person (or an agent), `k:agent`, `k:scim` or `k:system`; as the actor select and links write it. */
 export function encodeActorFilter(actor: AuditActorFilter): string {
   return "userId" in actor ? `u:${actor.userId}` : `k:${actor.kind}`;
 }
 
 export function parseActorFilter(value: string | null): AuditActorFilter | null {
   if (!value) return null;
-  if (value === "k:scim" || value === "k:system") return { kind: value.slice(2) as "scim" | "system" };
+  if (value === "k:agent" || value === "k:scim" || value === "k:system") return { kind: value.slice(2) as "agent" | "scim" | "system" };
   if (value.startsWith("u:") && value.length > 2 && value.length <= 200) return { userId: value.slice(2) };
   return null;
 }
@@ -272,6 +273,8 @@ export function auditActorName(event: Pick<AuditEvent, "actorKind" | "actorName"
       return t("audit.actors.scim", { via });
     case "system":
       return t("audit.actors.system");
+    case "agent":
+      return t("audit.actors.agent", { name: person });
     default:
       return person;
   }

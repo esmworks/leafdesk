@@ -45,6 +45,6 @@ export const auditEvent = pgTable(
     index("audit_event_workspace_actor_idx").on(t.workspaceId, t.actorUserId, t.createdAt.desc()),
     // The daily cleanup, across workspaces.
     index("audit_event_created_idx").on(t.createdAt),
-    check("audit_event_actor_kind_check", sql`${t.actorKind} in ('user', 'api_token', 'connected_app', 'scim', 'system')`),
+    check("audit_event_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'api_token', 'connected_app', 'scim', 'system')`),
   ],
 );

@@ -184,7 +184,8 @@
       "accessDenied": "You can't change sharing for this page.",
       "invalidEmail": "Enter a valid email address.",
       "invitesRestricted": "This workspace doesn't let you share pages with people outside it. Ask an owner.",
-      "generic": "Couldn't update sharing."
+      "generic": "Couldn't update sharing.",
+      "agentFullAccess": "Agents can view, comment on or edit a page, but never get full access."
     },
     "everyoneFromTeamspaceHint": "Set by the teamspace. Its owners and workspace owners have full access. Choose a level here to set it for this page and its subpages."
   },

@@ -1,14 +1,33 @@
 import { describe, expect, it } from "vitest";
+import { agentEmail } from "./agents";
 import {
+  agentSignInGuard,
   closedSignUpAdmits,
   guardUpdateUser,
   inviteTokenOf,
   joinTokenOf,
+  refuseAgentAddress,
   routeSsoSignIn,
   socialTokenOf,
   SSO_DISABLED_ENDPOINTS,
   SSO_DISABLED_PATHS,
 } from "./auth-options";
+
+describe("agents' users can't sign in", () => {
+  it("refuses creating an account with, or moving one to, an agent's address", () => {
+    expect(() => refuseAgentAddress({ email: agentEmail("a1") })).toThrow(/agent/);
+    expect(() => refuseAgentAddress({ email: "Someone@AGENTS.leafdesk.invalid" })).toThrow(/agent/);
+    expect(() => refuseAgentAddress({ email: "ayse@example.com" })).not.toThrow();
+    // An update that leaves the address alone.
+    expect(() => refuseAgentAddress({ name: "Ayşe" } as { email?: unknown })).not.toThrow();
+  });
+
+  it("gives an agent's user no session and no account to sign in with", async () => {
+    const guard = agentSignInGuard(async (userId) => userId === "agent-user");
+    await expect(guard({ userId: "agent-user" })).rejects.toThrow(/Agents can't sign in/);
+    await expect(guard({ userId: "person" })).resolves.toBeUndefined();
+  });
+});
 
 describe("guardUpdateUser", () => {
   it("lets a valid name through, and removing the picture", () => {

@@ -1,7 +1,7 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import * as Y from "yjs";
 import { db } from "@/db";
-import { oauthClient, page, pageSnapshot, user } from "@/db/schema";
+import { oauthClient, page, pageSnapshot, user, workspaceAgent } from "@/db/schema";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import {
   changeActors,
@@ -61,9 +61,16 @@ export async function diffSnapshot(userId: string, snapshotId: string, against: 
   // The page's versions, oldest first. Found by position rather than by timestamp: Postgres keeps
   // microseconds that a JavaScript Date drops.
   const versions = await db
-    .select({ id: pageSnapshot.id, reason: pageSnapshot.reason, userName: user.name, clientName: oauthClient.name })
+    .select({
+      id: pageSnapshot.id,
+      reason: pageSnapshot.reason,
+      userName: user.name,
+      clientName: oauthClient.name,
+      isAgent: sql<boolean>`${workspaceAgent.id} is not null`,
+    })
     .from(pageSnapshot)
     .leftJoin(user, eq(user.id, pageSnapshot.createdBy))
+    .leftJoin(workspaceAgent, eq(workspaceAgent.userId, pageSnapshot.createdBy))
     .leftJoin(oauthClient, eq(oauthClient.clientId, pageSnapshot.oauthClientId))
     .where(eq(pageSnapshot.pageId, snap.pageId))
     .orderBy(asc(pageSnapshot.createdAt), asc(pageSnapshot.id));
@@ -86,12 +93,13 @@ export async function diffSnapshot(userId: string, snapshotId: string, against: 
     const current = await getCollab().readBlocks(snap.pageId);
     newer = { title: current.title, blocks: current.blocks as BlockInput[] };
     const [row] = await db
-      .select({ userName: user.name })
+      .select({ userName: user.name, isAgent: sql<boolean>`${workspaceAgent.id} is not null` })
       .from(page)
       .leftJoin(user, eq(user.id, page.updatedBy))
+      .leftJoin(workspaceAgent, eq(workspaceAgent.userId, page.updatedBy))
       .where(eq(page.id, snap.pageId))
       .limit(1);
-    involved.push({ reason: "current", userName: row?.userName ?? null, clientName: null });
+    involved.push({ reason: "current", userName: row?.userName ?? null, clientName: null, isAgent: row?.isAgent === true });
   }
 
   return {

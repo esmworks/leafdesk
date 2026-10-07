@@ -11,13 +11,16 @@ import {
   teamspace,
   type PageLevel,
   user,
+  workspaceAgent,
   workspaceInvitation,
   workspaceMember,
 } from "@/db/schema";
 import { teamspaceLabel, teamspaceReach } from "@/server/teamspaces";
 import { everyoneFloor } from "@/lib/teamspace-reach";
+import { isAgentEmail } from "@/lib/agents";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { AccessError, FULL_RANK, getMembership, hasLevel, requirePageAccess, resolvePageAccess } from "@/server/access";
+import { isAgentUser, notAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { afterAccessLoss, groupMemberIds, requireGroupIn } from "@/server/groups";
@@ -32,7 +35,7 @@ import { addGuest, canInviteGuests, type InvitationDelivery, inviteGuest } from 
  * database; someone gets the highest level any of them gives.
  */
 
-export type PermissionErrorCode = "notMember" | "lastFullAccess" | "invalidEmail" | "invitesRestricted";
+export type PermissionErrorCode = "notMember" | "lastFullAccess" | "invalidEmail" | "invitesRestricted" | "agentFullAccess";
 
 export class PermissionError extends Error {
   readonly code: PermissionErrorCode;
@@ -47,8 +50,13 @@ export class PermissionError extends Error {
 export type PermissionEntry = {
   userId: string | null;
   name: string | null;
+  /** Null for agents, whose address is no one's. */
   email: string | null;
   image: string | null;
+  /** The entry is an agent's (its access is managed in the agent's settings too). */
+  isAgent: boolean;
+  /** The agent's icon, an emoji. */
+  agentIcon: string | null;
   level: PageLevel;
   /** The page the entry is set on: this page, or the ancestor it is inherited from. */
   sourcePageId: string;
@@ -84,17 +92,21 @@ export async function listPagePermissions(userId: string, pageId: string) {
     name: string | null;
     email: string | null;
     image: string | null;
+    agent_id: string | null;
+    agent_icon: string | null;
   }>(sql`
     with recursive chain as (
       select id, parent_id, 0 as depth from page where id = ${pageId}
       union all
       select p.id, p.parent_id, c.depth + 1 from page p join chain c on p.id = c.parent_id where c.depth < 64
     )
-    select distinct on (pp.user_id) pp.user_id, pp.level, pp.page_id, src.title, u.name, u.email, u.image
+    select distinct on (pp.user_id) pp.user_id, pp.level, pp.page_id, src.title, u.name, u.email, u.image,
+      wa.id as agent_id, wa.icon as agent_icon
     from chain c
     join page_permission pp on pp.page_id = c.id
     join page src on src.id = c.id
     left join "user" u on u.id = pp.user_id
+    left join ${workspaceAgent} wa on wa.user_id = pp.user_id
     where pp.user_id is null
       or exists (
         select 1 from ${workspaceMember} wm
@@ -105,8 +117,10 @@ export async function listPagePermissions(userId: string, pageId: string) {
   const entries: PermissionEntry[] = rows.map((r) => ({
     userId: r.user_id,
     name: r.name,
-    email: r.email,
+    email: r.agent_id ? null : r.email,
     image: r.image,
+    isAgent: r.agent_id !== null,
+    agentIcon: r.agent_icon,
     level: r.level,
     sourcePageId: r.page_id,
     sourceTitle: r.title,
@@ -207,11 +221,12 @@ export async function sharePageByEmail(
 ): Promise<ShareByEmailResult> {
   const target = await requirePageAccess(actorId, pageId, "full");
   const clean = normalizeEmail(email);
-  if (!isEmail(clean)) throw new PermissionError("invalidEmail", "Enter a valid email address");
+  // Agents' addresses are no one's: pages are shared with an agent from its settings.
+  if (!isEmail(clean) || isAgentEmail(clean)) throw new PermissionError("invalidEmail", "Enter a valid email address");
   const [account] = await db
     .select({ id: user.id })
     .from(user)
-    .where(eq(sql`lower(${user.email})`, clean))
+    .where(and(eq(sql`lower(${user.email})`, clean), notAgentUser(user.id)))
     .limit(1);
   if (account && (await getMembership(account.id, target.workspaceId))) {
     await setPagePermission(actorId, pageId, account.id, level);
@@ -299,6 +314,10 @@ export async function setPagePermission(actorId: string, pageId: string, princip
   const target = await requirePageAccess(actorId, pageId, "full");
   if (principal && !(await getMembership(principal, target.workspaceId))) {
     throw new PermissionError("notMember", "Pages can only be shared with workspace members");
+  }
+  // An agent doesn't share pages, manage databases or receive access requests.
+  if (principal && level === "full" && (await isAgentUser(principal))) {
+    throw new PermissionError("agentFullAccess", "Agents can view, comment on or edit a page, never get full access");
   }
   const [previous] = await db
     .select({ level: pagePermission.level })

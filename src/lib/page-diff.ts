@@ -319,8 +319,9 @@ export function foldUnchanged(changes: readonly BlockChange[], context = 1): Dif
 // Who made the changes
 
 export type VersionReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual" | "current";
-export type VersionActor = { reason: VersionReason; userName: string | null; clientName: string | null };
-export type ChangeActor = { name: string | null; client: string | null };
+/** `isAgent`: the user is an agent's (see server/agents), shown as an agent. */
+export type VersionActor = { reason: VersionReason; userName: string | null; clientName: string | null; isAgent?: boolean };
+export type ChangeActor = { name: string | null; client: string | null; isAgent?: true };
 
 /**
  * Who changed the page between the first and the last of `versions` (oldest first). A snapshot
@@ -333,7 +334,7 @@ export function changeActors(versions: readonly VersionActor[]): ChangeActor[] {
   const found = new Map<string, ChangeActor>();
   const add = (v: VersionActor) => {
     if (!v.userName && !v.clientName) return;
-    const actor = { name: v.userName, client: v.reason === "before_mcp_write" ? v.clientName : null };
+    const actor: ChangeActor = { name: v.userName, client: v.reason === "before_mcp_write" ? v.clientName : null, ...(v.isAgent ? { isAgent: true } : {}) };
     found.set(`${actor.name}\u0000${actor.client}`, actor);
   };
   versions.forEach((v, i) => {

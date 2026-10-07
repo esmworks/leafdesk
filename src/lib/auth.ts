@@ -7,13 +7,17 @@ import { isSsoSignInPath, recordAuthMethod } from "@/lib/auth-security";
 import { workspaceOfProvider } from "@/lib/sso-config";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
+import { isAgentEmail } from "@/lib/agents";
 import {
+  agentSignInGuard,
   baseAuthOptions,
   claimOnEmailLink,
   closedSignUpGuard,
+  refuseAgentAddress,
   signUpTokenOf,
   socialAuthOptions,
 } from "@/lib/auth-options";
+import { isAgentAccount } from "@/server/agents/users";
 import { revokeAllApiTokens } from "@/server/api/tokens";
 import { connectedAppAuditPlugin, revokeAllConnectedApps } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
@@ -46,6 +50,8 @@ function ssoProviderOf(ctx: HookContext) {
 }
 
 const signUpGuard = closedSignUpGuard(invitationAllowsSignUp);
+/** Agents' users never sign in (see refuseAgentAddress for their addresses). */
+const agentGuard = agentSignInGuard(isAgentAccount);
 
 /**
  * `databaseHooks.user.create.before`. A single sign-on creates accounts by its own rules (see
@@ -54,6 +60,7 @@ const signUpGuard = closedSignUpGuard(invitationAllowsSignUp);
  * it. Everything else goes through closed sign-up.
  */
 async function beforeUserCreate(user: { email: string } & Record<string, unknown>, ctx: HookContext) {
+  refuseAgentAddress(user);
   const providerId = ssoProviderOf(ctx);
   if (providerId !== null) {
     const decision = await ssoAccountCreation(providerId, user.email);
@@ -74,6 +81,8 @@ async function beforeUserCreate(user: { email: string } & Record<string, unknown
  * for the address; failures only reach the log.
  */
 async function sendResetPassword({ user, url }: { user: { id: string; email: string; name: string }; url: string }, request?: Request) {
+  // An agent's user has no password to reset (and its address no inbox).
+  if (isAgentEmail(user.email)) return;
   void recipientLocale(user.id, request ? requestLocale(request.headers) : null)
     .then((locale) => sendMail({ to: user.email, ...passwordResetEmail(locale, { name: user.name, url }) }))
     .catch((error) => console.error("could not send password reset email", error));
@@ -97,6 +106,7 @@ async function domainPolicies(userId: string) {
  * account page sends another on request. Not awaited, like password resets.
  */
 async function sendVerificationEmail({ user, url }: { user: { id: string; email: string; name: string }; url: string }, request?: Request) {
+  if (isAgentEmail(user.email)) return;
   void recipientLocale(user.id, request ? requestLocale(request.headers) : null)
     .then((locale) => sendMail({ to: user.email, ...verificationEmail(locale, { name: user.name, url }) }))
     .catch((error) => console.error("could not send verification email", error));
@@ -190,10 +200,19 @@ export const auth = betterAuth({
           await createPersonalWorkspace(user.id, user.name);
         },
       },
+      update: {
+        before: async (data) => {
+          refuseAgentAddress(data);
+        },
+      },
     },
     account: {
       // Claiming an account by email also ends what was granted before: app grants and API tokens.
       create: {
+        // No password or provider account for an agent's user, so nothing can ever sign it in.
+        before: async (account) => {
+          await agentGuard(account);
+        },
         after: async (account, ctx) => {
           await claimOnEmailLink(async (userId) => {
             await revokeAllConnectedApps(userId);
@@ -220,6 +239,7 @@ export const auth = betterAuth({
       create: {
         // How the session was signed in: a passkey sign-in passes "require two-step verification".
         before: async (session, ctx) => {
+          await agentGuard(session);
           // A password sign-in of an account that has to choose a new password gets no session.
           await holdRequiredPasswordReset(session, ctx);
           return recordAuthMethod(session, ctx);

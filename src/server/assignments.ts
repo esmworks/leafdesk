@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
 import { newAssignees } from "@/lib/properties";
 import { resolvePageAccess } from "@/server/access";
+import { agentUserIds } from "@/server/agents/users";
 import { seesValue } from "@/server/property-access";
 import { assignmentEmail, mailStatus, sendMail, type OutgoingMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
@@ -44,8 +45,12 @@ export async function scheduleAssignmentEmails(actorId: string | null, personPro
       }),
     );
     if (removed.length) await db.delete(pendingAssignmentEmail).where(or(...removed));
-    const found = changes.flatMap((c) => newAssignees(personProps, c.before, c.after, actorId).map((a) => ({ ...a, rowId: c.rowId })));
-    if (!found.length || mailStatus() === "disabled") return;
+    const assigned = changes.flatMap((c) => newAssignees(personProps, c.before, c.after, actorId).map((a) => ({ ...a, rowId: c.rowId })));
+    if (!assigned.length || mailStatus() === "disabled") return;
+    // Agents' users get no email.
+    const agents = await agentUserIds(assigned.map((a) => a.userId));
+    const found = assigned.filter((a) => !agents.has(a.userId));
+    if (!found.length) return;
     const locale = await requestLocale();
     const dueAt = new Date(Date.now() + ASSIGNMENT_EMAIL_DELAY_MS);
     await db

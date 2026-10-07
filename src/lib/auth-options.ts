@@ -12,6 +12,7 @@ import {
 } from "@/lib/auth-security";
 import { sso } from "@better-auth/sso";
 import { cleanName } from "@/lib/account";
+import { isAgentEmail } from "@/lib/agents";
 import { env, mcpResource } from "@/lib/env";
 import { sessionLifetime } from "@/lib/session-lifetime";
 import type { SocialCredentials, SocialProvider } from "@/lib/social-providers";
@@ -60,6 +61,32 @@ export function socialTokenOf(serverContext: unknown, name: "invite" | "join") {
 /** The token a new user signed up with: the request query for email sign-up, the OAuth state for social. */
 export async function signUpTokenOf(ctx: AuthContextLike, name: "invite" | "join") {
   return queryParam(ctx, name) ?? socialTokenOf((await getOAuthState())?.serverContext, name);
+}
+
+/**
+ * Agents' users (see server/agents) can't sign in: they have no password or provider account, and
+ * these guards keep it so. `user.create.before` and `user.update.before`: no account is created
+ * with, or moved to, an agent's address (an identity provider could claim any address).
+ */
+export function refuseAgentAddress(user: { email?: unknown }) {
+  if (typeof user.email === "string" && isAgentEmail(user.email)) {
+    throw APIError.from("FORBIDDEN", { message: "This address belongs to an agent", code: "agent_account" });
+  }
+}
+
+/** Whether a user is an agent's user; injected so this file needs no database. */
+export type AgentUserCheck = (userId: string) => Promise<boolean>;
+
+/**
+ * `session.create.before` and `account.create.before`: an agent's user never gets a session, nor a
+ * password or provider account that could sign it in later.
+ */
+export function agentSignInGuard(isAgentUser: AgentUserCheck) {
+  return async (record: { userId: string }) => {
+    if (await isAgentUser(record.userId)) {
+      throw APIError.from("FORBIDDEN", { message: "Agents can't sign in", code: "agent_account" });
+    }
+  };
 }
 
 /** Checks an invitation link against the email signing up; injected so this file needs no database. */

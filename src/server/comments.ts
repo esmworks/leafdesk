@@ -8,6 +8,7 @@ import { getCollab } from "@/server/collab/bridge";
 import type { CommentOpResult } from "@/server/collab/bridge";
 import { recordComment, withdrawComments } from "@/server/notifications";
 import { workspacePeople } from "@/server/workspaces";
+import { agentMarks, markOf } from "@/server/agents/users";
 
 /**
  * Comments on pages. Anyone who can view a page reads its comments; anyone who can comment on it
@@ -18,7 +19,8 @@ import { workspacePeople } from "@/server/workspaces";
  * never write comments themselves and who wrote what can be trusted.
  */
 
-export type CommentUser = { id: string; username: string; avatarUrl: string };
+/** Someone in a page's comments. Agents (see server/agents) are marked, with their icon. */
+export type CommentUser = { id: string; username: string; avatarUrl: string; isAgent: boolean; agentIcon: string | null };
 
 /** Longest reaction, in UTF-16 units: an emoji with its modifiers. */
 const MAX_EMOJI = 32;
@@ -107,8 +109,8 @@ export async function changeComments(userId: string, pageId: string, op: Comment
 
 /**
  * Names and pictures of people in the page's comments, for BlockNote's comment UI: anyone who wrote
- * or reacted in its threads (they may have left since) and, for members, people in the workspace.
- * Guests only learn about the people in the threads, as with person properties.
+ * or reacted in its threads (they may have left since, or be agents) and, for members, people in
+ * the workspace. Guests only learn about the people in the threads, as with person properties.
  */
 export async function commentUsers(userId: string, pageId: string, userIds: string[]): Promise<CommentUser[]> {
   const target = await requirePageAccess(userId, pageId, "view");
@@ -124,6 +126,9 @@ export async function commentUsers(userId: string, pageId: string, userIds: stri
   );
   const allowed = wanted.filter((v) => members.has(v) || inThreads.has(v));
   if (!allowed.length) return [];
-  const rows = await db.select({ id: user.id, name: user.name, image: user.image }).from(user).where(inArray(user.id, allowed));
-  return rows.map((r) => ({ id: r.id, username: r.name, avatarUrl: avatarSrc(r.image) ?? "" }));
+  const [rows, agents] = await Promise.all([
+    db.select({ id: user.id, name: user.name, image: user.image }).from(user).where(inArray(user.id, allowed)),
+    agentMarks(allowed),
+  ]);
+  return rows.map((r) => ({ id: r.id, username: r.name, avatarUrl: avatarSrc(r.image) ?? "", ...markOf(agents, r.id) }));
 }

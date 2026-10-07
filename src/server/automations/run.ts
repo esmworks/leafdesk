@@ -19,6 +19,7 @@ import { signalInbox } from "@/server/notifications";
 import { rowFields } from "@/server/operations";
 import { propertyAccessFor } from "@/server/property-access";
 import { queueAgentRun } from "@/server/agents/run";
+import { notAgentUser } from "@/server/agents/users";
 import { asAutomation, onAutomationsQueued } from "./queue";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
@@ -215,7 +216,8 @@ async function notify(automation: Automation, run: Run, row: Row, action: Extrac
   const candidates = [...new Set([...action.userIds, ...fromRow])];
   if (!candidates.length) return 0;
   const existing = new Set(
-    (await db.select({ id: user.id }).from(user).where(inArray(user.id, candidates))).map((u) => u.id),
+    // Agents' users have no inbox.
+    (await db.select({ id: user.id }).from(user).where(and(inArray(user.id, candidates), notAgentUser(user.id)))).map((u) => u.id),
   );
   const levels = await Promise.all(
     candidates

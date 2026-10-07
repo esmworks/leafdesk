@@ -12,6 +12,7 @@ import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, page, pagePermission, user, workspaceAgent } from "@/db/schema";
 import {
+  agentEmail,
   isAgentAccessLevel,
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
@@ -40,12 +41,8 @@ export class AgentError extends Error {
   }
 }
 
-/** The address of an agent's user: `.invalid` can never receive mail or match a real sign-in. */
-export const agentEmail = (agentId: string) => `agent-${agentId}@agents.leafdesk.invalid`;
-export const AGENT_EMAIL_DOMAIN = "agents.leafdesk.invalid";
-
-export const isAgentEmail = (email: string | null | undefined) =>
-  typeof email === "string" && email.toLowerCase().endsWith(`@${AGENT_EMAIL_DOMAIN}`);
+export { AGENT_EMAIL_DOMAIN, agentEmail, isAgentEmail } from "@/lib/agents";
+export { agentUserIds, isAgentUser } from "@/server/agents/users";
 
 type Agent = typeof workspaceAgent.$inferSelect;
 
@@ -301,18 +298,6 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
 }
 
 // ---------------------------------------------------------------------------------- lookups
-
-/** Which of `userIds` are agents' users. */
-export async function agentUserIds(userIds: string[]): Promise<Set<string>> {
-  const ids = [...new Set(userIds)].filter(Boolean);
-  if (!ids.length) return new Set();
-  const rows = await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(inArray(workspaceAgent.userId, ids));
-  return new Set(rows.map((r) => r.userId));
-}
-
-export async function isAgentUser(userId: string): Promise<boolean> {
-  return (await agentUserIds([userId])).has(userId);
-}
 
 /** An agent of the workspace that may run (enabled, not archived), or null. */
 export async function runnableAgent(agentId: string, workspaceId: string) {

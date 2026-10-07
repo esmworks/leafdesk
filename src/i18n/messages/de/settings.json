@@ -382,7 +382,8 @@
     "invalidDomain": "{detail} kann nicht zugelassen werden: Gib die eigenen E-Mail-Domains deiner Organisation ein (keine öffentlichen Maildienste wie gmail.com).",
     "requestHandled": "Diese Anfrage wurde bereits bearbeitet.",
     "tooManyRequests": "Zu viele Anfragen. Versuche es später noch einmal.",
-    "creationRestricted": "Nur die Administratoren des Servers können Workspaces anlegen."
+    "creationRestricted": "Nur die Administratoren des Servers können Workspaces anlegen.",
+    "agentUser": "Das ist ein Agent, keine Person. Ändere oder archiviere ihn in den Einstellungen des Agenten."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",
@@ -641,11 +642,13 @@
       "apiToken": "{name} (API-Token {via})",
       "connectedApp": "{name} (über {via})",
       "scim": "Identitätsanbieter (SCIM-Token {via})",
-      "system": "System"
+      "system": "System",
+      "agent": "{name} (Agent)"
     },
     "actorKinds": {
       "scim": "Identitätsanbieter (SCIM)",
-      "system": "System (automatisch)"
+      "system": "System (automatisch)",
+      "agent": "Agenten"
     },
     "categories": {
       "members": "Mitglieder und Rollen",

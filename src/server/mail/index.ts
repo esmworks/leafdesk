@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { isAgentEmail } from "@/lib/agents";
 import { type MailConfig, MailConfigError, readMailConfig } from "./config";
 
 export { MailConfigError } from "./config";
@@ -80,7 +81,12 @@ export function describeMailSetup(): string {
     : "mail: SMTP is not configured, features that send email are unavailable";
 }
 
+/**
+ * Sends an email (or, without SMTP in development, prints it). An agent's address is no one's:
+ * mail to it is dropped, whatever sent it.
+ */
 export async function sendMail(mail: OutgoingMail): Promise<void> {
+  if (isAgentEmail(mail.to)) return;
   const { config, error } = getSetup();
   if (error) throw error;
   if (!config) {

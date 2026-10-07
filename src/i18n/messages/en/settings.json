@@ -382,7 +382,8 @@
     "invalidDomain": "{detail} can't be allowed: enter your organization's own email domains (not public mail services like gmail.com).",
     "requestHandled": "This request was already handled.",
     "tooManyRequests": "Too many requests. Try again later.",
-    "creationRestricted": "Only the server's administrators can create workspaces."
+    "creationRestricted": "Only the server's administrators can create workspaces.",
+    "agentUser": "This is an agent, not a person. Change or archive it in the agent's own settings."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
@@ -641,11 +642,13 @@
       "apiToken": "{name} (API token {via})",
       "connectedApp": "{name} (through {via})",
       "scim": "Identity provider (SCIM token {via})",
-      "system": "System"
+      "system": "System",
+      "agent": "{name} (agent)"
     },
     "actorKinds": {
       "scim": "Identity provider (SCIM)",
-      "system": "System (automatic)"
+      "system": "System (automatic)",
+      "agent": "Agents"
     },
     "categories": {
       "members": "Members and roles",

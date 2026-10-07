@@ -382,7 +382,8 @@
     "invalidDomain": "No se puede permitir {detail}: introduce los dominios de correo propios de tu organización (no servicios públicos como gmail.com).",
     "requestHandled": "Esta solicitud ya se gestionó.",
     "tooManyRequests": "Demasiadas solicitudes. Inténtalo más tarde.",
-    "creationRestricted": "Solo los administradores del servidor pueden crear espacios de trabajo."
+    "creationRestricted": "Solo los administradores del servidor pueden crear espacios de trabajo.",
+    "agentUser": "Es un agente, no una persona. Cámbialo o archívalo en la configuración del propio agente."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",
@@ -641,11 +642,13 @@
       "apiToken": "{name} (token de API {via})",
       "connectedApp": "{name} (a través de {via})",
       "scim": "Proveedor de identidad (token SCIM {via})",
-      "system": "Sistema"
+      "system": "Sistema",
+      "agent": "{name} (agente)"
     },
     "actorKinds": {
       "scim": "Proveedor de identidad (SCIM)",
-      "system": "Sistema (automático)"
+      "system": "Sistema (automático)",
+      "agent": "Agentes"
     },
     "categories": {
       "members": "Miembros y roles",

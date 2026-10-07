@@ -28,7 +28,7 @@ const { auditEvent, oauthClient, oauthConsent, page, pagePublication, user, work
   await import("@/db/schema");
 const { createTranslator } = await import("next-intl");
 const { default: en } = await import("@/i18n/messages/en");
-const { AUDIT_ACTOR_KINDS, AUDIT_PAGE_SIZE, auditCsvRows, parseAuditFilters, describeAuditEvent } = await import("@/lib/audit");
+const { AUDIT_ACTOR_KINDS, AUDIT_PAGE_SIZE, auditActorName, auditCsvRows, parseAuditFilters, describeAuditEvent } = await import("@/lib/audit");
 
 type AuditEvent = import("@/lib/audit").AuditEvent;
 type AuditTranslator = import("@/lib/audit").AuditTranslator;
@@ -39,7 +39,8 @@ const { env } = await import("@/lib/env");
 const { domainRecordName } = await import("@/lib/sso-config");
 const { AccessError } = await import("@/server/access");
 const { approveAccessRequest, declineAccessRequest, listAccessRequests, requestPageAccess } = await import("@/server/access-requests");
-const { auditActors, auditEventsForExport, failAuditWritesForTesting, listAuditEvents } = await import("@/server/audit");
+const { auditActors, auditEventsForExport, failAuditWritesForTesting, listAuditEvents, recordAudit } = await import("@/server/audit");
+const { createAgent } = await import("@/server/agents/manage");
 const { createApiToken, revokeApiToken } = await import("@/server/api/tokens");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -140,6 +141,8 @@ const accepter = `${RUN}-accepter`;
 // Deletes their account (the workspace part of it), below.
 const leaver = `${RUN}-leaver`;
 const userIds = [...Object.values(ids), accepter, leaver];
+/** Agents' users made below: deleting the workspaces leaves them to delete too. */
+const agentUsers: string[] = [];
 const names: Record<string, string> = {
   [ids.owner]: "Olivia Owner",
   [ids.bob]: "Bora Member",
@@ -692,6 +695,28 @@ try {
   const [gone] = await db.select({ id: page.id }).from(page).where(eq(page.id, old.id));
   check(!gone, "…which deleted the page");
 
+  // ── Agents: shown as agents, never with their address ───────────────────────────────────────
+  const helper = await createAgent(ids.owner, ws.main, { name: "Helper", icon: "🤖" });
+  agentUsers.push(helper.userId);
+  const created = await latest(ws.main, "agent.created");
+  check(
+    created.actorKind === "user" && created.targetLabel === "Helper" && !JSON.stringify(created.details).includes("@"),
+    "creating an agent is an owner's change that names the agent, without its address",
+    created,
+  );
+  const agentDraft = await createPage({ userId: ids.owner }, { workspaceId: ws.main, title: "Agent draft" });
+  await recordAudit({ workspaceId: ws.main, actorId: helper.userId, action: "page.deleted", target: { type: "page", id: agentDraft.id } });
+  const byAgent = await latest(ws.main, "page.deleted");
+  check(
+    byAgent.actorKind === "agent" && byAgent.actorUserId === helper.userId && byAgent.actorEmail === null && auditActorName(byAgent, t) === "Helper (agent)",
+    "what an agent does is recorded as the agent's, without an address",
+    byAgent,
+  );
+  const agentEvents = await listAuditEvents(ids.owner, ws.main, filters({ actor: "k:agent" }));
+  check(agentEvents.events.length === 1 && agentEvents.events[0].id === byAgent.id, "the log filters on agents", agentEvents.events.length);
+  const helperOption = (await auditActors(ids.owner, ws.main)).find((a) => a.userId === helper.userId);
+  check(helperOption?.isAgent === true && helperOption.email === null, "the actor filter names the agent as one", helperOption);
+
   // ── Descriptions of everything recorded here ─────────────────────────────────────────────────
   const all = await db.select().from(auditEvent).where(inArray(auditEvent.workspaceId, [ws.main, ws.other]));
   const unreadable = all.filter((e) => {
@@ -717,7 +742,7 @@ try {
   await db.delete(pagePublication).where(inArray(pagePublication.publishedBy, userIds));
   await db.delete(oauthClient).where(eq(oauthClient.id, clientId));
   await db.delete(workspace).where(inArray(workspace.id, workspaceIds));
-  await db.delete(user).where(inArray(user.id, userIds));
+  await db.delete(user).where(inArray(user.id, [...userIds, ...agentUsers]));
   hocuspocus.closeConnections();
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
 }

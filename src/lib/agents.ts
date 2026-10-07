@@ -12,6 +12,17 @@ import type { ChatStepRecord } from "@/db/schema/ai";
  * edit agents and choose what they may open.
  */
 
+/**
+ * The domain of agents' users' addresses (`agent-<id>@agents.leafdesk.invalid`): `.invalid` can
+ * never receive mail. Nobody signs up, signs in, gets mail or is invited with such an address.
+ */
+export const AGENT_EMAIL_DOMAIN = "agents.leafdesk.invalid";
+
+export const agentEmail = (agentId: string) => `agent-${agentId}@${AGENT_EMAIL_DOMAIN}`;
+
+export const isAgentEmail = (email: string | null | undefined) =>
+  typeof email === "string" && email.trim().toLowerCase().endsWith(`@${AGENT_EMAIL_DOMAIN}`);
+
 export const MAX_AGENTS = 50;
 export const MAX_AGENT_NAME = 80;
 export const MAX_AGENT_DESCRIPTION = 300;

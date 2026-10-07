@@ -12,6 +12,7 @@ import {
   workspaceSso,
 } from "@/db/schema";
 import { cleanName } from "@/lib/account";
+import { isAgentEmail } from "@/lib/agents";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { env } from "@/lib/env";
 import { sharedLimiter } from "@/lib/rate-limit";
@@ -40,6 +41,7 @@ import {
 } from "@/lib/scim";
 import { domainsFromColumn, emailInDomains } from "@/lib/sso-config";
 import { AccessError, isGuest, requireMembership } from "@/server/access";
+import { notAgentUser } from "@/server/agents/users";
 import { generateTokenSecret, hashToken } from "@/server/api/tokens";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { changeGroup, createGroup, deleteGroup, GroupError } from "@/server/groups";
@@ -155,9 +157,12 @@ async function verifiedDomains(workspaceId: string) {
 }
 
 const inScope = (workspaceId: string) =>
-  or(
-    sql`exists (select 1 from ${workspaceMember} m where m.workspace_id = ${workspaceId} and m.user_id = ${user.id} and m.role in ('owner', 'member'))`,
-    sql`exists (select 1 from ${scimIdentity} i where i.workspace_id = ${workspaceId} and i.user_id = ${user.id})`,
+  and(
+    notAgentUser(user.id),
+    or(
+      sql`exists (select 1 from ${workspaceMember} m where m.workspace_id = ${workspaceId} and m.user_id = ${user.id} and m.role in ('owner', 'member'))`,
+      sql`exists (select 1 from ${scimIdentity} i where i.workspace_id = ${workspaceId} and i.user_id = ${user.id})`,
+    ),
   );
 
 /** Users of the workspace as SCIM sees them (see the note at the top), optionally only some ids. */
@@ -279,11 +284,13 @@ async function promoteGuest(workspaceId: string, userId: string) {
 async function createUser(workspaceId: string, resource: Record<string, unknown>) {
   const email = emailOfResource(resource);
   if (!email) throw new ScimError(400, "userName (or a primary email) must be an email address.", "invalidValue");
+  // Agents' users are no people an identity provider manages.
+  if (isAgentEmail(email)) throw new ScimError(400, `${email} belongs to an agent, not a person.`, "invalidValue");
   const changes = changesFromResource(resource);
   const [existing] = await db
     .select({ id: user.id })
     .from(user)
-    .where(sql`lower(${user.email}) = ${email}`)
+    .where(and(sql`lower(${user.email}) = ${email}`, notAgentUser(user.id)))
     .limit(1);
   let userId = existing?.id;
   if (userId) {

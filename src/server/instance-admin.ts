@@ -2,6 +2,7 @@ import { and, asc, eq, gt, ilike, inArray, isNotNull, ne, or, sql } from "drizzl
 import { db } from "@/db";
 import { account, session, user } from "@/db/schema";
 import { isInstanceAdmin } from "@/lib/instance-admin";
+import { notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
 import { workspaceCounts } from "@/server/workspaces";
 
@@ -70,7 +71,11 @@ export async function listInstanceUsers(
 ): Promise<{ users: InstanceUser[]; total: number }> {
   assertAdmin(current);
   const q = query.trim().slice(0, 200);
-  const where = q ? or(ilike(user.name, `%${likeEscape(q)}%`), ilike(user.email, `%${likeEscape(q)}%`)) : undefined;
+  // Agents' users are no accounts anyone signs in to: they are managed in their workspaces.
+  const where = and(
+    notAgentUser(user.id),
+    q ? or(ilike(user.name, `%${likeEscape(q)}%`), ilike(user.email, `%${likeEscape(q)}%`)) : undefined,
+  );
   // Subqueries name the outer row explicitly: inside them a bare "id" would be their own table's.
   const [rows, [{ total }]] = await Promise.all([
     db

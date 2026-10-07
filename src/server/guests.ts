@@ -12,6 +12,7 @@ import {
   workspaceMember,
 } from "@/db/schema";
 import { AccessError, accessRank, FULL_RANK, getMembership, pageIdColumn } from "@/server/access";
+import { notAgentUser } from "@/server/agents/users";
 import { canInviteGuests } from "@/server/workspaces";
 
 /**
@@ -23,7 +24,8 @@ import { canInviteGuests } from "@/server/workspaces";
  * inherit an entry aren't listed again. Entries that take access away ("none") aren't access and
  * are left out. What the viewer can't see themselves is only counted, never named, the way every
  * other list keeps restricted pages out of sight; owners don't see other people's private pages
- * either.
+ * either. Agents are guests too, but no people: they and what is shared with them are managed in
+ * the agents' own settings, not here.
  *
  * Nothing here changes anything: the tab removes access with `removePagePermission` and
  * `removePageInvitation`, and changes roles with `setMemberRole` and `removeMember`, which check
@@ -157,7 +159,7 @@ export async function listGuests(actorId: string, workspaceId: string): Promise<
         limit 1
       ) first_share on true
       left join ${user} inviter on inviter.id = coalesce(wm.invited_by, first_share.created_by)
-      where wm.workspace_id = ${workspaceId} and wm.role = 'guest'
+      where wm.workspace_id = ${workspaceId} and wm.role = 'guest' and ${notAgentUser(sql`wm.user_id`)}
     `),
     db
       .select({
@@ -181,7 +183,7 @@ export async function listGuests(actorId: string, workspaceId: string): Promise<
       join ${workspaceMember} wm on wm.workspace_id = pp.workspace_id and wm.user_id = pp.user_id and wm.role = 'guest'
       join ${page} p on p.id = pp.page_id
       left join ${user} by_user on by_user.id = pp.created_by
-      where pp.workspace_id = ${workspaceId} and pp.level <> 'none'
+      where pp.workspace_id = ${workspaceId} and pp.level <> 'none' and ${notAgentUser(sql`pp.user_id`)}
     `),
     db.execute<EntryRow>(sql`
       select pi.page_id, pi.email as principal, pi.level, pi.created_at as at,

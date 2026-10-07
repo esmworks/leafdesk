@@ -16,6 +16,7 @@ import {
   ssoProvider,
   user,
   workspace,
+  workspaceAgent,
   workspaceInvitation,
   workspaceMember,
   workspaceSso,
@@ -24,6 +25,7 @@ import {
 } from "@/db/schema";
 import { isLocale, type Locale } from "@/i18n/config";
 import { type DeletionPlan, planAccountDeletion, type WorkspaceStanding } from "@/lib/account";
+import { isAgentEmail } from "@/lib/agents";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
 import { assignableRoles, linkAccess, memberInviteMode } from "@/lib/membership-policy";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
@@ -42,6 +44,7 @@ import {
   requireMembership,
   workspacesHiddenFromApp,
 } from "@/server/access";
+import { isAgentUser, notAgentUser } from "@/server/agents/users";
 import { changedValues, recordAudit } from "@/server/audit";
 import { joinRecordOf, rememberDeparture, requestInvitation, requestToJoinFrom, settleJoinRequest } from "@/server/join-requests";
 import { turkishGenitive } from "@/lib/turkish";
@@ -107,7 +110,9 @@ export type WorkspaceErrorCode =
   | "invalidDomain"
   | "requestHandled"
   | "tooManyRequests"
-  | "creationRestricted";
+  | "creationRestricted"
+  /** The person is an agent's user: agents are changed in their own settings. */
+  | "agentUser";
 
 /**
  * An expected failure the user can act on. `code` is stable and translated by the UI; the
@@ -213,7 +218,10 @@ export async function renameWorkspace(userId: string, workspaceId: string, name:
   });
 }
 
-/** Everyone in the workspace, guests included. Guests themselves can't list it. */
+/**
+ * Everyone in the workspace, guests included, but not its agents' users. Guests themselves can't
+ * list it.
+ */
 export async function listMembers(userId: string, workspaceId: string) {
   await requireMember(userId, workspaceId);
   return db
@@ -227,22 +235,23 @@ export async function listMembers(userId: string, workspaceId: string) {
     })
     .from(workspaceMember)
     .innerJoin(user, eq(user.id, workspaceMember.userId))
-    .where(eq(workspaceMember.workspaceId, workspaceId))
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId)))
     .orderBy(asc(workspaceMember.createdAt));
 }
 
 export type WorkspacePerson = { id: string; name: string; email: string; image: string | null; role: WorkspaceRole };
 
 /**
- * Everyone in a workspace, guests included, for person properties. No access check: callers
- * decide what the user may see of it (guests only get the people already assigned).
+ * Everyone in a workspace, guests included, for person properties, mentions and the like. Agents'
+ * users aren't people: they are left out. No access check: callers decide what the user may see of
+ * it (guests only get the people already assigned).
  */
 export async function workspacePeople(workspaceId: string): Promise<WorkspacePerson[]> {
   return db
     .select({ id: user.id, name: user.name, email: user.email, image: user.image, role: workspaceMember.role })
     .from(workspaceMember)
     .innerJoin(user, eq(user.id, workspaceMember.userId))
-    .where(eq(workspaceMember.workspaceId, workspaceId));
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId)));
 }
 
 /** When each member last changed a page in this workspace (content, title, properties, trash). */
@@ -349,6 +358,7 @@ export async function addMember(
 ): Promise<AddMemberResult> {
   const mode = await memberInviteModeFor(actorId, workspaceId, role);
   const clean = normalizeEmail(email);
+  if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
   if (mode === "request") {
     const [existing] = await db
       .select({ one: sql<number>`1` })
@@ -375,10 +385,12 @@ export async function addMemberAs(
   role: WorkspaceRole,
 ): Promise<Exclude<AddMemberResult, { kind: "requested" }>> {
   const clean = normalizeEmail(email);
+  // Agents' users are added only to their own workspace, by creating the agent.
+  if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
   const [target] = await db
     .select({ id: user.id })
     .from(user)
-    .where(eq(sql`lower(${user.email})`, clean))
+    .where(and(eq(sql`lower(${user.email})`, clean), notAgentUser(user.id)))
     .limit(1);
   if (!target) {
     const token = newToken();
@@ -425,6 +437,7 @@ const ROLE_RANK: Record<WorkspaceRole, number> = { guest: 0, member: 1, owner: 2
 export async function inviteGuest(actorId: string, workspaceId: string, email: string) {
   if (!(await canInviteGuests(actorId, workspaceId))) throw new AccessError();
   const clean = normalizeEmail(email);
+  if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be invited.");
   const [existing] = await db
     .select({ token: workspaceInvitation.token, role: workspaceInvitation.role, expiresAt: workspaceInvitation.expiresAt })
     .from(workspaceInvitation)
@@ -450,6 +463,7 @@ export async function inviteGuest(actorId: string, workspaceId: string, email: s
 /** Adds an existing account to the workspace as a guest, if they aren't in it yet. Needs `canInviteGuests`. */
 export async function addGuest(actorId: string, workspaceId: string, userId: string, email: string) {
   if (!(await canInviteGuests(actorId, workspaceId))) throw new AccessError();
+  if (isAgentEmail(email) || (await isAgentUser(userId))) throw new WorkspaceError("agentUser", "Agents can't be added as guests.");
   await db.transaction(async (tx) => {
     const rows = await tx
       .insert(workspaceMember)
@@ -579,7 +593,7 @@ export async function emailHasAccount(email: string) {
   const [row] = await db
     .select({ id: user.id })
     .from(user)
-    .where(eq(sql`lower(${user.email})`, normalizeEmail(email)))
+    .where(and(eq(sql`lower(${user.email})`, normalizeEmail(email)), notAgentUser(user.id)))
     .limit(1);
   return Boolean(row);
 }
@@ -775,8 +789,14 @@ async function countOwners(workspaceId: string, tx: Pick<typeof db, "select">) {
   return owners.length;
 }
 
+/** Refuses changing an agent's user as a member: agents are changed in their own settings. */
+async function refuseAgentUser(targetId: string) {
+  if (await isAgentUser(targetId)) throw new WorkspaceError("agentUser", "This is an agent; change it in the agent's settings.");
+}
+
 export async function setMemberRole(actorId: string, workspaceId: string, targetId: string, role: WorkspaceRole) {
   await requireMembership(actorId, workspaceId, "owner");
+  await refuseAgentUser(targetId);
   const previous = await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ role: workspaceMember.role })
@@ -815,6 +835,7 @@ export async function setMemberRole(actorId: string, workspaceId: string, target
 export async function transferOwnership(actorId: string, workspaceId: string, targetId: string) {
   await requireMembership(actorId, workspaceId, "owner");
   if (targetId === actorId) throw new WorkspaceError("transferToSelf", "Choose someone else to make owner.");
+  await refuseAgentUser(targetId);
   await db.transaction(async (tx) => {
     const [target] = await tx
       .select({ role: workspaceMember.role })
@@ -860,6 +881,8 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
   // Leaving works without meeting the two-step policy: nobody should have to set it up to get out.
   const actor = actorId === targetId ? await findMembership(actorId, workspaceId) : await requireMembership(actorId, workspaceId);
   if (!actor || (actorId !== targetId && actor.role !== "owner")) throw new AccessError();
+  // Archiving an agent takes it out of the lists; its membership stays, so its edits keep its name.
+  await refuseAgentUser(targetId);
   await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ role: workspaceMember.role })
@@ -904,7 +927,8 @@ async function standingsOf(reader: Pick<typeof db, "select">, userId: string): P
       id: workspace.id,
       name: workspace.name,
       role: workspaceMember.role,
-      people: sql<number>`(select count(*)::int from ${workspaceMember} x where x.workspace_id = ${workspace.id})`,
+      // Agents' users aren't people: a workspace with only its owner and agents is theirs alone.
+      people: sql<number>`(select count(*)::int from ${workspaceMember} x where x.workspace_id = ${workspace.id} and ${notAgentUser(sql`x.user_id`)})`,
       owners: sql<number>`(select count(*)::int from ${workspaceMember} x where x.workspace_id = ${workspace.id} and x.role = 'owner')`,
     })
     .from(workspaceMember)
@@ -943,7 +967,7 @@ export async function withdrawFromWorkspaces(tx: Tx, userId: string): Promise<{ 
   if (deleted.length) {
     const files = await tx.delete(file).where(inArray(file.workspaceId, deleted)).returning({ key: file.storageKey });
     fileKeys.push(...files.map((f) => f.key));
-    await tx.delete(workspace).where(inArray(workspace.id, deleted));
+    await deleteWorkspaces(tx, deleted);
   }
   for (const { id, role } of plan.left) {
     // Recorded while the account is still there: the event keeps their name, the id is cleared.
@@ -964,6 +988,19 @@ export async function withdrawFromWorkspaces(tx: Tx, userId: string): Promise<{ 
     }
   }
   return { plan, fileKeys };
+}
+
+/**
+ * Deletes workspaces, with what belongs to them, inside the caller's transaction. Their agents'
+ * users belong to them too: they go along, rather than staying behind as users of no workspace.
+ */
+export async function deleteWorkspaces(tx: Tx, workspaceIds: string[]) {
+  if (!workspaceIds.length) return;
+  const agentUsers = (
+    await tx.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(inArray(workspaceAgent.workspaceId, workspaceIds))
+  ).map((a) => a.userId);
+  await tx.delete(workspace).where(inArray(workspace.id, workspaceIds));
+  if (agentUsers.length) await tx.delete(user).where(inArray(user.id, agentUsers));
 }
 
 /**
@@ -1036,6 +1073,7 @@ export async function countMembersWithoutTwoFactor(actorId: string, workspaceId:
     .where(
       and(
         eq(workspaceMember.workspaceId, workspaceId),
+        notAgentUser(user.id),
         sql`not (coalesce(${user.twoFactorEnabled}, false) or exists (select 1 from ${passkey} where ${passkey.userId} = ${user.id}))`,
       ),
     );
@@ -1143,6 +1181,7 @@ export async function ssoAvailable(workspaceId: string) {
  */
 export async function joinAsMember(workspaceId: string, userId: string, email: string, via: "sso" | "scim" | "domain") {
   const clean = normalizeEmail(email);
+  if (isAgentEmail(clean) || (await isAgentUser(userId))) return false;
   const joined = await db.transaction(async (tx) => {
     const [invitation] = await tx
       .select({ invitedBy: workspaceInvitation.invitedBy })

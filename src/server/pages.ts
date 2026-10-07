@@ -14,6 +14,7 @@ import {
   type PageKind,
   user,
   type ViewType,
+  workspaceAgent,
 } from "@/db/schema";
 import {
   AccessError,
@@ -787,9 +788,13 @@ export async function listSnapshots(userId: string, pageId: string) {
       createdAt: pageSnapshot.createdAt,
       authorName: user.name,
       clientName: oauthClient.name,
+      /** The author is an agent (see server/agents); its icon, an emoji, when it has one. */
+      authorIsAgent: sql<boolean>`${workspaceAgent.id} is not null`,
+      authorAgentIcon: workspaceAgent.icon,
     })
     .from(pageSnapshot)
     .leftJoin(user, eq(user.id, pageSnapshot.createdBy))
+    .leftJoin(workspaceAgent, eq(workspaceAgent.userId, pageSnapshot.createdBy))
     .leftJoin(oauthClient, eq(oauthClient.clientId, pageSnapshot.oauthClientId))
     .where(eq(pageSnapshot.pageId, pageId))
     .orderBy(desc(pageSnapshot.createdAt))

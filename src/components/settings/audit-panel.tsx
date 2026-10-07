@@ -71,6 +71,7 @@ export async function AuditPanel({
                 </option>
               ))}
               {!knownActor && <option value={selectedActor}>{t("actors.deletedUser")}</option>}
+              <option value="k:agent">{t("actorKinds.agent")}</option>
               <option value="k:scim">{t("actorKinds.scim")}</option>
               <option value="k:system">{t("actorKinds.system")}</option>
             </select>

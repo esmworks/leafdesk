@@ -11,6 +11,7 @@ import {
   type WorkspaceRole,
 } from "@/db/schema";
 import { env } from "@/lib/env";
+import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
 import { connectedAppCall, connectedAppRefusal, connectedAppsMode, type ConnectedAppCall, type ConnectedAppsMode } from "@/server/connected-app";
 import { requestSession } from "@/server/request-session";
@@ -304,7 +305,7 @@ export async function workspaceOwnerIds(workspaceId: string): Promise<string[]> 
   const rows = await db
     .select({ id: workspaceMember.userId })
     .from(workspaceMember)
-    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.role, "owner")));
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.role, "owner"), notAgentUser(workspaceMember.userId)));
   return rows.map((row) => row.id);
 }
 
@@ -380,6 +381,8 @@ export async function peopleWithFullAccess(workspaceId: string, pageId: string, 
       and(
         eq(workspaceMember.workspaceId, workspaceId),
         except ? ne(workspaceMember.userId, except) : undefined,
+        // Agents never get full access; should one have it, it still isn't asked.
+        notAgentUser(workspaceMember.userId),
         sql`page_access_level(${workspaceMember.userId}, ${pageId}) = ${FULL_RANK}`,
       ),
     );

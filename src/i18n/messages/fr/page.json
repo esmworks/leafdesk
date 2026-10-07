@@ -184,7 +184,8 @@
       "accessDenied": "Vous ne pouvez pas modifier le partage de cette page.",
       "invalidEmail": "Saisissez une adresse e-mail valide.",
       "invitesRestricted": "Cet espace de travail ne permet pas de partager des pages avec des personnes extérieures. Adressez-vous à un propriétaire.",
-      "generic": "Impossible de mettre à jour le partage."
+      "generic": "Impossible de mettre à jour le partage.",
+      "agentFullAccess": "Les agents peuvent consulter, commenter ou modifier une page, mais jamais en avoir l’accès complet."
     },
     "everyoneFromTeamspaceHint": "Défini par l'espace d'équipe. Ses propriétaires et ceux de l'espace de travail ont un accès complet. Choisissez un niveau ici pour le fixer pour cette page et ses sous-pages."
   },

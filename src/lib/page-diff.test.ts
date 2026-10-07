@@ -182,6 +182,12 @@ describe("changeActors", () => {
     clientName,
   });
 
+  it("marks agents", () => {
+    expect(changeActors([v("auto", "Ada"), { reason: "current", userName: "Ticket triager", clientName: null, isAgent: true }])).toEqual([
+      { name: "Ticket triager", client: null, isAgent: true },
+    ]);
+  });
+
   it("names the AI app behind an MCP write and whoever saved the newer version", () => {
     expect(changeActors([v("before_mcp_write", "Erhan", "Claude"), v("auto", "Ada")])).toEqual([
       { name: "Erhan", client: "Claude" },

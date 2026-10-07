@@ -184,7 +184,8 @@
       "accessDenied": "Bu sayfanın paylaşımını değiştirme yetkiniz yok.",
       "invalidEmail": "Geçerli bir e-posta adresi girin.",
       "invitesRestricted": "Bu çalışma alanında sayfaları dışarıdan kişilerle paylaşma izniniz yok. Bir sahipten isteyin.",
-      "generic": "Paylaşım güncellenemedi."
+      "generic": "Paylaşım güncellenemedi.",
+      "agentFullAccess": "Ajanlar bir sayfayı görüntüleyebilir, yorumlayabilir veya düzenleyebilir, ama hiçbir zaman tam erişim alamaz."
     },
     "everyoneFromTeamspaceHint": "Teamspace belirliyor. Teamspace sahipleri ve çalışma alanı sahipleri tam erişime sahip. Bu sayfa ve alt sayfaları için ayarlamak üzere burada bir seviye seçin."
   },

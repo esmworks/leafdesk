@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { and, desc, eq, gte, inArray, lt, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { apiToken, auditEvent, memberGroup, oauthClient, page, scimToken, teamspace, user, workspace } from "@/db/schema";
+import { apiToken, auditEvent, memberGroup, oauthClient, page, scimToken, teamspace, user, workspace, workspaceAgent } from "@/db/schema";
 import {
   AUDIT_CATEGORIES,
   AUDIT_CSV_LIMIT,
@@ -129,7 +129,14 @@ async function actorOf(reader: Executor, actorId: string | null, facts: RequestF
   if (origin?.kind === "system" || actorId === null) {
     return { kind: "system", userId: null, name: "", email: null, via: null, ip: null, userAgent: null };
   }
-  const [person] = await reader.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, actorId)).limit(1);
+  const [person] = await reader
+    .select({ name: user.name, email: user.email, agentId: workspaceAgent.id })
+    .from(user)
+    .leftJoin(workspaceAgent, eq(workspaceAgent.userId, user.id))
+    .where(eq(user.id, actorId))
+    .limit(1);
+  // An agent acts on its own, never through an app or a browser: no address, no device.
+  if (person?.agentId) return { kind: "agent", userId: actorId, name: person.name, email: null, via: null, ip: null, userAgent: null };
   const base = { userId: person ? actorId : null, name: person?.name ?? "", email: person?.email ?? null };
   const app = connectedAppCall(actorId)?.app;
   if (app) {
@@ -145,7 +152,14 @@ async function labelOf(reader: Executor, target: AuditTarget): Promise<{ label: 
   const id = target.id;
   switch (target.type) {
     case "user": {
-      const [row] = await reader.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, id)).limit(1);
+      const [row] = await reader
+        .select({ name: user.name, email: user.email, agentId: workspaceAgent.id })
+        .from(user)
+        .leftJoin(workspaceAgent, eq(workspaceAgent.userId, user.id))
+        .where(eq(user.id, id))
+        .limit(1);
+      // An agent's address is no one's: it is named only.
+      if (row?.agentId) return { label: row.name };
       return row ? { label: row.name || row.email, email: row.email } : { label: "" };
     }
     case "page": {
@@ -316,7 +330,7 @@ export async function auditEventsForExport(
   return selectEvents(workspaceId, filters, timeZone, AUDIT_CSV_LIMIT, 0);
 }
 
-export type AuditActorOption = { userId: string; name: string; email: string | null };
+export type AuditActorOption = { userId: string; name: string; email: string | null; isAgent: boolean };
 
 /**
  * The people who acted in the workspace (themselves or through an app), by the name they had most
@@ -329,11 +343,12 @@ export async function auditActors(actorId: string, workspaceId: string): Promise
       userId: auditEvent.actorUserId,
       name: auditEvent.actorName,
       email: auditEvent.actorEmail,
+      kind: auditEvent.actorKind,
     })
     .from(auditEvent)
     .where(and(eq(auditEvent.workspaceId, workspaceId), sql`${auditEvent.actorUserId} is not null`))
     .orderBy(auditEvent.actorUserId, desc(auditEvent.createdAt));
   return rows
-    .flatMap((r) => (r.userId ? [{ userId: r.userId, name: r.name, email: r.email }] : []))
+    .flatMap((r) => (r.userId ? [{ userId: r.userId, name: r.name, email: r.email, isAgent: r.kind === "agent" }] : []))
     .sort((a, b) => (a.name || a.email || "").localeCompare(b.name || b.email || ""));
 }

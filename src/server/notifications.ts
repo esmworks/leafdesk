@@ -25,6 +25,7 @@ import {
   workspaceRoleOf,
   workspacesHiddenFromApp,
 } from "@/server/access";
+import { agentUserIds, isAgentUser, notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
 import { mailStatus } from "@/server/mail";
 import { requestLocale } from "@/server/mail/locale";
@@ -34,7 +35,8 @@ import { canInviteGuests } from "@/server/workspaces";
 /**
  * The in-app inbox: one list per user and workspace. Sidebars in a workspace listen on its signal
  * channel and refetch their own inbox on "inbox", so nothing about the notification itself is
- * broadcast.
+ * broadcast. Agents' users (see server/agents/users.ts) have no inbox: nothing here notifies them,
+ * and so no email about a notification goes to them either.
  */
 
 export const INBOX_EVENT = "inbox";
@@ -69,9 +71,11 @@ export async function recordAssignments(actorId: string | null, workspaceId: str
           .map((userId) => ({ userId, pageId: c.rowId, propertyId: prop.id }));
       }),
     );
-    const added = changes.flatMap((c) =>
+    const assigned = changes.flatMap((c) =>
       newAssignees(personProps, c.before, c.after, actorId).map((a) => ({ ...a, pageId: c.rowId })),
     );
+    const agents = await agentUserIds(assigned.map((a) => a.userId));
+    const added = assigned.filter((a) => !agents.has(a.userId));
     if (!removed.length && !added.length) return;
     // Dropping the unread ones first also keeps a quick unassign/reassign down to one notification.
     const unread = [...removed, ...added].map((n) =>
@@ -105,6 +109,7 @@ export async function recordAssignments(actorId: string | null, workspaceId: str
 export async function recordShare(actorId: string, workspaceId: string, userId: string, pageId: string) {
   if (actorId === userId) return;
   try {
+    if (await isAgentUser(userId)) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + SHARE_EMAIL_DELAY_MS);
     const emailLocale = await requestLocale();
     await db.transaction(async (tx) => {
@@ -145,7 +150,7 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
       .select({ id: user.id })
       .from(user)
       .innerJoin(page, eq(page.id, pageId))
-      .where(and(inArray(user.id, recipients), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
+      .where(and(inArray(user.id, recipients), notAgentUser(user.id), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
     if (!visible.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + COMMENT_EMAIL_DELAY_MS);
     const emailLocale = await requestLocale();
@@ -214,7 +219,7 @@ export async function recordMentions(
       .select({ id: user.id })
       .from(user)
       .innerJoin(page, eq(page.id, pageId))
-      .where(and(inArray(user.id, [...first.keys()]), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
+      .where(and(inArray(user.id, [...first.keys()]), notAgentUser(user.id), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
     if (!visible.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + MENTION_EMAIL_DELAY_MS);
     await db.transaction(async (tx) => {
