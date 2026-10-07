@@ -47,39 +47,95 @@ export type AgentAccessLevel = (typeof AGENT_ACCESS_LEVELS)[number];
 export const isAgentAccessLevel = (value: unknown): value is AgentAccessLevel =>
   typeof value === "string" && (AGENT_ACCESS_LEVELS as readonly string[]).includes(value);
 
-/** What started a run. More kinds (a schedule, a mention, a connection's event) come later. */
-export type AgentRunSource = {
-  kind: "automation";
-  automationId: string;
-  automationRunId: string;
-  databaseId: string;
-  rowId: string;
-};
+/** What started a run: an automation on a row, or an event a connection received. */
+export type AgentRunSource =
+  | {
+      kind: "automation";
+      automationId: string;
+      automationRunId: string;
+      databaseId: string;
+      rowId: string;
+    }
+  | {
+      kind: "connection";
+      connectionId: string;
+      triggerId: string;
+      /** The received event (`connection_event`). */
+      eventId: string;
+    };
 
 /** What happened that the run responds to, for its prompt and its history. */
-export type AgentRunContext = {
-  /** The row was added (rather than changed). */
-  created: boolean;
-  /** Ids of the properties the change touched. */
-  changed: string[];
-  /** Who made the change; null for anonymous form answers and lost accounts. */
-  actorId: string | null;
-};
+export type AgentRunContext =
+  | {
+      /** The row was added (rather than changed). */
+      created: boolean;
+      /** Ids of the properties the change touched. */
+      changed: string[];
+      /** Who made the change; null for anonymous form answers and lost accounts. */
+      actorId: string | null;
+    }
+  | {
+      /** The event's type, as its service named it ("message", "issues.opened"…). */
+      eventType: string;
+      /** The event's body, cut to fit (data from outside, never instructions). */
+      body: string;
+    };
 
-export const AGENT_RUN_STATUSES = ["pending", "running", "done", "failed"] as const;
+/** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */
+export const AGENT_RUN_STATUSES = ["pending", "running", "awaiting_approval", "done", "failed"] as const;
 export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
 
 /** A comment the agent wrote on a page. */
 export type AgentCommentRecord = { kind: "comment"; pageId: string; text: string; outcome: "done" | "failed" };
 
-/** One thing a run did: searched, read, queried, changed, thought aloud or commented. */
-export type AgentStepRecord = ChatStepRecord | AgentCommentRecord;
+/**
+ * A call to a connection's tool: read at once (`done`/`failed`), or one that waited for approval
+ * and was sent (`done`/`failed`), declined, sent back to be redone, or never answered.
+ */
+export type AgentToolRecord = {
+  kind: "tool";
+  connectionId: string;
+  tool: string;
+  /** The input, as sent (or as it would have been), cut to fit. */
+  input: string;
+  outcome: "done" | "failed" | "declined" | "redo" | "expired";
+  /** Who approved, declined or sent it back. */
+  decidedBy?: string | null;
+  note?: string;
+};
+
+/** One thing a run did: searched, read, queried, changed, thought aloud, commented or used a tool. */
+export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord;
+
+/** A call waiting for approval: what will be sent, and since when. */
+export type AgentPendingCall = {
+  callId: string;
+  connectionId: string;
+  tool: string;
+  arguments: Record<string, unknown>;
+  askedAt: string;
+};
+
+/** An owner's answer to a pending call; `redo` sends a note back to the agent. */
+export type ApprovalDecision = "approve" | "decline" | "redo";
 
 /**
  * Why a run ended without doing its work: the workspace turned AI off, the agent was paused or
- * archived, it can't open the row, the model failed, or the run took too long.
+ * archived, it can't open the row, the model failed, the run took too long, or no one answered a
+ * call that waited for approval.
  */
-export const AGENT_RUN_CODES = ["aiOff", "agentDisabled", "noAccess", "rowGone", "provider", "timeout", "tooManyAttempts", "error"] as const;
+export const AGENT_RUN_CODES = [
+  "aiOff",
+  "agentDisabled",
+  "noAccess",
+  "rowGone",
+  "provider",
+  "timeout",
+  "tooManyAttempts",
+  "approvalTimeout",
+  "connectionGone",
+  "error",
+] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];
 
 export type AgentRunUsage = { inputTokens: number; outputTokens: number; costUsd: number; rounds: number };
@@ -121,6 +177,13 @@ export type AgentRunView = {
   steps: AgentStepRecord[];
   answer: string;
   usage: AgentRunUsage | null;
+  /** The call waiting for approval (owners only), with its connection's name. */
+  pending: (AgentPendingCall & { connectionName: string }) | null;
+  /** The connection event's type, for runs a connection started. */
+  eventType: string | null;
   createdAt: string;
   finishedAt: string | null;
 };
+
+/** Whether a run's source is an automation on a row. */
+export const isRowRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "automation" }> => source.kind === "automation";

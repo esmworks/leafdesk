@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { setNotificationPreferenceAction } from "@/app/actions/preferences";
 import { Switch } from "@/components/ui";
-import type { NotificationKind } from "@/db/schema";
+import type { PreferenceKind } from "@/db/schema";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
 import type { NotificationChannel, NotificationPreferences } from "@/server/notification-preferences";
 import { SettingsRow } from "./section";
@@ -18,21 +18,21 @@ const KIND_KEYS = {
   access_request: "accessRequest",
   join_request: "joinRequest",
   automation: "automation",
-} as const satisfies Record<NotificationKind, string>;
+} as const satisfies Record<PreferenceKind, string>;
 const CHANNELS: NotificationChannel[] = ["inbox", "email"];
 
 /** Settings > Preferences: for each kind of notification, whether it shows in the inbox and comes by email. */
 export function NotificationSettings({ preferences }: { preferences: NotificationPreferences }) {
   return (
     <>
-      {(Object.keys(KIND_KEYS) as NotificationKind[]).map((kind) => (
+      {(Object.keys(KIND_KEYS) as PreferenceKind[]).map((kind) => (
         <NotificationKindRow key={kind} kind={kind} initial={preferences[kind]} />
       ))}
     </>
   );
 }
 
-function NotificationKindRow({ kind, initial }: { kind: NotificationKind; initial: Record<NotificationChannel, boolean> }) {
+function NotificationKindRow({ kind, initial }: { kind: PreferenceKind; initial: Record<NotificationChannel, boolean> }) {
   const t = useTranslations("settings.notifications");
   const tc = useTranslations("common");
   const [values, setValues] = useState(initial);

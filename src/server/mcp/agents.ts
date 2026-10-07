@@ -1,6 +1,7 @@
 import * as z from "zod";
 import {
   AGENT_ACCESS_LEVELS,
+  isRowRun,
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
@@ -211,6 +212,16 @@ export function describeAgentStep(step: AgentStepRecord) {
       };
     case "thought":
       return { kind: "thought", summary: step.text };
+    case "tool": {
+      const how = { done: "Used", failed: "Failed to use", declined: "Declined (not sent):", redo: "Sent back to redo (not sent):", expired: "No one answered (not sent):" }[step.outcome];
+      return {
+        kind: "tool",
+        outcome: step.outcome,
+        connection_id: step.connectionId,
+        tool: step.tool,
+        summary: `${how} ${step.tool} ${short(step.input, 200)}${step.note ? ` (note: ${quote(short(step.note, 200))})` : ""}`,
+      };
+    }
   }
 }
 
@@ -221,16 +232,33 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
     status: run.status,
     ...(run.code ? { code: run.code } : {}),
     ...(run.error ? { error: run.error } : {}),
-    source: {
-      kind: run.source.kind,
-      automation_id: run.source.automationId,
-      database_id: run.source.databaseId,
-      database_url: pageUrl(workspaceId, run.source.databaseId),
-    },
-    // Rows the user can't open are named by id only.
-    row: run.rowTitle !== null
-      ? { id: run.source.rowId, title: pageLabel(run.rowTitle), url: pageUrl(workspaceId, run.source.rowId) }
-      : { id: run.source.rowId, title: null },
+    ...(isRowRun(run.source)
+      ? {
+          source: {
+            kind: run.source.kind,
+            automation_id: run.source.automationId,
+            database_id: run.source.databaseId,
+            database_url: pageUrl(workspaceId, run.source.databaseId),
+          },
+          // Rows the user can't open are named by id only.
+          row:
+            run.rowTitle !== null
+              ? { id: run.source.rowId, title: pageLabel(run.rowTitle), url: pageUrl(workspaceId, run.source.rowId) }
+              : { id: run.source.rowId, title: null },
+        }
+      : { source: { kind: run.source.kind, connection_id: run.source.connectionId, trigger_id: run.source.triggerId, event_type: run.eventType } }),
+    ...(run.pending
+      ? {
+          waiting_for_approval: {
+            call_id: run.pending.callId,
+            connection_id: run.pending.connectionId,
+            connection: run.pending.connectionName,
+            tool: run.pending.tool,
+            arguments: run.pending.arguments,
+            asked_at: run.pending.askedAt,
+          },
+        }
+      : {}),
     steps: run.steps.map(describeAgentStep),
     answer: run.answer,
     ...(run.usage

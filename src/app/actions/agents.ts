@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { AgentAccessLevel, AgentCommentRecord, AgentRunView } from "@/lib/agents";
+import type { AgentAccessLevel, AgentCommentRecord, AgentRunView, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
 import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
@@ -111,7 +111,7 @@ export async function removeAgentAccessAction(workspaceId: string, agentId: stri
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */
 export type AgentCommentView = Omit<AgentCommentRecord, "text"> & { text: string | null };
-export type AgentStepView = ChatStepView | AgentCommentView;
+export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord;
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
 
 /** An agent's latest runs, with the pages their steps name as the viewer may see them now. */
@@ -123,7 +123,7 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
         ...r,
         steps: await Promise.all(
           r.steps.map(async (step): Promise<AgentStepView> =>
-            step.kind === "comment" ? { ...step, text: r.rowTitle === null ? null : step.text } : viewStep(userId, step),
+            step.kind === "comment" ? { ...step, text: r.rowTitle === null ? null : step.text } : step.kind === "tool" ? step : viewStep(userId, step),
           ),
         ),
       })),

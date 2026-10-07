@@ -52,6 +52,13 @@ export const AUDIT_CATEGORIES = {
     "automation.deleted",
   ],
   agents: ["agent.created", "agent.updated", "agent.archived"],
+  connections: [
+    "connection.created",
+    "connection.updated",
+    "connection.deleted",
+    "connection.tool_called",
+    "connection.approval_decided",
+  ],
   exports: ["export.workspace", "export.page"],
 } as const;
 
@@ -98,7 +105,8 @@ export type AuditTargetType =
   | "api_token"
   | "connected_app"
   | "join_link"
-  | "site";
+  | "site"
+  | "connection";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {
@@ -343,6 +351,9 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     slug: text(d.slug),
     property: text(d.property),
     name: text(d.name),
+    tool: text(d.tool),
+    decision: known(t, `audit.decisions.${text(d.decision)}`, text(d.decision)),
+    outcome: known(t, `audit.outcomes.${text(d.outcome)}`, text(d.outcome)),
   };
   switch (event.action) {
     case "member.role_changed":

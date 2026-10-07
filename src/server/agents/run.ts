@@ -1,40 +1,50 @@
 /**
  * The agents' worker: takes queued runs (`agent_run`, queued by an automation's "Run an agent"
- * action) and does them, as the agent's own user, with the access it has now. A few run at a time
- * (AI_CONCURRENCY), each within its workspace's AI allowance (a run waits for its turn rather than
- * failing), and apart from the automations' worker, so a long run never holds up a webhook.
+ * action or a connection's trigger) and does them, as the agent's own user, with the access it has
+ * now. A few run at a time (AI_CONCURRENCY), each within its workspace's AI allowance (a run waits
+ * for its turn rather than failing), and apart from the automations' worker, so a long run never
+ * holds up a webhook.
  *
- * A run is a short conversation with the model: the agent's instructions, what happened, the row
- * and a map of what the agent can open, then up to MAX_AGENT_ROUNDS turns of tools. With no one
- * to approve anything, the tools are narrow: reading what is shared with the agent, and changing
- * or commenting on the row that started the run, at most MAX_AGENT_WRITES times. Changes it makes
- * start no automations (`asAutomation`), so agents can't set each other off.
+ * A run is a short conversation with the model: the agent's instructions, what happened (a row
+ * changed, or an event came in), a map of what the agent can open, then up to MAX_AGENT_ROUNDS
+ * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent, and, on a
+ * row's run, changing or commenting on that row, at most MAX_AGENT_WRITES times. Changes it makes
+ * start no automations (`asAutomation`), so agents can't set each other off. On top of those come
+ * the tools of connections an owner allowed it: one that only reads runs at once; any other makes
+ * the run wait (`awaiting_approval`, its conversation saved in `state`) until an owner answers, and
+ * fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
  */
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, page, user, workspaceAgent } from "@/db/schema";
+import { agentRun, connection, connectionEvent, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
 import {
   AGENT_RUN_HISTORY_DAYS,
   AGENT_RUN_TIMEOUT_MS,
+  isRowRun,
   MAX_AGENT_PROMPT,
   MAX_AGENT_ROUNDS,
   MAX_AGENT_WRITES,
+  type AgentPendingCall,
   type AgentRunCode,
   type AgentRunContext,
   type AgentRunSource,
   type AgentRunUsage,
   type AgentStepRecord,
 } from "@/lib/agents";
+import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { AccessError, pageAccessOf } from "@/server/access";
-import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool } from "@/server/ai";
-import { agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
+import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
+import { agentEventPrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { asAutomation } from "@/server/automations/queue";
 import { changeComments } from "@/server/comments";
+import { notifyApprovers, withdrawApproval } from "@/server/connections/approvals";
+import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset } from "@/server/connections/tools";
 import { getProperties } from "@/server/databases";
 import type * as ops from "@/server/operations";
+import { agentsWorker } from "./kick";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
@@ -47,6 +57,8 @@ const MAP_CHARS = 6_000;
 const MAX_COMMENT = 4_000;
 /** The most of what the model says before a tool call that is kept as a step. */
 const THOUGHT_CHARS = 300;
+/** The most of an event's body the agent reads. */
+const EVENT_CHARS = 8_000;
 
 type Run = typeof agentRun.$inferSelect;
 type Agent = typeof workspaceAgent.$inferSelect;
@@ -63,18 +75,24 @@ const ADD_COMMENT: AiTool = {
 };
 
 const UPDATE_ROW = WRITE_TOOLS.find((t) => t.name === "update_row")!;
+/** Leafdesk's tools on a row's run; a connection event's run only reads. */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_COMMENT];
 
 // ------------------------------------------------------------------------------------ queue
 
-type State = { kick?: () => void };
-const g = globalThis as typeof globalThis & { __leafdeskAgents?: State };
-const state: State = (g.__leafdeskAgents ??= {});
+const state = agentsWorker;
+
+/** What makes two queued runs the same run: the automation's run, or the event and trigger. */
+function sameSource(source: AgentRunSource) {
+  return source.kind === "automation"
+    ? sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId}`
+    : sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
+}
 
 /**
- * Queues a run of an agent; the worker takes it at once (or at its next sweep). An automation's
- * step taken again (its worker stopped before saving that it queued the run) finds the run it
- * queued rather than queuing another.
+ * Queues a run of an agent; the worker takes it at once (or at its next sweep). A step taken again
+ * (its worker stopped before saving that it queued the run) finds the run it queued rather than
+ * queuing another.
  */
 export async function queueAgentRun(input: {
   agentId: string;
@@ -87,13 +105,7 @@ export async function queueAgentRun(input: {
   const [queued] = await db
     .select({ id: agentRun.id })
     .from(agentRun)
-    .where(
-      and(
-        eq(agentRun.agentId, input.agentId),
-        sql`${agentRun.source}->>'automationRunId' = ${input.source.automationRunId}`,
-        eq(agentRun.prompt, prompt),
-      ),
-    )
+    .where(and(eq(agentRun.agentId, input.agentId), sameSource(input.source), eq(agentRun.prompt, prompt)))
     .limit(1);
   if (queued) return queued.id;
   const [run] = await db
@@ -124,7 +136,9 @@ async function claim(limit: number): Promise<Run[]> {
   return db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
 }
 
-async function finish(run: Run, values: { status: "done" | "failed"; code?: AgentRunCode | null; error?: string | null; steps?: AgentStepRecord[]; answer?: string; usage?: AgentRunUsage | null }) {
+type Ending = { status: "done" | "failed"; code?: AgentRunCode | null; error?: string | null; steps?: AgentStepRecord[]; answer?: string; usage?: AgentRunUsage | null };
+
+async function finish(run: Run, values: Ending) {
   await db
     .update(agentRun)
     .set({
@@ -134,6 +148,8 @@ async function finish(run: Run, values: { status: "done" | "failed"; code?: Agen
       ...(values.steps ? { steps: values.steps } : {}),
       ...(values.answer !== undefined ? { answer: values.answer.slice(0, 8_000) } : {}),
       ...(values.usage !== undefined ? { usage: values.usage } : {}),
+      state: null,
+      pending: null,
       finishedAt: new Date(),
     })
     .where(eq(agentRun.id, run.id));
@@ -144,20 +160,43 @@ async function later(run: Run, at: Date) {
   await db.update(agentRun).set({ status: "pending", nextAt: at }).where(eq(agentRun.id, run.id));
 }
 
+/** Parks a run until an owner answers the call it waits on (or the call runs out of time). */
+async function park(run: Run, agent: Agent, values: { state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage }) {
+  await db
+    .update(agentRun)
+    .set({
+      status: "awaiting_approval",
+      state: values.state,
+      pending: values.pending,
+      steps: values.steps,
+      usage: values.usage,
+      // Taking it again for an answer is no failed attempt.
+      attempts: 0,
+      nextAt: new Date(Date.now() + APPROVAL_TIMEOUT_MS),
+    })
+    .where(eq(agentRun.id, run.id));
+  await notifyApprovers(run, agent.userId);
+}
+
 // -------------------------------------------------------------------------------------- run
 
-/** Does one run and saves how it went. */
+/** Does one run (or goes on with one an owner answered) and saves how it went. */
 export async function processRun(run: Run): Promise<void> {
   const [agent] = await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, run.agentId));
   if (!agent || agent.archivedAt || !agent.enabled) return finish(run, { status: "failed", code: "agentDisabled" });
   if (run.attempts > MAX_CLAIMS) return finish(run, { status: "failed", code: "tooManyAttempts" });
   if (!(await aiAvailable(run.workspaceId))) return finish(run, { status: "failed", code: "aiOff" });
 
-  const { rowId, databaseId } = run.source;
-  const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
-  if (!row || row.archivedAt || row.parentId !== databaseId) return finish(run, { status: "failed", code: "rowGone" });
-  const { level } = await pageAccessOf(agent.userId, rowId);
-  if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
+  if (isRowRun(run.source)) {
+    const { rowId, databaseId } = run.source;
+    const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
+    if (!row || row.archivedAt || row.parentId !== databaseId) return finish(run, { status: "failed", code: "rowGone" });
+    const { level } = await pageAccessOf(agent.userId, rowId);
+    if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
+  } else {
+    const [conn] = await db.select({ id: connection.id }).from(connection).where(eq(connection.id, run.source.connectionId));
+    if (!conn) return finish(run, { status: "failed", code: "connectionGone" });
+  }
 
   const wait = takeWorkspaceCapacity(run.workspaceId);
   if (wait > 0) return later(run, new Date(Date.now() + wait));
@@ -170,33 +209,116 @@ export async function processRun(run: Run): Promise<void> {
     if (!isAiError(error)) console.error("[agents] run failed", error);
     return finish(run, { status: "failed", code, error: error instanceof Error ? error.message : String(error) });
   }
+  if (outcome.status === "awaiting") return park(run, agent, outcome);
   return finish(run, outcome);
 }
 
-/** The run's turns with the model; what it did, and how it ended. */
-async function converse(agent: Agent, run: Run) {
+type Paused = { status: "awaiting"; state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage };
+type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord };
+
+/** The run's turns with the model (from the start, or from where it waited): what it did, and how it ended. */
+async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
-  const { rowId } = run.source;
+  const rowRun = isRowRun(run.source);
   const limits = aiConfig().limits;
+  // The run's own time, from now: the wait for an answer doesn't count.
   const signal = AbortSignal.timeout(AGENT_RUN_TIMEOUT_MS);
-  const system = agentSystemPrompt(agent);
-  const toolsSize = AGENT_TOOLS.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
+  const toolset = await agentToolset(agent.id);
+  const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
+  const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...toolset.tools];
+  const system = agentSystemPrompt(agent, { row: rowRun, connections });
+  const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
   const registry: Registry = { sources: [], byKey: new Map() };
-  const steps: AgentStepRecord[] = [];
-  const usage: AgentRunUsage = { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 };
-
-  // The row, read as the agent (its values as the agent may see them), as source 1.
-  const read = await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: rowId } }, registry, Math.min(8_000, room([])));
-  if (read.isError) return { status: "failed" as const, code: "noAccess" as const, steps, usage };
-  const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-  const messages: AiMessage[] = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map }) }];
-
+  const steps: AgentStepRecord[] = [...run.steps];
+  const usage: AgentRunUsage = run.usage ? { ...run.usage } : { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 };
+  let messages: AiMessage[];
   let writes = 0;
-  let answer = "";
-  for (let round = 0; round < MAX_AGENT_ROUNDS; round++) {
-    if (round > 0) {
+  let externalChars = 0;
+  let firstRound = 0;
+  let queue: AiToolCall[] = [];
+
+  const saved = run.state;
+  if (saved) {
+    messages = saved.messages as AiMessage[];
+    writes = saved.writes;
+    externalChars = saved.externalChars;
+    firstRound = saved.rounds;
+    queue = saved.queue;
+  } else if (isRowRun(run.source)) {
+    // The row, read as the agent (its values as the agent may see them), as source 1.
+    const read = await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: run.source.rowId } }, registry, Math.min(8_000, room([])));
+    if (read.isError) return { status: "failed", code: "noAccess", steps, usage };
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map }) }];
+  } else {
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const body = "body" in run.context ? run.context.body.slice(0, EVENT_CHARS) : "";
+    messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map }) }];
+  }
+
+  /** Answers one tool call; null when it must wait for approval. */
+  const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<CallResult | null> => {
+    const external = toolset.byName.get(call.name);
+    if (external) {
+      if (external.tool.kind === "write") {
+        if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
+        if (!approved) return null;
+      }
+      const left = MAX_RUN_EXTERNAL_CHARS - externalChars;
+      if (left <= 200) return { content: "You have read as much from connected services as one run may. Finish with what you have.", isError: true };
+      const out = await runConnectionTool({ entry: external, args: call.arguments, agentUserId: agent.userId, agentName: agent.name, approvedBy: approved?.userId ?? null, room: left, signal });
+      externalChars += out.chars;
+      if (external.tool.kind === "write") writes += 1;
+      return out;
+    }
+    if (rowRun && (call.name === "update_row" || call.name === "add_comment")) {
+      if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
+      const out: CallResult = call.name === "update_row" ? await updateRow(ctx, run, call) : await addComment(agent, run, call.arguments);
+      if (!out.isError) writes += 1;
+      return out;
+    }
+    if (!tools.some((t) => t.name === call.name)) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
+    const out: ToolOutcome = await runTool(ctx, run.workspaceId, undefined, call, registry, room(messages));
+    return out;
+  };
+
+  /** Answers the calls waiting in `queue`, in order; the run pauses at the first that needs approval. */
+  const drain = async (decision: AgentRunState["decision"] | undefined): Promise<Paused | null> => {
+    let pendingDecision = decision;
+    while (queue.length) {
+      const call = queue[0];
+      let out: CallResult | null;
+      if (pendingDecision) {
+        out = await decided(call, pendingDecision, toolset, answer);
+        pendingDecision = undefined;
+      } else out = await answer(call, null);
+      if (!out) {
+        const external = toolset.byName.get(call.name)!;
+        return {
+          status: "awaiting",
+          state: { messages, queue, rounds: usage.rounds, writes, externalChars },
+          pending: { callId: call.id, connectionId: external.connection.id, tool: external.tool.name, arguments: call.arguments, askedAt: new Date().toISOString() },
+          steps,
+          usage,
+        };
+      }
+      if (out.step) steps.push(out.step);
+      messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: out.content, isError: out.isError });
+      queue = queue.slice(1);
+    }
+    return null;
+  };
+
+  if (saved) {
+    const paused = await drain(saved.decision);
+    if (paused) return paused;
+  }
+
+  let finalAnswer = "";
+  for (let round = Math.max(firstRound, usage.rounds); round < MAX_AGENT_ROUNDS; round++) {
+    if (round > firstRound) {
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
     }
@@ -208,7 +330,7 @@ async function converse(agent: Agent, run: Run) {
       skipRateLimit: true,
       system,
       messages,
-      tools: AGENT_TOOLS,
+      tools,
       signal,
       sessionId: run.id,
     });
@@ -217,30 +339,45 @@ async function converse(agent: Agent, run: Run) {
     usage.outputTokens += result.usage.outputTokens;
     usage.costUsd += result.usage.costUsd;
     if (!result.toolCalls.length || last) {
-      answer = result.text;
+      finalAnswer = result.text;
       break;
     }
     const thought = result.text.replace(/\s+/g, " ").trim();
     if (thought) steps.push({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
     messages.push(result.message);
-    for (const call of result.toolCalls) {
-      let out: ToolOutcome | { content: string; isError?: boolean; step?: AgentStepRecord };
-      if (call.name === "update_row" || call.name === "add_comment") {
-        if (writes >= MAX_AGENT_WRITES) out = { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
-        else {
-          out = call.name === "update_row" ? await updateRow(ctx, run, call) : await addComment(agent, rowId, call.arguments);
-          if (!out.isError) writes += 1;
-        }
-      } else out = await runTool(ctx, run.workspaceId, undefined, call, registry, room(messages));
-      if (out.step) steps.push(out.step);
-      messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: out.content, isError: out.isError });
-    }
+    queue = result.toolCalls;
+    const paused = await drain(undefined);
+    if (paused) return paused;
   }
-  return { status: "done" as const, steps, answer, usage };
+  return { status: "done", steps, answer: finalAnswer, usage };
+}
+
+/** Answers the call an owner decided on: sends it (approved), or tells the agent it was declined or sent back. */
+async function decided(
+  call: AiToolCall,
+  decision: NonNullable<AgentRunState["decision"]>,
+  toolset: ConnectionToolset,
+  answer: (call: AiToolCall, approved: { userId: string } | null) => Promise<CallResult | null>,
+): Promise<CallResult> {
+  const external = toolset.byName.get(call.name);
+  if (!external) {
+    // The tool was taken away (or its connection) while the call waited: nothing is sent.
+    return { content: `The tool "${call.name}" is no longer allowed to you. Nothing was sent; finish without it.`, isError: true };
+  }
+  const base = { kind: "tool" as const, connectionId: external.connection.id, tool: external.tool.name, input: inputSummary(call.arguments), decidedBy: decision.userId };
+  if (decision.decision === "approve") return (await answer(call, { userId: decision.userId }))!;
+  if (decision.decision === "decline") {
+    return { content: "A person declined this call: it was not sent. Don't call it again in this run; finish without it, saying what you would have done.", step: { ...base, outcome: "declined" } };
+  }
+  return {
+    content: `A person sent this call back before it was sent, with this note:\n<note>${(decision.note ?? "").replace(/</g, "‹")}</note>\nNothing was sent. Prepare the call again with the note in mind, and call the tool again.`,
+    step: { ...base, outcome: "redo", note: decision.note },
+  };
 }
 
 /** update_row, on the run's row only, made at once (no one to ask) and starting no automations. */
 async function updateRow(ctx: ops.OperationContext, run: Run, call: { name: string; arguments: Record<string, unknown> }): Promise<ToolOutcome> {
+  if (!isRowRun(run.source)) return { content: "This run has no row to change.", isError: true };
   const rowId = typeof call.arguments.row_id === "string" ? call.arguments.row_id.trim() : "";
   if (rowId !== run.source.rowId) {
     return { content: `You may change only the row that started this run (row_id ${run.source.rowId}). Nothing was changed.`, isError: true };
@@ -252,7 +389,9 @@ async function updateRow(ctx: ops.OperationContext, run: Run, call: { name: stri
 }
 
 /** add_comment: a new comment thread on the run's row, as the agent. */
-async function addComment(agent: Agent, rowId: string, args: Record<string, unknown>): Promise<{ content: string; isError?: boolean; step?: AgentStepRecord }> {
+async function addComment(agent: Agent, run: Run, args: Record<string, unknown>): Promise<CallResult> {
+  if (!isRowRun(run.source)) return { content: "This run has no row to comment on.", isError: true };
+  const rowId = run.source.rowId;
   const text = typeof args.text === "string" ? args.text.trim().slice(0, MAX_COMMENT) : "";
   if (!text) return { content: "add_comment needs text.", isError: true };
   try {
@@ -266,8 +405,14 @@ async function addComment(agent: Agent, rowId: string, args: Record<string, unkn
   }
 }
 
-/** What happened, in words: the row added or the properties changed, and by whom. */
+/** What happened, in words: the row added or the properties changed, and by whom; or the event received. */
 async function eventText(run: Run) {
+  if (!isRowRun(run.source)) {
+    const [conn] = await db.select({ name: connection.name }).from(connection).where(eq(connection.id, run.source.connectionId));
+    const type = "eventType" in run.context ? run.context.eventType : "event";
+    return `The connection "${conn?.name ?? "?"}" received an event of type "${type}".`;
+  }
+  if (!("created" in run.context)) return "The row changed.";
   const { created, changed, actorId } = run.context;
   const [actor] = actorId ? await db.select({ name: user.name }).from(user).where(eq(user.id, actorId)) : [];
   const by = actor ? ` by ${actor.name}` : "";
@@ -295,6 +440,7 @@ function sweep(): Promise<void> {
   sweeping = (async () => {
     do {
       sweepAgain = false;
+      await expireApprovals();
       await takeDue();
     } while (sweepAgain);
   })().finally(() => {
@@ -325,6 +471,27 @@ async function takeDue() {
   }
 }
 
+/** Runs whose call no one answered in time fail, sending nothing. */
+export async function expireApprovals() {
+  try {
+    const expired = await db
+      .update(agentRun)
+      .set({ status: "failed", code: "approvalTimeout", finishedAt: new Date(), state: null })
+      .where(and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date())))
+      .returning({ id: agentRun.id, steps: agentRun.steps, pending: agentRun.pending });
+    for (const run of expired) {
+      const pending = run.pending;
+      if (pending) {
+        const step: AgentStepRecord = { kind: "tool", connectionId: pending.connectionId, tool: pending.tool, input: inputSummary(pending.arguments), outcome: "expired" };
+        await db.update(agentRun).set({ steps: [...run.steps, step], pending: null }).where(eq(agentRun.id, run.id));
+      }
+      await withdrawApproval(run.id);
+    }
+  } catch (error) {
+    console.error("[agents] could not expire approvals", error);
+  }
+}
+
 /** Runs everything due now and waits for it (scripts and tests; the server sweeps on its own). */
 export async function flushAgentRuns() {
   for (;;) {
@@ -339,7 +506,7 @@ export async function flushAgentRuns() {
   }
 }
 
-/** Finished runs older than AGENT_RUN_HISTORY_DAYS go. */
+/** Finished runs older than AGENT_RUN_HISTORY_DAYS go, and the events connections received a while ago. */
 export async function pruneAgentRuns() {
   await db
     .delete(agentRun)
@@ -350,6 +517,10 @@ export async function pruneAgentRuns() {
       ),
     )
     .catch((error) => console.error("[agents] could not prune runs", error));
+  await db
+    .delete(connectionEvent)
+    .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))
+    .catch((error) => console.error("[connections] could not prune events", error));
 }
 
 /** Server only: runs queued agents, right away when they are queued and every few seconds. */

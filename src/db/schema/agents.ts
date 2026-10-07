@@ -1,7 +1,31 @@
 import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
-import type { AgentAccessLevel, AgentRunCode, AgentRunContext, AgentRunSource, AgentRunStatus, AgentRunUsage, AgentStepRecord } from "@/lib/agents";
+import type {
+  AgentAccessLevel,
+  AgentPendingCall,
+  AgentRunCode,
+  AgentRunContext,
+  AgentRunSource,
+  AgentRunStatus,
+  AgentRunUsage,
+  AgentStepRecord,
+  ApprovalDecision,
+} from "@/lib/agents";
 import { page, workspace } from "./app";
 import { user } from "./auth";
+
+/**
+ * A paused run's conversation and counters. `messages` are the model's conversation as sent
+ * (server/ai's AiMessage); `queue` the tool calls of the last turn not yet answered, the first
+ * one waiting for approval; `decision` an owner's answer to it, set when the run is taken again.
+ */
+export type AgentRunState = {
+  messages: unknown[];
+  queue: { id: string; name: string; arguments: Record<string, unknown> }[];
+  rounds: number;
+  writes: number;
+  externalChars: number;
+  decision?: { decision: ApprovalDecision; userId: string; note?: string };
+};
 
 /**
  * An agent of a workspace (see lib/agents.ts and server/agents). It acts as its own user (`userId`,
@@ -68,6 +92,10 @@ export const agentRun = pgTable(
     /** What the agent said at the end. */
     answer: text("answer").notNull().default(""),
     usage: jsonb("usage").$type<AgentRunUsage>(),
+    /** Where a run that waits for approval stands, to go on from there (see server/agents/run). */
+    state: jsonb("state").$type<AgentRunState>(),
+    /** The call waiting for approval (status `awaiting_approval`; it fails at `nextAt`). */
+    pending: jsonb("pending").$type<AgentPendingCall>(),
     /** How many times the worker took the run. */
     attempts: integer("attempts").notNull().default(0),
     nextAt: timestamp("next_at", { withTimezone: true }).notNull().defaultNow(),

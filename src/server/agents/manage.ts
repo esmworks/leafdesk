@@ -10,10 +10,11 @@
  */
 import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { agentDatabaseShare, agentRun, databaseAutomation, page, pagePermission, user, workspaceAgent } from "@/db/schema";
+import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, user, workspaceAgent } from "@/db/schema";
 import {
   agentEmail,
   isAgentAccessLevel,
+  isRowRun,
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
@@ -339,7 +340,7 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
     .where(eq(agentRun.agentId, agent.id))
     .orderBy(desc(agentRun.createdAt))
     .limit(Math.min(Math.max(limit, 1), 100));
-  const rowIds = [...new Set(runs.map((r) => r.source.rowId))];
+  const rowIds = [...new Set(runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : [])))];
   const titles = new Map<string, string>();
   if (rowIds.length) {
     const rows = await db
@@ -348,20 +349,27 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
       .where(and(inArray(page.id, rowIds), pageVisibleTo(userId)));
     for (const row of rows) titles.set(row.id, row.title);
   }
+  const connectionIds = [...new Set(runs.flatMap((r) => (r.pending ? [r.pending.connectionId] : [])))];
+  const connectionNames = new Map(
+    connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
+  );
   // What a run read, thought and answered can quote pages the agent may open and the viewer may
-  // not; it all ends up on the row anyway, so only people who can open the row see it.
+  // not; it all ends up on the row anyway, so only people who can open the row see it. A
+  // connection's event is the owners' (they set up the connection), as is the run it started.
   return runs.map((r) => {
-    const open = titles.has(r.source.rowId);
+    const open = isRowRun(r.source) ? titles.has(r.source.rowId) : true;
     return {
       id: r.id,
       status: r.status,
       code: r.code ?? null,
       error: open ? r.error : null,
       source: r.source,
-      rowTitle: titles.get(r.source.rowId) ?? null,
+      rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
       steps: open ? r.steps : [],
       answer: open ? r.answer : "",
       usage: r.usage,
+      pending: open && r.pending ? { ...r.pending, connectionName: connectionNames.get(r.pending.connectionId) ?? "" } : null,
+      eventType: "eventType" in r.context ? r.context.eventType : null,
       createdAt: r.createdAt.toISOString(),
       finishedAt: r.finishedAt?.toISOString() ?? null,
     };

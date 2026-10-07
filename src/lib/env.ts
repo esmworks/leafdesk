@@ -30,6 +30,31 @@ export const env = {
       .map((h) => h.trim().toLowerCase())
       .filter(Boolean);
   },
+  /**
+   * LEAFDESK_ENCRYPTION_KEY: the key that seals secrets kept in the database (a connection's
+   * tokens); at least 32 characters. Without it, a key is derived from BETTER_AUTH_SECRET.
+   * LEAFDESK_ENCRYPTION_OLD_KEYS (comma-separated) still opens what older keys sealed.
+   */
+  get encryptionKey() {
+    return process.env.LEAFDESK_ENCRYPTION_KEY?.trim() || null;
+  },
+  get oldEncryptionKeys() {
+    return (process.env.LEAFDESK_ENCRYPTION_OLD_KEYS ?? "")
+      .split(",")
+      .map((k) => k.trim())
+      .filter(Boolean);
+  },
+  /**
+   * CONNECTOR_ALLOWED_HOSTS: host names (or host:port) a connection's MCP server may be on even
+   * though they are on a private network, a local name or plain http (a server on the same
+   * machine, say); comma-separated. Every other connection goes only to public https addresses.
+   */
+  get connectorAllowedHosts() {
+    return (process.env.CONNECTOR_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
   /** SESSION_MAX_AGE_DAYS: days a sign-in lasts without use (default 7, see lib/session-lifetime). */
   get sessionDays() {
     return sessionDaysFrom(process.env.SESSION_MAX_AGE_DAYS);

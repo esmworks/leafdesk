@@ -144,7 +144,7 @@ async function send({
   emailLocale,
   readAt,
 }: Due) {
-  if (readAt || kind === "assignment") return;
+  if (readAt || kind === "assignment" || kind === "agent_approval") return;
   const locale = await recipientLocale(userId, emailLocale);
   if (kind === "join_request") return sendJoinRequest(userId, workspaceId, joinRequestId, locale);
   if (!pageId) return;
