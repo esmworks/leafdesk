@@ -46,7 +46,7 @@ process.env.CONNECTOR_ALLOWED_HOSTS = `localhost:${PEER_PORT}`;
 const { and, eq, inArray } = await import("drizzle-orm");
 const { default: postgres } = await import("postgres");
 const { db } = await import("@/db");
-const { agentRun, auditEvent, connection, connectionEvent, notification, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, auditEvent, connection, connectionEvent, notification, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -546,8 +546,10 @@ try {
   console.error(`\n${passed} checks passed before the failure; the peer's log: ${peerLog}`);
   process.exitCode = 1;
 } finally {
+  // Agents' own users go with their workspace only when it is deleted through the app.
+  const bots = (await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(eq(workspaceAgent.workspaceId, workspaceId))).map((a) => a.userId);
   await db.delete(workspace).where(eq(workspace.id, workspaceId)).catch((e) => console.error("cleanup", e));
-  await db.delete(user).where(inArray(user.id, Object.values(ids))).catch((e) => console.error("cleanup", e));
+  await db.delete(user).where(inArray(user.id, [...Object.values(ids), ...bots])).catch((e) => console.error("cleanup", e));
   await cleanPeer().catch((e) => console.error("peer cleanup", e));
   await peerSql?.end();
   await fake.close();

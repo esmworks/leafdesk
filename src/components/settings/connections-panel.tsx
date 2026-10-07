@@ -86,6 +86,10 @@ export function ConnectionsPanel({
   const [shownNotice, setShownNotice] = useState(notice);
 
   useEffect(() => setList(connections), [connections]);
+  // Shown once: reloading the page shouldn't say it again.
+  useEffect(() => {
+    if (notice || initialConnectionId) window.history.replaceState(null, "", `${window.location.pathname}?tab=connections`);
+  }, [notice, initialConnectionId]);
 
   const replace = (view: ConnectionView) => setList((all) => (all.some((c) => c.id === view.id) ? all.map((c) => (c.id === view.id ? view : c)) : [...all, view]));
   const opened = open ? list.find((c) => c.id === open.id) : undefined;
