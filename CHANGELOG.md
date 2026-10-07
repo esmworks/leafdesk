@@ -4,6 +4,25 @@
 
 ### Added
 
+- **Agents.** An agent is an AI helper of a workspace with a name, an emoji, a description and
+  instructions of its own, run by a new automation action, *Run an agent* (`run_agent`, the agent
+  by id or name and a task of up to 2000 characters), on the row that started the automation.
+  Each agent acts as a user of its own: a bot user that can't sign in, a guest of the workspace,
+  so it sees only the pages shared with it (view, comment or edit, never full access) and its
+  changes and comments show its name. Saving an automation that runs an agent shares the
+  database with it at edit access. A run reads what is shared with the agent and changes or
+  comments on its row, nothing else, in at most 8 model turns, 5 changes and 2 minutes; it needs
+  AI set up on the server and on for the workspace (otherwise it ends as `aiOff`), and what it
+  changes starts no automations. Runs are kept for 30 days with each step, the answer and the
+  tokens used. Owners create, change, pause, archive and restore agents (at most 50 per
+  workspace) and choose what they may open; members can list them. Anything shared with an agent
+  can end up in rows it writes, visible to everyone who can open those rows. MCP tools
+  `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
+  `set_agent_access` and `list_agent_runs`; `create_automation` and `update_automation` take
+  `run_agent` actions and `list_automations` names their agent. No REST endpoints. Migration
+  `0037_agents` adds the tables `workspace_agent` and `agent_run`. New checks in
+  `scripts/agents-e2e.ts` (43), `scripts/mcp-e2e.ts` (299 in all) and
+  `src/server/mcp/tools.test.ts`. See the README (Agents).
 - **Database automations.** When a row is added, or a property changes (optionally only when it
   becomes a value: a select or status option, a checkbox state, a person or multi-select option
   being added), an automation sets properties on the row (a date to the day it runs, in UTC, a

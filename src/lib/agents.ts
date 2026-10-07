@@ -87,6 +87,7 @@ export type AgentRunUsage = { inputTokens: number; outputTokens: number; costUsd
 /** An agent as the settings show it. */
 export type AgentView = {
   id: string;
+  workspaceId: string;
   /** The agent's own user: its edits and comments show this id. */
   userId: string;
   name: string;
