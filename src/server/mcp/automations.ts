@@ -93,7 +93,7 @@ const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    "What the automation does, in order: set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row), webhook, or run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access).",
+    "What the automation does, in order: set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row), webhook, or run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners add or change run_agent actions, others may keep or remove one).",
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);

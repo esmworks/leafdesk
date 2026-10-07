@@ -8,7 +8,7 @@ import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
 import { blocksToPlainText } from "@/lib/blocks";
 import { AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
-import { CommentError, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
+import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { requestLocale } from "@/i18n/config";
@@ -60,7 +60,7 @@ function readThreadsOf(doc: Y.Doc): PlainThread[] {
   const store = new YjsThreadStore("", threads, new DefaultThreadStoreAuth("", "comment"));
   const quotes = threadQuotes(doc.getXmlFragment(COLLAB_FRAGMENT));
   return [...store.getThreads().values()]
-    .map((t) => ({ ...plainThread(t), quote: quotes.get(t.id) ?? null }))
+    .map((t) => ({ ...plainThread(t), quote: quotes.get(t.id) ?? null, ...(isPageThread(t.metadata) ? { page: true as const } : {}) }))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
@@ -155,7 +155,8 @@ function runOp(store: YjsThreadStore, threads: Y.Map<unknown>, op: CommentOp): P
   const body = (value: unknown) => value as Parameters<YjsThreadStore["addComment"]>[0]["comment"]["body"];
   switch (op.type) {
     case "createThread":
-      return store.createThread({ initialComment: { body: body(op.body) } });
+      // A thread quoting nothing is about the whole page; it says so, not that its text was deleted.
+      return store.createThread({ initialComment: { body: body(op.body) }, ...(op.anchor ? {} : { metadata: PAGE_THREAD_METADATA }) });
     case "addComment":
       return store.addComment({ threadId: op.threadId, comment: { body: body(op.body) } });
     case "updateComment":

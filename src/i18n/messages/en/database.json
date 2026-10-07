@@ -541,7 +541,8 @@
     "invalidAutomation": "This automation can’t be saved. Check its trigger and actions.",
     "tooManyAutomations": "A database can have at most {max} automations.",
     "invalidWebhookUrl": "“{value}” is not a valid http(s) address.",
-    "webhookBlocked": "Webhooks can’t go to private or local network addresses."
+    "webhookBlocked": "Webhooks can’t go to private or local network addresses.",
+    "agentOwnersOnly": "Only owners of the workspace add or change actions that run an agent."
   },
   "formula": {
     "title": "Formula",
@@ -780,6 +781,7 @@
       "createAgent": "Create one in Settings > Agents.",
       "noAgentsMember": "Workspace owners create them in Settings.",
       "agentTask": "Task",
+      "agentOwnersOnly": "Only owners of the workspace change this action.",
       "agentTaskPlaceholder": "What to do with the row, on top of its instructions. For example: Sort this new request.",
       "agentAccess": "Saving gives {agent} edit access to this database.",
       "agentAccessAny": "Saving gives the agent edit access to this database."

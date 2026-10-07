@@ -1,6 +1,6 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import type { AgentRunCode, AgentRunContext, AgentRunSource, AgentRunStatus, AgentRunUsage, AgentStepRecord } from "@/lib/agents";
-import { workspace } from "./app";
+import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import type { AgentAccessLevel, AgentRunCode, AgentRunContext, AgentRunSource, AgentRunStatus, AgentRunUsage, AgentStepRecord } from "@/lib/agents";
+import { page, workspace } from "./app";
 import { user } from "./auth";
 
 /**
@@ -76,4 +76,25 @@ export const agentRun = pgTable(
     finishedAt: timestamp("finished_at", { withTimezone: true }),
   },
   (t) => [index("agent_run_due_idx").on(t.status, t.nextAt), index("agent_run_agent_idx").on(t.agentId, t.createdAt)],
+);
+
+/**
+ * A database an automation shared with an agent (edit, so it can change the rows it runs on), as
+ * opposed to a share an owner set in the agent's settings: it's taken back once no automation of
+ * the database runs the agent, and forgotten when an owner changes or removes the share themselves.
+ */
+export const agentDatabaseShare = pgTable(
+  "agent_database_share",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    databaseId: text("database_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    /** The agent's own entry on the database before (view or comment; null: none), given back. */
+    previousLevel: text("previous_level").$type<AgentAccessLevel>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.databaseId] })],
 );

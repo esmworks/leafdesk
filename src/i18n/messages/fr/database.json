@@ -541,7 +541,8 @@
     "invalidAutomation": "Cette automatisation ne peut pas être enregistrée. Vérifiez son déclencheur et ses actions.",
     "tooManyAutomations": "Une base de données peut avoir au plus {max} automatisations.",
     "invalidWebhookUrl": "« {value} » n’est pas une adresse http(s) valide.",
-    "webhookBlocked": "Les webhooks ne peuvent pas viser des adresses de réseau privées ou locales."
+    "webhookBlocked": "Les webhooks ne peuvent pas viser des adresses de réseau privées ou locales.",
+    "agentOwnersOnly": "Seuls les propriétaires de l’espace de travail peuvent ajouter ou modifier des actions qui exécutent un agent."
   },
   "formula": {
     "title": "Formule",
@@ -780,6 +781,7 @@
       "createAgent": "Créez-en un dans Paramètres > Agents.",
       "noAgentsMember": "Les propriétaires de l’espace de travail les créent dans les Paramètres.",
       "agentTask": "Tâche",
+      "agentOwnersOnly": "Seuls les propriétaires de l’espace de travail peuvent modifier cette action.",
       "agentTaskPlaceholder": "Ce qu’il doit faire de la ligne, en plus de ses instructions. Par exemple : Classe cette nouvelle demande.",
       "agentAccess": "À l’enregistrement, {agent} obtient un accès en modification à cette base de données.",
       "agentAccessAny": "À l’enregistrement, l’agent obtient un accès en modification à cette base de données."

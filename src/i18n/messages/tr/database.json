@@ -541,7 +541,8 @@
     "invalidAutomation": "Bu otomasyon kaydedilemiyor. Tetikleyicisini ve eylemlerini kontrol edin.",
     "tooManyAutomations": "Bir veritabanında en fazla {max} otomasyon olabilir.",
     "invalidWebhookUrl": "“{value}” geçerli bir http(s) adresi değil.",
-    "webhookBlocked": "Webhook’lar özel veya yerel ağ adreslerine gönderilemez."
+    "webhookBlocked": "Webhook’lar özel veya yerel ağ adreslerine gönderilemez.",
+    "agentOwnersOnly": "Ajan çalıştıran eylemleri yalnızca çalışma alanı sahipleri ekleyip değiştirebilir."
   },
   "formula": {
     "title": "Formül",
@@ -780,6 +781,7 @@
       "createAgent": "Ayarlar > Ajanlar’dan bir tane oluşturun.",
       "noAgentsMember": "Ajanları çalışma alanı sahipleri Ayarlar’dan oluşturur.",
       "agentTask": "Görev",
+      "agentOwnersOnly": "Bu eylemi yalnızca çalışma alanı sahipleri değiştirebilir.",
       "agentTaskPlaceholder": "Talimatlarına ek olarak satırla ne yapsın. Örneğin: Bu yeni talebi sınıflandır.",
       "agentAccess": "Kaydettiğinizde {agent} bu veritabanında düzenleme erişimi alır.",
       "agentAccessAny": "Kaydettiğinizde ajan bu veritabanında düzenleme erişimi alır."

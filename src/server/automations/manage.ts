@@ -19,10 +19,10 @@ import {
 import { pageLabel } from "@/lib/labels";
 import { PropertyValueError } from "@/lib/properties";
 import { holdsPeople } from "@/lib/property-types";
-import { pageVisibleTo } from "@/server/access";
+import { getMembership, pageVisibleTo } from "@/server/access";
 import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
-import { shareDatabaseWithAgent } from "@/server/agents/manage";
+import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
 import { workspacePeople } from "@/server/workspaces";
 import { newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
@@ -87,10 +87,19 @@ async function checkTrigger(userId: string, databaseId: string, props: Prop[], i
   return { type: "property_changed", propertyId: prop.id, to };
 }
 
-async function checkActions(userId: string, databaseId: string, workspaceId: string, props: Prop[], input: AutomationInput["actions"]) {
+/** `current`: the automation's actions as saved, which anyone who may change it may keep as they are. */
+async function checkActions(
+  userId: string,
+  databaseId: string,
+  workspaceId: string,
+  props: Prop[],
+  input: AutomationInput["actions"],
+  current: AutomationAction[] = [],
+) {
   if (!Array.isArray(input) || !input.length) throw invalid("An automation needs at least one action");
   if (input.length > MAX_AUTOMATION_ACTIONS) throw invalid(`At most ${MAX_AUTOMATION_ACTIONS} actions`);
   let people: Awaited<ReturnType<typeof workspacePeople>> | undefined;
+  let owner: boolean | undefined;
   const out: AutomationAction[] = [];
   for (const action of input) {
     if (action?.type === "set_properties") {
@@ -165,6 +174,13 @@ async function checkActions(userId: string, databaseId: string, workspaceId: str
       if (!agent) throw invalid(`"${ref}" is not an agent of this workspace`, { value: ref });
       const prompt = typeof action.prompt === "string" ? action.prompt.trim() : "";
       if (prompt.length > MAX_AGENT_PROMPT) throw invalid(`An agent's task may have at most ${MAX_AGENT_PROMPT} characters`);
+      // The task is written by whoever saves it and the agent may open pages they can't: only
+      // owners, who choose what agents may open, give agents tasks. Others may keep one as it is.
+      const kept = current.some((a) => a.type === "run_agent" && a.agentId === agent.id && a.prompt === prompt);
+      if (!kept) {
+        owner ??= (await getMembership(userId, workspaceId))?.role === "owner";
+        if (!owner) throw new PropertyValueError("Only owners of the workspace add or change actions that run an agent", "agentOwnersOnly", {});
+      }
       out.push({ type: "run_agent", agentId: agent.id, prompt });
     } else throw invalid('Each action is "set_properties", "notify", "webhook" or "run_agent"');
   }
@@ -177,16 +193,8 @@ function checkName(name: unknown) {
   return text.slice(0, MAX_AUTOMATION_NAME);
 }
 
-/**
- * Gives the agents an automation runs edit access to its database, so they can read and change
- * the rows they run on. The saver has full access to it (see manageable).
- */
-async function shareWithAgents(userId: string, databaseId: string, actions: AutomationAction[]) {
-  const ids = [...new Set(actions.flatMap((a) => (a.type === "run_agent" ? [a.agentId] : [])))];
-  if (!ids.length) return;
-  const agents = await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(inArray(workspaceAgent.id, ids));
-  for (const agent of agents) await shareDatabaseWithAgent(userId, agent.userId, databaseId);
-}
+/** The agents the actions run. */
+const agentsOf = (actions: AutomationAction[]) => [...new Set(actions.flatMap((a) => (a.type === "run_agent" ? [a.agentId] : [])))];
 
 const auditDetails = (a: { name: string; enabled: boolean; trigger: AutomationTrigger; actions: AutomationAction[] }) => ({
   name: a.name,
@@ -221,7 +229,8 @@ export async function createAutomation(userId: string, databaseId: string, input
       createdBy: userId,
     })
     .returning();
-  await shareWithAgents(userId, databaseId, actions);
+  // The agents it runs get edit access to the database, to read and change the rows they run on.
+  await shareDatabaseWithAgents(userId, databaseId, agentsOf(actions));
   await recordAudit({
     workspaceId: database.workspaceId,
     actorId: userId,
@@ -248,7 +257,7 @@ export async function updateAutomation(userId: string, automationId: string, pat
   const trigger = patch.trigger !== undefined ? await checkTrigger(userId, current.databaseId, props, patch.trigger) : current.trigger;
   const actions =
     patch.actions !== undefined
-      ? await checkActions(userId, current.databaseId, current.workspaceId, props, patch.actions)
+      ? await checkActions(userId, current.databaseId, current.workspaceId, props, patch.actions, current.actions)
       : current.actions;
   const enabled = patch.enabled ?? current.enabled;
   const [updated] = await db
@@ -256,7 +265,11 @@ export async function updateAutomation(userId: string, automationId: string, pat
     .set({ name, trigger, actions, enabled, runAs: userId })
     .where(eq(databaseAutomation.id, automationId))
     .returning();
-  if (patch.actions !== undefined) await shareWithAgents(userId, current.databaseId, actions);
+  if (patch.actions !== undefined) {
+    await shareDatabaseWithAgents(userId, current.databaseId, agentsOf(actions));
+    const kept = new Set(agentsOf(actions));
+    await releaseDatabaseFromAgents(userId, current.databaseId, agentsOf(current.actions).filter((id) => !kept.has(id)));
+  }
   await recordAudit({
     workspaceId: current.workspaceId,
     actorId: userId,
@@ -270,6 +283,7 @@ export async function updateAutomation(userId: string, automationId: string, pat
 export async function deleteAutomation(userId: string, automationId: string) {
   const current = await manageable(userId, automationId);
   await db.delete(databaseAutomation).where(eq(databaseAutomation.id, automationId));
+  await releaseDatabaseFromAgents(userId, current.databaseId, agentsOf(current.actions));
   await recordAudit({
     workspaceId: current.workspaceId,
     actorId: userId,

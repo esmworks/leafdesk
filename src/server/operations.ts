@@ -953,6 +953,7 @@ export async function listComments(ctx: OperationContext, { page_id, include_res
     threads: threads.map((t) => ({
       id: t.id,
       quote: t.quote ?? null,
+      ...(t.page ? { about_page: true } : {}),
       resolved: t.resolved,
       comments: t.comments.map((c) => ({
         id: c.id,

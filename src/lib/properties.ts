@@ -82,6 +82,7 @@ export const DATABASE_ERROR_CODES = [
   "tooManyAutomations",
   "invalidWebhookUrl",
   "webhookBlocked",
+  "agentOwnersOnly",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

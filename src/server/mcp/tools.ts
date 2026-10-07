@@ -1507,7 +1507,7 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   const AUTOMATION_NOTE =
-    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations. A run_agent action names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on. The agent runs apart, as itself, and what it changes starts no automations either.";
+    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations. A run_agent action names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on, and that access is taken back once no automation of the database runs the agent. Only workspace owners add or change run_agent actions (the agent may open pages others can't); others may keep or remove one. The agent runs apart, as itself, and what it changes starts no automations either.";
   const WEBHOOK_NOTE =
     'A webhook gets a JSON POST (event row.created or row.updated, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx answers are tried again, up to 5 times in all. Addresses on private networks or local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS.';
 
@@ -2177,7 +2177,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List comments on a page",
       description:
-        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted), whether it's resolved, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
+        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
       inputSchema: ops.inputs.listComments,
       annotations: READ,
     },

@@ -541,7 +541,8 @@
     "invalidAutomation": "Diese Automatisierung kann nicht gespeichert werden. Prüfe ihren Auslöser und ihre Aktionen.",
     "tooManyAutomations": "Eine Datenbank kann höchstens {max} Automatisierungen haben.",
     "invalidWebhookUrl": "„{value}“ ist keine gültige http(s)-Adresse.",
-    "webhookBlocked": "Webhooks können nicht an private oder lokale Netzwerkadressen gehen."
+    "webhookBlocked": "Webhooks können nicht an private oder lokale Netzwerkadressen gehen.",
+    "agentOwnersOnly": "Nur Inhaber des Workspace können Aktionen hinzufügen oder ändern, die einen Agenten ausführen."
   },
   "formula": {
     "title": "Formel",
@@ -780,6 +781,7 @@
       "createAgent": "Erstelle einen unter Einstellungen > Agenten.",
       "noAgentsMember": "Workspace-Inhaber erstellen sie in den Einstellungen.",
       "agentTask": "Aufgabe",
+      "agentOwnersOnly": "Nur Inhaber des Workspace können diese Aktion ändern.",
       "agentTaskPlaceholder": "Was er zusätzlich zu seinen Anweisungen mit der Zeile tun soll. Zum Beispiel: Ordne diese neue Anfrage ein.",
       "agentAccess": "Beim Speichern bekommt {agent} Bearbeitungszugriff auf diese Datenbank.",
       "agentAccessAny": "Beim Speichern bekommt der Agent Bearbeitungszugriff auf diese Datenbank."

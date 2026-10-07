@@ -51,6 +51,8 @@ export type PlainThread = {
   comments: PlainComment[];
   /** The text the thread is anchored to; null when that text was deleted. Only set by the server. */
   quote?: string | null;
+  /** The thread is about the whole page and quotes nothing (agents write these). Only set by the server. */
+  page?: true;
 };
 
 type Styles = Partial<Record<(typeof STYLES)[number], true>>;
@@ -192,3 +194,10 @@ export function plainComment(comment: ThreadLike["comments"][number]): PlainComm
     reactions: comment.reactions.map((r) => ({ emoji: r.emoji, userIds: [...r.userIds] })),
   };
 }
+
+/** What a thread about the whole page (no text of it quoted, as agents write) carries as metadata. */
+export const PAGE_THREAD_METADATA = { page: true } as const;
+
+/** Whether a thread's metadata says it is about the whole page. */
+export const isPageThread = (metadata: unknown) =>
+  typeof metadata === "object" && metadata !== null && (metadata as { page?: unknown }).page === true;

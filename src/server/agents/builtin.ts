@@ -5,13 +5,13 @@
  * owner's language, shares the pages it reads with it (view), and adds the automation that runs it
  * on every new row, which shares the database with it (edit).
  */
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseAutomation } from "@/db/schema";
+import { databaseAutomation, workspaceAgent } from "@/db/schema";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { loadLocaleFile, withFallback } from "@/i18n/messages";
 import source from "@/i18n/messages/en/agentTemplates.json";
-import type { AgentView } from "@/lib/agents";
+import { MAX_AGENTS, type AgentView } from "@/lib/agents";
 import { MAX_AUTOMATIONS } from "@/lib/automations";
 import {
   ANSWER_PROPERTY_TYPES,
@@ -165,6 +165,13 @@ export async function installBuiltinAgent(
     };
     names = resolved;
   }
+
+  // Room for one more agent, before anything is made (createAgent checks it again).
+  const [{ agents }] = await db
+    .select({ agents: count() })
+    .from(workspaceAgent)
+    .where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt)));
+  if (agents >= MAX_AGENTS) throw new AgentError("tooMany", `A workspace has at most ${MAX_AGENTS} agents`, { max: String(MAX_AGENTS) });
 
   await create();
   const built = buildBuiltinAgent(texts, names);

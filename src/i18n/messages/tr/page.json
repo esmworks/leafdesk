@@ -42,6 +42,7 @@
     "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı."
   },
   "comments": {
+    "aboutPage": "Bu sayfa hakkında",
     "title": "Yorumlar",
     "close": "Yorumları kapat",
     "filters": {

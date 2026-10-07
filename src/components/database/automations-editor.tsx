@@ -196,7 +196,7 @@ export function AutomationEditor({
               <option value="set_properties">{t("form.actionType.set_properties")}</option>
               <option value="notify">{t("form.actionType.notify")}</option>
               <option value="webhook">{t("form.actionType.webhook")}</option>
-              <option value="run_agent">{t("form.actionType.run_agent")}</option>
+              {isOwner && <option value="run_agent">{t("form.actionType.run_agent")}</option>}
             </select>
           </div>
         </Section>
@@ -538,7 +538,8 @@ function ValueEditor({
 
 /**
  * The agent to run and the task it gets for this automation, or, with no agent yet, where owners
- * make one. Saving shares the database with the agent (edit), so it can change the row.
+ * make one. Saving shares the database with the agent (edit), so it can change the row. Only
+ * owners change it: others see it as it is (and may remove it).
  */
 function RunAgentEditor({
   workspaceId,
@@ -574,6 +575,7 @@ function RunAgentEditor({
       <select
         value={action.agentId}
         aria-label={t("agent")}
+        disabled={!isOwner}
         onChange={(e) => onChange({ ...action, agentId: e.target.value })}
         className={selectClass}
       >
@@ -599,11 +601,14 @@ function RunAgentEditor({
           value={action.prompt}
           maxLength={MAX_AGENT_PROMPT}
           placeholder={t("agentTaskPlaceholder")}
+          readOnly={!isOwner}
           onChange={(e) => onChange({ ...action, prompt: e.target.value })}
           className="w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
         />
       </label>
-      <p className="text-xs text-fg-faint">{chosen ? t("agentAccess", { agent: chosen.name }) : t("agentAccessAny")}</p>
+      <p className="text-xs text-fg-faint">
+        {!isOwner ? t("agentOwnersOnly") : chosen ? t("agentAccess", { agent: chosen.name }) : t("agentAccessAny")}
+      </p>
     </div>
   );
 }

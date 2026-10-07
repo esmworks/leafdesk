@@ -10,7 +10,7 @@
  */
 import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, page, pagePermission, user, workspaceAgent } from "@/db/schema";
+import { agentDatabaseShare, agentRun, databaseAutomation, page, pagePermission, user, workspaceAgent } from "@/db/schema";
 import {
   agentEmail,
   isAgentAccessLevel,
@@ -23,7 +23,7 @@ import {
   type AgentRunView,
   type AgentView,
 } from "@/lib/agents";
-import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, requireMember, requireMembership } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, pageVisibleTo, requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
@@ -100,15 +100,19 @@ async function ownedAgent(userId: string, agentId: string) {
   return found;
 }
 
-/** The agents of a workspace, for its owners and members (archived ones only when asked). */
+/**
+ * The agents of a workspace, for its owners and members (archived ones only when asked). Members
+ * get them without instructions: those are the owners' (they may name pages members can't open).
+ */
 export async function listAgents(userId: string, workspaceId: string, { archived = false } = {}): Promise<AgentView[]> {
-  await requireMember(userId, workspaceId);
+  const membership = await requireMember(userId, workspaceId);
   const rows = await db
     .select()
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), archived ? undefined : isNull(workspaceAgent.archivedAt)))
     .orderBy(workspaceAgent.createdAt);
-  return rows.map(viewAgent);
+  const owner = membership.role === "owner";
+  return rows.map((a) => (owner ? viewAgent(a) : { ...viewAgent(a), instructions: "" }));
 }
 
 export async function getAgent(userId: string, agentId: string): Promise<AgentView> {
@@ -181,7 +185,24 @@ export async function archiveAgent(userId: string, agentId: string): Promise<Age
       .set({ archivedAt: new Date(), enabled: false })
       .where(eq(workspaceAgent.id, agentId))
       .returning();
-    await tx.delete(pagePermission).where(eq(pagePermission.userId, current.userId));
+    const removed = await tx
+      .delete(pagePermission)
+      .where(eq(pagePermission.userId, current.userId))
+      .returning({ pageId: pagePermission.pageId, level: pagePermission.level });
+    for (const { pageId, level } of removed) {
+      await recordAudit(
+        {
+          workspaceId: current.workspaceId,
+          actorId: userId,
+          action: "page.permission_removed",
+          target: { type: "page", id: pageId },
+          subject: { type: "user", id: current.userId },
+          details: { previous: level },
+        },
+        tx,
+      );
+    }
+    await tx.delete(agentDatabaseShare).where(eq(agentDatabaseShare.agentId, agentId));
     return agent;
   });
   await recordAudit({ workspaceId: current.workspaceId, actorId: userId, action: "agent.archived", target: { type: "user", id: current.userId, label: current.name }, details: auditDetails(archived) });
@@ -247,21 +268,64 @@ export async function setAgentAccess(userId: string, agentId: string, pageId: st
   const { page: found } = await pageAccessOf(userId, pageId);
   if (!found || found.workspaceId !== agent.workspaceId) throw new AgentError("notAPage", "Page not found");
   await setPagePermission(userId, pageId, agent.userId, level);
+  // An owner set it: it's theirs now, no longer taken back with the automations.
+  await forgetDatabaseShare(agent.id, pageId);
 }
 
 export async function removeAgentAccess(userId: string, agentId: string, pageId: string) {
   const agent = await ownedAgent(userId, agentId);
   await removePagePermission(userId, pageId, agent.userId);
+  await forgetDatabaseShare(agent.id, pageId);
+}
+
+const forgetDatabaseShare = (agentId: string, databaseId: string) =>
+  db.delete(agentDatabaseShare).where(and(eq(agentDatabaseShare.agentId, agentId), eq(agentDatabaseShare.databaseId, databaseId)));
+
+/**
+ * Gives agents edit access to a database automations run them on, unless they have it already,
+ * remembering that an automation gave it (see agentDatabaseShare). `userId` saves the automation,
+ * so they have full access to the database.
+ */
+export async function shareDatabaseWithAgents(userId: string, databaseId: string, agentIds: string[]) {
+  if (!agentIds.length) return;
+  const agents = await db.select({ id: workspaceAgent.id, userId: workspaceAgent.userId }).from(workspaceAgent).where(inArray(workspaceAgent.id, agentIds));
+  for (const agent of agents) {
+    const { level } = await pageAccessOf(agent.userId, databaseId);
+    if (level === "edit" || level === "full") continue;
+    const [own] = await db
+      .select({ level: pagePermission.level })
+      .from(pagePermission)
+      .where(and(eq(pagePermission.pageId, databaseId), eq(pagePermission.userId, agent.userId)));
+    await setPagePermission(userId, databaseId, agent.userId, "edit");
+    await db
+      .insert(agentDatabaseShare)
+      .values({ agentId: agent.id, databaseId, previousLevel: own && isAgentAccessLevel(own.level) ? own.level : null })
+      .onConflictDoNothing();
+  }
 }
 
 /**
- * Gives an agent edit access to a database an automation runs it on, unless it already has it.
- * `userId` saves the automation, so they have full access to the database.
+ * Takes back the edit access automations gave agents on a database (see shareDatabaseWithAgents)
+ * once no automation of the database runs them: their own entry goes back to what it was before.
+ * Shares an owner set in the agent's settings stay. `userId` changes or deletes the automation, so
+ * they have full access to the database.
  */
-export async function shareDatabaseWithAgent(userId: string, agentUserId: string, databaseId: string) {
-  const { level } = await pageAccessOf(agentUserId, databaseId);
-  if (level === "edit" || level === "full") return;
-  await setPagePermission(userId, databaseId, agentUserId, "edit");
+export async function releaseDatabaseFromAgents(userId: string, databaseId: string, agentIds: string[]) {
+  if (!agentIds.length) return;
+  const shares = await db
+    .select({ agentId: agentDatabaseShare.agentId, previousLevel: agentDatabaseShare.previousLevel, agentUserId: workspaceAgent.userId })
+    .from(agentDatabaseShare)
+    .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentDatabaseShare.agentId))
+    .where(and(eq(agentDatabaseShare.databaseId, databaseId), inArray(agentDatabaseShare.agentId, agentIds)));
+  if (!shares.length) return;
+  const automations = await db.select({ actions: databaseAutomation.actions }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
+  const stillRun = new Set(automations.flatMap((a) => a.actions.flatMap((x) => (x.type === "run_agent" ? [x.agentId] : []))));
+  for (const share of shares) {
+    if (stillRun.has(share.agentId)) continue;
+    if (share.previousLevel) await setPagePermission(userId, databaseId, share.agentUserId, share.previousLevel);
+    else await removePagePermission(userId, databaseId, share.agentUserId);
+    await forgetDatabaseShare(share.agentId, databaseId);
+  }
 }
 
 // -------------------------------------------------------------------------------------- runs
@@ -278,11 +342,11 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
   const rowIds = [...new Set(runs.map((r) => r.source.rowId))];
   const titles = new Map<string, string>();
   if (rowIds.length) {
-    const rows = await db.select({ id: page.id, title: page.title }).from(page).where(inArray(page.id, rowIds));
-    for (const row of rows) {
-      const { level } = await pageAccessOf(userId, row.id);
-      if (level !== "none") titles.set(row.id, row.title);
-    }
+    const rows = await db
+      .select({ id: page.id, title: page.title })
+      .from(page)
+      .where(and(inArray(page.id, rowIds), pageVisibleTo(userId)));
+    for (const row of rows) titles.set(row.id, row.title);
   }
   // What a run read, thought and answered can quote pages the agent may open and the viewer may
   // not; it all ends up on the row anyway, so only people who can open the row see it.
@@ -302,16 +366,4 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
       finishedAt: r.finishedAt?.toISOString() ?? null,
     };
   });
-}
-
-// ---------------------------------------------------------------------------------- lookups
-
-/** An agent of the workspace that may run (enabled, not archived), or null. */
-export async function runnableAgent(agentId: string, workspaceId: string) {
-  const [found] = await db
-    .select()
-    .from(workspaceAgent)
-    .where(and(eq(workspaceAgent.id, agentId), eq(workspaceAgent.workspaceId, workspaceId)))
-    .limit(1);
-  return found ?? null;
 }

@@ -42,6 +42,7 @@
     "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet."
   },
   "comments": {
+    "aboutPage": "Zu dieser Seite",
     "title": "Kommentare",
     "close": "Kommentare schließen",
     "filters": {

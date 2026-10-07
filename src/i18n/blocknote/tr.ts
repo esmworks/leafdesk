@@ -368,7 +368,7 @@ export const tr: Dictionary = {
     edited: "düzenlendi",
     save_button_text: "Kaydet",
     cancel_button_text: "İptal",
-    deleted_reference_text: "Bir metne bağlı değil",
+    deleted_reference_text: "Orijinal içerik silindi",
     discard_pending_comment: "Bu yorumdan vazgeçmek istediğinizden emin misiniz?",
     actions: {
       add_reaction: "Tepki ekle",

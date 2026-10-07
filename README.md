@@ -789,9 +789,11 @@ full access to the database see and manage its automations, in the app or over M
   and an email as each of them chooses in My account → Preferences. Only people who can open the
   row are notified.
 - *Send a webhook*: a signed JSON POST to an http(s) address (below).
-- *Run an agent* on the row, with a task of up to 2000 characters (see [Agents](#agents)). Saving
-  the automation shares its database with the agent at edit access. The run is queued and done
-  apart, so the automation's run counts the action as done once the agent's run is queued.
+- *Run an agent* on the row, with a task of up to 2000 characters (see [Agents](#agents)). Only
+  owners of the workspace add or change this action, since the agent may open pages others can't;
+  anyone who manages the automation may keep or remove it. Saving the automation shares its
+  database with the agent at edit access. The run is queued and done apart, so the automation's
+  run counts the action as done once the agent's run is queued.
 
 A database has at most 50 automations, an automation at most 10 actions, and a notify action at
 most 50 chosen people.
@@ -1081,7 +1083,9 @@ share pages or manage databases.
 **Sharing pages with it.** Share a page with an agent at view, comment or edit, as with a person;
 the pages and rows under it follow. Sharing needs full access to the page. An agent reads and
 changes a database's rows only with access to the database; saving an automation that runs an
-agent shares that database with it at edit access.
+agent shares that database with it at edit access, unless it already has that much. That access is
+taken back once no automation of the database runs the agent (a share you set yourself in the
+agent's settings stays).
 
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
 change or comment on the row that started the run, nothing else. A run takes at most 8 model turns,

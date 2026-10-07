@@ -541,7 +541,8 @@
     "invalidAutomation": "Esta automatización no se puede guardar. Revisa su desencadenante y sus acciones.",
     "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",
     "invalidWebhookUrl": "«{value}» no es una dirección http(s) válida.",
-    "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales."
+    "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales.",
+    "agentOwnersOnly": "Solo los propietarios del espacio de trabajo pueden añadir o cambiar acciones que ejecutan un agente."
   },
   "formula": {
     "title": "Fórmula",
@@ -780,6 +781,7 @@
       "createAgent": "Crea uno en Configuración > Agentes.",
       "noAgentsMember": "Los propietarios del espacio de trabajo los crean en Configuración.",
       "agentTask": "Tarea",
+      "agentOwnersOnly": "Solo los propietarios del espacio de trabajo pueden cambiar esta acción.",
       "agentTaskPlaceholder": "Qué hacer con la fila, además de sus instrucciones. Por ejemplo: Clasifica esta nueva solicitud.",
       "agentAccess": "Al guardar, {agent} obtiene acceso de edición a esta base de datos.",
       "agentAccessAny": "Al guardar, el agente obtiene acceso de edición a esta base de datos."

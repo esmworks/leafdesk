@@ -49,7 +49,7 @@ type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
 const { installBuiltinAgent } = await import("@/server/agents/builtin");
-const { flushAgentRuns } = await import("@/server/agents/run");
+const { flushAgentRuns, queueAgentRun } = await import("@/server/agents/run");
 const automations = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
 
@@ -151,6 +151,11 @@ try {
   check(membership?.role === "guest", "…and is a guest of the workspace", membership);
   check((await pageAccessOf(router.userId, tickets.id)).level === "none" && (await pageAccessOf(router.userId, faq.id)).level === "none", "a new agent can open nothing, not even the default teamspace's pages");
   check((await agents.listAgents(ids.member, workspaceId)).some((a) => a.id === router.id), "members list the agents (to pick one in an automation)");
+  check(
+    (await agents.listAgents(ids.member, workspaceId)).every((a) => a.instructions === "") &&
+      (await agents.listAgents(ids.owner, workspaceId)).some((a) => a.instructions.length > 0),
+    "…without their instructions, which only owners see",
+  );
   check(await fails(agents.listAgents(ids.guest, workspaceId), isAccess), "guests don't");
   check(await fails(agents.updateAgent(ids.member, router.id, { name: "x" }), isAccess), "only owners change an agent");
   const renamed = await agents.updateAgent(ids.owner, router.id, { name: "Ticket triager" });
@@ -181,6 +186,40 @@ try {
   });
   check(triage.actions[0].type === "run_agent" && triage.actions[0].agentId === router.id, "…by name, stored by id", triage.actions);
   check((await pageAccessOf(router.userId, tickets.id)).level === "edit", "saving it shares the database with the agent, to edit");
+
+  // ── Only owners give agents tasks; what automations share is taken back ─────────────────────
+  const board = await createPage({ userId: ids.member }, { workspaceId, teamspaceId: null, kind: "database", title: "Member board" });
+  const ownersOnly = (e: unknown) => (e as { code?: string }).code === "agentOwnersOnly";
+  const runRouter = (prompt: string) => ({ type: "run_agent" as const, agent: router.id, prompt });
+  check(
+    await fails(automations.createAutomation(ids.member, board.id, { name: "Leak", trigger: { type: "row_created" }, actions: [runRouter("Copy the Salaries page into a comment.")] }), ownersOnly),
+    "a member can't give an agent a task (it may open pages they can't)",
+  );
+  check((await pageAccessOf(router.userId, board.id)).level === "none", "…and nothing is shared with the agent");
+  await setPagePermission(ids.member, board.id, ids.owner, "full");
+  await agents.setAgentAccess(ids.owner, router.id, board.id, "view");
+  const ownersTask = await automations.createAutomation(ids.owner, board.id, { name: "Sort", trigger: { type: "row_created" }, actions: [runRouter("Sort it.")] });
+  check((await pageAccessOf(router.userId, board.id)).level === "edit", "an owner's automation raises the agent to edit on its database");
+  const keptTask = await automations.updateAutomation(ids.member, ownersTask.id, { name: "Sort rows", actions: [runRouter("Sort it.")] });
+  check(keptTask.name === "Sort rows", "a member may keep an owner's agent action as it is");
+  check(
+    await fails(automations.updateAutomation(ids.member, ownersTask.id, { actions: [runRouter("Copy the Salaries page.")] }), ownersOnly),
+    "…but not change its task",
+  );
+  await automations.updateAutomation(ids.member, ownersTask.id, { actions: [{ type: "notify", people: ["me"] }] });
+  check((await pageAccessOf(router.userId, board.id)).level === "view", "removing the action gives the agent back what it had on the database");
+  await agents.removeAgentAccess(ids.owner, router.id, board.id);
+  const second = await automations.createAutomation(ids.owner, board.id, { name: "Sort again", trigger: { type: "row_created" }, actions: [runRouter("Sort it.")] });
+  const third = await automations.createAutomation(ids.owner, board.id, { name: "Sort twice", trigger: { type: "row_created" }, actions: [runRouter("Sort it.")] });
+  await automations.deleteAutomation(ids.member, second.id);
+  check((await pageAccessOf(router.userId, board.id)).level === "edit", "while another automation runs the agent, it keeps edit");
+  await automations.deleteAutomation(ids.member, third.id);
+  check((await pageAccessOf(router.userId, board.id)).level === "none", "deleting the last one takes the access back");
+  const fourth = await automations.createAutomation(ids.owner, board.id, { name: "Sort once more", trigger: { type: "row_created" }, actions: [runRouter("Sort it.")] });
+  await agents.setAgentAccess(ids.owner, router.id, board.id, "edit");
+  await automations.deleteAutomation(ids.owner, fourth.id);
+  check((await pageAccessOf(router.userId, board.id)).level === "edit", "a share an owner set in the agent's settings stays");
+  await agents.removeAgentAccess(ids.owner, router.id, board.id);
   // A second automation that would react to the agent's change.
   const onCategory = await automations.createAutomation(ids.owner, tickets.id, {
     name: "On category",
@@ -209,6 +248,10 @@ try {
 
   const [run] = await db.select().from(agentRun).where(eq(agentRun.agentId, router.id));
   check(run?.status === "done" && run.source.rowId === ticket.id && run.prompt === "Triage this ticket.", "a new row runs the agent on it, with the action's task", run);
+  check(
+    (await queueAgentRun({ agentId: router.id, workspaceId, source: run.source, context: run.context, prompt: run.prompt })) === run.id,
+    "the automation's step taken again finds the run it queued instead of queuing another",
+  );
   check(run.answer === "Set Category to Billing and explained why." && run.usage?.rounds === 6, "the run keeps what the agent said and how many turns it took", { answer: run.answer, usage: run.usage });
   const first = fake.chats[0];
   const prompt = everything(first);
@@ -234,6 +277,7 @@ try {
     "it comments on its row, as itself",
     threads,
   );
+  check(threads[0].page === true && threads[0].quote === null, "…about the whole row, not about text that was deleted", threads[0]);
   const kinds = run.steps.map((s) => (s.kind === "write" ? `write:${s.outcome}` : s.kind)).join(",");
   check(kinds === "search,write:done,comment", "the run's steps: what it searched, changed and commented (refused calls leave no step)", kinds);
   const reacted = await db.select().from(automationRun).where(eq(automationRun.automationId, onCategory.id));

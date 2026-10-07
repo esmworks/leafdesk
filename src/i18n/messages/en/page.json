@@ -42,6 +42,7 @@
     "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages."
   },
   "comments": {
+    "aboutPage": "About this page",
     "title": "Comments",
     "close": "Close comments",
     "filters": {

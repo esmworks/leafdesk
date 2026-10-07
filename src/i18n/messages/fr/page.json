@@ -42,6 +42,7 @@
     "exportDisabledBody": "Les propriétaires de cet espace de travail ont désactivé l’exportation et l’impression de ses pages."
   },
   "comments": {
+    "aboutPage": "À propos de cette page",
     "title": "Commentaires",
     "close": "Fermer les commentaires",
     "filters": {

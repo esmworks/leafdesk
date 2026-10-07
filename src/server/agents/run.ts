@@ -71,7 +71,11 @@ type State = { kick?: () => void };
 const g = globalThis as typeof globalThis & { __leafdeskAgents?: State };
 const state: State = (g.__leafdeskAgents ??= {});
 
-/** Queues a run of an agent; the worker takes it at once (or at its next sweep). */
+/**
+ * Queues a run of an agent; the worker takes it at once (or at its next sweep). An automation's
+ * step taken again (its worker stopped before saving that it queued the run) finds the run it
+ * queued rather than queuing another.
+ */
 export async function queueAgentRun(input: {
   agentId: string;
   workspaceId: string;
@@ -79,9 +83,22 @@ export async function queueAgentRun(input: {
   context: AgentRunContext;
   prompt: string;
 }): Promise<string> {
+  const prompt = input.prompt.slice(0, MAX_AGENT_PROMPT);
+  const [queued] = await db
+    .select({ id: agentRun.id })
+    .from(agentRun)
+    .where(
+      and(
+        eq(agentRun.agentId, input.agentId),
+        sql`${agentRun.source}->>'automationRunId' = ${input.source.automationRunId}`,
+        eq(agentRun.prompt, prompt),
+      ),
+    )
+    .limit(1);
+  if (queued) return queued.id;
   const [run] = await db
     .insert(agentRun)
-    .values({ ...input, prompt: input.prompt.slice(0, MAX_AGENT_PROMPT) })
+    .values({ ...input, prompt })
     .returning({ id: agentRun.id });
   state.kick?.();
   return run.id;
@@ -266,8 +283,27 @@ async function eventText(run: Run) {
 // ----------------------------------------------------------------------------------- worker
 
 const running = new Set<string>();
+/** A sweep under way, and whether another was asked for meanwhile: one at a time, or two could each take the free slots. */
+let sweeping: Promise<void> | null = null;
+let sweepAgain = false;
 
-async function sweep() {
+function sweep(): Promise<void> {
+  if (sweeping) {
+    sweepAgain = true;
+    return sweeping;
+  }
+  sweeping = (async () => {
+    do {
+      sweepAgain = false;
+      await takeDue();
+    } while (sweepAgain);
+  })().finally(() => {
+    sweeping = null;
+  });
+  return sweeping;
+}
+
+async function takeDue() {
   try {
     const free = aiConfig().limits.concurrency - running.size;
     const runs = await claim(free);
