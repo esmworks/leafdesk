@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, ChevronRight, MessageSquare, MessageSquareOff, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { Bot, ChevronRight, MessageSquare, MessageSquareOff, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -16,6 +16,7 @@ import {
   type AgentStepView,
 } from "@/app/actions/agents";
 import { StepLine } from "@/components/ai-chat/step-line";
+import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
 import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
@@ -28,11 +29,13 @@ import {
   MAX_AGENT_NAME,
   type AgentAccessLevel,
   type AgentAccessView,
+  type AgentToolRecord,
   type AgentView,
 } from "@/lib/agents";
+import { AgentConnectionsTab } from "./agent-connections-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "runs";
+export type AgentTab = "settings" | "access" | "connections" | "runs";
 
 export const textareaClass =
   "w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent";
@@ -45,7 +48,7 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it and its latest runs, in tabs. */
+/** One agent: its settings, the pages shared with it, the connections' tools it may use and its latest runs, in tabs. */
 export function AgentDialog({
   workspaceId,
   agent,
@@ -83,7 +86,7 @@ export function AgentDialog({
       </div>
       <div className="border-b border-border px-5 py-2">
         <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          {(["settings", "access", "runs"] as const).map((name) => (
+          {(["settings", "access", "connections", "runs"] as const).map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
               {t(`tabs.${name}`)}
             </TabButton>
@@ -94,6 +97,8 @@ export function AgentDialog({
         <AgentForm workspaceId={workspaceId} agent={agent} onDone={onClose} />
       ) : tab === "access" ? (
         <AccessTab workspaceId={workspaceId} agent={agent} />
+      ) : tab === "connections" ? (
+        <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
       ) : (
         <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} />
       )}
@@ -400,7 +405,7 @@ function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: Ag
       ) : (
         <ul className="divide-y divide-border">
           {runs.map((run) => (
-            <RunItem key={run.id} workspaceId={workspaceId} run={run} initiallyOpen={run.id === runId} />
+            <RunItem key={run.id} workspaceId={workspaceId} run={run} initiallyOpen={run.id === runId} onChanged={() => setVersion((v) => v + 1)} />
           ))}
         </ul>
       )}
@@ -408,13 +413,24 @@ function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: Ag
   );
 }
 
-function RunItem({ workspaceId, run, initiallyOpen }: { workspaceId: string; run: AgentRunDetails; initiallyOpen: boolean }) {
+function RunItem({
+  workspaceId,
+  run,
+  initiallyOpen,
+  onChanged,
+}: {
+  workspaceId: string;
+  run: AgentRunDetails;
+  initiallyOpen: boolean;
+  /** The run changed here (an owner answered its call): load the runs again. */
+  onChanged: () => void;
+}) {
   const t = useTranslations("settings.agents.runs");
   const tc = useTranslations("common");
   const format = useFormatter();
   const router = useRouter();
   const duration = useDuration();
-  const [open, setOpen] = useState(initiallyOpen);
+  const [open, setOpen] = useState(initiallyOpen || run.pending !== null);
   const took = duration(run.createdAt, run.finishedAt);
   const failed = run.status === "failed";
 
@@ -432,14 +448,23 @@ function RunItem({ workspaceId, run, initiallyOpen }: { workspaceId: string; run
         </button>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
-            {run.rowTitle !== null ? (
+            {run.source.kind === "connection" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <Plug aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className="truncate">
+                  {t("fromConnection", { connection: run.connections[run.source.connectionId] ?? t("removedConnection"), event: run.eventType ?? "" })}
+                </span>
+              </span>
+            ) : run.rowTitle !== null ? (
               <Link href={`/w/${workspaceId}/p/${run.source.rowId}`} className="min-w-0 flex-1 truncate text-sm hover:underline">
                 {pageLabel(run.rowTitle, tc("untitled"))}
               </Link>
             ) : (
               <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{t("rowHidden")}</span>
             )}
-            <span className={cn("shrink-0 text-xs", failed ? "text-danger" : "text-fg-muted")}>{t(`status.${run.status}`)}</span>
+            <span className={cn("shrink-0 text-xs", failed ? "text-danger" : run.status === "awaiting_approval" ? "font-medium text-fg" : "text-fg-muted")}>
+              {t(`status.${run.status}`)}
+            </span>
           </div>
           <div className="text-xs text-fg-faint">
             {format.dateTime(new Date(run.createdAt), { dateStyle: "medium", timeStyle: "short" })}
@@ -454,12 +479,22 @@ function RunItem({ workspaceId, run, initiallyOpen }: { workspaceId: string; run
             <ol className="ml-1.5 space-y-1 border-l border-border pl-3 text-fg-muted">
               {run.steps.map((step, i) => (
                 <li key={i} className="flex min-w-0 items-start gap-1.5">
-                  <AgentStepLine step={step} onOpen={(pageId) => router.push(`/w/${workspaceId}/p/${pageId}`)} />
+                  <AgentStepLine step={step} connections={run.connections} onOpen={(pageId) => router.push(`/w/${workspaceId}/p/${pageId}`)} />
                 </li>
               ))}
             </ol>
           ) : (
             <p className="text-xs text-fg-muted">{t("noSteps")}</p>
+          )}
+          {run.pending && (
+            <div className="rounded-lg border border-border p-3">
+              <p className="mb-1.5 text-sm font-medium">{t("waiting")}</p>
+              <ApprovalActions
+                workspaceId={workspaceId}
+                approval={{ runId: run.id, callId: run.pending.callId, tool: run.pending.tool, connectionName: run.pending.connectionName, input: JSON.stringify(run.pending.arguments, null, 2) }}
+                onAnswered={onChanged}
+              />
+            </div>
           )}
           {run.answer && (
             <div>
@@ -474,9 +509,10 @@ function RunItem({ workspaceId, run, initiallyOpen }: { workspaceId: string; run
   );
 }
 
-/** A step of a run: the chat's steps, and the comments the agent wrote. */
-function AgentStepLine({ step, onOpen }: { step: AgentStepView; onOpen: (pageId: string) => void }) {
+/** A step of a run: the chat's steps, the comments the agent wrote, and its calls to connections. */
+function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
   const t = useTranslations("settings.agents.runs");
+  if (step.kind === "tool") return <ToolStepLine step={step} connection={connections[step.connectionId] ?? t("removedConnection")} />;
   if (step.kind !== "comment") return <StepLine step={step} onSource={(source) => source.pageId && onOpen(source.pageId)} />;
   const failed = step.outcome === "failed";
   const Icon = failed ? MessageSquareOff : MessageSquare;
@@ -491,6 +527,25 @@ function AgentStepLine({ step, onOpen }: { step: AgentStepView; onOpen: (pageId:
             {t(failed ? "commentFailed" : "comment")} <span className="text-fg">“{step.text}”</span>
           </>
         )}
+      </span>
+    </>
+  );
+}
+
+/** A call to a connection's tool: which, with what, and how it went (and who answered, when someone did). */
+function ToolStepLine({ step, connection }: { step: AgentToolRecord; connection: string }) {
+  const t = useTranslations("settings.agents.runs.tool");
+  const bad = step.outcome === "failed" || step.outcome === "expired";
+  return (
+    <>
+      <Plug className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", bad && "text-danger")} />
+      <span className="min-w-0 break-words">
+        {t(step.outcome, { tool: step.tool, connection })}
+        {step.decidedBy && step.outcome !== "expired" && <span className="text-fg-faint"> · {t(step.outcome === "done" ? "approved" : "answered")}</span>}
+        {step.note && <span className="block text-xs text-fg-faint">{t("note", { note: step.note })}</span>}
+        <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
+          {step.input}
+        </code>
       </span>
     </>
   );

@@ -16,6 +16,7 @@ import {
   deleteTrigger,
   listAgentGrants,
   listConnectionEvents,
+  listConnections,
   listTriggers,
   refreshConnection,
   revealEventSecret,
@@ -65,6 +66,10 @@ const input = (value: ConnectionInput): ConnectionInput => ({
   token: value?.token,
   eventPreset: value?.eventPreset,
 });
+
+export async function listConnectionsAction(workspaceId: string): Promise<ActionResult<ConnectionView[]>> {
+  return run(workspaceId, (userId) => listConnections(userId, String(workspaceId)));
+}
 
 export async function createConnectionAction(workspaceId: string, value: ConnectionInput): Promise<ActionResult<ConnectionView>> {
   return run(workspaceId, (userId) => createConnection(userId, workspaceId, input(value)), { refresh: true });

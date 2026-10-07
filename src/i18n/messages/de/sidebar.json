@@ -82,7 +82,10 @@
     "unreadCount": "{count, plural, one {# ungelesene Benachrichtigung} other {# ungelesene Benachrichtigungen}}",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",
-    "inviteRequest": "{actor} möchte {email} einladen"
+    "inviteRequest": "{actor} möchte {email} einladen",
+    "approvalTitle": "{agent} bittet um Freigabe",
+    "approval": "Möchte „{tool}“ bei {connection} aufrufen",
+    "approvalAnswered": "Beantwortet oder abgelaufen"
   },
   "templates": {
     "title": "Vorlagen",

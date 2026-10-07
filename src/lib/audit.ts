@@ -352,6 +352,7 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     property: text(d.property),
     name: text(d.name),
     tool: text(d.tool),
+    agent: text(d.agent),
     decision: known(t, `audit.decisions.${text(d.decision)}`, text(d.decision)),
     outcome: known(t, `audit.outcomes.${text(d.outcome)}`, text(d.outcome)),
   };

@@ -9,6 +9,7 @@
     "teamspaces": "Espaces d’équipe",
     "groups": "Groupes",
     "agents": "Agents",
+    "connections": "Connexions",
     "analytics": "Statistiques",
     "security": "Sécurité",
     "audit": "Journal d’audit",
@@ -297,7 +298,8 @@
       "archived": "Archivés",
       "settings": "Paramètres",
       "access": "Accès",
-      "runs": "Exécutions"
+      "runs": "Exécutions",
+      "connections": "Connexions"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
@@ -364,7 +366,8 @@
         "pending": "En attente",
         "running": "En cours",
         "done": "Terminée",
-        "failed": "Échouée"
+        "failed": "Échouée",
+        "awaiting_approval": "En attente d’approbation"
       },
       "rowHidden": "Une ligne que vous ne pouvez pas ouvrir",
       "took": "a pris {time}",
@@ -383,7 +386,22 @@
         "provider": "Le fournisseur d’IA n’a pas répondu.",
         "timeout": "L’exécution a pris trop de temps.",
         "tooManyAttempts": "Il n’a pas pu démarrer à temps : le quota d’IA de l’espace de travail est resté épuisé.",
-        "error": "Un problème est survenu."
+        "error": "Un problème est survenu.",
+        "approvalTimeout": "Personne n’a répondu à son appel dans la journée : rien n’a été envoyé.",
+        "connectionGone": "La connexion qui l’a lancée a été supprimée."
+      },
+      "fromConnection": "{connection} · {event}",
+      "removedConnection": "Une connexion supprimée",
+      "waiting": "Elle attend qu’un propriétaire réponde à cet appel :",
+      "tool": {
+        "done": "A appelé « {tool} » sur {connection}",
+        "failed": "N’a pas pu appeler « {tool} » sur {connection}",
+        "declined": "Son appel de « {tool} » sur {connection} a été refusé ; rien n’a été envoyé",
+        "redo": "Son appel de « {tool} » sur {connection} a été renvoyé ; rien n’a été envoyé",
+        "expired": "Son appel de « {tool} » sur {connection} a expiré ; rien n’a été envoyé",
+        "approved": "approuvé",
+        "answered": "répondu par un propriétaire",
+        "note": "Note : {note}"
       }
     },
     "templates": {
@@ -453,6 +471,13 @@
         "rules": "Écrivez les règles qu’il suit.",
         "pages": "Choisissez les pages qu’il lit."
       }
+    },
+    "connections": {
+      "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
+      "empty": "Aucune connexion pour l’instant. Les propriétaires les ajoutent dans <link>Paramètres › Connexions</link>.",
+      "allowedCount": "{n} sur {total} autorisés",
+      "notReady": "Cette connexion n’est pas prête (elle demande une connexion ou échoue) : l’agent ne peut pas utiliser ses outils pour l’instant.",
+      "noTools": "Aucun outil listé pour l’instant."
     }
   },
   "analytics": {
@@ -830,7 +855,8 @@
       "pages": "Suppression et publication",
       "integrations": "Applications connectées et jetons d’API",
       "exports": "Exportations",
-      "agents": "Agents"
+      "agents": "Agents",
+      "connections": "Connexions"
     },
     "change": "{name} : {from} → {to}",
     "untitled": "Sans titre",
@@ -1006,7 +1032,23 @@
         "created": "A créé l’agent « {target} »",
         "updated": "{change, select, on {A activé l’agent « {target} »} off {A mis en pause l’agent « {target} »} other {A modifié l’agent « {target} »}}",
         "archived": "A archivé l’agent « {target} »"
+      },
+      "connection": {
+        "created": "A ajouté la connexion « {target} »",
+        "updated": "A modifié la connexion « {target} »",
+        "deleted": "A supprimé la connexion « {target} »",
+        "tool_called": "A appelé « {tool} » sur « {target} » ({outcome})",
+        "approval_decided": "Appel de « {tool} » sur « {target} » par l’agent « {agent} » : {decision}"
       }
+    },
+    "decisions": {
+      "approve": "Approuvé",
+      "decline": "Refusé",
+      "redo": "Renvoyé"
+    },
+    "outcomes": {
+      "done": "fait",
+      "failed": "échec"
     }
   },
   "notifications": {
@@ -1071,6 +1113,147 @@
       "slugTaken": "Un autre espace de travail utilise cette adresse.",
       "homeNotPublished": "Choisissez une page publiée de cet espace de travail que vous pouvez voir.",
       "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent faire cela."
+    }
+  },
+  "connections": {
+    "heading": "Connexions",
+    "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Les programmes qui utilisent Leafdesk sont dans Sécurité › Applications connectées.)",
+    "approvalNote": "Les agents exécutent aussitôt les outils qui ne font que lire. Tout autre appel attend l’approbation d’un propriétaire dans la boîte de réception ; sans réponse sous un jour, rien n’est envoyé.",
+    "add": "Ajouter une connexion",
+    "empty": "Aucune connexion pour l’instant.",
+    "dismiss": "Fermer",
+    "notices": {
+      "signedIn": "Connecté. Les outils de la connexion sont listés ci-dessous.",
+      "oauthFailed": "La connexion n’a pas abouti. Réessayez ; si cela échoue encore, vérifiez l’adresse et que le service autorise Leafdesk à se connecter."
+    },
+    "errors": {
+      "invalidName": "Donnez un nom à la connexion.",
+      "invalidUrl": "Saisissez l’adresse https du serveur.",
+      "blocked": "Cette adresse est sur un réseau privé, que les connexions ne peuvent pas atteindre.",
+      "unreachable": "Le serveur est injoignable.",
+      "notMcp": "Cette adresse ne répond pas comme un serveur MCP.",
+      "unauthorized": "Le serveur n’a pas accepté la connexion.",
+      "tooMany": "Il peut y en avoir {max} au plus.",
+      "notFound": "Cela n’existe plus.",
+      "invalidToken": "Collez le jeton ou le secret.",
+      "invalidTrigger": "Choisissez un agent de cet espace.",
+      "unknownTool": "La connexion n’a pas d’outil « {tool} ».",
+      "oauthFailed": "La connexion a échoué. Réessayez.",
+      "accessDenied": "Seuls les propriétaires peuvent faire cela.",
+      "approval": {
+        "notFound": "Cet appel n’attend plus.",
+        "decided": "Quelqu’un a déjà répondu à cet appel, ou il a expiré.",
+        "forbidden": "Seuls les propriétaires peuvent répondre à l’appel d’un agent.",
+        "invalid": "Dites ce qui doit changer."
+      }
+    },
+    "status": {
+      "ready": "{n, plural, one {Prête · # outil} other {Prête · # outils}}",
+      "needsAuth": "Connexion requise",
+      "error": "Ne fonctionne pas"
+    },
+    "addTitle": "Ajouter une connexion",
+    "addDescription": "Saisissez l’adresse du serveur MCP du service. Leafdesk garde ses identifiants scellés sur le serveur ; ils ne sont plus jamais affichés.",
+    "addAndSignIn": "Ajouter et se connecter",
+    "addButton": "Ajouter",
+    "fields": {
+      "name": "Nom",
+      "namePlaceholder": "Slack",
+      "url": "Adresse du serveur",
+      "urlHelp": "Son point d’accès MCP, qui finit souvent par /mcp. Uniquement des adresses https sur Internet.",
+      "authType": "Connexion",
+      "authTypes": {
+        "oauth": "Se connecter au service (OAuth)",
+        "token": "Jeton ou clé d’API",
+        "none": "Aucune"
+      },
+      "authHelp": {
+        "oauth": "Vous vous connectez sur le service ; Leafdesk s’enregistre et garde l’accès obtenu.",
+        "token": "Envoyé comme jeton bearer à chaque appel.",
+        "none": "Pour les serveurs qui ne demandent pas de connexion."
+      },
+      "token": "Jeton",
+      "tokenKeep": "Laissez vide pour garder celui enregistré",
+      "eventPreset": "Les événements sont signés comme",
+      "presets": {
+        "hmac": "Signature Leafdesk (Zapier, Make, n8n, la vôtre)",
+        "slack": "Slack Events API",
+        "github": "Webhooks GitHub"
+      }
+    },
+    "tabs": {
+      "tools": "Outils",
+      "events": "Événements",
+      "settings": "Paramètres"
+    },
+    "checkedAt": "listés {time}",
+    "signIn": "Se connecter",
+    "refresh": "Relister",
+    "signOut": "Se déconnecter",
+    "statusErrors": {
+      "unauthorized": "Le serveur n’a pas accepté les identifiants. Reconnectez-vous ou changez le jeton.",
+      "unreachable": "Le serveur est injoignable.",
+      "notMcp": "L’adresse ne répond pas comme un serveur MCP.",
+      "timeout": "Le serveur a mis trop de temps à répondre.",
+      "oauth": "La connexion a échoué. Réessayez.",
+      "other": "Un problème est survenu avec cette connexion."
+    },
+    "tools": {
+      "description": "Chaque outil est classé selon ce qu’en dit le serveur : ceux marqués en lecture seule s’exécutent aussitôt, les autres attendent une approbation. Changez la classe si le serveur se trompe.",
+      "none": "Le serveur ne liste aucun outil.",
+      "notListed": "Ses outils sont listés une fois la connexion fonctionnelle.",
+      "overridden": "Classé par un propriétaire, pas comme le serveur l’a marqué",
+      "kindLabel": "Ce que fait « {tool} »",
+      "reads": "Lit seulement",
+      "writes": "Modifie, demande d’abord"
+    },
+    "events": {
+      "address": "Adresse des événements",
+      "addressHelp": {
+        "hmac": "Envoyez les événements ici en requêtes POST signées avec le secret ci-dessous, comme les webhooks de Leafdesk : X-Leafdesk-Signature vaut t=TIME,v1=HMAC (TIME en secondes Unix, HMAC le HMAC-SHA256 hexadécimal de TIME, d’un point et du corps), X-Leafdesk-Event donne le type et X-Leafdesk-Delivery un identifiant.",
+        "slack": "Collez ceci comme Request URL dans les Event Subscriptions de votre app Slack, et collez le signing secret de l’app ci-dessous.",
+        "github": "Ajoutez un webhook avec cette payload URL, le type de contenu application/json et le secret ci-dessous."
+      },
+      "secret": "Secret de signature",
+      "show": "Afficher",
+      "newSecret": "Nouveau secret",
+      "slackSecret": "Signing secret Slack",
+      "triggers": "Déclencheurs",
+      "triggersHelp": "Quel agent s’exécute quand un événement arrive. Un type comme « issues » prend aussi « issues.opened » ; laissez vide pour tous les événements.",
+      "triggerLine": "{agent} sur {event}",
+      "anyEvent": "chaque événement",
+      "enabled": "Actif",
+      "archivedAgent": "Un agent archivé",
+      "recent": "Événements récents",
+      "reload": "Recharger",
+      "none": "Aucun événement pour l’instant.",
+      "queued": "{n, plural, one {# exécution lancée} other {# exécutions lancées}}",
+      "ignored": {
+        "noMatch": "aucun déclencheur pour ce type",
+        "noTrigger": "aucun déclencheur"
+      },
+      "noAgents": "Créez d’abord un agent, puis choisissez-le ici.",
+      "agent": "Agent",
+      "eventType": "Type d’événement",
+      "eventTypePlaceholder": "Tous",
+      "prompt": "Tâche",
+      "promptPlaceholder": "Ce que l’agent doit faire de l’événement",
+      "addTrigger": "Ajouter un déclencheur"
+    },
+    "reconnectNote": "Changer l’adresse ou la connexion déconnecte la connexion ; elle est réessayée à l’enregistrement.",
+    "deleteTitle": "Supprimer la connexion",
+    "deleteBody": "Ses identifiants, les outils qu’y avaient les agents, ses déclencheurs et ses événements partent avec elle. Les appels en attente d’approbation échouent sans rien envoyer.",
+    "deleteConfirm": "Supprimer",
+    "delete": "Supprimer…",
+    "approval": {
+      "wouldSend": "Il appellerait « {tool} » sur {connection} avec :",
+      "removedConnection": "une connexion supprimée",
+      "noteLabel": "Que faut-il changer ?",
+      "notePlaceholder": "Utilise le nom de l’entreprise du client comme titre",
+      "sendBack": "Renvoyer",
+      "approve": "Approuver",
+      "decline": "Refuser",
+      "redo": "Renvoyer avec une note…"
     }
   }
 }

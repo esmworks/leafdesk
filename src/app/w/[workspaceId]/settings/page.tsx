@@ -4,6 +4,7 @@ import {
   ChartColumn,
   ContactRound,
   Globe,
+  Plug,
   ScrollText,
   Settings,
   Shield,
@@ -19,6 +20,7 @@ import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-t
 import { AgentsPanel } from "@/components/settings/agents-panel";
 import { AnalyticsPanel } from "@/components/settings/analytics-panel";
 import { AuditPanel } from "@/components/settings/audit-panel";
+import { ConnectionsPanel } from "@/components/settings/connections-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
 import { GuestsPanel } from "@/components/settings/guests-panel";
 import { AiSettings } from "@/components/settings/ai-settings";
@@ -65,6 +67,7 @@ import {
 import { AccessError, isGuest } from "@/server/access";
 import { builtinAgents } from "@/server/agents/builtin";
 import { listAgents } from "@/server/agents/manage";
+import { listConnections } from "@/server/connections/manage";
 import { aiInfo, embeddingModel } from "@/server/ai";
 import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
@@ -104,6 +107,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   teamspaces: Boxes,
   groups: UsersRound,
   agents: Bot,
+  connections: Plug,
   analytics: ChartColumn,
   security: Shield,
   audit: ScrollText,
@@ -198,6 +202,14 @@ export default async function SettingsPage({
               isOwner={isOwner}
               agentId={typeof query.agent === "string" ? query.agent : undefined}
               runId={typeof query.run === "string" ? query.run : undefined}
+            />
+          )}
+          {tab === "connections" && (
+            <ConnectionsTab
+              workspaceId={workspaceId}
+              userId={user.id}
+              connectionId={typeof query.connection === "string" ? query.connection : undefined}
+              notice={query.signedIn === "1" ? "signedIn" : query.connectionError === "oauthFailed" ? "oauthFailed" : undefined}
             />
           )}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
@@ -459,6 +471,33 @@ async function AgentsTab({
       ai={ai}
       initialAgentId={isOwner ? agentId : undefined}
       initialRunId={isOwner ? runId : undefined}
+    />
+  );
+}
+
+/**
+ * Settings > Connections, for owners (the tab isn't offered to anyone else, and the list refuses
+ * them). `connection` opens one; `notice` says how a sign-in the browser came back from went.
+ */
+async function ConnectionsTab({
+  workspaceId,
+  userId,
+  connectionId,
+  notice,
+}: {
+  workspaceId: string;
+  userId: string;
+  connectionId?: string;
+  notice?: "signedIn" | "oauthFailed";
+}) {
+  const [connections, agents] = await Promise.all([listConnections(userId, workspaceId), listAgents(userId, workspaceId)]);
+  return (
+    <ConnectionsPanel
+      workspaceId={workspaceId}
+      connections={connections}
+      agents={agents.filter((a) => !a.archived).map((a) => ({ id: a.id, name: a.name, icon: a.icon }))}
+      initialConnectionId={connectionId}
+      notice={notice}
     />
   );
 }

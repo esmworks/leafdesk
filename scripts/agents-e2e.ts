@@ -247,7 +247,7 @@ try {
   await settle();
 
   const [run] = await db.select().from(agentRun).where(eq(agentRun.agentId, router.id));
-  check(run?.status === "done" && run.source.rowId === ticket.id && run.prompt === "Triage this ticket.", "a new row runs the agent on it, with the action's task", run);
+  check(run?.status === "done" && "rowId" in run.source && run.source.rowId === ticket.id && run.prompt === "Triage this ticket.", "a new row runs the agent on it, with the action's task", run);
   check(
     (await queueAgentRun({ agentId: router.id, workspaceId, source: run.source, context: run.context, prompt: run.prompt })) === run.id,
     "the automation's step taken again finds the run it queued instead of queuing another",

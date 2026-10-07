@@ -82,7 +82,10 @@
     "unreadCount": "{count, plural, one {# unread notification} other {# unread notifications}}",
     "joinRequestTitle": "Join request",
     "joinRequest": "{actor} asked to join",
-    "inviteRequest": "{actor} asked to invite {email}"
+    "inviteRequest": "{actor} asked to invite {email}",
+    "approvalTitle": "{agent} asks to go ahead",
+    "approval": "Wants to call “{tool}” on {connection}",
+    "approvalAnswered": "Answered or ran out of time"
   },
   "templates": {
     "title": "Templates",

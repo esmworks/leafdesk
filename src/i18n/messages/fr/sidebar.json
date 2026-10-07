@@ -82,7 +82,10 @@
     "unreadCount": "{count, plural, one {# notification non lue} other {# notifications non lues}}",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",
-    "inviteRequest": "{actor} a demandé à inviter {email}"
+    "inviteRequest": "{actor} a demandé à inviter {email}",
+    "approvalTitle": "{agent} demande votre accord",
+    "approval": "Veut appeler « {tool} » sur {connection}",
+    "approvalAnswered": "Répondu ou expiré"
   },
   "templates": {
     "title": "Modèles",

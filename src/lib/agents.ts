@@ -181,6 +181,8 @@ export type AgentRunView = {
   pending: (AgentPendingCall & { connectionName: string }) | null;
   /** The connection event's type, for runs a connection started. */
   eventType: string | null;
+  /** Names of the connections the run's source, steps and waiting call name (removed ones are left out). */
+  connections: Record<string, string>;
   createdAt: string;
   finishedAt: string | null;
 };

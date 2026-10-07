@@ -82,7 +82,10 @@
     "unreadCount": "{count, plural, one {# notificación sin leer} other {# notificaciones sin leer}}",
     "joinRequestTitle": "Solicitud de acceso",
     "joinRequest": "{actor} pidió unirse",
-    "inviteRequest": "{actor} pidió invitar a {email}"
+    "inviteRequest": "{actor} pidió invitar a {email}",
+    "approvalTitle": "{agent} pide permiso para seguir",
+    "approval": "Quiere llamar a «{tool}» en {connection}",
+    "approvalAnswered": "Respondida o caducada"
   },
   "templates": {
     "title": "Plantillas",

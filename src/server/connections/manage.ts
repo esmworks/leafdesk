@@ -290,6 +290,17 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
   return { url: started.url.href };
 }
 
+/** Where a sign-in begun with `state` should send the browser back to, whatever became of it. */
+export async function oauthReturnOf(state: string): Promise<{ workspaceId: string; connectionId: string } | null> {
+  const [found] = await db
+    .select({ workspaceId: connection.workspaceId, connectionId: connection.id })
+    .from(connectionOauth)
+    .innerJoin(connection, eq(connection.id, connectionOauth.connectionId))
+    .where(eq(connectionOauth.state, state))
+    .limit(1);
+  return found ?? null;
+}
+
 /**
  * The browser came back from the service: finishes the sign-in begun with `state`, by the same
  * person, still an owner. Returns the connection, signed in and its tools listed.

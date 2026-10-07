@@ -3,6 +3,8 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
   accessRequest,
+  agentRun,
+  connection,
   databaseAutomation,
   databaseProperty,
   notification,
@@ -10,6 +12,7 @@ import {
   pageReminder,
   user,
   workspace,
+  workspaceAgent,
   workspaceJoinRequest,
   type JoinRequestKind,
   type NotificationKind,
@@ -412,6 +415,20 @@ export type InboxItem = {
   /** Join requests: someone asking to join, or a member asking to invite `requestEmail`. */
   requestKind: JoinRequestKind | null;
   requestEmail: string | null;
+  /** Agent approvals: the call an agent waits to make, while it still waits. */
+  approval: InboxApproval | null;
+};
+
+export type InboxApproval = {
+  runId: string;
+  callId: string;
+  agentId: string;
+  agentName: string;
+  connectionName: string;
+  tool: string;
+  /** The call's input, as JSON (cut to fit). */
+  input: string;
+  askedAt: string;
 };
 
 export type InboxAccessRequest = {
@@ -455,7 +472,7 @@ async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | 
           ),
         ),
       ),
-      and(eq(notification.kind, "join_request"), ownsWorkspace(userId, notification.workspaceId)),
+      and(inArray(notification.kind, ["join_request", "agent_approval"]), ownsWorkspace(userId, notification.workspaceId)),
     ),
   )!;
 }
@@ -493,6 +510,7 @@ export async function listNotifications(
       requestId: accessRequest.id,
       requestMessage: accessRequest.message,
       requesterRole: workspaceRoleOf(accessRequest.requesterId, accessRequest.workspaceId),
+      agentRunId: notification.agentRunId,
     })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
@@ -523,10 +541,12 @@ export async function listNotifications(
     if (!inviting.has(id)) inviting.set(id, canInviteGuests(userId, id));
     return inviting.get(id)!;
   };
+  const approvals = await approvalsOf(rows.flatMap((r) => (r.kind === "agent_approval" && r.agentRunId ? [r.agentRunId] : [])));
   return Promise.all(
-    rows.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, ...row }) => ({
+    rows.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, ...row }) => ({
       ...row,
       read: readAt !== null,
+      approval: agentRunId ? (approvals.get(agentRunId) ?? null) : null,
       accessRequest:
         row.kind === "access_request" && requestId
           ? {
@@ -539,6 +559,36 @@ export async function listNotifications(
           : null,
     })),
   );
+}
+
+/** The calls these runs wait on (runs no longer waiting are left out). */
+async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>> {
+  if (!runIds.length) return new Map();
+  const runs = await db
+    .select({ id: agentRun.id, pending: agentRun.pending, agentId: agentRun.agentId, agentName: workspaceAgent.name })
+    .from(agentRun)
+    .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
+    .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")));
+  const connectionIds = [...new Set(runs.flatMap((r) => (r.pending ? [r.pending.connectionId] : [])))];
+  const names = new Map(
+    connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
+  );
+  const out = new Map<string, InboxApproval>();
+  for (const r of runs) {
+    if (!r.pending) continue;
+    const input = JSON.stringify(r.pending.arguments, null, 2);
+    out.set(r.id, {
+      runId: r.id,
+      callId: r.pending.callId,
+      agentId: r.agentId,
+      agentName: r.agentName,
+      connectionName: names.get(r.pending.connectionId) ?? "",
+      tool: r.pending.tool,
+      input: input.length > 4_000 ? `${input.slice(0, 3_999)}…` : input,
+      askedAt: r.pending.askedAt,
+    });
+  }
+  return out;
 }
 
 export async function listInbox(userId: string, workspaceId: string): Promise<InboxItem[]> {

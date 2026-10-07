@@ -92,7 +92,7 @@ const isApprovalErr = (code: string) => (e: unknown) => e instanceof ApprovalErr
 
 // ------------------------------------------------------------------------------------- peer
 
-let peer: ChildProcess | null = null;
+let peer = null as ChildProcess | null;
 const peerLog = join(tmpdir(), `${RUN}-peer.log`);
 
 function runToEnd(args: string[], env: NodeJS.ProcessEnv) {
@@ -199,7 +199,7 @@ async function consentAtPeer(authorizeUrl: string, accept: boolean) {
   return new URL(body.url);
 }
 
-let peerSql: ReturnType<typeof postgres> | null = null;
+let peerSql = null as ReturnType<typeof postgres> | null;
 
 async function cleanPeer() {
   peerSql ??= postgres(PEER_DATABASE_URL, { max: 1 });

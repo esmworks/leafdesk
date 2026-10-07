@@ -9,6 +9,7 @@
     "teamspaces": "Teamspace'ler",
     "groups": "Gruplar",
     "agents": "Ajanlar",
+    "connections": "Bağlantılar",
     "analytics": "Analitik",
     "security": "Güvenlik",
     "audit": "Denetim kaydı",
@@ -297,7 +298,8 @@
       "archived": "Arşiv",
       "settings": "Ayarlar",
       "access": "Erişim",
-      "runs": "Çalışmalar"
+      "runs": "Çalışmalar",
+      "connections": "Bağlantılar"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",
@@ -364,7 +366,8 @@
         "pending": "Bekliyor",
         "running": "Çalışıyor",
         "done": "Tamamlandı",
-        "failed": "Başarısız"
+        "failed": "Başarısız",
+        "awaiting_approval": "Onay bekliyor"
       },
       "rowHidden": "Açamadığınız bir satır",
       "took": "{time} sürdü",
@@ -383,7 +386,22 @@
         "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
         "timeout": "Çalışma çok uzun sürdü.",
         "tooManyAttempts": "Zamanında başlayamadı: çalışma alanının yapay zekâ kotası dolu kaldı.",
-        "error": "Bir şeyler ters gitti."
+        "error": "Bir şeyler ters gitti.",
+        "approvalTimeout": "Çağrısını bir gün içinde kimse yanıtlamadı; hiçbir şey gönderilmedi.",
+        "connectionGone": "Onu başlatan bağlantı kaldırıldı."
+      },
+      "fromConnection": "{connection} · {event}",
+      "removedConnection": "Kaldırılmış bir bağlantı",
+      "waiting": "Bir sahibin bu çağrıyı yanıtlamasını bekliyor:",
+      "tool": {
+        "done": "{connection} üzerinde “{tool}” çağrıldı",
+        "failed": "{connection} üzerinde “{tool}” çağrılamadı",
+        "declined": "{connection} üzerindeki “{tool}” çağrısı reddedildi; hiçbir şey gönderilmedi",
+        "redo": "{connection} üzerindeki “{tool}” çağrısı geri gönderildi; hiçbir şey gönderilmedi",
+        "expired": "{connection} üzerindeki “{tool}” çağrısının süresi doldu; hiçbir şey gönderilmedi",
+        "approved": "onaylandı",
+        "answered": "bir sahip yanıtladı",
+        "note": "Not: {note}"
       }
     },
     "templates": {
@@ -453,6 +471,13 @@
         "rules": "Uyacağı kuralları yazın.",
         "pages": "Okuyacağı sayfaları seçin."
       }
+    },
+    "connections": {
+      "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır; diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
+      "empty": "Henüz bağlantı yok. Sahipler bunları <link>Ayarlar › Bağlantılar</link> bölümünden ekler.",
+      "allowedCount": "{total} araçtan {n} izinli",
+      "notReady": "Bu bağlantı hazır değil (giriş gerekiyor ya da hata veriyor); ajan şimdilik araçlarını kullanamaz.",
+      "noTools": "Henüz listelenmiş araç yok."
     }
   },
   "analytics": {
@@ -830,7 +855,8 @@
       "pages": "Silme ve yayınlama",
       "integrations": "Bağlı uygulamalar ve API anahtarları",
       "exports": "Dışa aktarmalar",
-      "agents": "Ajanlar"
+      "agents": "Ajanlar",
+      "connections": "Bağlantılar"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Adsız",
@@ -1006,7 +1032,23 @@
         "created": "“{target}” ajanını oluşturdu",
         "updated": "{change, select, on {“{target}” ajanını açtı} off {“{target}” ajanını duraklattı} other {“{target}” ajanını değiştirdi}}",
         "archived": "“{target}” ajanını arşivledi"
+      },
+      "connection": {
+        "created": "“{target}” bağlantısını ekledi",
+        "updated": "“{target}” bağlantısını değiştirdi",
+        "deleted": "“{target}” bağlantısını kaldırdı",
+        "tool_called": "“{target}” üzerinde “{tool}” çağırdı ({outcome})",
+        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}"
       }
+    },
+    "decisions": {
+      "approve": "Onaylandı",
+      "decline": "Reddedildi",
+      "redo": "Geri gönderildi"
+    },
+    "outcomes": {
+      "done": "tamamlandı",
+      "failed": "başarısız"
     }
   },
   "notifications": {
@@ -1071,6 +1113,147 @@
       "slugTaken": "Bu adresi başka bir çalışma alanı kullanıyor.",
       "homeNotPublished": "Bu çalışma alanının görebildiğiniz, yayındaki bir sayfasını seçin.",
       "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir."
+    }
+  },
+  "connections": {
+    "heading": "Bağlantılar",
+    "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. (Leafdesk’i kullanan programlar Güvenlik › Bağlı uygulamalar altındadır.)",
+    "approvalNote": "Ajanlar yalnızca okuyan araçları hemen çalıştırır. Diğer her çağrı gelen kutusunda bir sahibin onayını bekler; bir gün yanıtsız kalırsa hiçbir şey gönderilmez.",
+    "add": "Bağlantı ekle",
+    "empty": "Henüz bağlantı yok.",
+    "dismiss": "Kapat",
+    "notices": {
+      "signedIn": "Giriş yapıldı. Bağlantının araçları aşağıda.",
+      "oauthFailed": "Giriş tamamlanmadı. Yeniden deneyin; yine olmazsa adresi ve servisin Leafdesk’in girişine izin verdiğini kontrol edin."
+    },
+    "errors": {
+      "invalidName": "Bağlantıya bir ad verin.",
+      "invalidUrl": "Sunucunun https adresini girin.",
+      "blocked": "Bu adres özel bir ağda; bağlantılar oraya erişemez.",
+      "unreachable": "Sunucuya ulaşılamadı.",
+      "notMcp": "Bu adres bir MCP sunucusu gibi yanıt vermiyor.",
+      "unauthorized": "Sunucu girişi kabul etmedi.",
+      "tooMany": "En fazla {max} olabilir.",
+      "notFound": "Artık orada değil.",
+      "invalidToken": "Token’ı ya da gizli anahtarı yapıştırın.",
+      "invalidTrigger": "Bu çalışma alanından bir ajan seçin.",
+      "unknownTool": "Bağlantıda “{tool}” diye bir araç yok.",
+      "oauthFailed": "Giriş yapılamadı. Yeniden deneyin.",
+      "accessDenied": "Bunu yalnızca sahipler yapabilir.",
+      "approval": {
+        "notFound": "Bu çağrı artık beklemiyor.",
+        "decided": "Bu çağrıyı biri zaten yanıtladı ya da süresi doldu.",
+        "forbidden": "Bir ajanın çağrısını yalnızca sahipler yanıtlayabilir.",
+        "invalid": "Neyin değişmesi gerektiğini yazın."
+      }
+    },
+    "status": {
+      "ready": "{n, plural, one {Hazır · # araç} other {Hazır · # araç}}",
+      "needsAuth": "Giriş gerekiyor",
+      "error": "Çalışmıyor"
+    },
+    "addTitle": "Bağlantı ekle",
+    "addDescription": "Servisin MCP sunucusunun adresini girin. Leafdesk kimlik bilgilerini sunucuda mühürlü saklar; bir daha gösterilmez.",
+    "addAndSignIn": "Ekle ve giriş yap",
+    "addButton": "Ekle",
+    "fields": {
+      "name": "Ad",
+      "namePlaceholder": "Slack",
+      "url": "Sunucu adresi",
+      "urlHelp": "MCP uç noktası, genellikle /mcp ile biter. Yalnızca internetteki https adresleri.",
+      "authType": "Giriş",
+      "authTypes": {
+        "oauth": "Servisle giriş yap (OAuth)",
+        "token": "Token ya da API anahtarı",
+        "none": "Yok"
+      },
+      "authHelp": {
+        "oauth": "Servis üzerinde giriş yaparsınız; Leafdesk kendini kaydeder ve aldığı erişimi saklar.",
+        "token": "Her çağrıda bearer token olarak gönderilir.",
+        "none": "Giriş gerektirmeyen sunucular için."
+      },
+      "token": "Token",
+      "tokenKeep": "Kayıtlı olanı korumak için boş bırakın",
+      "eventPreset": "Olayların imzası",
+      "presets": {
+        "hmac": "Leafdesk imzası (Zapier, Make, n8n, kendi sisteminiz)",
+        "slack": "Slack Events API",
+        "github": "GitHub webhook’ları"
+      }
+    },
+    "tabs": {
+      "tools": "Araçlar",
+      "events": "Olaylar",
+      "settings": "Ayarlar"
+    },
+    "checkedAt": "{time} tarihinde listelendi",
+    "signIn": "Giriş yap",
+    "refresh": "Yeniden listele",
+    "signOut": "Çıkış yap",
+    "statusErrors": {
+      "unauthorized": "Sunucu kimlik bilgilerini kabul etmedi. Yeniden giriş yapın ya da token’ı değiştirin.",
+      "unreachable": "Sunucuya ulaşılamadı.",
+      "notMcp": "Adres bir MCP sunucusu gibi yanıt vermiyor.",
+      "timeout": "Sunucu çok geç yanıt verdi.",
+      "oauth": "Giriş yapılamadı. Yeniden deneyin.",
+      "other": "Bu bağlantıda bir şeyler ters gitti."
+    },
+    "tools": {
+      "description": "Her araç, sunucunun onun hakkında söylediğine göre sınıflanır: salt okunur işaretli araçlar hemen çalışır, diğerleri onay bekler. Sunucu yanılıyorsa sınıfı değiştirin.",
+      "none": "Sunucu hiç araç listelemiyor.",
+      "notListed": "Araçlar, bağlantı çalıştığında listelenir.",
+      "overridden": "Sunucunun işaretine göre değil, bir sahip tarafından sınıflandı",
+      "kindLabel": "“{tool}” ne yapar",
+      "reads": "Yalnızca okur",
+      "writes": "Değiştirir, önce sorar"
+    },
+    "events": {
+      "address": "Olay adresi",
+      "addressHelp": {
+        "hmac": "Olayları buraya, aşağıdaki anahtarla Leafdesk’in kendi webhook’ları gibi imzalanmış POST istekleri olarak gönderin: X-Leafdesk-Signature t=TIME,v1=HMAC biçimindedir (TIME Unix saniyesi, HMAC ise TIME, nokta ve gövdenin hex HMAC-SHA256’sı); X-Leafdesk-Event türü, X-Leafdesk-Delivery bir kimliği verir.",
+        "slack": "Bunu Slack uygulamanızın Event Subscriptions bölümüne Request URL olarak yapıştırın ve uygulamanın signing secret’ını aşağıya yapıştırın.",
+        "github": "Bu payload URL’si, application/json içerik türü ve aşağıdaki gizli anahtarla bir webhook ekleyin."
+      },
+      "secret": "İmza anahtarı",
+      "show": "Göster",
+      "newSecret": "Yeni anahtar",
+      "slackSecret": "Slack signing secret",
+      "triggers": "Tetikleyiciler",
+      "triggersHelp": "Bir olay geldiğinde hangi ajanın çalışacağı. “issues” gibi bir olay türü “issues.opened”ı da kapsar; her olay için boş bırakın.",
+      "triggerLine": "{event} için {agent}",
+      "anyEvent": "her olay",
+      "enabled": "Açık",
+      "archivedAgent": "Arşivlenmiş bir ajan",
+      "recent": "Son olaylar",
+      "reload": "Yenile",
+      "none": "Henüz olay yok.",
+      "queued": "{n, plural, one {# çalışma başlattı} other {# çalışma başlattı}}",
+      "ignored": {
+        "noMatch": "bu tür için tetikleyici yok",
+        "noTrigger": "tetikleyici yok"
+      },
+      "noAgents": "Önce bir ajan oluşturun, sonra burada seçin.",
+      "agent": "Ajan",
+      "eventType": "Olay türü",
+      "eventTypePlaceholder": "Hepsi",
+      "prompt": "Görev",
+      "promptPlaceholder": "Ajanın olayla ne yapması gerektiği",
+      "addTrigger": "Tetikleyici ekle"
+    },
+    "reconnectNote": "Adresi ya da girişi değiştirmek bağlantının oturumunu kapatır; kaydettiğinizde yeniden denenir.",
+    "deleteTitle": "Bağlantıyı kaldır",
+    "deleteBody": "Kimlik bilgileri, ajanların bu bağlantıdaki araçları, tetikleyicileri ve olayları da gider. Onay bekleyen çağrılar hiçbir şey göndermeden başarısız olur.",
+    "deleteConfirm": "Kaldır",
+    "delete": "Kaldır…",
+    "approval": {
+      "wouldSend": "{connection} üzerinde “{tool}” aracını şununla çağıracak:",
+      "removedConnection": "kaldırılmış bir bağlantı",
+      "noteLabel": "Ne değişmeli?",
+      "notePlaceholder": "Başlık olarak müşterinin şirket adını kullan",
+      "sendBack": "Geri gönder",
+      "approve": "Onayla",
+      "decline": "Reddet",
+      "redo": "Notla geri gönder…"
     }
   }
 }

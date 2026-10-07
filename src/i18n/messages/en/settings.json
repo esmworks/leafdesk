@@ -9,6 +9,7 @@
     "teamspaces": "Teamspaces",
     "groups": "Groups",
     "agents": "Agents",
+    "connections": "Connections",
     "analytics": "Analytics",
     "security": "Security",
     "audit": "Audit log",
@@ -297,7 +298,8 @@
       "archived": "Archived",
       "settings": "Settings",
       "access": "Access",
-      "runs": "Runs"
+      "runs": "Runs",
+      "connections": "Connections"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",
@@ -364,7 +366,8 @@
         "pending": "Waiting",
         "running": "Running",
         "done": "Done",
-        "failed": "Failed"
+        "failed": "Failed",
+        "awaiting_approval": "Waiting for approval"
       },
       "rowHidden": "A row you can’t open",
       "took": "took {time}",
@@ -383,7 +386,22 @@
         "provider": "The AI provider didn’t answer.",
         "timeout": "The run took too long.",
         "tooManyAttempts": "It couldn’t start in time: the workspace’s AI allowance stayed used up.",
-        "error": "Something went wrong."
+        "error": "Something went wrong.",
+        "approvalTimeout": "No one answered its call within a day, so nothing was sent.",
+        "connectionGone": "The connection that started it was removed."
+      },
+      "fromConnection": "{connection} · {event}",
+      "removedConnection": "A removed connection",
+      "waiting": "It waits for an owner to answer this call:",
+      "tool": {
+        "done": "Called “{tool}” on {connection}",
+        "failed": "Couldn’t call “{tool}” on {connection}",
+        "declined": "Its call of “{tool}” on {connection} was declined; nothing was sent",
+        "redo": "Its call of “{tool}” on {connection} was sent back; nothing was sent",
+        "expired": "Its call of “{tool}” on {connection} ran out of time; nothing was sent",
+        "approved": "approved",
+        "answered": "answered by an owner",
+        "note": "Note: {note}"
       }
     },
     "templates": {
@@ -453,6 +471,13 @@
         "rules": "Write the rules it follows.",
         "pages": "Choose the pages it reads."
       }
+    },
+    "connections": {
+      "description": "The tools of each connection this agent may use. Tools that only read run at once; any other waits for an owner’s approval every time the agent calls it.",
+      "empty": "No connections yet. Owners add them in <link>Settings › Connections</link>.",
+      "allowedCount": "{n} of {total} allowed",
+      "notReady": "This connection isn’t ready (it needs a sign-in or fails), so the agent can’t use its tools for now.",
+      "noTools": "No tools listed yet."
     }
   },
   "analytics": {
@@ -830,7 +855,8 @@
       "pages": "Deleting and publishing",
       "integrations": "Connected apps and API tokens",
       "exports": "Exports",
-      "agents": "Agents"
+      "agents": "Agents",
+      "connections": "Connections"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Untitled",
@@ -1006,7 +1032,23 @@
         "created": "Created the agent “{target}”",
         "updated": "{change, select, on {Turned on the agent “{target}”} off {Paused the agent “{target}”} other {Changed the agent “{target}”}}",
         "archived": "Archived the agent “{target}”"
+      },
+      "connection": {
+        "created": "Added the connection “{target}”",
+        "updated": "Changed the connection “{target}”",
+        "deleted": "Removed the connection “{target}”",
+        "tool_called": "Called “{tool}” on “{target}” ({outcome})",
+        "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”"
       }
+    },
+    "decisions": {
+      "approve": "Approved",
+      "decline": "Declined",
+      "redo": "Sent back"
+    },
+    "outcomes": {
+      "done": "done",
+      "failed": "failed"
     }
   },
   "notifications": {
@@ -1071,6 +1113,147 @@
       "slugTaken": "Another workspace uses this address.",
       "homeNotPublished": "Pick a published page of this workspace that you can see.",
       "ownersOnly": "Only workspace owners can do this."
+    }
+  },
+  "connections": {
+    "heading": "Connections",
+    "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. (Programs that use Leafdesk are under Security › Connected apps.)",
+    "approvalNote": "Agents run tools that only read at once. Every other call waits for an owner’s approval in the inbox; unanswered for a day, nothing is sent.",
+    "add": "Add connection",
+    "empty": "No connections yet.",
+    "dismiss": "Dismiss",
+    "notices": {
+      "signedIn": "Signed in. The connection’s tools are listed below.",
+      "oauthFailed": "The sign-in didn’t finish. Try again; if it keeps failing, check the address and that the service allows Leafdesk to sign in."
+    },
+    "errors": {
+      "invalidName": "Give the connection a name.",
+      "invalidUrl": "Enter the server’s https address.",
+      "blocked": "That address is on a private network, which connections can’t reach.",
+      "unreachable": "The server couldn’t be reached.",
+      "notMcp": "That address doesn’t answer as an MCP server.",
+      "unauthorized": "The server didn’t accept the sign-in.",
+      "tooMany": "There can be at most {max}.",
+      "notFound": "It isn’t there anymore.",
+      "invalidToken": "Paste the token or secret.",
+      "invalidTrigger": "Pick an agent of this workspace.",
+      "unknownTool": "The connection has no tool “{tool}”.",
+      "oauthFailed": "Signing in didn’t work. Try again.",
+      "accessDenied": "Only owners can do this.",
+      "approval": {
+        "notFound": "This call isn’t waiting anymore.",
+        "decided": "Someone already answered this call, or it ran out of time.",
+        "forbidden": "Only owners can answer an agent’s call.",
+        "invalid": "Say what should change."
+      }
+    },
+    "status": {
+      "ready": "{n, plural, one {Ready · # tool} other {Ready · # tools}}",
+      "needsAuth": "Needs a sign-in",
+      "error": "Not working"
+    },
+    "addTitle": "Add a connection",
+    "addDescription": "Enter the address of the service’s MCP server. Leafdesk keeps its credentials sealed on the server; they are never shown again.",
+    "addAndSignIn": "Add and sign in",
+    "addButton": "Add",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Slack",
+      "url": "Server address",
+      "urlHelp": "Its MCP endpoint, usually ending in /mcp. Only https addresses on the internet.",
+      "authType": "Sign-in",
+      "authTypes": {
+        "oauth": "Sign in with the service (OAuth)",
+        "token": "Token or API key",
+        "none": "None"
+      },
+      "authHelp": {
+        "oauth": "You sign in at the service; Leafdesk registers itself and keeps the access it gets.",
+        "token": "Sent as a bearer token with every call.",
+        "none": "For servers that need no sign-in."
+      },
+      "token": "Token",
+      "tokenKeep": "Leave empty to keep the saved one",
+      "eventPreset": "Events are signed as",
+      "presets": {
+        "hmac": "Leafdesk signature (Zapier, Make, n8n, your own)",
+        "slack": "Slack Events API",
+        "github": "GitHub webhooks"
+      }
+    },
+    "tabs": {
+      "tools": "Tools",
+      "events": "Events",
+      "settings": "Settings"
+    },
+    "checkedAt": "listed {time}",
+    "signIn": "Sign in",
+    "refresh": "List again",
+    "signOut": "Sign out",
+    "statusErrors": {
+      "unauthorized": "The server didn’t accept the credentials. Sign in again or change the token.",
+      "unreachable": "The server couldn’t be reached.",
+      "notMcp": "The address doesn’t answer as an MCP server.",
+      "timeout": "The server took too long to answer.",
+      "oauth": "Signing in didn’t work. Try again.",
+      "other": "Something went wrong with this connection."
+    },
+    "tools": {
+      "description": "Each tool is classed by what the server says of it: tools marked read-only run at once, all others wait for approval. Change a class if the server is wrong.",
+      "none": "The server lists no tools.",
+      "notListed": "Its tools are listed once the connection works.",
+      "overridden": "Classed by an owner, not as the server marked it",
+      "kindLabel": "What “{tool}” does",
+      "reads": "Only reads",
+      "writes": "Changes things, asks first"
+    },
+    "events": {
+      "address": "Event address",
+      "addressHelp": {
+        "hmac": "Send events here as POST requests signed with the secret below, the way Leafdesk’s own webhooks sign: X-Leafdesk-Signature is t=TIME,v1=HMAC (TIME in Unix seconds, HMAC the hex HMAC-SHA256 of TIME, a dot and the body), X-Leafdesk-Event names the type and X-Leafdesk-Delivery gives an id.",
+        "slack": "Paste this as the Request URL of your Slack app’s Event Subscriptions, and paste the app’s signing secret below.",
+        "github": "Add a webhook with this payload URL, content type application/json and the secret below."
+      },
+      "secret": "Signing secret",
+      "show": "Show",
+      "newSecret": "New secret",
+      "slackSecret": "Slack signing secret",
+      "triggers": "Triggers",
+      "triggersHelp": "Which agent runs when an event arrives. An event type like “issues” also takes “issues.opened”; leave it empty for every event.",
+      "triggerLine": "{agent} on {event}",
+      "anyEvent": "every event",
+      "enabled": "On",
+      "archivedAgent": "An archived agent",
+      "recent": "Recent events",
+      "reload": "Reload",
+      "none": "No events yet.",
+      "queued": "{n, plural, one {started # run} other {started # runs}}",
+      "ignored": {
+        "noMatch": "no trigger for this type",
+        "noTrigger": "no triggers"
+      },
+      "noAgents": "Create an agent first, then choose it here.",
+      "agent": "Agent",
+      "eventType": "Event type",
+      "eventTypePlaceholder": "Any",
+      "prompt": "Task",
+      "promptPlaceholder": "What the agent should do with the event",
+      "addTrigger": "Add trigger"
+    },
+    "reconnectNote": "Changing the address or the sign-in signs the connection out; it is tried again when you save.",
+    "deleteTitle": "Remove connection",
+    "deleteBody": "Its credentials, the tools agents had on it, its triggers and its events go with it. Calls waiting for approval fail without sending anything.",
+    "deleteConfirm": "Remove it",
+    "delete": "Remove…",
+    "approval": {
+      "wouldSend": "It would call “{tool}” on {connection} with:",
+      "removedConnection": "a removed connection",
+      "noteLabel": "What should change?",
+      "notePlaceholder": "Use the customer’s company name as the title",
+      "sendBack": "Send back",
+      "approve": "Approve",
+      "decline": "Decline",
+      "redo": "Send back with a note…"
     }
   }
 }

@@ -783,6 +783,23 @@ export function createMcpServer(principal: McpPrincipal) {
         return {
           notifications: items.map((n) => {
             const who = n.actorName || "Someone";
+            // A person answers an agent's call in the app: a connected app can't approve it.
+            if (n.kind === "agent_approval") {
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: n.approval
+                  ? `The agent "${n.approval.agentName}" waits for an owner to approve its call of "${n.approval.tool}" on the connection "${n.approval.connectionName}"; an owner approves, declines or sends it back in the Leafdesk inbox`
+                  : "An agent's call waited for approval; it was answered or ran out of time",
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: n.approval
+                  ? `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents&agent=${n.approval.agentId}&run=${n.approval.runId}`
+                  : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
+              };
+            }
             // Join requests are about the workspace, not a page; owners decide them in the app.
             if (n.kind === "join_request" || n.pageId === null) {
               return {

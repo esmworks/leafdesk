@@ -1,11 +1,12 @@
 "use client";
 
-import { UserPlus } from "lucide-react";
+import { ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
 import { listInboxAction, markReadAction } from "@/app/actions/notifications";
+import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
 import { formatIsoDate } from "@/lib/mentions";
@@ -15,8 +16,8 @@ import type { InboxAccessRequest, InboxItem } from "@/server/notifications";
 /**
  * The workspace inbox: rows the user was assigned to, pages shared with them, comments, mentions,
  * reminders, requests for access to their pages, what database automations tell them and, for
- * owners, join requests, newest first; opening one marks it read. Access requests can be answered
- * right here.
+ * owners, join requests and agents' calls that wait for approval, newest first; opening one marks
+ * it read. Access requests and agents' calls can be answered right here.
  */
 export function InboxDialog({
   workspaceId,
@@ -90,9 +91,13 @@ export function InboxDialog({
               onClick={() => {
                 if (!item.read) void markRead([item.id]);
                 onClose();
-                // Join requests are decided in Settings > Members.
+                // Join requests are decided in Settings > Members; an agent's call opens its run.
                 router.push(
-                  item.pageId === null ? `/w/${workspaceId}/settings?tab=members&view=requests` : `/w/${workspaceId}/p/${item.pageId}`,
+                  item.kind === "agent_approval"
+                    ? `/w/${workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`
+                    : item.pageId === null
+                      ? `/w/${workspaceId}/settings?tab=members&view=requests`
+                      : `/w/${workspaceId}/p/${item.pageId}`,
                 );
               }}
             >
@@ -102,7 +107,12 @@ export function InboxDialog({
               />
               <span className="min-w-0 flex-1">
                 <span className={cn("flex items-center gap-1.5 text-sm", !item.read && "font-medium")}>
-                  {item.pageId === null ? (
+                  {item.kind === "agent_approval" ? (
+                    <>
+                      <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                      <span className="truncate">{t("approvalTitle", { agent: item.approval?.agentName ?? item.actorName ?? t("someone") })}</span>
+                    </>
+                  ) : item.pageId === null ? (
                     <>
                       <UserPlus aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{t("joinRequestTitle")}</span>
@@ -115,7 +125,11 @@ export function InboxDialog({
                   )}
                 </span>
                 <span className="mt-0.5 block text-xs text-fg-muted">
-                  {item.kind === "access_request"
+                  {item.kind === "agent_approval"
+                    ? item.approval
+                      ? t("approval", { tool: item.approval.tool, connection: item.approval.connectionName })
+                      : t("approvalAnswered")
+                    : item.kind === "access_request"
                     ? t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
                     : item.kind === "join_request"
                     ? item.requestKind === "invite"
@@ -144,6 +158,17 @@ export function InboxDialog({
               </time>
               {!item.read && <span className="sr-only">{t("unread")}</span>}
             </button>
+            {item.approval && (
+              <ApprovalActions
+                workspaceId={workspaceId}
+                approval={item.approval}
+                className="pb-2 pl-[2.125rem] pr-3"
+                onAnswered={() => {
+                  setItems((list) => list?.filter((other) => other.id !== item.id) ?? list);
+                  onRead();
+                }}
+              />
+            )}
             {item.accessRequest && (
               <AccessRequestActions
                 request={item.accessRequest}

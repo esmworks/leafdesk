@@ -82,7 +82,10 @@
     "unreadCount": "{count, plural, one {# okunmamış bildirim} other {# okunmamış bildirim}}",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",
-    "inviteRequest": "{actor}, {email} adresini davet etmek istedi"
+    "inviteRequest": "{actor}, {email} adresini davet etmek istedi",
+    "approvalTitle": "{agent} devam etmek için onay istiyor",
+    "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
+    "approvalAnswered": "Yanıtlandı ya da süresi doldu"
   },
   "templates": {
     "title": "Şablonlar",

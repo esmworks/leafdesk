@@ -349,7 +349,15 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
       .where(and(inArray(page.id, rowIds), pageVisibleTo(userId)));
     for (const row of rows) titles.set(row.id, row.title);
   }
-  const connectionIds = [...new Set(runs.flatMap((r) => (r.pending ? [r.pending.connectionId] : [])))];
+  const connectionIds = [
+    ...new Set(
+      runs.flatMap((r) => [
+        ...(r.pending ? [r.pending.connectionId] : []),
+        ...(isRowRun(r.source) ? [] : [r.source.connectionId]),
+        ...r.steps.flatMap((s) => (s.kind === "tool" ? [s.connectionId] : [])),
+      ]),
+    ),
+  ];
   const connectionNames = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
   );
@@ -370,6 +378,7 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
       usage: r.usage,
       pending: open && r.pending ? { ...r.pending, connectionName: connectionNames.get(r.pending.connectionId) ?? "" } : null,
       eventType: "eventType" in r.context ? r.context.eventType : null,
+      connections: Object.fromEntries(connectionIds.filter((id) => connectionNames.has(id)).map((id) => [id, connectionNames.get(id)!])),
       createdAt: r.createdAt.toISOString(),
       finishedAt: r.finishedAt?.toISOString() ?? null,
     };

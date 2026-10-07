@@ -9,6 +9,7 @@
     "teamspaces": "Teamspaces",
     "groups": "Gruppen",
     "agents": "Agenten",
+    "connections": "Verbindungen",
     "analytics": "Analysen",
     "security": "Sicherheit",
     "audit": "Audit-Log",
@@ -297,7 +298,8 @@
       "archived": "Archiviert",
       "settings": "Einstellungen",
       "access": "Zugriff",
-      "runs": "Durchläufe"
+      "runs": "Durchläufe",
+      "connections": "Verbindungen"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",
@@ -364,7 +366,8 @@
         "pending": "Wartet",
         "running": "Läuft",
         "done": "Fertig",
-        "failed": "Fehlgeschlagen"
+        "failed": "Fehlgeschlagen",
+        "awaiting_approval": "Wartet auf Freigabe"
       },
       "rowHidden": "Eine Zeile, die du nicht öffnen kannst",
       "took": "dauerte {time}",
@@ -383,7 +386,22 @@
         "provider": "Der KI-Anbieter hat nicht geantwortet.",
         "timeout": "Der Durchlauf hat zu lange gedauert.",
         "tooManyAttempts": "Er konnte nicht rechtzeitig starten: Das KI-Kontingent des Workspaces blieb aufgebraucht.",
-        "error": "Etwas ist schiefgelaufen."
+        "error": "Etwas ist schiefgelaufen.",
+        "approvalTimeout": "Niemand hat seinen Aufruf innerhalb eines Tages beantwortet, daher wurde nichts gesendet.",
+        "connectionGone": "Die Verbindung, die ihn gestartet hat, wurde entfernt."
+      },
+      "fromConnection": "{connection} · {event}",
+      "removedConnection": "Eine entfernte Verbindung",
+      "waiting": "Wartet darauf, dass ein Inhaber diesen Aufruf beantwortet:",
+      "tool": {
+        "done": "Hat „{tool}“ bei {connection} aufgerufen",
+        "failed": "Konnte „{tool}“ bei {connection} nicht aufrufen",
+        "declined": "Sein Aufruf von „{tool}“ bei {connection} wurde abgelehnt; nichts wurde gesendet",
+        "redo": "Sein Aufruf von „{tool}“ bei {connection} wurde zurückgeschickt; nichts wurde gesendet",
+        "expired": "Sein Aufruf von „{tool}“ bei {connection} ist abgelaufen; nichts wurde gesendet",
+        "approved": "freigegeben",
+        "answered": "von einem Inhaber beantwortet",
+        "note": "Notiz: {note}"
       }
     },
     "templates": {
@@ -453,6 +471,13 @@
         "rules": "Schreib die Regeln, denen er folgt.",
         "pages": "Wähle die Seiten, die er liest."
       }
+    },
+    "connections": {
+      "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
+      "empty": "Noch keine Verbindungen. Inhaber fügen sie unter <link>Einstellungen › Verbindungen</link> hinzu.",
+      "allowedCount": "{n} von {total} erlaubt",
+      "notReady": "Diese Verbindung ist nicht bereit (sie braucht eine Anmeldung oder schlägt fehl), daher kann der Agent ihre Werkzeuge vorerst nicht nutzen.",
+      "noTools": "Noch keine Werkzeuge aufgelistet."
     }
   },
   "analytics": {
@@ -830,7 +855,8 @@
       "pages": "Löschen und Veröffentlichen",
       "integrations": "Verbundene Apps und API-Token",
       "exports": "Exporte",
-      "agents": "Agenten"
+      "agents": "Agenten",
+      "connections": "Verbindungen"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Ohne Titel",
@@ -1006,7 +1032,23 @@
         "created": "Hat den Agenten „{target}“ erstellt",
         "updated": "{change, select, on {Hat den Agenten „{target}“ eingeschaltet} off {Hat den Agenten „{target}“ pausiert} other {Hat den Agenten „{target}“ geändert}}",
         "archived": "Hat den Agenten „{target}“ archiviert"
+      },
+      "connection": {
+        "created": "Hat die Verbindung „{target}“ hinzugefügt",
+        "updated": "Hat die Verbindung „{target}“ geändert",
+        "deleted": "Hat die Verbindung „{target}“ entfernt",
+        "tool_called": "Hat „{tool}“ bei „{target}“ aufgerufen ({outcome})",
+        "approval_decided": "Aufruf von „{tool}“ bei „{target}“ durch den Agenten „{agent}“: {decision}"
       }
+    },
+    "decisions": {
+      "approve": "Freigegeben",
+      "decline": "Abgelehnt",
+      "redo": "Zurückgeschickt"
+    },
+    "outcomes": {
+      "done": "erledigt",
+      "failed": "fehlgeschlagen"
     }
   },
   "notifications": {
@@ -1071,6 +1113,147 @@
       "slugTaken": "Ein anderer Workspace verwendet diese Adresse.",
       "homeNotPublished": "Wähle eine veröffentlichte Seite dieses Workspace, die du sehen kannst.",
       "ownersOnly": "Nur Workspace-Inhaber können das tun."
+    }
+  },
+  "connections": {
+    "heading": "Verbindungen",
+    "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. (Programme, die Leafdesk nutzen, findest du unter Sicherheit › Verbundene Apps.)",
+    "approvalNote": "Agenten führen Werkzeuge, die nur lesen, sofort aus. Jeder andere Aufruf wartet im Posteingang auf die Freigabe eines Inhabers; bleibt er einen Tag unbeantwortet, wird nichts gesendet.",
+    "add": "Verbindung hinzufügen",
+    "empty": "Noch keine Verbindungen.",
+    "dismiss": "Schließen",
+    "notices": {
+      "signedIn": "Angemeldet. Die Werkzeuge der Verbindung stehen unten.",
+      "oauthFailed": "Die Anmeldung wurde nicht abgeschlossen. Versuche es erneut; schlägt sie weiter fehl, prüfe die Adresse und ob der Dienst Leafdesk die Anmeldung erlaubt."
+    },
+    "errors": {
+      "invalidName": "Gib der Verbindung einen Namen.",
+      "invalidUrl": "Gib die https-Adresse des Servers ein.",
+      "blocked": "Diese Adresse liegt in einem privaten Netz, das Verbindungen nicht erreichen.",
+      "unreachable": "Der Server war nicht erreichbar.",
+      "notMcp": "Diese Adresse antwortet nicht wie ein MCP-Server.",
+      "unauthorized": "Der Server hat die Anmeldung nicht angenommen.",
+      "tooMany": "Es können höchstens {max} sein.",
+      "notFound": "Das gibt es nicht mehr.",
+      "invalidToken": "Füge das Token oder Secret ein.",
+      "invalidTrigger": "Wähle einen Agenten dieses Workspaces.",
+      "unknownTool": "Die Verbindung hat kein Werkzeug „{tool}“.",
+      "oauthFailed": "Die Anmeldung hat nicht geklappt. Versuche es erneut.",
+      "accessDenied": "Das können nur Inhaber.",
+      "approval": {
+        "notFound": "Dieser Aufruf wartet nicht mehr.",
+        "decided": "Jemand hat diesen Aufruf schon beantwortet, oder er ist abgelaufen.",
+        "forbidden": "Nur Inhaber können den Aufruf eines Agenten beantworten.",
+        "invalid": "Sag, was sich ändern soll."
+      }
+    },
+    "status": {
+      "ready": "{n, plural, one {Bereit · # Werkzeug} other {Bereit · # Werkzeuge}}",
+      "needsAuth": "Anmeldung nötig",
+      "error": "Funktioniert nicht"
+    },
+    "addTitle": "Verbindung hinzufügen",
+    "addDescription": "Gib die Adresse des MCP-Servers des Dienstes ein. Leafdesk bewahrt die Zugangsdaten versiegelt auf dem Server auf; sie werden nie wieder angezeigt.",
+    "addAndSignIn": "Hinzufügen und anmelden",
+    "addButton": "Hinzufügen",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Slack",
+      "url": "Serveradresse",
+      "urlHelp": "Sein MCP-Endpunkt, meist mit /mcp am Ende. Nur https-Adressen im Internet.",
+      "authType": "Anmeldung",
+      "authTypes": {
+        "oauth": "Beim Dienst anmelden (OAuth)",
+        "token": "Token oder API-Schlüssel",
+        "none": "Keine"
+      },
+      "authHelp": {
+        "oauth": "Du meldest dich beim Dienst an; Leafdesk registriert sich und bewahrt den erhaltenen Zugang auf.",
+        "token": "Wird bei jedem Aufruf als Bearer-Token gesendet.",
+        "none": "Für Server, die keine Anmeldung brauchen."
+      },
+      "token": "Token",
+      "tokenKeep": "Leer lassen, um das gespeicherte zu behalten",
+      "eventPreset": "Ereignisse sind signiert als",
+      "presets": {
+        "hmac": "Leafdesk-Signatur (Zapier, Make, n8n, eigene)",
+        "slack": "Slack Events API",
+        "github": "GitHub-Webhooks"
+      }
+    },
+    "tabs": {
+      "tools": "Werkzeuge",
+      "events": "Ereignisse",
+      "settings": "Einstellungen"
+    },
+    "checkedAt": "aufgelistet {time}",
+    "signIn": "Anmelden",
+    "refresh": "Neu auflisten",
+    "signOut": "Abmelden",
+    "statusErrors": {
+      "unauthorized": "Der Server hat die Zugangsdaten nicht angenommen. Melde dich neu an oder ändere das Token.",
+      "unreachable": "Der Server war nicht erreichbar.",
+      "notMcp": "Die Adresse antwortet nicht wie ein MCP-Server.",
+      "timeout": "Der Server hat zu lange gebraucht.",
+      "oauth": "Die Anmeldung hat nicht geklappt. Versuche es erneut.",
+      "other": "Mit dieser Verbindung ist etwas schiefgelaufen."
+    },
+    "tools": {
+      "description": "Jedes Werkzeug wird danach eingeordnet, was der Server darüber sagt: als nur lesend markierte laufen sofort, alle anderen warten auf Freigabe. Ändere die Einordnung, wenn der Server falsch liegt.",
+      "none": "Der Server listet keine Werkzeuge.",
+      "notListed": "Die Werkzeuge werden aufgelistet, sobald die Verbindung funktioniert.",
+      "overridden": "Von einem Inhaber eingeordnet, nicht wie vom Server markiert",
+      "kindLabel": "Was „{tool}“ tut",
+      "reads": "Liest nur",
+      "writes": "Ändert etwas, fragt vorher"
+    },
+    "events": {
+      "address": "Ereignisadresse",
+      "addressHelp": {
+        "hmac": "Sende Ereignisse als POST-Anfragen hierher, signiert mit dem Secret unten wie Leafdesks eigene Webhooks: X-Leafdesk-Signature ist t=TIME,v1=HMAC (TIME in Unix-Sekunden, HMAC das hexadezimale HMAC-SHA256 von TIME, einem Punkt und dem Body), X-Leafdesk-Event nennt den Typ und X-Leafdesk-Delivery eine ID.",
+        "slack": "Füge dies als Request URL in den Event Subscriptions deiner Slack-App ein und das Signing Secret der App unten.",
+        "github": "Füge einen Webhook mit dieser Payload-URL, dem Inhaltstyp application/json und dem Secret unten hinzu."
+      },
+      "secret": "Signatur-Secret",
+      "show": "Anzeigen",
+      "newSecret": "Neues Secret",
+      "slackSecret": "Slack Signing Secret",
+      "triggers": "Auslöser",
+      "triggersHelp": "Welcher Agent läuft, wenn ein Ereignis eintrifft. Ein Ereignistyp wie „issues“ umfasst auch „issues.opened“; leer lassen für alle Ereignisse.",
+      "triggerLine": "{agent} bei {event}",
+      "anyEvent": "jedem Ereignis",
+      "enabled": "An",
+      "archivedAgent": "Ein archivierter Agent",
+      "recent": "Letzte Ereignisse",
+      "reload": "Neu laden",
+      "none": "Noch keine Ereignisse.",
+      "queued": "{n, plural, one {# Durchlauf gestartet} other {# Durchläufe gestartet}}",
+      "ignored": {
+        "noMatch": "kein Auslöser für diesen Typ",
+        "noTrigger": "keine Auslöser"
+      },
+      "noAgents": "Erstelle zuerst einen Agenten und wähle ihn dann hier.",
+      "agent": "Agent",
+      "eventType": "Ereignistyp",
+      "eventTypePlaceholder": "Alle",
+      "prompt": "Aufgabe",
+      "promptPlaceholder": "Was der Agent mit dem Ereignis tun soll",
+      "addTrigger": "Auslöser hinzufügen"
+    },
+    "reconnectNote": "Eine geänderte Adresse oder Anmeldung meldet die Verbindung ab; beim Speichern wird sie erneut versucht.",
+    "deleteTitle": "Verbindung entfernen",
+    "deleteBody": "Ihre Zugangsdaten, die Werkzeuge der Agenten darauf, ihre Auslöser und Ereignisse gehen mit. Aufrufe, die auf Freigabe warten, schlagen fehl, ohne etwas zu senden.",
+    "deleteConfirm": "Entfernen",
+    "delete": "Entfernen…",
+    "approval": {
+      "wouldSend": "Es würde „{tool}“ bei {connection} aufrufen mit:",
+      "removedConnection": "einer entfernten Verbindung",
+      "noteLabel": "Was soll sich ändern?",
+      "notePlaceholder": "Nimm den Firmennamen des Kunden als Titel",
+      "sendBack": "Zurückschicken",
+      "approve": "Freigeben",
+      "decline": "Ablehnen",
+      "redo": "Mit Notiz zurückschicken…"
     }
   }
 }

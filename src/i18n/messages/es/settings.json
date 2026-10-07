@@ -9,6 +9,7 @@
     "teamspaces": "Espacios de equipo",
     "groups": "Grupos",
     "agents": "Agentes",
+    "connections": "Conexiones",
     "analytics": "Analíticas",
     "security": "Seguridad",
     "audit": "Registro de auditoría",
@@ -297,7 +298,8 @@
       "archived": "Archivados",
       "settings": "Configuración",
       "access": "Acceso",
-      "runs": "Ejecuciones"
+      "runs": "Ejecuciones",
+      "connections": "Conexiones"
     },
     "empty": "Todavía no hay agentes.",
     "emptyOwner": "Todavía no hay agentes. Crea uno o empieza con una plantilla de abajo.",
@@ -364,7 +366,8 @@
         "pending": "En espera",
         "running": "En curso",
         "done": "Hecha",
-        "failed": "Fallida"
+        "failed": "Fallida",
+        "awaiting_approval": "Esperando aprobación"
       },
       "rowHidden": "Una fila que no puedes abrir",
       "took": "tardó {time}",
@@ -383,7 +386,22 @@
         "provider": "El proveedor de IA no respondió.",
         "timeout": "La ejecución tardó demasiado.",
         "tooManyAttempts": "No pudo empezar a tiempo: el cupo de IA del espacio de trabajo siguió agotado.",
-        "error": "Algo salió mal."
+        "error": "Algo salió mal.",
+        "approvalTimeout": "Nadie respondió a su llamada en un día, así que no se envió nada.",
+        "connectionGone": "Se eliminó la conexión que la inició."
+      },
+      "fromConnection": "{connection} · {event}",
+      "removedConnection": "Una conexión eliminada",
+      "waiting": "Espera a que un propietario responda a esta llamada:",
+      "tool": {
+        "done": "Llamó a «{tool}» en {connection}",
+        "failed": "No pudo llamar a «{tool}» en {connection}",
+        "declined": "Su llamada a «{tool}» en {connection} se rechazó; no se envió nada",
+        "redo": "Su llamada a «{tool}» en {connection} se devolvió; no se envió nada",
+        "expired": "Su llamada a «{tool}» en {connection} caducó; no se envió nada",
+        "approved": "aprobada",
+        "answered": "respondida por un propietario",
+        "note": "Nota: {note}"
       }
     },
     "templates": {
@@ -453,6 +471,13 @@
         "rules": "Escribe las reglas que sigue.",
         "pages": "Elige las páginas que lee."
       }
+    },
+    "connections": {
+      "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
+      "empty": "Aún no hay conexiones. Los propietarios las añaden en <link>Configuración › Conexiones</link>.",
+      "allowedCount": "{n} de {total} permitidas",
+      "notReady": "Esta conexión no está lista (necesita iniciar sesión o falla), así que el agente no puede usar sus herramientas por ahora.",
+      "noTools": "Aún no hay herramientas listadas."
     }
   },
   "analytics": {
@@ -830,7 +855,8 @@
       "pages": "Eliminación y publicación",
       "integrations": "Apps conectadas y tokens de API",
       "exports": "Exportaciones",
-      "agents": "Agentes"
+      "agents": "Agentes",
+      "connections": "Conexiones"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Sin título",
@@ -1006,7 +1032,23 @@
         "created": "Creó el agente «{target}»",
         "updated": "{change, select, on {Activó el agente «{target}»} off {Pausó el agente «{target}»} other {Cambió el agente «{target}»}}",
         "archived": "Archivó el agente «{target}»"
+      },
+      "connection": {
+        "created": "Añadió la conexión «{target}»",
+        "updated": "Cambió la conexión «{target}»",
+        "deleted": "Eliminó la conexión «{target}»",
+        "tool_called": "Llamó a «{tool}» en «{target}» ({outcome})",
+        "approval_decided": "Llamada a «{tool}» en «{target}» del agente «{agent}»: {decision}"
       }
+    },
+    "decisions": {
+      "approve": "Aprobada",
+      "decline": "Rechazada",
+      "redo": "Devuelta"
+    },
+    "outcomes": {
+      "done": "hecha",
+      "failed": "fallida"
     }
   },
   "notifications": {
@@ -1071,6 +1113,147 @@
       "slugTaken": "Otro espacio de trabajo usa esta dirección.",
       "homeNotPublished": "Elige una página publicada de este espacio de trabajo que puedas ver.",
       "ownersOnly": "Solo los propietarios del espacio de trabajo pueden hacer esto."
+    }
+  },
+  "connections": {
+    "heading": "Conexiones",
+    "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. (Los programas que usan Leafdesk están en Seguridad › Apps conectadas.)",
+    "approvalNote": "Los agentes ejecutan al momento las herramientas que solo leen. Cualquier otra llamada espera la aprobación de un propietario en la bandeja de entrada; si nadie responde en un día, no se envía nada.",
+    "add": "Añadir conexión",
+    "empty": "Aún no hay conexiones.",
+    "dismiss": "Cerrar",
+    "notices": {
+      "signedIn": "Sesión iniciada. Las herramientas de la conexión están abajo.",
+      "oauthFailed": "El inicio de sesión no terminó. Inténtalo de nuevo; si sigue fallando, revisa la dirección y que el servicio permita a Leafdesk iniciar sesión."
+    },
+    "errors": {
+      "invalidName": "Dale un nombre a la conexión.",
+      "invalidUrl": "Escribe la dirección https del servidor.",
+      "blocked": "Esa dirección está en una red privada, a la que las conexiones no llegan.",
+      "unreachable": "No se pudo contactar con el servidor.",
+      "notMcp": "Esa dirección no responde como un servidor MCP.",
+      "unauthorized": "El servidor no aceptó el inicio de sesión.",
+      "tooMany": "Puede haber como máximo {max}.",
+      "notFound": "Ya no existe.",
+      "invalidToken": "Pega el token o el secreto.",
+      "invalidTrigger": "Elige un agente de este espacio de trabajo.",
+      "unknownTool": "La conexión no tiene la herramienta «{tool}».",
+      "oauthFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+      "accessDenied": "Solo los propietarios pueden hacer esto.",
+      "approval": {
+        "notFound": "Esta llamada ya no está esperando.",
+        "decided": "Alguien ya respondió a esta llamada, o caducó.",
+        "forbidden": "Solo los propietarios pueden responder a la llamada de un agente.",
+        "invalid": "Di qué debe cambiar."
+      }
+    },
+    "status": {
+      "ready": "{n, plural, one {Lista · # herramienta} other {Lista · # herramientas}}",
+      "needsAuth": "Necesita iniciar sesión",
+      "error": "No funciona"
+    },
+    "addTitle": "Añadir una conexión",
+    "addDescription": "Escribe la dirección del servidor MCP del servicio. Leafdesk guarda sus credenciales selladas en el servidor; no se vuelven a mostrar.",
+    "addAndSignIn": "Añadir e iniciar sesión",
+    "addButton": "Añadir",
+    "fields": {
+      "name": "Nombre",
+      "namePlaceholder": "Slack",
+      "url": "Dirección del servidor",
+      "urlHelp": "Su punto de acceso MCP, que suele terminar en /mcp. Solo direcciones https en internet.",
+      "authType": "Inicio de sesión",
+      "authTypes": {
+        "oauth": "Iniciar sesión en el servicio (OAuth)",
+        "token": "Token o clave de API",
+        "none": "Ninguno"
+      },
+      "authHelp": {
+        "oauth": "Inicias sesión en el servicio; Leafdesk se registra y guarda el acceso que obtiene.",
+        "token": "Se envía como token bearer en cada llamada.",
+        "none": "Para servidores que no piden iniciar sesión."
+      },
+      "token": "Token",
+      "tokenKeep": "Déjalo vacío para conservar el guardado",
+      "eventPreset": "Los eventos se firman como",
+      "presets": {
+        "hmac": "Firma de Leafdesk (Zapier, Make, n8n, la tuya)",
+        "slack": "Slack Events API",
+        "github": "Webhooks de GitHub"
+      }
+    },
+    "tabs": {
+      "tools": "Herramientas",
+      "events": "Eventos",
+      "settings": "Configuración"
+    },
+    "checkedAt": "listadas {time}",
+    "signIn": "Iniciar sesión",
+    "refresh": "Volver a listar",
+    "signOut": "Cerrar sesión",
+    "statusErrors": {
+      "unauthorized": "El servidor no aceptó las credenciales. Vuelve a iniciar sesión o cambia el token.",
+      "unreachable": "No se pudo contactar con el servidor.",
+      "notMcp": "La dirección no responde como un servidor MCP.",
+      "timeout": "El servidor tardó demasiado en responder.",
+      "oauth": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+      "other": "Algo falló con esta conexión."
+    },
+    "tools": {
+      "description": "Cada herramienta se clasifica según lo que dice de ella el servidor: las marcadas como solo lectura se ejecutan al momento, las demás esperan aprobación. Cambia la clase si el servidor se equivoca.",
+      "none": "El servidor no lista herramientas.",
+      "notListed": "Sus herramientas se listan cuando la conexión funciona.",
+      "overridden": "Clasificada por un propietario, no como la marcó el servidor",
+      "kindLabel": "Qué hace «{tool}»",
+      "reads": "Solo lee",
+      "writes": "Cambia cosas, pregunta antes"
+    },
+    "events": {
+      "address": "Dirección de eventos",
+      "addressHelp": {
+        "hmac": "Envía aquí los eventos como peticiones POST firmadas con el secreto de abajo, como los webhooks de Leafdesk: X-Leafdesk-Signature es t=TIME,v1=HMAC (TIME en segundos Unix, HMAC el HMAC-SHA256 en hexadecimal de TIME, un punto y el cuerpo), X-Leafdesk-Event indica el tipo y X-Leafdesk-Delivery un id.",
+        "slack": "Pega esto como Request URL en las Event Subscriptions de tu app de Slack, y pega abajo el signing secret de la app.",
+        "github": "Añade un webhook con esta payload URL, el tipo de contenido application/json y el secreto de abajo."
+      },
+      "secret": "Secreto de firma",
+      "show": "Mostrar",
+      "newSecret": "Nuevo secreto",
+      "slackSecret": "Signing secret de Slack",
+      "triggers": "Disparadores",
+      "triggersHelp": "Qué agente se ejecuta cuando llega un evento. Un tipo como «issues» también toma «issues.opened»; déjalo vacío para todos los eventos.",
+      "triggerLine": "{agent} en {event}",
+      "anyEvent": "cada evento",
+      "enabled": "Activo",
+      "archivedAgent": "Un agente archivado",
+      "recent": "Eventos recientes",
+      "reload": "Recargar",
+      "none": "Aún no hay eventos.",
+      "queued": "{n, plural, one {inició # ejecución} other {inició # ejecuciones}}",
+      "ignored": {
+        "noMatch": "ningún disparador para este tipo",
+        "noTrigger": "sin disparadores"
+      },
+      "noAgents": "Crea primero un agente y luego elígelo aquí.",
+      "agent": "Agente",
+      "eventType": "Tipo de evento",
+      "eventTypePlaceholder": "Todos",
+      "prompt": "Tarea",
+      "promptPlaceholder": "Qué debe hacer el agente con el evento",
+      "addTrigger": "Añadir disparador"
+    },
+    "reconnectNote": "Cambiar la dirección o el inicio de sesión cierra la sesión de la conexión; se vuelve a intentar al guardar.",
+    "deleteTitle": "Eliminar conexión",
+    "deleteBody": "Se van con ella sus credenciales, las herramientas que tenían los agentes, sus disparadores y sus eventos. Las llamadas que esperan aprobación fallan sin enviar nada.",
+    "deleteConfirm": "Eliminar",
+    "delete": "Eliminar…",
+    "approval": {
+      "wouldSend": "Llamaría a «{tool}» en {connection} con:",
+      "removedConnection": "una conexión eliminada",
+      "noteLabel": "¿Qué debe cambiar?",
+      "notePlaceholder": "Usa el nombre de la empresa del cliente como título",
+      "sendBack": "Devolver",
+      "approve": "Aprobar",
+      "decline": "Rechazar",
+      "redo": "Devolver con una nota…"
     }
   }
 }
