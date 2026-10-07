@@ -69,7 +69,44 @@
       "delete": "Supprimer le modèle",
       "confirmDelete": "Supprimer définitivement ce modèle de ligne ? Les lignes déjà créées à partir de lui restent inchangées.",
       "newTemplate": "Nouveau modèle",
-      "none": "Aucun modèle pour l’instant"
+      "none": "Aucun modèle pour l’instant",
+      "repeat": "Répéter",
+      "repeating": "Se répète · prochaine ligne {date}",
+      "repeatPaused": "Répétition en pause",
+      "repeatDialog": {
+        "title": "Répéter « {title} »",
+        "description": "Une nouvelle ligne est ajoutée à partir de ce modèle selon le calendrier ci-dessous, comme si tu l’ajoutais toi-même.",
+        "frequency": "Répétition",
+        "frequencies": {
+          "daily": "Chaque jour",
+          "weekly": "Chaque semaine",
+          "monthly": "Chaque mois",
+          "yearly": "Chaque année"
+        },
+        "every": "Tous les",
+        "units": {
+          "daily": "{count, plural, one {jour} other {jours}}",
+          "weekly": "{count, plural, one {semaine} other {semaines}}",
+          "monthly": "{count, plural, one {mois} other {mois}}",
+          "yearly": "{count, plural, one {an} other {ans}}"
+        },
+        "on": "Jours",
+        "noWeekday": "Choisis au moins un jour.",
+        "start": "À partir du",
+        "time": "À",
+        "timeZone": "Fuseau horaire",
+        "dateInTitle": "Ajouter la date au titre de la ligne",
+        "monthlyHint": "Le {day} du mois, ou le dernier jour quand le mois est plus court.",
+        "next": "Prochaine ligne : {date}",
+        "lastRun": "Dernière ligne : {date}",
+        "turnOff": "Ne plus répéter",
+        "paused": {
+          "runAsGone": "En pause : le compte de la personne qui l’a configurée n’existe plus. Enregistre pour la répéter en ton nom.",
+          "accessLost": "En pause : la personne qui l’a configurée ne peut plus ajouter de lignes ici ni ouvrir ce modèle. Enregistre pour la répéter en ton nom.",
+          "templateGone": "En pause : ce modèle ne peut plus être utilisé.",
+          "failed": "La dernière ligne n’a pas pu être ajoutée ; nouvel essai la prochaine fois."
+        }
+      }
     }
   },
   "viewTabs": {
@@ -542,7 +579,9 @@
     "tooManyAutomations": "Une base de données peut avoir au plus {max} automatisations.",
     "invalidWebhookUrl": "« {value} » n’est pas une adresse http(s) valide.",
     "webhookBlocked": "Les webhooks ne peuvent pas viser des adresses de réseau privées ou locales.",
-    "agentOwnersOnly": "Seuls les propriétaires de l’espace de travail peuvent ajouter ou modifier des actions qui exécutent un agent."
+    "agentOwnersOnly": "Seuls les propriétaires de l’espace de travail peuvent ajouter ou modifier des actions qui exécutent un agent.",
+    "invalidRepeat": "Cette répétition n’est pas valide : vérifie les jours, l’heure et le fuseau horaire.",
+    "tooManySchedules": "Cet espace de travail a déjà autant de modèles répétés que possible."
   },
   "formula": {
     "title": "Formule",

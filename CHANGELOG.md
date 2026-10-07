@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
+  row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
+  (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if
+  asked. The dialog shows when the next row comes. Rows are added as the person who set the repeat
+  and start "row added" automations; when they can't add rows any more, or their account is gone,
+  the repeat pauses with the reason shown until someone saves it again. Each server checks every 30
+  seconds; a schedule is taken with `FOR UPDATE SKIP LOCKED` and its next run moved on before the
+  row is added, so several replicas or a crash never add a run twice, and a server that was down
+  adds one row for what it missed. Up to 200 repeats per workspace. They're kept in a new
+  `schedule` table (migration `0040_schedules`), shared with what will run on a schedule later.
 - **Reordering view tabs.** A database's view tabs can be dragged into another order, which
   everyone sees. The first tab is the one a published database shows. Not offered on a locked
   database or to people who can't edit it.

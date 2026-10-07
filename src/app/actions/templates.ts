@@ -6,6 +6,7 @@ import { builtinTemplates, type BuiltinTemplateKey } from "@/lib/builtin-templat
 import { AccessError, hasLevel } from "@/server/access";
 import { requireUserId } from "@/server/session";
 import { TeamspaceError } from "@/server/teamspaces";
+import * as schedules from "@/server/schedules";
 import * as templates from "@/server/templates";
 
 export type TemplateResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -83,4 +84,18 @@ export async function createRowTemplateAction(databaseId: string) {
 
 export async function setDefaultRowTemplateAction(databaseId: string, templateId: string | null) {
   return run("default row template", (userId) => templates.setDefaultRowTemplate(userId, databaseId, templateId));
+}
+
+/** How a row template repeats, or null when it doesn't. */
+export async function getTemplateRepeatAction(templateId: string) {
+  return run("read template repeat", (userId) => schedules.getTemplateRepeat(userId, templateId));
+}
+
+/** Makes a row template repeat (or changes how), from now on as the user. */
+export async function setTemplateRepeatAction(templateId: string, input: schedules.TemplateRepeatInput) {
+  return run("set template repeat", (userId) => schedules.setTemplateRepeat(userId, templateId, input));
+}
+
+export async function removeTemplateRepeatAction(templateId: string) {
+  return run("remove template repeat", (userId) => schedules.removeTemplateRepeat(userId, templateId));
 }

@@ -69,7 +69,44 @@
       "delete": "Eliminar plantilla",
       "confirmDelete": "¿Eliminar esta plantilla de fila para siempre? Las filas ya creadas a partir de ella se quedan como están.",
       "newTemplate": "Nueva plantilla",
-      "none": "Todavía no hay plantillas"
+      "none": "Todavía no hay plantillas",
+      "repeat": "Repetir",
+      "repeating": "Se repite · próxima fila {date}",
+      "repeatPaused": "Repetición en pausa",
+      "repeatDialog": {
+        "title": "Repetir «{title}»",
+        "description": "Se añade una fila nueva a partir de esta plantilla según el calendario de abajo, como si la añadieras tú.",
+        "frequency": "Se repite",
+        "frequencies": {
+          "daily": "Cada día",
+          "weekly": "Cada semana",
+          "monthly": "Cada mes",
+          "yearly": "Cada año"
+        },
+        "every": "Cada",
+        "units": {
+          "daily": "{count, plural, one {día} other {días}}",
+          "weekly": "{count, plural, one {semana} other {semanas}}",
+          "monthly": "{count, plural, one {mes} other {meses}}",
+          "yearly": "{count, plural, one {año} other {años}}"
+        },
+        "on": "Días",
+        "noWeekday": "Elige al menos un día.",
+        "start": "Desde",
+        "time": "A las",
+        "timeZone": "Zona horaria",
+        "dateInTitle": "Añadir la fecha al título de la fila",
+        "monthlyHint": "El día {day} del mes, o el último día si el mes es más corto.",
+        "next": "Próxima fila: {date}",
+        "lastRun": "Última fila: {date}",
+        "turnOff": "Dejar de repetir",
+        "paused": {
+          "runAsGone": "En pausa: la cuenta de quien la configuró ya no existe. Guarda para repetirla en tu nombre.",
+          "accessLost": "En pausa: quien la configuró ya no puede añadir filas aquí ni abrir esta plantilla. Guarda para repetirla en tu nombre.",
+          "templateGone": "En pausa: esta plantilla ya no se puede usar.",
+          "failed": "No se pudo añadir la última fila; se volverá a intentar la próxima vez."
+        }
+      }
     }
   },
   "viewTabs": {
@@ -542,7 +579,9 @@
     "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",
     "invalidWebhookUrl": "«{value}» no es una dirección http(s) válida.",
     "webhookBlocked": "Los webhooks no pueden ir a direcciones de red privadas o locales.",
-    "agentOwnersOnly": "Solo los propietarios del espacio de trabajo pueden añadir o cambiar acciones que ejecutan un agente."
+    "agentOwnersOnly": "Solo los propietarios del espacio de trabajo pueden añadir o cambiar acciones que ejecutan un agente.",
+    "invalidRepeat": "Esa repetición no es válida: revisa los días, la hora y la zona horaria.",
+    "tooManySchedules": "Este espacio de trabajo ya tiene todas las plantillas repetidas que puede tener."
   },
   "formula": {
     "title": "Fórmula",

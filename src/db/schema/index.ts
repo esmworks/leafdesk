@@ -13,3 +13,4 @@ export * from "./audit";
 export * from "./property-access";
 export * from "./automations";
 export * from "./agents";
+export * from "./schedules";

@@ -7,6 +7,7 @@ import {
   page,
   PROPERTY_TYPES,
   propertyPermission,
+  schedule,
   user,
   type FormulaConfig,
   type PropertyOptions,
@@ -21,6 +22,7 @@ import { avatarSrc } from "@/lib/avatar";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
+import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
@@ -1610,18 +1612,30 @@ export async function rowCovers(rows: { id: string; updatedAt: Date; hasImage?: 
   return covers;
 }
 
-export type RowTemplateSummary = { id: string; title: string; icon: string | null };
+export type RowTemplateSummary = { id: string; title: string; icon: string | null; repeat: TemplateRepeatSummary | null };
 
 /**
  * A database's row templates the user can see, in order (see server/templates.ts). Access to the
  * database has been checked.
  */
 export async function listRowTemplateSummaries(userId: string, databaseId: string): Promise<RowTemplateSummary[]> {
-  return db
-    .select({ id: page.id, title: page.title, icon: page.icon })
+  const rows = await db
+    .select({
+      id: page.id,
+      title: page.title,
+      icon: page.icon,
+      enabled: schedule.enabled,
+      nextRunAt: schedule.nextRunAt,
+      lastError: schedule.lastError,
+    })
     .from(page)
+    .leftJoin(schedule, eq(schedule.templateId, page.id))
     .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, true), isNull(page.archivedAt), pageVisibleTo(userId)))
     .orderBy(asc(page.position), asc(page.createdAt));
+  return rows.map(({ enabled, nextRunAt, lastError, ...template }) => ({
+    ...template,
+    repeat: enabled === null ? null : repeatSummary({ enabled, nextRunAt, lastError }),
+  }));
 }
 
 /**

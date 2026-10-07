@@ -69,7 +69,44 @@
       "delete": "Vorlage löschen",
       "confirmDelete": "Diese Zeilenvorlage endgültig löschen? Bereits daraus erstellte Zeilen bleiben unverändert.",
       "newTemplate": "Neue Vorlage",
-      "none": "Noch keine Vorlagen"
+      "none": "Noch keine Vorlagen",
+      "repeat": "Wiederholen",
+      "repeating": "Wiederholt sich · nächste Zeile {date}",
+      "repeatPaused": "Wiederholung pausiert",
+      "repeatDialog": {
+        "title": "„{title}“ wiederholen",
+        "description": "Nach dem Plan unten wird aus dieser Vorlage eine neue Zeile hinzugefügt, als hättest du sie selbst hinzugefügt.",
+        "frequency": "Wiederholung",
+        "frequencies": {
+          "daily": "Täglich",
+          "weekly": "Wöchentlich",
+          "monthly": "Monatlich",
+          "yearly": "Jährlich"
+        },
+        "every": "Alle",
+        "units": {
+          "daily": "{count, plural, one {Tag} other {Tage}}",
+          "weekly": "{count, plural, one {Woche} other {Wochen}}",
+          "monthly": "{count, plural, one {Monat} other {Monate}}",
+          "yearly": "{count, plural, one {Jahr} other {Jahre}}"
+        },
+        "on": "An",
+        "noWeekday": "Wähle mindestens einen Tag.",
+        "start": "Ab",
+        "time": "Um",
+        "timeZone": "Zeitzone",
+        "dateInTitle": "Datum zum Titel der Zeile hinzufügen",
+        "monthlyHint": "Am {day}. des Monats, in kürzeren Monaten am letzten Tag.",
+        "next": "Nächste Zeile: {date}",
+        "lastRun": "Letzte Zeile: {date}",
+        "turnOff": "Nicht mehr wiederholen",
+        "paused": {
+          "runAsGone": "Pausiert: Das Konto der Person, die sie eingerichtet hat, gibt es nicht mehr. Speichere, um sie in deinem Namen zu wiederholen.",
+          "accessLost": "Pausiert: Die Person, die sie eingerichtet hat, kann hier keine Zeilen mehr hinzufügen oder diese Vorlage nicht mehr öffnen. Speichere, um sie in deinem Namen zu wiederholen.",
+          "templateGone": "Pausiert: Diese Vorlage kann nicht mehr verwendet werden.",
+          "failed": "Die letzte Zeile konnte nicht hinzugefügt werden; beim nächsten Mal wird es erneut versucht."
+        }
+      }
     }
   },
   "viewTabs": {
@@ -542,7 +579,9 @@
     "tooManyAutomations": "Eine Datenbank kann höchstens {max} Automatisierungen haben.",
     "invalidWebhookUrl": "„{value}“ ist keine gültige http(s)-Adresse.",
     "webhookBlocked": "Webhooks können nicht an private oder lokale Netzwerkadressen gehen.",
-    "agentOwnersOnly": "Nur Inhaber des Workspace können Aktionen hinzufügen oder ändern, die einen Agenten ausführen."
+    "agentOwnersOnly": "Nur Inhaber des Workspace können Aktionen hinzufügen oder ändern, die einen Agenten ausführen.",
+    "invalidRepeat": "Diese Wiederholung ist ungültig: Prüfe Tage, Uhrzeit und Zeitzone.",
+    "tooManySchedules": "Dieser Workspace hat bereits so viele sich wiederholende Vorlagen, wie möglich sind."
   },
   "formula": {
     "title": "Formel",
