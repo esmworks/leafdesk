@@ -1489,6 +1489,34 @@ export async function deleteView(userId: string, viewId: string) {
 }
 
 /**
+ * Moves a view's tab before or after another view of the same database. The views are numbered
+ * again from the order the server has, so a tab added meanwhile keeps its place and views that
+ * share a position (older databases start them all at 0) still move.
+ */
+export async function moveView(userId: string, viewId: string, targetId: string, side: "before" | "after") {
+  const view = await requireView(userId, viewId);
+  assertUnlocked(view);
+  if (targetId === viewId) return;
+  await db.transaction(async (tx) => {
+    const views = await tx
+      .select({ id: databaseView.id, position: databaseView.position })
+      .from(databaseView)
+      .where(eq(databaseView.databaseId, view.databaseId))
+      .orderBy(asc(databaseView.position), asc(databaseView.createdAt))
+      .for("update");
+    const order = views.filter((v) => v.id !== viewId);
+    const at = order.findIndex((v) => v.id === targetId);
+    if (at < 0) throw new AccessError();
+    order.splice(side === "before" ? at : at + 1, 0, { id: viewId, position: 0 });
+    for (const [i, v] of order.entries()) {
+      if (v.position !== i + 1) await tx.update(databaseView).set({ position: i + 1 }).where(eq(databaseView.id, v.id));
+    }
+  });
+  notifySchema(view.databaseId);
+  notifyTree(view.workspaceId);
+}
+
+/**
  * Reorders a row (board drag) and optionally moves it to another group in one step. `groupValue`
  * is the target group (see groupTarget in lib/grouping): an option, person or related row id,
  * "true" / "false" for checkboxes, a day for dates, null for no value. For list values

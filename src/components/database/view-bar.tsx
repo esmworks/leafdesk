@@ -20,7 +20,7 @@ import {
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
-import { useReorderDrag } from "@/components/use-reorder-drag";
+import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import type {
   FilterCombinator,
   FilterEntry,
@@ -72,6 +72,7 @@ export function ViewTabs({
   onAdd,
   onRename,
   onDelete,
+  onMove,
   readOnly,
 }: {
   views: View[];
@@ -80,10 +81,13 @@ export function ViewTabs({
   onAdd: (type: ViewType) => void;
   onRename: (view: View, name: string) => void;
   onDelete: (view: View) => void;
+  onMove: (id: string, target: string, side: "before" | "after") => void;
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
   const add = useFloating<HTMLButtonElement>();
+  const drag = useReorderDrag("x", onMove);
+  const movable = !readOnly && views.length > 1;
   return (
     <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]">
       {views.map((view) => (
@@ -93,6 +97,7 @@ export function ViewTabs({
           active={view.id === activeId}
           canDelete={views.length > 1}
           readOnly={readOnly}
+          drag={movable ? drag.handlers(view.id) : undefined}
           onSelect={() => onSelect(view.id)}
           onRename={(name) => onRename(view, name)}
           onDelete={() => onDelete(view)}
@@ -136,6 +141,7 @@ function ViewTab({
   active,
   canDelete,
   readOnly,
+  drag,
   onSelect,
   onRename,
   onDelete,
@@ -144,6 +150,8 @@ function ViewTab({
   active: boolean;
   canDelete: boolean;
   readOnly?: boolean;
+  /** Set when the tab can be dragged to another place among the tabs. */
+  drag?: ReorderDragHandlers;
   onSelect: () => void;
   onRename: (name: string) => void;
   onDelete: () => void;
@@ -154,7 +162,27 @@ function ViewTab({
   const [name, setName] = useState(view.name);
 
   return (
-    <div className={cn("flex shrink-0 items-center border-b-2 pb-1", active ? "border-fg" : "border-transparent")}>
+    <div
+      draggable={!!drag && !renaming}
+      onDragStart={drag?.onDragStart}
+      onDragOver={drag?.onDragOver}
+      onDrop={drag?.onDrop}
+      onDragEnd={drag?.onDragEnd}
+      className={cn(
+        "relative flex shrink-0 items-center border-b-2 pb-1",
+        active ? "border-fg" : "border-transparent",
+        drag?.dragging && "opacity-50",
+      )}
+    >
+      {drag?.dropSide && (
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute top-0.5 bottom-1.5 w-0.5 bg-accent",
+            drag.dropSide === "before" ? "-left-px" : "-right-px",
+          )}
+        />
+      )}
       <button
         ref={menu.ref}
         type="button"

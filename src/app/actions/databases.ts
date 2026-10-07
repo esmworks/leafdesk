@@ -208,6 +208,10 @@ export async function deleteViewAction(viewId: string) {
   return run((userId) => databases.deleteView(userId, viewId));
 }
 
+export async function moveViewAction(viewId: string, targetId: string, side: "before" | "after") {
+  return run((userId) => databases.moveView(userId, viewId, targetId, side));
+}
+
 // Property access (see server/property-access.ts): full access to the database only.
 
 /** A property's access for the settings dialog, with the people and groups that can be added. */

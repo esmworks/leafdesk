@@ -4,6 +4,9 @@
 
 ### Added
 
+- **Reordering view tabs.** A database's view tabs can be dragged into another order, which
+  everyone sees. The first tab is the one a published database shows. Not offered on a locked
+  database or to people who can't edit it.
 - **Page style.** The page's `⋯` menu starts with a typeface for the page (*Default*, *Serif*,
   *Mono*) and switches for *Small text* (14px body, headings scale with it; touch screens keep
   16px so iOS doesn't zoom in on the text when typing starts) and *Full width* (the
