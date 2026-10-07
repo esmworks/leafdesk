@@ -226,7 +226,9 @@ export function TableView({
         if (values.every(isEmptyValue)) return 0;
         if (type === "relation") return null;
         const sourceTitles = new Map((relations?.targets[p.id]?.rows ?? []).map((r) => [r.id, r.title]));
-        return lostValues(values, planConversion(p, { type }, values, { people, sourceTitles, yes }));
+        // Like the server, text only finds people still in the workspace.
+        const known = type === "person" ? people.filter((person) => person.active) : people;
+        return lostValues(values, planConversion(p, { type }, values, { people: known, sourceTitles, yes }));
       },
       apply: (change) => api.changePropertyType(p.id, { ...change, yes }),
     };

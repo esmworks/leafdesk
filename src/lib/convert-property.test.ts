@@ -135,7 +135,9 @@ describe("planConversion", () => {
 
   it("keeps files only as files, and nothing for types Leafdesk works out", () => {
     const files = [{ url: "/api/files/abcdefghijklmnopqrstuvwx", name: "a.png", type: "image/png" }];
-    expect(convertAll(side("files"), "text", [files]).out).toEqual(["a.png"]);
+    const text = convertAll(side("files"), "text", [files]);
+    expect(text.out).toEqual([null]);
+    expect(text.lost).toBe(1);
     expect(convertAll(side("text"), "files", ["a.png"]).lost).toBe(1);
     const formula = convertAll(side("text"), "formula", ["x", null]);
     expect(formula.out).toEqual([null, null]);

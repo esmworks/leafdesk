@@ -14,8 +14,8 @@ import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType } 
  * A value is first read as text (option names, people's names, related rows' titles, a ticked box
  * as the viewer's "Yes"), then parsed the way CSV import reads cells. Values that already mean the
  * same thing skip the text: options keep their ids between select, multi-select and status, people
- * between person types, links between relations to the same database. Types Leafdesk works out
- * itself (formulas, rollups, created and edited by/time) keep no values.
+ * between person types. Types Leafdesk works out itself (formulas, rollups, created and edited
+ * by/time) keep no values, and neither do files once they are something else.
  */
 
 export type ConversionSide = { type: PropertyType; options: PropertyOptions };
@@ -73,7 +73,9 @@ function texts(from: ConversionSide, value: unknown, ctx: ConversionContext): st
     case "checklist":
       return asChecklist(value).map((item) => item.text);
     case "files":
-      return asFiles(value).map((file) => file.name);
+      // A file's name without the file is next to nothing: converting a files property clears it,
+      // so the column menu asks first (the uploads stay on their rows' pages).
+      return [];
     case "relation":
       return ids.flatMap((id) => ctx.sourceTitles?.get(id) ?? []);
     case "person":
