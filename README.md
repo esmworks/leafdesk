@@ -1110,11 +1110,14 @@ automations can't set each other off.
 
 **Managing agents.** In Settings → *Agents*, owners of the workspace create, change, pause,
 archive and restore agents, choose what is shared with them and look through their runs; members
-see the list (and pick an agent in an automation). A run's steps, answer and error show only to
-owners who can open its row. Where an agent acted, it shows as an agent: its icon in *Created by*
-and *Last edited by*, "(agent)" after its name on comments and in page history. A
+see the list without the agents' instructions. A run's steps, answer and error show only to owners
+who can open its row. Where an agent acted, it shows as an agent: its icon in *Created by* and
+*Last edited by*, "(agent)" after its name on comments and in page history. A comment an agent
+writes about the whole row rather than about some of its text says *About this page* in the
+comments panel, at the top of the list. A
 workspace has at most 50 agents. A paused agent doesn't run: its queued runs end as
-`agentDisabled`. Archiving one also unshares every page shared with it and takes it off the lists;
+`agentDisabled`. Archiving one also unshares every page shared with it (each recorded in the audit
+log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
 shared. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
@@ -1179,7 +1182,8 @@ The tools cover:
   (`https://…/w/<workspace>/p/<page>`, `?view=<view>` for a view).
 - **Page history:** `list_page_history`, `get_page_version`, `diff_page_version`, `restore_page_version`.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
-- **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply).
+- **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
+  about the whole page, as agents write them, comes back with `about_page: true` and no quote.
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date (see `src/lib/mentions.ts`).
 - **Inbox:** `list_notifications`, when the user also grants the `notifications:read` permission.

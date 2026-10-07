@@ -222,6 +222,7 @@
     <nav class="links" aria-label="Main">
       <a class="opt" href="#features">Features</a>
       <a class="opt" href="#ai">AI assistants</a>
+      <a class="opt" href="#agents">Agents</a>
       <a class="opt" href="#self-host">Self-host</a>
       <a href="https://github.com/esmworks/leafdesk">GitHub</a>
     </nav>
@@ -262,7 +263,7 @@
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
           <h3>Pages and a block editor</h3>
           <p>Nested pages, slash commands, markdown shortcuts, callouts, LaTeX, Mermaid diagrams,
-            columns, embeds, comments, mentions and full page history.</p>
+            columns, embeds, comments, mentions, a typeface per page and full page history.</p>
         </div>
         <div class="card">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg></div>
@@ -333,6 +334,37 @@
     </div>
   </section>
 
+  <section id="agents">
+    <div class="wrap split">
+      <div>
+        <h2>Agents that work on your database rows</h2>
+        <p class="sub">An agent is an AI helper with instructions of its own. Add the “Run an agent” action
+          to a database automation, and every new or changed row gets sorted, answered or checked,
+          with the agent's reasons in a comment.</p>
+        <ul class="checks">
+          <li><strong>It sees only what you share:</strong> each agent is a guest of its own, and never gets full access.</li>
+          <li><strong>Its work is signed:</strong> changes, comments and page history show the agent's name.</li>
+          <li><strong>Every run is kept</strong> for 30 days, step by step, with the tokens it used.</li>
+          <li><strong>Owners stay in charge:</strong> only owners create agents and add them to automations, and access an automation gave is taken back once it no longer runs them.</li>
+        </ul>
+      </div>
+      <div class="flow" aria-label="Built-in agents">
+        <div class="step">
+          <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M4 12h7M4 18h10"/><path d="M17 9l3 3-3 3"/></svg></div>
+          <div><b>Ticket router</b><span>Sets a category, status or owner by rules you write, and says why.</span></div>
+        </div>
+        <div class="step">
+          <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+          <div><b>Request answerer</b><span>Finds the answer in the pages you pick and replies with its sources.</span></div>
+        </div>
+        <div class="step">
+          <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></div>
+          <div><b>Duplicate finder</b><span>Spots similar rows in the same database and names them.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="self-host">
     <div class="wrap">
       <h2>Up and running in a minute</h2>
@@ -371,7 +403,7 @@ docker compose up -d</code></pre>
         <details>
           <summary>Which AI assistants can connect?</summary>
           <p>Any client that speaks the Model Context Protocol with OAuth, such as Claude, Claude
-            Code and Codex. The built-in AI writing, AI properties and chat work with
+            Code and Codex. The built-in AI writing, AI properties, chat and agents work with
             Anthropic, OpenAI, Google, OpenAI-compatible servers, or a local model with Ollama or
             LM Studio, and stay off until you set up a provider.</p>
         </details>
