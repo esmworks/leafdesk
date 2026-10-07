@@ -74,11 +74,11 @@ import { ImportDialog } from "@/components/workspace/import-dialog";
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
 const EXPANDED_KEY = "leafdesk:expanded";
-/** Teamspaces the user opened: like pages, and as in Notion, a teamspace stays closed until opened. */
+/** Teamspaces the user opened: like pages, a teamspace stays closed until opened. */
 const OPEN_TEAMSPACES_KEY = "leafdesk:open-teamspaces";
 const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
-/** Top-level pages "Private" and "Shared" show before a "More" row, as Notion does. */
+/** Top-level pages "Private" and "Shared" show before a "More" row. */
 const SECTION_LIMIT = 10;
 
 const canEdit = (node: TreeNode) => node.level === "edit" || node.level === "full";
@@ -676,7 +676,7 @@ export function Sidebar({
             />
           ))}
         </ul>
-        {/* Like Notion's "Add new": a new teamspace, or the list to join one from. */}
+        {/* "Add new": a new teamspace, or the list to join one from. */}
         <button
           type="button"
           onClick={() =>

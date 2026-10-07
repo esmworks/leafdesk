@@ -30,7 +30,7 @@ function matches(query: string, ...values: string[]) {
 }
 
 /**
- * Settings > Teamspaces, laid out like Notion's: the default teamspaces and who may create
+ * Settings > Teamspaces: the default teamspaces and who may create
  * teamspaces on top, then every teamspace the viewer can see, filtered and searched.
  */
 export function TeamspacesPanel({

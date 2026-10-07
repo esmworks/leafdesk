@@ -691,8 +691,8 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
 }
 
 /**
- * Values a new row needs so the view's filters keep showing it (Notion does the same): "Status is
- * Done" makes the row Done, "Tags contains X" tags it X, "Done is checked" ticks it, "Due is
+ * Values a new row needs so the view's filters keep showing it: "Status is Done" makes the
+ * row Done, "Tags contains X" tags it X, "Done is checked" ticks it, "Due is
  * within this week" dates it today (every relative range includes today). Rules that can't be
  * satisfied by one value (not equals, before/after, empty…) are left alone.
  *

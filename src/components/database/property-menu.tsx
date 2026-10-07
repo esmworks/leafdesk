@@ -458,7 +458,7 @@ export function PropertyMenu({
   const icon = (Icon: typeof ArrowUp) => <Icon className="h-3.5 w-3.5" />;
   const selectType = prop?.type === "select" || prop?.type === "multi_select" || prop?.type === "status";
   // The property's own settings, then what the view does with the column, then its width and
-  // wrapping, then new columns beside it, then deleting it (Notion's order).
+  // wrapping, then new columns beside it, then deleting it.
   const settings = [
     prop?.type === "formula" && actions.setFormula && (
       <MenuItem key="formula" icon={icon(Sigma)} onClick={() => setPage("formula")}>

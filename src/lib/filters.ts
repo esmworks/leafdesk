@@ -35,7 +35,7 @@ export const RELATIVE_DATE_RANGES = [
   "next_n_days",
 ] as const satisfies readonly RelativeDateRange[];
 
-/** Groups may hold groups once more, like Notion: a group's rules can be a group, but not deeper. */
+/** Groups may hold groups once more: a group's rules can be a group, but not deeper. */
 export const MAX_FILTER_DEPTH = 2;
 /** Upper bound for "past / next N days" (ten years). */
 export const MAX_RELATIVE_DAYS = 3650;

@@ -106,7 +106,7 @@ export function formatValue(v: Value): string {
   return dates.formatDate(v);
 }
 
-/** Whether a value is empty: no value, "", no items, unchecked, or 0 (as in Notion). */
+/** Whether a value is empty: no value, "", no items, unchecked, or 0. */
 export function isEmptyValue(v: Value) {
   return v === null || v === "" || v === false || v === 0 || (Array.isArray(v) && v.length === 0);
 }

@@ -8,7 +8,7 @@ import { moveBeside } from "@/lib/reorder";
 import type { SidebarSection } from "@/lib/sidebar-sections";
 
 /**
- * The sidebar's sections while the person arranges them, as in Notion's "Customize sidebar": drag
+ * The sidebar's sections while the person arranges them ("Customize sidebar"): drag
  * (or the arrows) to reorder, the eye to hide or show. Changes apply at once; Done goes back.
  */
 export function CustomizeSections({

@@ -810,7 +810,7 @@ function newGroup(col: Column): FilterGroup {
 }
 
 /**
- * The rules and groups of one group, Notion style: the first line reads "Where", the second holds
+ * The rules and groups of one group: the first line reads "Where", the second holds
  * the and/or switch, and later lines repeat its choice (a group combines all its rules one way).
  */
 function FilterEntries({

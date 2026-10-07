@@ -59,7 +59,7 @@ const STORE_SETTLE_MS = 4000;
 const STORE_MAX_WAIT_MS = 11_000;
 
 /**
- * Right side of the page header, like Notion's: when it was last edited (with who made and changed
+ * Right side of the page header: when it was last edited (with who made and changed
  * it), who else has the page open, Share, the favorite star and the page menu.
  */
 export function PageHeaderActions({

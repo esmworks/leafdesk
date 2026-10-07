@@ -10,7 +10,7 @@ import { changedProperties, matchesTrigger } from "@/lib/automations";
  * database for the worker (server/automations/run.ts). Nothing here throws: an automation never
  * holds back or fails the write that started it.
  *
- * Changes an automation makes don't start automations (in Notion neither), so two automations
+ * Changes an automation makes don't start automations, so two automations
  * can't feed each other forever. The worker runs actions inside `asAutomation`.
  *
  * Kept on globalThis, like server/row-events, so Next's bundle and the custom server share it.

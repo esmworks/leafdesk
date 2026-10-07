@@ -40,9 +40,8 @@ const PERSON_LEVELS: PropertyLevel[] = [...PERSON_RULE_LEVELS].reverse();
 const MAX_CANDIDATES = 8;
 
 /**
- * Who can see and edit one property and its values (like Notion's database property access): a
- * level for everyone with access to the database, raised for some people, groups or the people a
- * row names. For people with full access to the database.
+ * Who can see and edit one property and its values: a level for everyone with access to the
+ * database, raised for some people, groups or the people a row names. For people with full access to the database.
  */
 export function PropertyAccessDialog({ prop, onClose }: { prop: Property; onClose: () => void }) {
   // Rendered from inside a table header: the portal keeps the header's styles and scrolling out.

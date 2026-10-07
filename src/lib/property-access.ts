@@ -52,7 +52,7 @@ const maxLevel = (a: PropertyLevel, b: PropertyLevel) => (propertyRank(a) >= pro
 const minLevel = (a: PropertyLevel, b: PropertyLevel) => (propertyRank(a) <= propertyRank(b) ? a : b);
 
 /**
- * Whether a property of this type can be restricted. Like Notion: not relations (the other side
+ * Whether a property of this type can be restricted: not relations (the other side
  * would still show the links) and not the values Leafdesk fills in (who and when). The title
  * isn't a property here, so it never can be.
  */
