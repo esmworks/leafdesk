@@ -22,7 +22,7 @@ import {
   type AgentRunView,
   type AgentView,
 } from "@/lib/agents";
-import { AccessError, pageAccessOf, requireMember, requireMembership } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
@@ -76,6 +76,7 @@ function checkIcon(value: unknown) {
 export function viewAgent(a: Agent): AgentView {
   return {
     id: a.id,
+    workspaceId: a.workspaceId,
     userId: a.userId,
     name: a.name,
     icon: a.icon,
@@ -95,7 +96,8 @@ async function ownedAgent(userId: string, agentId: string) {
   const [found] = await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
   if (!found) throw new AgentError("notFound", "Agent not found");
   await requireMembership(userId, found.workspaceId, "owner").catch((error) => {
-    if (error instanceof AccessError) throw new AgentError("notFound", "Agent not found");
+    // A workspace that lets connected apps only read says so, rather than hiding the agent.
+    if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) throw new AgentError("notFound", "Agent not found");
     throw error;
   });
   return found;

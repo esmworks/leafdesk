@@ -95,6 +95,32 @@ const automations = vi.hoisted(() => ({
 }));
 vi.mock("@/server/automations/manage", () => automations);
 
+const agents = vi.hoisted(() => {
+  class AgentError extends Error {
+    constructor(
+      readonly code: string,
+      message: string,
+      readonly params: Record<string, string> = {},
+    ) {
+      super(message);
+    }
+  }
+  return {
+    AgentError,
+    listAgents: vi.fn(async () => [] as unknown[]),
+    getAgent: vi.fn(),
+    createAgent: vi.fn(),
+    updateAgent: vi.fn(),
+    archiveAgent: vi.fn(),
+    restoreAgent: vi.fn(),
+    listAgentAccess: vi.fn(),
+    setAgentAccess: vi.fn(),
+    removeAgentAccess: vi.fn(),
+    listAgentRuns: vi.fn(),
+  };
+});
+vi.mock("@/server/agents/manage", () => agents);
+
 const files = vi.hoisted(() => {
   class FileError extends Error {
     constructor(
@@ -1641,5 +1667,223 @@ describe("automations", () => {
       database: "Tasks",
       automation: "Close out",
     });
+  });
+});
+
+describe("agents", () => {
+  const agent = {
+    id: "agent-1",
+    workspaceId: "ws-1",
+    userId: "bot-1",
+    name: "Ticket router",
+    icon: "🤖",
+    description: "Sorts new tickets",
+    instructions: "Set the priority from the ticket's text.",
+    enabled: true,
+    archived: false,
+    createdAt: "2026-10-01T00:00:00.000Z",
+    updatedAt: "2026-10-01T00:00:00.000Z",
+  };
+  const access = {
+    pages: [{ pageId: "db-1", title: "Tickets", icon: null, kind: "database", level: "edit" }],
+    hidden: 1,
+  };
+
+  it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
+    const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
+    for (const name of ["list_agents", "get_agent", "list_agent_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
+    for (const name of ["create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access"]) {
+      expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
+    }
+    expect(tools.get("archive_agent")?.annotations?.destructiveHint).toBe(true);
+    expect(tools.get("create_agent")!.inputSchema.required).toEqual(["workspace_id", "name"]);
+    expect(tools.get("update_agent")!.inputSchema.required).toEqual(["agent_id"]);
+    expect(tools.get("set_agent_access")!.inputSchema.properties.level.enum).toEqual(["view", "comment", "edit", "remove"]);
+    // The automation tools take the run_agent action, with the agent by id or name and a bounded task.
+    const actions = JSON.stringify(tools.get("create_automation")!.inputSchema.properties.actions);
+    expect(actions).toMatch(/run_agent/);
+    expect(actions).toMatch(/"maxLength":2000/);
+  });
+
+  it("lists agents without their instructions, on read-only connections too", async () => {
+    agents.listAgents.mockResolvedValue([agent]);
+    const { isError, data } = await callTool(reader, "list_agents", { workspace_id: "ws-1", include_archived: true });
+    expect(isError).toBe(false);
+    expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
+    expect(data.agents).toEqual([
+      { id: "agent-1", name: "Ticket router", icon: "🤖", description: "Sorts new tickets", enabled: true, archived: false, user_id: "bot-1" },
+    ]);
+  });
+
+  it("gets an agent with its instructions and the pages shared with it", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    agents.listAgentAccess.mockResolvedValue(access);
+    const { data } = await callTool(reader, "get_agent", { agent_id: "agent-1" });
+    expect(data).toMatchObject({
+      id: "agent-1",
+      workspace_id: "ws-1",
+      instructions: "Set the priority from the ticket's text.",
+      access: {
+        pages: [{ page_id: "db-1", title: "Tickets", kind: "database", level: "edit", url: expect.stringMatching(/\/w\/ws-1\/p\/db-1$/) }],
+        hidden: 1,
+      },
+    });
+  });
+
+  it("creates, changes, archives and restores agents with what was given", async () => {
+    agents.createAgent.mockResolvedValue(agent);
+    const created = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "Ticket router", icon: "🤖", instructions: "Be brief" });
+    expect(created.isError).toBe(false);
+    expect(agents.createAgent).toHaveBeenCalledWith("user-1", "ws-1", { name: "Ticket router", icon: "🤖", instructions: "Be brief" });
+    expect(created.data).toMatchObject({ id: "agent-1", access: { pages: [] } });
+
+    agents.updateAgent.mockResolvedValue({ ...agent, enabled: false, icon: null });
+    const updated = await callTool(writer, "update_agent", { agent_id: "agent-1", enabled: false, icon: null });
+    expect(updated.isError).toBe(false);
+    expect(agents.updateAgent).toHaveBeenCalledWith("user-1", "agent-1", { enabled: false, icon: null });
+    const empty = await callTool(writer, "update_agent", { agent_id: "agent-1" });
+    expect(empty.isError).toBe(true);
+    expect(empty.text).toMatch(/Nothing to change/);
+
+    agents.archiveAgent.mockResolvedValue({ ...agent, archived: true, enabled: false });
+    expect((await callTool(writer, "archive_agent", { agent_id: "agent-1" })).data).toMatchObject({ archived: true });
+    agents.restoreAgent.mockResolvedValue({ ...agent, enabled: false });
+    expect((await callTool(writer, "restore_agent", { agent_id: "agent-1" })).data).toMatchObject({ archived: false, enabled: false });
+  });
+
+  it("shares and unshares pages and returns the agent's access", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    agents.listAgentAccess.mockResolvedValue(access);
+    const shared = await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "db-1", level: "comment" });
+    expect(shared.isError).toBe(false);
+    expect(agents.setAgentAccess).toHaveBeenCalledWith("user-1", "agent-1", "db-1", "comment");
+    expect(shared.data.access.pages).toHaveLength(1);
+    await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "db-1", level: "remove" });
+    expect(agents.removeAgentAccess).toHaveBeenCalledWith("user-1", "agent-1", "db-1");
+    const full = await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "db-1", level: "full" });
+    expect(full.isError).toBe(true);
+  });
+
+  it("refuses writes on read-only connections and turns agent errors into tool errors", async () => {
+    const readOnly = await callTool(reader, "create_agent", { workspace_id: "ws-1", name: "x" });
+    expect(readOnly.isError).toBe(true);
+    expect(readOnly.text).toMatch(/pages:write/);
+    expect(agents.createAgent).not.toHaveBeenCalled();
+
+    const cases: [string, Record<string, string>, RegExp][] = [
+      ["notFound", {}, /list_agents/],
+      ["archived", {}, /restore_agent/],
+      ["tooMany", { max: "50" }, /at most 50 agents/],
+      ["invalid", { reason: "icon" }, /one emoji/],
+    ];
+    for (const [code, params, message] of cases) {
+      agents.updateAgent.mockRejectedValueOnce(new agents.AgentError(code, "x", params));
+      const result = await callTool(writer, "update_agent", { agent_id: "agent-1", name: "y" });
+      expect(result.isError).toBe(true);
+      expect(result.text).toMatch(message);
+    }
+
+    agents.createAgent.mockRejectedValueOnce(new AccessError());
+    const notOwner = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "x" });
+    expect(notOwner.text).toMatch(/Only owners/);
+
+    agents.setAgentAccess.mockRejectedValueOnce(new agents.AgentError("notAPage", "Page not found"));
+    const notAPage = await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "p-x", level: "view" });
+    expect(notAPage.text).toMatch(/agent's workspace/);
+    agents.setAgentAccess.mockRejectedValueOnce(new AccessError());
+    const notFull = await callTool(writer, "set_agent_access", { agent_id: "agent-1", page_id: "p-x", level: "view" });
+    expect(notFull.text).toMatch(/needs full access/);
+  });
+
+  it("lists runs with their steps summarized and rows linked only when the user can open them", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    const source = { kind: "automation", automationId: "auto-1", automationRunId: "arun-1", databaseId: "db-1", rowId: "row-1" };
+    agents.listAgentRuns.mockResolvedValue([
+      {
+        id: "run-1",
+        status: "done",
+        code: null,
+        error: null,
+        source,
+        rowTitle: "Printer jammed",
+        steps: [
+          { kind: "search", query: "printer", results: 2 },
+          { kind: "thought", text: "Hardware issue." },
+          {
+            kind: "write",
+            action: "updateRow",
+            outcome: "done",
+            targetId: "row-1",
+            pageId: "row-1",
+            title: null,
+            changes: [{ property: "Priority", value: "High" }],
+          },
+          { kind: "comment", pageId: "row-1", text: "Set to High.", outcome: "done" },
+        ],
+        answer: "Done.",
+        usage: { inputTokens: 900, outputTokens: 40, costUsd: 0.001, rounds: 3 },
+        createdAt: "2026-10-01T00:00:00.000Z",
+        finishedAt: "2026-10-01T00:00:10.000Z",
+      },
+      { id: "run-2", status: "failed", code: "aiOff", error: null, source: { ...source, rowId: "row-2" }, rowTitle: null, steps: [], answer: "", usage: null, createdAt: "2026-10-01T00:00:00.000Z", finishedAt: "2026-10-01T00:00:01.000Z" },
+    ]);
+    const { isError, data } = await callTool(reader, "list_agent_runs", { agent_id: "agent-1", limit: 5 });
+    expect(isError).toBe(false);
+    expect(agents.listAgentRuns).toHaveBeenCalledWith("user-1", "agent-1", 5);
+    expect(data.runs[0]).toMatchObject({
+      status: "done",
+      source: { kind: "automation", automation_id: "auto-1", database_id: "db-1" },
+      row: { id: "row-1", title: "Printer jammed", url: expect.stringMatching(/\/w\/ws-1\/p\/row-1$/) },
+      answer: "Done.",
+      usage: { rounds: 3, input_tokens: 900, output_tokens: 40 },
+    });
+    expect(data.runs[0].steps.map((s: { summary: string }) => s.summary)).toEqual([
+      'Searched "printer" (2 results)',
+      "Hardware issue.",
+      'Changed the row: "Priority" to "High"',
+      'Commented: "Set to High."',
+    ]);
+    expect(data.runs[1]).toMatchObject({ status: "failed", code: "aiOff", row: { id: "row-2", title: null } });
+    expect(data.runs[1].row).not.toHaveProperty("url");
+  });
+
+  it("passes run_agent actions through and names the agent in automations", async () => {
+    agents.listAgents.mockResolvedValue([agent]);
+    automations.createAutomation.mockResolvedValue({
+      id: "auto-1",
+      databaseId: "db-1",
+      name: "Route",
+      enabled: true,
+      trigger: { type: "row_created" },
+      actions: [{ type: "run_agent", agentId: "agent-1", prompt: "Set the priority" }],
+      runAs: { id: "user-1", name: "Erhan" },
+      secret: null,
+      lastRun: null,
+      createdAt: "2026-10-01T00:00:00.000Z",
+      updatedAt: "2026-10-01T00:00:00.000Z",
+    });
+    const { isError, data } = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "Route",
+      trigger: { type: "row_created" },
+      actions: [{ type: "run_agent", agent: "Ticket router", prompt: "Set the priority" }],
+    });
+    expect(isError).toBe(false);
+    expect(automations.createAutomation.mock.calls[0][2].actions).toEqual([{ type: "run_agent", agent: "Ticket router", prompt: "Set the priority" }]);
+    expect(agents.listAgents).toHaveBeenCalledWith("user-1", "ws-1", { archived: true });
+    expect(data.actions[0]).toEqual({
+      type: "run_agent",
+      agent: { id: "agent-1", name: "Ticket router" },
+      prompt: "Set the priority",
+      summary: 'Run the agent "Ticket router" on the row',
+    });
+
+    const tooLong = await callTool(writer, "create_automation", {
+      database_id: "db-1",
+      name: "Route",
+      trigger: { type: "row_created" },
+      actions: [{ type: "run_agent", agent: "Ticket router", prompt: "x".repeat(2001) }],
+    });
+    expect(tooLong.isError).toBe(true);
   });
 });

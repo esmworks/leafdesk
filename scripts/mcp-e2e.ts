@@ -393,6 +393,8 @@ async function main() {
     "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page",
     "list_recent_pages", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
+    "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
+    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "list_agent_runs",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
   const getPageTool = list.message.result.tools.find((t: { name: string }) => t.name === "get_page");
@@ -779,6 +781,129 @@ async function main() {
   const calendarBad = await mcp.call("update_database_view", { database_id: dbPage.id, view_id: calendar.id, date_by: "Status" });
   check(calendarBad.isError && calendarBad.text.includes("date property"), "calendars refuse non-date properties", calendarBad.text);
 
+  // ---- agents: owners create and share pages with them; an automation runs them on rows
+  const noAgents = await mcp.ok("list_agents", { workspace_id: ws });
+  check(Array.isArray(noAgents.agents) && noAgents.agents.length === 0, "list_agents lists no agents in a new workspace", noAgents);
+  const triage = await mcp.ok("create_agent", {
+    workspace_id: ws,
+    name: `Triage ${RUN}`,
+    icon: "🤖",
+    description: "Sorts new tasks",
+    instructions: "Set the task's priority from its text.",
+    enabled: false,
+  });
+  if (triage.user_id) userIds.push(triage.user_id);
+  check(
+    triage.name === `Triage ${RUN}` && triage.icon === "🤖" && triage.enabled === false && triage.user_id && triage.access?.pages?.length === 0,
+    "create_agent makes an agent with a user of its own and nothing shared",
+    triage,
+  );
+  const badIcon = await mcp.call("create_agent", { workspace_id: ws, name: "Bad", icon: "not an emoji at all" });
+  check(badIcon.isError && /one emoji/.test(badIcon.text), "create_agent refuses an icon that isn't an emoji", badIcon.text);
+  const agentNoChange = await mcp.call("update_agent", { agent_id: triage.id });
+  check(agentNoChange.isError && /Nothing to change/.test(agentNoChange.text), "update_agent without changes is a tool error", agentNoChange.text);
+  const renamedAgent = await mcp.ok("update_agent", { agent_id: triage.id, name: `Triage bot ${RUN}`, enabled: true });
+  check(renamedAgent.name === `Triage bot ${RUN}` && renamedAgent.enabled === true, "update_agent renames and turns the agent on", renamedAgent);
+  const listedAgents = await mcp.ok("list_agents", { workspace_id: ws });
+  check(
+    listedAgents.agents.length === 1 && listedAgents.agents[0].id === triage.id && !("instructions" in listedAgents.agents[0]),
+    "list_agents lists the agent, without its instructions",
+    listedAgents,
+  );
+  const sharedRoot = await mcp.ok("set_agent_access", { agent_id: triage.id, page_id: root.id, level: "view" });
+  check(
+    sharedRoot.access.pages.some((p: { page_id: string; level: string; url: string }) => p.page_id === root.id && p.level === "view" && p.url === `${BASE}/w/${ws}/p/${root.id}`),
+    "set_agent_access shares a page with the agent",
+    sharedRoot.access,
+  );
+  const fullForAgent = await mcp.call("set_agent_access", { agent_id: triage.id, page_id: root.id, level: "full" });
+  check(fullForAgent.isError, "agents never get full access", fullForAgent.text);
+  const unknownAgent = await mcp.call("get_agent", { agent_id: crypto.randomUUID() });
+  check(unknownAgent.isError && /list_agents/.test(unknownAgent.text), "an unknown agent id is a tool error pointing at list_agents", unknownAgent.text);
+
+  const agentAutomation = await mcp.ok("create_automation", {
+    database_id: dbPage.id,
+    name: "Triage new tasks",
+    trigger: { type: "row_created" },
+    actions: [{ type: "run_agent", agent: `triage bot ${RUN}`, prompt: "Set the priority." }],
+  });
+  check(
+    agentAutomation.actions[0].agent?.id === triage.id && agentAutomation.actions[0].summary === `Run the agent "Triage bot ${RUN}" on the row`,
+    "create_automation takes run_agent with the agent by name and names it back",
+    agentAutomation.actions,
+  );
+  const tooLongTask = await mcp.call("create_automation", {
+    database_id: dbPage.id,
+    name: "Too long",
+    trigger: { type: "row_created" },
+    actions: [{ type: "run_agent", agent: triage.id, prompt: "x".repeat(2001) }],
+  });
+  check(tooLongTask.isError, "a run_agent task over 2000 characters is refused", tooLongTask.text);
+  const noSuchAgent = await mcp.call("create_automation", {
+    database_id: dbPage.id,
+    name: "No agent",
+    trigger: { type: "row_created" },
+    actions: [{ type: "run_agent", agent: "Nobody" }],
+  });
+  check(noSuchAgent.isError && /not an agent/.test(noSuchAgent.text), "run_agent refuses an unknown agent", noSuchAgent.text);
+  const agentWithDb = await mcp.ok("get_agent", { agent_id: triage.id });
+  check(
+    agentWithDb.access.pages.some((p: { page_id: string; level: string }) => p.page_id === dbPage.id && p.level === "edit"),
+    "saving the automation shares the database with the agent at edit",
+    agentWithDb.access,
+  );
+  const triaged = await mcp.ok("create_database_row", { database_id: dbPage.id, title: `Printer jammed ${RUN}` });
+  // AI isn't set up for this run: the automation queues a run, which ends as aiOff.
+  let agentRuns: any = null;
+  for (let i = 0; i < 60; i++) {
+    agentRuns = await mcp.ok("list_agent_runs", { agent_id: triage.id, limit: 5 });
+    if (agentRuns.runs.some((r: { status: string }) => r.status === "failed" || r.status === "done")) break;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  const agentRunEntry = agentRuns?.runs?.[0];
+  check(
+    agentRunEntry?.status === "failed" &&
+      agentRunEntry.code === "aiOff" &&
+      agentRunEntry.row?.id === triaged.id &&
+      agentRunEntry.row?.url === `${BASE}/w/${ws}/p/${triaged.id}` &&
+      agentRunEntry.source?.automation_id === agentAutomation.id,
+    "list_agent_runs shows the run the automation started, ended as aiOff without AI",
+    agentRuns,
+  );
+  const automationRuns = await mcp.ok("list_automation_runs", { automation_id: agentAutomation.id });
+  check(
+    automationRuns.runs[0]?.steps?.[0]?.type === "run_agent" && automationRuns.runs[0].steps[0].agent_run_id === agentRunEntry.id,
+    "list_automation_runs links the run_agent step to the agent's run",
+    automationRuns.runs,
+  );
+  await mcp.ok("delete_automation", { automation_id: agentAutomation.id });
+
+  // A workspace that lets connected apps only read refuses agent changes with that reason.
+  const { updateWorkspaceSettings } = await import("@/server/workspaces");
+  await updateWorkspaceSettings(userIds[0], ws, { connectedApps: "read" });
+  const readOnlyAgent = await mcp.call("update_agent", { agent_id: triage.id, description: "x" });
+  const readOnlyAgentList = await mcp.call("get_agent", { agent_id: triage.id });
+  await updateWorkspaceSettings(userIds[0], ws, { connectedApps: "full" });
+  check(readOnlyAgent.isError && /only read/.test(readOnlyAgent.text), "update_agent in a read-only workspace says apps may only read", readOnlyAgent.text);
+  check(!readOnlyAgentList.isError, "…while get_agent still reads", readOnlyAgentList.text);
+
+  const unshared = await mcp.ok("set_agent_access", { agent_id: triage.id, page_id: root.id, level: "remove" });
+  check(!unshared.access.pages.some((p: { page_id: string }) => p.page_id === root.id), "set_agent_access remove stops sharing a page", unshared.access);
+  const archivedAgent = await mcp.ok("archive_agent", { agent_id: triage.id });
+  check(archivedAgent.archived === true && archivedAgent.enabled === false, "archive_agent archives and pauses the agent", archivedAgent);
+  const afterArchive = await mcp.ok("list_agents", { workspace_id: ws });
+  const withArchived = await mcp.ok("list_agents", { workspace_id: ws, include_archived: true });
+  check(afterArchive.agents.length === 0 && withArchived.agents[0]?.archived === true, "archived agents are listed only when asked", { afterArchive, withArchived });
+  const changeArchived = await mcp.call("update_agent", { agent_id: triage.id, name: "x" });
+  check(changeArchived.isError && /restore_agent/.test(changeArchived.text), "an archived agent can't be changed until restored", changeArchived.text);
+  const restoredAgent = await mcp.ok("restore_agent", { agent_id: triage.id });
+  const restoredAccess = await mcp.ok("get_agent", { agent_id: triage.id });
+  check(
+    restoredAgent.archived === false && restoredAgent.enabled === false && restoredAccess.access.pages.length === 0,
+    "restore_agent brings it back paused, with nothing shared",
+    restoredAccess,
+  );
+
   // ---- history: read an old version and bring it back
   const history = await mcp.ok("list_page_history", { page_id: root.id });
   check(history.versions.some((v: { by: string | null }) => v.by?.includes(" via ")), "list_page_history names the MCP client", history);
@@ -851,6 +976,10 @@ async function main() {
     "attach_file without files:write → 403 insufficient_scope",
     { status: roFile.status, fileStepUp },
   );
+  const roAgents = await roMcp.call("list_agents", { workspace_id: ws });
+  check(!roAgents.isError && roAgents.data.agents.length === 1, "read-only token can list agents", roAgents.text);
+  const roAgentWrite = await roMcp.request("tools/call", { name: "create_agent", arguments: { workspace_id: ws, name: "Should not exist" } });
+  check(roAgentWrite.status === 403, "create_agent with read-only token → 403", roAgentWrite.status);
   const stillThere = await mcp.ok("get_page", { page_id: root.id });
   check(!stillThere.in_trash, "read-only token did not change anything");
 

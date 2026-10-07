@@ -88,8 +88,12 @@ versions, upgrades and running behind a domain.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
   - Row templates with preset properties and content; pick one as the default for "New".
 - **Database automations**: when a row is added, or a property changes (or changes to a given
-  value), set properties, notify people, or send the row to a webhook signed with HMAC-SHA256,
-  with a 30-day run history (see [Automations and webhooks](#automations-and-webhooks)).
+  value), set properties, notify people, send the row to a webhook signed with HMAC-SHA256, or
+  run an agent on the row, with a 30-day run history (see
+  [Automations and webhooks](#automations-and-webhooks)).
+- **Agents**: AI helpers with instructions of their own that automations run on database rows.
+  Each acts as a user of its own that sees only the pages shared with it, and its changes and
+  comments show its name (see [Agents](#agents)).
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan or a project tracker.
   Templates stay out of the sidebar, search, trash and published sites.
@@ -785,6 +789,9 @@ full access to the database see and manage its automations, in the app or over M
   and an email as each of them chooses in My account → Preferences. Only people who can open the
   row are notified.
 - *Send a webhook*: a signed JSON POST to an http(s) address (below).
+- *Run an agent* on the row, with a task of up to 2000 characters (see [Agents](#agents)). Saving
+  the automation shares its database with the agent at edit access. The run is queued and done
+  apart, so the automation's run counts the action as done once the agent's run is queued.
 
 A database has at most 50 automations, an automation at most 10 actions, and a notify action at
 most 50 chosen people.
@@ -1058,6 +1065,53 @@ add a `vector(n)` column filled from `embedding` (one model and dimension per co
 index (`vector_cosine_ops`), and order the `ranked` step of `src/server/semantic-search.ts` by
 `embedding <=> query` over a larger candidate set before the access filter's final cut.
 
+## Agents
+
+An agent is an AI helper of a workspace with a name, an emoji, a description and instructions of
+its own. In this version an automation's *Run an agent* action starts it: when the automation
+runs on a row, the agent gets its instructions, the action's task, what happened to the row and
+the row itself, and works on it.
+
+**Its own user.** Each agent acts as a user of its own: a bot user that can't sign in (its address,
+`agent-<id>@agents.leafdesk.invalid`, can't receive mail), added to the workspace as a guest. Like
+any guest it sees only the pages shared with it, never through teamspaces, groups or "everyone",
+and its changes, comments and page history show its name. It never gets full access, so it can't
+share pages or manage databases.
+
+**Sharing pages with it.** Share a page with an agent at view, comment or edit, as with a person;
+the pages and rows under it follow. Sharing needs full access to the page. An agent reads and
+changes a database's rows only with access to the database; saving an automation that runs an
+agent shares that database with it at edit access.
+
+**What a run may do.** Search and read what is shared with the agent, query its databases, and
+change or comment on the row that started the run, nothing else. A run takes at most 8 model turns,
+makes at most 5 changes and comments, and lasts at most 2 minutes. Runs are queued and done a few at
+a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
+(`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
+30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
+used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `provider`, `timeout`,
+`tooManyAttempts` or `error`).
+
+**AI must be on.** Agents use the chat model: the server needs an AI provider (see
+[AI features](#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.
+
+**No chains.** Changes and comments an agent makes don't start automations, so agents and
+automations can't set each other off.
+
+**Managing agents.** Owners of the workspace create, change, pause, archive and restore agents and
+choose what is shared with them; members can list them (to pick one in an automation). A
+workspace has at most 50 agents. A paused agent doesn't run: its queued runs end as
+`agentDisabled`. Archiving one also unshares every page shared with it and takes it off the lists;
+its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
+shared. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
+`list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
+`set_agent_access` and `list_agent_runs`. The REST API has no agent endpoints.
+
+> [!WARNING]
+> Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in
+> a comment. Everyone who can open those rows sees it, even when they can't open the page it came
+> from. Share with an agent only what everyone who sees its database may see.
+
 ## Connect an AI assistant
 
 The server URL is `<APP_URL>/mcp`. My account → *Connected apps* shows ready-to-copy
@@ -1123,7 +1177,12 @@ The tools cover:
   `delete_automation` and `list_automation_runs` (see
   [Automations and webhooks](#automations-and-webhooks)). They need full access to the database;
   properties are named by name or id and people by id, email, name or `"me"`, and
-  `list_automations` shows names next to the stored ids.
+  `list_automations` shows names next to the stored ids. A `run_agent` action names an agent
+  by id or name.
+- **Agents:** `list_agents`, `get_agent` (its instructions and the pages shared with it),
+  `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access` (view,
+  comment, edit or remove) and `list_agent_runs` (each run's steps summarized). Owners manage
+  agents; members can list them (see [Agents](#agents)).
 
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that
 change anything, and a workspace's owners can let apps only read it, or hide it from them (see
@@ -1162,6 +1221,9 @@ curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   /databases/{id}/rows/bulk` (up to 100), `PATCH /databases/{id}/rows` (same values on many rows),
   `GET` and `PATCH /rows/{id}`.
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
+
+Automations and agents have no REST endpoints: automations are managed in the app or over MCP,
+agents over MCP.
 
 The API and the MCP server share one service layer (`src/server/operations.ts`), so they check
 input, access and history the same way: a token acts as its user, with that user's own access to

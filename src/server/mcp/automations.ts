@@ -8,8 +8,11 @@ import {
   type AutomationAction,
   type AutomationTrigger,
 } from "@/lib/automations";
+import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { displayValue, PropertyValueError } from "@/lib/properties";
 import { holdsPeople } from "@/lib/property-types";
+import { AccessError } from "@/server/access";
+import * as agents from "@/server/agents/manage";
 import type { AutomationInput, AutomationRunView, AutomationView } from "@/server/automations/manage";
 import * as databases from "@/server/databases";
 import { id, rowValue } from "@/server/operations";
@@ -74,6 +77,15 @@ const actionInput = z.discriminatedUnion("type", [
     type: z.literal("webhook"),
     url: z.string().min(1).max(MAX_WEBHOOK_URL).describe("The http(s) address the signed JSON POST goes to."),
   }),
+  z.object({
+    type: z.literal("run_agent"),
+    agent: z.string().min(1).describe("The agent, by id or name (list_agents lists the workspace's agents)."),
+    prompt: z
+      .string()
+      .max(MAX_AGENT_PROMPT)
+      .optional()
+      .describe(`The task the agent gets for the row, on top of its own instructions (at most ${MAX_AGENT_PROMPT} characters).`),
+  }),
 ]);
 
 const actionsInput = z
@@ -81,7 +93,7 @@ const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    "What the automation does, in order: set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row) or webhook.",
+    "What the automation does, in order: set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row), webhook, or run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access).",
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -124,7 +136,9 @@ const toActions = (actions: ActionsArg): AutomationInput["actions"] =>
       ? { type: "set_properties", values: a.values }
       : a.type === "notify"
         ? { type: "notify", people: a.people ?? [], properties: a.properties ?? [] }
-        : { type: "webhook", url: a.url },
+        : a.type === "webhook"
+          ? { type: "webhook", url: a.url }
+          : { type: "run_agent", agent: a.agent, ...(a.prompt !== undefined ? { prompt: a.prompt } : {}) },
   );
 
 /** create_automation's arguments as manage.createAutomation takes them. */
@@ -172,14 +186,27 @@ export async function withAutomationErrors<T>(fn: () => Promise<T>): Promise<T> 
 
 type Person = { id: string; name: string };
 
-/** What it takes to name a database's properties, options and people. */
-export type AutomationContext = { workspaceId: string; props: PropertyDef[]; lookups: Lookups; people: Person[] };
+type AgentRef = { id: string; name: string };
+
+/** What it takes to name a database's properties, options, people and agents. */
+export type AutomationContext = { workspaceId: string; props: PropertyDef[]; lookups: Lookups; people: Person[]; agents: AgentRef[] };
+
+/** The workspace's agents, archived ones too, for naming them; none for those who can't list them (guests). */
+async function agentNames(userId: string, workspaceId: string): Promise<AgentRef[]> {
+  try {
+    return (await agents.listAgents(userId, workspaceId, { archived: true })).map((a) => ({ id: a.id, name: a.name }));
+  } catch (error) {
+    if (error instanceof AccessError) return [];
+    throw error;
+  }
+}
 
 export async function automationContext(userId: string, databaseId: string): Promise<AutomationContext> {
   const { database, properties } = await databases.getDatabase(userId, databaseId);
-  const [lookups, members] = await Promise.all([
+  const [lookups, members, agentRefs] = await Promise.all([
     databases.getLookups(userId, properties),
     workspaces.workspacePeople(database.workspaceId),
+    agentNames(userId, database.workspaceId),
   ]);
   const people = new Map<string, Person>();
   for (const p of [...lookups.people, ...members]) if (!people.has(p.id)) people.set(p.id, { id: p.id, name: p.name });
@@ -188,6 +215,7 @@ export async function automationContext(userId: string, databaseId: string): Pro
     props: properties as PropertyDef[],
     lookups: { ...lookups, people: [...people.values()].map((p) => ({ ...p, email: null })) },
     people: [...people.values()],
+    agents: agentRefs,
   };
 }
 
@@ -256,7 +284,15 @@ function describeAction(ctx: AutomationContext, action: AutomationAction) {
     ];
     return { type: "notify", people, properties, summary: `Notify ${who.join(", ")}` };
   }
-  if (action.type === "run_agent") return { type: "run_agent", agent_id: action.agentId, prompt: action.prompt, summary: `Run the agent ${action.agentId} on the row` };
+  if (action.type === "run_agent") {
+    const agent = { id: action.agentId, name: ctx.agents.find((a) => a.id === action.agentId)?.name ?? null };
+    return {
+      type: "run_agent",
+      agent,
+      prompt: action.prompt,
+      summary: `Run the agent ${agent.name !== null ? quote(agent.name) : agent.id} on the row`,
+    };
+  }
   return { type: "webhook", url: action.url, summary: `POST the row to ${action.url}` };
 }
 
@@ -293,6 +329,7 @@ export function describeRun(run: AutomationRunView) {
       ...(s.error ? { error: s.error } : {}),
       ...(s.httpStatus ? { http_status: s.httpStatus } : {}),
       ...(s.notified !== undefined ? { notified: s.notified } : {}),
+      ...(s.agentRunId ? { agent_run_id: s.agentRunId } : {}),
     })),
     created_at: run.createdAt,
     finished_at: run.finishedAt,

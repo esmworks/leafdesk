@@ -60,12 +60,23 @@ import * as notifications from "@/server/notifications";
 import * as pages from "@/server/pages";
 import * as templates from "@/server/templates";
 import { builtinTemplates } from "@/lib/builtin-templates";
-import { AccessError } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@/server/operations";
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import * as automations from "@/server/automations/manage";
+import * as agents from "@/server/agents/manage";
+import {
+  agentInputs,
+  describeAgent,
+  describeAgentRun,
+  describeAgentSummary,
+  toAgentPatch,
+  withAgentErrors,
+  withSharingErrors,
+} from "./agents";
+import { AGENT_RUN_HISTORY_DAYS, AGENT_RUN_TIMEOUT_MS, MAX_AGENT_ROUNDS, MAX_AGENT_WRITES } from "@/lib/agents";
 import {
   automationContext,
   automationInputs,
@@ -101,7 +112,8 @@ list_notifications shows the user's inbox: rows someone assigned them to, pages 
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
-Database automations do things when a row is added or a property of a row changes (to a value): set properties, notify people, or POST the row to a webhook. People with full access to a database manage them with list_automations, create_automation, update_automation and delete_automation (list_automation_runs shows how runs went); an automation acts as the person who saved it last, and the changes it makes start no other automations.
+Database automations do things when a row is added or a property of a row changes (to a value): set properties, notify people, POST the row to a webhook, or run an agent on the row. People with full access to a database manage them with list_automations, create_automation, update_automation and delete_automation (list_automation_runs shows how runs went); an automation acts as the person who saved it last, and the changes it makes start no other automations.
+Agents are AI helpers of a workspace with instructions of their own, run by an automation's run_agent action on the row that started it. Each acts as a user of its own (a guest of the workspace): it opens only the pages shared with it (set_agent_access: view, comment or edit), and its changes and comments show its name. Workspace owners manage agents (list_agents, get_agent, create_agent, update_agent, archive_agent, restore_agent, set_agent_access, list_agent_runs); members can list them. Runs need AI set up on the server and on for the workspace.
 Templates are starting points for new pages and rows: list_templates lists a workspace's page templates (and the built-in gallery) or a database's row templates; create_page and create_database_row take a template_id. A database's default row template is used by create_database_row when no properties or body are given. Templates don't show up in search or list_pages.
 Always share the returned url with the user when you create or change something.`;
 
@@ -1495,7 +1507,7 @@ export function createMcpServer(principal: McpPrincipal) {
   );
 
   const AUTOMATION_NOTE =
-    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations.";
+    "Managing automations needs full access to the database. An automation runs as the person who saved it last (saving makes that the user), with their access at the time; it stops running if they lose full access. Changes an automation makes don't start other automations. A run_agent action names an agent by id or name (list_agents) and may give it a task (prompt); saving the automation shares the database with the agent at edit access, so it can read and change the rows it runs on. The agent runs apart, as itself, and what it changes starts no automations either.";
   const WEBHOOK_NOTE =
     'A webhook gets a JSON POST (event row.created or row.updated, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx answers are tried again, up to 5 times in all. Addresses on private networks or local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS.';
 
@@ -1522,7 +1534,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "create_automation",
     {
       title: "Create a database automation",
-      description: `Create an automation on a database: when a row is added, or a property of a row changes (optionally only when it becomes a given value), do the actions in order: set properties on the row, notify people (in their inbox, and by email as each of them chooses; only people who can open the row), or send the row to a webhook. Properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for property names and options.`,
+      description: `Create an automation on a database: when a row is added, or a property of a row changes (optionally only when it becomes a given value), do the actions in order: set properties on the row, notify people (in their inbox, and by email as each of them chooses; only people who can open the row), send the row to a webhook, or run an agent on the row. Properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for property names and options.`,
       inputSchema: automationInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -1585,6 +1597,144 @@ export function createMcpServer(principal: McpPrincipal) {
           automation_id,
           runs: (await automations.listAutomationRuns(userId, automation_id, limit)).map(describeRun),
         })),
+      ),
+  );
+
+  const AGENT_NOTE =
+    "Only owners of the workspace manage agents; others get \"No agent with this id\". An agent acts as a user of its own, a guest of the workspace: it opens only the pages shared with it (set_agent_access), never with full access, and its changes and comments show its name.";
+  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it, and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
+
+  server.registerTool(
+    "list_agents",
+    {
+      title: "List a workspace's agents",
+      description:
+        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, and the id of its own user (what its changes and comments show). Owners and members can list them; guests can't. get_agent shows an agent's instructions and the pages shared with it.",
+      inputSchema: agentInputs.list,
+      annotations: READ,
+    },
+    ({ workspace_id, include_archived }) =>
+      runTool(async () => ({
+        workspace_id,
+        agents: (await agents.listAgents(userId, workspace_id, { archived: include_archived })).map(describeAgentSummary),
+      })),
+  );
+
+  server.registerTool(
+    "get_agent",
+    {
+      title: "Get an agent",
+      description: `Get an agent from list_agents: its instructions and the pages shared with it, each with the agent's level (view, comment or edit) and link. Pages shared with it that the user can't open are only counted (hidden). ${AGENT_NOTE}`,
+      inputSchema: agentInputs.agentId,
+      annotations: READ,
+    },
+    ({ agent_id }) =>
+      runTool(() =>
+        withAgentErrors(async () => {
+          const agent = await agents.getAgent(userId, agent_id);
+          return describeAgent(agent, await agents.listAgentAccess(userId, agent_id));
+        }),
+      ),
+  );
+
+  server.registerTool(
+    "create_agent",
+    {
+      title: "Create an agent",
+      description: `Create an agent in a workspace: a name, an optional emoji icon and description, and instructions it follows on every run. It gets a user of its own, a guest of the workspace that can't sign in, and starts with nothing shared with it: share pages it should read with set_agent_access, and run it from a database automation (create_automation with a run_agent action, which shares that database with it at edit access). ${RUN_NOTE} Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees. Only owners create agents; a workspace has at most 50.`,
+      inputSchema: agentInputs.create,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ workspace_id, ...input }) =>
+      withAgentErrors(async () => {
+        try {
+          return describeAgent(await agents.createAgent(userId, workspace_id, input), { pages: [], hidden: 0 });
+        } catch (error) {
+          if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
+            throw new ToolInputError("Only owners of a workspace create agents. Check the workspace id and the user's role with list_workspaces.");
+          }
+          throw error;
+        }
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "update_agent",
+    {
+      title: "Change an agent",
+      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, or whether it is enabled (false pauses it: its queued runs end without doing anything). What you leave out stays as it is. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.update,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, ...input }) =>
+      withAgentErrors(async () => {
+        const patch = toAgentPatch(input);
+        return describeAgent(await agents.updateAgent(userId, agent_id, patch));
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "archive_agent",
+    {
+      title: "Archive an agent",
+      description: `Archive an agent: it stops (its queued runs end without doing anything), every page shared with it is unshared, and it leaves the lists; runs that automations start for it end as agentDisabled. Its user stays, so its past changes and comments keep its name. restore_agent brings it back, paused and with nothing shared. Confirm with the user first; to only pause it, call update_agent with enabled false. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.agentId,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id }) => withAgentErrors(async () => describeAgent(await agents.archiveAgent(userId, agent_id)))),
+  );
+
+  server.registerTool(
+    "restore_agent",
+    {
+      title: "Restore an archived agent",
+      description: `Bring an archived agent back (list_agents with include_archived). It comes back paused and with nothing shared with it: share pages again with set_agent_access and turn it on with update_agent (enabled true). ${AGENT_NOTE}`,
+      inputSchema: agentInputs.agentId,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id }) => withAgentErrors(async () => describeAgent(await agents.restoreAgent(userId, agent_id)))),
+  );
+
+  server.registerTool(
+    "set_agent_access",
+    {
+      title: "Share a page with an agent",
+      description: `Share a page (with the pages and rows under it) with an agent at view, comment or edit, or stop sharing it ("remove"). An agent reads and changes a database's rows only with access to the database. Sharing needs full access to the page, as sharing it with anyone does. Anything shared with an agent can end up in the rows it writes, which everyone who can open those rows sees; share only what the agent needs. Returns the agent with the pages now shared with it. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.access,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, page_id, level }) =>
+      withSharingErrors(async () => {
+        if (level === "remove") await agents.removeAgentAccess(userId, agent_id, page_id);
+        else await agents.setAgentAccess(userId, agent_id, page_id, level);
+        const agent = await agents.getAgent(userId, agent_id);
+        return describeAgent(agent, await agents.listAgentAccess(userId, agent_id));
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "list_agent_runs",
+    {
+      title: "List an agent's runs",
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): the automation and row that started each (the row's title only when the user can open it), its status (pending, running, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts or error), what it did step by step (searched, read, queried, changed the row, commented, its thoughts), its final answer and the tokens it used. ${RUN_NOTE} ${AGENT_NOTE}`,
+      inputSchema: agentInputs.runs,
+      annotations: READ,
+    },
+    ({ agent_id, limit }) =>
+      runTool(() =>
+        withAgentErrors(async () => {
+          const agent = await agents.getAgent(userId, agent_id);
+          const runs = await agents.listAgentRuns(userId, agent_id, limit);
+          return { agent_id, runs: runs.map((run) => describeAgentRun(agent.workspaceId, run)) };
+        }),
       ),
   );
 
