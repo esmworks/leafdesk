@@ -284,19 +284,24 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
       if (level !== "none") titles.set(row.id, row.title);
     }
   }
-  return runs.map((r) => ({
-    id: r.id,
-    status: r.status,
-    code: r.code ?? null,
-    error: r.error,
-    source: r.source,
-    rowTitle: titles.get(r.source.rowId) ?? null,
-    steps: r.steps,
-    answer: r.answer,
-    usage: r.usage,
-    createdAt: r.createdAt.toISOString(),
-    finishedAt: r.finishedAt?.toISOString() ?? null,
-  }));
+  // What a run read, thought and answered can quote pages the agent may open and the viewer may
+  // not; it all ends up on the row anyway, so only people who can open the row see it.
+  return runs.map((r) => {
+    const open = titles.has(r.source.rowId);
+    return {
+      id: r.id,
+      status: r.status,
+      code: r.code ?? null,
+      error: open ? r.error : null,
+      source: r.source,
+      rowTitle: titles.get(r.source.rowId) ?? null,
+      steps: open ? r.steps : [],
+      answer: open ? r.answer : "",
+      usage: r.usage,
+      createdAt: r.createdAt.toISOString(),
+      finishedAt: r.finishedAt?.toISOString() ?? null,
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------------- lookups

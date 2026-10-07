@@ -238,6 +238,29 @@ try {
   const history = await agents.listAgentRuns(ids.owner, router.id);
   check(history.length === 1 && history[0].rowTitle?.startsWith("I want a refund") === true, "the agent's history lists the run with its row", history);
   check(await fails(agents.listAgentRuns(ids.member, router.id), isAccess), "only owners see an agent's history");
+  const hiddenRow = await createPage({ userId: ids.member }, { workspaceId, teamspaceId: null, title: "Member's private row" });
+  check((await pageAccessOf(ids.owner, hiddenRow.id)).level === "none", "(an owner can't open a member's private page)");
+  const [hiddenRun] = await db
+    .insert(agentRun)
+    .values({
+      agentId: router.id,
+      workspaceId,
+      source: { kind: "automation", automationId: triage.id, automationRunId: "x", databaseId: tickets.id, rowId: hiddenRow.id },
+      context: { created: true, changed: [], actorId: ids.member },
+      status: "done",
+      error: "HIDDEN-ERROR",
+      steps: [{ kind: "thought", text: "HIDDEN-THOUGHT" }],
+      answer: "HIDDEN-ANSWER",
+      finishedAt: new Date(),
+    })
+    .returning();
+  const hiddenView = (await agents.listAgentRuns(ids.owner, router.id)).find((r) => r.id === hiddenRun.id);
+  check(
+    hiddenView && hiddenView.status === "done" && hiddenView.rowTitle === null && hiddenView.steps.length === 0 && hiddenView.answer === "" && hiddenView.error === null,
+    "on a row the owner can't open, the history shows how a run ended but not what it read, thought or answered",
+    hiddenView,
+  );
+  await db.delete(agentRun).where(eq(agentRun.id, hiddenRun.id));
 
   // ── An agent isn't a person ─────────────────────────────────────────────────────────────────
   const botId = router.userId;
