@@ -155,6 +155,8 @@ export function connectionSlug(name: string, taken: ReadonlySet<string>) {
     name
       .normalize("NFKD")
       .toLowerCase()
+      // Letters that don't decompose to a Latin one.
+      .replace(/[ıłøđßæœ]/g, (c) => ({ ı: "i", ł: "l", ø: "o", đ: "d", ß: "ss", æ: "ae", œ: "oe" })[c] ?? "")
       .replace(/[^a-z0-9]+/g, "")
       .slice(0, 10) || "conn";
   if (!taken.has(base)) return base;

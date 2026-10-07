@@ -1,8 +1,9 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, connection, notification, workspaceAgent, workspaceMember } from "@/db/schema";
+import { agentRun, connection, notification, workspaceAgent } from "@/db/schema";
 import type { AgentPendingCall, ApprovalDecision } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
+import { workspaceOwnerIds } from "@/server/access";
 import { kickAgents } from "@/server/agents/kick";
 import { recordAudit } from "@/server/audit";
 import { signalInbox } from "@/server/notifications";
@@ -24,14 +25,6 @@ export class ApprovalError extends Error {
   }
 }
 
-async function ownersOf(workspaceId: string) {
-  const rows = await db
-    .select({ userId: workspaceMember.userId })
-    .from(workspaceMember)
-    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.role, "owner")));
-  return rows.map((r) => r.userId);
-}
-
 /** Tells the workspace's open sidebars to fetch their inbox again; the items are saved whether or not it reaches them. */
 function refreshInboxes(workspaceId: string) {
   try {
@@ -43,7 +36,7 @@ function refreshInboxes(workspaceId: string) {
 
 /** Tells the workspace's owners a call waits for them (an inbox item each, about the run). */
 export async function notifyApprovers(run: { id: string; workspaceId: string }, agentUserId: string) {
-  const owners = await ownersOf(run.workspaceId);
+  const owners = await workspaceOwnerIds(run.workspaceId);
   if (!owners.length) return;
   await db.insert(notification).values(
     owners.map((userId) => ({ userId, workspaceId: run.workspaceId, kind: "agent_approval" as const, actorId: agentUserId, agentRunId: run.id })),
@@ -69,11 +62,7 @@ export async function decideApproval(userId: string, input: { runId: string; cal
     .from(agentRun)
     .where(eq(agentRun.id, input.runId));
   if (!run) throw new ApprovalError("notFound", "No such run");
-  const [member] = await db
-    .select({ role: workspaceMember.role })
-    .from(workspaceMember)
-    .where(and(eq(workspaceMember.workspaceId, run.workspaceId), eq(workspaceMember.userId, userId)));
-  if (member?.role !== "owner") throw new ApprovalError("forbidden", "Only owners of the workspace answer an agent's calls");
+  if (!(await workspaceOwnerIds(run.workspaceId)).includes(userId)) throw new ApprovalError("forbidden", "Only owners of the workspace answer an agent's calls");
   const decision = { decision: input.decision, userId, ...(input.decision === "redo" ? { note } : {}) };
   // Only the first answer to this very call counts.
   const [taken] = await db
