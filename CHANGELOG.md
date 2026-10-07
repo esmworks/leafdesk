@@ -88,7 +88,9 @@
   colors, chart groups and page history now use one palette built from the same lightness and
   saturation per role in each hue, slightly richer than before, with gray leaning toward the brand
   green. Every text and background pair reads at 4.5:1 or more in both themes; dark mode also sets
-  the editor's text colors, which came from BlockNote until now.
+  the editor's text colors, which came from BlockNote until now. In dark mode option chips are
+  mid-tone instead of near-black and board cards take more of their column's hue, so groups and
+  tags tell apart at a glance.
 - **Trademark notice.** The README and the website say that Notion is a trademark of Notion Labs,
   Inc. and that Leafdesk is not affiliated with it. The MCP server's instructions describe Leafdesk
   on its own terms instead of as "Notion-like".
