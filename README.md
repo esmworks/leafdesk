@@ -1098,8 +1098,11 @@ used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `provi
 **No chains.** Changes and comments an agent makes don't start automations, so agents and
 automations can't set each other off.
 
-**Managing agents.** Owners of the workspace create, change, pause, archive and restore agents and
-choose what is shared with them; members can list them (to pick one in an automation). A
+**Managing agents.** In Settings → *Agents*, owners of the workspace create, change, pause,
+archive and restore agents, choose what is shared with them and look through their runs; members
+see the list (and pick an agent in an automation). A run's steps, answer and error show only to
+owners who can open its row. Where an agent acted, it shows as an agent: its icon in *Created by*
+and *Last edited by*, "(agent)" after its name on comments and in page history. A
 workspace has at most 50 agents. A paused agent doesn't run: its queued runs end as
 `agentDisabled`. Archiving one also unshares every page shared with it and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
@@ -1111,6 +1114,18 @@ shared. Creating, changing and archiving agents is recorded in the audit log. Ov
 > Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in
 > a comment. Everyone who can open those rows sees it, even when they can't open the page it came
 > from. Share with an agent only what everyone who sees its database may see.
+
+**Built-in agents.** Settings → *Agents* → *Start from a template* sets one up on a database in one
+step: it creates the agent with instructions in your language that name the properties you pick
+(creating a property or option when you ask), shares the pages it reads at view, and adds the
+automation that runs it on every new row.
+
+- **Ticket router** sets the select, status or person properties you pick by rules you write, and
+  says why in a comment.
+- **Request answerer** looks for the answer in the pages you pick, writes it as a comment with its
+  sources, and sets a select or status to "answered" or "needs a person".
+- **Duplicate finder** looks for similar rows in the same database and, when it finds some, names
+  them in a comment and ticks a checkbox.
 
 ## Connect an AI assistant
 
@@ -1222,8 +1237,7 @@ curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   `GET` and `PATCH /rows/{id}`.
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
 
-Automations and agents have no REST endpoints: automations are managed in the app or over MCP,
-agents over MCP.
+Automations and agents have no REST endpoints: they are managed in the app or over MCP.
 
 The API and the MCP server share one service layer (`src/server/operations.ts`), so they check
 input, access and history the same way: a token acts as its user, with that user's own access to

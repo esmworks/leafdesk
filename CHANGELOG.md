@@ -14,15 +14,22 @@
   comments on its row, nothing else, in at most 8 model turns, 5 changes and 2 minutes; it needs
   AI set up on the server and on for the workspace (otherwise it ends as `aiOff`), and what it
   changes starts no automations. Runs are kept for 30 days with each step, the answer and the
-  tokens used. Owners create, change, pause, archive and restore agents (at most 50 per
-  workspace) and choose what they may open; members can list them. Anything shared with an agent
-  can end up in rows it writes, visible to everyone who can open those rows. MCP tools
+  tokens used; a run's steps, answer and error show only to owners who can open its row. In
+  Settings → *Agents*, owners create, change, pause, archive and restore agents (at most 50 per
+  workspace), choose what they may open and look through their runs; members see the list. Three
+  built-in agents (Ticket router, Request answerer, Duplicate finder) are set up on a database in
+  one step, with instructions in the owner's language naming the properties picked. An agent
+  isn't a person: lists of members, guests and people, mentions, notifications and emails leave
+  it out, it can't be made a member or owner, it can't sign in, and deleting its workspace deletes
+  its user; where it acted it shows as an agent (person cells, comments, page history, the audit
+  log's new `agent` actor kind). Anything shared with an agent can end up in rows it writes,
+  visible to everyone who can open those rows. MCP tools
   `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
   `set_agent_access` and `list_agent_runs`; `create_automation` and `update_automation` take
-  `run_agent` actions and `list_automations` names their agent. No REST endpoints. Migration
-  `0037_agents` adds the tables `workspace_agent` and `agent_run`. New checks in
-  `scripts/agents-e2e.ts` (43), `scripts/mcp-e2e.ts` (299 in all) and
-  `src/server/mcp/tools.test.ts`. See the README (Agents).
+  `run_agent` actions and `list_automations` names their agent. No REST endpoints. Migrations
+  `0037_agents` (tables `workspace_agent` and `agent_run`) and `0038_agent_audit_actor`. New
+  checks in `scripts/agents-e2e.ts`, `scripts/mcp-e2e.ts`, `scripts/audit-e2e.ts`,
+  `src/server/mcp/tools.test.ts` and `src/lib/builtin-agents.test.ts`. See the README (Agents).
 - **Database automations.** When a row is added, or a property changes (optionally only when it
   becomes a value: a select or status option, a checkbox state, a person or multi-select option
   being added), an automation sets properties on the row (a date to the day it runs, in UTC, a
