@@ -177,7 +177,7 @@ describe("evaluation", () => {
     expect(value('toNumber("1,5") + toNumber(true)')).toBe(2.5);
   });
 
-  it("checks emptiness like Notion", () => {
+  it("counts missing values, blank text and zero as empty", () => {
     expect(value('empty(prop("Empty"))', fields)).toBe(true);
     expect(value('empty(prop("Blank"))', fields)).toBe(true);
     expect(value("empty(0)")).toBe(true);
