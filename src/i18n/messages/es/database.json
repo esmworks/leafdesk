@@ -697,7 +697,7 @@
     "editTitle": "Editar automatización",
     "new": "Nueva automatización",
     "back": "Atrás",
-    "empty": "Todavía no hay automatizaciones. Una automatización asigna valores, avisa a personas o llama a un webhook cuando se añade o cambia una fila.",
+    "empty": "Todavía no hay automatizaciones. Una automatización asigna valores, avisa a personas, llama a un webhook o ejecuta un agente cuando se añade o cambia una fila.",
     "edit": "Editar",
     "delete": "Eliminar",
     "confirmDelete": "¿Eliminar la automatización «{name}»? También se borra su historial de ejecuciones.",
@@ -719,7 +719,9 @@
     "summaryAction": {
       "set": "Asignar {properties}",
       "notify": "Avisar",
-      "webhook": "Webhook"
+      "webhook": "Webhook",
+      "runAgent": "Ejecutar {agent}",
+      "archivedAgent": "un agente archivado"
     },
     "form": {
       "name": "Nombre",
@@ -769,7 +771,18 @@
         "needPeople": "Elige a quién avisar.",
         "needUrl": "Escribe la URL del webhook.",
         "needAgent": "Elige un agente."
-      }
+      },
+      "agent": "Agente",
+      "chooseAgent": "Elige un agente…",
+      "pausedAgent": "{name} (en pausa)",
+      "archivedAgent": "Un agente archivado",
+      "noAgents": "Este espacio de trabajo todavía no tiene agentes.",
+      "createAgent": "Crea uno en Configuración > Agentes.",
+      "noAgentsMember": "Los propietarios del espacio de trabajo los crean en Configuración.",
+      "agentTask": "Tarea",
+      "agentTaskPlaceholder": "Qué hacer con la fila, además de sus instrucciones. Por ejemplo: Clasifica esta nueva solicitud.",
+      "agentAccess": "Al guardar, {agent} obtiene acceso de edición a esta base de datos.",
+      "agentAccessAny": "Al guardar, el agente obtiene acceso de edición a esta base de datos."
     },
     "webhook": {
       "title": "Firma del webhook",
@@ -803,7 +816,9 @@
         "skipped": "omitido"
       },
       "notified": "{count, plural, one {# persona avisada} other {# personas avisadas}}",
-      "attempts": "{count, plural, one {# intento} other {# intentos}}"
+      "attempts": "{count, plural, one {# intento} other {# intentos}}",
+      "agentRun": "Ver la ejecución del agente",
+      "agentRunHint": "la ejecución del agente está en Configuración > Agentes"
     }
   }
 }

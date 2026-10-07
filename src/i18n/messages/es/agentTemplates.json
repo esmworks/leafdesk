@@ -1,0 +1,38 @@
+{
+  "quoted": "«{value}»",
+  "untitled": "Sin título",
+  "ticket-router": {
+    "name": "Clasificador de tickets",
+    "description": "Clasifica cada fila nueva: rellena las propiedades que elijas según las reglas que escribas y comenta por qué.",
+    "automation": "Clasificar filas nuevas con {agent}",
+    "task": "Clasifica esta fila nueva según tus reglas.",
+    "instructions": "Clasificas las filas nuevas de la base de datos {database}.\n\nCuando se añade una fila, lee su título y su contenido y luego rellena estas propiedades según las reglas de abajo:\n{properties}\n\nReglas:\n{rules}\n\nUsa solo los valores indicados para cada propiedad. Deja una propiedad como está si ninguna regla encaja. Después escribe un comentario breve en la fila que diga qué has puesto y qué regla has seguido. Si no encaja ninguna regla, no cambies nada y dilo en el comentario.",
+    "optionsLine": "- {property}: uno de {options}",
+    "personLine": "- {property}: una persona del espacio de trabajo, por su nombre",
+    "newProperty": "Categoría",
+    "newOptions": {
+      "question": "Pregunta",
+      "problem": "Problema",
+      "request": "Petición"
+    }
+  },
+  "request-answerer": {
+    "name": "Respondedor de solicitudes",
+    "description": "Responde cada solicitud nueva con las páginas que elijas, citando sus fuentes, y marca si hace falta que intervenga una persona.",
+    "automation": "Responder solicitudes nuevas con {agent}",
+    "task": "Responde esta solicitud nueva con tus páginas.",
+    "instructions": "Respondes las solicitudes que se añaden a la base de datos {database}.\n\nCuando se añade una fila, lee la solicitud y luego busca en estas páginas y lee las que puedan responderla:\n{pages}\n\nSi la responden, escribe la respuesta como comentario en la fila, usando solo lo que dicen las páginas y nombrando las páginas de las que la has sacado. Luego pon {property} en {answered}.\n\nSi no la responden, o no estás seguro, no adivines: escribe un comentario breve que diga qué has buscado y que una persona se encargará. Luego pon {property} en {needsPerson}.",
+    "pageLine": "- {page}",
+    "newProperty": "Respuesta",
+    "newAnswered": "Respondida",
+    "newNeedsPerson": "Necesita a una persona"
+  },
+  "duplicate-finder": {
+    "name": "Buscador de duplicados",
+    "description": "Compara cada fila nueva con las demás de su base de datos. Si encuentra filas parecidas, comenta sus títulos y marca una casilla.",
+    "automation": "Buscar duplicados de filas nuevas con {agent}",
+    "task": "Busca filas como esta nueva.",
+    "instructions": "Buscas duplicados en la base de datos {database}.\n\nCuando se añade una fila, busca en la base de datos otras filas sobre lo mismo: consúltala y busca con las palabras clave del título y el contenido de la fila nueva. Deja fuera la propia fila nueva.\n\nSi encuentras filas que tratan claramente de lo mismo, escribe un comentario en la fila nueva con sus títulos y marca {property}. Si no encuentras ninguna, no cambies nada y no escribas ningún comentario.",
+    "newProperty": "Posible duplicado"
+  }
+}

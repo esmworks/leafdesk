@@ -342,7 +342,7 @@ async function pruneConversations(userId: string, workspaceId: string) {
 }
 
 /** A step as the person may see it now: a page read that they can't open has no title. */
-async function viewStep(userId: string, record: ChatStepRecord, pages?: Awaited<ReturnType<typeof visiblePages>>): Promise<ChatStepView> {
+export async function viewStep(userId: string, record: ChatStepRecord, pages?: Awaited<ReturnType<typeof visiblePages>>): Promise<ChatStepView> {
   if (record.kind === "write") {
     const ids = [record.targetId, record.pageId].filter((id): id is string => Boolean(id));
     const seen = pages ?? (await visiblePages(userId, ids));

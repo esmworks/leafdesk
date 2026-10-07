@@ -7,6 +7,8 @@ type Ok<T> = T extends { ok: true; data: infer D } ? D : never;
 export type AutomationsData = Ok<Awaited<ReturnType<typeof listAutomationsAction>>>;
 export type Automation = AutomationsData["automations"][number];
 export type AutomationRun = Ok<Awaited<ReturnType<typeof listAutomationRunsAction>>>[number];
+/** An agent a "Run an agent" action can pick (the workspace's, not archived). */
+export type AgentChoice = AutomationsData["agents"][number];
 
 /** Someone an automation can notify or assign: the workspace's people. */
 export type Person = { id: string; name: string; email: string | null; image?: string | null };

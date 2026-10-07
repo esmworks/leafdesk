@@ -697,7 +697,7 @@
     "editTitle": "Modifier l’automatisation",
     "new": "Nouvelle automatisation",
     "back": "Retour",
-    "empty": "Aucune automatisation pour l’instant. Une automatisation définit des valeurs, prévient des personnes ou appelle un webhook quand une ligne est ajoutée ou modifiée.",
+    "empty": "Aucune automatisation pour l’instant. Une automatisation définit des valeurs, prévient des personnes, appelle un webhook ou lance un agent quand une ligne est ajoutée ou modifiée.",
     "edit": "Modifier",
     "delete": "Supprimer",
     "confirmDelete": "Supprimer l’automatisation « {name} » ? Son historique d’exécutions sera supprimé aussi.",
@@ -719,7 +719,9 @@
     "summaryAction": {
       "set": "Définir {properties}",
       "notify": "Prévenir",
-      "webhook": "Webhook"
+      "webhook": "Webhook",
+      "runAgent": "Lancer {agent}",
+      "archivedAgent": "un agent archivé"
     },
     "form": {
       "name": "Nom",
@@ -769,7 +771,18 @@
         "needPeople": "Choisissez qui prévenir.",
         "needUrl": "Saisissez l’URL du webhook.",
         "needAgent": "Choisissez un agent."
-      }
+      },
+      "agent": "Agent",
+      "chooseAgent": "Choisir un agent…",
+      "pausedAgent": "{name} (en pause)",
+      "archivedAgent": "Un agent archivé",
+      "noAgents": "Cet espace de travail n’a pas encore d’agents.",
+      "createAgent": "Créez-en un dans Paramètres > Agents.",
+      "noAgentsMember": "Les propriétaires de l’espace de travail les créent dans les Paramètres.",
+      "agentTask": "Tâche",
+      "agentTaskPlaceholder": "Ce qu’il doit faire de la ligne, en plus de ses instructions. Par exemple : Classe cette nouvelle demande.",
+      "agentAccess": "À l’enregistrement, {agent} obtient un accès en modification à cette base de données.",
+      "agentAccessAny": "À l’enregistrement, l’agent obtient un accès en modification à cette base de données."
     },
     "webhook": {
       "title": "Signature du webhook",
@@ -803,7 +816,9 @@
         "skipped": "ignoré"
       },
       "notified": "{count, plural, one {# personne prévenue} other {# personnes prévenues}}",
-      "attempts": "{count, plural, one {# tentative} other {# tentatives}}"
+      "attempts": "{count, plural, one {# tentative} other {# tentatives}}",
+      "agentRun": "Voir l’exécution de l’agent",
+      "agentRunHint": "l’exécution de l’agent est dans Paramètres > Agents"
     }
   }
 }

@@ -697,7 +697,7 @@
     "editTitle": "Automatisierung bearbeiten",
     "new": "Neue Automatisierung",
     "back": "Zurück",
-    "empty": "Noch keine Automatisierungen. Eine Automatisierung setzt Werte, benachrichtigt Personen oder ruft einen Webhook auf, wenn eine Zeile hinzugefügt oder geändert wird.",
+    "empty": "Noch keine Automatisierungen. Eine Automatisierung setzt Werte, benachrichtigt Personen, ruft einen Webhook auf oder führt einen Agenten aus, wenn eine Zeile hinzugefügt oder geändert wird.",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "confirmDelete": "Die Automatisierung „{name}“ löschen? Ihr Ausführungsverlauf wird ebenfalls gelöscht.",
@@ -719,7 +719,9 @@
     "summaryAction": {
       "set": "{properties} setzen",
       "notify": "Benachrichtigen",
-      "webhook": "Webhook"
+      "webhook": "Webhook",
+      "runAgent": "{agent} ausführen",
+      "archivedAgent": "einen archivierten Agenten"
     },
     "form": {
       "name": "Name",
@@ -769,7 +771,18 @@
         "needPeople": "Wähle aus, wer benachrichtigt wird.",
         "needUrl": "Gib die URL des Webhooks ein.",
         "needAgent": "Wähle einen Agenten."
-      }
+      },
+      "agent": "Agent",
+      "chooseAgent": "Agenten wählen…",
+      "pausedAgent": "{name} (pausiert)",
+      "archivedAgent": "Ein archivierter Agent",
+      "noAgents": "Dieser Workspace hat noch keine Agenten.",
+      "createAgent": "Erstelle einen unter Einstellungen > Agenten.",
+      "noAgentsMember": "Workspace-Inhaber erstellen sie in den Einstellungen.",
+      "agentTask": "Aufgabe",
+      "agentTaskPlaceholder": "Was er zusätzlich zu seinen Anweisungen mit der Zeile tun soll. Zum Beispiel: Ordne diese neue Anfrage ein.",
+      "agentAccess": "Beim Speichern bekommt {agent} Bearbeitungszugriff auf diese Datenbank.",
+      "agentAccessAny": "Beim Speichern bekommt der Agent Bearbeitungszugriff auf diese Datenbank."
     },
     "webhook": {
       "title": "Webhook-Signatur",
@@ -803,7 +816,9 @@
         "skipped": "übersprungen"
       },
       "notified": "{count, plural, one {# Person benachrichtigt} other {# Personen benachrichtigt}}",
-      "attempts": "{count, plural, one {# Versuch} other {# Versuche}}"
+      "attempts": "{count, plural, one {# Versuch} other {# Versuche}}",
+      "agentRun": "Durchlauf des Agenten ansehen",
+      "agentRunHint": "der Durchlauf des Agenten steht unter Einstellungen > Agenten"
     }
   }
 }

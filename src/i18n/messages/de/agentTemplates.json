@@ -1,0 +1,38 @@
+{
+  "quoted": "„{value}“",
+  "untitled": "Ohne Titel",
+  "ticket-router": {
+    "name": "Ticket-Verteiler",
+    "description": "Ordnet jede neue Zeile ein: setzt die gewählten Eigenschaften nach deinen Regeln und schreibt in einem Kommentar, warum.",
+    "automation": "Neue Zeilen mit {agent} einordnen",
+    "task": "Ordne diese neue Zeile nach deinen Regeln ein.",
+    "instructions": "Du ordnest die neuen Zeilen der Datenbank {database} ein.\n\nWenn eine Zeile hinzugefügt wird, lies ihren Titel und Inhalt und setze dann diese Eigenschaften nach den Regeln unten:\n{properties}\n\nRegeln:\n{rules}\n\nVerwende für jede Eigenschaft nur die aufgeführten Werte. Lass eine Eigenschaft unverändert, wenn keine Regel passt. Schreib dann einen kurzen Kommentar an die Zeile, was du gesetzt hast und welcher Regel du gefolgt bist. Passt gar keine Regel, ändere nichts und schreib das in den Kommentar.",
+    "optionsLine": "- {property}: einer von {options}",
+    "personLine": "- {property}: eine Person des Workspaces, mit Namen",
+    "newProperty": "Kategorie",
+    "newOptions": {
+      "question": "Frage",
+      "problem": "Problem",
+      "request": "Wunsch"
+    }
+  },
+  "request-answerer": {
+    "name": "Anfragen-Beantworter",
+    "description": "Beantwortet jede neue Anfrage aus den Seiten, die du auswählst, mit Quellenangabe, und markiert, ob sich eine Person darum kümmern muss.",
+    "automation": "Neue Anfragen mit {agent} beantworten",
+    "task": "Beantworte diese neue Anfrage aus deinen Seiten.",
+    "instructions": "Du beantwortest die Anfragen, die zur Datenbank {database} hinzugefügt werden.\n\nWenn eine Zeile hinzugefügt wird, lies die Anfrage, durchsuche dann diese Seiten und lies die, die sie beantworten könnten:\n{pages}\n\nBeantworten sie die Anfrage, schreib die Antwort als Kommentar an die Zeile. Verwende nur, was auf den Seiten steht, und nenne die Seiten, aus denen du sie hast. Setze dann {property} auf {answered}.\n\nBeantworten sie sie nicht oder bist du dir nicht sicher, rate nicht: Schreib einen kurzen Kommentar, wonach du gesucht hast und dass sich eine Person darum kümmert. Setze dann {property} auf {needsPerson}.",
+    "pageLine": "- {page}",
+    "newProperty": "Antwort",
+    "newAnswered": "Beantwortet",
+    "newNeedsPerson": "Braucht eine Person"
+  },
+  "duplicate-finder": {
+    "name": "Duplikat-Finder",
+    "description": "Vergleicht jede neue Zeile mit den anderen ihrer Datenbank. Findet er ähnliche Zeilen, nennt er ihre Titel in einem Kommentar und hakt ein Kontrollkästchen ab.",
+    "automation": "Duplikate neuer Zeilen mit {agent} finden",
+    "task": "Such nach Zeilen wie dieser neuen.",
+    "instructions": "Du suchst Duplikate in der Datenbank {database}.\n\nWenn eine Zeile hinzugefügt wird, durchsuche die Datenbank nach anderen Zeilen zum selben Thema: Frag sie ab und suche mit den Schlüsselwörtern aus Titel und Inhalt der neuen Zeile. Lass die neue Zeile selbst weg.\n\nFindest du Zeilen, die eindeutig dasselbe Thema haben, schreib einen Kommentar an die neue Zeile, der ihre Titel auflistet, und hake {property} ab. Findest du keine, ändere nichts und schreib keinen Kommentar.",
+    "newProperty": "Mögliches Duplikat"
+  }
+}
