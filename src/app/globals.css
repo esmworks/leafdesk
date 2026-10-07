@@ -24,12 +24,12 @@
   --scrollbar: rgba(31, 32, 35, 0.16);
   --scrollbar-hover: rgba(31, 32, 35, 0.32);
   /* Page history changes, in the green and red of the option palette below. */
-  --added-bg: #dbeddb;
-  --added-fg: #1c3829;
-  --added-bar: #4dab6f;
-  --removed-bg: #ffe2dd;
-  --removed-fg: #5d1715;
-  --removed-bar: #e05050;
+  --added-bg: #bfe9c9;
+  --added-fg: #144225;
+  --added-bar: #4ca86a;
+  --removed-bg: #ffcfcc;
+  --removed-fg: #5b2424;
+  --removed-bar: #dc6a6a;
 }
 
 /* The print view (app/print) stays light in dark mode: see the end of this file. */
@@ -52,12 +52,12 @@
     --logo-text: #f3efe3;
     --scrollbar: rgba(232, 232, 234, 0.16);
     --scrollbar-hover: rgba(232, 232, 234, 0.3);
-    --added-bg: #2d5a41;
-    --added-fg: #dff1e5;
-    --added-bar: #3f9c62;
-    --removed-bg: #713731;
-    --removed-fg: #fbe3df;
-    --removed-bar: #e06262;
+    --added-bg: #1b4b2b;
+    --added-fg: #dcf0e0;
+    --added-bar: #469a61;
+    --removed-bg: #652b2b;
+    --removed-fg: #fee2e0;
+    --removed-bar: #ca6261;
   }
 }
 
@@ -96,7 +96,7 @@
   }
 
   /*
-   * Thin, quiet scrollbars like Notion's instead of the system's thick ones (Safari and Windows show
+   * Thin, quiet scrollbars instead of the system's thick ones (Safari and Windows show
    * those whenever a mouse is connected). WebKit/Blink use the pseudo-elements; Firefox the standard
    * properties, which would switch Chrome's pseudo-elements off, hence the @supports.
    */
@@ -146,49 +146,77 @@
   --bn-colors-disabled-text: var(--fg-faint);
   --bn-colors-border: var(--border);
   --bn-colors-side-menu: var(--fg-faint);
+  /* Text and block colors in the option palette's hues (.opt-* below). */
+  --bn-colors-highlights-gray-text: #5c6e61;
+  --bn-colors-highlights-gray-background: #ebf0ed;
+  --bn-colors-highlights-brown-text: #935839;
+  --bn-colors-highlights-brown-background: #faebe4;
+  --bn-colors-highlights-orange-text: #9c5301;
+  --bn-colors-highlights-orange-background: #ffeadb;
+  --bn-colors-highlights-yellow-text: #7f6606;
+  --bn-colors-highlights-yellow-background: #f6eed8;
+  --bn-colors-highlights-green-text: #187d42;
+  --bn-colors-highlights-green-background: #e2f4e6;
+  --bn-colors-highlights-blue-text: #0b6fa7;
+  --bn-colors-highlights-blue-background: #e0f1ff;
+  --bn-colors-highlights-purple-text: #7955a0;
+  --bn-colors-highlights-purple-background: #f2ebfd;
+  --bn-colors-highlights-pink-text: #9d4673;
+  --bn-colors-highlights-pink-background: #fee7f1;
+  --bn-colors-highlights-red-text: #ac3f42;
+  --bn-colors-highlights-red-background: #ffe9e7;
   --bn-font-family: var(--font-sans);
 }
 
 /*
  * BlockNote's dark block backgrounds are mid-tones that light text can't be read on; use the
- * dark option palette below instead, as select chips do.
+ * dark option palette below instead, as select chips do, and text in the same hues.
  */
 :root .bn-container[data-color-scheme="dark"] {
-  --bn-colors-highlights-gray-background: #45474c;
-  --bn-colors-highlights-brown-background: #5c4136;
-  --bn-colors-highlights-red-background: #713731;
-  --bn-colors-highlights-orange-background: #7a4a22;
-  --bn-colors-highlights-yellow-background: #7a6128;
-  --bn-colors-highlights-green-background: #2d5a41;
-  --bn-colors-highlights-blue-background: #2a4a72;
-  --bn-colors-highlights-purple-background: #4d3469;
-  --bn-colors-highlights-pink-background: #6a3250;
+  --bn-colors-highlights-gray-text: #adbcb1;
+  --bn-colors-highlights-gray-background: #39433c;
+  --bn-colors-highlights-brown-text: #dbab93;
+  --bn-colors-highlights-brown-background: #573727;
+  --bn-colors-highlights-orange-text: #eca56f;
+  --bn-colors-highlights-orange-background: #613201;
+  --bn-colors-highlights-yellow-text: #cfb565;
+  --bn-colors-highlights-yellow-background: #4e3e00;
+  --bn-colors-highlights-green-text: #89c99a;
+  --bn-colors-highlights-green-background: #1b4b2b;
+  --bn-colors-highlights-blue-text: #84bfeb;
+  --bn-colors-highlights-blue-background: #174462;
+  --bn-colors-highlights-purple-text: #c4a9e5;
+  --bn-colors-highlights-purple-background: #48355d;
+  --bn-colors-highlights-pink-text: #e69fc0;
+  --bn-colors-highlights-pink-background: #5d2e45;
+  --bn-colors-highlights-red-text: #f39c99;
+  --bn-colors-highlights-red-background: #652b2b;
 }
 
 /*
  * Select option colors, shared by tables, boards and property pickers. `.opt-*` paints a chip;
  * `.tint-*` only sets the palette so a board column and its cards can take the option's color.
  */
-.opt-gray, .tint-gray { --opt-bg: #e3e2e0; --opt-fg: #32302c; --opt-tint: #f5f5f3; --opt-card: #ffffff; }
-.opt-brown, .tint-brown { --opt-bg: #eee0da; --opt-fg: #442a1e; --opt-tint: #f9f4f2; --opt-card: #ffffff; }
-.opt-orange, .tint-orange { --opt-bg: #fadec9; --opt-fg: #49290e; --opt-tint: #fcf4ee; --opt-card: #ffffff; }
-.opt-yellow, .tint-yellow { --opt-bg: #fdecc8; --opt-fg: #402c1b; --opt-tint: #fbf6e9; --opt-card: #ffffff; }
-.opt-green, .tint-green { --opt-bg: #dbeddb; --opt-fg: #1c3829; --opt-tint: #f2f7f2; --opt-card: #ffffff; }
-.opt-blue, .tint-blue { --opt-bg: #d3e5ef; --opt-fg: #183347; --opt-tint: #f0f5f9; --opt-card: #ffffff; }
-.opt-purple, .tint-purple { --opt-bg: #e8deee; --opt-fg: #412454; --opt-tint: #f6f2f9; --opt-card: #ffffff; }
-.opt-pink, .tint-pink { --opt-bg: #f5e0e9; --opt-fg: #4c2337; --opt-tint: #faf1f5; --opt-card: #ffffff; }
-.opt-red, .tint-red { --opt-bg: #ffe2dd; --opt-fg: #5d1715; --opt-tint: #fcf2f1; --opt-card: #ffffff; }
+.opt-gray, .tint-gray { --opt-bg: #d5dfd8; --opt-fg: #313b34; --opt-tint: #f5f8f5; --opt-card: #ffffff; }
+.opt-brown, .tint-brown { --opt-bg: #f6d5c4; --opt-fg: #4e3020; --opt-tint: #fdf5f1; --opt-card: #ffffff; }
+.opt-orange, .tint-orange { --opt-bg: #ffd2b2; --opt-fg: #562b00; --opt-tint: #fef5ee; --opt-card: #ffffff; }
+.opt-yellow, .tint-yellow { --opt-bg: #ecdca9; --opt-fg: #453601; --opt-tint: #faf7ec; --opt-card: #ffffff; }
+.opt-green, .tint-green { --opt-bg: #bfe9c9; --opt-fg: #144225; --opt-tint: #f0faf2; --opt-card: #ffffff; }
+.opt-blue, .tint-blue { --opt-bg: #bde2ff; --opt-fg: #113b58; --opt-tint: #f0f8ff; --opt-card: #ffffff; }
+.opt-purple, .tint-purple { --opt-bg: #e5d3fc; --opt-fg: #402e54; --opt-tint: #f9f5fe; --opt-card: #ffffff; }
+.opt-pink, .tint-pink { --opt-bg: #fdcde2; --opt-fg: #53273d; --opt-tint: #fff3f8; --opt-card: #ffffff; }
+.opt-red, .tint-red { --opt-bg: #ffcfcc; --opt-fg: #5b2424; --opt-tint: #fef4f3; --opt-card: #ffffff; }
 
 @media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) .opt-gray, :root:not(:has([data-print-view])) .tint-gray { --opt-bg: #45474c; --opt-fg: #ececee; --opt-tint: #202124; --opt-card: #2a2b2f; }
-  :root:not(:has([data-print-view])) .opt-brown, :root:not(:has([data-print-view])) .tint-brown { --opt-bg: #5c4136; --opt-fg: #f1e6e1; --opt-tint: #241f1d; --opt-card: #312925; }
-  :root:not(:has([data-print-view])) .opt-orange, :root:not(:has([data-print-view])) .tint-orange { --opt-bg: #7a4a22; --opt-fg: #fbe9da; --opt-tint: #27211c; --opt-card: #352a21; }
-  :root:not(:has([data-print-view])) .opt-yellow, :root:not(:has([data-print-view])) .tint-yellow { --opt-bg: #7a6128; --opt-fg: #fbf1d8; --opt-tint: #26241b; --opt-card: #333022; }
-  :root:not(:has([data-print-view])) .opt-green, :root:not(:has([data-print-view])) .tint-green { --opt-bg: #2d5a41; --opt-fg: #dff1e5; --opt-tint: #1c2521; --opt-card: #24322b; }
-  :root:not(:has([data-print-view])) .opt-blue, :root:not(:has([data-print-view])) .tint-blue { --opt-bg: #2a4a72; --opt-fg: #e0ecf9; --opt-tint: #1c232d; --opt-card: #243145; }
-  :root:not(:has([data-print-view])) .opt-purple, :root:not(:has([data-print-view])) .tint-purple { --opt-bg: #4d3469; --opt-fg: #efe4f8; --opt-tint: #221e2a; --opt-card: #2f283a; }
-  :root:not(:has([data-print-view])) .opt-pink, :root:not(:has([data-print-view])) .tint-pink { --opt-bg: #6a3250; --opt-fg: #f8e2ed; --opt-tint: #271e24; --opt-card: #362730; }
-  :root:not(:has([data-print-view])) .opt-red, :root:not(:has([data-print-view])) .tint-red { --opt-bg: #713731; --opt-fg: #fbe3df; --opt-tint: #291e1d; --opt-card: #382826; }
+  :root:not(:has([data-print-view])) .opt-gray, :root:not(:has([data-print-view])) .tint-gray { --opt-bg: #39433c; --opt-fg: #e6ebe7; --opt-tint: #1d1f1d; --opt-card: #282b29; }
+  :root:not(:has([data-print-view])) .opt-brown, :root:not(:has([data-print-view])) .tint-brown { --opt-bg: #573727; --opt-fg: #f6e6de; --opt-tint: #221d1b; --opt-card: #302824; }
+  :root:not(:has([data-print-view])) .opt-orange, :root:not(:has([data-print-view])) .tint-orange { --opt-bg: #613201; --opt-fg: #fce4d3; --opt-tint: #231d18; --opt-card: #33271e; }
+  :root:not(:has([data-print-view])) .opt-yellow, :root:not(:has([data-print-view])) .tint-yellow { --opt-bg: #4e3e00; --opt-fg: #f1e9d1; --opt-tint: #201e17; --opt-card: #2e2a1d; }
+  :root:not(:has([data-print-view])) .opt-green, :root:not(:has([data-print-view])) .tint-green { --opt-bg: #1b4b2b; --opt-fg: #dcf0e0; --opt-tint: #1a201b; --opt-card: #232d25; }
+  :root:not(:has([data-print-view])) .opt-blue, :root:not(:has([data-print-view])) .tint-blue { --opt-bg: #174462; --opt-fg: #daecfb; --opt-tint: #1a1f23; --opt-card: #222b33; }
+  :root:not(:has([data-print-view])) .opt-purple, :root:not(:has([data-print-view])) .tint-purple { --opt-bg: #48355d; --opt-fg: #eee5f9; --opt-tint: #1f1d22; --opt-card: #2c2832; }
+  :root:not(:has([data-print-view])) .opt-pink, :root:not(:has([data-print-view])) .tint-pink { --opt-bg: #5d2e45; --opt-fg: #fae2ec; --opt-tint: #231c1f; --opt-card: #32262b; }
+  :root:not(:has([data-print-view])) .opt-red, :root:not(:has([data-print-view])) .tint-red { --opt-bg: #652b2b; --opt-fg: #fee2e0; --opt-tint: #241c1b; --opt-card: #352625; }
 }
 
 .opt-gray, .opt-brown, .opt-orange, .opt-yellow, .opt-green, .opt-blue, .opt-purple, .opt-pink, .opt-red {
@@ -211,15 +239,15 @@
   --chart-6: #008300;
   --chart-7: #4a3aa7;
   --chart-8: #e34948;
-  --chart-gray: #9b9a97;
-  --chart-brown: #a27763;
-  --chart-orange: #e8883f;
-  --chart-yellow: #d9a520;
-  --chart-green: #4dab6f;
-  --chart-blue: #3d8fd1;
-  --chart-purple: #9a6dd7;
-  --chart-pink: #dd5c9f;
-  --chart-red: #e05050;
+  --chart-gray: #84988a;
+  --chart-brown: #c08161;
+  --chart-orange: #d4771a;
+  --chart-yellow: #b08e03;
+  --chart-green: #4ca86a;
+  --chart-blue: #459ad5;
+  --chart-purple: #a37ecd;
+  --chart-pink: #cb6f9d;
+  --chart-red: #dc6a6a;
   --chart-none: #c7c8cc;
   --chart-grid: #ececef;
   --chart-axis: #c9cacf;
@@ -235,15 +263,15 @@
     --chart-6: #008300;
     --chart-7: #9085e9;
     --chart-8: #e66767;
-    --chart-gray: #8c8e94;
-    --chart-brown: #a0735f;
-    --chart-orange: #d9772f;
-    --chart-yellow: #c99a1c;
-    --chart-green: #3f9c62;
-    --chart-blue: #4a90d9;
-    --chart-purple: #9a78dc;
-    --chart-pink: #d45a98;
-    --chart-red: #e06262;
+    --chart-gray: #798b7f;
+    --chart-brown: #b07759;
+    --chart-orange: #c36d19;
+    --chart-yellow: #a18308;
+    --chart-green: #469a61;
+    --chart-blue: #3f8dc4;
+    --chart-purple: #9674bc;
+    --chart-pink: #bb6690;
+    --chart-red: #ca6261;
     --chart-none: #4d4f55;
     --chart-grid: #26272b;
     --chart-axis: #3a3c41;
@@ -251,7 +279,7 @@
 }
 
 /*
- * Wide (database) pages use the full width like Notion's full-width pages: a 6rem gutter, easing
+ * Wide (database) pages use the full width: a 6rem gutter, easing
  * down to 3rem on narrower windows, while boards and tables scroll edge to edge.
  */
 .page-gutter,
