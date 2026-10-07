@@ -215,7 +215,7 @@ export function restoreReferences(stored: ViewConfig, next: ViewConfig, gone: Re
   if (!gone.size) return next;
   const out: ViewConfig = { ...next };
   const keep = (id: string | undefined) => id !== undefined && gone.has(id);
-  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy"] as const) {
+  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "frozenThrough"] as const) {
     if (keep(stored[key])) out[key] = stored[key];
   }
   if (stored.cover?.source === "property" && gone.has(stored.cover.propertyId)) out.cover = stored.cover;

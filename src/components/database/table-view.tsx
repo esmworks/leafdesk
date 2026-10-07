@@ -33,6 +33,8 @@ import type { DatabaseApi } from "./use-database";
 const NAME_WIDTH = { wide: 280, phone: 180 };
 const WIDTHS: Partial<Record<Property["type"], number>> = { checkbox: 110, number: 140, date: 170 };
 const defaultWidth = (p: Property) => WIDTHS[p.type] ?? 200;
+/** Room frozen columns leave for the others to scroll by; below it they don't freeze. */
+const MIN_SCROLL_ROOM = 160;
 
 /** The implicit Name column as a text property; `name` is its translated label. */
 export function titleProperty(databaseId: string, name: string): Property {
@@ -126,6 +128,39 @@ export function TableView({
   const titleProp = titleProperty(databaseId, t("nameColumn"));
   const sortOf = (id: string) => view.config.sorts?.find((s) => s.propertyId === id)?.direction;
 
+  // Frozen columns: the row controls and every column up to the one the view freezes through stay
+  // put while the table scrolls sideways. A hidden freeze column freezes the shown ones before it.
+  const box = useRef<HTMLDivElement>(null);
+  const [boxWidth, setBoxWidth] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => setBoxWidth(el.clientWidth));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const columnKeys = [TITLE, ...visible.map((p) => p.id)];
+  const columnWidths = [nameWidth, ...visible.map(colWidth)];
+  const allKeys = [TITLE, ...properties.map((p) => p.id)];
+  const through = allKeys.indexOf(view.config.frozenThrough ?? "");
+  const frozenIndex = through < 0 ? -1 : columnKeys.filter((key) => allKeys.indexOf(key) <= through).length - 1;
+  const leftOf = (i: number) => handles + columnWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+  // Phones, and windows too narrow to leave room to scroll past the frozen columns, ignore it.
+  const frozenCount =
+    frozenIndex >= 0 && !phone && (!boxWidth || leftOf(frozenIndex + 1) <= boxWidth - MIN_SCROLL_ROOM) ? frozenIndex + 1 : 0;
+  /** Position and look of column `i` (-1: the row controls) when it is frozen. */
+  const frozen = (i: number, selected = false) =>
+    frozenCount > 0 && i < frozenCount
+      ? {
+          style: { left: i < 0 ? 0 : leftOf(i) },
+          className: cn(
+            "sticky z-30",
+            selected ? "bg-[color-mix(in_srgb,var(--accent)_5%,var(--bg))]" : "bg-bg",
+            i === frozenCount - 1 && "shadow-[inset_-1px_0_0_var(--border)]",
+          ),
+        }
+      : { style: undefined, className: undefined };
+
   const setConfig = (config: ViewConfig) => api.updateView(view, { config });
   // Column widths and order change the view's settings, which only people who may save them change.
   const arrangeable = !readOnly && !settingsReadOnly;
@@ -176,14 +211,15 @@ export function TableView({
       wrapped: wrapped.has(key) ? [...wrapped].filter((k) => k !== key) : [...wrapped, key],
     });
   // A property added from a column's menu goes left or right of that column in this view.
+  const placeBeside = (id: string | undefined, target: string, side: "before" | "after") => {
+    if (!id || !arrangeable) return;
+    const ids = properties.map((p) => p.id).filter((p) => p !== id);
+    const propertyOrder = target === TITLE ? [id, ...ids] : moveProperty([...ids.map((p) => ({ id: p })), { id }], id, target, side);
+    void setConfig({ ...latestConfig.current, propertyOrder });
+  };
   const insertBeside = (target: string, sides: ("before" | "after")[]): PropertyMenuActions["insert"] => {
     if (locked || !arrangeable) return undefined;
-    const place = (id: string | undefined, side: "before" | "after") => {
-      if (!id) return;
-      const ids = properties.map((p) => p.id).filter((p) => p !== id);
-      const propertyOrder = target === TITLE ? [id, ...ids] : moveProperty([...ids.map((p) => ({ id: p })), { id }], id, target, side);
-      void setConfig({ ...latestConfig.current, propertyOrder });
-    };
+    const place = (id: string | undefined, side: "before" | "after") => placeBeside(id, target, side);
     return {
       sides,
       onCreate: async (side, name, type, relation, derived) =>
@@ -202,6 +238,12 @@ export function TableView({
           calculation: { type, fn: view.config.calculations?.[key], onChange: (fn) => setCalculation(key, fn) },
           toggleWrap: () => toggleWrap(key),
           wrapped: wrapped.has(key),
+          // Up to a column that is frozen, the menu unfreezes instead (a freeze too wide to apply counts as none).
+          ...(phone
+            ? {}
+            : frozenCount > columnKeys.indexOf(key)
+              ? { unfreeze: () => setConfig({ ...view.config, frozenThrough: undefined }) }
+              : { freeze: () => setConfig({ ...view.config, frozenThrough: key }) }),
         };
   const createOption = api.createOption;
 
@@ -227,77 +269,88 @@ export function TableView({
     void setConfig({ ...view.config, hiddenGroups: next });
   };
 
-  const renderRow = (row: Row) => (
-    <tr key={row.id} className={cn("group", selection.isSelected(row.id) && "bg-accent/5")}>
-      <td className="p-0 align-middle">
-        <div className="flex items-center justify-end">
-          {!readOnly && <RowMenu workspaceId={workspaceId} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
-          <SelectBox
-            checked={selection.isSelected(row.id)}
-            label={t("bulk.selectRow")}
-            visible={selection.some}
-            onToggle={(range) => selection.toggle(row.id, range)}
-          />
-        </div>
-      </td>
-      <td className="relative border-b border-border p-0 align-top">
-        <div className="font-medium">
-          <PropertyCell
-            prop={titleProp}
-            value={row.title}
-            wrap={wrapped.has(TITLE)}
-            readOnly={readOnly}
-            placeholder={tc("untitled")}
-            autoEdit={editTitleOf === row.id}
-            draft={editTitleOf === row.id ? typed : undefined}
-            onChange={(v) => {
-              stopEditing();
-              void api.setCell(row.id, TITLE, v ?? "");
-            }}
-            onCreateOption={createOption}
-          />
-        </div>
-        <span className="absolute inset-y-0 right-1 hidden items-center group-hover:flex">
-          <OpenLink href={`/w/${workspaceId}/p/${row.id}`} />
-        </span>
-      </td>
-      {visible.map((p) => {
-        const valueAccess = access.valueAccess(row, p.id);
-        return (
-          <td key={p.id} className="border-b border-l border-border p-0 align-top">
-            {valueAccess === "hidden" ? (
-              <PropertyCell prop={p} value={undefined} hidden onChange={() => {}} onCreateOption={createOption} />
-            ) : (
-              <AiCell prop={p} rowId={row.id} readOnly={readOnly || valueAccess === "readOnly"}>
-                <PropertyCell
-                  prop={p}
-                  value={row.properties[p.id]}
-                  wrap={wrapped.has(p.id)}
-                  readOnly={readOnly || valueAccess === "readOnly"}
-                  onChange={(v) => void api.setCell(row.id, p.id, v)}
-                  onCreateOption={createOption}
-                  upload={p.type === "files" ? uploadToPage(row.id) : undefined}
-                />
-              </AiCell>
-            )}
-          </td>
-        );
-      })}
-      {!readOnly && <td className="border-b border-l border-border" />}
-    </tr>
-  );
+  const renderRow = (row: Row) => {
+    const selected = selection.isSelected(row.id);
+    return (
+      <tr key={row.id} className={cn("group", selected && "bg-accent/5")}>
+        <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
+          <div className="flex items-center justify-end">
+            {!readOnly && <RowMenu workspaceId={workspaceId} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
+            <SelectBox
+              checked={selection.isSelected(row.id)}
+              label={t("bulk.selectRow")}
+              visible={selection.some}
+              onToggle={(range) => selection.toggle(row.id, range)}
+            />
+          </div>
+        </td>
+        <td
+          className={cn("relative border-b border-border p-0 align-top", frozen(0, selected).className)}
+          style={frozen(0).style}
+        >
+          <div className="font-medium">
+            <PropertyCell
+              prop={titleProp}
+              value={row.title}
+              wrap={wrapped.has(TITLE)}
+              readOnly={readOnly}
+              placeholder={tc("untitled")}
+              autoEdit={editTitleOf === row.id}
+              draft={editTitleOf === row.id ? typed : undefined}
+              onChange={(v) => {
+                stopEditing();
+                void api.setCell(row.id, TITLE, v ?? "");
+              }}
+              onCreateOption={createOption}
+            />
+          </div>
+          <span className="absolute inset-y-0 right-1 hidden items-center group-hover:flex">
+            <OpenLink href={`/w/${workspaceId}/p/${row.id}`} />
+          </span>
+        </td>
+        {visible.map((p, i) => {
+          const valueAccess = access.valueAccess(row, p.id);
+          return (
+            <td
+              key={p.id}
+              className={cn("border-b border-l border-border p-0 align-top", frozen(i + 1, selected).className)}
+              style={frozen(i + 1).style}
+            >
+              {valueAccess === "hidden" ? (
+                <PropertyCell prop={p} value={undefined} hidden onChange={() => {}} onCreateOption={createOption} />
+              ) : (
+                <AiCell prop={p} rowId={row.id} readOnly={readOnly || valueAccess === "readOnly"}>
+                  <PropertyCell
+                    prop={p}
+                    value={row.properties[p.id]}
+                    wrap={wrapped.has(p.id)}
+                    readOnly={readOnly || valueAccess === "readOnly"}
+                    onChange={(v) => void api.setCell(row.id, p.id, v)}
+                    onCreateOption={createOption}
+                    upload={p.type === "files" ? uploadToPage(row.id) : undefined}
+                  />
+                </AiCell>
+              )}
+            </td>
+          );
+        })}
+        {!readOnly && <td className="border-b border-l border-border" />}
+      </tr>
+    );
+  };
   const columnCount = 2 + visible.length + (readOnly ? 0 : 1);
   const calculated = [TITLE, ...visible.map((p) => p.id)].some((key) => view.config.calculations?.[key]);
   const calculationColumns = [
     { key: TITLE, name: t("nameColumn"), type: TITLE, width: nameWidth },
     // A formula calculates like a property of its result type.
     ...visible.map((p) => ({ key: p.id, name: p.name, type: valueType(p), options: p.options, width: colWidth(p) })),
-  ];
+  ].map((column, i) => ({ ...column, frozen: frozen(i) }));
 
   const totalWidth = handles + nameWidth + visible.reduce((sum, p) => sum + colWidth(p), 0) + (readOnly ? 0 : 36);
 
   return (
     <div
+      ref={box}
       className="page-gutter-table overflow-x-auto pb-3 [color-scheme:light_dark]"
       style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
     >
@@ -312,7 +365,7 @@ export function TableView({
         </colgroup>
         <thead>
           <tr className="group">
-            <th className="p-0 font-normal">
+            <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
               <div className="flex justify-end">
                 <SelectBox
                   checked={selection.all}
@@ -328,6 +381,7 @@ export function TableView({
               label={t("nameColumn")}
               icon="title"
               sort={sortOf(TITLE)}
+              frozen={frozen(0)}
               readOnly={readOnly}
               onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
               resizing={resizing?.key === TITLE}
@@ -337,7 +391,7 @@ export function TableView({
                 insert: insertBeside(TITLE, ["after"]),
               }}
             />
-            {visible.map((p) => {
+            {visible.map((p, i) => {
               // Property access: changing the property itself needs "edit" on it.
               const fixed = locked || !access.canEditSchema(p.id);
               return (
@@ -347,6 +401,7 @@ export function TableView({
                   label={p.name}
                   icon={p.type}
                   sort={sortOf(p.id)}
+                  frozen={frozen(i + 1)}
                   readOnly={readOnly}
                   drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
                   onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
@@ -372,6 +427,14 @@ export function TableView({
                       !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
                         ? undefined
                         : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
+                    duplicate: fixed
+                      ? undefined
+                      : async () =>
+                          placeBeside(
+                            (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
+                            p.id,
+                            "after",
+                          ),
                     remove: fixed ? undefined : () => api.deleteProperty(p.id),
                   }}
                 />
@@ -599,6 +662,7 @@ function HeaderCell({
   label,
   icon,
   sort,
+  frozen,
   readOnly,
   drag,
   onResize,
@@ -609,6 +673,8 @@ function HeaderCell({
   label: string;
   icon: Property["type"] | "title";
   sort?: "asc" | "desc";
+  /** A frozen column's position and look (see TableView). */
+  frozen?: { style?: React.CSSProperties; className?: string };
   readOnly?: boolean;
   /** Moving the column by dragging its header; only property columns move. */
   drag?: ReorderDragHandlers;
@@ -632,7 +698,13 @@ function HeaderCell({
       onDragOver={drag?.onDragOver}
       onDrop={drag?.onDrop}
       onDragEnd={drag?.onDragEnd}
-      className={cn("relative border-y border-border p-0 text-left font-normal", prop && "border-l", drag?.dragging && "opacity-50")}
+      style={frozen?.style}
+      className={cn(
+        "relative border-y border-border p-0 text-left font-normal",
+        prop && "border-l",
+        drag?.dragging && "opacity-50",
+        frozen?.className,
+      )}
     >
       {drag?.dropSide && (
         <span

@@ -6,6 +6,7 @@ import {
   databaseView,
   page,
   PROPERTY_TYPES,
+  propertyPermission,
   user,
   type FormulaConfig,
   type PropertyOptions,
@@ -35,6 +36,7 @@ import {
   isGroupable,
   makeStatusOptions,
   normalizeValue,
+  positionBetween,
   PropertyValueError,
   SELECT_COLORS,
   sortStatusOptions,
@@ -1111,6 +1113,60 @@ export async function deleteProperty(userId: string, propertyId: string) {
   });
   notifySchema(prop.databaseId);
   if (paired && paired.databaseId !== prop.databaseId) notifySchema(paired.databaseId);
+}
+
+/**
+ * A copy of a property right after it, named `name` (made unique): its settings, its value in every
+ * row (rows keep their "last edited" time) and who may see and change it, so a copy never shows
+ * values the original keeps from someone. A two-way relation is copied one way: the related
+ * database gets no second property.
+ */
+export async function duplicateProperty(userId: string, propertyId: string, name: string) {
+  const prop = await requireProperty(userId, propertyId);
+  const [next] = await db
+    .select({ position: databaseProperty.position })
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.databaseId, prop.databaseId), sql`${databaseProperty.position} > ${prop.position}`))
+    .orderBy(asc(databaseProperty.position))
+    .limit(1);
+  const options: PropertyOptions = structuredClone(prop.options);
+  if (options.relation) options.relation = { ...options.relation, pairedPropertyId: null };
+  const copied = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(databaseProperty)
+      .values({
+        databaseId: prop.databaseId,
+        name: await uniquePropertyName(prop.databaseId, name.trim() || prop.name, tx),
+        type: prop.type,
+        options,
+        position: positionBetween(prop.position, next?.position),
+      })
+      .returning();
+    await hideInCalendars(tx, prop.databaseId, created.id);
+    const rows = await tx
+      .update(page)
+      .set({
+        properties: sql`jsonb_set(${page.properties}, ${`{${created.id}}`}::text[], ${page.properties} -> ${propertyId}::text)`,
+        ...KEEP_EDIT_TIME,
+      })
+      .where(and(eq(page.parentId, prop.databaseId), sql`${page.properties} ? ${propertyId}::text`))
+      .returning({ id: page.id });
+    const rules = await tx.select().from(propertyPermission).where(eq(propertyPermission.propertyId, propertyId));
+    if (rules.length) {
+      await tx.insert(propertyPermission).values(
+        // A rule naming the people of the property itself names those of the copy.
+        rules.map(({ id: _id, createdAt: _createdAt, ...rule }) => ({
+          ...rule,
+          propertyId: created.id,
+          personPropertyId: rule.personPropertyId === propertyId ? created.id : rule.personPropertyId,
+        })),
+      );
+    }
+    return { created, rows: rows.length };
+  });
+  notifySchema(prop.databaseId);
+  if (copied.rows) notifyRows(prop.databaseId);
+  return copied.created;
 }
 
 export async function addView(userId: string, databaseId: string, input: { name: string; type: ViewType }) {

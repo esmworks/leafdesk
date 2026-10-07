@@ -31,6 +31,7 @@ describe("dropPropertyReferences", () => {
         propertyOrder: ["due", "person", "notes"],
         columnWidths: { title: 320, person: 90, due: 240 },
         wrapped: ["title", "person", "due"],
+        frozenThrough: "person",
         calculations: { person: "count_all", due: "count_all" },
         cover: { source: "property", propertyId: "person" },
       } as never,
@@ -44,6 +45,7 @@ describe("dropPropertyReferences", () => {
     expect(out.propertyOrder).toEqual(["due", "notes"]);
     expect(out.columnWidths).toEqual({ title: 320, due: 240 });
     expect(out.wrapped).toEqual(["title", "due"]);
+    expect(out.frozenThrough).toBeUndefined();
     expect(out.calculations).toEqual({ due: "count_all" });
     expect(out.cover).toBeUndefined();
   });

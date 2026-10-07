@@ -8,6 +8,7 @@ import {
   archiveRowsAction,
   createRowAction,
   deletePropertyAction,
+  duplicatePropertyAction,
   deleteViewAction,
   duplicateRowsAction,
   ensureOptionAction,
@@ -428,6 +429,11 @@ export function useDatabase(
           report(e);
           return null;
         }
+      },
+
+      /** Copies a property with its values right after it; returns the copy. */
+      duplicateProperty(id: string, name: string) {
+        return mutateSchema((s) => s, () => duplicatePropertyAction(id, name));
       },
 
       deleteProperty(id: string) {

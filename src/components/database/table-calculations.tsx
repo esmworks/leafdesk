@@ -55,17 +55,26 @@ export function CalculationRow({
   onChange,
 }: {
   offset: number;
-  columns: (CalculationColumn & { width: number })[];
+  /** `frozen`: a frozen column's position and look (see TableView). */
+  columns: (CalculationColumn & { width: number; frozen?: { style?: React.CSSProperties; className?: string } })[];
   rows: Row[];
   calculations: Record<string, string> | undefined;
   readOnly?: boolean;
   onChange: (key: string, fn: AggregateFn | null) => void;
 }) {
   if (readOnly && !columns.some((c) => calculations?.[c.key])) return null;
+  // With frozen columns the space before them stays put too, so nothing shows through it.
+  const frozen = columns.some((c) => c.frozen?.className);
   return (
-    <div className="group/footer flex" style={{ paddingLeft: offset }}>
+    // As wide as the table, so frozen cells have the whole width to stay put in.
+    <div className="group/footer flex w-max" style={{ paddingLeft: frozen ? 0 : offset }}>
+      {frozen && <div className="sticky left-0 z-30 shrink-0 bg-bg" style={{ width: offset }} />}
       {columns.map((column) => (
-        <div key={column.key} className="shrink-0" style={{ width: column.width }}>
+        <div
+          key={column.key}
+          className={cn("shrink-0", column.frozen?.className)}
+          style={{ width: column.width, ...column.frozen?.style }}
+        >
           <CalculationCell
             column={column}
             rows={rows}

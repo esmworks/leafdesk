@@ -135,6 +135,7 @@ describe("view references", () => {
     ],
     hidden: ["secret"],
     wrapped: ["secret", "notes"],
+    frozenThrough: "secret",
     calculations: { secret: "count_values" },
   } as ViewConfig;
   const gone = new Set(["secret"]);
@@ -146,6 +147,7 @@ describe("view references", () => {
     expect(shown.filters).toEqual([{ propertyId: "notes", op: "contains", value: "x" }]);
     expect(shown.hidden).toEqual([]);
     expect(shown.wrapped).toEqual(["notes"]);
+    expect(shown.frozenThrough).toBeUndefined();
     expect(shown.calculations).toEqual({});
   });
 
@@ -157,6 +159,7 @@ describe("view references", () => {
     expect(saved.filters).toEqual(stored.filters);
     expect(saved.hidden).toEqual(["secret"]);
     expect(saved.wrapped).toEqual(["notes", "secret"]);
+    expect(saved.frozenThrough).toBe("secret");
     expect(saved.calculations).toEqual({ secret: "count_values" });
   });
 

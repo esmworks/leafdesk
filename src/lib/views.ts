@@ -102,6 +102,9 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (order !== undefined && (!Array.isArray(order) || !order.every((id) => typeof id === "string"))) {
     return "propertyOrder must be a list of property ids";
   }
+  if (c.frozenThrough !== undefined && (typeof c.frozenThrough !== "string" || !c.frozenThrough)) {
+    return "frozenThrough must be a column id";
+  }
   const wrapped = c.wrapped;
   if (wrapped !== undefined && (!Array.isArray(wrapped) || !wrapped.every((id) => typeof id === "string"))) {
     return "wrapped must be a list of column ids";

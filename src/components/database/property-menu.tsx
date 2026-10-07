@@ -12,9 +12,12 @@ import {
   Check,
   ChevronRight,
   Combine,
+  Copy,
   EyeOff,
   ListFilter,
   Lock,
+  Pin,
+  PinOff,
   Plus,
   RefreshCw,
   Rows3,
@@ -166,6 +169,9 @@ export type PropertyMenuActions = {
   /** The column's footer calculation: the type it calculates as, the current one and how to change it. */
   calculation?: { type: string; fn: string | undefined; onChange: (fn: AggregateFn | null) => void };
   hide?: () => void;
+  /** Keeps the columns up to this one in place while the table scrolls sideways; `unfreeze` instead while it does. */
+  freeze?: () => void;
+  unfreeze?: () => void;
   /** Turns wrapping the column's cells onto more lines on and off; `wrapped` says whether it is on. */
   toggleWrap?: () => void;
   wrapped?: boolean;
@@ -175,6 +181,8 @@ export type PropertyMenuActions = {
     onCreate: (side: "before" | "after", ...args: Parameters<React.ComponentProps<typeof AddPropertyPanel>["onCreate"]>) => void | Promise<unknown>;
     onCreateAutofill?: (side: "before" | "after", name: string, config: AiAutofillConfig) => void | Promise<unknown>;
   };
+  /** Adds a copy of the property, with its values, right after it. */
+  duplicate?: () => void;
   setOptions?: (options: SelectOption[]) => void;
   /** Formulas: saves a new expression (with property ids, see FormulaEditor). */
   setFormula?: (expression: string) => void;
@@ -412,6 +420,16 @@ export function PropertyMenu({
     ),
   ].filter(Boolean);
   const layout = [
+    actions.freeze && (
+      <MenuItem key="freeze" icon={icon(Pin)} onClick={run(actions.freeze)}>
+        {t("freeze")}
+      </MenuItem>
+    ),
+    actions.unfreeze && (
+      <MenuItem key="unfreeze" icon={icon(PinOff)} onClick={run(actions.unfreeze)}>
+        {t("unfreeze")}
+      </MenuItem>
+    ),
     actions.hide && (
       <MenuItem key="hide" icon={icon(EyeOff)} onClick={run(actions.hide)}>
         {t("hide")}
@@ -429,15 +447,22 @@ export function PropertyMenu({
       </MenuItem>
     ),
   ].filter(Boolean);
-  const insert = (actions.insert?.sides ?? []).map((side) => (
-    <MenuItem
-      key={side}
-      icon={icon(side === "before" ? ArrowLeftToLine : ArrowRightToLine)}
-      onClick={() => setPage(side === "before" ? "insert-before" : "insert-after")}
-    >
-      {t(side === "before" ? "insertLeft" : "insertRight")}
-    </MenuItem>
-  ));
+  const insert = [
+    ...(actions.insert?.sides ?? []).map((side) => (
+      <MenuItem
+        key={side}
+        icon={icon(side === "before" ? ArrowLeftToLine : ArrowRightToLine)}
+        onClick={() => setPage(side === "before" ? "insert-before" : "insert-after")}
+      >
+        {t(side === "before" ? "insertLeft" : "insertRight")}
+      </MenuItem>
+    )),
+    prop && actions.duplicate && (
+      <MenuItem key="duplicate" icon={icon(Copy)} onClick={run(actions.duplicate)}>
+        {t("duplicate")}
+      </MenuItem>
+    ),
+  ].filter(Boolean);
   const remove = prop && actions.remove && (
     <MenuItem key="delete" danger icon={icon(Trash2)} onClick={() => setPage("confirm")}>
       {t("delete")}

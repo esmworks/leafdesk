@@ -17,9 +17,9 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { databaseView, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseProperty, databaseView, page, propertyPermission, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
-const { addProperty, addView, getDatabaseSnapshot, updateProperty, updateRowProperties } = await import(
+const { addProperty, addView, duplicateProperty, getDatabaseSnapshot, updateProperty, updateRowProperties } = await import(
   "@/server/databases"
 );
 const { archivePage, createPage, deletePagePermanently } = await import("@/server/pages");
@@ -44,6 +44,11 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
 const ids = { owner: `${RUN}-owner`, guest: `${RUN}-guest` };
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
+
+async function getProperty(id: string) {
+  const [prop] = await db.select().from(databaseProperty).where(eq(databaseProperty.id, id));
+  return prop;
+}
 
 async function values(rowId: string) {
   const [row] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, rowId));
@@ -128,6 +133,42 @@ try {
     "…and so is the paired property of a two-way relation added from the other database",
     hidden,
   );
+
+  // Duplicating a property copies its settings, its values (rows keep their edit time) and its access
+  const editedAt = async (rowId: string) =>
+    (await db.select({ at: page.updatedAt }).from(page).where(eq(page.id, rowId)))[0].at.getTime();
+  const before = await editedAt(r1.id);
+  const tagsCopy = await duplicateProperty(ids.owner, tags.id, "Tags (copy)");
+  const tagsCopy2 = await duplicateProperty(ids.owner, tags.id, "Tags (copy)");
+  const after = await values(r1.id);
+  check(
+    tagsCopy.type === "multi_select" &&
+      JSON.stringify(tagsCopy.options.options) === JSON.stringify((await getProperty(tags.id)).options.options) &&
+      JSON.stringify(after[tagsCopy.id]) === JSON.stringify(after[tags.id]) &&
+      !(tagsCopy.id in (await values(r2.id))),
+    "a copied property has the same options and the same values in every row",
+    { tagsCopy, after },
+  );
+  check(tagsCopy2.name === "Tags (copy) 2", "a second copy gets a name of its own", tagsCopy2.name);
+  const order = (await getDatabaseSnapshot(ids.owner, tasks.id)).properties.map((p) => p.id);
+  check(
+    order.indexOf(tagsCopy2.id) === order.indexOf(tags.id) + 1 && order.indexOf(tagsCopy.id) === order.indexOf(tags.id) + 2,
+    "copies go right after the original",
+    order,
+  );
+  check((await editedAt(r1.id)) === before, "copying values leaves the rows' last edited time alone");
+  const selfCopy = await duplicateProperty(ids.owner, self.id, "Parent (copy)");
+  check(
+    selfCopy.options.relation?.databaseId === tasks.id &&
+      selfCopy.options.relation.pairedPropertyId == null &&
+      (await getProperty(paired!.id)).options.relation?.pairedPropertyId === self.id,
+    "a two-way relation is copied one way, and the original keeps its pair",
+    selfCopy.options,
+  );
+  await db.insert(propertyPermission).values({ propertyId: late.id, databaseId: tasks.id, workspaceId, level: "none" });
+  const lateCopy = await duplicateProperty(ids.owner, late.id, "Late (copy)");
+  const rules = await db.select().from(propertyPermission).where(eq(propertyPermission.propertyId, lateCopy.id));
+  check(rules.length === 1 && rules[0].level === "none", "a copy keeps the original's access rules", rules);
 
   // A trashed database lists the rows trashed with it
   await archivePage(ids.owner, tasks.id);

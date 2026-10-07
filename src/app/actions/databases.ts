@@ -182,6 +182,11 @@ export async function ensureOptionAction(propertyId: string, name: string) {
   return run((userId) => databases.ensureOption(userId, propertyId, name));
 }
 
+/** Copies a property, its values and its access rules right after it (see databases.duplicateProperty). */
+export async function duplicatePropertyAction(propertyId: string, name: string) {
+  return run((userId) => databases.duplicateProperty(userId, propertyId, name));
+}
+
 export async function deletePropertyAction(propertyId: string) {
   return run((userId) => databases.deleteProperty(userId, propertyId));
 }
