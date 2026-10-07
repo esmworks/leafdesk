@@ -73,6 +73,33 @@
     "add": "Symbol hinzufügen",
     "remove": "Symbol entfernen"
   },
+  "cover": {
+    "add": "Titelbild hinzufügen",
+    "change": "Titelbild ändern",
+    "reposition": "Ausschnitt anpassen",
+    "dragToReposition": "Bild ziehen, um den Ausschnitt zu ändern",
+    "savePosition": "Ausschnitt speichern",
+    "cancel": "Abbrechen",
+    "gallery": "Galerie",
+    "upload": "Bild hochladen",
+    "uploading": "Wird hochgeladen…",
+    "link": "Bildlink",
+    "linkPlaceholder": "Bildlink einfügen…",
+    "useLink": "Verwenden",
+    "invalidLink": "Fügen Sie einen Link ein, der mit https:// beginnt",
+    "notAnImage": "Wählen Sie eine Bilddatei.",
+    "remove": "Titelbild entfernen",
+    "gradients": {
+      "forest": "Wald",
+      "lagoon": "Lagune",
+      "dusk": "Dämmerung",
+      "ember": "Glut",
+      "sky": "Himmel",
+      "meadow": "Wiese",
+      "berry": "Beere",
+      "slate": "Schiefer"
+    }
+  },
   "title": {
     "label": "Seitentitel"
   },

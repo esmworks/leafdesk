@@ -73,6 +73,33 @@
     "add": "Simge ekle",
     "remove": "Simgeyi kaldır"
   },
+  "cover": {
+    "add": "Kapak ekle",
+    "change": "Kapağı değiştir",
+    "reposition": "Konumlandır",
+    "dragToReposition": "Görseli sürükleyerek konumlandırın",
+    "savePosition": "Konumu kaydet",
+    "cancel": "Vazgeç",
+    "gallery": "Galeri",
+    "upload": "Görsel yükle",
+    "uploading": "Yükleniyor…",
+    "link": "Görsel bağlantısı",
+    "linkPlaceholder": "Görsel bağlantısı yapıştırın…",
+    "useLink": "Kullan",
+    "invalidLink": "https:// ile başlayan bir bağlantı yapıştırın",
+    "notAnImage": "Bir görsel dosyası seçin.",
+    "remove": "Kapağı kaldır",
+    "gradients": {
+      "forest": "Orman",
+      "lagoon": "Lagün",
+      "dusk": "Alacakaranlık",
+      "ember": "Kor",
+      "sky": "Gökyüzü",
+      "meadow": "Çayır",
+      "berry": "Böğürtlen",
+      "slate": "Arduvaz"
+    }
+  },
   "title": {
     "label": "Sayfa başlığı"
   },

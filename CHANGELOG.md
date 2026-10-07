@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Page covers.** *Add cover* above a page's title puts a gradient across the top of the page;
+  from the cover, *Change cover* picks one of 8 built-in gradients, uploads an image (kept with
+  the page like any other upload) or takes an https link to one, and removes it. *Reposition*
+  drags an image up or down to choose the band that shows. A page's icon reaches halfway up into
+  its cover. The cover is kept on the page (`page.cover`, migration `0043_page_cover`, which also
+  has the file trigger count a cover's upload as used), so it changes live for everyone with the
+  page open (an icon change now does too), and travels with copies, templates, published pages,
+  copies made from a published page (the image is copied with it) and the print view. Over MCP
+  and REST, `get_page` shows it and `update_page` / `PATCH /pages/{id}` set it with `cover` (an
+  upload's URL, an https link or `gradient:<name>`, `null` to remove) and `cover_position`
+  (0–100). Not yet in Markdown exports and imports, or as a gallery's card image.
 - **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
   row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
   (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if

@@ -11,6 +11,15 @@ import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
+import {
+  COVER_GRADIENT_NAMES,
+  coverFileId,
+  coverText,
+  MAX_COVER_URL_LENGTH,
+  parseCoverText,
+  parsePageCover,
+  type PageCover,
+} from "@/lib/page-cover";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
 import * as databases from "@/server/databases";
@@ -176,6 +185,20 @@ export const inputs = {
       .enum(["replace", "append"])
       .default("replace")
       .describe('"replace" (default) overwrites the body; "append" adds to the end.'),
+    cover: z
+      .string()
+      .max(MAX_COVER_URL_LENGTH)
+      .nullable()
+      .optional()
+      .describe(
+        `The picture shown above the title: an image uploaded to the workspace (its /api/files/<id> URL, e.g. from attach_file), an https link to an image, or a built-in gradient as "gradient:<name>" (${COVER_GRADIENT_NAMES.join(", ")}). null removes it.`,
+      ),
+    cover_position: z
+      .number()
+      .min(0)
+      .max(100)
+      .optional()
+      .describe("Which band of an image cover shows, from 0 (top) to 100 (bottom); 50 by default."),
   }),
   pageId: z.object({ page_id: id("page") }),
   movePage: z.object({
@@ -450,6 +473,7 @@ export async function getPage(
     title: pageLabel(content.title || page.title),
     kind: page.kind,
     icon: page.icon,
+    ...coverFields(page.cover),
     workspace_id: page.workspaceId,
     ...(await teamspaceOf(ctx, page.teamspaceId)),
     // A parent they can't see stays unnamed, id included.
@@ -560,14 +584,41 @@ export async function createPage(
   };
 }
 
+/** A page's cover as MCP and REST show it: one string (lib/page-cover coverText), files as full URLs. */
+function coverFields(stored: unknown) {
+  const cover = parsePageCover(stored);
+  if (!cover) return { cover: null };
+  const text = coverText(cover);
+  return {
+    cover: coverFileId(cover) ? `${env.appUrl}${text}` : text,
+    ...(cover.kind === "image" ? { cover_position: cover.y } : {}),
+  };
+}
+
+/** The cover update_page asks for: a new one, none (null), or the current image at another position. */
+function coverFromInput(current: PageCover | null, cover: string | null | undefined, position: number | undefined): PageCover | null {
+  if (cover === null) return null;
+  if (cover === undefined) {
+    if (current?.kind !== "image") throw new ToolInputError("cover_position moves an image cover; this page has none.");
+    return { ...current, y: position! };
+  }
+  const parsed = parseCoverText(cover, position);
+  if (!parsed) {
+    throw new ToolInputError(
+      `cover must be an image URL (/api/files/<id> or an https link) or "gradient:<name>" with one of: ${COVER_GRADIENT_NAMES.join(", ")}.`,
+    );
+  }
+  return parsed;
+}
+
 /** `icon` (null clears it) is REST only: the MCP tool doesn't take it. */
 export async function updatePage(
   ctx: OperationContext,
-  { page_id, title, markdown, mode, icon }: Args<"updatePage"> & { icon?: string | null },
+  { page_id, title, markdown, mode, icon, cover, cover_position }: Args<"updatePage"> & { icon?: string | null },
 ) {
   const { userId, actor } = ctx;
-  if (title === undefined && markdown === undefined && icon === undefined) {
-    throw new ToolInputError("Provide title and/or markdown.");
+  if (title === undefined && markdown === undefined && icon === undefined && cover === undefined && cover_position === undefined) {
+    throw new ToolInputError("Provide title, markdown and/or cover.");
   }
   const { page } = await loadPage(ctx, page_id);
   if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before editing.");
@@ -588,6 +639,10 @@ export async function updatePage(
   if (icon !== undefined) {
     await pages.setPageIcon(userId, page_id, icon);
     changed.push("icon");
+  }
+  if (cover !== undefined || cover_position !== undefined) {
+    await pages.setPageCover(userId, page_id, coverFromInput(parsePageCover(page.cover), cover, cover_position));
+    changed.push("cover");
   }
   return {
     id: page.id,

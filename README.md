@@ -50,7 +50,8 @@ versions, upgrades and running behind a domain.
 ## Features
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu and markdown shortcuts,
-  icons, favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
+  icons, covers (a built-in gradient, an uploaded image or an image link, which can be moved to
+  show another band of it), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text, and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).
@@ -1294,7 +1295,8 @@ The tools cover:
 - **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
   everything under it, beside the original), `archive_page`, `list_trash`, `restore_page`.
   `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
-  page is starred. Wherever a tool takes an id, a Leafdesk link the user pasted works too
+  page is starred. `update_page` sets the cover: an uploaded file's URL, an https image link or
+  `gradient:<name>`, with `cover_position` for the band of an image that shows. Wherever a tool takes an id, a Leafdesk link the user pasted works too
   (`https://…/w/<workspace>/p/<page>`, `?view=<view>` for a view).
 - **Page history:** `list_page_history`, `get_page_version`, `diff_page_version`, `restore_page_version`.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
@@ -1359,8 +1361,8 @@ curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   `GET /workspaces/{id}/pages` (`teamspace_id` narrows it to one teamspace, or `private`).
   `POST /pages` and `POST /pages/{id}/move` take a `teamspace_id` for top-level pages, as the MCP
   tools do.
-- **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, Markdown
-  body replaced or appended), `GET /pages/{id}/children`, `POST /pages/{id}/move`,
+- **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, cover,
+  Markdown body replaced or appended), `GET /pages/{id}/children`, `POST /pages/{id}/move`,
   `/archive` and `/restore`.
 - **Databases and rows:** `GET /databases/{id}` (schema), `POST /databases/{id}/query` (filters,
   sorts, a saved view, cursor pagination), `POST /databases/{id}/rows`, `POST

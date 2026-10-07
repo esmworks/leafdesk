@@ -6,6 +6,7 @@ import { RowProperties } from "@/components/database/row-properties";
 import { NoAccess } from "@/components/page/no-access";
 import { PageView } from "@/components/page/page-view";
 import { pageLabel } from "@/lib/labels";
+import { parsePageCover } from "@/lib/page-cover";
 import { pageStyleFromYdoc } from "@/lib/page-style";
 import { AccessError, WorkspacePolicyError } from "@/server/access";
 import { accessRequestsOffered } from "@/server/access-requests";
@@ -59,7 +60,7 @@ export default async function PageRoute({ params }: Params) {
     <PageView
       key={p.id}
       workspaceId={workspaceId}
-      page={{ id: p.id, parentId: p.parentId, title: p.title, icon: p.icon, kind: p.kind, archived, isRow }}
+      page={{ id: p.id, parentId: p.parentId, title: p.title, icon: p.icon, cover: parsePageCover(p.cover), kind: p.kind, archived, isRow }}
       info={info}
       crumbs={crumbs}
       user={{ id: user.id, name: user.name }}

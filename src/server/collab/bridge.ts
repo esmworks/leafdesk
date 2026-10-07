@@ -20,7 +20,8 @@ export type WriteActor = { userId: string; oauthClientId?: string | null };
 
 export type PageContent = { title: string; markdown: string; text: string };
 
-export type Channel = `ws:${string}` | `db:${string}`;
+/** Signal channels, and a page's own document (its open editors hear PAGE_HEADER_EVENT on it). */
+export type Channel = `ws:${string}` | `db:${string}` | `page:${string}`;
 
 /** Who writes a comment change: "editor" may also delete other people's comments and threads. */
 export type CommentActor = { userId: string; role: "comment" | "editor" };

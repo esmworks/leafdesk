@@ -7,3 +7,8 @@ export const COLLAB_META = "meta";
  * collab/service.ts); analytics counts edits by these versions (server/analytics.ts).
  */
 export const AUTO_SNAPSHOT_INTERVAL_MS = 10 * 60 * 1000;
+/**
+ * Sent on a page's own document when its icon or cover changed (server/pages.ts): the page view
+ * reloads them, so everyone who has the page open sees the change.
+ */
+export const PAGE_HEADER_EVENT = "header";

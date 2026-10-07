@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { PageKind } from "@/db/schema";
+import type { PageCover } from "@/lib/page-cover";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
 import { requireUserId } from "@/server/session";
@@ -29,6 +30,11 @@ export async function renamePageAction(pageId: string, title: string) {
 export async function setPageIconAction(pageId: string, icon: string | null) {
   const userId = await requireUserId();
   await pages.setPageIcon(userId, pageId, icon);
+}
+
+export async function setPageCoverAction(pageId: string, cover: PageCover | null) {
+  const userId = await requireUserId();
+  await pages.setPageCover(userId, pageId, cover);
 }
 
 export async function archivePageAction(pageId: string) {

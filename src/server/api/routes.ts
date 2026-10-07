@@ -261,7 +261,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Update a page",
     description:
-      'Changes the title, icon and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end. The previous body is saved to page history first, and open editors update live.',
+      'Changes the title, icon, cover and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end. The previous body is saved to page history first, and open editors update live.',
     scope: "pages:write",
     body: pageBodies.updatePage,
     response: "PageChanged",

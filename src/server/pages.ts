@@ -1,12 +1,15 @@
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
+import { fileIdOf } from "@/lib/files";
+import { parsePageCover, type PageCover } from "@/lib/page-cover";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
 import { anyWordTerms, anyWordTsQuery } from "@/lib/search-words";
 import {
   databaseProperty,
   databaseView,
+  file,
   oauthClient,
   page,
   pagePermission,
@@ -40,6 +43,7 @@ import {
   withCode,
   type BulkResult,
 } from "@/server/databases";
+import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { pageChanged } from "@/server/page-events";
 import { inSubtree, semanticSearch } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
@@ -326,8 +330,40 @@ export async function renamePage(actor: WriteActor, pageId: string, title: strin
 export async function setPageIcon(userId: string, pageId: string, icon: string | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
   await db.update(page).set({ icon, updatedBy: userId }).where(eq(page.id, pageId));
-  getCollab().broadcast(`ws:${p.workspaceId}`, "tree");
-  if (p.parentId) getCollab().broadcast(`db:${p.parentId}`, "rows");
+  pageHeaderChanged(p);
+}
+
+/**
+ * The icon or cover changed: the sidebar and database views show the icon, gallery cards may show
+ * the cover, and the page itself shows both to everyone who has it open (PAGE_HEADER_EVENT).
+ */
+function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: string | null }) {
+  const collab = getCollab();
+  collab.broadcast(`ws:${p.workspaceId}`, "tree");
+  if (p.parentId) collab.broadcast(`db:${p.parentId}`, "rows");
+  collab.broadcast(`page:${p.id}`, PAGE_HEADER_EVENT);
+}
+
+/**
+ * Sets or removes the page's cover (lib/page-cover). An uploaded image must be a file of the page's
+ * workspace; the database trigger then counts it as used by the page, like a file in its body.
+ */
+export async function setPageCover(userId: string, pageId: string, cover: PageCover | null) {
+  const p = await requirePageAccess(userId, pageId, "edit");
+  const checked = cover === null ? null : parsePageCover(cover);
+  if (cover !== null && !checked) throw new Error("Not a cover");
+  const fileId = checked?.kind === "image" ? fileIdOf(checked.url) : null;
+  if (fileId) {
+    const [found] = await db
+      .select({ id: file.id })
+      .from(file)
+      .where(and(eq(file.id, fileId), eq(file.workspaceId, p.workspaceId)))
+      .limit(1);
+    // Answered like any file the user can't reach (REST: 404).
+    if (!found) throw new AccessError("The cover's file isn't in this workspace");
+  }
+  await db.update(page).set({ cover: checked, updatedBy: userId }).where(eq(page.id, pageId));
+  pageHeaderChanged(p);
 }
 
 function subtreeIds(rootId: string) {

@@ -199,6 +199,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
       title: { type: "string" },
       kind: pageKind,
       icon: { type: ["string", "null"] },
+      cover: {
+        type: ["string", "null"],
+        description: 'The picture above the title: an image URL (uploaded files as full /api/files/<id> URLs) or "gradient:<name>".',
+      },
+      cover_position: { type: "number", minimum: 0, maximum: 100, description: "Image covers: which band shows, 0 (top) to 100 (bottom)." },
       workspace_id: id,
       ...teamspaceFields,
       parent_id: { type: ["string", "null"], description: "Null at the top level, or when the user can't see the parent." },

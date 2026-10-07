@@ -9,7 +9,8 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { writeDocTitle } from "@/lib/collab-title";
 import { copyAccess, dropPropertyReferences, planDuplicate, redactCopy, type CopyAccess, type SourcePage } from "@/lib/duplicate";
-import { fileIdsIn, fileIdsInProperties } from "@/lib/files";
+import { fileIdsIn, fileIdsInProperties, fileUrl } from "@/lib/files";
+import { coverFileId, parsePageCover, type PageCover } from "@/lib/page-cover";
 import { UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { copyPublishedBlocks, mentionedPageIds, remapFilePaths } from "@/lib/published-copy";
 import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
@@ -72,10 +73,19 @@ type SourceRow = {
   kind: PageKind;
   title: string;
   icon: string | null;
+  cover: unknown;
   position: number;
   properties: RowProperties;
   ydoc: Uint8Array | Buffer | null;
 };
+
+/** A cover as the copy keeps it: an uploaded image points at the copied file, or is dropped without one. */
+function copiedCover(cover: PageCover | null, fileMap: Map<string, string>): PageCover | null {
+  const fileId = coverFileId(cover);
+  if (!cover || !fileId || cover.kind !== "image") return cover;
+  const copied = fileMap.get(fileId);
+  return copied ? { ...cover, url: fileUrl(copied) } : null;
+}
 
 /** Labels for pages a copy mentions but doesn't carry, in the visitor's language. */
 async function mentionLabels() {
@@ -114,7 +124,7 @@ export async function duplicatePublishedPage(
         select p.id from ${page} p join sub on p.parent_id = sub.id
         where p.archived_at is null and not p.in_template and ${pageVisibleTo(publisher, "p")}
       )
-      select p.id, p.workspace_id, p.parent_id, p.kind, p.title, p.icon, p.position, p.properties, p.ydoc
+      select p.id, p.workspace_id, p.parent_id, p.kind, p.title, p.icon, p.cover, p.position, p.properties, p.ydoc
       from (select id from sub limit ${MAX_PUBLISHED_COPY_PAGES + 1}) s
       join ${page} p on p.id = s.id
     `)),
@@ -194,7 +204,12 @@ export async function duplicatePublishedPage(
   const fileIds = new Set<string>();
   const firstShownOn = new Map<string, string>();
   for (const p of plan.pages) {
-    const ids = [...fileIdsIn(JSON.stringify(blocksOf.get(p.id) ?? [])), ...fileIdsInProperties(values.get(p.id))];
+    const coverFile = coverFileId(parsePageCover(sources.get(p.sourceId)?.cover));
+    const ids = [
+      ...fileIdsIn(JSON.stringify(blocksOf.get(p.id) ?? [])),
+      ...fileIdsInProperties(values.get(p.id)),
+      ...(coverFile ? [coverFile] : []),
+    ];
     for (const id of ids) {
       fileIds.add(id);
       if (!firstShownOn.has(id)) firstShownOn.set(id, p.id);
@@ -314,6 +329,7 @@ export async function duplicatePublishedPage(
               kind: p.kind,
               title: p.title,
               icon: sources.get(p.sourceId)?.icon ?? null,
+              cover: copiedCover(parsePageCover(sources.get(p.sourceId)?.cover), fileMap),
               position: p.position,
               properties: JSON.parse(remapFilePaths(JSON.stringify(values.get(p.id) ?? {}), fileMap)) as RowProperties,
               ydoc: body?.ydoc ?? null,

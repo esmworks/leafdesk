@@ -7,6 +7,7 @@ import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { withFormulaTypes } from "@/lib/derived";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
+import { parsePageCover, type PageCover } from "@/lib/page-cover";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
 import { coverProperty, galleryCover } from "@/lib/views";
@@ -337,6 +338,8 @@ export type PublishedPage = {
   id: string;
   title: string;
   icon: string | null;
+  /** The picture above the title (lib/page-cover); an uploaded one opens for visitors as a file the page shows. */
+  cover: PageCover | null;
   kind: PageKind;
   updatedAt: Date;
   /** Typeface, small text and full width the page has in the app (the defaults for databases). */
@@ -398,6 +401,7 @@ export async function getPublishedPage(
       id: page.id,
       title: page.title,
       icon: page.icon,
+      cover: page.cover,
       kind: page.kind,
       parentId: page.parentId,
       properties: page.properties,
@@ -436,6 +440,7 @@ export async function getPublishedPage(
     id: target.id,
     title: target.title,
     icon: target.icon,
+    cover: parsePageCover(target.cover),
     kind: target.kind,
     updatedAt: target.updatedAt,
     style: target.kind === "page" ? pageStyleFromYdoc(target.ydoc) : DEFAULT_PAGE_STYLE,

@@ -73,6 +73,33 @@
     "add": "Ajouter une icône",
     "remove": "Supprimer l’icône"
   },
+  "cover": {
+    "add": "Ajouter une couverture",
+    "change": "Changer la couverture",
+    "reposition": "Repositionner",
+    "dragToReposition": "Faites glisser l'image pour la repositionner",
+    "savePosition": "Enregistrer la position",
+    "cancel": "Annuler",
+    "gallery": "Galerie",
+    "upload": "Importer une image",
+    "uploading": "Importation…",
+    "link": "Lien d'image",
+    "linkPlaceholder": "Collez un lien d'image…",
+    "useLink": "Utiliser",
+    "invalidLink": "Collez un lien qui commence par https://",
+    "notAnImage": "Choisissez un fichier image.",
+    "remove": "Retirer la couverture",
+    "gradients": {
+      "forest": "Forêt",
+      "lagoon": "Lagon",
+      "dusk": "Crépuscule",
+      "ember": "Braise",
+      "sky": "Ciel",
+      "meadow": "Prairie",
+      "berry": "Baie",
+      "slate": "Ardoise"
+    }
+  },
   "title": {
     "label": "Titre de la page"
   },

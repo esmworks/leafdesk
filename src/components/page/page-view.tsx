@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutTemplate, RotateCcw, SmilePlus } from "lucide-react";
+import { ImagePlus, LayoutTemplate, RotateCcw, SmilePlus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import {
   archivePageAction,
   deletePagePermanentlyAction,
   restorePageAction,
+  setPageCoverAction,
   setPageIconAction,
 } from "@/app/actions/pages";
 import { createRowAction } from "@/app/actions/databases";
@@ -20,6 +21,7 @@ import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import type { PageHeaderInfo } from "@/server/page-meta";
 import { HistoryPanel } from "./history-panel";
 import { IconPicker } from "./icon-picker";
+import { PageCoverBanner, randomCover } from "./page-cover";
 import { Backlinks } from "./mentions";
 import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
@@ -27,6 +29,8 @@ import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionStat
 import { usePagePresence } from "./use-presence";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { rememberPage } from "@/components/offline/offline-store";
+import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
+import type { PageCover } from "@/lib/page-cover";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 
 // BlockNote touches `window` during setup; render it only in the browser.
@@ -51,6 +55,7 @@ export function PageView({
     parentId: string | null;
     title: string;
     icon: string | null;
+    cover: PageCover | null;
     kind: PageKind;
     archived: boolean;
     /** A row of a database (its parent). */
@@ -77,6 +82,7 @@ export function PageView({
   // Everyone who has the page open shows in the header, including people who may only view it.
   const viewers = usePagePresence(pageDoc, user);
   const [icon, setIcon] = useState(page.icon);
+  const [cover, setCover] = useState(page.cover);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -98,6 +104,18 @@ export function PageView({
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setIcon(page.icon), [page.icon]);
+  useEffect(() => setCover(page.cover), [page.cover]);
+
+  // Someone else changed the icon or cover (server/pages.ts): load them again.
+  const provider = pageDoc?.provider;
+  useEffect(() => {
+    if (!provider) return;
+    const onStateless = ({ payload }: { payload: string }) => {
+      if (payload === PAGE_HEADER_EVENT) router.refresh();
+    };
+    provider.on("stateless", onStateless);
+    return () => void provider.off("stateless", onStateless);
+  }, [provider, router]);
 
   // A page the user just created opens ready for its name. Waits until the title is editable
   // (the doc has synced), so the first keystrokes aren't lost.
@@ -135,6 +153,18 @@ export function PageView({
         router.refresh();
       },
       () => setIcon(previous),
+    );
+  }
+
+  function changeCover(next: PageCover | null) {
+    const previous = cover;
+    setCover(next);
+    run(
+      async () => {
+        await setPageCoverAction(page.id, next);
+        router.refresh();
+      },
+      () => setCover(previous),
     );
   }
 
@@ -183,6 +213,19 @@ export function PageView({
     () => [...crumbs.slice(0, -1), { id: page.id, title, icon, kind: page.kind }],
     [crumbs, page.id, page.kind, title, icon],
   );
+
+  const canChangeHeader = !page.archived && canEdit && !offline;
+  const addCover =
+    !cover && canChangeHeader ? (
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => changeCover(randomCover())}
+        className="-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100"
+      >
+        <ImagePlus className="h-4 w-4" /> {t("cover.add")}
+      </Button>
+    ) : null;
 
   const iconPicker = (
     <IconPicker icon={icon} onChange={changeIcon} disabled={page.archived || !canEdit || offline}>
@@ -296,16 +339,25 @@ export function PageView({
         </div>
       )}
 
+      {cover && <PageCoverBanner cover={cover} pageId={page.id} editable={canChangeHeader} onChange={changeCover} />}
+
       <div
         className={cn(
           "w-full flex-1 pb-32",
-          wide ? "pt-6" : fullWidth ? "page-full-width pt-8 md:pt-12" : "page-column mx-auto max-w-[900px] pt-8 md:pt-12",
+          wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
+          // Below a cover the icon (taller than its row) reaches halfway up into it.
+          !wide && (cover ? (icon ? "pt-0" : "pt-4") : "pt-8 md:pt-12"),
           !wide && commentsOpen && !offline && "page-beside-panel",
           showBody && pageTextClasses(pageStyle),
         )}
       >
-        <div className={cn(wide ? "page-gutter" : "px-4 md:px-[54px]")}>
-          {(!wide || !icon) && <div className="group mb-2 flex h-8 items-end">{iconPicker}</div>}
+        <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
+          {(!wide || !icon || addCover) && (
+            <div className="relative mb-2 flex h-8 items-end gap-1">
+              {(!wide || !icon) && iconPicker}
+              {addCover}
+            </div>
+          )}
           {!wide && icon && <div className="h-8" />}
           {/* Wide (database) pages keep the icon beside the title so the view starts higher. */}
           <div className={cn(wide && icon && "flex items-center gap-3")}>

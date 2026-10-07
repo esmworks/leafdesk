@@ -73,6 +73,33 @@
     "add": "Add icon",
     "remove": "Remove icon"
   },
+  "cover": {
+    "add": "Add cover",
+    "change": "Change cover",
+    "reposition": "Reposition",
+    "dragToReposition": "Drag the image to reposition",
+    "savePosition": "Save position",
+    "cancel": "Cancel",
+    "gallery": "Gallery",
+    "upload": "Upload an image",
+    "uploading": "Uploading…",
+    "link": "Image link",
+    "linkPlaceholder": "Paste an image link…",
+    "useLink": "Use",
+    "invalidLink": "Paste a link that starts with https://",
+    "notAnImage": "Choose an image file.",
+    "remove": "Remove cover",
+    "gradients": {
+      "forest": "Forest",
+      "lagoon": "Lagoon",
+      "dusk": "Dusk",
+      "ember": "Ember",
+      "sky": "Sky",
+      "meadow": "Meadow",
+      "berry": "Berry",
+      "slate": "Slate"
+    }
+  },
   "title": {
     "label": "Page title"
   },
