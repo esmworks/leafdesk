@@ -198,10 +198,11 @@ async function codeFor(key: Uint8Array) {
 /** A browser tab listening to a workspace's live signals, signed in with `jar`. */
 async function openLive(workspaceId: string, jar: Jar) {
   const res = await fetch(`${BASE}/api/collab-token`, { headers: { cookie: jar.header() } });
-  const { token } = (await res.json()) as { token: string };
+  const { token, build } = (await res.json()) as { token: string; build?: string | null };
   const closes: number[] = [];
   const provider = new HocuspocusProvider({
-    url: `${BASE.replace(/^http/, "ws")}/collab`,
+    // A production server refuses a tab that names no build (lib/build-id); this one runs the server's.
+    url: `${BASE.replace(/^http/, "ws")}/collab${build ? `?build=${encodeURIComponent(build)}` : ""}`,
     name: `ws:${workspaceId}`,
     document: new Y.Doc(),
     token,

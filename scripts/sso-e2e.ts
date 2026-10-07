@@ -310,11 +310,12 @@ async function callAction(jar: Jar, path: string, file: string, name: string, ar
 const connections: InstanceType<typeof HocuspocusProvider>[] = [];
 async function connect(jar: Jar, name: string) {
   const tokenRes = await fetch(`${BASE}/api/collab-token`, { headers: { cookie: jar.header() } });
-  const { token } = (await tokenRes.json()) as { token: string };
+  const { token, build } = (await tokenRes.json()) as { token: string; build?: string | null };
   let settle: (outcome: "synced" | "refused") => void = () => {};
   const settled = new Promise<"synced" | "refused">((resolve) => (settle = resolve));
   const provider = new HocuspocusProvider({
-    url: `${BASE.replace(/^http/, "ws")}/collab`,
+    // A production server refuses a tab that names no build (lib/build-id); this one runs the server's.
+    url: `${BASE.replace(/^http/, "ws")}/collab${build ? `?build=${encodeURIComponent(build)}` : ""}`,
     name,
     document: new Y.Doc(),
     token,

@@ -151,13 +151,14 @@ async function scim(token: string | null, method: string, path: string, body?: u
 const connections: InstanceType<typeof HocuspocusProvider>[] = [];
 /** A live editor on a page, the way the app opens one: collab token, then the websocket. */
 async function connect(jar: Jar, name: string) {
-  const { token } = (await fetch(`${BASE}/api/collab-token`, { headers: { cookie: jar.header() } }).then((r) => r.json())) as { token: string };
+  const { token, build } = (await fetch(`${BASE}/api/collab-token`, { headers: { cookie: jar.header() } }).then((r) => r.json())) as { token: string; build?: string | null };
   const closes: number[] = [];
   let refusals = 0;
   let settle: (outcome: "synced" | "refused") => void = () => {};
   const settled = new Promise<"synced" | "refused">((resolve) => (settle = resolve));
   const provider = new HocuspocusProvider({
-    url: `${BASE.replace(/^http/, "ws")}/collab`,
+    // A production server refuses a tab that names no build (lib/build-id); this one runs the server's.
+    url: `${BASE.replace(/^http/, "ws")}/collab${build ? `?build=${encodeURIComponent(build)}` : ""}`,
     name,
     document: new Y.Doc(),
     token,
