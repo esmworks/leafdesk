@@ -7,7 +7,7 @@ import type * as Y from "yjs";
 import { acquireDoc } from "@/components/collab/socket";
 import { useOffline } from "@/components/offline/offline-context";
 import { observeDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
-import { COLLAB_UNAUTHORIZED, syncState, type SyncState } from "@/lib/offline";
+import { COLLAB_STALE, COLLAB_UNAUTHORIZED, syncState, type SyncState } from "@/lib/offline";
 import { observePageStyle, pageStyleKey, parsePageStyleKey, readPageStyle, type PageStyle } from "@/lib/page-style";
 
 export type PageDoc = { doc: Y.Doc; provider: HocuspocusProvider };
@@ -39,9 +39,10 @@ type DocState = {
 
 /**
  * The server turned the page down: no access (any more), or the workspace wants two-step
- * verification first. Only the first also drops the offline copy (see collab/socket).
+ * verification first. Only the first also drops the offline copy (see collab/socket). A tab of
+ * another build isn't turned down for the page: it has to reload (collab/stale-client says so).
  */
-const refusesPage = (reason: string | null) => reason !== null && reason !== COLLAB_UNAUTHORIZED;
+const refusesPage = (reason: string | null) => reason !== null && reason !== COLLAB_UNAUTHORIZED && reason !== COLLAB_STALE;
 
 /** A burst of typing is confirmed within this; only longer waits show "Syncing". */
 const UNSYNCED_GRACE_MS = 1500;

@@ -14,5 +14,11 @@
     "unsynced": "Cambios aún sin sincronizar",
     "empty": "Todavía no hay páginas guardadas en este dispositivo. Las páginas que abras con conexión se guardarán para usarlas sin conexión.",
     "retry": "Volver a intentarlo"
+  },
+  "stale": {
+    "title": "Leafdesk se ha actualizado",
+    "body": "Esta pestaña sigue usando la versión anterior, así que sus páginas han dejado de sincronizarse. Recarga para continuar. Los cambios que hiciste aquí se conservan y se envían tras recargar.",
+    "offlineBody": "Esta pestaña usa una versión distinta de la que este navegador usó por última vez, así que sus páginas han dejado de sincronizarse. Recarga cuando vuelvas a tener conexión. Los cambios que hiciste aquí se conservan y se envían entonces.",
+    "reload": "Recargar"
   }
 }

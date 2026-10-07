@@ -4,8 +4,10 @@ import { HocuspocusProvider, HocuspocusProviderWebsocket, type onStatusParameter
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { forgetOfflinePage, markDirty, readOfflineState } from "@/components/offline/offline-store";
+import { BUILD_PARAM, CLIENT_BUILD } from "@/lib/build-id";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
-import { COLLAB_FORBIDDEN, pageStoreName } from "@/lib/offline";
+import { COLLAB_FORBIDDEN, COLLAB_STALE, pageStoreName } from "@/lib/offline";
+import { markStale, noteServerBuild, onStale, whenFresh } from "./freshness";
 
 let socket: HocuspocusProviderWebsocket | null = null;
 // In memory only: collab tokens are never written to storage.
@@ -22,8 +24,13 @@ const statusListeners = new Set<(status: SocketStatus) => void>();
 export function getSocket() {
   if (!socket) {
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    socket = new HocuspocusProviderWebsocket({ url: `${protocol}://${window.location.host}/collab` });
-    socket.on("status", ({ status }: onStatusParameters) => statusListeners.forEach((l) => l(status as SocketStatus)));
+    // The server refuses a tab of another build (lib/build-id) before it sends any document.
+    const query = CLIENT_BUILD ? `?${BUILD_PARAM}=${encodeURIComponent(CLIENT_BUILD)}` : "";
+    const created = new HocuspocusProviderWebsocket({ url: `${protocol}://${window.location.host}/collab${query}` });
+    created.on("status", ({ status }: onStatusParameters) => statusListeners.forEach((l) => l(status as SocketStatus)));
+    // Reconnecting would only be refused again; the tab has to reload (components/collab/stale-client).
+    onStale(() => created.disconnect());
+    socket = created;
   }
   return socket;
 }
@@ -38,7 +45,8 @@ async function getCollabToken(): Promise<string> {
   if (cachedToken && Date.now() - cachedToken.fetchedAt < TOKEN_REUSE_MS) return cachedToken.value;
   const res = await fetch("/api/collab-token", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not obtain a collaboration token");
-  const { token } = (await res.json()) as { token: string };
+  const { token, build } = (await res.json()) as { token: string; build?: string | null };
+  noteServerBuild(build);
   cachedToken = { value: token, fetchedAt: Date.now() };
   return token;
 }
@@ -126,6 +134,7 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
       },
       onAuthenticationFailed: ({ reason }) => {
         denied = tokenFailed ? null : reason;
+        if (reason === COLLAB_STALE) markStale();
       },
     });
     const created: Entry = {
@@ -178,6 +187,9 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
 
 /**
  * Loads the page's stored copy into the doc before the provider connects, then keeps storing it.
+ * Not in a tab of another build than the server's (lib/build-id): the copy may hold blocks a newer
+ * tab of this browser wrote, which this bundle would delete as it renders them. Such a tab loads
+ * nothing and never connects; it shows that it has to reload instead.
  * The order matters: attached first, the provider would send the whole stored copy to the server
  * as one new update, and the server refuses browser updates that touch comment threads (the copy
  * holds the threads it got from the server). Loaded first, the sync handshake sends only what the
@@ -204,11 +216,6 @@ function keepOfflineCopy(entry: Entry, userId: string, pageId: string): OfflineC
     unsynced: 0,
   };
   let persistence: IndexeddbPersistence | undefined;
-  try {
-    persistence = new IndexeddbPersistence(pageStoreName(userId, pageId), doc);
-    entry.persistence = persistence;
-  } catch {}
-
   let attached = false;
   const attach = () => {
     if (attached || !entries.has(entry.name)) return;
@@ -218,10 +225,17 @@ function keepOfflineCopy(entry: Entry, userId: string, pageId: string): OfflineC
     provider.attach();
     emit();
   };
-  if (persistence) {
-    void persistence.whenSynced.then(attach);
-    setTimeout(attach, OFFLINE_LOAD_TIMEOUT_MS);
-  } else attach();
+  void whenFresh(getCollabToken, OFFLINE_LOAD_TIMEOUT_MS).then((fresh) => {
+    if (!fresh || entries.get(entry.name) !== entry) return;
+    try {
+      persistence = new IndexeddbPersistence(pageStoreName(userId, pageId), doc);
+      entry.persistence = persistence;
+    } catch {}
+    if (persistence) {
+      void persistence.whenSynced.then(attach);
+      setTimeout(attach, OFFLINE_LOAD_TIMEOUT_MS);
+    } else attach();
+  });
 
   // Edits made here (not the server's, not the stored copy's) stay flagged until the server has
   // them, so they are sent even if the page isn't opened again (see useBackgroundSync).

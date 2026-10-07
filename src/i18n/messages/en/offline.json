@@ -14,5 +14,11 @@
     "unsynced": "Edits not synced yet",
     "empty": "No pages are saved on this device yet. Pages you open while online are kept for offline use.",
     "retry": "Try again"
+  },
+  "stale": {
+    "title": "Leafdesk has been updated",
+    "body": "This tab still runs the previous version, so its pages have stopped syncing. Reload to continue. Edits you made here are kept and sent after the reload.",
+    "offlineBody": "This tab runs a different version than the one this browser last used, so its pages have stopped syncing. Reload once you're back online. Edits you made here are kept and sent then.",
+    "reload": "Reload"
   }
 }

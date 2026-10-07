@@ -14,5 +14,11 @@
     "unsynced": "Eşitlenmemiş değişiklikler var",
     "empty": "Bu cihazda henüz kayıtlı sayfa yok. Çevrimiçiyken açtığınız sayfalar çevrimdışı kullanım için saklanır.",
     "retry": "Yeniden dene"
+  },
+  "stale": {
+    "title": "Leafdesk güncellendi",
+    "body": "Bu sekme hâlâ önceki sürümü çalıştırıyor, bu yüzden sayfaları eşitlenmiyor. Devam etmek için yenileyin. Burada yaptığınız değişiklikler korunur ve yeniledikten sonra gönderilir.",
+    "offlineBody": "Bu sekme, bu tarayıcının en son kullandığı sürümden farklı bir sürüm çalıştırıyor, bu yüzden sayfaları eşitlenmiyor. Bağlantı gelince yenileyin. Burada yaptığınız değişiklikler korunur ve o zaman gönderilir.",
+    "reload": "Yenile"
   }
 }

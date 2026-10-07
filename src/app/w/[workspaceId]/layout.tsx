@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { AiChatProvider } from "@/components/ai-chat/chat-panel";
+import { StaleClientScreen } from "@/components/collab/stale-client";
 import { OfflineProvider } from "@/components/offline/offline-context";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { FloatingSidebarButton, SidebarProvider } from "@/components/sidebar/sidebar-context";
@@ -77,6 +78,7 @@ export default async function WorkspaceLayout({
     <OfflineProvider userId={user.id}>
       {/* The service worker files this page's HTML under this user for offline use (public/sw.js). */}
       <meta name={USER_MARKER} content={user.id} />
+      <StaleClientScreen />
       <SidebarProvider initial={parseSidebarCookie(cookieStore.get(SIDEBAR_COOKIE)?.value)}>
         {/* The AI chat panel (#41), when the server has an AI provider. */}
         {aiConfigured() ? (

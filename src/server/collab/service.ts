@@ -7,15 +7,17 @@ import * as Y from "yjs";
 import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
 import { blocksToPlainText } from "@/lib/blocks";
+import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
 import { AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
-import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
+import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
 import { AccessError, policyHoldFor, WorkspacePolicyError } from "@/server/access";
 import { collabSessionFacts } from "@/server/account-security";
+import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/server/blocknote";
 import { mentionablePeople, syncPageReferences } from "@/server/mentions";
 import { pageChanged } from "@/server/page-events";
@@ -235,7 +237,14 @@ export function createCollab() {
   const extension: Extension<Context> = {
     extensionName: "leafdesk",
 
-    async onAuthenticate({ token, documentName, connectionConfig, requestHeaders }) {
+    async onAuthenticate({ token, documentName, connectionConfig, requestHeaders, requestParameters }) {
+      // Before anything of the document is sent: a foreign bundle would delete the blocks it can't
+      // render (lib/build-id). Refused here rather than at the upgrade, so the tab learns why. A
+      // production server refuses a tab that names no build too: only a tab opened before this
+      // check existed does that (it then shows its "access lost" message until reloaded).
+      const build = serverBuildId();
+      const claimed = requestParameters.get(BUILD_PARAM);
+      if (build && (!claimed || isForeignBuild(claimed, build))) throw refusal(COLLAB_STALE);
       const user = verifyCollabToken(token);
       const target = parseName(documentName);
       if (!user) throw refusal(COLLAB_UNAUTHORIZED);

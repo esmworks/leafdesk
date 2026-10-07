@@ -135,6 +135,18 @@
 
 ### Fixed
 
+- **Tabs left open across an update could delete new blocks.** y-prosemirror deletes from the
+  shared document any block its editor can't build, and the deletion syncs to everyone, so a tab
+  still running the previous release removed blocks a newer one added (columns, Mermaid, a table
+  of contents…) as soon as it showed them, also from its offline copy. Each `next build` now gets
+  an id, compiled into the browser bundle and read by the server from `.next/BUILD_ID`. The
+  collaboration server refuses a tab of another build (and, in production, one that sends none:
+  tabs opened before this release, which show "access lost" until reloaded) before sending any
+  document; a tab checks the build in the collaboration token reply before it loads a page's
+  offline copy, and offline goes by the build another tab of the browser last met. Such a tab
+  shows "Leafdesk has been updated" with a Reload button, in front of everything; its edits stay
+  in the browser and are sent after the reload. No automatic reload, so typing in progress is
+  never cut off and an offline tab can't loop.
 - **Comments panel over the page.** With the comments panel open, a page's text ran under it on
   most screens. The page now keeps its place while it clears the panel, moves left when it
   doesn't, and narrows once it reaches the sidebar.

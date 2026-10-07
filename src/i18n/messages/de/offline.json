@@ -14,5 +14,11 @@
     "unsynced": "Änderungen noch nicht synchronisiert",
     "empty": "Auf diesem Gerät sind noch keine Seiten gespeichert. Seiten, die du online öffnest, werden für die Offline-Nutzung aufbewahrt.",
     "retry": "Erneut versuchen"
+  },
+  "stale": {
+    "title": "Leafdesk wurde aktualisiert",
+    "body": "Dieser Tab läuft noch mit der vorherigen Version, deshalb werden seine Seiten nicht mehr synchronisiert. Laden Sie neu, um weiterzumachen. Ihre Änderungen hier bleiben erhalten und werden nach dem Neuladen gesendet.",
+    "offlineBody": "Dieser Tab läuft mit einer anderen Version als der, die dieser Browser zuletzt verwendet hat, deshalb werden seine Seiten nicht mehr synchronisiert. Laden Sie neu, sobald Sie wieder online sind. Ihre Änderungen hier bleiben erhalten und werden dann gesendet.",
+    "reload": "Neu laden"
   }
 }

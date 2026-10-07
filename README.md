@@ -394,6 +394,14 @@ you opened stay readable offline; they are read-only until the connection is bac
 sharing, comments, favorites, search, the inbox, new pages and the other actions that need the
 server (their buttons say so).
 
+**After an update.** A tab opened before the server was updated stops syncing its pages and asks
+to be reloaded ("Leafdesk has been updated"); edits made in it are kept in the browser and sent
+after the reload. An older version of the editor would drop blocks it doesn't know yet, such as
+ones a newer release added, from the pages it shows, and the change would reach everyone. So the
+server turns down the collaboration connection of a tab from another build, and a tab doesn't
+load a page's offline copy before it knows it runs the server's build (offline: the build another
+tab of this browser last met). Each `next build` gets its own id; development has none.
+
 **Privacy.** Offline copies are kept per user and removed when you sign out (after a warning if
 some edits haven't reached the server yet), when someone else signs in on the same browser, and,
 for a page, as soon as the server says it is gone or no longer shared with you. The collaboration

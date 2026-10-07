@@ -27,6 +27,8 @@ export const COLLAB_TWO_STEP = "two-step";
 export const COLLAB_SSO = "sso";
 /** No valid collab token (e.g. the session expired). */
 export const COLLAB_UNAUTHORIZED = "unauthorized";
+/** The tab runs another build than the server: it must reload before it may load a page (lib/build-id). */
+export const COLLAB_STALE = "stale-client";
 
 /** At most this many recently opened pages keep a cached copy of their HTML. */
 export const MAX_RECENT_PAGES = 50;

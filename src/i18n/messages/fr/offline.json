@@ -14,5 +14,11 @@
     "unsynced": "Modifications pas encore synchronisées",
     "empty": "Aucune page n’est encore enregistrée sur cet appareil. Les pages que vous ouvrez en ligne sont conservées pour une utilisation hors ligne.",
     "retry": "Réessayer"
+  },
+  "stale": {
+    "title": "Leafdesk a été mis à jour",
+    "body": "Cet onglet utilise encore la version précédente : ses pages ne se synchronisent plus. Rechargez pour continuer. Les modifications faites ici sont conservées et envoyées après le rechargement.",
+    "offlineBody": "Cet onglet utilise une autre version que celle utilisée en dernier par ce navigateur : ses pages ne se synchronisent plus. Rechargez une fois la connexion revenue. Les modifications faites ici sont conservées et envoyées à ce moment-là.",
+    "reload": "Recharger"
   }
 }
