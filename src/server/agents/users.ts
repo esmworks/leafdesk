@@ -42,12 +42,6 @@ export async function isAgentAccount(userId: string): Promise<boolean> {
   return Boolean(row && (row.agentId || isAgentEmail(row.email)));
 }
 
-/** `userIds` without agents' users, in the same order. */
-export async function withoutAgentUsers(userIds: readonly string[]): Promise<string[]> {
-  const agents = await agentUserIds(userIds);
-  return agents.size ? userIds.filter((id) => !agents.has(id)) : [...userIds];
-}
-
 /** How a user summary marks an agent: its icon (an emoji) when it has one. */
 export type AgentMark = { isAgent: boolean; agentIcon: string | null };
 
