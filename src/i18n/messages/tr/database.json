@@ -738,7 +738,8 @@
       "actionType": {
         "set_properties": "Özellik ata",
         "notify": "Bildirim gönder",
-        "webhook": "Webhook gönder"
+        "webhook": "Webhook gönder",
+        "run_agent": "Ajanı çalıştır"
       },
       "addAction": "Eylem ekle",
       "removeAction": "Eylemi kaldır",
@@ -766,7 +767,8 @@
         "needProperty": "Atanacak en az bir özellik seçin.",
         "needValue": "Atanacak her özellik için bir değer seçin.",
         "needPeople": "Kime bildirim gideceğini seçin.",
-        "needUrl": "Webhook’un URL’sini girin."
+        "needUrl": "Webhook’un URL’sini girin.",
+        "needAgent": "Bir ajan seçin."
       }
     },
     "webhook": {

@@ -657,7 +657,8 @@
       "security": "Authentification unique et SCIM",
       "pages": "Suppression et publication",
       "integrations": "Applications connectées et jetons d’API",
-      "exports": "Exportations"
+      "exports": "Exportations",
+      "agents": "Agents"
     },
     "change": "{name} : {from} → {to}",
     "untitled": "Sans titre",
@@ -828,6 +829,11 @@
       "export": {
         "workspace": "A exporté l’espace de travail ({count, plural, one {# page} other {# pages}})",
         "page": "A exporté {target} en {format}"
+      },
+      "agent": {
+        "created": "A créé l’agent « {target} »",
+        "updated": "{change, select, on {A activé l’agent « {target} »} off {A mis en pause l’agent « {target} »} other {A modifié l’agent « {target} »}}",
+        "archived": "A archivé l’agent « {target} »"
       }
     }
   },

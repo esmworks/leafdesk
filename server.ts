@@ -33,6 +33,7 @@ const { startAiProperties } = await import("./src/server/ai-properties");
 const { startSemanticIndex } = await import("./src/server/semantic-index");
 const { startRetention } = await import("./src/server/retention");
 const { startAutomations } = await import("./src/server/automations/run");
+const { startAgents } = await import("./src/server/agents/run");
 const { retentionJobEnabled } = await import("./src/lib/retention");
 
 const { hocuspocus, service } = createCollab();
@@ -104,6 +105,8 @@ server.listen(port, hostname, () => {
   startSemanticIndex();
   // Runs database automations queued by row writes, and retries their webhooks.
   startAutomations();
+  // Runs agents that automations queued, a few at a time, apart from the automations.
+  startAgents();
   // Deletes pages whose time in the trash is up, and old page history, once a day. Only in
   // production unless asked for: a dev server shouldn't quietly delete a developer's data.
   if (retentionJobEnabled(process.env.RETENTION_JOB, dev)) startRetention();

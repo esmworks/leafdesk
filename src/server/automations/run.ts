@@ -18,6 +18,7 @@ import { getProperties, requireDatabase, updateRowProperties } from "@/server/da
 import { signalInbox } from "@/server/notifications";
 import { rowFields } from "@/server/operations";
 import { propertyAccessFor } from "@/server/property-access";
+import { queueAgentRun } from "@/server/agents/run";
 import { asAutomation, onAutomationsQueued } from "./queue";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
@@ -122,6 +123,16 @@ export async function processRun(run: Run) {
           step.status = "done";
         } else if (action.type === "notify") {
           step.notified = await notify(automation, run, row, action);
+          step.status = "done";
+        } else if (action.type === "run_agent") {
+          // Queued once (a retry of the run doesn't queue it again); it runs apart, as the agent.
+          step.agentRunId ??= await queueAgentRun({
+            agentId: action.agentId,
+            workspaceId: automation.workspaceId,
+            source: { kind: "automation", automationId: automation.id, automationRunId: run.id, databaseId: automation.databaseId, rowId: run.rowId },
+            context: { created: run.created, changed: run.changed, actorId: run.actorId },
+            prompt: action.prompt,
+          });
           step.status = "done";
         } else {
           // The row as it is now (after the actions before this one); its retries send the same.

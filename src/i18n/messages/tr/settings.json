@@ -657,7 +657,8 @@
       "security": "Çoklu oturum açma ve SCIM",
       "pages": "Silme ve yayınlama",
       "integrations": "Bağlı uygulamalar ve API anahtarları",
-      "exports": "Dışa aktarmalar"
+      "exports": "Dışa aktarmalar",
+      "agents": "Ajanlar"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Adsız",
@@ -828,6 +829,11 @@
       "export": {
         "workspace": "Çalışma alanı dışa aktarıldı ({count, plural, other {# sayfa}})",
         "page": "Dışa aktarıldı: {target} ({format})"
+      },
+      "agent": {
+        "created": "“{target}” ajanını oluşturdu",
+        "updated": "{change, select, on {“{target}” ajanını açtı} off {“{target}” ajanını duraklattı} other {“{target}” ajanını değiştirdi}}",
+        "archived": "“{target}” ajanını arşivledi"
       }
     }
   },

@@ -738,7 +738,8 @@
       "actionType": {
         "set_properties": "Set property",
         "notify": "Notify",
-        "webhook": "Send webhook"
+        "webhook": "Send webhook",
+        "run_agent": "Run an agent"
       },
       "addAction": "Add action",
       "removeAction": "Remove action",
@@ -766,7 +767,8 @@
         "needProperty": "Choose at least one property to set.",
         "needValue": "Choose a value for each property to set.",
         "needPeople": "Choose who to notify.",
-        "needUrl": "Enter the webhook’s URL."
+        "needUrl": "Enter the webhook’s URL.",
+        "needAgent": "Choose an agent."
       }
     },
     "webhook": {

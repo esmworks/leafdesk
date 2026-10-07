@@ -738,7 +738,8 @@
       "actionType": {
         "set_properties": "Eigenschaft setzen",
         "notify": "Benachrichtigen",
-        "webhook": "Webhook senden"
+        "webhook": "Webhook senden",
+        "run_agent": "Agenten ausführen"
       },
       "addAction": "Aktion hinzufügen",
       "removeAction": "Aktion entfernen",
@@ -766,7 +767,8 @@
         "needProperty": "Wähle mindestens eine Eigenschaft zum Setzen.",
         "needValue": "Wähle für jede Eigenschaft einen Wert.",
         "needPeople": "Wähle aus, wer benachrichtigt wird.",
-        "needUrl": "Gib die URL des Webhooks ein."
+        "needUrl": "Gib die URL des Webhooks ein.",
+        "needAgent": "Wähle einen Agenten."
       }
     },
     "webhook": {

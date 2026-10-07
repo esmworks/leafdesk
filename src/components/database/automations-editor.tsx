@@ -89,7 +89,9 @@ export function AutomationEditor({
           ? { key: newKey(), type, entries: [] }
           : type === "notify"
             ? { key: newKey(), type, people: [], properties: [] }
-            : { key: newKey(), type, url: "" },
+            : type === "run_agent"
+              ? { key: newKey(), type, agentId: "", prompt: "" }
+              : { key: newKey(), type, url: "" },
       ],
     }));
 
@@ -149,7 +151,7 @@ export function AutomationEditor({
                   <SetPropertiesEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
                 ) : action.type === "notify" ? (
                   <NotifyEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
-                ) : (
+                ) : action.type === "webhook" ? (
                   <Input
                     type="url"
                     inputMode="url"
@@ -159,7 +161,7 @@ export function AutomationEditor({
                     placeholder={t("form.webhookPlaceholder")}
                     onChange={(e) => setAction(action.key, { ...action, url: e.target.value })}
                   />
-                )}
+                ) : null}
               </li>
             ))}
           </ol>

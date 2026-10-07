@@ -256,6 +256,7 @@ function describeAction(ctx: AutomationContext, action: AutomationAction) {
     ];
     return { type: "notify", people, properties, summary: `Notify ${who.join(", ")}` };
   }
+  if (action.type === "run_agent") return { type: "run_agent", agent_id: action.agentId, prompt: action.prompt, summary: `Run the agent ${action.agentId} on the row` };
   return { type: "webhook", url: action.url, summary: `POST the row to ${action.url}` };
 }
 

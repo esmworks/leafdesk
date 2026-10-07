@@ -31,11 +31,16 @@ export type AutomationAction =
    */
   | { type: "notify"; userIds: string[]; propertyIds: string[] }
   /** A signed JSON POST to this address (see signWebhook). */
-  | { type: "webhook"; url: string };
+  | { type: "webhook"; url: string }
+  /**
+   * Runs an agent (see lib/agents.ts) on the row, with this task: it's queued, and runs apart, as
+   * the agent. Saving the automation shares the database with the agent (edit access).
+   */
+  | { type: "run_agent"; agentId: string; prompt: string };
 
 export type AutomationActionType = AutomationAction["type"];
 
-export const AUTOMATION_ACTION_TYPES = ["set_properties", "notify", "webhook"] as const satisfies AutomationActionType[];
+export const AUTOMATION_ACTION_TYPES = ["set_properties", "notify", "webhook", "run_agent"] as const satisfies AutomationActionType[];
 
 /** At most this many automations per database, and actions per automation. */
 export const MAX_AUTOMATIONS = 50;
@@ -145,6 +150,8 @@ export type AutomationStep = {
   httpStatus?: number;
   /** Notify: how many people were told. */
   notified?: number;
+  /** Run an agent: the run it queued (see agent_run). */
+  agentRunId?: string;
 };
 
 /** A run is done when every step is; failed when one failed for good; else it still waits. */

@@ -657,7 +657,8 @@
       "security": "Single Sign-on und SCIM",
       "pages": "Löschen und Veröffentlichen",
       "integrations": "Verbundene Apps und API-Token",
-      "exports": "Exporte"
+      "exports": "Exporte",
+      "agents": "Agenten"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Ohne Titel",
@@ -828,6 +829,11 @@
       "export": {
         "workspace": "Hat den Workspace exportiert ({count, plural, one {# Seite} other {# Seiten}})",
         "page": "Hat {target} als {format} exportiert"
+      },
+      "agent": {
+        "created": "Hat den Agenten „{target}“ erstellt",
+        "updated": "{change, select, on {Hat den Agenten „{target}“ eingeschaltet} off {Hat den Agenten „{target}“ pausiert} other {Hat den Agenten „{target}“ geändert}}",
+        "archived": "Hat den Agenten „{target}“ archiviert"
       }
     }
   },

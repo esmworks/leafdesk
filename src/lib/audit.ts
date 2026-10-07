@@ -51,6 +51,7 @@ export const AUDIT_CATEGORIES = {
     "automation.updated",
     "automation.deleted",
   ],
+  agents: ["agent.created", "agent.updated", "agent.archived"],
   exports: ["export.workspace", "export.page"],
 } as const;
 
@@ -364,6 +365,7 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "export.workspace":
       values.count = typeof d.pages === "number" ? d.pages : 0;
       break;
+    case "agent.updated":
     case "automation.updated": {
       // Turning it on or off reads as such; any other change as a change.
       const previous = record(d.previous);

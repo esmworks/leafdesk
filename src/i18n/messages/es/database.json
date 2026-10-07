@@ -738,7 +738,8 @@
       "actionType": {
         "set_properties": "Asignar propiedad",
         "notify": "Avisar",
-        "webhook": "Enviar webhook"
+        "webhook": "Enviar webhook",
+        "run_agent": "Ejecutar un agente"
       },
       "addAction": "Añadir acción",
       "removeAction": "Quitar acción",
@@ -766,7 +767,8 @@
         "needProperty": "Elige al menos una propiedad que asignar.",
         "needValue": "Elige un valor para cada propiedad que asignar.",
         "needPeople": "Elige a quién avisar.",
-        "needUrl": "Escribe la URL del webhook."
+        "needUrl": "Escribe la URL del webhook.",
+        "needAgent": "Elige un agente."
       }
     },
     "webhook": {

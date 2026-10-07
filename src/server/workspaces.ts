@@ -323,6 +323,20 @@ async function memberInviteModeFor(actorId: string, workspaceId: string, role?: 
 }
 
 /**
+ * Makes an agent's user (see server/agents) a guest of the workspace, in the agent's own
+ * transaction: as a guest it sees only the pages shared with it. No access check: createAgent
+ * checks that the actor owns the workspace.
+ */
+export async function addAgentMembership(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  workspaceId: string,
+  agentUserId: string,
+  invitedBy: string,
+) {
+  await tx.insert(workspaceMember).values({ workspaceId, userId: agentUserId, role: "guest", invitedBy });
+}
+
+/**
  * Adds the account that uses this email. Without one, creates (or renews) an invitation and emails
  * its link when the server can send email; the owner can always share the link themselves. While
  * the workspace wants members' invitations approved, a member's addition becomes a request instead.

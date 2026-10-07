@@ -657,7 +657,8 @@
       "security": "Inicio de sesión único y SCIM",
       "pages": "Eliminación y publicación",
       "integrations": "Apps conectadas y tokens de API",
-      "exports": "Exportaciones"
+      "exports": "Exportaciones",
+      "agents": "Agentes"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Sin título",
@@ -828,6 +829,11 @@
       "export": {
         "workspace": "Exportó el espacio de trabajo ({count, plural, one {# página} other {# páginas}})",
         "page": "Exportó {target} como {format}"
+      },
+      "agent": {
+        "created": "Creó el agente «{target}»",
+        "updated": "{change, select, on {Activó el agente «{target}»} off {Pausó el agente «{target}»} other {Cambió el agente «{target}»}}",
+        "archived": "Archivó el agente «{target}»"
       }
     }
   },

@@ -42,7 +42,8 @@ export type SetEntry = { propertyId: string; value: unknown };
 export type DraftAction =
   | { key: string; type: "set_properties"; entries: SetEntry[] }
   | { key: string; type: "notify"; people: string[]; properties: string[] }
-  | { key: string; type: "webhook"; url: string };
+  | { key: string; type: "webhook"; url: string }
+  | { key: string; type: "run_agent"; agentId: string; prompt: string };
 
 export type DraftTrigger =
   | { type: "row_created" }
@@ -95,6 +96,7 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
     if (action.type === "notify") {
       return { key: newKey(), type: "notify", people: action.userIds, properties: action.propertyIds.filter(has) };
     }
+    if (action.type === "run_agent") return { key: newKey(), type: "run_agent", agentId: action.agentId, prompt: action.prompt };
     return { key: newKey(), type: "webhook", url: action.url };
   });
   return { name: automation.name, enabled: automation.enabled, trigger, actions };
@@ -123,6 +125,8 @@ export function draftProblem(draft: Draft, properties: Property[]) {
       }
     } else if (action.type === "notify") {
       if (!action.people.length && !action.properties.length) return "needPeople";
+    } else if (action.type === "run_agent") {
+      if (!action.agentId) return "needAgent";
     } else if (!action.url.trim()) return "needUrl";
   }
   return null;
@@ -145,6 +149,7 @@ export function toInput(draft: Draft) {
         };
       }
       if (action.type === "notify") return { type: "notify" as const, people: action.people, properties: action.properties };
+      if (action.type === "run_agent") return { type: "run_agent" as const, agent: action.agentId, prompt: action.prompt.trim() };
       return { type: "webhook" as const, url: action.url.trim() };
     }),
   };

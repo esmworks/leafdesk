@@ -260,6 +260,13 @@
       "when": 1791305407778,
       "tag": "0036_automations",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1791399506762,
+      "tag": "0037_agents",
+      "breakpoints": true
     }
   ]
 }

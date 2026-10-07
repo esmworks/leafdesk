@@ -738,7 +738,8 @@
       "actionType": {
         "set_properties": "Définir une propriété",
         "notify": "Prévenir",
-        "webhook": "Envoyer un webhook"
+        "webhook": "Envoyer un webhook",
+        "run_agent": "Lancer un agent"
       },
       "addAction": "Ajouter une action",
       "removeAction": "Retirer l’action",
@@ -766,7 +767,8 @@
         "needProperty": "Choisissez au moins une propriété à définir.",
         "needValue": "Choisissez une valeur pour chaque propriété à définir.",
         "needPeople": "Choisissez qui prévenir.",
-        "needUrl": "Saisissez l’URL du webhook."
+        "needUrl": "Saisissez l’URL du webhook.",
+        "needAgent": "Choisissez un agent."
       }
     },
     "webhook": {
