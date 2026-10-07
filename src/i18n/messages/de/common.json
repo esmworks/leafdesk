@@ -1,6 +1,8 @@
 {
   "appDescription": "Open-Source-Workspace für Dokumente und Datenbanken, mit MCP-Zugriff für KI-Agenten.",
   "untitled": "Ohne Titel",
+  "agent": "Agent",
+  "agentName": "{name} (Agent)",
   "cancel": "Abbrechen",
   "save": "Speichern",
   "saving": "Wird gespeichert…",

@@ -152,12 +152,19 @@ function ChangeRow({ change }: { change: BlockChange }) {
  */
 export function HistoryDiff({ diff, range }: { diff: VersionDiff; range: string }) {
   const t = useTranslations("page.history");
+  const tc = useTranslations("common");
   const format = useFormatter();
   const [opened, setOpened] = useState<ReadonlySet<number>>(new Set());
   const items = useMemo(() => foldUnchanged(diff.changes), [diff]);
   const changed = diff.title !== null || diff.changes.some((c) => c.op !== "same");
   const actors = diff.actors.map((a) =>
-    a.client ? (a.name ? t("diff.actorApp", { client: a.client, name: a.name }) : a.client) : (a.name ?? ""),
+    a.client
+      ? a.name
+        ? t("diff.actorApp", { client: a.client, name: a.name })
+        : a.client
+      : a.isAgent && a.name
+        ? tc("agentName", { name: a.name })
+        : (a.name ?? ""),
   );
 
   return (

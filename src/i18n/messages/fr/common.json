@@ -1,6 +1,8 @@
 {
   "appDescription": "Espace de travail open source pour vos documents et bases de données, avec un accès MCP pour les agents IA.",
   "untitled": "Sans titre",
+  "agent": "Agent",
+  "agentName": "{name} (agent)",
   "cancel": "Annuler",
   "save": "Enregistrer",
   "saving": "Enregistrement…",

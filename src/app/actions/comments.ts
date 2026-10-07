@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { CommentError, type CommentOp } from "@/lib/comments";
 import { AccessError } from "@/server/access";
 import * as comments from "@/server/comments";
@@ -23,7 +24,11 @@ export async function changeCommentsAction(pageId: string, op: CommentOp) {
   }
 }
 
+/** Who wrote, reacted to or resolved comments; an agent's name says it is one. */
 export async function commentUsersAction(pageId: string, userIds: string[]) {
   const userId = await requireUserId();
-  return comments.commentUsers(userId, pageId, userIds);
+  const users = await comments.commentUsers(userId, pageId, userIds);
+  if (!users.some((u) => u.isAgent)) return users;
+  const t = await getTranslations("common");
+  return users.map((u) => (u.isAgent ? { ...u, username: t("agentName", { name: u.username }) } : u));
 }

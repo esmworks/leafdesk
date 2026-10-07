@@ -125,10 +125,11 @@ function PersonGroupLabel({
   className?: string;
 }) {
   const t = useTranslations("database.person");
+  const tc = useTranslations("common");
   return (
     <span
-      className={cn("flex min-w-0 items-center gap-1.5 text-sm", !person.active && "text-fg-muted", className)}
-      title={person.active ? undefined : t("former")}
+      className={cn("flex min-w-0 items-center gap-1.5 text-sm", !person.active && !person.isAgent && "text-fg-muted", className)}
+      title={person.isAgent ? tc("agent") : person.active ? undefined : t("former")}
     >
       <PersonAvatar person={person} />
       <span className="truncate">{person.name || t("unknown")}</span>

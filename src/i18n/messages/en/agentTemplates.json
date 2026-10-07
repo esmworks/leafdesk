@@ -1,0 +1,38 @@
+{
+  "quoted": "“{value}”",
+  "untitled": "Untitled",
+  "ticket-router": {
+    "name": "Ticket router",
+    "description": "Sorts each new row: sets the properties you choose by rules you write, and comments why.",
+    "automation": "Sort new rows with {agent}",
+    "task": "Sort this new row by your rules.",
+    "instructions": "You sort the new rows of the database {database}.\n\nWhen a row is added, read its title and content, then set these properties by the rules below:\n{properties}\n\nRules:\n{rules}\n\nUse only the values listed for each property. Leave a property as it is when no rule fits it. Then write one short comment on the row that says what you set and which rule you followed. If no rule fits at all, change nothing and say so in the comment.",
+    "optionsLine": "- {property}: one of {options}",
+    "personLine": "- {property}: a person of the workspace, by name",
+    "newProperty": "Category",
+    "newOptions": {
+      "question": "Question",
+      "problem": "Problem",
+      "request": "Request"
+    }
+  },
+  "request-answerer": {
+    "name": "Request answerer",
+    "description": "Answers each new request from the pages you pick, naming its sources, and marks whether a person needs to step in.",
+    "automation": "Answer new requests with {agent}",
+    "task": "Answer this new request from your pages.",
+    "instructions": "You answer the requests added to the database {database}.\n\nWhen a row is added, read the request, then search these pages and read the ones that may answer it:\n{pages}\n\nIf they answer the request, write the answer as a comment on the row, using only what the pages say and naming the pages you took it from. Then set {property} to {answered}.\n\nIf they don’t answer it, or you aren’t sure, don’t guess: write a short comment saying what you looked for and that a person will follow up. Then set {property} to {needsPerson}.",
+    "pageLine": "- {page}",
+    "newProperty": "Answer",
+    "newAnswered": "Answered",
+    "newNeedsPerson": "Needs a person"
+  },
+  "duplicate-finder": {
+    "name": "Duplicate finder",
+    "description": "Checks each new row against the others in its database. When it finds similar rows, it comments with their titles and ticks a checkbox.",
+    "automation": "Find duplicates of new rows with {agent}",
+    "task": "Look for rows like this new one.",
+    "instructions": "You look for duplicates in the database {database}.\n\nWhen a row is added, search the database for other rows about the same thing: query it, and search with the key words of the new row’s title and content. Leave out the new row itself.\n\nIf you find rows that are clearly about the same thing, write one comment on the new row that lists their titles, and tick {property}. If you find none, change nothing and write no comment.",
+    "newProperty": "Possible duplicate"
+  }
+}

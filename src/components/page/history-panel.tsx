@@ -204,7 +204,7 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
                 <div className="text-sm">{format.dateTime(new Date(s.createdAt), { dateStyle: "medium", timeStyle: "short" })}</div>
                 <div className="truncate text-xs text-fg-muted">
                   {describe(s)}
-                  {s.authorName ? ` · ${s.authorName}` : ""}
+                  {s.authorName ? ` · ${s.authorIsAgent ? tc("agentName", { name: s.authorName }) : s.authorName}` : ""}
                 </div>
               </button>
             ))}

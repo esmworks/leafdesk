@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, RefreshCw, Search, Send, Trash2, UserRound, X } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState, type ReactNode } from "react";
 import {
@@ -12,6 +13,7 @@ import {
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
+import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
   isDynamicValue,
   MAX_AUTOMATION_ACTIONS,
@@ -34,6 +36,7 @@ import {
   toDraft,
   toInput,
   webhookUrls,
+  type AgentChoice,
   type Automation,
   type Draft,
   type DraftAction,
@@ -52,17 +55,24 @@ const MAX_CANDIDATES = 8;
 
 /** The new-automation and edit form, with a saved automation's webhook secret and test. */
 export function AutomationEditor({
+  workspaceId,
   databaseId,
   saved,
   people,
+  agents,
+  isOwner,
   onSaved,
   onUpdated,
   onCancel,
 }: {
+  workspaceId: string;
   databaseId: string;
   /** The automation being edited; null for a new one. */
   saved: Automation | null;
   people: Person[];
+  /** The agents a "Run an agent" action can pick; `isOwner`: the viewer can make one. */
+  agents: AgentChoice[];
+  isOwner: boolean;
   /** After a save: the automation as stored, and whether it was just created. */
   onSaved: (automation: Automation, created: boolean) => void;
   /** A new secret replaced the old one. */
@@ -161,7 +171,15 @@ export function AutomationEditor({
                     placeholder={t("form.webhookPlaceholder")}
                     onChange={(e) => setAction(action.key, { ...action, url: e.target.value })}
                   />
-                ) : null}
+                ) : (
+                  <RunAgentEditor
+                    workspaceId={workspaceId}
+                    action={action}
+                    agents={agents}
+                    isOwner={isOwner}
+                    onChange={(next) => setAction(action.key, next)}
+                  />
+                )}
               </li>
             ))}
           </ol>
@@ -178,6 +196,7 @@ export function AutomationEditor({
               <option value="set_properties">{t("form.actionType.set_properties")}</option>
               <option value="notify">{t("form.actionType.notify")}</option>
               <option value="webhook">{t("form.actionType.webhook")}</option>
+              <option value="run_agent">{t("form.actionType.run_agent")}</option>
             </select>
           </div>
         </Section>
@@ -515,6 +534,78 @@ function ValueEditor({
         />
       );
   }
+}
+
+/**
+ * The agent to run and the task it gets for this automation, or, with no agent yet, where owners
+ * make one. Saving shares the database with the agent (edit), so it can change the row.
+ */
+function RunAgentEditor({
+  workspaceId,
+  action,
+  agents,
+  isOwner,
+  onChange,
+}: {
+  workspaceId: string;
+  action: Extract<DraftAction, { type: "run_agent" }>;
+  agents: AgentChoice[];
+  isOwner: boolean;
+  onChange: (action: Extract<DraftAction, { type: "run_agent" }>) => void;
+}) {
+  const t = useTranslations("database.automations.form");
+  const chosen = agents.find((a) => a.id === action.agentId);
+  if (!agents.length && !action.agentId) {
+    return (
+      <p className="text-sm text-fg-muted">
+        {t("noAgents")}{" "}
+        {isOwner ? (
+          <Link href={`/w/${workspaceId}/settings?tab=agents`} className="text-fg underline underline-offset-2 hover:text-accent">
+            {t("createAgent")}
+          </Link>
+        ) : (
+          t("noAgentsMember")
+        )}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-2">
+      <select
+        value={action.agentId}
+        aria-label={t("agent")}
+        onChange={(e) => onChange({ ...action, agentId: e.target.value })}
+        className={selectClass}
+      >
+        <option value="">{t("chooseAgent")}</option>
+        {agents.map((a) => (
+          <option key={a.id} value={a.id}>
+            {a.icon ? `${a.icon} ` : ""}
+            {a.enabled ? a.name : t("pausedAgent", { name: a.name })}
+          </option>
+        ))}
+        {action.agentId && !chosen && <option value={action.agentId}>{t("archivedAgent")}</option>}
+      </select>
+      {chosen?.description && <p className="text-xs text-fg-muted">{chosen.description}</p>}
+      <label className="block">
+        <span className="mb-1 flex items-baseline justify-between gap-2 text-xs text-fg-muted">
+          {t("agentTask")}
+          <span className="tabular-nums text-fg-faint">
+            {action.prompt.length} / {MAX_AGENT_PROMPT}
+          </span>
+        </span>
+        <textarea
+          rows={3}
+          value={action.prompt}
+          maxLength={MAX_AGENT_PROMPT}
+          placeholder={t("agentTaskPlaceholder")}
+          onChange={(e) => onChange({ ...action, prompt: e.target.value })}
+          className="w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
+        />
+      </label>
+      <p className="text-xs text-fg-faint">{chosen ? t("agentAccess", { agent: chosen.name }) : t("agentAccessAny")}</p>
+    </div>
+  );
 }
 
 /** Who a notification goes to: chosen people and the people a row's person properties name. */

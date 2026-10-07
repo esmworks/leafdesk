@@ -1,5 +1,5 @@
 /** The workspace settings tabs, in the order the settings navigation shows them. */
-export const SETTINGS_TABS = ["general", "members", "guests", "teamspaces", "groups", "analytics", "security", "audit", "site"] as const;
+export const SETTINGS_TABS = ["general", "members", "guests", "teamspaces", "groups", "agents", "analytics", "security", "audit", "site"] as const;
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
 
 export const isSettingsTab = (value: unknown): value is SettingsTab =>
@@ -12,7 +12,8 @@ const OWNER_TABS: readonly SettingsTab[] = ["analytics", "audit"];
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
  * leaving it. The guests themselves are for those who may bring guests in (`canInviteGuests`:
  * owners, and members when Settings > Security lets them). Analytics, which counts what each
- * person did, and the audit log, which says who changed what, are for owners.
+ * person did, and the audit log, which says who changed what, are for owners. Agents are listed to
+ * members too (they pick them in automations); only owners change them.
  */
 export function visibleSettingsTabs({
   guest,

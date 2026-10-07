@@ -762,7 +762,7 @@ export type RowGroup<T> = {
   rows: T[];
 };
 
-export type GroupPerson = { id: string; name: string; active: boolean };
+export type GroupPerson = { id: string; name: string; active: boolean; isAgent?: true; agentIcon?: string | null };
 
 /** Property types a view can group by (see lib/grouping for how each one buckets rows). */
 export function isGroupable(type: PropertyType) {

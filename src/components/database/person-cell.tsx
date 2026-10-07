@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, X } from "lucide-react";
+import { Bot, Check, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { cn } from "@/components/ui";
@@ -33,7 +33,21 @@ export function assignedPeople(people: PersonRef[], value: unknown): PersonRef[]
   });
 }
 
-export function PersonAvatar({ person, className }: { person: Pick<PersonRef, "name" | "active" | "image">; className?: string }) {
+export function PersonAvatar({
+  person,
+  className,
+}: {
+  person: Pick<PersonRef, "name" | "active" | "image" | "isAgent" | "agentIcon">;
+  className?: string;
+}) {
+  // An agent shows its icon, or a robot when it has none.
+  if (person.isAgent) {
+    return (
+      <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded bg-bg-active text-[11px] text-fg-muted", className)} aria-hidden>
+        {person.agentIcon || <Bot className="h-3 w-3" />}
+      </span>
+    );
+  }
   return (
     <UserAvatar
       name={person.name}
@@ -48,10 +62,11 @@ export function PersonAvatar({ person, className }: { person: Pick<PersonRef, "n
 
 function PersonChip({ person }: { person: PersonRef }) {
   const t = useTranslations("database.person");
+  const tc = useTranslations("common");
   return (
     <span
-      className={cn("inline-flex max-w-full min-w-0 shrink-0 items-center gap-1.5", !person.active && "text-fg-muted")}
-      title={person.active ? (person.email ?? undefined) : t("former")}
+      className={cn("inline-flex max-w-full min-w-0 shrink-0 items-center gap-1.5", !person.active && !person.isAgent && "text-fg-muted")}
+      title={person.isAgent ? tc("agent") : person.active ? (person.email ?? undefined) : t("former")}
     >
       <PersonAvatar person={person} />
       <span className="truncate">{person.name || t("unknown")}</span>

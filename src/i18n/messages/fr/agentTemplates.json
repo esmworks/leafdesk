@@ -1,0 +1,38 @@
+{
+  "quoted": "« {value} »",
+  "untitled": "Sans titre",
+  "ticket-router": {
+    "name": "Aiguilleur de tickets",
+    "description": "Classe chaque nouvelle ligne : remplit les propriétés choisies selon les règles que vous écrivez, et explique pourquoi en commentaire.",
+    "automation": "Classer les nouvelles lignes avec {agent}",
+    "task": "Classe cette nouvelle ligne selon tes règles.",
+    "instructions": "Tu classes les nouvelles lignes de la base de données {database}.\n\nQuand une ligne est ajoutée, lis son titre et son contenu, puis remplis ces propriétés selon les règles ci-dessous :\n{properties}\n\nRègles :\n{rules}\n\nN’utilise que les valeurs indiquées pour chaque propriété. Laisse une propriété telle quelle si aucune règle ne s’y applique. Écris ensuite un court commentaire sur la ligne qui dit ce que tu as rempli et quelle règle tu as suivie. Si aucune règle ne s’applique, ne change rien et dis-le dans le commentaire.",
+    "optionsLine": "- {property} : l’une de {options}",
+    "personLine": "- {property} : une personne de l’espace de travail, par son nom",
+    "newProperty": "Catégorie",
+    "newOptions": {
+      "question": "Question",
+      "problem": "Problème",
+      "request": "Demande"
+    }
+  },
+  "request-answerer": {
+    "name": "Répondeur de demandes",
+    "description": "Répond à chaque nouvelle demande à partir des pages choisies, en citant ses sources, et indique si une personne doit prendre le relais.",
+    "automation": "Répondre aux nouvelles demandes avec {agent}",
+    "task": "Réponds à cette nouvelle demande à partir de tes pages.",
+    "instructions": "Tu réponds aux demandes ajoutées à la base de données {database}.\n\nQuand une ligne est ajoutée, lis la demande, puis cherche dans ces pages et lis celles qui peuvent y répondre :\n{pages}\n\nSi elles répondent à la demande, écris la réponse en commentaire sur la ligne, en n’utilisant que ce que disent les pages et en nommant celles dont tu l’as tirée. Puis mets {property} sur {answered}.\n\nSi elles n’y répondent pas, ou si tu n’es pas sûr, ne devine pas : écris un court commentaire qui dit ce que tu as cherché et qu’une personne va s’en occuper. Puis mets {property} sur {needsPerson}.",
+    "pageLine": "- {page}",
+    "newProperty": "Réponse",
+    "newAnswered": "Répondu",
+    "newNeedsPerson": "Besoin d’une personne"
+  },
+  "duplicate-finder": {
+    "name": "Détecteur de doublons",
+    "description": "Compare chaque nouvelle ligne aux autres de sa base de données. S’il trouve des lignes semblables, il cite leurs titres en commentaire et coche une case.",
+    "automation": "Trouver les doublons des nouvelles lignes avec {agent}",
+    "task": "Cherche des lignes semblables à cette nouvelle ligne.",
+    "instructions": "Tu cherches les doublons dans la base de données {database}.\n\nQuand une ligne est ajoutée, cherche dans la base de données d’autres lignes sur le même sujet : interroge-la et cherche avec les mots clés du titre et du contenu de la nouvelle ligne. Laisse de côté la nouvelle ligne elle-même.\n\nSi tu trouves des lignes qui portent clairement sur le même sujet, écris un commentaire sur la nouvelle ligne qui liste leurs titres, et coche {property}. Si tu n’en trouves aucune, ne change rien et n’écris pas de commentaire.",
+    "newProperty": "Doublon possible"
+  }
+}

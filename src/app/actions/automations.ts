@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/databases";
 import { avatarSrc } from "@/lib/avatar";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
-import { AccessError } from "@/server/access";
+import { AccessError, getMembership } from "@/server/access";
+import { listAgents } from "@/server/agents/manage";
 import {
   createAutomation,
   deleteAutomation,
@@ -50,7 +51,10 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
   }
 }
 
-/** The database's automations, with the workspace's people a notification can go to. */
+/**
+ * The database's automations, with the workspace's people a notification can go to and the
+ * agents an action can run (and whether the viewer owns the workspace, to make one).
+ */
 export async function listAutomationsAction(databaseId: string) {
   return run(async (userId) => {
     const database = await requireDatabase(userId, databaseId, "full");
@@ -59,13 +63,17 @@ export async function listAutomationsAction(databaseId: string) {
       if (error instanceof AccessError) return [];
       throw error;
     };
-    const [automations, members] = await Promise.all([
+    const [automations, members, agents, membership] = await Promise.all([
       listAutomations(userId, databaseId),
       listMembers(userId, database.workspaceId).catch(noneForGuests),
+      listAgents(userId, database.workspaceId).catch(noneForGuests),
+      getMembership(userId, database.workspaceId),
     ]);
     return {
       automations,
       members: members.map((m) => ({ id: m.userId, name: m.name, email: m.email, image: avatarSrc(m.image) })),
+      agents: agents.map((a) => ({ id: a.id, name: a.name, icon: a.icon, description: a.description, enabled: a.enabled })),
+      isOwner: membership?.role === "owner",
     };
   });
 }

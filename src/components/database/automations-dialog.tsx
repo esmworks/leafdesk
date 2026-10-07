@@ -14,7 +14,7 @@ import {
 import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
 import { MAX_AUTOMATIONS } from "@/lib/automations";
 import { AutomationEditor, Footer } from "./automations-editor";
-import { triggerValueName, type Automation, type AutomationRun, type Person } from "./automations-shared";
+import { triggerValueName, type AgentChoice, type Automation, type AutomationRun, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
 
@@ -79,6 +79,8 @@ function AutomationsDialog({
   const { people: databasePeople } = usePeople();
   const [automations, setAutomations] = useState<Automation[] | null>(null);
   const [members, setMembers] = useState<Person[]>([]);
+  const [agents, setAgents] = useState<AgentChoice[]>([]);
+  const [isOwner, setIsOwner] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: "list" });
@@ -94,6 +96,8 @@ function AutomationsDialog({
         }
         setAutomations(res.data.automations);
         setMembers(res.data.members);
+        setAgents(res.data.agents);
+        setIsOwner(res.data.isOwner);
       })
       .catch(() => live && setLoadError(tc("genericError")));
     return () => {
@@ -180,9 +184,12 @@ function AutomationsDialog({
       ) : mode.kind === "edit" ? (
         <AutomationEditor
           key={current?.id ?? "new"}
+          workspaceId={workspaceId}
           databaseId={databaseId}
           saved={current}
           people={people}
+          agents={agents}
+          isOwner={isOwner}
           onCancel={() => setMode({ kind: "list" })}
           onUpdated={replace}
           onSaved={(saved, created) => {
@@ -193,7 +200,7 @@ function AutomationsDialog({
           }}
         />
       ) : mode.kind === "runs" && current ? (
-        <RunList workspaceId={workspaceId} automation={current} />
+        <RunList workspaceId={workspaceId} automation={current} isOwner={isOwner} />
       ) : (
         <>
           <div className="max-h-[65vh] overflow-y-auto px-5 py-3">
@@ -206,6 +213,7 @@ function AutomationsDialog({
                     key={automation.id}
                     automation={automation}
                     people={people}
+                    agents={agents}
                     onToggle={(enabled) => void toggle(automation, enabled)}
                     onEdit={() => setMode({ kind: "edit", id: automation.id })}
                     onRuns={() => setMode({ kind: "runs", id: automation.id })}
@@ -235,6 +243,7 @@ function AutomationsDialog({
 function AutomationItem({
   automation,
   people,
+  agents,
   onToggle,
   onEdit,
   onRuns,
@@ -242,6 +251,7 @@ function AutomationItem({
 }: {
   automation: Automation;
   people: Person[];
+  agents: AgentChoice[];
   onToggle: (enabled: boolean) => void;
   onEdit: () => void;
   onRuns: () => void;
@@ -249,7 +259,7 @@ function AutomationItem({
 }) {
   const t = useTranslations("database.automations");
   const format = useFormatter();
-  const summary = useSummary(automation, people);
+  const summary = useSummary(automation, people, agents);
   const last = automation.lastRun;
   return (
     <li className="flex items-center gap-2 py-2.5">
@@ -285,8 +295,8 @@ function AutomationItem({
   );
 }
 
-/** "When Status becomes Done → Set Date, Notify, Webhook". */
-function useSummary(automation: Automation, people: Person[]) {
+/** "When Status becomes Done → Set Date, Notify, Webhook, Run Ticket router". */
+function useSummary(automation: Automation, people: Person[], agents: AgentChoice[]) {
   const t = useTranslations("database.automations");
   const properties = useSchema();
   const nameOf = (id: string) => properties.find((p) => p.id === id)?.name ?? t("deletedProperty");
@@ -308,14 +318,19 @@ function useSummary(automation: Automation, people: Person[]) {
         ? t("summaryAction.set", { properties: Object.keys(action.values).map(nameOf).join(", ") })
         : action.type === "notify"
           ? t("summaryAction.notify")
-          : t("summaryAction.webhook"),
+          : action.type === "run_agent"
+            ? t("summaryAction.runAgent", { agent: agents.find((a) => a.id === action.agentId)?.name ?? t("summaryAction.archivedAgent") })
+            : t("summaryAction.webhook"),
     )
     .join(", ");
   return t("summary", { trigger: when, actions });
 }
 
-/** The automation's latest runs: which row, when, and how each step went. */
-function RunList({ workspaceId, automation }: { workspaceId: string; automation: Automation }) {
+/**
+ * The automation's latest runs: which row, when, and how each step went. A "Run an agent" step
+ * links owners to the agent's own run, where what it did is.
+ */
+function RunList({ workspaceId, automation, isOwner }: { workspaceId: string; automation: Automation; isOwner: boolean }) {
   const t = useTranslations("database.automations");
   const tc = useTranslations("common");
   const format = useFormatter();
@@ -374,6 +389,9 @@ function RunList({ workspaceId, automation }: { workspaceId: string; automation:
                       <span>{t("runs.notified", { count: step.notified })}</span>
                     )}
                     {step.attempts > 1 && <span>{t("runs.attempts", { count: step.attempts })}</span>}
+                    {step.type === "run_agent" && step.agentRunId && (
+                      <AgentRunLink workspaceId={workspaceId} automation={automation} index={i} runId={step.agentRunId} isOwner={isOwner} />
+                    )}
                   </li>
                 ))}
               </ul>
@@ -382,5 +400,33 @@ function RunList({ workspaceId, automation }: { workspaceId: string; automation:
         </ul>
       )}
     </div>
+  );
+}
+
+/** Where a "Run an agent" step's run is: the agent's runs in Settings (owners), else a hint. */
+function AgentRunLink({
+  workspaceId,
+  automation,
+  index,
+  runId,
+  isOwner,
+}: {
+  workspaceId: string;
+  automation: Automation;
+  index: number;
+  runId: string;
+  isOwner: boolean;
+}) {
+  const t = useTranslations("database.automations.runs");
+  // The step's action, when the automation still has it where it was; else its first agent.
+  const action = automation.actions[index]?.type === "run_agent" ? automation.actions[index] : automation.actions.find((a) => a.type === "run_agent");
+  if (!isOwner || action?.type !== "run_agent") return <span>· {t("agentRunHint")}</span>;
+  return (
+    <Link
+      href={`/w/${workspaceId}/settings?tab=agents&agent=${encodeURIComponent(action.agentId)}&run=${encodeURIComponent(runId)}`}
+      className="text-fg underline underline-offset-2 hover:text-accent"
+    >
+      {t("agentRun")}
+    </Link>
   );
 }

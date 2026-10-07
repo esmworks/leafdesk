@@ -1,6 +1,8 @@
 {
   "appDescription": "Belgeler ve veritabanları için açık kaynak çalışma alanı; yapay zekâ asistanları MCP ile erişebilir.",
   "untitled": "Adsız",
+  "agent": "Ajan",
+  "agentName": "{name} (ajan)",
   "cancel": "Vazgeç",
   "save": "Kaydet",
   "saving": "Kaydediliyor…",

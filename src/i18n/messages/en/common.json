@@ -1,6 +1,8 @@
 {
   "appDescription": "Open-source workspace for docs and databases, with MCP access for AI agents.",
   "untitled": "Untitled",
+  "agent": "Agent",
+  "agentName": "{name} (agent)",
   "cancel": "Cancel",
   "save": "Save",
   "saving": "Saving…",

@@ -1,4 +1,5 @@
 import {
+  Bot,
   Boxes,
   ChartColumn,
   ContactRound,
@@ -13,8 +14,9 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTimeZone, getTranslations } from "next-intl/server";
+import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
+import { AgentsPanel } from "@/components/settings/agents-panel";
 import { AnalyticsPanel } from "@/components/settings/analytics-panel";
 import { AuditPanel } from "@/components/settings/audit-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
@@ -61,6 +63,8 @@ import {
   visibleSettingsTabs,
 } from "@/lib/settings-tabs";
 import { AccessError, isGuest } from "@/server/access";
+import { builtinAgents } from "@/server/agents/builtin";
+import { listAgents } from "@/server/agents/manage";
 import { aiInfo, embeddingModel } from "@/server/ai";
 import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
@@ -99,6 +103,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   guests: ContactRound,
   teamspaces: Boxes,
   groups: UsersRound,
+  agents: Bot,
   analytics: ChartColumn,
   security: Shield,
   audit: ScrollText,
@@ -186,6 +191,15 @@ export default async function SettingsPage({
           {tab === "guests" && <GuestsTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
           {tab === "teamspaces" && <TeamspacesTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
           {tab === "groups" && <GroupsTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
+          {tab === "agents" && (
+            <AgentsTab
+              workspaceId={workspaceId}
+              userId={user.id}
+              isOwner={isOwner}
+              agentId={typeof query.agent === "string" ? query.agent : undefined}
+              runId={typeof query.run === "string" ? query.run : undefined}
+            />
+          )}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
           {tab === "audit" && <AuditTab workspaceId={workspaceId} userId={user.id} query={query} />}
@@ -409,6 +423,42 @@ async function GroupsTab({ workspaceId, userId, isOwner }: { workspaceId: string
       isOwner={isOwner}
       groups={groups}
       members={members.map(({ userId: id, name, email, image, role }) => ({ userId: id, name, email, image, role }))}
+    />
+  );
+}
+
+/**
+ * Settings > Agents: owners create and change agents, choose what they may open and read their
+ * runs; members see the list (they pick agents in automations). `agent` (and `run`) open one.
+ */
+async function AgentsTab({
+  workspaceId,
+  userId,
+  isOwner,
+  agentId,
+  runId,
+}: {
+  workspaceId: string;
+  userId: string;
+  isOwner: boolean;
+  agentId?: string;
+  runId?: string;
+}) {
+  const [agents, settings, templates] = await Promise.all([
+    listAgents(userId, workspaceId, { archived: isOwner }),
+    getWorkspaceSettings(userId, workspaceId),
+    isOwner ? getLocale().then(builtinAgents) : [],
+  ]);
+  const ai = !aiInfo() ? "unavailable" : settings.ai === false ? "off" : "on";
+  return (
+    <AgentsPanel
+      workspaceId={workspaceId}
+      isOwner={isOwner}
+      agents={agents}
+      templates={templates}
+      ai={ai}
+      initialAgentId={isOwner ? agentId : undefined}
+      initialRunId={isOwner ? runId : undefined}
     />
   );
 }

@@ -1,0 +1,38 @@
+{
+  "quoted": "“{value}”",
+  "untitled": "Adsız",
+  "ticket-router": {
+    "name": "Talep yönlendirici",
+    "description": "Her yeni satırı sınıflandırır: seçtiğiniz özellikleri yazdığınız kurallara göre doldurur ve nedenini yorumda açıklar.",
+    "automation": "Yeni satırları {agent} ile sınıflandır",
+    "task": "Bu yeni satırı kurallarına göre sınıflandır.",
+    "instructions": "{database} veritabanına eklenen yeni satırları sınıflandırıyorsun.\n\nBir satır eklendiğinde başlığını ve içeriğini oku, ardından aşağıdaki özellikleri kurallara göre doldur:\n{properties}\n\nKurallar:\n{rules}\n\nHer özellik için yalnızca listelenen değerleri kullan. Hiçbir kural uymuyorsa o özelliğe dokunma. Ardından satıra, neyi neye ayarladığını ve hangi kurala uyduğunu söyleyen kısa bir yorum yaz. Hiçbir kural uymuyorsa hiçbir şeyi değiştirme ve bunu yorumda belirt.",
+    "optionsLine": "- {property}: şunlardan biri: {options}",
+    "personLine": "- {property}: çalışma alanından bir kişi, adıyla",
+    "newProperty": "Kategori",
+    "newOptions": {
+      "question": "Soru",
+      "problem": "Sorun",
+      "request": "İstek"
+    }
+  },
+  "request-answerer": {
+    "name": "Talep yanıtlayıcı",
+    "description": "Her yeni talebi seçtiğiniz sayfalardan, kaynaklarını belirterek yanıtlar ve bir kişinin devreye girmesi gerekip gerekmediğini işaretler.",
+    "automation": "Yeni talepleri {agent} ile yanıtla",
+    "task": "Bu yeni talebi sayfalarından yanıtla.",
+    "instructions": "{database} veritabanına eklenen talepleri yanıtlıyorsun.\n\nBir satır eklendiğinde talebi oku, ardından şu sayfalarda ara ve yanıtı içerebilecek olanları oku:\n{pages}\n\nSayfalar talebi yanıtlıyorsa yanıtı satıra yorum olarak yaz; yalnızca sayfalarda yazanları kullan ve yararlandığın sayfaların adını ver. Ardından {property} özelliğini {answered} yap.\n\nYanıtlamıyorsa ya da emin değilsen tahmin yürütme: neye baktığını ve bir kişinin ilgileneceğini söyleyen kısa bir yorum yaz. Ardından {property} özelliğini {needsPerson} yap.",
+    "pageLine": "- {page}",
+    "newProperty": "Yanıt",
+    "newAnswered": "Yanıtlandı",
+    "newNeedsPerson": "Bir kişi bakmalı"
+  },
+  "duplicate-finder": {
+    "name": "Tekrar bulucu",
+    "description": "Her yeni satırı veritabanındaki diğer satırlarla karşılaştırır. Benzer satırlar bulursa başlıklarını yorumda yazar ve bir onay kutusunu işaretler.",
+    "automation": "Yeni satırların tekrarlarını {agent} ile bul",
+    "task": "Bu yeni satıra benzeyen satırları ara.",
+    "instructions": "{database} veritabanında tekrar eden satırları arıyorsun.\n\nBir satır eklendiğinde veritabanında aynı konudaki diğer satırları ara: veritabanını sorgula ve yeni satırın başlığındaki ve içeriğindeki anahtar kelimelerle arama yap. Yeni satırın kendisini sayma.\n\nAçıkça aynı konuda olan satırlar bulursan yeni satıra bunların başlıklarını listeleyen tek bir yorum yaz ve {property} kutusunu işaretle. Hiç bulamazsan hiçbir şeyi değiştirme ve yorum yazma.",
+    "newProperty": "Olası tekrar"
+  }
+}

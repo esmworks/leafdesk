@@ -697,7 +697,7 @@
     "editTitle": "Otomasyonu düzenle",
     "new": "Yeni otomasyon",
     "back": "Geri",
-    "empty": "Henüz otomasyon yok. Otomasyonlar, bir satır eklendiğinde veya değiştiğinde değer atar, kişilere bildirim gönderir ya da bir webhook çağırır.",
+    "empty": "Henüz otomasyon yok. Otomasyonlar, bir satır eklendiğinde veya değiştiğinde değer atar, kişilere bildirim gönderir, bir webhook çağırır ya da bir ajan çalıştırır.",
     "edit": "Düzenle",
     "delete": "Sil",
     "confirmDelete": "“{name}” otomasyonu silinsin mi? Çalışma geçmişi de silinir.",
@@ -719,7 +719,9 @@
     "summaryAction": {
       "set": "Ata: {properties}",
       "notify": "Bildir",
-      "webhook": "Webhook"
+      "webhook": "Webhook",
+      "runAgent": "Çalıştır: {agent}",
+      "archivedAgent": "arşivlenmiş bir ajan"
     },
     "form": {
       "name": "Ad",
@@ -769,7 +771,18 @@
         "needPeople": "Kime bildirim gideceğini seçin.",
         "needUrl": "Webhook’un URL’sini girin.",
         "needAgent": "Bir ajan seçin."
-      }
+      },
+      "agent": "Ajan",
+      "chooseAgent": "Bir ajan seçin…",
+      "pausedAgent": "{name} (duraklatıldı)",
+      "archivedAgent": "Arşivlenmiş bir ajan",
+      "noAgents": "Bu çalışma alanında henüz ajan yok.",
+      "createAgent": "Ayarlar > Ajanlar’dan bir tane oluşturun.",
+      "noAgentsMember": "Ajanları çalışma alanı sahipleri Ayarlar’dan oluşturur.",
+      "agentTask": "Görev",
+      "agentTaskPlaceholder": "Talimatlarına ek olarak satırla ne yapsın. Örneğin: Bu yeni talebi sınıflandır.",
+      "agentAccess": "Kaydettiğinizde {agent} bu veritabanında düzenleme erişimi alır.",
+      "agentAccessAny": "Kaydettiğinizde ajan bu veritabanında düzenleme erişimi alır."
     },
     "webhook": {
       "title": "Webhook imzası",
@@ -803,7 +816,9 @@
         "skipped": "atlandı"
       },
       "notified": "{count, plural, one {# kişiye bildirildi} other {# kişiye bildirildi}}",
-      "attempts": "{count, plural, one {# deneme} other {# deneme}}"
+      "attempts": "{count, plural, one {# deneme} other {# deneme}}",
+      "agentRun": "Ajanın çalışmasını gör",
+      "agentRunHint": "ajanın çalışması Ayarlar > Ajanlar’da"
     }
   }
 }

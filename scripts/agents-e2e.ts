@@ -8,6 +8,8 @@
  * An agent isn't a person: lists of people, guests and mentions leave it out, it can't be made a
  * member, owner or guest, it gets no notifications, it assigns people by name (not email), it's
  * marked as an agent where it acted, and deleting its workspace deletes its user.
+ * Built-in agents are set up on a database in one step: properties and options made when asked,
+ * instructions in the owner's language, the pages they read shared to view, the automation added.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/agents-e2e.ts
@@ -24,7 +26,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, agentRun, auditEvent, automationRun, notification, pagePermission, page, teamspace, user, workspace, workspaceAgent, workspaceMember } =
+const { account, agentRun, auditEvent, automationRun, databaseAutomation, notification, pagePermission, page, teamspace, user, workspace, workspaceAgent, workspaceMember } =
   await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -46,6 +48,7 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
+const { installBuiltinAgent } = await import("@/server/agents/builtin");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const automations = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
@@ -383,6 +386,122 @@ try {
     "an archived agent can't be picked",
   );
 
+  // ── Built-in agents ─────────────────────────────────────────────────────────────────────────
+  const requests = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Requests" });
+  const kind = await addProperty(ids.owner, requests.id, { name: "Kind", type: "select", options: ["Question", "Bug"] });
+  const dup = await addProperty(ids.owner, requests.id, { name: "Dup", type: "checkbox" });
+  const question = kind.options.options!.find((o) => o.name === "Question")!.id;
+  const agentCount = async () => (await agents.listAgents(ids.owner, workspaceId, { archived: true })).length;
+  const automationsOf = (databaseId: string) => db.select().from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
+  const agentsBefore = await agentCount();
+  const isInvalid = (reason: string) => (e: unknown) => e instanceof agents.AgentError && e.code === "invalid" && e.params.reason === reason;
+  check(
+    await fails(installBuiltinAgent(ids.member, workspaceId, { key: "duplicate-finder", databaseId: requests.id, property: dup.id }), isAccess),
+    "only owners set up built-in agents",
+  );
+  check(
+    await fails(installBuiltinAgent(ids.owner, workspaceId, { key: "duplicate-finder", databaseId: requests.id, property: kind.id }), isInvalid("property")),
+    "a built-in agent takes only properties of the right type",
+  );
+  check(
+    await fails(
+      installBuiltinAgent(ids.owner, workspaceId, { key: "request-answerer", databaseId: requests.id, property: kind.id, answered: question, needsPerson: question, pages: [faq.id] }),
+      isInvalid("option"),
+    ),
+    "…and two different outcomes for the answerer",
+  );
+  check(
+    await fails(installBuiltinAgent(ids.owner, workspaceId, { key: "ticket-router", databaseId: requests.id, properties: [kind.id], rules: "  " }), isInvalid("rules")),
+    "…and rules for the router",
+  );
+  check((await agentCount()) === agentsBefore && (await automationsOf(requests.id)).length === 0, "a setup that fails makes nothing");
+
+  const routed = await installBuiltinAgent(
+    ids.owner,
+    workspaceId,
+    { key: "ticket-router", databaseId: requests.id, properties: [kind.id, "new"], rules: "Refund questions are Questions." },
+    { locale: "tr" },
+  );
+  const ownCategory = (await getProperties(requests.id)).find((p) => p.name === "Kategori");
+  check(
+    ownCategory?.type === "select" && ownCategory.options.options?.map((o) => o.name).join() === "Soru,Sorun,İstek",
+    "the router brings a property of its own when asked, named in the owner's language",
+    ownCategory,
+  );
+  const r = routed.agent;
+  check(
+    r.name === "Talep yönlendirici" &&
+      r.icon === "🧭" &&
+      r.instructions.includes("- “Kind”: şunlardan biri: “Question”, “Bug”") &&
+      r.instructions.includes("- “Kategori”: şunlardan biri: “Soru”, “Sorun”, “İstek”") &&
+      r.instructions.includes("Refund questions are Questions.") &&
+      r.instructions.includes("“Requests”"),
+    "…and its instructions, in that language, name the database, the properties, their options and the rules",
+    r.instructions,
+  );
+  const [routing] = await db.select().from(databaseAutomation).where(eq(databaseAutomation.id, routed.automationId));
+  check(
+    routing.trigger.type === "row_created" && routing.actions.length === 1 && routing.actions[0].type === "run_agent" && routing.actions[0].agentId === r.id,
+    "it runs on every new row, by an automation of the database",
+    routing,
+  );
+  check((await pageAccessOf(r.userId, requests.id)).level === "edit", "…which shares the database with it, to edit");
+
+  const answering = await installBuiltinAgent(ids.owner, workspaceId, {
+    key: "request-answerer",
+    databaseId: requests.id,
+    property: "new",
+    answered: "new",
+    needsPerson: "new",
+    pages: [faq.id],
+  });
+  const ownAnswer = (await getProperties(requests.id)).find((p) => p.name === "Answer");
+  const a = answering.agent;
+  check(
+    ownAnswer?.type === "select" && ownAnswer.options.options?.map((o) => o.name).join() === "Answered,Needs a person",
+    "the answerer's own property has its two outcomes",
+    ownAnswer,
+  );
+  check(
+    a.instructions.includes("- “Billing FAQ”") && a.instructions.includes("set “Answer” to “Answered”") && a.instructions.includes("set “Answer” to “Needs a person”"),
+    "…and its instructions name the pages it reads and the outcomes",
+    a.instructions,
+  );
+  check(
+    (await pageAccessOf(a.userId, faq.id)).level === "view" && (await pageAccessOf(a.userId, secret.id)).level === "none",
+    "the pages it reads are shared with it to view, and nothing else",
+  );
+  const reused = await installBuiltinAgent(ids.owner, workspaceId, {
+    key: "request-answerer",
+    databaseId: requests.id,
+    property: kind.id,
+    answered: question,
+    needsPerson: "new",
+    pages: [faq.id],
+  });
+  const kindAfter = (await getProperties(requests.id)).find((p) => p.id === kind.id);
+  check(
+    kindAfter?.options.options?.map((o) => o.name).join() === "Question,Bug,Needs a person" && reused.agent.instructions.includes("set “Kind” to “Question”"),
+    "with an existing property, it uses the options chosen and adds the one asked for",
+    kindAfter?.options,
+  );
+  const finding = await installBuiltinAgent(ids.owner, workspaceId, { key: "duplicate-finder", databaseId: requests.id, property: dup.id, name: "Twin spotter" });
+  check(
+    finding.agent.name === "Twin spotter" && finding.agent.icon === "🔁" && finding.agent.instructions.includes("tick “Dup”"),
+    "the duplicate finder ticks the chosen checkbox, under the name given",
+    finding.agent,
+  );
+
+  fake.setChat(() => ({ text: "Looked at it." }));
+  await createRows(ids.member, requests.id, [{ title: "How do refunds work?" }]);
+  await settle();
+  const installed = [r, a, reused.agent, finding.agent];
+  const ran = await db.select().from(agentRun).where(inArray(agentRun.agentId, installed.map((x) => x.id)));
+  check(
+    ran.length === 4 && ran.every((run) => run.status === "done") && ran.find((run) => run.agentId === r.id)?.prompt === "Bu yeni satırı kurallarına göre sınıflandır.",
+    "a new row runs each of them, with its task",
+    ran.map((run) => ({ agent: run.agentId, status: run.status, code: run.code, prompt: run.prompt })),
+  );
 
   // ── Deleting a workspace deletes its agents' users ──────────────────────────────────────────
   await db.insert(workspace).values({ id: soloWorkspaceId, name: `${RUN} solo` });
