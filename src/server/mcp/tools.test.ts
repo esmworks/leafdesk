@@ -50,6 +50,7 @@ const databases = vi.hoisted(() => ({
   deleteProperty: vi.fn(),
   addView: vi.fn(),
   updateView: vi.fn(),
+  moveView: vi.fn(),
   getLookups: vi.fn(async () => ({ relations: {}, people: [] })),
   makeOption: vi.fn((name: string, index: number) => ({ id: `opt-new-${index}`, name: name.trim(), color: "gray" })),
 }));
@@ -902,6 +903,35 @@ describe("database views", () => {
   it("rejects unknown view ids", async () => {
     const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "nope", name: "X" });
     expect(r.text).toMatch(/No view with id/);
+  });
+
+  describe("moving a view's tab", () => {
+    const table = { id: "view-2", name: "Table", type: "table", config: {} };
+    beforeEach(() => databases.getDatabase.mockResolvedValue({ ...database, views: [...database.views, table] }));
+
+    it("moves it before or after another view without touching its settings", async () => {
+      const before = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-2", before_view_id: "view-1" });
+      expect(before.isError).toBe(false);
+      expect(databases.moveView).toHaveBeenLastCalledWith("user-1", "view-2", "view-1", "before");
+      await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-1", after_view_id: "view-2" });
+      expect(databases.moveView).toHaveBeenLastCalledWith("user-1", "view-1", "view-2", "after");
+      expect(databases.updateView).not.toHaveBeenCalled();
+    });
+
+    it("moves it before saving other changes", async () => {
+      await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-2", before_view_id: "view-1", name: "First" });
+      expect(databases.moveView.mock.invocationCallOrder[0]).toBeLessThan(databases.updateView.mock.invocationCallOrder[0]);
+    });
+
+    it("rejects both sides, itself and views of other databases", async () => {
+      const both = { database_id: "db-1", view_id: "view-2", before_view_id: "view-1", after_view_id: "view-1" };
+      expect((await callTool(writer, "update_database_view", both)).text).toMatch(/not both/);
+      const self = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-2", after_view_id: "view-2" });
+      expect(self.text).toMatch(/No other view/);
+      const other = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-2", after_view_id: "view-9" });
+      expect(other.text).toMatch(/No other view/);
+      expect(databases.moveView).not.toHaveBeenCalled();
+    });
   });
 });
 

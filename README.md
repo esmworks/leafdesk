@@ -1210,7 +1210,8 @@ The tools cover:
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
-  timeline, chart or form, including a form's public link), and `set_property_access` (who may
+  timeline, chart or form, including a form's public link; `update_database_view` also moves a
+  view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property).
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
   `delete_automation` and `list_automation_runs` (see

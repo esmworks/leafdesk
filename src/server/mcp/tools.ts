@@ -1814,11 +1814,13 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database view",
       description:
-        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, timeline zoom and table, gallery cards, or a form's questions, texts, default values and public link (view ids from get_database). filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
+        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, timeline zoom and table, gallery cards, or a form's questions, texts, default values and public link (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
       inputSchema: z.object({
         database_id: id("database"),
         view_id: id("view"),
         name: z.string().min(1).max(100).optional().describe("New view name."),
+        before_view_id: z.string().optional().describe("Move this view's tab right before the view with this id."),
+        after_view_id: z.string().optional().describe("Move this view's tab right after the view with this id."),
         group_by: z
           .string()
           .nullable()
@@ -1838,12 +1840,19 @@ export function createMcpServer(principal: McpPrincipal) {
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, view_id, name, filters, filter_combinator, sorts, ...input }) =>
+    ({ database_id, view_id, name, before_view_id, after_view_id, filters, filter_combinator, sorts, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, views } = await databases.getDatabase(userId, database_id);
         const view = views.find((v) => v.id === view_id);
         if (!view) throw new ToolInputError(`No view with id "${view_id}" in this database. Call get_database for view ids.`);
+        if (before_view_id !== undefined && after_view_id !== undefined) {
+          throw new ToolInputError("Give before_view_id or after_view_id, not both.");
+        }
+        const target = before_view_id ?? after_view_id;
+        if (target !== undefined && (target === view_id || !views.some((v) => v.id === target))) {
+          throw new ToolInputError(`No other view with id "${target}" in this database. Call get_database for view ids.`);
+        }
         const lookups = await databases.getLookups(userId, properties);
         const { questions, form_title, form_description, confirmation_message, allow_another, defaults, ...settings } = input;
         const formInput: FormInput = { questions, form_title, form_description, confirmation_message, allow_another, defaults };
@@ -1855,9 +1864,13 @@ export function createMcpServer(principal: McpPrincipal) {
           ...formConfigPatch(properties, view.type, view.config, formInput),
         };
         const linkChange = isPublic !== undefined || anonymous !== undefined;
-        if (name === undefined && !Object.keys(patch).length && !linkChange) {
-          throw new ToolInputError("Nothing to change: provide name, a view setting, filters, filter_combinator or sorts.");
+        if (name === undefined && !Object.keys(patch).length && !linkChange && target === undefined) {
+          throw new ToolInputError(
+            "Nothing to change: provide name, before_view_id or after_view_id, a view setting, filters, filter_combinator or sorts.",
+          );
         }
+        // Moved first: on a locked database the call is refused before anything else is saved.
+        if (target !== undefined) await databases.moveView(userId, view_id, target, before_view_id !== undefined ? "before" : "after");
         let config = { ...view.config, ...patch };
         if (name !== undefined || Object.keys(patch).length) {
           const stored = await databases.updateView(userId, view_id, {

@@ -16,7 +16,9 @@
   `schedule` table (migration `0040_schedules`), shared with what will run on a schedule later.
 - **Reordering view tabs.** A database's view tabs can be dragged into another order, which
   everyone sees. The first tab is the one a published database shows. Not offered on a locked
-  database or to people who can't edit it.
+  database or to people who can't edit it. Over MCP, `update_database_view` moves a tab with
+  `before_view_id` or `after_view_id`, and MCP tools refused by a locked database now say so
+  instead of reporting a server error.
 - **Page style.** The page's `⋯` menu starts with a typeface for the page (*Default*, *Serif*,
   *Mono*) and switches for *Small text* (14px body, headings scale with it; touch screens keep
   16px so iOS doesn't zoom in on the text when typing starts) and *Full width* (the

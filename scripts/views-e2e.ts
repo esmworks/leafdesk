@@ -330,6 +330,21 @@ try {
   );
   check(await deniedAccess(() => moveView(ids.owner, board.id, timeline.id, "before")), "a view can't move next to another database's view");
   check(await deniedAccess(() => moveView(ids.guest, board.id, table.id, "before")), "a guest without access can't move views");
+  const movedOverMcp = await callTool(ids.owner, "update_database_view", { database_id: published.id, view_id: board.id, before_view_id: table.id });
+  check(!movedOverMcp.isError && (await tabs(published.id)).join() === "Board,Table,Compact", "MCP moves a view's tab", movedOverMcp.text);
+  await db.update(page).set({ lockedAt: new Date() }).where(eq(page.id, published.id));
+  const lockedMove = await callTool(ids.owner, "update_database_view", {
+    database_id: published.id,
+    view_id: compact.id,
+    before_view_id: board.id,
+    name: "Renamed",
+  });
+  check(
+    lockedMove.isError && /is locked/.test(lockedMove.text) && (await tabs(published.id)).join() === "Board,Table,Compact",
+    "a locked database keeps its tabs in place, and nothing else of the call is saved",
+    lockedMove.text,
+  );
+  await db.update(page).set({ lockedAt: null }).where(eq(page.id, published.id));
 
   console.log(`\n${passed} checks passed`);
 } finally {
