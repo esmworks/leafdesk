@@ -187,6 +187,11 @@ export async function duplicatePropertyAction(propertyId: string, name: string) 
   return run((userId) => databases.duplicateProperty(userId, propertyId, name));
 }
 
+/** Changes a property's type and converts its values (see databases.changePropertyType). */
+export async function changePropertyTypeAction(propertyId: string, change: databases.TypeChange) {
+  return run((userId) => databases.changePropertyType(userId, propertyId, change));
+}
+
 export async function deletePropertyAction(propertyId: string) {
   return run((userId) => databases.deleteProperty(userId, propertyId));
 }

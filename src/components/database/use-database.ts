@@ -6,6 +6,7 @@ import {
   addPropertyAction,
   addViewAction,
   archiveRowsAction,
+  changePropertyTypeAction,
   createRowAction,
   deletePropertyAction,
   duplicatePropertyAction,
@@ -434,6 +435,11 @@ export function useDatabase(
       /** Copies a property with its values right after it; returns the copy. */
       duplicateProperty(id: string, name: string) {
         return mutateSchema((s) => s, () => duplicatePropertyAction(id, name));
+      },
+
+      /** Changes a property's type; the server converts the values and the snapshot reloads. */
+      changePropertyType(id: string, change: Parameters<typeof changePropertyTypeAction>[1]) {
+        return mutateSchema((s) => s, () => changePropertyTypeAction(id, change));
       },
 
       deleteProperty(id: string) {

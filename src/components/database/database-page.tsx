@@ -500,6 +500,7 @@ export function DatabasePage({
                       view={view}
                       properties={viewProperties}
                       rows={visibleRows}
+                      allRows={rows}
                       api={viewApi}
                       readOnly={readOnly}
                       settingsReadOnly={configReadOnly}

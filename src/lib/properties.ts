@@ -76,6 +76,8 @@ export const DATABASE_ERROR_CODES = [
   "notATemplate",
   "propertyRestricted",
   "cannotRestrict",
+  "typeChangeRestricted",
+  "typeChangeNamesPeople",
   "invalidAutomation",
   "tooManyAutomations",
   "invalidWebhookUrl",

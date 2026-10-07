@@ -19,7 +19,16 @@ const { eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { databaseProperty, databaseView, page, propertyPermission, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
-const { addProperty, addView, duplicateProperty, getDatabaseSnapshot, updateProperty, updateRowProperties } = await import(
+const {
+  addProperty,
+  addView,
+  changePropertyType,
+  duplicateProperty,
+  getDatabaseSnapshot,
+  updateProperty,
+  updateRowProperties,
+  updateView,
+} = await import(
   "@/server/databases"
 );
 const { archivePage, createPage, deletePagePermanently } = await import("@/server/pages");
@@ -169,6 +178,87 @@ try {
   const lateCopy = await duplicateProperty(ids.owner, late.id, "Late (copy)");
   const rules = await db.select().from(propertyPermission).where(eq(propertyPermission.propertyId, lateCopy.id));
   check(rules.length === 1 && rules[0].level === "none", "a copy keeps the original's access rules", rules);
+
+  // Changing a property's type converts its values in every row, trashed rows and templates too
+  const rejected = async (run: () => Promise<unknown>) =>
+    run().then(
+      () => null,
+      (error: { code?: string }) => error.code ?? "unknown",
+    );
+  const kind = await addProperty(ids.owner, tasks.id, { name: "Kind", type: "text" });
+  const when = await addProperty(ids.owner, tasks.id, { name: "When", type: "text" });
+  const owner = await addProperty(ids.owner, tasks.id, { name: "Owner", type: "person" });
+  const ref = await addProperty(ids.owner, tasks.id, { name: "Ref", type: "text" });
+  const r3 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "r3" });
+  const r4 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "r4" });
+  await updateRowProperties(ids.owner, r1.id, { [kind.id]: "Bug", [when.id]: "03/04/2026", [owner.id]: [ids.owner], [ref.id]: "o2" });
+  await updateRowProperties(ids.owner, r2.id, { [kind.id]: "bug", [when.id]: "25/04/2026" });
+  await updateRowProperties(ids.owner, r3.id, { [kind.id]: "Feature" });
+  await updateRowProperties(ids.owner, r4.id, { [kind.id]: "Chore" });
+  await archivePage(ids.owner, r3.id);
+  await db.update(page).set({ isTemplate: true }).where(eq(page.id, r4.id));
+  await updateView(ids.owner, calendar.id, {
+    config: { ...view.config, filters: [{ propertyId: kind.id, op: "contains", value: "Bug" }], sorts: [{ propertyId: kind.id, direction: "asc" }] },
+  });
+  const editedBefore = await editedAt(r1.id);
+  const kindSelect = await changePropertyType(ids.owner, kind.id, { type: "select", yes: "Yes" });
+  const kindOptions = kindSelect.options.options ?? [];
+  const optionOf = (name: string) => kindOptions.find((o) => o.name === name)?.id;
+  const [k1, k2, k3, k4] = [await values(r1.id), await values(r2.id), await values(r3.id), await values(r4.id)];
+  check(
+    kindSelect.type === "select" &&
+      kindOptions.map((o) => o.name).sort().join() === "Bug,Chore,Feature" &&
+      k1[kind.id] === optionOf("Bug") &&
+      k2[kind.id] === optionOf("Bug") &&
+      k3[kind.id] === optionOf("Feature") &&
+      k4[kind.id] === optionOf("Chore"),
+    "text becomes select options, in trashed rows and templates too, with matching case folded",
+    { kindOptions, k1, k2, k3, k4 },
+  );
+  check((await editedAt(r1.id)) === editedBefore, "a type change leaves the rows' last edited time alone");
+  const [calendarAfter] = await db.select().from(databaseView).where(eq(databaseView.id, calendar.id));
+  check(
+    !calendarAfter.config.filters?.length && calendarAfter.config.sorts?.[0]?.propertyId === kind.id,
+    "views drop filters on the property and keep sorts the new type has",
+    calendarAfter.config,
+  );
+  await changePropertyType(ids.owner, kind.id, { type: "multi_select", yes: "Yes" });
+  check(
+    JSON.stringify((await values(r1.id))[kind.id]) === JSON.stringify([optionOf("Bug")]) &&
+      JSON.stringify((await getProperty(kind.id)).options.options) === JSON.stringify(kindOptions),
+    "select to multi-select keeps the options and their ids",
+    await values(r1.id),
+  );
+  await changePropertyType(ids.owner, when.id, { type: "date", yes: "Yes" });
+  check(
+    (await values(r1.id))[when.id] === "2026-04-03" && (await values(r2.id))[when.id] === "2026-04-25",
+    "a text column's dates are read in the format they share",
+    [await values(r1.id), await values(r2.id)],
+  );
+  await changePropertyType(ids.owner, owner.id, { type: "text", yes: "Yes" });
+  check((await values(r1.id))[owner.id] === ids.owner, "people become their names", await values(r1.id));
+  check(
+    (await rejected(() => changePropertyType(ids.owner, late.id, { type: "relation", relation: { databaseId: other.id }, yes: "Yes" }))) ===
+      "typeChangeRestricted",
+    "a property with access rules can't become a relation",
+  );
+  check((await getProperty(late.id)).type === "text", "…and keeps its type");
+  await changePropertyType(ids.owner, ref.id, { type: "relation", relation: { databaseId: other.id, twoWay: true }, yes: "Yes" });
+  const refProp = await getProperty(ref.id);
+  const refPair = refProp.options.relation?.pairedPropertyId;
+  check(
+    JSON.stringify((await values(r1.id))[ref.id]) === JSON.stringify([o2.id]) &&
+      Boolean(refPair) &&
+      JSON.stringify((await values(o2.id))[refPair!]) === JSON.stringify([r1.id]),
+    "text becomes links to rows by title, and a two-way relation links back",
+    { refProp, r1: await values(r1.id), o2: await values(o2.id) },
+  );
+  await changePropertyType(ids.owner, ref.id, { type: "text", yes: "Yes" });
+  check(
+    (await values(r1.id))[ref.id] === "o2" && (await getProperty(refPair!)).options.relation?.pairedPropertyId == null,
+    "a two-way relation turned into text names the rows and leaves the other side one-way",
+    { r1: await values(r1.id), pair: await getProperty(refPair!) },
+  );
 
   // A trashed database lists the rows trashed with it
   await archivePage(ids.owner, tasks.id);

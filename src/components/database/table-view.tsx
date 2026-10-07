@@ -11,6 +11,7 @@ import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
+import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
 import { isGroupable, isSortable, localDay, moveProperty } from "@/lib/properties";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { AiCell, useAiAutofill } from "./ai-autofill";
@@ -25,6 +26,7 @@ import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
 import { CalculationRow } from "./table-calculations";
+import { useRelations } from "./relation-context";
 import { useNewRow } from "./use-new-row";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -56,6 +58,7 @@ export function TableView({
   view,
   properties,
   rows,
+  allRows = rows,
   api,
   readOnly,
   settingsReadOnly,
@@ -70,6 +73,8 @@ export function TableView({
   view: View;
   properties: Property[];
   rows: Row[];
+  /** Every row the viewer sees, the view's filters aside: what a type change would clear is counted on them. */
+  allRows?: Row[];
   api: DatabaseApi;
   readOnly?: boolean;
   /** The view's settings can't be saved (a linked view its block doesn't let change), rows still can. */
@@ -88,7 +93,8 @@ export function TableView({
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
-  const { viewerId } = usePeople();
+  const { viewerId, people } = usePeople();
+  const relations = useRelations();
   const ai = useAiAutofill();
   const access = usePropertyAccess();
   // Grouped only when the view asks for it (unlike boards, which always group).
@@ -210,6 +216,22 @@ export function TableView({
       ...view.config,
       wrapped: wrapped.has(key) ? [...wrapped].filter((k) => k !== key) : [...wrapped, key],
     });
+  // Changing a property's type: the values it would clear are counted here on the rows the viewer
+  // sees, with the same conversion the server runs on every row.
+  const typeChange = (p: Property): PropertyMenuActions["changeType"] => {
+    const yes = t("propertyMenu.checkedText");
+    return {
+      lost: (type) => {
+        const values = allRows.map((r) => r.properties[p.id]);
+        if (values.every(isEmptyValue)) return 0;
+        if (type === "relation") return null;
+        const sourceTitles = new Map((relations?.targets[p.id]?.rows ?? []).map((r) => [r.id, r.title]));
+        return lostValues(values, planConversion(p, { type }, values, { people, sourceTitles, yes }));
+      },
+      apply: (change) => api.changePropertyType(p.id, { ...change, yes }),
+    };
+  };
+
   // A property added from a column's menu goes left or right of that column in this view.
   const placeBeside = (id: string | undefined, target: string, side: "before" | "after") => {
     if (!id || !arrangeable) return;
@@ -435,6 +457,7 @@ export function TableView({
                             p.id,
                             "after",
                           ),
+                    changeType: fixed ? undefined : typeChange(p),
                     remove: fixed ? undefined : () => api.deleteProperty(p.id),
                   }}
                 />

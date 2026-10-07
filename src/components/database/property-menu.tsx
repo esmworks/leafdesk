@@ -156,6 +156,14 @@ export function AddPropertyPanel({
   );
 }
 
+/** A new type for a property, with the settings it needs (see databases.changePropertyType). */
+export type TypeChangeInput = {
+  type: PropertyType;
+  relation?: RelationInput;
+  formula?: { expression: string };
+  rollup?: RollupInput;
+};
+
 export type PropertyMenuActions = {
   /** Omitted when the name can't change (Name column, locked database). */
   rename?: (name: string) => void;
@@ -183,6 +191,14 @@ export type PropertyMenuActions = {
   };
   /** Adds a copy of the property, with its values, right after it. */
   duplicate?: () => void;
+  /**
+   * Changes the property's type. `lost`: how many values the viewer sees would be cleared, null
+   * when only the server can tell (links are found by title in the related database).
+   */
+  changeType?: {
+    lost: (type: PropertyType) => number | null;
+    apply: (change: TypeChangeInput) => void | Promise<unknown>;
+  };
   setOptions?: (options: SelectOption[]) => void;
   /** Formulas: saves a new expression (with property ids, see FormulaEditor). */
   setFormula?: (expression: string) => void;
@@ -212,8 +228,23 @@ export function PropertyMenu({
   const ta = useTranslations("ai.autofill");
   const tAccess = useTranslations("database.propertyAccess");
   const [page, setPage] = useState<
-    "main" | "options" | "confirm" | "formula" | "rollup" | "autofill" | "calculate" | "insert-before" | "insert-after"
+    | "main"
+    | "options"
+    | "confirm"
+    | "formula"
+    | "rollup"
+    | "autofill"
+    | "calculate"
+    | "insert-before"
+    | "insert-after"
+    | "type"
+    | "type-relation"
+    | "type-formula"
+    | "type-rollup"
+    | "type-confirm"
   >("main");
+  // A type change waiting for the user to accept the values it clears.
+  const [pending, setPending] = useState<{ change: TypeChangeInput; lost: number | null } | null>(null);
   const [name, setName] = useState(prop?.name ?? "");
   const saved = useRef(prop?.name ?? "");
   const commitName = () => {
@@ -232,6 +263,95 @@ export function PropertyMenu({
     action?.();
     onDone();
   };
+
+  const changeType = actions.changeType;
+  // Changes the type straight away when no value would be lost, else asks first.
+  const chooseType = (change: TypeChangeInput) => {
+    const lost = changeType?.lost(change.type) ?? 0;
+    if (lost === 0) {
+      void changeType?.apply(change);
+      onDone();
+      return;
+    }
+    setPending({ change, lost });
+    setPage("type-confirm");
+  };
+
+  if (page === "type" && prop && changeType) {
+    return (
+      <div className="w-60">
+        <SubmenuHeader title={t("changeType")} onBack={() => setPage("main")} />
+        <MenuSeparator />
+        <div className="max-h-80 overflow-y-auto">
+          {PROPERTY_TYPES.map((type) => (
+            <MenuItem
+              key={type}
+              icon={<PropertyTypeIcon type={type} />}
+              active={type === prop.type}
+              trailing={type === prop.type ? <Check className="h-3.5 w-3.5" /> : undefined}
+              onClick={() => {
+                if (type === prop.type) setPage("main");
+                else if (type === "relation" || type === "formula" || type === "rollup") setPage(`type-${type}`);
+                else chooseType({ type });
+              }}
+            >
+              {typeLabel(type)}
+            </MenuItem>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (page === "type-relation" && prop && changeType) {
+    return (
+      <RelationSetup name={prop.name} onBack={() => setPage("type")} onCreate={(relation) => chooseType({ type: "relation", relation })} />
+    );
+  }
+
+  if (page === "type-formula" && prop && changeType) {
+    return (
+      <FormulaEditor
+        prop={prop}
+        name={prop.name}
+        onBack={() => setPage("type")}
+        onSave={(expression) => chooseType({ type: "formula", formula: { expression } })}
+      />
+    );
+  }
+
+  if (page === "type-rollup" && prop && changeType) {
+    return (
+      <RollupEditor prop={prop} name={prop.name} onBack={() => setPage("type")} onSave={(rollup) => chooseType({ type: "rollup", rollup })} />
+    );
+  }
+
+  if (page === "type-confirm" && prop && changeType && pending) {
+    const type = typeLabel(pending.change.type);
+    return (
+      <div className="w-64 p-2">
+        <p className="text-sm font-medium">{t("confirmType", { name: prop.name, type })}</p>
+        <p className="mt-1 text-xs text-fg-muted">
+          {pending.lost === null ? t("confirmTypeRelation") : t("confirmTypeLost", { count: pending.lost, type })}
+        </p>
+        <div className="mt-3 flex justify-end gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setPage("type")}>
+            {tc("cancel")}
+          </Button>
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => {
+              void changeType.apply(pending.change);
+              onDone();
+            }}
+          >
+            {t("changeType")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (page === "options" && prop && actions.setOptions) {
     return <OptionsEditor prop={prop} onChange={actions.setOptions} onBack={() => setPage("main")} />;
@@ -491,10 +611,27 @@ export function PropertyMenu({
               className="h-7"
             />
           </div>
-          <div className="flex items-center gap-2 px-2 py-1 text-xs text-fg-muted">
-            <PropertyTypeIcon type={prop.type} />
-            {typeLabel(prop.type)}
-          </div>
+          {changeType ? (
+            <div className="px-1">
+              <MenuItem
+                icon={<PropertyTypeIcon type={prop.type} />}
+                trailing={
+                  <>
+                    <span className="mr-1 text-xs">{typeLabel(prop.type)}</span>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </>
+                }
+                onClick={() => setPage("type")}
+              >
+                {t("type")}
+              </MenuItem>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-2 py-1 text-xs text-fg-muted">
+              <PropertyTypeIcon type={prop.type} />
+              {typeLabel(prop.type)}
+            </div>
+          )}
           {prop.type === "relation" && <RelationInfo prop={prop} />}
           {isComputed(prop.type) && <div className="px-2 pb-1 text-xs text-fg-faint">{t("readOnlyHint")}</div>}
           {isDerived(prop.type) && (

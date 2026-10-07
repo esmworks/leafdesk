@@ -23,12 +23,14 @@ import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
+import { planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultFormConfig } from "@/lib/forms";
 import { DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
-import { holdsOptions, holdsPeople, isComputed, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
 import {
   applyView,
@@ -854,6 +856,34 @@ async function rollupConfig(
   };
 }
 
+/**
+ * The database a relation (a new one, or a property turned into one) points to, checked: in the
+ * same workspace, not in the trash, and editable when the relation is two-way.
+ */
+async function relationTarget(
+  userId: string,
+  database: Awaited<ReturnType<typeof requireDatabase>>,
+  relation: RelationInput | undefined,
+) {
+  const invalidTarget = () =>
+    new PropertyValueError("A relation must point to a database in the same workspace", "invalidRelationTarget");
+  if (!relation?.databaseId) throw invalidTarget();
+  const target =
+    relation.databaseId === database.id ? database : await requireDatabase(userId, relation.databaseId, "view").catch(() => null);
+  if (!target || target.workspaceId !== database.workspaceId || target.archivedAt) throw invalidTarget();
+  // A two-way relation also adds a property to the target, so it needs edit access there.
+  if (relation.twoWay && target.id !== database.id) {
+    const editable = await requireDatabase(userId, target.id, "edit").then(
+      () => true,
+      () => false,
+    );
+    if (!editable) {
+      throw new PropertyValueError("Two-way relations need edit access to the related database", "relationTargetReadOnly");
+    }
+  }
+  return target;
+}
+
 export async function addProperty(
   userId: string,
   databaseId: string,
@@ -882,27 +912,7 @@ export async function addProperty(
     input.type === "rollup"
       ? await rollupConfig(userId, input.rollup, await knownProperties(userId, databaseId), { id: "\u0000new", name })
       : undefined;
-  let target: typeof database | null = null;
-  if (input.type === "relation") {
-    const invalidTarget = () =>
-      new PropertyValueError("A relation must point to a database in the same workspace", "invalidRelationTarget");
-    if (!input.relation?.databaseId) throw invalidTarget();
-    target =
-      input.relation.databaseId === databaseId
-        ? database
-        : await requireDatabase(userId, input.relation.databaseId, "view").catch(() => null);
-    if (!target || target.workspaceId !== database.workspaceId || target.archivedAt) throw invalidTarget();
-    // A two-way relation also adds a property to the target, so it needs edit access there.
-    if (input.relation.twoWay && target.id !== databaseId) {
-      const editable = await requireDatabase(userId, target.id, "edit").then(
-        () => true,
-        () => false,
-      );
-      if (!editable) {
-        throw new PropertyValueError("Two-way relations need edit access to the related database", "relationTargetReadOnly");
-      }
-    }
-  }
+  const target = input.type === "relation" ? await relationTarget(userId, database, input.relation) : null;
   const options: PropertyOptions =
     input.type === "select" || input.type === "multi_select"
       ? { options: (input.options ?? []).map((o, i) => makeOption(typeof o === "string" ? o : o.name, i)) }
@@ -1167,6 +1177,180 @@ export async function duplicateProperty(userId: string, propertyId: string, name
   notifySchema(prop.databaseId);
   if (copied.rows) notifyRows(prop.databaseId);
   return copied.created;
+}
+
+export type TypeChange = {
+  type: PropertyType;
+  /** Settings the new type needs: a relation's database, a formula's expression, a rollup's settings. */
+  relation?: RelationInput;
+  formula?: { expression: string };
+  rollup?: RollupInput;
+  /** A ticked checkbox as text, in the user's language (see lib/convert-property). */
+  yes: string;
+};
+
+/**
+ * Changes a property's type and converts its value in every row, the trashed ones and row
+ * templates included (rows keep their "last edited" time; see lib/convert-property for what each
+ * value becomes). Formulas and rollups freeze what the user sees of them: rows hidden from them
+ * keep no value. Views drop what they had set up for the old type. A two-way relation leaves its
+ * other side one-way; a new two-way relation links back. Restricted properties can't become a type
+ * access rules don't apply to, nor can a person property other rules name people by.
+ */
+export async function changePropertyType(userId: string, propertyId: string, input: TypeChange) {
+  const prop = await requireProperty(userId, propertyId);
+  if (!PROPERTY_TYPES.includes(input.type)) {
+    throw new PropertyValueError(`Unsupported type "${input.type}"`, "unsupportedType", { type: String(input.type) });
+  }
+  if (input.type === prop.type) return prop;
+  const database = await requireDatabase(userId, prop.databaseId, "edit");
+  const rules = await db
+    .select({ propertyId: propertyPermission.propertyId, personPropertyId: propertyPermission.personPropertyId })
+    .from(propertyPermission)
+    .where(eq(propertyPermission.databaseId, prop.databaseId));
+  if (!canRestrict(input.type) && rules.some((r) => r.propertyId === propertyId)) {
+    throw new PropertyValueError(`"${prop.name}" has access rules, which a ${input.type} property can't have`, "typeChangeRestricted", {
+      property: prop.name,
+    });
+  }
+  if (!namesPeople(input.type) && rules.some((r) => r.personPropertyId === propertyId)) {
+    throw new PropertyValueError(`Access rules give the people of "${prop.name}" access`, "typeChangeNamesPeople", {
+      property: prop.name,
+    });
+  }
+
+  const known = await knownProperties(userId, prop.databaseId);
+  const self = { id: prop.id, name: prop.name };
+  const formula = input.type === "formula" ? formulaConfig(input.formula?.expression ?? "", known, self) : undefined;
+  const rollup = input.type === "rollup" ? await rollupConfig(userId, input.rollup, known, self) : undefined;
+  const target = input.type === "relation" ? await relationTarget(userId, database, input.relation) : null;
+
+  // What the values are now: stored, filled in by Leafdesk, or (formulas, rollups) worked out.
+  const rows = await db
+    .select({
+      id: page.id,
+      title: page.title,
+      properties: page.properties,
+      createdBy: page.createdBy,
+      updatedBy: page.updatedBy,
+      createdAt: page.createdAt,
+      updatedAt: page.updatedAt,
+    })
+    .from(page)
+    .where(eq(page.parentId, prop.databaseId))
+    // In the table's order, so options made from the values come in the order they appear.
+    .orderBy(asc(page.position), asc(page.createdAt));
+  let derived = new Map<string, unknown>();
+  if (isDerived(prop.type)) {
+    const visible = new Set(
+      (await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), pageVisibleTo(userId)))).map((r) => r.id),
+    );
+    const read = await withValues(userId, prop.databaseId, rows.filter((r) => visible.has(r.id)), await getProperties(prop.databaseId));
+    derived = new Map(read.map((r) => [r.id, r.properties[propertyId]]));
+  }
+  const current = (row: (typeof rows)[number]) =>
+    isComputed(prop.type)
+      ? computedValues([prop], row)[propertyId]
+      : isDerived(prop.type)
+        ? (derived.get(row.id) ?? null)
+        : row.properties[propertyId];
+  const values = rows.map(current);
+
+  // People and related rows, as far as the user may see them.
+  const members = await workspacePeopleOf(prop.databaseId);
+  const actor = members.find((m) => m.id === userId);
+  const people: ConversionContext["people"] = [
+    ...(holdsPeople(prop.type) ? await getPeople(userId, [prop]) : []),
+    // Only members look people up, as when they type a name into a cell.
+    ...(input.type === "person" && actor && !isGuest(actor.role) ? members : []),
+  ];
+  const sourceTitles =
+    prop.type === "relation"
+      ? new Map(((await getRelationTargets(userId, [prop]))[propertyId]?.rows ?? []).map((r) => [r.id, r.title]))
+      : undefined;
+  const targetRows = target
+    ? await db
+        .select({ id: page.id, title: page.title })
+        .from(page)
+        .where(and(eq(page.parentId, target.id), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(userId)))
+    : undefined;
+  const conversion = planConversion(prop, { type: input.type }, values, { people, sourceTitles, targetRows, yes: input.yes });
+
+  const options: PropertyOptions = conversion.options
+    ? { options: conversion.options }
+    : formula
+      ? { formula }
+      : rollup
+        ? { rollup }
+        : {};
+  // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
+  const next: Record<string, unknown> = {};
+  rows.forEach((row, i) => {
+    const value = isReadOnlyType(input.type) ? null : conversion.convert(values[i]);
+    const stored = value === false ? null : value;
+    if (stored !== null || propertyId in row.properties) next[row.id] = stored;
+  });
+
+  const pairedId = prop.type === "relation" ? prop.options.relation?.pairedPropertyId : null;
+  const [paired] = pairedId ? await db.select().from(databaseProperty).where(eq(databaseProperty.id, pairedId)) : [];
+  const changed = await db.transaction(async (tx) => {
+    let relation: RelationConfig | undefined = target ? { databaseId: target.id } : undefined;
+    // The other side of a two-way relation stays, as a one-way relation with its values intact.
+    if (paired?.options.relation) {
+      await tx
+        .update(databaseProperty)
+        .set({ options: { ...paired.options, relation: { ...paired.options.relation, pairedPropertyId: null } } })
+        .where(eq(databaseProperty.id, paired.id));
+    }
+    if (target && input.relation?.twoWay) {
+      const [created] = await tx
+        .insert(databaseProperty)
+        .values({
+          databaseId: target.id,
+          name: await uniquePropertyName(target.id, input.relation.pairedName?.trim() || database.title.trim() || "Related", tx),
+          type: "relation",
+          options: { relation: { databaseId: prop.databaseId, pairedPropertyId: propertyId } },
+          position: await nextPropertyPosition(target.id, tx),
+        })
+        .returning();
+      await hideInCalendars(tx, target.id, created.id);
+      relation = { databaseId: target.id, pairedPropertyId: created.id };
+    }
+    const [updated] = await tx
+      .update(databaseProperty)
+      .set({ type: input.type, options: relation ? { relation } : options })
+      .where(eq(databaseProperty.id, propertyId))
+      .returning();
+    if (Object.keys(next).length) {
+      await tx.execute(sql`
+        update ${page} set
+          properties = case when c.value = 'null'::jsonb then ${page.properties} - ${propertyId}::text
+            else jsonb_set(${page.properties}, ${`{${propertyId}}`}::text[], c.value) end,
+          updated_at = ${page.updatedAt}
+        from jsonb_each(${JSON.stringify(next)}::jsonb) as c(key, value)
+        where ${page.id} = c.key and ${page.parentId} = ${prop.databaseId}`);
+    }
+    const views = await tx.select().from(databaseView).where(eq(databaseView.databaseId, prop.databaseId));
+    for (const view of views) {
+      await tx
+        .update(databaseView)
+        .set({ config: retypeViewConfig(view.config, propertyId, prop.type, updated) })
+        .where(eq(databaseView.id, view.id));
+    }
+    return updated;
+  });
+  // A new two-way relation links the rows back.
+  if (target && input.relation?.twoWay) {
+    await syncPairedRelationsMany(
+      prop.databaseId,
+      Object.entries(next).flatMap(([rowId, value]) => (value ? [{ rowId, before: {}, after: { [propertyId]: value } }] : [])),
+    );
+  }
+  notifySchema(prop.databaseId);
+  notifyRows(prop.databaseId);
+  if (paired && paired.databaseId !== prop.databaseId) notifySchema(paired.databaseId);
+  if (target && target.id !== prop.databaseId) notifySchema(target.id);
+  return changed;
 }
 
 export async function addView(userId: string, databaseId: string, input: { name: string; type: ViewType }) {
