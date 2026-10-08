@@ -3,7 +3,7 @@ import { Copy, Menu } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { LoadedPage } from "@/app/s/[token]/load";
-import { BackdropImage, backdropRoot, IMAGE_SURFACE } from "@/components/page/page-backdrop";
+import { backdropClass } from "@/components/page/page-backdrop";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { pageTextClasses } from "@/lib/page-style";
@@ -65,7 +65,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
         className={cn(
           "sticky top-0 z-20 flex h-11 items-center justify-between gap-3 border-b border-border bg-bg/90 px-3 backdrop-blur",
           // The header takes the page's color, as it does in the editor; the site's navigation doesn't.
-          data.background?.kind === "color" && `page-bg-${data.background.color}`,
+          data.background && `page-bg-${data.background.color}`,
         )}
       >
         <div className="flex min-w-0 items-center gap-2">
@@ -115,24 +115,12 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
           </aside>
         )}
 
-        <div
-          className={cn("isolate flex min-w-0 flex-1 flex-col", backdropRoot(data.background).className)}
-          style={backdropRoot(data.background).style}
-        >
-          <BackdropImage background={data.background} />
+        <div className={cn("flex min-w-0 flex-1 flex-col", backdropClass(data.background))}>
           <main
             className={cn(
-              "min-w-0 flex-1 pb-32",
+              "w-full min-w-0 flex-1 pb-32",
               wide ? "pt-10" : data.style.fullWidth ? "page-full-width pt-12" : "mx-auto max-w-[900px] pt-12",
               !wide && pageTextClasses(data.style),
-              // Over an image the page sits on a plain surface, with the image showing around it.
-              data.background?.kind !== "image"
-                ? "w-full"
-                : [
-                    IMAGE_SURFACE,
-                    "my-6 md:my-10",
-                    wide || data.style.fullWidth ? "mx-3 md:mx-6" : "w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)]",
-                  ].join(" "),
             )}
           >
             <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>

@@ -50,8 +50,7 @@ versions, upgrades and running behind a domain.
 ## Features
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu and markdown shortcuts,
-  icons, backgrounds (a color that suits the light and dark theme, or an uploaded image or image
-  link behind the page with the text on a plain surface over it), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
+  icons, background colors (a tint that suits the light and dark theme), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text, and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).

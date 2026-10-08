@@ -23,7 +23,7 @@ import { DocumentViewContext } from "./document-title";
 import { HistoryPanel } from "./history-panel";
 import { IconPicker } from "./icon-picker";
 import { BackgroundPicker } from "./page-background";
-import { BackdropImage, backdropRoot, IMAGE_SURFACE } from "./page-backdrop";
+import { backdropClass } from "./page-backdrop";
 import { Backlinks } from "./mentions";
 import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
@@ -222,7 +222,7 @@ export function PageView({
 
   const canChangeHeader = !page.archived && canEdit && !offline;
   const backgroundButton = canChangeHeader ? (
-    <BackgroundPicker pageId={page.id} background={background} onChange={changeBackground}>
+    <BackgroundPicker background={background} onChange={changeBackground}>
       {(toggle) => (
         <Button
           size="sm"
@@ -235,8 +235,6 @@ export function PageView({
       )}
     </BackgroundPicker>
   ) : null;
-  const backdrop = backdropRoot(background);
-  const onImage = background?.kind === "image";
 
   const iconPicker = (
     <IconPicker icon={icon} onChange={changeIcon} disabled={page.archived || !canEdit || offline}>
@@ -273,8 +271,7 @@ export function PageView({
 
   return (
     // Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's.
-    <div data-find-scope className={cn("isolate flex min-h-full flex-col", backdrop.className)} style={backdrop.style}>
-      <BackdropImage background={background} />
+    <div data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
       <header className="sticky top-0 z-20 flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:pl-1.5">
         <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
           <SidebarOpenButton className="mr-1 max-md:mr-0" />
@@ -353,27 +350,24 @@ export function PageView({
 
       <div
         className={cn(
-          "flex-1 pb-32",
+          "w-full flex-1 pb-32",
           wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
           !wide && "pt-8 md:pt-12",
-          // Over an image the page sits on a plain surface, with the image showing around it.
-          !onImage
-            ? "w-full"
-            : [IMAGE_SURFACE, "my-6 md:my-10", wide || fullWidth ? "mx-3 md:mx-6" : "w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)]"].join(" "),
           !wide && commentsOpen && !offline && "page-beside-panel",
           showBody && pageTextClasses(pageStyle),
         )}
       >
         <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
-          {(!wide || !icon || backgroundButton) && (
+          {!wide && (
             <div className="relative mb-2 flex h-8 items-end gap-1">
-              {(!wide || !icon) && iconPicker}
+              {iconPicker}
               {backgroundButton}
             </div>
           )}
           {!wide && icon && <div className="h-8" />}
-          {/* Wide (database) pages keep the icon beside the title so the view starts higher. */}
-          <div className={cn(wide && icon && "flex items-center gap-3")}>
+          {/* Wide (database) pages keep everything on the title's line so the view starts higher: the
+              icon before the title, the add-icon and background buttons after it. */}
+          <div className={cn(wide && "flex flex-wrap items-center gap-x-3 gap-y-1")}>
             {wide && icon && iconPicker}
             <TitleField
               inputRef={titleRef}
@@ -383,6 +377,12 @@ export function PageView({
               onChange={(v) => pageDoc && setDocTitle(pageDoc.doc, v)}
               onEnter={() => document.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
             />
+            {wide && (
+              <div className="flex shrink-0 items-center gap-1">
+                {!icon && iconPicker}
+                {backgroundButton}
+              </div>
+            )}
           </div>
           {error && <p className="mt-2 text-sm text-danger">{error}</p>}
           {actionError && !page.archived && (

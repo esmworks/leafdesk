@@ -13,9 +13,7 @@ import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_
 import { pageLabel } from "@/lib/labels";
 import {
   BACKGROUND_COLORS,
-  backgroundFileId,
   backgroundText,
-  MAX_BACKGROUND_URL_LENGTH,
   parseBackgroundText,
   parsePageBackground,
 } from "@/lib/page-background";
@@ -186,11 +184,11 @@ export const inputs = {
       .describe('"replace" (default) overwrites the body; "append" adds to the end.'),
     background: z
       .string()
-      .max(MAX_BACKGROUND_URL_LENGTH)
+      .max(64)
       .nullable()
       .optional()
       .describe(
-        `What fills the page behind its title and body: an image uploaded to the workspace (its /api/files/<id> URL, e.g. from attach_file) or an https link to an image, with the text on a plain surface over it; or a color as "color:<name>" (${BACKGROUND_COLORS.join(", ")}), light in the light theme and dark in the dark one. null removes it.`,
+        `The color that fills the page behind its title and body, as "color:<name>" (${BACKGROUND_COLORS.join(", ")}), light in the light theme and dark in the dark one. null removes it.`,
       ),
   }),
   pageId: z.object({ page_id: id("page") }),
@@ -580,12 +578,10 @@ export async function createPage(
   };
 }
 
-/** A page's background as MCP and REST show it: one string (lib/page-background backgroundText), files as full URLs. */
+/** A page's background as MCP and REST show it: one string (lib/page-background backgroundText). */
 function backgroundField(stored: unknown) {
   const background = parsePageBackground(stored);
-  if (!background) return { background: null };
-  const text = backgroundText(background);
-  return { background: backgroundFileId(background) ? `${env.appUrl}${text}` : text };
+  return { background: background ? backgroundText(background) : null };
 }
 
 /** The background update_page asks for: a new one, or none (null). */
@@ -594,7 +590,7 @@ function backgroundFromInput(background: string | null) {
   const parsed = parseBackgroundText(background);
   if (!parsed) {
     throw new ToolInputError(
-      `background must be an image URL (/api/files/<id> or an https link) or "color:<name>" with one of: ${BACKGROUND_COLORS.join(", ")}.`,
+      `background must be "color:<name>" with one of: ${BACKGROUND_COLORS.join(", ")}.`,
     );
   }
   return parsed;

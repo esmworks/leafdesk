@@ -9,8 +9,8 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { writeDocTitle } from "@/lib/collab-title";
 import { copyAccess, dropPropertyReferences, planDuplicate, redactCopy, type CopyAccess, type SourcePage } from "@/lib/duplicate";
-import { fileIdsIn, fileIdsInProperties, fileUrl } from "@/lib/files";
-import { backgroundFileId, parsePageBackground, type PageBackground } from "@/lib/page-background";
+import { fileIdsIn, fileIdsInProperties } from "@/lib/files";
+import { parsePageBackground } from "@/lib/page-background";
 import { UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { copyPublishedBlocks, mentionedPageIds, remapFilePaths } from "@/lib/published-copy";
 import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
@@ -78,14 +78,6 @@ type SourceRow = {
   properties: RowProperties;
   ydoc: Uint8Array | Buffer | null;
 };
-
-/** A background as the copy keeps it: an uploaded image points at the copied file, or is dropped without one. */
-function copiedBackground(background: PageBackground | null, fileMap: Map<string, string>): PageBackground | null {
-  const fileId = backgroundFileId(background);
-  if (!background || !fileId || background.kind !== "image") return background;
-  const copied = fileMap.get(fileId);
-  return copied ? { ...background, url: fileUrl(copied) } : null;
-}
 
 /** Labels for pages a copy mentions but doesn't carry, in the visitor's language. */
 async function mentionLabels() {
@@ -204,12 +196,7 @@ export async function duplicatePublishedPage(
   const fileIds = new Set<string>();
   const firstShownOn = new Map<string, string>();
   for (const p of plan.pages) {
-    const backgroundFile = backgroundFileId(parsePageBackground(sources.get(p.sourceId)?.background));
-    const ids = [
-      ...fileIdsIn(JSON.stringify(blocksOf.get(p.id) ?? [])),
-      ...fileIdsInProperties(values.get(p.id)),
-      ...(backgroundFile ? [backgroundFile] : []),
-    ];
+    const ids = [...fileIdsIn(JSON.stringify(blocksOf.get(p.id) ?? [])), ...fileIdsInProperties(values.get(p.id))];
     for (const id of ids) {
       fileIds.add(id);
       if (!firstShownOn.has(id)) firstShownOn.set(id, p.id);
@@ -329,7 +316,7 @@ export async function duplicatePublishedPage(
               kind: p.kind,
               title: p.title,
               icon: sources.get(p.sourceId)?.icon ?? null,
-              background: copiedBackground(parsePageBackground(sources.get(p.sourceId)?.background), fileMap),
+              background: parsePageBackground(sources.get(p.sourceId)?.background),
               position: p.position,
               properties: JSON.parse(remapFilePaths(JSON.stringify(values.get(p.id) ?? {}), fileMap)) as RowProperties,
               ydoc: body?.ydoc ?? null,

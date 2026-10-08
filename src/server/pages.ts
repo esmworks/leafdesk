@@ -1,7 +1,6 @@
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
-import { fileIdOf } from "@/lib/files";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
@@ -9,7 +8,6 @@ import { anyWordTerms, anyWordTsQuery } from "@/lib/search-words";
 import {
   databaseProperty,
   databaseView,
-  file,
   oauthClient,
   page,
   pagePermission,
@@ -357,24 +355,11 @@ function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: strin
   collab.broadcast(`page:${p.id}`, PAGE_HEADER_EVENT);
 }
 
-/**
- * Sets or removes the page's background (lib/page-background). An uploaded image must be a file of
- * the page's workspace; the database trigger then counts it as used by the page, like a file in its body.
- */
+/** Sets or removes the page's background color (lib/page-background). */
 export async function setPageBackground(userId: string, pageId: string, background: PageBackground | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
   const checked = background === null ? null : parsePageBackground(background);
   if (background !== null && !checked) throw new Error("Not a background");
-  const fileId = checked?.kind === "image" ? fileIdOf(checked.url) : null;
-  if (fileId) {
-    const [found] = await db
-      .select({ id: file.id })
-      .from(file)
-      .where(and(eq(file.id, fileId), eq(file.workspaceId, p.workspaceId)))
-      .limit(1);
-    // Answered like any file the user can't reach (REST: 404).
-    if (!found) throw new AccessError("The background's file isn't in this workspace");
-  }
   await db.update(page).set({ background: checked, updatedBy: userId }).where(eq(page.id, pageId));
   pageHeaderChanged(p);
 }
