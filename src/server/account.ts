@@ -32,6 +32,7 @@ import { verifyTotp } from "@/lib/totp";
 import { getCollab } from "@/server/collab/bridge";
 import { removeStored } from "@/server/files";
 import { applyDomainPolicies } from "@/server/join-requests";
+import { revokeAllConnectedApps } from "@/server/mcp/grants";
 import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, sendMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
@@ -331,7 +332,12 @@ export async function changePassword(
     if (code === "PASSWORD_TOO_LONG") throw new AccountError("passwordTooLong");
     throw error;
   }
-  if (input.revokeOthers === true) await disconnectEndedSessions(userId);
+  if (input.revokeOthers === true) {
+    await disconnectEndedSessions(userId);
+    // Apps the user connected hold tokens like other sessions: whoever knew the old password
+    // could have connected one, so they are disconnected too.
+    await revokeAllConnectedApps(userId);
+  }
   await notify(userId, current.user.email, (locale) => passwordChangedEmail(locale, { name: current.user.name }));
 }
 

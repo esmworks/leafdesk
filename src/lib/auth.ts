@@ -19,7 +19,7 @@ import {
 } from "@/lib/auth-options";
 import { isAgentAccount } from "@/server/agents/users";
 import { forgetUnprovenHolder } from "@/server/account-security";
-import { connectedAppAuditPlugin } from "@/server/mcp/grants";
+import { connectedAppAuditPlugin, revokeAllConnectedApps } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetEmail, sendMail, verificationEmail } from "@/server/mail";
 import { recipientLocale, rememberLocale, statedLanguage } from "@/server/mail/locale";
@@ -149,9 +149,11 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: PASSWORD_RESET_MINUTES * 60,
     revokeSessionsOnPasswordReset: true,
     // A reset through the emailed link proves the address, so it counts as verified, and allowed
-    // email domains apply as after any other verification.
+    // email domains apply as after any other verification. Like every session, the apps the user
+    // connected are cut off: whoever knew the old password could have connected one.
     onPasswordReset: async ({ user }) => {
       await afterPasswordReset(user.id);
+      await revokeAllConnectedApps(user.id);
       await domainPolicies(user.id);
     },
   },

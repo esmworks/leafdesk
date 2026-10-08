@@ -224,6 +224,42 @@ async function makeSocialOnly(userId: string) {
 }
 
 // 1×1 PNG.
+/** Registers an MCP client and stores the user's consent to it, as connecting it does. */
+async function connectApp(userId: string, label: string) {
+  const prm = await (await fetch(`${BASE}/.well-known/oauth-protected-resource/mcp`)).json();
+  const issuer = new URL(prm.authorization_servers[0]);
+  const as = await (await fetch(`${issuer.origin}/.well-known/oauth-authorization-server${issuer.pathname}`)).json();
+  const registered = await fetch(as.registration_endpoint, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      client_name: `Account e2e ${label} ${RUN}`,
+      application_type: "native",
+      redirect_uris: ["http://127.0.0.1:33419/callback"],
+      token_endpoint_auth_method: "none",
+      grant_types: ["authorization_code"],
+      response_types: ["code"],
+      scope: "openid pages:read",
+    }),
+  });
+  const client = (await registered.json()) as { client_id?: string };
+  check(registered.ok && client.client_id, `an MCP client registers (${label})`, client);
+  clientIds.push(client.client_id!);
+  const now = new Date();
+  await db.insert(oauthConsent).values({
+    id: `e2e-${label}-${RUN}`,
+    clientId: client.client_id!,
+    userId,
+    scopes: ["openid", "pages:read"],
+    createdAt: now,
+    updatedAt: now,
+  });
+  return client.client_id!;
+}
+
+const consentsOf = async (userId: string) =>
+  (await db.select({ clientId: oauthConsent.clientId }).from(oauthConsent).where(eq(oauthConsent.userId, userId))).map((c) => c.clientId);
+
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
   "base64",
@@ -426,20 +462,24 @@ async function main() {
   check(!wrongCurrent.ok && wrongCurrent.code === "wrongPassword", "changing the password asks for the current one", wrongCurrent);
   const short = await account_(ada.jar, "changePasswordAction", [{ currentPassword: PASSWORD, newPassword: "short", revokeOthers: false }]);
   check(!short.ok && short.code === "passwordTooShort", "…and a new one of 8 characters or more", short);
+  const appBefore = await connectApp(ada.id, "password");
   const changed = await account_(ada.jar, "changePasswordAction", [
     { currentPassword: PASSWORD, newPassword: NEW_PASSWORD, revokeOthers: true },
   ]);
   check(changed.ok, "the password changes, signing out other devices", changed);
   check((await sessionOf(tablet.jar)) === null, "…the other device is signed out");
+  check(!(await consentsOf(ada.id)).includes(appBefore), "…and the connected app is disconnected", await consentsOf(ada.id));
   const kept = await sessionOf(ada.jar);
   check(kept !== null && kept.session.authMethod === "password", "…this browser stays signed in, with how it signed in", kept);
   check((await signIn(emailOf("ada"), PASSWORD)).status !== 200, "the old password no longer signs in");
   const withNew = await signIn(emailOf("ada"), NEW_PASSWORD);
   check(withNew.status === 200, "…the new one does", withNew.body);
+  const appKept = await connectApp(ada.id, "kept");
   const keepOthers = await account_(ada.jar, "changePasswordAction", [
     { currentPassword: NEW_PASSWORD, newPassword: PASSWORD, revokeOthers: false },
   ]);
   check(keepOthers.ok && (await sessionOf(withNew.jar)) !== null, "without signing out others, other devices stay signed in", keepOthers);
+  check((await consentsOf(ada.id)).includes(appKept), "…and connected apps stay connected", await consentsOf(ada.id));
   const notSocial = await account_(ada.jar, "setPasswordAction", [{ newPassword: NEW_PASSWORD, proof: { password: PASSWORD } }]);
   check(!notSocial.ok && notSocial.code === "passwordAlreadySet", "an account with a password can't 'set' another one", notSocial);
 
@@ -590,34 +630,7 @@ async function main() {
   check(avatar.status === 201 && (await stored(avatarKey)), "…and a picture");
 
   // A connected app.
-  const prm = await (await fetch(`${BASE}/.well-known/oauth-protected-resource/mcp`)).json();
-  const issuer = new URL(prm.authorization_servers[0]);
-  const as = await (await fetch(`${issuer.origin}/.well-known/oauth-authorization-server${issuer.pathname}`)).json();
-  const registered = await fetch(as.registration_endpoint, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      client_name: `Account e2e ${RUN}`,
-      application_type: "native",
-      redirect_uris: ["http://127.0.0.1:33419/callback"],
-      token_endpoint_auth_method: "none",
-      grant_types: ["authorization_code"],
-      response_types: ["code"],
-      scope: "openid pages:read",
-    }),
-  });
-  const client = (await registered.json()) as { client_id?: string };
-  check(registered.ok && client.client_id, "an MCP client registers", client);
-  clientIds.push(client.client_id!);
-  const now = new Date();
-  await db.insert(oauthConsent).values({
-    id: `e2e-${RUN}`,
-    clientId: client.client_id!,
-    userId: ada.id,
-    scopes: ["openid", "pages:read"],
-    createdAt: now,
-    updatedAt: now,
-  });
+  await connectApp(ada.id, "delete");
 
   const accountPage = await openAccount("/account", ada.jar);
   check(accountPage.text.includes(`Shared ${RUN}`), "the delete section names the workspace that blocks it");
