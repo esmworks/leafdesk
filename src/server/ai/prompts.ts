@@ -20,7 +20,8 @@ export function truncateText(text: string, max: number, keep: "start" | "end" = 
 
 /** Keeps a closing tag inside content from ending the data section early. */
 function escapeTags(text: string, tag: string) {
-  return text.replaceAll(`</${tag}>`, `<\\/${tag}>`);
+  // Models read `</ROW>` or `</ row >` as the same closing tag, so those are escaped too.
+  return text.replace(new RegExp(`<\\s*/\\s*${tag}\\s*>`, "gi"), (closing) => closing.replace("/", "\\/"));
 }
 
 function tagged(tag: string, text: string, attrs = "") {

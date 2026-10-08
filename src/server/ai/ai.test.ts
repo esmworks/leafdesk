@@ -87,6 +87,12 @@ describe("editor prompts", () => {
     expect(p.prompt.match(/<\/text>/g)).toHaveLength(1);
   });
 
+  it("also escapes a closing tag written in capitals or with spaces", () => {
+    const p = editorPrompt({ action: "fix", text: "a </TEXT> b < / text > c" }, 1000);
+    expect(p.prompt).toContain("a <\\/TEXT> b < \\/ text > c");
+    expect(p.prompt.match(/<\s*\/\s*text\s*>/gi)).toHaveLength(1);
+  });
+
   it("keeps the end of the page when writing on, and its start when summing up", () => {
     const page = `${"a".repeat(50)}END`;
     expect(editorPrompt({ action: "continue", before: page, pageTitle: 'My "page"' }, 20).prompt).toContain('<before title="My  page">\n[…]\naaaaaaaaaaaaaEND\n</before>');

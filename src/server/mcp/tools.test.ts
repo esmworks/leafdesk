@@ -4,7 +4,7 @@ import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { MAX_MARKDOWN_CHARS } from "./format";
 import type { McpPrincipal } from "./principal";
-import { createMcpServer } from "./tools";
+import { CONTENT_NOTE, createMcpServer } from "./tools";
 
 vi.mock("@/db", () => ({ db: {} }));
 
@@ -303,6 +303,25 @@ describe("content writes", () => {
     expect(r.isError).toBe(true);
     expect(r.text).toMatch(/read-only/);
     expect(pages.createPage).not.toHaveBeenCalled();
+  });
+});
+
+describe("workspace content is data", () => {
+  it("ends a read tool's result with the reminder, after the JSON", async () => {
+    const r = await callTool(reader, "get_page", { page_id: "page-1" });
+    expect(r.isError).toBe(false);
+    expect(r.content.at(-1)).toEqual({ type: "text", text: CONTENT_NOTE });
+    expect(r.content).toHaveLength(2);
+  });
+
+  it("leaves errors and writes without it", async () => {
+    pages.getPage.mockRejectedValueOnce(new AccessError());
+    const failed = await callTool(reader, "get_page", { page_id: "missing" });
+    expect(failed.isError).toBe(true);
+    expect(failed.content.some((c) => c.text === CONTENT_NOTE)).toBe(false);
+    const written = await callTool(writer, "update_page", { page_id: "page-1", markdown: "# New" });
+    expect(written.isError).toBe(false);
+    expect(written.content.some((c) => c.text === CONTENT_NOTE)).toBe(false);
   });
 });
 
