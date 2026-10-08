@@ -9,7 +9,8 @@ import { isBlockedAddress } from "../ssrf";
  * The fetch a connection's MCP client, and its sign-in to the service, go through. A connection's
  * server is reached only over https, on a public address, with the connection pinned to an address
  * checked when it is made (so a host can't answer a check with a public address and the connection
- * with a private one). Redirects are followed by hand, each checked the same way, at most five.
+ * with a private one). Redirects are followed by hand, each checked the same way, at most five; one
+ * to another origin drops the request's credentials (Authorization, Cookie).
  * Hosts in CONNECTOR_ALLOWED_HOSTS (by name, or name and port) skip these checks, http included,
  * for servers on the same machine or network.
  */
@@ -24,6 +25,9 @@ export class ConnectionFetchError extends Error {
 }
 
 const MAX_REDIRECTS = 5;
+
+/** Headers that carry credentials, left out when a redirect leads to another origin. */
+const CREDENTIAL_HEADERS = ["authorization", "cookie", "proxy-authorization"];
 
 /** Whether `url` is on CONNECTOR_ALLOWED_HOSTS (by host name, or host and port). */
 export function allowedConnectorHost(url: URL, allowed = env.connectorAllowedHosts) {
@@ -109,6 +113,9 @@ export async function connectionFetch(input: string | URL | Request, init: Reque
     const next = new URL(location, url);
     const keepBody = response.status === 307 || response.status === 308;
     if (keepBody && request.body) throw new ConnectionFetchError("blocked", "A redirect of a request with a body");
-    request = new Request(next, { method: keepBody ? request.method : "GET", headers: request.headers, signal: request.signal });
+    // A connection's credentials are for its own server: a redirect elsewhere goes without them.
+    const headers = new Headers(request.headers);
+    if (next.origin !== url.origin) for (const name of CREDENTIAL_HEADERS) headers.delete(name);
+    request = new Request(next, { method: keepBody ? request.method : "GET", headers, signal: request.signal });
   }
 }

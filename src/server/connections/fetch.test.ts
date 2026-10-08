@@ -1,6 +1,9 @@
 import type { LookupAddress } from "node:dns";
-import { afterEach, describe, expect, it } from "vitest";
-import { allowedConnectorHost, checkConnectionUrl, ConnectionFetchError, guardedLookup } from "./fetch";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { allowedConnectorHost, checkConnectionUrl, connectionFetch, ConnectionFetchError, guardedLookup } from "./fetch";
+
+const undiciFetch = vi.hoisted(() => vi.fn());
+vi.mock("undici", async (original) => ({ ...(await original<typeof import("undici")>()), fetch: undiciFetch }));
 
 const saved = process.env.CONNECTOR_ALLOWED_HOSTS;
 afterEach(() => {
@@ -97,5 +100,38 @@ describe("guardedLookup", () => {
 
   it("refuses a host without addresses", async () => {
     expect((await lookupWith([])).error?.code).toBe("ENOTFOUND");
+  });
+});
+
+describe("connectionFetch", () => {
+  afterEach(() => undiciFetch.mockReset());
+
+  /** The headers of each request sent, after a redirect from a.lan to `location`. */
+  async function headersAcross(location: string) {
+    process.env.CONNECTOR_ALLOWED_HOSTS = "a.lan, b.lan";
+    undiciFetch
+      .mockResolvedValueOnce(new Response(null, { status: 302, headers: { location } }))
+      .mockResolvedValueOnce(new Response("ok", { status: 200 }));
+    const response = await connectionFetch("http://a.lan/mcp", {
+      headers: { authorization: "Bearer secret", cookie: "sid=1", "proxy-authorization": "Basic x", accept: "application/json" },
+    });
+    expect(await response.text()).toBe("ok");
+    return undiciFetch.mock.calls.map(([, init]) => new Headers((init as { headers: HeadersInit }).headers));
+  }
+
+  it("keeps the credentials on a redirect within the same origin", async () => {
+    const [, second] = await headersAcross("/other");
+    expect(second.get("authorization")).toBe("Bearer secret");
+    expect(second.get("cookie")).toBe("sid=1");
+  });
+
+  it("drops the credentials on a redirect to another origin", async () => {
+    const [first, second] = await headersAcross("http://b.lan/mcp");
+    expect(first.get("authorization")).toBe("Bearer secret");
+    expect(undiciFetch.mock.calls[1][0].toString()).toBe("http://b.lan/mcp");
+    expect(second.get("authorization")).toBeNull();
+    expect(second.get("cookie")).toBeNull();
+    expect(second.get("proxy-authorization")).toBeNull();
+    expect(second.get("accept")).toBe("application/json");
   });
 });
