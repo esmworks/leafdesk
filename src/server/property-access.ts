@@ -10,7 +10,7 @@ import {
   user,
 } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
-import { makeAccess, OPEN_ACCESS, type AccessRow, type PropertyAccess } from "@/lib/property-access-rows";
+import { intersectAccess, makeAccess, OPEN_ACCESS, type AccessRow, type PropertyAccess } from "@/lib/property-access-rows";
 import {
   atLeast,
   canRestrict,
@@ -25,6 +25,7 @@ import {
 import { PropertyValueError } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { accessRank, AccessError, getMembership, levelFromRank, peopleWithFullAccess, requirePageAccess } from "@/server/access";
+import { actingFor } from "@/server/acting-for";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { loadProperties } from "@/server/derived";
@@ -148,7 +149,10 @@ export async function propertyAccessFor(
       : Promise.resolve<PropertyViewer>({ userId: "", groupIds: [], databaseLevel: "view" }),
     loadProperties([databaseId]).then((all) => all.get(databaseId) ?? []),
   ]);
-  return makeAccess(rules, viewer, properties);
+  const access = makeAccess(rules, viewer, properties);
+  // An agent working for a member gets only what that member may as well (acting-for.ts).
+  const forUserId = userId ? actingFor(userId) : null;
+  return forUserId ? intersectAccess(access, await propertyAccessFor(forUserId, databaseId)) : access;
 }
 
 export type PropertyRuleInput = {

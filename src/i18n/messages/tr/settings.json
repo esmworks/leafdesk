@@ -337,7 +337,7 @@
       "archivedNote": "Değiştirmek için ajanı geri getirin."
     },
     "access": {
-      "description": "Ajan yalnızca bu sayfaları ve bunların altındaki sayfa ve satırları açabilir.",
+      "description": "Ajan yalnızca bu sayfaları ve bunların altındaki sayfa ve satırları açabilir. Birinin değişikliğiyle başlayan bir çalışmada yalnızca o kişinin de açabildiklerini açar.",
       "warning": "Bir ajanla paylaştığınız her şey, onun değiştirdiği satırlara ya da yazdığı yorumlara geçebilir; o satırları görebilen herkes de bunları okuyabilir.",
       "list": "Ajanla paylaşılan sayfalar",
       "empty": "Bu ajanla henüz hiçbir şey paylaşılmadı.",
@@ -381,7 +381,7 @@
       "reason": {
         "aiOff": "Bu çalışma alanında yapay zekâ kapalı.",
         "agentDisabled": "Ajan duraklatılmış ya da arşivlenmişti.",
-        "noAccess": "Ajan satırı ya da veritabanını açamıyor.",
+        "noAccess": "Ajan ya da çalışmayı değişikliğiyle başlatan kişi satırı veya veritabanını açamıyor.",
         "rowGone": "Satır silinmiş.",
         "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
         "timeout": "Çalışma çok uzun sürdü.",
@@ -473,7 +473,7 @@
       }
     },
     "connections": {
-      "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır; diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
+      "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
       "empty": "Henüz bağlantı yok. Sahipler bunları <link>Ayarlar › Bağlantılar</link> bölümünden ekler.",
       "allowedCount": "{total} araçtan {n} izinli",
       "notReady": "Bu bağlantı hazır değil (giriş gerekiyor ya da hata veriyor); ajan şimdilik araçlarını kullanamaz.",
@@ -1118,7 +1118,7 @@
   "connections": {
     "heading": "Bağlantılar",
     "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. (Leafdesk’i kullanan programlar Güvenlik › Bağlı uygulamalar altındadır.)",
-    "approvalNote": "Ajanlar yalnızca okuyan araçları hemen çalıştırır. Diğer her çağrı gelen kutusunda bir sahibin onayını bekler; bir gün yanıtsız kalırsa hiçbir şey gönderilmez.",
+    "approvalNote": "Ajanlar yalnızca okuyan araçları hemen çalıştırır (anonim bir form yanıtından gelen satırda hariç). Diğer her çağrı gelen kutusunda bir sahibin onayını bekler; bir gün yanıtsız kalırsa hiçbir şey gönderilmez.",
     "add": "Bağlantı ekle",
     "empty": "Henüz bağlantı yok.",
     "dismiss": "Kapat",

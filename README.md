@@ -1125,7 +1125,10 @@ taken back once no automation of the database runs the agent (a share you set yo
 agent's settings stays).
 
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
-change or comment on the row that started the run, nothing else. A run takes at most 8 model turns,
+change or comment on the row that started the run, nothing else. When a member's change started
+the run, the agent is also held to what that member may: it opens, reads and changes only the pages
+and property values both of them can, so a run never hands someone what they couldn't open
+themselves. A run takes at most 8 model turns,
 makes at most 5 changes and comments, and lasts at most 2 minutes. Runs are queued and done a few at
 a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
@@ -1211,7 +1214,9 @@ each as *read* or *write*: a tool the server marks read-only (`readOnlyHint`) is
 other one *write*. An owner can change the class of any tool. Then, on an agent's *Connections*
 tab, an owner ticks the tools that agent may use; an agent has no tool of a connection until then.
 
-- A *read* tool runs at once when the agent calls it.
+- A *read* tool runs at once when the agent calls it, except on a row an anonymous form answer
+  added (or a visitor outside the workspace): no member stands behind what that row says, so there
+  every tool waits as a *write* tool does.
 - A *write* tool doesn't: the run waits, and every owner of the workspace gets an item in their
   inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
   exact input. An owner **approves** (the call is sent as is), **declines** (the agent hears no and

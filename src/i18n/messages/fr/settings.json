@@ -337,7 +337,7 @@
       "archivedNote": "Restaurez l’agent pour le modifier."
     },
     "access": {
-      "description": "L’agent n’ouvre que ces pages, et les pages et lignes qu’elles contiennent.",
+      "description": "L’agent n’ouvre que ces pages, et les pages et lignes qu’elles contiennent. Lors d’une exécution lancée par la modification d’une personne, il n’ouvre que ce que cette personne peut aussi ouvrir.",
       "warning": "Tout ce que vous partagez avec un agent peut se retrouver dans les lignes qu’il modifie ou les commentaires qu’il écrit, où toute personne qui voit ces lignes peut le lire.",
       "list": "Pages partagées avec l’agent",
       "empty": "Rien n’est encore partagé avec cet agent.",
@@ -381,7 +381,7 @@
       "reason": {
         "aiOff": "L’IA est désactivée dans cet espace de travail.",
         "agentDisabled": "L’agent était en pause ou archivé.",
-        "noAccess": "L’agent ne peut pas ouvrir la ligne ou sa base de données.",
+        "noAccess": "L’agent, ou la personne dont la modification a lancé l’exécution, ne peut pas ouvrir la ligne ou sa base de données.",
         "rowGone": "La ligne a été supprimée.",
         "provider": "Le fournisseur d’IA n’a pas répondu.",
         "timeout": "L’exécution a pris trop de temps.",
@@ -473,7 +473,7 @@
       }
     },
     "connections": {
-      "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
+      "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
       "empty": "Aucune connexion pour l’instant. Les propriétaires les ajoutent dans <link>Paramètres › Connexions</link>.",
       "allowedCount": "{n} sur {total} autorisés",
       "notReady": "Cette connexion n’est pas prête (elle demande une connexion ou échoue) : l’agent ne peut pas utiliser ses outils pour l’instant.",
@@ -1118,7 +1118,7 @@
   "connections": {
     "heading": "Connexions",
     "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Les programmes qui utilisent Leafdesk sont dans Sécurité › Applications connectées.)",
-    "approvalNote": "Les agents exécutent aussitôt les outils qui ne font que lire. Tout autre appel attend l’approbation d’un propriétaire dans la boîte de réception ; sans réponse sous un jour, rien n’est envoyé.",
+    "approvalNote": "Les agents exécutent aussitôt les outils qui ne font que lire, sauf sur une ligne issue d’une réponse anonyme à un formulaire. Tout autre appel attend l’approbation d’un propriétaire dans la boîte de réception ; sans réponse sous un jour, rien n’est envoyé.",
     "add": "Ajouter une connexion",
     "empty": "Aucune connexion pour l’instant.",
     "dismiss": "Fermer",

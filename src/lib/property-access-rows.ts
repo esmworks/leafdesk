@@ -175,6 +175,68 @@ export function makeAccess(rules: Map<string, PropertyRule[]>, viewer: PropertyV
   };
 }
 
+/**
+ * What two viewers may both do: someone acting for another person (an agent run started by a
+ * member) sees and changes only what both of them may. Each side redacts the rows on its own, so a
+ * value one side hides never changes how the other side's per-row rules read the row.
+ */
+export function intersectAccess(a: PropertyAccess, b: PropertyAccess): PropertyAccess {
+  if (a.open) return b;
+  if (b.open) return a;
+  const knows = (access: PropertyAccess, id: string) => access.visible([{ id }]).length > 0;
+  const knownToBoth = (id: string) => knows(a, id) && knows(b, id);
+  const merge = (...lists: (string[] | undefined)[]) => [...new Set(lists.flatMap((list) => list ?? []))];
+  const minLevel = (x: PropertyLevel, y: PropertyLevel) => (atLeast(x, y) ? y : x);
+
+  return {
+    open: false,
+    viewer: a.viewer,
+    levelOf: (id, row) => minLevel(a.levelOf(id, row), b.levelOf(id, row)),
+    info: () => {
+      const infoA = a.info() ?? {};
+      const infoB = b.info() ?? {};
+      const ids = [...new Set([...Object.keys(infoA), ...Object.keys(infoB)])].filter(knownToBoth);
+      if (!ids.length) return undefined;
+      return Object.fromEntries(
+        ids.map((id) => {
+          const level = minLevel(infoA[id]?.level ?? a.levelOf(id), infoB[id]?.level ?? b.levelOf(id));
+          return [id, { level, perRow: Boolean(infoA[id]?.perRow || infoB[id]?.perRow) }];
+        }),
+      );
+    },
+    visible: (list) => b.visible(a.visible(list)),
+    strip: (rows) => {
+      const byA = a.strip(rows);
+      const byB = b.strip(rows);
+      return byA.map((row, i) => {
+        const other = byB[i];
+        const properties = Object.fromEntries(Object.entries(row.properties).filter(([id]) => id in other.properties));
+        const hidden = merge(row.hidden, other.hidden);
+        const readOnly = merge(row.readOnly, other.readOnly).filter((id) => !hidden.includes(id));
+        const { hidden: _h, readOnly: _r, ...rest } = row;
+        return { ...rest, properties, ...(hidden.length ? { hidden } : {}), ...(readOnly.length ? { readOnly } : {}) } as (typeof byA)[number];
+      });
+    },
+    finish: (rows) => a.finish(b.finish(rows)),
+    requireValues: (row, ids) => {
+      const list = [...ids];
+      // A property one side can't know of is refused as unknown, whatever the other side may do.
+      for (const id of list) if (!knownToBoth(id)) throw unknownProperty(id);
+      a.requireValues(row, list);
+      b.requireValues(row, list);
+    },
+    requireSchema: (id) => {
+      if (!knownToBoth(id)) throw unknownProperty(id);
+      a.requireSchema(id);
+      b.requireSchema(id);
+    },
+    viewConfig: (config) => b.viewConfig(a.viewConfig(config)),
+    valuesHidden: () => new Set([...a.valuesHidden(), ...b.valuesHidden()].filter(knownToBoth)),
+  };
+}
+
+const unknownProperty = (id: string) => new PropertyValueError(`Unknown property "${id}"`, "unknownProperty", { property: id });
+
 /** A form's default values without those of properties whose values the viewer can't see. */
 function withoutDefaults(config: ViewConfig, hidden: ReadonlySet<string>): ViewConfig {
   const defaults = config.form?.defaults;

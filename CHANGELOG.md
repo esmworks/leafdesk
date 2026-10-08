@@ -213,6 +213,12 @@
     signing up with the invited address unverified; only a verified address does now, and the
     invitation stays for its owner otherwise.
   - *Import:* a ZIP of stored entries sharing their bytes could unpack far past the size limit.
+  - *Agents:* an automation's agent read with everything shared with it, whoever's change started
+    the run, so a member could have it copy a page or a property value they can't open into the
+    row or a comment. A run a member (or guest) started now opens, reads and changes only the pages
+    and property values both the agent and that person can. On a row no member wrote (an anonymous
+    form answer, a visitor outside the workspace) every connection tool waits for an owner's
+    approval, not only the ones that write. Runs started by a connection's events are unchanged.
   - Smaller: sign-in rate limits count by the address the server works out instead of
     `X-Forwarded-For`; `/sign-in?next=/\host` no longer leaves the site; a connection's
     credentials aren't sent along a redirect to another origin; sealed secrets need their full

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ViewConfig } from "@/db/schema";
 import { canRestrict, databaseCap, dependsOnRow, resolvePropertyLevel, type PropertyRule, type PropertyViewer } from "./property-access";
-import { hideReferences, makeAccess, restoreReferences } from "./property-access-rows";
+import { hideReferences, intersectAccess, makeAccess, OPEN_ACCESS, restoreReferences } from "./property-access-rows";
 import { PropertyValueError } from "./properties";
 
 const rule = (level: PropertyRule["level"], who: Partial<Pick<PropertyRule, "userId" | "groupId" | "personPropertyId">> = {}): PropertyRule => ({
@@ -119,6 +119,54 @@ describe("makeAccess", () => {
     const full = makeAccess(rules, viewer({ databaseLevel: "full" }), props);
     expect(full.open).toBe(true);
     expect(full.visible(props)).toHaveLength(props.length);
+  });
+});
+
+describe("intersectAccess", () => {
+  // The agent sees the secret and only reads notes; the person it acts for edits notes, can't know
+  // of the secret, and sees every salary.
+  const shared = new Map<string, PropertyRule[]>([
+    ["salary", [rule("view_property"), rule("edit_values", { personPropertyId: "owner" }), rule("view", { userId: "actor" })]],
+    ["secret", [{ ...rule("none"), propertyId: "secret" }, { ...rule("view", { userId: "agent" }), propertyId: "secret" }]],
+    ["notes", [{ ...rule("view"), propertyId: "notes" }, { ...rule("edit_values", { userId: "actor" }), propertyId: "notes" }]],
+  ]);
+  const agent = makeAccess(shared, viewer({ userId: "agent" }), props);
+  const actor = makeAccess(shared, viewer({ userId: "actor" }), props);
+  const both = intersectAccess(agent, actor);
+  const agentsRow = { properties: { salary: 100, notes: "a", secret: "s", owner: ["agent"], yearly: 1200, double: 2400 } };
+  const othersRow = { properties: { salary: 200, notes: "b", secret: "t", owner: ["u9"], yearly: 2400, double: 4800 } };
+
+  it("shows only what both may know of, at the lower level", () => {
+    expect(both.visible(props).map((p) => p.id)).toEqual(["salary", "notes", "owner", "yearly", "double"]);
+    expect(both.info()).toEqual({ salary: { level: "edit_values", perRow: true }, notes: { level: "view", perRow: false } });
+    expect(both.levelOf("salary", agentsRow)).toBe("view");
+    expect(both.levelOf("salary", othersRow)).toBe("view_property");
+    expect(both.valuesHidden()).toEqual(new Set());
+  });
+
+  it("leaves out the values either side may not see, and keeps both sides' lists", () => {
+    const [own, other] = both.finish(both.strip([agentsRow, othersRow]));
+    expect(own.properties).toEqual({ salary: 100, notes: "a", owner: ["agent"], yearly: 1200, double: 2400 });
+    expect(own.hidden).toBeUndefined();
+    expect(new Set(own.readOnly)).toEqual(new Set(["salary", "notes"]));
+    expect(other.properties).toEqual({ notes: "b", owner: ["u9"] });
+    expect(new Set(other.hidden)).toEqual(new Set(["salary", "yearly", "double"]));
+    expect(other.readOnly).toEqual(["notes"]);
+  });
+
+  it("refuses a write either side may not make", () => {
+    expect(() => agent.requireValues(agentsRow, ["salary"])).not.toThrow();
+    expect(() => both.requireValues(agentsRow, ["salary"])).toThrow(PropertyValueError);
+    expect(() => actor.requireValues(agentsRow, ["notes"])).not.toThrow();
+    expect(() => both.requireValues(agentsRow, ["notes"])).toThrow(PropertyValueError);
+    expect(() => both.requireValues(null, ["secret"])).toThrow(/Unknown property/);
+    expect(() => both.requireValues(agentsRow, ["owner"])).not.toThrow();
+  });
+
+  it("is the other side when one side is open", () => {
+    expect(intersectAccess(OPEN_ACCESS, actor)).toBe(actor);
+    expect(intersectAccess(agent, OPEN_ACCESS)).toBe(agent);
+    expect(intersectAccess(OPEN_ACCESS, OPEN_ACCESS).open).toBe(true);
   });
 });
 
