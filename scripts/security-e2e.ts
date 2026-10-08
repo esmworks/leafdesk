@@ -10,6 +10,8 @@
  * - the reset link emailed to an address takes over an account someone else had signed up for
  *   with it, unproven, without what they set up: passkeys, two-step verification, API tokens,
  *   connected apps, sessions (an account with a verified address keeps its own);
+ * - pointing a workspace's SSO connection at another identity provider, or removing it, forgets
+ *   who was linked through it and signs them out, so the new provider can't sign in as them.
  *
  * Creates its own @example.test users and workspaces and deletes them afterwards.
  *
@@ -36,7 +38,7 @@ const { Readable } = await import("node:stream");
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { apiToken, file, oauthClient, oauthConsent, passkey, session, twoFactor, user, verification, workspace, workspaceMember } = await import("@/db/schema");
+const { account, apiToken, file, oauthClient, oauthConsent, passkey, session, twoFactor, user, verification, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -45,6 +47,8 @@ const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const files = await import("@/server/files");
 const { createApiToken } = await import("@/server/api/tokens");
+const { removeSsoConnection, saveSsoConnection } = await import("@/server/sso");
+const { workspaceProviderId } = await import("@/lib/sso-config");
 
 const BASE = (appUrl ?? "http://localhost:3000").replace(/\/$/, "");
 const RUN = `sec-${Date.now().toString(36)}`;
@@ -271,9 +275,9 @@ try {
   const TOKENS = "src/app/actions/api-tokens.ts";
   const free = await signedIn(ids.free);
   // Their account settings open under the workspace that doesn't hold them back.
-  const account = await get("/account?tab=apps", member);
-  const settings = account.headers.get("location") ?? "";
-  check(account.status === 307 && settings.startsWith(`/w/${open}/settings`), "the held-back member opens their account settings in the other workspace", { status: account.status, settings });
+  const accountPage = await get("/account?tab=apps", member);
+  const settings = accountPage.headers.get("location") ?? "";
+  check(accountPage.status === 307 && settings.startsWith(`/w/${open}/settings`), "the held-back member opens their account settings in the other workspace", { status: accountPage.status, settings });
   check((await get(settings, member)).status === 200, "…where API tokens are made");
   const newToken = (jar: Jar, workspaceId: string | null) =>
     callAction(jar, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, write: true, workspaceId, expiresInDays: 30 }]);
@@ -355,6 +359,42 @@ try {
   check((await resetPassword(ids.keeper)).ok, "the owner of a verified address resets their password");
   const kept = await leftOf(ids.keeper);
   check(kept.passkeys && kept.twoFactor && kept.twoFactorEnabled && kept.apiTokens && kept.apps && !kept.sessions, "…keeping their passkeys, two-step verification, tokens and apps (signed out everywhere)", kept);
+
+  // ---------------------------------------------------------------- another identity provider behind an SSO connection
+  // Saved the way the settings save it, with discovery answered here (no identity provider runs).
+  const discover = async (issuer: string) => ({
+    issuer,
+    authorizationEndpoint: `${issuer}/auth`,
+    tokenEndpoint: `${issuer}/token`,
+    jwksEndpoint: `${issuer}/certs`,
+    tokenEndpointAuthentication: "client_secret_basic" as const,
+  });
+  const connect = (issuer: string, domains = `acme-${RUN}.test`) =>
+    saveSsoConnection(ids.member, open, { protocol: "oidc", issuer, clientId: "leafdesk", clientSecret: "secret", domains }, { discover });
+  const providerId = workspaceProviderId(open);
+  /** Someone who signed in through the connection: the account linking them, and their session. */
+  const signInThrough = async (userId: string) => {
+    await db.insert(account).values({ id: `${RUN}-sso-${userId}-${randomBytes(3).toString("hex")}`, accountId: `sub-${userId}`, providerId, userId, updatedAt: new Date() });
+    // Only this session: their earlier ones came another way.
+    await db.delete(session).where(eq(session.userId, userId));
+    const jar = await signedIn(userId);
+    await db.update(session).set({ ssoProviderId: providerId }).where(eq(session.userId, userId));
+    return jar;
+  };
+  const throughConnection = async () => ({
+    accounts: (await db.select({ id: account.id }).from(account).where(eq(account.providerId, providerId))).length,
+    sessions: (await db.select({ id: session.id }).from(session).where(eq(session.ssoProviderId, providerId))).length,
+  });
+  await connect("https://idp-a.example.test/realm");
+  await signInThrough(ids.free);
+  check((await throughConnection()).accounts === 1 && (await throughConnection()).sessions === 1, "someone signed in through the workspace's connection", await throughConnection());
+  await connect("https://idp-a.example.test/realm", `acme-${RUN}.test, beta-${RUN}.test`);
+  check((await throughConnection()).accounts === 1 && (await throughConnection()).sessions === 1, "changing only the domains keeps them linked and signed in", await throughConnection());
+  await connect("https://idp-b.example.test/realm");
+  check(JSON.stringify(await throughConnection()) === JSON.stringify({ accounts: 0, sessions: 0 }), "another identity provider forgets them and signs them out", await throughConnection());
+  await signInThrough(ids.free);
+  await removeSsoConnection(ids.member, open);
+  check(JSON.stringify(await throughConnection()) === JSON.stringify({ accounts: 0, sessions: 0 }), "removing the connection does too", await throughConnection());
 
   console.log(`\n${passed} checks passed`);
 } catch (error) {
