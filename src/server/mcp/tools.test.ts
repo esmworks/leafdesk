@@ -138,6 +138,14 @@ vi.mock("@/server/files", () => files);
 const duplicate = vi.hoisted(() => ({ duplicatePage: vi.fn(), MAX_DUPLICATE_PAGES: 2000 }));
 vi.mock("@/server/duplicate", () => duplicate);
 
+const templates = vi.hoisted(() => ({
+  listTemplates: vi.fn(),
+  listRowTemplates: vi.fn(),
+  createFromTemplate: vi.fn(),
+  createFromBuiltin: vi.fn(),
+  createRow: vi.fn(),
+}));
+vi.mock("@/server/templates", () => templates);
 const pageMeta = vi.hoisted(() => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn() }));
 vi.mock("@/server/page-meta", () => pageMeta);
 const mentions = vi.hoisted(() => ({
@@ -434,6 +442,23 @@ describe("teamspaces", () => {
     teamspaces.getTeamspace.mockResolvedValue({ id: "ts-1", workspaceId: "ws-1" });
     await callTool(writer, "create_page", { teamspace_id: "ts-1", title: "Team page" });
     expect(pages.createPage.mock.calls[1][1]).toMatchObject({ workspaceId: "ws-1", parentId: null, teamspaceId: "ts-1" });
+  });
+
+  it("copies a template only into its own workspace", async () => {
+    const template = { ...page, id: "tpl-1", workspaceId: "ws-2", isTemplate: true };
+    const parent = { ...page, id: "parent-1", workspaceId: "ws-1" };
+    pages.getPage.mockImplementation(async (_userId: string, id: string) => (id === "tpl-1" ? template : parent));
+    templates.createFromTemplate.mockResolvedValue({ id: "tpl-1", workspaceId: "ws-2", parentId: null });
+    const topLevel = await callTool(writer, "create_page", { workspace_id: "ws-1", template_id: "tpl-1" });
+    expect(topLevel.isError).toBe(true);
+    expect(topLevel.text).toMatch(/template of another workspace/);
+    const nested = await callTool(writer, "create_page", { parent_id: "parent-1", template_id: "tpl-1" });
+    expect(nested.isError).toBe(true);
+    expect(templates.createFromTemplate).not.toHaveBeenCalled();
+
+    const own = await callTool(writer, "create_page", { workspace_id: "ws-2", template_id: "tpl-1" });
+    expect(own.isError).toBe(false);
+    expect(templates.createFromTemplate).toHaveBeenCalledWith(expect.anything(), "tpl-1", { parentId: null, teamspaceId: null });
   });
 
   it("refuses a teamspace the user can't see without telling it apart from a missing one", async () => {
