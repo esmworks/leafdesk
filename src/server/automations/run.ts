@@ -16,6 +16,7 @@ import { pageLabel } from "@/lib/labels";
 import { resolvePageAccess } from "@/server/access";
 import { getProperties, requireDatabase, updateRowProperties } from "@/server/databases";
 import { signalInbox } from "@/server/notifications";
+import { pushNotifications } from "@/server/push";
 import { rowFields } from "@/server/operations";
 import { propertyAccessFor } from "@/server/property-access";
 import { queueAgentRun } from "@/server/agents/run";
@@ -230,18 +231,22 @@ async function notify(automation: Automation, run: Run, row: Row, action: Extrac
   const recipients = levels.filter((r) => r.level !== "none").map((r) => r.userId);
   if (!recipients.length) return 0;
   const emailDueAt = new Date(Date.now() + EMAIL_DELAY_MS);
-  await db.insert(notification).values(
-    recipients.map((userId) => ({
-      userId,
-      workspaceId: row.workspaceId,
-      kind: "automation" as const,
-      actorId: run.actorId,
-      pageId: row.id,
-      automationId: automation.id,
-      emailDueAt,
-    })),
-  );
+  const inserted = await db
+    .insert(notification)
+    .values(
+      recipients.map((userId) => ({
+        userId,
+        workspaceId: row.workspaceId,
+        kind: "automation" as const,
+        actorId: run.actorId,
+        pageId: row.id,
+        automationId: automation.id,
+        emailDueAt,
+      })),
+    )
+    .returning({ id: notification.id });
   signalInbox(row.workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
   return recipients.length;
 }
 

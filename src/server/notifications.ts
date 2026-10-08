@@ -33,6 +33,7 @@ import { getCollab } from "@/server/collab/bridge";
 import { mailStatus } from "@/server/mail";
 import { requestLocale } from "@/server/mail/locale";
 import { inboxKinds } from "@/server/notification-preferences";
+import { pushNotifications } from "@/server/push";
 import { canInviteGuests } from "@/server/workspaces";
 
 /**
@@ -87,19 +88,23 @@ export async function recordAssignments(actorId: string | null, workspaceId: str
     await db
       .delete(notification)
       .where(and(eq(notification.kind, "assignment"), isNull(notification.readAt), or(...unread)));
-    if (added.length) {
-      await db.insert(notification).values(
-        added.map((a) => ({
-          userId: a.userId,
-          workspaceId,
-          kind: "assignment" as const,
-          actorId,
-          pageId: a.pageId,
-          propertyId: a.propertyId,
-        })),
-      );
-    }
+    const inserted = added.length
+      ? await db
+          .insert(notification)
+          .values(
+            added.map((a) => ({
+              userId: a.userId,
+              workspaceId,
+              kind: "assignment" as const,
+              actorId,
+              pageId: a.pageId,
+              propertyId: a.propertyId,
+            })),
+          )
+          .returning({ id: notification.id })
+      : [];
     signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
     console.error("could not record assignment notifications", error);
   }
@@ -115,13 +120,15 @@ export async function recordShare(actorId: string, workspaceId: string, userId: 
     if (await isAgentUser(userId)) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + SHARE_EMAIL_DELAY_MS);
     const emailLocale = await requestLocale();
-    await db.transaction(async (tx) => {
+    const inserted = await db.transaction(async (tx) => {
       await tx.delete(notification).where(unreadShare(userId, pageId));
-      await tx
+      return tx
         .insert(notification)
-        .values({ userId, workspaceId, kind: "page_shared", actorId, pageId, emailDueAt, emailLocale });
+        .values({ userId, workspaceId, kind: "page_shared", actorId, pageId, emailDueAt, emailLocale })
+        .returning({ id: notification.id });
     });
     signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
     console.error("could not record share notification", error);
   }
@@ -157,7 +164,7 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
     if (!visible.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + COMMENT_EMAIL_DELAY_MS);
     const emailLocale = await requestLocale();
-    await db.transaction(async (tx) => {
+    const inserted = await db.transaction(async (tx) => {
       await tx.delete(notification).where(
         and(
           eq(notification.kind, "comment"),
@@ -168,11 +175,13 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
           isNull(notification.readAt),
         ),
       );
-      await tx.insert(notification).values(
-        visible.map((v) => ({ userId: v.id, workspaceId, kind: "comment" as const, actorId, pageId, threadId, emailDueAt, emailLocale })),
-      );
+      return tx
+        .insert(notification)
+        .values(visible.map((v) => ({ userId: v.id, workspaceId, kind: "comment" as const, actorId, pageId, threadId, emailDueAt, emailLocale })))
+        .returning({ id: notification.id });
     });
     signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
     console.error("could not record comment notifications", error);
   }
@@ -225,7 +234,7 @@ export async function recordMentions(
       .where(and(inArray(user.id, [...first.keys()]), notAgentUser(user.id), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
     if (!visible.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + MENTION_EMAIL_DELAY_MS);
-    await db.transaction(async (tx) => {
+    const inserted = await db.transaction(async (tx) => {
       await tx.delete(notification).where(
         and(
           eq(notification.kind, "mention"),
@@ -234,20 +243,24 @@ export async function recordMentions(
           isNull(notification.readAt),
         ),
       );
-      await tx.insert(notification).values(
-        visible.map((v) => ({
-          userId: v.id,
-          workspaceId,
-          kind: "mention" as const,
-          actorId,
-          pageId,
-          mentionId: first.get(v.id)!,
-          emailDueAt,
-          emailLocale: locale,
-        })),
-      );
+      return tx
+        .insert(notification)
+        .values(
+          visible.map((v) => ({
+            userId: v.id,
+            workspaceId,
+            kind: "mention" as const,
+            actorId,
+            pageId,
+            mentionId: first.get(v.id)!,
+            emailDueAt,
+            emailLocale: locale,
+          })),
+        )
+        .returning({ id: notification.id });
     });
     signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
     console.error("could not record mention notifications", error);
   }
@@ -290,16 +303,20 @@ export async function recordReminder(userId: string, pageId: string, mentionId: 
     .where(and(eq(page.id, pageId), isNull(page.archivedAt), sql`page_access_level(${userId}, ${page.id}) > 0`))
     .limit(1);
   if (!target) return;
-  await db.insert(notification).values({
-    userId,
-    workspaceId: target.workspaceId,
-    kind: "reminder",
-    actorId: null,
-    pageId,
-    mentionId,
-    emailDueAt: mailStatus() === "disabled" ? null : new Date(),
-  });
+  const inserted = await db
+    .insert(notification)
+    .values({
+      userId,
+      workspaceId: target.workspaceId,
+      kind: "reminder",
+      actorId: null,
+      pageId,
+      mentionId,
+      emailDueAt: mailStatus() === "disabled" ? null : new Date(),
+    })
+    .returning({ id: notification.id });
   signal(target.workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
 }
 
 /**
@@ -317,19 +334,23 @@ export async function recordAccessRequest(
   const approvers = await peopleWithFullAccess(workspaceId, pageId, requesterId);
   if (!approvers.length) return [];
   const emailDueAt = mailStatus() === "disabled" ? null : new Date();
-  await db.insert(notification).values(
-    approvers.map((id) => ({
-      userId: id,
-      workspaceId,
-      kind: "access_request" as const,
-      actorId: requesterId,
-      pageId,
-      accessRequestId: requestId,
-      emailDueAt,
-      emailLocale: locale,
-    })),
-  );
+  const inserted = await db
+    .insert(notification)
+    .values(
+      approvers.map((id) => ({
+        userId: id,
+        workspaceId,
+        kind: "access_request" as const,
+        actorId: requesterId,
+        pageId,
+        accessRequestId: requestId,
+        emailDueAt,
+        emailLocale: locale,
+      })),
+    )
+    .returning({ id: notification.id });
   signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
   return approvers;
 }
 
@@ -354,18 +375,22 @@ export async function recordJoinRequest(workspaceId: string, joinRequestId: stri
     const recipients = (await workspaceOwnerIds(workspaceId)).filter((id) => id !== actorId);
     if (!recipients.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date();
-    await db.insert(notification).values(
-      recipients.map((userId) => ({
-        userId,
-        workspaceId,
-        kind: "join_request" as const,
-        actorId,
-        joinRequestId,
-        emailDueAt,
-        emailLocale: locale,
-      })),
-    );
+    const inserted = await db
+      .insert(notification)
+      .values(
+        recipients.map((userId) => ({
+          userId,
+          workspaceId,
+          kind: "join_request" as const,
+          actorId,
+          joinRequestId,
+          emailDueAt,
+          emailLocale: locale,
+        })),
+      )
+      .returning({ id: notification.id });
     signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
     console.error("could not record join request notifications", error);
   }
@@ -479,14 +504,24 @@ async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | 
 
 /**
  * The user's notifications, newest first: in one workspace, or in all of them (MCP). Visibility
- * follows the page, so a workspace the user left shows nothing.
+ * follows the page, so a workspace the user left shows nothing. With `ids`, only those, as the
+ * inbox would show them (push notifications, see server/push.ts).
  */
 export async function listNotifications(
   userId: string,
-  { workspaceId, unreadOnly = false, limit = INBOX_LIMIT }: { workspaceId?: string; unreadOnly?: boolean; limit?: number } = {},
+  {
+    workspaceId,
+    unreadOnly = false,
+    limit = INBOX_LIMIT,
+    ids: only,
+  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[] } = {},
 ): Promise<InboxItem[]> {
+  if (only && !only.length) return [];
   if (workspaceId) await requireMembership(userId, workspaceId);
-  const [filter, hidden] = await Promise.all([inboxFilter(userId, workspaceId), workspaceId ? new Set<string>() : workspacesHiddenFromApp(userId)]);
+  const [filter, hidden] = await Promise.all([
+    inboxFilter(userId, workspaceId),
+    workspaceId || only ? new Set<string>() : workspacesHiddenFromApp(userId),
+  ]);
   if (!filter) return [];
   const rows = await db
     .select({
@@ -528,6 +563,7 @@ export async function listNotifications(
     .where(
       and(
         filter,
+        only ? inArray(notification.id, only) : undefined,
         unreadOnly ? isNull(notification.readAt) : undefined,
         // All workspaces (MCP): not those whose owners hid them from connected apps.
         hidden.size ? notInArray(notification.workspaceId, [...hidden]) : undefined,

@@ -22,6 +22,7 @@ import { getAccountOverview, deletionPlanFor, emailChangeEnabled } from "@/serve
 import { getAccountSecurity } from "@/server/account-security";
 import { mailStatus } from "@/server/mail";
 import { getNotificationPreferences } from "@/server/notification-preferences";
+import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import type { requireSession } from "@/server/session";
 
 /**
@@ -122,9 +123,11 @@ async function SecurityTab({ session }: { session: Session }) {
 }
 
 async function PreferencesTab({ userId }: { userId: string }) {
-  const [cookieStore, notificationPreferences, t, ts] = await Promise.all([
+  const publicKey = vapidPublicKey();
+  const [cookieStore, notificationPreferences, endpoints, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
+    publicKey ? pushEndpoints(userId) : [],
     getTranslations("account"),
     getTranslations("settings"),
   ]);
@@ -145,11 +148,12 @@ async function PreferencesTab({ userId }: { userId: string }) {
           description={
             <>
               {ts("notifications.description")}
+              {publicKey && <> {ts("notifications.pushDescription")}</>}
               {mailStatus() === "disabled" && <> {ts("notifications.mailOff")}</>}
             </>
           }
         >
-          <NotificationSettings preferences={notificationPreferences} />
+          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} />
         </SettingsGroup>
       </div>
     </>

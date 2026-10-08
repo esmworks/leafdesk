@@ -169,5 +169,21 @@
     "body": "Hola, {name}: un administrador de este servidor de Leafdesk te pidió que elijas una contraseña nueva. Tu contraseña anterior ya no sirve para iniciar sesión.",
     "expires": "El enlace funciona durante {minutes} minutos y una sola vez. Si vuelves a iniciar sesión con tu contraseña anterior, recibirás uno nuevo.",
     "action": "Elegir una contraseña nueva"
+  },
+  "push": {
+    "assignment": "{actor} te asignó a “{property}”",
+    "pageShared": "{actor} compartió esta página contigo",
+    "comment": "{actor} comentó en un hilo en el que participas",
+    "mention": "{actor} te mencionó",
+    "reminder": "Recordatorio: {date}",
+    "accessRequest": "{actor} pidió acceso a esta página",
+    "automation": "Automatización “{name}”: {actor} añadió o cambió esta fila",
+    "someone": "Alguien",
+    "joinRequestTitle": "Solicitud de acceso",
+    "joinRequest": "{actor} pidió unirse",
+    "inviteRequest": "{actor} pidió invitar a {email}",
+    "approvalTitle": "{agent} pide permiso para seguir",
+    "approval": "Quiere llamar a «{tool}» en {connection}",
+    "untitled": "Sin título"
   }
 }

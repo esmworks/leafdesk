@@ -1,8 +1,8 @@
 import { sql } from "drizzle-orm";
-import { boolean, check, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { agentRun } from "./agents";
 import { databaseProperty, page, workspace, workspaceJoinRequest } from "./app";
-import { user } from "./auth";
+import { session, user } from "./auth";
 import { databaseAutomation } from "./automations";
 import { accessRequest } from "./permissions";
 
@@ -49,6 +49,19 @@ export const userPreference = pgTable("user_preference", {
   automationEmails: boolean("automation_emails").notNull().default(true),
   /** Show what database automations tell me in my inbox. */
   automationInbox: boolean("automation_inbox").notNull().default(true),
+  /**
+   * Push notifications per kind, to the devices that turned them on (see push_subscription). They
+   * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
+   * default push is on exactly for what shows in the inbox, and each kind can be silenced on its own.
+   */
+  assignmentPush: boolean("assignment_push").notNull().default(true),
+  sharePush: boolean("share_push").notNull().default(true),
+  commentPush: boolean("comment_push").notNull().default(true),
+  mentionPush: boolean("mention_push").notNull().default(true),
+  reminderPush: boolean("reminder_push").notNull().default(true),
+  accessRequestPush: boolean("access_request_push").notNull().default(true),
+  joinRequestPush: boolean("join_request_push").notNull().default(true),
+  automationPush: boolean("automation_push").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -152,4 +165,37 @@ export const notification = pgTable(
     // Only join requests and agents' approvals are about no page (access requests are about the page asked for).
     check("notification_subject_check", sql`${t.kind} in ('join_request', 'agent_approval') or ${t.pageId} is not null`),
   ],
+);
+
+/**
+ * A browser that receives the user's notifications as push messages (see server/push.ts). The
+ * endpoint is the push service's address for that browser, given by the browser itself; p256dh and
+ * auth are its keys, which encrypt each message so only that browser can read it. A subscription
+ * belongs to the sign-in it was made in: signing out (or the session being revoked) deletes it, so
+ * a shared browser stops getting the previous user's notifications.
+ */
+export const pushSubscription = pgTable(
+  "push_subscription",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => session.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull().unique(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    /** The browser's User-Agent when it subscribed, to tell devices apart. */
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** The last time the push service took a message for it. */
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    /** Failed sends since the last one that went through; too many and it is dropped. */
+    failureCount: integer("failure_count").notNull().default(0),
+  },
+  (t) => [index("push_subscription_user_idx").on(t.userId), index("push_subscription_session_idx").on(t.sessionId)],
 );

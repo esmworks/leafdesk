@@ -140,7 +140,7 @@ versions, upgrades and running behind a domain.
   every page.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
-  database automation notifies you, and when a reminder you set is due, with an email a little later. Choose per kind whether it shows in the inbox and whether it comes by email.
+  database automation notifies you, and when a reminder you set is due, with an email a little later. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it.
@@ -468,6 +468,41 @@ that verifies their address, and My account → Profile can send it again. Verif
 for workspaces that let their [email domains](#who-can-join-a-workspace) in. In production
 without SMTP no link is sent, and only accounts whose provider vouches for the address (GitHub,
 Google, single sign-on, SCIM) count as verified.
+
+## Push notifications
+
+New inbox items can also come as system notifications on people's devices, while Leafdesk is
+closed too. Each person turns them on per device in My account → Preferences ("Push notifications
+on this device"), and picks there, per kind of notification, whether it comes as a push next to
+the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
+notification brings an open Leafdesk tab to the page, or opens one.
+
+Push is off until the server has a VAPID key pair. Make one and add the printed lines to `.env`:
+
+```bash
+pnpm push:keys mailto:ops@example.com
+# Docker: docker compose run --rm app tsx scripts/generate-vapid-keys.ts mailto:ops@example.com
+```
+
+| Variable | Meaning |
+| --- | --- |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | The key pair the server signs push messages with. Keep the private key secret. |
+| `VAPID_SUBJECT` | An address the browsers' push services can reach you at: `mailto:` or `https:`. |
+| `PUSH_ALLOWED_HOSTS` | Optional. Push services on a private network or plain http that push may reach (a push service run next to the server), comma-separated as a host name or `host:port`. |
+
+Without all three VAPID values push is off and its settings are hidden. Changing the keys stops
+push on every device until it is turned on there again. Push needs the service worker, so it works
+in production builds over HTTPS (or `localhost`), not under `pnpm dev`. On iPhone and iPad, Safari
+delivers push only to the installed app (Add to Home Screen).
+
+A push message carries only what the inbox shows for the notification (the page's name, who did
+what), checked against the recipient's access like the inbox, in their language. It is encrypted
+for the browser, and push services keep it a day at most. A device's subscription belongs to the
+sign-in it was made in: signing out, or the session being revoked or running out, stops it. The
+endpoints come from browsers, so the server sends only to public https addresses on port 443,
+checked before every send with the connection pinned to the checked address; hosts in
+`PUSH_ALLOWED_HOSTS` skip that check. A push service that says a subscription is gone gets it
+deleted, and one that fails 10 times in a row has it dropped.
 
 ## Social login
 

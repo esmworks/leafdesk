@@ -11,6 +11,8 @@
  *   them from the page (components/offline/offline-store.ts).
  * - Everything else (API routes, uploads, server actions, RSC requests, the collab websocket) is
  *   never touched.
+ * - Push messages (server/push.ts) show as notifications; opening one brings an open Leafdesk tab
+ *   to the notification's page, or opens a new window.
  *
  * Bump VERSION when changing this file's caching of static files.
  */
@@ -195,4 +197,70 @@ async function trim(cache) {
   if (excess <= 0) return;
   const shell = new Set([OFFLINE_URL, ...SHELL].map((p) => new URL(p, self.location.origin).href));
   await Promise.all(keys.filter((k) => !shell.has(k.url)).slice(0, excess).map((k) => cache.delete(k)));
+}
+
+// ---------------------------------------------------------------------------------------------
+// Push notifications. The server sends { title, body, url, tag } for a new inbox notification;
+// every message shows a notification (browsers require it), a generic one if the data is unusable.
+
+self.addEventListener("push", (event) => {
+  event.waitUntil(showPush(readPush(event.data)));
+});
+
+/** The message's fields, each checked; null when it carries no usable JSON. */
+function readPush(data) {
+  let message = null;
+  try {
+    message = data ? data.json() : null;
+  } catch {
+    return null;
+  }
+  if (!message || typeof message !== "object") return null;
+  const text = (value) => (typeof value === "string" ? value : "");
+  return { title: text(message.title), body: text(message.body), url: text(message.url), tag: text(message.tag) };
+}
+
+function showPush(message) {
+  const options = {
+    body: (message && message.body) || "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    data: { url: sameOriginUrl(message && message.url) },
+  };
+  // One notification per inbox item: a message sent again replaces it instead of adding another.
+  if (message && message.tag) options.tag = message.tag;
+  return self.registration.showNotification((message && message.title) || "Leafdesk", options);
+}
+
+/** A link on this app's origin, else the app's start; a message can't send people elsewhere. */
+function sameOriginUrl(url) {
+  try {
+    const target = new URL(url || "/", self.location.origin);
+    if (target.origin === self.location.origin) return target.href;
+  } catch {}
+  return new URL("/", self.location.origin).href;
+}
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const data = event.notification.data || {};
+  event.waitUntil(openFromNotification(data.url));
+});
+
+/** Takes an open Leafdesk tab (the focused one first) to `url` and brings it forward, else opens a window there. */
+async function openFromNotification(url) {
+  const target = sameOriginUrl(url);
+  const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+  const ours = windows
+    .filter((client) => new URL(client.url).origin === self.location.origin)
+    .sort((a, b) => Number(b.focused) - Number(a.focused));
+  for (const client of ours) {
+    try {
+      // Only a tab this worker controls can be navigated; another one is tried next.
+      const moved = (await client.navigate(target)) || client;
+      await moved.focus().catch(() => {});
+      return;
+    } catch {}
+  }
+  if (self.clients.openWindow) await self.clients.openWindow(target);
 }

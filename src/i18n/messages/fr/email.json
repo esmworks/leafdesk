@@ -169,5 +169,21 @@
     "body": "Bonjour {name}, un administrateur de ce serveur Leafdesk vous demande de choisir un nouveau mot de passe. Votre ancien mot de passe ne permet plus de vous connecter.",
     "expires": "Le lien fonctionne pendant {minutes} minutes et une seule fois. Si vous vous reconnectez avec votre ancien mot de passe, vous en recevrez un nouveau.",
     "action": "Choisir un nouveau mot de passe"
+  },
+  "push": {
+    "assignment": "{actor} vous a assigné à « {property} »",
+    "pageShared": "{actor} a partagé cette page avec vous",
+    "comment": "{actor} a commenté un fil auquel vous participez",
+    "mention": "{actor} vous a mentionné",
+    "reminder": "Rappel : {date}",
+    "accessRequest": "{actor} demande l’accès à cette page",
+    "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
+    "someone": "Quelqu’un",
+    "joinRequestTitle": "Demande d'accès",
+    "joinRequest": "{actor} a demandé à rejoindre l'espace",
+    "inviteRequest": "{actor} a demandé à inviter {email}",
+    "approvalTitle": "{agent} demande votre accord",
+    "approval": "Veut appeler « {tool} » sur {connection}",
+    "untitled": "Sans titre"
   }
 }

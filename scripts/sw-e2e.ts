@@ -7,7 +7,9 @@
  *   ("/") goes to the last page opened;
  * - pages are kept per user: another user's page coming in drops the previous user's copies, and
  *   a page that answers 404 is dropped;
- * - API responses and signed-out pages are never kept.
+ * - API responses and signed-out pages are never kept;
+ * - a push message shows a notification (a generic one when its data is unusable), and opening it
+ *   takes an open tab to the notification's page, never to another origin.
  *
  *   pnpm tsx scripts/sw-e2e.ts
  *
@@ -120,7 +122,7 @@ const socket = new WebSocket(wsUrl);
 await new Promise((resolve) => socket.addEventListener("open", resolve, { once: true }));
 let nextId = 1;
 const pending = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
-const events: { method: string; sessionId?: string }[] = [];
+const events: { method: string; sessionId?: string; params?: any }[] = [];
 socket.addEventListener("message", (event) => {
   const msg = JSON.parse(String(event.data));
   if (msg.id && pending.has(msg.id)) {
@@ -128,7 +130,7 @@ socket.addEventListener("message", (event) => {
     pending.delete(msg.id);
     if (msg.error) p.reject(new Error(msg.error.message));
     else p.resolve(msg.result);
-  } else if (msg.method) events.push({ method: msg.method, sessionId: msg.sessionId });
+  } else if (msg.method) events.push({ method: msg.method, sessionId: msg.sessionId, params: msg.params });
 });
 function send<T = Record<string, unknown>>(method: string, params: object = {}, sessionId?: string): Promise<T> {
   const id = nextId++;
@@ -215,6 +217,75 @@ try {
   await go("/w/ws1/p/a");
   now = await page();
   check(now.path.startsWith("/offline"), "…so their pages no longer open offline", now);
+
+  // Push notifications: the DevTools protocol delivers a message as a push service would.
+  offline = false;
+  await go("/w/ws2/p/c");
+  await send("Browser.grantPermissions", { origin, permissions: ["notifications"] });
+  events.length = 0;
+  await send("ServiceWorker.enable", {}, sessionId);
+  let registrationId: string | undefined;
+  for (let i = 0; i < 100 && !registrationId; i++) {
+    registrationId = events
+      .filter((e) => e.method === "ServiceWorker.workerRegistrationUpdated")
+      .flatMap((e) => e.params.registrations as { registrationId: string; scopeURL: string; isDeleted: boolean }[])
+      .find((r) => r.scopeURL === `${origin}/` && !r.isDeleted)?.registrationId;
+    if (!registrationId) await new Promise((r) => setTimeout(r, 25));
+  }
+  check(registrationId, "the worker's registration is found", events.map((e) => e.method));
+  const notifications = (tag?: string) =>
+    evaluate<{ title: string; body: string; tag: string; icon: string; url: string }[]>(
+      `navigator.serviceWorker.ready.then((r) => r.getNotifications(${tag ? JSON.stringify({ tag }) : ""})).then((ns) => ns.map((n) => ({ title: n.title, body: n.body, tag: n.tag, icon: n.icon, url: n.data && n.data.url })))`,
+    );
+  const until = async <T>(read: () => Promise<T>, done: (value: T) => boolean) => {
+    let value = await read();
+    for (let i = 0; i < 100 && !done(value); i++) {
+      await new Promise((r) => setTimeout(r, 25));
+      value = await read();
+    }
+    return value;
+  };
+  const message = { title: "Roadmap", body: "Ayşe mentioned you", url: `${origin}/w/ws2/p/d`, tag: "notification-1" };
+  await send("ServiceWorker.deliverPushMessage", { origin, registrationId, data: JSON.stringify(message) }, sessionId);
+  let shown = await until(() => notifications("notification-1"), (list) => list.length > 0);
+  check(
+    shown.length === 1 && shown[0].title === "Roadmap" && shown[0].body === "Ayşe mentioned you" && shown[0].url === message.url && shown[0].icon.endsWith("/icons/icon-192.png"),
+    "a push message shows a notification with its title, text and link",
+    shown,
+  );
+  await send("ServiceWorker.deliverPushMessage", { origin, registrationId, data: JSON.stringify({ ...message, body: "Ayşe mentioned you again" }) }, sessionId);
+  shown = await until(() => notifications("notification-1"), (list) => list[0]?.body === "Ayşe mentioned you again");
+  check(shown.length === 1 && shown[0].body === "Ayşe mentioned you again", "the same notification sent again replaces it", shown);
+  await send("ServiceWorker.deliverPushMessage", { origin, registrationId, data: "not json" }, sessionId);
+  const all = await until(() => notifications(), (list) => list.length > 1);
+  const generic = all.find((n) => n.tag !== "notification-1");
+  check(generic?.title === "Leafdesk" && generic.url === `${origin}/`, "a message it can't read still shows a notification, leading to the app", all);
+
+  // Opening a notification (no click possible here): the worker's own handler, run in the worker.
+  const { targetInfos } = await send<{ targetInfos: { targetId: string; type: string; url: string }[] }>("Target.getTargets");
+  const worker = targetInfos.find((t) => t.type === "service_worker" && t.url === `${origin}/sw.js`);
+  check(worker, "the worker can be reached", targetInfos);
+  const { sessionId: workerSession } = await send<{ sessionId: string }>("Target.attachToTarget", { targetId: worker.targetId, flatten: true });
+  const inWorker = async <T>(expression: string) => {
+    const { result, exceptionDetails } = await send<{ result: { value: T }; exceptionDetails?: unknown }>(
+      "Runtime.evaluate",
+      { expression, awaitPromise: true, returnByValue: true },
+      workerSession,
+    );
+    if (exceptionDetails) throw new Error(JSON.stringify(exceptionDetails));
+    return result.value;
+  };
+  check(
+    (await inWorker<string>(`sameOriginUrl("https://elsewhere.example/w/x")`)) === `${origin}/` &&
+      (await inWorker<string>(`sameOriginUrl("javascript:alert(1)")`)) === `${origin}/`,
+    "a link to another origin leads to the app instead",
+  );
+  events.length = 0;
+  await inWorker(`openFromNotification(${JSON.stringify(`${origin}/w/ws2/p/d`)})`);
+  const deadline = Date.now() + 10000;
+  while (!events.some((e) => e.method === "Page.loadEventFired" && e.sessionId === sessionId) && Date.now() < deadline) await new Promise((r) => setTimeout(r, 25));
+  now = await page();
+  check(now.path === "/w/ws2/p/d" && now.h1 === "Page d", "opening it takes the open tab to the notification's page", now);
 
   console.log(`\n${passed} checks passed`);
 } finally {

@@ -330,6 +330,13 @@
       "when": 1791477197088,
       "tag": "0046_page_background_colors_only",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1791488028202,
+      "tag": "0047_push_subscriptions",
+      "breakpoints": true
     }
   ]
 }

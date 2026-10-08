@@ -26,7 +26,7 @@ COPY src ./src
 # Service worker and app icons (installable app, offline copies).
 COPY public ./public
 COPY drizzle ./drizzle
-COPY scripts/migrate.ts scripts/send-test-email.ts scripts/verify-email.ts scripts/reset-two-factor.ts ./scripts/
+COPY scripts/migrate.ts scripts/send-test-email.ts scripts/verify-email.ts scripts/reset-two-factor.ts scripts/generate-vapid-keys.ts ./scripts/
 # Uploaded files (local storage). Mount a volume here; see docker-compose.yml.
 RUN mkdir -p /app/data/uploads && chown -R node:node /app/data
 USER node

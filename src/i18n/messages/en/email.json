@@ -169,5 +169,21 @@
     "body": "Hi {name}, an administrator of this Leafdesk server asked you to choose a new password. Your old password no longer signs you in.",
     "expires": "The link works for {minutes} minutes and only once. Signing in with your old password again sends a new one.",
     "action": "Choose a new password"
+  },
+  "push": {
+    "assignment": "{actor} assigned you to “{property}”",
+    "pageShared": "{actor} shared this page with you",
+    "comment": "{actor} commented in a thread you're in",
+    "mention": "{actor} mentioned you",
+    "reminder": "Reminder: {date}",
+    "accessRequest": "{actor} asked for access to this page",
+    "automation": "Automation “{name}”: {actor} added or changed this row",
+    "someone": "Someone",
+    "joinRequestTitle": "Join request",
+    "joinRequest": "{actor} asked to join",
+    "inviteRequest": "{actor} asked to invite {email}",
+    "approvalTitle": "{agent} asks to go ahead",
+    "approval": "Wants to call “{tool}” on {connection}",
+    "untitled": "Untitled"
   }
 }

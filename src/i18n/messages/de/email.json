@@ -169,5 +169,21 @@
     "body": "Hallo {name}, ein Administrator dieses Leafdesk-Servers möchte, dass Sie ein neues Passwort wählen. Mit dem alten Passwort können Sie sich nicht mehr anmelden.",
     "expires": "Der Link gilt {minutes} Minuten und nur einmal. Wenn Sie sich noch einmal mit dem alten Passwort anmelden, bekommen Sie einen neuen.",
     "action": "Neues Passwort wählen"
+  },
+  "push": {
+    "assignment": "{actor} hat dich bei „{property}“ eingetragen",
+    "pageShared": "{actor} hat diese Seite mit dir geteilt",
+    "comment": "{actor} hat in einer Diskussion kommentiert, an der du beteiligt bist",
+    "mention": "{actor} hat dich erwähnt",
+    "reminder": "Erinnerung: {date}",
+    "accessRequest": "{actor} möchte Zugriff auf diese Seite",
+    "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
+    "someone": "Jemand",
+    "joinRequestTitle": "Beitrittsanfrage",
+    "joinRequest": "{actor} möchte beitreten",
+    "inviteRequest": "{actor} möchte {email} einladen",
+    "approvalTitle": "{agent} bittet um Freigabe",
+    "approval": "Möchte „{tool}“ bei {connection} aufrufen",
+    "untitled": "Ohne Titel"
   }
 }

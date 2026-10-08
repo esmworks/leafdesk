@@ -50,6 +50,7 @@ import { closeOfflineDocs } from "@/components/collab/socket";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { loadSnapshot, readOfflineState, saveSnapshot, treeSnapshotKey, wipeAllOfflineData } from "@/components/offline/offline-store";
 import { InstallAppMenuItem } from "@/components/offline/install-app";
+import { dropPushSubscription } from "@/components/settings/push-device";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
@@ -570,9 +571,10 @@ export function Sidebar({
     // Edits made offline that never reached the server are lost with the offline copies.
     if (readOfflineState(user.id).dirty.length && !confirm(tOffline("signOutUnsynced"))) return;
     await authClient.signOut();
-    // Nothing of this account stays in the browser: offline pages, rows and cached HTML.
+    // Nothing of this account stays in the browser: offline pages, rows and cached HTML, and push
+    // notifications (the server dropped the subscription with the session).
     await closeOfflineDocs();
-    await wipeAllOfflineData();
+    await Promise.all([wipeAllOfflineData(), dropPushSubscription()]);
     router.push("/sign-in");
     router.refresh();
   }

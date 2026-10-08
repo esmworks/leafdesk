@@ -169,5 +169,21 @@
     "body": "Merhaba {name}, bu Leafdesk sunucusunun bir yöneticisi yeni bir parola seçmenizi istedi. Eski parolanızla artık giriş yapamazsınız.",
     "expires": "Bağlantı {minutes} dakika boyunca ve yalnızca bir kez çalışır. Eski parolanızla yeniden giriş yapmayı denerseniz yeni bir bağlantı gönderilir.",
     "action": "Yeni bir parola seçin"
+  },
+  "push": {
+    "assignment": "{actor}, sizi “{property}” alanına atadı",
+    "pageShared": "{actor} bu sayfayı sizinle paylaştı",
+    "comment": "{actor}, katıldığınız bir yorum konusuna yazdı",
+    "mention": "{actor} sizden bahsetti",
+    "reminder": "Hatırlatma: {date}",
+    "accessRequest": "{actor} bu sayfaya erişim istedi",
+    "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
+    "someone": "Biri",
+    "joinRequestTitle": "Katılma isteği",
+    "joinRequest": "{actor} katılmak istedi",
+    "inviteRequest": "{actor}, {email} adresini davet etmek istedi",
+    "approvalTitle": "{agent} devam etmek için onay istiyor",
+    "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
+    "untitled": "Adsız"
   }
 }

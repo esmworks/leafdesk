@@ -11,6 +11,9 @@
   have to be connected again.
 - **Changing a workspace's SSO identity provider** (or removing the connection) now signs out
   everyone who signed in through it; they sign in again through the new one.
+- **Push notifications** need `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT`
+  (make the keys with `pnpm push:keys`; under Docker Compose they are passed through from `.env`).
+  Without them push stays off and nothing changes. Migration `0047_push_subscriptions`.
 
 ### Added
 
@@ -64,6 +67,24 @@
   written all in percentages becomes a percent property. MCP's `add_database_property` and
   `update_database_property` take `number_format`, and `get_database` shows it. Formulas show plain
   numbers. No migration.
+- **Push notifications.** My account > Preferences turns push notifications on for the device in
+  use ("Push notifications on this device"): new inbox items then show as system notifications,
+  also while Leafdesk is closed, and opening one brings an open Leafdesk tab to the page (or opens
+  one). Each kind of notification gets a *Push* switch next to *Inbox* and *Email*; push follows
+  the inbox, so a kind kept out of the inbox isn't pushed, and every kind can be silenced on its
+  own. A message says only what the inbox shows (the page, who did what), read with the same
+  access checks, in the recipient's language. The settings say when the browser blocks
+  notifications or can't receive them (Safari on iPhone and iPad only in the installed app).
+  A device's subscription belongs to its sign-in: signing out, or the session being revoked,
+  deletes it. The server sends with VAPID keys (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
+  `VAPID_SUBJECT`; `pnpm push:keys` makes a pair) and stays off without them. Messages are
+  encrypted for the browser, kept a day by push services, and go only to public https
+  endpoints, checked before each send with the connection pinned to the checked address;
+  `PUSH_ALLOWED_HOSTS` allows a push service on a private network. A push service saying the
+  subscription is gone deletes it, and one that keeps failing is dropped after 10 failed sends in a row. Sending
+  never holds up what caused the notification. New `push_subscription` table and push columns on
+  `user_preference` (migration `0047_push_subscriptions`); the `web-push` library encrypts and
+  signs the messages.
 - **Dependencies.** A timeline view's settings turn dependencies on for the database: a two-way
   relation of the database with itself, *Blocked by* and *Blocking* (or a relation of the database
   with itself it already has), lets a row wait for other rows. The timeline draws an arrow from

@@ -16,7 +16,7 @@ const buildOnly = (phase: string): NextConfig => {
 const config = (phase: string): NextConfig => ({
   ...buildOnly(phase),
   // Loaded by the custom server too; keep one copy of each in the process.
-  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf"],
+  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "web-push"],
   experimental: {
     // Dev only: with the debug channel React waits for debug data sent over the HMR websocket
     // before it hydrates or applies a navigation. The custom server restarts on every server

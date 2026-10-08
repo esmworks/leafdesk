@@ -1,5 +1,6 @@
 import { sessionDaysFrom } from "@/lib/session-lifetime";
 import { adminEmailsFrom, workspaceCreationFrom } from "@/lib/instance-admin";
+import { vapidFrom } from "@/lib/push";
 import { socialProvidersFrom, type SocialProvider } from "@/lib/social-providers";
 import { instanceOidcFrom, ssoTrustedOriginsFrom } from "@/lib/sso-config";
 
@@ -65,6 +66,25 @@ export const env = {
    */
   get connectorAllowedHosts() {
     return (process.env.CONNECTOR_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
+  /**
+   * VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT (a mailto: or https: address the push
+   * services can reach the server's administrator at) turn on push notifications; null while any
+   * is missing or the subject is neither (see lib/push.ts).
+   */
+  get vapid() {
+    return vapidFrom(process.env);
+  },
+  /**
+   * PUSH_ALLOWED_HOSTS: host names (or host:port) of push services that may be on a private
+   * network, a local name or plain http (a push service run next to the server); comma-separated.
+   * Every other push goes only to public https addresses.
+   */
+  get pushAllowedHosts() {
+    return (process.env.PUSH_ALLOWED_HOSTS ?? "")
       .split(",")
       .map((h) => h.trim().toLowerCase())
       .filter(Boolean);

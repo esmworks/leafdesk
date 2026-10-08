@@ -7,6 +7,7 @@ import { workspaceOwnerIds } from "@/server/access";
 import { kickAgents } from "@/server/agents/kick";
 import { recordAudit } from "@/server/audit";
 import { signalInbox } from "@/server/notifications";
+import { pushNotifications } from "@/server/push";
 import { inputSummary } from "./tools";
 
 /**
@@ -38,10 +39,12 @@ function refreshInboxes(workspaceId: string) {
 export async function notifyApprovers(run: { id: string; workspaceId: string }, agentUserId: string) {
   const owners = await workspaceOwnerIds(run.workspaceId);
   if (!owners.length) return;
-  await db.insert(notification).values(
-    owners.map((userId) => ({ userId, workspaceId: run.workspaceId, kind: "agent_approval" as const, actorId: agentUserId, agentRunId: run.id })),
-  );
+  const inserted = await db
+    .insert(notification)
+    .values(owners.map((userId) => ({ userId, workspaceId: run.workspaceId, kind: "agent_approval" as const, actorId: agentUserId, agentRunId: run.id })))
+    .returning({ id: notification.id });
   refreshInboxes(run.workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
 }
 
 /** Takes a run's approval items out of the inbox (it was answered, or ran out of time). */
