@@ -6,7 +6,7 @@ import * as Y from "yjs";
 import { forgetOfflinePage, markDirty, readOfflineState } from "@/components/offline/offline-store";
 import { BUILD_PARAM, CLIENT_BUILD } from "@/lib/build-id";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
-import { COLLAB_FORBIDDEN, COLLAB_STALE, pageStoreName } from "@/lib/offline";
+import { COLLAB_FORBIDDEN, COLLAB_STALE, COLLAB_UNAUTHORIZED, pageStoreName } from "@/lib/offline";
 import { markStale, noteServerBuild, onStale, whenFresh } from "./freshness";
 
 let socket: HocuspocusProviderWebsocket | null = null;
@@ -108,6 +108,8 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
     const listeners = new Set<(payload: string) => void>();
     let tokenFailed = false;
     let denied: string | null = null;
+    // A fresh token was asked for after the server refused this one (see onAuthenticationFailed).
+    let renewed = false;
     const provider = new HocuspocusProvider({
       websocketProvider: getSocket(),
       name,
@@ -131,10 +133,23 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
       onStateless: ({ payload }) => listeners.forEach((l) => l(payload)),
       onAuthenticated: () => {
         denied = null;
+        renewed = false;
       },
       onAuthenticationFailed: ({ reason }) => {
         denied = tokenFailed ? null : reason;
         if (reason === COLLAB_STALE) markStale();
+        // The session the token was issued to has ended. Turning two-step verification on replaces
+        // this tab's session without a reload, so ask once for a token of the session it has now.
+        if (reason === COLLAB_UNAUTHORIZED && !tokenFailed && !renewed) {
+          renewed = true;
+          cachedToken = null;
+          clearTimeout(created.retryTimer);
+          created.retryTimer = setTimeout(() => {
+            if (!provider.isAttached || provider.isAuthenticated) return;
+            // The server dropped what it held for the refused attempt: sync again after the token.
+            void provider.sendToken().then(() => provider.startSync());
+          });
+        }
       },
     });
     const created: Entry = {

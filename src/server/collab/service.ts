@@ -251,6 +251,7 @@ export function createCollab() {
       if (!target) throw refusal(COLLAB_FORBIDDEN);
       try {
         const facts = await collabSessionFacts(user.sessionId, user.userId);
+        if (!facts) throw refusal(COLLAB_UNAUTHORIZED);
         // People who may only read get the live document but their edits are dropped.
         const { readOnly } = await authorizeCollab(user.userId, target, facts);
         if (readOnly) connectionConfig.readOnly = true;
