@@ -34,6 +34,12 @@
   adding sub-pages still work, and a copy starts unlocked. `get_page` and `GET /pages/{id}` show
   `locked`, and writes to a locked page are refused with a message saying how to unlock it. No
   migration.
+- **Keyboard shortcuts.** Mod+/ (⌘/ on a Mac, Ctrl+/ elsewhere), `?` outside text fields and the
+  editor, or *Keyboard shortcuts* in the workspace menu opens a list of the shortcuts Leafdesk
+  has: general ones, moving around (search, the sidebar, find and replace in a page), text
+  formatting and blocks in the editor, and databases (opening a row, moving a timeline bar, saving
+  a formula). Keys show as ⌘ ⌥ ⇧ on a Mac and Ctrl, Alt, Shift elsewhere. Unit tests in
+  `src/lib/shortcuts.test.ts`. No migration.
 - **Superscript and subscript.** Two new text styles, with buttons after strikethrough in the
   formatting toolbar and the shortcuts Mod+. and Mod+, (⌘ on a Mac, Ctrl elsewhere); text is one
   or the other, so setting one takes the other off. Pasted text whose `vertical-align` is `super`

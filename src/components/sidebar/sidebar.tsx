@@ -11,6 +11,7 @@ import {
   FileText,
   House,
   Inbox,
+  Keyboard,
   LayoutTemplate,
   LogOut,
   LogOut as LeaveIcon,
@@ -50,6 +51,8 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { loadSnapshot, readOfflineState, saveSnapshot, treeSnapshotKey, wipeAllOfflineData } from "@/components/offline/offline-store";
 import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
+import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
+import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
 import type { TreeNode } from "@/server/pages";
 import type { TeamspaceSummary } from "@/server/teamspaces";
@@ -157,6 +160,7 @@ export function Sidebar({
   const [favorites, setFavorites] = useState(initialFavorites);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [searchOpen, setSearchOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -181,6 +185,7 @@ export function Sidebar({
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
   const tAi = useTranslations("ai.chat");
   const tOffline = useTranslations("offline");
+  const tShortcuts = useTranslations("shortcuts");
   /** Tooltip for a control that needs the server while it can't be reached. */
   const needsServer = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : undefined);
 
@@ -270,6 +275,9 @@ export function Sidebar({
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen(true);
+      } else if (opensShortcuts(e, isMac())) {
+        e.preventDefault();
+        setShortcutsOpen((open) => !open);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -857,6 +865,16 @@ export function Sidebar({
                   >
                     {t("workspaceMenu.myAccount")}
                   </MenuItem>
+                  <MenuItem
+                    icon={<Keyboard className="h-4 w-4" />}
+                    trailing={<kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">{comboText(["Mod", "/"], isMac())}</kbd>}
+                    onClick={() => {
+                      close();
+                      setShortcutsOpen(true);
+                    }}
+                  >
+                    {tShortcuts("title")}
+                  </MenuItem>
                   {isInstanceAdmin && (
                     <MenuItem
                       icon={<ShieldCheck className="h-4 w-4" />}
@@ -1071,6 +1089,7 @@ export function Sidebar({
       </aside>
       {/* Outside the aside: its slide transform would otherwise anchor these fixed dialogs. */}
       <SearchDialog workspaceId={workspaceId} open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <InboxDialog
         workspaceId={workspaceId}
         open={inboxOpen}

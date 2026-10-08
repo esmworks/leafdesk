@@ -6,6 +6,7 @@ import { TextSelection } from "prosemirror-state";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button, cn, IconButton } from "@/components/ui";
 import { replaceAllMatches, replaceMatch, stepIndex } from "@/lib/find-replace";
+import { isMac } from "@/lib/shortcuts";
 import type { PageEditor } from "./embed-blocks";
 import { findKey, FindReplace, type FindMeta } from "./find-replace";
 
@@ -21,8 +22,6 @@ function selectedText(): string {
   }
   return window.getSelection()?.toString() ?? "";
 }
-
-const isMac = () => /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
 
 /**
  * Find (and, for editors, replace) in the page body. Cmd/Ctrl+F opens it while focus is inside the
