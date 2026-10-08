@@ -37,6 +37,11 @@ const pages = vi.hoisted(() => ({
   restoreSnapshot: vi.fn(),
 }));
 vi.mock("@/server/pages", () => pages);
+// Page access itself is checked against the database in scripts/access-e2e.ts.
+vi.mock("@/server/access", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/server/access")>()),
+  requirePageAccess: vi.fn(async () => ({})),
+}));
 
 const databases = vi.hoisted(() => ({
   getDatabase: vi.fn(),

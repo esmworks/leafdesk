@@ -263,6 +263,11 @@
 
 ### Fixed
 
+- **View access could rewrite a page's text through MCP and the REST API.** `update_page` (and
+  `PATCH /api/v1/pages/{id}`) with `markdown` checked only that the caller could see the page before
+  replacing or appending to its body, so someone with view access, or a connected app acting for
+  them, could change it. It now needs edit access, like the title, icon and background already did.
+  Checked in `scripts/access-e2e.ts`.
 - **Security fixes from an audit of the whole app.**
   - *Collaboration:* a 23-byte update could hold the server (and every request with it) for
     seconds while it checked comment threads; any viewer could send one. The check now runs in time

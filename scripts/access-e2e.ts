@@ -27,6 +27,7 @@ const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE } = await import("@/server/mcp/principal");
 const { getPageHeaderInfo, listFavorites, setFavorite } = await import("@/server/page-meta");
 const { registerCollab } = await import("@/server/collab/bridge");
+const ops = await import("@/server/operations");
 const { addProperty, getDatabaseSnapshot, getRow, listRows, listWorkspaceDatabases, updateRowProperties } = await import(
   "@/server/databases"
 );
@@ -89,7 +90,15 @@ registerCollab({
   async readPage() {
     return { title: "", markdown: "", text: "" };
   },
+  // Body writes (MCP and REST update_page) go through a direct connection that checks no access.
+  async replaceContent(pageId: string) {
+    bodyWrites.push(pageId);
+  },
+  async appendContent(pageId: string) {
+    bodyWrites.push(pageId);
+  },
 } as unknown as Parameters<typeof registerCollab>[0]);
+const bodyWrites: string[] = [];
 
 let passed = 0;
 function check(condition: unknown, label: string, detail?: unknown): asserts condition {
@@ -223,6 +232,14 @@ try {
   check(rechecked.join() === `${workspaceId}:everyone`, "narrowing everyone checks everyone's open editors again", rechecked);
   await rejects(() => setPagePermission(alice, R, alice, "full"), isAccessError, "view access can't share");
   await rejects(() => requirePageAccess(alice, C, "edit"), isAccessError, "view access can't edit");
+  for (const mode of ["replace", "append"] as const) {
+    await rejects(
+      () => ops.updatePage({ userId: alice, actor: { userId: alice } }, { page_id: C, markdown: "overwritten", mode }),
+      isAccessError,
+      `view access can't ${mode} a page's body through update_page`,
+    );
+  }
+  check(bodyWrites.length === 0, "…and nothing reached the page", bodyWrites);
 
   // Widening and narrowing on a subpage
   await setPagePermission(owner, C, alice, "edit");

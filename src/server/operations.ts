@@ -19,6 +19,7 @@ import {
   parseBackgroundText,
   parsePageBackground,
 } from "@/lib/page-background";
+import { requirePageAccess } from "@/server/access";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
 import * as databases from "@/server/databases";
@@ -618,6 +619,8 @@ export async function updatePage(
     if (page.kind === "database") {
       throw new ToolInputError("Databases have no text body. Use create_database_row or update_database_row.");
     }
+    // The body goes through a direct collab connection, which checks no access of its own.
+    await requirePageAccess(userId, page_id, "edit");
     const collab = getCollab();
     if (mode === "append") await collab.appendContent(page_id, markdown, actor, true);
     else await collab.replaceContent(page_id, markdown, actor, true);
