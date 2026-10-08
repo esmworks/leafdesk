@@ -338,7 +338,7 @@ export type PublishedPage = {
   id: string;
   title: string;
   icon: string | null;
-  /** What fills the page (lib/page-background); an uploaded image opens for visitors as a file the page shows. */
+  /** The color and pattern behind the page (lib/page-background). */
   background: PageBackground | null;
   kind: PageKind;
   updatedAt: Date;

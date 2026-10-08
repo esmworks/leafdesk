@@ -14,16 +14,19 @@ export function IconPicker({
   icon,
   onChange,
   disabled,
+  align,
   children,
 }: {
   icon: string | null;
   onChange: (icon: string | null) => void;
   disabled?: boolean;
+  /** "end" opens the picker leftwards, for a trigger near the right edge. */
+  align?: "start" | "end";
   children: (toggle: () => void) => React.ReactNode;
 }) {
   const t = useTranslations("page.icon");
   return (
-    <Popover trigger={({ toggle }) => <>{children(disabled ? () => {} : toggle)}</>} className="w-72">
+    <Popover trigger={({ toggle }) => <>{children(disabled ? () => {} : toggle)}</>} align={align} className="w-72">
       {(close) => (
         <div className="p-1">
           <div className="grid grid-cols-8 gap-0.5">

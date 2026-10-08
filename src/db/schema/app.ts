@@ -336,7 +336,7 @@ export const page = pgTable(
     kind: text("kind").$type<PageKind>().notNull().default("page"),
     title: text("title").notNull().default(""),
     icon: text("icon"),
-    /** What fills the page behind its title and body (lib/page-background); uploaded images count as used files. */
+    /** The color and pattern behind the page's title and body (lib/page-background). */
     background: jsonb("background").$type<PageBackground>(),
     position: doublePrecision("position").notNull().default(0),
     /** Row values when the parent is a database; empty for regular pages. */

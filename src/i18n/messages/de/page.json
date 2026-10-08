@@ -78,6 +78,8 @@
     "add": "Hintergrund hinzufügen",
     "change": "Hintergrund",
     "colors": "Farbe",
+    "patterns": "Muster",
+    "none": "Keins",
     "remove": "Hintergrund entfernen",
     "colorNames": {
       "gray": "Grau",
@@ -86,7 +88,14 @@
       "purple": "Lila",
       "pink": "Pink",
       "red": "Rot",
-      "orange": "Orange"
+      "orange": "Orange",
+      "black": "Schwarz"
+    },
+    "patternNames": {
+      "dots": "Punkte",
+      "plus": "Kreuze",
+      "grid": "Raster",
+      "lines": "Linien"
     }
   },
   "title": {

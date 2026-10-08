@@ -54,16 +54,18 @@
   `update_database_view` take `accumulate` (`none`, `cumulative`, `remaining`) and refuse it
   where it can't apply, `get_database` reports it, and `query_database` returns each point's
   running value with `period_value` and the chart's `total`.
-- **Page backgrounds.** *Add background* beside a page's icon (on a database page, after its
-  title, so the view doesn't move down) fills the page behind its title and body with one of 7
-  colors: a light tint in the light theme and a dark one in the dark theme, which the header and
-  the page's tables take too. The same button changes or removes it. A background is only ever a
-  color: it never loads an image, uploaded or from another site. It is kept on the page
-  (`page.background`, migration `0044_page_background`), so it changes live for everyone with the
-  page open (an icon change now does too), and travels with copies, templates, published pages
-  (their header too) and copies made from a published page; printing leaves it out. Over MCP and
-  REST, `get_page` shows it and `update_page` / `PATCH /pages/{id}` set it with `background`
-  (`color:<name>`, `null` to remove). Not yet in Markdown exports and imports. Pages that had a
+- **Page backgrounds.** *Add background* beside a page's icon (on a database page, over the end of
+  its title on hover, so the view doesn't move down) fills the page behind its title and body: one
+  of 7 colors, a light tint in the light theme and a dark one in the dark theme, or black in both;
+  the header, the page's tables and their lines take the color too. A faint pattern (dots,
+  crosses, grid or diagonal lines) can go over it, or over the plain page. The same button changes
+  or removes them. A background is only ever drawn by the page's own styles: it never loads an
+  image, uploaded or from another site. It is kept on the page (`page.background`, migration
+  `0044_page_background`), so it changes live for everyone with the page open (an icon change now
+  does too), and travels with copies, templates, published pages (their header too) and copies
+  made from a published page; printing leaves it out. Over MCP and REST, `get_page` shows it and
+  `update_page` / `PATCH /pages/{id}` set it with `background` (`color:<name>`, `pattern:<name>`
+  or both separated by a space, `null` to remove). Not yet in Markdown exports and imports. Pages that had a
   cover from an earlier build of this release get the color closest to a gradient cover, and lose
   an image cover or image background (`0046_page_background_colors_only`, which also has the file
   trigger stop looking at backgrounds); `0045_drop_page_cover` removes the cover column.

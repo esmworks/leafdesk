@@ -78,6 +78,8 @@
     "add": "Añadir fondo",
     "change": "Fondo",
     "colors": "Color",
+    "patterns": "Patrón",
+    "none": "Ninguno",
     "remove": "Quitar fondo",
     "colorNames": {
       "gray": "Gris",
@@ -86,7 +88,14 @@
       "purple": "Morado",
       "pink": "Rosa",
       "red": "Rojo",
-      "orange": "Naranja"
+      "orange": "Naranja",
+      "black": "Negro"
+    },
+    "patternNames": {
+      "dots": "Puntos",
+      "plus": "Cruces",
+      "grid": "Cuadrícula",
+      "lines": "Líneas"
     }
   },
   "title": {

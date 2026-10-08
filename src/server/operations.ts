@@ -13,6 +13,7 @@ import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_
 import { pageLabel } from "@/lib/labels";
 import {
   BACKGROUND_COLORS,
+  BACKGROUND_PATTERNS,
   backgroundText,
   parseBackgroundText,
   parsePageBackground,
@@ -188,7 +189,7 @@ export const inputs = {
       .nullable()
       .optional()
       .describe(
-        `The color that fills the page behind its title and body, as "color:<name>" (${BACKGROUND_COLORS.join(", ")}), light in the light theme and dark in the dark one. null removes it.`,
+        `What fills the page behind its title and body: a color as "color:<name>" (${BACKGROUND_COLORS.join(", ")}; light in the light theme and dark in the dark one, black in both), a faint pattern as "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}), or both separated by a space, e.g. "color:black pattern:plus". It replaces the whole background. null removes it.`,
       ),
   }),
   pageId: z.object({ page_id: id("page") }),
@@ -590,7 +591,7 @@ function backgroundFromInput(background: string | null) {
   const parsed = parseBackgroundText(background);
   if (!parsed) {
     throw new ToolInputError(
-      `background must be "color:<name>" with one of: ${BACKGROUND_COLORS.join(", ")}.`,
+      `background must be "color:<name>" (${BACKGROUND_COLORS.join(", ")}), "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}) or both separated by a space.`,
     );
   }
   return parsed;

@@ -222,7 +222,7 @@ export function PageView({
 
   const canChangeHeader = !page.archived && canEdit && !offline;
   const backgroundButton = canChangeHeader ? (
-    <BackgroundPicker background={background} onChange={changeBackground}>
+    <BackgroundPicker background={background} onChange={changeBackground} align={wide ? "end" : "start"}>
       {(toggle) => (
         <Button
           size="sm"
@@ -237,7 +237,7 @@ export function PageView({
   ) : null;
 
   const iconPicker = (
-    <IconPicker icon={icon} onChange={changeIcon} disabled={page.archived || !canEdit || offline}>
+    <IconPicker icon={icon} onChange={changeIcon} disabled={page.archived || !canEdit || offline} align={wide && !icon ? "end" : "start"}>
       {(toggle) =>
         icon ? (
           <button
@@ -366,8 +366,10 @@ export function PageView({
           )}
           {!wide && icon && <div className="h-8" />}
           {/* Wide (database) pages keep everything on the title's line so the view starts higher: the
-              icon before the title, the add-icon and background buttons after it. */}
-          <div className={cn(wide && "flex flex-wrap items-center gap-x-3 gap-y-1")}>
+              icon before the title, the add-icon and background buttons over its right end. Those
+              show on hover or focus and take no room, so the title keeps its width; on touch
+              screens, where they always show, they sit after it instead. */}
+          <div className={cn(wide && "relative flex items-center gap-3")}>
             {wide && icon && iconPicker}
             <TitleField
               inputRef={titleRef}
@@ -378,7 +380,15 @@ export function PageView({
               onEnter={() => document.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
             />
             {wide && (
-              <div className="flex shrink-0 items-center gap-1">
+              <div
+                className={cn(
+                  "absolute top-1/2 right-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg pl-2",
+                  "pointer-events-none opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
+                  // Kept shown while one of their pickers is open (Popover sets data-open).
+                  "focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-open]]:pointer-events-auto has-[[data-open]]:opacity-100",
+                  "pointer-coarse:pointer-events-auto pointer-coarse:static pointer-coarse:shrink-0 pointer-coarse:translate-y-0 pointer-coarse:opacity-100",
+                )}
+              >
                 {!icon && iconPicker}
                 {backgroundButton}
               </div>

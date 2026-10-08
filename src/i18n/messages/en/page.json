@@ -78,6 +78,8 @@
     "add": "Add background",
     "change": "Background",
     "colors": "Color",
+    "patterns": "Pattern",
+    "none": "None",
     "remove": "Remove background",
     "colorNames": {
       "gray": "Gray",
@@ -86,7 +88,14 @@
       "purple": "Purple",
       "pink": "Pink",
       "red": "Red",
-      "orange": "Orange"
+      "orange": "Orange",
+      "black": "Black"
+    },
+    "patternNames": {
+      "dots": "Dots",
+      "plus": "Crosses",
+      "grid": "Grid",
+      "lines": "Lines"
     }
   },
   "title": {

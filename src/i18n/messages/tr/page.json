@@ -78,6 +78,8 @@
     "add": "Arka plan ekle",
     "change": "Arka plan",
     "colors": "Renk",
+    "patterns": "Desen",
+    "none": "Yok",
     "remove": "Arka planı kaldır",
     "colorNames": {
       "gray": "Gri",
@@ -86,7 +88,14 @@
       "purple": "Mor",
       "pink": "Pembe",
       "red": "Kırmızı",
-      "orange": "Turuncu"
+      "orange": "Turuncu",
+      "black": "Siyah"
+    },
+    "patternNames": {
+      "dots": "Noktalar",
+      "plus": "Artılar",
+      "grid": "Izgara",
+      "lines": "Çizgiler"
     }
   },
   "title": {

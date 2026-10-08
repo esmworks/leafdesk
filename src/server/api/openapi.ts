@@ -201,7 +201,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       icon: { type: ["string", "null"] },
       background: {
         type: ["string", "null"],
-        description: 'The color that fills the page behind its title and body, as "color:<name>".',
+        description: 'What fills the page behind its title and body: "color:<name>", "pattern:<name>" or both separated by a space.',
       },
       workspace_id: id,
       ...teamspaceFields,

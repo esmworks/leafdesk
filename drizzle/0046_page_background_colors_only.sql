@@ -1,7 +1,7 @@
--- Page backgrounds are colors only (src/lib/page-background.ts): a background no longer loads an
--- image, so image backgrounds are removed. Done before the trigger changes, so the trigger still
--- drops the file references those images held.
-UPDATE "page" SET "background" = NULL WHERE "background" IS NOT NULL AND "background" ->> 'kind' IS DISTINCT FROM 'color';
+-- Page backgrounds are colors and patterns only (src/lib/page-background.ts): a background no
+-- longer loads an image, so image backgrounds are removed. Done before the trigger changes, so the
+-- trigger still drops the file references those images held.
+UPDATE "page" SET "background" = NULL WHERE "background" ->> 'kind' = 'image';
 --> statement-breakpoint
 -- Files a page uses are those in its body and its files properties again; a background holds none.
 CREATE OR REPLACE FUNCTION sync_file_references() RETURNS trigger LANGUAGE plpgsql AS $$

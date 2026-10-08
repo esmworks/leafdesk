@@ -1,6 +1,6 @@
 /**
- * End-to-end check of page backgrounds against the database: colors set and removed, images
- * refused (a background never loads one), copies keeping the color, and the same over MCP.
+ * End-to-end check of page backgrounds against the database: colors and patterns set and removed,
+ * images refused (a background never loads one), copies keeping it, and the same over MCP.
  * Creates its own user and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/page-background-e2e.ts
@@ -84,8 +84,11 @@ try {
   const notes = await createPage(actor, { workspaceId, kind: "page", title: "Notes" });
   const stored = async (id: string) => (await db.select({ background: page.background }).from(page).where(eq(page.id, id)))[0].background;
 
-  await setPageBackground(ids.owner, notes.id, { kind: "color", color: "green" });
+  await setPageBackground(ids.owner, notes.id, { color: "green", pattern: null });
   check((await stored(notes.id))?.color === "green", "a color background is kept");
+  await setPageBackground(ids.owner, notes.id, { color: null, pattern: "dots" });
+  check((await stored(notes.id))?.pattern === "dots" && (await stored(notes.id))?.color === null, "so is a pattern alone");
+  await setPageBackground(ids.owner, notes.id, { color: "green", pattern: "grid" });
 
   let refused = false;
   try {
@@ -94,20 +97,23 @@ try {
   } catch {
     refused = true;
   }
-  check(refused && (await stored(notes.id))?.color === "green", "an image is refused and the color stays");
+  check(refused && (await stored(notes.id))?.color === "green", "an image is refused and the background stays");
 
   const copy = await duplicatePage(actor, notes.id, " (copy)");
-  check((await stored(copy.id))?.color === "green", "a copy keeps the background", await stored(copy.id));
+  const copied = await stored(copy.id);
+  check(copied?.color === "green" && copied?.pattern === "grid", "a copy keeps the background", copied);
 
   await setPageBackground(ids.owner, notes.id, null);
   check((await stored(notes.id)) === null, "null removes it");
 
   // MCP
-  const set = await callTool(ids.owner, "update_page", { page_id: notes.id, background: "color:purple" });
+  const set = await callTool(ids.owner, "update_page", { page_id: notes.id, background: "color:black pattern:plus" });
   check(set.data?.changed?.includes("background"), "update_page sets a background", set);
   const read = await callTool(ids.owner, "get_page", { page_id: notes.id });
-  check(read.data?.background === "color:purple", "get_page shows it as one string", read.data);
-  for (const wrong of ["https://images.example/a.jpg", "/api/files/AbCdEfGhIjKlMnOpQrStUvWx", "gradient:forest"]) {
+  check(read.data?.background === "color:black pattern:plus", "get_page shows it as one string", read.data);
+  await callTool(ids.owner, "update_page", { page_id: notes.id, background: "color:purple" });
+  check((await stored(notes.id))?.pattern === null, "a new background replaces the whole of the old one");
+  for (const wrong of ["https://images.example/a.jpg", "/api/files/AbCdEfGhIjKlMnOpQrStUvWx", "gradient:forest", "pattern:stars"]) {
     const answer = await callTool(ids.owner, "update_page", { page_id: notes.id, background: wrong });
     check(answer.isError && answer.text.includes("color:"), `update_page refuses ${wrong}`, answer.text);
   }

@@ -1001,7 +1001,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a page",
       description:
-        `Change a page's title, body and/or background (the color that fills the page behind its text). mode "replace" overwrites the whole body with the given Markdown; mode "append" adds it to the end. A history snapshot is saved before the body changes, and open editors update live. Works for database rows too (use update_database_row for their properties). ${EMBED_NOTE} Keep those lines where the databases should stay; a linked view whose line is left out is removed, while an inline database whose line is left out stays at the end of the page.`,
+        `Change a page's title, body and/or background (the color and pattern behind its text). mode "replace" overwrites the whole body with the given Markdown; mode "append" adds it to the end. A history snapshot is saved before the body changes, and open editors update live. Works for database rows too (use update_database_row for their properties). ${EMBED_NOTE} Keep those lines where the databases should stay; a linked view whose line is left out is removed, while an inline database whose line is left out stays at the end of the page.`,
       inputSchema: ops.inputs.updatePage,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
