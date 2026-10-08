@@ -165,7 +165,17 @@ describe("collab connections", () => {
     results.push(member, applies);
     await expect(authorizeCollab("u1", { kind: "ws", id: "ws1" })).rejects.toBeInstanceOf(TwoFactorRequiredError);
     results.push(member, relaxed);
-    expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" })).toEqual({ readOnly: false });
+    expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" })).toEqual({ readOnly: true });
+  });
+
+  it("open signal documents read-only, even for people who may edit", async () => {
+    const editable = [{ ...visiblePage[0], level: 4 }];
+    results.push(editable, relaxed);
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false });
+    results.push(editable, relaxed);
+    expect(await authorizeCollab("u1", { kind: "db", id: "p1" })).toEqual({ readOnly: true });
+    results.push(member, relaxed);
+    expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" })).toEqual({ readOnly: true });
   });
 
   it("need a single sign-on session in an SSO-only workspace", async () => {
@@ -175,7 +185,7 @@ describe("collab connections", () => {
     );
     results.push(member, ssoOnly);
     expect(await authorizeCollab("u1", { kind: "ws", id: "ws1" }, { strong: false, ssoProviderId: "ws-ws1" })).toEqual({
-      readOnly: false,
+      readOnly: true,
     });
   });
 });
