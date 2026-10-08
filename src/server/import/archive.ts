@@ -9,7 +9,9 @@ import { ImportError } from "@/lib/import/result";
  * (Notion's `Export-<id>.zip` holding `Export-<id>-Part-1.zip`, `…-Part-2.zip`).
  *
  * Unpacking is bounded before it starts: entry sizes come from the ZIP's directory and the
- * decompressor never writes past them, so a ZIP bomb can't take more memory than the limits.
+ * decompressor never writes past them, so a ZIP bomb can't take more memory than the limits. An
+ * entry counts as the larger of its two sizes: a stored entry is copied at its packed size whatever
+ * its unpacked size says, and many directory records can point at the same packed bytes.
  * Entries whose path climbs out of the archive (`../…`) are left out and reported.
  */
 
@@ -45,7 +47,7 @@ function unzip(data: Uint8Array, budget: Budget, depth: number, out: Map<string,
           return false;
         }
         if (isIgnoredPath(path)) return false;
-        take(budget, entry.originalSize);
+        take(budget, Math.max(entry.size, entry.originalSize));
         return true;
       },
     });
