@@ -10,7 +10,9 @@ export function parseDocName(name: string): DocTarget | null {
 
 /**
  * Whether the user may open a collab document: a workspace's signals need membership, a page or
- * database needs view access, and without edit access that connection is read-only. The
+ * database needs view access, and without edit access a page's connection is read-only. Signal
+ * documents (`ws:`, `db:`) are always read-only: the server only broadcasts on them, and nobody
+ * writes into them. The
  * workspace's sign-in policies apply to the session the token was issued to (`facts`, see
  * collabSessionFacts). Throws AccessError otherwise (a WorkspacePolicyError for the policies).
  * Checked when the connection opens; turning a policy on closes the others (disconnectHeldBack).
@@ -23,12 +25,12 @@ export async function authorizeCollab(
   if (target.kind === "ws") {
     if (!(await findMembership(userId, target.id))) throw new AccessError();
     await holdBack(userId, target.id, facts);
-    return { readOnly: false };
+    return { readOnly: true };
   }
   const { page, level } = await pageAccessOf(userId, target.id);
   if (!page || !hasLevel(level, "view")) throw new AccessError();
   await holdBack(userId, page.workspaceId, facts);
-  return { readOnly: !hasLevel(level, "edit") };
+  return { readOnly: target.kind === "db" || !hasLevel(level, "edit") };
 }
 
 async function holdBack(userId: string, workspaceId: string, facts: SessionFacts) {

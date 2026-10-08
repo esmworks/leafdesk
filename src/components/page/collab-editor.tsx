@@ -34,12 +34,13 @@ import { useColumnSlashItems } from "./columns";
 import { PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
 import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
 import { PAGE_LINK_BLOCK } from "@/lib/mentions";
+import { userColor } from "@/lib/presence";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { FindBar } from "./find-bar";
 import { FindReplace } from "./find-replace";
 import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, withEmbedItems, type PageEditor } from "./embed-blocks";
 import { MentionMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
-import { userColor, type PageDoc } from "./use-page-doc";
+import type { PageDoc } from "./use-page-doc";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 
 /**

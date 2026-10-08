@@ -826,9 +826,11 @@ export async function setMemberRole(actorId: string, workspaceId: string, target
     }
     return current.role;
   });
-  // Open editors keep the access checked when they connected. Owners and members see pages alike,
-  // so only a move to guest can take access away; drop those connections as removeMember does.
+  // Open editors keep the access checked when they connected. A move to guest drops those
+  // connections as removeMember does; any other change checks them again: an owner made a member
+  // keeps only what their teamspaces and shares give members.
   if (isGuest(role) && !isGuest(previous)) await getCollab().disconnectUser(targetId, workspaceId);
+  else if (role !== previous) await getCollab().disconnectLostAccess(workspaceId, [targetId]);
 }
 
 /** Makes another member an owner and the acting owner a member, in one step. */
@@ -874,6 +876,8 @@ export async function transferOwnership(actorId: string, workspaceId: string, ta
       tx,
     );
   });
+  // The acting owner is a member now: their open editors are checked again (see setMemberRole).
+  await getCollab().disconnectLostAccess(workspaceId, [actorId]);
 }
 
 /** Owners can remove anyone; members can only remove themselves (leave). */

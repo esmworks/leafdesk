@@ -183,11 +183,3 @@ export function usePageStyle(doc: Y.Doc | undefined, initial: PageStyle): PageSt
   );
   return useMemo(() => parsePageStyleKey(key), [key]);
 }
-
-const CURSOR_COLORS = ["#e5484d", "#f76b15", "#ffc53d", "#30a46c", "#12a594", "#0090ff", "#6e56cf", "#d6409f"];
-
-export function userColor(userId: string) {
-  let hash = 0;
-  for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
-  return CURSOR_COLORS[Math.abs(hash) % CURSOR_COLORS.length];
-}

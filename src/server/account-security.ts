@@ -54,13 +54,16 @@ export async function getAccountSecurity(userId: string): Promise<AccountSecurit
 /**
  * What the workspace policies look at in the session a collab token was issued to, checked when the
  * websocket connects: whether it passes "require two-step verification" (isStrongSession) and the
- * SSO provider it came through. A session that is gone counts by the user alone: turning two-step
- * verification on replaces the session, and tokens outlive it.
+ * SSO provider it came through. Null when that session has ended (signed out, revoked, expired or
+ * replaced, as turning two-step verification on does) or the account is gone: tokens outlive their
+ * session, and the connection is refused; a tab then asks for a token of the session it has now
+ * (components/collab/socket). A token that names no session, which only scripts issue, counts by
+ * the user alone.
  */
 export async function collabSessionFacts(
   sessionId: string | null,
   userId: string,
-): Promise<{ strong: boolean; ssoProviderId: string | null }> {
+): Promise<{ strong: boolean; ssoProviderId: string | null } | null> {
   const [[account], [current]] = await Promise.all([
     db.select({ twoFactorEnabled: user.twoFactorEnabled }).from(user).where(eq(user.id, userId)).limit(1),
     sessionId
@@ -71,7 +74,7 @@ export async function collabSessionFacts(
           .limit(1)
       : Promise.resolve([]),
   ]);
-  if (!account) return { strong: false, ssoProviderId: null };
+  if (!account || (sessionId && !current)) return null;
   return {
     strong: isStrongSession({ user: account, session: { authMethod: current?.authMethod ?? null } }),
     ssoProviderId: current?.ssoProviderId ?? null,

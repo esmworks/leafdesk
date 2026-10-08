@@ -3,8 +3,7 @@
 import { useTranslations } from "next-intl";
 import { cn, Popover } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import { splitViewers, textOn, type Presence } from "@/lib/presence";
-import { userColor } from "./use-page-doc";
+import { splitViewers, textOn, userColor, type Presence } from "@/lib/presence";
 
 /**
  * Who else has the page open, in the page header: a few avatars in their cursor colors and "+N"

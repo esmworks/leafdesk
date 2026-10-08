@@ -6,6 +6,21 @@
 
 export const PRESENCE_FIELD = "presence";
 
+/**
+ * The editor's cursor label (`{ name, color }`), which other people's editors draw at this tab's
+ * cursor. The collab server overwrites it like the presence.
+ */
+export const CURSOR_FIELD = "user";
+
+const CURSOR_COLORS = ["#e5484d", "#f76b15", "#ffc53d", "#30a46c", "#12a594", "#0090ff", "#6e56cf", "#d6409f"];
+
+/** A person's cursor and avatar color, the same in every browser and on the server. */
+export function userColor(userId: string) {
+  let hash = 0;
+  for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
+  return CURSOR_COLORS[Math.abs(hash) % CURSOR_COLORS.length];
+}
+
 /** `image`: their profile picture (`user.image`), when they have one. */
 export type Presence = { id: string; name: string; image?: string | null };
 

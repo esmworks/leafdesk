@@ -49,7 +49,14 @@ type CollabSocket = Parameters<typeof hocuspocus.handleConnection>[0];
 // The Hocuspocus connection behind each websocket peer.
 const connections = new WeakMap<object, ReturnType<typeof hocuspocus.handleConnection>>();
 
+// The largest message a browser sends is its sync answer: the edits the server doesn't have yet,
+// at most a whole page's document (files are uploads, so it holds their addresses, not their
+// bytes). That stays far below this; anything bigger is refused before it is read in full,
+// instead of the 100 MiB the websocket server would otherwise take.
+const MAX_COLLAB_MESSAGE_BYTES = 16 * 1024 * 1024;
+
 const ws = crossws({
+  serverOptions: { maxPayload: MAX_COLLAB_MESSAGE_BYTES },
   hooks: {
     open(peer) {
       connections.set(peer, hocuspocus.handleConnection(peer.websocket as CollabSocket, peer.request as Request));

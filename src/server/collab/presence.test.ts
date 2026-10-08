@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialOf, splitViewers, textOn, viewersOf } from "@/lib/presence";
+import { initialOf, splitViewers, textOn, userColor, viewersOf } from "@/lib/presence";
 import { stampPresence } from "./presence";
 
 const states = (...list: Record<string, unknown>[]) => new Map(list.map((s, i) => [i + 1, s]));
@@ -8,7 +8,26 @@ describe("stampPresence", () => {
   it("replaces what the browser claimed with the signed-in user", () => {
     const s = states({ presence: { id: "mallory", name: "Ann" }, user: { name: "Ann", color: "#000" } });
     stampPresence(s, { userId: "u1", userName: "Bob" });
-    expect(s.get(1)).toEqual({ presence: { id: "u1", name: "Bob" }, user: { name: "Ann", color: "#000" } });
+    expect(s.get(1)).toEqual({ presence: { id: "u1", name: "Bob" }, user: { name: "Bob", color: userColor("u1") } });
+  });
+
+  it("labels the cursor with the signed-in user's name and color, whatever the browser sent", () => {
+    const s = states(
+      { user: { name: "Ann", color: "#e5484d" } },
+      { user: { name: "Bob", color: "#fff;background:url(https://evil.example.com/x)" } },
+      { user: { name: "Bob", color: { toString: 1 } } },
+      { user: "Ann" },
+      { user: { name: "Bob", color: "#0090FF", extra: "<b>" } },
+    );
+    stampPresence(s, { userId: "u1", userName: "Bob" });
+    for (const state of s.values()) expect(state).toEqual({ user: { name: "Bob", color: userColor("u1") } });
+    expect(userColor("u1")).toMatch(/^#[0-9a-f]{6}$/);
+  });
+
+  it("drops a cursor label that no signed-in user backs", () => {
+    const s = states({ user: { name: "Ann", color: "#e5484d" }, cursor: { anchor: 1 } });
+    stampPresence(s, undefined);
+    expect(s.get(1)).toEqual({ cursor: { anchor: 1 } });
   });
 
   it("stamps any presence value, not only well-formed ones", () => {
