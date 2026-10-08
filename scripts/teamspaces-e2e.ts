@@ -59,6 +59,8 @@ const RUN = `teamspaces-e2e-${Date.now().toString(36)}`;
 
 // Writes notify open editors through the collab service, which only runs inside the app server.
 const disconnected: { teamspaceId: string; userIds?: string[] }[] = [];
+// Open editors whose access is checked again, as [workspace, the users or "everyone"].
+const rechecked: string[] = [];
 registerCollab({
   broadcast() {},
   async setTitle() {},
@@ -69,7 +71,9 @@ registerCollab({
   async readPage() {
     return { title: "", markdown: "", text: "" };
   },
-  async disconnectLostAccess() {},
+  async disconnectLostAccess(workspaceId: string, userIds?: string[]) {
+    rechecked.push(`${workspaceId}:${userIds ? userIds.join(",") : "everyone"}`);
+  },
 } as unknown as Parameters<typeof registerCollab>[0]);
 
 let passed = 0;
@@ -271,12 +275,17 @@ try {
   await addTeamspaceMembers(owner, closed.id, [bob]);
   check((await levels(clPage.id, bob)) === "full", "an owner adding someone to a closed teamspace gives access");
   await rejects(() => leaveTeamspace(owner, closed.id), isCode("lastOwner"), "the last owner can't leave");
+  rechecked.length = 0;
   await setTeamspaceRole(owner, closed.id, bob, "owner");
+  check(rechecked.length === 0, "becoming a teamspace owner takes nothing away", rechecked);
   await leaveTeamspace(owner, closed.id);
   check((await levels(clPage.id, owner)) === "none", "a workspace owner who left a closed teamspace loses its pages");
   const closedForOwner = (await listTeamspaces(owner, workspaceId)).find((t) => t.id === closed.id)!;
   check(closedForOwner.canManage, "…but still manages it, as a workspace owner");
   await addTeamspaceMembers(owner, closed.id, [owner], "owner");
+  rechecked.length = 0;
+  await setTeamspaceRole(owner, closed.id, bob, "member");
+  check(rechecked.join() === `${workspaceId}:${bob}`, "a teamspace owner made a member has their open editors checked again", rechecked);
   await removeTeamspaceMember(owner, closed.id, bob);
   check((await levels(clPage.id, bob)) === "none", "removing someone takes the access away");
   const byMember = await teamspacesByMember(owner, workspaceId);

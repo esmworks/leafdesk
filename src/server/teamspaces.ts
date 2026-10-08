@@ -537,7 +537,7 @@ export async function removeTeamspaceMember(actorId: string, teamspaceId: string
 /** Makes someone in the teamspace an owner or a member of it. Needs to manage it. */
 export async function setTeamspaceRole(actorId: string, teamspaceId: string, targetId: string, role: TeamspaceRole) {
   const { teamspace: found } = await manageableTeamspace(actorId, teamspaceId);
-  await db.transaction(async (tx) => {
+  const demoted = await db.transaction(async (tx) => {
     const record = () =>
       recordAudit(
         {
@@ -577,7 +577,7 @@ export async function setTeamspaceRole(actorId: string, teamspaceId: string, tar
       await record();
       return;
     }
-    if (target.role === role) return;
+    if (target.role === role) return false;
     if (role === "member" && found.access !== "default" && members.filter((m) => m.role === "owner").length <= 1) {
       throw new TeamspaceError("lastOwner", "Make someone else an owner of the teamspace first.");
     }
@@ -593,8 +593,12 @@ export async function setTeamspaceRole(actorId: string, teamspaceId: string, tar
         .where(and(eq(teamspaceMember.teamspaceId, teamspaceId), eq(teamspaceMember.userId, targetId)));
     }
     await record();
+    return target.role === "owner";
   });
   await db.update(teamspace).set({ updatedAt: new Date() }).where(eq(teamspace.id, teamspaceId));
+  // A teamspace owner has full access to its pages, a member what its member access gives: their
+  // open editors are checked again.
+  if (demoted) await getCollab().disconnectLostAccess(found.workspaceId, [targetId]);
 }
 
 export type TeamspacePerson = {

@@ -608,6 +608,16 @@ try {
     "someone outside the workspace gets none of its live signals",
   );
 
+  // An owner made a member keeps only what members get: their open editors are checked again
+  await setMemberRole(owner, workspaceId, bob, "owner");
+  rechecked.length = 0;
+  await setMemberRole(owner, workspaceId, bob, "member");
+  check(rechecked.join() === `${workspaceId}:${bob}`, "an owner made a member has their open editors checked again", rechecked);
+  rechecked.length = 0;
+  await transferOwnership(owner, workspaceId, bob);
+  check(rechecked.join() === `${workspaceId}:${owner}`, "handing over the workspace checks the former owner's open editors again", rechecked);
+  await transferOwnership(bob, workspaceId, owner);
+
   // Ownership goes to members only
   await rejects(
     () => transferOwnership(owner, workspaceId, guest),
