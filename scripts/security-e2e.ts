@@ -11,7 +11,8 @@
  *   with it, unproven, without what they set up: passkeys, two-step verification, API tokens,
  *   connected apps, sessions (an account with a verified address keeps its own);
  * - pointing a workspace's SSO connection at another identity provider, or removing it, forgets
- *   who was linked through it and signs them out, so the new provider can't sign in as them.
+ *   who was linked through it and signs them out, so the new provider can't sign in as them;
+ * - the sign-in page's `?next=` stays on this site, however the other site is written.
  *
  * Creates its own @example.test users and workspaces and deletes them afterwards.
  *
@@ -395,6 +396,18 @@ try {
   await signInThrough(ids.free);
   await removeSsoConnection(ids.member, open);
   check(JSON.stringify(await throughConnection()) === JSON.stringify({ accounts: 0, sessions: 0 }), "removing the connection does too", await throughConnection());
+
+  // ---------------------------------------------------------------- where signing in goes next
+  /** Where the sign-in form goes after signing in: its `next` prop, as the page streams it. */
+  const nextOf = async (next: string) => {
+    const html = await (await get(`/sign-in?next=${encodeURIComponent(next)}`)).text();
+    return /signUpEnabled\\":(?:true|false),\\"next\\":\\"(.*?)\\"/.exec(html)?.[1] ?? null;
+  };
+  for (const next of ["/\\evil.example/x", "//evil.example/x", "/\t/evil.example/x", "https://evil.example/x"]) {
+    const after = await nextOf(next);
+    check(after === "/", `the sign-in page turns ?next=${JSON.stringify(next)} into the home page`, after);
+  }
+  check((await nextOf("/w/abc?x=1")) === "/w/abc?x=1", "…but keeps a path on this site");
 
   console.log(`\n${passed} checks passed`);
 } catch (error) {
