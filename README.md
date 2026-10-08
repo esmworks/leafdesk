@@ -1319,7 +1319,8 @@ The tools cover:
   else gets an invitation, whose link is returned too.
 - **Teamspaces:** `create_page`, `create_database` and `move_page` take a `teamspace_id` for
   top-level pages (`"private"` for the user's private pages). Without one, a page an AI app
-  creates at the top is private to the user, as in Notion's API; the user moves it to share it.
+  creates at the top is private to the user, so nothing an app makes is shared before they
+  decide; the user moves it to share it.
 - **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
   everything under it, beside the original), `archive_page`, `list_trash`, `restore_page`.
   `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
