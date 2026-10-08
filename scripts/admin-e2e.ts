@@ -445,7 +445,9 @@ async function main() {
   const carolNew = await signIn(carol.email, NEW_PASSWORD);
   check(carolNew.status === 200 && (await sessionOf(carolNew.jar)) !== null, "the new one signs her in");
 
-  // Two-step verification: the in-app step also asks for a code.
+  // Two-step verification: the in-app step also asks for a code. Dave's address is proven, so an
+  // emailed link keeps it; on an unproven one the link would remove it (see security-e2e).
+  await db.update(user).set({ emailVerified: true }).where(eq(user.id, dave.id));
   const daveIn = await signIn(dave.email, PASSWORD);
   const enable = await authPost("/two-factor/enable", { password: PASSWORD }, daveIn.jar);
   const key = totpKeyFromUri(enable.body.totpURI);
