@@ -67,6 +67,9 @@ jobs:
         run: pnpm i18n:check
       - run: pnpm test
       - run: pnpm build
+      # The JavaScript browsers download, gzipped; budgets are in the script.
+      - name: Bundle budget
+        run: pnpm tsx scripts/bundle-budget.ts
       - run: pnpm db:migrate
 
       - name: Page permissions end-to-end

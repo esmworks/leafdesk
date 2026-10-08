@@ -1,0 +1,39 @@
+name: Dependencies
+
+# Weekly, because new advisories arrive without a commit. Fails when `pnpm audit` finds a production
+# dependency with an advisory that isn't reviewed in pnpm-workspace.yaml (auditConfig.ignoreGhsas),
+# and lists outdated direct dependencies without failing.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths: [package.json, pnpm-lock.yaml, pnpm-workspace.yaml, .github/workflows/dependencies.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Audit and outdated
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      # Version comes from "packageManager" in package.json.
+      - uses: pnpm/action-setup@v6
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Advisories in production dependencies
+        run: pnpm audit --prod
+
+      - name: Outdated direct dependencies
+        run: pnpm outdated || true

@@ -16,3 +16,18 @@ overrides:
   # SVG decoding.
   # Drop this once Next.js resolves 0.35.5 or later on its own.
   sharp: 0.35.5
+  # Mermaid's parser library (chevrotain 11) still asks for a lodash-es with the `_.template` and
+  # `_.unset`/`_.omit` advisories; 4.18 is the same API. Drop once chevrotain no longer needs it.
+  'lodash-es@<4.17.24': 4.18.1
+  # Next.js's PostCSS asks for a source-map-js with a denial-of-service advisory on crafted source maps.
+  'source-map-js@<1.2.2': 1.2.2
+
+# Advisories `pnpm audit --prod` reports that don't reach a running Leafdesk. Review them when the
+# weekly dependency check (.github/workflows/dependencies.yml) lists something new.
+auditConfig:
+  ignoreGhsas:
+    # esbuild's development server; esbuild only comes in through drizzle-kit's migration CLI.
+    - GHSA-67mh-4wv8-2f99
+    # KaTeX inside Mermaid, which pins 0.16; it needs prototype pollution elsewhere first. Leafdesk's
+    # own math uses KaTeX 0.18.
+    - GHSA-238p-pmpm-9mq7

@@ -201,6 +201,15 @@
 
 ### Changed
 
+- **Dependency checks.** A weekly workflow (`.github/workflows/dependencies.yml`, also on changes to
+  the lockfile) runs `pnpm audit --prod` and lists outdated direct dependencies. Advisories that
+  can't reach a running server are reviewed in `pnpm-workspace.yaml` (`auditConfig.ignoreGhsas`,
+  each with its reason); any other one fails the check. lodash-es 4.18.1 (under Mermaid's parser)
+  and source-map-js 1.2.2 (under Next.js's PostCSS) are pinned by override for their advisories.
+- **Bundle budget.** CI fails when the JavaScript a browser downloads grows past its budget: the
+  largest first load of any route (the page editor, about 700 kB gzipped today, budget 800 kB) and
+  all client chunks together (about 2,700 kB, budget 3,150 kB). `pnpm tsx scripts/bundle-budget.ts`
+  after `pnpm build` prints the largest routes.
 - **A database's tab title names its view.** The browser tab of a database reads
   "Customers · By city · Leafdesk": the view it shows, following view switches and renames of the
   database or its views, and kept on a reload or a shared `?view=` link.
