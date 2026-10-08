@@ -11,9 +11,9 @@ import type { ApiPrincipal, TokenCheck } from "./tokens";
  * rate limits, JSON in and out, errors as `{error: {code, message, details?}}`.
  *
  * Only tokens authenticate here, never the browser's session cookie, so pages can't be made to call
- * the API on a signed-in user's behalf. Like MCP's OAuth tokens, bearer requests are outside the
- * workspaces' two-step verification policy (see request-session.ts and access.ts), and answer to
- * their connected-apps setting instead (see connected-app.ts).
+ * the API on a signed-in user's behalf. Like MCP's OAuth tokens, requests a token authenticated are
+ * outside the workspaces' sign-in policies (see sessionHold in access.ts), and answer to their
+ * connected-apps setting instead (see connected-app.ts).
  */
 export const API_PREFIX = "/api/v1";
 /** Largest request body accepted. */

@@ -169,10 +169,12 @@ export async function policyHoldFor(userId: string, workspaceId: string, facts: 
 
 /**
  * Which policy holds back the browser session serving this request, when it belongs to `userId`.
- * Null outside requests, for bearer tokens, for other users (checks on someone else's behalf, like
- * who a page is shared with) and for sessions that pass. Asked once per request and workspace.
+ * Null outside requests, for requests a connected app's token authenticated (they answer to
+ * connectedAppHold), for other users (checks on someone else's behalf, like who a page is shared
+ * with) and for sessions that pass. Asked once per request and workspace.
  */
 export async function sessionHold(userId: string, workspaceId: string): Promise<PolicyHold | null> {
+  if (connectedAppCall(userId)) return null;
   const current = await requestSession();
   if (!current || current.userId !== userId) return null;
   let held = current.heldBack.get(workspaceId);
