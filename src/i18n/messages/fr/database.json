@@ -445,7 +445,9 @@
     "defaultEndProperty": "Fin",
     "addOnDay": "Ajouter une ligne le {date}",
     "noDate": "{count, plural, one {# ligne} other {# lignes}} sans {property}",
-    "noDateTitle": "Lignes sans {property}"
+    "noDateTitle": "Lignes sans {property}",
+    "dayRows": "{date} : {count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}",
+    "emptyDay": "Aucune ligne ce jour-là."
   },
   "layout": {
     "label": "Disposition",

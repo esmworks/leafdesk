@@ -75,6 +75,10 @@
   language, so the server draws the page in the chosen theme from the start, and the editor,
   diagrams and the browser bar follow it; a new choice switches the page, the editor and diagrams
   together at once, also offline. The print view stays light. No migration.
+- **The calendar on phones.** The month fits the screen instead of scrolling sideways: each day
+  shows a dot per row (up to three), and the rows of the picked day are listed under the month,
+  where a row can be added on that day. Rows aren't dragged between days there. Wider screens
+  keep the full grid.
 - **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
   row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
   (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if

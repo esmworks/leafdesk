@@ -445,7 +445,9 @@
     "defaultEndProperty": "End",
     "addOnDay": "Add a row on {date}",
     "noDate": "{count, plural, one {# row} other {# rows}} without {property}",
-    "noDateTitle": "Rows without {property}"
+    "noDateTitle": "Rows without {property}",
+    "dayRows": "{date}: {count, plural, =0 {no rows} one {# row} other {# rows}}",
+    "emptyDay": "No rows on this day."
   },
   "layout": {
     "label": "Layout",

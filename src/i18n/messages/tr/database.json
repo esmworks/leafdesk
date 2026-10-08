@@ -445,7 +445,9 @@
     "defaultEndProperty": "Bitiş",
     "addOnDay": "{date} için satır ekle",
     "noDate": "{property} olmayan {count, plural, other {# satır}}",
-    "noDateTitle": "{property} olmayan satırlar"
+    "noDateTitle": "{property} olmayan satırlar",
+    "dayRows": "{date}: {count, plural, =0 {satır yok} other {# satır}}",
+    "emptyDay": "Bu günde satır yok."
   },
   "layout": {
     "label": "Düzen",
