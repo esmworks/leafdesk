@@ -19,6 +19,7 @@ import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema/app";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import type { PageHeaderInfo } from "@/server/page-meta";
+import { DocumentViewContext } from "./document-title";
 import { HistoryPanel } from "./history-panel";
 import { IconPicker } from "./icon-picker";
 import { PageCoverBanner, randomCover } from "./page-cover";
@@ -126,10 +127,14 @@ export function PageView({
     el.setSelectionRange(el.value.length, el.value.length);
   }, [editable, page.id]);
 
-  // Keep the tab title in sync with live renames.
+  // Keep the tab title in sync with live renames; a database adds the view it shows.
+  const [viewName, setViewName] = useState<string | null>(null);
   useEffect(() => {
-    document.title = t("documentTitle", { title: pageLabel(title, untitled) });
-  }, [title, untitled, t]);
+    const label = pageLabel(title, untitled);
+    document.title = viewName
+      ? t("documentViewTitle", { title: label, view: viewName })
+      : t("documentTitle", { title: label });
+  }, [title, untitled, viewName, t]);
 
   /** Runs a page action; a failure shows a message instead of reaching the error boundary. */
   function run(action: () => Promise<void>, onError?: () => void) {
@@ -379,7 +384,11 @@ export function PageView({
           )}
         </div>
 
-        {children && <div className={cn(wide ? "mt-5" : "mt-4 px-4 md:px-[54px]")}>{children}</div>}
+        {children && (
+          <DocumentViewContext.Provider value={setViewName}>
+            <div className={cn(wide ? "mt-5" : "mt-4 px-4 md:px-[54px]")}>{children}</div>
+          </DocumentViewContext.Provider>
+        )}
 
         {showBody && (
           <div className="mt-4 min-h-[40vh]">

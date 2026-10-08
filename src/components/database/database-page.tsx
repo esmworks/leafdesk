@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui";
+import { useDocumentViewName } from "@/components/page/document-title";
 import { markNewPage } from "@/components/page/new-page-focus";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
 import type { LinkedView } from "@/lib/embed-blocks";
@@ -102,6 +103,7 @@ export function DatabasePage({
   );
   const views = linkedView ? [linkedView] : (snapshot?.views ?? []);
   const view = views.find((v) => v.id === selectedViewId) ?? views[0] ?? null;
+  useDocumentViewName(view?.name || null, !embedded);
   // Rows and views change through the server: offline, the database is read-only.
   const offline = useIsOffline() || offlineCopyFrom !== null;
   const readOnly = (snapshot?.database.archived ?? false) || !canEdit || offline;

@@ -1,5 +1,6 @@
 {
   "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
   "header": {
     "history": "Historial de la página",
     "more": "Más",

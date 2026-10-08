@@ -137,6 +137,9 @@
 
 ### Changed
 
+- **A database's tab title names its view.** The browser tab of a database reads
+  "Customers · By city · Leafdesk": the view it shows, following view switches and renames of the
+  database or its views, and kept on a reload or a shared `?view=` link.
 - **Leafdesk's own colors.** Select and status options, board columns, the editor's text and block
   colors, chart groups and page history now use one palette built from the same lightness and
   saturation per role in each hue, slightly richer than before, with gray leaning toward the brand

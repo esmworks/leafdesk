@@ -11,7 +11,7 @@ import { pageStyleFromYdoc } from "@/lib/page-style";
 import { AccessError, WorkspacePolicyError } from "@/server/access";
 import { accessRequestsOffered } from "@/server/access-requests";
 import { getPageHeaderInfo } from "@/server/page-meta";
-import { getBreadcrumbs, getPage } from "@/server/pages";
+import { getBreadcrumbs, getPage, openViewName } from "@/server/pages";
 import { policyGatePath, requireUser, requireWorkspaceSession } from "@/server/session";
 
 type Params = { params: Promise<{ workspaceId: string; pageId: string }> };
@@ -27,13 +27,21 @@ async function load(userId: string, pageId: string) {
   }
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Params & { searchParams: Promise<{ view?: string | string[] }> }): Promise<Metadata> {
   const user = await requireUser();
   const { pageId } = await params;
   const [p, t] = await Promise.all([load(user.id, pageId), getTranslations()]);
   if (!p) return { title: t("page.noAccess.metaTitle") };
   await requireWorkspaceSession(p.workspaceId);
-  return { title: pageLabel(p.title, t("common.untitled")) };
+  const title = pageLabel(p.title, t("common.untitled"));
+  // Same as the tab title the page keeps (components/page/page-view.tsx), so a refresh doesn't
+  // drop the view from it.
+  const { view } = await searchParams;
+  const viewName = p.kind === "database" ? await openViewName(p.id, typeof view === "string" ? view : null) : null;
+  return { title: viewName ? { absolute: t("page.documentViewTitle", { title, view: viewName }) } : title };
 }
 
 export default async function PageRoute({ params }: Params) {

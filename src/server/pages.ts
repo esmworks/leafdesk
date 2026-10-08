@@ -163,6 +163,19 @@ export async function getPage(userId: string, pageId: string) {
   return requirePageAccess(userId, pageId, "view");
 }
 
+/**
+ * The view a database page opens on, named in its tab title: the one in the address, else its
+ * first (as the database itself picks). Access is the caller's to check.
+ */
+export async function openViewName(databaseId: string, viewId: string | null): Promise<string | null> {
+  const views = await db
+    .select({ id: databaseView.id, name: databaseView.name })
+    .from(databaseView)
+    .where(eq(databaseView.databaseId, databaseId))
+    .orderBy(asc(databaseView.position));
+  return (views.find((v) => v.id === viewId) ?? views[0])?.name || null;
+}
+
 export async function getBreadcrumbs(userId: string, pageId: string) {
   await requirePageAccess(userId, pageId, "view");
   const rows = await db.execute<{ id: string; title: string; icon: string | null; kind: PageKind; depth: number }>(sql`
