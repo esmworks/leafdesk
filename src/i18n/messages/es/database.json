@@ -396,7 +396,14 @@
     "editFormula": "Editar fórmula",
     "formulaHint": "Calculado con una fórmula",
     "editRollup": "Editar agregación",
-    "rollupHint": "Calculado a partir de filas relacionadas"
+    "rollupHint": "Calculado a partir de filas relacionadas",
+    "numberFormat": "Formato de número",
+    "formatNumber": "Número",
+    "formatPercent": "Porcentaje",
+    "formatCurrency": "Moneda",
+    "decimals": "Decimales",
+    "decimalsAuto": "Automático",
+    "percentHint": "Escribe 15 para {percent}"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -591,6 +598,7 @@
     "invalidViewConfig": "Esta configuración de vista no se puede guardar. Recarga la página y vuelve a intentarlo.",
     "unsupportedViewType": "Tipo de vista no admitido: “{type}”.",
     "invalidRollup": "La agregación “{property}” no se puede guardar: {message}",
+    "invalidNumberFormat": "Este formato de número no se puede guardar.",
     "isTemplate": "Las plantillas no se pueden mover ni enviar a la papelera. Elimínalas desde la lista de plantillas.",
     "notATemplate": "Esta página no es una plantilla de este espacio de trabajo ni de esta base de datos.",
     "propertyRestricted": "No tienes permiso para cambiar «{property}».",

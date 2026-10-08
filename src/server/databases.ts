@@ -12,6 +12,7 @@ import {
   type DependencyConfig,
   type DependencyShift,
   type FormulaConfig,
+  type NumberFormat,
   type PropertyOptions,
   type PropertyType,
   type RelationConfig,
@@ -49,6 +50,7 @@ import {
   type DependencyInput,
   type Span,
 } from "@/lib/dependencies";
+import { checkNumberFormat } from "@/lib/number-format";
 import { dayValue } from "@/lib/timeline";
 import {
   applyView,
@@ -1113,6 +1115,16 @@ async function relationTarget(
   return target;
 }
 
+/** A number format given for a property of `type`, checked (see lib/number-format); null for plain numbers. */
+function numberFormat(type: PropertyType, input: unknown): NumberFormat | null {
+  if (input !== null && type !== "number") {
+    throw new PropertyValueError(`Only number properties have a number format`, "invalidNumberFormat");
+  }
+  const checked = checkNumberFormat(input);
+  if (!checked.ok) throw new PropertyValueError(checked.message, "invalidNumberFormat");
+  return checked.format;
+}
+
 export async function addProperty(
   userId: string,
   databaseId: string,
@@ -1125,6 +1137,8 @@ export async function addProperty(
     formula?: { expression: string };
     /** Rollups: what to calculate over which relation. */
     rollup?: RollupInput;
+    /** Numbers: how values show (see lib/number-format). */
+    number?: NumberFormat | null;
   },
 ) {
   const database = await requireDatabase(userId, databaseId, "edit");
@@ -1142,8 +1156,11 @@ export async function addProperty(
       ? await rollupConfig(userId, input.rollup, await knownProperties(userId, databaseId), { id: "\u0000new", name })
       : undefined;
   const target = input.type === "relation" ? await relationTarget(userId, database, input.relation) : null;
+  const number = input.number !== undefined ? numberFormat(input.type, input.number) : null;
   const options: PropertyOptions =
-    input.type === "select" || input.type === "multi_select"
+    number
+      ? { number }
+      : input.type === "select" || input.type === "multi_select"
       ? { options: (input.options ?? []).map((o, i) => makeOption(typeof o === "string" ? o : o.name, i)) }
       : input.type === "status"
         ? { options: makeStatusOptions(input.options) }
@@ -1391,9 +1408,13 @@ export async function updateProperty(
     formula?: { expression: string };
     /** Rollups: settings to change; the others stay. */
     rollup?: Partial<RollupInput>;
+    /** Numbers: how values show; null for plain numbers. */
+    number?: NumberFormat | null;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  const number = patch.number !== undefined ? numberFormat(prop.type, patch.number) : undefined;
+  const { number: _number, ...rest } = prop.options;
   const formula =
     patch.formula && prop.type === "formula"
       ? formulaConfig(patch.formula.expression, await knownProperties(userId, prop.databaseId), {
@@ -1422,6 +1443,7 @@ export async function updateProperty(
         ...(patch.options !== undefined ? { options: { ...prop.options, options: patch.options } } : {}),
         ...(formula ? { options: { ...prop.options, formula } } : {}),
         ...(rollup ? { options: { ...prop.options, rollup } } : {}),
+        ...(number !== undefined ? { options: number ? { ...rest, number } : rest } : {}),
         ...(patch.position !== undefined ? { position: patch.position } : {}),
       })
       .where(eq(databaseProperty.id, propertyId));

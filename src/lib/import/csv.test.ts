@@ -14,6 +14,7 @@ import {
   parseCsv,
   parseDate,
   parseNumber,
+  percentColumn,
   splitList,
 } from "./csv";
 
@@ -93,6 +94,21 @@ describe("values", () => {
     expect(parseNumber("1e3")).toBe(1000);
     expect(parseNumber("12 abc")).toBeNull();
     expect(parseNumber("")).toBeNull();
+  });
+
+  it("reads amounts and percentages, a percentage as its fraction", () => {
+    expect(parseNumber("₺1.234,50")).toBe(1234.5);
+    expect(parseNumber("$1,234.50")).toBe(1234.5);
+    expect(parseNumber("12 €")).toBe(12);
+    expect(parseNumber("15%")).toBe(0.15);
+    expect(parseNumber("%7")).toBe(0.07);
+    expect(parseNumber("12,5 %")).toBe(0.125);
+    expect(parseNumber("%")).toBeNull();
+    expect(cellValue("number", "0.15")).toBe(0.15);
+    expect(guessColumn(["15%", "7,5%", ""]).type).toBe("number");
+    expect(percentColumn(["15%", "7,5%", ""])).toBe(true);
+    expect(percentColumn(["15%", "7"])).toBe(false);
+    expect(percentColumn(["", " "])).toBe(false);
   });
 
   it("reads checkboxes in English, Turkish, German, Spanish and French", () => {

@@ -30,6 +30,7 @@ import { Floating } from "./floating";
 import { useGroupContext, useGroupName } from "./group-label";
 import { RowValue, shownValues } from "./property-cell";
 import { useFormatResult } from "./table-calculations";
+import { calculationFormat, numberFormatOptions } from "@/lib/number-format";
 import type { Property, Row, View } from "./types";
 
 /**
@@ -159,11 +160,17 @@ function Chart({
   const measureName = accumulate ? t(`chart.running.${accumulate}`, { measure: measured }) : measured;
   const nameOf = (g: { key: string; value: GroupValue; other?: boolean }) => (g.other ? t("chart.other") : groupName(g));
   const seriesLabel = (s: ChartSeries | undefined) => (!s ? "" : s.other ? t("chart.other") : seriesName(s));
-  const show = (result: AggregateResult | null) => (result ? formatResult(fn, result) : "–");
-  const tick = (value: number) =>
-    data.format === "percent"
-      ? format.number(value, { style: "percent", maximumFractionDigits: 1 })
-      : format.number(value, { notation: Math.abs(value) >= 10000 ? "compact" : "standard", maximumFractionDigits: 2 });
+  // A sum or average of amounts (or percentages) shows in the property's number format.
+  const options = measure.kind === "count" ? undefined : measure.prop.options;
+  const unit = calculationFormat(fn, options);
+  const show = (result: AggregateResult | null) => (result ? formatResult(fn, result, options) : "–");
+  const tick = (value: number) => {
+    if (data.format === "percent") return format.number(value, { style: "percent", maximumFractionDigits: 1 });
+    const notation = Math.abs(value) >= 10000 ? "compact" : "standard";
+    // Axis labels drop the fixed decimals: "₺1.000", not "₺1.000,00".
+    if (unit) return format.number(value, { ...numberFormatOptions(unit, 2), minimumFractionDigits: 0, notation });
+    return format.number(value, { notation, maximumFractionDigits: 2 });
+  };
   // A donut slice's share is of the slices together (a row with two tags is in two slices).
   const sliced = data.groups.reduce((sum, g) => sum + Math.max(0, g.amount), 0);
   const stacked = data.series.length > 0;

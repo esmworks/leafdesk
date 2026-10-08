@@ -1,7 +1,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseView, file, formPublication, page, user, type FormConfig, type SelectOption } from "@/db/schema";
+import { databaseView, file, formPublication, page, user, type FormConfig, type NumberFormat, type SelectOption } from "@/db/schema";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
 import { env } from "@/lib/env";
 import {
@@ -464,7 +464,7 @@ export async function revokeFormPublication(userId: string, workspaceId: string,
 // Public forms (no workspace access needed). Everything below trusts only the token.
 
 /** The one property a public question shows: its options, never its relation or anything else. */
-export type PublicFormProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & { options: { options?: SelectOption[] } };
+export type PublicFormProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & { options: { options?: SelectOption[]; number?: NumberFormat } };
 export type PublicForm = {
   token: string;
   title: string;
@@ -508,7 +508,9 @@ function publicProperty(prop: DatabaseProperty, name = prop.name): PublicFormPro
         ({ id, name, color, group }) => ({ id, name, color, ...(group ? { group } : {}) }),
       )
     : undefined;
-  return { id: prop.id, name, type: prop.type, options: options ? { options } : {} };
+  // A number's format says how answers are read (a percentage in percent points).
+  const number = prop.type === "number" ? prop.options.number : undefined;
+  return { id: prop.id, name, type: prop.type, options: options ? { options } : number ? { number } : {} };
 }
 
 /** A public form as its page shows it, or null when the link doesn't (or no longer) work. */

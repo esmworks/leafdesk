@@ -34,6 +34,7 @@ import {
   STATUS_GROUPS,
   type StatusGroup,
 } from "./property-types";
+import { isPercent, toPercentPoints } from "./number-format";
 import { moveBeside } from "./reorder";
 
 export const SELECT_COLORS = ["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"] as const;
@@ -78,6 +79,7 @@ export const DATABASE_ERROR_CODES = [
   "tooManyRows",
   "invalidFormula",
   "invalidRollup",
+  "invalidNumberFormat",
   "isTemplate",
   "notATemplate",
   "propertyRestricted",
@@ -459,8 +461,10 @@ function liveValue(row: RowLike, key: string, prop: PropertyDef | undefined): un
     if (derivedType(prop) === "date") return valueDay(plain);
     // Rollup percentages are fractions (0.25); filters compare the percent people see (25).
     const percent = prop.type === "rollup" && rollupFormat(prop.options.rollup?.function) === "percent";
-    return percent && typeof plain === "number" ? plain * 100 : plain;
+    return percent && typeof plain === "number" ? toPercentPoints(plain) : plain;
   }
+  // So do numbers shown as percentages.
+  if (prop?.type === "number" && isPercent(prop.options.number) && typeof v === "number") return toPercentPoints(v);
   if (!prop || !holdsOptions(prop.type)) return v;
   const known = (id: unknown) => (prop.options.options ?? []).some((o) => o.id === id);
   if (Array.isArray(v)) return v.filter(known);

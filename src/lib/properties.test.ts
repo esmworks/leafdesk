@@ -122,6 +122,20 @@ describe("applyView", () => {
     expect(applyView(rows, { filters: [{ propertyId: "p_number", op: "lt", value: "5" }] }).map((r) => r.id)).toEqual(["a"]);
   });
 
+  it("filters percentages in percent points and sorts them by value", () => {
+    const share = prop("number", { number: { format: "percent" } });
+    const shares = [row("a", "A", { p_number: 0.07 }), row("b", "B", { p_number: 0.5 }), row("c", "C", {})];
+    const ids = (filters: FilterRule[]) => applyView(shares, { filters }, [share]).map((r) => r.id);
+    expect(ids([{ propertyId: "p_number", op: "equals", value: 7 }])).toEqual(["a"]);
+    expect(ids([{ propertyId: "p_number", op: "gt", value: 10 }])).toEqual(["b"]);
+    expect(ids([{ propertyId: "p_number", op: "lt", value: 0.5 }])).toEqual([]);
+    const sorted = applyView(shares, { sorts: [{ propertyId: "p_number", direction: "desc" }] }, [share]);
+    expect(sorted.map((r) => r.id)).toEqual(["b", "a", "c"]);
+    // A currency is only how the amount shows.
+    const price = prop("number", { number: { format: "currency", currency: "TRY" } });
+    expect(applyView(shares, { filters: [{ propertyId: "p_number", op: "gt", value: 0.1 }] }, [price]).map((r) => r.id)).toEqual(["b"]);
+  });
+
   it("treats unchecked and untouched checkboxes as empty", () => {
     const unchecked = applyView(rows, { filters: [{ propertyId: "p_checkbox", op: "is_empty" }] });
     expect(unchecked.map((r) => r.id)).toEqual(["b", "c", "d"]);

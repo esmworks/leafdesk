@@ -7,7 +7,7 @@ import { Button, cn, Input, MenuItem } from "@/components/ui";
 import { Floating, useFloating } from "./floating";
 import { PersonPicker } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
-import { INPUT_MODE, INVALID_INPUT, OptionPicker, parseInput } from "./property-cell";
+import { editText, INPUT_MODE, INVALID_INPUT, OptionPicker, parseInput } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { RelationPicker } from "./relation-cell";
 import type { Property, Row } from "./types";
@@ -385,15 +385,6 @@ function BulkValueEditor({
   }
 }
 
-/** A number in the locale's decimal style without grouping, so parseInput reads it back as is. */
-function initialText(value: unknown, locale: string) {
-  if (value === null || value === undefined) return "";
-  if (typeof value !== "number") return String(value);
-  const decimal = new Intl.NumberFormat(locale).formatToParts(1.5).find((p) => p.type === "decimal")?.value;
-  const s = String(value);
-  return decimal === "," && !s.includes("e") ? s.replace(".", ",") : s;
-}
-
 /** Text, number, URL, email, phone and date values: type, then Apply (Enter) or Clear. */
 function TextValueEditor({
   prop,
@@ -409,7 +400,8 @@ function TextValueEditor({
   const t = useTranslations("database.bulk");
   const tc = useTranslations("database.cell");
   const locale = useLocale();
-  const [draft, setDraft] = useState(() => initialText(value, locale));
+  // As the cell editor shows it (percentages in percent points), so parseInput reads it back as is.
+  const [draft, setDraft] = useState(() => editText(value, locale, prop.options.number));
   const [invalid, setInvalid] = useState(false);
   const date = prop.type === "date";
 

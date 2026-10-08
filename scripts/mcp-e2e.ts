@@ -543,6 +543,10 @@ async function main() {
   const schema = await mcp.ok("get_database", { database_id: dbPage.id });
   const priority = schema.properties.find((p: { name: string }) => p.name === "Priority");
   check(priority?.options?.join(",") === "High,Low", "get_database lists option names", schema);
+  // A number format only changes how the app shows values: rows below still read 3 and 8.
+  await mcp.ok("update_database_property", { database_id: dbPage.id, property: "Estimate", number_format: { format: "currency", currency: "TRY" } });
+  const estimate = (await mcp.ok("get_database", { database_id: dbPage.id })).properties.find((p: { name: string }) => p.name === "Estimate");
+  check(estimate?.number_format?.currency === "TRY", "get_database shows a number property's format", estimate);
 
   const rowA = await mcp.ok("create_database_row", {
     database_id: dbPage.id,

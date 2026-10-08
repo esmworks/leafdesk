@@ -14,7 +14,8 @@ import {
   type AggregateResult,
 } from "@/lib/aggregate";
 import { Floating, useFloating } from "./floating";
-import { useFormatDate } from "./property-cell";
+import { calculationFormat } from "@/lib/number-format";
+import { useFormatDate, useFormatNumber } from "./property-cell";
 import type { Row } from "./types";
 
 /** A table column as calculations see it: the Name column is `{ key: "title", type: "title" }`. */
@@ -23,14 +24,19 @@ export type CalculationColumn = { key: string; name: string; type: string; optio
 /** Averages and medians rarely end evenly; two decimals are plenty in a footer. */
 const ROUNDED: AggregateFn[] = ["average", "median"];
 
+/**
+ * Shows a calculation's result. `options`: the column's property options, so a sum or an average
+ * of amounts shows as an amount and of percentages as a percentage (counts stay plain numbers).
+ */
 export function useFormatResult() {
   const t = useTranslations("database.calculate");
   const format = useFormatter();
+  const formatNumber = useFormatNumber();
   const formatDate = useFormatDate();
-  return (fn: AggregateFn, result: AggregateResult) => {
+  return (fn: AggregateFn, result: AggregateResult, options?: PropertyOptions) => {
     switch (result.format) {
       case "number":
-        return format.number(result.value, { maximumFractionDigits: ROUNDED.includes(fn) ? 2 : 10 });
+        return formatNumber(result.value, calculationFormat(fn, options), ROUNDED.includes(fn) ? 2 : undefined);
       case "percent":
         return format.number(result.value, { style: "percent", maximumFractionDigits: 1 });
       case "date":
@@ -136,7 +142,7 @@ export function CalculationCell({
         {fn ? (
           <>
             <span className="truncate text-fg-faint">{t(`label.${fn}`)}</span>
-            <span className="shrink-0 tabular-nums text-fg">{result ? formatResult(fn, result) : "–"}</span>
+            <span className="shrink-0 tabular-nums text-fg">{result ? formatResult(fn, result, column.options) : "–"}</span>
           </>
         ) : (
           <>

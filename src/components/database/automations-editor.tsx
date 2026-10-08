@@ -114,7 +114,7 @@ export function AutomationEditor({
     setSaving(true);
     setError(null);
     try {
-      const input = toInput(draft);
+      const input = toInput(draft, properties);
       const res = saved ? await updateAutomationAction(saved.id, input) : await createAutomationAction(databaseId, input);
       if (!res.ok) {
         setError(res.error);

@@ -396,7 +396,14 @@
     "editFormula": "Formülü düzenle",
     "formulaHint": "Bir formülle hesaplanır",
     "editRollup": "Toplamayı düzenle",
-    "rollupHint": "İlişkili satırlardan hesaplanır"
+    "rollupHint": "İlişkili satırlardan hesaplanır",
+    "numberFormat": "Sayı biçimi",
+    "formatNumber": "Sayı",
+    "formatPercent": "Yüzde",
+    "formatCurrency": "Para birimi",
+    "decimals": "Ondalık basamak",
+    "decimalsAuto": "Otomatik",
+    "percentHint": "{percent} için 15 yazın"
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -591,6 +598,7 @@
     "invalidViewConfig": "Bu görünüm ayarları kaydedilemedi. Sayfayı yenileyip tekrar deneyin.",
     "unsupportedViewType": "Desteklenmeyen görünüm türü: “{type}”.",
     "invalidRollup": "“{property}” toplaması kaydedilemiyor: {message}",
+    "invalidNumberFormat": "Bu sayı biçimi kaydedilemiyor.",
     "isTemplate": "Şablonlar taşınamaz ve çöp kutusuna atılamaz. Onları şablon listesinden silin.",
     "notATemplate": "Bu sayfa bu çalışma alanının ya da veritabanının bir şablonu değil.",
     "propertyRestricted": "“{property}” özelliğini değiştirme yetkiniz yok.",

@@ -441,11 +441,23 @@ export type RollupConfig = {
   function: RollupFn;
   display?: RollupDisplay;
 };
+/**
+ * How a number property shows its values (see lib/number-format). A percentage stores the
+ * fraction (0.15 shows as 15 %); `currency` is an ISO 4217 code, set only for "currency".
+ * `decimals` (0–8) fixes the decimal places; without it they follow the value (a currency's own).
+ */
+export type NumberFormat = {
+  format: "number" | "percent" | "currency";
+  currency?: string;
+  decimals?: number;
+};
 export type PropertyOptions = {
   options?: SelectOption[];
   relation?: RelationConfig;
   formula?: FormulaConfig;
   rollup?: RollupConfig;
+  /** Number properties: how values show; plain numbers when missing. */
+  number?: NumberFormat;
   /** Text properties: AI autofill (see lib/ai and server/ai-properties). */
   ai?: AiAutofillConfig;
 };

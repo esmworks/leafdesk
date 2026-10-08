@@ -1,8 +1,9 @@
 /**
- * End-to-end check of the status, checklist, email and phone properties and of the system
- * properties (created time, last edited time, last edited by) against the database: values are
- * validated and stored, statuses keep their groups and group boards, and "last edited" follows
- * property changes and body edits alike while never being writable.
+ * End-to-end check of the status, checklist, email and phone properties, number formats, and of
+ * the system properties (created time, last edited time, last edited by) against the database:
+ * values are validated and stored, statuses keep their groups and group boards, number formats
+ * leave values as they are, and "last edited" follows property changes and body edits alike while
+ * never being writable.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/property-types-e2e.ts
@@ -143,6 +144,31 @@ try {
   check(written[phone.id] === "+90 212 555 01 23", "a phone number is trimmed and kept", written);
   check(await rejects(() => updateRowProperties(ids.owner, r1.id, { Email: "ada@" }), "invalidEmail"), "an invalid email is rejected");
   check(await rejects(() => updateRowProperties(ids.owner, r1.id, { Phone: "call me" }), "invalidPhone"), "an invalid phone is rejected");
+
+  // Numbers: formats change how values show, never the stored values
+  const price = await addProperty(ids.owner, tasks.id, { name: "Price", type: "number", number: { format: "currency", currency: "try" } });
+  check(
+    JSON.stringify(price.options.number) === JSON.stringify({ format: "currency", currency: "TRY" }),
+    "a number property is added with a currency format",
+    price.options,
+  );
+  check(
+    await rejects(() => updateProperty(ids.owner, price.id, { number: { format: "currency", currency: "XYZ" } }), "invalidNumberFormat"),
+    "an unknown currency is rejected",
+  );
+  check(
+    await rejects(() => updateProperty(ids.owner, todo.id, { number: { format: "percent" } }), "invalidNumberFormat"),
+    "only number properties take a number format",
+  );
+  await updateProperty(ids.owner, price.id, { number: { format: "percent", decimals: 1 } });
+  await updateRowProperties(ids.owner, r1.id, { Price: 0.15 });
+  await updateRowProperties(ids.owner, r2.id, { Price: 0.5 });
+  check((await stored(r1.id)).properties[price.id] === 0.15, "a percentage is stored as its fraction");
+  const over = await listRows(ids.owner, tasks.id, { filters: [{ propertyId: price.id, op: "gt", value: 20 }] });
+  check(over.map((r) => r.title).join() === "r2", "a percent filter compares percent points", over.map((r) => r.title));
+  await updateProperty(ids.owner, price.id, { number: null });
+  const plain = (await getProperties(tasks.id)).find((p) => p.id === price.id)!;
+  check(!("number" in plain.options) && (await stored(r1.id)).properties[price.id] === 0.15, "clearing the format keeps the values", plain.options);
 
   // System properties: computed, read-only, and moving with property and body edits
   const created = await addProperty(ids.owner, tasks.id, { name: "Created", type: "created_time" });

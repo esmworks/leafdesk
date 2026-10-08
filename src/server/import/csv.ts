@@ -9,6 +9,7 @@ import {
   guessColumn,
   INVALID,
   isImportableType,
+  percentColumn,
   splitList,
   type CsvColumnType,
   type CsvTable,
@@ -196,7 +197,9 @@ export async function importCsvAsDatabase(actor: WriteActor, input: NewDatabaseI
           : type === "multi_select"
             ? distinct(column(table, i).flatMap((v) => splitList(v).map((o) => o.slice(0, 200))))
             : undefined;
-      targets.push(await addProperty(actor.userId, database.id, { name: table.headers[i], type, options }));
+      // A column of percentages ("15%") shows them as such; its values are the fractions.
+      const number = type === "number" && percentColumn(column(table, i)) ? { format: "percent" as const } : undefined;
+      targets.push(await addProperty(actor.userId, database.id, { name: table.headers[i], type, options, number }));
     }
     const props = targets.filter((p): p is DatabaseProperty => p !== null);
     const invalid = new Map<string, number>();

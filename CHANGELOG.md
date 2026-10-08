@@ -50,6 +50,20 @@
   check that keeps such tabs from loading pages covers this too. Unit tests in
   `src/server/text-scripts.test.ts` and `src/lib/remark-text-scripts.test.ts`, and a check in
   `scripts/roundtrip-e2e.ts`. No migration.
+- **Number formats.** A number property's menu sets how its values show: as a plain number, a
+  percentage or an amount of money in a currency (Turkish lira, euro, US dollar, pound, Swiss
+  franc, yen and a few more), with automatic or 0 to 4 decimal places. Amounts follow the
+  viewer's language: ₺1.234,56 in Turkish, TRY 1,234.56 in English. A percentage stores the
+  fraction: typing 15 or 15% in a cell, a bulk edit, a form or an automation stores 0.15 and shows
+  15%, and filters on it compare percent points (15). Cells, row pages, boards, lists, galleries,
+  calendars, timelines, published pages and print show the format, as do column footers and charts
+  that sum, average or compare the values (counts and shares stay plain numbers) and rollups doing
+  the same over a number property. Typed amounts may carry their currency symbol or code. The
+  format never changes the values: sorting, calculations, CSV export and MCP values stay plain
+  numbers. A CSV import reads "15%" as 0.15 and "₺1.234,50" as 1234.5, and a new database's column
+  written all in percentages becomes a percent property. MCP's `add_database_property` and
+  `update_database_property` take `number_format`, and `get_database` shows it. Formulas show plain
+  numbers. No migration.
 - **Dependencies.** A timeline view's settings turn dependencies on for the database: a two-way
   relation of the database with itself, *Blocked by* and *Blocking* (or a relation of the database
   with itself it already has), lets a row wait for other rows. The timeline draws an arrow from

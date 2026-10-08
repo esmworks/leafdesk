@@ -1,5 +1,6 @@
 import type { listAutomationRunsAction, listAutomationsAction } from "@/app/actions/automations";
 import { isDynamicValue, UNSETTABLE_TYPES, type AutomationAction, type AutomationTrigger } from "@/lib/automations";
+import { fromPercentPoints, isPercent, toPercentPoints } from "@/lib/number-format";
 import type { Property, SelectOption } from "./types";
 
 type Ok<T> = T extends { ok: true; data: infer D } ? D : never;
@@ -91,7 +92,7 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
           .filter(([id]) => has(id))
           .map(([propertyId, value]) => ({
             propertyId,
-            value: typeof value === "number" ? String(value) : value,
+            value: typeof value === "number" ? String(percentOf(properties, propertyId) ? toPercentPoints(value) : value) : value,
           })),
       };
     }
@@ -134,8 +135,22 @@ export function draftProblem(draft: Draft, properties: Property[]) {
   return null;
 }
 
+/** Whether a property is a number shown as a percentage: its values are typed in percent points. */
+function percentOf(properties: Property[], id: string) {
+  const prop = properties.find((p) => p.id === id);
+  return prop?.type === "number" && isPercent(prop.options.number);
+}
+
+/** A typed value as the server takes it: trimmed, a percentage's points as the fraction. */
+function typedValue(properties: Property[], propertyId: string, value: unknown) {
+  if (typeof value !== "string") return value;
+  const text = value.trim();
+  const n = Number(text);
+  return text && Number.isFinite(n) && percentOf(properties, propertyId) ? fromPercentPoints(n) : text;
+}
+
 /** A draft as the server takes it (properties and people by id). */
-export function toInput(draft: Draft) {
+export function toInput(draft: Draft, properties: Property[]) {
   return {
     name: draft.name.trim(),
     enabled: draft.enabled,
@@ -147,7 +162,7 @@ export function toInput(draft: Draft) {
       if (action.type === "set_properties") {
         return {
           type: "set_properties" as const,
-          values: Object.fromEntries(action.entries.map((e) => [e.propertyId, typeof e.value === "string" ? e.value.trim() : e.value])),
+          values: Object.fromEntries(action.entries.map((e) => [e.propertyId, typedValue(properties, e.propertyId, e.value)])),
         };
       }
       if (action.type === "notify") return { type: "notify" as const, people: action.people, properties: action.properties };

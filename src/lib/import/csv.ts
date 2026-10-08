@@ -1,4 +1,5 @@
 import type { PropertyType } from "../property-types";
+import { fromPercentPoints, stripNumberDecor } from "../number-format";
 import { isEmailAddress, isPhoneNumber } from "../properties";
 
 /**
@@ -141,16 +142,26 @@ export function guessTitleColumn(headers: string[]): number {
 
 /**
  * A number as people write it: `1234.5`, `-3`, `1e6`, `1,234,567.89` (comma thousands),
- * `1.234,5` (dot thousands, comma decimals) or `3,14` (comma decimals). Null for anything else.
+ * `1.234,5` (dot thousands, comma decimals) or `3,14` (comma decimals), with a currency symbol
+ * (`₺1.234,50`, `$12`) or a percent sign (`15%` is 0.15, as Leafdesk stores percentages). Null
+ * for anything else.
  */
 export function parseNumber(raw: string): number | null {
-  let s = raw.trim().replace(/[\s  ]/g, "");
+  const { text, percent } = stripNumberDecor(raw);
+  let s = text.replace(/[\s  ]/g, "");
   if (/^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
   else if (/^[+-]?\d{1,3}(\.\d{3})+,\d+$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
   else if (/^[+-]?\d+,\d+$/.test(s)) s = s.replace(",", ".");
   if (!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s)) return null;
   const n = Number(s);
-  return Number.isFinite(n) ? n : null;
+  if (!Number.isFinite(n)) return null;
+  return percent ? fromPercentPoints(n) : n;
+}
+
+/** Whether every filled cell of a column is a percentage ("15%"): its number property then shows percentages. */
+export function percentColumn(values: string[]): boolean {
+  const filled = values.map((v) => v.trim()).filter(Boolean);
+  return filled.length > 0 && filled.every((v) => stripNumberDecor(v).percent && parseNumber(v) !== null);
 }
 
 /**

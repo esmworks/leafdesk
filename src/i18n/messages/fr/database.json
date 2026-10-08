@@ -396,7 +396,14 @@
     "editFormula": "Modifier la formule",
     "formulaHint": "Calculé par une formule",
     "editRollup": "Modifier l’agrégation",
-    "rollupHint": "Calculé à partir des lignes liées"
+    "rollupHint": "Calculé à partir des lignes liées",
+    "numberFormat": "Format des nombres",
+    "formatNumber": "Nombre",
+    "formatPercent": "Pourcentage",
+    "formatCurrency": "Devise",
+    "decimals": "Décimales",
+    "decimalsAuto": "Automatique",
+    "percentHint": "Tapez 15 pour {percent}"
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -591,6 +598,7 @@
     "invalidViewConfig": "Ces paramètres de vue ne peuvent pas être enregistrés. Rechargez la page et réessayez.",
     "unsupportedViewType": "Type de vue non pris en charge « {type} ».",
     "invalidRollup": "L’agrégation « {property} » ne peut pas être enregistrée : {message}",
+    "invalidNumberFormat": "Ce format de nombre ne peut pas être enregistré.",
     "isTemplate": "Les modèles ne peuvent pas être déplacés ni placés dans la corbeille. Supprimez-les plutôt depuis la liste des modèles.",
     "notATemplate": "Cette page n’est pas un modèle de cet espace de travail ou de cette base de données.",
     "propertyRestricted": "Vous n’avez pas l’autorisation de modifier « {property} ».",

@@ -17,6 +17,7 @@ import {
   ListFilter,
   Lock,
   Pin,
+  Percent,
   PinOff,
   Plus,
   RefreshCw,
@@ -36,8 +37,10 @@ import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
 import type { AiAutofillConfig } from "@/lib/ai";
 import type { AggregateFn } from "@/lib/aggregate";
+import type { NumberFormat } from "@/lib/number-format";
 import { AutofillEditor } from "./ai-autofill";
 import { FormulaEditor } from "./formula-editor";
+import { NumberFormatEditor } from "./number-format-menu";
 import { RollupEditor } from "./rollup-editor";
 import { CalculationOptions } from "./table-calculations";
 import { OptionChip } from "./property-cell";
@@ -204,6 +207,8 @@ export type PropertyMenuActions = {
   setFormula?: (expression: string) => void;
   /** Rollups: saves new settings. */
   setRollup?: (rollup: RollupInput) => void;
+  /** Numbers: saves how values show (null for plain numbers). */
+  setNumberFormat?: (format: NumberFormat | null) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -227,12 +232,18 @@ export function PropertyMenu({
   const typeLabel = usePropertyTypeLabel();
   const ta = useTranslations("ai.autofill");
   const tAccess = useTranslations("database.propertyAccess");
+  // The menu item says the current format: "Percent", or a currency's code.
+  const numberFormatLabel = (format: NumberFormat | undefined) =>
+    format?.format === "currency" && format.currency
+      ? format.currency
+      : t(format?.format === "percent" ? "formatPercent" : "formatNumber");
   const [page, setPage] = useState<
     | "main"
     | "options"
     | "confirm"
     | "formula"
     | "rollup"
+    | "number-format"
     | "autofill"
     | "calculate"
     | "insert-before"
@@ -385,6 +396,10 @@ export function PropertyMenu({
     );
   }
 
+  if (page === "number-format" && prop && actions.setNumberFormat) {
+    return <NumberFormatEditor prop={prop} onChange={actions.setNumberFormat} onBack={() => setPage("main")} />;
+  }
+
   if (page === "autofill" && prop && actions.setAutofill) {
     return (
       <AutofillEditor
@@ -468,6 +483,21 @@ export function PropertyMenu({
     prop?.type === "rollup" && actions.setRollup && (
       <MenuItem key="rollup" icon={icon(Combine)} onClick={() => setPage("rollup")}>
         {t("editRollup")}
+      </MenuItem>
+    ),
+    prop?.type === "number" && actions.setNumberFormat && (
+      <MenuItem
+        key="number-format"
+        icon={icon(Percent)}
+        trailing={
+          <>
+            <span className="mr-1 text-xs">{numberFormatLabel(prop.options.number)}</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </>
+        }
+        onClick={() => setPage("number-format")}
+      >
+        {t("numberFormat")}
       </MenuItem>
     ),
     prop?.type === "text" && prop.options.ai && actions.updateAllAutofill && (

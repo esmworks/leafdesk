@@ -396,7 +396,14 @@
     "editFormula": "Formel bearbeiten",
     "formulaHint": "Wird durch eine Formel berechnet",
     "editRollup": "Rollup bearbeiten",
-    "rollupHint": "Wird aus verknüpften Zeilen berechnet"
+    "rollupHint": "Wird aus verknüpften Zeilen berechnet",
+    "numberFormat": "Zahlenformat",
+    "formatNumber": "Zahl",
+    "formatPercent": "Prozent",
+    "formatCurrency": "Währung",
+    "decimals": "Dezimalstellen",
+    "decimalsAuto": "Automatisch",
+    "percentHint": "Für {percent} 15 eingeben"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -591,6 +598,7 @@
     "invalidViewConfig": "Diese Ansichtseinstellungen können nicht gespeichert werden. Lade die Seite neu und versuch es noch einmal.",
     "unsupportedViewType": "Nicht unterstützter Ansichtstyp „{type}“.",
     "invalidRollup": "Das Rollup „{property}“ kann nicht gespeichert werden: {message}",
+    "invalidNumberFormat": "Dieses Zahlenformat kann nicht gespeichert werden.",
     "isTemplate": "Vorlagen können nicht verschoben oder in den Papierkorb gelegt werden. Lösche sie stattdessen in der Vorlagenliste.",
     "notATemplate": "Diese Seite ist keine Vorlage dieses Workspace oder dieser Datenbank.",
     "propertyRestricted": "Du darfst „{property}“ nicht ändern.",

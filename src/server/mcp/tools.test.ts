@@ -582,6 +582,57 @@ describe("database properties", () => {
     expect(wrong.text).toMatch(/only status options belong to groups/);
   });
 
+  it("sets, shows and clears a number property's format", async () => {
+    const price = { id: "prop-price", name: "Price", type: "number", options: { number: { format: "currency", currency: "TRY" } } };
+    databases.addProperty.mockResolvedValue(price);
+    const added = await callTool(writer, "add_database_property", {
+      database_id: "db-1",
+      name: "Price",
+      type: "number",
+      number_format: { format: "currency", currency: "TRY" },
+    });
+    expect(databases.addProperty).toHaveBeenCalledWith("user-1", "db-1", {
+      name: "Price",
+      type: "number",
+      options: undefined,
+      number: { format: "currency", currency: "TRY" },
+    });
+    expect(added.data.property).toEqual({ id: "prop-price", name: "Price", type: "number", number_format: { format: "currency", currency: "TRY" } });
+
+    databases.getDatabase.mockResolvedValue({ database: { id: "db-1", workspaceId: "ws-1" }, access: openAccess, properties: [price], views: [] });
+    const percent = await callTool(writer, "update_database_property", {
+      database_id: "db-1",
+      property: "Price",
+      number_format: { format: "percent", decimals: 1 },
+    });
+    expect(databases.updateProperty).toHaveBeenLastCalledWith("user-1", "prop-price", { number: { format: "percent", decimals: 1 } });
+    expect(percent.data.property.number_format).toEqual({ format: "percent", decimals: 1 });
+    const plain = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Price", number_format: null });
+    expect(databases.updateProperty).toHaveBeenLastCalledWith("user-1", "prop-price", { number: null });
+    expect(plain.data.property).not.toHaveProperty("number_format");
+  });
+
+  it("refuses a number format on other properties and unknown formats", async () => {
+    const onText = await callTool(writer, "add_database_property", {
+      database_id: "db-1",
+      name: "Code",
+      type: "text",
+      number_format: { format: "percent" },
+    });
+    expect(onText.text).toMatch(/only applies to number properties/);
+    const update = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Notes", number_format: { format: "percent" } });
+    expect(update.text).toMatch(/only numbers have a number format/);
+    const unknown = await callTool(writer, "add_database_property", {
+      database_id: "db-1",
+      name: "Score",
+      type: "number",
+      number_format: { format: "money" },
+    });
+    expect(unknown.isError).toBe(true);
+    expect(databases.addProperty).not.toHaveBeenCalled();
+    expect(databases.updateProperty).not.toHaveBeenCalled();
+  });
+
   it("names the existing options when one is unknown", async () => {
     const r = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Status", remove_options: ["Later"] });
     expect(r.isError).toBe(true);

@@ -1,7 +1,7 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import type { PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
+import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DependencyInput } from "@/lib/dependencies";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
@@ -155,6 +155,7 @@ export async function addPropertyAction(
     relation?: databases.RelationInput;
     formula?: { expression: string };
     rollup?: databases.RollupInput;
+    number?: NumberFormat | null;
   },
 ) {
   return run(async (userId) => {
@@ -211,6 +212,7 @@ export async function updatePropertyAction(
     position?: number;
     formula?: { expression: string };
     rollup?: Partial<databases.RollupInput>;
+    number?: NumberFormat | null;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

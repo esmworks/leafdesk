@@ -8,6 +8,7 @@ import {
   type ChartSort,
   type ChartType,
   type FilterCombinator,
+  type NumberFormat,
   type RollupConfig,
   type SelectOption,
   type StatusGroup,
@@ -36,6 +37,7 @@ import { formulaForStorage, withFormulaTypes } from "@/lib/derived";
 import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
 import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
+import { checkNumberFormat, MAX_DECIMALS, NUMBER_FORMATS } from "@/lib/number-format";
 import {
   FORM_TITLE,
   canDefault,
@@ -111,7 +113,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written.
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database) only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -154,6 +156,23 @@ const rollupInput = z.object({
   function: z.enum(["show_original", ...AGGREGATE_FNS]),
   display: z.enum(ROLLUP_DISPLAYS).optional(),
 });
+
+/** How number formats work, for tool descriptions. */
+const NUMBER_FORMAT_HELP =
+  'number_format sets how a number property shows its values in the app: {format: "number" | "percent" | "currency", currency (ISO 4217 code such as TRY, EUR, USD; currency only), decimals (0-8; left out, they follow the value or the currency)}. Values stay plain numbers everywhere else: a percent property stores fractions (0.15 shows as 15%) and filters compare percent points (15), as for rollup percentages.';
+const numberFormatInput = z.object({
+  format: z.enum(NUMBER_FORMATS),
+  currency: z.string().length(3).optional().describe("Currency only: an ISO 4217 code such as TRY, EUR or USD."),
+  decimals: z.number().int().min(0).max(MAX_DECIMALS).optional().describe("Decimal places; left out, they follow the value (a currency's own)."),
+});
+
+/** Options with a number format changed as databases.updateProperty stores it (undefined: unchanged). */
+function withNumberFormat(options: PropertyDef["options"], input: NumberFormat | null | undefined) {
+  if (input === undefined) return options;
+  const { number: _old, ...rest } = options;
+  const checked = checkNumberFormat(input);
+  return checked.ok && checked.format ? { ...rest, number: checked.format } : rest;
+}
 
 /** Resolves a property by name or id; title / created_at / updated_at are not editable properties. */
 function requireProperty<P extends PropertyDef>(props: P[], ref: string): P {
@@ -1336,11 +1355,12 @@ export function createMcpServer(principal: McpPrincipal) {
           .describe("Relation with two_way only: name of the property added to the related database. Defaults to this database's title."),
         formula: formulaInput.optional().describe('Formula only: the expression, e.g. prop("Price") * prop("Quantity").'),
         rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
+        number_format: numberFormatInput.optional().describe(`Number only: how values show. ${NUMBER_FORMAT_HELP}`),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, options, related_database_id, two_way, paired_property_name, formula, rollup }) =>
+    ({ database_id, name, type, options, related_database_id, two_way, paired_property_name, formula, rollup, number_format }) =>
       runTool(async () => {
         assertWrite();
         if (type === "relation" && !related_database_id) throw new ToolInputError("A relation needs related_database_id.");
@@ -1351,6 +1371,7 @@ export function createMcpServer(principal: McpPrincipal) {
         if (type !== "formula" && formula !== undefined) throw new ToolInputError("formula only applies to formula properties.");
         if (type === "rollup" && !rollup) throw new ToolInputError("A rollup property needs rollup: {relation, property, function}.");
         if (type !== "rollup" && rollup !== undefined) throw new ToolInputError("rollup only applies to rollup properties.");
+        if (type !== "number" && number_format !== undefined) throw new ToolInputError("number_format only applies to number properties.");
         const { properties, access } = await databases.getDatabase(userId, database_id);
         const needle = name.trim().toLowerCase();
         if (needle === "title" || properties.some((p) => p.name.trim().toLowerCase() === needle)) {
@@ -1368,6 +1389,7 @@ export function createMcpServer(principal: McpPrincipal) {
             : {}),
           ...(type === "formula" ? { formula: { expression: formula! } } : {}),
           ...(type === "rollup" ? { rollup: await rollupSettings(userId, properties, rollup!) } : {}),
+          ...(number_format ? { number: number_format } : {}),
         });
         // Formulas come with their result type.
         const after = withFormulaTypes([...properties, created]);
@@ -1512,7 +1534,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        "Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups) and/or change a formula's expression. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working.",
+        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression and/or a number property's number_format (null for plain numbers). Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1536,11 +1558,12 @@ export function createMcpServer(principal: McpPrincipal) {
           .partial()
           .optional()
           .describe(`Rollup only: the settings to change (the others stay). ${ROLLUP_HELP}`),
+        number_format: numberFormatInput.nullable().optional().describe("Number only: how values show; null for plain numbers."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, property, name, add_options, rename_options, remove_options, option_groups, formula, rollup }) =>
+    ({ database_id, property, name, add_options, rename_options, remove_options, option_groups, formula, rollup, number_format }) =>
       runTool(async () => {
         assertWrite();
         const { properties, access, propertyAccess } = await databases.getDatabase(userId, database_id);
@@ -1550,6 +1573,7 @@ export function createMcpServer(principal: McpPrincipal) {
           options?: SelectOption[];
           formula?: { expression: string };
           rollup?: Partial<databases.RollupInput>;
+          number?: NumberFormat | null;
         } = {};
         if (name !== undefined && name.trim() !== prop.name) {
           const needle = name.trim().toLowerCase();
@@ -1591,8 +1615,12 @@ export function createMcpServer(principal: McpPrincipal) {
             display: rollup.display ?? current?.display,
           });
         }
-        if (!patch.name && !patch.options && !patch.formula && !patch.rollup) {
-          throw new ToolInputError("Nothing to change: provide name, option changes, formula or rollup.");
+        if (number_format !== undefined) {
+          if (prop.type !== "number") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only numbers have a number format.`);
+          patch.number = number_format;
+        }
+        if (!patch.name && !patch.options && !patch.formula && !patch.rollup && patch.number === undefined) {
+          throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup or number_format.");
         }
         await databases.updateProperty(userId, prop.id, patch);
         const after = withFormulaTypes(
@@ -1603,7 +1631,7 @@ export function createMcpServer(principal: McpPrincipal) {
                   ...p,
                   name: patch.name ?? p.name,
                   options: {
-                    ...p.options,
+                    ...withNumberFormat(p.options, patch.number),
                     ...(patch.options ? { options: patch.options } : {}),
                     ...(patch.formula ? { formula: { expression: formulaForStorage(patch.formula.expression, properties) } } : {}),
                     ...(patch.rollup ? { rollup: patch.rollup as RollupConfig } : {}),

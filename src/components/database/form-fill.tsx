@@ -4,7 +4,7 @@ import { CircleCheck, Plus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState, type ReactNode } from "react";
 import { Button, cn } from "@/components/ui";
-import type { SelectOption } from "@/db/schema/app";
+import type { NumberFormat, SelectOption } from "@/db/schema/app";
 import { checkAnswers, MAX_TEXT_ANSWER, MAX_TITLE_ANSWER, type AnswerError, type ResolvedQuestion } from "@/lib/forms";
 import { isDatabaseErrorCode, sortStatusOptions } from "@/lib/properties";
 import { FilesEditor, type UploadFile } from "./files-cell";
@@ -12,7 +12,7 @@ import { CheckboxBox, INPUT_MODE, OptionChip, parseInput } from "./property-cell
 import type { PropertyType } from "./types";
 
 /** What a question needs to know about its property: enough for a public page, too. */
-export type FormProperty = { id: string; name: string; type: PropertyType; options: { options?: SelectOption[] } };
+export type FormProperty = { id: string; name: string; type: PropertyType; options: { options?: SelectOption[]; number?: NumberFormat } };
 export type FormFillQuestion<P extends FormProperty = FormProperty> = ResolvedQuestion<P>;
 export type FormSubmitResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
 
@@ -89,7 +89,8 @@ export function FormFill<P extends FormProperty>({
       if (raw === undefined) continue;
       const type = q.prop?.type;
       if (typeof raw === "string" && (type === "number" || type === "url" || type === "email" || type === "phone")) {
-        const parsed = parseInput({ type }, raw, locale);
+        // A percent question takes percent points, as a percent cell does.
+        const parsed = parseInput({ type, options: q.prop?.options }, raw, locale);
         out[q.propertyId] = parsed === undefined ? raw : parsed;
       } else out[q.propertyId] = raw;
     }

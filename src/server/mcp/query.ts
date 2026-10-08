@@ -583,6 +583,8 @@ export function describeProperty(
       ? { formula: readsUnknown ? null : formulaForEditing(expression, props), result_type: derivedType(prop) }
       : {}),
     ...(prop.type === "rollup" ? { rollup: describeRollup(prop, lookups, props) } : {}),
+    // How the app shows the values; they stay plain numbers here (a percentage as its fraction).
+    ...(prop.type === "number" && prop.options.number ? { number_format: prop.options.number } : {}),
     ...(holdsOptions(prop.type) ? { options: (prop.options.options ?? []).map((o) => o.name) } : {}),
     ...(prop.type === "status" ? { status_groups: statusGroups(prop) } : {}),
     ...(relation

@@ -23,8 +23,11 @@ import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
 import { HiddenValue } from "./property-access";
 import { RelationChips, RelationPicker } from "./relation-cell";
+import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
 import { searchFold } from "@/lib/search-fold";
+import type { NumberFormat, PropertyOptions } from "@/db/schema/app";
+import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 
@@ -101,10 +104,14 @@ export function useFormatDateTime() {
   };
 }
 
-/** Formats a number value in the UI locale (grouping and decimal separator). */
+/**
+ * Formats a number value in the UI locale (grouping and decimal separator), as a percentage or
+ * an amount of money when the property's number format says so. `auto`: the most decimal places
+ * when the format doesn't fix them (see lib/number-format).
+ */
 export function useFormatNumber() {
   const format = useFormatter();
-  return (value: number) => format.number(value, { maximumFractionDigits: 10 });
+  return (value: number, numberFormat?: NumberFormat | null, auto?: number) => format.number(value, numberFormatOptions(numberFormat, auto));
 }
 
 export function isEmptyValue(prop: Property, value: unknown) {
@@ -130,7 +137,7 @@ export function PropertyDisplay({ prop, value, wrap }: { prop: Property; value: 
     case "text":
       return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{String(value)}</span>;
     case "number":
-      return <span className="tabular-nums">{typeof value === "number" ? formatNumber(value) : String(value)}</span>;
+      return <span className="tabular-nums">{typeof value === "number" ? formatNumber(value, prop.options.number) : String(value)}</span>;
     case "url":
       return (
         <a
@@ -250,13 +257,18 @@ function DerivedDisplay({ prop, value, wrap }: { prop: Property; value: unknown;
 function RollupNumber({ prop, value }: { prop: Property; value: number }) {
   const t = useTranslations("database.calculate");
   const format = useFormatter();
+  const formatNumber = useFormatNumber();
+  const relations = useRelations();
   const config = prop.options.rollup;
   const kind = rollupFormat(config?.function);
   if (kind === "days") return <span className="tabular-nums">{t("days", { count: value })}</span>;
   if (kind !== "percent") {
     // Averages and medians rarely end evenly; two decimals are plenty, as in table footers.
     const rounded = config?.function === "average" || config?.function === "median";
-    return <span className="tabular-nums">{format.number(value, { maximumFractionDigits: rounded ? 2 : 10 })}</span>;
+    // A sum of amounts is an amount: in the format of the number property it reads, when known here.
+    const target = config && relations?.targets[config.relationPropertyId]?.properties.find((p) => p.id === config.targetPropertyId);
+    const unit = config && target?.type === "number" ? calculationFormat(config.function, target.options) : undefined;
+    return <span className="tabular-nums">{formatNumber(value, unit, rounded ? 2 : undefined)}</span>;
   }
   const text = format.number(value, { style: "percent", maximumFractionDigits: 1 });
   const share = Math.min(1, Math.max(0, value));
@@ -531,41 +543,11 @@ function CellEditor({
   }
 }
 
-/**
- * Parses a typed number in either "1234.5" or "1234,5" style, so it works for input in every UI
- * language. A single separator kind is a decimal point unless it repeats ("1.234.567"); with both
- * kinds, the last one is the decimal point and the other groups thousands ("1.234,5",
- * "1,234.5").
- */
-export function parseNumber(raw: string, locale?: string): number | undefined {
-  let s = raw.replace(/[\s\u00a0\u202f']/g, "");
-  if (!s) return undefined;
-  const lastComma = s.lastIndexOf(",");
-  const lastDot = s.lastIndexOf(".");
-  if (lastComma !== -1 && lastDot !== -1) {
-    const decimal = lastComma > lastDot ? "," : ".";
-    const group = decimal === "," ? "." : ",";
-    s = s.split(group).join("").replace(decimal, ".");
-  } else {
-    const sep = lastComma !== -1 ? "," : lastDot !== -1 ? "." : null;
-    // "1,000" in English or "1.000" in Turkish or German: the locale's group separator before exactly three
-    // digits groups thousands rather than marking decimals.
-    const grouping = sep !== null && locale !== undefined && sep !== decimalSeparator(locale) && /^-?\d{1,3}[.,]\d{3}$/.test(s);
-    if (sep) s = s.split(sep).length > 2 || grouping ? s.split(sep).join("") : s.replace(sep, ".");
-  }
-  const n = Number(s);
-  return Number.isFinite(n) ? n : undefined;
-}
-
-function decimalSeparator(locale: string) {
-  return new Intl.NumberFormat(locale).formatToParts(1.5).find((p) => p.type === "decimal")?.value ?? ".";
-}
-
 /** Parses editor input into a storable value; returns undefined when it is invalid. */
-export function parseInput(prop: Pick<Property, "type">, raw: string, locale?: string): unknown {
+export function parseInput(prop: Pick<Property, "type"> & { options?: PropertyOptions }, raw: string, locale?: string): unknown {
   const s = raw.trim();
   if (!s) return null;
-  if (prop.type === "number") return parseNumber(s, locale);
+  if (prop.type === "number") return readNumber(s, prop.options?.number, locale);
   if (prop.type === "url") {
     if (/^(https?:\/\/|mailto:)/i.test(s)) return s;
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return `mailto:${s}`;
@@ -585,14 +567,12 @@ export function parseInput(prop: Pick<Property, "type">, raw: string, locale?: s
 
 /**
  * Initial editor text for a stored value. Numbers use the locale's decimal separator (no
- * grouping), so what the user sees is what `parseNumber` reads back.
+ * grouping), and percentages percent points, so what the user sees is what `parseInput` reads
+ * back.
  */
-function editText(value: unknown, locale: string) {
+export function editText(value: unknown, locale: string, numberFormat?: NumberFormat | null) {
   if (value === null || value === undefined) return "";
-  if (typeof value !== "number") return String(value);
-  const decimal = decimalSeparator(locale);
-  const s = String(value);
-  return decimal === "," && !s.includes("e") ? s.replace(".", ",") : s;
+  return typeof value === "number" ? numberText(value, locale, numberFormat) : String(value);
 }
 
 /** Hint under a text editor whose draft can't be saved, per property type (`database.cell.*`). */
@@ -627,7 +607,7 @@ function TextEditor({
 }) {
   const t = useTranslations("database.cell");
   const locale = useLocale();
-  const initial = editText(value, locale);
+  const initial = editText(value, locale, prop.type === "number" ? prop.options.number : undefined);
   const [draft, setDraft] = useState(startWith || initial);
   const [invalid, setInvalid] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);

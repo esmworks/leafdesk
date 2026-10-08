@@ -17,7 +17,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
@@ -53,11 +53,12 @@ import {
   moveProperty,
   toggleHiddenInView,
 } from "@/lib/properties";
+import { fromPercentPoints, isPercent } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
 import { VIEW_TYPES } from "@/lib/views";
 import { Floating, useFloating } from "./floating";
 import { usePeople } from "./person-cell";
-import { useFormatDate } from "./property-cell";
+import { useFormatDate, useFormatNumber } from "./property-cell";
 import { PropertyLock } from "./property-access";
 import { PropertyTypeIcon, ViewIcon } from "./property-icons";
 import { linkedRows, useRelations } from "./relation-context";
@@ -698,8 +699,8 @@ function useOperatorLabel() {
 function useDescribeFilter() {
   const t = useTranslations("database.activeRules");
   const locale = useLocale();
-  const format = useFormatter();
   const formatDate = useFormatDate();
+  const formatNumber = useFormatNumber();
   const operatorLabel = useOperatorLabel();
   const relations = useRelations();
   const { people } = usePeople();
@@ -727,7 +728,9 @@ function useDescribeFilter() {
     } else if (holdsPeople(col.type)) {
       value = f.value === PERSON_ME ? tf("me") : (people.find((p) => p.id === f.value)?.name || tp("unknown"));
     } else if (col.type === "number" && typeof f.value === "number") {
-      value = format.number(f.value, { maximumFractionDigits: 10 });
+      // Percentages filter in percent points (see lib/properties); amounts show with their currency.
+      const unit = col.prop?.type === "number" ? col.prop.options.number : undefined;
+      value = formatNumber(isPercent(unit) ? fromPercentPoints(f.value) : f.value, unit);
     } else if ((col.type === "date" || holdsTimestamp(col.type)) && value) {
       value = formatDate(value);
     }

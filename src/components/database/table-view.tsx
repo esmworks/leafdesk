@@ -492,6 +492,7 @@ export function TableView({
                     setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
                     setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
                     setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
+                    setNumberFormat: fixed || p.type !== "number" ? undefined : (format) => api.setNumberFormat(p, format),
                     setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
                     updateAllAutofill:
                       !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)

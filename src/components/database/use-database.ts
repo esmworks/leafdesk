@@ -30,7 +30,7 @@ import { archivePageAction } from "@/app/actions/pages";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
-import type { PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
+import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateFormulas } from "@/lib/derived";
@@ -399,6 +399,14 @@ export function useDatabase(
         const { display, ...rest } = rollup;
         const options = { ...prop.options, rollup: { ...rest, ...(display ? { display } : {}) } as RollupConfig };
         return mutateSchema(patchProperty(prop.id, { options }), () => updatePropertyAction(prop.id, { rollup }));
+      },
+
+      /** Saves how a number property shows its values (null for plain numbers); the server checks it. */
+      setNumberFormat(prop: Property, number: NumberFormat | null) {
+        const { number: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: number ? { ...rest, number } : rest }), () =>
+          updatePropertyAction(prop.id, { number }),
+        );
       },
 
       /** Adds a row to another (related) database; returns its id. */
