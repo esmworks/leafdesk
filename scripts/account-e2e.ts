@@ -35,6 +35,7 @@ const { and, eq, inArray, like, ne } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const {
   account,
+  auditEvent,
   file,
   oauthClient,
   oauthConsent,
@@ -469,6 +470,11 @@ async function main() {
   check(changed.ok, "the password changes, signing out other devices", changed);
   check((await sessionOf(tablet.jar)) === null, "…the other device is signed out");
   check(!(await consentsOf(ada.id)).includes(appBefore), "…and the connected app is disconnected", await consentsOf(ada.id));
+  const revokedLog = await db
+    .select({ actorUserId: auditEvent.actorUserId })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.action, "connected_app.revoked"), eq(auditEvent.targetId, appBefore)));
+  check(revokedLog.length > 0 && revokedLog.every((e) => e.actorUserId === ada.id), "…which the audit log records", revokedLog);
   const kept = await sessionOf(ada.jar);
   check(kept !== null && kept.session.authMethod === "password", "…this browser stays signed in, with how it signed in", kept);
   check((await signIn(emailOf("ada"), PASSWORD)).status !== 200, "the old password no longer signs in");

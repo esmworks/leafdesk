@@ -173,8 +173,11 @@ export async function revokeConnectedApp(userId: string, clientId: string) {
 /** Like revokeConnectedApp for every app the user has connected, including tokens without consent. */
 export async function revokeAllConnectedApps(userId: string) {
   const now = new Date();
-  await db.transaction(async (tx) => {
-    await tx.delete(oauthConsent).where(eq(oauthConsent.userId, userId));
+  const revoked = await db.transaction(async (tx) => {
+    const consents = await tx
+      .delete(oauthConsent)
+      .where(eq(oauthConsent.userId, userId))
+      .returning({ clientId: oauthConsent.clientId, scopes: oauthConsent.scopes });
     await tx
       .update(oauthRefreshToken)
       .set({ revoked: now })
@@ -183,7 +186,10 @@ export async function revokeAllConnectedApps(userId: string) {
       .update(oauthAccessToken)
       .set({ revoked: now })
       .where(and(eq(oauthAccessToken.userId, userId), isNull(oauthAccessToken.revoked)));
+    return consents;
   });
+  // After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log.
+  for (const consent of revoked) await recordConnectedApp(userId, consent.clientId, "connected_app.revoked", consent.scopes);
 }
 
 /** A readable name for a client: its registered name, else the host of a URL client id (CIMD). */

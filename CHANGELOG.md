@@ -211,6 +211,7 @@
     ends with a one-line reminder of it.
   - *Password changes:* changing the password with *Sign out of all other sessions*, or resetting
     it by email, also disconnects the apps the user connected; they have to be connected again.
+    Each app disconnected this way shows in the audit log, as one disconnected by hand does.
   - *AI prompts:* a closing tag written in capitals or with spaces (`</ROW>`, `< / row >`) can no
     longer end a data section of an AI prompt early, and a connection's answer can't close the
     frame that marks it as outside data.
