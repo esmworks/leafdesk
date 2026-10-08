@@ -61,7 +61,13 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
 
   return (
     <div className="flex min-h-full flex-col bg-bg text-fg">
-      <header className="sticky top-0 z-20 flex h-11 items-center justify-between gap-3 border-b border-border bg-bg/90 px-3 backdrop-blur">
+      <header
+        className={cn(
+          "sticky top-0 z-20 flex h-11 items-center justify-between gap-3 border-b border-border bg-bg/90 px-3 backdrop-blur",
+          // The header takes the page's color, as it does in the editor; the site's navigation doesn't.
+          data.background?.kind === "color" && `page-bg-${data.background.color}`,
+        )}
+      >
         <div className="flex min-w-0 items-center gap-2">
           {site && (
             <>
