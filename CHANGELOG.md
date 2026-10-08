@@ -166,6 +166,38 @@
 
 ### Fixed
 
+- **Security fixes from an audit of the whole app.**
+  - *Collaboration:* a 23-byte update could hold the server (and every request with it) for
+    seconds while it checked comment threads; any viewer could send one. The check now runs in time
+    bounded by what an update holds, read-only connections skip it, and websocket messages over
+    16 MiB are refused. Reconnecting to a page whose comments had changed no longer fails with
+    "Forbidden". Workspace and database signal channels are read-only, cursor labels carry the
+    signed-in name and color (a browser's own could restyle others' pages), a collaboration token
+    stops working once its session ends (a tab fetches a new one), and an owner made a member is
+    checked again on open pages.
+  - *Published pages and the print view:* text an editor typed into a link, image, caption or
+    color could become live HTML, because heading anchors were added by searching the serialized
+    page. They are set on parsed elements now.
+  - *Sign-in policies:* any `Authorization: Bearer` header made a browser request skip "require
+    two-step verification" and "SSO only"; only requests a token actually authenticated skip them
+    now. A session a policy holds back can't create API tokens or approve connected apps either.
+  - *Accounts:* claiming an account someone had signed up for with your address (by a provider
+    vouching for it or by a reset link) now also removes their passkeys, two-step verification, API
+    tokens and connected apps. An email verification link no longer signs in past two-step
+    verification. Pointing a workspace's SSO connection at another identity provider, or removing
+    it, forgets who signed in through it.
+  - *Workspaces:* a join link took up a pending invitation's role (owner included) for anyone
+    signing up with the invited address unverified; only a verified address does now, and the
+    invitation stays for its owner otherwise.
+  - *Import:* a ZIP of stored entries sharing their bytes could unpack far past the size limit.
+  - Smaller: sign-in rate limits count by the address the server works out instead of
+    `X-Forwarded-For`; `/sign-in?next=/\host` no longer leaves the site; a connection's
+    credentials aren't sent along a redirect to another origin; sealed secrets need their full
+    GCM tag; a page template is copied only into its own workspace from the API and MCP; formula
+    functions named like built-in object members are unknown functions. Next.js 16.3.8 and sharp
+    0.35.5 for their security fixes.
+  - In production the server refuses to start with the example `BETTER_AUTH_SECRET` or one shorter
+    than 32 characters.
 - **Tabs left open across an update could delete new blocks.** y-prosemirror deletes from the
   shared document any block its editor can't build, and the deletion syncs to everyone, so a tab
   still running the previous release removed blocks a newer one added (columns, Mermaid, a table
