@@ -58,7 +58,7 @@
   15%, and filters on it compare percent points (15). Cells, row pages, boards, lists, galleries,
   calendars, timelines, published pages and print show the format, as do column footers and charts
   that sum, average or compare the values (counts and shares stay plain numbers) and rollups doing
-  the same over a number property. Typed amounts may carry their currency symbol or code. The
+  the same over a number property, which also filter by what they show. Typed amounts may carry their currency symbol or code. The
   format never changes the values: sorting, calculations, CSV export and MCP values stay plain
   numbers. A CSV import reads "15%" as 0.15 and "₺1.234,50" as 1234.5, and a new database's column
   written all in percentages becomes a percent property. MCP's `add_database_property` and

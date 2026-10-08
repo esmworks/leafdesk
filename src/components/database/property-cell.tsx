@@ -265,9 +265,10 @@ function RollupNumber({ prop, value }: { prop: Property; value: number }) {
   if (kind !== "percent") {
     // Averages and medians rarely end evenly; two decimals are plenty, as in table footers.
     const rounded = config?.function === "average" || config?.function === "median";
-    // A sum of amounts is an amount: in the format of the number property it reads, when known here.
+    // A sum of amounts is an amount: in the format of the number property it reads (filled in by the
+    // server, else from the related database when it's loaded here).
     const target = config && relations?.targets[config.relationPropertyId]?.properties.find((p) => p.id === config.targetPropertyId);
-    const unit = config && target?.type === "number" ? calculationFormat(config.function, target.options) : undefined;
+    const unit = config?.number ?? (config && target?.type === "number" ? calculationFormat(config.function, target.options) : undefined);
     return <span className="tabular-nums">{formatNumber(value, unit, rounded ? 2 : undefined)}</span>;
   }
   const text = format.number(value, { style: "percent", maximumFractionDigits: 1 });

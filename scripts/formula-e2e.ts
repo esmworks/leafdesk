@@ -19,7 +19,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseProperty, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -246,6 +246,16 @@ try {
 
   const byProgress = await listRows(ids.owner, projects.id, { filters: [{ propertyId: progress.id, op: "gt", value: 50 }] });
   check(byProgress.map((r) => r.title).join() === "Alpha", "rollup percentages filter by the percent shown", byProgress.map((r) => r.title));
+  // A sum of a number property takes its format when read, and filters by what it shows.
+  await updateProperty(ids.owner, hours.id, { number: { format: "percent" } });
+  const asPercent = (await getProperties(projects.id)).find((p) => p.id === total.id);
+  check(asPercent?.options.rollup?.number?.format === "percent", "a rollup's sum takes the format of the property it reads", asPercent?.options);
+  const byPercentTotal = await listRows(ids.owner, projects.id, { filters: [{ propertyId: total.id, op: "gt", value: 10_000 }] });
+  check(byPercentTotal.map((r) => r.title).join() === "Alpha", "…and filters by the percent shown (108 is 10,800 %)", byPercentTotal.map((r) => r.title));
+  await updateProperty(ids.owner, hours.id, { number: null });
+  check(!(await getProperties(projects.id)).find((p) => p.id === total.id)?.options.rollup?.number, "a plain number again leaves the rollup plain");
+  const [stored] = await db.select({ options: databaseProperty.options }).from(databaseProperty).where(eq(databaseProperty.id, total.id));
+  check(stored && !stored.options.rollup?.number, "the format is never stored on the rollup", stored?.options);
   const byTotal = await listRows(ids.owner, projects.id, { sorts: [{ propertyId: total.id, direction: "asc" }] });
   check(byTotal.map((r) => r.title).join() === "Beta,Alpha", "rows sort by a rollup");
   const namesFilter = await listRows(ids.owner, projects.id, { filters: [{ propertyId: names.id, op: "contains", value: "ship" }] });

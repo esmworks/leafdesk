@@ -50,7 +50,7 @@ import {
   type DependencyInput,
   type Span,
 } from "@/lib/dependencies";
-import { checkNumberFormat } from "@/lib/number-format";
+import { calculationFormat, checkNumberFormat } from "@/lib/number-format";
 import { dayValue } from "@/lib/timeline";
 import {
   applyView,
@@ -221,7 +221,26 @@ export async function getProperties(databaseId: string) {
     .from(databaseProperty)
     .where(eq(databaseProperty.databaseId, databaseId))
     .orderBy(asc(databaseProperty.position), asc(databaseProperty.createdAt));
-  return withFormulaTypes(properties);
+  return withRollupUnits(withFormulaTypes(properties));
+}
+
+/**
+ * Rollups that sum, average… a number property get its format (RollupConfig.number), so they show
+ * in it and filters compare what they show; read each time, a change of that format shows at once.
+ */
+async function withRollupUnits(properties: DatabaseProperty[]): Promise<DatabaseProperty[]> {
+  const related = new Map(properties.flatMap((p) => (p.type === "relation" && p.options.relation ? [[p.id, p.options.relation.databaseId]] : [])));
+  const databaseOf = (p: DatabaseProperty) => (p.type === "rollup" && p.options.rollup ? related.get(p.options.rollup.relationPropertyId) : undefined);
+  const databaseIds = [...new Set(properties.flatMap((p) => databaseOf(p) ?? []))];
+  if (!databaseIds.length) return properties;
+  const targets = await loadProperties(databaseIds);
+  return properties.map((p) => {
+    const config = p.options.rollup;
+    const databaseId = databaseOf(p);
+    const target = config && databaseId ? targets.get(databaseId)?.find((t) => t.id === config.targetPropertyId) : undefined;
+    const number = config && target?.type === "number" ? calculationFormat(config.function, target.options) : undefined;
+    return number ? { ...p, options: { ...p.options, rollup: { ...config!, number } } } : p;
+  });
 }
 
 /** The properties of a database `userId` may know of (see server/property-access). */

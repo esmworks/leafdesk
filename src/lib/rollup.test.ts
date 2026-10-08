@@ -122,6 +122,20 @@ describe("rollups", () => {
     expect(applyView(rows, { sorts: [{ propertyId: "pct", direction: "asc" }] }, props).map((r) => r.title)).toEqual(["b", "a"]);
   });
 
+  it("filter an average of a percent property by the percent shown, and of plain numbers as they are", () => {
+    const percent = { format: "percent" as const };
+    const props = [
+      rollup("avg", { function: "average", targetPropertyId: "share", number: percent }),
+      rollup("plain", { function: "average", targetPropertyId: "hours" }),
+    ];
+    const rows = [
+      { id: "1", title: "a", properties: { avg: 0.3, plain: 0.3 }, createdAt: NOW, updatedAt: NOW },
+      { id: "2", title: "b", properties: { avg: 0.1, plain: 30 }, createdAt: NOW, updatedAt: NOW },
+    ];
+    expect(applyView(rows, { filters: [{ propertyId: "avg", op: "gt", value: 20 }] }, props).map((r) => r.title)).toEqual(["a"]);
+    expect(applyView(rows, { filters: [{ propertyId: "plain", op: "gt", value: 20 }] }, props).map((r) => r.title)).toEqual(["b"]);
+  });
+
   it("feed formulas, which see errors as errors", () => {
     const props = [
       rollup("total", { function: "sum", targetPropertyId: "hours" }),

@@ -440,6 +440,11 @@ export type RollupConfig = {
   targetPropertyId: string;
   function: RollupFn;
   display?: RollupDisplay;
+  /**
+   * The format a sum, average… of a number property shows in (lib/number-format
+   * calculationFormat). Worked out whenever properties are read; never stored.
+   */
+  number?: NumberFormat;
 };
 /**
  * How a number property shows its values (see lib/number-format). A percentage stores the
