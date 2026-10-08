@@ -24,9 +24,23 @@ export function usePagePresence(pageDoc: PageDoc | null, self: { id: string; nam
       setViewers((current) => (sameViewers(current, next) ? current : next));
     };
     read();
-    awareness.on("change", read);
+    // Awareness can change while another component renders: the editor sets its cursor fields
+    // when it's created, inside the collab editor's render. Setting state then makes React warn,
+    // so read once the render is over; changes in the same tick share one read.
+    let queued = false;
+    let active = true;
+    const onChange = () => {
+      if (queued) return;
+      queued = true;
+      queueMicrotask(() => {
+        queued = false;
+        if (active) read();
+      });
+    };
+    awareness.on("change", onChange);
     return () => {
-      awareness.off("change", read);
+      active = false;
+      awareness.off("change", onChange);
       // The provider outlives the page view for a few seconds (see acquireDoc); leave right away.
       // Clear the field rather than the whole state so the cursor fields stay intact.
       awareness.setLocalStateField(PRESENCE_FIELD, null);
