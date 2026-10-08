@@ -12,6 +12,7 @@ import {
 } from "@/lib/auth-security";
 import { sso } from "@better-auth/sso";
 import { cleanName } from "@/lib/account";
+import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { isAgentEmail } from "@/lib/agents";
 import { env, mcpResource } from "@/lib/env";
 import { sessionLifetime } from "@/lib/session-lifetime";
@@ -305,6 +306,11 @@ export function baseAuthOptions({
   // Database-independent options, shared by the app and the schema generator.
   return {
     baseURL: env.appUrl,
+    advanced: {
+      // The visitor's address as server.ts works it out past the trusted proxies, for the rate
+      // limits and the sessions list. X-Forwarded-For alone says whatever the visitor writes in it.
+      ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
+    },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,

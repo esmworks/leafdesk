@@ -1,7 +1,11 @@
+import { betterAuth } from "better-auth";
+import { memoryAdapter } from "better-auth/adapters/memory";
 import { describe, expect, it } from "vitest";
 import { agentEmail } from "./agents";
+import { CLIENT_IP_HEADER } from "./client-ip";
 import {
   agentSignInGuard,
+  baseAuthOptions,
   closedSignUpAdmits,
   guardUpdateUser,
   inviteTokenOf,
@@ -139,5 +143,28 @@ describe("SSO endpoints that are off", () => {
     expect(SSO_DISABLED_ENDPOINTS.has("/sso/callback/:providerId")).toBe(false);
     expect(SSO_DISABLED_ENDPOINTS.has("/sso/saml2/sp/acs/:providerId")).toBe(false);
     expect(SSO_DISABLED_PATHS.every((path) => !path.includes(":"))).toBe(true);
+  });
+});
+
+describe("the address rate limits count by", () => {
+  /** Status codes of `/ok` called with these headers, three allowed per minute. */
+  async function statuses(requests: Record<string, string>[]) {
+    const auth = betterAuth({
+      baseURL: "http://localhost:3000",
+      secret: "test-secret-that-is-long-enough-for-better-auth",
+      database: memoryAdapter({ user: [], session: [], account: [], verification: [] }),
+      advanced: baseAuthOptions().advanced,
+      rateLimit: { enabled: true, customRules: { "/ok": { window: 60, max: 3 } } },
+    });
+    const out: number[] = [];
+    for (const headers of requests) out.push((await auth.handler(new Request("http://localhost:3000/api/auth/ok", { headers }))).status);
+    return out;
+  }
+
+  it("is the one server.ts works out, not X-Forwarded-For as the visitor writes it", async () => {
+    const rotating = [1, 2, 3, 4, 5].map((n) => ({ "x-forwarded-for": `203.0.113.${n}`, [CLIENT_IP_HEADER]: "198.51.100.7" }));
+    expect(await statuses(rotating)).toEqual([200, 200, 200, 429, 429]);
+    const visitors = [1, 2, 3, 4, 5].map((n) => ({ "x-forwarded-for": "203.0.113.1", [CLIENT_IP_HEADER]: `198.51.100.${n}` }));
+    expect(await statuses(visitors)).toEqual([200, 200, 200, 200, 200]);
   });
 });
