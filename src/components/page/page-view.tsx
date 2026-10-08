@@ -30,6 +30,7 @@ import { hasLevel, PageHeaderActions } from "./page-header-actions";
 import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
 import { usePagePresence } from "./use-presence";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
+import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import type { PageBackground } from "@/lib/page-background";
@@ -270,174 +271,178 @@ export function PageView({
   );
 
   return (
-    // Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's.
-    <div data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
-      <header className="sticky top-0 z-20 flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:pl-1.5">
-        <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
-          <SidebarOpenButton className="mr-1 max-md:mr-0" />
-          {parents.map((c) => (
-            <span key={c.id} className="flex min-w-0 items-center gap-1 max-md:hidden">
-              <Link
-                href={`/w/${workspaceId}/p/${c.id}`}
-                className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
-              >
-                <PageIcon icon={c.icon} kind={c.kind} className="text-sm" />
-                <span className="max-w-40 truncate">{pageLabel(c.title, untitled)}</span>
-              </Link>
-              <span className="text-fg-faint">/</span>
+    // The black background is dark in either theme, so the editor and diagrams draw dark on it.
+    <DarkScheme dark={background?.color === "black"}>
+      {/* Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's. */}
+      <div data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
+        {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under. */}
+        <header className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:pl-1.5">
+          <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
+            <SidebarOpenButton className="mr-1 max-md:mr-0" />
+            {parents.map((c) => (
+              <span key={c.id} className="flex min-w-0 items-center gap-1 max-md:hidden">
+                <Link
+                  href={`/w/${workspaceId}/p/${c.id}`}
+                  className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
+                >
+                  <PageIcon icon={c.icon} kind={c.kind} className="text-sm" />
+                  <span className="max-w-40 truncate">{pageLabel(c.title, untitled)}</span>
+                </Link>
+                <span className="text-fg-faint">/</span>
+              </span>
+            ))}
+            <span className="flex min-w-0 items-center gap-1 px-1 text-fg">
+              <PageIcon icon={icon} kind={page.kind} className="text-sm" />
+              <span className="truncate md:max-w-60">{pageLabel(title, untitled)}</span>
             </span>
-          ))}
-          <span className="flex min-w-0 items-center gap-1 px-1 text-fg">
-            <PageIcon icon={icon} kind={page.kind} className="text-sm" />
-            <span className="truncate md:max-w-60">{pageLabel(title, untitled)}</span>
-          </span>
-        </nav>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <SyncStatus connection={connection} pendingEdits={pendingEdits} />
-          <PageHeaderActions
-            workspaceId={workspaceId}
-            page={{
-              id: page.id,
-              kind: page.kind,
-              parentId: page.parentId,
-              archived: page.archived,
-              hasBody: showBody,
-              isRow: page.isRow,
-            }}
-            currentUser={user}
-            info={info}
-            doc={synced ? pageDoc?.doc : undefined}
-            viewers={connection === "live" ? viewers : []}
-            onHistory={() => setHistoryOpen(true)}
-            commentsOpen={commentsOpen}
-            onComments={showBody ? () => setCommentsOpen((open) => !open) : undefined}
-            onMoveToTrash={moveToTrash}
-            offline={offline}
-            style={showBody ? pageStyle : undefined}
-            onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
-          />
-        </div>
-      </header>
-
-      {page.archived && (
-        <div className="flex items-center justify-center gap-3 bg-danger px-4 py-2 text-sm text-white">
-          {t("archived.banner")}
-          {canEdit && (
-            <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={restore} disabled={pending || offline}>
-              <RotateCcw className="h-3.5 w-3.5" /> {tc("restore")}
-            </Button>
-          )}
-          {canDelete && (
-            <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={deleteForever} disabled={pending || offline}>
-              {t("archived.deletePermanently")}
-            </Button>
-          )}
-          {actionError && <span role="alert">{actionError}</span>}
-        </div>
-      )}
-
-      {info.template && !page.archived && (
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm">
-          <LayoutTemplate className="h-4 w-4 shrink-0 text-fg-muted" />
-          <span className="text-fg-muted">{t(`template.${info.template}`)}</span>
-          {info.template !== "inside" && (
-            <Button size="sm" variant="primary" onClick={applyTemplate} disabled={pending || offline}>
-              {t("template.use")}
-            </Button>
-          )}
-        </div>
-      )}
-
-      <div
-        className={cn(
-          "w-full flex-1 pb-32",
-          wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
-          !wide && "pt-8 md:pt-12",
-          !wide && commentsOpen && !offline && "page-beside-panel",
-          showBody && pageTextClasses(pageStyle),
-        )}
-      >
-        <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
-          {!wide && (
-            <div className="relative mb-2 flex h-8 items-end gap-1">
-              {iconPicker}
-              {backgroundButton}
-            </div>
-          )}
-          {!wide && icon && <div className="h-8" />}
-          {/* Wide (database) pages keep everything on the title's line so the view starts higher: the
-              icon before the title, the add-icon and background buttons over its right end. Those
-              show on hover or focus and take no room, so the title keeps its width; on touch
-              screens, where they always show, they sit after it instead. */}
-          <div className={cn(wide && "relative flex items-center gap-3")}>
-            {wide && icon && iconPicker}
-            <TitleField
-              inputRef={titleRef}
-              value={title}
-              compact={wide}
-              editable={editable}
-              onChange={(v) => pageDoc && setDocTitle(pageDoc.doc, v)}
-              onEnter={() => document.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
+          </nav>
+          <div className="flex shrink-0 items-center gap-0.5">
+            <SyncStatus connection={connection} pendingEdits={pendingEdits} />
+            <PageHeaderActions
+              workspaceId={workspaceId}
+              page={{
+                id: page.id,
+                kind: page.kind,
+                parentId: page.parentId,
+                archived: page.archived,
+                hasBody: showBody,
+                isRow: page.isRow,
+              }}
+              currentUser={user}
+              info={info}
+              doc={synced ? pageDoc?.doc : undefined}
+              viewers={connection === "live" ? viewers : []}
+              onHistory={() => setHistoryOpen(true)}
+              commentsOpen={commentsOpen}
+              onComments={showBody ? () => setCommentsOpen((open) => !open) : undefined}
+              onMoveToTrash={moveToTrash}
+              offline={offline}
+              style={showBody ? pageStyle : undefined}
+              onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
             />
-            {wide && (
-              <div
-                className={cn(
-                  "absolute top-1/2 right-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg pl-2",
-                  "pointer-events-none opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
-                  // Kept shown while one of their pickers is open (Popover sets data-open).
-                  "focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-open]]:pointer-events-auto has-[[data-open]]:opacity-100",
-                  "pointer-coarse:pointer-events-auto pointer-coarse:static pointer-coarse:shrink-0 pointer-coarse:translate-y-0 pointer-coarse:opacity-100",
-                )}
-              >
-                {!icon && iconPicker}
+          </div>
+        </header>
+
+        {page.archived && (
+          <div className="flex items-center justify-center gap-3 bg-danger px-4 py-2 text-sm text-white">
+            {t("archived.banner")}
+            {canEdit && (
+              <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={restore} disabled={pending || offline}>
+                <RotateCcw className="h-3.5 w-3.5" /> {tc("restore")}
+              </Button>
+            )}
+            {canDelete && (
+              <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={deleteForever} disabled={pending || offline}>
+                {t("archived.deletePermanently")}
+              </Button>
+            )}
+            {actionError && <span role="alert">{actionError}</span>}
+          </div>
+        )}
+
+        {info.template && !page.archived && (
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm">
+            <LayoutTemplate className="h-4 w-4 shrink-0 text-fg-muted" />
+            <span className="text-fg-muted">{t(`template.${info.template}`)}</span>
+            {info.template !== "inside" && (
+              <Button size="sm" variant="primary" onClick={applyTemplate} disabled={pending || offline}>
+                {t("template.use")}
+              </Button>
+            )}
+          </div>
+        )}
+
+        <div
+          className={cn(
+            "w-full flex-1 pb-32",
+            wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
+            !wide && "pt-8 md:pt-12",
+            !wide && commentsOpen && !offline && "page-beside-panel",
+            showBody && pageTextClasses(pageStyle),
+          )}
+        >
+          <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
+            {!wide && (
+              <div className="relative mb-2 flex h-8 items-end gap-1">
+                {iconPicker}
                 {backgroundButton}
               </div>
             )}
-          </div>
-          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
-          {actionError && !page.archived && (
-            <p role="alert" className="mt-2 text-sm text-danger">
-              {actionError}
-            </p>
-          )}
-        </div>
-
-        {children && (
-          <DocumentViewContext.Provider value={setViewName}>
-            <div className={cn(wide ? "mt-5" : "mt-4 px-4 md:px-[54px]")}>{children}</div>
-          </DocumentViewContext.Provider>
-        )}
-
-        {showBody && (
-          <div className="mt-4 min-h-[40vh]">
-            {pageDoc && synced ? (
-              <CollabEditor
-                pageDoc={pageDoc}
-                user={user}
+            {!wide && icon && <div className="h-8" />}
+            {/* Wide (database) pages keep everything on the title's line so the view starts higher: the
+                icon before the title, the add-icon and background buttons over its right end. Those
+                show on hover or focus and take no room, so the title keeps its width; on touch
+                screens, where they always show, they sit after it instead. */}
+            <div className={cn(wide && "relative flex items-center gap-3")}>
+              {wide && icon && iconPicker}
+              <TitleField
+                inputRef={titleRef}
+                value={title}
+                compact={wide}
                 editable={editable}
-                level={page.archived || info.level === "none" ? "view" : info.level}
-                workspaceId={workspaceId}
-                pageId={page.id}
-                crumbs={trail}
-                commentsOpen={commentsOpen && !offline}
-                onCloseComments={() => setCommentsOpen(false)}
-                offline={offline}
-                ai={info.ai && editable && !offline && !page.archived}
+                onChange={(v) => pageDoc && setDocTitle(pageDoc.doc, v)}
+                onEnter={() => document.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
               />
-            ) : (
-              // Without a connection the error above explains why nothing loads.
-              !error && <div className="px-4 text-sm text-fg-faint md:px-[54px]">{tc("loading")}</div>
+              {wide && (
+                <div
+                  className={cn(
+                    "absolute top-1/2 right-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg pl-2",
+                    "pointer-events-none opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
+                    // Kept shown while one of their pickers is open (Popover sets data-open).
+                    "focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-open]]:pointer-events-auto has-[[data-open]]:opacity-100",
+                    "pointer-coarse:pointer-events-auto pointer-coarse:static pointer-coarse:shrink-0 pointer-coarse:translate-y-0 pointer-coarse:opacity-100",
+                  )}
+                >
+                  {!icon && iconPicker}
+                  {backgroundButton}
+                </div>
+              )}
+            </div>
+            {error && <p className="mt-2 text-sm text-danger">{error}</p>}
+            {actionError && !page.archived && (
+              <p role="alert" className="mt-2 text-sm text-danger">
+                {actionError}
+              </p>
             )}
           </div>
-        )}
-        {/* Databases too: a page can mention one. */}
-        <Backlinks workspaceId={workspaceId} pageId={page.id} />
-      </div>
 
-      {historyOpen && (
-        <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit} onClose={() => setHistoryOpen(false)} />
-      )}
-    </div>
+          {children && (
+            <DocumentViewContext.Provider value={setViewName}>
+              <div className={cn(wide ? "mt-5" : "mt-4 px-4 md:px-[54px]")}>{children}</div>
+            </DocumentViewContext.Provider>
+          )}
+
+          {showBody && (
+            <div className="mt-4 min-h-[40vh]">
+              {pageDoc && synced ? (
+                <CollabEditor
+                  pageDoc={pageDoc}
+                  user={user}
+                  editable={editable}
+                  level={page.archived || info.level === "none" ? "view" : info.level}
+                  workspaceId={workspaceId}
+                  pageId={page.id}
+                  crumbs={trail}
+                  commentsOpen={commentsOpen && !offline}
+                  onCloseComments={() => setCommentsOpen(false)}
+                  offline={offline}
+                  ai={info.ai && editable && !offline && !page.archived}
+                />
+              ) : (
+                // Without a connection the error above explains why nothing loads.
+                !error && <div className="px-4 text-sm text-fg-faint md:px-[54px]">{tc("loading")}</div>
+              )}
+            </div>
+          )}
+          {/* Databases too: a page can mention one. */}
+          <Backlinks workspaceId={workspaceId} pageId={page.id} />
+        </div>
+
+        {historyOpen && (
+          <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit} onClose={() => setHistoryOpen(false)} />
+        )}
+      </div>
+    </DarkScheme>
   );
 }
 

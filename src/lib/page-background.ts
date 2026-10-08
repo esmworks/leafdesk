@@ -46,7 +46,8 @@ export function parseBackgroundText(value: string): PageBackground | null {
   let color: BackgroundColor | null = null;
   let pattern: BackgroundPattern | null = null;
   for (const part of value.trim().split(/\s+/)) {
-    const [key, name] = part.split(":", 2);
+    const [key, name, ...rest] = part.split(":");
+    if (rest.length > 0) return null;
     if (key === "color" && isColor(name) && !color) color = name;
     else if (key === "pattern" && isPattern(name) && !pattern) pattern = name;
     else return null;

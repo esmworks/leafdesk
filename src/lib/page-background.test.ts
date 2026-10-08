@@ -49,5 +49,8 @@ describe("background text", () => {
     expect(parseBackgroundText("https://images.example/a.jpg")).toBeNull();
     expect(parseBackgroundText("/api/files/AbCdEfGhIjKlMnOpQrStUvWx")).toBeNull();
     expect(parseBackgroundText("")).toBeNull();
+    // Nothing may follow the name: not a second value, not a link.
+    expect(parseBackgroundText("color:gray:https://images.example/a.jpg")).toBeNull();
+    expect(parseBackgroundText("pattern:dots:")).toBeNull();
   });
 });

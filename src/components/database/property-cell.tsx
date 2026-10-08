@@ -721,7 +721,7 @@ function DateEditor({
           onChange(e.target.value || null);
         }}
         onKeyDown={(e) => e.key === "Enter" && onClose()}
-        className="h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none [color-scheme:light_dark] focus:border-accent"
+        className="h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent"
       />
       <div className="mt-2 flex justify-between gap-2">
         <button

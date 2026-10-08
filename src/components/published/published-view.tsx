@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { LoadedPage } from "@/app/s/[token]/load";
 import { backdropClass } from "@/components/page/page-backdrop";
+import { DarkScheme } from "@/components/theme/theme-provider";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { pageTextClasses } from "@/lib/page-style";
@@ -116,49 +117,51 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
         )}
 
         <div className={cn("flex min-w-0 flex-1 flex-col", backdropClass(data.background))}>
-          <main
-            className={cn(
-              "w-full min-w-0 flex-1 pb-32",
-              wide ? "pt-10" : data.style.fullWidth ? "page-full-width pt-12" : "mx-auto max-w-[900px] pt-12",
-              !wide && pageTextClasses(data.style),
-            )}
-          >
-            <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>
-              <div className={cn(wide ? "flex items-center gap-3" : "")}>
-                {data.icon && <div className={cn("leading-none", wide ? "text-4xl" : "mb-3 text-5xl")}>{data.icon}</div>}
-                <h1 className={cn("font-bold leading-tight break-words", wide ? "text-3xl" : "text-4xl")}>{title}</h1>
+          <DarkScheme dark={data.background?.color === "black"}>
+            <main
+              className={cn(
+                "w-full min-w-0 flex-1 pb-32",
+                wide ? "pt-10" : data.style.fullWidth ? "page-full-width pt-12" : "mx-auto max-w-[900px] pt-12",
+                !wide && pageTextClasses(data.style),
+              )}
+            >
+              <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>
+                <div className={cn(wide ? "flex items-center gap-3" : "")}>
+                  {data.icon && <div className={cn("leading-none", wide ? "text-4xl" : "mb-3 text-5xl")}>{data.icon}</div>}
+                  <h1 className={cn("font-bold leading-tight break-words", wide ? "text-3xl" : "text-4xl")}>{title}</h1>
+                </div>
+                <p className="mt-2 text-xs text-fg-faint">
+                  {t("lastUpdated", { date: format.dateTime(data.updatedAt, { dateStyle: "medium", timeStyle: "short" }) })}
+                </p>
               </div>
-              <p className="mt-2 text-xs text-fg-faint">
-                {t("lastUpdated", { date: format.dateTime(data.updatedAt, { dateStyle: "medium", timeStyle: "short" }) })}
-              </p>
-            </div>
 
-            {data.row && data.row.properties.length > 0 && <PublishedRowProperties row={data.row} />}
+              {data.row && data.row.properties.length > 0 && <PublishedRowProperties row={data.row} />}
 
-            {data.body.length > 0 && (
-              <PublishedBody blocks={data.body} crumbs={data.crumbs} links={data.links} unavailable={t("embedUnavailable")} />
-            )}
+              {data.body.length > 0 && (
+                <PublishedBody blocks={data.body} crumbs={data.crumbs} links={data.links} unavailable={t("embedUnavailable")} />
+              )}
 
-            {data.database && (
-              <PublishedDatabaseView table={data.database} links={data.links} viewPath={href(data.id, data.title)} className="page-gutter mt-6" />
-            )}
+              {data.database && (
+                <PublishedDatabaseView table={data.database} links={data.links} viewPath={href(data.id, data.title)} className="page-gutter mt-6" />
+              )}
 
-            {data.children.length > 0 && (
-              <section className="mt-10 px-4 sm:px-[54px]">
-                <h2 className="mb-2 text-sm font-medium text-fg-muted">{t("subpages")}</h2>
-                <ul className="flex flex-col">
-                  {data.children.map((child) => (
-                    <li key={child.id}>
-                      <Link href={href(child.id, child.title)} className="-mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-bg-hover">
-                        <PageIcon icon={child.icon} kind={child.kind} className="text-base" />
-                        <span className="truncate underline decoration-border underline-offset-4">{pageLabel(child.title, untitled)}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </main>
+              {data.children.length > 0 && (
+                <section className="mt-10 px-4 sm:px-[54px]">
+                  <h2 className="mb-2 text-sm font-medium text-fg-muted">{t("subpages")}</h2>
+                  <ul className="flex flex-col">
+                    {data.children.map((child) => (
+                      <li key={child.id}>
+                        <Link href={href(child.id, child.title)} className="-mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-bg-hover">
+                          <PageIcon icon={child.icon} kind={child.kind} className="text-base" />
+                          <span className="truncate underline decoration-border underline-offset-4">{pageLabel(child.title, untitled)}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </main>
+          </DarkScheme>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getTranslations } from "next-intl/server";
+import { THEME_COLORS } from "@/lib/theme";
 
 /**
  * Web app manifest (/manifest.webmanifest): installable on desktop (Chrome, Edge) and phones.
@@ -21,8 +22,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: THEME_COLORS.light,
+    theme_color: THEME_COLORS.light,
     categories: ["productivity"],
     icons: [
       { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

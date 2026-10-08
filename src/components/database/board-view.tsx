@@ -232,7 +232,7 @@ export function BoardView({
         : "gray";
 
   return (
-    <div className="page-gutter overflow-x-auto pb-6 [color-scheme:light_dark]">
+    <div className="page-gutter overflow-x-auto pb-6">
       <div
         className="flex w-max items-start gap-3"
         onDragOver={onColDragOver}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { AppShellSetup } from "@/components/offline/install-app";
@@ -23,10 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** The theme chosen for this browser in Settings > Preferences, or null to follow the system. */
-async function chosenTheme() {
+const chosenTheme = cache(async () => {
   const theme = (await cookies()).get(THEME_COOKIE)?.value;
   return isTheme(theme) ? theme : null;
-}
+});
 
 // The browser bar (and an installed app's title bar) takes the page background of the theme.
 export async function generateViewport(): Promise<Viewport> {

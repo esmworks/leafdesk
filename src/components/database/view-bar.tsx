@@ -1111,7 +1111,7 @@ function FilterValue({
         aria-label={t("value")}
         value={typeof value === "string" ? value : ""}
         onChange={(e) => onChange(e.target.value || undefined)}
-        className="h-7 [color-scheme:light_dark]"
+        className="h-7"
       />
     );
   }

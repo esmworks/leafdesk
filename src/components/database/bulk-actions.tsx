@@ -435,7 +435,7 @@ function TextValueEditor({
           setDraft(e.target.value);
           setInvalid(false);
         }}
-        className={cn("h-8", date && "[color-scheme:light_dark]")}
+        className="h-8"
       />
       {invalid && (
         <div className="mt-1 text-xs text-danger">{tc(INVALID_INPUT[prop.type] ?? "enterUrl")}</div>

@@ -593,7 +593,7 @@ export function TimelineView({
 
       <div
         ref={scroller}
-        className="relative max-h-[calc(100dvh-14rem)] min-h-72 overflow-auto rounded-lg border border-border [color-scheme:light_dark]"
+        className="relative max-h-[calc(100dvh-14rem)] min-h-72 overflow-auto rounded-lg border border-border"
       >
         <div ref={body} className="relative" style={{ width: panelWidth + width }} onDragOver={onTimelineDragOver} onDrop={onTimelineDrop}>
           {/* Header: month (or year) labels over the columns, both sticky while scrolling down. */}
