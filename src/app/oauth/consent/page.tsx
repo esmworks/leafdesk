@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { listWorkspaces } from "@/server/pages";
-import { getSession } from "@/server/session";
+import { getSession, policyGatePath } from "@/server/session";
 import { getConsentClient, verifySignedAuthorizationQuery } from "@/server/mcp/consent";
+import { connectingHeldBack } from "@/server/mcp/grants";
 import { WRITE_SCOPE } from "@/server/mcp/principal";
 import { ConsentForm } from "./consent-form";
 import { scopeKey } from "./scopes";
@@ -60,6 +61,9 @@ export default async function ConsentPage({ searchParams }: { searchParams: Sear
   const session = await getSession();
   // A session can expire between login and consent; signing in again resumes the flow.
   if (!session) redirect(`/sign-in?${query.toString()}`);
+  // The app would reach every workspace; one whose sign-in policy this session doesn't meet comes first.
+  const held = await connectingHeldBack(session);
+  if (held) redirect(policyGatePath(held.workspaceId, held.hold));
   const t = await getTranslations("consent");
   const format = await getFormatter();
   const describe = (scope: string) => {

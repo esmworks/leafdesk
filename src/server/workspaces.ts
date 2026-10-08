@@ -27,7 +27,7 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { type DeletionPlan, planAccountDeletion, type WorkspaceStanding } from "@/lib/account";
 import { isAgentEmail } from "@/lib/agents";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
-import { assignableRoles, linkAccess, memberInviteMode } from "@/lib/membership-policy";
+import { assignableRoles, invitationApplies, linkAccess, memberInviteMode } from "@/lib/membership-policy";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
 import { cleanSidebarLayout, type SidebarLayout } from "@/lib/sidebar-sections";
@@ -698,7 +698,10 @@ export async function findJoinLink(token: string) {
   return row ?? null;
 }
 
-/** What the join link lets this person do (linkAccess), and their live invitation if they have one. */
+/**
+ * What the join link lets this person do (linkAccess), their live invitation if it is theirs to use
+ * (invitationApplies: their address is verified), and whether their address is verified at all.
+ */
 async function linkDecision(
   reader: Pick<typeof db, "select">,
   ws: { id: string; settings: Partial<WorkspaceSettings> },
@@ -713,10 +716,12 @@ async function linkDecision(
     reader.select({ emailVerified: user.emailVerified }).from(user).where(eq(user.id, userId)),
     joinRecordOf(reader, ws.id, userId),
   ]);
-  const live = invitation && invitation.expiresAt > new Date() ? invitation : null;
+  const emailVerified = account?.emailVerified === true;
+  const pending = invitation && invitation.expiresAt > new Date() ? invitation : null;
+  const live = pending && invitationApplies({ emailVerified, invited: true }) ? pending : null;
   const settings = { ...DEFAULT_WORKSPACE_SETTINGS, ...ws.settings };
-  const access = linkAccess(settings, { email, emailVerified: account?.emailVerified === true, record, invited: live !== null });
-  return { access, live };
+  const access = linkAccess(settings, { email, emailVerified, record, invited: pending !== null });
+  return { access, live, emailVerified };
 }
 
 /** For the join page: what opening the link would do for this signed-in person, before they choose. */
@@ -739,6 +744,10 @@ export type LinkJoinResult = { workspaceId: string; status: "joined" | "requeste
  * their email gives them another role; that invitation is used up, and its sender invited them
  * (the link alone invites nobody). While the workspace takes join requests from anyone with the
  * link, the link files a request instead for those who can't join directly (see linkAccess).
+ *
+ * Invitations by email (to the workspace, or to pages in it) are only taken up for a verified
+ * address: someone who signed up with another person's address joins as if there were none, and
+ * leaves them for the real owner of the address.
  */
 export async function joinWithLink(token: string, userId: string, userEmail: string): Promise<LinkJoinResult> {
   const email = normalizeEmail(userEmail);
@@ -752,17 +761,19 @@ export async function joinWithLink(token: string, userId: string, userEmail: str
       : [];
     if (!ws) throw new WorkspaceError("joinLinkInvalid", "This join link is invalid or was turned off.");
     if (await findMembership(userId, ws.id)) return { workspaceId: ws.id, access: "join" as const, joined: false };
-    const { access, live } = await linkDecision(tx, ws, userId, email);
+    const { access, live, emailVerified } = await linkDecision(tx, ws, userId, email);
     if (access !== "join") return { workspaceId: ws.id, access, joined: false };
-    await tx
-      .delete(workspaceInvitation)
-      .where(and(eq(workspaceInvitation.workspaceId, ws.id), eq(workspaceInvitation.email, email)));
+    if (emailVerified) {
+      await tx
+        .delete(workspaceInvitation)
+        .where(and(eq(workspaceInvitation.workspaceId, ws.id), eq(workspaceInvitation.email, email)));
+    }
     const role = live?.role ?? "member";
     await tx
       .insert(workspaceMember)
       .values({ workspaceId: ws.id, userId, role, invitedBy: live?.invitedBy ?? null })
       .onConflictDoNothing();
-    await claimPageInvitations(tx, ws.id, userId, email);
+    if (emailVerified) await claimPageInvitations(tx, ws.id, userId, email);
     await recordAudit(
       { workspaceId: ws.id, actorId: userId, action: "member.joined", target: { type: "user", id: userId }, details: { role, via: "link" } },
       tx,

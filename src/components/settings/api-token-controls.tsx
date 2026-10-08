@@ -24,7 +24,7 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
   const [write, setWrite] = useState(false);
   const [workspaceId, setWorkspaceId] = useState("");
   const [expiry, setExpiry] = useState(String(DEFAULT_EXPIRY));
-  const [error, setError] = useState<Exclude<CreateApiTokenResult, { ok: true }>["error"] | null>(null);
+  const [error, setError] = useState<Exclude<CreateApiTokenResult, { ok: true } | { error: "policy" }>["error"] | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -83,6 +83,8 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
                     expiresInDays: expiry === "never" ? null : Number(expiry),
                   });
                   if (result.ok) setSecret(result.secret);
+                  // A workspace's sign-in policy holds this session back: meet it first.
+                  else if (result.error === "policy") router.push(result.gate);
                   else setError(result.error);
                 } catch {
                   setError("generic");

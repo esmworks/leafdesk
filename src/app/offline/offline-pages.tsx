@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Button, PageIcon, pageLabel } from "@/components/ui";
 import { readOfflineState } from "@/components/offline/offline-store";
 import { OFFLINE_STATE_PREFIX, type RecentPage } from "@/lib/offline";
+import { sameOriginPath } from "@/lib/same-origin";
 
 /**
  * Pages this browser kept, most recent first. Only one person's list can be here: another user's
@@ -28,7 +29,7 @@ export function OfflinePages() {
     setPages(state ? state.recent.map((p) => ({ ...p, dirty: state.dirty.includes(p.id) })) : []);
     // The service worker sends people here from the page they asked for; "Try again" goes back there.
     const from = new URLSearchParams(window.location.search).get("from");
-    setBack(from && from.startsWith("/") && !from.startsWith("//") ? from : "/");
+    setBack(sameOriginPath(from, window.location.origin) ?? "/");
   }, []);
 
   return (

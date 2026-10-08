@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { and, count, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { API_TOKEN_SCOPES, apiToken, workspace, type ApiTokenScope } from "@/db/schema";
-import { findMembership, memberWorkspaceIds } from "@/server/access";
+import { findMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 
 /**
@@ -109,10 +109,14 @@ export async function createApiToken(userId: string, input: NewApiToken, now = n
     throw new ApiTokenError(`Tokens expire after 1 to ${MAX_EXPIRY_DAYS} days, or never`, "expiry");
   }
   const workspaceId = input.workspaceId || null;
-  // The user's standing, not the request's session: see the note on bearer requests in access.ts.
+  // The user's standing, not the request's session: tokens are outside the sign-in policies.
   if (workspaceId && !(await findMembership(userId, workspaceId))) {
     throw new ApiTokenError("You are not a member of that workspace", "workspace");
   }
+  // Which is why a session a workspace's policy holds back can't make one that reaches it: one
+  // for that workspace, or one for all of them while any of them holds it back.
+  const refusal = await signInPolicyRefusal(userId, workspaceId ? [workspaceId] : await memberWorkspaceIds(userId));
+  if (refusal) throw refusal;
   const [{ n }] = await db.select({ n: count() }).from(apiToken).where(eq(apiToken.userId, userId));
   if (n >= MAX_TOKENS_PER_USER) throw new ApiTokenError(`You can have at most ${MAX_TOKENS_PER_USER} tokens; revoke one first`, "limit");
   const secret = generateTokenSecret();

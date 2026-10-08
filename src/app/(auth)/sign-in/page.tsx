@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { env } from "@/lib/env";
+import { sameOriginPath } from "@/lib/same-origin";
 import { ssoSignInAvailable } from "@/server/sso";
 import { AuthForm } from "../auth-form";
 
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Only same-origin paths, so `?next=` can't send people to another site. */
 function safeNext(value: string | string[] | undefined) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/";
+  return (typeof value === "string" && sameOriginPath(value, env.appUrl)) || "/";
 }
 
 export default async function SignInPage({

@@ -169,10 +169,12 @@ export async function policyHoldFor(userId: string, workspaceId: string, facts: 
 
 /**
  * Which policy holds back the browser session serving this request, when it belongs to `userId`.
- * Null outside requests, for bearer tokens, for other users (checks on someone else's behalf, like
- * who a page is shared with) and for sessions that pass. Asked once per request and workspace.
+ * Null outside requests, for requests a connected app's token authenticated (they answer to
+ * connectedAppHold), for other users (checks on someone else's behalf, like who a page is shared
+ * with) and for sessions that pass. Asked once per request and workspace.
  */
 export async function sessionHold(userId: string, workspaceId: string): Promise<PolicyHold | null> {
+  if (connectedAppCall(userId)) return null;
   const current = await requestSession();
   if (!current || current.userId !== userId) return null;
   let held = current.heldBack.get(workspaceId);
@@ -238,6 +240,33 @@ export async function enforceWorkspacePolicy(userId: string, workspaceId: string
   if (app === "readOnly") throw new ConnectedAppReadOnlyError(workspaceId);
 }
 
+
+/**
+ * The policy error of the first of these workspaces whose sign-in policy holds back the browser
+ * session of this request (see sessionHold), or null. For handing out credentials that reach those
+ * workspaces outside the sign-in policies (API tokens): a session that may not see a workspace
+ * can't open another way into it.
+ */
+export async function signInPolicyRefusal(userId: string, workspaceIds: Iterable<string>): Promise<WorkspacePolicyError | null> {
+  for (const workspaceId of new Set(workspaceIds)) {
+    const hold = await sessionHold(userId, workspaceId);
+    if (hold) return policyError(workspaceId, hold);
+  }
+  return null;
+}
+
+/**
+ * The first of the user's workspaces whose sign-in policies hold back a session with these facts,
+ * or null: an app the user connects reaches all of them, so any one holding the session back
+ * keeps it from connecting one.
+ */
+export async function firstPolicyHold(userId: string, facts: SessionFacts): Promise<{ workspaceId: string; hold: PolicyHold } | null> {
+  for (const workspaceId of await memberWorkspaceIds(userId)) {
+    const hold = await policyHoldFor(userId, workspaceId, facts);
+    if (hold) return { workspaceId, hold };
+  }
+  return null;
+}
 
 /** Of these workspace ids, the ones whose policies hold back this request (see sessionHeldBack). */
 export async function workspacesHeldBack(userId: string, workspaceIds: Iterable<string>): Promise<Set<string>> {

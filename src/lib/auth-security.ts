@@ -1,8 +1,10 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { addOAuthServerContext, APIError, createAuthMiddleware, getOAuthState, getSessionFromCtx } from "better-auth/api";
+import { deleteSessionCookie } from "better-auth/cookies";
 import { symmetricDecrypt } from "better-auth/crypto";
 import { twoFactor } from "better-auth/plugins";
 import { passkey } from "@better-auth/passkey";
+import { sameOriginPath } from "@/lib/same-origin";
 import { verifyTotp } from "@/lib/totp";
 
 /**
@@ -126,22 +128,9 @@ export function passkeyRelyingParty(appUrl: string) {
   return { rpID: url.hostname, rpName: APP_NAME, origin: url.origin };
 }
 
-/**
- * Same-origin path of a redirect target (absolute or relative), or null. Social sign-in comes back
- * through the provider callback with its destination in `location`; the code step carries it on.
- */
-export function sameOriginPath(target: string | null | undefined, appUrl: string) {
-  if (!target) return null;
-  try {
-    const base = new URL(appUrl);
-    const url = new URL(target, base);
-    if (url.origin !== base.origin) return null;
-    const path = url.pathname + url.search;
-    return path.startsWith("/") && !path.startsWith("//") ? path : null;
-  } catch {
-    return null;
-  }
-}
+// Social sign-in comes back through the provider callback with its destination in `location`;
+// the code step carries it on, kept to this site by sameOriginPath.
+export { sameOriginPath };
 
 /**
  * Where a social sign-in that still needs a code continues: the sign-in page's code step. With
@@ -167,6 +156,11 @@ type AfterHook = NonNullable<NonNullable<BetterAuthPlugin["hooks"]>["after"]>[nu
  * social sign-in (the provider callback, and `/sign-in/social` with an ID token). Without that,
  * "Continue with Google" would skip the code. The challenge itself (trusted devices, the pending
  * sign-in cookie, attempt counting) stays the plugin's own.
+ *
+ * Following an email link (verifying the address, confirming a new one) signs in a browser that
+ * wasn't; with two-step verification on, that sign-in is undone, so the link alone (whoever
+ * reads the mailbox) never stands in for the code. The address is verified or changed all the
+ * same, and signing in asks for the code as usual.
  */
 export function twoFactorPlugin() {
   const plugin = twoFactor({
@@ -189,6 +183,18 @@ export function twoFactorPlugin() {
             ctx.path === "/sign-in/social" ||
             isSsoSignInPath(ctx.path),
           handler: challenge.handler,
+        },
+        {
+          matcher: (ctx) => ctx.path === "/verify-email",
+          handler: createAuthMiddleware(async (ctx) => {
+            const created = ctx.context.newSession;
+            if (!created || created.user.twoFactorEnabled !== true) return;
+            // Already signed in to this session: the link only confirmed the address.
+            const presented = await ctx.getSignedCookie(ctx.context.authCookies.sessionToken.name, ctx.context.secret);
+            if (presented === created.session.token) return;
+            await ctx.context.internalAdapter.deleteSession(created.session.token);
+            deleteSessionCookie(ctx);
+          }),
         },
       ],
     },

@@ -4,6 +4,7 @@ import {
   assignableRoles,
   automaticAccess,
   domainAccess,
+  invitationApplies,
   linkAccess,
   memberInviteMode,
   onAllowedDomain,
@@ -139,5 +140,16 @@ describe("linkAccess", () => {
     expect(linkAccess(asks, { ...person(), invited: false })).toBe("join");
     expect(linkAccess(asks, { ...person({ emailVerified: false }), invited: false })).toBe("request");
     expect(linkAccess({ ...asks, domainJoin: "request" }, { ...person(), invited: false })).toBe("request");
+  });
+
+  it("ignores an invitation for an address nobody proved, so it can't be taken by signing up with it", () => {
+    const asks = policy({ joinRequests: "anyone_with_link" });
+    const squatter = { ...outsider, emailVerified: false, invited: true };
+    expect(invitationApplies(squatter)).toBe(false);
+    expect(invitationApplies({ ...squatter, emailVerified: true })).toBe(true);
+    expect(linkAccess(asks, squatter)).toBe("request");
+    expect(linkAccess(asks, { ...squatter, record: "pending" })).toBe("pending");
+    // Without approval the link still lets them in, as a plain member (see joinWithLink).
+    expect(linkAccess(policy(), squatter)).toBe("join");
   });
 });

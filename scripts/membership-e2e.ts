@@ -365,6 +365,20 @@ try {
   check((await joinWithLink(token!, people.outsider.id, people.outsider.email)).status === "joined", "…even someone removed before: the owners shared it");
   await removeMember(people.owner.id, workspaceId, people.outsider.id);
 
+  // An invitation is taken up through the link only by a verified address: anyone can sign up with
+  // someone else's address, unproven, and would get their invitation's role.
+  const cfoEmail = `cfo@${RUN}.test`;
+  await addMember(people.owner.id, workspaceId, cfoEmail, "owner");
+  const squatter = person("squatter", cfoEmail, false);
+  userIds.push(squatter.id);
+  await db.insert(user).values({ id: squatter.id, name: squatter.id, email: cfoEmail, emailVerified: false });
+  const invitationFor = async (email: string) =>
+    (await db.select({ role: workspaceInvitation.role }).from(workspaceInvitation).where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, email))))[0] ?? null;
+  check((await joinWithLink(token!, squatter.id, cfoEmail)).status === "joined" && (await isMember(squatter)) === "member", "an unverified address invited as owner joins through the link as a member only");
+  check((await inviterOf(squatter)) === null, "…invited by nobody");
+  check((await invitationFor(cfoEmail))?.role === "owner", "…and the invitation stays for whoever owns the address");
+  await removeMember(people.owner.id, workspaceId, squatter.id);
+
   await settings({ joinRequests: "anyone_with_link" });
   check((await joinLinkAccess(token!, people.linker.id, people.linker.email)) === "request", "when the link asks, it offers a request");
   const linked = await joinWithLink(token!, people.linker.id, people.linker.email);
@@ -379,8 +393,14 @@ try {
   const later = person("later", laterEmail);
   userIds.push(later.id);
   await db.insert(user).values({ id: later.id, name: later.id, email: laterEmail, emailVerified: false });
-  check((await joinLinkAccess(token!, later.id, laterEmail)) === "join", "someone invited still joins through the link");
+  check((await joinLinkAccess(token!, later.id, laterEmail)) === "request", "an invited address nobody verified gets no invitation when the link asks");
+  const unproven = await joinWithLink(token!, later.id, laterEmail);
+  check(unproven.status === "requested" && (await isMember(later)) === null, "…it files a request instead", unproven);
+  check((await invitationFor(laterEmail))?.role === "guest", "…and leaves the invitation alone");
+  await db.update(user).set({ emailVerified: true }).where(eq(user.id, later.id));
+  check((await joinLinkAccess(token!, later.id, laterEmail)) === "join", "someone invited, with their address verified, still joins through the link");
   check((await joinWithLink(token!, later.id, laterEmail)).status === "joined" && (await isMember(later)) === "guest", "…with their invitation's role");
+  check((await invitationFor(laterEmail)) === null, "…which is used up");
   check((await inviterOf(later)) === people.owner.id, "…and invited by whoever sent the invitation");
 
   await settings({ domainJoin: "join" });

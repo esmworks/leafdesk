@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { resolveTxt } from "node:dns/promises";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { scimIdentity, ssoProvider, workspace, workspaceSso } from "@/db/schema";
+import { account, scimIdentity, session, ssoProvider, workspace, workspaceSso } from "@/db/schema";
 import { env } from "@/lib/env";
 import {
   domainRecordName,
@@ -382,9 +382,22 @@ export function keepSamlInput(
 const newVerificationToken = () => randomBytes(18).toString("base64url");
 
 /**
+ * Forgets everyone who signed in through the connection: the accounts linking them to it and the
+ * sessions it signed in. A sign-in finds its person by the id the identity provider gives them,
+ * under the connection's provider id, which never changes (`ws-<workspace id>`); another identity
+ * provider behind it could send any of those ids and sign in as that person. Afterwards people are
+ * linked again by their verified domain's address, as on their first sign-in.
+ */
+async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string) {
+  await tx.delete(account).where(eq(account.providerId, providerId));
+  await tx.delete(session).where(eq(session.ssoProviderId, providerId));
+}
+
+/**
  * Creates or replaces the workspace's connection. Owners only. Changing the domains (or the
  * identity provider behind them) asks for them to be verified again; a secret left empty keeps the
- * stored one. Sessions already signed in through the connection stay signed in.
+ * stored one. Sessions already signed in through the connection stay signed in while the identity
+ * provider stays the same; another one signs everyone out of it (forgetConnectionSignIns).
  */
 export async function saveSsoConnection(
   actorId: string,
@@ -449,6 +462,7 @@ export async function saveSsoConnection(
   };
   await db.transaction(async (tx) => {
     if (existing) {
+      if (!sameIdentity) await forgetConnectionSignIns(tx, providerId);
       await tx.update(ssoProvider).set(fields).where(eq(ssoProvider.providerId, providerId));
       await tx
         .update(workspaceSso)
@@ -514,14 +528,17 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
 }
 
 /**
- * Removes the connection (its provider row goes with it, see the trigger in 0022_sso.sql). The
- * "SSO only" login method falls back to any method unless the instance provider remains. Owners only.
+ * Removes the connection (its provider row goes with it, see the trigger in 0022_sso.sql) and
+ * everyone's sign-ins through it (forgetConnectionSignIns: a new connection gets the same provider
+ * id). The "SSO only" login method falls back to any method unless the instance provider remains.
+ * Owners only.
  */
 export async function removeSsoConnection(actorId: string, workspaceId: string) {
   await requireMembership(actorId, workspaceId, "owner");
   await db.transaction(async (tx) => {
     const removed = await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId)).returning({ providerId: workspaceSso.providerId });
     for (const { providerId } of removed) {
+      await forgetConnectionSignIns(tx, providerId);
       await recordAudit({ workspaceId, actorId, action: "sso.removed", target: { type: "sso", id: providerId } }, tx);
     }
     if (!env.instanceOidc) {

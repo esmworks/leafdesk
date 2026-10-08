@@ -1,8 +1,10 @@
 import { getAuthenticatorName } from "@better-auth/passkey";
 import { and, asc, eq, gt, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { account, passkey, session, user } from "@/db/schema";
+import { account, passkey, session, twoFactor, user } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
+import { revokeAllApiTokens } from "@/server/api/tokens";
+import { revokeAllConnectedApps } from "@/server/mcp/grants";
 
 export type PasskeySummary = {
   id: string;
@@ -79,4 +81,22 @@ export async function collabSessionFacts(
     strong: isStrongSession({ user: account, session: { authMethod: current?.authMethod ?? null } }),
     ssoProviderId: current?.ssoProviderId ?? null,
   };
+}
+
+/**
+ * The owner of an address just claimed the account someone had signed up for with it, unproven:
+ * a provider that vouches for the address linked to it (claimOnEmailLink), or the reset link
+ * emailed to it was used (afterPasswordReset). Whatever the earlier holder could have set up goes,
+ * so none of it signs them back in or reaches the workspaces: passkeys, two-step verification (a
+ * code only they have would also lock the owner out), API tokens and connected apps. Each way of
+ * claiming ends the earlier sessions itself.
+ */
+export async function forgetUnprovenHolder(userId: string) {
+  await db.transaction(async (tx) => {
+    await tx.delete(passkey).where(eq(passkey.userId, userId));
+    await tx.delete(twoFactor).where(eq(twoFactor.userId, userId));
+    await tx.update(user).set({ twoFactorEnabled: false }).where(eq(user.id, userId));
+  });
+  await revokeAllApiTokens(userId);
+  await revokeAllConnectedApps(userId);
 }

@@ -2,10 +2,10 @@
  * The browser session behind the request being served, for the checks deep in the data layer that
  * only get a user id (see access.ts, which holds sessions to the workspaces' sign-in policies).
  *
- * Null outside a Next request (the collab server, scripts, tests), for requests that authenticate
- * with a bearer token (MCP's OAuth tokens and the REST API's personal access tokens are outside the
- * policy) and without a sign-in. Looked up
- * once per request.
+ * Null outside a Next request (the collab server, scripts, tests) and without a sign-in. Only the
+ * session cookie counts: an Authorization header proves nothing here. Requests a token actually
+ * authenticated (MCP's OAuth tokens, the REST API's personal access tokens) run as connected apps,
+ * which access.ts holds to their own setting instead. Looked up once per request.
  */
 export type RequestSession = {
   userId: string;
@@ -40,7 +40,6 @@ export async function requestSession(): Promise<RequestSession | null> {
 }
 
 async function lookUp(requestHeaders: Headers): Promise<RequestSession | null> {
-  if (/^bearer\s/i.test(requestHeaders.get("authorization") ?? "")) return null;
   const [{ auth }, { isStrongSession }] = await Promise.all([import("@/lib/auth"), import("@/lib/auth-security")]);
   const session = await auth.api.getSession({ headers: requestHeaders }).catch(() => null);
   if (!session) return null;
