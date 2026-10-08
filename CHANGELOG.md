@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Upgrading
+
+- **`BETTER_AUTH_SECRET` is checked at startup.** In production the server refuses to start with
+  the example value from `.env.example` or a secret shorter than 32 characters (make one with
+  `openssl rand -base64 32`). Changing it signs everyone out; without `LEAFDESK_ENCRYPTION_KEY`,
+  connections' tokens were sealed with a key derived from the old secret, so those connections
+  have to be connected again.
+- **Changing a workspace's SSO identity provider** (or removing the connection) now signs out
+  everyone who signed in through it; they sign in again through the new one.
+
 ### Added
 
 - **Running totals and burndowns in charts.** A bar or line chart grouped by a date (or created or
@@ -196,8 +206,6 @@
     GCM tag; a page template is copied only into its own workspace from the API and MCP; formula
     functions named like built-in object members are unknown functions. Next.js 16.3.8 and sharp
     0.35.5 for their security fixes.
-  - In production the server refuses to start with the example `BETTER_AUTH_SECRET` or one shorter
-    than 32 characters.
 - **Tabs left open across an update could delete new blocks.** y-prosemirror deletes from the
   shared document any block its editor can't build, and the deletion syncs to everyone, so a tab
   still running the previous release removed blocks a newer one added (columns, Mermaid, a table
