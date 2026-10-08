@@ -1,9 +1,10 @@
 import type { BetterAuthPlugin } from "better-auth";
-import { createAuthMiddleware, isAPIError } from "better-auth/api";
+import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { oauthAccessToken, oauthClient, oauthConsent, oauthRefreshToken } from "@/db/schema";
-import { memberWorkspaceIds } from "@/server/access";
+import { isStrongSession } from "@/lib/auth-security";
+import { firstPolicyHold, memberWorkspaceIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 
 /**
@@ -87,14 +88,40 @@ async function recordConnectedApp(userId: string, clientId: string, action: "con
   );
 }
 
+/** What the workspaces' sign-in policies look at in a session (see SessionFacts in access.ts). */
+type PolicySession = { user: { id: string; twoFactorEnabled?: boolean | null }; session: { authMethod?: string | null; ssoProviderId?: string | null } };
+
 /**
- * Better Auth plugin: records an app connecting once the user allows it on the consent page (the
- * consent is stored by then). Clients that skip consent are the server's own and aren't recorded.
+ * Where a session that one of the user's workspaces holds back goes before it may connect an app,
+ * or null. A connected app reaches every workspace the user is in, outside their sign-in policies.
+ */
+export async function connectingHeldBack(session: PolicySession) {
+  return firstPolicyHold(session.user.id, { strong: isStrongSession(session), ssoProviderId: session.session.ssoProviderId ?? null });
+}
+
+/**
+ * Better Auth plugin: refuses allowing an app (or giving it more scopes) to a session one of the
+ * user's workspaces holds back (the consent page sends it to meet the policy first), and records
+ * an app connecting once the user allows it on the consent page (the consent is stored by then).
+ * Clients that skip consent are the server's own and aren't recorded.
  */
 export function connectedAppAuditPlugin() {
   return {
     id: "leafdesk-connected-app-audit",
     hooks: {
+      before: [
+        {
+          matcher: (ctx) =>
+            (ctx.path === "/oauth2/consent" && (ctx.body as { accept?: unknown } | undefined)?.accept === true) ||
+            ctx.path === "/oauth2/update-consent",
+          handler: createAuthMiddleware(async (ctx) => {
+            const session = await getSessionFromCtx(ctx);
+            if (session && (await connectingHeldBack(session as PolicySession))) {
+              throw APIError.from("FORBIDDEN", { message: "A workspace's sign-in policy holds this session back", code: "workspace_policy" });
+            }
+          }),
+        },
+      ],
       after: [
         {
           matcher: (ctx) => ctx.path === "/oauth2/consent",

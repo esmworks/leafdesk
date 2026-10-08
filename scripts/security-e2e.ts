@@ -3,7 +3,10 @@
  * that keep one person from taking another's place, against a running app:
  *
  * - an Authorization header alone doesn't take a held-back browser session out of the policy
- *   (files, server actions);
+ *   (files, the print view), while a real API token still is;
+ * - a held-back session can't make what would reach its workspaces outside the policy: an API
+ *   token for that workspace or for all of them, or an app connected over OAuth (consent page and
+ *   consent endpoint);
  *
  * Creates its own @example.test users and workspaces and deletes them afterwards.
  *
@@ -22,7 +25,7 @@ try {
   process.loadEnvFile();
 } catch {}
 
-const { randomBytes } = await import("node:crypto");
+const { createHash, randomBytes } = await import("node:crypto");
 const { existsSync, readdirSync, readFileSync } = await import("node:fs");
 const { join } = await import("node:path");
 const { Readable } = await import("node:stream");
@@ -30,7 +33,7 @@ const { Readable } = await import("node:stream");
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { file, session, user, workspace, workspaceMember } = await import("@/db/schema");
+const { apiToken, file, oauthClient, session, user, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -66,6 +69,15 @@ class Jar {
   constructor(cookie: string) {
     const eq = cookie.indexOf("=");
     this.cookies.set(cookie.slice(0, eq), cookie.slice(eq + 1));
+  }
+  store(res: Response) {
+    for (const line of res.headers.getSetCookie()) {
+      const [pair] = line.split(";");
+      const eq = pair.indexOf("=");
+      const value = pair.slice(eq + 1).trim();
+      if (value && !/max-age=0/i.test(line)) this.cookies.set(pair.slice(0, eq).trim(), value);
+      else this.cookies.delete(pair.slice(0, eq).trim());
+    }
   }
   header() {
     return [...this.cookies].map(([k, v]) => `${k}=${v}`).join("; ");
@@ -120,9 +132,84 @@ async function callAction(jar: Jar, path: string, file: string, name: string, ar
   return { status: res.status, location: res.headers.get("x-action-redirect"), text: await res.text() };
 }
 
+// ---------------------------------------------------------------------------- OAuth
+
+const RESOURCE = `${BASE}/mcp`;
+const REDIRECT_URI = "http://127.0.0.1:33419/callback";
+const b64url = (buf: Buffer) => buf.toString("base64url");
+const clientIds: string[] = [];
+
+async function json<T = any>(res: Response): Promise<T> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(`Expected JSON from ${res.url} (${res.status}): ${text.slice(0, 300)}`);
+  }
+}
+
+/** What the consent form sends: only the signed parameters of the page's query. */
+function signedQuery(pageUrl: string) {
+  const params = new URL(pageUrl, BASE).searchParams;
+  const names = new Set(params.getAll("ba_param"));
+  const out = new URLSearchParams();
+  for (const [k, v] of params) if (k === "sig" || k === "ba_param" || names.has(k)) out.append(k, v);
+  return out.toString();
+}
+
+/** Registers an MCP client and starts its authorization for the user signed in to `jar`: the consent page's URL. */
+async function consentPageFor(jar: Jar) {
+  const prm = await json(await fetch(`${BASE}/.well-known/oauth-protected-resource/mcp`));
+  const issuer = new URL(prm.authorization_servers[0]);
+  const as = await json(await fetch(`${issuer.origin}/.well-known/oauth-authorization-server${issuer.pathname}`));
+  const scope = "openid profile offline_access pages:read pages:write";
+  const client = await json(
+    await fetch(as.registration_endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        client_name: `Security e2e ${RUN}`,
+        application_type: "native",
+        redirect_uris: [REDIRECT_URI],
+        token_endpoint_auth_method: "none",
+        grant_types: ["authorization_code", "refresh_token"],
+        response_types: ["code"],
+        scope,
+      }),
+    }),
+  );
+  check(client.client_id, "an MCP client registers", client);
+  clientIds.push(client.client_id);
+  const url = new URL(as.authorization_endpoint);
+  url.search = new URLSearchParams({
+    response_type: "code",
+    client_id: client.client_id,
+    redirect_uri: REDIRECT_URI,
+    scope,
+    state: "e2e",
+    code_challenge: b64url(createHash("sha256").update(b64url(randomBytes(32))).digest()),
+    code_challenge_method: "S256",
+    resource: RESOURCE,
+  }).toString();
+  const res = await fetch(url, { redirect: "manual", headers: { cookie: jar.header(), accept: "text/html" } });
+  jar.store(res);
+  let location = res.headers.get("location");
+  if (res.status === 200 && (res.headers.get("content-type") ?? "").includes("application/json")) location = (await json(res)).url;
+  check(location && new URL(location, BASE).pathname === "/oauth/consent", "the authorization goes to the consent page", { status: res.status, location });
+  return new URL(location, BASE).toString();
+}
+
+/** Allows the app on the consent page, as its form does. */
+const allow = (jar: Jar, consentPage: string) =>
+  fetch(`${BASE}/api/auth/oauth2/consent`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin: BASE, cookie: jar.header() },
+    body: JSON.stringify({ accept: true, oauth_query: signedQuery(consentPage) }),
+  });
+
 // ---------------------------------------------------------------------------- run
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member` };
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free` };
 const userIds = Object.values(ids);
 const ws = `${RUN}-ws`;
 const open = `${RUN}-open`;
@@ -145,6 +232,7 @@ try {
     { workspaceId: ws, userId: ids.owner, role: "owner" },
     { workspaceId: ws, userId: ids.member, role: "member" },
     { workspaceId: open, userId: ids.member, role: "owner" },
+    { workspaceId: open, userId: ids.free, role: "member" },
   ]);
   const plan = await createPage({ userId: ids.owner }, { workspaceId: ws, title: `Plan ${RUN}` });
   await setPagePermission(ids.owner, plan.id, ids.owner, "full");
@@ -175,6 +263,46 @@ try {
   const rest = await fetch(`${BASE}/api/v1/pages/${plan.id}`, { headers: { authorization: `Bearer ${restToken}`, cookie: member.header() } });
   check(rest.status === 200, "a REST API token still reads the page, even sent along with the held session's cookie", rest.status);
 
+  // ---------------------------------------------------------------- no way around it: API tokens
+  const TOKENS = "src/app/actions/api-tokens.ts";
+  const free = await signedIn(ids.free);
+  // Their account settings open under the workspace that doesn't hold them back.
+  const account = await get("/account?tab=apps", member);
+  const settings = account.headers.get("location") ?? "";
+  check(account.status === 307 && settings.startsWith(`/w/${open}/settings`), "the held-back member opens their account settings in the other workspace", { status: account.status, settings });
+  check((await get(settings, member)).status === 200, "…where API tokens are made");
+  const newToken = (jar: Jar, workspaceId: string | null) =>
+    callAction(jar, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, write: true, workspaceId, expiresInDays: 30 }]);
+  const tokensOf = async (userId: string) => (await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, userId))).length;
+  const before = await tokensOf(ids.member);
+  const unbound = await newToken(member, null);
+  check(unbound.text.includes('"error":"policy"') && unbound.text.includes(`/two-step/${ws}`), "a token for all workspaces is refused, and the session sent to the two-step page", unbound.text.slice(0, 300));
+  const bound = await newToken(member, ws);
+  check(bound.text.includes('"error":"policy"') && bound.text.includes(`/two-step/${ws}`), "…so is one for the workspace that holds it back", bound.text.slice(0, 300));
+  const unboundBogus = await callAction(member, "/account", TOKENS, "createApiTokenAction", [{ name: RUN, write: true, workspaceId: null, expiresInDays: 30 }], BOGUS);
+  check(unboundBogus.text.includes('"error":"policy"'), "…with an Authorization header too", unboundBogus.text.slice(0, 300));
+  check((await tokensOf(ids.member)) === before, "…and no token was made");
+  const elsewhere = await newToken(member, open);
+  check(elsewhere.text.includes('"ok":true') && elsewhere.text.includes("esi_"), "a token for a workspace that doesn't hold it back is made", elsewhere.text.slice(0, 300));
+  const freeToken = await newToken(free, null);
+  check(freeToken.text.includes('"ok":true'), "someone no workspace holds back makes a token for all of theirs", freeToken.text.slice(0, 300));
+
+  // ---------------------------------------------------------------- no way around it: connected apps
+  const heldConsent = await consentPageFor(member);
+  const consentPage = await get(new URL(heldConsent).pathname + new URL(heldConsent).search, member);
+  check(consentPage.status === 307 && (consentPage.headers.get("location") ?? "").includes(`/two-step/${ws}`), "the consent page sends the held-back session to the two-step page", {
+    status: consentPage.status,
+    location: consentPage.headers.get("location"),
+  });
+  const refusedConsent = await allow(member, heldConsent);
+  const refusedBody = await refusedConsent.text();
+  check(refusedConsent.status === 403 && !refusedBody.includes("code="), "allowing the app anyway is refused", { status: refusedConsent.status, body: refusedBody.slice(0, 300) });
+  const freeConsent = await consentPageFor(free);
+  check((await get(new URL(freeConsent).pathname + new URL(freeConsent).search, free)).status === 200, "someone no workspace holds back sees the consent page");
+  const allowed = await allow(free, freeConsent);
+  const allowedUrl = allowed.ok ? new URL((await json(allowed)).url) : null;
+  check(allowedUrl?.searchParams.get("code"), "…and allows the app", allowed.status);
+
   console.log(`\n${passed} checks passed`);
 } catch (error) {
   console.error(`\n${passed} checks passed before the failure.`);
@@ -184,6 +312,7 @@ try {
   // Deleting the users drops their sessions and tokens; the workspaces take their pages and files along.
   await db.delete(workspace).where(inArray(workspace.id, [ws, open]));
   await db.delete(user).where(inArray(user.id, userIds));
+  if (clientIds.length) await db.delete(oauthClient).where(inArray(oauthClient.clientId, clientIds));
   await files.removeStored(storageKeys);
   hocuspocus.closeConnections();
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
