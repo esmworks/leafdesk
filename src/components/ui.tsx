@@ -120,7 +120,8 @@ export function Popover({
   const close = () => setOpen(false);
   const ref = useDismiss<HTMLDivElement>(open, close);
   return (
-    <div ref={ref} className={cn("relative inline-flex", wrapperClassName)}>
+    // data-open lets hover-only toolbars stay shown while their menu is open (`has-[[data-open]]:flex`).
+    <div ref={ref} data-open={open || undefined} className={cn("relative inline-flex", wrapperClassName)}>
       {trigger({ open, toggle: () => setOpen(!open) })}
       {open && (
         <div

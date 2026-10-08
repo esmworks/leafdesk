@@ -1215,7 +1215,7 @@ function SectionGroup({
     <section className="mb-2" aria-label={label}>
       <div
         {...handlers}
-        className={cn("group/section flex h-7 items-center rounded-md pr-1 hover:bg-bg-hover", over && "bg-accent/15")}
+        className={cn("group/section flex h-7 items-center rounded-md pr-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
       >
         <button
           type="button"
@@ -1231,7 +1231,7 @@ function SectionGroup({
           )}
         </button>
         {actions && (
-          <div className="flex items-center opacity-0 group-hover/section:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100">
+          <div className="flex items-center opacity-0 group-hover/section:opacity-100 focus-within:opacity-100 has-[[data-open]]:opacity-100 pointer-coarse:opacity-100">
             {actions}
           </div>
         )}
@@ -1280,7 +1280,7 @@ function TeamspaceSection({
       <div
         {...handlers}
         data-teamspace={teamspace.id}
-        className={cn("group relative flex h-7 items-center gap-0.5 rounded-md pr-1 pl-1 hover:bg-bg-hover", over && "bg-accent/15")}
+        className={cn("group relative flex h-7 items-center gap-0.5 rounded-md pr-1 pl-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
       >
         <button
           type="button"
@@ -1301,7 +1301,7 @@ function TeamspaceSection({
           </span>
           <span className="truncate">{teamspace.name}</span>
         </button>
-        <div className="hidden items-center group-hover:flex focus-within:flex pointer-coarse:flex">
+        <div className="hidden items-center group-hover:flex focus-within:flex has-[[data-open]]:flex pointer-coarse:flex">
           <Popover
             align="end"
             trigger={({ toggle }) => (
@@ -1619,9 +1619,9 @@ function TreeItem({
         onDragLeave={() => setDrop(null)}
         onDrop={onDrop}
         className={cn(
-          "group relative flex h-7 items-center gap-0.5 rounded-md pr-1 hover:bg-bg-hover",
+          "group relative flex h-7 items-center gap-0.5 rounded-md pr-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover",
           // An open database highlights its current view row instead.
-          active && !(isOpen && currentViewId) && "bg-bg-active font-medium hover:bg-bg-active",
+          active && !(isOpen && currentViewId) && "bg-bg-active font-medium hover:bg-bg-active has-[[data-open]]:bg-bg-active",
           drop?.zone === "inside" && "bg-accent/15",
         )}
         style={{ paddingLeft: 4 + depth * 14 }}
@@ -1685,7 +1685,7 @@ function TreeItem({
           </Link>
         )}
         {editable && !renaming && (
-          <div className="hidden items-center group-hover:flex pointer-coarse:flex">
+          <div className="hidden items-center group-hover:flex focus-within:flex has-[[data-open]]:flex pointer-coarse:flex">
             <Popover
               align="end"
               trigger={({ toggle }) => (
