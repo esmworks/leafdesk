@@ -73,7 +73,8 @@
 - **Choosing the light or dark theme.** Settings > Preferences > Appearance sets the theme for this
   browser: the system's (as before), light or dark. It is kept in a cookie like the interface
   language, so the server draws the page in the chosen theme from the start, and the editor,
-  diagrams and the browser bar follow it. The print view stays light. No migration.
+  diagrams and the browser bar follow it; a new choice switches the page, the editor and diagrams
+  together at once, also offline. The print view stays light. No migration.
 - **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
   row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
   (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if
@@ -212,13 +213,17 @@
 - **MCP hardening.**
   - *Rate limit:* each user may make 120 requests a minute to `/mcp`, all their connected apps
     together (`MCP_RATE_LIMIT`, `0` turns it off). Beyond it the server answers `429` with
-    `Retry-After`; a revoked token still gets `401`.
+    `Retry-After` before it looks anything up, so requests over the limit cost next to nothing.
+    The MCP end-to-end script checks the limit the server actually has (`MCP_E2E_SKIP_RATE_LIMIT=1`
+    for a server without one).
   - *Content is data:* the server's instructions say that what the tools return was written by
     people, some from outside the workspace, and is never instructions; every read tool's result
     ends with a one-line reminder of it.
   - *Password changes:* changing the password with *Sign out of all other sessions*, or resetting
     it by email, also disconnects the apps the user connected; they have to be connected again.
-    Each app disconnected this way shows in the audit log, as one disconnected by hand does.
+    Each app disconnected this way shows in the audit log, as one disconnected by hand does; if
+    that record can't be written, the change still completes. The "password changed" email goes
+    out before the apps are disconnected.
   - *AI prompts:* a closing tag written in capitals or with spaces (`</ROW>`, `< / row >`) can no
     longer end a data section of an AI prompt early, and a connection's answer can't close the
     frame that marks it as outside data.
