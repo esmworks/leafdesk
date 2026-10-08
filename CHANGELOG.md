@@ -65,10 +65,11 @@
   does too), and travels with copies, templates, published pages (their header too) and copies
   made from a published page; printing leaves it out. Over MCP and REST, `get_page` shows it and
   `update_page` / `PATCH /pages/{id}` set it with `background` (`color:<name>`, `pattern:<name>`
-  or both separated by a space, `null` to remove). Not yet in Markdown exports and imports. Pages that had a
-  cover from an earlier build of this release get the color closest to a gradient cover, and lose
-  an image cover or image background (`0046_page_background_colors_only`, which also has the file
-  trigger stop looking at backgrounds); `0045_drop_page_cover` removes the cover column.
+  or both separated by a space, `null` to remove). Not yet in Markdown exports and imports. Pages
+  that had a cover from an earlier build of this release get the color closest to a gradient
+  cover, and lose an image cover or image background (`0046_page_background_colors_only`, which
+  also has the file trigger stop looking at backgrounds); `0045_drop_page_cover` removes the cover
+  column.
 - **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
   row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
   (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if
