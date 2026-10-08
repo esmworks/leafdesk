@@ -8,6 +8,7 @@ import {
   addProperty,
   addView,
   afterRowWrites,
+  dropCopiedSubItems,
   getProperties,
   listRowTemplateSummaries,
   normalizeRowProperties,
@@ -226,7 +227,7 @@ export async function createFromTemplate(
     // they add were already left out by the copy (server/duplicate copiedAccess), so the template
     // still applies, without writing around the rules and without refusing it whole. Values given
     // here are the user's own and are checked like any others: a restricted one is refused.
-    let values = root.properties;
+    let values = root.inTemplate ? root.properties : await dropCopiedSubItems(root.id, parentId!, root.properties);
     if (input.properties && Object.keys(input.properties).length) {
       const normalized = await normalizeRowProperties(userId, parentId!, input.properties, values, { createdBy: userId });
       values = { ...values };

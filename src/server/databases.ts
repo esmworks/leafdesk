@@ -591,6 +591,21 @@ async function moveSubItems(databaseId: string, parentId: string, childIds: stri
   }
 }
 
+/**
+ * A copy of a row, or a row made from a template, has no sub-items: they stay with the row they
+ * belong to (listing them would move them to the copy). Drops the copy's list and returns the rest.
+ */
+export async function dropCopiedSubItems(rowId: string, databaseId: string, properties: Record<string, unknown>) {
+  const children = subItemsProperty(await getProperties(databaseId));
+  if (!children || !(children.id in properties)) return properties;
+  const { [children.id]: _dropped, ...rest } = properties;
+  await db
+    .update(page)
+    .set({ properties: sql`${page.properties} - ${children.id}::text` })
+    .where(eq(page.id, rowId));
+  return rest;
+}
+
 export async function updateRowProperties(userId: string, rowId: string, patch: Record<string, unknown>) {
   const row = await requirePageAccess(userId, rowId, "edit");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
@@ -1678,6 +1693,7 @@ export async function moveRow(
     const normalized = await normalizeRowProperties(userId, row.parentId, { [groupBy]: next }, row.properties, {
       createdBy: row.createdBy,
     });
+    await checkSubItemLoops(row.parentId, [{ rowId, values: normalized }]);
     const value = normalized[groupBy];
     if (value === null || value === undefined || (Array.isArray(value) && !value.length)) delete properties[groupBy];
     else properties[groupBy] = value;

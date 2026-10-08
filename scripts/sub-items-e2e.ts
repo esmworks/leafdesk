@@ -31,6 +31,7 @@ const {
   deleteProperty,
   duplicateProperty,
   getProperties,
+  moveRow,
   setSubItems,
   updateRowProperties,
   updateRowsProperties,
@@ -38,6 +39,7 @@ const {
 } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { duplicatePage } = await import("@/server/duplicate");
+const { createFromTemplate, createRowTemplate } = await import("@/server/templates");
 const { PropertyValueError } = await import("@/lib/properties");
 const { parentProperty, subItemsProperty } = await import("@/lib/sub-items");
 
@@ -170,6 +172,34 @@ try {
     [await values(grand), await values(a)],
   );
   check((await values(b)).children.join() === grand, "a new row made with a parent is listed under it");
+
+  // A board grouped by Parent: dragging A into the column of B1 (its grandchild) is refused
+  check(
+    await rejects(() => moveRow(ids.owner, a, { groupBy: parent.id, groupValue: grand, groupFrom: null }), "subItemLoop"),
+    "dragging A on a board into the column of its own sub-item is refused",
+  );
+
+  // A copy of B sits under B's parent, without taking B's sub-items
+  const bCopy = await duplicatePage(actor, b, " (copy)");
+  check(
+    (await values(bCopy.id)).parent.join() === a &&
+      !(await values(bCopy.id)).children.length &&
+      (await values(grand)).parent.join() === b &&
+      (await values(b)).children.join() === grand,
+    "a copied row keeps its parent and leaves the sub-items with the original",
+    [await values(bCopy.id), await values(grand), await values(b)],
+  );
+  const template = await createRowTemplate(actor, tasks.id, { title: "From template" });
+  await db
+    .update(page)
+    .set({ properties: { [parent.id]: [a], [children.id]: [grand] } })
+    .where(eq(page.id, template.id));
+  const fromTemplate = await createFromTemplate(actor, template.id, {});
+  check(
+    !(await values(fromTemplate.id)).children.length && (await values(grand)).parent.join() === b,
+    "a row made from a template listing sub-items doesn't take them",
+    [await values(fromTemplate.id), await values(grand)],
+  );
 
   // View setting
   const table = await addView(ids.owner, tasks.id, { name: "Tree", type: "table" });

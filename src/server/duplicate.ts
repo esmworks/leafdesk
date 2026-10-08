@@ -29,7 +29,7 @@ import { stripComments } from "@/lib/strip-comments";
 import { AccessError, pageVisibleTo, requirePageAccess } from "@/server/access";
 import { queueAutomations } from "@/server/automations/queue";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
-import { bulkRowIds, rowsWithAccess, syncPairedRelations, withCode, type BulkResult } from "@/server/databases";
+import { bulkRowIds, dropCopiedSubItems, rowsWithAccess, syncPairedRelations, withCode, type BulkResult } from "@/server/databases";
 import { copyReferences } from "@/server/mentions";
 import { keepFullAccess, makePagePrivate } from "@/server/permissions";
 import type { PropertyAccess } from "@/lib/property-access-rows";
@@ -420,9 +420,10 @@ export async function duplicatePage(
   // A row copied into its database links to the same rows; two-way relations mirror that.
   // Templates link one way only: their links would show up on the linked rows.
   if (parentKind === "database" && !root.inTemplate) {
-    await syncPairedRelations(root.id, source.parentId!, {}, root.properties);
+    const properties = await dropCopiedSubItems(root.id, source.parentId!, root.properties);
+    await syncPairedRelations(root.id, source.parentId!, {}, properties);
     // A copied row is a new row: "row added" automations run for it.
-    await queueAutomations(userId, source.parentId!, [{ rowId: root.id, before: {}, after: root.properties }], true);
+    await queueAutomations(userId, source.parentId!, [{ rowId: root.id, before: {}, after: properties }], true);
   }
 
   if (notify) {
