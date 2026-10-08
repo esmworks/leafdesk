@@ -234,6 +234,30 @@ function runHeadings(blocks: PageBlock[], out: PageBlock[] = []): PageBlock[] {
   return out;
 }
 
+/**
+ * Gives a run's heading elements their anchors (ours, "heading-3", nothing from the document). The
+ * serialized run is parsed back into elements, the way a browser will read it, and each heading
+ * element gets the next anchor: the n-th one is the run's n-th heading block (a toggle heading is
+ * one element too, its nested headings after it). Attribute values keep whatever an editor typed,
+ * "<h2" included, so the anchors are set on elements, never by searching the HTML text.
+ */
+async function withHeadingAnchors(html: string, anchors: string[]): Promise<string> {
+  if (!anchors.length) return html;
+  return editor._withJSDOM(async () => {
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    container.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((element, i) => {
+      if (i >= anchors.length) return;
+      // The id goes first, as in the HTML the page has always had.
+      const attributes = [...element.attributes].filter((attribute) => attribute.name !== "id");
+      for (const attribute of attributes) element.removeAttributeNode(attribute);
+      element.setAttribute("id", anchors[i]);
+      for (const attribute of attributes) element.setAttributeNode(attribute);
+    });
+    return container.innerHTML;
+  });
+}
+
 export type BodyOptions = {
   /** How to show the pages the body mentions or links to; without it they are left out. */
   resolvePages?: (pageIds: string[]) => Promise<Map<string, PublishedPageRef>>;
@@ -280,15 +304,9 @@ export async function bodySegmentsFromBlocks(
         headings.push(heading);
         return heading;
       });
-      let html = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(resolveMentions(sanitizeBlocks(run), refs)));
+      const serialized = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(resolveMentions(sanitizeBlocks(run), refs)));
       run = [];
-      // The serializer escapes text, so "<h2" only ever starts a heading: the n-th one is the
-      // run's n-th heading block. The anchors are ours ("heading-3"), nothing from the document.
-      let n = 0;
-      html = html.replace(/<h([1-6])(?=[\s>])/g, (tag, level: string) => {
-        const heading = inRun[n++];
-        return heading ? `<h${level} id="${heading.anchor}"` : tag;
-      });
+      const html = await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor));
       if (html) segments.push({ kind: "html", html });
     };
     const standalone = async (block: PageBlock) => {

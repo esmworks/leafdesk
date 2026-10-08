@@ -76,6 +76,45 @@ describe("published page body", () => {
     expect(html).toContain('<h3 id="p2-heading-2"');
   });
 
+  it("anchors only the real headings: '<h2' typed into a link, a media url or an attribute stays text", async () => {
+    // Attribute values come out of the serializer with "<" as is; a heading tag spelled inside one
+    // must not get an anchor spliced in (that would close the quote and leave the handler live).
+    const typed = 'x<h2 onmouseover=alert(1)//"quoted';
+    const imageUrl = "https://x.invalid/<h2 onerror=alert(document.domain)//";
+    const linkUrl = "https://x.com/<h2 onmouseover=alert(1)//";
+    const state = await ydocFrom([
+      { type: "heading", props: { level: 2 }, content: "One" },
+      { type: "paragraph", content: [{ type: "link", href: linkUrl, content: [{ type: "text", text: "hover", styles: {} }] }] },
+      { type: "image", props: { url: imageUrl, caption: typed, name: typed } },
+      { type: "file", props: { url: "https://x.invalid/f", caption: typed, name: typed } },
+      { type: "codeBlock", props: { language: typed }, content: "code" },
+      { type: "paragraph", props: { textColor: typed, backgroundColor: typed }, content: [{ type: "text", text: "t", styles: { textColor: typed } }] },
+      {
+        type: "heading",
+        props: { level: 2, isToggleable: true },
+        content: "Two",
+        children: [{ type: "heading", props: { level: 3 }, content: "Three" }],
+      },
+    ]);
+    const [segment] = await bodySegmentsFromYdoc(state);
+    const html = segment.kind === "html" ? segment.html : "";
+    const root = await editor._withJSDOM(async () => {
+      const div = document.createElement("div");
+      div.innerHTML = html;
+      return div;
+    });
+    const all = [...root.querySelectorAll("*")];
+    expect(all.flatMap((element) => [...element.attributes].map((a) => a.name)).filter((name) => name.startsWith("on"))).toEqual([]);
+    expect(root.querySelector("img")?.getAttribute("src")).toBe(imageUrl);
+    expect(root.querySelector("a[href^='https://x.com']")?.getAttribute("href")).toBe(linkUrl);
+    expect(root.querySelector("img")?.getAttribute("alt")).toBe(typed);
+    expect([...root.querySelectorAll("[id]")].map((element) => [element.tagName, element.id, element.textContent])).toEqual([
+      ["H2", "heading-1", "One"],
+      ["H2", "heading-2", "Two"],
+      ["H3", "heading-3", "Three"],
+    ]);
+  });
+
   it("shows uploaded PDFs in place and keeps other files as links", async () => {
     const id = "AbCdEfGhIjKlMnOpQrStUv_-";
     const state = await ydocFrom([
