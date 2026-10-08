@@ -582,6 +582,7 @@
     "invalidDependencySettings": "Las dependencias mueven filas según una regla y según propiedades de fecha de su base de datos.",
     "relationTargetReadOnly": "Solo puedes ver esa base de datos, así que el vínculo no se puede mostrar también allí. Desmarca esa opción o pide acceso de edición.",
     "databaseLocked": "Esta base de datos está bloqueada. Desbloquéala para cambiar sus propiedades y vistas.",
+    "pageLocked": "Esta página está bloqueada. Desbloquéala desde su menú para cambiar su título, icono, fondo o texto.",
     "invalidPerson": "“{property}” solo puede contener personas de este espacio de trabajo.",
     "readOnlyProperty": "“{property}” se rellena automáticamente y no se puede cambiar.",
     "invalidFilter": "Este filtro no se puede guardar. Recarga la página y vuelve a intentarlo.",

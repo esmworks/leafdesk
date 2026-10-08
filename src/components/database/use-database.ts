@@ -19,13 +19,14 @@ import {
   moveRowAction,
   moveViewAction,
   updatePropertyAction,
+  renameRowAction,
   updateRowPropertiesAction,
   updateRowsPropertiesAction,
   updateViewAction,
   type ActionResult,
 } from "@/app/actions/databases";
 import { addAutofillPropertyAction, refreshAutofillAction, setAutofillAction } from "@/app/actions/ai";
-import { archivePageAction, renamePageAction } from "@/app/actions/pages";
+import { archivePageAction } from "@/app/actions/pages";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
@@ -187,7 +188,7 @@ export function useDatabase(
   const setCell = useCallback(
     (rowId: string, key: string, value: unknown) =>
       withPending(rowId, key, value, async () => {
-        if (key === TITLE) await renamePageAction(rowId, String(value ?? ""));
+        if (key === TITLE) await unwrap(renameRowAction(rowId, String(value ?? "")));
         else await unwrap(updateRowPropertiesAction(rowId, { [key]: value }));
       }),
     [withPending],

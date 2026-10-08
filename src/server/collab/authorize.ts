@@ -1,3 +1,4 @@
+import { isPageLocked } from "@/lib/page-lock";
 import { AccessError, findMembership, hasLevel, pageAccessOf, policyError, policyHoldFor, type SessionFacts } from "@/server/access";
 
 export type DocTarget = { kind: "page" | "ws" | "db"; id: string };
@@ -10,7 +11,8 @@ export function parseDocName(name: string): DocTarget | null {
 
 /**
  * Whether the user may open a collab document: a workspace's signals need membership, a page or
- * database needs view access, and without edit access a page's connection is read-only. Signal
+ * database needs view access, and without edit access, or while the page is locked
+ * (lib/page-lock), a page's connection is read-only. Signal
  * documents (`ws:`, `db:`) are always read-only: the server only broadcasts on them, and nobody
  * writes into them. The
  * workspace's sign-in policies apply to the session the token was issued to (`facts`, see
@@ -30,7 +32,7 @@ export async function authorizeCollab(
   const { page, level } = await pageAccessOf(userId, target.id);
   if (!page || !hasLevel(level, "view")) throw new AccessError();
   await holdBack(userId, page.workspaceId, facts);
-  return { readOnly: target.kind === "db" || !hasLevel(level, "edit") };
+  return { readOnly: target.kind === "db" || !hasLevel(level, "edit") || isPageLocked(page) };
 }
 
 async function holdBack(userId: string, workspaceId: string, facts: SessionFacts) {

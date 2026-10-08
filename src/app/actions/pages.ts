@@ -22,9 +22,16 @@ export async function createPageAction(input: {
   return { id: created.id };
 }
 
-export async function renamePageAction(pageId: string, title: string) {
+/** `locked`: the page is locked, so its title stays (lib/page-lock); other failures throw. */
+export async function renamePageAction(pageId: string, title: string): Promise<{ ok: true } | { ok: false; locked: true }> {
   const userId = await requireUserId();
-  await pages.renamePage({ userId }, pageId, title);
+  try {
+    await pages.renamePage({ userId }, pageId, title);
+  } catch (error) {
+    if ((error as { code?: unknown }).code === "pageLocked") return { ok: false, locked: true };
+    throw error;
+  }
+  return { ok: true };
 }
 
 export async function setPageIconAction(pageId: string, icon: string | null) {

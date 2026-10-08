@@ -4,6 +4,7 @@ import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { ToolInputError } from "@/server/mcp/format";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
+import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 
 /** Every error code the REST API answers with, for the docs. */
 export const API_ERROR_CODES = {
@@ -56,6 +57,17 @@ export function apiErrorFor(error: unknown): ApiError {
   if (error instanceof PropertyValueError) return new ApiError(400, "invalid_property_value", error.message);
   if (error instanceof TeamspaceError) return new ApiError(403, "forbidden", error.message);
   if (error instanceof GroupError) return new ApiError(400, "invalid_request", error.message);
+  // Locks guard against accidents rather than limit access: like operations' own refusals of a
+  // locked page, they say what to do (lib/page-lock).
+  const { code } = error as { code?: unknown };
+  if (code === "pageLocked") return new ApiError(400, "invalid_request", PAGE_LOCKED_MESSAGE);
+  if (code === "databaseLocked") {
+    return new ApiError(
+      400,
+      "invalid_request",
+      "The database is locked, so its properties and views can't change. Someone with full access can unlock it in the app.",
+    );
+  }
   if (error instanceof CommentError) {
     if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
     if (error.code === "notAllowed") return new ApiError(403, "forbidden", error.message);

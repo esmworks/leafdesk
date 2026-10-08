@@ -61,6 +61,7 @@ import { duplicatePage, MAX_DUPLICATE_PAGES } from "@/server/duplicate";
 import * as files from "@/server/files";
 import { uploadLimits } from "@/server/storage";
 import { asFiles, blockTypeFor, fileIdOf, fileUrl, formatBytes } from "@/lib/files";
+import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import * as forms from "@/server/forms";
 import { labelPageLinks } from "@/server/mentions";
 import * as notifications from "@/server/notifications";
@@ -934,7 +935,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_page",
     {
       title: "Read a page",
-      description: `Read a page: title, breadcrumb path, Markdown body, sub-pages and a link. For database rows it also returns the row's properties; for databases it returns the schema summary (use query_database for rows). Long bodies are cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue reading. ${EMBED_NOTE}`,
+      description: `Read a page: title, breadcrumb path, Markdown body, sub-pages and a link. locked: true means nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app. For database rows it also returns the row's properties; for databases it returns the schema summary (use query_database for rows). Long bodies are cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue reading. ${EMBED_NOTE}`,
       inputSchema: ops.inputs.getPage,
       annotations: READ,
     },
@@ -1047,6 +1048,8 @@ export function createMcpServer(principal: McpPrincipal) {
         const { page, parentDatabase } = await ops.loadPage(ctx, page_id);
         if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before adding files.");
         if (page.kind === "database") throw new ToolInputError("Databases have no body. Attach the file to one of its rows.");
+        // Before uploading, so a refused change leaves no upload behind. A row's files property stays open.
+        if (property === undefined && append && isPageLocked(page)) throw new ToolInputError(PAGE_LOCKED_MESSAGE);
         let filesProp: PropertyDef | null = null;
         if (property !== undefined) {
           if (!parentDatabase) throw new ToolInputError("property only applies to database rows; this page is not one.");

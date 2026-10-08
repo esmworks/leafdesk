@@ -6,6 +6,7 @@
  */
 import * as z from "zod";
 import { EDITOR_ACTIONS, isAiLanguage, SELECTION_ACTIONS } from "@/lib/ai";
+import { isPageLocked } from "@/lib/page-lock";
 import { AccessError, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { aiConfig, AiError, stream, type AiStream } from "@/server/ai";
 import { editorPrompt } from "@/server/ai/prompts";
@@ -43,6 +44,8 @@ async function editablePage(userId: string, pageId: string) {
     throw error;
   });
   if (found.archivedAt || found.kind !== "page") throw new AiError("noAccess", "Page not found");
+  // Its body can't change while it is locked (lib/page-lock); the editor doesn't offer AI then either.
+  if (isPageLocked(found)) throw new AiError("noAccess", "The page is locked");
   if (!(await aiAvailable(found.workspaceId))) throw new AiError("disabled", "AI is off for this workspace");
   return found;
 }

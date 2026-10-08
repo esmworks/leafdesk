@@ -31,7 +31,10 @@ export interface CollabService {
   readPage(pageId: string): Promise<PageContent>;
   /** Current title and body as BlockNote blocks (plain JSON), from the live document when it is open. */
   readBlocks(pageId: string): Promise<{ title: string; blocks: unknown[] }>;
-  /** Replaces the body. Snapshots first when `snapshot` is set (MCP writes). */
+  /**
+   * Replaces the body. Snapshots first when `snapshot` is set (MCP writes). This and the other
+   * writes of the title or body below refuse a locked page (lib/page-lock).
+   */
   replaceContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean): Promise<void>;
   appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean): Promise<void>;
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
@@ -52,6 +55,11 @@ export interface CollabService {
    * do it.
    */
   commentOp(pageId: string, actor: CommentActor, op: CommentOp): Promise<CommentOpResult>;
+  /**
+   * The page was locked or unlocked (server/pages.ts setPageLocked). Locking makes its open browser
+   * connections read-only at once; unlocking makes those of people who may edit it writable again.
+   */
+  pageLockChanged(pageId: string, locked: boolean): Promise<void>;
   /** Tells subscribed clients to refetch (sidebar tree, database rows). */
   broadcast(channel: Channel, event: string): void;
   /** Drops a user's live connections to the workspace's documents (after removal from it). */

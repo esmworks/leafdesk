@@ -12,6 +12,7 @@ import { page, type ChatChange, type ChatQueryCondition, type ChatStepRecord, ty
 import type { ChatActionView, ChatPageView } from "@/lib/ai-chat";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
+import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, pageAccessOf } from "@/server/access";
 import type { AiTool } from "@/server/ai";
@@ -469,6 +470,8 @@ export async function prepareWrite(
       const parent = target?.page.parentId ? await writeTarget(userId, workspaceId, null, target.page.parentId) : null;
       if (!target || parent?.page.kind !== "database") return { content: "No database row with that id can be changed. Use the page_id of a row's source.", isError: true };
       if (!canEdit(target.level)) return readOnly;
+      // Before the person is asked: a locked row keeps its title (its values stay open).
+      if (input.title !== undefined && isPageLocked(target.page)) return { content: PAGE_LOCKED_MESSAGE, isError: true };
       if (input.properties && Object.keys(input.properties).length) {
         await normalizeRowProperties(userId, parent.page.id, input.properties, target.page.properties, { createdBy: target.page.createdBy });
       }
@@ -575,6 +578,10 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
     const what = record.action === "createRow" ? "Added the row" : record.action === "updateRow" ? "Changed the row" : "Added the page";
     return { content: `${what}; it is this source now:\n${formatSources([entry])}`, step: { ...record, outcome: "done", pageId: made.id } };
   } catch (error) {
+    // The page was locked since the change was checked.
+    if ((error as { code?: unknown }).code === "pageLocked") {
+      return { content: `The change failed: ${PAGE_LOCKED_MESSAGE}`, isError: true, step: { ...record, outcome: "failed", pageId: null } };
+    }
     if (error instanceof PropertyValueError || error instanceof ToolInputError || error instanceof AccessError) {
       const message = error instanceof AccessError ? "the person may not make it" : error.message;
       return { content: `The change failed: ${message}`, isError: true, step: { ...record, outcome: "failed", pageId: null } };

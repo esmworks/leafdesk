@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { duplicatePage } from "@/server/duplicate";
 import { setDatabaseLocked } from "@/server/databases";
 import { getPageHeaderInfo, listFavorites, setFavorite } from "@/server/page-meta";
+import { setPageLocked } from "@/server/pages";
 import { requireUserId } from "@/server/session";
 
 export async function getPageHeaderAction(pageId: string) {
@@ -26,6 +27,12 @@ export async function setDatabaseLockedAction(workspaceId: string, databaseId: s
   const userId = await requireUserId();
   await setDatabaseLocked(userId, databaseId, locked);
   revalidatePath(`/w/${workspaceId}/p/${databaseId}`);
+}
+
+export async function setPageLockedAction(workspaceId: string, pageId: string, locked: boolean) {
+  const userId = await requireUserId();
+  await setPageLocked(userId, pageId, locked);
+  revalidatePath(`/w/${workspaceId}/p/${pageId}`);
 }
 
 export async function duplicatePageAction(

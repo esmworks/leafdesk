@@ -33,6 +33,8 @@
     "lockHint": "Solange die Datenbank gesperrt ist, lassen sich Eigenschaften und Ansichten nicht ändern; Zeilen bleiben bearbeitbar.",
     "locked": "Gesperrt",
     "unlock": "Entsperren",
+    "lockPage": "Seite sperren",
+    "lockPageHint": "Solange die Seite gesperrt ist, kann niemand Titel, Symbol, Hintergrund oder Text ändern. Kommentieren, Teilen und Verschieben funktionieren weiterhin.",
     "exportMarkdown": "Als Markdown exportieren",
     "exportCsv": "Als CSV exportieren",
     "exportXlsx": "Als Excel exportieren (.xlsx)",

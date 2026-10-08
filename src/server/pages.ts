@@ -2,6 +2,7 @@ import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
+import { assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
 import { anyWordTerms, anyWordTsQuery } from "@/lib/search-words";
@@ -333,14 +334,33 @@ export async function createPage(actor: WriteActor, input: CreatePageInput) {
 }
 
 export async function renamePage(actor: WriteActor, pageId: string, title: string) {
-  await requirePageAccess(actor.userId, pageId, "edit");
+  assertPageUnlocked(await requirePageAccess(actor.userId, pageId, "edit"));
   // Title lives in the shared doc so open editors update live; the store hook persists it.
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
 
 export async function setPageIcon(userId: string, pageId: string, icon: string | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
+  assertPageUnlocked(p);
   await db.update(page).set({ icon, updatedBy: userId }).where(eq(page.id, pageId));
+  pageHeaderChanged(p);
+}
+
+/**
+ * Locks or unlocks a page (not a database: see setDatabaseLocked) against accidental edits of its
+ * title, icon, background and body (lib/page-lock). Anyone who can edit the page may do either.
+ * Open editors turn read-only, or editable again, without a reload.
+ */
+export async function setPageLocked(userId: string, pageId: string, locked: boolean) {
+  const p = await requirePageAccess(userId, pageId, "edit");
+  if (p.kind !== "page") throw new Error("A database locks its properties and views instead (setDatabaseLocked)");
+  await db
+    .update(page)
+    .set({ lockedAt: locked ? new Date() : null, updatedBy: userId })
+    .where(eq(page.id, pageId));
+  const collab = getCollab();
+  // Before the header event: tabs that refetch on it find their connection already as it should be.
+  await collab.pageLockChanged(pageId, locked);
   pageHeaderChanged(p);
 }
 
@@ -358,6 +378,7 @@ function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: strin
 /** Sets or removes the page's background color (lib/page-background). */
 export async function setPageBackground(userId: string, pageId: string, background: PageBackground | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
+  assertPageUnlocked(p);
   const checked = background === null ? null : parsePageBackground(background);
   if (background !== null && !checked) throw new Error("Not a background");
   await db.update(page).set({ background: checked, updatedBy: userId }).where(eq(page.id, pageId));
@@ -853,7 +874,7 @@ export async function getSnapshot(userId: string, snapshotId: string) {
 
 export async function restoreSnapshot(actor: WriteActor, snapshotId: string) {
   const snap = await getSnapshot(actor.userId, snapshotId);
-  await requirePageAccess(actor.userId, snap.pageId, "edit");
+  assertPageUnlocked(await requirePageAccess(actor.userId, snap.pageId, "edit"));
   await getCollab().restoreSnapshot(snapshotId, actor);
   return snap.pageId;
 }

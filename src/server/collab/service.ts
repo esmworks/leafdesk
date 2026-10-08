@@ -12,6 +12,7 @@ import { AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constan
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
+import { assertPageUnlocked } from "@/lib/page-lock";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
@@ -98,6 +99,15 @@ async function deriveContent(doc: Y.Doc, workspaceId?: string) {
   const blocks = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
   const markdown = (await blocksToMarkdown(blocks, { workspaceId })).trim();
   return { blocks, markdown, text: blocksToPlainText(blocks) };
+}
+
+/**
+ * The server's own writes of a title or body (MCP, the REST API, AI and agents, restoring a version)
+ * refuse a locked page, like its browser connections do. Comments and history snapshots go on.
+ */
+async function assertWritable(pageId: string) {
+  const [row] = await db.select({ kind: page.kind, lockedAt: page.lockedAt }).from(page).where(eq(page.id, pageId)).limit(1);
+  if (row) assertPageUnlocked(row);
 }
 
 async function workspaceOf(pageId: string) {
@@ -357,6 +367,7 @@ export function createCollab() {
     ) => Promise<typeof existing>,
     snapshot: boolean,
   ) => {
+    await assertWritable(pageId);
     await transactPage(pageId, actor, async (doc) => {
       if (snapshot) await snapshotBefore(pageId, doc, "before_mcp_write", actor);
       const existing = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
@@ -482,6 +493,7 @@ export function createCollab() {
     },
 
     async setTitle(pageId, title, actor) {
+      await assertWritable(pageId);
       await transactPage(pageId, actor, (doc) => {
         writeDocTitle(doc, title, { source: "local", context: actor });
       });
@@ -490,6 +502,7 @@ export function createCollab() {
     async restoreSnapshot(snapshotId, actor) {
       const [snap] = await db.select().from(pageSnapshot).where(eq(pageSnapshot.id, snapshotId)).limit(1);
       if (!snap) throw new AccessError();
+      await assertWritable(snap.pageId);
       const old = new Y.Doc();
       Y.applyUpdate(old, snap.ydoc);
       const blocks = editor.yXmlFragmentToBlocks(old.getXmlFragment(COLLAB_FRAGMENT));
@@ -512,6 +525,32 @@ export function createCollab() {
     },
 
     broadcast,
+
+    async pageLockChanged(pageId, locked) {
+      const doc = hocuspocus.documents.get(pageDocName(pageId));
+      // Browser connections only: the server's own writes check the lock themselves (assertWritable).
+      const browsers = doc?.getConnections().filter((c) => (c.context as Context).userId !== undefined) ?? [];
+      if (locked) {
+        // In place, without a reconnect: their edits are refused from now on (Hocuspocus answers them
+        // "not applied"), and the browsers keep them until the page is unlocked.
+        for (const connection of browsers) connection.readOnly = true;
+        return;
+      }
+      const waiting = browsers.filter((c) => c.readOnly);
+      if (!waiting.length) return;
+      const userIds = [...new Set(waiting.map((c) => (c.context as Context).userId!))];
+      const rows = await db.execute<{ user_id: string; level: number }>(sql`
+        select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
+        from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
+      `);
+      // 3 is edit (page_access_level): people who may only view or comment stay read-only. The
+      // browsers sync again once they hear of the unlock (components/page/page-view), sending the
+      // edits the lock held back.
+      const editors = new Set(rows.filter((r) => Number(r.level) >= 3).map((r) => r.user_id));
+      for (const connection of waiting) {
+        if (editors.has((connection.context as Context).userId!)) connection.readOnly = false;
+      }
+    },
 
     async disconnectUser(userId, workspaceId) {
       await closeConnections(workspaceId, (context) => context.userId === userId);

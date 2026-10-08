@@ -36,6 +36,7 @@
     "rename": "Cambiar nombre",
     "renameLabel": "Nombre de la página",
     "renameFailed": "No se pudo cambiar el nombre de la página.",
+    "renameLocked": "Esta página está bloqueada, así que su nombre no puede cambiar. Desbloquéala primero desde su menú.",
     "addInside": "Añadir una página dentro",
     "noChildren": "No hay páginas dentro",
     "favorites": "Favoritos",

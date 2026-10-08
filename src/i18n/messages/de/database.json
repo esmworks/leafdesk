@@ -582,6 +582,7 @@
     "invalidDependencySettings": "Abhängigkeiten verschieben Zeilen nach einer Regel und nach Datumseigenschaften ihrer Datenbank.",
     "relationTargetReadOnly": "Du kannst diese Datenbank nur ansehen, daher kann die Verknüpfung dort nicht ebenfalls angezeigt werden. Entferne das Häkchen bei dieser Option oder bitte um Bearbeitungszugriff.",
     "databaseLocked": "Diese Datenbank ist gesperrt. Entsperre sie, um ihre Eigenschaften und Ansichten zu ändern.",
+    "pageLocked": "Diese Seite ist gesperrt. Entsperre sie über ihr Menü, um Titel, Symbol, Hintergrund oder Text zu ändern.",
     "invalidPerson": "„{property}“ kann nur Personen aus diesem Workspace enthalten.",
     "readOnlyProperty": "„{property}“ wird automatisch ausgefüllt und kann nicht geändert werden.",
     "invalidFilter": "Dieser Filter kann nicht gespeichert werden. Lade die Seite neu und versuch es noch einmal.",

@@ -11,6 +11,7 @@ import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
+import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import {
   BACKGROUND_COLORS,
   BACKGROUND_PATTERNS,
@@ -472,6 +473,8 @@ export async function getPage(
     parent_id: parent?.id ?? null,
     path: [workspace?.name ?? "Workspace", ...crumbs.map((c) => pageLabel(c.title))].join(" / "),
     in_trash: Boolean(page.archivedAt),
+    // A locked page's title, icon, background and body can't change; a locked database's properties and views.
+    locked: Boolean(page.lockedAt),
     favorite,
     updated_at: page.updatedAt.toISOString(),
     url: pageUrl(page.workspaceId, page.id),
@@ -608,6 +611,8 @@ export async function updatePage(
   }
   const { page } = await loadPage(ctx, page_id);
   if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before editing.");
+  // Before any of it is written: a locked page refuses the whole call.
+  if (isPageLocked(page)) throw new ToolInputError(PAGE_LOCKED_MESSAGE);
   const changed: string[] = [];
   if (markdown !== undefined) {
     if (page.kind === "database") {
@@ -902,6 +907,8 @@ export async function updateDatabaseRow(ctx: OperationContext, { row_id, title, 
   const { page, parentDatabase } = await loadPage(ctx, row_id);
   if (!parentDatabase) throw new ToolInputError("This page is not a database row. Use update_page for regular pages.");
   if (page.archivedAt) throw new ToolInputError("This row is in the trash.");
+  // A locked row keeps its title; its properties stay editable, but not half of a call that renames it.
+  if (title !== undefined && isPageLocked(page)) throw new ToolInputError(PAGE_LOCKED_MESSAGE);
   if (properties && Object.keys(properties).length) await databases.updateRowProperties(userId, row_id, properties);
   if (title !== undefined) await pages.renamePage(actor, row_id, title);
   const out = await rowOutput(ctx, parentDatabase.id, row_id);

@@ -582,6 +582,7 @@
     "invalidDependencySettings": "Les dépendances déplacent les lignes selon une règle et selon des propriétés de date de leur base de données.",
     "relationTargetReadOnly": "Vous ne pouvez que consulter cette base de données, le lien ne peut donc pas y être affiché aussi. Décochez cette option ou demandez un accès en modification.",
     "databaseLocked": "Cette base de données est verrouillée. Déverrouillez-la pour modifier ses propriétés et ses vues.",
+    "pageLocked": "Cette page est verrouillée. Déverrouillez-la depuis son menu pour modifier son titre, son icône, son arrière-plan ou son texte.",
     "invalidPerson": "« {property} » ne peut contenir que des personnes de cet espace de travail.",
     "readOnlyProperty": "« {property} » est rempli automatiquement et ne peut pas être modifié.",
     "invalidFilter": "Ce filtre ne peut pas être enregistré. Rechargez la page et réessayez.",

@@ -582,6 +582,7 @@
     "invalidDependencySettings": "Bağımlılıklar satırları bir kurala ve veritabanının tarih özelliklerine göre kaydırır.",
     "relationTargetReadOnly": "O veritabanını yalnızca görüntüleyebiliyorsun, bu yüzden bağlantı orada gösterilemez. O seçeneğin işaretini kaldır ya da düzenleme izni iste.",
     "databaseLocked": "Veritabanı kilitli. Özellikleri ve görünümleri değiştirmek için önce kilidi açın.",
+    "pageLocked": "Bu sayfa kilitli. Başlığını, simgesini, arka planını veya metnini değiştirmek için sayfanın menüsünden kilidi açın.",
     "invalidPerson": "“{property}” yalnızca bu çalışma alanındaki kişileri içerebilir.",
     "readOnlyProperty": "“{property}” otomatik doldurulur, değiştirilemez.",
     "invalidFilter": "Bu filtre kaydedilemedi. Sayfayı yenileyip tekrar deneyin.",

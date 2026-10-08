@@ -444,11 +444,15 @@ export function Sidebar({
     // Shown right away: the saved title reaches the tree only once the page's doc is stored.
     setTree((t) => t.map((n) => (n.id === id ? { ...n, title } : n)));
     startTransition(async () => {
-      try {
-        await renamePageAction(id, title);
-      } catch {
+      const undo = (message: string) => {
         setTree((t) => t.map((n) => (n.id === id && before !== undefined ? { ...n, title: before } : n)));
-        setActionError(t("pages.renameFailed"));
+        setActionError(message);
+      };
+      try {
+        const result = await renamePageAction(id, title);
+        if (!result.ok) undo(t("pages.renameLocked"));
+      } catch {
+        undo(t("pages.renameFailed"));
       }
     });
   }

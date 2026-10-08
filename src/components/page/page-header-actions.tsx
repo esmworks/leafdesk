@@ -31,6 +31,7 @@ import {
   getPageHeaderAction,
   setDatabaseLockedAction,
   setFavoriteAction,
+  setPageLockedAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
 import { deleteTemplateAction, saveAsTemplateAction } from "@/app/actions/templates";
@@ -80,6 +81,7 @@ export function PageHeaderActions({
   offline = false,
   style,
   onStyle,
+  onLocked,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
@@ -100,10 +102,13 @@ export function PageHeaderActions({
   style?: PageStyle;
   /** Changes the style; unset while the page can't be edited here (the menu then leaves it out). */
   onStyle?: (change: Partial<PageStyle>) => void;
+  /** Hears whether the page is locked as the header learns it: from the menu at once, else refetched. */
+  onLocked?: (locked: boolean) => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
   const [info, setInfo] = useState(initialInfo);
+  useEffect(() => onLocked?.(info.locked), [info.locked, onLocked]);
   const offlineTitle = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : label);
   const aiChat = useAiChat();
   const tAi = useTranslations("ai.chat");
@@ -424,7 +429,8 @@ function PageMenu({
       setError(null);
       onInfo({ ...info, locked });
       try {
-        await setDatabaseLockedAction(workspaceId, page.id, locked);
+        if (isDatabase) await setDatabaseLockedAction(workspaceId, page.id, locked);
+        else await setPageLockedAction(workspaceId, page.id, locked);
       } catch {
         onInfo({ ...info, locked: !locked });
         setError(t("actionFailed"));
@@ -516,6 +522,17 @@ function PageMenu({
                     onChange={setLocked}
                     label={t("lockDatabase")}
                   />
+                </div>
+              </>
+            )}
+            {/* A guard against accidental edits, not a permission: whoever may edit the page may unlock it. */}
+            {!isDatabase && !page.archived && (canEdit || info.locked) && (
+              <>
+                <MenuSeparator />
+                <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={t("lockPageHint")}>
+                  <Lock className="h-4 w-4 text-fg-muted" />
+                  <span className="flex-1">{t("lockPage")}</span>
+                  <Switch checked={info.locked} disabled={!canEdit || pending} onChange={setLocked} label={t("lockPage")} />
                 </div>
               </>
             )}

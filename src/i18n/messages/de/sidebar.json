@@ -36,6 +36,7 @@
     "rename": "Umbenennen",
     "renameLabel": "Seitenname",
     "renameFailed": "Die Seite konnte nicht umbenannt werden.",
+    "renameLocked": "Diese Seite ist gesperrt, ihr Name lässt sich nicht ändern. Entsperre sie zuerst über ihr Menü.",
     "addInside": "Seite darin hinzufügen",
     "noChildren": "Keine Seiten darin",
     "favorites": "Favoriten",

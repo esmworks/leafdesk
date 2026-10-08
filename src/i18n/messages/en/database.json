@@ -582,6 +582,7 @@
     "invalidDependencySettings": "Dependencies move rows by a rule and by date properties of their database.",
     "relationTargetReadOnly": "You can only view that database, so the link can’t be shown there too. Untick that option or ask for edit access.",
     "databaseLocked": "This database is locked. Unlock it to change its properties and views.",
+    "pageLocked": "This page is locked. Unlock it from its menu to change its title, icon, background or text.",
     "invalidPerson": "“{property}” can only hold people of this workspace.",
     "readOnlyProperty": "“{property}” is filled in automatically and can’t be changed.",
     "invalidFilter": "This filter can’t be saved. Reload the page and try again.",

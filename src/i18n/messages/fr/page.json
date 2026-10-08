@@ -33,6 +33,8 @@
     "lockHint": "Tant qu’elle est verrouillée, les propriétés et les vues ne peuvent pas changer ; les lignes restent modifiables.",
     "locked": "Verrouillée",
     "unlock": "Déverrouiller",
+    "lockPage": "Verrouiller la page",
+    "lockPageHint": "Tant qu’elle est verrouillée, personne ne peut modifier le titre, l’icône, l’arrière-plan ou le texte. Les commentaires, le partage et le déplacement restent possibles.",
     "exportMarkdown": "Exporter en Markdown",
     "exportCsv": "Exporter en CSV",
     "exportXlsx": "Exporter en Excel (.xlsx)",

@@ -113,6 +113,11 @@ export async function createRowAction(
   });
 }
 
+/** A row's title from a view; refused, with a message, while the row is locked (lib/page-lock). */
+export async function renameRowAction(rowId: string, title: string) {
+  return run((userId) => pages.renamePage({ userId }, rowId, title));
+}
+
 export async function updateRowPropertiesAction(rowId: string, patch: Record<string, unknown>) {
   return run((userId) => databases.updateRowProperties(userId, rowId, patch));
 }

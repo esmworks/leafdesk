@@ -33,6 +33,8 @@
     "lockHint": "While locked, properties and views can't change; rows stay editable.",
     "locked": "Locked",
     "unlock": "Unlock",
+    "lockPage": "Lock page",
+    "lockPageHint": "While locked, nobody can change the title, icon, background or text. Comments, sharing and moving still work.",
     "exportMarkdown": "Export as Markdown",
     "exportCsv": "Export as CSV",
     "exportXlsx": "Export as Excel (.xlsx)",

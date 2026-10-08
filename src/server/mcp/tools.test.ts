@@ -298,6 +298,23 @@ describe("content writes", () => {
     expect(collab.replaceContent).not.toHaveBeenCalled();
   });
 
+  it("refuses a locked page as a whole, before writing anything", async () => {
+    pages.getPage.mockResolvedValue({ ...page, lockedAt: new Date() });
+    const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "x", title: "New", background: "color:green" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/locked/);
+    expect(r.text).toMatch(/unlock/);
+    expect(collab.replaceContent).not.toHaveBeenCalled();
+    expect(pages.renamePage).not.toHaveBeenCalled();
+  });
+
+  it("explains a lock the page gained meanwhile", async () => {
+    collab.replaceContent.mockRejectedValueOnce(Object.assign(new Error("The page is locked"), { code: "pageLocked" }));
+    const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "x" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/This page is locked/);
+  });
+
   it("read-only tokens cannot write even without an HTTP scope challenge", async () => {
     const r = await callTool(reader, "create_page", { workspace_id: "ws-1", title: "Nope" });
     expect(r.isError).toBe(true);
@@ -347,6 +364,12 @@ describe("errors and bounds", () => {
     expect(r.data.markdown_truncated).toBe(true);
     expect(r.data.note).toMatch(`offset=${MAX_MARKDOWN_CHARS}`);
     expect(r.data.path).toBe("Team / Plan");
+  });
+
+  it("says whether the page is locked", async () => {
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.locked).toBe(false);
+    pages.getPage.mockResolvedValue({ ...page, lockedAt: new Date() });
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.locked).toBe(true);
   });
 });
 
@@ -1395,6 +1418,14 @@ describe("attach_file", () => {
     expect(files.uploadFromUrl).toHaveBeenCalledWith("user-1", "page-1", "https://example.com/report.pdf", { name: undefined, contentType: undefined });
     expect(collab.appendBlocks).not.toHaveBeenCalled();
     expect(data).toMatchObject({ block: "file", appended: false, markdown: `[report.pdf](${stored.url})` });
+  });
+
+  it("refuses to add a file to a locked page's body before uploading it", async () => {
+    pages.getPage.mockResolvedValue({ ...page, lockedAt: new Date() });
+    const { isError, text } = await callTool(filer, "attach_file", { page_id: "page-1", url: "https://example.com/a.png" });
+    expect(isError).toBe(true);
+    expect(text).toMatch(/locked/);
+    expect(files.uploadFromUrl).not.toHaveBeenCalled();
   });
 
   it("wants exactly one source, and passes on upload errors", async () => {

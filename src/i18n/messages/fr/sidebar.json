@@ -36,6 +36,7 @@
     "rename": "Renommer",
     "renameLabel": "Nom de la page",
     "renameFailed": "Impossible de renommer la page.",
+    "renameLocked": "Cette page est verrouillée, son nom ne peut pas changer. Déverrouillez-la d’abord depuis son menu.",
     "addInside": "Ajouter une page à l’intérieur",
     "noChildren": "Aucune page à l’intérieur",
     "favorites": "Favoris",

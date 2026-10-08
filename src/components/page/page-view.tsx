@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutTemplate, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
+import { LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import {
   setPageBackgroundAction,
   setPageIconAction,
 } from "@/app/actions/pages";
+import { setPageLockedAction } from "@/app/actions/page-menu";
 import { createRowAction } from "@/app/actions/databases";
 import { createFromTemplateAction } from "@/app/actions/templates";
 import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
@@ -92,9 +93,14 @@ export function PageView({
   const [pending, startTransition] = useTransition();
   const canEdit = hasLevel(info.level, "edit");
   const canDelete = hasLevel(info.level, "full");
-  // The collab server drops edits from people who may only view, so don't let them type at all.
-  // Offline edits are kept in this browser: the doc syncs them when the connection comes back.
-  const editable = !page.archived && canEdit && synced && connection !== "noAccess";
+  // Locked against accidental edits (lib/page-lock; a database's lock is about its schema instead).
+  // Follows the page menu at once, and other people's changes through the header event below.
+  const [lockedNow, setLockedNow] = useState(info.locked);
+  const locked = page.kind === "page" && lockedNow;
+  // The collab server drops edits from people who may only view, and from everyone while the page
+  // is locked, so don't let them type at all. Offline edits are kept in this browser: the doc syncs
+  // them when the connection comes back.
+  const editable = !page.archived && canEdit && !locked && synced && connection !== "noAccess";
   // Pages with a body only: databases always use the whole width and the app's typeface.
   const pageStyle = usePageStyle(synced ? pageDoc?.doc : undefined, style);
   const fullWidth = showBody && !wide && pageStyle.fullWidth;
@@ -107,6 +113,14 @@ export function PageView({
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setIcon(page.icon), [page.icon]);
+  useEffect(() => setLockedNow(info.locked), [info.locked]);
+  // Unlocked (as the server says): sync again, so edits the lock held back, made offline or as it
+  // came in, reach the server now that its connection takes them.
+  const wasLocked = useRef(info.locked);
+  useEffect(() => {
+    if (wasLocked.current && !info.locked) pageDoc?.provider.forceSync();
+    wasLocked.current = info.locked;
+  }, [info.locked, pageDoc]);
   useEffect(() => setBackground(page.background), [page.background]);
 
   // Someone else changed the icon or background (server/pages.ts): load them again.
@@ -175,6 +189,17 @@ export function PageView({
     );
   }
 
+  function unlock() {
+    setLockedNow(false);
+    run(
+      async () => {
+        await setPageLockedAction(workspaceId, page.id, false);
+        router.refresh();
+      },
+      () => setLockedNow(true),
+    );
+  }
+
   function moveToTrash() {
     run(async () => {
       await archivePageAction(page.id);
@@ -221,7 +246,7 @@ export function PageView({
     [crumbs, page.id, page.kind, title, icon],
   );
 
-  const canChangeHeader = !page.archived && canEdit && !offline;
+  const canChangeHeader = !page.archived && canEdit && !offline && !locked;
   const backgroundButton = canChangeHeader ? (
     <BackgroundPicker background={background} onChange={changeBackground} align={wide ? "end" : "start"}>
       {(toggle) => (
@@ -238,7 +263,7 @@ export function PageView({
   ) : null;
 
   const iconPicker = (
-    <IconPicker icon={icon} onChange={changeIcon} disabled={page.archived || !canEdit || offline} align={wide && !icon ? "end" : "start"}>
+    <IconPicker icon={icon} onChange={changeIcon} disabled={!canChangeHeader} align={wide && !icon ? "end" : "start"}>
       {(toggle) =>
         icon ? (
           <button
@@ -247,7 +272,7 @@ export function PageView({
             className={cn(
               "-ml-1 rounded-md p-1 leading-none",
               wide ? "text-3xl" : "text-5xl",
-              !page.archived && canEdit && !offline ? "hover:bg-bg-hover" : "cursor-default",
+              canChangeHeader ? "hover:bg-bg-hover" : "cursor-default",
             )}
           >
             {icon}
@@ -260,7 +285,7 @@ export function PageView({
             className={cn(
               // A control, so the app's typeface rather than the page's.
               "-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100",
-              (page.archived || !canEdit || offline) && "hidden",
+              !canChangeHeader && "hidden",
             )}
           >
             <SmilePlus className="h-4 w-4" /> {t("icon.add")}
@@ -298,6 +323,9 @@ export function PageView({
           </nav>
           <div className="flex shrink-0 items-center gap-0.5">
             <SyncStatus connection={connection} pendingEdits={pendingEdits} />
+            {locked && !page.archived && (
+              <LockedNotice onUnlock={canEdit && !offline ? unlock : undefined} pending={pending} />
+            )}
             <PageHeaderActions
               workspaceId={workspaceId}
               page={{
@@ -319,6 +347,7 @@ export function PageView({
               offline={offline}
               style={showBody ? pageStyle : undefined}
               onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
+              onLocked={setLockedNow}
             />
           </div>
         </header>
@@ -439,7 +468,7 @@ export function PageView({
         </div>
 
         {historyOpen && (
-          <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit} onClose={() => setHistoryOpen(false)} />
+          <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit || locked} onClose={() => setHistoryOpen(false)} />
         )}
       </div>
     </DarkScheme>
@@ -526,6 +555,22 @@ function shiftIndex(before: string, after: string, i: number) {
   if (i <= start) return i;
   if (i >= before.length - end) return i + after.length - before.length;
   return after.length - end;
+}
+
+/** Says the page is locked, next to its sync status, with a way to unlock it for those who may. */
+function LockedNotice({ onUnlock, pending }: { onUnlock?: () => void; pending: boolean }) {
+  const t = useTranslations("page.header");
+  return (
+    <span className="mr-1 flex shrink-0 items-center gap-1 text-xs text-fg-muted" title={t("lockPageHint")}>
+      <Lock className="h-3.5 w-3.5" aria-hidden />
+      <span>{t("locked")}</span>
+      {onUnlock && (
+        <Button size="sm" variant="ghost" onClick={onUnlock} disabled={pending} className="-my-1 ml-0.5 h-6 px-1.5">
+          {t("unlock")}
+        </Button>
+      )}
+    </span>
+  );
 }
 
 const DOT_COLOR: Record<ConnectionState, string> = {

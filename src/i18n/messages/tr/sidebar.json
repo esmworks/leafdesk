@@ -36,6 +36,7 @@
     "rename": "Yeniden adlandır",
     "renameLabel": "Sayfa adı",
     "renameFailed": "Sayfa yeniden adlandırılamadı.",
+    "renameLocked": "Bu sayfa kilitli, adı değiştirilemez. Önce sayfanın menüsünden kilidi açın.",
     "addInside": "İçine sayfa ekle",
     "noChildren": "İçinde sayfa yok",
     "favorites": "Favoriler",

@@ -36,6 +36,7 @@
     "rename": "Rename",
     "renameLabel": "Page name",
     "renameFailed": "The page couldn’t be renamed.",
+    "renameLocked": "This page is locked, so its name can’t change. Unlock it from its menu first.",
     "addInside": "Add a page inside",
     "noChildren": "No pages inside",
     "favorites": "Favorites",

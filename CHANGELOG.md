@@ -24,6 +24,16 @@
   the others as left out). A formula's last result is imported, cells with an error come in
   empty, and old .xls files and password-protected workbooks are refused with their own message.
   The workspace and subpage ZIP exports keep databases as CSV. No migration.
+- **Locked pages.** "Lock page" in a page's menu guards it against accidental edits: while it is
+  locked nobody can change its title, icon, background, style or text, from the app, the history
+  panel, MCP, the REST API, the AI writing assistant or the AI chat and agents. The page shows
+  *Locked* in its header with an *Unlock* button for everyone who can edit it; it is a guard, not
+  a permission, so any of them can unlock it. Open tabs turn read-only, and editable again after
+  an unlock, without a reload. A database row locks the same way; its property values stay
+  editable from views and MCP. Comments, sharing, moving the page, putting it in the trash and
+  adding sub-pages still work, and a copy starts unlocked. `get_page` and `GET /pages/{id}` show
+  `locked`, and writes to a locked page are refused with a message saying how to unlock it. No
+  migration.
 - **Dependencies.** A timeline view's settings turn dependencies on for the database: a two-way
   relation of the database with itself, *Blocked by* and *Blocking* (or a relation of the database
   with itself it already has), lets a row wait for other rows. The timeline draws an arrow from

@@ -1,6 +1,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/server";
 import { CommentError } from "@/lib/comments";
 import { env } from "@/lib/env";
+import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { GroupError } from "@/lib/groups";
@@ -94,6 +95,7 @@ export function toolErrorFor(error: unknown): CallToolResult {
       "The database is locked, so its properties and views can't be added, renamed, moved or removed. Rows, values and view filters and sorts can still change. Someone with full access can unlock it in the app.",
     );
   }
+  if ((error as { code?: unknown } | null)?.code === "pageLocked") return errorResult(PAGE_LOCKED_MESSAGE);
   console.error("[mcp] tool failed", error);
   return errorResult("Something went wrong on the Leafdesk server while running this tool. Try again later.");
 }
