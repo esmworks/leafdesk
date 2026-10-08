@@ -186,8 +186,8 @@ function sameTypes(name: string, types: FormulaType[]) {
   return first;
 }
 
-/** Every function, by lowercase name. */
-const FUNCTIONS: Record<string, FnSpec & { name: string }> = {};
+/** Every function, by lowercase name. No prototype, so a name like "constructor" is unknown too. */
+const FUNCTIONS: Record<string, FnSpec & { name: string }> = Object.create(null);
 const define = (name: string, spec: FnSpec) => {
   FUNCTIONS[name.toLowerCase()] = { ...spec, name };
 };
