@@ -12,7 +12,8 @@
  *   connected apps, sessions (an account with a verified address keeps its own);
  * - pointing a workspace's SSO connection at another identity provider, or removing it, forgets
  *   who was linked through it and signs them out, so the new provider can't sign in as them;
- * - the sign-in page's `?next=` stays on this site, however the other site is written.
+ * - the sign-in page's `?next=` stays on this site, however the other site is written;
+ * - an email verification link signs nobody in past two-step verification.
  *
  * Creates its own @example.test users and workspaces and deletes them afterwards.
  *
@@ -41,6 +42,7 @@ const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { account, apiToken, file, oauthClient, oauthConsent, passkey, session, twoFactor, user, verification, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
+const { createEmailVerificationToken } = await import("better-auth/api");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -217,7 +219,7 @@ const allow = (jar: Jar, consentPage: string) =>
 
 // ---------------------------------------------------------------------------- run
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free`, squatter: `${RUN}-squatter`, keeper: `${RUN}-keeper` };
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free`, squatter: `${RUN}-squatter`, keeper: `${RUN}-keeper`, coded: `${RUN}-coded`, plain: `${RUN}-plain` };
 const userIds = Object.values(ids);
 const ws = `${RUN}-ws`;
 const open = `${RUN}-open`;
@@ -231,8 +233,9 @@ try {
   );
   if (!up) throw new Error(`No server at ${BASE}: start one (pnpm dev) and set APP_URL`);
 
-  // Every address counts as verified but the squatter's: someone signed up with it, unproven.
-  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test`, emailVerified: id !== ids.squatter })));
+  // Every address counts as verified but the squatter's (someone signed up with it, unproven) and
+  // two that verify theirs below.
+  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test`, emailVerified: ![ids.squatter, ids.coded, ids.plain].includes(id) })));
   await db.insert(workspace).values([
     { id: ws, name: `${RUN} Strict` },
     { id: open, name: `${RUN} Open` },
@@ -408,6 +411,28 @@ try {
     check(after === "/", `the sign-in page turns ?next=${JSON.stringify(next)} into the home page`, after);
   }
   check((await nextOf("/w/abc?x=1")) === "/w/abc?x=1", "…but keeps a path on this site");
+
+  // ---------------------------------------------------------------- the email verification link and two-step verification
+  /** Follows the address's verification link, in a browser signed in with `jar` or in none. */
+  const verifyEmail = async (userId: string, jar?: Jar) => {
+    const token = await createEmailVerificationToken(env.authSecret, `${userId}@example.test`);
+    const res = await fetch(`${BASE}/api/auth/verify-email?token=${token}&callbackURL=/`, { redirect: "manual", headers: jar ? { cookie: jar.header() } : {} });
+    const [row] = await db.select({ emailVerified: user.emailVerified }).from(user).where(eq(user.id, userId));
+    const sessions = (await db.select({ id: session.id }).from(session).where(eq(session.userId, userId))).length;
+    const cookie = res.headers.getSetCookie().find((line) => line.startsWith("better-auth.session_token=")) ?? "";
+    return { status: res.status, verified: row.emailVerified, sessions, signedIn: /^better-auth\.session_token=[^;]+/.test(cookie) && !/max-age=0/i.test(cookie) };
+  };
+  await db.update(user).set({ twoFactorEnabled: true }).where(eq(user.id, ids.coded));
+  await db.insert(twoFactor).values({ id: `${ids.coded}-2fa`, secret: "secret", backupCodes: "codes", userId: ids.coded });
+  const coded = await verifyEmail(ids.coded);
+  check(coded.status === 302 && coded.verified, "the verification link verifies an address with two-step verification on", coded);
+  check(!coded.signedIn && coded.sessions === 0, "…without signing the browser in past the code", coded);
+  const plain = await verifyEmail(ids.plain);
+  check(plain.verified && plain.signedIn && plain.sessions === 1, "without two-step verification the link still signs in", plain);
+  await db.update(user).set({ emailVerified: false }).where(eq(user.id, ids.coded));
+  const codedJar = await signedIn(ids.coded);
+  const again = await verifyEmail(ids.coded, codedJar);
+  check(again.verified && again.sessions === 1, "a browser already signed in keeps its session when it follows the link", again);
 
   console.log(`\n${passed} checks passed`);
 } catch (error) {

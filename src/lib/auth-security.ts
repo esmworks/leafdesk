@@ -1,5 +1,6 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { addOAuthServerContext, APIError, createAuthMiddleware, getOAuthState, getSessionFromCtx } from "better-auth/api";
+import { deleteSessionCookie } from "better-auth/cookies";
 import { symmetricDecrypt } from "better-auth/crypto";
 import { twoFactor } from "better-auth/plugins";
 import { passkey } from "@better-auth/passkey";
@@ -155,6 +156,11 @@ type AfterHook = NonNullable<NonNullable<BetterAuthPlugin["hooks"]>["after"]>[nu
  * social sign-in (the provider callback, and `/sign-in/social` with an ID token). Without that,
  * "Continue with Google" would skip the code. The challenge itself (trusted devices, the pending
  * sign-in cookie, attempt counting) stays the plugin's own.
+ *
+ * Following an email link (verifying the address, confirming a new one) signs in a browser that
+ * wasn't; with two-step verification on, that sign-in is undone, so the link alone (whoever
+ * reads the mailbox) never stands in for the code. The address is verified or changed all the
+ * same, and signing in asks for the code as usual.
  */
 export function twoFactorPlugin() {
   const plugin = twoFactor({
@@ -177,6 +183,18 @@ export function twoFactorPlugin() {
             ctx.path === "/sign-in/social" ||
             isSsoSignInPath(ctx.path),
           handler: challenge.handler,
+        },
+        {
+          matcher: (ctx) => ctx.path === "/verify-email",
+          handler: createAuthMiddleware(async (ctx) => {
+            const created = ctx.context.newSession;
+            if (!created || created.user.twoFactorEnabled !== true) return;
+            // Already signed in to this session: the link only confirmed the address.
+            const presented = await ctx.getSignedCookie(ctx.context.authCookies.sessionToken.name, ctx.context.secret);
+            if (presented === created.session.token) return;
+            await ctx.context.internalAdapter.deleteSession(created.session.token);
+            deleteSessionCookie(ctx);
+          }),
         },
       ],
     },
