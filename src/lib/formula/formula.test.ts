@@ -89,6 +89,9 @@ describe("type checking", () => {
     expect(error('if(true, 1, "x")')).toBe("branchTypes");
     expect(error("ifs(true, 1, false, 2)")).toBe("ifsArguments");
     expect(error("nope(1)")).toBe("unknownFunction");
+    for (const name of ["constructor", "__proto__", "toString", "hasOwnProperty", "valueOf"]) {
+      expect(error(`${name}(1)`), name).toBe("unknownFunction");
+    }
     expect(error('prop("Missing")')).toBe("unknownProperty");
     expect(error('dateAdd(now(), 1, "fortnights")')).toBe("invalidUnit");
     expect(error('prop("Tags") + "x"', { Tags: { type: "list", value: [] } })).toBe("operatorType");

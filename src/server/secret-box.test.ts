@@ -41,6 +41,15 @@ describe("secret box", () => {
     expect(codeOf(() => open("not sealed"))).toBe("malformed");
   });
 
+  it("refuses a shortened tag (a few bytes of it would be far easier to guess)", () => {
+    const parts = seal("secret").split(".");
+    for (const bytes of [4, 8, 15]) {
+      const short = [...parts];
+      short[4] = Buffer.from(parts[4], "base64url").subarray(0, bytes).toString("base64url");
+      expect(codeOf(() => open(short.join("."))), `${bytes} bytes`).toBe("tampered");
+    }
+  });
+
   it("keeps the key id out of reach of a swap", () => {
     const parts = seal("secret").split(".");
     parts[1] = "aaaaaaaaaa";

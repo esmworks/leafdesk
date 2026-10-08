@@ -14,6 +14,8 @@ import { env } from "@/lib/env";
 
 const VERSION = "sb1";
 const MIN_KEY_CHARS = 32;
+/** The full GCM tag: a shorter one would still verify, and be far easier to forge. */
+const TAG_BYTES = 16;
 
 export class SecretBoxError extends Error {
   constructor(
@@ -66,9 +68,11 @@ export function open(sealed: string): string {
   const key = keys().all.find((k) => k.id === keyId);
   if (!key) throw new SecretBoxError("unknownKey", "Sealed with a key this server doesn't have");
   try {
-    const decipher = createDecipheriv("aes-256-gcm", key.bytes, Buffer.from(iv, "base64url"));
+    const authTag = Buffer.from(tag, "base64url");
+    if (authTag.length !== TAG_BYTES) throw new Error("Short tag");
+    const decipher = createDecipheriv("aes-256-gcm", key.bytes, Buffer.from(iv, "base64url"), { authTagLength: TAG_BYTES });
     decipher.setAAD(Buffer.from(`${VERSION}.${keyId}`));
-    decipher.setAuthTag(Buffer.from(tag, "base64url"));
+    decipher.setAuthTag(authTag);
     return Buffer.concat([decipher.update(Buffer.from(body, "base64url")), decipher.final()]).toString("utf8");
   } catch {
     throw new SecretBoxError("tampered", "The sealed value was changed or the key is wrong");

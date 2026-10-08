@@ -549,6 +549,9 @@ export async function createPage(
       if (!template.isTemplate || template.parentId) {
         throw new ToolInputError("template_id is not a page template. Call list_templates; row templates go to create_database_row.");
       }
+      if (template.workspaceId !== location.workspaceId) {
+        throw new ToolInputError("template_id is a template of another workspace. Call list_templates for the templates of this one.");
+      }
       createdId = (await templates.createFromTemplate(actor, template_id, { parentId: location.parentId, teamspaceId: location.teamspaceId })).id;
     }
     if (title !== undefined) await pages.renamePage(actor, createdId, title);
