@@ -17,6 +17,11 @@ const dev = process.env.NODE_ENV !== "production";
 const port = Number(process.env.PORT ?? 3000);
 const hostname = process.env.HOSTNAME ?? "0.0.0.0";
 
+// Read before anything listens: in production the example secret (or a short one) stops the server
+// here, instead of failing every sign-in later.
+const { env } = await import("./src/lib/env");
+void env.authSecret;
+
 // Imported after env is loaded: these modules read DATABASE_URL at import time.
 const { createCollab } = await import("./src/server/collab/service");
 const { registerCollab } = await import("./src/server/collab/bridge");
