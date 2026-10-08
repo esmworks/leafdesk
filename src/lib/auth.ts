@@ -18,8 +18,8 @@ import {
   socialAuthOptions,
 } from "@/lib/auth-options";
 import { isAgentAccount } from "@/server/agents/users";
-import { revokeAllApiTokens } from "@/server/api/tokens";
-import { connectedAppAuditPlugin, revokeAllConnectedApps } from "@/server/mcp/grants";
+import { forgetUnprovenHolder } from "@/server/account-security";
+import { connectedAppAuditPlugin } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetEmail, sendMail, verificationEmail } from "@/server/mail";
 import { recipientLocale, rememberLocale, statedLanguage } from "@/server/mail/locale";
@@ -207,17 +207,15 @@ export const auth = betterAuth({
       },
     },
     account: {
-      // Claiming an account by email also ends what was granted before: app grants and API tokens.
+      // Claiming an account by email also ends what was set up before: passkeys, two-step
+      // verification, API tokens and app grants (see forgetUnprovenHolder).
       create: {
         // No password or provider account for an agent's user, so nothing can ever sign it in.
         before: async (account) => {
           await agentGuard(account);
         },
         after: async (account, ctx) => {
-          await claimOnEmailLink(async (userId) => {
-            await revokeAllConnectedApps(userId);
-            await revokeAllApiTokens(userId);
-          })(account, ctx);
+          await claimOnEmailLink(forgetUnprovenHolder)(account, ctx);
           // The first sign-in through a workspace's connection (a new account, or an existing one
           // linked by email) joins that workspace. Only the first: someone an owner removed later
           // stays out; their identity provider brings them back over SCIM.

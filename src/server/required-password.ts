@@ -8,6 +8,7 @@ import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetRequiredEmail, sendMail } from "@/server/mail";
 import { recipientLocale } from "@/server/mail/locale";
+import { forgetUnprovenHolder } from "@/server/account-security";
 
 /**
  * "Require a password reset at next sign-in" (set by an instance admin, see
@@ -171,10 +172,18 @@ export async function clearPasswordResetRequirement(userId: string) {
 /**
  * `emailAndPassword.onPasswordReset`: a reset link was used. It went to the account's address,
  * which is proven now (instance admins count only with a verified address, see lib/instance-admin.ts).
+ * An address proven only now may have been signed up with by someone else: the account is the
+ * owner's from here on, without what that person set up (forgetUnprovenHolder; the reset signs
+ * every session out).
  */
 export async function afterPasswordReset(userId: string) {
   await clearPasswordResetRequirement(userId);
-  await db.update(user).set({ emailVerified: true }).where(and(eq(user.id, userId), eq(user.emailVerified, false)));
+  const proven = await db
+    .update(user)
+    .set({ emailVerified: true })
+    .where(and(eq(user.id, userId), eq(user.emailVerified, false)))
+    .returning({ id: user.id });
+  if (proven.length) await forgetUnprovenHolder(userId);
 }
 
 /**

@@ -115,12 +115,13 @@ export function closedSignUpGuard(check?: InvitationCheck) {
  * `databaseHooks.account.create.after`. Anyone could have created a password account with someone
  * else's unverified email beforehand (pre-account-takeover). When a sign-in links a provider
  * account to such a user by email, the provider has just proven who owns the address, so the
- * earlier password, sessions and app grants go; the owner can set a password by resetting it by
- * email. Better Auth links the account before it creates the new session, so only sessions from
- * before the link go: single sign-on runs this hook after its transaction, when the new session
- * already exists.
+ * earlier password and sessions go, and `forgetEarlierHolder` removes the rest of what they could
+ * have set up (passkeys, two-step verification, API tokens, app grants); the owner can set a
+ * password by resetting it by email. Better Auth links the account before it creates the new
+ * session, so only sessions from before the link go: single sign-on runs this hook after its
+ * transaction, when the new session already exists.
  */
-export function claimOnEmailLink(revokeAppGrants?: (userId: string) => Promise<void>) {
+export function claimOnEmailLink(forgetEarlierHolder?: (userId: string) => Promise<void>) {
   return async (
     account: { id: string; userId: string; providerId: string; createdAt?: Date | string },
     ctx: GenericEndpointContext | null,
@@ -139,7 +140,7 @@ export function claimOnEmailLink(revokeAppGrants?: (userId: string) => Promise<v
     for (const old of await adapter.listSessions(account.userId)) {
       if (new Date(old.createdAt).getTime() < linkedAt) await adapter.deleteSession(old.token);
     }
-    await revokeAppGrants?.(account.userId);
+    await forgetEarlierHolder?.(account.userId);
     await adapter.updateUser(account.userId, { emailVerified: true });
   };
 }

@@ -7,6 +7,9 @@
  * - a held-back session can't make what would reach its workspaces outside the policy: an API
  *   token for that workspace or for all of them, or an app connected over OAuth (consent page and
  *   consent endpoint);
+ * - the reset link emailed to an address takes over an account someone else had signed up for
+ *   with it, unproven, without what they set up: passkeys, two-step verification, API tokens,
+ *   connected apps, sessions (an account with a verified address keeps its own);
  *
  * Creates its own @example.test users and workspaces and deletes them afterwards.
  *
@@ -33,7 +36,7 @@ const { Readable } = await import("node:stream");
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { apiToken, file, oauthClient, session, user, workspace, workspaceMember } = await import("@/db/schema");
+const { apiToken, file, oauthClient, oauthConsent, passkey, session, twoFactor, user, verification, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -209,7 +212,7 @@ const allow = (jar: Jar, consentPage: string) =>
 
 // ---------------------------------------------------------------------------- run
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free` };
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free`, squatter: `${RUN}-squatter`, keeper: `${RUN}-keeper` };
 const userIds = Object.values(ids);
 const ws = `${RUN}-ws`;
 const open = `${RUN}-open`;
@@ -223,7 +226,8 @@ try {
   );
   if (!up) throw new Error(`No server at ${BASE}: start one (pnpm dev) and set APP_URL`);
 
-  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test` })));
+  // Every address counts as verified but the squatter's: someone signed up with it, unproven.
+  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test`, emailVerified: id !== ids.squatter })));
   await db.insert(workspace).values([
     { id: ws, name: `${RUN} Strict` },
     { id: open, name: `${RUN} Open` },
@@ -302,6 +306,55 @@ try {
   const allowed = await allow(free, freeConsent);
   const allowedUrl = allowed.ok ? new URL((await json(allowed)).url) : null;
   check(allowedUrl?.searchParams.get("code"), "…and allows the app", allowed.status);
+
+  // ---------------------------------------------------------------- the reset link takes an account over cleanly
+  /** What the holder of `userId` set up: a passkey, two-step verification, an API token, a connected app, a session. */
+  const setUp = async (userId: string) => {
+    await db.insert(passkey).values({ id: `${userId}-key`, publicKey: "key", userId, credentialID: `${userId}-cred`, counter: 0, deviceType: "singleDevice", backedUp: false });
+    await db.insert(twoFactor).values({ id: `${userId}-2fa`, secret: "secret", backupCodes: "codes", userId });
+    await db.update(user).set({ twoFactorEnabled: true }).where(eq(user.id, userId));
+    await createApiToken(userId, { name: RUN, scopes: ["pages:read"] });
+    const now = new Date();
+    await db.insert(oauthConsent).values({ id: `${userId}-consent`, clientId: clientIds[0], userId, scopes: ["pages:read"], createdAt: now, updatedAt: now });
+    await signedIn(userId);
+  };
+  const leftOf = async (userId: string) => {
+    const count = async (table: typeof passkey | typeof twoFactor | typeof apiToken | typeof oauthConsent | typeof session) =>
+      (await db.select({ id: table.id }).from(table).where(eq(table.userId, userId))).length;
+    const [row] = await db.select({ twoFactorEnabled: user.twoFactorEnabled, emailVerified: user.emailVerified }).from(user).where(eq(user.id, userId));
+    return {
+      passkeys: await count(passkey),
+      twoFactor: await count(twoFactor),
+      twoFactorEnabled: row.twoFactorEnabled,
+      apiTokens: await count(apiToken),
+      apps: await count(oauthConsent),
+      sessions: await count(session),
+      emailVerified: row.emailVerified,
+    };
+  };
+  /** Uses a reset link for `userId`, as the emailed one would be (the token is put in its place). */
+  const resetPassword = async (userId: string) => {
+    const token = randomBytes(16).toString("hex");
+    await db.insert(verification).values({ id: `${RUN}-reset-${userId}`, identifier: `reset-password:${token}`, value: userId, expiresAt: new Date(Date.now() + 600_000) });
+    return fetch(`${BASE}/api/auth/reset-password`, {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: BASE },
+      body: JSON.stringify({ token, newPassword: `new-${RUN}-password` }),
+    });
+  };
+  await setUp(ids.squatter);
+  await setUp(ids.keeper);
+  const squatted = await leftOf(ids.squatter);
+  check(squatted.passkeys && squatted.twoFactor && squatted.twoFactorEnabled && squatted.apiTokens && squatted.apps && squatted.sessions, "an unverified account has a passkey, two-step verification, a token, an app and a session", squatted);
+  const reset = await resetPassword(ids.squatter);
+  check(reset.ok, "the reset link sets a new password", reset.status);
+  const claimed = await leftOf(ids.squatter);
+  check(claimed.emailVerified, "…and proves the address", claimed);
+  check(!claimed.passkeys && !claimed.twoFactor && !claimed.twoFactorEnabled, "…and the passkeys and two-step verification the earlier holder set up are gone", claimed);
+  check(!claimed.apiTokens && !claimed.apps && !claimed.sessions, "…so are their API tokens, connected apps and sessions", claimed);
+  check((await resetPassword(ids.keeper)).ok, "the owner of a verified address resets their password");
+  const kept = await leftOf(ids.keeper);
+  check(kept.passkeys && kept.twoFactor && kept.twoFactorEnabled && kept.apiTokens && kept.apps && !kept.sessions, "…keeping their passkeys, two-step verification, tokens and apps (signed out everywhere)", kept);
 
   console.log(`\n${passed} checks passed`);
 } catch (error) {
