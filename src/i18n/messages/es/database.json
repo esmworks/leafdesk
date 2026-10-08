@@ -492,10 +492,22 @@
     "count": "Contar filas",
     "countShort": "Recuento",
     "measureOf": "{calculation} de {property}",
+    "running": {
+      "cumulative": "{measure}, acumulado",
+      "remaining": "{measure}, restante"
+    },
     "calculation": "Cálculo",
+    "accumulate": "En el tiempo",
+    "accumulates": {
+      "none": "Cada periodo",
+      "cumulative": "Acumulado",
+      "remaining": "Restante"
+    },
+    "remainingHint": "Cada fila sale del total en el periodo de su fecha; las filas sin fecha siguen abiertas. Agrupa por el día en que se terminó el trabajo.",
     "stackBy": "Apilar por",
     "noStack": "Ninguno",
     "stackHint": "Las barras se apilan cuando cuentan filas o suman valores.",
+    "stackAccumulateHint": "Los valores en el tiempo no se apilan.",
     "sort": "Ordenar grupos",
     "sorts": {
       "group": "Orden de los grupos",
@@ -508,6 +520,7 @@
     "other": "Otros",
     "total": "Total",
     "share": "{share} del total",
+    "thisPeriod": "Este periodo: {value}",
     "segment": "{group}, {series}",
     "needsGroupTitle": "Los gráficos agrupan las filas por una propiedad como selección, estado, persona o fecha",
     "needsGroupBody": "Esta base de datos todavía no tiene ninguna propiedad por la que un gráfico pueda agrupar.",

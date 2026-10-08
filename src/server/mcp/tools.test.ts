@@ -746,6 +746,56 @@ describe("relations and calendars", () => {
     });
   });
 
+  it("sets running totals only where they apply, and returns them with each period's own value", async () => {
+    const finished = { id: "prop-finished", name: "Finished", type: "date", options: {} };
+    const done = { id: "prop-done", name: "Done", type: "checkbox", options: {} };
+    const views = [
+      { id: "view-s", name: "By status", type: "chart", config: { groupBy: "prop-status" } },
+      { id: "view-b", name: "Burndown", type: "chart", config: { groupBy: "prop-finished", groupDateBy: "week", stackBy: "prop-done" } },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, finished, done], views });
+    const byStatus = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-s", accumulate: "remaining" });
+    expect(byStatus.text).toMatch(/accumulate only applies to bar, horizontal_bar and line charts grouped by a date/);
+    const donut = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", accumulate: "cumulative", chart_type: "donut" });
+    expect(donut.text).toMatch(/accumulate only applies/);
+    const stacked = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", accumulate: "remaining", stack_by: "Done" });
+    expect(stacked.text).toMatch(/Running totals aren't stacked/);
+    expect(databases.updateView).not.toHaveBeenCalled();
+
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", accumulate: "remaining", chart_type: "line" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", {
+      config: { groupBy: "prop-finished", groupDateBy: "week", stackBy: "prop-done", chartAccumulate: "remaining", chartType: "line" },
+    });
+    expect(r.data).toMatchObject({ accumulate: "remaining", chart_sort: "group" });
+    expect(r.data).not.toHaveProperty("stack_by");
+    const off = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", accumulate: "none" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: expect.objectContaining({ chartAccumulate: undefined }) });
+    expect(off.data).not.toHaveProperty("accumulate");
+    const onTable = await callTool(writer, "create_database_view", { database_id: "db-1", name: "T", type: "table", accumulate: "cumulative" });
+    expect(onTable.text).toMatch(/accumulate only applies to chart views/);
+
+    databases.getDatabase.mockResolvedValue({
+      ...database,
+      properties: [status, notes, finished, done],
+      views: [{ id: "view-b", name: "Burndown", type: "chart", config: { groupBy: "prop-finished", groupDateBy: "week", chartAccumulate: "remaining" } }],
+    });
+    databases.listRows.mockResolvedValue([
+      { id: "r1", title: "A", properties: { "prop-finished": "2026-09-01" } },
+      { id: "r2", title: "B", properties: { "prop-finished": "2026-09-16" } },
+      { id: "r3", title: "C", properties: {} },
+    ]);
+    const q = await callTool(reader, "query_database", { database_id: "db-1", view_id: "view-b" });
+    expect(q.data.chart).toMatchObject({
+      accumulate: "remaining",
+      total: 3,
+      series: [
+        { start: "2026-08-31", value: 2, row_count: 2, period_value: 1 },
+        { start: "2026-09-07", value: 2, row_count: 2, period_value: 0 },
+        { start: "2026-09-14", value: 1, row_count: 1, period_value: 1 },
+      ],
+    });
+  });
+
   it("creates calendar views on a date property only", async () => {
     const due = { id: "prop-due", name: "Due", type: "date", options: {} };
     databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, due] });

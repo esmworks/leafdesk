@@ -1,5 +1,5 @@
-import type { CardSize, ChartSort, ChartType, TimelineZoom, ViewConfig, ViewCover, ViewType } from "@/db/schema/app";
-import { CHART_SORTS, CHART_TYPES, isChartAggregateFn } from "./chart";
+import type { CardSize, ChartAccumulate, ChartSort, ChartType, TimelineZoom, ViewConfig, ViewCover, ViewType } from "@/db/schema/app";
+import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isChartAggregateFn } from "./chart";
 import { formConfigError } from "./forms";
 
 /** Every kind of database view, in the order the "Add a view" menu lists them. */
@@ -76,6 +76,9 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   if (c.chartSort !== undefined && !CHART_SORTS.includes(c.chartSort as ChartSort)) {
     return `Chart sort must be one of: ${CHART_SORTS.join(", ")}`;
+  }
+  if (c.chartAccumulate !== undefined && !CHART_ACCUMULATES.includes(c.chartAccumulate as ChartAccumulate)) {
+    return `Chart running totals must be one of: ${CHART_ACCUMULATES.join(", ")}`;
   }
   if (c.chartAggregate !== undefined) {
     const agg = c.chartAggregate as { fn?: unknown; propertyId?: unknown } | null;

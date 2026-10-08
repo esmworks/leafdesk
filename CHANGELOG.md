@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Running totals and burndowns in charts.** A bar or line chart grouped by a date (or created or
+  edited time) and measuring something that adds up (a count, a sum, counts of values or ticks)
+  has *Over time* in its settings: *Each period* (as before), *Running total*, or *Remaining*.
+  Remaining is a burndown: each row leaves the whole in the period of its date, and rows without
+  a date stay open, so a chart grouped by a "finished" date (set by an automation when a status
+  changes to done) shows the work left week by week. Periods run oldest first with quiet ones
+  carried through; the tooltip shows the running value, the period's own value and the rows
+  behind the point, which are what the value measures (done so far, or still open). Running
+  totals aren't sorted by value or stacked, and the no-value group isn't a point of its own.
+  Stored as `chartAccumulate` on the view; no migration. Over MCP, `create_database_view` and
+  `update_database_view` take `accumulate` (`none`, `cumulative`, `remaining`) and refuse it
+  where it can't apply, `get_database` reports it, and `query_database` returns each point's
+  running value with `period_value` and the chart's `total`.
 - **Page covers.** *Add cover* above a page's title puts a gradient across the top of the page;
   from the cover, *Change cover* picks one of 8 built-in gradients, uploads an image (kept with
   the page like any other upload) or takes an https link to one, and removes it. *Reposition*

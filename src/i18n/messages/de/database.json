@@ -492,10 +492,22 @@
     "count": "Zeilen zählen",
     "countShort": "Anzahl",
     "measureOf": "{calculation} von {property}",
+    "running": {
+      "cumulative": "{measure}, kumuliert",
+      "remaining": "{measure}, verbleibend"
+    },
     "calculation": "Berechnung",
+    "accumulate": "Im Zeitverlauf",
+    "accumulates": {
+      "none": "Je Zeitraum",
+      "cumulative": "Kumuliert",
+      "remaining": "Verbleibend"
+    },
+    "remainingHint": "Jede Zeile verlässt die Summe im Zeitraum ihres Datums; Zeilen ohne Datum bleiben offen. Gruppieren Sie nach dem Tag, an dem die Arbeit erledigt wurde.",
     "stackBy": "Stapeln nach",
     "noStack": "Keine",
     "stackHint": "Balken werden gestapelt, wenn sie Zeilen zählen oder Werte summieren.",
+    "stackAccumulateHint": "Werte im Zeitverlauf werden nicht gestapelt.",
     "sort": "Gruppen sortieren",
     "sorts": {
       "group": "Reihenfolge der Gruppen",
@@ -508,6 +520,7 @@
     "other": "Sonstige",
     "total": "Gesamt",
     "share": "{share} der Gesamtsumme",
+    "thisPeriod": "Dieser Zeitraum: {value}",
     "segment": "{group}, {series}",
     "needsGroupTitle": "Diagramme gruppieren Zeilen nach einer Eigenschaft wie Auswahl, Status, Person oder Datum",
     "needsGroupBody": "Diese Datenbank hat noch keine Eigenschaft, nach der ein Diagramm gruppieren kann.",

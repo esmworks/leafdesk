@@ -492,10 +492,22 @@
     "count": "Count rows",
     "countShort": "Count",
     "measureOf": "{calculation} of {property}",
+    "running": {
+      "cumulative": "{measure}, running total",
+      "remaining": "{measure}, remaining"
+    },
     "calculation": "Calculation",
+    "accumulate": "Over time",
+    "accumulates": {
+      "none": "Each period",
+      "cumulative": "Running total",
+      "remaining": "Remaining"
+    },
+    "remainingHint": "Each row leaves the total in the period of its date; rows without a date stay open. Group by the day work was finished.",
     "stackBy": "Stack by",
     "noStack": "None",
     "stackHint": "Bars stack when they count rows or add values up.",
+    "stackAccumulateHint": "Values over time aren't stacked.",
     "sort": "Sort groups",
     "sorts": {
       "group": "Group order",
@@ -508,6 +520,7 @@
     "other": "Other",
     "total": "Total",
     "share": "{share} of the total",
+    "thisPeriod": "This period: {value}",
     "segment": "{group}, {series}",
     "needsGroupTitle": "Charts group rows by a property such as a select, status, person or date",
     "needsGroupBody": "This database has no property a chart can group by yet.",

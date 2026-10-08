@@ -1,4 +1,4 @@
-import type { ChartSort, ChartType, PropertyOptions, PropertyType, ViewConfig } from "@/db/schema/app";
+import type { ChartAccumulate, ChartSort, ChartType, PropertyOptions, PropertyType, ViewConfig } from "@/db/schema/app";
 import {
   AGGREGATE_FNS,
   aggregateFunctions,
@@ -29,6 +29,7 @@ import { holdsTimestamp } from "./property-types";
 
 export const CHART_TYPES = ["bar", "horizontal_bar", "line", "donut"] as const satisfies readonly ChartType[];
 export const CHART_SORTS = ["group", "value_desc", "value_asc"] as const satisfies readonly ChartSort[];
+export const CHART_ACCUMULATES = ["cumulative", "remaining"] as const satisfies readonly ChartAccumulate[];
 export const DEFAULT_CHART_TYPE: ChartType = "bar";
 
 /**
@@ -106,6 +107,25 @@ export function isStackable(type: PropertyType) {
   return isGroupable(type) && type !== "multi_select" && type !== "relation" && type !== "person";
 }
 
+/**
+ * Whether a chart can show running totals: over a date (or created or edited time), with a measure
+ * whose values add up, on bars or a line (a donut has no order to run along).
+ */
+export function canAccumulate(chartType: ChartType, groupBy: { type: PropertyType } | null | undefined, measure: ChartMeasure) {
+  return !!groupBy && isDateLike(groupBy.type) && isAdditive(measure) && chartType !== "donut";
+}
+
+/** The view's running totals, or null to plot each period on its own (also when the chart can't run them). */
+export function chartAccumulateOf(
+  config: Pick<ViewConfig, "chartAccumulate" | "chartType">,
+  groupBy: { type: PropertyType } | null | undefined,
+  measure: ChartMeasure,
+): ChartAccumulate | null {
+  const mode = config.chartAccumulate;
+  if (!mode || !CHART_ACCUMULATES.includes(mode)) return null;
+  return canAccumulate(chartTypeOf(config), groupBy, measure) ? mode : null;
+}
+
 /** Whether values are whole counts, so axis ticks never fall between them. */
 export function countsWholeNumbers(measure: ChartMeasure) {
   return measure.kind === "count" || measure.fn.startsWith("count_");
@@ -149,6 +169,11 @@ export type ChartGroup<T> = Measured<T> & {
   slot: number;
   /** Stacked bars: one segment per series (same order as ChartData.series), empty ones included. */
   segments: (Measured<T> & { key: string })[];
+  /**
+   * Running totals (see chartAccumulateOf): the period's own rows and value. The group's `rows`
+   * are then what its value measures: the rows up to the period, or those left after it.
+   */
+  period?: Measured<T>;
 };
 
 /** A stack series: the segments of one value of the stack property across the bars. */
@@ -176,13 +201,15 @@ export type ChartInput = {
   measure: ChartMeasure;
   config: Pick<
     ViewConfig,
-    "chartType" | "chartSort" | "groupDateBy" | "groupStatusBy" | "groupOrder" | "hiddenGroups" | "hideEmptyGroups"
+    "chartType" | "chartSort" | "chartAccumulate" | "groupDateBy" | "groupStatusBy" | "groupOrder" | "hiddenGroups" | "hideEmptyGroups"
   >;
   context?: GroupContext;
   stackContext?: GroupContext;
 };
 
-const isDateLike = (type: PropertyType) => type === "date" || holdsTimestamp(type);
+function isDateLike(type: PropertyType) {
+  return type === "date" || holdsTimestamp(type);
+}
 
 function nextDay(day: string) {
   const d = new Date(`${day}T00:00:00Z`);
@@ -240,6 +267,8 @@ export function chartData<T extends { properties: Record<string, unknown> }>(row
   let grouped = groupRowsBy(rows, groupBy, settings, input.context);
   if (isDateLike(groupBy.type) && !config.hideEmptyGroups) grouped = fillDateGaps(grouped);
   const shown = noValueLast(arrangeGroups(grouped, config).shown, config.groupOrder);
+  const accumulate = chartAccumulateOf(config, groupBy, measure);
+  if (accumulate) return accumulated(grouped, shown, measure, accumulate);
 
   let groups: ChartGroup<T>[] = shown.map((g, slot) => ({
     key: g.key,
@@ -317,6 +346,41 @@ export function chartData<T extends { properties: Record<string, unknown> }>(row
     min: Math.min(0, ...totals),
     max: Math.max(0, ...totals),
     total: measured(union(groups.map((g) => g.rows)), measure).amount,
+  };
+}
+
+/**
+ * Running totals over the shown periods, oldest first: each point measures the rows dated up to its
+ * period ("cumulative"), or the rest of the chart's rows ("remaining"). Rows without a date are
+ * never plotted and never taken away, whether or not the no-value group is shown: they are the
+ * work still open. Hidden periods are left out altogether. Not sorted by value, not stacked.
+ */
+function accumulated<T extends { properties: Record<string, unknown> }>(
+  grouped: Group<T>[],
+  shown: Group<T>[],
+  measure: ChartMeasure,
+  mode: ChartAccumulate,
+): ChartData<T> {
+  const start = (g: Group<T>) => (g.value.kind === "date" ? g.value.start : "");
+  const periods = shown.filter((g) => g.value.kind === "date").sort((a, b) => (start(a) < start(b) ? -1 : start(a) > start(b) ? 1 : 0));
+  const undated = grouped.find((g) => g.value.kind === "none")?.rows ?? [];
+  const all = union([...periods.map((g) => g.rows), undated]);
+  const through = new Set<T>();
+  const groups: ChartGroup<T>[] = periods.map((g, slot) => {
+    for (const row of g.rows) through.add(row);
+    const rows = mode === "cumulative" ? all.filter((r) => through.has(r)) : all.filter((r) => !through.has(r));
+    const { amount } = measured(rows, measure);
+    // Every period gets a value, so a line runs on through quiet ones.
+    return { key: g.key, value: g.value, rows, result: { format: "number", value: amount }, amount, slot, segments: [], period: measured(g.rows, measure) };
+  });
+  const amounts = groups.map((g) => g.amount);
+  return {
+    groups,
+    series: [],
+    format: measureFormat(measure),
+    min: Math.min(0, ...amounts),
+    max: Math.max(0, ...amounts),
+    total: measured(mode === "cumulative" ? all.filter((r) => through.has(r)) : all, measure).amount,
   };
 }
 

@@ -492,10 +492,22 @@
     "count": "Satırları say",
     "countShort": "Adet",
     "measureOf": "{property} ({calculation})",
+    "running": {
+      "cumulative": "{measure}, birikimli",
+      "remaining": "{measure}, kalan"
+    },
     "calculation": "Hesaplama",
+    "accumulate": "Zaman içinde",
+    "accumulates": {
+      "none": "Her dönem ayrı",
+      "cumulative": "Birikimli",
+      "remaining": "Kalan"
+    },
+    "remainingHint": "Her satır, tarihinin düştüğü dönemde toplamdan düşer; tarihi boş satırlar açık kalır. İşin bittiği güne göre gruplayın.",
     "stackBy": "Yığınla",
     "noStack": "Yok",
     "stackHint": "Çubuklar, satırları saydığında ya da değerleri topladığında yığınlanır.",
+    "stackAccumulateHint": "Zaman içindeki değerler yığınlanmaz.",
     "sort": "Grupları sırala",
     "sorts": {
       "group": "Grup sırası",
@@ -508,6 +520,7 @@
     "other": "Diğer",
     "total": "Toplam",
     "share": "Toplam içinde {share}",
+    "thisPeriod": "Bu dönem: {value}",
     "segment": "{group}, {series}",
     "needsGroupTitle": "Grafikler satırları seçim, durum, kişi ya da tarih gibi bir özelliğe göre gruplar",
     "needsGroupBody": "Bu veritabanında henüz grafiğin gruplayabileceği bir özellik yok.",

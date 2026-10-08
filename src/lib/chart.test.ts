@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { PropertyOptions, PropertyType, ViewConfig } from "@/db/schema/app";
 import {
+  canAccumulate,
   canStack,
+  chartAccumulateOf,
   chartAggregateFunctions,
   chartData,
   chartGroupProperty,
@@ -198,6 +200,84 @@ describe("chartData", () => {
   });
 });
 
+describe("chartData with running totals", () => {
+  // Two rows done the week of Aug 31, none the week after, one the week of Sep 14, two still open.
+  const work = [
+    row("a", { p_date: "2026-09-01", p_number: 3, p_select: "o1" }),
+    row("b", { p_date: "2026-09-02", p_number: 2, p_select: "o2" }),
+    row("c", { p_date: "2026-09-16", p_number: 5, p_select: "o2" }),
+    row("d", { p_number: 4 }),
+    row("e", { p_number: 1 }),
+  ];
+  const weekly = (accumulate: "cumulative" | "remaining", config: ChartInput["config"] = {}, input: Partial<ChartInput> = {}) =>
+    chart(work, { groupBy: due, config: { groupDateBy: "week", chartAccumulate: accumulate, ...config }, ...input });
+  const ids = (data: { groups: { rows: R[] }[] }) => data.groups.map((g) => g.rows.map((r) => r.id).join(""));
+
+  it("adds each period to the ones before it, quiet periods included", () => {
+    const data = weekly("cumulative");
+    expect(keys(data)).toEqual(["2026-08-31", "2026-09-07", "2026-09-14"]);
+    expect(amounts(data)).toEqual([2, 2, 3]);
+    expect(ids(data)).toEqual(["ab", "ab", "abc"]);
+    expect(data.groups.map((g) => g.period?.amount)).toEqual([2, 0, 1]);
+    expect(data.total).toBe(3);
+  });
+
+  it("takes each period away from the whole, rows without a date staying open", () => {
+    const data = weekly("remaining");
+    expect(amounts(data)).toEqual([3, 3, 2]);
+    expect(ids(data)).toEqual(["cde", "cde", "de"]);
+    expect(data.total).toBe(5);
+    expect(data.max).toBe(3);
+  });
+
+  it("runs sums too, with a value in every period so a line doesn't break", () => {
+    expect(amounts(weekly("cumulative", {}, { measure: sum }))).toEqual([5, 5, 10]);
+    const remaining = weekly("remaining", {}, { measure: sum });
+    expect(amounts(remaining)).toEqual([10, 10, 5]);
+    expect(remaining.groups.every((g) => g.result !== null)).toBe(true);
+  });
+
+  it("keeps rows without a date in the burndown whether or not their group is shown", () => {
+    expect(amounts(weekly("remaining", { hiddenGroups: [""] }))).toEqual([3, 3, 2]);
+    expect(keys(weekly("remaining"))).not.toContain("");
+  });
+
+  it("leaves hidden periods out altogether", () => {
+    const data = weekly("remaining", { hiddenGroups: ["2026-09-14"] });
+    expect(keys(data)).toEqual(["2026-08-31", "2026-09-07"]);
+    expect(amounts(data)).toEqual([2, 2]);
+    expect(data.total).toBe(4);
+  });
+
+  it("runs oldest first and unstacked, whatever the sort and stack settings say", () => {
+    const data = weekly("cumulative", { chartSort: "value_desc", groupOrder: ["2026-09-14"] }, { stackBy: select });
+    expect(keys(data)).toEqual(["2026-08-31", "2026-09-07", "2026-09-14"]);
+    expect(data.series).toEqual([]);
+  });
+
+  it("plots each period on its own where totals can't run", () => {
+    const average: ChartMeasure = { kind: "aggregate", fn: "average", prop: { id: amount.id, type: "number", options: {} } };
+    expect(amounts(weekly("cumulative", { chartType: "donut" }))).toEqual([2, 0, 1, 2]);
+    expect(weekly("cumulative", {}, { measure: average }).groups[0].period).toBeUndefined();
+    expect(chart(work, { config: { chartAccumulate: "remaining" } }).groups[0].period).toBeUndefined();
+  });
+});
+
+describe("chartAccumulateOf", () => {
+  it("needs a date or time axis, a measure that adds up and bars or a line", () => {
+    const config = { chartAccumulate: "remaining" as const };
+    expect(chartAccumulateOf(config, due, COUNT)).toBe("remaining");
+    expect(chartAccumulateOf(config, prop("created_time"), sum)).toBe("remaining");
+    expect(chartAccumulateOf({ ...config, chartType: "line" }, due, COUNT)).toBe("remaining");
+    expect(chartAccumulateOf({ ...config, chartType: "donut" }, due, COUNT)).toBeNull();
+    expect(chartAccumulateOf(config, select, COUNT)).toBeNull();
+    expect(chartAccumulateOf(config, null, COUNT)).toBeNull();
+    expect(chartAccumulateOf({ chartAccumulate: "sideways" as never }, due, COUNT)).toBeNull();
+    expect(chartAccumulateOf({}, due, COUNT)).toBeNull();
+    expect(canAccumulate("bar", due, { kind: "aggregate", fn: "percent_empty", prop: { id: "x", type: "text", options: {} } })).toBe(false);
+  });
+});
+
 describe("fillDateGaps", () => {
   it("fills weeks from Monday and leaves long spans alone", () => {
     const weekly = groupRowsBy([row("a", { p_date: "2026-09-02" }), row("b", { p_date: "2026-09-23" })], due, { groupDateBy: "week" });
@@ -283,6 +363,7 @@ describe("layoutConfigError for charts", () => {
       error({
         chartType: "donut",
         chartSort: "value_desc",
+        chartAccumulate: "remaining",
         chartAggregate: { fn: "sum", propertyId: "p" },
         stackBy: "s",
         showValues: true,
@@ -296,6 +377,7 @@ describe("layoutConfigError for charts", () => {
   it.each([
     ["chart type", { chartType: "pie" }],
     ["sort", { chartSort: "random" }],
+    ["running total", { chartAccumulate: "burnup" }],
     ["aggregate shape", { chartAggregate: "sum" }],
     ["aggregate property", { chartAggregate: { fn: "sum" } }],
     ["aggregate function", { chartAggregate: { fn: "latest_date", propertyId: "p" } }],
@@ -314,7 +396,13 @@ describe("a linked chart view", () => {
   it("keeps its chart settings", () => {
     const view = {
       type: "chart" as const,
-      config: { groupBy: "p", chartType: "donut" as const, chartAggregate: { fn: "sum" as const, propertyId: "n" }, showLegend: true },
+      config: {
+        groupBy: "p",
+        chartType: "donut" as const,
+        chartAggregate: { fn: "sum" as const, propertyId: "n" },
+        chartAccumulate: "remaining" as const,
+        showLegend: true,
+      },
     };
     expect(parseLinkedView(serializeLinkedView(view))).toEqual(view);
   });

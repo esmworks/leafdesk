@@ -9,6 +9,7 @@ import type { AggregateFn, AggregateResult } from "@/lib/aggregate";
 import {
   canStack,
   isStackable,
+  chartAccumulateOf,
   chartData,
   chartGroupProperty,
   chartMeasure,
@@ -61,7 +62,9 @@ export function ChartView({
   const measure = useMemo(() => chartMeasure(config, properties), [config, properties]);
   const chartType = chartTypeOf(config);
   const stackBy =
-    properties.find((p) => p.id === config.stackBy && p.id !== groupBy?.id && isStackable(p.type) && canStack(chartType, measure)) ?? null;
+    (!chartAccumulateOf(config, groupBy, measure) &&
+      properties.find((p) => p.id === config.stackBy && p.id !== groupBy?.id && isStackable(p.type) && canStack(chartType, measure))) ||
+    null;
   const context = useGroupContext(groupBy ?? undefined);
   const stackContext = useGroupContext(stackBy ?? undefined);
   const data = useMemo(
@@ -147,10 +150,13 @@ function Chart({
   const hoverSeries = hover?.segment !== undefined ? data.series[hover.segment] : undefined;
 
   const fn: AggregateFn = measure.kind === "count" ? "count_all" : measure.fn;
-  const measureName =
+  const accumulate = chartAccumulateOf(config, groupBy, measure);
+  const measured =
     measure.kind === "count"
       ? t("chart.countShort")
       : t("chart.measureOf", { calculation: tc(`menu.${measure.fn}`), property: properties.find((p) => p.id === measure.prop.id)?.name ?? "" });
+  // Running totals say so wherever the value is named: the axis, tooltips, row lists, the table.
+  const measureName = accumulate ? t(`chart.running.${accumulate}`, { measure: measured }) : measured;
   const nameOf = (g: { key: string; value: GroupValue; other?: boolean }) => (g.other ? t("chart.other") : groupName(g));
   const seriesLabel = (s: ChartSeries | undefined) => (!s ? "" : s.other ? t("chart.other") : seriesName(s));
   const show = (result: AggregateResult | null) => (result ? formatResult(fn, result) : "–");
@@ -242,6 +248,7 @@ function Chart({
                 {measureName}: <b className="font-medium">{show(hover.group.result)}</b>
               </div>
             )}
+            {hover.group.period && <div>{t("chart.thisPeriod", { value: show(hover.group.period.result) })}</div>}
             {chartType === "donut" && sliced > 0 && isAdditive(measure) && (
               <div className="text-fg-muted">
                 {t("chart.share", { share: format.number(Math.max(0, hover.group.amount) / sliced, { style: "percent", maximumFractionDigits: 1 }) })}

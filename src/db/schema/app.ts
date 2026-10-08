@@ -466,6 +466,12 @@ export type TimelineZoom = "day" | "week" | "month";
 export type ChartType = "bar" | "horizontal_bar" | "line" | "donut";
 /** Chart group order: the grouping's own order (see lib/grouping), or by value. */
 export type ChartSort = "group" | "value_desc" | "value_asc";
+/**
+ * Charts over a date: each point the total up to its period ("cumulative"), or what is left of the
+ * whole once those rows are taken away ("remaining", a burndown). Rows without a date are never
+ * taken away: grouped by the day work was finished, they are the work still open.
+ */
+export type ChartAccumulate = "cumulative" | "remaining";
 /** What a chart measures per group instead of counting rows: a calculation over one property. */
 export type ChartAggregate = { fn: AggregateFn; propertyId: string };
 /** One question of a form view: a property (or "title", the row's name) the form asks for. */
@@ -521,6 +527,8 @@ export type ViewConfig = {
   stackBy?: string;
   /** Charts: "group" when missing. */
   chartSort?: ChartSort;
+  /** Charts grouped by a date: each period on its own when missing (see lib/chart `chartAccumulateOf`). */
+  chartAccumulate?: ChartAccumulate;
   /** Charts: print each value on its bar or point, and in the donut's legend. */
   showValues?: boolean;
   /** Donut charts: the legend beside the donut; shown when missing. */

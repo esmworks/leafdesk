@@ -4,15 +4,18 @@ import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Plus, SlidersH
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
-import type { ChartSort, GroupDateBy, ViewConfig } from "@/db/schema/app";
+import type { ChartAccumulate, ChartSort, GroupDateBy, ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import {
+  canAccumulate,
   canStack,
   isStackable,
+  CHART_ACCUMULATES,
   CHART_SORTS,
   CHART_TYPES,
   chartAggregateFunctions,
   chartAggregateFunctionsOf,
+  chartAccumulateOf,
   chartGroupProperty,
   chartMeasure,
   chartSortOf,
@@ -209,7 +212,8 @@ const CHART_ICONS = { bar: ChartColumnBig, horizontal_bar: ChartBarBig, line: Ch
 
 /**
  * Chart settings: the kind of chart, what it groups by (with the date and status grouping), what
- * it measures, stacking, group order, and what it shows.
+ * it measures, running totals over a date, stacking, group order, and what it shows. Running totals
+ * go oldest first, unstacked, and keep rows without a date off the axis, so those settings hide.
  */
 function ChartSettings({ view, properties, onSet }: { view: View; properties: Property[]; onSet: (patch: ViewConfig) => void }) {
   const t = useTranslations("database");
@@ -219,7 +223,9 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
   const measure = chartMeasure(config, properties);
   const groupable = properties.filter((p) => isGroupable(p.type));
   const measurable = properties.filter((p) => chartAggregateFunctionsOf(p).length > 0);
-  const stackable = canStack(chartType, measure);
+  const accumulable = canAccumulate(chartType, groupBy, measure);
+  const accumulate = chartAccumulateOf(config, groupBy, measure);
+  const stackable = canStack(chartType, measure) && !accumulate;
   const stackOptions = properties.filter((p) => isStackable(p.type) && p.id !== groupBy?.id);
   const stackBy = stackOptions.find((p) => p.id === config.stackBy);
   const hiddenGroups = config.hiddenGroups ?? [];
@@ -304,6 +310,20 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
           />
         </SettingRow>
       )}
+      {accumulable && (
+        <>
+          <SettingRow label={t("chart.accumulate")}>
+            <NativeSelect
+              label={t("chart.accumulate")}
+              value={accumulate ?? "none"}
+              onChange={(v) => onSet({ chartAccumulate: v === "none" ? undefined : (v as ChartAccumulate) })}
+              options={["none" as const, ...CHART_ACCUMULATES].map((mode) => ({ value: mode, label: t(`chart.accumulates.${mode}`) }))}
+              className="w-36"
+            />
+          </SettingRow>
+          {accumulate === "remaining" && <p className="px-2 pb-1 text-xs text-fg-faint">{t("chart.remainingHint")}</p>}
+        </>
+      )}
       {bars && (
         <>
           <SettingRow label={t("chart.stackBy")}>
@@ -319,30 +339,34 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
               disabled={!stackable}
             />
           </SettingRow>
-          {!stackable && <p className="px-2 pb-1 text-xs text-fg-faint">{t("chart.stackHint")}</p>}
+          {!stackable && <p className="px-2 pb-1 text-xs text-fg-faint">{t(accumulate ? "chart.stackAccumulateHint" : "chart.stackHint")}</p>}
         </>
       )}
-      <SettingRow label={t("chart.sort")}>
-        <NativeSelect
-          label={t("chart.sort")}
-          value={chartSortOf(config)}
-          onChange={(v) => onSet({ chartSort: v === "group" ? undefined : (v as ChartSort) })}
-          options={CHART_SORTS.map((sort) => ({ value: sort, label: t(`chart.sorts.${sort}`) }))}
-          className="w-36"
-        />
-      </SettingRow>
+      {!accumulate && (
+        <SettingRow label={t("chart.sort")}>
+          <NativeSelect
+            label={t("chart.sort")}
+            value={chartSortOf(config)}
+            onChange={(v) => onSet({ chartSort: v === "group" ? undefined : (v as ChartSort) })}
+            options={CHART_SORTS.map((sort) => ({ value: sort, label: t(`chart.sorts.${sort}`) }))}
+            className="w-36"
+          />
+        </SettingRow>
+      )}
       <MenuSeparator />
       <Toggle on={!!config.hideEmptyGroups} onChange={(on) => onSet({ hideEmptyGroups: on || undefined })}>
         {t("group.hideEmpty")}
       </Toggle>
-      <Toggle
-        on={showsNoValue}
-        onChange={(on) =>
-          onSet({ hiddenGroups: on ? hiddenGroups.filter((k) => k !== "") : [...hiddenGroups, ""] })
-        }
-      >
-        {t("chart.showNoValue")}
-      </Toggle>
+      {!accumulate && (
+        <Toggle
+          on={showsNoValue}
+          onChange={(on) =>
+            onSet({ hiddenGroups: on ? hiddenGroups.filter((k) => k !== "") : [...hiddenGroups, ""] })
+          }
+        >
+          {t("chart.showNoValue")}
+        </Toggle>
+      )}
       <Toggle on={!!config.showValues} onChange={(on) => onSet({ showValues: on || undefined })}>
         {t("chart.showValues")}
       </Toggle>

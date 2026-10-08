@@ -4,6 +4,7 @@ import * as z from "zod";
 import {
   PROPERTY_TYPES,
   type CardSize,
+  type ChartAccumulate,
   type ChartSort,
   type ChartType,
   type FilterCombinator,
@@ -17,10 +18,13 @@ import {
 } from "@/db/schema/app";
 import { AGGREGATE_FNS, ROLLUP_DISPLAYS, type AggregateFn } from "@/lib/aggregate";
 import {
+  canAccumulate,
   canStack,
+  CHART_ACCUMULATES,
   CHART_AGGREGATE_FNS,
   CHART_SORTS,
   CHART_TYPES,
+  chartAccumulateOf,
   chartAggregateFunctionsOf,
   chartGroupProperty,
   chartMeasure,
@@ -269,6 +273,12 @@ const viewLayoutInputs = {
     .enum(CHART_SORTS)
     .optional()
     .describe('Chart only: "group" keeps the grouping\'s order (options in option order, dates oldest first; the default), "value_desc" / "value_asc" order by value.'),
+  accumulate: z
+    .enum(["none", ...CHART_ACCUMULATES])
+    .optional()
+    .describe(
+      'Bar, horizontal_bar and line charts grouped by a date, created or edited time, measuring something that adds up (count, sum, count_values, count_empty, count_not_empty, count_checked, count_unchecked): "cumulative" plots the total up to each period, "remaining" what is left of all rows after each period (a burndown: group by the day work was finished; rows without that date count as still open), "none" (the default) each period on its own. Running totals go oldest first and aren\'t stacked.',
+    ),
   show_values: z.boolean().optional().describe("Chart only: print each value on its bar or point, and in a donut's legend (false by default)."),
   show_legend: z.boolean().optional().describe("Donut charts only: show the legend (true by default)."),
 };
@@ -290,6 +300,7 @@ type ViewInput = {
   aggregate_property?: string;
   stack_by?: string | null;
   chart_sort?: ChartSort;
+  accumulate?: "none" | ChartAccumulate;
   show_values?: boolean;
   show_legend?: boolean;
   filters?: FilterEntryInput[];
@@ -394,7 +405,7 @@ function viewConfigPatch(
   }
   if (type === "chart") Object.assign(patch, chartConfigPatch(props, input, { ...current, ...patch }));
   else {
-    for (const setting of ["chart_type", "aggregate", "aggregate_property", "stack_by", "chart_sort", "show_values", "show_legend"] as const) {
+    for (const setting of ["chart_type", "aggregate", "aggregate_property", "stack_by", "chart_sort", "accumulate", "show_values", "show_legend"] as const) {
       if (input[setting] !== undefined) only(setting, "chart");
     }
   }
@@ -423,6 +434,7 @@ function chartConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
   const patch: ViewConfig = {};
   if (input.chart_type !== undefined) patch.chartType = input.chart_type;
   if (input.chart_sort !== undefined) patch.chartSort = input.chart_sort === "group" ? undefined : input.chart_sort;
+  if (input.accumulate !== undefined) patch.chartAccumulate = input.accumulate === "none" ? undefined : input.accumulate;
   if (input.show_values !== undefined) patch.showValues = input.show_values || undefined;
   if (input.show_legend !== undefined) patch.showLegend = input.show_legend ? undefined : false;
   if (input.aggregate === "count") {
@@ -458,7 +470,18 @@ function chartConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
   // A new stack property must work with the settings as they'll be saved: bars, a measure that adds
   // up, and another property than the groups. A saved one merely rests while it doesn't (like in the app).
   const next = { ...current, ...patch };
+  const nextGroupBy = chartGroupProperty(props, next);
+  const nextMeasure = chartMeasure(next, props);
+  // Running totals asked for now must apply as saved; saved ones rest while they don't (like in the app).
+  if (input.accumulate && input.accumulate !== "none" && !canAccumulate(chartTypeOf(next), nextGroupBy, nextMeasure)) {
+    throw new ToolInputError(
+      "accumulate only applies to bar, horizontal_bar and line charts grouped by a date, created or edited time, measuring count, sum, count_values, count_empty, count_not_empty, count_checked or count_unchecked.",
+    );
+  }
   const stackBy = input.stack_by && props.find((p) => p.id === next.stackBy);
+  if (stackBy && chartAccumulateOf(next, nextGroupBy, nextMeasure)) {
+    throw new ToolInputError('Running totals aren\'t stacked: set accumulate to "none" to stack this chart.');
+  }
   if (stackBy) {
     const chartType = chartTypeOf(next);
     if (!canStack(chartType, chartMeasure(next, props))) {

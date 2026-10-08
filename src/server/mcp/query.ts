@@ -11,7 +11,7 @@ import type {
 } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import { AUTOFILL_BODY, AUTOFILL_TITLE, type AiAutofillConfig } from "@/lib/ai";
-import { canStack, chartData, chartGroupProperty, chartMeasure, chartSortOf, chartTypeOf, OTHER_KEY } from "@/lib/chart";
+import { canStack, chartAccumulateOf, chartData, chartGroupProperty, chartMeasure, chartSortOf, chartTypeOf, OTHER_KEY } from "@/lib/chart";
 import {
   isDayCount,
   isFilterGroup,
@@ -380,13 +380,16 @@ function describeChart(props: PropertyDef[], config: ViewConfig) {
   const stackBy = config.stackBy && props.find((p) => p.id === config.stackBy);
   // Like the chart itself, a chart without a (usable) saved grouping groups the way a board would.
   const groupBy = chartGroupProperty(props, config);
+  const accumulate = chartAccumulateOf(config, groupBy, measure);
   return {
     ...(groupBy ? { group_by: groupBy.name } : {}),
     chart_type: chartType,
     aggregate: measure.kind === "count" ? "count" : measure.fn,
     ...(measure.kind === "aggregate" ? { aggregate_property: keyName(props, measure.prop.id) } : {}),
-    ...(stackBy && canStack(chartType, measure) ? { stack_by: stackBy.name } : {}),
-    chart_sort: chartSortOf(config),
+    ...(accumulate ? { accumulate } : {}),
+    ...(stackBy && canStack(chartType, measure) && !accumulate ? { stack_by: stackBy.name } : {}),
+    // Running totals go oldest first whatever the saved sort.
+    chart_sort: accumulate ? "group" : chartSortOf(config),
     ...(config.showValues ? { show_values: true } : {}),
     ...(chartType === "donut" ? { show_legend: config.showLegend !== false } : {}),
   };
@@ -425,7 +428,8 @@ function chartGroupLabel(prop: PropertyDef, value: GroupValue): string {
  * What a chart view plots over `rows` (already filtered), for query_database: one entry per bar,
  * point or slice with its label, value and row count, and stacked segments by series. Values are
  * plain numbers in `format` (percentages as fractions, date ranges in days); null when a group has
- * nothing to measure. Created and edited times count by their UTC day.
+ * nothing to measure. Created and edited times count by their UTC day. With running totals each
+ * point's value and row count are the running ones, and `period_value` the period's own.
  */
 export function describeChartSeries(
   props: PropertyDef[],
@@ -452,14 +456,17 @@ export function describeChartSeries(
   });
   const label = (prop: PropertyDef, key: string, value: GroupValue, other?: boolean) => (other || key === OTHER_KEY ? "Other" : chartGroupLabel(prop, value));
   const valueOf = (result: AggregateResult | null) => (result && result.format !== "date" ? result.value : null);
+  const accumulate = chartAccumulateOf(config, groupBy, measure);
   return {
     group_by: groupBy.name,
     format: data.format,
+    ...(accumulate ? { accumulate, total: data.total } : {}),
     series: data.groups.map((g) => ({
       group: label(groupBy, g.key, g.value, g.other),
       ...(g.value.kind === "date" ? { start: g.value.start, end: g.value.end } : {}),
       value: valueOf(g.result),
       row_count: g.rows.length,
+      ...(g.period ? { period_value: valueOf(g.period.result) } : {}),
       ...(data.series.length
         ? {
             segments: g.segments
