@@ -74,12 +74,22 @@ export function automaticAccess(settings: MembershipSettings, candidate: Candida
 }
 
 /**
+ * Whether a pending invitation for the person's address is theirs to use. Anyone can sign up with
+ * someone else's address without proving it, so only a verified address takes up an invitation
+ * that reached it by email alone (the join link carries no proof of who it was sent to).
+ */
+export function invitationApplies(candidate: Pick<Candidate, "emailVerified"> & { invited: boolean }) {
+  return candidate.invited && candidate.emailVerified;
+}
+
+/**
  * What opening the join link lets someone do. The link adds anyone as a member, as it always has,
  * unless the workspace takes requests from anyone with the link: then it asks an owner, except for
- * people who could join anyway (a pending invitation for their address, or their verified domain).
+ * people who could join anyway (a pending invitation for their verified address, or their verified
+ * domain).
  */
 export function linkAccess(settings: MembershipSettings, candidate: Candidate & { invited: boolean }): Access {
-  if (candidate.invited || settings.joinRequests !== "anyone_with_link") return "join";
+  if (invitationApplies(candidate) || settings.joinRequests !== "anyone_with_link") return "join";
   const domain = domainAccess(settings, candidate);
   if (domain === "join" || domain === "pending") return domain;
   return candidate.record === "pending" ? "pending" : "request";
