@@ -282,9 +282,15 @@ export function createCollab() {
       return document;
     },
 
-    async beforeSync({ documentName, document, type, payload }) {
+    async beforeSync({ documentName, document, connection, type, payload }) {
       // Sync step 2 (1) and updates (2) carry changes. Comment threads are the server's to write.
-      if ((type === 1 || type === 2) && parseName(documentName)?.kind === "page" && touchesThreads(document, payload)) {
+      // Hocuspocus asks before it drops a read-only connection's changes: those need no check.
+      if (
+        (type === 1 || type === 2) &&
+        !connection.readOnly &&
+        parseName(documentName)?.kind === "page" &&
+        touchesThreads(document, payload)
+      ) {
         console.warn(`[collab] refused a browser's change to the comments of ${documentName}`);
         throw Object.assign(new Error("Comment threads are written by the server"), { code: 4403, reason: "Forbidden" });
       }
