@@ -3,17 +3,19 @@
 /**
  * An AI chat answer as markdown (GitHub's dialect: tables, task lists, strikethrough), with its
  * citations as buttons to the sources. Loaded with the chat panel's first answer, so pages don't
- * carry the markdown parser. Raw HTML is shown as text and images are not loaded: an answer can
- * repeat what a page says, and an image URL written there would otherwise be fetched by the reader's
- * browser (a way to send data out). Links open in a new tab.
+ * carry the markdown parser. Raw HTML is shown as text (but for the `<sup>` and `<sub>` page bodies
+ * write superscript and subscript in, see lib/remark-text-scripts) and images are not loaded: an
+ * answer can repeat what a page says, and an image URL written there would otherwise be fetched by
+ * the reader's browser (a way to send data out). Links open in a new tab.
  */
 import { useMemo } from "react";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn, pageLabel } from "@/components/ui";
 import { CITE_HREF, citationLinks, type ChatSourceView } from "@/lib/ai-chat";
+import { remarkTextScripts } from "@/lib/remark-text-scripts";
 
-const REMARK_PLUGINS = [remarkGfm];
+const REMARK_PLUGINS = [remarkGfm, remarkTextScripts];
 
 export default function AnswerMarkdown({
   text,

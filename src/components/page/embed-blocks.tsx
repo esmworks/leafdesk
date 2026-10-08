@@ -1,6 +1,13 @@
 "use client";
 
-import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs, type BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  defaultInlineContentSpecs,
+  defaultStyleSpecs,
+  type BlockNoteEditor,
+  type PartialBlock,
+} from "@blocknote/core";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { Database, Search, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -23,6 +30,7 @@ import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
 import { searchFold } from "@/lib/search-fold";
+import { textScriptStyleSpecs } from "@/lib/text-scripts";
 
 /**
  * The page editor's schema: BlockNote's blocks plus the database blocks (configs shared with the
@@ -81,6 +89,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     ...columnEditorBlockSpecs,
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, ...contentInlineSpecs, ...mentionInlineSpecs },
+  // Superscript and subscript (lib/text-scripts), shared with the server's schema.
+  styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs },
 });
 
 export type PageEditor = BlockNoteEditor<

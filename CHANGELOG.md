@@ -34,6 +34,16 @@
   adding sub-pages still work, and a copy starts unlocked. `get_page` and `GET /pages/{id}` show
   `locked`, and writes to a locked page are refused with a message saying how to unlock it. No
   migration.
+- **Superscript and subscript.** Two new text styles, with buttons after strikethrough in the
+  formatting toolbar and the shortcuts Mod+. and Mod+, (⌘ on a Mac, Ctrl elsewhere); text is one
+  or the other, so setting one takes the other off. Pasted text whose `vertical-align` is `super`
+  or `sub` keeps them. In Markdown (search, MCP `get_page` and `update_page`, exports and imports)
+  they are `<sup>…</sup>` and `<sub>…</sub>`; published pages, the print view, version previews
+  and the AI chat's answers show them. A tab still running an older release would erase the whole
+  text of a block holding one (y-prosemirror drops text with a style its editor lacks); the build
+  check that keeps such tabs from loading pages covers this too. Unit tests in
+  `src/server/text-scripts.test.ts` and `src/lib/remark-text-scripts.test.ts`, and a check in
+  `scripts/roundtrip-e2e.ts`. No migration.
 - **Dependencies.** A timeline view's settings turn dependencies on for the database: a two-way
   relation of the database with itself, *Blocked by* and *Blocking* (or a relation of the database
   with itself it already has), lets a row wait for other rows. The timeline draws an arrow from

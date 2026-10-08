@@ -4,8 +4,10 @@
  * Why it matters: y-prosemirror deletes a Yjs element its editor schema can't build (the `catch` in
  * `createNodeFromYElement`), and the deletion syncs to everyone. A tab running a bundle from before
  * a release that added a block type (columns, Mermaid, a table of contents…) would erase those
- * blocks from the page the moment it renders them. So a tab whose bundle isn't the server's never
- * loads a page document: not from the server, not from this browser's offline copy.
+ * blocks from the page the moment it renders them. A text style it doesn't know is worse: the
+ * `catch` in `createTextNodesFromYText` deletes the whole text of the block holding it (a
+ * superscript takes its paragraph with it). So a tab whose bundle isn't the server's never loads a
+ * page document: not from the server, not from this browser's offline copy.
  *
  * Pure helpers only; the browser side is components/collab/freshness, the server's build is
  * server/build-id.

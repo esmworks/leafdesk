@@ -20,6 +20,7 @@ import {
   parseColumnMarker,
   type ColumnMarker,
 } from "./columns";
+import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
   EMPTY_MENTION,
@@ -47,6 +48,9 @@ import {
  *
  *   Text with $e^{i\pi}$   an inline equation (Pandoc's rules: no space inside the dollars, and
  *                          no digit right after the closing one, so "$5 and $10" stays text)
+ *
+ *   x<sup>2</sup>, H<sub>2</sub>O   superscript and subscript text (lib/text-scripts); BlockNote's
+ *                          parser reads the tags as HTML, so only the export needs help
  *
  *   ```mermaid             a Mermaid diagram
  *   graph TD; A-->B
@@ -89,6 +93,14 @@ export function plainText(content: unknown): string {
 // ---------------------------------------------------------------------------------------------
 // Export
 
+const isScript = (style: string): style is TextScript => (TEXT_SCRIPTS as readonly string[]).includes(style);
+
+/** The script style of a text node, if any (the marks exclude each other, so at most one). */
+const scriptOf = (node: Inline): TextScript | undefined =>
+  node?.type === "text" ? TEXT_SCRIPTS.find((script) => node.styles?.[script]) : undefined;
+
+const withoutScripts = (styles: Inline["styles"]) => Object.fromEntries(Object.entries(styles ?? {}).filter(([style]) => !isScript(style)));
+
 const TOKEN_LINE = (nonce: string) => new RegExp(`^([ \\t]*)leafdesk${nonce}b(\\d+)x[ \\t]*$`, "gm");
 
 /**
@@ -107,6 +119,18 @@ export function prepareMarkdownExport<B extends MdBlock>(
   const blockToken = (markdown: string) => `leafdesk${nonce}b${blockMarkdown.push(markdown) - 1}x`;
   const dollarToken = `leafdesk${nonce}dx`;
 
+  // Superscript and subscript have no Markdown of their own: a text in one of them is written
+  // between `<sup>`/`<sub>` tags (lib/text-scripts). BlockNote writes every text node with its own
+  // emphasis and link, so the tags go into the node's text, inside its `**…**` and `[…](…)`. (Code
+  // takes no other style, so they never end up inside a code span.)
+  const scripts = (content: Inline[]): Inline[] =>
+    content.map((node) => {
+      const script = scriptOf(node);
+      if (!script) return node;
+      const tag = TEXT_SCRIPT_TAGS[script];
+      return { ...node, text: `leafdesk${nonce}${tag}x${node.text}leafdesk${nonce}e${tag}x`, styles: withoutScripts(node.styles) };
+    });
+
   const inline = (content: unknown): unknown => {
     if (!Array.isArray(content)) {
       // Tables: rows of cells, each inline content (or a cell object holding it).
@@ -123,7 +147,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
       }
       return content;
     }
-    return content.map((node: Inline) => {
+    return scripts(content).map((node: Inline) => {
       // A dollar sign in text is written "\$", or the text would come back as an equation (code
       // spans keep theirs: nothing is an escape inside them).
       if (node?.type === "text" && typeof node.text === "string" && node.text.includes("$") && !node.styles?.code) {
@@ -225,6 +249,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
           .map((line) => (line ? indent + line : line))
           .join("\n"),
       )
+      .replace(new RegExp(`leafdesk${nonce}(e?)(sup|sub)x`, "g"), (_, end: string, tag: string) => `<${end ? "/" : ""}${tag}>`)
       .replace(new RegExp(`leafdesk${nonce}i(\\d+)x`, "g"), (_, i: string) => inlineMarkdown[Number(i)])
       .replaceAll(dollarToken, () => "\\$");
 

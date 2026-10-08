@@ -159,7 +159,7 @@ try {
     properties: { Status: "Done", [points.id]: 3 },
     markdown: "Docs body.\n\n- a list the body starts after",
   });
-  await createPage(owner, { workspaceId: source, parentId: docs.id, title: "Draft", markdown: "Draft text." });
+  await createPage(owner, { workspaceId: source, parentId: docs.id, title: "Draft", markdown: "Draft text: E = mc<sup>2</sup> and H<sub>2</sub>O." });
   await createPage(owner, { workspaceId: source, parentId: tasks.id, title: "Ship", properties: { Status: "In progress" } });
   await createPage(owner, { workspaceId: source, parentId: tasks.id, title: "", properties: { [points.id]: 1 }, markdown: "Nameless body." });
   await createRowTemplate(owner, tasks.id, { title: "Bug report", markdown: "Steps to reproduce." });
@@ -167,7 +167,7 @@ try {
   await createPage(owner, { workspaceId: source, parentId: meeting.id, title: "Agenda", markdown: "Agenda items." });
   await settled(
     source,
-    { Project: "The end.", Plan: "The plan", "Write docs": "Docs body", "": "Nameless body", "Bug report": "Steps", Meeting: "Meeting notes", Agenda: "Agenda items" },
+    { Project: "The end.", Plan: "The plan", "Write docs": "Docs body", Draft: "Draft text", "": "Nameless body", "Bug report": "Steps", Meeting: "Meeting notes", Agenda: "Agenda items" },
     ["Project"],
   );
 
@@ -207,6 +207,11 @@ try {
   const docsBody = await getCollab().readPage(one("Write docs").id);
   check(!docsBody.markdown.includes("Status:") && docsBody.markdown.startsWith("Docs body."), "a row's body leaves out the property list", docsBody.markdown);
   check(/^[*-] a list the body starts after$/m.test(docsBody.markdown), "…but keeps the list of its own", docsBody.markdown);
+  const scripts = "Draft text: E = mc<sup>2</sup> and H<sub>2</sub>O.";
+  const draftFile = first.names.find((name) => name.endsWith("/Draft.md"));
+  check(draftFile && first.text(draftFile)!.includes(scripts), "superscript and subscript are exported as <sup> and <sub>", draftFile && first.text(draftFile));
+  const draftBlocks = (await getCollab().readPage(one("Draft").id)).markdown;
+  check(draftBlocks.includes(scripts), "…and imported as such", draftBlocks);
   const nameless = imported.find((p) => p.parentId === importedTasks.id && p.title === "")!;
   check((await getCollab().readPage(nameless.id)).markdown.includes("Nameless body."), "the untitled row's page goes to the untitled row");
 
@@ -219,7 +224,7 @@ try {
 
   await settled(
     target,
-    { Project: "The end.", Plan: "The plan", "Write docs": "Docs body", "": "Nameless body", "Bug report": "Steps", Meeting: "Meeting notes", Agenda: "Agenda items" },
+    { Project: "The end.", Plan: "The plan", "Write docs": "Docs body", Draft: "Draft text", "": "Nameless body", "Bug report": "Steps", Meeting: "Meeting notes", Agenda: "Agenda items" },
     ["Project"],
   );
   const second = await exportOf({ workspaceId: target });

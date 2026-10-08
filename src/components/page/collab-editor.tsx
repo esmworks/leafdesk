@@ -43,6 +43,7 @@ import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, 
 import { MentionMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
 import type { PageDoc } from "./use-page-doc";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { withTextScriptButtons } from "./text-scripts";
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -215,7 +216,7 @@ export default function CollabEditor({
               formattingToolbar={() => (
                 <FormattingToolbar>
                   {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
-                  {getFormattingToolbarItems().filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
+                  {withTextScriptButtons(getFormattingToolbarItems()).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
                 </FormattingToolbar>
               )}
             />

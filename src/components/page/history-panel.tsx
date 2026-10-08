@@ -2,6 +2,7 @@
 
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
+import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { History, X } from "lucide-react";
@@ -12,6 +13,7 @@ import { Button, cn, IconButton, pageLabel } from "@/components/ui";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { DATABASE_BLOCK, mapReferenceLines } from "@/lib/embed-blocks";
+import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { HistoryDiff, type VersionDiff } from "./history-diff";
 
 type SnapshotItem = Awaited<ReturnType<typeof listSnapshotsAction>>[number];
@@ -19,10 +21,13 @@ type SnapshotItem = Awaited<ReturnType<typeof listSnapshotsAction>>[number];
 type Mode = "version" | "current" | "previous";
 const MODES: Mode[] = ["version", "current", "previous"];
 
+/** BlockNote's blocks, with the page's text styles so a version's superscripts show as such. */
+const previewSchema = BlockNoteSchema.create({ styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs } });
+
 function Preview({ markdown }: { markdown: string }) {
   const dictionary = useEditorDictionary();
   const te = useTranslations("page.embed");
-  const editor = useCreateBlockNote({ dictionary }, [dictionary]);
+  const editor = useCreateBlockNote({ schema: previewSchema, dictionary }, [dictionary]);
   // A database block is only named here: the version keeps which database, not its rows back then.
   const text = useMemo(
     () => mapReferenceLines(markdown || "", (ref) => `*${te(ref.type === DATABASE_BLOCK ? "label" : "linkedLabel")}*`),

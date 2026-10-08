@@ -6,6 +6,7 @@ import {
   createInlineContentSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
+  defaultStyleSpecs,
   type PartialBlock,
 } from "@blocknote/core";
 import { CommentMark } from "@blocknote/core/comments";
@@ -31,6 +32,7 @@ import {
   splitMarkdownReferences,
   isEmbedBlockType,
 } from "@/lib/embed-blocks";
+import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { restoreBookmarks } from "@/lib/web-blocks";
 import { webBlockServerSpecs } from "./web-blocks";
 
@@ -142,6 +144,7 @@ export const pageSchema = BlockNoteSchema.create({
     ...columnBlockSpecs(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, mention },
+  styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs },
 });
 
 /**
