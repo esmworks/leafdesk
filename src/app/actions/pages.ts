@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { PageKind } from "@/db/schema";
-import type { PageCover } from "@/lib/page-cover";
+import type { PageBackground } from "@/lib/page-background";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
 import { requireUserId } from "@/server/session";
@@ -32,9 +32,9 @@ export async function setPageIconAction(pageId: string, icon: string | null) {
   await pages.setPageIcon(userId, pageId, icon);
 }
 
-export async function setPageCoverAction(pageId: string, cover: PageCover | null) {
+export async function setPageBackgroundAction(pageId: string, background: PageBackground | null) {
   const userId = await requireUserId();
-  await pages.setPageCover(userId, pageId, cover);
+  await pages.setPageBackground(userId, pageId, background);
 }
 
 export async function archivePageAction(pageId: string) {

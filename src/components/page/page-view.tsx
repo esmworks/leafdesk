@@ -1,6 +1,6 @@
 "use client";
 
-import { ImagePlus, LayoutTemplate, RotateCcw, SmilePlus } from "lucide-react";
+import { LayoutTemplate, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import {
   archivePageAction,
   deletePagePermanentlyAction,
   restorePageAction,
-  setPageCoverAction,
+  setPageBackgroundAction,
   setPageIconAction,
 } from "@/app/actions/pages";
 import { createRowAction } from "@/app/actions/databases";
@@ -22,7 +22,8 @@ import type { PageHeaderInfo } from "@/server/page-meta";
 import { DocumentViewContext } from "./document-title";
 import { HistoryPanel } from "./history-panel";
 import { IconPicker } from "./icon-picker";
-import { PageCoverBanner, randomCover } from "./page-cover";
+import { BackgroundPicker } from "./page-background";
+import { BackdropImage, backdropRoot, IMAGE_SURFACE } from "./page-backdrop";
 import { Backlinks } from "./mentions";
 import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
@@ -31,7 +32,7 @@ import { usePagePresence } from "./use-presence";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
-import type { PageCover } from "@/lib/page-cover";
+import type { PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 
 // BlockNote touches `window` during setup; render it only in the browser.
@@ -56,7 +57,7 @@ export function PageView({
     parentId: string | null;
     title: string;
     icon: string | null;
-    cover: PageCover | null;
+    background: PageBackground | null;
     kind: PageKind;
     archived: boolean;
     /** A row of a database (its parent). */
@@ -83,7 +84,7 @@ export function PageView({
   // Everyone who has the page open shows in the header, including people who may only view it.
   const viewers = usePagePresence(pageDoc, user);
   const [icon, setIcon] = useState(page.icon);
-  const [cover, setCover] = useState(page.cover);
+  const [background, setBackground] = useState(page.background);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -105,9 +106,9 @@ export function PageView({
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setIcon(page.icon), [page.icon]);
-  useEffect(() => setCover(page.cover), [page.cover]);
+  useEffect(() => setBackground(page.background), [page.background]);
 
-  // Someone else changed the icon or cover (server/pages.ts): load them again.
+  // Someone else changed the icon or background (server/pages.ts): load them again.
   const provider = pageDoc?.provider;
   useEffect(() => {
     if (!provider) return;
@@ -161,15 +162,15 @@ export function PageView({
     );
   }
 
-  function changeCover(next: PageCover | null) {
-    const previous = cover;
-    setCover(next);
+  function changeBackground(next: PageBackground | null) {
+    const previous = background;
+    setBackground(next);
     run(
       async () => {
-        await setPageCoverAction(page.id, next);
+        await setPageBackgroundAction(page.id, next);
         router.refresh();
       },
-      () => setCover(previous),
+      () => setBackground(previous),
     );
   }
 
@@ -220,17 +221,22 @@ export function PageView({
   );
 
   const canChangeHeader = !page.archived && canEdit && !offline;
-  const addCover =
-    !cover && canChangeHeader ? (
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={() => changeCover(randomCover())}
-        className="-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100"
-      >
-        <ImagePlus className="h-4 w-4" /> {t("cover.add")}
-      </Button>
-    ) : null;
+  const backgroundButton = canChangeHeader ? (
+    <BackgroundPicker pageId={page.id} background={background} onChange={changeBackground}>
+      {(toggle) => (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={toggle}
+          className="-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
+        >
+          <Paintbrush className="h-4 w-4" /> {t(background ? "background.change" : "background.add")}
+        </Button>
+      )}
+    </BackgroundPicker>
+  ) : null;
+  const backdrop = backdropRoot(background);
+  const onImage = background?.kind === "image";
 
   const iconPicker = (
     <IconPicker icon={icon} onChange={changeIcon} disabled={page.archived || !canEdit || offline}>
@@ -267,7 +273,8 @@ export function PageView({
 
   return (
     // Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's.
-    <div data-find-scope className="flex min-h-full flex-col">
+    <div data-find-scope className={cn("isolate flex min-h-full flex-col", backdrop.className)} style={backdrop.style}>
+      <BackdropImage background={background} />
       <header className="sticky top-0 z-20 flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:pl-1.5">
         <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
           <SidebarOpenButton className="mr-1 max-md:mr-0" />
@@ -344,23 +351,24 @@ export function PageView({
         </div>
       )}
 
-      {cover && <PageCoverBanner cover={cover} pageId={page.id} editable={canChangeHeader} onChange={changeCover} />}
-
       <div
         className={cn(
-          "w-full flex-1 pb-32",
+          "flex-1 pb-32",
           wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
-          // Below a cover the icon (taller than its row) reaches halfway up into it.
-          !wide && (cover ? (icon ? "pt-0" : "pt-4") : "pt-8 md:pt-12"),
+          !wide && "pt-8 md:pt-12",
+          // Over an image the page sits on a plain surface, with the image showing around it.
+          !onImage
+            ? "w-full"
+            : [IMAGE_SURFACE, "my-6 md:my-10", wide || fullWidth ? "mx-3 md:mx-6" : "w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)]"].join(" "),
           !wide && commentsOpen && !offline && "page-beside-panel",
           showBody && pageTextClasses(pageStyle),
         )}
       >
         <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
-          {(!wide || !icon || addCover) && (
+          {(!wide || !icon || backgroundButton) && (
             <div className="relative mb-2 flex h-8 items-end gap-1">
               {(!wide || !icon) && iconPicker}
-              {addCover}
+              {backgroundButton}
             </div>
           )}
           {!wide && icon && <div className="h-8" />}

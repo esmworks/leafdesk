@@ -225,6 +225,42 @@
 }
 
 /*
+ * Page background colors (components/page/page-backdrop.tsx): the page's surface colors mixed
+ * with an option color, so everything painted with them (the page, its header, sticky table
+ * columns, hovers) takes the hue. Only `--bg*` change: `--opt-*` stays unset, so uncolored board
+ * cards and chips inside the page keep their own look.
+ */
+.page-bg-gray { --page-hue: #d5dfd8; }
+.page-bg-orange { --page-hue: #ffd2b2; }
+.page-bg-green { --page-hue: #bfe9c9; }
+.page-bg-blue { --page-hue: #bde2ff; }
+.page-bg-purple { --page-hue: #e5d3fc; }
+.page-bg-pink { --page-hue: #fdcde2; }
+.page-bg-red { --page-hue: #ffcfcc; }
+[class*="page-bg-"] {
+  --bg: color-mix(in srgb, var(--page-hue) 40%, #ffffff);
+  --bg-subtle: color-mix(in srgb, var(--page-hue) 55%, #ffffff);
+  --bg-hover: color-mix(in srgb, var(--page-hue) 70%, #ffffff);
+  --bg-active: color-mix(in srgb, var(--page-hue) 85%, #ffffff);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(:has([data-print-view])) .page-bg-gray { --page-hue: #617267; }
+  :root:not(:has([data-print-view])) .page-bg-orange { --page-hue: #9d6125; }
+  :root:not(:has([data-print-view])) .page-bg-green { --page-hue: #3b7d51; }
+  :root:not(:has([data-print-view])) .page-bg-blue { --page-hue: #3a72a4; }
+  :root:not(:has([data-print-view])) .page-bg-purple { --page-hue: #8659a6; }
+  :root:not(:has([data-print-view])) .page-bg-pink { --page-hue: #a4517a; }
+  :root:not(:has([data-print-view])) .page-bg-red { --page-hue: #ad514a; }
+  :root:not(:has([data-print-view])) [class*="page-bg-"] {
+    --bg: color-mix(in srgb, var(--page-hue) 20%, #18191b);
+    --bg-subtle: color-mix(in srgb, var(--page-hue) 26%, #18191b);
+    --bg-hover: color-mix(in srgb, var(--page-hue) 34%, #18191b);
+    --bg-active: color-mix(in srgb, var(--page-hue) 42%, #18191b);
+  }
+}
+
+/*
  * Chart marks. `--chart-1`…`--chart-8` color groups that have no color of their own, in this
  * order (it keeps neighbors apart for color-blind readers); a single series uses `--chart-1`.
  * `--chart-<option color>` paint select and status groups in their option's hue, strong enough

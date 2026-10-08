@@ -74,14 +74,11 @@
     "add": "Ajouter une icône",
     "remove": "Supprimer l’icône"
   },
-  "cover": {
-    "add": "Ajouter une couverture",
-    "change": "Changer la couverture",
-    "reposition": "Repositionner",
-    "dragToReposition": "Faites glisser l'image pour la repositionner",
-    "savePosition": "Enregistrer la position",
-    "cancel": "Annuler",
-    "gallery": "Galerie",
+  "background": {
+    "add": "Ajouter un arrière-plan",
+    "change": "Arrière-plan",
+    "colors": "Couleur",
+    "image": "Image",
     "upload": "Importer une image",
     "uploading": "Importation…",
     "link": "Lien d'image",
@@ -89,16 +86,15 @@
     "useLink": "Utiliser",
     "invalidLink": "Collez un lien qui commence par https://",
     "notAnImage": "Choisissez un fichier image.",
-    "remove": "Retirer la couverture",
-    "gradients": {
-      "forest": "Forêt",
-      "lagoon": "Lagon",
-      "dusk": "Crépuscule",
-      "ember": "Braise",
-      "sky": "Ciel",
-      "meadow": "Prairie",
-      "berry": "Baie",
-      "slate": "Ardoise"
+    "remove": "Retirer l’arrière-plan",
+    "colorNames": {
+      "gray": "Gris",
+      "blue": "Bleu",
+      "green": "Vert",
+      "purple": "Violet",
+      "pink": "Rose",
+      "red": "Rouge",
+      "orange": "Orange"
     }
   },
   "title": {

@@ -19,7 +19,7 @@ import type { AiAutofillConfig } from "../../lib/ai";
 import type { AggregateFn, RollupDisplay, RollupFn } from "../../lib/aggregate";
 import type { FormulaResultType } from "../../lib/formula/types";
 import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/property-types";
-import type { PageCover } from "../../lib/page-cover";
+import type { PageBackground } from "../../lib/page-background";
 import type { SidebarLayout } from "../../lib/sidebar-sections";
 import { user } from "./auth";
 
@@ -336,8 +336,8 @@ export const page = pgTable(
     kind: text("kind").$type<PageKind>().notNull().default("page"),
     title: text("title").notNull().default(""),
     icon: text("icon"),
-    /** The picture above the icon and title (lib/page-cover); uploaded ones count as used files. */
-    cover: jsonb("cover").$type<PageCover>(),
+    /** What fills the page behind its title and body (lib/page-background); uploaded images count as used files. */
+    background: jsonb("background").$type<PageBackground>(),
     position: doublePrecision("position").notNull().default(0),
     /** Row values when the parent is a database; empty for regular pages. */
     properties: jsonb("properties").$type<RowProperties>().notNull().default({}),

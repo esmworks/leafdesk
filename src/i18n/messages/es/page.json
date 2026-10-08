@@ -74,14 +74,11 @@
     "add": "Añadir icono",
     "remove": "Quitar icono"
   },
-  "cover": {
-    "add": "Añadir portada",
-    "change": "Cambiar portada",
-    "reposition": "Reposicionar",
-    "dragToReposition": "Arrastra la imagen para reposicionarla",
-    "savePosition": "Guardar posición",
-    "cancel": "Cancelar",
-    "gallery": "Galería",
+  "background": {
+    "add": "Añadir fondo",
+    "change": "Fondo",
+    "colors": "Color",
+    "image": "Imagen",
     "upload": "Subir una imagen",
     "uploading": "Subiendo…",
     "link": "Enlace de imagen",
@@ -89,16 +86,15 @@
     "useLink": "Usar",
     "invalidLink": "Pega un enlace que empiece por https://",
     "notAnImage": "Elige un archivo de imagen.",
-    "remove": "Quitar portada",
-    "gradients": {
-      "forest": "Bosque",
-      "lagoon": "Laguna",
-      "dusk": "Anochecer",
-      "ember": "Brasa",
-      "sky": "Cielo",
-      "meadow": "Pradera",
-      "berry": "Baya",
-      "slate": "Pizarra"
+    "remove": "Quitar fondo",
+    "colorNames": {
+      "gray": "Gris",
+      "blue": "Azul",
+      "green": "Verde",
+      "purple": "Morado",
+      "pink": "Rosa",
+      "red": "Rojo",
+      "orange": "Naranja"
     }
   },
   "title": {

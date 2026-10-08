@@ -2,7 +2,6 @@ import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { page, type PageKind } from "@/db/schema";
-import { parsePageCover, type PageCover } from "@/lib/page-cover";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { printOrder } from "@/lib/print";
 import { pageVisibleTo, requirePageAccess } from "@/server/access";
@@ -41,7 +40,6 @@ export type PrintSection = {
   id: string;
   title: string;
   icon: string | null;
-  cover: PageCover | null;
   kind: PageKind;
   updatedAt: Date;
   /** Typeface and small text print as in the app; paper has no full width. */
@@ -178,7 +176,6 @@ async function printSection(userId: string, pageId: string, depth: number, index
     id: target.id,
     title: content?.title || target.title,
     icon: target.icon,
-    cover: parsePageCover(target.cover),
     kind: target.kind,
     updatedAt: target.updatedAt,
     // As last stored: the collab server stores an edit within seconds.

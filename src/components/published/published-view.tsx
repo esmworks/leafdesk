@@ -3,7 +3,7 @@ import { Copy, Menu } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { LoadedPage } from "@/app/s/[token]/load";
-import { CoverArt } from "@/components/page/cover-art";
+import { BackdropImage, backdropRoot, IMAGE_SURFACE } from "@/components/page/page-backdrop";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { pageTextClasses } from "@/lib/page-style";
@@ -109,13 +109,24 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
           </aside>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          {data.cover && <CoverArt cover={data.cover} className="h-[30vh] max-h-72 min-h-32 max-md:h-40 max-md:min-h-0" />}
+        <div
+          className={cn("isolate flex min-w-0 flex-1 flex-col", backdropRoot(data.background).className)}
+          style={backdropRoot(data.background).style}
+        >
+          <BackdropImage background={data.background} />
           <main
             className={cn(
-              "w-full min-w-0 flex-1 pb-32",
+              "min-w-0 flex-1 pb-32",
               wide ? "pt-10" : data.style.fullWidth ? "page-full-width pt-12" : "mx-auto max-w-[900px] pt-12",
               !wide && pageTextClasses(data.style),
+              // Over an image the page sits on a plain surface, with the image showing around it.
+              data.background?.kind !== "image"
+                ? "w-full"
+                : [
+                    IMAGE_SURFACE,
+                    "my-6 md:my-10",
+                    wide || data.style.fullWidth ? "mx-3 md:mx-6" : "w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)]",
+                  ].join(" "),
             )}
           >
             <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>

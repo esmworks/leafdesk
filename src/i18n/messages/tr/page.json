@@ -74,14 +74,11 @@
     "add": "Simge ekle",
     "remove": "Simgeyi kaldır"
   },
-  "cover": {
-    "add": "Kapak ekle",
-    "change": "Kapağı değiştir",
-    "reposition": "Konumlandır",
-    "dragToReposition": "Görseli sürükleyerek konumlandırın",
-    "savePosition": "Konumu kaydet",
-    "cancel": "Vazgeç",
-    "gallery": "Galeri",
+  "background": {
+    "add": "Arka plan ekle",
+    "change": "Arka plan",
+    "colors": "Renk",
+    "image": "Görsel",
     "upload": "Görsel yükle",
     "uploading": "Yükleniyor…",
     "link": "Görsel bağlantısı",
@@ -89,16 +86,15 @@
     "useLink": "Kullan",
     "invalidLink": "https:// ile başlayan bir bağlantı yapıştırın",
     "notAnImage": "Bir görsel dosyası seçin.",
-    "remove": "Kapağı kaldır",
-    "gradients": {
-      "forest": "Orman",
-      "lagoon": "Lagün",
-      "dusk": "Alacakaranlık",
-      "ember": "Kor",
-      "sky": "Gökyüzü",
-      "meadow": "Çayır",
-      "berry": "Böğürtlen",
-      "slate": "Arduvaz"
+    "remove": "Arka planı kaldır",
+    "colorNames": {
+      "gray": "Gri",
+      "blue": "Mavi",
+      "green": "Yeşil",
+      "purple": "Mor",
+      "pink": "Pembe",
+      "red": "Kırmızı",
+      "orange": "Turuncu"
     }
   },
   "title": {

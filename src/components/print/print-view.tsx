@@ -1,6 +1,5 @@
 import "katex/dist/katex.min.css";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { CoverArt } from "@/components/page/cover-art";
 import { PublishedBody, PublishedRowProperties } from "@/components/published/published-body";
 import { PublishedDatabaseView } from "@/components/published/published-database";
 import styles from "@/components/published/published-body.module.css";
@@ -90,7 +89,6 @@ async function Section({
             ))}
           </p>
         )}
-        {section.cover && <CoverArt cover={section.cover} className="mb-6 h-44 rounded-md" />}
         {section.icon && <div className="mb-3 text-5xl leading-none">{section.icon}</div>}
         <h1 className="text-4xl leading-tight font-bold break-words">{pageLabel(section.title, untitled)}</h1>
         <p className="mt-2 text-xs text-fg-faint">{updated}</p>

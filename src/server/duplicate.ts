@@ -209,9 +209,9 @@ export async function copyPageTree(
       };
     });
     const inserted = await tx.execute<{ id: string }>(sql`
-      insert into ${page} (id, workspace_id, parent_id, kind, title, icon, cover, position, properties,
+      insert into ${page} (id, workspace_id, parent_id, kind, title, icon, background, position, properties,
         ydoc, content_text, content_markdown, is_template, in_template, default_template_id, teamspace_id, created_by, updated_by)
-      select m.id, src.workspace_id, m.parent_id, src.kind, m.title, src.icon, src.cover, m.position, m.properties,
+      select m.id, src.workspace_id, m.parent_id, src.kind, m.title, src.icon, src.background, m.position, m.properties,
         src.ydoc, src.content_text, src.content_markdown, m.is_template, m.in_template, m.default_template_id,
         ${space}::text, ${userId}, ${userId}
       from jsonb_to_recordset(${JSON.stringify(rows)}::jsonb)

@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { fileIdOf } from "@/lib/files";
-import { parsePageCover, type PageCover } from "@/lib/page-cover";
+import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
 import { anyWordTerms, anyWordTsQuery } from "@/lib/search-words";
@@ -347,8 +347,8 @@ export async function setPageIcon(userId: string, pageId: string, icon: string |
 }
 
 /**
- * The icon or cover changed: the sidebar and database views show the icon, gallery cards may show
- * the cover, and the page itself shows both to everyone who has it open (PAGE_HEADER_EVENT).
+ * The icon or background changed: the sidebar and database views show the icon, and the page
+ * itself shows both to everyone who has it open (PAGE_HEADER_EVENT).
  */
 function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: string | null }) {
   const collab = getCollab();
@@ -358,13 +358,13 @@ function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: strin
 }
 
 /**
- * Sets or removes the page's cover (lib/page-cover). An uploaded image must be a file of the page's
- * workspace; the database trigger then counts it as used by the page, like a file in its body.
+ * Sets or removes the page's background (lib/page-background). An uploaded image must be a file of
+ * the page's workspace; the database trigger then counts it as used by the page, like a file in its body.
  */
-export async function setPageCover(userId: string, pageId: string, cover: PageCover | null) {
+export async function setPageBackground(userId: string, pageId: string, background: PageBackground | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
-  const checked = cover === null ? null : parsePageCover(cover);
-  if (cover !== null && !checked) throw new Error("Not a cover");
+  const checked = background === null ? null : parsePageBackground(background);
+  if (background !== null && !checked) throw new Error("Not a background");
   const fileId = checked?.kind === "image" ? fileIdOf(checked.url) : null;
   if (fileId) {
     const [found] = await db
@@ -373,9 +373,9 @@ export async function setPageCover(userId: string, pageId: string, cover: PageCo
       .where(and(eq(file.id, fileId), eq(file.workspaceId, p.workspaceId)))
       .limit(1);
     // Answered like any file the user can't reach (REST: 404).
-    if (!found) throw new AccessError("The cover's file isn't in this workspace");
+    if (!found) throw new AccessError("The background's file isn't in this workspace");
   }
-  await db.update(page).set({ cover: checked, updatedBy: userId }).where(eq(page.id, pageId));
+  await db.update(page).set({ background: checked, updatedBy: userId }).where(eq(page.id, pageId));
   pageHeaderChanged(p);
 }
 

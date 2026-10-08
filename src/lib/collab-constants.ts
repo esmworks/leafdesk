@@ -8,7 +8,7 @@ export const COLLAB_META = "meta";
  */
 export const AUTO_SNAPSHOT_INTERVAL_MS = 10 * 60 * 1000;
 /**
- * Sent on a page's own document when its icon or cover changed (server/pages.ts): the page view
+ * Sent on a page's own document when its icon or background changed (server/pages.ts): the page view
  * reloads them, so everyone who has the page open sees the change.
  */
 export const PAGE_HEADER_EVENT = "header";

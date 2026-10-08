@@ -74,14 +74,11 @@
     "add": "Symbol hinzufügen",
     "remove": "Symbol entfernen"
   },
-  "cover": {
-    "add": "Titelbild hinzufügen",
-    "change": "Titelbild ändern",
-    "reposition": "Ausschnitt anpassen",
-    "dragToReposition": "Bild ziehen, um den Ausschnitt zu ändern",
-    "savePosition": "Ausschnitt speichern",
-    "cancel": "Abbrechen",
-    "gallery": "Galerie",
+  "background": {
+    "add": "Hintergrund hinzufügen",
+    "change": "Hintergrund",
+    "colors": "Farbe",
+    "image": "Bild",
     "upload": "Bild hochladen",
     "uploading": "Wird hochgeladen…",
     "link": "Bildlink",
@@ -89,16 +86,15 @@
     "useLink": "Verwenden",
     "invalidLink": "Fügen Sie einen Link ein, der mit https:// beginnt",
     "notAnImage": "Wählen Sie eine Bilddatei.",
-    "remove": "Titelbild entfernen",
-    "gradients": {
-      "forest": "Wald",
-      "lagoon": "Lagune",
-      "dusk": "Dämmerung",
-      "ember": "Glut",
-      "sky": "Himmel",
-      "meadow": "Wiese",
-      "berry": "Beere",
-      "slate": "Schiefer"
+    "remove": "Hintergrund entfernen",
+    "colorNames": {
+      "gray": "Grau",
+      "blue": "Blau",
+      "green": "Grün",
+      "purple": "Lila",
+      "pink": "Pink",
+      "red": "Rot",
+      "orange": "Orange"
     }
   },
   "title": {

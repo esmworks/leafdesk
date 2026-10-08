@@ -12,14 +12,13 @@ import { env } from "@/lib/env";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import {
-  COVER_GRADIENT_NAMES,
-  coverFileId,
-  coverText,
-  MAX_COVER_URL_LENGTH,
-  parseCoverText,
-  parsePageCover,
-  type PageCover,
-} from "@/lib/page-cover";
+  BACKGROUND_COLORS,
+  backgroundFileId,
+  backgroundText,
+  MAX_BACKGROUND_URL_LENGTH,
+  parseBackgroundText,
+  parsePageBackground,
+} from "@/lib/page-background";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
 import * as databases from "@/server/databases";
@@ -185,20 +184,14 @@ export const inputs = {
       .enum(["replace", "append"])
       .default("replace")
       .describe('"replace" (default) overwrites the body; "append" adds to the end.'),
-    cover: z
+    background: z
       .string()
-      .max(MAX_COVER_URL_LENGTH)
+      .max(MAX_BACKGROUND_URL_LENGTH)
       .nullable()
       .optional()
       .describe(
-        `The picture shown above the title: an image uploaded to the workspace (its /api/files/<id> URL, e.g. from attach_file), an https link to an image, or a built-in gradient as "gradient:<name>" (${COVER_GRADIENT_NAMES.join(", ")}). null removes it.`,
+        `What fills the page behind its title and body: an image uploaded to the workspace (its /api/files/<id> URL, e.g. from attach_file) or an https link to an image, with the text on a plain surface over it; or a color as "color:<name>" (${BACKGROUND_COLORS.join(", ")}), light in the light theme and dark in the dark one. null removes it.`,
       ),
-    cover_position: z
-      .number()
-      .min(0)
-      .max(100)
-      .optional()
-      .describe("Which band of an image cover shows, from 0 (top) to 100 (bottom); 50 by default."),
   }),
   pageId: z.object({ page_id: id("page") }),
   movePage: z.object({
@@ -473,7 +466,7 @@ export async function getPage(
     title: pageLabel(content.title || page.title),
     kind: page.kind,
     icon: page.icon,
-    ...coverFields(page.cover),
+    ...backgroundField(page.background),
     workspace_id: page.workspaceId,
     ...(await teamspaceOf(ctx, page.teamspaceId)),
     // A parent they can't see stays unnamed, id included.
@@ -587,28 +580,21 @@ export async function createPage(
   };
 }
 
-/** A page's cover as MCP and REST show it: one string (lib/page-cover coverText), files as full URLs. */
-function coverFields(stored: unknown) {
-  const cover = parsePageCover(stored);
-  if (!cover) return { cover: null };
-  const text = coverText(cover);
-  return {
-    cover: coverFileId(cover) ? `${env.appUrl}${text}` : text,
-    ...(cover.kind === "image" ? { cover_position: cover.y } : {}),
-  };
+/** A page's background as MCP and REST show it: one string (lib/page-background backgroundText), files as full URLs. */
+function backgroundField(stored: unknown) {
+  const background = parsePageBackground(stored);
+  if (!background) return { background: null };
+  const text = backgroundText(background);
+  return { background: backgroundFileId(background) ? `${env.appUrl}${text}` : text };
 }
 
-/** The cover update_page asks for: a new one, none (null), or the current image at another position. */
-function coverFromInput(current: PageCover | null, cover: string | null | undefined, position: number | undefined): PageCover | null {
-  if (cover === null) return null;
-  if (cover === undefined) {
-    if (current?.kind !== "image") throw new ToolInputError("cover_position moves an image cover; this page has none.");
-    return { ...current, y: position! };
-  }
-  const parsed = parseCoverText(cover, position);
+/** The background update_page asks for: a new one, or none (null). */
+function backgroundFromInput(background: string | null) {
+  if (background === null) return null;
+  const parsed = parseBackgroundText(background);
   if (!parsed) {
     throw new ToolInputError(
-      `cover must be an image URL (/api/files/<id> or an https link) or "gradient:<name>" with one of: ${COVER_GRADIENT_NAMES.join(", ")}.`,
+      `background must be an image URL (/api/files/<id> or an https link) or "color:<name>" with one of: ${BACKGROUND_COLORS.join(", ")}.`,
     );
   }
   return parsed;
@@ -617,11 +603,11 @@ function coverFromInput(current: PageCover | null, cover: string | null | undefi
 /** `icon` (null clears it) is REST only: the MCP tool doesn't take it. */
 export async function updatePage(
   ctx: OperationContext,
-  { page_id, title, markdown, mode, icon, cover, cover_position }: Args<"updatePage"> & { icon?: string | null },
+  { page_id, title, markdown, mode, icon, background }: Args<"updatePage"> & { icon?: string | null },
 ) {
   const { userId, actor } = ctx;
-  if (title === undefined && markdown === undefined && icon === undefined && cover === undefined && cover_position === undefined) {
-    throw new ToolInputError("Provide title, markdown and/or cover.");
+  if (title === undefined && markdown === undefined && icon === undefined && background === undefined) {
+    throw new ToolInputError("Provide title, markdown and/or background.");
   }
   const { page } = await loadPage(ctx, page_id);
   if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before editing.");
@@ -643,9 +629,9 @@ export async function updatePage(
     await pages.setPageIcon(userId, page_id, icon);
     changed.push("icon");
   }
-  if (cover !== undefined || cover_position !== undefined) {
-    await pages.setPageCover(userId, page_id, coverFromInput(parsePageCover(page.cover), cover, cover_position));
-    changed.push("cover");
+  if (background !== undefined) {
+    await pages.setPageBackground(userId, page_id, backgroundFromInput(background));
+    changed.push("background");
   }
   return {
     id: page.id,
