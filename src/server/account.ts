@@ -332,13 +332,14 @@ export async function changePassword(
     if (code === "PASSWORD_TOO_LONG") throw new AccountError("passwordTooLong");
     throw error;
   }
+  // The password has changed: the notice goes out whatever happens below.
+  await notify(userId, current.user.email, (locale) => passwordChangedEmail(locale, { name: current.user.name }));
   if (input.revokeOthers === true) {
     await disconnectEndedSessions(userId);
     // Apps the user connected hold tokens like other sessions: whoever knew the old password
     // could have connected one, so they are disconnected too.
     await revokeAllConnectedApps(userId);
   }
-  await notify(userId, current.user.email, (locale) => passwordChangedEmail(locale, { name: current.user.name }));
 }
 
 /** For accounts without a password (GitHub or Google only): adds one, after proof. */

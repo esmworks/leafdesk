@@ -1,6 +1,6 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { oauthAccessToken, oauthClient, oauthConsent, oauthRefreshToken } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
@@ -69,22 +69,35 @@ export async function listConnectedApps(userId: string): Promise<ConnectedApp[]>
 }
 
 /**
- * Records in the audit log that the user connected or disconnected an app. An app reaches every
+ * Records in the audit log that the user connected or disconnected apps. An app reaches every
  * workspace the user is in (each one's connected-apps setting decides what it may do there), so
  * each of them records it.
  */
-async function recordConnectedApp(userId: string, clientId: string, action: "connected_app.connected" | "connected_app.revoked", scopes: string[]) {
-  const [client] = await db.select({ name: oauthClient.name }).from(oauthClient).where(eq(oauthClient.clientId, clientId)).limit(1);
-  const label = clientDisplayName(client?.name, clientId);
-  const workspaceIds = await memberWorkspaceIds(userId);
+async function recordConnectedApps(
+  userId: string,
+  apps: { clientId: string; scopes: string[] }[],
+  action: "connected_app.connected" | "connected_app.revoked",
+) {
+  if (!apps.length) return;
+  const [clients, workspaceIds] = await Promise.all([
+    db
+      .select({ clientId: oauthClient.clientId, name: oauthClient.name })
+      .from(oauthClient)
+      .where(inArray(oauthClient.clientId, apps.map((a) => a.clientId))),
+    memberWorkspaceIds(userId),
+  ]);
+  const names = new Map(clients.map((c) => [c.clientId, c.name]));
   await recordAudit(
-    workspaceIds.map((workspaceId) => ({
-      workspaceId,
-      actorId: userId,
-      action,
-      target: { type: "connected_app" as const, id: clientId, label },
-      details: { scopes },
-    })),
+    apps.flatMap(({ clientId, scopes }) => {
+      const label = clientDisplayName(names.get(clientId), clientId);
+      return workspaceIds.map((workspaceId) => ({
+        workspaceId,
+        actorId: userId,
+        action,
+        target: { type: "connected_app" as const, id: clientId, label },
+        details: { scopes },
+      }));
+    }),
   );
 }
 
@@ -136,7 +149,7 @@ export function connectedAppAuditPlugin() {
               .from(oauthConsent)
               .where(and(eq(oauthConsent.userId, userId), eq(oauthConsent.clientId, clientId)))
               .limit(1);
-            if (consent) await recordConnectedApp(userId, clientId, "connected_app.connected", consent.scopes);
+            if (consent) await recordConnectedApps(userId, [{ clientId, scopes: consent.scopes }], "connected_app.connected");
           }),
         },
       ],
@@ -167,10 +180,15 @@ export async function revokeConnectedApp(userId: string, clientId: string) {
     return consents;
   });
   // After the commit: one event per workspace of the user, recorded on their own.
-  if (revoked.length) await recordConnectedApp(userId, clientId, "connected_app.revoked", revoked[0].scopes);
+  if (revoked.length) await recordConnectedApps(userId, [{ clientId, scopes: revoked[0].scopes }], "connected_app.revoked");
 }
 
-/** Like revokeConnectedApp for every app the user has connected, including tokens without consent. */
+/**
+ * Like revokeConnectedApp for every app the user has connected, including tokens without consent.
+ * It runs where an account is being secured (a password change or reset, an address claimed), so
+ * once the apps are cut off nothing after it may fail: recording them in the audit log only logs
+ * its errors.
+ */
 export async function revokeAllConnectedApps(userId: string) {
   const now = new Date();
   const revoked = await db.transaction(async (tx) => {
@@ -189,7 +207,9 @@ export async function revokeAllConnectedApps(userId: string) {
     return consents;
   });
   // After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log.
-  for (const consent of revoked) await recordConnectedApp(userId, consent.clientId, "connected_app.revoked", consent.scopes);
+  await recordConnectedApps(userId, revoked, "connected_app.revoked").catch((error) =>
+    console.error("[connected-apps] could not record disconnected apps in the audit log", error),
+  );
 }
 
 /** A readable name for a client: its registered name, else the host of a URL client id (CIMD). */
