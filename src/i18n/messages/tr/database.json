@@ -229,6 +229,7 @@
     "duplicate": "Kopyasını oluştur",
     "trash": "Çöp kutusuna taşı",
     "export": "CSV olarak dışa aktar",
+    "exportXlsx": "Excel olarak dışa aktar",
     "exportFailed": "Seçili satırlar dışa aktarılamadı.",
     "clearSelection": "Seçimi temizle",
     "confirmTrash": "{count} satır çöp kutusuna taşınsın mı?",

@@ -229,6 +229,7 @@
     "duplicate": "Duplicate",
     "trash": "Move to trash",
     "export": "Export CSV",
+    "exportXlsx": "Export Excel",
     "exportFailed": "Couldn’t export the selected rows.",
     "clearSelection": "Clear selection",
     "confirmTrash": "Move {count, plural, one {# row} other {# rows}} to the trash?",

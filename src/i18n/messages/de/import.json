@@ -1,10 +1,10 @@
 {
   "open": "Importieren",
   "title": "Importieren",
-  "description": "Importiere Seiten aus Markdown-Dateien und ZIP-Exporten oder Zeilen aus einer CSV-Datei.",
+  "description": "Importiere Seiten aus Markdown-Dateien und ZIP-Exporten oder Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe.",
   "tabs": {
     "pages": "Markdown & ZIP",
-    "csv": "CSV"
+    "csv": "CSV & Excel"
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
@@ -19,8 +19,9 @@
     "clear": "Leeren"
   },
   "csv": {
-    "choose": "CSV-Datei auswählen",
+    "choose": "CSV- oder Excel-Datei auswählen",
     "summary": "{name}: {rows, plural, one {# Zeile} other {# Zeilen}}, {columns, plural, one {# Spalte} other {# Spalten}}",
+    "sheet": "Tabellenblatt",
     "mode": "Importieren als",
     "newDatabase": "Neue Datenbank",
     "existing": "Zeilen einer Datenbank",
@@ -70,7 +71,8 @@
       "duplicate": "„{path}“ wurde ausgelassen: Die vollständige Version derselben Datenbank wurde importiert.",
       "tooLarge": "„{path}“ ist zu groß für eine Seite und wurde ausgelassen.",
       "unused": "„{path}“ wurde ausgelassen: Keine Seite zeigt die Datei an oder verlinkt darauf.",
-      "unsafePath": "„{path}“ wurde ausgelassen: Der Pfad führt aus der ZIP-Datei heraus."
+      "unsafePath": "„{path}“ wurde ausgelassen: Der Pfad führt aus der ZIP-Datei heraus.",
+      "otherSheet": "Das Tabellenblatt „{path}“ wurde ausgelassen: Es wird jeweils nur ein Blatt importiert."
     },
     "more": "…und {count, plural, one {# weiterer} other {# weitere}}."
   },
@@ -78,11 +80,13 @@
     "tooLarge": "Der Upload ist größer als {limit}.",
     "tooManyFiles": "Ein Import darf höchstens {limit} Dateien enthalten.",
     "tooManyPages": "Ein Import kann höchstens {limit} Seiten erstellen.",
-    "tooManyRows": "Eine CSV-Datei darf höchstens {limit} Zeilen haben.",
-    "tooManyColumns": "Eine CSV-Datei darf höchstens {limit} Spalten haben.",
+    "tooManyRows": "Eine Datei darf höchstens {limit} Zeilen haben.",
+    "tooManyColumns": "Eine Datei darf höchstens {limit} Spalten haben.",
     "badZip": "Die ZIP-Datei kann nicht gelesen werden.",
     "nothingToImport": "Es gibt keine Markdown- oder CSV-Datei zum Importieren.",
-    "emptyCsv": "Die CSV-Datei hat keine Kopfzeile.",
+    "emptyCsv": "Die Datei hat keine Kopfzeile.",
+    "badWorkbook": "Die Excel-Datei kann nicht gelesen werden.",
+    "unsupportedWorkbook": "Nur .xlsx-Arbeitsmappen ohne Kennwort können importiert werden. Speichere die Datei als Excel-Arbeitsmappe (.xlsx) ohne Kennwort und versuche es erneut.",
     "badMapping": "Lege für mindestens eine Spalte ein Ziel fest und verwende jede Eigenschaft nur einmal.",
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",

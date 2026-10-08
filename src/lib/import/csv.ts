@@ -102,11 +102,20 @@ function unguard(cell: string) {
  * numbered, every row as wide as the header, and rows with nothing in them left out.
  */
 export function csvTable(text: string): CsvTable {
-  const [head = [], ...body] = parseCsv(text);
+  return recordsTable(parseCsv(text));
+}
+
+/**
+ * Records (the first one the header) as a table, the way csvTable reads a CSV file's. Workbooks
+ * (lib/import/xlsx) come in here too; their cells are never guarded with an apostrophe, so
+ * `guarded: false` keeps one that starts a cell.
+ */
+export function recordsTable([head = [], ...body]: string[][], { guarded = true } = {}): CsvTable {
+  const clean = guarded ? unguard : (cell: string) => cell;
   const headers: string[] = [];
   const taken = new Set<string>();
   head.forEach((raw, i) => {
-    const base = unguard(raw).replace(/\s+/g, " ").trim().slice(0, 100) || `Column ${i + 1}`;
+    const base = clean(raw).replace(/\s+/g, " ").trim().slice(0, 100) || `Column ${i + 1}`;
     let name = base;
     for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base} ${n}`;
     taken.add(name.toLowerCase());
@@ -114,7 +123,7 @@ export function csvTable(text: string): CsvTable {
   });
   const rows = body
     .filter((r) => r.some((cell) => cell.trim() !== ""))
-    .map((r) => headers.map((_, i) => unguard(r[i] ?? "")));
+    .map((r) => headers.map((_, i) => clean(r[i] ?? "")));
   return { headers, rows };
 }
 

@@ -30,7 +30,8 @@ const { setPagePermission } = await import("@/server/permissions");
 const { createGroup } = await import("@/server/groups");
 const { getPropertyAccessSettings, setPropertyAccess } = await import("@/server/property-access");
 const ops = await import("@/server/operations");
-const { databaseCsv, planExport } = await import("@/server/export");
+const { databaseCsv, databaseXlsx, planExport } = await import("@/server/export");
+const { workbookTable } = await import("@/lib/import/xlsx");
 const { uploadFile } = await import("@/server/files");
 const { Readable } = await import("node:stream");
 const { PropertyValueError } = await import("@/lib/properties");
@@ -185,6 +186,8 @@ try {
   leaks("CSV export", await databaseCsv(ids.editor, staff.id));
   const csvOwner = await databaseCsv(ids.owner, staff.id);
   check(JSON.stringify(csvOwner).includes("654321"), "the owner's export is whole");
+  leaks("Excel export", workbookTable((await databaseXlsx(ids.editor, staff.id)).xlsx));
+  check(JSON.stringify(workbookTable((await databaseXlsx(ids.owner, staff.id)).xlsx)).includes("654321"), "…as a workbook too");
   check(
     await ops.setPropertyAccess(ctx, { database_id: staff.id, property: "Notes", everyone: "none", exceptions: [] }).then(
       () => false,

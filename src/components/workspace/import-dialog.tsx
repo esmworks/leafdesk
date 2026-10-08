@@ -20,7 +20,8 @@ import {
   type CsvTable,
 } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
-import type { ImportResult, ImportWarning } from "@/lib/import/result";
+import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
+import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
@@ -48,11 +49,12 @@ function flatten(tree: TreeNode[]) {
 }
 
 type Picked = { file: File; path: string };
-type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[] };
+/** The chosen CSV file or workbook; a workbook's sheets by name, and the one shown. */
+type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets: string[]; sheet: number };
 
 /**
- * Imports Markdown files, folders and ZIPs as pages, or a CSV file as a new database or as rows of
- * an existing one (with a column → property mapping). Sends everything to /api/import and shows
+ * Imports Markdown files, folders and ZIPs as pages, or a CSV file or Excel workbook (one of its
+ * sheets) as a new database or as rows of an existing one (with a column → property mapping). Sends everything to /api/import and shows
  * what was created and what was left out.
  */
 export function ImportDialog({
@@ -166,15 +168,28 @@ export function ImportDialog({
     setError(null);
   }
 
-  async function chooseCsv(file: File | undefined) {
+  /** Reads a CSV file, or sheet `sheet` of a workbook, for the column table and the import. */
+  async function chooseCsv(file: File | undefined, sheet = 0) {
     if (!file) return;
     setError(null);
-    const table = csvTable(decodeText(new Uint8Array(await file.arrayBuffer())));
+    let table: CsvTable;
+    let sheets: string[] = [];
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (isWorkbook(file.name, bytes)) {
+        const book = readWorkbook(bytes);
+        sheets = book.sheets.map((s) => s.name);
+        table = book.table(sheet);
+      } else table = csvTable(decodeText(bytes));
+    } catch (e) {
+      if (e instanceof ImportError) return setError(errorText({ code: e.code, params: e.params }));
+      return setError(t("errors.badWorkbook"));
+    }
     if (!table.headers.length) return setError(t("errors.emptyCsv"));
     if (table.headers.length > CSV_MAX_COLUMNS) return setError(t("errors.tooManyColumns", { limit: CSV_MAX_COLUMNS }));
     if (table.rows.length > CSV_MAX_ROWS) return setError(t("errors.tooManyRows", { limit: CSV_MAX_ROWS }));
     const guesses = table.headers.map((_, i) => guessColumn(table.rows.map((r) => r[i])).type);
-    setCsv({ file, table, guesses });
+    setCsv({ file, table, guesses, sheets, sheet });
     setName(cleanTitle(file.name));
     setTitleColumn(guessTitleColumn(table.headers));
     setTypes(guesses);
@@ -184,7 +199,21 @@ export function ImportDialog({
     const code = body?.code ?? "badRequest";
     const params = { ...body?.params };
     if (code === "tooLarge" && typeof params.limit === "number") params.limit = formatBytes(params.limit);
-    const known = ["tooLarge", "tooManyFiles", "tooManyPages", "tooManyRows", "tooManyColumns", "badZip", "nothingToImport", "emptyCsv", "badMapping", "noAccess", "notADatabase"];
+    const known = [
+      "tooLarge",
+      "tooManyFiles",
+      "tooManyPages",
+      "tooManyRows",
+      "tooManyColumns",
+      "badZip",
+      "nothingToImport",
+      "emptyCsv",
+      "badWorkbook",
+      "unsupportedWorkbook",
+      "badMapping",
+      "noAccess",
+      "notADatabase",
+    ];
     return known.includes(code) ? t(`errors.${code}` as "errors.badRequest", params) : t("errors.badRequest");
   }
 
@@ -207,11 +236,13 @@ export function ImportDialog({
       form.append("title", name);
       form.append("titleColumn", titleColumn === null ? "" : String(titleColumn));
       form.append("types", JSON.stringify(types));
+      if (csv.sheets.length) form.append("sheet", String(csv.sheet));
       form.append("file", csv.file, csv.file.name);
     } else if (csv) {
       form.append("mode", "csv-merge");
       form.append("databaseId", databaseId);
       form.append("mapping", JSON.stringify(mapping));
+      if (csv.sheets.length) form.append("sheet", String(csv.sheet));
       form.append("file", csv.file, csv.file.name);
     }
     setBusy(true);
@@ -413,7 +444,7 @@ export function ImportDialog({
                 <input
                   ref={csvInput}
                   type="file"
-                  accept=".csv,text/csv"
+                  accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                   hidden
                   data-import="csv"
                   onChange={(e) => {
@@ -422,6 +453,24 @@ export function ImportDialog({
                   }}
                 />
               </div>
+
+              {csv && csv.sheets.length > 1 && (
+                <label className="block">
+                  <span className={labelClass}>{t("csv.sheet")}</span>
+                  <select
+                    className={selectClass}
+                    value={csv.sheet}
+                    disabled={busy}
+                    onChange={(e) => void chooseCsv(csv.file, Number(e.target.value))}
+                  >
+                    {csv.sheets.map((sheetName, i) => (
+                      <option key={i} value={i}>
+                        {sheetName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               {csv && (
                 <>

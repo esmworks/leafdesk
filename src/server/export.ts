@@ -3,13 +3,14 @@ import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
 import { file, fileReference, page, propertyPermission, type PageKind, workspace } from "@/db/schema";
 import { toCsv } from "@/lib/csv";
-import { isErrorValue } from "@/lib/derived";
+import { isErrorValue, valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { layoutExport, relativeLink, rewriteLinks, type ExportLayout } from "@/lib/export-layout";
 import { asFiles, fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
 import { asChecklist, displayValue } from "@/lib/properties";
+import { toXlsx, type XlsxValue } from "@/lib/xlsx";
 import { holdsPeople } from "@/lib/property-types";
 import { accessRank, pageIdColumn, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
@@ -22,7 +23,7 @@ import { getStorage } from "@/server/storage";
 import { exportAllowed } from "@/server/workspaces";
 
 /**
- * Exports: one page as Markdown or one database as CSV (the page menu's "Export"), and a page with
+ * Exports: one page as Markdown or one database as CSV or Excel (the page menu's "Export"), and a page with
  * everything under it, or a whole workspace, as a ZIP of Markdown files, database CSVs and the
  * uploaded files they show (see lib/export-layout for the archive's layout).
  *
@@ -125,28 +126,62 @@ export function databaseTable(
   };
 }
 
-/** A database's rows (all of them, or those of `only`, in that order) as CSV, and its title. */
-export async function databaseCsv(userId: string, databaseId: string, only: string[] | null = null) {
+/**
+ * A database's rows for a one-file export (all of them, or those of `only`, in that order) as
+ * table cells, recorded in the audit log as exported in `format`.
+ */
+async function exportedTable(userId: string, databaseId: string, only: string[] | null, format: "csv" | "xlsx") {
   const snapshot = await getDatabaseSnapshot(userId, databaseId);
   await assertExportAllowed(snapshot.database.workspaceId);
   const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
   const rows = only ? only.flatMap((id) => byId.get(id) ?? []) : snapshot.rows;
   // "photo.png (https://…/api/files/…)": the link opens for people who can see the row.
-  const { header, cells } = databaseTable(snapshot, rows, (f) => `${f.name} (${env.appUrl}${f.url})`);
+  const table = databaseTable(snapshot, rows, (f) => `${f.name} (${env.appUrl}${f.url})`);
   await recordExport(userId, {
     workspaceId: snapshot.database.workspaceId,
     page: { id: databaseId, title: snapshot.database.title },
-    format: "csv",
+    format,
     rows: rows.length,
   });
+  return { snapshot, ...table };
+}
+
+/** A database's rows (all of them, or those of `only`, in that order) as CSV, and its title. */
+export async function databaseCsv(userId: string, databaseId: string, only: string[] | null = null) {
+  const { snapshot, header, cells } = await exportedTable(userId, databaseId, only, "csv");
   return { title: snapshot.database.title, csv: toCsv([header, ...cells]) };
+}
+
+/**
+ * A database's rows as an Excel workbook (.xlsx), and its title: the cells of the CSV export, with
+ * numbers as numbers, checkboxes as TRUE/FALSE and dates as dates (created and edited times with
+ * their time, in UTC).
+ */
+export async function databaseXlsx(userId: string, databaseId: string, only: string[] | null = null) {
+  const { snapshot, header, cells } = await exportedTable(userId, databaseId, only, "xlsx");
+  const kinds = [null, ...snapshot.properties.map((p) => valueType(p))];
+  const typed = cells.map((row) => row.map((value, i) => typedCell(value, kinds[i])));
+  return { title: snapshot.database.title, xlsx: toXlsx([header, ...typed], { name: snapshot.database.title }) };
+}
+
+/**
+ * A cell of the CSV export as a workbook cell of its column's type: anything that isn't what the
+ * type holds (a formula's error, say) stays text.
+ */
+export function typedCell(value: string | number | null, type: string | null): XlsxValue {
+  if (typeof value === "number" || value === null) return value;
+  if (type === "checkbox" && (value === "true" || value === "false")) return value === "true";
+  if ((type === "date" || type === "created_time" || type === "last_edited_time") && /^\d{4}-\d{2}-\d{2}(T|$)/.test(value)) {
+    return { date: value };
+  }
+  return value;
 }
 
 export type ExportRecord = {
   workspaceId: string;
   /** The page exported; null for the whole workspace. */
   page: { id: string; title: string } | null;
-  format: "zip" | "csv" | "markdown" | "pdf";
+  format: "zip" | "csv" | "xlsx" | "markdown" | "pdf";
   /** How many pages (or rows, or files) it holds, when known. */
   pages?: number;
   rows?: number;

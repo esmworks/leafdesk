@@ -20,6 +20,10 @@ export const IMPORT_ERROR_CODES = [
   "nothingToImport",
   /** The CSV has no header row. */
   "emptyCsv",
+  /** The Excel workbook can't be read. */
+  "badWorkbook",
+  /** An old binary workbook (.xls) or one saved with a password: only plain .xlsx files are read. */
+  "unsupportedWorkbook",
   /** Merging: no column goes to a property, or two go to the same one. */
   "badMapping",
   /** The destination is missing, in the trash or not editable, or not a database when merging. */
@@ -50,9 +54,10 @@ export type ImportWarning =
   /**
    * Files left out: a ZIP inside the ZIP, a database inside a database, a duplicate CSV (or a
    * database's own Markdown file), a Markdown file over the size limit, a file no page shows or
-   * links to (there's nowhere to put it), and a ZIP entry whose path climbs out of the archive.
+   * links to (there's nowhere to put it), a ZIP entry whose path climbs out of the archive, and
+   * the sheets of a workbook other than the one imported (`path` is the sheet's name).
    */
-  | { code: "skipped"; path: string; reason: "nestedZip" | "nestedDatabase" | "duplicate" | "tooLarge" | "unused" | "unsafePath" };
+  | { code: "skipped"; path: string; reason: "nestedZip" | "nestedDatabase" | "duplicate" | "tooLarge" | "unused" | "unsafePath" | "otherSheet" };
 
 /** At most this many warnings are listed; `moreWarnings` counts the rest. */
 export const MAX_WARNINGS = 50;

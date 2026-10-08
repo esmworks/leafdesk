@@ -229,6 +229,7 @@
     "duplicate": "Duplizieren",
     "trash": "In den Papierkorb verschieben",
     "export": "Als CSV exportieren",
+    "exportXlsx": "Als Excel exportieren",
     "exportFailed": "Die ausgewählten Zeilen konnten nicht exportiert werden.",
     "clearSelection": "Auswahl aufheben",
     "confirmTrash": "{count, plural, one {# Zeile} other {# Zeilen}} in den Papierkorb verschieben?",

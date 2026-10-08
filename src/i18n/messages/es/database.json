@@ -229,6 +229,7 @@
     "duplicate": "Duplicar",
     "trash": "Mover a la papelera",
     "export": "Exportar CSV",
+    "exportXlsx": "Exportar Excel",
     "exportFailed": "No se pudieron exportar las filas seleccionadas.",
     "clearSelection": "Borrar selección",
     "confirmTrash": "¿Mover {count, plural, one {# fila} other {# filas}} a la papelera?",

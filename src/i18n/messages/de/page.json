@@ -35,6 +35,7 @@
     "unlock": "Entsperren",
     "exportMarkdown": "Als Markdown exportieren",
     "exportCsv": "Als CSV exportieren",
+    "exportXlsx": "Als Excel exportieren (.xlsx)",
     "exportZip": "Mit Unterseiten exportieren",
     "exportZipDatabase": "Mit Zeilenseiten exportieren",
     "exportPdf": "Als PDF exportieren",

@@ -1,10 +1,10 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Trae páginas desde archivos Markdown y exportaciones ZIP, o filas desde un archivo CSV.",
+  "description": "Trae páginas desde archivos Markdown y exportaciones ZIP, o filas desde un archivo CSV o un libro de Excel.",
   "tabs": {
     "pages": "Markdown y ZIP",
-    "csv": "CSV"
+    "csv": "CSV y Excel"
   },
   "destination": "Colocar dentro de",
   "topLevel": "Nivel superior del espacio de trabajo",
@@ -19,8 +19,9 @@
     "clear": "Borrar"
   },
   "csv": {
-    "choose": "Elegir un archivo CSV",
+    "choose": "Elegir un archivo CSV o Excel",
     "summary": "{name}: {rows, plural, one {# fila} other {# filas}}, {columns, plural, one {# columna} other {# columnas}}",
+    "sheet": "Hoja",
     "mode": "Importar como",
     "newDatabase": "Una base de datos nueva",
     "existing": "Filas de una base de datos",
@@ -70,7 +71,8 @@
       "duplicate": "“{path}” se excluyó: se importó la versión completa de la misma base de datos.",
       "tooLarge": "“{path}” es demasiado grande para una sola página y se excluyó.",
       "unused": "“{path}” se excluyó: ninguna página lo muestra ni enlaza a él.",
-      "unsafePath": "“{path}” se excluyó: su ruta sale del ZIP."
+      "unsafePath": "“{path}” se excluyó: su ruta sale del ZIP.",
+      "otherSheet": "La hoja “{path}” se excluyó: solo se importa una hoja cada vez."
     },
     "more": "…y {count, plural, one {# más} other {# más}}."
   },
@@ -78,11 +80,13 @@
     "tooLarge": "Lo que subiste supera {limit}.",
     "tooManyFiles": "Una importación puede contener como máximo {limit} archivos.",
     "tooManyPages": "Una importación puede crear como máximo {limit} páginas.",
-    "tooManyRows": "Un archivo CSV puede tener como máximo {limit} filas.",
-    "tooManyColumns": "Un archivo CSV puede tener como máximo {limit} columnas.",
+    "tooManyRows": "Un archivo puede tener como máximo {limit} filas.",
+    "tooManyColumns": "Un archivo puede tener como máximo {limit} columnas.",
     "badZip": "No se puede leer el archivo ZIP.",
     "nothingToImport": "No hay ningún archivo Markdown o CSV que importar.",
-    "emptyCsv": "El archivo CSV no tiene fila de encabezado.",
+    "emptyCsv": "El archivo no tiene fila de encabezado.",
+    "badWorkbook": "No se puede leer el archivo de Excel.",
+    "unsupportedWorkbook": "Solo se pueden importar libros .xlsx sin contraseña. Guarda el archivo como libro de Excel (.xlsx) sin contraseña y vuelve a intentarlo.",
     "badMapping": "Elige el destino de al menos una columna, y usa cada propiedad una sola vez.",
     "noAccess": "No puedes añadir páginas ahí o ya no existe.",
     "notADatabase": "Solo se pueden añadir filas a una base de datos.",

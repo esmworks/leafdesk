@@ -905,6 +905,7 @@
     "formats": {
       "zip": "ZIP",
       "csv": "CSV",
+      "xlsx": "Excel",
       "markdown": "Markdown",
       "pdf": "PDF"
     },

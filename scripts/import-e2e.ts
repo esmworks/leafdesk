@@ -3,7 +3,8 @@
  * Notion's layout and ids, databases from CSV files with their row pages, links between the files
  * as page links, images uploaded), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
- * access, limits, taking back a failed import, and the /api/import route.
+ * Excel workbooks (a database exported as one comes back with the same values), access, limits,
+ * taking back a failed import, and the /api/import route.
  * Creates its own users and workspaces, stores files in a temporary directory, and deletes all of
  * it afterwards.
  *
@@ -29,7 +30,7 @@ process.env.UPLOAD_MAX_FILE_MB = String(10_000 / 1024 / 1024); // 10,000 bytes
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull } = await import("drizzle-orm");
-const { strToU8, zipSync } = await import("fflate");
+const { strToU8, unzipSync, zipSync } = await import("fflate");
 const { db } = await import("@/db");
 const { file, page, session, user, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
@@ -46,6 +47,7 @@ const databases = await import("@/server/databases");
 const { AccessError } = await import("@/server/access");
 const { importPages } = await import("@/server/import/markdown");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
+const { databaseCsv, databaseXlsx } = await import("@/server/export");
 const importRoute = await import("@/app/api/import/route");
 
 const RUN = `import-e2e-${Date.now().toString(36)}`;
@@ -386,6 +388,45 @@ try {
   check(noAccess.status === 404 && noAccess.json.code === "noAccess", "workspaces the user isn't in read as missing", noAccess);
   const empty = await post({ mode: "csv-new", workspaceId, parentId: home.id }, [{ name: "e.csv", data: "" }]);
   check(empty.status === 400 && empty.json.code === "emptyCsv", "an empty CSV is refused with a code the dialog translates", empty);
+
+  // Excel workbooks: a database exported as one and imported again has the same values
+  const source = await post({ mode: "csv-new", workspaceId, parentId: home.id, titleColumn: "0" }, [
+    {
+      name: "Typed.csv",
+      data: 'Name,Points,Done,Due,Status,Notes\nWrite docs,3.5,yes,2026-09-28,Open,"two\nlines"\nShip,-2,no,,Closed,=not a formula\nPlan,1000000,yes,2026-10-01,Open,\n',
+    },
+  ]);
+  check(source.status === 201 && source.json.created.rows === 3, "a database to export as a workbook", source);
+  const sourceId = source.json.pages[0].id as string;
+  const workbook = await databaseXlsx(ids.member, sourceId);
+  check(workbook.title === "Typed" && workbook.xlsx[0] === 0x50 && workbook.xlsx[1] === 0x4b, "the database exports as a workbook (a ZIP)", workbook.title);
+  const sheetXml = new TextDecoder().decode(unzipSync(workbook.xlsx)["xl/worksheets/sheet1.xml"]);
+  check(
+    sheetXml.includes('<c r="B2"><v>3.5</v></c>') && sheetXml.includes('<c r="C2" t="b"><v>1</v></c>') && /<c r="D2" s="2"><v>46293<\/v><\/c>/.test(sheetXml),
+    "…with numbers, checkboxes and dates as typed cells",
+    sheetXml,
+  );
+  const fromXlsx = await post({ mode: "csv-new", workspaceId, parentId: home.id, titleColumn: "0" }, [{ name: "Typed copy.xlsx", data: workbook.xlsx }]);
+  check(fromXlsx.status === 201 && fromXlsx.json.pages[0].title === "Typed copy" && fromXlsx.json.created.rows === 3, "the workbook imports as a new database", fromXlsx);
+  const copyId = fromXlsx.json.pages[0].id as string;
+  const copyTypes = (await databases.getDatabase(ids.member, copyId)).properties.map((p) => `${p.name}:${p.type}`);
+  check(
+    JSON.stringify(copyTypes) === JSON.stringify(["Points:number", "Done:checkbox", "Due:date", "Status:select", "Notes:text"]),
+    "…its columns typed as the original's",
+    copyTypes,
+  );
+  const [sourceCsv, copyCsv] = [await databaseCsv(ids.member, sourceId), await databaseCsv(ids.member, copyId)];
+  check(copyCsv.csv === sourceCsv.csv, "…with the same values", { source: sourceCsv.csv, copy: copyCsv.csv });
+  const mergeXlsx = await post({ mode: "csv-merge", databaseId: copyId, mapping: JSON.stringify(["title", null, null, null, null, null]), sheet: "0" }, [
+    { name: "more.xlsx", data: workbook.xlsx },
+  ]);
+  check(mergeXlsx.status === 201 && mergeXlsx.json.created.rows === 3 && mergeXlsx.json.warnings.length === 0, "a workbook's rows go into a database too", mergeXlsx);
+  const oldXls = await post({ mode: "csv-new", workspaceId, parentId: home.id }, [
+    { name: "old.xls", data: new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0, 0, 0]) },
+  ]);
+  check(oldXls.status === 400 && oldXls.json.code === "unsupportedWorkbook", "an old .xls (or a password-protected workbook) is refused with its own code", oldXls);
+  const brokenXlsx = await post({ mode: "csv-new", workspaceId, parentId: home.id }, [{ name: "broken.xlsx", data: workbook.xlsx.slice(0, 200) }]);
+  check(brokenXlsx.status === 400 && brokenXlsx.json.code === "badWorkbook", "…and a workbook that can't be read with another", brokenXlsx);
 
   console.log(`\n${passed} checks passed`);
 } finally {

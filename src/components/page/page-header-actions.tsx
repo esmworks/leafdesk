@@ -6,6 +6,7 @@ import {
   CornerUpLeft,
   Download,
   FileArchive,
+  FileSpreadsheet,
   FileText,
   History,
   LayoutTemplate,
@@ -534,6 +535,19 @@ function PageMenu({
                   </span>
                   <span className="flex-1 truncate">{isDatabase ? t("exportCsv") : t("exportMarkdown")}</span>
                 </a>
+                {isDatabase && (
+                  <a
+                    href={`/w/${workspaceId}/p/${page.id}/export?format=xlsx`}
+                    download
+                    onClick={() => close()}
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                  >
+                    <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
+                      <FileSpreadsheet className="h-4 w-4" />
+                    </span>
+                    <span className="flex-1 truncate">{t("exportXlsx")}</span>
+                  </a>
+                )}
                 <MenuItem
                   icon={<FileArchive className="h-4 w-4" />}
                   onClick={() => void zipExport.start(`/w/${workspaceId}/p/${page.id}/export?subpages=1`, close)}

@@ -1,4 +1,5 @@
 import { pageLabel } from "@/lib/labels";
+import { XLSX_MIME } from "@/lib/xlsx";
 import { AccessError } from "@/server/access";
 import { MAX_BULK_ROWS } from "@/server/databases";
 import {
@@ -6,6 +7,7 @@ import {
   assertExportAllowed,
   attachment,
   databaseCsv,
+  databaseXlsx,
   ExportError,
   exportErrorResponse,
   exportRunning,
@@ -42,7 +44,8 @@ async function requestedRows(request: Request): Promise<string[] | null> {
 }
 
 /**
- * A page as Markdown, or a database's rows as CSV (all of them, or with POST the selected ones).
+ * A page as Markdown, or a database's rows as CSV (all of them, or with POST the selected ones);
+ * `?format=xlsx` gives the rows as an Excel workbook instead.
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
  * adding `check=1` only answers whether that export can be made (JSON), so the page menu can say
  * why not before starting a download. Pages the user can't see are 404; with export turned off in
@@ -75,6 +78,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       }
     }
 
+    if (target.kind === "database" && query.get("format") === "xlsx") {
+      const { title, xlsx } = await databaseXlsx(userId, pageId, await requestedRows(request));
+      return new Response(xlsx, {
+        headers: { "Content-Type": XLSX_MIME, "Content-Disposition": attachment(title, "xlsx"), "Cache-Control": "no-store" },
+      });
+    }
     if (target.kind === "database") {
       const { title, csv } = await databaseCsv(userId, pageId, await requestedRows(request));
       return download(csv, "text/csv", attachment(title, "csv"));

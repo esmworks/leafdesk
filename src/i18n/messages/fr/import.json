@@ -1,10 +1,10 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown et des exportations ZIP, ou des lignes depuis un fichier CSV.",
+  "description": "Importez des pages depuis des fichiers Markdown et des exportations ZIP, ou des lignes depuis un fichier CSV ou un classeur Excel.",
   "tabs": {
     "pages": "Markdown et ZIP",
-    "csv": "CSV"
+    "csv": "CSV et Excel"
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
@@ -19,8 +19,9 @@
     "clear": "Effacer"
   },
   "csv": {
-    "choose": "Choisir un fichier CSV",
+    "choose": "Choisir un fichier CSV ou Excel",
     "summary": "{name} : {rows, plural, one {# ligne} other {# lignes}}, {columns, plural, one {# colonne} other {# colonnes}}",
+    "sheet": "Feuille",
     "mode": "Importer comme",
     "newDatabase": "Une nouvelle base de données",
     "existing": "Des lignes d’une base de données",
@@ -70,7 +71,8 @@
       "duplicate": "« {path} » a été ignoré : la version complète de la même base de données a été importée.",
       "tooLarge": "« {path} » est trop volumineux pour une seule page et a été ignoré.",
       "unused": "« {path} » a été ignoré : aucune page ne l’affiche ni n’y renvoie.",
-      "unsafePath": "« {path} » a été ignoré : son chemin sort du ZIP."
+      "unsafePath": "« {path} » a été ignoré : son chemin sort du ZIP.",
+      "otherSheet": "La feuille « {path} » a été ignorée : une seule feuille est importée à la fois."
     },
     "more": "…et {count, plural, one {# autre} other {# autres}}."
   },
@@ -78,11 +80,13 @@
     "tooLarge": "L’envoi dépasse {limit}.",
     "tooManyFiles": "Une importation peut contenir au maximum {limit} fichiers.",
     "tooManyPages": "Une importation peut créer au maximum {limit} pages.",
-    "tooManyRows": "Un fichier CSV peut contenir au maximum {limit} lignes.",
-    "tooManyColumns": "Un fichier CSV peut contenir au maximum {limit} colonnes.",
+    "tooManyRows": "Un fichier peut contenir au maximum {limit} lignes.",
+    "tooManyColumns": "Un fichier peut contenir au maximum {limit} colonnes.",
     "badZip": "Le fichier ZIP ne peut pas être lu.",
     "nothingToImport": "Il n’y a aucun fichier Markdown ou CSV à importer.",
-    "emptyCsv": "Le fichier CSV n’a pas de ligne d’en-tête.",
+    "emptyCsv": "Le fichier n’a pas de ligne d’en-tête.",
+    "badWorkbook": "Le fichier Excel ne peut pas être lu.",
+    "unsupportedWorkbook": "Seuls les classeurs .xlsx sans mot de passe peuvent être importés. Enregistrez le fichier en tant que classeur Excel (.xlsx) sans mot de passe, puis réessayez.",
     "badMapping": "Choisissez la destination d’au moins une colonne, et utilisez chaque propriété une seule fois.",
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",

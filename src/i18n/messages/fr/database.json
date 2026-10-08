@@ -229,6 +229,7 @@
     "duplicate": "Dupliquer",
     "trash": "Placer dans la corbeille",
     "export": "Exporter en CSV",
+    "exportXlsx": "Exporter en Excel",
     "exportFailed": "Impossible d’exporter les lignes sélectionnées.",
     "clearSelection": "Effacer la sélection",
     "confirmTrash": "Placer {count, plural, one {# ligne} other {# lignes}} dans la corbeille ?",

@@ -1,10 +1,10 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files and ZIP exports, or rows from a CSV file.",
+  "description": "Bring pages in from Markdown files and ZIP exports, or rows from a CSV file or Excel workbook.",
   "tabs": {
     "pages": "Markdown & ZIP",
-    "csv": "CSV"
+    "csv": "CSV & Excel"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -19,8 +19,9 @@
     "clear": "Clear"
   },
   "csv": {
-    "choose": "Choose a CSV file",
+    "choose": "Choose a CSV or Excel file",
     "summary": "{name}: {rows, plural, one {# row} other {# rows}}, {columns, plural, one {# column} other {# columns}}",
+    "sheet": "Sheet",
     "mode": "Import as",
     "newDatabase": "A new database",
     "existing": "Rows of a database",
@@ -70,7 +71,8 @@
       "duplicate": "“{path}” was left out: the full version of the same database was imported.",
       "tooLarge": "“{path}” is too large for one page and was left out.",
       "unused": "“{path}” was left out: no page shows it or links to it.",
-      "unsafePath": "“{path}” was left out: its path leads outside the ZIP."
+      "unsafePath": "“{path}” was left out: its path leads outside the ZIP.",
+      "otherSheet": "The sheet “{path}” was left out: only one sheet is imported at a time."
     },
     "more": "…and {count, plural, one {# more} other {# more}}."
   },
@@ -78,11 +80,13 @@
     "tooLarge": "The upload is larger than {limit}.",
     "tooManyFiles": "An import can hold at most {limit} files.",
     "tooManyPages": "An import can create at most {limit} pages.",
-    "tooManyRows": "A CSV file can have at most {limit} rows.",
-    "tooManyColumns": "A CSV file can have at most {limit} columns.",
+    "tooManyRows": "A file can have at most {limit} rows.",
+    "tooManyColumns": "A file can have at most {limit} columns.",
     "badZip": "The ZIP file can't be read.",
     "nothingToImport": "There is no Markdown or CSV file to import.",
-    "emptyCsv": "The CSV file has no header row.",
+    "emptyCsv": "The file has no header row.",
+    "badWorkbook": "The Excel file can't be read.",
+    "unsupportedWorkbook": "Only .xlsx workbooks without a password can be imported. Save the file as an Excel Workbook (.xlsx) without a password and try again.",
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",

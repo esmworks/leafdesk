@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Copy, Download, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Copy, Download, FileSpreadsheet, Pencil, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem } from "@/components/ui";
@@ -147,7 +147,7 @@ export function SelectBox({
 
 /**
  * The bar that floats over a table while rows are selected: edit a property of every selected
- * row, duplicate them, export them as CSV or move them to the trash. Viewers only get export;
+ * row, duplicate them, export them as CSV or an Excel workbook, or move them to the trash. Viewers only get export;
  * guests don't get the trash, and nobody gets export while the workspace has it turned off. The server checks every row again and reports rows it skipped.
  */
 export function BulkActionBar({
@@ -188,10 +188,10 @@ export function BulkActionBar({
     }
   };
 
-  const exportCsv = () =>
+  const exportRows = (format: "csv" | "xlsx") =>
     run(async () => {
       try {
-        const res = await fetch(`/w/${workspaceId}/p/${databaseId}/export`, {
+        const res = await fetch(`/w/${workspaceId}/p/${databaseId}/export${format === "xlsx" ? "?format=xlsx" : ""}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ rows: ids }),
@@ -203,7 +203,7 @@ export function BulkActionBar({
         const url = URL.createObjectURL(await res.blob());
         const link = document.createElement("a");
         link.href = url;
-        link.download = name ? decodeURIComponent(name) : "export.csv";
+        link.download = name ? decodeURIComponent(name) : `export.${format}`;
         link.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       } catch {
@@ -242,10 +242,16 @@ export function BulkActionBar({
         </>
       )}
       {exportable && (
-        <button type="button" disabled={busy} onClick={exportCsv} className={action} title={t("export")}>
-          <Download className="h-3.5 w-3.5 text-fg-muted" />
-          <span className="max-sm:sr-only">{t("export")}</span>
-        </button>
+        <>
+          <button type="button" disabled={busy} onClick={() => exportRows("csv")} className={action} title={t("export")}>
+            <Download className="h-3.5 w-3.5 text-fg-muted" />
+            <span className="max-sm:sr-only">{t("export")}</span>
+          </button>
+          <button type="button" disabled={busy} onClick={() => exportRows("xlsx")} className={action} title={t("exportXlsx")}>
+            <FileSpreadsheet className="h-3.5 w-3.5 text-fg-muted" />
+            <span className="max-sm:sr-only">{t("exportXlsx")}</span>
+          </button>
+        </>
       )}
       {!readOnly && !guest && (
         <button

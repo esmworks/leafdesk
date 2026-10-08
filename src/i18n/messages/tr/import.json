@@ -1,10 +1,10 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından ve ZIP dışa aktarımlarından sayfa, CSV dosyasından satır getirin.",
+  "description": "Markdown dosyalarından ve ZIP dışa aktarımlarından sayfa, CSV dosyasından veya Excel çalışma kitabından satır getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
-    "csv": "CSV"
+    "csv": "CSV ve Excel"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -19,8 +19,9 @@
     "clear": "Temizle"
   },
   "csv": {
-    "choose": "CSV dosyası seç",
+    "choose": "CSV veya Excel dosyası seç",
     "summary": "{name}: {rows, plural, one {# satır} other {# satır}}, {columns, plural, one {# sütun} other {# sütun}}",
+    "sheet": "Sayfa",
     "mode": "Şu şekilde aktar",
     "newDatabase": "Yeni bir veritabanı",
     "existing": "Bir veritabanının satırları",
@@ -70,7 +71,8 @@
       "duplicate": "“{path}” dışarıda bırakıldı: aynı veritabanının tam sürümü aktarıldı.",
       "tooLarge": "“{path}” tek bir sayfa için çok büyük olduğu için dışarıda bırakıldı.",
       "unused": "“{path}” hiçbir sayfada gösterilmediği ya da bağlantı verilmediği için dışarıda bırakıldı.",
-      "unsafePath": "“{path}” ZIP'in dışını gösteren bir yolu olduğu için dışarıda bırakıldı."
+      "unsafePath": "“{path}” ZIP'in dışını gösteren bir yolu olduğu için dışarıda bırakıldı.",
+      "otherSheet": "“{path}” sayfası dışarıda bırakıldı: her seferinde tek bir sayfa aktarılır."
     },
     "more": "…ve {count, plural, one {# tane daha} other {# tane daha}}."
   },
@@ -78,11 +80,13 @@
     "tooLarge": "Yükleme {limit} sınırından büyük.",
     "tooManyFiles": "Bir içe aktarma en fazla {limit} dosya içerebilir.",
     "tooManyPages": "Bir içe aktarma en fazla {limit} sayfa oluşturabilir.",
-    "tooManyRows": "Bir CSV dosyasında en fazla {limit} satır olabilir.",
-    "tooManyColumns": "Bir CSV dosyasında en fazla {limit} sütun olabilir.",
+    "tooManyRows": "Bir dosyada en fazla {limit} satır olabilir.",
+    "tooManyColumns": "Bir dosyada en fazla {limit} sütun olabilir.",
     "badZip": "ZIP dosyası okunamıyor.",
     "nothingToImport": "İçe aktarılacak Markdown ya da CSV dosyası yok.",
-    "emptyCsv": "CSV dosyasında başlık satırı yok.",
+    "emptyCsv": "Dosyada başlık satırı yok.",
+    "badWorkbook": "Excel dosyası okunamıyor.",
+    "unsupportedWorkbook": "Yalnızca parolasız .xlsx çalışma kitapları içe aktarılabilir. Dosyayı parolasız Excel Çalışma Kitabı (.xlsx) olarak kaydedip yeniden deneyin.",
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",

@@ -35,6 +35,7 @@
     "unlock": "Kilidi aç",
     "exportMarkdown": "Markdown olarak dışa aktar",
     "exportCsv": "CSV olarak dışa aktar",
+    "exportXlsx": "Excel olarak dışa aktar (.xlsx)",
     "exportZip": "Alt sayfalarla dışa aktar",
     "exportZipDatabase": "Satırlarla dışa aktar",
     "exportPdf": "PDF olarak dışa aktar",

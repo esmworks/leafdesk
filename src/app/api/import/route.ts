@@ -1,9 +1,10 @@
 import { databaseSeedNames } from "@/app/actions/seed-names";
 import { auth } from "@/lib/auth";
 import { env } from "@/lib/env";
-import { CSV_COLUMN_TYPES, csvTable, decodeText, type CsvColumnType } from "@/lib/import/csv";
+import { CSV_COLUMN_TYPES, type CsvColumnType } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
 import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
+import { spreadsheetTable } from "@/lib/import/xlsx";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { importCsvAsDatabase, importCsvIntoDatabase, type ColumnTarget } from "@/server/import/csv";
@@ -16,11 +17,14 @@ import { TeamspaceError } from "@/server/teamspaces";
  *
  *   mode=pages      Markdown and CSV files, and ZIPs of them, as pages under `parentId` (or the top
  *                   level of `workspaceId`). Each `file` may have a `path` (its place in a folder).
- *   mode=csv-new    One CSV `file` as a new database under `parentId` / `workspaceId`, called
- *                   `title`, with `titleColumn` (a column index, or empty for none) and `types` (JSON:
- *                   a property type or null per column; guessed when missing).
- *   mode=csv-merge  One CSV `file`'s rows added to the database `databaseId`; `mapping` (JSON) says
- *                   where each column goes: "title", a property id, or null.
+ *   mode=csv-new    One CSV or Excel (.xlsx) `file` as a new database under `parentId` /
+ *                   `workspaceId`, called `title`, with `titleColumn` (a column index, or empty for
+ *                   none) and `types` (JSON: a property type or null per column; guessed when missing).
+ *   mode=csv-merge  One CSV or Excel `file`'s rows added to the database `databaseId`; `mapping`
+ *                   (JSON) says where each column goes: "title", a property id, or null.
+ *
+ * A workbook's sheet is `sheet` (an index into its visible worksheets); without it the first one is
+ * imported and the others are reported as left out.
  *
  * Requests need the `X-Leafdesk-Import` header: a cross-site form can't send it, and a cross-site
  * fetch with it needs a CORS preflight this route doesn't answer. A foreign Origin is refused too.
@@ -76,8 +80,14 @@ export async function POST(request: Request) {
       result = await importPages(actor, { workspaceId, parentId, teamspaceId, files, seedNames: await seedNames() });
     } else if (mode === "csv-new" || mode === "csv-merge") {
       if (uploads.length !== 1) return fail(400, "badRequest", "Send one CSV file");
-      const table = csvTable(decodeText(new Uint8Array(await uploads[0].arrayBuffer())));
       const warnings = new WarningList();
+      const sheet = field("sheet");
+      const table = spreadsheetTable(
+        uploads[0].name,
+        new Uint8Array(await uploads[0].arrayBuffer()),
+        sheet && /^\d+$/.test(sheet) ? Number(sheet) : null,
+        warnings,
+      );
       if (mode === "csv-new") {
         const titleColumn = field("titleColumn");
         const types = json(field("types"));

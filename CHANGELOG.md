@@ -14,6 +14,16 @@
 
 ### Added
 
+- **Excel workbooks.** A database exports as an Excel workbook (.xlsx) next to CSV, from the page
+  menu and for the selected rows of a table: the same rows and columns as the CSV export, with
+  property access applied the same way, numbers as numbers, checkboxes as TRUE/FALSE and dates as
+  dates (created and edited times with their time, in UTC), the header row bold and frozen. The
+  import dialog's CSV tab takes .xlsx files too, as a new database or as rows of one, with the
+  same type guessing, title column and column mapping as CSV; a workbook with several sheets asks
+  which one to import (`/api/import` takes `sheet`, and without it imports the first and reports
+  the others as left out). A formula's last result is imported, cells with an error come in
+  empty, and old .xls files and password-protected workbooks are refused with their own message.
+  The workspace and subpage ZIP exports keep databases as CSV. No migration.
 - **Dependencies.** A timeline view's settings turn dependencies on for the database: a two-way
   relation of the database with itself, *Blocked by* and *Blocking* (or a relation of the database
   with itself it already has), lets a row wait for other rows. The timeline draws an arrow from
