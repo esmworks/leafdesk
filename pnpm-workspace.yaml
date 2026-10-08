@@ -10,3 +10,9 @@ allowBuilds:
   # ESLint's TypeScript import resolver; its native binary comes as an optional package, the
   # script only fetches one when that is missing.
   unrs-resolver: false
+
+overrides:
+  # Next.js asks for ^0.35.4; 0.35.5 bundles librsvg 2.63.2 (from 2.62.91), with a security fix for
+  # SVG decoding.
+  # Drop this once Next.js resolves 0.35.5 or later on its own.
+  sharp: 0.35.5
