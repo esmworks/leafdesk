@@ -58,9 +58,11 @@ const protectedHandler = requireMcpAuth(
     const authInfo = authInfoFromClaims(claims, bearerToken(request), mcpResource());
     if (!authInfo) return revokedResponse();
     const { userId, clientId } = principalFromAuthInfo(authInfo);
-    if (!(await hasActiveGrant(userId, clientId, claims.iat))) return revokedResponse();
+    // Counted before the grant's database lookups, so requests over the limit cost next to nothing.
+    // A revoked app over the limit hears 429 first, then 401 once it may try again.
     const wait = takeMcpRequest(userId);
     if (wait > 0) return rateLimitedResponse(wait);
+    if (!(await hasActiveGrant(userId, clientId, claims.iat))) return revokedResponse();
     // Held to each workspace's connected-apps setting; write tools mark themselves (tools.ts). The
     // client is named in the audit log for what the tools change (server/audit.ts).
     const app = {

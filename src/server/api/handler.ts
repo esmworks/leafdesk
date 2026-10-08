@@ -1,6 +1,6 @@
 import type * as z from "zod";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
-import { SlidingWindowLimiter } from "@/lib/rate-limit";
+import { limitFromEnv, SlidingWindowLimiter } from "@/lib/rate-limit";
 import { runAsConnectedApp } from "@/server/connected-app";
 import { ApiError, apiErrorFor, errorBody } from "./errors";
 import { matchRoute, type ApiRoute } from "./routes";
@@ -33,9 +33,7 @@ export type ApiDeps = {
 
 /** API_RATE_LIMIT: requests per token per minute; 0 turns the limit off. */
 export function rateLimitFromEnv(value = process.env.API_RATE_LIMIT): number {
-  if (value === undefined || value.trim() === "") return DEFAULT_RATE_LIMIT;
-  const n = Number(value);
-  return Number.isInteger(n) && n >= 0 ? n : DEFAULT_RATE_LIMIT;
+  return limitFromEnv(value, DEFAULT_RATE_LIMIT);
 }
 
 /** API_CORS_ORIGINS: comma-separated origins, or "*". Unset, browsers on other origins can't call the API. */

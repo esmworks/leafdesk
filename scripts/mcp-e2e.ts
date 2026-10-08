@@ -8,6 +8,8 @@
  *   pnpm tsx scripts/mcp-e2e.ts
  *
  * Env: APP_URL (default http://localhost:3000), DATABASE_URL (read from .env when present).
+ * The server's per-user limit (MCP_RATE_LIMIT) is waited out; its 429 is checked unless
+ * MCP_E2E_SKIP_RATE_LIMIT=1 (for a server running with the limit off or above 1000).
  */
 import { createHash, randomBytes } from "node:crypto";
 
@@ -238,6 +240,8 @@ type RpcResult = { status: number; headers: Headers; message?: any };
 
 /** Waits out the server's per-user limit (MCP_RATE_LIMIT): this script makes more calls a minute than it allows. */
 let rateLimitWaits = 0;
+/** 429s in a row one call waits out before giving up: one window is a minute, so this is plenty. */
+const MAX_LIMITED_RETRIES = 3;
 
 async function rpc(
   token: string | null,
@@ -257,8 +261,13 @@ async function rpc(
       body: JSON.stringify(body),
     });
   let res = await send();
-  while (res.status === 429 && waitWhenLimited) {
-    const seconds = Number(res.headers.get("retry-after") ?? "1");
+  for (let attempt = 1; res.status === 429 && waitWhenLimited; attempt++) {
+    const retryAfter = res.headers.get("retry-after");
+    const seconds = Number(retryAfter);
+    if (!Number.isInteger(seconds) || seconds < 1 || seconds > 120) {
+      throw new Error(`429 without a usable Retry-After (${JSON.stringify(retryAfter)}) from ${RESOURCE}`);
+    }
+    if (attempt > MAX_LIMITED_RETRIES) throw new Error(`Still rate limited after waiting ${MAX_LIMITED_RETRIES} times`);
     rateLimitWaits++;
     console.log(`  … rate limited, waiting ${seconds} s`);
     await res.text();
@@ -1023,23 +1032,25 @@ async function main() {
   check(!restoredPage.in_trash, "restore_page takes the page out of the trash");
   await mcp.ok("archive_page", { page_id: child.id });
 
-  // ---- the per-user rate limit: requests over it get 429 with Retry-After, and a revoked token
-  // still gets 401 rather than 429 (the grant is checked first).
-  const { mcpRateLimitFromEnv } = await import("@/server/mcp/rate-limit");
-  const limit = mcpRateLimitFromEnv();
-  if (limit > 0) {
+  // ---- the per-user rate limit: requests over the server's limit (whatever it is set to) get 429
+  // with Retry-After and a message naming the limit, and no more than that many got through.
+  if (process.env.MCP_E2E_SKIP_RATE_LIMIT === "1") {
+    console.log("  (MCP_E2E_SKIP_RATE_LIMIT=1: rate limit not checked)");
+  } else {
+    const MAX_BURST = 1000;
     let limited: RpcResult | null = null;
-    for (let i = 0; i <= limit && !limited; i++) {
+    let sent = 0;
+    while (!limited && sent < MAX_BURST) {
       const r = await rpc(refreshed.access_token, { jsonrpc: "2.0", id: 1, method: "tools/list" }, { "mcp-protocol-version": "2025-11-25" }, { waitWhenLimited: false });
+      sent++;
       if (r.status === 429) limited = r;
     }
+    const named = /at most (\d+) a minute/.exec(limited?.message?.error?.message ?? "");
     check(
-      limited !== null && Number(limited.headers.get("retry-after")) > 0 && limited.message?.error?.message?.includes(`${limit} a minute`),
-      `requests over MCP_RATE_LIMIT (${limit}) get 429 with Retry-After`,
+      limited !== null && Number(limited.headers.get("retry-after")) > 0 && named !== null && sent <= Number(named[1]) + 1,
+      `requests over the server's MCP_RATE_LIMIT get 429 with Retry-After (after ${sent}; set MCP_E2E_SKIP_RATE_LIMIT=1 for a server without a limit)`,
       limited && { status: limited.status, retryAfter: limited.headers.get("retry-after"), message: limited.message },
     );
-  } else {
-    console.log("  (MCP_RATE_LIMIT=0: rate limit not checked)");
   }
 
   const { revokeConnectedApp, listConnectedApps } = await import("@/server/mcp/grants");

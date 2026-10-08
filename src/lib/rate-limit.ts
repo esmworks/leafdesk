@@ -65,6 +65,13 @@ export function takeAll(entries: [SlidingWindowLimiter, string][], now = Date.no
   return 0;
 }
 
+/** A limit set in an environment variable: a whole number, 0 turning it off; else `fallback`. */
+export function limitFromEnv(value: string | undefined, fallback: number): number {
+  if (value === undefined || value.trim() === "") return fallback;
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 0 ? n : fallback;
+}
+
 const SHARED = "__leafdeskLimiters";
 
 /**

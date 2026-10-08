@@ -1,4 +1,4 @@
-import { sharedLimiter, takeAll } from "@/lib/rate-limit";
+import { limitFromEnv, sharedLimiter, takeAll } from "@/lib/rate-limit";
 
 /** Requests per user per minute to /mcp when MCP_RATE_LIMIT isn't set. */
 export const DEFAULT_MCP_RATE_LIMIT = 120;
@@ -6,9 +6,7 @@ const WINDOW_MS = 60_000;
 
 /** MCP_RATE_LIMIT: requests per user per minute to /mcp; 0 turns the limit off. */
 export function mcpRateLimitFromEnv(value = process.env.MCP_RATE_LIMIT): number {
-  if (value === undefined || value.trim() === "") return DEFAULT_MCP_RATE_LIMIT;
-  const n = Number(value);
-  return Number.isInteger(n) && n >= 0 ? n : DEFAULT_MCP_RATE_LIMIT;
+  return limitFromEnv(value, DEFAULT_MCP_RATE_LIMIT);
 }
 
 /**
