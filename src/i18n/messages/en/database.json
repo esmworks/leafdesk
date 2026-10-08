@@ -574,6 +574,9 @@
     "invalidRelationTarget": "A relation must point to a database in the same workspace.",
     "subItemLoop": "“{property}” can’t put a row under itself or under one of its own sub-items.",
     "notSubItemsRelation": "Sub-items need a relation of this database with itself.",
+    "dependencyLoop": "“{property}” can’t make a row wait for itself or for a row waiting for it.",
+    "notDependencyRelation": "Dependencies need a relation of this database with itself.",
+    "invalidDependencySettings": "Dependencies move rows by a rule and by date properties of their database.",
     "relationTargetReadOnly": "You can only view that database, so the link can’t be shown there too. Untick that option or ask for edit access.",
     "databaseLocked": "This database is locked. Unlock it to change its properties and views.",
     "invalidPerson": "“{property}” can only hold people of this workspace.",
@@ -896,5 +899,28 @@
     "turnOff": "Turn off sub-items",
     "turnOffHint": "The properties and their links stay.",
     "keptIn": "Parents are kept in “{name}”."
+  },
+  "dependencies": {
+    "heading": "Dependencies",
+    "blockedByName": "Blocked by",
+    "blockingName": "Blocking",
+    "turnOn": "Turn on dependencies",
+    "turnOnHint": "Rows can wait for other rows. When a row’s dates move, the rows waiting for it follow.",
+    "useExisting": "Keep them in “{name}”",
+    "turnOff": "Turn off dependencies",
+    "turnOffHint": "The properties and their links stay.",
+    "keptIn": "Rows wait for the rows in “{name}”.",
+    "rule": "When a row’s dates move",
+    "shifts": {
+      "overlap": "Move rows waiting for it when they overlap",
+      "keep_gap": "Move rows waiting for it as much, keeping the gap",
+      "none": "Leave rows waiting for it where they are"
+    },
+    "skipWeekends": "Don’t start moved rows on a weekend",
+    "dates": "Rows move by {start} → {end}.",
+    "startOnly": "Rows move by {start}.",
+    "noDates": "Rows can’t move until dates are chosen.",
+    "useViewDates": "Move rows by this view’s dates",
+    "link": "Drag onto a row to make it wait for “{title}”"
   }
 }

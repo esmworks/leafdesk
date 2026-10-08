@@ -3,6 +3,7 @@
 import { getTranslations } from "next-intl/server";
 import type { PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
+import type { DependencyInput } from "@/lib/dependencies";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
 import { AccessError, pageAccessOf } from "@/server/access";
@@ -171,6 +172,24 @@ export async function setSubItemsAction(databaseId: string, input: { on: boolean
       on: true,
       propertyId: input.propertyId,
       names: { parent: t("parentName"), subItems: t("subItemsName") },
+    });
+  });
+}
+
+/** Turns dependencies on (with a relation of the database with itself, or new properties) or off, or changes their settings. */
+export async function setDependenciesAction(
+  databaseId: string,
+  input: { on: boolean; propertyId?: string; settings?: DependencyInput },
+) {
+  return run(async (userId) => {
+    if (!input.on) return databases.setDependencies(userId, databaseId, { on: false });
+    // New properties are named in the language of whoever turns dependencies on.
+    const t = await getTranslations("database.dependencies");
+    return databases.setDependencies(userId, databaseId, {
+      on: true,
+      propertyId: input.propertyId,
+      settings: input.settings,
+      names: { blockedBy: t("blockedByName"), blocking: t("blockingName") },
     });
   });
 }

@@ -37,6 +37,7 @@ import {
   UPDATED_KEY,
 } from "@/lib/properties";
 import { derivedType, formulaForEditing, rollupFormat, TITLE_FIELD, valueType } from "@/lib/derived";
+import { dependencySettings } from "@/lib/dependencies";
 import { formulaReferences, type PropertyLevel } from "@/lib/property-access";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType, PERSON_ME, STATUS_GROUPS } from "@/lib/property-types";
 
@@ -597,6 +598,12 @@ export function describeProperty(
             : props.some((p) => p.options.relation?.role === "parent" && p.options.relation.pairedPropertyId === prop.id)
               ? { sub_items_role: "sub_items" }
               : {}),
+          // Dependencies (see set_dependencies): this property lists the rows each row waits for, or the rows waiting for it.
+          ...(relation.role === "blocked_by"
+            ? { dependency_role: "blocked_by", dependencies: describeDependencies(prop, props) }
+            : props.some((p) => p.options.relation?.role === "blocked_by" && p.options.relation.pairedPropertyId === prop.id)
+              ? { dependency_role: "blocking" }
+              : {}),
         }
       : {}),
     ...(prop.type === "person"
@@ -609,6 +616,18 @@ export function describeProperty(
     ...(isReadOnlyType(prop.type) ? { read_only: true } : {}),
     // Filled in by the app's AI (values stay ordinary, editable text); see lib/ai AiAutofillConfig.
     ...(prop.type === "text" && prop.options.ai ? { ai_autofill: describeAutofill(prop.options.ai, props) } : {}),
+  };
+}
+
+/** How rows follow the rows they wait for, by names (see set_dependencies). */
+function describeDependencies(prop: PropertyDef, props: PropertyDef[]) {
+  const settings = dependencySettings(prop, props);
+  const name = (id: string | null) => (id && props.find((p) => p.id === id)?.name) || null;
+  return {
+    shift: settings.shift,
+    skip_weekends: settings.skipWeekends,
+    start_property: name(settings.start),
+    end_property: name(settings.end),
   };
 }
 

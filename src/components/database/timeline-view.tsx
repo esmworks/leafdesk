@@ -37,6 +37,7 @@ import {
 } from "@/lib/timeline";
 import { TIMELINE_ZOOMS } from "@/lib/views";
 import type { SubItemLine } from "@/lib/sub-items";
+import { blockedByProperty, storedBlockers } from "@/lib/dependencies";
 import { CardTitleInput } from "./board-view";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { usePeople } from "./person-cell";
@@ -60,6 +61,10 @@ const DRAG_THRESHOLD = 4;
 const MIN_LABEL_WIDTH = 72;
 
 type Drag = { rowId: string; mode: DragMode; originX: number; days: number; moved: boolean };
+/** Dragging from a bar's link handle: the pointer (in track coordinates) and the row under it. */
+type Link = { fromId: string; x: number; y: number; targetId: string | null };
+/** How far a dependency arrow runs out of a bar before it turns. */
+const ARROW_GAP = 8;
 
 /** The bar color of a swimlane: its option's, or its status stage's; plain cards otherwise. */
 function laneColor(group: Group<Row> | null) {
@@ -106,6 +111,7 @@ export function TimelineView({
   const [drag, setDrag] = useState<Drag | null>(null);
   const [dropDay, setDropDay] = useState<number | null>(null);
   const [dragUndated, setDragUndated] = useState<string | null>(null);
+  const [link, setLink] = useState<Link | null>(null);
   const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
   const [showUndated, setShowUndated] = useState(true);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
@@ -129,6 +135,11 @@ export function TimelineView({
     (!endProp || access.valueAccess(row, endProp.id) === "edit");
   // An undated row gets only a start.
   const canPlace = (row: Row) => movable && access.valueAccess(row, startProp.id) === "edit";
+  // Dependencies: arrows from each row to the rows waiting for it; dragging from a bar's handle
+  // onto another row makes that row wait for it.
+  const blockedBy = blockedByProperty(properties);
+  const canLinkFrom = !readOnly && !!blockedBy && access.canEditValues(blockedBy.id);
+  const canLinkTo = (row: Row) => !!blockedBy && !readOnly && access.valueAccess(row, blockedBy.id) === "edit";
   const tableProps = properties
     .filter((p) => p.id !== startProp?.id && p.id !== endProp?.id && !isHiddenInView(view, p))
     .slice(0, narrow ? 0 : MAX_TABLE_PROPS);
@@ -303,13 +314,46 @@ export function TimelineView({
       return next;
     });
 
-  const barFor = (row: Row, color: string | null) => {
-    const span = spans.get(row.id)!;
-    const shown = drag?.rowId === row.id && drag.moved ? dragSpan(span, drag.mode, drag.days) : span;
+  /** Where a row's bar is drawn (following a drag): its days and its left and right edges. */
+  const barBox = (rowId: string) => {
+    const span = spans.get(rowId)!;
+    const shown = drag?.rowId === rowId && drag.moved ? dragSpan(span, drag.mode, drag.days) : span;
     // Bars reaching past the laid-out range are cut at its edge (a sliver when entirely outside).
     const left = Math.min(Math.max(dayX(shown.start, range, zoom), 0), width - 6);
     const right = Math.max(Math.min(dayX(shown.end + 1, range, zoom), width), 6);
-    const barWidth = Math.max(right - left, 6);
+    return { shown, left, right: Math.max(right, left + 6) };
+  };
+
+  const rowAt = (clientX: number, clientY: number) =>
+    document.elementFromPoint(clientX, clientY)?.closest("[data-timeline-row]")?.getAttribute("data-timeline-row") ?? null;
+  const trackPoint = (e: PointerEvent<HTMLElement>) => {
+    const rect = body.current?.getBoundingClientRect();
+    return rect ? { x: e.clientX - rect.left - panelWidth, y: e.clientY - rect.top } : { x: 0, y: 0 };
+  };
+  const onLinkPointerDown = (e: PointerEvent<HTMLElement>, row: Row) => {
+    if (e.button !== 0) return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setLink({ fromId: row.id, ...trackPoint(e), targetId: null });
+  };
+  const onLinkPointerMove = (e: PointerEvent<HTMLElement>) => {
+    if (!link) return;
+    const target = rowAt(e.clientX, e.clientY);
+    const row = target && target !== link.fromId ? rows.find((r) => r.id === target) : undefined;
+    setLink({ ...link, ...trackPoint(e), targetId: row && canLinkTo(row) ? row.id : null });
+  };
+  const onLinkPointerUp = () => {
+    if (!link) return;
+    const row = link.targetId ? rows.find((r) => r.id === link.targetId) : undefined;
+    setLink(null);
+    if (!row || !blockedBy) return;
+    const current = storedBlockers(row, blockedBy.id);
+    if (!current.includes(link.fromId)) void api.setCell(row.id, blockedBy.id, [...current, link.fromId]);
+  };
+
+  const barFor = (row: Row, color: string | null) => {
+    const { shown, left, right } = barBox(row.id);
+    const barWidth = right - left;
     const label = pageLabel(row.title, tc("untitled"));
     const dates =
       shown.start === shown.end
@@ -363,6 +407,21 @@ export function TimelineView({
               )}
             />
           ))}
+        {canLinkFrom && (
+          <span
+            aria-hidden
+            title={t("dependencies.link", { title: label })}
+            onPointerDown={(e) => onLinkPointerDown(e, row)}
+            onPointerMove={onLinkPointerMove}
+            onPointerUp={onLinkPointerUp}
+            onPointerCancel={() => setLink(null)}
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              "absolute top-1/2 -right-4 h-3 w-3 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-accent bg-bg",
+              link?.fromId === row.id ? "opacity-100" : "opacity-0 group-hover/bar:opacity-100",
+            )}
+          />
+        )}
       </div>
     );
   };
@@ -441,10 +500,9 @@ export function TimelineView({
     !groupBy ||
     ((lane.value.kind === "none" || access.canEditValues(groupBy.id)) && canAddToGroup(groupBy, lane, { viewerId, today: localDay(new Date()) }));
 
+  const showsNewRow = (lane: Group<Row> | null) => !readOnly && showTable && canAddTo(lane);
   const newRowButton = (lane: Group<Row> | null) =>
-    !readOnly &&
-    showTable &&
-    canAddTo(lane) && (
+    showsNewRow(lane) && (
       <div className="flex" style={{ height: ROW_HEIGHT - 4 }}>
         <button
           type="button"
@@ -457,6 +515,43 @@ export function TimelineView({
         </button>
       </div>
     );
+
+  // The middle of each shown row's bar, down the body (a row in several lanes: its first one),
+  // laid out as the lanes below are.
+  const rowY = new Map<string, number>();
+  let bodyHeight = HEADER_HEIGHT;
+  for (const { key, group, lines } of lanes) {
+    if (group) bodyHeight += ROW_HEIGHT;
+    if (collapsed.has(key)) continue;
+    for (const line of lines) {
+      if (!rowY.has(line.row.id)) rowY.set(line.row.id, bodyHeight + ROW_HEIGHT / 2);
+      bodyHeight += ROW_HEIGHT;
+    }
+    if (showsNewRow(group)) bodyHeight += ROW_HEIGHT - 4;
+  }
+  // An arrow from the end of the row waited for to the start of the waiting row; red when the
+  // waiting row starts before the other one ends. Without room between them it goes around.
+  const arrows = blockedBy
+    ? dated.flatMap((row) => {
+        const y2 = rowY.get(row.id);
+        if (y2 === undefined) return [];
+        return storedBlockers(row, blockedBy.id).flatMap((fromId) => {
+          const y1 = rowY.get(fromId);
+          if (y1 === undefined) return [];
+          const from = barBox(fromId);
+          const to = barBox(row.id);
+          const x1 = from.right;
+          const x2 = to.left;
+          const between = y2 > y1 ? y2 - ROW_HEIGHT / 2 : y2 + ROW_HEIGHT / 2;
+          const path =
+            x2 - x1 >= ARROW_GAP * 2
+              ? `M${x1} ${y1}H${x1 + ARROW_GAP}V${y2}H${x2}`
+              : `M${x1} ${y1}H${x1 + ARROW_GAP}V${between}H${x2 - ARROW_GAP}V${y2}H${x2}`;
+          return [{ key: `${fromId}>${row.id}`, path, late: to.shown.start <= from.shown.end }];
+        });
+      })
+    : [];
+  const linkFrom = link && rowY.has(link.fromId) ? { x: barBox(link.fromId).right, y: rowY.get(link.fromId)! } : null;
 
   const todayX = today >= range.start && today <= range.end ? dayX(today, range, zoom) + DAY_WIDTH[zoom] / 2 : null;
   const dropX = dragUndated && dropDay !== null ? dayX(dropDay, range, zoom) : null;
@@ -594,7 +689,12 @@ export function TimelineView({
                 )}
                 {expanded &&
                   lines.map((line) => (
-                    <div key={line.row.id} className="flex border-b border-border/60" style={{ height: ROW_HEIGHT }}>
+                    <div
+                      key={line.row.id}
+                      data-timeline-row={line.row.id}
+                      className={cn("flex border-b border-border/60", link?.targetId === line.row.id && "bg-accent/10")}
+                      style={{ height: ROW_HEIGHT }}
+                    >
                       {showTable && tableRow(line, group)}
                       <div className="relative shrink-0" style={{ width }}>
                         {barFor(line.row, color)}
@@ -605,6 +705,55 @@ export function TimelineView({
               </section>
             );
           })}
+          {/* Dependency arrows over the bars, under the sticky table and header. */}
+          {(arrows.length > 0 || linkFrom) && (
+            <svg
+              aria-hidden
+              className="pointer-events-none absolute top-0 z-[5] overflow-visible"
+              style={{ left: panelWidth }}
+              width={width}
+              height={bodyHeight}
+            >
+              <defs>
+                {(["wait", "late"] as const).map((kind) => (
+                  <marker
+                    key={kind}
+                    id={`${view.id}-arrow-${kind}`}
+                    viewBox="0 0 8 8"
+                    refX="7"
+                    refY="4"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto"
+                    className={kind === "late" ? "text-danger" : "text-fg-muted"}
+                  >
+                    <path d="M0 0L8 4L0 8z" fill="currentColor" />
+                  </marker>
+                ))}
+              </defs>
+              {arrows.map((a) => (
+                <path
+                  key={a.key}
+                  d={a.path}
+                  fill="none"
+                  strokeWidth={1.5}
+                  strokeLinejoin="round"
+                  stroke="currentColor"
+                  className={a.late ? "text-danger" : "text-fg-muted"}
+                  markerEnd={`url(#${view.id}-arrow-${a.late ? "late" : "wait"})`}
+                />
+              ))}
+              {link && linkFrom && (
+                <path
+                  d={`M${linkFrom.x} ${linkFrom.y}L${link.x} ${link.y}`}
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 3"
+                  className="text-accent"
+                />
+              )}
+            </svg>
+          )}
           {!dated.length && (
             <div className="sticky left-0 px-3 py-6 text-sm text-fg-muted" style={{ width: "min(100%, 28rem)" }}>
               {t("timeline.empty", { property: startProp.name })}

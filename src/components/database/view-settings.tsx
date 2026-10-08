@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, ListTree, Plus, SlidersHorizontal } from "lucide-react";
+import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, ListTree, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -25,7 +25,14 @@ import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
 import { isGroupable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { CARD_SIZES, coverProperty, galleryCover } from "@/lib/views";
-import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay } from "@/lib/sub-items";
+import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay, subItemsProperty } from "@/lib/sub-items";
+import {
+  blockedByProperty,
+  blockingProperty,
+  DEPENDENCY_SHIFTS,
+  dependencySettings,
+  type DependencyInput,
+} from "@/lib/dependencies";
 import { Floating, useFloating } from "./floating";
 import { PropertyTypeIcon } from "./property-icons";
 import type { Property, View } from "./types";
@@ -57,9 +64,12 @@ export function timelineGroupProperty(view: View, properties: Property[]) {
 /** Views that can show sub-items nested under their parent (see lib/sub-items). */
 const NESTING_VIEWS = new Set<View["type"]>(["table", "list", "timeline"]);
 
+/** Turns dependencies on or off, or changes their settings (see lib/dependencies). */
+export type DependenciesHandler = (on: boolean, input?: { propertyId?: string; settings?: DependencyInput }) => void;
+
 /**
  * Layout settings of gallery, timeline and chart views (card size and cover; dates, swimlanes and
- * table; the chart), and sub-items in table, list and timeline views.
+ * table; the chart), sub-items in table, list and timeline views, and dependencies in timelines.
  */
 export function ViewLayoutMenu({
   view,
@@ -67,6 +77,7 @@ export function ViewLayoutMenu({
   onConfig,
   onCreateDateProperty,
   onSubItems,
+  onDependencies,
   readOnly,
   locked,
 }: {
@@ -76,6 +87,8 @@ export function ViewLayoutMenu({
   onCreateDateProperty: () => void;
   /** Turns sub-items on (new properties, or the given relation) or off; missing when the user can't. */
   onSubItems?: (on: boolean, propertyId?: string) => void;
+  /** Missing when the user can't change dependencies. */
+  onDependencies?: DependenciesHandler;
   readOnly?: boolean;
   locked?: boolean;
 }) {
@@ -164,6 +177,17 @@ export function ViewLayoutMenu({
               }
             />
           )}
+          {view.type === "timeline" && onDependencies && !locked && (
+            <DependencySettings
+              view={view}
+              properties={properties}
+              onDependencies={(on, input) => {
+                // Turning them on or off closes the menu; changing a setting leaves it open.
+                if (!on || !blockedByProperty(properties) || input?.propertyId) menu.close();
+                onDependencies(on, input);
+              }}
+            />
+          )}
         </div>
       </Floating>
     </>
@@ -189,7 +213,10 @@ function SubItemsSettings({
 }) {
   const t = useTranslations("database.subItems");
   const parent = parentProperty(properties);
-  const selfRelations = properties.filter((p) => p.type === "relation" && p.options.relation?.databaseId === p.databaseId);
+  const dependencies = [blockedByProperty(properties)?.id, blockingProperty(properties)?.id];
+  const selfRelations = properties.filter(
+    (p) => p.type === "relation" && p.options.relation?.databaseId === p.databaseId && !dependencies.includes(p.id),
+  );
   if (!parent && !onSubItems) return null;
   const display = subItemsDisplay(view.config, parent);
   return (
@@ -227,6 +254,96 @@ function SubItemsSettings({
           ))}
         </>
       )}
+    </>
+  );
+}
+
+/**
+ * Dependencies: the rule waiting rows follow and the dates they move by while they're on, and
+ * turning them on (with new properties or a relation of the database with itself) or off. Turning
+ * them on takes this view's dates.
+ */
+function DependencySettings({
+  view,
+  properties,
+  onDependencies,
+}: {
+  view: View;
+  properties: Property[];
+  onDependencies: DependenciesHandler;
+}) {
+  const t = useTranslations("database.dependencies");
+  const by = blockedByProperty(properties);
+  const subItems = [parentProperty(properties)?.id, subItemsProperty(properties)?.id];
+  const selfRelations = properties.filter(
+    (p) => p.type === "relation" && p.options.relation?.databaseId === p.databaseId && !subItems.includes(p.id),
+  );
+  const dates = timelineDates(view, properties);
+  // Created and edited times can't be moved: only date properties count.
+  const viewStart = dates.start?.type === "date" ? dates.start : null;
+  const viewDates: DependencyInput = { startPropertyId: viewStart?.id ?? null, endPropertyId: (viewStart && dates.end?.id) || null };
+  const name = (id: string) => properties.find((p) => p.id === id)?.name ?? "";
+  const icon = <Waypoints className="h-3.5 w-3.5" />;
+
+  if (!by) {
+    return (
+      <>
+        <MenuSeparator />
+        <Heading>{t("heading")}</Heading>
+        <p className="px-2 pb-1.5 text-xs text-fg-faint">{t("turnOnHint")}</p>
+        <MenuItem icon={icon} onClick={() => onDependencies(true, { settings: viewDates })}>
+          {t("turnOn")}
+        </MenuItem>
+        {selfRelations.map((p) => (
+          <MenuItem
+            key={p.id}
+            icon={<PropertyTypeIcon type={p.type} />}
+            onClick={() => onDependencies(true, { propertyId: p.id, settings: viewDates })}
+          >
+            {t("useExisting", { name: p.name })}
+          </MenuItem>
+        ))}
+      </>
+    );
+  }
+  const settings = dependencySettings(by, properties);
+  const sameDates = settings.start === viewDates.startPropertyId && settings.end === viewDates.endPropertyId;
+  return (
+    <>
+      <MenuSeparator />
+      <Heading>{t("heading")}</Heading>
+      <p className="px-2 pb-1 text-xs text-fg-faint">{t("rule")}</p>
+      {DEPENDENCY_SHIFTS.map((shift) => (
+        <Choice key={shift} wrap active={settings.shift === shift} onClick={() => onDependencies(true, { settings: { shift } })}>
+          {t(`shifts.${shift}`)}
+        </Choice>
+      ))}
+      <Choice
+        wrap
+        checkbox
+        active={settings.skipWeekends}
+        onClick={() => onDependencies(true, { settings: { skipWeekends: !settings.skipWeekends } })}
+      >
+        {t("skipWeekends")}
+      </Choice>
+      <MenuSeparator />
+      <p className="px-2 pb-1 text-xs text-fg-faint">
+        {settings.start
+          ? settings.end
+            ? t("dates", { start: name(settings.start), end: name(settings.end) })
+            : t("startOnly", { start: name(settings.start) })
+          : t("noDates")}
+      </p>
+      {!sameDates && viewStart && (
+        <MenuItem icon={icon} onClick={() => onDependencies(true, { settings: viewDates })}>
+          {t("useViewDates")}
+        </MenuItem>
+      )}
+      <p className="px-2 pb-1 text-xs text-fg-faint">{t("keptIn", { name: by.name })}</p>
+      <MenuItem icon={icon} onClick={() => onDependencies(false)}>
+        {t("turnOff")}
+      </MenuItem>
+      <p className="px-2 pb-1 text-xs text-fg-faint">{t("turnOffHint")}</p>
     </>
   );
 }
@@ -500,17 +617,32 @@ function Heading({ children }: { children: ReactNode }) {
   return <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{children}</div>;
 }
 
-/** A menu entry of a one-of-several setting, ticked when chosen. */
-function Choice({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+/**
+ * A menu entry of a one-of-several setting (or an on/off one, `checkbox`), ticked when chosen.
+ * `wrap` lets a long label take more lines.
+ */
+function Choice({
+  active,
+  onClick,
+  wrap,
+  checkbox,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  wrap?: boolean;
+  checkbox?: boolean;
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
-      role="menuitemradio"
+      role={checkbox ? "menuitemcheckbox" : "menuitemradio"}
       aria-checked={active}
       onClick={onClick}
       className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
     >
-      <span className="flex-1 truncate">{children}</span>
+      <span className={cn("flex-1", !wrap && "truncate")}>{children}</span>
       {active && <Check className="h-3.5 w-3.5 text-fg-muted" />}
     </button>
   );

@@ -95,6 +95,12 @@ versions, upgrades and running behind a domain.
     rows under it). Those views show sub-items nested under their parent, opened and closed by each
     viewer, as a flat list, or show only the rows without a parent. A row can't go under itself or
     one of its own sub-items.
+  - Dependencies: turned on in a timeline view's settings, a row can wait for other rows of the
+    same database ("Blocked by" and "Blocking"). The timeline draws an arrow from each row to the
+    rows waiting for it, red while one starts before the row it waits for ends; dragging from the
+    dot at the end of a bar onto another row links them. When a row's dates move, the rows waiting
+    for it follow: only when they would overlap, by as much to keep the gap, or not at all, and
+    optionally never starting on a weekend. A row can't wait for itself or a row waiting for it.
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.
@@ -1327,7 +1333,7 @@ The tools cover:
   its link. It needs no extra permission: the user reads a file when they can see a page showing it.
 - **Databases:** `get_database`, `query_database`, `create_database`, `create_database_row`,
   `create_database_rows`, `update_database_row`, `update_database_rows`, `add_database_property`
-  (including one- or two-way relations), `set_sub_items`, `update_database_property`,
+  (including one- or two-way relations), `set_sub_items`, `set_dependencies`, `update_database_property`,
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,

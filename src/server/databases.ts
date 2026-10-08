@@ -9,6 +9,8 @@ import {
   propertyPermission,
   schedule,
   user,
+  type DependencyConfig,
+  type DependencyShift,
   type FormulaConfig,
   type PropertyOptions,
   type PropertyType,
@@ -35,6 +37,19 @@ import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSO
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
 import { makesLoop, parentProperty, singleParent, storedParent, subItemsProperty } from "@/lib/sub-items";
+import {
+  blockedByProperty,
+  blockingProperty,
+  DEPENDENCY_SHIFTS,
+  dependencySettings,
+  makesDependencyLoop,
+  planShifts,
+  rowSpan,
+  storedBlockers,
+  type DependencyInput,
+  type Span,
+} from "@/lib/dependencies";
+import { dayValue } from "@/lib/timeline";
 import {
   applyView,
   computedValues,
@@ -497,6 +512,43 @@ async function checkSubItemLoops(databaseId: string, writes: { rowId: string; va
 }
 
 /**
+ * Refuses writes that would make a row wait for itself: a blocker that is the row or waits for it
+ * (through any number of rows), from either side of the relation. `writes` as in checkSubItemLoops.
+ */
+async function checkDependencyLoops(databaseId: string, writes: { rowId: string; values: Record<string, unknown> }[]) {
+  const properties = await getProperties(databaseId);
+  const by = blockedByProperty(properties);
+  if (!by) return;
+  const blocking = blockingProperty(properties);
+  const touched = writes.filter(({ values }) => values[by.id] != null || (blocking && values[blocking.id] != null));
+  if (!touched.length) return;
+  const rows = await db
+    .select({ id: page.id, properties: page.properties })
+    .from(page)
+    .where(eq(page.parentId, databaseId));
+  const blockers = new Map(rows.map((r) => [r.id, storedBlockers(r, by.id)] as const));
+  const loop = (name: string) =>
+    new PropertyValueError(`"${name}" can't make a row wait for itself or for a row waiting for it`, "dependencyLoop", {
+      property: name,
+    });
+  for (const { rowId, values } of touched) {
+    for (const blocker of asIds(values[by.id])) {
+      if (makesDependencyLoop(blockers, rowId, blocker)) throw loop(by.name);
+    }
+    if (!blocking) continue;
+    for (const waiting of asIds(values[blocking.id])) {
+      if (makesDependencyLoop(blockers, waiting, rowId)) throw loop(blocking.name);
+    }
+  }
+}
+
+/** Refuses writes that close a loop of sub-items or of dependencies. */
+async function checkLoops(databaseId: string, writes: { rowId: string; values: Record<string, unknown> }[]) {
+  await checkSubItemLoops(databaseId, writes);
+  await checkDependencyLoops(databaseId, writes);
+}
+
+/**
  * Mirrors changes of two-way relations onto the paired property of the linked rows. Uses atomic
  * JSONB updates so concurrent edits of the same target row don't overwrite each other.
  */
@@ -611,7 +663,7 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   await requireDatabase(userId, row.parentId, "view");
   const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy });
-  await checkSubItemLoops(row.parentId, [{ rowId, values: normalized }]);
+  await checkLoops(row.parentId, [{ rowId, values: normalized }]);
   const next = { ...row.properties };
   for (const [id, value] of Object.entries(normalized)) {
     if (value === null) delete next[id];
@@ -704,7 +756,7 @@ export async function updateRowsProperties(
   const kept = new Set(rows.map((r) => r.id));
   const skipped = [...found.skipped, ...found.rows.filter((r) => !kept.has(r.id)).map((r) => r.id)];
   if (!rows.length || !Object.keys(normalized).length) return { done: [], skipped };
-  await checkSubItemLoops(databaseId, rows.map((row) => ({ rowId: row.id, values: normalized })));
+  await checkLoops(databaseId, rows.map((row) => ({ rowId: row.id, values: normalized })));
 
   const set = Object.fromEntries(Object.entries(normalized).filter(([, v]) => v !== null));
   const cleared = Object.keys(normalized).filter((k) => normalized[k] === null);
@@ -757,17 +809,97 @@ export async function announceAssignments(
 }
 
 /**
- * What every saved row write sets off: assignment notices and the database's automations
- * (server/automations/queue). `created` for new rows, whose `before` is empty.
+ * What every saved row write sets off: assignment notices, the database's automations
+ * (server/automations/queue) and moving the rows waiting for rows whose dates moved. `created` for
+ * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more.
  */
 export async function afterRowWrites(
   actorId: string | null,
   databaseId: string,
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
-  { created = false }: { created?: boolean } = {},
+  { created = false, shifted = false }: { created?: boolean; shifted?: boolean } = {},
 ) {
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created);
+  if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
+}
+
+/**
+ * Moves the rows waiting for rows these writes moved (or newly linked) by the database's rule (see
+ * lib/dependencies `planShifts`). The rows the writes dated themselves keep their dates. Moves are
+ * made as the one who wrote: rows they can't edit, or whose dates they may not change, stay where
+ * they are (their link then shows the conflict). Each move is a row write of its own, so
+ * automations see it.
+ */
+async function shiftWaitingRows(
+  actorId: string,
+  databaseId: string,
+  changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
+) {
+  const properties = await getProperties(databaseId);
+  const by = blockedByProperty(properties);
+  if (!by) return;
+  const settings = dependencySettings(by, properties);
+  const { start, end } = settings;
+  if (settings.shift === "none" || !start) return;
+  const blocking = blockingProperty(properties);
+  const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  const gained = (before: unknown, after: unknown) => asIds(after).filter((id) => !asIds(before).includes(id));
+  const moved = new Map<string, Span | null>();
+  const linked = new Set<string>();
+  for (const { rowId, before, after } of changes) {
+    if (!same(before[start], after[start]) || (end && !same(before[end], after[end]))) {
+      moved.set(rowId, rowSpan(before[start], end ? before[end] : null));
+    }
+    if (gained(before[by.id], after[by.id]).length) linked.add(rowId);
+    if (blocking) for (const id of gained(before[blocking.id], after[blocking.id])) linked.add(id);
+  }
+  if (!moved.size && !linked.size) return;
+
+  const rows = await db
+    .select({ id: page.id, properties: page.properties })
+    .from(page)
+    .where(
+      and(eq(page.parentId, databaseId), isNull(page.archivedAt), eq(page.isTemplate, false), eq(page.inTemplate, false)),
+    );
+  const plan = planShifts({
+    rows: rows.map((r) => ({
+      id: r.id,
+      span: rowSpan(r.properties[start], end ? r.properties[end] : null),
+      blockedBy: storedBlockers(r, by.id),
+    })),
+    moved,
+    linked,
+    fixed: new Set(moved.keys()),
+    shift: settings.shift,
+    skipWeekends: settings.skipWeekends,
+  });
+  if (!plan.length) return;
+
+  const found = await rowsWithAccess(actorId, databaseId, plan.map((s) => s.id), "edit");
+  const access = await propertyAccessFor(actorId, databaseId);
+  const shifts: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[] = [];
+  for (const row of found.rows) {
+    const s = plan.find((p) => p.id === row.id)!;
+    const values: Record<string, string> = { [start]: dayValue(s.after.start) };
+    // A one-day row without an end keeps having none.
+    if (end && row.properties[end] != null) values[end] = dayValue(s.after.end);
+    try {
+      access.requireValues(row, Object.keys(values));
+    } catch {
+      continue;
+    }
+    // Merged in SQL, so a concurrent edit of another property of the row isn't overwritten.
+    await db.execute(sql`
+      update ${page} set properties = properties || ${JSON.stringify(values)}::jsonb, updated_by = ${actorId}, updated_at = now()
+      where ${page.id} = ${row.id}
+    `);
+    shifts.push({ rowId: row.id, before: row.properties, after: { ...row.properties, ...values } });
+  }
+  if (!shifts.length) return;
+  notifyRows(databaseId);
+  for (const { rowId } of shifts) rowChanged({ rowId, databaseId, userId: actorId });
+  await afterRowWrites(actorId, databaseId, shifts, { shifted: true });
 }
 
 export type NewRow = { title: string; properties?: Record<string, unknown> };
@@ -1094,7 +1226,13 @@ export async function setSubItems(
   let prop: DatabaseProperty | undefined;
   if (input.propertyId) {
     prop = properties.find((p) => p.id === input.propertyId);
-    if (!prop || prop.type !== "relation" || prop.options.relation?.databaseId !== databaseId) {
+    const dependencies = [blockedByProperty(properties)?.id, blockingProperty(properties)?.id];
+    if (
+      !prop ||
+      prop.type !== "relation" ||
+      prop.options.relation?.databaseId !== databaseId ||
+      dependencies.includes(prop.id)
+    ) {
       throw new PropertyValueError("Sub-items need a relation of this database with itself", "notSubItemsRelation");
     }
     (await propertyAccessFor(userId, databaseId)).requireSchema(prop.id);
@@ -1111,6 +1249,102 @@ export async function setSubItems(
   await setRole(prop, "parent");
   notifySchema(databaseId);
   return { ...prop, options: { ...prop.options, relation: { ...prop.options.relation!, role: "parent" as const } } };
+}
+
+/**
+ * Turns dependencies on or off, or changes their settings. On, a relation of the database with
+ * itself holds the rows each row waits for: `propertyId` (one the database has), the one already
+ * used, or a new two-way relation (Blocked by / Blocking). Off keeps the properties and their links.
+ */
+export async function setDependencies(
+  userId: string,
+  databaseId: string,
+  input:
+    | { on: false }
+    | { on: true; propertyId?: string; names?: { blockedBy: string; blocking: string }; settings?: DependencyInput },
+) {
+  const database = await requireDatabase(userId, databaseId, "edit");
+  assertUnlocked(database);
+  const properties = await getProperties(databaseId);
+  const current = blockedByProperty(properties);
+  const setRelation = async (prop: DatabaseProperty, relation: RelationConfig) => {
+    await db
+      .update(databaseProperty)
+      .set({ options: { ...prop.options, relation } })
+      .where(eq(databaseProperty.id, prop.id));
+  };
+  const plain = (prop: DatabaseProperty) => {
+    const { role: _role, dependencies: _dependencies, ...relation } = prop.options.relation!;
+    return relation;
+  };
+  if (!input.on) {
+    if (current) await setRelation(current, plain(current));
+    notifySchema(databaseId);
+    return null;
+  }
+
+  const settings: DependencyConfig = { ...(current?.options.relation?.dependencies ?? {}) };
+  for (const [key, value] of Object.entries(input.settings ?? {}) as [keyof DependencyInput, unknown][]) {
+    if (value === undefined) continue;
+    if (key === "shift") {
+      if (!DEPENDENCY_SHIFTS.includes(value as DependencyShift)) {
+        throw new PropertyValueError(`"${value}" is not a dependency rule`, "invalidDependencySettings");
+      }
+      settings.shift = value as DependencyShift;
+    } else if (key === "skipWeekends") {
+      settings.skipWeekends = value === true;
+    } else if (value === null) {
+      delete settings[key];
+    } else if (properties.some((p) => p.id === value && p.type === "date")) {
+      settings[key] = value as string;
+    } else {
+      throw new PropertyValueError("Dependencies move rows by date properties of their database", "invalidDependencySettings");
+    }
+  }
+  // Without dates chosen: those of the first timeline that uses date properties, else the first date property.
+  if (!settings.startPropertyId) {
+    const isDate = (id: string | undefined) => !!id && properties.some((p) => p.id === id && p.type === "date");
+    const timelines = await db
+      .select({ config: databaseView.config })
+      .from(databaseView)
+      .where(and(eq(databaseView.databaseId, databaseId), eq(databaseView.type, "timeline")))
+      .orderBy(asc(databaseView.position), asc(databaseView.createdAt));
+    const timeline = timelines.find((v) => isDate(v.config.dateBy));
+    const start = timeline?.config.dateBy ?? properties.find((p) => p.type === "date")?.id;
+    if (start) settings.startPropertyId = start;
+    const end = timeline?.config.endDateBy;
+    if (timeline && isDate(end) && end !== start) settings.endPropertyId = end;
+  }
+
+  let prop: DatabaseProperty;
+  if (input.propertyId && input.propertyId !== current?.id) {
+    const found = properties.find((p) => p.id === input.propertyId);
+    const subItems = [parentProperty(properties)?.id, subItemsProperty(properties)?.id];
+    if (
+      !found ||
+      found.type !== "relation" ||
+      found.options.relation?.databaseId !== databaseId ||
+      subItems.includes(found.id) ||
+      found.id === blockingProperty(properties)?.id
+    ) {
+      throw new PropertyValueError("Dependencies need a relation of this database with itself", "notDependencyRelation");
+    }
+    (await propertyAccessFor(userId, databaseId)).requireSchema(found.id);
+    prop = found;
+  } else if (current) {
+    prop = current;
+  } else {
+    prop = await addProperty(userId, databaseId, {
+      name: input.names?.blockedBy.trim() || "Blocked by",
+      type: "relation",
+      relation: { databaseId, twoWay: true, pairedName: input.names?.blocking.trim() || "Blocking" },
+    });
+  }
+  if (current && current.id !== prop.id) await setRelation(current, plain(current));
+  const relation: RelationConfig = { ...plain(prop), role: "blocked_by", dependencies: settings };
+  await setRelation(prop, relation);
+  notifySchema(databaseId);
+  return { ...prop, options: { ...prop.options, relation } };
 }
 
 /**
@@ -1693,7 +1927,7 @@ export async function moveRow(
     const normalized = await normalizeRowProperties(userId, row.parentId, { [groupBy]: next }, row.properties, {
       createdBy: row.createdBy,
     });
-    await checkSubItemLoops(row.parentId, [{ rowId, values: normalized }]);
+    await checkLoops(row.parentId, [{ rowId, values: normalized }]);
     const value = normalized[groupBy];
     if (value === null || value === undefined || (Array.isArray(value) && !value.length)) delete properties[groupBy];
     else properties[groupBy] = value;

@@ -14,6 +14,20 @@
 
 ### Added
 
+- **Dependencies.** A timeline view's settings turn dependencies on for the database: a two-way
+  relation of the database with itself, *Blocked by* and *Blocking* (or a relation of the database
+  with itself it already has), lets a row wait for other rows. The timeline draws an arrow from
+  each row to the rows waiting for it, in red while a waiting row starts before the row it waits
+  for ends, and dragging from the dot at the end of a bar onto another row makes that row wait for
+  it. When a row's dates move, by a drag, an edit, a bulk edit, an automation or MCP, the rows
+  waiting for it follow down the chain by the database's rule: only when they would overlap (the
+  default), by as much to keep the gap, or not at all; moved rows can skip weekends. A row that
+  starts waiting for another one is moved past its end. Rows the same write dated keep their
+  dates, and rows the editor can't change stay where they are. Rows move by the start and end
+  dates the timeline used when dependencies were turned on, which its settings can change. A row
+  can't wait for itself or for a row waiting for it. Turning dependencies off keeps both properties
+  and their links; a copied database keeps them. MCP gets `set_dependencies`, and `get_database`
+  shows `dependency_role` and the rule. No migration.
 - **Sub-items.** A table, list or timeline view's settings turn sub-items on for the database: a
   two-way relation of the database with itself, *Parent item* and *Sub-items* (or a relation of
   the database with itself it already has), lets a row go under another row. A row holds one

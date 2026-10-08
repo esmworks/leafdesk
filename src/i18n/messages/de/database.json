@@ -574,6 +574,9 @@
     "invalidRelationTarget": "Eine Relation muss auf eine Datenbank im selben Workspace verweisen.",
     "subItemLoop": "„{property}“ kann eine Zeile nicht unter sich selbst oder unter eines ihrer eigenen Unterelemente stellen.",
     "notSubItemsRelation": "Unterelemente brauchen eine Relation dieser Datenbank mit sich selbst.",
+    "dependencyLoop": "„{property}“ kann eine Zeile nicht auf sich selbst oder auf eine Zeile warten lassen, die auf sie wartet.",
+    "notDependencyRelation": "Abhängigkeiten brauchen eine Relation dieser Datenbank mit sich selbst.",
+    "invalidDependencySettings": "Abhängigkeiten verschieben Zeilen nach einer Regel und nach Datumseigenschaften ihrer Datenbank.",
     "relationTargetReadOnly": "Du kannst diese Datenbank nur ansehen, daher kann die Verknüpfung dort nicht ebenfalls angezeigt werden. Entferne das Häkchen bei dieser Option oder bitte um Bearbeitungszugriff.",
     "databaseLocked": "Diese Datenbank ist gesperrt. Entsperre sie, um ihre Eigenschaften und Ansichten zu ändern.",
     "invalidPerson": "„{property}“ kann nur Personen aus diesem Workspace enthalten.",
@@ -896,5 +899,28 @@
     "turnOff": "Unterelemente deaktivieren",
     "turnOffHint": "Die Eigenschaften und ihre Verknüpfungen bleiben erhalten.",
     "keptIn": "Übergeordnete Elemente stehen in „{name}“."
+  },
+  "dependencies": {
+    "heading": "Abhängigkeiten",
+    "blockedByName": "Blockiert durch",
+    "blockingName": "Blockiert",
+    "turnOn": "Abhängigkeiten einschalten",
+    "turnOnHint": "Zeilen können auf andere Zeilen warten. Verschieben sich die Daten einer Zeile, folgen die Zeilen, die auf sie warten.",
+    "useExisting": "In „{name}“ speichern",
+    "turnOff": "Abhängigkeiten ausschalten",
+    "turnOffHint": "Die Eigenschaften und ihre Verknüpfungen bleiben erhalten.",
+    "keptIn": "Zeilen warten auf die Zeilen in „{name}“.",
+    "rule": "Wenn sich die Daten einer Zeile verschieben",
+    "shifts": {
+      "overlap": "Wartende Zeilen nur bei Überschneidung verschieben",
+      "keep_gap": "Wartende Zeilen gleich weit verschieben, Abstand bleibt",
+      "none": "Wartende Zeilen stehen lassen"
+    },
+    "skipWeekends": "Verschobene Zeilen nicht am Wochenende beginnen lassen",
+    "dates": "Zeilen verschieben sich nach {start} → {end}.",
+    "startOnly": "Zeilen verschieben sich nach {start}.",
+    "noDates": "Ohne gewählte Daten verschieben sich keine Zeilen.",
+    "useViewDates": "Nach den Daten dieser Ansicht verschieben",
+    "link": "Auf eine Zeile ziehen, damit sie auf „{title}“ wartet"
   }
 }

@@ -396,13 +396,30 @@ export type RelationConfig = {
   databaseId: string;
   pairedPropertyId?: string | null;
   /**
-   * What a relation of a database with itself stands for (see lib/sub-items): "parent" holds each
-   * row's parent, which makes the rows linking to a row its sub-items. Set by turning the feature
-   * on; a copy of the property, or the property turned into another type, doesn't keep it.
+   * What a relation of a database with itself stands for: "parent" holds each row's parent, which
+   * makes the rows linking to a row its sub-items (see lib/sub-items); "blocked_by" holds the rows
+   * each row waits for (see lib/dependencies). Set by turning the feature on; a copy of the
+   * property, or the property turned into another type, doesn't keep it.
    */
   role?: RelationRole;
+  /** A "blocked_by" relation: how waiting rows follow when the rows they wait for move. */
+  dependencies?: DependencyConfig;
 };
-export type RelationRole = "parent";
+export type RelationRole = "parent" | "blocked_by";
+/**
+ * When a row's dates move, the rows waiting for it move: "overlap" only when they would start
+ * before it ends, "keep_gap" by as much as it moved, "none" never.
+ */
+export type DependencyShift = "overlap" | "keep_gap" | "none";
+export type DependencyConfig = {
+  /** "overlap" when missing. */
+  shift?: DependencyShift;
+  /** Rows that move never start on a Saturday or Sunday (they go to the Monday after). */
+  skipWeekends?: boolean;
+  /** The date properties rows start and end on; without a start nothing moves. */
+  startPropertyId?: string;
+  endPropertyId?: string;
+};
 /**
  * A formula property's expression. `prop("…")` references hold property ids (or "title"), so
  * renaming a property keeps its formulas working; editors show names instead (see lib/derived).

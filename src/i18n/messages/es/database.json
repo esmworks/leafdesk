@@ -574,6 +574,9 @@
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
     "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",
     "notSubItemsRelation": "Los subelementos necesitan una relación de esta base de datos consigo misma.",
+    "dependencyLoop": "“{property}” no puede hacer que una fila espere a sí misma ni a una fila que la espera.",
+    "notDependencyRelation": "Las dependencias necesitan una relación de esta base de datos consigo misma.",
+    "invalidDependencySettings": "Las dependencias mueven filas según una regla y según propiedades de fecha de su base de datos.",
     "relationTargetReadOnly": "Solo puedes ver esa base de datos, así que el vínculo no se puede mostrar también allí. Desmarca esa opción o pide acceso de edición.",
     "databaseLocked": "Esta base de datos está bloqueada. Desbloquéala para cambiar sus propiedades y vistas.",
     "invalidPerson": "“{property}” solo puede contener personas de este espacio de trabajo.",
@@ -896,5 +899,28 @@
     "turnOff": "Desactivar subelementos",
     "turnOffHint": "Las propiedades y sus vínculos se mantienen.",
     "keptIn": "Los elementos principales se guardan en “{name}”."
+  },
+  "dependencies": {
+    "heading": "Dependencias",
+    "blockedByName": "Bloqueado por",
+    "blockingName": "Bloqueando",
+    "turnOn": "Activar dependencias",
+    "turnOnHint": "Las filas pueden esperar a otras filas. Cuando las fechas de una fila se mueven, las filas que la esperan la siguen.",
+    "useExisting": "Guardarlas en “{name}”",
+    "turnOff": "Desactivar dependencias",
+    "turnOffHint": "Las propiedades y sus vínculos se mantienen.",
+    "keptIn": "Las filas esperan a las filas de “{name}”.",
+    "rule": "Cuando se mueven las fechas de una fila",
+    "shifts": {
+      "overlap": "Mover las filas que la esperan si se solapan",
+      "keep_gap": "Mover las filas que la esperan lo mismo, manteniendo la separación",
+      "none": "Dejar donde están las filas que la esperan"
+    },
+    "skipWeekends": "No empezar filas movidas en fin de semana",
+    "dates": "Las filas se mueven según {start} → {end}.",
+    "startOnly": "Las filas se mueven según {start}.",
+    "noDates": "Las filas no se mueven hasta elegir las fechas.",
+    "useViewDates": "Mover filas según las fechas de esta vista",
+    "link": "Arrastra sobre una fila para que espere a “{title}”"
   }
 }

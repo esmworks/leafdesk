@@ -574,6 +574,9 @@
     "invalidRelationTarget": "Une relation doit pointer vers une base de données du même espace de travail.",
     "subItemLoop": "« {property} » ne peut pas placer une ligne sous elle-même ni sous l’un de ses propres sous-éléments.",
     "notSubItemsRelation": "Les sous-éléments nécessitent une relation de cette base de données avec elle-même.",
+    "dependencyLoop": "« {property} » ne peut pas faire attendre une ligne après elle-même ni après une ligne qui l’attend.",
+    "notDependencyRelation": "Les dépendances nécessitent une relation de cette base de données avec elle-même.",
+    "invalidDependencySettings": "Les dépendances déplacent les lignes selon une règle et selon des propriétés de date de leur base de données.",
     "relationTargetReadOnly": "Vous ne pouvez que consulter cette base de données, le lien ne peut donc pas y être affiché aussi. Décochez cette option ou demandez un accès en modification.",
     "databaseLocked": "Cette base de données est verrouillée. Déverrouillez-la pour modifier ses propriétés et ses vues.",
     "invalidPerson": "« {property} » ne peut contenir que des personnes de cet espace de travail.",
@@ -896,5 +899,28 @@
     "turnOff": "Désactiver les sous-éléments",
     "turnOffHint": "Les propriétés et leurs liens sont conservés.",
     "keptIn": "Les parents sont gardés dans « {name} »."
+  },
+  "dependencies": {
+    "heading": "Dépendances",
+    "blockedByName": "Bloqué par",
+    "blockingName": "Bloque",
+    "turnOn": "Activer les dépendances",
+    "turnOnHint": "Les lignes peuvent attendre d’autres lignes. Quand les dates d’une ligne bougent, les lignes qui l’attendent suivent.",
+    "useExisting": "Les garder dans « {name} »",
+    "turnOff": "Désactiver les dépendances",
+    "turnOffHint": "Les propriétés et leurs liens sont conservés.",
+    "keptIn": "Les lignes attendent les lignes de « {name} ».",
+    "rule": "Quand les dates d’une ligne bougent",
+    "shifts": {
+      "overlap": "Déplacer les lignes qui l’attendent si elles se chevauchent",
+      "keep_gap": "Déplacer d’autant les lignes qui l’attendent, en gardant l’écart",
+      "none": "Laisser en place les lignes qui l’attendent"
+    },
+    "skipWeekends": "Ne pas faire commencer les lignes déplacées un week-end",
+    "dates": "Les lignes bougent selon {start} → {end}.",
+    "startOnly": "Les lignes bougent selon {start}.",
+    "noDates": "Les lignes ne bougent pas tant que les dates ne sont pas choisies.",
+    "useViewDates": "Déplacer selon les dates de cette vue",
+    "link": "Glissez sur une ligne pour qu’elle attende « {title} »"
   }
 }

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addPropertyAction,
   setSubItemsAction,
+  setDependenciesAction,
   addViewAction,
   archiveRowsAction,
   changePropertyTypeAction,
@@ -30,6 +31,7 @@ import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
 import type { PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
+import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateFormulas } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
 import type { RollupConfig } from "@/db/schema/app";
@@ -376,6 +378,11 @@ export function useDatabase(
       /** Turns sub-items on (new properties, or the relation `propertyId`) or off. */
       setSubItems(on: boolean, propertyId?: string) {
         return mutateSchema((s) => s, () => setSubItemsAction(databaseId, { on, propertyId }));
+      },
+
+      /** Turns dependencies on (new properties, or the relation `propertyId`) or off, or changes their settings. */
+      setDependencies(on: boolean, input: { propertyId?: string; settings?: DependencyInput } = {}) {
+        return mutateSchema((s) => s, () => setDependenciesAction(databaseId, { on, ...input }));
       },
 
       /** Saves a formula's expression (with property ids); the server checks it again. */

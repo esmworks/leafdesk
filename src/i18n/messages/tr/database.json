@@ -574,6 +574,9 @@
     "invalidRelationTarget": "İlişki aynı çalışma alanındaki bir veritabanını göstermelidir.",
     "subItemLoop": "“{property}” bir satırı kendisinin ya da kendi alt öğelerinden birinin altına koyamaz.",
     "notSubItemsRelation": "Alt öğeler için bu veritabanının kendisiyle bir ilişkisi gerekir.",
+    "dependencyLoop": "“{property}” bir satırı kendisini ya da onu bekleyen bir satırı bekletemez.",
+    "notDependencyRelation": "Bağımlılıklar için bu veritabanının kendisiyle bir ilişkisi gerekir.",
+    "invalidDependencySettings": "Bağımlılıklar satırları bir kurala ve veritabanının tarih özelliklerine göre kaydırır.",
     "relationTargetReadOnly": "O veritabanını yalnızca görüntüleyebiliyorsun, bu yüzden bağlantı orada gösterilemez. O seçeneğin işaretini kaldır ya da düzenleme izni iste.",
     "databaseLocked": "Veritabanı kilitli. Özellikleri ve görünümleri değiştirmek için önce kilidi açın.",
     "invalidPerson": "“{property}” yalnızca bu çalışma alanındaki kişileri içerebilir.",
@@ -896,5 +899,28 @@
     "turnOff": "Alt öğeleri kapat",
     "turnOffHint": "Özellikler ve bağlantıları kalır.",
     "keptIn": "Üst öğeler “{name}” içinde tutuluyor."
+  },
+  "dependencies": {
+    "heading": "Bağımlılıklar",
+    "blockedByName": "Engelleyenler",
+    "blockingName": "Engelledikleri",
+    "turnOn": "Bağımlılıkları aç",
+    "turnOnHint": "Satırlar başka satırları bekleyebilir. Bir satırın tarihleri değişince onu bekleyen satırlar da kayar.",
+    "useExisting": "“{name}” içinde tut",
+    "turnOff": "Bağımlılıkları kapat",
+    "turnOffHint": "Özellikler ve bağlantıları kalır.",
+    "keptIn": "Satırların beklediği satırlar “{name}” içinde.",
+    "rule": "Bir satırın tarihleri değişince",
+    "shifts": {
+      "overlap": "Onu bekleyenleri yalnızca çakışırlarsa kaydır",
+      "keep_gap": "Onu bekleyenleri aradaki boşluğu koruyarak kaydır",
+      "none": "Onu bekleyenleri yerinde bırak"
+    },
+    "skipWeekends": "Kayan satırları hafta sonunda başlatma",
+    "dates": "Satırlar {start} → {end} tarihlerine göre kayar.",
+    "startOnly": "Satırlar {start} tarihine göre kayar.",
+    "noDates": "Tarihler seçilene kadar satırlar kaymaz.",
+    "useViewDates": "Bu görünümün tarihlerine göre kaydır",
+    "link": "“{title}” satırını bekletmek için bir satırın üzerine sürükleyin"
   }
 }

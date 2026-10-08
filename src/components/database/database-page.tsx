@@ -354,6 +354,7 @@ export function DatabasePage({
                           onConfig={(config) => setConfig(view, config)}
                           onCreateDateProperty={createDateProperty}
                           onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
+                          onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
                         />
                         {canManageAutomations && (
                           <AutomationsButton

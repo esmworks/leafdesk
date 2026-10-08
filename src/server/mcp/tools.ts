@@ -34,6 +34,7 @@ import {
 } from "@/lib/chart";
 import { formulaForStorage, withFormulaTypes } from "@/lib/derived";
 import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
+import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import {
   FORM_TITLE,
@@ -1411,6 +1412,82 @@ export function createMcpServer(principal: McpPrincipal) {
           sub_items: true,
           parent_property: parent.name,
           ...(paired ? { sub_items_property: paired.name } : {}),
+        };
+      }),
+  );
+
+  server.registerTool(
+    "set_dependencies",
+    {
+      title: "Turn dependencies on or off, or change their settings",
+      description:
+        "Turn dependencies on or off for a database, or change how they move rows. With dependencies, a row can wait for other rows of the same database: a relation of the database with itself lists the rows each row is blocked by, and its other side the rows it is blocking. When a row's dates move (start_property, end_property), the rows waiting for it follow by the shift rule: \"overlap\" (the default) moves them only when they would start on or before its end, \"keep_gap\" moves them as far as its end moved, \"none\" never moves them. A row that starts waiting for another one is moved past its end by either rule. Rows the same write dated keep their dates; rows the caller can't edit stay (timelines then show the link in red). Timelines draw an arrow for each link. Turning them on adds a two-way relation (named blocked_by_property_name and blocking_property_name), or uses blocked_by_property; without start_property the dates of the first timeline view that uses date properties are taken, else the first date property. A row can't wait for itself or for a row waiting for it. Turning them off keeps the properties and their links as plain relations. While on, call again with on: true to change the settings.",
+      inputSchema: z.object({
+        database_id: id("database"),
+        on: z.boolean(),
+        blocked_by_property: z
+          .string()
+          .optional()
+          .describe("Turning on: an existing relation of this database with itself (name or id) listing the rows each row waits for."),
+        blocked_by_property_name: z.string().min(1).max(100).optional().describe('Turning on without blocked_by_property: name of the new property ("Blocked by" by default).'),
+        blocking_property_name: z
+          .string()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Turning on without blocked_by_property: name of the new property listing the rows a row is blocking ("Blocking" by default).'),
+        shift: z.enum(DEPENDENCY_SHIFTS).optional().describe("How waiting rows follow when the rows they wait for move."),
+        skip_weekends: z.boolean().optional().describe("Rows that move go to the Monday after instead of starting on a Saturday or Sunday."),
+        start_property: z.string().optional().describe("The date property rows start on (name or id)."),
+        end_property: z.string().nullable().optional().describe("The date property rows end on (name or id); null for one-day rows."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    ({ database_id, on, blocked_by_property, blocked_by_property_name, blocking_property_name, shift, skip_weekends, start_property, end_property }) =>
+      runTool(async () => {
+        assertWrite();
+        const settingsGiven = [shift, skip_weekends, start_property, end_property].some((v) => v !== undefined);
+        if (!on && (blocked_by_property || blocked_by_property_name || blocking_property_name || settingsGiven)) {
+          throw new ToolInputError("The properties and settings only apply when turning dependencies on.");
+        }
+        if (blocked_by_property && (blocked_by_property_name || blocking_property_name)) {
+          throw new ToolInputError("Pass blocked_by_property to use an existing relation, or the names of new properties, not both.");
+        }
+        const { properties } = await databases.getDatabase(userId, database_id);
+        const dateId = (ref: string) => {
+          const prop = requireProperty(properties, ref);
+          if (prop.type !== "date") throw new ToolInputError(`Dependencies move rows by date properties; "${prop.name}" is ${prop.type}.`);
+          return prop.id;
+        };
+        const existing = blocked_by_property ? requireProperty(properties, blocked_by_property) : undefined;
+        const prop = on
+          ? await databases.setDependencies(userId, database_id, {
+              on: true,
+              propertyId: existing?.id,
+              names: { blockedBy: blocked_by_property_name ?? "Blocked by", blocking: blocking_property_name ?? "Blocking" },
+              settings: {
+                shift,
+                skipWeekends: skip_weekends,
+                startPropertyId: start_property === undefined ? undefined : dateId(start_property),
+                endPropertyId: end_property === undefined ? undefined : end_property === null ? null : dateId(end_property),
+              },
+            })
+          : await databases.setDependencies(userId, database_id, { on: false });
+        if (!prop) return { database_id, dependencies: false };
+        const after = (await databases.getDatabase(userId, database_id)).properties;
+        const paired = after.find((p) => p.id === prop.options.relation?.pairedPropertyId);
+        const settings = dependencySettings(prop, after);
+        const name = (id: string | null) => (id && after.find((p) => p.id === id)?.name) || null;
+        return {
+          database_id,
+          dependencies: true,
+          blocked_by_property: prop.name,
+          ...(paired ? { blocking_property: paired.name } : {}),
+          shift: settings.shift,
+          skip_weekends: settings.skipWeekends,
+          start_property: name(settings.start),
+          end_property: name(settings.end),
         };
       }),
   );
