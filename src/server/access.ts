@@ -15,6 +15,7 @@ import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
 import { connectedAppCall, connectedAppRefusal, connectedAppsMode, type ConnectedAppCall, type ConnectedAppsMode } from "@/server/connected-app";
 import { requestSession } from "@/server/request-session";
+import { actingFor } from "@/server/acting-for";
 
 /**
  * The one place that decides who may see or change a page. Everything that reads or writes pages
@@ -294,8 +295,16 @@ export const FULL_RANK = rank("full");
 /** The level `page_access_level` returns (0–4) as a name; anything unexpected is `none`. */
 export const levelFromRank = (value: unknown): AccessLevel => PAGE_LEVELS[Number(value)] ?? "none";
 
-/** SQL: the user's access rank (0–4) on a page id expression. */
-export const accessRank = (userId: string, pageId: SQL) => sql<number>`page_access_level(${userId}, ${pageId})`;
+/**
+ * SQL: the user's access rank (0–4) on a page id expression. A user acting for someone (an agent's
+ * run started by a member, see acting-for.ts) gets the lower of their two ranks.
+ */
+export function accessRank(userId: string, pageId: SQL) {
+  const forUserId = actingFor(userId);
+  return forUserId
+    ? sql<number>`least(page_access_level(${userId}, ${pageId}), page_access_level(${forUserId}, ${pageId}))`
+    : sql<number>`page_access_level(${userId}, ${pageId})`;
+}
 
 /**
  * The user's role in the workspace, or null. Throws a WorkspacePolicyError when one of the

@@ -337,7 +337,7 @@
       "archivedNote": "Stell den Agenten wieder her, um ihn zu ändern."
     },
     "access": {
-      "description": "Der Agent öffnet nur diese Seiten und die Seiten und Zeilen darunter.",
+      "description": "Der Agent öffnet nur diese Seiten und die Seiten und Zeilen darunter. Bei einem Lauf, den die Änderung einer Person gestartet hat, öffnet er nur, was auch diese Person öffnen kann.",
       "warning": "Alles, was du mit einem Agenten teilst, kann in den Zeilen landen, die er ändert, oder in den Kommentaren, die er schreibt – dort kann es jeder lesen, der diese Zeilen sieht.",
       "list": "Mit dem Agenten geteilte Seiten",
       "empty": "Mit diesem Agenten ist noch nichts geteilt.",
@@ -381,7 +381,7 @@
       "reason": {
         "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
         "agentDisabled": "Der Agent war pausiert oder archiviert.",
-        "noAccess": "Der Agent kann die Zeile oder ihre Datenbank nicht öffnen.",
+        "noAccess": "Der Agent oder die Person, deren Änderung den Lauf gestartet hat, kann die Zeile oder ihre Datenbank nicht öffnen.",
         "rowGone": "Die Zeile wurde gelöscht.",
         "provider": "Der KI-Anbieter hat nicht geantwortet.",
         "timeout": "Der Durchlauf hat zu lange gedauert.",
@@ -473,7 +473,7 @@
       }
     },
     "connections": {
-      "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
+      "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
       "empty": "Noch keine Verbindungen. Inhaber fügen sie unter <link>Einstellungen › Verbindungen</link> hinzu.",
       "allowedCount": "{n} von {total} erlaubt",
       "notReady": "Diese Verbindung ist nicht bereit (sie braucht eine Anmeldung oder schlägt fehl), daher kann der Agent ihre Werkzeuge vorerst nicht nutzen.",
@@ -1118,7 +1118,7 @@
   "connections": {
     "heading": "Verbindungen",
     "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. (Programme, die Leafdesk nutzen, findest du unter Sicherheit › Verbundene Apps.)",
-    "approvalNote": "Agenten führen Werkzeuge, die nur lesen, sofort aus. Jeder andere Aufruf wartet im Posteingang auf die Freigabe eines Inhabers; bleibt er einen Tag unbeantwortet, wird nichts gesendet.",
+    "approvalNote": "Agenten führen Werkzeuge, die nur lesen, sofort aus, außer bei einer Zeile aus einer anonymen Formularantwort. Jeder andere Aufruf wartet im Posteingang auf die Freigabe eines Inhabers; bleibt er einen Tag unbeantwortet, wird nichts gesendet.",
     "add": "Verbindung hinzufügen",
     "empty": "Noch keine Verbindungen.",
     "dismiss": "Schließen",

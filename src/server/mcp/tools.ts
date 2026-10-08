@@ -1644,7 +1644,7 @@ export function createMcpServer(principal: McpPrincipal) {
 
   const AGENT_NOTE =
     "Only owners of the workspace manage agents; others get \"No agent with this id\". An agent acts as a user of its own, a guest of the workspace: it opens only the pages shared with it (set_agent_access), never with full access, and its changes and comments show its name.";
-  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it, and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
+  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
 
   server.registerTool(
     "list_agents",
@@ -1804,7 +1804,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Choose an agent's tools on a connection",
       description:
-        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them; any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
+        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them (on a row from an anonymous form answer, they wait as well); any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
       inputSchema: connectionInputs.grant,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,

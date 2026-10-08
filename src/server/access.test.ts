@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { PgDialect } from "drizzle-orm/pg-core";
 import { describe, expect, it, vi } from "vitest";
+import { runActingFor } from "./acting-for";
 import { hasLevel, levelFromRank, pageVisibleTo, type AccessLevel } from "./access";
 
 vi.mock("@/db", () => ({ db: {} }));
@@ -50,6 +51,21 @@ describe("pageVisibleTo", () => {
 
   it("refuses aliases that could inject SQL", () => {
     expect(() => pageVisibleTo("user-1", 'p"; drop table page; --')).toThrow();
+  });
+});
+
+describe("acting for a member", () => {
+  const render = (userId: string) => new PgDialect().sqlToQuery(pageVisibleTo(userId));
+
+  it("gives the agent the lower of its and the member's access", () => {
+    const { sql, params } = runActingFor({ userId: "agent", forUserId: "member" }, () => render("agent"));
+    expect(sql).toBe('least(page_access_level($1, "page"."id"), page_access_level($2, "page"."id")) > 0');
+    expect(params).toEqual(["agent", "member"]);
+  });
+
+  it("leaves everyone else's access, and the agent's outside the run, as it is", () => {
+    expect(runActingFor({ userId: "agent", forUserId: "member" }, () => render("owner")).sql).toBe('page_access_level($1, "page"."id") > 0');
+    expect(render("agent").sql).toBe('page_access_level($1, "page"."id") > 0');
   });
 });
 

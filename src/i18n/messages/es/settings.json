@@ -337,7 +337,7 @@
       "archivedNote": "Restaura el agente para cambiarlo."
     },
     "access": {
-      "description": "El agente solo abre estas páginas y las páginas y filas que hay debajo.",
+      "description": "El agente solo abre estas páginas y las páginas y filas que hay debajo. En una ejecución iniciada por el cambio de una persona, solo abre lo que esa persona también puede abrir.",
       "warning": "Todo lo que compartes con un agente puede acabar en las filas que cambia o en los comentarios que escribe, donde cualquiera que pueda ver esas filas puede leerlo.",
       "list": "Páginas compartidas con el agente",
       "empty": "Todavía no hay nada compartido con este agente.",
@@ -381,7 +381,7 @@
       "reason": {
         "aiOff": "La IA está desactivada en este espacio de trabajo.",
         "agentDisabled": "El agente estaba en pausa o archivado.",
-        "noAccess": "El agente no puede abrir la fila o su base de datos.",
+        "noAccess": "El agente, o la persona cuyo cambio inició la ejecución, no puede abrir la fila o su base de datos.",
         "rowGone": "La fila se eliminó.",
         "provider": "El proveedor de IA no respondió.",
         "timeout": "La ejecución tardó demasiado.",
@@ -473,7 +473,7 @@
       }
     },
     "connections": {
-      "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
+      "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
       "empty": "Aún no hay conexiones. Los propietarios las añaden en <link>Configuración › Conexiones</link>.",
       "allowedCount": "{n} de {total} permitidas",
       "notReady": "Esta conexión no está lista (necesita iniciar sesión o falla), así que el agente no puede usar sus herramientas por ahora.",
@@ -1118,7 +1118,7 @@
   "connections": {
     "heading": "Conexiones",
     "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. (Los programas que usan Leafdesk están en Seguridad › Apps conectadas.)",
-    "approvalNote": "Los agentes ejecutan al momento las herramientas que solo leen. Cualquier otra llamada espera la aprobación de un propietario en la bandeja de entrada; si nadie responde en un día, no se envía nada.",
+    "approvalNote": "Los agentes ejecutan al momento las herramientas que solo leen, salvo en una fila que viene de una respuesta anónima a un formulario. Cualquier otra llamada espera la aprobación de un propietario en la bandeja de entrada; si nadie responde en un día, no se envía nada.",
     "add": "Añadir conexión",
     "empty": "Aún no hay conexiones.",
     "dismiss": "Cerrar",

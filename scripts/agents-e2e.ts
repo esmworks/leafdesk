@@ -41,6 +41,7 @@ const { commentUsers } = await import("@/server/comments");
 const { listPagePermissions, PermissionError, setPagePermission, sharePageByEmail } = await import("@/server/permissions");
 const { recordAssignments, recordComment } = await import("@/server/notifications");
 const { recordAudit } = await import("@/server/audit");
+const { setPropertyAccess } = await import("@/server/property-access");
 const { isAgentAccount } = await import("@/server/agents/users");
 const { AccessError, pageAccessOf } = await import("@/server/access");
 const { setAiEnv } = await import("@/server/ai/testing");
@@ -394,6 +395,58 @@ try {
   check(mertInbox.length === 1 && mertInbox[0].actorId === botId, "the person it assigned hears about it, from the agent", mertInbox);
   // Later checks count the agent's runs from here.
   await db.delete(agentRun).where(sql`${agentRun.agentId} = ${router.id} and ${agentRun.source}->>'rowId' = ${row2.id}`);
+
+  // ── A run a guest started: only what both the agent and the guest may ───────────────────────
+  const minutes = await createPage(owner, { workspaceId, teamspaceId: null, title: "Board minutes", markdown: "BOARD-ONLY minutes" });
+  await agents.setAgentAccess(ids.owner, router.id, minutes.id, "view");
+  const budgets = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Budgets" });
+  await agents.setAgentAccess(ids.owner, router.id, budgets.id, "edit");
+  await setPagePermission(ids.owner, budgets.id, ids.guest, "edit");
+  const amount = await addProperty(ids.owner, budgets.id, { name: "Amount", type: "number" });
+  const priority = await addProperty(ids.owner, budgets.id, { name: "Priority", type: "text" });
+  await setPropertyAccess(ids.owner, amount.id, { everyone: "none", exceptions: [{ userId: botId, level: "view" }] });
+  await setPropertyAccess(ids.owner, priority.id, { everyone: "view", exceptions: [{ userId: botId, level: "edit_values" }] });
+  const [budgetRow] = await createRows(ids.owner, budgets.id, [{ title: "Q3 budget", properties: { Amount: 777123, Priority: "low" } }]);
+  check(
+    (await pageAccessOf(ids.guest, minutes.id)).level === "none" && (await pageAccessOf(router.userId, minutes.id)).level === "view",
+    "(the agent may open the board minutes; the guest may not)",
+  );
+  const budgetRuns = sql`${agentRun.agentId} = ${router.id} and ${agentRun.source}->>'rowId' = ${budgetRow.id}`;
+  const budgetRun = async (actorId: string | null) => {
+    await db.delete(agentRun).where(budgetRuns);
+    fake.chats.length = 0;
+    fake.setChat(
+      caller([
+        () => ({ name: "read_page", arguments: { page_id: minutes.id } }),
+        () => ({ name: "search_pages", arguments: { query: "minutes" } }),
+        () => ({ name: "update_row", arguments: { row_id: budgetRow.id, properties: { Priority: "high" } } }),
+      ]),
+    );
+    const source = { kind: "automation" as const, automationId: triage.id, automationRunId: `${RUN}-budget`, databaseId: budgets.id, rowId: budgetRow.id };
+    await queueAgentRun({ agentId: router.id, workspaceId, source, context: { created: false, changed: [], actorId }, prompt: "Check the budget." });
+    await flushAgentRuns();
+    const [done] = await db.select().from(agentRun).where(budgetRuns);
+    const [after] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, budgetRow.id));
+    await db.update(page).set({ properties: { ...after.properties, [priority.id]: "low" } }).where(eq(page.id, budgetRow.id));
+    return { run: done, sent: fake.chats.map(everything).join("\n"), results: toolResults(fake.chats.at(-1)!), priority: after.properties[priority.id] };
+  };
+
+  const byOwner = await budgetRun(ids.owner);
+  check(byOwner.run.status === "done" && byOwner.sent.includes("BOARD-ONLY") && byOwner.sent.includes("777123"), "started by an owner, the agent reads what is shared with it", byOwner.run);
+  check(byOwner.priority === "high", "…and changes what it may", byOwner.results);
+
+  const byGuest = await budgetRun(ids.guest);
+  check(byGuest.run.status === "done", "started by a guest, the run goes on", byGuest.run);
+  check(!byGuest.sent.includes("BOARD-ONLY") && !byGuest.sent.includes("Board minutes"), "…but the agent can't open, find or see in its map a page the guest can't open", byGuest.results);
+  check(byGuest.results[0].startsWith("No page with that id can be read"), "…reading it is refused as if it didn't exist", byGuest.results[0]);
+  check(!byGuest.sent.includes("777123"), "…nor sees a value the guest can't see", byGuest.sent.slice(-1500));
+  check(byGuest.priority === "low" && byGuest.results[2].includes("Priority"), "…nor changes a value the guest can't change", byGuest.results[2]);
+
+  const byVisitor = await budgetRun(null);
+  check(byVisitor.sent.includes("BOARD-ONLY") && byVisitor.priority === "high", "with no one in the workspace behind the run (an anonymous form answer), the agent has its own access", byVisitor.results);
+  const byStranger = await budgetRun(ids.solo);
+  check(byStranger.sent.includes("BOARD-ONLY"), "…as with someone outside the workspace", byStranger.results);
+  await db.delete(agentRun).where(budgetRuns);
 
   // ── When a run doesn't happen ───────────────────────────────────────────────────────────────
   await updateWorkspaceSettings(ids.owner, workspaceId, { ai: false });

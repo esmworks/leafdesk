@@ -1,18 +1,22 @@
 /**
  * The agents' worker: takes queued runs (`agent_run`, queued by an automation's "Run an agent"
  * action or a connection's trigger) and does them, as the agent's own user, with the access it has
- * now. A few run at a time (AI_CONCURRENCY), each within its workspace's AI allowance (a run waits
- * for its turn rather than failing), and apart from the automations' worker, so a long run never
- * holds up a webhook.
+ * now. A row's run started by a member's change is also held to what that member may
+ * (acting-for.ts): the agent reads and changes only pages and values both of them can, so it never
+ * hands someone what they couldn't open themselves. A few run at a time (AI_CONCURRENCY), each
+ * within its workspace's AI allowance (a run waits for its turn rather than failing), and apart
+ * from the automations' worker, so a long run never holds up a webhook.
  *
  * A run is a short conversation with the model: the agent's instructions, what happened (a row
  * changed, or an event came in), a map of what the agent can open, then up to MAX_AGENT_ROUNDS
  * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent, and, on a
  * row's run, changing or commenting on that row, at most MAX_AGENT_WRITES times. Changes it makes
  * start no automations (`asAutomation`), so agents can't set each other off. On top of those come
- * the tools of connections an owner allowed it: one that only reads runs at once; any other makes
- * the run wait (`awaiting_approval`, its conversation saved in `state`) until an owner answers, and
- * fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
+ * the tools of connections an owner allowed it: one that only reads runs at once (except on a row's
+ * run no member started, an anonymous form answer, where every one waits: the row was written by
+ * someone the workspace doesn't know); any other makes the run wait (`awaiting_approval`, its
+ * conversation saved in `state`) until an owner answers, and fails it, sending nothing, after
+ * APPROVAL_TIMEOUT_MS.
  */
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -33,7 +37,8 @@ import {
 } from "@/lib/agents";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
-import { AccessError, pageAccessOf } from "@/server/access";
+import { AccessError, findMembership, pageAccessOf } from "@/server/access";
+import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentEventPrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -187,11 +192,16 @@ export async function processRun(run: Run): Promise<void> {
   if (run.attempts > MAX_CLAIMS) return finish(run, { status: "failed", code: "tooManyAttempts" });
   if (!(await aiAvailable(run.workspaceId))) return finish(run, { status: "failed", code: "aiOff" });
 
+  // The member whose change started a row's run: the agent works within their access as well. Asked
+  // again each time the run is taken (after an approval too): their access as it is now counts, and
+  // once they have left the workspace the run goes on as one no member started.
+  let member: string | null = null;
   if (isRowRun(run.source)) {
     const { rowId, databaseId } = run.source;
     const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
     if (!row || row.archivedAt || row.parentId !== databaseId) return finish(run, { status: "failed", code: "rowGone" });
-    const { level } = await pageAccessOf(agent.userId, rowId);
+    member = await memberBehind(run);
+    const { level } = await withinMember(agent, member, () => pageAccessOf(agent.userId, rowId));
     if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
   } else {
     const [conn] = await db.select({ id: connection.id }).from(connection).where(eq(connection.id, run.source.connectionId));
@@ -201,7 +211,7 @@ export async function processRun(run: Run): Promise<void> {
   const wait = takeWorkspaceCapacity(run.workspaceId);
   if (wait > 0) return later(run, new Date(Date.now() + wait));
 
-  const outcome = await converse(agent, run).catch((error: unknown) => ({ error }));
+  const outcome = await withinMember(agent, member, () => converse(agent, run, { member })).catch((error: unknown) => ({ error }));
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
@@ -213,20 +223,37 @@ export async function processRun(run: Run): Promise<void> {
   return finish(run, outcome);
 }
 
+/**
+ * Who started a row's run, if it is someone in the workspace (a guest too): null for an anonymous
+ * form answer, a signed-in visitor's answer to a public form, or an account since removed.
+ */
+async function memberBehind(run: Run): Promise<string | null> {
+  const actorId = "actorId" in run.context ? run.context.actorId : null;
+  if (!actorId) return null;
+  return (await findMembership(actorId, run.workspaceId)) ? actorId : null;
+}
+
+/** Runs `fn` with the agent held to the member's access as well (no member: the agent's own). */
+function withinMember<T>(agent: Agent, member: string | null, fn: () => Promise<T>): Promise<T> {
+  return member ? runActingFor({ userId: agent.userId, forUserId: member }, fn) : fn();
+}
+
 type Paused = { status: "awaiting"; state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage };
 type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord };
 
 /** The run's turns with the model (from the start, or from where it waited): what it did, and how it ended. */
-async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
+async function converse(agent: Agent, run: Run, { member }: { member: string | null }): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
   const rowRun = isRowRun(run.source);
+  // A row no member wrote may carry anyone's instructions: no connection tool runs without an owner.
+  const askEveryTool = rowRun && !member;
   const limits = aiConfig().limits;
   // The run's own time, from now: the wait for an answer doesn't count.
   const signal = AbortSignal.timeout(AGENT_RUN_TIMEOUT_MS);
   const toolset = await agentToolset(agent.id);
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...toolset.tools];
-  const system = agentSystemPrompt(agent, { row: rowRun, connections });
+  const system = agentSystemPrompt(agent, { row: rowRun, connections, askEveryTool });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
@@ -247,7 +274,7 @@ async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
     firstRound = saved.rounds;
     queue = saved.queue;
   } else if (isRowRun(run.source)) {
-    // The row, read as the agent (its values as the agent may see them), as source 1.
+    // The row, read as the agent (its values as both it and the member may see them), as source 1.
     const read = await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: run.source.rowId } }, registry, Math.min(8_000, room([])));
     if (read.isError) return { status: "failed", code: "noAccess", steps, usage };
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
@@ -263,10 +290,10 @@ async function converse(agent: Agent, run: Run): Promise<Ending | Paused> {
   const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<CallResult | null> => {
     const external = toolset.byName.get(call.name);
     if (external) {
-      if (external.tool.kind === "write") {
-        if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
-        if (!approved) return null;
+      if (external.tool.kind === "write" && writes >= MAX_AGENT_WRITES) {
+        return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
       }
+      if ((external.tool.kind === "write" || askEveryTool) && !approved) return null;
       const left = MAX_RUN_EXTERNAL_CHARS - externalChars;
       if (left <= 200) return { content: "You have read as much from connected services as one run may. Finish with what you have.", isError: true };
       const out = await runConnectionTool({ entry: external, args: call.arguments, agentUserId: agent.userId, agentName: agent.name, approvedBy: approved?.userId ?? null, room: left, signal });

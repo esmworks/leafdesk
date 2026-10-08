@@ -337,7 +337,7 @@
       "archivedNote": "Restore the agent to change it."
     },
     "access": {
-      "description": "The agent opens only these pages, and the pages and rows under them.",
+      "description": "The agent opens only these pages, and the pages and rows under them. On a run started by someone’s change, it opens only what that person can open too.",
       "warning": "Anything you share with an agent can end up in the rows it changes or the comments it writes, where everyone who can see those rows can read it.",
       "list": "Pages shared with the agent",
       "empty": "Nothing is shared with this agent yet.",
@@ -381,7 +381,7 @@
       "reason": {
         "aiOff": "AI is off in this workspace.",
         "agentDisabled": "The agent was paused or archived.",
-        "noAccess": "The agent can’t open the row or its database.",
+        "noAccess": "The agent, or the person whose change started the run, can’t open the row or its database.",
         "rowGone": "The row was deleted.",
         "provider": "The AI provider didn’t answer.",
         "timeout": "The run took too long.",
@@ -473,7 +473,7 @@
       }
     },
     "connections": {
-      "description": "The tools of each connection this agent may use. Tools that only read run at once; any other waits for an owner’s approval every time the agent calls it.",
+      "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
       "empty": "No connections yet. Owners add them in <link>Settings › Connections</link>.",
       "allowedCount": "{n} of {total} allowed",
       "notReady": "This connection isn’t ready (it needs a sign-in or fails), so the agent can’t use its tools for now.",
@@ -1118,7 +1118,7 @@
   "connections": {
     "heading": "Connections",
     "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. (Programs that use Leafdesk are under Security › Connected apps.)",
-    "approvalNote": "Agents run tools that only read at once. Every other call waits for an owner’s approval in the inbox; unanswered for a day, nothing is sent.",
+    "approvalNote": "Agents run tools that only read at once, except on a row from an anonymous form answer. Every other call waits for an owner’s approval in the inbox; unanswered for a day, nothing is sent.",
     "add": "Add connection",
     "empty": "No connections yet.",
     "dismiss": "Dismiss",
