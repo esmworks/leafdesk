@@ -511,6 +511,14 @@
   "preferences": {
     "description": "Die Präferenzen deines Kontos: wie Leafdesk in diesem Browser aussieht und welche E-Mails du erhältst."
   },
+  "theme": {
+    "heading": "Darstellung",
+    "label": "Design",
+    "system": "System verwenden",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "note": "Diese Einstellung gilt nur für diesen Browser. Mit der Systemeinstellung wird die App mit Ihrem Gerät hell oder dunkel."
+  },
   "language": {
     "heading": "Sprache",
     "label": "Sprache der Oberfläche",

@@ -511,6 +511,14 @@
   "preferences": {
     "description": "Las preferencias de tu cuenta: cómo se ve Leafdesk en este navegador y qué correos recibes."
   },
+  "theme": {
+    "heading": "Apariencia",
+    "label": "Tema",
+    "system": "Usar el del sistema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "note": "Este ajuste solo se aplica a este navegador. Con el del sistema, la aplicación se vuelve clara u oscura junto con tu dispositivo."
+  },
   "language": {
     "heading": "Idioma",
     "label": "Idioma de la interfaz",

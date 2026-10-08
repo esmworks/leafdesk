@@ -9,6 +9,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { diffSnapshotAction, getSnapshotAction, listSnapshotsAction, restoreSnapshotAction } from "@/app/actions/pages";
 import { Button, cn, IconButton, pageLabel } from "@/components/ui";
+import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { DATABASE_BLOCK, mapReferenceLines } from "@/lib/embed-blocks";
 import { HistoryDiff, type VersionDiff } from "./history-diff";
@@ -37,7 +38,17 @@ function Preview({ markdown }: { markdown: string }) {
       cancelled = true;
     };
   }, [editor, text]);
-  return <BlockNoteView editor={editor} editable={false} sideMenu={false} slashMenu={false} formattingToolbar={false} />;
+  const colorScheme = useColorScheme();
+  return (
+    <BlockNoteView
+      editor={editor}
+      theme={colorScheme}
+      editable={false}
+      sideMenu={false}
+      slashMenu={false}
+      formattingToolbar={false}
+    />
+  );
 }
 
 export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; onClose: () => void; readOnly: boolean }) {

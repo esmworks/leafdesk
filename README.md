@@ -251,6 +251,7 @@ versions, upgrades and running behind a domain.
   with Ollama or LM Studio (see [AI features](#ai-features)).
 - **Five interface languages**: English, Turkish, German, Spanish and French, chosen in My account
   or taken from the browser (see [Languages](#languages)).
+- **Light and dark themes**: following the system, or chosen for the browser in Preferences.
 - **MCP server with OAuth 2.1**: remote MCP endpoint at `/mcp`.
   - Supports Client ID Metadata Documents and Dynamic Client Registration, with PKCE and a
     consent screen.

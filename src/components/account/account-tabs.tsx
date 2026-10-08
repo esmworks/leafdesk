@@ -14,8 +14,10 @@ import { LanguageSettings } from "@/components/settings/language-settings";
 import { McpInstructions } from "@/components/settings/mcp-instructions";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
+import { ThemeSettings } from "@/components/settings/theme-settings";
 import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
 import { FRESH_SIGN_IN_MINUTES, proofKindFor } from "@/lib/account";
+import { isTheme, THEME_COOKIE } from "@/lib/theme";
 import { getAccountOverview, deletionPlanFor, emailChangeEnabled } from "@/server/account";
 import { getAccountSecurity } from "@/server/account-security";
 import { mailStatus } from "@/server/mail";
@@ -127,12 +129,16 @@ async function PreferencesTab({ userId }: { userId: string }) {
     getTranslations("settings"),
   ]);
   const savedLocale = cookieStore.get(LOCALE_COOKIE)?.value;
+  const savedTheme = cookieStore.get(THEME_COOKIE)?.value;
   return (
     <>
       <SettingsHeader title={t("nav.preferences")} description={ts("preferences.description")} />
       <div className="space-y-10">
         <SettingsGroup title={ts("language.heading")}>
           <LanguageSettings current={isLocale(savedLocale) ? savedLocale : null} />
+        </SettingsGroup>
+        <SettingsGroup title={ts("theme.heading")}>
+          <ThemeSettings current={isTheme(savedTheme) ? savedTheme : null} />
         </SettingsGroup>
         <SettingsGroup
           title={ts("notifications.heading")}

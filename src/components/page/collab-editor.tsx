@@ -21,6 +21,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockFocus } from "./block-focus";
 import { commentUsersAction } from "@/app/actions/comments";
+import { useColorScheme } from "@/components/theme/theme-provider";
 import { AskAiToolbarButton, useAiAssist, useAiSlashItems, type AiAssist } from "./ai-assist";
 import { yUndoPluginKey } from "y-prosemirror";
 import type { UndoManager } from "yjs";
@@ -94,6 +95,7 @@ export default function CollabEditor({
   ai?: boolean;
 }) {
   const locale = useLocale();
+  const colorScheme = useColorScheme();
   const tc = useTranslations("common");
   const tu = useTranslations("page.upload");
   const dictionary = useEditorDictionary();
@@ -192,6 +194,7 @@ export default function CollabEditor({
         <BlockNoteView
           key={locale}
           editor={editor}
+          theme={colorScheme}
           editable={mountEditable}
           slashMenu={false}
           formattingToolbar={false}

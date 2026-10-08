@@ -70,6 +70,10 @@
   cover, and lose an image cover or image background (`0046_page_background_colors_only`, which
   also has the file trigger stop looking at backgrounds); `0045_drop_page_cover` removes the cover
   column.
+- **Choosing the light or dark theme.** Settings > Preferences > Appearance sets the theme for this
+  browser: the system's (as before), light or dark. It is kept in a cookie like the interface
+  language, so the server draws the page in the chosen theme from the start, and the editor,
+  diagrams and the browser bar follow it. The print view stays light. No migration.
 - **Repeating templates.** The repeat button beside a row template in the menu next to *New* adds a
   row from it on a schedule: daily, weekly on chosen weekdays, monthly or yearly, every N of them
   (up to 99), at a time in an IANA time zone, from a first day, with the date added to the title if

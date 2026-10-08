@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
+import { useColorScheme } from "@/components/theme/theme-provider";
 
 /**
  * Mermaid diagrams, drawn in the browser for the editor and for published pages.
@@ -76,28 +77,13 @@ export function renderMermaid(source: string, dark: boolean): Promise<MermaidRes
   return job;
 }
 
-const darkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
-
-/** Whether the system is in dark mode (the app follows it), updating when it changes. */
-export function usePrefersDark() {
-  return useSyncExternalStore(
-    (onChange) => {
-      const query = darkQuery();
-      query.addEventListener("change", onChange);
-      return () => query.removeEventListener("change", onChange);
-    },
-    () => darkQuery().matches,
-    () => false,
-  );
-}
-
 /**
  * The drawing of `source`, redrawn a moment after it stops changing. `image` is the last diagram
  * that drew, so a typo while editing doesn't blank it; `error` says what's wrong with the current
  * source. `light` draws it in the light theme whatever the system's is (print).
  */
 export function useMermaid(source: string, { light = false }: { light?: boolean } = {}) {
-  const dark = usePrefersDark() && !light;
+  const dark = useColorScheme() === "dark" && !light;
   const [state, setState] = useState<{ image: MermaidImage | null; error: string | null; pending: boolean }>({
     image: null,
     error: null,

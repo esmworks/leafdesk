@@ -1,9 +1,25 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/*
+ * Dark: the system's dark mode unless the person chose the light theme, or the dark theme they
+ * chose (Settings > Preferences, lib/theme.ts), which <html data-theme> carries.
+ */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+}
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  @variant dark {
+    color-scheme: dark;
+  }
   --bg: #ffffff;
   --bg-subtle: #f7f7f8;
   --bg-hover: #efeff1;
@@ -33,8 +49,8 @@
 }
 
 /* The print view (app/print) stays light in dark mode: see the end of this file. */
-@media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) {
+:root:not(:has([data-print-view])) {
+  @variant dark {
     --bg: #18191b;
     --bg-subtle: #202124;
     --bg-hover: #2a2b2f;
@@ -207,16 +223,18 @@
 .opt-pink, .tint-pink { --opt-bg: #fdcde2; --opt-fg: #53273d; --opt-tint: #fff3f8; --opt-card: #ffffff; }
 .opt-red, .tint-red { --opt-bg: #ffcfcc; --opt-fg: #5b2424; --opt-tint: #fef4f3; --opt-card: #ffffff; }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) .opt-gray, :root:not(:has([data-print-view])) .tint-gray { --opt-bg: #617267; --opt-fg: #f4f6f4; --opt-tint: #1f2120; --opt-card: #2d312f; }
-  :root:not(:has([data-print-view])) .opt-brown, :root:not(:has([data-print-view])) .tint-brown { --opt-bg: #8c654f; --opt-fg: #fbf3ef; --opt-tint: #251e1b; --opt-card: #3c2c22; }
-  :root:not(:has([data-print-view])) .opt-orange, :root:not(:has([data-print-view])) .tint-orange { --opt-bg: #9d6125; --opt-fg: #fbf5ef; --opt-tint: #272019; --opt-card: #402f1e; }
-  :root:not(:has([data-print-view])) .opt-yellow, :root:not(:has([data-print-view])) .tint-yellow { --opt-bg: #886e20; --opt-fg: #fbf8ef; --opt-tint: #262319; --opt-card: #3f371f; }
-  :root:not(:has([data-print-view])) .opt-green, :root:not(:has([data-print-view])) .tint-green { --opt-bg: #3b7d51; --opt-fg: #effbf3; --opt-tint: #1c241e; --opt-card: #253a2c; }
-  :root:not(:has([data-print-view])) .opt-blue, :root:not(:has([data-print-view])) .tint-blue { --opt-bg: #3a72a4; --opt-fg: #eff5fb; --opt-tint: #1b2025; --opt-card: #23303b; }
-  :root:not(:has([data-print-view])) .opt-purple, :root:not(:has([data-print-view])) .tint-purple { --opt-bg: #8659a6; --opt-fg: #f6effb; --opt-tint: #211b25; --opt-card: #31233b; }
-  :root:not(:has([data-print-view])) .opt-pink, :root:not(:has([data-print-view])) .tint-pink { --opt-bg: #a4517a; --opt-fg: #fbeff5; --opt-tint: #251b20; --opt-card: #3b232f; }
-  :root:not(:has([data-print-view])) .opt-red, :root:not(:has([data-print-view])) .tint-red { --opt-bg: #ad514a; --opt-fg: #fbefef; --opt-tint: #251b1b; --opt-card: #3c2422; }
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    .opt-gray, .tint-gray { --opt-bg: #617267; --opt-fg: #f4f6f4; --opt-tint: #1f2120; --opt-card: #2d312f; }
+    .opt-brown, .tint-brown { --opt-bg: #8c654f; --opt-fg: #fbf3ef; --opt-tint: #251e1b; --opt-card: #3c2c22; }
+    .opt-orange, .tint-orange { --opt-bg: #9d6125; --opt-fg: #fbf5ef; --opt-tint: #272019; --opt-card: #402f1e; }
+    .opt-yellow, .tint-yellow { --opt-bg: #886e20; --opt-fg: #fbf8ef; --opt-tint: #262319; --opt-card: #3f371f; }
+    .opt-green, .tint-green { --opt-bg: #3b7d51; --opt-fg: #effbf3; --opt-tint: #1c241e; --opt-card: #253a2c; }
+    .opt-blue, .tint-blue { --opt-bg: #3a72a4; --opt-fg: #eff5fb; --opt-tint: #1b2025; --opt-card: #23303b; }
+    .opt-purple, .tint-purple { --opt-bg: #8659a6; --opt-fg: #f6effb; --opt-tint: #211b25; --opt-card: #31233b; }
+    .opt-pink, .tint-pink { --opt-bg: #a4517a; --opt-fg: #fbeff5; --opt-tint: #251b20; --opt-card: #3b232f; }
+    .opt-red, .tint-red { --opt-bg: #ad514a; --opt-fg: #fbefef; --opt-tint: #251b1b; --opt-card: #3c2422; }
+  }
 }
 
 .opt-gray, .opt-brown, .opt-orange, .opt-yellow, .opt-green, .opt-blue, .opt-purple, .opt-pink, .opt-red {
@@ -246,20 +264,22 @@
   --border: color-mix(in srgb, var(--page-hue), #1f2023 18%);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) .page-bg-gray { --page-hue: #617267; }
-  :root:not(:has([data-print-view])) .page-bg-orange { --page-hue: #9d6125; }
-  :root:not(:has([data-print-view])) .page-bg-green { --page-hue: #3b7d51; }
-  :root:not(:has([data-print-view])) .page-bg-blue { --page-hue: #3a72a4; }
-  :root:not(:has([data-print-view])) .page-bg-purple { --page-hue: #8659a6; }
-  :root:not(:has([data-print-view])) .page-bg-pink { --page-hue: #a4517a; }
-  :root:not(:has([data-print-view])) .page-bg-red { --page-hue: #ad514a; }
-  :root:not(:has([data-print-view])) [class*="page-bg-"] {
-    --bg: color-mix(in srgb, var(--page-hue) 20%, #18191b);
-    --bg-subtle: color-mix(in srgb, var(--page-hue) 26%, #18191b);
-    --bg-hover: color-mix(in srgb, var(--page-hue) 34%, #18191b);
-    --bg-active: color-mix(in srgb, var(--page-hue) 42%, #18191b);
-    --border: color-mix(in srgb, var(--page-hue) 50%, #18191b);
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    .page-bg-gray { --page-hue: #617267; }
+    .page-bg-orange { --page-hue: #9d6125; }
+    .page-bg-green { --page-hue: #3b7d51; }
+    .page-bg-blue { --page-hue: #3a72a4; }
+    .page-bg-purple { --page-hue: #8659a6; }
+    .page-bg-pink { --page-hue: #a4517a; }
+    .page-bg-red { --page-hue: #ad514a; }
+    [class*="page-bg-"] {
+      --bg: color-mix(in srgb, var(--page-hue) 20%, #18191b);
+      --bg-subtle: color-mix(in srgb, var(--page-hue) 26%, #18191b);
+      --bg-hover: color-mix(in srgb, var(--page-hue) 34%, #18191b);
+      --bg-active: color-mix(in srgb, var(--page-hue) 42%, #18191b);
+      --border: color-mix(in srgb, var(--page-hue) 50%, #18191b);
+    }
   }
 }
 
@@ -354,8 +374,8 @@
   --chart-axis: #c9cacf;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) {
+:root:not(:has([data-print-view])) {
+  @variant dark {
     --chart-1: #3987e5;
     --chart-2: #d95926;
     --chart-3: #199e70;
@@ -518,13 +538,11 @@
   background: color-mix(in srgb, var(--opt-card, var(--bg)) 65%, var(--opt-bg, var(--bg-hover)));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(:has([data-print-view])) .board-card {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 1px 3px rgba(0, 0, 0, 0.3);
-  }
-  /* Dark chips are mid-tone, so a lighter lean keeps the hover a tint rather than a highlight. */
-  :root:not(:has([data-print-view])) .board-card:hover {
-    background: color-mix(in srgb, var(--opt-card, var(--bg)) 85%, var(--opt-bg, var(--bg-hover)));
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    .board-card { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 1px 3px rgba(0, 0, 0, 0.3); }
+    /* Dark chips are mid-tone, so a lighter lean keeps the hover a tint rather than a highlight. */
+    .board-card:hover { background: color-mix(in srgb, var(--opt-card, var(--bg)) 85%, var(--opt-bg, var(--bg-hover))); }
   }
 }
 
@@ -565,13 +583,13 @@
   background: rgba(249, 115, 22, 0.55);
   box-shadow: 0 0 0 1px rgba(234, 88, 12, 0.8);
 }
-@media (prefers-color-scheme: dark) {
-  .leafdesk-find-match {
-    background: rgba(234, 179, 8, 0.3);
-  }
-  .leafdesk-find-match.leafdesk-find-current {
-    background: rgba(249, 115, 22, 0.5);
-    box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.9);
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    .leafdesk-find-match { background: rgba(234, 179, 8, 0.3); }
+    .leafdesk-find-match.leafdesk-find-current {
+      background: rgba(249, 115, 22, 0.5);
+      box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.9);
+    }
   }
 }
 

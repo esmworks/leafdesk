@@ -511,6 +511,14 @@
   "preferences": {
     "description": "Hesabınızın tercihleri: bu tarayıcıdaki görünüm ve e-posta bildirimleri."
   },
+  "theme": {
+    "heading": "Görünüm",
+    "label": "Tema",
+    "system": "Sistemi kullan",
+    "light": "Açık",
+    "dark": "Koyu",
+    "note": "Bu ayar yalnızca bu tarayıcı için geçerlidir. Sistem ayarında uygulama, cihazınızla birlikte açık ya da koyu olur."
+  },
   "language": {
     "heading": "Dil",
     "label": "Arayüz dili",

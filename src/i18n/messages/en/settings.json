@@ -511,6 +511,14 @@
   "preferences": {
     "description": "Your account's preferences: how Leafdesk looks in this browser and which emails you get."
   },
+  "theme": {
+    "heading": "Appearance",
+    "label": "Theme",
+    "system": "Follow the system",
+    "light": "Light",
+    "dark": "Dark",
+    "note": "This setting only applies to this browser. With the system setting, the app turns light or dark along with your device."
+  },
   "language": {
     "heading": "Language",
     "label": "Interface language",
