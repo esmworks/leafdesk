@@ -14,6 +14,19 @@
 
 ### Added
 
+- **Sub-items.** A table, list or timeline view's settings turn sub-items on for the database: a
+  two-way relation of the database with itself, *Parent item* and *Sub-items* (or a relation of
+  the database with itself it already has), lets a row go under another row. A row holds one
+  parent: picking another moves it, and so does listing it under another row's sub-items. A row
+  can't go under itself or one of its own sub-items, from either side, one row or many at once.
+  Table, list and timeline views show sub-items nested under their parent (each viewer opens and
+  closes rows for themselves, and the browser tab keeps them open), as a flat list, or only the
+  rows without a parent with how many sub-items each has. Hovering a row offers a "+" to add a
+  sub-item; on a timeline it starts where its parent does. A sub-item whose parent is filtered out
+  or in another group shows at the top. Turning sub-items off keeps both properties and their
+  links. Stored on the relation (`role`) and the view (`subItems`); no migration. Over MCP,
+  `set_sub_items` turns them on or off, views take `sub_items` (`nested`, `flat`, `parents`), and
+  `get_database` marks the two properties with `sub_items_role`.
 - **Running totals and burndowns in charts.** A bar or line chart grouped by a date (or created or
   edited time) and measuring something that adds up (a count, a sum, counts of values or ticks)
   has *Over time* in its settings: *Each period* (as before), *Running total*, or *Remaining*.

@@ -572,6 +572,8 @@
     "nestedDatabase": "Bir veritabanının içinde başka bir veritabanı olamaz.",
     "invalidRelation": "“{property}” yalnızca ilişkili veritabanının satırlarına bağlanabilir.",
     "invalidRelationTarget": "İlişki aynı çalışma alanındaki bir veritabanını göstermelidir.",
+    "subItemLoop": "“{property}” bir satırı kendisinin ya da kendi alt öğelerinden birinin altına koyamaz.",
+    "notSubItemsRelation": "Alt öğeler için bu veritabanının kendisiyle bir ilişkisi gerekir.",
     "relationTargetReadOnly": "O veritabanını yalnızca görüntüleyebiliyorsun, bu yüzden bağlantı orada gösterilemez. O seçeneğin işaretini kaldır ya da düzenleme izni iste.",
     "databaseLocked": "Veritabanı kilitli. Özellikleri ve görünümleri değiştirmek için önce kilidi açın.",
     "invalidPerson": "“{property}” yalnızca bu çalışma alanındaki kişileri içerebilir.",
@@ -874,5 +876,25 @@
       "agentRun": "Ajanın çalışmasını gör",
       "agentRunHint": "ajanın çalışması Ayarlar > Ajanlar’da"
     }
+  },
+  "subItems": {
+    "heading": "Alt öğeler",
+    "parentName": "Üst öğe",
+    "subItemsName": "Alt öğeler",
+    "show": "“{title}” alt öğelerini göster",
+    "hide": "“{title}” alt öğelerini gizle",
+    "add": "“{title}” altına alt öğe ekle",
+    "count": "{count, plural, other {# alt öğe}}",
+    "displays": {
+      "nested": "Üst öğelerinin altında",
+      "flat": "Düz liste",
+      "parents": "Yalnızca üst öğeler"
+    },
+    "turnOn": "Alt öğeleri aç",
+    "turnOnHint": "Satırlar başka satırların altına girebilir; tabloda, listede ve zaman çizelgesinde iç içe görünür.",
+    "useExisting": "Üst öğeler “{name}” içinde tutulsun",
+    "turnOff": "Alt öğeleri kapat",
+    "turnOffHint": "Özellikler ve bağlantıları kalır.",
+    "keptIn": "Üst öğeler “{name}” içinde tutuluyor."
   }
 }

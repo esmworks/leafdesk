@@ -81,8 +81,10 @@ export function RelationPicker({
     setSelectedIds(ids);
     onChange(ids.length ? ids : null);
   };
+  // A row's parent (sub-items) is one row: picking another replaces it.
+  const single = prop.options.relation?.role === "parent";
   const toggle = (id: string) =>
-    setIds(selectedIds.includes(id) ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
+    setIds(selectedIds.includes(id) ? selectedIds.filter((x) => x !== id) : single ? [id] : [...selectedIds, id]);
 
   const create = async () => {
     const title = query.trim();
@@ -92,7 +94,7 @@ export function RelationPicker({
     setBusy(false);
     if (!id) return;
     setQuery("");
-    setIds([...selectedIds, id]);
+    setIds(single ? [id] : [...selectedIds, id]);
   };
 
   const choose = (i: number) => {

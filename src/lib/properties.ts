@@ -62,6 +62,8 @@ export const DATABASE_ERROR_CODES = [
   "nestedDatabase",
   "invalidRelation",
   "invalidRelationTarget",
+  "subItemLoop",
+  "notSubItemsRelation",
   "invalidPerson",
   "readOnlyProperty",
   "relationTargetReadOnly",

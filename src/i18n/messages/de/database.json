@@ -572,6 +572,8 @@
     "nestedDatabase": "Eine Datenbank kann keine andere Datenbank enthalten.",
     "invalidRelation": "„{property}“ kann nur mit Zeilen der verknüpften Datenbank verknüpft werden.",
     "invalidRelationTarget": "Eine Relation muss auf eine Datenbank im selben Workspace verweisen.",
+    "subItemLoop": "„{property}“ kann eine Zeile nicht unter sich selbst oder unter eines ihrer eigenen Unterelemente stellen.",
+    "notSubItemsRelation": "Unterelemente brauchen eine Relation dieser Datenbank mit sich selbst.",
     "relationTargetReadOnly": "Du kannst diese Datenbank nur ansehen, daher kann die Verknüpfung dort nicht ebenfalls angezeigt werden. Entferne das Häkchen bei dieser Option oder bitte um Bearbeitungszugriff.",
     "databaseLocked": "Diese Datenbank ist gesperrt. Entsperre sie, um ihre Eigenschaften und Ansichten zu ändern.",
     "invalidPerson": "„{property}“ kann nur Personen aus diesem Workspace enthalten.",
@@ -874,5 +876,25 @@
       "agentRun": "Durchlauf des Agenten ansehen",
       "agentRunHint": "der Durchlauf des Agenten steht unter Einstellungen > Agenten"
     }
+  },
+  "subItems": {
+    "heading": "Unterelemente",
+    "parentName": "Übergeordnetes Element",
+    "subItemsName": "Unterelemente",
+    "show": "Unterelemente von „{title}“ einblenden",
+    "hide": "Unterelemente von „{title}“ ausblenden",
+    "add": "Unterelement zu „{title}“ hinzufügen",
+    "count": "{count, plural, one {# Unterelement} other {# Unterelemente}}",
+    "displays": {
+      "nested": "Unter dem übergeordneten Element",
+      "flat": "Flache Liste",
+      "parents": "Nur übergeordnete Elemente"
+    },
+    "turnOn": "Unterelemente aktivieren",
+    "turnOnHint": "Zeilen können unter andere Zeilen gehören und erscheinen in Tabellen, Listen und Zeitleisten verschachtelt.",
+    "useExisting": "Übergeordnete Elemente in „{name}“ führen",
+    "turnOff": "Unterelemente deaktivieren",
+    "turnOffHint": "Die Eigenschaften und ihre Verknüpfungen bleiben erhalten.",
+    "keptIn": "Übergeordnete Elemente stehen in „{name}“."
   }
 }

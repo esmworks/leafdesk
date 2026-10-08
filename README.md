@@ -90,6 +90,11 @@ versions, upgrades and running behind a domain.
     sorting and grouping. Filters combine with "and"/"or" in groups and take relative dates such as
     "this week". A "Me" filter shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
+  - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
+    row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the
+    rows under it). Those views show sub-items nested under their parent, opened and closed by each
+    viewer, as a flat list, or show only the rows without a parent. A row can't go under itself or
+    one of its own sub-items.
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.
@@ -1317,12 +1322,13 @@ The tools cover:
   its link. It needs no extra permission: the user reads a file when they can see a page showing it.
 - **Databases:** `get_database`, `query_database`, `create_database`, `create_database_row`,
   `create_database_rows`, `update_database_row`, `update_database_rows`, `add_database_property`
-  (including one- or two-way relations), `update_database_property`,
+  (including one- or two-way relations), `set_sub_items`, `update_database_property`,
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
   timeline, chart or form, including a form's public link; a chart over a date takes `accumulate`
-  for running totals or a burndown; `update_database_view` also moves a
+  for running totals or a burndown, and table, list and timeline views take `sub_items`;
+  `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property).
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,

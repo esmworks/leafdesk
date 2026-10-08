@@ -77,6 +77,8 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
         ? {
             databaseId: pageIds.get(relation.databaseId)!,
             pairedPropertyId: (relation.pairedPropertyId && propIds.get(relation.pairedPropertyId)) || null,
+            // A copied database keeps its sub-items.
+            ...(relation.role ? { role: relation.role } : {}),
           }
         : // The target stays the original database, one-way: its paired property keeps pairing with
           // the original, and mirroring into it from the copy would corrupt that pairing.

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Plus, SlidersHorizontal } from "lucide-react";
+import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, ListTree, Plus, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -25,6 +25,7 @@ import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
 import { isGroupable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { CARD_SIZES, coverProperty, galleryCover } from "@/lib/views";
+import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay } from "@/lib/sub-items";
 import { Floating, useFloating } from "./floating";
 import { PropertyTypeIcon } from "./property-icons";
 import type { Property, View } from "./types";
@@ -53,12 +54,19 @@ export function timelineGroupProperty(view: View, properties: Property[]) {
   return properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type)) ?? null;
 }
 
-/** Layout settings of gallery and timeline views (card size and cover; dates, swimlanes and table). */
+/** Views that can show sub-items nested under their parent (see lib/sub-items). */
+const NESTING_VIEWS = new Set<View["type"]>(["table", "list", "timeline"]);
+
+/**
+ * Layout settings of gallery, timeline and chart views (card size and cover; dates, swimlanes and
+ * table; the chart), and sub-items in table, list and timeline views.
+ */
 export function ViewLayoutMenu({
   view,
   properties,
   onConfig,
   onCreateDateProperty,
+  onSubItems,
   readOnly,
   locked,
 }: {
@@ -66,12 +74,17 @@ export function ViewLayoutMenu({
   properties: Property[];
   onConfig: (config: ViewConfig) => void;
   onCreateDateProperty: () => void;
+  /** Turns sub-items on (new properties, or the given relation) or off; missing when the user can't. */
+  onSubItems?: (on: boolean, propertyId?: string) => void;
   readOnly?: boolean;
   locked?: boolean;
 }) {
   const t = useTranslations("database.layout");
   const menu = useFloating<HTMLButtonElement>();
-  if (readOnly || (view.type !== "gallery" && view.type !== "timeline" && view.type !== "chart")) return null;
+  const nesting = NESTING_VIEWS.has(view.type);
+  // A table or list without sub-items has nothing to set but turning them on.
+  if (readOnly || (!nesting && view.type !== "gallery" && view.type !== "chart")) return null;
+  if (nesting && view.type !== "timeline" && !parentProperty(properties) && (!onSubItems || locked)) return null;
   const config = view.config;
   const set = (patch: ViewConfig) => onConfig({ ...config, ...patch });
 
@@ -123,7 +136,7 @@ export function ViewLayoutMenu({
                 {t("covers.none")}
               </Choice>
             </>
-          ) : (
+          ) : view.type === "timeline" ? (
             <TimelineSettings
               view={view}
               properties={properties}
@@ -134,9 +147,86 @@ export function ViewLayoutMenu({
                 onCreateDateProperty();
               }}
             />
+          ) : null}
+          {nesting && (
+            <SubItemsSettings
+              view={view}
+              properties={properties}
+              separated={view.type === "timeline"}
+              onSet={set}
+              onSubItems={
+                onSubItems && !locked
+                  ? (on, propertyId) => {
+                      menu.close();
+                      onSubItems(on, propertyId);
+                    }
+                  : undefined
+              }
+            />
           )}
         </div>
       </Floating>
+    </>
+  );
+}
+
+/**
+ * Sub-items: how the view shows them while they're on, and turning them on (with new properties
+ * or a relation of the database with itself the user already has) or off.
+ */
+function SubItemsSettings({
+  view,
+  properties,
+  separated,
+  onSet,
+  onSubItems,
+}: {
+  view: View;
+  properties: Property[];
+  separated?: boolean;
+  onSet: (patch: ViewConfig) => void;
+  onSubItems?: (on: boolean, propertyId?: string) => void;
+}) {
+  const t = useTranslations("database.subItems");
+  const parent = parentProperty(properties);
+  const selfRelations = properties.filter((p) => p.type === "relation" && p.options.relation?.databaseId === p.databaseId);
+  if (!parent && !onSubItems) return null;
+  const display = subItemsDisplay(view.config, parent);
+  return (
+    <>
+      {separated && <MenuSeparator />}
+      <Heading>{t("heading")}</Heading>
+      {parent ? (
+        <>
+          {SUB_ITEMS_DISPLAYS.map((d) => (
+            <Choice key={d} active={display === d} onClick={() => onSet({ subItems: d })}>
+              {t(`displays.${d}`)}
+            </Choice>
+          ))}
+          {onSubItems && (
+            <>
+              <MenuSeparator />
+              <p className="px-2 pb-1 text-xs text-fg-faint">{t("keptIn", { name: parent.name })}</p>
+              <MenuItem icon={<ListTree className="h-3.5 w-3.5" />} onClick={() => onSubItems(false)}>
+                {t("turnOff")}
+              </MenuItem>
+              <p className="px-2 pb-1 text-xs text-fg-faint">{t("turnOffHint")}</p>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="px-2 pb-1.5 text-xs text-fg-faint">{t("turnOnHint")}</p>
+          <MenuItem icon={<ListTree className="h-3.5 w-3.5" />} onClick={() => onSubItems?.(true)}>
+            {t("turnOn")}
+          </MenuItem>
+          {selfRelations.map((p) => (
+            <MenuItem key={p.id} icon={<PropertyTypeIcon type={p.type} />} onClick={() => onSubItems?.(true, p.id)}>
+              {t("useExisting", { name: p.name })}
+            </MenuItem>
+          ))}
+        </>
+      )}
     </>
   );
 }

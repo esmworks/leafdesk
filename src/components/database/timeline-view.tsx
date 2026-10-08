@@ -36,7 +36,9 @@ import {
   type DragMode,
 } from "@/lib/timeline";
 import { TIMELINE_ZOOMS } from "@/lib/views";
+import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./board-view";
+import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { usePeople } from "./person-cell";
 import { GroupLabel, useGroupContext, useGroupName } from "./group-label";
 import { PropertyLock, usePropertyAccess } from "./property-access";
@@ -71,6 +73,7 @@ export function TimelineView({
   view,
   properties,
   rows,
+  allRows = rows,
   api,
   readOnly,
   locked,
@@ -80,6 +83,8 @@ export function TimelineView({
   view: View;
   properties: Property[];
   rows: Row[];
+  /** Every row the viewer sees, the view's filters aside: whether a row has a parent is read there. */
+  allRows?: Row[];
   api: DatabaseApi;
   readOnly?: boolean;
   locked?: boolean;
@@ -146,12 +151,17 @@ export function TimelineView({
 
   // Swimlanes group like boards and tables do; a row with several tags, people or links shows in
   // each of their lanes. Lanes without bars are left out.
+  // Sub-items nest under their parent within each lane; without the table there are no arrows to
+  // open them, so all of them show.
+  const subItems = useSubItems(view, properties, allRows);
+  const linesOf = subItems.lines;
   const lanes = useMemo(() => {
-    if (!groupBy) return [{ key: "", group: null as Group<Row> | null, rows: dated }];
+    const lines = (rows: Row[]) => linesOf(rows, { allOpen: !showTable });
+    if (!groupBy) return [{ key: "", group: null as Group<Row> | null, rows: dated, lines: lines(dated) }];
     return groupRowsBy(dated, groupBy, view.config, groupContext)
       .filter((g) => g.rows.length)
-      .map((g) => ({ key: g.key, group: g as Group<Row> | null, rows: g.rows }));
-  }, [groupBy, dated, view.config, groupContext]);
+      .map((g) => ({ key: g.key, group: g as Group<Row> | null, rows: g.rows, lines: lines(g.rows) }));
+  }, [groupBy, dated, view.config, groupContext, linesOf, showTable]);
 
   const trackWidth = () => (scroller.current?.clientWidth ?? 0) - panelWidth;
   const focusOn = (day: number, at: number) => {
@@ -357,9 +367,26 @@ export function TimelineView({
     );
   };
 
-  const tableRow = (row: Row) => (
+  // A sub-item starts where its parent does (or today), in the parent's lane when it can.
+  const canAddSubItem =
+    !readOnly && subItems.nested && !!subItems.parent && access.canEditValues(subItems.parent.id);
+  const addSubItem = async (row: Row, lane: Group<Row> | null) => {
+    if (!subItems.parent) return;
+    subItems.expand(row.id);
+    const values: Record<string, unknown> = groupBy && lane && canAddTo(lane) ? groupDefaults(groupBy, lane) : {};
+    if (!isComputed(startProp.type) && !(startProp.id in values) && access.canEditValues(startProp.id)) {
+      values[startProp.id] = startProp.type === "date" && row.properties[startProp.id] != null ? row.properties[startProp.id] : dayValue(today);
+    }
+    values[subItems.parent.id] = [row.id];
+    await createNew(() => api.createRow({ properties: values }));
+  };
+
+  const tableRow = (line: SubItemLine<Row>, lane: Group<Row> | null) => {
+    const row = line.row;
+    const label = pageLabel(row.title, tc("untitled"));
+    return (
     <div
-      className="sticky left-0 z-10 flex shrink-0 items-center border-r border-border bg-bg"
+      className="group/row sticky left-0 z-10 flex shrink-0 items-center border-r border-border bg-bg"
       style={{ width: panelWidth, height: ROW_HEIGHT }}
     >
       <div
@@ -370,7 +397,9 @@ export function TimelineView({
           if (e.key === "Enter" && editTitleOf !== row.id && e.target === e.currentTarget) open(row);
         }}
         className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-2 hover:bg-bg-hover"
+        style={subItems.nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
       >
+        {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="-mr-1 h-6" />}
         <PageIcon icon={row.icon} className="shrink-0" />
         {editTitleOf === row.id ? (
           <CardTitleInput
@@ -381,7 +410,15 @@ export function TimelineView({
             }}
           />
         ) : (
-          <span className={cn("truncate text-sm", !row.title && "text-fg-faint")}>{pageLabel(row.title, tc("untitled"))}</span>
+          <span className={cn("truncate text-sm", !row.title && "text-fg-faint")}>{label}</span>
+        )}
+        {subItems.parentsOnly && <SubItemCount count={line.children} />}
+        {canAddSubItem && editTitleOf !== row.id && (
+          <AddSubItemButton
+            title={label}
+            onAdd={() => void addSubItem(row, lane)}
+            className="ml-auto shrink-0 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+          />
         )}
       </div>
       {tableProps.map((p) => (
@@ -395,7 +432,8 @@ export function TimelineView({
         </div>
       ))}
     </div>
-  );
+    );
+  };
 
   // A row added in a lane has to land in it (who created a row, and when, can't be chosen).
   const canAddTo = (lane: Group<Row> | null) =>
@@ -535,7 +573,7 @@ export function TimelineView({
             )}
           </div>
 
-          {lanes.map(({ key, group, rows: laneRows }) => {
+          {lanes.map(({ key, group, rows: laneRows, lines }) => {
             const expanded = !collapsed.has(key);
             const color = laneColor(group);
             return (
@@ -555,11 +593,11 @@ export function TimelineView({
                   </div>
                 )}
                 {expanded &&
-                  laneRows.map((row) => (
-                    <div key={row.id} className="flex border-b border-border/60" style={{ height: ROW_HEIGHT }}>
-                      {showTable && tableRow(row)}
+                  lines.map((line) => (
+                    <div key={line.row.id} className="flex border-b border-border/60" style={{ height: ROW_HEIGHT }}>
+                      {showTable && tableRow(line, group)}
                       <div className="relative shrink-0" style={{ width }}>
-                        {barFor(row, color)}
+                        {barFor(line.row, color)}
                       </div>
                     </div>
                   ))}

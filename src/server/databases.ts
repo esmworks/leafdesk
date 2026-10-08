@@ -34,6 +34,7 @@ import { DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from 
 import { holdsOptions, holdsPeople, isComputed, isDerived, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
+import { makesLoop, parentProperty, singleParent, storedParent, subItemsProperty } from "@/lib/sub-items";
 import {
   applyView,
   computedValues,
@@ -297,7 +298,9 @@ export async function normalizeRowProperties(
     }
     const normalized = normalizeValue(prop, value);
     if (prop.type === "relation" && normalized) {
-      out[prop.id] = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
+      const ids = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
+      // A row has one parent (see lib/sub-items).
+      out[prop.id] = isParentProperty(prop) ? singleParent(ids, asIds(existing[prop.id])) : ids;
     } else if (prop.type === "person" && normalized) {
       people ??= workspacePeopleOf(databaseId);
       asAgent ??= isAgentUser(userId);
@@ -458,6 +461,41 @@ async function resolveRelationValue(userId: string, prop: DatabaseProperty, inpu
 
 const asIds = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
 
+const isParentProperty = (prop: DatabaseProperty) => parentProperty([prop]) === prop;
+
+/**
+ * Refuses writes that would put a row under itself: a parent that is the row or one of its
+ * sub-items (at any depth), or a sub-item that is the row or one of its parents. `writes` are the
+ * normalized values about to be stored, per row.
+ */
+async function checkSubItemLoops(databaseId: string, writes: { rowId: string; values: Record<string, unknown> }[]) {
+  const properties = await getProperties(databaseId);
+  const parentProp = parentProperty(properties);
+  if (!parentProp) return;
+  const childrenProp = subItemsProperty(properties);
+  const touched = writes.filter(
+    ({ values }) => values[parentProp.id] != null || (childrenProp && values[childrenProp.id] != null),
+  );
+  if (!touched.length) return;
+  const rows = await db
+    .select({ id: page.id, properties: page.properties })
+    .from(page)
+    .where(eq(page.parentId, databaseId));
+  const parents = new Map(rows.map((r) => [r.id, storedParent(r, parentProp.id)] as const));
+  const loop = (name: string) =>
+    new PropertyValueError(`"${name}" can't put a row under itself or under one of its own sub-items`, "subItemLoop", {
+      property: name,
+    });
+  for (const { rowId, values } of touched) {
+    const parent = asIds(values[parentProp.id])[0];
+    if (parent && makesLoop(parents, rowId, parent)) throw loop(parentProp.name);
+    if (!childrenProp) continue;
+    for (const child of asIds(values[childrenProp.id])) {
+      if (makesLoop(parents, child, rowId)) throw loop(childrenProp.name);
+    }
+  }
+}
+
 /**
  * Mirrors changes of two-way relations onto the paired property of the linked rows. Uses atomic
  * JSONB updates so concurrent edits of the same target row don't overwrite each other.
@@ -476,8 +514,10 @@ export async function syncPairedRelationsMany(
   databaseId: string,
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
 ) {
-  const props = (await getProperties(databaseId)).filter((p) => p.type === "relation" && p.options.relation?.pairedPropertyId);
+  const all = await getProperties(databaseId);
+  const props = all.filter((p) => p.type === "relation" && p.options.relation?.pairedPropertyId);
   if (!props.length) return;
+  const parentKey = parentProperty(all)?.id;
   const touched = new Set<string>();
   for (const { rowId, before, after } of changes) {
     for (const prop of props) {
@@ -490,7 +530,11 @@ export async function syncPairedRelationsMany(
       const key = relation.pairedPropertyId!;
       const path = `{${key}}`;
       const current = sql`coalesce(${page.properties} -> ${key}, '[]'::jsonb)`;
-      if (added.length) {
+      // Rows added as sub-items get this row as their only parent: they leave their old parent's list.
+      if (added.length && parentKey === key) {
+        await moveSubItems(databaseId, rowId, added, key, prop.id);
+        touched.add(databaseId);
+      } else if (added.length) {
         await db
           .update(page)
           .set({
@@ -519,11 +563,40 @@ export async function syncPairedRelationsMany(
   for (const id of touched) notifyRows(id);
 }
 
+/**
+ * Makes `parentId` the parent of the rows `childIds` (through the parent property `parentKey`) and
+ * takes them off the sub-items list (`childrenKey`) of the rows that were their parent.
+ */
+async function moveSubItems(databaseId: string, parentId: string, childIds: string[], parentKey: string, childrenKey: string) {
+  const children = await db
+    .select({ id: page.id, properties: page.properties })
+    .from(page)
+    .where(and(inArray(page.id, childIds), eq(page.parentId, databaseId)));
+  if (!children.length) return;
+  await db
+    .update(page)
+    .set({ properties: sql`jsonb_set(${page.properties}, ${`{${parentKey}}`}::text[], jsonb_build_array(${parentId}::text))` })
+    .where(inArray(page.id, children.map((c) => c.id)));
+  const current = sql`coalesce(${page.properties} -> ${childrenKey}, '[]'::jsonb)`;
+  for (const child of children) {
+    const old = asIds(child.properties[parentKey]).filter((id) => id !== parentId);
+    if (!old.length) continue;
+    await db
+      .update(page)
+      .set({
+        properties: sql`case when (${current} - ${child.id}::text) = '[]'::jsonb then ${page.properties} - ${childrenKey}
+          else jsonb_set(${page.properties}, ${`{${childrenKey}}`}::text[], ${current} - ${child.id}::text) end`,
+      })
+      .where(and(inArray(page.id, old), eq(page.parentId, databaseId)));
+  }
+}
+
 export async function updateRowProperties(userId: string, rowId: string, patch: Record<string, unknown>) {
   const row = await requirePageAccess(userId, rowId, "edit");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   await requireDatabase(userId, row.parentId, "view");
   const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy });
+  await checkSubItemLoops(row.parentId, [{ rowId, values: normalized }]);
   const next = { ...row.properties };
   for (const [id, value] of Object.entries(normalized)) {
     if (value === null) delete next[id];
@@ -616,6 +689,7 @@ export async function updateRowsProperties(
   const kept = new Set(rows.map((r) => r.id));
   const skipped = [...found.skipped, ...found.rows.filter((r) => !kept.has(r.id)).map((r) => r.id)];
   if (!rows.length || !Object.keys(normalized).length) return { done: [], skipped };
+  await checkSubItemLoops(databaseId, rows.map((row) => ({ rowId: row.id, values: normalized })));
 
   const set = Object.fromEntries(Object.entries(normalized).filter(([, v]) => v !== null));
   const cleared = Object.keys(normalized).filter((k) => normalized[k] === null);
@@ -976,6 +1050,55 @@ export async function addProperty(
 }
 
 /**
+ * Turns sub-items on or off (see lib/sub-items). On, the given relation of the database with itself
+ * holds each row's parent; without one, a two-way relation named `names` is added for it (its
+ * other side lists each row's sub-items). Off keeps the properties and their values, as plain
+ * relations. Returns the parent property, or null when turned off.
+ */
+export async function setSubItems(
+  userId: string,
+  databaseId: string,
+  input: { on: false } | { on: true; propertyId?: string; names?: { parent: string; subItems: string } },
+) {
+  const database = await requireDatabase(userId, databaseId, "edit");
+  assertUnlocked(database);
+  const properties = await getProperties(databaseId);
+  const current = parentProperty(properties);
+  const setRole = async (prop: DatabaseProperty, role: RelationConfig["role"]) => {
+    const { role: _old, ...relation } = prop.options.relation!;
+    await db
+      .update(databaseProperty)
+      .set({ options: { ...prop.options, relation: role ? { ...relation, role } : relation } })
+      .where(eq(databaseProperty.id, prop.id));
+  };
+  if (!input.on) {
+    if (current) await setRole(current, undefined);
+    notifySchema(databaseId);
+    return null;
+  }
+  let prop: DatabaseProperty | undefined;
+  if (input.propertyId) {
+    prop = properties.find((p) => p.id === input.propertyId);
+    if (!prop || prop.type !== "relation" || prop.options.relation?.databaseId !== databaseId) {
+      throw new PropertyValueError("Sub-items need a relation of this database with itself", "notSubItemsRelation");
+    }
+    (await propertyAccessFor(userId, databaseId)).requireSchema(prop.id);
+  } else if (current) {
+    return current;
+  } else {
+    prop = await addProperty(userId, databaseId, {
+      name: input.names?.parent.trim() || "Parent item",
+      type: "relation",
+      relation: { databaseId, twoWay: true, pairedName: input.names?.subItems.trim() || "Sub-items" },
+    });
+  }
+  if (current && current.id !== prop.id) await setRole(current, undefined);
+  await setRole(prop, "parent");
+  notifySchema(databaseId);
+  return { ...prop, options: { ...prop.options, relation: { ...prop.options.relation!, role: "parent" as const } } };
+}
+
+/**
  * An option to create: its name, or for status properties its name and group (options given by
  * name only are spread over the groups, see makeStatusOptions).
  */
@@ -1148,7 +1271,8 @@ export async function duplicateProperty(userId: string, propertyId: string, name
     .orderBy(asc(databaseProperty.position))
     .limit(1);
   const options: PropertyOptions = structuredClone(prop.options);
-  if (options.relation) options.relation = { ...options.relation, pairedPropertyId: null };
+  // The copy links one way and stands for nothing: sub-items keep their one parent property.
+  if (options.relation) options.relation = { databaseId: options.relation.databaseId, pairedPropertyId: null };
   const copied = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(databaseProperty)

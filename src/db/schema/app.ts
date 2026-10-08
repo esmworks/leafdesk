@@ -392,7 +392,17 @@ export type ChecklistItem = { id: string; text: string; checked: boolean };
  * Values are arrays of row ids. A two-way relation has a paired relation property on the target
  * database that is kept in sync (`pairedPropertyId`).
  */
-export type RelationConfig = { databaseId: string; pairedPropertyId?: string | null };
+export type RelationConfig = {
+  databaseId: string;
+  pairedPropertyId?: string | null;
+  /**
+   * What a relation of a database with itself stands for (see lib/sub-items): "parent" holds each
+   * row's parent, which makes the rows linking to a row its sub-items. Set by turning the feature
+   * on; a copy of the property, or the property turned into another type, doesn't keep it.
+   */
+  role?: RelationRole;
+};
+export type RelationRole = "parent";
 /**
  * A formula property's expression. `prop("…")` references hold property ids (or "title"), so
  * renaming a property keeps its formulas working; editors show names instead (see lib/derived).
@@ -460,6 +470,8 @@ export type CardSize = "small" | "medium" | "large";
  * a files property, or nowhere.
  */
 export type ViewCover = { source: "first_image" } | { source: "none" } | { source: "property"; propertyId: string };
+/** How a view of a database with sub-items shows them (see ViewConfig `subItems`). */
+export type SubItemsDisplay = "nested" | "flat" | "parents";
 /** Timeline scale: a column per day, per week or per month. */
 export type TimelineZoom = "day" | "week" | "month";
 /** Chart kinds: vertical bars (columns), horizontal bars, a line, or a donut (a pie with a hole). */
@@ -556,6 +568,11 @@ export type ViewConfig = {
   hiddenGroups?: string[];
   /** Board, table and chart views: leave out groups without rows (the no-value group only shows with rows anyway). */
   hideEmptyGroups?: boolean;
+  /**
+   * Table, list and timeline views of a database with sub-items: rows under their parent
+   * ("nested", the default), every row on its own ("flat"), or only the rows without a parent.
+   */
+  subItems?: SubItemsDisplay;
   /** Table views: groups shown collapsed, by group key. */
   collapsedGroups?: string[];
   /** Table views: column widths in pixels the user dragged, keyed by property id or "title". */

@@ -14,6 +14,8 @@ import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } 
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
 import { isGroupable, isSortable, localDay, moveProperty } from "@/lib/properties";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
+import { pageLabel } from "@/lib/labels";
+import type { SubItemLine } from "@/lib/sub-items";
 import { AiCell, useAiAutofill } from "./ai-autofill";
 import { BulkActionBar, SelectBox, useRowSelection } from "./bulk-actions";
 import { uploadToPage } from "./files-cell";
@@ -28,6 +30,7 @@ import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./prop
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
 import { useNewRow } from "./use-new-row";
+import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -111,13 +114,28 @@ export function TableView({
     () => (groupBy ? arrangeGroups(groupRowsBy(rows, groupBy, view.config, groupContext), view.config) : null),
     [rows, groupBy, view.config, groupContext],
   );
+  // Sub-items nest under their parent within the table, or within each group.
+  const subItems = useSubItems(view, properties, allRows);
+  const linesOf = subItems.lines;
+  const lines = useMemo(
+    () => ({
+      all: grouping ? [] : linesOf(rows),
+      groups: new Map((grouping?.shown ?? []).map((g) => [g.key, linesOf(g.rows)] as const)),
+    }),
+    [grouping, rows, linesOf],
+  );
   // Rows in the order they show, each once (a row with several tags shows in several groups):
-  // what calculations count, and, leaving out collapsed groups, what can be selected.
+  // what calculations count, and, leaving out collapsed groups and closed sub-items, what can be selected.
+  // A view showing parents only leaves sub-items out of both; closed sub-items still count.
+  const parentsOnly = subItems.parentsOnly;
   const [inView, expanded] = useMemo(() => {
-    if (!grouping) return [rows, rows];
-    const unique = (groups: Group<Row>[]) => [...new Map(groups.flatMap((g) => g.rows.map((r) => [r.id, r]))).values()];
-    return [unique(grouping.shown), unique(grouping.shown.filter((g) => !collapsed.has(g.key)))];
-  }, [grouping, rows, collapsed]);
+    const unique = (rows: Row[]) => [...new Map(rows.map((r) => [r.id, r])).values()];
+    if (!grouping) return [parentsOnly ? lines.all.map((l) => l.row) : rows, lines.all.map((l) => l.row)];
+    return [
+      unique(grouping.shown.flatMap((g) => (parentsOnly ? (lines.groups.get(g.key) ?? []).map((l) => l.row) : g.rows))),
+      unique(grouping.shown.filter((g) => !collapsed.has(g.key)).flatMap((g) => (lines.groups.get(g.key) ?? []).map((l) => l.row))),
+    ];
+  }, [grouping, rows, collapsed, lines, parentsOnly]);
   const selection = useRowSelection(expanded);
   // Row controls before the Name column: the selection checkbox, plus the row menu for editors.
   const handles = readOnly ? 32 : 56;
@@ -275,6 +293,20 @@ export function TableView({
     const defaults = group && groupBy ? groupDefaults(groupBy, group) : {};
     await createNew(() => api.createRow(Object.keys(defaults).length ? { properties: defaults } : {}));
   };
+  // A row given a parent (or sub-items) right in the table stays in sight: its new parent opens.
+  const showMoved = (row: Row, propertyId: string, value: unknown) => {
+    if (!subItems.nested || !Array.isArray(value)) return;
+    if (propertyId === subItems.parent?.id && typeof value[0] === "string") subItems.expand(value[0]);
+    if (propertyId === subItems.children?.id && value.length) subItems.expand(row.id);
+  };
+  // A sub-item lands in its parent's group too, so it shows right under it.
+  const canAddSubItem = !readOnly && subItems.nested && !!subItems.parent && access.canEditValues(subItems.parent.id);
+  const addSubItem = async (row: Row, group?: Group<Row>) => {
+    if (!subItems.parent) return;
+    subItems.expand(row.id);
+    const defaults = group && groupBy && canAddTo(group) ? groupDefaults(groupBy, group) : {};
+    await createNew(() => api.createRow({ properties: { ...defaults, [subItems.parent!.id]: [row.id] } }));
+  };
   const today = localDay(new Date());
   const canAddTo = (group: Group<Row>) =>
     !readOnly &&
@@ -293,8 +325,10 @@ export function TableView({
     void setConfig({ ...view.config, hiddenGroups: next });
   };
 
-  const renderRow = (row: Row) => {
+  const renderRow = (line: SubItemLine<Row>, group?: Group<Row>) => {
+    const row = line.row;
     const selected = selection.isSelected(row.id);
+    const label = pageLabel(row.title, tc("untitled"));
     return (
       <tr key={row.id} className={cn("group", selected && "bg-accent/5")}>
         <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
@@ -312,23 +346,32 @@ export function TableView({
           className={cn("relative border-b border-border p-0 align-top", frozen(0, selected).className)}
           style={frozen(0).style}
         >
-          <div className="font-medium">
-            <PropertyCell
-              prop={titleProp}
-              value={row.title}
-              wrap={wrapped.has(TITLE)}
-              readOnly={readOnly}
-              placeholder={tc("untitled")}
-              autoEdit={editTitleOf === row.id}
-              draft={editTitleOf === row.id ? typed : undefined}
-              onChange={(v) => {
-                stopEditing();
-                void api.setCell(row.id, TITLE, v ?? "");
-              }}
-              onCreateOption={createOption}
-            />
+          <div className="flex font-medium" style={subItems.nested ? { paddingLeft: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
+            {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
+            <div className="min-w-0 flex-1">
+              <PropertyCell
+                prop={titleProp}
+                value={row.title}
+                wrap={wrapped.has(TITLE)}
+                readOnly={readOnly}
+                placeholder={tc("untitled")}
+                autoEdit={editTitleOf === row.id}
+                draft={editTitleOf === row.id ? typed : undefined}
+                onChange={(v) => {
+                  stopEditing();
+                  void api.setCell(row.id, TITLE, v ?? "");
+                }}
+                onCreateOption={createOption}
+              />
+            </div>
+            {subItems.parentsOnly && line.children > 0 && (
+              <span className="flex h-[33px] items-center pr-8">
+                <SubItemCount count={line.children} />
+              </span>
+            )}
           </div>
-          <span className="absolute inset-y-0 right-1 hidden items-center group-hover:flex">
+          <span className="absolute inset-y-0 right-1 hidden items-center gap-1 group-hover:flex">
+            {canAddSubItem && <AddSubItemButton title={label} onAdd={() => void addSubItem(row, group)} />}
             <OpenLink href={`/w/${workspaceId}/p/${row.id}`} />
           </span>
         </td>
@@ -349,7 +392,10 @@ export function TableView({
                     value={row.properties[p.id]}
                     wrap={wrapped.has(p.id)}
                     readOnly={readOnly || valueAccess === "readOnly"}
-                    onChange={(v) => void api.setCell(row.id, p.id, v)}
+                    onChange={(v) => {
+                      showMoved(row, p.id, v);
+                      void api.setCell(row.id, p.id, v);
+                    }}
                     onCreateOption={createOption}
                     upload={p.type === "files" ? uploadToPage(row.id) : undefined}
                   />
@@ -480,7 +526,7 @@ export function TableView({
           </tr>
         </thead>
         {!grouping ? (
-          <tbody>{rows.map(renderRow)}</tbody>
+          <tbody>{lines.all.map((line) => renderRow(line))}</tbody>
         ) : (
           grouping.shown.map((group) => {
             const open = !collapsed.has(group.key);
@@ -503,7 +549,7 @@ export function TableView({
                     />
                   </td>
                 </tr>
-                {open && group.rows.map(renderRow)}
+                {open && (lines.groups.get(group.key) ?? []).map((line) => renderRow(line, group))}
                 {open && canAddTo(group) && (
                   <tr>
                     <td colSpan={columnCount} className="p-0">
@@ -526,7 +572,7 @@ export function TableView({
                       <CalculationRow
                         offset={handles}
                         columns={calculationColumns}
-                        rows={group.rows}
+                        rows={parentsOnly ? (lines.groups.get(group.key) ?? []).map((l) => l.row) : group.rows}
                         calculations={view.config.calculations}
                         readOnly
                         onChange={setCalculation}

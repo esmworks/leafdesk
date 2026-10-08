@@ -11,6 +11,7 @@ import {
   type RollupConfig,
   type SelectOption,
   type StatusGroup,
+  type SubItemsDisplay,
   type TimelineZoom,
   type ViewConfig,
   type ViewCover,
@@ -32,6 +33,7 @@ import {
   isStackable,
 } from "@/lib/chart";
 import { formulaForStorage, withFormulaTypes } from "@/lib/derived";
+import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import {
   FORM_TITLE,
@@ -281,6 +283,12 @@ const viewLayoutInputs = {
     ),
   show_values: z.boolean().optional().describe("Chart only: print each value on its bar or point, and in a donut's legend (false by default)."),
   show_legend: z.boolean().optional().describe("Donut charts only: show the legend (true by default)."),
+  sub_items: z
+    .enum(SUB_ITEMS_DISPLAYS)
+    .optional()
+    .describe(
+      'Table, list and timeline views of a database with sub-items (see set_sub_items): "nested" shows sub-items under their parent (the default), "flat" every row on its own, "parents" only the rows without a parent.',
+    ),
 };
 
 type ViewInput = {
@@ -303,6 +311,7 @@ type ViewInput = {
   accumulate?: "none" | ChartAccumulate;
   show_values?: boolean;
   show_legend?: boolean;
+  sub_items?: SubItemsDisplay;
   filters?: FilterEntryInput[];
   filter_combinator?: FilterCombinator;
   sorts?: SortInput[];
@@ -408,6 +417,13 @@ function viewConfigPatch(
     for (const setting of ["chart_type", "aggregate", "aggregate_property", "stack_by", "chart_sort", "accumulate", "show_values", "show_legend"] as const) {
       if (input[setting] !== undefined) only(setting, "chart");
     }
+  }
+  if (input.sub_items !== undefined) {
+    only("sub_items", "table", "list", "timeline");
+    if (!props.some((p) => p.type === "relation" && p.options.relation?.role === "parent")) {
+      throw new ToolInputError("This database has no sub-items; turn them on with set_sub_items first.");
+    }
+    patch.subItems = input.sub_items === "nested" ? undefined : input.sub_items;
   }
   if (input.filters) patch.filters = toFilterEntries(props, input.filters, lookups);
   // New filters replace the old ones together with how they combine ("and" unless given).
@@ -1342,6 +1358,60 @@ export function createMcpServer(principal: McpPrincipal) {
         const shown = after[after.length - 1];
         const lookups = await databases.getLookups(userId, [shown, ...rollupRelations(shown, after)]);
         return { database_id, property: describeProperty(shown, lookups, after, { restricted: !access.open }) };
+      }),
+  );
+
+  server.registerTool(
+    "set_sub_items",
+    {
+      title: "Turn sub-items on or off",
+      description:
+        "Turn sub-items on or off for a database. With sub-items, a row can go under another row of the same database: a relation of the database with itself holds each row's parent (one row at most), and its other side lists the row's sub-items. Table, list and timeline views then show sub-items under their parent (see the sub_items view setting). Turning them on adds a two-way relation for it (named parent_property_name and sub_items_property_name), or uses parent_property, a relation of the database with itself it already has. A row can't be put under itself or one of its own sub-items. Turning them off keeps the properties and their links as plain relations.",
+      inputSchema: z.object({
+        database_id: id("database"),
+        on: z.boolean(),
+        parent_property: z
+          .string()
+          .optional()
+          .describe("Turning on: an existing relation of this database with itself (name or id) to hold each row's parent."),
+        parent_property_name: z.string().min(1).max(100).optional().describe('Turning on without parent_property: name of the new parent property ("Parent item" by default).'),
+        sub_items_property_name: z
+          .string()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Turning on without parent_property: name of the new property listing sub-items ("Sub-items" by default).'),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    ({ database_id, on, parent_property, parent_property_name, sub_items_property_name }) =>
+      runTool(async () => {
+        assertWrite();
+        if (!on && (parent_property || parent_property_name || sub_items_property_name)) {
+          throw new ToolInputError("parent_property and the property names only apply when turning sub-items on.");
+        }
+        if (parent_property && (parent_property_name || sub_items_property_name)) {
+          throw new ToolInputError("Pass parent_property to use an existing relation, or the names of new properties, not both.");
+        }
+        const { properties } = await databases.getDatabase(userId, database_id);
+        const existing = parent_property ? requireProperty(properties, parent_property) : undefined;
+        const parent = on
+          ? await databases.setSubItems(userId, database_id, {
+              on: true,
+              propertyId: existing?.id,
+              names: { parent: parent_property_name ?? "Parent item", subItems: sub_items_property_name ?? "Sub-items" },
+            })
+          : await databases.setSubItems(userId, database_id, { on: false });
+        if (!parent) return { database_id, sub_items: false };
+        const after = (await databases.getDatabase(userId, database_id)).properties;
+        const paired = after.find((p) => p.id === parent.options.relation?.pairedPropertyId);
+        return {
+          database_id,
+          sub_items: true,
+          parent_property: parent.name,
+          ...(paired ? { sub_items_property: paired.name } : {}),
+        };
       }),
   );
 

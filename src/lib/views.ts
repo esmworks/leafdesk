@@ -1,6 +1,17 @@
-import type { CardSize, ChartAccumulate, ChartSort, ChartType, TimelineZoom, ViewConfig, ViewCover, ViewType } from "@/db/schema/app";
+import type {
+  CardSize,
+  ChartAccumulate,
+  ChartSort,
+  ChartType,
+  SubItemsDisplay,
+  TimelineZoom,
+  ViewConfig,
+  ViewCover,
+  ViewType,
+} from "@/db/schema/app";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isChartAggregateFn } from "./chart";
 import { formConfigError } from "./forms";
+import { SUB_ITEMS_DISPLAYS } from "./sub-items";
 
 /** Every kind of database view, in the order the "Add a view" menu lists them. */
 export const VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "timeline", "chart", "form"] as const satisfies readonly ViewType[];
@@ -52,6 +63,9 @@ export function layoutConfigError(config: ViewConfig): string | null {
   const c = config as Record<string, unknown>;
   for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "string") return `${key} must be a property id`;
+  }
+  if (c.subItems !== undefined && !SUB_ITEMS_DISPLAYS.includes(c.subItems as SubItemsDisplay)) {
+    return `subItems must be one of: ${SUB_ITEMS_DISPLAYS.join(", ")}`;
   }
   if (c.zoom !== undefined && !TIMELINE_ZOOMS.includes(c.zoom as TimelineZoom)) {
     return `Zoom must be one of: ${TIMELINE_ZOOMS.join(", ")}`;

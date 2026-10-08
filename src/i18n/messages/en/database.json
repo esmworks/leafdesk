@@ -572,6 +572,8 @@
     "nestedDatabase": "A database can’t contain another database.",
     "invalidRelation": "“{property}” can only link to rows of its related database.",
     "invalidRelationTarget": "A relation must point to a database in the same workspace.",
+    "subItemLoop": "“{property}” can’t put a row under itself or under one of its own sub-items.",
+    "notSubItemsRelation": "Sub-items need a relation of this database with itself.",
     "relationTargetReadOnly": "You can only view that database, so the link can’t be shown there too. Untick that option or ask for edit access.",
     "databaseLocked": "This database is locked. Unlock it to change its properties and views.",
     "invalidPerson": "“{property}” can only hold people of this workspace.",
@@ -874,5 +876,25 @@
       "agentRun": "See the agent’s run",
       "agentRunHint": "the agent’s run is in Settings > Agents"
     }
+  },
+  "subItems": {
+    "heading": "Sub-items",
+    "parentName": "Parent item",
+    "subItemsName": "Sub-items",
+    "show": "Show sub-items of “{title}”",
+    "hide": "Hide sub-items of “{title}”",
+    "add": "Add a sub-item to “{title}”",
+    "count": "{count, plural, one {# sub-item} other {# sub-items}}",
+    "displays": {
+      "nested": "Nested under their parent",
+      "flat": "Flat list",
+      "parents": "Parent items only"
+    },
+    "turnOn": "Turn on sub-items",
+    "turnOnHint": "Rows can go under other rows and show nested in tables, lists and timelines.",
+    "useExisting": "Keep parents in “{name}”",
+    "turnOff": "Turn off sub-items",
+    "turnOffHint": "The properties and their links stay.",
+    "keptIn": "Parents are kept in “{name}”."
   }
 }

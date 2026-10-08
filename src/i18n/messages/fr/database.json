@@ -572,6 +572,8 @@
     "nestedDatabase": "Une base de données ne peut pas contenir une autre base de données.",
     "invalidRelation": "« {property} » ne peut être liée qu’à des lignes de sa base de données liée.",
     "invalidRelationTarget": "Une relation doit pointer vers une base de données du même espace de travail.",
+    "subItemLoop": "« {property} » ne peut pas placer une ligne sous elle-même ni sous l’un de ses propres sous-éléments.",
+    "notSubItemsRelation": "Les sous-éléments nécessitent une relation de cette base de données avec elle-même.",
     "relationTargetReadOnly": "Vous ne pouvez que consulter cette base de données, le lien ne peut donc pas y être affiché aussi. Décochez cette option ou demandez un accès en modification.",
     "databaseLocked": "Cette base de données est verrouillée. Déverrouillez-la pour modifier ses propriétés et ses vues.",
     "invalidPerson": "« {property} » ne peut contenir que des personnes de cet espace de travail.",
@@ -874,5 +876,25 @@
       "agentRun": "Voir l’exécution de l’agent",
       "agentRunHint": "l’exécution de l’agent est dans Paramètres > Agents"
     }
+  },
+  "subItems": {
+    "heading": "Sous-éléments",
+    "parentName": "Élément parent",
+    "subItemsName": "Sous-éléments",
+    "show": "Afficher les sous-éléments de « {title} »",
+    "hide": "Masquer les sous-éléments de « {title} »",
+    "add": "Ajouter un sous-élément à « {title} »",
+    "count": "{count, plural, one {# sous-élément} other {# sous-éléments}}",
+    "displays": {
+      "nested": "Imbriqués sous leur parent",
+      "flat": "Liste à plat",
+      "parents": "Éléments parents uniquement"
+    },
+    "turnOn": "Activer les sous-éléments",
+    "turnOnHint": "Les lignes peuvent se placer sous d’autres lignes et s’affichent imbriquées dans les tableaux, listes et chronologies.",
+    "useExisting": "Garder les parents dans « {name} »",
+    "turnOff": "Désactiver les sous-éléments",
+    "turnOffHint": "Les propriétés et leurs liens sont conservés.",
+    "keptIn": "Les parents sont gardés dans « {name} »."
   }
 }

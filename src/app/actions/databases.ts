@@ -161,6 +161,20 @@ export async function addPropertyAction(
   });
 }
 
+/** Turns sub-items on (with a relation of the database with itself, or new properties) or off. */
+export async function setSubItemsAction(databaseId: string, input: { on: boolean; propertyId?: string }) {
+  return run(async (userId) => {
+    if (!input.on) return databases.setSubItems(userId, databaseId, { on: false });
+    // New properties are named in the language of whoever turns sub-items on.
+    const t = await getTranslations("database.subItems");
+    return databases.setSubItems(userId, databaseId, {
+      on: true,
+      propertyId: input.propertyId,
+      names: { parent: t("parentName"), subItems: t("subItemsName") },
+    });
+  });
+}
+
 export async function listDatabasesAction(workspaceId: string) {
   return run((userId) => databases.listWorkspaceDatabases(userId, workspaceId));
 }

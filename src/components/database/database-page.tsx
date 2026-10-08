@@ -353,6 +353,7 @@ export function DatabasePage({
                           locked={locked}
                           onConfig={(config) => setConfig(view, config)}
                           onCreateDateProperty={createDateProperty}
+                          onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
                         />
                         {canManageAutomations && (
                           <AutomationsButton
@@ -458,6 +459,7 @@ export function DatabasePage({
                       view={view}
                       properties={viewProperties}
                       rows={visibleRows}
+                      allRows={rows}
                       api={viewApi}
                       readOnly={readOnly}
                     />
@@ -468,6 +470,7 @@ export function DatabasePage({
                       view={view}
                       properties={viewProperties}
                       rows={visibleRows}
+                      allRows={rows}
                       api={viewApi}
                       readOnly={readOnly}
                       locked={locked}

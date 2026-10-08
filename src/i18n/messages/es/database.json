@@ -572,6 +572,8 @@
     "nestedDatabase": "Una base de datos no puede contener otra base de datos.",
     "invalidRelation": "“{property}” solo puede vincularse a filas de su base de datos relacionada.",
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
+    "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",
+    "notSubItemsRelation": "Los subelementos necesitan una relación de esta base de datos consigo misma.",
     "relationTargetReadOnly": "Solo puedes ver esa base de datos, así que el vínculo no se puede mostrar también allí. Desmarca esa opción o pide acceso de edición.",
     "databaseLocked": "Esta base de datos está bloqueada. Desbloquéala para cambiar sus propiedades y vistas.",
     "invalidPerson": "“{property}” solo puede contener personas de este espacio de trabajo.",
@@ -874,5 +876,25 @@
       "agentRun": "Ver la ejecución del agente",
       "agentRunHint": "la ejecución del agente está en Configuración > Agentes"
     }
+  },
+  "subItems": {
+    "heading": "Subelementos",
+    "parentName": "Elemento principal",
+    "subItemsName": "Subelementos",
+    "show": "Mostrar los subelementos de “{title}”",
+    "hide": "Ocultar los subelementos de “{title}”",
+    "add": "Añadir un subelemento a “{title}”",
+    "count": "{count, plural, one {# subelemento} other {# subelementos}}",
+    "displays": {
+      "nested": "Anidados bajo su elemento principal",
+      "flat": "Lista plana",
+      "parents": "Solo elementos principales"
+    },
+    "turnOn": "Activar subelementos",
+    "turnOnHint": "Las filas pueden ir debajo de otras filas y se muestran anidadas en tablas, listas y cronogramas.",
+    "useExisting": "Guardar los elementos principales en “{name}”",
+    "turnOff": "Desactivar subelementos",
+    "turnOffHint": "Las propiedades y sus vínculos se mantienen.",
+    "keptIn": "Los elementos principales se guardan en “{name}”."
   }
 }

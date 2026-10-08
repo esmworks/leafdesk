@@ -6,10 +6,13 @@ import { useTranslations } from "next-intl";
 import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
+import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./board-view";
 import { RowMenu } from "./gallery-view";
 import { RowValue, shownValues } from "./property-cell";
 import { useNewRow } from "./use-new-row";
+import { usePropertyAccess } from "./property-access";
+import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -19,6 +22,7 @@ export function ListView({
   view,
   properties,
   rows,
+  allRows = rows,
   api,
   readOnly,
 }: {
@@ -26,34 +30,47 @@ export function ListView({
   view: View;
   properties: Property[];
   rows: Row[];
+  /** Every row the viewer sees, the view's filters aside: whether a row has a parent is read there. */
+  allRows?: Row[];
   api: DatabaseApi;
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
   const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
   const shownProps = properties.filter((p) => !isHiddenInView(view, p));
+  const access = usePropertyAccess();
+  const subItems = useSubItems(view, properties, allRows);
+  const canAddSubItem = !readOnly && subItems.nested && !!subItems.parent && access.canEditValues(subItems.parent.id);
 
   const add = async () => {
     await createNew(() => api.createRow());
+  };
+  const addSubItem = async (row: Row) => {
+    if (!subItems.parent) return;
+    subItems.expand(row.id);
+    await createNew(() => api.createRow({ properties: { [subItems.parent!.id]: [row.id] } }));
   };
 
   return (
     <div className="page-gutter pb-6">
       <div role="list" className="flex flex-col">
-        {rows.map((row) => (
+        {subItems.lines(rows).map((line) => (
           <ListRow
-            key={row.id}
+            key={line.row.id}
             workspaceId={workspaceId}
-            row={row}
+            line={line}
+            nested={subItems.nested}
+            onToggle={() => subItems.toggle(line.row.id)}
+            onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
             props={shownProps}
             readOnly={readOnly}
-            editTitle={editTitleOf === row.id}
+            editTitle={editTitleOf === line.row.id}
             typed={typed}
             onTitle={(title) => {
               stopEditing();
-              if (title !== row.title) void api.setCell(row.id, TITLE, title);
+              if (title !== line.row.title) void api.setCell(line.row.id, TITLE, title);
             }}
-            onDelete={() => api.deleteRow(row.id)}
+            onDelete={() => api.deleteRow(line.row.id)}
           />
         ))}
       </div>
@@ -74,7 +91,10 @@ export function ListView({
 
 function ListRow({
   workspaceId,
-  row,
+  line,
+  nested,
+  onToggle,
+  onAddSubItem,
   props,
   readOnly,
   editTitle,
@@ -83,7 +103,11 @@ function ListRow({
   onDelete,
 }: {
   workspaceId: string;
-  row: Row;
+  line: SubItemLine<Row>;
+  /** Sub-items show under their parent: rows get an open/close arrow and are indented. */
+  nested: boolean;
+  onToggle: () => void;
+  onAddSubItem?: () => void;
   props: Property[];
   readOnly?: boolean;
   editTitle: boolean;
@@ -94,13 +118,17 @@ function ListRow({
 }) {
   const tc = useTranslations("common");
   const router = useRouter();
+  const row = line.row;
   const href = `/w/${workspaceId}/p/${row.id}`;
   const shown = shownValues(props, row);
+  const label = pageLabel(row.title, tc("untitled"));
   return (
     <div
       role="listitem"
       className="group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover"
+      style={nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
     >
+      {nested && <SubItemToggle line={line} title={label} onToggle={onToggle} className="-mr-1 h-6" />}
       <div
         role="link"
         tabIndex={0}
@@ -114,10 +142,9 @@ function ListRow({
         {editTitle ? (
           <CardTitleInput initial={typed || row.title} onDone={onTitle} />
         ) : (
-          <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint")}>
-            {pageLabel(row.title, tc("untitled"))}
-          </span>
+          <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint")}>{label}</span>
         )}
+        {!nested && <SubItemCount count={line.children} />}
         {shown.length > 0 && (
           // Values are chips: they shrink from the left on narrow screens so the title keeps its room.
           <div className="ml-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
@@ -129,6 +156,9 @@ function ListRow({
           </div>
         )}
       </div>
+      {onAddSubItem && !editTitle && (
+        <AddSubItemButton title={label} onAdd={onAddSubItem} className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100" />
+      )}
       {!readOnly && !editTitle && <RowMenu href={href} onDelete={onDelete} className="shrink-0" />}
     </div>
   );

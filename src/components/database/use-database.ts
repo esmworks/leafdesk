@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addPropertyAction,
+  setSubItemsAction,
   addViewAction,
   archiveRowsAction,
   changePropertyTypeAction,
@@ -370,6 +371,11 @@ export function useDatabase(
 
       addProperty(name: string, type: PropertyType, options?: string[], relation?: RelationInput, derived?: DerivedInput) {
         return mutateSchema((s) => s, () => addPropertyAction(databaseId, { name, type, options, relation, ...derived }));
+      },
+
+      /** Turns sub-items on (new properties, or the relation `propertyId`) or off. */
+      setSubItems(on: boolean, propertyId?: string) {
+        return mutateSchema((s) => s, () => setSubItemsAction(databaseId, { on, propertyId }));
       },
 
       /** Saves a formula's expression (with property ids); the server checks it again. */

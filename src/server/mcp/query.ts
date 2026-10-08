@@ -342,6 +342,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.showTable === false ? { show_table: false } : {}),
     ...(config.cardSize ? { card_size: config.cardSize } : {}),
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),
+    ...(config.subItems ? { sub_items: config.subItems } : {}),
     ...(type === "chart" ? describeChart(props, config) : {}),
     ...(config.filters?.length ? { filters: config.filters.map(describeEntry) } : {}),
     ...(config.filters?.length && config.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
@@ -590,6 +591,12 @@ export function describeProperty(
           ...(target?.database ? { related_database: pageLabel(target.database.title) } : {}),
           two_way: Boolean(relation.pairedPropertyId),
           ...(target?.pairedName ? { paired_property: target.pairedName } : {}),
+          // Sub-items (see set_sub_items): this property holds each row's parent, or lists its sub-items.
+          ...(relation.role === "parent"
+            ? { sub_items_role: "parent" }
+            : props.some((p) => p.options.relation?.role === "parent" && p.options.relation.pairedPropertyId === prop.id)
+              ? { sub_items_role: "sub_items" }
+              : {}),
         }
       : {}),
     ...(prop.type === "person"
