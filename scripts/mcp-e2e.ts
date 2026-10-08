@@ -236,17 +236,35 @@ function decodeJwt(token: string) {
 
 type RpcResult = { status: number; headers: Headers; message?: any };
 
-async function rpc(token: string | null, body: unknown, extraHeaders: Record<string, string> = {}): Promise<RpcResult> {
-  const res = await fetch(RESOURCE, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      accept: "application/json, text/event-stream",
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      ...extraHeaders,
-    },
-    body: JSON.stringify(body),
-  });
+/** Waits out the server's per-user limit (MCP_RATE_LIMIT): this script makes more calls a minute than it allows. */
+let rateLimitWaits = 0;
+
+async function rpc(
+  token: string | null,
+  body: unknown,
+  extraHeaders: Record<string, string> = {},
+  { waitWhenLimited = true } = {},
+): Promise<RpcResult> {
+  const send = () =>
+    fetch(RESOURCE, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...extraHeaders,
+      },
+      body: JSON.stringify(body),
+    });
+  let res = await send();
+  while (res.status === 429 && waitWhenLimited) {
+    const seconds = Number(res.headers.get("retry-after") ?? "1");
+    rateLimitWaits++;
+    console.log(`  … rate limited, waiting ${seconds} s`);
+    await res.text();
+    await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    res = await send();
+  }
   const text = await res.text();
   if (!text) return { status: res.status, headers: res.headers };
   const id = (body as { id?: unknown }).id;
@@ -1005,6 +1023,25 @@ async function main() {
   check(!restoredPage.in_trash, "restore_page takes the page out of the trash");
   await mcp.ok("archive_page", { page_id: child.id });
 
+  // ---- the per-user rate limit: requests over it get 429 with Retry-After, and a revoked token
+  // still gets 401 rather than 429 (the grant is checked first).
+  const { mcpRateLimitFromEnv } = await import("@/server/mcp/rate-limit");
+  const limit = mcpRateLimitFromEnv();
+  if (limit > 0) {
+    let limited: RpcResult | null = null;
+    for (let i = 0; i <= limit && !limited; i++) {
+      const r = await rpc(refreshed.access_token, { jsonrpc: "2.0", id: 1, method: "tools/list" }, { "mcp-protocol-version": "2025-11-25" }, { waitWhenLimited: false });
+      if (r.status === 429) limited = r;
+    }
+    check(
+      limited !== null && Number(limited.headers.get("retry-after")) > 0 && limited.message?.error?.message?.includes(`${limit} a minute`),
+      `requests over MCP_RATE_LIMIT (${limit}) get 429 with Retry-After`,
+      limited && { status: limited.status, retryAfter: limited.headers.get("retry-after"), message: limited.message },
+    );
+  } else {
+    console.log("  (MCP_RATE_LIMIT=0: rate limit not checked)");
+  }
+
   const { revokeConnectedApp, listConnectedApps } = await import("@/server/mcp/grants");
   const { user } = await import("@/db/schema");
   const [me] = await db.select({ id: user.id }).from(user).where(eq(user.email, EMAIL));
@@ -1038,7 +1075,7 @@ async function main() {
   );
   check(loggedAs("connected_app.revoked", full.client_id) && loggedAs("connected_app.revoked", ro.client_id), "…and disconnected", logged);
 
-  console.log(`\nAll ${passed} checks passed.`);
+  console.log(`\nAll ${passed} checks passed (waited out the rate limit ${rateLimitWaits} times).`);
 }
 
 let failed = false;

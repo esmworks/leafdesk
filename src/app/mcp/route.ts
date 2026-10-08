@@ -13,12 +13,14 @@ import {
   protectedResourceMetadataUrl,
   READ_SCOPE,
 } from "@/server/mcp/principal";
+import { rateLimitedResponse, takeMcpRequest } from "@/server/mcp/rate-limit";
 import { createMcpServer } from "@/server/mcp/tools";
 
 /**
  * Remote MCP endpoint. Serves the 2026-07-28 protocol and, for 2025-era clients, the
  * stateless fallback. Every request needs an audience-bound access token with pages:read;
- * write tools additionally challenge for pages:write.
+ * write tools additionally challenge for pages:write. Each user has MCP_RATE_LIMIT requests a
+ * minute across all their apps (server/mcp/rate-limit.ts).
  */
 const mcp = createMcpHandler((ctx) => createMcpServer(principalFromAuthInfo(ctx.authInfo)), {
   onerror: (error) => console.error("[mcp]", error),
@@ -29,7 +31,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
   "Access-Control-Allow-Headers":
     "Authorization, Content-Type, Accept, DPoP, Mcp-Protocol-Version, Mcp-Session-Id, Mcp-Method, Mcp-Name, Last-Event-ID",
-  "Access-Control-Expose-Headers": "WWW-Authenticate, Mcp-Protocol-Version, Mcp-Session-Id",
+  "Access-Control-Expose-Headers": "WWW-Authenticate, Retry-After, Mcp-Protocol-Version, Mcp-Session-Id",
 };
 
 function withCors(response: Response) {
@@ -57,6 +59,8 @@ const protectedHandler = requireMcpAuth(
     if (!authInfo) return revokedResponse();
     const { userId, clientId } = principalFromAuthInfo(authInfo);
     if (!(await hasActiveGrant(userId, clientId, claims.iat))) return revokedResponse();
+    const wait = takeMcpRequest(userId);
+    if (wait > 0) return rateLimitedResponse(wait);
     // Held to each workspace's connected-apps setting; write tools mark themselves (tools.ts). The
     // client is named in the audit log for what the tools change (server/audit.ts).
     const app = {
