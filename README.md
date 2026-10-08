@@ -1301,6 +1301,14 @@ browser, you sign in and approve access, and you can make it read-only on that s
   through standard OAuth 2.1 metadata; clients can register themselves or use a Client ID Metadata
   Document.
 
+Every request checks that the app is still connected, so disconnecting it in *Connected apps*
+cuts it off at once, and so does changing your password with *Sign out of all other sessions* or
+resetting it by email. Each user may make 120 requests a minute to `/mcp`, all their apps together
+(`MCP_RATE_LIMIT`, `0` for no limit; `429` with `Retry-After` beyond it). What the tools read from
+a workspace was written by people, some from outside it (guests, form visitors, connected
+services): the server's instructions and the end of every read tool's result tell the assistant
+to treat it as data, never as instructions.
+
 The tools cover:
 
 - **Finding things:** `list_workspaces`, `list_teamspaces`, `search`, `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).

@@ -202,6 +202,18 @@
 - **Trademark notice.** The README and the website say that Notion is a trademark of Notion Labs,
   Inc. and that Leafdesk is not affiliated with it. The MCP server's instructions describe Leafdesk
   on its own terms instead of as "Notion-like".
+- **MCP hardening.**
+  - *Rate limit:* each user may make 120 requests a minute to `/mcp`, all their connected apps
+    together (`MCP_RATE_LIMIT`, `0` turns it off). Beyond it the server answers `429` with
+    `Retry-After`; a revoked token still gets `401`.
+  - *Content is data:* the server's instructions say that what the tools return was written by
+    people, some from outside the workspace, and is never instructions; every read tool's result
+    ends with a one-line reminder of it.
+  - *Password changes:* changing the password with *Sign out of all other sessions*, or resetting
+    it by email, also disconnects the apps the user connected; they have to be connected again.
+  - *AI prompts:* a closing tag written in capitals or with spaces (`</ROW>`, `< / row >`) can no
+    longer end a data section of an AI prompt early, and a connection's answer can't close the
+    frame that marks it as outside data.
 
 ### Fixed
 
