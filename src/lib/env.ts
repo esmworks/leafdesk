@@ -9,6 +9,10 @@ function required(name: string): string {
   return value;
 }
 
+/** The secret .env.example ships with: anyone can sign sessions with it. */
+const EXAMPLE_AUTH_SECRET = "change-me-to-a-long-random-string";
+const MIN_AUTH_SECRET_CHARS = 32;
+
 export const env = {
   get appUrl() {
     return (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
@@ -16,8 +20,18 @@ export const env = {
   get databaseUrl() {
     return required("DATABASE_URL");
   },
+  /**
+   * BETTER_AUTH_SECRET signs sessions (and keys derived from it seal secrets). In production it
+   * must not be the example value or shorter than 32 characters; development takes any.
+   */
   get authSecret() {
-    return required("BETTER_AUTH_SECRET");
+    const secret = required("BETTER_AUTH_SECRET");
+    if (process.env.NODE_ENV === "production" && (secret === EXAMPLE_AUTH_SECRET || secret.length < MIN_AUTH_SECRET_CHARS)) {
+      throw new Error(
+        `BETTER_AUTH_SECRET must be a random value of at least ${MIN_AUTH_SECRET_CHARS} characters, not the example from .env.example (make one with: openssl rand -base64 32)`,
+      );
+    }
+    return secret;
   },
   /**
    * AUTOMATION_WEBHOOK_ALLOWED_HOSTS: host names (or host:port) that automation webhooks may reach
