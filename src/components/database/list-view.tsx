@@ -10,7 +10,7 @@ import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./board-view";
 import { RowMenu } from "./gallery-view";
 import { RowValue, shownValues } from "./property-cell";
-import { useQuickAdd, type QuickAdd } from "./quick-add";
+import { QuickAddContext } from "./quick-add";
 import { useNewRow } from "./use-new-row";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
@@ -37,8 +37,7 @@ export function ListView({
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
-  const quick = useQuickAdd(api, view, properties);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
+  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
   const shownProps = properties.filter((p) => !isHiddenInView(view, p));
   const access = usePropertyAccess();
   const subItems = useSubItems(view, properties, allRows);
@@ -54,41 +53,42 @@ export function ListView({
   };
 
   return (
-    <div className="page-gutter pb-6">
-      <div role="list" className="flex flex-col">
-        {subItems.lines(rows).map((line) => (
-          <ListRow
-            key={line.row.id}
-            workspaceId={workspaceId}
-            line={line}
-            nested={subItems.nested}
-            onToggle={() => subItems.toggle(line.row.id)}
-            onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
-            props={shownProps}
-            readOnly={readOnly}
-            editTitle={editTitleOf === line.row.id}
-            typed={typed}
-            quick={quick}
-            onTitle={(title) => {
-              stopEditing();
-              if (title !== line.row.title) quick.save(line.row.id, title);
-            }}
-            onDelete={() => api.deleteRow(line.row.id)}
-          />
-        ))}
+    <QuickAddContext value={quick}>
+      <div className="page-gutter pb-6">
+        <div role="list" className="flex flex-col">
+          {subItems.lines(rows).map((line) => (
+            <ListRow
+              key={line.row.id}
+              workspaceId={workspaceId}
+              line={line}
+              nested={subItems.nested}
+              onToggle={() => subItems.toggle(line.row.id)}
+              onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
+              props={shownProps}
+              readOnly={readOnly}
+              editTitle={editTitleOf === line.row.id}
+              typed={typed}
+              onTitle={(title) => {
+                stopEditing();
+                if (title !== line.row.title) saveTitle(line.row.id, title);
+              }}
+              onDelete={() => api.deleteRow(line.row.id)}
+            />
+          ))}
+        </div>
+        {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
+        {!readOnly && (
+          <button
+            type="button"
+            onClick={add}
+            className="mt-0.5 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {t("list.new")}
+          </button>
+        )}
       </div>
-      {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
-      {!readOnly && (
-        <button
-          type="button"
-          onClick={add}
-          className="mt-0.5 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          {t("list.new")}
-        </button>
-      )}
-    </div>
+    </QuickAddContext>
   );
 }
 
@@ -102,7 +102,6 @@ function ListRow({
   readOnly,
   editTitle,
   typed,
-  quick,
   onTitle,
   onDelete,
 }: {
@@ -117,7 +116,6 @@ function ListRow({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDelete: () => void;
 }) {
@@ -145,7 +143,7 @@ function ListRow({
       >
         <PageIcon icon={row.icon} className="shrink-0" />
         {editTitle ? (
-          <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
+          <CardTitleInput initial={typed || row.title} onDone={onTitle} />
         ) : (
           <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint")}>{label}</span>
         )}

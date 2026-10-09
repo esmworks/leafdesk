@@ -64,6 +64,20 @@ export function dayString(day: number): string {
   return new Date(day * DAY_MS).toISOString().slice(0, 10);
 }
 
+/** The weekday of a day number: 0 for Sunday … 6 for Saturday (1970-01-01, day 0, was a Thursday). */
+export const weekdayOf = (day: number) => (((day + 4) % 7) + 7) % 7;
+
+/**
+ * The day number of `day` of a month counted from January of year 0 (`year * 12 + month`, January
+ * being month 0), clamped to the month's length (the 31st of April is the 30th).
+ */
+export function monthDay(monthIndex: number, day: number): number {
+  const year = Math.floor(monthIndex / 12);
+  const month = monthIndex - year * 12;
+  const length = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return Date.UTC(year, month, Math.min(day, length)) / DAY_MS;
+}
+
 /** The calendar day (as a day number) that `instant` falls on in `timeZone`. */
 export function localDay(instant: number, timeZone: string): number {
   return Math.floor((instant + zoneOffset(instant, timeZone)) / DAY_MS);

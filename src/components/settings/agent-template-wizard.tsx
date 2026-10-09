@@ -6,7 +6,7 @@ import { useState } from "react";
 import { builtinAgentPropertiesAction, installBuiltinAgentAction } from "@/app/actions/agents";
 import { PropertyTypeIcon } from "@/components/database/property-icons";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, textareaClass } from "@/components/ui";
 import { MAX_AGENT_NAME, type AgentView } from "@/lib/agents";
 import {
   ANSWER_PROPERTY_TYPES,
@@ -19,7 +19,7 @@ import {
   type BuiltinAgentSetup,
   type BuiltinAgentSummary,
 } from "@/lib/builtin-agents";
-import { Field, textareaClass } from "./agent-dialog";
+import { Field } from "./agent-dialog";
 import { PagePicker, useShareablePages, type PickablePage } from "./agent-page-picker";
 
 type WizardProperty = { id: string; name: string; type: string; options: { id: string; name: string }[] };

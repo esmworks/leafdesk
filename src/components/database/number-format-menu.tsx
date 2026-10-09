@@ -6,8 +6,8 @@ import { useMemo, useState } from "react";
 import { COMMON_CURRENCIES, NUMBER_FORMATS, type NumberFormat, type NumberFormatKind } from "@/lib/number-format";
 import { useFormatNumber } from "./property-cell";
 import type { Property } from "./types";
+import { menuFieldClass } from "@/components/ui";
 
-const FIELD = "block w-full h-7 rounded-md border border-border bg-bg px-1.5 text-sm text-fg outline-none focus:border-accent";
 
 /** Decimal places the menu offers besides automatic; MCP can set up to MAX_DECIMALS. */
 const DECIMALS = [0, 1, 2, 3, 4];
@@ -102,7 +102,7 @@ export function NumberFormatEditor({
         {format.format === "currency" && (
           <label className="block">
             <span className="mb-1 block text-xs text-fg-muted">{t("formatCurrency")}</span>
-            <select className={FIELD} value={format.currency} onChange={(e) => save({ ...format, currency: e.target.value })}>
+            <select className={menuFieldClass} value={format.currency} onChange={(e) => save({ ...format, currency: e.target.value })}>
               {currencies.map((code) => (
                 <option key={code} value={code}>
                   {currencyName(code)}
@@ -114,7 +114,7 @@ export function NumberFormatEditor({
         <label className="block">
           <span className="mb-1 block text-xs text-fg-muted">{t("decimals")}</span>
           <select
-            className={FIELD}
+            className={menuFieldClass}
             value={format.decimals ?? ""}
             onChange={(e) => {
               const { decimals: _old, ...rest } = format;

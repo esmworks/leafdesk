@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { removeSiteAction, saveSiteAction, setSiteListingAction } from "@/app/actions/site";
-import { Button, Input, Switch } from "@/components/ui";
+import { Button, Input, selectClass, Switch } from "@/components/ui";
 import { SITE_SLUG_MAX, siteSlugProblem, slugify } from "@/lib/site";
 import type { WorkspacePublication } from "@/server/publication";
 import type { WorkspaceSiteInfo } from "@/server/site";
 import { SettingsRow } from "./section";
-import { selectClass, useAction } from "./workspace-settings";
+import { useAction } from "./workspace-settings";
 
 /**
  * Settings > Site: the workspace's site address, title and home page. Owners change them; members

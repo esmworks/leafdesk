@@ -196,8 +196,9 @@ export function useDatabase(
   );
 
   /**
-   * Sets several properties of one row in one write (a timeline bar's start and end): the row
-   * shows the new values right away and keeps them until the server confirms.
+   * Sets several properties of one row (a timeline bar's start and end), the title too under TITLE
+   * (a new row named with quick add), and refetches once: the row shows the new values right away
+   * and keeps them until the server confirms.
    */
   const setRowValues = useCallback(
     async (rowId: string, values: Record<string, unknown>) => {
@@ -211,7 +212,11 @@ export function useDatabase(
         return next;
       });
       try {
-        await unwrap(updateRowPropertiesAction(rowId, values));
+        const { [TITLE]: title, ...properties } = values;
+        await Promise.all([
+          TITLE in values ? unwrap(renameRowAction(rowId, String(title ?? ""))) : null,
+          Object.keys(properties).length ? unwrap(updateRowPropertiesAction(rowId, properties)) : null,
+        ]);
         await refetch();
       } catch (e) {
         report(e);

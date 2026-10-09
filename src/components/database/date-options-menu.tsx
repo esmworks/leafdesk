@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
 import { browserTimeZone } from "@/lib/time-zone";
 import type { Property } from "./types";
+import { menuFieldClass } from "@/components/ui";
 
-const FIELD = "block w-full h-7 rounded-md border border-border bg-bg px-1.5 text-sm text-fg outline-none focus:border-accent";
 
 /**
  * A date property's settings: whether days near today show relatively ("tomorrow", "in 3 days"),
@@ -72,7 +72,7 @@ export function DateOptionsEditor({
         </div>
         <label className="block">
           <span className="mb-1 block text-xs text-fg-muted">{t("reminder")}</span>
-          <select className={FIELD} value={options.reminder?.daysBefore ?? ""} onChange={(e) => setReminder(e.target.value)}>
+          <select className={menuFieldClass} value={options.reminder?.daysBefore ?? ""} onChange={(e) => setReminder(e.target.value)}>
             <option value="">{t("reminderNone")}</option>
             {REMINDER_DAYS.map((days) => (
               <option key={days} value={days}>

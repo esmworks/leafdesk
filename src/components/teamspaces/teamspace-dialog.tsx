@@ -6,8 +6,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { createTeamspaceAction, updateTeamspaceAction } from "@/app/actions/teamspaces";
 import { IconPicker } from "@/components/page/icon-picker";
-import { selectClass, useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, Input } from "@/components/ui";
+import { useAction } from "@/components/settings/workspace-settings";
+import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
 import type { TeamspaceAccess, TeamspaceMemberLevel } from "@/db/schema/app";
 import type { TeamspaceSummary } from "@/server/teamspaces";
 

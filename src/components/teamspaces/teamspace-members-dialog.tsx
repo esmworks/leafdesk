@@ -12,8 +12,8 @@ import {
   removeTeamspaceMemberAction,
   setTeamspaceRoleAction,
 } from "@/app/actions/teamspaces";
-import { selectClass, useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input } from "@/components/ui";
+import { useAction } from "@/components/settings/workspace-settings";
+import { Button, cn, Dialog, IconButton, Input, selectClass } from "@/components/ui";
 import type { TeamspaceRole } from "@/db/schema/app";
 import type { TeamspaceGroupSummary, TeamspacePerson, TeamspaceSummary } from "@/server/teamspaces";
 import { searchFold } from "@/lib/search-fold";

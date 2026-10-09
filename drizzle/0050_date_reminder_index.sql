@@ -1,0 +1,2 @@
+CREATE INDEX "database_property_reminder_idx" ON "database_property" USING btree ("id") WHERE "database_property"."type" = 'date' and "database_property"."options" -> 'date' -> 'reminder' is not null;--> statement-breakpoint
+UPDATE "notification" SET "date" = "page_reminder"."date" FROM "page_reminder" WHERE "notification"."kind" = 'reminder' AND "notification"."date" IS NULL AND "page_reminder"."page_id" = "notification"."page_id" AND "page_reminder"."mention_id" = "notification"."mention_id";

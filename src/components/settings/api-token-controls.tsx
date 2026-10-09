@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
 import { createApiTokenAction, revokeApiTokenAction, type CreateApiTokenResult } from "@/app/actions/api-tokens";
-import { Button, cn, Dialog, Input } from "@/components/ui";
+import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
 import { CopyButton } from "./copy-button";
-import { selectClass } from "./workspace-settings";
 
 /** Expiry choices, in days; null never expires. 90 days is the default. */
 const EXPIRY_DAYS = [7, 30, 90, 365, null] as const;

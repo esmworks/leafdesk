@@ -1,12 +1,12 @@
 import { databaseSeedNames } from "@/app/actions/seed-names";
 import { auth } from "@/lib/auth";
-import { env } from "@/lib/env";
 import { CSV_COLUMN_TYPES, type CsvColumnType } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
 import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
 import { spreadsheetTable } from "@/lib/import/xlsx";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
+import { isCrossSite } from "@/server/cross-site";
 import { importCsvAsDatabase, importCsvIntoDatabase, type ColumnTarget } from "@/server/import/csv";
 import { importPages } from "@/server/import/markdown";
 import { TeamspaceError } from "@/server/teamspaces";
@@ -33,9 +33,7 @@ import { TeamspaceError } from "@/server/teamspaces";
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers }).catch(() => null);
   if (!session) return fail(401, "noAccess", "Sign in to import");
-  const origin = request.headers.get("origin");
-  const hosts = [new URL(env.appUrl).host, request.headers.get("x-forwarded-host"), request.headers.get("host")];
-  if (!request.headers.get("x-leafdesk-import") || (origin && !hosts.includes(URL.parse(origin)?.host ?? ""))) {
+  if (isCrossSite(request, "x-leafdesk-import")) {
     return fail(403, "badRequest", "Cross-site imports aren't allowed");
   }
   const length = Number(request.headers.get("content-length") ?? NaN);

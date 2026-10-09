@@ -10,7 +10,6 @@ import {
   databaseProperty,
   notification,
   page,
-  pageReminder,
   user,
   workspace,
   workspaceAgent,
@@ -36,6 +35,7 @@ import { requestLocale } from "@/server/mail/locale";
 import { inboxKinds } from "@/server/notification-preferences";
 import { pushNotifications } from "@/server/push";
 import { canInviteGuests } from "@/server/workspaces";
+import { startSweep } from "@/server/sweep";
 
 /**
  * The in-app inbox: one list per user and workspace. Sidebars in a workspace listen on its signal
@@ -294,10 +294,10 @@ export async function withdrawMentions(workspaceId: string, pageId: string, ment
 }
 
 /**
- * A reminder the user set fell due (see server/mentions.ts): tells them in the inbox and, right
- * away, by email, if they can still open the page.
+ * A reminder the user set on the mentioned `date` fell due (see server/mentions.ts): tells them in
+ * the inbox and, right away, by email, if they can still open the page.
  */
-export async function recordReminder(userId: string, pageId: string, mentionId: string) {
+export async function recordReminder(userId: string, pageId: string, mentionId: string, date: string) {
   const [target] = await db
     .select({ workspaceId: page.workspaceId })
     .from(page)
@@ -313,6 +313,7 @@ export async function recordReminder(userId: string, pageId: string, mentionId: 
       actorId: null,
       pageId,
       mentionId,
+      date,
       emailDueAt: mailStatus() === "disabled" ? null : new Date(),
     })
     .returning({ id: notification.id });
@@ -432,7 +433,7 @@ export type InboxItem = {
   pageIcon: string | null;
   databaseTitle: string | null;
   propertyName: string | null;
-  /** Reminders: the date they were set on, or the row's date (YYYY-MM-DD). */
+  /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). */
   reminderDate: string | null;
   /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
   automationName: string | null;
@@ -540,7 +541,7 @@ export async function listNotifications(
       pageIcon: page.icon,
       databaseTitle: databasePage.title,
       propertyName: databaseProperty.name,
-      reminderDate: sql<string | null>`coalesce(${notification.date}, ${pageReminder.date})`,
+      reminderDate: notification.date,
       automationName: databaseAutomation.name,
       requestKind: workspaceJoinRequest.kind,
       requestEmail: workspaceJoinRequest.email,
@@ -557,10 +558,6 @@ export async function listNotifications(
     .leftJoin(databasePage, and(eq(databasePage.id, page.parentId), eq(databasePage.kind, "database")))
     .leftJoin(actor, eq(actor.id, notification.actorId))
     .leftJoin(databaseProperty, eq(databaseProperty.id, notification.propertyId))
-    .leftJoin(
-      pageReminder,
-      and(eq(notification.kind, "reminder"), eq(pageReminder.pageId, notification.pageId), eq(pageReminder.mentionId, notification.mentionId)),
-    )
     .leftJoin(accessRequest, eq(accessRequest.id, notification.accessRequestId))
     .leftJoin(databaseAutomation, eq(databaseAutomation.id, notification.automationId))
     .where(
@@ -685,22 +682,7 @@ const SNOOZE_SWEEP_MS = 30_000;
 
 /** Wakes snoozed notifications every SNOOZE_SWEEP_MS. Returns a function that stops it. */
 export function startSnoozes() {
-  let sweeping = false;
-  const sweep = async () => {
-    if (sweeping) return;
-    sweeping = true;
-    try {
-      await deliverSnoozed();
-    } catch (error) {
-      console.error("snoozed notifications failed", error);
-    } finally {
-      sweeping = false;
-    }
-  };
-  void sweep();
-  const timer = setInterval(() => void sweep(), SNOOZE_SWEEP_MS);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return startSweep(SNOOZE_SWEEP_MS, () => deliverSnoozed(), "snoozed notifications failed");
 }
 
 /** Marks the given notifications (or, without ids, the whole inbox) read. */

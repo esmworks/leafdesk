@@ -20,7 +20,7 @@ import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
 import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, Switch } from "@/components/ui";
+import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, Switch, textareaClass } from "@/components/ui";
 import {
   AGENT_ACCESS_LEVELS,
   AGENT_RUN_HISTORY_DAYS,
@@ -36,9 +36,6 @@ import { AgentConnectionsTab } from "./agent-connections-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
 export type AgentTab = "settings" | "access" | "connections" | "runs";
-
-export const textareaClass =
-  "w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent";
 
 const selectClass = "h-8 rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
 

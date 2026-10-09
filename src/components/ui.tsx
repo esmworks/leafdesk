@@ -49,6 +49,17 @@ export const IconButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTM
   },
 );
 
+/** A form's select (add "w-full" to fill the line). */
+export const selectClass =
+  "h-8 rounded-md border border-border bg-bg px-2.5 text-sm outline-none focus:border-accent disabled:opacity-60";
+
+export const textareaClass =
+  "w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent";
+
+/** A small field in a menu (a property's settings). */
+export const menuFieldClass =
+  "block w-full h-7 rounded-md border border-border bg-bg px-1.5 text-sm text-fg outline-none focus:border-accent";
+
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...props },
   ref,

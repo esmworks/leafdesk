@@ -1,16 +1,17 @@
 "use client";
 
 import { CalendarDays, Tag, User, X } from "lucide-react";
-import { useLocale, useTimeZone, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import { cn } from "@/components/ui";
 import { formatIsoDate } from "@/lib/mentions";
 import { parseQuickAdd, type QuickAddMatch, type QuickAddOption, type QuickAddResult } from "@/lib/quick-add";
-import { dayString, localDay } from "@/lib/time-zone";
 import { viewDateProperty } from "@/lib/views";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { TITLE, type Property, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
+import { useToday } from "./use-today";
 
 const OPTION_TYPES = new Set<Property["type"]>(["select", "status", "multi_select"]);
 
@@ -22,7 +23,7 @@ const OPTION_TYPES = new Set<Property["type"]>(["select", "status", "multi_selec
  */
 export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]) {
   const locale = useLocale();
-  const timeZone = useTimeZone() ?? "UTC";
+  const today = useToday();
   const { people } = usePeople();
   const access = usePropertyAccess();
   const [ignored, setIgnored] = useState<ReadonlySet<string>>(new Set());
@@ -46,13 +47,13 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
     (text: string): QuickAddResult =>
       parseQuickAdd(text, {
         locale,
-        today: dayString(localDay(Date.now(), timeZone)),
+        today,
         people: targets.person ? active : [],
         options: targets.options,
         ignored,
         dates: Boolean(targets.date),
       }),
-    [locale, timeZone, active, targets, ignored],
+    [locale, today, active, targets, ignored],
   );
 
   /** Forgets the parts kept in the title: each new row's title starts without any. */
@@ -63,14 +64,13 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
     (rowId: string, text: string) => {
       const result = parse(text);
       reset();
-      const values: Record<string, unknown> = {};
+      const values: Record<string, unknown> = { [TITLE]: result.title };
       if (result.date && targets.date) values[targets.date.id] = result.date;
       if (result.people.length && targets.person) values[targets.person.id] = result.people;
       for (const option of result.options) {
         if (!targets.multi.has(option.propertyId)) values[option.propertyId] = option.optionId;
         else values[option.propertyId] = [...((values[option.propertyId] as string[] | undefined) ?? []), option.optionId];
       }
-      void api.setCell(rowId, TITLE, result.title);
       void api.setRowValues(rowId, values);
     },
     [api, parse, reset, targets],
@@ -90,10 +90,19 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
 
 export type QuickAdd = ReturnType<typeof useQuickAdd>;
 
+/**
+ * The quick add of a view's new rows (see useNewRow), for the title editor of the one being named:
+ * card views provide it around their cards, the table around the new row's title cell.
+ */
+export const QuickAddContext = createContext<QuickAdd | null>(null);
+
 const ICONS = { date: CalendarDays, person: User, option: Tag } as const;
 
-/** What quick add recognises in `text`, under a new row's title field; each part can be kept in the title. */
-export function QuickAddParts({ quick, text }: { quick: QuickAdd; text: string }) {
+/**
+ * What quick add recognises in `text`, under a new row's title field (`floating` over what follows
+ * it); each part can be kept in the title.
+ */
+export function QuickAddParts({ quick, text, floating }: { quick: QuickAdd; text: string; floating?: boolean }) {
   const t = useTranslations("database.quickAdd");
   const locale = useLocale();
   // A title field that opens or closes without saving leaves nothing kept for the next one.
@@ -115,7 +124,10 @@ export function QuickAddParts({ quick, text }: { quick: QuickAdd; text: string }
       // Clicking a part mustn't take the focus from the title field (which would save it).
       onMouseDown={(e) => e.preventDefault()}
       onClick={(e) => e.stopPropagation()}
-      className="mt-1.5 flex flex-wrap gap-1"
+      className={cn(
+        "mt-1.5 flex flex-wrap gap-1",
+        floating && "absolute top-full left-0 z-20 w-max max-w-72 rounded-md border border-border bg-bg p-1 shadow-md",
+      )}
     >
       {result.matches.map((match) => {
         const Icon = ICONS[match.kind];

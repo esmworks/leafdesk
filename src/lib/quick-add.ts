@@ -1,4 +1,4 @@
-import { dayNumber, dayString } from "@/lib/time-zone";
+import { dayNumber, dayString, monthDay, weekdayOf } from "@/lib/time-zone";
 
 /**
  * Quick add: a new row's title typed with its date, people and options in it ("Send the offer
@@ -203,15 +203,9 @@ function phraseAt(tokens: Token[], i: number, phrases: string[]): number {
   return best;
 }
 
-const weekdayOf = (day: number) => (((day + 4) % 7) + 7) % 7;
-
 function addMonths(day: number, months: number): number {
   const [y, m, d] = dayString(day).split("-").map(Number);
-  const total = y * 12 + (m - 1) + months;
-  const year = Math.floor(total / 12);
-  const month = total % 12;
-  const last = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  return Date.UTC(year, month, Math.min(d, last)) / 86_400_000;
+  return monthDay(y * 12 + m - 1 + months, d);
 }
 
 /** A valid day number for the date, or null ("31.02." is no date). */
@@ -267,9 +261,9 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
   if (n) return { length: n, day: today + 7 - ((weekdayOf(today) + 6) % 7) };
   n = phraseAt(tokens, i, v.nextMonth);
   if (n) {
-    // The first of next month (`m` counts from 1, so it is next month's index; December rolls over).
+    // The first of next month (`m` counts from 1, so it is next month's index).
     const [y, m] = dayString(today).split("-").map(Number);
-    return { length: n, day: Date.UTC(y, m, 1) / 86_400_000 };
+    return { length: n, day: monthDay(y * 12 + m, 1) };
   }
 
   // "in 3 days", "3 gün sonra", "dans 2 semaines".

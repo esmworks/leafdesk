@@ -55,7 +55,7 @@ import {
 } from "@/lib/properties";
 import { fromPercentPoints, isPercent } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
-import { VIEW_TYPES } from "@/lib/views";
+import { VIEW_TYPES, viewDateProperty } from "@/lib/views";
 import { Floating, useFloating } from "./floating";
 import { usePeople } from "./person-cell";
 import { useFormatDate, useFormatNumber } from "./property-cell";
@@ -365,7 +365,7 @@ export function ViewToolbar({
       : groupProps.find((p) => p.id === config.groupBy);
   const dateMenu = useFloating<HTMLButtonElement>();
   const dateProps = properties.filter((p) => p.type === "date");
-  const dateBy = dateProps.find((p) => p.id === config.dateBy) ?? dateProps[0];
+  const dateBy = viewDateProperty(config, properties);
   // `properties` is in the view's order, so dragging one in the properties menu reorders the view.
   const propertyDrag = useReorderDrag("y", (moved, target, side) =>
     onConfig({ ...config, propertyOrder: moveProperty(properties, moved, target, side) }),

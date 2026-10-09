@@ -184,6 +184,17 @@ export function statusGroupOf(option: Pick<SelectOption, "group">): StatusGroup 
   return option.group && STATUS_GROUPS.includes(option.group) ? option.group : "todo";
 }
 
+/** The option `value` (a row's value of the status or select property `property`) picks, if any. */
+export function optionOf(property: { options: PropertyOptions }, value: unknown): SelectOption | undefined {
+  return (property.options.options ?? []).find((o) => o.id === value);
+}
+
+/** Whether `value`, a row's value of the status property `property`, is in the "done" group. */
+export function isDoneStatus(property: { options: PropertyOptions }, value: unknown) {
+  const option = optionOf(property, value);
+  return option !== undefined && statusGroupOf(option) === "done";
+}
+
 /** Default color for a status option added to `group`. */
 export function statusColor(group: StatusGroup) {
   return STATUS_COLORS[group];

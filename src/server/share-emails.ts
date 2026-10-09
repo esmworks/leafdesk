@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { accessRequest, databaseAutomation, databaseProperty, notification, page, pageReminder, user, workspace, workspaceJoinRequest } from "@/db/schema";
+import { accessRequest, databaseAutomation, databaseProperty, notification, page, user, workspace, workspaceJoinRequest } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { commentText } from "@/lib/comments";
@@ -23,6 +23,7 @@ import {
 import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { wantsEmail } from "@/server/notification-preferences";
+import { startSweep } from "@/server/sweep";
 
 /**
  * Emails people about pages shared with them, comments in their threads, mentions of them, their
@@ -50,7 +51,6 @@ type Due = Pick<
   | "actorId"
   | "pageId"
   | "threadId"
-  | "mentionId"
   | "accessRequestId"
   | "joinRequestId"
   | "automationId"
@@ -83,7 +83,6 @@ async function deliverDue(everything = false) {
       actorId: notification.actorId,
       pageId: notification.pageId,
       threadId: notification.threadId,
-      mentionId: notification.mentionId,
       accessRequestId: notification.accessRequestId,
       joinRequestId: notification.joinRequestId,
       automationId: notification.automationId,
@@ -143,7 +142,6 @@ async function send({
   actorId,
   pageId,
   threadId,
-  mentionId,
   accessRequestId,
   joinRequestId,
   automationId,
@@ -182,8 +180,9 @@ async function send({
     return;
   }
   if (kind === "reminder") {
-    // A date property's reminder carries its date; a date mention's is in page_reminder.
-    if (date && propertyId) {
+    if (!date) return;
+    // A date property's reminder, else one set on a date mention.
+    if (propertyId) {
       const [about] = await db
         .select({ propertyName: databaseProperty.name, databaseTitle: page.title })
         .from(databaseProperty)
@@ -195,14 +194,7 @@ async function send({
       await mailer({ to: recipient.email, ...dateReminderEmail(locale, names) });
       return;
     }
-    const [reminder] = mentionId
-      ? await db
-          .select({ date: pageReminder.date })
-          .from(pageReminder)
-          .where(and(eq(pageReminder.pageId, pageId), eq(pageReminder.mentionId, mentionId)))
-      : [];
-    if (!reminder) return;
-    await mailer({ to: recipient.email, ...reminderEmail(locale, { date: reminder.date, pageTitle, workspaceName: space?.name ?? "", link }) });
+    await mailer({ to: recipient.email, ...reminderEmail(locale, { date, pageTitle, workspaceName: space?.name ?? "", link }) });
     return;
   }
   if (kind === "access_request") {
@@ -258,25 +250,9 @@ async function send({
   await mailer({ to: recipient.email, ...content });
 }
 
-let sweeping = false;
-
 /** Server only: sends notification emails as they fall due, including any left from before a restart. */
 export function startShareEmails() {
-  const sweep = async () => {
-    if (sweeping) return;
-    sweeping = true;
-    try {
-      await deliverDue();
-    } catch (error) {
-      console.error("could not deliver notification emails", error);
-    } finally {
-      sweeping = false;
-    }
-  };
-  void sweep();
-  const timer = setInterval(() => void sweep(), SWEEP_INTERVAL_MS);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return startSweep(SWEEP_INTERVAL_MS, () => deliverDue(), "could not deliver notification emails");
 }
 
 /** Emails sent right away by mailNow that haven't finished yet. */

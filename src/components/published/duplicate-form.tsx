@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { duplicatePublishedAction } from "@/app/actions/site";
-import { selectClass } from "@/components/settings/workspace-settings";
-import { Button } from "@/components/ui";
+import { Button, selectClass } from "@/components/ui";
 
 type Target = { id: string; name: string; icon: string | null };
 

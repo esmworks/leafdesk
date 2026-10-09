@@ -22,8 +22,8 @@ import {
 import { TabButton } from "@/components/settings/members-panel";
 import { SettingsHeader } from "@/components/settings/section";
 import { CopyButton } from "@/components/settings/copy-button";
-import { selectClass, useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, Switch } from "@/components/ui";
+import { useAction } from "@/components/settings/workspace-settings";
+import { Button, cn, Dialog, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
 import {
   CONNECTION_AUTH_TYPES,
   EVENT_PRESETS,
@@ -38,7 +38,6 @@ import {
   type ToolKind,
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
-import { textareaClass } from "./agent-dialog";
 
 export type ConnectionAgent = { id: string; name: string; icon: string | null };
 

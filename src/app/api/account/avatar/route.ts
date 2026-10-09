@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { MAX_AVATAR_BYTES } from "@/lib/avatar";
 import { auth } from "@/lib/auth";
-import { env } from "@/lib/env";
 import { AccountError, setAvatar } from "@/server/account";
+import { isCrossSite } from "@/server/cross-site";
 
 /**
  * Uploads a new profile picture: `POST /api/account/avatar` with the image as the body (PNG, JPEG,
@@ -17,9 +17,7 @@ export async function POST(request: Request) {
   const t = await getTranslations("account.errors");
   const session = await auth.api.getSession({ headers: request.headers }).catch(() => null);
   if (!session) return Response.json({ error: t("signInRequired"), code: "signInRequired" }, { status: 401 });
-  const origin = request.headers.get("origin");
-  const hosts = [new URL(env.appUrl).host, request.headers.get("x-forwarded-host"), request.headers.get("host")];
-  if (request.headers.get("x-avatar-upload") !== "1" || (origin && !hosts.includes(URL.parse(origin)?.host ?? ""))) {
+  if (isCrossSite(request, "x-avatar-upload")) {
     return Response.json({ error: t("crossSiteUpload"), code: "crossSiteUpload" }, { status: 403 });
   }
   const declared = Number(request.headers.get("content-length") ?? "0");

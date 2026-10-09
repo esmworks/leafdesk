@@ -11,9 +11,10 @@ import { CardTitleInput } from "./board-view";
 import { CalendarFeedButton } from "./calendar-feed";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
-import { useQuickAdd, type QuickAdd } from "./quick-add";
+import { QuickAddContext } from "./quick-add";
 import { viewDateProperty } from "@/lib/views";
 import { useNewRow } from "./use-new-row";
+import { useToday } from "./use-today";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -26,11 +27,6 @@ function isoDay(d: Date) {
 function utcDate(year: number, month: number, day = 1) {
   return new Date(Date.UTC(year, month, day));
 }
-function localToday() {
-  const now = new Date();
-  return isoDay(utcDate(now.getFullYear(), now.getMonth(), now.getDate()));
-}
-
 /** First weekday of the locale as a `getUTCDay()` index (0 = Sunday). */
 function firstDayOfWeek(locale: string) {
   try {
@@ -81,12 +77,11 @@ export function CalendarView({
   const t = useTranslations("database");
   const format = useFormatter();
   const locale = useLocale();
-  const today = localToday();
+  const today = useToday();
   const [cursor, setCursor] = useState(() => ({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) - 1 }));
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropDay, setDropDay] = useState<string | null>(null);
-  const quick = useQuickAdd(api, view, properties);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
+  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
   const [showUndated, setShowUndated] = useState(false);
   // On phones the month is a compact grid, and the rows of the picked day are listed under it.
   const phone = useMediaQuery(PHONE_QUERY);
@@ -165,10 +160,9 @@ export function CalendarView({
       dragging={dragId === row.id}
       editTitle={editTitleOf === row.id}
       typed={typed}
-      quick={quick}
       onTitle={(title) => {
         stopEditing();
-        if (title !== row.title) quick.save(row.id, title);
+        if (title !== row.title) saveTitle(row.id, title);
       }}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", row.id);
@@ -185,150 +179,152 @@ export function CalendarView({
   const monthLabel = format.dateTime(utcDate(cursor.year, cursor.month), { month: "long", year: "numeric", timeZone: "UTC" });
 
   return (
-    <div className="pb-4">
-      <div className="flex items-center gap-1 pb-2">
-        <h3 className="flex-1 text-sm font-medium first-letter:uppercase">{monthLabel}</h3>
-        <CalendarFeedButton viewId={view.id} />
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setCursor({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) - 1 })}
-        >
-          {t("calendar.today")}
-        </Button>
-        <button
-          type="button"
-          aria-label={t("calendar.previous")}
-          title={t("calendar.previous")}
-          onClick={() => move(-1)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          aria-label={t("calendar.next")}
-          title={t("calendar.next")}
-          onClick={() => move(1)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      {phone ? (
-        <PhoneMonth
-          days={days}
-          month={cursor.month}
-          today={today}
-          selected={selected}
-          byDay={byDay}
-          canAdd={canAdd}
-          entry={entry}
-          onPick={(d) => {
-            setPicked(isoDay(d));
-            if (d.getUTCMonth() !== cursor.month) setCursor({ year: d.getUTCFullYear(), month: d.getUTCMonth() });
-          }}
-          onAdd={addOn}
-        />
-      ) : (
-        <div className="-mx-2 overflow-x-auto px-2">
-          <div className="min-w-[42rem] overflow-hidden rounded-lg border border-border">
-            <div className="grid grid-cols-7 border-b border-border bg-bg-subtle">
-              {days.slice(0, 7).map((d) => (
-                <div key={isoDay(d)} className="px-2 py-1.5 text-xs text-fg-muted">
-                  {format.dateTime(d, { weekday: "short", timeZone: "UTC" })}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7">
-              {days.map((d, i) => {
-                const day = isoDay(d);
-                const inMonth = d.getUTCMonth() === cursor.month;
-                const entries = byDay.get(day) ?? [];
-                const dayLabel = format.dateTime(d, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-                return (
-                  <section
-                    key={day}
-                    aria-label={dayLabel}
-                    onDragOver={(e) => {
-                      if (!dragId) return;
-                      e.preventDefault();
-                      e.dataTransfer.dropEffect = "move";
-                      if (dropDay !== day) setDropDay(day);
-                    }}
-                    onDragLeave={(e) => {
-                      if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropDay(null);
-                    }}
-                    onDrop={(e) => onDrop(e, day)}
-                    className={cn(
-                      "group flex min-h-28 min-w-0 flex-col gap-1 p-1",
-                      i % 7 !== 0 && "border-l border-border",
-                      i >= 7 && "border-t border-border",
-                      !inMonth && "bg-bg-subtle",
-                      dragId && dropDay === day && "bg-bg-hover",
-                    )}
-                  >
-                    <div className="flex h-6 items-center justify-between">
-                      {canAdd ? (
-                        <button
-                          type="button"
-                          aria-label={t("calendar.addOnDay", { date: dayLabel })}
-                          title={t("calendar.addOnDay", { date: dayLabel })}
-                          onClick={() => addOn(day)}
-                          className="invisible inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      ) : (
-                        <span />
-                      )}
-                      <span
-                        className={cn(
-                          "inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs tabular-nums",
-                          day === today ? "bg-accent font-medium text-accent-fg" : inMonth ? "text-fg" : "text-fg-faint",
-                        )}
-                      >
-                        {d.getUTCDate()}
-                      </span>
-                    </div>
-                    {entries.map(entry)}
-                  </section>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {undated.length > 0 && (
-        <div className="mt-3">
+    <QuickAddContext value={quick}>
+      <div className="pb-4">
+        <div className="flex items-center gap-1 pb-2">
+          <h3 className="flex-1 text-sm font-medium first-letter:uppercase">{monthLabel}</h3>
+          <CalendarFeedButton viewId={view.id} />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setCursor({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) - 1 })}
+          >
+            {t("calendar.today")}
+          </Button>
           <button
             type="button"
-            aria-expanded={showUndated}
-            onClick={() => setShowUndated((v) => !v)}
-            className="inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            aria-label={t("calendar.previous")}
+            title={t("calendar.previous")}
+            onClick={() => move(-1)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUndated && "rotate-90")} />
-            {t("calendar.noDate", { count: undated.length, property: dateBy.name })}
+            <ChevronLeft className="h-4 w-4" />
           </button>
-          {showUndated && (
-            <section
-              aria-label={t("calendar.noDateTitle", { property: dateBy.name })}
-              onDragOver={(e) => {
-                if (!dragId) return;
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "move";
-              }}
-              onDrop={(e) => onDrop(e, null)}
-              className="mt-1 grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1.5"
-            >
-              {undated.map(entry)}
-            </section>
-          )}
+          <button
+            type="button"
+            aria-label={t("calendar.next")}
+            title={t("calendar.next")}
+            onClick={() => move(1)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
-      )}
-    </div>
+
+        {phone ? (
+          <PhoneMonth
+            days={days}
+            month={cursor.month}
+            today={today}
+            selected={selected}
+            byDay={byDay}
+            canAdd={canAdd}
+            entry={entry}
+            onPick={(d) => {
+              setPicked(isoDay(d));
+              if (d.getUTCMonth() !== cursor.month) setCursor({ year: d.getUTCFullYear(), month: d.getUTCMonth() });
+            }}
+            onAdd={addOn}
+          />
+        ) : (
+          <div className="-mx-2 overflow-x-auto px-2">
+            <div className="min-w-[42rem] overflow-hidden rounded-lg border border-border">
+              <div className="grid grid-cols-7 border-b border-border bg-bg-subtle">
+                {days.slice(0, 7).map((d) => (
+                  <div key={isoDay(d)} className="px-2 py-1.5 text-xs text-fg-muted">
+                    {format.dateTime(d, { weekday: "short", timeZone: "UTC" })}
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7">
+                {days.map((d, i) => {
+                  const day = isoDay(d);
+                  const inMonth = d.getUTCMonth() === cursor.month;
+                  const entries = byDay.get(day) ?? [];
+                  const dayLabel = format.dateTime(d, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+                  return (
+                    <section
+                      key={day}
+                      aria-label={dayLabel}
+                      onDragOver={(e) => {
+                        if (!dragId) return;
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = "move";
+                        if (dropDay !== day) setDropDay(day);
+                      }}
+                      onDragLeave={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropDay(null);
+                      }}
+                      onDrop={(e) => onDrop(e, day)}
+                      className={cn(
+                        "group flex min-h-28 min-w-0 flex-col gap-1 p-1",
+                        i % 7 !== 0 && "border-l border-border",
+                        i >= 7 && "border-t border-border",
+                        !inMonth && "bg-bg-subtle",
+                        dragId && dropDay === day && "bg-bg-hover",
+                      )}
+                    >
+                      <div className="flex h-6 items-center justify-between">
+                        {canAdd ? (
+                          <button
+                            type="button"
+                            aria-label={t("calendar.addOnDay", { date: dayLabel })}
+                            title={t("calendar.addOnDay", { date: dayLabel })}
+                            onClick={() => addOn(day)}
+                            className="invisible inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        ) : (
+                          <span />
+                        )}
+                        <span
+                          className={cn(
+                            "inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs tabular-nums",
+                            day === today ? "bg-accent font-medium text-accent-fg" : inMonth ? "text-fg" : "text-fg-faint",
+                          )}
+                        >
+                          {d.getUTCDate()}
+                        </span>
+                      </div>
+                      {entries.map(entry)}
+                    </section>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {undated.length > 0 && (
+          <div className="mt-3">
+            <button
+              type="button"
+              aria-expanded={showUndated}
+              onClick={() => setShowUndated((v) => !v)}
+              className="inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            >
+              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUndated && "rotate-90")} />
+              {t("calendar.noDate", { count: undated.length, property: dateBy.name })}
+            </button>
+            {showUndated && (
+              <section
+                aria-label={t("calendar.noDateTitle", { property: dateBy.name })}
+                onDragOver={(e) => {
+                  if (!dragId) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                }}
+                onDrop={(e) => onDrop(e, null)}
+                className="mt-1 grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1.5"
+              >
+                {undated.map(entry)}
+              </section>
+            )}
+          </div>
+        )}
+      </div>
+    </QuickAddContext>
   );
 }
 
@@ -446,7 +442,6 @@ function CalendarEntry({
   dragging,
   editTitle,
   typed,
-  quick,
   onTitle,
   onDragStart,
   onDragEnd,
@@ -459,7 +454,6 @@ function CalendarEntry({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDragStart: (e: DragEvent<HTMLDivElement>) => void;
   onDragEnd: () => void;
@@ -485,7 +479,7 @@ function CalendarEntry({
       )}
     >
       {editTitle ? (
-        <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
+        <CardTitleInput initial={typed || row.title} onDone={onTitle} />
       ) : (
         <div className="flex min-w-0 items-center gap-1">
           {row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}

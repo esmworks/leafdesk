@@ -16,9 +16,9 @@ import {
 } from "@/app/actions/workspaces";
 import { CopyButton } from "@/components/settings/copy-button";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
-import { selectClass, useAction } from "@/components/settings/workspace-settings";
+import { useAction } from "@/components/settings/workspace-settings";
 import { Floating, useFloating } from "@/components/database/floating";
-import { Button, cn, Dialog, IconButton, Input, MenuItem, Switch } from "@/components/ui";
+import { Button, cn, Dialog, IconButton, Input, MenuItem, selectClass, Switch } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { WorkspaceRole } from "@/db/schema/app";
 import { MAX_BULK_EMAILS, parseEmailList } from "@/lib/emails";

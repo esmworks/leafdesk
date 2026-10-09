@@ -177,9 +177,8 @@ export const notification = pgTable(
     /** The actor's interface language, for that email. */
     emailLocale: text("email_locale"),
     /**
-     * Reminders on a date property (`propertyId` of row `pageId`): the date that fell due, as
-     * stored ("2026-10-16" or "2026-10-16T17:00"). Reminders on date mentions take theirs from
-     * page_reminder.
+     * Reminders: the date that fell due (YYYY-MM-DD), the row's date for a date property's reminder
+     * (`propertyId` of row `pageId`), else the mentioned date the user set a reminder on.
      */
     date: text("date"),
     /**

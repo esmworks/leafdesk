@@ -13,12 +13,12 @@ import {
   type SsoActionResult,
 } from "@/app/actions/sso";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
-import { Button, cn, Dialog, Input } from "@/components/ui";
+import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
 import type { WorkspaceSettings } from "@/db/schema";
 import type { SsoConnection } from "@/server/sso";
 import { CopyButton } from "./copy-button";
 import { SettingsRow } from "./section";
-import { selectClass, useAction } from "./workspace-settings";
+import { useAction } from "./workspace-settings";
 
 export type SsoSetupInfo = {
   workspaceId: string;

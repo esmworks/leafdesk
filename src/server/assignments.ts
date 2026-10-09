@@ -11,6 +11,7 @@ import { assignmentEmail, mailStatus, sendMail, type OutgoingMail } from "@/serv
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { wantsEmail } from "@/server/notification-preferences";
+import { startSweep } from "@/server/sweep";
 
 /**
  * Emails people when someone else assigns them to a database row. Sending waits a little and then
@@ -81,25 +82,9 @@ async function deliverDue(everything = false) {
   }
 }
 
-let sweeping = false;
-
 /** Server only: sends queued emails as they fall due, including any left from before a restart. */
 export function startAssignmentEmails() {
-  const sweep = async () => {
-    if (sweeping) return;
-    sweeping = true;
-    try {
-      await deliverDue();
-    } catch (error) {
-      console.error("could not deliver assignment emails", error);
-    } finally {
-      sweeping = false;
-    }
-  };
-  void sweep();
-  const timer = setInterval(() => void sweep(), SWEEP_INTERVAL_MS);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return startSweep(SWEEP_INTERVAL_MS, () => deliverDue(), "could not deliver assignment emails");
 }
 
 /**

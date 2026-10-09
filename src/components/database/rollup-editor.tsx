@@ -3,14 +3,13 @@
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { Button } from "@/components/ui";
+import { Button, menuFieldClass } from "@/components/ui";
 import { ROLLUP_DISPLAYS, rollupFunctions, type RollupDisplay, type RollupFn } from "@/lib/aggregate";
 import { rollupFormat, TITLE_FIELD, valueType } from "@/lib/derived";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import type { Property, RollupInput } from "./types";
 
-const FIELD = "block w-full h-7 rounded-md border border-border bg-bg px-1.5 text-sm text-fg outline-none focus:border-accent";
 
 /**
  * Sets up a rollup: which relation, which property of the related database, and what to
@@ -82,7 +81,7 @@ export function RollupEditor({
         <label className="block">
           <span className="mb-1 block text-xs text-fg-muted">{t("relation")}</span>
           <select
-            className={FIELD}
+            className={menuFieldClass}
             value={relationId}
             onChange={(e) => {
               setRelationId(e.target.value);
@@ -103,7 +102,7 @@ export function RollupEditor({
             <label className="block">
               <span className="mb-1 block text-xs text-fg-muted">{t("property")}</span>
               <select
-                className={FIELD}
+                className={menuFieldClass}
                 value={targetProp || targetId === TITLE_FIELD ? targetId : ""}
                 onChange={(e) => setTargetId(e.target.value)}
               >
@@ -118,7 +117,7 @@ export function RollupEditor({
             </label>
             <label className="block">
               <span className="mb-1 block text-xs text-fg-muted">{t("function")}</span>
-              <select className={FIELD} value={chosenFn} onChange={(e) => setFn(e.target.value as RollupFn)} disabled={!targetType}>
+              <select className={menuFieldClass} value={chosenFn} onChange={(e) => setFn(e.target.value as RollupFn)} disabled={!targetType}>
                 {functions.map((f) => (
                   <option key={f} value={f}>
                     {f === "show_original" ? t("showOriginal") : tc(`menu.${f}`)}

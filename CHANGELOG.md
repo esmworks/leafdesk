@@ -16,7 +16,7 @@
   settings). The people of the row's person properties, or whoever added the row, get it in the
   inbox, by email and as a push, when they can see the row and the date; rows that are done, in
   the trash or templates are skipped. MCP: `date_options` on `add_database_property` and
-  `update_database_property`. Migration 0049.
+  `update_database_property`. Migrations 0049 and 0050.
 - **Relative dates.** A date property can show its dates as "Tomorrow", "In 3 days" or "2 days
   ago" (up to a week either way), with the full date on hover. No migration.
 - **Snoozing notifications.** An inbox item can be put off for an hour, until tomorrow morning or
@@ -31,7 +31,8 @@
   name and can be kept in it instead. No migration.
 - **Quick notes and sharing to Leafdesk.** The installed app's icon offers a quick note, and
   phones that support it list Leafdesk in the share sheet: shared text and links open the quick
-  note, saved as a private page in the workspace you pick. No migration.
+  note, saved as a private page in the workspace you pick. What was shared is posted to the app,
+  so it never shows up in an address or a server log. No migration.
 
 ### Changed
 

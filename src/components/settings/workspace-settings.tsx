@@ -25,9 +25,6 @@ export function useAction() {
   return { pending, error, run };
 }
 
-export const selectClass =
-  "h-8 rounded-md border border-border bg-bg px-2.5 text-sm outline-none focus:border-accent disabled:opacity-60";
-
 export function WorkspaceNameForm({ workspaceId, name, canEdit }: { workspaceId: string; name: string; canEdit: boolean }) {
   const t = useTranslations("settings.workspace");
   const tc = useTranslations("common");

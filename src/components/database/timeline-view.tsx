@@ -17,12 +17,13 @@ import { useMediaQuery } from "@/components/use-media-query";
 import type { TimelineZoom } from "@/db/schema/app";
 import { pageLabel } from "@/lib/labels";
 import { canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
-import { isHiddenInView, localDay, statusColor } from "@/lib/properties";
+import { isHiddenInView, statusColor } from "@/lib/properties";
 import { isComputed } from "@/lib/property-types";
 import {
   DAY_WIDTH,
   dayAtX,
   dayDate,
+  dayNumber,
   dayValue,
   dayX,
   dragDays,
@@ -31,7 +32,6 @@ import {
   rowSpan,
   spanValues,
   timelineRange,
-  today as todayNumber,
   type DaySpan,
   type DragMode,
 } from "@/lib/timeline";
@@ -44,8 +44,10 @@ import { usePeople } from "./person-cell";
 import { GroupLabel, useGroupContext, useGroupName } from "./group-label";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
+import { QuickAddContext } from "./quick-add";
 import { useNewRow } from "./use-new-row";
-import { TITLE, type Property, type Row, type View } from "./types";
+import { useToday } from "./use-today";
+import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 import { timelineDates, timelineGroupProperty } from "./view-settings";
 
@@ -112,13 +114,14 @@ export function TimelineView({
   const [dropDay, setDropDay] = useState<number | null>(null);
   const [dragUndated, setDragUndated] = useState<string | null>(null);
   const [link, setLink] = useState<Link | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
+  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
   const [showUndated, setShowUndated] = useState(true);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   // The day to bring into view after the next layout, and where (a share of the visible width).
   const pendingFocus = useRef<{ day: number; at: number } | null>(null);
   const suppressClick = useRef(false);
-  const today = todayNumber();
+  const todayIso = useToday();
+  const today = dayNumber(todayIso)!;
 
   const { start: startProp, end: endProp } = timelineDates(view, properties);
   const groupBy = timelineGroupProperty(view, properties);
@@ -445,7 +448,11 @@ export function TimelineView({
     const label = pageLabel(row.title, tc("untitled"));
     return (
     <div
-      className="group/row sticky left-0 z-10 flex shrink-0 items-center border-r border-border bg-bg"
+      className={cn(
+        "group/row sticky left-0 flex shrink-0 items-center border-r border-border bg-bg",
+        // A new row's title editor shows what quick add recognises below it, over the next rows.
+        editTitleOf === row.id ? "z-30" : "z-10",
+      )}
       style={{ width: panelWidth, height: ROW_HEIGHT }}
     >
       <div
@@ -463,9 +470,10 @@ export function TimelineView({
         {editTitleOf === row.id ? (
           <CardTitleInput
             initial={typed || row.title}
+            compact
             onDone={(title) => {
               stopEditing();
-              if (title !== row.title) void api.setCell(row.id, TITLE, title);
+              if (title !== row.title) saveTitle(row.id, title);
             }}
           />
         ) : (
@@ -498,7 +506,7 @@ export function TimelineView({
   const canAddTo = (lane: Group<Row> | null) =>
     !lane ||
     !groupBy ||
-    ((lane.value.kind === "none" || access.canEditValues(groupBy.id)) && canAddToGroup(groupBy, lane, { viewerId, today: localDay(new Date()) }));
+    ((lane.value.kind === "none" || access.canEditValues(groupBy.id)) && canAddToGroup(groupBy, lane, { viewerId, today: todayIso }));
 
   const showsNewRow = (lane: Group<Row> | null) => !readOnly && showTable && canAddTo(lane);
   const newRowButton = (lane: Group<Row> | null) =>
@@ -557,262 +565,264 @@ export function TimelineView({
   const dropX = dragUndated && dropDay !== null ? dayX(dropDay, range, zoom) : null;
 
   return (
-    <div className="page-gutter pb-6">
-      <div className="flex flex-wrap items-center gap-1 pb-2">
-        <button
-          type="button"
-          aria-pressed={showTable}
-          title={t(showTable ? "timeline.hideTable" : "timeline.showTable")}
-          aria-label={t(showTable ? "timeline.hideTable" : "timeline.showTable")}
-          onClick={toggleTable}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          {showTable ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-        </button>
-        <span className="flex-1" />
-        <div role="group" aria-label={t("timeline.zoom")} className="inline-flex rounded-md border border-border p-0.5">
-          {TIMELINE_ZOOMS.map((z) => (
-            <button
-              key={z}
-              type="button"
-              aria-pressed={zoom === z}
-              onClick={() => setZoom(z)}
-              className={cn(
-                "h-6 rounded px-2 text-xs",
-                zoom === z ? "bg-bg-active font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
-              )}
-            >
-              {t(`timeline.zooms.${z}`)}
-            </button>
-          ))}
-        </div>
-        <Button size="sm" variant="ghost" onClick={() => focusOn(today, 1 / 3)}>
-          {t("calendar.today")}
-        </Button>
-      </div>
-
-      <div
-        ref={scroller}
-        className="relative max-h-[calc(100dvh-14rem)] min-h-72 overflow-auto rounded-lg border border-border"
-      >
-        <div ref={body} className="relative" style={{ width: panelWidth + width }} onDragOver={onTimelineDragOver} onDrop={onTimelineDrop}>
-          {/* Header: month (or year) labels over the columns, both sticky while scrolling down. */}
-          <div className="sticky top-0 z-20 flex border-b border-border bg-bg" style={{ height: HEADER_HEIGHT }}>
-            {showTable && (
-              <div
-                className="sticky left-0 z-10 flex shrink-0 items-end border-r border-border bg-bg text-xs text-fg-muted"
-                style={{ width: panelWidth }}
-              >
-                <div className="flex min-w-0 flex-1 items-center px-2 pb-1.5">{t("nameColumn")}</div>
-                {tableProps.map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex shrink-0 items-center gap-1 border-l border-border px-2 pb-1.5"
-                    style={{ width: PROP_WIDTH }}
-                  >
-                    <span className="truncate">{p.name}</span>
-                    <PropertyLock propertyId={p.id} />
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="relative shrink-0" style={{ width }}>
-              {header.top.map((u) => (
-                <div
-                  key={`t${u.start}`}
-                  className="absolute top-0 flex h-6 items-center border-l border-border px-2 text-xs font-medium whitespace-nowrap first-letter:uppercase"
-                  style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
-                >
-                  <span className="sticky truncate" style={{ left: panelWidth + 8 }}>
-                    {zoom === "month"
-                      ? dayDate(u.start).getUTCFullYear()
-                      : format.dateTime(dayDate(u.start), { month: "long", year: "numeric", timeZone: "UTC" })}
-                  </span>
-                </div>
-              ))}
-              {header.columns.map((u) => (
-                <div
-                  key={`c${u.start}`}
-                  className={cn(
-                    "absolute top-6 flex h-6 items-center text-xs whitespace-nowrap tabular-nums",
-                    zoom === "day" ? "justify-center" : "px-1.5",
-                    u.start <= today && today < u.start + u.days ? "font-medium text-accent" : "text-fg-muted",
-                  )}
-                  style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
-                >
-                  {zoom === "day"
-                    ? dayDate(u.start).getUTCDate()
-                    : zoom === "week"
-                      ? format.dateTime(dayDate(u.start), { day: "numeric", month: "short", timeZone: "UTC" })
-                      : format.dateTime(dayDate(u.start), { month: "short", timeZone: "UTC" })}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Column lines, today and the drop target sit behind the bars. */}
-          <div aria-hidden className="pointer-events-none absolute inset-y-0" style={{ left: panelWidth, width }}>
-            {header.columns.map((u) => (
-              <div
-                key={u.start}
-                className={cn(
-                  "absolute inset-y-0 border-l border-border/60",
-                  zoom === "day" && [0, 6].includes(dayDate(u.start).getUTCDay()) && "bg-bg-subtle",
-                )}
-                style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
-              />
-            ))}
-            {todayX !== null && <div className="absolute inset-y-0 w-px bg-accent" style={{ left: todayX }} />}
-            {dropX !== null && (
-              <div className="absolute inset-y-0 bg-accent/15" style={{ left: dropX, width: DAY_WIDTH[zoom] }} />
-            )}
-          </div>
-
-          {lanes.map(({ key, group, rows: laneRows, lines }) => {
-            const expanded = !collapsed.has(key);
-            const color = laneColor(group);
-            return (
-              <section key={key || "__none"} aria-label={group ? groupName(group) : undefined} className="relative">
-                {group && (
-                  <div className="flex border-b border-border" style={{ height: ROW_HEIGHT }}>
-                    <button
-                      type="button"
-                      aria-expanded={expanded}
-                      onClick={() => toggleLane(key)}
-                      className="sticky left-0 z-10 flex max-w-full min-w-0 items-center gap-1.5 bg-bg px-2 text-sm"
-                    >
-                      <ChevronRight className={cn("h-3.5 w-3.5 shrink-0 text-fg-muted transition-transform", expanded && "rotate-90")} />
-                      {groupBy && <GroupLabel prop={groupBy} group={group} className="font-medium" />}
-                      <span className="text-xs text-fg-muted tabular-nums">{laneRows.length}</span>
-                    </button>
-                  </div>
-                )}
-                {expanded &&
-                  lines.map((line) => (
-                    <div
-                      key={line.row.id}
-                      data-timeline-row={line.row.id}
-                      className={cn("flex border-b border-border/60", link?.targetId === line.row.id && "bg-accent/10")}
-                      style={{ height: ROW_HEIGHT }}
-                    >
-                      {showTable && tableRow(line, group)}
-                      <div className="relative shrink-0" style={{ width }}>
-                        {barFor(line.row, color)}
-                      </div>
-                    </div>
-                  ))}
-                {expanded && newRowButton(group)}
-              </section>
-            );
-          })}
-          {/* Dependency arrows over the bars, under the sticky table and header. */}
-          {(arrows.length > 0 || linkFrom) && (
-            <svg
-              aria-hidden
-              className="pointer-events-none absolute top-0 z-[5] overflow-visible"
-              style={{ left: panelWidth }}
-              width={width}
-              height={bodyHeight}
-            >
-              <defs>
-                {(["wait", "late"] as const).map((kind) => (
-                  <marker
-                    key={kind}
-                    id={`${view.id}-arrow-${kind}`}
-                    viewBox="0 0 8 8"
-                    refX="7"
-                    refY="4"
-                    markerWidth="6"
-                    markerHeight="6"
-                    orient="auto"
-                    className={kind === "late" ? "text-danger" : "text-fg-muted"}
-                  >
-                    <path d="M0 0L8 4L0 8z" fill="currentColor" />
-                  </marker>
-                ))}
-              </defs>
-              {arrows.map((a) => (
-                <path
-                  key={a.key}
-                  d={a.path}
-                  fill="none"
-                  strokeWidth={1.5}
-                  strokeLinejoin="round"
-                  stroke="currentColor"
-                  className={a.late ? "text-danger" : "text-fg-muted"}
-                  markerEnd={`url(#${view.id}-arrow-${a.late ? "late" : "wait"})`}
-                />
-              ))}
-              {link && linkFrom && (
-                <path
-                  d={`M${linkFrom.x} ${linkFrom.y}L${link.x} ${link.y}`}
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  strokeDasharray="4 3"
-                  className="text-accent"
-                />
-              )}
-            </svg>
-          )}
-          {!dated.length && (
-            <div className="sticky left-0 px-3 py-6 text-sm text-fg-muted" style={{ width: "min(100%, 28rem)" }}>
-              {t("timeline.empty", { property: startProp.name })}
-            </div>
-          )}
-          {!groupBy && !dated.length && newRowButton(null)}
-        </div>
-      </div>
-
-      {undated.length > 0 && (
-        <div className="mt-3">
+    <QuickAddContext value={quick}>
+      <div className="page-gutter pb-6">
+        <div className="flex flex-wrap items-center gap-1 pb-2">
           <button
             type="button"
-            aria-expanded={showUndated}
-            onClick={() => setShowUndated((v) => !v)}
-            className="inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            aria-pressed={showTable}
+            title={t(showTable ? "timeline.hideTable" : "timeline.showTable")}
+            aria-label={t(showTable ? "timeline.hideTable" : "timeline.showTable")}
+            onClick={toggleTable}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUndated && "rotate-90")} />
-            {t("calendar.noDate", { count: undated.length, property: startProp.name })}
+            {showTable ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
           </button>
-          {showUndated && (
-            <section aria-label={t("calendar.noDateTitle", { property: startProp.name })} className="mt-1">
-              {movable && <p className="px-1.5 pb-1.5 text-xs text-fg-faint">{t("timeline.dragHint")}</p>}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1.5">
-                {undated.map((row) => (
+          <span className="flex-1" />
+          <div role="group" aria-label={t("timeline.zoom")} className="inline-flex rounded-md border border-border p-0.5">
+            {TIMELINE_ZOOMS.map((z) => (
+              <button
+                key={z}
+                type="button"
+                aria-pressed={zoom === z}
+                onClick={() => setZoom(z)}
+                className={cn(
+                  "h-6 rounded px-2 text-xs",
+                  zoom === z ? "bg-bg-active font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
+                )}
+              >
+                {t(`timeline.zooms.${z}`)}
+              </button>
+            ))}
+          </div>
+          <Button size="sm" variant="ghost" onClick={() => focusOn(today, 1 / 3)}>
+            {t("calendar.today")}
+          </Button>
+        </div>
+
+        <div
+          ref={scroller}
+          className="relative max-h-[calc(100dvh-14rem)] min-h-72 overflow-auto rounded-lg border border-border"
+        >
+          <div ref={body} className="relative" style={{ width: panelWidth + width }} onDragOver={onTimelineDragOver} onDrop={onTimelineDrop}>
+            {/* Header: month (or year) labels over the columns, both sticky while scrolling down. */}
+            <div className="sticky top-0 z-20 flex border-b border-border bg-bg" style={{ height: HEADER_HEIGHT }}>
+              {showTable && (
+                <div
+                  className="sticky left-0 z-10 flex shrink-0 items-end border-r border-border bg-bg text-xs text-fg-muted"
+                  style={{ width: panelWidth }}
+                >
+                  <div className="flex min-w-0 flex-1 items-center px-2 pb-1.5">{t("nameColumn")}</div>
+                  {tableProps.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex shrink-0 items-center gap-1 border-l border-border px-2 pb-1.5"
+                      style={{ width: PROP_WIDTH }}
+                    >
+                      <span className="truncate">{p.name}</span>
+                      <PropertyLock propertyId={p.id} />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="relative shrink-0" style={{ width }}>
+                {header.top.map((u) => (
                   <div
-                    key={row.id}
-                    role="link"
-                    tabIndex={0}
-                    draggable={canPlace(row)}
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData("text/plain", row.id);
-                      e.dataTransfer.effectAllowed = "move";
-                      setDragUndated(row.id);
-                    }}
-                    onDragEnd={() => {
-                      setDragUndated(null);
-                      setDropDay(null);
-                    }}
-                    onClick={() => open(row)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") open(row);
-                    }}
-                    className={cn(
-                      "board-card flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-xs",
-                      dragUndated === row.id && "opacity-40",
-                    )}
+                    key={`t${u.start}`}
+                    className="absolute top-0 flex h-6 items-center border-l border-border px-2 text-xs font-medium whitespace-nowrap first-letter:uppercase"
+                    style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
                   >
-                    <PageIcon icon={row.icon} className="shrink-0 text-xs" />
-                    <span className={cn("truncate font-medium", !row.title && "text-fg-faint")}>
-                      {pageLabel(row.title, tc("untitled"))}
+                    <span className="sticky truncate" style={{ left: panelWidth + 8 }}>
+                      {zoom === "month"
+                        ? dayDate(u.start).getUTCFullYear()
+                        : format.dateTime(dayDate(u.start), { month: "long", year: "numeric", timeZone: "UTC" })}
                     </span>
                   </div>
                 ))}
+                {header.columns.map((u) => (
+                  <div
+                    key={`c${u.start}`}
+                    className={cn(
+                      "absolute top-6 flex h-6 items-center text-xs whitespace-nowrap tabular-nums",
+                      zoom === "day" ? "justify-center" : "px-1.5",
+                      u.start <= today && today < u.start + u.days ? "font-medium text-accent" : "text-fg-muted",
+                    )}
+                    style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
+                  >
+                    {zoom === "day"
+                      ? dayDate(u.start).getUTCDate()
+                      : zoom === "week"
+                        ? format.dateTime(dayDate(u.start), { day: "numeric", month: "short", timeZone: "UTC" })
+                        : format.dateTime(dayDate(u.start), { month: "short", timeZone: "UTC" })}
+                  </div>
+                ))}
               </div>
-            </section>
-          )}
+            </div>
+
+            {/* Column lines, today and the drop target sit behind the bars. */}
+            <div aria-hidden className="pointer-events-none absolute inset-y-0" style={{ left: panelWidth, width }}>
+              {header.columns.map((u) => (
+                <div
+                  key={u.start}
+                  className={cn(
+                    "absolute inset-y-0 border-l border-border/60",
+                    zoom === "day" && [0, 6].includes(dayDate(u.start).getUTCDay()) && "bg-bg-subtle",
+                  )}
+                  style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
+                />
+              ))}
+              {todayX !== null && <div className="absolute inset-y-0 w-px bg-accent" style={{ left: todayX }} />}
+              {dropX !== null && (
+                <div className="absolute inset-y-0 bg-accent/15" style={{ left: dropX, width: DAY_WIDTH[zoom] }} />
+              )}
+            </div>
+
+            {lanes.map(({ key, group, rows: laneRows, lines }) => {
+              const expanded = !collapsed.has(key);
+              const color = laneColor(group);
+              return (
+                <section key={key || "__none"} aria-label={group ? groupName(group) : undefined} className="relative">
+                  {group && (
+                    <div className="flex border-b border-border" style={{ height: ROW_HEIGHT }}>
+                      <button
+                        type="button"
+                        aria-expanded={expanded}
+                        onClick={() => toggleLane(key)}
+                        className="sticky left-0 z-10 flex max-w-full min-w-0 items-center gap-1.5 bg-bg px-2 text-sm"
+                      >
+                        <ChevronRight className={cn("h-3.5 w-3.5 shrink-0 text-fg-muted transition-transform", expanded && "rotate-90")} />
+                        {groupBy && <GroupLabel prop={groupBy} group={group} className="font-medium" />}
+                        <span className="text-xs text-fg-muted tabular-nums">{laneRows.length}</span>
+                      </button>
+                    </div>
+                  )}
+                  {expanded &&
+                    lines.map((line) => (
+                      <div
+                        key={line.row.id}
+                        data-timeline-row={line.row.id}
+                        className={cn("flex border-b border-border/60", link?.targetId === line.row.id && "bg-accent/10")}
+                        style={{ height: ROW_HEIGHT }}
+                      >
+                        {showTable && tableRow(line, group)}
+                        <div className="relative shrink-0" style={{ width }}>
+                          {barFor(line.row, color)}
+                        </div>
+                      </div>
+                    ))}
+                  {expanded && newRowButton(group)}
+                </section>
+              );
+            })}
+            {/* Dependency arrows over the bars, under the sticky table and header. */}
+            {(arrows.length > 0 || linkFrom) && (
+              <svg
+                aria-hidden
+                className="pointer-events-none absolute top-0 z-[5] overflow-visible"
+                style={{ left: panelWidth }}
+                width={width}
+                height={bodyHeight}
+              >
+                <defs>
+                  {(["wait", "late"] as const).map((kind) => (
+                    <marker
+                      key={kind}
+                      id={`${view.id}-arrow-${kind}`}
+                      viewBox="0 0 8 8"
+                      refX="7"
+                      refY="4"
+                      markerWidth="6"
+                      markerHeight="6"
+                      orient="auto"
+                      className={kind === "late" ? "text-danger" : "text-fg-muted"}
+                    >
+                      <path d="M0 0L8 4L0 8z" fill="currentColor" />
+                    </marker>
+                  ))}
+                </defs>
+                {arrows.map((a) => (
+                  <path
+                    key={a.key}
+                    d={a.path}
+                    fill="none"
+                    strokeWidth={1.5}
+                    strokeLinejoin="round"
+                    stroke="currentColor"
+                    className={a.late ? "text-danger" : "text-fg-muted"}
+                    markerEnd={`url(#${view.id}-arrow-${a.late ? "late" : "wait"})`}
+                  />
+                ))}
+                {link && linkFrom && (
+                  <path
+                    d={`M${linkFrom.x} ${linkFrom.y}L${link.x} ${link.y}`}
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 3"
+                    className="text-accent"
+                  />
+                )}
+              </svg>
+            )}
+            {!dated.length && (
+              <div className="sticky left-0 px-3 py-6 text-sm text-fg-muted" style={{ width: "min(100%, 28rem)" }}>
+                {t("timeline.empty", { property: startProp.name })}
+              </div>
+            )}
+            {!groupBy && !dated.length && newRowButton(null)}
+          </div>
         </div>
-      )}
-    </div>
+
+        {undated.length > 0 && (
+          <div className="mt-3">
+            <button
+              type="button"
+              aria-expanded={showUndated}
+              onClick={() => setShowUndated((v) => !v)}
+              className="inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            >
+              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUndated && "rotate-90")} />
+              {t("calendar.noDate", { count: undated.length, property: startProp.name })}
+            </button>
+            {showUndated && (
+              <section aria-label={t("calendar.noDateTitle", { property: startProp.name })} className="mt-1">
+                {movable && <p className="px-1.5 pb-1.5 text-xs text-fg-faint">{t("timeline.dragHint")}</p>}
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1.5">
+                  {undated.map((row) => (
+                    <div
+                      key={row.id}
+                      role="link"
+                      tabIndex={0}
+                      draggable={canPlace(row)}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", row.id);
+                        e.dataTransfer.effectAllowed = "move";
+                        setDragUndated(row.id);
+                      }}
+                      onDragEnd={() => {
+                        setDragUndated(null);
+                        setDropDay(null);
+                      }}
+                      onClick={() => open(row)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") open(row);
+                      }}
+                      className={cn(
+                        "board-card flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-xs",
+                        dragUndated === row.id && "opacity-40",
+                      )}
+                    >
+                      <PageIcon icon={row.icon} className="shrink-0 text-xs" />
+                      <span className={cn("truncate font-medium", !row.title && "text-fg-faint")}>
+                        {pageLabel(row.title, tc("untitled"))}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+      </div>
+    </QuickAddContext>
   );
 }

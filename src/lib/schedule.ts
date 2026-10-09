@@ -1,4 +1,4 @@
-import { dayNumber, dayString, localDay, zonedInstant } from "./time-zone";
+import { dayNumber, dayString, localDay, monthDay, weekdayOf, zonedInstant } from "./time-zone";
 
 /**
  * When something repeats: every N days, weeks (on chosen weekdays), months or years, at a time of
@@ -73,16 +73,6 @@ export function parseRepeatRule(value: unknown): RepeatRule | null {
 }
 
 const minutesOf = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
-/** 0 for Sunday … 6 for Saturday (1970-01-01, day 0, was a Thursday). */
-const weekdayOf = (day: number) => (((day + 4) % 7) + 7) % 7;
-const daysInMonth = (year: number, month: number) => new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-
-/** The day number of `day` of a month counted from January 0000, clamped to the month's length. */
-function monthDay(monthIndex: number, day: number) {
-  const year = Math.floor(monthIndex / 12);
-  const month = monthIndex - year * 12;
-  return Date.UTC(year, month, Math.min(day, daysInMonth(year, month))) / 86_400_000;
-}
 
 /**
  * The days the rule runs on, in order, from the period that holds `from` (a day number) on. The

@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useQuickAdd } from "./quick-add";
+import type { Property, View } from "./types";
+import type { DatabaseApi } from "./use-database";
 
 /**
  * An invisible text field that takes what is typed while the row is being created. Being a real
@@ -26,9 +29,12 @@ const EDITOR_WAIT_MS = 300;
  * A new row's title editor opens once the server has created the row. What is typed before that is
  * kept and handed to the editor; Enter or Escape saves it as the title without opening it; and
  * "New" does nothing while a row is still being created, so neither a click nor Enter on the
- * focused button makes a second row.
+ * focused button makes a second row. The title is saved with quick add (see quick-add): the view
+ * provides `quick` (QuickAddContext) to the title editor, which then shows what it recognises.
  */
-export function useNewRow(saveTitle: (rowId: string, title: string) => void) {
+export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) {
+  const quick = useQuickAdd(api, view, properties);
+  const saveTitle = quick.save;
   const [editing, setEditing] = useState<string | null>(null);
   const busy = useRef(false);
   const capture = useRef<HTMLInputElement | null>(null);
@@ -87,6 +93,9 @@ export function useNewRow(saveTitle: (rowId: string, title: string) => void) {
     /** What was typed before that editor opened; it starts with this. */
     typed: editing ? (capture.current?.value ?? "") : "",
     create,
+    quick,
+    /** Names a row from its title editor: the title without what quick add took, and those values. */
+    saveTitle,
     stopEditing: () => {
       capture.current?.remove();
       setEditing(null);

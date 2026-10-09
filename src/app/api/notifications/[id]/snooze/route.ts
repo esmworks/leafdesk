@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
-import { env } from "@/lib/env";
 import { snoozeUntil } from "@/lib/snooze";
+import { isCrossSite } from "@/server/cross-site";
 import { snoozeNotification } from "@/server/notifications";
 
 /**
@@ -12,9 +12,7 @@ import { snoozeNotification } from "@/server/notifications";
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: request.headers }).catch(() => null);
   if (!session) return new Response(null, { status: 401 });
-  const origin = request.headers.get("origin");
-  const hosts = [new URL(env.appUrl).host, request.headers.get("x-forwarded-host"), request.headers.get("host")];
-  if (request.headers.get("x-leafdesk-snooze") !== "1" || (origin && !hosts.includes(URL.parse(origin)?.host ?? ""))) {
+  if (isCrossSite(request, "x-leafdesk-snooze")) {
     return new Response(null, { status: 403 });
   }
   const { id } = await params;

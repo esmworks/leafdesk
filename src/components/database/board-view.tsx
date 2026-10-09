@@ -3,7 +3,7 @@
 import { Check, EyeOff, Ellipsis, ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type DragEvent } from "react";
+import { useContext, useEffect, useRef, useState, type DragEvent } from "react";
 import { Button, cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { holdsPeople } from "@/lib/property-types";
@@ -18,14 +18,15 @@ import {
   groupTarget,
   type Group,
 } from "@/lib/grouping";
-import { isHiddenInView, localDay, positionBetween, SELECT_COLORS, statusColor } from "@/lib/properties";
+import { isHiddenInView, positionBetween, SELECT_COLORS, statusColor } from "@/lib/properties";
 import { Floating, useFloating } from "./floating";
 import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
-import { QuickAddParts, useQuickAdd, type QuickAdd } from "./quick-add";
+import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { useNewRow } from "./use-new-row";
+import { useToday } from "./use-today";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -59,8 +60,8 @@ export function BoardView({
   // each of their columns, and moving it replaces only that column's value.
   const [dragFrom, setDragFrom] = useState<string | null>(null);
   const [drop, setDrop] = useState<{ group: string; index: number } | null>(null);
-  const quick = useQuickAdd(api, view, properties);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
+  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const today = useToday();
   // Column drag: the dragged column's key and the insertion index among the shown columns.
   const [dragCol, setDragCol] = useState<string | null>(null);
   const [colDrop, setColDrop] = useState<number | null>(null);
@@ -221,7 +222,6 @@ export function BoardView({
 
   // Cards can't be given who created them or when: on such boards a new card lands in the
   // viewer's own column, or today's. Dragging never moves a card out of those (see groupTarget).
-  const today = localDay(new Date());
   const canAdd = (group: Group<Row>) =>
     !readOnly &&
     (group.value.kind === "none" || access.canEditValues(groupBy.id)) &&
@@ -234,173 +234,174 @@ export function BoardView({
         : "gray";
 
   return (
-    <div className="page-gutter overflow-x-auto pb-6">
-      <div
-        className="flex w-max items-start gap-3"
-        onDragOver={onColDragOver}
-        onDragLeave={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) setColDrop(null);
-        }}
-        onDrop={onColDrop}
-      >
-        {groups.map((group, i) => {
-          const key = groupKey(group);
-          // With a sort active a card can only change column: no target inside its own column,
-          // and no insertion line, since the sort decides where it lands.
-          const dropping =
-            dragId !== null && drop?.group === key && (manualOrder || !group.rows.some((r) => r.id === dragId));
-          const colFrom = dragCol === null ? -1 : groups.findIndex((g) => groupKey(g) === dragCol);
-          const lineAt = colDrop !== null && colDrop !== colFrom && colDrop !== colFrom + 1 ? colDrop : null;
-          return (
-            <section
-              key={key || "__none"}
-              data-col={key}
-              aria-label={groupName(group)}
-              className={cn(
-                `tint-${tint(group)}`,
-                "group/col relative flex w-[17rem] shrink-0 flex-col rounded-xl bg-[var(--opt-tint)] p-2 transition-[box-shadow,opacity]",
-                dropping && "ring-2 ring-accent/50",
-                dragCol === key && "opacity-50",
-              )}
-            >
-              {lineAt === i && <ColumnDropLine side="left" />}
-              {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="right" />}
-              <header
-                draggable={!readOnly && renaming !== key}
-                title={readOnly ? undefined : t("board.moveColumn")}
-                onDragStart={(e) => {
-                  const col = e.currentTarget.closest("section");
-                  if (col) {
-                    const r = col.getBoundingClientRect();
-                    e.dataTransfer.setDragImage(col, e.clientX - r.left, e.clientY - r.top);
-                  }
-                  e.dataTransfer.setData("application/x-leafdesk-column", key);
-                  e.dataTransfer.effectAllowed = "move";
-                  setDragCol(key);
-                }}
-                onDragEnd={() => {
-                  setDragCol(null);
-                  setColDrop(null);
-                }}
-                className={cn("flex h-8 items-center gap-2 px-1", !readOnly && "cursor-grab active:cursor-grabbing")}
-              >
-                {group.value.kind === "option" && renaming === key ? (
-                  <GroupNameInput
-                    initial={group.value.option.name}
-                    onDone={(name) => {
-                      setRenaming(null);
-                      if (name && group.value.kind === "option" && name !== group.value.option.name) {
-                        void updateOption(key, { name });
-                      }
-                    }}
-                  />
-                ) : (
-                  <GroupLabel prop={groupBy} group={group} className="font-medium" />
+    <QuickAddContext value={quick}>
+      <div className="page-gutter overflow-x-auto pb-6">
+        <div
+          className="flex w-max items-start gap-3"
+          onDragOver={onColDragOver}
+          onDragLeave={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) setColDrop(null);
+          }}
+          onDrop={onColDrop}
+        >
+          {groups.map((group, i) => {
+            const key = groupKey(group);
+            // With a sort active a card can only change column: no target inside its own column,
+            // and no insertion line, since the sort decides where it lands.
+            const dropping =
+              dragId !== null && drop?.group === key && (manualOrder || !group.rows.some((r) => r.id === dragId));
+            const colFrom = dragCol === null ? -1 : groups.findIndex((g) => groupKey(g) === dragCol);
+            const lineAt = colDrop !== null && colDrop !== colFrom && colDrop !== colFrom + 1 ? colDrop : null;
+            return (
+              <section
+                key={key || "__none"}
+                data-col={key}
+                aria-label={groupName(group)}
+                className={cn(
+                  `tint-${tint(group)}`,
+                  "group/col relative flex w-[17rem] shrink-0 flex-col rounded-xl bg-[var(--opt-tint)] p-2 transition-[box-shadow,opacity]",
+                  dropping && "ring-2 ring-accent/50",
+                  dragCol === key && "opacity-50",
                 )}
-                <span
-                  className="text-xs text-fg-muted tabular-nums"
-                  title={t("board.cardCount", { count: group.rows.length })}
+              >
+                {lineAt === i && <ColumnDropLine side="left" />}
+                {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="right" />}
+                <header
+                  draggable={!readOnly && renaming !== key}
+                  title={readOnly ? undefined : t("board.moveColumn")}
+                  onDragStart={(e) => {
+                    const col = e.currentTarget.closest("section");
+                    if (col) {
+                      const r = col.getBoundingClientRect();
+                      e.dataTransfer.setDragImage(col, e.clientX - r.left, e.clientY - r.top);
+                    }
+                    e.dataTransfer.setData("application/x-leafdesk-column", key);
+                    e.dataTransfer.effectAllowed = "move";
+                    setDragCol(key);
+                  }}
+                  onDragEnd={() => {
+                    setDragCol(null);
+                    setColDrop(null);
+                  }}
+                  className={cn("flex h-8 items-center gap-2 px-1", !readOnly && "cursor-grab active:cursor-grabbing")}
                 >
-                  {group.rows.length}
-                </span>
-                <span className="flex-1" />
-                {!readOnly && (
-                  <GroupMenu
-                    option={editsOptions && group.value.kind === "option" ? group.value.option : null}
-                    locked={fixedOptions}
-                    onRename={() => setRenaming(key)}
-                    onColor={(color) => updateOption(key, { color })}
-                    onHide={() => setGroupHidden(key, true)}
-                    onDelete={() => deleteGroup(group)}
-                  />
-                )}
-                {canAdd(group) && (
-                  <button
-                    type="button"
-                    aria-label={t("board.addCard")}
-                    title={t("board.addCard")}
-                    onClick={() => addCard(group)}
-                    className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted opacity-0 group-hover/col:opacity-100 hover:bg-fg/10 hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100"
+                  {group.value.kind === "option" && renaming === key ? (
+                    <GroupNameInput
+                      initial={group.value.option.name}
+                      onDone={(name) => {
+                        setRenaming(null);
+                        if (name && group.value.kind === "option" && name !== group.value.option.name) {
+                          void updateOption(key, { name });
+                        }
+                      }}
+                    />
+                  ) : (
+                    <GroupLabel prop={groupBy} group={group} className="font-medium" />
+                  )}
+                  <span
+                    className="text-xs text-fg-muted tabular-nums"
+                    title={t("board.cardCount", { count: group.rows.length })}
                   >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </header>
-              <div
-                className="flex min-h-10 flex-col gap-2 pt-1"
-                onDragOver={(e) => onDragOver(e, group)}
-                onDragLeave={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(null);
-                }}
-                onDrop={(e) => onDrop(e, group)}
-              >
-                {group.rows.map((row) => {
-                  const visibleIndex = group.rows.filter((r) => r.id !== dragId).findIndex((r) => r.id === row.id);
-                  return (
-                    <div key={row.id}>
-                      {dropping && manualOrder && drop.index === visibleIndex && row.id !== dragId && <DropLine />}
-                      <Card
-                        workspaceId={workspaceId}
-                        row={row}
-                        props={cardProps}
-                        readOnly={readOnly}
-                        dragging={dragId === row.id}
-                        editTitle={editTitleOf === row.id}
-                        typed={typed}
-                        quick={quick}
-                        onTitle={(title) => {
-                          stopEditing();
-                          if (title !== row.title) quick.save(row.id, title);
-                        }}
-                        onDelete={() => api.deleteRow(row.id)}
-                        onDragStart={(e) => {
-                          e.dataTransfer.setData("text/plain", row.id);
-                          e.dataTransfer.effectAllowed = "move";
-                          setDragId(row.id);
-                          setDragFrom(key);
-                        }}
-                        onDragEnd={() => {
-                          setDragId(null);
-                          setDragFrom(null);
-                          setDrop(null);
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-                {dropping && manualOrder && drop.index >= group.rows.filter((r) => r.id !== dragId).length && <DropLine />}
-                {canAdd(group) && (
-                  <button
-                    type="button"
-                    onClick={() => addCard(group)}
-                    className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-sm text-fg-muted hover:bg-fg/5 hover:text-fg"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    {t("board.new")}
-                  </button>
-                )}
-              </div>
-            </section>
-          );
-        })}
-        {(!readOnly || hiddenGroups.length > 0) && (
-          <div className="flex shrink-0 flex-col items-start gap-1">
-            {!readOnly && !fixedOptions && editsOptions && (
-              <NewGroup onCreate={(name) => api.createOption(groupBy.id, name)} />
-            )}
-            {hiddenGroups.length > 0 && (
-              <HiddenGroups
-                prop={groupBy}
-                groups={hiddenGroups}
-                readOnly={readOnly}
-                onShow={(key) => setGroupHidden(key, false)}
-                className="w-44"
-              />
-            )}
-          </div>
-        )}
+                    {group.rows.length}
+                  </span>
+                  <span className="flex-1" />
+                  {!readOnly && (
+                    <GroupMenu
+                      option={editsOptions && group.value.kind === "option" ? group.value.option : null}
+                      locked={fixedOptions}
+                      onRename={() => setRenaming(key)}
+                      onColor={(color) => updateOption(key, { color })}
+                      onHide={() => setGroupHidden(key, true)}
+                      onDelete={() => deleteGroup(group)}
+                    />
+                  )}
+                  {canAdd(group) && (
+                    <button
+                      type="button"
+                      aria-label={t("board.addCard")}
+                      title={t("board.addCard")}
+                      onClick={() => addCard(group)}
+                      className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted opacity-0 group-hover/col:opacity-100 hover:bg-fg/10 hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </header>
+                <div
+                  className="flex min-h-10 flex-col gap-2 pt-1"
+                  onDragOver={(e) => onDragOver(e, group)}
+                  onDragLeave={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(null);
+                  }}
+                  onDrop={(e) => onDrop(e, group)}
+                >
+                  {group.rows.map((row) => {
+                    const visibleIndex = group.rows.filter((r) => r.id !== dragId).findIndex((r) => r.id === row.id);
+                    return (
+                      <div key={row.id}>
+                        {dropping && manualOrder && drop.index === visibleIndex && row.id !== dragId && <DropLine />}
+                        <Card
+                          workspaceId={workspaceId}
+                          row={row}
+                          props={cardProps}
+                          readOnly={readOnly}
+                          dragging={dragId === row.id}
+                          editTitle={editTitleOf === row.id}
+                          typed={typed}
+                          onTitle={(title) => {
+                            stopEditing();
+                            if (title !== row.title) saveTitle(row.id, title);
+                          }}
+                          onDelete={() => api.deleteRow(row.id)}
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("text/plain", row.id);
+                            e.dataTransfer.effectAllowed = "move";
+                            setDragId(row.id);
+                            setDragFrom(key);
+                          }}
+                          onDragEnd={() => {
+                            setDragId(null);
+                            setDragFrom(null);
+                            setDrop(null);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                  {dropping && manualOrder && drop.index >= group.rows.filter((r) => r.id !== dragId).length && <DropLine />}
+                  {canAdd(group) && (
+                    <button
+                      type="button"
+                      onClick={() => addCard(group)}
+                      className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-sm text-fg-muted hover:bg-fg/5 hover:text-fg"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {t("board.new")}
+                    </button>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+          {(!readOnly || hiddenGroups.length > 0) && (
+            <div className="flex shrink-0 flex-col items-start gap-1">
+              {!readOnly && !fixedOptions && editsOptions && (
+                <NewGroup onCreate={(name) => api.createOption(groupBy.id, name)} />
+              )}
+              {hiddenGroups.length > 0 && (
+                <HiddenGroups
+                  prop={groupBy}
+                  groups={hiddenGroups}
+                  readOnly={readOnly}
+                  onShow={(key) => setGroupHidden(key, false)}
+                  className="w-44"
+                />
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </QuickAddContext>
   );
 }
 
@@ -590,7 +591,6 @@ function Card({
   dragging,
   editTitle,
   typed,
-  quick,
   onTitle,
   onDelete,
   onDragStart,
@@ -604,7 +604,6 @@ function Card({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDelete: () => void;
   onDragStart: (e: DragEvent<HTMLDivElement>) => void;
@@ -630,7 +629,7 @@ function Card({
       )}
     >
       {editTitle ? (
-        <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
+        <CardTitleInput initial={typed || row.title} onDone={onTitle} />
       ) : (
         <div className="flex gap-1.5 pr-6 text-sm leading-5 font-medium">
           {row.icon && <span className="shrink-0">{row.icon}</span>}
@@ -690,8 +689,13 @@ function Card({
   );
 }
 
-export function CardTitleInput({ initial, onDone, quick }: { initial: string; onDone: (title: string) => void; quick?: QuickAdd }) {
+/**
+ * A card's or a row's title editor; a new row's (inside its view's QuickAddContext) shows what quick
+ * add recognises under it, or over what follows it when the row is too short for that (`compact`).
+ */
+export function CardTitleInput({ initial, onDone, compact }: { initial: string; onDone: (title: string) => void; compact?: boolean }) {
   const t = useTranslations("database.board");
+  const quick = useContext(QuickAddContext);
   const [value, setValue] = useState(initial);
   const input = useRef<HTMLInputElement>(null);
   const done = useRef(false);
@@ -718,9 +722,9 @@ export function CardTitleInput({ initial, onDone, quick }: { initial: string; on
   );
   if (!quick) return field;
   return (
-    <div>
+    <div className={cn(compact && "relative min-w-0 flex-1")}>
       {field}
-      <QuickAddParts quick={quick} text={value} />
+      <QuickAddParts quick={quick} text={value} floating={compact} />
     </div>
   );
 }

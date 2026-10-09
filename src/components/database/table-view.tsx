@@ -12,7 +12,7 @@ import type { AggregateFn } from "@/lib/aggregate";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
-import { isGroupable, isSortable, localDay, moveProperty } from "@/lib/properties";
+import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
 import type { SubItemLine } from "@/lib/sub-items";
@@ -29,8 +29,9 @@ import { PropertyLock, usePropertyAccess } from "./property-access";
 import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
-import { useQuickAdd } from "./quick-add";
+import { QuickAddContext } from "./quick-add";
 import { useNewRow } from "./use-new-row";
+import { useToday } from "./use-today";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -96,8 +97,8 @@ export function TableView({
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
-  const quick = useQuickAdd(api, view, properties);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
+  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const today = useToday();
   const { viewerId, people } = usePeople();
   const relations = useRelations();
   const ai = useAiAutofill();
@@ -309,7 +310,6 @@ export function TableView({
     const defaults = group && groupBy && canAddTo(group) ? groupDefaults(groupBy, group) : {};
     await createNew(() => api.createRow({ properties: { ...defaults, [subItems.parent!.id]: [row.id] } }));
   };
-  const today = localDay(new Date());
   const canAddTo = (group: Group<Row>) =>
     !readOnly &&
     !!groupBy &&
@@ -351,22 +351,23 @@ export function TableView({
           <div className="flex font-medium" style={subItems.nested ? { paddingLeft: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
             <div className="min-w-0 flex-1">
-              <PropertyCell
-                prop={titleProp}
-                value={row.title}
-                wrap={wrapped.has(TITLE)}
-                readOnly={readOnly}
-                placeholder={tc("untitled")}
-                autoEdit={editTitleOf === row.id}
-                draft={editTitleOf === row.id ? typed : undefined}
-                quickAdd={editTitleOf === row.id ? quick : undefined}
-                onChange={(v) => {
-                  stopEditing();
-                  if (editTitleOf === row.id) quick.save(row.id, String(v ?? ""));
-                  else void api.setCell(row.id, TITLE, v ?? "");
-                }}
-                onCreateOption={createOption}
-              />
+              <QuickAddContext value={editTitleOf === row.id ? quick : null}>
+                <PropertyCell
+                  prop={titleProp}
+                  value={row.title}
+                  wrap={wrapped.has(TITLE)}
+                  readOnly={readOnly}
+                  placeholder={tc("untitled")}
+                  autoEdit={editTitleOf === row.id}
+                  draft={editTitleOf === row.id ? typed : undefined}
+                  onChange={(v) => {
+                    stopEditing();
+                    if (editTitleOf === row.id) saveTitle(row.id, String(v ?? ""));
+                    else void api.setCell(row.id, TITLE, v ?? "");
+                  }}
+                  onCreateOption={createOption}
+                />
+              </QuickAddContext>
             </div>
             {subItems.parentsOnly && line.children > 0 && (
               <span className="flex h-[33px] items-center pr-8">

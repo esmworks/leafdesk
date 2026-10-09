@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/brand/logo";
 import { QuickNoteForm } from "@/components/share/quick-note-form";
+import { decodeSharedNote, SHARED_COOKIE } from "@/lib/shared-note";
 import { listWorkspaces } from "@/server/pages";
 import { requireUser } from "@/server/session";
 
@@ -15,19 +17,24 @@ const param = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 
 /**
  * A quick note: a private page in one of the person's workspaces. The installed app opens it from
- * its shortcut, and from the system's share sheet with what was shared (`title`, `text`, `url`; see
- * app/manifest.ts) filled in.
+ * its shortcut, and from the system's share sheet with what was shared filled in: brought by a
+ * cookie (see app/api/share), or as `title`, `text` and `url` in the address from an app installed
+ * before shares were posted.
  */
 export default async function QuickNotePage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [user, query, t] = await Promise.all([requireUser(), searchParams, getTranslations("page.quickNote")]);
+  const [user, query, jar, t] = await Promise.all([requireUser(), searchParams, cookies(), getTranslations("page.quickNote")]);
   const workspaces = await listWorkspaces(user.id);
   if (!workspaces.length) redirect("/");
-  const text = param(query.text);
-  const url = param(query.url);
+  const shared = decodeSharedNote(jar.get(SHARED_COOKIE)?.value) ?? {
+    title: param(query.title),
+    text: param(query.text),
+    url: param(query.url),
+  };
+  const { text, url } = shared;
   // Apps often put the link in the text too.
   const body = [text, url && !text.includes(url) ? url : ""].filter(Boolean).join("\n\n");
   const chosen = workspaces.find((w) => w.id === param(query.workspace)) ?? workspaces[0];
@@ -44,7 +51,7 @@ export default async function QuickNotePage({
           <QuickNoteForm
             workspaces={workspaces.map((w) => ({ id: w.id, name: w.name }))}
             workspaceId={chosen.id}
-            title={param(query.title)}
+            title={shared.title}
             body={body}
           />
         </div>

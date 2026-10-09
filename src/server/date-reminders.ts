@@ -1,17 +1,17 @@
-import { and, eq, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, notification, page, rowReminder, type DateReminder, type SelectOption } from "@/db/schema";
+import { databaseProperty, notification, page, rowReminder, user, type DateReminder } from "@/db/schema";
 import { dueReminderDay, reminderInstant } from "@/lib/date-options";
 import { atLeast } from "@/lib/property-access";
-import { statusGroupOf } from "@/lib/properties";
+import { isDoneStatus } from "@/lib/properties";
 import { dayString, localDay } from "@/lib/time-zone";
-import { pageAccessOf } from "@/server/access";
-import { agentUserIds } from "@/server/agents/users";
+import { notAgentUser } from "@/server/agents/users";
 import { loadProperties } from "@/server/derived";
 import { mailStatus } from "@/server/mail";
 import { signalInbox } from "@/server/notifications";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
+import { startSweep } from "@/server/sweep";
 
 /**
  * Reminders on date properties (see lib/date-options): a date property with a reminder tells the
@@ -111,11 +111,7 @@ async function remindProperty({ id: propertyId, databaseId, workspaceId, reminde
   };
   let told = 0;
   for (const row of candidates) {
-    const done = statuses.some((p) => {
-      const option = (p.options.options ?? []).find((o: SelectOption) => o.id === row.properties[p.id]);
-      return option !== undefined && statusGroupOf(option) === "done";
-    });
-    if (done) continue;
+    if (statuses.some((p) => isDoneStatus(p, row.properties[p.id]))) continue;
     const named = people.flatMap((p) => (Array.isArray(row.properties[p.id]) ? (row.properties[p.id] as unknown[]) : []));
     const recipients = [...new Set((named.length ? named : [row.createdBy]).filter((id): id is string => typeof id === "string"))];
     if (!recipients.length) continue;
@@ -135,14 +131,13 @@ async function notify(
   day: string,
   propertyAccess: (userId: string) => Promise<PropertyAccess>,
 ): Promise<number> {
-  const agents = await agentUserIds(userIds);
-  const allows = await Promise.all(
-    userIds.map(async (userId) => {
-      if (agents.has(userId) || (await pageAccessOf(userId, row.id)).level === "none") return false;
-      return atLeast((await propertyAccess(userId)).levelOf(propertyId, row), "view");
-    }),
-  );
-  const allowed = userIds.filter((_, i) => allows[i]);
+  // People (not agents) who can open the row, then those of them who see the date.
+  const opening = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(and(inArray(user.id, userIds), notAgentUser(user.id), sql`page_access_level(${user.id}, ${row.id}) > 0`));
+  const sees = await Promise.all(opening.map(async ({ id }) => atLeast((await propertyAccess(id)).levelOf(propertyId, row), "view")));
+  const allowed = opening.filter((_, i) => sees[i]).map(({ id }) => id);
   if (!allowed.length) return 0;
   const emailDueAt = mailStatus() === "disabled" ? null : new Date();
   const inserted = await db
@@ -166,20 +161,5 @@ async function notify(
 
 /** Server only: sends date reminders as they fall due. Returns a function that stops it. */
 export function startDateReminders() {
-  let sweeping = false;
-  const sweep = async () => {
-    if (sweeping) return;
-    sweeping = true;
-    try {
-      await deliverDateReminders();
-    } catch (error) {
-      console.error("could not deliver date reminders", error);
-    } finally {
-      sweeping = false;
-    }
-  };
-  void sweep();
-  const timer = setInterval(() => void sweep(), SWEEP_MS);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return startSweep(SWEEP_MS, () => deliverDateReminders(), "could not deliver date reminders");
 }

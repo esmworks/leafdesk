@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
-import { cn } from "@/components/ui";
+import { cn, selectClass } from "@/components/ui";
 import { SettingsRow } from "./section";
-import { selectClass } from "./workspace-settings";
 
 /**
  * A preference kept for this browser (a cookie set by `save`), picked from a list whose first

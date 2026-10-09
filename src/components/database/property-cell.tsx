@@ -2,8 +2,8 @@
 
 import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
-import { useFormatter, useLocale, useTimeZone, useTranslations } from "next-intl";
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { Fragment, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/components/ui";
 import {
   asChecklist,
@@ -21,14 +21,14 @@ import { FilesDisplay, FilesEditor, type UploadFile } from "./files-cell";
 import { Floating } from "./floating";
 import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
-import { QuickAddParts, type QuickAdd } from "./quick-add";
+import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { HiddenValue } from "./property-access";
 import { RelationChips, RelationPicker } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
+import { useToday } from "./use-today";
 import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
-import { dayString, localDay } from "@/lib/time-zone";
 import type { NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
 
@@ -104,11 +104,8 @@ export function useFormatDate() {
 function DateValue({ prop, value }: { prop: Property; value: string }) {
   const formatDate = useFormatDate();
   const locale = useLocale();
-  const timeZone = useTimeZone() ?? "UTC";
-  const relative =
-    prop.options.date?.display === "relative"
-      ? relativeDay(value.slice(0, 10), dayString(localDay(Date.now(), timeZone)), locale)
-      : null;
+  const today = useToday();
+  const relative = prop.options.date?.display === "relative" ? relativeDay(value.slice(0, 10), today, locale) : null;
   if (!relative) return <span>{formatDate(value)}</span>;
   return <span title={formatDate(value)}>{relative.charAt(0).toLocaleUpperCase(locale) + relative.slice(1)}</span>;
 }
@@ -390,7 +387,6 @@ export function PropertyCell({
   wrap,
   autoEdit,
   draft,
-  quickAdd,
   placeholder,
   upload,
 }: {
@@ -407,8 +403,6 @@ export function PropertyCell({
   autoEdit?: boolean;
   /** Text typed before the editor opened; a text editor starts with it instead of the value. */
   draft?: string;
-  /** A new row's title: what quick add recognises in it shows under the editor (see quick-add). */
-  quickAdd?: QuickAdd;
   placeholder?: string;
   /** Files properties: where new files are stored (the row); without it files can only be removed. */
   upload?: UploadFile;
@@ -487,7 +481,6 @@ export function PropertyCell({
           onCreateOption={onCreateOption}
           onClose={() => setEditing(false)}
           draft={draft}
-          quickAdd={quickAdd}
           upload={upload}
         />
       )}
@@ -503,7 +496,6 @@ function CellEditor({
   onCreateOption,
   onClose,
   draft,
-  quickAdd,
   upload,
 }: {
   prop: Property;
@@ -513,7 +505,6 @@ function CellEditor({
   onCreateOption: CreateOption;
   onClose: () => void;
   draft?: string;
-  quickAdd?: QuickAdd;
   upload?: UploadFile;
 }) {
   switch (prop.type) {
@@ -523,7 +514,7 @@ function CellEditor({
     case "email":
     case "phone":
       return (
-        <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} quickAdd={quickAdd} />
+        <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} />
       );
     case "checklist":
       return (
@@ -624,7 +615,6 @@ function TextEditor({
   onChange,
   onClose,
   startWith,
-  quickAdd,
 }: {
   prop: Property;
   value: unknown;
@@ -632,9 +622,10 @@ function TextEditor({
   onChange: (value: unknown) => void;
   onClose: () => void;
   startWith?: string;
-  quickAdd?: QuickAdd;
 }) {
   const t = useTranslations("database.cell");
+  // A new row's title (see quick-add): what quick add recognises shows under the editor.
+  const quickAdd = useContext(QuickAddContext);
   const locale = useLocale();
   const initial = editText(value, locale, prop.type === "number" ? prop.options.number : undefined);
   const [draft, setDraft] = useState(startWith || initial);

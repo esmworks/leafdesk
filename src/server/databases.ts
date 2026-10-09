@@ -275,6 +275,19 @@ export async function getDatabase(userId: string, databaseId: string) {
 export async function listRows(userId: string, databaseId: string, config: ViewConfig = {}) {
   // Rows inherit their database's access; rows restricted on their own are left out.
   await requireDatabase(userId, databaseId, "view");
+  return viewedRows(userId, databaseId, config);
+}
+
+/**
+ * listRows of a database the user is known to see (checked by the caller); `known` is its
+ * properties when they're already loaded.
+ */
+export async function viewedRows(
+  userId: string,
+  databaseId: string,
+  config: ViewConfig = {},
+  known?: Awaited<ReturnType<typeof getProperties>>,
+) {
   const [rows, all, access] = await Promise.all([
     db
       .select({
@@ -290,7 +303,7 @@ export async function listRows(userId: string, databaseId: string, config: ViewC
       .from(page)
       .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(userId)))
       .orderBy(asc(page.position), asc(page.createdAt)),
-    getProperties(databaseId),
+    known ?? getProperties(databaseId),
     propertyAccessFor(userId, databaseId),
   ]);
   // Filters and sorts on properties the viewer can't know of don't apply; on ones whose values

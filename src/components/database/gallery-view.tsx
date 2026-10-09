@@ -13,7 +13,7 @@ import { coverProperty, galleryCover } from "@/lib/views";
 import { CardTitleInput } from "./board-view";
 import { Floating, useFloating } from "./floating";
 import { RowValue, shownValues } from "./property-cell";
-import { useQuickAdd, type QuickAdd } from "./quick-add";
+import { QuickAddContext } from "./quick-add";
 import { useNewRow } from "./use-new-row";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -38,8 +38,7 @@ export function GalleryView({
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
-  const quick = useQuickAdd(api, view, properties);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
+  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
   // Covers come from each row's body (first_image) or from a files property's first image.
   const source = galleryCover(view.config);
@@ -53,46 +52,47 @@ export function GalleryView({
   };
 
   return (
-    <div className="page-gutter pb-6">
-      <div
-        className="grid gap-3"
-        style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[size]}, 100%), 1fr))` }}
-      >
-        {rows.map((row) => (
-          <GalleryCard
-            key={row.id}
-            workspaceId={workspaceId}
-            row={row}
-            props={cardProps}
-            coverUrl={withCover ? coverOf(row) : null}
-            coverClass={withCover ? COVER_HEIGHT[size] : null}
-            readOnly={readOnly}
-            editTitle={editTitleOf === row.id}
-            typed={typed}
-            quick={quick}
-            onTitle={(title) => {
-              stopEditing();
-              if (title !== row.title) quick.save(row.id, title);
-            }}
-            onDelete={() => api.deleteRow(row.id)}
-          />
-        ))}
-        {!readOnly && (
-          <button
-            type="button"
-            onClick={add}
-            className={cn(
-              "flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-fg-muted hover:bg-bg-hover hover:text-fg",
-              withCover ? "min-h-40" : "min-h-20",
-            )}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t("gallery.new")}
-          </button>
-        )}
+    <QuickAddContext value={quick}>
+      <div className="page-gutter pb-6">
+        <div
+          className="grid gap-3"
+          style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[size]}, 100%), 1fr))` }}
+        >
+          {rows.map((row) => (
+            <GalleryCard
+              key={row.id}
+              workspaceId={workspaceId}
+              row={row}
+              props={cardProps}
+              coverUrl={withCover ? coverOf(row) : null}
+              coverClass={withCover ? COVER_HEIGHT[size] : null}
+              readOnly={readOnly}
+              editTitle={editTitleOf === row.id}
+              typed={typed}
+              onTitle={(title) => {
+                stopEditing();
+                if (title !== row.title) saveTitle(row.id, title);
+              }}
+              onDelete={() => api.deleteRow(row.id)}
+            />
+          ))}
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={add}
+              className={cn(
+                "flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-fg-muted hover:bg-bg-hover hover:text-fg",
+                withCover ? "min-h-40" : "min-h-20",
+              )}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("gallery.new")}
+            </button>
+          )}
+        </div>
+        {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("gallery.empty")}</p>}
       </div>
-      {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("gallery.empty")}</p>}
-    </div>
+    </QuickAddContext>
   );
 }
 
@@ -105,7 +105,6 @@ function GalleryCard({
   readOnly,
   editTitle,
   typed,
-  quick,
   onTitle,
   onDelete,
 }: {
@@ -120,7 +119,6 @@ function GalleryCard({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDelete: () => void;
 }) {
@@ -166,7 +164,7 @@ function GalleryCard({
       )}
       <div className="min-w-0 px-3 py-2.5">
         {editTitle ? (
-          <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
+          <CardTitleInput initial={typed || row.title} onDone={onTitle} />
         ) : (
           <div className="flex min-w-0 gap-1.5 pr-6 text-sm leading-5 font-medium">
             {row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}

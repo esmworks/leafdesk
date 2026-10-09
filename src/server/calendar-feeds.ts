@@ -10,7 +10,7 @@ import { sharedLimiter } from "@/lib/rate-limit";
 import { AccessError } from "@/server/access";
 import { generateTokenSecret, hashToken, TOKEN_PREFIX } from "@/server/api/tokens";
 import { runAsConnectedApp } from "@/server/connected-app";
-import { getProperties, listRows, requireDatabase, withCode } from "@/server/databases";
+import { getProperties, requireDatabase, viewedRows, withCode } from "@/server/databases";
 import { exportAllowed } from "@/server/workspaces";
 
 /**
@@ -117,7 +117,8 @@ async function feedText(feed: typeof calendarFeed.$inferSelect, now: Date): Prom
 
   // As the calendar view places rows.
   const dateBy = viewDateProperty(view.config, properties);
-  const rows = dateBy ? await listRows(feed.userId, database.id, view.config) : [];
+  // requireCalendarView checked the database.
+  const rows = dateBy ? await viewedRows(feed.userId, database.id, view.config, properties) : [];
   const host = new URL(env.appUrl).host;
   const events: IcsEvent[] = rows.flatMap((row) => {
     const value = row.properties[dateBy!.id];

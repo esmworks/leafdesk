@@ -497,7 +497,13 @@ export const databaseProperty = pgTable(
     position: doublePrecision("position").notNull().default(0),
     ...timestamps,
   },
-  (t) => [index("database_property_db_idx").on(t.databaseId)],
+  (t) => [
+    index("database_property_db_idx").on(t.databaseId),
+    // The date properties with a reminder, which server/date-reminders looks for every minute.
+    index("database_property_reminder_idx")
+      .on(t.id)
+      .where(sql`${t.type} = 'date' and ${t.options} -> 'date' -> 'reminder' is not null`),
+  ],
 );
 
 export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "chart" | "form";

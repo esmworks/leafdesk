@@ -2,13 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPageAction } from "@/app/actions/pages";
-import { Button, buttonClass, Input } from "@/components/ui";
-
-const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2.5 text-sm outline-none focus:border-accent";
-const textareaClass =
-  "w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent";
+import { Button, buttonClass, cn, Input, selectClass, textareaClass } from "@/components/ui";
+import { SHARED_COOKIE, SHARED_COOKIE_PATH } from "@/lib/shared-note";
 
 /** The quick note's fields (see app/share): saved as a private page, then opened. */
 export function QuickNoteForm({
@@ -30,6 +27,11 @@ export function QuickNoteForm({
   const [body, setBody] = useState(initialBody);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // What was shared is in the fields now: the cookie that brought it (app/api/share) goes.
+  useEffect(() => {
+    document.cookie = `${SHARED_COOKIE}=; Max-Age=0; Path=${SHARED_COOKIE_PATH}${location.protocol === "https:" ? "; Secure" : ""}`;
+  }, []);
 
   const save = async () => {
     setBusy(true);
@@ -55,7 +57,7 @@ export function QuickNoteForm({
       {workspaces.length > 1 && (
         <label className="block">
           <span className="mb-1 block text-sm font-medium">{t("workspace")}</span>
-          <select value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} className={selectClass}>
+          <select value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} className={cn(selectClass, "w-full")}>
             {workspaces.map((w) => (
               <option key={w.id} value={w.id}>
                 {w.name}

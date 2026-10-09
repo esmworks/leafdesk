@@ -16,6 +16,7 @@ import { AccessError, requirePageAccess } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { requireDatabase, withCode } from "@/server/databases";
 import { createRow } from "@/server/templates";
+import { startSweep } from "@/server/sweep";
 
 /**
  * Schedules (lib/schedule for the rules): something that happens on a repeat rule, in a time zone.
@@ -118,25 +119,9 @@ export async function runDueSchedules(now = new Date()) {
   }
 }
 
-let sweeping = false;
-
 /** Server only: runs schedules as they fall due, and any missed while the server was down. */
 export function startSchedules() {
-  const sweep = async () => {
-    if (sweeping) return;
-    sweeping = true;
-    try {
-      await runDueSchedules();
-    } catch (error) {
-      console.error("could not run schedules", error);
-    } finally {
-      sweeping = false;
-    }
-  };
-  void sweep();
-  const timer = setInterval(() => void sweep(), SWEEP_INTERVAL_MS);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return startSweep(SWEEP_INTERVAL_MS, () => runDueSchedules(), "could not run schedules");
 }
 
 // ---------------------------------------------------------------------------------------------

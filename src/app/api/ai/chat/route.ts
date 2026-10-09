@@ -1,10 +1,10 @@
 import * as z from "zod";
 import { auth } from "@/lib/auth";
 import { CHAT_MODES, MAX_CHAT_MESSAGE } from "@/lib/ai-chat";
-import { env } from "@/lib/env";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
 import { startChat } from "@/server/ai-chat";
+import { isCrossSite } from "@/server/cross-site";
 
 const chatInput = z.object({
   workspaceId: z.string().min(1).max(100),
@@ -30,9 +30,7 @@ const chatInput = z.object({
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers }).catch(() => null);
   if (!session) return fail("noAccess", "Sign in to use the AI chat", 401);
-  const origin = request.headers.get("origin");
-  const hosts = [new URL(env.appUrl).host, request.headers.get("x-forwarded-host"), request.headers.get("host")];
-  if (origin && !hosts.includes(URL.parse(origin)?.host ?? "")) return fail("noAccess", "Cross-site requests aren't allowed", 403);
+  if (isCrossSite(request)) return fail("noAccess", "Cross-site requests aren't allowed", 403);
   if (!(request.headers.get("content-type") ?? "").includes("application/json")) return fail("invalid", "Send JSON", 415);
 
   const parsed = chatInput.safeParse(await request.json().catch(() => null));

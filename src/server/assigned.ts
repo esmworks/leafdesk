@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { databaseProperty, page, type PageKind, type SelectOption } from "@/db/schema";
 import { groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
 import { atLeast } from "@/lib/property-access";
-import { statusGroupOf } from "@/lib/properties";
+import { isDoneStatus, optionOf } from "@/lib/properties";
 import { pageVisibleTo, requireMembership } from "@/server/access";
 import { loadProperties } from "@/server/derived";
 import { propertyAccessFor } from "@/server/property-access";
@@ -110,11 +110,8 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
     );
     if (!namesMe) continue;
 
-    const statuses = props
-      .filter((p) => p.type === "status" && sees(p.id))
-      .map((p) => (p.options.options ?? []).find((o) => o.id === value(p.id)))
-      .filter((o): o is SelectOption => Boolean(o));
-    if (statuses.some((o) => statusGroupOf(o) === "done")) continue;
+    const statuses = props.filter((p) => p.type === "status" && sees(p.id));
+    if (statuses.some((p) => isDoneStatus(p, value(p.id)))) continue;
 
     const dateProp = props.find((p) => p.type === "date" && sees(p.id) && typeof value(p.id) === "string" && value(p.id));
     rows.push({
@@ -125,7 +122,7 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
       databaseId,
       databaseTitle: titles.get(databaseId) ?? null,
       date: dateProp ? String(value(dateProp.id)).slice(0, 10) : null,
-      status: statuses[0] ?? null,
+      status: statuses.map((p) => optionOf(p, value(p.id))).find(Boolean) ?? null,
       updatedAt: row.updatedAt,
     });
   }

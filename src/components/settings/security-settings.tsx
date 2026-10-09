@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
-import { Button, Input, Switch } from "@/components/ui";
+import { Button, Input, selectClass, Switch } from "@/components/ui";
 import type { WorkspaceSettings } from "@/db/schema";
 import { HISTORY_RETENTION, TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { SettingsRow } from "./section";
-import { selectClass, useAction } from "./workspace-settings";
+import { useAction } from "./workspace-settings";
 
 /** The settings chosen from a list: who may do something, or how far connected apps go. */
 type ChoiceSetting = "guestInvites" | "publishing" | "connectedApps";

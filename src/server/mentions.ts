@@ -11,6 +11,7 @@ import { searchFoldSql } from "@/server/search-fold-sql";
 import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { workspacePeople } from "@/server/workspaces";
 import { avatarSrc } from "@/lib/avatar";
+import { startSweep } from "@/server/sweep";
 
 /**
  * Mentions, page links and reminders on the server. The page's document holds them; each time the
@@ -166,10 +167,10 @@ export async function deliverDueReminders(now = new Date()) {
     .update(pageReminder)
     .set({ notifiedAt: now })
     .where(and(isNull(pageReminder.notifiedAt), lte(pageReminder.remindAt, now)))
-    .returning({ pageId: pageReminder.pageId, mentionId: pageReminder.mentionId, userId: pageReminder.userId });
+    .returning({ pageId: pageReminder.pageId, mentionId: pageReminder.mentionId, userId: pageReminder.userId, date: pageReminder.date });
   for (const reminder of due) {
     try {
-      await recordReminder(reminder.userId, reminder.pageId, reminder.mentionId);
+      await recordReminder(reminder.userId, reminder.pageId, reminder.mentionId, reminder.date);
     } catch (error) {
       console.error("could not send a reminder", error);
     }
@@ -177,25 +178,9 @@ export async function deliverDueReminders(now = new Date()) {
   return due.length;
 }
 
-let sweeping = false;
-
 /** Server only: sends reminders as they fall due, including any missed while the server was down. */
 export function startReminders() {
-  const sweep = async () => {
-    if (sweeping) return;
-    sweeping = true;
-    try {
-      await deliverDueReminders();
-    } catch (error) {
-      console.error("could not deliver reminders", error);
-    } finally {
-      sweeping = false;
-    }
-  };
-  void sweep();
-  const timer = setInterval(() => void sweep(), REMINDER_SWEEP_MS);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return startSweep(REMINDER_SWEEP_MS, () => deliverDueReminders(), "could not deliver reminders");
 }
 
 // ---------------------------------------------------------------------------------------------

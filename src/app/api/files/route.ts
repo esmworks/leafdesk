@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
-import { env } from "@/lib/env";
 import { AccessError } from "@/server/access";
+import { isCrossSite } from "@/server/cross-site";
 import { FileError, uploadFile, type UploadInput } from "@/server/files";
 import { FormError, uploadFormFile, uploadPublicFormFile } from "@/server/forms";
 
@@ -26,9 +26,7 @@ export async function POST(request: Request) {
   const formToken = params.get("formToken");
   if (!session && !formToken) return Response.json({ error: "Sign in to upload files" }, { status: 401 });
 
-  const origin = request.headers.get("origin");
-  const hosts = [new URL(env.appUrl).host, request.headers.get("x-forwarded-host"), request.headers.get("host")];
-  if (origin && !hosts.includes(URL.parse(origin)?.host ?? "")) {
+  if (isCrossSite(request)) {
     return Response.json({ error: "Cross-site uploads aren't allowed" }, { status: 403 });
   }
   const rawName = request.headers.get("x-file-name");
