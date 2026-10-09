@@ -37,7 +37,7 @@ export function ListView({
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const shownProps = properties.filter((p) => !isHiddenInView(view, p));
   const access = usePropertyAccess();
   const subItems = useSubItems(view, properties, allRows);
@@ -70,7 +70,7 @@ export function ListView({
               typed={typed}
               onTitle={(title) => {
                 stopEditing();
-                if (title !== line.row.title) saveTitle(line.row.id, title);
+                if (title !== line.row.title) quick.save(line.row.id, title);
               }}
               onDelete={() => api.deleteRow(line.row.id)}
             />

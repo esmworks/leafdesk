@@ -15,7 +15,6 @@ import {
   rowSpan,
   spanValues,
   timelineRange,
-  today,
   unitStart,
   valueDay,
   weekStart,
@@ -42,7 +41,8 @@ describe("day numbers", () => {
     const at = new Date(2026, 8, 27, 23, 30);
     expect(valueDay(at.toISOString(), "created_time")).toBe(d("2026-09-27"));
     expect(valueDay("2026-09-27", "text")).toBeNull();
-    expect(today(new Date(2026, 8, 27, 0, 5))).toBe(d("2026-09-27"));
+    expect(valueDay("2026-09-27T22:30:00Z", "created_time", "Europe/Istanbul")).toBe(d("2026-09-28"));
+    expect(valueDay("2026-09-27T22:30:00Z", "created_time", "America/New_York")).toBe(d("2026-09-27"));
   });
 });
 

@@ -10,7 +10,6 @@ import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import type { Property, RollupInput } from "./types";
 
-
 /**
  * Sets up a rollup: which relation, which property of the related database, and what to
  * calculate (the functions a table footer offers for that property, or listing the values). A

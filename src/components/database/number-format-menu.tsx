@@ -3,11 +3,10 @@
 import { ArrowLeft } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { menuFieldClass } from "@/components/ui";
 import { COMMON_CURRENCIES, NUMBER_FORMATS, type NumberFormat, type NumberFormatKind } from "@/lib/number-format";
 import { useFormatNumber } from "./property-cell";
 import type { Property } from "./types";
-import { menuFieldClass } from "@/components/ui";
-
 
 /** Decimal places the menu offers besides automatic; MCP can set up to MAX_DECIMALS. */
 const DECIMALS = [0, 1, 2, 3, 4];

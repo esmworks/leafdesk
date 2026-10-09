@@ -97,7 +97,7 @@ export function TableView({
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
-  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const today = useToday();
   const { viewerId, people } = usePeople();
   const relations = useRelations();
@@ -362,7 +362,7 @@ export function TableView({
                   draft={editTitleOf === row.id ? typed : undefined}
                   onChange={(v) => {
                     stopEditing();
-                    if (editTitleOf === row.id) saveTitle(row.id, String(v ?? ""));
+                    if (editTitleOf === row.id) quick.save(row.id, String(v ?? ""));
                     else void api.setCell(row.id, TITLE, v ?? "");
                   }}
                   onCreateOption={createOption}

@@ -93,9 +93,8 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
     /** What was typed before that editor opened; it starts with this. */
     typed: editing ? (capture.current?.value ?? "") : "",
     create,
+    /** Names a row from its title editor (`quick.save`): the title without what quick add took, and those values. */
     quick,
-    /** Names a row from its title editor: the title without what quick add took, and those values. */
-    saveTitle,
     stopEditing: () => {
       capture.current?.remove();
       setEditing(null);

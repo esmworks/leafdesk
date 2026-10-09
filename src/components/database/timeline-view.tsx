@@ -46,7 +46,7 @@ import { PropertyLock, usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
 import { useNewRow } from "./use-new-row";
-import { useToday } from "./use-today";
+import { useToday, useViewerTimeZone } from "./use-today";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 import { timelineDates, timelineGroupProperty } from "./view-settings";
@@ -114,12 +114,13 @@ export function TimelineView({
   const [dropDay, setDropDay] = useState<number | null>(null);
   const [dragUndated, setDragUndated] = useState<string | null>(null);
   const [link, setLink] = useState<Link | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const [showUndated, setShowUndated] = useState(true);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   // The day to bring into view after the next layout, and where (a share of the visible width).
   const pendingFocus = useRef<{ day: number; at: number } | null>(null);
   const suppressClick = useRef(false);
+  const timeZone = useViewerTimeZone();
   const todayIso = useToday();
   const today = dayNumber(todayIso)!;
 
@@ -152,11 +153,11 @@ export function TimelineView({
     const map = new Map<string, DaySpan>();
     if (!startProp) return map;
     for (const row of rows) {
-      const span = rowSpan(row.properties, startProp, endProp);
+      const span = rowSpan(row.properties, startProp, endProp, timeZone);
       if (span) map.set(row.id, span);
     }
     return map;
-  }, [rows, startProp, endProp]);
+  }, [rows, startProp, endProp, timeZone]);
   const dated = useMemo(() => rows.filter((r) => spans.has(r.id)), [rows, spans]);
   const undated = useMemo(() => rows.filter((r) => !spans.has(r.id)), [rows, spans]);
   const range = useMemo(() => timelineRange([...spans.values()], today, zoom), [spans, today, zoom]);
@@ -473,7 +474,7 @@ export function TimelineView({
             compact
             onDone={(title) => {
               stopEditing();
-              if (title !== row.title) saveTitle(row.id, title);
+              if (title !== row.title) quick.save(row.id, title);
             }}
           />
         ) : (

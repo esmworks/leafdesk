@@ -14,16 +14,20 @@ const MAX_VALUE = 3_600;
 
 const encode = (note: SharedNote) => Buffer.from(JSON.stringify(note)).toString("base64url");
 
-/** The cookie value for `note`; a text too long for it is cut (and a url too long, dropped). */
+/** Cuts `text` to about four fifths, marked with "…"; empty once nothing is left. */
+const shorten = (text: string) => `${text.slice(0, Math.floor(text.length * 0.8)).trimEnd()}…`.replace(/^…$/, "");
+
+/**
+ * The cookie value for `note`, within MAX_VALUE: a text too long for it is cut first, then the
+ * title, and a url that still doesn't fit is dropped.
+ */
 export function encodeSharedNote(note: SharedNote): string {
-  let { title, text, url } = note;
-  title = title.slice(0, 500);
-  if (url.length > 2_000) url = "";
+  const { url } = note;
+  let { title, text } = note;
   let value = encode({ title, text, url });
-  while (value.length > MAX_VALUE && text) {
-    text = `${text.slice(0, Math.floor(text.length * 0.8)).trimEnd()}…`.replace(/^…$/, "");
-    value = encode({ title, text, url });
-  }
+  while (value.length > MAX_VALUE && text) value = encode({ title, text: (text = shorten(text)), url });
+  while (value.length > MAX_VALUE && title) value = encode({ title: (title = shorten(title)), text, url });
+  if (value.length > MAX_VALUE) value = encode({ title, text, url: "" });
   return value;
 }
 

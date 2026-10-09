@@ -7,7 +7,7 @@ import { useState } from "react";
 import { createTeamspaceAction, updateTeamspaceAction } from "@/app/actions/teamspaces";
 import { IconPicker } from "@/components/page/icon-picker";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, Input, selectClass, textareaClass } from "@/components/ui";
 import type { TeamspaceAccess, TeamspaceMemberLevel } from "@/db/schema/app";
 import type { TeamspaceSummary } from "@/server/teamspaces";
 
@@ -168,7 +168,7 @@ function TeamspaceForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t("dialog.descriptionPlaceholder")}
-          className="w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
+          className={textareaClass}
         />
       </label>
 

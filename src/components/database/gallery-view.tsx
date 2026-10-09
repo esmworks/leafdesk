@@ -38,7 +38,7 @@ export function GalleryView({
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
   // Covers come from each row's body (first_image) or from a files property's first image.
   const source = galleryCover(view.config);
@@ -71,7 +71,7 @@ export function GalleryView({
               typed={typed}
               onTitle={(title) => {
                 stopEditing();
-                if (title !== row.title) saveTitle(row.id, title);
+                if (title !== row.title) quick.save(row.id, title);
               }}
               onDelete={() => api.deleteRow(row.id)}
             />

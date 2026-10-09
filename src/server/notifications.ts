@@ -145,6 +145,20 @@ export async function withdrawShare(workspaceId: string, userId: string, pageId:
   }
 }
 
+/**
+ * Those of `userIds` who are people (not agents) and can open `pageId`, which must not be in the
+ * trash: who may hear about something on the page.
+ */
+export async function pageRecipients(userIds: string[], pageId: string): Promise<string[]> {
+  if (!userIds.length) return [];
+  const rows = await db
+    .select({ id: user.id })
+    .from(user)
+    .innerJoin(page, eq(page.id, pageId))
+    .where(and(inArray(user.id, userIds), notAgentUser(user.id), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
+  return rows.map((r) => r.id);
+}
+
 /** How long a comment waits before its email goes out: replies in a lively thread add up to one email. */
 export const COMMENT_EMAIL_DELAY_MS = 2 * 60_000;
 
@@ -157,11 +171,7 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
   if (!recipients.length) return;
   try {
     // Only people who can still open the page hear about it.
-    const visible = await db
-      .select({ id: user.id })
-      .from(user)
-      .innerJoin(page, eq(page.id, pageId))
-      .where(and(inArray(user.id, recipients), notAgentUser(user.id), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
+    const visible = await pageRecipients(recipients, pageId);
     if (!visible.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + COMMENT_EMAIL_DELAY_MS);
     const emailLocale = await requestLocale();
@@ -172,13 +182,13 @@ export async function recordComment(actorId: string, workspaceId: string, pageId
           // Copies of a page carry its threads, ids included.
           eq(notification.pageId, pageId),
           eq(notification.threadId, threadId),
-          inArray(notification.userId, visible.map((v) => v.id)),
+          inArray(notification.userId, visible),
           isNull(notification.readAt),
         ),
       );
       return tx
         .insert(notification)
-        .values(visible.map((v) => ({ userId: v.id, workspaceId, kind: "comment" as const, actorId, pageId, threadId, emailDueAt, emailLocale })))
+        .values(visible.map((userId) => ({ userId, workspaceId, kind: "comment" as const, actorId, pageId, threadId, emailDueAt, emailLocale })))
         .returning({ id: notification.id });
     });
     signal(workspaceId);
@@ -228,11 +238,7 @@ export async function recordMentions(
   for (const m of mentions) if (m.userId !== actorId && !first.has(m.userId)) first.set(m.userId, m.mentionId);
   if (!first.size) return;
   try {
-    const visible = await db
-      .select({ id: user.id })
-      .from(user)
-      .innerJoin(page, eq(page.id, pageId))
-      .where(and(inArray(user.id, [...first.keys()]), notAgentUser(user.id), isNull(page.archivedAt), sql`page_access_level(${user.id}, ${page.id}) > 0`));
+    const visible = await pageRecipients([...first.keys()], pageId);
     if (!visible.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date(Date.now() + MENTION_EMAIL_DELAY_MS);
     const inserted = await db.transaction(async (tx) => {
@@ -240,20 +246,20 @@ export async function recordMentions(
         and(
           eq(notification.kind, "mention"),
           eq(notification.pageId, pageId),
-          inArray(notification.userId, visible.map((v) => v.id)),
+          inArray(notification.userId, visible),
           isNull(notification.readAt),
         ),
       );
       return tx
         .insert(notification)
         .values(
-          visible.map((v) => ({
-            userId: v.id,
+          visible.map((userId) => ({
+            userId,
             workspaceId,
             kind: "mention" as const,
             actorId,
             pageId,
-            mentionId: first.get(v.id)!,
+            mentionId: first.get(userId)!,
             emailDueAt,
             emailLocale: locale,
           })),

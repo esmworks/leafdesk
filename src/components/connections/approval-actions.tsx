@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { decideApprovalAction } from "@/app/actions/connections";
-import { Button } from "@/components/ui";
+import { Button, textareaClass } from "@/components/ui";
 import type { ApprovalDecision } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
 
@@ -61,7 +61,7 @@ export function ApprovalActions({
             autoFocus
             onChange={(e) => setNote(e.target.value)}
             placeholder={t("notePlaceholder")}
-            className="w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
+            className={textareaClass}
           />
           <div className="flex flex-wrap gap-1.5">
             <Button size="sm" variant="primary" disabled={busy || !note.trim()} onClick={() => void answer("redo")}>

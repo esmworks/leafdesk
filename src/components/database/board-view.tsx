@@ -60,7 +60,7 @@ export function BoardView({
   // each of their columns, and moving it replaces only that column's value.
   const [dragFrom, setDragFrom] = useState<string | null>(null);
   const [drop, setDrop] = useState<{ group: string; index: number } | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const today = useToday();
   // Column drag: the dragged column's key and the insertion index among the shown columns.
   const [dragCol, setDragCol] = useState<string | null>(null);
@@ -350,7 +350,7 @@ export function BoardView({
                           typed={typed}
                           onTitle={(title) => {
                             stopEditing();
-                            if (title !== row.title) saveTitle(row.id, title);
+                            if (title !== row.title) quick.save(row.id, title);
                           }}
                           onDelete={() => api.deleteRow(row.id)}
                           onDragStart={(e) => {

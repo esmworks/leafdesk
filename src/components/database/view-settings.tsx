@@ -24,7 +24,7 @@ import {
 import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
 import { isGroupable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
-import { CARD_SIZES, coverProperty, galleryCover } from "@/lib/views";
+import { CARD_SIZES, coverProperty, galleryCover, viewDateProperty } from "@/lib/views";
 import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -38,9 +38,12 @@ import { PropertyTypeIcon } from "./property-icons";
 import type { Property, View } from "./types";
 import { NativeSelect } from "./view-bar";
 
-/** Date properties a timeline can start bars at (created and edited times are read-only there). */
+/** Whether a timeline can start bars at `property`: a date, or a created or edited time (read-only there). */
+const isTimelineStart = (property: Property) => property.type === "date" || holdsTimestamp(property.type);
+
+/** Date properties a timeline can start bars at. */
 export function timelineStartProps(properties: Property[]) {
-  return properties.filter((p) => p.type === "date" || holdsTimestamp(p.type));
+  return properties.filter(isTimelineStart);
 }
 
 /**
@@ -48,9 +51,7 @@ export function timelineStartProps(properties: Property[]) {
  * equal to the start (or not a date) counts as none.
  */
 export function timelineDates(view: View, properties: Property[]) {
-  const starts = timelineStartProps(properties);
-  const start =
-    starts.find((p) => p.id === view.config.dateBy) ?? starts.find((p) => p.type === "date") ?? null;
+  const start = viewDateProperty(view.config, properties, isTimelineStart) ?? null;
   const end =
     properties.find((p) => p.id === view.config.endDateBy && p.type === "date" && p.id !== start?.id) ?? null;
   return { start, end };

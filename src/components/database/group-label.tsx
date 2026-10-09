@@ -7,20 +7,29 @@ import { cn } from "@/components/ui";
 import type { Group, GroupContext, GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { statusColor } from "@/lib/properties";
+import { timestampDay } from "@/lib/time-zone";
 import { Floating, useFloating } from "./floating";
 import { PersonAvatar, usePeople } from "./person-cell";
 import { OptionChip } from "./property-cell";
 import { useRelations } from "./relation-context";
 import type { Property } from "./types";
+import { useViewerTimeZone } from "./use-today";
 
 type AnyGroup = Pick<Group<unknown>, "key" | "value">;
 
-/** What grouping needs besides the rows: the people and related rows groups stand for. */
+/**
+ * What grouping needs besides the rows: the people and related rows groups stand for, and the
+ * viewer's day of a created or edited time.
+ */
 export function useGroupContext(prop: Pick<Property, "id" | "type"> | undefined): GroupContext {
   const { people } = usePeople();
   const relations = useRelations();
   const relationRows = prop?.type === "relation" ? relations?.targets[prop.id]?.rows : undefined;
-  return useMemo(() => ({ people, relationRows }), [people, relationRows]);
+  const timeZone = useViewerTimeZone();
+  return useMemo(
+    () => ({ people, relationRows, dayOf: (value: unknown) => timestampDay(value, timeZone) }),
+    [people, relationRows, timeZone],
+  );
 }
 
 /** A date group's name: the day, the week's first and last day, the month or the year. */

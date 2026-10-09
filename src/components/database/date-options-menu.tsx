@@ -2,11 +2,10 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { menuFieldClass } from "@/components/ui";
 import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
 import { browserTimeZone } from "@/lib/time-zone";
 import type { Property } from "./types";
-import { menuFieldClass } from "@/components/ui";
-
 
 /**
  * A date property's settings: whether days near today show relatively ("tomorrow", "in 3 days"),

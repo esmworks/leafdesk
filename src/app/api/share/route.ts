@@ -17,8 +17,8 @@ export async function POST(request: Request) {
     const value = form?.get(name);
     return typeof value === "string" ? value.trim() : "";
   };
-  const response = NextResponse.redirect(new URL("/share", env.appUrl), 303);
-  response.headers.set("Cache-Control", "no-store");
+  // A relative address: the page is on the host the cookie is set for, whatever host that is.
+  const response = new NextResponse(null, { status: 303, headers: { Location: "/share", "Cache-Control": "no-store" } });
   const note = { title: field("title"), text: field("text"), url: field("url") };
   if (note.title || note.text || note.url) {
     response.cookies.set(SHARED_COOKIE, encodeSharedNote(note), {

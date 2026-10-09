@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { requestAccessAction } from "@/app/actions/access-requests";
-import { Button } from "@/components/ui";
+import { Button, cn, textareaClass } from "@/components/ui";
 import { ACCESS_REQUEST_MESSAGE_MAX } from "@/lib/access-requests";
 
 /**
@@ -57,7 +57,7 @@ export function NoAccess({ pageId, email, canRequest }: { pageId: string; email:
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t("messagePlaceholder")}
               rows={3}
-              className="block w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
+              className={cn("block", textareaClass)}
             />
             {state === "rateLimited" && (
               <p role="alert" className="text-sm text-danger">

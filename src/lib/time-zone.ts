@@ -64,6 +64,13 @@ export function dayString(day: number): string {
   return new Date(day * DAY_MS).toISOString().slice(0, 10);
 }
 
+/** The calendar day (YYYY-MM-DD) a timestamp falls on in `timeZone`; null for what is no time. */
+export function timestampDay(value: unknown, timeZone: string): string | null {
+  if (typeof value !== "string" && !(value instanceof Date)) return null;
+  const instant = new Date(value).getTime();
+  return Number.isNaN(instant) ? null : dayString(localDay(instant, timeZone));
+}
+
 /** The weekday of a day number: 0 for Sunday … 6 for Saturday (1970-01-01, day 0, was a Thursday). */
 export const weekdayOf = (day: number) => (((day + 4) % 7) + 7) % 7;
 

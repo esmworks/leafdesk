@@ -20,7 +20,7 @@ import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
 import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, Switch, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
 import {
   AGENT_ACCESS_LEVELS,
   AGENT_RUN_HISTORY_DAYS,
@@ -37,7 +37,6 @@ import { PagePicker, useShareablePages } from "./agent-page-picker";
 
 export type AgentTab = "settings" | "access" | "connections" | "runs";
 
-const selectClass = "h-8 rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {

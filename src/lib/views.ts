@@ -130,10 +130,14 @@ export function layoutConfigError(config: ViewConfig): string | null {
 }
 
 /**
- * The date property a calendar view places rows by: the one its settings name, else the first of
- * `properties`.
+ * The property a calendar or timeline view places rows by: the one its settings name (`dateBy`)
+ * when `accepts` takes it, else the first date property. A calendar takes dates only (the
+ * default); a timeline also starts bars at created and edited times.
  */
-export function viewDateProperty<P extends { id: string; type: string }>(config: ViewConfig, properties: P[]): P | undefined {
-  const dates = properties.filter((p) => p.type === "date");
-  return dates.find((p) => p.id === config.dateBy) ?? dates[0];
+export function viewDateProperty<P extends { id: string; type: string }>(
+  config: ViewConfig,
+  properties: P[],
+  accepts: (property: P) => boolean = (p) => p.type === "date",
+): P | undefined {
+  return properties.find((p) => p.id === config.dateBy && accepts(p)) ?? properties.find((p) => p.type === "date");
 }

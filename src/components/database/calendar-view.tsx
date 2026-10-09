@@ -81,7 +81,7 @@ export function CalendarView({
   const [cursor, setCursor] = useState(() => ({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) - 1 }));
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropDay, setDropDay] = useState<string | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing, saveTitle, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const [showUndated, setShowUndated] = useState(false);
   // On phones the month is a compact grid, and the rows of the picked day are listed under it.
   const phone = useMediaQuery(PHONE_QUERY);
@@ -162,7 +162,7 @@ export function CalendarView({
       typed={typed}
       onTitle={(title) => {
         stopEditing();
-        if (title !== row.title) saveTitle(row.id, title);
+        if (title !== row.title) quick.save(row.id, title);
       }}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", row.id);

@@ -1,6 +1,7 @@
 import type { PropertyType, TimelineZoom } from "@/db/schema/app";
 import { localDay } from "./properties";
 import { holdsTimestamp } from "./property-types";
+import { timestampDay } from "./time-zone";
 
 /**
  * Date math for timeline views. Days are whole numbers counted from 1970-01-01 (UTC), so a date
@@ -82,17 +83,12 @@ export function nextUnit(day: number, zoom: TimelineZoom): number {
   return addMonths(day, 1);
 }
 
-/** Today in the viewer's time zone. */
-export function today(now = new Date()): number {
-  return dayNumber(localDay(now))!;
-}
-
 /**
  * The day a start or end value falls on. Dates are days already; created and edited times are
- * instants, placed on the viewer's local day.
+ * instants, placed on their day in the viewer's `timeZone` (the browser's when left out).
  */
-export function valueDay(value: unknown, type: PropertyType): number | null {
-  if (holdsTimestamp(type)) return dayNumber(localDay(value));
+export function valueDay(value: unknown, type: PropertyType, timeZone?: string): number | null {
+  if (holdsTimestamp(type)) return dayNumber(timeZone ? timestampDay(value, timeZone) : localDay(value));
   return type === "date" ? dayNumber(value) : null;
 }
 
@@ -104,10 +100,11 @@ export function rowSpan(
   properties: Record<string, unknown>,
   start: { id: string; type: PropertyType },
   end?: { id: string; type: PropertyType } | null,
+  timeZone?: string,
 ): DaySpan | null {
-  const from = valueDay(properties[start.id], start.type);
+  const from = valueDay(properties[start.id], start.type, timeZone);
   if (from === null) return null;
-  const to = end ? valueDay(properties[end.id], end.type) : null;
+  const to = end ? valueDay(properties[end.id], end.type, timeZone) : null;
   return { start: from, end: to !== null && to >= from ? to : from };
 }
 

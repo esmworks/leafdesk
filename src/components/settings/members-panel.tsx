@@ -18,7 +18,7 @@ import { CopyButton } from "@/components/settings/copy-button";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Floating, useFloating } from "@/components/database/floating";
-import { Button, cn, Dialog, IconButton, Input, MenuItem, selectClass, Switch } from "@/components/ui";
+import { Button, cn, Dialog, IconButton, Input, MenuItem, selectClass, Switch, textareaClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { WorkspaceRole } from "@/db/schema/app";
 import { MAX_BULK_EMAILS, parseEmailList } from "@/lib/emails";
@@ -803,7 +803,7 @@ function AddMembersDialog({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={t("add.emailsPlaceholder")}
-              className="w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
+              className={textareaClass}
             />
           </label>
           <div className="flex items-center justify-between gap-3">

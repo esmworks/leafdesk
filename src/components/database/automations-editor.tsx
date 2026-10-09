@@ -11,7 +11,7 @@ import {
   updateAutomationAction,
 } from "@/app/actions/automations";
 import { copyText } from "@/components/settings/copy-button";
-import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
+import { Button, cn, IconButton, Input, Switch, textareaClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
@@ -603,7 +603,7 @@ function RunAgentEditor({
           placeholder={t("agentTaskPlaceholder")}
           readOnly={!isOwner}
           onChange={(e) => onChange({ ...action, prompt: e.target.value })}
-          className="w-full resize-y rounded-md border border-border bg-bg px-2.5 py-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
+          className={textareaClass}
         />
       </label>
       <p className="text-xs text-fg-faint">

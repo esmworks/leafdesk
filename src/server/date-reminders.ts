@@ -1,14 +1,13 @@
-import { and, eq, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, notification, page, rowReminder, user, type DateReminder } from "@/db/schema";
+import { databaseProperty, notification, page, rowReminder, type DateReminder } from "@/db/schema";
 import { dueReminderDay, reminderInstant } from "@/lib/date-options";
 import { atLeast } from "@/lib/property-access";
 import { isDoneStatus } from "@/lib/properties";
 import { dayString, localDay } from "@/lib/time-zone";
-import { notAgentUser } from "@/server/agents/users";
 import { loadProperties } from "@/server/derived";
 import { mailStatus } from "@/server/mail";
-import { signalInbox } from "@/server/notifications";
+import { pageRecipients, signalInbox } from "@/server/notifications";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
 import { startSweep } from "@/server/sweep";
@@ -132,12 +131,9 @@ async function notify(
   propertyAccess: (userId: string) => Promise<PropertyAccess>,
 ): Promise<number> {
   // People (not agents) who can open the row, then those of them who see the date.
-  const opening = await db
-    .select({ id: user.id })
-    .from(user)
-    .where(and(inArray(user.id, userIds), notAgentUser(user.id), sql`page_access_level(${user.id}, ${row.id}) > 0`));
-  const sees = await Promise.all(opening.map(async ({ id }) => atLeast((await propertyAccess(id)).levelOf(propertyId, row), "view")));
-  const allowed = opening.filter((_, i) => sees[i]).map(({ id }) => id);
+  const opening = await pageRecipients(userIds, row.id);
+  const sees = await Promise.all(opening.map(async (id) => atLeast((await propertyAccess(id)).levelOf(propertyId, row), "view")));
+  const allowed = opening.filter((_, i) => sees[i]);
   if (!allowed.length) return 0;
   const emailDueAt = mailStatus() === "disabled" ? null : new Date();
   const inserted = await db

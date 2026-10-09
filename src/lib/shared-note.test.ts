@@ -17,6 +17,12 @@ describe("shared notes", () => {
     expect(note.text.length).toBeGreaterThan(500);
   });
 
+  it("stays within a cookie however long the title and link are", () => {
+    const value = encodeSharedNote({ title: "漢".repeat(500), text: "", url: `https://example.com/${"a".repeat(1_995)}` });
+    expect(value.length).toBeLessThanOrEqual(3_600);
+    expect(decodeSharedNote(value)!.url).toMatch(/^https:/);
+  });
+
   it("reads nothing from a value it didn't write", () => {
     expect(decodeSharedNote(undefined)).toBeNull();
     expect(decodeSharedNote("not base64 json")).toBeNull();

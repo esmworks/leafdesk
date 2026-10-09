@@ -103,9 +103,14 @@ export function useFormatDate() {
  */
 function DateValue({ prop, value }: { prop: Property; value: string }) {
   const formatDate = useFormatDate();
+  if (prop.options.date?.display === "relative") return <RelativeDate value={value} />;
+  return <span>{formatDate(value)}</span>;
+}
+
+function RelativeDate({ value }: { value: string }) {
+  const formatDate = useFormatDate();
   const locale = useLocale();
-  const today = useToday();
-  const relative = prop.options.date?.display === "relative" ? relativeDay(value.slice(0, 10), today, locale) : null;
+  const relative = relativeDay(value.slice(0, 10), useToday(), locale);
   if (!relative) return <span>{formatDate(value)}</span>;
   return <span title={formatDate(value)}>{relative.charAt(0).toLocaleUpperCase(locale) + relative.slice(1)}</span>;
 }
