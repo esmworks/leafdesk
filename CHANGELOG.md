@@ -12,6 +12,13 @@
   shows nor leaves the row out. The 25 most pressing are listed, with the total when there are
   more. The section is hidden while nothing is assigned to you. No migration.
 
+### Changed
+
+- **A dashboard home page.** The home page greets you by time of day with today's date, shows
+  three counters (overdue, due today, open for you), and lays the assigned rows and the recently
+  edited pages out in two columns on wide screens. The assigned section now says so when nothing
+  is assigned to you instead of disappearing. No migration.
+
 ## 0.5.0 — 2026-10-09
 
 ### Upgrading from 0.4.0
