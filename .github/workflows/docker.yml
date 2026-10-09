@@ -15,6 +15,9 @@ env:
   REGISTRY_IMAGE: ghcr.io/esmworks/leafdesk
   RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
   PRERELEASE: ${{ github.event.release.prerelease || false }}
+  # Set on the image and its index, in place of the repository's description that
+  # docker/metadata-action would put there.
+  IMAGE_DESCRIPTION: Open-source, self-hosted workspace of pages and databases with realtime collaboration and a built-in MCP server.
 
 permissions:
   contents: read
@@ -57,6 +60,7 @@ jobs:
           labels: |
             org.opencontainers.image.revision=${{ steps.source.outputs.sha }}
             org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
 
       - uses: docker/setup-buildx-action@v4
 
@@ -127,7 +131,7 @@ jobs:
           docker buildx imagetools create \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             --annotation "index:org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-            --annotation "index:org.opencontainers.image.description=Open-source, self-hosted workspace of pages and databases with realtime collaboration and a built-in MCP server." \
+            --annotation "index:org.opencontainers.image.description=$IMAGE_DESCRIPTION" \
             --annotation "index:org.opencontainers.image.licenses=Apache-2.0" \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
