@@ -13,7 +13,7 @@
  *
  *   pnpm tsx scripts/sw-e2e.ts
  *
- * Env: CHROME_PATH (default: Google Chrome on macOS). Needs no database.
+ * Env: CHROME_PATH (default: Google Chrome on macOS; CI uses /usr/bin/google-chrome). Needs no database.
  */
 import { spawn } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";

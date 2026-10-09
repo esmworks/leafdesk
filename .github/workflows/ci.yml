@@ -92,6 +92,24 @@ jobs:
       - name: People directory and analytics end-to-end
         run: pnpm tsx scripts/people-e2e.ts
 
+      # Page mentions and [[Title]] links, the "Linked from" list and its unlinked mentions, the
+      # search box's filters and the workspace graph, all against the database.
+      - name: Mentions end-to-end
+        run: pnpm tsx scripts/mentions-e2e.ts
+
+      - name: Backlinks end-to-end
+        run: pnpm tsx scripts/backlinks-e2e.ts
+
+      - name: Search filters end-to-end
+        run: pnpm tsx scripts/search-e2e.ts
+
+      - name: Graph end-to-end
+        run: pnpm tsx scripts/graph-e2e.ts
+
+      # Uploads go to a temporary folder the script makes.
+      - name: Markdown and vault import end-to-end
+        run: pnpm tsx scripts/import-e2e.ts
+
       - name: Trash end-to-end
         run: pnpm tsx scripts/trash-e2e.ts
 
@@ -147,6 +165,16 @@ jobs:
       # it makes itself.
       - name: Push notifications end-to-end
         run: pnpm tsx scripts/push-e2e.ts
+
+      # The service worker in headless Chrome (preinstalled on the runner), against a stand-in server
+      # the script starts on 127.0.0.1. Ubuntu 24.04's AppArmor keeps Chrome's sandbox from making
+      # user namespaces unless that restriction is lifted.
+      - name: Service worker end-to-end
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          pnpm tsx scripts/sw-e2e.ts
 
       # The admin e2e's administrator, and new workspaces for administrators only (the other policy
       # is checked against the database).

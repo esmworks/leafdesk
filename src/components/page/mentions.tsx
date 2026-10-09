@@ -14,7 +14,14 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
-import { backlinksAction, linkMentionAction, mentionCandidatesAction, resolvePagesAction, unlinkedMentionsAction } from "@/app/actions/mentions";
+import {
+  backlinksAction,
+  linkMentionAction,
+  mentionCandidatesAction,
+  pagesNamedAction,
+  resolvePagesAction,
+  unlinkedMentionsAction,
+} from "@/app/actions/mentions";
 import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
 import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
@@ -35,6 +42,7 @@ import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import type { MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
+import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 
 /**
  * The editor's side of mentions and page links (configs shared with the server in lib/mentions):
@@ -593,7 +601,66 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
     };
   }, [query, load, suggestionMenu, editor, workspaceId]);
 
+  usePastedWikilinks(editor, workspaceId, pageId);
+
   return <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />;
+}
+
+type EditorBlock = PageEditor["document"][number];
+
+/** Blocks of the document in order, nested ones after their parent. */
+function flatBlocks(blocks: EditorBlock[], out: EditorBlock[] = []): EditorBlock[] {
+  for (const block of blocks) {
+    out.push(block);
+    flatBlocks(block.children as EditorBlock[], out);
+  }
+  return out;
+}
+
+/**
+ * Text pasted into the page: each `[[Title]]` in it naming a page becomes a mention of that page,
+ * as when it is typed (lib/wikilinks). The paste lands as usual; the pasted blocks (from where the
+ * cursor was to where it ends up) are linked once the titles are looked up, each read again then so
+ * that typing meanwhile isn't lost.
+ */
+function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: string) {
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const root = editor.domElement;
+      if (!root || !(event.target instanceof Node) || !root.contains(event.target)) return;
+      if (!/\[\[[^[\]\n]+\]\]/.test(event.clipboardData?.getData("text/plain") ?? "")) return;
+      const from = editor.getTextCursorPosition().block.id;
+      setTimeout(() => {
+        const to = editor.getTextCursorPosition().block.id;
+        const all = flatBlocks(editor.document);
+        const start = all.findIndex((b) => b.id === from);
+        const end = all.findIndex((b) => b.id === to);
+        const pasted = end === -1 ? [] : all.slice(start === -1 || start > end ? end : start, end + 1);
+        const ids = pasted.map((b) => b.id);
+        const titles = wikilinkTitles(pasted.map((b) => ({ ...b, children: [] })));
+        if (!titles.length) return;
+        void pagesNamedAction(pageId, titles)
+          .then((found) => {
+            const pages = new Map(found);
+            if (!pages.size) return;
+            for (const id of ids) {
+              const block = editor.getBlock(id);
+              if (!block) continue;
+              const copy = { type: block.type, content: structuredClone(block.content) };
+              if (!linkWikilinks([copy], (title) => pages.get(titleKey(title))?.id)) continue;
+              editor.updateBlock(id, { content: copy.content } as never);
+            }
+            for (const p of pages.values()) refs.set(p.id, { id: p.id, status: "ok", workspaceId, title: p.title, icon: p.icon, kind: p.kind });
+            void fetchRefs([...pages.values()].map((p) => p.id));
+          })
+          .catch(() => {
+            // Not looked up (offline): the titles stay as text.
+          });
+      });
+    };
+    document.addEventListener("paste", onPaste, true);
+    return () => document.removeEventListener("paste", onPaste, true);
+  }, [editor, workspaceId, pageId]);
 }
 
 // ---------------------------------------------------------------------------------------------

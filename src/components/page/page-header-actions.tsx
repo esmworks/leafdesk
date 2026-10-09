@@ -78,6 +78,7 @@ export function PageHeaderActions({
   onHistory,
   onComments,
   commentsOpen = false,
+  onGraph,
   onMoveToTrash,
   offline = false,
   style,
@@ -96,6 +97,8 @@ export function PageHeaderActions({
   /** Opens or closes the comments beside the page; pages without a body have none. */
   onComments?: () => void;
   commentsOpen?: boolean;
+  /** Opens or closes the graph of the page beside it. */
+  onGraph?: () => void;
   onMoveToTrash: () => void;
   /** The server can't be reached: sharing, comments, favorites and the page menu need it. */
   offline?: boolean;
@@ -244,6 +247,7 @@ export function PageHeaderActions({
         info={info}
         onInfo={setInfo}
         onHistory={onHistory}
+        onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
         offline={offline}
         style={style}
@@ -354,6 +358,7 @@ function PageMenu({
   info,
   onInfo,
   onHistory,
+  onGraph,
   onMoveToTrash,
   offline,
   style,
@@ -364,6 +369,7 @@ function PageMenu({
   info: PageHeaderInfo;
   onInfo: (info: PageHeaderInfo) => void;
   onHistory: () => void;
+  onGraph?: () => void;
   onMoveToTrash: () => void;
   offline: boolean;
   style?: PageStyle;
@@ -471,13 +477,14 @@ function PageMenu({
             >
               {t("copyLink")}
             </MenuItem>
-            {/* The page and the pages around it, in the workspace graph. */}
+            {/* The page and the pages around it: beside the page, else in the workspace graph. */}
             {!page.archived && !offline && (
               <MenuItem
                 icon={<Waypoints className="h-4 w-4" />}
                 onClick={() => {
                   close();
-                  router.push(`/w/${workspaceId}/graph?focus=${encodeURIComponent(page.id)}`);
+                  if (onGraph) onGraph();
+                  else router.push(`/w/${workspaceId}/graph?focus=${encodeURIComponent(page.id)}`);
                 }}
               >
                 {t("showInGraph")}

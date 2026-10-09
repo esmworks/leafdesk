@@ -145,14 +145,15 @@ versions, upgrades and running behind a domain.
   read along; full access also deletes other people's comments.
 - **Mentions and page links**: `@` mentions people, pages (with their live title, or "No access")
   and dates with optional reminders; `[[` links to a page, or to a new page inside this one with
-  the title typed, and `[[Title]]` typed out links to the page of that title; "Link to page"
+  the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
+  page of that title; "Link to page"
   blocks; a "Linked from" list of backlinks on
   every page, each with the text around its link, and below it the pages that write the page's
   title without linking to it, with a button that turns that text into a mention.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. Hover a page to see
   its neighbours, click it to open it, or focus on one page and the pages up to three steps from
-  it ("Show in graph" in a page's menu); switches hide the page tree, database rows and pages
+  it, also beside the page ("Show in graph" in a page's menu); switches hide the page tree, database rows and pages
   without connections.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a

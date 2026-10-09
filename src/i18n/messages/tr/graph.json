@@ -23,5 +23,13 @@
   "truncated": "En son düzenlenen {count} sayfa gösteriliyor.",
   "canvas": "Çalışma alanındaki sayfaların grafiği",
   "empty": "Gösterilecek sayfa yok.",
-  "focusMissing": "Bu sayfa grafikte yok: çöp kutusunda olabilir ya da sizinle paylaşılmamış olabilir."
+  "focusMissing": "Bu sayfa grafikte yok: çöp kutusunda olabilir ya da sizinle paylaşılmamış olabilir.",
+  "local": {
+    "title": "Bu sayfanın grafiği",
+    "close": "Grafiği kapat",
+    "openFull": "Tam grafikte aç",
+    "canvas": "Bu sayfanın çevresindeki sayfaların grafiği",
+    "empty": "Bu sayfaya bağlı sayfa henüz yok.",
+    "failed": "Grafik yüklenemedi."
+  }
 }

@@ -3,7 +3,7 @@
 import { RotateCw, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type Sigma from "sigma";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { cn, IconButton, pageLabel, PageIcon, Switch } from "@/components/ui";
@@ -78,42 +78,21 @@ function drawLabels(context: CanvasRenderingContext2D, labels: Label[], font: st
 }
 
 /**
- * The workspace graph: pages, databases and rows the viewer can open, joined by links, relations
- * and the page tree (lib/graph). Drawn with WebGL; the layout runs in a worker. Pointing at a page
- * shows its neighbours, clicking opens it.
+ * Draws `shown` into `container` with WebGL, laid out in a worker, `focus` labelled; pointing at a
+ * page shows its neighbours, clicking opens it. Drawn again when what is shown or the color scheme
+ * changes, from where the pages were.
  */
-export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: WorkspaceGraph }) {
-  const t = useTranslations("graph");
+export function useGraphCanvas(
+  container: RefObject<HTMLDivElement | null>,
+  shown: Pick<WorkspaceGraph, "nodes" | "edges">,
+  focus: string | null,
+  workspaceId: string,
+) {
   const tc = useTranslations("common");
   const router = useRouter();
   const scheme = useColorScheme();
-  // The focus lives in the address (`?focus=`), so a link, a reload and the sidebar's link to the
-  // whole graph all show what the address says.
-  const focusParam = useSearchParams().get("focus");
-  const [choices, setChoices] = useState<Omit<GraphFilter, "focus">>(DEFAULT_FILTER);
-  const filter = useMemo<GraphFilter>(() => ({ ...choices, focus: focusParam }), [choices, focusParam]);
-  const [query, setQuery] = useState("");
-  const container = useRef<HTMLDivElement>(null);
   // Where pages were when the graph was last drawn, so changing a filter doesn't start over.
   const positions = useRef(new Map<string, { x: number; y: number }>());
-  const shown = useMemo(() => filterGraph(graph, filter), [graph, filter]);
-  const byId = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n])), [graph]);
-  const focused = filter.focus ? byId.get(filter.focus) : undefined;
-
-  const matches = useMemo(() => {
-    const q = searchFold(query.trim());
-    if (!q) return [];
-    return graph.nodes.filter((n) => searchFold(pageLabel(n.title, tc("untitled"))).includes(q)).slice(0, 8);
-  }, [graph, query, tc]);
-
-  function setFocus(id: string | null) {
-    setQuery("");
-    // Without loading the page again (the router follows history.replaceState).
-    const url = new URL(window.location.href);
-    if (id) url.searchParams.set("focus", id);
-    else url.searchParams.delete("focus");
-    window.history.replaceState(null, "", url);
-  }
 
   useEffect(() => {
     const element = container.current;
@@ -129,6 +108,8 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
       const [{ default: Graph }, { default: SigmaRenderer }, { default: Layout }, { default: forceAtlas2 }] = await Promise.all([
         import("graphology"),
         import("sigma"),
+        // Runs the layout in a Worker made from a blob: URL. There is no Content-Security-Policy on
+        // pages yet; if one is added, its `worker-src` must allow `blob:`.
         import("graphology-layout-forceatlas2/worker"),
         import("graphology-layout-forceatlas2"),
       ]);
@@ -143,7 +124,7 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
           size: nodeSize(n.kind, degree.get(n.id) ?? 0),
           label: pageLabel(n.title, tc("untitled")),
           color: colors[n.kind],
-          forceLabel: n.id === filter.focus,
+          forceLabel: n.id === focus,
         });
       }
       for (const e of shown.edges) g.addEdge(e.source, e.target, { color: colors[e.kind], size: e.kind === "child" ? 0.8 : 1.2 });
@@ -236,7 +217,45 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
       drawn?.forEachNode((id, attrs) => saved.set(id, { x: attrs.x as number, y: attrs.y as number }));
       renderer?.kill();
     };
-  }, [shown, scheme, filter.focus, workspaceId, router, tc]);
+  }, [container, shown, scheme, focus, workspaceId, router, tc]);
+}
+
+/**
+ * The workspace graph: pages, databases and rows the viewer can open, joined by links, relations
+ * and the page tree (lib/graph). Drawn with WebGL; the layout runs in a worker. Pointing at a page
+ * shows its neighbours, clicking opens it.
+ */
+export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: WorkspaceGraph }) {
+  const t = useTranslations("graph");
+  const tc = useTranslations("common");
+  const router = useRouter();
+  // The focus lives in the address (`?focus=`), so a link, a reload and the sidebar's link to the
+  // whole graph all show what the address says.
+  const focusParam = useSearchParams().get("focus");
+  const [choices, setChoices] = useState<Omit<GraphFilter, "focus">>(DEFAULT_FILTER);
+  const filter = useMemo<GraphFilter>(() => ({ ...choices, focus: focusParam }), [choices, focusParam]);
+  const [query, setQuery] = useState("");
+  const container = useRef<HTMLDivElement>(null);
+  const shown = useMemo(() => filterGraph(graph, filter), [graph, filter]);
+  const byId = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n])), [graph]);
+  const focused = filter.focus ? byId.get(filter.focus) : undefined;
+
+  const matches = useMemo(() => {
+    const q = searchFold(query.trim());
+    if (!q) return [];
+    return graph.nodes.filter((n) => searchFold(pageLabel(n.title, tc("untitled"))).includes(q)).slice(0, 8);
+  }, [graph, query, tc]);
+
+  function setFocus(id: string | null) {
+    setQuery("");
+    // Without loading the page again (the router follows history.replaceState).
+    const url = new URL(window.location.href);
+    if (id) url.searchParams.set("focus", id);
+    else url.searchParams.delete("focus");
+    window.history.replaceState(null, "", url);
+  }
+
+  useGraphCanvas(container, shown, filter.focus, workspaceId);
 
   const toggle = (key: "tree" | "rows" | "orphans") => (checked: boolean) => setChoices((f) => ({ ...f, [key]: checked }));
 

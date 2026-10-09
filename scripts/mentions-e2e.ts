@@ -167,6 +167,29 @@ try {
   );
   check(stored.includes(`@${ids.editor}`) && stored.includes("@2026-10-01") && stored.includes("<!-- leafdesk:page-link -->"), "…and writes people, dates and page links", stored);
 
+  // [[Title]] written out links to the page of that title the writer can see
+  const wiki = await createPage(owner, { workspaceId, title: "Wiki notes" });
+  await getCollab().replaceContent(wiki.id, "See [[roadmap]], [[Secret layoffs]], `[[Roadmap]]`, [[Wiki notes]] and [[Nowhere]].", {
+    userId: ids.editor,
+  });
+  const wikiText = (await getCollab().readPage(wiki.id)).text;
+  check(
+    (await mentionsOf(wiki.id)).map((m) => m.pageId).join() === target.id &&
+      ["[[Secret layoffs]]", "[[Roadmap]]", "[[Wiki notes]]", "[[Nowhere]]"].every((t) => wikiText.includes(t)) &&
+      !wikiText.includes("[[roadmap]]"),
+    "[[Title]] in written Markdown links the page, not one the writer can't see, the page itself, code or no page",
+    { mentions: await mentionsOf(wiki.id), wikiText },
+  );
+  await getCollab().appendContent(wiki.id, "Also [[Secret layoffs]].", owner);
+  check(
+    (await mentionsOf(wiki.id)).map((m) => m.pageId).join() === [target.id, secret.id].join() &&
+      (await getCollab().readPage(wiki.id)).text.includes("[[Secret layoffs]]"),
+    "…appended Markdown too, for a writer who sees the page (what was there before stays)",
+    await mentionsOf(wiki.id),
+  );
+  // Out of the way of the backlink counts below.
+  await archivePage(ids.owner, wiki.id);
+
   // Backlinks
   const links = await db.select().from(pageLink).where(eq(pageLink.sourceId, plan.id));
   check(links.map((l) => l.targetId).sort().join() === [target.id, secret.id, gone.id].sort().join(), "saving the page records its links once each", links);

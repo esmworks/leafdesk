@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
 import { blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
+import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
 import { AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
@@ -21,7 +22,7 @@ import { AccessError, policyHoldFor, WorkspacePolicyError } from "@/server/acces
 import { collabSessionFacts } from "@/server/account-security";
 import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/server/blocknote";
-import { mentionablePeople, syncPageReferences } from "@/server/mentions";
+import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { authorizeCollab, parseDocName as parseName } from "./authorize";
@@ -395,6 +396,16 @@ export function createCollab() {
     });
   };
 
+  /** Blocks written as Markdown, with `[[Title]]` linked to the pages the writer can see (lib/wikilinks). */
+  const linkWritten = async <T extends unknown[]>(pageId: string, actor: WriteActor, blocks: T): Promise<T> => {
+    const titles = wikilinkTitles(blocks);
+    if (titles.length) {
+      const pages = await pagesNamed(actor.userId, pageId, titles);
+      linkWikilinks(blocks, (title) => pages.get(titleKey(title))?.id);
+    }
+    return blocks;
+  };
+
   const service: CollabService = {
     async readPage(pageId): Promise<PageContent> {
       const live = hocuspocus.documents.get(pageDocName(pageId));
@@ -485,7 +496,12 @@ export function createCollab() {
 
     async replaceContent(pageId, markdown, actor, snapshot = false) {
       // Database blocks the Markdown names keep their settings; inline databases it leaves out stay.
-      await writeBlocks(pageId, actor, async (existing, mentions) => markdownToBlocks(markdown, existing, mentions), snapshot);
+      await writeBlocks(
+        pageId,
+        actor,
+        async (existing, mentions) => linkWritten(pageId, actor, await markdownToBlocks(markdown, existing, mentions)),
+        snapshot,
+      );
     },
 
     async appendContent(pageId, markdown, actor, snapshot = false) {
@@ -494,7 +510,11 @@ export function createCollab() {
         actor,
         async (existing, mentions) => [
           ...withoutTrailingEmpty(existing),
-          ...(await markdownToBlocks(markdown, existing, { ...mentions, keepMissingInline: false, carryOver: false })),
+          ...(await linkWritten(
+            pageId,
+            actor,
+            await markdownToBlocks(markdown, existing, { ...mentions, keepMissingInline: false, carryOver: false }),
+          )),
         ],
         snapshot,
       );

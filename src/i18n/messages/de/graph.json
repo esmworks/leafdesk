@@ -23,5 +23,13 @@
   "truncated": "Die {count} zuletzt bearbeiteten Seiten werden angezeigt.",
   "canvas": "Graph der Seiten des Arbeitsbereichs",
   "empty": "Keine Seiten anzuzeigen.",
-  "focusMissing": "Diese Seite ist nicht im Graphen: Sie liegt vielleicht im Papierkorb oder wurde nicht mit Ihnen geteilt."
+  "focusMissing": "Diese Seite ist nicht im Graphen: Sie liegt vielleicht im Papierkorb oder wurde nicht mit Ihnen geteilt.",
+  "local": {
+    "title": "Graph dieser Seite",
+    "close": "Graph schließen",
+    "openFull": "Im ganzen Graphen öffnen",
+    "canvas": "Graph der Seiten um diese Seite",
+    "empty": "Mit dieser Seite ist noch keine Seite verbunden.",
+    "failed": "Der Graph konnte nicht geladen werden."
+  }
 }

@@ -23,5 +23,13 @@
   "truncated": "Les {count} pages modifiées le plus récemment sont affichées.",
   "canvas": "Graphe des pages de l'espace de travail",
   "empty": "Aucune page à afficher.",
-  "focusMissing": "Cette page n'est pas dans le graphe : elle est peut-être dans la corbeille, ou n'est pas partagée avec vous."
+  "focusMissing": "Cette page n'est pas dans le graphe : elle est peut-être dans la corbeille, ou n'est pas partagée avec vous.",
+  "local": {
+    "title": "Graphe de cette page",
+    "close": "Fermer le graphe",
+    "openFull": "Ouvrir dans le graphe complet",
+    "canvas": "Graphe des pages autour de cette page",
+    "empty": "Aucune page n’est encore reliée à celle-ci.",
+    "failed": "Impossible de charger le graphe."
+  }
 }

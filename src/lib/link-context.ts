@@ -134,28 +134,11 @@ type InlineNode = { type?: string; text?: string; styles?: { code?: unknown }; c
 type EditableBlock = { type?: string; content?: unknown; children?: EditableBlock[] };
 
 /**
- * Turns the first place `title` is written in plain text (document order; not in code blocks,
- * inline code, links or across differently styled runs) into a mention of `pageId`. Changes `blocks` in place; false
- * when the title isn't there.
+ * Calls `visit` with each list of inline content of `blocks` in document order (paragraphs, table
+ * cells, nested blocks; not code blocks), until it returns true. True when one did.
  */
-export function linkTitle(blocks: unknown[], title: string, pageId: string): boolean {
-  const inline = (nodes: unknown): boolean => {
-    if (!Array.isArray(nodes)) return false;
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i] as InlineNode | null;
-      // Inline code is code, like a code block.
-      if (node?.type !== "text" || typeof node.text !== "string" || node.styles?.code) continue;
-      const found = findTitle(node.text, title);
-      if (!found) continue;
-      const pieces: unknown[] = [];
-      if (found.start > 0) pieces.push({ ...node, text: node.text.slice(0, found.start) });
-      pieces.push({ type: MENTION, props: { ...EMPTY_MENTION, kind: "page", pageId } });
-      if (found.end < node.text.length) pieces.push({ ...node, text: node.text.slice(found.end) });
-      nodes.splice(i, 1, ...pieces);
-      return true;
-    }
-    return false;
-  };
+export function someInlineContent(blocks: unknown[], visit: (nodes: unknown[]) => boolean): boolean {
+  const inline = (nodes: unknown) => Array.isArray(nodes) && visit(nodes);
   const walk = (list: EditableBlock[]): boolean => {
     for (const block of list) {
       if (block.type !== "codeBlock") {
@@ -175,4 +158,31 @@ export function linkTitle(blocks: unknown[], title: string, pageId: string): boo
     return false;
   };
   return walk(blocks as EditableBlock[]);
+}
+
+/** A plain text node: not a mention or link, and not inline code (code, like a code block). */
+export const isPlainText = (node: unknown): node is InlineNode & { text: string } =>
+  (node as InlineNode | null)?.type === "text" && typeof (node as InlineNode).text === "string" && !(node as InlineNode).styles?.code;
+
+/**
+ * Turns the first place `title` is written in plain text (document order; not in code blocks,
+ * inline code, links or across differently styled runs) into a mention of `pageId`. Changes `blocks` in place; false
+ * when the title isn't there.
+ */
+export function linkTitle(blocks: unknown[], title: string, pageId: string): boolean {
+  return someInlineContent(blocks, (nodes) => {
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (!isPlainText(node)) continue;
+      const found = findTitle(node.text, title);
+      if (!found) continue;
+      const pieces: unknown[] = [];
+      if (found.start > 0) pieces.push({ ...node, text: node.text.slice(0, found.start) });
+      pieces.push({ type: MENTION, props: { ...EMPTY_MENTION, kind: "page", pageId } });
+      if (found.end < node.text.length) pieces.push({ ...node, text: node.text.slice(found.end) });
+      nodes.splice(i, 1, ...pieces);
+      return true;
+    }
+    return false;
+  });
 }

@@ -23,7 +23,8 @@
 - **`[[` links to a page.** Typing `[[` in a page opens a menu of the pages one can open, searched
   by title as typed; below them, "New page" creates a page inside the current one with that title
   and links to it. Typing `[[Title]]` out links to the page of that title when there is one and
-  leaves the text as it is when there isn't. The links are the same page mentions `@` makes, so
+  leaves the text as it is when there isn't; so does pasting text with `[[Title]]` in it, and
+  Markdown written through MCP or the API (to pages the writer can open, never in code). The links are the same page mentions `@` makes, so
   they show under "Linked from" and in the graph. The `@` and `[[` menus now find titles with the
   dotted and dotless i whichever way they are typed ("ışık" finds "Işık"). No migration.
 - **Graph.** A new page (the graph icon beside Home in the sidebar, or `>` in the search box)
@@ -31,11 +32,12 @@
   relations (a two-way one drawn once) and the page tree, and lays them out as they connect. Only
   pages the viewer can open are drawn, and no edge leads to one they can't; a relation counts only
   where they may see that property. Hovering a page brings out its neighbours, clicking it opens
-  it, and the box at the top focuses on one page and the pages one to three steps away ("Show in
-  graph" in a page's menu opens it focused there). Switches hide the page tree, rows and pages
-  without connections. Pages and databases are named from the start, rows once you zoom in; a
-  name that would cover another is left out until there is room. Past 3,000 pages the ones edited longest ago are left out. Drawn with
-  `sigma` and `graphology` (new dependencies). No migration.
+  it, and the box at the top focuses on one page and the pages one to three steps away. "Show in
+  graph" in a page's menu opens that view of the page beside it, loaded again as pages change,
+  with the full graph a click away. Switches hide the page tree, rows and pages without
+  connections. Pages and databases are named from the start, rows once you zoom in; a name that
+  would cover another is left out until there is room. Past 3,000 pages the ones edited longest
+  ago are left out. Drawn with `sigma` and `graphology` (new dependencies). No migration.
 - **Context and unlinked mentions under "Linked from".** Each page in a page's "Linked from" list
   shows the text around its link, with the page's live title in place of the link (other pages'
   titles stay out of it). Below the list, folded away, are the pages that write the page's title

@@ -39,6 +39,8 @@ import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } f
 
 // BlockNote touches `window` during setup; render it only in the browser.
 const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
+// Loaded when it opens: the graph brings its renderer.
+const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -89,6 +91,8 @@ export function PageView({
   const [background, setBackground] = useState(page.background);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  // The graph and the comments share the room beside the page: opening one closes the other.
+  const [graphOpen, setGraphOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const canEdit = hasLevel(info.level, "edit");
@@ -342,7 +346,18 @@ export function PageView({
               viewers={connection === "live" ? viewers : []}
               onHistory={() => setHistoryOpen(true)}
               commentsOpen={commentsOpen}
-              onComments={showBody ? () => setCommentsOpen((open) => !open) : undefined}
+              onComments={
+                showBody
+                  ? () => {
+                      setGraphOpen(false);
+                      setCommentsOpen((open) => !open);
+                    }
+                  : undefined
+              }
+              onGraph={() => {
+                setCommentsOpen(false);
+                setGraphOpen((open) => !open);
+              }}
               onMoveToTrash={moveToTrash}
               offline={offline}
               style={showBody ? pageStyle : undefined}
@@ -386,7 +401,7 @@ export function PageView({
             "w-full flex-1 pb-32",
             wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
             !wide && "pt-8 md:pt-12",
-            !wide && commentsOpen && !offline && "page-beside-panel",
+            !wide && (commentsOpen || graphOpen) && !offline && "page-beside-panel",
             showBody && pageTextClasses(pageStyle),
           )}
         >
@@ -467,6 +482,9 @@ export function PageView({
           <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} />
         </div>
 
+        {graphOpen && !offline && !page.archived && (
+          <LocalGraphPanel workspaceId={workspaceId} pageId={page.id} onClose={() => setGraphOpen(false)} />
+        )}
         {historyOpen && (
           <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit || locked} onClose={() => setHistoryOpen(false)} />
         )}

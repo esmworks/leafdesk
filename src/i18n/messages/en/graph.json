@@ -23,5 +23,13 @@
   "truncated": "Showing the {count} pages edited most recently.",
   "canvas": "Graph of the workspace's pages",
   "empty": "No pages to show.",
-  "focusMissing": "That page isn't in the graph: it may be in the trash, or not shared with you."
+  "focusMissing": "That page isn't in the graph: it may be in the trash, or not shared with you.",
+  "local": {
+    "title": "Graph of this page",
+    "close": "Close graph",
+    "openFull": "Open in the full graph",
+    "canvas": "Graph of the pages around this page",
+    "empty": "No pages are connected to this one yet.",
+    "failed": "Couldn't load the graph."
+  }
 }

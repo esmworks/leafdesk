@@ -1,6 +1,6 @@
 "use server";
 
-import { AccessError } from "@/server/access";
+import { AccessError, requirePageAccess } from "@/server/access";
 import * as mentions from "@/server/mentions";
 import { requireUserId } from "@/server/session";
 
@@ -11,6 +11,22 @@ export async function mentionCandidatesAction(pageId: string, query: string): Pr
     return await mentions.mentionCandidates(userId, pageId, query);
   } catch (error) {
     if (error instanceof AccessError) return { people: [], pages: [] };
+    throw error;
+  }
+}
+
+/**
+ * The pages `[[Title]]` pasted into a page names (server/mentions pagesNamed), as [title key, page]
+ * pairs. Only for someone who may edit the page.
+ */
+export async function pagesNamedAction(pageId: string, titles: string[]): Promise<[string, mentions.PageCandidate][]> {
+  const userId = await requireUserId();
+  if (!Array.isArray(titles) || titles.some((t) => typeof t !== "string")) return [];
+  try {
+    await requirePageAccess(userId, pageId, "edit");
+    return [...(await mentions.pagesNamed(userId, pageId, titles))];
+  } catch (error) {
+    if (error instanceof AccessError) return [];
     throw error;
   }
 }

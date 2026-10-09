@@ -4,6 +4,7 @@ import { page, pageLink, pageMention, pagePublication, pageReminder, user, type 
 import { findTitle, excerpt, linkContexts, linkTitle, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
 import { bodyReferences } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
+import { titleKey } from "@/lib/wikilinks";
 import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { searchFoldSql } from "@/server/search-fold-sql";
@@ -441,9 +442,11 @@ export async function linkUnlinkedMention(userId: string, sourceId: string, targ
   return true;
 }
 
+export type PageCandidate = { id: string; title: string; icon: string | null; kind: PageKind };
+
 export type MentionCandidates = {
   people: { id: string; name: string; image: string | null }[];
-  pages: { id: string; title: string; icon: string | null; kind: PageKind }[];
+  pages: PageCandidate[];
 };
 
 /**
@@ -481,6 +484,38 @@ export async function mentionCandidates(userId: string, pageId: string, query: s
     .orderBy(q ? sql`position(${q} in ${title})` : desc(page.updatedAt), desc(page.updatedAt))
     .limit(q ? 8 : 5);
   return { people, pages };
+}
+
+/**
+ * The pages `[[Title]]` written into a page names (lib/wikilinks), keyed by titleKey: for each of
+ * `titles`, the page of that title the user can see in the page's workspace (not the page itself,
+ * the trash or templates), the last edited where several share it.
+ */
+export async function pagesNamed(userId: string, pageId: string, titles: string[]): Promise<Map<string, PageCandidate>> {
+  const found = new Map<string, PageCandidate>();
+  const wanted = [...new Set(titles.map(titleKey).filter(Boolean))].slice(0, 200);
+  if (!wanted.length) return found;
+  const [source] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId)).limit(1);
+  if (!source) return found;
+  const rows = await db
+    .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
+    .from(page)
+    .where(
+      and(
+        eq(page.workspaceId, source.workspaceId),
+        isNull(page.archivedAt),
+        eq(page.inTemplate, false),
+        ne(page.id, pageId),
+        pageVisibleTo(userId),
+        sql`${searchFoldSql(sql`trim(normalize(${page.title}, NFC))`)} in (${sql.join(
+          wanted.map((t) => sql`${t}`),
+          sql`, `,
+        )})`,
+      ),
+    )
+    .orderBy(desc(page.updatedAt));
+  for (const row of rows) if (!found.has(titleKey(row.title))) found.set(titleKey(row.title), row);
+  return found;
 }
 
 /** People Markdown written into a page may mention by name: everyone in its workspace. */
