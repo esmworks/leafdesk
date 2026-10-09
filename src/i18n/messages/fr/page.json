@@ -328,6 +328,7 @@
       "sourcePlaceholder": "graph TD\n  A --> B",
       "loading": "Dessin du diagramme…",
       "error": "Le diagramme contient une erreur",
+      "syntaxError": "Erreur de syntaxe",
       "label": "Diagramme"
     },
     "toc": {

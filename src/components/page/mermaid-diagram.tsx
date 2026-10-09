@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/theme/theme-provider";
 
@@ -25,11 +26,12 @@ let counter = 0;
 const FONT = 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
 export type MermaidImage = { src: string; width: number; height: number };
+/** `error` is Mermaid's own message; empty when it gave none. */
 export type MermaidResult = { ok: true; image: MermaidImage } | { ok: false; error: string };
 
 function message(error: unknown) {
   const text = error instanceof Error ? error.message : typeof error === "string" ? error : "";
-  return text.trim() || "Syntax error";
+  return text.trim();
 }
 
 /** The SVG as a standalone image: well-formed XML (Mermaid writes HTML) with its own size. */
@@ -64,7 +66,7 @@ export function renderMermaid(source: string, dark: boolean): Promise<MermaidRes
     try {
       const { svg } = await mermaid.render(id, source);
       const image = toImage(svg);
-      return image ? { ok: true, image } : { ok: false, error: "Syntax error" };
+      return image ? { ok: true, image } : { ok: false, error: "" };
     } catch (error) {
       return { ok: false, error: message(error) };
     } finally {
@@ -83,6 +85,7 @@ export function renderMermaid(source: string, dark: boolean): Promise<MermaidRes
  * source. `light` draws it in the light theme whatever the system's is (print).
  */
 export function useMermaid(source: string, { light = false }: { light?: boolean } = {}) {
+  const t = useTranslations("page.blocks.mermaid");
   const dark = useColorScheme() === "dark" && !light;
   const [state, setState] = useState<{ image: MermaidImage | null; error: string | null; pending: boolean }>({
     image: null,
@@ -110,7 +113,7 @@ export function useMermaid(source: string, { light = false }: { light?: boolean 
       clearTimeout(timer);
     };
   }, [source, dark]);
-  return state;
+  return { ...state, error: state.error === null ? null : state.error || t("syntaxError") };
 }
 
 export function MermaidImageView({ image, label }: { image: MermaidImage; label: string }) {

@@ -328,6 +328,7 @@
       "sourcePlaceholder": "graph TD\n  A --> B",
       "loading": "Diyagram çiziliyor…",
       "error": "Diyagramda bir hata var",
+      "syntaxError": "Sözdizimi hatası",
       "label": "Diyagram"
     },
     "toc": {
