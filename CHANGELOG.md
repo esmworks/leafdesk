@@ -33,7 +33,8 @@
   where they may see that property. Hovering a page brings out its neighbours, clicking it opens
   it, and the box at the top focuses on one page and the pages one to three steps away ("Show in
   graph" in a page's menu opens it focused there). Switches hide the page tree, rows and pages
-  without connections. Past 3,000 pages the ones edited longest ago are left out. Drawn with
+  without connections. Pages and databases are named from the start, rows once you zoom in; a
+  name that would cover another is left out until there is room. Past 3,000 pages the ones edited longest ago are left out. Drawn with
   `sigma` and `graphology` (new dependencies). No migration.
 - **Context and unlinked mentions under "Linked from".** Each page in a page's "Linked from" list
   shows the text around its link, with the page's live title in place of the link (other pages'

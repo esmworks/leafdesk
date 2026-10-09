@@ -44,6 +44,40 @@ function startPosition(id: string) {
 const layoutMs = (order: number) => Math.min(8000, 1500 + order * 4);
 
 /**
+ * Rows are all one size, so their labels all appear at the same zoom; pages and databases are
+ * bigger, and grow with their edges.
+ */
+const nodeSize = (kind: GraphNodeKind, degree: number) => (kind === "row" ? 4.5 : 6 + Math.sqrt(degree) * 2.2);
+
+/** Below this size on screen a node has no label (unless it's focused or pointed at): rows until zoomed in. */
+const LABEL_THRESHOLD = 6;
+
+type Label = { label: string; x: number; y: number; size: number; forceLabel?: boolean };
+
+/**
+ * Draws the labels of one frame, the most important first (forced ones, then bigger pages), and
+ * leaves out each label that would cover one already drawn. A halo in the background color keeps
+ * edges and pages behind a label from crossing its text.
+ */
+function drawLabels(context: CanvasRenderingContext2D, labels: Label[], font: string, colors: Colors) {
+  labels.sort((a, b) => Number(!!b.forceLabel) - Number(!!a.forceLabel) || b.size - a.size);
+  const taken: { left: number; top: number; right: number; bottom: number }[] = [];
+  context.font = font;
+  context.lineWidth = 3;
+  context.lineJoin = "round";
+  context.strokeStyle = colors.bg;
+  context.fillStyle = colors.fg;
+  for (const { label, x, y, size } of labels) {
+    const left = x + size + 3;
+    const box = { left: left - 2, top: y - 9, right: left + context.measureText(label).width + 2, bottom: y + 9 };
+    if (taken.some((t) => box.left < t.right && box.right > t.left && box.top < t.bottom && box.bottom > t.top)) continue;
+    taken.push(box);
+    context.strokeText(label, left, y + 4);
+    context.fillText(label, left, y + 4);
+  }
+}
+
+/**
  * The workspace graph: pages, databases and rows the viewer can open, joined by links, relations
  * and the page tree (lib/graph). Drawn with WebGL; the layout runs in a worker. Pointing at a page
  * shows its neighbours, clicking opens it.
@@ -106,22 +140,30 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
         const at = saved.get(n.id) ?? startPosition(n.id);
         g.addNode(n.id, {
           ...at,
-          size: 3 + Math.sqrt(degree.get(n.id) ?? 0) * 2.2,
+          size: nodeSize(n.kind, degree.get(n.id) ?? 0),
           label: pageLabel(n.title, tc("untitled")),
           color: colors[n.kind],
           forceLabel: n.id === filter.focus,
         });
       }
-      for (const e of shown.edges) g.addEdge(e.source, e.target, { color: colors[e.kind], size: e.kind === "child" ? 1 : 1.4 });
+      for (const e of shown.edges) g.addEdge(e.source, e.target, { color: colors[e.kind], size: e.kind === "child" ? 0.8 : 1.2 });
       drawn = g;
 
       let hovered: string | null = null;
       const near = new Set<string>();
+      // Sigma hands over the labels it would draw; drawLabels draws them once the frame is done.
+      let labels: Label[] = [];
+      const labelFont = getComputedStyle(document.body).fontFamily;
       renderer = new SigmaRenderer(g, element, {
-        labelFont: getComputedStyle(document.body).fontFamily,
+        labelFont,
         labelSize: 12,
         labelColor: { color: colors.fg },
-        labelRenderedSizeThreshold: 5,
+        labelRenderedSizeThreshold: LABEL_THRESHOLD,
+        // Every candidate reaches drawLabels, which decides by room on screen.
+        labelDensity: 10,
+        defaultDrawNodeLabel: (_, data) => {
+          if (data.label) labels.push({ label: data.label, x: data.x, y: data.y, size: data.size, forceLabel: data.forceLabel });
+        },
         zIndex: true,
         // Room for the labels drawn to the right of the pages nearest the edge.
         stagePadding: 60,
@@ -150,8 +192,17 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
         edgeReducer: (edge, data) => {
           if (!hovered) return data;
           const [a, b] = g.extremities(edge);
-          return a === hovered || b === hovered ? { ...data, size: 1.6, zIndex: 1 } : { ...data, color: colors.faded, zIndex: 0 };
+          return a === hovered || b === hovered
+            ? { ...data, color: g.getNodeAttribute(hovered, "color") as string, size: 1.6, zIndex: 1 }
+            : { ...data, color: colors.faded, zIndex: 0 };
         },
+      });
+      const labelContext = renderer.getCanvases().labels.getContext("2d");
+      renderer.on("beforeRender", () => {
+        labels = [];
+      });
+      renderer.on("afterRender", () => {
+        if (labelContext) drawLabels(labelContext, labels, `12px ${labelFont}`, colors);
       });
       renderer.on("enterNode", ({ node }) => {
         hovered = node;

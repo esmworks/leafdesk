@@ -52,10 +52,10 @@
   --graph-page: #7c7f88;
   --graph-database: #2f7d4f;
   --graph-row: #3f72b8;
-  --graph-link: #a4a6ad;
-  --graph-relation: #9fb9de;
-  --graph-child: #d3d5d9;
-  --graph-faded: #e4e4e7;
+  --graph-link: #9a9ca3;
+  --graph-relation: #d4a65f;
+  --graph-child: #e1e2e5;
+  --graph-faded: #eeeef0;
 }
 
 /* The print view (app/print) stays light in dark mode: see the end of this file. */
@@ -88,10 +88,10 @@
     --graph-page: #a1a3aa;
     --graph-database: #6cc38a;
     --graph-row: #7ea8e0;
-    --graph-link: #6c6e75;
-    --graph-relation: #4b6688;
-    --graph-child: #4a4c52;
-    --graph-faded: #2f3034;
+    --graph-link: #74767e;
+    --graph-relation: #9a7540;
+    --graph-child: #323438;
+    --graph-faded: #252629;
   }
 }
 
