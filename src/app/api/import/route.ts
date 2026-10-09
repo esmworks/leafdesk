@@ -17,6 +17,7 @@ import { TeamspaceError } from "@/server/teamspaces";
  *
  *   mode=pages      Markdown and CSV files, and ZIPs of them, as pages under `parentId` (or the top
  *                   level of `workspaceId`). Each `file` may have a `path` (its place in a folder).
+ *                   `vault=1`: the files are an Obsidian vault whose `.obsidian` folder wasn't sent.
  *   mode=csv-new    One CSV or Excel (.xlsx) `file` as a new database under `parentId` /
  *                   `workspaceId`, called `title`, with `titleColumn` (a column index, or empty for
  *                   none) and `types` (JSON: a property type or null per column; guessed when missing).
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
       const files = await Promise.all(
         uploads.map(async (f, i) => ({ path: paths[i] || f.name, data: new Uint8Array(await f.arrayBuffer()) })),
       );
-      result = await importPages(actor, { workspaceId, parentId, teamspaceId, files, seedNames: await seedNames() });
+      result = await importPages(actor, { workspaceId, parentId, teamspaceId, files, seedNames: await seedNames(), vault: field("vault") === "1" });
     } else if (mode === "csv-new" || mode === "csv-merge") {
       if (uploads.length !== 1) return fail(400, "badRequest", "Send one CSV file");
       const warnings = new WarningList();

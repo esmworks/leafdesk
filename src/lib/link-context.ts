@@ -53,23 +53,26 @@ export function excerpt(text: string, start: number, end: number): Excerpt {
   };
 }
 
+/** A character with the combining marks after it (or marks with nothing before them). */
+const CLUSTER = /\P{M}\p{M}*|\p{M}+/gu;
+
 /**
  * Where `title` first appears in `text` as whole words, compared the way pickers compare (case and
- * the Turkish dotted and dotless i aside, lib/search-fold). Null when it doesn't, or when the title
- * is too short to look for.
+ * the Turkish dotted and dotless i aside, lib/search-fold), whether letters are written composed
+ * or with combining marks (NFC or NFD). Null when it doesn't, or when the title is too short to
+ * look for.
  */
 export function findTitle(text: string, title: string): { start: number; end: number } | null {
   const wanted = searchFold(title.normalize("NFC").trim());
   if ([...wanted].length < MIN_MENTION_TITLE) return null;
-  // Folded text, and for each of its characters the index in `text` it came from.
+  // Folded text, and for each of its characters the index in `text` its character (with its marks)
+  // starts at.
   let folded = "";
   const from: number[] = [];
-  for (let i = 0; i < text.length; ) {
-    const char = String.fromCodePoint(text.codePointAt(i)!);
-    const fold = searchFold(char);
-    for (let k = 0; k < fold.length; k++) from.push(i);
+  for (const { 0: cluster, index } of text.matchAll(CLUSTER)) {
+    const fold = searchFold(cluster.normalize("NFC"));
+    for (let k = 0; k < fold.length; k++) from.push(index);
     folded += fold;
-    i += char.length;
   }
   from.push(text.length);
   const edgeIsWord = (char: string | undefined) => char !== undefined && WORD.test(char);
@@ -127,12 +130,12 @@ export function linkContexts(blocks: unknown[]): Map<string, string> {
   return out;
 }
 
-type InlineNode = { type?: string; text?: string; styles?: unknown; content?: unknown };
+type InlineNode = { type?: string; text?: string; styles?: { code?: unknown }; content?: unknown };
 type EditableBlock = { type?: string; content?: unknown; children?: EditableBlock[] };
 
 /**
- * Turns the first place `title` is written in plain text (document order; not in code blocks, links
- * or across differently styled runs) into a mention of `pageId`. Changes `blocks` in place; false
+ * Turns the first place `title` is written in plain text (document order; not in code blocks,
+ * inline code, links or across differently styled runs) into a mention of `pageId`. Changes `blocks` in place; false
  * when the title isn't there.
  */
 export function linkTitle(blocks: unknown[], title: string, pageId: string): boolean {
@@ -140,7 +143,8 @@ export function linkTitle(blocks: unknown[], title: string, pageId: string): boo
     if (!Array.isArray(nodes)) return false;
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i] as InlineNode | null;
-      if (node?.type !== "text" || typeof node.text !== "string") continue;
+      // Inline code is code, like a code block.
+      if (node?.type !== "text" || typeof node.text !== "string" || node.styles?.code) continue;
       const found = findTitle(node.text, title);
       if (!found) continue;
       const pieces: unknown[] = [];

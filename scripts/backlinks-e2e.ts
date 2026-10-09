@@ -175,6 +175,16 @@ try {
     "an unlinked mention shows where the title is written",
     standup,
   );
+  const inlineCode = await make("Commands");
+  await write(inlineCode.id, "Run `launch plan` to start.");
+  const checkedList = await listUnlinkedMentions(ids.owner, target.id, { check: true });
+  const linkableOf = (id: string) => checkedList.find((m) => m.id === id)?.linkable;
+  check(
+    linkableOf(plain.id) === true && linkableOf(codeOnly.id) === false && linkableOf(inlineCode.id) === false && found.every((m) => m.linkable === undefined),
+    "checked, the list says which can be linked: not a title only in code or inline code",
+    checkedList.map((m) => [m.title, m.linkable]),
+  );
+  check(!(await linkUnlinkedMention(ids.owner, inlineCode.id, target.id)), "…and Link leaves inline code alone");
   check(!(await unlinkedIds(target.id, ids.member)).includes(privateNote.id), "…and leaves out pages the reader can't see");
   check((await failure(() => listUnlinkedMentions(ids.member, secret.id))) === "access", "a page's unlinked mentions need access to it");
 

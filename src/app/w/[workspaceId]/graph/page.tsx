@@ -11,21 +11,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metaTitle") };
 }
 
-/** The workspace graph; `?focus=<page>` opens it on that page and its neighbours. */
-export default async function GraphPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ workspaceId: string }>;
-  searchParams: Promise<{ focus?: string | string[] }>;
-}) {
+/** The workspace graph; `?focus=<page>` opens it on that page and its neighbours (read by GraphView). */
+export default async function GraphPage({ params }: { params: Promise<{ workspaceId: string }> }) {
   const { workspaceId } = await params;
-  const { focus } = await searchParams;
   const { user } = await requireWorkspaceSession(workspaceId);
   const graph = await workspaceGraph(user.id, workspaceId).catch((error) => {
     if (error instanceof AccessError) return null;
     throw error;
   });
   if (!graph) notFound();
-  return <GraphView workspaceId={workspaceId} graph={graph} focus={typeof focus === "string" ? focus : null} />;
+  return <GraphView workspaceId={workspaceId} graph={graph} />;
 }

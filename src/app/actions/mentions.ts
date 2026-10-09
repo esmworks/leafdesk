@@ -32,11 +32,11 @@ export async function backlinksAction(pageId: string) {
   }
 }
 
-/** Pages that write this page's title without linking to it, that the user can see. */
-export async function unlinkedMentionsAction(pageId: string) {
+/** Pages that write this page's title without linking to it, that the user can see; `check`: which can be linked. */
+export async function unlinkedMentionsAction(pageId: string, check = false) {
   const userId = await requireUserId();
   try {
-    return await mentions.listUnlinkedMentions(userId, pageId);
+    return await mentions.listUnlinkedMentions(userId, pageId, { check: check === true });
   } catch (error) {
     if (error instanceof AccessError) return [];
     throw error;

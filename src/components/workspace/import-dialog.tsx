@@ -20,6 +20,7 @@ import {
   type CsvTable,
 } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS, isIgnoredPath } from "@/lib/import/markdown";
+import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
 import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
@@ -90,6 +91,8 @@ export function ImportDialog({
   const [tab, setTab] = useState<"pages" | "csv">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
+  // A folder that came with an Obsidian vault's settings folder (which isn't sent).
+  const [vault, setVault] = useState(false);
   const [csv, setCsv] = useState<CsvState | null>(null);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
@@ -115,6 +118,7 @@ export function ImportDialog({
       activeEditable && activeNode.kind === "page" ? activeNode.id : topLevel ? "" : (destinations[0]?.node.id ?? ""),
     );
     setPicked([]);
+    setVault(false);
     setCsv(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
@@ -164,10 +168,10 @@ export function ImportDialog({
   function addFiles(list: FileList | File[] | null) {
     if (!list) return;
     // Hidden folders (an app's settings, such as a vault's .obsidian) and system files aren't sent:
-    // the import leaves them out anyway.
-    const next = [...list]
-      .map((file) => ({ file, path: file.webkitRelativePath || file.name }))
-      .filter((p) => !isIgnoredPath(p.path));
+    // the import leaves them out anyway. A vault's settings folder still says it is one.
+    const all = [...list].map((file) => ({ file, path: file.webkitRelativePath || file.name }));
+    if (all.some((p) => isVaultSettingsPath(p.path))) setVault(true);
+    const next = all.filter((p) => !isIgnoredPath(p.path));
     setPicked((prev) => [...prev.filter((p) => !next.some((n) => n.path === p.path)), ...next]);
     setError(null);
   }
@@ -230,6 +234,7 @@ export function ImportDialog({
       if (totalSize > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
       form.append("mode", "pages");
       form.append("parentId", destination);
+      if (vault) form.append("vault", "1");
       for (const p of picked) {
         form.append("file", p.file, p.file.name);
         form.append("path", p.path);
@@ -336,6 +341,7 @@ export function ImportDialog({
           onAgain={() => {
             setResult(null);
             setPicked([]);
+            setVault(false);
             setCsv(null);
           }}
         />
@@ -420,7 +426,15 @@ export function ImportDialog({
                 <div className="rounded-lg border border-border">
                   <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-fg-muted">
                     <span>{t("pages.selected", { count: picked.length, size: formatBytes(totalSize) })}</span>
-                    <Button size="sm" variant="ghost" disabled={busy} onClick={() => setPicked([])}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => {
+                        setPicked([]);
+                        setVault(false);
+                      }}
+                    >
                       {t("pages.clear")}
                     </Button>
                   </div>

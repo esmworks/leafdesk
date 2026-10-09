@@ -39,13 +39,16 @@
   shows the text around its link, with the page's live title in place of the link (other pages'
   titles stay out of it). Below the list, folded away, are the pages that write the page's title
   as whole words without linking to it (last edited first; the trash, templates and pages the
-  reader can't see left out); "Link" turns the first place a page writes it into a page mention,
-  for someone who may edit that page, also while it is open in an editor. MCP's `get_page` gives
+  reader can't see left out); "Link" turns the first place a page writes it outside code into a
+  page mention, for someone who may edit that page, also while it is open in an editor, and shows
+  only where there is such a place. Titles match whether their letters are written precomposed or
+  with combining marks. MCP's `get_page` gives
   each `linked_from` page its `context`. Migration `0048_page_link_context`: links already indexed
   get their context when their page is next saved.
 - **Search filters and commands.** The search box (Cmd/Ctrl+K) narrows a search with
   `in:"Page title"` (that page and everything under it) and `type:page`, `type:database` or
-  `type:row`, which also work on their own to list what they match. Before anything is typed it
+  `type:row`, which also work on their own to list what they match; `in:` and the commands find
+  titles with the dotted and dotless i whichever way they are typed. Before anything is typed it
   shows the pages last edited, and after `>` it runs commands (new page or database, from a
   template, import, trash, inbox, settings, keyboard shortcuts). A line under the results shows
   the syntax and puts it into the box. MCP and REST search keep their own parameters. No
@@ -55,8 +58,10 @@
   from front matter become page links, resolved across the vault: a path first, then the note of
   that name nearest the linking note, then an alias. Embedded images and files are uploaded, a
   note embedded on its own line becomes a link-to-page block, and callouts keep a matching color.
-  Comments, block ids and highlight marks are left out; links naming nothing stay as text and are
-  listed in the result. The import dialog no longer uploads hidden folders such as `.obsidian`.
+  Comments, highlight marks and block ids (those a link points to, and generated ones) are left
+  out, so text such as `r ^2` stays; links naming nothing stay as text and are listed in the
+  result. The import dialog no longer uploads hidden folders such as `.obsidian`, and a folder
+  that holds one is still read as a vault.
   No migration.
 - **Excel workbooks.** A database exports as an Excel workbook (.xlsx) next to CSV, from the page
   menu and for the selected rows of a table: the same rows and columns as the CSV export, with

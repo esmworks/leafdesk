@@ -42,13 +42,14 @@ export async function workspaceGraph(userId: string, workspaceId: string, { maxN
   // The page tree.
   for (const r of shown) if (r.parentId) edges.push({ source: r.parentId, target: r.id, kind: "child" });
 
-  // Links in page bodies (kept by server/mentions.ts as pages are saved).
-  const source = alias(page, "source");
-  const links = await db
-    .select({ source: pageLink.sourceId, target: pageLink.targetId })
-    .from(pageLink)
-    .innerJoin(source, eq(source.id, pageLink.sourceId))
-    .where(eq(source.workspaceId, workspaceId));
+  // Links in page bodies (kept by server/mentions.ts as pages are saved), between pages shown.
+  const shownIds = [...ids];
+  const links = shownIds.length
+    ? await db
+        .select({ source: pageLink.sourceId, target: pageLink.targetId })
+        .from(pageLink)
+        .where(and(inArray(pageLink.sourceId, shownIds), inArray(pageLink.targetId, shownIds)))
+    : [];
   for (const l of links) edges.push({ source: l.source, target: l.target, kind: "link" });
 
   // Relations: each database's relation properties, in the rows shown, where the viewer sees them.
@@ -64,9 +65,10 @@ export async function workspaceGraph(userId: string, workspaceId: string, { maxN
       .select({ id: page.id, parentId: page.parentId, properties: page.properties, createdBy: page.createdBy })
       .from(page)
       .where(inArray(page.id, rowIds));
-    const byDatabase = Map.groupBy(values, (v) => v.parentId!);
-    for (const [databaseId, inDatabase] of byDatabase) {
-      const access = await propertyAccessFor(userId, databaseId);
+    const byDatabase = [...Map.groupBy(values, (v) => v.parentId!)];
+    const accessOf = await Promise.all(byDatabase.map(([databaseId]) => propertyAccessFor(userId, databaseId)));
+    for (const [i, [databaseId, inDatabase]] of byDatabase.entries()) {
+      const access = accessOf[i];
       for (const row of inDatabase) {
         for (const prop of relationsOf.get(databaseId) ?? []) {
           if (!atLeast(access.levelOf(prop.id, row), "view")) continue;

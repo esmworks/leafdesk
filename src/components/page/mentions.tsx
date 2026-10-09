@@ -515,8 +515,12 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
   const pageItem = usePageItem();
   const suggestionMenu = useExtension(SuggestionMenu, { editor });
   // The last answer and what it was for: typing doesn't flash an empty menu while the next one
-  // loads, and "]]" right after typing a title doesn't wait for it again.
+  // loads, and "]]" right after typing a title doesn't wait for it again. Pages created, renamed or
+  // trashed since make it stale.
   const last = useRef<{ query: string; pages: PageCandidate[] } | null>(null);
+  useChannel(`ws:${workspaceId}`, (event) => {
+    if (event === "tree") last.current = null;
+  });
 
   const load = useCallback(
     async (query: string) => {
@@ -536,6 +540,7 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
     async (title: string) => {
       try {
         const { id } = await createPageAction({ workspaceId, parentId: pageId, title });
+        last.current = null;
         insertPageMention(editor, workspaceId, { id, title, icon: null, kind: "page" });
       } catch {
         // Not created (offline, or no longer allowed here): the title stays as text.
@@ -712,6 +717,12 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
   const [linking, setLinking] = useState<string | null>(null);
   const [failed, setFailed] = useState<{ id: string; locked: boolean } | null>(null);
   const [version, setVersion] = useState(0);
+  // The unlinked list is a full-text search: loaded with the page, and again (with which ones can be
+  // linked) once unfolded; while folded, changes elsewhere don't load it again.
+  const [unlinkedVersion, setUnlinkedVersion] = useState(0);
+  const [checked, setChecked] = useState(false);
+  const unfolded = useRef(false);
+  unfolded.current = showUnlinked;
 
   useEffect(() => {
     let current = true;
@@ -719,17 +730,25 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
       (list) => current && setLinks(list),
       () => {},
     );
-    unlinkedMentionsAction(pageId).then(
+    return () => {
+      current = false;
+    };
+  }, [pageId, version]);
+  useEffect(() => {
+    let current = true;
+    unlinkedMentionsAction(pageId, checked).then(
       (list) => current && setUnlinked(list),
       () => {},
     );
     return () => {
       current = false;
     };
-  }, [pageId, version]);
+  }, [pageId, unlinkedVersion, checked]);
   // Renames and the trash change the lists; so does opening the page again after linking to it.
   useChannel(`ws:${workspaceId}`, (event) => {
-    if (event === "tree") setVersion((v) => v + 1);
+    if (event !== "tree") return;
+    setVersion((v) => v + 1);
+    if (unfolded.current) setUnlinkedVersion((v) => v + 1);
   });
 
   async function link(sourceId: string) {
@@ -744,6 +763,7 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
     } finally {
       setLinking(null);
       setVersion((v) => v + 1);
+      setUnlinkedVersion((v) => v + 1);
     }
   }
 
@@ -787,7 +807,10 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
           <button
             type="button"
             aria-expanded={showUnlinked}
-            onClick={() => setShowUnlinked((v) => !v)}
+            onClick={() => {
+              setShowUnlinked((v) => !v);
+              setChecked(true);
+            }}
             title={t("unlinkedHint")}
             className="-mx-1 flex items-center gap-1 rounded px-1 py-0.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
@@ -806,7 +829,7 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
                         <PageIcon icon={mention.icon} kind={mention.kind} className="text-sm" />
                         <span className="truncate">{label}</span>
                       </a>
-                      {canLink && mention.canEdit && (
+                      {canLink && mention.linkable && (
                         <Button
                           size="sm"
                           variant="ghost"

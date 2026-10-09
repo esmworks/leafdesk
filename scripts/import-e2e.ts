@@ -244,8 +244,10 @@ try {
       "> Callout text ^block-1",
       "",
       "Some ==marked== text %%a comment%%.",
+      "",
+      "Area grows with r ^2",
     ].join("\n"),
-    "Vault/Projects/Launch plan.md": "Back to [[Start here]] and [the welcome](Welcome.md).\n\n## Countdown\n\nT-10",
+    "Vault/Projects/Launch plan.md": "Back to [[Start here]], [the welcome](Welcome.md) and [[Welcome#^block-1|its callout]].\n\n## Countdown\n\nT-10",
     "Vault/Notes/Ideas.md": "Ideas list",
     "Vault/Archive/Old/Ideas.md": "Old ideas",
     "Vault/attachments/photo.png": png,
@@ -283,12 +285,20 @@ try {
     "callouts get the editor's kinds; block ids, comments and highlight marks are left out",
     welcomeBody,
   );
+  check(welcomeBody.includes("r ^2"), "…but text ending in ^ and a word no link points at stays", welcomeBody);
+
+  // A vault picked as a folder: the dialog doesn't send .obsidian, it says it was there.
+  const folderNote = { path: "Picked vault/Note.md", data: new TextEncoder().encode("> [!info]- Heads up\n> Text") };
+  const asVault = await importPages(owner, { workspaceId, parentId: home.id, files: [folderNote], vault: true });
+  const asVaultNote = await byTitle(asVault.pages[0].id, "Note");
+  await eventually(async () => (await body(asVaultNote.id)).includes("[!NOTE]"), "the folder vault's note");
+  check((await body(asVaultNote.id)).includes("[!NOTE]"), "a vault picked as a folder (its .obsidian not sent) is read as a vault", await body(asVaultNote.id));
   check(!welcomeBody.includes("aliases") && !welcomeBody.includes("tags:"), "front matter isn't in the body", welcomeBody);
   await eventually(async () => (await body(plan.id)).includes(pagePath(workspaceId, welcome.id)), "the plan body");
   const planBody = await body(plan.id);
   check(
-    planBody.split(pagePath(workspaceId, welcome.id)).length === 3,
-    "an alias and a Markdown link by name (not a path from the file) both lead to the note",
+    planBody.split(pagePath(workspaceId, welcome.id)).length === 4,
+    "an alias, a Markdown link by name (not a path from the file) and a link to a block all lead to the note",
     planBody,
   );
 

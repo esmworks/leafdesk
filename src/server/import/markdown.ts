@@ -17,7 +17,7 @@ import {
   withoutFrontMatter,
   type PlanNode,
 } from "@/lib/import/markdown";
-import { frontMatterAliases, hasWikilink, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "@/lib/import/obsidian";
+import { blockReferences, frontMatterAliases, hasWikilink, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "@/lib/import/obsidian";
 import {
   notionId,
   notionMarkdown,
@@ -85,6 +85,8 @@ export type MarkdownImportInput = {
   teamspaceId?: string | null;
   files: UploadedFile[];
   seedNames?: DatabaseSeedNames;
+  /** The upload is an Obsidian vault: its `.obsidian` folder was seen but not sent (a folder upload). */
+  vault?: boolean;
 };
 
 type Created = { id: string; kind: "page" | "database" | "row"; title: string; template: boolean };
@@ -124,7 +126,12 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
   const nodeByKey = new Map(plan.nodes.map((n) => [n.key, n]));
   // An Obsidian vault: its settings folder came along, or a note has a wikilink.
   const isVault =
-    collected.vault || plan.nodes.some((n) => n.source && importFileKind(n.source) === "markdown" && hasWikilink(text(files.get(n.source)!)));
+    collected.vault || input.vault || plan.nodes.some((n) => n.source && importFileKind(n.source) === "markdown" && hasWikilink(text(files.get(n.source)!)));
+
+  // Block ids the vault's links point at: those are left out of the notes where they are set.
+  const referencedBlocks = new Set(
+    isVault ? plan.nodes.flatMap((n) => (n.source && importFileKind(n.source) === "markdown" ? blockReferences(text(files.get(n.source)!)) : [])) : [],
+  );
 
   // The databases' CSV files, read once: their headers are needed for the row pages below.
   const tables = new Map<string, { table: CsvTable; titleColumn: number }>();
@@ -167,7 +174,7 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
         body = [...kept, properties.body].join("\n\n");
       }
     }
-    bodies.set(node.key, isVault && !notionId(node.source) ? obsidianMarkdown(notionMarkdown(body)) : notionMarkdown(body));
+    bodies.set(node.key, isVault && !notionId(node.source) ? obsidianMarkdown(notionMarkdown(body), referencedBlocks) : notionMarkdown(body));
   }
 
   // What wikilinks and links by name can name: the pages (with their aliases) and the other files.

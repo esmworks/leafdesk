@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PAGE_LINK_MARKER } from "../mentions";
 import { resolveLink } from "./markdown";
-import { frontMatterAliases, hasWikilink, hrefTo, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "./obsidian";
+import { blockReferences, frontMatterAliases, hasWikilink, hrefTo, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "./obsidian";
 
 const vault = new VaultIndex(
   [
@@ -142,7 +142,11 @@ describe("obsidianMarkdown", () => {
   it("leaves out comments, block ids and highlight marks", () => {
     expect(obsidianMarkdown("Keep %%hidden%% this")).toBe("Keep  this");
     expect(obsidianMarkdown("Before\n%%\nsecret\nlines\n%%\nAfter")).toBe("Before\n\n\n\n\nAfter");
-    expect(obsidianMarkdown("A paragraph ^abc-123\n^quote")).toBe("A paragraph\n");
+    expect(obsidianMarkdown("A paragraph ^abc-123\n^quote", new Set(["abc-123", "quote"]))).toBe("A paragraph\n");
+    expect(obsidianMarkdown("Made by Obsidian ^x7k2qa\n^9fz1ab")).toBe("Made by Obsidian\n");
+    expect(blockReferences("[[Plan#^step-2|two]] and [x](<Plan.md#^9fz1ab>), not [[Plan#Heading]]")).toEqual(["step-2", "9fz1ab"]);
+    // Not a block id: nothing links to it, and Obsidian wouldn't write it so.
+    expect(obsidianMarkdown("Area grows with r ^2\nVersion bump ^minor\n^quote")).toBe("Area grows with r ^2\nVersion bump ^minor\n^quote");
     expect(obsidianMarkdown("Some ==marked== text, a == b")).toBe("Some marked text, a == b");
   });
 

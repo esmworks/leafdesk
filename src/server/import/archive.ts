@@ -1,5 +1,6 @@
 import { unzipSync } from "fflate";
 import { IMPORT_LIMITS, importFileKind, isIgnoredPath, normalizePath } from "@/lib/import/markdown";
+import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError } from "@/lib/import/result";
 
 /**
@@ -38,8 +39,6 @@ const shown = (name: string) => (name.length > 200 ? `${name.slice(0, 199)}…` 
 /** What the upload says about itself while it's read: whether it holds an Obsidian vault's settings folder. */
 type Seen = { vault: boolean };
 
-const VAULT_SETTINGS = /(?:^|\/)\.obsidian\//;
-
 function unzip(
   data: Uint8Array,
   budget: Budget,
@@ -59,7 +58,7 @@ function unzip(
           return false;
         }
         if (isIgnoredPath(path)) {
-          if (VAULT_SETTINGS.test(path)) seen.vault = true;
+          if (isVaultSettingsPath(path)) seen.vault = true;
           return false;
         }
         take(budget, Math.max(entry.size, entry.originalSize));
@@ -101,7 +100,7 @@ export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8A
       continue;
     }
     if (isIgnoredPath(path)) {
-      if (VAULT_SETTINGS.test(path)) seen.vault = true;
+      if (isVaultSettingsPath(path)) seen.vault = true;
       continue;
     }
     if (importFileKind(path) === "zip") unzip(file.data, budget, 0, out, skipped, seen);

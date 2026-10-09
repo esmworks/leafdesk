@@ -2,11 +2,12 @@
 
 import { ChevronRight, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { recentSearchAction, searchAction } from "@/app/actions/pages";
 import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
+import { searchFold } from "@/lib/search-fold";
 import type { SearchHit } from "@/server/pages";
 
 /** Something the search box can do instead of opening a page: typed after `>`. */
@@ -15,8 +16,8 @@ export type SearchCommand = { id: string; label: string; icon: ReactNode; run: (
 type PageItem = { id: string; title: string; icon: string | null; kind: PageKind; snippet?: string; match?: SearchHit["match"] };
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
-/** In the UI language, so a Turkish "İ" folds to "i" (not "i" with a combining dot). */
-const fold = (value: string, locale: string) => value.normalize("NFC").toLocaleLowerCase(locale).trim();
+/** Compared as pickers compare: case and the Turkish dotted and dotless i aside (lib/search-fold). */
+const fold = (value: string) => searchFold(value.normalize("NFC").trim());
 
 /**
  * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:` and `type:`
@@ -37,7 +38,6 @@ export function SearchDialog({
   const router = useRouter();
   const t = useTranslations("sidebar.search");
   const tc = useTranslations("common");
-  const locale = useLocale();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [recent, setRecent] = useState<PageItem[]>([]);
@@ -89,12 +89,12 @@ export function SearchDialog({
 
   const items = useMemo<Item[]>(() => {
     if (commandMode) {
-      const wanted = fold(trimmed.slice(1), locale);
-      return commands.filter((c) => fold(c.label, locale).includes(wanted)).map((command) => ({ type: "command", command }));
+      const wanted = fold(trimmed.slice(1));
+      return commands.filter((c) => fold(c.label).includes(wanted)).map((command) => ({ type: "command", command }));
     }
     const pages: PageItem[] = trimmed ? hits : recent;
     return pages.map((page) => ({ type: "page", page }));
-  }, [commandMode, trimmed, commands, hits, recent, locale]);
+  }, [commandMode, trimmed, commands, hits, recent]);
 
   useEffect(() => {
     list.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });

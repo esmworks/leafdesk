@@ -1,7 +1,7 @@
 "use client";
 
 import { RotateCw, Search, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type Sigma from "sigma";
@@ -48,12 +48,16 @@ const layoutMs = (order: number) => Math.min(8000, 1500 + order * 4);
  * and the page tree (lib/graph). Drawn with WebGL; the layout runs in a worker. Pointing at a page
  * shows its neighbours, clicking opens it.
  */
-export function GraphView({ workspaceId, graph, focus: initialFocus }: { workspaceId: string; graph: WorkspaceGraph; focus: string | null }) {
+export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: WorkspaceGraph }) {
   const t = useTranslations("graph");
   const tc = useTranslations("common");
   const router = useRouter();
   const scheme = useColorScheme();
-  const [filter, setFilter] = useState<GraphFilter>({ ...DEFAULT_FILTER, focus: initialFocus });
+  // The focus lives in the address (`?focus=`), so a link, a reload and the sidebar's link to the
+  // whole graph all show what the address says.
+  const focusParam = useSearchParams().get("focus");
+  const [choices, setChoices] = useState<Omit<GraphFilter, "focus">>(DEFAULT_FILTER);
+  const filter = useMemo<GraphFilter>(() => ({ ...choices, focus: focusParam }), [choices, focusParam]);
   const [query, setQuery] = useState("");
   const container = useRef<HTMLDivElement>(null);
   // Where pages were when the graph was last drawn, so changing a filter doesn't start over.
@@ -69,9 +73,8 @@ export function GraphView({ workspaceId, graph, focus: initialFocus }: { workspa
   }, [graph, query, tc]);
 
   function setFocus(id: string | null) {
-    setFilter((f) => ({ ...f, focus: id }));
     setQuery("");
-    // The address keeps the focus for a reload or a link, without loading the page again.
+    // Without loading the page again (the router follows history.replaceState).
     const url = new URL(window.location.href);
     if (id) url.searchParams.set("focus", id);
     else url.searchParams.delete("focus");
@@ -184,7 +187,7 @@ export function GraphView({ workspaceId, graph, focus: initialFocus }: { workspa
     };
   }, [shown, scheme, filter.focus, workspaceId, router, tc]);
 
-  const toggle = (key: "tree" | "rows" | "orphans") => (checked: boolean) => setFilter((f) => ({ ...f, [key]: checked }));
+  const toggle = (key: "tree" | "rows" | "orphans") => (checked: boolean) => setChoices((f) => ({ ...f, [key]: checked }));
 
   return (
     <div className="flex h-full flex-col">
@@ -235,7 +238,7 @@ export function GraphView({ workspaceId, graph, focus: initialFocus }: { workspa
                 {t("depth")}
                 <select
                   value={filter.depth}
-                  onChange={(e) => setFilter((f) => ({ ...f, depth: Number(e.target.value) }))}
+                  onChange={(e) => setChoices((f) => ({ ...f, depth: Number(e.target.value) }))}
                   className="h-7 rounded-md border border-border bg-bg px-1.5 text-sm text-fg"
                 >
                   {Array.from({ length: MAX_DEPTH }, (_, i) => i + 1).map((d) => (

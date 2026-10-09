@@ -84,6 +84,17 @@ try {
     "several in: filters find pages under any of them",
   );
   check((await search("budget in:Nowhere")).length === 0, "an in: naming no page finds nothing (not everything)");
+  const izmir = await make("İzmir ofisi");
+  await make("Kira sözleşmesi", izmir.id);
+  const light = await make("Işık");
+  await make("Kira faturası", light.id);
+  check(
+    JSON.stringify(titlesOf(await search('kira in:"izmir OFİSİ"'))) === JSON.stringify(["Kira sözleşmesi"]) &&
+      JSON.stringify(titlesOf(await search("kira in:ışık"))) === JSON.stringify(["Kira faturası"]) &&
+      JSON.stringify(titlesOf(await search("kira in:IŞIK"))) === JSON.stringify(["Kira faturası"]),
+    "in: finds titles with the dotted and dotless i either way",
+    [titlesOf(await search('kira in:"izmir OFİSİ"')), titlesOf(await search("kira in:ışık"))],
+  );
 
   check(
     JSON.stringify(titlesOf(await search("type:database"))) === JSON.stringify(["Tracker"]),

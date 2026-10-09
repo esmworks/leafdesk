@@ -30,6 +30,9 @@ const collator = new Intl.Collator("en", { numeric: true, sensitivity: "base" })
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "bmp"]);
 const isImage = (path: string) => IMAGE_EXTENSIONS.has(/\.([^./]+)$/.exec(path)?.[1]?.toLowerCase() ?? "");
 
+/** A path inside an Obsidian vault's settings folder, which tells a vault from other Markdown. */
+export const isVaultSettingsPath = (path: string) => /(?:^|\/)\.obsidian\//.test(path);
+
 /** A page a link can name: a Markdown or CSV file of the upload, with its aliases. */
 export type VaultPage = { path: string; aliases?: readonly string[] };
 
@@ -265,14 +268,25 @@ const CALLOUT_KIND: Record<string, AlertKind> = {
 };
 
 const CALLOUT = /^( {0,3}> ?)\[!([A-Za-z-]+)\][+-]?/;
-const BLOCK_ID = /\s+\^[A-Za-z0-9-]+\s*$/;
+const BLOCK_ID = /\s+\^([A-Za-z0-9-]+)\s*$/;
+const BLOCK_ID_LINE = /^\s*\^([A-Za-z0-9-]+)\s*$/;
+/** A block id as Obsidian makes one when a block is linked: six lowercase letters and digits. */
+const GENERATED_BLOCK_ID = /^(?=[a-z]*\d)[a-z0-9]{6}$/;
+
+/** The block ids links in `markdown` point at (`[[Note#^id]]`, `[x](Note.md#^id)`). */
+export function blockReferences(markdown: string): string[] {
+  return [...markdown.matchAll(/#\^([A-Za-z0-9-]+)/g)].map((m) => m[1]);
+}
 const HIGHLIGHT = /==(?=\S)([^\n=]*?\S)==/g;
 
 /**
  * Obsidian's own Markdown in the forms the editor reads (see the top of this file). Code blocks
- * and inline code are left as they are.
+ * and inline code are left as they are. A `^id` at the end of a line (or on a line of its own) is
+ * a block id when a link in the vault points at it (`referenced`) or Obsidian made it; other text
+ * ending so (`r ^2`) stays.
  */
-export function obsidianMarkdown(markdown: string): string {
+export function obsidianMarkdown(markdown: string, referenced: ReadonlySet<string> = new Set()): string {
+  const isBlockId = (id: string) => referenced.has(id) || GENERATED_BLOCK_ID.test(id);
   // Comments first: they may span lines, but never start in code.
   let inComment = false;
   const uncommented = outsideCode(markdown, (line) => {
@@ -302,8 +316,9 @@ export function obsidianMarkdown(markdown: string): string {
     }
   });
   return outsideCode(uncommented, (line) => {
-    if (/^\s*\^[A-Za-z0-9-]+\s*$/.test(line)) return "";
-    let next = line.replace(BLOCK_ID, "");
+    const own = BLOCK_ID_LINE.exec(line);
+    if (own && isBlockId(own[1])) return "";
+    let next = line.replace(BLOCK_ID, (whole, id: string) => (isBlockId(id) ? "" : whole));
     next = next.replace(CALLOUT, (whole, quote: string, kind: string) => {
       // Written in capitals it's one of the editor's own (as exported); Obsidian writes lowercase.
       const own = (ALERT_KINDS as readonly string[]).includes(kind.toUpperCase()) ? (kind.toUpperCase() as AlertKind) : null;

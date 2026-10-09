@@ -23,6 +23,14 @@ describe("findTitle", () => {
     expect(findTitle("Use C++17", "C++")).toEqual({ start: 4, end: 7 });
   });
 
+  it("matches letters written with combining marks", () => {
+    const decomposed = "Yeni Mu\u0308s\u0327teri dosyası".normalize("NFD");
+    const found = findTitle(decomposed, "Müşteri");
+    expect(found).not.toBeNull();
+    expect(decomposed.slice(found!.start, found!.end).normalize("NFC")).toBe("Müşteri");
+    expect(findTitle("Müşteri listesi", "Mu\u0308s\u0327teri")).toEqual({ start: 0, end: 7 });
+  });
+
   it("skips titles too short to look for", () => {
     expect(findTitle("a b c", "a")).toBeNull();
     expect(findTitle("anything", "  ")).toBeNull();
@@ -98,5 +106,6 @@ describe("linkTitle", () => {
     const nested = [{ type: "paragraph", content: [], children: [paragraph(text("İçe aktarma"))] }];
     expect(linkTitle(nested, "içe aktarma", "p2")).toBe(true);
     expect(linkTitle([paragraph(text("Roadmaps"))], "Roadmap", "p1")).toBe(false);
+    expect(linkTitle([paragraph(text("Roadmap", { code: true }))], "Roadmap", "p1")).toBe(false);
   });
 });

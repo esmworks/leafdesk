@@ -43,8 +43,10 @@ import {
   type BulkResult,
 } from "@/server/databases";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
+import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
+import { searchFoldSql } from "@/server/search-fold-sql";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
@@ -898,11 +900,12 @@ export async function searchWithQuery(userId: string, workspaceId: string, query
 }
 
 /**
- * Ids of the pages of a workspace the user can see that have one of `titles` (without case or
- * surrounding space), last edited first: what a search's `in:` filters name.
+ * Ids of the pages of a workspace the user can see that have one of `titles` (compared as
+ * lib/search-fold does, without surrounding space), last edited first: what a search's `in:`
+ * filters name.
  */
 export async function pagesTitled(userId: string, workspaceId: string, titles: string[], limit = 20): Promise<string[]> {
-  const wanted = [...new Set(titles.map((t) => t.trim().toLowerCase()).filter(Boolean))];
+  const wanted = [...new Set(titles.map((t) => searchFold(t.normalize("NFC").trim())).filter(Boolean))];
   if (!wanted.length) return [];
   await enforceWorkspacePolicy(userId, workspaceId);
   const rows = await db
@@ -914,7 +917,7 @@ export async function pagesTitled(userId: string, workspaceId: string, titles: s
         isNull(page.archivedAt),
         eq(page.inTemplate, false),
         pageVisibleTo(userId),
-        sql`lower(trim(${page.title})) in (${sql.join(wanted.map((t) => sql`${t}`), sql`, `)})`,
+        sql`${searchFoldSql(sql`trim(normalize(${page.title}, NFC))`)} in (${sql.join(wanted.map((t) => sql`${t}`), sql`, `)})`,
       ),
     )
     .orderBy(desc(page.updatedAt))

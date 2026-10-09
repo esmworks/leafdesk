@@ -1,11 +1,12 @@
 import { and, asc, desc, eq, inArray, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
-import { findTitle, excerpt, linkContexts, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
+import { findTitle, excerpt, linkContexts, linkTitle, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
 import { bodyReferences } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
+import { searchFoldSql } from "@/server/search-fold-sql";
 import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { workspacePeople } from "@/server/workspaces";
 import { avatarSrc } from "@/lib/avatar";
@@ -330,6 +331,11 @@ export type UnlinkedMention = {
   kind: PageKind;
   excerpt: Excerpt;
   canEdit: boolean;
+  /**
+   * With `check`: whether "Link" can turn it into a mention (it may edit the page, and the title is
+   * written there as plain text, not only in code or across differently styled words).
+   */
+  linkable?: boolean;
 };
 
 /** Pages the full-text index offers, before their text is checked for the title. */
@@ -339,9 +345,10 @@ const UNLINKED_SHOWN = 20;
 /**
  * Pages of the workspace that write `pageId`'s title as whole words in their text but don't link
  * to it, as far as the user can see them, last edited first. Titles shorter than
- * MIN_MENTION_TITLE characters aren't looked for.
+ * MIN_MENTION_TITLE characters aren't looked for. `check` also reads the body of each page the user
+ * may edit to say whether it can be linked (`linkable`): only for the list as it is shown.
  */
-export async function listUnlinkedMentions(userId: string, pageId: string): Promise<UnlinkedMention[]> {
+export async function listUnlinkedMentions(userId: string, pageId: string, { check = false } = {}): Promise<UnlinkedMention[]> {
   const target = await requirePageAccess(userId, pageId, "view");
   const title = target.title.trim();
   if ([...title].length < MIN_MENTION_TITLE) return [];
@@ -386,6 +393,7 @@ export async function listUnlinkedMentions(userId: string, pageId: string): Prom
     const found = findTitle(row.text, title);
     if (!found) continue;
     const level = levelFromRank(row.level);
+    const canEdit = level === "edit" || level === "full";
     out.push({
       id: row.id,
       workspaceId: row.workspaceId,
@@ -393,9 +401,20 @@ export async function listUnlinkedMentions(userId: string, pageId: string): Prom
       icon: row.icon,
       kind: row.kind,
       excerpt: excerpt(row.text, found.start, found.end),
-      canEdit: level === "edit" || level === "full",
+      canEdit,
+      ...(check ? { linkable: canEdit } : {}),
     });
     if (out.length === UNLINKED_SHOWN) break;
+  }
+  if (check) {
+    // The search text holds code and styled words too; linking needs the title in plain text.
+    await Promise.all(
+      out
+        .filter((m) => m.linkable)
+        .map(async (m) => {
+          m.linkable = linkTitle((await getCollab().readBlocks(m.id)).blocks, title, pageId);
+        }),
+    );
   }
   return out;
 }
@@ -445,9 +464,7 @@ export async function mentionCandidates(userId: string, pageId: string, query: s
           .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }))
       : [];
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
-  // Folded like searchFold: Postgres lowers "I" and "İ" to "i" (or "i" and a combining dot) but
-  // keeps "ı".
-  const title = sql`translate(lower(${page.title}), ${"ı\u0307"}, 'i')`;
+  const title = searchFoldSql(page.title);
   const pages = await db
     .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
     .from(page)
