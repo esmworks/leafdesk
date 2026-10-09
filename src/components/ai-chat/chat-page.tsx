@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import { useIsOffline } from "@/components/offline/offline-context";
+import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatSourceView } from "@/lib/ai-chat";
 import { useAiChat } from "./chat-panel";
@@ -66,7 +67,8 @@ export function ChatPage({ workspaceId, available }: { workspaceId: string; avai
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-11 shrink-0 items-center gap-1 px-4 max-md:pl-12">
+      <div className="flex h-11 shrink-0 items-center gap-1 px-4 max-md:pl-1.5">
+        <SidebarOpenButton className="mr-1 max-md:mr-0" />
         <h1 className="min-w-0 flex-1 truncate text-sm font-medium">{title || t("title")}</h1>
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
           <SquarePen className="h-4 w-4" />

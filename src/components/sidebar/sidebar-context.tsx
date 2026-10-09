@@ -162,8 +162,8 @@ export const isSettingsPath = (pathname: string) => /^\/w\/[^/]+\/settings\/?$/.
 /** For pages without a header of their own (home, people): a floating open button. */
 export function FloatingSidebarButton() {
   const pathname = usePathname();
-  // Pages render the button in their own sticky header; settings have no sidebar to open.
-  if (/\/p\/[\w-]+/.test(pathname) || isSettingsPath(pathname)) return null;
+  // Pages, the graph and the AI chat render the button in their own header; settings have no sidebar to open.
+  if (/\/(p\/[\w-]+|graph\/?$|ai\/?$)/.test(pathname) || isSettingsPath(pathname)) return null;
   return (
     <div className="sticky top-0 z-20 h-0">
       <SidebarOpenButton className="m-2" />

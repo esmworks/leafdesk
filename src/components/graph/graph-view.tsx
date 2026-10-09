@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type Sigma from "sigma";
+import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { cn, IconButton, pageLabel, PageIcon, Switch } from "@/components/ui";
 import { DEFAULT_FILTER, degrees, filterGraph, MAX_DEPTH, type GraphFilter, type GraphNodeKind, type WorkspaceGraph } from "@/lib/graph";
@@ -265,8 +266,9 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex flex-col gap-3 border-b border-border px-4 pt-14 pb-3 md:px-6 md:pt-4">
+      <header className="flex flex-col gap-3 border-b border-border px-4 pt-3 pb-3 max-md:pl-1.5 md:px-6 md:pt-4">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <SidebarOpenButton className="-mr-2" />
           <h1 className="text-lg font-semibold tracking-tight">{t("heading")}</h1>
           <p className="text-xs text-fg-muted">{t("count", { pages: shown.nodes.length, edges: shown.edges.length })}</p>
           <IconButton label={t("reload")} onClick={() => router.refresh()} className="ml-auto">
