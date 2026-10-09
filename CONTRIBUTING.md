@@ -4,6 +4,9 @@ Issues and pull requests are welcome. For code, the [Development](README.md#deve
 of the README has the setup; run `pnpm typecheck`, `pnpm lint`, `pnpm test` and `pnpm i18n:check` before
 opening a pull request (CI runs them too, plus a build and the end-to-end scripts).
 
+Security problems are the exception: report them privately as [SECURITY.md](SECURITY.md)
+describes, not in an issue or pull request.
+
 ## Translations
 
 Leafdesk's interface is available in English, Turkish, German, Spanish and French. English is the

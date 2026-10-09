@@ -17,6 +17,9 @@
 
 ### Added
 
+- **Security policy.** `SECURITY.md` says how to report a vulnerability privately (GitHub's
+  private vulnerability reporting), what a useful report contains, how quickly reports are
+  answered, what is in scope, and that security fixes go into the latest release only.
 - **`[[` links to a page.** Typing `[[` in a page opens a menu of the pages one can open, searched
   by title as typed; below them, "New page" creates a page inside the current one with that title
   and links to it. Typing `[[Title]]` out links to the page of that title when there is one and

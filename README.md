@@ -1567,6 +1567,12 @@ requests; see [CONTRIBUTING.md](CONTRIBUTING.md#translations) for the workflow.
 - Auth is Better Auth: email/password, GitHub/Google, two-factor and passkey plugins for people,
   and the OAuth provider, JWT, MCP and CIMD plugins for apps. Data access uses Drizzle ORM on PostgreSQL 18.
 
+## Security
+
+Please report vulnerabilities privately, not in a public issue: [SECURITY.md](SECURITY.md) says
+how, what is in scope, how quickly we answer and which versions get fixes (the latest release).
+It also lists the settings that matter when you run Leafdesk on a server.
+
 ## License
 
 [Apache License 2.0](LICENSE). See [NOTICE](NOTICE).
