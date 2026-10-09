@@ -2,8 +2,18 @@
 
 ## Unreleased
 
-### Upgrading
+## 0.5.0 — 2026-10-09
 
+### Upgrading from 0.4.0
+
+- **Migrations** (0036–0048) run automatically when the container starts.
+- **Docker Compose:** download the new `docker-compose.yml`. It passes the settings that are new in
+  this release to the app (push notifications' `VAPID_*` and `PUSH_ALLOWED_HOSTS`,
+  `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`, `CONNECTOR_ALLOWED_HOSTS`, `LEAFDESK_ENCRYPTION_KEY` and
+  `LEAFDESK_ENCRYPTION_OLD_KEYS`), and `API_RATE_LIMIT`, `MCP_RATE_LIMIT`, `API_CORS_ORIGINS` and
+  `TZ`, which it left out until now; without it they stay unset in the container.
+- **Open tabs ask to be reloaded.** A tab opened before the upgrade stops loading pages and shows
+  a notice to reload; edits it hadn't synced yet stay in that browser.
 - **`BETTER_AUTH_SECRET` is checked at startup.** In production the server refuses to start with
   the example value from `.env.example` or a secret shorter than 32 characters (make one with
   `openssl rand -base64 32`). Changing it signs everyone out; without `LEAFDESK_ENCRYPTION_KEY`,
@@ -221,6 +231,22 @@
   database or to people who can't edit it. Over MCP, `update_database_view` moves a tab with
   `before_view_id` or `after_view_id`, and MCP tools refused by a locked database now say so
   instead of reporting a server error.
+- **More in a table's column menu.** A column's menu filters on it (adding a rule and opening the
+  view's filters), groups by it or stops grouping, sets its footer calculation, wraps its cells,
+  adds a property to its left or right in this view, freezes it and the columns before it while
+  the table scrolls sideways (not on phones or windows too narrow to scroll), and duplicates the
+  property with its settings, values and access rules right after it (a two-way relation is copied
+  one way). The Name column gets the items that apply to it. Wrapped and frozen columns are view
+  settings. No migration.
+- **Changing a property's type.** The type under a property's name in its menu opens a list of
+  types. Values convert in every row, trashed rows and row templates included: options keep their
+  ids between select, multi-select and status, text becomes options, numbers, dates, people and
+  links by title, and formulas and rollups keep what they showed. Relations, formulas and rollups
+  are set up first, and a change that would clear values says how many and asks. Views drop the
+  filters, sorts, groups and other settings the new type can't have; a two-way relation leaves its
+  other side one-way. A property with access rules can't become a type they don't apply to. MCP's
+  new `change_database_property_type` converts the same way and, with `dry_run`, only counts what
+  would convert and what would be cleared. No migration.
 - **Page style.** The page's `⋯` menu starts with a typeface for the page (*Default*, *Serif*,
   *Mono*) and switches for *Small text* (14px body, headings scale with it; touch screens keep
   16px so iOS doesn't zoom in on the text when typing starts) and *Full width* (the
@@ -392,6 +418,13 @@
   replacing or appending to its body, so someone with view access, or a connected app acting for
   them, could change it. It now needs edit access, like the title, icon and background already did.
   Checked in `scripts/access-e2e.ts`.
+- **A tab left open from an earlier release could delete newer blocks.** Its editor dropped blocks
+  it didn't know, and the deletion reached everyone. Each build now has an id: the collaboration
+  server refuses a tab of another build before sending it a page, and the tab doesn't load its
+  offline copies either. It shows a notice to reload instead; its unsynced edits stay in the
+  browser.
+- **Formulas:** `constructor()` and other names of built-in objects are reported as unknown
+  functions.
 - **Security fixes from an audit of the whole app.**
   - *Collaboration:* a 23-byte update could hold the server (and every request with it) for
     seconds while it checked comment threads; any viewer could send one. The check now runs in time

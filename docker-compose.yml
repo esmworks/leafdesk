@@ -65,6 +65,13 @@ services:
       S3_PREFIX: ${S3_PREFIX:-}
       EXPORT_MAX_PAGES: ${EXPORT_MAX_PAGES:-}
       EXPORT_MAX_FILES_MB: ${EXPORT_MAX_FILES_MB:-}
+      # Requests per minute: per API token, and per user on /mcp (0 = no limit), and the origins
+      # whose browser pages may call the REST API (see .env.example).
+      API_RATE_LIMIT: ${API_RATE_LIMIT:-}
+      MCP_RATE_LIMIT: ${MCP_RATE_LIMIT:-}
+      API_CORS_ORIGINS: ${API_CORS_ORIGINS:-}
+      # The server's time zone, for automations that set a date to "now" (UTC when unset).
+      TZ: ${TZ:-}
       # Hosts on a private network that automation webhooks may reach (see the README).
       AUTOMATION_WEBHOOK_ALLOWED_HOSTS: ${AUTOMATION_WEBHOOK_ALLOWED_HOSTS:-}
       # Connections: private hosts they may reach, and the key that seals their secrets (see the README).

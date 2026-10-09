@@ -312,7 +312,7 @@ docker compose up -d
 Open http://localhost:3000 and create an account. Migrations run automatically when the app
 container starts.
 
-- **Pin a version:** set `LEAFDESK_VERSION=0.4.0` in `.env`. The default is `latest`.
+- **Pin a version:** set `LEAFDESK_VERSION=0.5.0` in `.env`. The default is `latest`.
 - **Upgrade:** run `docker compose pull && docker compose up -d`. Coming from 0.2.0 (released under
   the previous name), first follow the upgrade notes in [CHANGELOG.md](CHANGELOG.md).
 - **Build from source:** clone the repository and run `docker compose up -d --build`.

@@ -760,7 +760,7 @@ async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } |
 }
 
 export function createMcpServer(principal: McpPrincipal) {
-  const server = new McpServer({ name: "leafdesk", title: "Leafdesk", version: "0.4.0" }, { instructions: INSTRUCTIONS });
+  const server = new McpServer({ name: "leafdesk", title: "Leafdesk", version: "0.5.0" }, { instructions: INSTRUCTIONS });
   // Every tool not annotated read-only runs as a write, so a workspace that lets connected apps
   // only read refuses it in its access checks (see connected-app.ts), whatever the tool checks.
   // Ids may be given as Leafdesk links: each handler gets the ids they point at.
