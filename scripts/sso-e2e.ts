@@ -24,6 +24,7 @@ import { createHash, generateKeyPairSync, randomBytes, sign as rsaSign } from "n
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { join } from "node:path";
+import { waitOutAuthRateLimits } from "./auth-rate-limit";
 
 try {
   process.loadEnvFile();
@@ -50,6 +51,7 @@ const Y = await import("yjs");
 const { HocuspocusProvider } = await import("@hocuspocus/provider");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+waitOutAuthRateLimits(BASE);
 const RUN = Date.now().toString(36);
 const PASSWORD = "sso-e2e-password-123";
 const DOMAIN = `acme-${RUN}.test`;
@@ -561,11 +563,11 @@ async function main() {
   check(leftover.length === 0, "…and its provider goes with it", leftover);
   const afterRemoval = await open(`/w/${workspaceId}`, alice);
   check(
-    afterRemoval.status === 307 && afterRemoval.location?.endsWith(`/sso-required/${workspaceId}`),
-    "sessions from the removed connection no longer count (the instance provider remains)",
+    afterRemoval.status === 307 && afterRemoval.location?.startsWith("/sign-in") && (await sessionOf(alice)) === null,
+    "sessions signed in through the removed connection end",
     afterRemoval,
   );
-  const gateNow = await open(`/sso-required/${workspaceId}`, alice);
+  const gateNow = await open(`/sso-required/${workspaceId}`, member0.jar);
   check(gateNow.status === 200 && gateNow.text.includes("Continue with Mock IdP"), "…and the gate offers the instance provider instead", gateNow.status);
 
   check(idpRequests.some((r) => r.endsWith("/acme/token")) && idpRequests.some((r) => r.endsWith("/acme/jwks")), "the app used the provider's token and key endpoints");

@@ -25,6 +25,7 @@
  * Env: APP_URL (default http://localhost:3000), DATABASE_URL and BETTER_AUTH_SECRET (read from
  * .env when present). Migrations must be applied.
  */
+import { waitOutAuthRateLimits } from "./auth-rate-limit";
 export {};
 
 const appUrl = process.env.APP_URL;
@@ -54,6 +55,7 @@ const { removeSsoConnection, saveSsoConnection } = await import("@/server/sso");
 const { workspaceProviderId } = await import("@/lib/sso-config");
 
 const BASE = (appUrl ?? "http://localhost:3000").replace(/\/$/, "");
+waitOutAuthRateLimits(BASE);
 const RUN = `sec-${Date.now().toString(36)}`;
 
 // The real collab service: pages made here get their documents.
@@ -236,9 +238,10 @@ try {
   // Every address counts as verified but the squatter's (someone signed up with it, unproven) and
   // two that verify theirs below.
   await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test`, emailVerified: ![ids.squatter, ids.coded, ids.plain].includes(id) })));
+  // The member's first workspace (the oldest) is the one that doesn't hold them back.
   await db.insert(workspace).values([
     { id: ws, name: `${RUN} Strict` },
-    { id: open, name: `${RUN} Open` },
+    { id: open, name: `${RUN} Open`, createdAt: new Date(Date.now() - 60_000) },
   ]);
   await db.insert(workspaceMember).values([
     { workspaceId: ws, userId: ids.owner, role: "owner" },
@@ -362,7 +365,7 @@ try {
   check(!claimed.apiTokens && !claimed.apps && !claimed.sessions, "…so are their API tokens, connected apps and sessions", claimed);
   check((await resetPassword(ids.keeper)).ok, "the owner of a verified address resets their password");
   const kept = await leftOf(ids.keeper);
-  check(kept.passkeys && kept.twoFactor && kept.twoFactorEnabled && kept.apiTokens && kept.apps && !kept.sessions, "…keeping their passkeys, two-step verification, tokens and apps (signed out everywhere)", kept);
+  check(kept.passkeys && kept.twoFactor && kept.twoFactorEnabled && kept.apiTokens && !kept.apps && !kept.sessions, "…keeping their passkeys, two-step verification and tokens (signed out everywhere, apps disconnected)", kept);
 
   // ---------------------------------------------------------------- another identity provider behind an SSO connection
   // Saved the way the settings save it, with discovery answered here (no identity provider runs).

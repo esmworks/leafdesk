@@ -1517,6 +1517,9 @@ Useful scripts:
 | `pnpm tsx scripts/two-factor-e2e.ts` | End-to-end two-step verification check (sign-in challenge, recovery codes, workspace policy) against a running server |
 | `pnpm tsx scripts/admin-e2e.ts` | End-to-end instance administration check (`ADMIN_EMAILS`, `WORKSPACE_CREATION`, signing out, required password resets) against a running server with the same two settings; it signs everyone out, so only on a development or CI database |
 
+CI (`.github/workflows/ci.yml`) runs every `scripts/*-e2e.ts`, the ones that need a server against
+`pnpm start`; each step there shows the settings its script needs.
+
 ## Languages
 
 The interface is available in English, Turkish (Türkçe), German (Deutsch), Spanish (Español) and

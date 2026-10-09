@@ -16,6 +16,7 @@
  * same database as the app's). The workspace's SSO domain is verified with a stub DNS answer.
  * Creates its own users and workspaces and deletes them afterwards.
  */
+import { waitOutAuthRateLimits } from "./auth-rate-limit";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -50,6 +51,7 @@ registerCollab({
 } as unknown as Parameters<typeof registerCollab>[0]);
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+waitOutAuthRateLimits(BASE);
 const RUN = Date.now().toString(36);
 const PASSWORD = "scim-e2e-password-123";
 const DOMAIN = `scim-${RUN}.test`;

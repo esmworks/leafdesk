@@ -22,6 +22,7 @@
  * MAILPIT_URL (the app sending to Mailpit), the confirmation link is read from the real email and
  * the notices are checked too; otherwise the script puts a known token in the link's place.
  */
+import { waitOutAuthRateLimits } from "./auth-rate-limit";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -51,6 +52,7 @@ const { totpCode, totpKeyFromUri } = await import("@/lib/totp");
 const { getStorage } = await import("@/server/storage");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+waitOutAuthRateLimits(BASE);
 const RUN = Date.now().toString(36);
 const PASSWORD = "account-e2e-123";
 const NEW_PASSWORD = "account-e2e-456";

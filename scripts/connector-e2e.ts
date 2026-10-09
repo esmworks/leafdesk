@@ -349,7 +349,9 @@ try {
     const [row] = await db.select().from(connection).where(eq(connection.id, conn.id));
     const result = await callConnectionTool(row, tool, args);
     check(!result.isError, `${tool} at the peer works`, resultText(result));
-    return JSON.parse(resultText(result));
+    // The JSON is the first part; read tools add a note after it.
+    const [first] = result.content.filter((c) => c.type === "text");
+    return JSON.parse(first.type === "text" ? first.text : "");
   };
   const { workspaces: peerWorkspaces } = await call("list_workspaces", {});
   const peerWs = peerWorkspaces[0].id as string;

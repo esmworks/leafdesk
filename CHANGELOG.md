@@ -335,6 +335,13 @@
   largest first load of any route (the page editor, about 700 kB gzipped today, budget 800 kB) and
   all client chunks together (about 2,700 kB, budget 3,150 kB). `pnpm tsx scripts/bundle-budget.ts`
   after `pnpm build` prints the largest routes.
+- **CI runs every end-to-end script.** The 34 `scripts/*-e2e.ts` that only ran by hand (agents,
+  connections, AI, sub-items, templates, the REST API, SCIM, account security, two-step
+  verification, single sign-on and the rest) now run on every push and pull request, the ones
+  that need a server against the production build. Under its sign-in rate limit those scripts
+  wait out a 429 (`scripts/auth-rate-limit.ts`); three had fallen behind the app and were brought
+  up to date: a connection's MCP result has a note after its JSON, a password reset disconnects
+  connected apps, and removing an SSO connection signs out who signed in through it.
 - **A database's tab title names its view.** The browser tab of a database reads
   "Customers · By city · Leafdesk": the view it shows, following view switches and renames of the
   database or its views, and kept on a reload or a shared `?view=` link.

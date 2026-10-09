@@ -18,6 +18,7 @@
  *
  * Env: APP_URL (default http://localhost:3000), DATABASE_URL (read from .env when present).
  */
+import { waitOutAuthRateLimits } from "./auth-rate-limit";
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -36,6 +37,7 @@ const Y = await import("yjs");
 const { HocuspocusProvider } = await import("@hocuspocus/provider");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+waitOutAuthRateLimits(BASE);
 const RUN = Date.now().toString(36);
 const PASSWORD = "two-factor-e2e-123";
 const emailOf = (who: string) => `2fa-${who}-${RUN}@example.test`;

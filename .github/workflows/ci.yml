@@ -18,7 +18,7 @@ jobs:
   check:
     name: Typecheck, tests, build and e2e
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:18-alpine
@@ -176,6 +176,81 @@ jobs:
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           pnpm tsx scripts/sw-e2e.ts
 
+      - name: Sub-items end-to-end
+        run: pnpm tsx scripts/sub-items-e2e.ts
+
+      - name: Dependencies end-to-end
+        run: pnpm tsx scripts/dependencies-e2e.ts
+
+      - name: File properties end-to-end
+        run: pnpm tsx scripts/files-property-e2e.ts
+
+      - name: Property access end-to-end
+        run: pnpm tsx scripts/property-access-e2e.ts
+
+      - name: Page backgrounds end-to-end
+        run: pnpm tsx scripts/page-background-e2e.ts
+
+      - name: Templates end-to-end
+        run: pnpm tsx scripts/templates-e2e.ts
+
+      - name: Page history end-to-end
+        run: pnpm tsx scripts/history-e2e.ts
+
+      - name: Uploads end-to-end
+        run: pnpm tsx scripts/uploads-e2e.ts
+
+      - name: Notion import end-to-end
+        run: pnpm tsx scripts/notion-import-e2e.ts
+
+      - name: Markdown round trip end-to-end
+        run: pnpm tsx scripts/roundtrip-e2e.ts
+
+      - name: Groups end-to-end
+        run: pnpm tsx scripts/groups-e2e.ts
+
+      - name: Guests end-to-end
+        run: pnpm tsx scripts/guests-e2e.ts
+
+      - name: Teamspaces end-to-end
+        run: pnpm tsx scripts/teamspaces-e2e.ts
+
+      - name: Teamspace member access end-to-end
+        run: pnpm tsx scripts/teamspace-member-access-e2e.ts
+
+      - name: Presence end-to-end
+        run: pnpm tsx scripts/presence-e2e.ts
+
+      # Real websockets to a collab server the script starts itself.
+      - name: Offline editing end-to-end
+        run: pnpm tsx scripts/offline-e2e.ts
+
+      # The model and embeddings are a fake OpenAI-compatible server the scripts start on 127.0.0.1.
+      - name: AI writing assistant end-to-end
+        run: pnpm tsx scripts/ai-e2e.ts
+
+      - name: AI chat end-to-end
+        run: pnpm tsx scripts/ai-chat-e2e.ts
+
+      - name: AI and property access end-to-end
+        run: pnpm tsx scripts/property-access-ai-e2e.ts
+
+      - name: Semantic search end-to-end
+        run: pnpm tsx scripts/semantic-search-e2e.ts
+
+      # Before the server starts: its workers would take the runs and schedules these scripts check.
+      - name: Agents end-to-end
+        run: pnpm tsx scripts/agents-e2e.ts
+
+      - name: Repeating rows end-to-end
+        run: pnpm tsx scripts/schedule-e2e.ts
+
+      # A second Leafdesk on its own database (the script migrates it) as the remote MCP server.
+      - name: Connections end-to-end
+        run: |
+          PGPASSWORD=leafdesk createdb -h localhost -U leafdesk leafdesk_peer
+          pnpm tsx scripts/connector-e2e.ts
+
       # The admin e2e's administrator, and new workspaces for administrators only (the other policy
       # is checked against the database).
       - name: Start the server
@@ -203,12 +278,73 @@ jobs:
       - name: Password reset end-to-end
         run: pnpm tsx scripts/auth-e2e.ts
 
-      # Last: it signs every session on the server out.
+      - name: REST API end-to-end
+        run: pnpm tsx scripts/api-e2e.ts
+
+      - name: Database columns end-to-end
+        run: pnpm tsx scripts/columns-e2e.ts
+
+      - name: Export end-to-end
+        env:
+          EXPORT_E2E_URL: http://localhost:3000
+        run: pnpm tsx scripts/export-e2e.ts
+
+      - name: Print view end-to-end
+        env:
+          PRINT_E2E_URL: http://localhost:3000
+        run: pnpm tsx scripts/print-e2e.ts
+
+      - name: Workspace site end-to-end
+        run: pnpm tsx scripts/site-e2e.ts
+
+      - name: SCIM end-to-end
+        run: pnpm tsx scripts/scim-e2e.ts
+
+      - name: Account security end-to-end
+        run: pnpm tsx scripts/security-e2e.ts
+
+      - name: Workspace security switches end-to-end
+        run: pnpm tsx scripts/security-switches-e2e.ts
+
+      - name: Two-step verification end-to-end
+        run: pnpm tsx scripts/two-factor-e2e.ts
+
+      # Last on this server: it signs every session out.
       - name: Instance administration end-to-end
         env:
           ADMIN_EMAILS: admin-e2e@example.test
           WORKSPACE_CREATION: admins
         run: pnpm tsx scripts/admin-e2e.ts
+
+      # Again with the mock identity provider sso-e2e starts as the instance provider, and anyone
+      # may create workspaces (account-e2e makes a second one).
+      - name: Restart the server with single sign-on
+        env:
+          SSO_TRUSTED_ORIGINS: http://127.0.0.1:5199
+          OIDC_ISSUER: http://127.0.0.1:5199/instance
+          OIDC_CLIENT_ID: leafdesk-instance
+          OIDC_CLIENT_SECRET: instance-secret
+          OIDC_NAME: Mock IdP
+          OIDC_DOMAINS: instance-sso.test
+        run: |
+          pkill -f server.ts
+          for _ in $(seq 30); do
+            curl -s -o /dev/null http://localhost:3000/ || break
+            sleep 1
+          done
+          pnpm start >> "$RUNNER_TEMP/server.log" 2>&1 &
+          for _ in $(seq 60); do
+            curl -fs -o /dev/null http://localhost:3000/sign-in && exit 0
+            sleep 1
+          done
+          echo "The server did not come up within 60 seconds."
+          exit 1
+
+      - name: Account settings end-to-end
+        run: pnpm tsx scripts/account-e2e.ts
+
+      - name: Single sign-on end-to-end
+        run: pnpm tsx scripts/sso-e2e.ts
 
       - name: Server log
         if: always()

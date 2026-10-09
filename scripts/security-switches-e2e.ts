@@ -15,6 +15,7 @@
  * .env when present), NEXT_DIR (the server's .next folder, default ./.next, for server action ids).
  * Migrations must be applied.
  */
+import { waitOutAuthRateLimits } from "./auth-rate-limit";
 export {};
 
 const appUrl = process.env.APP_URL;
@@ -44,6 +45,7 @@ const { createApiToken } = await import("@/server/api/tokens");
 const { workspaceSettings } = await import("@/server/workspaces");
 
 const BASE = (appUrl ?? "http://localhost:3000").replace(/\/$/, "");
+waitOutAuthRateLimits(BASE);
 const RESOURCE = `${BASE}/mcp`;
 const REDIRECT_URI = "http://127.0.0.1:33419/callback";
 const RUN = `secsw-${Date.now().toString(36)}`;
