@@ -282,6 +282,14 @@ export function createCollab() {
       }
     },
 
+    async beforeUnloadDocument({ instance, documentName, document }) {
+      // After a save, Hocuspocus unloads the saved document by name a moment later. When the page
+      // was closed and opened again in between, that name belongs to the new document: unloading it
+      // would leave its editors on a document nobody else reaches, whose next save overwrites
+      // changes made since. Throwing (without a message, so nothing is logged) keeps it loaded.
+      if (instance.documents.get(documentName) !== document) throw new Error();
+    },
+
     async onLoadDocument({ documentName, document }) {
       const target = parseName(documentName);
       if (target?.kind !== "page") return document; // ws:/db: docs are signal-only

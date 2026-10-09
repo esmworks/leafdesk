@@ -334,6 +334,11 @@
 
 ### Fixed
 
+- **A page opened right after a save could lose later changes.** The server unloads a saved page's
+  document a moment after the save; when the page had been closed and opened again in between,
+  that unload removed the new document instead, so the people editing it and the next server write
+  (an MCP or REST write, linking a mention) worked on two copies, and closing the editor saved its
+  copy over the other's changes. The unload now leaves a document that has replaced the saved one.
 - **View access could rewrite a page's text through MCP and the REST API.** `update_page` (and
   `PATCH /api/v1/pages/{id}`) with `markdown` checked only that the caller could see the page before
   replacing or appending to its body, so someone with view access, or a connected app acting for
