@@ -90,7 +90,13 @@ export async function listTrashAction(workspaceId: string) {
 
 export async function searchAction(workspaceId: string, query: string) {
   const userId = await requireUserId();
-  return pages.searchPages(userId, query, { workspaceId, limit: 20 });
+  return pages.searchWithQuery(userId, workspaceId, query);
+}
+
+/** What the search box shows before anything is typed: the pages last edited. */
+export async function recentSearchAction(workspaceId: string) {
+  const userId = await requireUserId();
+  return pages.recentPages(userId, workspaceId, 8);
 }
 
 export async function listSnapshotsAction(pageId: string) {

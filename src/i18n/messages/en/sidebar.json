@@ -50,7 +50,15 @@
     "label": "Search",
     "noResults": "No results",
     "semantic": "Similar meaning",
-    "semanticHint": "Found by meaning: the words differ from your search."
+    "semanticHint": "Found by meaning: the words differ from your search.",
+    "recent": "Recently edited",
+    "commands": "Commands",
+    "noCommands": "No matching command",
+    "hint": {
+      "in": "inside a page",
+      "type": "only databases (or page, row)",
+      "commands": "commands"
+    }
   },
   "trash": {
     "title": "Trash",

@@ -43,8 +43,9 @@ import {
   type BulkResult,
 } from "@/server/databases";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
+import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
-import { inSubtree, semanticSearch } from "@/server/semantic-search";
+import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
 import { placeTopLevel, requireTeamspaceForPages, sidebarTeamspaces, type TeamspaceSummary } from "@/server/teamspaces";
@@ -645,11 +646,9 @@ export type SearchHit = {
   blockId?: string | null;
 };
 
-export type SearchOptions = {
+export type SearchOptions = SearchScope & {
   workspaceId?: string;
   limit?: number;
-  /** Only this page and the pages under it. */
-  withinPageId?: string;
   /**
    * Full-text matches pages with any of the query's words (as prefixes, titles first) instead of
    * all of them: for the AI chat, which searches with whole questions.
@@ -657,14 +656,18 @@ export type SearchOptions = {
   anyWord?: boolean;
 };
 
+/** Whether a search has a scope of its own, which lists pages even without words to search for. */
+const scoped = ({ withinPageIds, kinds }: SearchScope) => Boolean(withinPageIds?.length || kinds?.length);
+
 /**
  * Search across the user's workspaces (or one workspace): full-text search over titles and bodies,
  * merged with semantic search (reciprocal rank fusion) where the server has an embeddings model
- * and the workspace has AI on. Without one, exactly the full-text results.
+ * and the workspace has AI on. Without one, exactly the full-text results. With a scope (pages to
+ * look under, kinds of page) and no text, the pages in the scope, last edited first.
  */
 export async function searchPages(userId: string, query: string, options: SearchOptions = {}): Promise<SearchHit[]> {
   const q = query.trim();
-  if (!q) return [];
+  if (!q && !scoped(options)) return [];
   const limit = options.limit ?? 20;
   if (options.workspaceId) await enforceWorkspacePolicy(userId, options.workspaceId);
   const [text, meaning] = await Promise.all([
@@ -708,22 +711,26 @@ export async function searchPages(userId: string, query: string, options: Search
 export async function fullTextSearch(
   userId: string,
   query: string,
-  { workspaceId, limit = 20, withinPageId, anyWord = false }: SearchOptions = {},
+  { workspaceId, limit = 20, anyWord = false, ...scope }: SearchOptions = {},
 ): Promise<SearchHit[]> {
   const q = query.trim();
-  if (!q) return [];
+  if (!q && !scoped(scope)) return [];
   const terms = anyWord ? anyWordTerms(q) : [];
   if (anyWord && !terms.length) return [];
   if (workspaceId) await enforceWorkspacePolicy(userId, workspaceId);
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   const words = sql`setweight(to_tsvector('simple', coalesce(p.title, '')), 'A') || setweight(to_tsvector('simple', coalesce(p.content_text, '')), 'B')`;
   const anyOf = sql`to_tsquery('simple', ${anyWordTsQuery(terms)})`;
-  const rank = anyWord
+  const rank = !q
+    ? sql`0`
+    : anyWord
     ? sql`ts_rank(${words}, ${anyOf})`
     : sql`(case when p.title ilike ${like} then 2 else 0 end)
       + ts_rank(to_tsvector('simple', coalesce(p.title, '') || ' ' || coalesce(p.content_text, '')),
                 plainto_tsquery('simple', ${q}))`;
-  const matches = anyWord
+  const matches = !q
+    ? sql`true`
+    : anyWord
     ? sql`${words} @@ ${anyOf}`
     : sql`(
         p.title ilike ${like} or p.content_text ilike ${like}
@@ -753,7 +760,7 @@ export async function fullTextSearch(
       and not p.in_template
       and ${pageVisibleTo(userId, "p")}
       ${workspaceId ? sql`and p.workspace_id = ${workspaceId}` : sql``}
-      ${withinPageId ? sql`and ${inSubtree(withinPageId)}` : sql``}
+      ${searchScope(scope)}
       and ${matches}
     order by rank desc, p.updated_at desc
     limit ${limit}
@@ -877,6 +884,42 @@ export async function restoreSnapshot(actor: WriteActor, snapshotId: string) {
   assertPageUnlocked(await requirePageAccess(actor.userId, snap.pageId, "edit"));
   await getCollab().restoreSnapshot(snapshotId, actor);
   return snap.pageId;
+}
+
+/**
+ * The search box's query (see lib/search-query): its text, in the pages its `in:` filters name
+ * (none of them found: no results) and of the kinds its `type:` filters name.
+ */
+export async function searchWithQuery(userId: string, workspaceId: string, query: string, limit = 20): Promise<SearchHit[]> {
+  const { text, within, kinds } = parseSearchQuery(query);
+  const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within) : undefined;
+  if (withinPageIds && !withinPageIds.length) return [];
+  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds });
+}
+
+/**
+ * Ids of the pages of a workspace the user can see that have one of `titles` (without case or
+ * surrounding space), last edited first: what a search's `in:` filters name.
+ */
+export async function pagesTitled(userId: string, workspaceId: string, titles: string[], limit = 20): Promise<string[]> {
+  const wanted = [...new Set(titles.map((t) => t.trim().toLowerCase()).filter(Boolean))];
+  if (!wanted.length) return [];
+  await enforceWorkspacePolicy(userId, workspaceId);
+  const rows = await db
+    .select({ id: page.id })
+    .from(page)
+    .where(
+      and(
+        eq(page.workspaceId, workspaceId),
+        isNull(page.archivedAt),
+        eq(page.inTemplate, false),
+        pageVisibleTo(userId),
+        sql`lower(trim(${page.title})) in (${sql.join(wanted.map((t) => sql`${t}`), sql`, `)})`,
+      ),
+    )
+    .orderBy(desc(page.updatedAt))
+    .limit(limit);
+  return rows.map((r) => r.id);
 }
 
 export async function recentPages(userId: string, workspaceId: string, limit = 8) {

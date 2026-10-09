@@ -50,7 +50,15 @@
     "label": "Ara",
     "noResults": "Sonuç bulunamadı",
     "semantic": "Benzer anlam",
-    "semanticHint": "Anlamına göre bulundu: kelimeler aramandakilerden farklı."
+    "semanticHint": "Anlamına göre bulundu: kelimeler aramandakilerden farklı.",
+    "recent": "Son düzenlenenler",
+    "commands": "Komutlar",
+    "noCommands": "Eşleşen komut yok",
+    "hint": {
+      "in": "bir sayfanın içinde",
+      "type": "yalnız veritabanları (ya da page, row)",
+      "commands": "komutlar"
+    }
   },
   "trash": {
     "title": "Çöp kutusu",

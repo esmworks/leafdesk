@@ -50,7 +50,15 @@
     "label": "Rechercher",
     "noResults": "Aucun résultat",
     "semantic": "Sens proche",
-    "semanticHint": "Trouvée par son sens : les mots diffèrent de votre recherche."
+    "semanticHint": "Trouvée par son sens : les mots diffèrent de votre recherche.",
+    "recent": "Modifiées récemment",
+    "commands": "Commandes",
+    "noCommands": "Aucune commande correspondante",
+    "hint": {
+      "in": "dans une page",
+      "type": "seulement les bases de données (ou page, row)",
+      "commands": "commandes"
+    }
   },
   "trash": {
     "title": "Corbeille",

@@ -3,8 +3,9 @@ Copyright 2026 esmworks
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
-src/lib/import/obsidian.ts adapts link resolution from Tessera Notes
-(https://github.com/femboypuppy/Tessera-Notes), under the MIT License:
+src/lib/import/obsidian.ts (link resolution) and src/lib/search-query.ts (the query tokenizer)
+adapt code from Tessera Notes (https://github.com/femboypuppy/Tessera-Notes), under the MIT
+License:
 
   Copyright (c) 2026 femboypuppy
 

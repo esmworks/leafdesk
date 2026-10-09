@@ -56,6 +56,13 @@ versions, upgrades and running behind a domain.
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text, and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).
+- **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
+  `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
+  title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
+  `type:page`, `type:database` or `type:row` (database rows); filters work without words too,
+  listing the pages they match, last edited first. Type `>` for commands: new page or database,
+  from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
+  results puts each of these into the box.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
@@ -1492,7 +1499,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads, import, Notion import, export, and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads, import, Notion import, export, the search box's filters, and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

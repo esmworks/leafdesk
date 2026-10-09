@@ -12,6 +12,7 @@ import { db } from "@/db";
 import { page, pageChunk } from "@/db/schema";
 import type { PageKind } from "@/db/schema";
 import { sharedLimiter } from "@/lib/rate-limit";
+import type { SearchKind } from "@/lib/search-query";
 import { pageVisibleTo, workspacesHeldBack } from "@/server/access";
 import { embed, embeddingModel, embeddingsEnabled, minSimilarity } from "@/server/ai";
 import { maybeSweep } from "@/server/semantic-index";
@@ -109,6 +110,32 @@ export function inSubtree(rootId: string, alias = "p"): SQL {
   )`;
 }
 
+/** Where a search looks: under pages (any of them), and at pages of some kinds (see lib/search-query). */
+export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kinds?: SearchKind[] };
+
+/**
+ * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
+ * inside one of `withinPageIds` (each the page itself or under it), of one of `kinds` (a row is a
+ * page whose parent is a database). Empty for no scope.
+ */
+export function searchScope({ withinPageId, withinPageIds = [], kinds = [] }: SearchScope, alias = "p"): SQL {
+  if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
+  const parts: SQL[] = [];
+  if (withinPageId) parts.push(inSubtree(withinPageId, alias));
+  if (withinPageIds.length) parts.push(sql`(${sql.join(withinPageIds.map((id) => inSubtree(id, alias)), sql` or `)})`);
+  if (kinds.length) {
+    const kind = sql.raw(`"${alias}"."kind"`);
+    const inDatabase = sql`exists (select 1 from ${page} pk where pk.id = ${sql.raw(`"${alias}"."parent_id"`)} and pk.kind = 'database')`;
+    const byKind: Record<SearchKind, SQL> = {
+      page: sql`(${kind} = 'page' and not ${inDatabase})`,
+      database: sql`${kind} = 'database'`,
+      row: sql`(${kind} = 'page' and ${inDatabase})`,
+    };
+    parts.push(sql`(${sql.join(kinds.map((k) => byKind[k]), sql` or `)})`);
+  }
+  return parts.length ? sql`and ${sql.join(parts, sql` and `)}` : sql``;
+}
+
 /**
  * Pages closest in meaning to `query` that the user may see, best first (their best chunk each).
  * Empty without an embeddings model, for very short queries, and when the query can't be embedded.
@@ -116,7 +143,7 @@ export function inSubtree(rootId: string, alias = "p"): SQL {
 export async function semanticSearch(
   userId: string,
   query: string,
-  { workspaceId, limit = 20, withinPageId }: { workspaceId?: string; limit?: number; withinPageId?: string } = {},
+  { workspaceId, limit = 20, ...scope }: { workspaceId?: string; limit?: number } & SearchScope = {},
 ): Promise<SemanticHit[]> {
   const q = query.trim();
   const model = embeddingModel();
@@ -150,7 +177,7 @@ export async function semanticSearch(
       -- Access first, then ranking: only pages the user can open right now are compared at all.
       select p.id from ${page} p join candidates k on k.page_id = p.id
       where p.archived_at is null and not p.in_template
-        ${withinPageId ? sql`and ${inSubtree(withinPageId)}` : sql``}
+        ${searchScope(scope)}
         and ${pageVisibleTo(userId, "p")}
     ),
     ranked as (

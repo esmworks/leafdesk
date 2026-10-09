@@ -17,6 +17,13 @@
 
 ### Added
 
+- **Search filters and commands.** The search box (Cmd/Ctrl+K) narrows a search with
+  `in:"Page title"` (that page and everything under it) and `type:page`, `type:database` or
+  `type:row`, which also work on their own to list what they match. Before anything is typed it
+  shows the pages last edited, and after `>` it runs commands (new page or database, from a
+  template, import, trash, inbox, settings, keyboard shortcuts). A line under the results shows
+  the syntax and puts it into the box. MCP and REST search keep their own parameters. No
+  migration.
 - **Import from Obsidian.** Import takes a vault's folder or a ZIP of it. Wikilinks (with labels,
   headings, block references and folder paths), Markdown links written by name and notes' aliases
   from front matter become page links, resolved across the vault: a path first, then the note of

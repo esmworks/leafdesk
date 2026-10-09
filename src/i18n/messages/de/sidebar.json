@@ -50,7 +50,15 @@
     "label": "Suchen",
     "noResults": "Keine Ergebnisse",
     "semantic": "Ähnliche Bedeutung",
-    "semanticHint": "Nach Bedeutung gefunden: Die Wörter unterscheiden sich von deiner Suche."
+    "semanticHint": "Nach Bedeutung gefunden: Die Wörter unterscheiden sich von deiner Suche.",
+    "recent": "Zuletzt bearbeitet",
+    "commands": "Befehle",
+    "noCommands": "Kein passender Befehl",
+    "hint": {
+      "in": "innerhalb einer Seite",
+      "type": "nur Datenbanken (oder page, row)",
+      "commands": "Befehle"
+    }
   },
   "trash": {
     "title": "Papierkorb",

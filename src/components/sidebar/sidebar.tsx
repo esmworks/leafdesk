@@ -1090,7 +1090,30 @@ export function Sidebar({
         </div>
       </aside>
       {/* Outside the aside: its slide transform would otherwise anchor these fixed dialogs. */}
-      <SearchDialog workspaceId={workspaceId} open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchDialog
+        workspaceId={workspaceId}
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        commands={[
+          // What the sidebar itself offers here; making pages, importing and the trash need the server.
+          ...(topLevel && !offline
+            ? [
+                { id: "new-page", label: t("pages.newPage"), icon: <FileText className="h-4 w-4" />, run: () => create(null, "page", undefined) },
+                { id: "new-database", label: t("pages.newDatabase"), icon: <Database className="h-4 w-4" />, run: () => create(null, "database", undefined) },
+                { id: "templates", label: t("pages.fromTemplate"), icon: <LayoutTemplate className="h-4 w-4" />, run: () => openTemplates(undefined) },
+              ]
+            : []),
+          ...(!offline
+            ? [
+                { id: "import", label: t("nav.import"), icon: <Upload className="h-4 w-4" />, run: () => openImport(undefined) },
+                { id: "trash", label: t("nav.trash"), icon: <Trash2 className="h-4 w-4" />, run: () => setTrashOpen(true) },
+              ]
+            : []),
+          { id: "inbox", label: t("nav.inbox"), icon: <Inbox className="h-4 w-4" />, run: () => setInboxOpen(true) },
+          { id: "settings", label: t("nav.settings"), icon: <Settings className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/settings`) },
+          { id: "shortcuts", label: tShortcuts("title"), icon: <Keyboard className="h-4 w-4" />, run: () => setShortcutsOpen(true) },
+        ]}
+      />
       <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <InboxDialog
         workspaceId={workspaceId}

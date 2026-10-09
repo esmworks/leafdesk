@@ -50,7 +50,15 @@
     "label": "Buscar",
     "noResults": "Sin resultados",
     "semantic": "Significado parecido",
-    "semanticHint": "Encontrada por su significado: las palabras no coinciden con tu búsqueda."
+    "semanticHint": "Encontrada por su significado: las palabras no coinciden con tu búsqueda.",
+    "recent": "Editadas recientemente",
+    "commands": "Comandos",
+    "noCommands": "Ningún comando coincide",
+    "hint": {
+      "in": "dentro de una página",
+      "type": "solo bases de datos (o page, row)",
+      "commands": "comandos"
+    }
   },
   "trash": {
     "title": "Papelera",
