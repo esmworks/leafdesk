@@ -266,9 +266,10 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex flex-col gap-3 border-b border-border px-4 pt-3 pb-3 max-md:pl-1.5 md:px-6 md:pt-4">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <SidebarOpenButton className="-mr-2" />
+      <header className="flex flex-col gap-3 border-b border-border px-4 pb-3 md:px-6">
+        {/* The first row is as tall as a page's header, and the open button is pulled into the padding, so it sits where it does on pages. */}
+        <div className="flex min-h-11 flex-wrap items-center gap-x-4 gap-y-2">
+          <SidebarOpenButton className="-mr-2 -ml-2.5 md:-ml-3" />
           <h1 className="text-lg font-semibold tracking-tight">{t("heading")}</h1>
           <p className="text-xs text-fg-muted">{t("count", { pages: shown.nodes.length, edges: shown.edges.length })}</p>
           <IconButton label={t("reload")} onClick={() => router.refresh()} className="ml-auto">

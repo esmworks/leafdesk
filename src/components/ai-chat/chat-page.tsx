@@ -67,7 +67,7 @@ export function ChatPage({ workspaceId, available }: { workspaceId: string; avai
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-11 shrink-0 items-center gap-1 px-4 max-md:pl-1.5">
+      <div className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:pl-1.5">
         <SidebarOpenButton className="mr-1 max-md:mr-0" />
         <h1 className="min-w-0 flex-1 truncate text-sm font-medium">{title || t("title")}</h1>
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
