@@ -31,3 +31,29 @@ export async function backlinksAction(pageId: string) {
     throw error;
   }
 }
+
+/** Pages that write this page's title without linking to it, that the user can see. */
+export async function unlinkedMentionsAction(pageId: string) {
+  const userId = await requireUserId();
+  try {
+    return await mentions.listUnlinkedMentions(userId, pageId);
+  } catch (error) {
+    if (error instanceof AccessError) return [];
+    throw error;
+  }
+}
+
+/**
+ * Links the first place `sourceId` writes this page's title. `ok` is false when it couldn't:
+ * `locked` when the source is locked, otherwise the title is gone or it may not be edited.
+ */
+export async function linkMentionAction(sourceId: string, targetId: string): Promise<{ ok: boolean; locked?: boolean }> {
+  const userId = await requireUserId();
+  try {
+    return { ok: await mentions.linkUnlinkedMention(userId, sourceId, targetId) };
+  } catch (error) {
+    if (error instanceof AccessError) return { ok: false };
+    if ((error as { code?: unknown }).code === "pageLocked") return { ok: false, locked: true };
+    throw error;
+  }
+}

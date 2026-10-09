@@ -1,8 +1,11 @@
 import { and, asc, desc, eq, ilike, inArray, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
+import { findTitle, excerpt, linkContexts, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
 import { bodyReferences } from "@/lib/mentions";
+import { searchFold } from "@/lib/search-fold";
 import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
+import { getCollab } from "@/server/collab/bridge";
 import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { workspacePeople } from "@/server/workspaces";
 import { avatarSrc } from "@/lib/avatar";
@@ -35,7 +38,7 @@ export async function syncPageReferences(
 ) {
   try {
     const refs = bodyReferences(blocks);
-    await syncLinks(pageId, refs.pageIds);
+    await syncLinks(pageId, refs.pageIds, linkContexts(blocks));
     await syncMentions(pageId, workspaceId, refs.people, actorId, locale);
     await syncReminders(pageId, refs.reminders, actorId);
   } catch (error) {
@@ -43,22 +46,31 @@ export async function syncPageReferences(
   }
 }
 
-async function syncLinks(pageId: string, targetIds: string[]) {
+async function syncLinks(pageId: string, targetIds: string[], contexts: Map<string, string>) {
   const wanted = targetIds.filter((id) => id !== pageId);
-  const existing = new Set(
-    (await db.select({ id: pageLink.targetId }).from(pageLink).where(eq(pageLink.sourceId, pageId))).map((r) => r.id),
+  const existing = new Map(
+    (await db.select({ id: pageLink.targetId, context: pageLink.context }).from(pageLink).where(eq(pageLink.sourceId, pageId))).map(
+      (r) => [r.id, r.context],
+    ),
   );
   const added = wanted.filter((id) => !existing.has(id));
   const kept = new Set(wanted);
-  const removed = [...existing].filter((id) => !kept.has(id));
+  const removed = [...existing.keys()].filter((id) => !kept.has(id));
   if (removed.length) await db.delete(pageLink).where(and(eq(pageLink.sourceId, pageId), inArray(pageLink.targetId, removed)));
+  // The text around a kept link changed with the edit.
+  for (const id of wanted) {
+    const context = contexts.get(id) ?? null;
+    if (existing.has(id) && existing.get(id) !== context) {
+      await db.update(pageLink).set({ context }).where(and(eq(pageLink.sourceId, pageId), eq(pageLink.targetId, id)));
+    }
+  }
   if (!added.length) return;
   // Links to pages that don't exist (deleted, or made up) show as broken links but index nothing.
   const found = await db.select({ id: page.id }).from(page).where(inArray(page.id, added));
   if (found.length) {
     await db
       .insert(pageLink)
-      .values(found.map((p) => ({ sourceId: pageId, targetId: p.id })))
+      .values(found.map((p) => ({ sourceId: pageId, targetId: p.id, context: contexts.get(p.id) ?? null })))
       .onConflictDoNothing();
   }
 }
@@ -287,18 +299,127 @@ export async function labelPageLinks(
     .join("\n");
 }
 
-export type Backlink = { id: string; workspaceId: string; title: string; icon: string | null; kind: PageKind };
+export type Backlink = {
+  id: string;
+  workspaceId: string;
+  title: string;
+  icon: string | null;
+  kind: PageKind;
+  /** The text around the link, the link as LINK_PLACEHOLDER (lib/link-context); null when there is none. */
+  context: string | null;
+};
 
 /** Pages whose body mentions or links to `pageId`, as far as the user can see them. */
 export async function listBacklinks(userId: string, pageId: string): Promise<Backlink[]> {
   await requirePageAccess(userId, pageId, "view");
   return db
-    .select({ id: page.id, workspaceId: page.workspaceId, title: page.title, icon: page.icon, kind: page.kind })
+    .select({ id: page.id, workspaceId: page.workspaceId, title: page.title, icon: page.icon, kind: page.kind, context: pageLink.context })
     .from(pageLink)
     .innerJoin(page, eq(page.id, pageLink.sourceId))
     .where(and(eq(pageLink.targetId, pageId), isNull(page.archivedAt), eq(page.inTemplate, false), pageVisibleTo(userId)))
     .orderBy(asc(page.title), asc(page.id))
     .limit(100);
+}
+
+/** A page that writes this page's title without linking to it: where, and whether the reader may link it. */
+export type UnlinkedMention = {
+  id: string;
+  workspaceId: string;
+  title: string;
+  icon: string | null;
+  kind: PageKind;
+  excerpt: Excerpt;
+  canEdit: boolean;
+};
+
+/** Pages the full-text index offers, before their text is checked for the title. */
+const UNLINKED_CANDIDATES = 50;
+const UNLINKED_SHOWN = 20;
+
+/**
+ * Pages of the workspace that write `pageId`'s title as whole words in their text but don't link
+ * to it, as far as the user can see them, last edited first. Titles shorter than
+ * MIN_MENTION_TITLE characters aren't looked for.
+ */
+export async function listUnlinkedMentions(userId: string, pageId: string): Promise<UnlinkedMention[]> {
+  const target = await requirePageAccess(userId, pageId, "view");
+  const title = target.title.trim();
+  if ([...title].length < MIN_MENTION_TITLE) return [];
+  // The same expression as page_search_idx, so the index narrows the pages down. Postgres lowers
+  // "I" and "İ" to "i" while the title may be written with "ı": the title is looked for as written,
+  // with every i-like letter as "i" and as "ı", and findTitle has the last word.
+  const document = sql`to_tsvector('simple', coalesce(${page.title}, '') || ' ' || coalesce(${page.contentText}, ''))`;
+  const folded = searchFold(title);
+  const forms = [...new Set([title, folded, folded.replace(/i/g, "ı")])];
+  const query = sql.join(
+    forms.map((form) => sql`phraseto_tsquery('simple', ${form})`),
+    sql` || `,
+  );
+  const rows = await db
+    .select({
+      id: page.id,
+      workspaceId: page.workspaceId,
+      title: page.title,
+      icon: page.icon,
+      kind: page.kind,
+      text: page.contentText,
+      level: accessRank(userId, sql`${page.id}`),
+    })
+    .from(page)
+    .where(
+      and(
+        eq(page.workspaceId, target.workspaceId),
+        ne(page.id, pageId),
+        eq(page.kind, "page"),
+        isNull(page.archivedAt),
+        eq(page.inTemplate, false),
+        sql`${document} @@ (${query})`,
+        sql`not exists (select 1 from ${pageLink} pl where pl.source_id = ${page.id} and pl.target_id = ${pageId})`,
+        pageVisibleTo(userId),
+      ),
+    )
+    .orderBy(desc(page.updatedAt), asc(page.id))
+    .limit(UNLINKED_CANDIDATES);
+  const out: UnlinkedMention[] = [];
+  for (const row of rows) {
+    // The title of the page writing it doesn't count: only body text can become a mention.
+    const found = findTitle(row.text, title);
+    if (!found) continue;
+    const level = levelFromRank(row.level);
+    out.push({
+      id: row.id,
+      workspaceId: row.workspaceId,
+      title: row.title,
+      icon: row.icon,
+      kind: row.kind,
+      excerpt: excerpt(row.text, found.start, found.end),
+      canEdit: level === "edit" || level === "full",
+    });
+    if (out.length === UNLINKED_SHOWN) break;
+  }
+  return out;
+}
+
+/**
+ * Turns the first place `sourceId`'s body writes `targetId`'s title in plain text into a mention of
+ * it. The user must be able to edit the source and see the target, in the same workspace; a locked
+ * source refuses (lib/page-lock). False when the title isn't (or no longer) written there as plain
+ * text, e.g. only in code or across differently styled words.
+ */
+export async function linkUnlinkedMention(userId: string, sourceId: string, targetId: string): Promise<boolean> {
+  const source = await requirePageAccess(userId, sourceId, "edit");
+  const target = await requirePageAccess(userId, targetId, "view");
+  if (source.workspaceId !== target.workspaceId || source.id === target.id || target.archivedAt) return false;
+  const blocks = await getCollab().linkPageMention(sourceId, targetId, target.title, { userId });
+  if (!blocks) return false;
+  // While the source is open somewhere its save waits a moment; the list shows the link now. Only
+  // the links: people mentioned and reminders set in an open editor belong to whoever saves them.
+  try {
+    await syncLinks(sourceId, bodyReferences(blocks as Blocks).pageIds, linkContexts(blocks));
+  } catch (error) {
+    console.error(`could not update the links of page ${sourceId}`, error);
+  }
+  return true;
 }
 
 export type MentionCandidates = {
@@ -412,8 +533,8 @@ export async function copyReferences(tx: Pick<typeof db, "execute">, pairs: { id
     on conflict do nothing
   `);
   await tx.execute(sql`
-    insert into ${pageLink} (source_id, target_id)
-    select m.id, pl.target_id
+    insert into ${pageLink} (source_id, target_id, context)
+    select m.id, pl.target_id, pl.context
     from jsonb_to_recordset(${map}::jsonb) as m(id text, source_id text)
     join ${pageLink} pl on pl.source_id = m.source_id
     on conflict do nothing

@@ -39,6 +39,11 @@ export interface CollabService {
   appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean): Promise<void>;
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
   appendBlocks(pageId: string, blocks: unknown[], actor: WriteActor, snapshot?: boolean): Promise<void>;
+  /**
+   * Turns the first place the body writes `title` in plain text into a mention of `targetId` (see
+   * lib/link-context linkTitle). Returns the new body's blocks, or null when the title isn't there.
+   */
+  linkPageMention(pageId: string, targetId: string, title: string, actor: WriteActor): Promise<unknown[] | null>;
   setTitle(pageId: string, title: string, actor: WriteActor): Promise<void>;
   restoreSnapshot(snapshotId: string, actor: WriteActor): Promise<void>;
   /**

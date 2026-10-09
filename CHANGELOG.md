@@ -17,6 +17,14 @@
 
 ### Added
 
+- **Context and unlinked mentions under "Linked from".** Each page in a page's "Linked from" list
+  shows the text around its link, with the page's live title in place of the link (other pages'
+  titles stay out of it). Below the list, folded away, are the pages that write the page's title
+  as whole words without linking to it (last edited first; the trash, templates and pages the
+  reader can't see left out); "Link" turns the first place a page writes it into a page mention,
+  for someone who may edit that page, also while it is open in an editor. MCP's `get_page` gives
+  each `linked_from` page its `context`. Migration `0048_page_link_context`: links already indexed
+  get their context when their page is next saved.
 - **Search filters and commands.** The search box (Cmd/Ctrl+K) narrows a search with
   `in:"Page title"` (that page and everything under it) and `type:page`, `type:database` or
   `type:row`, which also work on their own to list what they match. Before anything is typed it

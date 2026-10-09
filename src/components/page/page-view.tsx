@@ -464,7 +464,7 @@ export function PageView({
             </div>
           )}
           {/* Databases too: a page can mention one. */}
-          <Backlinks workspaceId={workspaceId} pageId={page.id} />
+          <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} />
         </div>
 
         {historyOpen && (

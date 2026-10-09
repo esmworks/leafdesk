@@ -26,6 +26,7 @@ import * as databases from "@/server/databases";
 import { resolveEmbeds } from "@/server/embeds";
 import * as forms from "@/server/forms";
 import * as groups from "@/server/groups";
+import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import { labelPageLinks, listBacklinks } from "@/server/mentions";
 import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
@@ -517,7 +518,13 @@ export async function getPage(
     if (children.length > 100) out.child_pages_truncated = children.length;
     const backlinks = await listBacklinks(userId, page.id);
     if (backlinks.length) {
-      out.linked_from = backlinks.map((b) => ({ id: b.id, title: pageLabel(b.title), url: pageUrl(b.workspaceId, b.id) }));
+      out.linked_from = backlinks.map((b) => ({
+        id: b.id,
+        title: pageLabel(b.title),
+        url: pageUrl(b.workspaceId, b.id),
+        // The text around the link, the link read as this page's title.
+        ...(b.context ? { context: b.context.replaceAll(LINK_PLACEHOLDER, pageLabel(page.title)) } : {}),
+      }));
     }
   }
   return out;

@@ -7,6 +7,7 @@ import * as Y from "yjs";
 import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
 import { blocksToPlainText } from "@/lib/blocks";
+import { linkTitle } from "@/lib/link-context";
 import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
 import { AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
@@ -372,14 +373,16 @@ export function createCollab() {
     build: (
       existing: Awaited<ReturnType<typeof deriveContent>>["blocks"],
       mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
-    ) => Promise<typeof existing>,
+    ) => Promise<typeof existing | null>,
     snapshot: boolean,
   ) => {
     await assertWritable(pageId);
-    await transactPage(pageId, actor, async (doc) => {
+    return transactPage(pageId, actor, async (doc) => {
       if (snapshot) await snapshotBefore(pageId, doc, "before_mcp_write", actor);
       const existing = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
       const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl });
+      // Nothing to write.
+      if (!next) return null;
       doc.transact(
         () =>
           keepingComments(doc, () => {
@@ -388,6 +391,7 @@ export function createCollab() {
           }),
         { source: "local", context: actor },
       );
+      return next;
     });
   };
 
@@ -498,6 +502,10 @@ export function createCollab() {
 
     async appendBlocks(pageId, blocks, actor, snapshot = false) {
       await writeBlocks(pageId, actor, async (existing) => [...withoutTrailingEmpty(existing), ...(blocks as typeof existing)], snapshot);
+    },
+
+    async linkPageMention(pageId, targetId, title, actor) {
+      return writeBlocks(pageId, actor, async (existing) => (linkTitle(existing, title, targetId) ? existing : null), false);
     },
 
     async setTitle(pageId, title, actor) {

@@ -19,6 +19,12 @@ export const pageLink = pgTable(
     targetId: text("target_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
+    /**
+     * The text of the block where the source first links to the target, around the link, with the
+     * link itself as LINK_PLACEHOLDER (lib/link-context). Null for a "Link to page" block, and for
+     * links indexed before contexts were kept, until the source is saved again.
+     */
+    context: text("context"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.sourceId, t.targetId] }), index("page_link_target_idx").on(t.targetId)],

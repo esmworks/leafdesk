@@ -1,0 +1,1 @@
+ALTER TABLE "page_link" ADD COLUMN "context" text;

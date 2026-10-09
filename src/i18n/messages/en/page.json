@@ -440,7 +440,13 @@
   },
   "backlinks": {
     "title": "Linked from",
-    "count": "{count, plural, one {# page links here} other {# pages link here}}"
+    "count": "{count, plural, one {# page links here} other {# pages link here}}",
+    "unlinked": "Unlinked mentions · {count}",
+    "unlinkedHint": "Pages that write this page's title without linking to it",
+    "link": "Link",
+    "linkLabel": "Link the mention in {title}",
+    "linkFailed": "The title isn't written there as plain text any more.",
+    "locked": "That page is locked, so it can't change."
   },
   "pdf": {
     "untitled": "PDF",

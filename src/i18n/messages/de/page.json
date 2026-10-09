@@ -440,7 +440,13 @@
   },
   "backlinks": {
     "title": "Verlinkt von",
-    "count": "{count, plural, one {# Seite verlinkt hierher} other {# Seiten verlinken hierher}}"
+    "count": "{count, plural, one {# Seite verlinkt hierher} other {# Seiten verlinken hierher}}",
+    "unlinked": "Nicht verlinkte Erwähnungen · {count}",
+    "unlinkedHint": "Seiten, die den Titel dieser Seite nennen, ohne auf sie zu verlinken",
+    "link": "Verlinken",
+    "linkLabel": "Erwähnung in {title} verlinken",
+    "linkFailed": "Der Titel steht dort nicht mehr als einfacher Text.",
+    "locked": "Diese Seite ist gesperrt und kann nicht geändert werden."
   },
   "pdf": {
     "untitled": "PDF",

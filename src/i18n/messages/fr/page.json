@@ -440,7 +440,13 @@
   },
   "backlinks": {
     "title": "Liée depuis",
-    "count": "{count, plural, one {# page renvoie ici} other {# pages renvoient ici}}"
+    "count": "{count, plural, one {# page renvoie ici} other {# pages renvoient ici}}",
+    "unlinked": "Mentions non liées · {count}",
+    "unlinkedHint": "Pages qui écrivent le titre de cette page sans y renvoyer",
+    "link": "Lier",
+    "linkLabel": "Lier la mention dans {title}",
+    "linkFailed": "Le titre n'y figure plus en texte simple.",
+    "locked": "Cette page est verrouillée et ne peut pas changer."
   },
   "pdf": {
     "untitled": "PDF",

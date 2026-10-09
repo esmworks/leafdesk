@@ -440,7 +440,13 @@
   },
   "backlinks": {
     "title": "Enlazada desde",
-    "count": "{count, plural, one {# página enlaza aquí} other {# páginas enlazan aquí}}"
+    "count": "{count, plural, one {# página enlaza aquí} other {# páginas enlazan aquí}}",
+    "unlinked": "Menciones sin enlazar · {count}",
+    "unlinkedHint": "Páginas que escriben el título de esta página sin enlazarla",
+    "link": "Enlazar",
+    "linkLabel": "Enlazar la mención en {title}",
+    "linkFailed": "El título ya no aparece ahí como texto sin formato.",
+    "locked": "Esa página está bloqueada y no se puede cambiar."
   },
   "pdf": {
     "untitled": "PDF",

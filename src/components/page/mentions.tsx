@@ -1,14 +1,14 @@
 "use client";
 
 import { createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuController, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Bell, CalendarDays, CircleUser, FileX2, Link2, Lock, Search } from "lucide-react";
+import { Bell, CalendarDays, ChevronRight, CircleUser, FileX2, Link2, Lock, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
-import { backlinksAction, mentionCandidatesAction, resolvePagesAction } from "@/app/actions/mentions";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
+import { backlinksAction, linkMentionAction, mentionCandidatesAction, resolvePagesAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { useChannel } from "@/components/collab/use-channel";
-import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import {
   formatIsoDate,
@@ -22,7 +22,8 @@ import {
   pagePath,
   type MentionProps,
 } from "@/lib/mentions";
-import type { MentionCandidates, PageRef } from "@/server/mentions";
+import { LINK_PLACEHOLDER } from "@/lib/link-context";
+import type { MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 
@@ -581,12 +582,21 @@ export function PagePicker({
 // ---------------------------------------------------------------------------------------------
 // Backlinks
 
-/** "Linked from": the pages whose body mentions or links to this one, as far as the viewer can see. */
-export function Backlinks({ workspaceId, pageId }: { workspaceId: string; pageId: string }) {
+/**
+ * "Linked from": the pages whose body mentions or links to this one, as far as the viewer can see,
+ * each with the text around its link; and below, folded away, the pages that write this page's
+ * title without linking to it, which someone who may edit them can link from here.
+ */
+export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId: string; pageId: string; title: string; canLink: boolean }) {
   const t = useTranslations("page.backlinks");
   const tc = useTranslations("common");
   const router = useRouter();
   const [links, setLinks] = useState<Awaited<ReturnType<typeof backlinksAction>>>([]);
+  const [unlinked, setUnlinked] = useState<UnlinkedMention[]>([]);
+  const [showUnlinked, setShowUnlinked] = useState(false);
+  // The page being linked, and why the last one couldn't be.
+  const [linking, setLinking] = useState<string | null>(null);
+  const [failed, setFailed] = useState<{ id: string; locked: boolean } | null>(null);
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
@@ -595,38 +605,123 @@ export function Backlinks({ workspaceId, pageId }: { workspaceId: string; pageId
       (list) => current && setLinks(list),
       () => {},
     );
+    unlinkedMentionsAction(pageId).then(
+      (list) => current && setUnlinked(list),
+      () => {},
+    );
     return () => {
       current = false;
     };
   }, [pageId, version]);
-  // Renames and the trash change the list; so does opening the page again after linking to it.
+  // Renames and the trash change the lists; so does opening the page again after linking to it.
   useChannel(`ws:${workspaceId}`, (event) => {
     if (event === "tree") setVersion((v) => v + 1);
   });
 
-  if (!links.length) return null;
+  async function link(sourceId: string) {
+    setLinking(sourceId);
+    setFailed(null);
+    try {
+      const result = await linkMentionAction(sourceId, pageId);
+      if (result.ok) setUnlinked((list) => list.filter((m) => m.id !== sourceId));
+      else setFailed({ id: sourceId, locked: Boolean(result.locked) });
+    } catch {
+      setFailed({ id: sourceId, locked: false });
+    } finally {
+      setLinking(null);
+      setVersion((v) => v + 1);
+    }
+  }
+
+  if (!links.length && !unlinked.length) return null;
+  const name = pageLabel(title, tc("untitled"));
+  const row = "-mx-1 flex items-center gap-2 rounded px-1 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg";
   return (
     <section aria-label={t("title")} className="mt-10 border-t border-border px-4 pt-4 md:px-[54px]">
-      <h2 className="text-xs font-medium text-fg-muted" title={t("count", { count: links.length })}>
-        {t("title")}
-      </h2>
-      <ul className="mt-1.5 flex flex-col">
-        {links.map((link) => {
-          const href = pagePath(link.workspaceId, link.id);
-          return (
-            <li key={link.id}>
-              <a
-                href={href}
-                onClick={(e) => openPage(e, href, router.push)}
-                className="-mx-1 flex items-center gap-2 rounded px-1 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-              >
-                <PageIcon icon={link.icon} kind={link.kind} className="text-sm" />
-                <span className="truncate">{pageLabel(link.title, tc("untitled"))}</span>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+      {links.length > 0 && (
+        <>
+          <h2 className="text-xs font-medium text-fg-muted" title={t("count", { count: links.length })}>
+            {t("title")}
+          </h2>
+          <ul className="mt-1.5 flex flex-col">
+            {links.map((link) => {
+              const href = pagePath(link.workspaceId, link.id);
+              return (
+                <li key={link.id}>
+                  <a href={href} onClick={(e) => openPage(e, href, router.push)} className={row}>
+                    <PageIcon icon={link.icon} kind={link.kind} className="text-sm" />
+                    <span className="truncate">{pageLabel(link.title, tc("untitled"))}</span>
+                  </a>
+                  {link.context && (
+                    <p className="mb-1 line-clamp-2 pl-6 text-xs text-fg-faint">
+                      {link.context.split(LINK_PLACEHOLDER).map((part, i) => (
+                        <Fragment key={i}>
+                          {i > 0 && <span className="font-medium text-fg-muted">{name}</span>}
+                          {part}
+                        </Fragment>
+                      ))}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+      {unlinked.length > 0 && (
+        <div className={cn(links.length > 0 && "mt-3")}>
+          <button
+            type="button"
+            aria-expanded={showUnlinked}
+            onClick={() => setShowUnlinked((v) => !v)}
+            title={t("unlinkedHint")}
+            className="-mx-1 flex items-center gap-1 rounded px-1 py-0.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg"
+          >
+            <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUnlinked && "rotate-90")} />
+            {t("unlinked", { count: unlinked.length })}
+          </button>
+          {showUnlinked && (
+            <ul className="mt-1.5 flex flex-col gap-1">
+              {unlinked.map((mention) => {
+                const href = pagePath(mention.workspaceId, mention.id);
+                const label = pageLabel(mention.title, tc("untitled"));
+                return (
+                  <li key={mention.id}>
+                    <div className="flex items-center gap-2">
+                      <a href={href} onClick={(e) => openPage(e, href, router.push)} className={cn(row, "min-w-0 flex-1")}>
+                        <PageIcon icon={mention.icon} kind={mention.kind} className="text-sm" />
+                        <span className="truncate">{label}</span>
+                      </a>
+                      {canLink && mention.canEdit && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={linking !== null}
+                          onClick={() => void link(mention.id)}
+                          aria-label={t("linkLabel", { title: label })}
+                        >
+                          <Link2 className="h-3.5 w-3.5" />
+                          {t("link")}
+                        </Button>
+                      )}
+                    </div>
+                    <p className="line-clamp-2 pl-6 text-xs text-fg-faint">
+                      {mention.excerpt.before}
+                      <span className="font-medium text-fg-muted">{mention.excerpt.match}</span>
+                      {mention.excerpt.after}
+                    </p>
+                    {failed?.id === mention.id && (
+                      <p role="status" className="pl-6 text-xs text-danger">
+                        {failed.locked ? t("locked") : t("linkFailed")}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </section>
   );
 }
