@@ -3,6 +3,8 @@
  * subscription, and what a push message says about a notification (see server/push.ts).
  */
 
+import { canSnooze } from "./snooze";
+
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
 
 const BASE64URL = /^[A-Za-z0-9_-]+$/;
@@ -170,5 +172,5 @@ export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoD
     if (item.databaseTitle !== null) line += ` · ${item.databaseTitle.trim() || t("untitled")}`;
   }
   // An agent's call waits only so long: snoozing it would let it run out unseen.
-  return { title, body: line, url: pushLink(item), tag: item.id, snooze: item.kind === "agent_approval" ? "" : t("snooze") };
+  return { title, body: line, url: pushLink(item), tag: item.id, snooze: canSnooze(item.kind) ? t("snooze") : "" };
 }

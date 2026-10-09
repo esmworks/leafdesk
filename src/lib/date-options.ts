@@ -13,9 +13,9 @@ export type { DateOptions, DateReminder };
 /** How many days before the date a reminder can go: on the day, the day before, two days, a week. */
 export const REMINDER_DAYS = [0, 1, 2, 7] as const;
 /** Reminders go at 9:00. */
-export const REMINDER_MINUTES = 9 * 60;
+const REMINDER_MINUTES = 9 * 60;
 /** Relative display: days this close to today read relatively ("in 6 days"), farther ones as dates. */
-export const RELATIVE_DAYS = 6;
+const RELATIVE_DAYS = 6;
 
 /** What the app or MCP asks for: the display, and the reminder's days before (null: none). */
 export type DateOptionsInput = { display?: "date" | "relative"; reminderDays?: number | null; timeZone?: string };
@@ -70,6 +70,9 @@ export function dueReminderDay(reminder: Pick<DateReminder, "daysBefore" | "time
   return (sentToday ? today : today - 1) + reminder.daysBefore;
 }
 
+// One formatter per language: every date cell of a relative property asks on every render.
+const relativeFormats = new Map<string, Intl.RelativeTimeFormat>();
+
 /**
  * A date near `today` (both "YYYY-MM-DD") said relatively in `locale`: "today", "tomorrow",
  * "in 3 days", "2 days ago". Null further than RELATIVE_DAYS away, where the date reads better.
@@ -77,5 +80,7 @@ export function dueReminderDay(reminder: Pick<DateReminder, "daysBefore" | "time
 export function relativeDay(day: string, today: string, locale: string): string | null {
   const diff = dayNumber(day) - dayNumber(today);
   if (!Number.isFinite(diff) || Math.abs(diff) > RELATIVE_DAYS) return null;
-  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(diff, "day");
+  let format = relativeFormats.get(locale);
+  if (!format) relativeFormats.set(locale, (format = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })));
+  return format.format(diff, "day");
 }

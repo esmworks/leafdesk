@@ -1652,9 +1652,7 @@ export function createMcpServer(principal: McpPrincipal) {
         if (!patch.name && !patch.options && !patch.formula && !patch.rollup && patch.number === undefined && !patch.date) {
           throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup, number_format or date_options.");
         }
-        await databases.updateProperty(userId, prop.id, patch);
-        // Date options as stored (a reminder's zone and start are decided there).
-        const storedDate = patch.date ? (await databases.getProperties(prop.databaseId)).find((p) => p.id === prop.id)?.options.date : undefined;
+        const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
         const after = withFormulaTypes(
           properties.map((p) =>
             p.id !== prop.id
@@ -1664,7 +1662,7 @@ export function createMcpServer(principal: McpPrincipal) {
                   name: patch.name ?? p.name,
                   options: {
                     ...withNumberFormat(p.options, patch.number),
-                    ...(patch.date ? { date: storedDate } : {}),
+                    ...(storedDate !== undefined ? { date: storedDate ?? undefined } : {}),
                     ...(patch.options ? { options: patch.options } : {}),
                     ...(patch.formula ? { formula: { expression: formulaForStorage(patch.formula.expression, properties) } } : {}),
                     ...(patch.rollup ? { rollup: patch.rollup as RollupConfig } : {}),

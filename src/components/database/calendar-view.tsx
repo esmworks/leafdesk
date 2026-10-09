@@ -12,6 +12,7 @@ import { CalendarFeedButton } from "./calendar-feed";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { useQuickAdd, type QuickAdd } from "./quick-add";
+import { viewDateProperty } from "@/lib/views";
 import { useNewRow } from "./use-new-row";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -92,8 +93,7 @@ export function CalendarView({
   const [picked, setPicked] = useState<string | null>(null);
   const access = usePropertyAccess();
 
-  const dateProps = properties.filter((p) => p.type === "date");
-  const dateBy = dateProps.find((p) => p.id === view.config.dateBy) ?? dateProps[0];
+  const dateBy = viewDateProperty(view.config, properties);
   const weekStart = firstDayOfWeek(locale);
   const days = useMemo(() => monthGrid(cursor.year, cursor.month, weekStart), [cursor, weekStart]);
 

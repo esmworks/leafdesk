@@ -1,3 +1,5 @@
+import { dayNumber, dayString } from "@/lib/time-zone";
+
 /**
  * iCalendar (RFC 5545) text for calendar feeds: all-day events, since a date property holds a day.
  * Pure: the server builds the events and serves the text (see server/calendar-feeds).
@@ -47,11 +49,7 @@ const stamp = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\
 const compactDay = (day: string) => day.replaceAll("-", "");
 
 /** The day after `day` (YYYY-MM-DD): an all-day event ends there (DTEND is exclusive). */
-function nextDay(day: string): string {
-  const date = new Date(`${day}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + 1);
-  return date.toISOString().slice(0, 10);
-}
+const nextDay = (day: string) => dayString(dayNumber(day) + 1);
 
 /** A whole calendar with these events, named `name`, ready to serve as text/calendar. */
 export function icsCalendar(name: string, events: IcsEvent[]): string {

@@ -1,10 +1,12 @@
 "use client";
 
 import { CalendarDays, Tag, User, X } from "lucide-react";
-import { useFormatter, useLocale, useTimeZone, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { formatIsoDate } from "@/lib/mentions";
 import { parseQuickAdd, type QuickAddMatch, type QuickAddOption, type QuickAddResult } from "@/lib/quick-add";
 import { dayString, localDay } from "@/lib/time-zone";
+import { viewDateProperty } from "@/lib/views";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { TITLE, type Property, type View } from "./types";
@@ -24,34 +26,33 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
   const { people } = usePeople();
   const access = usePropertyAccess();
   const [ignored, setIgnored] = useState<ReadonlySet<string>>(new Set());
-  const kept = useRef(ignored);
-  kept.current = ignored;
 
   const targets = useMemo(() => {
     const editable = properties.filter((p) => access.canEditValues(p.id));
-    const dates = editable.filter((p) => p.type === "date");
     const options: QuickAddOption[] = editable
       .filter((p) => OPTION_TYPES.has(p.type))
       .flatMap((p) => (p.options.options ?? []).map((o) => ({ propertyId: p.id, optionId: o.id, name: o.name })));
     return {
-      date: dates.find((p) => p.id === view.config.dateBy) ?? dates[0],
+      date: viewDateProperty(view.config, editable),
       person: editable.find((p) => p.type === "person"),
       options,
       multi: new Set(editable.filter((p) => p.type === "multi_select").map((p) => p.id)),
     };
-  }, [properties, access, view.config.dateBy]);
+  }, [properties, access, view.config]);
+
+  const active = useMemo(() => people.filter((p) => p.active), [people]);
 
   const parse = useCallback(
-    (text: string, keep: ReadonlySet<string> = kept.current): QuickAddResult =>
+    (text: string): QuickAddResult =>
       parseQuickAdd(text, {
         locale,
         today: dayString(localDay(Date.now(), timeZone)),
-        people: targets.person ? people.filter((p) => p.active) : [],
+        people: targets.person ? active : [],
         options: targets.options,
-        ignored: keep,
+        ignored,
         dates: Boolean(targets.date),
       }),
-    [locale, timeZone, people, targets],
+    [locale, timeZone, active, targets, ignored],
   );
 
   /** Forgets the parts kept in the title: each new row's title starts without any. */
@@ -94,7 +95,7 @@ const ICONS = { date: CalendarDays, person: User, option: Tag } as const;
 /** What quick add recognises in `text`, under a new row's title field; each part can be kept in the title. */
 export function QuickAddParts({ quick, text }: { quick: QuickAdd; text: string }) {
   const t = useTranslations("database.quickAdd");
-  const format = useFormatter();
+  const locale = useLocale();
   // A title field that opens or closes without saving leaves nothing kept for the next one.
   const { reset } = quick;
   useEffect(() => {
@@ -105,7 +106,7 @@ export function QuickAddParts({ quick, text }: { quick: QuickAdd; text: string }
   if (!result.matches.length) return null;
   const label = (match: QuickAddMatch) =>
     match.kind === "date" && result.date
-      ? `${match.text} · ${format.dateTime(new Date(`${result.date}T00:00:00Z`), { dateStyle: "medium", timeZone: "UTC" })}`
+      ? `${match.text} · ${formatIsoDate(result.date, locale)}`
       : match.text;
   return (
     <div

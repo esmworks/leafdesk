@@ -128,3 +128,12 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   return formConfigError(c.form);
 }
+
+/**
+ * The date property a calendar view places rows by: the one its settings name, else the first of
+ * `properties`.
+ */
+export function viewDateProperty<P extends { id: string; type: string }>(config: ViewConfig, properties: P[]): P | undefined {
+  const dates = properties.filter((p) => p.type === "date");
+  return dates.find((p) => p.id === config.dateBy) ?? dates[0];
+}

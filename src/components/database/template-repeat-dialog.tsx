@@ -13,7 +13,7 @@ import {
   type RepeatFrequency,
   type ScheduleError,
 } from "@/lib/schedule";
-import { dayString, isTimeZone, listTimeZones, localDay, timeZoneLabel } from "@/lib/time-zone";
+import { browserTimeZone, dayString, isTimeZone, listTimeZones, localDay, timeZoneLabel } from "@/lib/time-zone";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
 
@@ -26,14 +26,6 @@ type Form = {
   timeZone: string;
   dateInTitle: boolean;
 };
-
-function browserTimeZone() {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-  } catch {
-    return "UTC";
-  }
-}
 
 /** A new rule: every week on today's weekday, at 09:00, from today, in the browser's time zone. */
 function freshForm(): Form {

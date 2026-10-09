@@ -8,9 +8,9 @@ import { dayNumber, dayString } from "@/lib/time-zone";
  * may be named, and applies the result.
  */
 
-export type QuickAddPerson = { id: string; name: string };
+type QuickAddPerson = { id: string; name: string };
 export type QuickAddOption = { propertyId: string; optionId: string; name: string };
-export type QuickAddMatchKind = "date" | "person" | "option";
+type QuickAddMatchKind = "date" | "person" | "option";
 /** A recognised part of the text, `start`–`end` in it. */
 export type QuickAddMatch = { kind: QuickAddMatchKind; start: number; end: number; text: string };
 
@@ -137,7 +137,7 @@ const ENGLISH_WEEKDAY_ABBREVIATIONS: Record<string, number> = {
 };
 
 /** Lower case without accents, the dotless i as i, curly apostrophes straight. */
-export function fold(text: string): string {
+function fold(text: string): string {
   return text
     .toLocaleLowerCase()
     .replace(/ı/g, "i")
@@ -211,7 +211,7 @@ function addMonths(day: number, months: number): number {
   const year = Math.floor(total / 12);
   const month = total % 12;
   const last = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  return dayNumber(dayString(Date.UTC(year, month, Math.min(d, last)) / 86_400_000));
+  return Date.UTC(year, month, Math.min(d, last)) / 86_400_000;
 }
 
 /** A valid day number for the date, or null ("31.02." is no date). */
@@ -267,8 +267,9 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
   if (n) return { length: n, day: today + 7 - ((weekdayOf(today) + 6) % 7) };
   n = phraseAt(tokens, i, v.nextMonth);
   if (n) {
+    // The first of next month (`m` counts from 1, so it is next month's index; December rolls over).
     const [y, m] = dayString(today).split("-").map(Number);
-    return { length: n, day: calendarDay(m === 12 ? y + 1 : y, m === 12 ? 1 : m + 1, 1)! };
+    return { length: n, day: Date.UTC(y, m, 1) / 86_400_000 };
   }
 
   // "in 3 days", "3 gün sonra", "dans 2 semaines".
@@ -343,14 +344,21 @@ function dateFrom(tokens: Token[], i: number, lang: Language, today: number): Fo
   return dateAt(tokens, i, lang, today);
 }
 
+// Each person's or option's name and first word, folded: worked out once, not on every keystroke.
+const foldedNames = new WeakMap<object, string[]>();
+function foldedNamesOf(item: { name: string }): string[] {
+  let names = foldedNames.get(item);
+  if (!names) foldedNames.set(item, (names = [item.name, item.name.split(" ")[0]].map((name) => fold(name.trim()))));
+  return names;
+}
+
 /** The longest name in `names` the text at `from` starts with, ending at a word boundary. */
 function nameAt<T extends { name: string }>(text: string, from: number, names: T[], dashes: boolean): { item: T; end: number } | null {
   const rest = fold(text.slice(from));
   const normalized = dashes ? rest.replace(/[-_]/g, " ") : rest;
   let best: { item: T; end: number } | null = null;
   for (const item of names) {
-    for (const name of [item.name, item.name.split(" ")[0]]) {
-      const folded = fold(name.trim());
+    for (const folded of foldedNamesOf(item)) {
       if (!folded || !normalized.startsWith(dashes ? folded.replace(/[-_]/g, " ") : folded)) continue;
       const after = normalized.charAt(folded.length);
       if (after && !/[\s,;.!?)]/.test(after)) continue;

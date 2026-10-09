@@ -50,7 +50,7 @@ const databases = vi.hoisted(() => ({
   updateRowsProperties: vi.fn(),
   createRows: vi.fn(),
   addProperty: vi.fn(),
-  updateProperty: vi.fn(),
+  updateProperty: vi.fn(async () => ({ date: undefined })),
   changePropertyType: vi.fn(),
   deleteProperty: vi.fn(),
   addView: vi.fn(),

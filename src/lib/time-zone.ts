@@ -26,6 +26,15 @@ function formatter(timeZone: string) {
 }
 
 /** Whether `value` names a time zone this runtime knows (an IANA name such as "Europe/Istanbul"). */
+/** The browser's time zone, UTC when it can't say. */
+export function browserTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
 export function isTimeZone(value: unknown): value is string {
   if (typeof value !== "string" || !value || value.length > 64) return false;
   try {

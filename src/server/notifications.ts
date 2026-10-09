@@ -1,6 +1,7 @@
 import { and, count, desc, eq, inArray, isNotNull, isNull, lte, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
+import { UNSNOOZABLE_KINDS } from "@/lib/snooze";
 import {
   accessRequest,
   agentRun,
@@ -646,7 +647,7 @@ export async function unreadCount(userId: string, workspaceId: string) {
 }
 
 /** The longest a notification can be snoozed for. */
-export const MAX_SNOOZE_MS = 30 * 86_400_000;
+const MAX_SNOOZE_MS = 30 * 86_400_000;
 
 /**
  * Snoozes one of the user's notifications until `until` (within MAX_SNOOZE_MS): it leaves the
@@ -660,8 +661,7 @@ export async function snoozeNotification(userId: string, notificationId: string,
   const [row] = await db
     .update(notification)
     .set({ snoozedUntil: until, readAt: null })
-    // An agent's call waits only so long: snoozing it would let it run out unseen.
-    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), ne(notification.kind, "agent_approval")))
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), notInArray(notification.kind, [...UNSNOOZABLE_KINDS])))
     .returning({ workspaceId: notification.workspaceId });
   if (!row) return false;
   signal(row.workspaceId);

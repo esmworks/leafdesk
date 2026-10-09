@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { createQuickNoteAction } from "@/app/actions/pages";
+import { createPageAction } from "@/app/actions/pages";
 import { Button, buttonClass, Input } from "@/components/ui";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2.5 text-sm outline-none focus:border-accent";
@@ -35,7 +35,8 @@ export function QuickNoteForm({
     setBusy(true);
     setError(null);
     try {
-      const { id } = await createQuickNoteAction({ workspaceId, title: title.trim(), markdown: body });
+      // A private page at the top of the workspace.
+      const { id } = await createPageAction({ workspaceId, title: title.trim(), markdown: body, teamspaceId: null });
       router.push(`/w/${workspaceId}/p/${id}`);
     } catch {
       setError(tc("genericError"));

@@ -3,6 +3,10 @@
  * viewer's own time: in an hour, tomorrow at 9:00, or next Monday at 9:00. Pure; `now` is local.
  */
 
+/** An agent's call waits only so long: snoozing it would let it run out unseen. Everything else can wait. */
+export const UNSNOOZABLE_KINDS = ["agent_approval"] as const;
+export const canSnooze = (kind: string) => !(UNSNOOZABLE_KINDS as readonly string[]).includes(kind);
+
 export type SnoozeChoice = "hour" | "tomorrow" | "nextWeek";
 export const SNOOZE_CHOICES: readonly SnoozeChoice[] = ["hour", "tomorrow", "nextWeek"];
 

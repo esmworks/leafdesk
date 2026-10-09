@@ -4,9 +4,11 @@ import { calendarFeed, databaseView } from "@/db/schema";
 import { env } from "@/lib/env";
 import { icsCalendar, type IcsEvent } from "@/lib/ics";
 import { pageLabel } from "@/lib/labels";
+import { isIsoDate } from "@/lib/mentions";
+import { viewDateProperty } from "@/lib/views";
 import { sharedLimiter } from "@/lib/rate-limit";
 import { AccessError } from "@/server/access";
-import { generateTokenSecret, hashToken } from "@/server/api/tokens";
+import { generateTokenSecret, hashToken, TOKEN_PREFIX } from "@/server/api/tokens";
 import { runAsConnectedApp } from "@/server/connected-app";
 import { getProperties, listRows, requireDatabase, withCode } from "@/server/databases";
 import { exportAllowed } from "@/server/workspaces";
@@ -39,7 +41,7 @@ async function requireCalendarView(userId: string, viewId: string) {
 }
 
 /** The feed's address for a secret. */
-export const calendarFeedUrl = (secret: string) => `${env.appUrl}/api/calendar/${secret}.ics`;
+const calendarFeedUrl = (secret: string) => `${env.appUrl}/api/calendar/${secret}.ics`;
 
 /** Whether the user has a feed of the view, and since when. */
 export async function getCalendarFeed(userId: string, viewId: string): Promise<CalendarFeedInfo> {
@@ -63,7 +65,7 @@ export async function createCalendarFeed(userId: string, viewId: string): Promis
   if (!(await exportAllowed(database.workspaceId))) {
     throw withCode(new Error("The workspace's owners turned export off"), "calendarFeedExportOff");
   }
-  const secret = FEED_PREFIX + generateTokenSecret().slice(4, 40);
+  const secret = FEED_PREFIX + generateTokenSecret().slice(TOKEN_PREFIX.length, TOKEN_PREFIX.length + 36);
   await db.transaction(async (tx) => {
     await tx.delete(calendarFeed).where(and(eq(calendarFeed.userId, userId), eq(calendarFeed.viewId, viewId)));
     await tx.insert(calendarFeed).values({ userId, viewId, tokenHash: hashToken(secret) });
@@ -77,7 +79,7 @@ export async function deleteCalendarFeed(userId: string, viewId: string) {
   await db.delete(calendarFeed).where(and(eq(calendarFeed.userId, userId), eq(calendarFeed.viewId, viewId)));
 }
 
-export type FeedRead = { status: 200; body: string; name: string } | { status: 404 | 429 };
+type FeedRead = { status: 200; body: string; name: string } | { status: 404 | 429 };
 
 /**
  * The feed with secret `secret` as iCalendar text, read as its user. 404 for an unknown secret, a
@@ -104,20 +106,22 @@ async function feedText(feed: typeof calendarFeed.$inferSelect, now: Date): Prom
     return { status: 404 };
   }
   const { view, database } = found;
-  if (!(await exportAllowed(database.workspaceId))) return { status: 404 };
-  if (!feed.lastUsedAt || now.getTime() - feed.lastUsedAt.getTime() > LAST_USED_EVERY_MS) {
-    await db.update(calendarFeed).set({ lastUsedAt: now }).where(eq(calendarFeed.id, feed.id));
-  }
+  const [allowed, properties] = await Promise.all([
+    exportAllowed(database.workspaceId),
+    getProperties(database.id),
+    feed.lastUsedAt && now.getTime() - feed.lastUsedAt.getTime() <= LAST_USED_EVERY_MS
+      ? null
+      : db.update(calendarFeed).set({ lastUsedAt: now }).where(eq(calendarFeed.id, feed.id)),
+  ]);
+  if (!allowed) return { status: 404 };
 
-  const properties = await getProperties(database.id);
-  const dates = properties.filter((p) => p.type === "date");
-  // As the calendar view places rows: its date property, else the first one.
-  const dateBy = dates.find((p) => p.id === view.config.dateBy) ?? dates[0];
+  // As the calendar view places rows.
+  const dateBy = viewDateProperty(view.config, properties);
   const rows = dateBy ? await listRows(feed.userId, database.id, view.config) : [];
   const host = new URL(env.appUrl).host;
   const events: IcsEvent[] = rows.flatMap((row) => {
     const value = row.properties[dateBy!.id];
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return [];
+    if (!isIsoDate(value)) return [];
     return [
       {
         uid: `${row.id}@${host}`,

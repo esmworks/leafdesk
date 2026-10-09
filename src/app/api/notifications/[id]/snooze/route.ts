@@ -1,9 +1,7 @@
 import { auth } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { snoozeUntil } from "@/lib/snooze";
 import { snoozeNotification } from "@/server/notifications";
-
-/** How long a push notification's Snooze button snoozes for. */
-const PUSH_SNOOZE_MS = 3_600_000;
 
 /**
  * Snoozes one of the signed-in user's notifications for an hour: `POST
@@ -20,6 +18,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return new Response(null, { status: 403 });
   }
   const { id } = await params;
-  const snoozed = await snoozeNotification(session.user.id, id, new Date(Date.now() + PUSH_SNOOZE_MS));
+  const snoozed = await snoozeNotification(session.user.id, id, snoozeUntil("hour", new Date()));
   return new Response(null, { status: snoozed ? 204 : 404, headers: { "Cache-Control": "no-store" } });
 }

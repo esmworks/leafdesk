@@ -11,7 +11,7 @@ import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/component
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
-import { SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
+import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
 import type { InboxAccessRequest, InboxItem } from "@/server/notifications";
 
 /**
@@ -104,7 +104,7 @@ export function InboxDialog({
               type="button"
               className={cn(
                 "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left hover:bg-bg-hover",
-                item.kind !== "agent_approval" && "pr-10",
+                canSnooze(item.kind) && "pr-10",
               )}
               onClick={() => {
                 if (!item.read) void markRead([item.id]);
@@ -176,7 +176,7 @@ export function InboxDialog({
               </time>
               {!item.read && <span className="sr-only">{t("unread")}</span>}
             </button>
-            {item.kind !== "agent_approval" && (
+            {canSnooze(item.kind) && (
               <IconButton
                 label={t("snooze")}
                 aria-expanded={snoozing === item.id}

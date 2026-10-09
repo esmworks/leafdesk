@@ -32,12 +32,12 @@ const SWEEP_MS = 60_000;
 const PRUNE_EVERY_MS = 3_600_000;
 let prunedAt = 0;
 
-type ReminderProperty = { id: string; databaseId: string; reminder: DateReminder };
+type ReminderProperty = { id: string; databaseId: string; workspaceId: string; reminder: DateReminder };
 
 /** Sends the reminders due at `now`. Returns how many people were told. */
 export async function deliverDateReminders(now = new Date()): Promise<number> {
   const rows = await db
-    .select({ id: databaseProperty.id, databaseId: databaseProperty.databaseId, options: databaseProperty.options })
+    .select({ id: databaseProperty.id, databaseId: databaseProperty.databaseId, workspaceId: page.workspaceId, options: databaseProperty.options })
     .from(databaseProperty)
     .innerJoin(page, eq(page.id, databaseProperty.databaseId))
     .where(
@@ -57,7 +57,7 @@ export async function deliverDateReminders(now = new Date()): Promise<number> {
     const reminder = row.options.date?.reminder;
     if (!reminder) continue;
     try {
-      told += await remindProperty({ id: row.id, databaseId: row.databaseId, reminder }, now);
+      told += await remindProperty({ id: row.id, databaseId: row.databaseId, workspaceId: row.workspaceId, reminder }, now);
     } catch (error) {
       console.error("date reminders failed", row.id, error);
     }
@@ -73,7 +73,7 @@ async function pruneRowReminders(now: Date) {
   await db.delete(rowReminder).where(lt(rowReminder.date, dayString(localDay(now.getTime(), "UTC") - 2)));
 }
 
-async function remindProperty({ id: propertyId, databaseId, reminder }: ReminderProperty, now: Date): Promise<number> {
+async function remindProperty({ id: propertyId, databaseId, workspaceId, reminder }: ReminderProperty, now: Date): Promise<number> {
   const day = dayString(dueReminderDay(reminder, now.getTime()));
   const at = reminderInstant(day, reminder);
   if (now.getTime() - at > LATE_MS || at < Date.parse(reminder.since)) return 0;
@@ -83,11 +83,16 @@ async function remindProperty({ id: propertyId, databaseId, reminder }: Reminder
     .from(page)
     .where(
       and(
+        // The workspace too, for the (workspace, parent) index.
+        eq(page.workspaceId, workspaceId),
         eq(page.parentId, databaseId),
         isNull(page.archivedAt),
         eq(page.isTemplate, false),
         eq(page.inTemplate, false),
         sql`${page.properties} ->> ${propertyId}::text = ${day}`,
+        // Rows already reminded of this date (an earlier sweep, another server) aren't looked at again.
+        sql`not exists (select 1 from ${rowReminder} where ${rowReminder.rowId} = ${page.id}
+          and ${rowReminder.propertyId} = ${propertyId} and ${rowReminder.date} = ${day})`,
       ),
     );
   // A row added after its reminder time doesn't remind about it.
@@ -131,12 +136,13 @@ async function notify(
   propertyAccess: (userId: string) => Promise<PropertyAccess>,
 ): Promise<number> {
   const agents = await agentUserIds(userIds);
-  const allowed: string[] = [];
-  for (const userId of userIds) {
-    if (agents.has(userId) || (await pageAccessOf(userId, row.id)).level === "none") continue;
-    const access = await propertyAccess(userId);
-    if (atLeast(access.levelOf(propertyId, row), "view")) allowed.push(userId);
-  }
+  const allows = await Promise.all(
+    userIds.map(async (userId) => {
+      if (agents.has(userId) || (await pageAccessOf(userId, row.id)).level === "none") return false;
+      return atLeast((await propertyAccess(userId)).levelOf(propertyId, row), "view");
+    }),
+  );
+  const allowed = userIds.filter((_, i) => allows[i]);
   if (!allowed.length) return 0;
   const emailDueAt = mailStatus() === "disabled" ? null : new Date();
   const inserted = await db

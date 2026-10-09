@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createCalendarFeedAction, deleteCalendarFeedAction, getCalendarFeedAction, type ActionResult } from "@/app/actions/databases";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { CopyButton } from "@/components/settings/copy-button";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, IconButton, Input } from "@/components/ui";
 import type { CalendarFeedInfo } from "@/server/calendar-feeds";
 
 /**
@@ -20,15 +20,9 @@ export function CalendarFeedButton({ viewId }: { viewId: string }) {
   if (offline) return null;
   return (
     <>
-      <button
-        type="button"
-        aria-label={t("open")}
-        title={t("open")}
-        onClick={() => setOpen(true)}
-        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-      >
+      <IconButton label={t("open")} onClick={() => setOpen(true)} className="h-7 w-7 rounded-md">
         <CalendarSync className="h-4 w-4" />
-      </button>
+      </IconButton>
       {open && <CalendarFeedDialog viewId={viewId} onClose={() => setOpen(false)} />}
     </>
   );

@@ -2,16 +2,11 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { REMINDER_DAYS, type DateOptions, type DateOptionsInput } from "@/lib/date-options";
+import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
+import { browserTimeZone } from "@/lib/time-zone";
 import type { Property } from "./types";
 
 const FIELD = "block w-full h-7 rounded-md border border-border bg-bg px-1.5 text-sm text-fg outline-none focus:border-accent";
-
-/** The time zone a reminder set here goes by: the browser's. */
-function browserTimeZone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-}
 
 /**
  * A date property's settings: whether days near today show relatively ("tomorrow", "in 3 days"),
@@ -27,22 +22,14 @@ export function DateOptionsEditor({
   onBack: () => void;
 }) {
   const t = useTranslations("database.propertyMenu");
-  // Edited locally and saved per change; the parent applies it optimistically.
-  const [options, setOptions] = useState<DateOptions>(prop.options.date ?? {});
+  // Saved per change; the parent applies it to `prop` optimistically.
+  const options = prop.options.date ?? {};
   const relative = options.display === "relative";
 
-  const setDisplay = (display: "date" | "relative") => {
-    setOptions(({ display: _old, ...rest }) => (display === "relative" ? { ...rest, display } : rest));
-    onChange({ display });
-  };
-  const setReminder = (value: string) => {
-    const days = value === "" ? null : Number(value);
-    const timeZone = browserTimeZone();
-    setOptions(({ reminder: _old, ...rest }) =>
-      days === null ? rest : { ...rest, reminder: { daysBefore: days, timeZone, since: new Date().toISOString() } },
-    );
-    onChange(days === null ? { reminderDays: null } : { reminderDays: days, timeZone });
-  };
+  const setDisplay = (display: "date" | "relative") => onChange({ display });
+  // A reminder set here goes by the browser's time zone.
+  const setReminder = (value: string) =>
+    onChange(value === "" ? { reminderDays: null } : { reminderDays: Number(value), timeZone: browserTimeZone() });
 
   return (
     <div className="w-64">

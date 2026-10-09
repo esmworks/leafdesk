@@ -15,20 +15,12 @@ export async function createPageAction(input: {
   title?: string;
   /** Top-level pages: a teamspace, null for a private page, undefined for the default teamspace. */
   teamspaceId?: string | null;
+  /** The page's content (a quick note's text, see app/share). */
+  markdown?: string;
 }) {
   const userId = await requireUserId();
   const seedNames = input.kind === "database" ? await databaseSeedNames() : undefined;
   const created = await pages.createPage({ userId }, { ...input, seedNames });
-  return { id: created.id };
-}
-
-/** A quick note (app/share): a private page at the top of the workspace, with the text as its content. */
-export async function createQuickNoteAction(input: { workspaceId: string; title: string; markdown: string }) {
-  const userId = await requireUserId();
-  const created = await pages.createPage(
-    { userId },
-    { workspaceId: input.workspaceId, title: input.title, markdown: input.markdown, teamspaceId: null },
-  );
   return { id: created.id };
 }
 

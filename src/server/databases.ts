@@ -1511,6 +1511,8 @@ export async function updateProperty(
   });
   notifySchema(prop.databaseId);
   if (removed.length) notifyRows(prop.databaseId);
+  // Date options as stored (a reminder's zone and start are decided here): undefined when unchanged.
+  return { date };
 }
 
 /** Adds a select option by name if missing and returns it (used when typing a new tag). */
