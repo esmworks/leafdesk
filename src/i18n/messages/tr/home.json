@@ -7,5 +7,14 @@
   "newDatabase": "Yeni veritabanı",
   "personalWorkspace": "{name} çalışma alanı",
   "generalTeamspace": "Genel",
-  "fromTemplate": "Şablondan"
+  "fromTemplate": "Şablondan",
+  "assigned": "Size atananlar",
+  "assignedGroups": {
+    "overdue": "Gecikmiş",
+    "today": "Bugün",
+    "next7": "Önümüzdeki 7 gün",
+    "later": "Daha sonra",
+    "none": "Tarihsiz"
+  },
+  "assignedMore": "{total} satırdan {shown} tanesi gösteriliyor. Kalanlar için bir veritabanını “Ben” ile süzün."
 }

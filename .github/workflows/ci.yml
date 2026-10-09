@@ -106,6 +106,9 @@ jobs:
       - name: Graph end-to-end
         run: pnpm tsx scripts/graph-e2e.ts
 
+      - name: Assigned rows end-to-end
+        run: pnpm tsx scripts/assigned-e2e.ts
+
       # Uploads go to a temporary folder the script makes.
       - name: Markdown and vault import end-to-end
         run: pnpm tsx scripts/import-e2e.ts

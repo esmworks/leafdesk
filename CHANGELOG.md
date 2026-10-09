@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+
+- **"Assigned to you" on the home page.** Above the recently edited pages, the database rows a
+  person property assigns to you and that aren't done, from every database in the workspace,
+  grouped as overdue, today, the next 7 days, later and no date (by the row's first date property,
+  in your time zone), each with its database and status. Only rows you can open count, and only
+  where you may see the person property that names you; a status or date hidden from you neither
+  shows nor leaves the row out. The 25 most pressing are listed, with the total when there are
+  more. The section is hidden while nothing is assigned to you. No migration.
+
 ## 0.5.0 — 2026-10-09
 
 ### Upgrading from 0.4.0

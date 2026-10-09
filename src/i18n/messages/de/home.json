@@ -7,5 +7,14 @@
   "newDatabase": "Neue Datenbank",
   "personalWorkspace": "Workspace von {name}",
   "generalTeamspace": "Allgemein",
-  "fromTemplate": "Aus einer Vorlage"
+  "fromTemplate": "Aus einer Vorlage",
+  "assigned": "Dir zugewiesen",
+  "assignedGroups": {
+    "overdue": "Überfällig",
+    "today": "Heute",
+    "next7": "Nächste 7 Tage",
+    "later": "Später",
+    "none": "Ohne Datum"
+  },
+  "assignedMore": "{shown} von {total} angezeigt. Filtere eine Datenbank nach „Ich“, um den Rest zu sehen."
 }

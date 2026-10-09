@@ -7,5 +7,14 @@
   "newDatabase": "New database",
   "personalWorkspace": "{name}'s workspace",
   "generalTeamspace": "General",
-  "fromTemplate": "From a template"
+  "fromTemplate": "From a template",
+  "assigned": "Assigned to you",
+  "assignedGroups": {
+    "overdue": "Overdue",
+    "today": "Today",
+    "next7": "Next 7 days",
+    "later": "Later",
+    "none": "No date"
+  },
+  "assignedMore": "Showing {shown} of {total}. Filter a database by “Me” to see the rest."
 }

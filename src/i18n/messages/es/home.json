@@ -7,5 +7,14 @@
   "newDatabase": "Nueva base de datos",
   "personalWorkspace": "Espacio de trabajo de {name}",
   "generalTeamspace": "General",
-  "fromTemplate": "Desde una plantilla"
+  "fromTemplate": "Desde una plantilla",
+  "assigned": "Asignado a ti",
+  "assignedGroups": {
+    "overdue": "Atrasado",
+    "today": "Hoy",
+    "next7": "Próximos 7 días",
+    "later": "Más adelante",
+    "none": "Sin fecha"
+  },
+  "assignedMore": "Se muestran {shown} de {total}. Filtra una base de datos por «Yo» para ver el resto."
 }

@@ -56,6 +56,9 @@ versions, upgrades and running behind a domain.
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text, and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).
+- **Home page**: quick buttons for a new page, database or template; the database rows assigned
+  to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
+  and no date; and the pages edited last.
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
