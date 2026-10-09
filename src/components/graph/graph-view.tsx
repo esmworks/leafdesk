@@ -67,9 +67,13 @@ function drawLabels(context: CanvasRenderingContext2D, labels: Label[], font: st
   context.lineJoin = "round";
   context.strokeStyle = colors.bg;
   context.fillStyle = colors.fg;
+  // The canvas's width in CSS pixels, which sigma draws in.
+  const edge = context.canvas.offsetWidth;
   for (const { label, x, y, size } of labels) {
-    const left = x + size + 3;
-    const box = { left: left - 2, top: y - 9, right: left + context.measureText(label).width + 2, bottom: y + 9 };
+    const width = context.measureText(label).width;
+    // To the right of the page, or to its left where the right would run off the canvas.
+    const left = x + size + 3 + width > edge ? x - size - 3 - width : x + size + 3;
+    const box = { left: left - 2, top: y - 9, right: left + width + 2, bottom: y + 9 };
     if (taken.some((t) => box.left < t.right && box.right > t.left && box.top < t.bottom && box.bottom > t.top)) continue;
     taken.push(box);
     context.strokeText(label, left, y + 4);
