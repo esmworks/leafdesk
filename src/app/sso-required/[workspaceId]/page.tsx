@@ -38,7 +38,7 @@ export default async function SsoRequiredPage({ params }: { params: Promise<{ wo
     <main className="flex min-h-full items-center justify-center bg-bg-subtle px-4 py-16">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <Logo className="h-7 w-auto" />
+          <Logo className="h-8 w-auto" />
         </div>
         <div className="rounded-xl border border-border bg-bg p-6 shadow-sm">
           <SsoGate

@@ -34,8 +34,9 @@
   --danger: #d03b3b;
   --ring: rgba(47, 125, 79, 0.35);
   /* The logo's colors (components/brand/logo.tsx). */
+  --logo-tile: #16301f;
   --logo-leaf: #4aa56a;
-  --logo-block: #16301f;
+  --logo-mark: #f3efe3;
   --logo-text: #13201a;
   --scrollbar: rgba(31, 32, 35, 0.16);
   --scrollbar-hover: rgba(31, 32, 35, 0.32);
@@ -63,8 +64,9 @@
     --accent-fg: #0d1117;
     --danger: #ef6b6b;
     --ring: rgba(108, 195, 138, 0.4);
+    --logo-tile: #2b5e40;
     --logo-leaf: #9ed8ab;
-    --logo-block: #f3efe3;
+    --logo-mark: #f3efe3;
     --logo-text: #f3efe3;
     --scrollbar: rgba(232, 232, 234, 0.16);
     --scrollbar-hover: rgba(232, 232, 234, 0.3);

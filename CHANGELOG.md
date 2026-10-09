@@ -287,9 +287,11 @@
 
 ### Changed
 
-- **New mark.** A green l whose foot curves toward a dark d, set apart from the d's bowl by a gap
-  that follows its curve, replaces the block-leaf mark in the logo, the app and touch icons, the
-  favicon and the website's preview image. The wordmark and colors stay the same.
+- **New mark.** An ld drawn from the wordmark's own letters, a green l whose foot curves evenly
+  toward the d, replaces the block-leaf mark in the app and touch icons, the favicon and the
+  website's preview image. In the logo the mark sits in a dark tile beside the wordmark, so the
+  logo is drawn a little taller to keep the letters their size. The wordmark and colors stay the
+  same.
 - **Dependency checks.** A weekly workflow (`.github/workflows/dependencies.yml`, also on changes to
   the lockfile) runs `pnpm audit --prod` and lists outdated direct dependencies. Advisories that
   can't reach a running server are reviewed in `pnpm-workspace.yaml` (`auditConfig.ignoreGhsas`,
