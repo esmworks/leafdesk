@@ -1,6 +1,12 @@
 {
-  "welcome": "Welcome back, {name}",
+  "morning": "Good morning, {name}",
+  "afternoon": "Good afternoon, {name}",
+  "evening": "Good evening, {name}",
   "recent": "Recently edited",
+  "statOverdue": "Overdue",
+  "statToday": "Due today",
+  "statOpen": "Open for you",
+  "assignedEmpty": "Nothing is assigned to you. Rows you are assigned in databases show up here.",
   "empty": "Nothing here yet. Create your first page to get started.",
   "emptyGuest": "Nothing has been shared with you here yet. Pages appear once someone shares them with you.",
   "newPage": "New page",

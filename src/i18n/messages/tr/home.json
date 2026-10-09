@@ -1,6 +1,12 @@
 {
-  "welcome": "Tekrar hoş geldiniz, {name}",
+  "morning": "Günaydın, {name}",
+  "afternoon": "İyi günler, {name}",
+  "evening": "İyi akşamlar, {name}",
   "recent": "Son düzenlenenler",
+  "statOverdue": "Geciken",
+  "statToday": "Bugün teslim",
+  "statOpen": "Açık işleriniz",
+  "assignedEmpty": "Size atanmış bir iş yok. Veritabanlarında size atanan satırlar burada görünür.",
   "empty": "Burada henüz bir şey yok. Başlamak için ilk sayfanızı oluşturun.",
   "emptyGuest": "Burada henüz sizinle paylaşılan bir şey yok. Biri sizinle bir sayfa paylaştığında burada görünecek.",
   "newPage": "Yeni sayfa",
