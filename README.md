@@ -89,7 +89,9 @@ versions, upgrades and running behind a domain.
   recently opened databases stay readable. The page header shows offline, syncing and synced (see
   [Install and offline use](#install-and-offline-use)).
 - **Installable app**: install Leafdesk from the browser on desktop (Chrome, Edge) or add it to
-  the home screen on phones; it opens in its own window.
+  the home screen on phones; it opens in its own window. The app's icon offers a quick note, and on
+  phones that support it Leafdesk shows up in the share sheet: text and links shared to it open the
+  quick note filled in, saved as a private page in the workspace you pick.
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
@@ -101,6 +103,24 @@ versions, upgrades and running behind a domain.
     sorting and grouping. Filters combine with "and"/"or" in groups and take relative dates such as
     "this week". A "Me" filter shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
+  - Quick add: a new row's name can carry its date, people and options, as in
+    "Send the offer friday @Ayşe #urgent". Dates are read in the interface language and in English
+    (today, tomorrow, next tuesday, in 3 days, 12/31, 31.12.2026...) and go to the view's date
+    property, or the first one; `@name` fills the first person property and `#option` any select,
+    multi-select or status option (a dash stands for a space). What's recognised shows under the
+    name while you type, and each part can be kept in the name instead.
+  - Date properties can show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to
+    a week either way, the full date on hover), and remind people of them: on the day, or 1, 2 or
+    7 days before, at 9:00 in the time zone of whoever turned the reminder on. The reminder goes to
+    the people of the row's person properties (else whoever added the row) who can see the row and
+    the date, to the inbox, by email and as a push like other notifications. Rows that are done, in
+    the trash or templates are left out, and dates that were already past when the reminder was
+    turned on aren't announced.
+  - Calendar subscription: a calendar view's address for calendar apps (iCalendar, all-day
+    events), from the view's sync button. It is personal and secret: each read shows what its
+    owner sees in that view then (its filters, page and property access), so access taken away
+    empties it. It is shown once; make a new one to replace it, or turn it off. Calendar apps
+    check back about every hour. Workspaces that turned export off can't have one.
   - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
     row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the
     rows under it). Those views show sub-items nested under their parent, opened and closed by each
@@ -162,7 +182,9 @@ versions, upgrades and running behind a domain.
   database rows and pages without connections.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
-  database automation notifies you, and when a reminder you set is due, with an email a little later. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+  database automation notifies you, and when a reminder you set is due, with an email a little later. Snooze an item
+  for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
+  then. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it.
@@ -513,7 +535,9 @@ New inbox items can also come as system notifications on people's devices, while
 closed too. Each person turns them on per device in My account → Preferences ("Push notifications
 on this device"), and picks there, per kind of notification, whether it comes as a push next to
 the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
-notification brings an open Leafdesk tab to the page, or opens one.
+notification brings an open Leafdesk tab to the page, or opens one; its "Snooze 1 hour" button
+puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait only so
+long).
 
 Push is off until the server has a VAPID key pair. Make one and add the printed lines to `.env`:
 

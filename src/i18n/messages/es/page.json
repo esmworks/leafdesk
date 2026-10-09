@@ -468,5 +468,17 @@
     "lastUpdated": "Última actualización: {date}",
     "subpages": "Páginas",
     "embedUnavailable": "Esta base de datos no está disponible para ti."
+  },
+  "quickNote": {
+    "documentTitle": "Nota rápida",
+    "heading": "Nota rápida",
+    "description": "Se guarda como una página privada que solo tú ves. Puedes moverla o compartirla después.",
+    "workspace": "Espacio de trabajo",
+    "title": "Título",
+    "body": "Nota",
+    "bodyPlaceholder": "Escribe algo o pega un enlace",
+    "save": "Guardar nota",
+    "shortcut": "Nueva nota rápida",
+    "shortcutShort": "Nota rápida"
   }
 }

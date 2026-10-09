@@ -71,6 +71,13 @@
     "action": "Ouvrir la page",
     "optOut": "Vous recevez ces e-mails, car vous avez défini un rappel. Vous pouvez les désactiver dans Mon compte > Préférences."
   },
+  "dateReminder": {
+    "subject": "Rappel : « {page} » le {date}",
+    "heading": "« {page} » est le {date}",
+    "body": "« {page} » dans {database} ({workspace}) a {property} le {date}.",
+    "action": "Ouvrir la ligne",
+    "optOut": "Vous recevez ceci parce que {database} rappelle aux personnes de ses lignes leurs dates. Vous pouvez désactiver les rappels dans Mon compte > Préférences."
+  },
   "automation": {
     "subject": "Automatisation « {automation} » : « {page} »",
     "heading": "L’automatisation « {automation} » vous prévient au sujet de « {page} »",
@@ -184,6 +191,7 @@
     "inviteRequest": "{actor} a demandé à inviter {email}",
     "approvalTitle": "{agent} demande votre accord",
     "approval": "Veut appeler « {tool} » sur {connection}",
-    "untitled": "Sans titre"
+    "untitled": "Sans titre",
+    "snooze": "Reporter d’1 heure"
   }
 }

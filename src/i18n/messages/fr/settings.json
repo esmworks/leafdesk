@@ -1088,7 +1088,7 @@
     "mentionDescription": "Quelqu’un vous mentionne sur une page avec @.",
     "mentionChannel": "Mentions : {channel}",
     "reminderTitle": "Rappels",
-    "reminderDescription": "Un rappel que vous avez défini sur une date dans une page arrive à échéance.",
+    "reminderDescription": "Un rappel que vous avez défini sur une date dans une page, ou qu’une date d’une base de données vous envoie, arrive à échéance.",
     "reminderChannel": "Rappels : {channel}",
     "accessRequestTitle": "Demandes d’accès",
     "accessRequestDescription": "Quelqu’un demande l’accès à une page à laquelle vous avez un accès complet.",

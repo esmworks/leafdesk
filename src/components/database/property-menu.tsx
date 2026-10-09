@@ -6,9 +6,11 @@ import {
   ArrowLeftToLine,
   ArrowRightToLine,
   ArrowUp,
+  Bell,
   Bot,
   BotOff,
   Calculator,
+  CalendarCog,
   Check,
   ChevronRight,
   Combine,
@@ -37,8 +39,10 @@ import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
 import type { AiAutofillConfig } from "@/lib/ai";
 import type { AggregateFn } from "@/lib/aggregate";
+import type { DateOptionsInput } from "@/lib/date-options";
 import type { NumberFormat } from "@/lib/number-format";
 import { AutofillEditor } from "./ai-autofill";
+import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
 import { NumberFormatEditor } from "./number-format-menu";
 import { RollupEditor } from "./rollup-editor";
@@ -209,6 +213,8 @@ export type PropertyMenuActions = {
   setRollup?: (rollup: RollupInput) => void;
   /** Numbers: saves how values show (null for plain numbers). */
   setNumberFormat?: (format: NumberFormat | null) => void;
+  /** Dates: saves how values show and the reminder (see lib/date-options). */
+  setDateOptions?: (input: DateOptionsInput) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -244,6 +250,7 @@ export function PropertyMenu({
     | "formula"
     | "rollup"
     | "number-format"
+    | "date-options"
     | "autofill"
     | "calculate"
     | "insert-before"
@@ -400,6 +407,10 @@ export function PropertyMenu({
     return <NumberFormatEditor prop={prop} onChange={actions.setNumberFormat} onBack={() => setPage("main")} />;
   }
 
+  if (page === "date-options" && prop && actions.setDateOptions) {
+    return <DateOptionsEditor prop={prop} onChange={actions.setDateOptions} onBack={() => setPage("main")} />;
+  }
+
   if (page === "autofill" && prop && actions.setAutofill) {
     return (
       <AutofillEditor
@@ -498,6 +509,17 @@ export function PropertyMenu({
         onClick={() => setPage("number-format")}
       >
         {t("numberFormat")}
+      </MenuItem>
+    ),
+    prop?.type === "date" && actions.setDateOptions && (
+      <MenuItem
+        key="date-options"
+        // The bell says a reminder is on; the details are a click away.
+        icon={icon(prop.options.date?.reminder ? Bell : CalendarCog)}
+        trailing={icon(ChevronRight)}
+        onClick={() => setPage("date-options")}
+      >
+        {t("dateOptions")}
       </MenuItem>
     ),
     prop?.type === "text" && prop.options.ai && actions.updateAllAutofill && (

@@ -71,6 +71,13 @@
     "action": "Sayfayı aç",
     "optOut": "Hatırlatma kurduğunuz için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
   },
+  "dateReminder": {
+    "subject": "Hatırlatma: “{page}”, {date}",
+    "heading": "“{page}”: {date}",
+    "body": "{workspace} çalışma alanındaki {database} veritabanında “{page}” satırının {property} tarihi {date}.",
+    "action": "Satırı aç",
+    "optOut": "Bunu {database} satırlarındaki kişilere hatırlatma gönderdiği için alıyorsunuz. Hatırlatmaları Hesabım > Tercihler'den kapatabilirsiniz."
+  },
   "automation": {
     "subject": "“{automation}” otomasyonu: “{page}”",
     "heading": "“{automation}” otomasyonu sizi “{page}” hakkında bilgilendiriyor",
@@ -184,6 +191,7 @@
     "inviteRequest": "{actor}, {email} adresini davet etmek istedi",
     "approvalTitle": "{agent} devam etmek için onay istiyor",
     "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
-    "untitled": "Adsız"
+    "untitled": "Adsız",
+    "snooze": "1 saat ertele"
   }
 }

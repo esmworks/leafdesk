@@ -3,11 +3,13 @@
 import { getTranslations } from "next-intl/server";
 import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
+import type { DateOptionsInput } from "@/lib/date-options";
 import type { DependencyInput } from "@/lib/dependencies";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
 import { AccessError, pageAccessOf } from "@/server/access";
 import { databaseAi } from "@/server/ai-properties";
+import * as calendarFeeds from "@/server/calendar-feeds";
 import * as databases from "@/server/databases";
 import { duplicateRows } from "@/server/duplicate";
 import { listGroups } from "@/server/groups";
@@ -213,6 +215,7 @@ export async function updatePropertyAction(
     formula?: { expression: string };
     rollup?: Partial<databases.RollupInput>;
     number?: NumberFormat | null;
+    date?: DateOptionsInput;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));
@@ -284,4 +287,19 @@ export async function setPropertyAccessAction(
   },
 ) {
   return run((userId) => setPropertyAccess(userId, propertyId, input));
+}
+
+/** Whether the workspace allows calendar feeds, and the user's feed of the calendar view. */
+export async function getCalendarFeedAction(viewId: string) {
+  return run((userId) => calendarFeeds.getCalendarFeed(userId, viewId));
+}
+
+/** Makes the user a new feed of the calendar view (replacing theirs) and returns its address, shown once. */
+export async function createCalendarFeedAction(viewId: string) {
+  return run((userId) => calendarFeeds.createCalendarFeed(userId, viewId));
+}
+
+/** Stops the user's feed of the calendar view. */
+export async function deleteCalendarFeedAction(viewId: string) {
+  return run((userId) => calendarFeeds.deleteCalendarFeed(userId, viewId));
 }

@@ -71,6 +71,13 @@
     "action": "Abrir página",
     "optOut": "Recibes estos correos porque configuraste un recordatorio. Puedes desactivarlos en Mi cuenta > Preferencias."
   },
+  "dateReminder": {
+    "subject": "Recordatorio: «{page}» el {date}",
+    "heading": "«{page}» es el {date}",
+    "body": "«{page}» en {database} ({workspace}) tiene {property} el {date}.",
+    "action": "Abrir fila",
+    "optOut": "Recibes esto porque {database} avisa a las personas de sus filas. Puedes desactivar los recordatorios en Mi cuenta > Preferencias."
+  },
   "automation": {
     "subject": "Automatización “{automation}”: “{page}”",
     "heading": "La automatización “{automation}” te avisa sobre “{page}”",
@@ -184,6 +191,7 @@
     "inviteRequest": "{actor} pidió invitar a {email}",
     "approvalTitle": "{agent} pide permiso para seguir",
     "approval": "Quiere llamar a «{tool}» en {connection}",
-    "untitled": "Sin título"
+    "untitled": "Sin título",
+    "snooze": "Posponer 1 hora"
   }
 }

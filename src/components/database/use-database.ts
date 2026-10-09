@@ -32,6 +32,7 @@ import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
 import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
+import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateFormulas } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
@@ -406,6 +407,16 @@ export function useDatabase(
         const { number: _old, ...rest } = prop.options;
         return mutateSchema(patchProperty(prop.id, { options: number ? { ...rest, number } : rest }), () =>
           updatePropertyAction(prop.id, { number }),
+        );
+      },
+
+      /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */
+      setDateOptions(prop: Property, input: DateOptionsInput) {
+        const checked = checkDateOptions(input, prop.options.date, new Date());
+        if (!checked.ok) return;
+        const { date: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: checked.options ? { ...rest, date: checked.options } : rest }), () =>
+          updatePropertyAction(prop.id, { date: input }),
         );
       },
 

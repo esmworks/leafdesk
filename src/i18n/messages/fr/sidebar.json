@@ -89,6 +89,12 @@
     "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
     "someone": "Quelqu’un",
     "unread": "Non lue",
+    "snooze": "Reporter",
+    "snoozeChoice": {
+      "hour": "Dans 1 heure",
+      "tomorrow": "Demain, 9:00",
+      "nextWeek": "Lundi, 9:00"
+    },
     "unreadCount": "{count, plural, one {# notification non lue} other {# notifications non lues}}",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",

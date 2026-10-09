@@ -71,6 +71,13 @@
     "action": "Open page",
     "optOut": "You get these because you set a reminder. You can turn them off in My account > Preferences."
   },
+  "dateReminder": {
+    "subject": "Reminder: “{page}” on {date}",
+    "heading": "“{page}” is on {date}",
+    "body": "“{page}” in {database} ({workspace}) has {property} on {date}.",
+    "action": "Open row",
+    "optOut": "You get these because {database} reminds the people of its rows. You can turn reminders off in My account > Preferences."
+  },
   "automation": {
     "subject": "Automation “{automation}”: “{page}”",
     "heading": "The automation “{automation}” is letting you know about “{page}”",
@@ -184,6 +191,7 @@
     "inviteRequest": "{actor} asked to invite {email}",
     "approvalTitle": "{agent} asks to go ahead",
     "approval": "Wants to call “{tool}” on {connection}",
-    "untitled": "Untitled"
+    "untitled": "Untitled",
+    "snooze": "Snooze 1 hour"
   }
 }

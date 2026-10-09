@@ -1088,7 +1088,7 @@
     "mentionDescription": "Jemand erwähnt dich auf einer Seite mit @.",
     "mentionChannel": "Erwähnungen: {channel}",
     "reminderTitle": "Erinnerungen",
-    "reminderDescription": "Eine Erinnerung, die du für ein Datum auf einer Seite eingerichtet hast, ist fällig.",
+    "reminderDescription": "Eine Erinnerung, die du für ein Datum auf einer Seite eingerichtet hast oder die dir ein Datum einer Datenbank schickt, ist fällig.",
     "reminderChannel": "Erinnerungen: {channel}",
     "accessRequestTitle": "Zugriffsanfragen",
     "accessRequestDescription": "Jemand bittet um Zugriff auf eine Seite, auf die du vollen Zugriff hast.",

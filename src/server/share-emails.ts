@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { accessRequest, databaseAutomation, notification, page, pageReminder, user, workspace, workspaceJoinRequest } from "@/db/schema";
+import { accessRequest, databaseAutomation, databaseProperty, notification, page, pageReminder, user, workspace, workspaceJoinRequest } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { commentText } from "@/lib/comments";
@@ -11,6 +11,7 @@ import {
   accessRequestEmail,
   automationEmail,
   commentEmail,
+  dateReminderEmail,
   joinRequestEmail,
   mailStatus,
   mentionEmail,
@@ -56,6 +57,8 @@ type Due = Pick<
   | "workspaceId"
   | "emailLocale"
   | "readAt"
+  | "date"
+  | "propertyId"
 >;
 
 let mailer: (mail: OutgoingMail) => Promise<void> = sendMail;
@@ -85,6 +88,8 @@ async function deliverDue(everything = false) {
       workspaceId: notification.workspaceId,
       emailLocale: notification.emailLocale,
       readAt: notification.readAt,
+      date: notification.date,
+      propertyId: notification.propertyId,
     });
   for (const entry of due) {
     try {
@@ -143,6 +148,8 @@ async function send({
   workspaceId,
   emailLocale,
   readAt,
+  date,
+  propertyId,
 }: Due) {
   if (readAt || kind === "assignment" || kind === "agent_approval") return;
   const locale = await recipientLocale(userId, emailLocale);
@@ -173,6 +180,19 @@ async function send({
     return;
   }
   if (kind === "reminder") {
+    // A date property's reminder carries its date; a date mention's is in page_reminder.
+    if (date && propertyId) {
+      const [about] = await db
+        .select({ propertyName: databaseProperty.name, databaseTitle: page.title })
+        .from(databaseProperty)
+        .innerJoin(page, eq(page.id, databaseProperty.databaseId))
+        .where(eq(databaseProperty.id, propertyId));
+      if (!about) return;
+      const databaseTitle = pageLabel(about.databaseTitle, emailTranslator(locale)("share.untitled"));
+      const names = { date, pageTitle, databaseTitle, propertyName: about.propertyName, workspaceName: space?.name ?? "", link };
+      await mailer({ to: recipient.email, ...dateReminderEmail(locale, names) });
+      return;
+    }
     const [reminder] = mentionId
       ? await db
           .select({ date: pageReminder.date })

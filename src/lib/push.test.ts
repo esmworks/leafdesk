@@ -63,6 +63,7 @@ const texts: Record<string, string> = {
   approvalTitle: "{agent} asks to go ahead",
   approval: "Wants to call “{tool}” on {connection}",
   untitled: "Untitled",
+  snooze: "Snooze 1 hour",
 };
 const t = (key: string, values: Record<string, string> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => values[name] ?? "");
 const date = (iso: string) => `on ${iso}`;
@@ -87,7 +88,13 @@ const item = (over: Partial<PushItem>): PushItem => ({
 
 describe("pushPayload", () => {
   it("says what the inbox says: the page, then who did what", () => {
-    expect(pushPayload(item({}), t, date)).toEqual({ title: "Roadmap", body: "Ayşe mentioned you", url: "/w/ws1/p/p1", tag: "n1" });
+    expect(pushPayload(item({}), t, date)).toEqual({
+      title: "Roadmap",
+      body: "Ayşe mentioned you",
+      url: "/w/ws1/p/p1",
+      tag: "n1",
+      snooze: "Snooze 1 hour",
+    });
     expect(pushPayload(item({ kind: "comment", pageTitle: "  " }), t, date)).toMatchObject({ title: "Untitled", body: "Ayşe commented in a thread you're in" });
     expect(pushPayload(item({ kind: "page_shared", actorName: null }), t, date)?.body).toBe("Someone shared this page with you");
     expect(pushPayload(item({ kind: "reminder", actorName: null, reminderDate: "2026-10-09" }), t, date)?.body).toBe("Reminder: on 2026-10-09");
@@ -112,6 +119,7 @@ describe("pushPayload", () => {
       body: "Ayşe asked to invite new@example.com",
       url: "/w/ws1/settings?tab=members&view=requests",
       tag: "n1",
+      snooze: "Snooze 1 hour",
     });
     const approval = { agentId: "a1", runId: "r1", agentName: "Helper", tool: "send_mail", connectionName: "Mail" };
     const call = item({ kind: "agent_approval", pageId: null, pageTitle: null, approval });
@@ -120,6 +128,8 @@ describe("pushPayload", () => {
       body: "Wants to call “send_mail” on Mail",
       url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
       tag: "n1",
+      // It waits only so long: no snoozing.
+      snooze: "",
     });
     // Answered (or ran out of time) before the push went out: nothing to say.
     expect(pushPayload(item({ kind: "agent_approval", pageId: null, approval: null }), t, date)).toBeNull();
@@ -131,7 +141,7 @@ describe("pushPayload", () => {
 });
 
 describe("encodePushPayload", () => {
-  const payload = { title: "Roadmap", body: "Ayşe mentioned you", url: "https://leafdesk.example.com/w/ws1/p/p1", tag: "n1" };
+  const payload = { title: "Roadmap", body: "Ayşe mentioned you", url: "https://leafdesk.example.com/w/ws1/p/p1", tag: "n1", snooze: "Snooze 1 hour" };
 
   it("is the payload as JSON", () => {
     expect(JSON.parse(encodePushPayload(payload))).toEqual(payload);

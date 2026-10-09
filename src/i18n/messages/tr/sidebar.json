@@ -89,6 +89,12 @@
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "someone": "Biri",
     "unread": "Okunmadı",
+    "snooze": "Ertele",
+    "snoozeChoice": {
+      "hour": "1 saat sonra",
+      "tomorrow": "Yarın 09:00",
+      "nextWeek": "Pazartesi 09:00"
+    },
     "unreadCount": "{count, plural, one {# okunmamış bildirim} other {# okunmamış bildirim}}",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

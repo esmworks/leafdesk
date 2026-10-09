@@ -468,5 +468,17 @@
     "lastUpdated": "Son güncelleme: {date}",
     "subpages": "Sayfalar",
     "embedUnavailable": "Bu veritabanına erişiminiz yok."
+  },
+  "quickNote": {
+    "documentTitle": "Hızlı not",
+    "heading": "Hızlı not",
+    "description": "Yalnızca sizin göreceğiniz özel bir sayfa olarak kaydedilir. Sonra taşıyabilir veya paylaşabilirsiniz.",
+    "workspace": "Çalışma alanı",
+    "title": "Başlık",
+    "body": "Not",
+    "bodyPlaceholder": "Bir şeyler yazın ya da bir bağlantı yapıştırın",
+    "save": "Notu kaydet",
+    "shortcut": "Yeni hızlı not",
+    "shortcutShort": "Hızlı not"
   }
 }

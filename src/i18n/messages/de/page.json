@@ -468,5 +468,17 @@
     "lastUpdated": "Zuletzt aktualisiert: {date}",
     "subpages": "Seiten",
     "embedUnavailable": "Diese Datenbank ist für dich nicht verfügbar."
+  },
+  "quickNote": {
+    "documentTitle": "Schnelle Notiz",
+    "heading": "Schnelle Notiz",
+    "description": "Wird als private Seite gespeichert, die nur du siehst. Du kannst sie später verschieben oder teilen.",
+    "workspace": "Arbeitsbereich",
+    "title": "Titel",
+    "body": "Notiz",
+    "bodyPlaceholder": "Schreib etwas oder füge einen Link ein",
+    "save": "Notiz speichern",
+    "shortcut": "Neue schnelle Notiz",
+    "shortcutShort": "Schnelle Notiz"
   }
 }

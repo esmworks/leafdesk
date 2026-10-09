@@ -10,10 +10,11 @@ import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./board-view";
 import { RowMenu } from "./gallery-view";
 import { RowValue, shownValues } from "./property-cell";
+import { useQuickAdd, type QuickAdd } from "./quick-add";
 import { useNewRow } from "./use-new-row";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
-import { TITLE, type Property, type Row, type View } from "./types";
+import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
 /** One compact line per row: title on the left, the properties the view shows on the right. */
@@ -36,7 +37,8 @@ export function ListView({
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
+  const quick = useQuickAdd(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
   const shownProps = properties.filter((p) => !isHiddenInView(view, p));
   const access = usePropertyAccess();
   const subItems = useSubItems(view, properties, allRows);
@@ -66,9 +68,10 @@ export function ListView({
             readOnly={readOnly}
             editTitle={editTitleOf === line.row.id}
             typed={typed}
+            quick={quick}
             onTitle={(title) => {
               stopEditing();
-              if (title !== line.row.title) void api.setCell(line.row.id, TITLE, title);
+              if (title !== line.row.title) quick.save(line.row.id, title);
             }}
             onDelete={() => api.deleteRow(line.row.id)}
           />
@@ -99,6 +102,7 @@ function ListRow({
   readOnly,
   editTitle,
   typed,
+  quick,
   onTitle,
   onDelete,
 }: {
@@ -113,6 +117,7 @@ function ListRow({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
+  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDelete: () => void;
 }) {
@@ -140,7 +145,7 @@ function ListRow({
       >
         <PageIcon icon={row.icon} className="shrink-0" />
         {editTitle ? (
-          <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+          <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
         ) : (
           <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint")}>{label}</span>
         )}

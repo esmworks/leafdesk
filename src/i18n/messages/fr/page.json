@@ -468,5 +468,17 @@
     "lastUpdated": "Dernière mise à jour le {date}",
     "subpages": "Pages",
     "embedUnavailable": "Cette base de données ne vous est pas accessible."
+  },
+  "quickNote": {
+    "documentTitle": "Note rapide",
+    "heading": "Note rapide",
+    "description": "Enregistrée comme page privée que vous seul voyez. Vous pourrez la déplacer ou la partager ensuite.",
+    "workspace": "Espace de travail",
+    "title": "Titre",
+    "body": "Note",
+    "bodyPlaceholder": "Écrivez quelque chose ou collez un lien",
+    "save": "Enregistrer la note",
+    "shortcut": "Nouvelle note rapide",
+    "shortcutShort": "Note rapide"
   }
 }

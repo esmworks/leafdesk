@@ -1,23 +1,25 @@
 "use client";
 
-import { ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
-import { listInboxAction, markReadAction } from "@/app/actions/notifications";
+import { listInboxAction, markReadAction, snoozeAction } from "@/app/actions/notifications";
 import { ApprovalActions } from "@/components/connections/approval-actions";
-import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
+import { SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
 import type { InboxAccessRequest, InboxItem } from "@/server/notifications";
 
 /**
  * The workspace inbox: rows the user was assigned to, pages shared with them, comments, mentions,
  * reminders, requests for access to their pages, what database automations tell them and, for
  * owners, join requests and agents' calls that wait for approval, newest first; opening one marks
- * it read. Access requests and agents' calls can be answered right here.
+ * it read. Access requests and agents' calls can be answered right here, and the others snoozed:
+ * they leave the inbox and come back unread when the time is up.
  */
 export function InboxDialog({
   workspaceId,
@@ -64,6 +66,19 @@ export function InboxDialog({
     onRead();
   };
 
+  // The notification whose snooze choices are open.
+  const [snoozing, setSnoozing] = useState<string | null>(null);
+  const snooze = async (id: string, choice: SnoozeChoice) => {
+    setSnoozing(null);
+    try {
+      if (!(await snoozeAction(id, snoozeUntil(choice, new Date()).toISOString()))) throw new Error("not snoozed");
+      setItems((list) => list?.filter((item) => item.id !== id) ?? list);
+    } catch {
+      setError(true);
+    }
+    onRead();
+  };
+
   const unread = items?.filter((item) => !item.read) ?? [];
 
   return (
@@ -84,10 +99,13 @@ export function InboxDialog({
       <ul className="max-h-[60vh] overflow-y-auto p-1">
         {items?.length === 0 && <li className="px-3 py-6 text-center text-sm text-fg-muted">{t("empty")}</li>}
         {items?.map((item) => (
-          <li key={item.id}>
+          <li key={item.id} className="relative">
             <button
               type="button"
-              className="flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left hover:bg-bg-hover"
+              className={cn(
+                "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left hover:bg-bg-hover",
+                item.kind !== "agent_approval" && "pr-10",
+              )}
               onClick={() => {
                 if (!item.read) void markRead([item.id]);
                 onClose();
@@ -158,6 +176,25 @@ export function InboxDialog({
               </time>
               {!item.read && <span className="sr-only">{t("unread")}</span>}
             </button>
+            {item.kind !== "agent_approval" && (
+              <IconButton
+                label={t("snooze")}
+                aria-expanded={snoozing === item.id}
+                className="absolute right-2 top-2 text-fg-faint"
+                onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
+              >
+                <AlarmClock className="h-3.5 w-3.5" />
+              </IconButton>
+            )}
+            {snoozing === item.id && (
+              <div className="flex flex-wrap items-center gap-1 pb-2 pl-[2.125rem] pr-3" role="group" aria-label={t("snooze")}>
+                {SNOOZE_CHOICES.map((choice) => (
+                  <Button key={choice} size="sm" variant="secondary" onClick={() => void snooze(item.id, choice)}>
+                    {t(`snoozeChoice.${choice}`)}
+                  </Button>
+                ))}
+              </div>
+            )}
             {item.approval && (
               <ApprovalActions
                 workspaceId={workspaceId}

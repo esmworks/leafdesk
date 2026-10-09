@@ -38,6 +38,7 @@ import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
 import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import { checkNumberFormat, MAX_DECIMALS, NUMBER_FORMATS } from "@/lib/number-format";
+import { checkDateOptions, REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
 import {
   FORM_TITLE,
   canDefault,
@@ -113,14 +114,14 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database) only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database) only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD); its date_options can show it relatively and remind the row's people before it.
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
 Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub alert (\`> [!NOTE]\`, TIP, IMPORTANT, WARNING or CAUTION on its own line, then the \`> \` text; a leading emoji becomes its icon), \`$…$\` is an inline equation and a \`$$\` line pair wraps a block equation (LaTeX), a \`\`\`mermaid fence is a diagram, and the lines \`<!-- leafdesk:toc -->\` and \`<!-- leafdesk:breadcrumb -->\` are a table of contents and the page's breadcrumb. Columns (2 to 5, side by side) are written between marker lines: \`<!-- leafdesk:columns -->\`, then \`<!-- leafdesk:column -->\` before each column's blocks (\`<!-- leafdesk:column width=2 -->\` makes a column twice as wide as a width-1 one), then \`<!-- leafdesk:/columns -->\`; keep the markers when you write a body back, or the blocks leave their columns. A web bookmark (a link card) reads as a link on a line of its own, \`[Title](url)\`, and stays a bookmark when you write the body back; to add a new one write \`[Title](url) <!-- leafdesk:bookmark -->\`. An embed (YouTube, Vimeo, Loom, Figma, published Google Docs/Sheets/Slides, CodePen, Spotify, Google Maps) is \`[url](url) <!-- leafdesk:embed -->\`. \`<sup>…</sup>\` and \`<sub>…</sub>\` are superscript and subscript text. A dollar sign of the text itself is written \`\\$\`.
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"); \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block. \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around each link (context) when there is any.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates, what database automations told them, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
@@ -164,6 +165,24 @@ const numberFormatInput = z.object({
   format: z.enum(NUMBER_FORMATS),
   currency: z.string().length(3).optional().describe("Currency only: an ISO 4217 code such as TRY, EUR or USD."),
   decimals: z.number().int().min(0).max(MAX_DECIMALS).optional().describe("Decimal places; left out, they follow the value (a currency's own)."),
+});
+
+/** How date options work, for tool descriptions. */
+const DATE_OPTIONS_HELP = `date_options sets how a date property shows its values in the app and whether it reminds people: {display: "date" | "relative" ("relative" shows days within a week of today as "tomorrow", "in 3 days", "2 days ago"), reminder_days_before: ${REMINDER_DAYS.join(" | ")} | null (at 9:00, that many days before each row's date, the people the row's person properties name, or whoever added the row when they name nobody, get a notification; null turns it off; rows whose status is done don't remind), time_zone (an IANA name such as Europe/Istanbul for that 9:00; UTC when left out)}. Left-out fields stay as they are.`;
+const dateOptionsInput = z.object({
+  display: z.enum(["date", "relative"]).optional(),
+  reminder_days_before: z
+    .number()
+    .int()
+    .refine((days) => (REMINDER_DAYS as readonly number[]).includes(days), `One of ${REMINDER_DAYS.join(", ")}`)
+    .nullable()
+    .optional(),
+  time_zone: z.string().max(64).optional(),
+});
+const dateOptionsOf = (input: z.infer<typeof dateOptionsInput>): DateOptionsInput => ({
+  display: input.display,
+  reminderDays: input.reminder_days_before,
+  timeZone: input.time_zone,
 });
 
 /** Options with a number format changed as databases.updateProperty stores it (undefined: unchanged). */
@@ -905,7 +924,9 @@ export function createMcpServer(principal: McpPrincipal) {
                     : n.kind === "mention"
                       ? `${who} mentioned the user on "${title}"`
                       : n.kind === "reminder"
-                        ? `Reminder the user set for ${n.reminderDate ?? "a date"} on "${title}"`
+                        ? n.propertyName !== null
+                          ? `Reminder: "${title}" in ${pageLabel(n.databaseTitle)} has "${n.propertyName}" on ${n.reminderDate ?? "a date"}`
+                          : `Reminder the user set for ${n.reminderDate ?? "a date"} on "${title}"`
                         : n.kind === "access_request"
                           ? `${who} asked for access to "${title}", which the user can share (answer from the page's Share menu)`
                           : n.kind === "automation"
@@ -1356,11 +1377,12 @@ export function createMcpServer(principal: McpPrincipal) {
         formula: formulaInput.optional().describe('Formula only: the expression, e.g. prop("Price") * prop("Quantity").'),
         rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
         number_format: numberFormatInput.optional().describe(`Number only: how values show. ${NUMBER_FORMAT_HELP}`),
+        date_options: dateOptionsInput.optional().describe(`Date only: display and reminder. ${DATE_OPTIONS_HELP}`),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, options, related_database_id, two_way, paired_property_name, formula, rollup, number_format }) =>
+    ({ database_id, name, type, options, related_database_id, two_way, paired_property_name, formula, rollup, number_format, date_options }) =>
       runTool(async () => {
         assertWrite();
         if (type === "relation" && !related_database_id) throw new ToolInputError("A relation needs related_database_id.");
@@ -1372,6 +1394,7 @@ export function createMcpServer(principal: McpPrincipal) {
         if (type === "rollup" && !rollup) throw new ToolInputError("A rollup property needs rollup: {relation, property, function}.");
         if (type !== "rollup" && rollup !== undefined) throw new ToolInputError("rollup only applies to rollup properties.");
         if (type !== "number" && number_format !== undefined) throw new ToolInputError("number_format only applies to number properties.");
+        if (type !== "date" && date_options !== undefined) throw new ToolInputError("date_options only applies to date properties.");
         const { properties, access } = await databases.getDatabase(userId, database_id);
         const needle = name.trim().toLowerCase();
         if (needle === "title" || properties.some((p) => p.name.trim().toLowerCase() === needle)) {
@@ -1390,6 +1413,7 @@ export function createMcpServer(principal: McpPrincipal) {
           ...(type === "formula" ? { formula: { expression: formula! } } : {}),
           ...(type === "rollup" ? { rollup: await rollupSettings(userId, properties, rollup!) } : {}),
           ...(number_format ? { number: number_format } : {}),
+          ...(date_options ? { date: dateOptionsOf(date_options) } : {}),
         });
         // Formulas come with their result type.
         const after = withFormulaTypes([...properties, created]);
@@ -1534,7 +1558,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression and/or a number property's number_format (null for plain numbers). Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP}`,
+        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, a number property's number_format (null for plain numbers) and/or a date property's date_options. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1559,11 +1583,12 @@ export function createMcpServer(principal: McpPrincipal) {
           .optional()
           .describe(`Rollup only: the settings to change (the others stay). ${ROLLUP_HELP}`),
         number_format: numberFormatInput.nullable().optional().describe("Number only: how values show; null for plain numbers."),
+        date_options: dateOptionsInput.optional().describe("Date only: the display and reminder to change; left-out fields stay."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, property, name, add_options, rename_options, remove_options, option_groups, formula, rollup, number_format }) =>
+    ({ database_id, property, name, add_options, rename_options, remove_options, option_groups, formula, rollup, number_format, date_options }) =>
       runTool(async () => {
         assertWrite();
         const { properties, access, propertyAccess } = await databases.getDatabase(userId, database_id);
@@ -1574,6 +1599,7 @@ export function createMcpServer(principal: McpPrincipal) {
           formula?: { expression: string };
           rollup?: Partial<databases.RollupInput>;
           number?: NumberFormat | null;
+          date?: DateOptionsInput;
         } = {};
         if (name !== undefined && name.trim() !== prop.name) {
           const needle = name.trim().toLowerCase();
@@ -1619,10 +1645,15 @@ export function createMcpServer(principal: McpPrincipal) {
           if (prop.type !== "number") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only numbers have a number format.`);
           patch.number = number_format;
         }
-        if (!patch.name && !patch.options && !patch.formula && !patch.rollup && patch.number === undefined) {
-          throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup or number_format.");
+        if (date_options !== undefined) {
+          if (prop.type !== "date") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only dates have date options.`);
+          patch.date = dateOptionsOf(date_options);
+        }
+        if (!patch.name && !patch.options && !patch.formula && !patch.rollup && patch.number === undefined && !patch.date) {
+          throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup, number_format or date_options.");
         }
         await databases.updateProperty(userId, prop.id, patch);
+        const dateChecked = patch.date ? checkDateOptions(patch.date, prop.options.date, new Date()) : null;
         const after = withFormulaTypes(
           properties.map((p) =>
             p.id !== prop.id
@@ -1632,6 +1663,7 @@ export function createMcpServer(principal: McpPrincipal) {
                   name: patch.name ?? p.name,
                   options: {
                     ...withNumberFormat(p.options, patch.number),
+                    ...(dateChecked?.ok ? { date: dateChecked.options ?? undefined } : {}),
                     ...(patch.options ? { options: patch.options } : {}),
                     ...(patch.formula ? { formula: { expression: formulaForStorage(patch.formula.expression, properties) } } : {}),
                     ...(patch.rollup ? { rollup: patch.rollup as RollupConfig } : {}),

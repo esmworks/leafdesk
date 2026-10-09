@@ -89,6 +89,12 @@
     "automation": "Automatización “{name}”: {actor} añadió o cambió esta fila",
     "someone": "Alguien",
     "unread": "No leída",
+    "snooze": "Posponer",
+    "snoozeChoice": {
+      "hour": "En 1 hora",
+      "tomorrow": "Mañana, 9:00",
+      "nextWeek": "Lunes, 9:00"
+    },
     "unreadCount": "{count, plural, one {# notificación sin leer} other {# notificaciones sin leer}}",
     "joinRequestTitle": "Solicitud de acceso",
     "joinRequest": "{actor} pidió unirse",

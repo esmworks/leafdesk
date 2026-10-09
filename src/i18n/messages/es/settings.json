@@ -1088,7 +1088,7 @@
     "mentionDescription": "Alguien te menciona en una página con @.",
     "mentionChannel": "Menciones: {channel}",
     "reminderTitle": "Recordatorios",
-    "reminderDescription": "Vence un recordatorio que configuraste en una fecha de una página.",
+    "reminderDescription": "Vence un recordatorio que configuraste en una fecha de una página o que te envía una fecha de una base de datos.",
     "reminderChannel": "Recordatorios: {channel}",
     "accessRequestTitle": "Solicitudes de acceso",
     "accessRequestDescription": "Alguien pide acceso a una página a la que tienes acceso total.",

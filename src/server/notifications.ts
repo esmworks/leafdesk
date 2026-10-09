@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray, isNotNull, isNull, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNotNull, isNull, lte, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
@@ -431,7 +431,7 @@ export type InboxItem = {
   pageIcon: string | null;
   databaseTitle: string | null;
   propertyName: string | null;
-  /** Reminders: the date they were set on (YYYY-MM-DD). */
+  /** Reminders: the date they were set on, or the row's date (YYYY-MM-DD). */
   reminderDate: string | null;
   /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
   automationName: string | null;
@@ -473,8 +473,8 @@ const actor = alias(user, "actor");
  * Notifications about pages the user can still open, of the kinds they keep in their inbox; ones
  * for trashed or unshared pages stay hidden. Access requests show only while the user can answer
  * them (full access) and the requester still can't open the page; join requests (which have no
- * page) only while the user owns the workspace. Null when every kind is off. Expects `page`
- * left-joined.
+ * page) only while the user owns the workspace; snoozed ones not until their time. Null when every
+ * kind is off. Expects `page` left-joined.
  */
 async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | null> {
   const kinds = await inboxKinds(userId);
@@ -483,6 +483,8 @@ async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | 
     eq(notification.userId, userId),
     workspaceId ? eq(notification.workspaceId, workspaceId) : undefined,
     inArray(notification.kind, kinds),
+    // Snoozed ones come back by themselves (deliverSnoozed); until then they aren't there.
+    or(isNull(notification.snoozedUntil), lte(notification.snoozedUntil, sql`now()`)),
     or(
       and(
         isNotNull(page.id),
@@ -537,7 +539,7 @@ export async function listNotifications(
       pageIcon: page.icon,
       databaseTitle: databasePage.title,
       propertyName: databaseProperty.name,
-      reminderDate: pageReminder.date,
+      reminderDate: sql<string | null>`coalesce(${notification.date}, ${pageReminder.date})`,
       automationName: databaseAutomation.name,
       requestKind: workspaceJoinRequest.kind,
       requestEmail: workspaceJoinRequest.email,
@@ -641,6 +643,64 @@ export async function unreadCount(userId: string, workspaceId: string) {
     .leftJoin(page, eq(page.id, notification.pageId))
     .where(and(filter, isNull(notification.readAt)));
   return row?.n ?? 0;
+}
+
+/** The longest a notification can be snoozed for. */
+export const MAX_SNOOZE_MS = 30 * 86_400_000;
+
+/**
+ * Snoozes one of the user's notifications until `until` (within MAX_SNOOZE_MS): it leaves the
+ * inbox, its email (if it hasn't gone yet) is dropped, and at `until` it comes back unread at the
+ * top and is pushed again (see deliverSnoozed). Returns false when there is no such notification or
+ * the time is out of range.
+ */
+export async function snoozeNotification(userId: string, notificationId: string, until: Date, now = new Date()) {
+  const time = until.getTime();
+  if (!Number.isFinite(time) || time <= now.getTime() || time > now.getTime() + MAX_SNOOZE_MS) return false;
+  const [row] = await db
+    .update(notification)
+    .set({ snoozedUntil: until, readAt: null, emailDueAt: null })
+    // An agent's call waits only so long: snoozing it would let it run out unseen.
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), ne(notification.kind, "agent_approval")))
+    .returning({ workspaceId: notification.workspaceId });
+  if (!row) return false;
+  signal(row.workspaceId);
+  return true;
+}
+
+/** Brings back the notifications whose snooze ran out (see snoozeNotification). Returns how many. */
+export async function deliverSnoozed(now = new Date()) {
+  const woken = await db
+    .update(notification)
+    .set({ snoozedUntil: null, readAt: null, createdAt: sql`${notification.snoozedUntil}` })
+    .where(lte(notification.snoozedUntil, now))
+    .returning({ id: notification.id, workspaceId: notification.workspaceId });
+  for (const workspaceId of new Set(woken.map((n) => n.workspaceId))) signal(workspaceId);
+  if (woken.length) pushNotifications(woken.map((n) => n.id));
+  return woken.length;
+}
+
+/** How often snoozed notifications are looked for. */
+const SNOOZE_SWEEP_MS = 30_000;
+
+/** Wakes snoozed notifications every SNOOZE_SWEEP_MS. Returns a function that stops it. */
+export function startSnoozes() {
+  let sweeping = false;
+  const sweep = async () => {
+    if (sweeping) return;
+    sweeping = true;
+    try {
+      await deliverSnoozed();
+    } catch (error) {
+      console.error("snoozed notifications failed", error);
+    } finally {
+      sweeping = false;
+    }
+  };
+  void sweep();
+  const timer = setInterval(() => void sweep(), SNOOZE_SWEEP_MS);
+  timer.unref?.();
+  return () => clearInterval(timer);
 }
 
 /** Marks the given notifications (or, without ids, the whole inbox) read. */

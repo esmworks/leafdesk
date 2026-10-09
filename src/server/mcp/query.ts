@@ -585,6 +585,15 @@ export function describeProperty(
     ...(prop.type === "rollup" ? { rollup: describeRollup(prop, lookups, props) } : {}),
     // How the app shows the values; they stay plain numbers here (a percentage as its fraction).
     ...(prop.type === "number" && prop.options.number ? { number_format: prop.options.number } : {}),
+    ...(prop.type === "date" && prop.options.date
+      ? {
+          date_options: {
+            display: prop.options.date.display ?? "date",
+            reminder_days_before: prop.options.date.reminder?.daysBefore ?? null,
+            ...(prop.options.date.reminder ? { time_zone: prop.options.date.reminder.timeZone } : {}),
+          },
+        }
+      : {}),
     ...(holdsOptions(prop.type) ? { options: (prop.options.options ?? []).map((o) => o.name) } : {}),
     ...(prop.type === "status" ? { status_groups: statusGroups(prop) } : {}),
     ...(relation

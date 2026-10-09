@@ -13,8 +13,9 @@ import { coverProperty, galleryCover } from "@/lib/views";
 import { CardTitleInput } from "./board-view";
 import { Floating, useFloating } from "./floating";
 import { RowValue, shownValues } from "./property-cell";
+import { useQuickAdd, type QuickAdd } from "./quick-add";
 import { useNewRow } from "./use-new-row";
-import { TITLE, type Property, type Row, type View } from "./types";
+import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
 /** Narrowest card per size; the grid fits as many as the width allows. */
@@ -37,7 +38,8 @@ export function GalleryView({
   readOnly?: boolean;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
+  const quick = useQuickAdd(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
   const size = view.config.cardSize ?? "medium";
   // Covers come from each row's body (first_image) or from a files property's first image.
   const source = galleryCover(view.config);
@@ -67,9 +69,10 @@ export function GalleryView({
             readOnly={readOnly}
             editTitle={editTitleOf === row.id}
             typed={typed}
+            quick={quick}
             onTitle={(title) => {
               stopEditing();
-              if (title !== row.title) void api.setCell(row.id, TITLE, title);
+              if (title !== row.title) quick.save(row.id, title);
             }}
             onDelete={() => api.deleteRow(row.id)}
           />
@@ -102,6 +105,7 @@ function GalleryCard({
   readOnly,
   editTitle,
   typed,
+  quick,
   onTitle,
   onDelete,
 }: {
@@ -116,6 +120,7 @@ function GalleryCard({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
+  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDelete: () => void;
 }) {
@@ -161,7 +166,7 @@ function GalleryCard({
       )}
       <div className="min-w-0 px-3 py-2.5">
         {editTitle ? (
-          <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+          <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
         ) : (
           <div className="flex min-w-0 gap-1.5 pr-6 text-sm leading-5 font-medium">
             {row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}

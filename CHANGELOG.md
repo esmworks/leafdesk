@@ -11,6 +11,27 @@
   where you may see the person property that names you; a status or date hidden from you neither
   shows nor leaves the row out. The 25 most pressing are listed, with the total when there are
   more. The section is hidden while nothing is assigned to you. No migration.
+- **Date reminders.** A date property can remind people of its dates: on the day, or 1, 2 or 7
+  days before, at 9:00 in the time zone of whoever turned it on (the property's menu → Date
+  settings). The people of the row's person properties, or whoever added the row, get it in the
+  inbox, by email and as a push, when they can see the row and the date; rows that are done, in
+  the trash or templates are skipped. MCP: `date_options` on `add_database_property` and
+  `update_database_property`. Migration 0049.
+- **Relative dates.** A date property can show its dates as "Tomorrow", "In 3 days" or "2 days
+  ago" (up to a week either way), with the full date on hover. No migration.
+- **Snoozing notifications.** An inbox item can be put off for an hour, until tomorrow morning or
+  until next Monday; it comes back unread then. Push notifications have a "Snooze 1 hour" button.
+  Migration 0049.
+- **Calendar subscription.** A calendar view gives each person a secret address for their
+  calendar app, with the view's rows as all-day events as that person sees them, checked about
+  every hour. Shown once; it can be replaced or turned off, and it stops while the workspace's
+  export is off. Migration 0049.
+- **Quick add.** A new row's name can carry its date, `@people` and `#options` ("Send the offer
+  friday @Ayşe #urgent"), in the interface language or English; what's recognised shows under the
+  name and can be kept in it instead. No migration.
+- **Quick notes and sharing to Leafdesk.** The installed app's icon offers a quick note, and
+  phones that support it list Leafdesk in the share sheet: shared text and links open the quick
+  note, saved as a private page in the workspace you pick. No migration.
 
 ### Changed
 

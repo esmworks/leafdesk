@@ -66,8 +66,11 @@ export function isAllowedPushHost(url: URL, allowedHosts: readonly string[]) {
   return allowedHosts.includes(host) || allowedHosts.includes(`${host}:${port}`);
 }
 
-/** What a push message carries: the notification's two lines in the inbox and where it leads. */
-export type PushPayload = { title: string; body: string; url: string; tag: string };
+/**
+ * What a push message carries: the notification's two lines in the inbox, where it leads, and the
+ * label of its snooze button (empty for what can't be snoozed).
+ */
+export type PushPayload = { title: string; body: string; url: string; tag: string; snooze: string };
 
 /**
  * Most bytes of a payload. Push services take about 4 KB after encryption; staying well under
@@ -166,5 +169,6 @@ export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoD
     }
     if (item.databaseTitle !== null) line += ` · ${item.databaseTitle.trim() || t("untitled")}`;
   }
-  return { title, body: line, url: pushLink(item), tag: item.id };
+  // An agent's call waits only so long: snoozing it would let it run out unseen.
+  return { title, body: line, url: pushLink(item), tag: item.id, snooze: item.kind === "agent_approval" ? "" : t("snooze") };
 }

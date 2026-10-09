@@ -71,6 +71,13 @@
     "action": "Seite öffnen",
     "optOut": "Du erhältst diese E-Mails, weil du eine Erinnerung eingerichtet hast. Du kannst sie unter Mein Konto > Präferenzen abschalten."
   },
+  "dateReminder": {
+    "subject": "Erinnerung: „{page}“ am {date}",
+    "heading": "„{page}“ ist am {date}",
+    "body": "„{page}“ in {database} ({workspace}) hat {property} am {date}.",
+    "action": "Zeile öffnen",
+    "optOut": "Du bekommst diese E-Mail, weil {database} die Personen seiner Zeilen erinnert. Erinnerungen kannst du unter Mein Konto > Präferenzen abschalten."
+  },
   "automation": {
     "subject": "Automatisierung „{automation}“: „{page}“",
     "heading": "Die Automatisierung „{automation}“ benachrichtigt dich über „{page}“",
@@ -184,6 +191,7 @@
     "inviteRequest": "{actor} möchte {email} einladen",
     "approvalTitle": "{agent} bittet um Freigabe",
     "approval": "Möchte „{tool}“ bei {connection} aufrufen",
-    "untitled": "Ohne Titel"
+    "untitled": "Ohne Titel",
+    "snooze": "1 Stunde zurückstellen"
   }
 }

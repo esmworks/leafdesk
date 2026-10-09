@@ -89,6 +89,12 @@
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
     "someone": "Jemand",
     "unread": "Ungelesen",
+    "snooze": "Zurückstellen",
+    "snoozeChoice": {
+      "hour": "In 1 Stunde",
+      "tomorrow": "Morgen, 9:00",
+      "nextWeek": "Montag, 9:00"
+    },
     "unreadCount": "{count, plural, one {# ungelesene Benachrichtigung} other {# ungelesene Benachrichtigungen}}",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",

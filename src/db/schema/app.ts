@@ -456,6 +456,21 @@ export type NumberFormat = {
   currency?: string;
   decimals?: number;
 };
+/**
+ * Date properties: how values show and whether they remind people (see lib/date-options).
+ * `display` "relative" shows days near today as "tomorrow", "in 3 days"; the date otherwise.
+ */
+export type DateOptions = {
+  display?: "relative";
+  reminder?: DateReminder;
+};
+/**
+ * A date property's reminder (see server/date-reminders): at 9:00 in `timeZone` (that of whoever
+ * set it), `daysBefore` days before a row's date, the people its person properties name (or,
+ * without any, whoever added the row) are told. `since`, when it was set (ISO): dates whose
+ * reminder time had passed by then don't remind.
+ */
+export type DateReminder = { daysBefore: number; timeZone: string; since: string };
 export type PropertyOptions = {
   options?: SelectOption[];
   relation?: RelationConfig;
@@ -465,6 +480,8 @@ export type PropertyOptions = {
   number?: NumberFormat;
   /** Text properties: AI autofill (see lib/ai and server/ai-properties). */
   ai?: AiAutofillConfig;
+  /** Date properties: relative display and a reminder; plain dates when missing. */
+  date?: DateOptions;
 };
 
 export const databaseProperty = pgTable(

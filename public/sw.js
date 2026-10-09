@@ -12,7 +12,7 @@
  * - Everything else (API routes, uploads, server actions, RSC requests, the collab websocket) is
  *   never touched.
  * - Push messages (server/push.ts) show as notifications; opening one brings an open Leafdesk tab
- *   to the notification's page, or opens a new window.
+ *   to the notification's page, or opens a new window; its Snooze button snoozes it for an hour.
  *
  * Bump VERSION when changing this file's caching of static files.
  */
@@ -200,7 +200,7 @@ async function trim(cache) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Push notifications. The server sends { title, body, url, tag } for a new inbox notification;
+// Push notifications. The server sends { title, body, url, tag, snooze } for a new inbox notification;
 // every message shows a notification (browsers require it), a generic one if the data is unusable.
 
 self.addEventListener("push", (event) => {
@@ -217,7 +217,7 @@ function readPush(data) {
   }
   if (!message || typeof message !== "object") return null;
   const text = (value) => (typeof value === "string" ? value : "");
-  return { title: text(message.title), body: text(message.body), url: text(message.url), tag: text(message.tag) };
+  return { title: text(message.title), body: text(message.body), url: text(message.url), tag: text(message.tag), snooze: text(message.snooze) };
 }
 
 function showPush(message) {
@@ -228,7 +228,12 @@ function showPush(message) {
     data: { url: sameOriginUrl(message && message.url) },
   };
   // One notification per inbox item: a message sent again replaces it instead of adding another.
-  if (message && message.tag) options.tag = message.tag;
+  if (message && message.tag) {
+    options.tag = message.tag;
+    options.data.id = message.tag;
+    // The tag is the notification's id: its button snoozes it for an hour (see notificationclick).
+    if (message.snooze) options.actions = [{ action: "snooze", title: message.snooze }];
+  }
   return self.registration.showNotification((message && message.title) || "Leafdesk", options);
 }
 
@@ -244,8 +249,23 @@ function sameOriginUrl(url) {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const data = event.notification.data || {};
+  if (event.action === "snooze" && data.id) {
+    event.waitUntil(snooze(data.id));
+    return;
+  }
   event.waitUntil(openFromNotification(data.url));
 });
+
+/** Snoozes the inbox item for an hour, as the signed-in user (the request carries their cookie). */
+async function snooze(id) {
+  try {
+    await fetch(`/api/notifications/${encodeURIComponent(id)}/snooze`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-Leafdesk-Snooze": "1" },
+    });
+  } catch {}
+}
 
 /** Takes an open Leafdesk tab (the focused one first) to `url` and brings it forward, else opens a window there. */
 async function openFromNotification(url) {

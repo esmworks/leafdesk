@@ -15,4 +15,4 @@ export function proxy(request: NextRequest) {
 }
 
 // Only the signed-in app; everything else either needs no session or has nothing worth returning to.
-export const config = { matcher: ["/w/:path*", "/print/:path*", "/account"] };
+export const config = { matcher: ["/w/:path*", "/print/:path*", "/account", "/share"] };

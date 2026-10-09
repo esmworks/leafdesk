@@ -403,7 +403,16 @@
     "formatCurrency": "Currency",
     "decimals": "Decimal places",
     "decimalsAuto": "Automatic",
-    "percentHint": "Type 15 for {percent}"
+    "percentHint": "Type 15 for {percent}",
+    "dateOptions": "Date settings",
+    "dateDisplay": "Show as",
+    "displayDate": "Date",
+    "displayRelative": "Relative",
+    "relativeHint": "Dates within a week of today read “tomorrow”, “in 3 days”, “2 days ago”.",
+    "reminder": "Reminder",
+    "reminderNone": "No reminder",
+    "reminderBefore": "{days, select, 0 {On the day, 9:00} 1 {1 day before, 9:00} 7 {1 week before, 9:00} other {# days before, 9:00}}",
+    "reminderHint": "Notifies the people assigned to each row, or whoever added it, unless the row is done. 9:00 is in your time zone."
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -455,7 +464,22 @@
     "noDate": "{count, plural, one {# row} other {# rows}} without {property}",
     "noDateTitle": "Rows without {property}",
     "dayRows": "{date}: {count, plural, =0 {no rows} one {# row} other {# rows}}",
-    "emptyDay": "No rows on this day."
+    "emptyDay": "No rows on this day.",
+    "feed": {
+      "open": "Subscribe in a calendar app",
+      "title": "Subscribe in a calendar app",
+      "description": "Add this view to your calendar app by its address. Its rows show as all-day events, as you see them here (filters and access included), and the app checks for changes about every hour.",
+      "address": "Calendar address",
+      "create": "Create address",
+      "replace": "New address",
+      "turnOff": "Turn off",
+      "shownOnce": "Copy it now: it won’t be shown again. Anyone with the address sees what you see in this view.",
+      "openInApp": "Open in calendar app",
+      "active": "An address is active, made on {created}.",
+      "lastRead": "Last read {time}.",
+      "neverRead": "Not read yet.",
+      "replaceHint": "A new address stops the old one working."
+    }
   },
   "layout": {
     "label": "Layout",
@@ -599,6 +623,9 @@
     "unsupportedViewType": "Unsupported view type “{type}”.",
     "invalidRollup": "The rollup “{property}” can’t be saved: {message}",
     "invalidNumberFormat": "This number format can’t be saved.",
+    "invalidDateOptions": "These date settings can’t be saved.",
+    "calendarFeedNotCalendar": "Only calendar views can be subscribed to.",
+    "calendarFeedExportOff": "The workspace’s owners turned export off, so calendar subscriptions are off too.",
     "isTemplate": "Templates can’t be moved or put in the trash. Delete them from the template list instead.",
     "notATemplate": "This page is not a template of this workspace or database.",
     "propertyRestricted": "You don’t have access to change “{property}”.",
@@ -934,5 +961,9 @@
     "noDates": "Rows can’t move until dates are chosen.",
     "useViewDates": "Move rows by this view’s dates",
     "link": "Drag onto a row to make it wait for “{title}”"
+  },
+  "quickAdd": {
+    "recognised": "Recognised in the title",
+    "keep": "Keep “{text}” in the title"
   }
 }

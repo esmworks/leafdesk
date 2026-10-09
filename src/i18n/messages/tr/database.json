@@ -403,7 +403,16 @@
     "formatCurrency": "Para birimi",
     "decimals": "Ondalık basamak",
     "decimalsAuto": "Otomatik",
-    "percentHint": "{percent} için 15 yazın"
+    "percentHint": "{percent} için 15 yazın",
+    "dateOptions": "Tarih ayarları",
+    "dateDisplay": "Gösterim",
+    "displayDate": "Tarih",
+    "displayRelative": "Göreli",
+    "relativeHint": "Bugüne bir haftadan yakın tarihler “yarın”, “3 gün sonra”, “2 gün önce” diye görünür.",
+    "reminder": "Hatırlatıcı",
+    "reminderNone": "Hatırlatıcı yok",
+    "reminderBefore": "{days, select, 0 {Aynı gün, 09:00} 1 {1 gün önce, 09:00} 7 {1 hafta önce, 09:00} other {# gün önce, 09:00}}",
+    "reminderHint": "Her satıra atanan kişilere, kimse atanmamışsa satırı ekleyene bildirir; tamamlanan satırlar hatırlatmaz. 09:00 sizin saat diliminize göredir."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -455,7 +464,22 @@
     "noDate": "{property} olmayan {count, plural, other {# satır}}",
     "noDateTitle": "{property} olmayan satırlar",
     "dayRows": "{date}: {count, plural, =0 {satır yok} other {# satır}}",
-    "emptyDay": "Bu günde satır yok."
+    "emptyDay": "Bu günde satır yok.",
+    "feed": {
+      "open": "Takvim uygulamasında abone ol",
+      "title": "Takvim uygulamasında abone ol",
+      "description": "Bu görünümü adresiyle takvim uygulamanıza ekleyin. Satırlar burada gördüğünüz gibi (süzgeçler ve erişim dahil) tüm gün etkinlikleri olarak görünür; uygulama değişiklikleri yaklaşık saatte bir alır.",
+      "address": "Takvim adresi",
+      "create": "Adres oluştur",
+      "replace": "Yeni adres",
+      "turnOff": "Devre dışı bırak",
+      "shownOnce": "Şimdi kopyalayın: bir daha gösterilmeyecek. Adresi bilen herkes bu görünümde sizin gördüğünüzü görür.",
+      "openInApp": "Takvim uygulamasında aç",
+      "active": "{created} tarihinde oluşturulan bir adres etkin.",
+      "lastRead": "Son okunma {time}.",
+      "neverRead": "Henüz okunmadı.",
+      "replaceHint": "Yeni adres eskisini geçersiz kılar."
+    }
   },
   "layout": {
     "label": "Düzen",
@@ -599,6 +623,9 @@
     "unsupportedViewType": "Desteklenmeyen görünüm türü: “{type}”.",
     "invalidRollup": "“{property}” toplaması kaydedilemiyor: {message}",
     "invalidNumberFormat": "Bu sayı biçimi kaydedilemiyor.",
+    "invalidDateOptions": "Bu tarih ayarları kaydedilemiyor.",
+    "calendarFeedNotCalendar": "Yalnızca takvim görünümlerine abone olunabilir.",
+    "calendarFeedExportOff": "Çalışma alanının sahipleri dışa aktarmayı kapattığı için takvim abonelikleri de kapalı.",
     "isTemplate": "Şablonlar taşınamaz ve çöp kutusuna atılamaz. Onları şablon listesinden silin.",
     "notATemplate": "Bu sayfa bu çalışma alanının ya da veritabanının bir şablonu değil.",
     "propertyRestricted": "“{property}” özelliğini değiştirme yetkiniz yok.",
@@ -934,5 +961,9 @@
     "noDates": "Tarihler seçilene kadar satırlar kaymaz.",
     "useViewDates": "Bu görünümün tarihlerine göre kaydır",
     "link": "“{title}” satırını bekletmek için bir satırın üzerine sürükleyin"
+  },
+  "quickAdd": {
+    "recognised": "Başlıkta tanınanlar",
+    "keep": "“{text}” başlıkta kalsın"
   }
 }

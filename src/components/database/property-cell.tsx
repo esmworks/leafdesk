@@ -2,7 +2,7 @@
 
 import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/components/ui";
 import {
@@ -21,11 +21,14 @@ import { FilesDisplay, FilesEditor, type UploadFile } from "./files-cell";
 import { Floating } from "./floating";
 import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
+import { QuickAddParts, type QuickAdd } from "./quick-add";
 import { HiddenValue } from "./property-access";
 import { RelationChips, RelationPicker } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
 import { searchFold } from "@/lib/search-fold";
+import { relativeDay } from "@/lib/date-options";
+import { dayString, localDay } from "@/lib/time-zone";
 import type { NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
 
@@ -94,6 +97,22 @@ export function useFormatDate() {
   };
 }
 
+/**
+ * Shows a date property's value: relatively when its options say so and it is within a week of
+ * the viewer's today ("tomorrow", "in 3 days"), with the date in the tooltip; as the date otherwise.
+ */
+function DateValue({ prop, value }: { prop: Property; value: string }) {
+  const formatDate = useFormatDate();
+  const locale = useLocale();
+  const timeZone = useTimeZone() ?? "UTC";
+  const relative =
+    prop.options.date?.display === "relative"
+      ? relativeDay(value.slice(0, 10), dayString(localDay(Date.now(), timeZone)), locale)
+      : null;
+  if (!relative) return <span>{formatDate(value)}</span>;
+  return <span title={formatDate(value)}>{relative.charAt(0).toLocaleUpperCase(locale) + relative.slice(1)}</span>;
+}
+
 /** Formats a timestamp (created or last edited time) as date and time in the viewer's locale and time zone. */
 export function useFormatDateTime() {
   const format = useFormatter();
@@ -129,7 +148,6 @@ export function isEmptyValue(prop: Property, value: unknown) {
 
 /** Read-only rendering of a property value (board cards, read-only panels). */
 export function PropertyDisplay({ prop, value, wrap }: { prop: Property; value: unknown; wrap?: boolean }) {
-  const formatDate = useFormatDate();
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
   if (value === null || value === undefined || value === "") return null;
@@ -162,7 +180,7 @@ export function PropertyDisplay({ prop, value, wrap }: { prop: Property; value: 
         </a>
       );
     case "date":
-      return <span>{formatDate(String(value))}</span>;
+      return <DateValue prop={prop} value={String(value)} />;
     case "created_time":
     case "last_edited_time":
       return <span className="truncate">{formatDateTime(String(value))}</span>;
@@ -372,6 +390,7 @@ export function PropertyCell({
   wrap,
   autoEdit,
   draft,
+  quickAdd,
   placeholder,
   upload,
 }: {
@@ -388,6 +407,8 @@ export function PropertyCell({
   autoEdit?: boolean;
   /** Text typed before the editor opened; a text editor starts with it instead of the value. */
   draft?: string;
+  /** A new row's title: what quick add recognises in it shows under the editor (see quick-add). */
+  quickAdd?: QuickAdd;
   placeholder?: string;
   /** Files properties: where new files are stored (the row); without it files can only be removed. */
   upload?: UploadFile;
@@ -466,6 +487,7 @@ export function PropertyCell({
           onCreateOption={onCreateOption}
           onClose={() => setEditing(false)}
           draft={draft}
+          quickAdd={quickAdd}
           upload={upload}
         />
       )}
@@ -481,6 +503,7 @@ function CellEditor({
   onCreateOption,
   onClose,
   draft,
+  quickAdd,
   upload,
 }: {
   prop: Property;
@@ -490,6 +513,7 @@ function CellEditor({
   onCreateOption: CreateOption;
   onClose: () => void;
   draft?: string;
+  quickAdd?: QuickAdd;
   upload?: UploadFile;
 }) {
   switch (prop.type) {
@@ -498,7 +522,9 @@ function CellEditor({
     case "url":
     case "email":
     case "phone":
-      return <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} />;
+      return (
+        <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} quickAdd={quickAdd} />
+      );
     case "checklist":
       return (
         <Floating open anchor={anchor} onClose={onClose} className="w-80 p-0">
@@ -598,6 +624,7 @@ function TextEditor({
   onChange,
   onClose,
   startWith,
+  quickAdd,
 }: {
   prop: Property;
   value: unknown;
@@ -605,6 +632,7 @@ function TextEditor({
   onChange: (value: unknown) => void;
   onClose: () => void;
   startWith?: string;
+  quickAdd?: QuickAdd;
 }) {
   const t = useTranslations("database.cell");
   const locale = useLocale();
@@ -668,6 +696,11 @@ function TextEditor({
       {invalid && (
         <div className="border-t border-border px-2 py-1 text-xs text-danger">
           {t(INVALID_INPUT[prop.type] ?? "enterUrl")}
+        </div>
+      )}
+      {quickAdd && (
+        <div className="px-2 pb-1.5 empty:hidden">
+          <QuickAddParts quick={quickAdd} text={draft} />
         </div>
       )}
     </Floating>

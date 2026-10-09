@@ -29,6 +29,7 @@ import { PropertyLock, usePropertyAccess } from "./property-access";
 import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
+import { useQuickAdd } from "./quick-add";
 import { useNewRow } from "./use-new-row";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { TITLE, type Property, type Row, type View } from "./types";
@@ -95,7 +96,8 @@ export function TableView({
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
+  const quick = useQuickAdd(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
   const { viewerId, people } = usePeople();
   const relations = useRelations();
   const ai = useAiAutofill();
@@ -357,9 +359,11 @@ export function TableView({
                 placeholder={tc("untitled")}
                 autoEdit={editTitleOf === row.id}
                 draft={editTitleOf === row.id ? typed : undefined}
+                quickAdd={editTitleOf === row.id ? quick : undefined}
                 onChange={(v) => {
                   stopEditing();
-                  void api.setCell(row.id, TITLE, v ?? "");
+                  if (editTitleOf === row.id) quick.save(row.id, String(v ?? ""));
+                  else void api.setCell(row.id, TITLE, v ?? "");
                 }}
                 onCreateOption={createOption}
               />
@@ -493,6 +497,7 @@ export function TableView({
                     setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
                     setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
                     setNumberFormat: fixed || p.type !== "number" ? undefined : (format) => api.setNumberFormat(p, format),
+                    setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
                     setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
                     updateAllAutofill:
                       !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)

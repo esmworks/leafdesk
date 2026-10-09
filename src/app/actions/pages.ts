@@ -22,6 +22,16 @@ export async function createPageAction(input: {
   return { id: created.id };
 }
 
+/** A quick note (app/share): a private page at the top of the workspace, with the text as its content. */
+export async function createQuickNoteAction(input: { workspaceId: string; title: string; markdown: string }) {
+  const userId = await requireUserId();
+  const created = await pages.createPage(
+    { userId },
+    { workspaceId: input.workspaceId, title: input.title, markdown: input.markdown, teamspaceId: null },
+  );
+  return { id: created.id };
+}
+
 /** `locked`: the page is locked, so its title stays (lib/page-lock); other failures throw. */
 export async function renamePageAction(pageId: string, title: string): Promise<{ ok: true } | { ok: false; locked: true }> {
   const userId = await requireUserId();

@@ -1088,7 +1088,7 @@
     "mentionDescription": "Biri bir sayfada @ ile sizden bahseder.",
     "mentionChannel": "Bahsetmeler: {channel}",
     "reminderTitle": "Hatırlatmalar",
-    "reminderDescription": "Bir sayfadaki tarihe kurduğunuz hatırlatmanın zamanı gelir.",
+    "reminderDescription": "Bir sayfadaki tarihe kurduğunuz ya da bir veritabanının tarih özelliğinin size gönderdiği hatırlatmanın zamanı gelir.",
     "reminderChannel": "Hatırlatmalar: {channel}",
     "accessRequestTitle": "Erişim istekleri",
     "accessRequestDescription": "Biri tam erişiminiz olan bir sayfaya erişim istiyor.",

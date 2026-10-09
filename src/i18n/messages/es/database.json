@@ -403,7 +403,16 @@
     "formatCurrency": "Moneda",
     "decimals": "Decimales",
     "decimalsAuto": "Automático",
-    "percentHint": "Escribe 15 para {percent}"
+    "percentHint": "Escribe 15 para {percent}",
+    "dateOptions": "Ajustes de fecha",
+    "dateDisplay": "Mostrar como",
+    "displayDate": "Fecha",
+    "displayRelative": "Relativa",
+    "relativeHint": "Las fechas a menos de una semana de hoy se leen «mañana», «dentro de 3 días», «hace 2 días».",
+    "reminder": "Recordatorio",
+    "reminderNone": "Sin recordatorio",
+    "reminderBefore": "{days, select, 0 {El mismo día, 9:00} 1 {1 día antes, 9:00} 7 {1 semana antes, 9:00} other {# días antes, 9:00}}",
+    "reminderHint": "Avisa a las personas asignadas a cada fila, o a quien la añadió, salvo que la fila esté terminada. Las 9:00 son en tu zona horaria."
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -455,7 +464,22 @@
     "noDate": "{count, plural, one {# fila} other {# filas}} sin {property}",
     "noDateTitle": "Filas sin {property}",
     "dayRows": "{date}: {count, plural, =0 {sin filas} one {# fila} other {# filas}}",
-    "emptyDay": "No hay filas en este día."
+    "emptyDay": "No hay filas en este día.",
+    "feed": {
+      "open": "Suscribirse en una app de calendario",
+      "title": "Suscribirse en una app de calendario",
+      "description": "Añade esta vista a tu app de calendario con su dirección. Sus filas aparecen como eventos de día completo, tal como las ves aquí (filtros y acceso incluidos), y la app busca cambios aproximadamente cada hora.",
+      "address": "Dirección del calendario",
+      "create": "Crear dirección",
+      "replace": "Nueva dirección",
+      "turnOff": "Desactivar",
+      "shownOnce": "Cópiala ahora: no se volverá a mostrar. Quien tenga la dirección ve lo que tú ves en esta vista.",
+      "openInApp": "Abrir en la app de calendario",
+      "active": "Hay una dirección activa, creada el {created}.",
+      "lastRead": "Última lectura {time}.",
+      "neverRead": "Aún no se ha leído.",
+      "replaceHint": "Una dirección nueva deja de hacer funcionar la anterior."
+    }
   },
   "layout": {
     "label": "Diseño",
@@ -599,6 +623,9 @@
     "unsupportedViewType": "Tipo de vista no admitido: “{type}”.",
     "invalidRollup": "La agregación “{property}” no se puede guardar: {message}",
     "invalidNumberFormat": "Este formato de número no se puede guardar.",
+    "invalidDateOptions": "Esta configuración de fecha no se puede guardar.",
+    "calendarFeedNotCalendar": "Solo se puede suscribir a vistas de calendario.",
+    "calendarFeedExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que las suscripciones de calendario también están desactivadas.",
     "isTemplate": "Las plantillas no se pueden mover ni enviar a la papelera. Elimínalas desde la lista de plantillas.",
     "notATemplate": "Esta página no es una plantilla de este espacio de trabajo ni de esta base de datos.",
     "propertyRestricted": "No tienes permiso para cambiar «{property}».",
@@ -934,5 +961,9 @@
     "noDates": "Las filas no se mueven hasta elegir las fechas.",
     "useViewDates": "Mover filas según las fechas de esta vista",
     "link": "Arrastra sobre una fila para que espere a “{title}”"
+  },
+  "quickAdd": {
+    "recognised": "Reconocido en el título",
+    "keep": "Dejar «{text}» en el título"
   }
 }

@@ -403,7 +403,16 @@
     "formatCurrency": "Währung",
     "decimals": "Dezimalstellen",
     "decimalsAuto": "Automatisch",
-    "percentHint": "Für {percent} 15 eingeben"
+    "percentHint": "Für {percent} 15 eingeben",
+    "dateOptions": "Datumseinstellungen",
+    "dateDisplay": "Anzeigen als",
+    "displayDate": "Datum",
+    "displayRelative": "Relativ",
+    "relativeHint": "Daten innerhalb einer Woche erscheinen als „morgen“, „in 3 Tagen“, „vor 2 Tagen“.",
+    "reminder": "Erinnerung",
+    "reminderNone": "Keine Erinnerung",
+    "reminderBefore": "{days, select, 0 {Am selben Tag, 9:00} 1 {1 Tag vorher, 9:00} 7 {1 Woche vorher, 9:00} other {# Tage vorher, 9:00}}",
+    "reminderHint": "Benachrichtigt die Personen, die der Zeile zugewiesen sind, sonst wer sie angelegt hat; erledigte Zeilen erinnern nicht. 9:00 gilt in deiner Zeitzone."
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -455,7 +464,22 @@
     "noDate": "{count, plural, one {# Zeile} other {# Zeilen}} ohne {property}",
     "noDateTitle": "Zeilen ohne {property}",
     "dayRows": "{date}: {count, plural, =0 {keine Zeilen} one {# Zeile} other {# Zeilen}}",
-    "emptyDay": "An diesem Tag gibt es keine Zeilen."
+    "emptyDay": "An diesem Tag gibt es keine Zeilen.",
+    "feed": {
+      "open": "In einer Kalender-App abonnieren",
+      "title": "In einer Kalender-App abonnieren",
+      "description": "Füge diese Ansicht über ihre Adresse deiner Kalender-App hinzu. Die Zeilen erscheinen als ganztägige Termine, so wie du sie hier siehst (mit Filtern und Zugriff), und die App sieht etwa stündlich nach Änderungen.",
+      "address": "Kalenderadresse",
+      "create": "Adresse erstellen",
+      "replace": "Neue Adresse",
+      "turnOff": "Ausschalten",
+      "shownOnce": "Kopiere sie jetzt: Sie wird nicht noch einmal angezeigt. Wer die Adresse hat, sieht, was du in dieser Ansicht siehst.",
+      "openInApp": "In Kalender-App öffnen",
+      "active": "Eine Adresse ist aktiv, erstellt am {created}.",
+      "lastRead": "Zuletzt gelesen {time}.",
+      "neverRead": "Noch nicht gelesen.",
+      "replaceHint": "Eine neue Adresse macht die alte ungültig."
+    }
   },
   "layout": {
     "label": "Layout",
@@ -599,6 +623,9 @@
     "unsupportedViewType": "Nicht unterstützter Ansichtstyp „{type}“.",
     "invalidRollup": "Das Rollup „{property}“ kann nicht gespeichert werden: {message}",
     "invalidNumberFormat": "Dieses Zahlenformat kann nicht gespeichert werden.",
+    "invalidDateOptions": "Diese Datumseinstellungen können nicht gespeichert werden.",
+    "calendarFeedNotCalendar": "Nur Kalenderansichten können abonniert werden.",
+    "calendarFeedExportOff": "Die Eigentümer des Arbeitsbereichs haben den Export ausgeschaltet, daher sind auch Kalenderabos aus.",
     "isTemplate": "Vorlagen können nicht verschoben oder in den Papierkorb gelegt werden. Lösche sie stattdessen in der Vorlagenliste.",
     "notATemplate": "Diese Seite ist keine Vorlage dieses Workspace oder dieser Datenbank.",
     "propertyRestricted": "Du darfst „{property}“ nicht ändern.",
@@ -934,5 +961,9 @@
     "noDates": "Ohne gewählte Daten verschieben sich keine Zeilen.",
     "useViewDates": "Nach den Daten dieser Ansicht verschieben",
     "link": "Auf eine Zeile ziehen, damit sie auf „{title}“ wartet"
+  },
+  "quickAdd": {
+    "recognised": "Im Titel erkannt",
+    "keep": "„{text}“ im Titel lassen"
   }
 }

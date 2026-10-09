@@ -194,6 +194,27 @@ export function reminderEmail(
   });
 }
 
+/** To a row's people: the reminder of one of its date properties (see server/date-reminders). */
+export function dateReminderEmail(
+  locale: Locale,
+  reminder: { date: string; pageTitle: string; databaseTitle: string; propertyName: string; workspaceName: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = {
+    date: formatIsoDate(reminder.date, locale, "long"),
+    page: reminder.pageTitle,
+    database: reminder.databaseTitle,
+    property: reminder.propertyName,
+    workspace: reminder.workspaceName,
+  };
+  return renderEmail(locale, {
+    subject: t("dateReminder.subject", names),
+    heading: t("dateReminder.heading", names),
+    paragraphs: [t("dateReminder.body", names), t("dateReminder.optOut", names)],
+    action: { label: t("dateReminder.action"), url: reminder.link },
+  });
+}
+
 /** To the people a database automation names: a row was added or changed. */
 export function automationEmail(
   locale: Locale,

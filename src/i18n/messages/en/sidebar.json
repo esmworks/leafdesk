@@ -89,6 +89,12 @@
     "automation": "Automation “{name}”: {actor} added or changed this row",
     "someone": "Someone",
     "unread": "Unread",
+    "snooze": "Snooze",
+    "snoozeChoice": {
+      "hour": "In 1 hour",
+      "tomorrow": "Tomorrow, 9:00",
+      "nextWeek": "Monday, 9:00"
+    },
     "unreadCount": "{count, plural, one {# unread notification} other {# unread notifications}}",
     "joinRequestTitle": "Join request",
     "joinRequest": "{actor} asked to join",

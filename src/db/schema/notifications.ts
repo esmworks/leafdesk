@@ -89,6 +89,27 @@ export const pendingAssignmentEmail = pgTable(
   (t) => [primaryKey({ columns: [t.rowId, t.propertyId, t.userId] }), index("assignment_email_due_idx").on(t.dueAt)],
 );
 
+/**
+ * Reminders a date property sent (see server/date-reminders): one per row, property and date, so
+ * each date reminds once however often the sweep runs or how many servers run it. Changing the
+ * row's date to another day arms it again.
+ */
+export const rowReminder = pgTable(
+  "row_reminder",
+  {
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    propertyId: text("property_id")
+      .notNull()
+      .references(() => databaseProperty.id, { onDelete: "cascade" }),
+    /** The row's date it reminded about, YYYY-MM-DD. */
+    date: text("date").notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.rowId, t.propertyId, t.date] })],
+);
+
 export const NOTIFICATION_KINDS = [
   "assignment",
   "page_shared",
@@ -110,7 +131,7 @@ export type PreferenceKind = Exclude<NotificationKind, "agent_approval">;
  * `pageId`. "comment": `actorId` replied in comment thread `threadId` on page `pageId`, where the
  * user had commented before. "mention": `actorId` mentioned the user on page `pageId` (mention
  * `mentionId`). "reminder": the reminder the user set on date mention `mentionId` of page `pageId`
- * fell due. "access_request": `actorId` asked for access to page `pageId`, which the user has full
+ * fell due, or the reminder of date property `propertyId` of row `pageId` for the day in `date`. "access_request": `actorId` asked for access to page `pageId`, which the user has full
  * access to (request `accessRequestId`); answered by anyone, it goes away, read or not.
  * "join_request": `actorId` asked to join (or to invite someone), request `joinRequestId`, which
  * waits for the workspace's owners; it has no page. "automation": automation `automationId` told the
@@ -155,6 +176,17 @@ export const notification = pgTable(
     emailDueAt: timestamp("email_due_at", { withTimezone: true }),
     /** The actor's interface language, for that email. */
     emailLocale: text("email_locale"),
+    /**
+     * Reminders on a date property (`propertyId` of row `pageId`): the date that fell due, as
+     * stored ("2026-10-16" or "2026-10-16T17:00"). Reminders on date mentions take theirs from
+     * page_reminder.
+     */
+    date: text("date"),
+    /**
+     * Snoozed: hidden from the inbox until then, when it comes back unread at the top (with a new
+     * `createdAt`) and is pushed again. Null otherwise.
+     */
+    snoozedUntil: timestamp("snoozed_until", { withTimezone: true }),
   },
   (t) => [
     index("notification_inbox_idx").on(t.userId, t.workspaceId, t.createdAt),
@@ -162,6 +194,7 @@ export const notification = pgTable(
     // Answering a request deletes its notifications through the foreign key.
     index("notification_access_request_idx").on(t.accessRequestId),
     index("notification_agent_run_idx").on(t.agentRunId),
+    index("notification_snoozed_idx").on(t.snoozedUntil).where(sql`${t.snoozedUntil} is not null`),
     // Only join requests and agents' approvals are about no page (access requests are about the page asked for).
     check("notification_subject_check", sql`${t.kind} in ('join_request', 'agent_approval') or ${t.pageId} is not null`),
   ],

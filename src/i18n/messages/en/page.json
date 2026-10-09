@@ -468,5 +468,17 @@
     "lastUpdated": "Last updated {date}",
     "subpages": "Pages",
     "embedUnavailable": "This database isn't available to you."
+  },
+  "quickNote": {
+    "documentTitle": "Quick note",
+    "heading": "Quick note",
+    "description": "Saved as a private page that only you see. You can move or share it later.",
+    "workspace": "Workspace",
+    "title": "Title",
+    "body": "Note",
+    "bodyPlaceholder": "Write something, or paste a link",
+    "save": "Save note",
+    "shortcut": "New quick note",
+    "shortcutShort": "Quick note"
   }
 }

@@ -24,8 +24,9 @@ import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
+import { QuickAddParts, useQuickAdd, type QuickAdd } from "./quick-add";
 import { useNewRow } from "./use-new-row";
-import { TITLE, type Property, type Row, type View } from "./types";
+import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
 export function BoardView({
@@ -58,7 +59,8 @@ export function BoardView({
   // each of their columns, and moving it replaces only that column's value.
   const [dragFrom, setDragFrom] = useState<string | null>(null);
   const [drop, setDrop] = useState<{ group: string; index: number } | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
+  const quick = useQuickAdd(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
   // Column drag: the dragged column's key and the insertion index among the shown columns.
   const [dragCol, setDragCol] = useState<string | null>(null);
   const [colDrop, setColDrop] = useState<number | null>(null);
@@ -345,9 +347,10 @@ export function BoardView({
                         dragging={dragId === row.id}
                         editTitle={editTitleOf === row.id}
                         typed={typed}
+                        quick={quick}
                         onTitle={(title) => {
                           stopEditing();
-                          if (title !== row.title) void api.setCell(row.id, TITLE, title);
+                          if (title !== row.title) quick.save(row.id, title);
                         }}
                         onDelete={() => api.deleteRow(row.id)}
                         onDragStart={(e) => {
@@ -587,6 +590,7 @@ function Card({
   dragging,
   editTitle,
   typed,
+  quick,
   onTitle,
   onDelete,
   onDragStart,
@@ -600,6 +604,7 @@ function Card({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
+  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDelete: () => void;
   onDragStart: (e: DragEvent<HTMLDivElement>) => void;
@@ -625,7 +630,7 @@ function Card({
       )}
     >
       {editTitle ? (
-        <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+        <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
       ) : (
         <div className="flex gap-1.5 pr-6 text-sm leading-5 font-medium">
           {row.icon && <span className="shrink-0">{row.icon}</span>}
@@ -685,7 +690,7 @@ function Card({
   );
 }
 
-export function CardTitleInput({ initial, onDone }: { initial: string; onDone: (title: string) => void }) {
+export function CardTitleInput({ initial, onDone, quick }: { initial: string; onDone: (title: string) => void; quick?: QuickAdd }) {
   const t = useTranslations("database.board");
   const [value, setValue] = useState(initial);
   const input = useRef<HTMLInputElement>(null);
@@ -696,7 +701,7 @@ export function CardTitleInput({ initial, onDone }: { initial: string; onDone: (
     onDone(value.trim());
   };
   useEffect(() => input.current?.focus(), []);
-  return (
+  const field = (
     <input
       ref={input}
       value={value}
@@ -710,5 +715,12 @@ export function CardTitleInput({ initial, onDone }: { initial: string; onDone: (
       }}
       className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-fg-faint"
     />
+  );
+  if (!quick) return field;
+  return (
+    <div>
+      {field}
+      <QuickAddParts quick={quick} text={value} />
+    </div>
   );
 }

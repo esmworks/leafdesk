@@ -8,10 +8,12 @@ import { Button, cn, PageIcon } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { pageLabel } from "@/lib/labels";
 import { CardTitleInput } from "./board-view";
+import { CalendarFeedButton } from "./calendar-feed";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
+import { useQuickAdd, type QuickAdd } from "./quick-add";
 import { useNewRow } from "./use-new-row";
-import { TITLE, type Property, type Row, type View } from "./types";
+import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
 const MAX_ENTRY_PROPS = 2;
@@ -82,7 +84,8 @@ export function CalendarView({
   const [cursor, setCursor] = useState(() => ({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) - 1 }));
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropDay, setDropDay] = useState<string | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow((id, title) => void api.setCell(id, TITLE, title));
+  const quick = useQuickAdd(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing } = useNewRow(quick.save);
   const [showUndated, setShowUndated] = useState(false);
   // On phones the month is a compact grid, and the rows of the picked day are listed under it.
   const phone = useMediaQuery(PHONE_QUERY);
@@ -162,9 +165,10 @@ export function CalendarView({
       dragging={dragId === row.id}
       editTitle={editTitleOf === row.id}
       typed={typed}
+      quick={quick}
       onTitle={(title) => {
         stopEditing();
-        if (title !== row.title) void api.setCell(row.id, TITLE, title);
+        if (title !== row.title) quick.save(row.id, title);
       }}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", row.id);
@@ -184,6 +188,7 @@ export function CalendarView({
     <div className="pb-4">
       <div className="flex items-center gap-1 pb-2">
         <h3 className="flex-1 text-sm font-medium first-letter:uppercase">{monthLabel}</h3>
+        <CalendarFeedButton viewId={view.id} />
         <Button
           size="sm"
           variant="ghost"
@@ -441,6 +446,7 @@ function CalendarEntry({
   dragging,
   editTitle,
   typed,
+  quick,
   onTitle,
   onDragStart,
   onDragEnd,
@@ -453,6 +459,7 @@ function CalendarEntry({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
+  quick?: QuickAdd;
   onTitle: (title: string) => void;
   onDragStart: (e: DragEvent<HTMLDivElement>) => void;
   onDragEnd: () => void;
@@ -478,7 +485,7 @@ function CalendarEntry({
       )}
     >
       {editTitle ? (
-        <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+        <CardTitleInput initial={typed || row.title} onDone={onTitle} quick={quick} />
       ) : (
         <div className="flex min-w-0 items-center gap-1">
           {row.icon && <PageIcon icon={row.icon} className="shrink-0 text-xs" />}

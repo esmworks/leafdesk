@@ -1088,7 +1088,7 @@
     "mentionDescription": "Someone mentions you on a page with @.",
     "mentionChannel": "Mentions: {channel}",
     "reminderTitle": "Reminders",
-    "reminderDescription": "A reminder you set on a date in a page is due.",
+    "reminderDescription": "A reminder you set on a date in a page, or one a database's date sends you, is due.",
     "reminderChannel": "Reminders: {channel}",
     "accessRequestTitle": "Access requests",
     "accessRequestDescription": "Someone asks for access to a page you have full access to.",
