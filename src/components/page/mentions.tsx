@@ -1,12 +1,21 @@
 "use client";
 
-import { createReactBlockSpec, createReactInlineContentSpec, SuggestionMenuController, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Bell, CalendarDays, ChevronRight, CircleUser, FileX2, Link2, Lock, Search } from "lucide-react";
+import { SuggestionMenu } from "@blocknote/core/extensions";
+import {
+  createReactBlockSpec,
+  createReactInlineContentSpec,
+  SuggestionMenuController,
+  useExtension,
+  useExtensionState,
+  type DefaultReactSuggestionItem,
+} from "@blocknote/react";
+import { Bell, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import { backlinksAction, linkMentionAction, mentionCandidatesAction, resolvePagesAction, unlinkedMentionsAction } from "@/app/actions/mentions";
+import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
 import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
@@ -402,7 +411,7 @@ const DATE_ITEMS: DateItem[] = [
 /** `@` in the editor: people of the workspace, pages the user can see, and dates. */
 export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEditor; workspaceId: string; pageId: string }) {
   const t = useTranslations("page.mention");
-  const tc = useTranslations("common");
+  const pageItem = usePageItem();
   const locale = useLocale();
   // The last answer, so typing doesn't flash an empty menu while the next one loads.
   const last = useRef<MentionCandidates>({ people: [], pages: [] });
@@ -432,19 +441,7 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
           onItemClick: () => insert({ kind: "user", id: newMentionId(), userId: p.id, name: p.name }),
         }),
       );
-      const pages = found.pages.map(
-        (p): DefaultReactSuggestionItem => ({
-          title: pageLabel(p.title, tc("untitled")),
-          group: t("pages"),
-          icon: <PageIcon icon={p.icon} kind={p.kind} className="text-base" />,
-          onItemClick: () => {
-            // Known right away, so the chip shows its title without a round trip.
-            refs.set(p.id, { id: p.id, status: "ok", workspaceId, title: p.title, icon: p.icon, kind: p.kind });
-            insert({ kind: "page", pageId: p.id });
-            void fetchRefs([p.id]);
-          },
-        }),
-      );
+      const pages = found.pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)));
       const dates = DATE_ITEMS.flatMap((d): DefaultReactSuggestionItem[] => {
         const title = t(d.key);
         if (q && !searchFold(title).includes(q) && !searchFold(d.key).includes(q)) return [];
@@ -471,10 +468,127 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
       }
       return [...people, ...pages, ...dates];
     },
-    [workspaceId, pageId, insert, t, tc, locale],
+    [editor, workspaceId, pageId, insert, pageItem, t, locale],
   );
 
   return <SuggestionMenuController triggerCharacter="@" getItems={getItems} />;
+}
+
+type PageCandidate = MentionCandidates["pages"][number];
+
+/** A mention of `p` at the cursor, its chip showing the title right away. */
+function insertPageMention(editor: PageEditor, workspaceId: string, p: PageCandidate) {
+  refs.set(p.id, { id: p.id, status: "ok", workspaceId, title: p.title, icon: p.icon, kind: p.kind });
+  editor.insertInlineContent([{ type: "mention", props: { kind: "page", pageId: p.id } }, " "] as never, { updateSelection: true });
+  void fetchRefs([p.id]);
+}
+
+/** A page in the @ and [[ menus. */
+function usePageItem() {
+  const t = useTranslations("page.mention");
+  const tc = useTranslations("common");
+  return useCallback(
+    (p: PageCandidate, onItemClick: () => void): DefaultReactSuggestionItem => ({
+      title: pageLabel(p.title, tc("untitled")),
+      group: t("pages"),
+      icon: <PageIcon icon={p.icon} kind={p.kind} className="text-base" />,
+      onItemClick,
+    }),
+    [t, tc],
+  );
+}
+
+// ---------------------------------------------------------------------------------------------
+// The [[ menu
+
+const PAGE_LINK_TRIGGER = "[[";
+
+const sameTitle = (p: PageCandidate, title: string) => searchFold(p.title.trim()) === searchFold(title);
+
+/**
+ * `[[` in the editor: pages to link to, and a new page inside this one with the typed title.
+ * Typing `[[Title]]` out links to the page of that title when there is one; when there isn't, the
+ * text stays as typed.
+ */
+export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor: PageEditor; workspaceId: string; pageId: string; offline: boolean }) {
+  const t = useTranslations("page.mention");
+  const pageItem = usePageItem();
+  const suggestionMenu = useExtension(SuggestionMenu, { editor });
+  // The last answer and what it was for: typing doesn't flash an empty menu while the next one
+  // loads, and "]]" right after typing a title doesn't wait for it again.
+  const last = useRef<{ query: string; pages: PageCandidate[] } | null>(null);
+
+  const load = useCallback(
+    async (query: string) => {
+      if (last.current?.query === query) return last.current.pages;
+      try {
+        const { pages } = await mentionCandidatesAction(pageId, query);
+        last.current = { query, pages };
+        return pages;
+      } catch {
+        return last.current?.pages ?? [];
+      }
+    },
+    [pageId],
+  );
+
+  const createAndLink = useCallback(
+    async (title: string) => {
+      try {
+        const { id } = await createPageAction({ workspaceId, parentId: pageId, title });
+        insertPageMention(editor, workspaceId, { id, title, icon: null, kind: "page" });
+      } catch {
+        // Not created (offline, or no longer allowed here): the title stays as text.
+        editor.insertInlineContent(title, { updateSelection: true });
+      }
+    },
+    [editor, workspaceId, pageId],
+  );
+
+  const getItems = useCallback(
+    async (query: string): Promise<DefaultReactSuggestionItem[]> => {
+      // Past "]]" (handled below) there is nothing to offer, and the menu closes.
+      if (query.includes("]]")) return [];
+      const title = query.replace(/\]$/, "").trim();
+      const pages = await load(title);
+      const items = pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)));
+      if (title && !offline && !pages.some((p) => sameTitle(p, title))) {
+        items.push({
+          title: t("newPage", { title }),
+          subtext: t("newPageHint"),
+          group: t("pages"),
+          icon: <FilePlus size={18} />,
+          onItemClick: () => void createAndLink(title),
+        });
+      }
+      return items;
+    },
+    [editor, workspaceId, offline, load, pageItem, createAndLink, t],
+  );
+
+  // "[[Title]]" typed out: the page of that title, if there is one.
+  const query = useExtensionState(SuggestionMenu, {
+    editor,
+    selector: (state) => (state?.show && state.triggerCharacter === PAGE_LINK_TRIGGER ? state.query : null),
+  });
+  useEffect(() => {
+    if (query === null || !query.endsWith("]]")) return;
+    const title = query.slice(0, -2).trim();
+    let current = true;
+    void (title ? load(title) : Promise.resolve([])).then((pages) => {
+      if (!current) return;
+      const match = pages.find((p) => sameTitle(p, title));
+      suggestionMenu.closeMenu();
+      if (!match) return;
+      suggestionMenu.clearQuery();
+      insertPageMention(editor, workspaceId, match);
+    });
+    return () => {
+      current = false;
+    };
+  }, [query, load, suggestionMenu, editor, workspaceId]);
+
+  return <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />;
 }
 
 // ---------------------------------------------------------------------------------------------

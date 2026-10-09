@@ -40,7 +40,7 @@ import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { FindBar } from "./find-bar";
 import { FindReplace } from "./find-replace";
 import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, withEmbedItems, type PageEditor } from "./embed-blocks";
-import { MentionMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
+import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
 import type { PageDoc } from "./use-page-doc";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { withTextScriptButtons } from "./text-scripts";
@@ -209,6 +209,7 @@ export default function CollabEditor({
             assistant={ai && editable && !offline ? assistant : null}
           />
           {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
+          {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
           <PasteLinkMenu editor={editor} />
           {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
           {(editable || canComment) && (

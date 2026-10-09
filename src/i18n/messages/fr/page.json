@@ -414,6 +414,8 @@
     "people": "Personnes",
     "pages": "Pages",
     "dates": "Dates",
+    "newPage": "Nouvelle page : {title}",
+    "newPageHint": "Dans cette page",
     "today": "Aujourd’hui",
     "tomorrow": "Demain",
     "yesterday": "Hier",

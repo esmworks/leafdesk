@@ -57,6 +57,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       // The slash menu (components/page/collab-editor.tsx) and mentions (mentions.tsx).
       { id: "slashMenu", combos: [["/"]] },
       { id: "mention", combos: [["@"]] },
+      { id: "pageLink", combos: [["[["]] },
       // BlockNote's block shortcuts.
       { id: "paragraph", combos: [["Mod", "Alt", "0"]] },
       { id: "heading1", combos: [["Mod", "Alt", "1"]] },

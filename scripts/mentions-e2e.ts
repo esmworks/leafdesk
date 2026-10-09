@@ -18,7 +18,7 @@ try {
 const { and, eq, inArray } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { notification, pageLink, pageMention, pageReminder, user, workspace, workspaceMember } = await import("@/db/schema");
+const { notification, page, pageLink, pageMention, pageReminder, user, workspace, workspaceMember } = await import("@/db/schema");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
 const { eachMention, MENTION } = await import("@/lib/mentions");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
@@ -281,6 +281,15 @@ try {
   // The @ menu
   const menu = await mentionCandidates(ids.editor, plan.id, "road");
   check(menu.pages.map((p) => p.id).join() === target.id, "the @ menu finds pages by title", menu);
+  const light = await createPage(owner, { workspaceId, title: "Işık planı" });
+  const izmir = await createPage(owner, { workspaceId, title: "İzmir notları" });
+  const found = async (query: string) => (await mentionCandidates(ids.editor, plan.id, query)).pages.map((p) => p.id);
+  check(
+    (await found("ışık")).includes(light.id) && (await found("IŞIK PL")).includes(light.id) && (await found("izmir")).includes(izmir.id) && (await found("İZMİR")).includes(izmir.id),
+    "…with the dotted and dotless i either way",
+  );
+  check((await found("%")).length === 0 && (await found("_")).length === 0, "…taking % and _ as written");
+  await db.delete(page).where(inArray(page.id, [light.id, izmir.id]));
   const secretSearch = await mentionCandidates(ids.editor, plan.id, "secret");
   check(secretSearch.pages.length === 0, "…never pages the user can't open", secretSearch);
   check((await mentionCandidates(ids.editor, plan.id, ids.reader.slice(-6))).people.some((p) => p.id === ids.reader), "…and finds people of the workspace");

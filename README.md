@@ -144,7 +144,9 @@ versions, upgrades and running behind a domain.
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
   read along; full access also deletes other people's comments.
 - **Mentions and page links**: `@` mentions people, pages (with their live title, or "No access")
-  and dates with optional reminders; "Link to page" blocks; a "Linked from" list of backlinks on
+  and dates with optional reminders; `[[` links to a page, or to a new page inside this one with
+  the title typed, and `[[Title]]` typed out links to the page of that title; "Link to page"
+  blocks; a "Linked from" list of backlinks on
   every page, each with the text around its link, and below it the pages that write the page's
   title without linking to it, with a button that turns that text into a mention.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between

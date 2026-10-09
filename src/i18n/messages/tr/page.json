@@ -414,6 +414,8 @@
     "people": "Kişiler",
     "pages": "Sayfalar",
     "dates": "Tarihler",
+    "newPage": "Yeni sayfa: {title}",
+    "newPageHint": "Bu sayfanın içinde",
     "today": "Bugün",
     "tomorrow": "Yarın",
     "yesterday": "Dün",

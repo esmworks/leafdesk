@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, inArray, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
 import { findTitle, excerpt, linkContexts, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
@@ -428,23 +428,26 @@ export type MentionCandidates = {
 };
 
 /**
- * What the editor's @ menu offers on a page: people of the workspace (members only: guests don't
- * get to see who is in it) and pages the user can view, matching `query`.
+ * What the editor's @ and [[ menus offer on a page: people of the workspace (members only: guests
+ * don't get to see who is in it) and pages the user can view, matching `query` as lib/search-fold
+ * does (so "ı" and "I" find each other).
  */
 export async function mentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates> {
   const target = await requirePageAccess(userId, pageId, "edit");
   const membership = await getMembership(userId, target.workspaceId);
-  const q = typeof query === "string" ? query.trim().slice(0, 100) : "";
-  const lower = q.toLocaleLowerCase();
+  const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
   const people =
     membership && !isGuest(membership.role)
       ? (await workspacePeople(target.workspaceId))
-          .filter((p) => !lower || p.name.toLocaleLowerCase().includes(lower) || p.email.toLocaleLowerCase().startsWith(lower))
+          .filter((p) => !q || searchFold(p.name).includes(q) || searchFold(p.email).startsWith(q))
           .sort((a, b) => (a.id === userId ? 1 : 0) - (b.id === userId ? 1 : 0) || a.name.localeCompare(b.name))
           .slice(0, 6)
           .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }))
       : [];
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+  // Folded like searchFold: Postgres lowers "I" and "İ" to "i" (or "i" and a combining dot) but
+  // keeps "ı".
+  const title = sql`translate(lower(${page.title}), ${"ı\u0307"}, 'i')`;
   const pages = await db
     .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
     .from(page)
@@ -454,11 +457,11 @@ export async function mentionCandidates(userId: string, pageId: string, query: s
         isNull(page.archivedAt),
         eq(page.inTemplate, false),
         ne(page.id, pageId),
-        q ? ilike(page.title, like) : undefined,
+        q ? sql`${title} like ${like}` : undefined,
         pageVisibleTo(userId),
       ),
     )
-    .orderBy(q ? sql`position(lower(${lower}) in lower(${page.title}))` : desc(page.updatedAt), desc(page.updatedAt))
+    .orderBy(q ? sql`position(${q} in ${title})` : desc(page.updatedAt), desc(page.updatedAt))
     .limit(q ? 8 : 5);
   return { people, pages };
 }

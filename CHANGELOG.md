@@ -17,6 +17,12 @@
 
 ### Added
 
+- **`[[` links to a page.** Typing `[[` in a page opens a menu of the pages one can open, searched
+  by title as typed; below them, "New page" creates a page inside the current one with that title
+  and links to it. Typing `[[Title]]` out links to the page of that title when there is one and
+  leaves the text as it is when there isn't. The links are the same page mentions `@` makes, so
+  they show under "Linked from" and in the graph. The `@` and `[[` menus now find titles with the
+  dotted and dotless i whichever way they are typed ("ışık" finds "Işık"). No migration.
 - **Graph.** A new page (the graph icon beside Home in the sidebar, or `>` in the search box)
   draws a workspace's pages, databases and rows as points, joined by links in page bodies,
   relations (a two-way one drawn once) and the page tree, and lays them out as they connect. Only
