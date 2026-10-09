@@ -31,5 +31,20 @@
     "canvas": "Graph of the pages around this page",
     "empty": "No pages are connected to this one yet.",
     "failed": "Couldn't load the graph."
+  },
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "fit": "Fit the graph",
+  "hint": "Click to select, double-click to open",
+  "inspector": {
+    "open": "Open page",
+    "focus": "Focus around it",
+    "expandRows": "{count, plural, one {Show # row} other {Show # rows}}",
+    "collapseRows": "Gather the rows",
+    "rows": "{count, plural, one {# row} other {# rows}}",
+    "none": "Not joined to any other page.",
+    "more": "and {count} more",
+    "close": "Clear selection",
+    "parent": "Inside"
   }
 }

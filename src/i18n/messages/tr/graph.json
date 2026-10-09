@@ -31,5 +31,20 @@
     "canvas": "Bu sayfanın çevresindeki sayfaların grafiği",
     "empty": "Bu sayfaya bağlı sayfa henüz yok.",
     "failed": "Grafik yüklenemedi."
+  },
+  "zoomIn": "Yakınlaştır",
+  "zoomOut": "Uzaklaştır",
+  "fit": "Tümünü sığdır",
+  "hint": "Tıklayınca seçilir, çift tıklayınca açılır",
+  "inspector": {
+    "open": "Sayfayı aç",
+    "focus": "Çevresine odaklan",
+    "expandRows": "{count, plural, one {# satırı göster} other {# satırı göster}}",
+    "collapseRows": "Satırları topla",
+    "rows": "{count, plural, one {# satır} other {# satır}}",
+    "none": "Başka sayfaya bağı yok.",
+    "more": "ve {count} tane daha",
+    "close": "Seçimi kaldır",
+    "parent": "Bulunduğu sayfa"
   }
 }

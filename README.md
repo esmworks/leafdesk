@@ -151,10 +151,12 @@ versions, upgrades and running behind a domain.
   every page, each with the text around its link, and below it the pages that write the page's
   title without linking to it, with a button that turns that text into a mention.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
-  pages, database relations and the page tree, laid out by how they connect. Hover a page to see
-  its neighbours, click it to open it, or focus on one page and the pages up to three steps from
-  it, also beside the page ("Show in graph" in a page's menu); switches hide the page tree, database rows and pages
-  without connections.
+  pages, database relations and the page tree, laid out by how they connect. A database with
+  many rows is one point with their count until you show its rows, its rows' relations drawn as
+  one weighted edge. Hover a page to see its neighbours, click it for a card of everything it is
+  joined to, double-click to open it, or focus on one page and the pages up to three steps from
+  it, also beside the page ("Show in graph" in a page's menu); switches hide the page tree,
+  database rows and pages without connections.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
   database automation notifies you, and when a reminder you set is due, with an email a little later. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).

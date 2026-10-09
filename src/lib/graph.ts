@@ -6,7 +6,17 @@
 
 export type GraphNodeKind = "page" | "database" | "row";
 
-export type GraphNode = { id: string; title: string; icon: string | null; kind: GraphNodeKind };
+export type GraphNode = {
+  id: string;
+  title: string;
+  icon: string | null;
+  kind: GraphNodeKind;
+  /**
+   * The page it is inside (a row's database), when the viewer can open that page too: nothing
+   * hints at one they can't.
+   */
+  parent?: string;
+};
 
 /**
  * - `link`: one page's body mentions or links to the other.
@@ -117,4 +127,58 @@ export function degrees(edges: GraphEdge[]): Map<string, number> {
     out.set(target, (out.get(target) ?? 0) + 1);
   }
   return out;
+}
+
+/** Past this many rows in view, a database's rows are drawn as the database until it's expanded. */
+export const CLUSTER_ROWS = 30;
+
+/** A database standing in for its rows: `rows` of them are drawn as it. */
+export type ClusteredNode = GraphNode & { rows?: number };
+
+/** An edge standing in for `weight` edges (more than one where rows were drawn as their database). */
+export type ClusteredEdge = GraphEdge & { weight: number };
+
+export type ClusteredGraph = { nodes: ClusteredNode[]; edges: ClusteredEdge[] };
+
+/**
+ * Draws the rows of each database with more than `threshold` rows in `graph` as the database: the
+ * database counts them, their edges lead to it instead (one edge per pair of pages, weighed by how
+ * many it stands for, of the first kind in EDGE_KINDS among them) and edges between its own rows
+ * and to the database fall away. Databases in `expanded` keep their rows, and so do the rows in
+ * `keep` (a focused row). Rows whose database isn't in the graph stay as they are: nothing stands
+ * in for a page the viewer can't open.
+ */
+export function clusterRows(
+  graph: Pick<WorkspaceGraph, "nodes" | "edges">,
+  { threshold = CLUSTER_ROWS, expanded = new Set<string>(), keep = new Set<string>() }: { threshold?: number; expanded?: Set<string>; keep?: Set<string> } = {},
+): ClusteredGraph {
+  const ids = new Set(graph.nodes.map((n) => n.id));
+  const rowCount = new Map<string, number>();
+  for (const n of graph.nodes) if (n.kind === "row" && n.parent && ids.has(n.parent)) rowCount.set(n.parent, (rowCount.get(n.parent) ?? 0) + 1);
+  const clustered = new Set([...rowCount].filter(([id, count]) => count > threshold && !expanded.has(id)).map(([id]) => id));
+  // Each page and what draws it.
+  const drawnAs = new Map<string, string>();
+  const hidden = new Map<string, number>();
+  for (const n of graph.nodes) {
+    const into = n.kind === "row" && n.parent && clustered.has(n.parent) && !keep.has(n.id) ? n.parent : n.id;
+    drawnAs.set(n.id, into);
+    if (into !== n.id) hidden.set(into, (hidden.get(into) ?? 0) + 1);
+  }
+  if (!hidden.size) return { nodes: graph.nodes, edges: graph.edges.map((e) => ({ ...e, weight: 1 })) };
+
+  const nodes = graph.nodes
+    .filter((n) => drawnAs.get(n.id) === n.id)
+    .map((n) => (hidden.has(n.id) ? { ...n, rows: hidden.get(n.id) } : n));
+  const rank = (kind: GraphEdgeKind) => EDGE_KINDS.indexOf(kind);
+  const edges = new Map<string, ClusteredEdge>();
+  for (const e of graph.edges) {
+    const source = drawnAs.get(e.source) ?? e.source;
+    const target = drawnAs.get(e.target) ?? e.target;
+    if (source === target) continue;
+    const key = pairKey(source, target);
+    const before = edges.get(key);
+    if (!before) edges.set(key, { source, target, kind: e.kind, weight: 1 });
+    else edges.set(key, { ...before, kind: rank(e.kind) < rank(before.kind) ? e.kind : before.kind, weight: before.weight + 1 });
+  }
+  return { nodes, edges: [...edges.values()] };
 }

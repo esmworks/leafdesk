@@ -31,5 +31,20 @@
     "canvas": "Graphe des pages autour de cette page",
     "empty": "Aucune page n’est encore reliée à celle-ci.",
     "failed": "Impossible de charger le graphe."
+  },
+  "zoomIn": "Zoom avant",
+  "zoomOut": "Zoom arrière",
+  "fit": "Ajuster le graphe",
+  "hint": "Cliquez pour sélectionner, double-cliquez pour ouvrir",
+  "inspector": {
+    "open": "Ouvrir la page",
+    "focus": "Centrer dessus",
+    "expandRows": "{count, plural, one {Afficher # ligne} other {Afficher # lignes}}",
+    "collapseRows": "Regrouper les lignes",
+    "rows": "{count, plural, one {# ligne} other {# lignes}}",
+    "none": "Reliée à aucune autre page.",
+    "more": "et {count} de plus",
+    "close": "Désélectionner",
+    "parent": "Se trouve dans"
   }
 }

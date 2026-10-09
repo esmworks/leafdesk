@@ -15,23 +15,20 @@ const buttonStyles: Record<ButtonVariant, string> = {
   danger: "bg-danger text-white hover:opacity-90",
 };
 
+/** A Button's classes, for a link that looks like one. */
+export function buttonClass({ variant = "secondary", size = "md" }: { variant?: ButtonVariant; size?: "sm" | "md" } = {}) {
+  return cn(
+    "inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
+    size === "sm" ? "h-7 px-2 text-xs" : "h-8 px-3 text-sm",
+    buttonStyles[variant],
+  );
+}
+
 export const Button = forwardRef<
   HTMLButtonElement,
   ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: "sm" | "md" }
->(function Button({ variant = "secondary", size = "md", className, type = "button", ...props }, ref) {
-  return (
-    <button
-      ref={ref}
-      type={type}
-      className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
-        size === "sm" ? "h-7 px-2 text-xs" : "h-8 px-3 text-sm",
-        buttonStyles[variant],
-        className,
-      )}
-      {...props}
-    />
-  );
+>(function Button({ variant, size, className, type = "button", ...props }, ref) {
+  return <button ref={ref} type={type} className={cn(buttonClass({ variant, size }), className)} {...props} />;
 });
 
 export const IconButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { label: string }>(

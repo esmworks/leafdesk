@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { workspaceGraphAction } from "@/app/actions/graph";
 import { useChannel } from "@/components/collab/use-channel";
 import { IconButton } from "@/components/ui";
-import { DEFAULT_FILTER, filterGraph, MAX_DEPTH, type WorkspaceGraph } from "@/lib/graph";
+import { clusterRows, DEFAULT_FILTER, filterGraph, MAX_DEPTH, type WorkspaceGraph } from "@/lib/graph";
 import { useGraphCanvas } from "./graph-view";
 
 /** Changes to the page tree come in bursts (a move, an import); the graph loads again after them. */
@@ -55,7 +55,8 @@ export function LocalGraphPanel({ workspaceId, pageId, onClose }: { workspaceId:
   }, [onClose]);
 
   const shown = useMemo(
-    () => (graph ? filterGraph(graph, { ...DEFAULT_FILTER, focus: pageId, depth }) : { nodes: [], edges: [] }),
+    // Databases with many rows around the page stand for them; the page itself always shows.
+    () => (graph ? clusterRows(filterGraph(graph, { ...DEFAULT_FILTER, focus: pageId, depth }), { keep: new Set([pageId]) }) : { nodes: [], edges: [] }),
     [graph, pageId, depth],
   );
   useGraphCanvas(container, shown, pageId, workspaceId);

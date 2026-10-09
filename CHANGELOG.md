@@ -31,13 +31,20 @@
   draws a workspace's pages, databases and rows as points, joined by links in page bodies,
   relations (a two-way one drawn once) and the page tree, and lays them out as they connect. Only
   pages the viewer can open are drawn, and no edge leads to one they can't; a relation counts only
-  where they may see that property. Hovering a page brings out its neighbours, clicking it opens
-  it, and the box at the top focuses on one page and the pages one to three steps away. "Show in
-  graph" in a page's menu opens that view of the page beside it, loaded again as pages change,
-  with the full graph a click away. Switches hide the page tree, rows and pages without
-  connections. Pages and databases are named from the start, rows once you zoom in; a name that
-  would cover another is left out until there is room. Past 3,000 pages the ones edited longest
-  ago are left out. Drawn with `sigma` and `graphology` (new dependencies). No migration.
+  where they may see that property. A database with more than 30 rows in view is drawn as one
+  point with their count inside, its rows' links and relations as one edge per page or database
+  they lead to, thicker the more it stands for, until "Show rows" brings them out (a focused row
+  always shows). Hovering a page brings out its neighbours; clicking it selects it and opens a
+  card with what it is inside and what it is joined to, by kind (with counts), and buttons to
+  open it, focus on it or show its rows; double-clicking opens it, Esc lets go, and buttons zoom
+  in, out and to the whole graph. The box at the top focuses on one page and the pages one to
+  three steps away. "Show in graph" in a page's menu opens that view of the page beside it,
+  loaded again as pages change, with the full graph a click away. Switches hide the page tree,
+  rows and pages without connections. Pages and databases are named from the start, rows once
+  you zoom in (or all of them in a small graph); a name that would cover another, or a page
+  named, moves to the other side or is left out until there is room. Past 3,000 pages the ones
+  edited longest ago are left out. Drawn with `sigma` and `graphology` (new dependencies). No
+  migration.
 - **Context and unlinked mentions under "Linked from".** Each page in a page's "Linked from" list
   shows the text around its link, with the page's live title in place of the link (other pages'
   titles stay out of it). Below the list, folded away, are the pages that write the page's title

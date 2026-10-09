@@ -31,5 +31,20 @@
     "canvas": "Graph der Seiten um diese Seite",
     "empty": "Mit dieser Seite ist noch keine Seite verbunden.",
     "failed": "Der Graph konnte nicht geladen werden."
+  },
+  "zoomIn": "Vergrößern",
+  "zoomOut": "Verkleinern",
+  "fit": "Ganzen Graphen zeigen",
+  "hint": "Klicken wählt aus, Doppelklick öffnet",
+  "inspector": {
+    "open": "Seite öffnen",
+    "focus": "Darauf fokussieren",
+    "expandRows": "{count, plural, one {# Zeile zeigen} other {# Zeilen zeigen}}",
+    "collapseRows": "Zeilen zusammenfassen",
+    "rows": "{count, plural, one {# Zeile} other {# Zeilen}}",
+    "none": "Mit keiner anderen Seite verbunden.",
+    "more": "und {count} weitere",
+    "close": "Auswahl aufheben",
+    "parent": "Liegt in"
   }
 }

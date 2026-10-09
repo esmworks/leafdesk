@@ -35,7 +35,15 @@ export async function workspaceGraph(userId: string, workspaceId: string, { maxN
   const shown = rows.slice(0, maxNodes);
   const kindOf = (r: (typeof shown)[number]): GraphNodeKind =>
     r.kind === "database" ? "database" : r.parentKind === "database" ? "row" : "page";
-  const nodes: GraphNode[] = shown.map((r) => ({ id: r.id, title: r.title, icon: r.icon, kind: kindOf(r) }));
+  const visible = new Set(shown.map((r) => r.id));
+  const nodes: GraphNode[] = shown.map((r) => ({
+    id: r.id,
+    title: r.title,
+    icon: r.icon,
+    kind: kindOf(r),
+    // Only a parent in the graph: one the viewer can't open (or left out past the cap) isn't named.
+    ...(r.parentId && visible.has(r.parentId) ? { parent: r.parentId } : {}),
+  }));
   const ids = new Set(nodes.map((n) => n.id));
   const edges: GraphEdge[] = [];
 

@@ -98,6 +98,10 @@ try {
     byId.get(people.id)?.kind === "database" && byId.get(ada.id)?.kind === "row" && byId.get(notes.id)?.kind === "page",
     "nodes are pages, databases and rows",
   );
+  check(
+    byId.get(ada.id)?.parent === people.id && byId.get(notes.id)?.parent === home.id && byId.get(home.id)?.parent === undefined,
+    "a page knows the page it is inside, a row its database",
+  );
   check(edge(home.id, notes.id)?.kind === "child" && edge(people.id, ada.id)?.kind === "child", "the page tree is an edge, rows inside their database");
   check(edge(notes.id, launch.id)?.kind === "link" && edge(notes.id, secret.id)?.kind === "link", "a link in a body is an edge");
   check(edge(launch.id, ada.id)?.kind === "relation" && edge(launch.id, hiddenRow.id)?.kind === "relation", "a relation is an edge", graph.edges);
@@ -120,6 +124,7 @@ try {
   await setPagePermission(ids.owner, notes.id, ids.guest, "view");
   const asGuest = await workspaceGraph(ids.guest, workspaceId);
   check(asGuest.nodes.map((n) => n.id).join() === notes.id && asGuest.edges.length === 0, "a guest gets only what is shared with them", asGuest);
+  check(asGuest.nodes[0]?.parent === undefined, "…not even the id of the page it is inside", asGuest);
 
   let refused = false;
   try {
@@ -133,6 +138,11 @@ try {
   check(
     capped.truncated && capped.nodes.length === 3 && capped.edges.every((e) => capped.nodes.some((n) => n.id === e.source) && capped.nodes.some((n) => n.id === e.target)),
     "past the cap the graph is cut, with edges only between the pages it keeps",
+    capped,
+  );
+  check(
+    capped.nodes.every((n) => !n.parent || capped.nodes.some((m) => m.id === n.parent)),
+    "…and parents only among them",
     capped,
   );
 

@@ -31,5 +31,20 @@
     "canvas": "Grafo de las páginas alrededor de esta página",
     "empty": "Todavía no hay páginas conectadas a esta.",
     "failed": "No se pudo cargar el grafo."
+  },
+  "zoomIn": "Acercar",
+  "zoomOut": "Alejar",
+  "fit": "Ajustar el grafo",
+  "hint": "Haz clic para seleccionar y doble clic para abrir",
+  "inspector": {
+    "open": "Abrir página",
+    "focus": "Centrar en ella",
+    "expandRows": "{count, plural, one {Mostrar # fila} other {Mostrar # filas}}",
+    "collapseRows": "Agrupar las filas",
+    "rows": "{count, plural, one {# fila} other {# filas}}",
+    "none": "No está unida a ninguna otra página.",
+    "more": "y {count} más",
+    "close": "Quitar la selección",
+    "parent": "Dentro de"
   }
 }
