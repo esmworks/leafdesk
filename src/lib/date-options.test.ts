@@ -28,6 +28,16 @@ describe("checkDateOptions", () => {
     expect(checkDateOptions({ reminderDays: null }, { reminder }, now)).toEqual({ ok: true, options: null });
   });
 
+  it("moves a reminder to another zone given alone, keeping its days", () => {
+    const reminder = { daysBefore: 2, timeZone: "UTC", since: "2026-01-01T00:00:00.000Z" };
+    expect(checkDateOptions({ timeZone: "Europe/Istanbul" }, { reminder }, now)).toEqual({
+      ok: true,
+      options: { reminder: { daysBefore: 2, timeZone: "Europe/Istanbul", since: now.toISOString() } },
+    });
+    // Without a reminder there is nothing to move.
+    expect(checkDateOptions({ timeZone: "Europe/Istanbul" }, undefined, now)).toEqual({ ok: true, options: null });
+  });
+
   it("defaults the zone to UTC and refuses what it can't use", () => {
     expect(checkDateOptions({ reminderDays: 0 }, undefined, now)).toMatchObject({ options: { reminder: { timeZone: "UTC" } } });
     expect(checkDateOptions({ reminderDays: 3 }, undefined, now).ok).toBe(false);

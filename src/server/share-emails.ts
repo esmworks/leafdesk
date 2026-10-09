@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull, lte, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { accessRequest, databaseAutomation, databaseProperty, notification, page, pageReminder, user, workspace, workspaceJoinRequest } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
@@ -73,6 +73,8 @@ async function deliverDue(everything = false) {
       and(
         inArray(notification.kind, ["page_shared", "comment", "mention", "reminder", "access_request", "join_request", "automation"]),
         everything ? isNotNull(notification.emailDueAt) : lte(notification.emailDueAt, new Date()),
+        // A snoozed notification's email waits until it comes back (see snoozeNotification).
+        isNull(notification.snoozedUntil),
       ),
     )
     .returning({

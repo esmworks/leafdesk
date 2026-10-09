@@ -1,3 +1,4 @@
+import { dispositionOf } from "@/lib/files";
 import { readCalendarFeed } from "@/server/calendar-feeds";
 
 /**
@@ -13,7 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ fee
   return new Response(result.body, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `inline; filename="calendar.ics"; filename*=UTF-8''${encodeURIComponent(result.name)}.ics`,
+      "Content-Disposition": dispositionOf("text/calendar", `${result.name}.ics`),
       "Cache-Control": "private, no-store",
       // The secret is in the address: don't hand it on to sites the events link to.
       "Referrer-Policy": "no-referrer",

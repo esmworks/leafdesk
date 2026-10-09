@@ -38,7 +38,7 @@ import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
 import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import { checkNumberFormat, MAX_DECIMALS, NUMBER_FORMATS } from "@/lib/number-format";
-import { checkDateOptions, REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
+import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
 import {
   FORM_TITLE,
   canDefault,
@@ -1653,7 +1653,8 @@ export function createMcpServer(principal: McpPrincipal) {
           throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup, number_format or date_options.");
         }
         await databases.updateProperty(userId, prop.id, patch);
-        const dateChecked = patch.date ? checkDateOptions(patch.date, prop.options.date, new Date()) : null;
+        // Date options as stored (a reminder's zone and start are decided there).
+        const storedDate = patch.date ? (await databases.getProperties(prop.databaseId)).find((p) => p.id === prop.id)?.options.date : undefined;
         const after = withFormulaTypes(
           properties.map((p) =>
             p.id !== prop.id
@@ -1663,7 +1664,7 @@ export function createMcpServer(principal: McpPrincipal) {
                   name: patch.name ?? p.name,
                   options: {
                     ...withNumberFormat(p.options, patch.number),
-                    ...(dateChecked?.ok ? { date: dateChecked.options ?? undefined } : {}),
+                    ...(patch.date ? { date: storedDate } : {}),
                     ...(patch.options ? { options: patch.options } : {}),
                     ...(patch.formula ? { formula: { expression: formulaForStorage(patch.formula.expression, properties) } } : {}),
                     ...(patch.rollup ? { rollup: patch.rollup as RollupConfig } : {}),

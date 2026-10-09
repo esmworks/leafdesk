@@ -120,7 +120,8 @@ versions, upgrades and running behind a domain.
     events), from the view's sync button. It is personal and secret: each read shows what its
     owner sees in that view then (its filters, page and property access), so access taken away
     empties it. It is shown once; make a new one to replace it, or turn it off. Calendar apps
-    check back about every hour. Workspaces that turned export off can't have one.
+    check back about every hour. Like an API token it answers to the workspace's connected-apps
+    switch rather than its sign-in policies: it stops while export or connected apps are off.
   - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
     row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the
     rows under it). Those views show sub-items nested under their parent, opened and closed by each
@@ -184,7 +185,7 @@ versions, upgrades and running behind a domain.
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
   database automation notifies you, and when a reminder you set is due, with an email a little later. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
-  then. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+  then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it.

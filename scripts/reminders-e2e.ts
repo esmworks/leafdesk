@@ -117,7 +117,7 @@ try {
   // A reminder set now doesn't announce dates whose reminder time has passed.
   await updateProperty(ids.owner, due.id, { date: { reminderDays: 0, timeZone: "UTC" } });
   await row("Today", { Due: day(0), Assignee: [ids.member] });
-  const todayAt = reminderInstant(day(0), { daysBefore: 0, timeZone: "UTC", since: new Date().toISOString() });
+  const todayAt = reminderInstant(day(0), { daysBefore: 0, timeZone: "UTC" });
   if (Date.now() > todayAt) {
     check((await deliverDateReminders(new Date(Math.min(Date.now(), todayAt + LATE_MS - 1)))) === 0, "times passed before the reminder was set are skipped");
   }
@@ -131,12 +131,18 @@ try {
   check(!(await snoozeNotification(ids.owner, reminder, hour)), "someone else's notification can't be snoozed");
   check(!(await snoozeNotification(ids.member, reminder, new Date(Date.now() - 1000))), "nor snoozed into the past");
   check(!(await snoozeNotification(ids.member, reminder, new Date(Date.now() + 40 * 86_400_000))), "nor for more than 30 days");
+  await db.update(notification).set({ emailDueAt: new Date(Date.now() - 1000) }).where(eq(notification.id, reminder));
   check(await snoozeNotification(ids.member, reminder, hour), "the member snoozes it for an hour");
+  const [waiting] = await db.select({ emailDueAt: notification.emailDueAt }).from(notification).where(eq(notification.id, reminder));
+  check(waiting.emailDueAt !== null, "…its email waits instead of being dropped");
   check(!(await inboxIds()).includes(reminder), "…and it leaves the inbox");
-  check((await deliverSnoozed(new Date(hour.getTime() - 1000))) === 0, "it stays away until its time");
-  check((await deliverSnoozed(new Date(hour.getTime() + 1000))) >= 1, "then comes back");
+  // Other snoozed notifications in the database may wake too: look at this one only.
+  await deliverSnoozed(new Date(hour.getTime() - 1000));
+  check(!(await inboxIds()).includes(reminder), "it stays away until its time");
+  await deliverSnoozed(new Date(hour.getTime() + 1000));
+  check((await inboxIds()).includes(reminder), "then comes back");
   const back = (await listInbox(ids.member, workspaceId)).find((n) => n.id === reminder);
-  check(back && !back.readAt && new Date(back.createdAt).getTime() === hour.getTime(), "…unread, dated when it came back", back);
+  check(back && !back.read && new Date(back.createdAt).getTime() === hour.getTime(), "…unread, dated when it came back", back);
 
   // Calendar feeds.
   const calendar = await addView(ids.owner, tasks.id, { name: "Calendar", type: "calendar" });
@@ -163,6 +169,9 @@ try {
   check((await getCalendarFeed(ids.owner, calendar.id)).allowed === false, "…which the dialog is told");
   await updateWorkspaceSettings(ids.owner, workspaceId, { export: true });
   check((await readCalendarFeed(secret)).status === 200, "turned back on, it reads again");
+  await updateWorkspaceSettings(ids.owner, workspaceId, { connectedApps: "off" });
+  check((await readCalendarFeed(secret)).status === 404, "with connected apps off the feed stops too");
+  await updateWorkspaceSettings(ids.owner, workspaceId, { connectedApps: "full" });
 
   const replaced = await createCalendarFeed(ids.owner, calendar.id);
   check(replaced !== address && (await readCalendarFeed(secret)).status === 404, "a new address replaces the old one");

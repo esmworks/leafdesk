@@ -25,7 +25,7 @@
 - **Calendar subscription.** A calendar view gives each person a secret address for their
   calendar app, with the view's rows as all-day events as that person sees them, checked about
   every hour. Shown once; it can be replaced or turned off, and it stops while the workspace's
-  export is off. Migration 0049.
+  export or connected apps are off. Migration 0049.
 - **Quick add.** A new row's name can carry its date, `@people` and `#options` ("Send the offer
   friday @Ayşe #urgent"), in the interface language or English; what's recognised shows under the
   name and can be kept in it instead. No migration.

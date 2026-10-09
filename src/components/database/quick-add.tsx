@@ -2,7 +2,7 @@
 
 import { CalendarDays, Tag, User, X } from "lucide-react";
 import { useFormatter, useLocale, useTimeZone, useTranslations } from "next-intl";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { parseQuickAdd, type QuickAddMatch, type QuickAddOption, type QuickAddResult } from "@/lib/quick-add";
 import { dayString, localDay } from "@/lib/time-zone";
 import { usePeople } from "./person-cell";
@@ -54,11 +54,14 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
     [locale, timeZone, people, targets],
   );
 
+  /** Forgets the parts kept in the title: each new row's title starts without any. */
+  const reset = useCallback(() => setIgnored(new Set()), []);
+
   /** Names the new row `text`: the title without the recognised parts, and their values set. */
   const save = useCallback(
     (rowId: string, text: string) => {
       const result = parse(text);
-      setIgnored(new Set());
+      reset();
       const values: Record<string, unknown> = {};
       if (result.date && targets.date) values[targets.date.id] = result.date;
       if (result.people.length && targets.person) values[targets.person.id] = result.people;
@@ -69,17 +72,18 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
       void api.setCell(rowId, TITLE, result.title);
       void api.setRowValues(rowId, values);
     },
-    [api, parse, targets],
+    [api, parse, reset, targets],
   );
 
   return useMemo(
     () => ({
       parse,
       save,
+      reset,
       /** Keeps a recognised part (as written) in the title. */
       keep: (text: string) => setIgnored((old) => new Set(old).add(text)),
     }),
-    [parse, save],
+    [parse, save, reset],
   );
 }
 
@@ -91,6 +95,12 @@ const ICONS = { date: CalendarDays, person: User, option: Tag } as const;
 export function QuickAddParts({ quick, text }: { quick: QuickAdd; text: string }) {
   const t = useTranslations("database.quickAdd");
   const format = useFormatter();
+  // A title field that opens or closes without saving leaves nothing kept for the next one.
+  const { reset } = quick;
+  useEffect(() => {
+    reset();
+    return reset;
+  }, [reset]);
   const result = quick.parse(text);
   if (!result.matches.length) return null;
   const label = (match: QuickAddMatch) =>

@@ -1,16 +1,16 @@
-import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, notification, page, rowReminder, type DateReminder, type SelectOption } from "@/db/schema";
 import { dueReminderDay, reminderInstant } from "@/lib/date-options";
 import { atLeast } from "@/lib/property-access";
 import { statusGroupOf } from "@/lib/properties";
-import { dayString } from "@/lib/time-zone";
+import { dayString, localDay } from "@/lib/time-zone";
 import { pageAccessOf } from "@/server/access";
 import { agentUserIds } from "@/server/agents/users";
 import { loadProperties } from "@/server/derived";
 import { mailStatus } from "@/server/mail";
 import { signalInbox } from "@/server/notifications";
-import { propertyAccessFor } from "@/server/property-access";
+import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
 
 /**
@@ -28,6 +28,9 @@ import { pushNotifications } from "@/server/push";
 export const LATE_MS = 2 * 3_600_000;
 /** How often reminders are looked for. */
 const SWEEP_MS = 60_000;
+/** How often row_reminder drops what it no longer needs (see pruneRowReminders). */
+const PRUNE_EVERY_MS = 3_600_000;
+let prunedAt = 0;
 
 type ReminderProperty = { id: string; databaseId: string; reminder: DateReminder };
 
@@ -45,6 +48,10 @@ export async function deliverDateReminders(now = new Date()): Promise<number> {
         eq(page.inTemplate, false),
       ),
     );
+  if (now.getTime() - prunedAt > PRUNE_EVERY_MS) {
+    prunedAt = now.getTime();
+    await pruneRowReminders(now);
+  }
   let told = 0;
   for (const row of rows) {
     const reminder = row.options.date?.reminder;
@@ -56,6 +63,14 @@ export async function deliverDateReminders(now = new Date()): Promise<number> {
     }
   }
   return told;
+}
+
+/**
+ * row_reminder only has to stop a reminder going twice while it can still go: within LATE_MS of 9:00
+ * on or before its date. Dates two days gone (in any zone) are past that.
+ */
+async function pruneRowReminders(now: Date) {
+  await db.delete(rowReminder).where(lt(rowReminder.date, dayString(localDay(now.getTime(), "UTC") - 2)));
 }
 
 async function remindProperty({ id: propertyId, databaseId, reminder }: ReminderProperty, now: Date): Promise<number> {
@@ -82,6 +97,13 @@ async function remindProperty({ id: propertyId, databaseId, reminder }: Reminder
   const properties = (await loadProperties([databaseId])).get(databaseId) ?? [];
   const people = properties.filter((p) => p.type === "person");
   const statuses = properties.filter((p) => p.type === "status");
+  // Each person's access to the database's properties, asked once for all its rows.
+  const accessOf = new Map<string, Promise<PropertyAccess>>();
+  const propertyAccess = (userId: string) => {
+    let access = accessOf.get(userId);
+    if (!access) accessOf.set(userId, (access = propertyAccessFor(userId, databaseId)));
+    return access;
+  };
   let told = 0;
   for (const row of candidates) {
     const done = statuses.some((p) => {
@@ -95,7 +117,7 @@ async function remindProperty({ id: propertyId, databaseId, reminder }: Reminder
     // Claim it first: another server, or the next sweep, finds it taken.
     const claimed = await db.insert(rowReminder).values({ rowId: row.id, propertyId, date: day }).onConflictDoNothing().returning();
     if (!claimed.length) continue;
-    told += await notify(recipients, row, propertyId, databaseId, day);
+    told += await notify(recipients, row, propertyId, day, propertyAccess);
   }
   return told;
 }
@@ -105,14 +127,14 @@ async function notify(
   userIds: string[],
   row: { id: string; workspaceId: string; properties: Record<string, unknown> },
   propertyId: string,
-  databaseId: string,
   day: string,
+  propertyAccess: (userId: string) => Promise<PropertyAccess>,
 ): Promise<number> {
   const agents = await agentUserIds(userIds);
   const allowed: string[] = [];
   for (const userId of userIds) {
     if (agents.has(userId) || (await pageAccessOf(userId, row.id)).level === "none") continue;
-    const access = await propertyAccessFor(userId, databaseId);
+    const access = await propertyAccess(userId);
     if (atLeast(access.levelOf(propertyId, row), "view")) allowed.push(userId);
   }
   if (!allowed.length) return 0;

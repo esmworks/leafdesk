@@ -650,8 +650,8 @@ export const MAX_SNOOZE_MS = 30 * 86_400_000;
 
 /**
  * Snoozes one of the user's notifications until `until` (within MAX_SNOOZE_MS): it leaves the
- * inbox, its email (if it hasn't gone yet) is dropped, and at `until` it comes back unread at the
- * top and is pushed again (see deliverSnoozed). Returns false when there is no such notification or
+ * inbox, its email (if it hasn't gone yet) waits too (see share-emails), and at `until` it comes
+ * back unread at the top and is pushed again (see deliverSnoozed). Returns false when there is no such notification or
  * the time is out of range.
  */
 export async function snoozeNotification(userId: string, notificationId: string, until: Date, now = new Date()) {
@@ -659,7 +659,7 @@ export async function snoozeNotification(userId: string, notificationId: string,
   if (!Number.isFinite(time) || time <= now.getTime() || time > now.getTime() + MAX_SNOOZE_MS) return false;
   const [row] = await db
     .update(notification)
-    .set({ snoozedUntil: until, readAt: null, emailDueAt: null })
+    .set({ snoozedUntil: until, readAt: null })
     // An agent's call waits only so long: snoozing it would let it run out unseen.
     .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), ne(notification.kind, "agent_approval")))
     .returning({ workspaceId: notification.workspaceId });

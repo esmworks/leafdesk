@@ -7,6 +7,7 @@ import { pageLabel } from "@/lib/labels";
 import { sharedLimiter } from "@/lib/rate-limit";
 import { AccessError } from "@/server/access";
 import { generateTokenSecret, hashToken } from "@/server/api/tokens";
+import { runAsConnectedApp } from "@/server/connected-app";
 import { getProperties, listRows, requireDatabase, withCode } from "@/server/databases";
 import { exportAllowed } from "@/server/workspaces";
 
@@ -14,8 +15,9 @@ import { exportAllowed } from "@/server/workspaces";
  * Calendar feeds: a calendar view's rows as an iCalendar address that calendar apps subscribe to,
  * each row an all-day event on its date. The address holds a secret standing for its user; every
  * read sees what that user may see then (the view's filters, page and property access), so taking
- * their access away, or the workspace turning export off, empties or stops the feed. Only a hash of
- * the secret is kept (see calendar_feed).
+ * their access away, or the workspace turning export or connected apps off, empties or stops the
+ * feed. Like an API token it reads outside the workspace's sign-in policies, as a connected app (see
+ * connected-app.ts). Only a hash of the secret is kept (see calendar_feed).
  */
 
 /** The secret's start, to tell it from other tokens. */
@@ -79,8 +81,8 @@ export type FeedRead = { status: 200; body: string; name: string } | { status: 4
 
 /**
  * The feed with secret `secret` as iCalendar text, read as its user. 404 for an unknown secret, a
- * view no longer a calendar or the user's lost access, and while the workspace's export is off;
- * 429 when read too often.
+ * view no longer a calendar or the user's lost access, and while the workspace's export or
+ * connected apps are off; 429 when read too often.
  */
 export async function readCalendarFeed(secret: string, now = new Date()): Promise<FeedRead> {
   if (!FEED_PATTERN.test(secret)) return { status: 404 };
@@ -91,6 +93,10 @@ export async function readCalendarFeed(secret: string, now = new Date()): Promis
 
   const [feed] = await db.select().from(calendarFeed).where(eq(calendarFeed.tokenHash, tokenHash)).limit(1);
   if (!feed) return { status: 404 };
+  return runAsConnectedApp({ userId: feed.userId }, () => feedText(feed, now));
+}
+
+async function feedText(feed: typeof calendarFeed.$inferSelect, now: Date): Promise<FeedRead> {
   let found;
   try {
     found = await requireCalendarView(feed.userId, feed.viewId);

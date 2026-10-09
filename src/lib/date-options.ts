@@ -34,7 +34,8 @@ export function checkDateOptions(
   if (input.display !== undefined && input.display !== "date" && input.display !== "relative") {
     return { ok: false, message: 'A date display is "date" or "relative"' };
   }
-  const days = input.reminderDays;
+  // A zone on its own moves the reminder there, keeping its days.
+  const days = input.reminderDays === undefined && input.timeZone !== undefined ? current?.reminder?.daysBefore : input.reminderDays;
   if (days !== undefined && days !== null && !(REMINDER_DAYS as readonly number[]).includes(days)) {
     return { ok: false, message: `A reminder goes ${REMINDER_DAYS.join(", ")} days before the date` };
   }
