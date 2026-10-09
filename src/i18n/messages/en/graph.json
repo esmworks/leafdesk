@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Graph",
+  "heading": "Graph",
+  "count": "{pages, plural, one {# page} other {# pages}} · {edges, plural, one {# connection} other {# connections}}",
+  "reload": "Load again",
+  "find": "Find a page to focus on",
+  "focus": "Around",
+  "depth": "Steps",
+  "clearFocus": "Show the whole graph",
+  "tree": "Subpages",
+  "rows": "Database rows",
+  "orphans": "Pages without connections",
+  "kinds": {
+    "page": "Page",
+    "database": "Database",
+    "row": "Row"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relation",
+    "child": "Subpage"
+  },
+  "truncated": "Showing the {count} pages edited most recently.",
+  "canvas": "Graph of the workspace's pages",
+  "empty": "No pages to show.",
+  "focusMissing": "That page isn't in the graph: it may be in the trash, or not shared with you."
+}

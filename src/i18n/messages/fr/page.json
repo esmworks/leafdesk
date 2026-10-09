@@ -51,7 +51,8 @@
     "saveAsRowTemplate": "Enregistrer comme modèle de ligne",
     "deleteTemplate": "Supprimer le modèle",
     "exportDisabled": "L’exportation est désactivée",
-    "exportDisabledBody": "Les propriétaires de cet espace de travail ont désactivé l’exportation et l’impression de ses pages."
+    "exportDisabledBody": "Les propriétaires de cet espace de travail ont désactivé l’exportation et l’impression de ses pages.",
+    "showInGraph": "Afficher dans le graphe"
   },
   "comments": {
     "aboutPage": "À propos de cette page",

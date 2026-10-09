@@ -28,6 +28,7 @@ import {
   Upload,
   UserRound,
   Users,
+  Waypoints,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -988,6 +989,31 @@ export function Sidebar({
                   <Users className="h-4 w-4" />
                 </Link>
               )}
+              {/* The workspace graph, likewise; it is drawn from the server's data. */}
+              {offline ? (
+                <button
+                  type="button"
+                  disabled
+                  aria-label={t("nav.graph")}
+                  title={needsServer(t("nav.graph"))}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted opacity-50"
+                >
+                  <Waypoints className="h-4 w-4" />
+                </button>
+              ) : (
+                <Link
+                  href={`/w/${workspaceId}/graph`}
+                  aria-label={t("nav.graph")}
+                  title={t("nav.graph")}
+                  aria-current={pathname === `/w/${workspaceId}/graph` ? "page" : undefined}
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
+                    pathname === `/w/${workspaceId}/graph` && "bg-bg-active text-fg",
+                  )}
+                >
+                  <Waypoints className="h-4 w-4" />
+                </Link>
+              )}
               {/* The full-page AI chat sits beside Home as an icon, keeping the list above the pages short. */}
               {aiChat &&
                 (offline ? (
@@ -1107,6 +1133,7 @@ export function Sidebar({
             ? [
                 { id: "import", label: t("nav.import"), icon: <Upload className="h-4 w-4" />, run: () => openImport(undefined) },
                 { id: "trash", label: t("nav.trash"), icon: <Trash2 className="h-4 w-4" />, run: () => setTrashOpen(true) },
+                { id: "graph", label: t("nav.graph"), icon: <Waypoints className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/graph`) },
               ]
             : []),
           { id: "inbox", label: t("nav.inbox"), icon: <Inbox className="h-4 w-4" />, run: () => setInboxOpen(true) },

@@ -14,7 +14,8 @@
     "settings": "Ayarlar",
     "trash": "Çöp kutusu",
     "templates": "Şablonlar",
-    "import": "İçe aktar"
+    "import": "İçe aktar",
+    "graph": "Grafik"
   },
   "toggle": {
     "open": "Kenar çubuğunu aç",

@@ -14,7 +14,8 @@
     "settings": "Configuración",
     "trash": "Papelera",
     "templates": "Plantillas",
-    "import": "Importar"
+    "import": "Importar",
+    "graph": "Grafo"
   },
   "toggle": {
     "open": "Abrir barra lateral",

@@ -51,7 +51,8 @@
     "saveAsRowTemplate": "Als Zeilenvorlage speichern",
     "deleteTemplate": "Vorlage löschen",
     "exportDisabled": "Export ist ausgeschaltet",
-    "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet."
+    "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet.",
+    "showInGraph": "Im Graphen zeigen"
   },
   "comments": {
     "aboutPage": "Zu dieser Seite",

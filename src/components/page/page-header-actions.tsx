@@ -21,6 +21,7 @@ import {
   Star,
   Trash2,
   Type,
+  Waypoints,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -470,6 +471,18 @@ function PageMenu({
             >
               {t("copyLink")}
             </MenuItem>
+            {/* The page and the pages around it, in the workspace graph. */}
+            {!page.archived && !offline && (
+              <MenuItem
+                icon={<Waypoints className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  router.push(`/w/${workspaceId}/graph?focus=${encodeURIComponent(page.id)}`);
+                }}
+              >
+                {t("showInGraph")}
+              </MenuItem>
+            )}
             {/* The copy lands beside the original; at the top level that isn't open to every guest. */}
             {!page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
               <MenuItem icon={<Copy className="h-4 w-4" />} onClick={() => duplicate(close)}>

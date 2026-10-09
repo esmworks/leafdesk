@@ -51,7 +51,8 @@
     "saveAsRowTemplate": "Satır şablonu olarak kaydet",
     "deleteTemplate": "Şablonu sil",
     "exportDisabled": "Dışa aktarma kapalı",
-    "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı."
+    "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı.",
+    "showInGraph": "Grafikte göster"
   },
   "comments": {
     "aboutPage": "Bu sayfa hakkında",

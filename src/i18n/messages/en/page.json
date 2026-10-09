@@ -51,7 +51,8 @@
     "saveAsRowTemplate": "Save as row template",
     "deleteTemplate": "Delete template",
     "exportDisabled": "Export is turned off",
-    "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages."
+    "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages.",
+    "showInGraph": "Show in graph"
   },
   "comments": {
     "aboutPage": "About this page",

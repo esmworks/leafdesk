@@ -47,6 +47,15 @@
   --removed-bg: #ffcfcc;
   --removed-fg: #5b2424;
   --removed-bar: #dc6a6a;
+  /* The workspace graph (components/graph): nodes by kind, edges by kind. Opaque: WebGL draws
+     them without the alpha. */
+  --graph-page: #7c7f88;
+  --graph-database: #2f7d4f;
+  --graph-row: #3f72b8;
+  --graph-link: #a4a6ad;
+  --graph-relation: #9fb9de;
+  --graph-child: #d3d5d9;
+  --graph-faded: #e4e4e7;
 }
 
 /* The print view (app/print) stays light in dark mode: see the end of this file. */
@@ -76,6 +85,13 @@
     --removed-bg: #652b2b;
     --removed-fg: #fee2e0;
     --removed-bar: #ca6261;
+    --graph-page: #a1a3aa;
+    --graph-database: #6cc38a;
+    --graph-row: #7ea8e0;
+    --graph-link: #6c6e75;
+    --graph-relation: #4b6688;
+    --graph-child: #4a4c52;
+    --graph-faded: #2f3034;
   }
 }
 

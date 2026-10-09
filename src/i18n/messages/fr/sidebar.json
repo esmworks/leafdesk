@@ -14,7 +14,8 @@
     "settings": "Paramètres",
     "trash": "Corbeille",
     "templates": "Modèles",
-    "import": "Importer"
+    "import": "Importer",
+    "graph": "Graphe"
   },
   "toggle": {
     "open": "Ouvrir la barre latérale",

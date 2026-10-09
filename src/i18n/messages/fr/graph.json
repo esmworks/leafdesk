@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Graphe",
+  "heading": "Graphe",
+  "count": "{pages, plural, one {# page} other {# pages}} · {edges, plural, one {# lien} other {# liens}}",
+  "reload": "Recharger",
+  "find": "Trouver une page sur laquelle se centrer",
+  "focus": "Autour de",
+  "depth": "Étapes",
+  "clearFocus": "Afficher tout le graphe",
+  "tree": "Sous-pages",
+  "rows": "Lignes de base de données",
+  "orphans": "Pages sans liens",
+  "kinds": {
+    "page": "Page",
+    "database": "Base de données",
+    "row": "Ligne"
+  },
+  "edges": {
+    "link": "Lien",
+    "relation": "Relation",
+    "child": "Sous-page"
+  },
+  "truncated": "Les {count} pages modifiées le plus récemment sont affichées.",
+  "canvas": "Graphe des pages de l'espace de travail",
+  "empty": "Aucune page à afficher.",
+  "focusMissing": "Cette page n'est pas dans le graphe : elle est peut-être dans la corbeille, ou n'est pas partagée avec vous."
+}

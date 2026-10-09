@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Grafik",
+  "heading": "Grafik",
+  "count": "{pages, plural, one {# sayfa} other {# sayfa}} · {edges, plural, one {# bağ} other {# bağ}}",
+  "reload": "Yeniden yükle",
+  "find": "Odaklanılacak sayfayı bul",
+  "focus": "Çevresi:",
+  "depth": "Adım",
+  "clearFocus": "Bütün grafiği göster",
+  "tree": "Alt sayfalar",
+  "rows": "Veritabanı satırları",
+  "orphans": "Bağı olmayan sayfalar",
+  "kinds": {
+    "page": "Sayfa",
+    "database": "Veritabanı",
+    "row": "Satır"
+  },
+  "edges": {
+    "link": "Bağlantı",
+    "relation": "İlişki",
+    "child": "Alt sayfa"
+  },
+  "truncated": "En son düzenlenen {count} sayfa gösteriliyor.",
+  "canvas": "Çalışma alanındaki sayfaların grafiği",
+  "empty": "Gösterilecek sayfa yok.",
+  "focusMissing": "Bu sayfa grafikte yok: çöp kutusunda olabilir ya da sizinle paylaşılmamış olabilir."
+}

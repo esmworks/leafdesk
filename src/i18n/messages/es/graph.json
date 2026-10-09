@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Grafo",
+  "heading": "Grafo",
+  "count": "{pages, plural, one {# página} other {# páginas}} · {edges, plural, one {# conexión} other {# conexiones}}",
+  "reload": "Volver a cargar",
+  "find": "Buscar una página para centrarse en ella",
+  "focus": "Alrededor de",
+  "depth": "Pasos",
+  "clearFocus": "Mostrar el grafo completo",
+  "tree": "Subpáginas",
+  "rows": "Filas de base de datos",
+  "orphans": "Páginas sin conexiones",
+  "kinds": {
+    "page": "Página",
+    "database": "Base de datos",
+    "row": "Fila"
+  },
+  "edges": {
+    "link": "Enlace",
+    "relation": "Relación",
+    "child": "Subpágina"
+  },
+  "truncated": "Se muestran las {count} páginas editadas más recientemente.",
+  "canvas": "Grafo de las páginas del espacio de trabajo",
+  "empty": "No hay páginas que mostrar.",
+  "focusMissing": "Esa página no está en el grafo: puede estar en la papelera o no estar compartida contigo."
+}

@@ -51,7 +51,8 @@
     "saveAsRowTemplate": "Guardar como plantilla de fila",
     "deleteTemplate": "Eliminar plantilla",
     "exportDisabled": "La exportación está desactivada",
-    "exportDisabledBody": "Los propietarios de este espacio de trabajo han desactivado la exportación y la impresión de sus páginas."
+    "exportDisabledBody": "Los propietarios de este espacio de trabajo han desactivado la exportación y la impresión de sus páginas.",
+    "showInGraph": "Mostrar en el grafo"
   },
   "comments": {
     "aboutPage": "Sobre esta página",

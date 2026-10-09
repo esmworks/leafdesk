@@ -17,6 +17,15 @@
 
 ### Added
 
+- **Graph.** A new page (the graph icon beside Home in the sidebar, or `>` in the search box)
+  draws a workspace's pages, databases and rows as points, joined by links in page bodies,
+  relations (a two-way one drawn once) and the page tree, and lays them out as they connect. Only
+  pages the viewer can open are drawn, and no edge leads to one they can't; a relation counts only
+  where they may see that property. Hovering a page brings out its neighbours, clicking it opens
+  it, and the box at the top focuses on one page and the pages one to three steps away ("Show in
+  graph" in a page's menu opens it focused there). Switches hide the page tree, rows and pages
+  without connections. Past 3,000 pages the ones edited longest ago are left out. Drawn with
+  `sigma` and `graphology` (new dependencies). No migration.
 - **Context and unlinked mentions under "Linked from".** Each page in a page's "Linked from" list
   shows the text around its link, with the page's live title in place of the link (other pages'
   titles stay out of it). Below the list, folded away, are the pages that write the page's title

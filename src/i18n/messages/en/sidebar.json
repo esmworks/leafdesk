@@ -14,7 +14,8 @@
     "settings": "Settings",
     "trash": "Trash",
     "templates": "Templates",
-    "import": "Import"
+    "import": "Import",
+    "graph": "Graph"
   },
   "toggle": {
     "open": "Open sidebar",

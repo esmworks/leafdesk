@@ -14,7 +14,8 @@
     "settings": "Einstellungen",
     "trash": "Papierkorb",
     "templates": "Vorlagen",
-    "import": "Importieren"
+    "import": "Importieren",
+    "graph": "Graph"
   },
   "toggle": {
     "open": "Seitenleiste öffnen",

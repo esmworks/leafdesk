@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Graph",
+  "heading": "Graph",
+  "count": "{pages, plural, one {# Seite} other {# Seiten}} · {edges, plural, one {# Verbindung} other {# Verbindungen}}",
+  "reload": "Neu laden",
+  "find": "Seite zum Fokussieren suchen",
+  "focus": "Rund um",
+  "depth": "Schritte",
+  "clearFocus": "Ganzen Graphen zeigen",
+  "tree": "Unterseiten",
+  "rows": "Datenbankzeilen",
+  "orphans": "Seiten ohne Verbindungen",
+  "kinds": {
+    "page": "Seite",
+    "database": "Datenbank",
+    "row": "Zeile"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relation",
+    "child": "Unterseite"
+  },
+  "truncated": "Die {count} zuletzt bearbeiteten Seiten werden angezeigt.",
+  "canvas": "Graph der Seiten des Arbeitsbereichs",
+  "empty": "Keine Seiten anzuzeigen.",
+  "focusMissing": "Diese Seite ist nicht im Graphen: Sie liegt vielleicht im Papierkorb oder wurde nicht mit Ihnen geteilt."
+}
