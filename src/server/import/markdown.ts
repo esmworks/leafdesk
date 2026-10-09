@@ -344,7 +344,8 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
         const url = uploads.get(path);
         rewritten = rewritten.replace(token, url ?? encodeURI(relativeTo(node.source!, path)));
       }
-      if (rewritten.trim()) await getCollab().replaceContent(pageId, liftImages(rewritten), actor);
+      // Links were resolved within the import above; one it couldn't resolve stays as written.
+      if (rewritten.trim()) await getCollab().replaceContent(pageId, liftImages(rewritten), actor, false, { wikilinks: false });
     }
 
     for (const [key, columns] of relations) {

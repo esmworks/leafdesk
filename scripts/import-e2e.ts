@@ -253,6 +253,8 @@ try {
     "Vault/attachments/photo.png": png,
     "Vault/.obsidian/workspace.json": "{}",
   });
+  // A page outside the vault with the title of a link the vault can't resolve: the link still stays text.
+  await createPage(owner, { workspaceId, title: "Missing mission" });
   const vault = await importPages(owner, { workspaceId, parentId: home.id, files: [{ path: "vault.zip", data: vaultZip }] });
   const vaultRoot = vault.pages.find((p) => p.title === "Vault")!;
   check(vault.pages.length === 1 && vaultRoot && vault.created.files === 1, "a vault's ZIP imports as its folders, the .obsidian folder left out", vault);
@@ -274,7 +276,7 @@ try {
   );
   const photo = (await db.select().from(file).where(eq(file.pageId, welcome.id)))[0];
   check(photo?.name === "photo.png" && welcomeBody.includes(`/api/files/${photo.id}`), "an embedded image from the attachments folder is uploaded", welcomeBody);
-  check(welcomeBody.includes("[[Missing mission]]"), "a wikilink naming nothing stays as written", welcomeBody);
+  check(welcomeBody.includes("[[Missing mission]]"), "a wikilink naming nothing in the vault stays as written, even with a page of that title elsewhere", welcomeBody);
   check(
     vault.warnings.some((w) => w.code === "unresolvedLink" && w.target === "Missing mission" && w.page === "Welcome"),
     "…and is reported",

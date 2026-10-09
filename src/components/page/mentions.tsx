@@ -625,12 +625,15 @@ function flatBlocks(blocks: EditorBlock[], out: EditorBlock[] = []): EditorBlock
  */
 function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: string) {
   useEffect(() => {
+    // The editor may be gone by the time the paste has landed or the titles are looked up.
+    let live = true;
     const onPaste = (event: ClipboardEvent) => {
       const root = editor.domElement;
       if (!root || !(event.target instanceof Node) || !root.contains(event.target)) return;
       if (!/\[\[[^[\]\n]+\]\]/.test(event.clipboardData?.getData("text/plain") ?? "")) return;
       const from = editor.getTextCursorPosition().block.id;
       setTimeout(() => {
+        if (!live) return;
         const to = editor.getTextCursorPosition().block.id;
         const all = flatBlocks(editor.document);
         const start = all.findIndex((b) => b.id === from);
@@ -642,7 +645,7 @@ function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: str
         void pagesNamedAction(pageId, titles)
           .then((found) => {
             const pages = new Map(found);
-            if (!pages.size) return;
+            if (!live || !pages.size) return;
             for (const id of ids) {
               const block = editor.getBlock(id);
               if (!block) continue;
@@ -659,7 +662,10 @@ function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: str
       });
     };
     document.addEventListener("paste", onPaste, true);
-    return () => document.removeEventListener("paste", onPaste, true);
+    return () => {
+      live = false;
+      document.removeEventListener("paste", onPaste, true);
+    };
   }, [editor, workspaceId, pageId]);
 }
 

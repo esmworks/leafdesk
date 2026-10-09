@@ -35,7 +35,11 @@ export interface CollabService {
    * Replaces the body. Snapshots first when `snapshot` is set (MCP writes). This and the other
    * writes of the title or body below refuse a locked page (lib/page-lock).
    */
-  replaceContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean): Promise<void>;
+  /**
+   * `wikilinks: false` leaves `[[Title]]` as written (imports, which resolve their own links);
+   * otherwise it links to the page of that title the writer can open (lib/wikilinks).
+   */
+  replaceContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean, options?: { wikilinks?: boolean }): Promise<void>;
   appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean): Promise<void>;
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
   appendBlocks(pageId: string, blocks: unknown[], actor: WriteActor, snapshot?: boolean): Promise<void>;

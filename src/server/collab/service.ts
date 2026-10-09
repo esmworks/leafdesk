@@ -494,12 +494,15 @@ export function createCollab() {
       });
     },
 
-    async replaceContent(pageId, markdown, actor, snapshot = false) {
+    async replaceContent(pageId, markdown, actor, snapshot = false, { wikilinks = true } = {}) {
       // Database blocks the Markdown names keep their settings; inline databases it leaves out stay.
       await writeBlocks(
         pageId,
         actor,
-        async (existing, mentions) => linkWritten(pageId, actor, await markdownToBlocks(markdown, existing, mentions)),
+        async (existing, mentions) => {
+          const blocks = await markdownToBlocks(markdown, existing, mentions);
+          return wikilinks ? linkWritten(pageId, actor, blocks) : blocks;
+        },
         snapshot,
       );
     },
