@@ -338,7 +338,8 @@ const DEFINITION = /^( {0,3}\[[^\]\n]+\]:[ \t]*)(<[^<>\n]*>|\S+)/;
 const IMG_TAG = /(<img\b[^>]*?\bsrc\s*=\s*)(["'])([^"'\n]*)\2/gi;
 const FENCE = /^ {0,3}(`{3,}|~{3,})/;
 
-export type LinkTarget = { path: string; image: boolean };
+/** Where a link points (`path`, see resolveLink), whether it's an image, and its href as written. */
+export type LinkTarget = { path: string; image: boolean; href: string };
 
 const IMAGE = /!\[(?:\\.|[^\]\\\n])*\]\(\s*(?:<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)(?:\s+(?:"[^"\n]*"|'[^'\n]*'))?\s*\)/g;
 
@@ -379,7 +380,7 @@ export function liftImages(markdown: string): string {
 export function rewriteLinks(markdown: string, from: string, replace: (target: LinkTarget) => string | null): string {
   const swap = (href: string, image: boolean): string | null => {
     const path = resolveLink(from, href);
-    return path ? replace({ path, image }) : null;
+    return path ? replace({ path, image, href }) : null;
   };
   const inline = (text: string) =>
     text

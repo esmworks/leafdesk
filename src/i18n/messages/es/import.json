@@ -12,6 +12,7 @@
   "pages": {
     "help": "Los archivos Markdown se convierten en páginas y las carpetas conservan su estructura. Los archivos CSV se convierten en bases de datos y se suben las imágenes enlazadas desde las páginas.",
     "notion": "Desde Notion: exporta como “Markdown y CSV” con subpáginas y elige el ZIP tal como se descargó (también funcionan las exportaciones divididas). Se importan las subpáginas, bases de datos, relaciones, textos destacados, desplegables e imágenes.",
+    "obsidian": "Desde Obsidian: elige la carpeta de la bóveda o un ZIP de ella. Se importan los enlaces entre notas (también los [[wikilinks]]), las imágenes y archivos incrustados y los textos destacados.",
     "chooseFiles": "Elegir archivos",
     "chooseFolder": "Elegir una carpeta",
     "drop": "o suelta los archivos aquí",
@@ -60,6 +61,7 @@
     "heading": "Excluido o modificado",
     "invalidValues": "{count, plural, one {# valor} other {# valores}} de “{column}” no encajaban con la propiedad y se dejaron vacíos.",
     "missingFile": "“{path}”, enlazado desde “{page}”, no estaba en lo que subiste.",
+    "unresolvedLink": "“[[{target}]]” en “{page}” no coincide con ninguna nota ni archivo de lo que subiste, así que queda como texto.",
     "fileNotStored": {
       "tooLarge": "“{path}” supera el límite de subida y no se guardó.",
       "quotaExceeded": "“{path}” no se guardó: el espacio de trabajo se ha quedado sin almacenamiento de archivos.",

@@ -12,6 +12,7 @@
   "pages": {
     "help": "Les fichiers Markdown deviennent des pages et les dossiers conservent leur structure. Les fichiers CSV deviennent des bases de données, et les images vers lesquelles pointent les pages sont ajoutées.",
     "notion": "Depuis Notion : exportez au format « Markdown et CSV » avec les sous-pages, puis choisissez le ZIP tel qu’il a été téléchargé (les exportations divisées fonctionnent aussi). Les sous-pages, bases de données, relations, encadrés, blocs dépliables et images sont importés.",
+    "obsidian": "Depuis Obsidian : choisissez le dossier du coffre ou un ZIP de celui-ci. Les liens entre notes (y compris les [[wikiliens]]), les images et fichiers intégrés et les encadrés sont importés.",
     "chooseFiles": "Choisir des fichiers",
     "chooseFolder": "Choisir un dossier",
     "drop": "ou déposez des fichiers ici",
@@ -60,6 +61,7 @@
     "heading": "Éléments ignorés ou modifiés",
     "invalidValues": "{count, plural, one {# valeur} other {# valeurs}} dans « {column} » ne correspondaient pas à la propriété et ont été laissées vides.",
     "missingFile": "« {path} », lié depuis « {page} », ne faisait pas partie de l’envoi.",
+    "unresolvedLink": "« [[{target}]] » dans « {page} » ne correspond à aucune note ni à aucun fichier de l’envoi : il reste du texte.",
     "fileNotStored": {
       "tooLarge": "« {path} » dépasse la taille maximale autorisée et n’a pas été enregistré.",
       "quotaExceeded": "« {path} » n’a pas été enregistré : l’espace de travail n’a plus d’espace de stockage.",

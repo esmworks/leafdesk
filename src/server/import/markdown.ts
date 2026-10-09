@@ -17,6 +17,7 @@ import {
   withoutFrontMatter,
   type PlanNode,
 } from "@/lib/import/markdown";
+import { frontMatterAliases, hasWikilink, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "@/lib/import/obsidian";
 import {
   notionId,
   notionMarkdown,
@@ -52,6 +53,10 @@ import { importCsvAsDatabase } from "./csv";
  * database and, when importing at the workspace's top level, workspace templates (elsewhere they're
  * a page of that name: templates only live at the top), and the property list the export writes at
  * the top of a row's page is left out of the body when the row's CSV values say the same.
+ *
+ * An Obsidian vault (see lib/import/obsidian) comes in with its wikilinks and embeds as links to
+ * the pages and uploads they name, wherever in the vault those are, and its callouts as callouts.
+ * Links that name nothing in the upload stay as they were written.
  *
  * Notion's "Markdown & CSV" export (see lib/import/notion) comes in with its callouts as callouts,
  * the property list at the top of each row's page taken off (its files kept), relation columns
@@ -117,6 +122,9 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     throw new ImportError(`An import can create at most ${IMPORT_LIMITS.pages} pages`, "tooManyPages", { limit: IMPORT_LIMITS.pages });
   }
   const nodeByKey = new Map(plan.nodes.map((n) => [n.key, n]));
+  // An Obsidian vault: its settings folder came along, or a note has a wikilink.
+  const isVault =
+    collected.vault || plan.nodes.some((n) => n.source && importFileKind(n.source) === "markdown" && hasWikilink(text(files.get(n.source)!)));
 
   // The databases' CSV files, read once: their headers are needed for the row pages below.
   const tables = new Map<string, { table: CsvTable; titleColumn: number }>();
@@ -159,8 +167,19 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
         body = [...kept, properties.body].join("\n\n");
       }
     }
-    bodies.set(node.key, notionMarkdown(body));
+    bodies.set(node.key, isVault && !notionId(node.source) ? obsidianMarkdown(notionMarkdown(body)) : notionMarkdown(body));
   }
+
+  // What wikilinks and links by name can name: the pages (with their aliases) and the other files.
+  const vault = new VaultIndex(
+    plan.nodes
+      .filter((n) => n.source)
+      .map((n) => ({
+        path: n.source!,
+        aliases: importFileKind(n.source!) === "markdown" ? frontMatterAliases(text(files.get(n.source!)!)) : [],
+      })),
+    [...files.keys()].filter((p) => importFileKind(p) === "asset"),
+  );
 
   // Relations (see lib/import/notion): which columns link to rows of which imported database.
   const byNotionId = new Map<string, string>();
@@ -290,9 +309,18 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
       if (body === undefined) continue;
       const pageId = created.get(node.key)!.id;
       if (notionId(node.source!)) body = subpageBlocks(body, node, plan.nodeOf);
+      else {
+        body = rewriteWikilinks(body, node.source!, vault, (link) =>
+          warnings.add({ code: "unresolvedLink", target: link, page: titles.get(node.key)! }),
+        );
+      }
       body = rewriteNotionUrls(body, notionTarget);
       const pending: { path: string; token: string }[] = [];
-      let rewritten = rewriteLinks(body, node.source!, ({ path }) => {
+      let rewritten = rewriteLinks(body, node.source!, ({ path: written, href }) => {
+        // Not a path from this file: a link by name (or from the top), as Obsidian writes them. Outside
+        // a vault only a bare name is looked for elsewhere, so a broken path isn't taken for another file.
+        const byName = isVault || !/\/|%2f/i.test(href);
+        const path = files.has(written) || plan.nodeOf.has(written) || !byName ? written : (vault.href(href, node.source!) ?? written);
         const linked = target(path);
         if (linked) return linked;
         if (!files.has(path) || importFileKind(path) !== "asset") {

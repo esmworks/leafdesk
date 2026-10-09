@@ -17,6 +17,14 @@
 
 ### Added
 
+- **Import from Obsidian.** Import takes a vault's folder or a ZIP of it. Wikilinks (with labels,
+  headings, block references and folder paths), Markdown links written by name and notes' aliases
+  from front matter become page links, resolved across the vault: a path first, then the note of
+  that name nearest the linking note, then an alias. Embedded images and files are uploaded, a
+  note embedded on its own line becomes a link-to-page block, and callouts keep a matching color.
+  Comments, block ids and highlight marks are left out; links naming nothing stay as text and are
+  listed in the result. The import dialog no longer uploads hidden folders such as `.obsidian`.
+  No migration.
 - **Excel workbooks.** A database exports as an Excel workbook (.xlsx) next to CSV, from the page
   menu and for the selected rows of a table: the same rows and columns as the CSV export, with
   property access applied the same way, numbers as numbers, checkboxes as TRUE/FALSE and dates as

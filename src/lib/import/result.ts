@@ -49,6 +49,8 @@ export type ImportWarning =
   | { code: "invalidValues"; column: string; count: number }
   /** A relative link or image pointing at a file the upload doesn't have: left as it was. */
   | { code: "missingFile"; path: string; page: string }
+  /** A wikilink (`[[Name]]`) naming no file of the upload: left as it was written. */
+  | { code: "unresolvedLink"; target: string; page: string }
   /** A file a page shows couldn't be stored (too large, quota): the link was left as it was. */
   | { code: "fileNotStored"; path: string; reason: "tooLarge" | "quotaExceeded" | "failed" }
   /**

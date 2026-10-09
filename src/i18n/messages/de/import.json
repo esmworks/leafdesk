@@ -12,6 +12,7 @@
   "pages": {
     "help": "Markdown-Dateien werden zu Seiten, und Ordner behalten ihre Struktur. CSV-Dateien werden zu Datenbanken, und Bilder, auf die Seiten verlinken, werden hochgeladen.",
     "notion": "Aus Notion: Exportiere als „Markdown & CSV“ mit Unterseiten und wähle die ZIP-Datei so, wie sie heruntergeladen wurde (auch aufgeteilte Exporte funktionieren). Unterseiten, Datenbanken, Relationen, Callouts, Toggles und Bilder werden mit übernommen.",
+    "obsidian": "Aus Obsidian: Wähle den Ordner des Vaults oder eine ZIP-Datei davon. Links zwischen Notizen (auch [[Wikilinks]]), eingebettete Bilder und Dateien sowie Callouts werden mit übernommen.",
     "chooseFiles": "Dateien auswählen",
     "chooseFolder": "Ordner auswählen",
     "drop": "oder Dateien hierher ziehen",
@@ -60,6 +61,7 @@
     "heading": "Ausgelassen oder geändert",
     "invalidValues": "{count, plural, one {# Wert in „{column}“ passte nicht zur Eigenschaft und wurde leer gelassen.} other {# Werte in „{column}“ passten nicht zur Eigenschaft und wurden leer gelassen.}}",
     "missingFile": "„{path}“, verlinkt in „{page}“, war nicht im Upload enthalten.",
+    "unresolvedLink": "„[[{target}]]“ in „{page}“ passt zu keiner Notiz und keiner Datei im Upload und bleibt deshalb Text.",
     "fileNotStored": {
       "tooLarge": "„{path}“ überschreitet die Upload-Grenze und wurde nicht gespeichert.",
       "quotaExceeded": "„{path}“ wurde nicht gespeichert: Der Dateispeicher des Workspace ist voll.",

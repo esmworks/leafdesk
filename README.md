@@ -23,7 +23,8 @@ approve them over OAuth.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
   what it may read or change; optional AI writing, AI properties and chat with Anthropic, OpenAI,
   Google or a local model.
-- **Bring your pages**: import a Notion *Markdown & CSV* export, Markdown files, a folder or CSV.
+- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Markdown files,
+  a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -208,8 +209,9 @@ versions, upgrades and running behind a domain.
   in place.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
-  uploaded, into the page or teamspace you start it from. A Leafdesk export comes back as it went,
-  templates included. Import a CSV file as a new database with its column types guessed (and
+  uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
+  (`[Plan](Plan.md)`) finds it elsewhere in the upload when nothing sits at that path. A Leafdesk
+  export comes back as it went, templates included. Import a CSV file as a new database with its column types guessed (and
   changeable before importing), or add its rows to an existing database by matching columns to
   properties.
 - **Import from Notion**: in Notion, export a page or the workspace as *Markdown & CSV* with
@@ -224,6 +226,21 @@ versions, upgrades and running behind a domain.
   over: page icons and covers, comments, database views, formulas and rollups (their values come in
   as text or numbers), and people (as select or text). Tested against archives built from
   Notion's documented format, not yet a real export.
+- **Import from Obsidian**: choose the vault's folder (or a ZIP of it) in Import. Notes keep their
+  folders. Wikilinks (`[[Note]]`, `[[Note|label]]`, `[[Note#Heading]]`, `[[Folder/Note]]`) and
+  Markdown links written by name become page links, found the way Obsidian finds them: a path from
+  the note or the top of the vault, else the note of that name anywhere (in the same folder first,
+  then the one with the shortest path), else a note's alias from its front matter. A link to a
+  heading or block leads to its note. Embedded images and files (`![[photo.png]]`) are uploaded,
+  and a note embedded on a line of its own (`![[Note]]`) becomes a link-to-page block. Callouts
+  come in as callouts in the nearest of the editor's five colors. Links that name nothing in the
+  upload stay as written and are listed in the result. Left out: the `.obsidian` settings folder
+  (not even uploaded), comments (`%%…%%`), block ids (`^id`), highlight marks (the text stays) and
+  front matter other than `title` and `aliases`, since pages outside a database have no
+  properties to hold tags and the like. An upload counts as a vault when one of its notes has a
+  wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
+  written. A note whose first line is a heading other than its file name takes the heading as its
+  title (links still find it by file name).
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet, or turn on a join link anyone can
   use. Owners can export the member list as CSV, hand ownership to someone else, and decide who
@@ -1543,4 +1560,5 @@ requests; see [CONTRIBUTING.md](CONTRIBUTING.md#translations) for the workflow.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from.
+alternative to and what it imports from. Obsidian is a trademark of its owner; Leafdesk is not
+affiliated with it either, and names it only to describe what it imports.

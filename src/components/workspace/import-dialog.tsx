@@ -19,7 +19,7 @@ import {
   type CsvColumnType,
   type CsvTable,
 } from "@/lib/import/csv";
-import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
+import { cleanTitle, IMPORT_LIMITS, isIgnoredPath } from "@/lib/import/markdown";
 import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
 import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
@@ -163,7 +163,11 @@ export function ImportDialog({
 
   function addFiles(list: FileList | File[] | null) {
     if (!list) return;
-    const next = [...list].map((file) => ({ file, path: file.webkitRelativePath || file.name }));
+    // Hidden folders (an app's settings, such as a vault's .obsidian) and system files aren't sent:
+    // the import leaves them out anyway.
+    const next = [...list]
+      .map((file) => ({ file, path: file.webkitRelativePath || file.name }))
+      .filter((p) => !isIgnoredPath(p.path));
     setPicked((prev) => [...prev.filter((p) => !next.some((n) => n.path === p.path)), ...next]);
     setError(null);
   }
@@ -264,6 +268,8 @@ export function ImportDialog({
         return t("warnings.invalidValues", { count: w.count, column: w.column });
       case "missingFile":
         return t("warnings.missingFile", { path: w.path, page: w.page });
+      case "unresolvedLink":
+        return t("warnings.unresolvedLink", { target: w.target, page: w.page });
       case "fileNotStored":
         return t(`warnings.fileNotStored.${w.reason}`, { path: w.path });
       case "skipped":
@@ -361,6 +367,7 @@ export function ImportDialog({
             <>
               <p className="text-sm text-fg-muted">{t("pages.help")}</p>
               <p className="text-sm text-fg-muted">{t("pages.notion")}</p>
+              <p className="text-sm text-fg-muted">{t("pages.obsidian")}</p>
               <div
                 onDragOver={(e) => {
                   e.preventDefault();

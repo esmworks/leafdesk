@@ -12,6 +12,7 @@
   "pages": {
     "help": "Markdown dosyaları sayfa olur, klasörler yapısını korur. CSV dosyaları veritabanı olur, sayfaların bağlantı verdiği görseller yüklenir.",
     "notion": "Notion'dan: Notion'da “Markdown ve CSV” biçiminde, alt sayfalarla dışa aktarın ve indirilen ZIP'i olduğu gibi seçin (parçalara bölünmüş dışa aktarımlar da olur). Alt sayfalar, veritabanları, ilişkiler, açıklama kutuları, açılır bloklar ve görseller birlikte gelir.",
+    "obsidian": "Obsidian'dan: kasanın klasörünü ya da ZIP'ini seçin. Notlar arası bağlantılar ([[wikilink]]'ler dahil), gömülü görseller ve dosyalar ve açıklama kutuları birlikte gelir.",
     "chooseFiles": "Dosya seç",
     "chooseFolder": "Klasör seç",
     "drop": "ya da dosyaları buraya bırakın",
@@ -60,6 +61,7 @@
     "heading": "Dışarıda kalanlar ve değişenler",
     "invalidValues": "“{column}” sütunundaki {count, plural, one {# değer} other {# değer}} özelliğe uymadığı için boş bırakıldı.",
     "missingFile": "“{page}” sayfasının bağlantı verdiği “{path}” yüklemede yoktu.",
+    "unresolvedLink": "“{page}” sayfasındaki “[[{target}]]” yüklemedeki hiçbir not ya da dosyayla eşleşmiyor; metin olarak kaldı.",
     "fileNotStored": {
       "tooLarge": "“{path}” yükleme sınırından büyük olduğu için saklanmadı.",
       "quotaExceeded": "“{path}” saklanmadı: çalışma alanının dosya depolaması doldu.",

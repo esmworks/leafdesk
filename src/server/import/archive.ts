@@ -35,7 +35,19 @@ function take(budget: Budget, bytes: number) {
 /** A path to show for an entry that has no safe one: its name, shortened. */
 const shown = (name: string) => (name.length > 200 ? `${name.slice(0, 199)}…` : name);
 
-function unzip(data: Uint8Array, budget: Budget, depth: number, out: Map<string, Uint8Array>, skipped: SkippedFile[]) {
+/** What the upload says about itself while it's read: whether it holds an Obsidian vault's settings folder. */
+type Seen = { vault: boolean };
+
+const VAULT_SETTINGS = /(?:^|\/)\.obsidian\//;
+
+function unzip(
+  data: Uint8Array,
+  budget: Budget,
+  depth: number,
+  out: Map<string, Uint8Array>,
+  skipped: SkippedFile[],
+  seen: Seen,
+) {
   let entries: Record<string, Uint8Array>;
   try {
     entries = unzipSync(data, {
@@ -46,7 +58,10 @@ function unzip(data: Uint8Array, budget: Budget, depth: number, out: Map<string,
           if (entry.name.trim()) skipped.push({ path: shown(entry.name), reason: "unsafePath" });
           return false;
         }
-        if (isIgnoredPath(path)) return false;
+        if (isIgnoredPath(path)) {
+          if (VAULT_SETTINGS.test(path)) seen.vault = true;
+          return false;
+        }
         take(budget, Math.max(entry.size, entry.originalSize));
         return true;
       },
@@ -58,7 +73,7 @@ function unzip(data: Uint8Array, budget: Budget, depth: number, out: Map<string,
   for (const [name, bytes] of Object.entries(entries)) {
     const path = normalizePath(name)!;
     if (importFileKind(path) === "zip") {
-      if (depth < 1) unzip(bytes, budget, depth + 1, out, skipped);
+      if (depth < 1) unzip(bytes, budget, depth + 1, out, skipped, seen);
       else skipped.push({ path, reason: "nestedZip" });
     } else out.set(path, bytes);
   }
@@ -70,8 +85,12 @@ function unzip(data: Uint8Array, budget: Budget, depth: number, out: Map<string,
  */
 const EXPORT_FOLDER = /^Export-[0-9a-f-]+(?:-Part-\d+)?\//i;
 
-/** The upload's files by normalized path, and what was left out of it. */
-export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8Array>; skipped: SkippedFile[] } {
+/**
+ * The upload's files by normalized path, what was left out of it, and whether it held an Obsidian
+ * vault's `.obsidian` folder (left out too).
+ */
+export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8Array>; skipped: SkippedFile[]; vault: boolean } {
+  const seen: Seen = { vault: false };
   const out = new Map<string, Uint8Array>();
   const skipped: SkippedFile[] = [];
   const budget: Budget = { files: 0, bytes: 0 };
@@ -81,8 +100,11 @@ export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8A
       if (file.path.trim()) skipped.push({ path: shown(file.path), reason: "unsafePath" });
       continue;
     }
-    if (isIgnoredPath(path)) continue;
-    if (importFileKind(path) === "zip") unzip(file.data, budget, 0, out, skipped);
+    if (isIgnoredPath(path)) {
+      if (VAULT_SETTINGS.test(path)) seen.vault = true;
+      continue;
+    }
+    if (importFileKind(path) === "zip") unzip(file.data, budget, 0, out, skipped, seen);
     else {
       take(budget, file.data.byteLength);
       out.set(path, file.data);
@@ -93,5 +115,5 @@ export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8A
     const inner = path.replace(EXPORT_FOLDER, "");
     if (inner && !unwrapped.has(inner)) unwrapped.set(inner, bytes);
   }
-  return { files: unwrapped, skipped };
+  return { files: unwrapped, skipped, vault: seen.vault };
 }

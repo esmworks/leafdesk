@@ -12,6 +12,7 @@
   "pages": {
     "help": "Markdown files become pages and folders keep their structure. CSV files become databases, and images that pages link to are uploaded.",
     "notion": "From Notion: export as “Markdown & CSV” with subpages, and choose the ZIP as it downloaded (split exports work too). Subpages, databases, relations, callouts, toggles and images come along.",
+    "obsidian": "From Obsidian: choose the vault's folder, or a ZIP of it. Links between notes ([[wikilinks]] too), embedded images and files, and callouts come along.",
     "chooseFiles": "Choose files",
     "chooseFolder": "Choose a folder",
     "drop": "or drop files here",
@@ -60,6 +61,7 @@
     "heading": "Left out or changed",
     "invalidValues": "{count, plural, one {# value} other {# values}} in “{column}” didn't fit the property and were left empty.",
     "missingFile": "“{path}”, linked from “{page}”, wasn't in the upload.",
+    "unresolvedLink": "“[[{target}]]” in “{page}” doesn't match a note or file of the upload, so it stays as text.",
     "fileNotStored": {
       "tooLarge": "“{path}” is larger than the upload limit and wasn't stored.",
       "quotaExceeded": "“{path}” wasn't stored: the workspace is out of file storage.",

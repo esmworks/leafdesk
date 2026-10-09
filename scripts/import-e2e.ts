@@ -1,7 +1,7 @@
 /**
  * End-to-end check of importing: Markdown files and ZIPs as a page tree (folders, index files,
  * Notion's layout and ids, databases from CSV files with their row pages, links between the files
- * as page links, images uploaded), CSV files as new databases (guessed and chosen types) and into
+ * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
  * Excel workbooks (a database exported as one comes back with the same values), access, limits,
  * taking back a failed import, and the /api/import route.
@@ -226,6 +226,107 @@ try {
     "a picked folder imports at the top level as a page holding its files",
     loose.pages,
   );
+
+  // An Obsidian vault: wikilinks and embeds by name, aliases, links by name, callouts
+  const vaultZip = zip({
+    "Vault/Welcome.md": [
+      "---",
+      "aliases: [Start here]",
+      "tags: [home]",
+      "---",
+      "See [[Launch plan|the plan]], [[Ideas]] and [[Launch plan#Countdown]]. Gone: [[Missing mission]].",
+      "",
+      "![[photo.png]]",
+      "",
+      "![[Ideas]]",
+      "",
+      "> [!tip]- Folded",
+      "> Callout text ^block-1",
+      "",
+      "Some ==marked== text %%a comment%%.",
+    ].join("\n"),
+    "Vault/Projects/Launch plan.md": "Back to [[Start here]] and [the welcome](Welcome.md).\n\n## Countdown\n\nT-10",
+    "Vault/Notes/Ideas.md": "Ideas list",
+    "Vault/Archive/Old/Ideas.md": "Old ideas",
+    "Vault/attachments/photo.png": png,
+    "Vault/.obsidian/workspace.json": "{}",
+  });
+  const vault = await importPages(owner, { workspaceId, parentId: home.id, files: [{ path: "vault.zip", data: vaultZip }] });
+  const vaultRoot = vault.pages.find((p) => p.title === "Vault")!;
+  check(vault.pages.length === 1 && vaultRoot && vault.created.files === 1, "a vault's ZIP imports as its folders, the .obsidian folder left out", vault);
+  const welcome = await byTitle(vaultRoot.id, "Welcome");
+  const projects = await byTitle(vaultRoot.id, "Projects");
+  const plan = await byTitle(projects.id, "Launch plan");
+  const ideas = await byTitle((await byTitle(vaultRoot.id, "Notes")).id, "Ideas");
+  await eventually(async () => (await body(welcome.id)).includes(pagePath(workspaceId, plan.id)), "the welcome body");
+  const welcomeBody = await body(welcome.id);
+  check(
+    welcomeBody.includes(pagePath(workspaceId, plan.id)) && welcomeBody.includes(pagePath(workspaceId, ideas.id)),
+    "wikilinks to notes in other folders point at their pages (the shortest path for a name two notes share)",
+    welcomeBody,
+  );
+  check(
+    welcomeBody.includes(`${pagePath(workspaceId, ideas.id)}) <!-- leafdesk:page-link -->`),
+    "a note embedded on a line of its own becomes a link-to-page block",
+    welcomeBody,
+  );
+  const photo = (await db.select().from(file).where(eq(file.pageId, welcome.id)))[0];
+  check(photo?.name === "photo.png" && welcomeBody.includes(`/api/files/${photo.id}`), "an embedded image from the attachments folder is uploaded", welcomeBody);
+  check(welcomeBody.includes("[[Missing mission]]"), "a wikilink naming nothing stays as written", welcomeBody);
+  check(
+    vault.warnings.some((w) => w.code === "unresolvedLink" && w.target === "Missing mission" && w.page === "Welcome"),
+    "…and is reported",
+    vault.warnings,
+  );
+  check(
+    /> \[!TIP\]/.test(welcomeBody) && !welcomeBody.includes("^block-1") && !welcomeBody.includes("a comment") && !welcomeBody.includes("=="),
+    "callouts get the editor's kinds; block ids, comments and highlight marks are left out",
+    welcomeBody,
+  );
+  check(!welcomeBody.includes("aliases") && !welcomeBody.includes("tags:"), "front matter isn't in the body", welcomeBody);
+  await eventually(async () => (await body(plan.id)).includes(pagePath(workspaceId, welcome.id)), "the plan body");
+  const planBody = await body(plan.id);
+  check(
+    planBody.split(pagePath(workspaceId, welcome.id)).length === 3,
+    "an alias and a Markdown link by name (not a path from the file) both lead to the note",
+    planBody,
+  );
+
+  // Plain Markdown (no wikilinks, no .obsidian folder) isn't read as a vault
+  const plain = await importPages(owner, {
+    workspaceId,
+    parentId: home.id,
+    files: [
+      {
+        path: "plain.zip",
+        data: zip({
+          "Plain/A.md": "Area is r ^2, 50%% off, a ==b== c.\n\n[By name](B.md), [broken path](img/logo.png)",
+          "Plain/Sub/B.md": "B",
+          "Plain/other/logo.png": png,
+        }),
+      },
+    ],
+  });
+  const plainRoot = plain.pages.find((p) => p.title === "Plain")!;
+  const plainA = await byTitle(plainRoot.id, "A");
+  const plainB = await byTitle((await byTitle(plainRoot.id, "Sub")).id, "B");
+  await eventually(async () => (await body(plainA.id)).includes("Area"), "the plain body");
+  const plainBody = await body(plainA.id);
+  check(plainBody.includes("r ^2") && plainBody.includes("50%% off") && plainBody.includes("==b=="), "outside a vault, ^, %% and == stay as written", plainBody);
+  check(plainBody.includes(pagePath(workspaceId, plainB.id)), "…a bare file name still finds the note elsewhere in the upload", plainBody);
+  check(
+    plainBody.includes("img/logo.png") && plain.warnings.some((w) => w.code === "missingFile" && w.path === "Plain/img/logo.png"),
+    "…but a broken path isn't taken for a file of the same name elsewhere",
+    { plainBody, warnings: plain.warnings },
+  );
+  const settings = await importPages(owner, {
+    workspaceId,
+    parentId: home.id,
+    files: [{ path: "v2.zip", data: zip({ "V2/Note.md": "Kept %%hidden%% text", "V2/.obsidian/app.json": "{}" }) }],
+  });
+  const v2Note = await byTitle(settings.pages[0].id, "Note");
+  await eventually(async () => (await body(v2Note.id)).includes("Kept"), "the second vault's note");
+  check(!(await body(v2Note.id)).includes("hidden"), "a ZIP with a .obsidian folder is a vault even without wikilinks");
 
   // Access
   await setPagePermission(ids.owner, home.id, ids.guest, "view");
