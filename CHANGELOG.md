@@ -14,10 +14,10 @@
 
 ### Changed
 
-- **A clearer home page.** The home page greets you by time of day (good morning, afternoon or
-  evening, in your time zone) with today's date, and shows the recently edited pages as cards in
-  two columns, with titles up to two lines instead of cut off. The assigned section now says so
-  when nothing is assigned to you instead of disappearing. No migration.
+- **A clearer home page.** The home page greets you with today's date under the welcome, and
+  shows the recently edited pages as cards in two columns, with titles up to two lines instead of
+  cut off. The assigned section now says so when nothing is assigned to you instead of
+  disappearing. No migration.
 
 ## 0.5.0 — 2026-10-09
 

@@ -1,7 +1,5 @@
 {
-  "morning": "Buenos días, {name}",
-  "afternoon": "Buenas tardes, {name}",
-  "evening": "Buenas noches, {name}",
+  "hello": "Hola, {name}",
   "recent": "Editado recientemente",
   "assignedEmpty": "No tienes nada asignado. Las filas que te asignen en las bases de datos aparecen aquí.",
   "empty": "Todavía no hay nada aquí. Crea tu primera página para empezar.",

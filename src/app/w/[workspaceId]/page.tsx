@@ -3,7 +3,6 @@ import { getFormatter, getTimeZone, getTranslations } from "next-intl/server";
 import { AssignedSection } from "@/components/workspace/assigned-section";
 import { QuickCreate } from "@/components/workspace/quick-create";
 import { PageIcon } from "@/components/ui";
-import { greetingFor } from "@/lib/greeting";
 import { pageLabel } from "@/lib/labels";
 import { dayString, localDay } from "@/lib/time-zone";
 import { getMembership, isGuest } from "@/server/access";
@@ -28,13 +27,11 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
   const [t, tc, format] = await Promise.all([getTranslations("home"), getTranslations("common"), getFormatter()]);
   const guest = !membership || isGuest(membership.role);
 
-  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone }).format(now));
-
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-4 pt-14 pb-12 md:px-6 md:pt-12">
       <header className="space-y-5">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{t(greetingFor(hour), { name: user.name.split(/\s+/)[0] })}</h1>
+          <h1 className="text-2xl font-semibold">{t("hello", { name: user.name.split(/\s+/)[0] })}</h1>
           <p className="text-sm text-fg-muted">
             {format.dateTime(now, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone })}
           </p>

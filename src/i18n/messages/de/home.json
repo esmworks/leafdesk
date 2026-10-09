@@ -1,7 +1,5 @@
 {
-  "morning": "Guten Morgen, {name}",
-  "afternoon": "Guten Tag, {name}",
-  "evening": "Guten Abend, {name}",
+  "hello": "Hallo, {name}",
   "recent": "Zuletzt bearbeitet",
   "assignedEmpty": "Ihnen ist nichts zugewiesen. Ihnen zugewiesene Zeilen aus Datenbanken erscheinen hier.",
   "empty": "Hier ist noch nichts. Erstelle deine erste Seite, um loszulegen.",

@@ -1,7 +1,5 @@
 {
-  "morning": "Günaydın, {name}",
-  "afternoon": "İyi günler, {name}",
-  "evening": "İyi akşamlar, {name}",
+  "hello": "Merhaba, {name}",
   "recent": "Son düzenlenenler",
   "assignedEmpty": "Size atanmış bir iş yok. Veritabanlarında size atanan satırlar burada görünür.",
   "empty": "Burada henüz bir şey yok. Başlamak için ilk sayfanızı oluşturun.",
