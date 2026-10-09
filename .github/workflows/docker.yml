@@ -127,7 +127,7 @@ jobs:
           docker buildx imagetools create \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             --annotation "index:org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-            --annotation "index:org.opencontainers.image.description=Open-source, self-hosted Notion alternative with realtime collaboration and a built-in MCP server." \
+            --annotation "index:org.opencontainers.image.description=Open-source, self-hosted workspace of pages and databases with realtime collaboration and a built-in MCP server." \
             --annotation "index:org.opencontainers.image.licenses=Apache-2.0" \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
