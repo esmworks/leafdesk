@@ -458,6 +458,12 @@ export type NumberFormat = {
   decimals?: number;
 };
 /**
+ * A number property shown as a bar or a ring (see lib/number-display): filled by the value divided by
+ * `divideBy` (100, or 100 % for a percent property, when missing), in an option color (`color`, the
+ * accent color when missing).
+ */
+export type NumberDisplay = { display: "bar" | "ring"; color?: string; divideBy?: number };
+/**
  * Date properties: how values show and whether they remind people (see lib/date-options).
  * `display` "relative" shows days near today as "tomorrow", "in 3 days"; the date otherwise.
  */
@@ -479,6 +485,8 @@ export type PropertyOptions = {
   rollup?: RollupConfig;
   /** Number properties: how values show; plain numbers when missing. */
   number?: NumberFormat;
+  /** Number properties: a bar or a ring instead of the number; the number when missing. */
+  numberDisplay?: NumberDisplay;
   /** Text properties: AI autofill (see lib/ai and server/ai-properties). */
   ai?: AiAutofillConfig;
   /** Date properties: relative display and a reminder; plain dates when missing. */

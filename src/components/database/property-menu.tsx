@@ -41,6 +41,7 @@ import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/
 import type { AiAutofillConfig } from "@/lib/ai";
 import type { AggregateFn } from "@/lib/aggregate";
 import type { DateOptionsInput } from "@/lib/date-options";
+import type { NumberDisplay } from "@/lib/number-display";
 import type { NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
 import { AutofillEditor } from "./ai-autofill";
@@ -215,6 +216,8 @@ export type PropertyMenuActions = {
   setRollup?: (rollup: RollupInput) => void;
   /** Numbers: saves how values show (null for plain numbers). */
   setNumberFormat?: (format: NumberFormat | null) => void;
+  /** Numbers: shows values as a bar or a ring (null for the number). */
+  setNumberDisplay?: (display: NumberDisplay | null) => void;
   /** Dates: saves how values show and the reminder (see lib/date-options). */
   setDateOptions?: (input: DateOptionsInput) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
@@ -409,7 +412,14 @@ export function PropertyMenu({
   }
 
   if (page === "number-format" && prop && actions.setNumberFormat) {
-    return <NumberFormatEditor prop={prop} onChange={actions.setNumberFormat} onBack={() => setPage("main")} />;
+    return (
+      <NumberFormatEditor
+        prop={prop}
+        onChange={actions.setNumberFormat}
+        onDisplayChange={actions.setNumberDisplay}
+        onBack={() => setPage("main")}
+      />
+    );
   }
 
   if (page === "date-options" && prop && actions.setDateOptions) {

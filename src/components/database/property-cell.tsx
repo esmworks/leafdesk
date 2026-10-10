@@ -34,6 +34,7 @@ import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
 import type { NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
+import { numberShare } from "@/lib/number-display";
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 
@@ -186,8 +187,17 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: Property; 
   switch (prop.type) {
     case "text":
       return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{String(value)}</span>;
-    case "number":
-      return <span className="tabular-nums">{typeof value === "number" ? formatNumber(value, prop.options.number) : String(value)}</span>;
+    case "number": {
+      if (typeof value !== "number") return <span className="tabular-nums">{String(value)}</span>;
+      const text = formatNumber(value, prop.options.number);
+      const display = prop.options.numberDisplay;
+      if (display) {
+        return (
+          <ProgressDisplay display={display.display} share={numberShare(value, display, prop.options.number)} text={text} color={display.color} />
+        );
+      }
+      return <span className="tabular-nums">{text}</span>;
+    }
     case "url":
       return (
         <a
@@ -362,41 +372,61 @@ function RollupNumber({ prop, value }: { prop: Property; value: number }) {
     return <span className="tabular-nums">{formatNumber(value, unit, rounded ? 2 : undefined)}</span>;
   }
   const text = format.number(value, { style: "percent", maximumFractionDigits: 1 });
-  const share = Math.min(1, Math.max(0, value));
+  if (config?.display === "bar" || config?.display === "ring") {
+    return <ProgressDisplay display={config.display} share={Math.min(1, Math.max(0, value))} text={text} />;
+  }
+  return <span className="tabular-nums">{text}</span>;
+}
+
+/**
+ * A share from 0 to 1 as a bar or a ring with `text` (the value) beside it: rollup percentages and
+ * number properties shown that way. `color` is an option color; the accent color without one.
+ */
+export function ProgressDisplay({
+  display,
+  share,
+  text,
+  color,
+}: {
+  display: "bar" | "ring";
+  share: number;
+  text: string;
+  color?: string;
+}) {
   const label = <span className="text-xs text-fg-muted tabular-nums">{text}</span>;
-  if (config?.display === "bar") {
+  // Option colors paint charts in `--chart-<color>`, strong enough for a bar in both themes.
+  const paint = color ? `var(--chart-${color})` : undefined;
+  if (display === "bar") {
     return (
       <span className="flex min-w-0 items-center gap-2" title={text}>
         <span className="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-bg-active">
-          <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.round(share * 100)}%` }} />
+          <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.round(share * 100)}%`, background: paint }} />
         </span>
         {label}
       </span>
     );
   }
-  if (config?.display === "ring") {
-    const r = 6;
-    const length = 2 * Math.PI * r;
-    return (
-      <span className="flex min-w-0 items-center gap-1.5" title={text}>
-        <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0 -rotate-90" aria-hidden>
-          <circle cx="8" cy="8" r={r} fill="none" strokeWidth="2.5" className="stroke-bg-active" />
-          <circle
-            cx="8"
-            cy="8"
-            r={r}
-            fill="none"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            className="stroke-accent"
-            strokeDasharray={`${share * length} ${length}`}
-          />
-        </svg>
-        {label}
-      </span>
-    );
-  }
-  return <span className="tabular-nums">{text}</span>;
+  const r = 6;
+  const length = 2 * Math.PI * r;
+  return (
+    <span className="flex min-w-0 items-center gap-1.5" title={text}>
+      <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0 -rotate-90" aria-hidden>
+        <circle cx="8" cy="8" r={r} fill="none" strokeWidth="2.5" className="stroke-bg-active" />
+        <circle
+          cx="8"
+          cy="8"
+          r={r}
+          fill="none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          className="stroke-accent"
+          style={paint ? { stroke: paint } : undefined}
+          strokeDasharray={`${share * length} ${length}`}
+        />
+      </svg>
+      {label}
+    </span>
+  );
 }
 
 /** A checklist's progress as a bar and "2/5"; wrapped (row panels, published pages) with its items. */

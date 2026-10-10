@@ -505,6 +505,7 @@ export function TableView({
                     setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
                     setNumberFormat: fixed || p.type !== "number" ? undefined : (format) => api.setNumberFormat(p, format),
                     setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
+                    setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                     setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
                     setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
                     updateAllAutofill:

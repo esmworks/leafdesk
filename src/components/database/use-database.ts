@@ -30,7 +30,7 @@ import { archivePageAction } from "@/app/actions/pages";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
-import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
+import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { withoutDeleted } from "@/lib/deleted-schema";
@@ -418,6 +418,14 @@ export function useDatabase(
         const { number: _old, ...rest } = prop.options;
         return mutateSchema(patchProperty(prop.id, { options: number ? { ...rest, number } : rest }), () =>
           updatePropertyAction(prop.id, { number }),
+        );
+      },
+
+      /** Shows a number property as a bar or a ring (null for the number); the server checks it. */
+      setNumberDisplay(prop: Property, display: NumberDisplay | null) {
+        const { numberDisplay: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: display ? { ...rest, numberDisplay: display } : rest }), () =>
+          updatePropertyAction(prop.id, { numberDisplay: display }),
         );
       },
 

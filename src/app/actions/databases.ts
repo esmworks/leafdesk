@@ -1,7 +1,7 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
+import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DateOptionsInput } from "@/lib/date-options";
 import type { PageVisibility } from "@/lib/page-visibility";
@@ -218,6 +218,7 @@ export async function updatePropertyAction(
     number?: NumberFormat | null;
     date?: DateOptionsInput;
     pageVisibility?: PageVisibility;
+    numberDisplay?: NumberDisplay | null;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

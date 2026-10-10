@@ -2,9 +2,24 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
-import { menuFieldClass } from "@/components/ui";
-import { COMMON_CURRENCIES, NUMBER_FORMATS, type NumberFormat, type NumberFormatKind } from "@/lib/number-format";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { cn, menuFieldClass } from "@/components/ui";
+import {
+  defaultDivideBy,
+  NUMBER_DISPLAYS,
+  type NumberDisplay,
+  type NumberDisplayColor,
+  type NumberDisplayKind,
+} from "@/lib/number-display";
+import {
+  COMMON_CURRENCIES,
+  NUMBER_FORMATS,
+  numberText,
+  readNumber,
+  type NumberFormat,
+  type NumberFormatKind,
+} from "@/lib/number-format";
+import { SELECT_COLORS } from "@/lib/properties";
 import { useFormatNumber } from "./property-cell";
 import type { Property } from "./types";
 
@@ -34,15 +49,19 @@ function useCurrencyName() {
 
 /**
  * A number property's format: a plain number, a percentage or an amount in a currency, and its
- * decimal places. Each change is saved right away and only changes how values show.
+ * decimal places; and whether values show as the number, a bar or a ring (with its color and what
+ * a full one stands for). Each change is saved right away and only changes how values show.
  */
 export function NumberFormatEditor({
   prop,
   onChange,
+  onDisplayChange,
   onBack,
 }: {
   prop: Property;
   onChange: (format: NumberFormat | null) => void;
+  /** Omitted where only the format can change. */
+  onDisplayChange?: (display: NumberDisplay | null) => void;
   onBack: () => void;
 }) {
   const t = useTranslations("database.propertyMenu");
@@ -133,6 +152,141 @@ export function NumberFormatEditor({
           {format.format === "percent" && ` · ${t("percentHint", { percent: formatNumber(0.15, { format: "percent" }) })}`}
         </p>
       </div>
+      {onDisplayChange && (
+        // A new format reads "divide by" in its own terms (percent points for a percentage).
+        <DisplayEditor key={format.format} initial={prop.options.numberDisplay} format={format} onChange={onDisplayChange} />
+      )}
+    </div>
+  );
+}
+
+/** The display part of the number menu: the number, a bar or a ring, as rollup percentages offer. */
+function DisplayEditor({
+  initial,
+  format,
+  onChange,
+}: {
+  initial: NumberDisplay | undefined;
+  format: NumberFormat;
+  onChange: (display: NumberDisplay | null) => void;
+}) {
+  const t = useTranslations("database.propertyMenu");
+  const tr = useTranslations("database.rollup");
+  const tColor = useTranslations("database.colors");
+  const locale = useLocale();
+  const formatNumber = useFormatNumber();
+  const [display, setDisplay] = useState<NumberDisplay | null>(initial ?? null);
+  const divideBy = display?.divideBy ?? defaultDivideBy(format);
+  // What a full bar stands for, typed as values are (percent points for a percent property).
+  const [draft, setDraft] = useState(() => numberText(divideBy, locale, format));
+  const [invalid, setInvalid] = useState(false);
+
+  const save = (next: NumberDisplay | null) => {
+    setDisplay(next);
+    onChange(next);
+  };
+  const choose = (kind: NumberDisplayKind) => {
+    if (kind === (display?.display ?? "number")) return;
+    save(kind === "number" ? null : { ...display, display: kind });
+  };
+  const commitDivideBy = () => {
+    if (!display) return;
+    const n = readNumber(draft, format, locale);
+    if (n === undefined || !(n > 0)) {
+      setInvalid(true);
+      return;
+    }
+    setInvalid(false);
+    if (n === divideBy) return;
+    const { divideBy: _old, ...rest } = display;
+    save(n === defaultDivideBy(format) ? rest : { ...rest, divideBy: n });
+  };
+  // Closing the menu by clicking outside unmounts it before the input's blur fires.
+  const commitRef = useRef(commitDivideBy);
+  commitRef.current = commitDivideBy;
+  useEffect(() => () => commitRef.current(), []);
+  const swatch = (color: NumberDisplayColor | undefined) => {
+    const chosen = display?.color === color;
+    return (
+      <button
+        key={color ?? "default"}
+        type="button"
+        role="radio"
+        aria-checked={chosen}
+        aria-label={color ? tColor(color) : t("colorDefault")}
+        title={color ? tColor(color) : t("colorDefault")}
+        onClick={() => {
+          if (!display || chosen) return;
+          const { color: _old, ...rest } = display;
+          save(color ? { ...rest, color } : rest);
+        }}
+        className={cn(
+          "flex h-6 w-6 items-center justify-center rounded-md border",
+          chosen ? "border-accent bg-bg-active" : "border-transparent hover:bg-bg-hover",
+        )}
+      >
+        <span className="h-3.5 w-3.5 rounded-full bg-accent" style={color ? { background: `var(--chart-${color})` } : undefined} />
+      </button>
+    );
+  };
+
+  return (
+    <div className="space-y-2 border-t border-border p-2">
+      <div>
+        <span className="mb-1 block text-xs text-fg-muted">{tr("display")}</span>
+        <div className="grid grid-cols-3 gap-1" role="radiogroup" aria-label={tr("display")}>
+          {NUMBER_DISPLAYS.map((kind) => {
+            const on = (display?.display ?? "number") === kind;
+            return (
+              <button
+                key={kind}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => choose(kind)}
+                className={
+                  on
+                    ? "h-7 truncate rounded-md border border-accent bg-bg-active px-1 text-xs text-fg"
+                    : "h-7 truncate rounded-md border border-border px-1 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+                }
+              >
+                {tr(`displays.${kind}`)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {display && (
+        <>
+          <div>
+            <span className="mb-1 block text-xs text-fg-muted">{t("color")}</span>
+            <div className="flex flex-wrap gap-0.5" role="radiogroup" aria-label={t("color")}>
+              {swatch(undefined)}
+              {SELECT_COLORS.map((color) => swatch(color))}
+            </div>
+          </div>
+          <label className="block">
+            <span className="mb-1 block text-xs text-fg-muted">{t("divideBy")}</span>
+            <input
+              className={cn(menuFieldClass, "tabular-nums", invalid && "border-danger")}
+              inputMode="decimal"
+              value={draft}
+              aria-invalid={invalid}
+              onChange={(e) => {
+                setDraft(e.target.value);
+                setInvalid(false);
+              }}
+              onBlur={commitDivideBy}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitDivideBy();
+              }}
+            />
+          </label>
+          <p className="text-xs text-fg-faint" aria-live="polite">
+            {invalid ? t("divideByInvalid") : t("divideByHint", { value: formatNumber(divideBy, format) })}
+          </p>
+        </>
+      )}
     </div>
   );
 }

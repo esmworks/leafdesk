@@ -14,6 +14,7 @@ import {
   type DependencyConfig,
   type DependencyShift,
   type FormulaConfig,
+  type NumberDisplay,
   type NumberFormat,
   type PropertyOptions,
   type PropertyType,
@@ -55,6 +56,7 @@ import {
   type Span,
 } from "@/lib/dependencies";
 import { calculationFormat, checkNumberFormat } from "@/lib/number-format";
+import { checkNumberDisplay } from "@/lib/number-display";
 import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { shiftDateValue } from "@/lib/date-value";
@@ -1217,6 +1219,16 @@ function numberFormat(type: PropertyType, input: unknown): NumberFormat | null {
   return checked.format;
 }
 
+/** A bar or ring display given for a property of `type`, checked (see lib/number-display); null for the number. */
+function numberDisplay(type: PropertyType, input: unknown): NumberDisplay | null {
+  if (input !== null && type !== "number") {
+    throw new PropertyValueError(`Only number properties show as a bar or a ring`, "invalidNumberFormat");
+  }
+  const checked = checkNumberDisplay(input);
+  if (!checked.ok) throw new PropertyValueError(checked.message, "invalidNumberFormat");
+  return checked.display;
+}
+
 /** Date options given for a property of `type`, checked against its current ones (see lib/date-options). */
 function dateOptions(type: PropertyType, input: DateOptionsInput, current: DateOptions | undefined): DateOptions | null {
   if (type !== "date") throw new PropertyValueError(`Only date properties have date options`, "invalidDateOptions");
@@ -1523,6 +1535,8 @@ export async function updateProperty(
     date?: DateOptionsInput;
     /** Row pages: whether the property shows there (see lib/page-visibility). */
     pageVisibility?: PageVisibility;
+    /** Numbers: a bar or a ring instead of the number; null for the number. */
+    numberDisplay?: NumberDisplay | null;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
@@ -1530,6 +1544,8 @@ export async function updateProperty(
     throw new PropertyValueError(`Unknown page visibility "${String(patch.pageVisibility)}"`, "invalidPageVisibility");
   }
   const { pageVisibility: _visibility, ...withoutVisibility } = prop.options;
+  const display = patch.numberDisplay !== undefined ? numberDisplay(prop.type, patch.numberDisplay) : undefined;
+  const { numberDisplay: _display, ...withoutDisplay } = prop.options;
   const number = patch.number !== undefined ? numberFormat(prop.type, patch.number) : undefined;
   const { number: _number, ...rest } = prop.options;
   const date = patch.date !== undefined ? dateOptions(prop.type, patch.date, prop.options.date) : undefined;
@@ -1564,6 +1580,7 @@ export async function updateProperty(
         ...(rollup ? { options: { ...prop.options, rollup } } : {}),
         ...(number !== undefined ? { options: number ? { ...rest, number } : rest } : {}),
         ...(date !== undefined ? { options: date ? { ...withoutDate, date } : withoutDate } : {}),
+        ...(display !== undefined ? { options: display ? { ...withoutDisplay, numberDisplay: display } : withoutDisplay } : {}),
         ...(patch.pageVisibility !== undefined
           ? {
               options:
