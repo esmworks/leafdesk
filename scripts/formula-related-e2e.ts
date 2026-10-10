@@ -29,6 +29,7 @@ const { setPagePermission } = await import("@/server/permissions");
 const { setPropertyAccess } = await import("@/server/property-access");
 const ops = await import("@/server/operations");
 const { databaseCsv } = await import("@/server/export");
+const { getPublishedPage, publishPage } = await import("@/server/publication");
 const { PropertyValueError } = await import("@/lib/properties");
 
 const RUN = `fxrel-e2e-${Date.now().toString(36)}`;
@@ -216,6 +217,18 @@ try {
   check(!leaked(csv) && !csv.includes(",700"), "the editor's CSV holds no hidden value", csv);
   check(csv.includes("Lead: Ada") && !csv.includes("red_background"), "CSV exports the plain value");
   check((await databaseCsv(ids.owner, teams.id)).csv.includes("700"), "…while the owner's export holds it");
+
+  // Published pages show no linked rows: formulas reading them are left out, like rollups.
+  const { token } = await publishPage(ids.owner, teams.id);
+  const published = await getPublishedPage(token, teams.id);
+  const publishedIds = new Set(published?.database?.properties.map((p) => p.id));
+  const publishedCore = published?.database?.rows.find((r) => r.title === "Core");
+  check(
+    publishedCore && !publishedIds.has(fx.payroll) && !publishedIds.has(fx.hours) && !publishedIds.has(fx.styled) && !(fx.hours in publishedCore.properties),
+    "published pages leave out formulas reading linked rows",
+    published?.database?.properties.map((p) => p.name),
+  );
+  check(!leaked(published), "…and hold none of their values");
 
   // Saving a formula over a property the editor can't know of is refused like a missing one.
   const refusedSecret = await databases

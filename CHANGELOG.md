@@ -42,6 +42,23 @@
   days in a strip above. Clicking an hour adds a row at that time, and dragging a row moves its
   whole date, both ends. MCP: `calendar_mode` on `create_database_view` and
   `update_database_view`. No migration.
+- **Formulas over linked rows.** `prop("Tasks")` gives a relation's linked rows, and
+  `prop(row, "Hours")` reads a property of one: `sum(map(prop("Tasks"), prop(current, "Hours")))`,
+  `filter(prop("Tasks"), prop(current, "Done"))`, `find`, `some`, `every`, `first`, `last`, `at`,
+  `sum` and `average` work on them, and `current` stands for each item. A relation alone still reads
+  as its titles. Formulas read one step away (a linked row's own relations read as titles; a
+  linked formula that reads linked rows itself can't be read) and up to the first 200 linked rows,
+  loaded in one batch per database. They read only what you may see there: linked rows you can't
+  open aren't in the list, and a formula reading a value hidden from you (or a property you don't
+  know of) shows nothing, in sorts, filters, MCP and exports too. Published pages leave such
+  formulas out, like rollups. The formula editor lists the linked database's properties under each
+  relation. No migration.
+- **Styled formula results.** `style(value, "b", "red")` shows a result bold (`b`), italic (`i`),
+  underlined (`u`), struck through (`s`), as code (`c`) or in an option color, as text
+  (`"blue"`) or background (`"blue_background"`); `unstyle()` removes it. Joined text keeps each
+  part's style. Styles show in tables, board, gallery, list and calendar cards, the timeline,
+  row pages and published pages, in light and dark; sorting, filtering, grouping, exports and MCP
+  use the plain value. No migration.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.

@@ -87,8 +87,10 @@ export async function computeDerived<R extends { title: string; properties: Reco
     options.skipRelated ? Promise.resolve(new Map<string, Property[]>()) : loadProperties(relatedDatabases(properties)),
   ]);
   const compiled = compileFormulas(properties, (id) => relatedProps.get(id));
-  // Without `related`, formulas reading related rows are left out (see evaluateRow).
-  const related = options.skipRelated ? undefined : await loadRelated(withRollups, properties, compiled, relatedProps, { ...options, now });
+  // Without `related`, formulas reading related rows are left out (see evaluateRow): so are they
+  // on published pages, which show no related rows.
+  const related =
+    options.skipRelated || !options.viewerId ? undefined : await loadRelated(withRollups, properties, compiled, relatedProps, { ...options, now });
   const context: FormulaContext = { now, ...lookups, ...(related ? { related } : {}) };
   return withRollups.map((row) => mergeResults(row, evaluateRow(properties, compiled, row, context), compiled));
 }

@@ -20,6 +20,7 @@ import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { AccessError, accessRank, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/databases";
+import { formulasReadingRelated } from "@/lib/derived";
 import { computeDerived, withAllFormulaTypes } from "@/server/derived";
 import { publishedPageRefs } from "@/server/mentions";
 import { propertyAccessFor } from "@/server/property-access";
@@ -650,9 +651,13 @@ async function databaseProperties(databaseId: string) {
 
 const PRIVATE_TYPES = UNPUBLISHED_PROPERTY_TYPES;
 
-/** The properties a published page shows: all but relations and people (see UNPUBLISHED_PROPERTY_TYPES). */
+/**
+ * The properties a published page shows: all but relations and people (see
+ * UNPUBLISHED_PROPERTY_TYPES), and formulas reading related rows' properties (like rollups).
+ */
 function publicProperties(properties: DatabaseProperty[]) {
-  return properties.filter((p) => !PRIVATE_TYPES.has(p.type));
+  const readingRelated = formulasReadingRelated(properties);
+  return properties.filter((p) => !PRIVATE_TYPES.has(p.type) && !readingRelated.has(p.id));
 }
 
 /**

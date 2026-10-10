@@ -104,6 +104,11 @@ versions, upgrades and running behind a domain.
     sorting and grouping. Filters combine with "and"/"or" in groups and take relative dates such as
     "this week". A "Me" filter shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
+  - Formulas read the row's properties and, through a relation, the properties of the linked rows
+    (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
+    `first`, `last` and `at`), one step away and up to 200 linked rows. `style()` shows a result
+    bold, italic, underlined, struck through, as code or in the option colors, in every view, row
+    pages and published pages; sorting, filtering, grouping and exports use the plain value.
   - Quick add: a new row's name can carry its date, people and options, as in
     "Send the offer friday @Ayşe #urgent". Dates are read in the interface language and in English
     (today, tomorrow, next tuesday, in 3 days, 12/31, 31.12.2026...) and go to the view's date

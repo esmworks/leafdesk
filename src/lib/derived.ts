@@ -347,6 +347,14 @@ export function relatedReadsOf(compiled: Map<string, CompiledFormula>): Map<stri
   return out;
 }
 
+/**
+ * Formulas that read related rows' properties, themselves or through other formulas: published
+ * pages leave them out, like rollups (they have no related rows to read there).
+ */
+export function formulasReadingRelated(props: Prop[]): Set<string> {
+  return new Set([...compileFormulas(props)].filter(([, formula]) => formula.related).map(([id]) => id));
+}
+
 /** Whether any formula reads people or related rows, which need names and titles to evaluate. */
 export function formulasNeedLookups(props: Prop[]) {
   const resolve = resolver(props);
