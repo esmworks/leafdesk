@@ -304,6 +304,10 @@
       "aliases": "callout note tip warning alert box hinweis notiz tipp warnung kasten",
       "icon": "Symbol ändern"
     },
+    "code": {
+      "language": "Sprache",
+      "plainText": "Nur Text"
+    },
     "math": {
       "title": "Gleichung",
       "subtext": "Eine abgesetzte Gleichung in TeX",

@@ -69,6 +69,7 @@ export function TableView({
   settingsReadOnly,
   locked,
   filtered,
+  searched = false,
   guest,
   exportable,
   onFilter,
@@ -88,6 +89,8 @@ export function TableView({
   locked?: boolean;
   /** True when filters hide rows, to explain an empty table. */
   filtered: boolean;
+  /** The search box narrowed the rows (see ViewSearch): an empty table says so. */
+  searched?: boolean;
   /** Guests don't get bulk trash (see BulkActionBar). */
   guest?: boolean;
   /** Offers exporting the selection as CSV (see BulkActionBar). */
@@ -597,7 +600,7 @@ export function TableView({
           className="border-b border-border px-2 py-6 text-sm text-fg-faint"
           style={{ marginLeft: handles, width: totalWidth - handles }}
         >
-          {filtered ? t("table.noMatches") : t("table.noRows")}
+          {searched ? t("table.noSearchMatches") : filtered ? t("table.noMatches") : t("table.noRows")}
         </div>
       )}
       {grouping && grouping.hidden.length > 0 && (

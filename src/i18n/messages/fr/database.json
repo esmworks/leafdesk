@@ -118,6 +118,9 @@
   },
   "toolbar": {
     "filter": "Filtrer",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher des lignes…",
+    "clearSearch": "Effacer la recherche",
     "sort": "Trier",
     "group": "Regrouper",
     "groupWithName": "Groupe : {name}",
@@ -204,6 +207,7 @@
     "new": "Nouveau",
     "noRows": "Aucune ligne pour l’instant.",
     "noMatches": "Aucune ligne ne correspond aux filtres actuels.",
+    "noSearchMatches": "Aucune ligne ne correspond à la recherche.",
     "addProperty": "Ajouter une propriété",
     "rowActions": "Actions sur la ligne",
     "sortedAscending": "Tri croissant",

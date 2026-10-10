@@ -304,6 +304,10 @@
       "aliases": "callout bilgi kutusu not ipucu uyarı kutu",
       "icon": "Simgeyi değiştir"
     },
+    "code": {
+      "language": "Dil",
+      "plainText": "Düz metin"
+    },
     "math": {
       "title": "Denklem",
       "subtext": "TeX ile yazılmış, ayrı satırda bir denklem",

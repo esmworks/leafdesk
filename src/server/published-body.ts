@@ -1,5 +1,6 @@
 import * as Y from "yjs";
 import { blocksToPlainText } from "@/lib/blocks";
+import { highlightCode } from "@/lib/code-highlighter";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
 import { BREADCRUMB_BLOCK, MERMAID_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
@@ -23,6 +24,7 @@ import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
  * contents, breadcrumbs and Mermaid diagrams come back between the parts too, for the page to
  * draw, and so do bookmarks and embeds (an iframe only for an allowlisted provider, see
  * lib/web-blocks), and uploaded PDFs, which the page shows in place. Equations are serialized: KaTeX builds them on the server (see server/blocknote.ts).
+ * Code blocks are colored here too, the way the editor colors them (see lib/code-highlighter).
  * Columns come back as a segment holding each column's own segments, so everything above works
  * inside them too.
  */
@@ -258,6 +260,48 @@ async function withHeadingAnchors(html: string, anchors: string[]): Promise<stri
   });
 }
 
+const SHIKI_COLOR = /^#[0-9a-f]{3,8}$/i;
+
+/**
+ * Colors the run's code blocks (`<pre><code data-language>`) in their language: the code's text is
+ * replaced by spans of the same text, each with its light and dark color as CSS variables (the
+ * stylesheet picks one, see globals.css). The text is set as text, never parsed,
+ * and a color is only written when it is a hex color. Code in plain text or a language we don't
+ * color stays as it is.
+ */
+async function withHighlightedCode(html: string): Promise<string> {
+  if (!html.includes("<pre")) return html;
+  const container = await editor._withJSDOM(async () => {
+    const element = document.createElement("div");
+    element.innerHTML = html;
+    return element;
+  });
+  const blocks = [...container.querySelectorAll("pre > code")];
+  const colored = await Promise.all(blocks.map((code) => highlightCode(code.textContent ?? "", code.getAttribute("data-language"))));
+  if (!colored.some(Boolean)) return html;
+  // The elements belong to the editor's own DOM document; nothing below needs the global one.
+  blocks.forEach((code, i) => {
+    const lines = colored[i];
+    if (!lines) return;
+    code.replaceChildren();
+    lines.forEach((tokens, n) => {
+      if (n > 0) code.append("\n");
+      for (const token of tokens) {
+        const span = code.ownerDocument.createElement("span");
+        span.textContent = token.text;
+        const colors = [
+          token.light && SHIKI_COLOR.test(token.light) ? `--shiki-light:${token.light}` : "",
+          token.dark && SHIKI_COLOR.test(token.dark) ? `--shiki-dark:${token.dark}` : "",
+        ].filter(Boolean);
+        if (colors.length) span.setAttribute("style", colors.join(";"));
+        code.append(span);
+      }
+    });
+    code.classList.add("code-colors");
+  });
+  return container.innerHTML;
+}
+
 export type BodyOptions = {
   /** How to show the pages the body mentions or links to; without it they are left out. */
   resolvePages?: (pageIds: string[]) => Promise<Map<string, PublishedPageRef>>;
@@ -306,7 +350,7 @@ export async function bodySegmentsFromBlocks(
       });
       const serialized = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(resolveMentions(sanitizeBlocks(run), refs)));
       run = [];
-      const html = await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor));
+      const html = await withHighlightedCode(await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor)));
       if (html) segments.push({ kind: "html", html });
     };
     const standalone = async (block: PageBlock) => {

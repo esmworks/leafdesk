@@ -77,7 +77,8 @@ versions, upgrades and running behind a domain.
 - **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
   live preview, a table of contents and a breadcrumb, and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
-  Markdown.
+  Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
+  their code in it, published pages and the print view included.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -136,6 +137,10 @@ versions, upgrades and running behind a domain.
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.
+  - Search a view from its toolbar: the rows whose name or values (option names, people, linked
+    rows, checklist items, file names, text, numbers, links, formula results) hold every word
+    typed, ignoring case and accents. The search is the viewer's own and isn't saved with the
+    view; values hidden from them aren't searched.
   - Select rows to edit a property, duplicate, export or trash them at once.
   - Form views collect answers as new rows, in the app or through a public link, signed in or
     anonymous.

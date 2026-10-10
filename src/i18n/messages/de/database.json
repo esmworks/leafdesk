@@ -118,6 +118,9 @@
   },
   "toolbar": {
     "filter": "Filter",
+    "search": "Suchen",
+    "searchPlaceholder": "Zeilen durchsuchen…",
+    "clearSearch": "Suche löschen",
     "sort": "Sortieren",
     "group": "Gruppieren",
     "groupWithName": "Gruppiert: {name}",
@@ -204,6 +207,7 @@
     "new": "Neu",
     "noRows": "Noch keine Zeilen.",
     "noMatches": "Keine Zeilen entsprechen den aktuellen Filtern.",
+    "noSearchMatches": "Keine Zeilen passen zur Suche.",
     "addProperty": "Eigenschaft hinzufügen",
     "rowActions": "Zeilenaktionen",
     "sortedAscending": "Aufsteigend sortiert",

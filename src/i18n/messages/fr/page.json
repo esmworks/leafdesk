@@ -304,6 +304,10 @@
       "aliases": "callout note tip warning alert box encadré astuce avertissement alerte bloc",
       "icon": "Changer l’icône"
     },
+    "code": {
+      "language": "Langage",
+      "plainText": "Texte brut"
+    },
     "math": {
       "title": "Équation",
       "subtext": "Une équation centrée écrite en TeX",

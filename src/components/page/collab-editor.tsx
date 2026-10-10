@@ -36,6 +36,7 @@ import { PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./cont
 import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
 import { PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { userColor } from "@/lib/presence";
+import { codeHighlighting } from "./code-block";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { FindBar } from "./find-bar";
 import { FindReplace } from "./find-replace";
@@ -159,7 +160,7 @@ export default function CollabEditor({
       schema: pageEditorSchema,
       dictionary,
       uploadFile,
-      extensions: [KeepUndoAttached(), FindReplace(), comments],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), comments],
       collaboration: {
         fragment: pageDoc.doc.getXmlFragment(COLLAB_FRAGMENT),
         provider: { awareness: pageDoc.provider.awareness ?? undefined },

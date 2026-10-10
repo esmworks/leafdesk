@@ -62,6 +62,34 @@ describe("published page body", () => {
     expect(await bodyHtmlFromYdoc(null)).toBe("");
   });
 
+  it("colors code in its language, keeping the text as text", async () => {
+    const code = 'def f(x):\n    return "</code><script>alert(1)</script>"';
+    const state = await ydocFrom([
+      { type: "codeBlock", props: { language: "py" }, content: code },
+      { type: "codeBlock", props: { language: "text" }, content: "plain <b>" },
+      { type: "codeBlock", props: { language: "brainfuck" }, content: "+[-->]" },
+      // Under a list item too.
+      { type: "bulletListItem", content: "item", children: [{ type: "codeBlock", props: { language: "js" }, content: "let a = 1;" }] },
+    ]);
+    const html = await bodyHtmlFromYdoc(state);
+    const root = await editor._withJSDOM(async () => {
+      const div = document.createElement("div");
+      div.innerHTML = html;
+      return div;
+    });
+    const [python, plain, unknown, nested] = [...root.querySelectorAll("pre > code")];
+    expect(python.classList.contains("code-colors")).toBe(true);
+    expect(python.textContent).toBe(code);
+    expect(root.querySelector("script")).toBeNull();
+    const keyword = [...python.querySelectorAll("span")].find((span) => span.textContent === "def");
+    expect(keyword?.getAttribute("style")).toMatch(/^--shiki-light:#[0-9a-f]{6};--shiki-dark:#[0-9a-f]{6}$/i);
+    expect(plain.querySelector("span")).toBeNull();
+    expect(plain.textContent).toBe("plain <b>");
+    expect(unknown.querySelector("span")).toBeNull();
+    expect(nested.textContent).toBe("let a = 1;");
+    expect(nested.classList.contains("code-colors")).toBe(true);
+  });
+
   it("prefixes heading anchors when asked (several bodies in one print)", async () => {
     const state = await ydocFrom([
       { type: "heading", props: { level: 2 }, content: "One" },

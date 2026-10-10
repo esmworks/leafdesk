@@ -12,6 +12,7 @@ import type { LinkedView } from "@/lib/embed-blocks";
 import { valueType } from "@/lib/derived";
 import { applyView, defaultsFromFilters, filterOperators, orderProperties } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
+import { searchRows } from "@/lib/row-search";
 import { galleryCover } from "@/lib/views";
 import { AutomationsButton } from "./automations-dialog";
 import { BoardView } from "./board-view";
@@ -32,7 +33,7 @@ import { useDatabase } from "./use-database";
 import { OfflineNotice } from "@/components/offline/offline-notice";
 import { AiAutofillProvider, type AiAutofillContextValue } from "./ai-autofill";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { ActiveRulesBar, ViewTabs, ViewToolbar, type FilterRequest } from "./view-bar";
+import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest } from "./view-bar";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
@@ -80,6 +81,8 @@ export function DatabasePage({
   const [formPreview, setFormPreview] = useState(false);
   // A column's "Filter" asks the toolbar to open its filters once the new rule is in the view.
   const [filterRequest, setFilterRequest] = useState<FilterRequest | null>(null);
+  // The search box: this person's, for whichever view is open, never saved (see lib/row-search).
+  const [search, setSearch] = useState("");
   // Sidebar view links change only the query string, so the page stays mounted: follow the URL.
   useEffect(() => {
     if (viewParam) setSelectedViewId(viewParam);
@@ -198,8 +201,9 @@ export function DatabasePage({
 
   const visibleRows = useMemo(() => {
     if (!view || !snapshot) return [];
-    return applyView(rows, view.config, snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
-  }, [rows, view, snapshot]);
+    const shown = applyView(rows, view.config, snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
+    return searchRows(shown, search, snapshot.properties, { people: snapshot.people, relations: snapshot.relations });
+  }, [rows, view, snapshot, search]);
   // The properties in the view's column order: what its columns, cards and properties menu show.
   const viewProperties = useMemo(
     () => (snapshot ? orderProperties(snapshot.properties, view?.config.propertyOrder) : []),
@@ -335,7 +339,8 @@ export function DatabasePage({
                       </div>
                     )}
                     {view && view.type !== "form" && (
-                      <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                      <div className="relative flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                        <ViewSearch value={search} onChange={setSearch} />
                         <ViewToolbar
                           view={view}
                           properties={viewProperties}
@@ -513,6 +518,7 @@ export function DatabasePage({
                       settingsReadOnly={configReadOnly}
                       locked={locked}
                       filtered={rows.length > 0}
+                      searched={search.trim() !== ""}
                       guest={guest}
                       exportable={exportable}
                       onFilter={(columnId) => filterBy(view, columnId)}

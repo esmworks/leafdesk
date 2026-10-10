@@ -171,6 +171,9 @@ describe("content blocks in Markdown", () => {
     const { blocks } = await roundTrip("```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n\n```js\nlet a = 1;\n```");
     expect(blocks.map((b) => b.type)).toEqual(["mermaid", "codeBlock"]);
     expect(blocksToPlainText([blocks[0]])).toBe("sequenceDiagram\n  A->>B: hi");
+    // The code's language comes along, and goes back out as the fence's.
+    expect((blocks[1].props as { language?: string }).language).toBe("js");
+    expect(await blocksToMarkdown(blocks)).toContain("```js\nlet a = 1;\n```");
   });
 
   it("keep nested blocks under callouts and equations inside lists", async () => {

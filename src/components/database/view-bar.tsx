@@ -14,6 +14,7 @@ import {
   Pencil,
   Plus,
   Rows3,
+  Search,
   Trash2,
   X,
 } from "lucide-react";
@@ -303,6 +304,67 @@ function ToolbarButton({
       {icon}
       {count ? <span className="text-xs tabular-nums">{count}</span> : null}
     </button>
+  );
+}
+
+/**
+ * The search box of a database view (see lib/row-search): a button that opens into a field. What's
+ * typed narrows the rows on screen for this person only and isn't saved with the view. Escape
+ * clears it; leaving it empty closes it again.
+ */
+export function ViewSearch({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const t = useTranslations("database.toolbar");
+  const [open, setOpen] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) input.current?.focus();
+  }, [open]);
+  if (!open && !value) {
+    return <ToolbarButton icon={<Search className="h-4 w-4" />} label={t("search")} onClick={() => setOpen(true)} />;
+  }
+  const close = () => {
+    onChange("");
+    setOpen(false);
+  };
+  return (
+    // On phones the open field covers the toolbar's row instead of pushing it off the screen.
+    <div className="relative flex w-48 items-center max-md:absolute max-md:inset-0 max-md:z-10 max-md:w-auto max-md:bg-bg">
+      <Search className="pointer-events-none absolute left-2 h-3.5 w-3.5 text-fg-muted" />
+      <input
+        ref={input}
+        type="search"
+        value={value}
+        placeholder={t("searchPlaceholder")}
+        aria-label={t("search")}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            close();
+          }
+        }}
+        onBlur={() => {
+          if (!value) setOpen(false);
+        }}
+        className="h-7 w-full rounded-md border border-border bg-bg px-7 text-sm text-fg outline-none placeholder:text-fg-faint focus:border-accent [&::-webkit-search-cancel-button]:hidden"
+      />
+      {value && (
+        <button
+          type="button"
+          aria-label={t("clearSearch")}
+          title={t("clearSearch")}
+          // Keeps the field focused, so the clear doesn't close it on the way.
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            onChange("");
+            input.current?.focus();
+          }}
+          className="absolute right-1 inline-flex h-5 w-5 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
   );
 }
 

@@ -304,6 +304,10 @@
       "aliases": "callout destacado nota consejo aviso advertencia alerta cuadro",
       "icon": "Cambiar icono"
     },
+    "code": {
+      "language": "Lenguaje",
+      "plainText": "Texto sin formato"
+    },
     "math": {
       "title": "Ecuación",
       "subtext": "Una ecuación en bloque escrita en TeX",

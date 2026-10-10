@@ -783,3 +783,16 @@
   background: color-mix(in srgb, var(--accent) 16%, transparent);
   transition: background-color 0.6s;
 }
+
+/*
+ * Colored code on published pages and in the print view (server/published-body.ts): each token
+ * carries a color for light and one for dark backgrounds. Print stays light.
+ */
+.code-colors span {
+  color: var(--shiki-light);
+}
+:root:not(:has([data-print-view])) .code-colors span {
+  @variant dark {
+    color: var(--shiki-dark);
+  }
+}

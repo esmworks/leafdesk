@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Code block languages.** A code block's language is picked from a menu at its top (plain text
+  and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
+  in that language, in the editor, on published pages and in the print view, in light and dark.
+  Fences written with another name for a language (```` ```sh ````, ```` ```py ````) are read as
+  it; a language the menu doesn't list stays as written, uncolored. No migration.
+- **Search in a database view.** The magnifier in a view's toolbar opens a search box that narrows
+  the rows to those whose name or values hold every word typed: option names, people, linked rows,
+  checklist items, file names, text, numbers, links and formula results. Case, accents and the
+  Turkish dotless ı don't matter. It is your own, for whichever view is open, and isn't saved;
+  values hidden from you aren't searched. No migration.
 - **"Assigned to you" on the home page.** Above the recently edited pages, the database rows a
   person property assigns to you and that aren't done, from every database in the workspace,
   grouped as overdue, today, the next 7 days, later and no date (by the row's first date property,

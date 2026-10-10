@@ -23,6 +23,7 @@ import {
   serializeLinkedView,
   type LinkedView,
 } from "@/lib/embed-blocks";
+import { CodeBlock } from "./code-block";
 import { columnEditorBlockSpecs } from "./columns";
 import { contentBlockSpecs, contentInlineSpecs } from "./content-blocks";
 import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
@@ -78,6 +79,8 @@ const LinkedViewBlock = createReactBlockSpec(linkedViewBlockConfig, {
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // A language menu and colored code (see code-block.tsx).
+    codeBlock: CodeBlock(),
     database: DatabaseBlock(),
     linkedView: LinkedViewBlock(),
     ...contentBlockSpecs,

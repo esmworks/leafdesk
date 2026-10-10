@@ -304,6 +304,10 @@
       "aliases": "callout note tip warning alert box",
       "icon": "Change icon"
     },
+    "code": {
+      "language": "Language",
+      "plainText": "Plain text"
+    },
     "math": {
       "title": "Equation",
       "subtext": "A display equation written in TeX",

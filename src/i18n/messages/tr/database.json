@@ -118,6 +118,9 @@
   },
   "toolbar": {
     "filter": "Filtrele",
+    "search": "Ara",
+    "searchPlaceholder": "Satırlarda ara…",
+    "clearSearch": "Aramayı temizle",
     "sort": "Sırala",
     "group": "Grupla",
     "groupWithName": "Grup: {name}",
@@ -204,6 +207,7 @@
     "new": "Yeni",
     "noRows": "Henüz satır yok.",
     "noMatches": "Geçerli filtrelere uyan satır yok.",
+    "noSearchMatches": "Aramaya uyan satır yok.",
     "addProperty": "Özellik ekle",
     "rowActions": "Satır işlemleri",
     "sortedAscending": "Artan sıralı",

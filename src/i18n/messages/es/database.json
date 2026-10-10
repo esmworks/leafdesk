@@ -118,6 +118,9 @@
   },
   "toolbar": {
     "filter": "Filtrar",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar filas…",
+    "clearSearch": "Borrar búsqueda",
     "sort": "Ordenar",
     "group": "Agrupar",
     "groupWithName": "Agrupar: {name}",
@@ -204,6 +207,7 @@
     "new": "Nuevo",
     "noRows": "Todavía no hay filas.",
     "noMatches": "Ninguna fila coincide con los filtros actuales.",
+    "noSearchMatches": "Ninguna fila coincide con la búsqueda.",
     "addProperty": "Añadir propiedad",
     "rowActions": "Acciones de fila",
     "sortedAscending": "Orden ascendente",

@@ -118,6 +118,9 @@
   },
   "toolbar": {
     "filter": "Filter",
+    "search": "Search",
+    "searchPlaceholder": "Search rows…",
+    "clearSearch": "Clear search",
     "sort": "Sort",
     "group": "Group",
     "groupWithName": "Group: {name}",
@@ -204,6 +207,7 @@
     "new": "New",
     "noRows": "No rows yet.",
     "noMatches": "No rows match the current filters.",
+    "noSearchMatches": "No rows match the search.",
     "addProperty": "Add property",
     "rowActions": "Row actions",
     "sortedAscending": "Sorted ascending",
