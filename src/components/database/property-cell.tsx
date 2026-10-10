@@ -4,7 +4,7 @@ import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Fragment, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { cn } from "@/components/ui";
+import { cn, Switch } from "@/components/ui";
 import {
   asChecklist,
   checklistProgress,
@@ -26,9 +26,11 @@ import { HiddenValue } from "./property-access";
 import { RelationChips, RelationPicker } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
-import { useToday } from "./use-today";
+import { useToday, useViewerTimeZone } from "./use-today";
+import { dateDraft, dateStartDay, draftValue, formatDateValue, parseDateValue, type DateDraft } from "@/lib/date-value";
 import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
+import { dayNumber, dayString } from "@/lib/time-zone";
 import type { NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
 
@@ -85,12 +87,17 @@ function selectedOptions(prop: Property, value: unknown): SelectOption[] {
 }
 
 /**
- * Formats stored date values (`YYYY-MM-DD`) in the UI locale. Dates are calendar days, so they are
- * read and printed in UTC; the viewer's time zone must not shift them by a day.
+ * Formats stored date values in the UI locale (see lib/date-value): days as calendar days, which
+ * the viewer's time zone must not shift ("Oct 12, 2026"), times on the viewer's clock ("Oct 12,
+ * 2026, 14:30"), ranges with an arrow ("Oct 12 → Oct 14, 2026", "Oct 12, 2026, 14:30 → 16:00").
+ * Anything else that starts with a day shows as that day.
  */
 export function useFormatDate() {
   const format = useFormatter();
+  const timeZone = useViewerTimeZone();
   return (value: string) => {
+    const text = formatDateValue(value, (d, options) => format.dateTime(d, options), timeZone);
+    if (text !== null) return text;
     const d = new Date(`${value.slice(0, 10)}T00:00:00Z`);
     if (!/^\d{4}-\d{2}-\d{2}/.test(value) || Number.isNaN(d.getTime())) return value;
     return format.dateTime(d, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
@@ -107,12 +114,31 @@ function DateValue({ prop, value }: { prop: Property; value: string }) {
   return <span>{formatDate(value)}</span>;
 }
 
+/**
+ * A date said relatively: "Tomorrow", "Tomorrow, 14:30", "Today → In 3 days", "Today, 14:30 →
+ * 16:00". An end too far away to say relatively is written as a date; a start too far away writes
+ * the whole value as dates.
+ */
 function RelativeDate({ value }: { value: string }) {
   const formatDate = useFormatDate();
+  const format = useFormatter();
   const locale = useLocale();
-  const relative = relativeDay(value.slice(0, 10), useToday(), locale);
-  if (!relative) return <span>{formatDate(value)}</span>;
-  return <span title={formatDate(value)}>{relative.charAt(0).toLocaleUpperCase(locale) + relative.slice(1)}</span>;
+  const today = useToday();
+  const timeZone = useViewerTimeZone();
+  const parts = parseDateValue(value);
+  const clock = (iso: string) => format.dateTime(new Date(iso), { hour: "numeric", minute: "2-digit", timeZone });
+  const relative = (s: string, capital: boolean) => {
+    const text = relativeDay(dateStartDay(s, timeZone) ?? "", today, locale);
+    if (!text) return null;
+    const said = capital ? text.charAt(0).toLocaleUpperCase(locale) + text.slice(1) : text;
+    return parts?.time ? `${said}, ${clock(s)}` : said;
+  };
+  const start = parts && relative(parts.start, true);
+  if (!parts || !start) return <span>{formatDate(value)}</span>;
+  if (!parts.end) return <span title={formatDate(value)}>{start}</span>;
+  const sameDay = dateStartDay(parts.start, timeZone) === dateStartDay(parts.end, timeZone);
+  const end = parts.time && sameDay ? clock(parts.end) : (relative(parts.end, false) ?? formatDate(parts.end));
+  return <span title={formatDate(value)}>{`${start} → ${end}`}</span>;
 }
 
 /** Formats a timestamp (created or last edited time) as date and time in the viewer's locale and time zone. */
@@ -262,8 +288,9 @@ function DerivedDisplay({ prop, value, wrap }: { prop: Property; value: unknown;
     case "checkbox":
       return <CheckboxBox checked={value === true} />;
     case "date": {
+      // A day, a time or a range (see lib/date-value), else a timestamp with its time.
       const text = String(value);
-      return <span className="truncate">{text.length > 10 ? formatDateTime(text) : formatDate(text)}</span>;
+      return <span className="truncate">{parseDateValue(text) || text.length <= 10 ? formatDate(text) : formatDateTime(text)}</span>;
     }
     default:
       return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{String(value)}</span>;
@@ -703,6 +730,23 @@ function TextEditor({
   );
 }
 
+const MINUTES_PER_DAY = 24 * 60;
+
+/** Minutes past midnight as an `<input type="time">` writes them ("14:30"). */
+const clockText = (minutes: number) =>
+  `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+
+/** "14:30" as minutes past midnight; null for an emptied field. */
+function clockMinutes(text: string): number | null {
+  const m = /^(\d{2}):(\d{2})/.exec(text);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+
+/**
+ * Edits a date: its day (or a range of days with "End date") and, with "Include time", its time
+ * of day on the viewer's clock. Every change is saved right away. A new start moves the end
+ * along, so a range keeps its length; an end can't go before the start.
+ */
 function DateEditor({
   value,
   anchor,
@@ -715,34 +759,114 @@ function DateEditor({
   onClose: () => void;
 }) {
   const t = useTranslations("database.cell");
-  const [draft, setDraft] = useState(typeof value === "string" ? value : "");
+  const timeZone = useViewerTimeZone();
+  const today = useToday();
+  const [draft, setDraft] = useState<DateDraft | null>(() => dateDraft(value, timeZone));
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.focus(), []);
+  const save = (next: DateDraft | null) => {
+    setDraft(next);
+    onChange(next ? draftValue(next, timeZone) : null);
+  };
+  // Switches flipped on an empty date start it today.
+  const base: DateDraft = draft ?? { start: today, end: null, time: false, startMinutes: 9 * 60, endMinutes: 10 * 60 };
+  const setStart = (start: string) => {
+    // An emptied field clears the date, like the Clear button.
+    if (!start) return save(null);
+    const shift = dayNumber(start) - dayNumber(base.start);
+    save({ ...base, start, end: base.end && dayString(dayNumber(base.end) + shift) });
+  };
+  const setEnd = (end: string) => {
+    if (end) save({ ...base, end: end < base.start ? base.start : end });
+  };
+  const setStartTime = (text: string) => {
+    const minutes = clockMinutes(text);
+    if (minutes === null) return;
+    // On one day, the end moves along with the start.
+    const endMinutes =
+      base.end === base.start ? Math.min(base.endMinutes + minutes - base.startMinutes, MINUTES_PER_DAY - 1) : base.endMinutes;
+    save({ ...base, startMinutes: minutes, endMinutes: Math.max(endMinutes, minutes) });
+  };
+  const setEndTime = (text: string) => {
+    const minutes = clockMinutes(text);
+    if (minutes !== null) save({ ...base, endMinutes: minutes });
+  };
+  const field = "h-8 min-w-0 rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
+  const hasEnd = draft?.end != null;
+  const time = draft?.time === true;
   return (
-    <Floating open anchor={anchor} onClose={onClose} className="w-64 p-2">
-      <input
-        ref={input}
-        type="date"
-        value={draft}
-        aria-label={t("date")}
-        onChange={(e) => {
-          setDraft(e.target.value);
-          // An emptied field clears the date, like the Clear button.
-          onChange(e.target.value || null);
-        }}
-        onKeyDown={(e) => e.key === "Enter" && onClose()}
-        className="h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent"
-      />
+    <Floating open anchor={anchor} onClose={onClose} className="w-72 p-2">
+      <div className="flex flex-col gap-1.5">
+        <div className="flex gap-1.5">
+          <input
+            ref={input}
+            type="date"
+            value={draft?.start ?? ""}
+            aria-label={hasEnd ? t("startDate") : t("date")}
+            onChange={(e) => setStart(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && onClose()}
+            className={cn(field, "flex-1")}
+          />
+          {time && (
+            <input
+              type="time"
+              value={clockText(base.startMinutes)}
+              aria-label={hasEnd ? t("startTime") : t("time")}
+              onChange={(e) => setStartTime(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && onClose()}
+              className={cn(field, "w-28")}
+            />
+          )}
+        </div>
+        {hasEnd && (
+          <div className="flex gap-1.5">
+            <input
+              type="date"
+              value={draft?.end ?? ""}
+              min={base.start}
+              aria-label={t("endDate")}
+              onChange={(e) => setEnd(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && onClose()}
+              className={cn(field, "flex-1")}
+            />
+            {time && (
+              <input
+                type="time"
+                value={clockText(base.endMinutes)}
+                aria-label={t("endTime")}
+                onChange={(e) => setEndTime(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && onClose()}
+                className={cn(field, "w-28")}
+              />
+            )}
+          </div>
+        )}
+      </div>
+      <div className="mt-2 flex flex-col gap-1.5 border-t border-border px-1 pt-2">
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span>{t("endDateSwitch")}</span>
+          <Switch
+            checked={hasEnd}
+            label={t("endDateSwitch")}
+            onChange={(on) =>
+              save({
+                ...base,
+                end: on ? base.start : null,
+                endMinutes: on ? Math.min(base.startMinutes + 60, MINUTES_PER_DAY - 1) : base.endMinutes,
+              })
+            }
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span>{t("includeTime")}</span>
+          <Switch checked={time} label={t("includeTime")} onChange={(on) => save({ ...base, time: on })} />
+        </div>
+      </div>
       <div className="mt-2 flex justify-between gap-2">
         <button
           type="button"
           className="rounded-md px-2 py-1 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
-          onClick={() => {
-            const today = new Date();
-            const iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-            setDraft(iso);
-            onChange(iso);
-          }}
+          onClick={() => setStart(today)}
         >
           {t("today")}
         </button>

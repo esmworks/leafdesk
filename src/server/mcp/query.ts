@@ -340,6 +340,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.dateBy ? { date_by: keyName(props, config.dateBy) } : {}),
     ...(config.endDateBy ? { end_date_by: keyName(props, config.endDateBy) } : {}),
     ...(config.zoom ? { zoom: config.zoom } : {}),
+    ...(config.calendarMode ? { calendar_mode: config.calendarMode } : {}),
     ...(config.showTable === false ? { show_table: false } : {}),
     ...(config.cardSize ? { card_size: config.cardSize } : {}),
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),

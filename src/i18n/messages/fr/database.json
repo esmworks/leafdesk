@@ -345,7 +345,14 @@
     "create": "Créer",
     "selectStatus": "Sélectionnez un statut",
     "noStatusOptions": "Aucune option pour l’instant. Ajoutez-en depuis le menu de la propriété.",
-    "searchStatus": "Rechercher un statut"
+    "searchStatus": "Rechercher un statut",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "time": "Heure",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "endDateSwitch": "Date de fin",
+    "includeTime": "Inclure l’heure"
   },
   "checklist": {
     "addItem": "Ajouter un élément",
@@ -431,7 +438,7 @@
     "reminder": "Rappel",
     "reminderNone": "Aucun rappel",
     "reminderBefore": "{days, select, 0 {Le jour même, 9:00} 1 {1 jour avant, 9:00} 7 {1 semaine avant, 9:00} other {# jours avant, 9:00}}",
-    "reminderHint": "Prévient les personnes assignées à chaque ligne, ou celle qui l’a ajoutée, sauf si la ligne est terminée. 9:00 dans votre fuseau horaire."
+    "reminderHint": "Prévient les personnes assignées à chaque ligne, ou celle qui l’a ajoutée, sauf si la ligne est terminée. 9:00 dans votre fuseau horaire ; les dates avec une heure préviennent à cette heure-là."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -484,10 +491,17 @@
     "noDateTitle": "Lignes sans {property}",
     "dayRows": "{date} : {count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}",
     "emptyDay": "Aucune ligne ce jour-là.",
+    "month": "Mois",
+    "week": "Semaine",
+    "mode": "Période",
+    "previousWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante",
+    "allDay": "Toute la journée",
+    "addAt": "Ajouter une ligne le {date} à {time}",
     "feed": {
       "open": "S’abonner dans une app de calendrier",
       "title": "S’abonner dans une app de calendrier",
-      "description": "Ajoutez cette vue à votre app de calendrier grâce à son adresse. Ses lignes apparaissent comme des événements sur la journée, telles que vous les voyez ici (filtres et accès compris), et l’app vérifie les changements environ toutes les heures.",
+      "description": "Ajoutez cette vue à votre app de calendrier grâce à son adresse. Ses lignes apparaissent comme des événements à leur heure, ou sur la journée si leur date n’a pas d’heure, telles que vous les voyez ici (filtres et accès compris), et l’app vérifie les changements environ toutes les heures.",
       "address": "Adresse du calendrier",
       "create": "Créer l’adresse",
       "replace": "Nouvelle adresse",

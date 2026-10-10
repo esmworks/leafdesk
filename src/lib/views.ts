@@ -1,4 +1,5 @@
 import type {
+  CalendarMode,
   CardSize,
   ChartAccumulate,
   ChartSort,
@@ -18,6 +19,7 @@ export const VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "tim
 export const CARD_SIZES = ["small", "medium", "large"] as const satisfies readonly CardSize[];
 export const COVER_SOURCES = ["first_image", "property", "none"] as const satisfies readonly ViewCover["source"][];
 export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readonly TimelineZoom[];
+export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
 
 /** How narrow and how wide a table column may be saved (the table keeps a dragged column within these). */
 export const MIN_COLUMN_WIDTH = 60;
@@ -69,6 +71,9 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   if (c.zoom !== undefined && !TIMELINE_ZOOMS.includes(c.zoom as TimelineZoom)) {
     return `Zoom must be one of: ${TIMELINE_ZOOMS.join(", ")}`;
+  }
+  if (c.calendarMode !== undefined && !CALENDAR_MODES.includes(c.calendarMode as CalendarMode)) {
+    return `Calendar mode must be one of: ${CALENDAR_MODES.join(", ")}`;
   }
   for (const key of ["showTable", "showValues", "showLegend"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;

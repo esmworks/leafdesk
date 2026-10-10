@@ -110,6 +110,10 @@ versions, upgrades and running behind a domain.
     property, or the first one; `@name` fills the first person property and `#option` any select,
     multi-select or status option (a dash stands for a space). What's recognised shows under the
     name while you type, and each part can be kept in the name instead.
+  - Dates can have an end and a time of day ("Oct 12 → Oct 14", "Oct 12, 14:30 → 16:00"), shown in
+    each viewer's time zone; filters match a range on every day it covers.
+  - Calendar views show a month, with dates over several days as bars across them, or a week with
+    its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
   - Date properties can show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to
     a week either way, the full date on hover), and remind people of them: on the day, or 1, 2 or
     7 days before, at 9:00 in the time zone of whoever turned the reminder on. The reminder goes to
@@ -117,8 +121,8 @@ versions, upgrades and running behind a domain.
     the date, to the inbox, by email and as a push like other notifications. Rows that are done, in
     the trash or templates are left out, and dates that were already past when the reminder was
     turned on aren't announced.
-  - Calendar subscription: a calendar view's address for calendar apps (iCalendar, all-day
-    events), from the view's sync button. It is personal and secret: each read shows what its
+  - Calendar subscription: a calendar view's address for calendar apps (iCalendar events at
+    their times, else all day), from the view's sync button. It is personal and secret: each read shows what its
     owner sees in that view then (its filters, page and property access), so access taken away
     empties it. It is shown once; make a new one to replace it, or turn it off. Calendar apps
     check back about every hour. Like an API token it answers to the workspace's connected-apps
@@ -1468,7 +1472,7 @@ The tools cover:
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
   timeline, chart or form, including a form's public link; a chart over a date takes `accumulate`
-  for running totals or a burndown, and table, list and timeline views take `sub_items`;
+  for running totals or a burndown, a calendar `calendar_mode` (month or week), and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property).

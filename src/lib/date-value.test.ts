@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   checkDateInput,
+  dateDraft,
   dateDays,
   dateMillis,
   dateOverlaps,
   dateSortKey,
   dateStartDay,
+  draftValue,
   formatDateValueIn,
   parseDateValue,
   setDateDays,
@@ -140,6 +142,30 @@ describe("withDateEnd", () => {
     expect(withDateEnd("2026-10-12", "2026-10-13")).toBe("2026-10-12/2026-10-13");
     expect(withDateEnd("2026-10-12", "2026-10-11")).toBeNull();
     expect(withDateEnd("2026-10-12", "2026-10-13T10:00:00Z")).toBeNull();
+  });
+});
+
+describe("dateDraft and draftValue", () => {
+  it("round-trip days, ranges and times on the picker's clock", () => {
+    for (const value of ["2026-10-12", "2026-10-12/2026-10-14", "2026-10-12T11:30:00.000Z", "2026-10-12T11:30:00.000Z/2026-10-13T08:00:00.000Z"]) {
+      expect(draftValue(dateDraft(value, "Europe/Istanbul")!, "Europe/Istanbul")).toBe(value);
+    }
+    expect(dateDraft("2026-10-12T11:30:00.000Z", "Europe/Istanbul")).toEqual({
+      start: "2026-10-12",
+      end: null,
+      time: true,
+      startMinutes: 14 * 60 + 30,
+      endMinutes: 15 * 60 + 30,
+    });
+  });
+
+  it("never stores an end before the start", () => {
+    expect(draftValue({ start: "2026-10-12", end: "2026-10-10", time: false, startMinutes: 0, endMinutes: 0 }, "UTC")).toBe("2026-10-12");
+    expect(draftValue({ start: "2026-10-12", end: "2026-10-12", time: false, startMinutes: 0, endMinutes: 0 }, "UTC")).toBe("2026-10-12");
+    expect(draftValue({ start: "2026-10-12", end: "2026-10-12", time: true, startMinutes: 600, endMinutes: 540 }, "UTC")).toBe(
+      "2026-10-12T10:00:00.000Z/2026-10-12T10:00:00.000Z",
+    );
+    expect(draftValue({ start: "", end: null, time: false, startMinutes: 0, endMinutes: 0 }, "UTC")).toBeNull();
   });
 });
 

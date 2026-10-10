@@ -539,6 +539,8 @@ export type ViewCover = { source: "first_image" } | { source: "none" } | { sourc
 export type SubItemsDisplay = "nested" | "flat" | "parents";
 /** Timeline scale: a column per day, per week or per month. */
 export type TimelineZoom = "day" | "week" | "month";
+/** Calendar views: a month of days, or a week with its hours. */
+export type CalendarMode = "month" | "week";
 /** Chart kinds: vertical bars (columns), horizontal bars, a line, or a donut (a pie with a hole). */
 export type ChartType = "bar" | "horizontal_bar" | "line" | "donut";
 /** Chart group order: the grouping's own order (see lib/grouping), or by value. */
@@ -590,6 +592,8 @@ export type ViewConfig = {
   endDateBy?: string;
   /** Timelines: "week" when missing. */
   zoom?: TimelineZoom;
+  /** Calendars: "month" when missing. */
+  calendarMode?: CalendarMode;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */
   showTable?: boolean;
   /** Galleries: "medium" when missing. */

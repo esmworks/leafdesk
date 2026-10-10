@@ -345,7 +345,14 @@
     "create": "Oluştur",
     "selectStatus": "Bir durum seçin",
     "noStatusOptions": "Henüz seçenek yok. Özellik menüsünden ekleyebilirsiniz.",
-    "searchStatus": "Durum arayın"
+    "searchStatus": "Durum arayın",
+    "startDate": "Başlangıç tarihi",
+    "endDate": "Bitiş tarihi",
+    "time": "Saat",
+    "startTime": "Başlangıç saati",
+    "endTime": "Bitiş saati",
+    "endDateSwitch": "Bitiş tarihi",
+    "includeTime": "Saat ekle"
   },
   "checklist": {
     "addItem": "Madde ekleyin",
@@ -431,7 +438,7 @@
     "reminder": "Hatırlatıcı",
     "reminderNone": "Hatırlatıcı yok",
     "reminderBefore": "{days, select, 0 {Aynı gün, 09:00} 1 {1 gün önce, 09:00} 7 {1 hafta önce, 09:00} other {# gün önce, 09:00}}",
-    "reminderHint": "Her satıra atanan kişilere, kimse atanmamışsa satırı ekleyene bildirir; tamamlanan satırlar hatırlatmaz. 09:00 sizin saat diliminize göredir."
+    "reminderHint": "Her satıra atanan kişilere, kimse atanmamışsa satırı ekleyene bildirir; tamamlanan satırlar hatırlatmaz. 09:00 sizin saat diliminize göredir; saati olan tarihler o saatte hatırlatır."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -484,10 +491,17 @@
     "noDateTitle": "{property} olmayan satırlar",
     "dayRows": "{date}: {count, plural, =0 {satır yok} other {# satır}}",
     "emptyDay": "Bu günde satır yok.",
+    "month": "Ay",
+    "week": "Hafta",
+    "mode": "Dönem",
+    "previousWeek": "Önceki hafta",
+    "nextWeek": "Sonraki hafta",
+    "allDay": "Tüm gün",
+    "addAt": "{date}, {time} için satır ekle",
     "feed": {
       "open": "Takvim uygulamasında abone ol",
       "title": "Takvim uygulamasında abone ol",
-      "description": "Bu görünümü adresiyle takvim uygulamanıza ekleyin. Satırlar burada gördüğünüz gibi (süzgeçler ve erişim dahil) tüm gün etkinlikleri olarak görünür; uygulama değişiklikleri yaklaşık saatte bir alır.",
+      "description": "Bu görünümü adresiyle takvim uygulamanıza ekleyin. Satırlar burada gördüğünüz gibi (süzgeçler ve erişim dahil) saatlerinde, tarihinde saat yoksa tüm gün etkinlikleri olarak görünür; uygulama değişiklikleri yaklaşık saatte bir alır.",
       "address": "Takvim adresi",
       "create": "Adres oluştur",
       "replace": "Yeni adres",

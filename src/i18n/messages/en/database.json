@@ -345,7 +345,14 @@
     "create": "Create",
     "selectStatus": "Select a status",
     "noStatusOptions": "No options yet. Add them from the property menu.",
-    "searchStatus": "Search for a status"
+    "searchStatus": "Search for a status",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "time": "Time",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "endDateSwitch": "End date",
+    "includeTime": "Include time"
   },
   "checklist": {
     "addItem": "Add an item",
@@ -431,7 +438,7 @@
     "reminder": "Reminder",
     "reminderNone": "No reminder",
     "reminderBefore": "{days, select, 0 {On the day, 9:00} 1 {1 day before, 9:00} 7 {1 week before, 9:00} other {# days before, 9:00}}",
-    "reminderHint": "Notifies the people assigned to each row, or whoever added it, unless the row is done. 9:00 is in your time zone."
+    "reminderHint": "Notifies the people assigned to each row, or whoever added it, unless the row is done. 9:00 is in your time zone; dates with a time remind at that time instead."
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -484,10 +491,17 @@
     "noDateTitle": "Rows without {property}",
     "dayRows": "{date}: {count, plural, =0 {no rows} one {# row} other {# rows}}",
     "emptyDay": "No rows on this day.",
+    "month": "Month",
+    "week": "Week",
+    "mode": "Period",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "allDay": "All day",
+    "addAt": "Add a row on {date} at {time}",
     "feed": {
       "open": "Subscribe in a calendar app",
       "title": "Subscribe in a calendar app",
-      "description": "Add this view to your calendar app by its address. Its rows show as all-day events, as you see them here (filters and access included), and the app checks for changes about every hour.",
+      "description": "Add this view to your calendar app by its address. Its rows show as events at their times, or all-day when their date has no time, as you see them here (filters and access included), and the app checks for changes about every hour.",
       "address": "Calendar address",
       "create": "Create address",
       "replace": "New address",

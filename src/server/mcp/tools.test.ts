@@ -765,6 +765,19 @@ describe("relations and calendars", () => {
     expect(r.data).toMatchObject({ card_size: "large", cover: "none" });
   });
 
+  it("switches calendars between month and week, and only calendars", async () => {
+    const views = [
+      { id: "view-c", name: "Agenda", type: "calendar", config: { dateBy: "prop-due" } },
+      { id: "view-g", name: "Cards", type: "gallery", config: {} },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, views });
+    const onGallery = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-g", calendar_mode: "week" });
+    expect(onGallery.text).toMatch(/calendar_mode only applies to calendar/);
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-c", calendar_mode: "week" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-c", { config: { dateBy: "prop-due", calendarMode: "week" } });
+    expect(r.data).toMatchObject({ calendar_mode: "week" });
+  });
+
   it("creates charts with a calculation, stacking and sort, and checks each setting", async () => {
     const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
     const done = { id: "prop-done", name: "Done", type: "checkbox", options: {} };

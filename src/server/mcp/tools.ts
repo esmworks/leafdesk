@@ -3,6 +3,7 @@ import { type CallToolResult, McpServer, type ScopeChallengeHandler } from "@mod
 import * as z from "zod";
 import {
   PROPERTY_TYPES,
+  type CalendarMode,
   type CardSize,
   type ChartAccumulate,
   type ChartSort,
@@ -56,7 +57,7 @@ import { pageLabel } from "@/lib/labels";
 import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isGroupable, sortStatusOptions, statusColor } from "@/lib/properties";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
-import { CARD_SIZES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
+import { CALENDAR_MODES, CARD_SIZES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
 import * as databases from "@/server/databases";
@@ -283,7 +284,7 @@ function editOptions(
   return prop.type === "status" ? sortStatusOptions(options) : options;
 }
 
-/** Layout settings of gallery and timeline views, shared by create_database_view and update_database_view. */
+/** Layout settings of calendar, gallery and timeline views, shared by create_database_view and update_database_view. */
 const viewLayoutInputs = {
   end_date_by: z
     .string()
@@ -291,6 +292,10 @@ const viewLayoutInputs = {
     .optional()
     .describe("Timeline only: the date property where bars end (null for none). Without it every bar is one day long."),
   zoom: z.enum(TIMELINE_ZOOMS).optional().describe('Timeline only: a column per day, week or month ("week" by default).'),
+  calendar_mode: z
+    .enum(CALENDAR_MODES)
+    .optional()
+    .describe('Calendar only: a month of days or a week with its hours ("month" by default). Both show rows over every day their date covers.'),
   show_table: z.boolean().optional().describe("Timeline only: show row titles in a table left of the bars (true by default)."),
   card_size: z.enum(CARD_SIZES).optional().describe('Gallery only: card size ("medium" by default).'),
   cover: z
@@ -349,6 +354,7 @@ type ViewInput = {
   date_by?: string;
   end_date_by?: string | null;
   zoom?: TimelineZoom;
+  calendar_mode?: CalendarMode;
   show_table?: boolean;
   card_size?: CardSize;
   /** "first_image", "none" or a files property's name. */
@@ -449,6 +455,10 @@ function viewConfigPatch(
   if (input.zoom !== undefined) {
     only("zoom", "timeline");
     patch.zoom = input.zoom;
+  }
+  if (input.calendar_mode !== undefined) {
+    only("calendar_mode", "calendar");
+    patch.calendarMode = input.calendar_mode;
   }
   if (input.show_table !== undefined) {
     only("show_table", "timeline");
@@ -1243,7 +1253,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Get a database schema",
       description:
-        "Get a database's schema: its properties (name, type, option names for select / multi_select / status with the status groups, and the people a person property can hold), its views with their type, settings (grouping, dates, timeline zoom, gallery cards, form questions and public link), filters and sorts, and the row count. A restricted property says what the user may do with it in access (view_property: its values are hidden; view: read-only; edit_values: values only, not the property itself; access_per_row: rows naming the user in a person property may give more); for users with full access it also has access_settings (see set_property_access). Call this before querying or writing rows.",
+        "Get a database's schema: its properties (name, type, option names for select / multi_select / status with the status groups, and the people a person property can hold), its views with their type, settings (grouping, dates, timeline zoom, calendar month or week, gallery cards, form questions and public link), filters and sorts, and the row count. A restricted property says what the user may do with it in access (view_property: its values are hidden; view: read-only; edit_values: values only, not the property itself; access_per_row: rows naming the user in a person property may give more); for users with full access it also has access_settings (see set_property_access). Call this before querying or writing rows.",
       inputSchema: ops.inputs.databaseId,
       annotations: READ,
     },
@@ -2056,7 +2066,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database view",
       description:
-        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
+        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -2114,7 +2124,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database view",
       description:
-        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, timeline zoom and table, gallery cards, or a form's questions, texts, default values and public link (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
+        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, or a form's questions, texts, default values and public link (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
       inputSchema: z.object({
         database_id: id("database"),
         view_id: id("view"),

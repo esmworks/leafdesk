@@ -263,6 +263,9 @@ describe("moving rows between groups", () => {
     expect(moveGroupValue(prop("checkbox"), false, "false", "true")).toBe(true);
     expect(moveGroupValue(prop("checkbox"), true, "true", "false")).toBe(false);
     expect(moveGroupValue(prop("date"), "2026-01-05", "2025-12-29", "2026-09-21")).toBe("2026-09-21");
+    // Ranges move whole, keeping their length; times keep their time of day.
+    expect(moveGroupValue(prop("date"), "2026-01-05/2026-01-07", "2025-12-29", "2026-09-21")).toBe("2026-09-21/2026-09-23");
+    expect(moveGroupValue(prop("date"), "2026-06-10T12:00:00.000Z", "2026-06-10", "2026-06-15")).toBe("2026-06-15T12:00:00.000Z");
     expect(moveGroupValue(select, "o1", "o1", null)).toBeNull();
   });
 

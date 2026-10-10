@@ -245,6 +245,18 @@ export function setDateDays(value: unknown, span: DaySpan, timeZone: string = br
   return `${start}/${end}`;
 }
 
+/**
+ * A value with times moved to start at `start` (milliseconds), its end moved along so it lasts as
+ * long as before. Day values (and anything else) give null: they move by days (`shiftDateValue`).
+ */
+export function moveDateStart(value: unknown, start: number): string | null {
+  const parts = parseDateValue(value);
+  if (!parts?.time) return null;
+  const iso = (at: number) => new Date(at).toISOString();
+  if (!parts.end) return iso(start);
+  return `${iso(start)}/${iso(start + ms(parts.end) - ms(parts.start))}`;
+}
+
 /** The value with `end` as its end (null drops it). Ends before the start, or of the other kind, give null. */
 export function withDateEnd(value: unknown, end: string | null): string | null {
   const parts = parseDateValue(value);
@@ -255,6 +267,49 @@ export function withDateEnd(value: unknown, end: string | null): string | null {
 }
 
 /**
+ * A value as the date picker edits it: days (YYYY-MM-DD) and, with `time`, minutes past midnight
+ * on the clock of the picker's zone. `end` is null without an end.
+ */
+export type DateDraft = { start: string; end: string | null; time: boolean; startMinutes: number; endMinutes: number };
+
+/** The picker's draft of a value, its times on `timeZone`'s clock; null for what isn't a date. */
+export function dateDraft(value: unknown, timeZone: string): DateDraft | null {
+  const parts = parseDateValue(value);
+  if (!parts) return null;
+  if (!parts.time) return { start: parts.start, end: parts.end, time: false, startMinutes: 9 * 60, endMinutes: 10 * 60 };
+  const day = (iso: string) => dayString(instantDay(iso, timeZone));
+  const startMinutes = minutesOfDay(parts.start, timeZone);
+  return {
+    start: day(parts.start),
+    end: parts.end ? day(parts.end) : null,
+    time: true,
+    startMinutes,
+    endMinutes: parts.end ? minutesOfDay(parts.end, timeZone) : Math.min(startMinutes + 60, 24 * 60 - 1),
+  };
+}
+
+/**
+ * The stored value of a draft, its times read on `timeZone`'s clock. An end before the start
+ * becomes the start (the picker never stores a range that ends before it starts), and a range of
+ * days ending on its first day is that day.
+ */
+export function draftValue(draft: DateDraft, timeZone: string): string | null {
+  if (!isDay(draft.start) || (draft.end !== null && !isDay(draft.end))) return null;
+  if (!draft.time) {
+    const end = draft.end && draft.end > draft.start ? draft.end : null;
+    return end ? `${draft.start}/${end}` : draft.start;
+  }
+  const at = (day: string, minutes: number) => zonedInstant(dayNumber(day), minutes, timeZone);
+  const start = at(draft.start, draft.startMinutes);
+  if (draft.end === null) return new Date(start).toISOString();
+  const end = Math.max(start, at(draft.end, draft.endMinutes));
+  return `${new Date(start).toISOString()}/${new Date(end).toISOString()}`;
+}
+
+/** The Intl options formatDateValue asks for. */
+export type DateFormatOptions = Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute" | "timeZone">;
+
+/**
  * Formats a value for people, with `format` (Intl options in, text out: next-intl's dateTime or
  * an Intl.DateTimeFormat). Days print as days whatever the zone; instants in `timeZone`.
  * "Oct 12, 2026", "Oct 12 → Oct 14, 2026", "Oct 12, 2026, 14:30", "Oct 12, 2026, 14:30 → 16:00".
@@ -262,15 +317,15 @@ export function withDateEnd(value: unknown, end: string | null): string | null {
  */
 export function formatDateValue(
   value: unknown,
-  format: (date: Date, options: Intl.DateTimeFormatOptions) => string,
+  format: (date: Date, options: DateFormatOptions) => string,
   timeZone: string,
 ): string | null {
   const parts = parseDateValue(value);
   if (!parts) return null;
   const date = (s: string) => (parts.time ? new Date(ms(s)) : new Date(dayNumber(s) * DAY_MS));
   const zone = parts.time ? timeZone : "UTC";
-  const full: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric", timeZone: zone };
-  const clock: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit", timeZone: zone };
+  const full: DateFormatOptions = { year: "numeric", month: "short", day: "numeric", timeZone: zone };
+  const clock: DateFormatOptions = { hour: "numeric", minute: "2-digit", timeZone: zone };
   const start = date(parts.start);
   if (!parts.time) {
     if (!parts.end) return format(start, full);

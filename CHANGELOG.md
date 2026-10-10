@@ -26,6 +26,22 @@
   rules. Deleted properties and views are deleted permanently with the trash, after the
   workspace's trash retention. The audit log records them deleted, restored and deleted
   permanently. Migration 0051.
+- **Date ranges and times.** A date can have an end ("Oct 12 → Oct 14") and a time of day
+  ("Oct 12, 14:30", "Oct 12, 14:30 → 16:00"), switched on in the date picker with "End date" and
+  "Include time". Times are kept as instants and shown in each viewer's time zone. Filters match a
+  range on every day it covers, sorts and groups go by where it starts, rollups and the formula
+  functions `dateStart` and `dateEnd` read both ends, timelines draw a range from its own end
+  when no end property is set, reminders come before the start (at its time, for dates with a
+  time), and calendar subscriptions, CSV and Markdown exports, CSV imports and imports from
+  Notion carry both. The API and MCP keep returning a plain `YYYY-MM-DD` for a single day and take
+  `start/end` strings or `{start, end}` for the rest. No migration: existing dates keep their
+  meaning.
+- **Calendar weeks and events over several days.** A date over several days is a bar across them
+  in a calendar's month, and a calendar can show a week instead (Month / Week in its header,
+  remembered by the view): dates with a time sit on its hours, all-day ones and times over several
+  days in a strip above. Clicking an hour adds a row at that time, and dragging a row moves its
+  whole date, both ends. MCP: `calendar_mode` on `create_database_view` and
+  `update_database_view`. No migration.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.
@@ -55,7 +71,7 @@
   until next Monday; it comes back unread then. Push notifications have a "Snooze 1 hour" button.
   Migration 0049.
 - **Calendar subscription.** A calendar view gives each person a secret address for their
-  calendar app, with the view's rows as all-day events as that person sees them, checked about
+  calendar app, with the view's rows as events (at their times, else all day) as that person sees them, checked about
   every hour. Shown once; it can be replaced or turned off, and it stops while the workspace's
   export or connected apps are off. Migration 0049.
 - **Quick add.** A new row's name can carry its date, `@people` and `#options` ("Send the offer
