@@ -44,6 +44,7 @@ import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, 
 import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
 import type { PageDoc } from "./use-page-doc";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
 
 /**
@@ -297,13 +298,22 @@ function SlashMenu({
   const webItems = useWebSlashItems(editor);
   const pageLinkItems = usePageLinkSlashItem(editor, onPickPage);
   const columnItems = useColumnSlashItems(editor);
+  const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
   return (
     <SuggestionMenuController
       triggerCharacter="/"
       getItems={async (query) =>
         filterSuggestionItems(
-          withEmbedItems(getDefaultReactSlashMenuItems(editor), [...embedItems(), ...contentItems, ...columnItems(), ...webItems, ...pageLinkItems, ...aiItems]),
+          withEmbedItems(getDefaultReactSlashMenuItems(editor), [
+            ...embedItems(),
+            ...contentItems,
+            ...columnItems(),
+            ...webItems,
+            ...pageLinkItems,
+            ...colorItems(),
+            ...aiItems,
+          ]),
           query,
         )
       }

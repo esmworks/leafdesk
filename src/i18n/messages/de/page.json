@@ -369,6 +369,15 @@
       "title": "Link zu Seite",
       "subtext": "Ein Link zu einer anderen Seite mit ihrem aktuellen Titel",
       "aliases": "link page mention reference seite verweis erwähnung verknüpfung"
+    },
+    "colors": {
+      "group": "Farben",
+      "text": "Text: {color}",
+      "background": "Hintergrund: {color}",
+      "textDefault": "Standard-Textfarbe",
+      "backgroundDefault": "Kein Hintergrund",
+      "textAliases": "farbe textfarbe schrift text",
+      "backgroundAliases": "hintergrund hervorhebung farbe"
     }
   },
   "web": {

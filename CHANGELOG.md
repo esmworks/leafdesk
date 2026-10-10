@@ -73,6 +73,10 @@
   100 % for a percentage, unless set). Table cells, board and gallery cards, list rows, row pages
   and published pages show it, with the formatted number beside it; stored values, sorting and
   calculations don't change. Rollup bars and rings are drawn the same way. No migration.
+- **Colors from the slash menu.** A "Colors" group at the end of the slash menu colors the current
+  block's text or background in the formatting toolbar's palette ("Red text", "Blue background",
+  and back to the default), found by the color's name in the interface language or in English.
+  Blocks that take no color (code, images, databases) don't list them. No migration.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.

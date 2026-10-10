@@ -369,6 +369,15 @@
       "title": "Sayfa bağlantısı",
       "subtext": "Başka bir sayfaya, güncel başlığıyla bağlantı",
       "aliases": "bağlantı sayfa bahset link page mention"
+    },
+    "colors": {
+      "group": "Renkler",
+      "text": "{color} metin",
+      "background": "{color} arka plan",
+      "textDefault": "Varsayılan metin rengi",
+      "backgroundDefault": "Arka plan yok",
+      "textAliases": "renk metin yazı color",
+      "backgroundAliases": "arka plan zemin vurgu renk background"
     }
   },
   "web": {

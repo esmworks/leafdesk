@@ -369,6 +369,15 @@
       "title": "Link to page",
       "subtext": "A link to another page, with its live title",
       "aliases": "link page mention reference"
+    },
+    "colors": {
+      "group": "Colors",
+      "text": "{color} text",
+      "background": "{color} background",
+      "textDefault": "Default text color",
+      "backgroundDefault": "No background",
+      "textAliases": "color colour text font",
+      "backgroundAliases": "background highlight color colour"
     }
   },
   "web": {

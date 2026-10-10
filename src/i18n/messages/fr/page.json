@@ -369,6 +369,15 @@
       "title": "Lien vers une page",
       "subtext": "Un lien vers une autre page, avec son titre à jour",
       "aliases": "link page mention reference lien page mention référence"
+    },
+    "colors": {
+      "group": "Couleurs",
+      "text": "Texte : {color}",
+      "background": "Fond : {color}",
+      "textDefault": "Couleur de texte par défaut",
+      "backgroundDefault": "Sans fond",
+      "textAliases": "couleur texte police",
+      "backgroundAliases": "fond arrière-plan surlignage couleur"
     }
   },
   "web": {
