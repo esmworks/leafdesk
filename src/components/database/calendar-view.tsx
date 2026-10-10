@@ -269,7 +269,9 @@ export function CalendarView({
     return (
       <div
         className={cn("grid grid-cols-7", header && "min-h-28")}
-        style={{ gridTemplateRows: `${header ? "1.75rem " : ""}repeat(${lanes}, auto) minmax(${header ? "1.5rem" : "1.75rem"}, 1fr)` }}
+        style={{
+          gridTemplateRows: `${header ? "1.75rem " : ""}${lanes ? `repeat(${lanes}, auto) ` : ""}minmax(${header ? "1.5rem" : "1.75rem"}, 1fr)`,
+        }}
       >
         {Array.from({ length: 7 }, (_, i) => {
           const day = start + i;
