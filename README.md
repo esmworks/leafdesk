@@ -101,8 +101,9 @@ versions, upgrades and running behind a domain.
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
   - Views: table, board, calendar, gallery, list, timeline and chart, each with its own filters,
-    sorting and grouping. Filters combine with "and"/"or" in groups and take relative dates such as
-    "this week". A "Me" filter shows each viewer their own rows.
+    sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
+    combine with "and"/"or" in groups and take relative dates such as "this week". A "Me" filter
+    shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,

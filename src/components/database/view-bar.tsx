@@ -53,6 +53,7 @@ import {
   isHiddenInView,
   isSortable,
   moveProperty,
+  setAllHiddenInView,
   toggleHiddenInView,
 } from "@/lib/properties";
 import { fromPercentPoints, isPercent } from "@/lib/number-format";
@@ -623,8 +624,20 @@ export function ViewToolbar({
         {showDeleted && deleted ? (
           <DeletedSchemaList kind="properties" {...deleted} onBack={() => setShowDeleted(false)} />
         ) : (
-          <div className="w-60">
-            <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("toolbar.shownInView")}</div>
+          <div className="w-64">
+            <div className="flex items-center justify-between gap-2 px-2 pt-1 pb-1.5 text-xs text-fg-muted">
+              <span className="truncate">{t("toolbar.shownInView")}</span>
+              {properties.length > 0 && (
+                // Hides every property while any shows; shows them all once all are hidden.
+                <button
+                  type="button"
+                  onClick={() => onConfig(setAllHiddenInView(view, properties, hiddenCount < properties.length))}
+                  className="-my-0.5 shrink-0 rounded px-1 py-0.5 text-accent hover:bg-bg-hover"
+                >
+                  {t(hiddenCount < properties.length ? "toolbar.hideAll" : "toolbar.showAll")}
+                </button>
+              )}
+            </div>
             {!properties.length && <div className="px-2 pb-1.5 text-xs text-fg-faint">{t("toolbar.noProperties")}</div>}
             {properties.map((p) => {
               const isHidden = isHiddenInView(view, p);

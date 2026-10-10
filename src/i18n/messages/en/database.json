@@ -146,6 +146,8 @@
     "noProperties": "No properties yet",
     "hidden": "Hidden",
     "shown": "Shown",
+    "hideAll": "Hide all",
+    "showAll": "Show all",
     "calendarBy": "Calendar date",
     "calendarWithName": "Date: {name}",
     "calendarNeedsDate": "Calendars place rows by a date property.",

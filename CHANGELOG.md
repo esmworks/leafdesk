@@ -59,6 +59,9 @@
   part's style. Styles show in tables, board, gallery, list and calendar cards, the timeline,
   row pages and published pages, in light and dark; sorting, filtering, grouping, exports and MCP
   use the plain value. No migration.
+- **Hide or show every property at once.** The properties list of a view's toolbar has "Hide all"
+  while any property shows and "Show all" once none does, in every kind of view. The Name column
+  always shows. No migration.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.

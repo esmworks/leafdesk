@@ -24,6 +24,7 @@ import {
   orderProperties,
   moveProperty,
   toggleHiddenInView,
+  setAllHiddenInView,
   isSortable,
   normalizeValue,
   positionBetween,
@@ -328,6 +329,22 @@ describe("view visibility", () => {
     expect(toggleHiddenInView({ ...board, config: shown }, text)).toEqual({ hidden: ["t"], shown: [] });
     expect(toggleHiddenInView(board, sel)).toEqual({ hidden: ["s"], shown: [] });
     expect(toggleHiddenInView({ ...board, config: { hidden: ["s"] } }, sel)).toEqual({ hidden: [], shown: [] });
+  });
+
+  it("hides and shows every listed property at once, keeping the others' settings", () => {
+    const board = { type: "board" as const, config: { hidden: ["gone"], shown: ["other"] } };
+    expect(setAllHiddenInView(board, [text, sel], true)).toEqual({ hidden: ["gone", "t", "s"], shown: ["other"] });
+    // Text starts hidden on a board, so showing it lists it as shown.
+    expect(setAllHiddenInView({ ...board, config: { hidden: ["s", "gone"] } }, [text, sel], false)).toEqual({
+      hidden: ["gone"],
+      shown: ["t"],
+    });
+    const list = { type: "list" as const, config: {} };
+    const all = setAllHiddenInView(list, [text, sel], false);
+    expect(all).toEqual({ hidden: [], shown: ["t", "s"] });
+    expect([text, sel].every((p) => !isHiddenInView({ ...list, config: all }, p))).toBe(true);
+    const none = setAllHiddenInView({ ...list, config: all }, [text, sel], true);
+    expect([text, sel].every((p) => isHiddenInView({ ...list, config: none }, p))).toBe(true);
   });
 });
 

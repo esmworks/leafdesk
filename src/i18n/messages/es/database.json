@@ -146,6 +146,8 @@
     "noProperties": "Todavía no hay propiedades",
     "hidden": "Ocultas",
     "shown": "Visibles",
+    "hideAll": "Ocultar todas",
+    "showAll": "Mostrar todas",
     "calendarBy": "Fecha del calendario",
     "calendarWithName": "Fecha: {name}",
     "calendarNeedsDate": "Los calendarios colocan las filas según una propiedad de fecha.",

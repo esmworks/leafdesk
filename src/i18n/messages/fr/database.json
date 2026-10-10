@@ -146,6 +146,8 @@
     "noProperties": "Aucune propriété pour l’instant",
     "hidden": "Masquées",
     "shown": "Affichées",
+    "hideAll": "Tout masquer",
+    "showAll": "Tout afficher",
     "calendarBy": "Date du calendrier",
     "calendarWithName": "Date : {name}",
     "calendarNeedsDate": "Les calendriers placent les lignes selon une propriété de date.",

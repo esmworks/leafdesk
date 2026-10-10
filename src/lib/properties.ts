@@ -985,6 +985,23 @@ export function toggleHiddenInView(
   return { ...view.config, hidden, shown };
 }
 
+/**
+ * The config after hiding (or showing) every property in `props` at once. Ids of properties not
+ * listed (ones the viewer can't see) keep their setting; the Name column is never among them.
+ */
+export function setAllHiddenInView(
+  view: { type: ViewType; config: ViewConfig },
+  props: { id: string; type: PropertyType }[],
+  hide: boolean,
+): ViewConfig {
+  const ids = new Set(props.map((p) => p.id));
+  const hidden = (view.config.hidden ?? []).filter((id) => !ids.has(id));
+  const shown = (view.config.shown ?? []).filter((id) => !ids.has(id));
+  if (hide) hidden.push(...props.map((p) => p.id));
+  else shown.push(...props.filter((p) => hiddenByDefault(view.type, p.type)).map((p) => p.id));
+  return { ...view.config, hidden, shown };
+}
+
 /** Puts groups in the view's saved order; groups it doesn't list keep their relative order at the end. */
 export function orderGroups<G extends { key: string }>(groups: G[], order: string[] | undefined): G[] {
   if (!order?.length) return groups;

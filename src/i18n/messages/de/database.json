@@ -146,6 +146,8 @@
     "noProperties": "Noch keine Eigenschaften",
     "hidden": "Ausgeblendet",
     "shown": "Angezeigt",
+    "hideAll": "Alle ausblenden",
+    "showAll": "Alle einblenden",
     "calendarBy": "Kalenderdatum",
     "calendarWithName": "Datum: {name}",
     "calendarNeedsDate": "Kalender ordnen Zeilen nach einer Datums-Eigenschaft an.",

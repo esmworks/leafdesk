@@ -146,6 +146,8 @@
     "noProperties": "Henüz özellik yok",
     "hidden": "Gizli",
     "shown": "Gösteriliyor",
+    "hideAll": "Tümünü gizle",
+    "showAll": "Tümünü göster",
     "calendarBy": "Takvim tarihi",
     "calendarWithName": "Tarih: {name}",
     "calendarNeedsDate": "Takvimler satırları bir tarih özelliğine göre yerleştirir.",
