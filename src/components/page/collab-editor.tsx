@@ -13,6 +13,7 @@ import {
   FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
+  SideMenuController,
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
@@ -46,6 +47,7 @@ import type { PageDoc } from "./use-page-doc";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
+import { pageSideMenu } from "./table-to-database";
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -110,6 +112,8 @@ export default function CollabEditor({
   const [linkAt, setLinkAt] = useState<string | null>(null);
   usePageRefUpdates(workspaceId);
   const [embedError, setEmbedError] = useState<string | null>(null);
+  // The side menu's block menu, with "Turn into database" for tables (setEmbedError never changes).
+  const sideMenu = useMemo(() => pageSideMenu(setEmbedError), []);
   // Comments live in the page's document; every editor has the extension, so text carrying a
   // comment mark is always understood (an editor without it would drop that text).
   const auth = useMemo(() => new CommentAuth(), []);
@@ -200,9 +204,11 @@ export default function CollabEditor({
           theme={colorScheme}
           editable={mountEditable}
           slashMenu={false}
+          sideMenu={false}
           formattingToolbar={false}
           className="leafdesk-editor"
         >
+          <SideMenuController sideMenu={sideMenu} />
           <SlashMenu
             editor={editor}
             onCreateError={setEmbedError}

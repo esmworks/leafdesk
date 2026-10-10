@@ -2,6 +2,7 @@ import { inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page } from "@/db/schema";
 import type { EmbedBlockType, EmbedReference } from "@/lib/embed-blocks";
+import { tableAsDatabase } from "@/lib/table-to-database";
 import {
   accessRank,
   getMembership,
@@ -15,6 +16,8 @@ import {
 import type { WriteActor } from "@/server/collab/bridge";
 import { withCode } from "@/server/databases";
 import { createPage, type DatabaseSeedNames } from "@/server/pages";
+import { recordAudit } from "@/server/audit";
+import { importCsvAsDatabase } from "@/server/import/csv";
 import { exportAllowed } from "@/server/workspaces";
 
 /**
@@ -34,6 +37,37 @@ export async function createInlineDatabase(actor: WriteActor, hostPageId: string
   if (host.kind === "database") throw withCode(new Error("A database can't contain another database"), "nestedDatabase");
   const created = await createPage(actor, { workspaceId: host.workspaceId, parentId: host.id, kind: "database", seedNames });
   return { id: created.id, workspaceId: created.workspaceId };
+}
+
+/**
+ * Creates the database a table block of `hostPageId` turns into, under that page as an inline
+ * database is: the first row names the properties (the first column is the rows' titles, the others
+ * text properties), and every other row becomes a row with its cells as plain text. Takes the
+ * table's cells as text (see lib/table-to-database tableRecords); the editor then puts a database
+ * block in the table's place.
+ */
+export async function tableToDatabase(actor: WriteActor, hostPageId: string, records: string[][], seedNames?: DatabaseSeedNames) {
+  const host = await requirePageAccess(actor.userId, hostPageId, "edit");
+  if (host.kind === "database") throw withCode(new Error("A database can't contain another database"), "nestedDatabase");
+  const table = tableAsDatabase(records.map((row) => row.map((cell) => String(cell ?? ""))));
+  const { database } = await importCsvAsDatabase(actor, {
+    workspaceId: host.workspaceId,
+    parentId: host.id,
+    title: "",
+    table,
+    titleColumn: 0,
+    types: table.headers.map((_, i) => (i === 0 ? null : "text")),
+    seedNames,
+  });
+  // The import leaves its database out of the audit log; this one is made like any inline database.
+  await recordAudit({
+    workspaceId: host.workspaceId,
+    actorId: actor.userId,
+    action: "page.created",
+    target: { type: "page", id: database.id, label: database.title },
+    details: { kind: "database" },
+  });
+  return { id: database.id, workspaceId: database.workspaceId };
 }
 
 /** What a database block may show about its database to this reader. */

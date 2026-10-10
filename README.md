@@ -164,7 +164,8 @@ versions, upgrades and running behind a domain.
   - Select rows to edit a property, duplicate, export or trash them at once.
   - Form views collect answers as new rows, in the app or through a public link, signed in or
     anonymous.
-  - Put a database inside any page, or show a view of an existing one there.
+  - Put a database inside any page, or show a view of an existing one there. A table block turns
+    into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
   - Row templates with preset properties and content; pick one as the default for "New".
   - Repeating templates: a row template adds a row by itself every day, every few weeks on chosen

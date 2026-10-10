@@ -59,6 +59,14 @@
   part's style. Styles show in tables, board, gallery, list and calendar cards, the timeline,
   row pages and published pages, in light and dark; sorting, filtering, grouping, exports and MCP
   use the plain value. No migration.
+- **Turn a table into a database.** A table block's menu (the handle beside it) has "Turn into
+  database" for people who may edit the page: a database is made under the page, as an inline
+  database is, and takes the table's place in one undo step. The first row names the properties
+  (the first column holds the rows' names, the others become text properties; blank names become
+  "Column N" and repeats are numbered, as in CSV imports), and every other row becomes a row with
+  its cells as plain text. A merged cell's text goes to its first column; the cells it covers stay
+  empty. A table with only a header row makes an empty database. Undoing brings the table back
+  and leaves the database under the page. No migration.
 - **Hide or show every property at once.** The properties list of a view's toolbar has "Hide all"
   while any property shows and "Show all" once none does, in every kind of view. The Name column
   always shows. No migration.
