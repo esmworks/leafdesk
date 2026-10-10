@@ -989,7 +989,15 @@
         "publication_revoked": "Retiró {target} de la web (publicada por {subject})"
       },
       "property": {
-        "access_changed": "Cambió el acceso a «{property}» en {target}"
+        "access_changed": "Cambió el acceso a «{property}» en {target}",
+        "trashed": "Eliminó la propiedad «{property}» de {target}",
+        "restored": "Restauró la propiedad «{property}» de {target}",
+        "deleted": "Eliminó definitivamente la propiedad «{property}» de {target}"
+      },
+      "view": {
+        "trashed": "Eliminó la vista «{name}» de {target}",
+        "restored": "Restauró la vista «{name}» de {target}",
+        "deleted": "Eliminó definitivamente la vista «{name}» de {target}"
       },
       "access_request": {
         "approved": "Aprobó la solicitud de acceso de {subject} a {target}: {level}",

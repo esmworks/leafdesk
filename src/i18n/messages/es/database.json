@@ -116,6 +116,20 @@
     "viewName": "Nombre de la vista",
     "deleteView": "Eliminar vista"
   },
+  "deleted": {
+    "properties": "Propiedades eliminadas",
+    "views": "Vistas eliminadas",
+    "back": "Atrás",
+    "noProperties": "No hay propiedades eliminadas",
+    "noViews": "No hay vistas eliminadas",
+    "deletedBy": "Eliminada {when} por {name}",
+    "deletedWhen": "Eliminada {when}",
+    "purgesOn": "Se eliminará definitivamente el {date}",
+    "withPaired": "Con su otro lado, “{name}”",
+    "deletePermanently": "Eliminar definitivamente",
+    "confirmPurgeProperty": "¿Eliminar “{name}” definitivamente? Sus valores en todas las filas se van con ella. No se puede deshacer.",
+    "confirmPurgeView": "¿Eliminar la vista “{name}” definitivamente? No se puede deshacer."
+  },
   "toolbar": {
     "filter": "Filtrar",
     "search": "Buscar",
@@ -382,7 +396,8 @@
     "editOptions": "Editar opciones",
     "delete": "Eliminar propiedad",
     "confirmDelete": "¿Eliminar “{name}”?",
-    "confirmDeleteBody": "Sus valores se quitarán de todas las filas. No se puede deshacer.",
+    "confirmDeleteBody": "Puedes restaurarla con sus valores desde Propiedades › Propiedades eliminadas.",
+    "confirmDeletePaired": "Su otro lado, “{name}”, se elimina y se restaura con ella.",
     "back": "Atrás",
     "optionsTitle": "Opciones de {name}",
     "noOptions": "Todavía no hay opciones",

@@ -462,6 +462,7 @@ export function PropertyMenu({
       <div className="w-64 p-2">
         <p className="text-sm font-medium">{t("confirmDelete", { name: prop.name })}</p>
         <p className="mt-1 text-xs text-fg-muted">{t("confirmDeleteBody")}</p>
+        {prop.type === "relation" && <PairedDeleteNote propertyId={prop.id} />}
         <div className="mt-3 flex justify-end gap-2">
           <Button size="sm" variant="ghost" onClick={() => setPage("main")}>
             {tc("cancel")}
@@ -700,6 +701,13 @@ export function PropertyMenu({
       ))}
     </div>
   );
+}
+
+/** A two-way relation goes with its other side: says so when deleting it. */
+function PairedDeleteNote({ propertyId }: { propertyId: string }) {
+  const t = useTranslations("database.propertyMenu");
+  const pairedName = useRelations()?.targets[propertyId]?.pairedName;
+  return pairedName ? <p className="mt-1 text-xs text-fg-muted">{t("confirmDeletePaired", { name: pairedName })}</p> : null;
 }
 
 /** A submenu's title line with a way back to the menu it opened from. */

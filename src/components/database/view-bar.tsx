@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
+  ChevronRight,
   Eye,
   EyeOff,
   GripVertical,
@@ -57,6 +58,7 @@ import {
 import { fromPercentPoints, isPercent } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
 import { VIEW_TYPES, viewDateProperty } from "@/lib/views";
+import { DeletedSchemaList } from "./deleted-schema";
 import { Floating, useFloating } from "./floating";
 import { usePeople } from "./person-cell";
 import { useFormatDate, useFormatNumber } from "./property-cell";
@@ -67,6 +69,9 @@ import { TITLE, type Property, type View } from "./types";
 
 export { ViewIcon };
 
+/** What a menu needs to list a database's deleted properties or views (see DeletedSchemaList). */
+export type DeletedSchemaProps = { databaseId: string; reloadKey: unknown; onChanged: () => void };
+
 export function ViewTabs({
   views,
   activeId,
@@ -76,6 +81,7 @@ export function ViewTabs({
   onDelete,
   onMove,
   readOnly,
+  deleted,
 }: {
   views: View[];
   activeId: string;
@@ -85,9 +91,16 @@ export function ViewTabs({
   onDelete: (view: View) => void;
   onMove: (id: string, target: string, side: "before" | "after") => void;
   readOnly?: boolean;
+  /** Set for people who may change the database's schema: the menu lists its deleted views. */
+  deleted?: DeletedSchemaProps;
 }) {
   const t = useTranslations("database");
   const add = useFloating<HTMLButtonElement>();
+  const [showDeleted, setShowDeleted] = useState(false);
+  const closeAdd = () => {
+    add.close();
+    setShowDeleted(false);
+  };
   const drag = useReorderDrag("x", onMove);
   const movable = !readOnly && views.length > 1;
   return (
@@ -117,20 +130,38 @@ export function ViewTabs({
           >
             <Plus className="h-4 w-4" />
           </button>
-          <Floating open={add.open} anchor={add.el} onClose={add.close}>
-            <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("viewTabs.addViewHeading")}</div>
-            {VIEW_TYPES.map((type) => (
-              <MenuItem
-                key={type}
-                icon={<ViewIcon type={type} />}
-                onClick={() => {
-                  add.close();
-                  onAdd(type);
-                }}
-              >
-                {t(`views.${type}`)}
-              </MenuItem>
-            ))}
+          <Floating open={add.open} anchor={add.el} onClose={closeAdd}>
+            {showDeleted && deleted ? (
+              <DeletedSchemaList kind="views" {...deleted} onBack={() => setShowDeleted(false)} />
+            ) : (
+              <>
+                <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("viewTabs.addViewHeading")}</div>
+                {VIEW_TYPES.map((type) => (
+                  <MenuItem
+                    key={type}
+                    icon={<ViewIcon type={type} />}
+                    onClick={() => {
+                      closeAdd();
+                      onAdd(type);
+                    }}
+                  >
+                    {t(`views.${type}`)}
+                  </MenuItem>
+                ))}
+                {deleted && (
+                  <>
+                    <MenuSeparator />
+                    <MenuItem
+                      icon={<Trash2 className="h-3.5 w-3.5" />}
+                      trailing={<ChevronRight className="h-3.5 w-3.5" />}
+                      onClick={() => setShowDeleted(true)}
+                    >
+                      {t("deleted.views")}
+                    </MenuItem>
+                  </>
+                )}
+              </>
+            )}
           </Floating>
         </>
       )}
@@ -384,6 +415,7 @@ export function ViewToolbar({
   onCreateDateProperty,
   readOnly,
   locked,
+  deleted,
 }: {
   view: View;
   properties: Property[];
@@ -395,12 +427,19 @@ export function ViewToolbar({
   readOnly?: boolean;
   /** The schema is locked: no creating properties from the group and calendar menus. */
   locked?: boolean;
+  /** Set for people who may change the database's schema: the Properties menu lists deleted ones. */
+  deleted?: DeletedSchemaProps;
 }) {
   const t = useTranslations("database");
   const filterMenu = useFloating<HTMLButtonElement>();
   const sortMenu = useFloating<HTMLButtonElement>();
   const groupMenu = useFloating<HTMLButtonElement>();
   const propsMenu = useFloating<HTMLButtonElement>();
+  const [showDeleted, setShowDeleted] = useState(false);
+  const closeProps = () => {
+    propsMenu.close();
+    setShowDeleted(false);
+  };
   const config = view.config;
   const filters = config.filters ?? [];
   const filterCount = filterRules(filters).length;
@@ -580,54 +619,70 @@ export function ViewToolbar({
         buttonRef={propsMenu.ref}
         onClick={propsMenu.toggle}
       />
-      <Floating open={propsMenu.open} anchor={propsMenu.el} onClose={propsMenu.close} align="end">
-        <div className="w-60">
-          <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("toolbar.shownInView")}</div>
-          {!properties.length && <div className="px-2 pb-1.5 text-xs text-fg-faint">{t("toolbar.noProperties")}</div>}
-          {properties.map((p) => {
-            const isHidden = isHiddenInView(view, p);
-            const drag = propertyDrag.handlers(p.id);
-            return (
-              <button
-                key={p.id}
-                type="button"
-                data-property={p.id}
-                draggable
-                onDragStart={drag.onDragStart}
-                onDragOver={drag.onDragOver}
-                onDrop={drag.onDrop}
-                onDragEnd={drag.onDragEnd}
-                onClick={() => onConfig(toggleHiddenInView(view, p))}
-                className={cn(
-                  "group/prop relative flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover",
-                  drag.dragging && "opacity-50",
-                )}
-              >
-                {drag.dropSide && (
-                  <span
+      <Floating open={propsMenu.open} anchor={propsMenu.el} onClose={closeProps} align="end">
+        {showDeleted && deleted ? (
+          <DeletedSchemaList kind="properties" {...deleted} onBack={() => setShowDeleted(false)} />
+        ) : (
+          <div className="w-60">
+            <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("toolbar.shownInView")}</div>
+            {!properties.length && <div className="px-2 pb-1.5 text-xs text-fg-faint">{t("toolbar.noProperties")}</div>}
+            {properties.map((p) => {
+              const isHidden = isHiddenInView(view, p);
+              const drag = propertyDrag.handlers(p.id);
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  data-property={p.id}
+                  draggable
+                  onDragStart={drag.onDragStart}
+                  onDragOver={drag.onDragOver}
+                  onDrop={drag.onDrop}
+                  onDragEnd={drag.onDragEnd}
+                  onClick={() => onConfig(toggleHiddenInView(view, p))}
+                  className={cn(
+                    "group/prop relative flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover",
+                    drag.dragging && "opacity-50",
+                  )}
+                >
+                  {drag.dropSide && (
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "pointer-events-none absolute inset-x-1 h-0.5 bg-accent",
+                        drag.dropSide === "before" ? "-top-px" : "-bottom-px",
+                      )}
+                    />
+                  )}
+                  <GripVertical
                     aria-hidden
-                    className={cn(
-                      "pointer-events-none absolute inset-x-1 h-0.5 bg-accent",
-                      drag.dropSide === "before" ? "-top-px" : "-bottom-px",
-                    )}
+                    className="-ml-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
                   />
-                )}
-                <GripVertical
-                  aria-hidden
-                  className="-ml-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
-                />
-                <PropertyTypeIcon type={p.type} className="-ml-1 h-3.5 w-3.5 text-fg-muted" />
-                <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
-                <PropertyLock propertyId={p.id} />
-                {isHidden ? (
-                  <EyeOff className="h-3.5 w-3.5 text-fg-faint" aria-label={t("toolbar.hidden")} />
-                ) : (
-                  <Eye className="h-3.5 w-3.5 text-fg-muted" aria-label={t("toolbar.shown")} />
-                )}
-              </button>
-            );
-          })}
-        </div>
+                  <PropertyTypeIcon type={p.type} className="-ml-1 h-3.5 w-3.5 text-fg-muted" />
+                  <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
+                  <PropertyLock propertyId={p.id} />
+                  {isHidden ? (
+                    <EyeOff className="h-3.5 w-3.5 text-fg-faint" aria-label={t("toolbar.hidden")} />
+                  ) : (
+                    <Eye className="h-3.5 w-3.5 text-fg-muted" aria-label={t("toolbar.shown")} />
+                  )}
+                </button>
+              );
+            })}
+            {deleted && (
+              <>
+                <MenuSeparator />
+                <MenuItem
+                  icon={<Trash2 className="h-3.5 w-3.5" />}
+                  trailing={<ChevronRight className="h-3.5 w-3.5" />}
+                  onClick={() => setShowDeleted(true)}
+                >
+                  {t("deleted.properties")}
+                </MenuItem>
+              </>
+            )}
+          </div>
+        )}
       </Floating>
     </div>
   );

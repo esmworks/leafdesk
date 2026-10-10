@@ -116,6 +116,20 @@
     "viewName": "Görünüm adı",
     "deleteView": "Görünümü sil"
   },
+  "deleted": {
+    "properties": "Silinen özellikler",
+    "views": "Silinen görünümler",
+    "back": "Geri",
+    "noProperties": "Silinen özellik yok",
+    "noViews": "Silinen görünüm yok",
+    "deletedBy": "{when} {name} sildi",
+    "deletedWhen": "{when} silindi",
+    "purgesOn": "{date} tarihinde kalıcı olarak silinecek",
+    "withPaired": "Diğer tarafı “{name}” ile birlikte",
+    "deletePermanently": "Kalıcı olarak sil",
+    "confirmPurgeProperty": "“{name}” kalıcı olarak silinsin mi? Tüm satırlardaki değerleri de silinir. Bu işlem geri alınamaz.",
+    "confirmPurgeView": "“{name}” görünümü kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
+  },
   "toolbar": {
     "filter": "Filtrele",
     "search": "Ara",
@@ -382,7 +396,8 @@
     "editOptions": "Seçenekleri düzenle",
     "delete": "Özelliği sil",
     "confirmDelete": "“{name}” silinsin mi?",
-    "confirmDeleteBody": "Değerleri tüm satırlardan kaldırılır. Bu işlem geri alınamaz.",
+    "confirmDeleteBody": "Değerleriyle birlikte Özellikler › Silinen özellikler bölümünden geri yükleyebilirsiniz.",
+    "confirmDeletePaired": "Diğer tarafı olan “{name}” de onunla birlikte silinir ve geri yüklenir.",
     "back": "Geri",
     "optionsTitle": "{name} seçenekleri",
     "noOptions": "Henüz seçenek yok",

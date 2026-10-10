@@ -116,6 +116,20 @@
     "viewName": "Name der Ansicht",
     "deleteView": "Ansicht löschen"
   },
+  "deleted": {
+    "properties": "Gelöschte Eigenschaften",
+    "views": "Gelöschte Ansichten",
+    "back": "Zurück",
+    "noProperties": "Keine gelöschten Eigenschaften",
+    "noViews": "Keine gelöschten Ansichten",
+    "deletedBy": "{when} von {name} gelöscht",
+    "deletedWhen": "{when} gelöscht",
+    "purgesOn": "Wird am {date} endgültig gelöscht",
+    "withPaired": "Mit ihrer Gegenseite „{name}“",
+    "deletePermanently": "Endgültig löschen",
+    "confirmPurgeProperty": "„{name}“ endgültig löschen? Ihre Werte in allen Zeilen gehen mit. Das kann nicht rückgängig gemacht werden.",
+    "confirmPurgeView": "Die Ansicht „{name}“ endgültig löschen? Das kann nicht rückgängig gemacht werden."
+  },
   "toolbar": {
     "filter": "Filter",
     "search": "Suchen",
@@ -382,7 +396,8 @@
     "editOptions": "Optionen bearbeiten",
     "delete": "Eigenschaft löschen",
     "confirmDelete": "„{name}“ löschen?",
-    "confirmDeleteBody": "Die Werte werden aus allen Zeilen entfernt. Das kann nicht rückgängig gemacht werden.",
+    "confirmDeleteBody": "Unter Eigenschaften › Gelöschte Eigenschaften lässt sie sich mit ihren Werten wiederherstellen.",
+    "confirmDeletePaired": "Ihre Gegenseite „{name}“ wird mit ihr gelöscht und wiederhergestellt.",
     "back": "Zurück",
     "optionsTitle": "Optionen für {name}",
     "noOptions": "Noch keine Optionen",

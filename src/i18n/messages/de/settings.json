@@ -989,7 +989,15 @@
         "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})"
       },
       "property": {
-        "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert"
+        "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",
+        "trashed": "Hat die Eigenschaft „{property}“ in {target} gelöscht",
+        "restored": "Hat die Eigenschaft „{property}“ in {target} wiederhergestellt",
+        "deleted": "Hat die Eigenschaft „{property}“ in {target} endgültig gelöscht"
+      },
+      "view": {
+        "trashed": "Hat die Ansicht „{name}“ in {target} gelöscht",
+        "restored": "Hat die Ansicht „{name}“ in {target} wiederhergestellt",
+        "deleted": "Hat die Ansicht „{name}“ in {target} endgültig gelöscht"
       },
       "access_request": {
         "approved": "Hat die Zugriffsanfrage von {subject} für {target} genehmigt: {level}",

@@ -116,6 +116,20 @@
     "viewName": "Nom de la vue",
     "deleteView": "Supprimer la vue"
   },
+  "deleted": {
+    "properties": "Propriétés supprimées",
+    "views": "Vues supprimées",
+    "back": "Retour",
+    "noProperties": "Aucune propriété supprimée",
+    "noViews": "Aucune vue supprimée",
+    "deletedBy": "Supprimée {when} par {name}",
+    "deletedWhen": "Supprimée {when}",
+    "purgesOn": "Supprimée définitivement le {date}",
+    "withPaired": "Avec son autre côté, « {name} »",
+    "deletePermanently": "Supprimer définitivement",
+    "confirmPurgeProperty": "Supprimer « {name} » définitivement ? Ses valeurs dans toutes les lignes partent avec elle. Cette action est irréversible.",
+    "confirmPurgeView": "Supprimer la vue « {name} » définitivement ? Cette action est irréversible."
+  },
   "toolbar": {
     "filter": "Filtrer",
     "search": "Rechercher",
@@ -382,7 +396,8 @@
     "editOptions": "Modifier les options",
     "delete": "Supprimer la propriété",
     "confirmDelete": "Supprimer « {name} » ?",
-    "confirmDeleteBody": "Ses valeurs seront retirées de toutes les lignes. Cette action est irréversible.",
+    "confirmDeleteBody": "Vous pourrez la restaurer avec ses valeurs depuis Propriétés › Propriétés supprimées.",
+    "confirmDeletePaired": "Son autre côté, « {name} », est supprimé et restauré avec elle.",
     "back": "Retour",
     "optionsTitle": "Options de {name}",
     "noOptions": "Aucune option pour l’instant",

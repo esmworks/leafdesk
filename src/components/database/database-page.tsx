@@ -229,6 +229,15 @@ export function DatabasePage({
   }
 
   const setConfig = (v: View, config: ViewConfig) => baseApi.updateView(v, { config });
+  // Deleted properties and views, for those who may change the schema (as deleting them took).
+  const deletedSchema =
+    !readOnly && !locked && !linked
+      ? {
+          databaseId,
+          reloadKey: `${snapshot.properties.map((p) => p.id).join()}|${snapshot.views.map((v) => v.id).join()}`,
+          onChanged: () => void api.refetch(),
+        }
+      : undefined;
   // Adds a rule on the column with its first operator, like the filter menu's "Add filter".
   const filterBy = (v: View, columnId: string) => {
     const prop = snapshot.properties.find((p) => p.id === columnId);
@@ -310,6 +319,7 @@ export function DatabasePage({
                       onAdd={addView}
                       onRename={(v, name) => api.updateView(v, { name })}
                       onMove={(id, target, side) => api.moveView(id, target, side)}
+                      deleted={deletedSchema}
                       onDelete={async (v) => {
                         if (v.id === view?.id) {
                           const next = views.find((x) => x.id !== v.id);
@@ -350,6 +360,7 @@ export function DatabasePage({
                           filterRequest={filterRequest}
                           onCreateGroupProperty={createGroupProperty}
                           onCreateDateProperty={createDateProperty}
+                          deleted={deletedSchema}
                         />
                         <ViewLayoutMenu
                           view={view}

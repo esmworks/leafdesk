@@ -989,7 +989,15 @@
         "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})"
       },
       "property": {
-        "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi"
+        "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",
+        "trashed": "{target} içindeki “{property}” özelliği silindi",
+        "restored": "{target} içindeki “{property}” özelliği geri yüklendi",
+        "deleted": "{target} içindeki “{property}” özelliği kalıcı olarak silindi"
+      },
+      "view": {
+        "trashed": "{target} içindeki “{name}” görünümü silindi",
+        "restored": "{target} içindeki “{name}” görünümü geri yüklendi",
+        "deleted": "{target} içindeki “{name}” görünümü kalıcı olarak silindi"
       },
       "access_request": {
         "approved": "Erişim isteği onaylandı: {subject}, {target} sayfası için: {level}",

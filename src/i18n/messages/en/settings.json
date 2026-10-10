@@ -989,7 +989,15 @@
         "publication_revoked": "Took {target} off the web (published by {subject})"
       },
       "property": {
-        "access_changed": "Changed who can access “{property}” in {target}"
+        "access_changed": "Changed who can access “{property}” in {target}",
+        "trashed": "Deleted the property “{property}” of {target}",
+        "restored": "Restored the property “{property}” of {target}",
+        "deleted": "Deleted the property “{property}” of {target} for good"
+      },
+      "view": {
+        "trashed": "Deleted the view “{name}” of {target}",
+        "restored": "Restored the view “{name}” of {target}",
+        "deleted": "Deleted the view “{name}” of {target} for good"
       },
       "access_request": {
         "approved": "Approved the access request of {subject} for {target}: {level}",

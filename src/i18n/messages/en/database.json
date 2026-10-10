@@ -116,6 +116,20 @@
     "viewName": "View name",
     "deleteView": "Delete view"
   },
+  "deleted": {
+    "properties": "Deleted properties",
+    "views": "Deleted views",
+    "back": "Back",
+    "noProperties": "No deleted properties",
+    "noViews": "No deleted views",
+    "deletedBy": "Deleted {when} by {name}",
+    "deletedWhen": "Deleted {when}",
+    "purgesOn": "Deleted permanently on {date}",
+    "withPaired": "With its other side, “{name}”",
+    "deletePermanently": "Delete permanently",
+    "confirmPurgeProperty": "Delete “{name}” permanently? Its values in every row go with it. This cannot be undone.",
+    "confirmPurgeView": "Delete the view “{name}” permanently? This cannot be undone."
+  },
   "toolbar": {
     "filter": "Filter",
     "search": "Search",
@@ -382,7 +396,8 @@
     "editOptions": "Edit options",
     "delete": "Delete property",
     "confirmDelete": "Delete “{name}”?",
-    "confirmDeleteBody": "Its values are removed from every row. This cannot be undone.",
+    "confirmDeleteBody": "You can restore it with its values from Properties › Deleted properties.",
+    "confirmDeletePaired": "Its other side, “{name}”, is deleted and restored with it.",
     "back": "Back",
     "optionsTitle": "{name} options",
     "noOptions": "No options yet",
