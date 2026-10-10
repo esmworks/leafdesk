@@ -29,7 +29,8 @@ import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
 import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
-import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
+import { compileFormulas, formulaForStorage, relatedDatabases, TITLE_FIELD, valueType, type RelatedSchemas } from "@/lib/derived";
+import type { FormulaStyle } from "@/lib/formula";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
@@ -83,7 +84,7 @@ import {
   type RequiredLevel,
 } from "@/server/access";
 import { scheduleAssignmentEmails } from "@/server/assignments";
-import { computeDerived, loadProperties } from "@/server/derived";
+import { computeDerived, loadProperties, withAllFormulaTypes } from "@/server/derived";
 import { fileForViewer, workspaceFiles } from "@/server/files";
 import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
@@ -109,6 +110,8 @@ export type DatabaseRow = {
   properties: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
+  /** How styled formula results show (see lib/formula style()); their values stay plain. */
+  styles?: Record<string, FormulaStyle>;
 } & RedactedFields;
 
 /**
@@ -232,7 +235,27 @@ export async function getProperties(databaseId: string) {
     .from(databaseProperty)
     .where(and(eq(databaseProperty.databaseId, databaseId), isNull(databaseProperty.deletedAt)))
     .orderBy(asc(databaseProperty.position), asc(databaseProperty.createdAt));
-  return withRollupUnits(withFormulaTypes(properties));
+  return withRollupUnits(await withAllFormulaTypes(properties));
+}
+
+/**
+ * The properties of the databases formulas of `props` read related rows of, as `userId` may know
+ * them (none of a database they can't open): what formulas they write are checked against.
+ */
+export async function knownRelatedSchemas(userId: string, props: Pick<DatabaseProperty, "id" | "name" | "type" | "options">[]): Promise<RelatedSchemas> {
+  const ids = relatedDatabases(props);
+  const known = new Map(
+    await Promise.all(
+      ids.map(async (id) => {
+        const open = await requireDatabase(userId, id, "view").then(
+          () => true,
+          () => false,
+        );
+        return [id, open ? await knownProperties(userId, id) : undefined] as const;
+      }),
+    ),
+  );
+  return (id) => known.get(id);
 }
 
 /**
@@ -1080,11 +1103,19 @@ async function hideInCalendars(exec: Executor, databaseId: string, propertyId: s
  * database's properties (`self` is the formula property itself, new or edited). A formula that
  * can't run (a syntax or type error, an unknown property, a cycle) is refused with the reason.
  */
-function formulaConfig(expression: string, properties: DatabaseProperty[], self: { id: string; name: string }): FormulaConfig {
+async function formulaConfig(
+  userId: string,
+  expression: string,
+  properties: DatabaseProperty[],
+  self: { id: string; name: string },
+): Promise<FormulaConfig> {
   const others = properties.filter((p) => p.id !== self.id);
-  const stored = formulaForStorage(expression.trim(), [...others, self]);
+  const draft = { ...self, type: "formula" as const, options: { formula: { expression: expression.trim() } } };
+  // Properties read on related rows are checked against what the user may know of there too.
+  const related = await knownRelatedSchemas(userId, [...others, draft]);
+  const stored = formulaForStorage(expression.trim(), [...others, self], [], related);
   const props = [...others, { ...self, type: "formula" as const, options: { formula: { expression: stored } } }];
-  const error = compileFormulas(props).get(self.id)?.error;
+  const error = compileFormulas(props, related).get(self.id)?.error;
   if (error) {
     throw new PropertyValueError(`Invalid formula for "${self.name}": ${error.message}`, "invalidFormula", {
       property: self.name,
@@ -1219,7 +1250,7 @@ export async function addProperty(
   const name = input.name.trim() || "Property";
   const formula =
     input.type === "formula"
-      ? formulaConfig(input.formula?.expression ?? "", await knownProperties(userId, databaseId), { id: "\u0000new", name })
+      ? await formulaConfig(userId, input.formula?.expression ?? "", await knownProperties(userId, databaseId), { id: "\u0000new", name })
       : undefined;
   const rollup =
     input.type === "rollup"
@@ -1498,7 +1529,7 @@ export async function updateProperty(
   const { date: _date, ...withoutDate } = prop.options;
   const formula =
     patch.formula && prop.type === "formula"
-      ? formulaConfig(patch.formula.expression, await knownProperties(userId, prop.databaseId), {
+      ? await formulaConfig(userId, patch.formula.expression, await knownProperties(userId, prop.databaseId), {
           id: prop.id,
           name: patch.name?.trim() || prop.name,
         })
@@ -1890,7 +1921,7 @@ export async function changePropertyType(
 
   const known = await knownProperties(userId, prop.databaseId);
   const self = { id: prop.id, name: prop.name };
-  const formula = input.type === "formula" ? formulaConfig(input.formula?.expression ?? "", known, self) : undefined;
+  const formula = input.type === "formula" ? await formulaConfig(userId, input.formula?.expression ?? "", known, self) : undefined;
   const rollup = input.type === "rollup" ? await rollupConfig(userId, input.rollup, known, self) : undefined;
   const target = input.type === "relation" ? await relationTarget(userId, database, input.relation) : null;
 
@@ -2692,6 +2723,7 @@ export async function getRow(userId: string, rowId: string) {
       properties: withDerived.properties,
       hidden: withDerived.hidden,
       readOnly: withDerived.readOnly,
+      styles: withDerived.styles,
     },
     properties,
     /** The viewer's level on each restricted property; missing when none is. */

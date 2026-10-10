@@ -1,6 +1,6 @@
 import type { PageKind, PropertyOptions, PropertyType, RowProperties, ViewConfig, ViewType } from "@/db/schema/app";
 import { mapFilterRules } from "./filters";
-import { rewriteReferences } from "./formula";
+import { rewriteReferences, rewriteRelatedReferences } from "./formula";
 import { atLeast, type PropertyLevel, type PropertyRule } from "./property-access";
 // Type only: property-access-rows imports this module.
 import type { PropertyAccess } from "./property-access-rows";
@@ -93,9 +93,11 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
           // the original, and mirroring into it from the copy would corrupt that pairing.
           { databaseId: relation.databaseId, pairedPropertyId: null };
     }
-    // Formulas name the properties they use by id: point them at the copies.
+    // Formulas name the properties they use by id: point them at the copies. Properties read on
+    // related rows are copied (and so renamed) only when the related database is.
     if (prop.type === "formula" && prop.options.formula) {
-      options.formula = { expression: rewriteReferences(prop.options.formula.expression, (key) => propIds.get(key) ?? null) };
+      const own = rewriteReferences(prop.options.formula.expression, (key) => propIds.get(key) ?? null);
+      options.formula = { expression: rewriteRelatedReferences(own, (node) => propIds.get(node.key) ?? null) };
     }
     // Rollups read through a relation of their own database, which is copied with them; the
     // property they read is copied only when the related database is.

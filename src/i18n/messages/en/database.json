@@ -685,6 +685,8 @@
     "back": "Back",
     "properties": "Properties",
     "functions": "Functions",
+    "relatedHint": "In map(), filter() and the like, prop(current, \"Name\") reads a property of the related row. Formulas read up to {max} rows per relation, one step away: a related row’s own relations read as titles.",
+    "styleHint": "style(value, \"b\", \"red\") shows a result bold, italic (i), underlined (u), struck through (s), as code (c) or in a color: {colors}, or on a background like \"red_background\".",
     "insert": "Insert {name}",
     "error": "Error",
     "errorTitle": "This row can’t be calculated: {message}",
@@ -694,14 +696,19 @@
       "text": "Text",
       "number": "Numbers",
       "date": "Dates",
-      "conversion": "Conversion"
+      "conversion": "Conversion",
+      "list": "Lists",
+      "style": "Styles"
     },
     "types": {
       "number": "number",
       "text": "text",
       "checkbox": "checkbox",
       "date": "date",
-      "list": "list"
+      "list": "list",
+      "numbers": "list of numbers",
+      "rows": "related rows",
+      "row": "related row"
     },
     "errors": {
       "syntax": "Unexpected “{token}”.",
@@ -709,7 +716,7 @@
       "unterminatedString": "A text in quotes is missing its closing quote.",
       "unknownFunction": "Unknown function “{name}”.",
       "unknownProperty": "Unknown property “{name}”.",
-      "propArgument": "prop() takes a property name in quotes, like prop(\"Price\").",
+      "propArgument": "prop() takes a property name in quotes, like prop(\"Price\"), or a related row and a name, like prop(current, \"Price\").",
       "argumentCount": {
         "exact": "{name}() takes {min, plural, one {# argument} other {# arguments}}, not {actual}.",
         "range": "{name}() takes {min} to {max} arguments, not {actual}.",
@@ -733,7 +740,11 @@
       "rollupRelation": "The relation this rollup uses no longer exists.",
       "rollupTarget": "The property this rollup uses no longer exists.",
       "rollupFunction": "This rollup can’t calculate that for “{property}”.",
-      "rollupDepth": "Rollups of rollups go too deep here."
+      "rollupDepth": "Rollups of rollups go too deep here.",
+      "invalidStyle": "Unknown style “{style}”. Use b, i, u, s, c, a color ({colors}) or a color with “_background”.",
+      "currentOutside": "“current” can only be used inside map(), filter() and the like.",
+      "relatedDepth": "“{name}” reads related rows itself, so it can’t be read from another database.",
+      "relatedLimit": "A formula reads the properties of at most {max} related rows per relation."
     }
   },
   "group": {

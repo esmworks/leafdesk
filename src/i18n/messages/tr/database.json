@@ -685,6 +685,8 @@
     "back": "Geri",
     "properties": "Özellikler",
     "functions": "Fonksiyonlar",
+    "relatedHint": "map(), filter() ve benzerlerinde prop(current, \"Ad\") ilişkili satırın bir özelliğini okur. Formüller bir ilişkinin en fazla {max} satırını, yalnızca bir adım öteden okur: ilişkili satırın kendi ilişkileri başlık olarak okunur.",
+    "styleHint": "style(değer, \"b\", \"red\") sonucu kalın, italik (i), altı çizili (u), üstü çizili (s), kod (c) ya da renkli gösterir: {colors}; \"red_background\" gibi arka planlar da kullanılabilir.",
     "insert": "{name} ekle",
     "error": "Hata",
     "errorTitle": "Bu satır hesaplanamıyor: {message}",
@@ -694,14 +696,19 @@
       "text": "Metin",
       "number": "Sayılar",
       "date": "Tarihler",
-      "conversion": "Dönüştürme"
+      "conversion": "Dönüştürme",
+      "list": "Listeler",
+      "style": "Biçimler"
     },
     "types": {
       "number": "sayı",
       "text": "metin",
       "checkbox": "onay kutusu",
       "date": "tarih",
-      "list": "liste"
+      "list": "liste",
+      "numbers": "sayı listesi",
+      "rows": "ilişkili satırlar",
+      "row": "ilişkili satır"
     },
     "errors": {
       "syntax": "Beklenmeyen “{token}”.",
@@ -709,7 +716,7 @@
       "unterminatedString": "Tırnak içindeki bir metnin kapanış tırnağı eksik.",
       "unknownFunction": "Bilinmeyen fonksiyon: “{name}”.",
       "unknownProperty": "Bilinmeyen özellik: “{name}”.",
-      "propArgument": "prop() tırnak içinde bir özellik adı alır, örneğin prop(\"Fiyat\").",
+      "propArgument": "prop() tırnak içinde bir özellik adı alır, örneğin prop(\"Fiyat\"); ya da ilişkili bir satır ve bir ad, örneğin prop(current, \"Fiyat\").",
       "argumentCount": {
         "exact": "{name}() {min} argüman alır, {actual} değil.",
         "range": "{name}() {min} ile {max} arasında argüman alır, {actual} değil.",
@@ -733,7 +740,11 @@
       "rollupRelation": "Bu toplamanın kullandığı ilişki artık yok.",
       "rollupTarget": "Bu toplamanın kullandığı özellik artık yok.",
       "rollupFunction": "Bu toplama “{property}” için bunu hesaplayamaz.",
-      "rollupDepth": "Toplamaların toplamaları burada çok derine iniyor."
+      "rollupDepth": "Toplamaların toplamaları burada çok derine iniyor.",
+      "invalidStyle": "Bilinmeyen biçim: “{style}”. b, i, u, s, c, bir renk ({colors}) ya da sonuna “_background” eklenmiş bir renk kullanın.",
+      "currentOutside": "“current” yalnızca map(), filter() ve benzerlerinin içinde kullanılabilir.",
+      "relatedDepth": "“{name}” kendisi ilişkili satırları okuyor; bu yüzden başka bir veritabanından okunamaz.",
+      "relatedLimit": "Bir formül, bir ilişkinin en fazla {max} satırının özelliklerini okuyabilir."
     }
   },
   "group": {

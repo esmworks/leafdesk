@@ -685,6 +685,8 @@
     "back": "Atrás",
     "properties": "Propiedades",
     "functions": "Funciones",
+    "relatedHint": "Dentro de map(), filter() y similares, prop(current, \"Nombre\") lee una propiedad de la fila relacionada. Las fórmulas leen hasta {max} filas por relación y solo a un paso: las relaciones de una fila relacionada se leen como títulos.",
+    "styleHint": "style(valor, \"b\", \"red\") muestra un resultado en negrita, cursiva (i), subrayado (u), tachado (s), como código (c) o en color: {colors}, o sobre un fondo como \"red_background\".",
     "insert": "Insertar {name}",
     "error": "Error",
     "errorTitle": "Esta fila no se puede calcular: {message}",
@@ -694,14 +696,19 @@
       "text": "Texto",
       "number": "Números",
       "date": "Fechas",
-      "conversion": "Conversión"
+      "conversion": "Conversión",
+      "list": "Listas",
+      "style": "Estilos"
     },
     "types": {
       "number": "número",
       "text": "texto",
       "checkbox": "casilla de verificación",
       "date": "fecha",
-      "list": "lista"
+      "list": "lista",
+      "numbers": "lista de números",
+      "rows": "filas relacionadas",
+      "row": "fila relacionada"
     },
     "errors": {
       "syntax": "“{token}” inesperado.",
@@ -709,7 +716,7 @@
       "unterminatedString": "A un texto entre comillas le falta la comilla de cierre.",
       "unknownFunction": "Función desconocida: “{name}”.",
       "unknownProperty": "Propiedad desconocida: “{name}”.",
-      "propArgument": "prop() recibe un nombre de propiedad entre comillas, como prop(\"Precio\").",
+      "propArgument": "prop() recibe un nombre de propiedad entre comillas, como prop(\"Precio\"), o una fila relacionada y un nombre, como prop(current, \"Precio\").",
       "argumentCount": {
         "exact": "{name}() recibe {min, plural, one {# argumento} other {# argumentos}}, no {actual}.",
         "range": "{name}() recibe entre {min} y {max} argumentos, no {actual}.",
@@ -733,7 +740,11 @@
       "rollupRelation": "La relación que usa esta agregación ya no existe.",
       "rollupTarget": "La propiedad que usa esta agregación ya no existe.",
       "rollupFunction": "Esta agregación no puede calcular eso para “{property}”.",
-      "rollupDepth": "Aquí hay demasiados niveles de agregaciones de agregaciones."
+      "rollupDepth": "Aquí hay demasiados niveles de agregaciones de agregaciones.",
+      "invalidStyle": "Estilo desconocido: “{style}”. Usa b, i, u, s, c, un color ({colors}) o un color con “_background”.",
+      "currentOutside": "“current” solo se puede usar dentro de map(), filter() y similares.",
+      "relatedDepth": "“{name}” lee filas relacionadas por sí misma, así que no se puede leer desde otra base de datos.",
+      "relatedLimit": "Una fórmula lee las propiedades de como máximo {max} filas relacionadas por relación."
     }
   },
   "group": {

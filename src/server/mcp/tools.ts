@@ -34,7 +34,9 @@ import {
   chartTypeOf,
   isStackable,
 } from "@/lib/chart";
-import { formulaForStorage, withFormulaTypes } from "@/lib/derived";
+import { formulaForStorage } from "@/lib/derived";
+import { formulaReferences } from "@/lib/property-access";
+import { withAllFormulaTypes } from "@/server/derived";
 import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
 import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
@@ -204,7 +206,9 @@ function requireProperty<P extends PropertyDef>(props: P[], ref: string): P {
 /** The relation a rollup reads through, for loading what describes it. */
 function rollupRelations<P extends PropertyDef>(prop: P, props: P[]): P[] {
   const id = prop.type === "rollup" ? prop.options.rollup?.relationPropertyId : undefined;
-  return props.filter((p) => p.id === id && p.type === "relation");
+  // A formula reading related rows names their properties: its relations' databases tell them.
+  const read = prop.type === "formula" ? formulaReferences(prop.options.formula?.expression ?? "") : [];
+  return props.filter((p) => p.type === "relation" && (p.id === id || read.includes(p.id)));
 }
 
 /** Rollup settings given by names, as property ids (databases.addProperty checks the rest). */
@@ -1426,7 +1430,7 @@ export function createMcpServer(principal: McpPrincipal) {
           ...(date_options ? { date: dateOptionsOf(date_options) } : {}),
         });
         // Formulas come with their result type.
-        const after = withFormulaTypes([...properties, created]);
+        const after = await withAllFormulaTypes([...properties, created]);
         const shown = after[after.length - 1];
         const lookups = await databases.getLookups(userId, [shown, ...rollupRelations(shown, after)]);
         return { database_id, property: describeProperty(shown, lookups, after, { restricted: !access.open }) };
@@ -1663,7 +1667,7 @@ export function createMcpServer(principal: McpPrincipal) {
           throw new ToolInputError("Nothing to change: provide name, option changes, formula, rollup, number_format or date_options.");
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
-        const after = withFormulaTypes(
+        const after = await withAllFormulaTypes(
           properties.map((p) =>
             p.id !== prop.id
               ? p
@@ -1743,7 +1747,7 @@ export function createMcpServer(principal: McpPrincipal) {
           },
           { dryRun: dry_run },
         );
-        const after = withFormulaTypes(properties.map((p) => (p.id === prop.id ? result.property : p)));
+        const after = await withAllFormulaTypes(properties.map((p) => (p.id === prop.id ? result.property : p)));
         const changed = after.find((p) => p.id === prop.id)!;
         const lookups = await databases.getLookups(userId, [changed, ...rollupRelations(changed, after)]);
         return {

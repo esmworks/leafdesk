@@ -101,7 +101,7 @@ export function rollupValue(
   const label = (value: unknown): string[] => {
     if (target === TITLE_FIELD) return [String(value ?? "")];
     const read = readPropertyValue(target, value, ctx);
-    if (Array.isArray(read)) return read;
+    if (Array.isArray(read)) return read.map((item) => formatValue(item));
     return read === null ? [] : [formatValue(read)];
   };
   return rollupValues(values, fn, column, label)?.value ?? null;

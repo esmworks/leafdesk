@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { databaseProperty, databaseView, page, pagePublication, user, workspace, type CardSize, type PageKind, type ViewConfig, type ViewType } from "@/db/schema";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
-import { withFormulaTypes } from "@/lib/derived";
+import type { FormulaStyle } from "@/lib/formula";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
@@ -20,7 +20,7 @@ import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { AccessError, accessRank, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/databases";
-import { computeDerived } from "@/server/derived";
+import { computeDerived, withAllFormulaTypes } from "@/server/derived";
 import { publishedPageRefs } from "@/server/mentions";
 import { propertyAccessFor } from "@/server/property-access";
 import { canPublish, publishingOn } from "@/server/workspaces";
@@ -285,6 +285,8 @@ export type PublishedRow = {
   updatedAt: Date;
   /** Galleries showing covers: the first image in the row's body, or of the view's files property. */
   cover?: string | null;
+  /** How styled formula results show (see lib/formula style()). */
+  styles?: Record<string, FormulaStyle>;
 };
 export type PublishedViewTab = { id: string; name: string; type: ViewType };
 /** How a published view is drawn; calendars, timelines and charts show as tables. */
@@ -355,7 +357,7 @@ export type PublishedPage = {
   /** Database pages. */
   database: PublishedDatabase | null;
   /** Database rows: their values, with the database's (non-relation) properties. */
-  row: { properties: DatabaseProperty[]; values: Record<string, unknown> } | null;
+  row: { properties: DatabaseProperty[]; values: Record<string, unknown>; styles?: Record<string, FormulaStyle> } | null;
 };
 
 export type PublishedPageOptions = {
@@ -476,7 +478,14 @@ export async function publishedRow(
     properties,
     access,
   );
-  return { properties: publicProperties(access.known(properties)), values: row.properties };
+  const shown = publicProperties(access.known(properties));
+  return { properties: shown, values: row.properties, ...stylesOf(row, shown) };
+}
+
+/** The styles of the formula results a published page shows (none of what it leaves out). */
+function stylesOf(row: { styles?: Record<string, FormulaStyle> }, shown: { id: string }[]) {
+  const styles = Object.entries(row.styles ?? {}).filter(([id]) => shown.some((p) => p.id === id));
+  return styles.length ? { styles: Object.fromEntries(styles) } : {};
 }
 
 /**
@@ -636,7 +645,7 @@ async function databaseProperties(databaseId: string) {
     .from(databaseProperty)
     .where(and(eq(databaseProperty.databaseId, databaseId), isNull(databaseProperty.deletedAt)))
     .orderBy(asc(databaseProperty.position), asc(databaseProperty.createdAt));
-  return withFormulaTypes(properties);
+  return withAllFormulaTypes(properties);
 }
 
 const PRIVATE_TYPES = UNPUBLISHED_PROPERTY_TYPES;
@@ -803,7 +812,15 @@ export async function publishedDatabase(
  */
 function onlyValuesOf<R extends PublishedRow>(row: R, shown: DatabaseProperty[]): PublishedRow {
   const { id, title, icon, createdAt, updatedAt } = row;
-  return { id, title, icon, createdAt, updatedAt, properties: Object.fromEntries(shown.map((p) => [p.id, row.properties[p.id]])) };
+  return {
+    id,
+    title,
+    icon,
+    createdAt,
+    updatedAt,
+    properties: Object.fromEntries(shown.map((p) => [p.id, row.properties[p.id]])),
+    ...stylesOf(row, shown),
+  };
 }
 
 /**

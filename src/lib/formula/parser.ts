@@ -9,8 +9,13 @@ export type Node =
   | ({ kind: "number"; value: number } & Span)
   | ({ kind: "string"; value: string } & Span)
   | ({ kind: "boolean"; value: boolean } & Span)
-  /** `prop("…")`: `key` is a property id, a property name or "title" (see checkFormula). */
-  | ({ kind: "prop"; key: string } & Span)
+  /**
+   * `prop("…")`: `key` is a property id, a property name or "title" (see checkFormula). With
+   * `row` (`prop(row, "…")`), a property of that related row instead. `keyAt` locates the key.
+   */
+  | ({ kind: "prop"; key: string; row?: Node; keyAt: Span } & Span)
+  /** `current`: the list item map(), filter() and the like are looking at. */
+  | ({ kind: "current" } & Span)
   | ({ kind: "call"; name: string; args: Node[] } & Span)
   | ({ kind: "unary"; op: UnaryOp; arg: Node } & Span)
   | ({ kind: "binary"; op: BinaryOp; left: Node; right: Node } & Span);
@@ -141,7 +146,9 @@ export function parse(source: string): Node | null {
       case "name": {
         const word = t.value.toLowerCase();
         if (word === "true" || word === "false") return { kind: "boolean", value: word === "true", start: t.start, end: t.end };
-        if (peek().kind !== "punct" || peek().value !== "(") {
+        const call = peek().kind === "punct" && peek().value === "(";
+        if (word === "current" && !call) return { kind: "current", start: t.start, end: t.end };
+        if (!call) {
           fail("syntax", `"${t.value}" needs parentheses: ${t.value}(…)`, { token: t.value }, t);
         }
         next();
@@ -157,10 +164,19 @@ export function parse(source: string): Node | null {
         }
         const end = tokens[pos - 1].end;
         if (word === "prop") {
-          if (args.length !== 1 || args[0].kind !== "string") {
-            fail("propArgument", 'prop() takes a property name in quotes, like prop("Price")', {}, { start: t.start, end });
+          // prop("Name") on the row itself, prop(row, "Name") on a related row.
+          const key = args[args.length - 1];
+          if (args.length < 1 || args.length > 2 || key.kind !== "string") {
+            fail(
+              "propArgument",
+              'prop() takes a property name in quotes, like prop("Price"), or a related row and a name, like prop(current, "Price")',
+              {},
+              { start: t.start, end },
+            );
           }
-          return { kind: "prop", key: (args[0] as { value: string }).value, start: t.start, end };
+          const keyAt = { start: key.start, end: key.end };
+          if (args.length === 2) return { kind: "prop", key: key.value, row: args[0], keyAt, start: t.start, end };
+          return { kind: "prop", key: key.value, keyAt, start: t.start, end };
         }
         return { kind: "call", name: t.value, args, start: t.start, end };
       }
@@ -175,12 +191,17 @@ export function parse(source: string): Node | null {
   return root;
 }
 
-/** Every `prop(…)` key an expression mentions, in order of appearance (duplicates dropped). */
+/**
+ * Every `prop("…")` key of the row itself an expression mentions, in order of appearance
+ * (duplicates dropped). Keys read on related rows (`prop(row, "…")`) are not the row's own.
+ */
 export function references(node: Node | null): string[] {
   const out = new Set<string>();
   const walk = (n: Node) => {
-    if (n.kind === "prop") out.add(n.key);
-    else if (n.kind === "call") n.args.forEach(walk);
+    if (n.kind === "prop") {
+      if (n.row) walk(n.row);
+      else out.add(n.key);
+    } else if (n.kind === "call") n.args.forEach(walk);
     else if (n.kind === "unary") walk(n.arg);
     else if (n.kind === "binary") {
       walk(n.left);
@@ -189,4 +210,26 @@ export function references(node: Node | null): string[] {
   };
   if (node) walk(node);
   return [...out];
+}
+
+export type PropNode = Extract<Node, { kind: "prop" }>;
+
+/** Every `prop(row, "…")` of an expression: reads of related rows' properties. */
+export function relatedReads(node: Node | null): PropNode[] {
+  const out: PropNode[] = [];
+  const walk = (n: Node) => {
+    if (n.kind === "prop") {
+      if (n.row) {
+        out.push(n);
+        walk(n.row);
+      }
+    } else if (n.kind === "call") n.args.forEach(walk);
+    else if (n.kind === "unary") walk(n.arg);
+    else if (n.kind === "binary") {
+      walk(n.left);
+      walk(n.right);
+    }
+  };
+  if (node) walk(node);
+  return out;
 }

@@ -39,6 +39,7 @@ import {
 import { derivedType, formulaForEditing, rollupFormat, TITLE_FIELD, valueType } from "@/lib/derived";
 import { dependencySettings } from "@/lib/dependencies";
 import { formulaReferences, type PropertyLevel } from "@/lib/property-access";
+import { parseFormula, relatedReads } from "@/lib/formula";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType, PERSON_ME, STATUS_GROUPS } from "@/lib/property-types";
 
 export type PropertyDef = { id: string; name: string; type: PropertyType; options: PropertyOptions };
@@ -574,14 +575,20 @@ export function describeProperty(
   const target = lookups.relations[prop.id];
   const expression = prop.options.formula?.expression ?? "";
   const known = new Set(props.map((p) => p.id));
-  const readsUnknown = restricted && prop.type === "formula" && formulaReferences(expression).some((r) => r !== TITLE_FIELD && !known.has(r));
+  // Properties of related databases the caller may know of, by which formulas read related rows.
+  const relatedProps = Object.values(lookups.relations).flatMap((r) => r?.properties ?? []);
+  const relatedKnown = new Set(relatedProps.map((p) => p.id));
+  const readsUnknown =
+    prop.type === "formula" &&
+    ((restricted && formulaReferences(expression).some((r) => r !== TITLE_FIELD && !known.has(r))) ||
+      relatedReads(parseFormula(expression).ast).some((n) => n.key !== TITLE_FIELD && !relatedKnown.has(n.key)));
   return {
     id: prop.id,
     name: prop.name,
     type: prop.type,
     ...describeAccess(access),
     ...(prop.type === "formula"
-      ? { formula: readsUnknown ? null : formulaForEditing(expression, props), result_type: derivedType(prop) }
+      ? { formula: readsUnknown ? null : formulaForEditing(expression, props, TITLE_FIELD, relatedProps), result_type: derivedType(prop) }
       : {}),
     ...(prop.type === "rollup" ? { rollup: describeRollup(prop, lookups, props) } : {}),
     // How the app shows the values; they stay plain numbers here (a percentage as its fraction).

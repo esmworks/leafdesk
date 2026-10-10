@@ -685,6 +685,8 @@
     "back": "Zurück",
     "properties": "Eigenschaften",
     "functions": "Funktionen",
+    "relatedHint": "In map(), filter() und ähnlichen Funktionen liest prop(current, \"Name\") eine Eigenschaft der verknüpften Zeile. Formeln lesen bis zu {max} Zeilen pro Relation und nur einen Schritt weit: Relationen einer verknüpften Zeile lesen sich als Titel.",
+    "styleHint": "style(Wert, \"b\", \"red\") zeigt ein Ergebnis fett, kursiv (i), unterstrichen (u), durchgestrichen (s), als Code (c) oder farbig: {colors}, oder mit Hintergrund wie \"red_background\".",
     "insert": "{name} einfügen",
     "error": "Fehler",
     "errorTitle": "Diese Zeile kann nicht berechnet werden: {message}",
@@ -694,14 +696,19 @@
       "text": "Text",
       "number": "Zahlen",
       "date": "Datum",
-      "conversion": "Umwandlung"
+      "conversion": "Umwandlung",
+      "list": "Listen",
+      "style": "Stile"
     },
     "types": {
       "number": "Zahl",
       "text": "Text",
       "checkbox": "Kontrollkästchen",
       "date": "Datum",
-      "list": "Liste"
+      "list": "Liste",
+      "numbers": "Zahlenliste",
+      "rows": "verknüpfte Zeilen",
+      "row": "verknüpfte Zeile"
     },
     "errors": {
       "syntax": "Unerwartetes „{token}“.",
@@ -709,7 +716,7 @@
       "unterminatedString": "Bei einem Text in Anführungszeichen fehlt das schließende Anführungszeichen.",
       "unknownFunction": "Unbekannte Funktion „{name}“.",
       "unknownProperty": "Unbekannte Eigenschaft „{name}“.",
-      "propArgument": "prop() erwartet einen Eigenschaftsnamen in Anführungszeichen, zum Beispiel prop(\"Preis\").",
+      "propArgument": "prop() erwartet einen Eigenschaftsnamen in Anführungszeichen, zum Beispiel prop(\"Preis\"), oder eine verknüpfte Zeile und einen Namen, zum Beispiel prop(current, \"Preis\").",
       "argumentCount": {
         "exact": "{name}() erwartet {min, plural, one {# Argument} other {# Argumente}}, nicht {actual}.",
         "range": "{name}() erwartet {min} bis {max} Argumente, nicht {actual}.",
@@ -733,7 +740,11 @@
       "rollupRelation": "Die Relation, die dieses Rollup verwendet, existiert nicht mehr.",
       "rollupTarget": "Die Eigenschaft, die dieses Rollup verwendet, existiert nicht mehr.",
       "rollupFunction": "Dieses Rollup kann das für „{property}“ nicht berechnen.",
-      "rollupDepth": "Rollups von Rollups sind hier zu tief verschachtelt."
+      "rollupDepth": "Rollups von Rollups sind hier zu tief verschachtelt.",
+      "invalidStyle": "Unbekannter Stil „{style}“. Verwende b, i, u, s, c, eine Farbe ({colors}) oder eine Farbe mit „_background“.",
+      "currentOutside": "„current“ geht nur innerhalb von map(), filter() und ähnlichen Funktionen.",
+      "relatedDepth": "„{name}“ liest selbst verknüpfte Zeilen und kann deshalb nicht aus einer anderen Datenbank gelesen werden.",
+      "relatedLimit": "Eine Formel liest die Eigenschaften von höchstens {max} verknüpften Zeilen pro Relation."
     }
   },
   "group": {

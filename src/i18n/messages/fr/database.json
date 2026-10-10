@@ -685,6 +685,8 @@
     "back": "Retour",
     "properties": "Propriétés",
     "functions": "Fonctions",
+    "relatedHint": "Dans map(), filter() et fonctions semblables, prop(current, \"Nom\") lit une propriété de la ligne liée. Les formules lisent jusqu’à {max} lignes par relation, à un seul pas : les relations d’une ligne liée se lisent comme des titres.",
+    "styleHint": "style(valeur, \"b\", \"red\") affiche un résultat en gras, italique (i), souligné (u), barré (s), en code (c) ou en couleur : {colors}, ou sur un fond comme \"red_background\".",
     "insert": "Insérer {name}",
     "error": "Erreur",
     "errorTitle": "Cette ligne ne peut pas être calculée : {message}",
@@ -694,14 +696,19 @@
       "text": "Texte",
       "number": "Nombres",
       "date": "Dates",
-      "conversion": "Conversion"
+      "conversion": "Conversion",
+      "list": "Listes",
+      "style": "Styles"
     },
     "types": {
       "number": "nombre",
       "text": "texte",
       "checkbox": "case à cocher",
       "date": "date",
-      "list": "liste"
+      "list": "liste",
+      "numbers": "liste de nombres",
+      "rows": "lignes liées",
+      "row": "ligne liée"
     },
     "errors": {
       "syntax": "« {token} » inattendu.",
@@ -709,7 +716,7 @@
       "unterminatedString": "Il manque le guillemet fermant d’un texte entre guillemets.",
       "unknownFunction": "Fonction inconnue « {name} ».",
       "unknownProperty": "Propriété inconnue « {name} ».",
-      "propArgument": "prop() prend un nom de propriété entre guillemets, comme prop(\"Prix\").",
+      "propArgument": "prop() prend un nom de propriété entre guillemets, comme prop(\"Prix\"), ou une ligne liée et un nom, comme prop(current, \"Prix\").",
       "argumentCount": {
         "exact": "{name}() prend {min, plural, one {# argument} other {# arguments}}, et non {actual}.",
         "range": "{name}() prend entre {min} et {max} arguments, et non {actual}.",
@@ -733,7 +740,11 @@
       "rollupRelation": "La relation utilisée par cette agrégation n’existe plus.",
       "rollupTarget": "La propriété utilisée par cette agrégation n’existe plus.",
       "rollupFunction": "Cette agrégation ne peut pas effectuer ce calcul pour « {property} ».",
-      "rollupDepth": "Trop de niveaux d’agrégations imbriquées."
+      "rollupDepth": "Trop de niveaux d’agrégations imbriquées.",
+      "invalidStyle": "Style inconnu « {style} ». Utilisez b, i, u, s, c, une couleur ({colors}) ou une couleur avec « _background ».",
+      "currentOutside": "« current » ne s’utilise qu’à l’intérieur de map(), filter() et fonctions semblables.",
+      "relatedDepth": "« {name} » lit elle-même des lignes liées : elle ne peut donc pas être lue depuis une autre base de données.",
+      "relatedLimit": "Une formule lit les propriétés d’au plus {max} lignes liées par relation."
     }
   },
   "group": {

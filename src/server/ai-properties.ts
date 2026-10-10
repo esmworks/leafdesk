@@ -31,7 +31,9 @@ import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
 import * as databases from "@/server/databases";
 import { displayProperties } from "@/server/mcp/query";
+import { compileFormulas, relatedDatabases } from "@/lib/derived";
 import { formulaReferences } from "@/lib/property-access";
+import { relatedSchemasFor } from "@/server/derived";
 import { loadPropertyRules, propertyAccessFor, type AccessRow, type PropertyAccess } from "@/server/property-access";
 import { onRowChanged, type RowChange } from "@/server/row-events";
 
@@ -235,6 +237,33 @@ async function rowInput(
   return { config, prompt, hash };
 }
 
+/**
+ * Formulas reading a restricted property of related rows (or a formula there that reads one):
+ * left out of autofill like formulas over restricted properties of the row itself.
+ */
+async function readingRestrictedRelated(props: Property[]): Promise<string[]> {
+  const databaseIds = relatedDatabases(props);
+  if (!databaseIds.length) return [];
+  const [schemas, rules] = await Promise.all([relatedSchemasFor([props]), loadPropertyRules(databaseIds)]);
+  // Restricted there: properties with rules, and the formulas reading them.
+  const restricted = new Set(rules.keys());
+  const related = databaseIds.flatMap((id) => schemas(id) ?? []);
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const p of related) {
+      if (p.type !== "formula" || restricted.has(p.id)) continue;
+      if (formulaReferences(p.options.formula?.expression ?? "").some((id) => restricted.has(id))) {
+        restricted.add(p.id);
+        grew = true;
+      }
+    }
+  }
+  const compiled = compileFormulas(props, schemas);
+  return [...compiled.values()]
+    .filter((f) => [...f.notes.reads.values()].some(({ field }) => field.id && restricted.has(field.id)))
+    .map((f) => f.id);
+}
+
 /** Works out one value. Returns milliseconds to wait before retrying (workspace allowance), or 0. */
 async function runJob(job: Job): Promise<number> {
   try {
@@ -260,6 +289,7 @@ async function runJob(job: Job): Promise<number> {
     // people the inputs are hidden from (the same reason search leaves them out).
     // Formulas reading them are left out too.
     const restricted = new Set((await loadPropertyRules([job.databaseId])).keys());
+    for (const id of await readingRestrictedRelated(all)) restricted.add(id);
     for (let grew = true; grew; ) {
       grew = false;
       for (const p of all) {
