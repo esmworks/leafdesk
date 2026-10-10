@@ -3,6 +3,7 @@ import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
 import { file, fileReference, page, propertyPermission, type PageKind, workspace } from "@/db/schema";
 import { toCsv } from "@/lib/csv";
+import { dateValueText } from "@/lib/date-value";
 import { isErrorValue, valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
@@ -120,6 +121,8 @@ export function databaseTable(
         // A formula that fails on this row says why.
         if (isErrorValue(value)) return `#ERROR: ${value.error.message}`;
         if (p.type === "files") return files(value);
+        // "2026-10-12 → 2026-10-14" for ranges, times in UTC: what the CSV import reads back.
+        if (p.type === "date") return dateValueText(value);
         return p.type === "checklist" ? checklist(value) : cell(displayValue(p, value), holdsPeople(p.type) ? nameOf : titleOf);
       }),
     ]),

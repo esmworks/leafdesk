@@ -13,6 +13,12 @@ describe("assignedGroup", () => {
     expect(assignedGroup("2026-10-17", today)).toBe("later");
   });
 
+  it("is due today while today is within a range, and overdue once it ended", () => {
+    expect(assignedGroup("2026-10-07", today, "2026-10-11")).toBe("today");
+    expect(assignedGroup("2026-10-05", today, "2026-10-08")).toBe("overdue");
+    expect(assignedGroup("2026-10-12", today, "2026-10-20")).toBe("next7");
+  });
+
   it("counts across months and years", () => {
     expect(assignedGroup("2027-01-02", "2026-12-31")).toBe("next7");
     expect(assignedGroup("2026-02-28", "2026-03-01")).toBe("overdue");

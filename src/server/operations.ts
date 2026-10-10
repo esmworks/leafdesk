@@ -64,17 +64,20 @@ export const id = (what: string) => z.string().min(1).describe(`The ${what} id (
 
 const checklistItem = z.object({ text: z.string(), checked: z.boolean().optional() });
 const fileItem = z.object({ url: z.string(), name: z.string().optional() });
+/** A date range (or a single date, without `end`), as an alternative to the "start/end" string. */
+const dateRange = z.object({ start: z.string(), end: z.string().nullable().optional() });
 export const rowValue = z.union([
   z.string(),
   z.number(),
   z.boolean(),
+  dateRange,
   z.array(z.union([z.string(), checklistItem, fileItem])),
   z.null(),
 ]);
 export const rowProperties = z
   .record(z.string(), rowValue)
   .describe(
-    'Property values keyed by property name (case-insensitive) or id. Use option names for select / multi_select / status (an array for multi_select), ISO dates (YYYY-MM-DD) for date, true/false for checkbox, an email address for email, a phone number for phone, an array of item texts or {text, checked} objects for checklist, an array of row ids (or exact row titles) of the related database for relation, an array of user ids, emails, names or "me" for person, an array of files already uploaded to this workspace (their /api/files/<id> paths or urls, or the {name, url} objects query_database returns; upload new ones with attach_file and its property option) for files, and null to clear a value. Setting a relation, person, checklist or files replaces its values. created_by, created_time, last_edited_by, last_edited_time and formula properties are read-only. Example: {"Status": "In progress", "Tags": ["urgent"], "Due": "2026-10-01", "Customer": ["Acme Ltd"], "Assignee": ["me"]}',
+    'Property values keyed by property name (case-insensitive) or id. Use option names for select / multi_select / status (an array for multi_select), for date a day (YYYY-MM-DD), a time with its zone (2026-10-12T14:30:00Z or +03:00; stored in UTC) or a range of either as \"start/end\" or {start, end}, true/false for checkbox, an email address for email, a phone number for phone, an array of item texts or {text, checked} objects for checklist, an array of row ids (or exact row titles) of the related database for relation, an array of user ids, emails, names or "me" for person, an array of files already uploaded to this workspace (their /api/files/<id> paths or urls, or the {name, url} objects query_database returns; upload new ones with attach_file and its property option) for files, and null to clear a value. Setting a relation, person, checklist or files replaces its values. created_by, created_time, last_edited_by, last_edited_time and formula properties are read-only. Example: {"Status": "In progress", "Tags": ["urgent"], "Due": "2026-10-01", "Customer": ["Acme Ltd"], "Assignee": ["me"]}',
   );
 
 const filterRuleInput = z.object({

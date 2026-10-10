@@ -184,14 +184,16 @@ async function send({
     // A date property's reminder, else one set on a date mention.
     if (propertyId) {
       const [about] = await db
-        .select({ propertyName: databaseProperty.name, databaseTitle: page.title })
+        .select({ propertyName: databaseProperty.name, databaseTitle: page.title, options: databaseProperty.options })
         .from(databaseProperty)
         .innerJoin(page, eq(page.id, databaseProperty.databaseId))
         // A deleted property reminds no one.
         .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)));
       if (!about) return;
       const databaseTitle = pageLabel(about.databaseTitle, emailTranslator(locale)("share.untitled"));
-      const names = { date, pageTitle, databaseTitle, propertyName: about.propertyName, workspaceName: space?.name ?? "", link };
+      // A time reads in the zone of whoever set the reminder.
+      const timeZone = about.options.date?.reminder?.timeZone ?? "UTC";
+      const names = { date, pageTitle, databaseTitle, propertyName: about.propertyName, workspaceName: space?.name ?? "", link, timeZone };
       await mailer({ to: recipient.email, ...dateReminderEmail(locale, names) });
       return;
     }

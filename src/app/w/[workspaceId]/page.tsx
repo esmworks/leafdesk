@@ -22,7 +22,7 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
     recentPages(user.id, workspaceId, 12),
     getMembership(user.id, workspaceId),
     topLevelAccess(user.id, workspaceId),
-    assignedRows(user.id, workspaceId, today),
+    assignedRows(user.id, workspaceId, today, timeZone),
   ]);
   const [t, tc, format] = await Promise.all([getTranslations("home"), getTranslations("common"), getFormatter()]);
   const guest = !membership || isGuest(membership.role);

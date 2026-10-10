@@ -197,11 +197,20 @@ export function reminderEmail(
 /** To a row's people: the reminder of one of its date properties (see server/date-reminders). */
 export function dateReminderEmail(
   locale: Locale,
-  reminder: { date: string; pageTitle: string; databaseTitle: string; propertyName: string; workspaceName: string; link: string },
+  reminder: {
+    date: string;
+    pageTitle: string;
+    databaseTitle: string;
+    propertyName: string;
+    workspaceName: string;
+    link: string;
+    /** Where a time is read (a date's time, not a day). */
+    timeZone?: string;
+  },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = {
-    date: formatIsoDate(reminder.date, locale, "long"),
+    date: formatIsoDate(reminder.date, locale, "long", reminder.timeZone ?? "UTC"),
     page: reminder.pageTitle,
     database: reminder.databaseTitle,
     property: reminder.propertyName,

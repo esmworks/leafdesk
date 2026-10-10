@@ -4,7 +4,7 @@ import { calendarFeed, databaseView } from "@/db/schema";
 import { env } from "@/lib/env";
 import { icsCalendar, type IcsEvent } from "@/lib/ics";
 import { pageLabel } from "@/lib/labels";
-import { isIsoDate } from "@/lib/mentions";
+import { parseDateValue } from "@/lib/date-value";
 import { viewDateProperty } from "@/lib/views";
 import { sharedLimiter } from "@/lib/rate-limit";
 import { AccessError } from "@/server/access";
@@ -127,11 +127,11 @@ async function feedText(feed: typeof calendarFeed.$inferSelect, now: Date): Prom
   const host = new URL(env.appUrl).host;
   const events: IcsEvent[] = rows.flatMap((row) => {
     const value = row.properties[dateBy!.id];
-    if (!isIsoDate(value)) return [];
+    if (!parseDateValue(value)) return [];
     return [
       {
         uid: `${row.id}@${host}`,
-        day: value,
+        date: value as string,
         title: pageLabel(row.title, "Untitled"),
         url: `${env.appUrl}/w/${database.workspaceId}/p/${row.id}`,
         updatedAt: row.updatedAt,

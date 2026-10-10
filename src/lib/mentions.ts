@@ -322,9 +322,21 @@ export function stripReminders(doc: Y.Doc): boolean {
 // ---------------------------------------------------------------------------------------------
 // Showing dates
 
-/** A YYYY-MM-DD date as `locale` writes it ("Oct 1, 2026"): the date itself, whatever the time zone. */
-export function formatIsoDate(date: string, locale: string, style: "medium" | "long" = "medium") {
-  if (!isIsoDate(date)) return date;
+/**
+ * A YYYY-MM-DD date as `locale` writes it ("Oct 1, 2026"): the date itself, whatever the time zone.
+ * A time (an ISO timestamp, as a timed date property's reminder holds) is written with its time,
+ * in `timeZone` and naming it when given, else in the runtime's (the viewer's in the browser).
+ */
+export function formatIsoDate(date: string, locale: string, style: "medium" | "long" = "medium", timeZone?: string) {
+  if (!isIsoDate(date)) {
+    const at = /^\d{4}-\d{2}-\d{2}T/.test(date) ? Date.parse(date) : NaN;
+    if (Number.isNaN(at)) return date;
+    const zone: Intl.DateTimeFormatOptions = timeZone ? { timeZone, timeZoneName: "short" } : {};
+    const month = style === "long" ? "long" : "short";
+    return new Intl.DateTimeFormat(locale, { year: "numeric", month, day: "numeric", hour: "numeric", minute: "2-digit", ...zone }).format(
+      new Date(at),
+    );
+  }
   const [y, m, d] = date.split("-").map(Number);
   return new Intl.DateTimeFormat(locale, { dateStyle: style, timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
 }

@@ -3,9 +3,9 @@ import { dayNumber, isTimeZone, localDay, zonedInstant } from "@/lib/time-zone";
 
 /**
  * Options of date properties: showing days near today relatively ("tomorrow", "in 3 days") and
- * reminding the row's people before the date (see server/date-reminders). A date property holds a
- * day ("2026-10-16"), so a reminder goes at a time of day: 9:00 in the zone of whoever set it.
- * Pure and client-safe.
+ * reminding the row's people before the date (see server/date-reminders). For a day ("2026-10-16")
+ * a reminder goes at a time of day: 9:00 in the zone of whoever set it; for a time, at that time on
+ * that zone's clock. Ranges remind of their start. Pure and client-safe.
  */
 
 export type { DateOptions, DateReminder };

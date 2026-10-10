@@ -103,7 +103,7 @@ export const rowReminder = pgTable(
     propertyId: text("property_id")
       .notNull()
       .references(() => databaseProperty.id, { onDelete: "cascade" }),
-    /** The row's date it reminded about, YYYY-MM-DD. */
+    /** The start of the row's date it reminded about: YYYY-MM-DD, or a time's UTC timestamp. */
     date: text("date").notNull(),
     sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -177,8 +177,9 @@ export const notification = pgTable(
     /** The actor's interface language, for that email. */
     emailLocale: text("email_locale"),
     /**
-     * Reminders: the date that fell due (YYYY-MM-DD), the row's date for a date property's reminder
-     * (`propertyId` of row `pageId`), else the mentioned date the user set a reminder on.
+     * Reminders: the date that fell due (YYYY-MM-DD), the start of the row's date for a date
+     * property's reminder (`propertyId` of row `pageId`; a time's UTC timestamp when it has a time),
+     * else the mentioned date the user set a reminder on.
      */
     date: text("date"),
     /**

@@ -115,7 +115,7 @@ function holdsDates(key: string, prop: PropertyDef | undefined) {
   return prop ? valueType(prop) === "date" || holdsTimestamp(prop.type) : key === CREATED_KEY || key === UPDATED_KEY;
 }
 
-/** Timestamps and dates worked out by formulas: filtered by day, with a YYYY-MM-DD value. */
+/** Timestamps and dates worked out by formulas: filtered by day, with a YYYY-MM-DD value (as date properties are). */
 function filtersByDay(prop: PropertyDef) {
   return holdsTimestamp(prop.type) || (isDerived(prop.type) && derivedType(prop) === "date");
 }

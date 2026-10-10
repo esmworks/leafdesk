@@ -2,8 +2,10 @@ import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, page, type PageKind, type SelectOption } from "@/db/schema";
 import { groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
+import { dateDays } from "@/lib/date-value";
 import { atLeast } from "@/lib/property-access";
 import { isDoneStatus, optionOf } from "@/lib/properties";
+import { dayString } from "@/lib/time-zone";
 import { pageVisibleTo, requireMembership } from "@/server/access";
 import { loadProperties } from "@/server/derived";
 import { propertyAccessFor } from "@/server/property-access";
@@ -21,8 +23,10 @@ export type AssignedRow = {
   databaseId: string;
   /** Null when the viewer may open the row but not its database. */
   databaseTitle: string | null;
-  /** The row's first date the viewer may see (`YYYY-MM-DD`), or null. */
+  /** The first day of the row's first date the viewer may see (`YYYY-MM-DD`), or null. */
   date: string | null;
+  /** That date's last day when it is a range, else null. */
+  endDate: string | null;
   /** The row's first status the viewer may see, or null. */
   status: SelectOption | null;
   updatedAt: Date;
@@ -40,7 +44,7 @@ export type AssignedRows = {
  * may open count, and only where they may see the person property that names them; a status or
  * date hidden from them neither shows nor decides anything.
  */
-export async function assignedRows(userId: string, workspaceId: string, today: string): Promise<AssignedRows> {
+export async function assignedRows(userId: string, workspaceId: string, today: string, timeZone = "UTC"): Promise<AssignedRows> {
   await requireMembership(userId, workspaceId);
   const personProps = await db
     .select({ id: databaseProperty.id, databaseId: databaseProperty.databaseId })
@@ -114,7 +118,9 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
     const statuses = props.filter((p) => p.type === "status" && sees(p.id));
     if (statuses.some((p) => isDoneStatus(p, value(p.id)))) continue;
 
-    const dateProp = props.find((p) => p.type === "date" && sees(p.id) && typeof value(p.id) === "string" && value(p.id));
+    const dateProp = props.find((p) => p.type === "date" && sees(p.id) && dateDays(value(p.id), timeZone));
+    // Times count on their day in the viewer's zone.
+    const days = dateProp ? dateDays(value(dateProp.id), timeZone) : null;
     rows.push({
       id: row.id,
       title: row.title,
@@ -122,7 +128,8 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
       kind: row.kind,
       databaseId,
       databaseTitle: titles.get(databaseId) ?? null,
-      date: dateProp ? String(value(dateProp.id)).slice(0, 10) : null,
+      date: days ? dayString(days.start) : null,
+      endDate: days && days.end > days.start ? dayString(days.end) : null,
       status: statuses.map((p) => optionOf(p, value(p.id))).find(Boolean) ?? null,
       updatedAt: row.updatedAt,
     });

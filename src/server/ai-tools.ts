@@ -72,7 +72,7 @@ export const CHAT_TOOLS: AiTool[] = [
       "Properties are named as read_page shows them (or title, created_at, updated_at); select and status values by option name.",
       `Ops: ${FILTER_OPS.join(", ")}. is_empty and is_not_empty take no value.`,
       'People (person, created_by, last_edited_by): contains or not_equals with "me" for the person asking, or a name.',
-      "Relations: contains or not_equals with a related row's title. Numbers and dates: equals, gt, lt; dates as YYYY-MM-DD.",
+      "Relations: contains or not_equals with a related row's title. Numbers and dates: equals, gt, lt; dates as YYYY-MM-DD (a range matches when it covers, starts before or ends after the day).",
       'is_within on dates: today, this_week, this_month, or past_n_days / next_n_days with "days".',
       `Rules all match unless filter_combinator is "or"; a group {"type": "group", "combinator": "and" | "or", "rules": [...]} mixes them (${MAX_FILTER_DEPTH} levels at most).`,
     ].join(" "),
@@ -114,7 +114,7 @@ export const CHAT_TOOLS: AiTool[] = [
 ];
 
 const PROPERTIES_HELP =
-  'Values by property name, as the map or read_page shows them: option names for select and status (an array for multi_select), YYYY-MM-DD for dates, true/false for checkboxes, people by name or "me", relations by the related rows\' titles, null to clear. Example: {"Status": "In progress", "Due": "2026-10-12", "Assignee": ["me"]}';
+  'Values by property name, as the map or read_page shows them: option names for select and status (an array for multi_select), YYYY-MM-DD for dates (a time as 2026-10-12T14:30:00+03:00, a range as \"start/end\"), true/false for checkboxes, people by name or "me", relations by the related rows\' titles, null to clear. Example: {"Status": "In progress", "Due": "2026-10-12", "Assignee": ["me"]}';
 
 /** Tools that change the workspace, offered unless the chat only reads. */
 export const WRITE_TOOLS: AiTool[] = [

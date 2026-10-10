@@ -83,6 +83,16 @@ export function dateValueString(parts: DateParts): string {
   return parts.end === null ? parts.start : `${parts.start}/${parts.end}`;
 }
 
+/**
+ * A value as plain text for files people read and import again (CSV, Markdown, converted text):
+ * "2026-10-12", "2026-10-12 → 2026-10-14", times as UTC timestamps. Null for what isn't a date.
+ */
+export function dateValueText(value: unknown): string | null {
+  const parts = parseDateValue(value);
+  if (!parts) return null;
+  return parts.end === null ? parts.start : `${parts.start} → ${parts.end}`;
+}
+
 /** Whether a stored value has an end. */
 export function hasDateEnd(value: unknown): boolean {
   return parseDateValue(value)?.end != null;

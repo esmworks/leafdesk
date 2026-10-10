@@ -57,7 +57,7 @@ const actionInput = z.discriminatedUnion("type", [
     values: z
       .record(z.string(), z.union([rowValue, dynamicValue]))
       .describe(
-        'Values to set on the row, keyed by property name or id, written as for update_database_row (option names, YYYY-MM-DD dates, people as ids, emails, names or "me", null to clear), or {"$": "now"} for a date and {"$": "actor"} for a person. Example: {"Status": "Done", "Completed": {"$": "now"}, "Reviewer": {"$": "actor"}}.',
+        'Values to set on the row, keyed by property name or id, written as for update_database_row (option names, dates as YYYY-MM-DD, times or \"start/end\" ranges, people as ids, emails, names or "me", null to clear), or {"$": "now"} for a date and {"$": "actor"} for a person. Example: {"Status": "Done", "Completed": {"$": "now"}, "Reviewer": {"$": "actor"}}.',
       ),
   }),
   z.object({

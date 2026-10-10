@@ -1,6 +1,6 @@
 import type { PropertyOptions, PropertyType, SelectOption, ViewConfig } from "@/db/schema/app";
 import { aggregateFunctions } from "./aggregate";
-import { parseDateValue } from "./date-value";
+import { dateValueText, parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
 import { asFiles } from "./files";
 import { mapFilterRules } from "./filters";
@@ -88,9 +88,8 @@ function texts(from: ConversionSide, value: unknown, ctx: ConversionContext): st
       return typeof value === "string" ? [value.slice(0, 10)] : [];
     case "date": {
       // A day as itself, a range as "start → end", times as ISO timestamps (UTC).
-      const parts = parseDateValue(value);
-      if (!parts) return [];
-      return [parts.end ? `${parts.start} → ${parts.end}` : parts.start];
+      const text = dateValueText(value);
+      return text ? [text] : [];
     }
   }
   // Text-like values, numbers and what formulas and rollups work out.
