@@ -142,11 +142,11 @@ export function useDatabase(
   const report = useCallback((e: unknown) => setError(message(e)), [message]);
 
   // Formulas of a row the user just edited are worked out here right away, with the same code the
-  // server uses, so the row doesn't show stale results until the refetch.
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- recompiled only when the properties change, not the rows
-  // Formulas reading related rows stay as the server worked them out (their rows aren't loaded here).
+  // server uses, so the row doesn't show stale results until the refetch. Formulas reading related
+  // rows stay as the server worked them out (their rows aren't loaded here).
   const formulas = useMemo(
     () => (snapshot ? compileFormulas(snapshot.properties, relatedSchemasFrom(snapshot.relations)) : new Map<string, CompiledFormula>()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- recompiled only when the properties change, not the rows
     [snapshot?.properties, snapshot?.relations],
   );
   const rows: Row[] = useMemo(() => {

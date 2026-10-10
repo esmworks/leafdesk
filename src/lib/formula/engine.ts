@@ -471,17 +471,19 @@ define(
   {
     ...perItem(
       "map(list, expression)",
-      (_list, each, name) => {
-        if (isListType(each)) argType(name, 1, each, ["number", "text", "checkbox", "date", "row"]);
-        return each === "number" ? "numbers" : each === "row" ? "rows" : "list";
-      },
+      // A list for each item (a related row's people or tags) adds its items: lists don't nest.
+      (_list, each) => (each === "number" || each === "numbers" ? "numbers" : each === "row" ? "rows" : "list"),
       (list, each) => {
         const out: (string | number | RowRef)[] = [];
+        const add = (v: PlainValue | string | number | RowRef) => {
+          // Empty numbers and rows aren't items; other values are listed as texts.
+          if (v === null) return;
+          out.push(typeof v === "number" || isRow(v) ? v : formatValue(v));
+        };
         for (const item of list) {
           const v = each(item);
-          // Empty numbers and rows aren't items; other values are listed as texts.
-          if (v === null) continue;
-          out.push(typeof v === "number" || isRow(v) ? v : formatValue(v));
+          if (Array.isArray(v)) for (const x of v) add(typeof x === "number" ? x : formatValue(x));
+          else add(v);
         }
         return out as PlainValue;
       },
