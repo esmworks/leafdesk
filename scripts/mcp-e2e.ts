@@ -804,7 +804,9 @@ async function main() {
   await mcp.ok("delete_database_property", { database_id: dbPage.id, property: "Customer" });
   const afterUnpair = await mcp.ok("get_database", { database_id: customers.id });
   const jobs = afterUnpair.properties.find((p: { name: string }) => p.name === "Jobs");
-  check(jobs && jobs.two_way === false, "deleting one side leaves the other as a one-way relation", afterUnpair.properties);
+  check(!jobs, "deleting one side of a two-way relation deletes the other with it", afterUnpair.properties);
+  const writeDeleted = await mcp.call("update_database_row", { row_id: acme.id, properties: { Jobs: [] } });
+  check(writeDeleted.isError, "a deleted property refuses writes", writeDeleted.text);
 
   await mcp.ok("add_database_property", { database_id: dbPage.id, name: "Due", type: "date" });
   const calendar = await mcp.ok("create_database_view", { database_id: dbPage.id, name: "Calendar", type: "calendar" });
