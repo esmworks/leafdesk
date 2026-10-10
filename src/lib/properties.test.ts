@@ -72,9 +72,26 @@ describe("normalizeValue", () => {
     expect(() => normalizeValue(prop("checkbox"), "yes")).toThrow(PropertyValueError);
   });
 
-  it("truncates ISO dates to the day", () => {
-    expect(normalizeValue(prop("date"), "2026-09-26T10:00:00Z")).toBe("2026-09-26");
+  it("keeps days as they are and stores times and ranges in ISO form", () => {
+    expect(normalizeValue(prop("date"), "2026-09-26")).toBe("2026-09-26");
+    expect(normalizeValue(prop("date"), "2026-09-26T10:00:00+03:00")).toBe("2026-09-26T07:00:00.000Z");
+    expect(normalizeValue(prop("date"), { start: "2026-09-26", end: "2026-09-28" })).toBe("2026-09-26/2026-09-28");
     expect(() => normalizeValue(prop("date"), "26/09/2026")).toThrow(PropertyValueError);
+    expect(() => normalizeValue(prop("date"), "2026-09-28/2026-09-26")).toThrow(PropertyValueError);
+    expect(() => normalizeValue(prop("date"), "2026-09-26T10:00")).toThrow(PropertyValueError);
+  });
+
+  it("sorts dates by where they start", () => {
+    const rows = ["2026-09-27", "2026-09-25/2026-09-30", "2026-09-26T10:00:00.000Z", "2026-09-26"].map((d, i) => ({
+      id: String(i),
+      title: d,
+      properties: { p_date: d },
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+    }));
+    const sorted = applyView(rows, { sorts: [{ propertyId: "p_date", direction: "asc" }] }, [prop("date")]).map((r) => r.title);
+    expect(sorted.slice(0, 2)).toEqual(["2026-09-25/2026-09-30", "2026-09-26"]);
+    expect(sorted[3]).toBe("2026-09-27");
   });
 
   it("resolves select values by id or case-insensitive name", () => {

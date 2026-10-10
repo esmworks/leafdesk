@@ -16,6 +16,7 @@ import {
   groupRowsBy,
   groupsByStatusStage,
   groupTarget,
+  moveGroupValue,
   type Group,
 } from "@/lib/grouping";
 import { isHiddenInView, positionBetween, SELECT_COLORS, statusColor } from "@/lib/properties";
@@ -204,6 +205,12 @@ export function BoardView({
     if (!sameGroup) {
       move.groupBy = groupBy.id;
       move.groupValue = target;
+      // A date moves as a whole (a range keeps its length, a time its time on the viewer's clock),
+      // worked out here in the viewer's zone; the server takes the moved value as it is.
+      if (groupBy.type === "date" && target) {
+        const moved = moveGroupValue(groupBy, row.properties[groupBy.id], null, target);
+        if (typeof moved === "string") move.groupValue = moved;
+      }
       if (listValued) move.groupFrom = from || null;
     }
     if (manualOrder) {

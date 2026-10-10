@@ -1,5 +1,5 @@
 import type { DependencyConfig, DependencyShift, PropertyOptions } from "@/db/schema/app";
-import { dayNumber } from "./timeline";
+import { dateDays } from "./date-value";
 
 /**
  * Dependencies: a database whose rows wait for other rows of the same database, through a relation
@@ -94,12 +94,16 @@ export function makesDependencyLoop(blockers: Map<string, string[]>, rowId: stri
 
 export type Span = { start: number; end: number };
 
-/** A row's span: the end defaults to the start and is never before it; null without a start. */
+/**
+ * A row's span: from the start value's first day to the end value's last. Without an end value
+ * the start's own end counts (a range, see lib/date-value), else the start day; the end is never
+ * before the start. Times count on their day where the code runs. Null without a start.
+ */
 export function rowSpan(start: unknown, end: unknown): Span | null {
-  const s = dayNumber(start);
-  if (s === null) return null;
-  const e = dayNumber(end);
-  return { start: s, end: e === null || e < s ? s : e };
+  const s = dateDays(start);
+  if (!s) return null;
+  const e = end === null || end === undefined ? s.end : (dateDays(end)?.end ?? null);
+  return { start: s.start, end: e === null || e < s.start ? s.start : e };
 }
 
 /** Monday is 0, Sunday 6. 1970-01-01 (day 0) was a Thursday. */

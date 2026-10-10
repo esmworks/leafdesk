@@ -1,3 +1,4 @@
+import { dateMillis } from "../date-value";
 import { fail, type DateValue } from "./types";
 
 /**
@@ -23,9 +24,17 @@ export function requireUnit(raw: string): DateUnit {
   return unit;
 }
 
-/** A stored date (YYYY-MM-DD) or timestamp (ISO) as a date value; null when it isn't one. */
+/**
+ * A stored date (YYYY-MM-DD, a time or a range of either, see lib/date-value) or timestamp (ISO) as
+ * a date value; null when it isn't one.
+ */
 export function toDateValue(value: unknown): DateValue | null {
   if (typeof value !== "string" || !value) return null;
+  const millis = dateMillis(value);
+  if (millis) {
+    const ranged = value.includes("/");
+    return ranged ? { date: millis.start, time: millis.time, end: millis.end } : { date: millis.start, time: millis.time };
+  }
   const day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (day) {
     const ms = Date.UTC(Number(day[1]), Number(day[2]) - 1, Number(day[3]));
@@ -39,9 +48,20 @@ export function toDateValue(value: unknown): DateValue | null {
 
 const pad = (n: number, size = 2) => String(Math.abs(n)).padStart(size, "0");
 
-/** The stored form: YYYY-MM-DD for days, an ISO timestamp otherwise. */
+/** The stored form: YYYY-MM-DD for days, an ISO timestamp otherwise; a range as "start/end". */
 export function storeDate(value: DateValue): string {
-  return value.time ? new Date(value.date).toISOString() : new Date(value.date).toISOString().slice(0, 10);
+  const one = (ms: number) => (value.time ? new Date(ms).toISOString() : new Date(ms).toISOString().slice(0, 10));
+  return value.end === undefined ? one(value.date) : `${one(value.date)}/${one(value.end)}`;
+}
+
+/** A range's start (any date as itself, without an end). */
+export function dateStart(value: DateValue): DateValue {
+  return { date: value.date, time: value.time };
+}
+
+/** A range's end: its last day or end time; a date without an end is its own end. */
+export function dateEnd(value: DateValue): DateValue {
+  return { date: value.end ?? value.date, time: value.time };
 }
 
 /** Today's calendar day where the formula runs, at midnight UTC. */
@@ -118,9 +138,11 @@ const TOKENS = /\[([^\]]*)\]|YYYY|YY|MMMM|MMM|MM|M|DD|D|dddd|ddd|HH|H|hh|h|mm|ss
 /**
  * Formats a date with tokens: YYYY YY, MMMM (January) MMM (Jan) MM M, DD D, dddd (Monday) ddd,
  * HH H (24h), hh h (12h) with A (AM/PM), mm, ss. Text in [brackets] is kept as is. Without a
- * format: YYYY-MM-DD, plus HH:mm for values with a time.
+ * format: YYYY-MM-DD, plus HH:mm for values with a time, and a range as "start → end". With one,
+ * a range's start.
  */
 export function formatDate(value: DateValue, format?: string): string {
+  if (format === undefined && value.end !== undefined) return `${formatDate(dateStart(value))} → ${formatDate(dateEnd(value))}`;
   const d = new Date(value.date);
   const fmt = format ?? (value.time ? "YYYY-MM-DD HH:mm" : "YYYY-MM-DD");
   const h = d.getUTCHours();

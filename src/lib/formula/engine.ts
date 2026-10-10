@@ -342,6 +342,8 @@ define(
     { min: 1, max: 2 },
   ),
 );
+define("dateStart", fixed("date", "dateStart(date)", [DATE], "date", ([d]) => (isDate(d) ? dates.dateStart(d) : null)));
+define("dateEnd", fixed("date", "dateEnd(date)", [DATE], "date", ([d]) => (isDate(d) ? dates.dateEnd(d) : null)));
 define("year", datePart("year"));
 define("month", datePart("month"));
 define("day", datePart("day"));

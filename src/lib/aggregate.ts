@@ -1,4 +1,5 @@
 import type { PropertyOptions } from "@/db/schema/app";
+import { dateMillis, parseDateValue } from "./date-value";
 import { isErrorValue } from "./derived";
 import { asFiles } from "./files";
 import { asChecklist, CREATED_KEY, TITLE_KEY, UPDATED_KEY, type RowLike } from "./properties";
@@ -6,7 +7,8 @@ import { asChecklist, CREATED_KEY, TITLE_KEY, UPDATED_KEY, type RowLike } from "
 /**
  * Column calculations (table footers today; rollups and charts later). Pure: no React, no
  * database. Values are the stored row values: select values are option ids, people and relations
- * lists of ids, dates `YYYY-MM-DD` strings (or ISO timestamps for the row's own times).
+ * lists of ids, dates `YYYY-MM-DD` strings, times or ranges (see lib/date-value), ISO timestamps
+ * for the row's own times.
  */
 
 export const AGGREGATE_FNS = [
@@ -165,7 +167,7 @@ function items(value: unknown, kind: ValueKind, options: PropertyOptions | undef
     case "number":
       return typeof value === "number" && Number.isFinite(value) ? [value] : [];
     case "date":
-      return typeof value === "string" && !Number.isNaN(Date.parse(value)) ? [value] : [];
+      return dateBounds(value) ? [value] : [];
     case "text":
       return [String(value)];
     case "other":
@@ -174,8 +176,24 @@ function items(value: unknown, kind: ValueKind, options: PropertyOptions | undef
 }
 
 const key = (item: unknown) => (typeof item === "string" ? item : JSON.stringify(item));
-const time = (date: string) => Date.parse(date.length === 10 ? `${date}T00:00:00Z` : date);
 const DAY = 24 * 60 * 60 * 1000;
+
+type DatePoint = { value: string; ms: number };
+
+/**
+ * Where a date value starts and ends: a date property's day, time or range of either (see
+ * lib/date-value), or a timestamp (created and edited times). Null for anything else.
+ */
+function dateBounds(value: unknown): { start: DatePoint; end: DatePoint } | null {
+  const parts = parseDateValue(value);
+  const millis = dateMillis(value);
+  if (parts && millis) {
+    return { start: { value: parts.start, ms: millis.start }, end: { value: parts.end ?? parts.start, ms: millis.end } };
+  }
+  if (typeof value !== "string") return null;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? null : { start: { value, ms }, end: { value, ms } };
+}
 
 /**
  * Calculates `fn` over one column's values. Returns null when there is nothing to show (no rows
@@ -234,15 +252,18 @@ export function aggregateValues(values: unknown[], fn: AggregateFn, column: Aggr
   }
 
   if (kind === "date") {
-    const dates = (perRow.flat() as string[]).sort((a, b) => time(a) - time(b));
-    if (!dates.length) return null;
+    // Ranges count by both ends: the earliest date is the first start, the latest the last end.
+    const bounds = perRow.flat().flatMap((v) => dateBounds(v) ?? []);
+    if (!bounds.length) return null;
+    const earliest = bounds.reduce((a, b) => (b.start.ms < a.ms ? b.start : a), bounds[0].start);
+    const latest = bounds.reduce((a, b) => (b.end.ms > a.ms ? b.end : a), bounds[0].end);
     switch (fn) {
       case "earliest_date":
-        return { format: "date", value: dates[0] };
+        return { format: "date", value: earliest.value };
       case "latest_date":
-        return { format: "date", value: dates[dates.length - 1] };
+        return { format: "date", value: latest.value };
       case "date_range":
-        return { format: "days", value: Math.round((time(dates[dates.length - 1]) - time(dates[0])) / DAY) };
+        return { format: "days", value: Math.round((latest.ms - earliest.ms) / DAY) };
     }
   }
   return null;

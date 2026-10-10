@@ -211,6 +211,14 @@ describe("aggregateValues: dates", () => {
     expect(run([], "date_range", "date")).toBeNull();
   });
 
+  it("counts ranges from their first start to their last end", () => {
+    const ranges = ["2024-03-10/2024-03-20", "2024-03-01", "2024-03-05T10:00:00.000Z/2024-03-25T10:00:00.000Z"];
+    expect(run(ranges, "earliest_date", "date")).toEqual({ format: "date", value: "2024-03-01" });
+    expect(run(ranges, "latest_date", "date")).toEqual({ format: "date", value: "2024-03-25T10:00:00.000Z" });
+    expect(run(["2024-03-10/2024-03-20"], "date_range", "date")).toEqual({ format: "days", value: 10 });
+    expect(run(ranges, "count_values", "date")).toEqual(num(3));
+  });
+
   it("orders timestamps and plain dates together", () => {
     const mixed = ["2024-01-02", "2024-01-01T23:00:00.000Z", "2024-01-01T01:00:00.000Z"];
     expect(run(mixed, "earliest_date", "created_time")).toEqual({ format: "date", value: "2024-01-01T01:00:00.000Z" });

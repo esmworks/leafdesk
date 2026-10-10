@@ -181,17 +181,34 @@ describe("dragging", () => {
 
   it("writes only the values a drag changed", () => {
     const one = { start: d("2026-09-10"), end: d("2026-09-10") };
-    const end = { id: "e", hasValue: false };
+    const s = { id: "s", value: "2026-09-10" };
+    const end = { id: "e", value: null };
     // Moving a one-day bar keeps it a plain date.
-    expect(spanValues(one, dragSpan(one, "move", 2), "s", end)).toEqual({ s: "2026-09-12" });
+    expect(spanValues(one, dragSpan(one, "move", 2), s, end)).toEqual({ s: "2026-09-12" });
     // Stretching it creates the end value.
-    expect(spanValues(one, dragSpan(one, "end", 2), "s", end)).toEqual({ e: "2026-09-12" });
-    expect(spanValues(one, dragSpan(one, "start", -1), "s", end)).toEqual({ s: "2026-09-09", e: "2026-09-10" });
-    // Without an end property only the start moves.
-    expect(spanValues(one, dragSpan(one, "end", 2), "s", null)).toEqual({});
+    expect(spanValues(one, dragSpan(one, "end", 2), s, end)).toEqual({ e: "2026-09-12" });
+    expect(spanValues(one, dragSpan(one, "start", -1), s, end)).toEqual({ s: "2026-09-09", e: "2026-09-10" });
     const long = { start: d("2026-09-10"), end: d("2026-09-12") };
-    const withEnd = { id: "e", hasValue: true };
-    expect(spanValues(long, dragSpan(long, "move", -1), "s", withEnd)).toEqual({ s: "2026-09-09", e: "2026-09-11" });
-    expect(spanValues(long, dragSpan(long, "move", 0), "s", withEnd)).toEqual({});
+    const withEnd = { id: "e", value: "2026-09-12" };
+    expect(spanValues(long, dragSpan(long, "move", -1), s, withEnd)).toEqual({ s: "2026-09-09", e: "2026-09-11" });
+    expect(spanValues(long, dragSpan(long, "move", 0), s, withEnd)).toEqual({});
+  });
+
+  it("stretches a date's own end without an end property", () => {
+    const one = { start: d("2026-09-10"), end: d("2026-09-10") };
+    expect(spanValues(one, dragSpan(one, "end", 2), { id: "s", value: "2026-09-10" }, null)).toEqual({ s: "2026-09-10/2026-09-12" });
+    const range = { id: "s", value: "2026-09-10/2026-09-12" };
+    const long = { start: d("2026-09-10"), end: d("2026-09-12") };
+    expect(spanValues(long, dragSpan(long, "move", 1), range, null)).toEqual({ s: "2026-09-11/2026-09-13" });
+    expect(spanValues(long, dragSpan(long, "end", -2), range, null)).toEqual({ s: "2026-09-10" });
+    // Times keep their time of day.
+    const timed = { id: "s", value: "2026-09-10T09:00:00.000Z/2026-09-10T10:00:00.000Z" };
+    expect(spanValues(one, dragSpan(one, "move", 1), timed, null, "UTC")).toEqual({
+      s: "2026-09-11T09:00:00.000Z/2026-09-11T10:00:00.000Z",
+    });
+  });
+
+  it("runs a range's bar to its own end without an end property", () => {
+    expect(rowSpan({ s: "2026-09-01/2026-09-04" }, { id: "s", type: "date" }, null)).toEqual({ start: d("2026-09-01"), end: d("2026-09-04") });
   });
 });

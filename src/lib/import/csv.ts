@@ -1,6 +1,8 @@
 import type { PropertyType } from "../property-types";
 import { fromPercentPoints, stripNumberDecor } from "../number-format";
+import { checkDateInput } from "../date-value";
 import { isEmailAddress, isPhoneNumber } from "../properties";
+import { dayNumber, zonedInstant } from "../time-zone";
 
 /**
  * Reading CSV files for import (see server/import/csv.ts): parsing, guessing each column's
@@ -202,29 +204,27 @@ function isoDay(year: number, month: number, day: number): string | null {
   return `${String(year).padStart(4, "0")}-${pad(month)}-${pad(day)}`;
 }
 
-/** A date cell as YYYY-MM-DD in the given format; null when it isn't one. Times are dropped. */
-export function parseDate(raw: string, format: DateFormat): string | null {
-  // A Notion date range ("May 1, 2026 → May 3, 2026") keeps its start.
-  const s = raw.split(/\s+(?:→|->)\s+/)[0].trim();
+/** The day of a date written in `format`, without its time; null when it isn't one. */
+function parseDay(s: string, format: DateFormat): string | null {
   let m: RegExpExecArray | null;
   switch (format) {
     case "iso":
-      m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ]\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/.exec(s);
+      m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
       return m ? isoDay(+m[1], +m[2], +m[3]) : null;
     case "ymd":
       m = /^(\d{4})[/.](\d{1,2})[/.](\d{1,2})$/.exec(s);
       return m ? isoDay(+m[1], +m[2], +m[3]) : null;
     case "dmy":
-      m = /^(\d{1,2})[.-](\d{1,2})[.-](\d{4})(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?$/.exec(s);
+      m = /^(\d{1,2})[.-](\d{1,2})[.-](\d{4})$/.exec(s);
       return m ? isoDay(+m[3], +m[2], +m[1]) : null;
     case "mdy":
-      m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)?$/i.exec(s);
+      m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
       return m ? isoDay(+m[3], +m[1], +m[2]) : null;
     case "dmy-slash":
-      m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?$/.exec(s);
+      m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
       return m ? isoDay(+m[3], +m[2], +m[1]) : null;
     case "text": {
-      // "September 28, 2026", "28 Sep 2026", "Sep 28, 2026 10:00 AM": needs a month name and a year.
+      // "September 28, 2026", "28 Sep 2026": needs a month name and a year.
       if (!/[a-z]{3}/i.test(s) || !/\b\d{4}\b/.test(s) || s.length > 40) return null;
       const time = Date.parse(s);
       if (Number.isNaN(time)) return null;
@@ -232,6 +232,62 @@ export function parseDate(raw: string, format: DateFormat): string | null {
       return isoDay(d.getFullYear(), d.getMonth() + 1, d.getDate());
     }
   }
+}
+
+/** A time of day written after a date ("14:30", "2:30 PM", "T10:00:00.000Z", "10:00 (GMT+3)"). */
+const TIME = /(?:[T\s]+(?:at\s+)?|^)(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?\s*([AP]M)?\s*(Z|[+-]\d{2}:?\d{2}|\((?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?\))?$/i;
+
+type CellTime = { minutes: number; offset: number | null };
+
+/** A cell side split into its date text and its time (null without one). */
+function splitTime(s: string): { rest: string; time: CellTime | null } | null {
+  const m = TIME.exec(s);
+  if (!m) return { rest: s, time: null };
+  let hours = Number(m[1]);
+  const minutes = Number(m[2]);
+  if (minutes > 59 || hours > 23 || (m[4] && (hours < 1 || hours > 12))) return null;
+  if (m[4]) hours = (hours % 12) + (/pm/i.test(m[4]) ? 12 : 0);
+  let offset: number | null = null;
+  const zone = m[5];
+  if (zone && /^z$/i.test(zone)) offset = 0;
+  else if (zone && /^[+-]/.test(zone)) {
+    const [, sign, h, mm] = /^([+-])(\d{2}):?(\d{2})$/.exec(zone)!;
+    offset = (sign === "-" ? -1 : 1) * (Number(h) * 60 + Number(mm));
+  } else if (zone) offset = m[6] ? (m[6] === "-" ? -1 : 1) * (Number(m[7]) * 60 + Number(m[8] ?? 0)) : 0;
+  return { rest: s.slice(0, m.index).replace(/[,\s]+$/, ""), time: { minutes: hours * 60 + minutes, offset } };
+}
+
+/** The instant of `day` at `time`: its own offset when it was written with one, else `timeZone`'s. */
+function cellInstant(day: string, time: CellTime, timeZone: string): string {
+  const at =
+    time.offset === null
+      ? zonedInstant(dayNumber(day), time.minutes, timeZone)
+      : dayNumber(day) * 86_400_000 + (time.minutes - time.offset) * 60_000;
+  return new Date(at).toISOString();
+}
+
+/**
+ * A date cell in the given format as a date property value (see lib/date-value): a day, or a time
+ * when the cell has one ("Sep 28, 2026 10:00 AM"), placed in its own zone when written ("Z",
+ * "+03:00", "(GMT+3)") or else in `timeZone` (the importing person's). A range written with an
+ * arrow ("May 1, 2026 → May 3, 2026", "Oct 12, 2026 2:30 PM → 4:00 PM") keeps both ends; one
+ * whose ends don't fit together keeps its start. Null when the cell isn't a date.
+ */
+export function parseDate(raw: string, format: DateFormat, timeZone = "UTC"): string | null {
+  const [first, second] = raw.split(/\s+(?:→|->)\s+/).map((s) => s.trim());
+  const start = splitTime(first);
+  const day = start && parseDay(start.rest, format);
+  if (!start || !day) return null;
+  const value = start.time ? cellInstant(day, start.time, timeZone) : day;
+  if (!second) return value;
+  const end = splitTime(second);
+  // An end that is only a time ends on the start's day.
+  const endDay = end && (end.rest ? parseDay(end.rest, format) : start.time && end.time ? day : null);
+  if (!end || !endDay || Boolean(end.time) !== Boolean(start.time)) return value;
+  // An end written without a zone is in the start's.
+  const endTime = end.time && { ...end.time, offset: end.time.offset ?? start.time!.offset };
+  const checked = checkDateInput({ start: value, end: endTime ? cellInstant(endDay, endTime, timeZone) : endDay }, "");
+  return checked.ok ? checked.value : value;
 }
 
 /** The first format every value parses in; null when there is none. */
@@ -326,7 +382,11 @@ export const INVALID = Symbol("invalid");
  * and people names, row titles for relations). Null for an empty cell, INVALID when the cell
  * can't be one (a word in a number column): the import leaves those cells empty and says how many.
  */
-export function cellValue(type: PropertyType, raw: string, { dateFormat }: { dateFormat?: DateFormat } = {}): unknown {
+export function cellValue(
+  type: PropertyType,
+  raw: string,
+  { dateFormat, timeZone }: { dateFormat?: DateFormat; timeZone?: string } = {},
+): unknown {
   const s = raw.trim();
   if (!s) return null;
   switch (type) {
@@ -335,8 +395,9 @@ export function cellValue(type: PropertyType, raw: string, { dateFormat }: { dat
     case "checkbox":
       return parseCheckbox(s) ?? INVALID;
     case "date": {
+      // Times written without a zone are the importing person's (`timeZone`).
       const format = dateFormat ?? detectDateFormat([s]);
-      return (format && parseDate(s, format)) || INVALID;
+      return (format && parseDate(s, format, timeZone)) || INVALID;
     }
     case "url":
       return isUrl(s) ? s : INVALID;

@@ -22,6 +22,8 @@ import {
   requiredFilterRules,
   valueDay,
 } from "./filters";
+import { checkDateInput, dateDays, dateSortKey, isDay, type DaySpan } from "./date-value";
+import { dayNumber } from "./time-zone";
 import { asFiles, cleanFileName, fileIdOf, fileUrl, MAX_FILES_PER_VALUE, type FileValue } from "./files";
 import { derivedType, isErrorValue, rollupFormat } from "./derived";
 import {
@@ -358,13 +360,10 @@ export function normalizeValue(prop: PropertyDef, value: unknown): unknown {
         property: prop.name,
       });
     case "date": {
-      const s = String(value);
-      if (!/^\d{4}-\d{2}-\d{2}/.test(s) || Number.isNaN(Date.parse(s))) {
-        throw new PropertyValueError(`"${prop.name}" must be an ISO date (YYYY-MM-DD)`, "invalidDate", {
-          property: prop.name,
-        });
-      }
-      return s.slice(0, 10);
+      // A day, a time, or a range of either (see lib/date-value).
+      const checked = checkDateInput(value, prop.name);
+      if (!checked.ok) throw new PropertyValueError(checked.message, "invalidDate", { property: prop.name });
+      return checked.value;
     }
     case "select":
     case "status": {
@@ -497,7 +496,56 @@ function derivedSortValue(v: unknown): unknown {
   return v;
 }
 
+/**
+ * The days a date filter compares a value by, or undefined for values that aren't dates. Date
+ * properties may hold ranges and times (see lib/date-value); times, like created and edited times,
+ * count on their day in the runtime's zone (the viewer's in the browser).
+ */
+function filterDays(row: RowLike, key: string, prop: PropertyDef | undefined): DaySpan | null | undefined {
+  const v = rawValue(row, key);
+  if (prop?.type === "date") return dateDays(v);
+  if ((prop && holdsTimestamp(prop.type)) || (!prop && (key === CREATED_KEY || key === UPDATED_KEY))) return dateDays(localDay(v));
+  if (prop && isDerived(prop.type) && derivedType(prop) === "date") {
+    const plain = derivedSortValue(v);
+    return dateDays(plain) ?? dateDays(valueDay(plain));
+  }
+  return undefined;
+}
+
+/**
+ * Date rules match a value by the days it covers, so a range matches when any of its days does:
+ * "is" the day falls within it, "is before" it starts before the day, "is after" it ends after
+ * the day, "is within" a period it overlaps the period. A single day is a range of one day.
+ */
+function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date): boolean {
+  if (!days) return false;
+  if (rule.op === "is_within") {
+    const range = relativeDateRange(rule.value, rule.days, now);
+    return Boolean(range && days.start <= dayNumber(range.end) && days.end >= dayNumber(range.start));
+  }
+  if (!isDay(rule.value)) return false;
+  const day = dayNumber(rule.value);
+  switch (rule.op) {
+    case "equals":
+      return days.start <= day && day <= days.end;
+    case "not_equals":
+      return !(days.start <= day && day <= days.end);
+    case "lt":
+      return days.start < day;
+    case "gt":
+      return days.end > day;
+    default:
+      return false;
+  }
+}
+
+const DATE_OPS = new Set<FilterOp>(["is_within", "equals", "not_equals", "lt", "gt"]);
+
 function matches(row: RowLike, rule: FilterRule, prop: PropertyDef | undefined, now: Date): boolean {
+  if (DATE_OPS.has(rule.op)) {
+    const days = filterDays(row, rule.propertyId, prop);
+    if (days !== undefined) return rule.op === "not_equals" && !days ? true : matchesDays(days, rule, now);
+  }
   const v = liveValue(row, rule.propertyId, prop);
   switch (rule.op) {
     case "is_within": {
@@ -603,6 +651,8 @@ export function applyView<T extends RowLike>(
       return indices.length ? indices.map((i) => String(i).padStart(4, "0")).join(",") : null;
     }
     if (prop?.type === "checkbox") return v === true ? 1 : 0;
+    // Dates sort by where they start: days and times on one timeline, a whole day before its times.
+    if (prop?.type === "date") return dateSortKey(v);
     // Files sort by how many a row holds; rows without any go last.
     if (prop?.type === "files") return asFiles(v).length || null;
     if (prop && holdsPeople(prop.type)) {

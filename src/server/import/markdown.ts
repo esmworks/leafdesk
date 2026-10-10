@@ -87,9 +87,11 @@ export type MarkdownImportInput = {
   seedNames?: DatabaseSeedNames;
   /** The upload is an Obsidian vault: its `.obsidian` folder was seen but not sent (a folder upload). */
   vault?: boolean;
+  /** The importing person's time zone: times in database exports written without one are theirs. */
+  timeZone?: string;
 };
 
-type Created = { id: string; kind: "page" | "database" | "row"; title: string; template: boolean };
+type Created ={ id: string; kind: "page" | "database" | "row"; title: string; template: boolean };
 
 /** Rows of a relation's values written per statement. */
 const RELATION_CHUNK = 500;
@@ -265,6 +267,7 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
             types,
             seedNames: input.seedNames,
             template: node.template,
+            timeZone: input.timeZone,
           },
           warnings,
         );

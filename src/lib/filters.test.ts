@@ -152,6 +152,29 @@ describe("relative date filters", () => {
     expect(matching(within("today"), [row("empty")])).toEqual([]);
   });
 
+  it("matches ranges that overlap the day or period", () => {
+    const list = [
+      row("past", { p_date: "2026-09-20/2026-09-27" }),
+      row("into", { p_date: "2026-09-25/2026-09-29" }),
+      row("across", { p_date: "2026-09-27/2026-10-08" }),
+      row("later", { p_date: "2026-10-05/2026-10-06" }),
+    ];
+    expect(matching(within("this_week"), list)).toEqual(["into", "across"]);
+    expect(matching(within("today"), list)).toEqual(["across"]);
+    const rule = (op: "equals" | "lt" | "gt", value: string): FilterRule => ({ propertyId: "p_date", op, value });
+    expect(matching(rule("equals", "2026-09-29"), list)).toEqual(["into", "across"]);
+    // Before: starts before the day; after: ends after it.
+    expect(matching(rule("lt", "2026-09-25"), list)).toEqual(["past"]);
+    expect(matching(rule("gt", "2026-09-29"), list)).toEqual(["across", "later"]);
+  });
+
+  it("places times on the local day", () => {
+    const at = new Date(2026, 8, 30, 23, 30).toISOString();
+    const list = [row("late", { p_date: at }), row("span", { p_date: `${at}/${new Date(2026, 9, 1, 1).toISOString()}` })];
+    expect(matching(within("today"), list)).toEqual(["late", "span"]);
+    expect(matching({ propertyId: "p_date", op: "equals", value: "2026-10-01" }, list)).toEqual(["span"]);
+  });
+
   it("follows now instead of the date the view was saved", () => {
     const list = dated("2026-09-30", "2026-10-01");
     expect(matching(within("today"), list, new Date(2026, 9, 1, 9))).toEqual(["2026-10-01"]);

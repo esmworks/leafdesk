@@ -126,13 +126,24 @@ describe("values", () => {
 
   it("reads dates in each format and refuses impossible ones", () => {
     expect(parseDate("2026-09-28", "iso")).toBe("2026-09-28");
-    expect(parseDate("2026-09-28T10:00:00.000Z", "iso")).toBe("2026-09-28");
+    expect(parseDate("2026-09-28T10:00:00.000Z", "iso")).toBe("2026-09-28T10:00:00.000Z");
     expect(parseDate("2026/9/8", "ymd")).toBe("2026-09-08");
     expect(parseDate("28.09.2026", "dmy")).toBe("2026-09-28");
     expect(parseDate("09/28/2026", "mdy")).toBe("2026-09-28");
     expect(parseDate("28/09/2026", "dmy-slash")).toBe("2026-09-28");
     expect(parseDate("September 28, 2026", "text")).toBe("2026-09-28");
-    expect(parseDate("May 1, 2026 → May 3, 2026", "text")).toBe("2026-05-01");
+    expect(parseDate("May 1, 2026 → May 3, 2026", "text")).toBe("2026-05-01/2026-05-03");
+    // Times: in their own zone when written with one, else in the importing person's.
+    expect(parseDate("October 12, 2026 2:30 PM", "text", "Europe/Istanbul")).toBe("2026-10-12T11:30:00.000Z");
+    expect(parseDate("October 12, 2026 2:30 PM (GMT+3) → 4:00 PM", "text")).toBe("2026-10-12T11:30:00.000Z/2026-10-12T13:00:00.000Z");
+    expect(parseDate("October 12, 2026 9:00 AM (UTC) → October 13, 2026 9:00 AM (UTC)", "text")).toBe(
+      "2026-10-12T09:00:00.000Z/2026-10-13T09:00:00.000Z",
+    );
+    expect(parseDate("28.09.2026 14:30", "dmy", "UTC")).toBe("2026-09-28T14:30:00.000Z");
+    expect(parseDate("09/28/2026 2:30 PM", "mdy", "UTC")).toBe("2026-09-28T14:30:00.000Z");
+    // Ends that don't fit keep the start.
+    expect(parseDate("May 3, 2026 → May 1, 2026", "text")).toBe("2026-05-03");
+    expect(parseDate("May 3, 2026 → May 4, 2026 10:00 AM", "text")).toBe("2026-05-03");
     expect(parseDate("2026-02-30", "iso")).toBeNull();
     expect(parseDate("Meeting notes", "text")).toBeNull();
   });

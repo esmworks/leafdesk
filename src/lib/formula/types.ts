@@ -9,8 +9,12 @@ export type FormulaType = "number" | "text" | "checkbox" | "date" | "list";
 /** A result type a formula property can have (lists are joined into text). */
 export type FormulaResultType = Exclude<FormulaType, "list">;
 
-/** Dates are instants in milliseconds (UTC); `time` is false for calendar days (stored as YYYY-MM-DD). */
-export type DateValue = { date: number; time: boolean };
+/**
+ * Dates are instants in milliseconds (UTC); `time` is false for calendar days (stored as YYYY-MM-DD).
+ * A date property's range also has its `end` (the last day, or the end time); everything but
+ * `dateEnd()` works on the start.
+ */
+export type DateValue = { date: number; time: boolean; end?: number };
 
 /**
  * A value while evaluating. Only numbers and dates can be empty (null): empty text reads as "",

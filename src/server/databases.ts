@@ -55,6 +55,7 @@ import {
 } from "@/lib/dependencies";
 import { calculationFormat, checkNumberFormat } from "@/lib/number-format";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
+import { shiftDateValue } from "@/lib/date-value";
 import { dayValue } from "@/lib/timeline";
 import {
   applyView,
@@ -938,9 +939,14 @@ async function shiftWaitingRows(
   const shifts: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[] = [];
   for (const row of found.rows) {
     const s = plan.find((p) => p.id === row.id)!;
-    const values: Record<string, string> = { [start]: dayValue(s.after.start) };
+    // Dates move as a whole by whole days: a range keeps its length, a time its time of day.
+    const values: Record<string, string> = {
+      [start]: shiftDateValue(row.properties[start], s.after.start - s.before.start) ?? dayValue(s.after.start),
+    };
     // A one-day row without an end keeps having none.
-    if (end && row.properties[end] != null) values[end] = dayValue(s.after.end);
+    if (end && row.properties[end] != null) {
+      values[end] = shiftDateValue(row.properties[end], s.after.end - s.before.end) ?? dayValue(s.after.end);
+    }
     try {
       access.requireValues(row, Object.keys(values));
     } catch {
@@ -2298,7 +2304,8 @@ export async function moveView(userId: string, viewId: string, targetId: string,
 /**
  * Reorders a row (board drag) and optionally moves it to another group in one step. `groupValue`
  * is the target group (see groupTarget in lib/grouping): an option, person or related row id,
- * "true" / "false" for checkboxes, a day for dates, null for no value. For list values
+ * "true" / "false" for checkboxes, a day for dates (the row's date moves there as a whole; the app
+ * sends the moved value, worked out in the viewer's zone), null for no value. For list values
  * (multi-select, people, relations) `groupFrom` is the group the card left: `groupValue` takes
  * its place and the rest stays (see moveGroupValue). The result is validated like any edit.
  */

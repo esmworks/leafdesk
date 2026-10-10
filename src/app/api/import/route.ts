@@ -1,10 +1,13 @@
+import { cookies } from "next/headers";
 import { databaseSeedNames } from "@/app/actions/seed-names";
+import { TIME_ZONE_COOKIE } from "@/i18n/config";
 import { auth } from "@/lib/auth";
 import { CSV_COLUMN_TYPES, type CsvColumnType } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
 import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
 import { spreadsheetTable } from "@/lib/import/xlsx";
 import { PropertyValueError } from "@/lib/properties";
+import { isTimeZone } from "@/lib/time-zone";
 import { AccessError } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
 import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
@@ -72,13 +75,16 @@ export async function POST(request: Request) {
   const space = field("teamspaceId");
   const teamspaceId = space === "private" ? null : space || undefined;
   const mode = field("mode");
+  // Dates with a time but no zone (as database exports write them) are the importing person's.
+  const zone = (await cookies()).get(TIME_ZONE_COOKIE)?.value;
+  const timeZone = isTimeZone(zone) ? zone : "UTC";
   try {
     let result: ImportResult;
     if (mode === "pages") {
       const files = await Promise.all(
         uploads.map(async (f, i) => ({ path: paths[i] || f.name, data: new Uint8Array(await f.arrayBuffer()) })),
       );
-      result = await importPages(actor, { workspaceId, parentId, teamspaceId, files, seedNames: await seedNames(), vault: field("vault") === "1" });
+      result = await importPages(actor, { workspaceId, parentId, teamspaceId, files, seedNames: await seedNames(), vault: field("vault") === "1", timeZone });
     } else if (mode === "docx") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       result = await importDocx(actor, { workspaceId, parentId, teamspaceId, files });
@@ -108,6 +114,7 @@ export async function POST(request: Request) {
               ? types.map((t) => (CSV_COLUMN_TYPES.includes(t as CsvColumnType) ? (t as CsvColumnType) : null))
               : undefined,
             seedNames: await seedNames(),
+            timeZone,
           },
           warnings,
         );
@@ -129,6 +136,7 @@ export async function POST(request: Request) {
             databaseId: field("databaseId") ?? "",
             table,
             mapping: mapping.map((m): ColumnTarget => (typeof m === "string" && m ? m : null)),
+            timeZone,
           },
           warnings,
         );

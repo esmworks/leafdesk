@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { checkFormula, parseFormula, rewriteReferences, runFormula, type Field, type FormulaType, type Value } from ".";
-import { formatDate } from "./dates";
+import { formatDate, toDateValue } from "./dates";
 
 const NOW = new Date("2026-09-27T10:30:00Z");
 
@@ -206,6 +206,20 @@ describe("evaluation", () => {
     expect(value('formatDate(prop("NoDate"))', fields)).toBeNull();
     expect(value('year(prop("NoDate"))', fields)).toBeNull();
     expect(value('timestamp(parseDate("1970-01-02"))')).toBe(86_400_000);
+  });
+
+  it("reads ranges by their start, with dateStart and dateEnd", () => {
+    const ranged: Fields = { Trip: { type: "date", value: toDateValue("2026-10-12/2026-10-14") } };
+    expect(value('prop("Trip")', ranged)).toBe("2026-10-12/2026-10-14");
+    expect(value('dateStart(prop("Trip"))', ranged)).toBe("2026-10-12");
+    expect(value('dateEnd(prop("Trip"))', ranged)).toBe("2026-10-14");
+    expect(value('dateBetween(dateEnd(prop("Trip")), dateStart(prop("Trip")), "days")', ranged)).toBe(2);
+    expect(value('dateAdd(prop("Trip"), 1, "day")', ranged)).toBe("2026-10-13");
+    expect(value('format(prop("Trip"))', ranged)).toBe("2026-10-12 → 2026-10-14");
+    expect(value('dateEnd(parseDate("2026-10-12"))')).toBe("2026-10-12");
+    const timed: Fields = { Call: { type: "date", value: toDateValue("2026-10-12T09:00:00.000Z/2026-10-12T10:30:00.000Z") } };
+    expect(value('dateBetween(dateEnd(prop("Call")), prop("Call"), "minutes")', timed)).toBe(90);
+    expect(value('hour(prop("Call"))', timed)).toBe(9);
   });
 
   it("formats timestamps in UTC", () => {

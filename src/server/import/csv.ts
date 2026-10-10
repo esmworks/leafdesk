@@ -69,6 +69,7 @@ function rowValues(
   titleColumn: number | null,
   targets: (DatabaseProperty | null)[],
   invalid: Map<string, number>,
+  timeZone?: string,
 ): PendingRow[] {
   const formats = targets.map((p, i): DateFormat | undefined =>
     p?.type === "date" ? (detectDateFormat(column(table, i)) ?? undefined) : undefined,
@@ -77,7 +78,7 @@ function rowValues(
     const values: Record<string, unknown> = {};
     targets.forEach((prop, i) => {
       if (!prop) return;
-      const value = cellValue(prop.type, row[i] ?? "", { dateFormat: formats[i] });
+      const value = cellValue(prop.type, row[i] ?? "", { dateFormat: formats[i], timeZone });
       if (value === INVALID) invalid.set(prop.id, (invalid.get(prop.id) ?? 0) + 1);
       else if (value !== null) values[prop.id] = value;
     });
@@ -160,6 +161,8 @@ export type NewDatabaseInput = {
   seedNames?: DatabaseSeedNames;
   /** A workspace template (at the top level) or a row template (in a database), as createPage makes them. */
   template?: boolean;
+  /** The importing person's time zone: times written without one are theirs. */
+  timeZone?: string;
 };
 
 /**
@@ -209,7 +212,7 @@ export async function importCsvAsDatabase(actor: WriteActor, input: NewDatabaseI
     }
     const props = targets.filter((p): p is DatabaseProperty => p !== null);
     const invalid = new Map<string, number>();
-    const rows = await checkRows(actor.userId, database.id, rowValues(table, titleColumn, targets, invalid), props, invalid);
+    const rows = await checkRows(actor.userId, database.id, rowValues(table, titleColumn, targets, invalid, input.timeZone), props, invalid);
     const created = await writeRows(database, actor.userId, rows);
     reportInvalid(warnings, invalid, props);
     return { database, rows: created, warnings };
@@ -275,7 +278,7 @@ export type ColumnTarget = "title" | string | null;
  */
 export async function importCsvIntoDatabase(
   actor: WriteActor,
-  { databaseId, table, mapping }: { databaseId: string; table: CsvTable; mapping: ColumnTarget[] },
+  { databaseId, table, mapping, timeZone }: { databaseId: string; table: CsvTable; mapping: ColumnTarget[]; timeZone?: string },
   warnings = new WarningList(),
 ) {
   checkSize(table);
@@ -316,7 +319,7 @@ export async function importCsvIntoDatabase(
   }
 
   const invalid = new Map<string, number>();
-  const pending = rowValues(table, titleColumn, targets, invalid);
+  const pending = rowValues(table, titleColumn, targets, invalid, timeZone);
   const rows = await checkRows(actor.userId, databaseId, pending, props, invalid);
   const created = await writeRows(database, actor.userId, rows);
   reportInvalid(warnings, invalid, props);

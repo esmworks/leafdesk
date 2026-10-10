@@ -130,7 +130,8 @@ export function TimelineView({
   const groupName = useGroupName(groupBy ?? { name: "" });
   // Created and edited times place bars but can't be changed by dragging them.
   const movable = !readOnly && !!startProp && !isComputed(startProp.type);
-  const resizable = movable && !!endProp;
+  // Without an end property a date stretches into a range of its own.
+  const resizable = movable && (!!endProp || startProp.type === "date");
   // Property access: a bar moves only where the viewer may change its dates in that row.
   const access = usePropertyAccess();
   const canMove = (row: Row) =>
@@ -237,7 +238,13 @@ export function TimelineView({
   const commit = (row: Row, next: DaySpan) => {
     const before = spans.get(row.id);
     if (!before) return;
-    const values = spanValues(before, next, startProp.id, endProp ? { id: endProp.id, hasValue: row.properties[endProp.id] != null } : null);
+    const values = spanValues(
+      before,
+      next,
+      { id: startProp.id, value: row.properties[startProp.id] },
+      endProp ? { id: endProp.id, value: row.properties[endProp.id] } : null,
+      timeZone,
+    );
     if (Object.keys(values).length) void api.setRowValues(row.id, values);
   };
 

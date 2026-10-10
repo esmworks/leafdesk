@@ -11,6 +11,8 @@ import {
   type RowGroup,
 } from "./properties";
 import { holdsPeople, holdsTimestamp, isComputed, STATUS_GROUPS, type StatusGroup } from "./property-types";
+import { dateDays, isDay, parseDateValue, shiftDateValue } from "./date-value";
+import { dayNumber } from "./time-zone";
 
 // The board-era helpers live in lib/properties; they are re-exported so grouping has one home.
 export { boardGroupProperty, groupRows, groupRowsByPerson, isGroupable, movePersonValue, orderGroups } from "./properties";
@@ -61,11 +63,14 @@ function parseDay(day: string) {
 
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 
-/** The day a date value falls on, or null for anything that isn't a date. */
-function dateDay(value: unknown) {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}/.test(value)) return null;
-  const day = value.slice(0, 10);
-  return parseDay(day) ? day : null;
+/**
+ * The day a date value groups under: its start, a time on its day where `timestampDay` puts it
+ * (the viewer's), or null for anything that isn't a date.
+ */
+function dateDay(value: unknown, timestampDay: (value: unknown) => string | null) {
+  const parts = parseDateValue(value);
+  if (!parts) return null;
+  return parts.time ? timestampDay(parts.start) : parts.start;
 }
 
 /** The first and last day of the bucket `day` falls in. Weeks run Monday to Sunday. */
@@ -162,7 +167,8 @@ export function groupRowsBy<T extends { properties: Record<string, unknown> }>(
   }
   if (prop.type === "date" || holdsTimestamp(prop.type)) {
     const by = groupDateByOf(settings);
-    const dayOf = prop.type === "date" ? dateDay : (context.dayOf ?? localDay);
+    const timestampDay = context.dayOf ?? localDay;
+    const dayOf = prop.type === "date" ? (value: unknown) => dateDay(value, timestampDay) : timestampDay;
     const buckets = new Map<string, Group<T>>();
     const empty = none();
     for (const row of rows) {
@@ -257,6 +263,11 @@ export function moveGroupValue(
     return movePersonValue(ids(current).filter((id) => known.has(id)), from, to);
   }
   if (prop.type === "relation" || holdsPeople(prop.type)) return movePersonValue(current, from, to);
+  // A date moves to the bucket's first day as a whole: a range keeps its length, a time its time.
+  if (prop.type === "date" && to && isDay(to)) {
+    const days = dateDays(current);
+    if (days) return shiftDateValue(current, dayNumber(to) - days.start);
+  }
   return to ?? null;
 }
 

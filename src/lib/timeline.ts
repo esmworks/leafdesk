@@ -1,4 +1,5 @@
 import type { PropertyType, TimelineZoom } from "@/db/schema/app";
+import { dateDays, setDateDays, shiftDateValue } from "./date-value";
 import { localDay } from "./properties";
 import { holdsTimestamp } from "./property-types";
 import { timestampDay } from "./time-zone";
@@ -89,12 +90,18 @@ export function nextUnit(day: number, zoom: TimelineZoom): number {
  */
 export function valueDay(value: unknown, type: PropertyType, timeZone?: string): number | null {
   if (holdsTimestamp(type)) return dayNumber(timeZone ? timestampDay(value, timeZone) : localDay(value));
-  return type === "date" ? dayNumber(value) : null;
+  return type === "date" ? (dateDays(value, timeZone)?.start ?? null) : null;
+}
+
+/** The last day of an end value: a date's own end when it is a range (see lib/date-value). */
+function endDay(value: unknown, type: PropertyType, timeZone?: string): number | null {
+  return type === "date" ? (dateDays(value, timeZone)?.end ?? null) : valueDay(value, type, timeZone);
 }
 
 /**
- * Where a row's bar goes: from its start value to its end value. Without an end (or with an end
- * before the start) the bar covers the start day only; without a start the row has no bar.
+ * Where a row's bar goes: from its start value to its end value. Without an end property a date
+ * that has its own end (a range) runs to it. Without an end (or with an end before the start) the
+ * bar covers the start day only; without a start the row has no bar.
  */
 export function rowSpan(
   properties: Record<string, unknown>,
@@ -104,7 +111,7 @@ export function rowSpan(
 ): DaySpan | null {
   const from = valueDay(properties[start.id], start.type, timeZone);
   if (from === null) return null;
-  const to = end ? valueDay(properties[end.id], end.type, timeZone) : null;
+  const to = end ? endDay(properties[end.id], end.type, timeZone) : endDay(properties[start.id], start.type, timeZone);
   return { start: from, end: to !== null && to >= from ? to : from };
 }
 
@@ -186,18 +193,32 @@ export function dragSpan(span: DaySpan, mode: DragMode, days: number): DaySpan {
 }
 
 /**
- * The values to write after a drag, keyed by property id. The start is written when it moved; the
- * end when there is an end property and it changed. A row that had no end only gets one once
- * its bar is longer than a day, so moving a one-day bar keeps it a plain date.
+ * The values to write after a drag, keyed by property id. Values move by whole days and keep their
+ * kind: a time stays at its time on the viewer's clock (`timeZone`), a range keeps its length
+ * unless an edge was dragged. With an end property, the start is written when it moved and the end
+ * when it changed; without one, the start's own end follows the bar's. A row that had no end only
+ * gets one once its bar is longer than a day, so moving a one-day bar keeps it a plain date.
  */
 export function spanValues(
   before: DaySpan,
   after: DaySpan,
-  startId: string,
-  end: { id: string; hasValue: boolean } | null,
+  start: { id: string; value: unknown },
+  end: { id: string; value: unknown } | null,
+  timeZone?: string,
 ): Record<string, string> {
   const out: Record<string, string> = {};
-  if (after.start !== before.start) out[startId] = dayValue(after.start);
-  if (end && (end.hasValue ? after.end !== before.end : after.end !== after.start)) out[end.id] = dayValue(after.end);
+  if (!end) {
+    if (after.start === before.start && after.end === before.end) return out;
+    const next = setDateDays(start.value, after, timeZone);
+    if (next) out[start.id] = next;
+    return out;
+  }
+  if (after.start !== before.start) {
+    out[start.id] = shiftDateValue(start.value, after.start - before.start, timeZone) ?? dayValue(after.start);
+  }
+  const hasEnd = end.value !== null && end.value !== undefined;
+  if (hasEnd ? after.end !== before.end : after.end !== after.start) {
+    out[end.id] = (hasEnd && shiftDateValue(end.value, after.end - before.end, timeZone)) || dayValue(after.end);
+  }
   return out;
 }

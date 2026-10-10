@@ -1,5 +1,6 @@
 import type { PropertyOptions, PropertyType, SelectOption, ViewConfig } from "@/db/schema/app";
 import { aggregateFunctions } from "./aggregate";
+import { parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
 import { asFiles } from "./files";
 import { mapFilterRules } from "./filters";
@@ -84,8 +85,13 @@ function texts(from: ConversionSide, value: unknown, ctx: ConversionContext): st
       return ids.flatMap((id) => ctx.people.find((p) => p.id === id)?.name ?? []);
     case "created_time":
     case "last_edited_time":
-    case "date":
       return typeof value === "string" ? [value.slice(0, 10)] : [];
+    case "date": {
+      // A day as itself, a range as "start → end", times as ISO timestamps (UTC).
+      const parts = parseDateValue(value);
+      if (!parts) return [];
+      return [parts.end ? `${parts.start} → ${parts.end}` : parts.start];
+    }
   }
   // Text-like values, numbers and what formulas and rollups work out.
   const one = (v: unknown): string[] =>
@@ -202,6 +208,7 @@ export function planConversion(
         : detectDateFormat(values.map(single).filter((s) => s && detectDateFormat([s])));
       return {
         convert: (value) => {
+          if (from.type === "date") return parseDateValue(value) ? value : null;
           const s = single(value);
           if (!s) return null;
           if (days) return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : null;
