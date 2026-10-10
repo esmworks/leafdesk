@@ -119,7 +119,8 @@ const isXml = (name: string) => /\.(xml|rels)$/i.test(name);
 /**
  * Checks the document's ZIP directory against the limits without unpacking anything (each entry
  * counts as the larger of its two sizes, as in archive.ts). Throws for a file that isn't a ZIP
- * (an old binary .doc, say) or holds no Word document.
+ * (an old binary .doc, say) or isn't an Office package; mammoth refuses a package without a Word
+ * document in it.
  */
 export function checkDocx(name: string, data: Uint8Array) {
   let entries = 0;
