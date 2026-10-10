@@ -1,9 +1,10 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından ve ZIP dışa aktarımlarından sayfa, CSV dosyasından veya Excel çalışma kitabından satır getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
+    "docx": "Word",
     "csv": "CSV ve Excel"
   },
   "destination": "Nereye",
@@ -18,6 +19,10 @@
     "drop": "ya da dosyaları buraya bırakın",
     "selected": "{count, plural, one {# dosya} other {# dosya}}, {size}",
     "clear": "Temizle"
+  },
+  "docx": {
+    "help": "Her Word belgesi (.docx) başlıkları, listeleri, tabloları, bağlantıları, resimleri ve dipnotlarıyla birlikte bir sayfa olur. En baştaki başlık sayfanın adı olur; yoksa dosya adı kullanılır.",
+    "choose": "Word dosyalarını seçin"
   },
   "csv": {
     "choose": "CSV veya Excel dosyası seç",
@@ -65,7 +70,9 @@
     "fileNotStored": {
       "tooLarge": "“{path}” yükleme sınırından büyük olduğu için saklanmadı.",
       "quotaExceeded": "“{path}” saklanmadı: çalışma alanının dosya depolaması doldu.",
-      "failed": "“{path}” saklanamadı."
+      "failed": "“{path}” saklanamadı.",
+      "external": "“{path}” alınmadı: resim belgenin dışından bağlanmış.",
+      "unsupportedType": "“{path}” alınmadı: sayfalar bu türdeki resimleri gösteremiyor."
     },
     "skipped": {
       "nestedZip": "“{path}” çok derinde iç içe geçmiş bir ZIP olduğu için dışarıda bırakıldı.",
@@ -89,6 +96,8 @@
     "emptyCsv": "Dosyada başlık satırı yok.",
     "badWorkbook": "Excel dosyası okunamıyor.",
     "unsupportedWorkbook": "Yalnızca parolasız .xlsx çalışma kitapları içe aktarılabilir. Dosyayı parolasız Excel Çalışma Kitabı (.xlsx) olarak kaydedip yeniden deneyin.",
+    "badDocx": "“{name}” bir Word belgesi olarak okunamıyor. Yalnızca .docx dosyaları içe aktarılabilir; eski .doc dosyalarını önce .docx olarak kaydedin.",
+    "docxTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük ya da karmaşık.",
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",

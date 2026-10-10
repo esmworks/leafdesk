@@ -528,7 +528,7 @@ function relativeTo(from: string, path: string) {
 }
 
 /** Stores a file a page shows; null (and a warning) when it can't be. */
-async function store(
+export async function store(
   userId: string,
   pageId: string,
   path: string,
@@ -557,7 +557,7 @@ async function store(
 }
 
 /** Deletes what a failed import created: its top-level pages with everything under them. */
-async function discard(workspaceId: string, roots: Created[]) {
+export async function discard(workspaceId: string, roots: { id: string }[]) {
   if (!roots.length) return;
   try {
     await db.delete(page).where(inArray(page.id, roots.map((r) => r.id)));

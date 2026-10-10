@@ -1,9 +1,10 @@
 {
   "open": "Importer",
   "title": "Importer",
-  "description": "Importez des pages depuis des fichiers Markdown et des exportations ZIP, ou des lignes depuis un fichier CSV ou un classeur Excel.",
+  "description": "Importez des pages depuis des fichiers Markdown, des exportations ZIP et des documents Word, ou des lignes depuis un fichier CSV ou un classeur Excel.",
   "tabs": {
     "pages": "Markdown et ZIP",
+    "docx": "Word",
     "csv": "CSV et Excel"
   },
   "destination": "Placer sous",
@@ -18,6 +19,10 @@
     "drop": "ou déposez des fichiers ici",
     "selected": "{count, plural, one {# fichier} other {# fichiers}}, {size}",
     "clear": "Effacer"
+  },
+  "docx": {
+    "help": "Chaque document Word (.docx) devient une page, avec ses titres, listes, tableaux, liens, images et notes de bas de page. Un titre placé tout en haut devient le titre de la page ; sinon, c’est le nom du fichier.",
+    "choose": "Choisir des fichiers Word"
   },
   "csv": {
     "choose": "Choisir un fichier CSV ou Excel",
@@ -65,7 +70,9 @@
     "fileNotStored": {
       "tooLarge": "« {path} » dépasse la taille maximale autorisée et n’a pas été enregistré.",
       "quotaExceeded": "« {path} » n’a pas été enregistré : l’espace de travail n’a plus d’espace de stockage.",
-      "failed": "« {path} » n’a pas pu être enregistré."
+      "failed": "« {path} » n’a pas pu être enregistré.",
+      "external": "« {path} » a été omis : l’image est liée depuis l’extérieur du document.",
+      "unsupportedType": "« {path} » a été omis : les pages ne peuvent pas afficher les images de ce type."
     },
     "skipped": {
       "nestedZip": "« {path} » est un ZIP imbriqué trop profondément et a été ignoré.",
@@ -89,6 +96,8 @@
     "emptyCsv": "Le fichier n’a pas de ligne d’en-tête.",
     "badWorkbook": "Le fichier Excel ne peut pas être lu.",
     "unsupportedWorkbook": "Seuls les classeurs .xlsx sans mot de passe peuvent être importés. Enregistrez le fichier en tant que classeur Excel (.xlsx) sans mot de passe, puis réessayez.",
+    "badDocx": "« {name} » ne peut pas être lu comme un document Word. Seuls les fichiers .docx peuvent être importés ; enregistrez d’abord les anciens fichiers .doc au format .docx.",
+    "docxTooComplex": "« {name} » est trop volumineux ou trop complexe pour être importé en une seule page.",
     "badMapping": "Choisissez la destination d’au moins une colonne, et utilisez chaque propriété une seule fois.",
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",

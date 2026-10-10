@@ -1,9 +1,10 @@
 {
   "open": "Importieren",
   "title": "Importieren",
-  "description": "Importiere Seiten aus Markdown-Dateien und ZIP-Exporten oder Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe.",
+  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten und Word-Dokumenten oder Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe.",
   "tabs": {
     "pages": "Markdown & ZIP",
+    "docx": "Word",
     "csv": "CSV & Excel"
   },
   "destination": "Einfügen unter",
@@ -18,6 +19,10 @@
     "drop": "oder Dateien hierher ziehen",
     "selected": "{count, plural, one {# Datei} other {# Dateien}}, {size}",
     "clear": "Leeren"
+  },
+  "docx": {
+    "help": "Jedes Word-Dokument (.docx) wird eine Seite, mit Überschriften, Listen, Tabellen, Links, Bildern und Fußnoten. Eine Überschrift ganz am Anfang wird zum Titel der Seite, sonst der Dateiname.",
+    "choose": "Word-Dateien auswählen"
   },
   "csv": {
     "choose": "CSV- oder Excel-Datei auswählen",
@@ -65,7 +70,9 @@
     "fileNotStored": {
       "tooLarge": "„{path}“ überschreitet die Upload-Grenze und wurde nicht gespeichert.",
       "quotaExceeded": "„{path}“ wurde nicht gespeichert: Der Dateispeicher des Workspace ist voll.",
-      "failed": "„{path}“ konnte nicht gespeichert werden."
+      "failed": "„{path}“ konnte nicht gespeichert werden.",
+      "external": "„{path}“ wurde weggelassen: Das Bild ist von außerhalb des Dokuments verlinkt.",
+      "unsupportedType": "„{path}“ wurde weggelassen: Seiten können Bilder dieses Typs nicht anzeigen."
     },
     "skipped": {
       "nestedZip": "„{path}“ ist eine zu tief verschachtelte ZIP-Datei und wurde ausgelassen.",
@@ -89,6 +96,8 @@
     "emptyCsv": "Die Datei hat keine Kopfzeile.",
     "badWorkbook": "Die Excel-Datei kann nicht gelesen werden.",
     "unsupportedWorkbook": "Nur .xlsx-Arbeitsmappen ohne Kennwort können importiert werden. Speichere die Datei als Excel-Arbeitsmappe (.xlsx) ohne Kennwort und versuche es erneut.",
+    "badDocx": "„{name}“ kann nicht als Word-Dokument gelesen werden. Nur .docx-Dateien können importiert werden; speichere ältere .doc-Dateien zuerst als .docx.",
+    "docxTooComplex": "„{name}“ ist zu groß oder zu komplex, um als eine Seite importiert zu werden.",
     "badMapping": "Lege für mindestens eine Spalte ein Ziel fest und verwende jede Eigenschaft nur einmal.",
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",

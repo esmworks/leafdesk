@@ -1,9 +1,10 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files and ZIP exports, or rows from a CSV file or Excel workbook.",
+  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, or rows from a CSV file or Excel workbook.",
   "tabs": {
     "pages": "Markdown & ZIP",
+    "docx": "Word",
     "csv": "CSV & Excel"
   },
   "destination": "Put under",
@@ -18,6 +19,10 @@
     "drop": "or drop files here",
     "selected": "{count, plural, one {# file} other {# files}}, {size}",
     "clear": "Clear"
+  },
+  "docx": {
+    "help": "Each Word document (.docx) becomes a page, with its headings, lists, tables, links, pictures and footnotes. A heading at the very top becomes the page's title; otherwise the file name does.",
+    "choose": "Choose Word files"
   },
   "csv": {
     "choose": "Choose a CSV or Excel file",
@@ -65,7 +70,9 @@
     "fileNotStored": {
       "tooLarge": "“{path}” is larger than the upload limit and wasn't stored.",
       "quotaExceeded": "“{path}” wasn't stored: the workspace is out of file storage.",
-      "failed": "“{path}” couldn't be stored."
+      "failed": "“{path}” couldn't be stored.",
+      "external": "“{path}” was left out: the picture is linked from outside the document.",
+      "unsupportedType": "“{path}” was left out: pages can't show pictures of this type."
     },
     "skipped": {
       "nestedZip": "“{path}” is a ZIP nested too deep and was left out.",
@@ -89,6 +96,8 @@
     "emptyCsv": "The file has no header row.",
     "badWorkbook": "The Excel file can't be read.",
     "unsupportedWorkbook": "Only .xlsx workbooks without a password can be imported. Save the file as an Excel Workbook (.xlsx) without a password and try again.",
+    "badDocx": "“{name}” can't be read as a Word document. Only .docx files can be imported; save older .doc files as .docx first.",
+    "docxTooComplex": "“{name}” is too large or complex to import as one page.",
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",

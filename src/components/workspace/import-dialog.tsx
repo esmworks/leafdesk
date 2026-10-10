@@ -50,13 +50,18 @@ function flatten(tree: TreeNode[]) {
 }
 
 type Picked = { file: File; path: string };
+
+/** What the Word tab's file picker offers, and what it takes from a drop. */
+const DOCX_ACCEPT = ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const isDocx = (file: File) => /\.docx$/i.test(file.name);
 /** The chosen CSV file or workbook; a workbook's sheets by name, and the one shown. */
 type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets: string[]; sheet: number };
 
 /**
- * Imports Markdown files, folders and ZIPs as pages, or a CSV file or Excel workbook (one of its
- * sheets) as a new database or as rows of an existing one (with a column → property mapping). Sends everything to /api/import and shows
- * what was created and what was left out.
+ * Imports Markdown files, folders and ZIPs as pages, Word documents as a page each, or a CSV file
+ * or Excel workbook (one of its sheets) as a new database or as rows of an existing one (with a
+ * column → property mapping). Sends everything to /api/import and shows what was created and what
+ * was left out.
  */
 export function ImportDialog({
   workspaceId,
@@ -88,11 +93,12 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "csv">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "csv">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
   const [vault, setVault] = useState(false);
+  const [documents, setDocuments] = useState<File[]>([]);
   const [csv, setCsv] = useState<CsvState | null>(null);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
@@ -108,6 +114,7 @@ export function ImportDialog({
   const filesInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const csvInput = useRef<HTMLInputElement>(null);
+  const docxInput = useRef<HTMLInputElement>(null);
 
   // Fresh each time it opens, aimed at the page (or database) open now.
   useEffect(() => {
@@ -119,6 +126,7 @@ export function ImportDialog({
     );
     setPicked([]);
     setVault(false);
+    setDocuments([]);
     setCsv(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
@@ -164,6 +172,7 @@ export function ImportDialog({
 
   const destinationValid = destination ? destinations.some((d) => d.node.id === destination) : topLevel;
   const totalSize = picked.reduce((sum, p) => sum + p.file.size, 0);
+  const documentsSize = documents.reduce((sum, f) => sum + f.size, 0);
 
   function addFiles(list: FileList | File[] | null) {
     if (!list) return;
@@ -173,6 +182,14 @@ export function ImportDialog({
     if (all.some((p) => isVaultSettingsPath(p.path))) setVault(true);
     const next = all.filter((p) => !isIgnoredPath(p.path));
     setPicked((prev) => [...prev.filter((p) => !next.some((n) => n.path === p.path)), ...next]);
+    setError(null);
+  }
+
+  /** Adds Word documents to the list (by name: choosing one again replaces it); other files are passed over. */
+  function addDocuments(list: FileList | File[] | null) {
+    if (!list) return;
+    const next = [...list].filter(isDocx);
+    setDocuments((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
     setError(null);
   }
 
@@ -218,6 +235,8 @@ export function ImportDialog({
       "emptyCsv",
       "badWorkbook",
       "unsupportedWorkbook",
+      "badDocx",
+      "docxTooComplex",
       "badMapping",
       "noAccess",
       "notADatabase",
@@ -239,6 +258,11 @@ export function ImportDialog({
         form.append("file", p.file, p.file.name);
         form.append("path", p.path);
       }
+    } else if (tab === "docx") {
+      if (documentsSize > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
+      form.append("mode", "docx");
+      form.append("parentId", destination);
+      for (const file of documents) form.append("file", file, file.name);
     } else if (csv && csvMode === "new") {
       form.append("mode", "csv-new");
       form.append("parentId", destination);
@@ -286,7 +310,9 @@ export function ImportDialog({
     !busy &&
     (tab === "pages"
       ? picked.length > 0 && destinationValid
-      : csv !== null &&
+      : tab === "docx"
+        ? documents.length > 0 && destinationValid
+        : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
           : target !== null && target !== "error" && mapping.some((m) => m !== null)));
@@ -342,13 +368,14 @@ export function ImportDialog({
             setResult(null);
             setPicked([]);
             setVault(false);
+            setDocuments([]);
             setCsv(null);
           }}
         />
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "csv"] as const).map((key) => (
+            {(["pages", "docx", "csv"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -445,6 +472,63 @@ export function ImportDialog({
                       </li>
                     ))}
                     {picked.length > 50 && <li>…</li>}
+                  </ul>
+                </div>
+              )}
+              {destinationPicker}
+            </>
+          ) : tab === "docx" ? (
+            <>
+              <p className="text-sm text-fg-muted">{t("docx.help")}</p>
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  addDocuments(e.dataTransfer.files);
+                }}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3",
+                  dragOver && "border-accent bg-accent/5",
+                )}
+              >
+                <Button disabled={busy} onClick={() => docxInput.current?.click()}>
+                  <FileUp className="h-4 w-4" />
+                  {t("docx.choose")}
+                </Button>
+                <span className="text-xs text-fg-faint">{t("pages.drop")}</span>
+                <input
+                  ref={docxInput}
+                  type="file"
+                  multiple
+                  hidden
+                  accept={DOCX_ACCEPT}
+                  data-import="docx"
+                  onChange={(e) => {
+                    addDocuments(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {documents.length > 0 && (
+                <div className="rounded-lg border border-border">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-fg-muted">
+                    <span>{t("pages.selected", { count: documents.length, size: formatBytes(documentsSize) })}</span>
+                    <Button size="sm" variant="ghost" disabled={busy} onClick={() => setDocuments([])}>
+                      {t("pages.clear")}
+                    </Button>
+                  </div>
+                  <ul className="max-h-32 overflow-y-auto px-3 py-1.5 text-xs text-fg-muted">
+                    {documents.slice(0, 50).map((file) => (
+                      <li key={file.name} className="truncate">
+                        {file.name}
+                      </li>
+                    ))}
+                    {documents.length > 50 && <li>…</li>}
                   </ul>
                 </div>
               )}

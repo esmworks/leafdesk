@@ -24,6 +24,10 @@ export const IMPORT_ERROR_CODES = [
   "badWorkbook",
   /** An old binary workbook (.xls) or one saved with a password: only plain .xlsx files are read. */
   "unsupportedWorkbook",
+  /** A Word document (`name`) that can't be read: not a .docx, or damaged. */
+  "badDocx",
+  /** A Word document (`name`) too large or too complex to read as one page in time. */
+  "docxTooComplex",
   /** Merging: no column goes to a property, or two go to the same one. */
   "badMapping",
   /** The destination is missing, in the trash or not editable, or not a database when merging. */
@@ -51,8 +55,12 @@ export type ImportWarning =
   | { code: "missingFile"; path: string; page: string }
   /** A wikilink (`[[Name]]`) naming no file of the upload: left as it was written. */
   | { code: "unresolvedLink"; target: string; page: string }
-  /** A file a page shows couldn't be stored (too large, quota): the link was left as it was. */
-  | { code: "fileNotStored"; path: string; reason: "tooLarge" | "quotaExceeded" | "failed" }
+  /**
+   * A file a page shows couldn't be stored (too large, quota): the link was left as it was. A
+   * Word document's picture is left out instead, and so is one linked from outside the document
+   * (`external`) or of a type pages don't show (`unsupportedType`, such as a Windows metafile).
+   */
+  | { code: "fileNotStored"; path: string; reason: "tooLarge" | "quotaExceeded" | "failed" | "external" | "unsupportedType" }
   /**
    * Files left out: a ZIP inside the ZIP, a database inside a database, a duplicate CSV (or a
    * database's own Markdown file), a Markdown file over the size limit, a file no page shows or

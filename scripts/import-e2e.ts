@@ -3,7 +3,8 @@
  * Notion's layout and ids, databases from CSV files with their row pages, links between the files
  * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
- * Excel workbooks (a database exported as one comes back with the same values), access, limits,
+ * Excel workbooks (a database exported as one comes back with the same values), Word documents
+ * (a page each, titled by their first heading, pictures uploaded), access, limits,
  * taking back a failed import, and the /api/import route.
  * Creates its own users and workspaces, stores files in a temporary directory, and deletes all of
  * it afterwards.
@@ -29,10 +30,10 @@ process.env.UPLOAD_DIR = uploadDir;
 process.env.UPLOAD_MAX_FILE_MB = String(10_000 / 1024 / 1024); // 10,000 bytes
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray, isNull } = await import("drizzle-orm");
+const { and, desc, eq, inArray, isNull } = await import("drizzle-orm");
 const { strToU8, unzipSync, zipSync } = await import("fflate");
 const { db } = await import("@/db");
-const { file, page, session, user, workspace, workspaceMember } = await import("@/db/schema");
+const { auditEvent, file, page, session, user, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { csvTable } = await import("@/lib/import/csv");
@@ -46,6 +47,8 @@ const { setPagePermission } = await import("@/server/permissions");
 const databases = await import("@/server/databases");
 const { AccessError } = await import("@/server/access");
 const { importPages } = await import("@/server/import/markdown");
+const { importDocx } = await import("@/server/import/docx");
+const docxFixture = await import("@/server/import/docx-fixtures");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
 const { databaseCsv, databaseXlsx } = await import("@/server/export");
 const importRoute = await import("@/app/api/import/route");
@@ -460,6 +463,97 @@ try {
     "an unknown property is refused before any row is added",
   );
 
+  // Word documents: a page each
+  const { docx, hyperlink, image, paragraph, PNG } = docxFixture;
+  const report = docx({
+    body: [
+      paragraph("Quarterly report", { style: "Heading1" }),
+      paragraph([hyperlink("rIdWeb", "The plan")]),
+      paragraph("Section", { style: "Heading2" }),
+      paragraph([image({ embed: "rIdSmall" }, "Chart")]),
+      paragraph([image({ embed: "rIdBig" })]),
+      paragraph([image({ link: "rIdOutside" })]),
+      paragraph([image({ embed: "rIdMetafile" })]),
+    ].join(""),
+    relationships: [
+      { id: "rIdWeb", type: "hyperlink", target: "https://example.com/plan", external: true },
+      { id: "rIdSmall", type: "image", target: "media/small.png" },
+      { id: "rIdBig", type: "image", target: "media/big.png" },
+      { id: "rIdOutside", type: "image", target: "https://example.com/tracker.png", external: true },
+      { id: "rIdMetafile", type: "image", target: "media/drawing.emf" },
+    ],
+    media: { "small.png": PNG, "big.png": Buffer.concat([png, randomBytes(12_000)]), "drawing.emf": randomBytes(100) },
+  });
+  const notesDocx = docx({ body: paragraph("Just some notes.") });
+  const docsHome = await createPage(owner, { workspaceId, title: "Documents" });
+  const fromWord = await importDocx(owner, {
+    workspaceId,
+    parentId: docsHome.id,
+    files: [
+      { name: "Report.docx", data: report },
+      { name: "Plain notes.docx", data: notesDocx },
+    ],
+  });
+  check(
+    JSON.stringify(fromWord.pages.map((p) => `${p.kind}:${p.title}`)) === JSON.stringify(["page:Quarterly report", "page:Plain notes"]) &&
+      (await titles(docsHome.id)).join() === "Quarterly report,Plain notes",
+    "each Word document becomes a page, titled by the heading it starts with or else by its file name",
+    fromWord.pages,
+  );
+  const reportId = fromWord.pages[0].id;
+  const wordFiles = await db.select().from(file).where(eq(file.pageId, reportId));
+  check(
+    fromWord.created.pages === 2 && fromWord.created.files === 1 && wordFiles.length === 1 && wordFiles[0].name === "image-1.png" && wordFiles[0].contentType === "image/png",
+    "…its picture uploaded to the page",
+    { created: fromWord.created, wordFiles },
+  );
+  await eventually(async () => (await body(reportId)).includes("Section"), "the report body");
+  const reportBody = await body(reportId);
+  check(
+    reportBody.includes(`/api/files/${wordFiles[0].id}`) && reportBody.includes("[The plan](https://example.com/plan)") && reportBody.includes("## Section") &&
+      !reportBody.includes("# Quarterly report") && !reportBody.includes("example.com/tracker") && (reportBody.match(/!\[/g) ?? []).length === 1,
+    "…with its links and headings, the title heading out of the body, and no picture but the uploaded one",
+    reportBody,
+  );
+  await eventually(async () => (await body(fromWord.pages[1].id)).includes("Just some notes."), "the notes body");
+  const wordWarned = fromWord.warnings.map((w) => `${w.code}:${"path" in w ? w.path : ""}:${"reason" in w ? w.reason : ""}`);
+  check(
+    JSON.stringify(wordWarned) ===
+      JSON.stringify([
+        "fileNotStored:Report.docx/image-2.png:tooLarge",
+        "fileNotStored:Report.docx/image-3:external",
+        "fileNotStored:Report.docx/image-4.emf:unsupportedType",
+      ]),
+    "pictures over the upload limit, linked from outside or of a type pages don't show are left out and reported",
+    fromWord.warnings,
+  );
+  const [wordAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.actorUserId, ids.owner)))
+    .orderBy(desc(auditEvent.createdAt))
+    .limit(1);
+  check(
+    (wordAudit?.details as { format?: string; count?: number } | undefined)?.format === "docx" && (wordAudit?.details as { count?: number }).count === 2,
+    "a Word import is recorded in the audit log",
+    wordAudit,
+  );
+  const docsBefore = (await titles(docsHome.id)).length;
+  check(
+    (await failure(() =>
+      importDocx(owner, { workspaceId, parentId: docsHome.id, files: [{ name: "Good.docx", data: notesDocx }, { name: "Broken.docx", data: report.slice(0, 300) }] }),
+    )) === "badDocx" && (await titles(docsHome.id)).length === docsBefore,
+    "a damaged document stops the import before any page is created",
+  );
+  check(
+    (await failure(() => importDocx(owner, { workspaceId, parentId: docsHome.id, files: [{ name: "old.doc", data: notesDocx }] }))) === "badDocx",
+    "only .docx files are taken",
+  );
+  check(
+    (await failure(() => importDocx({ userId: ids.guest }, { workspaceId, parentId: docsHome.id, files: [{ name: "x.docx", data: notesDocx }] }))) === "access",
+    "Word documents go only where the user may add pages",
+  );
+
   // The route
   const token = randomBytes(24).toString("hex");
   await db.insert(session).values({ id: `${RUN}-session`, token, userId: ids.member, expiresAt: new Date(Date.now() + 3_600_000), updatedAt: new Date() });
@@ -499,6 +593,14 @@ try {
   check((await post({ mode: "pages", workspaceId, parentId: home.id }, [{ name: "x.md", data: "x" }], { origin: "https://evil.example" })).status === 403, "…and refuses foreign origins");
   const noAccess = await post({ mode: "pages", workspaceId: otherWorkspace, parentId: "" }, [{ name: "x.md", data: "x" }]);
   check(noAccess.status === 404 && noAccess.json.code === "noAccess", "workspaces the user isn't in read as missing", noAccess);
+  const wordRoute = await post({ mode: "docx", workspaceId, parentId: home.id }, [{ name: "Memo.docx", data: notesDocx }]);
+  check(wordRoute.status === 201 && wordRoute.json.pages[0].title === "Memo" && wordRoute.json.created.pages === 1, "…Word documents as pages", wordRoute);
+  const brokenWord = await post({ mode: "docx", workspaceId, parentId: home.id }, [{ name: "Broken.docx", data: "not a document" }]);
+  check(
+    brokenWord.status === 400 && brokenWord.json.code === "badDocx" && brokenWord.json.params.name === "Broken.docx",
+    "…and refuses a damaged one with a code the dialog translates",
+    brokenWord,
+  );
   const empty = await post({ mode: "csv-new", workspaceId, parentId: home.id }, [{ name: "e.csv", data: "" }]);
   check(empty.status === 400 && empty.json.code === "emptyCsv", "an empty CSV is refused with a code the dialog translates", empty);
 

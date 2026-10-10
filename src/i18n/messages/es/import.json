@@ -1,9 +1,10 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Trae páginas desde archivos Markdown y exportaciones ZIP, o filas desde un archivo CSV o un libro de Excel.",
+  "description": "Trae páginas desde archivos Markdown, exportaciones ZIP y documentos de Word, o filas desde un archivo CSV o un libro de Excel.",
   "tabs": {
     "pages": "Markdown y ZIP",
+    "docx": "Word",
     "csv": "CSV y Excel"
   },
   "destination": "Colocar dentro de",
@@ -18,6 +19,10 @@
     "drop": "o suelta los archivos aquí",
     "selected": "{count, plural, one {# archivo} other {# archivos}}, {size}",
     "clear": "Borrar"
+  },
+  "docx": {
+    "help": "Cada documento de Word (.docx) se convierte en una página, con sus encabezados, listas, tablas, enlaces, imágenes y notas al pie. Un encabezado al principio del todo pasa a ser el título de la página; si no, se usa el nombre del archivo.",
+    "choose": "Elegir archivos de Word"
   },
   "csv": {
     "choose": "Elegir un archivo CSV o Excel",
@@ -65,7 +70,9 @@
     "fileNotStored": {
       "tooLarge": "“{path}” supera el límite de subida y no se guardó.",
       "quotaExceeded": "“{path}” no se guardó: el espacio de trabajo se ha quedado sin almacenamiento de archivos.",
-      "failed": "“{path}” no se pudo guardar."
+      "failed": "“{path}” no se pudo guardar.",
+      "external": "“{path}” se omitió: la imagen está enlazada desde fuera del documento.",
+      "unsupportedType": "“{path}” se omitió: las páginas no pueden mostrar imágenes de este tipo."
     },
     "skipped": {
       "nestedZip": "“{path}” es un ZIP anidado a demasiada profundidad y se excluyó.",
@@ -89,6 +96,8 @@
     "emptyCsv": "El archivo no tiene fila de encabezado.",
     "badWorkbook": "No se puede leer el archivo de Excel.",
     "unsupportedWorkbook": "Solo se pueden importar libros .xlsx sin contraseña. Guarda el archivo como libro de Excel (.xlsx) sin contraseña y vuelve a intentarlo.",
+    "badDocx": "“{name}” no se puede leer como documento de Word. Solo se pueden importar archivos .docx; guarda primero los archivos .doc antiguos como .docx.",
+    "docxTooComplex": "“{name}” es demasiado grande o complejo para importarlo como una sola página.",
     "badMapping": "Elige el destino de al menos una columna, y usa cada propiedad una sola vez.",
     "noAccess": "No puedes añadir páginas ahí o ya no existe.",
     "notADatabase": "Solo se pueden añadir filas a una base de datos.",

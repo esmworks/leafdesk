@@ -24,7 +24,7 @@ after you approve them over OAuth.
   what it may read or change; optional AI writing, AI properties and chat with Anthropic, OpenAI,
   Google or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Markdown files,
-  a folder or CSV.
+  Word documents, a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -264,6 +264,16 @@ versions, upgrades and running behind a domain.
   export comes back as it went, templates included. Import a CSV file as a new database with its column types guessed (and
   changeable before importing), or add its rows to an existing database by matching columns to
   properties.
+- **Import from Word**: choose one or more `.docx` files on Import's Word tab; each becomes a
+  page. A heading (or Title paragraph) at the very top becomes the page's title, otherwise the file
+  name does. Headings (levels past the third as the third), bold, italic, underline,
+  strikethrough, links (web and email only), bulleted and numbered lists with their nesting, tables
+  with a header row, quotes, monospace paragraphs (as code) and footnotes (as a list at the end)
+  come along; pictures inside the document are uploaded to the page. Pictures linked from outside
+  the document, of types pages don't show (such as Windows metafiles) or over the upload limit are
+  left out and listed in the result; comments and page breaks are dropped. Old `.doc` files need
+  saving as `.docx` first. A document is read in a separate worker with a time and memory limit,
+  and one that can't be read stops the import before any page is created.
 - **Import from Notion**: in Notion, export a page or the workspace as *Markdown & CSV* with
   subpages, and choose the downloaded ZIP in Import (a large export split into parts, an
   `Export-….zip` holding `…-Part-1.zip` and so on, works as it is). Pages keep their tree, without

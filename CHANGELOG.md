@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Import Word documents.** Import has a Word tab that takes one or more `.docx` files, each
+  becoming a page under the chosen page or teamspace: titled by the heading it starts with (or its
+  Title paragraph), else by its file name, with headings, bold, italic, underline, strikethrough,
+  links, nested lists, tables with their header row, quotes, monospace paragraphs as code and
+  footnotes as a list at the end. Pictures in the document are uploaded to the page; ones linked
+  from outside it, of a type pages can't show or over the upload limit are left out and listed.
+  Documents are read in a worker with time and memory limits; a damaged or old `.doc` file is
+  refused with nothing created. Recorded in the audit log like other imports. No migration.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.

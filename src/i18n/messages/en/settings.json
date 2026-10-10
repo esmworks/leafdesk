@@ -907,6 +907,7 @@
       "zip": "ZIP",
       "csv": "CSV",
       "xlsx": "Excel",
+      "docx": "Word",
       "markdown": "Markdown",
       "pdf": "PDF",
       "notion": "Notion",
