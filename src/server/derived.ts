@@ -70,14 +70,17 @@ export async function computeDerived<R extends { title: string; properties: Reco
   }));
 }
 
-/** The properties of these databases in order, formula result types filled in, by database id. */
+/**
+ * The properties of these databases in order, formula result types filled in, by database id.
+ * Deleted properties are left out: formulas and rollups that read one fail as for a missing one.
+ */
 export async function loadProperties(databaseIds: string[]): Promise<Map<string, Property[]>> {
   const out = new Map<string, Property[]>();
   if (!databaseIds.length) return out;
   const rows = await db
     .select()
     .from(databaseProperty)
-    .where(inArray(databaseProperty.databaseId, databaseIds))
+    .where(and(inArray(databaseProperty.databaseId, databaseIds), isNull(databaseProperty.deletedAt)))
     .orderBy(asc(databaseProperty.position), asc(databaseProperty.createdAt));
   for (const prop of rows) out.set(prop.databaseId, [...(out.get(prop.databaseId) ?? []), prop]);
   for (const [id, props] of out) out.set(id, withFormulaTypes(props));

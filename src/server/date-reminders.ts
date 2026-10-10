@@ -43,6 +43,7 @@ export async function deliverDateReminders(now = new Date()): Promise<number> {
       and(
         eq(databaseProperty.type, "date"),
         isNotNull(sql`${databaseProperty.options} -> 'date' -> 'reminder'`),
+        isNull(databaseProperty.deletedAt),
         isNull(page.archivedAt),
         eq(page.inTemplate, false),
       ),

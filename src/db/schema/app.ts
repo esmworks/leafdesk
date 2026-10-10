@@ -495,10 +495,18 @@ export const databaseProperty = pgTable(
     type: text("type").$type<PropertyType>().notNull(),
     options: jsonb("options").$type<PropertyOptions>().notNull().default({}),
     position: doublePrecision("position").notNull().default(0),
+    /**
+     * While set, the property is deleted: left out everywhere (views keep what they said about it,
+     * rows keep their values) until someone restores it, or the daily cleanup deletes it for good
+     * after the workspace's `trashRetentionDays` (see server/retention.ts).
+     */
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, { onDelete: "set null" }),
     ...timestamps,
   },
   (t) => [
     index("database_property_db_idx").on(t.databaseId),
+    index("database_property_deleted_idx").on(t.deletedAt).where(sql`${t.deletedAt} is not null`),
     // The date properties with a reminder, which server/date-reminders looks for every minute.
     index("database_property_reminder_idx")
       .on(t.id)
@@ -660,9 +668,15 @@ export const databaseView = pgTable(
      * no view of the database is marked, published pages show its first view (see publication.ts).
      */
     published: boolean("published").notNull().default(false),
+    /** While set, the view is deleted and can be restored; like a deleted property's `deletedAt`. */
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, { onDelete: "set null" }),
     ...timestamps,
   },
-  (t) => [index("database_view_db_idx").on(t.databaseId)],
+  (t) => [
+    index("database_view_db_idx").on(t.databaseId),
+    index("database_view_deleted_idx").on(t.deletedAt).where(sql`${t.deletedAt} is not null`),
+  ],
 );
 
 /** `before_ai_edit`: saved before the editor's AI writing assistant applied a suggestion. */

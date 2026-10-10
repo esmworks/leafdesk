@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { Hocuspocus, type Document, type Extension } from "@hocuspocus/server";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { DefaultThreadStoreAuth } from "@blocknote/core/comments";
 import { YjsThreadStore } from "@blocknote/core/yjs";
 import * as Y from "yjs";
@@ -158,6 +158,7 @@ async function showsLastEdited(databaseId: string) {
       and(
         eq(databaseProperty.databaseId, databaseId),
         inArray(databaseProperty.type, ["last_edited_time", "last_edited_by"]),
+        isNull(databaseProperty.deletedAt),
       ),
     )
     .limit(1);

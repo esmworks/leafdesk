@@ -51,6 +51,7 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
         eq(page.workspaceId, workspaceId),
         eq(page.kind, "database"),
         eq(databaseProperty.type, "person"),
+        isNull(databaseProperty.deletedAt),
         isNull(page.archivedAt),
         eq(page.inTemplate, false),
       ),

@@ -56,7 +56,7 @@ export async function addAutofillPropertyAction(databaseId: string, name: string
       await setAutofill(userId, created.id, config);
     } catch (error) {
       // Settings that don't fit: leave no half-made property behind.
-      await databases.deleteProperty(userId, created.id).catch(() => {});
+      await databases.discardProperty(userId, created.id).catch(() => {});
       throw error;
     }
     const queued = rowIds.length ? await requestAutofill(userId, created.id, rowIds.slice(0, 500)) : { queued: 0, skipped: 0 };

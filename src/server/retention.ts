@@ -1,13 +1,15 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
-import { auditEvent, DEFAULT_WORKSPACE_SETTINGS, page, pageSnapshot, workspace } from "@/db/schema";
+import { auditEvent, databaseProperty, databaseView, DEFAULT_WORKSPACE_SETTINGS, page, pageSnapshot, workspace } from "@/db/schema";
 import { auditCutoff, HISTORY_RETENTION, historyCutoffs } from "@/lib/retention";
+import { purgeDeletedProperties, purgeDeletedViews } from "@/server/databases";
 import { deleteTrashedPages } from "@/server/pages";
 
 /**
  * Data retention, applied once a day by the app server (startRetention, from server.ts):
  *  - pages that have been in the trash longer than their workspace's `trashRetentionDays` are
  *    deleted for good, the way "Delete permanently" does it (files included);
+ *  - so are database properties and views deleted longer ago than that (purgeExpiredSchema);
  *  - page history is pruned by the rules in lib/retention.ts (HISTORY_RETENTION);
  *  - audit log events older than AUDIT_RETENTION_DAYS are deleted.
  *
@@ -26,6 +28,9 @@ export type RetentionResult = {
   trashedPages: number;
   /** Workspaces those entries came from. */
   workspaces: number;
+  /** Deleted database properties and views deleted for good (the other sides of relations included). */
+  deletedProperties: number;
+  deletedViews: number;
   snapshots: number;
   auditEvents: number;
 };
@@ -70,6 +75,42 @@ export async function purgeExpiredTrash({ now = new Date(), workspaceIds }: Rete
     }
   }
   return { trashedPages, workspaces: byWorkspace.size };
+}
+
+/**
+ * Deletes for good the database properties and views that were deleted longer ago than their
+ * workspace's `trashRetentionDays` at `now` (none where it is 0), as "Delete permanently" in the
+ * database does. Properties of databases in the trash count too: their own date decides.
+ */
+export async function purgeExpiredSchema({ now = new Date(), workspaceIds }: RetentionOptions = {}) {
+  if (workspaceIds?.length === 0) return { deletedProperties: 0, deletedViews: 0 };
+  const days = sql`coalesce((w.settings ->> 'trashRetentionDays')::int, ${DEFAULT_WORKSPACE_SETTINGS.trashRetentionDays})`;
+  const due = (table: typeof databaseProperty | typeof databaseView) =>
+    db.execute<{ id: string; workspace_id: string }>(sql`
+      select x.id, p.workspace_id
+      from ${table} x
+      join ${page} p on p.id = x.database_id
+      join ${workspace} w on w.id = p.workspace_id
+      where x.deleted_at is not null
+        and ${days} > 0
+        and x.deleted_at <= ${now.toISOString()}::timestamptz - make_interval(hours => 24 * ${days})
+        ${workspaceIds ? sql`and p.workspace_id in ${workspaceIds}` : sql``}
+    `);
+  const byWorkspace = (rows: { id: string; workspace_id: string }[]) => {
+    const out = new Map<string, string[]>();
+    for (const row of rows) out.set(row.workspace_id, [...(out.get(row.workspace_id) ?? []), row.id]);
+    return out;
+  };
+  let deletedProperties = 0;
+  let deletedViews = 0;
+  // No actor: the audit log records these deletes as the server's own.
+  for (const [workspaceId, ids] of byWorkspace([...(await due(databaseProperty))])) {
+    for (let i = 0; i < ids.length; i += DELETE_BATCH) deletedProperties += await purgeDeletedProperties(workspaceId, ids.slice(i, i + DELETE_BATCH));
+  }
+  for (const [workspaceId, ids] of byWorkspace([...(await due(databaseView))])) {
+    for (let i = 0; i < ids.length; i += DELETE_BATCH) deletedViews += await purgeDeletedViews(workspaceId, ids.slice(i, i + DELETE_BATCH));
+  }
+  return { deletedProperties, deletedViews };
 }
 
 /**
@@ -130,9 +171,10 @@ export async function runRetention(options: RetentionOptions = {}): Promise<Rete
     if (!row?.locked) return null;
     try {
       const trash = await purgeExpiredTrash(options);
+      const schema = await purgeExpiredSchema(options);
       const snapshots = await pruneSnapshots(options);
       const auditEvents = await pruneAuditEvents(options);
-      return { ...trash, snapshots, auditEvents };
+      return { ...trash, ...schema, snapshots, auditEvents };
     } finally {
       await connection`select pg_advisory_unlock(hashtext(${LOCK}))`;
     }
@@ -155,6 +197,7 @@ export function startRetention() {
       }
       console.log(
         `[retention] deleted ${result.trashedPages} pages from the trash of ${result.workspaces} workspaces, ` +
+          `${result.deletedProperties} deleted properties, ${result.deletedViews} deleted views, ` +
           `${result.snapshots} old page versions and ${result.auditEvents} old audit log events`,
       );
     } catch (error) {

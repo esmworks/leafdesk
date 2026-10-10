@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
@@ -42,8 +42,22 @@ export {
   type RedactedFields,
 } from "@/lib/property-access-rows";
 
-/** Every rule of these databases, by property id. */
-export async function loadPropertyRules(databaseIds: string[]): Promise<Map<string, PropertyRule[]>> {
+/**
+ * Rules that hold now: not those of a deleted property, nor exceptions naming the people of a
+ * deleted person property (the rows still hold its values, for a restore). Both apply again once
+ * the property is restored.
+ */
+const ruleHolds = sql`not exists (
+  select 1 from ${databaseProperty}
+  where ${databaseProperty.id} in (${propertyPermission.propertyId}, ${propertyPermission.personPropertyId})
+    and ${databaseProperty.deletedAt} is not null
+)`;
+
+/**
+ * Every rule of these databases, by property id. `withDeleted` takes in the rules that don't hold
+ * while a property is deleted (see ruleHolds), for deciding who may see and restore it.
+ */
+export async function loadPropertyRules(databaseIds: string[], withDeleted = false): Promise<Map<string, PropertyRule[]>> {
   const out = new Map<string, PropertyRule[]>();
   if (!databaseIds.length) return out;
   const rows = await db
@@ -55,17 +69,17 @@ export async function loadPropertyRules(databaseIds: string[]): Promise<Map<stri
       level: propertyPermission.level,
     })
     .from(propertyPermission)
-    .where(inArray(propertyPermission.databaseId, databaseIds));
+    .where(and(inArray(propertyPermission.databaseId, databaseIds), withDeleted ? undefined : ruleHolds));
   for (const rule of rows) out.set(rule.propertyId, [...(out.get(rule.propertyId) ?? []), rule]);
   return out;
 }
 
 /** Whether any property of the database has rules: one index lookup. */
-async function hasRules(databaseId: string) {
+async function hasRules(databaseId: string, withDeleted = false) {
   const [row] = await db
     .select({ id: propertyPermission.id })
     .from(propertyPermission)
-    .where(eq(propertyPermission.databaseId, databaseId))
+    .where(and(eq(propertyPermission.databaseId, databaseId), withDeleted ? undefined : ruleHolds))
     .limit(1);
   return Boolean(row);
 }
@@ -139,20 +153,30 @@ export async function seesValue(userId: string, databaseId: string, propertyId: 
 export async function propertyAccessFor(
   userId: string | null,
   databaseId: string,
-  options: { databaseLevel?: DatabaseLevel } = {},
+  options: {
+    databaseLevel?: DatabaseLevel;
+    /**
+     * Deleted properties count too, with the rules they had: who may see a deleted property in the
+     * list of deleted ones, and restore it, is who could see and change it before.
+     */
+    withDeleted?: boolean;
+  } = {},
 ): Promise<PropertyAccess> {
-  if (!(await hasRules(databaseId))) return OPEN_ACCESS;
+  const withDeleted = options.withDeleted ?? false;
+  if (!(await hasRules(databaseId, withDeleted))) return OPEN_ACCESS;
   const [rules, viewer, properties] = await Promise.all([
-    loadPropertyRules([databaseId]),
+    loadPropertyRules([databaseId], withDeleted),
     userId
       ? loadViewer(userId, databaseId, options.databaseLevel)
       : Promise.resolve<PropertyViewer>({ userId: "", groupIds: [], databaseLevel: "view" }),
-    loadProperties([databaseId]).then((all) => all.get(databaseId) ?? []),
+    withDeleted
+      ? db.select().from(databaseProperty).where(eq(databaseProperty.databaseId, databaseId))
+      : loadProperties([databaseId]).then((all) => all.get(databaseId) ?? []),
   ]);
   const access = makeAccess(rules, viewer, properties);
   // An agent working for a member gets only what that member may as well (acting-for.ts).
   const forUserId = userId ? actingFor(userId) : null;
-  return forUserId ? intersectAccess(access, await propertyAccessFor(forUserId, databaseId)) : access;
+  return forUserId ? intersectAccess(access, await propertyAccessFor(forUserId, databaseId, { withDeleted })) : access;
 }
 
 export type PropertyRuleInput = {
@@ -185,7 +209,7 @@ export async function validateRules(
     const found = await db
       .select({ id: databaseProperty.id, type: databaseProperty.type })
       .from(databaseProperty)
-      .where(and(eq(databaseProperty.databaseId, prop.databaseId), inArray(databaseProperty.id, personIds)));
+      .where(and(eq(databaseProperty.databaseId, prop.databaseId), inArray(databaseProperty.id, personIds), isNull(databaseProperty.deletedAt)));
     if (found.length !== personIds.length || found.some((p) => !namesPeople(p.type))) {
       throw new PropertyValueError("An exception names a property that isn't a person property of this database", "cannotRestrict");
     }
@@ -220,7 +244,10 @@ const FULL_ACCESS_NAMES = 3;
 
 /** A property and its database, for someone with full access to the database. */
 async function requireRestrictable(actorId: string, propertyId: string) {
-  const [prop] = await db.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId));
+  const [prop] = await db
+    .select()
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)));
   if (!prop) throw new AccessError();
   const database = await requirePageAccess(actorId, prop.databaseId, "full");
   if (database.kind !== "database") throw new AccessError();

@@ -11,7 +11,7 @@
  * to follow their row, by changing the row (debounced; nothing runs when its inputs are the same).
  */
 import { createHash } from "node:crypto";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { aiPropertyState, databaseProperty, page, type PropertyOptions } from "@/db/schema";
 import {
@@ -66,7 +66,11 @@ export function validAutofill(input: unknown, properties: Property[], selfId?: s
  * filled in stay; pending and failed states of the old settings are dropped.
  */
 export async function setAutofill(userId: string, propertyId: string, input: AiAutofillConfig | null) {
-  const [prop] = await db.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId)).limit(1);
+  const [prop] = await db
+    .select()
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)))
+    .limit(1);
   if (!prop) throw new AccessError();
   const database = await databases.requireDatabase(userId, prop.databaseId, "edit");
   // Before anything tells what the property is: one they can't know of doesn't exist for them
@@ -302,8 +306,12 @@ async function runJob(job: Job): Promise<number> {
       if (!value) throw new AiError("empty", "The model gave no value");
     }
     // Settings changed while the model worked: this answer is for the old ones.
-    const [current] = await db.select({ options: databaseProperty.options }).from(databaseProperty).where(eq(databaseProperty.id, prop.id));
-    if (JSON.stringify(current?.options.ai) !== JSON.stringify(input.config)) return 0;
+    const [current] = await db
+      .select({ options: databaseProperty.options })
+      .from(databaseProperty)
+      .where(and(eq(databaseProperty.id, prop.id), isNull(databaseProperty.deletedAt)));
+    // Deleted meanwhile, the property keeps the values it had.
+    if (!current || JSON.stringify(current.options.ai) !== JSON.stringify(input.config)) return 0;
     const key = prop.id;
     await db
       .update(page)
@@ -333,7 +341,11 @@ async function runJob(job: Job): Promise<number> {
  * the person asks too often, AutofillError when the property has no autofill.
  */
 export async function requestAutofill(userId: string, propertyId: string, rowIds: string[]) {
-  const [prop] = await db.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId)).limit(1);
+  const [prop] = await db
+    .select()
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)))
+    .limit(1);
   if (!prop) throw new AccessError();
   const database = await databases.requireDatabase(userId, prop.databaseId, "view");
   // A property they can't know of doesn't exist for them (checked before anything tells its type).

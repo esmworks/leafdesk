@@ -131,11 +131,13 @@ export async function duplicatePublishedPage(
 
   // Databases: their public properties, and the views the web shows.
   const databaseIds = rows.filter((r) => r.kind === "database").map((r) => r.id);
-  const allProperties = databaseIds.length
+  const storedProperties = databaseIds.length
     ? await db.select().from(databaseProperty).where(inArray(databaseProperty.databaseId, databaseIds))
     : [];
+  // Deleted properties aren't published: neither they nor what views say about them come along.
+  const allProperties = storedProperties.filter((p) => !p.deletedAt);
   const properties = allProperties.filter((p) => !UNPUBLISHED_PROPERTY_TYPES.has(p.type));
-  const dropped = new Set(allProperties.filter((p) => UNPUBLISHED_PROPERTY_TYPES.has(p.type)).map((p) => p.id));
+  const dropped = new Set(storedProperties.filter((p) => p.deletedAt || UNPUBLISHED_PROPERTY_TYPES.has(p.type)).map((p) => p.id));
   const views = (await Promise.all(databaseIds.map(async (id) => webViews(await readableViews(id))))).flat();
   // Property access: the copy holds what anonymous visitors see (publication readerAccess), not
   // what the publisher or the person copying may: no property whose level for everyone is `none`

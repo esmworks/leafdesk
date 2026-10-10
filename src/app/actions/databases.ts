@@ -255,6 +255,32 @@ export async function moveViewAction(viewId: string, targetId: string, side: "be
   return run((userId) => databases.moveView(userId, viewId, targetId, side));
 }
 
+// Deleted properties and views (see databases.deleteProperty and deleteView): editors of the schema.
+
+/** The deleted properties and views the user may restore, and how long the workspace keeps them. */
+export async function loadDeletedSchemaAction(databaseId: string) {
+  return run((userId) => databases.listDeletedSchema(userId, databaseId));
+}
+
+export async function restorePropertyAction(propertyId: string) {
+  return run(async (userId) => {
+    const restored = await databases.restoreProperty(userId, propertyId);
+    return { id: restored.id, name: restored.name };
+  });
+}
+
+export async function purgePropertyAction(propertyId: string) {
+  return run((userId) => databases.purgeProperty(userId, propertyId));
+}
+
+export async function restoreViewAction(viewId: string) {
+  return run((userId) => databases.restoreView(userId, viewId));
+}
+
+export async function purgeViewAction(viewId: string) {
+  return run((userId) => databases.purgeView(userId, viewId));
+}
+
 // Property access (see server/property-access.ts): full access to the database only.
 
 /** A property's access for the settings dialog, with the people and groups that can be added. */

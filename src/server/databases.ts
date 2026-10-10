@@ -1,4 +1,5 @@
-import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { queueAutomations } from "./automations/queue";
 import {
@@ -31,6 +32,7 @@ import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@
 import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
+import { livePropertyValues, uniqueName, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultFormConfig } from "@/lib/forms";
@@ -85,10 +87,12 @@ import { fileForViewer, workspaceFiles } from "@/server/files";
 import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
 import { rowChanged } from "@/server/row-events";
-import { workspacePeople, type WorkspacePerson } from "@/server/workspaces";
+import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
+import { recordAudit } from "@/server/audit";
 import {
   assignmentsTheySee,
+  hideReferences,
   propertyAccessFor,
   restoreReferences,
   unknownProperties,
@@ -152,7 +156,9 @@ async function withValues<T extends StoredRow>(
     lookups: (props) => (lookups && props === properties ? Promise.resolve(lookups) : getLookups(userId, props)),
     accessFor: (databaseId) => propertyAccessFor(userId, databaseId),
   });
-  return access.finish(derived);
+  // Values of deleted properties stay stored for a restore; nobody reads them meanwhile. Taken out
+  // last: property access may name people by values of properties the viewer doesn't know of.
+  return access.finish(derived).map((row) => ({ ...row, properties: livePropertyValues(row.properties, properties) }));
 }
 
 
@@ -216,12 +222,15 @@ function notifyTree(workspaceId: string) {
   getCollab().broadcast(`ws:${workspaceId}`, "tree");
 }
 
-/** A database's properties in order, with each formula's result type filled in (see FormulaConfig). */
+/**
+ * A database's properties in order, with each formula's result type filled in (see FormulaConfig).
+ * Deleted properties are left out (see deleteProperty).
+ */
 export async function getProperties(databaseId: string) {
   const properties = await db
     .select()
     .from(databaseProperty)
-    .where(eq(databaseProperty.databaseId, databaseId))
+    .where(and(eq(databaseProperty.databaseId, databaseId), isNull(databaseProperty.deletedAt)))
     .orderBy(asc(databaseProperty.position), asc(databaseProperty.createdAt));
   return withRollupUnits(withFormulaTypes(properties));
 }
@@ -258,18 +267,29 @@ export async function knownProperties(userId: string, databaseId: string) {
  */
 export async function getDatabase(userId: string, databaseId: string) {
   const database = await requireDatabase(userId, databaseId, "view");
-  const [all, stored, access] = await Promise.all([
+  const [all, stored, deleted, access] = await Promise.all([
     getProperties(databaseId),
     db
       .select()
       .from(databaseView)
-      .where(eq(databaseView.databaseId, databaseId))
+      .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)))
       .orderBy(asc(databaseView.position), asc(databaseView.createdAt)),
+    deletedPropertyIds(databaseId),
     propertyAccessFor(userId, databaseId),
   ]);
   const properties = access.visible(all);
-  const views = access.open ? stored : stored.map((v) => ({ ...v, config: access.viewConfig(v.config) }));
+  // What views say about deleted properties stays stored for a restore (updateView puts it back).
+  const views = stored.map((v) => ({ ...v, config: access.viewConfig(hideReferences(v.config, deleted)) }));
   return { database, properties, views, access, propertyAccess: access.info() };
+}
+
+/** The ids of a database's deleted properties. */
+export async function deletedPropertyIds(databaseId: string, exec: Executor = db): Promise<Set<string>> {
+  const rows = await exec
+    .select({ id: databaseProperty.id })
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.databaseId, databaseId), isNotNull(databaseProperty.deletedAt)));
+  return new Set(rows.map((r) => r.id));
 }
 
 export async function listRows(userId: string, databaseId: string, config: ViewConfig = {}) {
@@ -288,7 +308,7 @@ export async function viewedRows(
   config: ViewConfig = {},
   known?: Awaited<ReturnType<typeof getProperties>>,
 ) {
-  const [rows, all, access] = await Promise.all([
+  const [rows, all, access, deleted] = await Promise.all([
     db
       .select({
         id: page.id,
@@ -305,11 +325,13 @@ export async function viewedRows(
       .orderBy(asc(page.position), asc(page.createdAt)),
     known ?? getProperties(databaseId),
     propertyAccessFor(userId, databaseId),
+    deletedPropertyIds(databaseId),
   ]);
-  // Filters and sorts on properties the viewer can't know of don't apply; on ones whose values
-  // they can't see they run on the redacted values, so the rows they get say nothing about them.
+  // Filters and sorts on properties the viewer can't know of, or on deleted ones, don't apply; on
+  // ones whose values they can't see they run on the redacted values, so the rows they get say
+  // nothing about them.
   const properties = access.visible(all);
-  config = access.viewConfig(config);
+  config = access.viewConfig(hideReferences(config, deleted));
   const people = await peopleForSorts(userId, properties, config);
   return applyView<DatabaseRow>(await withValues(userId, databaseId, rows, all, undefined, access), config, properties, {
     viewerId: userId,
@@ -1023,17 +1045,16 @@ async function nextPropertyPosition(databaseId: string, exec: Executor = db) {
   return (Number(max) || 0) + 1;
 }
 
-/** `name`, or `name 2`, `name 3`… so it doesn't clash with a property of the database. */
-async function uniquePropertyName(databaseId: string, name: string, exec: Executor = db) {
+/**
+ * `name`, or `name 2`, `name 3`… so it doesn't clash with a property of the database. Deleted
+ * properties don't count: their names are free, and one restored later is renamed if need be.
+ */
+async function uniquePropertyName(databaseId: string, name: string, exec: Executor = db, except?: string) {
   const names = await exec
-    .select({ name: databaseProperty.name })
+    .select({ id: databaseProperty.id, name: databaseProperty.name })
     .from(databaseProperty)
-    .where(eq(databaseProperty.databaseId, databaseId));
-  const taken = new Set(names.map((p) => p.name.trim().toLowerCase()));
-  taken.add("title");
-  let candidate = name;
-  for (let i = 2; taken.has(candidate.toLowerCase()); i++) candidate = `${name} ${i}`;
-  return candidate;
+    .where(and(eq(databaseProperty.databaseId, databaseId), isNull(databaseProperty.deletedAt)));
+  return uniqueName(name, names.filter((p) => p.id !== except).map((p) => p.name));
 }
 
 /**
@@ -1432,7 +1453,11 @@ export function makeOption(name: string, index = 0): SelectOption {
  * adding an option while typing a new tag into a cell (`cellEdit`).
  */
 async function requireProperty(userId: string, propertyId: string, { cellEdit = false } = {}) {
-  const [prop] = await db.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId));
+  // A deleted property can only be restored or deleted for good (see requireDeletedProperty).
+  const [prop] = await db
+    .select()
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)));
   if (!prop) throw new AccessError();
   const database = await requireDatabase(userId, prop.databaseId, "edit");
   // Property access: changing the property needs "edit"; a new option typed into a cell, its values.
@@ -1551,34 +1576,207 @@ export async function ensureOption(userId: string, propertyId: string, name: str
   return option;
 }
 
+/**
+ * Deletes a property: it is left out everywhere (views, row pages, filters, formulas, exports, MCP
+ * and the REST API) until someone restores it (restoreProperty), deletes it for good
+ * (purgeProperty), or the daily cleanup does after the workspace's `trashRetentionDays` (see
+ * server/retention). Rows keep its values and views what they said about it, so a restore brings
+ * both back as they were. The other side of a two-way relation is deleted with it.
+ */
 export async function deleteProperty(userId: string, propertyId: string) {
   const prop = await requireProperty(userId, propertyId);
-  const pairedId = prop.type === "relation" ? prop.options.relation?.pairedPropertyId : null;
-  const [paired] = pairedId ? await db.select().from(databaseProperty).where(eq(databaseProperty.id, pairedId)) : [];
+  const props = await withPair(prop, db, false);
+  const workspaceId = await workspaceOf(prop.databaseId);
+  const deletedAt = new Date();
   await db.transaction(async (tx) => {
-    await tx.delete(databaseProperty).where(eq(databaseProperty.id, propertyId));
-    // The other side of a two-way relation stays, as a one-way relation with its values intact.
-    if (paired?.options.relation) {
-      await tx
+    await tx
+      .update(databaseProperty)
+      .set({ deletedAt, deletedBy: userId })
+      .where(inArray(databaseProperty.id, props.map((p) => p.id)));
+    if (workspaceId) await auditProperties(tx, workspaceId, userId, "property.trashed", props);
+  });
+  notifyPropertyDatabases(props);
+}
+
+/** A property and the other side of its two-way relation, when that one is (`deleted`) or isn't deleted. */
+async function withPair(prop: DatabaseProperty, exec: Executor, deleted: boolean): Promise<DatabaseProperty[]> {
+  const pairedId = prop.type === "relation" ? prop.options.relation?.pairedPropertyId : null;
+  if (!pairedId || pairedId === prop.id) return [prop];
+  const [paired] = await exec
+    .select()
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.id, pairedId), deleted ? isNotNull(databaseProperty.deletedAt) : isNull(databaseProperty.deletedAt)));
+  return paired ? [prop, paired] : [prop];
+}
+
+/** Everyone looking at the databases of these properties reloads them (values show or go too). */
+function notifyPropertyDatabases(props: { databaseId: string }[]) {
+  for (const databaseId of new Set(props.map((p) => p.databaseId))) {
+    notifySchema(databaseId);
+    notifyRows(databaseId);
+  }
+}
+
+/** One audit event per property, on its database (the other side of a relation on its own one). */
+async function auditProperties(
+  tx: Executor,
+  workspaceId: string,
+  actorId: string | null,
+  action: "property.trashed" | "property.restored" | "property.deleted",
+  props: { databaseId: string; name: string; type: PropertyType }[],
+) {
+  for (const p of props) {
+    await recordAudit(
+      { workspaceId, actorId, action, target: { type: "page", id: p.databaseId }, details: { property: p.name, type: p.type } },
+      tx as Parameters<typeof recordAudit>[1],
+    );
+  }
+}
+
+/**
+ * A deleted property the user may restore or delete for good: what deleting it took (edit access
+ * to an unlocked database, and to the property itself as it was).
+ */
+async function requireDeletedProperty(userId: string, propertyId: string) {
+  const [prop] = await db
+    .select()
+    .from(databaseProperty)
+    .where(and(eq(databaseProperty.id, propertyId), isNotNull(databaseProperty.deletedAt)));
+  if (!prop) throw new AccessError();
+  const database = await requireDatabase(userId, prop.databaseId, "edit");
+  const access = await propertyAccessFor(userId, prop.databaseId, { withDeleted: true });
+  if (!access.visible([prop]).length) throw new AccessError();
+  assertUnlocked(database);
+  access.requireSchema(prop.id);
+  return { prop, database };
+}
+
+/**
+ * Brings a deleted property back, with the other side of its two-way relation: its values in every
+ * row, what views said about it, formulas and rollups that read it, and its access rules. A name
+ * another property took meanwhile gets a number ("Status 2", the way new properties are named).
+ * Sub-items and dependencies stand for one relation each: one turned on again meanwhile keeps the
+ * part, and the restored relation comes back as a plain relation.
+ */
+export async function restoreProperty(userId: string, propertyId: string) {
+  const { prop, database } = await requireDeletedProperty(userId, propertyId);
+  const restored = await db.transaction(async (tx) => {
+    const props = await withPair(prop, tx, true);
+    const out: DatabaseProperty[] = [];
+    for (const p of props) {
+      const name = await uniquePropertyName(p.databaseId, p.name, tx, p.id);
+      let options = p.options;
+      const role = options.relation?.role;
+      if (role) {
+        const [taken] = await tx
+          .select({ id: databaseProperty.id })
+          .from(databaseProperty)
+          .where(
+            and(
+              eq(databaseProperty.databaseId, p.databaseId),
+              isNull(databaseProperty.deletedAt),
+              sql`${databaseProperty.options} -> 'relation' ->> 'role' = ${role}`,
+            ),
+          )
+          .limit(1);
+        if (taken) {
+          const { role: _role, dependencies: _dependencies, ...relation } = options.relation!;
+          options = { ...options, relation };
+        }
+      }
+      const [row] = await tx
         .update(databaseProperty)
-        .set({ options: { ...paired.options, relation: { ...paired.options.relation, pairedPropertyId: null } } })
-        .where(eq(databaseProperty.id, paired.id));
+        .set({ deletedAt: null, deletedBy: null, name, options })
+        .where(eq(databaseProperty.id, p.id))
+        .returning();
+      out.push(row);
     }
+    await auditProperties(tx, database.workspaceId, userId, "property.restored", out);
+    return out;
+  });
+  notifyPropertyDatabases(restored);
+  return restored[0];
+}
+
+/** Deletes a deleted property for good, now, with the other side of its relation ("Delete permanently"). */
+export async function purgeProperty(userId: string, propertyId: string) {
+  const { prop, database } = await requireDeletedProperty(userId, propertyId);
+  const props = await db.transaction(async (tx) => {
+    const props = await withPair(prop, tx, true);
+    await eraseProperties(tx, props);
+    await auditProperties(tx, database.workspaceId, userId, "property.deleted", props);
+    return props;
+  });
+  notifyPropertyDatabases(props);
+}
+
+/**
+ * Deletes deleted properties for good, with the other sides of their relations (the daily cleanup,
+ * server/retention). Recorded in the audit log as the server's own. Returns how many went.
+ */
+export async function purgeDeletedProperties(workspaceId: string, propertyIds: string[]) {
+  if (!propertyIds.length) return 0;
+  const props = await db.transaction(async (tx) => {
+    const due = await tx
+      .select()
+      .from(databaseProperty)
+      .where(and(inArray(databaseProperty.id, propertyIds), isNotNull(databaseProperty.deletedAt)));
+    const all = new Map<string, DatabaseProperty>();
+    for (const p of due) for (const q of await withPair(p, tx, true)) all.set(q.id, q);
+    const props = [...all.values()];
+    await eraseProperties(tx, props);
+    await auditProperties(tx, workspaceId, null, "property.deleted", props);
+    return props;
+  });
+  notifyPropertyDatabases(props);
+  return props.length;
+}
+
+/**
+ * Takes a property that was never there back out at once (a new property whose settings failed),
+ * leaving nothing in the deleted properties.
+ */
+export async function discardProperty(userId: string, propertyId: string) {
+  const prop = await requireProperty(userId, propertyId);
+  await db.transaction(async (tx) => eraseProperties(tx, await withPair(prop, tx, false)));
+  notifyPropertyDatabases([prop]);
+}
+
+/**
+ * Deletes properties from the database for good: their values in every row (rows keep their "last
+ * edited" time) and what views say about them. Another side of a two-way relation that isn't
+ * among them stays, as a one-way relation with its values intact.
+ */
+async function eraseProperties(tx: Executor, props: DatabaseProperty[]) {
+  if (!props.length) return;
+  const ids = new Set(props.map((p) => p.id));
+  for (const p of props) {
+    const pairedId = p.options.relation?.pairedPropertyId;
+    if (!pairedId || ids.has(pairedId)) continue;
+    const [paired] = await tx.select().from(databaseProperty).where(eq(databaseProperty.id, pairedId));
+    if (!paired?.options.relation) continue;
+    await tx
+      .update(databaseProperty)
+      .set({ options: { ...paired.options, relation: { ...paired.options.relation, pairedPropertyId: null } } })
+      .where(eq(databaseProperty.id, paired.id));
+  }
+  await tx.delete(databaseProperty).where(inArray(databaseProperty.id, [...ids]));
+  for (const p of props) {
     await tx
       .update(page)
-      .set({ properties: sql`${page.properties} - ${propertyId}`, ...KEEP_EDIT_TIME })
-      .where(eq(page.parentId, prop.databaseId));
-    // Drop references from view configs.
-    const views = await tx.select().from(databaseView).where(eq(databaseView.databaseId, prop.databaseId));
-    for (const view of views) {
-      await tx
-        .update(databaseView)
-        .set({ config: dropPropertyReferences(view.config, (id) => id === propertyId) })
-        .where(eq(databaseView.id, view.id));
-    }
-  });
-  notifySchema(prop.databaseId);
-  if (paired && paired.databaseId !== prop.databaseId) notifySchema(paired.databaseId);
+      .set({ properties: sql`${page.properties} - ${p.id}::text`, ...KEEP_EDIT_TIME })
+      .where(and(eq(page.parentId, p.databaseId), sql`${page.properties} ? ${p.id}::text`));
+  }
+  // Every view, deleted ones too: a view restored later never refers to a property that's gone.
+  const views = await tx
+    .select()
+    .from(databaseView)
+    .where(inArray(databaseView.databaseId, [...new Set(props.map((p) => p.databaseId))]));
+  for (const view of views) {
+    const config = dropPropertyReferences(view.config, (id) => ids.has(id));
+    if (JSON.stringify(config) === JSON.stringify(view.config)) continue;
+    await tx.update(databaseView).set({ config }).where(eq(databaseView.id, view.id));
+  }
 }
 
 /**
@@ -1871,8 +2069,11 @@ export async function addView(userId: string, databaseId: string, input: { name:
 }
 
 /** A view the user may change (every caller edits it). */
-async function requireView(userId: string, viewId: string) {
-  const [view] = await db.select().from(databaseView).where(eq(databaseView.id, viewId));
+async function requireView(userId: string, viewId: string, { deleted = false } = {}) {
+  const [view] = await db
+    .select()
+    .from(databaseView)
+    .where(and(eq(databaseView.id, viewId), deleted ? isNotNull(databaseView.deletedAt) : isNull(databaseView.deletedAt)));
   if (!view) throw new AccessError();
   const database = await requireDatabase(userId, view.databaseId, "edit");
   return { ...view, workspaceId: database.workspaceId, lockedAt: database.lockedAt };
@@ -1903,10 +2104,11 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
     const kept = Object.fromEntries(Object.entries(normalized).filter(([, v]) => v !== null && !(Array.isArray(v) && !v.length)));
     patch = { ...patch, config: { ...patch.config, form: { ...patch.config.form, defaults: kept } } };
   }
-  // What the stored settings say about properties the editor can't know of stays as it was, and
-  // so do form defaults they can't see.
-  if (patch.config && !access.open) {
-    const gone = unknownProperties(access, await getProperties(view.databaseId));
+  // What the stored settings say about properties the editor can't know of, or about deleted ones
+  // (for a restore), stays as it was, and so do form defaults they can't see.
+  const deleted = await deletedPropertyIds(view.databaseId);
+  if (patch.config && (!access.open || deleted.size)) {
+    const gone = new Set([...unknownProperties(access, await getProperties(view.databaseId)), ...deleted]);
     let config = restoreReferences(view.config, patch.config, gone);
     const hidden = Object.entries(view.config.form?.defaults ?? {}).filter(([id]) => access.valuesHidden().has(id));
     if (hidden.length && config.form) {
@@ -1923,20 +2125,146 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
     .where(eq(databaseView.id, viewId));
   notifySchema(view.databaseId);
   if (patch.name !== undefined) notifyTree(view.workspaceId);
-  return { config: access.viewConfig(patch.config ?? view.config) };
+  return { config: access.viewConfig(hideReferences(patch.config ?? view.config, deleted)) };
 }
 
+/**
+ * Deletes a view: its tab goes (and its public form link and calendar feeds stop) until someone
+ * restores it (restoreView), deletes it for good (purgeView) or the daily cleanup does, as for
+ * deleted properties. A database keeps at least one view.
+ */
 export async function deleteView(userId: string, viewId: string) {
   const view = await requireView(userId, viewId);
   assertUnlocked(view);
-  const [{ count }] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(databaseView)
-    .where(eq(databaseView.databaseId, view.databaseId));
-  if (count <= 1) throw withCode(new Error("A database needs at least one view"), "lastView");
-  await db.delete(databaseView).where(eq(databaseView.id, viewId));
+  await db.transaction(async (tx) => {
+    const [{ count }] = await tx
+      .select({ count: sql<number>`count(*)::int` })
+      .from(databaseView)
+      .where(and(eq(databaseView.databaseId, view.databaseId), isNull(databaseView.deletedAt)));
+    if (count <= 1) throw withCode(new Error("A database needs at least one view"), "lastView");
+    await tx.update(databaseView).set({ deletedAt: new Date(), deletedBy: userId }).where(eq(databaseView.id, viewId));
+    await auditView(tx, view.workspaceId, userId, "view.trashed", view);
+  });
   notifySchema(view.databaseId);
   notifyTree(view.workspaceId);
+}
+
+async function auditView(
+  tx: Executor,
+  workspaceId: string,
+  actorId: string | null,
+  action: "view.trashed" | "view.restored" | "view.deleted",
+  view: { databaseId: string; name: string; type: ViewType },
+) {
+  await recordAudit(
+    { workspaceId, actorId, action, target: { type: "page", id: view.databaseId }, details: { name: view.name, type: view.type } },
+    tx as Parameters<typeof recordAudit>[1],
+  );
+}
+
+/** A deleted view the user may restore or delete for good: edit access to an unlocked database. */
+async function requireDeletedView(userId: string, viewId: string) {
+  const view = await requireView(userId, viewId, { deleted: true });
+  assertUnlocked(view);
+  return view;
+}
+
+/** Brings a deleted view back where its tab was, as it was set up. */
+export async function restoreView(userId: string, viewId: string) {
+  const view = await requireDeletedView(userId, viewId);
+  await db.transaction(async (tx) => {
+    await tx.update(databaseView).set({ deletedAt: null, deletedBy: null }).where(eq(databaseView.id, viewId));
+    await auditView(tx, view.workspaceId, userId, "view.restored", view);
+  });
+  notifySchema(view.databaseId);
+  notifyTree(view.workspaceId);
+  return { id: view.id };
+}
+
+/** Deletes a deleted view for good, now ("Delete permanently"). */
+export async function purgeView(userId: string, viewId: string) {
+  const view = await requireDeletedView(userId, viewId);
+  await db.transaction(async (tx) => {
+    await tx.delete(databaseView).where(eq(databaseView.id, viewId));
+    await auditView(tx, view.workspaceId, userId, "view.deleted", view);
+  });
+  notifySchema(view.databaseId);
+}
+
+/** Deletes deleted views for good (the daily cleanup, server/retention). Returns how many went. */
+export async function purgeDeletedViews(workspaceId: string, viewIds: string[]) {
+  if (!viewIds.length) return 0;
+  const views = await db.transaction(async (tx) => {
+    const views = await tx
+      .delete(databaseView)
+      .where(and(inArray(databaseView.id, viewIds), isNotNull(databaseView.deletedAt)))
+      .returning();
+    for (const view of views) await auditView(tx, workspaceId, null, "view.deleted", view);
+    return views;
+  });
+  for (const databaseId of new Set(views.map((v) => v.databaseId))) notifySchema(databaseId);
+  return views.length;
+}
+
+/**
+ * The deleted properties and views of a database that `userId` may restore (what deleting them
+ * took), newest first, and how many days the workspace keeps them (0: until someone deletes them).
+ */
+export async function listDeletedSchema(userId: string, databaseId: string) {
+  const database = await requireDatabase(userId, databaseId, "edit");
+  const deleter = alias(user, "deleter");
+  const paired = alias(databaseProperty, "paired");
+  const [props, views, access, settings] = await Promise.all([
+    db
+      .select({
+        prop: databaseProperty,
+        deletedBy: deleter.name,
+        pairedName: paired.name,
+        pairedDatabaseId: paired.databaseId,
+      })
+      .from(databaseProperty)
+      .leftJoin(deleter, eq(deleter.id, databaseProperty.deletedBy))
+      .leftJoin(paired, sql`${paired.id} = ${databaseProperty.options} -> 'relation' ->> 'pairedPropertyId'`)
+      .where(and(eq(databaseProperty.databaseId, databaseId), isNotNull(databaseProperty.deletedAt)))
+      .orderBy(desc(databaseProperty.deletedAt)),
+    db
+      .select({ view: databaseView, deletedBy: deleter.name })
+      .from(databaseView)
+      .leftJoin(deleter, eq(deleter.id, databaseView.deletedBy))
+      .where(and(eq(databaseView.databaseId, databaseId), isNotNull(databaseView.deletedAt)))
+      .orderBy(desc(databaseView.deletedAt)),
+    propertyAccessFor(userId, databaseId, { withDeleted: true }),
+    workspaceSettings(database.workspaceId),
+  ]);
+  const mayChange = (id: string) => {
+    try {
+      access.requireSchema(id);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const properties: DeletedProperty[] = access
+    .visible(props.map((r) => ({ ...r, id: r.prop.id })))
+    .filter((r) => mayChange(r.id))
+    .map(({ prop, deletedBy, pairedName, pairedDatabaseId }) => ({
+      id: prop.id,
+      name: prop.name,
+      type: prop.type,
+      deletedAt: prop.deletedAt!,
+      deletedBy: deletedBy ?? null,
+      // Named only when the relation links the database with itself: another database's
+      // properties are that database's to show.
+      pairedName: pairedName !== null && pairedDatabaseId === databaseId ? pairedName : null,
+    }));
+  const deletedViews: DeletedView[] = views.map(({ view, deletedBy }) => ({
+    id: view.id,
+    name: view.name,
+    type: view.type,
+    deletedAt: view.deletedAt!,
+    deletedBy: deletedBy ?? null,
+  }));
+  return { properties, views: deletedViews, retentionDays: settings.trashRetentionDays };
 }
 
 /**
@@ -1952,7 +2280,7 @@ export async function moveView(userId: string, viewId: string, targetId: string,
     const views = await tx
       .select({ id: databaseView.id, position: databaseView.position })
       .from(databaseView)
-      .where(eq(databaseView.databaseId, view.databaseId))
+      .where(and(eq(databaseView.databaseId, view.databaseId), isNull(databaseView.deletedAt)))
       .orderBy(asc(databaseView.position), asc(databaseView.createdAt))
       .for("update");
     const order = views.filter((v) => v.id !== viewId);

@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { automationRun, databaseAutomation } from "@/db/schema";
+import { automationRun, databaseAutomation, databaseProperty } from "@/db/schema";
 import { changedProperties, matchesTrigger } from "@/lib/automations";
 
 /**
@@ -48,16 +48,29 @@ export async function queueAutomations(
       .from(databaseAutomation)
       .where(and(eq(databaseAutomation.databaseId, databaseId), eq(databaseAutomation.enabled, true)));
     if (!automations.length) return;
+    // Deleted properties start nothing: their values (kept for a restore) aren't changes, and
+    // automations waiting for one of them to change wait until it is restored.
+    const deleted = new Set(
+      (
+        await db
+          .select({ id: databaseProperty.id })
+          .from(databaseProperty)
+          .where(and(eq(databaseProperty.databaseId, databaseId), isNotNull(databaseProperty.deletedAt)))
+      ).map((p) => p.id),
+    );
+    const live = (values: Record<string, unknown>) =>
+      deleted.size ? Object.fromEntries(Object.entries(values).filter(([id]) => !deleted.has(id))) : values;
+    const armed = automations.filter((a) => a.trigger.type !== "property_changed" || !a.trigger.propertyId || !deleted.has(a.trigger.propertyId));
     const runs = changes.flatMap((change) => {
-      const write = { before: change.before, after: change.after, created };
-      return automations
+      const write = { before: live(change.before), after: live(change.after), created };
+      return armed
         .filter((a) => matchesTrigger(a.trigger, write))
         .map((a) => ({
           automationId: a.id,
           rowId: change.rowId,
           actorId,
           created,
-          changed: created ? Object.keys(change.after) : changedProperties(change.before, change.after),
+          changed: created ? Object.keys(write.after) : changedProperties(write.before, write.after),
         }));
     });
     for (let i = 0; i < runs.length; i += CHUNK) await db.insert(automationRun).values(runs.slice(i, i + CHUNK));

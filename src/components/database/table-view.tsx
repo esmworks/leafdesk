@@ -52,6 +52,8 @@ export function titleProperty(databaseId: string, name: string): Property {
     type: "text",
     options: {},
     position: 0,
+    deletedAt: null,
+    deletedBy: null,
     createdAt: new Date(0),
     updatedAt: new Date(0),
   };

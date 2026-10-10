@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { calendarFeed, databaseView } from "@/db/schema";
 import { env } from "@/lib/env";
@@ -33,7 +33,12 @@ const LAST_USED_EVERY_MS = 3_600_000;
 export type CalendarFeedInfo = { allowed: boolean; feed: { createdAt: Date; lastUsedAt: Date | null } | null };
 
 async function requireCalendarView(userId: string, viewId: string) {
-  const [view] = await db.select().from(databaseView).where(eq(databaseView.id, viewId)).limit(1);
+  // A deleted view's feed reads as gone, and works again once the view is restored.
+  const [view] = await db
+    .select()
+    .from(databaseView)
+    .where(and(eq(databaseView.id, viewId), isNull(databaseView.deletedAt)))
+    .limit(1);
   if (!view) throw new AccessError();
   const database = await requireDatabase(userId, view.databaseId, "view");
   if (view.type !== "calendar") throw withCode(new Error("Only calendar views have a feed"), "calendarFeedNotCalendar");

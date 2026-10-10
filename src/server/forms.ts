@@ -89,7 +89,11 @@ export const publicFormPath = (token: string) => `/f/${token}`;
 
 /** The form view and its database, for someone with at least `needed` access to the database. */
 async function requireForm(userId: string, viewId: string, needed: RequiredLevel) {
-  const [view] = await db.select().from(databaseView).where(eq(databaseView.id, viewId)).limit(1);
+  const [view] = await db
+    .select()
+    .from(databaseView)
+    .where(and(eq(databaseView.id, viewId), isNull(databaseView.deletedAt)))
+    .limit(1);
   if (!view) throw new AccessError();
   const database = await requirePageAccess(userId, view.databaseId, needed);
   if (view.type !== "form") throw new FormError("This view is not a form", "notAForm");
@@ -420,6 +424,7 @@ export async function listWorkspaceFormPublications(userId: string, workspaceId:
       title: page.title,
       icon: page.icon,
       archivedAt: page.archivedAt,
+      viewDeletedAt: databaseView.deletedAt,
       token: formPublication.token,
       anonymous: formPublication.anonymous,
       publishedBy: user.name,
@@ -440,8 +445,9 @@ export async function listWorkspaceFormPublications(userId: string, workspaceId:
     viewName: r.visible ? r.viewName : null,
     title: r.visible ? r.title : null,
     icon: r.visible ? r.icon : null,
-    url: r.visible && !r.archivedAt && live[i] && served ? publicFormPath(r.token) : null,
-    inTrash: r.archivedAt !== null,
+    url: r.visible && !r.archivedAt && !r.viewDeletedAt && live[i] && served ? publicFormPath(r.token) : null,
+    // A deleted form view is closed like one in the trash, and opens again when it is restored.
+    inTrash: r.archivedAt !== null || r.viewDeletedAt !== null,
     live: live[i],
     anonymous: r.anonymous,
     publishedBy: r.publishedBy,
@@ -496,7 +502,7 @@ async function openPublicForm(token: string) {
     .from(formPublication)
     .innerJoin(databaseView, eq(databaseView.id, formPublication.viewId))
     .innerJoin(page, eq(page.id, databaseView.databaseId))
-    .where(and(eq(formPublication.token, token), isNull(page.archivedAt), eq(page.kind, "database")))
+    .where(and(eq(formPublication.token, token), isNull(page.archivedAt), isNull(databaseView.deletedAt), eq(page.kind, "database")))
     .limit(1);
   if (!found || found.type !== "form" || !(await publishingOn(found.workspaceId))) return null;
   return (await publisherCanAdd(found.publishedBy, found.databaseId)) ? found : null;

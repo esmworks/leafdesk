@@ -187,7 +187,8 @@ async function send({
         .select({ propertyName: databaseProperty.name, databaseTitle: page.title })
         .from(databaseProperty)
         .innerJoin(page, eq(page.id, databaseProperty.databaseId))
-        .where(eq(databaseProperty.id, propertyId));
+        // A deleted property reminds no one.
+        .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)));
       if (!about) return;
       const databaseTitle = pageLabel(about.databaseTitle, emailTranslator(locale)("share.untitled"));
       const names = { date, pageTitle, databaseTitle, propertyName: about.propertyName, workspaceName: space?.name ?? "", link };

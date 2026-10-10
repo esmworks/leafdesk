@@ -1,4 +1,4 @@
-import { and, eq, lte, or } from "drizzle-orm";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, page, pendingAssignmentEmail, user } from "@/db/schema";
 import { env } from "@/lib/env";
@@ -116,7 +116,7 @@ async function send({ actorId, rowId, propertyId, userId, locale: queuedLocale }
     db
       .select({ name: databaseProperty.name })
       .from(databaseProperty)
-      .where(and(eq(databaseProperty.id, propertyId), eq(databaseProperty.databaseId, row.parentId))),
+      .where(and(eq(databaseProperty.id, propertyId), eq(databaseProperty.databaseId, row.parentId), isNull(databaseProperty.deletedAt))),
   ]);
   if (!recipient?.email || !prop) return;
   const t = emailTranslator(locale);

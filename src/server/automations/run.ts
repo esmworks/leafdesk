@@ -115,16 +115,27 @@ export async function processRun(run: Run) {
   } else if (waitsForTitle()) {
     retryAt = new Date(Date.now() + TITLE_POLL_MS);
   } else {
+    let live: Promise<Set<string>> | undefined;
+    const liveIds = () => (live ??= getProperties(automation.databaseId).then((props) => new Set(props.map((p) => p.id))));
     for (const [i, action] of automation.actions.entries()) {
       const step = steps[i];
       if (!step || step.status !== "pending") continue;
       step.attempts += 1;
       try {
         if (action.type === "set_properties") {
-          await setProperties(automation, run, action.values);
+          // Values of deleted properties aren't set; with nothing else to set, the step is skipped.
+          const live = await liveIds();
+          const values = Object.fromEntries(Object.entries(action.values).filter(([id]) => live.has(id)));
+          if (Object.keys(action.values).length && !Object.keys(values).length) {
+            Object.assign(step, { status: "skipped", code: "propertyDeleted" });
+            continue;
+          }
+          await setProperties(automation, run, values);
           step.status = "done";
         } else if (action.type === "notify") {
-          step.notified = await notify(automation, run, row, action);
+          // The people of a deleted person property aren't told.
+          const live = await liveIds();
+          step.notified = await notify(automation, run, row, { ...action, propertyIds: action.propertyIds.filter((id) => live.has(id)) });
           step.status = "done";
         } else if (action.type === "run_agent") {
           // Queued once (a retry of the run doesn't queue it again); it runs apart, as the agent.

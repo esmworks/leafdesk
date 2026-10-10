@@ -13,6 +13,7 @@ import {
 } from "@/db/schema";
 import {
   copyAccess,
+  dropPropertyReferences,
   planDuplicate,
   planPropertyRules,
   redactCopy,
@@ -119,12 +120,17 @@ export async function copyPageTree(
     }
 
     const databaseIds = pages.filter((p) => p.kind === "database").map((p) => p.id);
-    const [properties, views] = databaseIds.length
+    const [stored, storedViews] = databaseIds.length
       ? await Promise.all([
           tx.select().from(databaseProperty).where(inArray(databaseProperty.databaseId, databaseIds)),
-          tx.select().from(databaseView).where(inArray(databaseView.databaseId, databaseIds)),
+          tx.select().from(databaseView).where(and(inArray(databaseView.databaseId, databaseIds), isNull(databaseView.deletedAt))),
         ])
       : [[], []];
+    // Deleted properties and views aren't copied, nor are the values and view settings of those
+    // properties: the copy has nothing to restore them into.
+    const gone = new Set(stored.filter((p) => p.deletedAt).map((p) => p.id));
+    const properties = stored.filter((p) => !p.deletedAt);
+    const views = gone.size ? storedViews.map((v) => ({ ...v, config: dropPropertyReferences(v.config, (id) => gone.has(id)) })) : storedViews;
 
     let rootPosition = target.position;
     if (rootPosition === undefined) {
@@ -157,7 +163,7 @@ export async function copyPageTree(
               kind: p.kind,
               title: p.title,
               position: Number(p.position),
-              properties: p.properties,
+              properties: gone.size ? Object.fromEntries(Object.entries(p.properties).filter(([id]) => !gone.has(id))) : p.properties,
             }),
           ),
           properties,
@@ -324,7 +330,10 @@ async function copiedAccess(
     if (kept) carried.set(id, kept);
   }
   if (accessOf.parent) {
-    const parentProps = await tx.select({ id: databaseProperty.id }).from(databaseProperty).where(eq(databaseProperty.databaseId, source.parentId!));
+    const parentProps = await tx
+      .select({ id: databaseProperty.id })
+      .from(databaseProperty)
+      .where(and(eq(databaseProperty.databaseId, source.parentId!), isNull(databaseProperty.deletedAt)));
     // Elsewhere (not a case today) the values are keyed by properties of no database there.
     const write = target.parentId === source.parentId ? { createdBy: userId } : undefined;
     const kept = copyAccess(accessOf.parent, parentProps, { write });

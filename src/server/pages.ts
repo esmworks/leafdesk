@@ -136,7 +136,7 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
     .select({ id: databaseView.id, name: databaseView.name, type: databaseView.type, databaseId: databaseView.databaseId })
     .from(databaseView)
     .innerJoin(page, eq(page.id, databaseView.databaseId))
-    .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), pageVisibleTo(userId)))
+    .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), pageVisibleTo(userId)))
     .orderBy(asc(databaseView.position));
   const viewsOf = new Map<string, TreeView[]>();
   for (const { databaseId, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), v]);
@@ -175,7 +175,7 @@ export async function openViewName(databaseId: string, viewId: string | null): P
   const views = await db
     .select({ id: databaseView.id, name: databaseView.name })
     .from(databaseView)
-    .where(eq(databaseView.databaseId, databaseId))
+    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)))
     .orderBy(asc(databaseView.position));
   return (views.find((v) => v.id === viewId) ?? views[0])?.name || null;
 }

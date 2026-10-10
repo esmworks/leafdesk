@@ -18,7 +18,7 @@ import { unknownToVisitors } from "@/lib/published-copy";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { AccessError, accessRank, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
-import { rowCovers, type DatabaseProperty } from "@/server/databases";
+import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/databases";
 import { computeDerived } from "@/server/derived";
 import { publishedPageRefs } from "@/server/mentions";
 import { propertyAccessFor } from "@/server/property-access";
@@ -189,7 +189,8 @@ export async function setWebViews(userId: string, databaseId: string, viewIds: s
   await db
     .update(databaseView)
     .set({ published: inArray(databaseView.id, picked) })
-    .where(eq(databaseView.databaseId, databaseId));
+    // A deleted view keeps its place on the web for a restore.
+    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)));
 }
 
 export type WorkspacePublication = {
@@ -632,7 +633,7 @@ async function databaseProperties(databaseId: string) {
   const properties = await db
     .select()
     .from(databaseProperty)
-    .where(eq(databaseProperty.databaseId, databaseId))
+    .where(and(eq(databaseProperty.databaseId, databaseId), isNull(databaseProperty.deletedAt)))
     .orderBy(asc(databaseProperty.position), asc(databaseProperty.createdAt));
   return withFormulaTypes(properties);
 }
@@ -675,12 +676,12 @@ async function sortNames(rows: { properties: Record<string, unknown> }[], props:
 
 type StoredView = typeof databaseView.$inferSelect;
 
-/** A database's views that show rows, in their order. */
+/** A database's views that show rows, in their order (deleted ones left out). */
 export function readableViews(databaseId: string): Promise<StoredView[]> {
   return db
     .select()
     .from(databaseView)
-    .where(and(eq(databaseView.databaseId, databaseId), ne(databaseView.type, "form")))
+    .where(and(eq(databaseView.databaseId, databaseId), ne(databaseView.type, "form"), isNull(databaseView.deletedAt)))
     .orderBy(asc(databaseView.position), asc(databaseView.createdAt));
 }
 
@@ -711,16 +712,17 @@ export async function publishedDatabase(
     reader?: string | null;
   } = {},
 ): Promise<PublishedDatabase> {
-  const [storedProperties, shownViews] = await Promise.all([
+  const [storedProperties, shownViews, deleted] = await Promise.all([
     databaseProperties(databaseId),
     linked ? Promise.resolve([]) : readableViews(databaseId).then(webViews),
+    deletedPropertyIds(databaseId),
   ]);
   const access = await readerAccess(reader, databaseId, storedProperties);
   // Every property the reader may know of: filters and sorts may use relations and people, so
   // applyView needs them too; the columns are only the public ones (see publicProperties).
   const allProperties = access.known(storedProperties);
   const picked = linked ? { id: "", name: "", ...linked } : (shownViews.find((v) => v.id === viewId) ?? shownViews[0]);
-  const chosen = picked && { ...picked, config: access.config(picked.config) };
+  const chosen = picked && { ...picked, config: access.config(hideReferences(picked.config, deleted)) };
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
   const stored = await db
     .select({

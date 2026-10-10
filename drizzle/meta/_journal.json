@@ -358,6 +358,13 @@
       "when": 1791584866906,
       "tag": "0050_date_reminder_index",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1791663088257,
+      "tag": "0051_deleted_properties_and_views",
+      "breakpoints": true
     }
   ]
 }
