@@ -60,3 +60,18 @@ export function requestLocale(headers: Headers): Locale {
     .find(([name]) => name === LOCALE_COOKIE)?.[1];
   return isLocale(saved) ? saved : negotiateLocale(headers.get("accept-language"));
 }
+
+/** The time zone a request's cookie names (see TimeZoneCookie), outside Next's request scope; unchecked. */
+export function requestTimeZone(headers: Headers): string | null {
+  const saved = headers
+    .get("cookie")
+    ?.split(";")
+    .map((part) => part.trim().split("="))
+    .find(([name]) => name === TIME_ZONE_COOKIE)?.[1];
+  if (!saved) return null;
+  try {
+    return decodeURIComponent(saved);
+  } catch {
+    return null;
+  }
+}

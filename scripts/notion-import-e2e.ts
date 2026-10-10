@@ -372,7 +372,7 @@ try {
   const due = tasksInfo.properties.find((p) => p.name === "Due")!;
   const design = taskRows.find((r) => r.title === "Design homepage")!;
   check(design.properties[estimate.id] === 3 && design.properties[due.id] === "2026-09-10", "numbers and Notion's dates are read", design.properties);
-  check(taskRows.find((r) => r.title === "Write copy")!.properties[due.id] === "2026-09-12", "a date range keeps its start");
+  check(taskRows.find((r) => r.title === "Write copy")!.properties[due.id] === "2026-09-12/2026-09-14", "a date range keeps its start and end");
 
   await eventually(async () => (await body(projectRow("Website").id)).includes("relaunch"), "the website row body");
   const websiteBody = await body(projectRow("Website").id);

@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import { databaseSeedNames } from "@/app/actions/seed-names";
-import { TIME_ZONE_COOKIE } from "@/i18n/config";
+import { requestTimeZone } from "@/i18n/config";
 import { auth } from "@/lib/auth";
 import { CSV_COLUMN_TYPES, type CsvColumnType } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
@@ -76,7 +75,7 @@ export async function POST(request: Request) {
   const teamspaceId = space === "private" ? null : space || undefined;
   const mode = field("mode");
   // Dates with a time but no zone (as database exports write them) are the importing person's.
-  const zone = (await cookies()).get(TIME_ZONE_COOKIE)?.value;
+  const zone = requestTimeZone(request.headers);
   const timeZone = isTimeZone(zone) ? zone : "UTC";
   try {
     let result: ImportResult;
