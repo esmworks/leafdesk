@@ -374,6 +374,26 @@ export type RelatedDatabase = {
 };
 
 /**
+ * A related database for formulas from its rows as the viewer reads them: values they may not
+ * see already left out of `rows` and named in each row's `hidden` (property access strip, derived
+ * values, finish, as for the database's own rows), `visible` the properties they may know of.
+ */
+export function relatedDatabase(
+  props: Prop[],
+  rows: { id: string; properties: Record<string, unknown>; hidden?: string[] }[],
+  visible: (props: Prop[]) => Prop[],
+  context: FormulaContext,
+): RelatedDatabase {
+  const known = new Set(visible(props).map((p) => p.id));
+  return {
+    props,
+    rows: new Map(rows.map((row) => [row.id, { properties: row.properties, ...(row.hidden ? { hidden: row.hidden } : {}) }])),
+    unknown: new Set(props.filter((p) => !known.has(p.id)).map((p) => p.id)),
+    context,
+  };
+}
+
+/**
  * What formulas need besides the row: the time (`now()`, `today()`), and the names of people and
  * titles of related rows the viewer may see (people and relations read as lists of those).
  * `related`: the related databases formulas read rows of, by id. Without it, formulas that read

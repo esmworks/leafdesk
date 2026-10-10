@@ -400,6 +400,7 @@ export function TableView({
                   <PropertyCell
                     prop={p}
                     value={row.properties[p.id]}
+                    style={row.styles?.[p.id]}
                     wrap={wrapped.has(p.id)}
                     readOnly={readOnly || valueAccess === "readOnly"}
                     onChange={(v) => {

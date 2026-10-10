@@ -6,6 +6,7 @@ import {
   evaluateRow,
   formulasNeedLookups,
   mergeResults,
+  relatedDatabase,
   relatedDatabases,
   relatedReadsOf,
   withFormulaTypes,
@@ -179,14 +180,9 @@ async function loadRelated(
       own = await computeDerived(own, props, { ...options, depth: (options.depth ?? 0) + 1, skipRelated: true });
     }
     if (access) own = access.finish(own);
-    const known = new Set((access ? access.visible(props) : props).map((p) => p.id));
     const named = read.some((p) => p.type === "relation" || holdsPeople(p.type));
-    out.set(databaseId, {
-      props,
-      rows: new Map(own.map((row) => [row.id, row as { properties: Record<string, unknown>; hidden?: string[] }])),
-      unknown: new Set(props.filter((p) => !known.has(p.id)).map((p) => p.id)),
-      context: { now: options.now, ...(named ? await options.lookups(props) : {}) },
-    });
+    const context = { now: options.now, ...(named ? await options.lookups(props) : {}) };
+    out.set(databaseId, relatedDatabase(props, own, (list) => (access ? access.visible(list) : list), context));
   }
   return out;
 }

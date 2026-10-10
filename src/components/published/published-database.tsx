@@ -184,7 +184,7 @@ function Card({ row, table, href, cover }: { row: PublishedRow; table: Published
           <div className="relative mt-2 flex flex-col items-start gap-1.5 text-xs">
             {shown.map((p) => (
               <div key={p.id} className="flex max-w-full min-w-0 items-center text-fg-muted" title={p.name}>
-                <PropertyDisplay prop={p} value={row.properties[p.id]} />
+                <PropertyDisplay prop={p} value={row.properties[p.id]} style={row.styles?.[p.id]} />
               </div>
             ))}
           </div>
@@ -206,7 +206,7 @@ function ListRow({ row, table, href }: { row: PublishedRow; table: PublishedData
         <span className="relative ml-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
             {shown.map((p) => (
             <span key={p.id} className="flex min-w-0 shrink-0 items-center last:shrink" title={p.name}>
-              <PropertyDisplay prop={p} value={row.properties[p.id]} />
+              <PropertyDisplay prop={p} value={row.properties[p.id]} style={row.styles?.[p.id]} />
             </span>
           ))}
         </span>
@@ -255,7 +255,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
               {properties.map((prop) => (
                 <td key={prop.id} className={cn("border-b border-l border-border px-2 py-1.5 align-top", !print && "max-w-80")}>
                   <div className="flex min-h-5 min-w-0 items-center">
-                    <PropertyDisplay prop={prop} value={row.properties[prop.id]} wrap />
+                    <PropertyDisplay prop={prop} value={row.properties[prop.id]} style={row.styles?.[prop.id]} wrap />
                   </div>
                 </td>
               ))}

@@ -31,7 +31,7 @@ export function PublishedRowProperties({ row, print = false }: { row: NonNullabl
             <span className="truncate">{prop.name}</span>
           </dt>
           <dd className="flex min-h-8 min-w-0 items-center py-1">
-            <PropertyDisplay prop={prop} value={row.values[prop.id]} wrap />
+            <PropertyDisplay prop={prop} value={row.values[prop.id]} style={row.styles?.[prop.id]} wrap />
           </dd>
         </div>
       ))}

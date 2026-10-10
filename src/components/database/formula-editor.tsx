@@ -4,10 +4,12 @@ import { ArrowLeft, Check, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { Button, cn } from "@/components/ui";
-import { compileFormulas, formulaForEditing, formulaForStorage } from "@/lib/derived";
+import { compileFormulas, formulaForEditing, formulaForStorage, relatedSchemasFrom } from "@/lib/derived";
 import {
   FORMULA_ERROR_CODES,
   FORMULA_FUNCTIONS,
+  MAX_RELATED_ROWS,
+  STYLE_COLORS,
   type FormulaError,
   type FormulaErrorCode,
   type FormulaFunctionGroup,
@@ -15,11 +17,12 @@ import {
 } from "@/lib/formula";
 import { quote } from "@/lib/formula/lexer";
 import { PropertyTypeIcon } from "./property-icons";
+import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import type { Property } from "./types";
 
-const GROUPS: FormulaFunctionGroup[] = ["logic", "text", "number", "date", "conversion"];
-const TYPE_NAMES: FormulaType[] = ["number", "text", "checkbox", "date", "list"];
+const GROUPS: FormulaFunctionGroup[] = ["logic", "text", "number", "date", "list", "style", "conversion"];
+const TYPE_NAMES: FormulaType[] = ["number", "text", "checkbox", "date", "list", "numbers", "rows", "row"];
 /** Params that hold type names ("text|list"), translated before they go into a message. */
 const TYPE_PARAMS: Partial<Record<FormulaErrorCode, string[]>> = {
   argumentType: ["expected", "actual"],
@@ -70,20 +73,26 @@ export function FormulaEditor({
   const t = useTranslations("database.formula");
   const tName = useTranslations("database");
   const properties = useSchema();
+  const targets = useRelations()?.targets;
   const titleName = tName("nameColumn");
   const errorMessage = useFormulaErrorMessage();
-  const [text, setText] = useState(() => formulaForEditing(prop?.options.formula?.expression ?? "", properties, titleName));
+  // Properties of related databases (as the viewer may know them), which prop(current, "…") reads.
+  const related = useMemo(() => relatedSchemasFrom(targets), [targets]);
+  const relatedProps = useMemo(() => Object.values(targets ?? {}).flatMap((target) => target.properties), [targets]);
+  const [text, setText] = useState(() =>
+    formulaForEditing(prop?.options.formula?.expression ?? "", properties, titleName, relatedProps),
+  );
   const area = useRef<HTMLTextAreaElement>(null);
   const selfId = prop?.id ?? "\u0000new";
   // A property called like the Name column wins over it; the title is then written prop("title").
   const titleKey = properties.some((p) => p.name.trim().toLowerCase() === titleName.trim().toLowerCase()) ? "title" : titleName;
   const others = useMemo(() => properties.filter((p) => p.id !== selfId), [properties, selfId]);
 
-  const stored = formulaForStorage(text, [...others, { id: selfId, name }], [titleName]);
+  const stored = formulaForStorage(text, [...others, { id: selfId, name }], [titleName], related);
   const check = useMemo(() => {
     const self = { id: selfId, name, type: "formula" as const, options: { formula: { expression: stored } } };
-    return compileFormulas([...others, self]).get(selfId)!;
-  }, [others, selfId, name, stored]);
+    return compileFormulas([...others, self], related).get(selfId)!;
+  }, [others, selfId, name, stored, related]);
 
   const insert = (snippet: string) => {
     const el = area.current;
@@ -159,14 +168,27 @@ export function FormulaEditor({
           <div className="px-1 pb-1 text-xs text-fg-muted">{t("properties")}</div>
           <ReferenceButton label={titleName} onClick={() => insert(`prop(${quote(titleKey)})`)} icon="title" />
           {others.map((p) => (
-            <ReferenceButton key={p.id} label={p.name} icon={p.type} onClick={() => insert(`prop(${quote(p.name)})`)} />
+            <div key={p.id}>
+              <ReferenceButton label={p.name} icon={p.type} onClick={() => insert(`prop(${quote(p.name)})`)} />
+              {/* A relation's rows: their properties, read as prop(current, "…") in map(), filter()… */}
+              {p.type === "relation" &&
+                (targets?.[p.id]?.properties ?? []).map((r) => (
+                  <ReferenceButton key={r.id} label={r.name} icon={r.type} nested onClick={() => insert(`prop(current, ${quote(r.name)})`)} />
+                ))}
+            </div>
           ))}
+          {others.some((p) => p.type === "relation") && (
+            <p className="px-1 pt-1 text-[11px] leading-4 text-fg-faint">{t("relatedHint", { max: MAX_RELATED_ROWS })}</p>
+          )}
         </div>
         <div className="min-w-0">
           <div className="px-1 pb-1 text-xs text-fg-muted">{t("functions")}</div>
           {GROUPS.map((group) => (
             <div key={group} className="pb-1">
               <div className="px-1 pt-0.5 text-[11px] text-fg-faint">{t(`groups.${group}`)}</div>
+              {group === "style" && (
+                <p className="px-1 pb-0.5 text-[11px] leading-4 text-fg-faint">{t("styleHint", { colors: STYLE_COLORS.join(", ") })}</p>
+              )}
               {FORMULA_FUNCTIONS.filter((f) => f.group === group).map((f) => (
                 <button
                   key={f.name}
@@ -192,7 +214,18 @@ export function FormulaEditor({
   );
 }
 
-function ReferenceButton({ label, icon, onClick }: { label: string; icon: Property["type"] | "title"; onClick: () => void }) {
+function ReferenceButton({
+  label,
+  icon,
+  onClick,
+  nested,
+}: {
+  label: string;
+  icon: Property["type"] | "title";
+  onClick: () => void;
+  /** A property of a relation's rows, listed under the relation. */
+  nested?: boolean;
+}) {
   const t = useTranslations("database.formula");
   return (
     <button
@@ -200,7 +233,10 @@ function ReferenceButton({ label, icon, onClick }: { label: string; icon: Proper
       title={label}
       aria-label={t("insert", { name: label })}
       onClick={onClick}
-      className="flex w-full min-w-0 items-center gap-1.5 rounded px-1 py-0.5 text-left text-xs hover:bg-bg-hover"
+      className={cn(
+        "flex w-full min-w-0 items-center gap-1.5 rounded px-1 py-0.5 text-left text-xs hover:bg-bg-hover",
+        nested && "pl-5 text-fg-muted",
+      )}
     >
       <PropertyTypeIcon type={icon} className="h-3 w-3 shrink-0 text-fg-muted" />
       <span className="truncate">{label}</span>

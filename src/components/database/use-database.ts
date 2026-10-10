@@ -35,7 +35,7 @@ import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { withoutDeleted } from "@/lib/deleted-schema";
 import type { DependencyInput } from "@/lib/dependencies";
-import { compileFormulas, evaluateFormulas } from "@/lib/derived";
+import { compileFormulas, evaluateRow, mergeResults, relatedSchemasFrom, type CompiledFormula } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
 import type { RollupConfig } from "@/db/schema/app";
 import type { DatabaseSnapshot, DerivedInput, Property, RelationInput, RollupInput, Row, View } from "./types";
@@ -144,7 +144,11 @@ export function useDatabase(
   // Formulas of a row the user just edited are worked out here right away, with the same code the
   // server uses, so the row doesn't show stale results until the refetch.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- recompiled only when the properties change, not the rows
-  const formulas = useMemo(() => (snapshot ? compileFormulas(snapshot.properties) : new Map()), [snapshot?.properties]);
+  // Formulas reading related rows stay as the server worked them out (their rows aren't loaded here).
+  const formulas = useMemo(
+    () => (snapshot ? compileFormulas(snapshot.properties, relatedSchemasFrom(snapshot.relations)) : new Map<string, CompiledFormula>()),
+    [snapshot?.properties, snapshot?.relations],
+  );
   const rows: Row[] = useMemo(() => {
     if (!snapshot) return [];
     const overlays = Object.values(pending);
@@ -160,8 +164,8 @@ export function useDatabase(
           else if (p.value === null || p.value === undefined) delete next.properties[p.key];
           else next.properties[p.key] = p.value;
         }
-        if (formulas.size) Object.assign(next.properties, evaluateFormulas(snapshot.properties, formulas, next, context));
-        return next;
+        if (!formulas.size) return next;
+        return mergeResults(next, evaluateRow(snapshot.properties, formulas, next, context), formulas);
       });
   }, [snapshot, pending, removed, formulas]);
 

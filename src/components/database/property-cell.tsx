@@ -15,6 +15,7 @@ import {
   statusGroupOf,
 } from "@/lib/properties";
 import { derivedType, isErrorValue, rollupFormat } from "@/lib/derived";
+import { asFormulaStyle, styleClasses, type FormulaStyle } from "@/lib/formula";
 import { asFiles } from "@/lib/files";
 import { holdsPeople, isDerived, isReadOnlyType } from "@/lib/property-types";
 import { FilesDisplay, FilesEditor, type UploadFile } from "./files-cell";
@@ -174,8 +175,11 @@ export function isEmptyValue(prop: Property, value: unknown) {
   return false;
 }
 
-/** Read-only rendering of a property value (board cards, read-only panels). */
-export function PropertyDisplay({ prop, value, wrap }: { prop: Property; value: unknown; wrap?: boolean }) {
+/**
+ * Read-only rendering of a property value (board cards, read-only panels). `style`: how a styled
+ * formula result shows (the row's `styles`).
+ */
+export function PropertyDisplay({ prop, value, wrap, style }: { prop: Property; value: unknown; wrap?: boolean; style?: FormulaStyle }) {
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
   if (value === null || value === undefined || value === "") return null;
@@ -226,7 +230,7 @@ export function PropertyDisplay({ prop, value, wrap }: { prop: Property; value: 
       return <PersonChips value={value} wrap={wrap} />;
     case "formula":
     case "rollup":
-      return <DerivedDisplay prop={prop} value={value} wrap={wrap} />;
+      return <DerivedDisplay prop={prop} value={value} wrap={wrap} style={prop.type === "formula" ? asFormulaStyle(style) : null} />;
     case "select":
     case "multi_select":
     case "status": {
@@ -243,7 +247,7 @@ export function PropertyDisplay({ prop, value, wrap }: { prop: Property; value: 
   }
 }
 
-type RowValues = { properties: Record<string, unknown>; hidden?: string[] };
+type RowValues = { properties: Record<string, unknown>; hidden?: string[]; styles?: Record<string, FormulaStyle> };
 
 /**
  * The properties a card or list entry shows for a row: those with a value, and those whose value
@@ -256,19 +260,52 @@ export function shownValues<P extends Property>(props: P[], row: RowValues): P[]
 /** A row's value, read-only: its display, or a lock when the viewer may not see it (property access). */
 export function RowValue({ prop, row, wrap }: { prop: Property; row: RowValues; wrap?: boolean }) {
   if (row.hidden?.includes(prop.id)) return <HiddenValue />;
-  return <PropertyDisplay prop={prop} value={row.properties[prop.id]} wrap={wrap} />;
+  return <PropertyDisplay prop={prop} value={row.properties[prop.id]} wrap={wrap} style={row.styles?.[prop.id]} />;
+}
+
+/** Classes and inline style of a styled formula result (see lib/formula style()). */
+function styledProps(styles: readonly string[] | undefined, className?: string) {
+  if (!styles?.length) return { className };
+  const s = styleClasses(styles);
+  const lines = [s.underline && "underline", s.strike && "line-through"].filter(Boolean).join(" ");
+  return {
+    className: cn(
+      className,
+      s.bold && "font-semibold",
+      s.italic && "italic",
+      s.code && "rounded bg-bg-subtle px-1 font-mono text-[0.9em]",
+      s.background && `opt-${s.background} rounded px-1`,
+      // After the background: a result's own text color wins over the background's.
+      s.color && `fx-${s.color}`,
+    ),
+    style: lines ? { textDecorationLine: lines } : undefined,
+  };
 }
 
 /**
- * A formula's value, shown as its result type; a row the formula fails on shows an error marker
- * with the reason on hover.
+ * A formula's value, shown as its result type, with its styles; a row the formula fails on shows
+ * an error marker with the reason on hover.
  */
-function DerivedDisplay({ prop, value, wrap }: { prop: Property; value: unknown; wrap?: boolean }) {
+function DerivedDisplay({ prop, value, wrap, style }: { prop: Property; value: unknown; wrap?: boolean; style?: FormulaStyle | null }) {
   const t = useTranslations("database.formula");
   const errorMessage = useFormulaErrorMessage();
   const formatDate = useFormatDate();
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
+  const textClass = wrap ? "whitespace-pre-wrap break-words" : "truncate";
+  if (style && "parts" in style && typeof value === "string" && !isErrorValue(value)) {
+    // Text put together from styled parts.
+    return (
+      <span className={textClass}>
+        {style.parts.map((part, i) => (
+          <span key={i} {...styledProps(part.styles)}>
+            {part.text}
+          </span>
+        ))}
+      </span>
+    );
+  }
+  const whole = style && "styles" in style ? style.styles : undefined;
   if (isErrorValue(value)) {
     const message = t("errorTitle", { message: errorMessage(value.error) });
     return (
@@ -279,21 +316,27 @@ function DerivedDisplay({ prop, value, wrap }: { prop: Property; value: unknown;
     );
   }
   if (Array.isArray(value)) {
-    return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{value.map(String).join(", ")}</span>;
+    return <span className={textClass}>{value.map(String).join(", ")}</span>;
   }
   if (prop.type === "rollup" && typeof value === "number") return <RollupNumber prop={prop} value={value} />;
   switch (derivedType(prop)) {
     case "number":
-      return <span className="tabular-nums">{typeof value === "number" ? formatNumber(value) : String(value)}</span>;
+      return <span {...styledProps(whole, "tabular-nums")}>{typeof value === "number" ? formatNumber(value) : String(value)}</span>;
     case "checkbox":
-      return <CheckboxBox checked={value === true} />;
+      return whole ? (
+        <span {...styledProps(whole, "inline-flex")}>
+          <CheckboxBox checked={value === true} />
+        </span>
+      ) : (
+        <CheckboxBox checked={value === true} />
+      );
     case "date": {
       // A day, a time or a range (see lib/date-value), else a timestamp with its time.
       const text = String(value);
-      return <span className="truncate">{parseDateValue(text) || text.length <= 10 ? formatDate(text) : formatDateTime(text)}</span>;
+      return <span {...styledProps(whole, "truncate")}>{parseDateValue(text) || text.length <= 10 ? formatDate(text) : formatDateTime(text)}</span>;
     }
     default:
-      return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{String(value)}</span>;
+      return <span {...styledProps(whole, textClass)}>{String(value)}</span>;
   }
 }
 
@@ -421,12 +464,15 @@ export function PropertyCell({
   draft,
   placeholder,
   upload,
+  style,
 }: {
   prop: Property;
   value: unknown;
   onChange: (value: unknown) => void;
   onCreateOption: CreateOption;
   readOnly?: boolean;
+  /** How a styled formula result shows (the row's `styles`). */
+  style?: FormulaStyle;
   /** The viewer may not see this value (property access): a lock stands in for it. */
   hidden?: boolean;
   variant?: "table" | "panel";
@@ -501,7 +547,7 @@ export function PropertyCell({
             <span className="truncate text-fg-faint">{placeholder ?? t("empty")}</span>
           )
         ) : (
-          <PropertyDisplay prop={prop} value={value} wrap={wrap} />
+          <PropertyDisplay prop={prop} value={value} wrap={wrap} style={style} />
         )}
       </div>
       {editing && (

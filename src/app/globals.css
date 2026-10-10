@@ -261,6 +261,34 @@
 }
 
 /*
+ * Text colors of styled formula results (lib/formula style()), in the option palette's hues and
+ * the editor's text colors; colored backgrounds take the option chips' `.opt-*`.
+ */
+.fx-gray { color: #5c6e61; }
+.fx-brown { color: #935839; }
+.fx-orange { color: #9c5301; }
+.fx-yellow { color: #7f6606; }
+.fx-green { color: #187d42; }
+.fx-blue { color: #0b6fa7; }
+.fx-purple { color: #7955a0; }
+.fx-pink { color: #9d4673; }
+.fx-red { color: #ac3f42; }
+
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    .fx-gray { color: #adbcb1; }
+    .fx-brown { color: #dbab93; }
+    .fx-orange { color: #eca56f; }
+    .fx-yellow { color: #cfb565; }
+    .fx-green { color: #89c99a; }
+    .fx-blue { color: #84bfeb; }
+    .fx-purple { color: #c4a9e5; }
+    .fx-pink { color: #e69fc0; }
+    .fx-red { color: #f39c99; }
+  }
+}
+
+/*
  * Page background colors (components/page/page-backdrop.tsx): the page's surface colors mixed
  * with an option color, so everything painted with them (the page, its header, sticky table
  * columns, table lines, hovers) takes the hue. Only `--bg*` and `--border` change: `--opt-*` stays

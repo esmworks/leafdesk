@@ -17,7 +17,8 @@ import { OfflineNotice } from "@/components/offline/offline-notice";
 import { deleteSnapshot, loadSnapshot, rowSnapshotKey, saveSnapshot } from "@/components/offline/offline-store";
 import type { AiAutofillConfig, AiCellState } from "@/lib/ai";
 import type { PropertyAccessInfo } from "@/lib/property-access";
-import { withFormulas } from "@/lib/derived";
+import { relatedSchemasFrom, withFormulas } from "@/lib/derived";
+import type { FormulaStyle } from "@/lib/formula";
 import type { PropertyType, SelectOption } from "@/db/schema/app";
 import { AiAutofillProvider, AiCell, type AiAutofillContextValue } from "./ai-autofill";
 import { Floating, useFloating } from "./floating";
@@ -47,6 +48,8 @@ type Loaded = {
   /** Property access: values of this row left out for the viewer, and ones they can't change. */
   hidden?: string[];
   readOnly?: string[];
+  /** How styled formula results show. */
+  styles?: Record<string, FormulaStyle>;
   /** The viewer's level on each restricted property. */
   propertyAccess?: Record<string, PropertyAccessInfo>;
   /** With full access: the properties that have access rules. */
@@ -113,6 +116,7 @@ export function RowProperties({
         ai: res.data.ai,
         hidden: res.data.row.hidden,
         readOnly: res.data.row.readOnly,
+        styles: res.data.row.styles,
         propertyAccess: res.data.propertyAccess,
         restrictedPropertyIds: res.data.restrictedPropertyIds,
       };
@@ -265,18 +269,19 @@ export function RowProperties({
   );
 
   // Edited values show right away, with the row's formulas worked out again from them.
-  const values = useMemo(() => {
-    if (!data) return {};
+  const { values, styles } = useMemo(() => {
+    if (!data) return { values: {}, styles: undefined };
     const edited = Object.entries(pending);
-    if (!edited.length) return data.values;
+    if (!edited.length) return { values: data.values, styles: data.styles };
     const next = { ...data.values };
     for (const [id, p] of edited) next[id] = p.value;
-    const [row] = withFormulas(data.properties, [{ title: data.title, properties: next }], {
-      now: new Date(),
-      people: data.people,
-      relations: data.relations,
-    });
-    return row.properties;
+    const [row] = withFormulas(
+      data.properties,
+      [{ title: data.title, properties: next, styles: data.styles }],
+      { now: new Date(), people: data.people, relations: data.relations },
+      relatedSchemasFrom(data.relations),
+    );
+    return { values: row.properties, styles: row.styles };
   }, [data, pending]);
 
   if (!data) {
@@ -305,6 +310,7 @@ export function RowProperties({
                       rowId={rowId}
                       row={data}
                       value={valueOf(p.id)}
+                      style={styles?.[p.id]}
                       readOnly={readOnly}
                       onChange={(v) => void setValue(p.id, v)}
                       onCreateOption={createOption}
@@ -331,6 +337,7 @@ function PropertyRow({
   rowId,
   row,
   value,
+  style,
   readOnly,
   onChange,
   onCreateOption,
@@ -339,6 +346,7 @@ function PropertyRow({
   rowId: string;
   row: { hidden?: string[]; readOnly?: string[] };
   value: unknown;
+  style?: FormulaStyle;
   readOnly: boolean;
   onChange: (value: unknown) => void;
   onCreateOption: (propertyId: string, name: string) => Promise<SelectOption | null>;
@@ -364,6 +372,7 @@ function PropertyRow({
               wrap
               prop={p}
               value={value}
+              style={style}
               readOnly={fixed}
               onChange={onChange}
               onCreateOption={onCreateOption}
