@@ -221,11 +221,11 @@ function DisplayEditor({
           save(color ? { ...rest, color } : rest);
         }}
         className={cn(
-          "flex h-6 w-6 items-center justify-center rounded-md border",
+          "flex h-5 w-5 items-center justify-center rounded-md border",
           chosen ? "border-accent bg-bg-active" : "border-transparent hover:bg-bg-hover",
         )}
       >
-        <span className="h-3.5 w-3.5 rounded-full bg-accent" style={color ? { background: `var(--chart-${color})` } : undefined} />
+        <span className="h-3 w-3 rounded-full bg-accent" style={color ? { background: `var(--chart-${color})` } : undefined} />
       </button>
     );
   };
