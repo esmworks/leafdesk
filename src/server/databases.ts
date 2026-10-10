@@ -55,6 +55,7 @@ import {
   type Span,
 } from "@/lib/dependencies";
 import { calculationFormat, checkNumberFormat } from "@/lib/number-format";
+import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { shiftDateValue } from "@/lib/date-value";
 import { dayValue } from "@/lib/timeline";
@@ -1520,9 +1521,15 @@ export async function updateProperty(
     number?: NumberFormat | null;
     /** Dates: the display and reminder to change; what is left out stays. */
     date?: DateOptionsInput;
+    /** Row pages: whether the property shows there (see lib/page-visibility). */
+    pageVisibility?: PageVisibility;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  if (patch.pageVisibility !== undefined && !isPageVisibility(patch.pageVisibility)) {
+    throw new PropertyValueError(`Unknown page visibility "${String(patch.pageVisibility)}"`, "invalidPageVisibility");
+  }
+  const { pageVisibility: _visibility, ...withoutVisibility } = prop.options;
   const number = patch.number !== undefined ? numberFormat(prop.type, patch.number) : undefined;
   const { number: _number, ...rest } = prop.options;
   const date = patch.date !== undefined ? dateOptions(prop.type, patch.date, prop.options.date) : undefined;
@@ -1557,6 +1564,12 @@ export async function updateProperty(
         ...(rollup ? { options: { ...prop.options, rollup } } : {}),
         ...(number !== undefined ? { options: number ? { ...rest, number } : rest } : {}),
         ...(date !== undefined ? { options: date ? { ...withoutDate, date } : withoutDate } : {}),
+        ...(patch.pageVisibility !== undefined
+          ? {
+              options:
+                patch.pageVisibility === "show" ? withoutVisibility : { ...withoutVisibility, pageVisibility: patch.pageVisibility },
+            }
+          : {}),
         ...(patch.position !== undefined ? { position: patch.position } : {}),
       })
       .where(eq(databaseProperty.id, propertyId));
@@ -1976,7 +1989,7 @@ export async function changePropertyType(
     : undefined;
   const conversion = planConversion(prop, { type: input.type }, values, { people, sourceTitles, targetRows, yes: input.yes });
 
-  const options: PropertyOptions = conversion.options
+  const typeOptions: PropertyOptions = conversion.options
     ? { options: conversion.options }
     : target
       ? { relation: { databaseId: target.id } }
@@ -1985,6 +1998,9 @@ export async function changePropertyType(
       : rollup
         ? { rollup }
         : {};
+  // Whether it shows on row pages doesn't depend on the type.
+  const { pageVisibility } = prop.options;
+  const options: PropertyOptions = pageVisibility ? { ...typeOptions, pageVisibility } : typeOptions;
   // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
   const next: Record<string, unknown> = {};
   rows.forEach((row, i) => {
@@ -2025,7 +2041,7 @@ export async function changePropertyType(
     }
     const [updated] = await tx
       .update(databaseProperty)
-      .set({ type: input.type, options: relation ? { relation } : options })
+      .set({ type: input.type, options: relation ? { ...options, relation } : options })
       .where(eq(databaseProperty.id, propertyId))
       .returning();
     if (Object.keys(next).length) {

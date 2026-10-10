@@ -433,6 +433,18 @@
     "decimalsAuto": "Automatic",
     "percentHint": "Type 15 for {percent}",
     "dateOptions": "Date settings",
+    "rowPage": "On row pages",
+    "pageVisibility": {
+      "show": "Always show",
+      "hide_empty": "Hide when empty",
+      "hide": "Always hide"
+    },
+    "pageVisibilityShort": {
+      "show": "Shown",
+      "hide_empty": "When filled",
+      "hide": "Hidden"
+    },
+    "pageVisibilityHint": "For everyone. Hidden properties stay a click away under “more properties” on each row page.",
     "dateDisplay": "Show as",
     "displayDate": "Date",
     "displayRelative": "Relative",
@@ -444,7 +456,10 @@
   },
   "rowProperties": {
     "noProperties": "No properties",
-    "addProperty": "Add property"
+    "addProperty": "Add property",
+    "moreProperties": "{count, plural, one {# more property} other {# more properties}}",
+    "fewerProperties": "{count, plural, one {Hide # property} other {Hide # properties}}",
+    "propertyMenu": "Options for {name}"
   },
   "relation": {
     "chooseDatabase": "Related database",
@@ -659,6 +674,7 @@
     "invalidRollup": "The rollup “{property}” can’t be saved: {message}",
     "invalidNumberFormat": "This number format can’t be saved.",
     "invalidDateOptions": "These date settings can’t be saved.",
+    "invalidPageVisibility": "This row page setting can’t be saved.",
     "calendarFeedNotCalendar": "Only calendar views can be subscribed to.",
     "calendarFeedExportOff": "The workspace’s owners turned export off, so calendar subscriptions are off too.",
     "isTemplate": "Templates can’t be moved or put in the trash. Delete them from the template list instead.",

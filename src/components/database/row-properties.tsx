@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -8,6 +8,7 @@ import {
   createRowAction,
   ensureOptionAction,
   loadRowAction,
+  updatePropertyAction,
   updateRowPropertiesAction,
 } from "@/app/actions/databases";
 import { addAutofillPropertyAction, refreshAutofillAction } from "@/app/actions/ai";
@@ -19,15 +20,16 @@ import type { AiAutofillConfig, AiCellState } from "@/lib/ai";
 import type { PropertyAccessInfo } from "@/lib/property-access";
 import { relatedSchemasFrom, withFormulas } from "@/lib/derived";
 import type { FormulaStyle } from "@/lib/formula";
+import { rowPageSections, type PageVisibility } from "@/lib/page-visibility";
 import type { PropertyType, SelectOption } from "@/db/schema/app";
 import { AiAutofillProvider, AiCell, type AiAutofillContextValue } from "./ai-autofill";
 import { Floating, useFloating } from "./floating";
 import { PeopleProvider, type PeopleContextValue } from "./person-cell";
 import { uploadToPage } from "./files-cell";
 import { PropertyAccessProvider, PropertyLock, usePropertyAccess, type PropertyAccessContextValue } from "./property-access";
-import { PropertyCell } from "./property-cell";
+import { isEmptyValue, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
-import { AddPropertyPanel } from "./property-menu";
+import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { SchemaProvider } from "./schema-context";
 import type { DerivedInput, PersonRef, Property, RelationInput, RelationTarget } from "./types";
@@ -92,6 +94,8 @@ export function RowProperties({
   const [pending, setPending] = useState<Record<string, { value: unknown; version: number }>>({});
   const seq = useRef(0);
   const version = useRef(0);
+  // The properties the database leaves off row pages, opened by the viewer.
+  const [showMore, setShowMore] = useState(false);
 
   const refetch = useCallback(async () => {
     const mine = ++seq.current;
@@ -204,6 +208,24 @@ export function RowProperties({
     await refetch();
   };
 
+  // Whether a property shows on row pages is the database's setting: shown here at once, then saved.
+  const setPageVisibility = async (propertyId: string, visibility: PageVisibility) => {
+    setData(
+      (d) =>
+        d && {
+          ...d,
+          properties: d.properties.map((p) => {
+            if (p.id !== propertyId) return p;
+            const { pageVisibility: _old, ...rest } = p.options;
+            return { ...p, options: visibility === "show" ? rest : { ...rest, pageVisibility: visibility } };
+          }),
+        },
+    );
+    const res = await safe(updatePropertyAction(propertyId, { pageVisibility: visibility }));
+    if (!res.ok) setError(res.error);
+    await refetch();
+  };
+
   const addAutofillProperty = async (name: string, config: AiAutofillConfig) => {
     const res = await safe(addAutofillPropertyAction(databaseId, name, config, [rowId]));
     if (!res.ok) setError(res.error);
@@ -293,6 +315,23 @@ export function RowProperties({
   }
 
   const valueOf = (id: string) => values[id];
+  // A value the viewer may not see counts as one: its lock shows like any value.
+  const { shown, more } = rowPageSections(data.properties, (p) => !data.hidden?.includes(p.id) && isEmptyValue(p, valueOf(p.id)));
+  const canSetVisibility = !readOnly && !data.locked;
+  const propertyRow = (p: Property) => (
+    <PropertyRow
+      key={p.id}
+      prop={p}
+      rowId={rowId}
+      row={data}
+      value={valueOf(p.id)}
+      style={styles?.[p.id]}
+      readOnly={readOnly}
+      onChange={(v) => void setValue(p.id, v)}
+      onCreateOption={createOption}
+      onPageVisibility={canSetVisibility ? (visibility) => void setPageVisibility(p.id, visibility) : undefined}
+    />
+  );
 
   return (
     <RelationProvider value={relationContext}>
@@ -303,20 +342,20 @@ export function RowProperties({
               <div className="mb-6 border-b border-border pb-4">
                 {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
                 <div className="flex flex-col gap-0.5">
-                  {data.properties.map((p) => (
-                    <PropertyRow
-                      key={p.id}
-                      prop={p}
-                      rowId={rowId}
-                      row={data}
-                      value={valueOf(p.id)}
-                      style={styles?.[p.id]}
-                      readOnly={readOnly}
-                      onChange={(v) => void setValue(p.id, v)}
-                      onCreateOption={createOption}
-                    />
-                  ))}
+                  {shown.map(propertyRow)}
+                  {showMore && more.map(propertyRow)}
                 </div>
+                {more.length > 0 && (
+                  <button
+                    type="button"
+                    aria-expanded={showMore}
+                    onClick={() => setShowMore((v) => !v)}
+                    className="mt-1 flex h-[30px] w-fit items-center gap-1.5 rounded-md px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+                  >
+                    {showMore ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                    {t(showMore ? "fewerProperties" : "moreProperties", { count: more.length })}
+                  </button>
+                )}
                 {!data.properties.length && readOnly && <p className="px-1 text-sm text-fg-faint">{t("noProperties")}</p>}
                 {!readOnly && !data.locked && (
                   <AddPropertyRow onCreate={addProperty} onCreateAutofill={aiEnabled ? addAutofillProperty : undefined} />
@@ -341,6 +380,7 @@ function PropertyRow({
   readOnly,
   onChange,
   onCreateOption,
+  onPageVisibility,
 }: {
   prop: Property;
   rowId: string;
@@ -350,16 +390,44 @@ function PropertyRow({
   readOnly: boolean;
   onChange: (value: unknown) => void;
   onCreateOption: (propertyId: string, name: string) => Promise<SelectOption | null>;
+  /** People who may change the database's properties: whether this one shows on row pages. */
+  onPageVisibility?: (visibility: PageVisibility) => void;
 }) {
-  const valueAccess = usePropertyAccess().valueAccess(row, p.id);
+  const t = useTranslations("database.rowProperties");
+  const access = usePropertyAccess();
+  const valueAccess = access.valueAccess(row, p.id);
   const fixed = readOnly || valueAccess === "readOnly";
+  const menu = useFloating<HTMLButtonElement>();
+  const label = (
+    <>
+      <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0" />
+      <span className="truncate" title={p.name}>
+        {p.name}
+      </span>
+    </>
+  );
   return (
     <div className="flex min-h-[30px] items-start gap-2">
-      <div className="flex h-[30px] w-28 shrink-0 items-center gap-1.5 px-1 text-sm text-fg-muted sm:w-40">
-        <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0" />
-        <span className="truncate" title={p.name}>
-          {p.name}
-        </span>
+      <div className="flex h-[30px] w-28 shrink-0 items-center gap-1.5 text-sm text-fg-muted sm:w-40">
+        {onPageVisibility && access.canEditSchema(p.id) ? (
+          <>
+            <button
+              ref={menu.ref}
+              type="button"
+              aria-label={t("propertyMenu", { name: p.name })}
+              aria-expanded={menu.open}
+              onClick={menu.toggle}
+              className="flex h-full min-w-0 items-center gap-1.5 rounded-md px-1 hover:bg-bg-hover hover:text-fg"
+            >
+              {label}
+            </button>
+            <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
+              <PropertyMenu prop={p} actions={{ setPageVisibility: onPageVisibility }} onDone={menu.close} />
+            </Floating>
+          </>
+        ) : (
+          <span className="flex min-w-0 items-center gap-1.5 px-1">{label}</span>
+        )}
         <PropertyLock propertyId={p.id} />
       </div>
       <div className="min-w-0 flex-1">

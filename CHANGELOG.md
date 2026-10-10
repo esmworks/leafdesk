@@ -62,6 +62,12 @@
 - **Hide or show every property at once.** The properties list of a view's toolbar has "Hide all"
   while any property shows and "Show all" once none does, in every kind of view. The Name column
   always shows. No migration.
+- **Hide properties on row pages.** Clicking a property's name on a row page (or "On row pages" in
+  a table column's menu) chooses whether it shows on the database's row pages: always, only when
+  the row has a value for it, or never. It is set for everyone; the properties a row page leaves
+  out are listed under "N more properties" below the others, still editable. Published rows and
+  their print show only the properties that aren't left out. Kept when the property's type
+  changes. No migration.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.

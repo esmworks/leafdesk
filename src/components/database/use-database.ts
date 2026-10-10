@@ -37,6 +37,7 @@ import { withoutDeleted } from "@/lib/deleted-schema";
 import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateRow, mergeResults, relatedSchemasFrom, type CompiledFormula } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
+import type { PageVisibility } from "@/lib/page-visibility";
 import type { RollupConfig } from "@/db/schema/app";
 import type { DatabaseSnapshot, DerivedInput, Property, RelationInput, RollupInput, Row, View } from "./types";
 import { TITLE } from "./types";
@@ -418,6 +419,13 @@ export function useDatabase(
         return mutateSchema(patchProperty(prop.id, { options: number ? { ...rest, number } : rest }), () =>
           updatePropertyAction(prop.id, { number }),
         );
+      },
+
+      /** Saves whether a property shows on row pages (see lib/page-visibility). */
+      setPageVisibility(prop: Property, pageVisibility: PageVisibility) {
+        const { pageVisibility: _old, ...rest } = prop.options;
+        const options = pageVisibility === "show" ? rest : { ...rest, pageVisibility };
+        return mutateSchema(patchProperty(prop.id, { options }), () => updatePropertyAction(prop.id, { pageVisibility }));
       },
 
       /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */

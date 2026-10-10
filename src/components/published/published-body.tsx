@@ -9,6 +9,7 @@ import { PdfViewer } from "@/components/page/pdf-viewer";
 import { BookmarkCard, EmbedFrame } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
+import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { displayHost } from "@/lib/web-blocks";
 import type { PublishedBlock, PublishedCrumb, PublishedPage } from "@/server/publication";
@@ -20,11 +21,16 @@ const cn = (...classes: (string | false | null | undefined)[]) => classes.filter
 
 const GUTTER = "px-4 sm:px-[54px]";
 
-/** A database row's properties above its body. */
+/**
+ * A database row's properties above its body: those a row page shows before "more properties" is
+ * opened (see lib/page-visibility).
+ */
 export function PublishedRowProperties({ row, print = false }: { row: NonNullable<PublishedPage["row"]>; print?: boolean }) {
+  const { shown } = rowPageSections(row.properties, (prop) => holdsNothing(row.values[prop.id]));
+  if (!shown.length) return null;
   return (
     <dl className={cn("mt-6 grid grid-cols-[minmax(7rem,12rem)_1fr] gap-x-4 gap-y-1 text-sm", !print && GUTTER)}>
-      {row.properties.map((prop) => (
+      {shown.map((prop) => (
         <div key={prop.id} className="contents">
           <dt className="flex h-8 items-center gap-1.5 text-fg-muted">
             <PropertyTypeIcon type={prop.type} className="h-3.5 w-3.5 shrink-0" />

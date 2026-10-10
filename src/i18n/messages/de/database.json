@@ -433,6 +433,18 @@
     "decimalsAuto": "Automatisch",
     "percentHint": "Für {percent} 15 eingeben",
     "dateOptions": "Datumseinstellungen",
+    "rowPage": "Auf Zeilenseiten",
+    "pageVisibility": {
+      "show": "Immer anzeigen",
+      "hide_empty": "Ausblenden, wenn leer",
+      "hide": "Immer ausblenden"
+    },
+    "pageVisibilityShort": {
+      "show": "Sichtbar",
+      "hide_empty": "Wenn gefüllt",
+      "hide": "Verborgen"
+    },
+    "pageVisibilityHint": "Gilt für alle. Ausgeblendete Eigenschaften sind auf jeder Zeilenseite unter „weitere Eigenschaften“ einen Klick entfernt.",
     "dateDisplay": "Anzeigen als",
     "displayDate": "Datum",
     "displayRelative": "Relativ",
@@ -444,7 +456,10 @@
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
-    "addProperty": "Eigenschaft hinzufügen"
+    "addProperty": "Eigenschaft hinzufügen",
+    "moreProperties": "{count, plural, one {# weitere Eigenschaft} other {# weitere Eigenschaften}}",
+    "fewerProperties": "{count, plural, one {# Eigenschaft ausblenden} other {# Eigenschaften ausblenden}}",
+    "propertyMenu": "Optionen für {name}"
   },
   "relation": {
     "chooseDatabase": "Verknüpfte Datenbank",
@@ -659,6 +674,7 @@
     "invalidRollup": "Das Rollup „{property}“ kann nicht gespeichert werden: {message}",
     "invalidNumberFormat": "Dieses Zahlenformat kann nicht gespeichert werden.",
     "invalidDateOptions": "Diese Datumseinstellungen können nicht gespeichert werden.",
+    "invalidPageVisibility": "Diese Einstellung für Zeilenseiten kann nicht gespeichert werden.",
     "calendarFeedNotCalendar": "Nur Kalenderansichten können abonniert werden.",
     "calendarFeedExportOff": "Die Eigentümer des Arbeitsbereichs haben den Export ausgeschaltet, daher sind auch Kalenderabos aus.",
     "isTemplate": "Vorlagen können nicht verschoben oder in den Papierkorb gelegt werden. Lösche sie stattdessen in der Vorlagenliste.",

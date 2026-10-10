@@ -433,6 +433,18 @@
     "decimalsAuto": "Otomatik",
     "percentHint": "{percent} için 15 yazın",
     "dateOptions": "Tarih ayarları",
+    "rowPage": "Satır sayfalarında",
+    "pageVisibility": {
+      "show": "Her zaman göster",
+      "hide_empty": "Boşken gizle",
+      "hide": "Her zaman gizle"
+    },
+    "pageVisibilityShort": {
+      "show": "Görünür",
+      "hide_empty": "Doluysa",
+      "hide": "Gizli"
+    },
+    "pageVisibilityHint": "Herkes için geçerlidir. Gizlenen özellikler her satır sayfasında “diğer özellikler” altında bir tık uzaktadır.",
     "dateDisplay": "Gösterim",
     "displayDate": "Tarih",
     "displayRelative": "Göreli",
@@ -444,7 +456,10 @@
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
-    "addProperty": "Özellik ekle"
+    "addProperty": "Özellik ekle",
+    "moreProperties": "{count, plural, one {# özellik daha} other {# özellik daha}}",
+    "fewerProperties": "{count, plural, one {# özelliği gizle} other {# özelliği gizle}}",
+    "propertyMenu": "{name} seçenekleri"
   },
   "relation": {
     "chooseDatabase": "İlişkili veritabanı",
@@ -659,6 +674,7 @@
     "invalidRollup": "“{property}” toplaması kaydedilemiyor: {message}",
     "invalidNumberFormat": "Bu sayı biçimi kaydedilemiyor.",
     "invalidDateOptions": "Bu tarih ayarları kaydedilemiyor.",
+    "invalidPageVisibility": "Bu satır sayfası ayarı kaydedilemiyor.",
     "calendarFeedNotCalendar": "Yalnızca takvim görünümlerine abone olunabilir.",
     "calendarFeedExportOff": "Çalışma alanının sahipleri dışa aktarmayı kapattığı için takvim abonelikleri de kapalı.",
     "isTemplate": "Şablonlar taşınamaz ve çöp kutusuna atılamaz. Onları şablon listesinden silin.",

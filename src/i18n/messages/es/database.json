@@ -433,6 +433,18 @@
     "decimalsAuto": "Automático",
     "percentHint": "Escribe 15 para {percent}",
     "dateOptions": "Ajustes de fecha",
+    "rowPage": "En las páginas de fila",
+    "pageVisibility": {
+      "show": "Mostrar siempre",
+      "hide_empty": "Ocultar si está vacía",
+      "hide": "Ocultar siempre"
+    },
+    "pageVisibilityShort": {
+      "show": "Visible",
+      "hide_empty": "Si tiene valor",
+      "hide": "Oculta"
+    },
+    "pageVisibilityHint": "Para todos. Las propiedades ocultas quedan a un clic en “más propiedades” de cada página de fila.",
     "dateDisplay": "Mostrar como",
     "displayDate": "Fecha",
     "displayRelative": "Relativa",
@@ -444,7 +456,10 @@
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
-    "addProperty": "Añadir propiedad"
+    "addProperty": "Añadir propiedad",
+    "moreProperties": "{count, plural, one {# propiedad más} other {# propiedades más}}",
+    "fewerProperties": "{count, plural, one {Ocultar # propiedad} other {Ocultar # propiedades}}",
+    "propertyMenu": "Opciones de {name}"
   },
   "relation": {
     "chooseDatabase": "Base de datos relacionada",
@@ -659,6 +674,7 @@
     "invalidRollup": "La agregación “{property}” no se puede guardar: {message}",
     "invalidNumberFormat": "Este formato de número no se puede guardar.",
     "invalidDateOptions": "Esta configuración de fecha no se puede guardar.",
+    "invalidPageVisibility": "Este ajuste de las páginas de fila no se puede guardar.",
     "calendarFeedNotCalendar": "Solo se puede suscribir a vistas de calendario.",
     "calendarFeedExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que las suscripciones de calendario también están desactivadas.",
     "isTemplate": "Las plantillas no se pueden mover ni enviar a la papelera. Elimínalas desde la lista de plantillas.",

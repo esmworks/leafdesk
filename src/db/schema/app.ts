@@ -20,6 +20,7 @@ import type { AggregateFn, RollupDisplay, RollupFn } from "../../lib/aggregate";
 import type { FormulaResultType } from "../../lib/formula/types";
 import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/property-types";
 import type { PageBackground } from "../../lib/page-background";
+import type { PageVisibility } from "../../lib/page-visibility";
 import type { SidebarLayout } from "../../lib/sidebar-sections";
 import { user } from "./auth";
 
@@ -482,6 +483,11 @@ export type PropertyOptions = {
   ai?: AiAutofillConfig;
   /** Date properties: relative display and a reminder; plain dates when missing. */
   date?: DateOptions;
+  /**
+   * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
+   * always (both under "more properties", see lib/page-visibility); shown when missing.
+   */
+  pageVisibility?: Exclude<PageVisibility, "show">;
 };
 
 export const databaseProperty = pgTable(

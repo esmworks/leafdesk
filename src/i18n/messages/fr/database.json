@@ -433,6 +433,18 @@
     "decimalsAuto": "Automatique",
     "percentHint": "Tapez 15 pour {percent}",
     "dateOptions": "Réglages de date",
+    "rowPage": "Sur les pages de ligne",
+    "pageVisibility": {
+      "show": "Toujours afficher",
+      "hide_empty": "Masquer si vide",
+      "hide": "Toujours masquer"
+    },
+    "pageVisibilityShort": {
+      "show": "Visible",
+      "hide_empty": "Si remplie",
+      "hide": "Masquée"
+    },
+    "pageVisibilityHint": "Pour tout le monde. Les propriétés masquées restent à un clic sous « autres propriétés » sur chaque page de ligne.",
     "dateDisplay": "Afficher comme",
     "displayDate": "Date",
     "displayRelative": "Relative",
@@ -444,7 +456,10 @@
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
-    "addProperty": "Ajouter une propriété"
+    "addProperty": "Ajouter une propriété",
+    "moreProperties": "{count, plural, one {# autre propriété} other {# autres propriétés}}",
+    "fewerProperties": "{count, plural, one {Masquer # propriété} other {Masquer # propriétés}}",
+    "propertyMenu": "Options de {name}"
   },
   "relation": {
     "chooseDatabase": "Base de données liée",
@@ -659,6 +674,7 @@
     "invalidRollup": "L’agrégation « {property} » ne peut pas être enregistrée : {message}",
     "invalidNumberFormat": "Ce format de nombre ne peut pas être enregistré.",
     "invalidDateOptions": "Ces réglages de date ne peuvent pas être enregistrés.",
+    "invalidPageVisibility": "Ce réglage des pages de ligne ne peut pas être enregistré.",
     "calendarFeedNotCalendar": "Seules les vues calendrier peuvent faire l’objet d’un abonnement.",
     "calendarFeedExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les abonnements de calendrier le sont donc aussi.",
     "isTemplate": "Les modèles ne peuvent pas être déplacés ni placés dans la corbeille. Supprimez-les plutôt depuis la liste des modèles.",

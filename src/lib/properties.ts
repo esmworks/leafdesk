@@ -83,6 +83,7 @@ export const DATABASE_ERROR_CODES = [
   "invalidRollup",
   "invalidNumberFormat",
   "invalidDateOptions",
+  "invalidPageVisibility",
   "calendarFeedNotCalendar",
   "calendarFeedExportOff",
   "isTemplate",

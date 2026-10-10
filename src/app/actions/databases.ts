@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DateOptionsInput } from "@/lib/date-options";
+import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
@@ -216,6 +217,7 @@ export async function updatePropertyAction(
     rollup?: Partial<databases.RollupInput>;
     number?: NumberFormat | null;
     date?: DateOptionsInput;
+    pageVisibility?: PageVisibility;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

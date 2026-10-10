@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Combine,
   Copy,
+  Eye,
   EyeOff,
   ListFilter,
   Lock,
@@ -41,6 +42,7 @@ import type { AiAutofillConfig } from "@/lib/ai";
 import type { AggregateFn } from "@/lib/aggregate";
 import type { DateOptionsInput } from "@/lib/date-options";
 import type { NumberFormat } from "@/lib/number-format";
+import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
@@ -219,6 +221,8 @@ export type PropertyMenuActions = {
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
   updateAllAutofill?: () => void;
+  /** Saves whether the property shows on row pages: always, only with a value, or never. */
+  setPageVisibility?: (visibility: PageVisibility) => void;
   /** Full access to the database: opens the property's access settings. */
   openAccess?: () => void;
   remove?: () => void;
@@ -251,6 +255,7 @@ export function PropertyMenu({
     | "rollup"
     | "number-format"
     | "date-options"
+    | "page-visibility"
     | "autofill"
     | "calculate"
     | "insert-before"
@@ -411,6 +416,27 @@ export function PropertyMenu({
     return <DateOptionsEditor prop={prop} onChange={actions.setDateOptions} onBack={() => setPage("main")} />;
   }
 
+  if (page === "page-visibility" && prop && actions.setPageVisibility) {
+    const current = pageVisibilityOf(prop);
+    return (
+      <div className="w-60">
+        <SubmenuHeader title={t("rowPage")} onBack={() => setPage("main")} />
+        <MenuSeparator />
+        {PAGE_VISIBILITIES.map((visibility) => (
+          <MenuItem
+            key={visibility}
+            active={visibility === current}
+            trailing={visibility === current ? <Check className="h-3.5 w-3.5" /> : undefined}
+            onClick={run(() => visibility !== current && actions.setPageVisibility?.(visibility))}
+          >
+            {t(`pageVisibility.${visibility}`)}
+          </MenuItem>
+        ))}
+        <p className="px-2 pt-1 pb-1.5 text-xs text-fg-faint">{t("pageVisibilityHint")}</p>
+      </div>
+    );
+  }
+
   if (page === "autofill" && prop && actions.setAutofill) {
     return (
       <AutofillEditor
@@ -541,6 +567,21 @@ export function PropertyMenu({
     selectType && actions.setOptions && (
       <MenuItem key="options" icon={icon(Settings2)} onClick={() => setPage("options")}>
         {t("editOptions")}
+      </MenuItem>
+    ),
+    prop && actions.setPageVisibility && (
+      <MenuItem
+        key="page-visibility"
+        icon={icon(pageVisibilityOf(prop) === "show" ? Eye : EyeOff)}
+        trailing={
+          <>
+            <span className="mr-1 text-xs">{t(`pageVisibilityShort.${pageVisibilityOf(prop)}`)}</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </>
+        }
+        onClick={() => setPage("page-visibility")}
+      >
+        {t("rowPage")}
       </MenuItem>
     ),
     prop && actions.openAccess && (

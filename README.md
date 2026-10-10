@@ -110,6 +110,8 @@ versions, upgrades and running behind a domain.
     `first`, `last` and `at`), one step away and up to 200 linked rows. `style()` shows a result
     bold, italic, underlined, struck through, as code or in the option colors, in every view, row
     pages and published pages; sorting, filtering, grouping and exports use the plain value.
+  - Row pages show every property, or leave some out (always, or while they are empty) behind
+    "N more properties"; the choice is the database's, for everyone.
   - Quick add: a new row's name can carry its date, people and options, as in
     "Send the offer friday @Ayşe #urgent". Dates are read in the interface language and in English
     (today, tomorrow, next tuesday, in 3 days, 12/31, 31.12.2026...) and go to the view's date
