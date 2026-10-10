@@ -32,7 +32,7 @@ import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@
 import { compileFormulas, formulaForStorage, TITLE_FIELD, valueType, withFormulaTypes } from "@/lib/derived";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
-import { livePropertyValues, uniqueName, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
+import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultFormConfig } from "@/lib/forms";
@@ -92,7 +92,6 @@ import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import {
   assignmentsTheySee,
-  hideReferences,
   propertyAccessFor,
   restoreReferences,
   unknownProperties,
@@ -279,7 +278,7 @@ export async function getDatabase(userId: string, databaseId: string) {
   ]);
   const properties = access.visible(all);
   // What views say about deleted properties stays stored for a restore (updateView puts it back).
-  const views = stored.map((v) => ({ ...v, config: access.viewConfig(hideReferences(v.config, deleted)) }));
+  const views = stored.map((v) => ({ ...v, config: access.viewConfig(withoutDeleted(v.config, deleted)) }));
   return { database, properties, views, access, propertyAccess: access.info() };
 }
 
@@ -331,7 +330,7 @@ export async function viewedRows(
   // ones whose values they can't see they run on the redacted values, so the rows they get say
   // nothing about them.
   const properties = access.visible(all);
-  config = access.viewConfig(hideReferences(config, deleted));
+  config = access.viewConfig(withoutDeleted(config, deleted));
   const people = await peopleForSorts(userId, properties, config);
   return applyView<DatabaseRow>(await withValues(userId, databaseId, rows, all, undefined, access), config, properties, {
     viewerId: userId,
@@ -2107,8 +2106,9 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   // What the stored settings say about properties the editor can't know of, or about deleted ones
   // (for a restore), stays as it was, and so do form defaults they can't see.
   const deleted = await deletedPropertyIds(view.databaseId);
-  if (patch.config && (!access.open || deleted.size)) {
-    const gone = new Set([...unknownProperties(access, await getProperties(view.databaseId)), ...deleted]);
+  if (patch.config && deleted.size) patch = { ...patch, config: keepDeleted(view.config, patch.config, deleted) };
+  if (patch.config && !access.open) {
+    const gone = unknownProperties(access, await getProperties(view.databaseId));
     let config = restoreReferences(view.config, patch.config, gone);
     const hidden = Object.entries(view.config.form?.defaults ?? {}).filter(([id]) => access.valuesHidden().has(id));
     if (hidden.length && config.form) {
@@ -2125,7 +2125,7 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
     .where(eq(databaseView.id, viewId));
   notifySchema(view.databaseId);
   if (patch.name !== undefined) notifyTree(view.workspaceId);
-  return { config: access.viewConfig(hideReferences(patch.config ?? view.config, deleted)) };
+  return { config: access.viewConfig(withoutDeleted(patch.config ?? view.config, deleted)) };
 }
 
 /**

@@ -1751,7 +1751,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Delete a database property",
       description:
-        "Delete a property (column) from a database. Its values are removed from every row and page history cannot bring them back, so confirm with the user first.",
+        "Delete a property (column) from a database, together with the other side of its two-way relation. It disappears from every row and view; the app's Deleted properties list can restore it with its values until the workspace's trash retention deletes it permanently. Confirm with the user first.",
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Property name or id."),

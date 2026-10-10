@@ -141,6 +141,12 @@ versions, upgrades and running behind a domain.
     rows, checklist items, file names, text, numbers, links, formula results) hold every word
     typed, ignoring case and accents. The search is the viewer's own and isn't saved with the
     view; values hidden from them aren't searched.
+  - Deleted properties and views can be restored: "Deleted properties" at the bottom of a view's
+    Properties menu and "Deleted views" under the add-view button list them with who deleted them
+    and when. A restored property comes back with its values and with what views, formulas and
+    rollups said about it; both sides of a two-way relation go and come back together. They are
+    deleted permanently with the trash, after the workspace's trash retention, or at once from the
+    list. While deleted they don't show, export, search, take writes or trigger automations.
   - Select rows to edit a property, duplicate, export or trash them at once.
   - Form views collect answers as new rows, in the app or through a public link, signed in or
     anonymous.

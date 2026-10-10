@@ -431,9 +431,13 @@ try {
   check((await fileRow(pdf.id)) !== null, "…and keeps files other rows hold");
 
   await databases.deleteProperty(ids.owner, attachments.id);
+  const shown = (await databases.getDatabase(ids.owner, assets.id)).views.find((v) => v.id === coverId)!;
+  check(shown.config.cover === undefined, "deleting the cover property resets the gallery's cover", shown.config);
+  check((await refsOf(image.id)).length > 0, "a deleted property keeps its files for a restore");
+  await databases.purgeProperty(ids.owner, attachments.id);
   const [after] = await db.select({ config: databaseView.config }).from(databaseView).where(eq(databaseView.id, coverId));
-  check(after.config.cover === undefined, "deleting the cover property resets the gallery's cover", after.config);
-  check(!(await refsOf(image.id)).length && (await fileRow(image.id)) !== null, "deleting the property drops its references, not the files");
+  check(after.config.cover === undefined, "deleting the property for good drops the gallery's cover", after.config);
+  check(!(await refsOf(image.id)).length && (await fileRow(image.id)) !== null, "deleting the property for good drops its references, not the files");
 
   console.log(`\n${passed} checks passed`);
 } finally {

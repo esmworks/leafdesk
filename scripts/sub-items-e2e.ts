@@ -32,6 +32,7 @@ const {
   duplicateProperty,
   getProperties,
   moveRow,
+  restoreProperty,
   setSubItems,
   updateRowProperties,
   updateRowsProperties,
@@ -250,10 +251,13 @@ try {
   const loop = await callTool(ids.owner, "update_database_row", { row_id: a, properties: { Parent: "B" } });
   check(loop.isError && /under itself/.test(loop.text), "MCP refuses putting A under B", loop.text);
 
-  // Deleting the sub-items side keeps the tree; off still works
+  // Deleting one side deletes its pair, turning sub-items off; restoring brings both back
   await deleteProperty(ids.owner, children.id);
   props = await getProperties(tasks.id);
-  check(parentProperty(props)?.id === parent.id && !subItemsProperty(props), "deleting Children keeps sub-items on, held by Parent");
+  check(!parentProperty(props) && !subItemsProperty(props), "deleting Children deletes Parent with it");
+  await restoreProperty(ids.owner, children.id);
+  props = await getProperties(tasks.id);
+  check(parentProperty(props)?.id === parent.id && subItemsProperty(props)?.id === children.id, "restoring Children brings sub-items back");
   const off = await callTool(ids.owner, "set_sub_items", { database_id: tasks.id, on: false });
   check(off.data?.sub_items === false && !parentProperty(await getProperties(tasks.id)), "set_sub_items turns them off");
   const named = await callTool(ids.owner, "set_sub_items", {

@@ -1,7 +1,10 @@
 // Deleted database properties and views (see server/databases deleteProperty and deleteView): what
 // stays hidden while they are deleted and how a restored property is named. Pure, so tests and the
 // client can use it.
-import type { ViewType } from "@/db/schema/app";
+import type { FilterEntry, FilterRule, ViewConfig, ViewType } from "@/db/schema/app";
+import { dropPropertyReferences } from "./duplicate";
+import { mapFilterRules } from "./filters";
+import { restoreReferences } from "./property-access-rows";
 import type { PropertyType } from "./property-types";
 
 /**
@@ -32,6 +35,38 @@ export function uniqueName(name: string, taken: Iterable<string>): string {
   let candidate = name;
   for (let i = 2; names.has(candidate.trim().toLowerCase()); i++) candidate = `${name} ${i}`;
   return candidate;
+}
+
+/**
+ * A view's settings as read while the properties in `deleted` are deleted: what it says about them
+ * is ignored, rule by rule (a filter group keeps its other rules; one left empty goes). The stored
+ * settings keep it, for a restore.
+ */
+export function withoutDeleted(config: ViewConfig, deleted: ReadonlySet<string>): ViewConfig {
+  return deleted.size ? dropPropertyReferences(config, (id) => deleted.has(id)) : config;
+}
+
+/**
+ * A view's new settings, saved from what `withoutDeleted` showed, with what the stored settings
+ * said about deleted properties put back. Filters someone didn't change stay exactly as stored;
+ * changed ones keep the deleted properties' rules, added at the top level (where in the new tree
+ * they belonged can't be told).
+ */
+export function keepDeleted(stored: ViewConfig, next: ViewConfig, deleted: ReadonlySet<string>): ViewConfig {
+  if (!deleted.size) return next;
+  const { filters: _filters, ...rest } = stored;
+  const out = restoreReferences(rest, next, deleted);
+  const storedFilters = stored.filters ?? [];
+  const lost: FilterRule[] = [];
+  mapFilterRules(storedFilters, (rule) => {
+    if (deleted.has(rule.propertyId)) lost.push(rule);
+    return rule;
+  });
+  if (!lost.length) return out;
+  const shown = withoutDeleted({ filters: storedFilters }, deleted).filters ?? [];
+  const unchanged = JSON.stringify(next.filters ?? []) === JSON.stringify(shown);
+  const filters: FilterEntry[] = unchanged ? storedFilters : [...(next.filters ?? []), ...lost];
+  return { ...out, filters };
 }
 
 /** A deleted property as the "Deleted properties" list shows it. */

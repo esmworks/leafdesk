@@ -439,10 +439,12 @@ try {
     publicColumns,
   );
 
-  // Deleting a property takes it out of questions and defaults
+  // Deleting a property takes it out of questions and defaults (kept stored for a restore)
   await deleteProperty(ids.owner, email.id);
   await deleteProperty(ids.owner, stage.id);
-  const [pruned] = await db.select().from(databaseView).where(eq(databaseView.id, view.id));
+  const pruned = (await getDatabaseSnapshot(ids.owner, leads.id)).views.find((v) => v.id === view.id)!;
+  const [kept] = await db.select().from(databaseView).where(eq(databaseView.id, view.id));
+  check(kept.config.form?.questions?.some((q) => q.propertyId === email.id), "the form keeps a deleted property's question stored");
   check(
     !pruned.config.form?.questions?.some((q) => q.propertyId === email.id) && !(stage.id in (pruned.config.form?.defaults ?? {})),
     "a deleted property leaves the form's questions and defaults",

@@ -23,7 +23,7 @@ const { databaseView, page, user, workspace, workspaceMember } = await import("@
 type ViewConfig = import("@/db/schema").ViewConfig;
 const { registerCollab } = await import("@/server/collab/bridge");
 const { setAssignmentMailer } = await import("@/server/assignments");
-const { addProperty, addView, deleteProperty, getDatabase, getPeople, listRows, updateView } = await import(
+const { addProperty, addView, deleteProperty, getDatabase, getPeople, listRows, purgeProperty, updateView } = await import(
   "@/server/databases"
 );
 const { duplicatePage } = await import("@/server/duplicate");
@@ -263,7 +263,9 @@ try {
     },
   });
   await deleteProperty(ids.owner, assignee.id);
-  const [afterDelete] = await db.select().from(databaseView).where(eq(databaseView.id, view.id));
+  const [heldRules] = await db.select().from(databaseView).where(eq(databaseView.id, view.id));
+  check(JSON.stringify(heldRules.config.filters).includes(assignee.id), "a deleted property's rules stay stored, for a restore");
+  const afterDelete = (await getDatabase(ids.owner, tasks.id)).views.find((v) => v.id === view.id)!;
   const expected = [
     { propertyId: tags.id, op: "is_not_empty" },
     {
@@ -275,9 +277,12 @@ try {
   check(
     // jsonb reorders keys, so compare structurally.
     isDeepStrictEqual(afterDelete.config.filters, expected),
-    "deleting a property removes its rules at every depth and drops emptied groups",
+    "a deleted property's rules are ignored at every depth, dropping emptied groups",
     afterDelete.config.filters,
   );
+  await purgeProperty(ids.owner, assignee.id);
+  const [purged] = await db.select().from(databaseView).where(eq(databaseView.id, view.id));
+  check(isDeepStrictEqual(purged.config.filters, expected), "deleting it for good removes them from the stored view", purged.config.filters);
 
   console.log(`\n${passed} checks passed`);
 } finally {

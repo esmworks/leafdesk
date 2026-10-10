@@ -33,6 +33,7 @@ import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from 
 import type { NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
+import { withoutDeleted } from "@/lib/deleted-schema";
 import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateFormulas } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
@@ -483,7 +484,12 @@ export function useDatabase(
 
       deleteProperty(id: string) {
         return mutateSchema(
-          (s) => ({ ...s, properties: s.properties.filter((p) => p.id !== id) }),
+          // Views ignore what they say about it until it is restored (see lib/deleted-schema).
+          (s) => ({
+            ...s,
+            properties: s.properties.filter((p) => p.id !== id),
+            views: s.views.map((v) => ({ ...v, config: withoutDeleted(v.config, new Set([id])) })),
+          }),
           () => deletePropertyAction(id),
         );
       },

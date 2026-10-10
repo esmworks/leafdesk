@@ -12,6 +12,7 @@ import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/pag
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
 import { coverProperty, galleryCover } from "@/lib/views";
 import { firstImageFile } from "@/lib/files";
+import { withoutDeleted } from "@/lib/deleted-schema";
 import { hideReferences, unknownProperties } from "@/lib/property-access-rows";
 import { holdsPeople, UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { unknownToVisitors } from "@/lib/published-copy";
@@ -722,7 +723,7 @@ export async function publishedDatabase(
   // applyView needs them too; the columns are only the public ones (see publicProperties).
   const allProperties = access.known(storedProperties);
   const picked = linked ? { id: "", name: "", ...linked } : (shownViews.find((v) => v.id === viewId) ?? shownViews[0]);
-  const chosen = picked && { ...picked, config: access.config(hideReferences(picked.config, deleted)) };
+  const chosen = picked && { ...picked, config: access.config(withoutDeleted(picked.config, deleted)) };
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
   const stored = await db
     .select({

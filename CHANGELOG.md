@@ -12,6 +12,20 @@
   from outside it, of a type pages can't show or over the upload limit are left out and listed.
   Documents are read in a worker with time and memory limits; a damaged or old `.doc` file is
   refused with nothing created. Recorded in the audit log like other imports. No migration.
+- **Restore deleted properties and views.** Deleting a database property or view no longer erases
+  it: "Deleted properties" (at the bottom of a view's Properties menu) and "Deleted views" (under
+  the add-view button) list what was deleted, by whom and when, and the day it goes for good, with
+  Restore and Delete permanently. People who can change the database's properties see them; a
+  locked database refuses both. A restored property comes back with its row values and with the
+  filters, sorts, grouping, form questions and other view settings that named it; formulas and
+  rollups that showed it as missing work again. A name taken meanwhile gets a number ("Estimate
+  2"). Deleting either side of a two-way relation now deletes the pair (it used to make the other
+  side one-way), and restoring either brings both back. While deleted, a property is left out of
+  views, row pages, filters, CSV and Markdown exports, the workspace backup, search, the API, MCP,
+  forms, templates, automations (whose steps that set only it are skipped) and property access
+  rules. Deleted properties and views are deleted permanently with the trash, after the
+  workspace's trash retention. The audit log records them deleted, restored and deleted
+  permanently. Migration 0051.
 - **Code block languages.** A code block's language is picked from a menu at its top (plain text
   and 42 languages, from Bash, Go and Python to SQL, TypeScript and YAML), and its code is colored
   in that language, in the editor, on published pages and in the print view, in light and dark.
