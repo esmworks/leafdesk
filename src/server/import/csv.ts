@@ -15,11 +15,12 @@ import {
   type CsvTable,
   type DateFormat,
 } from "@/lib/import/csv";
-import { ImportError, WarningList } from "@/lib/import/result";
+import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
 import { PropertyValueError, sortStatusOptions, statusColor } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
 import { holdsOptions } from "@/lib/property-types";
 import { AccessError } from "@/server/access";
+import { recordAudit } from "@/server/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
   addProperty,
@@ -174,16 +175,21 @@ export async function importCsvAsDatabase(actor: WriteActor, input: NewDatabaseI
     i === titleColumn ? null : input.types ? (input.types[i] ?? null) : guessColumn(column(table, i)).type,
   );
 
-  const database = await createPage(actor, {
-    workspaceId: input.workspaceId,
-    parentId: input.parentId,
-    teamspaceId: input.teamspaceId,
-    kind: "database",
-    title: input.title,
-    seedNames: input.seedNames,
-    seedProperties: false,
-    template: input.template,
-  });
+  // Recorded once the import has gone through (recordImport), not as a database of its own.
+  const database = await createPage(
+    actor,
+    {
+      workspaceId: input.workspaceId,
+      parentId: input.parentId,
+      teamspaceId: input.teamspaceId,
+      kind: "database",
+      title: input.title,
+      seedNames: input.seedNames,
+      seedProperties: false,
+      template: input.template,
+    },
+    { audit: false },
+  );
   try {
     const targets: (DatabaseProperty | null)[] = [];
     for (const [i, type] of types.entries()) {
@@ -211,6 +217,22 @@ export async function importCsvAsDatabase(actor: WriteActor, input: NewDatabaseI
     await discardDatabase(database);
     throw error;
   }
+}
+
+/**
+ * Records an import that went through in the audit log, once for all it created (its pages are
+ * left out of the log one by one, see createPage): how many pages, from what, and the top-level
+ * ones by name.
+ */
+export async function recordImport(userId: string, workspaceId: string, result: ImportResult, format: string) {
+  const { pages, databases, rows, templates } = result.created;
+  await recordAudit({
+    workspaceId,
+    actorId: userId,
+    action: "page.imported",
+    target: result.pages.length === 1 ? { type: "page", id: result.pages[0].id, label: result.pages[0].title } : null,
+    details: { format, count: pages + databases + rows + templates, names: result.pages.slice(0, 20).map((p) => p.title) },
+  });
 }
 
 /** Takes back a database an import created (with any rows and files it got). */

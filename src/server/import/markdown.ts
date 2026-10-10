@@ -38,7 +38,7 @@ import { addProperty } from "@/server/databases";
 import { FileError, uploadFile } from "@/server/files";
 import { createPage, removeOrphanFiles, type DatabaseSeedNames } from "@/server/pages";
 import { collectFiles, type UploadedFile } from "./archive";
-import { importCsvAsDatabase } from "./csv";
+import { importCsvAsDatabase, recordImport } from "./csv";
 
 /**
  * Imports Markdown files, CSV files and ZIPs of them as pages under a page (or at the top level of
@@ -287,7 +287,7 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
           const { table, titleColumn } = tables.get(node.parent!)!;
           if (body !== undefined) bodies.set(node.key, stripRowProperties(body, table.headers, row.cells, titleColumn));
         } else {
-          id = (await createPage(actor, { workspaceId, parentId, teamspaceId: input.teamspaceId, title, template: node.template })).id;
+          id = (await createPage(actor, { workspaceId, parentId, teamspaceId: input.teamspaceId, title, template: node.template }, { audit: false })).id;
           if (node.template) counts.templates++;
           else if (node.kind === "row") {
             counts.rows++;
@@ -374,7 +374,7 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     throw error;
   }
 
-  return {
+  const result: ImportResult = {
     // Templates after the pages: they're not in the sidebar, so the pages are what to open first.
     pages: [...roots.filter((r) => !r.template), ...roots.filter((r) => r.template)].map((r) => ({
       id: r.id,
@@ -385,6 +385,9 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     warnings: warnings.list,
     moreWarnings: warnings.more,
   };
+  const fromNotion = plan.nodes.some((n) => n.source && notionId(n.source));
+  await recordImport(userId, workspaceId, result, isVault ? "obsidian" : fromNotion ? "notion" : "markdown");
+  return result;
 }
 
 /** Whether a property value links to a file of the upload that isn't a page (a Files property). */

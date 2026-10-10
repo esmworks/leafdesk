@@ -14,6 +14,7 @@ import {
   pagePermission,
   pageSnapshot,
   type PageKind,
+  teamspace,
   user,
   type ViewType,
   workspaceAgent,
@@ -32,6 +33,7 @@ import {
   workspacesHeldBack,
 } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import type { AuditPagePlace } from "@/lib/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
   afterRowWrites,
@@ -247,7 +249,34 @@ export const ENGLISH_SEED_NAMES: DatabaseSeedNames = {
   table: "Table",
 };
 
-export async function createPage(actor: WriteActor, input: CreatePageInput) {
+/**
+ * Pages and databases are recorded in the audit log as they are created, moved, put in the trash
+ * and taken out of it; database rows are content, like what a page says, and so are the pages of
+ * templates. A row deleted for good is still recorded (deleteTrashedPages).
+ */
+async function auditedAsPage(p: { parentId: string | null; inTemplate: boolean }) {
+  if (p.inTemplate) return false;
+  if (!p.parentId) return true;
+  const [parent] = await db.select({ kind: page.kind }).from(page).where(eq(page.id, p.parentId));
+  return parent?.kind !== "database";
+}
+
+/** Where a page is, for page.moved: under a page, at the top of a teamspace, or among private pages. */
+async function pagePlace(parentId: string | null, teamspaceId: string | null): Promise<AuditPagePlace> {
+  if (parentId) {
+    const [parent] = await db.select({ title: page.title }).from(page).where(eq(page.id, parentId));
+    return { type: "page", id: parentId, label: parent?.title ?? "" };
+  }
+  if (!teamspaceId) return { type: "private" };
+  const [space] = await db.select({ name: teamspace.name }).from(teamspace).where(eq(teamspace.id, teamspaceId));
+  return { type: "teamspace", id: teamspaceId, label: space?.name ?? "" };
+}
+
+/**
+ * `audit: false` leaves the page out of the audit log: imports record themselves once, as a whole
+ * (and take back what they created when they fail).
+ */
+export async function createPage(actor: WriteActor, input: CreatePageInput, { audit = true }: { audit?: boolean } = {}) {
   const { userId } = actor;
   const kind = input.kind ?? "page";
   let workspaceId = input.workspaceId;
@@ -302,6 +331,12 @@ export async function createPage(actor: WriteActor, input: CreatePageInput) {
       .returning();
     if (placement.private) await makePagePrivate(tx, workspaceId, row.id, userId);
     else if (!input.parentId && placement.teamspaceId) await keepFullAccess(tx, workspaceId, row.id, userId);
+    if (audit && !inTemplate && parentKind !== "database") {
+      await recordAudit(
+        { workspaceId, actorId: userId, action: "page.created", target: { type: "page", id: row.id, label: row.title }, details: { kind } },
+        tx,
+      );
+    }
     return row;
   });
 
@@ -406,6 +441,15 @@ export async function archivePage(userId: string, pageId: string) {
     .update(page)
     .set({ archivedAt: new Date(), updatedBy: userId })
     .where(and(sql`${page.id} in ${subtreeIds(pageId)}`, isNull(page.archivedAt)));
+  if (!p.archivedAt && (await auditedAsPage(p))) {
+    await recordAudit({
+      workspaceId: p.workspaceId,
+      actorId: userId,
+      action: "page.trashed",
+      target: { type: "page", id: p.id, label: p.title },
+      details: { kind: p.kind },
+    });
+  }
   getCollab().broadcast(`ws:${p.workspaceId}`, "tree");
   if (p.parentId) getCollab().broadcast(`db:${p.parentId}`, "rows");
   return p;
@@ -468,6 +512,16 @@ export async function restorePage(userId: string, pageId: string) {
     await db.transaction(async (tx) => {
       await freezeInheritedEntries(tx, p.workspaceId, pageId);
       await tx.update(page).set({ parentId }).where(eq(page.id, pageId));
+    });
+  }
+  // Under its old parent when that wasn't a database's row: a row lifted to the top is a page now.
+  if (p.archivedAt && (await auditedAsPage({ parentId, inTemplate: p.inTemplate }))) {
+    await recordAudit({
+      workspaceId: p.workspaceId,
+      actorId: userId,
+      action: "page.restored",
+      target: { type: "page", id: p.id, label: p.title },
+      details: { kind: p.kind },
     });
   }
   // Back in search; the index catches up if it was left behind meanwhile.
@@ -610,6 +664,13 @@ export async function movePage(
     throw withCode(new Error("Pages can't be moved into or out of a template"), "isTemplate");
   }
   const nextPos = position ?? (await nextPosition(p.workspaceId, newParentId));
+  // A move to another place, not a new order among the same siblings; a row going from one database
+  // to another stays content (see auditedAsPage).
+  const moved = p.parentId !== newParentId || changesSpace;
+  const audited =
+    moved && !p.inTemplate && (parent?.kind !== "database" || (await auditedAsPage(p)))
+      ? { from: await pagePlace(p.parentId, p.teamspaceId), to: await pagePlace(newParentId, space ?? null) }
+      : null;
   await db.transaction(async (tx) => {
     // Under a parent the database copies its teamspace (and to everything below it).
     await tx
@@ -623,6 +684,18 @@ export async function movePage(
     });
     // At the top of a teamspace whose members get less, whoever moved it there keeps running it.
     if (!newParentId && space !== null && (changesSpace || p.parentId !== null)) await keepFullAccess(tx, p.workspaceId, pageId, userId);
+    if (audited) {
+      await recordAudit(
+        {
+          workspaceId: p.workspaceId,
+          actorId: userId,
+          action: "page.moved",
+          target: { type: "page", id: p.id, label: p.title },
+          details: { kind: p.kind, ...audited },
+        },
+        tx,
+      );
+    }
   });
   getCollab().broadcast(`ws:${p.workspaceId}`, "tree");
   for (const id of [p.parentId, newParentId]) if (id) getCollab().broadcast(`db:${id}`, "rows");

@@ -231,7 +231,8 @@ versions, upgrades and running behind a domain.
   tracked.
 - **Audit log**: for owners, Settings → Audit log lists who changed what in the workspace (members
   and roles, invitations and join requests, page sharing, teamspaces and groups, settings with
-  their before and after, single sign-on and SCIM, permanent deletes, publishing, API tokens and
+  their before and after, single sign-on and SCIM, pages and databases created, duplicated,
+  imported, moved, put in the trash, restored and deleted for good, publishing, API tokens and
   connected apps, exports), with the app or identity provider it went through and the address it
   came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
   kept for a year.

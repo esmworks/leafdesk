@@ -811,7 +811,7 @@
     }
   },
   "audit": {
-    "description": "A record of who changed what in this workspace: members and roles, invitations, sharing, teamspaces and groups, settings, security, deletions, publishing, connected apps and exports. Only owners can see it.",
+    "description": "A record of who changed what in this workspace: members and roles, invitations, sharing, teamspaces and groups, settings, security, pages created, moved, trashed and deleted, publishing, connected apps and exports. Only owners can see it.",
     "filters": "Filter the audit log",
     "actor": "Who",
     "anyone": "Anyone",
@@ -860,7 +860,7 @@
       "groups": "Groups",
       "settings": "Workspace settings",
       "security": "Single sign-on and SCIM",
-      "pages": "Deleting and publishing",
+      "pages": "Pages",
       "integrations": "Connected apps and API tokens",
       "exports": "Exports",
       "agents": "Agents",
@@ -869,6 +869,7 @@
     "change": "{name}: {from} → {to}",
     "untitled": "Untitled",
     "everyone": "everyone in the workspace",
+    "privatePages": "private pages",
     "roles": {
       "owner": "owner",
       "member": "member",
@@ -907,7 +908,9 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "markdown": "Markdown",
-      "pdf": "PDF"
+      "pdf": "PDF",
+      "notion": "Notion",
+      "obsidian": "Obsidian"
     },
     "settingNames": {
       "guestInvites": "Who can invite guests",
@@ -971,6 +974,12 @@
         "declined": "{kind, select, invite {Declined the request to invite {target}} other {Declined the request of {target} to join}}"
       },
       "page": {
+        "created": "Created the {kind, select, database {database} other {page}} {target}",
+        "duplicated": "Duplicated {source} as {target}",
+        "imported": "Imported {count, plural, one {# page} other {# pages}} from {format}: {names}",
+        "moved": "Moved {target} from {from} to {to}",
+        "trashed": "Moved {target} to the trash",
+        "restored": "Restored {target} from the trash",
         "permission_changed": "Set the access of {subject} to {target}: {level}",
         "permission_removed": "Removed {subject} from the sharing of {target}",
         "deleted": "Deleted {target} for good",

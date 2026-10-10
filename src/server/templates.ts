@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { page, type PageKind } from "@/db/schema";
 import { builtinTemplate, isBuiltinTemplateKey, type BuiltinTemplateKey } from "@/lib/builtin-templates";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
+import { recordAudit } from "@/server/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
   addProperty,
@@ -219,6 +220,16 @@ export async function createFromTemplate(
     private: placement.private,
     stripComments: true,
   });
+  // A new page like any other (see createPage): rows and pages inside templates are left out.
+  if (parentKind !== "database" && !root.inTemplate) {
+    await recordAudit({
+      workspaceId: template.workspaceId,
+      actorId: userId,
+      action: "page.created",
+      target: { type: "page", id: root.id, label: title },
+      details: { kind: template.kind, template: template.title },
+    });
+  }
 
   const collab = getCollab();
   if (parentKind === "database") {

@@ -294,13 +294,29 @@ const eventColumns = {
 };
 
 async function selectEvents(workspaceId: string, filters: AuditFilters, timeZone: string, limit: number, offset: number): Promise<AuditEvent[]> {
-  return db
+  const events = await db
     .select(eventColumns)
     .from(auditEvent)
     .where(and(...filterConditions(workspaceId, filters, timeZone)))
     .orderBy(desc(auditEvent.createdAt), desc(auditEvent.id))
     .limit(limit)
     .offset(offset);
+  return withPageTitles(workspaceId, events);
+}
+
+/**
+ * Pages recorded without a title (a new page is created untitled and named afterwards) read as
+ * the title they have now, while they are still in the workspace.
+ */
+async function withPageTitles(workspaceId: string, events: AuditEvent[]): Promise<AuditEvent[]> {
+  const ids = [...new Set(events.flatMap((e) => (e.targetType === "page" && !e.targetLabel && e.targetId ? [e.targetId] : [])))];
+  if (!ids.length) return events;
+  const rows = await db
+    .select({ id: page.id, title: page.title })
+    .from(page)
+    .where(and(eq(page.workspaceId, workspaceId), inArray(page.id, ids)));
+  const titles = new Map(rows.filter((r) => r.title).map((r) => [r.id, r.title]));
+  return events.map((e) => (e.targetType === "page" && !e.targetLabel && e.targetId && titles.has(e.targetId) ? { ...e, targetLabel: titles.get(e.targetId)! } : e));
 }
 
 /**

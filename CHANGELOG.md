@@ -36,6 +36,12 @@
 
 ### Changed
 
+- **Page changes in the audit log.** The audit log also records pages and databases being created
+  (also by duplicating, from a template or from the web), imported (once per import, with how
+  many pages it brought in), moved to another page or teamspace, put in the trash and restored.
+  Database rows and the pages of templates are content and stay out of it, as edits do; a row
+  deleted for good is still recorded. A page recorded before it had a title is listed under the
+  title it has now. The "Deleting and publishing" filter is now "Pages". No migration.
 - **A clearer home page.** The home page greets you with today's date under the welcome, and
   shows the recently edited pages as cards in two columns, with titles up to two lines instead of
   cut off. The assigned section now says so when nothing is assigned to you instead of

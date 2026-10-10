@@ -811,7 +811,7 @@
     }
   },
   "audit": {
-    "description": "Wer in diesem Workspace was geändert hat: Mitglieder und Rollen, Einladungen, Freigaben, Teamspaces und Gruppen, Einstellungen, Sicherheit, Löschungen, Veröffentlichungen, verbundene Apps und Exporte. Nur Inhaber sehen es.",
+    "description": "Wer in diesem Workspace was geändert hat: Mitglieder und Rollen, Einladungen, Freigaben, Teamspaces und Gruppen, Einstellungen, Sicherheit, erstellte, verschobene, in den Papierkorb gelegte und gelöschte Seiten, Veröffentlichungen, verbundene Apps und Exporte. Nur Inhaber sehen es.",
     "filters": "Audit-Log filtern",
     "actor": "Wer",
     "anyone": "Alle",
@@ -860,7 +860,7 @@
       "groups": "Gruppen",
       "settings": "Workspace-Einstellungen",
       "security": "Single Sign-on und SCIM",
-      "pages": "Löschen und Veröffentlichen",
+      "pages": "Seiten",
       "integrations": "Verbundene Apps und API-Token",
       "exports": "Exporte",
       "agents": "Agenten",
@@ -869,6 +869,7 @@
     "change": "{name}: {from} → {to}",
     "untitled": "Ohne Titel",
     "everyone": "alle im Workspace",
+    "privatePages": "private Seiten",
     "roles": {
       "owner": "Inhaber",
       "member": "Mitglied",
@@ -907,7 +908,9 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "markdown": "Markdown",
-      "pdf": "PDF"
+      "pdf": "PDF",
+      "notion": "Notion",
+      "obsidian": "Obsidian"
     },
     "settingNames": {
       "guestInvites": "Wer Gäste einladen darf",
@@ -971,6 +974,12 @@
         "declined": "{kind, select, invite {Hat die Anfrage abgelehnt, {target} einzuladen} other {Hat die Beitrittsanfrage von {target} abgelehnt}}"
       },
       "page": {
+        "created": "Hat {kind, select, database {die Datenbank} other {die Seite}} {target} erstellt",
+        "duplicated": "Hat {source} als {target} dupliziert",
+        "imported": "Hat {count, plural, one {# Seite} other {# Seiten}} aus {format} importiert: {names}",
+        "moved": "Hat {target} von {from} nach {to} verschoben",
+        "trashed": "Hat {target} in den Papierkorb verschoben",
+        "restored": "Hat {target} aus dem Papierkorb wiederhergestellt",
         "permission_changed": "Hat den Zugriff von {subject} auf {target} festgelegt: {level}",
         "permission_removed": "Hat {subject} aus der Freigabe von {target} entfernt",
         "deleted": "Hat {target} endgültig gelöscht",

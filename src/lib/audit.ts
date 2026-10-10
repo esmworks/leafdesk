@@ -43,7 +43,20 @@ export const AUDIT_CATEGORIES = {
   groups: ["group.created", "group.renamed", "group.deleted", "group.members_added", "group.members_removed"],
   settings: ["workspace.renamed", "workspace.settings_changed"],
   security: ["sso.configured", "sso.domains_verified", "sso.removed", "scim.token_created", "scim.token_revoked"],
-  pages: ["page.deleted", "page.published", "page.unpublished", "page.publication_revoked", "site.saved", "site.removed"],
+  pages: [
+    "page.created",
+    "page.duplicated",
+    "page.imported",
+    "page.moved",
+    "page.trashed",
+    "page.restored",
+    "page.deleted",
+    "page.published",
+    "page.unpublished",
+    "page.publication_revoked",
+    "site.saved",
+    "site.removed",
+  ],
   integrations: [
     "connected_app.connected",
     "connected_app.revoked",
@@ -281,6 +294,15 @@ function level(t: AuditTranslator, value: unknown) {
   return known(t, `audit.levels.${text(value)}`, text(value));
 }
 
+/** Where a page was or went (`details.from` / `details.to` of page.moved): a page, a teamspace or someone's private pages. */
+export type AuditPagePlace = { type: "page" | "teamspace"; id: string; label: string } | { type: "private" };
+
+function place(t: AuditTranslator, value: unknown) {
+  const p = record(value);
+  if (p.type === "private") return t("audit.privatePages");
+  return text(p.label) || t("audit.untitled");
+}
+
 /** A setting's value as people read it: its choice's name, on/off, a number of days, a list. */
 export function settingValue(t: AuditTranslator, key: string, value: unknown): string {
   if (value === undefined || value === null) return t("audit.values.unset");
@@ -340,6 +362,7 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     agent: text(d.agent),
     decision: known(t, `audit.decisions.${text(d.decision)}`, text(d.decision)),
     outcome: known(t, `audit.outcomes.${text(d.outcome)}`, text(d.outcome)),
+    source: text(d.source) || t("audit.untitled"),
   };
   switch (event.action) {
     case "member.role_changed":
@@ -359,6 +382,10 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
         .join(", ");
       break;
     }
+    case "page.moved":
+      values.from = place(t, d.from);
+      values.to = place(t, d.to);
+      break;
     case "workspace.settings_changed":
       values.settings = settingChanges(t, d.changes);
       break;

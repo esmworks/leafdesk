@@ -811,7 +811,7 @@
     }
   },
   "audit": {
-    "description": "Qui a modifié quoi dans cet espace de travail : membres et rôles, invitations, partage, espaces d’équipe et groupes, paramètres, sécurité, suppressions, publications, applications connectées et exportations. Seuls les propriétaires peuvent le voir.",
+    "description": "Qui a modifié quoi dans cet espace de travail : membres et rôles, invitations, partage, espaces d’équipe et groupes, paramètres, sécurité, pages créées, déplacées, mises à la corbeille et supprimées, publications, applications connectées et exportations. Seuls les propriétaires peuvent le voir.",
     "filters": "Filtrer le journal d’audit",
     "actor": "Qui",
     "anyone": "Tout le monde",
@@ -860,7 +860,7 @@
       "groups": "Groupes",
       "settings": "Paramètres de l’espace de travail",
       "security": "Authentification unique et SCIM",
-      "pages": "Suppression et publication",
+      "pages": "Pages",
       "integrations": "Applications connectées et jetons d’API",
       "exports": "Exportations",
       "agents": "Agents",
@@ -869,6 +869,7 @@
     "change": "{name} : {from} → {to}",
     "untitled": "Sans titre",
     "everyone": "tout l’espace de travail",
+    "privatePages": "pages privées",
     "roles": {
       "owner": "propriétaire",
       "member": "membre",
@@ -907,7 +908,9 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "markdown": "Markdown",
-      "pdf": "PDF"
+      "pdf": "PDF",
+      "notion": "Notion",
+      "obsidian": "Obsidian"
     },
     "settingNames": {
       "guestInvites": "Qui peut ajouter des invités",
@@ -971,6 +974,12 @@
         "declined": "{kind, select, invite {A refusé la demande d’inviter {target}} other {A refusé la demande d’adhésion de {target}}}"
       },
       "page": {
+        "created": "A créé {kind, select, database {la base de données} other {la page}} {target}",
+        "duplicated": "A dupliqué {source} en {target}",
+        "imported": "A importé {count, plural, one {# page} other {# pages}} depuis {format} : {names}",
+        "moved": "A déplacé {target} de {from} vers {to}",
+        "trashed": "A mis {target} à la corbeille",
+        "restored": "A restauré {target} depuis la corbeille",
         "permission_changed": "A défini l’accès de {subject} à {target} : {level}",
         "permission_removed": "A retiré {subject} du partage de {target}",
         "deleted": "A supprimé {target} définitivement",

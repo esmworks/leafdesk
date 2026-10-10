@@ -811,7 +811,7 @@
     }
   },
   "audit": {
-    "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, teamspace’ler ve gruplar, ayarlar, güvenlik, silmeler, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
+    "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, teamspace’ler ve gruplar, ayarlar, güvenlik, sayfa oluşturma, taşıma, çöpe atma ve silme, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
     "filters": "Denetim kaydını filtrele",
     "actor": "Kim",
     "anyone": "Herkes",
@@ -860,7 +860,7 @@
       "groups": "Gruplar",
       "settings": "Çalışma alanı ayarları",
       "security": "Çoklu oturum açma ve SCIM",
-      "pages": "Silme ve yayınlama",
+      "pages": "Sayfalar",
       "integrations": "Bağlı uygulamalar ve API anahtarları",
       "exports": "Dışa aktarmalar",
       "agents": "Ajanlar",
@@ -869,6 +869,7 @@
     "change": "{name}: {from} → {to}",
     "untitled": "Adsız",
     "everyone": "çalışma alanındaki herkes",
+    "privatePages": "özel sayfalar",
     "roles": {
       "owner": "sahip",
       "member": "üye",
@@ -907,7 +908,9 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "markdown": "Markdown",
-      "pdf": "PDF"
+      "pdf": "PDF",
+      "notion": "Notion",
+      "obsidian": "Obsidian"
     },
     "settingNames": {
       "guestInvites": "Kimler misafir davet edebilir",
@@ -971,6 +974,12 @@
         "declined": "{kind, select, invite {Davet isteği reddedildi: {target}} other {Katılma isteği reddedildi: {target}}}"
       },
       "page": {
+        "created": "{kind, select, database {Veritabanı} other {Sayfa}} oluşturuldu: {target}",
+        "duplicated": "Çoğaltıldı: {source} → {target}",
+        "imported": "{format} içe aktarıldı ({count} sayfa): {names}",
+        "moved": "Taşındı: {target}, {from} → {to}",
+        "trashed": "Çöp kutusuna taşındı: {target}",
+        "restored": "Çöp kutusundan geri yüklendi: {target}",
         "permission_changed": "Erişim ayarlandı: {subject}, {target} sayfasında: {level}",
         "permission_removed": "Paylaşımdan çıkarıldı: {subject}, {target} sayfasından",
         "deleted": "Kalıcı olarak silindi: {target}",

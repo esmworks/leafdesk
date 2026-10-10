@@ -27,6 +27,7 @@ import { positionBetween } from "@/lib/properties";
 import { stripReminders } from "@/lib/mentions";
 import { stripComments } from "@/lib/strip-comments";
 import { AccessError, pageVisibleTo, requirePageAccess } from "@/server/access";
+import { recordAudit } from "@/server/audit";
 import { queueAutomations } from "@/server/automations/queue";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { bulkRowIds, dropCopiedSubItems, rowsWithAccess, syncPairedRelations, withCode, type BulkResult } from "@/server/databases";
@@ -424,6 +425,16 @@ export async function duplicatePage(
     await syncPairedRelations(root.id, source.parentId!, {}, properties);
     // A copied row is a new row: "row added" automations run for it.
     await queueAutomations(userId, source.parentId!, [{ rowId: root.id, before: {}, after: properties }], true);
+  }
+  // Like a new page (see createPage): copied rows and templates are content, left out of the log.
+  if (parentKind !== "database" && !root.inTemplate) {
+    await recordAudit({
+      workspaceId: source.workspaceId,
+      actorId: userId,
+      action: "page.duplicated",
+      target: { type: "page", id: root.id, label: title },
+      details: { kind: source.kind, source: source.title },
+    });
   }
 
   if (notify) {

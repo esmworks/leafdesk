@@ -7,7 +7,7 @@ import { spreadsheetTable } from "@/lib/import/xlsx";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
-import { importCsvAsDatabase, importCsvIntoDatabase, type ColumnTarget } from "@/server/import/csv";
+import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
 import { importPages } from "@/server/import/markdown";
 import { TeamspaceError } from "@/server/teamspaces";
 
@@ -112,6 +112,9 @@ export async function POST(request: Request) {
           warnings: warnings.list,
           moreWarnings: warnings.more,
         };
+        // The rows of a CSV added to a database are content: only a new database is recorded.
+        const format = uploads[0].name.toLowerCase().endsWith(".xlsx") ? "xlsx" : "csv";
+        await recordImport(actor.userId, imported.database.workspaceId, result, format);
       } else {
         const mapping = json(field("mapping"));
         if (!Array.isArray(mapping)) return fail(400, "badMapping", "Say where each column goes");

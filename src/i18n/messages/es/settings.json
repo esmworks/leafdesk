@@ -811,7 +811,7 @@
     }
   },
   "audit": {
-    "description": "Quién cambió qué en este espacio de trabajo: miembros y roles, invitaciones, uso compartido, espacios de equipo y grupos, ajustes, seguridad, eliminaciones, publicaciones, apps conectadas y exportaciones. Solo los propietarios pueden verlo.",
+    "description": "Quién cambió qué en este espacio de trabajo: miembros y roles, invitaciones, uso compartido, espacios de equipo y grupos, ajustes, seguridad, páginas creadas, movidas, enviadas a la papelera y eliminadas, publicaciones, apps conectadas y exportaciones. Solo los propietarios pueden verlo.",
     "filters": "Filtrar el registro de auditoría",
     "actor": "Quién",
     "anyone": "Cualquiera",
@@ -860,7 +860,7 @@
       "groups": "Grupos",
       "settings": "Ajustes del espacio de trabajo",
       "security": "Inicio de sesión único y SCIM",
-      "pages": "Eliminación y publicación",
+      "pages": "Páginas",
       "integrations": "Apps conectadas y tokens de API",
       "exports": "Exportaciones",
       "agents": "Agentes",
@@ -869,6 +869,7 @@
     "change": "{name}: {from} → {to}",
     "untitled": "Sin título",
     "everyone": "todo el espacio de trabajo",
+    "privatePages": "páginas privadas",
     "roles": {
       "owner": "propietario",
       "member": "miembro",
@@ -907,7 +908,9 @@
       "csv": "CSV",
       "xlsx": "Excel",
       "markdown": "Markdown",
-      "pdf": "PDF"
+      "pdf": "PDF",
+      "notion": "Notion",
+      "obsidian": "Obsidian"
     },
     "settingNames": {
       "guestInvites": "Quién puede añadir invitados",
@@ -971,6 +974,12 @@
         "declined": "{kind, select, invite {Rechazó la solicitud de invitar a {target}} other {Rechazó la solicitud de {target} para unirse}}"
       },
       "page": {
+        "created": "Creó {kind, select, database {la base de datos} other {la página}} {target}",
+        "duplicated": "Duplicó {source} como {target}",
+        "imported": "Importó {count, plural, one {# página} other {# páginas}} desde {format}: {names}",
+        "moved": "Movió {target} de {from} a {to}",
+        "trashed": "Movió {target} a la papelera",
+        "restored": "Restauró {target} desde la papelera",
         "permission_changed": "Fijó el acceso de {subject} a {target}: {level}",
         "permission_removed": "Quitó a {subject} del uso compartido de {target}",
         "deleted": "Eliminó {target} definitivamente",

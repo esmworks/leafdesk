@@ -17,6 +17,7 @@ import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { stripComments } from "@/lib/strip-comments";
 import { pageVisibleTo } from "@/server/access";
+import { recordAudit } from "@/server/audit";
 import { blocksToMarkdown, serverEditor, type PageBlock } from "@/server/blocknote";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { workspaceFiles, workspaceUsage } from "@/server/files";
@@ -335,6 +336,19 @@ export async function duplicatePublishedPage(
       }
       // A copy from the web lands among their private pages; they move it to a teamspace to share it.
       await makePagePrivate(tx, target, plan.rootId, userId);
+      // As a template it is a template's pages, which the audit log leaves out (see createPage).
+      if (!asTemplate) {
+        await recordAudit(
+          {
+            workspaceId: target,
+            actorId: userId,
+            action: "page.duplicated",
+            target: { type: "page", id: plan.rootId, label: root.title },
+            details: { kind: root.kind, source: root.title, published: true },
+          },
+          tx,
+        );
+      }
       if (plan.properties.length) {
         await tx.insert(databaseProperty).values(
           plan.properties.map(({ id, databaseId, name, type, options, position }) => ({ id, databaseId, name, type, options, position })),

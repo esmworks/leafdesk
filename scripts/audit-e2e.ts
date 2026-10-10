@@ -2,7 +2,9 @@
  * End-to-end check of the workspace audit log against the database: every family of recorded
  * changes (members and roles, invitations, the join link and join requests, page sharing and
  * access requests, teamspaces, groups, settings with before and after, single sign-on and SCIM,
- * permanent deletes by people and by the retention cleanup, publishing and the site, API tokens
+ * permanent deletes by people and by the retention cleanup, pages and databases created (also by
+ * duplicating, from a template and by importing), moved, trashed and restored but not database
+ * rows nor templates, publishing and the site, API tokens
  * and connected apps, exports), each with the right kind of actor: a person, an MCP client and an
  * API token acting for one, the identity provider through a SCIM request, and the server itself.
  * Also that a recording that fails leaves the change in place (inside a transaction and after
@@ -50,7 +52,10 @@ const { changeGroup, createGroup, deleteGroup } = await import("@/server/groups"
 const { approveJoinRequest, declineJoinRequest, listJoinRequests, requestInvitation, requestToJoinFrom, setJoinRequestMailer } =
   await import("@/server/join-requests");
 const { revokeConnectedApp } = await import("@/server/mcp/grants");
-const { archivePage, createPage, deletePagePermanently } = await import("@/server/pages");
+const { archivePage, createPage, deletePagePermanently, movePage, restorePage } = await import("@/server/pages");
+const { duplicatePage } = await import("@/server/duplicate");
+const { importPages } = await import("@/server/import/markdown");
+const { createFromTemplate, saveAsTemplate } = await import("@/server/templates");
 const {
   removePageGroupPermission,
   removePageInvitation,
@@ -474,6 +479,91 @@ try {
   await deletePagePermanently(owner, draft.id);
   row = await latest(ws.main, "page.deleted");
   check(row.actorKind === "user" && row.actorUserId === owner && describe(row) === "Deleted Draft for good", "deleting a page for good is recorded", row);
+
+  // ── Pages: created, duplicated, imported, moved, trashed, restored ───────────────────────────
+  const roadmap = await createPage({ userId: owner }, { workspaceId: ws.main, title: "Roadmap" });
+  row = await latest(ws.main, "page.created");
+  check(row.targetId === roadmap.id && row.actorUserId === owner && describe(row) === "Created the page Roadmap", "creating a page is recorded", describe(row));
+  const inventory = await createPage({ userId: owner }, { workspaceId: ws.main, kind: "database", title: "Inventory" });
+  row = await latest(ws.main, "page.created");
+  check(row.targetId === inventory.id && describe(row) === "Created the database Inventory", "…and a database, as one", describe(row));
+  const pageEvents = async () => (await db.select().from(auditEvent).where(eq(auditEvent.workspaceId, ws.main))).filter((e) => e.action.startsWith("page."));
+  const about = async (pageId: string) => (await pageEvents()).filter((e) => e.targetId === pageId);
+  const shelf = await createPage({ userId: owner }, { workspaceId: ws.main, parentId: inventory.id, title: "Shelf" });
+  const bin = await createPage({ userId: owner }, { workspaceId: ws.main, parentId: inventory.id, title: "Bin" });
+  check((await about(shelf.id)).length === 0, "a database row is content: adding one isn't recorded");
+
+  // A new page is created untitled and named afterwards: the log shows the name it has now.
+  const untitled = await createPage({ userId: owner }, { workspaceId: ws.main });
+  await db.update(page).set({ title: "Named later" }).where(eq(page.id, untitled.id));
+  const listed = (await listAuditEvents(owner, ws.main, filters({ category: "pages" }))).events.find((e) => e.targetId === untitled.id);
+  check(listed?.targetLabel === "Named later", "a page recorded untitled is listed under its title now", listed);
+
+  await movePage(owner, roadmap.id, untitled.id);
+  row = await latest(ws.main, "page.moved");
+  const movedTo = (row.details as { to?: { type?: string; id?: string } }).to;
+  check(
+    row.targetId === roadmap.id && movedTo?.type === "page" && movedTo.id === untitled.id && describe(row).endsWith(" to Named later"),
+    "moving a page under another is recorded with where it went",
+    describe(row),
+  );
+  await movePage(owner, roadmap.id, null);
+  row = await latest(ws.main, "page.moved");
+  check(
+    (row.details as { from?: { type?: string } }).from?.type === "page" && describe(row).startsWith("Moved Roadmap from Named later to "),
+    "…and back to the top, from where it was",
+    describe(row),
+  );
+  const moves = (await events(ws.main, "page.moved")).length;
+  await movePage(owner, roadmap.id, null, 1);
+  check((await events(ws.main, "page.moved")).length === moves, "putting a page in another order among the same siblings isn't a move");
+  await movePage(owner, bin.id, roadmap.id);
+  row = await latest(ws.main, "page.moved");
+  check(row.targetId === bin.id && (await events(ws.main, "page.moved")).length === moves + 1, "a row moved out of its database is a page now, and recorded", row);
+
+  await archivePage(owner, roadmap.id);
+  row = await latest(ws.main, "page.trashed");
+  check(row.targetId === roadmap.id && describe(row) === "Moved Roadmap to the trash", "moving a page to the trash is recorded", describe(row));
+  check((await about(bin.id)).filter((e) => e.action === "page.trashed").length === 0, "…once, not for the pages under it");
+  await restorePage(owner, roadmap.id);
+  row = await latest(ws.main, "page.restored");
+  check(row.targetId === roadmap.id && describe(row) === "Restored Roadmap from the trash", "restoring it is recorded", describe(row));
+  await archivePage(owner, shelf.id);
+  await restorePage(owner, shelf.id);
+  check((await about(shelf.id)).length === 0, "a row in and out of the trash isn't recorded");
+
+  const copy = await duplicatePage({ userId: owner }, roadmap.id, " (copy)");
+  row = await latest(ws.main, "page.duplicated");
+  check(row.targetId === copy.id && describe(row) === "Duplicated Roadmap as Roadmap (copy)", "duplicating a page is recorded", describe(row));
+  const shelfCopy = await duplicatePage({ userId: owner }, shelf.id, " (copy)");
+  check((await about(shelfCopy.id)).length === 0, "…but not duplicating a row");
+
+  const template = await saveAsTemplate({ userId: owner }, roadmap.id);
+  check((await about(template.id)).length === 0, "saving a template isn't recorded: templates aren't pages of the workspace");
+  const fromTemplate = await createFromTemplate({ userId: owner }, template.id, { title: "Q3 roadmap" });
+  row = await latest(ws.main, "page.created");
+  check(row.targetId === fromTemplate.id && describe(row) === "Created the page Q3 roadmap", "a page made from a template is recorded as created", describe(row));
+
+  const encode = (text: string) => new TextEncoder().encode(text);
+  const creations = (await events(ws.main, "page.created")).length;
+  const imported = await importPages(
+    { userId: owner },
+    {
+      workspaceId: ws.main,
+      parentId: null,
+      files: [
+        { path: "Guide.md", data: encode("# Guide\n\nHello") },
+        { path: "Guide/Step one.md", data: encode("# Step one\n\nFirst") },
+      ],
+    },
+  );
+  row = await latest(ws.main, "page.imported");
+  check(
+    row.targetId === imported.pages[0].id && describe(row) === "Imported 2 pages from Markdown: Guide",
+    "an import is recorded once, with what it made",
+    describe(row),
+  );
+  check((await events(ws.main, "page.created")).length === creations, "…and not page by page");
 
   const notes = await createPage({ userId: bob }, { workspaceId: ws.main, title: "Notes" });
   await publishPage(bob, notes.id);
