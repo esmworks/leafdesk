@@ -394,7 +394,7 @@ async function converse(agent: Agent, run: Run, { member }: { member: string | n
       finalAnswer = result.text;
       break;
     }
-    const thought = result.text.replace(/\s+/g, " ").trim();
+    const thought = redactText(result.text.replace(/\s+/g, " ").trim());
     if (thought) steps.push({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
     messages.push(result.message);
     queue = result.toolCalls;
@@ -448,10 +448,10 @@ async function addComment(agent: Agent, run: Run, args: Record<string, unknown>)
   if (!text) return { content: "add_comment needs text.", isError: true };
   try {
     await asAutomation(() => changeComments(agent.userId, rowId, { type: "createThread", body: text }));
-    return { content: "The comment was added.", step: { kind: "comment", pageId: rowId, text: text.slice(0, 500), outcome: "done" } };
+    return { content: "The comment was added.", step: { kind: "comment", pageId: rowId, text: redactText(text).slice(0, 500), outcome: "done" } };
   } catch (error) {
     if (error instanceof AccessError) {
-      return { content: "You may not comment on this row: you can only read it.", isError: true, step: { kind: "comment", pageId: rowId, text: text.slice(0, 500), outcome: "failed" } };
+      return { content: "You may not comment on this row: you can only read it.", isError: true, step: { kind: "comment", pageId: rowId, text: redactText(text).slice(0, 500), outcome: "failed" } };
     }
     throw error;
   }

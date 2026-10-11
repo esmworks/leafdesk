@@ -63,6 +63,7 @@ describe("redactText: where credentials sit", () => {
   it("masks credential-named query and fragment parameters, and only them", () => {
     expect(redactText("GET https://api.example.com/v1/items?limit=5&api_key=abc123&page=2")).toBe(`GET https://api.example.com/v1/items?limit=5&api_key=${REDACTED}&page=2`);
     expect(redactText("https://x.test/cb?code=AbC-123&state=xyz")).toBe(`https://x.test/cb?code=${REDACTED}&state=xyz`);
+    expect(redactText("[the hook](https://x.test/h?key=abc)")).toBe(`[the hook](https://x.test/h?key=${REDACTED})`);
     expect(redactText("https://x.test/cb#access_token=abc.def&token_type=bearer")).toBe(`https://x.test/cb#access_token=${REDACTED}&token_type=bearer`);
     expect(redactText("https://s3.test/o?X-Amz-Signature=abcdef&X-Amz-Credential=AK%2F2024")).toBe(`https://s3.test/o?X-Amz-Signature=${REDACTED}&X-Amz-Credential=${REDACTED}`);
     for (const name of ["token", "refresh_token", "id_token", "apikey", "key", "secret", "client_secret", "password", "passwd", "pwd", "auth", "signature", "sig"]) {
@@ -91,7 +92,7 @@ describe("redactText: where credentials sit", () => {
   it("masks a bearer or basic token in prose, but not the words", () => {
     expect(redactText("the server said: invalid Bearer abcdEFGH1234 given")).toBe(`the server said: invalid Bearer ${REDACTED} given`);
     expect(redactText("send it with Basic dXNlcjpwYXNz")).toBe(`send it with Basic ${REDACTED}`);
-    const prose = "Bearer instruments are a basic understanding of finance; bearer bonds too.";
+    const prose = "Bearer instruments are a basic understanding of finance; bearer bonds too. A basic JavaScript, TypeScript or PostgreSQL setup.";
     expect(redactText(prose)).toBe(prose);
   });
 

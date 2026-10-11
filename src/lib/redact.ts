@@ -118,13 +118,16 @@ const JSON_PAIR = /"([A-Za-z0-9_-]{1,64})"(\s*:\s*)"((?:[^"\\]|\\.)*)"/g;
 const URL_PASSWORD = /\b([a-z][a-z0-9+.-]*:\/\/)([^\s:/?#@"'<>\\`]*):([^\s/?#@"'<>\\`]+)@/gi;
 
 /** `name=value`: in a query or fragment (after `?`, `&`, `#` or `;`), or on its own. */
-const PARAM = /(^|[^A-Za-z0-9_.-])([A-Za-z][A-Za-z0-9_.-]{0,63})=([^\s&#"'<>\\`,;]+)/g;
+const PARAM = /(^|[^A-Za-z0-9_.-])([A-Za-z][A-Za-z0-9_.-]{0,63})=([^\s&#"'<>\\`,;)]+)/g;
 
 /** A scheme word and a token after it, outside a header (`Bearer abc…` in an error message). */
 const SCHEME_TOKEN = /\b(bearer|basic)[ \t]+([A-Za-z0-9\-._~+/]{8,}=*)/gi;
 
-/** Whether a word after "Bearer"/"Basic" is a token rather than prose: a digit, a symbol, or a capital inside it. */
-const looksLikeToken = (word: string) => /[0-9+/=_.~]/.test(word) || /[A-Z]/.test(word.slice(1));
+/**
+ * Whether a word after "Bearer"/"Basic" is a token rather than prose: a digit or a symbol, or a
+ * capital inside a word too long for a name ("basic JavaScript" is prose).
+ */
+const looksLikeToken = (word: string) => /[0-9+/=_.~]/.test(word) || (word.length >= 12 && /[A-Z]/.test(word.slice(1)));
 
 // -------------------------------------------------------------------------------------- text
 
