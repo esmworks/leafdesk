@@ -402,7 +402,9 @@ and sign-in limit attempts per visitor address, and the audit log records it; th
 address from `X-Forwarded-For` only as far as these proxies wrote it. Left unset, it trusts one
 proxy, and only for requests that come from a private address (loopback, a private network, as a
 proxy on the same machine or Docker network does): a visitor reaching the app's port straight from
-the internet is counted by its own address, whatever header it sends. Set `0` when clients reach
+the internet is counted by its own address, whatever header it sends. That holds where connections
+arrive with the visitor's own address; where every connection comes from Docker's gateway (Docker
+Desktop, some IPv6 setups), set `TRUSTED_PROXIES` yourself. Set `0` when clients reach
 the app directly, `1` for a proxy that connects from a public address, `2` behind a CDN plus a
 proxy. A number you set is trusted for every request, so then clients must not be able to reach the
 app past the proxies. The server log says at start which of these applies.

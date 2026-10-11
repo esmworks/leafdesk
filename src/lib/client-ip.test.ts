@@ -33,7 +33,7 @@ describe("clientIpFrom", () => {
 
 describe("isPrivateAddress", () => {
   it("knows loopback, private, shared and link-local ranges", () => {
-    for (const address of ["127.0.0.1", "10.1.2.3", "172.31.255.1", "192.168.0.10", "100.100.1.1", "169.254.1.1", "::1", "fd00::5", "fe80::1", "::FFFF:10.0.0.1"]) {
+    for (const address of ["127.0.0.1", "10.1.2.3", "172.31.255.1", "192.168.0.10", "100.100.1.1", "169.254.1.1", "::1", "fd00::5", "fe80::1", "fe80::1%en0", "::FFFF:10.0.0.1"]) {
       expect(isPrivateAddress(address), address).toBe(true);
     }
     for (const address of ["203.0.113.7", "172.32.0.1", "100.128.0.1", "2001:db8::1", "::ffff:8.8.8.8", "", undefined, "unknown"]) {
