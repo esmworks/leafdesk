@@ -28,7 +28,8 @@ export function CommentsPanel({ onClose }: { onClose: () => void }) {
   return (
     <aside
       aria-label={t("title")}
-      className="comments-panel fixed top-11 right-0 bottom-0 z-30 flex w-full flex-col border-l border-border bg-bg md:w-[360px]"
+      // Beside the row panel when the page is in one (it sets --comments-right to its width).
+      className="comments-panel fixed top-11 right-0 bottom-0 z-30 flex w-full flex-col border-l border-border bg-bg md:right-[var(--comments-right,0px)] md:w-[360px]"
     >
       <div className="flex h-11 shrink-0 items-center justify-between gap-2 px-3">
         <h2 className="text-sm font-semibold">{t("title")}</h2>

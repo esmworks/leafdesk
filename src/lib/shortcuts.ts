@@ -81,6 +81,9 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
     shortcuts: [
       // A focused card or row of a list, gallery, calendar or timeline.
       { id: "openRow", combos: [["Enter"]] },
+      // The row panel beside a view (components/database/row-panel.tsx), outside text fields.
+      { id: "previousRow", combos: [["K"]] },
+      { id: "nextRow", combos: [["J"]] },
       // components/database/timeline-view.tsx.
       { id: "moveBar", combos: [["Alt", "ArrowLeft"], ["Alt", "ArrowRight"]] },
       // components/database/formula-editor.tsx and ai-autofill.tsx.
@@ -115,7 +118,7 @@ type KeyEventLike = Pick<KeyboardEvent, "key" | "metaKey" | "ctrlKey" | "altKey"
 };
 
 /** Text fields and the editor, where "?" is typed rather than a shortcut. */
-function isEditable(target: EventTarget | null): boolean {
+export function isEditable(target: EventTarget | null): boolean {
   if (!target || typeof (target as Element).closest !== "function") return false;
   const element = target as HTMLElement;
   return element.isContentEditable || element.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])") !== null;

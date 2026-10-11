@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronRight, PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   useLayoutEffect,
@@ -10,6 +9,7 @@ import {
   useState,
   type DragEvent,
   type KeyboardEvent,
+  type MouseEvent,
   type PointerEvent,
 } from "react";
 import { Button, cn, PageIcon } from "@/components/ui";
@@ -45,6 +45,7 @@ import { GroupLabel, useGroupContext, useGroupName } from "./group-label";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
+import { openRowProps, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { useToday, useViewerTimeZone } from "./use-today";
 import type { Property, Row, View } from "./types";
@@ -100,7 +101,7 @@ export function TimelineView({
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const format = useFormatter();
-  const router = useRouter();
+  const opener = useRowOpener(workspaceId);
   const { viewerId } = usePeople();
   const narrow = useMediaQuery("(max-width: 640px)");
   const scroller = useRef<HTMLDivElement>(null);
@@ -233,7 +234,7 @@ export function TimelineView({
     }
   };
 
-  const open = (row: Row) => router.push(`/w/${workspaceId}/p/${row.id}`);
+  const open = (row: Row, event?: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => opener.open(row.id, event);
 
   const commit = (row: Row, next: DaySpan) => {
     const before = spans.get(row.id);
@@ -274,7 +275,7 @@ export function TimelineView({
     setDrag(null);
   };
   const onBarKeyDown = (e: KeyboardEvent<HTMLElement>, row: Row) => {
-    if (e.key === "Enter") open(row);
+    if (e.key === "Enter") open(row, e);
     // Alt+arrows move a bar by a day, for keyboards.
     if (canMove(row) && e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
       e.preventDefault();
@@ -377,9 +378,10 @@ export function TimelineView({
         tabIndex={0}
         aria-label={t("timeline.barLabel", { title: label, dates })}
         title={`${label} · ${dates}`}
-        onClick={() => {
+        {...openRowProps(opener, row.id)}
+        onClick={(e) => {
           if (suppressClick.current) suppressClick.current = false;
-          else open(row);
+          else open(row, e);
         }}
         onKeyDown={(e) => onBarKeyDown(e, row)}
         onPointerDown={(e) => onBarPointerDown(e, row, "move")}
@@ -392,6 +394,7 @@ export function TimelineView({
           color ? `opt-${color}` : "board-card",
           canMove(row) ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
           drag?.rowId === row.id && drag.moved && "z-10 shadow-md ring-2 ring-accent/50",
+          opener.current === row.id && "outline-2 outline-accent/60",
         )}
       >
         {inside && (
@@ -466,11 +469,15 @@ export function TimelineView({
       <div
         role="link"
         tabIndex={0}
-        onClick={() => editTitleOf !== row.id && open(row)}
+        {...openRowProps(opener, row.id, editTitleOf !== row.id)}
+        onClick={(e) => editTitleOf !== row.id && open(row, e)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && editTitleOf !== row.id && e.target === e.currentTarget) open(row);
+          if (e.key === "Enter" && editTitleOf !== row.id && e.target === e.currentTarget) open(row, e);
         }}
-        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-2 hover:bg-bg-hover"
+        className={cn(
+          "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-2 hover:bg-bg-hover",
+          opener.current === row.id && "bg-bg-hover",
+        )}
         style={subItems.nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
       >
         {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="-mr-1 h-6" />}
@@ -810,9 +817,10 @@ export function TimelineView({
                         setDragUndated(null);
                         setDropDay(null);
                       }}
-                      onClick={() => open(row)}
+                      {...openRowProps(opener, row.id)}
+                      onClick={(e) => open(row, e)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") open(row);
+                        if (e.key === "Enter") open(row, e);
                       }}
                       className={cn(
                         "board-card flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-xs",

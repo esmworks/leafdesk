@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
 import {
   archivePageAction,
   deletePagePermanentlyAction,
@@ -44,6 +44,18 @@ const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-pan
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
+/** A page shown in the row panel beside a database view (components/database/row-panel.tsx). */
+export type PanelChrome = {
+  /** The panel's own controls, where the page shows its breadcrumbs. */
+  controls: ReactNode;
+  /** Loads the page again: refreshing the route doesn't reach the panel. */
+  onRefresh: () => void;
+  /** The page left the panel here: moved to the trash or deleted for good. */
+  onGone: () => void;
+  /** Opens another page (a copy of this one) in the panel instead of going to it. */
+  onOpenPage: (workspaceId: string, pageId: string) => void;
+};
+
 export function PageView({
   workspaceId,
   page,
@@ -53,6 +65,7 @@ export function PageView({
   showBody,
   wide,
   style = DEFAULT_PAGE_STYLE,
+  panel,
   children,
 }: {
   workspaceId: string;
@@ -74,6 +87,8 @@ export function PageView({
   wide: boolean;
   /** The page's style as stored, so the first paint already has it (see lib/page-style.ts). */
   style?: PageStyle;
+  /** Shown in the row panel instead of as the page of the address. */
+  panel?: PanelChrome;
   children?: ReactNode;
 }) {
   const router = useRouter();
@@ -108,6 +123,15 @@ export function PageView({
   // Pages with a body only: databases always use the whole width and the app's typeface.
   const pageStyle = usePageStyle(synced ? pageDoc?.doc : undefined, style);
   const fullWidth = showBody && !wide && pageStyle.fullWidth;
+  // In the row panel the panel's page is loaded again instead of the route's.
+  const panelRef = useRef(panel);
+  panelRef.current = panel;
+  const inPanel = panel !== undefined;
+  const refresh = useCallback(() => {
+    if (panelRef.current) panelRef.current.onRefresh();
+    else router.refresh();
+  }, [router]);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   // Listed on the offline page, whose links open the copies the service worker kept.
   useEffect(() => {
@@ -132,11 +156,11 @@ export function PageView({
   useEffect(() => {
     if (!provider) return;
     const onStateless = ({ payload }: { payload: string }) => {
-      if (payload === PAGE_HEADER_EVENT) router.refresh();
+      if (payload === PAGE_HEADER_EVENT) refresh();
     };
     provider.on("stateless", onStateless);
     return () => void provider.off("stateless", onStateless);
-  }, [provider, router]);
+  }, [provider, refresh]);
 
   // A page the user just created opens ready for its name. Waits until the title is editable
   // (the doc has synced), so the first keystrokes aren't lost.
@@ -147,14 +171,16 @@ export function PageView({
     el.setSelectionRange(el.value.length, el.value.length);
   }, [editable, page.id]);
 
-  // Keep the tab title in sync with live renames; a database adds the view it shows.
+  // Keep the tab title in sync with live renames; a database adds the view it shows. The tab
+  // belongs to the page beside the row panel, not to the row in it.
   const [viewName, setViewName] = useState<string | null>(null);
   useEffect(() => {
+    if (inPanel) return;
     const label = pageLabel(title, untitled);
     document.title = viewName
       ? t("documentViewTitle", { title: label, view: viewName })
       : t("documentTitle", { title: label });
-  }, [title, untitled, viewName, t]);
+  }, [title, untitled, viewName, t, inPanel]);
 
   /** Runs a page action; a failure shows a message instead of reaching the error boundary. */
   function run(action: () => Promise<void>, onError?: () => void) {
@@ -175,7 +201,7 @@ export function PageView({
     run(
       async () => {
         await setPageIconAction(page.id, next);
-        router.refresh();
+        refresh();
       },
       () => setIcon(previous),
     );
@@ -187,7 +213,7 @@ export function PageView({
     run(
       async () => {
         await setPageBackgroundAction(page.id, next);
-        router.refresh();
+        refresh();
       },
       () => setBackground(previous),
     );
@@ -198,7 +224,7 @@ export function PageView({
     run(
       async () => {
         await setPageLockedAction(workspaceId, page.id, false);
-        router.refresh();
+        refresh();
       },
       () => setLockedNow(true),
     );
@@ -207,14 +233,16 @@ export function PageView({
   function moveToTrash() {
     run(async () => {
       await archivePageAction(page.id);
-      router.refresh();
+      // The panel closes: the row left its view.
+      if (panelRef.current) panelRef.current.onGone();
+      else router.refresh();
     });
   }
 
   function restore() {
     run(async () => {
       await restorePageAction(page.id);
-      router.refresh();
+      refresh();
     });
   }
 
@@ -222,6 +250,7 @@ export function PageView({
     if (!confirm(t("archived.confirmDelete"))) return;
     run(async () => {
       await deletePagePermanentlyAction(page.id);
+      if (panelRef.current) return panelRef.current.onGone();
       router.push(`/w/${workspaceId}`);
       router.refresh();
     });
@@ -303,28 +332,32 @@ export function PageView({
     // The black background is dark in either theme, so the editor and diagrams draw dark on it.
     <DarkScheme dark={background?.color === "black"}>
       {/* Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's. */}
-      <div data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
+      <div ref={rootRef} data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under. */}
         <header className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:pl-1.5">
-          <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
-            <SidebarOpenButton className="mr-1 max-md:mr-0" />
-            {parents.map((c) => (
-              <span key={c.id} className="flex min-w-0 items-center gap-1 max-md:hidden">
-                <Link
-                  href={`/w/${workspaceId}/p/${c.id}`}
-                  className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
-                >
-                  <PageIcon icon={c.icon} kind={c.kind} className="text-sm" />
-                  <span className="max-w-40 truncate">{pageLabel(c.title, untitled)}</span>
-                </Link>
-                <span className="text-fg-faint">/</span>
+          {panel ? (
+            <div className="flex min-w-0 items-center gap-0.5">{panel.controls}</div>
+          ) : (
+            <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
+              <SidebarOpenButton className="mr-1 max-md:mr-0" />
+              {parents.map((c) => (
+                <span key={c.id} className="flex min-w-0 items-center gap-1 max-md:hidden">
+                  <Link
+                    href={`/w/${workspaceId}/p/${c.id}`}
+                    className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
+                  >
+                    <PageIcon icon={c.icon} kind={c.kind} className="text-sm" />
+                    <span className="max-w-40 truncate">{pageLabel(c.title, untitled)}</span>
+                  </Link>
+                  <span className="text-fg-faint">/</span>
+                </span>
+              ))}
+              <span className="flex min-w-0 items-center gap-1 px-1 text-fg">
+                <PageIcon icon={icon} kind={page.kind} className="text-sm" />
+                <span className="truncate md:max-w-60">{pageLabel(title, untitled)}</span>
               </span>
-            ))}
-            <span className="flex min-w-0 items-center gap-1 px-1 text-fg">
-              <PageIcon icon={icon} kind={page.kind} className="text-sm" />
-              <span className="truncate md:max-w-60">{pageLabel(title, untitled)}</span>
-            </span>
-          </nav>
+            </nav>
+          )}
           <div className="flex shrink-0 items-center gap-0.5">
             <SyncStatus connection={connection} pendingEdits={pendingEdits} />
             {locked && !page.archived && (
@@ -354,11 +387,18 @@ export function PageView({
                     }
                   : undefined
               }
-              onGraph={() => {
-                setCommentsOpen(false);
-                setGraphOpen((open) => !open);
-              }}
+              // The graph would cover the panel: from there it opens the workspace graph instead.
+              onGraph={
+                inPanel
+                  ? undefined
+                  : () => {
+                      setCommentsOpen(false);
+                      setGraphOpen((open) => !open);
+                    }
+              }
               onMoveToTrash={moveToTrash}
+              onOpenPage={panel?.onOpenPage}
+              compact={inPanel}
               offline={offline}
               style={showBody ? pageStyle : undefined}
               onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
@@ -401,7 +441,8 @@ export function PageView({
             "w-full flex-1 pb-32",
             wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
             !wide && "pt-8 md:pt-12",
-            !wide && (commentsOpen || graphOpen) && !offline && "page-beside-panel",
+            // In the row panel the comments open beside the panel, not over the page.
+            !wide && !inPanel && (commentsOpen || graphOpen) && !offline && "page-beside-panel",
             showBody && pageTextClasses(pageStyle),
           )}
         >
@@ -425,7 +466,7 @@ export function PageView({
                 compact={wide}
                 editable={editable}
                 onChange={(v) => pageDoc && setDocTitle(pageDoc.doc, v)}
-                onEnter={() => document.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
+                onEnter={() => rootRef.current?.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
               />
               {wide && (
                 <div

@@ -230,7 +230,27 @@
     "sortedDescending": "Absteigend sortiert"
   },
   "rowMenu": {
-    "open": "Öffnen"
+    "open": "Öffnen",
+    "openPage": "Als ganze Seite öffnen"
+  },
+  "rowPanel": {
+    "label": "Zeile: {title}",
+    "close": "Schließen",
+    "closeHint": "Schließen (Esc)",
+    "previous": "Vorherige Zeile",
+    "previousHint": "Vorherige Zeile (K)",
+    "next": "Nächste Zeile",
+    "nextHint": "Nächste Zeile (J)",
+    "openPage": "Als ganze Seite öffnen",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert",
+    "resize": "Ziehen, um die Größe zu ändern",
+    "notInDatabase": "Diese Seite ist keine Zeile einer Datenbank mehr.",
+    "database": "Eine Datenbank öffnet sich als eigene Seite.",
+    "unavailable": "Diese Zeile gibt es nicht, oder du hast keinen Zugriff darauf.",
+    "offline": "Diese Zeile kann offline nicht geladen werden.",
+    "loadFailed": "Diese Zeile konnte nicht geladen werden.",
+    "retry": "Erneut versuchen"
   },
   "bulk": {
     "actions": "Ausgewählte Zeilen",
@@ -558,7 +578,12 @@
     "newDateProperty": "Neue Datums-Eigenschaft",
     "groupBy": "Gruppieren nach",
     "noGrouping": "Keine",
-    "showTable": "Tabelle anzeigen"
+    "showTable": "Tabelle anzeigen",
+    "openRows": "Zeilen öffnen",
+    "openRowsIn": {
+      "panel": "Im Seitenbereich",
+      "page": "Als ganze Seite"
+    }
   },
   "gallery": {
     "new": "Neu",

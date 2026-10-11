@@ -10,6 +10,7 @@ import {
   type ChartType,
   type FilterCombinator,
   type NumberFormat,
+  type OpenRows,
   type RollupConfig,
   type SelectOption,
   type StatusGroup,
@@ -59,7 +60,7 @@ import { pageLabel } from "@/lib/labels";
 import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isGroupable, sortStatusOptions, statusColor } from "@/lib/properties";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
-import { CALENDAR_MODES, CARD_SIZES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
+import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
 import * as databases from "@/server/databases";
@@ -348,6 +349,12 @@ const viewLayoutInputs = {
     .describe(
       'Table, list and timeline views of a database with sub-items (see set_sub_items): "nested" shows sub-items under their parent (the default), "flat" every row on its own, "parents" only the rows without a parent.',
     ),
+  open_rows: z
+    .enum(OPEN_ROWS)
+    .optional()
+    .describe(
+      'Every view but forms and charts: where clicking a row opens it in the app, "panel" beside the view (the default) or "page" as its own page. Phones always open the page.',
+    ),
 };
 
 type ViewInput = {
@@ -372,6 +379,7 @@ type ViewInput = {
   show_values?: boolean;
   show_legend?: boolean;
   sub_items?: SubItemsDisplay;
+  open_rows?: OpenRows;
   filters?: FilterEntryInput[];
   filter_combinator?: FilterCombinator;
   sorts?: SortInput[];
@@ -488,6 +496,10 @@ function viewConfigPatch(
       throw new ToolInputError("This database has no sub-items; turn them on with set_sub_items first.");
     }
     patch.subItems = input.sub_items === "nested" ? undefined : input.sub_items;
+  }
+  if (input.open_rows !== undefined) {
+    only("open_rows", ...ROW_VIEW_TYPES);
+    patch.openRows = input.open_rows === "page" ? "page" : undefined;
   }
   if (input.filters) patch.filters = toFilterEntries(props, input.filters, lookups);
   // New filters replace the old ones together with how they combine ("and" unless given).

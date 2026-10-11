@@ -230,7 +230,27 @@
     "sortedDescending": "Orden descendente"
   },
   "rowMenu": {
-    "open": "Abrir"
+    "open": "Abrir",
+    "openPage": "Abrir como página completa"
+  },
+  "rowPanel": {
+    "label": "Fila: {title}",
+    "close": "Cerrar",
+    "closeHint": "Cerrar (Esc)",
+    "previous": "Fila anterior",
+    "previousHint": "Fila anterior (K)",
+    "next": "Fila siguiente",
+    "nextHint": "Fila siguiente (J)",
+    "openPage": "Abrir como página completa",
+    "copyLink": "Copiar enlace",
+    "linkCopied": "Enlace copiado",
+    "resize": "Arrastra para cambiar el tamaño",
+    "notInDatabase": "Esta página ya no es una fila de una base de datos.",
+    "database": "Una base de datos se abre como su propia página.",
+    "unavailable": "Esta fila no existe o no tienes acceso a ella.",
+    "offline": "Esta fila no se puede cargar sin conexión.",
+    "loadFailed": "No se pudo cargar esta fila.",
+    "retry": "Reintentar"
   },
   "bulk": {
     "actions": "Filas seleccionadas",
@@ -558,7 +578,12 @@
     "newDateProperty": "Nueva propiedad de fecha",
     "groupBy": "Agrupar por",
     "noGrouping": "Ninguno",
-    "showTable": "Mostrar tabla"
+    "showTable": "Mostrar tabla",
+    "openRows": "Abrir filas en",
+    "openRowsIn": {
+      "panel": "Panel lateral",
+      "page": "Página completa"
+    }
   },
   "gallery": {
     "new": "Nuevo",

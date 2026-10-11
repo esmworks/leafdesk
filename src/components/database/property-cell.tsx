@@ -3,7 +3,7 @@
 import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { Fragment, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useContext, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn, Switch } from "@/components/ui";
 import {
   asChecklist,
@@ -1272,13 +1272,25 @@ export function OptionPicker({
 }
 
 /** Small labelled icon link used for "Open" affordances. */
-export function OpenLink({ href, children }: { href: string; children?: ReactNode }) {
+export function OpenLink({
+  href,
+  onClick,
+  children,
+}: {
+  href: string;
+  /** Runs on click; preventing the default keeps the link from navigating. */
+  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
+  children?: ReactNode;
+}) {
   const t = useTranslations("database.rowMenu");
   return (
     <Link
       href={href}
       className="inline-flex h-6 items-center gap-1 rounded-md border border-border bg-bg px-1.5 text-xs text-fg-muted shadow-sm hover:bg-bg-hover hover:text-fg"
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(e);
+      }}
     >
       <ExternalLink className="h-3 w-3" />
       {children ?? t("open")}

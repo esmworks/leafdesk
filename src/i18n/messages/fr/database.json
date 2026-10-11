@@ -230,7 +230,27 @@
     "sortedDescending": "Tri décroissant"
   },
   "rowMenu": {
-    "open": "Ouvrir"
+    "open": "Ouvrir",
+    "openPage": "Ouvrir en pleine page"
+  },
+  "rowPanel": {
+    "label": "Ligne : {title}",
+    "close": "Fermer",
+    "closeHint": "Fermer (Échap)",
+    "previous": "Ligne précédente",
+    "previousHint": "Ligne précédente (K)",
+    "next": "Ligne suivante",
+    "nextHint": "Ligne suivante (J)",
+    "openPage": "Ouvrir en pleine page",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié",
+    "resize": "Faites glisser pour redimensionner",
+    "notInDatabase": "Cette page n'est plus une ligne d'une base de données.",
+    "database": "Une base de données s'ouvre dans sa propre page.",
+    "unavailable": "Cette ligne n'existe pas, ou vous n'y avez pas accès.",
+    "offline": "Cette ligne ne peut pas être chargée hors ligne.",
+    "loadFailed": "Impossible de charger cette ligne.",
+    "retry": "Réessayer"
   },
   "bulk": {
     "actions": "Lignes sélectionnées",
@@ -558,7 +578,12 @@
     "newDateProperty": "Nouvelle propriété de date",
     "groupBy": "Regrouper par",
     "noGrouping": "Aucun",
-    "showTable": "Afficher la table"
+    "showTable": "Afficher la table",
+    "openRows": "Ouvrir les lignes dans",
+    "openRowsIn": {
+      "panel": "Panneau latéral",
+      "page": "Pleine page"
+    }
   },
   "gallery": {
     "new": "Nouveau",

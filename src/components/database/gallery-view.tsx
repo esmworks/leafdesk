@@ -1,7 +1,6 @@
 "use client";
 
-import { Ellipsis, ExternalLink, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Ellipsis, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { cn, MenuItem, MenuSeparator, PageIcon } from "@/components/ui";
@@ -12,8 +11,10 @@ import { firstImageFile } from "@/lib/files";
 import { coverProperty, galleryCover } from "@/lib/views";
 import { CardTitleInput } from "./board-view";
 import { Floating, useFloating } from "./floating";
+import { OpenRowItems } from "./open-row-items";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
+import { openRowProps, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -123,8 +124,7 @@ function GalleryCard({
   onDelete: () => void;
 }) {
   const tc = useTranslations("common");
-  const router = useRouter();
-  const href = `/w/${workspaceId}/p/${row.id}`;
+  const opener = useRowOpener(workspaceId);
   const shown = shownValues(props, row);
   // A cover that fails to load leaves the plain cover area instead of a broken image.
   const [failed, setFailed] = useState<string | null>(null);
@@ -134,11 +134,15 @@ function GalleryCard({
     <div
       role="link"
       tabIndex={0}
-      onClick={() => !editTitle && router.push(href)}
+      {...openRowProps(opener, row.id, !editTitle)}
+      onClick={(e) => !editTitle && opener.open(row.id, e)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) router.push(href);
+        if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) opener.open(row.id, e);
       }}
-      className="board-card group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg"
+      className={cn(
+        "board-card group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg",
+        opener.current === row.id && "outline-2 outline-accent/60",
+      )}
     >
       {coverClass && (
         <div className={cn(coverClass, "shrink-0 overflow-hidden border-b border-border bg-bg-subtle")}>
@@ -185,7 +189,8 @@ function GalleryCard({
       </div>
       {!readOnly && !editTitle && (
         <RowMenu
-          href={href}
+          opener={opener}
+          rowId={row.id}
           onDelete={onDelete}
           className={cn("absolute right-1.5", coverClass ? "top-1.5" : "top-2")}
         />
@@ -195,10 +200,19 @@ function GalleryCard({
 }
 
 /** The "…" menu on gallery cards and list rows: open the row, or move it to the trash. */
-export function RowMenu({ href, onDelete, className }: { href: string; onDelete: () => void; className?: string }) {
+export function RowMenu({
+  opener,
+  rowId,
+  onDelete,
+  className,
+}: {
+  opener: RowOpener;
+  rowId: string;
+  onDelete: () => void;
+  className?: string;
+}) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
-  const router = useRouter();
   const menu = useFloating<HTMLButtonElement>();
   return (
     <div className={className} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
@@ -216,15 +230,7 @@ export function RowMenu({ href, onDelete, className }: { href: string; onDelete:
         <Ellipsis className="h-3.5 w-3.5" />
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end">
-        <MenuItem
-          icon={<ExternalLink className="h-3.5 w-3.5" />}
-          onClick={() => {
-            menu.close();
-            router.push(href);
-          }}
-        >
-          {t("rowMenu.open")}
-        </MenuItem>
+        <OpenRowItems opener={opener} rowId={rowId} onDone={menu.close} />
         <MenuSeparator />
         <MenuItem
           danger

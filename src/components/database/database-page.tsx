@@ -3,7 +3,7 @@
 import { Plus, TriangleAlert, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui";
 import { useDocumentViewName } from "@/components/page/document-title";
 import { markNewPage } from "@/components/page/new-page-focus";
@@ -13,7 +13,8 @@ import { valueType } from "@/lib/derived";
 import { applyView, defaultsFromFilters, filterOperators, orderProperties } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
 import { searchRows } from "@/lib/row-search";
-import { galleryCover } from "@/lib/views";
+import { opensNewTab } from "@/lib/row-panel";
+import { galleryCover, openRowsOf, opensRows } from "@/lib/views";
 import { AutomationsButton } from "./automations-dialog";
 import { BoardView } from "./board-view";
 import { CalendarView } from "./calendar-view";
@@ -21,6 +22,7 @@ import { ChartView } from "./chart-view";
 import { FormToolbar, FormView } from "./form-view";
 import { GalleryView } from "./gallery-view";
 import { ListView } from "./list-view";
+import { openInNewTab, RowOpenerContext, useRowPanel, type RowOpener } from "./row-panel-context";
 import { RowTemplatesMenu } from "./row-templates-menu";
 import { PeopleProvider, type PeopleContextValue } from "./person-cell";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
@@ -204,6 +206,34 @@ export function DatabasePage({
     const shown = applyView(rows, view.config, snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
     return searchRows(shown, search, snapshot.properties, { people: snapshot.people, relations: snapshot.relations });
   }, [rows, view, snapshot, search]);
+  // Rows open beside the view in the row panel, unless the view opens them as pages; phones and
+  // offline always open pages (the panel loads rows from the server).
+  const rowPanel = useRowPanel();
+  const sourceRef = useRef<HTMLDivElement>(null);
+  const inPanel = Boolean(rowPanel?.available) && !!view && opensRows(view.type) && openRowsOf(view.config) === "panel" && !offline;
+  const openRowTo = rowPanel?.open;
+  const openRowId = rowPanel?.rowId ?? null;
+  const opener = useMemo<RowOpener>(() => {
+    const href = (rowId: string) => `/w/${workspaceId}/p/${rowId}`;
+    return {
+      href,
+      open: (rowId, event) => {
+        if (event && opensNewTab(event)) return openInNewTab(href(rowId));
+        if (!inPanel || !openRowTo) return router.push(href(rowId));
+        const trigger = event?.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+        openRowTo(rowId, { source: trigger?.closest("[data-row-source]") ?? sourceRef.current, trigger });
+      },
+      openPage: (rowId) => router.push(href(rowId)),
+      inPanel,
+      current: inPanel ? openRowId : null,
+    };
+  }, [workspaceId, inPanel, openRowTo, openRowId, router]);
+  // The panel's previous and next rows follow the view.
+  const rowsChanged = rowPanel?.rowsChanged;
+  useEffect(() => {
+    rowsChanged?.();
+  }, [rowsChanged, visibleRows, view?.id, view?.config]);
+
   // The properties in the view's column order: what its columns, cards and properties menu show.
   const viewProperties = useMemo(
     () => (snapshot ? orderProperties(snapshot.properties, view?.config.propertyOrder) : []),
@@ -291,8 +321,13 @@ export function DatabasePage({
   /** "New": from the default row template when there is one; the menu beside it picks another or none. */
   const newRow = async (template?: string | null) => {
     const id = await viewApi.createRow(template === undefined ? { useDefault: true } : { templateId: template });
-    // Inside a page the new row shows up in place; leaving the page would lose the reader's spot.
-    if (id && !embedded) {
+    if (!id) return;
+    // Beside the view in the panel, ready for its name. Otherwise, inside a page the new row shows
+    // up in place: leaving the page would lose the reader's spot.
+    if (inPanel) {
+      markNewPage(id);
+      opener.open(id);
+    } else if (!embedded) {
       markNewPage(id);
       router.push(`/w/${workspaceId}/p/${id}`);
     }
@@ -305,207 +340,154 @@ export function DatabasePage({
           <PropertyAccessProvider value={accessContext}>
             <AiAutofillProvider value={aiContext}>
               {/* Wide layout: controls sit in the page gutter, the board scrolls edge to edge. */}
-              <div className="min-w-0">
-                <div className="page-gutter">
-                  {embed?.header?.(snapshot)}
-                  {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
-                  {/* Phones stack the toolbar above the tabs so the tabs get the whole row. */}
-                  <div className="flex flex-col-reverse gap-1 border-b border-border md:flex-row md:items-end md:justify-between md:gap-2">
-                    <ViewTabs
-                      views={views}
-                      activeId={view?.id ?? ""}
-                      readOnly={readOnly || locked || !!linked}
-                      onSelect={selectView}
-                      onAdd={addView}
-                      onRename={(v, name) => api.updateView(v, { name })}
-                      onMove={(id, target, side) => api.moveView(id, target, side)}
-                      deleted={deletedSchema}
-                      onDelete={async (v) => {
-                        if (v.id === view?.id) {
-                          const next = views.find((x) => x.id !== v.id);
-                          if (next) selectView(next.id);
-                        }
-                        await api.deleteView(v.id);
-                      }}
-                    />
-                    {view?.type === "form" && (
-                      <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
-                        <FormToolbar
-                          view={view}
-                          properties={snapshot.properties}
-                          workspaceId={workspaceId}
-                          databaseId={databaseId}
-                          editable={!readOnly}
-                          preview={formPreview}
-                          onPreview={setFormPreview}
-                        />
-                        {canManageAutomations && (
-                          <AutomationsButton
+              <RowOpenerContext value={opener}>
+                <div ref={sourceRef} data-row-source className="min-w-0">
+                  <div className="page-gutter">
+                    {embed?.header?.(snapshot)}
+                    {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
+                    {/* Phones stack the toolbar above the tabs so the tabs get the whole row. */}
+                    <div className="flex flex-col-reverse gap-1 border-b border-border md:flex-row md:items-end md:justify-between md:gap-2">
+                      <ViewTabs
+                        views={views}
+                        activeId={view?.id ?? ""}
+                        readOnly={readOnly || locked || !!linked}
+                        onSelect={selectView}
+                        onAdd={addView}
+                        onRename={(v, name) => api.updateView(v, { name })}
+                        onMove={(id, target, side) => api.moveView(id, target, side)}
+                        deleted={deletedSchema}
+                        onDelete={async (v) => {
+                          if (v.id === view?.id) {
+                            const next = views.find((x) => x.id !== v.id);
+                            if (next) selectView(next.id);
+                          }
+                          await api.deleteView(v.id);
+                        }}
+                      />
+                      {view?.type === "form" && (
+                        <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                          <FormToolbar
+                            view={view}
+                            properties={snapshot.properties}
                             workspaceId={workspaceId}
                             databaseId={databaseId}
-                            databaseTitle={snapshot.database.title}
+                            editable={!readOnly}
+                            preview={formPreview}
+                            onPreview={setFormPreview}
                           />
-                        )}
-                      </div>
-                    )}
-                    {view && view.type !== "form" && (
-                      <div className="relative flex shrink-0 items-center gap-1 self-end md:pb-1.5">
-                        <ViewSearch value={search} onChange={setSearch} />
-                        <ViewToolbar
-                          view={view}
-                          properties={viewProperties}
-                          readOnly={configReadOnly}
-                          locked={locked}
-                          onConfig={(config) => setConfig(view, config)}
-                          filterRequest={filterRequest}
-                          onCreateGroupProperty={createGroupProperty}
-                          onCreateDateProperty={createDateProperty}
-                          deleted={deletedSchema}
-                        />
-                        <ViewLayoutMenu
-                          view={view}
-                          properties={snapshot.properties}
-                          readOnly={configReadOnly}
-                          locked={locked}
-                          onConfig={(config) => setConfig(view, config)}
-                          onCreateDateProperty={createDateProperty}
-                          onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
-                          onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
-                        />
-                        {canManageAutomations && (
-                          <AutomationsButton
-                            workspaceId={workspaceId}
-                            databaseId={databaseId}
-                            databaseTitle={snapshot.database.title}
-                          />
-                        )}
-                        {!readOnly && (
-                          <div className="ml-1 flex items-center">
-                            <Button size="sm" variant="primary" onClick={() => void newRow()} className="rounded-r-none">
-                              <Plus className="h-3.5 w-3.5" />
-                              {t("page.new")}
-                            </Button>
-                            <RowTemplatesMenu
+                          {canManageAutomations && (
+                            <AutomationsButton
                               workspaceId={workspaceId}
-                              snapshot={snapshot}
-                              onCreate={(templateId) => void newRow(templateId)}
-                              onChanged={() => void api.refetch()}
-                              onError={api.showError}
+                              databaseId={databaseId}
+                              databaseTitle={snapshot.database.title}
                             />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {error && (
-                    <div
-                      role="alert"
-                      className="mt-2 flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm"
-                    >
-                      <TriangleAlert className="h-4 w-4 shrink-0 text-danger" />
-                      <span className="flex-1">{error}</span>
-                      <button
-                        type="button"
-                        aria-label={t("page.dismiss")}
-                        onClick={api.clearError}
-                        className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
-
-                  {view && view.type !== "form" && (
-                    <ActiveRulesBar
-                      view={view}
-                      properties={snapshot.properties}
-                      readOnly={configReadOnly}
-                      onConfig={(config) => setConfig(view, config)}
-                    />
-                  )}
-                </div>
-
-                <div className="pt-2">
-                  {!view ? (
-                    <div className="page-gutter py-10 text-center text-sm text-fg-muted">
-                      {t("page.noViews")}
-                      {!readOnly && (
-                        <div className="mt-3">
-                          <Button size="sm" onClick={() => addView("table")}>
-                            <Plus className="h-3.5 w-3.5" />
-                            {t("page.addTableView")}
-                          </Button>
+                          )}
+                        </div>
+                      )}
+                      {view && view.type !== "form" && (
+                        <div className="relative flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                          <ViewSearch value={search} onChange={setSearch} />
+                          <ViewToolbar
+                            view={view}
+                            properties={viewProperties}
+                            readOnly={configReadOnly}
+                            locked={locked}
+                            onConfig={(config) => setConfig(view, config)}
+                            filterRequest={filterRequest}
+                            onCreateGroupProperty={createGroupProperty}
+                            onCreateDateProperty={createDateProperty}
+                            deleted={deletedSchema}
+                          />
+                          <ViewLayoutMenu
+                            view={view}
+                            properties={snapshot.properties}
+                            readOnly={configReadOnly}
+                            locked={locked}
+                            onConfig={(config) => setConfig(view, config)}
+                            onCreateDateProperty={createDateProperty}
+                            onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
+                            onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
+                          />
+                          {canManageAutomations && (
+                            <AutomationsButton
+                              workspaceId={workspaceId}
+                              databaseId={databaseId}
+                              databaseTitle={snapshot.database.title}
+                            />
+                          )}
+                          {!readOnly && (
+                            <div className="ml-1 flex items-center">
+                              <Button size="sm" variant="primary" onClick={() => void newRow()} className="rounded-r-none">
+                                <Plus className="h-3.5 w-3.5" />
+                                {t("page.new")}
+                              </Button>
+                              <RowTemplatesMenu
+                                workspaceId={workspaceId}
+                                snapshot={snapshot}
+                                onCreate={(templateId) => void newRow(templateId)}
+                                onChanged={() => void api.refetch()}
+                                onError={api.showError}
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  ) : view.type === "form" ? (
-                    <FormView
-                      key={view.id}
-                      view={view}
-                      properties={snapshot.properties}
-                      databaseTitle={snapshot.database.title}
-                      api={api}
-                      editable={!readOnly}
-                      archived={snapshot.database.archived}
-                      preview={formPreview}
-                    />
-                  ) : view.type === "board" ? (
-                    <BoardView
-                      workspaceId={workspaceId}
-                      view={view}
-                      properties={viewProperties}
-                      rows={visibleRows}
-                      api={viewApi}
-                      readOnly={readOnly}
-                      locked={locked}
-                      onCreateGroupProperty={createGroupProperty}
-                    />
-                  ) : view.type === "gallery" ? (
-                    <GalleryView
-                      workspaceId={workspaceId}
-                      view={view}
-                      properties={viewProperties}
-                      rows={visibleRows}
-                      api={viewApi}
-                      readOnly={readOnly}
-                    />
-                  ) : view.type === "list" ? (
-                    <ListView
-                      workspaceId={workspaceId}
-                      view={view}
-                      properties={viewProperties}
-                      rows={visibleRows}
-                      allRows={rows}
-                      api={viewApi}
-                      readOnly={readOnly}
-                    />
-                  ) : view.type === "timeline" ? (
-                    <TimelineView
-                      key={view.id}
-                      workspaceId={workspaceId}
-                      view={view}
-                      properties={viewProperties}
-                      rows={visibleRows}
-                      allRows={rows}
-                      api={viewApi}
-                      readOnly={readOnly}
-                      locked={locked}
-                      onCreateDateProperty={createDateProperty}
-                    />
-                  ) : view.type === "chart" ? (
-                    <ChartView
-                      workspaceId={workspaceId}
-                      view={view}
-                      properties={viewProperties}
-                      rows={visibleRows}
-                      readOnly={readOnly}
-                      locked={locked}
-                      onCreateGroupProperty={createGroupProperty}
-                    />
-                  ) : view.type === "calendar" ? (
-                    <div className="page-gutter">
-                      <CalendarView
+
+                    {error && (
+                      <div
+                        role="alert"
+                        className="mt-2 flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm"
+                      >
+                        <TriangleAlert className="h-4 w-4 shrink-0 text-danger" />
+                        <span className="flex-1">{error}</span>
+                        <button
+                          type="button"
+                          aria-label={t("page.dismiss")}
+                          onClick={api.clearError}
+                          className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
+
+                    {view && view.type !== "form" && (
+                      <ActiveRulesBar
+                        view={view}
+                        properties={snapshot.properties}
+                        readOnly={configReadOnly}
+                        onConfig={(config) => setConfig(view, config)}
+                      />
+                    )}
+                  </div>
+
+                  <div className="pt-2">
+                    {!view ? (
+                      <div className="page-gutter py-10 text-center text-sm text-fg-muted">
+                        {t("page.noViews")}
+                        {!readOnly && (
+                          <div className="mt-3">
+                            <Button size="sm" onClick={() => addView("table")}>
+                              <Plus className="h-3.5 w-3.5" />
+                              {t("page.addTableView")}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ) : view.type === "form" ? (
+                      <FormView
+                        key={view.id}
+                        view={view}
+                        properties={snapshot.properties}
+                        databaseTitle={snapshot.database.title}
+                        api={api}
+                        editable={!readOnly}
+                        archived={snapshot.database.archived}
+                        preview={formPreview}
+                      />
+                    ) : view.type === "board" ? (
+                      <BoardView
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -513,30 +495,85 @@ export function DatabasePage({
                         api={viewApi}
                         readOnly={readOnly}
                         locked={locked}
+                        onCreateGroupProperty={createGroupProperty}
+                      />
+                    ) : view.type === "gallery" ? (
+                      <GalleryView
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        api={viewApi}
+                        readOnly={readOnly}
+                      />
+                    ) : view.type === "list" ? (
+                      <ListView
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        allRows={rows}
+                        api={viewApi}
+                        readOnly={readOnly}
+                      />
+                    ) : view.type === "timeline" ? (
+                      <TimelineView
+                        key={view.id}
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        allRows={rows}
+                        api={viewApi}
+                        readOnly={readOnly}
+                        locked={locked}
                         onCreateDateProperty={createDateProperty}
                       />
-                    </div>
-                  ) : (
-                    <TableView
-                      workspaceId={workspaceId}
-                      databaseId={databaseId}
-                      view={view}
-                      properties={viewProperties}
-                      rows={visibleRows}
-                      allRows={rows}
-                      api={viewApi}
-                      readOnly={readOnly}
-                      settingsReadOnly={configReadOnly}
-                      locked={locked}
-                      filtered={rows.length > 0}
-                      searched={search.trim() !== ""}
-                      guest={guest}
-                      exportable={exportable}
-                      onFilter={(columnId) => filterBy(view, columnId)}
-                    />
-                  )}
+                    ) : view.type === "chart" ? (
+                      <ChartView
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        readOnly={readOnly}
+                        locked={locked}
+                        onCreateGroupProperty={createGroupProperty}
+                      />
+                    ) : view.type === "calendar" ? (
+                      <div className="page-gutter">
+                        <CalendarView
+                          workspaceId={workspaceId}
+                          view={view}
+                          properties={viewProperties}
+                          rows={visibleRows}
+                          api={viewApi}
+                          readOnly={readOnly}
+                          locked={locked}
+                          onCreateDateProperty={createDateProperty}
+                        />
+                      </div>
+                    ) : (
+                      <TableView
+                        workspaceId={workspaceId}
+                        databaseId={databaseId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        allRows={rows}
+                        api={viewApi}
+                        readOnly={readOnly}
+                        settingsReadOnly={configReadOnly}
+                        locked={locked}
+                        filtered={rows.length > 0}
+                        searched={search.trim() !== ""}
+                        guest={guest}
+                        exportable={exportable}
+                        onFilter={(columnId) => filterBy(view, columnId)}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
+              </RowOpenerContext>
             </AiAutofillProvider>
           </PropertyAccessProvider>
         </SchemaProvider>

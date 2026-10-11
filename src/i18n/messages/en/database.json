@@ -230,7 +230,27 @@
     "sortedDescending": "Sorted descending"
   },
   "rowMenu": {
-    "open": "Open"
+    "open": "Open",
+    "openPage": "Open as full page"
+  },
+  "rowPanel": {
+    "label": "Row: {title}",
+    "close": "Close",
+    "closeHint": "Close (Esc)",
+    "previous": "Previous row",
+    "previousHint": "Previous row (K)",
+    "next": "Next row",
+    "nextHint": "Next row (J)",
+    "openPage": "Open as full page",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "resize": "Drag to resize",
+    "notInDatabase": "This page is no longer a row of a database.",
+    "database": "A database opens as its own page.",
+    "unavailable": "This row doesn't exist, or you don't have access to it.",
+    "offline": "This row can't be loaded while you're offline.",
+    "loadFailed": "This row couldn't be loaded.",
+    "retry": "Try again"
   },
   "bulk": {
     "actions": "Selected rows",
@@ -558,7 +578,12 @@
     "newDateProperty": "New date property",
     "groupBy": "Group by",
     "noGrouping": "None",
-    "showTable": "Show table"
+    "showTable": "Show table",
+    "openRows": "Open rows in",
+    "openRowsIn": {
+      "panel": "Side panel",
+      "page": "Full page"
+    }
   },
   "gallery": {
     "new": "New",

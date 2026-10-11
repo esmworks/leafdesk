@@ -43,6 +43,8 @@
     "undo": "Rückgängig",
     "redo": "Wiederholen",
     "openRow": "Fokussierte Zeile oder Karte öffnen",
+    "previousRow": "Vorherige Zeile (mit einer Zeile neben der Ansicht)",
+    "nextRow": "Nächste Zeile (mit einer Zeile neben der Ansicht)",
     "moveBar": "Zeitleistenbalken um einen Tag verschieben",
     "saveFormula": "Formel oder KI-Autofill-Anweisung speichern",
     "clearSelection": "Zeilenauswahl aufheben"

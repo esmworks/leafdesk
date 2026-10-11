@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, ExternalLink, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -13,6 +12,7 @@ import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
 import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
+import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
 import type { SubItemLine } from "@/lib/sub-items";
@@ -29,7 +29,9 @@ import { PropertyLock, usePropertyAccess } from "./property-access";
 import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
+import { OpenRowItems } from "./open-row-items";
 import { QuickAddContext } from "./quick-add";
+import { openRowProps, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { useToday } from "./use-today";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
@@ -102,6 +104,7 @@ export function TableView({
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
+  const opener = useRowOpener(workspaceId);
   const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const today = useToday();
   const { viewerId, people } = usePeople();
@@ -334,13 +337,14 @@ export function TableView({
 
   const renderRow = (line: SubItemLine<Row>, group?: Group<Row>) => {
     const row = line.row;
-    const selected = selection.isSelected(row.id);
+    // The row open in the panel beside the table is tinted like a selected one.
+    const selected = selection.isSelected(row.id) || opener.current === row.id;
     const label = pageLabel(row.title, tc("untitled"));
     return (
-      <tr key={row.id} className={cn("group", selected && "bg-accent/5")}>
+      <tr key={row.id} {...openRowProps(opener, row.id, false)} className={cn("group", selected && "bg-accent/5")}>
         <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
           <div className="flex items-center justify-end">
-            {!readOnly && <RowMenu workspaceId={workspaceId} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
+            {!readOnly && <RowMenu opener={opener} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
             <SelectBox
               checked={selection.isSelected(row.id)}
               label={t("bulk.selectRow")}
@@ -382,7 +386,15 @@ export function TableView({
           </div>
           <span className="absolute inset-y-0 right-1 hidden items-center gap-1 group-hover:flex">
             {canAddSubItem && <AddSubItemButton title={label} onAdd={() => void addSubItem(row, group)} />}
-            <OpenLink href={`/w/${workspaceId}/p/${row.id}`} />
+            <OpenLink
+              href={opener.href(row.id)}
+              onClick={(e) => {
+                // Links open in a new tab as usual; a plain click opens the row as the view says.
+                if (opensNewTab(e)) return;
+                e.preventDefault();
+                opener.open(row.id, e);
+              }}
+            />
           </span>
         </td>
         {visible.map((p, i) => {
@@ -870,11 +882,10 @@ function AddPropertyButton({
   );
 }
 
-function RowMenu({ workspaceId, rowId, onDelete }: { workspaceId: string; rowId: string; onDelete: () => void }) {
+function RowMenu({ opener, rowId, onDelete }: { opener: RowOpener; rowId: string; onDelete: () => void }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const menu = useFloating<HTMLButtonElement>();
-  const router = useRouter();
   return (
     <>
       <button
@@ -890,15 +901,7 @@ function RowMenu({ workspaceId, rowId, onDelete }: { workspaceId: string; rowId:
         <Ellipsis className="h-4 w-4" />
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
-        <MenuItem
-          icon={<ExternalLink className="h-3.5 w-3.5" />}
-          onClick={() => {
-            menu.close();
-            router.push(`/w/${workspaceId}/p/${rowId}`);
-          }}
-        >
-          {t("rowMenu.open")}
-        </MenuItem>
+        <OpenRowItems opener={opener} rowId={rowId} onDone={menu.close} />
         <MenuSeparator />
         <MenuItem
           danger

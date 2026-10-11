@@ -458,6 +458,9 @@ describe("files properties", () => {
 
   it("names a gallery's cover property", () => {
     expect(describeViewConfig(all, { cover: { source: "property", propertyId: "p_files" } })).toEqual({ cover: "Attachments" });
+    // Rows open beside the view unless the view says otherwise; only that is described.
+    expect(describeViewConfig(all, { openRows: "page" })).toEqual({ open_rows: "page" });
+    expect(describeViewConfig(all, { openRows: "panel" })).toEqual({});
     expect(describeViewConfig(all, { cover: { source: "none" } })).toEqual({ cover: "none" });
   });
 });

@@ -43,6 +43,8 @@
     "undo": "Annuler",
     "redo": "Rétablir",
     "openRow": "Ouvrir la ligne ou la carte sélectionnée",
+    "previousRow": "Ligne précédente (avec une ligne ouverte à côté de la vue)",
+    "nextRow": "Ligne suivante (avec une ligne ouverte à côté de la vue)",
     "moveBar": "Déplacer une barre de la frise d’un jour",
     "saveFormula": "Enregistrer une formule ou une consigne de remplissage par IA",
     "clearSelection": "Désélectionner les lignes"

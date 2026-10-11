@@ -778,6 +778,25 @@ describe("relations and calendars", () => {
     expect(r.data).toMatchObject({ calendar_mode: "week" });
   });
 
+  it("sets where a view opens its rows, for views with rows only", async () => {
+    const views = [
+      { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status" } },
+      { id: "view-p", name: "Pages", type: "board", config: { groupBy: "prop-status", openRows: "page" } },
+      { id: "view-f", name: "Ask", type: "form", config: {} },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, views });
+    const onForm = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-f", open_rows: "page" });
+    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, gallery, list and timeline views/);
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "page" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", openRows: "page" } });
+    expect(r.data).toMatchObject({ open_rows: "page" });
+    // Back to the default: the setting is left out, as views saved before it have it.
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-p", open_rows: "panel" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-p", { config: { groupBy: "prop-status", openRows: undefined } });
+    const bad = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "tab" });
+    expect(bad.isError).toBe(true);
+  });
+
   it("creates charts with a calculation, stacking and sort, and checks each setting", async () => {
     const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
     const done = { id: "prop-done", name: "Done", type: "checkbox", options: {} };

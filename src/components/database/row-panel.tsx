@@ -1,0 +1,504 @@
+"use client";
+
+import { Check, ChevronDown, ChevronUp, Link2, Maximize2, TriangleAlert, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { loadRowPanelAction, type RowPanelPage } from "@/app/actions/row-panel";
+import { useAiChat } from "@/components/ai-chat/chat-panel";
+import { useChannel } from "@/components/collab/use-channel";
+import { useIsOffline } from "@/components/offline/offline-context";
+import { PageView, type PanelChrome } from "@/components/page/page-view";
+import { Button, IconButton, pageLabel } from "@/components/ui";
+import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
+import {
+  clampPanelWidth,
+  neighbours,
+  parsePanelWidth,
+  ROW_PANEL_WIDTH,
+  ROW_PANEL_WIDTH_KEY,
+  rowFromSearch,
+  stepKey,
+  withRow,
+} from "@/lib/row-panel";
+import { isEditable } from "@/lib/shortcuts";
+import { RowPanelContext, type RowOrigin, type RowPanelHost } from "./row-panel-context";
+import { RowProperties } from "./row-properties";
+
+const pagePath = (workspaceId: string, pageId: string) => `/w/${workspaceId}/p/${pageId}`;
+
+/** The element of a view that opens `rowId`. */
+function rowElement(root: ParentNode, rowId: string) {
+  return root.querySelector<HTMLElement>(`[data-open-row="${CSS.escape(rowId)}"]`);
+}
+
+/**
+ * The view a row is shown from: the one it was opened from while that still shows it, else the
+ * first view on the page that does (after a reload, or a link). Never a view inside the panel.
+ */
+function sourceOf(rowId: string, remembered: Element | null): Element | null {
+  if (remembered?.isConnected && rowElement(remembered, rowId)) return remembered;
+  for (const el of document.querySelectorAll<HTMLElement>(`[data-open-row="${CSS.escape(rowId)}"]`)) {
+    if (el.closest("[data-row-panel]")) continue;
+    const source = el.closest("[data-row-source]");
+    if (source) return source;
+  }
+  return remembered?.isConnected ? remembered : null;
+}
+
+/** The rows of a view in the order it shows them. */
+function viewOrder(source: Element | null): string[] {
+  if (!source) return [];
+  return [...source.querySelectorAll<HTMLElement>("[data-open-row]")]
+    .filter((el) => !el.closest("[data-row-panel]"))
+    .map((el) => el.dataset.openRow ?? "");
+}
+
+/** Puts focus back on the row in its view (or what opened it), as the panel closes. */
+function focusRow(rowId: string, origin: RowOrigin) {
+  const source = sourceOf(rowId, origin.source);
+  const el = source ? rowElement(source, rowId) : null;
+  if (el) {
+    if (el.tabIndex < 0 && !el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+    el.focus({ preventScroll: false });
+    return;
+  }
+  if (origin.trigger?.isConnected) origin.trigger.focus();
+}
+
+/**
+ * Opens database rows beside the view they're in (the views ask through RowPanelContext), on
+ * every page of the workspace. The open row lives in the address as `?row=<id>`: opening one adds
+ * a history entry, so Back closes the panel; moving to another row replaces it, so Back doesn't
+ * walk through every row looked at. Phones open rows as pages; a link with a row opens its page
+ * there.
+ */
+export function RowPanelProvider({
+  workspaceId,
+  user,
+  children,
+}: {
+  workspaceId: string;
+  user: { id: string; name: string };
+  children: ReactNode;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const rowId = rowFromSearch(searchParams);
+  const phone = useMediaQuery(PHONE_QUERY);
+  // The media query reads false until hydrated: wait for the browser before choosing.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const available = mounted && !phone;
+  const aiChat = useAiChat();
+  const closeAiChat = aiChat?.setOpen;
+
+  // Whether the history entry with the row is one this tab added (Back then closes the panel).
+  const pushed = useRef(false);
+  const origin = useRef<RowOrigin>({ source: null, trigger: null });
+  useEffect(() => {
+    const onPop = () => void (pushed.current = false);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Phones show rows as pages: a link with a row goes to it.
+  useEffect(() => {
+    if (mounted && phone && rowId) router.replace(pagePath(workspaceId, rowId));
+  }, [mounted, phone, rowId, router, workspaceId]);
+
+  const open = useCallback(
+    (id: string, from: RowOrigin) => {
+      origin.current = { source: from.source ?? origin.current.source, trigger: from.trigger ?? origin.current.trigger };
+      const current = rowFromSearch(window.location.search);
+      // A null state lets Next follow the new address (see selectView in database-page.tsx).
+      if (!current) {
+        window.history.pushState(null, "", withRow(window.location.href, id));
+        pushed.current = true;
+        // Both panels take the right edge: the row replaces the chat.
+        closeAiChat?.(false);
+      } else if (current !== id) {
+        window.history.replaceState(null, "", withRow(window.location.href, id));
+      }
+    },
+    [closeAiChat],
+  );
+
+  const close = useCallback(() => {
+    const current = rowFromSearch(window.location.search);
+    if (pushed.current) {
+      pushed.current = false;
+      window.history.back();
+    } else {
+      window.history.replaceState(null, "", withRow(window.location.href, null));
+    }
+    if (current) setTimeout(() => focusRow(current, origin.current), 0);
+  }, []);
+
+  // Views say when their rows change, so the panel's previous and next rows follow.
+  const [orderVersion, rowsChanged] = useReducer((n: number) => n + 1, 0);
+
+  const value = useMemo<RowPanelHost>(() => ({ rowId, available, open, rowsChanged }), [rowId, available, open]);
+
+  const [width, setWidth] = useState<number>(ROW_PANEL_WIDTH.default);
+  const [viewport, setViewport] = useState(1440);
+  useEffect(() => {
+    try {
+      setWidth(parsePanelWidth(localStorage.getItem(ROW_PANEL_WIDTH_KEY)));
+    } catch {
+      // Storage may be off; the default width does.
+    }
+    const onResize = () => setViewport(window.innerWidth);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const shownWidth = clampPanelWidth(width, viewport);
+  const shown = available && rowId !== null;
+
+  // The page beside the panel narrows to keep clear of it (see <main> in app/w/[workspaceId]/layout.tsx).
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!shown) return;
+    root.style.setProperty("--row-panel-width", `${shownWidth}px`);
+    return () => void root.style.removeProperty("--row-panel-width");
+  }, [shown, shownWidth]);
+
+  const resize = useCallback((next: number, save: boolean) => {
+    const w = clampPanelWidth(next, window.innerWidth);
+    setWidth(w);
+    if (!save) return;
+    try {
+      localStorage.setItem(ROW_PANEL_WIDTH_KEY, String(w));
+    } catch {
+      // Not kept: the panel still has the width until the page reloads.
+    }
+  }, []);
+
+  return (
+    <RowPanelContext value={value}>
+      {children}
+      {shown && (
+        <RowPanel
+          workspaceId={workspaceId}
+          user={user}
+          rowId={rowId}
+          width={shownWidth}
+          onResize={resize}
+          origin={origin}
+          orderVersion={orderVersion}
+          onOpen={(id) => open(id, { source: null, trigger: null })}
+          onClose={close}
+        />
+      )}
+    </RowPanelContext>
+  );
+}
+
+type Loaded =
+  | { ok: true; data: RowPanelPage }
+  | { ok: false; reason: "unavailable" | "database" | "unreachable" };
+
+function RowPanel({
+  workspaceId,
+  user,
+  rowId,
+  width,
+  onResize,
+  origin,
+  orderVersion,
+  onOpen,
+  onClose,
+}: {
+  workspaceId: string;
+  user: { id: string; name: string };
+  rowId: string;
+  width: number;
+  onResize: (width: number, save: boolean) => void;
+  origin: RefObject<RowOrigin>;
+  orderVersion: number;
+  onOpen: (rowId: string) => void;
+  onClose: () => void;
+}) {
+  const t = useTranslations("database.rowPanel");
+  const tc = useTranslations("common");
+  const router = useRouter();
+  const offline = useIsOffline();
+  const panelRef = useRef<HTMLElement>(null);
+  const [loaded, setLoaded] = useState<{ rowId: string; result: Loaded } | null>(null);
+
+  const load = useCallback(async () => {
+    let result: Loaded;
+    try {
+      result = await loadRowPanelAction(rowId);
+    } catch {
+      result = { ok: false, reason: "unreachable" };
+    }
+    setLoaded((current) =>
+      // A late answer for a row the panel has moved on from is dropped.
+      rowFromSearch(window.location.search) === rowId ? { rowId, result } : current,
+    );
+  }, [rowId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Trashed, restored, moved or shared elsewhere (the workspace's page tree changed): load again,
+  // so the panel shows the row as it is now.
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useChannel(`ws:${workspaceId}`, (event) => {
+    if (event !== "tree") return;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => void load(), 200);
+  });
+  useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
+
+  const result = loaded?.rowId === rowId ? loaded.result : null;
+
+  // The rows before and after this one in the view it was opened from, as the view shows them now.
+  const [around, setAround] = useState<{ previous: string | null; next: string | null }>({ previous: null, next: null });
+  useEffect(() => {
+    const source = sourceOf(rowId, origin.current.source);
+    setAround(neighbours(viewOrder(source), rowId));
+  }, [rowId, orderVersion, origin, result]);
+  const step = useCallback(
+    (by: -1 | 1) => {
+      const target = by < 0 ? around.previous : around.next;
+      if (target) onOpen(target);
+    },
+    [around, onOpen],
+  );
+
+  // Focus moves into the panel as it opens, so its keys work and screen readers find it.
+  useEffect(() => {
+    panelRef.current?.focus({ preventScroll: true });
+  }, []);
+  // The next row's page replaces this one's: keep focus in the panel.
+  useEffect(() => {
+    if (document.activeElement === document.body) panelRef.current?.focus({ preventScroll: true });
+  }, [rowId]);
+
+  // Esc closes the panel, J and K go to the next and previous row: not while typing, nor when a
+  // menu or dialog took the key, nor while the row's comments are open (Esc closes those first).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.isComposing || isEditable(e.target)) return;
+      if (e.key === "Escape") {
+        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+        if (panelRef.current?.querySelector(".comments-panel")) return;
+        if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      const by = stepKey(e);
+      if (by === null) return;
+      e.preventDefault();
+      step(by);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, step]);
+
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timeout = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(timeout);
+  }, [copied]);
+
+  const fullPage = () => router.push(pagePath(result?.ok ? result.data.workspaceId : workspaceId, rowId));
+  const controls = (
+    <>
+      <IconButton label={t("close")} title={t("closeHint")} className="h-7 w-7" onClick={onClose}>
+        <X className="h-4 w-4" />
+      </IconButton>
+      <IconButton
+        label={t("previous")}
+        title={t("previousHint")}
+        className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
+        disabled={!around.previous}
+        onClick={() => step(-1)}
+      >
+        <ChevronUp className="h-4 w-4" />
+      </IconButton>
+      <IconButton
+        label={t("next")}
+        title={t("nextHint")}
+        className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
+        disabled={!around.next}
+        onClick={() => step(1)}
+      >
+        <ChevronDown className="h-4 w-4" />
+      </IconButton>
+      <span aria-hidden className="mx-1 h-4 w-px bg-border" />
+      <IconButton label={t("openPage")} className="h-7 w-7" onClick={fullPage}>
+        <Maximize2 className="h-3.5 w-3.5" />
+      </IconButton>
+      <IconButton
+        label={copied ? t("linkCopied") : t("copyLink")}
+        className="h-7 w-7"
+        onClick={() => {
+          // A browser that refuses the clipboard leaves the button as it was.
+          navigator.clipboard.writeText(window.location.href).then(
+            () => setCopied(true),
+            () => {},
+          );
+        }}
+      >
+        {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+      </IconButton>
+      <span role="status" className="sr-only">
+        {copied ? t("linkCopied") : ""}
+      </span>
+    </>
+  );
+
+  const chrome = useMemo<PanelChrome>(
+    () => ({
+      controls: null,
+      onRefresh: () => void load(),
+      onGone: onClose,
+      onOpenPage: (_workspaceId, pageId) => onOpen(pageId),
+    }),
+    [load, onClose, onOpen],
+  );
+
+  const title = result?.ok ? pageLabel(result.data.page.title, tc("untitled")) : tc("untitled");
+  let body: ReactNode;
+  if (result?.ok) {
+    const { data } = result;
+    const canEdit = data.info.level === "edit" || data.info.level === "full";
+    body = (
+      <PageView
+        key={data.page.id}
+        workspaceId={data.workspaceId}
+        page={data.page}
+        info={data.info}
+        crumbs={data.crumbs}
+        user={user}
+        showBody
+        wide={false}
+        style={data.style}
+        panel={{ ...chrome, controls }}
+      >
+        {data.databaseId ? (
+          <RowProperties
+            workspaceId={data.workspaceId}
+            databaseId={data.databaseId}
+            rowId={data.page.id}
+            readOnly={data.page.archived || !canEdit}
+          />
+        ) : (
+          <Notice>{t("notInDatabase")}</Notice>
+        )}
+      </PageView>
+    );
+  } else {
+    body = (
+      <>
+        <header className="sticky top-0 z-[35] flex h-11 items-center gap-0.5 bg-bg/90 px-3 backdrop-blur">{controls}</header>
+        {result ? (
+          <div className="px-6 pt-10">
+            <Notice>
+              {result.reason === "database"
+                ? t("database")
+                : result.reason === "unreachable"
+                  ? offline
+                    ? t("offline")
+                    : t("loadFailed")
+                  : t("unavailable")}
+            </Notice>
+            {result.reason !== "unavailable" && (
+              <div className="mt-3 flex gap-2">
+                {result.reason === "unreachable" && !offline && (
+                  <Button size="sm" onClick={() => void load()}>
+                    {t("retry")}
+                  </Button>
+                )}
+                <Button size="sm" onClick={fullPage}>
+                  {t("openPage")}
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div aria-busy="true" aria-label={tc("loading")} className="animate-pulse px-6 pt-10 md:px-[54px]">
+            <div className="h-9 w-2/3 rounded-md bg-bg-hover" />
+            <div className="mt-6 space-y-2.5">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="h-6 w-1/2 rounded-md bg-bg-subtle" />
+              ))}
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <aside
+      ref={panelRef}
+      data-row-panel
+      role="dialog"
+      aria-modal="false"
+      aria-label={t("label", { title })}
+      tabIndex={-1}
+      // The row's comments open beside the panel (components/page/comments-panel.tsx).
+      style={{ width, "--comments-right": `${width}px` } as CSSProperties}
+      className="fixed inset-y-0 right-0 z-40 flex flex-col border-l border-border bg-bg shadow-xl outline-none"
+    >
+      <ResizeHandle width={width} onResize={onResize} />
+      <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
+    </aside>
+  );
+}
+
+function Notice({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm text-fg-muted">
+      <TriangleAlert className="h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+/** Drag the panel's left edge to resize it (or use the arrow keys on it); double-click restores the default width. */
+function ResizeHandle({ width, onResize }: { width: number; onResize: (width: number, save: boolean) => void }) {
+  const t = useTranslations("database.rowPanel");
+  const start = useRef<{ x: number; width: number } | null>(null);
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={t("resize")}
+      aria-valuenow={width}
+      aria-valuemin={ROW_PANEL_WIDTH.min}
+      aria-valuemax={ROW_PANEL_WIDTH.max}
+      title={t("resize")}
+      tabIndex={0}
+      onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+        start.current = { x: e.clientX, width };
+      }}
+      onPointerMove={(e) => {
+        if (start.current) onResize(start.current.width - (e.clientX - start.current.x), false);
+      }}
+      onPointerUp={(e) => {
+        if (!start.current) return;
+        onResize(start.current.width - (e.clientX - start.current.x), true);
+        start.current = null;
+      }}
+      onPointerCancel={() => void (start.current = null)}
+      onDoubleClick={() => onResize(ROW_PANEL_WIDTH.default, true)}
+      onKeyDown={(e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        onResize(width + (e.key === "ArrowLeft" ? 32 : -32), true);
+      }}
+      className="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize outline-none after:absolute after:inset-y-0 after:left-[3px] after:w-0.5 after:transition-colors hover:after:bg-accent/60 focus-visible:after:bg-accent"
+    />
+  );
+}

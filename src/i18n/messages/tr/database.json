@@ -230,7 +230,27 @@
     "sortedDescending": "Azalan sıralı"
   },
   "rowMenu": {
-    "open": "Aç"
+    "open": "Aç",
+    "openPage": "Tam sayfa olarak aç"
+  },
+  "rowPanel": {
+    "label": "Satır: {title}",
+    "close": "Kapat",
+    "closeHint": "Kapat (Esc)",
+    "previous": "Önceki satır",
+    "previousHint": "Önceki satır (K)",
+    "next": "Sonraki satır",
+    "nextHint": "Sonraki satır (J)",
+    "openPage": "Tam sayfa olarak aç",
+    "copyLink": "Bağlantıyı kopyala",
+    "linkCopied": "Bağlantı kopyalandı",
+    "resize": "Genişliği ayarlamak için sürükleyin",
+    "notInDatabase": "Bu sayfa artık bir veritabanının satırı değil.",
+    "database": "Veritabanları kendi sayfalarında açılır.",
+    "unavailable": "Bu satır yok ya da ona erişiminiz yok.",
+    "offline": "Bu satır çevrimdışıyken yüklenemiyor.",
+    "loadFailed": "Bu satır yüklenemedi.",
+    "retry": "Tekrar dene"
   },
   "bulk": {
     "actions": "Seçili satırlar",
@@ -558,7 +578,12 @@
     "newDateProperty": "Yeni tarih özelliği",
     "groupBy": "Grupla",
     "noGrouping": "Yok",
-    "showTable": "Tabloyu göster"
+    "showTable": "Tabloyu göster",
+    "openRows": "Satırları aç",
+    "openRowsIn": {
+      "panel": "Yan panelde",
+      "page": "Tam sayfada"
+    }
   },
   "gallery": {
     "new": "Yeni",

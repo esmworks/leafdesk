@@ -4,6 +4,7 @@ import type {
   ChartAccumulate,
   ChartSort,
   ChartType,
+  OpenRows,
   SubItemsDisplay,
   TimelineZoom,
   ViewConfig,
@@ -20,6 +21,9 @@ export const CARD_SIZES = ["small", "medium", "large"] as const satisfies readon
 export const COVER_SOURCES = ["first_image", "property", "none"] as const satisfies readonly ViewCover["source"][];
 export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readonly TimelineZoom[];
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
+export const OPEN_ROWS = ["panel", "page"] as const satisfies readonly OpenRows[];
+/** The views whose rows open from them; forms have none and charts list theirs as links. */
+export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "timeline"] as const satisfies readonly ViewType[];
 
 /** How narrow and how wide a table column may be saved (the table keeps a dragged column within these). */
 export const MIN_COLUMN_WIDTH = 60;
@@ -40,6 +44,16 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
   chart: "Chart",
   form: "Form",
 };
+
+/** Whether a view of this type opens rows (see ROW_VIEW_TYPES). */
+export function opensRows(type: ViewType): boolean {
+  return (ROW_VIEW_TYPES as readonly ViewType[]).includes(type);
+}
+
+/** Where the view opens its rows: a panel beside it unless it was set to open them as pages. */
+export function openRowsOf(config: Pick<ViewConfig, "openRows">): OpenRows {
+  return config.openRows === "page" ? "page" : "panel";
+}
 
 export function galleryCover(config: Pick<ViewConfig, "cover">): ViewCover["source"] {
   const source = config.cover?.source;
@@ -74,6 +88,9 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   if (c.calendarMode !== undefined && !CALENDAR_MODES.includes(c.calendarMode as CalendarMode)) {
     return `Calendar mode must be one of: ${CALENDAR_MODES.join(", ")}`;
+  }
+  if (c.openRows !== undefined && !OPEN_ROWS.includes(c.openRows as OpenRows)) {
+    return `openRows must be one of: ${OPEN_ROWS.join(", ")}`;
   }
   for (const key of ["showTable", "showValues", "showLegend"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;

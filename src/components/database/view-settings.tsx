@@ -24,7 +24,7 @@ import {
 import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
 import { isGroupable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
-import { CARD_SIZES, coverProperty, galleryCover, viewDateProperty } from "@/lib/views";
+import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewDateProperty } from "@/lib/views";
 import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -70,7 +70,8 @@ export type DependenciesHandler = (on: boolean, input?: { propertyId?: string; s
 
 /**
  * Layout settings of gallery, timeline and chart views (card size and cover; dates, swimlanes and
- * table; the chart), sub-items in table, list and timeline views, and dependencies in timelines.
+ * table; the chart), sub-items in table, list and timeline views, dependencies in timelines, and
+ * where every view with rows opens them.
  */
 export function ViewLayoutMenu({
   view,
@@ -96,9 +97,10 @@ export function ViewLayoutMenu({
   const t = useTranslations("database.layout");
   const menu = useFloating<HTMLButtonElement>();
   const nesting = NESTING_VIEWS.has(view.type);
-  // A table or list without sub-items has nothing to set but turning them on.
-  if (readOnly || (!nesting && view.type !== "gallery" && view.type !== "chart")) return null;
-  if (nesting && view.type !== "timeline" && !parentProperty(properties) && (!onSubItems || locked)) return null;
+  const rows = opensRows(view.type);
+  if (readOnly || (!rows && view.type !== "chart")) return null;
+  // A table or list without sub-items has nothing to set about them but turning them on.
+  const subItems = nesting && (view.type === "timeline" || !!parentProperty(properties) || (!!onSubItems && !locked));
   const config = view.config;
   const set = (patch: ViewConfig) => onConfig({ ...config, ...patch });
 
@@ -162,7 +164,7 @@ export function ViewLayoutMenu({
               }}
             />
           ) : null}
-          {nesting && (
+          {subItems && (
             <SubItemsSettings
               view={view}
               properties={properties}
@@ -177,6 +179,18 @@ export function ViewLayoutMenu({
                   : undefined
               }
             />
+          )}
+          {rows && (
+            <>
+              {/* After the view's own settings; a table, list or board may have none. */}
+              {(view.type === "gallery" || view.type === "timeline" || subItems) && <MenuSeparator />}
+              <Heading>{t("openRows")}</Heading>
+              {OPEN_ROWS.map((where) => (
+                <Choice key={where} active={openRowsOf(config) === where} onClick={() => set({ openRows: where === "page" ? "page" : undefined })}>
+                  {t(`openRowsIn.${where}`)}
+                </Choice>
+              ))}
+            </>
           )}
           {view.type === "timeline" && onDependencies && !locked && (
             <DependencySettings

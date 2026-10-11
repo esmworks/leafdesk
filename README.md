@@ -115,6 +115,12 @@ versions, upgrades and running behind a domain.
     ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
     "N more properties"; the choice is the database's, for everyone.
+  - Rows open in a side panel beside the view, which stays in use: the row's properties, body
+    (edited together, with who's there), comments and menu, with the next and previous rows of the
+    view (J and K), "Open as full page" and a copy link. The open row is in the address, so links
+    and reloads open it again and Back closes it; the panel's width can be dragged and is kept per
+    browser. Each view can open its rows as full pages instead; ⌘/Ctrl-click or a middle click
+    opens a row in a new tab, and phones always open the full page.
   - Quick add: a new row's name can carry its date, people and options, as in
     "Send the offer friday @Ayşe #urgent". Dates are read in the interface language and in English
     (today, tomorrow, next tuesday, in 3 days, 12/31, 31.12.2026...) and go to the view's date

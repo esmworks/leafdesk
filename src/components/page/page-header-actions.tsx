@@ -80,6 +80,8 @@ export function PageHeaderActions({
   commentsOpen = false,
   onGraph,
   onMoveToTrash,
+  onOpenPage,
+  compact = false,
   offline = false,
   style,
   onStyle,
@@ -100,6 +102,10 @@ export function PageHeaderActions({
   /** Opens or closes the graph of the page beside it. */
   onGraph?: () => void;
   onMoveToTrash: () => void;
+  /** Opens a page made here (a copy) somewhere else than by going to it: the row panel. */
+  onOpenPage?: (workspaceId: string, pageId: string) => void;
+  /** Narrow (the row panel): when it was edited is left to the page menu. */
+  compact?: boolean;
   /** The server can't be reached: sharing, comments, favorites and the page menu need it. */
   offline?: boolean;
   /** The page's style, for pages with a body. */
@@ -168,9 +174,11 @@ export function PageHeaderActions({
   return (
     <>
       {/* Popover's own wrapper is inline-flex, so hide from outside it on small screens. */}
-      <span className="hidden md:inline-flex">
-        <EditedButton info={info} onOpen={refresh} />
-      </span>
+      {!compact && (
+        <span className="hidden md:inline-flex">
+          <EditedButton info={info} onOpen={refresh} />
+        </span>
+      )}
       <PresenceAvatars viewers={viewers} />
       {!page.archived && (
         <Popover
@@ -249,6 +257,7 @@ export function PageHeaderActions({
         onHistory={onHistory}
         onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
+        onOpenPage={onOpenPage}
         offline={offline}
         style={style}
         onStyle={onStyle}
@@ -360,6 +369,7 @@ function PageMenu({
   onHistory,
   onGraph,
   onMoveToTrash,
+  onOpenPage,
   offline,
   style,
   onStyle,
@@ -371,6 +381,7 @@ function PageMenu({
   onHistory: () => void;
   onGraph?: () => void;
   onMoveToTrash: () => void;
+  onOpenPage?: (workspaceId: string, pageId: string) => void;
   offline: boolean;
   style?: PageStyle;
   onStyle?: (change: Partial<PageStyle>) => void;
@@ -428,7 +439,8 @@ function PageMenu({
         return;
       }
       close();
-      router.push(`/w/${result.workspaceId}/p/${result.id}`);
+      if (onOpenPage) onOpenPage(result.workspaceId, result.id);
+      else router.push(`/w/${result.workspaceId}/p/${result.id}`);
     });
 
   const setLocked = (locked: boolean) =>

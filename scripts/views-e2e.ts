@@ -154,6 +154,7 @@ try {
     ["cover shape", { cover: "first_image" }],
     ["show table", { showTable: "yes" }],
     ["end date", { endDateBy: 42 }],
+    ["open rows", { openRows: "tab" }],
   ];
   for (const [label, config] of bad) {
     check(
@@ -164,7 +165,7 @@ try {
   await updateView(ids.owner, timeline.id, {
     config: { ...timeline.config, endDateBy: ends.id, zoom: "month", showTable: false, groupBy: status.id },
   });
-  await updateView(ids.owner, gallery.id, { config: { cardSize: "large", cover: { source: "first_image" } } });
+  await updateView(ids.owner, gallery.id, { config: { cardSize: "large", cover: { source: "first_image" }, openRows: "page" } });
   const views = (await getDatabaseSnapshot(ids.owner, tasks.id)).views;
   const saved = views.find((v) => v.id === timeline.id)!.config;
   check(
@@ -172,7 +173,8 @@ try {
     "valid timeline settings are saved",
     saved,
   );
-  check(views.find((v) => v.id === gallery.id)!.config.cardSize === "large", "valid gallery settings are saved");
+  const savedGallery = views.find((v) => v.id === gallery.id)!.config;
+  check(savedGallery.cardSize === "large" && savedGallery.openRows === "page", "valid gallery settings are saved", savedGallery);
 
   // Timeline drags write start and end in one row update
   const r1 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "With image" });
@@ -277,6 +279,7 @@ try {
     type: "gallery",
     card_size: "small",
     cover: "none",
+    open_rows: "page",
   });
   check(!cards.isError && cards.data.card_size === "small" && cards.data.cover === "none", "MCP creates a gallery with its settings", cards.text);
   const ungrouped = await callTool(ids.owner, "update_database_view", {
@@ -286,11 +289,17 @@ try {
     zoom: "week",
   });
   check(!ungrouped.isError && !("group_by" in ungrouped.data) && ungrouped.data.zoom === "week", "MCP removes timeline swimlanes", ungrouped.text);
-  const listed = await callTool(ids.owner, "create_database_view", { database_id: tasks.id, name: "Compact", type: "list" });
-  check(!listed.isError && listed.data.type === "list", "MCP creates a list view", listed.text);
+  const listed = await callTool(ids.owner, "create_database_view", { database_id: tasks.id, name: "Compact", type: "list", open_rows: "page" });
+  check(!listed.isError && listed.data.type === "list" && listed.data.open_rows === "page", "MCP creates a list view that opens rows as pages", listed.text);
+  const panelAgain = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: listed.data.id, open_rows: "panel" });
+  check(!panelAgain.isError && !("open_rows" in panelAgain.data), "MCP sets a view back to opening rows in the panel", panelAgain.text);
+  const formRows = await callTool(ids.owner, "create_database_view", { database_id: tasks.id, name: "Ask", type: "form", open_rows: "page" });
+  check(formRows.isError && /open_rows/.test(formRows.text), "MCP refuses where to open rows on a form", formRows.text);
   const described = await callTool(ids.owner, "get_database", { database_id: tasks.id });
   const roadmap = described.data.views.find((v: { id: string }) => v.id === created.data.id);
   check(roadmap?.type === "timeline" && roadmap.show_table === false, "get_database describes timeline settings", roadmap);
+  const galleryDescribed = described.data.views.find((v: { id: string }) => v.id === cards.data.id);
+  check(galleryDescribed?.open_rows === "page" && !("open_rows" in roadmap), "get_database tells which views open rows as pages", galleryDescribed);
 
   // A published database shows the columns its first view shows, whatever the view's type
   const published = await createPage(actor, { workspaceId, kind: "database", title: "Public list" });

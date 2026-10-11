@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { Button, cn, PageIcon } from "@/components/ui";
@@ -27,6 +26,7 @@ import { CalendarFeedButton } from "./calendar-feed";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
+import { openRowProps, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { useToday, useViewerTimeZone } from "./use-today";
 import type { Property, Row, View } from "./types";
@@ -693,19 +693,19 @@ function CalendarEntry({
   onDragEnd: () => void;
 }) {
   const tc = useTranslations("common");
-  const router = useRouter();
-  const href = `/w/${workspaceId}/p/${row.id}`;
+  const opener = useRowOpener(workspaceId);
   const shown = shownValues(props, row).slice(0, MAX_ENTRY_PROPS);
   return (
     <div
       role="link"
       tabIndex={0}
+      {...openRowProps(opener, row.id, !editTitle)}
       draggable={!readOnly && !editTitle}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onClick={() => !editTitle && router.push(href)}
+      onClick={(e) => !editTitle && opener.open(row.id, e)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) router.push(href);
+        if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) opener.open(row.id, e);
       }}
       className={cn(
         "min-w-0 cursor-pointer rounded-md border border-border bg-bg px-1.5 py-1 text-xs shadow-sm hover:bg-bg-subtle",
@@ -713,6 +713,7 @@ function CalendarEntry({
         after && "rounded-r-none border-r-0",
         block && "h-full overflow-hidden py-0.5",
         dragging && "opacity-40",
+        opener.current === row.id && "outline-2 outline-accent/60",
       )}
     >
       {editTitle ? (

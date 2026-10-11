@@ -1,7 +1,6 @@
 "use client";
 
-import { Check, EyeOff, Ellipsis, ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useContext, useEffect, useRef, useState, type DragEvent } from "react";
 import { Button, cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -22,10 +21,12 @@ import {
 import { isHiddenInView, positionBetween, SELECT_COLORS, statusColor } from "@/lib/properties";
 import { Floating, useFloating } from "./floating";
 import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
+import { OpenRowItems } from "./open-row-items";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
+import { openRowProps, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { useToday } from "./use-today";
 import type { Property, Row, View } from "./types";
@@ -618,21 +619,22 @@ function Card({
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
-  const router = useRouter();
+  const opener = useRowOpener(workspaceId);
   const menu = useFloating<HTMLButtonElement>();
-  const href = `/w/${workspaceId}/p/${row.id}`;
   const shown = shownValues(props, row);
 
   return (
     <div
       data-card={row.id}
+      {...openRowProps(opener, row.id, !editTitle)}
       draggable={!readOnly && !editTitle}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onClick={() => !editTitle && router.push(href)}
+      onClick={(e) => !editTitle && opener.open(row.id, e)}
       className={cn(
         "board-card group relative cursor-pointer rounded-lg px-3 py-2.5",
         dragging && "opacity-40",
+        opener.current === row.id && "outline-2 outline-accent/60",
       )}
     >
       {editTitle ? (
@@ -669,15 +671,7 @@ function Card({
             <Ellipsis className="h-3.5 w-3.5" />
           </button>
           <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end">
-            <MenuItem
-              icon={<ExternalLink className="h-3.5 w-3.5" />}
-              onClick={() => {
-                menu.close();
-                router.push(href);
-              }}
-            >
-              {t("rowMenu.open")}
-            </MenuItem>
+            <OpenRowItems opener={opener} rowId={row.id} onDone={menu.close} />
             <MenuSeparator />
             <MenuItem
               danger

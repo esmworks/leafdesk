@@ -48,6 +48,22 @@
 
 ### Added
 
+- **Rows open beside the view.** Clicking a row or card in a table, board, calendar, gallery, list
+  or timeline, also in a database inside a page, opens it in a panel at the right, and the view
+  stays usable next to it: title, icon, properties (with "N more properties"), the body edited
+  together with who's there, comments (their panel opens alongside) and the row's menu, where
+  Duplicate opens the copy in the panel and Move to trash closes it. The panel steps to the
+  previous and next row in the view's order (buttons, or K and J outside text, listed under
+  Keyboard shortcuts), opens the row as a full page or copies a link to it, and closes with its
+  button or Esc, giving focus back to the row. The open row is in the address (`?row=`): a link or
+  a reload opens it again, Back closes it, and moving between rows doesn't add to the history. Its
+  width can be dragged (400–1,200 pixels, leaving the view at least 320) and is kept in the
+  browser. A row trashed or moved out of its database by someone else, or one the viewer can't
+  see, shows that in the panel. A view's layout menu has "Open rows in: Side panel / Full page"
+  (side panel unless set), and MCP views take `open_rows` (`panel` or `page`); `get_database`
+  shows `open_rows: "page"` on views that open full pages. ⌘/Ctrl-click and middle clicks open
+  the row in a new tab; phones and offline pages open the full page. Published pages are
+  unchanged. No migration.
 - **Deleting a workspace.** Owners find Settings → General → Deletion. The dialog asks for the
   workspace's name, typed as shown, and the same proof as deleting the account (the password, a
   two-step code, or a recent sign-in); a mistyped name is refused before the proof is checked, so

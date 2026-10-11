@@ -43,6 +43,8 @@
     "undo": "Undo",
     "redo": "Redo",
     "openRow": "Open the focused row or card",
+    "previousRow": "Previous row (with a row open beside the view)",
+    "nextRow": "Next row (with a row open beside the view)",
     "moveBar": "Move a timeline bar by a day",
     "saveFormula": "Save a formula or an AI autofill prompt",
     "clearSelection": "Clear the row selection"

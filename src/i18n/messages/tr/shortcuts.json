@@ -43,6 +43,8 @@
     "undo": "Geri al",
     "redo": "Yinele",
     "openRow": "Odaktaki satırı veya kartı aç",
+    "previousRow": "Önceki satır (görünümün yanında bir satır açıkken)",
+    "nextRow": "Sonraki satır (görünümün yanında bir satır açıkken)",
     "moveBar": "Zaman çizelgesindeki çubuğu bir gün kaydır",
     "saveFormula": "Formülü veya yapay zekâyla doldurma istemini kaydet",
     "clearSelection": "Satır seçimini kaldır"

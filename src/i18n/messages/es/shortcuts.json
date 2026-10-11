@@ -43,6 +43,8 @@
     "undo": "Deshacer",
     "redo": "Rehacer",
     "openRow": "Abrir la fila o tarjeta seleccionada",
+    "previousRow": "Fila anterior (con una fila abierta junto a la vista)",
+    "nextRow": "Fila siguiente (con una fila abierta junto a la vista)",
     "moveBar": "Mover una barra de la cronología un día",
     "saveFormula": "Guardar una fórmula o una instrucción de autorrelleno con IA",
     "clearSelection": "Quitar la selección de filas"

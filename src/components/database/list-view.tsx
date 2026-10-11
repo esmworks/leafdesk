@@ -1,7 +1,6 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
@@ -11,6 +10,7 @@ import { CardTitleInput } from "./board-view";
 import { RowMenu } from "./gallery-view";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
+import { openRowProps, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
@@ -120,24 +120,27 @@ function ListRow({
   onDelete: () => void;
 }) {
   const tc = useTranslations("common");
-  const router = useRouter();
+  const opener = useRowOpener(workspaceId);
   const row = line.row;
-  const href = `/w/${workspaceId}/p/${row.id}`;
   const shown = shownValues(props, row);
   const label = pageLabel(row.title, tc("untitled"));
   return (
     <div
       role="listitem"
-      className="group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover"
+      className={cn(
+        "group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover",
+        opener.current === row.id && "bg-bg-hover",
+      )}
       style={nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
     >
       {nested && <SubItemToggle line={line} title={label} onToggle={onToggle} className="-mr-1 h-6" />}
       <div
         role="link"
         tabIndex={0}
-        onClick={() => !editTitle && router.push(href)}
+        {...openRowProps(opener, row.id, !editTitle)}
+        onClick={(e) => !editTitle && opener.open(row.id, e)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) router.push(href);
+          if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) opener.open(row.id, e);
         }}
         className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 self-stretch rounded-sm"
       >
@@ -162,7 +165,7 @@ function ListRow({
       {onAddSubItem && !editTitle && (
         <AddSubItemButton title={label} onAdd={onAddSubItem} className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100" />
       )}
-      {!readOnly && !editTitle && <RowMenu href={href} onDelete={onDelete} className="shrink-0" />}
+      {!readOnly && !editTitle && <RowMenu opener={opener} rowId={row.id} onDelete={onDelete} className="shrink-0" />}
     </div>
   );
 }

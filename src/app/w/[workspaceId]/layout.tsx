@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { AiChatProvider } from "@/components/ai-chat/chat-panel";
 import { StaleClientScreen } from "@/components/collab/stale-client";
+import { RowPanelProvider } from "@/components/database/row-panel";
 import { OfflineProvider } from "@/components/offline/offline-context";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { FloatingSidebarButton, SidebarProvider } from "@/components/sidebar/sidebar-context";
@@ -52,26 +53,29 @@ export default async function WorkspaceLayout({
   ]);
 
   const body = (
-    <div className="flex h-full">
-      <Sidebar
-        workspaceId={workspaceId}
-        workspaces={workspaces}
-        joinable={joinable}
-        initialTree={sidebar.tree}
-        initialTeamspaces={sidebar.teamspaces}
-        canCreateTeamspace={canCreate}
-        canCreateWorkspace={canCreateWorkspace(user)}
-        isInstanceAdmin={isInstanceAdmin(user)}
-        initialFavorites={favorites}
-        topLevel={topLevel}
-        initialLayout={sidebarLayout}
-        user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
-      />
-      <main className="min-w-0 flex-1 overflow-y-auto">
-        <FloatingSidebarButton />
-        {children}
-      </main>
-    </div>
+    // Database rows open in a panel at the right; the page beside it keeps clear of it.
+    <RowPanelProvider workspaceId={workspaceId} user={{ id: user.id, name: user.name }}>
+      <div className="flex h-full">
+        <Sidebar
+          workspaceId={workspaceId}
+          workspaces={workspaces}
+          joinable={joinable}
+          initialTree={sidebar.tree}
+          initialTeamspaces={sidebar.teamspaces}
+          canCreateTeamspace={canCreate}
+          canCreateWorkspace={canCreateWorkspace(user)}
+          isInstanceAdmin={isInstanceAdmin(user)}
+          initialFavorites={favorites}
+          topLevel={topLevel}
+          initialLayout={sidebarLayout}
+          user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
+        />
+        <main className="min-w-0 flex-1 overflow-y-auto md:mr-[var(--row-panel-width,0px)]">
+          <FloatingSidebarButton />
+          {children}
+        </main>
+      </div>
+    </RowPanelProvider>
   );
 
   return (
