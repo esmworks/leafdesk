@@ -14,6 +14,37 @@
   refuses to start until `.env` sets `POSTGRES_PASSWORD`. If you never set one, your database
   has the old default: add `POSTGRES_PASSWORD=leafdesk` (and change it inside PostgreSQL later if
   you like). An external database needs nothing.
+- **Allowed email domains must be verified.** A workspace's allowed domains stop letting people
+  join, ask to join or find the workspace until an owner proves each one: Settings → Security
+  shows the DNS TXT record to add at `_leafdesk-sso.<domain>` and a Verify button. Domains its
+  single sign-on already verified keep working. Tell your workspaces' owners before upgrading. The
+  record's value is derived from `BETTER_AUTH_SECRET`; changing the secret changes it for domains
+  not verified yet.
+- **Connection events start untrusted.** Migration 0053 adds a "Trust what this service sends"
+  switch to each event trigger, off for existing ones: an agent run started by an event now waits
+  for an owner's approval at its first connection tool call. In Settings → Connections → Events,
+  trust only the triggers of services where nobody outside the workspace can make it send events.
+- **Pages more than 64 levels deep.** Migration 0055 gives no access to a page the access rule
+  can't follow to the top level within 64 steps, and sharing changes above such a page may be
+  refused while it has entries of its own. Find them before upgrading, and move them or a page
+  above them higher:
+
+  ```sql
+  WITH RECURSIVE d AS (
+    SELECT id, 0 AS depth FROM page WHERE parent_id IS NULL
+    UNION ALL
+    SELECT p.id, d.depth + 1 FROM page p JOIN d ON p.parent_id = d.id WHERE d.depth < 200
+  )
+  SELECT id, depth FROM d WHERE depth > 64;
+  ```
+- **Migrations delete stored data nobody used.** Migration 0055 clears the access, refresh and ID
+  tokens sign-in providers handed over (Leafdesk never read them). Migration 0056 deletes the page
+  and property entries, calendar feeds and workspace-only API tokens of people who are no longer
+  members of that workspace; none of them worked while they were out, but they came back if the
+  person was let in again.
+- **Verification links on another device.** Someone who signs up and opens the verification email
+  in a browser that isn't signed in to the account is signed out everywhere else and asked to
+  choose a new password, through a link emailed to the address, at their next password sign-in.
 
 ### Added
 
@@ -49,16 +80,17 @@
 - **Restore deleted properties and views.** Deleting a database property or view no longer erases
   it: "Deleted properties" (at the bottom of a view's Properties menu) and "Deleted views" (under
   the add-view button) list what was deleted, by whom and when, and the day it goes for good, with
-  Restore and Delete permanently. People who can change the database's properties see them; a
-  locked database refuses both. A restored property comes back with its row values and with the
-  filters, sorts, grouping, form questions and other view settings that named it; formulas and
-  rollups that showed it as missing work again. A name taken meanwhile gets a number ("Estimate
-  2"). Deleting either side of a two-way relation now deletes the pair (it used to make the other
-  side one-way), and restoring either brings both back. While deleted, a property is left out of
-  views, row pages, filters, CSV and Markdown exports, the workspace backup, search, the API, MCP,
-  forms, templates, automations (whose steps that set only it are skipped) and property access
-  rules. Deleted properties and views are deleted permanently with the trash, after the
-  workspace's trash retention. The audit log records them deleted, restored and deleted
+  Restore and Delete permanently. People who can change the database's properties see them; a locked
+  database refuses both. A restored property comes back with its row values and with the filters,
+  sorts, grouping, form questions and other view settings that named it; formulas and rollups that
+  showed it as missing work again. A name taken meanwhile gets a number ("Estimate 2"). Deleting
+  either side of a two-way relation now deletes the pair (it used to make the other side one-way),
+  and restoring either brings both back, unless the other side is in a database you can't edit or
+  that is locked: then only your side goes and the other becomes one-way. While deleted, a property
+  is left out of views, row pages, filters, CSV and Markdown exports, the workspace backup, search,
+  the API, MCP, forms, templates, automations (whose steps that set only it are skipped) and
+  property access rules. Deleted properties and views are deleted permanently with the trash, after
+  the workspace's trash retention. The audit log records them deleted, restored and deleted
   permanently. Migration 0051.
 - **Date ranges and times.** A date can have an end ("Oct 12 → Oct 14") and a time of day
   ("Oct 12, 14:30", "Oct 12, 14:30 → 16:00"), switched on in the date picker with "End date" and
@@ -199,11 +231,73 @@
   left alone. Pages and rows are not touched, and a webhook sends the row as it is. The model
   still reads tool answers and its own conversation unmasked (an event's body reaches it masked),
   and a run waiting for approval keeps its conversation as it was until it ends. Already stored
-  runs, events, errors and audit events stay as they are. No migration.
+  runs, events, errors and audit events stay as they are. Masking takes time in proportion to the
+  text's length, however it is made up. No migration.
 - **A clearer home page.** The home page greets you with today's date under the welcome, and
   shows the recently edited pages as cards in two columns, with titles up to two lines instead of
   cut off. The assigned section now says so when nothing is assigned to you instead of
   disappearing. No migration.
+- **Allowed email domains are proven by DNS.** Anyone could add a domain they don't own to a
+  workspace's allowed domains and so let in, or be found by, everyone signing up with it. A domain
+  now counts only once its owner adds a TXT record (the same kind single sign-on asks for) and an
+  owner clicks Verify; a domain one workspace has verified, for single sign-on or as an allowed
+  domain, can't be verified by another. The audit log records it. No migration.
+- **Adding someone by email needs a verified address.** Anyone can sign up with someone else's
+  address, so adding a member by email, sharing a page by email, approving a member's invitation
+  request, MCP's `invite_member` and SCIM provisioning only add an existing account whose address
+  is verified. Others get the invitation emailed to the address, as someone without an account
+  does ("invited", not "added"); SCIM answers 400 until the address is verified. Approving
+  someone's own request to join no longer hands them the invitations waiting for an unverified
+  address. No migration.
+- **A verification link hands the account to the address's owner.** Following it in a browser
+  that isn't signed in to the account ends its other sessions, removes its passkeys, two-step
+  verification, API tokens and connected apps, and makes its password be replaced through an
+  emailed reset link, so whoever signed up with the address first keeps nothing. Following it
+  where you signed up, still signed in, changes nothing. No migration.
+- **Leaving a workspace takes what it gave.** Leaving, being removed or being removed over SCIM
+  now also deletes the person's page and property entries there, their calendar feeds of it and
+  API tokens made only for it (after an owner takes over the pages only they could manage), so
+  coming back starts afresh. Migration 0056 clears what earlier departures left.
+- **File addresses in a page grant nothing by themselves.** Writing a file's address into a page
+  let everyone who could read the page open the file. A file now loads on a page only once someone
+  who can already open it puts it there (by editing, the API, MCP, a database value or a
+  template); duplicates, templates and published copies keep that. A file held only in a files
+  property that property access hides is no longer served through that row, to visitors of
+  published pages either. References made before the upgrade keep working. Migration 0057.
+- **Less in the Share panel for guests.** Access inherited from a page above names that page only
+  to people who can open it ("From a page above"), and guests see people's names but not their
+  email addresses, and that a group has access but not which one. No migration.
+- **Published databases send less.** Visitors get each property's name, type and what drawing its
+  values takes, not its whole settings (formula expressions, relation and rollup settings). No
+  migration.
+- **Notices name a database only to people who can open it.** Inbox items and assignment,
+  reminder and automation emails leave out the database's name for someone who can open the row
+  but not its database. No migration.
+- **Event runs ask before acting.** Every connection tool call of an agent run started by a
+  connection event waits for an owner's approval, unless its trigger is marked "Trust what this
+  service sends". Owners approve the call exactly as it will be sent: the run shows it in full and
+  unmasked, and the inbox offers Approve only when its shortened view is the whole call, else
+  "Open the run to approve". Answering an agent's call holds owners to the workspace's two-step
+  and single sign-on policies. A run started by an answer to a public form from someone outside
+  the workspace acts with no more access than the form's publisher has. Migrations 0053 and 0054.
+- **AI autofill leaves out rollups over restricted values.** A rollup over a related property
+  that property access restricts, and formulas reading such a rollup, are no longer given to the
+  model. No migration.
+- **Formulas stop when they take too much work.** A formula gets 100,000 steps per row, `map()`
+  and other lists at most 10,000 items, and `replaceAll()` and `formatDate()` results at most
+  10,000 characters; past that, or on any other evaluation error, that formula shows "takes too
+  much work" (or an error) on that row and the rest of the page loads. Nested list functions over
+  linked rows could otherwise keep the server busy for minutes. No migration.
+- **Pages nest at most 60 levels deep.** Creating, moving, duplicating, database rows, templates
+  and imports refuse deeper pages, and the access rule gives no access to a page it can't follow
+  to the top level, rather than the teamspace's default past a restriction higher up. Migration
+  0055.
+- **No sign-in provider tokens are kept.** Signing in with GitHub, Google, OIDC or single sign-on
+  no longer stores the provider's access, refresh and ID tokens, and those stored before are
+  cleared. SECURITY.md lists what is still stored as it is. Migration 0055.
+- **Emoji icons only.** Page and teamspace icons take one emoji (up to 8 code points); creating a
+  page from the app takes only the fields the app sends, with content up to 500,000 characters.
+  No migration.
 
 ## 0.5.0 — 2026-10-09
 
