@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Health endpoints.** `GET /api/health` answers 200 `{"status":"ok"}` whenever the server
+  handles requests, without reading a session or the database. `GET /api/health/ready` also checks
+  that the database answers within 2 seconds and has the newest migration this version ships with
+  (a newer one, after going back to an older image, still counts as ready): 200 `{"status":"ok"}`,
+  else 503 with which check failed, in fixed words only (`unreachable`, `timeout`, `pending`,
+  `unknown`), never the database's error text; the server log gets the error code once per change.
+  Both are open without sign-in, never cached and set no cookie. docker-compose.yml marks the app
+  healthy on `/api/health/ready`; the image's `HEALTHCHECK` uses `/api/health`, so a database
+  outage doesn't get the container replaced. No migration.
 - **Import Word documents.** Import has a Word tab that takes one or more `.docx` files, each
   becoming a page under the chosen page or teamspace: titled by the heading it starts with (or its
   Title paragraph), else by its file name, with headings, bold, italic, underline, strikethrough,

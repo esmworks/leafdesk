@@ -269,6 +269,9 @@ jobs:
           echo "The server did not come up within 60 seconds."
           exit 1
 
+      - name: Health endpoints end-to-end
+        run: pnpm tsx scripts/health-e2e.ts
+
       - name: Create the e2e user
         run: |
           curl -fsS -o /dev/null http://localhost:3000/api/auth/sign-up/email \

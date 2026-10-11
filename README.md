@@ -398,6 +398,18 @@ only as far as these proxies wrote it. Set `0` when clients reach the app direct
 visitor could send the header and pose as a new address with every answer. Behind a CDN plus a
 proxy, set `2`.
 
+For load balancers, reverse proxies and orchestrators there are two health endpoints, both
+without sign-in and never cached. `GET /api/health` answers 200 `{"status":"ok"}` while the server
+handles requests and touches nothing else (a liveness probe). `GET /api/health/ready` also checks
+that PostgreSQL answers within 2 seconds and has the newest migration: 200 `{"status":"ok"}` when
+it does, otherwise 503 with the failed check, e.g.
+`{"status":"unavailable","checks":{"database":"unreachable","migrations":"unknown"}}` (database:
+`ok`, `unreachable` or `timeout`; migrations: `ok`, `pending` or `unknown`). Neither says anything
+else about the instance; the reason behind a 503 goes to the server log as an error code. The
+compose file marks the app healthy on `/api/health/ready`; the image's own `HEALTHCHECK` (for
+`docker run` and Docker Swarm) uses `/api/health`, so a database outage doesn't get the app
+container replaced.
+
 ### Use an external PostgreSQL
 
 The compose file runs PostgreSQL 18 only while `COMPOSE_PROFILES=bundled-db` is set in `.env`.
@@ -941,7 +953,8 @@ handles database backups on its own. No compose file is involved.
    URL from step 1).
 4. Under **Domains**, add your domain with container port `3000` and HTTPS.
 5. Deploy. Migrations run when the container starts. Turn on auto deploy to redeploy on every
-   push.
+   push. For a health check, use path `/api/health` on port `3000` (see
+   [Quick start](#quick-start-docker) for `/api/health/ready`).
 
 ## Automations and webhooks
 
