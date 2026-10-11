@@ -3,12 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { WorkspaceRole, WorkspaceSettings } from "@/db/schema";
+import { type Proof, proofOf } from "@/lib/account";
 import { isStrongSession } from "@/lib/auth-security";
 import { AccessError } from "@/server/access";
+import { AccountError } from "@/server/account";
 import { revokeFormPublication } from "@/server/forms";
 import { approveJoinRequest, declineJoinRequest, joinFromSwitcher } from "@/server/join-requests";
 import { revokePublication } from "@/server/publication";
 import { getSession, requireUserId } from "@/server/session";
+import { deleteWorkspace } from "@/server/workspace-deletion";
 import {
   acceptInvitation,
   addMembers,
@@ -36,6 +39,8 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   } catch (error) {
     if (error instanceof WorkspaceError) return fail(error.code, error.detail);
     if (error instanceof AccessError) return fail("ownersOnly");
+    // Proof asked before deleting the workspace, worded as on the account page.
+    if (error instanceof AccountError) return { ok: false, error: (await getTranslations("account.errors"))(error.code) };
     throw error;
   }
 }
@@ -59,6 +64,16 @@ export async function updateWorkspaceSettingsAction(workspaceId: string, patch: 
   const strongSession = isStrongSession(session);
   const result = await run(() => updateWorkspaceSettings(session.user.id, workspaceId, patch, { strongSession }));
   refresh(workspaceId);
+  return result;
+}
+
+/** Deletes the workspace for good. Owners only, with its name typed and proof, as for the account. */
+export async function deleteWorkspaceAction(workspaceId: string, input: { confirmation: string; proof: Proof }) {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+  const { confirmation, proof } = (input ?? {}) as Record<string, unknown>;
+  const result = await run(() => deleteWorkspace(session, workspaceId, { confirmation, proof: proofOf(proof) }));
+  if (result.ok) revalidatePath("/", "layout");
   return result;
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cleanName,
   confirmsDeletion,
+  confirmsWorkspaceName,
   passwordProblem,
   planAccountDeletion,
   proofKindFor,
@@ -77,5 +78,18 @@ describe("confirmsDeletion", () => {
     expect(confirmsDeletion(" Ada@Example.test ", "ada@example.test")).toBe(true);
     expect(confirmsDeletion("ada@example.tes", "ada@example.test")).toBe(false);
     expect(confirmsDeletion(null, "ada@example.test")).toBe(false);
+  });
+});
+
+describe("confirmsWorkspaceName", () => {
+  it("takes the workspace's name as shown, trimmed", () => {
+    expect(confirmsWorkspaceName(" GNY Antalya ", "GNY Antalya")).toBe(true);
+    expect(confirmsWorkspaceName("gny antalya", "GNY Antalya")).toBe(false);
+    expect(confirmsWorkspaceName("GNY", "GNY Antalya")).toBe(false);
+    expect(confirmsWorkspaceName(undefined, "GNY Antalya")).toBe(false);
+  });
+
+  it("matches a name however its letters are composed", () => {
+    expect(confirmsWorkspaceName("Kişisel", "Kişisel")).toBe(true);
   });
 });

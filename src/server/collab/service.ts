@@ -720,6 +720,17 @@ export function createCollab() {
         }
       }
     },
+
+    async disconnectWorkspace(workspaceId, pageIds) {
+      const gone = new Set(pageIds);
+      for (const doc of hocuspocus.documents.values()) {
+        const target = parseName(doc.name);
+        const affected = target?.kind === "ws" ? target.id === workspaceId : !!target && gone.has(target.id);
+        if (!affected) continue;
+        // Browsers that reconnect are refused, which drops their offline copy (components/collab/socket).
+        for (const connection of doc.getConnections()) connection.close({ code: 4403, reason: "Forbidden" });
+      }
+    },
   };
 
   /** Closes the connections to the workspace's documents (signals, pages, databases) that match. */

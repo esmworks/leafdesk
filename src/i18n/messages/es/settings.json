@@ -530,6 +530,17 @@
     "description": "Aquí eres invitado y solo ves las páginas compartidas contigo. Si sales, perderás ese acceso.",
     "button": "Salir"
   },
+  "deleteWorkspace": {
+    "heading": "Eliminación",
+    "title": "Eliminar espacio de trabajo",
+    "description": "Elimina este espacio de trabajo para todos, con todas sus páginas, bases de datos, archivos y ajustes. No se puede deshacer.",
+    "button": "Eliminar espacio de trabajo",
+    "dialogTitle": "¿Eliminar {name}?",
+    "dialogBody": "Todas las páginas, bases de datos, archivos, comentarios y ajustes de este espacio de trabajo se eliminan para todos sus miembros, junto con sus agentes, conexiones y registro de auditoría. Nadie podrá volver a abrirlo y no se puede restaurar. Expórtalo antes si quieres una copia.",
+    "typeName": "Escribe el nombre del espacio de trabajo para confirmar: {name}",
+    "confirm": "Eliminar para siempre",
+    "deleting": "Eliminando…"
+  },
   "copyManually": "Aquí no se puede copiar. Selecciona el texto y pulsa Ctrl+C (⌘C en un Mac).",
   "connectedApps": {
     "empty": "Todavía no hay apps conectadas.",
@@ -585,7 +596,8 @@
     "requestHandled": "Esta solicitud ya se gestionó.",
     "tooManyRequests": "Demasiadas solicitudes. Inténtalo más tarde.",
     "creationRestricted": "Solo los administradores del servidor pueden crear espacios de trabajo.",
-    "agentUser": "Es un agente, no una persona. Cámbialo o archívalo en la configuración del propio agente."
+    "agentUser": "Es un agente, no una persona. Cámbialo o archívalo en la configuración del propio agente.",
+    "confirmationMismatch": "Para confirmar, escribe el nombre del espacio de trabajo tal como aparece."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",

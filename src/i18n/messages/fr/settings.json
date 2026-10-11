@@ -530,6 +530,17 @@
     "description": "Vous êtes invité ici et ne voyez que les pages partagées avec vous. En quittant l’espace, vous perdez cet accès.",
     "button": "Quitter"
   },
+  "deleteWorkspace": {
+    "heading": "Suppression",
+    "title": "Supprimer l’espace de travail",
+    "description": "Supprime cet espace de travail pour tout le monde, avec toutes ses pages, bases de données, fichiers et paramètres. Cette action est irréversible.",
+    "button": "Supprimer l’espace de travail",
+    "dialogTitle": "Supprimer {name} ?",
+    "dialogBody": "Toutes les pages, bases de données, fichiers, commentaires et paramètres de cet espace de travail sont supprimés pour tous ses membres, ainsi que ses agents, ses connexions et son journal d’audit. Personne ne pourra plus l’ouvrir et il ne peut pas être restauré. Exportez-le d’abord si vous voulez en garder une copie.",
+    "typeName": "Saisissez le nom de l’espace de travail pour confirmer : {name}",
+    "confirm": "Supprimer définitivement",
+    "deleting": "Suppression…"
+  },
   "copyManually": "La copie n’est pas disponible ici. Sélectionnez le texte et appuyez sur Ctrl+C (⌘C sur Mac).",
   "connectedApps": {
     "empty": "Aucune application n’est encore connectée.",
@@ -585,7 +596,8 @@
     "requestHandled": "Cette demande a déjà été traitée.",
     "tooManyRequests": "Trop de demandes. Réessayez plus tard.",
     "creationRestricted": "Seuls les administrateurs du serveur peuvent créer des espaces de travail.",
-    "agentUser": "C’est un agent, pas une personne. Modifiez-le ou archivez-le dans les réglages de l’agent."
+    "agentUser": "C’est un agent, pas une personne. Modifiez-le ou archivez-le dans les réglages de l’agent.",
+    "confirmationMismatch": "Pour confirmer, saisissez le nom de l’espace de travail exactement comme il est affiché."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",

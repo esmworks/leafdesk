@@ -530,6 +530,17 @@
     "description": "Burada misafirsiniz ve yalnızca sizinle paylaşılan sayfaları görüyorsunuz. Ayrılırsanız bu erişimi kaybedersiniz.",
     "button": "Ayrıl"
   },
+  "deleteWorkspace": {
+    "heading": "Silme",
+    "title": "Çalışma alanını sil",
+    "description": "Bu çalışma alanını tüm sayfaları, veritabanları, dosyaları ve ayarlarıyla birlikte herkes için siler. Bu işlem geri alınamaz.",
+    "button": "Çalışma alanını sil",
+    "dialogTitle": "{name} silinsin mi?",
+    "dialogBody": "Bu çalışma alanındaki tüm sayfalar, veritabanları, dosyalar, yorumlar ve ayarlar; ajanları, bağlantıları ve denetim kaydıyla birlikte her üye için silinir. Kimse onu yeniden açamaz ve geri getirilemez. Bir kopyasını istiyorsanız önce dışa aktarın.",
+    "typeName": "Onaylamak için çalışma alanının adını yazın: {name}",
+    "confirm": "Kalıcı olarak sil",
+    "deleting": "Siliniyor…"
+  },
   "copyManually": "Burada kopyalama kullanılamıyor. Metni seçip Ctrl+C'ye (Mac'te ⌘C) basın.",
   "connectedApps": {
     "empty": "Henüz bağlı uygulama yok.",
@@ -585,7 +596,8 @@
     "requestHandled": "Bu istek zaten sonuçlandırıldı.",
     "tooManyRequests": "Çok fazla istek gönderildi. Daha sonra tekrar deneyin.",
     "creationRestricted": "Çalışma alanlarını yalnızca sunucunun yöneticileri oluşturabilir.",
-    "agentUser": "Bu bir ajan, kişi değil. Ajanın kendi ayarlarından değiştirin ya da arşivleyin."
+    "agentUser": "Bu bir ajan, kişi değil. Ajanın kendi ayarlarından değiştirin ya da arşivleyin.",
+    "confirmationMismatch": "Onaylamak için çalışma alanının adını gösterildiği gibi yazın."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",

@@ -8,8 +8,10 @@
  * proving it's you with a two-step or recovery code or a recent sign-in, changing the email through
  * the confirmation link, and deleting the account: refused while the only owner of a shared
  * workspace, then leaving shared workspaces (their private pages handed to an owner) and deleting
- * the ones nobody else is in, files and grants included. Creates its own @example.test users and
- * deletes them afterwards.
+ * the ones nobody else is in, files and grants included. Then an owner deleting a workspace from
+ * its settings: refused to a member, to a mistyped name (before the password is checked) and to a
+ * wrong password, then gone with its members, files and single sign-on connection, and the sign-ins
+ * through it. Creates its own @example.test users and deletes them afterwards.
  *
  * Server actions are called the way the browser calls them, by id; the ids come from the running
  * app's build output (`.next`, or NEXT_DIR), so run this from the checkout the app runs from, after
@@ -42,11 +44,13 @@ const {
   oauthConsent,
   pagePermission,
   session,
+  ssoProvider,
   user,
   userPreference,
   verification,
   workspace,
   workspaceMember,
+  workspaceSso,
 } = await import("@/db/schema");
 const { totpCode, totpKeyFromUri } = await import("@/lib/totp");
 const { getStorage } = await import("@/server/storage");
@@ -705,6 +709,64 @@ async function main() {
     (await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, solo.workspaceId))).length === 0,
     "…and its workspace",
   );
+
+  // Deleting a workspace from its settings: Dora owns "Doomed", with Eve in it, a file and a
+  // single sign-on connection Eve signed in through.
+  const dora = await signUp("dora");
+  const eve = await signUp("eve");
+  const doraHome = `/w/${dora.workspaceId}`;
+  check((await open(doraHome, dora.jar)).status === 200, "Dora opens her workspace");
+  const doomedName = `Doomed ${RUN}`;
+  await callAction(dora.jar, doraHome, WS_ACTIONS, "createWorkspaceAction", [doomedName]);
+  const [doomedRow] = await db
+    .select({ id: workspace.id })
+    .from(workspace)
+    .innerJoin(workspaceMember, eq(workspaceMember.workspaceId, workspace.id))
+    .where(and(eq(workspaceMember.userId, dora.id), eq(workspace.name, doomedName)));
+  check(doomedRow, "Dora creates the workspace she'll delete");
+  const doomed = doomedRow.id;
+  workspaceIds.push(doomed);
+  await db.insert(workspaceMember).values({ workspaceId: doomed, userId: eve.id, role: "member" });
+  const doomedPage = /"id":"([\w-]+)"/.exec(
+    (await callAction(dora.jar, `/w/${doomed}`, PAGE_ACTIONS, "createPageAction", [{ workspaceId: doomed, title: "Plans" }])).text,
+  )?.[1];
+  const doomedUpload = await fetch(`${BASE}/api/files?pageId=${doomedPage}`, {
+    method: "POST",
+    headers: { cookie: dora.jar.header(), origin: BASE, "content-type": "text/plain", "x-file-name": "plans.txt" },
+    body: "plans",
+  });
+  const doomedFile = (await doomedUpload.json()) as { id?: string };
+  check(doomedUpload.status === 201 && doomedFile.id, "…with a file in it", doomedFile);
+  const [doomedFileRow] = await db.select({ key: file.storageKey }).from(file).where(eq(file.id, doomedFile.id!));
+  const providerId = `e2e-${RUN}-doomed`;
+  await db.insert(ssoProvider).values({ id: providerId, issuer: "https://idp.example.test", userId: dora.id, providerId, domain: "doomed.example.test" });
+  await db.insert(workspaceSso).values({ workspaceId: doomed, providerId, protocol: "oidc", verificationToken: RUN, createdBy: dora.id });
+  await db.update(session).set({ ssoProviderId: providerId }).where(eq(session.userId, eve.id));
+
+  const settings = `/w/${doomed}/settings?tab=general`;
+  check((await open(settings, dora.jar)).text.includes(">Deletes this workspace for everyone"), "an owner's settings offer to delete the workspace");
+  check(!(await open(settings, eve.jar)).text.includes(">Deletes this workspace for everyone"), "a member's don't");
+  const deleteWs = (jar: Jar, confirmation: string, proof: unknown) =>
+    callAction(jar, settings, WS_ACTIONS, "deleteWorkspaceAction", [doomed, { confirmation, proof }]);
+  const byMember = await deleteWs(eve.jar, doomedName, { password: PASSWORD });
+  check(byMember.text.includes("Only workspace owners can do this."), "a member can't delete the workspace", byMember.text);
+  const misnamed = await deleteWs(dora.jar, doomedName.toLowerCase(), { password: "nope" });
+  check(misnamed.text.includes("type the workspace's name exactly"), "deleting asks for the name as shown, before the proof", misnamed.text);
+  const unproven = await deleteWs(dora.jar, doomedName, { password: "nope" });
+  check(unproven.text.includes("Wrong password."), "…and then for the password", unproven.text);
+  check((await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, doomed))).length === 1, "…and nothing is deleted");
+
+  const deletedWs = await deleteWs(dora.jar, ` ${doomedName} `, { password: PASSWORD });
+  check(deletedWs.status === 200 && deletedWs.text.includes('"ok":true'), "with its name and her password, Dora deletes the workspace", deletedWs.text);
+  check((await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, doomed))).length === 0, "…the workspace is gone");
+  check((await db.select({ id: workspaceMember.userId }).from(workspaceMember).where(eq(workspaceMember.workspaceId, doomed))).length === 0, "…with its members");
+  check((await db.select({ id: file.id }).from(file).where(eq(file.id, doomedFile.id!))).length === 0, "…its files' records");
+  check(!(await stored(doomedFileRow.key)), "…and their stored bytes");
+  check((await db.select({ id: ssoProvider.id }).from(ssoProvider).where(eq(ssoProvider.providerId, providerId))).length === 0, "…its single sign-on provider");
+  check((await sessionOf(eve.jar)) === null, "…and the sign-ins through it");
+  const left = await db.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, [dora.workspaceId, eve.workspaceId]));
+  check(left.length === 2, "their personal workspaces stay", left);
+  check((await open(settings, dora.jar)).status !== 200, "the deleted workspace's settings no longer open");
 
   console.log(`\n${passed} checks passed`);
 }

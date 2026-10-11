@@ -4,7 +4,7 @@ import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { revalidateAccountPages } from "@/server/account-pages";
 import { getTranslations } from "next-intl/server";
-import type { AccountErrorCode, DeletionPlan, Proof } from "@/lib/account";
+import { type AccountErrorCode, type DeletionPlan, type Proof, proofOf } from "@/lib/account";
 import { auth } from "@/lib/auth";
 import {
   AccountError,
@@ -49,14 +49,6 @@ async function run<T>(fn: () => Promise<T>): Promise<AccountResult<T>> {
     return { ok: false, error: message, code: error.code };
   }
 }
-
-const proofOf = (value: unknown): Proof => {
-  const { password, code } = (value ?? {}) as Record<string, unknown>;
-  return {
-    ...(typeof password === "string" ? { password } : {}),
-    ...(typeof code === "string" ? { code } : {}),
-  };
-};
 
 const refresh = () => revalidatePath("/", "layout");
 

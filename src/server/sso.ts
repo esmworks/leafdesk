@@ -389,7 +389,7 @@ const newVerificationToken = () => randomBytes(18).toString("base64url");
  * provider behind it could send any of those ids and sign in as that person. Afterwards people are
  * linked again by their verified domain's address, as on their first sign-in.
  */
-async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string) {
+export async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string) {
   await tx.delete(account).where(eq(account.providerId, providerId));
   await tx.delete(session).where(eq(session.ssoProviderId, providerId));
 }

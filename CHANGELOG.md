@@ -48,6 +48,14 @@
 
 ### Added
 
+- **Deleting a workspace.** Owners find Settings → General → Deletion. The dialog asks for the
+  workspace's name, typed as shown, and the same proof as deleting the account (the password, a
+  two-step code, or a recent sign-in); a mistyped name is refused before the proof is checked, so
+  it doesn't use up a code. The workspace goes for every member, with its pages, databases,
+  comments, teamspaces, groups, agents, connections and audit log; its files are removed from
+  storage, open editors of its pages are disconnected, and everyone's sign-ins through its single
+  sign-on connection end. The audit log goes too, so the server log records who deleted it.
+  Someone left without any workspace gets a new personal one, as after leaving the last one.
 - **Health endpoints.** `GET /api/health` answers 200 `{"status":"ok"}` whenever the server
   handles requests, without reading a session or the database. `GET /api/health/ready` also checks
   that the database answers within 2 seconds and has the newest migration this version ships with

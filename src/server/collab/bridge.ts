@@ -96,6 +96,11 @@ export interface CollabService {
    * They reconnect with whatever access they have left.
    */
   disconnectLostAccess(workspaceId: string, userIds?: string[]): Promise<void>;
+  /**
+   * Drops every connection to a deleted workspace: its signals and these pages and databases (its
+   * own, listed before they were deleted, since the database can no longer say which they were).
+   */
+  disconnectWorkspace(workspaceId: string, pageIds: string[]): Promise<void>;
 }
 
 const KEY = "__leafdeskCollab";

@@ -530,6 +530,17 @@
     "description": "Du bist hier Gast und siehst nur die Seiten, die mit dir geteilt wurden. Wenn du den Workspace verlässt, verlierst du diesen Zugriff.",
     "button": "Verlassen"
   },
+  "deleteWorkspace": {
+    "heading": "Löschen",
+    "title": "Workspace löschen",
+    "description": "Löscht diesen Workspace für alle, mit allen Seiten, Datenbanken, Dateien und Einstellungen. Das kann nicht rückgängig gemacht werden.",
+    "button": "Workspace löschen",
+    "dialogTitle": "{name} löschen?",
+    "dialogBody": "Alle Seiten, Datenbanken, Dateien, Kommentare und Einstellungen dieses Workspace werden für alle Mitglieder gelöscht, ebenso seine Agenten, Verbindungen und sein Audit-Log. Niemand kann ihn wieder öffnen, und er lässt sich nicht wiederherstellen. Exportiere ihn vorher, wenn du eine Kopie möchtest.",
+    "typeName": "Gib zur Bestätigung den Namen des Workspace ein: {name}",
+    "confirm": "Endgültig löschen",
+    "deleting": "Wird gelöscht…"
+  },
   "copyManually": "Kopieren ist hier nicht verfügbar. Markiere den Text und drücke Strg+C (⌘C auf dem Mac).",
   "connectedApps": {
     "empty": "Noch keine Apps verbunden.",
@@ -585,7 +596,8 @@
     "requestHandled": "Diese Anfrage wurde bereits bearbeitet.",
     "tooManyRequests": "Zu viele Anfragen. Versuche es später noch einmal.",
     "creationRestricted": "Nur die Administratoren des Servers können Workspaces anlegen.",
-    "agentUser": "Das ist ein Agent, keine Person. Ändere oder archiviere ihn in den Einstellungen des Agenten."
+    "agentUser": "Das ist ein Agent, keine Person. Ändere oder archiviere ihn in den Einstellungen des Agenten.",
+    "confirmationMismatch": "Gib zur Bestätigung den Namen des Workspace genau so ein, wie er angezeigt wird."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",

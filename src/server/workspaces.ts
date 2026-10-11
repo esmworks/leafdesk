@@ -116,6 +116,8 @@ export type WorkspaceErrorCode =
   | "requestHandled"
   | "tooManyRequests"
   | "creationRestricted"
+  /** Deleting the workspace: the name typed to confirm it isn't the workspace's. */
+  | "confirmationMismatch"
   /** The person is an agent's user: agents are changed in their own settings. */
   | "agentUser";
 
@@ -1038,6 +1040,23 @@ export async function withdrawFromWorkspaces(tx: Tx, userId: string): Promise<{ 
     }
   }
   return { plan, fileKeys };
+}
+
+/**
+ * For deleting a workspace (server/workspace-deletion.ts), inside its transaction: locks the
+ * workspace, so nobody joins it and no owner changes until the transaction ends, and checks that
+ * `userId` still owns it.
+ */
+export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: string) {
+  const [locked] = await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
+  const [member] = locked
+    ? await tx
+        .select({ role: workspaceMember.role })
+        .from(workspaceMember)
+        .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
+        .limit(1)
+    : [];
+  if (member?.role !== "owner") throw new AccessError();
 }
 
 /**

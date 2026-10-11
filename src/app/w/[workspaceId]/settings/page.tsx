@@ -24,6 +24,7 @@ import { ConnectionsPanel } from "@/components/settings/connections-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
 import { GuestsPanel } from "@/components/settings/guests-panel";
 import { AiSettings } from "@/components/settings/ai-settings";
+import { DeleteWorkspaceRow } from "@/components/settings/delete-workspace";
 import { LeaveWorkspaceRow } from "@/components/settings/leave-workspace";
 import { MembersPanel } from "@/components/settings/members-panel";
 import { PublicForms } from "@/components/settings/public-forms";
@@ -52,6 +53,7 @@ import { SitePages, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
+import { FRESH_SIGN_IN_MINUTES } from "@/lib/account";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { parseAuditFilters } from "@/lib/audit";
 import { isStrongSession } from "@/lib/auth-security";
@@ -65,6 +67,7 @@ import {
   visibleSettingsTabs,
 } from "@/lib/settings-tabs";
 import { AccessError, isGuest } from "@/server/access";
+import { proofKindOf } from "@/server/account";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { listAgents } from "@/server/agents/manage";
@@ -80,7 +83,7 @@ import { listGuests } from "@/server/guests";
 import { listWorkspacePublications } from "@/server/publication";
 import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
-import { getSession, requireWorkspaceSession } from "@/server/session";
+import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
 import { getSite } from "@/server/site";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
 import {
@@ -183,6 +186,7 @@ export default async function SettingsPage({
               {!guest && <AiGroup workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
               {/* Exporting everything is for owners, like the members list download. */}
               {isOwner && <ExportGroup workspaceId={workspaceId} userId={user.id} />}
+              {isOwner && <DeleteGroup workspaceId={workspaceId} name={workspace.name} session={session} />}
             </>
           )}
           {tab === "members" && (
@@ -241,6 +245,18 @@ async function ExportGroup({ workspaceId, userId }: { workspaceId: string; userI
   return (
     <SettingsGroup title={t("export.heading")} className="mt-10">
       <WorkspaceExport workspaceId={workspaceId} disabled={settings.export === false} />
+    </SettingsGroup>
+  );
+}
+
+type Session = Awaited<ReturnType<typeof requireSession>>;
+
+async function DeleteGroup({ workspaceId, name, session }: { workspaceId: string; name: string; session: Session }) {
+  const [kind, t] = await Promise.all([proofKindOf(session.user.id), getTranslations("settings")]);
+  const recent = Date.now() - new Date(session.session.createdAt).getTime() < FRESH_SIGN_IN_MINUTES * 60_000;
+  return (
+    <SettingsGroup title={t("deleteWorkspace.heading")} className="mt-10">
+      <DeleteWorkspaceRow workspaceId={workspaceId} name={name} proof={{ kind, recent }} />
     </SettingsGroup>
   );
 }

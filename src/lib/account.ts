@@ -53,6 +53,15 @@ export function proofKindFor(account: { hasPassword: boolean; twoFactorEnabled: 
 /** Proof sent along with a sensitive change: the current password, or a code. */
 export type Proof = { password?: string; code?: string };
 
+/** The proof a server action received, keeping only its string fields. */
+export function proofOf(value: unknown): Proof {
+  const { password, code } = (value ?? {}) as Record<string, unknown>;
+  return {
+    ...(typeof password === "string" ? { password } : {}),
+    ...(typeof code === "string" ? { code } : {}),
+  };
+}
+
 export function cleanName(name: unknown): { ok: true; name: string } | { ok: false; error: AccountErrorCode } {
   if (typeof name !== "string") return { ok: false, error: "nameRequired" };
   const clean = name.replace(/\s+/g, " ").trim();
@@ -106,4 +115,12 @@ export function planAccountDeletion(standings: WorkspaceStanding[]): DeletionPla
 /** The confirmation typed into the delete dialog: the account's email, in any case. */
 export function confirmsDeletion(typed: unknown, email: string) {
   return typeof typed === "string" && typed.trim().toLowerCase() === email.trim().toLowerCase();
+}
+
+/**
+ * The confirmation typed into the dialog that deletes a workspace: its name as shown, case and
+ * all, apart from spaces around it.
+ */
+export function confirmsWorkspaceName(typed: unknown, name: string) {
+  return typeof typed === "string" && typed.trim().normalize("NFC") === name.trim().normalize("NFC");
 }

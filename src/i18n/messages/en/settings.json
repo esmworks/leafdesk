@@ -530,6 +530,17 @@
     "description": "You're a guest here and see only the pages shared with you. Leaving removes that access.",
     "button": "Leave"
   },
+  "deleteWorkspace": {
+    "heading": "Deletion",
+    "title": "Delete workspace",
+    "description": "Deletes this workspace for everyone, with all its pages, databases, files and settings. This can't be undone.",
+    "button": "Delete workspace",
+    "dialogTitle": "Delete {name}?",
+    "dialogBody": "Every page, database, file, comment and setting in this workspace is deleted for every member, along with its agents, connections and audit log. Nobody can open it again and it can't be restored. Export it first if you want a copy.",
+    "typeName": "Type the workspace's name to confirm: {name}",
+    "confirm": "Delete for good",
+    "deleting": "Deleting…"
+  },
   "copyManually": "Copying isn't available here. Select the text and press Ctrl+C (⌘C on a Mac).",
   "connectedApps": {
     "empty": "No apps are connected yet.",
@@ -585,7 +596,8 @@
     "requestHandled": "This request was already handled.",
     "tooManyRequests": "Too many requests. Try again later.",
     "creationRestricted": "Only the server's administrators can create workspaces.",
-    "agentUser": "This is an agent, not a person. Change or archive it in the agent's own settings."
+    "agentUser": "This is an agent, not a person. Change or archive it in the agent's own settings.",
+    "confirmationMismatch": "To confirm, type the workspace's name exactly as shown."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
