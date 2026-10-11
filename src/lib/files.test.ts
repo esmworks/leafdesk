@@ -48,6 +48,12 @@ describe("contentTypeFor", () => {
     expect(contentTypeFor("not a type", "doc.pdf")).toBe("application/pdf");
     expect(contentTypeFor(undefined, "blob")).toBe("application/octet-stream");
   });
+
+  it("knows only its own extensions, none an object has by default", () => {
+    for (const name of ["a.constructor", "a.__proto__", "a.toString", "a.hasOwnProperty"]) {
+      expect(contentTypeFor(undefined, name), name).toBe("application/octet-stream");
+    }
+  });
 });
 
 describe("dispositionOf", () => {

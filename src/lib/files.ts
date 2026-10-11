@@ -177,7 +177,7 @@ export function contentTypeFor(declared: unknown, name: string): string {
   const type = typeof declared === "string" ? declared.split(";")[0].trim().toLowerCase() : "";
   if (type && type !== "application/octet-stream" && MEDIA_TYPE.test(type)) return type;
   const ext = name.includes(".") ? name.slice(name.lastIndexOf(".") + 1).toLowerCase() : "";
-  return EXTENSION_TYPES[ext] ?? "application/octet-stream";
+  return Object.hasOwn(EXTENSION_TYPES, ext) ? EXTENSION_TYPES[ext] : "application/octet-stream";
 }
 
 const INLINE_IMAGES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif", "image/bmp", "image/x-icon", "image/vnd.microsoft.icon"]);
