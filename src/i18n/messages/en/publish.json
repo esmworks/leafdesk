@@ -55,6 +55,7 @@
       "noAccess": "You can't add pages to that workspace.",
       "rateLimited": "You've duplicated a lot of pages just now. Try again in a little while.",
       "tooLarge": "This page has too many subpages or files to duplicate at once.",
+      "tooDeep": "This page's subpages are nested too deeply to duplicate.",
       "quotaExceeded": "That workspace doesn't have room for this page's files."
     }
   },

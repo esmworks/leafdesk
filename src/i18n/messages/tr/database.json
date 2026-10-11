@@ -660,6 +660,7 @@
     "accessDenied": "Bulunamadı veya erişim izniniz yok.",
     "parentInTrash": "Üst sayfa çöp kutusunda. Önce onu geri yükleyin.",
     "nestedDatabase": "Bir veritabanının içinde başka bir veritabanı olamaz.",
+    "pageTooDeep": "Sayfalar en fazla {max} düzey iç içe olabilir.",
     "invalidRelation": "“{property}” yalnızca ilişkili veritabanının satırlarına bağlanabilir.",
     "invalidRelationTarget": "İlişki aynı çalışma alanındaki bir veritabanını göstermelidir.",
     "subItemLoop": "“{property}” bir satırı kendisinin ya da kendi alt öğelerinden birinin altına koyamaz.",

@@ -55,6 +55,7 @@
       "noAccess": "No puedes añadir páginas a ese espacio de trabajo.",
       "rateLimited": "Acabas de duplicar muchas páginas. Vuelve a intentarlo dentro de un rato.",
       "tooLarge": "Esta página tiene demasiadas subpáginas o archivos para duplicarla de una vez.",
+      "tooDeep": "Las subpáginas de esta página están anidadas demasiado profundamente para duplicarlas.",
       "quotaExceeded": "Ese espacio de trabajo no tiene espacio para los archivos de esta página."
     }
   },

@@ -55,6 +55,7 @@
       "noAccess": "Du kannst diesem Workspace keine Seiten hinzufügen.",
       "rateLimited": "Du hast gerade sehr viele Seiten dupliziert. Versuch es in einer Weile noch einmal.",
       "tooLarge": "Diese Seite hat zu viele Unterseiten oder Dateien, um sie auf einmal zu duplizieren.",
+      "tooDeep": "Die Unterseiten dieser Seite sind zu tief verschachtelt, um sie zu duplizieren.",
       "quotaExceeded": "Dieser Workspace hat nicht genug Speicherplatz für die Dateien dieser Seite."
     }
   },

@@ -11,6 +11,7 @@ import { writeDocTitle } from "@/lib/collab-title";
 import { copyAccess, dropPropertyReferences, planDuplicate, redactCopy, type CopyAccess, type SourcePage } from "@/lib/duplicate";
 import { fileIdsIn, fileIdsInProperties } from "@/lib/files";
 import { parsePageBackground } from "@/lib/page-background";
+import { MAX_PAGE_DEPTH, treeHeight } from "@/lib/page-depth";
 import { UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { copyPublishedBlocks, mentionedPageIds, remapFilePaths } from "@/lib/published-copy";
 import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
@@ -54,7 +55,7 @@ const perHour = new SlidingWindowLimiter(30, 60 * 60_000);
 export class DuplicateError extends Error {
   constructor(
     message: string,
-    readonly code: "notFound" | "notAllowed" | "noAccess" | "rateLimited" | "tooLarge" | "quotaExceeded",
+    readonly code: "notFound" | "notAllowed" | "noAccess" | "rateLimited" | "tooLarge" | "tooDeep" | "quotaExceeded",
   ) {
     super(message);
     this.name = "DuplicateError";
@@ -127,6 +128,10 @@ export async function duplicatePublishedPage(
   }
   const root = rows.find((r) => r.id === served.pageId);
   if (!root) throw new DuplicateError("This page isn't published", "notFound");
+  // The copy starts at the top level, so its deepest page lies as far down as under the original.
+  if (treeHeight(rows.map((r) => ({ id: r.id, parentId: r.parent_id })), root.id) > MAX_PAGE_DEPTH) {
+    throw new DuplicateError(`Can't duplicate pages nested more than ${MAX_PAGE_DEPTH} levels deep`, "tooDeep");
+  }
   const sourceWorkspace = root.workspace_id;
 
   // Databases: their public properties, and the views the web shows.

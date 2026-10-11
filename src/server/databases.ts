@@ -87,6 +87,7 @@ import {
   type RequiredLevel,
 } from "@/server/access";
 import { scheduleAssignmentEmails } from "@/server/assignments";
+import { assertNestable } from "@/server/page-depth";
 import { computeDerived, loadProperties, withAllFormulaTypes } from "@/server/derived";
 import { fileForViewer, workspaceFiles } from "@/server/files";
 import { recordAssignments } from "@/server/notifications";
@@ -1028,6 +1029,7 @@ export async function insertRows(
   { boundTo = null }: { boundTo?: string | null } = {},
 ) {
   const databaseId = database.id;
+  await assertNestable(databaseId);
   const [{ max }] = await db
     .select({ max: sql<number | null>`max(${page.position})` })
     .from(page)

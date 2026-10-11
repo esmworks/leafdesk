@@ -236,7 +236,8 @@ versions, upgrades and running behind a domain.
   access rules too.
 - **Sharing and permissions**: give people, or everyone in the page's teamspace (the workspace
   for a private page), full, edit, comment, view or no access to a page. Subpages inherit it
-  unless you change them. Share a page with someone outside the workspace by email and they join
+  unless you change them; pages nest at most 60 levels deep, so what is set above a page always
+  reaches it. Share a page with someone outside the workspace by email and they join
   as a guest who sees only the pages shared with them. Someone who opens a link to a page they
   can't see can request access; the people with full access approve it at a level or decline it
   from their inbox or the Share panel (owners can turn requests off in Settings → Security).

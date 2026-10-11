@@ -51,6 +51,7 @@ import { pageChanged } from "@/server/page-events";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
+import { assertNestable, subtreeHeight } from "@/server/page-depth";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
 import { placeTopLevel, requireTeamspaceForPages, sidebarTeamspaces, type TeamspaceSummary } from "@/server/teamspaces";
 import { requireTopLevel, workspaceSettings } from "@/server/workspaces";
@@ -295,6 +296,7 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
     if (parent.kind === "database" && kind === "database") {
       throw withCode(new Error("A database can't contain another database"), "nestedDatabase");
     }
+    await assertNestable(input.parentId);
   } else {
     placement = await placeTopLevel(userId, workspaceId, await requireTopLevel(userId, workspaceId), input.teamspaceId);
   }
@@ -659,6 +661,8 @@ export async function movePage(
       sql`select 1 as hit from ${subtreeIds(pageId)} s where s.id = ${newParentId}`,
     );
     if (cycle.length) throw new Error("Cannot move a page inside itself");
+    // Under another parent the page and everything under it lie at new depths.
+    if (p.parentId !== newParentId) await assertNestable(newParentId, await subtreeHeight(pageId));
   }
   if (!newParentId && p.inTemplate && !p.isTemplate) {
     throw withCode(new Error("Pages can't be moved into or out of a template"), "isTemplate");

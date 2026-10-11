@@ -27,12 +27,14 @@ import { DATABASE_BLOCK, mapReferenceLines, referenceLine, remapInlineDatabases 
 import { positionBetween } from "@/lib/properties";
 import { stripReminders } from "@/lib/mentions";
 import { stripComments } from "@/lib/strip-comments";
+import { treeHeight } from "@/lib/page-depth";
 import { AccessError, pageVisibleTo, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { queueAutomations } from "@/server/automations/queue";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { bulkRowIds, dropCopiedSubItems, rowsWithAccess, syncPairedRelations, withCode, type BulkResult } from "@/server/databases";
 import { copyReferences } from "@/server/mentions";
+import { assertNestable } from "@/server/page-depth";
 import { keepFullAccess, makePagePrivate } from "@/server/permissions";
 import type { PropertyAccess } from "@/lib/property-access-rows";
 import { propertyAccessFor } from "@/server/property-access";
@@ -118,6 +120,8 @@ export async function copyPageTree(
     if (pages.length > MAX_DUPLICATE_PAGES) {
       throw new Error(`Can't duplicate more than ${MAX_DUPLICATE_PAGES} pages at once`);
     }
+    // Everything under the copy lies as many levels below it as under the source.
+    await assertNestable(target.parentId, treeHeight(pages.map((p) => ({ id: p.id, parentId: p.parent_id })), pageId), tx);
 
     const databaseIds = pages.filter((p) => p.kind === "database").map((p) => p.id);
     const [stored, storedViews] = databaseIds.length

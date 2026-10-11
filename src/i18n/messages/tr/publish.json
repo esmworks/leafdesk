@@ -55,6 +55,7 @@
       "noAccess": "Bu çalışma alanına sayfa ekleyemezsiniz.",
       "rateLimited": "Az önce çok sayıda sayfa çoğalttınız. Biraz sonra tekrar deneyin.",
       "tooLarge": "Bu sayfanın bir kerede çoğaltılamayacak kadar çok alt sayfası ya da dosyası var.",
+      "tooDeep": "Bu sayfanın alt sayfaları çoğaltılamayacak kadar derin iç içe.",
       "quotaExceeded": "Bu çalışma alanında sayfanın dosyaları için yer yok."
     }
   },

@@ -28,9 +28,10 @@ const { READ_SCOPE } = await import("@/server/mcp/principal");
 const { getPageHeaderInfo, listFavorites, setFavorite } = await import("@/server/page-meta");
 const { registerCollab } = await import("@/server/collab/bridge");
 const ops = await import("@/server/operations");
-const { addProperty, getDatabaseSnapshot, getRow, listRows, listWorkspaceDatabases, updateRowProperties } = await import(
+const { addProperty, createRows, getDatabaseSnapshot, getRow, listRows, listWorkspaceDatabases, updateRowProperties } = await import(
   "@/server/databases"
 );
+const { MAX_PAGE_DEPTH } = await import("@/lib/page-depth");
 const { duplicatePage } = await import("@/server/duplicate");
 const {
   getPublishedPage,
@@ -634,6 +635,53 @@ try {
   await transferOwnership(owner, workspaceId, bob);
   check(rechecked.join() === `${workspaceId}:${owner}`, "handing over the workspace checks the former owner's open editors again", rechecked);
   await transferOwnership(bob, workspaceId, owner);
+
+  // Nesting. The access rule walks 64 steps up: a page it can't follow to the top level gets no
+  // access, rather than the teamspace's default past an entry above the cut. Such a chain can only
+  // come from before the nesting limit, so it is written directly here.
+  const deepTop = await createPage({ userId: owner }, { workspaceId, title: "deep" });
+  await setPagePermission(owner, deepTop.id, owner, "full");
+  await setPagePermission(owner, deepTop.id, null, "none");
+  // deep[i] lies i + 1 levels under deepTop, which is at the top level.
+  const deep = Array.from({ length: 66 }, (_, i) => `${RUN}-deep-${i + 1}`);
+  for (const [i, id] of deep.entries()) {
+    await db.insert(page).values({ id, workspaceId, parentId: i ? deep[i - 1] : deepTop.id, teamspaceId: deepTop.teamspaceId, title: id, position: 1 });
+  }
+  check(
+    (await levels(deep[63], owner, alice)).join() === "full,none",
+    "a page 64 levels down still follows the entries at the top",
+  );
+  check(
+    (await levels(deep[64], owner, alice, bob)).join() === "none,none,none",
+    "a page deeper than the access rule walks is nobody's, not open to the teamspace",
+  );
+  check((await levels(deep[65], alice))[0] === "none", "…nor anything under it");
+  check(
+    !(await listChildren(owner, workspaceId, deep[63])).some((c) => c.id === deep[64]),
+    "…and it stays out of the list of subpages, also for whoever runs the page above",
+  );
+  // The limit: MAX_PAGE_DEPTH levels under the top, whichever way a page gets there.
+  const isTooDeep = (error: unknown) => (error as { code?: unknown }).code === "pageTooDeep";
+  const atLimit = await createPage({ userId: owner }, { workspaceId, parentId: deep[58], title: "at the limit" });
+  check(atLimit.parentId === deep[58], `a page can be created ${MAX_PAGE_DEPTH} levels down`);
+  await rejects(
+    () => createPage({ userId: owner }, { workspaceId, parentId: atLimit.id, title: "past the limit" }),
+    isTooDeep,
+    `a page can't be created more than ${MAX_PAGE_DEPTH} levels down`,
+  );
+  const deepDb = await createPage({ userId: owner }, { workspaceId, parentId: deep[58], kind: "database", title: "deep db" });
+  await rejects(() => createRows(owner, deepDb.id, [{ title: "row" }]), isTooDeep, "…nor a row of a database at the limit");
+  const branch = await createPage({ userId: owner }, { workspaceId, title: "branch" });
+  await createPage({ userId: owner }, { workspaceId, parentId: branch.id, title: "leaf" });
+  await rejects(
+    () => movePage(owner, branch.id, deep[58]),
+    isTooDeep,
+    "a page can't be moved where its subpages would lie past the limit",
+  );
+  await movePage(owner, branch.id, deep[57]);
+  check((await getPage(owner, branch.id)).parentId === deep[57], "…but can be moved where they all fit");
+  await rejects(() => duplicatePage({ userId: owner }, deep[59], "copy"), isTooDeep, "…nor duplicated past it");
+  await db.delete(page).where(inArray(page.id, [deepTop.id, branch.id]));
 
   // Ownership goes to members only
   await rejects(
