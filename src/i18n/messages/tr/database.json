@@ -768,7 +768,9 @@
       "invalidStyle": "Bilinmeyen biçim: “{style}”. b, i, u, s, c, bir renk ({colors}) ya da sonuna “_background” eklenmiş bir renk kullanın.",
       "currentOutside": "“current” yalnızca map(), filter() ve benzerlerinin içinde kullanılabilir.",
       "relatedDepth": "“{name}” kendisi ilişkili satırları okuyor; bu yüzden başka bir veritabanından okunamaz.",
-      "relatedLimit": "Bir formül, bir ilişkinin en fazla {max} satırının özelliklerini okuyabilir."
+      "relatedLimit": "Bir formül, bir ilişkinin en fazla {max} satırının özelliklerini okuyabilir.",
+      "tooExpensive": "Bu formül bu satır için hesaplanamayacak kadar çok işlem gerektiriyor.",
+      "evaluationFailed": "Bu formül bu satır için hesaplanamadı."
     }
   },
   "group": {

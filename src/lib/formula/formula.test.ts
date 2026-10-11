@@ -231,6 +231,63 @@ describe("evaluation", () => {
     const fieldsWithLong: Fields = { Long: { type: "text", value: "x".repeat(6000) } };
     expect(error('prop("Long") + prop("Long")', fieldsWithLong)).toBe("resultTooLong");
   });
+
+  it("refuses replaceAll() and formatDate() results past the cap before putting them together", () => {
+    const fieldsWithText: Fields = {
+      Text: { type: "text", value: "x".repeat(5000) },
+      Format: { type: "text", value: "dddd".repeat(2000) },
+      Day: { type: "date", value: toDateValue("2026-10-14") },
+    };
+    expect(error('replaceAll(prop("Text"), "x", "yyy")', fieldsWithText)).toBe("resultTooLong");
+    expect(value('length(replaceAll(prop("Text"), "x", "y"))', fieldsWithText)).toBe(5000);
+    expect(value('length(replaceAll(prop("Text"), "xx", ""))', fieldsWithText)).toBe(0);
+    expect(error('formatDate(prop("Day"), prop("Format"))', fieldsWithText)).toBe("resultTooLong");
+    expect(value('formatDate(prop("Day"), "dddd")', fieldsWithText)).toBe("Wednesday");
+  });
+});
+
+describe("evaluation limits", () => {
+  const tags = Array.from({ length: 30 }, (_, i) => `tag${i}`);
+  const fields: Fields = {
+    Tags: { type: "list", value: tags },
+    Many: { type: "list", value: Array.from({ length: 12_000 }, (_, i) => `item${i}`) },
+    Hours: { type: "numbers", value: Array.from({ length: 1000 }, (_, i) => i) },
+  };
+  const timed = (expression: string) => {
+    const started = performance.now();
+    const result = run(expression, fields);
+    return { ...result, ms: performance.now() - started };
+  };
+
+  it("stops nested list functions that would take too long", () => {
+    const nested = (depth: number) => 'some(prop("Tags"), '.repeat(depth) + "false" + ")".repeat(depth);
+    const some = timed(nested(5));
+    expect(some.error).toBe("tooExpensive");
+    expect(some.ms).toBeLessThan(500);
+    const map = timed('length(map(map(map(map(map(prop("Tags"), prop("Tags")), prop("Tags")), prop("Tags")), prop("Tags")), prop("Tags")))');
+    expect(map.error).toBe("tooExpensive");
+    expect(map.ms).toBeLessThan(500);
+  });
+
+  it("counts the length of the texts a formula works on", () => {
+    const long: Fields = { Tags: fields.Tags, Long: { type: "text", value: "x".repeat(10_000) } };
+    const started = performance.now();
+    expect(error('length(map(prop("Tags"), map(prop("Tags"), map(prop("Tags"), lower(prop("Long"))))))', long)).toBe("tooExpensive");
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+
+  it("caps the lists map() makes", () => {
+    expect(error('length(map(prop("Many"), current))', fields)).toBe("tooExpensive");
+    expect(value('length(filter(prop("Many"), startsWith(current, "item1")))', fields)).toBe(3111);
+  });
+
+  it("leaves ordinary formulas alone", () => {
+    expect(value('length(map(prop("Tags"), upper(current)))', fields)).toBe(30);
+    expect(value('length(filter(prop("Tags"), some(prop("Tags"), current == "tag3")))', fields)).toBe(30);
+    expect(value('sum(map(prop("Hours"), current * 2))', fields)).toBe(999_000);
+    expect(value('length(map(prop("Tags"), map(prop("Tags"), current)))', fields)).toBe(900);
+    expect(value('join(map(prop("Tags"), if(current == "tag1", "one", current)), "")', fields)).toContain("tag0onetag2");
+  });
 });
 
 describe("rewriteReferences", () => {

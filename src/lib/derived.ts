@@ -7,6 +7,7 @@ import {
   fieldType,
   FormulaFailure,
   HiddenValue,
+  MAX_FORMULA_STEPS,
   MAX_RELATED_ROWS,
   parseFormula,
   rewriteReferences,
@@ -405,13 +406,16 @@ export function relatedDatabase(
  * What formulas need besides the row: the time (`now()`, `today()`), and the names of people and
  * titles of related rows the viewer may see (people and relations read as lists of those).
  * `related`: the related databases formulas read rows of, by id. Without it, formulas that read
- * related rows aren't worked out (the browser keeps the server's values).
+ * related rows aren't worked out (the browser keeps the server's values). `steps`: what the
+ * formulas of every row may still take together past each one's own (see EvalEnv.steps), shared
+ * by the rows of a request; without it only each formula on each row is limited.
  */
 export type FormulaContext = {
   now: Date;
   people?: { id: string; name: string }[];
   relations?: Record<string, { rows: { id: string; title: string }[] } | undefined>;
   related?: ReadonlyMap<string, RelatedDatabase>;
+  steps?: { left: number };
 };
 
 const DAY_OR_TIME = (v: unknown) => toDateValue(v);
@@ -497,6 +501,12 @@ function readValue(prop: Prop, value: unknown, ctx: FormulaContext, names: () =>
  */
 export type FormulaResults = { values: Record<string, unknown>; styles: Record<string, FormulaStyle>; hidden: string[] };
 
+const unexpected = (code: "tooExpensive" | "evaluationFailed", message: string): FormulaError => ({
+  code,
+  message,
+  params: code === "tooExpensive" ? { max: String(MAX_FORMULA_STEPS) } : {},
+});
+
 type Result = { raw: Value; stored: unknown; style: FormulaStyle | null } | { error: FormulaError } | { hidden: true };
 
 /**
@@ -523,11 +533,15 @@ export function evaluateRow(
     if (formula.error) result = { error: formula.error };
     else {
       try {
-        result = runFormula(formula.ast, { value, now: ctx.now, related, notes: formula.notes });
+        const steps = { left: MAX_FORMULA_STEPS, request: ctx.steps };
+        result = runFormula(formula.ast, { value, now: ctx.now, related, notes: formula.notes, steps });
       } catch (error) {
         if (error instanceof HiddenValue) result = { hidden: true };
         else if (error instanceof FormulaFailure) result = { error: error.error };
-        else throw error;
+        // Anything else fails this formula on this row, not the whole read: running out of stack or
+        // memory as too much work, the rest as a formula that couldn't be worked out.
+        else if (error instanceof RangeError) result = { error: unexpected("tooExpensive", "The formula takes too many steps to work out for this row") };
+        else result = { error: unexpected("evaluationFailed", "The formula couldn't be worked out for this row") };
       }
     }
     results.set(id, result);

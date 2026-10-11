@@ -18,6 +18,7 @@ import {
   fail,
   FormulaFailure,
   LIST_TYPES,
+  MAX_FORMULA_STEPS,
   type FormulaError,
   type FormulaResultType,
   type FormulaStyle,
@@ -107,11 +108,11 @@ export function resultType(type: FormulaType): FormulaResultType {
  * Evaluates a checked formula on one row and returns the value to store: a number, text, boolean,
  * or a date as YYYY-MM-DD / ISO timestamp; null when empty. Styles are not stored with it: `style`
  * says how it shows. Throws a FormulaFailure when the row can't be evaluated, and HiddenValue when
- * it reads a value the viewer may not see.
+ * it reads a value the viewer may not see. Without `env.steps` it may take MAX_FORMULA_STEPS.
  */
 export function runFormula(ast: Node | null, env: EvalEnv): { raw: Value; stored: unknown; style: FormulaStyle | null } {
   if (!ast) return { raw: "", stored: null, style: null };
-  const raw = evaluate(ast, env);
+  const raw = evaluate(ast, { ...env, steps: env.steps ?? { left: MAX_FORMULA_STEPS } });
   return { raw, stored: storedValue(raw), style: styleOf(raw) };
 }
 

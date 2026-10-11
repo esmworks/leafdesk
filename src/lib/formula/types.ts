@@ -79,6 +79,8 @@ export const FORMULA_ERROR_CODES = [
   "notFinite",
   "resultTooLong",
   "relatedLimit",
+  "tooExpensive",
+  "evaluationFailed",
   // Rollups whose settings no longer work (see lib/rollup), shown in every row like a broken formula.
   "rollupRelation",
   "rollupTarget",
@@ -126,6 +128,19 @@ export const MAX_FORMULA_DEPTH = 64;
 export const MAX_TEXT_LENGTH = 10_000;
 /** Most related rows of one relation a formula reads the properties of, per row. */
 export const MAX_RELATED_ROWS = 200;
+/**
+ * Most steps one formula may take on one row: a step per expression worked out (each item of
+ * map(), filter() and the like counts its own), plus a list's length and a text's length / 128 for
+ * what it hands on. About 10 ms of work at most; a formula past it fails with `tooExpensive`.
+ */
+export const MAX_FORMULA_STEPS = 100_000;
+/**
+ * Steps of each formula on each row that a request's shared steps (EvalEnv.steps.request) don't
+ * pay for: formulas that take no more never run out because another one took them all.
+ */
+export const OWN_FORMULA_STEPS = 1_000;
+/** Most items a list made by map() may hold. */
+export const MAX_LIST_LENGTH = 10_000;
 
 /**
  * Thrown when a formula reads a value the viewer may not see (a property of a related row that

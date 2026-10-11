@@ -6,8 +6,11 @@ import {
   FormulaFailure,
   HiddenValue,
   LIST_TYPES,
+  MAX_FORMULA_STEPS,
+  MAX_LIST_LENGTH,
   MAX_RELATED_ROWS,
   MAX_TEXT_LENGTH,
+  OWN_FORMULA_STEPS,
   typeNames,
   type DateValue,
   type FormulaType,
@@ -62,6 +65,12 @@ export type EvalEnv = {
   notes?: CheckNotes;
   /** The item `current` stands for, inside map(), filter() and the like. */
   current?: { value: PlainValue };
+  /**
+   * The steps evaluation may still take (see MAX_FORMULA_STEPS), shared by everything one formula
+   * works out on one row; `request`: what every formula of a request may still take together past
+   * their first OWN_FORMULA_STEPS each. Without it there is no limit (runFormula always gives one).
+   */
+  steps?: { left: number; request?: { left: number } };
 };
 
 type ArgType = FormulaType | "any";
@@ -148,11 +157,39 @@ const items = (v: Value): (string | number | RowRef)[] => (Array.isArray(v) ? v 
 /** A list's items as texts: numbers formatted, rows by title. */
 const textItems = (v: Value): string[] => items(v).map((item) => formatValue(item));
 
+/**
+ * Takes `count` steps (see EvalEnv.steps); fails once the formula has none left, or once it is past
+ * its own (OWN_FORMULA_STEPS) and the request has none left.
+ */
+function spend(env: EvalEnv, count: number) {
+  const steps = env.steps;
+  if (!steps) return;
+  steps.left -= count;
+  const { request } = steps;
+  const past = MAX_FORMULA_STEPS - OWN_FORMULA_STEPS - steps.left;
+  if (request && past > 0) request.left -= Math.min(count, past);
+  if (steps.left < 0 || (request && past > 0 && request.left < 0)) {
+    fail("tooExpensive", "The formula takes too many steps to work out for this row", { max: MAX_FORMULA_STEPS });
+  }
+}
+
+/** What handing a value on costs: a list's length, a text's length / 128. */
+function sizeOf(v: Value): number {
+  if (typeof v === "string") return v.length >> 7;
+  if (Array.isArray(v)) return v.length;
+  if (isStyled(v)) return v.kind === "styled" ? sizeOf(v.value) : v.parts.length + (v.parts.reduce((n, p) => n + p.text.length, 0) >> 7);
+  return 0;
+}
+
 function limitText(text: string) {
-  if (text.length > MAX_TEXT_LENGTH) {
+  limitLength(text.length);
+  return text;
+}
+
+function limitLength(length: number) {
+  if (length > MAX_TEXT_LENGTH) {
     fail("resultTooLong", `The text is longer than ${MAX_TEXT_LENGTH} characters`, { max: MAX_TEXT_LENGTH });
   }
-  return text;
 }
 
 /** Numbers as text without floating point noise (0.1 + 0.2 is "0.3"). */
@@ -393,9 +430,14 @@ define(
 );
 define(
   "replaceAll",
-  fixed("text", "replaceAll(text, find, replacement)", [TEXT, TEXT, TEXT], "text", ([v, find, by]) =>
-    limitText(asText(find) ? asText(v).split(asText(find)).join(asText(by)) : asText(v)),
-  ),
+  fixed("text", "replaceAll(text, find, replacement)", [TEXT, TEXT, TEXT], "text", ([v, find, by], env) => {
+    if (!asText(find)) return limitText(asText(v));
+    const parts = asText(v).split(asText(find));
+    // A step per part found; refused before the text is put together, however long it would be.
+    spend(env, parts.length);
+    limitLength(asText(v).length + (parts.length - 1) * (asText(by).length - asText(find).length));
+    return parts.join(asText(by));
+  }),
 );
 define(
   "slice",
@@ -460,7 +502,10 @@ const perItem = (
     return returns(types[0], types[1], name);
   },
   lazy: ([list, expression], env, node) => {
-    const each = (item: PlainValue) => plain(evaluate(expression, { ...env, current: { value: item } }));
+    const each = (item: PlainValue) => {
+      spend(env, 1);
+      return plain(evaluate(expression, { ...env, current: { value: item } }));
+    };
     return run(items(plain(evaluate(list, env))), each, node, env);
   },
 });
@@ -478,6 +523,9 @@ define(
         const add = (v: PlainValue | string | number | RowRef) => {
           // Empty numbers and rows aren't items; other values are listed as texts.
           if (v === null) return;
+          if (out.length >= MAX_LIST_LENGTH) {
+            fail("tooExpensive", `A list made by map() can hold at most ${MAX_LIST_LENGTH} items`, { max: MAX_LIST_LENGTH });
+          }
           out.push(typeof v === "number" || isRow(v) ? v : formatValue(v));
         };
         for (const item of list) {
@@ -586,7 +634,7 @@ define("dateBetween", {
 define(
   "formatDate",
   fixed("date", "formatDate(date, format)", [DATE, TEXT], "text", ([d, format]) =>
-    isDate(d) ? dates.formatDate(d, format === undefined ? undefined : asText(format)) : "",
+    isDate(d) ? limitText(dates.formatDate(d, format === undefined ? undefined : asText(format))) : "",
     { min: 1, max: 2 },
   ),
 );
@@ -777,8 +825,18 @@ function operands(a: Value, b: Value): [number, number] | null {
   return [x ?? 0, y ?? 0];
 }
 
-/** Evaluates a checked expression on one row. Styles stay on the result (see plain()). */
+/**
+ * Evaluates a checked expression on one row. Styles stay on the result (see plain()). Every
+ * expression takes its steps (see EvalEnv.steps).
+ */
 export function evaluate(node: Node, env: EvalEnv): Value {
+  spend(env, 1);
+  const out = evaluateNode(node, env);
+  spend(env, sizeOf(out));
+  return out;
+}
+
+function evaluateNode(node: Node, env: EvalEnv): Value {
   switch (node.kind) {
     case "number":
     case "string":

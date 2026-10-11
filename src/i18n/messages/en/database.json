@@ -768,7 +768,9 @@
       "invalidStyle": "Unknown style “{style}”. Use b, i, u, s, c, a color ({colors}) or a color with “_background”.",
       "currentOutside": "“current” can only be used inside map(), filter() and the like.",
       "relatedDepth": "“{name}” reads related rows itself, so it can’t be read from another database.",
-      "relatedLimit": "A formula reads the properties of at most {max} related rows per relation."
+      "relatedLimit": "A formula reads the properties of at most {max} related rows per relation.",
+      "tooExpensive": "This formula takes too much work to calculate for this row.",
+      "evaluationFailed": "This formula couldn’t be calculated for this row."
     }
   },
   "group": {

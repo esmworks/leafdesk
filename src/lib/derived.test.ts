@@ -108,6 +108,33 @@ describe("formula properties", () => {
     expect(broken.b).toMatchObject({ error: { code: "referenceError", params: { name: "Ratio" } } });
   });
 
+  it("fail on the row instead of throwing when evaluation breaks some other way", () => {
+    const props = [...base, formula("a", "When", "now()"), formula("b", "Total", 'prop("price") * 2')];
+    const broken = { now: {} as Date };
+    const [out] = withFormulas(props, [row({ price: 2 })], broken);
+    expect(out.properties.a).toMatchObject({ error: { code: "evaluationFailed" } });
+    expect(out.properties.b).toBe(4);
+    const exhausted = {
+      now: {
+        getTime: () => {
+          throw new RangeError("Maximum call stack size exceeded");
+        },
+      } as unknown as Date,
+    };
+    expect(withFormulas(props, [row({ price: 2 })], exhausted)[0].properties.a).toMatchObject({ error: { code: "tooExpensive" } });
+  });
+
+  it("share a read's steps between its rows, past what each formula takes on its own", () => {
+    // replaceAll() takes a step per part: about 2,000 for each row.
+    const props = [...base, formula("a", "Long", 'length(replaceAll(prop("title"), "a", "b"))'), formula("b", "Total", 'prop("price") * 2')];
+    const rows = Array.from({ length: 10 }, (_, i) => row({ price: i }, "a".repeat(2000)));
+    const out = withFormulas(props, rows, { now: NOW, steps: { left: 3000 } }).map((r) => r.properties);
+    expect(out.slice(0, 2).map((p) => p.a)).toEqual([2000, 2000]);
+    expect(out.at(-1)!.a).toMatchObject({ error: { code: "tooExpensive" } });
+    // A formula that takes little keeps working once the shared steps are gone.
+    expect(out.map((p) => p.b)).toEqual(rows.map((_, i) => i * 2));
+  });
+
   it("keep working after a property is renamed, and break when it is deleted", () => {
     const stored = formulaForStorage('prop("Price") * 2 + prop("Name")', base, ["Name"]);
     expect(stored).toBe('prop("price") * 2 + prop("title")');

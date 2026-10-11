@@ -768,7 +768,9 @@
       "invalidStyle": "Unbekannter Stil „{style}“. Verwende b, i, u, s, c, eine Farbe ({colors}) oder eine Farbe mit „_background“.",
       "currentOutside": "„current“ geht nur innerhalb von map(), filter() und ähnlichen Funktionen.",
       "relatedDepth": "„{name}“ liest selbst verknüpfte Zeilen und kann deshalb nicht aus einer anderen Datenbank gelesen werden.",
-      "relatedLimit": "Eine Formel liest die Eigenschaften von höchstens {max} verknüpften Zeilen pro Relation."
+      "relatedLimit": "Eine Formel liest die Eigenschaften von höchstens {max} verknüpften Zeilen pro Relation.",
+      "tooExpensive": "Diese Formel erfordert für diese Zeile zu viele Rechenschritte.",
+      "evaluationFailed": "Diese Formel konnte für diese Zeile nicht berechnet werden."
     }
   },
   "group": {

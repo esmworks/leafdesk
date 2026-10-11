@@ -768,7 +768,9 @@
       "invalidStyle": "Style inconnu « {style} ». Utilisez b, i, u, s, c, une couleur ({colors}) ou une couleur avec « _background ».",
       "currentOutside": "« current » ne s’utilise qu’à l’intérieur de map(), filter() et fonctions semblables.",
       "relatedDepth": "« {name} » lit elle-même des lignes liées : elle ne peut donc pas être lue depuis une autre base de données.",
-      "relatedLimit": "Une formule lit les propriétés d’au plus {max} lignes liées par relation."
+      "relatedLimit": "Une formule lit les propriétés d’au plus {max} lignes liées par relation.",
+      "tooExpensive": "Cette formule demande trop de calculs pour cette ligne.",
+      "evaluationFailed": "Cette formule n’a pas pu être calculée pour cette ligne."
     }
   },
   "group": {

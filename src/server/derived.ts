@@ -16,6 +16,7 @@ import {
   type RelatedSchemas,
   type WithResults,
 } from "@/lib/derived";
+import { MAX_FORMULA_STEPS } from "@/lib/formula";
 import { computedValues } from "@/lib/properties";
 import { holdsPeople, isComputed, isDerived } from "@/lib/property-types";
 import { resolveRollup, rollupError, rollupRelation, rollupValue, type RelatedRow } from "@/lib/rollup";
@@ -68,6 +69,14 @@ const MAX_ROLLUP_DEPTH = 3;
 const ID_CHUNK = 10_000;
 
 /**
+ * Steps the formulas of a read may take together past each one's own on each row (see
+ * OWN_FORMULA_STEPS): what one formula may take on 20 rows, plus 2,000 a row. A formula that takes
+ * all it may on row after row then fails on the rest with `tooExpensive` instead of holding up the
+ * read for seconds; formulas that take little keep working.
+ */
+const readSteps = (rows: number) => 20 * MAX_FORMULA_STEPS + rows * 2_000;
+
+/**
  * Rows with their derived values filled in: every rollup, then every formula (formulas may use
  * rollups), each worked out once per row. Rows must already carry their stored and system values
  * (who and when). Formulas that show people or related rows get their names and titles from
@@ -91,7 +100,7 @@ export async function computeDerived<R extends { title: string; properties: Reco
   // on published pages, which show no related rows.
   const related =
     options.skipRelated || !options.viewerId ? undefined : await loadRelated(withRollups, properties, compiled, relatedProps, { ...options, now });
-  const context: FormulaContext = { now, ...lookups, ...(related ? { related } : {}) };
+  const context: FormulaContext = { now, ...lookups, ...(related ? { related } : {}), steps: { left: readSteps(withRollups.length) } };
   return withRollups.map((row) => mergeResults(row, evaluateRow(properties, compiled, row, context), compiled));
 }
 

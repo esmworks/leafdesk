@@ -768,7 +768,9 @@
       "invalidStyle": "Estilo desconocido: “{style}”. Usa b, i, u, s, c, un color ({colors}) o un color con “_background”.",
       "currentOutside": "“current” solo se puede usar dentro de map(), filter() y similares.",
       "relatedDepth": "“{name}” lee filas relacionadas por sí misma, así que no se puede leer desde otra base de datos.",
-      "relatedLimit": "Una fórmula lee las propiedades de como máximo {max} filas relacionadas por relación."
+      "relatedLimit": "Una fórmula lee las propiedades de como máximo {max} filas relacionadas por relación.",
+      "tooExpensive": "Esta fórmula requiere demasiados cálculos para esta fila.",
+      "evaluationFailed": "No se pudo calcular esta fórmula para esta fila."
     }
   },
   "group": {
