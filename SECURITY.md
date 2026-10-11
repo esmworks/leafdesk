@@ -94,7 +94,8 @@ won't take action against it.
   server refuses to start with the example value or a short one. Consider a separate
   `LEAFDESK_ENCRYPTION_KEY` for the tokens of connected apps (see `.env.example`).
 - Serve it over HTTPS and set `APP_URL` to the public origin; set `TRUSTED_PROXIES` to the number
-  of reverse proxies in front of it.
+  of reverse proxies in front of it (`0` for none), and keep clients from reaching the app's port
+  past them. Unset, only a proxy connecting from a private address is trusted.
 - Close sign-up with `DISABLE_SIGNUP=true` once your accounts exist, and choose who may create
   workspaces with `WORKSPACE_CREATION` (see [Instance administrators](README.md#instance-administrators)).
 - Workspace owners decide in Settings → Security what may leave the workspace, who may join, and

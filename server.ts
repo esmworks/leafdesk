@@ -7,7 +7,7 @@ import { createServer, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import crossws from "crossws/adapters/node";
 import next from "next";
-import { CLIENT_IP_HEADER, clientIpFrom, trustedProxyCount } from "./src/lib/client-ip";
+import { CLIENT_IP_HEADER, clientIpFrom, describeTrustedProxies, trustedProxyCount } from "./src/lib/client-ip";
 
 try {
   process.loadEnvFile();
@@ -107,6 +107,7 @@ server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
 server.listen(port, hostname, () => {
   console.log(`leafdesk ready on http://localhost:${port} (${dev ? "dev" : "production"})`);
   console.log(describeMailSetup());
+  console.log(describeTrustedProxies(trustedProxies));
   // Next answers dev websocket upgrades (HMR) only after it has served a request. Browsers open one
   // websocket per host at a time, so an open tab reconnecting to HMR after a restart would otherwise
   // hang there and hold back its collab connection.

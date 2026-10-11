@@ -395,11 +395,15 @@ If the app is reachable under another URL (a domain behind a reverse proxy, anot
 `APP_URL` to that public origin. It is the OAuth issuer and the MCP resource identifier, so it
 must match what clients see.
 
-`TRUSTED_PROXIES` says how many reverse proxies stand in front of the app (default `1`). Public
-forms limit answers per visitor address, and the app reads that address from `X-Forwarded-For`
-only as far as these proxies wrote it. Set `0` when clients reach the app directly, otherwise a
-visitor could send the header and pose as a new address with every answer. Behind a CDN plus a
-proxy, set `2`.
+`TRUSTED_PROXIES` says how many reverse proxies stand in front of the app. Public forms, uploads
+and sign-in limit attempts per visitor address, and the audit log records it; the app reads that
+address from `X-Forwarded-For` only as far as these proxies wrote it. Left unset, it trusts one
+proxy, and only for requests that come from a private address (loopback, a private network, as a
+proxy on the same machine or Docker network does): a visitor reaching the app's port straight from
+the internet is counted by its own address, whatever header it sends. Set `0` when clients reach
+the app directly, `1` for a proxy that connects from a public address, `2` behind a CDN plus a
+proxy. A number you set is trusted for every request, so then clients must not be able to reach the
+app past the proxies. The server log says at start which of these applies.
 
 For load balancers, reverse proxies and orchestrators there are two health endpoints, both
 without sign-in and never cached. `GET /api/health` answers 200 `{"status":"ok"}` while the server

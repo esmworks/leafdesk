@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Upgrading from 0.5.0
+
+- **`TRUSTED_PROXIES` behind a proxy with a public address.** Unset, the app now trusts only a
+  proxy that connects from a private address. If yours connects from a public one (a CDN in front
+  of the app, a proxy on another server), set `TRUSTED_PROXIES=1` (or `2` for a CDN plus a proxy),
+  or every visitor counts as the proxy's address. Proxies on the same machine or Docker network
+  need nothing.
+
 ### Added
 
 - **Health endpoints.** `GET /api/health` answers 200 `{"status":"ok"}` whenever the server
@@ -148,6 +156,14 @@
 
 ### Changed
 
+- **Visitor addresses without `TRUSTED_PROXIES`.** Left unset, the app now trusts
+  `X-Forwarded-For` from one proxy only when the request comes from a private address (loopback, a
+  private network, as a proxy on the same machine or Docker network does). A visitor reaching the
+  app's port straight from the internet is counted by its own address, so a header it writes no
+  longer gets it past the per-address limits of public forms, uploads and sign-in or into the audit
+  log as someone else. docker-compose.yml no longer sets `1` itself. A number you set is trusted as
+  before, for every request. The server log says at start how visitor addresses are read. No
+  migration.
 - **Page changes in the audit log.** The audit log also records pages and databases being created
   (also by duplicating, from a template or from the web), imported (once per import, with how
   many pages it brought in), moved to another page or teamspace, put in the trash and restored.
