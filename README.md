@@ -1377,9 +1377,9 @@ tab, an owner ticks the tools that agent may use; an agent has no tool of a conn
   every tool waits as a *write* tool does.
 - A *write* tool doesn't: the run waits, and every owner of the workspace gets an item in their
   inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
-  exact input. An owner **approves** (the call is sent as is), **declines** (the agent hears no and
-  goes on), or **sends it back with a note** (the agent gets the note and tries again, which may
-  ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent;
+  input, credentials in it masked. An owner **approves** (the call is sent as the agent made it),
+  **declines** (the agent hears no and goes on), or **sends it back with a note** (the agent gets
+  the note and tries again, which may ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent;
   an answer that comes later is refused. Once an approved call is sent, the run notes it, so a
   run taken up again (its server restarted, say) doesn't send it twice.
   If the tool or the connection is taken away while it waits, nothing is sent either
@@ -1421,6 +1421,14 @@ days and what happened to each.
 triggers, every connection tool call (with its input, who approved it and the outcome) and every
 approval answer are recorded in the audit log. Over MCP: `list_connections` and
 `set_agent_connection_tools`; connections are added and signed in to only in the settings.
+
+**Credentials in what is kept.** What Leafdesk keeps about runs, calls and events (a run's steps,
+answer and error, a waiting call's input, an event's body, a connection's or an automation step's
+error, the audit log's details) and what it writes to the server's log has credentials masked as
+`[redacted]`: passwords in addresses, credential-named query parameters and fields (`token`,
+`api_key`, `password`…), `Authorization` headers and bearer tokens, private keys and well-known
+token formats (Leafdesk's own, GitHub, Slack, AI providers, Stripe, AWS, Google, JSON Web Tokens).
+Pages and rows stay as they are, and what is sent (an approved call, a webhook) is the original.
 
 > [!WARNING]
 > An agent with a connection acts as the account that signed in. Allow it only the tools it needs,

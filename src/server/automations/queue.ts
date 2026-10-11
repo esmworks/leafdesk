@@ -3,6 +3,7 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, databaseAutomation, databaseProperty } from "@/db/schema";
 import { changedProperties, matchesTrigger } from "@/lib/automations";
+import { redactError } from "@/lib/redact";
 
 /**
  * Where row writes meet automations: every write path (see server/databases `afterRowWrites`)
@@ -76,6 +77,6 @@ export async function queueAutomations(
     for (let i = 0; i < runs.length; i += CHUNK) await db.insert(automationRun).values(runs.slice(i, i + CHUNK));
     if (runs.length) state.kick?.();
   } catch (error) {
-    console.error("Couldn't queue database automations", error);
+    console.error("Couldn't queue database automations", redactError(error));
   }
 }

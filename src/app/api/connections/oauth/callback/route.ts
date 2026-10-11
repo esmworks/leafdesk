@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { redactError } from "@/lib/redact";
 import { completeConnectionOAuth, ConnectionError, oauthReturnOf } from "@/server/connections/manage";
 
 /**
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
     const { connection, workspaceId } = await completeConnectionOAuth(session.user.id, { state, code, iss: url.searchParams.get("iss") ?? undefined });
     return Response.redirect(settings(connection.id, workspaceId, "signedIn=1"), 302);
   } catch (error) {
-    if (!(error instanceof ConnectionError)) console.error("[connections] OAuth sign-in failed", error);
+    if (!(error instanceof ConnectionError)) console.error("[connections] OAuth sign-in failed", redactError(error));
     return Response.redirect(back ? settings(back.connectionId, back.workspaceId, "connectionError=oauthFailed") : `${env.appUrl}/`, 302);
   }
 }

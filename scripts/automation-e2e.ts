@@ -237,6 +237,13 @@ try {
   await flushAutomations();
   check(received.length === 1 && JSON.parse(received[0].body).row.id === copy.id, "a duplicated row counts as added");
   received.length = 0;
+  // A row is the user's own content: sent as it is, whatever it holds (made-up token, put together
+  // here so this file holds nothing a secret scanner flags).
+  const keyTitle = `Deploy key ${"gh" + "p_" + "A1b2C3d4".repeat(5)}`;
+  await createPage(owner, { workspaceId, parentId: tasks.id, title: keyTitle });
+  await flushAutomations();
+  check(received.length === 1 && JSON.parse(received[0].body).row.title === keyTitle, "a row is sent as it is, even what looks like a credential", received[0]?.body.slice(0, 300));
+  received.length = 0;
   await updateRowProperties(ids.owner, first.id, { Stage: "Done" });
   await flushAutomations();
   check(received.length === 0, "changing a row doesn't start a \"row added\" automation");

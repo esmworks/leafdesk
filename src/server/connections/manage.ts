@@ -28,6 +28,7 @@ import {
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { env } from "@/lib/env";
+import { redactText } from "@/lib/redact";
 import { AccessError, ConnectedAppReadOnlyError, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { open, seal, sealJson } from "../secret-box";
@@ -162,7 +163,7 @@ async function refresh(row: ConnectionRow): Promise<ConnectionRow> {
     const code = failure.code === "tool" ? "notMcp" : failure.code;
     const [saved] = await db
       .update(connection)
-      .set({ status, statusError: `${code}: ${failure.message}`.slice(0, 300) })
+      .set({ status, statusError: redactText(`${code}: ${failure.message}`).slice(0, 300) })
       .where(eq(connection.id, row.id))
       .returning();
     return saved;
@@ -297,7 +298,7 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
     started = await startOAuth(row);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    await db.update(connection).set({ status: "error", statusError: `oauth: ${message}`.slice(0, 300) }).where(eq(connection.id, row.id));
+    await db.update(connection).set({ status: "error", statusError: redactText(`oauth: ${message}`).slice(0, 300) }).where(eq(connection.id, row.id));
     throw new ConnectionError("oauthFailed", message);
   }
   if (!started) {
@@ -334,7 +335,7 @@ export async function completeConnectionOAuth(userId: string, input: { state: st
     await finishOAuth(row, verifier, input.code, input.iss);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    await db.update(connection).set({ status: "needsAuth", statusError: `oauth: ${message}`.slice(0, 300) }).where(eq(connection.id, row.id));
+    await db.update(connection).set({ status: "needsAuth", statusError: redactText(`oauth: ${message}`).slice(0, 300) }).where(eq(connection.id, row.id));
     throw new ConnectionError("oauthFailed", message);
   }
   const signedIn = await refresh(await ownedConnection(userId, row.id));

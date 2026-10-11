@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { agentGrant, connection } from "@/db/schema";
 import type { AgentToolRecord } from "@/lib/agents";
 import { MAX_TOOL_RESULT_CHARS, namespacedTool, type ConnectionTool } from "@/lib/connections";
+import { redactError, redactText, redactValue } from "@/lib/redact";
 import type { AiTool } from "@/server/ai";
 import { recordAudit } from "@/server/audit";
 import { callConnectionTool, classify, type ConnectionClientError, type ConnectionRow } from "./client";
@@ -49,9 +50,9 @@ export async function agentToolset(agentId: string): Promise<ConnectionToolset> 
   return { tools, byName };
 }
 
-/** A tool's input as its step and the audit log show it: JSON, cut to fit. */
+/** A tool's input as its step and the audit log show it: JSON, credentials masked, cut to fit. */
 export function inputSummary(args: Record<string, unknown>, max = 500) {
-  const json = JSON.stringify(args);
+  const json = JSON.stringify(redactValue(args));
   return json.length > max ? `${json.slice(0, max - 1)}…` : json;
 }
 
@@ -132,8 +133,8 @@ export async function runConnectionTool(input: {
       actorId: input.agentUserId,
       action: "connection.tool_called",
       target: { type: "connection", id: conn.id, label: conn.name },
-      details: { tool: tool.name, kind: tool.kind, input: summary, approvedBy: input.approvedBy, outcome, ...(error ? { error: error.slice(0, 200) } : {}) },
-    }).catch((e) => console.error("[connections] could not record a tool call", e));
+      details: { tool: tool.name, kind: tool.kind, input: summary, approvedBy: input.approvedBy, outcome, ...(error ? { error: redactText(error).slice(0, 200) } : {}) },
+    }).catch((e) => console.error("[connections] could not record a tool call", redactError(e)));
 
   let result: CallToolResult;
   try {

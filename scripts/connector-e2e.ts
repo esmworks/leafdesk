@@ -6,7 +6,8 @@
  * peer's annotations, and what the peer gave is kept sealed. An owner allows an agent some tools
  * and a trigger; a signed event starts a run that reads freely and stops at a writing call until an
  * owner answers: approved, it's sent and the row appears on the peer; declined or sent back with a
- * note, nothing is sent; unanswered, it runs out of time and nothing is sent. Unsigned, stale,
+ * note, nothing is sent; unanswered, it runs out of time and nothing is sent. A call carrying a
+ * credential is shown to owners masked and reaches the peer as the agent made it. Unsigned, stale,
  * repeated and oversized events are refused; members can't manage connections or answer calls;
  * private addresses are refused. Creates its own users and workspaces on both sides and deletes
  * them afterwards.
@@ -62,6 +63,8 @@ const { callConnectionTool, classify, ConnectionClientError, secretsOf } = await
 const { failureText, resultText } = await import("@/server/connections/tools");
 const { ProtocolError, SdkError, SdkErrorCode } = await import("@modelcontextprotocol/client");
 const { receiveEvent } = await import("@/server/connections/events");
+const { listInbox } = await import("@/server/notifications");
+const { describeAgentRun } = await import("@/server/mcp/agents");
 const { AccessError } = await import("@/server/access");
 const { namespacedTool } = await import("@/lib/connections");
 const { WEBHOOK_DELIVERY_HEADER, WEBHOOK_EVENT_HEADER, WEBHOOK_SIGNATURE_HEADER, signatureHeader, signedContent } = await import("@/lib/automations");
@@ -593,6 +596,36 @@ try {
   await flushAgentRuns();
   redo = await runOf(redo.id);
   check(redo.status === "done" && (await rowsAtPeer()).includes(`Redone ${RUN}`), "approved, the call prepared again is sent", { status: redo.status, code: redo.code });
+
+  // ── A call carrying a credential: owners see it masked, the peer gets it as made ────────────
+  // Made-up tokens, put together here so this file holds nothing a secret scanner flags.
+  const leakedToken = "gh" + "p_" + "A1b2C3d4".repeat(5);
+  const leakedKey = "AK" + "IA" + "IOSFODNN7EXAMPLE";
+  const keyedTitle = `Keyed ${RUN} ${leakedToken}`;
+  fake.setChat((request): FakeReply =>
+    assistantCalls(request) === 0 ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: keyedTitle } }] } : { text: `Stored the row for ${leakedToken}.` },
+  );
+  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-keyed`, body: { name: "Keyed lead", api_key: "abc123", aws: leakedKey } });
+  await flushAgentRuns();
+  let [keyed] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), eq(agentRun.status, "awaiting_approval")));
+  check((keyed.pending?.arguments as { title?: string }).title === `Keyed ${RUN} ghp_[redacted]`, "the waiting call's input is kept with the credential masked", keyed.pending);
+  check(keyed.state?.queue[0]?.arguments.title === keyedTitle, "…while the call to send is kept as the agent made it", keyed.state?.queue);
+  const keyedBody = "body" in keyed.context ? keyed.context.body : "";
+  check(keyedBody.includes("Keyed lead") && keyedBody.includes('"api_key": "[redacted]"') && keyedBody.includes("AKIA[redacted]") && !keyedBody.includes("abc123") && !keyedBody.includes(leakedKey), "the event a run keeps has its credentials masked", keyedBody);
+  const keyedInbox = (await listInbox(ids.owner, workspaceId)).find((item) => item.approval?.runId === keyed.id);
+  check(keyedInbox?.approval?.input.includes("ghp_[redacted]") && !keyedInbox.approval.input.includes(leakedToken), "the owner's inbox shows the input masked", keyedInbox?.approval);
+  const keyedViews = await agents.listAgentRuns(ids.owner, agent.id);
+  const keyedView = keyedViews.find((v) => v.id === keyed.id)!;
+  const keyedMcp = JSON.stringify(describeAgentRun(workspaceId, keyedView));
+  check(keyedMcp.includes("ghp_[redacted]") && !JSON.stringify(keyedViews).includes(leakedToken), "the agent's runs, in the app and over MCP, show it masked too", keyedMcp.slice(0, 600));
+  await decideApproval(ids.owner, { runId: keyed.id, callId: keyed.pending!.callId, decision: "approve" });
+  await flushAgentRuns();
+  keyed = await runOf(keyed.id);
+  check(keyed.status === "done" && (await rowsAtPeer()).includes(keyedTitle), "approved, the peer gets the input as the agent made it", { status: keyed.status, code: keyed.code, error: keyed.error });
+  check(keyed.answer === "Stored the row for ghp_[redacted]." && !JSON.stringify(keyed.steps).includes(leakedToken), "the run's answer and steps are kept masked", { answer: keyed.answer, steps: keyed.steps });
+  const keyedAudit = await db.select().from(auditEvent).where(and(eq(auditEvent.workspaceId, workspaceId), inArray(auditEvent.action, ["connection.tool_called", "connection.approval_decided"])));
+  const keyedEntries = keyedAudit.filter((a) => JSON.stringify(a.details).includes(`Keyed ${RUN}`));
+  check(keyedEntries.length === 2 && !JSON.stringify(keyedEntries).includes(leakedToken), "the audit log has the call and the answer, masked", keyedEntries.map((a) => a.details));
 
   // ── Unanswered: runs out of time, sends nothing ──────────────────────────────────────────────
   fake.setChat((request): FakeReply => (assistantCalls(request) === 0 ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: "Never sent" } }] } : { text: "?" }));

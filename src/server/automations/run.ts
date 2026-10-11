@@ -13,6 +13,7 @@ import {
 } from "@/lib/automations";
 import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
+import { redactError, redactText } from "@/lib/redact";
 import { resolvePageAccess } from "@/server/access";
 import { getProperties, requireDatabase, updateRowProperties } from "@/server/databases";
 import { signalInbox } from "@/server/notifications";
@@ -29,7 +30,8 @@ import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
  * the person who last saved the automation (`runAs`), with their access at the time: if they
  * can no longer manage the database, nothing runs. Each action is a step that either works or
  * fails on its own; only webhooks are tried again (MAX_WEBHOOK_ATTEMPTS, see retryDelayMs).
- * Finished runs are kept for RUN_HISTORY_DAYS.
+ * Finished runs are kept for RUN_HISTORY_DAYS: a step's error with credentials masked
+ * (lib/redact), the webhook body as it was sent (the row, sent again as it is on a retry).
  */
 
 const SWEEP_INTERVAL_MS = 5_000;
@@ -162,7 +164,7 @@ export async function processRun(run: Run) {
         const httpStatus = error instanceof WebhookError ? error.httpStatus : null;
         const code = (error as { code?: string }).code ?? "error";
         const message = error instanceof Error ? error.message : String(error);
-        Object.assign(step, { code, error: message.slice(0, 500), ...(httpStatus ? { httpStatus } : {}) });
+        Object.assign(step, { code, error: redactText(message).slice(0, 500), ...(httpStatus ? { httpStatus } : {}) });
         const again =
           action.type === "webhook" &&
           step.attempts < MAX_WEBHOOK_ATTEMPTS &&
@@ -307,7 +309,7 @@ async function sweep() {
         try {
           await processRun(run);
         } catch (error) {
-          console.error("automation run failed", error);
+          console.error("automation run failed", redactError(error));
           await db
             .update(automationRun)
             .set({ status: "failed", steps: endPending(run.steps, "error"), finishedAt: new Date() })
@@ -318,7 +320,7 @@ async function sweep() {
       if (runs.length === BATCH) again = true;
     } while (again);
   } catch (error) {
-    console.error("could not run automations", error);
+    console.error("could not run automations", redactError(error));
   } finally {
     sweeping = false;
   }
@@ -340,7 +342,7 @@ export async function pruneAutomationRuns() {
         lte(automationRun.finishedAt, new Date(Date.now() - RUN_HISTORY_DAYS * 24 * 60 * 60_000)),
       ),
     )
-    .catch((error) => console.error("could not prune automation runs", error));
+    .catch((error) => console.error("could not prune automation runs", redactError(error)));
 }
 
 /** Server only: runs queued automations, right away when they are queued and every few seconds. */

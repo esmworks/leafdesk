@@ -5,6 +5,7 @@
  * shares its database with the agent and queues a run; the run reads only what is shared with the
  * agent, changes and comments on the row that started it and nothing else, as the agent, without
  * setting off automations; runs stop when AI is off or the agent is paused; the audit log records it.
+ * What a run keeps (its answer, steps and error) has credentials masked; what the model reads doesn't.
  * An agent isn't a person: lists of people, guests and mentions leave it out, it can't be made a
  * member, owner or guest, it gets no notifications, it assigns people by name (not email), it's
  * marked as an agent where it acted, and deleting its workspace deletes its user.
@@ -446,6 +447,49 @@ try {
   check(byVisitor.sent.includes("BOARD-ONLY") && byVisitor.priority === "high", "with no one in the workspace behind the run (an anonymous form answer), the agent has its own access", byVisitor.results);
   const byStranger = await budgetRun(ids.solo);
   check(byStranger.sent.includes("BOARD-ONLY"), "…as with someone outside the workspace", byStranger.results);
+  await db.delete(agentRun).where(budgetRuns);
+
+  // ── What a run keeps has credentials masked; what the model reads doesn't change ────────────
+  // Made-up tokens, put together here so this file holds nothing a secret scanner flags.
+  const leaked = { github: "gh" + "p_" + "A1b2C3d4".repeat(5), slack: "xo" + "xb-1234567890-" + "A1b2C3d4".repeat(3) };
+  const keptRun = async (reply: (request: FakeChatRequest) => FakeReply) => {
+    await db.delete(agentRun).where(budgetRuns);
+    fake.chats.length = 0;
+    fake.setChat(reply);
+    const source = { kind: "automation" as const, automationId: triage.id, automationRunId: `${RUN}-kept`, databaseId: budgets.id, rowId: budgetRow.id };
+    await queueAgentRun({ agentId: router.id, workspaceId, source, context: { created: false, changed: [], actorId: ids.owner }, prompt: "Check the budget again." });
+    await flushAgentRuns();
+    const [done] = await db.select().from(agentRun).where(budgetRuns);
+    return done;
+  };
+  const talkative = await keptRun((request) =>
+    request.messages.some((m) => m.role === "assistant" && m.tool_calls?.length)
+      ? { text: `Done. The key ${leaked.github} and https://bot:hunter2@example.test/hook?api_key=abc123 are in the notes.` }
+      : { text: `Searching, with Authorization: Bearer ${leaked.github}`, toolCalls: [{ name: "search_pages", arguments: { query: `token=${leaked.slack}` } }] },
+  );
+  const keptSteps = JSON.stringify(talkative.steps);
+  check(talkative.status === "done", "a run that handles credentials finishes", talkative);
+  check(
+    talkative.answer.includes("ghp_[redacted]") && talkative.answer.includes("bot:[redacted]@example.test") && talkative.answer.includes("api_key=[redacted]") && !talkative.answer.includes(leaked.github) && !talkative.answer.includes("hunter2"),
+    "its answer is kept with the credentials masked",
+    talkative.answer,
+  );
+  check(
+    keptSteps.includes("Bearer [redacted]") && keptSteps.includes("token=[redacted]") && !keptSteps.includes(leaked.github) && !keptSteps.includes(leaked.slack),
+    "…and so are its steps (what it thought, what it searched for)",
+    talkative.steps,
+  );
+  check(fake.chats.length === 2 && everything(fake.chats[1]).includes(leaked.github), "…while the model still reads its conversation as it was", fake.chats.length);
+  const failing = await keptRun(() => {
+    throw new Error(`upstream refused Bearer ${leaked.github} (401)`);
+  });
+  check(
+    failing.status === "failed" && failing.code === "provider" && failing.error?.includes("Bearer ghp_[redacted]") && !failing.error.includes(leaked.github),
+    "a run's error is kept with the credentials masked",
+    { status: failing.status, code: failing.code, error: failing.error },
+  );
+  const views = await agents.listAgentRuns(ids.owner, router.id);
+  check(!JSON.stringify(views).includes(leaked.github), "an agent's runs, as owners list them, show no credential");
   await db.delete(agentRun).where(budgetRuns);
 
   // ── When a run doesn't happen ───────────────────────────────────────────────────────────────

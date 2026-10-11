@@ -807,6 +807,33 @@ try {
   const helperOption = (await auditActors(ids.owner, ws.main)).find((a) => a.userId === helper.userId);
   check(helperOption?.isAgent === true && helperOption.email === null, "the actor filter names the agent as one", helperOption);
 
+  // ── Credentials in what is recorded are kept masked ──────────────────────────────────────────
+  // A made-up token, put together here so this file holds nothing a secret scanner flags.
+  const leakedPat = "gh" + "p_" + "A1b2C3d4".repeat(5);
+  await recordAudit({
+    workspaceId: ws.main,
+    actorId: ids.owner,
+    action: "connection.updated",
+    target: { type: "connection", id: `${RUN}-conn`, label: "Tracker" },
+    details: {
+      url: "https://deploy:hunter2@mcp.example.test/mcp?api_key=abc123&team=core",
+      tokenChanged: true,
+      previous: { url: `https://mcp.example.test/mcp?team=${leakedPat}` },
+      headers: { Authorization: "Bearer abc" },
+    },
+  });
+  const masked = await latest(ws.main, "connection.updated");
+  check(
+    isDeepStrictEqual(masked.details, {
+      url: "https://deploy:[redacted]@mcp.example.test/mcp?api_key=[redacted]&team=core",
+      tokenChanged: true,
+      previous: { url: "https://mcp.example.test/mcp?team=ghp_[redacted]" },
+      headers: { Authorization: "[redacted]" },
+    }),
+    "credentials in an event's details are kept masked, the rest as it was",
+    masked.details,
+  );
+
   // ── Descriptions of everything recorded here ─────────────────────────────────────────────────
   const all = await db.select().from(auditEvent).where(inArray(auditEvent.workspaceId, [ws.main, ws.other]));
   const unreadable = all.filter((e) => {

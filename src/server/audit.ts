@@ -14,6 +14,7 @@ import {
   type AuditTargetType,
 } from "@/lib/audit";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
+import { redactValue } from "@/lib/redact";
 import { requireMembership } from "@/server/access";
 import { connectedAppCall } from "@/server/connected-app";
 import { clientDisplayName } from "@/server/mcp/grants";
@@ -60,7 +61,7 @@ export type AuditInput = {
    * in `details` as `subjectType`, `subjectId` and `subject` (its name then).
    */
   subject?: AuditTarget | { type: "everyone" } | null;
-  /** Small before/after values; never page content. */
+  /** Small before/after values; never page content. Kept with credentials masked (lib/redact). */
   details?: Record<string, unknown>;
 };
 
@@ -223,7 +224,8 @@ async function write(executor: Executor, inputs: AuditInput[], facts: RequestFac
       targetType: target?.type ?? null,
       targetId: target?.id ?? null,
       targetLabel: label.slice(0, MAX_LABEL),
-      details,
+      // A connection's address, a tool's input or a remote server's error can carry a credential.
+      details: redactValue(details),
       ip: actor.ip,
       userAgent: actor.userAgent?.slice(0, MAX_USER_AGENT) ?? null,
     });

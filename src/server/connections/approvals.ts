@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { agentRun, connection, notification, workspaceAgent } from "@/db/schema";
 import type { AgentPendingCall, ApprovalDecision } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
+import { redactError } from "@/lib/redact";
 import { workspaceOwnerIds } from "@/server/access";
 import { kickAgents } from "@/server/agents/kick";
 import { recordAudit } from "@/server/audit";
@@ -14,7 +15,8 @@ import { inputSummary } from "./tools";
  * Approvals: a call to a connection's tool that may change something waits until an owner of
  * the workspace approves it, declines it or sends it back with a note ("Redo"). They find it in
  * their inbox and in the agent's runs. The first answer counts; a day without one fails the run,
- * and nothing is sent.
+ * and nothing is sent. They see the call's input with credentials masked; approved, the call is
+ * sent as the agent made it (see park in server/agents/run).
  */
 
 export class ApprovalError extends Error {
@@ -31,7 +33,7 @@ function refreshInboxes(workspaceId: string) {
   try {
     signalInbox(workspaceId);
   } catch (error) {
-    console.error("[connections] could not refresh inboxes", error);
+    console.error("[connections] could not refresh inboxes", redactError(error));
   }
 }
 

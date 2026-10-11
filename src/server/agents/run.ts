@@ -17,6 +17,11 @@
  * someone the workspace doesn't know); any other makes the run wait (`awaiting_approval`, its
  * conversation saved in `state`) until an owner answers, and fails it, sending nothing, after
  * APPROVAL_TIMEOUT_MS.
+ *
+ * What a run keeps to show (its steps, answer and error, and the call waiting for approval as
+ * owners see it) has credentials masked (lib/redact). `state` is kept as it was: the run goes on
+ * from it and sends the waiting call as the agent made it, and it is never shown and is cleared
+ * once the run ends.
  */
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -37,6 +42,7 @@ import {
 } from "@/lib/agents";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
+import { redactError, redactText, redactValue } from "@/lib/redact";
 import { AccessError, findMembership, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
@@ -149,9 +155,9 @@ async function finish(run: Run, values: Ending) {
     .set({
       status: values.status,
       code: values.code ?? null,
-      error: values.error?.slice(0, 500) ?? null,
-      ...(values.steps ? { steps: values.steps } : {}),
-      ...(values.answer !== undefined ? { answer: values.answer.slice(0, 8_000) } : {}),
+      error: values.error ? redactText(values.error).slice(0, 500) : null,
+      ...(values.steps ? { steps: redactValue(values.steps) } : {}),
+      ...(values.answer !== undefined ? { answer: redactText(values.answer).slice(0, 8_000) } : {}),
       ...(values.usage !== undefined ? { usage: values.usage } : {}),
       state: null,
       pending: null,
@@ -165,15 +171,19 @@ async function later(run: Run, at: Date) {
   await db.update(agentRun).set({ status: "pending", nextAt: at }).where(eq(agentRun.id, run.id));
 }
 
-/** Parks a run until an owner answers the call it waits on (or the call runs out of time). */
+/**
+ * Parks a run until an owner answers the call it waits on (or the call runs out of time). Owners
+ * see the call's input with credentials masked (`pending`); what is sent once approved is the call
+ * as the agent made it, from `state`.
+ */
 async function park(run: Run, agent: Agent, values: { state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage }) {
   await db
     .update(agentRun)
     .set({
       status: "awaiting_approval",
       state: values.state,
-      pending: values.pending,
-      steps: values.steps,
+      pending: { ...values.pending, arguments: redactValue(values.pending.arguments) },
+      steps: redactValue(values.steps),
       usage: values.usage,
       // Taking it again for an answer is no failed attempt.
       attempts: 0,
@@ -216,7 +226,7 @@ export async function processRun(run: Run): Promise<void> {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
     const code: AgentRunCode = isAiError(error) ? (error.code === "aborted" || error.code === "timeout" ? "timeout" : "provider") : "error";
-    if (!isAiError(error)) console.error("[agents] run failed", error);
+    if (!isAiError(error)) console.error("[agents] run failed", redactError(error));
     return finish(run, { status: "failed", code, error: error instanceof Error ? error.message : String(error) });
   }
   if (outcome.status === "awaiting") return park(run, agent, outcome);
@@ -320,7 +330,7 @@ async function converse(agent: Agent, run: Run, { member }: { member: string | n
   const checkpoint = () =>
     db
       .update(agentRun)
-      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars }, steps, usage })
+      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars }, steps: redactValue(steps), usage })
       .where(eq(agentRun.id, run.id));
 
   /** Answers the calls waiting in `queue`, in order; the run pauses at the first that needs approval. */
@@ -499,7 +509,7 @@ async function takeDue() {
       running.add(run.id);
       void processRun(run)
         .catch(async (error) => {
-          console.error("[agents] run failed", error);
+          console.error("[agents] run failed", redactError(error));
           await finish(run, { status: "failed", code: "error", error: error instanceof Error ? error.message : String(error) }).catch(() => undefined);
         })
         .finally(() => {
@@ -509,7 +519,7 @@ async function takeDue() {
         });
     }
   } catch (error) {
-    console.error("[agents] could not run agents", error);
+    console.error("[agents] could not run agents", redactError(error));
   }
 }
 
@@ -530,7 +540,7 @@ export async function expireApprovals() {
       await withdrawApproval(run.id);
     }
   } catch (error) {
-    console.error("[agents] could not expire approvals", error);
+    console.error("[agents] could not expire approvals", redactError(error));
   }
 }
 
@@ -558,11 +568,11 @@ export async function pruneAgentRuns() {
         lte(agentRun.finishedAt, new Date(Date.now() - AGENT_RUN_HISTORY_DAYS * 24 * 60 * 60_000)),
       ),
     )
-    .catch((error) => console.error("[agents] could not prune runs", error));
+    .catch((error) => console.error("[agents] could not prune runs", redactError(error)));
   await db
     .delete(connectionEvent)
     .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))
-    .catch((error) => console.error("[connections] could not prune events", error));
+    .catch((error) => console.error("[connections] could not prune events", redactError(error)));
 }
 
 /** Server only: runs queued agents, right away when they are queued and every few seconds. */

@@ -154,6 +154,21 @@
   Database rows and the pages of templates are content and stay out of it, as edits do; a row
   deleted for good is still recorded. A page recorded before it had a title is listed under the
   title it has now. The "Deleting and publishing" filter is now "Pages". No migration.
+- **Credentials masked in what agents, connections and automations keep.** Text that looks like a
+  credential is kept as `[redacted]` in an agent run's steps, answer and error; in the input of a
+  call waiting for approval, as owners see it in their inbox, in the agent's runs and over MCP
+  (approved, the call is still sent as the agent made it); in a connection event's body as the
+  runs it starts keep it; in a connection's error and an automation step's error; in the audit
+  log's details; and in what the server logs about connections, agents, automations and AI
+  provider errors. Masked are passwords in addresses (`https://user:[redacted]@host`),
+  credential-named query parameters and fields (`token`, `access_token`, `api_key`,
+  `client_secret`, `password`, an OAuth `code` in an address…), `Authorization` headers and
+  `Bearer`/`Basic` tokens, private keys, and the token formats of Leafdesk itself, GitHub, GitLab,
+  npm, Slack, AI providers, Stripe, AWS, Google and JSON Web Tokens; ids and ordinary words are
+  left alone. Pages and rows are not touched, and a webhook sends the row as it is. The model
+  still reads tool answers and its own conversation unmasked (an event's body reaches it masked),
+  and a run waiting for approval keeps its conversation as it was until it ends. Already stored
+  runs, events, errors and audit events stay as they are. No migration.
 - **A clearer home page.** The home page greets you with today's date under the welcome, and
   shows the recently edited pages as cards in two columns, with titles up to two lines instead of
   cut off. The assigned section now says so when nothing is assigned to you instead of

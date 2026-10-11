@@ -2,6 +2,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { connection, connectionEvent, connectionTrigger, workspaceAgent } from "@/db/schema";
 import { MAX_EVENT_BYTES, MAX_TRIGGER_EVENT } from "@/lib/connections";
+import { redactText, redactValue } from "@/lib/redact";
 import { queueAgentRun } from "@/server/agents/run";
 import { open } from "../secret-box";
 import { triggerMatches, verifyEvent } from "./verify";
@@ -104,7 +105,8 @@ export async function receiveEvent(connectionId: string, request: Request): Prom
     .innerJoin(workspaceAgent, and(eq(workspaceAgent.id, connectionTrigger.agentId), isNull(workspaceAgent.archivedAt)))
     .where(and(eq(connectionTrigger.connectionId, conn.id), eq(connectionTrigger.enabled, true)));
   const matching = triggers.filter((t) => t.agentEnabled && triggerMatches(t.trigger.eventType, eventType));
-  const text = typeof verified.payload === "string" ? verified.payload : JSON.stringify(verified.payload, null, 1);
+  // Kept with each run it starts, for as long as the run is: credentials in it are masked first.
+  const text = typeof verified.payload === "string" ? redactText(verified.payload) : JSON.stringify(redactValue(verified.payload), null, 1);
   const runIds: string[] = [];
   for (const { trigger } of matching) {
     runIds.push(

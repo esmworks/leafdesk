@@ -15,6 +15,7 @@
 import { randomUUID } from "node:crypto";
 import { Type, type Api, type AssistantMessage, type Context, type Message, type Model, type Tool } from "@earendil-works/pi-ai";
 import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
+import { redactText } from "@/lib/redact";
 import { createBackend, type AiBackend } from "./backend";
 import { DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
@@ -263,7 +264,7 @@ type LogEntry = {
   detail?: string;
 };
 
-/** One line per request: who, what for, tokens and time. Never the prompt or the answer. */
+/** One line per request: who, what for, tokens and time. Never the prompt or the answer; a provider's error with credentials masked. */
 function logUsage(entry: LogEntry) {
   const parts = [
     `feature=${entry.feature}`,
@@ -274,7 +275,7 @@ function logUsage(entry: LogEntry) {
     entry.usage ? `in=${entry.usage.inputTokens} out=${entry.usage.outputTokens}` : null,
     entry.usage?.costUsd ? `cost=$${entry.usage.costUsd.toFixed(5)}` : null,
     `ms=${Math.round(entry.ms)}`,
-    entry.detail ? `detail=${JSON.stringify(entry.detail.slice(0, 300))}` : null,
+    entry.detail ? `detail=${JSON.stringify(redactText(entry.detail).slice(0, 300))}` : null,
   ];
   const line = `[ai] ${parts.filter(Boolean).join(" ")}`;
   if (entry.status === "ok" || entry.status === "aborted") console.log(line);
