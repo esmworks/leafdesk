@@ -661,6 +661,7 @@
     "parentInTrash": "La página principal está en la papelera. Restáurala primero.",
     "nestedDatabase": "Una base de datos no puede contener otra base de datos.",
     "pageTooDeep": "Las páginas pueden anidarse como máximo {max} niveles.",
+    "invalidIcon": "El icono debe ser un emoji.",
     "invalidRelation": "“{property}” solo puede vincularse a filas de su base de datos relacionada.",
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
     "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",

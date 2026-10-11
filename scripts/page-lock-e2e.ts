@@ -237,6 +237,13 @@ try {
   await pages.setPageLocked(ids.editor, notes.id, false);
   check((await stored(notes.id)).lockedAt === null, "anyone who can edit it unlocks it");
   check(!(await authorizeCollab(ids.owner, { kind: "page", id: notes.id })).readOnly, "its connections open writable again");
+  const iconRefusal = (icon: string) =>
+    pages.setPageIcon(ids.owner, notes.id, icon).then(
+      () => null,
+      (error: unknown) => (error as { code?: unknown }).code,
+    );
+  check((await iconRefusal("x".repeat(100))) === "invalidIcon", "an icon is an emoji, not any text");
+  check((await iconRefusal("🔥")) === null && (await stored(notes.id)).icon === "🔥", "…which it takes");
   await pages.renamePage(owner, notes.id, "Notes again");
   await collab.appendContent(notes.id, "Added after the unlock.", owner);
   const reopened = await collab.readPage(notes.id);

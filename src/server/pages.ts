@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
+import { parseIcon } from "@/lib/icon";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
@@ -280,6 +281,7 @@ async function pagePlace(parentId: string | null, teamspaceId: string | null): P
 export async function createPage(actor: WriteActor, input: CreatePageInput, { audit = true }: { audit?: boolean } = {}) {
   const { userId } = actor;
   const kind = input.kind ?? "page";
+  const icon = input.icon === null || input.icon === undefined ? null : checkedIcon(input.icon);
   let workspaceId = input.workspaceId;
   let parentKind: PageKind | null = null;
   // Pages added under a template belong to it, and stay out of the sidebar and search like it.
@@ -321,7 +323,7 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
         parentId: input.parentId ?? null,
         kind,
         title: input.title?.trim() ?? "",
-        icon: input.icon ?? null,
+        icon,
         properties,
         position,
         isTemplate,
@@ -379,10 +381,18 @@ export async function renamePage(actor: WriteActor, pageId: string, title: strin
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
 
+/** A page's icon is an emoji (lib/icon); anything else is refused with `invalidIcon`. */
+function checkedIcon(value: unknown) {
+  const icon = parseIcon(value);
+  if (!icon) throw withCode(new Error("A page's icon is an emoji"), "invalidIcon");
+  return icon;
+}
+
 export async function setPageIcon(userId: string, pageId: string, icon: string | null) {
+  const checked = icon === null ? null : checkedIcon(icon);
   const p = await requirePageAccess(userId, pageId, "edit");
   assertPageUnlocked(p);
-  await db.update(page).set({ icon, updatedBy: userId }).where(eq(page.id, pageId));
+  await db.update(page).set({ icon: checked, updatedBy: userId }).where(eq(page.id, pageId));
   pageHeaderChanged(p);
 }
 

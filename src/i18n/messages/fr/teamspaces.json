@@ -28,7 +28,8 @@
     "inGroup": "Cette personne fait partie de l’espace d’équipe via un groupe. Retirez-la plutôt du groupe.",
     "everyoneIn": "Tous les membres de l’espace de travail font déjà partie de cet espace d’équipe.",
     "accessDenied": "Vous ne pouvez pas faire cela dans cet espace d’équipe.",
-    "invalidMemberLevel": "Choisissez ce que les membres obtiennent sur les pages de l'espace d'équipe."
+    "invalidMemberLevel": "Choisissez ce que les membres obtiennent sur les pages de l'espace d'équipe.",
+    "invalidIcon": "L’icône doit être un emoji."
   },
   "dialog": {
     "createTitle": "Nouvel espace d’équipe",

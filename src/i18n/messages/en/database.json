@@ -661,6 +661,7 @@
     "parentInTrash": "The parent page is in the trash. Restore it first.",
     "nestedDatabase": "A database can’t contain another database.",
     "pageTooDeep": "Pages can be nested at most {max} levels deep.",
+    "invalidIcon": "The icon must be an emoji.",
     "invalidRelation": "“{property}” can only link to rows of its related database.",
     "invalidRelationTarget": "A relation must point to a database in the same workspace.",
     "subItemLoop": "“{property}” can’t put a row under itself or under one of its own sub-items.",

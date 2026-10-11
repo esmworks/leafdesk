@@ -28,7 +28,8 @@
     "inGroup": "Bu kişi teamspace'te bir grup üzerinden bulunuyor. Bunun yerine onu gruptan çıkarın.",
     "everyoneIn": "Çalışma alanındaki herkes zaten bu teamspace'te.",
     "accessDenied": "Bu teamspace'te bunu yapamazsınız.",
-    "invalidMemberLevel": "Üyelerin teamspace sayfalarında ne alacağını seçin."
+    "invalidMemberLevel": "Üyelerin teamspace sayfalarında ne alacağını seçin.",
+    "invalidIcon": "Simge bir emoji olmalı."
   },
   "dialog": {
     "createTitle": "Yeni teamspace",

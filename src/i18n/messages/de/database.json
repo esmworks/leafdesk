@@ -661,6 +661,7 @@
     "parentInTrash": "Die übergeordnete Seite liegt im Papierkorb. Stelle sie zuerst wieder her.",
     "nestedDatabase": "Eine Datenbank kann keine andere Datenbank enthalten.",
     "pageTooDeep": "Seiten können höchstens {max} Ebenen tief verschachtelt werden.",
+    "invalidIcon": "Das Symbol muss ein Emoji sein.",
     "invalidRelation": "„{property}“ kann nur mit Zeilen der verknüpften Datenbank verknüpft werden.",
     "invalidRelationTarget": "Eine Relation muss auf eine Datenbank im selben Workspace verweisen.",
     "subItemLoop": "„{property}“ kann eine Zeile nicht unter sich selbst oder unter eines ihrer eigenen Unterelemente stellen.",

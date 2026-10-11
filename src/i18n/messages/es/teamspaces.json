@@ -28,7 +28,8 @@
     "inGroup": "Esta persona está en el espacio de equipo a través de un grupo. Quítala del grupo en su lugar.",
     "everyoneIn": "Todos los miembros del espacio de trabajo ya están en este espacio de equipo.",
     "accessDenied": "No puedes hacer eso en este espacio de equipo.",
-    "invalidMemberLevel": "Elige qué obtienen los miembros en las páginas del espacio de equipo."
+    "invalidMemberLevel": "Elige qué obtienen los miembros en las páginas del espacio de equipo.",
+    "invalidIcon": "El icono debe ser un emoji."
   },
   "dialog": {
     "createTitle": "Nuevo espacio de equipo",

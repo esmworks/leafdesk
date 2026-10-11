@@ -17,6 +17,7 @@ import {
   type TeamspaceRole,
   type WorkspaceRole,
 } from "@/db/schema";
+import { parseIcon } from "@/lib/icon";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import type { TeamspaceReach } from "@/lib/teamspace-reach";
 import { AccessError, isGuest, requireMember } from "@/server/access";
@@ -264,6 +265,14 @@ function cleanName(name: string) {
   return clean;
 }
 
+/** No icon (null), or an emoji like a page's (lib/icon). */
+function checkedIcon(value: unknown) {
+  if (value === null || value === undefined) return null;
+  const icon = parseIcon(value);
+  if (!icon) throw new TeamspaceError("invalidIcon", "A teamspace's icon is an emoji.");
+  return icon;
+}
+
 export type TeamspaceInput = {
   name: string;
   icon?: string | null;
@@ -297,7 +306,7 @@ export async function createTeamspace(userId: string, workspaceId: string, input
       .values({
         workspaceId,
         name: cleanName(input.name),
-        icon: input.icon ?? null,
+        icon: checkedIcon(input.icon),
         description: (input.description ?? "").trim().slice(0, MAX_DESCRIPTION),
         access,
         memberLevel,
@@ -342,7 +351,7 @@ export async function updateTeamspace(
   }
   const next = {
     ...(patch.name !== undefined ? { name: cleanName(patch.name) } : {}),
-    ...(patch.icon !== undefined ? { icon: patch.icon } : {}),
+    ...(patch.icon !== undefined ? { icon: checkedIcon(patch.icon) } : {}),
     ...(patch.description !== undefined ? { description: patch.description.trim().slice(0, MAX_DESCRIPTION) } : {}),
     access,
     memberLevel,

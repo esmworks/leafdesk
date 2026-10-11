@@ -8,6 +8,9 @@ import * as pages from "@/server/pages";
 import { requireUserId } from "@/server/session";
 import { databaseSeedNames } from "./seed-names";
 
+/** The longest content a new page is created with here (a quick note's text). */
+const MAX_NEW_PAGE_MARKDOWN = 500_000;
+
 export async function createPageAction(input: {
   workspaceId: string;
   parentId?: string | null;
@@ -19,8 +22,26 @@ export async function createPageAction(input: {
   markdown?: string;
 }) {
   const userId = await requireUserId();
-  const seedNames = input.kind === "database" ? await databaseSeedNames() : undefined;
-  const created = await pages.createPage({ userId }, { ...input, seedNames });
+  // Only what the app sends: a request can put anything in the arguments, and createPage takes
+  // more than these (an icon, row values, a template flag).
+  const kind: PageKind = input.kind === "database" ? "database" : "page";
+  const markdown = typeof input.markdown === "string" ? input.markdown : undefined;
+  if (markdown && markdown.length > MAX_NEW_PAGE_MARKDOWN) {
+    throw new Error(`A new page's content can be at most ${MAX_NEW_PAGE_MARKDOWN} characters`);
+  }
+  const seedNames = kind === "database" ? await databaseSeedNames() : undefined;
+  const created = await pages.createPage(
+    { userId },
+    {
+      workspaceId: String(input.workspaceId),
+      parentId: typeof input.parentId === "string" ? input.parentId : null,
+      kind,
+      title: typeof input.title === "string" ? input.title : undefined,
+      teamspaceId: input.teamspaceId === null || typeof input.teamspaceId === "string" ? input.teamspaceId : undefined,
+      markdown,
+      seedNames,
+    },
+  );
   return { id: created.id };
 }
 

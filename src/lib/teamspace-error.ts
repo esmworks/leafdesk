@@ -9,6 +9,7 @@ export type TeamspaceErrorCode =
   | "notMember"
   | "invalidAccess"
   | "invalidMemberLevel"
+  | "invalidIcon"
   | "inGroup"
   | "everyoneIn";
 

@@ -28,7 +28,8 @@
     "inGroup": "This person is in the teamspace through a group. Remove them from the group instead.",
     "everyoneIn": "Everyone in the workspace is in this teamspace already.",
     "accessDenied": "You can't do that in this teamspace.",
-    "invalidMemberLevel": "Choose what members get on the teamspace's pages."
+    "invalidMemberLevel": "Choose what members get on the teamspace's pages.",
+    "invalidIcon": "The icon must be an emoji."
   },
   "dialog": {
     "createTitle": "New teamspace",

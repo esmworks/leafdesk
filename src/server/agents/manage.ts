@@ -25,6 +25,7 @@ import {
   type AgentRunView,
   type AgentView,
 } from "@/lib/agents";
+import { parseIcon } from "@/lib/icon";
 import { AccessError, ConnectedAppReadOnlyError, pageAccessOf, pageVisibleTo, requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
@@ -66,9 +67,9 @@ function checkName(value: unknown) {
 
 function checkIcon(value: unknown) {
   if (value === null || value === undefined) return null;
-  const icon = typeof value === "string" ? value.trim() : "";
   // An emoji (a few code points at most), like a page's icon.
-  if (!icon || [...icon].length > 8) throw new AgentError("invalid", "An agent's icon is an emoji", { reason: "icon" });
+  const icon = parseIcon(value);
+  if (!icon) throw new AgentError("invalid", "An agent's icon is an emoji", { reason: "icon" });
   return icon;
 }
 

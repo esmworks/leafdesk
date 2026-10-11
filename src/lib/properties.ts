@@ -64,6 +64,7 @@ export const DATABASE_ERROR_CODES = [
   "parentInTrash",
   "nestedDatabase",
   "pageTooDeep",
+  "invalidIcon",
   "invalidRelation",
   "invalidRelationTarget",
   "subItemLoop",

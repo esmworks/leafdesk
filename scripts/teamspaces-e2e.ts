@@ -193,6 +193,14 @@ try {
   const closed = await createTeamspace(owner, workspaceId, { name: `${RUN} Closed`, access: "closed" });
   const secret = await createTeamspace(owner, workspaceId, { name: `${RUN} Secret`, access: "private" });
   check((await rowsOf(open.id)).get(owner) === "owner", "the creator owns the new teamspace");
+  await rejects(
+    () => createTeamspace(owner, workspaceId, { name: `${RUN} Icon`, access: "open", icon: "x".repeat(5000) }),
+    isCode("invalidIcon"),
+    "a teamspace's icon is an emoji, not any text",
+  );
+  await rejects(() => updateTeamspace(owner, open.id, { icon: "<b>".repeat(10) }), isCode("invalidIcon"), "…when it changes too");
+  await updateTeamspace(owner, open.id, { icon: "🚀" });
+  await updateTeamspace(owner, open.id, { icon: null });
   await updateWorkspaceSettings(owner, workspaceId, { teamspaceCreation: "owners" });
   check(!(await canCreateTeamspace(alice, workspaceId)), "with the owners-only setting members can't create teamspaces");
   await rejects(

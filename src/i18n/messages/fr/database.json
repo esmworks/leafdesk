@@ -661,6 +661,7 @@
     "parentInTrash": "La page parente est dans la corbeille. Restaurez-la d’abord.",
     "nestedDatabase": "Une base de données ne peut pas contenir une autre base de données.",
     "pageTooDeep": "Les pages peuvent être imbriquées sur {max} niveaux au plus.",
+    "invalidIcon": "L’icône doit être un emoji.",
     "invalidRelation": "« {property} » ne peut être liée qu’à des lignes de sa base de données liée.",
     "invalidRelationTarget": "Une relation doit pointer vers une base de données du même espace de travail.",
     "subItemLoop": "« {property} » ne peut pas placer une ligne sous elle-même ni sous l’un de ses propres sous-éléments.",
