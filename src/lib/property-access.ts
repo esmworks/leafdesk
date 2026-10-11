@@ -114,3 +114,36 @@ export function dependsOnRow(rules: readonly PropertyRule[], viewer: PropertyVie
 export function formulaReferences(expression: string): string[] {
   return parseFormula(expression).refs;
 }
+
+type DerivedSource = {
+  id: string;
+  type: string;
+  options: { formula?: { expression?: string } | null; rollup?: { targetPropertyId?: string } | null };
+};
+
+/**
+ * The properties among `props` (one or more databases') whose values must not feed text others
+ * read, like AI autofill: those in `seed` (with rules, or found restricted otherwise), rollups over
+ * a property in `elsewhere` (restricted in the database the rollup reads), and every formula and
+ * rollup reading any of these, as far as that goes.
+ */
+export function restrictedProperties(props: readonly DerivedSource[], seed: Iterable<string>, elsewhere: ReadonlySet<string> = new Set()): Set<string> {
+  const restricted = new Set(seed);
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const p of props) {
+      if (restricted.has(p.id)) continue;
+      const reads =
+        p.type === "formula"
+          ? formulaReferences(p.options.formula?.expression ?? "").some((id) => restricted.has(id))
+          : p.type === "rollup" && !!p.options.rollup?.targetPropertyId
+            ? restricted.has(p.options.rollup.targetPropertyId) || elsewhere.has(p.options.rollup.targetPropertyId)
+            : false;
+      if (reads) {
+        restricted.add(p.id);
+        grew = true;
+      }
+    }
+  }
+  return restricted;
+}

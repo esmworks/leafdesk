@@ -32,8 +32,8 @@ import { getCollab } from "@/server/collab/bridge";
 import * as databases from "@/server/databases";
 import { displayProperties } from "@/server/mcp/query";
 import { compileFormulas, relatedDatabases } from "@/lib/derived";
-import { formulaReferences } from "@/lib/property-access";
-import { relatedSchemasFor } from "@/server/derived";
+import { formulaReferences, restrictedProperties } from "@/lib/property-access";
+import { loadProperties, relatedSchemasFor } from "@/server/derived";
 import { loadPropertyRules, propertyAccessFor, type AccessRow, type PropertyAccess } from "@/server/property-access";
 import { onRowChanged, type RowChange } from "@/server/row-events";
 
@@ -264,6 +264,33 @@ async function readingRestrictedRelated(props: Property[]): Promise<string[]> {
     .map((f) => f.id);
 }
 
+/** How many databases down rollups over rollups are followed; deeper ones count as restricted. */
+const ROLLUP_DEPTH = 3;
+
+/**
+ * Rollups over a restricted property of related rows: one with rules in the related database, a
+ * formula there reading one (of its own rows or of rows it relates to), or a rollup there over one
+ * (followed ROLLUP_DEPTH databases down). Left out of autofill like restricted properties of the
+ * row itself: whoever's edit sets autofill off, the rollup is worked out with their view, and the
+ * value written can be read by people the related value is hidden from.
+ */
+export async function rollupsOverRestricted(props: Property[], depth = 0): Promise<string[]> {
+  const relationOf = new Map(props.filter((p) => p.type === "relation").map((p) => [p.id, p.options.relation?.databaseId]));
+  const rollups = props.filter((p) => p.type === "rollup" && p.options.rollup);
+  const databaseIds = [...new Set(rollups.flatMap((r) => relationOf.get(r.options.rollup!.relationPropertyId) ?? []))];
+  if (!databaseIds.length) return [];
+  // Too far down to follow: every rollup there counts as restricted.
+  if (depth >= ROLLUP_DEPTH) return rollups.map((r) => r.id);
+  const [schemas, rules] = await Promise.all([loadProperties(databaseIds), loadPropertyRules(databaseIds)]);
+  const seed = new Set(rules.keys());
+  for (const id of databaseIds) {
+    const own = schemas.get(id) ?? [];
+    for (const found of [...(await readingRestrictedRelated(own)), ...(await rollupsOverRestricted(own, depth + 1))]) seed.add(found);
+  }
+  const there = restrictedProperties(databaseIds.flatMap((id) => schemas.get(id) ?? []), seed);
+  return rollups.filter((r) => there.has(r.options.rollup!.targetPropertyId)).map((r) => r.id);
+}
+
 /** Works out one value. Returns milliseconds to wait before retrying (workspace allowance), or 0. */
 async function runJob(job: Job): Promise<number> {
   try {
@@ -287,9 +314,11 @@ async function runJob(job: Job): Promise<number> {
     }
     // Restricted properties never feed autofill, whoever asks: the value it writes can be read by
     // people the inputs are hidden from (the same reason search leaves them out).
-    // Formulas reading them are left out too.
+    // Formulas reading them are left out too, and so are formulas and rollups reading restricted
+    // properties of related rows.
     const restricted = new Set((await loadPropertyRules([job.databaseId])).keys());
     for (const id of await readingRestrictedRelated(all)) restricted.add(id);
+    for (const id of await rollupsOverRestricted(all)) restricted.add(id);
     for (let grew = true; grew; ) {
       grew = false;
       for (const p of all) {

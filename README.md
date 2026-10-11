@@ -247,8 +247,10 @@ versions, upgrades and running behind a domain.
   The widest rule wins, nobody gets more than their access to the database, and full access is
   never restricted. Restricted values stay out of every view, row page, formula, rollup, filter,
   search, AI answer, export, copy, published page, MCP and REST reply of people they are hidden
-  from, and their writes are refused. Relations and the created/edited by/time properties can't
-  be restricted.
+  from, and their writes are refused. AI autofill never reads a restricted property, nor a
+  formula or rollup reading one (of the row or of related rows), whoever asks: the text it writes
+  can be read by people the value is hidden from. Relations and the created/edited by/time
+  properties can't be restricted.
 - **Member groups**: workspace owners gather members into groups (Settings → Groups) and share a
   page with a group, or add it to a teamspace, the way they would with a person. Everyone in the
   group gets that access for as long as they are in it; when a page has entries for someone and

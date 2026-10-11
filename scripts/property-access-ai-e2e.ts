@@ -5,7 +5,7 @@
  * isn't indexed changes nothing in their text; AI autofill never sends the model a property the
  * person can't know of, refuses settings that name one, doesn't tell whether one exists, and only
  * writes values the person may change (a restricted person's edit doesn't flip the value to
- * "failed" for everyone).
+ * "failed" for everyone); rollups over restricted properties of related rows don't feed it either.
  * Embeddings come from the fake OpenAI-compatible server, the autofill model from pi-ai's faux
  * provider. Creates its own users and workspace and deletes them afterwards.
  *
@@ -238,6 +238,30 @@ try {
   await setPropertyAccess(ids.owner, pitch.id, { everyone: "none", exceptions: [] });
   check(code(await failure(() => requestAutofill(ids.editor, pitch.id, [ada.id]))) === "access", "a property they can't know of can't be refreshed");
   check(code(await failure(() => setAutofill(ids.editor, pitch.id, null))) === "access", "…nor set up");
+
+  // A rollup over a restricted property of related rows never feeds autofill either: whoever's
+  // edit sets it off, the value it writes can be read by people the related value is hidden from.
+  await setAutofill(ids.owner, pitch.id, { mode: "summary" });
+  const salaries = await createPage(actor, { workspaceId, kind: "database", title: "Salaries" });
+  await setPagePermission(ids.owner, salaries.id, ids.owner, "full");
+  await setPagePermission(ids.owner, salaries.id, null, "none");
+  await setPagePermission(ids.owner, salaries.id, ids.editor, "view");
+  const salary = await databases.addProperty(ids.owner, salaries.id, { name: "Salary", type: "number" });
+  const grade = await databases.addProperty(ids.owner, salaries.id, { name: "Grade", type: "text" });
+  const adaPay = await createPage(actor, { workspaceId, parentId: salaries.id, title: "Ada's pay", properties: { Salary: 987654, Grade: "grade-xyzzy" } });
+  await setPropertyAccess(ids.owner, salary.id, { everyone: "view_property", exceptions: [] });
+  const pay = await databases.addProperty(ids.owner, staff.id, { name: "Pay", type: "relation", relation: { databaseId: salaries.id } });
+  await databases.addProperty(ids.owner, staff.id, { name: "Pay salary", type: "rollup", rollup: { relationPropertyId: pay.id, targetPropertyId: salary.id, function: "show_original" } });
+  await databases.addProperty(ids.owner, staff.id, { name: "Pay grade", type: "rollup", rollup: { relationPropertyId: pay.id, targetPropertyId: grade.id, function: "show_original" } });
+  await databases.updateRowProperties(ids.owner, ada.id, { [pay.id]: [adaPay.id] });
+  const brief = await databases.addProperty(ids.owner, staff.id, { name: "Brief", type: "text" });
+  await setAutofill(ids.owner, brief.id, { mode: "summary" });
+  const asked = prompts.length;
+  await requestAutofill(ids.owner, brief.id, [ada.id]);
+  await autofillSettled(brief.id, [ada.id]);
+  const briefPrompt = prompts.slice(asked).join("\n");
+  check(briefPrompt.includes("grade-xyzzy"), "a rollup over an open property of related rows feeds autofill", briefPrompt);
+  check(!briefPrompt.includes("987654"), "…one over a restricted property there doesn't, not even the owner's", briefPrompt);
 
   console.log(`\n${passed} checks passed`);
 } finally {
