@@ -29,6 +29,7 @@
     "subject": "{actor} te asignó a “{row}”",
     "heading": "Te asignaron a “{row}”",
     "body": "{actor} te añadió a “{property}” en {database}.",
+    "bodyHidden": "{actor} te añadió a “{property}”.",
     "action": "Abrir",
     "untitled": "Sin título",
     "someone": "Alguien",
@@ -75,13 +76,16 @@
     "subject": "Recordatorio: «{page}» el {date}",
     "heading": "«{page}» es el {date}",
     "body": "«{page}» en {database} ({workspace}) tiene {property} el {date}.",
+    "bodyHidden": "«{page}» ({workspace}) tiene {property} el {date}.",
     "action": "Abrir fila",
-    "optOut": "Recibes esto porque {database} avisa a las personas de sus filas. Puedes desactivar los recordatorios en Mi cuenta > Preferencias."
+    "optOut": "Recibes esto porque {database} avisa a las personas de sus filas. Puedes desactivar los recordatorios en Mi cuenta > Preferencias.",
+    "optOutHidden": "Recibes esto porque la base de datos de esta fila avisa a las personas de sus filas. Puedes desactivar los recordatorios en Mi cuenta > Preferencias."
   },
   "automation": {
     "subject": "Automatización “{automation}”: “{page}”",
     "heading": "La automatización “{automation}” te avisa sobre “{page}”",
     "body": "{actor} añadió o cambió “{page}” en {database} ({workspace}).",
+    "bodyHidden": "{actor} añadió o cambió “{page}” ({workspace}).",
     "action": "Abrir fila",
     "someone": "Alguien",
     "optOut": "Recibes estos correos porque una automatización de una base de datos te avisa. Puedes desactivarlos en Mi cuenta > Preferencias."

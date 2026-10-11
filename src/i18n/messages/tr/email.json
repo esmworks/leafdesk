@@ -29,6 +29,7 @@
     "subject": "{actor} sizi “{row}” işine atadı",
     "heading": "Size bir iş atandı: “{row}”",
     "body": "{actor}, sizi {database} içinde “{property}” alanına ekledi.",
+    "bodyHidden": "{actor}, sizi “{property}” alanına ekledi.",
     "action": "Aç",
     "untitled": "Adsız",
     "someone": "Biri",
@@ -75,13 +76,16 @@
     "subject": "Hatırlatma: “{page}”, {date}",
     "heading": "“{page}”: {date}",
     "body": "{workspace} çalışma alanındaki {database} veritabanında “{page}” satırının {property} tarihi {date}.",
+    "bodyHidden": "{workspace} çalışma alanındaki “{page}” satırının {property} tarihi {date}.",
     "action": "Satırı aç",
-    "optOut": "Bunu {database} satırlarındaki kişilere hatırlatma gönderdiği için alıyorsunuz. Hatırlatmaları Hesabım > Tercihler'den kapatabilirsiniz."
+    "optOut": "Bunu {database} satırlarındaki kişilere hatırlatma gönderdiği için alıyorsunuz. Hatırlatmaları Hesabım > Tercihler'den kapatabilirsiniz.",
+    "optOutHidden": "Bunu, satırın veritabanı satırlarındaki kişilere hatırlatma gönderdiği için alıyorsunuz. Hatırlatmaları Hesabım > Tercihler'den kapatabilirsiniz."
   },
   "automation": {
     "subject": "“{automation}” otomasyonu: “{page}”",
     "heading": "“{automation}” otomasyonu sizi “{page}” hakkında bilgilendiriyor",
     "body": "{actor}, {workspace} çalışma alanındaki {database} içinde “{page}” satırını ekledi ya da değiştirdi.",
+    "bodyHidden": "{actor}, {workspace} çalışma alanındaki “{page}” satırını ekledi ya da değiştirdi.",
     "action": "Satırı aç",
     "someone": "Biri",
     "optOut": "Bir veritabanı otomasyonu sizi bilgilendirdiği için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."

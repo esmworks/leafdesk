@@ -8,6 +8,7 @@ import {
   accessRequestEmail,
   assignmentEmail,
   automationEmail,
+  dateReminderEmail,
   invitationEmail,
   PASSWORD_RESET_MINUTES,
   passwordResetEmail,
@@ -169,6 +170,37 @@ describe("assignmentEmail", () => {
     expect(en.subject).toBe("Erhan assigned you to “Teklif <hazırla>”");
     expect(en.text).toContain("Erhan added you to “Sorumlu” in İşlerim.");
   });
+
+  it("leaves out a database the recipient can't open", () => {
+    for (const locale of ["en", "tr", "de", "fr", "es"] as const) {
+      const email = assignmentEmail(locale, { ...assignment, databaseTitle: null });
+      expect(email.text).toContain("Sorumlu");
+      expect(email.text).not.toContain("İşlerim");
+      expect(email.text).not.toMatch(/\{|\}/);
+    }
+    expect(assignmentEmail("en", { ...assignment, databaseTitle: null }).text).toContain("Erhan added you to “Sorumlu”.");
+  });
+});
+
+describe("dateReminderEmail", () => {
+  const reminder = {
+    date: "2026-10-14",
+    pageTitle: "Teklif",
+    databaseTitle: "İşlerim",
+    propertyName: "Teslim",
+    workspaceName: "Ekip",
+    link: "https://notes.example.com/w/ws/p/row1",
+  };
+
+  it("names the database the row is in, unless the recipient can't open it", () => {
+    expect(dateReminderEmail("en", reminder).text).toContain("“Teklif” in İşlerim (Ekip) has Teslim on");
+    for (const locale of ["en", "tr", "de", "fr", "es"] as const) {
+      const email = dateReminderEmail(locale, { ...reminder, databaseTitle: null });
+      expect(email.text).toContain("Teklif");
+      expect(email.text).not.toContain("İşlerim");
+      expect(email.text).not.toMatch(/\{|\}/);
+    }
+  });
 });
 
 describe("shareEmail", () => {
@@ -213,6 +245,15 @@ describe("automationEmail", () => {
     const en = automationEmail("en", { ...automation, actorName: "" });
     expect(en.subject).toBe("Automation “Bitenleri bildir”: “Teklif <hazırla>”");
     expect(en.text).toContain("Someone added or changed “Teklif <hazırla>” in İşlerim (Ekip).");
+  });
+
+  it("leaves out a database the recipient can't open", () => {
+    for (const locale of ["en", "tr", "de", "fr", "es"] as const) {
+      const email = automationEmail(locale, { ...automation, databaseTitle: null });
+      expect(email.text).not.toContain("İşlerim");
+      expect(email.text).not.toMatch(/\{|\}/);
+    }
+    expect(automationEmail("en", { ...automation, databaseTitle: null }).text).toContain("Erhan added or changed “Teklif <hazırla>” (Ekip).");
   });
 });
 

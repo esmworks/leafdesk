@@ -549,7 +549,8 @@ export async function listNotifications(
       pageId: page.id,
       pageTitle: page.title,
       pageIcon: page.icon,
-      databaseTitle: databasePage.title,
+      // A row can be shared without its database: then the database's name stays hidden too.
+      databaseTitle: sql<string | null>`case when page_access_level(${userId}, ${databasePage.id}) > 0 then ${databasePage.title} end`,
       propertyName: databaseProperty.name,
       reminderDate: notification.date,
       automationName: databaseAutomation.name,

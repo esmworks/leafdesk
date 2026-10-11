@@ -117,19 +117,20 @@ export function invitationEmail(
 
 export function assignmentEmail(
   locale: Locale,
-  assignment: { actorName: string; rowTitle: string; databaseTitle: string; propertyName: string; link: string },
+  /** `databaseTitle`: null when the recipient can't open the database (a row shared on its own). */
+  assignment: { actorName: string; rowTitle: string; databaseTitle: string | null; propertyName: string; link: string },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = {
     actor: assignment.actorName,
     row: assignment.rowTitle,
-    database: assignment.databaseTitle,
+    database: assignment.databaseTitle ?? "",
     property: assignment.propertyName,
   };
   return renderEmail(locale, {
     subject: t("assignment.subject", names),
     heading: t("assignment.heading", names),
-    paragraphs: [t("assignment.body", names), t("assignment.optOut")],
+    paragraphs: [t(assignment.databaseTitle === null ? "assignment.bodyHidden" : "assignment.body", names), t("assignment.optOut")],
     action: { label: t("assignment.action"), url: assignment.link },
   });
 }
@@ -200,7 +201,8 @@ export function dateReminderEmail(
   reminder: {
     date: string;
     pageTitle: string;
-    databaseTitle: string;
+    /** Null when the recipient can't open the database (a row shared on its own). */
+    databaseTitle: string | null;
     propertyName: string;
     workspaceName: string;
     link: string;
@@ -212,14 +214,18 @@ export function dateReminderEmail(
   const names = {
     date: formatIsoDate(reminder.date, locale, "long", reminder.timeZone ?? "UTC"),
     page: reminder.pageTitle,
-    database: reminder.databaseTitle,
+    database: reminder.databaseTitle ?? "",
     property: reminder.propertyName,
     workspace: reminder.workspaceName,
   };
+  const hidden = reminder.databaseTitle === null;
   return renderEmail(locale, {
     subject: t("dateReminder.subject", names),
     heading: t("dateReminder.heading", names),
-    paragraphs: [t("dateReminder.body", names), t("dateReminder.optOut", names)],
+    paragraphs: [
+      t(hidden ? "dateReminder.bodyHidden" : "dateReminder.body", names),
+      t(hidden ? "dateReminder.optOutHidden" : "dateReminder.optOut", names),
+    ],
     action: { label: t("dateReminder.action"), url: reminder.link },
   });
 }
@@ -227,20 +233,21 @@ export function dateReminderEmail(
 /** To the people a database automation names: a row was added or changed. */
 export function automationEmail(
   locale: Locale,
-  automation: { automationName: string; actorName: string; pageTitle: string; databaseTitle: string; workspaceName: string; link: string },
+  /** `databaseTitle`: null when the recipient can't open the database (a row shared on its own). */
+  automation: { automationName: string; actorName: string; pageTitle: string; databaseTitle: string | null; workspaceName: string; link: string },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = {
     automation: automation.automationName,
     actor: automation.actorName || t("automation.someone"),
     page: automation.pageTitle,
-    database: automation.databaseTitle,
+    database: automation.databaseTitle ?? "",
     workspace: automation.workspaceName,
   };
   return renderEmail(locale, {
     subject: t("automation.subject", names),
     heading: t("automation.heading", names),
-    paragraphs: [t("automation.body", names), t("automation.optOut")],
+    paragraphs: [t(automation.databaseTitle === null ? "automation.bodyHidden" : "automation.body", names), t("automation.optOut")],
     action: { label: t("automation.action"), url: automation.link },
   });
 }

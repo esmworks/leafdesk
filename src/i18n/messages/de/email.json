@@ -29,6 +29,7 @@
     "subject": "{actor} hat dir „{row}“ zugewiesen",
     "heading": "Dir wurde „{row}“ zugewiesen",
     "body": "{actor} hat dich zu „{property}“ in {database} hinzugefügt.",
+    "bodyHidden": "{actor} hat dich zu „{property}“ hinzugefügt.",
     "action": "Öffnen",
     "untitled": "Ohne Titel",
     "someone": "Jemand",
@@ -75,13 +76,16 @@
     "subject": "Erinnerung: „{page}“ am {date}",
     "heading": "„{page}“ ist am {date}",
     "body": "„{page}“ in {database} ({workspace}) hat {property} am {date}.",
+    "bodyHidden": "„{page}“ ({workspace}) hat {property} am {date}.",
     "action": "Zeile öffnen",
-    "optOut": "Du bekommst diese E-Mail, weil {database} die Personen seiner Zeilen erinnert. Erinnerungen kannst du unter Mein Konto > Präferenzen abschalten."
+    "optOut": "Du bekommst diese E-Mail, weil {database} die Personen seiner Zeilen erinnert. Erinnerungen kannst du unter Mein Konto > Präferenzen abschalten.",
+    "optOutHidden": "Du bekommst diese E-Mail, weil die Datenbank der Zeile die Personen ihrer Zeilen erinnert. Erinnerungen kannst du unter Mein Konto > Präferenzen abschalten."
   },
   "automation": {
     "subject": "Automatisierung „{automation}“: „{page}“",
     "heading": "Die Automatisierung „{automation}“ benachrichtigt dich über „{page}“",
     "body": "{actor} hat „{page}“ in {database} ({workspace}) hinzugefügt oder geändert.",
+    "bodyHidden": "{actor} hat „{page}“ ({workspace}) hinzugefügt oder geändert.",
     "action": "Zeile öffnen",
     "someone": "Jemand",
     "optOut": "Du erhältst diese E-Mails, weil dich eine Datenbank-Automatisierung benachrichtigt. Du kannst sie unter Mein Konto > Präferenzen abschalten."

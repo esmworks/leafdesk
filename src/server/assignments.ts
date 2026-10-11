@@ -109,10 +109,11 @@ async function send({ actorId, rowId, propertyId, userId, locale: queuedLocale }
   // The property's access may have changed since: never name a value hidden from them.
   if (!(await seesValue(userId, row.parentId, propertyId, { properties: row.properties, createdBy: row.createdBy }))) return;
   if (!(await wantsEmail(userId, "assignment"))) return;
-  const [[recipient], [actor], [database], [prop]] = await Promise.all([
+  const [[recipient], [actor], database, [prop]] = await Promise.all([
     db.select({ email: user.email }).from(user).where(eq(user.id, userId)),
     actorId ? db.select({ name: user.name }).from(user).where(eq(user.id, actorId)) : [],
-    db.select({ title: page.title }).from(page).where(eq(page.id, row.parentId)),
+    // A row can be shared without its database: then the database's name stays hidden too.
+    resolvePageAccess(userId, row.parentId),
     db
       .select({ name: databaseProperty.name })
       .from(databaseProperty)
@@ -125,7 +126,7 @@ async function send({ actorId, rowId, propertyId, userId, locale: queuedLocale }
     // No actor: an anonymous form answer, or someone whose account is gone.
     actorName: actor?.name || t("assignment.someone"),
     rowTitle: pageLabel(row.title, untitled),
-    databaseTitle: pageLabel(database?.title, untitled),
+    databaseTitle: database.page && database.level !== "none" ? pageLabel(database.page.title, untitled) : null,
     propertyName: prop.name,
     link: `${env.appUrl}/w/${row.workspaceId}/p/${rowId}`,
   });

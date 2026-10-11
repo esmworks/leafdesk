@@ -184,13 +184,22 @@ async function send({
     // A date property's reminder, else one set on a date mention.
     if (propertyId) {
       const [about] = await db
-        .select({ propertyName: databaseProperty.name, databaseTitle: page.title, options: databaseProperty.options })
+        .select({
+          propertyName: databaseProperty.name,
+          databaseId: page.id,
+          databaseTitle: page.title,
+          options: databaseProperty.options,
+        })
         .from(databaseProperty)
         .innerJoin(page, eq(page.id, databaseProperty.databaseId))
         // A deleted property reminds no one.
         .where(and(eq(databaseProperty.id, propertyId), isNull(databaseProperty.deletedAt)));
       if (!about) return;
-      const databaseTitle = pageLabel(about.databaseTitle, emailTranslator(locale)("share.untitled"));
+      // A row can be shared without its database: then the database's name stays hidden too.
+      const databaseTitle =
+        (await resolvePageAccess(userId, about.databaseId)).level === "none"
+          ? null
+          : pageLabel(about.databaseTitle, emailTranslator(locale)("share.untitled"));
       // A time reads in the zone of whoever set the reminder.
       const timeZone = about.options.date?.reminder?.timeZone ?? "UTC";
       const names = { date, pageTitle, databaseTitle, propertyName: about.propertyName, workspaceName: space?.name ?? "", link, timeZone };
@@ -221,17 +230,19 @@ async function send({
     // Deleted since (which deletes the notification too, but the sweep may have taken it first).
     const [automation] = automationId
       ? await db
-          .select({ name: databaseAutomation.name, databaseTitle: page.title })
+          .select({ name: databaseAutomation.name, databaseId: page.id, databaseTitle: page.title })
           .from(databaseAutomation)
           .innerJoin(page, eq(page.id, databaseAutomation.databaseId))
           .where(eq(databaseAutomation.id, automationId))
       : [];
     if (!automation) return;
+    // A row can be shared without its database: then the database's name stays hidden too.
+    const databaseShown = (await resolvePageAccess(userId, automation.databaseId)).level !== "none";
     const content = automationEmail(locale, {
       automationName: automation.name,
       actorName: actor?.name ?? "",
       pageTitle,
-      databaseTitle: pageLabel(automation.databaseTitle, emailTranslator(locale)("share.untitled")),
+      databaseTitle: databaseShown ? pageLabel(automation.databaseTitle, emailTranslator(locale)("share.untitled")) : null,
       workspaceName: space?.name ?? "",
       link,
     });

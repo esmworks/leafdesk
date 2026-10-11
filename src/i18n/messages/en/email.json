@@ -29,6 +29,7 @@
     "subject": "{actor} assigned you to “{row}”",
     "heading": "You were assigned to “{row}”",
     "body": "{actor} added you to “{property}” in {database}.",
+    "bodyHidden": "{actor} added you to “{property}”.",
     "action": "Open",
     "untitled": "Untitled",
     "someone": "Someone",
@@ -75,13 +76,16 @@
     "subject": "Reminder: “{page}” on {date}",
     "heading": "“{page}” is on {date}",
     "body": "“{page}” in {database} ({workspace}) has {property} on {date}.",
+    "bodyHidden": "“{page}” ({workspace}) has {property} on {date}.",
     "action": "Open row",
-    "optOut": "You get these because {database} reminds the people of its rows. You can turn reminders off in My account > Preferences."
+    "optOut": "You get these because {database} reminds the people of its rows. You can turn reminders off in My account > Preferences.",
+    "optOutHidden": "You get these because its database reminds the people of its rows. You can turn reminders off in My account > Preferences."
   },
   "automation": {
     "subject": "Automation “{automation}”: “{page}”",
     "heading": "The automation “{automation}” is letting you know about “{page}”",
     "body": "{actor} added or changed “{page}” in {database} ({workspace}).",
+    "bodyHidden": "{actor} added or changed “{page}” ({workspace}).",
     "action": "Open row",
     "someone": "Someone",
     "optOut": "You get these because a database automation notifies you. You can turn them off in My account > Preferences."

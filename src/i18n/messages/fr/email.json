@@ -29,6 +29,7 @@
     "subject": "{actor} vous a assigné à « {row} »",
     "heading": "Vous avez été assigné à « {row} »",
     "body": "{actor} vous a ajouté à « {property} » dans {database}.",
+    "bodyHidden": "{actor} vous a ajouté à « {property} ».",
     "action": "Ouvrir",
     "untitled": "Sans titre",
     "someone": "Quelqu’un",
@@ -75,13 +76,16 @@
     "subject": "Rappel : « {page} » le {date}",
     "heading": "« {page} » est le {date}",
     "body": "« {page} » dans {database} ({workspace}) a {property} le {date}.",
+    "bodyHidden": "« {page} » ({workspace}) a {property} le {date}.",
     "action": "Ouvrir la ligne",
-    "optOut": "Vous recevez ceci parce que {database} rappelle aux personnes de ses lignes leurs dates. Vous pouvez désactiver les rappels dans Mon compte > Préférences."
+    "optOut": "Vous recevez ceci parce que {database} rappelle aux personnes de ses lignes leurs dates. Vous pouvez désactiver les rappels dans Mon compte > Préférences.",
+    "optOutHidden": "Vous recevez ceci parce que la base de données de cette ligne rappelle aux personnes de ses lignes leurs dates. Vous pouvez désactiver les rappels dans Mon compte > Préférences."
   },
   "automation": {
     "subject": "Automatisation « {automation} » : « {page} »",
     "heading": "L’automatisation « {automation} » vous prévient au sujet de « {page} »",
     "body": "{actor} a ajouté ou modifié « {page} » dans {database} ({workspace}).",
+    "bodyHidden": "{actor} a ajouté ou modifié « {page} » ({workspace}).",
     "action": "Ouvrir la ligne",
     "someone": "Quelqu’un",
     "optOut": "Vous recevez ces e-mails, car une automatisation de base de données vous prévient. Vous pouvez les désactiver dans Mon compte > Préférences."

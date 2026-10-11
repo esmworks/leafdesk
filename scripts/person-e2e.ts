@@ -361,6 +361,23 @@ try {
   await flushAssignmentEmails();
   sent.length = 0;
 
+  // A row shared on its own: the guest, who can't open the database, isn't told its name
+  const loose = await createPage(actor, { workspaceId, parentId: tasks.id, title: "Loose job" });
+  await setPagePermission(ids.owner, loose.id, ids.guest, "edit");
+  await updateRowProperties(ids.owner, loose.id, { Assignee: [ids.guest] });
+  const [looseItem] = (await listInbox(ids.guest, workspaceId)).filter((n) => n.pageId === loose.id && n.kind === "assignment");
+  check(
+    looseItem && looseItem.databaseTitle === null && looseItem.propertyName === "Assignee",
+    "an assignee who can open the row but not its database gets the notice without the database's name",
+    looseItem,
+  );
+  await flushAssignmentEmails();
+  const looseMail = sent.find((m) => m.to === `${ids.guest}@example.test`);
+  check(looseMail && looseMail.subject.includes("Loose job") && !JSON.stringify(looseMail).includes("Tasks"), "…nor in the email", looseMail);
+  await markRead(ids.guest, workspaceId);
+  await flushShareEmails();
+  sent.length = 0;
+
   // Sharing a page with someone tells them, in the inbox and a little later by email
   const doc = await createPage(actor, { workspaceId, title: "Roadmap" });
   const aboutDoc = async (userId: string) => (await listInbox(userId, workspaceId)).filter((n) => n.pageId === doc.id);
