@@ -8,8 +8,12 @@ import { join, relative } from "node:path";
 import { runInNewContext } from "node:vm";
 import { gzipSync } from "node:zlib";
 
-/** Gzipped kB. The largest first load of any route, and every client chunk of the build together. */
-const BUDGET = { routeFirstLoad: 800, allClientJs: 3150 };
+/**
+ * Gzipped kB. The largest first load of any route, and every client chunk of the build together.
+ * The code block grammars (lib/code-highlighter.ts) are about 500 kB of the second, each loaded
+ * only when a block in its language is shown.
+ */
+const BUDGET = { routeFirstLoad: 800, allClientJs: 3500 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
