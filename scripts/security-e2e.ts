@@ -13,7 +13,9 @@
  * - pointing a workspace's SSO connection at another identity provider, or removing it, forgets
  *   who was linked through it and signs them out, so the new provider can't sign in as them;
  * - the sign-in page's `?next=` stays on this site, however the other site is written;
- * - an email verification link signs nobody in past two-step verification.
+ * - an email verification link signs nobody in past two-step verification, and followed in another
+ *   browser takes over an account someone else had signed up for with the address: what they set
+ *   up goes, and their password stops signing in until it is replaced by a reset link.
  *
  * Creates its own @example.test users and workspaces and deletes them afterwards.
  *
@@ -42,7 +44,7 @@ const { Readable } = await import("node:stream");
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { account, apiToken, file, oauthClient, oauthConsent, passkey, session, twoFactor, user, verification, workspace, workspaceMember } = await import("@/db/schema");
-const { makeSignature } = await import("better-auth/crypto");
+const { hashPassword, makeSignature } = await import("better-auth/crypto");
 const { createEmailVerificationToken } = await import("better-auth/api");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -221,7 +223,7 @@ const allow = (jar: Jar, consentPage: string) =>
 
 // ---------------------------------------------------------------------------- run
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free`, squatter: `${RUN}-squatter`, keeper: `${RUN}-keeper`, coded: `${RUN}-coded`, plain: `${RUN}-plain` };
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, free: `${RUN}-free`, squatter: `${RUN}-squatter`, keeper: `${RUN}-keeper`, coded: `${RUN}-coded`, plain: `${RUN}-plain`, pretender: `${RUN}-pretender` };
 const userIds = Object.values(ids);
 const ws = `${RUN}-ws`;
 const open = `${RUN}-open`;
@@ -236,8 +238,9 @@ try {
   if (!up) throw new Error(`No server at ${BASE}: start one (pnpm dev) and set APP_URL`);
 
   // Every address counts as verified but the squatter's (someone signed up with it, unproven) and
-  // two that verify theirs below.
-  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test`, emailVerified: ![ids.squatter, ids.coded, ids.plain].includes(id) })));
+  // three that verify theirs below.
+  const unverified = [ids.squatter, ids.coded, ids.plain, ids.pretender];
+  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test`, emailVerified: !unverified.includes(id) })));
   // The member's first workspace (the oldest) is the one that doesn't hold them back.
   await db.insert(workspace).values([
     { id: ws, name: `${RUN} Strict` },
@@ -436,6 +439,21 @@ try {
   const codedJar = await signedIn(ids.coded);
   const again = await verifyEmail(ids.coded, codedJar);
   check(again.verified && again.sessions === 1, "a browser already signed in keeps its session when it follows the link", again);
+  // Someone signed up with the address first, with a password, and set things up.
+  const password = `old-${RUN}-password`;
+  await db.insert(account).values({ id: `${ids.pretender}-credential`, accountId: ids.pretender, providerId: "credential", userId: ids.pretender, password: await hashPassword(password) });
+  await setUp(ids.pretender);
+  const pretended = await verifyEmail(ids.pretender);
+  const takenOver = await leftOf(ids.pretender);
+  check(pretended.verified && !takenOver.passkeys && !takenOver.twoFactor && !takenOver.twoFactorEnabled, "following the link in another browser drops the passkeys and two-step verification of whoever signed up", takenOver);
+  check(!takenOver.apiTokens && !takenOver.apps && !takenOver.sessions, "…their API tokens, connected apps and sessions (the code they had still keeps the browser from signing in)", takenOver);
+  const oldPassword = await fetch(`${BASE}/api/auth/sign-in/email`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin: BASE },
+    body: JSON.stringify({ email: `${ids.pretender}@example.test`, password }),
+  });
+  const refused = (await oldPassword.json().catch(() => null)) as { code?: string } | null;
+  check(oldPassword.status === 403 && refused?.code === "PASSWORD_RESET_REQUIRED", "…and their password signs in no more: it has to be replaced first", { status: oldPassword.status, refused });
 
   console.log(`\n${passed} checks passed`);
 } catch (error) {
