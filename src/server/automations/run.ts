@@ -54,17 +54,32 @@ type Run = typeof automationRun.$inferSelect;
 type Automation = typeof databaseAutomation.$inferSelect;
 type Row = { id: string; title: string; parentId: string | null; workspaceId: string; archivedAt: Date | null; properties: Record<string, unknown> };
 
-/** Takes due runs, marking them running, so two sweeps never take the same one. */
+/**
+ * Takes due runs, marking them running, so two sweeps never take the same one. Databases take
+ * turns: the oldest due run of each first, then the second oldest, so runs piled up in one
+ * database don't hold back the automations of every other.
+ */
 async function claim(): Promise<Run[]> {
+  const due = (run: string) => sql`
+    (${sql.raw(run)}.status = 'pending' and ${sql.raw(run)}.next_at <= now())
+    or (${sql.raw(run)}.status = 'running' and ${sql.raw(run)}.next_at <= now() - make_interval(secs => ${STALE_MS / 1000}))`;
+  // Picked first and locked a level up, as Postgres doesn't lock rows next to a window function;
+  // a run another sweep took in between is no longer due and is left out.
   const taken = await db.execute<{ id: string }>(sql`
     update ${automationRun} set status = 'running', attempts = attempts + 1, next_at = now()
     where id in (
-      select id from ${automationRun}
-      where (status = 'pending' and next_at <= now())
-         or (status = 'running' and next_at <= now() - make_interval(secs => ${STALE_MS / 1000}))
-      order by next_at
-      limit ${BATCH}
-      for update skip locked
+      select r.id from ${automationRun} r
+      where r.id in (
+        select id from (
+          select d.id, d.next_at, row_number() over (partition by a.database_id order by d.next_at) as turn
+          from ${automationRun} d join ${databaseAutomation} a on a.id = d.automation_id
+          where ${due("d")}
+        ) turns
+        order by turn, next_at
+        limit ${BATCH}
+      )
+      and (${due("r")})
+      for update of r skip locked
     )
     returning id
   `);

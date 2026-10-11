@@ -161,6 +161,12 @@
 
 ### Changed
 
+- **Automation runs take turns by database, and at most 20,000 wait per database.** The worker
+  took runs strictly oldest first, so one database's bulk edits (each row times each automation)
+  held back every other database's automations until they were done, and nothing bounded how many
+  could pile up. It now takes the oldest waiting run of each database in turn. A write that would
+  leave more than 20,000 runs waiting for a database's automations starts only the first ones and
+  the server log says how many it left out; the write itself is saved as before. No migration.
 - **No default password for the bundled database.** docker-compose.yml no longer falls back to
   the password `leafdesk` for the bundled PostgreSQL, which a clone also publishes on the host's
   loopback for `pnpm dev`: while the app connects to it, `POSTGRES_PASSWORD` must be set in `.env`,

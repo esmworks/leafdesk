@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, count, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, databaseAutomation, databaseProperty } from "@/db/schema";
 import { changedProperties, matchesTrigger } from "@/lib/automations";
@@ -35,6 +35,14 @@ export function onAutomationsQueued(kick: () => void) {
 export type RowChange = { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> };
 
 const CHUNK = 500;
+/**
+ * Runs one database's automations may have waiting (or running) at once. A write that would queue
+ * more starts only the first ones and the server log says how many it left out, so bulk edits
+ * can't pile up runs without end. The worker takes databases in turn either way (run.ts `claim`).
+ */
+export const MAX_WAITING_RUNS = 20_000;
+const LEFT_OUT_LOG_MS = 60_000;
+const leftOutLogged = new Map<string, number>();
 
 export async function queueAutomations(
   actorId: string | null,
@@ -62,7 +70,7 @@ export async function queueAutomations(
     const live = (values: Record<string, unknown>) =>
       deleted.size ? Object.fromEntries(Object.entries(values).filter(([id]) => !deleted.has(id))) : values;
     const armed = automations.filter((a) => a.trigger.type !== "property_changed" || !a.trigger.propertyId || !deleted.has(a.trigger.propertyId));
-    const runs = changes.flatMap((change) => {
+    let runs = changes.flatMap((change) => {
       const write = { before: live(change.before), after: live(change.after), created };
       return armed
         .filter((a) => matchesTrigger(a.trigger, write))
@@ -74,6 +82,25 @@ export async function queueAutomations(
           changed: created ? Object.keys(write.after) : changedProperties(write.before, write.after),
         }));
     });
+    if (!runs.length) return;
+    const [{ waiting }] = await db
+      .select({ waiting: count() })
+      .from(automationRun)
+      .where(
+        and(
+          inArray(automationRun.automationId, automations.map((a) => a.id)),
+          inArray(automationRun.status, ["pending", "running"]),
+        ),
+      );
+    const room = Math.max(0, MAX_WAITING_RUNS - waiting);
+    if (runs.length > room) {
+      const now = Date.now();
+      if (now - (leftOutLogged.get(databaseId) ?? 0) > LEFT_OUT_LOG_MS) {
+        leftOutLogged.set(databaseId, now);
+        console.error(`Automations of database ${databaseId}: ${runs.length - room} runs not queued, ${waiting} are waiting already (at most ${MAX_WAITING_RUNS})`);
+      }
+      runs = runs.slice(0, room);
+    }
     for (let i = 0; i < runs.length; i += CHUNK) await db.insert(automationRun).values(runs.slice(i, i + CHUNK));
     if (runs.length) state.kick?.();
   } catch (error) {

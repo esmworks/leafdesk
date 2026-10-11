@@ -1007,6 +1007,11 @@ rows that were trashed in the meantime are skipped.
 **No chains.** Changes an automation makes don't start automations, so two automations can't
 set each other off.
 
+**Queue.** Runs are queued and done one database at a time in turn, so a bulk edit that starts
+thousands of runs in one database doesn't hold back the automations of others. A database's
+automations have at most 20,000 runs waiting; a write that would start more starts only the first
+ones (the write itself is saved), and the server log says how many were left out.
+
 **Run history.** Each run is kept for 30 days after it finishes, with how each action went
 (done, failed or skipped, attempts, an error code, a webhook's HTTP status, how many people were
 notified). Runs on rows you can't open are left out.

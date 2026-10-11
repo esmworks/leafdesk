@@ -48,6 +48,7 @@ const { duplicatePage } = await import("@/server/duplicate");
 const { setPagePermission } = await import("@/server/permissions");
 const manage = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
+const { MAX_WAITING_RUNS } = await import("@/server/automations/queue");
 const { webhookSecret } = await import("@/server/automations/webhook");
 const { listInbox } = await import("@/server/notifications");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
@@ -254,7 +255,8 @@ try {
   await flushAutomations();
   let [retrying] = (await runsOf(added.id)).slice(-1);
   check(retrying.status === "pending" && retrying.steps[0].httpStatus === 503 && retrying.nextAt > new Date(), "a 503 is tried again later", retrying);
-  await db.update(automationRun).set({ nextAt: new Date() }).where(eq(automationRun.id, retrying.id));
+  // A minute back, so a database clock a little behind this one still finds it due.
+  await db.update(automationRun).set({ nextAt: new Date(Date.now() - 60_000) }).where(eq(automationRun.id, retrying.id));
   await flushAutomations();
   [retrying] = (await runsOf(added.id)).slice(-1);
   check(
@@ -387,6 +389,54 @@ try {
     ),
     "…and is in the audit log",
   );
+
+  // ------------------------------------------------------------------ taking turns, at most so many waiting
+  const flagged = async (title: string) => {
+    const database = await createPage(owner, { workspaceId, kind: "database", title });
+    await addProperty(ids.owner, database.id, { name: "Flag", type: "checkbox" });
+    const automation = await manage.createAutomation(ids.owner, database.id, {
+      name: `${title} flag`,
+      trigger: { type: "row_created" },
+      actions: [{ type: "set_properties", values: { Flag: true } }],
+    });
+    return { database, automation };
+  };
+  const busy = await flagged("Busy");
+  const quiet = await flagged("Quiet");
+  await createRows(ids.owner, busy.database.id, Array.from({ length: 45 }, (_, i) => ({ title: `busy ${i}` })));
+  await createRows(ids.owner, quiet.database.id, [{ title: "quiet" }]);
+  await flushAutomations();
+  const busyRuns = await runsOf(busy.automation.id);
+  const [quietRun] = await runsOf(quiet.automation.id);
+  check(busyRuns.length === 45 && busyRuns.every((r) => r.status === "done") && quietRun?.status === "done", "piled-up runs and a lone one all run");
+  const before = busyRuns.filter((r) => r.finishedAt! < quietRun.finishedAt!).length;
+  check(before < 20, "a database with runs piled up doesn't keep another one waiting behind them", { before });
+
+  const [someRow] = busyRuns;
+  const filler = Array.from({ length: MAX_WAITING_RUNS - 2 }, () => ({
+    automationId: busy.automation.id,
+    rowId: someRow.rowId,
+    created: true,
+    nextAt: new Date(Date.now() + 24 * 60 * 60_000),
+  }));
+  for (let i = 0; i < filler.length; i += 1000) await db.insert(automationRun).values(filler.slice(i, i + 1000));
+  const logged: unknown[] = [];
+  const consoleError = console.error;
+  console.error = (...args: unknown[]) => logged.push(args.join(" "));
+  try {
+    await createRows(ids.owner, busy.database.id, Array.from({ length: 5 }, (_, i) => ({ title: `over ${i}` })));
+  } finally {
+    console.error = consoleError;
+  }
+  const waiting = await db
+    .select({ id: automationRun.id })
+    .from(automationRun)
+    .where(and(eq(automationRun.automationId, busy.automation.id), eq(automationRun.status, "pending")));
+  check(waiting.length === MAX_WAITING_RUNS, `a write queues no more than ${MAX_WAITING_RUNS} waiting runs per database`, waiting.length);
+  check(logged.some((l) => String(l).includes("3 runs not queued")), "…and the server log says how many it left out", logged);
+  const [overRow] = await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, busy.database.id), eq(page.title, "over 4")));
+  check(!!overRow, "the write itself goes through");
+  await db.delete(automationRun).where(and(eq(automationRun.automationId, busy.automation.id), eq(automationRun.status, "pending")));
 
   console.log(`\n${passed} checks passed`);
 } finally {
