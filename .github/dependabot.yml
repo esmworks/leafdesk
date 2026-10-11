@@ -1,0 +1,13 @@
+version: 2
+
+# The workflows pin every action to a commit SHA with its version in a comment. This opens one weekly
+# pull request that moves those pins (and comments) to newer releases. npm dependencies are left out
+# on purpose: dependencies.yml audits them and lists outdated ones instead.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
