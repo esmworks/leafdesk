@@ -719,7 +719,7 @@
         "invalidSaml": "Collez le XML de métadonnées du fournisseur d'identité, ou saisissez son URL SSO, son entity ID et son certificat de signature.",
         "noConnection": "Configurez d'abord l'authentification unique.",
         "dnsMismatch": "L'enregistrement TXT de {detail} est introuvable ou a une autre valeur. Les changements DNS peuvent mettre un moment à apparaître.",
-        "domainTaken": "{detail} est déjà vérifié par un autre espace de travail sur ce serveur.",
+        "domainTaken": "{detail} est déjà vérifié ailleurs sur ce serveur.",
         "name": "Donnez au jeton un nom de 100 caractères au maximum.",
         "limit": "Un espace de travail peut avoir au plus 20 jetons SCIM. Révoquez-en un d'abord.",
         "ownersOnly": "Seuls les propriétaires de l'espace de travail peuvent faire cela.",

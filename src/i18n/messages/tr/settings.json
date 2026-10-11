@@ -719,7 +719,7 @@
         "invalidSaml": "Kimlik sağlayıcının metadata XML'ini yapıştırın ya da SSO URL'sini, entity ID'sini ve imzalama sertifikasını girin.",
         "noConnection": "Önce çoklu oturum açmayı kurun.",
         "dnsMismatch": "{detail} için TXT kaydı bulunamadı ya da değeri farklı. DNS değişikliklerinin görünmesi biraz sürebilir.",
-        "domainTaken": "{detail} bu sunucuda zaten başka bir çalışma alanı tarafından doğrulanmış.",
+        "domainTaken": "{detail} bu sunucuda zaten başka bir yerde doğrulanmış.",
         "name": "Token'a en fazla 100 karakterlik bir ad verin.",
         "limit": "Bir çalışma alanında en fazla 20 SCIM token'ı olabilir. Önce birini iptal edin.",
         "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir.",
