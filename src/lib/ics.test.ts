@@ -49,6 +49,18 @@ describe("icsCalendar", () => {
     expect(text).not.toContain("Skipped");
   });
 
+  it("writes a description only when there is one, escaped and folded", () => {
+    const description = `Projects, Q4; ${"ğ".repeat(50)}`;
+    const text = icsCalendar("Assigned", [
+      { uid: "a@x", date: "2026-10-12", title: "With", description, updatedAt: new Date(0) },
+      { uid: "b@x", date: "2026-10-13", title: "Without", description: "", updatedAt: new Date(0) },
+    ]);
+    const unfolded = text.replace(/\r\n /g, "");
+    expect(unfolded).toContain(`SUMMARY:With\r\nDESCRIPTION:Projects\\, Q4\\; ${"ğ".repeat(50)}\r\n`);
+    expect(unfolded.match(/DESCRIPTION:/g)).toHaveLength(1);
+    for (const line of text.split("\r\n")) expect(new TextEncoder().encode(line).length).toBeLessThanOrEqual(75);
+  });
+
   it("is a valid calendar without events", () => {
     expect(icsCalendar("Empty", [])).not.toContain("VEVENT");
   });

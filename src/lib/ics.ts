@@ -13,6 +13,8 @@ export type IcsEvent = {
   /** The date property's value: a day, a time or a range of either (see lib/date-value). */
   date: string;
   title: string;
+  /** Plain text under the title (the row's database, in the feed of assigned rows). */
+  description?: string;
   url?: string;
   /** When the event last changed. */
   updatedAt: Date;
@@ -91,6 +93,7 @@ export function icsCalendar(name: string, events: IcsEvent[]): string {
       `LAST-MODIFIED:${stamp(event.updatedAt)}`,
       ...dates,
       `SUMMARY:${icsText(event.title)}`,
+      ...(event.description ? [`DESCRIPTION:${icsText(event.description)}`] : []),
       ...(event.url ? [`URL:${event.url}`] : []),
       "TRANSP:TRANSPARENT",
       "END:VEVENT",

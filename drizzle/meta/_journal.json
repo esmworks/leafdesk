@@ -365,6 +365,13 @@
       "when": 1791663088257,
       "tag": "0051_deleted_properties_and_views",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1791701172185,
+      "tag": "0052_assigned_calendar_feed",
+      "breakpoints": true
     }
   ]
 }

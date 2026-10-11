@@ -13,7 +13,7 @@ import { propertyAccessFor } from "@/server/property-access";
 /** How many rows the home page lists: enough for a week's work, short enough to keep the page. */
 export const ASSIGNED_LIMIT = 25;
 /** How many assigned rows are looked at, last edited first, before done ones are left out. */
-const CANDIDATE_LIMIT = 1000;
+export const CANDIDATE_LIMIT = 1000;
 
 export type AssignedRow = {
   id: string;
@@ -27,6 +27,8 @@ export type AssignedRow = {
   date: string | null;
   /** That date's last day when it is a range, else null. */
   endDate: string | null;
+  /** That date's value as stored (a day, a time or a range of either), or null. */
+  dateValue: string | null;
   /** The row's first status the viewer may see, or null. */
   status: SelectOption | null;
   updatedAt: Date;
@@ -45,6 +47,19 @@ export type AssignedRows = {
  * date hidden from them neither shows nor decides anything.
  */
 export async function assignedRows(userId: string, workspaceId: string, today: string, timeZone = "UTC"): Promise<AssignedRows> {
+  const rows = await openAssignedRows(userId, workspaceId, timeZone);
+  // Keep the first rows in group order, then group those again.
+  const shown = groupAssigned(rows, today)
+    .flatMap((g) => g.rows)
+    .slice(0, ASSIGNED_LIMIT);
+  return { groups: groupAssigned(shown, today), total: rows.length };
+}
+
+/**
+ * Every row `assignedRows` counts, ungrouped and with no cap but CANDIDATE_LIMIT, last edited
+ * first: for the home page and the feed of assigned rows (see server/calendar-feeds).
+ */
+export async function openAssignedRows(userId: string, workspaceId: string, timeZone = "UTC"): Promise<AssignedRow[]> {
   await requireMembership(userId, workspaceId);
   const personProps = await db
     .select({ id: databaseProperty.id, databaseId: databaseProperty.databaseId })
@@ -60,7 +75,7 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
         eq(page.inTemplate, false),
       ),
     );
-  if (!personProps.length) return { groups: [], total: 0 };
+  if (!personProps.length) return [];
 
   const me = JSON.stringify([userId]);
   const candidates = await db
@@ -87,7 +102,7 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
     )
     .orderBy(desc(page.updatedAt))
     .limit(CANDIDATE_LIMIT);
-  if (!candidates.length) return { groups: [], total: 0 };
+  if (!candidates.length) return [];
 
   const databaseIds = [...new Set(candidates.map((r) => r.parentId!))];
   const [properties, databases, accessList] = await Promise.all([
@@ -130,14 +145,10 @@ export async function assignedRows(userId: string, workspaceId: string, today: s
       databaseTitle: titles.get(databaseId) ?? null,
       date: days ? dayString(days.start) : null,
       endDate: days && days.end > days.start ? dayString(days.end) : null,
+      dateValue: dateProp ? (value(dateProp.id) as string) : null,
       status: statuses.map((p) => optionOf(p, value(p.id))).find(Boolean) ?? null,
       updatedAt: row.updatedAt,
     });
   }
-
-  // Keep the first rows in group order, then group those again.
-  const shown = groupAssigned(rows, today)
-    .flatMap((g) => g.rows)
-    .slice(0, ASSIGNED_LIMIT);
-  return { groups: groupAssigned(shown, today), total: rows.length };
+  return rows;
 }
