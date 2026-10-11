@@ -197,5 +197,11 @@
     "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
     "untitled": "Adsız",
     "snooze": "1 saat ertele"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} silindi",
+    "heading": "{workspace} silindi",
+    "body": "Merhaba {name}, {by} Leafdesk'teki {workspace} çalışma alanını tüm sayfaları, veritabanları ve dosyalarıyla birlikte sildi. Artık onu açamazsınız.",
+    "note": "Silinen çalışma alanları geri getirilemez. Bunu beklemiyorduysanız {by} ya da çalışma alanının başka bir sahibiyle konuşun."
   }
 }

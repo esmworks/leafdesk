@@ -597,7 +597,8 @@
     "tooManyRequests": "Too many requests. Try again later.",
     "creationRestricted": "Only the server's administrators can create workspaces.",
     "agentUser": "This is an agent, not a person. Change or archive it in the agent's own settings.",
-    "confirmationMismatch": "To confirm, type the workspace's name exactly as shown."
+    "confirmationMismatch": "To confirm, type the workspace's name exactly as shown.",
+    "workspaceDeleted": "Someone deleted this workspace in the meantime."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",

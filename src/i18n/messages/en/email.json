@@ -197,5 +197,11 @@
     "approval": "Wants to call “{tool}” on {connection}",
     "untitled": "Untitled",
     "snooze": "Snooze 1 hour"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} was deleted",
+    "heading": "{workspace} was deleted",
+    "body": "Hi {name}, {by} deleted the Leafdesk workspace {workspace}, with all its pages, databases and files. You can no longer open it.",
+    "note": "Deleted workspaces can't be restored. If you didn't expect this, talk to {by} or another owner of the workspace."
   }
 }

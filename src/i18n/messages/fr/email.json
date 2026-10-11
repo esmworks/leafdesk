@@ -197,5 +197,11 @@
     "approval": "Veut appeler « {tool} » sur {connection}",
     "untitled": "Sans titre",
     "snooze": "Reporter d’1 heure"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} a été supprimé",
+    "heading": "{workspace} a été supprimé",
+    "body": "Bonjour {name}, {by} a supprimé l’espace de travail Leafdesk {workspace}, avec toutes ses pages, bases de données et fichiers. Vous ne pouvez plus l’ouvrir.",
+    "note": "Un espace de travail supprimé ne peut pas être restauré. Si vous ne vous y attendiez pas, parlez-en à {by} ou à un autre propriétaire de l’espace."
   }
 }

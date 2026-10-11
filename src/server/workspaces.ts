@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, gt, inArray, isNotNull, max, or, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNotNull, max, ne, or, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
@@ -118,6 +118,8 @@ export type WorkspaceErrorCode =
   | "creationRestricted"
   /** Deleting the workspace: the name typed to confirm it isn't the workspace's. */
   | "confirmationMismatch"
+  /** Deleting the workspace: someone else deleted it meanwhile. */
+  | "workspaceDeleted"
   /** The person is an agent's user: agents are changed in their own settings. */
   | "agentUser";
 
@@ -1044,19 +1046,23 @@ export async function withdrawFromWorkspaces(tx: Tx, userId: string): Promise<{ 
 
 /**
  * For deleting a workspace (server/workspace-deletion.ts), inside its transaction: locks the
- * workspace, so nobody joins it and no owner changes until the transaction ends, and checks that
- * `userId` still owns it.
+ * workspace, so nobody joins it and no owner changes until the transaction ends, checks that
+ * `userId` still owns it, and returns the other people in it, to tell them it's gone.
  */
 export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: string) {
   const [locked] = await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
-  const [member] = locked
-    ? await tx
-        .select({ role: workspaceMember.role })
-        .from(workspaceMember)
-        .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
-        .limit(1)
-    : [];
+  if (!locked) throw new WorkspaceError("workspaceDeleted", "The workspace was deleted meanwhile.");
+  const [member] = await tx
+    .select({ role: workspaceMember.role })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
+    .limit(1);
   if (member?.role !== "owner") throw new AccessError();
+  return tx
+    .select({ userId: user.id, email: user.email, name: user.name })
+    .from(workspaceMember)
+    .innerJoin(user, eq(user.id, workspaceMember.userId))
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), ne(workspaceMember.userId, userId), notAgentUser(workspaceMember.userId)));
 }
 
 /**

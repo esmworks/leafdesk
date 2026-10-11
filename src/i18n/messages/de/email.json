@@ -197,5 +197,11 @@
     "approval": "Möchte „{tool}“ bei {connection} aufrufen",
     "untitled": "Ohne Titel",
     "snooze": "1 Stunde zurückstellen"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} wurde gelöscht",
+    "heading": "{workspace} wurde gelöscht",
+    "body": "Hallo {name}, {by} hat den Leafdesk-Workspace {workspace} mit allen Seiten, Datenbanken und Dateien gelöscht. Du kannst ihn nicht mehr öffnen.",
+    "note": "Gelöschte Workspaces lassen sich nicht wiederherstellen. Wenn du das nicht erwartet hast, sprich mit {by} oder einem anderen Eigentümer des Workspaces."
   }
 }

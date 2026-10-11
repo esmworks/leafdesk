@@ -53,7 +53,6 @@ import { SitePages, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
-import { FRESH_SIGN_IN_MINUTES } from "@/lib/account";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { parseAuditFilters } from "@/lib/audit";
 import { isStrongSession } from "@/lib/auth-security";
@@ -67,7 +66,7 @@ import {
   visibleSettingsTabs,
 } from "@/lib/settings-tabs";
 import { AccessError, isGuest } from "@/server/access";
-import { proofKindOf } from "@/server/account";
+import { proofSetupOf } from "@/server/account";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { listAgents } from "@/server/agents/manage";
@@ -252,11 +251,10 @@ async function ExportGroup({ workspaceId, userId }: { workspaceId: string; userI
 type Session = Awaited<ReturnType<typeof requireSession>>;
 
 async function DeleteGroup({ workspaceId, name, session }: { workspaceId: string; name: string; session: Session }) {
-  const [kind, t] = await Promise.all([proofKindOf(session.user.id), getTranslations("settings")]);
-  const recent = Date.now() - new Date(session.session.createdAt).getTime() < FRESH_SIGN_IN_MINUTES * 60_000;
+  const [proof, t] = await Promise.all([proofSetupOf(session), getTranslations("settings")]);
   return (
     <SettingsGroup title={t("deleteWorkspace.heading")} className="mt-10">
-      <DeleteWorkspaceRow workspaceId={workspaceId} name={name} proof={{ kind, recent }} />
+      <DeleteWorkspaceRow workspaceId={workspaceId} name={name} proof={proof} />
     </SettingsGroup>
   );
 }

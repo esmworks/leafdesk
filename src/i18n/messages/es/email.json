@@ -197,5 +197,11 @@
     "approval": "Quiere llamar a «{tool}» en {connection}",
     "untitled": "Sin título",
     "snooze": "Posponer 1 hora"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} se ha eliminado",
+    "heading": "{workspace} se ha eliminado",
+    "body": "Hola, {name}: {by} eliminó el espacio de trabajo de Leafdesk {workspace}, con todas sus páginas, bases de datos y archivos. Ya no puedes abrirlo.",
+    "note": "Los espacios de trabajo eliminados no se pueden restaurar. Si no lo esperabas, habla con {by} o con otro propietario del espacio."
   }
 }

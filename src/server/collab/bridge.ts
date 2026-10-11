@@ -96,9 +96,12 @@ export interface CollabService {
    * They reconnect with whatever access they have left.
    */
   disconnectLostAccess(workspaceId: string, userIds?: string[]): Promise<void>;
+  /** The pages and databases with a document open on this server. */
+  openPageIds(): string[];
   /**
    * Drops every connection to a deleted workspace: its signals and these pages and databases (its
-   * own, listed before they were deleted, since the database can no longer say which they were).
+   * own open ones, listed before they were deleted, since the database can no longer say which
+   * they were).
    */
   disconnectWorkspace(workspaceId: string, pageIds: string[]): Promise<void>;
 }

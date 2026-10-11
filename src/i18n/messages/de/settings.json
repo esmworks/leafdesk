@@ -597,7 +597,8 @@
     "tooManyRequests": "Zu viele Anfragen. Versuche es später noch einmal.",
     "creationRestricted": "Nur die Administratoren des Servers können Workspaces anlegen.",
     "agentUser": "Das ist ein Agent, keine Person. Ändere oder archiviere ihn in den Einstellungen des Agenten.",
-    "confirmationMismatch": "Gib zur Bestätigung den Namen des Workspace genau so ein, wie er angezeigt wird."
+    "confirmationMismatch": "Gib zur Bestätigung den Namen des Workspace genau so ein, wie er angezeigt wird.",
+    "workspaceDeleted": "Jemand hat diesen Workspace inzwischen gelöscht."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",

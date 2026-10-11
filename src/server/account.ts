@@ -10,11 +10,11 @@ import {
   confirmsDeletion,
   type DeletionPlan,
   EMAIL_CHANGE_HOURS,
-  FRESH_SIGN_IN_MINUTES,
   passwordProblem,
   type Proof,
   type ProofKind,
   proofKindFor,
+  signedInRecently,
 } from "@/lib/account";
 import { auth } from "@/lib/auth";
 import {
@@ -146,14 +146,13 @@ export async function reauthenticate(current: AccountSession, proof: Proof) {
     if (!(await consumeCode(proof.code, codes))) throw new AccountError("invalidCode");
     return;
   }
-  const signedInAt = new Date(current.session.createdAt).getTime();
-  if (!(Date.now() - signedInAt < FRESH_SIGN_IN_MINUTES * 60_000)) throw new AccountError("signInAgain");
+  if (!signedInRecently(current)) throw new AccountError("signInAgain");
 }
 
-/** What `reauthenticate` asks this account for, for the forms outside the account page. */
-export async function proofKindOf(userId: string): Promise<ProofKind> {
-  const [hash, codes] = await Promise.all([passwordHashOf(userId), twoFactorOf(userId)]);
-  return proofKindFor({ hasPassword: !!hash, twoFactorEnabled: !!codes });
+/** What `reauthenticate` will ask of this session, for the forms that collect the proof. */
+export async function proofSetupOf(current: AccountSession): Promise<{ kind: ProofKind; recent: boolean }> {
+  const [hash, codes] = await Promise.all([passwordHashOf(current.user.id), twoFactorOf(current.user.id)]);
+  return { kind: proofKindFor({ hasPassword: !!hash, twoFactorEnabled: !!codes }), recent: signedInRecently(current) };
 }
 
 export type SessionSummary = {

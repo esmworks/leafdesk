@@ -29,7 +29,8 @@ import {
   type WorkspaceErrorCode,
 } from "@/server/workspaces";
 
-export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string };
+/** A failure carries its message, in the viewer's language, and its code. */
+export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
 // Next.js hides thrown error messages in production, so expected failures are returned instead,
 // translated into the viewer's language.
@@ -40,14 +41,14 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
     if (error instanceof WorkspaceError) return fail(error.code, error.detail);
     if (error instanceof AccessError) return fail("ownersOnly");
     // Proof asked before deleting the workspace, worded as on the account page.
-    if (error instanceof AccountError) return { ok: false, error: (await getTranslations("account.errors"))(error.code) };
+    if (error instanceof AccountError) return { ok: false, error: (await getTranslations("account.errors"))(error.code), code: error.code };
     throw error;
   }
 }
 
-async function fail(code: WorkspaceErrorCode | "ownersOnly" | "unknownRole", detail = ""): Promise<{ ok: false; error: string }> {
+async function fail(code: WorkspaceErrorCode | "ownersOnly" | "unknownRole", detail = ""): Promise<{ ok: false; error: string; code: string }> {
   const t = await getTranslations("settings.errors");
-  return { ok: false, error: code === "invalidDomain" ? t(code, { detail }) : t(code) };
+  return { ok: false, error: code === "invalidDomain" ? t(code, { detail }) : t(code), code };
 }
 
 const ROLES: WorkspaceRole[] = ["owner", "member", "guest"];

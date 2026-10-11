@@ -28,6 +28,7 @@ export {
   renderEmail,
   shareEmail,
   testEmail,
+  workspaceDeletedEmail,
 } from "./templates";
 
 /**

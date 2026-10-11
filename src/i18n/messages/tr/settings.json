@@ -597,7 +597,8 @@
     "tooManyRequests": "Çok fazla istek gönderildi. Daha sonra tekrar deneyin.",
     "creationRestricted": "Çalışma alanlarını yalnızca sunucunun yöneticileri oluşturabilir.",
     "agentUser": "Bu bir ajan, kişi değil. Ajanın kendi ayarlarından değiştirin ya da arşivleyin.",
-    "confirmationMismatch": "Onaylamak için çalışma alanının adını gösterildiği gibi yazın."
+    "confirmationMismatch": "Onaylamak için çalışma alanının adını gösterildiği gibi yazın.",
+    "workspaceDeleted": "Bu çalışma alanını bu arada başka biri sildi."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",

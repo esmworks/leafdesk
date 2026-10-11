@@ -746,14 +746,16 @@ async function main() {
   const settings = `/w/${doomed}/settings?tab=general`;
   check((await open(settings, dora.jar)).text.includes(">Deletes this workspace for everyone"), "an owner's settings offer to delete the workspace");
   check(!(await open(settings, eve.jar)).text.includes(">Deletes this workspace for everyone"), "a member's don't");
-  const deleteWs = (jar: Jar, confirmation: string, proof: unknown) =>
-    callAction(jar, settings, WS_ACTIONS, "deleteWorkspaceAction", [doomed, { confirmation, proof }]);
+  const deleteWs = async (jar: Jar, confirmation: string, proof: unknown) => {
+    const res = await callAction(jar, settings, WS_ACTIONS, "deleteWorkspaceAction", [doomed, { confirmation, proof }]);
+    return { ...res, code: /"code":"(\w+)"/.exec(res.text)?.[1] ?? null };
+  };
   const byMember = await deleteWs(eve.jar, doomedName, { password: PASSWORD });
-  check(byMember.text.includes("Only workspace owners can do this."), "a member can't delete the workspace", byMember.text);
+  check(byMember.code === "ownersOnly", "a member can't delete the workspace", byMember.text);
   const misnamed = await deleteWs(dora.jar, doomedName.toLowerCase(), { password: "nope" });
-  check(misnamed.text.includes("type the workspace's name exactly"), "deleting asks for the name as shown, before the proof", misnamed.text);
+  check(misnamed.code === "confirmationMismatch", "deleting asks for the name as shown, before the proof", misnamed.text);
   const unproven = await deleteWs(dora.jar, doomedName, { password: "nope" });
-  check(unproven.text.includes("Wrong password."), "…and then for the password", unproven.text);
+  check(unproven.code === "wrongPassword", "…and then for the password", unproven.text);
   check((await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, doomed))).length === 1, "…and nothing is deleted");
 
   const deletedWs = await deleteWs(dora.jar, ` ${doomedName} `, { password: PASSWORD });
@@ -761,7 +763,13 @@ async function main() {
   check((await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, doomed))).length === 0, "…the workspace is gone");
   check((await db.select({ id: workspaceMember.userId }).from(workspaceMember).where(eq(workspaceMember.workspaceId, doomed))).length === 0, "…with its members");
   check((await db.select({ id: file.id }).from(file).where(eq(file.id, doomedFile.id!))).length === 0, "…its files' records");
-  check(!(await stored(doomedFileRow.key)), "…and their stored bytes");
+  // Removed in the background, after the answer.
+  let bytesLeft = true;
+  for (let i = 0; i < 40 && bytesLeft; i++) {
+    bytesLeft = await stored(doomedFileRow.key);
+    if (bytesLeft) await new Promise((r) => setTimeout(r, 250));
+  }
+  check(!bytesLeft, "…and their stored bytes");
   check((await db.select({ id: ssoProvider.id }).from(ssoProvider).where(eq(ssoProvider.providerId, providerId))).length === 0, "…its single sign-on provider");
   check((await sessionOf(eve.jar)) === null, "…and the sign-ins through it");
   const left = await db.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, [dora.workspaceId, eve.workspaceId]));

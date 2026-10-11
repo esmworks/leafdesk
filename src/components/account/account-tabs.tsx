@@ -16,9 +16,8 @@ import { NotificationSettings } from "@/components/settings/notification-setting
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { ThemeSettings } from "@/components/settings/theme-settings";
 import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
-import { FRESH_SIGN_IN_MINUTES, proofKindFor } from "@/lib/account";
 import { isTheme, THEME_COOKIE } from "@/lib/theme";
-import { getAccountOverview, deletionPlanFor, emailChangeEnabled } from "@/server/account";
+import { getAccountOverview, deletionPlanFor, emailChangeEnabled, proofSetupOf } from "@/server/account";
 import { getAccountSecurity } from "@/server/account-security";
 import { mailStatus } from "@/server/mail";
 import { getNotificationPreferences } from "@/server/notification-preferences";
@@ -58,18 +57,13 @@ export async function AccountTabContent({ tab, session }: { tab: AccountTab; ses
   );
 }
 
-/** Whether the session was signed in recently enough to confirm changes without a password or code. */
-function signedInRecently(session: Session) {
-  return Date.now() - new Date(session.session.createdAt).getTime() < FRESH_SIGN_IN_MINUTES * 60_000;
-}
-
 async function ProfileTab({ session }: { session: Session }) {
-  const [overview, plan, t] = await Promise.all([
+  const [overview, plan, proof, t] = await Promise.all([
     getAccountOverview(session),
     deletionPlanFor(session.user.id),
+    proofSetupOf(session),
     getTranslations("account"),
   ]);
-  const proof = { kind: proofKindFor(overview), recent: signedInRecently(session) };
   return (
     <>
       <SettingsHeader title={t("nav.profile")} description={t("profile.description")} />
@@ -95,13 +89,13 @@ async function ProfileTab({ session }: { session: Session }) {
 }
 
 async function SecurityTab({ session }: { session: Session }) {
-  const [overview, security, t, ts] = await Promise.all([
+  const [overview, security, proof, t, ts] = await Promise.all([
     getAccountOverview(session),
     getAccountSecurity(session.user.id),
+    proofSetupOf(session),
     getTranslations("account"),
     getTranslations("security"),
   ]);
-  const proof = { kind: proofKindFor(overview), recent: signedInRecently(session) };
   return (
     <>
       <SettingsHeader title={t("nav.security")} description={ts("description")} />

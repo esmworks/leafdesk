@@ -414,6 +414,15 @@ export function emailChangedEmail(locale: Locale, change: { name: string; oldEma
   });
 }
 
+export function workspaceDeletedEmail(locale: Locale, deletion: { name: string; workspace: string; by: string }): RenderedEmail {
+  const t = emailTranslator(locale);
+  return renderEmail(locale, {
+    subject: t("workspaceDeleted.subject", deletion),
+    heading: t("workspaceDeleted.heading", deletion),
+    paragraphs: [t("workspaceDeleted.body", deletion), t("workspaceDeleted.note", deletion)],
+  });
+}
+
 export function passwordChangedEmail(locale: Locale, change: { name: string }): RenderedEmail {
   const t = emailTranslator(locale);
   return renderEmail(locale, {

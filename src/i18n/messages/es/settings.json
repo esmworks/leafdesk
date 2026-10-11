@@ -597,7 +597,8 @@
     "tooManyRequests": "Demasiadas solicitudes. Inténtalo más tarde.",
     "creationRestricted": "Solo los administradores del servidor pueden crear espacios de trabajo.",
     "agentUser": "Es un agente, no una persona. Cámbialo o archívalo en la configuración del propio agente.",
-    "confirmationMismatch": "Para confirmar, escribe el nombre del espacio de trabajo tal como aparece."
+    "confirmationMismatch": "Para confirmar, escribe el nombre del espacio de trabajo tal como aparece.",
+    "workspaceDeleted": "Otra persona eliminó este espacio de trabajo mientras tanto."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",

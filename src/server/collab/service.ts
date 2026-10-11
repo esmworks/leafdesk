@@ -721,6 +721,13 @@ export function createCollab() {
       }
     },
 
+    openPageIds() {
+      return [...hocuspocus.documents.values()].flatMap((doc) => {
+        const target = parseName(doc.name);
+        return target && target.kind !== "ws" ? [target.id] : [];
+      });
+    },
+
     async disconnectWorkspace(workspaceId, pageIds) {
       const gone = new Set(pageIds);
       for (const doc of hocuspocus.documents.values()) {

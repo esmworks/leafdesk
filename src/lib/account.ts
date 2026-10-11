@@ -50,6 +50,11 @@ export function proofKindFor(account: { hasPassword: boolean; twoFactorEnabled: 
   return "recentSignIn";
 }
 
+/** Whether the session was signed in recently enough to confirm changes without a password or code. */
+export function signedInRecently(current: { session: { createdAt: Date | string } }) {
+  return Date.now() - new Date(current.session.createdAt).getTime() < FRESH_SIGN_IN_MINUTES * 60_000;
+}
+
 /** Proof sent along with a sensitive change: the current password, or a code. */
 export type Proof = { password?: string; code?: string };
 
