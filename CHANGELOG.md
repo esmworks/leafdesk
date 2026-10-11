@@ -13,6 +13,18 @@
   Both are open without sign-in, never cached and set no cookie. docker-compose.yml marks the app
   healthy on `/api/health/ready`; the image's `HEALTHCHECK` uses `/api/health`, so a database
   outage doesn't get the container replaced. No migration.
+- **Calendar subscription of assigned rows.** The home page's "Assigned to you" header has a
+  sync button that gives each person a secret address of their own per workspace, for their
+  calendar app: the rows that list would show, from every database, that have a date they may see,
+  as events at their times, else all day, ranges as ranges, titled by the row with its database's
+  name and a link to it. Rows that are done, in the trash, templates, rows they can't open and
+  dates or statuses hidden from them by property access are left out or decide nothing, as on the
+  home page; it is not cut at the home page's 25 but holds what the 1,000 rows assigned to them
+  that were edited last leave once done ones are out. The calendar is named after the workspace
+  and "Assigned to you" in the language they last used. Shown once; it can be replaced or turned
+  off, and it stops while the workspace's export or connected apps are off or once they leave the
+  workspace. The section now stays, saying nothing is assigned, when the list is empty, so the
+  address can be made beforehand. Migration 0052.
 - **Import Word documents.** Import has a Word tab that takes one or more `.docx` files, each
   becoming a page under the chosen page or teamspace: titled by the heading it starts with (or its
   Title paragraph), else by its file name, with headings, bold, italic, underline, strikethrough,

@@ -532,7 +532,9 @@
       "active": "An address is active, made on {created}.",
       "lastRead": "Last read {time}.",
       "neverRead": "Not read yet.",
-      "replaceHint": "A new address stops the old one working."
+      "replaceHint": "A new address stops the old one working.",
+      "assignedDescription": "Add the rows assigned to you in this workspace to your calendar app by their address. Rows from every database with a date you can see show as events at their times, or all-day when their date has no time; done rows are left out, and the app checks for changes about every hour.",
+      "assignedShownOnce": "Copy it now: it won’t be shown again. Anyone with the address sees the rows assigned to you here."
     }
   },
   "layout": {

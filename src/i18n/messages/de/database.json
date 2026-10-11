@@ -532,7 +532,9 @@
       "active": "Eine Adresse ist aktiv, erstellt am {created}.",
       "lastRead": "Zuletzt gelesen {time}.",
       "neverRead": "Noch nicht gelesen.",
-      "replaceHint": "Eine neue Adresse macht die alte ungültig."
+      "replaceHint": "Eine neue Adresse macht die alte ungültig.",
+      "assignedDescription": "Füge die Zeilen, die dir in diesem Workspace zugewiesen sind, über ihre Adresse deiner Kalender-App hinzu. Zeilen aus allen Datenbanken mit einem Datum, das du sehen kannst, erscheinen als Termine zu ihrer Uhrzeit, ohne Uhrzeit ganztägig; erledigte Zeilen fehlen, und die App sieht etwa stündlich nach Änderungen.",
+      "assignedShownOnce": "Kopiere sie jetzt: Sie wird nicht noch einmal angezeigt. Wer die Adresse hat, sieht die Zeilen, die dir hier zugewiesen sind."
     }
   },
   "layout": {

@@ -3,17 +3,37 @@
 import { CalendarSync } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { createCalendarFeedAction, deleteCalendarFeedAction, getCalendarFeedAction, type ActionResult } from "@/app/actions/databases";
+import {
+  createAssignedCalendarFeedAction,
+  createCalendarFeedAction,
+  deleteAssignedCalendarFeedAction,
+  deleteCalendarFeedAction,
+  getAssignedCalendarFeedAction,
+  getCalendarFeedAction,
+  type ActionResult,
+} from "@/app/actions/databases";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { CopyButton } from "@/components/settings/copy-button";
 import { Button, Dialog, IconButton, Input } from "@/components/ui";
 import type { CalendarFeedInfo } from "@/server/calendar-feeds";
+
+/** The feed a button is about: a calendar view's, or the rows assigned to the viewer in a workspace. */
+type FeedOf = { viewId: string; workspaceId?: undefined } | { workspaceId: string; viewId?: undefined };
 
 /**
  * Subscribing to a calendar view from a calendar app (see server/calendar-feeds): makes the
  * viewer's own secret address, shown once, or a new one in its place, or turns it off.
  */
 export function CalendarFeedButton({ viewId }: { viewId: string }) {
+  return <FeedButton of={{ viewId }} />;
+}
+
+/** The same for the rows assigned to the viewer across the workspace (the home page's list). */
+export function AssignedCalendarFeedButton({ workspaceId }: { workspaceId: string }) {
+  return <FeedButton of={{ workspaceId }} />;
+}
+
+function FeedButton({ of }: { of: FeedOf }) {
   const t = useTranslations("database.calendar.feed");
   const offline = useIsOffline();
   const [open, setOpen] = useState(false);
@@ -23,12 +43,12 @@ export function CalendarFeedButton({ viewId }: { viewId: string }) {
       <IconButton label={t("open")} onClick={() => setOpen(true)} className="h-7 w-7 rounded-md">
         <CalendarSync className="h-4 w-4" />
       </IconButton>
-      {open && <CalendarFeedDialog viewId={viewId} onClose={() => setOpen(false)} />}
+      {open && <CalendarFeedDialog of={of} onClose={() => setOpen(false)} />}
     </>
   );
 }
 
-function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () => void }) {
+function CalendarFeedDialog({ of: { viewId, workspaceId }, onClose }: { of: FeedOf; onClose: () => void }) {
   const t = useTranslations("database.calendar.feed");
   const tc = useTranslations("common");
   const te = useTranslations("database.errors");
@@ -41,14 +61,14 @@ function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () =
 
   useEffect(() => {
     let current = true;
-    getCalendarFeedAction(viewId).then(
+    (viewId ? getCalendarFeedAction(viewId) : getAssignedCalendarFeedAction(workspaceId!)).then(
       (result) => current && (result.ok ? setInfo(result.data) : setError(result.error)),
       () => current && setError(tc("genericError")),
     );
     return () => {
       current = false;
     };
-  }, [viewId, tc]);
+  }, [viewId, workspaceId, tc]);
 
   const run = async <T,>(action: () => Promise<ActionResult<T>>, done: (data: T) => void) => {
     setBusy(true);
@@ -65,7 +85,7 @@ function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () =
   };
   const create = () =>
     run(
-      () => createCalendarFeedAction(viewId),
+      () => (viewId ? createCalendarFeedAction(viewId) : createAssignedCalendarFeedAction(workspaceId!)),
       (address) => {
         setUrl(address);
         setInfo((old) => old && { ...old, feed: { createdAt: new Date(), lastUsedAt: null } });
@@ -73,7 +93,7 @@ function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () =
     );
   const remove = () =>
     run(
-      () => deleteCalendarFeedAction(viewId),
+      () => (viewId ? deleteCalendarFeedAction(viewId) : deleteAssignedCalendarFeedAction(workspaceId!)),
       () => {
         setUrl(null);
         setInfo((old) => old && { ...old, feed: null });
@@ -84,7 +104,7 @@ function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () =
     <Dialog open onClose={onClose} className="max-w-md">
       <div className="space-y-3 p-4">
         <h2 className="text-sm font-medium">{t("title")}</h2>
-        <p className="text-sm text-fg-muted">{t("description")}</p>
+        <p className="text-sm text-fg-muted">{t(viewId ? "description" : "assignedDescription")}</p>
         {error && (
           <p role="alert" className="text-xs text-danger">
             {error}
@@ -97,7 +117,7 @@ function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () =
               <Input readOnly value={url} aria-label={t("address")} onFocus={(e) => e.currentTarget.select()} />
               <CopyButton value={url} />
             </div>
-            <p className="text-xs text-fg-muted">{t("shownOnce")}</p>
+            <p className="text-xs text-fg-muted">{t(viewId ? "shownOnce" : "assignedShownOnce")}</p>
             <a href={url.replace(/^https?:/, "webcal:")} className="text-xs text-accent underline underline-offset-2">
               {t("openInApp")}
             </a>
@@ -109,7 +129,7 @@ function CalendarFeedDialog({ viewId, onClose }: { viewId: string; onClose: () =
               created: format.dateTime(new Date(info.feed.createdAt), { dateStyle: "medium" }),
             })}{" "}
             {info.feed.lastUsedAt
-              ? t("lastRead", { time: format.relativeTime(new Date(info.feed.lastUsedAt)) })
+              ? t("lastRead", { time: format.relativeTime(new Date(info.feed.lastUsedAt), new Date()) })
               : t("neverRead")}
           </p>
         )}

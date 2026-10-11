@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { AssignedCalendarFeedButton } from "@/components/database/calendar-feed";
 import { OptionChip } from "@/components/database/property-cell";
 import { PageIcon } from "@/components/ui";
 import type { AssignedGroupKey } from "@/lib/assigned";
@@ -9,7 +10,10 @@ import type { AssignedRows } from "@/server/assigned";
 /** Overdue rows stand out; the rest stay quiet. */
 const tone = (key: AssignedGroupKey) => (key === "overdue" ? "text-danger" : "text-fg-muted");
 
-/** The home page's list of open database rows assigned to the viewer, by when they are due. */
+/**
+ * The home page's list of open database rows assigned to the viewer, by when they are due, with
+ * the calendar feed of them in its header. Says so when nothing is assigned.
+ */
 export async function AssignedSection({
   workspaceId,
   assigned,
@@ -19,7 +23,6 @@ export async function AssignedSection({
   assigned: AssignedRows;
   today: string;
 }) {
-  if (!assigned.groups.length) return null;
   const [t, tc, format] = await Promise.all([getTranslations("home"), getTranslations("common"), getFormatter()]);
   const shown = assigned.groups.reduce((n, g) => n + g.rows.length, 0);
   const year = today.slice(0, 4);
@@ -33,9 +36,17 @@ export async function AssignedSection({
 
   return (
     <section className="space-y-3" aria-labelledby="assigned-heading">
-      <h2 id="assigned-heading" className="text-sm font-semibold">
-        {t("assigned")}
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 id="assigned-heading" className="text-sm font-semibold">
+          {t("assigned")}
+        </h2>
+        <AssignedCalendarFeedButton workspaceId={workspaceId} />
+      </div>
+      {!assigned.groups.length && (
+        <p className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-fg-muted">
+          {t("assignedEmpty")}
+        </p>
+      )}
       {assigned.groups.map((group) => (
         <div key={group.key} className="space-y-1.5">
           <h3 className={`text-xs font-medium ${tone(group.key)}`}>

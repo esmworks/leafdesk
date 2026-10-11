@@ -332,3 +332,18 @@ export async function createCalendarFeedAction(viewId: string) {
 export async function deleteCalendarFeedAction(viewId: string) {
   return run((userId) => calendarFeeds.deleteCalendarFeed(userId, viewId));
 }
+
+/** Whether the workspace allows calendar feeds, and the user's feed of the rows assigned to them there. */
+export async function getAssignedCalendarFeedAction(workspaceId: string) {
+  return run((userId) => calendarFeeds.getAssignedCalendarFeed(userId, workspaceId));
+}
+
+/** Makes the user a new feed of the rows assigned to them in the workspace and returns its address, shown once. */
+export async function createAssignedCalendarFeedAction(workspaceId: string) {
+  return run((userId) => calendarFeeds.createAssignedCalendarFeed(userId, workspaceId));
+}
+
+/** Stops the user's feed of the rows assigned to them in the workspace. */
+export async function deleteAssignedCalendarFeedAction(workspaceId: string) {
+  return run((userId) => calendarFeeds.deleteAssignedCalendarFeed(userId, workspaceId));
+}

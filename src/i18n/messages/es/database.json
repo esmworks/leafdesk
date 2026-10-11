@@ -532,7 +532,9 @@
       "active": "Hay una dirección activa, creada el {created}.",
       "lastRead": "Última lectura {time}.",
       "neverRead": "Aún no se ha leído.",
-      "replaceHint": "Una dirección nueva deja de hacer funcionar la anterior."
+      "replaceHint": "Una dirección nueva deja de hacer funcionar la anterior.",
+      "assignedDescription": "Añade a tu app de calendario, con su dirección, las filas que tienes asignadas en este espacio de trabajo. Las filas de todas las bases de datos con una fecha que puedes ver aparecen como eventos a su hora, o de día completo si su fecha no tiene hora; las terminadas se dejan fuera, y la app busca cambios aproximadamente cada hora.",
+      "assignedShownOnce": "Cópiala ahora: no se volverá a mostrar. Quien tenga la dirección ve las filas que tienes asignadas aquí."
     }
   },
   "layout": {

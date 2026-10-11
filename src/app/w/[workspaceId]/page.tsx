@@ -39,18 +39,8 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
         {topLevel && <QuickCreate workspaceId={workspaceId} />}
       </header>
 
-      {assigned.groups.length > 0 ? (
-        <AssignedSection workspaceId={workspaceId} assigned={assigned} today={today} />
-      ) : (
-        !guest && (
-          <section className="space-y-2">
-            <h2 className="text-sm font-semibold">{t("assigned")}</h2>
-            <p className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-fg-muted">
-              {t("assignedEmpty")}
-            </p>
-          </section>
-        )
-      )}
+      {/* Guests see it only once something is assigned to them. */}
+      {(assigned.groups.length > 0 || !guest) && <AssignedSection workspaceId={workspaceId} assigned={assigned} today={today} />}
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold">{t("recent")}</h2>

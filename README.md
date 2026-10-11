@@ -137,6 +137,9 @@ versions, upgrades and running behind a domain.
     empties it. It is shown once; make a new one to replace it, or turn it off. Calendar apps
     check back about every hour. Like an API token it answers to the workspace's connected-apps
     switch rather than its sign-in policies: it stops while export or connected apps are off.
+    The home page's "Assigned to you" section has the same kind of address for the rows assigned
+    to you across the workspace's databases (those with a date you may see, done ones left out,
+    at most the 1,000 assigned rows edited last), named after the workspace.
   - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
     row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the
     rows under it). Those views show sub-items nested under their parent, opened and closed by each

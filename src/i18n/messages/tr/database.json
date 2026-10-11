@@ -532,7 +532,9 @@
       "active": "{created} tarihinde oluşturulan bir adres etkin.",
       "lastRead": "Son okunma {time}.",
       "neverRead": "Henüz okunmadı.",
-      "replaceHint": "Yeni adres eskisini geçersiz kılar."
+      "replaceHint": "Yeni adres eskisini geçersiz kılar.",
+      "assignedDescription": "Bu çalışma alanında size atanan satırları adresiyle takvim uygulamanıza ekleyin. Tüm veritabanlarından, görebildiğiniz bir tarihi olan satırlar saatlerinde, tarihinde saat yoksa tüm gün etkinlikleri olarak görünür; tamamlanan satırlar dahil edilmez. Uygulama değişiklikleri yaklaşık saatte bir alır.",
+      "assignedShownOnce": "Şimdi kopyalayın: bir daha gösterilmeyecek. Adresi bilen herkes burada size atanan satırları görür."
     }
   },
   "layout": {

@@ -532,7 +532,9 @@
       "active": "Une adresse est active, créée le {created}.",
       "lastRead": "Dernière lecture {time}.",
       "neverRead": "Pas encore lue.",
-      "replaceHint": "Une nouvelle adresse rend l’ancienne inutilisable."
+      "replaceHint": "Une nouvelle adresse rend l’ancienne inutilisable.",
+      "assignedDescription": "Ajoutez à votre app de calendrier, grâce à leur adresse, les lignes qui vous sont assignées dans cet espace de travail. Les lignes de toutes les bases de données ayant une date que vous pouvez voir apparaissent comme des événements à leur heure, ou sur la journée si leur date n’a pas d’heure ; les lignes terminées sont laissées de côté, et l’app vérifie les changements environ toutes les heures.",
+      "assignedShownOnce": "Copiez-la maintenant : elle ne sera plus affichée. Quiconque a l’adresse voit les lignes qui vous sont assignées ici."
     }
   },
   "layout": {
