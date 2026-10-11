@@ -4,7 +4,7 @@ import { agentRun, connection, notification, workspaceAgent } from "@/db/schema"
 import type { AgentPendingCall, ApprovalDecision } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
 import { redactError } from "@/lib/redact";
-import { workspaceOwnerIds } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, requireMembership, WorkspacePolicyError, workspaceOwnerIds } from "@/server/access";
 import { kickAgents } from "@/server/agents/kick";
 import { recordAudit } from "@/server/audit";
 import { signalInbox } from "@/server/notifications";
@@ -67,7 +67,14 @@ export async function decideApproval(userId: string, input: { runId: string; cal
     .from(agentRun)
     .where(eq(agentRun.id, input.runId));
   if (!run) throw new ApprovalError("notFound", "No such run");
-  if (!(await workspaceOwnerIds(run.workspaceId)).includes(userId)) throw new ApprovalError("forbidden", "Only owners of the workspace answer an agent's calls");
+  // As every owner's action: the workspace's sign-in policies (two-step verification, single
+  // sign-on) hold this session to them too, and say so rather than refusing as for a member.
+  await requireMembership(userId, run.workspaceId, "owner").catch((error: unknown) => {
+    if (error instanceof AccessError && !(error instanceof WorkspacePolicyError) && !(error instanceof ConnectedAppReadOnlyError)) {
+      throw new ApprovalError("forbidden", "Only owners of the workspace answer an agent's calls");
+    }
+    throw error;
+  });
   const decision = { decision: input.decision, userId, ...(input.decision === "redo" ? { note } : {}) };
   // Only the first answer to this very call counts, and only within its time (the sweep that fails
   // a call run out of time may not have come yet).
