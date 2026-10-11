@@ -35,7 +35,7 @@ export function describeConnection(conn: ConnectionView, grant?: AgentGrantView 
     sign_in: conn.authType,
     status: conn.status,
     ...(conn.status !== "ready" && conn.statusError ? { problem: conn.statusError.split(":")[0] } : {}),
-    tools: conn.tools.map((t) => ({ name: t.name, title: t.title, kind: t.kind === "read" ? "reads" : "writes (each call waits for an owner's approval)" })),
+    tools: conn.tools.map((t) => ({ name: t.name, title: t.title, kind: t.kind === "read" ? "reads (runs at once, but waits for approval on runs a stranger's input started)" : "writes (each call waits for an owner's approval)" })),
     event_url: conn.eventUrl,
     event_signing: conn.eventPreset,
     ...(grant !== undefined ? { agent_tools: grant?.tools ?? [] } : {}),

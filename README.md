@@ -189,7 +189,8 @@ versions, upgrades and running behind a domain.
   comments show its name (see [Agents](#agents)).
 - **Connections**: link a workspace to any remote MCP server (Slack, GitHub, a CRM, another
   Leafdesk) so agents can use its tools: reading tools run at once, anything else waits for an
-  owner's approval in the inbox; signed events from the service can start agents (see
+  owner's approval in the inbox; signed events from the service can start agents, whose every call
+  waits for approval unless an owner trusts what that trigger's service sends (see
   [Connections](#connections)).
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan or a project tracker.
@@ -1396,9 +1397,10 @@ each as *read* or *write*: a tool the server marks read-only (`readOnlyHint`) is
 other one *write*. An owner can change the class of any tool. Then, on an agent's *Connections*
 tab, an owner ticks the tools that agent may use; an agent has no tool of a connection until then.
 
-- A *read* tool runs at once when the agent calls it, except on a row an anonymous form answer
-  added (or a visitor outside the workspace): no member stands behind what that row says, so there
-  every tool waits as a *write* tool does.
+- A *read* tool runs at once when the agent calls it, except where no member stands behind what
+  the run reads, so there every tool waits as a *write* tool does: on a row an anonymous form
+  answer added (or a visitor outside the workspace), and on a run an event started, unless an
+  owner marked its trigger *Trust what this service sends* (below).
 - A *write* tool doesn't: the run waits, and every owner of the workspace gets an item in their
   inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
   input, credentials in it masked. An owner **approves** (the call is sent as the agent made it),
@@ -1441,6 +1443,15 @@ reads what is shared with the agent but changes nothing in Leafdesk by itself; i
 its connection tools, with approval as above. The *Events* tab lists what came in over the last 7
 days and what happened to each.
 
+Anyone who can make the service send an event (open an issue on a public repository, write in a
+channel the app reads, fill in a form that posts to it) writes what such a run reads, and could try
+to talk the agent into reading pages shared with it and sending them out through a reading tool
+whose input reaches them (a fetch of an address, a search). So by default every connection tool
+call of an event's run, reading ones too, waits for an owner's approval. An owner can tick *Trust
+what this service sends* on a trigger whose service only people of the workspace can make send
+events: its runs then call reading tools at once, and only the others wait. The setting is read
+each time a run goes on, so turning it off holds back runs already under way.
+
 **Audit.** Adding, changing, signing in to and removing connections, tool classes, agents' tools,
 triggers, every connection tool call (with its input, who approved it and the outcome) and every
 approval answer are recorded in the audit log. Over MCP: `list_connections` and
@@ -1458,7 +1469,7 @@ Pages and rows stay as they are, and what is sent (an approved call, a webhook) 
 > An agent with a connection acts as the account that signed in. Allow it only the tools it needs,
 > keep anything that changes data as *write*, and remember that an event's body is text a stranger
 > may have written: an agent can be talked into asking for things, which is why write tools wait for
-> a person.
+> a person, and why every tool of an event's run waits unless you trust its trigger's service.
 
 ## Connect an AI assistant
 

@@ -103,6 +103,8 @@ export type ConnectionTriggerView = {
   eventType: string | null;
   prompt: string;
   enabled: boolean;
+  /** Its runs call reading tools at once; otherwise every connection tool call waits for an owner. */
+  trusted: boolean;
   createdAt: string;
 };
 

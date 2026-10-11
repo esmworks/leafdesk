@@ -544,6 +544,19 @@ function EventsTab({ workspaceId, conn, agents }: { workspaceId: string; conn: C
                         {t("triggerLine", { agent: agentName(trigger.agentId), event: trigger.eventType ?? t("anyEvent") })}
                       </p>
                       {trigger.prompt && <p className="line-clamp-2 text-xs text-fg-muted">{trigger.prompt}</p>}
+                      <label className="mt-1 flex items-start gap-1.5 text-xs">
+                        <input
+                          type="checkbox"
+                          className="mt-0.5 accent-accent"
+                          checked={trigger.trusted}
+                          disabled={pending}
+                          onChange={(e) =>
+                            run(() => updateTriggerAction(workspaceId, trigger.id, { trusted: e.target.checked }), (view) => setTriggers((all) => all?.map((x) => (x.id === view.id ? view : x)) ?? all))
+                          }
+                        />
+                        <span>{t("trusted")}</span>
+                      </label>
+                      <p className={cn("text-xs", trigger.trusted ? "text-danger" : "text-fg-muted")}>{trigger.trusted ? t("trustedOn") : t("trustedOff")}</p>
                     </div>
                     <Switch
                       checked={trigger.enabled}
@@ -631,6 +644,7 @@ function NewTrigger({
   const [agentId, setAgentId] = useState(agents[0]?.id ?? "");
   const [eventType, setEventType] = useState("");
   const [prompt, setPrompt] = useState("");
+  const [trusted, setTrusted] = useState(false);
   const { pending, error, run } = useAction();
 
   if (!agents.length) return <p className="text-sm text-fg-muted">{t("noAgents")}</p>;
@@ -639,10 +653,11 @@ function NewTrigger({
       className="space-y-2 rounded-lg border border-border p-3"
       onSubmit={(e) => {
         e.preventDefault();
-        run(() => createTriggerAction(workspaceId, connectionId, { agentId, eventType: eventType.trim() || null, prompt }), (view) => {
+        run(() => createTriggerAction(workspaceId, connectionId, { agentId, eventType: eventType.trim() || null, prompt, trusted }), (view) => {
           onAdded(view);
           setEventType("");
           setPrompt("");
+          setTrusted(false);
         });
       }}
     >
@@ -667,6 +682,13 @@ function NewTrigger({
         <span className="text-xs text-fg-muted">{t("prompt")}</span>
         <textarea className={textareaClass} rows={2} maxLength={MAX_AGENT_PROMPT} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t("promptPlaceholder")} />
       </label>
+      <div className="space-y-0.5">
+        <label className="flex items-start gap-1.5 text-sm">
+          <input type="checkbox" className="mt-1 accent-accent" checked={trusted} onChange={(e) => setTrusted(e.target.checked)} />
+          <span>{t("trusted")}</span>
+        </label>
+        <p className={cn("text-xs", trusted ? "text-danger" : "text-fg-muted")}>{trusted ? t("trustedOn") : t("trustedOff")}</p>
+      </div>
       {error && (
         <p role="alert" className="text-xs text-danger">
           {error}

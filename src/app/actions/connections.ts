@@ -122,6 +122,7 @@ const triggerInput = (value: TriggerInput): TriggerInput => ({
   eventType: value?.eventType,
   prompt: value?.prompt,
   enabled: value?.enabled,
+  trusted: value?.trusted,
 });
 
 export async function listTriggersAction(workspaceId: string, connectionId: string): Promise<ActionResult<ConnectionTriggerView[]>> {

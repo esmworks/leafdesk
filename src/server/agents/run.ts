@@ -12,11 +12,11 @@
  * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent, and, on a
  * row's run, changing or commenting on that row, at most MAX_AGENT_WRITES times. Changes it makes
  * start no automations (`asAutomation`), so agents can't set each other off. On top of those come
- * the tools of connections an owner allowed it: one that only reads runs at once (except on a row's
- * run no member started, an anonymous form answer, where every one waits: the row was written by
- * someone the workspace doesn't know); any other makes the run wait (`awaiting_approval`, its
- * conversation saved in `state`) until an owner answers, and fails it, sending nothing, after
- * APPROVAL_TIMEOUT_MS.
+ * the tools of connections an owner allowed it: one that only reads runs at once, except where what
+ * the run reads was written by someone the workspace doesn't know (a row's run no member started,
+ * an anonymous form answer; an event's run whose trigger an owner hasn't marked trusted), where
+ * every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved in
+ * `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
  *
  * What a run keeps to show (its steps, answer and error, and the call waiting for approval as
  * owners see it) has credentials masked (lib/redact). `state` is kept as it was: the run goes on
@@ -25,7 +25,7 @@
  */
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, connection, connectionEvent, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
+import { agentRun, connection, connectionEvent, connectionTrigger, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
 import {
   AGENT_RUN_HISTORY_DAYS,
   AGENT_RUN_TIMEOUT_MS,
@@ -206,6 +206,10 @@ export async function processRun(run: Run): Promise<void> {
   // again each time the run is taken (after an approval too): their access as it is now counts, and
   // once they have left the workspace the run goes on as one no member started.
   let member: string | null = null;
+  // An event's run: whether an owner trusts what its trigger's service sends, asked again each time
+  // too (turning it off holds back the calls of runs already under way). A trigger since removed
+  // isn't trusted.
+  let trusted = false;
   if (isRowRun(run.source)) {
     const { rowId, databaseId } = run.source;
     const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
@@ -216,12 +220,17 @@ export async function processRun(run: Run): Promise<void> {
   } else {
     const [conn] = await db.select({ id: connection.id }).from(connection).where(eq(connection.id, run.source.connectionId));
     if (!conn) return finish(run, { status: "failed", code: "connectionGone" });
+    const [trigger] = await db
+      .select({ trusted: connectionTrigger.trusted })
+      .from(connectionTrigger)
+      .where(and(eq(connectionTrigger.id, run.source.triggerId), eq(connectionTrigger.connectionId, conn.id)));
+    trusted = trigger?.trusted === true;
   }
 
   const wait = takeWorkspaceCapacity(run.workspaceId);
   if (wait > 0) return later(run, new Date(Date.now() + wait));
 
-  const outcome = await withinMember(agent, member, () => converse(agent, run, { member })).catch((error: unknown) => ({ error }));
+  const outcome = await withinMember(agent, member, () => converse(agent, run, { member, trusted })).catch((error: unknown) => ({ error }));
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
@@ -252,11 +261,12 @@ type Paused = { status: "awaiting"; state: AgentRunState; pending: AgentPendingC
 type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord };
 
 /** The run's turns with the model (from the start, or from where it waited): what it did, and how it ended. */
-async function converse(agent: Agent, run: Run, { member }: { member: string | null }): Promise<Ending | Paused> {
+async function converse(agent: Agent, run: Run, { member, trusted }: { member: string | null; trusted: boolean }): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
   const rowRun = isRowRun(run.source);
-  // A row no member wrote may carry anyone's instructions: no connection tool runs without an owner.
-  const askEveryTool = rowRun && !member;
+  // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
+  // instructions: no connection tool runs without an owner.
+  const askEveryTool = rowRun ? !member : !trusted;
   const limits = aiConfig().limits;
   // The run's own time, from now: the wait for an answer doesn't count.
   const signal = AbortSignal.timeout(AGENT_RUN_TIMEOUT_MS);

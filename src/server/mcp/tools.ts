@@ -2020,7 +2020,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List the workspace's connections",
       description:
-        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools with what each does (reads: runs at once; writes: each call waits for an owner's approval in the inbox), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
+        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools with what each does (reads: runs at once, except on runs started by an anonymous form answer or by an event from a trigger an owner hasn't marked trusted, where it waits too; writes: each call waits for an owner's approval in the inbox), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
       inputSchema: connectionInputs.list,
       annotations: READ,
     },
@@ -2039,7 +2039,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Choose an agent's tools on a connection",
       description:
-        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them (on a row from an anonymous form answer, they wait as well); any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
+        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them (on a row from an anonymous form answer, and on a run a connection's event started unless an owner marked its trigger trusted in Settings > Connections, they wait as well); any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
       inputSchema: connectionInputs.grant,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,

@@ -395,10 +395,11 @@ const viewTrigger = (t: typeof connectionTrigger.$inferSelect): ConnectionTrigge
   eventType: t.eventType,
   prompt: t.prompt,
   enabled: t.enabled,
+  trusted: t.trusted,
   createdAt: t.createdAt.toISOString(),
 });
 
-export type TriggerInput = { agentId?: string; eventType?: string | null; prompt?: string; enabled?: boolean };
+export type TriggerInput = { agentId?: string; eventType?: string | null; prompt?: string; enabled?: boolean; trusted?: boolean };
 
 async function checkTriggerAgent(userId: string, row: ConnectionRow, agentId: unknown) {
   if (typeof agentId !== "string") throw new ConnectionError("invalidTrigger", "Pick an agent");
@@ -432,6 +433,7 @@ export async function createTrigger(userId: string, connectionId: string, input:
       eventType: checkEventType(input.eventType),
       prompt: (input.prompt ?? "").trim().slice(0, MAX_AGENT_PROMPT),
       enabled: input.enabled ?? true,
+      trusted: input.trusted === true,
       createdBy: userId,
     })
     .returning();
@@ -440,7 +442,7 @@ export async function createTrigger(userId: string, connectionId: string, input:
     actorId: userId,
     action: "connection.updated",
     target: { type: "connection", id: connectionId, label: row.name },
-    details: { ...auditDetails(row), triggerAdded: { agent: agent.name, eventType: created.eventType } },
+    details: { ...auditDetails(row), triggerAdded: { agent: agent.name, eventType: created.eventType, trusted: created.trusted } },
   });
   return viewTrigger(created);
 }
@@ -454,9 +456,10 @@ export async function updateTrigger(userId: string, triggerId: string, input: Tr
   if (input.eventType !== undefined) set.eventType = checkEventType(input.eventType);
   if (input.prompt !== undefined) set.prompt = input.prompt.trim().slice(0, MAX_AGENT_PROMPT);
   if (input.enabled !== undefined) set.enabled = Boolean(input.enabled);
+  if (input.trusted !== undefined) set.trusted = input.trusted === true;
   const [updated] = await db.update(connectionTrigger).set(set).where(eq(connectionTrigger.id, triggerId)).returning();
   const agentName = async (id: string) => (await db.select({ name: workspaceAgent.name }).from(workspaceAgent).where(eq(workspaceAgent.id, id)))[0]?.name ?? null;
-  const summary = async (t: typeof trigger) => ({ agent: await agentName(t.agentId), eventType: t.eventType, prompt: t.prompt.slice(0, 200), enabled: t.enabled });
+  const summary = async (t: typeof trigger) => ({ agent: await agentName(t.agentId), eventType: t.eventType, prompt: t.prompt.slice(0, 200), enabled: t.enabled, trusted: t.trusted });
   await recordAudit({
     workspaceId: row.workspaceId,
     actorId: userId,

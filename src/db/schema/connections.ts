@@ -96,6 +96,13 @@ export const connectionTrigger = pgTable(
     eventType: text("event_type"),
     prompt: text("prompt").notNull().default(""),
     enabled: boolean("enabled").notNull().default(true),
+    /**
+     * An owner trusts what the service sends here: its runs call the connection's reading tools at
+     * once. Off (the default), every connection tool call of its runs waits for an owner's
+     * approval, as on a row no member wrote: anyone who can make the service send an event (an
+     * issue on a public repository, a chat message) writes what the agent reads.
+     */
+    trusted: boolean("trusted").notNull().default(false),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

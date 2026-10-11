@@ -372,6 +372,13 @@
       "when": 1791701172185,
       "tag": "0052_assigned_calendar_feed",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1791715955515,
+      "tag": "0053_trusted_triggers",
+      "breakpoints": true
     }
   ]
 }
