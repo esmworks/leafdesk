@@ -1,5 +1,5 @@
 import { createBundledHighlighter } from "@shikijs/core";
-import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
+import { createJavaScriptRawEngine } from "@shikijs/engine-javascript/raw";
 import { highlightLanguage } from "./code-languages";
 
 /**
@@ -63,7 +63,7 @@ const createHighlighter = createBundledHighlighter({
     [LIGHT_THEME]: () => import("@shikijs/themes/github-light"),
     [DARK_THEME]: () => import("@shikijs/themes/github-dark"),
   },
-  engine: () => createJavaScriptRegexEngine(),
+  engine: () => createJavaScriptRawEngine(),
 });
 
 type Highlighter = Awaited<ReturnType<typeof createHighlighter>>;
