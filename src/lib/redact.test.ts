@@ -127,6 +127,23 @@ describe("redactText: what goes through", () => {
       expect(redactText(once)).toBe(once);
     }
   });
+
+  it("gets through long runs of token-like text in linear time", () => {
+    // The best of three runs, so a busy machine or a garbage collection doesn't fail it (quadratic
+    // patterns took seconds here).
+    const fastest = (sample: string) =>
+      Math.min(
+        ...[1, 2, 3].map(() => {
+          const started = performance.now();
+          expect(redactText(sample)).toBe(sample);
+          return performance.now() - started;
+        }),
+      );
+    for (const unit of ["a-", "eyJ-", "a.", "eyJaaaaa.a.", "a-a."]) {
+      const text = unit.repeat(Math.ceil(200_000 / unit.length));
+      for (const sample of [text, `${text}://`]) expect(fastest(sample), unit).toBeLessThan(100);
+    }
+  });
 });
 
 describe("isCredentialKey", () => {

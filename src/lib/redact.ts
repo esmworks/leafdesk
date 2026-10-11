@@ -79,8 +79,11 @@ const nameIsCredential = (name: string, inQuery: boolean) => {
 
 // ------------------------------------------------------------------------------------ shapes
 
-/** Well-known token shapes; the prefix is kept, to tell which kind of token it was. */
-const TOKEN_SHAPES: { pattern: RegExp; keep: number | ((match: string) => string) }[] = [
+/**
+ * Well-known token shapes; the prefix is kept, to tell which kind of token it was. `hint`: text
+ * a match always contains, so the pattern only runs over text that has it.
+ */
+const TOKEN_SHAPES: { pattern: RegExp; keep: number | ((match: string) => string); hint?: string }[] = [
   // Leafdesk's own: API tokens, SCIM tokens, calendar feeds, signing secrets.
   { pattern: /\besi_[A-Za-z0-9]{16,}/g, keep: 4 },
   { pattern: /\bscim_[A-Za-z0-9]{16,}/g, keep: 5 },
@@ -102,8 +105,10 @@ const TOKEN_SHAPES: { pattern: RegExp; keep: number | ((match: string) => string
   // AWS access key ids, Google API keys.
   { pattern: /\b(?:AKIA|ASIA|ABIA|ACCA)[A-Z0-9]{16}\b/g, keep: 4 },
   { pattern: /\bAIza[A-Za-z0-9_-]{35}/g, keep: 4 },
-  // JSON Web Tokens: three base64url parts, the first a JSON object.
-  { pattern: /\beyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}/g, keep: 0 },
+  // JSON Web Tokens: three base64url parts, the first a JSON object. Starting only where a run of
+  // base64url characters starts (not after each `-` in it) keeps long runs from being read over
+  // and over.
+  { pattern: /(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}/g, keep: 0, hint: "eyJ" },
 ];
 
 const PEM = /-----BEGIN ((?:[A-Z0-9]+ )*)PRIVATE KEY-----[\s\S]*?(?:-----END \1PRIVATE KEY-----|$)/g;
@@ -114,8 +119,8 @@ const AUTH_HEADER = /\b((?:proxy-)?authorization)(["']?[ \t]*[:=][ \t]*["']?)(?:
 /** A JSON string pair, its key checked by isCredentialKey. */
 const JSON_PAIR = /"([A-Za-z0-9_-]{1,64})"(\s*:\s*)"((?:[^"\\]|\\.)*)"/g;
 
-/** The password in a URL's user info (`scheme://user:password@host`). */
-const URL_PASSWORD = /\b([a-z][a-z0-9+.-]*:\/\/)([^\s:/?#@"'<>\\`]*):([^\s/?#@"'<>\\`]+)@/gi;
+/** The password in a URL's user info (`scheme://user:password@host`); schemes of up to 32 characters. */
+const URL_PASSWORD = /\b([a-z][a-z0-9+.-]{0,31}:\/\/)([^\s:/?#@"'<>\\`]*):([^\s/?#@"'<>\\`]+)@/gi;
 
 /** `name=value`: in a query or fragment (after `?`, `&`, `#` or `;`), or on its own. */
 const PARAM = /(^|[^A-Za-z0-9_.-])([A-Za-z][A-Za-z0-9_.-]{0,63})=([^\s&#"'<>\\`,;)]+)/g;
@@ -135,12 +140,13 @@ const looksLikeToken = (word: string) => /[0-9+/=_.~]/.test(word) || (word.lengt
 export function redactText(text: string): string {
   if (!text) return text;
   let out = text.replace(PEM, (_match, kind: string) => `-----BEGIN ${kind}PRIVATE KEY-----${REDACTED}-----END ${kind}PRIVATE KEY-----`);
-  for (const { pattern, keep } of TOKEN_SHAPES) {
+  for (const { pattern, keep, hint } of TOKEN_SHAPES) {
+    if (hint && !out.includes(hint)) continue;
     out = out.replace(pattern, (match) => `${typeof keep === "number" ? match.slice(0, keep) : keep(match)}${REDACTED}`);
   }
   out = out.replace(AUTH_HEADER, (_match, name: string, sep: string, scheme: string | undefined) => `${name}${sep}${scheme ? `${scheme} ` : ""}${REDACTED}`);
   out = out.replace(JSON_PAIR, (match, key: string, sep: string, value: string) => (value && isCredentialKey(key) ? `"${key}"${sep}"${REDACTED}"` : match));
-  out = out.replace(URL_PASSWORD, (_match, scheme: string, userName: string) => `${scheme}${userName}:${REDACTED}@`);
+  if (out.includes("://")) out = out.replace(URL_PASSWORD, (_match, scheme: string, userName: string) => `${scheme}${userName}:${REDACTED}@`);
   out = out.replace(PARAM, (match, before: string, name: string) => {
     const inQuery = before === "?" || before === "&" || before === "#" || before === ";";
     return nameIsCredential(name, inQuery) ? `${before}${name}=${REDACTED}` : match;
