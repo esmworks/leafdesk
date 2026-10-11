@@ -85,11 +85,12 @@ export async function collabSessionFacts(
 
 /**
  * The owner of an address just claimed the account someone had signed up for with it, unproven:
- * a provider that vouches for the address linked to it (claimOnEmailLink), or the reset link
- * emailed to it was used (afterPasswordReset). Whatever the earlier holder could have set up goes,
- * so none of it signs them back in or reaches the workspaces: passkeys, two-step verification (a
- * code only they have would also lock the owner out), API tokens and connected apps. Each way of
- * claiming ends the earlier sessions itself.
+ * a provider that vouches for the address linked to it (claimOnEmailLink), the reset link emailed
+ * to it was used (afterPasswordReset), or its verification link was followed in another browser
+ * (claimOnEmailVerification). Whatever the earlier holder could have set up goes, so none of it
+ * signs them back in or reaches the workspaces: passkeys, two-step verification (a code only they
+ * have would also lock the owner out), API tokens and connected apps. Each way of claiming ends the
+ * earlier sessions itself.
  */
 export async function forgetUnprovenHolder(userId: string) {
   await db.transaction(async (tx) => {

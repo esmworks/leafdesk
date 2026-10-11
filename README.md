@@ -397,8 +397,8 @@ container starts.
 
 To stop new sign-ups after creating your own account, set `DISABLE_SIGNUP=true` and restart.
 You can still bring people in: in Settings → Members, add their email. If they have no account
-yet (or its address isn't verified), you get an invitation link to send them. The link works for 7 days and lets only that email
-sign up, even while sign-up is closed. The workspace join link (Settings → Members → Add members
+yet (or its address isn't verified), you get an invitation link to send them. The link works for
+7 days and lets only that email sign up, even while sign-up is closed. The workspace join link (Settings → Members → Add members
 with a link) is different: anyone holding it can join as a member (or ask an owner to let them
 in, see [Who can join a workspace](#who-can-join-a-workspace)), so it never opens closed sign-up.
 People without an account can use it only while sign-up is open.
@@ -596,9 +596,16 @@ email say that it is not configured.
 
 With email available (SMTP, or the development log), new email and password accounts get a link
 that verifies their address, and My account → Profile can send it again. Verified addresses matter
-for workspaces that let their [email domains](#who-can-join-a-workspace) in. In production
-without SMTP no link is sent, and only accounts whose provider vouches for the address (GitHub,
-Google, single sign-on, SCIM) count as verified.
+for workspaces that let their [email domains](#who-can-join-a-workspace) in, and for being added
+to a workspace or a page by email (an unverified account gets an invitation instead). In
+production without SMTP no link is sent, and only accounts whose provider vouches for the address
+(GitHub, Google, single sign-on, SCIM) count as verified.
+
+Anyone can sign up with someone else's address, so following the verification link in a browser
+that isn't signed in to the account also takes the account over from whoever signed up: its other
+sessions end, its password has to be replaced through a reset link emailed to the address before
+it signs in again, and its passkeys, two-step verification, API tokens and connected apps go.
+Following the link where you signed up (still signed in) changes nothing.
 
 ## Push notifications
 

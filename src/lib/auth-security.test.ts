@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { memoryAdapter } from "better-auth/adapters/memory";
-import { createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware, createEmailVerificationToken } from "better-auth/api";
 import { symmetricEncrypt } from "better-auth/crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { baseAuthOptions } from "./auth-options";
+import { baseAuthOptions, claimOnEmailVerification } from "./auth-options";
 import {
   authMethodOf,
   codeMatches,
@@ -186,6 +186,23 @@ describe("codeMatches", () => {
   });
 });
 
+/** The cookies of one browser, for driving Better Auth over HTTP-shaped requests. */
+class Jar {
+  cookies = new Map<string, string>();
+  store(res: Response) {
+    for (const line of res.headers.getSetCookie()) {
+      const [pair] = line.split(";");
+      const eq = pair.indexOf("=");
+      const value = pair.slice(eq + 1);
+      if (value && !/max-age=0/i.test(line)) this.cookies.set(pair.slice(0, eq), value);
+      else this.cookies.delete(pair.slice(0, eq));
+    }
+  }
+  header() {
+    return [...this.cookies].map(([k, v]) => `${k}=${v}`).join("; ");
+  }
+}
+
 /**
  * A real Better Auth instance (in memory) with our plugins and hooks, driven over HTTP-shaped
  * requests: the server side of two-step verification with social sign-in, where the provider is
@@ -228,22 +245,6 @@ describe("Better Auth with our two-step setup", () => {
       databaseHooks: { session: { create: { before: recordAuthMethod } } },
       plugins: [twoFactorPlugin(), socialTwoFactorRedirect(APP), passkeyPlugin(APP)],
     });
-  }
-
-  class Jar {
-    cookies = new Map<string, string>();
-    store(res: Response) {
-      for (const line of res.headers.getSetCookie()) {
-        const [pair] = line.split(";");
-        const eq = pair.indexOf("=");
-        const value = pair.slice(eq + 1);
-        if (value && !/max-age=0/i.test(line)) this.cookies.set(pair.slice(0, eq), value);
-        else this.cookies.delete(pair.slice(0, eq));
-      }
-    }
-    header() {
-      return [...this.cookies].map(([k, v]) => `${k}=${v}`).join("; ");
-    }
   }
 
   let auth: ReturnType<typeof makeAuth>;
@@ -340,5 +341,139 @@ describe("Better Auth with our two-step setup", () => {
       body: { response: { id: "x", rawId: "x", type: "public-key", response: { clientDataJSON: "e30", attestationObject: "AA" } } },
     });
     expect(verify.status).toBeGreaterThanOrEqual(400);
+  });
+});
+
+/**
+ * Following the verification link emailed to an address that someone may have signed up with
+ * before its owner did: from another browser it takes the account over (claimOnEmailVerification),
+ * from the one signed in to it nothing changes.
+ */
+describe("the email verification link and an account signed up for with the address", () => {
+  const EMAIL = "newhire@example.test";
+  const PASSWORD = "squatter-password";
+  let db: Record<string, Record<string, unknown>[]>;
+  let forgotten: string[];
+
+  function makeAuth() {
+    db = { user: [], session: [], account: [], verification: [], twoFactor: [], passkey: [] };
+    forgotten = [];
+    return betterAuth({
+      baseURL: APP,
+      secret: SECRET,
+      database: memoryAdapter(db),
+      emailAndPassword: { enabled: true },
+      emailVerification: { sendVerificationEmail: async () => {}, autoSignInAfterVerification: true },
+      user: { additionalFields: { passwordResetRequired: { type: "boolean", required: false, input: false, defaultValue: false } } },
+      session: { additionalFields: { authMethod: { type: "string", required: false, input: false } } },
+      // Stands in for forgetUnprovenHolder (server/account-security.ts), which needs the database:
+      // what it removes is shown by the passkey going.
+      hooks: {
+        after: claimOnEmailVerification(async (userId) => {
+          forgotten.push(userId);
+          db.passkey = db.passkey.filter((key) => key.userId !== userId);
+        }),
+      },
+      databaseHooks: {
+        session: {
+          create: {
+            // Stands in for holdRequiredPasswordReset (server/required-password.ts): no password
+            // sign-in while the account has to choose a new password.
+            before: async (session, ctx) => {
+              if (ctx?.path === "/sign-in/email") {
+                const owner = (await ctx.context.internalAdapter.findUserById(session.userId)) as { passwordResetRequired?: boolean } | null;
+                if (owner?.passwordResetRequired) throw new APIError("FORBIDDEN", { code: "PASSWORD_RESET_REQUIRED" });
+              }
+              return recordAuthMethod(session, ctx);
+            },
+          },
+        },
+      },
+      plugins: [twoFactorPlugin(), passkeyPlugin(APP)],
+    });
+  }
+
+  let auth: ReturnType<typeof makeAuth>;
+  beforeEach(() => {
+    auth = makeAuth();
+  });
+
+  async function call(jar: Jar, path: string, body?: unknown) {
+    const res = await auth.handler(
+      new Request(`${APP}/api/auth${path}`, {
+        method: body === undefined ? "GET" : "POST",
+        headers: { "content-type": "application/json", origin: APP, cookie: jar.header() },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      }),
+    );
+    jar.store(res);
+    return res;
+  }
+
+  const signedInAs = async (jar: Jar) =>
+    ((await (await call(jar, "/get-session")).json()) as { user: { email: string } } | null)?.user.email ?? null;
+
+  /** Signs up with the address in a browser of its own, with a passkey and a second session. */
+  async function signUpWithAddress() {
+    const browser = new Jar();
+    expect((await call(browser, "/sign-up/email", { name: "Signed up", email: EMAIL, password: PASSWORD })).status).toBe(200);
+    const [account] = db.user;
+    db.passkey.push({ id: "key-1", userId: account.id, publicKey: "pk", credentialID: "cred-1", counter: 0, deviceType: "singleDevice", backedUp: false });
+    const other = new Jar();
+    expect((await call(other, "/sign-in/email", { email: EMAIL, password: PASSWORD })).status).toBe(200);
+    return { browser, other, userId: account.id as string };
+  }
+
+  const followLink = async (jar: Jar) =>
+    call(jar, `/verify-email?token=${await createEmailVerificationToken(SECRET, EMAIL)}&callbackURL=/`);
+
+  it("from another browser: the earlier sessions, passkeys and the old password stop working", async () => {
+    const { browser, other, userId } = await signUpWithAddress();
+    const mailbox = new Jar();
+    expect((await followLink(mailbox)).status).toBe(302);
+
+    expect(db.user[0].emailVerified).toBe(true);
+    expect(await signedInAs(mailbox)).toBe(EMAIL);
+    expect(await signedInAs(browser)).toBeNull();
+    expect(await signedInAs(other)).toBeNull();
+    expect(db.session).toHaveLength(1);
+    expect(forgotten).toEqual([userId]);
+    expect(db.passkey).toHaveLength(0);
+    expect(db.user[0].passwordResetRequired).toBe(true);
+    const again = await call(new Jar(), "/sign-in/email", { email: EMAIL, password: PASSWORD });
+    expect(again.status).toBe(403);
+    expect(((await again.json()) as { code?: string }).code).toBe("PASSWORD_RESET_REQUIRED");
+
+    // Once verified, the link changes nothing more, wherever it is followed.
+    await followLink(new Jar());
+    expect(db.session).toHaveLength(1);
+    expect(forgotten).toEqual([userId]);
+  });
+
+  it("with two-step verification on, takes the account over without signing the browser in past the code", async () => {
+    const { browser, userId } = await signUpWithAddress();
+    db.user[0].twoFactorEnabled = true;
+    db.twoFactor.push({ id: "tf-1", userId, secret: "secret", backupCodes: "codes" });
+    const mailbox = new Jar();
+    await followLink(mailbox);
+
+    expect(await signedInAs(mailbox)).toBeNull();
+    expect(await signedInAs(browser)).toBeNull();
+    expect(db.session).toHaveLength(0);
+    expect(forgotten).toEqual([userId]);
+    expect(db.user[0].passwordResetRequired).toBe(true);
+  });
+
+  it("in the browser that signed up: everything stays", async () => {
+    const { browser, other } = await signUpWithAddress();
+    expect((await followLink(browser)).status).toBe(302);
+
+    expect(db.user[0].emailVerified).toBe(true);
+    expect(await signedInAs(browser)).toBe(EMAIL);
+    expect(await signedInAs(other)).toBe(EMAIL);
+    expect(forgotten).toEqual([]);
+    expect(db.passkey).toHaveLength(1);
+    expect(db.user[0].passwordResetRequired).not.toBe(true);
+    expect((await call(new Jar(), "/sign-in/email", { email: EMAIL, password: PASSWORD })).status).toBe(200);
   });
 });

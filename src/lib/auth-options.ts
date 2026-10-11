@@ -146,6 +146,51 @@ export function claimOnEmailLink(forgetEarlierHolder?: (userId: string) => Promi
   };
 }
 
+/** Whether a `/verify-email` token confirms a change of address (it names the new one), not the account's own. */
+function changesAddress(token: unknown) {
+  if (typeof token !== "string") return false;
+  try {
+    const payload = JSON.parse(Buffer.from(token.split(".")[1] ?? "", "base64url").toString("utf8")) as { updateTo?: unknown };
+    return typeof payload.updateTo === "string";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * `hooks.after` for `/verify-email`. Following the link emailed to an address proves it, as a
+ * password reset or a provider vouching for it does (claimOnEmailLink), and Better Auth only signs
+ * someone in there while the address was unverified: whoever signed up may not own it. So unless
+ * the browser that followed the link was signed in to the account already (whoever signed up, on
+ * that device), the account is the address owner's from here on. Every other session ends, the
+ * password works again only once it is replaced through a reset link emailed to the address (an
+ * instance admin's "choose a new password", see server/required-password.ts), and
+ * `forgetEarlierHolder` removes the rest of what the earlier holder could have set up (passkeys,
+ * two-step verification, API tokens, app grants). The browser that followed the link keeps its new
+ * session, unless two-step verification takes it back (twoFactorPlugin goes by what the account
+ * had when the link was followed).
+ */
+export function claimOnEmailVerification(forgetEarlierHolder?: (userId: string) => Promise<void>) {
+  return createAuthMiddleware(async (ctx) => {
+    if (ctx.path !== "/verify-email") return;
+    // No new session: the address was verified already, or the link didn't work.
+    const created = ctx.context.newSession;
+    if (!created || changesAddress(ctx.query?.token)) return;
+    const presented = await ctx.getSignedCookie(ctx.context.authCookies.sessionToken.name, ctx.context.secret);
+    if (presented === created.session.token) return;
+    const adapter = ctx.context.internalAdapter;
+    const userId = created.user.id;
+    for (const old of await adapter.listSessions(userId)) {
+      if (old.token !== created.session.token) await adapter.deleteSession(old.token);
+    }
+    const accounts = await adapter.findAccounts(userId);
+    if (accounts.some((account) => account.providerId === "credential" && account.password)) {
+      await adapter.updateUser(userId, { passwordResetRequired: true });
+    }
+    await forgetEarlierHolder?.(userId);
+  });
+}
+
 /**
  * `/update-user` would take any name and any picture URL. The account page changes both through
  * its own actions (pictures are uploaded, see lib/avatar.ts); here only a valid name, or removing

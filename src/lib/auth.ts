@@ -12,6 +12,7 @@ import {
   agentSignInGuard,
   baseAuthOptions,
   claimOnEmailLink,
+  claimOnEmailVerification,
   closedSignUpGuard,
   refuseAgentAddress,
   signUpTokenOf,
@@ -128,9 +129,13 @@ export const auth = betterAuth({
   ...base,
   secret: env.authSecret,
   database: drizzleAdapter(db, { provider: "pg", schema }),
-  // Proving an address is only needed for allowed email domains (a verified address may join a
-  // workspace on its own); nobody has to verify to sign in. Without email on this server nothing
-  // can be verified this way: only providers that vouch for the address count (see join-requests).
+  // Following the verification link from another browser takes the account over from whoever
+  // signed up with the address (see claimOnEmailVerification). Runs before the plugins' hooks.
+  hooks: { ...base.hooks, after: claimOnEmailVerification(forgetUnprovenHolder) },
+  // Proving an address matters for allowed email domains (a verified address may join a workspace
+  // on its own) and for being added by email (an unverified account is invited instead); nobody
+  // has to verify to sign in. Without email on this server nothing can be verified this way: only
+  // providers that vouch for the address count (see join-requests).
   ...(mailStatus() === "disabled"
     ? {}
     : {
