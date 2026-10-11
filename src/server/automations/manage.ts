@@ -7,24 +7,28 @@ import {
   MAX_AUTOMATION_ACTIONS,
   MAX_AUTOMATION_NAME,
   MAX_AUTOMATIONS,
+  MAX_DATE_PASSED_DAYS,
   MAX_NOTIFY_PEOPLE,
+  runEvent,
   TO_VALUE_TYPES,
+  trashProblem,
   UNSETTABLE_TYPES,
-  webhookEvent,
   type AutomationAction,
   type AutomationRunStatus,
   type AutomationStep,
   type AutomationTrigger,
+  type DatePassedTrigger,
 } from "@/lib/automations";
 import { pageLabel } from "@/lib/labels";
 import { PropertyValueError } from "@/lib/properties";
-import { holdsPeople } from "@/lib/property-types";
+import { holdsPeople, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
 import { getMembership, pageVisibleTo } from "@/server/access";
 import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
 import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
 import { workspacePeople } from "@/server/workspaces";
+import { countDatePassedMatches, forgetFired } from "./timed";
 import { newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
 
 /**
@@ -42,13 +46,20 @@ export type AutomationInput = {
   enabled?: boolean;
   trigger:
     | { type: "row_created" }
-    | { type: "property_changed"; property?: string | null; to?: unknown };
+    | { type: "property_changed"; property?: string | null; to?: unknown }
+    /**
+     * `date`: a date property, or "created_time" / "last_edited_time" (a created or edited time
+     * property names those too). `status`: the status property (the database's only one when left
+     * out) and the groups its value is in.
+     */
+    | { type: "date_passed"; date: string; days: number; status?: { property?: string | null; groups: string[] } | null };
   actions: (
     | { type: "set_properties"; values: Record<string, unknown> }
     | { type: "notify"; people?: string[]; properties?: string[] }
     | { type: "webhook"; url: string }
     /** The agent by id or name; the task it's given. */
     | { type: "run_agent"; agent: string; prompt?: string }
+    | { type: "move_to_trash" }
   )[];
 };
 
@@ -69,9 +80,52 @@ function findProperty(props: Prop[], ref: string) {
   return prop;
 }
 
+/** A "date passed" trigger as typed, checked: the date property or time, the days, the status condition. */
+function checkDatePassed(props: Prop[], input: Extract<AutomationInput["trigger"], { type: "date_passed" }>): DatePassedTrigger {
+  const ref = typeof input.date === "string" ? input.date.trim() : "";
+  if (!ref) throw invalid('"date" is a date property, "created_time" or "last_edited_time"');
+  let date: string;
+  if (ref === "created_time" || ref === "last_edited_time") date = ref;
+  else {
+    const prop = findProperty(props, ref);
+    if (prop.type === "created_time" || prop.type === "last_edited_time") date = prop.type;
+    else if (prop.type !== "date") throw invalid(`"${prop.name}" is a ${prop.type} property: count from a date property, or when the row was added or last edited`);
+    else date = prop.id;
+  }
+  const days = input.days;
+  if (typeof days !== "number" || !Number.isInteger(days) || days < 0 || days > MAX_DATE_PASSED_DAYS) {
+    throw invalid(`"days" is a whole number from 0 to ${MAX_DATE_PASSED_DAYS}`);
+  }
+  if (!input.status) return { type: "date_passed", date, days, status: null };
+  const groups = [...new Set(Array.isArray(input.status.groups) ? input.status.groups : [])];
+  if (!groups.length || groups.some((g) => !(STATUS_GROUPS as readonly string[]).includes(g))) {
+    throw invalid(`A status condition names one or more of the groups ${STATUS_GROUPS.join(", ")}`);
+  }
+  let status: Prop;
+  if (input.status.property) {
+    status = findProperty(props, input.status.property);
+    if (status.type !== "status") throw invalid(`"${status.name}" is not a status property`);
+  } else {
+    const statuses = props.filter((p) => p.type === "status");
+    if (statuses.length !== 1) {
+      throw invalid(statuses.length ? "Name the status property the condition is about" : "This database has no status property");
+    }
+    status = statuses[0];
+  }
+  // Every group is no condition at all.
+  if (groups.length === STATUS_GROUPS.length) return { type: "date_passed", date, days, status: null };
+  return {
+    type: "date_passed",
+    date,
+    days,
+    status: { propertyId: status.id, groups: STATUS_GROUPS.filter((g) => groups.includes(g)) as StatusGroup[] },
+  };
+}
+
 async function checkTrigger(userId: string, databaseId: string, props: Prop[], input: AutomationInput["trigger"]): Promise<AutomationTrigger> {
   if (input?.type === "row_created") return { type: "row_created" };
-  if (input?.type !== "property_changed") throw invalid('The trigger is "row_created" or "property_changed"');
+  if (input?.type === "date_passed") return checkDatePassed(props, input);
+  if (input?.type !== "property_changed") throw invalid('The trigger is "row_created", "property_changed" or "date_passed"');
   if (!input.property) {
     if (input.to !== undefined && input.to !== null) throw invalid('"to" needs a property');
     return { type: "property_changed", propertyId: null };
@@ -182,8 +236,13 @@ async function checkActions(
         if (!owner) throw new PropertyValueError("Only owners of the workspace add or change actions that run an agent", "agentOwnersOnly", {});
       }
       out.push({ type: "run_agent", agentId: agent.id, prompt });
-    } else throw invalid('Each action is "set_properties", "notify", "webhook" or "run_agent"');
+    } else if (action?.type === "move_to_trash") {
+      out.push({ type: "move_to_trash" });
+    } else throw invalid('Each action is "set_properties", "notify", "webhook", "run_agent" or "move_to_trash"');
   }
+  const trash = trashProblem(out);
+  if (trash === "trashNotLast") throw invalid("Moving the row to the trash is the last action: nothing can follow it");
+  if (trash === "trashWithAgent") throw invalid("An agent can't run on a row the same automation moves to the trash");
   return out;
 }
 
@@ -262,9 +321,13 @@ export async function updateAutomation(userId: string, automationId: string, pat
   const enabled = patch.enabled ?? current.enabled;
   const [updated] = await db
     .update(databaseAutomation)
-    .set({ name, trigger, actions, enabled, runAs: userId })
+    .set({ name, trigger, actions, enabled, runAs: userId, checkError: null })
     .where(eq(databaseAutomation.id, automationId))
     .returning();
+  // Counting from another date makes every row new to it; other changes keep what it ran for.
+  if (current.trigger.type === "date_passed" && (trigger.type !== "date_passed" || trigger.date !== current.trigger.date)) {
+    await forgetFired(automationId);
+  }
   if (patch.actions !== undefined) {
     await shareDatabaseWithAgents(userId, current.databaseId, agentsOf(actions));
     const kept = new Set(agentsOf(actions));
@@ -369,6 +432,8 @@ async function describe(automations: (typeof databaseAutomation.$inferSelect)[])
       /** Only automations with a webhook have one to show. */
       secret: a.actions.some((x) => x.type === "webhook") ? webhookSecret(a.secretSalt) : null,
       lastRun: last ? { status: last.status as AutomationRunStatus, at: last.createdAt.toISOString() } : null,
+      /** "Date passed": why the last check couldn't look for rows (see AutomationCheckError). */
+      checkError: a.enabled ? a.checkError : null,
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
     };
@@ -390,6 +455,8 @@ export type AutomationRunView = {
   rowId: string;
   rowTitle: string;
   event: string;
+  /** A "date passed" run: the row's date it ran for. */
+  basis: string | null;
   status: AutomationRunStatus;
   steps: AutomationStep[];
   createdAt: string;
@@ -405,6 +472,7 @@ export async function listAutomationRuns(userId: string, automationId: string, l
       rowId: automationRun.rowId,
       rowTitle: page.title,
       created: automationRun.created,
+      basis: automationRun.basis,
       status: automationRun.status,
       steps: automationRun.steps,
       createdAt: automationRun.createdAt,
@@ -420,10 +488,29 @@ export async function listAutomationRuns(userId: string, automationId: string, l
     id: r.id,
     rowId: r.rowId,
     rowTitle: pageLabel(r.rowTitle),
-    event: webhookEvent(r.created),
+    event: runEvent(r),
+    basis: r.basis,
     status: r.status,
     steps: r.steps,
     createdAt: r.createdAt.toISOString(),
     finishedAt: r.finishedAt?.toISOString() ?? null,
   }));
+}
+
+/**
+ * How many rows a "date passed" trigger, as typed, would run for at the next check: for a saved
+ * automation (`automationId`) counting from the same date, without the rows it already ran for.
+ * Zero for other triggers.
+ */
+export async function previewDatePassed(userId: string, databaseId: string, input: AutomationInput["trigger"], automationId: string | null = null) {
+  const database = await requireDatabase(userId, databaseId, "full");
+  if (input?.type !== "date_passed") return 0;
+  const trigger = checkDatePassed(await getProperties(databaseId), input);
+  let keep: string | null = null;
+  if (automationId) {
+    const current = await manageable(userId, automationId);
+    if (current.databaseId !== databaseId) throw new PropertyValueError("No automation with this id", "invalidAutomation", { reason: "notFound" });
+    if (current.trigger.type === "date_passed" && current.trigger.date === trigger.date) keep = current.id;
+  }
+  return countDatePassedMatches(trigger, { id: databaseId, workspaceId: database.workspaceId }, keep);
 }

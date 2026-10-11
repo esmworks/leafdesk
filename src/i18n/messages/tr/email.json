@@ -86,6 +86,8 @@
     "heading": "“{automation}” otomasyonu sizi “{page}” hakkında bilgilendiriyor",
     "body": "{actor}, {workspace} çalışma alanındaki {database} içinde “{page}” satırını ekledi ya da değiştirdi.",
     "bodyHidden": "{actor}, {workspace} çalışma alanındaki “{page}” satırını ekledi ya da değiştirdi.",
+    "bodyDatePassed": "{workspace} çalışma alanındaki {database} içinde “{page}” satırı, bu otomasyonun beklediği tarihe ulaştı.",
+    "bodyDatePassedHidden": "{workspace} çalışma alanındaki “{page}” satırı, bu otomasyonun beklediği tarihe ulaştı.",
     "action": "Satırı aç",
     "someone": "Biri",
     "optOut": "Bir veritabanı otomasyonu sizi bilgilendirdiği için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
@@ -189,6 +191,7 @@
     "reminder": "Hatırlatma: {date}",
     "accessRequest": "{actor} bu sayfaya erişim istedi",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
+    "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
     "someone": "Biri",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

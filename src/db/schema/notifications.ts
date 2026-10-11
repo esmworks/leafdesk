@@ -179,7 +179,8 @@ export const notification = pgTable(
     /**
      * Reminders: the date that fell due (YYYY-MM-DD), the start of the row's date for a date
      * property's reminder (`propertyId` of row `pageId`; a time's UTC timestamp when it has a time),
-     * else the mentioned date the user set a reminder on.
+     * else the mentioned date the user set a reminder on. Automations: a "date passed" run's date
+     * of the row (see automation_run.basis); null for runs a row write started.
      */
     date: text("date"),
     /**

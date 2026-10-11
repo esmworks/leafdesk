@@ -78,6 +78,8 @@ export type AgentRunContext =
        * answer (anonymous, or a visitor outside the workspace), the run is held to their access.
        */
       boundTo?: string | null;
+      /** A "date passed" automation started it: the row's date it ran for (a day, or a UTC time). */
+      datePassed?: string;
     }
   | {
       /** The event's type, as its service named it ("message", "issues.opened"…). */

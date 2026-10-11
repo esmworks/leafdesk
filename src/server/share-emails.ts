@@ -245,6 +245,8 @@ async function send({
       databaseTitle: databaseShown ? pageLabel(automation.databaseTitle, emailTranslator(locale)("share.untitled")) : null,
       workspaceName: space?.name ?? "",
       link,
+      // A "date passed" run's notification has the row's date it ran for.
+      datePassed: date !== null,
     });
     await mailer({ to: recipient.email, ...content });
     return;

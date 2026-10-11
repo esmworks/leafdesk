@@ -40,6 +40,7 @@ const { startAiProperties } = await import("./src/server/ai-properties");
 const { startSemanticIndex } = await import("./src/server/semantic-index");
 const { startRetention } = await import("./src/server/retention");
 const { startAutomations } = await import("./src/server/automations/run");
+const { startDatePassedAutomations } = await import("./src/server/automations/timed");
 const { startAgents } = await import("./src/server/agents/run");
 const { startSchedules } = await import("./src/server/schedules");
 const { retentionJobEnabled } = await import("./src/lib/retention");
@@ -125,6 +126,8 @@ server.listen(port, hostname, () => {
   startSemanticIndex();
   // Runs database automations queued by row writes, and retries their webhooks.
   startAutomations();
+  // Queues the runs of "date passed" automations for rows whose date has come, every few minutes.
+  startDatePassedAutomations();
   // Runs agents that automations queued, a few at a time, apart from the automations.
   startAgents();
   // Adds rows from repeating row templates as they fall due (and one for any missed while down).

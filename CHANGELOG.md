@@ -64,6 +64,30 @@
   shows `open_rows: "page"` on views that open full pages. ⌘/Ctrl-click and middle clicks open
   the row in a new tab; phones and offline pages open the full page. Published pages are
   unchanged. No migration.
+- **Automations when a date passes, and moving rows to the trash.** A new trigger, *A date
+  passes* (`date_passed`), starts an automation for each row whose date is at least a number of
+  days past (0 for the day itself): a date property's start, when the row was added, or when it was
+  last edited, optionally only for rows whose status is in some groups (to do, in progress, done; a
+  row without a status counts as to do). So "rows not edited for 30 days that aren't done → set
+  Status to Stale", "rows whose Completed on is 14 days past → move to the trash" and "the day a
+  Due date comes, for rows not done → notify the assignee" are each one automation. The server
+  looks every 10 minutes (`AUTOMATION_DATE_CHECK_SECONDS`, one server at a time) and runs each row
+  once per value of its date, again only once that date changes and passes again; a row restored
+  from the trash doesn't run again for the same date, and the automation's own edit doesn't count
+  as one. Rows that already match run at the next check, at most 100 per automation per check, and
+  the dialog says how many match before saving. Rows in the trash, templates and databases in the
+  trash are left out; a deleted date or status property, or a person who lost full access, pauses
+  the automation with the reason shown in its settings. A new action, *Move to trash*
+  (`move_to_trash`), always last and not with *Run an agent*, works with every trigger; the rows it
+  trashes are restorable as usual, go with the trash retention, and are recorded in the audit log
+  as `page.trashed` by the automation (a new actor kind, shown as "person (automation “name”)").
+  Runs show in the run history as "Date passed" with the date; webhooks get the event
+  `row.date_passed` with that `date`; notifications say the row's date has come. MCP's
+  `create_automation` and `update_automation` take both, `list_automations` describes them and
+  shows a paused automation's `check_error`, `list_automation_runs` gives each run's `date`.
+  Migration 0058 adds the `automation_fire` table, `automation_run.basis`,
+  `database_automation.check_error` and the audit actor kind. Covered by
+  `scripts/timed-automation-e2e.ts` and unit tests.
 - **Deleting a workspace.** Owners find Settings → General → Deletion. The dialog asks for the
   workspace's name, typed as shown, and the same proof as deleting the account (the password, a
   two-step code, or a recent sign-in); a mistyped name is refused before the proof is checked, so

@@ -87,6 +87,7 @@
     "reminder": "Erinnerung: {date}",
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
+    "automationDatePassed": "Automatisierung „{name}“: Das Datum dieser Zeile ist erreicht",
     "someone": "Jemand",
     "unread": "Ungelesen",
     "snooze": "Zurückstellen",

@@ -86,6 +86,8 @@
     "heading": "Die Automatisierung „{automation}“ benachrichtigt dich über „{page}“",
     "body": "{actor} hat „{page}“ in {database} ({workspace}) hinzugefügt oder geändert.",
     "bodyHidden": "{actor} hat „{page}“ ({workspace}) hinzugefügt oder geändert.",
+    "bodyDatePassed": "„{page}“ in {database} ({workspace}) hat das Datum erreicht, auf das diese Automatisierung wartet.",
+    "bodyDatePassedHidden": "„{page}“ ({workspace}) hat das Datum erreicht, auf das diese Automatisierung wartet.",
     "action": "Zeile öffnen",
     "someone": "Jemand",
     "optOut": "Du erhältst diese E-Mails, weil dich eine Datenbank-Automatisierung benachrichtigt. Du kannst sie unter Mein Konto > Präferenzen abschalten."
@@ -189,6 +191,7 @@
     "reminder": "Erinnerung: {date}",
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
+    "automationDatePassed": "Automatisierung „{name}“: Das Datum dieser Zeile ist erreicht",
     "someone": "Jemand",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",

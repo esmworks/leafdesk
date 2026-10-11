@@ -230,11 +230,19 @@ export function dateReminderEmail(
   });
 }
 
-/** To the people a database automation names: a row was added or changed. */
+/** To the people a database automation names: a row was added or changed, or its date came ("date passed"). */
 export function automationEmail(
   locale: Locale,
   /** `databaseTitle`: null when the recipient can't open the database (a row shared on its own). */
-  automation: { automationName: string; actorName: string; pageTitle: string; databaseTitle: string | null; workspaceName: string; link: string },
+  automation: {
+    automationName: string;
+    actorName: string;
+    pageTitle: string;
+    databaseTitle: string | null;
+    workspaceName: string;
+    link: string;
+    datePassed?: boolean;
+  },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = {
@@ -247,7 +255,12 @@ export function automationEmail(
   return renderEmail(locale, {
     subject: t("automation.subject", names),
     heading: t("automation.heading", names),
-    paragraphs: [t(automation.databaseTitle === null ? "automation.bodyHidden" : "automation.body", names), t("automation.optOut")],
+    paragraphs: [
+      automation.datePassed
+        ? t(automation.databaseTitle === null ? "automation.bodyDatePassedHidden" : "automation.bodyDatePassed", names)
+        : t(automation.databaseTitle === null ? "automation.bodyHidden" : "automation.body", names),
+      t("automation.optOut"),
+    ],
     action: { label: t("automation.action"), url: automation.link },
   });
 }

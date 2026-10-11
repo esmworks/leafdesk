@@ -3,6 +3,7 @@ import {
   isDynamicValue,
   MAX_AUTOMATION_ACTIONS,
   MAX_AUTOMATION_NAME,
+  MAX_DATE_PASSED_DAYS,
   MAX_NOTIFY_PEOPLE,
   MAX_WEBHOOK_URL,
   type AutomationAction,
@@ -10,7 +11,7 @@ import {
 } from "@/lib/automations";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { displayValue, PropertyValueError } from "@/lib/properties";
-import { holdsPeople } from "@/lib/property-types";
+import { holdsPeople, STATUS_GROUPS } from "@/lib/property-types";
 import { AccessError } from "@/server/access";
 import * as agents from "@/server/agents/manage";
 import type { AutomationInput, AutomationRunView, AutomationView } from "@/server/automations/manage";
@@ -42,9 +43,30 @@ const triggerInput = z
           'Only when the value becomes this: an option name (select, status, multi-select: when it gets added), true or false (checkbox), or a person (id, email, name or "me"; when they get added). Needs property.',
         ),
     }),
+    z.object({
+      type: z.literal("date_passed"),
+      date: z
+        .string()
+        .min(1)
+        .describe('What to count from: a date property (name or id; its start), "created_time" (when the row was added) or "last_edited_time" (when it was last edited).'),
+      days: z
+        .number()
+        .int()
+        .min(0)
+        .max(MAX_DATE_PASSED_DAYS)
+        .describe("How many days past that date the row must be (0: on the day itself, or once the time has come)."),
+      status: z
+        .object({
+          property: z.string().min(1).optional().describe("The status property, by name or id; may be left out when the database has only one."),
+          groups: z.array(z.enum(STATUS_GROUPS)).min(1).describe("The status groups the row's status must be in. A row without a status counts as todo."),
+        })
+        .nullable()
+        .optional()
+        .describe('Only rows whose status is in these groups, e.g. {"groups": ["todo", "in_progress"]} for rows that are not done.'),
+    }),
   ])
   .describe(
-    'What starts the automation: {"type": "row_created"} when a row is added (in the app, a form, an import, MCP or the API), or {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes.',
+    'What starts the automation: {"type": "row_created"} when a row is added (in the app, a form, an import, MCP or the API), {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes, or {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} when a date of a row is that many days past (checked every few minutes; each row runs once per value of that date, and again only after the date changes and is past again; rows that already match run at the next check, at most 100 per check).',
   );
 
 const dynamicValue = z
@@ -86,6 +108,7 @@ const actionInput = z.discriminatedUnion("type", [
       .optional()
       .describe(`The task the agent gets for the row, on top of its own instructions (at most ${MAX_AGENT_PROMPT} characters).`),
   }),
+  z.object({ type: z.literal("move_to_trash") }),
 ]);
 
 const actionsInput = z
@@ -93,7 +116,7 @@ const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    "What the automation does, in order: set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row), webhook, or run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners add or change run_agent actions, others may keep or remove one).",
+    "What the automation does, in order: set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row), webhook, move_to_trash (moves the row to the trash, restorable from there; it must be the last action and can't be combined with run_agent), or run_agent (queues a run of an agent on the row; saving the automation shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners add or change run_agent actions, others may keep or remove one).",
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -128,7 +151,14 @@ type ActionsArg = z.infer<typeof actionsInput>;
 const toTrigger = (trigger: TriggerArg): AutomationInput["trigger"] =>
   trigger.type === "row_created"
     ? { type: "row_created" }
-    : { type: "property_changed", property: trigger.property ?? null, ...(trigger.to !== undefined ? { to: trigger.to } : {}) };
+    : trigger.type === "date_passed"
+      ? {
+          type: "date_passed",
+          date: trigger.date,
+          days: trigger.days,
+          status: trigger.status ? { property: trigger.status.property ?? null, groups: trigger.status.groups } : null,
+        }
+      : { type: "property_changed", property: trigger.property ?? null, ...(trigger.to !== undefined ? { to: trigger.to } : {}) };
 
 const toActions = (actions: ActionsArg): AutomationInput["actions"] =>
   actions.map((a) =>
@@ -138,7 +168,9 @@ const toActions = (actions: ActionsArg): AutomationInput["actions"] =>
         ? { type: "notify", people: a.people ?? [], properties: a.properties ?? [] }
         : a.type === "webhook"
           ? { type: "webhook", url: a.url }
-          : { type: "run_agent", agent: a.agent, ...(a.prompt !== undefined ? { prompt: a.prompt } : {}) },
+          : a.type === "move_to_trash"
+            ? { type: "move_to_trash" }
+            : { type: "run_agent", agent: a.agent, ...(a.prompt !== undefined ? { prompt: a.prompt } : {}) },
   );
 
 /** create_automation's arguments as manage.createAutomation takes them. */
@@ -244,6 +276,22 @@ function triggerValue(ctx: AutomationContext, propertyId: string, to: string | b
 
 function describeTrigger(ctx: AutomationContext, trigger: AutomationTrigger) {
   if (trigger.type === "row_created") return { type: "row_created", summary: "When a row is added" };
+  if (trigger.type === "date_passed") {
+    const date =
+      trigger.date === "created_time" || trigger.date === "last_edited_time" ? trigger.date : propertyRef(ctx, trigger.date);
+    const since =
+      trigger.date === "created_time"
+        ? "the row was added"
+        : trigger.date === "last_edited_time"
+          ? "the row was last edited"
+          : typeof date === "object" && date.name !== null
+            ? quote(date.name)
+            : "a deleted date property";
+    const status = trigger.status ? { property: propertyRef(ctx, trigger.status.propertyId), groups: trigger.status.groups } : null;
+    const passed = trigger.days === 1 ? "1 day has" : `${trigger.days} days have`;
+    const only = status ? `, for rows whose status is ${status.groups.join(" or ")}` : "";
+    return { type: "date_passed", date, days: trigger.days, status, summary: `When ${passed} passed since ${since}${only}` };
+  }
   if (trigger.propertyId === null) return { type: "property_changed", property: null, summary: "When any property of a row changes" };
   const property = propertyRef(ctx, trigger.propertyId);
   const label = property.name !== null ? quote(property.name) : "a deleted property";
@@ -293,6 +341,7 @@ function describeAction(ctx: AutomationContext, action: AutomationAction) {
       summary: `Run the agent ${agent.name !== null ? quote(agent.name) : agent.id} on the row`,
     };
   }
+  if (action.type === "move_to_trash") return { type: "move_to_trash", summary: "Move the row to the trash" };
   return { type: "webhook", url: action.url, summary: `POST the row to ${action.url}` };
 }
 
@@ -307,6 +356,7 @@ export function describeAutomation(ctx: AutomationContext, automation: Automatio
     actions: automation.actions.map((a) => describeAction(ctx, a)),
     run_as: automation.runAs,
     last_run: automation.lastRun,
+    ...(automation.checkError ? { check_error: automation.checkError } : {}),
     ...(automation.secret ? { webhook_secret: automation.secret } : {}),
     created_at: automation.createdAt,
     updated_at: automation.updatedAt,
@@ -319,6 +369,7 @@ export function describeRun(run: AutomationRunView) {
   return {
     id: run.id,
     event: run.event,
+    ...(run.basis !== null ? { date: run.basis } : {}),
     status: run.status,
     row: { id: run.rowId, title: run.rowTitle },
     steps: run.steps.map((s) => ({

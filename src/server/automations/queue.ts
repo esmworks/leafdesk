@@ -32,6 +32,9 @@ export function onAutomationsQueued(kick: () => void) {
   state.kick = kick;
 }
 
+/** Wakes the worker for runs queued some other way (the "date passed" check). */
+export const kickAutomations = () => state.kick?.();
+
 export type RowChange = { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> };
 
 const CHUNK = 500;
@@ -71,7 +74,9 @@ export async function queueAutomations(
     );
     const live = (values: Record<string, unknown>) =>
       deleted.size ? Object.fromEntries(Object.entries(values).filter(([id]) => !deleted.has(id))) : values;
-    const armed = automations.filter((a) => a.trigger.type !== "property_changed" || !a.trigger.propertyId || !deleted.has(a.trigger.propertyId));
+    const armed = automations.filter(
+      (a) => a.trigger.type === "row_created" || (a.trigger.type === "property_changed" && (!a.trigger.propertyId || !deleted.has(a.trigger.propertyId))),
+    );
     let runs = changes.flatMap((change) => {
       const write = { before: live(change.before), after: live(change.after), created };
       return armed

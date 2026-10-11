@@ -75,6 +75,8 @@ services:
       TZ: ${TZ:-}
       # Hosts on a private network that automation webhooks may reach (see the README).
       AUTOMATION_WEBHOOK_ALLOWED_HOSTS: ${AUTOMATION_WEBHOOK_ALLOWED_HOSTS:-}
+      # How often "a date passes" automations look for rows, in seconds (600 when unset).
+      AUTOMATION_DATE_CHECK_SECONDS: ${AUTOMATION_DATE_CHECK_SECONDS:-}
       # Connections: private hosts they may reach, and the key that seals their secrets (see the README).
       CONNECTOR_ALLOWED_HOSTS: ${CONNECTOR_ALLOWED_HOSTS:-}
       LEAFDESK_ENCRYPTION_KEY: ${LEAFDESK_ENCRYPTION_KEY:-}

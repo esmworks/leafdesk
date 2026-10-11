@@ -891,13 +891,17 @@
     "editTitle": "Automatisierung bearbeiten",
     "new": "Neue Automatisierung",
     "back": "Zurück",
-    "empty": "Noch keine Automatisierungen. Eine Automatisierung setzt Werte, benachrichtigt Personen, ruft einen Webhook auf oder führt einen Agenten aus, wenn eine Zeile hinzugefügt oder geändert wird.",
+    "empty": "Noch keine Automatisierungen. Eine Automatisierung setzt Werte, benachrichtigt Personen, ruft einen Webhook auf, führt einen Agenten aus oder verschiebt Zeilen in den Papierkorb, wenn eine Zeile hinzugefügt oder geändert wird oder eines ihrer Daten erreicht ist.",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "confirmDelete": "Die Automatisierung „{name}“ löschen? Ihr Ausführungsverlauf wird ebenfalls gelöscht.",
     "toggle": "„{name}“ ausführen",
     "lastRun": "Zuletzt ausgeführt: {status}, {time}",
     "neverRun": "Noch nicht ausgeführt",
+    "checkError": {
+      "propertyDeleted": "Pausiert: Ihre Datums- oder Statuseigenschaft wurde gelöscht. Stelle die Eigenschaft wieder her oder bearbeite die Automatisierung.",
+      "noAccess": "Pausiert: Wer sie zuletzt gespeichert hat, hat keinen vollen Zugriff mehr auf diese Datenbank. Speichere sie, damit sie mit deinem Zugriff läuft."
+    },
     "tooMany": "Eine Datenbank kann höchstens {max} Automatisierungen haben",
     "deletedProperty": "Gelöschte Eigenschaft",
     "checked": "Angehakt",
@@ -908,14 +912,20 @@
       "rowCreated": "eine Zeile hinzugefügt wird",
       "anyChange": "sich eine Eigenschaft ändert",
       "changes": "sich {property} ändert",
-      "becomes": "{property} zu {value} wird"
+      "becomes": "{property} zu {value} wird",
+      "datePassedProperty": "{days, plural, =0 {{date} erreicht ist} one {# Tag seit {date} vergangen ist} other {# Tage seit {date} vergangen sind}}",
+      "datePassedSince": "{days, plural, one {# Tag seit {date} vergangen ist} other {# Tage seit {date} vergangen sind}}",
+      "rowAdded": "dem Hinzufügen der Zeile",
+      "lastEdited": "der letzten Bearbeitung",
+      "withStatus": "{trigger}, Status {groups}"
     },
     "summaryAction": {
       "set": "{properties} setzen",
       "notify": "Benachrichtigen",
       "webhook": "Webhook",
       "runAgent": "{agent} ausführen",
-      "archivedAgent": "einen archivierten Agenten"
+      "archivedAgent": "einen archivierten Agenten",
+      "trash": "In den Papierkorb"
     },
     "form": {
       "name": "Name",
@@ -924,19 +934,32 @@
       "then": "Dann",
       "triggerType": {
         "row_created": "Eine Zeile hinzugefügt wird",
-        "property_changed": "Sich eine Eigenschaft ändert"
+        "property_changed": "Sich eine Eigenschaft ändert",
+        "date_passed": "Ein Datum erreicht ist"
       },
       "property": "Eigenschaft",
       "anyProperty": "Beliebige Eigenschaft",
       "becomes": "Wird zu",
       "anyValue": "Zu einem beliebigen Wert",
       "becomesValue": "Wird zu {value}",
+      "date": "Zählen ab",
+      "chooseDate": "Datum wählen…",
+      "dateCreated": "Hinzufügen der Zeile",
+      "dateEdited": "Letzte Bearbeitung der Zeile",
+      "days": "Tage danach",
+      "daysHelp": "0: am Tag selbst (oder sobald die Uhrzeit erreicht ist).",
+      "statusCondition": "Nur Zeilen mit dem Status",
+      "statusProperty": "Statuseigenschaft",
+      "datePassedHelp": "Wird alle paar Minuten geprüft. Jede Zeile läuft einmal je Wert ihres Datums und erst wieder, wenn sich das Datum ändert und erneut erreicht ist. Eine Zeile ohne Status zählt als zu erledigen.",
+      "matchNow": "{count, plural, =0 {Gerade passt keine Zeile.} one {Gerade passt # Zeile: Sie läuft bei der nächsten Prüfung.} other {Gerade passen # Zeilen: Sie laufen ab der nächsten Prüfung, höchstens {max} pro Prüfung.}}",
       "actionType": {
         "set_properties": "Eigenschaft setzen",
         "notify": "Benachrichtigen",
         "webhook": "Webhook senden",
-        "run_agent": "Agenten ausführen"
+        "run_agent": "Agenten ausführen",
+        "move_to_trash": "In den Papierkorb verschieben"
       },
+      "trashHelp": "Verschiebt die Zeile in den Papierkorb, aus dem sie wiederhergestellt werden kann, bis er geleert wird. Nach dieser Aktion kann nichts mehr laufen.",
       "addAction": "Aktion hinzufügen",
       "removeAction": "Aktion entfernen",
       "maxActions": "Höchstens {max} Aktionen",
@@ -964,7 +987,12 @@
         "needValue": "Wähle für jede Eigenschaft einen Wert.",
         "needPeople": "Wähle aus, wer benachrichtigt wird.",
         "needUrl": "Gib die URL des Webhooks ein.",
-        "needAgent": "Wähle einen Agenten."
+        "needAgent": "Wähle einen Agenten.",
+        "needDate": "Wähle das Datum, ab dem gezählt wird.",
+        "needDays": "Gib eine ganze Zahl von Tagen zwischen 0 und 3650 ein.",
+        "needGroups": "Wähle mindestens eine Statusgruppe.",
+        "trashNotLast": "Das Verschieben in den Papierkorb muss die letzte Aktion sein.",
+        "trashWithAgent": "Ein Agent kann nicht auf einer Zeile laufen, die diese Automatisierung in den Papierkorb verschiebt."
       },
       "agent": "Agent",
       "chooseAgent": "Agenten wählen…",
@@ -998,6 +1026,7 @@
       "empty": "Diese Automatisierung wurde noch nicht ausgeführt.",
       "added": "Zeile hinzugefügt",
       "changed": "Zeile geändert",
+      "datePassed": "Datum erreicht ({date})",
       "status": {
         "pending": "Wartet",
         "running": "Läuft",

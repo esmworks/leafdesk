@@ -891,13 +891,17 @@
     "editTitle": "Editar automatización",
     "new": "Nueva automatización",
     "back": "Atrás",
-    "empty": "Todavía no hay automatizaciones. Una automatización asigna valores, avisa a personas, llama a un webhook o ejecuta un agente cuando se añade o cambia una fila.",
+    "empty": "Todavía no hay automatizaciones. Una automatización asigna valores, avisa a personas, llama a un webhook, ejecuta un agente o mueve filas a la papelera cuando se añade o cambia una fila, o cuando pasa una de sus fechas.",
     "edit": "Editar",
     "delete": "Eliminar",
     "confirmDelete": "¿Eliminar la automatización «{name}»? También se borra su historial de ejecuciones.",
     "toggle": "Ejecutar «{name}»",
     "lastRun": "Última ejecución: {status}, {time}",
     "neverRun": "Aún no se ha ejecutado",
+    "checkError": {
+      "propertyDeleted": "En pausa: se eliminó su propiedad de fecha o de estado. Restaura la propiedad o edita la automatización.",
+      "noAccess": "En pausa: quien la guardó por última vez ya no tiene acceso completo a esta base de datos. Guárdala para que se ejecute con tu acceso."
+    },
     "tooMany": "Una base de datos puede tener como máximo {max} automatizaciones",
     "deletedProperty": "Propiedad eliminada",
     "checked": "Marcada",
@@ -908,14 +912,20 @@
       "rowCreated": "se añade una fila",
       "anyChange": "cambia cualquier propiedad",
       "changes": "cambia {property}",
-      "becomes": "{property} pasa a {value}"
+      "becomes": "{property} pasa a {value}",
+      "datePassedProperty": "{days, plural, =0 {llega {date}} one {pasa # día desde {date}} other {pasan # días desde {date}}}",
+      "datePassedSince": "{days, plural, one {pasa # día desde {date}} other {pasan # días desde {date}}}",
+      "rowAdded": "que se añadió la fila",
+      "lastEdited": "la última edición",
+      "withStatus": "{trigger}, estado {groups}"
     },
     "summaryAction": {
       "set": "Asignar {properties}",
       "notify": "Avisar",
       "webhook": "Webhook",
       "runAgent": "Ejecutar {agent}",
-      "archivedAgent": "un agente archivado"
+      "archivedAgent": "un agente archivado",
+      "trash": "Mover a la papelera"
     },
     "form": {
       "name": "Nombre",
@@ -924,19 +934,32 @@
       "then": "Entonces",
       "triggerType": {
         "row_created": "Se añade una fila",
-        "property_changed": "Cambia una propiedad"
+        "property_changed": "Cambia una propiedad",
+        "date_passed": "Pasa una fecha"
       },
       "property": "Propiedad",
       "anyProperty": "Cualquier propiedad",
       "becomes": "Pasa a",
       "anyValue": "A cualquier valor",
       "becomesValue": "Pasa a {value}",
+      "date": "Contar desde",
+      "chooseDate": "Elige una fecha…",
+      "dateCreated": "Cuando se añadió la fila",
+      "dateEdited": "Última edición de la fila",
+      "days": "Días después",
+      "daysHelp": "0: el mismo día (o en cuanto llega la hora).",
+      "statusCondition": "Solo filas cuyo estado es",
+      "statusProperty": "Propiedad de estado",
+      "datePassedHelp": "Se comprueba cada pocos minutos. Cada fila se ejecuta una vez por cada valor de su fecha, y de nuevo solo cuando la fecha cambia y vuelve a pasar. Una fila sin estado cuenta como pendiente.",
+      "matchNow": "{count, plural, =0 {Ahora no coincide ninguna fila.} one {Ahora coincide # fila: se ejecuta en la próxima comprobación.} other {Ahora coinciden # filas: se ejecutan desde la próxima comprobación, como mucho {max} por comprobación.}}",
       "actionType": {
         "set_properties": "Asignar propiedad",
         "notify": "Avisar",
         "webhook": "Enviar webhook",
-        "run_agent": "Ejecutar un agente"
+        "run_agent": "Ejecutar un agente",
+        "move_to_trash": "Mover a la papelera"
       },
+      "trashHelp": "Mueve la fila a la papelera, desde donde se puede restaurar hasta que se vacíe. Después de esta acción no puede ejecutarse nada.",
       "addAction": "Añadir acción",
       "removeAction": "Quitar acción",
       "maxActions": "Como máximo {max} acciones",
@@ -964,7 +987,12 @@
         "needValue": "Elige un valor para cada propiedad que asignar.",
         "needPeople": "Elige a quién avisar.",
         "needUrl": "Escribe la URL del webhook.",
-        "needAgent": "Elige un agente."
+        "needAgent": "Elige un agente.",
+        "needDate": "Elige la fecha desde la que contar.",
+        "needDays": "Escribe un número entero de días entre 0 y 3650.",
+        "needGroups": "Elige al menos un grupo de estado.",
+        "trashNotLast": "Mover a la papelera debe ser la última acción.",
+        "trashWithAgent": "Un agente no puede ejecutarse en una fila que esta automatización mueve a la papelera."
       },
       "agent": "Agente",
       "chooseAgent": "Elige un agente…",
@@ -998,6 +1026,7 @@
       "empty": "Esta automatización aún no se ha ejecutado.",
       "added": "Fila añadida",
       "changed": "Fila cambiada",
+      "datePassed": "Fecha pasada ({date})",
       "status": {
         "pending": "En espera",
         "running": "En curso",

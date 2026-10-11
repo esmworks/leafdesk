@@ -276,6 +276,7 @@ function AutomationItem({
               })
             : t("neverRun")}
         </div>
+        {automation.checkError && <div className="text-xs text-danger">{t(`checkError.${automation.checkError}`)}</div>}
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
         <IconButton label={t("runs.title")} onClick={onRuns}>
@@ -300,10 +301,22 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
   const t = useTranslations("database.automations");
   const properties = useSchema();
   const nameOf = (id: string) => properties.find((p) => p.id === id)?.name ?? t("deletedProperty");
+  const tGroup = useTranslations("database.statusGroups");
   const { trigger } = automation;
   let when: string;
   if (trigger.type === "row_created") when = t("summaryTrigger.rowCreated");
-  else if (trigger.propertyId === null) when = t("summaryTrigger.anyChange");
+  else if (trigger.type === "date_passed") {
+    when =
+      trigger.date === "created_time" || trigger.date === "last_edited_time"
+        ? t("summaryTrigger.datePassedSince", {
+            days: trigger.days,
+            date: t(trigger.date === "created_time" ? "summaryTrigger.rowAdded" : "summaryTrigger.lastEdited"),
+          })
+        : t("summaryTrigger.datePassedProperty", { days: trigger.days, date: nameOf(trigger.date) });
+    if (trigger.status) {
+      when = t("summaryTrigger.withStatus", { trigger: when, groups: trigger.status.groups.map((g) => tGroup(g)).join(", ") });
+    }
+  } else if (trigger.propertyId === null) when = t("summaryTrigger.anyChange");
   else {
     const prop = properties.find((p) => p.id === trigger.propertyId);
     const value = triggerValueName(trigger, prop, people, { checked: t("checked"), unchecked: t("unchecked") });
@@ -320,7 +333,9 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
           ? t("summaryAction.notify")
           : action.type === "run_agent"
             ? t("summaryAction.runAgent", { agent: agents.find((a) => a.id === action.agentId)?.name ?? t("summaryAction.archivedAgent") })
-            : t("summaryAction.webhook"),
+            : action.type === "move_to_trash"
+              ? t("summaryAction.trash")
+              : t("summaryAction.webhook"),
     )
     .join(", ");
   return t("summary", { trigger: when, actions });
@@ -335,6 +350,11 @@ function RunList({ workspaceId, automation, isOwner }: { workspaceId: string; au
   const tc = useTranslations("common");
   const format = useFormatter();
   const [runs, setRuns] = useState<AutomationRun[] | null>(null);
+  // A day as a day; a time (or when a row was added or edited) with its time, in the viewer's zone.
+  const basisLabel = (basis: string) =>
+    basis.length === 10
+      ? format.dateTime(new Date(`${basis}T00:00:00`), { dateStyle: "medium" })
+      : format.dateTime(new Date(basis), { dateStyle: "medium", timeStyle: "short" });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -375,7 +395,12 @@ function RunList({ workspaceId, automation, isOwner }: { workspaceId: string; au
                 </span>
               </div>
               <div className="text-xs text-fg-faint">
-                {run.event === "row.created" ? t("runs.added") : t("runs.changed")} ·{" "}
+                {run.basis !== null
+                  ? t("runs.datePassed", { date: basisLabel(run.basis) })
+                  : run.event === "row.created"
+                    ? t("runs.added")
+                    : t("runs.changed")}{" "}
+                ·{" "}
                 {format.dateTime(new Date(run.createdAt), { dateStyle: "medium", timeStyle: "short" })}
               </div>
               <ul className="mt-1 space-y-0.5">

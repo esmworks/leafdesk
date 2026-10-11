@@ -86,6 +86,8 @@
     "heading": "L’automatisation « {automation} » vous prévient au sujet de « {page} »",
     "body": "{actor} a ajouté ou modifié « {page} » dans {database} ({workspace}).",
     "bodyHidden": "{actor} a ajouté ou modifié « {page} » ({workspace}).",
+    "bodyDatePassed": "« {page} » dans {database} ({workspace}) a atteint la date qu’attend cette automatisation.",
+    "bodyDatePassedHidden": "« {page} » ({workspace}) a atteint la date qu’attend cette automatisation.",
     "action": "Ouvrir la ligne",
     "someone": "Quelqu’un",
     "optOut": "Vous recevez ces e-mails, car une automatisation de base de données vous prévient. Vous pouvez les désactiver dans Mon compte > Préférences."
@@ -189,6 +191,7 @@
     "reminder": "Rappel : {date}",
     "accessRequest": "{actor} demande l’accès à cette page",
     "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
+    "automationDatePassed": "Automatisation « {name} » : la date de cette ligne est arrivée",
     "someone": "Quelqu’un",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",

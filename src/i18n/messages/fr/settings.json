@@ -872,7 +872,8 @@
       "connectedApp": "{name} (via {via})",
       "scim": "Fournisseur d’identité (jeton SCIM {via})",
       "system": "Système",
-      "agent": "{name} (agent)"
+      "agent": "{name} (agent)",
+      "automation": "{name} (automatisation « {via} »)"
     },
     "actorKinds": {
       "scim": "Fournisseur d’identité (SCIM)",

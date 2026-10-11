@@ -86,6 +86,8 @@
     "heading": "The automation “{automation}” is letting you know about “{page}”",
     "body": "{actor} added or changed “{page}” in {database} ({workspace}).",
     "bodyHidden": "{actor} added or changed “{page}” ({workspace}).",
+    "bodyDatePassed": "“{page}” in {database} ({workspace}) reached the date this automation waits for.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) reached the date this automation waits for.",
     "action": "Open row",
     "someone": "Someone",
     "optOut": "You get these because a database automation notifies you. You can turn them off in My account > Preferences."
@@ -189,6 +191,7 @@
     "reminder": "Reminder: {date}",
     "accessRequest": "{actor} asked for access to this page",
     "automation": "Automation “{name}”: {actor} added or changed this row",
+    "automationDatePassed": "Automation “{name}”: this row’s date has come",
     "someone": "Someone",
     "joinRequestTitle": "Join request",
     "joinRequest": "{actor} asked to join",

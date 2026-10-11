@@ -1,6 +1,14 @@
 import type { listAutomationRunsAction, listAutomationsAction } from "@/app/actions/automations";
-import { isDynamicValue, UNSETTABLE_TYPES, type AutomationAction, type AutomationTrigger } from "@/lib/automations";
+import {
+  isDynamicValue,
+  MAX_DATE_PASSED_DAYS,
+  trashProblem,
+  UNSETTABLE_TYPES,
+  type AutomationAction,
+  type AutomationTrigger,
+} from "@/lib/automations";
 import { fromPercentPoints, isPercent, toPercentPoints } from "@/lib/number-format";
+import type { StatusGroup } from "@/lib/property-types";
 import type { Property, SelectOption } from "./types";
 
 type Ok<T> = T extends { ok: true; data: infer D } ? D : never;
@@ -46,11 +54,17 @@ export type DraftAction =
   | { key: string; type: "set_properties"; entries: SetEntry[] }
   | { key: string; type: "notify"; people: string[]; properties: string[] }
   | { key: string; type: "webhook"; url: string }
-  | { key: string; type: "run_agent"; agentId: string; prompt: string };
+  | { key: string; type: "run_agent"; agentId: string; prompt: string }
+  | { key: string; type: "move_to_trash" };
 
 export type DraftTrigger =
   | { type: "row_created" }
-  | { type: "property_changed"; property: string | null; to?: string | boolean };
+  | { type: "property_changed"; property: string | null; to?: string | boolean }
+  /**
+   * `date`: a date property's id, "created_time" or "last_edited_time" ("" until chosen); `days` as
+   * typed; `status`: the status property and groups, or null for every row.
+   */
+  | { type: "date_passed"; date: string; days: string; status: { property: string; groups: StatusGroup[] } | null };
 
 export type Draft = { name: string; enabled: boolean; trigger: DraftTrigger; actions: DraftAction[] };
 
@@ -75,14 +89,22 @@ export function initialValue(prop: Property): unknown {
 /** A stored automation as the editor edits it; values of deleted properties are left out. */
 export function toDraft(automation: Automation, properties: Property[]): Draft {
   const has = (id: string) => properties.some((p) => p.id === id);
+  const stored = automation.trigger;
   const trigger: DraftTrigger =
-    automation.trigger.type === "row_created"
+    stored.type === "row_created"
       ? { type: "row_created" }
-      : {
-          type: "property_changed",
-          property: automation.trigger.propertyId,
-          ...(automation.trigger.to !== undefined && automation.trigger.to !== null ? { to: automation.trigger.to } : {}),
-        };
+      : stored.type === "date_passed"
+        ? {
+            type: "date_passed",
+            date: stored.date,
+            days: String(stored.days),
+            status: stored.status ? { property: stored.status.propertyId, groups: stored.status.groups } : null,
+          }
+        : {
+            type: "property_changed",
+            property: stored.propertyId,
+            ...(stored.to !== undefined && stored.to !== null ? { to: stored.to } : {}),
+          };
   const actions = automation.actions.map((action): DraftAction => {
     if (action.type === "set_properties") {
       return {
@@ -100,9 +122,16 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
       return { key: newKey(), type: "notify", people: action.userIds, properties: action.propertyIds.filter(has) };
     }
     if (action.type === "run_agent") return { key: newKey(), type: "run_agent", agentId: action.agentId, prompt: action.prompt };
+    if (action.type === "move_to_trash") return { key: newKey(), type: "move_to_trash" };
     return { key: newKey(), type: "webhook", url: action.url };
   });
   return { name: automation.name, enabled: automation.enabled, trigger, actions };
+}
+
+/** A "date passed" trigger's days as typed, when they are a valid count. */
+export function draftDays(days: string): number | null {
+  const n = Number(days.trim());
+  return days.trim() && Number.isInteger(n) && n >= 0 && n <= MAX_DATE_PASSED_DAYS ? n : null;
 }
 
 export const emptyDraft = (): Draft => ({
@@ -115,7 +144,14 @@ export const emptyDraft = (): Draft => ({
 /** What a draft is missing before it can be saved, as a message key of `automations.form.errors`. */
 export function draftProblem(draft: Draft, properties: Property[]) {
   if (!draft.name.trim()) return "needName";
+  if (draft.trigger.type === "date_passed") {
+    if (!draft.trigger.date) return "needDate";
+    if (draftDays(draft.trigger.days) === null) return "needDays";
+    if (draft.trigger.status && (!draft.trigger.status.property || !draft.trigger.status.groups.length)) return "needGroups";
+  }
   if (!draft.actions.length) return "needAction";
+  const trash = trashProblem(draft.actions);
+  if (trash) return trash;
   for (const action of draft.actions) {
     if (action.type === "set_properties") {
       if (!action.entries.length) return "needProperty";
@@ -130,7 +166,7 @@ export function draftProblem(draft: Draft, properties: Property[]) {
       if (!action.people.length && !action.properties.length) return "needPeople";
     } else if (action.type === "run_agent") {
       if (!action.agentId) return "needAgent";
-    } else if (!action.url.trim()) return "needUrl";
+    } else if (action.type === "webhook" && !action.url.trim()) return "needUrl";
   }
   return null;
 }
@@ -149,15 +185,26 @@ function typedValue(properties: Property[], propertyId: string, value: unknown) 
   return text && Number.isFinite(n) && percentOf(properties, propertyId) ? fromPercentPoints(n) : text;
 }
 
+/** A draft's trigger as the server takes it. */
+export function triggerInput(trigger: DraftTrigger) {
+  if (trigger.type === "row_created") return { type: "row_created" as const };
+  if (trigger.type === "date_passed") {
+    return {
+      type: "date_passed" as const,
+      date: trigger.date,
+      days: draftDays(trigger.days) ?? 0,
+      status: trigger.status ? { property: trigger.status.property, groups: trigger.status.groups } : null,
+    };
+  }
+  return { type: "property_changed" as const, property: trigger.property, to: trigger.to ?? null };
+}
+
 /** A draft as the server takes it (properties and people by id). */
 export function toInput(draft: Draft, properties: Property[]) {
   return {
     name: draft.name.trim(),
     enabled: draft.enabled,
-    trigger:
-      draft.trigger.type === "row_created"
-        ? { type: "row_created" as const }
-        : { type: "property_changed" as const, property: draft.trigger.property, to: draft.trigger.to ?? null },
+    trigger: triggerInput(draft.trigger),
     actions: draft.actions.map((action) => {
       if (action.type === "set_properties") {
         return {
@@ -167,6 +214,7 @@ export function toInput(draft: Draft, properties: Property[]) {
       }
       if (action.type === "notify") return { type: "notify" as const, people: action.people, properties: action.properties };
       if (action.type === "run_agent") return { type: "run_agent" as const, agent: action.agentId, prompt: action.prompt.trim() };
+      if (action.type === "move_to_trash") return { type: "move_to_trash" as const };
       return { type: "webhook" as const, url: action.url.trim() };
     }),
   };
@@ -174,7 +222,7 @@ export function toInput(draft: Draft, properties: Property[]) {
 
 /** The webhook addresses of a stored automation, to tell whether a draft changed them. */
 export const webhookUrls = (actions: AutomationAction[] | DraftAction[]) =>
-  actions.flatMap((a) => (a.type === "webhook" ? [a.url.trim()] : [])).join("\n");
+  (actions as (AutomationAction | DraftAction)[]).flatMap((a) => (a.type === "webhook" ? [a.url.trim()] : [])).join("\n");
 
 /** The trigger's value as a word: an option's, a person's name, or checked/unchecked. */
 export function triggerValueName(

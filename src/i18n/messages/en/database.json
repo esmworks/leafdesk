@@ -891,13 +891,17 @@
     "editTitle": "Edit automation",
     "new": "New automation",
     "back": "Back",
-    "empty": "No automations yet. An automation sets values, notifies people, calls a webhook or runs an agent when a row is added or changes.",
+    "empty": "No automations yet. An automation sets values, notifies people, calls a webhook, runs an agent or moves rows to the trash when a row is added or changes, or when one of its dates passes.",
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Delete the automation “{name}”? Its run history goes too.",
     "toggle": "Run “{name}”",
     "lastRun": "Last run: {status}, {time}",
     "neverRun": "Hasn’t run yet",
+    "checkError": {
+      "propertyDeleted": "Paused: its date or status property was deleted. Restore the property or edit the automation.",
+      "noAccess": "Paused: whoever saved it last no longer has full access to this database. Save it to run it as you."
+    },
     "tooMany": "A database can have at most {max} automations",
     "deletedProperty": "Deleted property",
     "checked": "Checked",
@@ -908,14 +912,20 @@
       "rowCreated": "a row is added",
       "anyChange": "any property changes",
       "changes": "{property} changes",
-      "becomes": "{property} becomes {value}"
+      "becomes": "{property} becomes {value}",
+      "datePassedProperty": "{days, plural, =0 {{date} is reached} one {# day has passed since {date}} other {# days have passed since {date}}}",
+      "datePassedSince": "{days, plural, one {# day has passed since {date}} other {# days have passed since {date}}}",
+      "rowAdded": "the row was added",
+      "lastEdited": "the last edit",
+      "withStatus": "{trigger}, status {groups}"
     },
     "summaryAction": {
       "set": "Set {properties}",
       "notify": "Notify",
       "webhook": "Webhook",
       "runAgent": "Run {agent}",
-      "archivedAgent": "an archived agent"
+      "archivedAgent": "an archived agent",
+      "trash": "Move to trash"
     },
     "form": {
       "name": "Name",
@@ -924,19 +934,32 @@
       "then": "Then",
       "triggerType": {
         "row_created": "A row is added",
-        "property_changed": "A property changes"
+        "property_changed": "A property changes",
+        "date_passed": "A date passes"
       },
       "property": "Property",
       "anyProperty": "Any property",
       "becomes": "Becomes",
       "anyValue": "To any value",
       "becomesValue": "Becomes {value}",
+      "date": "Count from",
+      "chooseDate": "Choose a date…",
+      "dateCreated": "When the row was added",
+      "dateEdited": "When the row was last edited",
+      "days": "Days after",
+      "daysHelp": "0: on the day itself (or once the time has come).",
+      "statusCondition": "Only rows whose status is",
+      "statusProperty": "Status property",
+      "datePassedHelp": "Checked every few minutes. Each row runs once for each value of its date, and again only after the date changes and passes again. A row without a status counts as to-do.",
+      "matchNow": "{count, plural, =0 {No rows match right now.} one {# row matches right now: it runs at the next check.} other {# rows match right now: they run at the next check, at most {max} per check.}}",
       "actionType": {
         "set_properties": "Set property",
         "notify": "Notify",
         "webhook": "Send webhook",
-        "run_agent": "Run an agent"
+        "run_agent": "Run an agent",
+        "move_to_trash": "Move to trash"
       },
+      "trashHelp": "Moves the row to the trash, where it can be restored from until the trash is emptied. Nothing can run after this action.",
       "addAction": "Add action",
       "removeAction": "Remove action",
       "maxActions": "At most {max} actions",
@@ -964,7 +987,12 @@
         "needValue": "Choose a value for each property to set.",
         "needPeople": "Choose who to notify.",
         "needUrl": "Enter the webhook’s URL.",
-        "needAgent": "Choose an agent."
+        "needAgent": "Choose an agent.",
+        "needDate": "Choose the date to count from.",
+        "needDays": "Enter a whole number of days from 0 to 3650.",
+        "needGroups": "Choose at least one status group.",
+        "trashNotLast": "Moving to the trash must be the last action.",
+        "trashWithAgent": "An agent can’t run on a row this automation moves to the trash."
       },
       "agent": "Agent",
       "chooseAgent": "Choose an agent…",
@@ -998,6 +1026,7 @@
       "empty": "This automation hasn’t run yet.",
       "added": "Row added",
       "changed": "Row changed",
+      "datePassed": "Date passed ({date})",
       "status": {
         "pending": "Waiting",
         "running": "Running",

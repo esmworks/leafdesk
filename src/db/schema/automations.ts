@@ -1,6 +1,7 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type {
   AutomationAction,
+  AutomationCheckError,
   AutomationRunStatus,
   AutomationStep,
   AutomationTrigger,
@@ -36,6 +37,8 @@ export const databaseAutomation = pgTable(
     secretSalt: text("secret_salt").notNull(),
     /** Who saved it last: its actions run as them. Null once their account is gone (it stops). */
     runAs: text("run_as").references(() => user.id, { onDelete: "set null" }),
+    /** "Date passed" automations: why the last check couldn't look for rows; null when it could. */
+    checkError: text("check_error").$type<AutomationCheckError>(),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -77,6 +80,8 @@ export const automationRun = pgTable(
     created: boolean("created").notNull().default(false),
     /** Ids of the properties the change touched. */
     changed: jsonb("changed").$type<string[]>().notNull().default([]),
+    /** Started by a "date passed" trigger: the row's date it ran for (see automation_fire); else null. */
+    basis: text("basis"),
     status: text("status").$type<AutomationRunStatus>().notNull().default("pending"),
     steps: jsonb("steps").$type<AutomationStep[]>().notNull().default([]),
     /** The webhook body, made the first time it's sent, so every retry sends the same one. */
@@ -91,4 +96,26 @@ export const automationRun = pgTable(
     index("automation_run_due_idx").on(t.status, t.nextAt),
     index("automation_run_automation_idx").on(t.automationId, t.createdAt),
   ],
+);
+
+/**
+ * The rows a "date passed" automation has run for, and for which value of their date (`basis`: a
+ * date property's start, or the row's added or edited time, as server/automations/timed.ts writes
+ * it). A row runs again only once its date has another value that is past too. Trashing a row
+ * keeps its entry, so a restored row doesn't run again for the same date; it goes with the row or
+ * the automation.
+ */
+export const automationFire = pgTable(
+  "automation_fire",
+  {
+    automationId: text("automation_id")
+      .notNull()
+      .references(() => databaseAutomation.id, { onDelete: "cascade" }),
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    basis: text("basis").notNull(),
+    firedAt: timestamp("fired_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.automationId, t.rowId] }), index("automation_fire_row_idx").on(t.rowId)],
 );

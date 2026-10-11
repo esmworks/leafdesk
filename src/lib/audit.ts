@@ -115,9 +115,11 @@ export const isAuditCategory = (value: unknown): value is AuditCategory =>
  * - `api_token`, `connected_app`: a program acting for a person (a REST API token, an MCP client
  *   they authorized), which still names that person;
  * - `scim`: the workspace's identity provider, through one of its SCIM tokens;
- * - `system`: the server itself (the daily retention cleanup).
+ * - `system`: the server itself (the daily retention cleanup);
+ * - `automation`: a database automation, acting with the access of the person it runs as (named
+ *   too), the automation's name in `actorVia`.
  */
-export const AUDIT_ACTOR_KINDS = ["user", "agent", "api_token", "connected_app", "scim", "system"] as const;
+export const AUDIT_ACTOR_KINDS = ["user", "agent", "api_token", "connected_app", "scim", "system", "automation"] as const;
 export type AuditActorKind = (typeof AUDIT_ACTOR_KINDS)[number];
 
 /** What an event is about: `targetId` is that thing's id (an email address for `email`). */
@@ -144,7 +146,7 @@ export type AuditEvent = {
   actorUserId: string | null;
   actorName: string;
   actorEmail: string | null;
-  /** The program that acted: the API token's, connected app's or SCIM token's name. */
+  /** The program that acted: the API token's, connected app's, SCIM token's or automation's name. */
   actorVia: string | null;
   targetType: string | null;
   targetId: string | null;
@@ -294,6 +296,8 @@ export function auditActorName(event: Pick<AuditEvent, "actorKind" | "actorName"
       return t("audit.actors.system");
     case "agent":
       return t("audit.actors.agent", { name: person });
+    case "automation":
+      return t("audit.actors.automation", { name: person, via });
     default:
       return person;
   }

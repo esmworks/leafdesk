@@ -87,6 +87,7 @@
     "reminder": "Recordatorio: {date}",
     "accessRequest": "{actor} pidió acceso a esta página",
     "automation": "Automatización “{name}”: {actor} añadió o cambió esta fila",
+    "automationDatePassed": "Automatización “{name}”: llegó la fecha de esta fila",
     "someone": "Alguien",
     "unread": "No leída",
     "snooze": "Posponer",

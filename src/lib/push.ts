@@ -164,7 +164,7 @@ export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoD
         line = t("reminder", { date: item.reminderDate ? formatDate(item.reminderDate) : "" });
         break;
       case "automation":
-        line = t("automation", { name: item.automationName ?? "", actor });
+        line = item.reminderDate ? t("automationDatePassed", { name: item.automationName ?? "" }) : t("automation", { name: item.automationName ?? "", actor });
         break;
       default:
         line = t("assignment", { actor, property: item.propertyName ?? "" });

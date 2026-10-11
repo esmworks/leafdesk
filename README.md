@@ -187,9 +187,10 @@ versions, upgrades and running behind a domain.
     it going again, as themselves. A server that was down adds one row for the runs it missed (dated
     the first missed day when the title carries the date), not one per run. Nothing is added while the database is in the trash. The first day of a monthly or
     yearly repeat sets its date; months without that day use their last day.
-- **Database automations**: when a row is added, or a property changes (or changes to a given
-  value), set properties, notify people, send the row to a webhook signed with HMAC-SHA256, or
-  run an agent on the row, with a 30-day run history (see
+- **Database automations**: when a row is added, a property changes (or changes to a given
+  value), or a date of a row is some days past (optionally only for rows in some status groups),
+  set properties, notify people, send the row to a webhook signed with HMAC-SHA256, run an agent
+  on the row, or move it to the trash, with a 30-day run history (see
   [Automations and webhooks](#automations-and-webhooks)).
 - **Agents**: AI helpers with instructions of their own that automations run on database rows.
   Each acts as a user of its own that sees only the pages shared with it, and its changes and
@@ -1013,7 +1014,8 @@ handles database backups on its own. No compose file is involved.
 
 ## Automations and webhooks
 
-A database automation does something when rows of its database are added or changed. People with
+A database automation does something when rows of its database are added or changed, or when a
+date of a row comes. People with
 full access to the database see and manage its automations, in the app or over MCP
 (`list_automations`, `create_automation`, `update_automation`, `delete_automation`,
 `list_automation_runs`). Creating, changing and deleting one is recorded in the audit log.
@@ -1026,6 +1028,12 @@ full access to the database see and manage its automations, in the app or over M
   runs only when the value becomes Done, not when the row is saved again with Done (for person
   and multi-select, when that person or option gets added). A new row that starts out with the
   value counts too.
+- *A date passes*: a row's date is at least a number of days past (0 for the day itself). The date
+  is one of the database's date properties (its start, for a range), when the row was added, or
+  when it was last edited. Optionally only for rows whose status (one status property, chosen when
+  there are several) is in some of its groups: to do, in progress, done; a row without a status
+  counts as to do. "Rows not edited for 30 days that aren't done", "rows whose Completed on is 14
+  days past" and "the day a Due date comes, for rows not done" are each one such trigger.
 
 **Actions**, done in order, each one on its own (one failing doesn't stop the others):
 
@@ -1036,6 +1044,11 @@ full access to the database see and manage its automations, in the app or over M
   and an email as each of them chooses in My account → Preferences. Only people who can open the
   row are notified.
 - *Send a webhook*: a signed JSON POST to an http(s) address (below).
+- *Move to trash*: the row goes to the trash, where anyone who may edit it can restore it, until the
+  workspace's trash retention deletes it for good. It is always the last action (nothing can
+  follow it) and can't be combined with *Run an agent*, which runs later, apart. The audit log
+  records each row an automation moves to the trash, with the automation and its person as the one
+  who did it.
 - *Run an agent* on the row, with a task of up to 2000 characters (see [Agents](#agents)). Only
   owners of the workspace add or change this action, since the agent may open pages others can't;
   anyone who manages the automation may keep or remove it. Saving the automation shares its
@@ -1051,7 +1064,23 @@ until someone with full access saves it again. A turned-off automation doesn't r
 rows that were trashed in the meantime are skipped.
 
 **No chains.** Changes an automation makes don't start automations, so two automations can't
-set each other off.
+set each other off. That holds for "a date passes" automations too: a status they set doesn't
+start the database's "Status changes" automations.
+
+**When a date passes.** The server looks for rows whose date has come every 10 minutes (set
+`AUTOMATION_DATE_CHECK_SECONDS` for another interval, at least 10; one server of several looks at
+a time) and queues a run for each, like a row write does. Days count by the server's calendar (its
+`TZ`, UTC in the Docker image, the same day *Set properties* gives "the day it runs"); times, and
+when a row was added or edited, by the clock. Each row runs once for each value of its date: it
+runs again only when that date changes and is past again, for instance when someone edits a stale
+row and it goes stale once more. A row restored from the trash doesn't run again for the same
+date, and an automation's own edit doesn't count as an edit. Rows in the trash, row templates, and
+the rows of a database in the trash are left out. Rows that already match when the automation is
+saved or turned on run at the next check (the dialog says how many), at most 100 per automation
+per check; the rest follow at the checks after. If its date or status property is deleted, or
+the person it runs as no longer has full access, the automation looks for no rows and says why in
+its settings until the property is restored or someone saves it again. Changing the date it counts
+from makes every row new to it; changing the days or the status condition doesn't.
 
 **Queue.** Runs are queued and done one database at a time in turn, so a bulk edit that starts
 thousands of runs in one database doesn't hold back the automations of others. A database's
@@ -1075,14 +1104,16 @@ Each delivery is a `POST` with these headers:
 | --- | --- |
 | `Content-Type` | `application/json` |
 | `User-Agent` | `Leafdesk-Webhook/1.0` |
-| `X-Leafdesk-Event` | `row.created`, `row.updated`, or `ping` for a test delivery |
+| `X-Leafdesk-Event` | `row.created`, `row.updated`, `row.date_passed` (a date passed), or `ping` for a test delivery |
 | `X-Leafdesk-Delivery` | The run id, the same on every retry; use it to ignore duplicates |
 | `X-Leafdesk-Signature` | `t=<Unix seconds>,v1=<hex HMAC-SHA256>` (below) |
 
 The body describes the row as the automation's person sees it after the run's earlier actions,
 with property values by name in the same form `query_database` returns them. `changed` lists the
 names of the properties that changed (all the properties set on a new row), and `actor` is
-`null` when an anonymous form answer started the run:
+`null` when an anonymous form answer started the run. A `row.date_passed` run has `changed: []`,
+`actor: null`, and `date`: the row's date it ran for (a day, or a UTC time; when the row was added
+or last edited, to the microsecond):
 
 ```json
 {

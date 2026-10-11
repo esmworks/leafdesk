@@ -489,6 +489,7 @@ async function eventText(run: Run) {
     return `The connection "${conn?.name ?? "?"}" received an event.`;
   }
   if (!("created" in run.context)) return "The row changed.";
+  if (run.context.datePassed) return `The row's date (${run.context.datePassed}) is as far past as the automation waits for.`;
   const { created, changed, actorId } = run.context;
   const [actor] = actorId ? await db.select({ name: user.name }).from(user).where(eq(user.id, actorId)) : [];
   const by = actor ? ` by ${actor.name}` : "";

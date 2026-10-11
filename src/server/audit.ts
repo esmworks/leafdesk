@@ -65,8 +65,14 @@ export type AuditInput = {
   details?: Record<string, unknown>;
 };
 
-/** A change made by something other than a person in a request: SCIM, or the server on its own. */
-export type AuditOrigin = { kind: "scim"; tokenId: string; ip: string | null; userAgent: string | null } | { kind: "system" };
+/**
+ * A change made by something other than a person in a request: SCIM, the server on its own, or a
+ * database automation (acting as the person it runs as, whom call sites name).
+ */
+export type AuditOrigin =
+  | { kind: "scim"; tokenId: string; ip: string | null; userAgent: string | null }
+  | { kind: "system" }
+  | { kind: "automation"; name: string };
 
 // One per process: route modules can be loaded more than once in development.
 const globalForAudit = globalThis as unknown as { __leafdeskAuditOrigin?: AsyncLocalStorage<AuditOrigin> };
@@ -139,6 +145,8 @@ async function actorOf(reader: Executor, actorId: string | null, facts: RequestF
   // An agent acts on its own, never through an app or a browser: no address, no device.
   if (person?.agentId) return { kind: "agent", userId: actorId, name: person.name, email: null, via: null, ip: null, userAgent: null };
   const base = { userId: person ? actorId : null, name: person?.name ?? "", email: person?.email ?? null };
+  // An automation runs in the background: no address, no device.
+  if (origin?.kind === "automation") return { ...base, kind: "automation", via: origin.name, ip: null, userAgent: null };
   const app = connectedAppCall(actorId)?.app;
   if (app) {
     const via = await viaName(reader, app.kind, app.id);

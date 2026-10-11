@@ -441,7 +441,7 @@ export type InboxItem = {
   pageIcon: string | null;
   databaseTitle: string | null;
   propertyName: string | null;
-  /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). */
+  /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). Automations: set for a "date passed" run. */
   reminderDate: string | null;
   /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
   automationName: string | null;

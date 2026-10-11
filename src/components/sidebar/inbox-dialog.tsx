@@ -162,7 +162,9 @@ export function InboxDialog({
                         : item.kind === "reminder"
                           ? t("reminder", { date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
                           : item.kind === "automation"
-                            ? t("automation", { name: item.automationName ?? "", actor: item.actorName || t("someone") })
+                            ? item.reminderDate
+                              ? t("automationDatePassed", { name: item.automationName ?? "" })
+                              : t("automation", { name: item.automationName ?? "", actor: item.actorName || t("someone") })
                             : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
                   {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
                 </span>

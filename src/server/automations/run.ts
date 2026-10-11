@@ -6,8 +6,8 @@ import {
   MAX_WEBHOOK_ATTEMPTS,
   retriable,
   retryDelayMs,
+  runEvent,
   runStatusOf,
-  webhookEvent,
   type AutomationAction,
   type AutomationStep,
 } from "@/lib/automations";
@@ -22,7 +22,10 @@ import { rowFields } from "@/server/operations";
 import { propertyAccessFor } from "@/server/property-access";
 import { queueAgentRun } from "@/server/agents/run";
 import { notAgentUser } from "@/server/agents/users";
+import { recordAudit, runAsAuditOrigin } from "@/server/audit";
+import { archivePage } from "@/server/pages";
 import { asAutomation, onAutomationsQueued } from "./queue";
+import { followOwnEdit } from "./timed";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
 /**
@@ -160,16 +163,26 @@ export async function processRun(run: Run) {
             agentId: action.agentId,
             workspaceId: automation.workspaceId,
             source: { kind: "automation", automationId: automation.id, automationRunId: run.id, databaseId: automation.databaseId, rowId: run.rowId },
-            context: { created: run.created, changed: run.changed, actorId: run.actorId, ...(run.boundTo ? { boundTo: run.boundTo } : {}) },
+            context: {
+              created: run.created,
+              changed: run.changed,
+              actorId: run.actorId,
+              ...(run.boundTo ? { boundTo: run.boundTo } : {}),
+              ...(run.basis !== null ? { datePassed: run.basis } : {}),
+            },
             prompt: action.prompt,
           });
+          step.status = "done";
+        } else if (action.type === "move_to_trash") {
+          // Always the last action (manage.checkActions): nothing is left to do on the row.
+          await moveToTrash(automation, run);
           step.status = "done";
         } else {
           // The row as it is now (after the actions before this one); its retries send the same.
           if (step.attempts === 1 || !payload) payload = await webhookPayload(automation, run, row);
           const status = await sendWebhook(action.url, {
             id: run.id,
-            event: webhookEvent(run.created),
+            event: runEvent(run),
             body: payload,
             secret: webhookSecret(automation.secretSalt),
           });
@@ -194,6 +207,14 @@ export async function processRun(run: Run) {
         }
         step.status = "failed";
       }
+    }
+  }
+
+  // A run that counts from the row's last edit doesn't count its own edit as one.
+  const trigger = automation.trigger;
+  if (trigger.type === "date_passed" && trigger.date === "last_edited_time" && run.basis !== null) {
+    if (steps.some((s, i) => s.status === "done" && automation.actions[i]?.type === "set_properties")) {
+      await followOwnEdit(automation.id, run.rowId);
     }
   }
 
@@ -234,6 +255,25 @@ async function setProperties(automation: Automation, run: Run, values: Record<st
 }
 
 /**
+ * Moves the row to the trash as the automation's person, the way they would, and records it in
+ * the audit log with the automation as the one who did it (rows a person trashes aren't recorded
+ * one by one; rows an automation trashes are, as nobody watched it happen).
+ */
+async function moveToTrash(automation: Automation, run: Run) {
+  const runAs = automation.runAs!;
+  await runAsAuditOrigin({ kind: "automation", name: automation.name }, async () => {
+    const row = await asAutomation(() => archivePage(runAs, run.rowId));
+    await recordAudit({
+      workspaceId: row.workspaceId,
+      actorId: runAs,
+      action: "page.trashed",
+      target: { type: "page", id: row.id, label: row.title },
+      details: { kind: row.kind, automationId: automation.id, databaseId: automation.databaseId },
+    });
+  });
+}
+
+/**
  * Tells the action's people, and whoever its person properties name in the row now, as long as
  * they can open the row. Returns how many were told.
  */
@@ -269,6 +309,8 @@ async function notify(automation: Automation, run: Run, row: Row, action: Extrac
         actorId: run.actorId,
         pageId: row.id,
         automationId: automation.id,
+        // A "date passed" run: the row's date it ran for, so the notification says so.
+        date: run.basis,
         emailDueAt,
       })),
     )
@@ -296,7 +338,7 @@ async function webhookPayload(automation: Automation, run: Run, row: Row) {
   const url = (id: string) => `${env.appUrl}/w/${row.workspaceId}/p/${id}`;
   return JSON.stringify({
     id: run.id,
-    event: webhookEvent(run.created),
+    event: runEvent(run),
     created_at: run.createdAt.toISOString(),
     automation: { id: automation.id, name: automation.name },
     workspace_id: row.workspaceId,
@@ -304,6 +346,8 @@ async function webhookPayload(automation: Automation, run: Run, row: Row) {
     row: { id: row.id, title: pageLabel(row.title), url: url(row.id), properties: fields.properties },
     changed: run.changed.flatMap((id) => (visible.has(id) ? [visible.get(id)!] : [])),
     actor: actor[0] ? { id: actor[0].id, name: actor[0].name } : null,
+    // A "date passed" run: the row's date it ran for.
+    ...(run.basis !== null ? { date: run.basis } : {}),
   });
 }
 

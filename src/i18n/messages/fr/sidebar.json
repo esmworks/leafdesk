@@ -87,6 +87,7 @@
     "reminder": "Rappel : {date}",
     "accessRequest": "{actor} demande l’accès à cette page",
     "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
+    "automationDatePassed": "Automatisation « {name} » : la date de cette ligne est arrivée",
     "someone": "Quelqu’un",
     "unread": "Non lue",
     "snooze": "Reporter",

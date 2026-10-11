@@ -891,13 +891,17 @@
     "editTitle": "Modifier l’automatisation",
     "new": "Nouvelle automatisation",
     "back": "Retour",
-    "empty": "Aucune automatisation pour l’instant. Une automatisation définit des valeurs, prévient des personnes, appelle un webhook ou lance un agent quand une ligne est ajoutée ou modifiée.",
+    "empty": "Aucune automatisation pour l’instant. Une automatisation définit des valeurs, prévient des personnes, appelle un webhook, lance un agent ou met des lignes à la corbeille quand une ligne est ajoutée ou modifiée, ou quand l’une de ses dates est passée.",
     "edit": "Modifier",
     "delete": "Supprimer",
     "confirmDelete": "Supprimer l’automatisation « {name} » ? Son historique d’exécutions sera supprimé aussi.",
     "toggle": "Exécuter « {name} »",
     "lastRun": "Dernière exécution : {status}, {time}",
     "neverRun": "Pas encore exécutée",
+    "checkError": {
+      "propertyDeleted": "En pause : sa propriété de date ou de statut a été supprimée. Restaurez la propriété ou modifiez l’automatisation.",
+      "noAccess": "En pause : la personne qui l’a enregistrée en dernier n’a plus l’accès complet à cette base de données. Enregistrez-la pour qu’elle s’exécute avec votre accès."
+    },
     "tooMany": "Une base de données peut avoir au plus {max} automatisations",
     "deletedProperty": "Propriété supprimée",
     "checked": "Cochée",
@@ -908,14 +912,20 @@
       "rowCreated": "une ligne est ajoutée",
       "anyChange": "une propriété change",
       "changes": "{property} change",
-      "becomes": "{property} devient {value}"
+      "becomes": "{property} devient {value}",
+      "datePassedProperty": "{days, plural, =0 {la date {date} arrive} one {# jour s’est écoulé depuis {date}} other {# jours se sont écoulés depuis {date}}}",
+      "datePassedSince": "{days, plural, one {# jour s’est écoulé depuis {date}} other {# jours se sont écoulés depuis {date}}}",
+      "rowAdded": "l’ajout de la ligne",
+      "lastEdited": "la dernière modification",
+      "withStatus": "{trigger}, statut {groups}"
     },
     "summaryAction": {
       "set": "Définir {properties}",
       "notify": "Prévenir",
       "webhook": "Webhook",
       "runAgent": "Lancer {agent}",
-      "archivedAgent": "un agent archivé"
+      "archivedAgent": "un agent archivé",
+      "trash": "Mettre à la corbeille"
     },
     "form": {
       "name": "Nom",
@@ -924,19 +934,32 @@
       "then": "Alors",
       "triggerType": {
         "row_created": "Une ligne est ajoutée",
-        "property_changed": "Une propriété change"
+        "property_changed": "Une propriété change",
+        "date_passed": "Une date est passée"
       },
       "property": "Propriété",
       "anyProperty": "N’importe quelle propriété",
       "becomes": "Devient",
       "anyValue": "N’importe quelle valeur",
       "becomesValue": "Devient {value}",
+      "date": "Compter à partir de",
+      "chooseDate": "Choisissez une date…",
+      "dateCreated": "Ajout de la ligne",
+      "dateEdited": "Dernière modification de la ligne",
+      "days": "Jours après",
+      "daysHelp": "0 : le jour même (ou dès que l’heure est venue).",
+      "statusCondition": "Seulement les lignes dont le statut est",
+      "statusProperty": "Propriété de statut",
+      "datePassedHelp": "Vérifié toutes les quelques minutes. Chaque ligne s’exécute une fois par valeur de sa date, et à nouveau seulement quand la date change et est de nouveau passée. Une ligne sans statut compte comme à faire.",
+      "matchNow": "{count, plural, =0 {Aucune ligne ne correspond pour l’instant.} one {# ligne correspond pour l’instant : elle s’exécute à la prochaine vérification.} other {# lignes correspondent pour l’instant : elles s’exécutent à partir de la prochaine vérification, {max} au plus par vérification.}}",
       "actionType": {
         "set_properties": "Définir une propriété",
         "notify": "Prévenir",
         "webhook": "Envoyer un webhook",
-        "run_agent": "Lancer un agent"
+        "run_agent": "Lancer un agent",
+        "move_to_trash": "Mettre à la corbeille"
       },
+      "trashHelp": "Met la ligne à la corbeille, d’où elle peut être restaurée jusqu’à ce que la corbeille soit vidée. Rien ne peut s’exécuter après cette action.",
       "addAction": "Ajouter une action",
       "removeAction": "Retirer l’action",
       "maxActions": "Au plus {max} actions",
@@ -964,7 +987,12 @@
         "needValue": "Choisissez une valeur pour chaque propriété à définir.",
         "needPeople": "Choisissez qui prévenir.",
         "needUrl": "Saisissez l’URL du webhook.",
-        "needAgent": "Choisissez un agent."
+        "needAgent": "Choisissez un agent.",
+        "needDate": "Choisissez la date à partir de laquelle compter.",
+        "needDays": "Saisissez un nombre entier de jours entre 0 et 3650.",
+        "needGroups": "Choisissez au moins un groupe de statut.",
+        "trashNotLast": "La mise à la corbeille doit être la dernière action.",
+        "trashWithAgent": "Un agent ne peut pas s’exécuter sur une ligne que cette automatisation met à la corbeille."
       },
       "agent": "Agent",
       "chooseAgent": "Choisir un agent…",
@@ -998,6 +1026,7 @@
       "empty": "Cette automatisation ne s’est pas encore exécutée.",
       "added": "Ligne ajoutée",
       "changed": "Ligne modifiée",
+      "datePassed": "Date passée ({date})",
       "status": {
         "pending": "En attente",
         "running": "En cours",

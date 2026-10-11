@@ -86,6 +86,8 @@
     "heading": "La automatización “{automation}” te avisa sobre “{page}”",
     "body": "{actor} añadió o cambió “{page}” en {database} ({workspace}).",
     "bodyHidden": "{actor} añadió o cambió “{page}” ({workspace}).",
+    "bodyDatePassed": "“{page}” en {database} ({workspace}) llegó a la fecha que espera esta automatización.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) llegó a la fecha que espera esta automatización.",
     "action": "Abrir fila",
     "someone": "Alguien",
     "optOut": "Recibes estos correos porque una automatización de una base de datos te avisa. Puedes desactivarlos en Mi cuenta > Preferencias."
@@ -189,6 +191,7 @@
     "reminder": "Recordatorio: {date}",
     "accessRequest": "{actor} pidió acceso a esta página",
     "automation": "Automatización “{name}”: {actor} añadió o cambió esta fila",
+    "automationDatePassed": "Automatización “{name}”: llegó la fecha de esta fila",
     "someone": "Alguien",
     "joinRequestTitle": "Solicitud de acceso",
     "joinRequest": "{actor} pidió unirse",

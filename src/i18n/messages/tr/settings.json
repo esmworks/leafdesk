@@ -872,7 +872,8 @@
       "connectedApp": "{name} ({via} üzerinden)",
       "scim": "Kimlik sağlayıcı (SCIM anahtarı {via})",
       "system": "Sistem",
-      "agent": "{name} (ajan)"
+      "agent": "{name} (ajan)",
+      "automation": "{name} (“{via}” otomasyonu)"
     },
     "actorKinds": {
       "scim": "Kimlik sağlayıcı (SCIM)",

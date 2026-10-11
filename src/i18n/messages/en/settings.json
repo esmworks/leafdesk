@@ -872,7 +872,8 @@
       "connectedApp": "{name} (through {via})",
       "scim": "Identity provider (SCIM token {via})",
       "system": "System",
-      "agent": "{name} (agent)"
+      "agent": "{name} (agent)",
+      "automation": "{name} (automation “{via}”)"
     },
     "actorKinds": {
       "scim": "Identity provider (SCIM)",

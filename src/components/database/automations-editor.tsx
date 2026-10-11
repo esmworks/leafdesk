@@ -3,9 +3,10 @@
 import { Check, Copy, RefreshCw, Search, Send, Trash2, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   createAutomationAction,
+  previewDatePassedAction,
   rotateAutomationSecretAction,
   testAutomationWebhooksAction,
   updateAutomationAction,
@@ -15,18 +16,22 @@ import { Button, cn, IconButton, Input, Switch, textareaClass } from "@/componen
 import { UserAvatar } from "@/components/user-avatar";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
+  DATE_PASSED_BATCH,
   isDynamicValue,
   MAX_AUTOMATION_ACTIONS,
+  MAX_DATE_PASSED_DAYS,
   MAX_AUTOMATION_NAME,
   MAX_WEBHOOK_URL,
   TO_VALUE_TYPES,
   WEBHOOK_SIGNATURE_HEADER,
   type AutomationActionType,
 } from "@/lib/automations";
+import { STATUS_GROUPS } from "@/lib/property-types";
 import { searchFold } from "@/lib/search-fold";
 import {
   canSet,
   canWatch,
+  draftDays,
   draftProblem,
   emptyDraft,
   initialValue,
@@ -35,6 +40,7 @@ import {
   optionsOf,
   toDraft,
   toInput,
+  triggerInput,
   webhookUrls,
   type AgentChoice,
   type Automation,
@@ -91,19 +97,22 @@ export function AutomationEditor({
     setDraft((d) => ({ ...d, actions: d.actions.map((a) => (a.key === key ? next : a)) }));
   const removeAction = (key: string) => setDraft((d) => ({ ...d, actions: d.actions.filter((a) => a.key !== key) }));
   const addAction = (type: AutomationActionType) =>
-    setDraft((d) => ({
-      ...d,
-      actions: [
-        ...d.actions,
+    setDraft((d) => {
+      const action: DraftAction =
         type === "set_properties"
           ? { key: newKey(), type, entries: [] }
           : type === "notify"
             ? { key: newKey(), type, people: [], properties: [] }
             : type === "run_agent"
               ? { key: newKey(), type, agentId: "", prompt: "" }
-              : { key: newKey(), type, url: "" },
-      ],
-    }));
+              : type === "move_to_trash"
+                ? { key: newKey(), type }
+                : { key: newKey(), type: "webhook", url: "" };
+      // Moving to the trash stays last: what is added goes before it.
+      const trash = d.actions.findIndex((a) => a.type === "move_to_trash");
+      const actions = trash === -1 ? [...d.actions, action] : [...d.actions.slice(0, trash), action, ...d.actions.slice(trash)];
+      return { ...d, actions };
+    });
 
   const save = async () => {
     const problem = draftProblem(draft, properties);
@@ -129,6 +138,8 @@ export function AutomationEditor({
   };
 
   const full = draft.actions.length >= MAX_AUTOMATION_ACTIONS;
+  const hasTrash = draft.actions.some((a) => a.type === "move_to_trash");
+  const hasAgent = draft.actions.some((a) => a.type === "run_agent");
 
   return (
     <>
@@ -145,6 +156,9 @@ export function AutomationEditor({
 
         <Section title={t("form.when")}>
           <TriggerEditor trigger={draft.trigger} people={people} onChange={setTrigger} />
+          {draft.trigger.type === "date_passed" && (
+            <DatePassedPreview databaseId={databaseId} automationId={saved?.id ?? null} trigger={draft.trigger} />
+          )}
         </Section>
 
         <Section title={t("form.then")}>
@@ -161,6 +175,8 @@ export function AutomationEditor({
                   <SetPropertiesEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
                 ) : action.type === "notify" ? (
                   <NotifyEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
+                ) : action.type === "move_to_trash" ? (
+                  <p className="text-xs text-fg-muted">{t("form.trashHelp")}</p>
                 ) : action.type === "webhook" ? (
                   <Input
                     type="url"
@@ -196,7 +212,14 @@ export function AutomationEditor({
               <option value="set_properties">{t("form.actionType.set_properties")}</option>
               <option value="notify">{t("form.actionType.notify")}</option>
               <option value="webhook">{t("form.actionType.webhook")}</option>
-              {isOwner && <option value="run_agent">{t("form.actionType.run_agent")}</option>}
+              {isOwner && (
+                <option value="run_agent" disabled={hasTrash}>
+                  {t("form.actionType.run_agent")}
+                </option>
+              )}
+              <option value="move_to_trash" disabled={hasTrash || hasAgent}>
+                {t("form.actionType.move_to_trash")}
+              </option>
             </select>
           </div>
         </Section>
@@ -279,6 +302,8 @@ function TriggerEditor({
   const properties = useSchema();
   const watchable = properties.filter(canWatch);
   const propertyId = trigger.type === "property_changed" ? trigger.property : null;
+  const dates = properties.filter((p) => p.type === "date");
+  const statuses = properties.filter((p) => p.type === "status");
   const prop = properties.find((p) => p.id === propertyId);
   const takesValue = !!prop && (TO_VALUE_TYPES as readonly string[]).includes(prop.type);
   const to = trigger.type === "property_changed" ? trigger.to : undefined;
@@ -289,13 +314,21 @@ function TriggerEditor({
         value={trigger.type}
         aria-label={t("form.when")}
         onChange={(e) =>
-          onChange(e.target.value === "row_created" ? { type: "row_created" } : { type: "property_changed", property: null })
+          onChange(
+            e.target.value === "row_created"
+              ? { type: "row_created" }
+              : e.target.value === "date_passed"
+                ? { type: "date_passed", date: dates[0]?.id ?? "", days: "0", status: null }
+                : { type: "property_changed", property: null },
+          )
         }
         className={selectClass}
       >
         <option value="row_created">{t("form.triggerType.row_created")}</option>
         <option value="property_changed">{t("form.triggerType.property_changed")}</option>
+        <option value="date_passed">{t("form.triggerType.date_passed")}</option>
       </select>
+      {trigger.type === "date_passed" && <DatePassedEditor trigger={trigger} dates={dates} statuses={statuses} onChange={onChange} />}
       {trigger.type === "property_changed" && (
         <div className="flex flex-col gap-2 sm:flex-row">
           <select
@@ -350,6 +383,156 @@ function TriggerEditor({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * "A date passes": the date to count from (a date property, or when the row was added or last
+ * edited), how many days after, and optionally the status groups rows must be in.
+ */
+function DatePassedEditor({
+  trigger,
+  dates,
+  statuses,
+  onChange,
+}: {
+  trigger: Extract<DraftTrigger, { type: "date_passed" }>;
+  dates: Property[];
+  statuses: Property[];
+  onChange: (trigger: DraftTrigger) => void;
+}) {
+  const t = useTranslations("database.automations");
+  const tGroup = useTranslations("database.statusGroups");
+  const set = (patch: Partial<Extract<DraftTrigger, { type: "date_passed" }>>) => onChange({ ...trigger, ...patch });
+  const known = trigger.date === "created_time" || trigger.date === "last_edited_time" || dates.some((p) => p.id === trigger.date);
+  const status = trigger.status;
+  const statusGone = status && !statuses.some((p) => p.id === status.property);
+  return (
+    <div className="space-y-2 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <label className="block min-w-0 flex-1">
+          <span className="mb-1 block text-xs text-fg-muted">{t("form.date")}</span>
+          <select value={trigger.date} onChange={(e) => set({ date: e.target.value })} className={selectClass}>
+            {!trigger.date && <option value="">{t("form.chooseDate")}</option>}
+            {dates.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+            <option value="created_time">{t("form.dateCreated")}</option>
+            <option value="last_edited_time">{t("form.dateEdited")}</option>
+            {trigger.date && !known && <option value={trigger.date}>{t("deletedProperty")}</option>}
+          </select>
+        </label>
+        <label className="block sm:w-32">
+          <span className="mb-1 block text-xs text-fg-muted">{t("form.days")}</span>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={MAX_DATE_PASSED_DAYS}
+            step={1}
+            value={trigger.days}
+            onChange={(e) => set({ days: e.target.value })}
+          />
+        </label>
+      </div>
+      <p className="text-xs text-fg-faint">{t("form.daysHelp")}</p>
+      {(statuses.length > 0 || status) && (
+        <div className="space-y-2 border-t border-border pt-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={!!status}
+              onChange={(e) =>
+                set({ status: e.target.checked ? { property: statuses[0]?.id ?? "", groups: ["todo", "in_progress"] } : null })
+              }
+              className="h-4 w-4 accent-accent"
+            />
+            {t("form.statusCondition")}
+          </label>
+          {status && (
+            <div className="flex flex-col gap-2 pl-6 sm:flex-row sm:items-center">
+              {(statuses.length > 1 || statusGone) && (
+                <select
+                  value={status.property}
+                  aria-label={t("form.statusProperty")}
+                  onChange={(e) => set({ status: { ...status, property: e.target.value } })}
+                  className={cn(selectClass, "sm:w-44")}
+                >
+                  {statuses.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                  {statusGone && <option value={status.property}>{t("deletedProperty")}</option>}
+                </select>
+              )}
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {STATUS_GROUPS.map((group) => (
+                  <label key={group} className="flex items-center gap-1.5 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={status.groups.includes(group)}
+                      onChange={(e) =>
+                        set({
+                          status: {
+                            ...status,
+                            groups: STATUS_GROUPS.filter((g) => (g === group ? e.target.checked : status.groups.includes(g))),
+                          },
+                        })
+                      }
+                      className="h-4 w-4 accent-accent"
+                    />
+                    {tGroup(group)}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <p className="text-xs text-fg-faint">{t("form.datePassedHelp")}</p>
+    </div>
+  );
+}
+
+/**
+ * How many rows the trigger as edited would run for at the next check, so nobody is surprised by
+ * a burst of runs for rows that already match.
+ */
+function DatePassedPreview({
+  databaseId,
+  automationId,
+  trigger,
+}: {
+  databaseId: string;
+  automationId: string | null;
+  trigger: Extract<DraftTrigger, { type: "date_passed" }>;
+}) {
+  const t = useTranslations("database.automations");
+  const [count, setCount] = useState<number | null>(null);
+  const ready =
+    !!trigger.date && draftDays(trigger.days) !== null && (!trigger.status || (!!trigger.status.property && trigger.status.groups.length > 0));
+  const key = JSON.stringify(triggerInput(trigger));
+  useEffect(() => {
+    if (!ready) return;
+    let live = true;
+    const timer = setTimeout(() => {
+      previewDatePassedAction(databaseId, JSON.parse(key), automationId)
+        .then((res) => live && setCount(res.ok ? res.data : null))
+        .catch(() => live && setCount(null));
+    }, 300);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [databaseId, automationId, key, ready]);
+  if (!ready || count === null) return null;
+  return (
+    <p className="mt-2 text-xs text-fg-muted" role="status">
+      {t("form.matchNow", { count, max: DATE_PASSED_BATCH })}
+    </p>
   );
 }
 
