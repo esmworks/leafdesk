@@ -27,7 +27,7 @@ import {
 import { avatarSrc } from "@/lib/avatar";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
-import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
+import { asFiles, fileIdOf, fileIdsInProperties, fileUrl, type FileValue } from "@/lib/files";
 import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, relatedDatabases, TITLE_FIELD, valueType, type RelatedSchemas } from "@/lib/derived";
@@ -90,7 +90,7 @@ import {
 import { scheduleAssignmentEmails } from "@/server/assignments";
 import { assertNestable } from "@/server/page-depth";
 import { computeDerived, loadProperties, withAllFormulaTypes } from "@/server/derived";
-import { fileForViewer, workspaceFiles } from "@/server/files";
+import { authorizeFileReferences, fileForViewer, workspaceFiles } from "@/server/files";
 import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
 import { rowChanged } from "@/server/row-events";
@@ -760,6 +760,8 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   if (!row.inTemplate) {
     await syncPairedRelations(rowId, row.parentId, row.properties, next);
     await afterRowWrites(userId, row.parentId, [{ rowId, before: row.properties, after: next }]);
+  } else {
+    await authorizeRowFiles(userId, [{ rowId, before: row.properties, after: next }]);
   }
   notifyRows(row.parentId);
   rowChanged({ rowId, databaseId: row.parentId, userId });
@@ -862,13 +864,13 @@ export async function updateRowsProperties(
   `);
 
   // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
-  const changes = rows
-    .filter((row) => !row.inTemplate)
-    .map((row) => {
-      const after: Record<string, unknown> = { ...row.properties, ...set };
-      for (const k of cleared) delete after[k];
-      return { rowId: row.id, before: row.properties, after };
-    });
+  const changeOf = (row: (typeof rows)[number]) => {
+    const after: Record<string, unknown> = { ...row.properties, ...set };
+    for (const k of cleared) delete after[k];
+    return { rowId: row.id, before: row.properties, after };
+  };
+  const changes = rows.filter((row) => !row.inTemplate).map(changeOf);
+  await authorizeRowFiles(userId, rows.filter((row) => row.inTemplate).map(changeOf));
   await syncPairedRelationsMany(databaseId, changes);
   await afterRowWrites(userId, databaseId, changes);
   notifyRows(databaseId);
@@ -895,9 +897,10 @@ export async function announceAssignments(
 }
 
 /**
- * What every saved row write sets off: assignment notices, the database's automations
- * (server/automations/queue) and moving the rows waiting for rows whose dates moved. `created` for
- * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more.
+ * What every saved row write sets off: authorizing the files its values gained, assignment
+ * notices, the database's automations (server/automations/queue) and moving the rows waiting for
+ * rows whose dates moved. `created` for new rows, whose `before` is empty; `shifted` for the moves
+ * themselves, which don't move more.
  */
 export async function afterRowWrites(
   actorId: string | null,
@@ -905,9 +908,28 @@ export async function afterRowWrites(
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
   { created = false, shifted = false, boundTo = null }: { created?: boolean; shifted?: boolean; boundTo?: string | null } = {},
 ) {
+  await authorizeRowFiles(actorId, changes);
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
+}
+
+/**
+ * The files row values gained count for the rows' viewers (see files.authorizeFileReferences) when
+ * the writer could read them: resolveFilesValue let only such files in, and this holds for any
+ * other way values get there too. Anonymous form answers (no actor) hold only uploads to the row
+ * itself, which count anyway (forms.adoptFormFiles).
+ */
+export async function authorizeRowFiles(
+  actorId: string | null,
+  changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
+) {
+  if (!actorId) return;
+  for (const { rowId, before, after } of changes) {
+    const held = new Set(fileIdsInProperties(before));
+    const gained = fileIdsInProperties(after).filter((id) => !held.has(id));
+    if (gained.length) await authorizeFileReferences([actorId], rowId, gained);
+  }
 }
 
 /**

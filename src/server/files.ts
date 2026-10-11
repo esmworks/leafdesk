@@ -7,9 +7,10 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { file, fileReference, page } from "@/db/schema";
-import { cleanFileName, contentTypeFor, fileUrl, formatBytes, isFileId } from "@/lib/files";
+import { file, fileReference, page, propertyPermission } from "@/db/schema";
+import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
+import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
 import { getStorage, uploadLimits } from "@/server/storage";
@@ -28,13 +29,21 @@ import { getStorage, uploadLimits } from "@/server/storage";
  * Reading (see `fileForViewer`): a file is readable by someone who can view
  *  - the page it was uploaded to, or
  *  - any page of the same workspace whose body shows it, or any row of the same workspace whose
- *    files property holds it (`file_reference`, kept by a trigger for both).
+ *    files property holds it (`file_reference`, kept by a trigger for both), once that reference is
+ *    authorized.
+ * The trigger records every file URL a page shows, whoever wrote it there; a reference is
+ * authorized by the write that made it, when the writer could read the file already (see
+ * authorizeFileReferences): the editor's saves and the server's own body writes (collab store
+ * hook), row values (databases.afterRowWrites), and copies of pages the writer could read
+ * (inheritFileReferences). So knowing a file's URL alone never grants anything: ids are
+ * unguessable, and writing one into a page lets nobody read a file the writer couldn't read.
  * Copies of a page (Duplicate, templates, pasting blocks) share the stored file rather than copying
- * it; the second rule is what lets people who see only the copy load it. Knowing a file's URL alone
- * never grants anything: ids are unguessable, and a page's body only shows a URL someone who could
- * already read the file put there.
+ * it; the second rule is what lets people who see only the copy load it.
+ * In a row of a database with property access rules, a file its files values hold counts only for
+ * people who may see one of those values (or for whom its body shows the file too), as in exports.
  * Visitors of a published page (signed in or not) may read files of pages that the publication
- * serves (see publication.anyPagePublished), by the same two rules.
+ * serves (see publication.anyPagePublished), by the same rules, with the property access of
+ * visitors.
  *
  * Cleanup: deleting a page for good clears `file.page_id`; once no page shows such a file anymore
  * it is removed (right away, and by the hourly sweep). Uploads that no page ever showed are removed
@@ -219,14 +228,131 @@ export async function fileForViewer(userId: string | null, fileId: string): Prom
   const pages = await pagesShowing(found);
   // A workspace whose two-step policy holds back this session shows only what it published.
   if (userId && pages.length && !(await sessionHeldBack(userId, found.workspaceId))) {
-    const [visible] = await db
+    const visible = await db
       .select({ id: page.id })
       .from(page)
-      .where(and(inArray(page.id, pages), sql`${accessRank(userId, sql`${page.id}`)} > 0`))
-      .limit(1);
-    if (visible) return found;
+      .where(and(inArray(page.id, pages), sql`${accessRank(userId, sql`${page.id}`)} > 0`));
+    if ((await showingTo(userId, found.id, visible.map((v) => v.id))).length) return found;
   }
-  return (await anyPagePublished(pages)) ? found : null;
+  return (await anyPagePublished(await showingTo(null, found.id, pages))) ? found : null;
+}
+
+/**
+ * Of `pageIds`, those that show the file to `viewer` (null: visitors of a published page) under
+ * property access: a row of a database with rules shows a file its files values hold only when the
+ * viewer may see one of those values, or its body shows the file too (see export.visibleFileIds).
+ * Pages that hold the file in no value (its body shows it, or it was uploaded there and not
+ * attached yet) show it as they are.
+ */
+async function showingTo(viewer: string | null, fileId: string, pageIds: string[]): Promise<string[]> {
+  if (!pageIds.length) return [];
+  const withRules = db.selectDistinct({ id: propertyPermission.databaseId }).from(propertyPermission);
+  const rows = await db
+    .select({ id: page.id, parentId: page.parentId, properties: page.properties, createdBy: page.createdBy, contentMarkdown: page.contentMarkdown })
+    .from(page)
+    .where(and(inArray(page.id, pageIds), inArray(page.parentId, withRules)));
+  const hidden = new Set<string>();
+  for (const row of rows) {
+    if (!fileIdsInProperties(row.properties).includes(fileId) || fileIdsIn(row.contentMarkdown).includes(fileId)) continue;
+    const access = await propertyAccessFor(viewer, row.parentId!);
+    if (access.open) continue;
+    const [shown] = access.strip([{ properties: row.properties ?? {}, createdBy: row.createdBy }]);
+    if (!fileIdsInProperties(shown.properties).includes(fileId)) hidden.add(row.id);
+  }
+  return pageIds.filter((id) => !hidden.has(id));
+}
+
+/**
+ * Authorizes the references of `pageId` (to `fileIds`, or all of them) that aren't yet, for the
+ * files one of `userIds` may read already (fileForViewer, which doesn't count these references
+ * while they aren't authorized). Called after a write that may have put a file's URL into the page,
+ * with whoever made it; returns how many references it authorized.
+ */
+export async function authorizeFileReferences(
+  userIds: Iterable<string | null | undefined>,
+  pageId: string,
+  fileIds?: string[],
+): Promise<number> {
+  const who = [...new Set([...userIds].filter((id): id is string => Boolean(id)))];
+  if (!who.length || (fileIds && !fileIds.length)) return 0;
+  const pending = await db
+    .select({ fileId: fileReference.fileId })
+    .from(fileReference)
+    .where(
+      and(
+        eq(fileReference.pageId, pageId),
+        eq(fileReference.authorized, false),
+        fileIds ? inArray(fileReference.fileId, fileIds) : undefined,
+      ),
+    );
+  const readable: string[] = [];
+  for (const { fileId } of pending) {
+    for (const userId of who) {
+      if (await fileForViewer(userId, fileId)) {
+        readable.push(fileId);
+        break;
+      }
+    }
+  }
+  if (readable.length) {
+    await db
+      .update(fileReference)
+      .set({ authorized: true })
+      .where(and(eq(fileReference.pageId, pageId), inArray(fileReference.fileId, readable)));
+  }
+  return readable.length;
+}
+
+/** Files `pageId` references without authorization yet (see authorizeFileReferences). */
+export async function unauthorizedFileIds(pageId: string): Promise<string[]> {
+  const rows = await db
+    .select({ fileId: fileReference.fileId })
+    .from(fileReference)
+    .where(and(eq(fileReference.pageId, pageId), eq(fileReference.authorized, false)));
+  return rows.map((r) => r.fileId);
+}
+
+/** Files `pageId` references, authorized or not. */
+export async function referencedFileIds(pageId: string): Promise<string[]> {
+  const rows = await db.select({ fileId: fileReference.fileId }).from(fileReference).where(eq(fileReference.pageId, pageId));
+  return rows.map((r) => r.fileId);
+}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Copies of pages (Duplicate, templates; `id` the copy, `sourceId` its source) show what their
+ * source showed: a copy's reference is authorized where its source's was, or where the source is
+ * the page the file was uploaded to. A URL its source showed without authorization stays so.
+ */
+export async function inheritFileReferences(tx: Tx, copies: { id: string; sourceId: string }[]): Promise<void> {
+  if (!copies.length) return;
+  await tx.execute(sql`
+    update ${fileReference} r set authorized = true
+    from jsonb_to_recordset(${JSON.stringify(copies)}::jsonb) as m(id text, "sourceId" text), ${file} f
+    where r.page_id = m.id and not r.authorized and f.id = r.file_id
+      and (f.page_id = m."sourceId" or exists (
+        select 1 from ${fileReference} s where s.page_id = m."sourceId" and s.file_id = r.file_id and s.authorized
+      ))
+  `);
+}
+
+/**
+ * Of these (page, file) pairs, the files each page shows with authorization (see fileReference),
+ * or that were uploaded to it, keyed `pageId:fileId`.
+ */
+export async function authorizedPairs(pairs: { pageId: string; fileId: string }[]): Promise<Set<string>> {
+  if (!pairs.length) return new Set();
+  const rows = await db.execute<{ page_id: string; file_id: string }>(sql`
+    select m.page_id, m.file_id
+    from jsonb_to_recordset(${JSON.stringify(pairs.map((p) => ({ page_id: p.pageId, file_id: p.fileId })))}::jsonb)
+      as m(page_id text, file_id text)
+    join ${file} f on f.id = m.file_id
+    where f.page_id = m.page_id or exists (
+      select 1 from ${fileReference} r where r.page_id = m.page_id and r.file_id = m.file_id and r.authorized
+    )
+  `);
+  return new Set([...rows].map((r) => `${r.page_id}:${r.file_id}`));
 }
 
 /**
@@ -265,13 +391,16 @@ export async function workspaceFiles(workspaceId: string, ids: string[]): Promis
     .where(and(eq(file.workspaceId, workspaceId), inArray(file.id, valid)));
 }
 
-/** The page the file was uploaded to (while it exists) and the pages of its workspace showing it. */
+/**
+ * The page the file was uploaded to (while it exists) and the pages of its workspace showing it with
+ * authorization (see fileReference).
+ */
 async function pagesShowing(found: FileRow): Promise<string[]> {
   const refs = await db
     .select({ pageId: fileReference.pageId })
     .from(fileReference)
     .innerJoin(page, eq(page.id, fileReference.pageId))
-    .where(and(eq(fileReference.fileId, found.id), eq(page.workspaceId, found.workspaceId)));
+    .where(and(eq(fileReference.fileId, found.id), eq(fileReference.authorized, true), eq(page.workspaceId, found.workspaceId)));
   return [...new Set([...(found.pageId ? [found.pageId] : []), ...refs.map((r) => r.pageId)])];
 }
 
@@ -289,7 +418,8 @@ export async function removeStored(keys: string[]) {
 
 /**
  * Removes files whose page was deleted for good and that no page shows anymore (in `workspaceId`,
- * or everywhere). Returns how many went.
+ * or everywhere). A page showing the file without authorization doesn't count: nobody can read the
+ * file through it. Returns how many went.
  */
 export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
   const gone = await db
@@ -297,7 +427,7 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
     .where(
       and(
         isNull(file.pageId),
-        sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
+        sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
         workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
       ),
     )

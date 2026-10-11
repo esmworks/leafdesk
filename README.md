@@ -459,7 +459,11 @@ instead, set `S3_BUCKET` and its credentials; files already stored are not moved
 Limits are enforced while a file arrives. A file can be opened by anyone who can see the page it
 was uploaded to or a page of the same workspace showing it (so duplicates and pages made from
 templates share it), or a row whose files & media property holds it, and by visitors of a
-published page showing it. Only raster images, video,
+published page showing it. A page shows a file this way only when whoever put it there could open
+the file already: pasting or typing a file's link into a page (in the editor, through the API, MCP
+or an import) lets nobody open a file the writer couldn't, and the page's export and copies leave
+it out too. A file a row holds only in a files & media property hidden from someone (property
+access) doesn't open for them through that row. Only raster images, video,
 audio and PDF open in the browser; everything else, SVG included, is downloaded. When a page is
 deleted for good, its files go once no other page shows them, and uploads no page ever used are
 removed after a day.
@@ -1659,7 +1663,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

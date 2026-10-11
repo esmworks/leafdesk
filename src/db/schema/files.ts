@@ -1,4 +1,4 @@
-import { bigint, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -35,6 +35,11 @@ export const file = pgTable(
  * `page.content_markdown` (drizzle/0015_file_uploads.sql), so every way a body is written (the
  * editor, MCP, duplicates, templates, history restores) keeps it current. Only pages of the file's
  * own workspace count.
+ *
+ * The trigger records every URL a page shows, but a reference lets the page's viewers read the file
+ * only once it is `authorized`: the write that put it there was made by someone who could read the
+ * file already (see server/files.ts). Writing a file's URL into a page therefore never grants
+ * anything by itself.
  */
 export const fileReference = pgTable(
   "file_reference",
@@ -45,6 +50,8 @@ export const fileReference = pgTable(
     pageId: text("page_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
+    /** Whether the page's viewers may read the file through this reference (see above). */
+    authorized: boolean("authorized").notNull().default(false),
   },
   (t) => [primaryKey({ columns: [t.fileId, t.pageId] }), index("file_reference_page_idx").on(t.pageId)],
 );

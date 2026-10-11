@@ -38,6 +38,7 @@ import type { AuditPagePlace } from "@/lib/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
   afterRowWrites,
+  authorizeRowFiles,
   bulkRowIds,
   normalizeRowProperties,
   rowsWithAccess,
@@ -365,6 +366,8 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
   if (parentKind === "database" && !inTemplate) {
     await syncPairedRelations(created.id, input.parentId!, {}, properties);
     await afterRowWrites(userId, input.parentId!, [{ rowId: created.id, before: {}, after: properties }], { created: true });
+  } else if (parentKind === "database") {
+    await authorizeRowFiles(userId, [{ rowId: created.id, before: {}, after: properties }]);
   }
 
   const collab = getCollab();

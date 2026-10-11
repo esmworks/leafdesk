@@ -4,7 +4,7 @@ import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import * as Y from "yjs";
 import { db } from "@/db";
-import { databaseProperty, databaseView, file, page, type PageKind, type RowProperties } from "@/db/schema";
+import { databaseProperty, databaseView, file, fileReference, page, type PageKind, type RowProperties } from "@/db/schema";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { writeDocTitle } from "@/lib/collab-title";
@@ -21,7 +21,7 @@ import { pageVisibleTo } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { blocksToMarkdown, serverEditor, type PageBlock } from "@/server/blocknote";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
-import { workspaceFiles, workspaceUsage } from "@/server/files";
+import { authorizedPairs, workspaceFiles, workspaceUsage } from "@/server/files";
 import { publishedPageRefs, syncPageReferences } from "@/server/mentions";
 import { makePagePrivate } from "@/server/permissions";
 import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
@@ -201,14 +201,22 @@ export async function duplicatePublishedPage(
       doc.destroy();
     }
   }
+  // Only files the source pages show with authorization (or that were uploaded to them), the ones
+  // their visitors can load (see files.fileForViewer): a URL written into a page grants nothing.
+  const shown = plan.pages.flatMap((p) =>
+    [...fileIdsIn(JSON.stringify(blocksOf.get(p.id) ?? [])), ...fileIdsInProperties(values.get(p.id))].map((fileId) => ({
+      copyId: p.id,
+      pageId: p.sourceId,
+      fileId,
+    })),
+  );
+  const counted = await authorizedPairs(shown);
   const fileIds = new Set<string>();
   const firstShownOn = new Map<string, string>();
-  for (const p of plan.pages) {
-    const ids = [...fileIdsIn(JSON.stringify(blocksOf.get(p.id) ?? [])), ...fileIdsInProperties(values.get(p.id))];
-    for (const id of ids) {
-      fileIds.add(id);
-      if (!firstShownOn.has(id)) firstShownOn.set(id, p.id);
-    }
+  for (const { copyId, pageId, fileId } of shown) {
+    if (!counted.has(`${pageId}:${fileId}`)) continue;
+    fileIds.add(fileId);
+    if (!firstShownOn.has(fileId)) firstShownOn.set(fileId, copyId);
   }
   const files = await workspaceFiles(sourceWorkspace, [...fileIds]);
   if (files.length > MAX_COPY_FILES) throw new DuplicateError(`Can't copy more than ${MAX_COPY_FILES} files at once`, "tooLarge");
@@ -340,6 +348,13 @@ export async function duplicatePublishedPage(
       }
       for (const { id, source } of copiedFiles) {
         await tx.update(file).set({ pageId: firstShownOn.get(source.id) ?? plan.rootId }).where(eq(file.id, id));
+      }
+      // The copied files are new and shown only by the copy, which may show them all.
+      if (copiedFiles.length) {
+        await tx
+          .update(fileReference)
+          .set({ authorized: true })
+          .where(inArray(fileReference.fileId, copiedFiles.map((f) => f.id)));
       }
       // A copy from the web lands among their private pages; they move it to a teamspace to share it.
       await makePagePrivate(tx, target, plan.rootId, userId);

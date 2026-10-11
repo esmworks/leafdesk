@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
 import { file, fileReference, page, propertyPermission, type PageKind, workspace } from "@/db/schema";
@@ -359,8 +359,9 @@ export async function planExport(userId: string, scope: ExportScope, labels: Exp
   }
 
   // Files the exported pages show in their bodies or hold in files properties (file_reference,
-  // kept by triggers for both), of this workspace only. A row whose values are partly kept from the
-  // exporter only brings the files its body and the values they may see hold.
+  // kept by triggers for both), of this workspace only, by the references that count (authorized,
+  // or on the page the file was uploaded to: see server/files.ts). A row whose values are partly
+  // kept from the exporter only brings the files its body and the values they may see hold.
   const ids = pages.map((p) => p.id);
   const restricted = await restrictedRowFiles(userId, ids);
   const files: PlannedFile[] = [];
@@ -377,7 +378,13 @@ export async function planExport(userId: string, scope: ExportScope, labels: Exp
       })
       .from(file)
       .innerJoin(fileReference, eq(fileReference.fileId, file.id))
-      .where(and(eq(file.workspaceId, workspaceId), inArray(fileReference.pageId, ids.slice(i, i + 5000))));
+      .where(
+        and(
+          eq(file.workspaceId, workspaceId),
+          inArray(fileReference.pageId, ids.slice(i, i + 5000)),
+          or(eq(fileReference.authorized, true), eq(file.pageId, fileReference.pageId)),
+        ),
+      );
     for (const { pageId, ...f } of found) {
       const shown = restricted.get(pageId);
       if (!shown || shown.has(f.id)) files.push(f);

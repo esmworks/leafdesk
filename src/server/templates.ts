@@ -9,6 +9,7 @@ import {
   addProperty,
   addView,
   afterRowWrites,
+  authorizeRowFiles,
   dropCopiedSubItems,
   getProperties,
   listRowTemplateSummaries,
@@ -251,6 +252,8 @@ export async function createFromTemplate(
     if (!root.inTemplate) {
       await syncPairedRelations(root.id, parentId!, {}, values);
       await afterRowWrites(userId, parentId!, [{ rowId: root.id, before: {}, after: values }], { created: true });
+    } else {
+      await authorizeRowFiles(userId, [{ rowId: root.id, before: root.properties, after: values }]);
     }
     collab.broadcast(`db:${parentId}`, "rows");
   }

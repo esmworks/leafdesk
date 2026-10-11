@@ -22,6 +22,7 @@ import { AccessError, policyHoldFor, WorkspacePolicyError } from "@/server/acces
 import { collabSessionFacts } from "@/server/account-security";
 import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/server/blocknote";
+import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
@@ -198,6 +199,20 @@ export function createCollab() {
     hocuspocus.documents.get(channel)?.broadcastStateless(event);
   };
 
+  /**
+   * Who changed each open document since it was last saved: browsers' connections and the server's
+   * own writes (MCP, the REST API, imports, restores) alike, each with the user it acts for. A save
+   * can cover changes of several people (saves wait for a pause in typing), so the last of them
+   * alone (`lastContext`) wouldn't do for authorizing the files the save adds (see persistPage).
+   */
+  const writers = new WeakMap<Y.Doc, Set<string>>();
+  const takeWriters = (doc: Y.Doc, last?: string) => {
+    const found = writers.get(doc) ?? new Set<string>();
+    writers.delete(doc);
+    if (last) found.add(last);
+    return found;
+  };
+
   const persistPage = async (pageId: string, doc: Document, context?: Context) => {
     const userId = context?.userId;
     const [row] = await db
@@ -213,10 +228,16 @@ export function createCollab() {
       .where(eq(page.id, pageId))
       .limit(1);
     if (!row) return; // deleted while open
+    // Taken in the same synchronous run as the body is read (deriveContent reads it before it
+    // awaits anything), so whoever changed what this save writes is among them, and nobody whose
+    // change only the next save holds.
+    const wrote = takeWriters(doc, userId);
     const { blocks, markdown, text } = await deriveContent(doc, row.workspaceId);
     const title = readTitle(doc) ?? row.title;
     // Comments and their marks change the document but not the page: they don't count as edits.
-    const edited = title !== row.title || row.markdownHash !== createHash("md5").update(markdown).digest("hex");
+    const bodyChanged = row.markdownHash !== createHash("md5").update(markdown).digest("hex");
+    const edited = title !== row.title || bodyChanged;
+    const shownBefore = bodyChanged ? new Set(await referencedFileIds(pageId)) : null;
     await db
       .update(page)
       .set({
@@ -227,6 +248,13 @@ export function createCollab() {
         ...(!edited ? { updatedAt: sql`${page.updatedAt}` } : userId ? { updatedBy: userId } : {}),
       })
       .where(eq(page.id, pageId));
+    if (shownBefore) {
+      // Files this save put into the body (the trigger recorded them, unauthorized) count for the
+      // page's viewers when one of the people who changed it since the last save could read them
+      // already; a URL nobody of them could read stays without effect (see server/files.ts).
+      const added = (await unauthorizedFileIds(pageId)).filter((id) => !shownBefore.has(id));
+      await authorizeFileReferences(wrote, pageId, added);
+    }
     // Every save, not only edits: a reminder changes the document but not its Markdown.
     await syncPageReferences(pageId, row.workspaceId, blocks, userId ?? null, context?.locale ?? null);
     if (!edited) return;
@@ -324,8 +352,15 @@ export function createCollab() {
       stampPresence(states, context);
     },
 
-    async onChange({ documentName, update }) {
+    async onChange({ documentName, document, update, context }) {
       debug("change", documentName, update.byteLength);
+      // Read-only connections never get here: Hocuspocus drops their changes first.
+      const userId = (context as Context | undefined)?.userId;
+      if (userId && parseName(documentName)?.kind === "page") {
+        const known = writers.get(document);
+        if (known) known.add(userId);
+        else writers.set(document, new Set([userId]));
+      }
     },
 
     async onStoreDocument({ documentName, document, lastContext }) {
