@@ -3,8 +3,9 @@
  * narrowing on subpages, visibility in lists, shared pages showing up as top-level pages, and the
  * guard that keeps someone with full access on every page, what guests can and can't see, rows
  * restricted inside a database, moving pages, what a publication exposes and who may publish,
- * sharing by email, and every read path (UI, MCP tools, collab) keeping a restricted page out of
- * sight. Creates its own users and workspace and deletes them afterwards.
+ * sharing by email, what leaving (or being removed) takes away and coming back doesn't restore,
+ * and every read path (UI, MCP tools, collab) keeping a restricted page out of sight. Creates its
+ * own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/access-e2e.ts
  *
@@ -17,10 +18,23 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { inArray } = await import("drizzle-orm");
+const { eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { page, pageInvitation, pagePublication, pageSnapshot, user, workspace, workspaceInvitation, workspaceMember } =
-  await import("@/db/schema");
+const {
+  apiToken,
+  calendarFeed,
+  databaseProperty,
+  page,
+  pageInvitation,
+  pagePermission,
+  pagePublication,
+  pageSnapshot,
+  propertyPermission,
+  user,
+  workspace,
+  workspaceInvitation,
+  workspaceMember,
+} = await import("@/db/schema");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { authorizeCollab } = await import("@/server/collab/authorize");
 const { createMcpServer } = await import("@/server/mcp/tools");
@@ -62,6 +76,7 @@ const {
   canInviteGuests,
   listMembers,
   removeMember,
+  removeMemberByProvider,
   setMemberRole,
   transferOwnership,
   updateWorkspaceSettings,
@@ -697,18 +712,57 @@ try {
     "removing a guest hands their private pages to the owner who removed them, and to nobody else",
   );
   check((await levels(ownDb.id, owner, alice)).join() === "full,none", "…their databases too");
+  const guestLeftovers = await db.select({ id: pagePermission.id }).from(pagePermission).where(eq(pagePermission.userId, guest));
+  check(guestLeftovers.length === 0, "…while the guest's own entries go, after the handover", guestLeftovers);
   const solo = await createPage({ userId: alice }, { workspaceId, title: "alice's" });
   await setPagePermission(alice, solo.id, alice, "full");
   await setPagePermission(alice, solo.id, null, "none");
   check((await levels(solo.id, alice, owner, bob)).join() === "full,none,none", "a member can keep a page to themselves");
+  // What they were given in the workspace: a property rule, a calendar feed, an API token only for it.
+  const [visibleProperty] = await db.select({ id: databaseProperty.id }).from(databaseProperty).where(eq(databaseProperty.databaseId, VD));
+  await db.insert(propertyPermission).values({ propertyId: visibleProperty.id, databaseId: VD, workspaceId, userId: alice, level: "edit" });
+  await db.insert(calendarFeed).values({ userId: alice, workspaceId, tokenHash: `${RUN}-feed` });
+  await db.insert(apiToken).values([
+    { userId: alice, name: "this workspace", prefix: "esi_", tokenHash: `${RUN}-scoped`, scopes: ["pages:read"], workspaceId },
+    { userId: alice, name: "every workspace", prefix: "esi_", tokenHash: `${RUN}-all`, scopes: ["pages:read"] },
+  ]);
   await removeMember(alice, workspaceId, alice);
   check((await levels(Pg, alice))[0] === "none", "grants stop applying once the member leaves");
   check((await levels(solo.id, owner, bob)).join() === "full,none", "a member who leaves hands it to the oldest owner");
+  const aliceLeftovers = await Promise.all([
+    db.select({ id: pagePermission.id }).from(pagePermission).where(eq(pagePermission.userId, alice)),
+    db.select({ id: propertyPermission.id }).from(propertyPermission).where(eq(propertyPermission.userId, alice)),
+    db.select({ id: calendarFeed.id }).from(calendarFeed).where(eq(calendarFeed.userId, alice)),
+  ]);
+  check(aliceLeftovers.every((rows) => rows.length === 0), "…and their entries, property rules and calendar feeds there go", aliceLeftovers);
+  const aliceTokens = await db.select({ name: apiToken.name }).from(apiToken).where(eq(apiToken.userId, alice));
+  check(aliceTokens.map((t) => t.name).join() === "every workspace", "…with the API tokens that only reached it", aliceTokens);
+  // Coming back starts from what the workspace gives everyone, not from what they had.
+  await db.insert(workspaceInvitation).values({
+    workspaceId,
+    email: emailOf(alice),
+    role: "member",
+    token: `${RUN}-alice-back`,
+    invitedBy: owner,
+    expiresAt: new Date(Date.now() + 60_000),
+  });
+  await acceptInvitation(`${RUN}-alice-back`, alice, emailOf(alice));
+  check(
+    (await levels(Pg, alice)).join() === "none" && (await levels(solo.id, alice)).join() === "none",
+    "rejoining doesn't bring back the pages shared with them, or the one that was theirs",
+  );
   const bobs = await createPage({ userId: bob }, { workspaceId, title: "bob's" });
   await setPagePermission(bob, bobs.id, bob, "full");
   await setPagePermission(bob, bobs.id, null, "none");
   await setMemberRole(owner, workspaceId, bob, "guest");
   check((await levels(bobs.id, bob, owner)).join() === "full,none", "a member made guest keeps their own pages");
+  await removeMemberByProvider(workspaceId, bob);
+  const bobLeftovers = await db.select({ id: pagePermission.id }).from(pagePermission).where(eq(pagePermission.userId, bob));
+  check(
+    bobLeftovers.length === 0 && (await levels(bobs.id, owner))[0] === "full",
+    "their identity provider removing them (SCIM) drops their entries too, after the oldest owner takes over their pages",
+    bobLeftovers,
+  );
 
   console.log(`\n${passed} checks passed`);
 } finally {

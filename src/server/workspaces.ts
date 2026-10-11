@@ -1,9 +1,12 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, gt, inArray, isNotNull, max, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNotNull, max, or, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
   aiConversation,
+  apiToken,
+  calendarFeed,
+  databaseView,
   DEFAULT_WORKSPACE_SETTINGS,
   file,
   page,
@@ -13,6 +16,7 @@ import {
   pageGroupPermission,
   pageIndexState,
   pagePermission,
+  propertyPermission,
   ssoProvider,
   user,
   workspace,
@@ -893,6 +897,29 @@ export async function transferOwnership(actorId: string, workspaceId: string, ta
   await getCollab().disconnectLostAccess(workspaceId, [actorId]);
 }
 
+/**
+ * Inside the transaction that takes someone out of the workspace, after handOverOrphanedPages
+ * (their entries are what tells it which pages they alone could manage): what they were given in
+ * it goes, so coming back (an invitation, the join link, an access request, single sign-on, SCIM)
+ * starts from what the workspace gives everyone. Their own entries on pages and properties, their
+ * calendar feeds of the workspace, and API tokens that only reach it.
+ */
+async function forgetWorkspaceGrants(tx: Tx, workspaceId: string, userId: string) {
+  await tx.delete(pagePermission).where(and(eq(pagePermission.workspaceId, workspaceId), eq(pagePermission.userId, userId)));
+  await tx
+    .delete(propertyPermission)
+    .where(and(eq(propertyPermission.workspaceId, workspaceId), eq(propertyPermission.userId, userId)));
+  const views = tx
+    .select({ id: databaseView.id })
+    .from(databaseView)
+    .innerJoin(page, eq(page.id, databaseView.databaseId))
+    .where(eq(page.workspaceId, workspaceId));
+  await tx
+    .delete(calendarFeed)
+    .where(and(eq(calendarFeed.userId, userId), or(eq(calendarFeed.workspaceId, workspaceId), inArray(calendarFeed.viewId, views))));
+  await tx.delete(apiToken).where(and(eq(apiToken.userId, userId), eq(apiToken.workspaceId, workspaceId)));
+}
+
 /** Owners can remove anyone; members can only remove themselves (leave). */
 export async function removeMember(actorId: string, workspaceId: string, targetId: string) {
   // Leaving works without meeting the two-step policy: nobody should have to set it up to get out.
@@ -917,6 +944,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     const heir = actorId !== targetId ? actorId : await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, targetId, heir);
     if (heir) await handOverOrphanedPages(tx, workspaceId, heir);
+    await forgetWorkspaceGrants(tx, workspaceId, targetId);
     // Their AI chat conversations quote the workspace's pages: they go with them.
     await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, targetId)));
     // An allowed email domain doesn't bring them back on their next sign-in; someone an owner
@@ -1267,6 +1295,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     const heir = await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, userId, heir);
     if (heir) await handOverOrphanedPages(tx, workspaceId, heir);
+    await forgetWorkspaceGrants(tx, workspaceId, userId);
     await rememberDeparture(tx, workspaceId, userId, "declined", null);
     await recordAudit(
       { workspaceId, actorId: null, action: "member.removed", target: { type: "user", id: userId }, details: { role: current.role, via: "scim" } },

@@ -242,6 +242,9 @@ versions, upgrades and running behind a domain.
   as a guest who sees only the pages shared with them. Someone who opens a link to a page they
   can't see can request access; the people with full access approve it at a level or decline it
   from their inbox or the Share panel (owners can turn requests off in Settings → Security).
+  Someone who leaves the workspace, or is removed from it, loses what it gave them by name: their
+  access to pages and properties, their calendar feeds of it and API tokens made only for it
+  (pages only they could manage pass to an owner first). Coming back starts afresh.
 - **Property access**: people with full access to a database decide, from a column's menu, who
   may see and change that one property: everyone with access to the database can edit it, edit
   only its values, view it, see only that the column exists, or not see it at all, with
