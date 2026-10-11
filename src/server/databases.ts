@@ -81,6 +81,7 @@ import {
   hasLevel,
   isGuest,
   levelFromRank,
+  pageAccessOf,
   pageVisibleTo,
   requireMembership,
   requirePageAccess,
@@ -1651,21 +1652,25 @@ export async function ensureOption(userId: string, propertyId: string, name: str
  * and the REST API) until someone restores it (restoreProperty), deletes it for good
  * (purgeProperty), or the daily cleanup does after the workspace's `trashRetentionDays` (see
  * server/retention). Rows keep its values and views what they said about it, so a restore brings
- * both back as they were. The other side of a two-way relation is deleted with it.
+ * both back as they were. The other side of a two-way relation is deleted with it, when the user
+ * may change that one too; otherwise the two are taken apart first (see mayOnlyDetach).
  */
 export async function deleteProperty(userId: string, propertyId: string) {
   const prop = await requireProperty(userId, propertyId);
-  const props = await withPair(prop, db, false);
+  const pair = await withPair(prop, db, false);
+  const detach = await mayOnlyDetach(userId, pair, false);
+  const props = detach ? [prop] : pair;
   const workspaceId = await workspaceOf(prop.databaseId);
   const deletedAt = new Date();
   await db.transaction(async (tx) => {
+    if (detach) await unpair(tx, pair);
     await tx
       .update(databaseProperty)
       .set({ deletedAt, deletedBy: userId })
       .where(inArray(databaseProperty.id, props.map((p) => p.id)));
     if (workspaceId) await auditProperties(tx, workspaceId, userId, "property.trashed", props);
   });
-  notifyPropertyDatabases(props);
+  notifyPropertyDatabases(pair);
 }
 
 /** A property and the other side of its two-way relation, when that one is (`deleted`) or isn't deleted. */
@@ -1677,6 +1682,47 @@ async function withPair(prop: DatabaseProperty, exec: Executor, deleted: boolean
     .from(databaseProperty)
     .where(and(eq(databaseProperty.id, pairedId), deleted ? isNotNull(databaseProperty.deletedAt) : isNull(databaseProperty.deletedAt)));
   return paired ? [prop, paired] : [prop];
+}
+
+/**
+ * Whether deleting, restoring or deleting for good a property of a two-way relation (`pair`, as
+ * withPair gives it) may act on its own side only: the user may not change the other side, in
+ * another database, as they may their own (edit access to that database, unlocked, and to the
+ * property itself). Then the two are taken apart instead, each a one-way relation with its values,
+ * the way changing the property's type leaves the other side.
+ */
+async function mayOnlyDetach(userId: string, pair: DatabaseProperty[], deleted: boolean) {
+  const paired = pair[1];
+  if (!paired) return false;
+  const { page: database, level } = await pageAccessOf(userId, paired.databaseId);
+  if (!database || !hasLevel(level, "edit") || database.lockedAt) return true;
+  const access = await propertyAccessFor(userId, paired.databaseId, { withDeleted: deleted });
+  if (!access.visible([paired]).length) return true;
+  try {
+    access.requireSchema(paired.id);
+  } catch (error) {
+    if (error instanceof PropertyValueError) return true;
+    throw error;
+  }
+  return false;
+}
+
+/** Takes the two sides of a two-way relation apart: each stays as a one-way relation. Returns them as they are now. */
+async function unpair(exec: Executor, pair: DatabaseProperty[]): Promise<DatabaseProperty[]> {
+  const out: DatabaseProperty[] = [];
+  for (const p of pair) {
+    if (!p.options.relation) {
+      out.push(p);
+      continue;
+    }
+    const [row] = await exec
+      .update(databaseProperty)
+      .set({ options: { ...p.options, relation: { ...p.options.relation, pairedPropertyId: null } } })
+      .where(eq(databaseProperty.id, p.id))
+      .returning();
+    out.push(row ?? p);
+  }
+  return out;
 }
 
 /** Everyone looking at the databases of these properties reloads them (values show or go too). */
@@ -1726,12 +1772,18 @@ async function requireDeletedProperty(userId: string, propertyId: string) {
  * row, what views said about it, formulas and rollups that read it, and its access rules. A name
  * another property took meanwhile gets a number ("Status 2", the way new properties are named).
  * Sub-items and dependencies stand for one relation each: one turned on again meanwhile keeps the
- * part, and the restored relation comes back as a plain relation.
+ * part, and the restored relation comes back as a plain relation. When the user may not change the
+ * other side, it stays deleted and the two are taken apart (see mayOnlyDetach).
  */
 export async function restoreProperty(userId: string, propertyId: string) {
   const { prop, database } = await requireDeletedProperty(userId, propertyId);
+  const detach = await mayOnlyDetach(userId, await withPair(prop, db, true), true);
+  const touched = new Set<string>([prop.databaseId]);
   const restored = await db.transaction(async (tx) => {
-    const props = await withPair(prop, tx, true);
+    const pair = await withPair(prop, tx, true);
+    for (const p of pair) touched.add(p.databaseId);
+    // The other side stays deleted, no longer paired: restoring it later brings back a one-way relation.
+    const props = detach ? (await unpair(tx, pair)).slice(0, 1) : pair;
     const out: DatabaseProperty[] = [];
     for (const p of props) {
       const name = await uniquePropertyName(p.databaseId, p.name, tx, p.id);
@@ -1764,20 +1816,26 @@ export async function restoreProperty(userId: string, propertyId: string) {
     await auditProperties(tx, database.workspaceId, userId, "property.restored", out);
     return out;
   });
-  notifyPropertyDatabases(restored);
+  notifyPropertyDatabases([...touched].map((databaseId) => ({ databaseId })));
   return restored[0];
 }
 
-/** Deletes a deleted property for good, now, with the other side of its relation ("Delete permanently"). */
+/**
+ * Deletes a deleted property for good, now, with the other side of its relation ("Delete
+ * permanently"), or without it when the user may not change that one (see mayOnlyDetach).
+ */
 export async function purgeProperty(userId: string, propertyId: string) {
   const { prop, database } = await requireDeletedProperty(userId, propertyId);
-  const props = await db.transaction(async (tx) => {
-    const props = await withPair(prop, tx, true);
+  const detach = await mayOnlyDetach(userId, await withPair(prop, db, true), true);
+  const pair = await db.transaction(async (tx) => {
+    const pair = await withPair(prop, tx, true);
+    // Alone, it leaves the other side as a one-way relation (see eraseProperties).
+    const props = detach ? pair.slice(0, 1) : pair;
     await eraseProperties(tx, props);
     await auditProperties(tx, database.workspaceId, userId, "property.deleted", props);
-    return props;
+    return pair;
   });
-  notifyPropertyDatabases(props);
+  notifyPropertyDatabases(pair);
 }
 
 /**

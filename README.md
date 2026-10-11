@@ -162,8 +162,9 @@ versions, upgrades and running behind a domain.
   - Deleted properties and views can be restored: "Deleted properties" at the bottom of a view's
     Properties menu and "Deleted views" under the add-view button list them with who deleted them
     and when. A restored property comes back with its values and with what views, formulas and
-    rollups said about it; both sides of a two-way relation go and come back together. They are
-    deleted permanently with the trash, after the workspace's trash retention, or at once from the
+    rollups said about it; both sides of a two-way relation go and come back together, unless the
+    other side's database is locked or someone can't edit it: then only their side goes or comes
+    back, and the two become one-way relations. They are deleted permanently with the trash, after the workspace's trash retention, or at once from the
     list. While deleted they don't show, export, search, take writes or trigger automations.
   - Select rows to edit a property, duplicate, export or trash them at once.
   - Form views collect answers as new rows, in the app or through a public link, signed in or

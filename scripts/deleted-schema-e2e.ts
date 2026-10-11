@@ -3,7 +3,7 @@
  * property is left out of every read (snapshot, row page, filters and sorts, formulas, MCP) and
  * refused on writes while rows keep its values and views their settings about it; restoring brings
  * both back (with a number when its name was taken meanwhile), two-way relations go and come back
- * with their other side, access rules naming its people stop holding, automations skip it, and
+ * with their other side (or are taken apart when someone may not change that side), access rules naming its people stop holding, automations skip it, and
  * the daily cleanup or "Delete permanently" deletes it for good. Views likewise, with a database
  * keeping at least one. Creates its own users and workspace and deletes them afterwards.
  *
@@ -272,6 +272,57 @@ try {
   check(await rejects(() => databases.purgeProperty(ids.owner, restored.id), "databaseLocked"), "…nor deletes one for good");
   await databases.setDatabaseLocked(ids.owner, tasks.id, false);
   check(!(await rejects(() => databases.restoreProperty(ids.owner, restored.id))), "unlocked, it restores again");
+
+  // ------------------------------------------------- the other side, in a database they can't change
+  // Someone who may change only one side of a two-way relation acts on that side alone: the two are
+  // taken apart, each a one-way relation, rather than the other side changing without them.
+  const left = await createPage(actor, { workspaceId, parentId: root.id, kind: "database", title: "Left" });
+  const right = await createPage(actor, { workspaceId, parentId: root.id, kind: "database", title: "Right" });
+  const pairUp = async (name: string) => {
+    const made = await databases.addProperty(ids.owner, left.id, { name, type: "relation", relation: { databaseId: right.id, twoWay: true, pairedName: `${name} back` } });
+    return { mine: made.id, theirs: made.options.relation!.pairedPropertyId! };
+  };
+  const stored = async (id: string) => (await db.select().from(databaseProperty).where(eq(databaseProperty.id, id)))[0];
+  const pairedOf = async (id: string) => (await stored(id))?.options.relation?.pairedPropertyId ?? null;
+  await setPagePermission(ids.owner, right.id, ids.member, "view");
+
+  const one = await pairUp("One");
+  await databases.deleteProperty(ids.member, one.mine);
+  check((await stored(one.mine)).deletedAt !== null && (await stored(one.theirs)).deletedAt === null, "deleting one side leaves the other, in a database they may only view", [await stored(one.mine), await stored(one.theirs)]);
+  check((await pairedOf(one.mine)) === null && (await pairedOf(one.theirs)) === null, "…and the two are no longer paired");
+  await databases.restoreProperty(ids.member, one.mine);
+  check((await stored(one.mine)).deletedAt === null && (await pairedOf(one.mine)) === null, "restoring it brings back a one-way relation");
+
+  const two = await pairUp("Two");
+  await databases.deleteProperty(ids.owner, two.mine);
+  check((await stored(two.theirs)).deletedAt !== null, "someone who may change both sides deletes both");
+  await databases.restoreProperty(ids.member, two.mine);
+  check(
+    (await stored(two.mine)).deletedAt === null && (await stored(two.theirs)).deletedAt !== null && (await pairedOf(two.theirs)) === null,
+    "restoring one side restores only it when they may not change the other, which stays deleted and unpaired",
+  );
+
+  const three = await pairUp("Three");
+  await databases.deleteProperty(ids.owner, three.mine);
+  await databases.purgeProperty(ids.member, three.mine);
+  check(
+    !(await stored(three.mine)) && (await stored(three.theirs))?.deletedAt && (await pairedOf(three.theirs)) === null,
+    "deleting one side for good keeps the other, deleted and unpaired",
+  );
+
+  // Edit access to the other database, but it is locked.
+  await setPagePermission(ids.owner, right.id, ids.member, "edit");
+  await databases.setDatabaseLocked(ids.owner, right.id, true);
+  const four = await pairUp("Four");
+  await databases.deleteProperty(ids.member, four.mine);
+  check((await stored(four.theirs)).deletedAt === null && (await pairedOf(four.theirs)) === null, "a locked database keeps its side too");
+  await databases.setDatabaseLocked(ids.owner, right.id, false);
+
+  const six = await pairUp("Six");
+  await databases.deleteProperty(ids.member, six.mine);
+  check((await stored(six.theirs)).deletedAt !== null && (await pairedOf(six.mine)) === six.theirs, "with edit access to both, both sides go together as before");
+  await databases.restoreProperty(ids.member, six.mine);
+  check((await stored(six.theirs)).deletedAt === null, "…and come back together");
 
   console.log(`\n${passed} checks passed`);
 } finally {
