@@ -196,7 +196,9 @@ export const auth = betterAuth({
             }
           }
           // A verified address (Google, GitHub, the instance's SSO) on a workspace's allowed
-          // domain joins that workspace; they start there instead of in a personal one.
+          // domain joins that workspace; they start there instead of in a personal one. Only a
+          // domain the workspace proved by DNS does that (server/allowed-domains.ts), so nobody
+          // lands in a workspace that merely typed in their domain.
           if ((await domainPolicies(user.id)).length) return;
           await createPersonalWorkspace(user.id, user.name);
         },

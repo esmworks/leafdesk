@@ -42,7 +42,14 @@ export const AUDIT_CATEGORIES = {
   ],
   groups: ["group.created", "group.renamed", "group.deleted", "group.members_added", "group.members_removed"],
   settings: ["workspace.renamed", "workspace.settings_changed"],
-  security: ["sso.configured", "sso.domains_verified", "sso.removed", "scim.token_created", "scim.token_revoked"],
+  security: [
+    "sso.configured",
+    "sso.domains_verified",
+    "sso.removed",
+    "scim.token_created",
+    "scim.token_revoked",
+    "workspace.domains_verified",
+  ],
   pages: [
     "page.created",
     "page.duplicated",

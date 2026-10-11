@@ -719,7 +719,7 @@
         "invalidSaml": "Kimlik sağlayıcının metadata XML'ini yapıştırın ya da SSO URL'sini, entity ID'sini ve imzalama sertifikasını girin.",
         "noConnection": "Önce çoklu oturum açmayı kurun.",
         "dnsMismatch": "{detail} için TXT kaydı bulunamadı ya da değeri farklı. DNS değişikliklerinin görünmesi biraz sürebilir.",
-        "domainTaken": "{detail} bu sunucuda zaten başka bir yerde çoklu oturum açma için kullanılıyor.",
+        "domainTaken": "{detail} bu sunucuda zaten başka bir çalışma alanı tarafından doğrulanmış.",
         "name": "Token'a en fazla 100 karakterlik bir ad verin.",
         "limit": "Bir çalışma alanında en fazla 20 SCIM token'ı olabilir. Önce birini iptal edin.",
         "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir.",
@@ -777,10 +777,24 @@
     },
     "allowedDomains": {
       "title": "İzin verilen e-posta alan adları",
-      "description": "Bu alan adlarında (alt alan adları dahil) adresi olan kişiler davet olmadan katılabilir. gmail.com gibi genel e-posta servisleri eklenemez.",
+      "description": "Bu alan adlarında (alt alan adları dahil) adresi olan kişiler, alan adını aşağıda doğruladığınızda davet olmadan katılabilir. gmail.com gibi genel e-posta servisleri eklenemez.",
       "placeholder": "ornek.com, ornek.org",
       "verifiedByEmail": "Yalnızca doğrulanmış adresler kendiliğinden katılır: yeni hesaplara e-postayla bir doğrulama bağlantısı gider.",
-      "verifiedByProvider": "Yalnızca doğrulanmış adresler kendiliğinden katılır. Bu sunucu e-posta göndermediği için yalnızca Google, GitHub veya çoklu oturum açma hesapları doğrulanmış sayılır."
+      "verifiedByProvider": "Yalnızca doğrulanmış adresler kendiliğinden katılır. Bu sunucu e-posta göndermediği için yalnızca Google, GitHub veya çoklu oturum açma hesapları doğrulanmış sayılır.",
+      "verifiedByDns": "Doğrulandı",
+      "verifiedBySso": "Çoklu oturum açmayla doğrulandı",
+      "unverified": "Doğrulanmadı: henüz bu alan adıyla kimse katılmaz",
+      "dnsBody": "Bu alan adının size ait olduğunu göstermek için DNS sağlayıcınızda bu TXT kaydını ekleyin, sonra doğrulayın.",
+      "verify": "Doğrula",
+      "verifying": "DNS kontrol ediliyor…",
+      "verified": "{domain} doğrulandı.",
+      "errors": {
+        "notListed": "{detail} artık izin verilen alan adlarından biri değil. Sayfayı yenileyin.",
+        "dnsMismatch": "{detail} için TXT kaydı bulunamadı ya da değeri farklı. DNS değişikliklerinin görünmesi biraz sürebilir.",
+        "domainTaken": "{detail} bu sunucuda zaten başka bir çalışma alanı tarafından doğrulanmış.",
+        "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir.",
+        "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin."
+      }
     },
     "domainJoin": {
       "title": "Bu alan adlarından biri giriş yaptığında",
@@ -1023,7 +1037,8 @@
       },
       "workspace": {
         "renamed": "Çalışma alanı yeniden adlandırıldı: {from} → {to}",
-        "settings_changed": "Ayarlar değiştirildi: {settings}"
+        "settings_changed": "Ayarlar değiştirildi: {settings}",
+        "domains_verified": "İzin verilen e-posta alan adı doğrulandı: {domains}"
       },
       "sso": {
         "configured": "Çoklu oturum açma bağlantısı kaydedildi ({protocol}): {domains}",

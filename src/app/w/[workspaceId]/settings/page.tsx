@@ -66,6 +66,7 @@ import {
 } from "@/lib/settings-tabs";
 import { AccessError, isGuest } from "@/server/access";
 import { builtinAgents } from "@/server/agents/builtin";
+import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { listAgents } from "@/server/agents/manage";
 import { listConnections } from "@/server/connections/manage";
 import { aiInfo, embeddingModel } from "@/server/ai";
@@ -245,7 +246,7 @@ async function ExportGroup({ workspaceId, userId }: { workspaceId: string; userI
 }
 
 async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, t] =
+  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
       isOwner ? listWorkspacePublications(userId, workspaceId) : null,
@@ -256,6 +257,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       isOwner ? getSsoConnection(userId, workspaceId) : null,
       isOwner ? listScimTokens(userId, workspaceId) : [],
       isOwner ? scimManagedCount(workspaceId) : 0,
+      allowedDomainsStatus(userId, workspaceId),
       getTranslations("settings"),
     ]);
   const setup = ssoSetupInfo(workspaceId);
@@ -275,7 +277,13 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         </SettingsGroup>
       </div>
       <SettingsGroup title={t("security.membersHeading")}>
-        <MembershipSettings workspaceId={workspaceId} settings={settings} canEdit={isOwner} mailEnabled={mailStatus() !== "disabled"} />
+        <MembershipSettings
+          workspaceId={workspaceId}
+          settings={settings}
+          canEdit={isOwner}
+          mailEnabled={mailStatus() !== "disabled"}
+          domainStatus={domainStatus}
+        />
       </SettingsGroup>
       {isOwner && (
         <SettingsGroup title={t("security.sso.title")} description={t("security.sso.description")}>

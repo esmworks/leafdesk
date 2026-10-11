@@ -719,7 +719,7 @@
         "invalidSaml": "Pega el XML de metadatos del proveedor de identidad, o introduce su URL de SSO, su entity ID y su certificado de firma.",
         "noConnection": "Primero configura el inicio de sesión único.",
         "dnsMismatch": "No se encontró el registro TXT de {detail} o tiene otro valor. Los cambios de DNS pueden tardar un poco en verse.",
-        "domainTaken": "{detail} ya se usa para inicio de sesión único en otro lugar de este servidor.",
+        "domainTaken": "{detail} ya está verificado por otro espacio de trabajo en este servidor.",
         "name": "Ponle al token un nombre de 100 caracteres como máximo.",
         "limit": "Un espacio de trabajo puede tener como máximo 20 tokens SCIM. Revoca uno primero.",
         "ownersOnly": "Solo los propietarios del espacio de trabajo pueden hacer esto.",
@@ -777,10 +777,24 @@
     },
     "allowedDomains": {
       "title": "Dominios de correo permitidos",
-      "description": "Las personas con una dirección en estos dominios, subdominios incluidos, pueden unirse sin invitación. No se pueden añadir servicios públicos como gmail.com.",
+      "description": "Las personas con una dirección en estos dominios, subdominios incluidos, pueden unirse sin invitación una vez que verifiques el dominio abajo. No se pueden añadir servicios públicos como gmail.com.",
       "placeholder": "ejemplo.com, ejemplo.org",
       "verifiedByEmail": "Solo las direcciones verificadas se unen por su cuenta: las cuentas nuevas reciben un enlace de verificación por correo.",
-      "verifiedByProvider": "Solo las direcciones verificadas se unen por su cuenta. Este servidor no envía correos, así que solo las cuentas de Google, GitHub o inicio de sesión único cuentan como verificadas."
+      "verifiedByProvider": "Solo las direcciones verificadas se unen por su cuenta. Este servidor no envía correos, así que solo las cuentas de Google, GitHub o inicio de sesión único cuentan como verificadas.",
+      "verifiedByDns": "Verificado",
+      "verifiedBySso": "Verificado con inicio de sesión único",
+      "unverified": "Sin verificar: todavía nadie se une a través de él",
+      "dnsBody": "Para demostrar que este dominio es tuyo, añade este registro TXT en tu proveedor de DNS y luego verifica.",
+      "verify": "Verificar",
+      "verifying": "Comprobando el DNS…",
+      "verified": "{domain} está verificado.",
+      "errors": {
+        "notListed": "{detail} ya no es uno de los dominios permitidos. Recarga la página.",
+        "dnsMismatch": "No se encontró el registro TXT de {detail} o tiene otro valor. Los cambios de DNS pueden tardar un poco en verse.",
+        "domainTaken": "{detail} ya está verificado por otro espacio de trabajo en este servidor.",
+        "ownersOnly": "Solo los propietarios del espacio de trabajo pueden hacer esto.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
     },
     "domainJoin": {
       "title": "Cuando alguien de estos dominios inicia sesión",
@@ -1023,7 +1037,8 @@
       },
       "workspace": {
         "renamed": "Cambió el nombre del espacio de trabajo de {from} a {to}",
-        "settings_changed": "Cambió ajustes: {settings}"
+        "settings_changed": "Cambió ajustes: {settings}",
+        "domains_verified": "Verificó el dominio de correo permitido {domains}"
       },
       "sso": {
         "configured": "Guardó la conexión de inicio de sesión único ({protocol}) para {domains}",

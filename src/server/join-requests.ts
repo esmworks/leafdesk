@@ -3,11 +3,13 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
   DEFAULT_WORKSPACE_SETTINGS,
+  ssoProvider,
   user,
   workspace,
   workspaceInvitation,
   workspaceJoinRequest,
   workspaceMember,
+  workspaceSso,
   type JoinRequestKind,
   type JoinRequestSource,
   type JoinRequestStatus,
@@ -18,7 +20,7 @@ import { normalizeEmail } from "@/lib/emails";
 import { env } from "@/lib/env";
 import { type Access, automaticAccess, domainAccess, onAllowedDomain } from "@/lib/membership-policy";
 import { sharedLimiter, takeAll } from "@/lib/rate-limit";
-import { emailDomain } from "@/lib/sso-config";
+import { domainsFromColumn, emailDomain } from "@/lib/sso-config";
 import { AccessError, findMembership, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { joinRequestDecidedEmail, mailStatus, sendMail, type OutgoingMail } from "@/server/mail";
@@ -44,6 +46,8 @@ import {
  * person and workspace. Only verified addresses count there. Email and password accounts are
  * verified through the link Better Auth emails, which needs SMTP (see lib/auth.ts); without it only
  * accounts whose provider vouches for the address (Google, GitHub, single sign-on, SCIM) are.
+ * A domain does nothing, there or in the workspace switcher, until the workspace has proven it by
+ * DNS (server/allowed-domains.ts).
  */
 
 /** Explicit requests a person may send (to any workspace), and invitations a member may ask for. */
@@ -183,13 +187,15 @@ type DomainWorkspace = {
   id: string;
   name: string;
   icon: string | null;
-  settings: WorkspaceSettings;
+  /** With the domains its single sign-on connection verified, which count as proven allowed domains. */
+  settings: WorkspaceSettings & { ssoDomains: string[] };
   record: JoinRequestStatus | null;
 };
 
 /**
- * Workspaces that allow the domain of `email` (or a parent domain of it) and that `userId` isn't
- * in, with their join request there. Only `workspaceId` when given.
+ * Workspaces that allow the domain of `email` (or a parent domain of it), having proven that
+ * domain (see server/allowed-domains.ts), and that `userId` isn't in, with their join request
+ * there. Only `workspaceId` when given.
  */
 async function domainWorkspaces(account: Account, workspaceId?: string): Promise<DomainWorkspace[]> {
   const domain = emailDomain(account.email);
@@ -204,6 +210,7 @@ async function domainWorkspaces(account: Account, workspaceId?: string): Promise
       icon: workspace.icon,
       settings: workspace.settings,
       record: workspaceJoinRequest.status,
+      ssoDomains: ssoProvider.domain,
     })
     .from(workspace)
     .leftJoin(
@@ -214,6 +221,8 @@ async function domainWorkspaces(account: Account, workspaceId?: string): Promise
         eq(workspaceJoinRequest.userId, account.id),
       ),
     )
+    .leftJoin(workspaceSso, eq(workspaceSso.workspaceId, workspace.id))
+    .leftJoin(ssoProvider, and(eq(ssoProvider.providerId, workspaceSso.providerId), eq(ssoProvider.domainVerified, true)))
     .where(
       and(
         workspaceId ? eq(workspace.id, workspaceId) : undefined,
@@ -226,7 +235,10 @@ async function domainWorkspaces(account: Account, workspaceId?: string): Promise
     )
     .orderBy(asc(workspace.name));
   return rows
-    .map((r) => ({ ...r, settings: { ...DEFAULT_WORKSPACE_SETTINGS, ...r.settings } }))
+    .map(({ ssoDomains, ...r }) => ({
+      ...r,
+      settings: { ...DEFAULT_WORKSPACE_SETTINGS, ...r.settings, ssoDomains: domainsFromColumn(ssoDomains) },
+    }))
     .filter((r) => onAllowedDomain(account.email, r.settings));
 }
 

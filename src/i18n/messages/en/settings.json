@@ -719,7 +719,7 @@
         "invalidSaml": "Paste the identity provider's metadata XML, or enter its SSO URL, entity ID and signing certificate.",
         "noConnection": "Set up single sign-on first.",
         "dnsMismatch": "The TXT record for {detail} wasn't found or has a different value. DNS changes can take a while to show up.",
-        "domainTaken": "{detail} is already used for single sign-on elsewhere on this server.",
+        "domainTaken": "{detail} is already verified by another workspace on this server.",
         "name": "Give the token a name of at most 100 characters.",
         "limit": "A workspace can have at most 20 SCIM tokens. Revoke one first.",
         "ownersOnly": "Only workspace owners can do this.",
@@ -777,10 +777,24 @@
     },
     "allowedDomains": {
       "title": "Allowed email domains",
-      "description": "People with an address on these domains, subdomains included, can join without an invitation. Public mail services like gmail.com can't be added.",
+      "description": "People with an address on these domains, subdomains included, can join without an invitation once you verify the domain below. Public mail services like gmail.com can't be added.",
       "placeholder": "example.com, example.org",
       "verifiedByEmail": "Only verified addresses join on their own: new accounts get a verification link by email.",
-      "verifiedByProvider": "Only verified addresses join on their own. This server doesn't send email, so only accounts from Google, GitHub or single sign-on count as verified."
+      "verifiedByProvider": "Only verified addresses join on their own. This server doesn't send email, so only accounts from Google, GitHub or single sign-on count as verified.",
+      "verifiedByDns": "Verified",
+      "verifiedBySso": "Verified through single sign-on",
+      "unverified": "Not verified: nobody joins through it yet",
+      "dnsBody": "To prove this domain is yours, add this TXT record at your DNS provider, then verify.",
+      "verify": "Verify",
+      "verifying": "Checking DNS…",
+      "verified": "{domain} is verified.",
+      "errors": {
+        "notListed": "{detail} is no longer one of the allowed domains. Reload the page.",
+        "dnsMismatch": "The TXT record for {detail} wasn't found or has a different value. DNS changes can take a while to show up.",
+        "domainTaken": "{detail} is already verified by another workspace on this server.",
+        "ownersOnly": "Only workspace owners can do this.",
+        "generic": "Something went wrong. Please try again."
+      }
     },
     "domainJoin": {
       "title": "When someone from these domains signs in",
@@ -1023,7 +1037,8 @@
       },
       "workspace": {
         "renamed": "Renamed the workspace from {from} to {to}",
-        "settings_changed": "Changed settings: {settings}"
+        "settings_changed": "Changed settings: {settings}",
+        "domains_verified": "Verified the allowed email domain {domains}"
       },
       "sso": {
         "configured": "Saved the single sign-on connection ({protocol}) for {domains}",

@@ -19,6 +19,7 @@ import {
   workspaceProviderId,
 } from "@/lib/sso-config";
 import { requireMembership } from "@/server/access";
+import { allowedDomainsProvenElsewhere } from "@/server/allowed-domains";
 import { recordAudit } from "@/server/audit";
 import { fetchRemoteFile, isBlockedAddress } from "@/server/remote-fetch";
 import { joinAsMember } from "@/server/workspaces";
@@ -497,7 +498,7 @@ type TxtResolver = (name: string) => Promise<string[][]>;
 /**
  * Verifies the connection's domains: each needs a TXT record `_leafdesk-sso.<domain>` with the
  * connection's value, and none may already be verified by another connection (or be the
- * instance provider's). Owners only.
+ * instance provider's, or another workspace's proven allowed domain). Owners only.
  */
 export async function verifySsoDomains(actorId: string, workspaceId: string, resolver: TxtResolver = resolveTxt) {
   await requireMembership(actorId, workspaceId, "owner");
@@ -508,7 +509,11 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
     .select({ domain: ssoProvider.domain })
     .from(ssoProvider)
     .where(and(eq(ssoProvider.domainVerified, true), ne(ssoProvider.providerId, row.providerId)));
-  const taken = [...others.flatMap((o) => domainsFromColumn(o.domain)), ...(env.instanceOidc?.domains ?? [])];
+  const taken = [
+    ...others.flatMap((o) => domainsFromColumn(o.domain)),
+    ...(env.instanceOidc?.domains ?? []),
+    ...(await allowedDomainsProvenElsewhere(workspaceId)),
+  ];
   const overlapping = (a: string, b: string) => a === b || a.endsWith(`.${b}`) || b.endsWith(`.${a}`);
   for (const domain of domains) {
     if (taken.some((other) => overlapping(domain, other))) {

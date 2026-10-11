@@ -5,7 +5,9 @@
  * left or were removed, the join link asking an owner, one pending request per person, rate limits,
  * owners approving and declining both kinds of request, their inbox and emails, the emails the
  * person who asked gets, and who each membership records as having invited them (nobody for those
- * who came in on their own). Creates its own users and workspace and deletes them afterwards.
+ * who came in on their own), and allowed domains doing nothing until a workspace proves them by DNS
+ * (or its single sign-on connection verified them). Creates its own users and workspaces and
+ * deletes them afterwards.
  *
  *   pnpm tsx scripts/membership-e2e.ts
  *
@@ -20,8 +22,11 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { notification, user, workspace, workspaceInvitation, workspaceJoinRequest, workspaceMember } = await import("@/db/schema");
+const { auditEvent, notification, ssoProvider, user, workspace, workspaceInvitation, workspaceJoinRequest, workspaceMember, workspaceSso } =
+  await import("@/db/schema");
+const { domainRecordName, workspaceProviderId } = await import("@/lib/sso-config");
 const { AccessError } = await import("@/server/access");
+const { AllowedDomainError, allowedDomainToken, allowedDomainsStatus, verifyAllowedDomain } = await import("@/server/allowed-domains");
 const {
   applyDomainPolicies,
   approveJoinRequest,
@@ -61,6 +66,8 @@ registerCollab({
 } as unknown as Parameters<typeof registerCollab>[0]);
 // A domain of the run's own, so no other workspace in the database allows it.
 const DOMAIN = `${RUN}.example`;
+// Another, which a second workspace verifies for single sign-on.
+const SSO_DOMAIN = `sso-${RUN}.example`;
 
 let passed = 0;
 function check(condition: unknown, label: string, detail?: unknown): asserts condition {
@@ -85,6 +92,9 @@ async function rejects(fn: () => Promise<unknown>, test: (error: unknown) => boo
 
 const isAccessError = (error: unknown) => error instanceof AccessError;
 const isCode = (code: string) => (error: unknown) => error instanceof WorkspaceError && error.code === code;
+const isDomainError = (code: string) => (error: unknown) => error instanceof AllowedDomainError && error.code === code;
+/** A DNS lookup that finds `value` at the domain's record name, and nothing anywhere else. */
+const dnsWith = (domain: string, value: string) => async (name: string) => (name === domainRecordName(domain) ? [[value]] : []);
 
 type Person = { id: string; email: string; verified: boolean };
 const person = (name: string, email: string, verified = true): Person => ({ id: `${RUN}-${name}`, email, verified });
@@ -102,9 +112,12 @@ const people = {
   outsider: person("outsider", `outsider@other-${RUN}.test`),
   linker: person("linker", `linker@other-${RUN}.test`, false),
   lookalike: person("lookalike", `look@not${DOMAIN}`),
+  sam: person("sam", `sam@${SSO_DOMAIN}`),
 };
 const userIds = Object.values(people).map((p) => p.id);
 const workspaceId = `${RUN}-ws`;
+// Lists the same domain without being able to prove it.
+const rivalId = `${RUN}-rival`;
 
 const decisionMails: { to: string; subject: string; text: string }[] = [];
 const ownerMails: { to: string; subject: string; text: string }[] = [];
@@ -269,6 +282,82 @@ try {
   await rejects(() => addMember(people.guest.id, workspaceId, `new4@${RUN}.test`, "member"), isAccessError, "…and guests still can't");
   await settings({ memberInvites: "owners" });
 
+  // Allowed domains do nothing until the workspace proves them by DNS
+  await db.insert(workspace).values({ id: rivalId, name: `${RUN} rival` });
+  await db.insert(workspaceMember).values({ workspaceId: rivalId, userId: people.outsider.id, role: "owner" });
+  await updateWorkspaceSettings(people.outsider.id, rivalId, { allowedDomains: [DOMAIN, `eu.${DOMAIN}`, SSO_DOMAIN], joinRequests: "allowed_domains" });
+  await rejects(() => settings({ allowedDomainsVerified: [DOMAIN] } as never), isCode("invalidSetting"), "a domain's proof can't be set through the settings");
+  const listed = async (p: Person, id: string) => (await joinableWorkspaces(p.id)).some((w) => w.id === id);
+  check(!(await listed(people.dana, workspaceId)) && !(await listed(people.dana, rivalId)), "an unproven domain shows its workspaces to nobody");
+  check((await applyDomainPolicies(people.dana.id)).length === 0 && (await isMember(people.dana)) === null, "…lets nobody join on sign-in");
+  await rejects(() => joinFromSwitcher(people.dana.id, workspaceId), isAccessError, "…nor from the switcher");
+  await rejects(() => joinFromSwitcher(people.ursula.id, rivalId), isAccessError, "…and takes no requests, even where the workspace asks for them");
+  await settings({ domainJoin: "request" });
+  await applyDomainPolicies(people.dana.id);
+  check((await record(people.dana)) === null && (await requestsOf(people.dana.email)).length === 0, "…nor files one on sign-in when the domain asks");
+  await settings({ domainJoin: "join" });
+
+  const expected = `leafdesk-sso=${allowedDomainToken(workspaceId)}`;
+  const [listedDomain] = await allowedDomainsStatus(people.owner.id, workspaceId);
+  check(
+    listedDomain?.verifiedBy === null && listedDomain.record?.name === domainRecordName(DOMAIN) && listedDomain.record.value === expected,
+    "owners see the domain as not verified, with the TXT record to add",
+    listedDomain,
+  );
+  check((await allowedDomainsStatus(people.member.id, workspaceId))[0]?.record === null, "members see whether it is verified, without the record");
+  check(allowedDomainToken(rivalId) !== allowedDomainToken(workspaceId), "each workspace has a record value of its own");
+  await rejects(() => verifyAllowedDomain(people.member.id, workspaceId, DOMAIN, dnsWith(DOMAIN, expected)), isAccessError, "members can't verify a domain");
+  await rejects(
+    () => verifyAllowedDomain(people.owner.id, workspaceId, `unlisted-${DOMAIN}`, dnsWith(`unlisted-${DOMAIN}`, expected)),
+    isDomainError("notListed"),
+    "only an allowed domain can be verified",
+  );
+  await rejects(() => verifyAllowedDomain(people.owner.id, workspaceId, DOMAIN, async () => []), isDomainError("dnsMismatch"), "without the TXT record nothing is verified");
+  await rejects(
+    () => verifyAllowedDomain(people.outsider.id, rivalId, DOMAIN, dnsWith(DOMAIN, expected)),
+    isDomainError("dnsMismatch"),
+    "one workspace's record doesn't verify the domain for another",
+  );
+  const proven = await verifyAllowedDomain(people.owner.id, workspaceId, DOMAIN, async (name) =>
+    name === domainRecordName(DOMAIN) ? [["leafdesk-sso=", expected.slice("leafdesk-sso=".length)]] : [],
+  );
+  check(proven[0]?.verifiedBy === "dns", "the workspace's TXT record verifies the domain (split in parts too)", proven);
+  const [audited] = await db
+    .select({ details: auditEvent.details })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "workspace.domains_verified")));
+  check(JSON.stringify(audited?.details) === JSON.stringify({ domains: [DOMAIN] }), "…which the audit log records", audited);
+  await rejects(
+    () => verifyAllowedDomain(people.outsider.id, rivalId, DOMAIN, dnsWith(DOMAIN, `leafdesk-sso=${allowedDomainToken(rivalId)}`)),
+    isDomainError("domainTaken"),
+    "a domain another workspace proved can't be claimed, even with a record",
+  );
+  await rejects(() => verifyAllowedDomain(people.outsider.id, rivalId, `eu.${DOMAIN}`, async () => []), isDomainError("domainTaken"), "…nor a subdomain of it");
+  check(!(await listed(people.dana, rivalId)), "…so that workspace still shows to nobody");
+
+  // A domain the workspace's single sign-on connection verified counts as proven
+  check(!(await listed(people.sam, rivalId)), "before single sign-on verifies it, the domain does nothing");
+  await db.insert(ssoProvider).values({
+    id: `${RUN}-sso`,
+    issuer: "https://idp.example",
+    userId: people.outsider.id,
+    providerId: workspaceProviderId(rivalId),
+    domain: SSO_DOMAIN,
+    domainVerified: true,
+  });
+  await db.insert(workspaceSso).values({ workspaceId: rivalId, providerId: workspaceProviderId(rivalId), protocol: "oidc", verificationToken: RUN });
+  check((await allowedDomainsStatus(people.outsider.id, rivalId)).find((d) => d.domain === SSO_DOMAIN)?.verifiedBy === "sso", "afterwards it shows as verified through single sign-on");
+  check((await joinable(people.sam)) === null && (await listed(people.sam, rivalId)), "…its people see that workspace to join");
+  check((await applyDomainPolicies(people.sam.id)).includes(rivalId), "…and join it on sign-in");
+  await settings({ allowedDomains: [DOMAIN, SSO_DOMAIN] });
+  await rejects(
+    () => verifyAllowedDomain(people.owner.id, workspaceId, SSO_DOMAIN, dnsWith(SSO_DOMAIN, expected)),
+    isDomainError("domainTaken"),
+    "another workspace can't claim a domain verified for single sign-on",
+  );
+  await settings({ allowedDomains: [DOMAIN] });
+  check((await allowedDomainsStatus(people.owner.id, workspaceId))[0]?.verifiedBy === "dns", "changing the list keeps the proofs of the domains that stay");
+
   // Allowed domains: joining on sign-in
   check((await joinable(people.dana)) === "join", "a verified address on the domain sees the workspace to join");
   check((await joinable(people.ursula)) === null, "an unverified one sees nothing while the workspace takes no requests");
@@ -428,11 +517,25 @@ try {
   const pending = await listJoinRequests(people.owner.id, workspaceId);
   check(pending.every((r) => r.email !== people.linker.email), "the refused request wasn't filed", pending);
 
+  // A domain taken off the list loses its proof, and another workspace may prove it then
+  await settings({ allowedDomains: [] });
+  await settings({ allowedDomains: [DOMAIN] });
+  check((await allowedDomainsStatus(people.owner.id, workspaceId))[0]?.verifiedBy === null, "a domain taken off the list and back has to be verified again");
+  const rivalExpected = `leafdesk-sso=${allowedDomainToken(rivalId)}`;
+  const claimed = await verifyAllowedDomain(people.outsider.id, rivalId, DOMAIN, dnsWith(DOMAIN, rivalExpected));
+  check(claimed.find((d) => d.domain === DOMAIN)?.verifiedBy === "dns", "…and once no workspace has it, another may prove it");
+  check(claimed.find((d) => d.domain === `eu.${DOMAIN}`)?.verifiedBy === "dns", "…its subdomains with it");
+  await rejects(
+    () => verifyAllowedDomain(people.owner.id, workspaceId, DOMAIN, dnsWith(DOMAIN, expected)),
+    isDomainError("domainTaken"),
+    "…and the first workspace can't take it back",
+  );
+
   console.log(`\n${passed} checks passed`);
 } finally {
   setJoinRequestMailer(null);
   setShareMailer(null);
-  await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
+  await db.delete(workspace).where(inArray(workspace.id, [workspaceId, rivalId]));
   await db.delete(user).where(inArray(user.id, userIds));
   await db.$client.end();
 }

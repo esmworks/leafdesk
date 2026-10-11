@@ -8,14 +8,18 @@ import {
   linkAccess,
   memberInviteMode,
   onAllowedDomain,
+  verifiedAllowedDomains,
   type Candidate,
 } from "./membership-policy";
 
-type Policy = Pick<WorkspaceSettings, "memberInvites" | "allowedDomains" | "domainJoin" | "joinRequests">;
+type Policy = Pick<WorkspaceSettings, "memberInvites" | "allowedDomains" | "allowedDomainsVerified" | "domainJoin" | "joinRequests"> & {
+  ssoDomains?: string[];
+};
 
 const policy = (overrides: Partial<Policy> = {}): Policy => ({
   memberInvites: "owners",
   allowedDomains: ["acme.com"],
+  allowedDomainsVerified: ["acme.com"],
   domainJoin: "join",
   joinRequests: "nobody",
   ...overrides,
@@ -69,6 +73,58 @@ describe("onAllowedDomain", () => {
 
   it("matches nothing while no domain is set", () => {
     expect(onAllowedDomain("a@acme.com", policy({ allowedDomains: [] }))).toBe(false);
+  });
+});
+
+describe("verifiedAllowedDomains", () => {
+  it("keeps only the domains proven by DNS", () => {
+    expect(verifiedAllowedDomains(policy({ allowedDomains: ["acme.com", "victim.org"] }))).toEqual(["acme.com"]);
+    expect(verifiedAllowedDomains(policy({ allowedDomainsVerified: [] }))).toEqual([]);
+  });
+
+  it("counts a subdomain of a proven domain, never a parent", () => {
+    expect(verifiedAllowedDomains(policy({ allowedDomains: ["acme.com", "eu.acme.com"] }))).toEqual(["acme.com", "eu.acme.com"]);
+    expect(verifiedAllowedDomains(policy({ allowedDomains: ["acme.com", "eu.acme.com"], allowedDomainsVerified: ["eu.acme.com"] }))).toEqual([
+      "eu.acme.com",
+    ]);
+  });
+
+  it("forgets a proof once its domain is off the list", () => {
+    expect(verifiedAllowedDomains(policy({ allowedDomains: ["eu.acme.com"], allowedDomainsVerified: ["acme.com"] }))).toEqual([]);
+  });
+
+  it("counts the domains the single sign-on connection verified, if they are allowed", () => {
+    const sso = { allowedDomainsVerified: [], ssoDomains: ["acme.com"] };
+    expect(verifiedAllowedDomains(policy({ ...sso, allowedDomains: ["acme.com", "eu.acme.com", "other.org"] }))).toEqual([
+      "acme.com",
+      "eu.acme.com",
+    ]);
+    expect(verifiedAllowedDomains(policy({ allowedDomains: [], allowedDomainsVerified: [], ssoDomains: ["acme.com"] }))).toEqual([]);
+  });
+});
+
+describe("an allowed domain nobody proved", () => {
+  const unproven = (overrides: Partial<Policy> = {}) => policy({ allowedDomainsVerified: [], ...overrides });
+
+  it("matches nobody", () => {
+    expect(onAllowedDomain("ada@acme.com", unproven())).toBe(false);
+  });
+
+  it("lets nobody join or ask, on sign-in or from the switcher", () => {
+    expect(automaticAccess(unproven(), person())).toBeNull();
+    expect(automaticAccess(unproven({ domainJoin: "request" }), person())).toBeNull();
+    expect(domainAccess(unproven(), person())).toBeNull();
+    expect(domainAccess(unproven({ joinRequests: "allowed_domains" }), person())).toBeNull();
+    expect(domainAccess(unproven({ joinRequests: "allowed_domains" }), person({ emailVerified: false }))).toBeNull();
+  });
+
+  it("doesn't let its people past a join link that asks", () => {
+    expect(linkAccess(unproven({ joinRequests: "anyone_with_link" }), { ...person(), invited: false })).toBe("request");
+  });
+
+  it("works once the single sign-on connection verified it", () => {
+    expect(automaticAccess(unproven({ ssoDomains: ["acme.com"] }), person())).toBe("join");
+    expect(domainAccess(unproven({ ssoDomains: ["acme.com"] }), person())).toBe("join");
   });
 });
 

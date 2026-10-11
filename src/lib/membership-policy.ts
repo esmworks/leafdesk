@@ -8,7 +8,14 @@ import { emailInDomains } from "@/lib/sso-config";
  * signing in, the workspace switcher) follows the same rules.
  */
 
-type MembershipSettings = Pick<WorkspaceSettings, "memberInvites" | "allowedDomains" | "domainJoin" | "joinRequests">;
+/**
+ * The workspace's policies, with the email domains its single sign-on connection has verified
+ * (`ssoDomains`): those count as proven allowed domains too (see verifiedAllowedDomains).
+ */
+type MembershipSettings = Pick<
+  WorkspaceSettings,
+  "memberInvites" | "allowedDomains" | "allowedDomainsVerified" | "domainJoin" | "joinRequests"
+> & { ssoDomains?: readonly string[] };
 
 /**
  * What adding a member does when `role` asks: add or invite right away, file a request an owner
@@ -46,8 +53,26 @@ export type Candidate = {
  */
 export type Access = "join" | "request" | "pending" | null;
 
-export const onAllowedDomain = (email: string, settings: Pick<WorkspaceSettings, "allowedDomains">) =>
-  settings.allowedDomains.length > 0 && emailInDomains(email, settings.allowedDomains);
+/**
+ * The allowed domains in effect: the ones the workspace proved by DNS, or that lie in a domain it
+ * proved (for the allowed domains or its single sign-on connection). Typing a domain proves
+ * nothing: any owner could list someone else's and take in, or hear about, its people.
+ */
+export function verifiedAllowedDomains(
+  settings: Pick<MembershipSettings, "allowedDomains" | "allowedDomainsVerified" | "ssoDomains">,
+): string[] {
+  const proven = [
+    ...settings.allowedDomains.filter((d) => settings.allowedDomainsVerified.includes(d)),
+    ...(settings.ssoDomains ?? []),
+  ];
+  return settings.allowedDomains.filter((d) => proven.some((p) => d === p || d.endsWith(`.${p}`)));
+}
+
+/** Whether the address is on one of the allowed domains in effect (verifiedAllowedDomains). */
+export const onAllowedDomain = (
+  email: string,
+  settings: Pick<MembershipSettings, "allowedDomains" | "allowedDomainsVerified" | "ssoDomains">,
+) => emailInDomains(email, verifiedAllowedDomains(settings));
 
 /**
  * What someone on one of the workspace's allowed domains may do from the workspace switcher.

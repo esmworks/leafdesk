@@ -719,7 +719,7 @@
         "invalidSaml": "Füge die Metadaten-XML des Identitätsanbieters ein oder gib seine SSO-URL, Entity-ID und sein Signaturzertifikat ein.",
         "noConnection": "Richte zuerst Single Sign-on ein.",
         "dnsMismatch": "Der TXT-Eintrag für {detail} wurde nicht gefunden oder hat einen anderen Wert. DNS-Änderungen können eine Weile brauchen.",
-        "domainTaken": "{detail} wird auf diesem Server bereits anderswo für Single Sign-on verwendet.",
+        "domainTaken": "{detail} ist auf diesem Server bereits von einem anderen Workspace bestätigt.",
         "name": "Gib dem Token einen Namen mit höchstens 100 Zeichen.",
         "limit": "Ein Workspace kann höchstens 20 SCIM-Tokens haben. Widerrufe zuerst eines.",
         "ownersOnly": "Das können nur Inhaber des Workspaces.",
@@ -777,10 +777,24 @@
     },
     "allowedDomains": {
       "title": "Zugelassene E-Mail-Domains",
-      "description": "Personen mit einer Adresse in diesen Domains (einschließlich Subdomains) können ohne Einladung beitreten. Öffentliche Maildienste wie gmail.com können nicht hinzugefügt werden.",
+      "description": "Personen mit einer Adresse in diesen Domains (einschließlich Subdomains) können ohne Einladung beitreten, sobald du die Domain unten bestätigt hast. Öffentliche Maildienste wie gmail.com können nicht hinzugefügt werden.",
       "placeholder": "beispiel.de, beispiel.org",
       "verifiedByEmail": "Nur bestätigte Adressen treten von selbst bei: Neue Konten erhalten einen Bestätigungslink per E-Mail.",
-      "verifiedByProvider": "Nur bestätigte Adressen treten von selbst bei. Dieser Server versendet keine E-Mails, daher gelten nur Konten von Google, GitHub oder Single Sign-on als bestätigt."
+      "verifiedByProvider": "Nur bestätigte Adressen treten von selbst bei. Dieser Server versendet keine E-Mails, daher gelten nur Konten von Google, GitHub oder Single Sign-on als bestätigt.",
+      "verifiedByDns": "Bestätigt",
+      "verifiedBySso": "Über Single Sign-on bestätigt",
+      "unverified": "Nicht bestätigt: Noch tritt niemand darüber bei",
+      "dnsBody": "Um zu zeigen, dass dir diese Domain gehört, lege bei deinem DNS-Anbieter diesen TXT-Eintrag an und bestätige dann.",
+      "verify": "Bestätigen",
+      "verifying": "DNS wird geprüft …",
+      "verified": "{domain} ist bestätigt.",
+      "errors": {
+        "notListed": "{detail} gehört nicht mehr zu den zugelassenen Domains. Lade die Seite neu.",
+        "dnsMismatch": "Der TXT-Eintrag für {detail} wurde nicht gefunden oder hat einen anderen Wert. DNS-Änderungen können eine Weile brauchen.",
+        "domainTaken": "{detail} ist auf diesem Server bereits von einem anderen Workspace bestätigt.",
+        "ownersOnly": "Das können nur Inhaber des Workspaces.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuche es noch einmal."
+      }
     },
     "domainJoin": {
       "title": "Wenn sich jemand aus diesen Domains anmeldet",
@@ -1023,7 +1037,8 @@
       },
       "workspace": {
         "renamed": "Hat den Workspace von {from} in {to} umbenannt",
-        "settings_changed": "Hat Einstellungen geändert: {settings}"
+        "settings_changed": "Hat Einstellungen geändert: {settings}",
+        "domains_verified": "Hat die zugelassene E-Mail-Domain {domains} bestätigt"
       },
       "sso": {
         "configured": "Hat die Single-Sign-on-Verbindung ({protocol}) für {domains} gespeichert",

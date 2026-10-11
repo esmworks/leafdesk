@@ -725,18 +725,27 @@ Owners decide in the workspace's **Settings → Security → Members**:
   `invite_member` (a member's invitation there becomes a request the same way); the REST API
   only lists members.
 - **Allowed email domains** (`example.com, example.org`, subdomains included, up to 20; public
-  mail services such as gmail.com can't be added) and what happens **when someone from these
-  domains signs in**: they *join as members* (default) or *ask to join*. This runs on sign-up,
-  on every sign-in and when an address is verified or changed, once per person and workspace:
-  someone who left, or whom an owner removed or declined, doesn't come back on their own. Only
-  verified addresses count (see [Email](#email) for how an address is verified, with and without
-  SMTP). The workspace switcher also lists the workspaces a person's domain lets them join or ask
-  to join, with a Join or Request to join button: people who left may rejoin there, people who
-  were removed or declined may only ask.
-- **Who can ask to join:** *Nobody* (default), *People with an allowed email domain* (including
-  unverified addresses and people removed or declined before), or *Anyone with the join link*.
-  With the last one the join link asks an owner instead of adding people right away, except for
-  people with a pending invitation or a verified address on an allowed domain that joins directly.
+  mail services such as gmail.com can't be added). A domain does nothing until the workspace
+  proves it is its own, as for single sign-on: add the TXT record shown next to it
+  (`_leafdesk-sso.<domain>` with the value `leafdesk-sso=<token>`, a token of the workspace's
+  own) at your DNS provider and click **Verify**. Until then nobody joins, asks to join or sees
+  the workspace through it. A domain the workspace's single sign-on connection verified counts
+  without a record, subdomains included. A domain another workspace verified (for single sign-on
+  or as an allowed domain) can't be verified, and a domain taken off the list has to be verified
+  again. The token is derived from `BETTER_AUTH_SECRET`: a new secret changes the value to add
+  for domains not verified yet, never a verified one.
+- What happens **when someone from these domains signs in**: they *join as members* (default) or
+  *ask to join*. This runs on sign-up, on every sign-in and when an address is verified or
+  changed, once per person and workspace: someone who left, or whom an owner removed or declined,
+  doesn't come back on their own. Only verified addresses count (see [Email](#email) for how an
+  address is verified, with and without SMTP). The workspace switcher also lists the workspaces a
+  person's domain lets them join or ask to join, with a Join or Request to join button: people
+  who left may rejoin there, people who were removed or declined may only ask.
+- **Who can ask to join:** *Nobody* (default), *People with an allowed email domain* (a verified
+  domain; their own address may be unverified, and people removed or declined before may ask
+  too), or *Anyone with the join link*. With the last one the join link asks an owner instead of
+  adding people right away, except for people with a pending invitation or a verified address on
+  an allowed domain that joins directly.
 
 Requests wait in **Settings → Members → Requests**, where owners approve or decline them; every
 owner also gets one in their inbox (and by email, unless they turned join request emails off in My
@@ -874,7 +883,9 @@ Then fill in the provider's details:
   nobody in until they are verified. Add the TXT record it shows for each domain
   (`_leafdesk-sso.<domain>` with the value `leafdesk-sso=<token>`) at your DNS provider and click
   **Verify domains**. Public mail services (gmail.com, outlook.com…) can't be claimed, and a
-  domain verified by one workspace (or listed in `OIDC_DOMAINS`) can't be verified by another.
+  domain verified by one workspace (for single sign-on or as an allowed email domain, or listed in
+  `OIDC_DOMAINS`) can't be verified by another. Verified domains also count as verified allowed
+  email domains of the workspace.
   Changing the domains or the provider asks for verification again.
 
 A workspace has one connection. Removing it (or the workspace) removes its provider; sessions that

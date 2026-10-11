@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { verifyAllowedDomainAction } from "@/app/actions/allowed-domains";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Button, Input, selectClass, Switch } from "@/components/ui";
 import type { WorkspaceSettings } from "@/db/schema";
 import { HISTORY_RETENTION, TRASH_RETENTION_CHOICES } from "@/lib/retention";
+import type { AllowedDomainStatus } from "@/server/allowed-domains";
+import { CopyButton } from "./copy-button";
 import { SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
@@ -403,12 +407,15 @@ export function MembershipSettings({
   settings,
   canEdit,
   mailEnabled,
+  domainStatus,
 }: {
   workspaceId: string;
   settings: WorkspaceSettings;
   canEdit: boolean;
   /** Whether the server sends email, so password accounts can verify their address. */
   mailEnabled: boolean;
+  /** Whether each allowed domain is proven, with the DNS records owners add. */
+  domainStatus: AllowedDomainStatus[];
 }) {
   const t = useTranslations("settings.security");
   const [domains, setDomains] = useState(settings.allowedDomains);
@@ -420,6 +427,7 @@ export function MembershipSettings({
       <AllowedDomainsSetting
         workspaceId={workspaceId}
         domains={domains}
+        status={domainStatus}
         canEdit={canEdit}
         mailEnabled={mailEnabled}
         onSaved={setDomains}
@@ -503,16 +511,21 @@ function JoinRequestsChoice({
   );
 }
 
-/** The allowed email domains, typed as a list; the server cleans them up and refuses public mail services. */
+/**
+ * The allowed email domains, typed as a list; the server cleans them up and refuses public mail
+ * services. Each does nothing until it is proven by DNS (DomainVerification).
+ */
 function AllowedDomainsSetting({
   workspaceId,
   domains,
+  status,
   canEdit,
   mailEnabled,
   onSaved,
 }: {
   workspaceId: string;
   domains: string[];
+  status: AllowedDomainStatus[];
   canEdit: boolean;
   mailEnabled: boolean;
   onSaved: (domains: string[]) => void;
@@ -576,8 +589,82 @@ function AllowedDomainsSetting({
             </Button>
           )}
         </div>
+        {status.length > 0 && <DomainVerification workspaceId={workspaceId} status={status} canEdit={canEdit} />}
       </SettingsRow>
     </form>
+  );
+}
+
+/**
+ * Whether each allowed domain is proven, and for the ones that aren't, the TXT record to add and a
+ * button that checks it (owners). Laid out like the single sign-on connection's records.
+ */
+function DomainVerification({ workspaceId, status, canEdit }: { workspaceId: string; status: AllowedDomainStatus[]; canEdit: boolean }) {
+  const t = useTranslations("settings.security.allowedDomains");
+  const ts = useTranslations("settings.security.sso.dns");
+  const router = useRouter();
+  const [checking, setChecking] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ domain: string; text: string; failed: boolean } | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const verify = (domain: string) => {
+    setChecking(domain);
+    setMessage(null);
+    startTransition(async () => {
+      try {
+        const result = await verifyAllowedDomainAction(workspaceId, domain);
+        if (result.ok) {
+          setMessage({ domain, text: t("verified", { domain }), failed: false });
+          router.refresh();
+        } else {
+          setMessage({ domain, text: t(`errors.${result.error}`, { detail: result.detail ?? domain }), failed: true });
+        }
+      } catch {
+        setMessage({ domain, text: t("errors.generic"), failed: true });
+      } finally {
+        setChecking(null);
+      }
+    });
+  };
+
+  return (
+    <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-bg">
+      {status.map((entry) => (
+        <li key={entry.domain} className="space-y-2 p-3 text-sm" data-allowed-domain={entry.domain}>
+          <div className="flex flex-wrap items-baseline gap-x-2">
+            <span className="font-medium break-all">{entry.domain}</span>
+            <span className={entry.verifiedBy ? "text-fg-muted" : "text-danger"}>
+              {entry.verifiedBy === "sso" ? t("verifiedBySso") : entry.verifiedBy ? t("verifiedByDns") : t("unverified")}
+            </span>
+          </div>
+          {!entry.verifiedBy && entry.record && canEdit && (
+            <>
+              <p className="text-fg-muted">{t("dnsBody")}</p>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-12 shrink-0 text-fg-muted">{ts("name")}</span>
+                  <code className="min-w-0 flex-1 break-all">{entry.record.name}</code>
+                  <CopyButton value={entry.record.name} />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-12 shrink-0 text-fg-muted">{ts("value")}</span>
+                  <code className="min-w-0 flex-1 break-all">{entry.record.value}</code>
+                  <CopyButton value={entry.record.value} />
+                </div>
+              </div>
+              <Button size="sm" variant="primary" disabled={pending} onClick={() => verify(entry.domain)}>
+                {checking === entry.domain ? t("verifying") : t("verify")}
+              </Button>
+            </>
+          )}
+          {message?.domain === entry.domain && (
+            <p className={message.failed ? "text-danger" : "text-fg-muted"} role="status">
+              {message.text}
+            </p>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 

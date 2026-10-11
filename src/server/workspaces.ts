@@ -45,6 +45,7 @@ import {
   workspacesHiddenFromApp,
 } from "@/server/access";
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
+import { ssoVerifiedDomains } from "@/server/allowed-domains";
 import { changedValues, recordAudit } from "@/server/audit";
 import { joinRecordOf, rememberDeparture, requestInvitation, requestToJoinFrom, settleJoinRequest } from "@/server/join-requests";
 import { turkishGenitive } from "@/lib/turkish";
@@ -708,18 +709,19 @@ async function linkDecision(
   userId: string,
   email: string,
 ) {
-  const [[invitation], [account], record] = await Promise.all([
+  const [[invitation], [account], record, ssoDomains] = await Promise.all([
     reader
       .select({ role: workspaceInvitation.role, invitedBy: workspaceInvitation.invitedBy, expiresAt: workspaceInvitation.expiresAt })
       .from(workspaceInvitation)
       .where(and(eq(workspaceInvitation.workspaceId, ws.id), eq(workspaceInvitation.email, email))),
     reader.select({ emailVerified: user.emailVerified }).from(user).where(eq(user.id, userId)),
     joinRecordOf(reader, ws.id, userId),
+    ssoVerifiedDomains(reader, ws.id),
   ]);
   const emailVerified = account?.emailVerified === true;
   const pending = invitation && invitation.expiresAt > new Date() ? invitation : null;
   const live = pending && invitationApplies({ emailVerified, invited: true }) ? pending : null;
-  const settings = { ...DEFAULT_WORKSPACE_SETTINGS, ...ws.settings };
+  const settings = { ...DEFAULT_WORKSPACE_SETTINGS, ...ws.settings, ssoDomains };
   const access = linkAccess(settings, { email, emailVerified, record, invited: pending !== null });
   return { access, live, emailVerified };
 }
@@ -1095,8 +1097,13 @@ export async function countMembersWithoutTwoFactor(actorId: string, workspaceId:
   return row?.count ?? 0;
 }
 
-/** The choices of each setting; allowedDomains, a list, is checked on its own (parseDomains). */
-const SETTING_VALUES: { [K in Exclude<keyof WorkspaceSettings, "allowedDomains">]: readonly WorkspaceSettings[K][] } = {
+/**
+ * The choices of each setting; allowedDomains, a list, is checked on its own (parseDomains).
+ * allowedDomainsVerified isn't one: only proving a domain sets it (server/allowed-domains.ts).
+ */
+const SETTING_VALUES: {
+  [K in Exclude<keyof WorkspaceSettings, "allowedDomains" | "allowedDomainsVerified">]: readonly WorkspaceSettings[K][];
+} = {
   guestInvites: ["owners", "members"],
   guestPrivatePages: [false, true],
   publishing: ["owners", "members", "off"],
@@ -1150,9 +1157,13 @@ export async function updateWorkspaceSettings(
   }
   await db.transaction(async (tx) => {
     const [before] = await tx.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
+    // A domain taken off the list loses its proof: listed again, it has to be verified again.
+    const proofs = clean.allowedDomains && {
+      allowedDomainsVerified: (before?.settings.allowedDomainsVerified ?? []).filter((d) => clean.allowedDomains!.includes(d)),
+    };
     await tx
       .update(workspace)
-      .set({ settings: sql`${workspace.settings} || ${JSON.stringify(clean)}::jsonb` })
+      .set({ settings: sql`${workspace.settings} || ${JSON.stringify({ ...clean, ...proofs })}::jsonb` })
       .where(eq(workspace.id, workspaceId));
     // Only the keys whose value changed, defaults filled in on both sides.
     const changes = changedValues({ ...DEFAULT_WORKSPACE_SETTINGS, ...before?.settings }, clean);

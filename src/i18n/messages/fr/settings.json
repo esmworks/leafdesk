@@ -719,7 +719,7 @@
         "invalidSaml": "Collez le XML de métadonnées du fournisseur d'identité, ou saisissez son URL SSO, son entity ID et son certificat de signature.",
         "noConnection": "Configurez d'abord l'authentification unique.",
         "dnsMismatch": "L'enregistrement TXT de {detail} est introuvable ou a une autre valeur. Les changements DNS peuvent mettre un moment à apparaître.",
-        "domainTaken": "{detail} est déjà utilisé pour l'authentification unique ailleurs sur ce serveur.",
+        "domainTaken": "{detail} est déjà vérifié par un autre espace de travail sur ce serveur.",
         "name": "Donnez au jeton un nom de 100 caractères au maximum.",
         "limit": "Un espace de travail peut avoir au plus 20 jetons SCIM. Révoquez-en un d'abord.",
         "ownersOnly": "Seuls les propriétaires de l'espace de travail peuvent faire cela.",
@@ -777,10 +777,24 @@
     },
     "allowedDomains": {
       "title": "Domaines de messagerie autorisés",
-      "description": "Les personnes ayant une adresse sur ces domaines, sous-domaines compris, peuvent rejoindre l'espace sans invitation. Les services publics comme gmail.com ne peuvent pas être ajoutés.",
+      "description": "Les personnes ayant une adresse sur ces domaines, sous-domaines compris, peuvent rejoindre l'espace sans invitation une fois le domaine vérifié ci-dessous. Les services publics comme gmail.com ne peuvent pas être ajoutés.",
       "placeholder": "exemple.fr, exemple.org",
       "verifiedByEmail": "Seules les adresses vérifiées rejoignent d'elles-mêmes : les nouveaux comptes reçoivent un lien de vérification par e-mail.",
-      "verifiedByProvider": "Seules les adresses vérifiées rejoignent d'elles-mêmes. Ce serveur n'envoie pas d'e-mails, donc seuls les comptes Google, GitHub ou d'authentification unique comptent comme vérifiés."
+      "verifiedByProvider": "Seules les adresses vérifiées rejoignent d'elles-mêmes. Ce serveur n'envoie pas d'e-mails, donc seuls les comptes Google, GitHub ou d'authentification unique comptent comme vérifiés.",
+      "verifiedByDns": "Vérifié",
+      "verifiedBySso": "Vérifié par l'authentification unique",
+      "unverified": "Non vérifié : personne ne rejoint encore par ce domaine",
+      "dnsBody": "Pour prouver que ce domaine vous appartient, ajoutez cet enregistrement TXT chez votre fournisseur DNS, puis vérifiez.",
+      "verify": "Vérifier",
+      "verifying": "Vérification du DNS…",
+      "verified": "{domain} est vérifié.",
+      "errors": {
+        "notListed": "{detail} ne fait plus partie des domaines autorisés. Rechargez la page.",
+        "dnsMismatch": "L'enregistrement TXT de {detail} est introuvable ou a une autre valeur. Les changements DNS peuvent mettre un moment à apparaître.",
+        "domainTaken": "{detail} est déjà vérifié par un autre espace de travail sur ce serveur.",
+        "ownersOnly": "Seuls les propriétaires de l'espace de travail peuvent faire cela.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      }
     },
     "domainJoin": {
       "title": "Quand quelqu'un de ces domaines se connecte",
@@ -1023,7 +1037,8 @@
       },
       "workspace": {
         "renamed": "A renommé l’espace de travail de {from} en {to}",
-        "settings_changed": "A modifié des paramètres : {settings}"
+        "settings_changed": "A modifié des paramètres : {settings}",
+        "domains_verified": "A vérifié le domaine de messagerie autorisé {domains}"
       },
       "sso": {
         "configured": "A enregistré la connexion d’authentification unique ({protocol}) pour {domains}",

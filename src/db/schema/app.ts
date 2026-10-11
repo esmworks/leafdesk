@@ -105,8 +105,15 @@ export type WorkspaceSettings = {
    * Email domains (subdomains included) whose people may come in on their own: someone who signs
    * up or in with a *verified* address on one of them joins as a member (`domainJoin: "join"`) or
    * sends a join request (`"request"`), once; after that the workspace waits in their switcher.
+   * Only domains the workspace has proven by DNS count (see `allowedDomainsVerified`).
    */
   allowedDomains: string[];
+  /**
+   * The allowed domains proven by a DNS TXT record (server/allowed-domains.ts). Set only by that
+   * check, never through the settings form; a domain taken off the list is forgotten here too.
+   * Allowed domains its single sign-on connection verified count too, without an entry here.
+   */
+  allowedDomainsVerified: string[];
   domainJoin: "join" | "request";
   /**
    * Who may ask to join when they can't join directly: nobody, people with an address on an
@@ -130,6 +137,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   accessRequests: true,
   memberInvites: "owners",
   allowedDomains: [],
+  allowedDomainsVerified: [],
   domainJoin: "join",
   joinRequests: "nobody",
 };
