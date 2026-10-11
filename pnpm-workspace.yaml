@@ -31,3 +31,6 @@ auditConfig:
     # KaTeX inside Mermaid, which pins 0.16; it needs prototype pollution elsewhere first. Leafdesk's
     # own math uses KaTeX 0.18.
     - GHSA-238p-pmpm-9mq7
+    # sprintf-js under argparse, which only mammoth's command-line tool loads; the .docx importer
+    # uses mammoth as a library. No patched sprintf-js is published yet.
+    - GHSA-hp3w-g68c-fv3c
