@@ -32,7 +32,7 @@ import { dateDraft, dateStartDay, draftValue, formatDateValue, parseDateValue, t
 import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
-import type { NumberFormat, PropertyOptions } from "@/db/schema/app";
+import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 
@@ -78,11 +78,23 @@ export function OptionChip({
   );
 }
 
-function optionsOf(prop: Property) {
+/**
+ * What showing a value needs of its property. Published pages send their visitors no more than this
+ * (server/publication publishedProperty: no formula expression, AI prompt or reminder), and the
+ * app's own properties fit it too.
+ */
+export type ShownProperty = Pick<Property, "id" | "name" | "type"> & {
+  options: Omit<PropertyOptions, "formula" | "date" | "ai"> & {
+    formula?: Pick<FormulaConfig, "type">;
+    date?: Pick<DateOptions, "display">;
+  };
+};
+
+function optionsOf(prop: ShownProperty) {
   return prop.options.options ?? [];
 }
 
-function selectedOptions(prop: Property, value: unknown): SelectOption[] {
+function selectedOptions(prop: ShownProperty, value: unknown): SelectOption[] {
   const ids = Array.isArray(value) ? value : typeof value === "string" ? [value] : [];
   const options = optionsOf(prop);
   return ids.map((id) => options.find((o) => o.id === id)).filter((o): o is SelectOption => Boolean(o));
@@ -110,7 +122,7 @@ export function useFormatDate() {
  * Shows a date property's value: relatively when its options say so and it is within a week of
  * the viewer's today ("tomorrow", "in 3 days"), with the date in the tooltip; as the date otherwise.
  */
-function DateValue({ prop, value }: { prop: Property; value: string }) {
+function DateValue({ prop, value }: { prop: ShownProperty; value: string }) {
   const formatDate = useFormatDate();
   if (prop.options.date?.display === "relative") return <RelativeDate value={value} />;
   return <span>{formatDate(value)}</span>;
@@ -163,7 +175,7 @@ export function useFormatNumber() {
   return (value: number, numberFormat?: NumberFormat | null, auto?: number) => format.number(value, numberFormatOptions(numberFormat, auto));
 }
 
-export function isEmptyValue(prop: Property, value: unknown) {
+export function isEmptyValue(prop: ShownProperty, value: unknown) {
   if (value === null || value === undefined || value === "") return true;
   // A formula's unticked checkbox counts as empty, like a checkbox property's.
   if (isDerived(prop.type)) return value === false || (Array.isArray(value) && value.length === 0);
@@ -180,7 +192,7 @@ export function isEmptyValue(prop: Property, value: unknown) {
  * Read-only rendering of a property value (board cards, read-only panels). `style`: how a styled
  * formula result shows (the row's `styles`).
  */
-export function PropertyDisplay({ prop, value, wrap, style }: { prop: Property; value: unknown; wrap?: boolean; style?: FormulaStyle }) {
+export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownProperty; value: unknown; wrap?: boolean; style?: FormulaStyle }) {
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
   if (value === null || value === undefined || value === "") return null;
@@ -268,7 +280,7 @@ export function shownValues<P extends Property>(props: P[], row: RowValues): P[]
 }
 
 /** A row's value, read-only: its display, or a lock when the viewer may not see it (property access). */
-export function RowValue({ prop, row, wrap }: { prop: Property; row: RowValues; wrap?: boolean }) {
+export function RowValue({ prop, row, wrap }: { prop: ShownProperty; row: RowValues; wrap?: boolean }) {
   if (row.hidden?.includes(prop.id)) return <HiddenValue />;
   return <PropertyDisplay prop={prop} value={row.properties[prop.id]} wrap={wrap} style={row.styles?.[prop.id]} />;
 }
@@ -296,7 +308,7 @@ function styledProps(styles: readonly string[] | undefined, className?: string) 
  * A formula's value, shown as its result type, with its styles; a row the formula fails on shows
  * an error marker with the reason on hover.
  */
-function DerivedDisplay({ prop, value, wrap, style }: { prop: Property; value: unknown; wrap?: boolean; style?: FormulaStyle | null }) {
+function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; value: unknown; wrap?: boolean; style?: FormulaStyle | null }) {
   const t = useTranslations("database.formula");
   const errorMessage = useFormulaErrorMessage();
   const formatDate = useFormatDate();
@@ -354,7 +366,7 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: Property; value: u
  * A rollup's number: a count or sum, a length of time in days, or a percentage shown as a
  * number, a bar or a ring (the rollup's display setting).
  */
-function RollupNumber({ prop, value }: { prop: Property; value: number }) {
+function RollupNumber({ prop, value }: { prop: ShownProperty; value: number }) {
   const t = useTranslations("database.calculate");
   const format = useFormatter();
   const formatNumber = useFormatNumber();

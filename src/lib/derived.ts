@@ -115,7 +115,10 @@ function baseType(prop: { type: PropertyType; options: PropertyOptions }): Formu
  * The type a derived property's values have (formulas: their result type, filled in when
  * properties are read), or null for other properties.
  */
-export function derivedType(prop: { type: PropertyType; options: PropertyOptions }): FormulaResultType | null {
+export function derivedType(prop: {
+  type: PropertyType;
+  options: { formula?: { type?: FormulaResultType }; rollup?: { function?: RollupFn } };
+}): FormulaResultType | null {
   if (prop.type === "formula") return prop.options.formula?.type ?? "text";
   if (prop.type === "rollup") {
     // A rollup listing the related values filters and sorts like text.

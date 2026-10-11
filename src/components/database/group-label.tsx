@@ -78,7 +78,7 @@ export function useGroupName(prop: Pick<Property, "name">) {
 }
 
 /** How a group is titled on board columns, table sections and the hidden groups list. */
-export function GroupLabel({ prop, group, className }: { prop: Property; group: AnyGroup; className?: string }) {
+export function GroupLabel({ prop, group, className }: { prop: Pick<Property, "type" | "name">; group: AnyGroup; className?: string }) {
   const name = useGroupName(prop)(group);
   const value = group.value;
   switch (value.kind) {

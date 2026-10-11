@@ -3,6 +3,7 @@ import { and, asc, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { databaseProperty, databaseView, page, pagePublication, user, workspace, type CardSize, type PageKind, type ViewConfig, type ViewType } from "@/db/schema";
+import type { DateOptions, FormulaConfig, PropertyOptions } from "@/db/schema/app";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
@@ -14,7 +15,7 @@ import { coverProperty, galleryCover } from "@/lib/views";
 import { firstImageFile } from "@/lib/files";
 import { withoutDeleted } from "@/lib/deleted-schema";
 import { hideReferences, unknownProperties } from "@/lib/property-access-rows";
-import { holdsPeople, UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
+import { holdsOptions, holdsPeople, UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { unknownToVisitors } from "@/lib/published-copy";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { AccessError, accessRank, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
@@ -292,9 +293,19 @@ export type PublishedRow = {
 export type PublishedViewTab = { id: string; name: string; type: ViewType };
 /** How a published view is drawn; calendars, timelines and charts show as tables. */
 export type PublishedLayout = "table" | "board" | "list" | "gallery";
+/**
+ * A property as a published page sends it to the visitor's browser (see publishedProperty): what
+ * drawing its values takes, and nothing of how it is worked out or set up.
+ */
+export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
+  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility"> & {
+    formula?: Pick<FormulaConfig, "type">;
+    date?: Pick<DateOptions, "display">;
+  };
+};
 export type PublishedDatabase = {
   /** Visible properties of the view, in property order (relations and people are never published). */
-  properties: DatabaseProperty[];
+  properties: PublishedProperty[];
   view: PublishedViewTab | null;
   /** The views visitors can switch between (see webViews); only for database pages. */
   views: PublishedViewTab[];
@@ -305,7 +316,7 @@ export type PublishedDatabase = {
    * Board columns, or table sections, when the view groups by a published property: the view's
    * shown groups in its order, each with the ids of its rows.
    */
-  groups: { property: DatabaseProperty; list: { key: string; value: GroupValue; rowIds: string[] }[] } | null;
+  groups: { property: PublishedProperty; list: { key: string; value: GroupValue; rowIds: string[] }[] } | null;
   /** Galleries. */
   cardSize: CardSize;
 };
@@ -358,7 +369,7 @@ export type PublishedPage = {
   /** Database pages. */
   database: PublishedDatabase | null;
   /** Database rows: their values, with the database's (non-relation) properties. */
-  row: { properties: DatabaseProperty[]; values: Record<string, unknown>; styles?: Record<string, FormulaStyle> } | null;
+  row: { properties: PublishedProperty[]; values: Record<string, unknown>; styles?: Record<string, FormulaStyle> } | null;
 };
 
 export type PublishedPageOptions = {
@@ -480,7 +491,7 @@ export async function publishedRow(
     access,
   );
   const shown = publicProperties(access.known(properties));
-  return { properties: shown, values: row.properties, ...stylesOf(row, shown) };
+  return { properties: shown.map(publishedProperty), values: row.properties, ...stylesOf(row, shown) };
 }
 
 /** The styles of the formula results a published page shows (none of what it leaves out). */
@@ -661,6 +672,28 @@ function publicProperties(properties: DatabaseProperty[]) {
 }
 
 /**
+ * A property as visitors get it: its name, type and how its values show (options, number format
+ * and display, relative dates, a formula's result type, where a row page shows it). Never a
+ * formula's expression (which may name properties the visitor can't see), an AI autofill prompt,
+ * a date's reminder, nor who deleted or changed it when.
+ */
+export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
+  const { options: stored } = prop;
+  const options: PublishedProperty["options"] = {};
+  if (holdsOptions(prop.type) && stored.options) {
+    options.options = stored.options.map(({ id, name, color, group }) => ({ id, name, color, ...(group ? { group } : {}) }));
+  }
+  if (prop.type === "number") {
+    if (stored.number) options.number = stored.number;
+    if (stored.numberDisplay) options.numberDisplay = stored.numberDisplay;
+  }
+  if (prop.type === "date" && stored.date?.display) options.date = { display: stored.date.display };
+  if (prop.type === "formula") options.formula = stored.formula?.type ? { type: stored.formula.type } : {};
+  if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;
+  return { id: prop.id, name: prop.name, type: prop.type, options };
+}
+
+/**
  * Rows with their formulas worked out for a public page: formulas that show people or related
  * rows get no names or titles, so nothing private reaches the page through them. Values the reader
  * may not view are left out first (and formulas and rollups reading them after), as
@@ -767,7 +800,7 @@ export async function publishedDatabase(
       access,
     );
     return {
-      properties,
+      properties: properties.map(publishedProperty),
       view: null,
       views: tabs,
       layout: "table",
@@ -801,7 +834,7 @@ export async function publishedDatabase(
     (prop) => !isHiddenInView(chosen, prop) && !(layout === "board" && prop.id === groups?.property.id),
   );
   return {
-    properties: shown,
+    properties: shown.map(publishedProperty),
     view: { id: chosen.id, name: chosen.name, type: chosen.type },
     views: tabs,
     layout,
@@ -847,5 +880,8 @@ function publishedGroups(
   if (!property || PRIVATE_TYPES.has(property.type)) return null;
   const dayOf = (value: unknown) => (typeof value === "string" ? value.slice(0, 10) : null);
   const { shown } = arrangeGroups(groupRowsBy(rows, property, view.config, { dayOf }), view.config);
-  return { property, list: shown.map((g) => ({ key: g.key, value: g.value, rowIds: g.rows.map((r) => r.id) })) };
+  return {
+    property: publishedProperty(property),
+    list: shown.map((g) => ({ key: g.key, value: g.value, rowIds: g.rows.map((r) => r.id) })),
+  };
 }

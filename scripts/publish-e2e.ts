@@ -16,9 +16,9 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { inArray } = await import("drizzle-orm");
+const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseProperty, user, workspace, workspaceMember } = await import("@/db/schema");
 const { addProperty, addView, createRows, getDatabaseSnapshot, getProperties, updateView } = await import("@/server/databases");
 const { getPublishedPage, getWebViews, listWorkspacePublications, publishPage, setPublicationIndexable, setWebViews, PublishError } =
   await import("@/server/publication");
@@ -154,6 +154,43 @@ try {
     "a grouped table shows its sections, minus hidden groups",
     data.groups,
   );
+
+  // Properties reach visitors with what drawing their values takes, not how they are set up
+  const verdict = await addProperty(ids.owner, tasks.id, {
+    name: "Verdict",
+    type: "formula",
+    formula: { expression: 'if(prop("Notes") == "never-shown-marker", "yes", "no")' },
+  });
+  const summary = await addProperty(ids.owner, tasks.id, { name: "Summary", type: "text" });
+  const due = await addProperty(ids.owner, tasks.id, { name: "Due", type: "date" });
+  await db
+    .update(databaseProperty)
+    .set({ options: sql`${databaseProperty.options} || ${JSON.stringify({ ai: { mode: "custom", prompt: "prompt-marker {Notes}" } })}::jsonb` })
+    .where(eq(databaseProperty.id, summary.id));
+  await db
+    .update(databaseProperty)
+    .set({
+      options: sql`${databaseProperty.options} || ${JSON.stringify({ date: { display: "relative", reminder: { daysBefore: 2, timeZone: "Europe/Istanbul", since: new Date().toISOString() } } })}::jsonb`,
+    })
+    .where(eq(databaseProperty.id, due.id));
+  await updateView(ids.owner, table.id, { config: { groupBy: size.id } });
+  data = (await getPublishedPage(token))!.database!;
+  const published = JSON.stringify(data);
+  const shownVerdict = data.properties.find((p) => p.id === verdict.id);
+  check(shownVerdict?.options.formula?.type === "text" && !("expression" in (shownVerdict.options.formula ?? {})), "a published formula keeps its result type, not its expression", shownVerdict);
+  check(
+    !published.includes("never-shown-marker") && !published.includes("prompt-marker") && !published.includes("reminder") && !published.includes("Europe/Istanbul"),
+    "no formula expression, AI prompt or reminder reaches the published database",
+  );
+  check(data.properties.find((p) => p.id === due.id)?.options.date?.display === "relative", "…while a date still shows as relative");
+  check(
+    data.properties.every((p) => Object.keys(p).sort().join() === "id,name,options,type") &&
+      Object.keys(data.groups!.property).sort().join() === "id,name,options,type",
+    "published properties carry only their id, name, type and display options",
+    data.properties,
+  );
+  const rowPage = JSON.stringify((await getPublishedPage(token, rows[0].id))!.row);
+  check(!rowPage.includes("never-shown-marker") && !rowPage.includes("prompt-marker") && !rowPage.includes("reminder"), "…nor the published page of a row");
 
   // Copies aren't on the web with their original's picks
   await setWebViews(ids.owner, tasks.id, [list.id]);

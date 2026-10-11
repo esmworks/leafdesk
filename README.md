@@ -280,7 +280,9 @@ versions, upgrades and running behind a domain.
   kept for a year.
 - **Publish to the web**: a read-only public link for a page and its subpages, kept out of search
   engines unless you allow them. Published databases show the views you pick (tables, boards,
-  lists, galleries) and visitors switch between them. Owners decide whether members may publish,
+  lists, galleries) and visitors switch between them; their browsers get each property's name,
+  type and how its values show, never a formula's expression, an AI autofill prompt or a
+  reminder. Owners decide whether members may publish,
   can take any published page offline, or turn publishing off for the whole workspace (see
   [Workspace security switches](#workspace-security-switches)).
 - **Workspace site**: owners give the workspace's published pages one readable address

@@ -12,7 +12,7 @@ import type { Property, RelationInput, RelationTargetRow } from "./types";
 import { searchFold } from "@/lib/search-fold";
 
 /** Read-only list of linked rows (table cells, cards, panels). */
-export function RelationChips({ prop, value, wrap }: { prop: Property; value: unknown; wrap?: boolean }) {
+export function RelationChips({ prop, value, wrap }: { prop: Pick<Property, "id">; value: unknown; wrap?: boolean }) {
   const ctx = useRelations();
   const rows = linkedRows(ctx?.targets[prop.id], value);
   if (!rows.length) return null;
