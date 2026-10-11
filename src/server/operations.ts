@@ -9,6 +9,7 @@ import * as z from "zod";
 import { commentText, MAX_COMMENT_LENGTH } from "@/lib/comments";
 import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
+import { parseIcon } from "@/lib/icon";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
@@ -538,6 +539,8 @@ export async function createPage(
   { workspace_id, parent_id, teamspace_id, title, markdown, icon, template_id }: Args<"createPage">,
 ) {
   const { userId, actor } = ctx;
+  // Checked before anything is created: a page from a template gets its icon afterwards.
+  if (icon !== undefined && icon !== null && !parseIcon(icon)) throw new ToolInputError("icon must be a single emoji.");
   const location = await resolveLocation(ctx, workspace_id, parent_id, teamspace_id);
   if (location.parentKind === "database") {
     throw new ToolInputError("parent_id is a database. Use create_database_row to add rows to it.");

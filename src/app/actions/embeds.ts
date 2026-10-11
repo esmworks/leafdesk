@@ -19,8 +19,8 @@ export async function createInlineDatabaseAction(hostPageId: string): Promise<Em
     return { ok: true, data: { id: created.id } };
   } catch (error) {
     const t = await getTranslations();
-    const code = (error as { code?: unknown }).code;
-    if (isDatabaseErrorCode(code)) return { ok: false, error: t(`database.errors.${code}`) };
+    const { code, params } = error as { code?: unknown; params?: Record<string, string> };
+    if (isDatabaseErrorCode(code)) return { ok: false, error: t(`database.errors.${code}`, params ?? {}) };
     if (error instanceof AccessError) return { ok: false, error: t("database.errors.accessDenied") };
     console.error("[embed action]", error);
     return { ok: false, error: t("common.genericError") };
@@ -38,11 +38,11 @@ export async function tableToDatabaseAction(hostPageId: string, records: string[
     return { ok: true, data: { id: created.id } };
   } catch (error) {
     const t = await getTranslations();
-    const code = (error as { code?: unknown }).code;
+    const { code, params } = error as { code?: unknown; params?: Record<string, string> };
     if (error instanceof ImportError && (code === "tooManyRows" || code === "tooManyColumns")) {
       return { ok: false, error: t("page.embed.tableTooLarge", { rows: CSV_MAX_ROWS, columns: CSV_MAX_COLUMNS }) };
     }
-    if (isDatabaseErrorCode(code)) return { ok: false, error: t(`database.errors.${code}`) };
+    if (isDatabaseErrorCode(code)) return { ok: false, error: t(`database.errors.${code}`, params ?? {}) };
     if (error instanceof AccessError) return { ok: false, error: t("database.errors.accessDenied") };
     if (!(error instanceof ImportError)) console.error("[embed action]", error);
     return { ok: false, error: t("common.genericError") };
