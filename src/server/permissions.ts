@@ -50,7 +50,7 @@ export class PermissionError extends Error {
 export type PermissionEntry = {
   userId: string | null;
   name: string | null;
-  /** Null for agents, whose address is no one's. */
+  /** Null for agents, whose address is no one's, and for guests asking about anyone but themselves. */
   email: string | null;
   image: string | null;
   /** The entry is an agent's (its access is managed in the agent's settings too). */
@@ -58,20 +58,26 @@ export type PermissionEntry = {
   /** The agent's icon, an emoji. */
   agentIcon: string | null;
   level: PageLevel;
-  /** The page the entry is set on: this page, or the ancestor it is inherited from. */
-  sourcePageId: string;
-  sourceTitle: string;
+  /**
+   * The page the entry is set on: this page, or the ancestor it is inherited from. Null (with the
+   * title) for an ancestor the caller can't open: the entry is then inherited from "a page above".
+   */
+  sourcePageId: string | null;
+  sourceTitle: string | null;
   inherited: boolean;
 };
 
-/** A group's entry on the page or the ancestor it is inherited from, like a person's. */
+/**
+ * A group's entry on the page or the ancestor it is inherited from, like a person's. Guests, who
+ * don't see the workspace's groups, get neither its name nor its size.
+ */
 export type GroupPermissionEntry = {
   groupId: string;
-  name: string;
-  memberCount: number;
+  name: string | null;
+  memberCount: number | null;
   level: PageLevel;
-  sourcePageId: string;
-  sourceTitle: string;
+  sourcePageId: string | null;
+  sourceTitle: string | null;
   inherited: boolean;
 };
 
@@ -84,6 +90,23 @@ export type GroupPermissionEntry = {
 export async function listPagePermissions(userId: string, pageId: string) {
   const { page: target, level } = await resolvePageAccess(userId, pageId);
   if (!target || !hasLevel(level, "view")) throw new AccessError();
+  // Viewing a page is enough to see who has it, but not to learn about pages above it or about the
+  // workspace's people: an ancestor an entry comes from is named only to those who can open it,
+  // and guests (who never see the workspace's members or groups) get no one's email but their own
+  // and no group's name or size.
+  const asGuest = (await getMembership(userId, target.workspaceId))?.role === "guest";
+  const openable = async (pageIds: string[]) => {
+    const above = [...new Set(pageIds)].filter((id) => id !== pageId);
+    if (!above.length) return new Set([pageId]);
+    const open = await db.execute<{ id: string }>(sql`
+      select id from page
+      where id in (${sql.join(
+        above.map((id) => sql`${id}`),
+        sql`, `,
+      )}) and page_access_level(${userId}, id) > 0
+    `);
+    return new Set([pageId, ...open.map((r) => r.id)]);
+  };
   const rows = await db.execute<{
     user_id: string | null;
     level: PageLevel;
@@ -114,16 +137,17 @@ export async function listPagePermissions(userId: string, pageId: string) {
       )
     order by pp.user_id nulls first, c.depth
   `);
+  const named = await openable(rows.map((r) => r.page_id));
   const entries: PermissionEntry[] = rows.map((r) => ({
     userId: r.user_id,
     name: r.name,
-    email: r.agent_id ? null : r.email,
+    email: r.agent_id || (asGuest && r.user_id !== userId) ? null : r.email,
     image: r.image,
     isAgent: r.agent_id !== null,
     agentIcon: r.agent_icon,
     level: r.level,
-    sourcePageId: r.page_id,
-    sourceTitle: r.title,
+    sourcePageId: named.has(r.page_id) ? r.page_id : null,
+    sourceTitle: named.has(r.page_id) ? r.title : null,
     inherited: r.page_id !== pageId,
   }));
   const groupRows = await db.execute<{
@@ -147,17 +171,18 @@ export async function listPagePermissions(userId: string, pageId: string) {
     join page src on src.id = c.id
     order by gp.group_id, c.depth
   `);
+  const groupNamed = await openable(groupRows.map((r) => r.page_id));
   const groups: GroupPermissionEntry[] = groupRows
     .map((r) => ({
       groupId: r.group_id,
-      name: r.name,
-      memberCount: Number(r.member_count),
+      name: asGuest ? null : r.name,
+      memberCount: asGuest ? null : Number(r.member_count),
       level: r.level,
-      sourcePageId: r.page_id,
-      sourceTitle: r.title,
+      sourcePageId: groupNamed.has(r.page_id) ? r.page_id : null,
+      sourceTitle: groupNamed.has(r.page_id) ? r.title : null,
       inherited: r.page_id !== pageId,
     }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
   // "Everyone" means the teamspace's members for a teamspace's page (the teamspace's member level
   // unless the page sets it), and the whole workspace for a private page (nobody unless shared).
   const space = target.teamspaceId ? await teamspaceLabel(userId, target.teamspaceId) : null;

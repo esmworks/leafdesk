@@ -24,13 +24,14 @@ const { pageInvitation, user, workspace, workspaceInvitation, workspaceMember } 
 const { registerCollab } = await import("@/server/collab/bridge");
 const { AccessError, resolvePageAccess } = await import("@/server/access");
 const { archivePage, createPage } = await import("@/server/pages");
-const { removePageInvitation, removePagePermission, setPagePermission, sharePageByEmail } = await import(
+const { listPagePermissions, removePageInvitation, removePagePermission, setPageGroupPermission, setPagePermission, sharePageByEmail } = await import(
   "@/server/permissions"
 );
 const { canInviteGuests, removeMember, revokeInvitation, setMemberRole, updateWorkspaceSettings } = await import(
   "@/server/workspaces"
 );
 const { listGuests } = await import("@/server/guests");
+const { createGroup } = await import("@/server/groups");
 const { guestsCsvRows } = await import("@/lib/guests-csv");
 const { toCsv } = await import("@/lib/csv");
 
@@ -186,6 +187,46 @@ try {
     check(n.invitationId === null, "members don't get the workspace invitation");
     const csv = toCsv(guestsCsvRows(guests, (id) => `/p/${id}`));
     check(!csv.includes(X) && !csv.includes(`${RUN} X`) && csv.includes(`${RUN} R`), "the CSV has what the list has, and no more");
+  }
+
+  // ── The share panel ────────────────────────────────────────────────────────────────────────
+  // P is the owner's alone but for Alice and a group; its subpage PS is shared with Gina.
+  const P = (await make("P private")).id;
+  await setPagePermission(owner, P, owner, "full");
+  await setPagePermission(owner, P, null, "none");
+  await setPagePermission(owner, P, alice, "view");
+  const finance = await createGroup(owner, workspaceId, `${RUN} Finance`, [alice]);
+  await setPageGroupPermission(owner, P, finance.id, "view");
+  const PS = (await make("PS", P)).id;
+  await setPagePermission(owner, PS, gina, "view");
+  {
+    const panel = await listPagePermissions(gina, PS);
+    const text = JSON.stringify(panel);
+    const ownerEntry = panel.entries.find((e) => e.userId === owner);
+    check(ownerEntry?.inherited && ownerEntry.sourcePageId === null && ownerEntry.sourceTitle === null, "a guest sees an entry inherited from a page above they can't open, without that page", ownerEntry);
+    check(!text.includes(P) && !text.includes(`${RUN} P private`), "…whose id and title appear nowhere in what they get");
+    check(panel.entries.every((e) => e.userId === gina || e.email === null), "a guest gets no one's email", panel.entries);
+    check(panel.entries.find((e) => e.userId === gina)?.email === emailOf(gina), "…but their own");
+    const group = panel.groups.find((g) => g.groupId === finance.id);
+    check(group?.name === null && group.memberCount === null && group.level === "view", "…and learns that a group has access, not its name or size", group);
+  }
+  {
+    const panel = await listPagePermissions(alice, PS);
+    check(panel.entries.find((e) => e.userId === owner)?.sourceTitle === `${RUN} P private`, "a member who can open the page above sees it named");
+    check(panel.entries.find((e) => e.userId === gina)?.email === emailOf(gina), "…and the people's emails");
+    check(panel.groups.find((g) => g.groupId === finance.id)?.name === `${RUN} Finance`, "…and the group");
+  }
+  const Q = (await make("Q closed")).id;
+  await setPagePermission(owner, Q, owner, "full");
+  await setPagePermission(owner, Q, null, "none");
+  const QS = (await make("QS", Q)).id;
+  await setPagePermission(owner, QS, alice, "view");
+  {
+    const panel = await listPagePermissions(alice, QS);
+    const ownerEntry = panel.entries.find((e) => e.userId === owner);
+    check(ownerEntry?.sourceTitle === null && ownerEntry.sourcePageId === null, "a member doesn't learn the title of a page above they can't open either", ownerEntry);
+    check(ownerEntry?.email === emailOf(owner), "…but sees emails, as members do");
+    check((await listPagePermissions(owner, QS)).entries.find((e) => e.userId === owner)?.sourceTitle === `${RUN} Q closed`, "the owner sees it named");
   }
 
   // ── Who invited them ───────────────────────────────────────────────────────────────────────

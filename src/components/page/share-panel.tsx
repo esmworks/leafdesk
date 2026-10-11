@@ -332,7 +332,12 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                 name={entry.name ?? entry.email ?? "?"}
                 detail={
                   overridden(entry.userId, entry.level) ??
-                  (entry.inherited ? t("inherited", { title: entry.sourceTitle || "…" }) : (entry.email ?? undefined))
+                  (entry.inherited
+                    ? // A page above it that they can't open isn't named.
+                      entry.sourceTitle === null
+                      ? t("inheritedAbove")
+                      : t("inherited", { title: entry.sourceTitle || "…" })
+                    : (entry.email ?? undefined))
                 }
               />
             }
@@ -358,11 +363,16 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
             avatar={<GroupAvatar />}
             label={
               <PersonLabel
-                name={entry.name}
+                // Guests learn that a group has access, not which one or how big it is.
+                name={entry.name ?? t("hiddenGroup")}
                 detail={
                   entry.inherited
-                    ? t("groupInherited", { title: entry.sourceTitle || "…" })
-                    : t("groupMembers", { count: entry.memberCount })
+                    ? entry.sourceTitle === null
+                      ? t("groupInheritedAbove")
+                      : t("groupInherited", { title: entry.sourceTitle || "…" })
+                    : entry.memberCount === null
+                      ? t("group")
+                      : t("groupMembers", { count: entry.memberCount })
                 }
               />
             }

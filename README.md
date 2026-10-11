@@ -243,6 +243,9 @@ versions, upgrades and running behind a domain.
   verified is invited by email, like someone without one). Someone who opens a link to a page they
   can't see can request access; the people with full access approve it at a level or decline it
   from their inbox or the Share panel (owners can turn requests off in Settings → Security).
+  The Share panel shows everyone who can view the page who has it; access inherited from a page
+  above names that page only to those who can open it, and guests see people's names but not
+  their email addresses, and that a group has access but not which one.
   Someone who leaves the workspace, or is removed from it, loses what it gave them by name: their
   access to pages and properties, their calendar feeds of it and API tokens made only for it
   (pages only they could manage pass to an owner first). Coming back starts afresh.
