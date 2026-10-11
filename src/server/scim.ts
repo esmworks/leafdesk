@@ -56,8 +56,9 @@ import { joinAsMember, oldestOwner, removeMemberByProvider, WorkspaceError } fro
  * Users are the workspace's owners and members, plus the people its provider deactivated (kept
  * with `active: false` so it can turn them back on). The SCIM id is the account id. New accounts
  * are created only for addresses in the workspace's verified SSO domains; anyone else must already
- * have an account. Guests aren't listed; provisioning one makes them a member. Owners can't be
- * deactivated or removed over SCIM, so a provider can't take a workspace away from its owners.
+ * have an account, with a verified address. Guests aren't listed; provisioning one makes them a
+ * member. Owners can't be deactivated or removed over SCIM, so a provider can't take a workspace
+ * away from its owners.
  *
  * Groups are the workspace's member groups (Settings > Groups), all of them, whoever created them.
  * Their members are SCIM user ids of the workspace's owners and members; guests and anyone else are
@@ -253,7 +254,10 @@ async function applyChanges(workspaceId: string, record: { id: string; email: st
   }
   if (changes.active === true && record.role !== "owner" && record.role !== "member") {
     if (record.role === "guest") await promoteGuest(workspaceId, record.id);
-    else await joinAsMember(workspaceId, record.id, record.email, "scim");
+    else {
+      await requireVerifiedAddress(record);
+      await joinAsMember(workspaceId, record.id, record.email, "scim");
+    }
   }
   if (changes.active === false && record.role === "member") await removeMemberByProvider(workspaceId, record.id);
   const active = changes.active ?? (record.role === "owner" || record.role === "member");
@@ -261,6 +265,23 @@ async function applyChanges(workspaceId: string, record: { id: string; email: st
   if (changes.name && emailInDomains(record.email, await verifiedDomains(workspaceId))) {
     const clean = cleanName(changes.name);
     if (clean.ok) await db.update(user).set({ name: clean.name }).where(eq(user.id, record.id));
+  }
+}
+
+/**
+ * The provider naming an address doesn't make an account with it theirs: anyone can sign up with
+ * someone else's address, unverified (see addMemberAs). Such an account joins once its owner has
+ * verified the address (by the emailed link, a password reset, or a provider that vouches for it),
+ * when the provider tries again.
+ */
+async function requireVerifiedAddress(record: { id: string; email: string }) {
+  const [row] = await db.select({ emailVerified: user.emailVerified }).from(user).where(eq(user.id, record.id)).limit(1);
+  if (!row?.emailVerified) {
+    throw new ScimError(
+      400,
+      `The account using ${record.email} hasn't verified its address. It can be provisioned once its owner verifies it.`,
+      "invalidValue",
+    );
   }
 }
 

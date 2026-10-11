@@ -134,7 +134,10 @@ const requestNotifications = (pageId: string) =>
 
 let failed = false;
 try {
-  await db.insert(user).values(userIds.map((id) => ({ id, name: `Name ${id.slice(RUN.length + 1)}`, email: emailOf(id) })));
+  // Verified addresses: approving someone outside the workspace adds only such an account (see sharePageByEmail).
+  await db
+    .insert(user)
+    .values(userIds.map((id) => ({ id, name: `Name ${id.slice(RUN.length + 1)}`, email: emailOf(id), emailVerified: true })));
   await db.insert(workspace).values({ id: workspaceId, name: workspaceName });
   await db.insert(workspaceMember).values([
     { workspaceId, userId: ids.owner, role: "owner" },

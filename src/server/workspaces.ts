@@ -351,9 +351,10 @@ export async function addAgentMembership(
 }
 
 /**
- * Adds the account that uses this email. Without one, creates (or renews) an invitation and emails
- * its link when the server can send email; the owner can always share the link themselves. While
- * the workspace wants members' invitations approved, a member's addition becomes a request instead.
+ * Adds the account that uses this email, when its address is verified. Otherwise (no account, or
+ * one nobody proved the address of) creates (or renews) an invitation and emails its link when the
+ * server can send email; the owner can always share the link themselves. While the workspace wants
+ * members' invitations approved, a member's addition becomes a request instead.
  */
 export async function addMember(
   actorId: string,
@@ -382,6 +383,10 @@ export async function addMember(
  * What adding a member does once allowed: adds the account with this email, or invites it in the
  * name of `actorId`. No access check: addMember, and an owner approving a member's request
  * (server/join-requests.ts, where the invitation names the member who asked), check first.
+ *
+ * Only an account with a verified address is added. Anyone can sign up with someone else's
+ * address, and nobody has to verify it to sign in, so an unverified account is treated as no
+ * account: the address gets the invitation, and only its mailbox has the link.
  */
 export async function addMemberAs(
   actorId: string,
@@ -393,11 +398,11 @@ export async function addMemberAs(
   // Agents' users are added only to their own workspace, by creating the agent.
   if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
   const [target] = await db
-    .select({ id: user.id })
+    .select({ id: user.id, emailVerified: user.emailVerified })
     .from(user)
     .where(and(eq(sql`lower(${user.email})`, clean), notAgentUser(user.id)))
     .limit(1);
-  if (!target) {
+  if (!target?.emailVerified) {
     const token = newToken();
     const expiresAt = new Date(Date.now() + INVITATION_TTL_MS);
     await db

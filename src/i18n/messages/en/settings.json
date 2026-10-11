@@ -98,7 +98,7 @@
     "inviteLink": "Invitation link",
     "add": {
       "title": "Add members",
-      "description": "People with an account are added right away. Everyone else gets an invitation link.",
+      "description": "People whose account has a verified address are added right away. Everyone else gets an invitation link.",
       "emailsLabel": "Email addresses",
       "emailsPlaceholder": "name@example.com, another@example.com",
       "count": "{count, plural, =0 {Separate addresses with commas, spaces or new lines. Up to 50 at a time.} one {# address} other {# addresses}}",

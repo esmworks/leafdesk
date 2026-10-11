@@ -98,7 +98,7 @@
     "inviteLink": "Enlace de invitación",
     "add": {
       "title": "Añadir miembros",
-      "description": "Las personas con cuenta se añaden de inmediato. Las demás reciben un enlace de invitación.",
+      "description": "Las personas cuya cuenta tiene la dirección verificada se añaden de inmediato. Las demás reciben un enlace de invitación.",
       "emailsLabel": "Direcciones de correo",
       "emailsPlaceholder": "nombre@example.com, otro@example.com",
       "count": "{count, plural, =0 {Separa las direcciones con comas, espacios o saltos de línea. Hasta 50 a la vez.} one {# dirección} other {# direcciones}}",

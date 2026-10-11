@@ -210,8 +210,10 @@ export type ShareByEmailResult =
 
 /**
  * Shares the page with whoever uses `email`. Someone in the workspace gets the level right away;
- * an account outside it joins as a guest; anyone else is invited as a guest and gets the page
- * once they accept. Needs full access; bringing new people in also needs `canInviteGuests`.
+ * an account outside it with a verified address joins as a guest; anyone else is invited as a guest
+ * and gets the page once they accept. An unverified address could be anyone's (see addMemberAs), so
+ * its account is invited like someone without one. Needs full access; bringing new people in also
+ * needs `canInviteGuests`.
  */
 export async function sharePageByEmail(
   actorId: string,
@@ -224,7 +226,7 @@ export async function sharePageByEmail(
   // Agents' addresses are no one's: pages are shared with an agent from its settings.
   if (!isEmail(clean) || isAgentEmail(clean)) throw new PermissionError("invalidEmail", "Enter a valid email address");
   const [account] = await db
-    .select({ id: user.id })
+    .select({ id: user.id, emailVerified: user.emailVerified })
     .from(user)
     .where(and(eq(sql`lower(${user.email})`, clean), notAgentUser(user.id)))
     .limit(1);
@@ -235,7 +237,7 @@ export async function sharePageByEmail(
   if (!(await canInviteGuests(actorId, target.workspaceId))) {
     throw new PermissionError("invitesRestricted", "This workspace doesn't let you share pages with new people");
   }
-  if (account) {
+  if (account?.emailVerified) {
     await addGuest(actorId, target.workspaceId, account.id, clean);
     await setPagePermission(actorId, pageId, account.id, level);
     return { kind: "added" };

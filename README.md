@@ -239,7 +239,8 @@ versions, upgrades and running behind a domain.
   for a private page), full, edit, comment, view or no access to a page. Subpages inherit it
   unless you change them; pages nest at most 60 levels deep, so what is set above a page always
   reaches it. Share a page with someone outside the workspace by email and they join
-  as a guest who sees only the pages shared with them. Someone who opens a link to a page they
+  as a guest who sees only the pages shared with them (an account whose address was never
+  verified is invited by email, like someone without one). Someone who opens a link to a page they
   can't see can request access; the people with full access approve it at a level or decline it
   from their inbox or the Share panel (owners can turn requests off in Settings → Security).
   Someone who leaves the workspace, or is removed from it, loses what it gave them by name: their
@@ -335,8 +336,9 @@ versions, upgrades and running behind a domain.
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
-  an invitation link to people who don't have an account yet, or turn on a join link anyone can
-  use. Owners can export the member list as CSV, hand ownership to someone else, and decide who
+  an invitation link to people who don't have an account yet (or whose account's address was
+  never verified: anyone can sign up with someone else's address), or turn on a join link anyone
+  can use. Owners can export the member list as CSV, hand ownership to someone else, and decide who
   may invite guests and add members, which email domains may join on their own, who may ask to
   join, whether pages may be exported, and what connected apps and API tokens may do (see
   [Who can join a workspace](#who-can-join-a-workspace) and
@@ -395,7 +397,7 @@ container starts.
 
 To stop new sign-ups after creating your own account, set `DISABLE_SIGNUP=true` and restart.
 You can still bring people in: in Settings → Members, add their email. If they have no account
-yet, you get an invitation link to send them. The link works for 7 days and lets only that email
+yet (or its address isn't verified), you get an invitation link to send them. The link works for 7 days and lets only that email
 sign up, even while sign-up is closed. The workspace join link (Settings → Members → Add members
 with a link) is different: anyone holding it can join as a member (or ask an owner to let them
 in, see [Who can join a workspace](#who-can-join-a-workspace)), so it never opens closed sign-up.
@@ -918,8 +920,9 @@ base URL `${APP_URL}/scim/v2` with the token as a bearer token. Supported:
   is its owner's) and delete.
 - Users are the workspace's owners and members, plus people the provider deactivated. Creating a
   user makes them a member (a guest is promoted); a new account is created only for addresses in
-  the workspace's verified SSO domains, anyone else must have an account already. Names are
-  changed only for addresses in those domains.
+  the workspace's verified SSO domains, anyone else must have an account already, with a verified
+  address (an unverified one is refused until its owner verifies it). Names are changed only for
+  addresses in those domains.
 - `active: false` removes the person from the workspace (what an owner removing them does) and
   keeps them listed as inactive; they can't come back through single sign-on until reactivated.
   `DELETE` removes them and forgets them. Owners can't be deactivated or deleted over SCIM.
@@ -1524,8 +1527,8 @@ The tools cover:
 
 - **Finding things:** `list_workspaces`, `list_teamspaces`, `search`, `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
 - **Members:** `invite_member` adds someone to a workspace by email, as Settings → Members does
-  (owners only, and not for read-only apps): someone with an account joins right away, anyone
-  else gets an invitation, whose link is returned too.
+  (owners only, and not for read-only apps): someone whose account has a verified address joins
+  right away, anyone else gets an invitation, whose link is returned too.
 - **Teamspaces:** `create_page`, `create_database` and `move_page` take a `teamspace_id` for
   top-level pages (`"private"` for the user's private pages). Without one, a page an AI app
   creates at the top is private to the user, so nothing an app makes is shared before they

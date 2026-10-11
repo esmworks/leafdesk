@@ -2,13 +2,14 @@
  * End-to-end check of SCIM 2.0 provisioning over HTTP against a running app, playing the identity
  * provider with a SCIM token: tokens (created and revoked with the settings' server actions, bearer
  * auth, one workspace per token), discovery endpoints, listing and filtering users, creating them
- * (new accounts only in the workspace's verified SSO domains; existing accounts and guests join as
- * members), deactivating (they leave the workspace and can't rejoin through SSO), reactivating,
- * renaming, deleting, owners protected, and /Groups: creating member groups with members, Okta-
- * and Entra ID-style PATCH (add, remove by filter or by value, rename, externalId), PUT, filters
- * and paging, guests and outsiders refused, open editors closed when someone leaves a group (a real
- * collab websocket), pages only a deleted group could manage passing to the oldest owner, the
- * settings marking provisioned groups, and another workspace's token seeing none of it.
+ * (new accounts only in the workspace's verified SSO domains; existing accounts, once their address
+ * is verified, and guests join as members), deactivating (they leave the workspace and can't
+ * rejoin through SSO), reactivating, renaming, deleting, owners protected, and /Groups: creating
+ * member groups with members, Okta- and Entra ID-style PATCH (add, remove by filter or by value,
+ * rename, externalId), PUT, filters and paging, guests and outsiders refused, open editors closed
+ * when someone leaves a group (a real collab websocket), pages only a deleted group could manage
+ * passing to the oldest owner, the settings marking provisioned groups, and another workspace's
+ * token seeing none of it.
  *
  *   APP_URL=http://localhost:5100 pnpm tsx scripts/scim-e2e.ts
  *
@@ -295,6 +296,15 @@ async function main() {
   const noEmail = await scim(token, "POST", "/Users", { userName: "just-a-name" });
   check(noEmail.status === 400, "a user needs an email address", noEmail.body);
 
+  // Anyone can sign up with someone else's address: an account that never verified it isn't the
+  // provider's person until its owner does.
+  const unproven = await scim(token, "POST", "/Users", { userName: bystander.email });
+  check(
+    unproven.status === 400 && unproven.body.scimType === "invalidValue" && (await roleOf(workspaceId, bystander.id)) === null,
+    "an existing account whose address was never verified isn't provisioned (400 invalidValue)",
+    unproven.body,
+  );
+  await db.update(user).set({ emailVerified: true }).where(eq(user.id, bystander.id));
   const existing = await scim(token, "POST", "/Users", { userName: bystander.email, name: { formatted: "Renamed By IdP" } });
   check(existing.status === 201 && existing.body.id === bystander.id, "an existing account outside the domain can be provisioned", existing.body);
   check((await roleOf(workspaceId, bystander.id)) === "member", "…and joins as a member");

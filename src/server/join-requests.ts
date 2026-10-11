@@ -384,8 +384,8 @@ async function takePending(tx: Tx, workspaceId: string, requestId: string): Prom
 
 /**
  * Lets the request in. Someone asking to join becomes a member; a member's request to invite
- * someone goes out as that member's invitation (added right away when the address has an account),
- * which is returned so the owner can share its link. Owners only.
+ * someone goes out as that member's invitation (added right away when an account has the address,
+ * verified, see addMemberAs), which is returned so the owner can share its link. Owners only.
  */
 export async function approveJoinRequest(actorId: string, workspaceId: string, requestId: string) {
   await requireMembership(actorId, workspaceId, "owner");
@@ -402,17 +402,24 @@ export async function approveJoinRequest(actorId: string, workspaceId: string, r
       .update(workspaceJoinRequest)
       .set({ status: "accepted", decidedBy: actorId, decidedAt: new Date() })
       .where(eq(workspaceJoinRequest.id, request.id));
-    const [account] = await tx.select({ email: user.email }).from(user).where(eq(user.id, request.userId!));
+    const [account] = await tx
+      .select({ email: user.email, emailVerified: user.emailVerified })
+      .from(user)
+      .where(eq(user.id, request.userId!));
     const email = normalizeEmail(account?.email ?? request.email);
     const added = await tx
       .insert(workspaceMember)
       .values({ workspaceId, userId: request.userId!, role: "member", invitedBy: actorId })
       .onConflictDoNothing()
       .returning({ userId: workspaceMember.userId });
-    await tx
-      .delete(workspaceInvitation)
-      .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, email)));
-    await claimPageInvitations(tx, workspaceId, request.userId!, email);
+    // As with the join link: invitations by email (to the workspace, or to its pages) are only
+    // taken up for a verified address, so someone using another person's address gets none of them.
+    if (account?.emailVerified) {
+      await tx
+        .delete(workspaceInvitation)
+        .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, email)));
+      await claimPageInvitations(tx, workspaceId, request.userId!, email);
+    }
     if (added.length) {
       await recordAudit(
         {

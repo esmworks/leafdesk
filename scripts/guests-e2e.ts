@@ -99,7 +99,8 @@ async function guestsFor(viewer: string) {
 }
 
 try {
-  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: emailOf(id) })));
+  // Verified addresses: sharing by email adds only such an account (see access-e2e for one that isn't).
+  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: emailOf(id), emailVerified: true })));
   // The workspace gets its General teamspace, where the pages below land, from a trigger.
   await db.insert(workspace).values({ id: workspaceId, name: RUN });
   await db.insert(workspaceMember).values([

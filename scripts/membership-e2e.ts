@@ -111,6 +111,7 @@ const people = {
   vera: person("vera", `vera@${DOMAIN}`),
   outsider: person("outsider", `outsider@other-${RUN}.test`),
   linker: person("linker", `linker@other-${RUN}.test`, false),
+  unproven: person("unproven", `unproven@other-${RUN}.test`, false),
   lookalike: person("lookalike", `look@not${DOMAIN}`),
   sam: person("sam", `sam@${SSO_DOMAIN}`),
 };
@@ -261,6 +262,16 @@ try {
   const added = await approveJoinRequest(people.owner.id, workspaceId, accountRequest.id);
   check(added?.kind === "added" && (await isMember(people.invitee)) === "member", "approving adds someone who already has an account", added);
   check((await inviterOf(people.invitee)) === people.member.id, "…invited by the member who asked", await inviterOf(people.invitee));
+  // Anyone can sign up with someone else's address, unverified: their account isn't added, the
+  // address is invited, and only its mailbox gets the link.
+  await addMember(people.member.id, workspaceId, people.unproven.email, "member");
+  const [unprovenRequest] = await requestsOf(people.unproven.email);
+  const unprovenResult = await approveJoinRequest(people.owner.id, workspaceId, unprovenRequest.id);
+  check(
+    unprovenResult?.kind === "invited" && (await isMember(people.unproven)) === null,
+    "approving for an address whose account never verified it invites the address instead of adding the account",
+    unprovenResult,
+  );
 
   const [declinedInvite] = await requestsOf(`new3@${RUN}.test`);
   await declineJoinRequest(people.owner.id, workspaceId, declinedInvite.id);
@@ -415,8 +426,15 @@ try {
   const [ursulaRequest] = await requestsOf(people.ursula.email);
   // The request remembers the asker's language; the decision email uses it.
   await db.update(workspaceJoinRequest).set({ locale: "tr" }).where(eq(workspaceJoinRequest.id, ursulaRequest.id));
+  const ursulaInvited = await addMember(people.owner.id, workspaceId, people.ursula.email, "owner");
+  check(ursulaInvited.kind === "invited" && (await isMember(people.ursula)) === null, "an owner adding an unverified account's address invites it instead", ursulaInvited);
   await approveJoinRequest(people.owner2.id, workspaceId, ursulaRequest.id);
   check((await isMember(people.ursula)) === "member" && (await record(people.ursula))?.status === "accepted", "approving lets them in as a member");
+  const [ursulaInvitation] = await db
+    .select({ role: workspaceInvitation.role })
+    .from(workspaceInvitation)
+    .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, people.ursula.email)));
+  check(ursulaInvitation?.role === "owner", "…without taking up the invitation to their address, which waits for a verified owner of it", ursulaInvitation);
   check((await inviterOf(people.ursula)) === people.owner2.id, "…invited by the owner who approved", await inviterOf(people.ursula));
   const ursulaMail = decisionMails.find((m) => m.to === people.ursula.email);
   check(ursulaMail?.subject.includes("katıldınız") && ursulaMail.text.includes(`/w/${workspaceId}`), "…and emails them in their language, with a link in", ursulaMail);
@@ -467,6 +485,10 @@ try {
   check((await inviterOf(squatter)) === null, "…invited by nobody");
   check((await invitationFor(cfoEmail))?.role === "owner", "…and the invitation stays for whoever owns the address");
   await removeMember(people.owner.id, workspaceId, squatter.id);
+  const readded = await addMember(people.owner.id, workspaceId, cfoEmail, "owner");
+  check(readded.kind === "invited" && (await isMember(squatter)) === null, "an owner adding the address again invites it rather than adding the account", readded);
+  check((await addMember(people.owner.id, workspaceId, people.outsider.email, "member")).kind === "added", "…while an account with the address verified is added");
+  await removeMember(people.owner.id, workspaceId, people.outsider.id);
 
   await settings({ joinRequests: "anyone_with_link" });
   check((await joinLinkAccess(token!, people.linker.id, people.linker.email)) === "request", "when the link asks, it offers a request");

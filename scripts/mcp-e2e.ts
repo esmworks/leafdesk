@@ -622,15 +622,19 @@ async function main() {
   check(colleague.ok && colleagueId, "sign up a colleague");
   userIds.push(colleagueId);
   const { db } = await import("@/db");
-  const { workspaceMember } = await import("@/db/schema");
+  const { user: userTable, workspaceMember } = await import("@/db/schema");
   const { eq } = await import("drizzle-orm");
   const colleagueWorkspaces = await db
     .select({ id: workspaceMember.workspaceId })
     .from(workspaceMember)
     .where(eq(workspaceMember.userId, colleagueId));
   workspaceIds.push(...colleagueWorkspaces.map((w) => w.id));
+  // Signing up doesn't verify the address: until it is, the account could be anyone's.
+  const unproven = await mcp.ok("invite_member", { workspace_id: ws, email: `mcp-colleague-${RUN}@example.test`, role: "guest" });
+  check(unproven.status === "invited", "invite_member invites the address of an account that never verified it", unproven);
+  await db.update(userTable).set({ emailVerified: true }).where(eq(userTable.id, colleagueId));
   const added = await mcp.ok("invite_member", { workspace_id: ws, email: `MCP-colleague-${RUN}@example.test`, role: "guest" });
-  check(added.status === "added" && added.role === "guest", "invite_member adds someone with an account right away", added);
+  check(added.status === "added" && added.role === "guest", "invite_member adds someone with a verified account right away", added);
   const again = await mcp.call("invite_member", { workspace_id: ws, email: `mcp-colleague-${RUN}@example.test` });
   check(again.isError && /already in the workspace/.test(again.text), "…once", again.text);
   const invalid = await mcp.call("invite_member", { workspace_id: ws, email: "not-an-address" });

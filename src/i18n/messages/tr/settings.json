@@ -98,7 +98,7 @@
     "inviteLink": "Davet bağlantısı",
     "add": {
       "title": "Üye ekle",
-      "description": "Hesabı olanlar hemen eklenir. Diğerleri için davet bağlantısı oluşturulur.",
+      "description": "Hesabının adresi doğrulanmış olanlar hemen eklenir. Diğerleri için davet bağlantısı oluşturulur.",
       "emailsLabel": "E-posta adresleri",
       "emailsPlaceholder": "ad@ornek.com, diger@ornek.com",
       "count": "{count, plural, =0 {Adresleri virgül, boşluk veya satır başıyla ayırın. Tek seferde en fazla 50.} one {# adres} other {# adres}}",

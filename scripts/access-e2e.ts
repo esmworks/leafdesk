@@ -181,14 +181,22 @@ const ids = {
   guest: `${RUN}-guest`,
   outsider: `${RUN}-outsider`,
   newcomer: `${RUN}-newcomer`,
+  squatter: `${RUN}-squatter`,
 };
 const emailOf = (id: string) => `${id}@example.test`;
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
 
 try {
-  // The newcomer has no account yet; it is created when they accept their invitation.
-  await db.insert(user).values(userIds.filter((id) => id !== ids.newcomer).map((id) => ({ id, name: id, email: emailOf(id) })));
+  // The newcomer has no account yet; it is created when they accept their invitation. The outsider's
+  // address is verified; the squatter signed up with an address nobody proved.
+  await db
+    .insert(user)
+    .values(
+      userIds
+        .filter((id) => id !== ids.newcomer)
+        .map((id) => ({ id, name: id, email: emailOf(id), emailVerified: id === ids.outsider })),
+    );
   await db.insert(workspace).values({ id: workspaceId, name: RUN });
   await db.insert(workspaceMember).values([
     { workspaceId, userId: ids.owner, role: "owner" },
@@ -209,7 +217,7 @@ try {
   await db.insert(page).values([P("C", "R", 1), P("P", "T", 1)]);
   await db.insert(page).values([P("G", "C", 1)]);
   const [R, C, G, T, Pg, D, D1, D2] = ["R", "C", "G", "T", "P", "D", "D1", "D2"].map((name) => `${RUN}-${name}`);
-  const { owner, alice, bob, guest, outsider, newcomer } = ids;
+  const { owner, alice, bob, guest, outsider, newcomer, squatter } = ids;
 
   // Defaults
   check(
@@ -443,6 +451,16 @@ try {
   await rejects(() => revokePublication(alice, workspaceId, D), isAccessError, "only owners take others' pages offline");
   await revokePublication(owner, workspaceId, own.id);
   check((await getPublishedPage(hiddenToken)) === null, "an owner can take a page they can't see offline");
+  const squatted = await sharePageByEmail(owner, Pg, emailOf(squatter), "edit");
+  check(
+    squatted.kind === "invited" && !(await getMembership(squatter, workspaceId)) && (await levels(Pg, squatter))[0] === "none",
+    "an account whose address was never verified is invited by email instead of joining",
+    squatted,
+  );
+  check(
+    (await listPagePermissions(owner, Pg)).invitations.some((i) => i.email === emailOf(squatter)),
+    "…and the page waits for whoever accepts at that address",
+  );
   check((await sharePageByEmail(owner, Pg, emailOf(outsider), "edit")).kind === "added", "an existing account joins as a guest");
   check(
     (await getMembership(outsider, workspaceId))?.role === "guest" && (await levels(Pg, outsider))[0] === "edit",
