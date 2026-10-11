@@ -161,6 +161,20 @@ export function guardUpdateUser(body: unknown) {
   }
 }
 
+const PROVIDER_TOKENS = ["accessToken", "refreshToken", "idToken"] as const;
+
+/**
+ * For `databaseHooks.account` (create and update, before): what a sign-in provider hands over
+ * (GitHub, Google, the instance's OIDC, a workspace's single sign-on) is not kept. Leafdesk reads
+ * none of it back, as a sign-in only proves who someone is, so the tokens would only be there to
+ * leak. A new account stores none; an update that carries tokens (a later sign-in) stores none
+ * either, and leaves other updates (a new password) alone.
+ */
+export function withoutProviderTokens(data: Record<string, unknown>, { create = false }: { create?: boolean } = {}) {
+  const fields = PROVIDER_TOKENS.filter((field) => create || field in data);
+  return { data: Object.fromEntries(fields.map((field) => [field, null])) as Partial<Record<(typeof PROVIDER_TOKENS)[number], null>> };
+}
+
 /** Sign-in with the providers configured in the environment, and linking them to existing accounts. */
 export function socialAuthOptions(providers: Partial<Record<SocialProvider, SocialCredentials>>) {
   return {

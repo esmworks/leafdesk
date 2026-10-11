@@ -102,3 +102,12 @@ won't take action against it.
   whether two-step verification is required (see
   [Workspace security switches](README.md#workspace-security-switches)).
 - Watch the repository's releases, and upgrade when one fixes a vulnerability.
+- Protect the database and its backups like the secrets in your environment. Passwords and API
+  keys are stored hashed, connected apps' tokens and signing secrets sealed with
+  `LEAFDESK_ENCRYPTION_KEY`, and the tokens a sign-in provider (GitHub, Google, OIDC, single
+  sign-on) hands over aren't kept at all. The client secret of a workspace's OpenID Connect single
+  sign-on is stored as it is, in `sso_provider.oidc_config`: the single sign-on library reads it
+  from there itself to finish each sign-in, and offers no way to seal it. Someone
+  who can read the database can sign in to that identity provider as the workspace's connection
+  (not as its people); rotate the secret at the provider if a copy of the database may have leaked.
+  The instance's own OIDC secret comes from the environment and isn't stored.

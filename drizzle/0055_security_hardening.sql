@@ -92,3 +92,8 @@ BEGIN
   RETURN GREATEST(LEAST(COALESCE(v_everyone, v_default), v_cap), COALESCE(v_own, 0), COALESCE(v_group, 0));
 END
 $$;
+--> statement-breakpoint
+-- Sign-in providers' tokens (GitHub, Google, OIDC, single sign-on) aren't kept any more: Leafdesk
+-- never read them back. Those stored so far go too.
+UPDATE "account" SET "access_token" = NULL, "refresh_token" = NULL, "id_token" = NULL
+WHERE "access_token" IS NOT NULL OR "refresh_token" IS NOT NULL OR "id_token" IS NOT NULL;

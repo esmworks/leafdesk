@@ -16,6 +16,7 @@ import {
   refuseAgentAddress,
   signUpTokenOf,
   socialAuthOptions,
+  withoutProviderTokens,
 } from "@/lib/auth-options";
 import { isAgentAccount } from "@/server/agents/users";
 import { forgetUnprovenHolder } from "@/server/account-security";
@@ -216,6 +217,7 @@ export const auth = betterAuth({
         // No password or provider account for an agent's user, so nothing can ever sign it in.
         before: async (account) => {
           await agentGuard(account);
+          return withoutProviderTokens(account, { create: true });
         },
         after: async (account, ctx) => {
           await claimOnEmailLink(forgetUnprovenHolder)(account, ctx);
@@ -231,6 +233,8 @@ export const auth = betterAuth({
       // Better Auth updates the credential account only to change its password (/change-password);
       // a new one means an instance admin's "choose a new password" is done.
       update: {
+        // A later sign-in brings the provider's tokens again: not kept either.
+        before: async (account) => withoutProviderTokens(account),
         after: async (account) => {
           if (account?.providerId === "credential") await clearPasswordResetRequirement(account.userId);
         },

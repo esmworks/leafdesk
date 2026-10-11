@@ -15,6 +15,7 @@ import {
   socialTokenOf,
   SSO_DISABLED_ENDPOINTS,
   SSO_DISABLED_PATHS,
+  withoutProviderTokens,
 } from "./auth-options";
 
 describe("agents' users can't sign in", () => {
@@ -166,5 +167,47 @@ describe("the address rate limits count by", () => {
     expect(await statuses(rotating)).toEqual([200, 200, 200, 429, 429]);
     const visitors = [1, 2, 3, 4, 5].map((n) => ({ "x-forwarded-for": "203.0.113.1", [CLIENT_IP_HEADER]: `198.51.100.${n}` }));
     expect(await statuses(visitors)).toEqual([200, 200, 200, 200, 200]);
+  });
+});
+
+describe("withoutProviderTokens", () => {
+  /** An auth instance on memory with the account hooks lib/auth.ts sets, and what it stores. */
+  async function setup() {
+    const tables: Record<string, Record<string, unknown>[]> = { user: [], session: [], account: [], verification: [] };
+    const auth = betterAuth({
+      baseURL: "http://localhost:3000",
+      secret: "test-secret-that-is-long-enough-for-better-auth",
+      database: memoryAdapter(tables),
+      databaseHooks: {
+        account: {
+          create: { before: async (account) => withoutProviderTokens(account, { create: true }) },
+          update: { before: async (account) => withoutProviderTokens(account) },
+        },
+      },
+    });
+    const ctx = await auth.$context;
+    // The memory adapter keeps no foreign keys: the accounts need no user row.
+    return { ctx, user: { id: "user-1" }, accounts: tables.account };
+  }
+  const tokens = { accessToken: "gho_access", refreshToken: "refresh", idToken: "eyJ.id.token" };
+
+  it("keeps none of a provider's tokens when an account is created or linked", async () => {
+    const { ctx, user, accounts } = await setup();
+    await ctx.internalAdapter.createAccount({ userId: user.id, providerId: "github", accountId: "1", scope: "user:email", ...tokens });
+    await ctx.internalAdapter.linkAccount({ userId: user.id, providerId: "google", accountId: "2", ...tokens });
+    expect(accounts).toHaveLength(2);
+    for (const account of accounts) {
+      expect(account).toMatchObject({ accessToken: null, refreshToken: null, idToken: null });
+    }
+    // The rest of the account stays as it came.
+    expect(accounts[0]).toMatchObject({ providerId: "github", accountId: "1", scope: "user:email" });
+  });
+
+  it("keeps none when a later sign-in brings them again, and leaves other updates alone", async () => {
+    const { ctx, user, accounts } = await setup();
+    const account = await ctx.internalAdapter.createAccount({ userId: user.id, providerId: "github", accountId: "1" });
+    await ctx.internalAdapter.updateAccount(account!.id, { ...tokens, scope: "read:user" });
+    expect(accounts[0]).toMatchObject({ accessToken: null, refreshToken: null, idToken: null, scope: "read:user" });
+    expect(withoutProviderTokens({ password: "hash" })).toEqual({ data: {} });
   });
 });
