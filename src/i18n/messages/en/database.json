@@ -485,6 +485,28 @@
     "fewerProperties": "{count, plural, one {Hide # property} other {Hide # properties}}",
     "propertyMenu": "Options for {name}"
   },
+  "rowActivity": {
+    "title": "Activity",
+    "empty": "No activity yet",
+    "showMore": "Show more",
+    "someone": "Someone",
+    "formAnswer": "A form answer",
+    "agent": "agent",
+    "automation": "automation",
+    "created": "<actor>{name}</actor> created this row",
+    "titled": "<actor>{name}</actor> set the title to <new>{to}</new>",
+    "renamed": "<actor>{name}</actor> renamed this row from <old>{from}</old> to <new>{to}</new>",
+    "set": "<actor>{name}</actor> set <prop>{property}</prop> to <new>{to}</new>",
+    "cleared": "<actor>{name}</actor> cleared <prop>{property}</prop>",
+    "changed": "<actor>{name}</actor> changed <prop>{property}</prop> from <old>{from}</old> to <new>{to}</new>",
+    "nothing": "nothing",
+    "noAccess": "No access",
+    "deletedOption": "{count, plural, one {a deleted option} other {# deleted options}}",
+    "unknownPerson": "{count, plural, one {someone unknown} other {# people unknown}}",
+    "checked": "checked",
+    "unchecked": "unchecked",
+    "checklist": "{done} of {total} done"
+  },
   "relation": {
     "chooseDatabase": "Related database",
     "loadingDatabases": "Loading databases…",

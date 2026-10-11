@@ -266,6 +266,20 @@ try {
   const gotRow = await api("GET", `/rows/${alpha}`, R);
   check(gotRow.status === 200 && gotRow.body.properties.Status === "Done" && gotRow.body.database_id === database.id, "GET /rows/{id} reads a row");
   check(errorCode(await api("GET", `/rows/${pageId}`, R)) === "invalid_request", "GET /rows/{id} on a regular page is a 400");
+  const activity = await api("GET", `/rows/${alpha}/activity`, R);
+  const statusChange = activity.body.entries?.find((e: any) => e.property === "Status");
+  check(
+    activity.status === 200 && statusChange?.to === "Done" && statusChange.actor === "user" && activity.body.entries.at(-1).change === "created",
+    "GET /rows/{id}/activity lists who changed what",
+    activity.body,
+  );
+  const firstActivity = await api("GET", `/rows/${alpha}/activity?limit=1`, R);
+  const nextActivity = await api("GET", `/rows/${alpha}/activity?limit=1&cursor=${firstActivity.body.next_cursor}`, R);
+  check(
+    firstActivity.body.entries.length === 1 && firstActivity.body.has_more && nextActivity.body.entries.length === 1 && nextActivity.body.entries[0].at <= firstActivity.body.entries[0].at,
+    "…a page at a time",
+    { firstActivity: firstActivity.body, nextActivity: nextActivity.body },
+  );
   const rowIds = bulk.body.rows.map((r: any) => r.id);
   const bulkPatch = await api("PATCH", `/databases/${database.id}/rows`, W, { row_ids: rowIds, properties: { Status: "Not started" } });
   check(bulkPatch.status === 200 && bulkPatch.body.updated === 3, "PATCH /databases/{id}/rows updates many rows", bulkPatch.body);

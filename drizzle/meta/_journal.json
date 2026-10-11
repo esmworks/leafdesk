@@ -414,6 +414,13 @@
       "when": 1791748351746,
       "tag": "0058_date_passed_automations",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1791748902251,
+      "tag": "0059_row_activity",
+      "breakpoints": true
     }
   ]
 }

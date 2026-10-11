@@ -15,6 +15,7 @@ import * as databases from "@/server/databases";
 import { duplicateRows } from "@/server/duplicate";
 import { listGroups } from "@/server/groups";
 import { getPropertyAccessSettings, loadPropertyRules, setPropertyAccess } from "@/server/property-access";
+import { listRowActivity } from "@/server/row-activity-feed";
 import { listMembers } from "@/server/workspaces";
 import * as pages from "@/server/pages";
 import * as templates from "@/server/templates";
@@ -89,6 +90,11 @@ export async function loadRowAction(rowId: string) {
     ]);
     return { ...row, ...management, ai: { enabled: ai.enabled, states: ai.states[rowId] ?? {} } };
   });
+}
+
+/** A page of the row's activity, newest first (see server/row-activity-feed). */
+export async function loadRowActivityAction(rowId: string, offset = 0, limit = 20) {
+  return run((userId) => listRowActivity(userId, rowId, { offset, limit }));
 }
 
 export async function createRowAction(

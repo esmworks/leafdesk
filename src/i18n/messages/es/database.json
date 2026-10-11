@@ -485,6 +485,28 @@
     "fewerProperties": "{count, plural, one {Ocultar # propiedad} other {Ocultar # propiedades}}",
     "propertyMenu": "Opciones de {name}"
   },
+  "rowActivity": {
+    "title": "Actividad",
+    "empty": "Todavía no hay actividad",
+    "showMore": "Mostrar más",
+    "someone": "Alguien",
+    "formAnswer": "Una respuesta de formulario",
+    "agent": "agente",
+    "automation": "automatización",
+    "created": "<actor>{name}</actor> creó esta fila",
+    "titled": "<actor>{name}</actor> puso el título <new>{to}</new>",
+    "renamed": "<actor>{name}</actor> cambió el nombre de esta fila de <old>{from}</old> a <new>{to}</new>",
+    "set": "<actor>{name}</actor> puso <prop>{property}</prop> en <new>{to}</new>",
+    "cleared": "<actor>{name}</actor> vació <prop>{property}</prop>",
+    "changed": "<actor>{name}</actor> cambió <prop>{property}</prop> de <old>{from}</old> a <new>{to}</new>",
+    "nothing": "nada",
+    "noAccess": "Sin acceso",
+    "deletedOption": "{count, plural, one {una opción eliminada} other {# opciones eliminadas}}",
+    "unknownPerson": "{count, plural, one {alguien desconocido} other {# personas desconocidas}}",
+    "checked": "marcado",
+    "unchecked": "sin marcar",
+    "checklist": "{done} de {total} hechos"
+  },
   "relation": {
     "chooseDatabase": "Base de datos relacionada",
     "loadingDatabases": "Cargando bases de datos…",

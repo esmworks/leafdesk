@@ -94,6 +94,7 @@ import { authorizeFileReferences, fileForViewer, workspaceFiles } from "@/server
 import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
 import { rowChanged } from "@/server/row-events";
+import { recordRowWrites } from "@/server/row-activity";
 import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
@@ -897,10 +898,10 @@ export async function announceAssignments(
 }
 
 /**
- * What every saved row write sets off: authorizing the files its values gained, assignment
- * notices, the database's automations (server/automations/queue) and moving the rows waiting for
- * rows whose dates moved. `created` for new rows, whose `before` is empty; `shifted` for the moves
- * themselves, which don't move more.
+ * What every saved row write sets off: the rows' activity (server/row-activity), authorizing the
+ * files its values gained, assignment notices, the database's automations
+ * (server/automations/queue) and moving the rows waiting for rows whose dates moved. `created` for
+ * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more.
  */
 export async function afterRowWrites(
   actorId: string | null,
@@ -908,6 +909,7 @@ export async function afterRowWrites(
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
   { created = false, shifted = false, boundTo = null }: { created?: boolean; shifted?: boolean; boundTo?: string | null } = {},
 ) {
+  await recordRowWrites(actorId, databaseId, changes, { created, anonymousForm: !actorId && boundTo !== null });
   await authorizeRowFiles(actorId, changes);
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);

@@ -92,6 +92,19 @@
   Migration 0058 adds the `automation_fire` table, `automation_run.basis`,
   `database_automation.time_zone` and `.check_error`, and the audit actor kind. Covered by
   `scripts/timed-automation-e2e.ts` and unit tests.
+- **Row activity.** A row page has an Activity section under its properties, closed until opened
+  (each browser remembers the choice): who created the row and who changed its title or a value,
+  from what to what, newest first, a page at a time, updating while others edit. Every way values
+  are written counts (the app, bulk edits, forms, quick add, MCP, the REST API, automations and
+  agents, which are marked as such); a new row, also from an import or a template, is one
+  "created" entry. Changes by the same person to the same value within five minutes are one entry
+  (typing in a text, number or the title), and one that ends where it started leaves none.
+  Formulas, rollups and who/when values aren't recorded. Viewers see the entries about values they
+  may see in the row; linked rows they can't open read as "No access", and entries about a
+  deleted property are left out until it is restored. Text is kept with credentials masked. MCP
+  clients read it with `list_row_activity`, the REST API at `GET /api/v1/rows/{id}/activity`. The
+  activity is kept apart from the audit log, which still leaves row content out, and goes with
+  the row when it is deleted for good. Migration 0059.
 - **Deleting a workspace.** Owners find Settings → General → Deletion. The dialog asks for the
   workspace's name, typed as shown, and the same proof as deleting the account (the password, a
   two-step code, or a recent sign-in); a mistyped name is refused before the proof is checked, so

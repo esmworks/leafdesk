@@ -485,6 +485,28 @@
     "fewerProperties": "{count, plural, one {Masquer # propriété} other {Masquer # propriétés}}",
     "propertyMenu": "Options de {name}"
   },
+  "rowActivity": {
+    "title": "Activité",
+    "empty": "Aucune activité pour l’instant",
+    "showMore": "Afficher plus",
+    "someone": "Quelqu’un",
+    "formAnswer": "Une réponse de formulaire",
+    "agent": "agent",
+    "automation": "automatisation",
+    "created": "<actor>{name}</actor> a créé cette ligne",
+    "titled": "<actor>{name}</actor> a défini le titre sur <new>{to}</new>",
+    "renamed": "<actor>{name}</actor> a renommé cette ligne de <old>{from}</old> en <new>{to}</new>",
+    "set": "<actor>{name}</actor> a défini <prop>{property}</prop> sur <new>{to}</new>",
+    "cleared": "<actor>{name}</actor> a vidé <prop>{property}</prop>",
+    "changed": "<actor>{name}</actor> a changé <prop>{property}</prop> de <old>{from}</old> en <new>{to}</new>",
+    "nothing": "rien",
+    "noAccess": "Pas d’accès",
+    "deletedOption": "{count, plural, one {une option supprimée} other {# options supprimées}}",
+    "unknownPerson": "{count, plural, one {une personne inconnue} other {# personnes inconnues}}",
+    "checked": "coché",
+    "unchecked": "non coché",
+    "checklist": "{done} sur {total} faits"
+  },
   "relation": {
     "chooseDatabase": "Base de données liée",
     "loadingDatabases": "Chargement des bases de données…",

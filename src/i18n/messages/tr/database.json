@@ -485,6 +485,28 @@
     "fewerProperties": "{count, plural, one {# özelliği gizle} other {# özelliği gizle}}",
     "propertyMenu": "{name} seçenekleri"
   },
+  "rowActivity": {
+    "title": "Etkinlik",
+    "empty": "Henüz etkinlik yok",
+    "showMore": "Daha fazla göster",
+    "someone": "Biri",
+    "formAnswer": "Bir form yanıtı",
+    "agent": "ajan",
+    "automation": "otomasyon",
+    "created": "<actor>{name}</actor> bu satırı oluşturdu",
+    "titled": "<actor>{name}</actor> başlığı <new>{to}</new> olarak ayarladı",
+    "renamed": "<actor>{name}</actor> bu satırı yeniden adlandırdı: <old>{from}</old> → <new>{to}</new>",
+    "set": "<actor>{name}</actor>, <prop>{property}</prop> değerini <new>{to}</new> olarak ayarladı",
+    "cleared": "<actor>{name}</actor>, <prop>{property}</prop> değerini temizledi",
+    "changed": "<actor>{name}</actor>, <prop>{property}</prop> değerini değiştirdi: <old>{from}</old> → <new>{to}</new>",
+    "nothing": "boş",
+    "noAccess": "Erişim yok",
+    "deletedOption": "{count, plural, one {silinmiş bir seçenek} other {# silinmiş seçenek}}",
+    "unknownPerson": "{count, plural, one {bilinmeyen biri} other {# bilinmeyen kişi}}",
+    "checked": "işaretli",
+    "unchecked": "işaretsiz",
+    "checklist": "{total} maddeden {done} tanesi tamam"
+  },
   "relation": {
     "chooseDatabase": "İlişkili veritabanı",
     "loadingDatabases": "Veritabanları yükleniyor…",

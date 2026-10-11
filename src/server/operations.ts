@@ -32,6 +32,9 @@ import { labelPageLinks, listBacklinks } from "@/server/mentions";
 import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
+import * as rowActivityFeed from "@/server/row-activity-feed";
+import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
+import { valueText } from "@/lib/row-activity";
 import * as teamspaces from "@/server/teamspaces";
 import * as workspaces from "@/server/workspaces";
 import * as templates from "@/server/templates";
@@ -253,6 +256,11 @@ export const inputs = {
     database_id: id("database"),
     row_ids: z.array(z.string().min(1)).min(1).max(MAX_BULK_ROWS).describe(`Ids of the rows to change (1-${MAX_BULK_ROWS}).`),
     properties: rowProperties,
+  }),
+  listRowActivity: z.object({
+    row_id: id("row"),
+    limit: z.number().int().min(1).max(MAX_ACTIVITY_PAGE).default(20).describe(`How many entries to return (1-${MAX_ACTIVITY_PAGE}, default 20).`),
+    offset: z.number().int().min(0).default(0).describe("How many of the newest entries to skip, to read further back."),
   }),
   setPropertyAccess: z.object({
     database_id: id("database"),
@@ -915,6 +923,33 @@ export async function getDatabaseRow(ctx: OperationContext, { row_id }: { row_id
   const { parentDatabase } = await loadPage(ctx, row_id);
   if (!parentDatabase) throw new ToolInputError("This page is not a database row.");
   return rowOutput(ctx, parentDatabase.id, row_id);
+}
+
+/**
+ * A row's activity, newest first: who created it, and who changed its title or which value from
+ * what to what (server/row-activity-feed.ts). Entries about properties the person may not see in
+ * the row are left out; linked rows they can't open read as "(no access)".
+ */
+export async function listRowActivity(ctx: OperationContext, { row_id, limit, offset }: Args<"listRowActivity">) {
+  const { page, parentDatabase } = await loadPage(ctx, row_id);
+  if (!parentDatabase) throw new ToolInputError("This page is not a database row.");
+  const { entries, total, hasMore } = await rowActivityFeed.listRowActivity(ctx.userId, row_id, { offset, limit });
+  return {
+    row_id,
+    title: pageLabel(page.title),
+    total,
+    has_more: hasMore,
+    entries: entries.map((e) => ({
+      at: e.at,
+      by: e.actor.person?.name ?? null,
+      by_user_id: e.actor.person?.id ?? null,
+      actor: e.actor.kind,
+      change: e.kind,
+      ...(e.property ? { property: e.property.name, property_id: e.property.id } : {}),
+      ...(e.kind === "created" ? {} : { from: e.from && valueText(e.from), to: e.to && valueText(e.to) }),
+    })),
+    url: pageUrl(page.workspaceId, page.id),
+  };
 }
 
 export async function updateDatabaseRow(ctx: OperationContext, { row_id, title, properties }: Args<"updateDatabaseRow">) {

@@ -289,6 +289,37 @@ const SCHEMAS: Record<string, JsonSchema> = {
     "properties",
     "url",
   ]),
+  RowActivity: loose(
+    {
+      row_id: id,
+      title: { type: "string" },
+      total: { type: "integer", description: "Entries the user may see, over all pages." },
+      entries: {
+        type: "array",
+        items: loose(
+          {
+            at: { type: "string", format: "date-time", description: "When it happened; for merged changes, the last of them." },
+            by: { type: ["string", "null"], description: "Who did it; null for an anonymous form answer." },
+            by_user_id: { type: ["string", "null"] },
+            actor: {
+              type: "string",
+              enum: ["user", "agent", "automation", "form"],
+              description: 'Who acted: a person, an agent, an automation (acting as the person in by) or an anonymous form answer.',
+            },
+            change: { type: "string", enum: ["created", "title", "property"] },
+            property: { type: "string", description: "For property changes: the property's name." },
+            property_id: id,
+            from: { type: ["string", "null"], description: "The value before, as text (option and people names, dates as stored); null for nothing." },
+            to: { type: ["string", "null"], description: "The value after." },
+          },
+          ["at", "by", "actor", "change"],
+        ),
+      },
+      url,
+      ...cursorFields,
+    },
+    ["row_id", "total", "entries", "next_cursor", "has_more"],
+  ),
   QueryResult: loose(
     {
       database_id: id,

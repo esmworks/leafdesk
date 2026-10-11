@@ -173,6 +173,14 @@ versions, upgrades and running behind a domain.
     back, and the two become one-way relations. They are deleted permanently with the trash, after the workspace's trash retention, or at once from the
     list. While deleted they don't show, export, search, take writes or trigger automations.
   - Select rows to edit a property, duplicate, export or trash them at once.
+  - Row activity: under a row page's properties, who created the row and who changed its title or
+    a value, from what to what ("Ayşe changed Status from In progress to Done · 2 hours ago"),
+    newest first, whether in the app, in bulk, by a form, an automation, an agent, MCP or the API.
+    Changes by the same person to the same value within five minutes are one entry, and one that
+    ends where it started leaves none. Formulas, rollups and who/when values aren't recorded. Each
+    viewer sees only the entries about values they may see in the row, linked rows they can't open
+    aren't named, and entries about a deleted property come back with it. Text is kept with
+    credentials masked; the activity goes with the row when it is deleted for good.
   - Form views collect answers as new rows, in the app or through a public link, signed in or
     anonymous.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
@@ -1595,6 +1603,8 @@ The tools cover:
   `gradient:<name>`, with `cover_position` for the band of an image that shows. Wherever a tool takes an id, a Leafdesk link the user pasted works too
   (`https://…/w/<workspace>/p/<page>`, `?view=<view>` for a view).
 - **Page history:** `list_page_history`, `get_page_version`, `diff_page_version`, `restore_page_version`.
+- **Row activity:** `list_row_activity` lists who created a row and who changed what in it, newest
+  first.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
   about the whole page, as agents write them, comes back with `about_page: true` and no quote.
@@ -1665,7 +1675,7 @@ curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
 - **Databases and rows:** `GET /databases/{id}` (schema), `POST /databases/{id}/query` (filters,
   sorts, a saved view, cursor pagination), `POST /databases/{id}/rows`, `POST
   /databases/{id}/rows/bulk` (up to 100), `PATCH /databases/{id}/rows` (same values on many rows),
-  `GET` and `PATCH /rows/{id}`.
+  `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first).
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
 
 Automations and agents have no REST endpoints: they are managed in the app or over MCP.

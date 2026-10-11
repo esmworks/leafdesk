@@ -5,6 +5,7 @@ import { page, user, type ApiTokenScope } from "@/db/schema";
 import { AccessError } from "@/server/access";
 import { getPage } from "@/server/pages";
 import * as ops from "@/server/operations";
+import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { ApiError } from "./errors";
 import { cursorInput, decodeCursor, nextCursor, paginate } from "./pagination";
 import type { ApiPrincipal } from "./tokens";
@@ -461,6 +462,25 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params }) => {
       await requirePageInWorkspace(principal, params.row_id);
       return ops.getDatabaseRow(ctx, { row_id: params.row_id });
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/rows/{row_id}/activity",
+    operationId: "listRowActivity",
+    tag: "Rows",
+    summary: "List a row's activity",
+    description:
+      "Who created the row and who changed its title or a property value, from what to what, newest first. Quick changes by the same actor to the same value are one entry. Entries about properties the token's user can't see in the row are left out.",
+    scope: "pages:read",
+    query: z.object({ limit: limitInput(MAX_ACTIVITY_PAGE, 20), cursor: cursorInput }),
+    response: "RowActivity",
+    handler: async ({ principal, ctx, params, query }) => {
+      await requirePageInWorkspace(principal, params.row_id);
+      const offset = decodeCursor(query.cursor);
+      const { has_more: _more, ...result } = await ops.listRowActivity(ctx, { row_id: params.row_id, limit: query.limit, offset });
+      const next = nextCursor(offset, query.limit, result.total);
+      return { ...result, next_cursor: next, has_more: next !== null };
     },
   }),
   defineRoute({

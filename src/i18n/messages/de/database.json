@@ -485,6 +485,28 @@
     "fewerProperties": "{count, plural, one {# Eigenschaft ausblenden} other {# Eigenschaften ausblenden}}",
     "propertyMenu": "Optionen für {name}"
   },
+  "rowActivity": {
+    "title": "Aktivität",
+    "empty": "Noch keine Aktivität",
+    "showMore": "Mehr anzeigen",
+    "someone": "Jemand",
+    "formAnswer": "Eine Formularantwort",
+    "agent": "Agent",
+    "automation": "Automation",
+    "created": "<actor>{name}</actor> hat diese Zeile erstellt",
+    "titled": "<actor>{name}</actor> hat den Titel auf <new>{to}</new> gesetzt",
+    "renamed": "<actor>{name}</actor> hat diese Zeile von <old>{from}</old> in <new>{to}</new> umbenannt",
+    "set": "<actor>{name}</actor> hat <prop>{property}</prop> auf <new>{to}</new> gesetzt",
+    "cleared": "<actor>{name}</actor> hat <prop>{property}</prop> geleert",
+    "changed": "<actor>{name}</actor> hat <prop>{property}</prop> von <old>{from}</old> in <new>{to}</new> geändert",
+    "nothing": "nichts",
+    "noAccess": "Kein Zugriff",
+    "deletedOption": "{count, plural, one {eine gelöschte Option} other {# gelöschte Optionen}}",
+    "unknownPerson": "{count, plural, one {eine unbekannte Person} other {# unbekannte Personen}}",
+    "checked": "angehakt",
+    "unchecked": "nicht angehakt",
+    "checklist": "{done} von {total} erledigt"
+  },
   "relation": {
     "chooseDatabase": "Verknüpfte Datenbank",
     "loadingDatabases": "Datenbanken werden geladen…",

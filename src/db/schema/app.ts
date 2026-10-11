@@ -21,6 +21,7 @@ import type { FormulaResultType } from "../../lib/formula/types";
 import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/property-types";
 import type { PageBackground } from "../../lib/page-background";
 import type { PageVisibility } from "../../lib/page-visibility";
+import type { RowActivityActor, RowActivityKind } from "../../lib/row-activity";
 import type { SidebarLayout } from "../../lib/sidebar-sections";
 import { user } from "./auth";
 
@@ -729,4 +730,51 @@ export const pageSnapshot = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("page_snapshot_page_idx").on(t.pageId, t.createdAt)],
+);
+
+/**
+ * A database row's activity (lib/row-activity.ts): one entry per change of a property value or the
+ * title, and one for the row being made, written where row values and titles are saved (see
+ * server/row-activity.ts). Quick changes by the same actor merge into one entry, whose time is
+ * that of its last change. Values are stored as the row held them (option, user and row ids),
+ * with credentials masked, and read with the viewer's access. Kept apart from the audit log, which
+ * leaves row content out; goes with the row when it is deleted for good.
+ */
+export const rowActivity = pgTable(
+  "row_activity",
+  {
+    id: id(),
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    /**
+     * The row's database. No foreign key: its rows, and with them their entries, go with it, and
+     * deleting any page would otherwise look through this table.
+     */
+    databaseId: text("database_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    /** Who acted (an agent's own user, or an automation's person); null for an anonymous form answer. */
+    actorUserId: text("actor_user_id").references(() => user.id, { onDelete: "set null" }),
+    actorKind: text("actor_kind").$type<RowActivityActor>().notNull(),
+    kind: text("kind").$type<RowActivityKind>().notNull(),
+    /**
+     * The property, for `property` entries. No foreign key: a deleted property's entries come back
+     * with it, and reads leave out properties that are gone.
+     */
+    propertyId: text("property_id"),
+    /** The property's type when the value was written, so values from before a type change still read. */
+    propertyType: text("property_type").$type<PropertyType>(),
+    oldValue: jsonb("old_value"),
+    newValue: jsonb("new_value"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    // A row's feed, newest first; also the newest entry about a value, for merging.
+    index("row_activity_row_time_idx").on(t.rowId, t.createdAt.desc(), t.id.desc()),
+    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'form')`),
+    check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property')`),
+    check("row_activity_property_check", sql`(${t.kind} = 'property') = (${t.propertyId} is not null)`),
+  ],
 );

@@ -26,6 +26,7 @@ import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from 
 import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
+import { recordTitleChange } from "@/server/row-activity";
 import { authorizeCollab, parseDocName as parseName } from "./authorize";
 import type { Channel, CollabService, CommentOpResult, PageContent, WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
@@ -262,6 +263,7 @@ export function createCollab() {
     pageChanged({ pageId });
     // A database row's title or content changed: AI autofill values that follow it may update.
     if (row.parentId) rowChanged({ rowId: pageId, databaseId: row.parentId, userId: userId ?? null });
+    if (row.parentId && title !== row.title) await recordTitleChange(pageId, row.title, title, userId ?? null);
     if (title !== row.title) {
       broadcast(`ws:${row.workspaceId}`, "tree");
       if (row.parentId) broadcast(`db:${row.parentId}`, "rows");

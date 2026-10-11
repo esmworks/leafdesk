@@ -31,6 +31,7 @@ import { isEmptyValue, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
+import { RowActivity } from "./row-activity";
 import { SchemaProvider } from "./schema-context";
 import type { DerivedInput, PersonRef, Property, RelationInput, RelationTarget } from "./types";
 
@@ -152,10 +153,15 @@ export function RowProperties({
   }, [refetch]);
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Bumped when the database's rows or schema change: the row's activity is read again too.
+  const [changes, setChanges] = useState(0);
   const onSignal = (event: string) => {
     if (event !== "rows" && event !== "schema") return;
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => void refetch(), 60);
+    timer.current = setTimeout(() => {
+      void refetch();
+      setChanges((n) => n + 1);
+    }, 60);
   };
   useChannel(`db:${databaseId}`, onSignal);
   // Related rows appear by title, so their databases' changes matter too.
@@ -174,6 +180,7 @@ export function RowProperties({
     if (!res.ok) setError(res.error);
     else setError(null);
     await refetch();
+    setChanges((n) => n + 1);
     setPending((p) => {
       if (p[propertyId]?.version !== v) return p;
       const next = { ...p };
@@ -361,6 +368,7 @@ export function RowProperties({
                   <AddPropertyRow onCreate={addProperty} onCreateAutofill={aiEnabled ? addAutofillProperty : undefined} />
                 )}
                 {error && <p className="mt-2 px-1 text-xs text-danger">{error}</p>}
+                {!offline && <RowActivity rowId={rowId} signal={changes} />}
               </div>
             </AiAutofillProvider>
           </PropertyAccessProvider>
