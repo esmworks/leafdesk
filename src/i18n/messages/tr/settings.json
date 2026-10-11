@@ -1310,7 +1310,9 @@
       "sendBack": "Geri gönder",
       "approve": "Onayla",
       "decline": "Reddet",
-      "redo": "Notla geri gönder…"
+      "redo": "Notla geri gönder…",
+      "notWhole": "Bu çağrı burada gösterilenden uzun ya da burada gizlenen değerler içeriyor. Onaylamadan önce gönderilecek her şeyi görmek için çalışmasını açın.",
+      "openRun": "Onaylamak için çalışmayı aç"
     }
   }
 }

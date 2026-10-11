@@ -200,6 +200,11 @@ export function InboxDialog({
                 workspaceId={workspaceId}
                 approval={item.approval}
                 className="pb-2 pl-[2.125rem] pr-3"
+                onOpenRun={() => {
+                  if (!item.read) void markRead([item.id]);
+                  onClose();
+                  router.push(`/w/${workspaceId}/settings?tab=agents&agent=${item.approval!.agentId}&run=${item.approval!.runId}`);
+                }}
                 onAnswered={() => {
                   setItems((list) => list?.filter((other) => other.id !== item.id) ?? list);
                   onRead();

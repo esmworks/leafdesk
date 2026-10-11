@@ -1310,7 +1310,9 @@
       "sendBack": "Send back",
       "approve": "Approve",
       "decline": "Decline",
-      "redo": "Send back with a note…"
+      "redo": "Send back with a note…",
+      "notWhole": "This call is longer than shown here, or holds values masked here. Open its run to see all of what would be sent before approving it.",
+      "openRun": "Open the run to approve"
     }
   }
 }

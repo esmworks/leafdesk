@@ -1310,7 +1310,9 @@
       "sendBack": "Zurückschicken",
       "approve": "Freigeben",
       "decline": "Ablehnen",
-      "redo": "Mit Notiz zurückschicken…"
+      "redo": "Mit Notiz zurückschicken…",
+      "notWhole": "Dieser Aufruf ist länger als hier gezeigt oder enthält hier maskierte Werte. Öffne seinen Durchlauf, um alles zu sehen, was gesendet würde, bevor du ihn freigibst.",
+      "openRun": "Zum Freigeben den Durchlauf öffnen"
     }
   }
 }

@@ -14,9 +14,11 @@ import {
   workspace,
   workspaceAgent,
   workspaceJoinRequest,
+  type AgentRunState,
   type JoinRequestKind,
   type NotificationKind,
 } from "@/db/schema";
+import { callToSend, inboxCallInput } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import {
   FULL_RANK,
@@ -459,8 +461,10 @@ export type InboxApproval = {
   agentName: string;
   connectionName: string;
   tool: string;
-  /** The call's input, as JSON (cut to fit). */
+  /** The call's input, as JSON, credentials masked (cut to fit). */
   input: string;
+  /** `input` is exactly what would be sent: it may be approved where shown, or else from its run. */
+  whole: boolean;
   askedAt: string;
 };
 
@@ -607,7 +611,14 @@ export async function listNotifications(
 async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>> {
   if (!runIds.length) return new Map();
   const runs = await db
-    .select({ id: agentRun.id, pending: agentRun.pending, agentId: agentRun.agentId, agentName: workspaceAgent.name })
+    .select({
+      id: agentRun.id,
+      pending: agentRun.pending,
+      // The calls to send, as the agent made them: to tell whether the masked input is all of it.
+      queue: sql<AgentRunState["queue"] | null>`${agentRun.state}->'queue'`,
+      agentId: agentRun.agentId,
+      agentName: workspaceAgent.name,
+    })
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
     .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")));
@@ -618,7 +629,7 @@ async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>
   const out = new Map<string, InboxApproval>();
   for (const r of runs) {
     if (!r.pending) continue;
-    const input = JSON.stringify(r.pending.arguments, null, 2);
+    const { input, whole } = inboxCallInput(r.pending.arguments, callToSend(r.pending, r.queue));
     out.set(r.id, {
       runId: r.id,
       callId: r.pending.callId,
@@ -626,7 +637,8 @@ async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>
       agentName: r.agentName,
       connectionName: names.get(r.pending.connectionId) ?? "",
       tool: r.pending.tool,
-      input: input.length > 4_000 ? `${input.slice(0, 3_999)}…` : input,
+      input,
+      whole,
       askedAt: r.pending.askedAt,
     });
   }

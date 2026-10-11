@@ -18,10 +18,10 @@
  * every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved in
  * `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
  *
- * What a run keeps to show (its steps, answer and error, and the call waiting for approval as
- * owners see it) has credentials masked (lib/redact). `state` is kept as it was: the run goes on
- * from it and sends the waiting call as the agent made it, and it is never shown and is cleared
- * once the run ends.
+ * What a run keeps to show (its steps, answer and error, and the call waiting for approval) has
+ * credentials masked (lib/redact). `state` is kept as it was: the run goes on from it and sends the
+ * waiting call as the agent made it; only owners approving that call see it from there (the
+ * agent's runs in the app), and it is cleared once the run ends.
  */
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -172,9 +172,9 @@ async function later(run: Run, at: Date) {
 }
 
 /**
- * Parks a run until an owner answers the call it waits on (or the call runs out of time). Owners
- * see the call's input with credentials masked (`pending`); what is sent once approved is the call
- * as the agent made it, from `state`.
+ * Parks a run until an owner answers the call it waits on (or the call runs out of time). `pending`
+ * keeps the call's input with credentials masked, for lists and the audit log; what is sent once
+ * approved is the call as the agent made it, from `state`, which is what owners approve.
  */
 async function park(run: Run, agent: Agent, values: { state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage }) {
   await db

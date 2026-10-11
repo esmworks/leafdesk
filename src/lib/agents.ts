@@ -116,6 +116,32 @@ export type AgentPendingCall = {
   askedAt: string;
 };
 
+/** The most of a waiting call's input the inbox shows; a longer one is approved from its run. */
+export const INBOX_CALL_CHARS = 4_000;
+
+/**
+ * The input of the call a run waits on as it will be sent once approved: the agent's own call,
+ * kept in the run's saved queue (`pending` keeps it with credentials masked). Null when the run
+ * no longer holds it.
+ */
+export function callToSend(
+  pending: { callId: string },
+  queue: readonly { id: string; arguments: Record<string, unknown> }[] | null | undefined,
+): Record<string, unknown> | null {
+  return queue?.find((call) => call.id === pending.callId)?.arguments ?? null;
+}
+
+/**
+ * A waiting call's input as the inbox shows it (`shown`, masked, cut to INBOX_CALL_CHARS), and
+ * whether that is exactly what would be sent: only then may it be approved there. A call cut short,
+ * or with a value masked, is approved from its run, which shows all of it as it will be sent.
+ */
+export function inboxCallInput(shown: Record<string, unknown>, toSend: Record<string, unknown> | null): { input: string; whole: boolean } {
+  const input = JSON.stringify(shown, null, 2);
+  const whole = toSend !== null && input.length <= INBOX_CALL_CHARS && JSON.stringify(toSend, null, 2) === input;
+  return { input: input.length > INBOX_CALL_CHARS ? `${input.slice(0, INBOX_CALL_CHARS - 1)}…` : input, whole };
+}
+
 /** An owner's answer to a pending call; `redo` sends a note back to the agent. */
 export type ApprovalDecision = "approve" | "decline" | "redo";
 
@@ -177,7 +203,10 @@ export type AgentRunView = {
   steps: AgentStepRecord[];
   answer: string;
   usage: AgentRunUsage | null;
-  /** The call waiting for approval (owners only), with its connection's name. */
+  /**
+   * The call waiting for approval (owners only), with its connection's name: its input masked, or,
+   * where an owner may approve it (the app's runs), exactly as it will be sent.
+   */
   pending: (AgentPendingCall & { connectionName: string }) | null;
   /** The connection event's type, for runs a connection started. */
   eventType: string | null;

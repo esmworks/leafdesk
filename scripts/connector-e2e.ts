@@ -505,6 +505,8 @@ try {
   check(run.status === "awaiting_approval", "the run waits for approval at the writing call", { status: run.status, code: run.code, error: run.error, steps: run.steps });
   check(run.pending?.tool === "create_database_row" && run.pending.connectionId === conn.id, "it says which call waits", run.pending);
   check((run.pending?.arguments as { title?: string }).title === leadName, "with the call's input", run.pending);
+  const leadInbox = (await listInbox(ids.owner, workspaceId)).find((item) => item.approval?.runId === run.id);
+  check(leadInbox?.approval?.whole === true && leadInbox.approval.input.includes(leadName), "the inbox shows the whole call, so it may be approved there", leadInbox?.approval);
   check(run.steps.some((s) => s.kind === "tool" && s.tool === "list_workspaces" && s.outcome === "done" && !s.decidedBy), "the read call ran without asking", run.steps);
   check((await rowsAtPeer()).length === 0, "nothing is written at the peer before approval");
   const offered = fake.chats[0].tools?.map((t) => t.function.name) ?? [];
@@ -650,10 +652,14 @@ try {
   check(keyedBody.includes("Keyed lead") && keyedBody.includes('"api_key": "[redacted]"') && keyedBody.includes("AKIA[redacted]") && !keyedBody.includes("abc123") && !keyedBody.includes(leakedKey), "the event a run keeps has its credentials masked", keyedBody);
   const keyedInbox = (await listInbox(ids.owner, workspaceId)).find((item) => item.approval?.runId === keyed.id);
   check(keyedInbox?.approval?.input.includes("ghp_[redacted]") && !keyedInbox.approval.input.includes(leakedToken), "the owner's inbox shows the input masked", keyedInbox?.approval);
+  check(keyedInbox?.approval?.whole === false, "…and so doesn't offer to approve it there: the masked text could hide what is sent", keyedInbox?.approval);
   const keyedViews = await agents.listAgentRuns(ids.owner, agent.id);
   const keyedView = keyedViews.find((v) => v.id === keyed.id)!;
   const keyedMcp = JSON.stringify(describeAgentRun(workspaceId, keyedView));
-  check(keyedMcp.includes("ghp_[redacted]") && !JSON.stringify(keyedViews).includes(leakedToken), "the agent's runs, in the app and over MCP, show it masked too", keyedMcp.slice(0, 600));
+  check(keyedMcp.includes("ghp_[redacted]") && !JSON.stringify(keyedViews).includes(leakedToken), "the agent's runs over MCP, which can't approve, show it masked too", keyedMcp.slice(0, 600));
+  const keyedExact = (await agents.listAgentRuns(ids.owner, agent.id, undefined, { exact: true })).find((v) => v.id === keyed.id);
+  check((keyedExact?.pending?.arguments as { title?: string } | undefined)?.title === keyedTitle, "the agent's runs in the app, where owners approve, show the call exactly as it will be sent", keyedExact?.pending);
+  check(await fails(agents.listAgentRuns(ids.member, agent.id, undefined, { exact: true }), (e) => e instanceof Error), "members can't see it");
   await decideApproval(ids.owner, { runId: keyed.id, callId: keyed.pending!.callId, decision: "approve" });
   await flushAgentRuns();
   keyed = await runOf(keyed.id);
@@ -662,6 +668,24 @@ try {
   const keyedAudit = await db.select().from(auditEvent).where(and(eq(auditEvent.workspaceId, workspaceId), inArray(auditEvent.action, ["connection.tool_called", "connection.approval_decided"])));
   const keyedEntries = keyedAudit.filter((a) => JSON.stringify(a.details).includes(`Keyed ${RUN}`));
   check(keyedEntries.length === 2 && !JSON.stringify(keyedEntries).includes(leakedToken), "the audit log has the call and the answer, masked", keyedEntries.map((a) => a.details));
+
+  // ── A call too long for the inbox: approved only from its run, which shows all of it ─────────
+  const longTitle = `Long ${RUN} ${"x".repeat(4_100)} tail-${RUN}`;
+  fake.setChat((request): FakeReply => (assistantCalls(request) === 0 ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: longTitle } }] } : { text: "Left it." }));
+  await hmacEvent(conn.id, secret, { type: "lead", delivery: `${RUN}-long`, body: { n: "long" } });
+  await flushAgentRuns();
+  const [long] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), eq(agentRun.status, "awaiting_approval")));
+  const longInbox = (await listInbox(ids.owner, workspaceId)).find((item) => item.approval?.runId === long?.id);
+  check(
+    longInbox?.approval?.whole === false && longInbox.approval.input.length <= 4_000 && !longInbox.approval.input.includes(`tail-${RUN}`),
+    "the inbox cuts a long call short, and doesn't offer to approve it there",
+    longInbox?.approval && { whole: longInbox.approval.whole, length: longInbox.approval.input.length },
+  );
+  const longView = (await agents.listAgentRuns(ids.owner, agent.id, undefined, { exact: true })).find((v) => v.id === long.id);
+  check((longView?.pending?.arguments as { title?: string } | undefined)?.title === longTitle, "…its run shows all of it");
+  await decideApproval(ids.owner, { runId: long.id, callId: long.pending!.callId, decision: "decline" });
+  await flushAgentRuns();
+  check((await runOf(long.id)).status === "done" && !(await rowsAtPeer()).includes(longTitle), "declined, nothing is sent");
 
   // ── Unanswered: runs out of time, sends nothing ──────────────────────────────────────────────
   fake.setChat((request): FakeReply => (assistantCalls(request) === 0 ? { toolCalls: [{ name: rowTool, arguments: { database_id: peerDb.id, title: "Never sent" } }] } : { text: "?" }));

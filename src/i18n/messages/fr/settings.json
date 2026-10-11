@@ -1310,7 +1310,9 @@
       "sendBack": "Renvoyer",
       "approve": "Approuver",
       "decline": "Refuser",
-      "redo": "Renvoyer avec une note…"
+      "redo": "Renvoyer avec une note…",
+      "notWhole": "Cet appel est plus long que ce qui est affiché ici, ou contient des valeurs masquées ici. Ouvrez son exécution pour voir tout ce qui serait envoyé avant de l’approuver.",
+      "openRun": "Ouvrir l’exécution pour approuver"
     }
   }
 }

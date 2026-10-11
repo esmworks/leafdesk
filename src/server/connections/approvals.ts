@@ -15,8 +15,9 @@ import { inputSummary } from "./tools";
  * Approvals: a call to a connection's tool that may change something waits until an owner of
  * the workspace approves it, declines it or sends it back with a note ("Redo"). They find it in
  * their inbox and in the agent's runs. The first answer counts; a day without one fails the run,
- * and nothing is sent. They see the call's input with credentials masked; approved, the call is
- * sent as the agent made it (see park in server/agents/run).
+ * and nothing is sent. Where they may approve it they see the call exactly as it will be sent: in
+ * the agent's runs, and in the inbox only when its masked, shortened input is all of it (lib/agents
+ * inboxCallInput); approved, the call is sent as the agent made it (see park in server/agents/run).
  */
 
 export class ApprovalError extends Error {

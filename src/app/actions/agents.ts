@@ -117,7 +117,8 @@ export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepVi
 /** An agent's latest runs, with the pages their steps name as the viewer may see them now. */
 export async function listAgentRunsAction(workspaceId: string, agentId: string): Promise<ActionResult<AgentRunDetails[]>> {
   return run(workspaceId, async (userId) => {
-    const runs = await listAgentRuns(userId, agentId);
+    // An owner approves a waiting call here: they see it exactly as it will be sent.
+    const runs = await listAgentRuns(userId, agentId, undefined, { exact: true });
     return Promise.all(
       runs.map(async (r) => ({
         ...r,

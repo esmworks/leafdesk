@@ -1403,7 +1403,9 @@ tab, an owner ticks the tools that agent may use; an agent has no tool of a conn
   owner marked its trigger *Trust what this service sends* (below).
 - A *write* tool doesn't: the run waits, and every owner of the workspace gets an item in their
   inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
-  input, credentials in it masked. An owner **approves** (the call is sent as the agent made it),
+  input. The run shows the input exactly as it will be sent; the inbox shows it with credentials
+  masked and cut to 4000 characters, so it offers *Approve* only when that is all of what would be
+  sent, and otherwise a button to open the run and approve there. An owner **approves** (the call is sent as the agent made it),
   **declines** (the agent hears no and goes on), or **sends it back with a note** (the agent gets
   the note and tries again, which may ask again). After 24 hours with no answer the run ends as `approvalTimeout` and nothing is sent;
   an answer that comes later is refused. Once an approved call is sent, the run notes it, so a
@@ -1463,7 +1465,9 @@ error, the audit log's details) and what it writes to the server's log has crede
 `[redacted]`: passwords in addresses, credential-named query parameters and fields (`token`,
 `api_key`, `password`…), `Authorization` headers and bearer tokens, private keys and well-known
 token formats (Leafdesk's own, GitHub, Slack, AI providers, Stripe, AWS, Google, JSON Web Tokens).
-Pages and rows stay as they are, and what is sent (an approved call, a webhook) is the original.
+Pages and rows stay as they are, and what is sent (an approved call, a webhook) is the original,
+which is also what owners see where they approve a call (above). Over MCP, `list_agent_runs`
+shows a waiting call masked: a connected app can't approve it.
 
 > [!WARNING]
 > An agent with a connection acts as the account that signed in. Allow it only the tools it needs,

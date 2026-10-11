@@ -2001,7 +2001,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; or a connection's event), its status (pending, running, waiting_for_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone or error), what it did step by step (searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on, its final answer and the tokens it used. A call waiting for approval is answered by an owner in the Leafdesk inbox, not here. ${RUN_NOTE} ${AGENT_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; or a connection's event), its status (pending, running, waiting_for_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone or error), what it did step by step (searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },

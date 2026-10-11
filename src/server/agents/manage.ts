@@ -13,6 +13,7 @@ import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, user, workspaceAgent } from "@/db/schema";
 import {
   agentEmail,
+  callToSend,
   isAgentAccessLevel,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
@@ -331,8 +332,11 @@ export async function releaseDatabaseFromAgents(userId: string, databaseId: stri
 
 // -------------------------------------------------------------------------------------- runs
 
-/** An agent's latest runs, newest first. */
-export async function listAgentRuns(userId: string, agentId: string, limit = 30): Promise<AgentRunView[]> {
+/**
+ * An agent's latest runs, newest first. `exact`: a waiting call's input as it will be sent, for
+ * the app's runs, where an owner approves it; otherwise (MCP, which can't approve) masked.
+ */
+export async function listAgentRuns(userId: string, agentId: string, limit = 30, { exact = false }: { exact?: boolean } = {}): Promise<AgentRunView[]> {
   const agent = await ownedAgent(userId, agentId);
   const runs = await db
     .select()
@@ -376,7 +380,14 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30)
       steps: open ? r.steps : [],
       answer: open ? r.answer : "",
       usage: r.usage,
-      pending: open && r.pending ? { ...r.pending, connectionName: connectionNames.get(r.pending.connectionId) ?? "" } : null,
+      pending:
+        open && r.pending
+          ? {
+              ...r.pending,
+              arguments: (exact && callToSend(r.pending, r.state?.queue)) || r.pending.arguments,
+              connectionName: connectionNames.get(r.pending.connectionId) ?? "",
+            }
+          : null,
       eventType: "eventType" in r.context ? r.context.eventType : null,
       connections: Object.fromEntries(connectionIds.filter((id) => connectionNames.has(id)).map((id) => [id, connectionNames.get(id)!])),
       createdAt: r.createdAt.toISOString(),

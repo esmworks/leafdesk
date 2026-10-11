@@ -1310,7 +1310,9 @@
       "sendBack": "Devolver",
       "approve": "Aprobar",
       "decline": "Rechazar",
-      "redo": "Devolver con una nota…"
+      "redo": "Devolver con una nota…",
+      "notWhole": "Esta llamada es más larga de lo que se muestra aquí o contiene valores ocultos aquí. Abre su ejecución para ver todo lo que se enviaría antes de aprobarla.",
+      "openRun": "Abrir la ejecución para aprobar"
     }
   }
 }
