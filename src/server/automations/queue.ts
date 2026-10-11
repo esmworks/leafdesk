@@ -49,6 +49,8 @@ export async function queueAutomations(
   databaseId: string,
   changes: RowChange[],
   created: boolean,
+  /** An answer to a public form: who published it (automation_run.bound_to). */
+  boundTo: string | null = null,
 ) {
   if (!changes.length || runningAutomation()) return;
   try {
@@ -78,6 +80,7 @@ export async function queueAutomations(
           automationId: a.id,
           rowId: change.rowId,
           actorId,
+          boundTo,
           created,
           changed: created ? Object.keys(write.after) : changedProperties(write.before, write.after),
         }));

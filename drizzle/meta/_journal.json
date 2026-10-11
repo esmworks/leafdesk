@@ -379,6 +379,13 @@
       "when": 1791715955515,
       "tag": "0053_trusted_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1791716574750,
+      "tag": "0054_form_publisher_bound",
+      "breakpoints": true
     }
   ]
 }

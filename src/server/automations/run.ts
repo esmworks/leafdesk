@@ -160,7 +160,7 @@ export async function processRun(run: Run) {
             agentId: action.agentId,
             workspaceId: automation.workspaceId,
             source: { kind: "automation", automationId: automation.id, automationRunId: run.id, databaseId: automation.databaseId, rowId: run.rowId },
-            context: { created: run.created, changed: run.changed, actorId: run.actorId },
+            context: { created: run.created, changed: run.changed, actorId: run.actorId, ...(run.boundTo ? { boundTo: run.boundTo } : {}) },
             prompt: action.prompt,
           });
           step.status = "done";

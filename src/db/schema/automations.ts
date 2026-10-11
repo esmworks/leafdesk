@@ -66,6 +66,13 @@ export const automationRun = pgTable(
       .references(() => page.id, { onDelete: "cascade" }),
     /** Who made the change that started it; null for anonymous form answers and lost accounts. */
     actorId: text("actor_id").references(() => user.id, { onDelete: "set null" }),
+    /**
+     * An answer to a public form: who published the form. An agent the run starts is held to what
+     * they may open when no member stands behind the answer (see server/agents/run). No foreign
+     * key on purpose: a publisher whose account is gone bounds the run to nothing rather than
+     * leaving it unbounded.
+     */
+    boundTo: text("bound_to"),
     /** The row was added (rather than changed). */
     created: boolean("created").notNull().default(false),
     /** Ids of the properties the change touched. */

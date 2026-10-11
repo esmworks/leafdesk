@@ -73,6 +73,11 @@ export type AgentRunContext =
       changed: string[];
       /** Who made the change; null for anonymous form answers and lost accounts. */
       actorId: string | null;
+      /**
+       * An answer to a public form: who published the form. When no member stands behind the
+       * answer (anonymous, or a visitor outside the workspace), the run is held to their access.
+       */
+      boundTo?: string | null;
     }
   | {
       /** The event's type, as its service named it ("message", "issues.opened"…). */

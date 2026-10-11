@@ -630,7 +630,9 @@ export async function submitPublicForm(
   const claimed = await claimFormFiles(database, properties, files);
   const defaults = await liveDefaults(database, properties, form.config.form);
   const creator = form.anonymous ? null : userId;
-  const [row] = await insertRows(database, creator, [{ title: checked.title, properties: { ...defaults, ...rest, ...claimed } }]);
+  // An agent this answer sets off is held to what the form's publisher may open, when no member
+  // stands behind the answer: it never hands over what they couldn't.
+  const [row] = await insertRows(database, creator, [{ title: checked.title, properties: { ...defaults, ...rest, ...claimed } }], { boundTo: form.publishedBy });
   await adoptFormFiles(database.id, row.id, claimed);
   return { id: row.id };
 }

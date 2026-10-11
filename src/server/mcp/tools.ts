@@ -1879,7 +1879,7 @@ export function createMcpServer(principal: McpPrincipal) {
 
   const AGENT_NOTE =
     "Only owners of the workspace manage agents; others get \"No agent with this id\". An agent acts as a user of its own, a guest of the workspace: it opens only the pages shared with it (set_agent_access), never with full access, and its changes and comments show its name.";
-  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
+  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
 
   server.registerTool(
     "list_agents",

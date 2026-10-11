@@ -1311,7 +1311,11 @@ agent's settings stays).
 change or comment on the row that started the run, nothing else. When a member's change started
 the run, the agent is also held to what that member may: it opens, reads and changes only the pages
 and property values both of them can, so a run never hands someone what they couldn't open
-themselves. A run takes at most 8 model turns,
+themselves. When an answer to a public form started it and no member stands behind the answer
+(it was anonymous, or came from someone outside the workspace), the agent is held the same way to
+what the member who published the form may; if they have left the workspace, the run ends as
+`noAccess`. Bear in mind that whoever answers may be able to read the row afterwards: the publisher's
+access is the bound, not the answerer's. A run takes at most 8 model turns,
 makes at most 5 changes and comments, and lasts at most 2 minutes. Runs are queued and done a few at
 a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for

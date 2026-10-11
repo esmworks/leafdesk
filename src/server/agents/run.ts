@@ -3,7 +3,9 @@
  * action or a connection's trigger) and does them, as the agent's own user, with the access it has
  * now. A row's run started by a member's change is also held to what that member may
  * (acting-for.ts): the agent reads and changes only pages and values both of them can, so it never
- * hands someone what they couldn't open themselves. A few run at a time (AI_CONCURRENCY), each
+ * hands someone what they couldn't open themselves. An answer to a public form no member stands
+ * behind (anonymous, or a visitor outside the workspace) is held to what the form's publisher may
+ * instead. A few run at a time (AI_CONCURRENCY), each
  * within its workspace's AI allowance (a run waits for its turn rather than failing), and apart
  * from the automations' worker, so a long run never holds up a webhook.
  *
@@ -206,6 +208,8 @@ export async function processRun(run: Run): Promise<void> {
   // again each time the run is taken (after an approval too): their access as it is now counts, and
   // once they have left the workspace the run goes on as one no member started.
   let member: string | null = null;
+  // Whose access holds the agent besides its own: the member, or a public form's publisher.
+  let bound: string | null = null;
   // An event's run: whether an owner trusts what its trigger's service sends, asked again each time
   // too (turning it off holds back the calls of runs already under way). A trigger since removed
   // isn't trusted.
@@ -215,7 +219,16 @@ export async function processRun(run: Run): Promise<void> {
     const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
     if (!row || row.archivedAt || row.parentId !== databaseId) return finish(run, { status: "failed", code: "rowGone" });
     member = await memberBehind(run);
-    const { level } = await withinMember(agent, member, () => pageAccessOf(agent.userId, rowId));
+    if (!member) {
+      // An answer to a public form from someone the workspace doesn't know: held to the form's
+      // publisher, who must still be in the workspace (or the run opens nothing).
+      const publisher = "boundTo" in run.context ? (run.context.boundTo ?? null) : null;
+      if (publisher) {
+        if (!(await findMembership(publisher, run.workspaceId))) return finish(run, { status: "failed", code: "noAccess" });
+        bound = publisher;
+      }
+    } else bound = member;
+    const { level } = await withinMember(agent, bound, () => pageAccessOf(agent.userId, rowId));
     if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
   } else {
     const [conn] = await db.select({ id: connection.id }).from(connection).where(eq(connection.id, run.source.connectionId));
@@ -230,7 +243,7 @@ export async function processRun(run: Run): Promise<void> {
   const wait = takeWorkspaceCapacity(run.workspaceId);
   if (wait > 0) return later(run, new Date(Date.now() + wait));
 
-  const outcome = await withinMember(agent, member, () => converse(agent, run, { member, trusted })).catch((error: unknown) => ({ error }));
+  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, trusted })).catch((error: unknown) => ({ error }));
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
@@ -244,7 +257,8 @@ export async function processRun(run: Run): Promise<void> {
 
 /**
  * Who started a row's run, if it is someone in the workspace (a guest too): null for an anonymous
- * form answer, a signed-in visitor's answer to a public form, or an account since removed.
+ * form answer, a signed-in visitor's answer to a public form (both held to the form's publisher
+ * instead, see processRun), or an account since removed.
  */
 async function memberBehind(run: Run): Promise<string | null> {
   const actorId = "actorId" in run.context ? run.context.actorId : null;
@@ -252,7 +266,7 @@ async function memberBehind(run: Run): Promise<string | null> {
   return (await findMembership(actorId, run.workspaceId)) ? actorId : null;
 }
 
-/** Runs `fn` with the agent held to the member's access as well (no member: the agent's own). */
+/** Runs `fn` with the agent held to this member's access as well (no one: the agent's own). */
 function withinMember<T>(agent: Agent, member: string | null, fn: () => Promise<T>): Promise<T> {
   return member ? runActingFor({ userId: agent.userId, forUserId: member }, fn) : fn();
 }

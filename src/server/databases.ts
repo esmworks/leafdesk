@@ -901,10 +901,10 @@ export async function afterRowWrites(
   actorId: string | null,
   databaseId: string,
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
-  { created = false, shifted = false }: { created?: boolean; shifted?: boolean } = {},
+  { created = false, shifted = false, boundTo = null }: { created?: boolean; shifted?: boolean; boundTo?: string | null } = {},
 ) {
   await announceAssignments(actorId, databaseId, changes);
-  await queueAutomations(actorId, databaseId, changes, created);
+  await queueAutomations(actorId, databaseId, changes, created, boundTo);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
 }
 
@@ -1019,11 +1019,13 @@ export async function createRows(userId: string, databaseId: string, rows: NewRo
  * Writes rows whose values are already checked (see normalizeRowProperties) at the end of a
  * database, then does what every new row needs: two-way relations, assignment notices and live
  * updates. `actorId` becomes the rows' creator; null (an anonymous form answer) leaves it empty.
+ * `boundTo`: for an answer to a public form, who published it (see queueAutomations).
  */
 export async function insertRows(
   database: { id: string; workspaceId: string },
   actorId: string | null,
   rows: { title: string; properties: Record<string, unknown> }[],
+  { boundTo = null }: { boundTo?: string | null } = {},
 ) {
   const databaseId = database.id;
   const [{ max }] = await db
@@ -1049,7 +1051,7 @@ export async function insertRows(
     actorId,
     databaseId,
     created.map((row) => ({ rowId: row.id, before: {}, after: row.properties })),
-    { created: true },
+    { created: true, boundTo },
   );
   notifyTree(database.workspaceId);
   notifyRows(databaseId);
