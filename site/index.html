@@ -377,6 +377,7 @@
 curl -fsSLO https://raw.githubusercontent.com/esmworks/leafdesk/main/docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/esmworks/leafdesk/main/.env.example -o .env
 <span class="c"># set BETTER_AUTH_SECRET in .env to the output of: openssl rand -base64 32</span>
+<span class="c"># and POSTGRES_PASSWORD to the output of: openssl rand -hex 24</span>
 docker compose up -d</code></pre>
       </div>
       <p class="note">Then open http://localhost:3000 and create an account. The

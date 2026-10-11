@@ -9,6 +9,11 @@
   of the app, a proxy on another server), set `TRUSTED_PROXIES=1` (or `2` for a CDN plus a proxy),
   or every visitor counts as the proxy's address. Proxies on the same machine or Docker network
   need nothing.
+- **`POSTGRES_PASSWORD` is required for the bundled database.** Download the new
+  `docker-compose.yml`: with `COMPOSE_PROFILES=bundled-db` and no `EXTERNAL_DATABASE_URL`, it
+  refuses to start until `.env` sets `POSTGRES_PASSWORD`. If you never set one, your database
+  has the old default: add `POSTGRES_PASSWORD=leafdesk` (and change it inside PostgreSQL later if
+  you like). An external database needs nothing.
 
 ### Added
 
@@ -156,6 +161,10 @@
 
 ### Changed
 
+- **No default password for the bundled database.** docker-compose.yml no longer falls back to
+  the password `leafdesk` for the bundled PostgreSQL, which a clone also publishes on the host's
+  loopback for `pnpm dev`: while the app connects to it, `POSTGRES_PASSWORD` must be set in `.env`,
+  as `BETTER_AUTH_SECRET` must. No migration.
 - **Visitor addresses without `TRUSTED_PROXIES`.** Left unset, the app now trusts
   `X-Forwarded-For` from one proxy only when the request comes from a private address (loopback, a
   private network, as a proxy on the same machine or Docker network does). A visitor reaching the

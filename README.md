@@ -42,6 +42,7 @@ mkdir leafdesk && cd leafdesk
 curl -fsSLO https://raw.githubusercontent.com/esmworks/leafdesk/main/docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/esmworks/leafdesk/main/.env.example -o .env
 # set BETTER_AUTH_SECRET in .env to the output of: openssl rand -base64 32
+# and POSTGRES_PASSWORD to the output of: openssl rand -hex 24
 docker compose up -d
 ```
 
@@ -372,6 +373,7 @@ mkdir leafdesk && cd leafdesk
 curl -fsSLO https://raw.githubusercontent.com/esmworks/leafdesk/main/docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/esmworks/leafdesk/main/.env.example -o .env
 # set BETTER_AUTH_SECRET in .env to the output of: openssl rand -base64 32
+# and POSTGRES_PASSWORD to the output of: openssl rand -hex 24
 docker compose up -d
 ```
 
@@ -1585,7 +1587,7 @@ Requirements: Node.js 24 and pnpm 11 (via `corepack enable`), plus Docker for Po
 
 ```bash
 pnpm install
-cp .env.example .env      # set BETTER_AUTH_SECRET
+cp .env.example .env      # set BETTER_AUTH_SECRET, and POSTGRES_PASSWORD (also in DATABASE_URL)
 docker compose up -d db
 pnpm db:migrate
 pnpm dev                  # http://localhost:3000

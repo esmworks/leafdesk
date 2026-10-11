@@ -7,7 +7,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: leafdesk
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-leafdesk}
+      # Read only when the volume is first created; required below, where the app connects with it.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
       POSTGRES_DB: leafdesk
     volumes:
       - pgdata:/var/lib/postgresql
@@ -30,7 +31,7 @@ services:
     environment:
       APP_URL: ${APP_URL:-http://localhost:3000}
       # Not DATABASE_URL: in .env that one points at localhost for `pnpm dev`.
-      DATABASE_URL: ${EXTERNAL_DATABASE_URL:-postgres://leafdesk:${POSTGRES_PASSWORD:-leafdesk}@db:5432/leafdesk}
+      DATABASE_URL: ${EXTERNAL_DATABASE_URL:-postgres://leafdesk:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env for the bundled database, letters and digits only (openssl rand -hex 24). A database created without one has the password leafdesk}@db:5432/leafdesk}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env (openssl rand -base64 32)}
       DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
       SESSION_MAX_AGE_DAYS: ${SESSION_MAX_AGE_DAYS:-}
