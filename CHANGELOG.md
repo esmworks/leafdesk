@@ -70,7 +70,10 @@
   last edited, optionally only for rows whose status is in some groups (to do, in progress, done; a
   row without a status counts as to do). So "rows not edited for 30 days that aren't done → set
   Status to Stale", "rows whose Completed on is 14 days past → move to the trash" and "the day a
-  Due date comes, for rows not done → notify the assignee" are each one automation. The server
+  Due date comes, for rows not done → notify the assignee" are each one automation. Dates without
+  a time count by the calendar of the time zone of whoever saved the automation last (the
+  browser's in the app, `time_zone` over MCP, UTC without one), and the summary names that zone
+  when it isn't the viewer's; times and added/edited times count by the clock. The server
   looks every 10 minutes (`AUTOMATION_DATE_CHECK_SECONDS`, one server at a time) and runs each row
   once per value of its date, again only once that date changes and passes again; a row restored
   from the trash doesn't run again for the same date, and the automation's own edit doesn't count
@@ -83,10 +86,11 @@
   as `page.trashed` by the automation (a new actor kind, shown as "person (automation “name”)").
   Runs show in the run history as "Date passed" with the date; webhooks get the event
   `row.date_passed` with that `date`; notifications say the row's date has come. MCP's
-  `create_automation` and `update_automation` take both, `list_automations` describes them and
-  shows a paused automation's `check_error`, `list_automation_runs` gives each run's `date`.
+  `create_automation` and `update_automation` take both and a `time_zone`, `list_automations`
+  describes them and shows each automation's `time_zone` and a paused one's `check_error`,
+  `list_automation_runs` gives each run's `date`.
   Migration 0058 adds the `automation_fire` table, `automation_run.basis`,
-  `database_automation.check_error` and the audit actor kind. Covered by
+  `database_automation.time_zone` and `.check_error`, and the audit actor kind. Covered by
   `scripts/timed-automation-e2e.ts` and unit tests.
 - **Deleting a workspace.** Owners find Settings → General → Deletion. The dialog asks for the
   workspace's name, typed as shown, and the same proof as deleting the account (the password, a

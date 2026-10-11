@@ -32,11 +32,12 @@ const { setPagePermission } = await import("@/server/permissions");
 const { createRowTemplate } = await import("@/server/templates");
 const manage = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
-const { runDatePassedAutomations, serverDay } = await import("@/server/automations/timed");
+const { runDatePassedAutomations } = await import("@/server/automations/timed");
 const { automationInputs, describeAutomation, automationContext, toAutomationInput } = await import("@/server/mcp/automations");
 const { listInbox } = await import("@/server/notifications");
 const { DATE_PASSED_BATCH } = await import("@/lib/automations");
 const { PropertyValueError } = await import("@/lib/properties");
+const { timestampDay } = await import("@/lib/time-zone");
 
 const RUN = `timed-automation-e2e-${Date.now().toString(36)}`;
 const DAY_MS = 86_400_000;
@@ -70,8 +71,10 @@ const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-gue
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
 
-/** The server's day `days` days before `now`. */
-const dayBefore = (now: Date, days: number) => serverDay(new Date(now.getTime() - days * DAY_MS));
+/** The UTC day of `at`: automations saved without a time zone count days in UTC. */
+const utcDay = (at: Date) => timestampDay(at, "UTC")!;
+/** The UTC day `days` days before `now`. */
+const dayBefore = (now: Date, days: number) => utcDay(new Date(now.getTime() - days * DAY_MS));
 const row = async (rowId: string) => (await db.select().from(page).where(eq(page.id, rowId)))[0];
 const runsOf = (automationId: string) =>
   db.select().from(automationRun).where(eq(automationRun.automationId, automationId)).orderBy(automationRun.createdAt);
@@ -280,9 +283,9 @@ try {
   // ------------------------------------------------------------------ the day a date comes
   await setPagePermission(ids.owner, tasks.id, ids.member, "edit");
   const [dueToday, dueTomorrow, dueDone] = await createRows(ids.owner, tasks.id, [
-    { title: "Due today", properties: { [due.id]: serverDay(now), [assignee.id]: [ids.member], [status.id]: "In progress" } },
-    { title: "Due tomorrow", properties: { [due.id]: serverDay(new Date(now.getTime() + DAY_MS)), [assignee.id]: [ids.member] } },
-    { title: "Due today, done", properties: { [due.id]: serverDay(now), [assignee.id]: [ids.member], [status.id]: "Done" } },
+    { title: "Due today", properties: { [due.id]: utcDay(now), [assignee.id]: [ids.member], [status.id]: "In progress" } },
+    { title: "Due tomorrow", properties: { [due.id]: utcDay(new Date(now.getTime() + DAY_MS)), [assignee.id]: [ids.member] } },
+    { title: "Due today, done", properties: { [due.id]: utcDay(now), [assignee.id]: [ids.member], [status.id]: "Done" } },
   ]);
   const remind = await manage.createAutomation(ids.owner, tasks.id, {
     name: "Due today",
@@ -292,10 +295,75 @@ try {
   check((await check1(remind.id, now)) === 1, "the day a due date comes, for rows not done: one row");
   await flushAutomations();
   const told = await db.select().from(notification).where(and(eq(notification.automationId, remind.id), eq(notification.userId, ids.member)));
-  check(told.length === 1 && told[0].pageId === dueToday.id && told[0].date === serverDay(now), "the row's person is told, with the date", told);
+  check(told.length === 1 && told[0].pageId === dueToday.id && told[0].date === utcDay(now), "the row's person is told, with the date", told);
   const [item] = (await listInbox(ids.member, workspaceId)).filter((n) => n.kind === "automation");
-  check(item?.reminderDate === serverDay(now) && item.automationName === "Due today", "the inbox knows it's a date that came", item);
+  check(item?.reminderDate === utcDay(now) && item.automationName === "Due today", "the inbox knows it's a date that came", item);
   check(!told.some((n) => n.pageId === dueTomorrow.id || n.pageId === dueDone.id), "tomorrow's and done rows aren't");
+
+  // ------------------------------------------------------------------ the saver's time zone
+  const zonesDb = await createPage(owner, { workspaceId, kind: "database", title: "Zones" });
+  const zoneDue = await addProperty(ids.owner, zonesDb.id, { name: "Due", type: "date" });
+  const zoneAt = await addProperty(ids.owner, zonesDb.id, { name: "At", type: "date" });
+  await addProperty(ids.owner, zonesDb.id, { name: "Note", type: "text" });
+  const [onDay, atTime] = await createRows(ids.owner, zonesDb.id, [
+    { title: "Due on the 11th", properties: { [zoneDue.id]: "2026-10-11" } },
+    { title: "At 02:00 UTC on the 11th", properties: { [zoneAt.id]: "2026-10-11T02:00:00.000Z" } },
+  ]);
+  const zoned = (name: string, timeZone: string | undefined, date = "Due") =>
+    manage.createAutomation(ids.owner, zonesDb.id, {
+      name,
+      ...(timeZone ? { timeZone } : {}),
+      trigger: { type: "date_passed", date, days: 0 },
+      actions: [{ type: "set_properties", values: { Note: name } }],
+    });
+  check(await failsWith(zoned("Nowhere", "Mars/Olympus"), "invalidAutomation"), "an unknown time zone is refused");
+  const istanbul = await zoned("Istanbul", "Europe/Istanbul");
+  const losAngeles = await zoned("Los Angeles", "America/Los_Angeles");
+  const noZone = await zoned("No zone", undefined);
+  check(istanbul.timeZone === "Europe/Istanbul" && losAngeles.timeZone === "America/Los_Angeles" && noZone.timeZone === "UTC", "the saver's zone is stored, UTC without one");
+  // 03:00 UTC on the 11th: the 11th in Istanbul and UTC, still the evening of the 10th in Los Angeles.
+  const early = new Date("2026-10-11T03:00:00.000Z");
+  check((await check1(istanbul.id, early)) === 1, "a day counts in the saver's zone: the 11th has come in Istanbul");
+  check((await check1(noZone.id, early)) === 1, "…and in UTC");
+  check((await check1(losAngeles.id, early)) === 0, "…but not yet in Los Angeles");
+  check(
+    (await manage.previewDatePassed(ids.owner, zonesDb.id, { type: "date_passed", date: "Due", days: 0 }, null, "America/Los_Angeles", early)) === 0 &&
+      (await manage.previewDatePassed(ids.owner, zonesDb.id, { type: "date_passed", date: "Due", days: 0 }, null, "Europe/Istanbul", early)) === 1,
+    "the editor's count uses the saver's zone too",
+  );
+  // 07:30 UTC: 00:30 on the 11th in Los Angeles.
+  check((await check1(losAngeles.id, new Date("2026-10-11T07:30:00.000Z"))) === 1, "…until its midnight");
+  // A time is an instant: the zone doesn't move it.
+  const atLa = await zoned("At, Los Angeles", "America/Los_Angeles", "At");
+  const atIst = await zoned("At, Istanbul", "Europe/Istanbul", "At");
+  check(
+    (await check1(atLa.id, new Date("2026-10-11T01:59:00.000Z"))) === 0 && (await check1(atIst.id, new Date("2026-10-11T01:59:00.000Z"))) === 0,
+    "a date with a time hasn't come a minute before, in any zone",
+  );
+  check((await check1(atLa.id, early)) === 1 && (await check1(atIst.id, early)) === 1, "…and has after, in every zone");
+  await flushAutomations();
+  const zoneNote = (await getProperties(zonesDb.id)).find((p) => p.name === "Note")!.id;
+  check(
+    typeof (await row(onDay.id)).properties[zoneNote] === "string" && typeof (await row(atTime.id)).properties[zoneNote] === "string",
+    "the runs did their actions",
+  );
+  // Saving keeps the zone unless a new one comes with it (the app always sends the saver's).
+  const kept = await manage.updateAutomation(ids.owner, losAngeles.id, { name: "Los Angeles, renamed" });
+  check(kept.timeZone === "America/Los_Angeles", "a save without a zone keeps the stored one");
+  const moved = await manage.updateAutomation(ids.owner, losAngeles.id, { enabled: false, timeZone: "Europe/Istanbul" });
+  check(moved.timeZone === "Europe/Istanbul", "a save with one (turning it off in the app, say) takes the saver's");
+  check(await failsWith(manage.updateAutomation(ids.owner, losAngeles.id, { timeZone: "Not/AZone" }), "invalidAutomation"), "…and refuses an unknown one");
+  const mcpZoned = automationInputs.create.parse({
+    database_id: zonesDb.id,
+    name: "MCP zone",
+    enabled: false,
+    time_zone: "Asia/Tokyo",
+    trigger: { type: "date_passed", date: "Due", days: 1 },
+    actions: [{ type: "move_to_trash" }],
+  });
+  const viaMcpZoned = await manage.createAutomation(ids.owner, zonesDb.id, toAutomationInput(mcpZoned));
+  const describedZone = describeAutomation(await automationContext(ids.owner, zonesDb.id), viaMcpZoned);
+  check(describedZone.time_zone === "Asia/Tokyo", "MCP takes time_zone and shows it", describedZone);
 
   // ------------------------------------------------------------------ the database in the trash, the cap, the lock
   const batchDb = await createPage(owner, { workspaceId, kind: "database", title: "Many" });

@@ -917,7 +917,8 @@
       "datePassedSince": "{days, plural, one {# jour s’est écoulé depuis {date}} other {# jours se sont écoulés depuis {date}}}",
       "rowAdded": "l’ajout de la ligne",
       "lastEdited": "la dernière modification",
-      "withStatus": "{trigger}, statut {groups}"
+      "withStatus": "{trigger}, statut {groups}",
+      "inZone": "{trigger} (heure de {zone})"
     },
     "summaryAction": {
       "set": "Définir {properties}",

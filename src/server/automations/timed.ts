@@ -10,6 +10,7 @@ import {
   type DatePassedTrigger,
 } from "@/lib/automations";
 import { redactError } from "@/lib/redact";
+import { isTimeZone } from "@/lib/time-zone";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { startSweep } from "@/server/sweep";
 import { kickAutomations, MAX_WAITING_RUNS } from "./queue";
@@ -30,14 +31,14 @@ import { kickAutomations, MAX_WAITING_RUNS } from "./queue";
  * deleted, or whose person (who saved it last) lost full access: it says why in `checkError` until a
  * check can look again. One server checks at a time (a session advisory lock, as in retention.ts).
  *
- * Days count by the server's calendar (the day the `now` value of "set properties" gives); times,
- * and when a row was added or last edited, by the clock.
+ * Dates without a time count by the calendar of the automation's time zone (that of whoever saved
+ * it last); times, and when a row was added or last edited, by the clock.
  */
 
 const LOCK = "leafdesk:date-passed-automations";
 
-/** The server's calendar day at `now`, as "set properties" dates `now` (its TZ). */
-export const serverDay = (now: Date) => now.toLocaleDateString("en-CA");
+/** An automation's stored time zone, UTC when the runtime doesn't know it (any more). */
+export const automationZone = (timeZone: string) => (isTimeZone(timeZone) ? timeZone : "UTC");
 
 type Prop = Awaited<ReturnType<typeof getProperties>>[number];
 
@@ -76,11 +77,19 @@ export function basisSql(trigger: Pick<DatePassedTrigger, "date">): SQL {
 const inList = (expr: SQL, values: string[]) => (values.length ? sql`${expr} in ${values}` : sql`false`);
 
 /**
- * The live rows of the database the trigger matches at `now` (see the note at the top), with the
- * value of their date; without those it already ran for at that value when `automationId` is given.
+ * The live rows of the database the trigger matches at `now` in `timeZone` (see the note at the
+ * top), with the value of their date; without those it already ran for at that value when
+ * `automationId` is given.
  */
-function matching(trigger: DatePassedTrigger, resolved: Resolved, database: { id: string; workspaceId: string }, now: Date, automationId: string | null) {
-  const cutoffs = datePassedCutoffs(trigger.days, now, serverDay(now));
+function matching(
+  trigger: DatePassedTrigger,
+  resolved: Resolved,
+  database: { id: string; workspaceId: string },
+  now: Date,
+  timeZone: string,
+  automationId: string | null,
+) {
+  const cutoffs = datePassedCutoffs(trigger.days, now, automationZone(timeZone));
   const basis = basisSql(trigger);
   const conditions: SQL[] = [
     sql`${page.workspaceId} = ${database.workspaceId}`,
@@ -115,16 +124,17 @@ function matching(trigger: DatePassedTrigger, resolved: Resolved, database: { id
   return { basis, where: and(...conditions)! };
 }
 
-/** How many rows a trigger would run for at the next check (see matching). */
+/** How many rows a trigger would run for at the next check, counting days in `timeZone` (see matching). */
 export async function countDatePassedMatches(
   trigger: DatePassedTrigger,
   database: { id: string; workspaceId: string },
   automationId: string | null,
+  timeZone: string,
   now = new Date(),
 ) {
   const resolved = resolveDatePassed(trigger, await getProperties(database.id));
   if (resolved.error) return 0;
-  const { where } = matching(trigger, resolved, database, now, automationId);
+  const { where } = matching(trigger, resolved, database, now, timeZone, automationId);
   const [{ n }] = await db.select({ n: count() }).from(page).where(where);
   return n;
 }
@@ -184,7 +194,7 @@ async function checkAutomation(automation: Automation, database: { id: string; w
   const room = Math.min(DATE_PASSED_BATCH, MAX_WAITING_RUNS - waiting);
   if (room <= 0) return 0;
 
-  const { basis, where } = matching(trigger, resolved, database, now, automation.id);
+  const { basis, where } = matching(trigger, resolved, database, now, automation.timeZone, automation.id);
   const due = await db
     .select({ rowId: page.id, basis: sql<string>`${basis}` })
     .from(page)

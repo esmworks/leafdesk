@@ -1,5 +1,5 @@
 {
-  "id": "8365d52f-0fa8-4959-a8b5-9b084c5776cf",
+  "id": "65f8d953-9e71-46bf-8138-677866889f44",
   "prevId": "04bb0d2b-b006-49cb-8c07-666de119fac3",
   "version": "7",
   "dialect": "postgresql",
@@ -7775,6 +7775,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "time_zone": {
+          "name": "time_zone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'UTC'"
         },
         "check_error": {
           "name": "check_error",

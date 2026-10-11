@@ -104,7 +104,7 @@ export async function listAutomationRunsAction(automationId: string, limit = 20)
   return run((userId) => listAutomationRuns(userId, automationId, limit));
 }
 
-/** How many rows a "date passed" trigger being edited would run for at the next check. */
-export async function previewDatePassedAction(databaseId: string, trigger: AutomationInput["trigger"], automationId: string | null) {
-  return run((userId) => previewDatePassed(userId, databaseId, trigger, automationId));
+/** How many rows a "date passed" trigger being edited would run for at the next check, days in `timeZone`. */
+export async function previewDatePassedAction(databaseId: string, trigger: AutomationInput["trigger"], automationId: string | null, timeZone: string) {
+  return run((userId) => previewDatePassed(userId, databaseId, trigger, automationId, timeZone));
 }

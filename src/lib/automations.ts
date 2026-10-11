@@ -1,4 +1,5 @@
 import { STATUS_GROUPS, type StatusGroup } from "./property-types";
+import { dayString, localDay } from "./time-zone";
 
 /**
  * Database automations: "when a row is added, or a property of a row changes (to a value), or a
@@ -167,13 +168,12 @@ export function dateCheckIntervalMs(value: string | undefined) {
 
 /**
  * The day and the instant a row's date must be at or before to be `days` days past at `now`:
- * dates that are days count by calendar day (`today`, the server's day), times and the row's
- * added/edited times by the clock. Both as text that compares in order with stored values (days
- * as YYYY-MM-DD, times as UTC ISO strings).
+ * dates that are days count by calendar day in `timeZone` (the automation's, that of whoever saved
+ * it), times and the row's added/edited times by the clock. Both as text that compares in order
+ * with stored values (days as YYYY-MM-DD, times as UTC ISO strings).
  */
-export function datePassedCutoffs(days: number, now: Date, today: string) {
-  const [y, m, d] = today.split("-").map(Number);
-  const day = new Date(Date.UTC(y, m - 1, d - days)).toISOString().slice(0, 10);
+export function datePassedCutoffs(days: number, now: Date, timeZone: string) {
+  const day = dayString(localDay(now.getTime(), timeZone) - days);
   return { day, instant: new Date(now.getTime() - days * 86_400_000).toISOString() };
 }
 

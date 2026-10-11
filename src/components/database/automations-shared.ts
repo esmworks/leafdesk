@@ -9,6 +9,7 @@ import {
 } from "@/lib/automations";
 import { fromPercentPoints, isPercent, toPercentPoints } from "@/lib/number-format";
 import type { StatusGroup } from "@/lib/property-types";
+import { browserTimeZone } from "@/lib/time-zone";
 import type { Property, SelectOption } from "./types";
 
 type Ok<T> = T extends { ok: true; data: infer D } ? D : never;
@@ -204,6 +205,8 @@ export function toInput(draft: Draft, properties: Property[]) {
   return {
     name: draft.name.trim(),
     enabled: draft.enabled,
+    // Whoever saves it: a "date passed" trigger counts days in their time zone.
+    timeZone: browserTimeZone(),
     trigger: triggerInput(draft.trigger),
     actions: draft.actions.map((action) => {
       if (action.type === "set_properties") {

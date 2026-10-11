@@ -917,7 +917,8 @@
       "datePassedSince": "{days, plural, one {# Tag seit {date} vergangen ist} other {# Tage seit {date} vergangen sind}}",
       "rowAdded": "dem Hinzufügen der Zeile",
       "lastEdited": "der letzten Bearbeitung",
-      "withStatus": "{trigger}, Status {groups}"
+      "withStatus": "{trigger}, Status {groups}",
+      "inZone": "{trigger} (Zeitzone {zone})"
     },
     "summaryAction": {
       "set": "{properties} setzen",

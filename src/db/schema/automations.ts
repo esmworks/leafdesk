@@ -37,6 +37,11 @@ export const databaseAutomation = pgTable(
     secretSalt: text("secret_salt").notNull(),
     /** Who saved it last: its actions run as them. Null once their account is gone (it stops). */
     runAs: text("run_as").references(() => user.id, { onDelete: "set null" }),
+    /**
+     * The IANA time zone of whoever saved it last (UTC when they didn't say): a "date passed"
+     * trigger counts days of dates without a time in it.
+     */
+    timeZone: text("time_zone").notNull().default("UTC"),
     /** "Date passed" automations: why the last check couldn't look for rows; null when it could. */
     checkError: text("check_error").$type<AutomationCheckError>(),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),

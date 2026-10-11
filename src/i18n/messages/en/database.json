@@ -917,7 +917,8 @@
       "datePassedSince": "{days, plural, one {# day has passed since {date}} other {# days have passed since {date}}}",
       "rowAdded": "the row was added",
       "lastEdited": "the last edit",
-      "withStatus": "{trigger}, status {groups}"
+      "withStatus": "{trigger}, status {groups}",
+      "inZone": "{trigger} ({zone} time)"
     },
     "summaryAction": {
       "set": "Set {properties}",

@@ -136,10 +136,28 @@ describe("date passed", () => {
   });
 
   it("counts days by the calendar and times by the clock", () => {
-    expect(datePassedCutoffs(0, now, "2026-10-11")).toEqual({ day: "2026-10-11", instant: "2026-10-11T12:00:00.000Z" });
-    expect(datePassedCutoffs(14, now, "2026-10-11")).toEqual({ day: "2026-09-27", instant: "2026-09-27T12:00:00.000Z" });
+    expect(datePassedCutoffs(0, now, "UTC")).toEqual({ day: "2026-10-11", instant: "2026-10-11T12:00:00.000Z" });
+    expect(datePassedCutoffs(14, now, "UTC")).toEqual({ day: "2026-09-27", instant: "2026-09-27T12:00:00.000Z" });
     // Across a month and a year.
-    expect(datePassedCutoffs(30, new Date("2026-01-15T00:00:00Z"), "2026-01-15").day).toBe("2025-12-16");
+    expect(datePassedCutoffs(30, new Date("2026-01-15T00:00:00Z"), "UTC").day).toBe("2025-12-16");
+  });
+
+  it("counts days by the calendar of the automation's time zone", () => {
+    // 23:30 UTC on the 10th: already the 11th in Istanbul (UTC+3), still the 10th in Los Angeles.
+    const lateUtc = new Date("2026-10-10T23:30:00.000Z");
+    expect(datePassedCutoffs(0, lateUtc, "Europe/Istanbul").day).toBe("2026-10-11");
+    expect(datePassedCutoffs(0, lateUtc, "UTC").day).toBe("2026-10-10");
+    expect(datePassedCutoffs(0, lateUtc, "America/Los_Angeles").day).toBe("2026-10-10");
+    // 03:00 UTC on the 11th: the 11th in Istanbul and UTC, the evening of the 10th in Los Angeles.
+    const earlyUtc = new Date("2026-10-11T03:00:00.000Z");
+    expect(datePassedCutoffs(0, earlyUtc, "Europe/Istanbul").day).toBe("2026-10-11");
+    expect(datePassedCutoffs(0, earlyUtc, "America/Los_Angeles").day).toBe("2026-10-10");
+    // So a row due on the 11th is past for Istanbul but not yet for Los Angeles; days count back from there.
+    expect(startPassed("2026-10-11", datePassedCutoffs(0, earlyUtc, "Europe/Istanbul"))).toBe(true);
+    expect(startPassed("2026-10-11", datePassedCutoffs(0, earlyUtc, "America/Los_Angeles"))).toBe(false);
+    expect(datePassedCutoffs(14, earlyUtc, "America/Los_Angeles").day).toBe("2026-09-26");
+    // Times and the row's added/edited times are the same instant whatever the zone.
+    expect(datePassedCutoffs(1, earlyUtc, "America/Los_Angeles").instant).toBe(datePassedCutoffs(1, earlyUtc, "Asia/Tokyo").instant);
   });
 
   it("takes the start of a date value, of either kind", () => {
@@ -152,12 +170,12 @@ describe("date passed", () => {
   });
 
   it("a date is past on its day (0 days), a time once it has come", () => {
-    const today = datePassedCutoffs(0, now, "2026-10-11");
+    const today = datePassedCutoffs(0, now, "UTC");
     expect(startPassed("2026-10-11", today)).toBe(true);
     expect(startPassed("2026-10-12", today)).toBe(false);
     expect(startPassed("2026-10-11T11:59:00.000Z", today)).toBe(true);
     expect(startPassed("2026-10-11T12:01:00.000Z", today)).toBe(false);
-    const twoWeeks = datePassedCutoffs(14, now, "2026-10-11");
+    const twoWeeks = datePassedCutoffs(14, now, "UTC");
     expect(startPassed("2026-09-27", twoWeeks)).toBe(true);
     expect(startPassed("2026-09-28", twoWeeks)).toBe(false);
   });
@@ -182,7 +200,7 @@ describe("date passed", () => {
   });
 
   it("fires once per value of the date, again for a new value that is past too", () => {
-    const cutoffs = datePassedCutoffs(30, now, "2026-10-11");
+    const cutoffs = datePassedCutoffs(30, now, "UTC");
     const trigger = { status: null };
     const old = { basis: "2026-08-01T10:00:00.000000Z" };
     expect(datePassedFires(old, trigger, cutoffs, null, null)).toBe(true);
@@ -197,7 +215,7 @@ describe("date passed", () => {
   });
 
   it("a row that stops meeting the status condition stops firing", () => {
-    const cutoffs = datePassedCutoffs(14, now, "2026-10-11");
+    const cutoffs = datePassedCutoffs(14, now, "UTC");
     const match = statusMatch([{ id: "open", group: "todo" }, { id: "closed", group: "done" }], ["done"]);
     const trigger = { status: { propertyId: "s", groups: ["done" as const] } };
     expect(datePassedFires({ basis: "2026-09-01", status: "closed" }, trigger, cutoffs, match, null)).toBe(true);

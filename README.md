@@ -1069,11 +1069,13 @@ start the database's "Status changes" automations.
 
 **When a date passes.** The server looks for rows whose date has come every 10 minutes (set
 `AUTOMATION_DATE_CHECK_SECONDS` for another interval, at least 10; one server of several looks at
-a time) and queues a run for each, like a row write does. Days count by the server's calendar (its
-`TZ`, UTC in the Docker image, the same day *Set properties* gives "the day it runs"); times, and
-when a row was added or edited, by the clock. Each row runs once for each value of its date: it
-runs again only when that date changes and is past again, for instance when someone edits a stale
-row and it goes stale once more. A row restored from the trash doesn't run again for the same
+a time) and queues a run for each, like a row write does. Dates without a time count by the
+calendar of the time zone of whoever saved the automation last (the browser's zone when saved in
+the app, `time_zone` over MCP, UTC when none was given): a row due on the 11th has reached its day
+at midnight there, not at the server's midnight. The automation's summary names that zone when it
+isn't yours. Times, and when a row was added or edited, count by the clock. Each row runs once
+for each value of its date: it runs again only when that date changes and is past again, for
+instance when someone edits a stale row and it goes stale once more. A row restored from the trash doesn't run again for the same
 date, and an automation's own edit doesn't count as an edit. Rows in the trash, row templates, and
 the rows of a database in the trash are left out. Rows that already match when the automation is
 saved or turned on run at the next check (the dialog says how many), at most 100 per automation

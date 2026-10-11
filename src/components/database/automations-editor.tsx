@@ -27,6 +27,7 @@ import {
   type AutomationActionType,
 } from "@/lib/automations";
 import { STATUS_GROUPS } from "@/lib/property-types";
+import { browserTimeZone } from "@/lib/time-zone";
 import { searchFold } from "@/lib/search-fold";
 import {
   canSet,
@@ -519,7 +520,7 @@ function DatePassedPreview({
     if (!ready) return;
     let live = true;
     const timer = setTimeout(() => {
-      previewDatePassedAction(databaseId, JSON.parse(key), automationId)
+      previewDatePassedAction(databaseId, JSON.parse(key), automationId, browserTimeZone())
         .then((res) => live && setCount(res.ok ? res.data : null))
         .catch(() => live && setCount(null));
     }, 300);

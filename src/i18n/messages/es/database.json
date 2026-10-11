@@ -917,7 +917,8 @@
       "datePassedSince": "{days, plural, one {pasa # día desde {date}} other {pasan # días desde {date}}}",
       "rowAdded": "que se añadió la fila",
       "lastEdited": "la última edición",
-      "withStatus": "{trigger}, estado {groups}"
+      "withStatus": "{trigger}, estado {groups}",
+      "inZone": "{trigger} (hora de {zone})"
     },
     "summaryAction": {
       "set": "Asignar {properties}",

@@ -13,6 +13,7 @@ import {
 } from "@/app/actions/automations";
 import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
 import { MAX_AUTOMATIONS } from "@/lib/automations";
+import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
 import { AutomationEditor, Footer } from "./automations-editor";
 import { triggerValueName, type AgentChoice, type Automation, type AutomationRun, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
@@ -117,7 +118,8 @@ function AutomationsDialog({
     setError(null);
     replace({ ...automation, enabled });
     try {
-      const res = await updateAutomationAction(automation.id, { enabled });
+      // Turning it on or off saves it too: it runs as, and counts days in the time zone of, whoever did.
+      const res = await updateAutomationAction(automation.id, { enabled, timeZone: browserTimeZone() });
       if (res.ok) replace(res.data);
       else {
         replace(automation);
@@ -313,6 +315,11 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
             date: t(trigger.date === "created_time" ? "summaryTrigger.rowAdded" : "summaryTrigger.lastEdited"),
           })
         : t("summaryTrigger.datePassedProperty", { days: trigger.days, date: nameOf(trigger.date) });
+    // A date property's days count in the saver's time zone: worth saying when it isn't the viewer's.
+    const dated = trigger.date !== "created_time" && trigger.date !== "last_edited_time";
+    if (dated && automation.timeZone !== browserTimeZone()) {
+      when = t("summaryTrigger.inZone", { trigger: when, zone: timeZoneLabel(automation.timeZone) });
+    }
     if (trigger.status) {
       when = t("summaryTrigger.withStatus", { trigger: when, groups: trigger.status.groups.map((g) => tGroup(g)).join(", ") });
     }

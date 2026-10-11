@@ -917,7 +917,8 @@
       "datePassedSince": "{days, plural, one {{date} üzerinden # gün geçtiğinde} other {{date} üzerinden # gün geçtiğinde}}",
       "rowAdded": "Satırın eklenmesinin",
       "lastEdited": "Son düzenlemenin",
-      "withStatus": "{trigger}, durum: {groups}"
+      "withStatus": "{trigger}, durum: {groups}",
+      "inZone": "{trigger} ({zone} saatiyle)"
     },
     "summaryAction": {
       "set": "Ata: {properties}",

@@ -22,6 +22,7 @@ import {
 import { pageLabel } from "@/lib/labels";
 import { PropertyValueError } from "@/lib/properties";
 import { holdsPeople, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
+import { isTimeZone } from "@/lib/time-zone";
 import { getMembership, pageVisibleTo } from "@/server/access";
 import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
@@ -44,6 +45,11 @@ import { newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecre
 export type AutomationInput = {
   name: string;
   enabled?: boolean;
+  /**
+   * The saver's IANA time zone, which a "date passed" trigger counts days in: UTC for a new
+   * automation without one; an update without one keeps the stored zone.
+   */
+  timeZone?: string;
   trigger:
     | { type: "row_created" }
     | { type: "property_changed"; property?: string | null; to?: unknown }
@@ -67,6 +73,12 @@ type Prop = Awaited<ReturnType<typeof getProperties>>[number];
 
 const invalid = (message: string, params: Record<string, string> = {}) =>
   new PropertyValueError(message, "invalidAutomation", { reason: message, ...params });
+
+function checkTimeZone(value: unknown, fallback: string) {
+  if (value === undefined) return fallback;
+  if (!isTimeZone(value)) throw invalid("Unknown time zone: give an IANA name such as Europe/Istanbul");
+  return value;
+}
 
 function findProperty(props: Prop[], ref: string) {
   const prop = props.find((p) => p.id === ref) ?? props.find((p) => p.name.toLowerCase() === ref.trim().toLowerCase());
@@ -267,6 +279,7 @@ export async function createAutomation(userId: string, databaseId: string, input
   const database = await requireDatabase(userId, databaseId, "full");
   const props = await getProperties(databaseId);
   const name = checkName(input.name);
+  const timeZone = checkTimeZone(input.timeZone, "UTC");
   const trigger = await checkTrigger(userId, databaseId, props, input.trigger);
   const actions = await checkActions(userId, databaseId, database.workspaceId, props, input.actions);
   const [{ n }] = await db.select({ n: count() }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
@@ -283,6 +296,7 @@ export async function createAutomation(userId: string, databaseId: string, input
       enabled,
       trigger,
       actions,
+      timeZone,
       secretSalt: newSecretSalt(),
       runAs: userId,
       createdBy: userId,
@@ -313,6 +327,7 @@ export async function updateAutomation(userId: string, automationId: string, pat
   const current = await manageable(userId, automationId);
   const props = await getProperties(current.databaseId);
   const name = patch.name !== undefined ? checkName(patch.name) : current.name;
+  const timeZone = checkTimeZone(patch.timeZone, current.timeZone);
   const trigger = patch.trigger !== undefined ? await checkTrigger(userId, current.databaseId, props, patch.trigger) : current.trigger;
   const actions =
     patch.actions !== undefined
@@ -321,7 +336,7 @@ export async function updateAutomation(userId: string, automationId: string, pat
   const enabled = patch.enabled ?? current.enabled;
   const [updated] = await db
     .update(databaseAutomation)
-    .set({ name, trigger, actions, enabled, runAs: userId, checkError: null })
+    .set({ name, trigger, actions, enabled, timeZone, runAs: userId, checkError: null })
     .where(eq(databaseAutomation.id, automationId))
     .returning();
   // Counting from another date makes every row new to it; other changes keep what it ran for.
@@ -428,6 +443,8 @@ async function describe(automations: (typeof databaseAutomation.$inferSelect)[])
       enabled: a.enabled,
       trigger: a.trigger,
       actions: a.actions,
+      /** The time zone a "date passed" trigger counts days in. */
+      timeZone: a.timeZone,
       runAs: a.runAs ? { id: a.runAs, name: names.find((n) => n.id === a.runAs)?.name ?? "" } : null,
       /** Only automations with a webhook have one to show. */
       secret: a.actions.some((x) => x.type === "webhook") ? webhookSecret(a.secretSalt) : null,
@@ -498,13 +515,21 @@ export async function listAutomationRuns(userId: string, automationId: string, l
 }
 
 /**
- * How many rows a "date passed" trigger, as typed, would run for at the next check: for a saved
- * automation (`automationId`) counting from the same date, without the rows it already ran for.
- * Zero for other triggers.
+ * How many rows a "date passed" trigger, as typed, would run for at the next check with days in
+ * `timeZone` (the saver's) at `now`: for a saved automation (`automationId`) counting from the same date,
+ * without the rows it already ran for. Zero for other triggers.
  */
-export async function previewDatePassed(userId: string, databaseId: string, input: AutomationInput["trigger"], automationId: string | null = null) {
+export async function previewDatePassed(
+  userId: string,
+  databaseId: string,
+  input: AutomationInput["trigger"],
+  automationId: string | null = null,
+  timeZone = "UTC",
+  now = new Date(),
+) {
   const database = await requireDatabase(userId, databaseId, "full");
   if (input?.type !== "date_passed") return 0;
+  const zone = checkTimeZone(timeZone, "UTC");
   const trigger = checkDatePassed(await getProperties(databaseId), input);
   let keep: string | null = null;
   if (automationId) {
@@ -512,5 +537,5 @@ export async function previewDatePassed(userId: string, databaseId: string, inpu
     if (current.databaseId !== databaseId) throw new PropertyValueError("No automation with this id", "invalidAutomation", { reason: "notFound" });
     if (current.trigger.type === "date_passed" && current.trigger.date === trigger.date) keep = current.id;
   }
-  return countDatePassedMatches(trigger, { id: databaseId, workspaceId: database.workspaceId }, keep);
+  return countDatePassedMatches(trigger, { id: databaseId, workspaceId: database.workspaceId }, keep, zone, now);
 }

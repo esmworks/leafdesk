@@ -120,6 +120,16 @@ const actionsInput = z
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
+/** The zone a "date_passed" trigger counts days in; what the description adds when it's left out. */
+const timeZoneInput = (leftOut: string) =>
+  z
+    .string()
+    .min(1)
+    .max(64)
+    .optional()
+    .describe(
+      `The IANA time zone (such as "Europe/Istanbul") a "date_passed" trigger counts the days of dates without a time in: a row due on a day has reached it once that day starts there. Pass the user's own zone; ${leftOut}.`,
+    );
 
 export const automationInputs = {
   list: z.object({ database_id: id("database") }),
@@ -127,6 +137,7 @@ export const automationInputs = {
     database_id: id("database"),
     name: nameInput.describe("A name for the automation, shown in the database's automations."),
     enabled: z.boolean().optional().describe("Whether it runs (default true)."),
+    time_zone: timeZoneInput("UTC when left out"),
     trigger: triggerInput,
     actions: actionsInput,
   }),
@@ -135,6 +146,7 @@ export const automationInputs = {
     automation_id: id("automation"),
     name: nameInput.optional(),
     enabled: z.boolean().optional().describe("Turn the automation on or off."),
+    time_zone: timeZoneInput("left out, the stored zone stays"),
     trigger: triggerInput.optional(),
     actions: actionsInput.optional().describe("Replaces all of the automation's actions."),
   }),
@@ -174,10 +186,17 @@ const toActions = (actions: ActionsArg): AutomationInput["actions"] =>
   );
 
 /** create_automation's arguments as manage.createAutomation takes them. */
-export function toAutomationInput(args: { name: string; enabled?: boolean; trigger: TriggerArg; actions: ActionsArg }): AutomationInput {
+export function toAutomationInput(args: {
+  name: string;
+  enabled?: boolean;
+  time_zone?: string;
+  trigger: TriggerArg;
+  actions: ActionsArg;
+}): AutomationInput {
   return {
     name: args.name,
     ...(args.enabled !== undefined ? { enabled: args.enabled } : {}),
+    ...(args.time_zone !== undefined ? { timeZone: args.time_zone } : {}),
     trigger: toTrigger(args.trigger),
     actions: toActions(args.actions),
   };
@@ -187,15 +206,17 @@ export function toAutomationInput(args: { name: string; enabled?: boolean; trigg
 export function toAutomationPatch(args: {
   name?: string;
   enabled?: boolean;
+  time_zone?: string;
   trigger?: TriggerArg;
   actions?: ActionsArg;
 }): Partial<AutomationInput> {
   const patch: Partial<AutomationInput> = {};
   if (args.name !== undefined) patch.name = args.name;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
+  if (args.time_zone !== undefined) patch.timeZone = args.time_zone;
   if (args.trigger !== undefined) patch.trigger = toTrigger(args.trigger);
   if (args.actions !== undefined) patch.actions = toActions(args.actions);
-  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, enabled, trigger or actions.");
+  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, enabled, time_zone, trigger or actions.");
   return patch;
 }
 
@@ -354,6 +375,8 @@ export function describeAutomation(ctx: AutomationContext, automation: Automatio
     database_id: automation.databaseId,
     trigger: describeTrigger(ctx, automation.trigger),
     actions: automation.actions.map((a) => describeAction(ctx, a)),
+    /** The zone a "date_passed" trigger counts days in (that of whoever saved it last). */
+    time_zone: automation.timeZone,
     run_as: automation.runAs,
     last_run: automation.lastRun,
     ...(automation.checkError ? { check_error: automation.checkError } : {}),
