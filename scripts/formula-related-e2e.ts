@@ -99,7 +99,7 @@ try {
   });
   await setPagePermission(ids.owner, cy.id, ids.editor, "none");
 
-  const members = await databases.addProperty(ids.owner, teams.id, { name: "Members", type: "relation", relation: { databaseId: staff.id } });
+  await databases.addProperty(ids.owner, teams.id, { name: "Members", type: "relation", relation: { databaseId: staff.id } });
   const formulas = {
     names: 'prop("Members")',
     hours: 'sum(map(prop("Members"), prop(current, "Hours")))',
