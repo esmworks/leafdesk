@@ -41,7 +41,7 @@ const { env } = await import("@/lib/env");
 const { domainRecordName } = await import("@/lib/sso-config");
 const { AccessError } = await import("@/server/access");
 const { approveAccessRequest, declineAccessRequest, listAccessRequests, requestPageAccess } = await import("@/server/access-requests");
-const { auditActors, auditEventsForExport, failAuditWritesForTesting, listAuditEvents, recordAudit } = await import("@/server/audit");
+const { auditActors, auditEventsForExport, failAuditWritesForTesting, listAuditEvents, recordAudit, runAsAuditOrigin } = await import("@/server/audit");
 const { createAgent } = await import("@/server/agents/manage");
 const { createApiToken, revokeApiToken } = await import("@/server/api/tokens");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -804,6 +804,18 @@ try {
   );
   const agentEvents = await listAuditEvents(ids.owner, ws.main, filters({ actor: "k:agent" }));
   check(agentEvents.events.length === 1 && agentEvents.events[0].id === byAgent.id, "the log filters on agents", agentEvents.events.length);
+
+  // ── Automations: the person who saved one, through it, without an address ───────────────────
+  const automationDraft = await createPage({ userId: ids.owner }, { workspaceId: ws.main, title: "Automation draft" });
+  await runAsAuditOrigin({ kind: "automation", name: "Clean up" }, () =>
+    recordAudit({ workspaceId: ws.main, actorId: ids.owner, action: "page.trashed", target: { type: "page", id: automationDraft.id, label: "Automation draft" } }),
+  );
+  const byAutomation = await latest(ws.main, "page.trashed");
+  check(
+    byAutomation.actorKind === "automation" && byAutomation.actorUserId === ids.owner && byAutomation.actorVia === "Clean up" && byAutomation.ip === null,
+    "what an automation does is recorded as the automation's, for whoever saved it",
+    byAutomation,
+  );
   const helperOption = (await auditActors(ids.owner, ws.main)).find((a) => a.userId === helper.userId);
   check(helperOption?.isAgent === true && helperOption.email === null, "the actor filter names the agent as one", helperOption);
 
