@@ -26,6 +26,9 @@ export type RowActivityKind = (typeof ROW_ACTIVITY_KINDS)[number];
  */
 export const COALESCE_WINDOW_MS = 5 * 60_000;
 
+/** The most entries one read returns. */
+export const MAX_ACTIVITY_PAGE = 100;
+
 /** Values worked out from the row (formulas, rollups, who and when) are never recorded. */
 export const isRecordedType = (type: string) => !isReadOnlyType(type);
 

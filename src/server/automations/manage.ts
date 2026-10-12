@@ -134,6 +134,15 @@ function checkDatePassed(props: Prop[], input: Extract<AutomationInput["trigger"
   };
 }
 
+/** A date passing has nobody whose change started it: "actor" would set nobody. */
+function checkActorFits(trigger: AutomationTrigger, actions: AutomationAction[]) {
+  if (trigger.type !== "date_passed") return;
+  const actor = actions.some(
+    (a) => a.type === "set_properties" && Object.values(a.values).some((v) => isDynamicValue(v) && v.$ === "actor"),
+  );
+  if (actor) throw invalid('"actor" is whoever made the change that started the automation, and a date passing has nobody: name people instead');
+}
+
 async function checkTrigger(userId: string, databaseId: string, props: Prop[], input: AutomationInput["trigger"]): Promise<AutomationTrigger> {
   if (input?.type === "row_created") return { type: "row_created" };
   if (input?.type === "date_passed") return checkDatePassed(props, input);
@@ -282,6 +291,7 @@ export async function createAutomation(userId: string, databaseId: string, input
   const timeZone = checkTimeZone(input.timeZone, "UTC");
   const trigger = await checkTrigger(userId, databaseId, props, input.trigger);
   const actions = await checkActions(userId, databaseId, database.workspaceId, props, input.actions);
+  checkActorFits(trigger, actions);
   const [{ n }] = await db.select({ n: count() }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
   if (n >= MAX_AUTOMATIONS) {
     throw new PropertyValueError(`A database has at most ${MAX_AUTOMATIONS} automations`, "tooManyAutomations", { max: String(MAX_AUTOMATIONS) });
@@ -333,6 +343,7 @@ export async function updateAutomation(userId: string, automationId: string, pat
     patch.actions !== undefined
       ? await checkActions(userId, current.databaseId, current.workspaceId, props, patch.actions, current.actions)
       : current.actions;
+  checkActorFits(trigger, actions);
   const enabled = patch.enabled ?? current.enabled;
   const [updated] = await db
     .update(databaseAutomation)

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { loadRowActivityAction } from "@/app/actions/databases";
 import { cn } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import type { ActivityValue } from "@/lib/row-activity";
+import { MAX_ACTIVITY_PAGE, type ActivityValue } from "@/lib/row-activity";
 import { relativeTime } from "@/lib/relative-time";
 import type { RowActivityEntry } from "@/server/row-activity-feed";
 import { OptionChip, useFormatDate } from "./property-cell";
@@ -55,16 +55,23 @@ export function RowActivity({ rowId, signal }: { rowId: string; signal: number }
       const mine = ++seq.current;
       setLoading(true);
       try {
-        const res = await loadRowActivityAction(rowId, offset, limit);
-        if (mine !== seq.current) return;
-        if (!res.ok) {
-          setError(res.error);
-          return;
+        // A read returns at most MAX_ACTIVITY_PAGE entries: reading again what was shown takes several.
+        const read: RowActivityEntry[] = [];
+        let more = true;
+        while (more && read.length < limit) {
+          const res = await loadRowActivityAction(rowId, offset + read.length, Math.min(MAX_ACTIVITY_PAGE, limit - read.length));
+          if (mine !== seq.current) return;
+          if (!res.ok) {
+            setError(res.error);
+            return;
+          }
+          read.push(...res.data.entries);
+          more = res.data.hasMore && res.data.entries.length > 0;
         }
         setError(null);
-        setEntries((current) => (offset === 0 ? res.data.entries : [...(current ?? []), ...res.data.entries]));
-        setHasMore(res.data.hasMore);
-        shown.current = offset + res.data.entries.length;
+        setEntries((current) => (offset === 0 ? read : [...(current ?? []), ...read]));
+        setHasMore(more);
+        shown.current = offset + read.length;
       } catch {
         if (mine === seq.current) setError(tc("genericError"));
       } finally {

@@ -173,7 +173,12 @@ export function AutomationEditor({
                   </IconButton>
                 </div>
                 {action.type === "set_properties" ? (
-                  <SetPropertiesEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
+                  <SetPropertiesEditor
+                    action={action}
+                    people={people}
+                    noActor={draft.trigger.type === "date_passed"}
+                    onChange={(next) => setAction(action.key, next)}
+                  />
                 ) : action.type === "notify" ? (
                   <NotifyEditor action={action} people={people} onChange={(next) => setAction(action.key, next)} />
                 ) : action.type === "move_to_trash" ? (
@@ -541,10 +546,13 @@ function DatePassedPreview({
 function SetPropertiesEditor({
   action,
   people,
+  noActor,
   onChange,
 }: {
   action: Extract<DraftAction, { type: "set_properties" }>;
   people: Person[];
+  /** Nobody's change starts the automation ("date passed"): no "whoever made the change". */
+  noActor: boolean;
   onChange: (action: Extract<DraftAction, { type: "set_properties" }>) => void;
 }) {
   const t = useTranslations("database.automations");
@@ -567,7 +575,7 @@ function SetPropertiesEditor({
               <span className="truncate">{prop.name}</span>
             </span>
             <div className="min-w-0 flex-1">
-              <ValueEditor prop={prop} value={entry.value} people={people} onChange={(value) => setEntry(index, { ...entry, value })} />
+              <ValueEditor prop={prop} value={entry.value} people={people} noActor={noActor} onChange={(value) => setEntry(index, { ...entry, value })} />
             </div>
             <IconButton
               label={tc("remove")}
@@ -606,11 +614,13 @@ function ValueEditor({
   prop,
   value,
   people,
+  noActor = false,
   onChange,
 }: {
   prop: Property;
   value: unknown;
   people: Person[];
+  noActor?: boolean;
   onChange: (value: unknown) => void;
 }) {
   const t = useTranslations("database.automations");
@@ -691,6 +701,9 @@ function ValueEditor({
     }
     case "person": {
       const actor = isDynamicValue(value) && value.$ === "actor";
+      if (noActor) {
+        return <PeoplePicker people={people} selected={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />;
+      }
       return (
         <div className="space-y-1.5">
           <select

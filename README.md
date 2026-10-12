@@ -1045,8 +1045,9 @@ full access to the database see and manage its automations, in the app or over M
 
 **Actions**, done in order, each one on its own (one failing doesn't stop the others):
 
-- *Set properties* on the row. A date can be set to the day the automation runs (UTC), a person to
-  whoever made the change (left as it is when an anonymous form answer started it). Formulas,
+- *Set properties* on the row. A date can be set to the day the automation runs (in the time zone
+  of whoever saved it last), a person to whoever made the change (left as it is when an anonymous
+  form answer started it; not offered for *A date passes*, which nobody's change starts). Formulas,
   rollups and the created/edited properties can't be set.
 - *Notify* chosen people and the people the row's person properties name: an inbox notification,
   and an email as each of them chooses in My account → Preferences. Only people who can open the

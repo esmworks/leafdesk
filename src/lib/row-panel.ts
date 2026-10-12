@@ -67,3 +67,7 @@ export function stepKey(e: KeyLike): -1 | 1 | null {
   const key = e.key.toLowerCase();
   return key === "k" ? -1 : key === "j" ? 1 : null;
 }
+
+/** Where a row is, as far as the panel goes: its parent and whether it's in the trash; "none" when it can't be seen. */
+export const rowPanelStamp = (row: { parentId: string | null; archived: boolean } | null) =>
+  row ? `${row.parentId ?? ""}|${row.archived ? 1 : 0}` : "none";

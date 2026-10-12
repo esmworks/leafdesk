@@ -14,6 +14,7 @@ import {
 import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText } from "@/lib/redact";
+import { dayString, localDay } from "@/lib/time-zone";
 import { resolvePageAccess } from "@/server/access";
 import { getProperties, requireDatabase, updateRowProperties } from "@/server/databases";
 import { signalInbox } from "@/server/notifications";
@@ -25,7 +26,7 @@ import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { archivePage } from "@/server/pages";
 import { asAutomation, onAutomationsQueued } from "./queue";
-import { followOwnEdit } from "./timed";
+import { automationZone, followOwnEdit } from "./timed";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
 
 /**
@@ -245,8 +246,8 @@ async function setProperties(automation: Automation, run: Run, values: Record<st
   const patch: Record<string, unknown> = {};
   for (const [id, value] of Object.entries(values)) {
     if (!isDynamicValue(value)) patch[id] = value;
-    // The server's own day (its TZ), not UTC's: the same day as the server's clock shows.
-    else if (value.$ === "now") patch[id] = new Date().toLocaleDateString("en-CA");
+    // The day in the automation's time zone (whoever saved it last), the one "date passed" counts in.
+    else if (value.$ === "now") patch[id] = dayString(localDay(Date.now(), automationZone(automation.timeZone)));
     // Nobody to set when an anonymous form answer started it: the value stays as it is.
     else if (run.actorId) patch[id] = [run.actorId];
   }

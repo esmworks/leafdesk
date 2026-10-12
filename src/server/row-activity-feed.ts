@@ -10,6 +10,7 @@ import { db } from "@/db";
 import { databaseProperty, page, rowActivity, user, type PropertyType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import {
+  MAX_ACTIVITY_PAGE,
   readableProperties,
   referencedIds,
   resolveValue,
@@ -39,7 +40,7 @@ export type RowActivityEntry = {
 
 export type RowActivityList = { entries: RowActivityEntry[]; total: number; hasMore: boolean };
 
-export const MAX_ACTIVITY_PAGE = 100;
+export { MAX_ACTIVITY_PAGE };
 
 /**
  * `limit` entries of a row's activity from `offset` on, newest first. Rows made before activity

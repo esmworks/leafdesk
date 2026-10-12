@@ -64,7 +64,7 @@ export async function recordRowWrites(
     const actorKind = await actorKindOf(actorId, anonymousForm);
     if (created) {
       const entries = changes.map(({ rowId }) => createdEntry(rowId));
-      await insertEntries(database.workspaceId, databaseId, actorId, actorKind, entries);
+      await insertEntries(db, database.workspaceId, databaseId, actorId, actorKind, entries);
       return;
     }
     const properties = await db
@@ -135,11 +135,13 @@ async function save(
 ) {
   if (!entries.length) return;
   const now = new Date();
-  let fresh = entries;
-  if (merge && actorId) {
-    const [rowId] = entries.map((e) => e.rowId);
-    const latest = await latestEntries(rowId, entries);
-    fresh = [];
+  if (!merge || !actorId) return insertEntries(db, workspaceId, databaseId, actorId, actorKind, entries, now);
+  const [rowId] = entries.map((e) => e.rowId);
+  // One merge per row at a time: two writes at once would both read the same newest entry.
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:row-activity:${rowId}`}))`);
+    const latest = await latestEntries(tx, rowId, entries);
+    const fresh: NewEntry[] = [];
     const drop: string[] = [];
     for (const entry of entries) {
       const open = latest.get(keyOf(entry)) ?? null;
@@ -147,24 +149,26 @@ async function save(
       if (decision.action === "insert") fresh.push(entry);
       else if (decision.action === "drop") drop.push(decision.id);
       else {
-        await db
+        await tx
           .update(rowActivity)
           .set({ newValue: redactValue(storedValue(entry.newValue)), propertyType: entry.propertyType, createdAt: now })
           .where(eq(rowActivity.id, decision.id));
       }
     }
-    if (drop.length) await db.delete(rowActivity).where(inArray(rowActivity.id, drop));
-  }
-  await insertEntries(workspaceId, databaseId, actorId, actorKind, fresh, now);
+    if (drop.length) await tx.delete(rowActivity).where(inArray(rowActivity.id, drop));
+    await insertEntries(tx, workspaceId, databaseId, actorId, actorKind, fresh, now);
+  });
 }
+
+type Executor = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 const keyOf = (entry: { kind: RowActivityKind; propertyId: string | null }) => `${entry.kind}:${entry.propertyId ?? ""}`;
 
 /** The newest entry of the row about each value `entries` change, by kind and property. */
-async function latestEntries(rowId: string, entries: NewEntry[]): Promise<Map<string, OpenEntry>> {
+async function latestEntries(tx: Executor, rowId: string, entries: NewEntry[]): Promise<Map<string, OpenEntry>> {
   const propertyIds = entries.flatMap((e) => (e.propertyId ? [e.propertyId] : []));
   const titled = entries.some((e) => e.kind === "title");
-  const rows = await db
+  const rows = await tx
     .selectDistinctOn([rowActivity.kind, rowActivity.propertyId], {
       id: rowActivity.id,
       kind: rowActivity.kind,
@@ -186,6 +190,7 @@ async function latestEntries(rowId: string, entries: NewEntry[]): Promise<Map<st
 }
 
 async function insertEntries(
+  tx: Executor,
   workspaceId: string,
   databaseId: string,
   actorId: string | null,
@@ -194,7 +199,7 @@ async function insertEntries(
   at: Date = new Date(),
 ) {
   for (let i = 0; i < entries.length; i += CHUNK) {
-    await db.insert(rowActivity).values(
+    await tx.insert(rowActivity).values(
       entries.slice(i, i + CHUNK).map((e) => ({
         rowId: e.rowId,
         databaseId,

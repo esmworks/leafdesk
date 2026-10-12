@@ -4,7 +4,7 @@ import { Check, ChevronDown, ChevronUp, Link2, Maximize2, TriangleAlert, X } fro
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
-import { loadRowPanelAction, type RowPanelPage } from "@/app/actions/row-panel";
+import { loadRowPanelAction, rowPanelStampAction, type RowPanelPage } from "@/app/actions/row-panel";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { useChannel } from "@/components/collab/use-channel";
 import { useIsOffline } from "@/components/offline/offline-context";
@@ -18,6 +18,7 @@ import {
   ROW_PANEL_WIDTH,
   ROW_PANEL_WIDTH_KEY,
   rowFromSearch,
+  rowPanelStamp,
   stepKey,
   withRow,
 } from "@/lib/row-panel";
@@ -53,6 +54,9 @@ function viewOrder(source: Element | null): string[] {
     .filter((el) => !el.closest("[data-row-panel]"))
     .map((el) => el.dataset.openRow ?? "");
 }
+
+/** A history entry with a row open: the page it's on and the row. */
+const entryOf = (rowId: string) => `${window.location.pathname}?${rowId}`;
 
 /** Puts focus back on the row in its view (or what opened it), as the panel closes. */
 function focusRow(rowId: string, origin: RowOrigin) {
@@ -93,11 +97,12 @@ export function RowPanelProvider({
   const aiChat = useAiChat();
   const closeAiChat = aiChat?.setOpen;
 
-  // Whether the history entry with the row is one this tab added (Back then closes the panel).
-  const pushed = useRef(false);
+  // The history entry with a row that this tab added, by page and row (Back then closes the panel);
+  // another page reached since, or a row there from its address, isn't it.
+  const pushed = useRef<string | null>(null);
   const origin = useRef<RowOrigin>({ source: null, trigger: null });
   useEffect(() => {
-    const onPop = () => void (pushed.current = false);
+    const onPop = () => void (pushed.current = null);
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -114,11 +119,13 @@ export function RowPanelProvider({
       // A null state lets Next follow the new address (see selectView in database-page.tsx).
       if (!current) {
         window.history.pushState(null, "", withRow(window.location.href, id));
-        pushed.current = true;
+        pushed.current = entryOf(id);
         // Both panels take the right edge: the row replaces the chat.
         closeAiChat?.(false);
       } else if (current !== id) {
+        const ours = pushed.current === entryOf(current);
         window.history.replaceState(null, "", withRow(window.location.href, id));
+        if (ours) pushed.current = entryOf(id);
       }
     },
     [closeAiChat],
@@ -126,8 +133,8 @@ export function RowPanelProvider({
 
   const close = useCallback(() => {
     const current = rowFromSearch(window.location.search);
-    if (pushed.current) {
-      pushed.current = false;
+    if (current && pushed.current === entryOf(current)) {
+      pushed.current = null;
       window.history.back();
     } else {
       window.history.replaceState(null, "", withRow(window.location.href, null));
@@ -243,17 +250,25 @@ function RowPanel({
     void load();
   }, [load]);
 
+  const result = loaded?.rowId === rowId ? loaded.result : null;
+
   // Trashed, restored, moved or shared elsewhere (the workspace's page tree changed): load again,
-  // so the panel shows the row as it is now.
+  // so the panel shows the row as it is now. Only when the row's place changed, read cheaply:
+  // the tree changes with every page anyone renames.
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stamp = result?.ok ? rowPanelStamp(result.data.page) : result?.reason === "unavailable" ? "none" : null;
+  const stampRef = useRef(stamp);
+  stampRef.current = stamp;
   useChannel(`ws:${workspaceId}`, (event) => {
     if (event !== "tree") return;
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => void load(), 200);
+    timer.current = setTimeout(async () => {
+      const known = stampRef.current;
+      if (known !== null && (await rowPanelStampAction(rowId).catch(() => null)) === known) return;
+      void load();
+    }, 200);
   });
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
-
-  const result = loaded?.rowId === rowId ? loaded.result : null;
 
   // The rows before and after this one in the view it was opened from, as the view shows them now.
   const [around, setAround] = useState<{ previous: string | null; next: string | null }>({ previous: null, next: null });

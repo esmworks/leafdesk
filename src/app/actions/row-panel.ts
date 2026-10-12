@@ -1,10 +1,13 @@
 "use server";
 
-import type { PageKind } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { page, type PageKind } from "@/db/schema";
 import type { PageBackground } from "@/lib/page-background";
 import { parsePageBackground } from "@/lib/page-background";
 import { pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
-import { AccessError } from "@/server/access";
+import { rowPanelStamp } from "@/lib/row-panel";
+import { AccessError, pageVisibleTo } from "@/server/access";
 import { getPageHeaderInfo, type PageHeaderInfo } from "@/server/page-meta";
 import { getBreadcrumbs, getPage } from "@/server/pages";
 import { requireUserId } from "@/server/session";
@@ -67,4 +70,17 @@ export async function loadRowPanelAction(
     if (error instanceof AccessError) return { ok: false, reason: "unavailable" };
     throw error;
   }
+}
+
+/**
+ * The row's stamp (rowPanelStamp) without loading the row: the panel loads it again only when
+ * this changed, not at every change of the workspace's page tree.
+ */
+export async function rowPanelStampAction(rowId: string): Promise<string> {
+  const userId = await requireUserId();
+  const [row] = await db
+    .select({ parentId: page.parentId, archivedAt: page.archivedAt })
+    .from(page)
+    .where(and(eq(page.id, String(rowId)), pageVisibleTo(userId)));
+  return rowPanelStamp(row ? { parentId: row.parentId, archived: Boolean(row.archivedAt) } : null);
 }

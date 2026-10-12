@@ -909,11 +909,13 @@ export async function afterRowWrites(
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
   { created = false, shifted = false, boundTo = null }: { created?: boolean; shifted?: boolean; boundTo?: string | null } = {},
 ) {
-  await recordRowWrites(actorId, databaseId, changes, { created, anonymousForm: !actorId && boundTo !== null });
+  // Alongside the rest: recording never throws and nothing below waits for it.
+  const recording = recordRowWrites(actorId, databaseId, changes, { created, anonymousForm: !actorId && boundTo !== null });
   await authorizeRowFiles(actorId, changes);
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
+  await recording;
 }
 
 /**
