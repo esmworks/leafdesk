@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+## 0.5.1 — 2026-10-12
+
 ### Upgrading from 0.5.0
 
+- **Migrations** (0049–0059) run automatically when the container starts.
+- **Docker Compose:** download the new `docker-compose.yml`. It needs `POSTGRES_PASSWORD` for the
+  bundled database (see below) and passes `AUTOMATION_DATE_CHECK_SECONDS` to the app.
+- **Automations that set a date to today** use the day in the time zone of whoever saved them
+  last. Automations saved before this release count as saved in UTC until someone saves them
+  again; before, they used the server's day.
 - **`TRUSTED_PROXIES` behind a proxy with a public address.** Unset, the app now trusts only a
   proxy that connects from a private address. If yours connects from a public one (a CDN in front
   of the app, a proxy on another server), set `TRUSTED_PROXIES=1` (or `2` for a CDN plus a proxy),
