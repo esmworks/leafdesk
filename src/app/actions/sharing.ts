@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { PageLevel } from "@/db/schema";
 import { AccessError, resolvePageAccess } from "@/server/access";
 import { listAccessRequests } from "@/server/access-requests";
+import { listAgents } from "@/server/agents/manage";
 import { getCollab } from "@/server/collab/bridge";
 import { listGroups } from "@/server/groups";
 import {
@@ -42,12 +43,14 @@ export async function getSharingAction(pageId: string) {
     if (error instanceof AccessError) return [];
     throw error;
   };
-  const [permissions, canInvite, members, groups, requests] = await Promise.all([
+  const [permissions, canInvite, members, groups, agents, requests] = await Promise.all([
     listPagePermissions(userId, pageId),
     canInviteGuests(userId, target.workspaceId),
     // Guests can't see who is in the workspace, so they get no one to pick from.
     listMembers(userId, target.workspaceId).catch(noneForGuests),
     listGroups(userId, target.workspaceId).catch(noneForGuests),
+    // The workspace's agents, which anyone who may share the page can share it with too.
+    listAgents(userId, target.workspaceId).catch(noneForGuests),
     level === "full" ? listAccessRequests(userId, pageId) : [],
   ]);
   return {
@@ -56,6 +59,7 @@ export async function getSharingAction(pageId: string) {
     canInvite,
     members: members.map((m) => ({ userId: m.userId, name: m.name, email: m.email, image: m.image, role: m.role })),
     groupOptions: groups.map((g) => ({ groupId: g.id, name: g.name, memberCount: g.memberCount })),
+    agentOptions: agents.map((a) => ({ userId: a.userId, name: a.name, icon: a.icon, enabled: a.enabled })),
     requests,
   };
 }

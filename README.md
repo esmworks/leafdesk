@@ -383,7 +383,9 @@ versions, upgrades and running behind a domain.
   with Ollama or LM Studio (see [AI features](#ai-features)).
 - **Five interface languages**: English, Turkish, German, Spanish and French, chosen in My account
   or taken from the browser (see [Languages](#languages)).
-- **Light and dark themes**: following the system, or chosen for the browser in Preferences.
+- **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
+  with a high contrast option (stronger secondary text, lines and focus) that also follows the
+  system's "increase contrast" setting.
 - **MCP server with OAuth 2.1**: remote MCP endpoint at `/mcp`.
   - Supports Client ID Metadata Documents and Dynamic Client Registration, with PKCE and a
     consent screen.
@@ -1374,12 +1376,13 @@ any guest it sees only the pages shared with it, never through teamspaces, group
 and its changes, comments and page history show its name. It never gets full access, so it can't
 share pages or manage databases.
 
-**Sharing pages with it.** Share a page with an agent at view, comment or edit, as with a person;
-the pages and rows under it follow. Sharing needs full access to the page. An agent reads and
-changes a database's rows only with access to the database; saving an automation that runs an
-agent shares that database with it at edit access, unless it already has that much. That access is
-taken back once no automation of the database runs the agent (a share you set yourself in the
-agent's settings stays).
+**Sharing pages with it.** Share a page with an agent at view, comment or edit, as with a person:
+from the agent's settings, or from the page's Share menu, where agents are found by name (added at
+view) and marked as agents. The pages and rows under it follow. Sharing needs full access to the
+page. An agent reads and changes a database's rows only with access to the database; saving an
+automation that runs an agent shares that database with it at edit access, unless it already has
+that much. That access is taken back once no automation of the database runs the agent (a level
+you set yourself, in the agent's settings or the Share menu, stays).
 
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
 change or comment on the row that started the run, nothing else. When a member's change started
@@ -1657,6 +1660,9 @@ workspace, and pick when it expires (7, 30, 90 days, a year, or never). The toke
 Leafdesk keeps only its SHA-256 hash. Tokens look like `esi_` and 40 letters and digits, so secret
 scanners can match leaked ones with `esi_[A-Za-z0-9]{40}`. The list shows when each was last
 used; revoking one stops it at once.
+
+The ids the API takes are in the app too: *Copy ID* in a page's, database's or row's menu, and
+*Copy property ID* in a column's menu (properties are also taken by name).
 
 ```bash
 curl http://localhost:3000/api/v1/workspaces -H "Authorization: Bearer $LEAFDESK_TOKEN"

@@ -8,7 +8,7 @@ import { StaleDeploymentReload } from "@/components/stale-deployment";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TimeZoneCookie } from "@/components/time-zone-cookie";
 import { clientMessages } from "@/i18n/messages";
-import { isTheme, THEME_COLORS, THEME_COOKIE } from "@/lib/theme";
+import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COLORS, THEME_COOKIE } from "@/lib/theme";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,6 +29,12 @@ const chosenTheme = cache(async () => {
   return isTheme(theme) ? theme : null;
 });
 
+/** The contrast chosen for this browser in Settings > Preferences, or null to follow the system. */
+async function chosenContrast() {
+  const contrast = (await cookies()).get(CONTRAST_COOKIE)?.value;
+  return isContrast(contrast) ? contrast : null;
+}
+
 // The browser bar (and an installed app's title bar) takes the page background of the theme.
 export async function generateViewport(): Promise<Viewport> {
   const theme = await chosenTheme();
@@ -43,9 +49,9 @@ export async function generateViewport(): Promise<Viewport> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [locale, messages, theme] = await Promise.all([getLocale(), getMessages(), chosenTheme()]);
+  const [locale, messages, theme, contrast] = await Promise.all([getLocale(), getMessages(), chosenTheme(), chosenContrast()]);
   return (
-    <html lang={locale} data-theme={theme ?? undefined} suppressHydrationWarning>
+    <html lang={locale} data-theme={theme ?? undefined} data-contrast={contrast ?? undefined} suppressHydrationWarning>
       <body>
         <NextIntlClientProvider messages={clientMessages(messages)}>
           <ThemeProvider theme={theme}>

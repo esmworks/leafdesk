@@ -14,9 +14,9 @@ import { LanguageSettings } from "@/components/settings/language-settings";
 import { McpInstructions } from "@/components/settings/mcp-instructions";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
-import { ThemeSettings } from "@/components/settings/theme-settings";
+import { ContrastSettings, ThemeSettings } from "@/components/settings/theme-settings";
 import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
-import { isTheme, THEME_COOKIE } from "@/lib/theme";
+import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COOKIE } from "@/lib/theme";
 import { getAccountOverview, deletionPlanFor, emailChangeEnabled, proofSetupOf } from "@/server/account";
 import { getAccountSecurity } from "@/server/account-security";
 import { mailStatus } from "@/server/mail";
@@ -127,6 +127,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
   ]);
   const savedLocale = cookieStore.get(LOCALE_COOKIE)?.value;
   const savedTheme = cookieStore.get(THEME_COOKIE)?.value;
+  const savedContrast = cookieStore.get(CONTRAST_COOKIE)?.value;
   return (
     <>
       <SettingsHeader title={t("nav.preferences")} description={ts("preferences.description")} />
@@ -136,6 +137,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
         </SettingsGroup>
         <SettingsGroup title={ts("theme.heading")}>
           <ThemeSettings current={isTheme(savedTheme) ? savedTheme : null} />
+          <ContrastSettings current={isContrast(savedContrast) ? savedContrast : null} />
         </SettingsGroup>
         <SettingsGroup
           title={ts("notifications.heading")}

@@ -517,7 +517,13 @@
     "system": "System verwenden",
     "light": "Hell",
     "dark": "Dunkel",
-    "note": "Diese Einstellung gilt nur für diesen Browser. Mit der Systemeinstellung wird die App mit Ihrem Gerät hell oder dunkel."
+    "note": "Diese Einstellung gilt nur für diesen Browser. Mit der Systemeinstellung wird die App mit Ihrem Gerät hell oder dunkel.",
+    "contrast": {
+      "label": "Kontrast",
+      "standard": "Standard",
+      "high": "Hoch",
+      "note": "Hoher Kontrast macht Nebentexte, Linien und Fokusrahmen in beiden Designs deutlicher. Diese Einstellung gilt nur für diesen Browser. Mit der Systemeinstellung folgt sie der Option Ihres Geräts, den Kontrast zu erhöhen."
+    }
   },
   "language": {
     "heading": "Sprache",

@@ -415,6 +415,7 @@
     "freeze": "Fijar hasta esta columna",
     "unfreeze": "Dejar de fijar columnas",
     "duplicate": "Duplicar",
+    "copyId": "Copiar ID de la propiedad",
     "changeType": "Cambiar tipo",
     "confirmType": "¿Cambiar «{name}» a {type}?",
     "confirmTypeLost": "{count, plural, one {# valor} other {# valores}} de las filas que ves no se {count, plural, one {puede} other {pueden}} convertir a {type} y se {count, plural, one {borrará} other {borrarán}}.",

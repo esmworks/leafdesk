@@ -415,6 +415,7 @@
     "freeze": "Bis hier fixieren",
     "unfreeze": "Fixierung aufheben",
     "duplicate": "Duplizieren",
+    "copyId": "Eigenschafts-ID kopieren",
     "changeType": "Typ ändern",
     "confirmType": "„{name}“ in {type} umwandeln?",
     "confirmTypeLost": "{count, plural, one {# Wert} other {# Werte}} in den sichtbaren Zeilen {count, plural, one {lässt} other {lassen}} sich nicht in {type} umwandeln und {count, plural, one {wird} other {werden}} gelöscht.",

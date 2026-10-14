@@ -415,6 +415,7 @@
     "freeze": "Freeze up to this column",
     "unfreeze": "Unfreeze columns",
     "duplicate": "Duplicate",
+    "copyId": "Copy property ID",
     "changeType": "Change type",
     "confirmType": "Change “{name}” to {type}?",
     "confirmTypeLost": "{count, plural, one {# value} other {# values}} in the rows you see can’t become {type} and will be cleared.",

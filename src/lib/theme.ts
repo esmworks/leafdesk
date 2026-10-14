@@ -9,5 +9,16 @@ export function isTheme(value: unknown): value is Theme {
   return typeof value === "string" && (THEMES as readonly string[]).includes(value);
 }
 
+/** Contrast levels someone can choose; none chosen means following the system's "increase contrast". */
+export const CONTRASTS = ["standard", "high"] as const;
+export type Contrast = (typeof CONTRASTS)[number];
+
+/** Chosen contrast for this browser, read by the root layout to set <html data-contrast>. */
+export const CONTRAST_COOKIE = "contrast";
+
+export function isContrast(value: unknown): value is Contrast {
+  return typeof value === "string" && (CONTRASTS as readonly string[]).includes(value);
+}
+
 /** The browser bar's color in each theme: the page background (see globals.css). */
 export const THEME_COLORS: Record<Theme, string> = { light: "#ffffff", dark: "#18191b" };

@@ -1,7 +1,8 @@
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   accessRequest,
+  agentDatabaseShare,
   memberGroup,
   memberGroupMember,
   PAGE_LEVELS,
@@ -374,6 +375,7 @@ export async function setPagePermission(actorId: string, pageId: string, princip
   });
   await dropLostEditors(target.workspaceId, principal);
   if (!principal) return;
+  await keepAgentEntry(pageId, principal);
   if (level === "none") await withdrawShare(target.workspaceId, principal, pageId);
   else {
     // Sharing the page answers their request for it, whichever way it was shared.
@@ -419,7 +421,26 @@ export async function removePagePermission(actorId: string, pageId: string, prin
     }
   });
   await dropLostEditors(target.workspaceId, principal);
-  if (principal) await withdrawShare(target.workspaceId, principal, pageId);
+  if (principal) {
+    await keepAgentEntry(pageId, principal);
+    await withdrawShare(target.workspaceId, principal, pageId);
+  }
+}
+
+/**
+ * Someone set or removed an agent's own entry (from the Share menu, the agent's settings or a
+ * tool): automations that gave the agent edit access to the database no longer take it back
+ * (see shareDatabaseWithAgents in server/agents/manage.ts). Nothing for anyone else.
+ */
+async function keepAgentEntry(pageId: string, principal: string) {
+  await db
+    .delete(agentDatabaseShare)
+    .where(
+      and(
+        eq(agentDatabaseShare.databaseId, pageId),
+        inArray(agentDatabaseShare.agentId, db.select({ id: workspaceAgent.id }).from(workspaceAgent).where(eq(workspaceAgent.userId, principal))),
+      ),
+    );
 }
 
 /** Drops the open editors `principal` (a member, or everyone for null) may no longer use. */

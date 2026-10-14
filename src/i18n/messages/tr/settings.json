@@ -517,7 +517,13 @@
     "system": "Sistemi kullan",
     "light": "Açık",
     "dark": "Koyu",
-    "note": "Bu ayar yalnızca bu tarayıcı için geçerlidir. Sistem ayarında uygulama, cihazınızla birlikte açık ya da koyu olur."
+    "note": "Bu ayar yalnızca bu tarayıcı için geçerlidir. Sistem ayarında uygulama, cihazınızla birlikte açık ya da koyu olur.",
+    "contrast": {
+      "label": "Kontrast",
+      "standard": "Standart",
+      "high": "Yüksek",
+      "note": "Yüksek kontrast, iki temada da ikincil metinleri, çizgileri ve odak çerçevelerini belirginleştirir. Bu ayar yalnızca bu tarayıcı için geçerlidir. Sistem ayarında cihazınızın kontrastı artırma seçeneğine uyar."
+    }
   },
   "language": {
     "heading": "Dil",

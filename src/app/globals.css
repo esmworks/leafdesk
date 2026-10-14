@@ -15,6 +15,21 @@
   }
 }
 
+/*
+ * High contrast: the system's "increase contrast" unless the person chose standard, or high
+ * contrast they chose (Settings > Preferences, lib/theme.ts), which <html data-contrast> carries.
+ */
+@custom-variant high-contrast {
+  @media (prefers-contrast: more) {
+    &:where(:root:not([data-contrast="standard"]), :root:not([data-contrast="standard"]) *) {
+      @slot;
+    }
+  }
+  &:where([data-contrast="high"], [data-contrast="high"] *) {
+    @slot;
+  }
+}
+
 :root {
   color-scheme: light;
   @variant dark {
@@ -92,6 +107,46 @@
     --graph-relation: #9a7540;
     --graph-child: #323438;
     --graph-faded: #252629;
+  }
+}
+
+/*
+ * High contrast, in either theme: secondary text at 7:1 or more on the page and 4.5:1 or more on
+ * hovered and selected rows, faint text at 4.5:1 or more everywhere, lines and control edges at 3:1
+ * or more, a darker or lighter accent and a stronger focus ring. Backgrounds stay as they are.
+ * Checked by lib/contrast.test.ts.
+ */
+:root {
+  @variant high-contrast {
+    /* hc:light */
+    --bg-hover: #e4e4e7;
+    --bg-active: #d4d4d8;
+    --fg: #0b0c0e;
+    --fg-muted: #3d3f45;
+    --fg-faint: #575a61;
+    --border: #7d8089;
+    --accent: #1d5c37;
+    --danger: #a61f1f;
+    --ring: rgba(29, 92, 55, 0.75);
+    --scrollbar: rgba(11, 12, 14, 0.4);
+    --scrollbar-hover: rgba(11, 12, 14, 0.6);
+  }
+}
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    @variant high-contrast {
+      /* hc:dark */
+      --fg: #ffffff;
+      --fg-muted: #d4d5d9;
+      --fg-faint: #a9acb3;
+      --border: #7a7d85;
+      --accent: #8fe0a8;
+      --accent-fg: #000000;
+      --danger: #ff8f8f;
+      --ring: rgba(143, 224, 168, 0.75);
+      --scrollbar: rgba(255, 255, 255, 0.4);
+      --scrollbar-hover: rgba(255, 255, 255, 0.6);
+    }
   }
 }
 
@@ -348,6 +403,35 @@
   --ring: rgba(108, 195, 138, 0.4);
   --scrollbar: rgba(232, 232, 234, 0.16);
   --scrollbar-hover: rgba(232, 232, 234, 0.3);
+}
+
+/* High contrast on colored and black page backgrounds: lines as strong as on the plain page. */
+[class*="page-bg-"] {
+  @variant high-contrast {
+    --border: color-mix(in srgb, var(--page-hue), #000000 55%);
+  }
+}
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    [class*="page-bg-"] {
+      @variant high-contrast {
+        --border: color-mix(in srgb, var(--page-hue) 40%, #a9acb3);
+      }
+    }
+  }
+}
+.page-bg-black,
+:root:not(:has([data-print-view])) .page-bg-black {
+  @variant high-contrast {
+    --fg: #ffffff;
+    --fg-muted: #d4d5d9;
+    --fg-faint: #a9acb3;
+    --border: #7a7d85;
+    --accent: #8fe0a8;
+    --accent-fg: #000000;
+    --danger: #ff8f8f;
+    --ring: rgba(143, 224, 168, 0.75);
+  }
 }
 
 /*

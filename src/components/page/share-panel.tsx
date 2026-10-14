@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Link2, Mail, Search, Send, Users, UsersRound, X } from "lucide-react";
+import { Bot, Check, Link2, Mail, Search, Send, Users, UsersRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { UserAvatar } from "@/components/user-avatar";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -17,6 +17,7 @@ import {
 } from "@/app/actions/sharing";
 import { Button, cn } from "@/components/ui";
 import type { PageLevel } from "@/db/schema";
+import { AGENT_ACCESS_LEVELS } from "@/lib/agents";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { searchFold } from "@/lib/search-fold";
 import { PublishTab } from "./publish-tab";
@@ -72,6 +73,7 @@ export function SharePanel({
 function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUser: CurrentUser; onChange?: () => void }) {
   const currentUserId = currentUser.id;
   const t = useTranslations("page.share");
+  const tc = useTranslations("common");
   const [data, setData] = useState<Sharing | null>(null);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -134,6 +136,12 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
       .filter((g) => !shared.has(g.groupId) && searchFold(g.name).includes(q))
       .slice(0, 4);
   }, [data, query]);
+  // Agents are picked by name too; ones already on the page change from their row.
+  const agentCandidates = useMemo(() => {
+    const q = searchFold(query.trim());
+    if (!data || !q) return [];
+    return data.agentOptions.filter((a) => !listed.has(a.userId) && searchFold(a.name).includes(q)).slice(0, 4);
+  }, [data, query, listed]);
 
   const copyLink = (text = window.location.href.split("?")[0]) => {
     void navigator.clipboard.writeText(text);
@@ -207,8 +215,8 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("addPeople")}
-              aria-label={t("addPeople")}
+              placeholder={data.agentOptions.length ? t("addPeopleOrAgents") : t("addPeople")}
+              aria-label={data.agentOptions.length ? t("addPeopleOrAgents") : t("addPeople")}
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
             />
           </label>
@@ -242,6 +250,21 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                   <PersonLabel name={g.name} detail={t("groupMembers", { count: g.memberCount })} />
                 </button>
               ))}
+              {agentCandidates.map((a) => (
+                <button
+                  key={a.userId}
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    // As in the agent's settings, an agent starts by viewing; its row raises it.
+                    void run(() => setPagePermissionAction(pageId, a.userId, "view"));
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                >
+                  <AgentAvatar icon={a.icon} />
+                  <PersonLabel name={a.name} detail={a.enabled ? tc("agent") : t("agentPaused")} />
+                </button>
+              ))}
               {invitable && data.canInvite && (
                 <button
                   type="button"
@@ -254,8 +277,8 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                   <PersonLabel name={t("shareWith", { email: typedEmail })} detail={t("asGuest")} />
                 </button>
               )}
-              {!candidates.length && !groupCandidates.length && !(invitable && data.canInvite) && (
-                <p className="px-2 py-1.5 text-sm text-fg-muted">{t("noMatches")}</p>
+              {!candidates.length && !groupCandidates.length && !agentCandidates.length && !(invitable && data.canInvite) && (
+                <p className="px-2 py-1.5 text-sm text-fg-muted">{data.agentOptions.length ? t("noMatchesWithAgents") : t("noMatches")}</p>
               )}
               <p className="border-t border-border px-2 pt-1.5 pb-1 text-xs text-fg-faint">
                 {data.canInvite ? t("guestHint") : t("membersOnly")}
@@ -326,7 +349,7 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
         {others.map((entry) => (
           <Row
             key={entry.userId}
-            avatar={<Avatar name={entry.name ?? "?"} image={entry.image} />}
+            avatar={entry.isAgent ? <AgentAvatar icon={entry.agentIcon} /> : <Avatar name={entry.name ?? "?"} image={entry.image} />}
             label={
               <PersonLabel
                 name={entry.name ?? entry.email ?? "?"}
@@ -337,7 +360,9 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                       entry.sourceTitle === null
                       ? t("inheritedAbove")
                       : t("inherited", { title: entry.sourceTitle || "…" })
-                    : (entry.email ?? undefined))
+                    : entry.isAgent
+                      ? tc("agent")
+                      : (entry.email ?? undefined))
                 }
               />
             }
@@ -345,6 +370,8 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
               canManage ? (
                 <LevelSelect
                   value={entry.level}
+                  // An agent views, comments or edits; it never gets full access.
+                  only={entry.isAgent ? AGENT_ACCESS_LEVELS : undefined}
                   floor={floorFor(entry.userId)}
                   onChange={(level) => void run(() => setPagePermissionAction(pageId, entry.userId, level))}
                   onRemove={
@@ -547,6 +574,15 @@ function Avatar({ name, image }: { name: string; image?: string | null }) {
   return <UserAvatar name={name} image={image} size="md" colors="bg-accent/15 text-accent" />;
 }
 
+/** An agent's icon, or a robot when it has none. */
+function AgentAvatar({ icon }: { icon: string | null }) {
+  return (
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-bg-active text-sm text-fg-muted" aria-hidden>
+      {icon || <Bot className="h-3.5 w-3.5" />}
+    </span>
+  );
+}
+
 function GroupAvatar() {
   return (
     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent/15 text-accent">
@@ -560,17 +596,22 @@ function LevelText({ level }: { level: PageLevel }) {
   return <span className="px-2 text-sm text-fg-muted">{t(level)}</span>;
 }
 
-/** `floor`: levels below it have no effect for this person, so they can't be picked. */
+/**
+ * `floor`: levels below it have no effect for this person, so they can't be picked. `only`: the
+ * levels offered (the current one is shown either way).
+ */
 function LevelSelect({
   value,
   placeholder,
   floor = "none",
+  only,
   onChange,
   onRemove,
 }: {
   value: PageLevel | null;
   placeholder?: string;
   floor?: PageLevel;
+  only?: readonly PageLevel[];
   onChange: (level: PageLevel) => void;
   onRemove?: () => void;
 }) {
@@ -587,7 +628,7 @@ function LevelSelect({
             {placeholder}
           </option>
         )}
-        {LEVELS.map((level) => (
+        {LEVELS.filter((level) => !only || only.includes(level) || level === value).map((level) => (
           <option key={level} value={level} disabled={RANK[level] < RANK[floor] && level !== value}>
             {t(`levels.${level}`)}
           </option>

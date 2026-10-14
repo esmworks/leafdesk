@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Added
+
+- **Copy ID.** A page's, database's or row's menu (also in the row panel) has *Copy ID*, and a
+  column's menu, in the table and on a row's page, *Copy property ID*: the ids the REST API and MCP
+  clients take, where a property's name may change. No migration.
+- **High contrast.** Settings → Preferences → Appearance has *Contrast*: follow the system (its
+  "increase contrast" setting, `prefers-contrast: more`), *Standard* or *High*, kept for the
+  browser in a cookie like the theme and carried by `<html data-contrast>`. High contrast keeps
+  the backgrounds and makes, in either theme, secondary text at least 7:1 on the page and 4.5:1 on
+  hovered and selected rows, faint text (hints, placeholders) at least 4.5:1 everywhere, lines and
+  control edges at least 3:1, the accent and danger colors stronger and the focus ring more opaque; colored and black page backgrounds get the same lines
+  and text. The editor follows, as it draws with the same colors. `src/lib/contrast.test.ts`
+  checks the ratios from `globals.css`. No migration.
+- **Agents in the Share menu.** Typing in a page's Share menu finds the workspace's agents by name
+  too (archived ones aren't offered; a paused one says so) for members with full access to the
+  page; one picked starts at *Can view*, as from the agent's settings. An agent's row shows its
+  icon and "Agent", and its levels are view, comment and edit only. The server already let anyone
+  with full access to a page share it with an agent; the menu now offers it.
+
+### Fixed
+
+- **A level set for an agent stays when an automation lets go.** An automation that runs an agent
+  gives it edit access to its database and gives back the agent's previous level once no
+  automation runs it. A level someone set or removed meanwhile from the Share menu was overwritten
+  then (only the agent's settings counted as setting it); now any change to the agent's own entry
+  keeps it. Covered in `scripts/agents-e2e.ts`.
+
 ## 0.5.1 — 2026-10-12
 
 ### Upgrading from 0.5.0

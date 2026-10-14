@@ -43,7 +43,7 @@ const { listGuests } = await import("@/server/guests");
 const { mentionablePeople, mentionCandidates } = await import("@/server/mentions");
 const { peopleDirectory } = await import("@/server/people");
 const { commentUsers } = await import("@/server/comments");
-const { listPagePermissions, PermissionError, setPagePermission, sharePageByEmail } = await import("@/server/permissions");
+const { listPagePermissions, PermissionError, removePagePermission, setPagePermission, sharePageByEmail } = await import("@/server/permissions");
 const { recordAssignments, recordComment } = await import("@/server/notifications");
 const { recordAudit } = await import("@/server/audit");
 const { setPropertyAccess } = await import("@/server/property-access");
@@ -226,6 +226,20 @@ try {
   await automations.deleteAutomation(ids.owner, fourth.id);
   check((await pageAccessOf(router.userId, board.id)).level === "edit", "a share an owner set in the agent's settings stays");
   await agents.removeAgentAccess(ids.owner, router.id, board.id);
+  // From the Share menu: anyone with full access to the database sets the agent's own entry.
+  const fifth = await automations.createAutomation(ids.owner, board.id, { name: "Sort at last", trigger: { type: "row_created" }, actions: [runRouter("Sort it.")] });
+  await setPagePermission(ids.member, board.id, router.userId, "comment");
+  await automations.deleteAutomation(ids.owner, fifth.id);
+  check((await pageAccessOf(router.userId, board.id)).level === "comment", "a level set for the agent from the Share menu stays too");
+  check(
+    (await listPagePermissions(ids.member, board.id)).entries.some((e) => e.userId === router.userId && e.isAgent && e.level === "comment"),
+    "…and shows as the agent's entry",
+  );
+  await setPagePermission(ids.member, board.id, router.userId, "view");
+  const sixth = await automations.createAutomation(ids.owner, board.id, { name: "Sort one last time", trigger: { type: "row_created" }, actions: [runRouter("Sort it.")] });
+  await removePagePermission(ids.member, board.id, router.userId);
+  await automations.deleteAutomation(ids.owner, sixth.id);
+  check((await pageAccessOf(router.userId, board.id)).level === "none", "an entry removed from the Share menu isn't given back when the automation goes");
   // A second automation that would react to the agent's change.
   const onCategory = await automations.createAutomation(ids.owner, tickets.id, {
     name: "On category",

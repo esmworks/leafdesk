@@ -517,7 +517,13 @@
     "system": "Usar el del sistema",
     "light": "Claro",
     "dark": "Oscuro",
-    "note": "Este ajuste solo se aplica a este navegador. Con el del sistema, la aplicación se vuelve clara u oscura junto con tu dispositivo."
+    "note": "Este ajuste solo se aplica a este navegador. Con el del sistema, la aplicación se vuelve clara u oscura junto con tu dispositivo.",
+    "contrast": {
+      "label": "Contraste",
+      "standard": "Estándar",
+      "high": "Alto",
+      "note": "El contraste alto refuerza los textos secundarios, las líneas y los contornos de foco, en ambos temas. Este ajuste solo se aplica a este navegador. Con el del sistema, sigue la opción de aumentar el contraste de tu dispositivo."
+    }
   },
   "language": {
     "heading": "Idioma",

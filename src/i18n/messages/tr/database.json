@@ -415,6 +415,7 @@
     "freeze": "Buraya kadar sabitle",
     "unfreeze": "Sabitlemeyi kaldır",
     "duplicate": "Kopyasını oluştur",
+    "copyId": "Özellik ID'sini kopyala",
     "changeType": "Türü değiştir",
     "confirmType": "“{name}” {type} türüne çevrilsin mi?",
     "confirmTypeLost": "Gördüğünüz satırlardaki {count} değer {type} türüne çevrilemiyor ve silinecek.",

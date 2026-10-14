@@ -8,6 +8,7 @@ import {
   FileArchive,
   FileSpreadsheet,
   FileText,
+  Hash,
   History,
   LayoutTemplate,
   Link2,
@@ -488,6 +489,16 @@ function PageMenu({
               }}
             >
               {t("copyLink")}
+            </MenuItem>
+            {/* For the REST API and MCP clients, which take a page's, database's or row's id. */}
+            <MenuItem
+              icon={<Hash className="h-4 w-4" />}
+              onClick={() => {
+                void navigator.clipboard.writeText(page.id);
+                close();
+              }}
+            >
+              {t("copyId")}
             </MenuItem>
             {/* The page and the pages around it: beside the page, else in the workspace graph. */}
             {!page.archived && !offline && (

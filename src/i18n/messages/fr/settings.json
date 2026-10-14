@@ -517,7 +517,13 @@
     "system": "Suivre le système",
     "light": "Clair",
     "dark": "Sombre",
-    "note": "Ce réglage ne s'applique qu'à ce navigateur. Avec le réglage du système, l'application passe en clair ou en sombre avec votre appareil."
+    "note": "Ce réglage ne s'applique qu'à ce navigateur. Avec le réglage du système, l'application passe en clair ou en sombre avec votre appareil.",
+    "contrast": {
+      "label": "Contraste",
+      "standard": "Standard",
+      "high": "Élevé",
+      "note": "Le contraste élevé renforce les textes secondaires, les lignes et les contours de focus, dans les deux thèmes. Ce réglage ne s'applique qu'à ce navigateur. Avec le réglage du système, il suit l'option d'augmentation du contraste de votre appareil."
+    }
   },
   "language": {
     "heading": "Langue",

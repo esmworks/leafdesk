@@ -17,6 +17,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Hash,
   ListFilter,
   Lock,
   Pin,
@@ -687,12 +688,18 @@ export function PropertyMenu({
       </MenuItem>
     ),
   ].filter(Boolean);
+  // The REST API and MCP clients take a property by its id as well as its name, which can change.
+  const copyId = prop && (
+    <MenuItem key="copy-id" icon={icon(Hash)} onClick={run(() => void navigator.clipboard.writeText(prop.id))}>
+      {t("copyId")}
+    </MenuItem>
+  );
   const remove = prop && actions.remove && (
     <MenuItem key="delete" danger icon={icon(Trash2)} onClick={() => setPage("confirm")}>
       {t("delete")}
     </MenuItem>
   );
-  const sections = [settings, view, layout, insert, remove ? [remove] : []].filter((s) => s.length);
+  const sections = [settings, view, layout, insert, copyId ? [copyId] : [], remove ? [remove] : []].filter((s) => s.length);
 
   return (
     <div className="w-60">

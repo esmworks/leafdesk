@@ -415,6 +415,7 @@
     "freeze": "Figer jusqu’à cette colonne",
     "unfreeze": "Libérer les colonnes",
     "duplicate": "Dupliquer",
+    "copyId": "Copier l’ID de la propriété",
     "changeType": "Changer le type",
     "confirmType": "Changer « {name} » en {type} ?",
     "confirmTypeLost": "{count, plural, one {# valeur} other {# valeurs}} des lignes que vous voyez ne {count, plural, one {peut} other {peuvent}} pas devenir {type} et {count, plural, one {sera effacée} other {seront effacées}}.",

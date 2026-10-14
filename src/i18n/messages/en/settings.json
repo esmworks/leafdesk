@@ -517,7 +517,13 @@
     "system": "Follow the system",
     "light": "Light",
     "dark": "Dark",
-    "note": "This setting only applies to this browser. With the system setting, the app turns light or dark along with your device."
+    "note": "This setting only applies to this browser. With the system setting, the app turns light or dark along with your device.",
+    "contrast": {
+      "label": "Contrast",
+      "standard": "Standard",
+      "high": "High",
+      "note": "High contrast makes secondary text, lines and focus outlines stronger, in either theme. This setting only applies to this browser. With the system setting, it follows your device's option to increase contrast."
+    }
   },
   "language": {
     "heading": "Language",
