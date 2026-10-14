@@ -1,7 +1,7 @@
 // Client-safe: shared by the agents' server side (src/server/agents), the settings and the
 // automation editor.
 
-import type { ChatStepRecord } from "@/db/schema/ai";
+import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
 
 /**
  * Agents: named AI helpers with instructions of their own that run without anyone asking, when
@@ -37,6 +37,11 @@ export const AGENT_RUN_TIMEOUT_MS = 2 * 60_000;
 /** Skills one agent may have, and how much of them one run reads (all of them together). */
 export const MAX_AGENT_SKILLS = 10;
 export const MAX_AGENT_SKILL_CHARS = 12_000;
+/**
+ * Notes an agent's runs may have waiting for an owner at once (see server/agents/memory.ts); its
+ * kept notes are bounded as the AI chat's are (MAX_MEMORIES, MAX_MEMORY_CHARS each).
+ */
+export const MAX_AGENT_PROPOSALS = 10;
 /** Finished runs are kept this long, as the agent's history. */
 export const AGENT_RUN_HISTORY_DAYS = 30;
 
@@ -244,6 +249,21 @@ export type AgentSkillView = {
   description: string;
   /** Whoever starts a run: one held to someone who can't open the skill leaves it out too. */
   status: "usable" | "notASkill" | "editable" | "tooLong";
+};
+
+/**
+ * A note of an agent's memory as its owners see it: kept (it goes with every run), or proposed by a
+ * run and waiting for an owner. `run` is the run that proposed it: its row (the title only when the
+ * viewer can open it) or the connection whose event started it. A proposal from a run on a row the
+ * viewer can't open has no `text` for them: it may quote the row; they may only dismiss it.
+ */
+export type AgentMemoryView = {
+  id: string;
+  text: string | null;
+  status: MemoryStatus;
+  run: { id: string; createdAt: string; rowId: string | null; rowTitle: string | null; connectionName: string | null } | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 /** A run as the agent's history shows it. */

@@ -1,5 +1,6 @@
 import { index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
 import { databaseProperty, page, workspace } from "./app";
+import { agentRun } from "./agents";
 import { user } from "./auth";
 
 /**
@@ -106,8 +107,12 @@ export type ChatStepRecord =
  * A note the chat kept about the person (`remember`, also in place of an older note) or dropped
  * (`forget`), with its text then, or that the person declined to have kept or dropped; see
  * server/ai-memory.ts. Records from before notes were approved have no outcome: they were done.
+ * An agent's run `propose`s notes instead: they wait for an owner (server/agents/memory.ts).
  */
-export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "forget"; text: string; outcome?: "done" | "declined" };
+export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "propose" | "forget"; text: string; outcome?: "done" | "declined" };
+
+/** A note in use (`kept`), or one an agent's run proposed that waits for an owner (`proposed`). */
+export type MemoryStatus = "kept" | "proposed";
 
 /** A change the AI chat may make: add a database row, change one, or add a page. */
 export type ChatWriteAction = "createRow" | "updateRow" | "createPage";
@@ -181,6 +186,11 @@ export const aiConversation = pgTable(
  * or written by them in the chat's Memory view. Private to that person like their conversations,
  * and deleted with their account, when they leave the workspace and with the workspace.
  * `conversationId` is where the chat noted it (null: the person wrote it, or the conversation is gone).
+ *
+ * An agent's notes are kept here too, under its own user (server/agents/memory.ts): what its runs
+ * proposed (`status` proposed, `agentRunId` the run) and what its owners kept or wrote (no run).
+ * Only kept notes go with its runs. A proposal no owner answered goes with its run, when the run
+ * is pruned; notes stay while the agent is archived and go with it.
  */
 export const aiMemory = pgTable(
   "ai_memory",
@@ -196,6 +206,8 @@ export const aiMemory = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
     conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
+    status: text("status").$type<MemoryStatus>().notNull().default("kept"),
+    agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

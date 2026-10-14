@@ -88,7 +88,7 @@ export type ChatWriteView = {
  */
 export type ChatActionView = {
   /** A change to the workspace, or a note about the person to keep or drop (title: its text). */
-  action: ChatWriteAction | ChatMemoryRecord["action"];
+  action: ChatWriteAction | "remember" | "forget";
   target: ChatPageView;
   title: string | null;
   changes: ChatChange[];

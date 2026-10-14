@@ -72,6 +72,7 @@ import { connectedAppsMode } from "@/server/connected-app";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { listAgents } from "@/server/agents/manage";
+import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
 import { aiInfo, embeddingModel } from "@/server/ai";
 import { workspaceAnalytics } from "@/server/analytics";
@@ -494,10 +495,11 @@ async function AgentsTab({
   agentId?: string;
   runId?: string;
 }) {
-  const [agents, settings, templates] = await Promise.all([
+  const [agents, settings, templates, proposals] = await Promise.all([
     listAgents(userId, workspaceId, { archived: isOwner }),
     getWorkspaceSettings(userId, workspaceId),
     isOwner ? getLocale().then(builtinAgents) : [],
+    isOwner ? proposedNoteCounts(userId, workspaceId) : {},
   ]);
   const ai = !aiInfo() ? "unavailable" : settings.ai === false ? "off" : "on";
   return (
@@ -505,6 +507,8 @@ async function AgentsTab({
       workspaceId={workspaceId}
       isOwner={isOwner}
       agents={agents}
+      proposals={proposals}
+      memoryOff={settings.aiMemory === false}
       templates={templates}
       ai={ai}
       initialAgentId={isOwner ? agentId : undefined}

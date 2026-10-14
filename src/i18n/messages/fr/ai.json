@@ -106,7 +106,7 @@
     "enabledHint": "Si elles sont activées, les membres peuvent envoyer le contenu des pages et les valeurs des lignes qu’ils voient au fournisseur d’IA ci-dessous. Désactivez-les pour tenir le contenu de cet espace de travail à l’écart.",
     "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
     "memory": "Mémoire de l’IA",
-    "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées.",
+    "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées. Les exécutions des agents n’emportent alors aucune note et n’en proposent pas non plus.",
     "provider": "Fournisseur",
     "providerValue": "{provider}, modèle {model}",
     "notConfigured": "Aucun fournisseur d’IA ni modèle d’embeddings n’est configuré sur ce serveur, les fonctions d’IA sont donc désactivées. Un administrateur peut les configurer avec les variables d’environnement AI_PROVIDER et AI_MODEL (et AI_EMBEDDINGS_MODEL) (voir le README).",
@@ -176,6 +176,7 @@
       },
       "memory": {
         "remember": "Retenu :",
+        "propose": "A proposé une note :",
         "forget": "Oublié :",
         "declined": {
           "remember": "Mémorisation refusée :",

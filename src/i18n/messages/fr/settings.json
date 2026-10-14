@@ -299,6 +299,7 @@
       "settings": "Paramètres",
       "access": "Accès",
       "skills": "Compétences",
+      "memory": "Mémoire",
       "runs": "Exécutions",
       "connections": "Connexions"
     },
@@ -378,6 +379,39 @@
       "noSkills": "Aucune autre compétence que vous pouvez ouvrir.",
       "full": "Un agent peut avoir au plus {max} compétences.",
       "libraryNote": "Les compétences se créent dans la <link>bibliothèque de compétences</link>."
+    },
+    "memory": {
+      "description": "Des notes qui accompagnent chaque exécution de cet agent, pour qu’il n’ait pas à réapprendre les mêmes choses. Ses exécutions proposent des notes ; aucune n’accompagne une exécution tant qu’un propriétaire ne l’a pas gardée.",
+      "rule": "Une exécution lit des lignes, des pages et des événements écrits par d’autres personnes et services, et une note pourrait porter leurs mots dans chaque exécution suivante. Lisez chaque proposition avant de la garder. Les notes gardées accompagnent chaque exécution, quelle que soit la personne qui la lance.",
+      "off": "La mémoire IA est désactivée dans cet espace de travail : les exécutions n’emportent aucune note et n’en proposent pas tant qu’un propriétaire ne l’active pas dans <link>Paramètres → Général</link>.",
+      "archived": "Restaurez l’agent pour modifier sa mémoire.",
+      "proposedHeading": "{count, plural, one {# note à examiner} other {# notes à examiner}}",
+      "proposedList": "Notes proposées par ses exécutions",
+      "keptHeading": "Ce qu’il retient",
+      "keptList": "Les notes de l’agent",
+      "empty": "Rien pour l’instant. Gardez une note proposée par ses exécutions, ou écrivez-en une ici.",
+      "hiddenText": "Proposée sur une ligne que vous ne pouvez pas ouvrir.",
+      "fromRow": "D’une exécution sur <row>une ligne</row>",
+      "fromHiddenRow": "D’une exécution sur une ligne que vous ne pouvez pas ouvrir",
+      "fromConnection": "D’une exécution lancée par {connection}",
+      "removedConnection": "une connexion supprimée",
+      "keep": "Garder",
+      "keepEdited": "Garder avec ce texte",
+      "edit": "Modifier",
+      "dismiss": "Écarter",
+      "dismissAll": "Tout écarter",
+      "delete": "Supprimer",
+      "editLabel": "Note",
+      "addLabel": "Nouvelle note",
+      "addPlaceholder": "p. ex. les remboursements de plus de 100 EUR vont à l’équipe Facturation",
+      "add": "Ajouter",
+      "count": "{count}/{max} notes",
+      "full": "Mémoire pleine ({max} notes)",
+      "fullToKeep": "La mémoire est pleine ({max} notes) : supprimez une note pour en garder une autre.",
+      "forgetAll": "Tout oublier",
+      "confirmForgetAll": "{name} doit-il oublier tout ce qu’il retient ?",
+      "waiting": "{count, plural, one {# note à examiner} other {# notes à examiner}}",
+      "toReview": "{count, plural, one {# note à examiner} other {# notes à examiner}}"
     },
     "runs": {
       "description": "Ses dernières exécutions, conservées {days} jours.",
@@ -505,7 +539,11 @@
         "option": "Choisissez deux options différentes de la propriété.",
         "rules": "Écrivez les règles qu’il suit.",
         "pages": "Choisissez les pages qu’il lit."
-      }
+      },
+      "noteEmpty": "Écrivez ce que l’agent doit retenir.",
+      "noteTooLong": "Une note peut contenir au plus {max} caractères.",
+      "memoryFull": "Un agent garde au plus {max} notes. Supprimez-en une d’abord.",
+      "noteNotFound": "Cette note n’existe plus."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",

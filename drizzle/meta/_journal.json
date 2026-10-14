@@ -456,6 +456,13 @@
       "when": 1792013882867,
       "tag": "0064_ai_memory_switch",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1792015196634,
+      "tag": "0065_agent_memory",
+      "breakpoints": true
     }
   ]
 }

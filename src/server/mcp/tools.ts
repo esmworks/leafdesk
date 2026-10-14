@@ -83,6 +83,7 @@ import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
+import * as agentMemory from "@/server/agents/memory";
 import * as agentSkills from "@/server/agents/skills";
 import {
   agentInputs,
@@ -1919,7 +1920,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_agent",
     {
       title: "Get an agent",
-      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now. Pages and skills the user can't open are only counted (hidden). ${AGENT_NOTE}`,
+      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them in the app (proposed; a run's notes never go with a run until an owner keeps them), each with the run that proposed it. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: READ,
     },
@@ -1927,7 +1928,12 @@ export function createMcpServer(principal: McpPrincipal) {
       runTool(() =>
         withAgentErrors(async () => {
           const agent = await agents.getAgent(userId, agent_id);
-          return describeAgent(agent, await agents.listAgentAccess(userId, agent_id), await agentSkills.listAgentSkills(userId, agent_id));
+          return describeAgent(
+            agent,
+            await agents.listAgentAccess(userId, agent_id),
+            await agentSkills.listAgentSkills(userId, agent_id),
+            await agentMemory.listAgentMemory(userId, agent_id),
+          );
         }),
       ),
   );

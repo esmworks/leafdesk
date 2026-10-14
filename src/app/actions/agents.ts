@@ -21,6 +21,7 @@ import {
   updateAgent,
   type AgentInput,
 } from "@/server/agents/manage";
+import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { viewStep } from "@/server/ai-chat";
 import { getProperties, requireDatabase } from "@/server/databases";
@@ -126,6 +127,56 @@ export async function removeAgentSkillAction(workspaceId: string, agentId: strin
     await removeAgentSkill(userId, agentId, String(pageId));
     return listAgentSkills(userId, agentId);
   });
+}
+
+// Each of these answers with the agent's notes as they are now; keeping or dismissing a proposal
+// also refreshes the list of agents, which counts the proposals waiting.
+
+export async function listAgentMemoryAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => listAgentMemory(userId, agentId));
+}
+
+export async function addAgentMemoryAction(workspaceId: string, agentId: string, text: string) {
+  return run(
+    workspaceId,
+    async (userId) => {
+      await addAgentMemory(userId, agentId, String(text));
+      return listAgentMemory(userId, agentId);
+    },
+    { refresh: true },
+  );
+}
+
+export async function updateAgentMemoryAction(workspaceId: string, agentId: string, memoryId: string, text: string) {
+  return run(workspaceId, async (userId) => {
+    await updateAgentMemory(userId, agentId, String(memoryId), String(text));
+    return listAgentMemory(userId, agentId);
+  });
+}
+
+/** Keeps a proposal, with `text` changed first when given. */
+export async function keepAgentMemoryAction(workspaceId: string, agentId: string, memoryId: string, text?: string) {
+  return run(
+    workspaceId,
+    async (userId) => {
+      await keepAgentMemory(userId, agentId, String(memoryId), typeof text === "string" ? text : undefined);
+      return listAgentMemory(userId, agentId);
+    },
+    { refresh: true },
+  );
+}
+
+/** Deletes notes (dismisses proposals): some by id, every kept note, or every proposal. */
+export async function deleteAgentMemoryAction(workspaceId: string, agentId: string, which: string[] | "kept" | "proposed") {
+  const target = which === "kept" || which === "proposed" ? which : Array.isArray(which) ? which.map(String) : [];
+  return run(
+    workspaceId,
+    async (userId) => {
+      await deleteAgentMemory(userId, agentId, target);
+      return listAgentMemory(userId, agentId);
+    },
+    { refresh: true },
+  );
 }
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */

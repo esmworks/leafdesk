@@ -299,6 +299,7 @@
       "settings": "Settings",
       "access": "Access",
       "skills": "Skills",
+      "memory": "Memory",
       "runs": "Runs",
       "connections": "Connections"
     },
@@ -378,6 +379,39 @@
       "noSkills": "No other skill you can open.",
       "full": "An agent can have at most {max} skills.",
       "libraryNote": "Skills are made in the <link>skills library</link>."
+    },
+    "memory": {
+      "description": "Notes that go with every run of this agent, so it doesn’t have to learn the same things again. Its runs propose notes; none goes with a run until an owner keeps it.",
+      "rule": "A run reads rows, pages and events other people and services wrote, and a note could carry their words into every later run. Read each proposal before you keep it. Kept notes go with every run, whoever starts it.",
+      "off": "AI memory is off in this workspace: runs carry no notes and propose none until an owner turns it on in <link>Settings → General</link>.",
+      "archived": "Restore the agent to change its memory.",
+      "proposedHeading": "{count, plural, one {# note to review} other {# notes to review}}",
+      "proposedList": "Notes its runs proposed",
+      "keptHeading": "What it remembers",
+      "keptList": "The agent’s notes",
+      "empty": "Nothing yet. Keep a note its runs propose, or write one here.",
+      "hiddenText": "Proposed on a row you can’t open.",
+      "fromRow": "From a run on <row>a row</row>",
+      "fromHiddenRow": "From a run on a row you can’t open",
+      "fromConnection": "From a run started by {connection}",
+      "removedConnection": "a removed connection",
+      "keep": "Keep",
+      "keepEdited": "Keep with this text",
+      "edit": "Edit",
+      "dismiss": "Dismiss",
+      "dismissAll": "Dismiss all",
+      "delete": "Delete",
+      "editLabel": "Note",
+      "addLabel": "New note",
+      "addPlaceholder": "e.g. Refunds over 100 EUR go to the Billing team",
+      "add": "Add",
+      "count": "{count}/{max} notes",
+      "full": "Memory is full ({max} notes)",
+      "fullToKeep": "The memory is full ({max} notes): delete a note to keep another.",
+      "forgetAll": "Forget everything",
+      "confirmForgetAll": "Should {name} forget everything it remembers?",
+      "waiting": "{count, plural, one {# note to review} other {# notes to review}}",
+      "toReview": "{count, plural, one {# note to review} other {# notes to review}}"
     },
     "runs": {
       "description": "Its latest runs, kept for {days} days.",
@@ -505,7 +539,11 @@
         "option": "Choose two different options of the property.",
         "rules": "Write the rules it follows.",
         "pages": "Choose the pages it reads."
-      }
+      },
+      "noteEmpty": "Write what the agent should remember.",
+      "noteTooLong": "A note can have at most {max} characters.",
+      "memoryFull": "An agent keeps at most {max} notes. Delete one first.",
+      "noteNotFound": "This note no longer exists."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",

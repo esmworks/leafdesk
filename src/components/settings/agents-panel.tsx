@@ -23,6 +23,8 @@ export function AgentsPanel({
   workspaceId,
   isOwner,
   agents,
+  proposals = {},
+  memoryOff = false,
   templates,
   ai,
   initialAgentId,
@@ -32,6 +34,10 @@ export function AgentsPanel({
   isOwner: boolean;
   /** Archived ones too, for owners. */
   agents: AgentView[];
+  /** Per agent, the notes its runs proposed that wait for an owner (owners only). */
+  proposals?: Record<string, number>;
+  /** The workspace's AI memory is off: runs carry no notes and keep none. */
+  memoryOff?: boolean;
   templates: BuiltinAgentSummary[];
   /** Whether agents can run: AI set up on the server and on in the workspace. */
   ai: "on" | "off" | "unavailable";
@@ -116,6 +122,7 @@ export function AgentsPanel({
                   key={agent.id}
                   agent={agent}
                   isOwner={isOwner}
+                  proposals={proposals[agent.id] ?? 0}
                   onOpen={(tab) => setOpen({ id: agent.id, tab })}
                   onToggle={() => run(() => updateAgentAction(workspaceId, agent.id, { enabled: !agent.enabled }))}
                   onArchive={() => setArchivingId(agent.id)}
@@ -175,6 +182,8 @@ export function AgentsPanel({
           agent={opened}
           tab={open.tab}
           runId={linkedRun}
+          proposals={proposals[opened.id] ?? 0}
+          memoryOff={memoryOff}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
           onClose={() => {
             setOpen(null);
@@ -207,6 +216,7 @@ export function AgentsPanel({
 function AgentRow({
   agent,
   isOwner,
+  proposals,
   onOpen,
   onToggle,
   onArchive,
@@ -214,6 +224,7 @@ function AgentRow({
 }: {
   agent: AgentView;
   isOwner: boolean;
+  proposals: number;
   onOpen: (tab: AgentTab) => void;
   onToggle: () => void;
   onArchive: () => void;
@@ -251,6 +262,18 @@ function AgentRow({
       ) : (
         <div className="min-w-0 flex-1">{name}</div>
       )}
+      {isOwner && proposals > 0 && (
+        <button
+          type="button"
+          onClick={() => onOpen("memory")}
+          aria-label={t("memory.toReview", { count: proposals })}
+          className="shrink-0 text-xs font-medium text-accent hover:underline"
+        >
+          {/* A phone has room for the count only, beside the agent's name. */}
+          <span className="hidden sm:inline">{t("memory.toReview", { count: proposals })}</span>
+          <span className="rounded bg-accent px-1 text-accent-fg tabular-nums sm:hidden">{proposals}</span>
+        </button>
+      )}
       <span className={cn("shrink-0 text-xs", status === "active" ? "text-fg" : "text-fg-muted")}>{t(`status.${status}`)}</span>
       {isOwner && (
         <>
@@ -267,6 +290,7 @@ function AgentRow({
               <>
                 {item(t("tabs.settings"), () => onOpen("settings"))}
                 {item(t("tabs.access"), () => onOpen("access"))}
+                {item(t("tabs.memory"), () => onOpen("memory"))}
                 {item(t("tabs.runs"), () => onOpen("runs"))}
                 {item(agent.enabled ? t("pause") : t("resume"), onToggle)}
                 <MenuSeparator />

@@ -134,6 +134,9 @@ const agentSkills = vi.hoisted(() => ({
 }));
 vi.mock("@/server/agents/skills", () => agentSkills);
 
+const agentMemory = vi.hoisted(() => ({ listAgentMemory: vi.fn(async () => [] as unknown[]) }));
+vi.mock("@/server/agents/memory", () => agentMemory);
+
 const files = vi.hoisted(() => {
   class FileError extends Error {
     constructor(
@@ -1979,6 +1982,38 @@ describe("agents", () => {
         hidden: 1,
       },
     });
+  });
+
+  it("shows an agent's memory: kept notes, and proposals with their run (text hidden from a row the user can't open)", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    agents.listAgentAccess.mockResolvedValue(access);
+    agentMemory.listAgentMemory.mockResolvedValue([
+      { id: "m-1", text: "Billing questions go to the Billing team", status: "kept", run: null, createdAt: "2026-10-01T00:00:00.000Z", updatedAt: "2026-10-01T00:00:00.000Z" },
+      {
+        id: "m-2",
+        text: "Refunds over 100 EUR need a lead",
+        status: "proposed",
+        run: { id: "run-1", createdAt: "2026-10-02T00:00:00.000Z", rowId: "row-1", rowTitle: "Refund for order 7", connectionName: null },
+        createdAt: "2026-10-02T00:00:00.000Z",
+        updatedAt: "2026-10-02T00:00:00.000Z",
+      },
+      {
+        id: "m-3",
+        text: null,
+        status: "proposed",
+        run: { id: "run-2", createdAt: "2026-10-03T00:00:00.000Z", rowId: "row-2", rowTitle: null, connectionName: null },
+        createdAt: "2026-10-03T00:00:00.000Z",
+        updatedAt: "2026-10-03T00:00:00.000Z",
+      },
+    ]);
+    const { data } = await callTool(reader, "get_agent", { agent_id: "agent-1" });
+    expect(agentMemory.listAgentMemory).toHaveBeenCalledWith("user-1", "agent-1");
+    expect(data.memory.kept).toEqual([expect.objectContaining({ memory_id: "m-1", text: "Billing questions go to the Billing team" })]);
+    expect(data.memory.kept[0].proposed_by_run).toBeUndefined();
+    expect(data.memory.proposed).toMatchObject([
+      { memory_id: "m-2", text: "Refunds over 100 EUR need a lead", proposed_by_run: { run_id: "run-1", row: { id: "row-1", title: "Refund for order 7", url: expect.stringMatching(/\/w\/ws-1\/p\/row-1$/) } } },
+      { memory_id: "m-3", text: null, proposed_by_run: { run_id: "run-2", row: { id: "row-2", title: null } }, note: expect.stringMatching(/can't open/) },
+    ]);
   });
 
   it("shows an agent's skills with whether its runs follow them, and gives and takes them", async () => {

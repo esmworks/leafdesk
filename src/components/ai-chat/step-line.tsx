@@ -58,13 +58,15 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
   }
   if (step.kind === "write") return <WriteLine step={step} onSource={onSource} />;
   if (step.kind === "memory") {
-    const declined = step.outcome === "declined";
-    const Icon = declined ? Ban : step.action === "remember" ? Brain : BrainCog;
+    // An agent's proposal waits for an owner: it is never declined in its run.
+    const declined = step.outcome === "declined" && step.action !== "propose";
+    const Icon = declined ? Ban : step.action === "forget" ? BrainCog : Brain;
+    const label = step.action !== "propose" && declined ? t(`steps.memory.declined.${step.action}`) : t(`steps.memory.${step.action}`);
     return (
       <>
         <Icon className={icon} />
         <span className="min-w-0 break-words">
-          {t(declined ? `steps.memory.declined.${step.action}` : `steps.memory.${step.action}`)} <span className="text-fg">“{step.text}”</span>
+          {label} <span className="text-fg">“{step.text}”</span>
         </span>
       </>
     );

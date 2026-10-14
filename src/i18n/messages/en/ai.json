@@ -106,7 +106,7 @@
     "enabledHint": "When on, members can send page content and row values they can see to the AI provider below. Turn off to keep this workspace's content away from it.",
     "ownersOnly": "Only owners can change this.",
     "memory": "AI memory",
-    "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted.",
+    "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted. Agents' runs then carry no notes and propose none either.",
     "provider": "Provider",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "No AI provider or embeddings model is set up on this server, so AI features are off. An admin can set them up with the AI_PROVIDER and AI_MODEL (and AI_EMBEDDINGS_MODEL) environment variables (see the README).",
@@ -176,6 +176,7 @@
       },
       "memory": {
         "remember": "Remembered:",
+        "propose": "Proposed a note:",
         "forget": "Forgot:",
         "declined": {
           "remember": "Declined remembering:",

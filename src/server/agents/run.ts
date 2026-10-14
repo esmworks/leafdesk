@@ -20,6 +20,11 @@
  * every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved in
  * `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
  *
+ * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
+ * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
+ * owner, and drop old ones (`forget`); others may neither. With the workspace's AI memory off, no
+ * run carries notes or may keep any.
+ *
  * What a run keeps to show (its steps, answer and error, and the call waiting for approval) has
  * credentials masked (lib/redact). `state` is kept as it was: the run goes on from it and sends the
  * waiting call as the agent made it; only owners approving that call see it from there (the
@@ -51,6 +56,7 @@ import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentEventPrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
+import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { asAutomation } from "@/server/automations/queue";
 import { changeComments } from "@/server/comments";
@@ -59,6 +65,7 @@ import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset }
 import { getProperties } from "@/server/databases";
 import type * as ops from "@/server/operations";
 import { agentsWorker } from "./kick";
+import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
 
 const SWEEP_INTERVAL_MS = 5_000;
@@ -74,6 +81,8 @@ const MAX_COMMENT = 4_000;
 const THOUGHT_CHARS = 300;
 /** The most of an event's body the agent reads. */
 const EVENT_CHARS = 8_000;
+/** The most of the prompt the agent's memory may take. */
+const MEMORY_CHARS = 6_000;
 
 type Run = typeof agentRun.$inferSelect;
 type Agent = typeof workspaceAgent.$inferSelect;
@@ -90,7 +99,7 @@ const ADD_COMMENT: AiTool = {
 };
 
 const UPDATE_ROW = WRITE_TOOLS.find((t) => t.name === "update_row")!;
-/** Leafdesk's tools on a row's run; a connection event's run only reads. */
+/** Leafdesk's tools on a row's run; a connection event's run only reads. Either may also keep notes (memory.ts). */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_COMMENT];
 
 // ------------------------------------------------------------------------------------ queue
@@ -292,11 +301,15 @@ async function converse(
   const signal = AbortSignal.timeout(AGENT_RUN_TIMEOUT_MS);
   const toolset = await agentToolset(agent.id);
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
-  const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...toolset.tools];
+  // What a run reads that no one in the workspace stands behind could fill the owners' review with
+  // its own notes: such a run proposes none.
+  const memoryOn = await memoryAvailable(run.workspaceId);
+  const remembers = memoryOn && !askEveryTool;
+  const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...(remembers ? AGENT_MEMORY_TOOLS : []), ...toolset.tools];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
   // someone else may edit by then is left out (see steps below).
   const skillSet = await runSkills(agent, agentSkillRoom(), bound);
-  const system = agentSystemPrompt(agent, { row: rowRun, connections, askEveryTool, skills: skillSet.skills });
+  const system = agentSystemPrompt(agent, { row: rowRun, connections, askEveryTool, skills: skillSet.skills, remembers });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
@@ -322,12 +335,14 @@ async function converse(
     const read = await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: run.source.rowId } }, registry, Math.min(8_000, room([])));
     if (read.isError) return { status: "failed", code: "noAccess", steps, usage };
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map }) }];
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
+    messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map, memory: memory.text }) }];
   } else {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     const type = "eventType" in run.context ? run.context.eventType : "event";
     const body = `Type: ${type}\n\n${"body" in run.context ? run.context.body.slice(0, EVENT_CHARS) : ""}`;
-    messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map }) }];
+    messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map, memory: memory.text }) }];
   }
 
   /** Answers one tool call; null when it must wait for approval. */
@@ -344,6 +359,11 @@ async function converse(
       externalChars += out.chars;
       if (external.tool.kind === "write") writes += 1;
       return out;
+    }
+    // Notes change nothing in the workspace: they don't count as changes.
+    if (AGENT_MEMORY_TOOL_NAMES.has(call.name)) {
+      if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
+      return runAgentMemoryTool(agent, run.id, call);
     }
     if (rowRun && (call.name === "update_row" || call.name === "add_comment")) {
       if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };

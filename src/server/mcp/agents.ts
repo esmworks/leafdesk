@@ -1,5 +1,6 @@
 import * as z from "zod";
 import {
+  type AgentMemoryView,
   AGENT_ACCESS_LEVELS,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
@@ -184,11 +185,34 @@ const SKILL_STATUS = {
   tooLong: "left out: it doesn't fit in what a run may read, with the skills before it",
 } as const;
 
+/** A note of an agent's memory, kept or proposed by a run (text null: from a row the user can't open). */
+function describeMemory(workspaceId: string, note: AgentMemoryView) {
+  return {
+    memory_id: note.id,
+    text: note.text,
+    ...(note.run
+      ? {
+          proposed_by_run: {
+            run_id: note.run.id,
+            created_at: note.run.createdAt,
+            ...(note.run.rowId !== null
+              ? { row: note.run.rowTitle !== null ? { id: note.run.rowId, title: pageLabel(note.run.rowTitle), url: pageUrl(workspaceId, note.run.rowId) } : { id: note.run.rowId, title: null } }
+              : { connection: note.run.connectionName }),
+          },
+        }
+      : {}),
+    ...(note.text === null ? { note: "Proposed by a run on a row the user can't open: its text is hidden." } : {}),
+    created_at: note.createdAt,
+    updated_at: note.updatedAt,
+  };
+}
+
 /** An agent as get_agent and the write tools return it. */
 export function describeAgent(
   agent: AgentView,
   access?: { pages: AgentAccessView[]; hidden: number },
   skills?: { skills: AgentSkillView[]; hidden: number },
+  memory?: AgentMemoryView[],
 ) {
   return {
     ...describeAgentSummary(agent),
@@ -222,6 +246,14 @@ export function describeAgent(
               url: pageUrl(agent.workspaceId, s.pageId),
             })),
             ...(skills.hidden ? { hidden: skills.hidden, note: `${skills.hidden} more skills the user can't open themselves.` } : {}),
+          },
+        }
+      : {}),
+    ...(memory
+      ? {
+          memory: {
+            kept: memory.filter((n) => n.status === "kept").map((n) => describeMemory(agent.workspaceId, n)),
+            proposed: memory.filter((n) => n.status === "proposed").map((n) => describeMemory(agent.workspaceId, n)),
           },
         }
       : {}),
@@ -263,6 +295,10 @@ export function describeAgentStep(step: AgentStepRecord) {
       };
     case "thought":
       return { kind: "thought", summary: step.text };
+    case "memory": {
+      const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note" }[step.action];
+      return { kind: "memory", action: step.action, summary: `${how}: ${quote(short(step.text))}` };
+    }
     case "skill": {
       const name = step.title ? `the skill ${quote(step.title)}` : "a skill the user can't open";
       const why = step.outcome === "skipped" ? SKIPPED[step.reason] : "";

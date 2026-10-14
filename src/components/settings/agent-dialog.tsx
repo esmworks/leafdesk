@@ -34,10 +34,11 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { AgentConnectionsTab } from "./agent-connections-tab";
+import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "skills" | "connections" | "runs";
+export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "runs";
 
 
 /** An agent's emoji, or a robot when it has none. */
@@ -46,18 +47,23 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it, its skills, the connections' tools it may use and its latest runs, in tabs. */
+/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use and its latest runs, in tabs. */
 export function AgentDialog({
   workspaceId,
   agent,
   tab,
   runId,
+  proposals = 0,
+  memoryOff = false,
   onTab,
   onClose,
 }: {
   workspaceId: string;
   agent: AgentView;
   tab: AgentTab;
+  /** Notes its runs proposed that wait for an owner, counted on the Memory tab. */
+  proposals?: number;
+  memoryOff?: boolean;
   /** A run to show opened (a link from an automation's history). */
   runId?: string;
   onTab: (tab: AgentTab) => void;
@@ -82,12 +88,17 @@ export function AgentDialog({
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      {/* Five tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
+      {/* Six tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
       <div className="overflow-x-auto border-b border-border px-5 py-2">
         <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          {(["settings", "access", "skills", "connections", "runs"] as const).map((name) => (
+          {(["settings", "access", "skills", "memory", "connections", "runs"] as const).map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
               {t(`tabs.${name}`)}
+              {name === "memory" && proposals > 0 && (
+                <span className="rounded bg-accent px-1 text-xs font-medium text-accent-fg tabular-nums" aria-label={t("memory.waiting", { count: proposals })}>
+                  {proposals}
+                </span>
+              )}
             </TabButton>
           ))}
         </div>
@@ -98,6 +109,8 @@ export function AgentDialog({
         <AccessTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "skills" ? (
         <AgentSkillsTab workspaceId={workspaceId} agent={agent} />
+      ) : tab === "memory" ? (
+        <AgentMemoryTab workspaceId={workspaceId} agent={agent} memoryOff={memoryOff} />
       ) : tab === "connections" ? (
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
       ) : (

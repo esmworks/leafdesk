@@ -106,7 +106,7 @@
     "enabledHint": "Wenn eingeschaltet, können Mitglieder Seiteninhalte und Zeilenwerte, die sie sehen können, an den unten genannten KI-Anbieter senden. Schalte es aus, um die Inhalte dieses Workspace davon fernzuhalten.",
     "ownersOnly": "Nur Eigentümer können dies ändern.",
     "memory": "KI-Gedächtnis",
-    "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht.",
+    "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht. Auch die Läufe von Agenten enthalten dann keine Notizen und schlagen keine vor.",
     "provider": "Anbieter",
     "providerValue": "{provider}, Modell {model}",
     "notConfigured": "Auf diesem Server ist weder ein KI-Anbieter noch ein Embedding-Modell eingerichtet, daher sind KI-Funktionen aus. Eine Administratorin oder ein Administrator kann sie mit den Umgebungsvariablen AI_PROVIDER und AI_MODEL (und AI_EMBEDDINGS_MODEL) einrichten (siehe README).",
@@ -176,6 +176,7 @@
       },
       "memory": {
         "remember": "Gemerkt:",
+        "propose": "Hat eine Notiz vorgeschlagen:",
         "forget": "Vergessen:",
         "declined": {
           "remember": "Merken abgelehnt:",

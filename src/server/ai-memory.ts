@@ -3,7 +3,8 @@
  * how they want answers) that go with each of their questions there, so later conversations needn't
  * be told again. The chat keeps and drops notes with its `remember` and `forget` tools when the
  * person tells it something about themselves or asks it to (each shows as a step of the answer),
- * and the person lists, writes, changes and deletes them in the chat's Memory view.
+ * and the person lists, writes, changes and deletes them in the chat's Memory view. Agents keep
+ * notes here too, under their own users, that their runs only propose (server/agents/memory.ts).
  *
  * A note goes with every later question, so text the model read on a page could otherwise pass
  * itself off as a lasting note: unless the chat's mode is `auto`, the person approves each note
@@ -21,7 +22,7 @@
  */
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { aiMemory, type ChatMemoryRecord } from "@/db/schema";
+import { aiMemory, type ChatMemoryRecord, type MemoryStatus } from "@/db/schema";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS, type ChatActionView, type MemoryView } from "@/lib/ai-chat";
 import { AccessError, requireMembership } from "@/server/access";
 import type { AiTool } from "@/server/ai";
@@ -67,7 +68,7 @@ export async function memoryOn(userId: string, workspaceId: string): Promise<boo
 }
 
 /** A note as kept: one line, trimmed. */
-function cleanNote(text: string): string {
+export function cleanNote(text: string): string {
   const flat = text.replace(/\s+/g, " ").trim();
   if (!flat) throw new MemoryError("empty", "Write what to remember");
   if (flat.length > MAX_MEMORY_CHARS) throw new MemoryError("tooLong", `A note may have at most ${MAX_MEMORY_CHARS} characters`);
@@ -84,14 +85,21 @@ export function sameNote(a: string, b: string): boolean {
 
 type Note = typeof aiMemory.$inferSelect;
 
-/** The person's notes in a workspace, oldest first (no membership check: callers make it). */
-async function notesOf(userId: string, workspaceId: string, reader: Pick<typeof db, "select"> = db): Promise<Note[]> {
+/**
+ * A user's notes in a workspace, oldest first (no membership check: callers make it): the kept
+ * ones, or with `status` null also those an agent's run proposed.
+ */
+async function notesOf(userId: string, workspaceId: string, reader: Pick<typeof db, "select"> = db, status: MemoryStatus | null = "kept"): Promise<Note[]> {
   return reader
     .select()
     .from(aiMemory)
-    .where(and(eq(aiMemory.userId, userId), eq(aiMemory.workspaceId, workspaceId)))
+    .where(and(eq(aiMemory.userId, userId), eq(aiMemory.workspaceId, workspaceId), status ? eq(aiMemory.status, status) : undefined))
     .orderBy(asc(aiMemory.createdAt), asc(aiMemory.id));
 }
+
+/** Holds a user's notes in a workspace until the transaction ends: they change one at a time. */
+export const lockNotes = (tx: Pick<typeof db, "execute">, userId: string, workspaceId: string) =>
+  tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`ai_memory:${userId}:${workspaceId}`}))`);
 
 const view = (m: Note): MemoryView => ({
   id: m.id,
@@ -102,15 +110,22 @@ const view = (m: Note): MemoryView => ({
 
 /**
  * Keeps a note, or with `replaces` changes that note to it (no membership check: callers make it).
- * A note the person already has (same text, case aside) is kept once: that one is returned, and
- * the replaced note, if any, goes. Refused with `full` at MAX_MEMORIES and `notFound` when the
- * replaced note isn't the person's.
+ * A note the person already has (same text, case aside, also one an agent's run proposed) is kept
+ * once: that one is returned, and the replaced note, if any, goes. Refused with `full` at
+ * MAX_MEMORIES (for an agent's proposal, `status` proposed: at `maxProposed` proposals) and
+ * `notFound` when the replaced note isn't the person's.
  */
-async function writeNote(
+export async function writeNote(
   userId: string,
   workspaceId: string,
   text: string,
-  { replaces = null, conversationId = null }: { replaces?: string | null; conversationId?: string | null } = {},
+  {
+    replaces = null,
+    conversationId = null,
+    status = "kept",
+    agentRunId = null,
+    maxProposed = MAX_MEMORIES,
+  }: { replaces?: string | null; conversationId?: string | null; status?: MemoryStatus; agentRunId?: string | null; maxProposed?: number } = {},
 ): Promise<Note> {
   // Written only while the workspace has the memory on (the person's own switch aside).
   if (!(await memoryAvailable(workspaceId))) throw new MemoryError("off", "The AI memory is turned off in this workspace");
@@ -118,8 +133,8 @@ async function writeNote(
   return db.transaction(async (tx) => {
     // One person's notes change one at a time, so two answers can't both take the last place or
     // write the same note.
-    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`ai_memory:${userId}:${workspaceId}`}))`);
-    const notes = await notesOf(userId, workspaceId, tx);
+    await lockNotes(tx, userId, workspaceId);
+    const notes = await notesOf(userId, workspaceId, tx, null);
     const target = replaces ? notes.find((m) => m.id === replaces) : undefined;
     if (replaces && !target) throw new MemoryError("notFound", "Note not found");
     const known = notes.find((m) => m.id !== target?.id && sameNote(m.text, note));
@@ -131,8 +146,9 @@ async function writeNote(
       const [changed] = await tx.update(aiMemory).set({ text: note, updatedAt: new Date() }).where(eq(aiMemory.id, target.id)).returning();
       return changed;
     }
-    if (notes.length >= MAX_MEMORIES) throw new MemoryError("full", `The memory holds at most ${MAX_MEMORIES} notes`);
-    const [made] = await tx.insert(aiMemory).values({ userId, workspaceId, text: note, conversationId }).returning();
+    const max = status === "kept" ? MAX_MEMORIES : maxProposed;
+    if (notes.filter((m) => m.status === status).length >= max) throw new MemoryError("full", `The memory holds at most ${max} notes`);
+    const [made] = await tx.insert(aiMemory).values({ userId, workspaceId, text: note, conversationId, status, agentRunId }).returning();
     return made;
   });
 }
@@ -173,8 +189,8 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
 // The chat checked the person's membership with the question: its tools don't again.
 
 /**
- * The person's notes for a question: newest first as far as `maxChars` takes them, then shown
- * oldest first, each with its id for `forget` and `replaces`.
+ * The kept notes for a question, or for an agent's run (agents/memory.ts): newest first as far as
+ * `maxChars` takes them, then shown oldest first, each with its id for `forget` and `replaces`.
  */
 export async function memoryForPrompt(userId: string, workspaceId: string, maxChars: number): Promise<{ text: string; count: number }> {
   const notes = await notesOf(userId, workspaceId);

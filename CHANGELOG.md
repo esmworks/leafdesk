@@ -25,6 +25,21 @@
   deleted, and owners' changes are in the audit log. Migration `0064_ai_memory_switch` adds
   `workspace_member.ai_memory`. Covered in `scripts/ai-memory-e2e.ts` and
   `scripts/ai-chat-e2e.ts`.
+- **Memory for agents.** Agents keep short notes that go with each of their runs (where things go
+  in the workspace, how a recurring case is handled). Because everything a run reads was written by
+  someone else, a run only proposes notes, with a new `remember` tool: each proposal shows among the
+  run's steps, with credentials masked, and goes with no run until an owner keeps it. The agent's
+  new *Memory* tab (and a "notes to review" link in the list of agents) shows proposals with the run's
+  row and time, to keep as they are or changed, or dismiss; owners also write, change and delete
+  notes and make the agent forget everything. A proposal from a row an owner can't open is shown to
+  them without its text, and only dismissed. Runs drop notes at once with `forget`. Runs no member
+  stands behind (anonymous or outside form answers, untrusted triggers) get neither tool but still
+  get the kept notes, which reach the model as data inside `<memory>` and never widen what it may
+  change. Up to 30 notes of 300 characters per agent and 10 proposals waiting; an unanswered
+  proposal goes with its run after 30 days. The workspace's *AI memory* switch holds for agents
+  too: off, runs carry no notes and propose none. Changes are recorded in the audit log, counted. MCP's
+  `get_agent` lists the notes and proposals. Migration `0065_agent_memory` adds `status` and
+  `agent_run_id` to `ai_memory`. Covered in `scripts/agent-memory-e2e.ts`.
 - **Skills.** A page or database row can be marked *Use as skill* in its `⋯` menu (edit access;
   not databases, templates or the pages in them): its body is instructions to reuse, and a bar
   under the title says what it is for. The sidebar's new skills button opens the workspace's

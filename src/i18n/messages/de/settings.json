@@ -299,6 +299,7 @@
       "settings": "Einstellungen",
       "access": "Zugriff",
       "skills": "Skills",
+      "memory": "Gedächtnis",
       "runs": "Durchläufe",
       "connections": "Verbindungen"
     },
@@ -378,6 +379,39 @@
       "noSkills": "Kein weiterer Skill, den du öffnen kannst.",
       "full": "Ein Agent kann höchstens {max} Skills haben.",
       "libraryNote": "Skills legst du in der <link>Skill-Bibliothek</link> an."
+    },
+    "memory": {
+      "description": "Notizen, die jedem Lauf dieses Agenten mitgegeben werden, damit er dasselbe nicht neu lernen muss. Seine Läufe schlagen Notizen vor; keine geht mit einem Lauf mit, bis ein Inhaber sie behält.",
+      "rule": "Ein Lauf liest Zeilen, Seiten und Ereignisse, die andere Personen und Dienste geschrieben haben, und eine Notiz könnte deren Worte in jeden späteren Lauf tragen. Lesen Sie jeden Vorschlag, bevor Sie ihn behalten. Behaltene Notizen gehen mit jedem Lauf mit, egal wer ihn startet.",
+      "off": "Das KI-Gedächtnis ist in diesem Workspace aus: Läufe enthalten keine Notizen und schlagen keine vor, bis ein Inhaber es unter <link>Einstellungen → Allgemein</link> einschaltet.",
+      "archived": "Stellen Sie den Agenten wieder her, um sein Gedächtnis zu ändern.",
+      "proposedHeading": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}",
+      "proposedList": "Von seinen Läufen vorgeschlagene Notizen",
+      "keptHeading": "Was er sich merkt",
+      "keptList": "Die Notizen des Agenten",
+      "empty": "Noch nichts. Behalten Sie eine Notiz, die seine Läufe vorschlagen, oder schreiben Sie hier eine.",
+      "hiddenText": "Auf einer Zeile vorgeschlagen, die Sie nicht öffnen können.",
+      "fromRow": "Aus einem Lauf auf <row>einer Zeile</row>",
+      "fromHiddenRow": "Aus einem Lauf auf einer Zeile, die Sie nicht öffnen können",
+      "fromConnection": "Aus einem Lauf, den {connection} gestartet hat",
+      "removedConnection": "eine entfernte Verbindung",
+      "keep": "Behalten",
+      "keepEdited": "Mit diesem Text behalten",
+      "edit": "Bearbeiten",
+      "dismiss": "Verwerfen",
+      "dismissAll": "Alle verwerfen",
+      "delete": "Löschen",
+      "editLabel": "Notiz",
+      "addLabel": "Neue Notiz",
+      "addPlaceholder": "z. B. Erstattungen über 100 EUR gehen an das Billing-Team",
+      "add": "Hinzufügen",
+      "count": "{count}/{max} Notizen",
+      "full": "Gedächtnis voll ({max} Notizen)",
+      "fullToKeep": "Das Gedächtnis ist voll ({max} Notizen): Löschen Sie eine Notiz, um eine andere zu behalten.",
+      "forgetAll": "Alles vergessen",
+      "confirmForgetAll": "Soll {name} alles vergessen, was er sich gemerkt hat?",
+      "waiting": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}",
+      "toReview": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}"
     },
     "runs": {
       "description": "Seine letzten Durchläufe, {days} Tage lang aufbewahrt.",
@@ -505,7 +539,11 @@
         "option": "Wähle zwei verschiedene Optionen der Eigenschaft.",
         "rules": "Schreib die Regeln, denen er folgt.",
         "pages": "Wähle die Seiten, die er liest."
-      }
+      },
+      "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
+      "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
+      "memoryFull": "Ein Agent behält höchstens {max} Notizen. Löschen Sie zuerst eine.",
+      "noteNotFound": "Diese Notiz gibt es nicht mehr."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",

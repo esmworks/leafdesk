@@ -106,7 +106,7 @@
     "enabledHint": "Açıkken üyeler görebildikleri sayfa içeriğini ve satır değerlerini aşağıdaki yapay zekâ sağlayıcısına gönderebilir. Bu çalışma alanının içeriğini ondan uzak tutmak için kapat.",
     "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
     "memory": "Yapay zekâ hafızası",
-    "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir. Herkes kendisi için kapatabilir. Kapalıyken Hafıza görünümü gizlenir ve hiçbir soru not taşımaz; notlar silinmez, saklanır.",
+    "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir. Herkes kendisi için kapatabilir. Kapalıyken Hafıza görünümü gizlenir ve hiçbir soru not taşımaz; notlar silinmez, saklanır. Ajan çalışmaları da o zaman not taşımaz ve not önermez.",
     "provider": "Sağlayıcı",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Bu sunucuda bir yapay zekâ sağlayıcısı ya da embedding modeli ayarlanmamış, bu yüzden yapay zekâ özellikleri kapalı. Bir yönetici AI_PROVIDER ve AI_MODEL (ve AI_EMBEDDINGS_MODEL) ortam değişkenleriyle ayarlayabilir (README'ye bak).",
@@ -176,6 +176,7 @@
       },
       "memory": {
         "remember": "Hatırladı:",
+        "propose": "Not önerdi:",
         "forget": "Unuttu:",
         "declined": {
           "remember": "Hatırlamayı reddettin:",

@@ -299,6 +299,7 @@
       "settings": "Configuración",
       "access": "Acceso",
       "skills": "Habilidades",
+      "memory": "Memoria",
       "runs": "Ejecuciones",
       "connections": "Conexiones"
     },
@@ -378,6 +379,39 @@
       "noSkills": "No hay otra habilidad que puedas abrir.",
       "full": "Un agente puede tener como máximo {max} habilidades.",
       "libraryNote": "Las habilidades se crean en la <link>biblioteca de habilidades</link>."
+    },
+    "memory": {
+      "description": "Notas que acompañan cada ejecución de este agente, para que no tenga que aprender lo mismo otra vez. Sus ejecuciones proponen notas; ninguna acompaña a una ejecución hasta que un propietario la guarda.",
+      "rule": "Una ejecución lee filas, páginas y eventos que escribieron otras personas y servicios, y una nota podría llevar sus palabras a cada ejecución posterior. Lee cada propuesta antes de guardarla. Las notas guardadas acompañan a cada ejecución, la inicie quien la inicie.",
+      "off": "La memoria de IA está desactivada en este espacio de trabajo: las ejecuciones no llevan notas ni proponen ninguna hasta que un propietario la active en <link>Ajustes → General</link>.",
+      "archived": "Restaura el agente para cambiar su memoria.",
+      "proposedHeading": "{count, plural, one {# nota por revisar} other {# notas por revisar}}",
+      "proposedList": "Notas que propusieron sus ejecuciones",
+      "keptHeading": "Lo que recuerda",
+      "keptList": "Las notas del agente",
+      "empty": "Nada todavía. Guarda una nota que propongan sus ejecuciones o escribe una aquí.",
+      "hiddenText": "Propuesta en una fila que no puedes abrir.",
+      "fromRow": "De una ejecución en <row>una fila</row>",
+      "fromHiddenRow": "De una ejecución en una fila que no puedes abrir",
+      "fromConnection": "De una ejecución iniciada por {connection}",
+      "removedConnection": "una conexión eliminada",
+      "keep": "Guardar",
+      "keepEdited": "Guardar con este texto",
+      "edit": "Editar",
+      "dismiss": "Descartar",
+      "dismissAll": "Descartar todas",
+      "delete": "Eliminar",
+      "editLabel": "Nota",
+      "addLabel": "Nueva nota",
+      "addPlaceholder": "p. ej., los reembolsos de más de 100 EUR van al equipo de Facturación",
+      "add": "Añadir",
+      "count": "{count}/{max} notas",
+      "full": "Memoria llena ({max} notas)",
+      "fullToKeep": "La memoria está llena ({max} notas): elimina una nota para guardar otra.",
+      "forgetAll": "Olvidarlo todo",
+      "confirmForgetAll": "¿Debe {name} olvidar todo lo que recuerda?",
+      "waiting": "{count, plural, one {# nota por revisar} other {# notas por revisar}}",
+      "toReview": "{count, plural, one {# nota por revisar} other {# notas por revisar}}"
     },
     "runs": {
       "description": "Sus últimas ejecuciones, guardadas durante {days} días.",
@@ -505,7 +539,11 @@
         "option": "Elige dos opciones distintas de la propiedad.",
         "rules": "Escribe las reglas que sigue.",
         "pages": "Elige las páginas que lee."
-      }
+      },
+      "noteEmpty": "Escribe qué debe recordar el agente.",
+      "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
+      "memoryFull": "Un agente guarda como máximo {max} notas. Elimina una primero.",
+      "noteNotFound": "Esta nota ya no existe."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",

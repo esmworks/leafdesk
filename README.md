@@ -1484,6 +1484,28 @@ it now leaves out or were taken away. Owners who can't open a skill another owne
 counted, and unnamed in runs. Giving and taking skills is recorded in the audit log as a change to the agent.
 Like anything shared with the agent, what a skill says can end up in the rows it writes.
 
+**Memory.** An agent keeps short notes that go with each of its runs, so it needn't learn the same
+things again (where things go in the workspace, which database holds what, how a recurring case is
+handled). Nobody talks to an agent during a run: everything it reads was written by someone else (the
+row, pages, an event, what a connected service returns), so a note it kept on its own could carry
+anyone's orders into every later run. A run therefore only *proposes* notes, with a `remember` tool:
+each proposal is a step of the run, with credentials masked, and goes with no run until an owner
+keeps it. In the agent's *Memory* tab (and a "notes to review" link next to the agent in the list),
+owners see the proposals with the run's row and time, keep one as it is or changed, or dismiss it;
+they also write, change and delete notes, and make it forget everything. An owner who can't open a
+proposal's row doesn't see its text (it may quote the row) and can only dismiss it. A run may drop a
+note at once with `forget`, which loses at most that note. Runs no member stands behind (an
+anonymous or outside form answer, an event from a trigger no owner marked trusted) get neither
+tool, but the kept notes go with them too. Kept notes reach the model as data, never as
+instructions, and never widen what the agent may change; like its instructions, what they say may
+end up in the rows it writes, whoever started the run. An agent keeps up to 30 notes of 300
+characters; up to 10 proposals wait at once, and one no owner answered goes when its run is
+removed after 30 days. Archived agents keep their notes: owners can still delete them, or dismiss
+proposals, but not add, change or keep notes until the agent is restored. With the workspace's *AI memory* switch off
+(Settings → General → AI), no run carries notes or proposes any; the notes stay. Keeping, dismissing, writing, changing and deleting notes is recorded in the audit log as
+a change to the agent, counted, without the notes' text. MCP's `get_agent` lists the kept notes and
+the proposals.
+
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.
 
@@ -1501,7 +1523,7 @@ workspace has at most 50 agents. A paused agent doesn't run: its queued runs end
 `agentDisabled`. Archiving one also unshares every page shared with it (each recorded in the audit
 log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
-shared; its skills stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
+shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
 `set_agent_access`, `set_agent_skill` and `list_agent_runs`. The REST API has no agent endpoints.
 

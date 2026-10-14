@@ -31,7 +31,19 @@ import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
 
-export type AgentErrorCode = "invalid" | "notFound" | "tooMany" | "archived" | "notAPage" | "notASkill" | "skillEditable" | "tooManySkills";
+export type AgentErrorCode =
+  | "invalid"
+  | "notFound"
+  | "tooMany"
+  | "archived"
+  | "notAPage"
+  | "notASkill"
+  | "skillEditable"
+  | "tooManySkills"
+  | "noteEmpty"
+  | "noteTooLong"
+  | "memoryFull"
+  | "noteNotFound";
 
 export class AgentError extends Error {
   constructor(

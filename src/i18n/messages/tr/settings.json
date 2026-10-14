@@ -299,6 +299,7 @@
       "settings": "Ayarlar",
       "access": "Erişim",
       "skills": "Beceriler",
+      "memory": "Hafıza",
       "runs": "Çalışmalar",
       "connections": "Bağlantılar"
     },
@@ -378,6 +379,39 @@
       "noSkills": "Açabildiğiniz başka beceri yok.",
       "full": "Bir ajanın en fazla {max} becerisi olabilir.",
       "libraryNote": "Beceriler <link>beceri kütüphanesinde</link> oluşturulur."
+    },
+    "memory": {
+      "description": "Bu ajanın her çalışmasıyla birlikte giden notlar; aynı şeyleri yeniden öğrenmesi gerekmez. Çalışmaları not önerir; bir sahip tutmadıkça hiçbiri bir çalışmaya gitmez.",
+      "rule": "Bir çalışma başka kişilerin ve servislerin yazdığı satırları, sayfaları ve olayları okur; bir not onların sözlerini sonraki her çalışmaya taşıyabilir. Tutmadan önce her öneriyi okuyun. Tutulan notlar, kim başlatırsa başlatsın her çalışmaya gider.",
+      "off": "Bu çalışma alanında yapay zekâ hafızası kapalı: bir sahip <link>Ayarlar → Genel</link> bölümünden açana kadar çalışmalar not taşımaz ve not önermez.",
+      "archived": "Hafızasını değiştirmek için ajanı geri getirin.",
+      "proposedHeading": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",
+      "proposedList": "Çalışmalarının önerdiği notlar",
+      "keptHeading": "Hatırladıkları",
+      "keptList": "Ajanın notları",
+      "empty": "Henüz not yok. Çalışmalarının önerdiği bir notu tutun ya da buraya bir not yazın.",
+      "hiddenText": "Açamadığınız bir satırda önerildi.",
+      "fromRow": "<row>satır</row> satırındaki çalışmadan",
+      "fromHiddenRow": "Açamadığınız bir satırdaki çalışmadan",
+      "fromConnection": "{connection} ile başlayan bir çalışmadan",
+      "removedConnection": "kaldırılmış bir bağlantı",
+      "keep": "Tut",
+      "keepEdited": "Bu metinle tut",
+      "edit": "Düzenle",
+      "dismiss": "Reddet",
+      "dismissAll": "Hepsini reddet",
+      "delete": "Sil",
+      "editLabel": "Not",
+      "addLabel": "Yeni not",
+      "addPlaceholder": "ör. 100 EUR üstü iadeler Muhasebe ekibine gider",
+      "add": "Ekle",
+      "count": "{count}/{max} not",
+      "full": "Hafıza dolu ({max} not)",
+      "fullToKeep": "Hafıza dolu ({max} not): başka bir notu tutmak için birini silin.",
+      "forgetAll": "Her şeyi unut",
+      "confirmForgetAll": "{name} hatırladığı her şeyi unutsun mu?",
+      "waiting": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",
+      "toReview": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}"
     },
     "runs": {
       "description": "Son çalışmaları; {days} gün saklanır.",
@@ -505,7 +539,11 @@
         "option": "Özelliğin birbirinden farklı iki seçeneğini seçin.",
         "rules": "Uyacağı kuralları yazın.",
         "pages": "Okuyacağı sayfaları seçin."
-      }
+      },
+      "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
+      "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
+      "memoryFull": "Bir ajan en fazla {max} not tutar. Önce birini silin.",
+      "noteNotFound": "Bu not artık yok."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",

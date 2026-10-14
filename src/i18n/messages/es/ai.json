@@ -106,7 +106,7 @@
     "enabledHint": "Si está activado, los miembros pueden enviar el contenido de las páginas y los valores de las filas que pueden ver al proveedor de IA indicado abajo. Desactívalo para mantener el contenido de este espacio de trabajo fuera de su alcance.",
     "ownersOnly": "Solo los propietarios pueden cambiar esto.",
     "memory": "Memoria de la IA",
-    "memoryHint": "Si está activada, el chat de IA guarda notas breves sobre las personas que le cuentan algo de sí mismas y las envía con sus preguntas posteriores. Cada persona puede desactivarla para sí. Si está desactivada, la vista Memoria se oculta y ninguna pregunta lleva notas; las notas se conservan, no se eliminan.",
+    "memoryHint": "Si está activada, el chat de IA guarda notas breves sobre las personas que le cuentan algo de sí mismas y las envía con sus preguntas posteriores. Cada persona puede desactivarla para sí. Si está desactivada, la vista Memoria se oculta y ninguna pregunta lleva notas; las notas se conservan, no se eliminan. Las ejecuciones de los agentes tampoco llevan notas ni proponen ninguna.",
     "provider": "Proveedor",
     "providerValue": "{provider}, modelo {model}",
     "notConfigured": "No hay ningún proveedor de IA ni modelo de embeddings configurado en este servidor, así que las funciones de IA están desactivadas. Un administrador puede configurarlos con las variables de entorno AI_PROVIDER y AI_MODEL (y AI_EMBEDDINGS_MODEL) (consulta el README).",
@@ -176,6 +176,7 @@
       },
       "memory": {
         "remember": "Recordado:",
+        "propose": "Propuso una nota:",
         "forget": "Olvidado:",
         "declined": {
           "remember": "Rechazaste recordar:",
