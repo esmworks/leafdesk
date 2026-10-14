@@ -49,6 +49,7 @@ export async function forgetConnectedAppUse(userId: string, clientId?: string) {
 
 /** Forgets when API tokens were last used: these (by id), or every token of the user. */
 export async function forgetApiTokenUse(target: { tokenIds: string[] } | { userId: string }) {
+  if ("tokenIds" in target && !target.tokenIds.length) return;
   written.clear();
   await db
     .delete(connectedAppUse)

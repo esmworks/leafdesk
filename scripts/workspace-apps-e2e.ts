@@ -65,10 +65,18 @@ const ws = `${RUN}-ws`;
 const other = `${RUN}-other`;
 const clients = { assistant: `${RUN}-assistant`, own: `${RUN}-own` };
 
-/** Recording a use doesn't hold up the request: give it a moment. */
-const settle = () => new Promise((resolve) => setTimeout(resolve, 300));
-
 const usesOf = (userId: string) => db.select().from(connectedAppUse).where(eq(connectedAppUse.userId, userId));
+
+/**
+ * Recording a use doesn't hold up the request: waits until the member's recorded uses number
+ * `count` (up to 3 seconds), or a moment when nothing more should come.
+ */
+async function settle(count?: number) {
+  for (let waited = 0; waited < 3000; waited += 50) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (count === undefined ? waited >= 300 : (await usesOf(ids.member)).length >= count) return;
+  }
+}
 
 try {
   await db.insert(user).values([
@@ -139,7 +147,7 @@ try {
   const rest = (secret: string) =>
     handleApiRequest(new Request(`http://localhost/api/v1/pages/${page.id}`, { headers: { authorization: `Bearer ${secret}` } }));
   const response = await rest(here.secret);
-  await settle();
+  await settle(1);
   check(response.status === 200, "a REST request with the token reads the page", response.status);
   let rows = await usesOf(ids.member);
   check(
@@ -149,7 +157,7 @@ try {
   );
   const mcp = { kind: "connected_app" as const, id: clients.assistant };
   await runAsConnectedApp({ userId: ids.member, app: mcp }, () => requirePageAccess(ids.member, page.id, "view"));
-  await settle();
+  await settle(2);
   rows = await usesOf(ids.member);
   const appUse = rows.find((r) => r.appKind === "connected_app");
   check(appUse?.workspaceId === ws, "an MCP request reaching the workspace is recorded as the app's use there", rows);
