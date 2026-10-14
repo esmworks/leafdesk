@@ -944,6 +944,7 @@
       "docx": "Word",
       "markdown": "Markdown",
       "pdf": "PDF",
+      "skill": "Habilidad (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian"
     },

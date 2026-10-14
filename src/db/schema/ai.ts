@@ -129,6 +129,8 @@ export type ChatQueryCondition = { property: string; op: string; value: string |
 export type ChatMessageRecord = {
   role: "user" | "assistant";
   content: string;
+  /** Questions: the skill the answer followed, with its title then. */
+  skill?: { id: string; title: string };
   /** Assistant answers: the sources the answer cites as [n]. */
   sources?: ChatSourceRef[];
   /** Answers that didn't finish: stopped by the person, or cut off at the length limit. */

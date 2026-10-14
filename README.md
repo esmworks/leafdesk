@@ -381,6 +381,10 @@ versions, upgrades and running behind a domain.
   or in a panel beside a page, that answers questions from the pages you can read, citing them; and semantic search with an
   embeddings model. Anthropic, OpenAI, Google, any OpenAI-compatible server, or a local model
   with Ollama or LM Studio (see [AI features](#ai-features)).
+- **Skills**: instructions your team reuses (how to review a pull request, write release notes),
+  kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
+  to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
+  `SKILL.md` (see [Skills](#skills)).
 - **Five interface languages**: English, Turkish, German, Spanish and French, chosen in My account
   or taken from the browser (see [Languages](#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
@@ -492,7 +496,8 @@ removed after a day.
 
 ## Export
 
-The page menu exports a page as Markdown or a database as CSV. "Export with subpages" (for a
+The page menu exports a page as Markdown or a database as CSV, and a skill as `SKILL.md` (see
+[Skills](#skills)). "Export with subpages" (for a
 database, "Export with row pages") downloads a ZIP of the page and everything under it; owners
 can download the whole workspace from Settings → General → Export. Owners can turn exporting off
 in Settings → Security (see [Workspace security switches](#workspace-security-switches)). The
@@ -1363,6 +1368,35 @@ add a `vector(n)` column filled from `embedding` (one model and dimension per co
 index (`vector_cosine_ops`), and order the `ranked` step of `src/server/semantic-search.ts` by
 `embedding <=> query` over a larger candidate set before the access filter's final cut.
 
+## Skills
+
+A skill is a page or database row whose body is instructions to reuse: a review checklist, how to
+write release notes, how to triage a bug. Whoever may edit a page turns on *Use as skill* in its
+`⋯` menu; a bar under the title then holds what the skill is for and when to use it (up to 1024
+characters), which the lists below show; without it they show the start of the body. Databases,
+templates and the pages in them can't be skills, and a copy of a skill isn't one. Skills have no
+access of their own: everyone sees the skills they can open, and a skill in the trash leaves every
+list until it is restored.
+
+- **Skills library**: the sidebar's skills button (next to the people and graph buttons) opens
+  `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable. *New skill*
+  makes a private page already marked as one.
+- **AI chat**: `/` at the start of the empty question box (or the skills button under it) lists
+  the skills; the one picked shows above the box and the next question goes to the model with its
+  instructions, which the model is told to follow for that question only. They don't widen what the
+  chat may change: the mode under the box still decides. The question keeps the skill it used
+  (shown above it), *Answer again* and *Edit* use it again, and later questions go without it.
+  A skill longer than 20,000 characters can't be used in the chat.
+- **MCP**: `list_skills`, `get_skill` (by name, page id or link) and `set_skill` (mark, unmark,
+  describe), and every skill the user can open is a prompt of its name, which hands its instructions
+  (and an optional `input`) to the client. Names come from titles and are unique across the user's
+  workspaces (`review-checklist`, `review-checklist-2`). The server's instructions tell the model
+  to follow a skill only when the user asked for it or picked its prompt.
+- **Export**: *Export as SKILL.md* in the page menu (and the download button in the library)
+  downloads `<name>.zip` holding `<name>/SKILL.md`: front matter with the name and description,
+  then the body as Markdown with links to the app in full: the folder layout AI assistants install
+  skills from.
+
 ## Agents
 
 An agent is an AI helper of a workspace with a name, an emoji, a description and instructions of
@@ -1610,6 +1644,8 @@ The tools cover:
 - **Row activity:** `list_row_activity` lists who created a row and who changed what in it, newest
   first.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
+- **Skills:** `list_skills`, `get_skill`, `set_skill`; every skill is also a prompt of its name
+  (see [Skills](#skills)).
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
   about the whole page, as agents write them, comes back with `about_page: true` and no quote.
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
@@ -1724,7 +1760,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

@@ -15,7 +15,8 @@
     "trash": "Trash",
     "templates": "Templates",
     "import": "Import",
-    "graph": "Graph"
+    "graph": "Graph",
+    "skills": "Skills"
   },
   "toggle": {
     "open": "Open sidebar",

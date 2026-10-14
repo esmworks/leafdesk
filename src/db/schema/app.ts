@@ -372,6 +372,13 @@ export const page = pgTable(
     inTemplate: boolean("in_template").notNull().default(false),
     /** Databases: the row template "New" starts from; null for a blank row. */
     defaultTemplateId: text("default_template_id").references((): AnyPgColumn => page.id, { onDelete: "set null" }),
+    /**
+     * A skill (server/skills.ts): reusable instructions, the page's body, offered in the skills
+     * library, to MCP clients as prompts and in the AI chat. Pages and rows only, never templates.
+     */
+    isSkill: boolean("is_skill").notNull().default(false),
+    /** What the skill is for and when to use it; empty reads as the start of the body. */
+    skillDescription: text("skill_description").notNull().default(""),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     updatedBy: text("updated_by").references(() => user.id, { onDelete: "set null" }),
     ...timestamps,
@@ -385,6 +392,7 @@ export const page = pgTable(
       foreignColumns: [teamspace.id, teamspace.workspaceId],
     }),
     index("page_template_idx").on(t.workspaceId, t.parentId).where(sql`${t.isTemplate}`),
+    index("page_skill_idx").on(t.workspaceId).where(sql`${t.isSkill}`),
     index("page_search_idx").using(
       "gin",
       sql`to_tsvector('simple', coalesce(${t.title}, '') || ' ' || coalesce(${t.contentText}, ''))`,

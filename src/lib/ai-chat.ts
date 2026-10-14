@@ -95,6 +95,8 @@ export type ChatQueryCondition = { property: string; op: string; value: string |
 export type ChatMessageView = {
   role: "user" | "assistant";
   content: string;
+  /** Questions: the skill the answer followed. */
+  skill?: { id: string; title: string };
   sources?: ChatSourceView[];
   note?: "stopped" | "cutOff";
   /** Answers: the steps taken and how long the answer took (not kept before steps were). */

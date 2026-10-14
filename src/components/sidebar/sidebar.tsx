@@ -18,6 +18,7 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
+  ScrollText,
   Search,
   Settings,
   ShieldCheck,
@@ -1014,6 +1015,21 @@ export function Sidebar({
                   <Waypoints className="h-4 w-4" />
                 </Link>
               )}
+              {/* The skills library: guests see the skills shared with them. */}
+              {!offline && (
+                <Link
+                  href={`/w/${workspaceId}/skills`}
+                  aria-label={t("nav.skills")}
+                  title={t("nav.skills")}
+                  aria-current={pathname === `/w/${workspaceId}/skills` ? "page" : undefined}
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
+                    pathname === `/w/${workspaceId}/skills` && "bg-bg-active text-fg",
+                  )}
+                >
+                  <ScrollText className="h-4 w-4" />
+                </Link>
+              )}
               {/* The full-page AI chat sits beside Home as an icon, keeping the list above the pages short. */}
               {aiChat &&
                 (offline ? (
@@ -1134,6 +1150,7 @@ export function Sidebar({
                 { id: "import", label: t("nav.import"), icon: <Upload className="h-4 w-4" />, run: () => openImport(undefined) },
                 { id: "trash", label: t("nav.trash"), icon: <Trash2 className="h-4 w-4" />, run: () => setTrashOpen(true) },
                 { id: "graph", label: t("nav.graph"), icon: <Waypoints className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/graph`) },
+                { id: "skills", label: t("nav.skills"), icon: <ScrollText className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/skills`) },
               ]
             : []),
           { id: "inbox", label: t("nav.inbox"), icon: <Inbox className="h-4 w-4" />, run: () => setInboxOpen(true) },

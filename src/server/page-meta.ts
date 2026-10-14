@@ -31,6 +31,8 @@ export type PageHeaderInfo = {
   exportable: boolean;
   /** Requests for access waiting on the page; counted for those who can answer them (full access), else 0. */
   accessRequests: number;
+  /** Set when the page is a skill: what it is for (empty until someone writes it). */
+  skill: { description: string } | null;
 };
 
 export async function getPageHeaderInfo(userId: string, pageId: string): Promise<PageHeaderInfo> {
@@ -69,6 +71,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     ai,
     exportable,
     accessRequests,
+    skill: found.isSkill && !found.inTemplate ? { description: found.skillDescription } : null,
   };
 }
 

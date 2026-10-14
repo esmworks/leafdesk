@@ -1,0 +1,46 @@
+{
+  "metaTitle": "Skills",
+  "heading": "Skills",
+  "description": "Anleitungen, die dein Team immer wieder nutzt, als Seiten: einen Pull Request prüfen, Release Notes schreiben, einen Fehler einordnen. Wähle einen im KI-Chat mit / oder in einer mit dem Workspace verbundenen KI-App. Jeder Skill ist eine Seite oder Datenbankzeile; alle sehen die Skills, die sie öffnen können.",
+  "new": "Neuer Skill",
+  "search": "Skills durchsuchen",
+  "count": "{count, plural, one {# Skill} other {# Skills}}",
+  "noMatches": "Kein Skill passt zu deiner Suche.",
+  "emptyTitle": "Noch keine Skills",
+  "emptyHint": "Jede Seite und jede Datenbankzeile kann ein Skill sein: Öffne sie und schalte im ⋯-Menü „Als Skill verwenden“ ein, oder beginne mit „Neuer Skill“.",
+  "noDescription": "Noch keine Beschreibung",
+  "inDatabase": "In {database}",
+  "updated": "Aktualisiert {time}",
+  "download": "{title} als SKILL.md herunterladen",
+  "downloadHint": "Ein ZIP mit der SKILL.md des Skills, für KI-Assistenten, die Skills installieren",
+  "menu": {
+    "toggle": "Als Skill verwenden",
+    "hint": "Diese Seite als wiederverwendbare Anleitung im KI-Chat und in mit dem Workspace verbundenen KI-Apps anbieten",
+    "export": "Als SKILL.md exportieren"
+  },
+  "bar": {
+    "label": "Skill",
+    "description": "Wofür der Skill ist",
+    "placeholder": "Beschreibe, wofür dieser Skill ist und wann man ihn nutzt",
+    "none": "Noch keine Beschreibung",
+    "library": "Alle Skills"
+  },
+  "chat": {
+    "heading": "Skills",
+    "none": "Noch keine Skills.",
+    "library": "Skill-Bibliothek öffnen",
+    "noMatches": "Kein passender Skill.",
+    "using": "Mit dem Skill {title}",
+    "remove": "Skill entfernen",
+    "pick": "Skill verwenden",
+    "pickHint": "Skill verwenden (oder / ins leere Feld tippen)",
+    "used": "Mit dem Skill {title} beantwortet"
+  },
+  "errors": {
+    "notAPage": "Nur Seiten und Datenbankzeilen können Skills sein, keine Datenbanken.",
+    "template": "Vorlagen und die Seiten darin können keine Skills sein.",
+    "inTrash": "Stelle die Seite zuerst aus dem Papierkorb wieder her.",
+    "tooLong": "Die Beschreibung eines Skills darf höchstens {max} Zeichen haben.",
+    "notASkill": "Diese Seite ist kein Skill mehr."
+  }
+}

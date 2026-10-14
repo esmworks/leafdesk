@@ -421,6 +421,13 @@
       "when": 1791748902251,
       "tag": "0059_row_activity",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1791976703238,
+      "tag": "0060_skills",
+      "breakpoints": true
     }
   ]
 }

@@ -31,6 +31,7 @@ import { hasLevel, PageHeaderActions } from "./page-header-actions";
 import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
 import { usePagePresence } from "./use-presence";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
+import { SkillBar } from "@/components/skills/skill-bar";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
@@ -116,6 +117,8 @@ export function PageView({
   // Follows the page menu at once, and other people's changes through the header event below.
   const [lockedNow, setLockedNow] = useState(info.locked);
   const locked = page.kind === "page" && lockedNow;
+  // Whether the page is a skill, from the page menu at once and otherwise with the header.
+  const [skillNow, setSkillNow] = useState(info.skill);
   // The collab server drops edits from people who may only view, and from everyone while the page
   // is locked, so don't let them type at all. Offline edits are kept in this browser: the doc syncs
   // them when the connection comes back.
@@ -142,6 +145,7 @@ export function PageView({
 
   useEffect(() => setIcon(page.icon), [page.icon]);
   useEffect(() => setLockedNow(info.locked), [info.locked]);
+  useEffect(() => setSkillNow(info.skill), [info.skill]);
   // Unlocked (as the server says): sync again, so edits the lock held back, made offline or as it
   // came in, reach the server now that its connection takes them.
   const wasLocked = useRef(info.locked);
@@ -403,6 +407,7 @@ export function PageView({
               style={showBody ? pageStyle : undefined}
               onStyle={editable && showBody && pageDoc ? (change) => writePageStyle(pageDoc.doc, change) : undefined}
               onLocked={setLockedNow}
+              onSkill={setSkillNow}
             />
           </div>
         </header>
@@ -483,6 +488,9 @@ export function PageView({
                 </div>
               )}
             </div>
+            {skillNow && !wide && !page.archived && (
+              <SkillBar workspaceId={workspaceId} pageId={page.id} description={skillNow.description} editable={canEdit && !offline} />
+            )}
             {error && <p className="mt-2 text-sm text-danger">{error}</p>}
             {actionError && !page.archived && (
               <p role="alert" className="mt-2 text-sm text-danger">

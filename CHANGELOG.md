@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Skills.** A page or database row can be marked *Use as skill* in its `⋯` menu (edit access;
+  not databases, templates or the pages in them): its body is instructions to reuse, and a bar
+  under the title says what it is for. The sidebar's new skills button opens the workspace's
+  skills library (searchable, with *New skill*). In the AI chat, `/` at the start of the empty box
+  picks a skill whose instructions the next question follows, without widening what the chat may
+  change; the question keeps it, and *Answer again* and *Edit* use it again. MCP clients get
+  `list_skills`, `get_skill` and `set_skill`, `get_page` says whether a page is a skill, and every
+  skill the user can open is also a prompt of its name, unique across their workspaces. The page
+  menu and the library export a skill as a ZIP holding `<name>/SKILL.md`. Skills follow page
+  access everywhere and leave every list while in the trash. Migration `0060_skills` adds
+  `page.is_skill` and `page.skill_description`. Covered in `scripts/skills-e2e.ts` and
+  `scripts/mcp-e2e.ts`.
 - **Copy ID.** A page's, database's or row's menu (also in the row panel) has *Copy ID*, and a
   column's menu, in the table and on a row's page, *Copy property ID*: the ids the REST API and MCP
   clients take, where a property's name may change. No migration.

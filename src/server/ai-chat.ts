@@ -47,6 +47,7 @@ import { pageLabel } from "@/lib/labels";
 import { AccessError, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { aiConfig, AiError, isAiError, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage } from "@/server/ai";
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
+import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import * as ops from "@/server/operations";
@@ -72,6 +73,8 @@ const THOUGHT_CHARS = 300;
 const HISTORY_SHARE = 0.25;
 /** How often a stream waiting on the person's decision sends a ping. */
 const PING_MS = 20_000;
+/** The longest skill a question can use: its instructions go with the question whole. */
+export const MAX_CHAT_SKILL = 20_000;
 
 export type ChatInput = {
   workspaceId: string;
@@ -86,6 +89,8 @@ export type ChatInput = {
    * question): they are replaced once the new answer is kept, and left as they were otherwise.
    */
   replaceLast?: boolean;
+  /** A skill of the workspace whose instructions the answer follows (server/skills). */
+  skillId?: string | null;
 };
 
 /** Refusals before anything is sent: access problems look like missing things. */
@@ -102,6 +107,19 @@ async function scopePage(userId: string, workspaceId: string, scope: ChatScope |
   if (found.workspaceId !== workspaceId || found.archivedAt || found.inTemplate) refuse("noAccess", "Page not found");
   return found;
 }
+
+/** The skill a question uses: one of the workspace the person can open, not too long to send. */
+async function chatSkill(userId: string, workspaceId: string, skillId: string): Promise<ChatSkill> {
+  const found = await getSkillContent(userId, skillId).catch((error) => {
+    if ((error instanceof AccessError && !(error instanceof WorkspacePolicyError)) || error instanceof SkillError) refuse("noAccess", "Skill not found");
+    throw error;
+  });
+  if (found.workspaceId !== workspaceId) refuse("noAccess", "Skill not found");
+  if (found.body.length > MAX_CHAT_SKILL) refuse("tooLarge", `A skill used in the chat may have at most ${MAX_CHAT_SKILL} characters`);
+  return { id: found.id, title: found.title, body: found.body };
+}
+
+type ChatSkill = { id: string; title: string; body: string };
 
 /** The person's conversation (theirs, in this workspace), or noAccess. */
 async function ownConversation(userId: string, workspaceId: string, conversationId: string) {
@@ -132,13 +150,14 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   });
   if (!(await aiAvailable(input.workspaceId))) refuse("disabled", "AI is off for this workspace");
   const scope = await scopePage(userId, input.workspaceId, input.scope);
+  const skill = input.skillId ? await chatSkill(userId, input.workspaceId, input.skillId) : null;
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const replaced = input.replaceLast ? lastTurn(existing) : 0;
   if (existing && existing.messages.filter((m) => m.role === "user").length - (replaced ? 1 : 0) >= MAX_CHAT_TURNS) {
     refuse("tooLarge", "This conversation is full; start a new one");
   }
   takeRateLimit({ userId, workspaceId: input.workspaceId });
-  return runChat(userId, input.workspaceId, message, scope ? { id: scope.id, title: scope.title } : null, existing, input.mode ?? "ask", replaced, signal);
+  return runChat(userId, input.workspaceId, message, scope ? { id: scope.id, title: scope.title } : null, skill, existing, input.mode ?? "ask", replaced, signal);
 }
 
 /**
@@ -157,6 +176,7 @@ async function* runChat(
   workspaceId: string,
   message: string,
   scope: { id: string; title: string } | null,
+  skill: ChatSkill | null,
   existing: typeof aiConversation.$inferSelect | null,
   initialMode: ChatMode,
   /** Records at the end of the conversation the new turn replaces. */
@@ -168,7 +188,7 @@ async function* runChat(
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   const tools = mode === "read" ? CHAT_TOOLS : [...CHAT_TOOLS, ...WRITE_TOOLS];
-  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read");
+  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = () => limits.maxInputChars - system.length - toolsSize - 200;
 
@@ -197,9 +217,9 @@ async function* runChat(
     // Nothing is searched for the model: it gets the map of what there is and decides itself.
     const earlier = existing?.messages.slice(0, existing.messages.length - replaced) ?? [];
     const history: AiMessage[] = chatHistory(earlier, Math.floor(room() * HISTORY_SHARE));
-    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - 2_000);
+    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - 2_000);
     const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
-    const messages: AiMessage[] = [...history, { role: "user", content: chatQuestionPrompt(message, map) }];
+    const messages: AiMessage[] = [...history, { role: "user", content: chatQuestionPrompt(message, map, skill?.body) }];
 
     // ------------------------------------------------------------------------------ model turns
     for (let round = 0; round < MAX_ROUNDS; round++) {
@@ -290,7 +310,7 @@ async function* runChat(
     await saveTurn(
       conversation.id,
       [
-        { role: "user", content: message, at: now },
+        { role: "user", content: message, ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}), at: now },
         { role: "assistant", content: answer, sources: refs, ...(note ? { note } : {}), steps, ms, at: now },
       ],
       replaced,
@@ -413,6 +433,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
       return {
         role: m.role,
         content: m.content,
+        ...(m.skill ? { skill: m.skill } : {}),
         ...(sources ? { sources } : {}),
         ...(m.note ? { note: m.note } : {}),
         ...(steps ? { steps } : {}),

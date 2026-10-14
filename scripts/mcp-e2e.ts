@@ -422,6 +422,7 @@ async function main() {
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
     "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "list_agent_runs", "list_connections", "set_agent_connection_tools",
+    "list_skills", "get_skill", "set_skill",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
   const getPageTool = list.message.result.tools.find((t: { name: string }) => t.name === "get_page");
@@ -452,6 +453,24 @@ async function main() {
   page = await mcp.ok("get_page", { page_id: root.id });
   check(page.markdown.trim() === "Replaced body.", "replace overwrites the body", page.markdown);
   check(page.title === `MCP e2e ${RUN} renamed`, "update_page renames", page.title);
+
+  // ---- skills: a page made a skill is a prompt of its name, over HTTP as well
+  check(init.capabilities?.prompts !== undefined, "the server offers prompts", init.capabilities);
+  const skill = await mcp.ok("set_skill", { page_id: root.id, skill: true, description: "Answers like the e2e page." });
+  check(skill.skill === true, "set_skill makes a page a skill", skill);
+  const { skills: listedSkills } = await mcp.ok("list_skills", {});
+  const named = listedSkills.find((s: { page_id: string }) => s.page_id === root.id);
+  check(named && /^mcp-e2e-[a-z0-9-]+-renamed$/.test(named.name), "list_skills names it after its title", listedSkills);
+  const prompts = await mcp.request("prompts/list", {});
+  check(
+    prompts.message?.result?.prompts?.some((p: { name: string; description: string }) => p.name === named.name && p.description === "Answers like the e2e page."),
+    "prompts/list offers the skill",
+    prompts.message,
+  );
+  const prompt = await mcp.request("prompts/get", { name: named.name, arguments: { input: "Say hi" } });
+  const promptText: string = prompt.message?.result?.messages?.[0]?.content?.text ?? "";
+  check(promptText.includes("Replaced body.") && promptText.endsWith("Say hi"), "prompts/get hands over its instructions and the input", prompt.message);
+  await mcp.ok("set_skill", { page_id: root.id, skill: false });
 
   // ---- files (files:write): base64 upload into the body, served to the signed-in user only
   const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");

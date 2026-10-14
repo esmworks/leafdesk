@@ -17,6 +17,7 @@ import {
   MoreHorizontal,
   MoveHorizontal,
   Printer,
+  ScrollText,
   Search,
   Sparkles,
   Star,
@@ -36,6 +37,7 @@ import {
   setPageLockedAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
+import { setSkillAction } from "@/app/actions/skills";
 import { deleteTemplateAction, saveAsTemplateAction } from "@/app/actions/templates";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover, Switch } from "@/components/ui";
@@ -87,6 +89,7 @@ export function PageHeaderActions({
   style,
   onStyle,
   onLocked,
+  onSkill,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean };
@@ -115,11 +118,14 @@ export function PageHeaderActions({
   onStyle?: (change: Partial<PageStyle>) => void;
   /** Hears whether the page is locked as the header learns it: from the menu at once, else refetched. */
   onLocked?: (locked: boolean) => void;
+  /** Hears whether the page is a skill, likewise. */
+  onSkill?: (skill: PageHeaderInfo["skill"]) => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
   const [info, setInfo] = useState(initialInfo);
   useEffect(() => onLocked?.(info.locked), [info.locked, onLocked]);
+  useEffect(() => onSkill?.(info.skill), [info.skill, onSkill]);
   const offlineTitle = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : label);
   const aiChat = useAiChat();
   const tAi = useTranslations("ai.chat");
@@ -390,6 +396,7 @@ function PageMenu({
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
   const tTemplate = useTranslations("page.template");
+  const tSkills = useTranslations("skills");
   const locale = useLocale();
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
@@ -454,6 +461,17 @@ function PageMenu({
       } catch {
         onInfo({ ...info, locked: !locked });
         setError(t("actionFailed"));
+      }
+    });
+
+  const setSkill = (on: boolean) =>
+    startTransition(async () => {
+      setError(null);
+      onInfo({ ...info, skill: on ? { description: info.skill?.description ?? "" } : null });
+      const result = await setSkillAction(page.id, { skill: on });
+      if (!result.ok) {
+        onInfo(info);
+        setError(result.error);
       }
     });
 
@@ -580,6 +598,19 @@ function PageMenu({
               </>
             )}
 
+            {/* Reusable instructions for the AI chat and MCP clients (server/skills). Templates can't be skills. */}
+            {!isDatabase && !page.archived && !info.template && (canEdit || info.skill) && (
+              <>
+                {/* Beside the lock switch, which shows whenever they may edit. */}
+                {!canEdit && !info.locked && <MenuSeparator />}
+                <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={tSkills("menu.hint")}>
+                  <ScrollText className="h-4 w-4 text-fg-muted" />
+                  <span className="flex-1">{tSkills("menu.toggle")}</span>
+                  <Switch checked={Boolean(info.skill)} disabled={!canEdit || pending} onChange={setSkill} label={tSkills("menu.toggle")} />
+                </div>
+              </>
+            )}
+
             <MenuSeparator />
             {/* Hidden while the workspace has export turned off; the routes refuse it too. */}
             {info.exportable && (
@@ -606,6 +637,20 @@ function PageMenu({
                       <FileSpreadsheet className="h-4 w-4" />
                     </span>
                     <span className="flex-1 truncate">{t("exportXlsx")}</span>
+                  </a>
+                )}
+                {info.skill && (
+                  <a
+                    href={`/w/${workspaceId}/p/${page.id}/export?format=skill`}
+                    download
+                    onClick={() => close()}
+                    title={tSkills("downloadHint")}
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                  >
+                    <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
+                      <ScrollText className="h-4 w-4" />
+                    </span>
+                    <span className="flex-1 truncate">{tSkills("menu.export")}</span>
                   </a>
                 )}
                 <MenuItem

@@ -180,8 +180,8 @@
     "disabled": "Bu çalışma alanında yapay zekâ kapalı. Sahipler Ayarlar → Genel → Yapay zekâ bölümünden açabilir.",
     "loadFailed": "Sohbet yüklenemedi.",
     "errors": {
-      "noAccess": "Bu sohbet ya da sayfa artık kullanılamıyor.",
-      "tooLarge": "Soru çok uzun ya da bu sohbet doldu. Kısalt ya da yeni bir sohbet başlat.",
+      "noAccess": "Bu sohbet, sayfa ya da beceri artık kullanılamıyor.",
+      "tooLarge": "Soru ya da beceri çok uzun veya bu sohbet doldu. Kısalt ya da yeni bir sohbet başlat.",
       "disabled": "Bu çalışma alanında yapay zekâ kapalı.",
       "invalid": "Önce bir soru yaz."
     },

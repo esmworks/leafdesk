@@ -15,7 +15,8 @@
     "trash": "Corbeille",
     "templates": "Modèles",
     "import": "Importer",
-    "graph": "Graphe"
+    "graph": "Graphe",
+    "skills": "Compétences"
   },
   "toggle": {
     "open": "Ouvrir la barre latérale",

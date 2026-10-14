@@ -1,0 +1,46 @@
+{
+  "metaTitle": "Habilidades",
+  "heading": "Habilidades",
+  "description": "Las instrucciones que tu equipo reutiliza, guardadas como páginas: revisar un pull request, redactar notas de versión, clasificar un error. Elige una en el chat de IA con / o desde una app de IA conectada al espacio de trabajo. Cada habilidad es una página o una fila de base de datos; cada persona ve las habilidades que puede abrir.",
+  "new": "Nueva habilidad",
+  "search": "Buscar habilidades",
+  "count": "{count, plural, one {# habilidad} other {# habilidades}}",
+  "noMatches": "Ninguna habilidad coincide con tu búsqueda.",
+  "emptyTitle": "Aún no hay habilidades",
+  "emptyHint": "Cualquier página o fila de base de datos puede ser una habilidad: ábrela y activa «Usar como habilidad» en su menú ⋯, o empieza con «Nueva habilidad».",
+  "noDescription": "Aún sin descripción",
+  "inDatabase": "En {database}",
+  "updated": "Actualizada {time}",
+  "download": "Descargar {title} como SKILL.md",
+  "downloadHint": "Un ZIP con el SKILL.md de la habilidad, para asistentes de IA que instalan habilidades",
+  "menu": {
+    "toggle": "Usar como habilidad",
+    "hint": "Ofrecer esta página como instrucciones reutilizables en el chat de IA y a las apps de IA conectadas al espacio de trabajo",
+    "export": "Exportar como SKILL.md"
+  },
+  "bar": {
+    "label": "Habilidad",
+    "description": "Para qué sirve la habilidad",
+    "placeholder": "Di para qué sirve esta habilidad y cuándo usarla",
+    "none": "Aún sin descripción",
+    "library": "Todas las habilidades"
+  },
+  "chat": {
+    "heading": "Habilidades",
+    "none": "Aún no hay habilidades.",
+    "library": "Abrir la biblioteca de habilidades",
+    "noMatches": "Ninguna habilidad coincide.",
+    "using": "Con la habilidad {title}",
+    "remove": "Quitar habilidad",
+    "pick": "Usar una habilidad",
+    "pickHint": "Usar una habilidad (o escribe / en el cuadro vacío)",
+    "used": "Respondido con la habilidad {title}"
+  },
+  "errors": {
+    "notAPage": "Solo las páginas y las filas de base de datos pueden ser habilidades, no las bases de datos.",
+    "template": "Las plantillas y las páginas que contienen no pueden ser habilidades.",
+    "inTrash": "Primero restaura la página desde la papelera.",
+    "tooLong": "La descripción de una habilidad puede tener como máximo {max} caracteres.",
+    "notASkill": "Esta página ya no es una habilidad."
+  }
+}

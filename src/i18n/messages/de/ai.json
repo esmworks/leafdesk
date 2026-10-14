@@ -180,8 +180,8 @@
     "disabled": "KI ist in diesem Workspace ausgeschaltet. Eigentümer können sie unter Einstellungen → Allgemein → KI einschalten.",
     "loadFailed": "Die Unterhaltung konnte nicht geladen werden.",
     "errors": {
-      "noAccess": "Diese Unterhaltung oder Seite ist nicht mehr verfügbar.",
-      "tooLarge": "Die Frage ist zu lang oder diese Unterhaltung ist voll. Kürze sie oder starte einen neuen Chat.",
+      "noAccess": "Diese Unterhaltung, Seite oder dieser Skill ist nicht mehr verfügbar.",
+      "tooLarge": "Die Frage oder der Skill ist zu lang, oder diese Unterhaltung ist voll. Kürze sie oder starte einen neuen Chat.",
       "disabled": "KI ist in diesem Workspace ausgeschaltet.",
       "invalid": "Schreib zuerst eine Frage."
     },

@@ -1,4 +1,7 @@
+import { strToU8, zipSync } from "fflate";
+import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
+import { skillMarkdown, skillSlug } from "@/lib/skills";
 import { XLSX_MIME } from "@/lib/xlsx";
 import { AccessError } from "@/server/access";
 import { MAX_BULK_ROWS } from "@/server/databases";
@@ -20,6 +23,7 @@ import {
 } from "@/server/export";
 import { exportLabels } from "@/server/export-labels";
 import { getPage } from "@/server/pages";
+import { getSkillContent, SkillError } from "@/server/skills";
 import { blockedByWorkspacePolicy, getSession, policyRefusal } from "@/server/session";
 
 function download(body: string, type: string, disposition: string) {
@@ -45,7 +49,8 @@ async function requestedRows(request: Request): Promise<string[] | null> {
 
 /**
  * A page as Markdown, or a database's rows as CSV (all of them, or with POST the selected ones);
- * `?format=xlsx` gives the rows as an Excel workbook instead.
+ * `?format=xlsx` gives the rows as an Excel workbook instead, and `?format=skill` a skill as a ZIP of
+ * `<name>/SKILL.md` (the folder AI assistants install skills from).
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
  * adding `check=1` only answers whether that export can be made (JSON), so the page menu can say
  * why not before starting a download. Pages the user can't see are 404; with export turned off in
@@ -78,6 +83,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       }
     }
 
+    if (query.get("format") === "skill") {
+      const skill = await getSkillContent(userId, pageId);
+      const { body } = await pageMarkdown(userId, pageId, labels);
+      const name = skillSlug(skill.title);
+      // Outside the app, links to its pages and files only work in full.
+      const file = skillMarkdown({ name, description: skill.description, body: body.replace(/\]\(\/(w|api\/files)\//g, `](${env.appUrl}/$1/`) });
+      await recordExport(userId, { workspaceId: target.workspaceId, page: { id: pageId, title: skill.title }, format: "skill" });
+      return new Response(Buffer.from(zipSync({ [`${name}/SKILL.md`]: strToU8(file) })), {
+        headers: { "Content-Type": "application/zip", "Content-Disposition": attachment(name, "zip"), "Cache-Control": "no-store" },
+      });
+    }
     if (target.kind === "database" && query.get("format") === "xlsx") {
       const { title, xlsx } = await databaseXlsx(userId, pageId, await requestedRows(request));
       return new Response(xlsx, {
@@ -93,7 +109,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
     await recordExport(userId, { workspaceId: target.workspaceId, page: { id: pageId, title: name }, format: "markdown" });
     return download(markdownFile(name, body), "text/markdown", attachment(pageLabel(name, labels.untitled), "md"));
   } catch (error) {
-    if (error instanceof AccessError) return new Response("Not found", { status: 404 });
+    if (error instanceof AccessError || error instanceof SkillError) return new Response("Not found", { status: 404 });
     if (error instanceof ExportError) return exportErrorResponse(error);
     throw error;
   }

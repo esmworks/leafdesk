@@ -184,7 +184,7 @@ export type ExportRecord = {
   workspaceId: string;
   /** The page exported; null for the whole workspace. */
   page: { id: string; title: string } | null;
-  format: "zip" | "csv" | "xlsx" | "markdown" | "pdf";
+  format: "zip" | "csv" | "xlsx" | "markdown" | "pdf" | "skill";
   /** How many pages (or rows, or files) it holds, when known. */
   pages?: number;
   rows?: number;

@@ -180,8 +180,8 @@
     "disabled": "AI is turned off in this workspace. Owners can turn it on in Settings → General → AI.",
     "loadFailed": "The conversation couldn't be loaded.",
     "errors": {
-      "noAccess": "That conversation or page isn't available anymore.",
-      "tooLarge": "That question is too long, or this conversation is full. Shorten it or start a new chat.",
+      "noAccess": "That conversation, page or skill isn't available anymore.",
+      "tooLarge": "That question or skill is too long, or this conversation is full. Shorten it or start a new chat.",
       "disabled": "AI is turned off in this workspace.",
       "invalid": "Type a question first."
     },

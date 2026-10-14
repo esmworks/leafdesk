@@ -33,6 +33,7 @@ import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
+import * as skills from "@/server/skills";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { valueText } from "@/lib/row-activity";
 import * as teamspaces from "@/server/teamspaces";
@@ -41,7 +42,7 @@ import * as templates from "@/server/templates";
 import { isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
-import { pageUrl, sliceText, ToolInputError } from "./mcp/format";
+import { idFromLink, pageUrl, sliceText, ToolInputError } from "./mcp/format";
 import {
   describeAccessSettings,
   describeChartSeries,
@@ -299,6 +300,22 @@ export const inputs = {
     quote: z.string().min(1).max(1000).optional().describe("Start a new thread on this exact text of the page."),
     thread_id: z.string().min(1).optional().describe("Reply in this thread instead."),
   }),
+  listSkills: z.object({
+    workspace_id: z.string().optional().describe("Only this workspace's skills. Leave out for every workspace."),
+  }),
+  getSkill: z.object({
+    skill: z.string().min(1).describe("The skill's name (from list_skills), or its page id or link."),
+    offset: z.number().int().min(0).default(0).describe("Character offset into the instructions, for long skills."),
+  }),
+  setSkill: z.object({
+    page_id: id("page"),
+    skill: z.boolean().optional().describe("true marks the page or row as a skill, false unmarks it."),
+    description: z
+      .string()
+      .max(skills.MAX_SKILL_DESCRIPTION)
+      .optional()
+      .describe("What the skill is for and when to use it, in a sentence or two. Empty clears it."),
+  }),
 };
 
 type Args<K extends keyof typeof inputs> = z.infer<(typeof inputs)[K]>;
@@ -490,6 +507,8 @@ export async function getPage(
     // A locked page's title, icon, background and body can't change; a locked database's properties and views.
     locked: Boolean(page.lockedAt),
     favorite,
+    // A skill's body is instructions someone may ask to follow; get_skill reads it under its name.
+    ...(page.isSkill && !page.inTemplate ? { skill: true, skill_description: page.skillDescription } : {}),
     updated_at: page.updatedAt.toISOString(),
     url: pageUrl(page.workspaceId, page.id),
   };
@@ -1085,6 +1104,73 @@ export async function addComment(ctx: OperationContext, { page_id, text, quote, 
   return {
     thread_id: result.thread?.id,
     comment_id: result.comment?.id,
+    url: pageUrl(page.workspaceId, page.id),
+  };
+}
+
+// ---------------------------------------------------------------------------- skills
+
+function skillOut(s: skills.NamedSkill, workspaces: number) {
+  return {
+    name: s.name,
+    page_id: s.id,
+    title: s.title,
+    description: s.description,
+    ...(s.described ? {} : { description_from_body: true }),
+    ...(workspaces > 1 ? { workspace_id: s.workspaceId, workspace: s.workspaceName } : {}),
+    ...(s.database ? { database_id: s.database.id, database: s.database.title } : {}),
+    updated_at: s.updatedAt.toISOString(),
+    url: pageUrl(s.workspaceId, s.id),
+  };
+}
+
+export async function listSkills(ctx: OperationContext, { workspace_id }: Args<"listSkills">) {
+  const all = await skills.namedSkills(ctx.userId);
+  const workspaceId = workspace_id ? idFromLink("workspace_id", workspace_id) : undefined;
+  if (workspaceId && !(await pages.listWorkspaces(ctx.userId)).some((w) => w.id === workspaceId)) {
+    throw new ToolInputError("No workspace with that id. Call list_workspaces to see the user's workspaces.");
+  }
+  const list = workspaceId ? all.filter((s) => s.workspaceId === workspaceId) : all;
+  const workspaces = new Set(all.map((s) => s.workspaceId)).size;
+  return {
+    skills: list.map((s) => skillOut(s, workspaces)),
+    ...(list.length ? {} : { note: "No skills yet. Any page or database row can be made a skill with set_skill." }),
+  };
+}
+
+/** `maxChars` bounds the instructions returned, like get_page's body. */
+export async function getSkill(ctx: OperationContext, { skill, offset }: Args<"getSkill">, { maxChars }: { maxChars?: number } = {}) {
+  const wanted = skill.trim();
+  const pageId = idFromLink("page_id", wanted);
+  const named = await skills.namedSkills(ctx.userId);
+  const found = named.find((s) => s.name === wanted.toLowerCase()) ?? named.find((s) => s.id === pageId);
+  if (!found) {
+    throw new ToolInputError(
+      named.length ? `No skill named "${wanted}". Call list_skills to see the user's skills.` : "The user has no skills yet.",
+    );
+  }
+  const content = await skills.getSkillContent(ctx.userId, found.id);
+  const body = sliceText(content.body, offset, maxChars);
+  return {
+    name: found.name,
+    page_id: content.id,
+    title: content.title,
+    description: content.description,
+    instructions: body.text,
+    ...(body.truncated ? { instructions_truncated: true, instructions_total_chars: body.totalChars } : {}),
+    ...("note" in body ? { note: body.note } : {}),
+    url: pageUrl(content.workspaceId, content.id),
+  };
+}
+
+export async function setSkill(ctx: OperationContext, { page_id, skill, description }: Args<"setSkill">) {
+  if (skill === undefined && description === undefined) throw new ToolInputError("Pass skill, description or both.");
+  await skills.setSkill(ctx.userId, page_id, { skill, description });
+  const page = await pages.getPage(ctx.userId, page_id);
+  return {
+    page_id: page.id,
+    skill: page.isSkill,
+    description: page.skillDescription,
     url: pageUrl(page.workspaceId, page.id),
   };
 }

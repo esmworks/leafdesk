@@ -1,0 +1,46 @@
+{
+  "metaTitle": "Beceriler",
+  "heading": "Beceriler",
+  "description": "Ekibinin tekrar tekrar kullandığı talimatlar, sayfa olarak: bir pull request'i incelemek, sürüm notu yazmak, bir hatayı sınıflandırmak. AI sohbetinde / ile ya da çalışma alanına bağlı bir AI uygulamasından seç. Her beceri bir sayfa ya da veritabanı satırıdır; herkes açabildiği becerileri görür.",
+  "new": "Yeni beceri",
+  "search": "Becerilerde ara",
+  "count": "{count, plural, one {# beceri} other {# beceri}}",
+  "noMatches": "Aramanla eşleşen beceri yok.",
+  "emptyTitle": "Henüz beceri yok",
+  "emptyHint": "Her sayfa ya da veritabanı satırı beceri olabilir: sayfanın ⋯ menüsünde Beceri olarak kullan'ı aç ya da Yeni beceri ile başla.",
+  "noDescription": "Henüz açıklama yok",
+  "inDatabase": "{database} içinde",
+  "updated": "{time} güncellendi",
+  "download": "{title} becerisini SKILL.md olarak indir",
+  "downloadHint": "Becerinin SKILL.md dosyasını içeren ZIP; beceri yükleyebilen AI asistanları için",
+  "menu": {
+    "toggle": "Beceri olarak kullan",
+    "hint": "Bu sayfayı AI sohbetinde ve çalışma alanına bağlı AI uygulamalarında tekrar kullanılabilir talimat olarak sun",
+    "export": "SKILL.md olarak dışa aktar"
+  },
+  "bar": {
+    "label": "Beceri",
+    "description": "Becerinin ne işe yaradığı",
+    "placeholder": "Bu becerinin ne işe yaradığını ve ne zaman kullanılacağını yaz",
+    "none": "Henüz açıklama yok",
+    "library": "Tüm beceriler"
+  },
+  "chat": {
+    "heading": "Beceriler",
+    "none": "Henüz beceri yok.",
+    "library": "Beceri kütüphanesini aç",
+    "noMatches": "Eşleşen beceri yok.",
+    "using": "{title} becerisi kullanılıyor",
+    "remove": "Beceriyi kaldır",
+    "pick": "Beceri kullan",
+    "pickHint": "Beceri kullan (ya da boş kutuya / yaz)",
+    "used": "{title} becerisi kullanıldı"
+  },
+  "errors": {
+    "notAPage": "Yalnızca sayfalar ve veritabanı satırları beceri olabilir, veritabanları olamaz.",
+    "template": "Şablonlar ve içlerindeki sayfalar beceri olamaz.",
+    "inTrash": "Önce sayfayı çöp kutusundan geri yükle.",
+    "tooLong": "Bir becerinin açıklaması en fazla {max} karakter olabilir.",
+    "notASkill": "Bu sayfa artık bir beceri değil."
+  }
+}

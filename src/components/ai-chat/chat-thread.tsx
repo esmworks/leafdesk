@@ -19,6 +19,7 @@ import {
   Loader2,
   Pencil,
   RotateCcw,
+  ScrollText,
   SendHorizontal,
   Zap,
 } from "lucide-react";
@@ -27,8 +28,9 @@ import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode }
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { CHAT_MODES, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
-import type { ChangeDecision, Chat, ChatMessage, ChatStatus, PendingChange } from "./use-chat";
+import type { ChangeDecision, Chat, ChatMessage, ChatSkillPick, ChatStatus, PendingChange } from "./use-chat";
 
 export function ChatThread({
   chat,
@@ -41,17 +43,28 @@ export function ChatThread({
   chat: Chat;
   /** Why questions can't be asked now (offline, AI off), shown above the box. */
   blocked: string | null;
-  /** Asks the typed question; with `again`, its question in place of the last question and answer. */
-  onSend: (again?: { question: string }) => void;
+  /** Asks the typed question; with `again`, its question (and skill) in place of the last question and answer. */
+  onSend: (again?: { question: string; skill?: ChatSkillPick }) => void;
   onSource: (source: ChatSourceView) => void;
   /** Under the box, before the note (the panel's scope picker). */
   footer?: ReactNode;
   variant: "panel" | "page";
 }) {
   const t = useTranslations("ai.chat");
+  const tSkills = useTranslations("skills.chat");
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
   const page = variant === "page";
+  const skills = useSkillPicker({
+    workspaceId: chat.workspaceId,
+    input,
+    disabled: Boolean(blocked) || chat.skill !== null,
+    onPick: (skill) => {
+      chat.setSkill(skill);
+      setInput("");
+      inputRef.current?.focus();
+    },
+  });
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -94,7 +107,7 @@ export function ChatThread({
                     <Question
                       message={m}
                       page={page}
-                      onEdit={askAgain && i === messages.length - 2 ? (question) => onSend({ question }) : undefined}
+                      onEdit={askAgain && i === messages.length - 2 ? (question) => onSend({ question, skill: m.skill }) : undefined}
                     />
                   ) : (
                     <Answer
@@ -102,7 +115,9 @@ export function ChatThread({
                       status={i === messages.length - 1 ? status : null}
                       waiting={i === messages.length - 1 && chat.pending !== null}
                       last={i === messages.length - 1}
-                      onRetry={askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content }) : undefined}
+                      onRetry={
+                        askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content, skill: messages[i - 1].skill }) : undefined
+                      }
                       onSource={onSource}
                       labels={{ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }}
                     />
@@ -134,13 +149,33 @@ export function ChatThread({
                 e.preventDefault();
                 send();
               }}
-              className={cn("rounded-lg border border-border bg-bg px-2 py-1.5 focus-within:border-accent", page && "px-3 py-2 shadow-sm")}
+              className={cn("relative rounded-lg border border-border bg-bg px-2 py-1.5 focus-within:border-accent", page && "px-3 py-2 shadow-sm")}
             >
+              <SkillList picker={skills} />
+              {chat.skill && (
+                <SkillChip
+                  skill={chat.skill}
+                  onRemove={() => {
+                    chat.setSkill(null);
+                    inputRef.current?.focus();
+                  }}
+                />
+              )}
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
+                  if (skills.onKeyDown(e)) {
+                    e.preventDefault();
+                    return;
+                  }
+                  // Backspace in the empty box takes off the picked skill.
+                  if (e.key === "Backspace" && !input && chat.skill) {
+                    e.preventDefault();
+                    chat.setSkill(null);
+                    return;
+                  }
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     send();
@@ -153,14 +188,34 @@ export function ChatThread({
                 aria-label={t("placeholder")}
                 className="block max-h-40 min-h-7 w-full resize-none bg-transparent py-1 text-sm outline-none placeholder:text-fg-faint disabled:opacity-60"
               />
+              {/* The highlighted skill, for screen readers: the list itself is under the mouse. */}
+              {skills.open && skills.shown.length > 0 && (
+                <span className="sr-only" aria-live="polite">
+                  {skills.shown[Math.min(skills.active, skills.shown.length - 1)]?.title}
+                </span>
+              )}
               <div className="flex items-center justify-between gap-2">
-                <ModePicker mode={chat.mode} onChange={chat.setMode} />
+                <div className="flex items-center gap-0.5">
+                  <ModePicker mode={chat.mode} onChange={chat.setMode} />
+                  <IconButton
+                    label={tSkills("pick")}
+                    title={tSkills("pickHint")}
+                    className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
+                    disabled={Boolean(blocked) || chat.skill !== null}
+                    onClick={() => {
+                      if (!input) setInput("/");
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    <ScrollText className="h-4 w-4" />
+                  </IconButton>
+                </div>
                 {running ? (
                   <IconButton label={t("stop")} className="h-7 w-7" onClick={chat.stop}>
                     <CircleStop className="h-4 w-4" />
                   </IconButton>
                 ) : (
-                  <IconButton label={t("send")} type="submit" className="h-7 w-7" disabled={Boolean(blocked) || !input.trim()}>
+                  <IconButton label={t("send")} type="submit" className="h-7 w-7" disabled={Boolean(blocked) || !input.trim() || skills.open}>
                     <SendHorizontal className="h-4 w-4" />
                   </IconButton>
                 )}
@@ -237,6 +292,8 @@ const revealed = "opacity-0 transition-opacity group-hover/answer:opacity-100 gr
 /** A question: its text, and on hover when it was asked, editing (the last one) and copying. */
 function Question({ message, page, onEdit }: { message: ChatMessage; page: boolean; onEdit?: (question: string) => void }) {
   const t = useTranslations("ai.chat");
+  const tSkills = useTranslations("skills.chat");
+  const tc = useTranslations("common");
   const [draft, setDraft] = useState<string | null>(null);
   const place = page ? "ml-auto w-fit max-w-[80%]" : "ml-8";
 
@@ -281,6 +338,12 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
   }
   return (
     <div className="group/question">
+      {message.skill && (
+        <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ml-8")}>
+          <ScrollText className="h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0 truncate">{tSkills("used", { title: message.skill.title || tc("untitled") })}</span>
+        </p>
+      )}
       <div className={cn("rounded-lg bg-bg-subtle px-3 py-2 text-sm whitespace-pre-wrap break-words", place)}>{message.content}</div>
       <div className={cn("mt-1 flex items-center justify-end gap-0.5", revealed)}>
         {message.at && <MessageTime at={message.at} />}

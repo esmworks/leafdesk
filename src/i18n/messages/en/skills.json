@@ -1,0 +1,46 @@
+{
+  "metaTitle": "Skills",
+  "heading": "Skills",
+  "description": "Instructions your team reuses, kept as pages: how to review a pull request, write release notes or triage a bug. Pick one in the AI chat with /, or from an AI app connected to the workspace. Each skill is a page or database row; people see the skills they can open.",
+  "new": "New skill",
+  "search": "Search skills",
+  "count": "{count, plural, one {# skill} other {# skills}}",
+  "noMatches": "No skill matches your search.",
+  "emptyTitle": "No skills yet",
+  "emptyHint": "Any page or database row can be a skill: open it and turn on Use as skill in its ⋯ menu, or start one with New skill.",
+  "noDescription": "No description yet",
+  "inDatabase": "In {database}",
+  "updated": "Updated {time}",
+  "download": "Download {title} as SKILL.md",
+  "downloadHint": "A ZIP with the skill's SKILL.md, for AI assistants that install skills",
+  "menu": {
+    "toggle": "Use as skill",
+    "hint": "Offer this page as reusable instructions in the AI chat and to AI apps connected to the workspace",
+    "export": "Export as SKILL.md"
+  },
+  "bar": {
+    "label": "Skill",
+    "description": "What the skill is for",
+    "placeholder": "Say what this skill is for and when to use it",
+    "none": "No description yet",
+    "library": "All skills"
+  },
+  "chat": {
+    "heading": "Skills",
+    "none": "No skills yet.",
+    "library": "Open the skills library",
+    "noMatches": "No skill matches.",
+    "using": "Using the skill {title}",
+    "remove": "Remove skill",
+    "pick": "Use a skill",
+    "pickHint": "Use a skill (or type / in the empty box)",
+    "used": "Used the skill {title}"
+  },
+  "errors": {
+    "notAPage": "Only pages and database rows can be skills, not databases.",
+    "template": "Templates and the pages in them can't be skills.",
+    "inTrash": "Restore the page from the trash first.",
+    "tooLong": "A skill's description may have at most {max} characters.",
+    "notASkill": "This page isn't a skill anymore."
+  }
+}

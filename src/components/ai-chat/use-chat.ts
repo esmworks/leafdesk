@@ -22,6 +22,9 @@ export type ChatMessage = ChatMessageView & { key: string; startedAt?: number };
 /** A change the model asks to make, waiting for the person's decision. */
 export type PendingChange = { id: string; action: ChatActionView };
 
+/** A skill picked for the next question: its instructions guide the answer (server/skills). */
+export type ChatSkillPick = { id: string; title: string };
+
 /** Yes; yes and don't ask again (the mode becomes `auto`); no. */
 export type ChangeDecision = "approve" | "always" | "decline";
 
@@ -60,6 +63,7 @@ export function useChat(
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ChatMode>("ask");
   const [pending, setPending] = useState<PendingChange | null>(null);
+  const [skill, setSkill] = useState<ChatSkillPick | null>(null);
   const abort = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   // The latest callbacks, without restarting anything when the caller passes new ones.
@@ -92,20 +96,25 @@ export function useChat(
     setMessages((list) => (list.length && list[list.length - 1].role === "assistant" ? [...list.slice(0, -1), fn(list[list.length - 1])] : list));
 
   /**
-   * Asks the typed question, of the whole workspace or of `scopePageId` and its subpages; with
-   * `again`, asks its question (the last one, maybe edited) in place of the last question and answer.
+   * Asks the typed question with the picked skill, of the whole workspace or of `scopePageId` and
+   * its subpages; with `again`, asks its question (the last one, maybe edited, with the skill it
+   * used) in place of the last question and answer.
    */
-  async function send(scopePageId: string | null, again?: { question: string }) {
+  async function send(scopePageId: string | null, again?: { question: string; skill?: ChatSkillPick }) {
     const question = (again?.question ?? input).trim();
     if (!question || running) return;
+    const used = again ? (again.skill ?? null) : skill;
     setError(null);
-    if (!again) setInput("");
+    if (!again) {
+      setInput("");
+      setSkill(null);
+    }
     const controller = new AbortController();
     abort.current = controller;
     const startedAt = Date.now();
     const before = messages;
     const asked: ChatMessage[] = [
-      { key: nextKey(), role: "user", content: question, at: new Date(startedAt).toISOString() },
+      { key: nextKey(), role: "user", content: question, ...(used ? { skill: used } : {}), at: new Date(startedAt).toISOString() },
       { key: nextKey(), role: "assistant", content: "", steps: [], startedAt },
     ];
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
@@ -125,6 +134,7 @@ export function useChat(
           scope: scopePageId ? { pageId: scopePageId } : null,
           mode,
           ...(again ? { replaceLast: true } : {}),
+          ...(used ? { skillId: used.id } : {}),
         }),
         signal: controller.signal,
       });
@@ -189,7 +199,10 @@ export function useChat(
           const answered = !(last?.role === "assistant" && !last.content.trim() && !changed);
           return answered ? list : again ? before : list.slice(0, -2);
         });
-        if (!changed && !again) setInput((current) => current || question);
+        if (!changed && !again) {
+          setInput((current) => current || question);
+          setSkill((current) => current ?? used);
+        }
       }
       callbacks.current.onAnswered?.();
     }
@@ -218,6 +231,7 @@ export function useChat(
     setConversationId(null);
     setMessages([]);
     setError(null);
+    setSkill(null);
     inputRef.current?.focus();
   }
 
@@ -248,6 +262,9 @@ export function useChat(
   }
 
   return {
+    workspaceId,
+    skill,
+    setSkill,
     conversationId,
     messages,
     input,
