@@ -174,7 +174,11 @@
       },
       "memory": {
         "remember": "Remembered:",
-        "forget": "Forgot:"
+        "forget": "Forgot:",
+        "declined": {
+          "remember": "Declined remembering:",
+          "forget": "Declined forgetting:"
+        }
       }
     },
     "stopped": "Stopped.",
@@ -193,11 +197,14 @@
       "question": {
         "createRow": "Add this row?",
         "updateRow": "Change this row?",
-        "createPage": "Add this page?"
+        "createPage": "Add this page?",
+        "remember": "Remember this about you?",
+        "forget": "Forget this note?"
       },
       "in": "In",
       "row": "Row",
       "topLevel": "At the top of the workspace, private to you",
+      "memoryHint": "Memory: sent with your later questions in this workspace",
       "cleared": "(cleared)",
       "approve": "Yes",
       "always": "Yes, and don't ask again (Auto)",

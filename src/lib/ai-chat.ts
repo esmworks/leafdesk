@@ -87,7 +87,8 @@ export type ChatWriteView = {
  * writes, if any.
  */
 export type ChatActionView = {
-  action: ChatWriteAction;
+  /** A change to the workspace, or a note about the person to keep or drop (title: its text). */
+  action: ChatWriteAction | ChatMemoryRecord["action"];
   target: ChatPageView;
   title: string | null;
   changes: ChatChange[];
@@ -115,6 +116,9 @@ export type ChatMessageView = {
 };
 
 export type ConversationSummary = { id: string; title: string; updatedAt: string };
+
+/** Whether an answer's step kept or dropped a note about the person (declined ones didn't). */
+export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined";
 
 /**
  * Lines of `POST /api/ai/chat`'s newline-delimited JSON answer, in order: `conversation` (its id,

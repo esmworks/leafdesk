@@ -104,9 +104,10 @@ export type ChatStepRecord =
 
 /**
  * A note the chat kept about the person (`remember`, also in place of an older note) or dropped
- * (`forget`), with its text then; see server/ai-memory.ts.
+ * (`forget`), with its text then, or that the person declined to have kept or dropped; see
+ * server/ai-memory.ts. Records from before notes were approved have no outcome: they were done.
  */
-export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "forget"; text: string };
+export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "forget"; text: string; outcome?: "done" | "declined" };
 
 /** A change the AI chat may make: add a database row, change one, or add a page. */
 export type ChatWriteAction = "createRow" | "updateRow" | "createPage";

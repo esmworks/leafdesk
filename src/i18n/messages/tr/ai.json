@@ -174,7 +174,11 @@
       },
       "memory": {
         "remember": "Hatırladı:",
-        "forget": "Unuttu:"
+        "forget": "Unuttu:",
+        "declined": {
+          "remember": "Hatırlamayı reddettin:",
+          "forget": "Unutmayı reddettin:"
+        }
       }
     },
     "stopped": "Durduruldu.",
@@ -193,11 +197,14 @@
       "question": {
         "createRow": "Bu satır eklensin mi?",
         "updateRow": "Bu satır değiştirilsin mi?",
-        "createPage": "Bu sayfa eklensin mi?"
+        "createPage": "Bu sayfa eklensin mi?",
+        "remember": "Bunu senin hakkında hatırlasın mı?",
+        "forget": "Bu not unutulsun mu?"
       },
       "in": "Yer:",
       "row": "Satır:",
       "topLevel": "Çalışma alanının en üstünde, yalnızca sana özel",
+      "memoryHint": "Hafıza: bu çalışma alanındaki sonraki sorularınla gönderilir",
       "cleared": "(temizlenir)",
       "approve": "Evet",
       "always": "Evet, bundan sonra sorma (Otomatik)",

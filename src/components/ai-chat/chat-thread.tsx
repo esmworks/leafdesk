@@ -28,7 +28,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { CHAT_MODES, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { CHAT_MODES, changedMemory, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
 import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
@@ -281,7 +281,7 @@ function Answer({
       {message.content && <AnswerText text={message.content} sources={byNumber} onSource={onSource} />}
       {message.note && <p className="mt-1 text-xs text-fg-muted">{message.note === "stopped" ? labels.stopped : labels.cutOff}</p>}
       {/* Notes kept or dropped show even with the steps folded: the person should know. */}
-      {done && message.steps?.some((s) => s.kind === "memory") && (
+      {done && message.steps?.some(changedMemory) && (
         <button type="button" onClick={onMemory} className="-ml-1 mt-1.5 flex items-center gap-1.5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
           <Brain className="h-3.5 w-3.5 shrink-0" />
           {tMemory("updated")}
@@ -532,6 +532,9 @@ function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatM
 }
 
 const DECISIONS: ChangeDecision[] = ["approve", "always", "decline"];
+/** A note about the person is asked about each time: no "don't ask again" (it would turn on Auto). */
+const MEMORY_DECISIONS: ChangeDecision[] = ["approve", "decline"];
+const isMemory = (action: PendingChange["action"]) => action.action === "remember" || action.action === "forget";
 
 /**
  * A change the model asks to make, in the box's place: what, where, the values and text it sets,
@@ -549,6 +552,8 @@ function ChangePrompt({
   const t = useTranslations("ai.chat.approval");
   const first = useRef<HTMLButtonElement>(null);
   const { action } = pending;
+  const memory = isMemory(action);
+  const decisions = memory ? MEMORY_DECISIONS : DECISIONS;
   useEffect(() => {
     first.current?.focus();
   }, [pending.id]);
@@ -559,7 +564,7 @@ function ChangePrompt({
       aria-label={t(`question.${action.action}`)}
       className="rounded-lg border border-accent bg-bg p-3 text-sm shadow-sm"
       onKeyDown={(e) => {
-        const chosen = e.key === "Escape" ? "decline" : DECISIONS[Number(e.key) - 1];
+        const chosen = e.key === "Escape" ? "decline" : decisions[Number(e.key) - 1];
         if (!chosen || e.metaKey || e.ctrlKey || e.altKey) return;
         e.preventDefault();
         onDecide(chosen);
@@ -567,9 +572,11 @@ function ChangePrompt({
     >
       <p className="font-medium">{t(`question.${action.action}`)}</p>
       <div className="mt-1.5 space-y-1">
-        {action.title && <p className="font-medium break-words text-fg">{action.title}</p>}
+        {action.title && <p className="font-medium break-words text-fg">{memory ? `“${action.title}”` : action.title}</p>}
         <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
-          {action.target ? (
+          {memory ? (
+            t("memoryHint")
+          ) : action.target ? (
             <>
               {t(action.action === "updateRow" ? "row" : "in")}
               <PageLink page={action.target} onSource={onSource} />
@@ -590,7 +597,7 @@ function ChangePrompt({
         {action.content && <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>}
       </div>
       <div className="mt-2.5 flex flex-col gap-px">
-        {DECISIONS.map((d, i) => (
+        {decisions.map((d, i) => (
           <button
             key={d}
             ref={i === 0 ? first : undefined}

@@ -82,7 +82,7 @@ describe("chat prompts", () => {
     expect(changing).toMatch(/When a change is declined, don't try it again/);
     const reading = chatSystemPrompt();
     expect(reading).not.toMatch(/create_row/);
-    expect(reading).toMatch(/You can't change anything in this chat/);
+    expect(reading).toMatch(/You can't change pages or databases in this chat/);
   });
 
   it("brings back earlier turns, newest first within the budget, without their citations", () => {

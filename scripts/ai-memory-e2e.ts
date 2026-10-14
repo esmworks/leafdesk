@@ -1,7 +1,10 @@
 /**
  * End-to-end check of the AI chat's memory against the database, with a fake OpenAI-compatible
  * server (src/server/ai/fake-openai.ts) for the model: notes kept with `remember` (also in place of
- * an older one, and in a chat that may change nothing), dropped with `forget`, each shown as a step;
+ * an older one, and in a chat that may change nothing), dropped with `forget`, each shown as a step
+ * and approved by the person first unless the mode is `auto`, declined ones left undone; kept with
+ * the conversation also when the answer fails, and carried to an answer asked again; duplicates
+ * (case aside, Turkish dotted I too) kept once;
  * sent with the person's later questions in the workspace as data, and never with anyone else's or
  * in another workspace; the limits (length, count, the share of the prompt); the Memory view's own
  * calls, only ever on the person's own notes; and notes gone when the person leaves the workspace
@@ -30,7 +33,8 @@ const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
-const { startChat } = await import("@/server/ai-chat");
+const { getConversation, startChat } = await import("@/server/ai-chat");
+const { decideChange } = await import("@/server/ai-chat-approvals");
 const { addMemory, deleteMemories, listMemories, memoryForPrompt, MemoryError, updateMemory } = await import("@/server/ai-memory");
 const { MAX_MEMORIES, MAX_MEMORY_CHARS } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
@@ -60,16 +64,34 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
   console.log(`ok    ${label}`);
 }
 
-/** Runs a question to the end; returns its steps (memory ones as `remember:<text>` / `forget:<text>`) and how it ended. */
-async function ask(userId: string, input: ChatInput) {
+/**
+ * Runs a question to the end, answering each approval with `decision`; returns its memory steps
+ * (`remember:<text>`, `forget:<text>`, `remember:declined:<text>`), what it asked to approve
+ * (`remember:<text>`, `createRow:<title>`…) and how it ended.
+ */
+async function ask(userId: string, input: ChatInput, decision: "approve" | "always" | "decline" = "approve") {
   const events: ChatEvent[] = [];
-  for await (const event of await startChat(userId, input)) events.push(event);
+  for await (const event of await startChat(userId, input)) {
+    events.push(event);
+    if (event.type === "approval") decideChange(userId, event.id, decision);
+  }
   const end = events[events.length - 1];
+  const conversation = events.find((e) => e.type === "conversation");
   return {
     done: end?.type === "done",
     error: end?.type === "error" ? end.code : null,
-    steps: events.flatMap((e) => (e.type === "step" && e.step.kind === "memory" ? [`${e.step.action}:${e.step.text}`] : [])),
+    conversationId: conversation?.type === "conversation" ? conversation.id : null,
+    approvals: events.flatMap((e) => (e.type === "approval" ? [`${e.action.action}:${e.action.title}`] : [])),
+    steps: events.flatMap((e) =>
+      e.type === "step" && e.step.kind === "memory" ? [`${e.step.action}:${e.step.outcome === "declined" ? "declined:" : ""}${e.step.text}`] : [],
+    ),
   };
+}
+
+/** The memory steps kept with a conversation's last answer, labelled as `ask` labels them. */
+async function keptSteps(userId: string, conversationId: string) {
+  const { messages } = await getConversation(userId, workspaceId, conversationId);
+  return (messages.at(-1)?.steps ?? []).flatMap((s) => (s.kind === "memory" ? [`${s.action}:${s.outcome === "declined" ? "declined:" : ""}${s.text}`] : []));
 }
 
 /** A model that makes these tool calls, one per turn, then answers "Done." */
@@ -116,6 +138,7 @@ try {
   fake.chats.length = 0;
   const first = await ask(alice, { workspaceId, message: "Remember that I lead the design team." });
   check(first.done && first.steps.join("|") === "remember:Leads the design team.", "remember keeps a note, on one line, and the answer shows it as a step", first);
+  check(first.approvals.join("|") === "remember:Leads the design team.", "…once the person approves it (the chat asks by default)", first.approvals);
   const firstRequest = fake.chats[0];
   check(memoryOf(firstRequest) === null, "a question with nothing remembered carries no memory");
   check(
@@ -133,7 +156,12 @@ try {
   check(kept?.text === "Leads the design team." && keptRow.conversationId !== null, "the note is listed, with the conversation it was kept in", { kept, keptRow });
   // A note changes nothing in the workspace: the answer may be asked again, and keeps it once.
   const again = await ask(alice, { workspaceId, conversationId: keptRow.conversationId, message: "Remember that I lead the design team.", replaceLast: true });
-  check(again.done && (await notesOf(alice)).length === 1, "an answer that kept a note can be asked again, the note kept once", again);
+  check(again.done && (await notesOf(alice)).length === 1 && again.approvals.length === 0, "an answer that kept a note can be asked again, the note kept once (nothing to approve)", again);
+  check(
+    again.steps.join("|") === "remember:Leads the design team." && (await keptSteps(alice, keptRow.conversationId!)).join("|") === "remember:Leads the design team.",
+    "…and the new answer carries the note the replaced one kept",
+    again,
+  );
 
   // ── Sent with later questions, only the person's own ────────────────────────────────────────
   fake.setChat(answering);
@@ -157,6 +185,7 @@ try {
   fake.chats.length = 0;
   const twice = await ask(alice, { workspaceId, message: "I lead the design team", mode: "read" });
   check(toolNames(fake.chats[0]).includes("remember") && !toolNames(fake.chats[0]).includes("create_row"), "a read-only chat may still keep notes, and nothing else", toolNames(fake.chats[0]));
+  check(/Keeping notes about the person \(remember, forget\) still works here/.test(systemOf(fake.chats[0])), "…and its model is told so, not that nothing can change");
   check(twice.done && (await notesOf(alice)).length === 1, "a note the person already has (case aside) is kept once");
   fake.setChat(caller([{ name: "remember", arguments: { text: "Leads the brand team.", replaces: kept.id } }]));
   const moved = await ask(alice, { workspaceId, message: "I moved to the brand team" });
@@ -181,6 +210,58 @@ try {
   fake.setChat(caller([{ name: "forget", arguments: { memory_id: kept.id } }]));
   const forgot = await ask(alice, { workspaceId, message: "Forget where I work" });
   check(forgot.steps.join("|") === "forget:Leads the brand team." && (await notesOf(alice)).length === 0, "forget drops the person's note, the step saying which");
+
+  // ── Approving, declining, Auto ──────────────────────────────────────────────────────────────
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Prefers short answers." } }]));
+  fake.chats.length = 0;
+  const declined = await ask(alice, { workspaceId, message: "Short answers please" }, "decline");
+  check(
+    declined.done && declined.steps.join("|") === "remember:declined:Prefers short answers." && (await notesOf(alice)).length === 0,
+    "a declined note isn't kept, and the step says it was declined",
+    declined,
+  );
+  check(toolResults(fake.chats.at(-1)!).some((r) => r.startsWith("The person declined")), "…the model being told not to ask again");
+  const readAsked = await ask(alice, { workspaceId, message: "Short answers please", mode: "read" });
+  check(readAsked.approvals.join("|") === "remember:Prefers short answers." && (await notesOf(alice)).length === 1, "a read-only chat asks before keeping a note too");
+  await deleteMemories(alice, workspaceId, "all");
+  const auto = await ask(alice, { workspaceId, message: "Short answers please", mode: "auto" });
+  check(auto.approvals.length === 0 && auto.steps.join("|") === "remember:Prefers short answers." && (await notesOf(alice)).length === 1, "Auto keeps a note without asking");
+  await deleteMemories(alice, workspaceId, "all");
+  fake.setChat(caller([
+    { name: "remember", arguments: { text: "Prefers short answers." } },
+    { name: "create_row", arguments: { database_id: "nope", title: "Sneaky" } },
+  ]));
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Short answers please", mode: "read" }, "always");
+  check(
+    toolResults(fake.chats.at(-1)!).some((r) => r.startsWith("Changes are off in this chat")),
+    "\"don't ask again\" on a note doesn't open a read-only chat to changes",
+    toolResults(fake.chats.at(-1)!),
+  );
+
+  // ── Kept when the answer fails ──────────────────────────────────────────────────────────────
+  await deleteMemories(alice, workspaceId, "all");
+  fake.setChat((request) => {
+    if (!request.messages.some((m) => m.role === "tool")) return { toolCalls: [{ name: "remember", arguments: { text: "Works from Izmir." } }] };
+    throw new Error("the provider broke");
+  });
+  const broken = await ask(alice, { workspaceId, message: "I work from Izmir" });
+  check(broken.error === "provider" && broken.conversationId && (await notesOf(alice)).length === 1, "a note kept before the answer failed stays", broken);
+  check((await keptSteps(alice, broken.conversationId!)).join("|") === "remember:Works from Izmir.", "…and so does the conversation showing it");
+
+  // ── Kept once ───────────────────────────────────────────────────────────────────────────────
+  await deleteMemories(alice, workspaceId, "all");
+  const izmir = await addMemory(alice, workspaceId, "İzmir'de çalışıyor.");
+  check((await addMemory(alice, workspaceId, "izmir'de çalışıyor.")).id === izmir.id && (await notesOf(alice)).length === 1, "Turkish dotted İ and i are the same note, case aside");
+  check((await addMemory(alice, workspaceId, "I lead design.")).text === "I lead design." && (await addMemory(alice, workspaceId, "i lead design.")).text === "I lead design.", "…as are I and i elsewhere");
+  const other = await addMemory(alice, workspaceId, "Likes tables.");
+  fake.setChat(caller([{ name: "remember", arguments: { text: "likes TABLES.", replaces: izmir.id } }]));
+  await ask(alice, { workspaceId, message: "Actually I like tables, not Izmir" }, "approve");
+  const merged = await notesOf(alice);
+  check(merged.length === 2 && merged.some((m) => m.id === other.id) && !merged.some((m) => m.id === izmir.id), "replacing a note with one already kept merges them", merged);
+  const edited = await updateMemory(alice, workspaceId, other.id, "I LEAD DESIGN.");
+  check(edited.text === "I lead design." && (await notesOf(alice)).length === 1, "…as does changing one in the Memory view into another");
+  await deleteMemories(alice, workspaceId, "all");
 
   // ── Limits ──────────────────────────────────────────────────────────────────────────────────
   fake.setChat(caller([{ name: "remember", arguments: { text: "x".repeat(MAX_MEMORY_CHARS + 1) } }]));

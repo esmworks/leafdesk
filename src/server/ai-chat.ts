@@ -30,11 +30,13 @@ import {
 } from "@/db/schema";
 import type { AiErrorCode } from "@/lib/ai";
 import {
+  changedMemory,
   citedNumbers,
   conversationTitle,
   MAX_CHAT_MESSAGE,
   MAX_CHAT_TURNS,
   MAX_CONVERSATIONS,
+  type ChatActionView,
   type ChatEvent,
   type ChatMessageView,
   type ChatMode,
@@ -51,7 +53,7 @@ import { aiConfig, AiError, isAiError, stream, takeRateLimit, takeWorkspaceCapac
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
-import { memoryForPrompt, MEMORY_TOOL_NAMES, MEMORY_TOOLS, runMemoryTool } from "@/server/ai-memory";
+import { applyMemory, memoryForPrompt, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import * as ops from "@/server/operations";
 import {
@@ -191,8 +193,9 @@ async function* runChat(
   const limits = aiConfig().limits;
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
-  // Keeping notes about the person changes nothing in the workspace: it's offered in every mode.
-  const tools = mode === "read" ? [...CHAT_TOOLS, ...MEMORY_TOOLS] : [...CHAT_TOOLS, ...WRITE_TOOLS, ...MEMORY_TOOLS];
+  // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
+  // and asked about unless the mode is `auto` (a read-only chat asks too).
+  const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...MEMORY_TOOLS];
   const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = () => limits.maxInputChars - system.length - toolsSize - 200;
@@ -214,6 +217,22 @@ async function* runChat(
     steps.push(record);
     return { type: "step", step: await viewStep(userId, record) };
   };
+  /** Asks the person about a change or note, pinging while the answer waits; their decision. */
+  async function* decide(action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision | "timeout"> {
+    const waiting = awaitDecision(userId, signal);
+    yield { type: "approval", id: waiting.id, action };
+    for (;;) {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const next = await Promise.race([waiting.decision, new Promise<"ping">((r) => (timer = setTimeout(() => r("ping"), PING_MS)))]);
+      clearTimeout(timer);
+      if (next !== "ping") return next;
+      yield { type: "ping" };
+    }
+  }
+  // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
+  // (shown first), not with the records it replaces.
+  const carried = replaced ? (existing?.messages.at(-1)?.steps ?? []).filter((s) => s.kind === "memory" && s.outcome !== "declined") : [];
+  for (const record of carried) yield { type: "step", step: await viewStep(userId, record) };
   let answer = "";
   let stopReason: "stop" | "length" = "stop";
   let failure: AiErrorCode | null = null;
@@ -270,25 +289,19 @@ async function* runChat(
       for (const call of result.toolCalls) {
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
-        if (MEMORY_TOOL_NAMES.has(call.name)) out = await runMemoryTool(userId, workspaceId, conversation.id, call);
-        else if (!WRITE_TOOL_NAMES.has(call.name)) out = await runTool(ctx, workspaceId, scope?.id, call, registry, left);
+        if (MEMORY_TOOL_NAMES.has(call.name)) {
+          // Text the model read could pass itself off as a lasting note: the person approves each.
+          const prepared = await prepareMemory(userId, workspaceId, call);
+          let decision: ChatDecision | "timeout" = "approve";
+          if ("action" in prepared && mode !== "auto") decision = yield* decide(prepared.action);
+          out = "action" in prepared ? await applyMemory(userId, workspaceId, conversation.id, prepared, decision) : prepared;
+        } else if (!WRITE_TOOL_NAMES.has(call.name)) out = await runTool(ctx, workspaceId, scope?.id, call, registry, left);
         else if (mode === "read") out = { content: "Changes are off in this chat: say what you would change instead.", isError: true };
         else {
           const prepared = await prepareWrite(ctx, workspaceId, scope?.id ?? null, call);
           let decision: ChatDecision | "timeout" = "approve";
           if ("action" in prepared && mode === "ask") {
-            const waiting = awaitDecision(userId, signal);
-            yield { type: "approval", id: waiting.id, action: prepared.action };
-            for (;;) {
-              let timer: ReturnType<typeof setTimeout> | undefined;
-              const next = await Promise.race([waiting.decision, new Promise<"ping">((r) => (timer = setTimeout(() => r("ping"), PING_MS)))]);
-              clearTimeout(timer);
-              if (next !== "ping") {
-                decision = next;
-                break;
-              }
-              yield { type: "ping" };
-            }
+            decision = yield* decide(prepared.action);
             if (decision === "always") mode = "auto";
           }
           out = "action" in prepared ? await applyWrite(prepared, decision, registry) : prepared;
@@ -305,8 +318,9 @@ async function* runChat(
   }
 
   // ------------------------------------------------------------------------------ the answer
-  // Changes made are kept in the conversation, also when the answer didn't come.
-  const changed = steps.some((s) => s.kind === "write" && s.outcome === "done");
+  // Changes made and notes kept or dropped are kept in the conversation, also when the answer
+  // didn't come.
+  const changed = steps.some((s) => (s.kind === "write" && s.outcome === "done") || (s.kind === "memory" && changedMemory(s)));
   const stopped = failure === "aborted" && (answer.trim().length > 0 || changed);
   if (!failure || stopped || changed) {
     const cited = new Set(citedNumbers(answer));
@@ -318,7 +332,7 @@ async function* runChat(
       conversation.id,
       [
         { role: "user", content: message, ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}), at: now },
-        { role: "assistant", content: answer, sources: refs, ...(note ? { note } : {}), steps, ms, at: now },
+        { role: "assistant", content: answer, sources: refs, ...(note ? { note } : {}), steps: [...carried, ...steps], ms, at: now },
       ],
       replaced,
     );

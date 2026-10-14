@@ -174,7 +174,11 @@
       },
       "memory": {
         "remember": "Retenu :",
-        "forget": "Oublié :"
+        "forget": "Oublié :",
+        "declined": {
+          "remember": "Mémorisation refusée :",
+          "forget": "Oubli refusé :"
+        }
       }
     },
     "stopped": "Arrêté.",
@@ -193,11 +197,14 @@
       "question": {
         "createRow": "Ajouter cette ligne ?",
         "updateRow": "Modifier cette ligne ?",
-        "createPage": "Ajouter cette page ?"
+        "createPage": "Ajouter cette page ?",
+        "remember": "Retenir ceci à votre sujet ?",
+        "forget": "Oublier cette note ?"
       },
       "in": "Dans",
       "row": "Ligne",
       "topLevel": "En haut de l'espace de travail, privée",
+      "memoryHint": "Mémoire : envoyée avec vos prochaines questions dans cet espace de travail",
       "cleared": "(effacé)",
       "approve": "Oui",
       "always": "Oui, et ne plus demander (Auto)",

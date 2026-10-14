@@ -1316,9 +1316,12 @@ conversation (also when the answer itself didn't come), and later questions know
 **Memory.** The chat remembers short notes about you in each workspace: who you are, what you work
 on, how you want answers. When you tell it about yourself or ask it to remember something, it keeps
 a note (`remember`, also in place of an older note it corrects) and drops one when you ask it to
-forget (`forget`); each shows among the answer's steps, also in *Read only*, since notes change
-nothing in the workspace. It keeps only what you say in your questions, never what pages or tool
-results say. Your notes go with each of your later questions in that workspace, as notes rather
+forget (`forget`). Since a note goes with every later question, the chat asks you first, as it
+does before a change (*Yes* or *No*), also in *Read only*, where notes are the one thing it may
+keep; only *Auto* keeps and drops notes without asking. Each note kept, dropped or declined shows
+among the answer's steps, a *Memory updated* line under the answer opens *Memory*, and asking an
+answer again keeps its notes with the new answer. It keeps only what you say in your questions,
+never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
 header opens *Memory*, where you see, add, change and delete notes, or forget everything. Up to 30
 notes per workspace, 300 characters each. Notes are private to you, never sent with anyone else's

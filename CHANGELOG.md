@@ -7,7 +7,10 @@
 - **Memory for the AI chat.** The chat keeps short notes about each person in a workspace (who
   they are, what they work on, how they want answers) when they tell it about themselves or ask it
   to remember something, and drops one when asked to forget, with new `remember` and `forget` tools
-  offered in every mode; each note kept or dropped shows among the answer's steps. Only what the
+  offered in every mode. Unless the mode is *Auto*, the chat asks the person (*Yes* or *No*) before
+  it keeps or drops a note, also in *Read only*, so text it read can't slip in a lasting note; each
+  note kept, dropped or declined shows among the answer's steps and is kept with the conversation
+  also when the answer fails, and *Answer again* carries it to the new answer. Only what the
   person says in their questions is kept, never what pages or tool results say. The notes go with
   the person's later questions in that workspace as data, never with anyone else's or in another
   workspace, and never widen what the chat may read or change. The new *Memory* dialog (the brain

@@ -174,7 +174,11 @@
       },
       "memory": {
         "remember": "Gemerkt:",
-        "forget": "Vergessen:"
+        "forget": "Vergessen:",
+        "declined": {
+          "remember": "Merken abgelehnt:",
+          "forget": "Vergessen abgelehnt:"
+        }
       }
     },
     "stopped": "Gestoppt.",
@@ -193,11 +197,14 @@
       "question": {
         "createRow": "Diese Zeile hinzufügen?",
         "updateRow": "Diese Zeile ändern?",
-        "createPage": "Diese Seite hinzufügen?"
+        "createPage": "Diese Seite hinzufügen?",
+        "remember": "Das über dich merken?",
+        "forget": "Diese Notiz vergessen?"
       },
       "in": "In",
       "row": "Zeile",
       "topLevel": "Ganz oben im Workspace, nur für dich",
+      "memoryHint": "Gedächtnis: wird mit deinen weiteren Fragen in diesem Workspace gesendet",
       "cleared": "(geleert)",
       "approve": "Ja",
       "always": "Ja, nicht mehr fragen (Automatisch)",

@@ -624,7 +624,7 @@ try {
   await ask(alice, { workspaceId, conversationId: always.conversationId, message: "And what did you change?", mode: "read" });
   check(everything(fake.chats[0]).includes(`(Changes made: added the row "Snow chains" (page_id `) && everything(fake.chats[0]).includes(`changed the row (page_id ${plugs.id}): Stock`), "a later question knows what was changed, with the ids", everything(fake.chats[0]).slice(-800));
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change anything"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
     "in read-only mode the model isn't offered changes (keeping notes about the person changes nothing in the workspace)",
   );
   fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Sneaky row" })]));
