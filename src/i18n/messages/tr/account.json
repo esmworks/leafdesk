@@ -8,10 +8,26 @@
     "security": "Güvenlik",
     "preferences": "Tercihler",
     "apps": "Bağlı uygulamalar",
+    "about": "Hakkında",
     "admin": "Sunucu yönetimi"
   },
   "apps": {
     "description": "Leafdesk'i sizin adınıza kullanmasına izin verdiğiniz uygulamalar, örneğin MCP ile bağlanan yapay zekâ asistanları. Bulunduğunuz tüm çalışma alanlarına erişirler."
+  },
+  "about": {
+    "description": "Bu sunucuda çalışan Leafdesk, onu kimin yaptığı ve daha fazlasını nerede bulacağınız.",
+    "version": "Sürüm {version}",
+    "versionLabel": "Sürüm",
+    "releaseNotes": "Sürüm notları",
+    "author": "Yapımcı",
+    "license": "Lisans",
+    "licenseDescription": "Özgür ve açık kaynak: kullanabilir, değiştirebilir ve paylaşabilirsiniz.",
+    "website": "Web sitesi",
+    "source": "Kaynak kod",
+    "issues": "Sorun bildirin",
+    "issuesDescription": "Hatalar ve öneriler projenin sorun takipçisine gider.",
+    "issuesLink": "Sorun açın",
+    "notice": "Leafdesk başkalarının açık kaynak yazılımlarını da içerir; bunların bildirimleri <link>NOTICE</link> dosyasındadır."
   },
   "profile": {
     "description": "Tüm çalışma alanlarında başkalarına nasıl göründüğünüz, giriş yaptığınız e-posta ve hesabınızı silme.",

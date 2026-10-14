@@ -1,7 +1,8 @@
-import { KeyRound, Plug, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
+import { Info, KeyRound, Plug, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AccountEmailSettings } from "@/components/account/email-settings";
+import { AboutLeafdesk } from "@/components/account/about";
 import { DeleteAccountSettings } from "@/components/account/delete-account";
 import { PasswordSettings } from "@/components/account/password-settings";
 import { ProfileSettings } from "@/components/account/profile-settings";
@@ -29,13 +30,14 @@ import type { requireSession } from "@/server/session";
  * usual way in) and on the account page (/account), which stays open outside any workspace to
  * someone a workspace's two-step policy holds back or who has no workspace at all.
  */
-export const ACCOUNT_TABS = ["profile", "security", "preferences", "apps"] as const;
+export const ACCOUNT_TABS = ["profile", "security", "preferences", "apps", "about"] as const;
 export type AccountTab = (typeof ACCOUNT_TABS)[number];
 export const ACCOUNT_ICONS: Record<AccountTab, LucideIcon> = {
   profile: UserRound,
   security: KeyRound,
   preferences: SlidersHorizontal,
   apps: Plug,
+  about: Info,
 };
 
 type Session = Awaited<ReturnType<typeof requireSession>>;
@@ -44,6 +46,7 @@ export async function AccountTabContent({ tab, session }: { tab: AccountTab; ses
   if (tab === "profile") return <ProfileTab session={session} />;
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
+  if (tab === "about") return <AboutLeafdesk />;
   const t = await getTranslations("account");
   return (
     <>

@@ -25,8 +25,12 @@
   run may read (12,000 characters together), and the tab shows each skill's state. A run started
   by a member's change or a public form leaves out the skills that person can't open, and a run
   that goes on after an approval checks its skills again. MCP clients get `set_agent_skill`, and
-  `get_agent` lists the agent's skills. Giving and taking a skill is recorded in the audit log. Migration `0061_agent_skills` adds `agent_skill`. Covered in
-  `scripts/agent-skills-e2e.ts`.
+  `get_agent` lists the agent's skills. Giving and taking a skill is recorded in the audit log.
+  Migration `0061_agent_skills` adds `agent_skill`. Covered in `scripts/agent-skills-e2e.ts`.
+- **About.** Settings (and the account page) have an *About* tab: the Leafdesk version the server
+  runs with a link to its release notes, who makes it, the license, the website, the source code,
+  where to report a problem and the third-party notices. The version is read from `package.json`,
+  which the MCP server now reports too. No migration.
 - **Copy ID.** A page's, database's or row's menu (also in the row panel) has *Copy ID*, and a
   column's menu, in the table and on a row's page, *Copy property ID*: the ids the REST API and MCP
   clients take, where a property's name may change. No migration.

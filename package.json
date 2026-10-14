@@ -3,6 +3,10 @@
   "version": "0.5.1",
   "private": true,
   "license": "Apache-2.0",
+  "author": "esmworks",
+  "homepage": "https://esmworks.github.io/leafdesk/",
+  "repository": "github:esmworks/leafdesk",
+  "bugs": "https://github.com/esmworks/leafdesk/issues",
   "type": "module",
   "scripts": {
     "dev": "tsx watch --clear-screen=false server.ts",

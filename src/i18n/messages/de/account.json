@@ -8,10 +8,26 @@
     "security": "Sicherheit",
     "preferences": "Präferenzen",
     "apps": "Verbundene Apps",
+    "about": "Über",
     "admin": "Serververwaltung"
   },
   "apps": {
     "description": "Apps, denen du erlaubt hast, Leafdesk in deinem Namen zu nutzen, zum Beispiel über MCP verbundene KI-Assistenten. Diese Apps haben Zugriff auf jeden Workspace, in dem du Mitglied bist."
+  },
+  "about": {
+    "description": "Das Leafdesk, das auf diesem Server läuft, wer es macht und wo Sie mehr erfahren.",
+    "version": "Version {version}",
+    "versionLabel": "Version",
+    "releaseNotes": "Versionshinweise",
+    "author": "Entwickelt von",
+    "license": "Lizenz",
+    "licenseDescription": "Frei und quelloffen: Sie dürfen es nutzen, ändern und weitergeben.",
+    "website": "Website",
+    "source": "Quellcode",
+    "issues": "Problem melden",
+    "issuesDescription": "Fehler und Ideen gehören in den Issue-Tracker des Projekts.",
+    "issuesLink": "Issue eröffnen",
+    "notice": "Leafdesk enthält Open-Source-Software anderer; ihre Hinweise stehen in der Datei <link>NOTICE</link>."
   },
   "profile": {
     "description": "Wie andere dich in allen Workspaces sehen, die E-Mail-Adresse, mit der du dich anmeldest, und das Löschen deines Kontos.",

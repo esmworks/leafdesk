@@ -8,10 +8,26 @@
     "security": "Security",
     "preferences": "Preferences",
     "apps": "Connected apps",
+    "about": "About",
     "admin": "Server administration"
   },
   "apps": {
     "description": "Apps you have allowed to use Leafdesk on your behalf, for example AI assistants connected over MCP. They reach every workspace you are in."
+  },
+  "about": {
+    "description": "The Leafdesk this server runs, who makes it and where to find out more.",
+    "version": "Version {version}",
+    "versionLabel": "Version",
+    "releaseNotes": "Release notes",
+    "author": "Made by",
+    "license": "License",
+    "licenseDescription": "Free and open source: you may use, change and share it.",
+    "website": "Website",
+    "source": "Source code",
+    "issues": "Report a problem",
+    "issuesDescription": "Bugs and ideas go to the project's issue tracker.",
+    "issuesLink": "Open an issue",
+    "notice": "Leafdesk includes open-source software by others; their notices are in the <link>NOTICE</link> file."
   },
   "profile": {
     "description": "How you appear to others in every workspace, the email you sign in with, and deleting your account.",

@@ -8,10 +8,26 @@
     "security": "Seguridad",
     "preferences": "Preferencias",
     "apps": "Apps conectadas",
+    "about": "Acerca de",
     "admin": "Administración del servidor"
   },
   "apps": {
     "description": "Apps a las que has permitido usar Leafdesk en tu nombre, por ejemplo asistentes de IA conectados por MCP. Tienen acceso a todos los espacios de trabajo de los que formas parte."
+  },
+  "about": {
+    "description": "El Leafdesk que ejecuta este servidor, quién lo hace y dónde saber más.",
+    "version": "Versión {version}",
+    "versionLabel": "Versión",
+    "releaseNotes": "Notas de la versión",
+    "author": "Hecho por",
+    "license": "Licencia",
+    "licenseDescription": "Libre y de código abierto: puede usarlo, cambiarlo y compartirlo.",
+    "website": "Sitio web",
+    "source": "Código fuente",
+    "issues": "Informar de un problema",
+    "issuesDescription": "Los errores y las ideas van al gestor de incidencias del proyecto.",
+    "issuesLink": "Abrir una incidencia",
+    "notice": "Leafdesk incluye software de código abierto de otros; sus avisos están en el archivo <link>NOTICE</link>."
   },
   "profile": {
     "description": "Cómo te ven los demás en todos los espacios de trabajo, el correo con el que inicias sesión y la eliminación de tu cuenta.",
