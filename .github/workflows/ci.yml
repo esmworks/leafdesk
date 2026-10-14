@@ -255,6 +255,9 @@ jobs:
       - name: Agents end-to-end
         run: pnpm tsx scripts/agents-e2e.ts
 
+      - name: Agents' skills end-to-end
+        run: pnpm tsx scripts/agent-skills-e2e.ts
+
       - name: Repeating rows end-to-end
         run: pnpm tsx scripts/schedule-e2e.ts
 

@@ -34,6 +34,9 @@ export const MAX_AGENT_PROMPT = 2_000;
 export const MAX_AGENT_ROUNDS = 8;
 export const MAX_AGENT_WRITES = 5;
 export const AGENT_RUN_TIMEOUT_MS = 2 * 60_000;
+/** Skills one agent may have, and how much of them one run reads (all of them together). */
+export const MAX_AGENT_SKILLS = 10;
+export const MAX_AGENT_SKILL_CHARS = 12_000;
 /** Finished runs are kept this long, as the agent's history. */
 export const AGENT_RUN_HISTORY_DAYS = 30;
 
@@ -111,8 +114,19 @@ export type AgentToolRecord = {
   note?: string;
 };
 
-/** One thing a run did: searched, read, queried, changed, thought aloud, commented or used a tool. */
-export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord;
+/**
+ * Why a run left out one of its agent's skills: the page is no longer a skill (unmarked, in the
+ * trash, moved into a template), someone besides the workspace's owners may edit it, or it didn't
+ * fit in what the run may read.
+ */
+export const AGENT_SKILL_SKIPS = ["notASkill", "editable", "tooLong"] as const;
+export type AgentSkillSkip = (typeof AGENT_SKILL_SKIPS)[number];
+
+/** A skill of the agent, followed on this run (`used`) or left out, and why. */
+export type AgentSkillRecord = { kind: "skill"; pageId: string; title: string } & ({ outcome: "used" } | { outcome: "skipped"; reason: AgentSkillSkip });
+
+/** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented or used a tool. */
+export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord;
 
 /** A call waiting for approval: what will be sent, and since when. */
 export type AgentPendingCall = {
@@ -196,6 +210,18 @@ export type AgentAccessView = {
   icon: string | null;
   kind: "page" | "database";
   level: AgentAccessLevel;
+};
+
+/**
+ * A skill given to an agent, as its owners see it: whether its runs follow it now (`usable`) or
+ * leave it out, and why.
+ */
+export type AgentSkillView = {
+  pageId: string;
+  title: string;
+  icon: string | null;
+  description: string;
+  status: "usable" | Exclude<AgentSkillSkip, "tooLong">;
 };
 
 /** A run as the agent's history shows it. */

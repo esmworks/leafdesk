@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { AgentAccessLevel, AgentCommentRecord, AgentRunView, AgentToolRecord } from "@/lib/agents";
+import type { AgentAccessLevel, AgentCommentRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
 import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
@@ -21,6 +21,7 @@ import {
   updateAgent,
   type AgentInput,
 } from "@/server/agents/manage";
+import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { viewStep } from "@/server/ai-chat";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { requireUserId } from "@/server/session";
@@ -109,9 +110,27 @@ export async function removeAgentAccessAction(workspaceId: string, agentId: stri
   });
 }
 
+export async function listAgentSkillsAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => listAgentSkills(userId, agentId));
+}
+
+export async function addAgentSkillAction(workspaceId: string, agentId: string, pageId: string) {
+  return run(workspaceId, async (userId) => {
+    await addAgentSkill(userId, agentId, String(pageId));
+    return listAgentSkills(userId, agentId);
+  });
+}
+
+export async function removeAgentSkillAction(workspaceId: string, agentId: string, pageId: string) {
+  return run(workspaceId, async (userId) => {
+    await removeAgentSkill(userId, agentId, String(pageId));
+    return listAgentSkills(userId, agentId);
+  });
+}
+
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */
 export type AgentCommentView = Omit<AgentCommentRecord, "text"> & { text: string | null };
-export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord;
+export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | AgentSkillRecord;
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
 
 /** An agent's latest runs, with the pages their steps name as the viewer may see them now. */
@@ -124,7 +143,11 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
         ...r,
         steps: await Promise.all(
           r.steps.map(async (step): Promise<AgentStepView> =>
-            step.kind === "comment" ? { ...step, text: r.rowTitle === null ? null : step.text } : step.kind === "tool" ? step : viewStep(userId, step),
+            step.kind === "comment"
+              ? { ...step, text: r.rowTitle === null ? null : step.text }
+              : step.kind === "tool" || step.kind === "skill"
+                ? step
+                : viewStep(userId, step),
           ),
         ),
       })),

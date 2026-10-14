@@ -31,7 +31,7 @@ import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
 
-export type AgentErrorCode = "invalid" | "notFound" | "tooMany" | "archived" | "notAPage";
+export type AgentErrorCode = "invalid" | "notFound" | "tooMany" | "archived" | "notAPage" | "notASkill" | "skillEditable" | "tooManySkills";
 
 export class AgentError extends Error {
   constructor(
@@ -89,10 +89,10 @@ export function viewAgent(a: Agent): AgentView {
   };
 }
 
-const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null });
+export const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null });
 
 /** The agent with this id, for an owner of its workspace. */
-async function ownedAgent(userId: string, agentId: string) {
+export async function ownedAgent(userId: string, agentId: string) {
   const [found] = await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
   if (!found) throw new AgentError("notFound", "Agent not found");
   await requireMembership(userId, found.workspaceId, "owner").catch((error) => {
@@ -354,6 +354,11 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
       .where(and(inArray(page.id, rowIds), pageVisibleTo(userId)));
     for (const row of rows) titles.set(row.id, row.title);
   }
+  // Skills are named only to those who may open them.
+  const skillIds = [...new Set(runs.flatMap((r) => r.steps.flatMap((s) => (s.kind === "skill" ? [s.pageId] : []))))];
+  const openSkills = new Set(
+    skillIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, skillIds), pageVisibleTo(userId)))).map((p) => p.id) : [],
+  );
   const connectionIds = [
     ...new Set(
       runs.flatMap((r) => [
@@ -378,7 +383,7 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
       error: open ? r.error : null,
       source: r.source,
       rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
-      steps: open ? r.steps : [],
+      steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s)) : [],
       answer: open ? r.answer : "",
       usage: r.usage,
       pending:

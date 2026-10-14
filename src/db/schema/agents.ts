@@ -126,3 +126,25 @@ export const agentDatabaseShare = pgTable(
   },
   (t) => [primaryKey({ columns: [t.agentId, t.databaseId] })],
 );
+
+/**
+ * A skill an owner gave an agent: a page whose body the agent follows on every run, after its own
+ * instructions (see server/agents/skills.ts). A run uses it only while no one but the workspace's
+ * owners may edit the page; otherwise the run leaves it out and says so in its steps.
+ */
+export const agentSkill = pgTable(
+  "agent_skill",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    /** Order in the prompt, from 0. */
+    position: integer("position").notNull().default(0),
+    addedBy: text("added_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.pageId] }), index("agent_skill_page_idx").on(t.pageId)],
+);

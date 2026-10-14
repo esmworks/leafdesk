@@ -298,6 +298,7 @@
       "archived": "Archiviert",
       "settings": "Einstellungen",
       "access": "Zugriff",
+      "skills": "Skills",
       "runs": "Durchläufe",
       "connections": "Verbindungen"
     },
@@ -358,6 +359,25 @@
       "fullOnly": "Du kannst Seiten teilen, auf die du Vollzugriff hast.",
       "automationNote": "Eine Automatisierung, die diesen Agenten ausführt, gibt ihm beim Speichern Bearbeitungszugriff auf ihre Datenbank."
     },
+    "skills": {
+      "description": "Skills sind Seiten mit Anweisungen, denen der Agent bei jedem Lauf nach seinen eigenen Anweisungen folgt, in dieser Reihenfolge.",
+      "rule": "Ein Agent folgt nur Skills, die außer den Workspace-Inhabern niemand bearbeiten kann. Kann später ein Mitglied, ein Teamspace, eine Gruppe, ein Gast oder ein Agent einen bearbeiten, lassen Läufe ihn aus und vermerken das in ihren Schritten.",
+      "list": "Skills des Agenten",
+      "empty": "Dieser Agent hat noch keine Skills.",
+      "hidden": "{count, plural, one {Er hat # weiteren Skill, den du nicht öffnen kannst.} other {Er hat # weitere Skills, die du nicht öffnen kannst.}}",
+      "archived": "Stell den Agenten wieder her, um ihm Skills zu geben.",
+      "status": {
+        "usable": "Wird bei jedem Lauf befolgt",
+        "notASkill": "Ausgelassen: kein Skill mehr",
+        "editable": "Ausgelassen: Auch andere als die Inhaber können ihn bearbeiten"
+      },
+      "remove": "{title} entfernen",
+      "add": "Skill hinzufügen",
+      "search": "Skills suchen",
+      "noSkills": "Kein weiterer Skill, den du öffnen kannst.",
+      "full": "Ein Agent kann höchstens {max} Skills haben.",
+      "libraryNote": "Skills legst du in der <link>Skill-Bibliothek</link> an."
+    },
     "runs": {
       "description": "Seine letzten Durchläufe, {days} Tage lang aufbewahrt.",
       "refresh": "Aktualisieren",
@@ -402,6 +422,15 @@
         "approved": "freigegeben",
         "answered": "von einem Inhaber beantwortet",
         "note": "Notiz: {note}"
+      },
+      "skill": {
+        "used": "Ist dem Skill <name></name> gefolgt",
+        "hidden": "einem Skill, den du nicht öffnen kannst",
+        "skipped": {
+          "notASkill": "<name></name> ausgelassen: kein Skill mehr",
+          "editable": "<name></name> ausgelassen: Auch andere als die Inhaber können ihn bearbeiten",
+          "tooLong": "<name></name> ausgelassen: passte nicht in das, was ein Lauf lesen kann"
+        }
       }
     },
     "templates": {
@@ -459,6 +488,9 @@
       "tooMany": "Ein Workspace kann höchstens {max} Agenten haben.",
       "archived": "Stell den Agenten wieder her, um ihn zu ändern.",
       "notAPage": "Diese Seite kann nicht mit dem Agenten geteilt werden: Du brauchst Vollzugriff darauf.",
+      "tooManySkills": "Ein Agent kann höchstens {max} Skills haben.",
+      "skillEditable": "Außer den Workspace-Inhabern kann noch jemand „{title}“ bearbeiten. Ein Agent folgt nur Skills, die allein Inhaber ändern können: Schränk zuerst ein, wer die Seite bearbeiten kann.",
+      "notASkill": "Diese Seite ist kein Skill.",
       "accessDenied": "Nur Workspace-Inhaber können Agenten ändern.",
       "reasons": {
         "name": "Gib dem Agenten einen Namen.",

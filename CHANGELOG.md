@@ -16,6 +16,15 @@
   access everywhere and leave every list while in the trash. Migration `0060_skills` adds
   `page.is_skill` and `page.skill_description`. Covered in `scripts/skills-e2e.ts` and
   `scripts/mcp-e2e.ts`.
+- **Skills for agents.** An agent's new *Skills* tab gives it up to 10 skills of the workspace,
+  whose instructions each run sends to the model after the agent's own. Only skills no one besides
+  the workspace's owners can edit (not members, teamspaces, groups, guests or agents, the agent
+  itself included) can be given; a run checks again and leaves out, saying so in its steps, a skill
+  someone else can edit by then, one no longer marked as a skill, or one that doesn't fit in what a
+  run may read (12,000 characters together), and the tab shows each skill's state. MCP clients get
+  `set_agent_skill`, and `get_agent` lists the agent's skills. Giving and taking a skill is
+  recorded in the audit log. Migration `0061_agent_skills` adds `agent_skill`. Covered in
+  `scripts/agent-skills-e2e.ts`.
 - **Copy ID.** A page's, database's or row's menu (also in the row panel) has *Copy ID*, and a
   column's menu, in the table and on a row's page, *Copy property ID*: the ids the REST API and MCP
   clients take, where a property's name may change. No migration.

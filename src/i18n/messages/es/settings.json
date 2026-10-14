@@ -298,6 +298,7 @@
       "archived": "Archivados",
       "settings": "Configuración",
       "access": "Acceso",
+      "skills": "Habilidades",
       "runs": "Ejecuciones",
       "connections": "Conexiones"
     },
@@ -358,6 +359,25 @@
       "fullOnly": "Puedes compartir las páginas a las que tienes acceso completo.",
       "automationNote": "Una automatización que ejecuta este agente le da acceso de edición a su base de datos al guardarse."
     },
+    "skills": {
+      "description": "Las habilidades son páginas con instrucciones que el agente sigue en cada ejecución, después de sus propias instrucciones, en este orden.",
+      "rule": "Un agente solo sigue habilidades que nadie más que los propietarios del espacio de trabajo puede editar. Si más adelante un miembro, un espacio de equipo, un grupo, un invitado o un agente puede editar una, las ejecuciones la dejan fuera y lo indican en sus pasos.",
+      "list": "Habilidades del agente",
+      "empty": "Este agente todavía no tiene habilidades.",
+      "hidden": "{count, plural, one {Tiene # habilidad más que tú no puedes abrir.} other {Tiene # habilidades más que tú no puedes abrir.}}",
+      "archived": "Restaura el agente para darle habilidades.",
+      "status": {
+        "usable": "Se sigue en cada ejecución",
+        "notASkill": "Se deja fuera: ya no es una habilidad",
+        "editable": "Se deja fuera: alguien además de los propietarios puede editarla"
+      },
+      "remove": "Quitar {title}",
+      "add": "Añadir una habilidad",
+      "search": "Buscar habilidades",
+      "noSkills": "No hay otra habilidad que puedas abrir.",
+      "full": "Un agente puede tener como máximo {max} habilidades.",
+      "libraryNote": "Las habilidades se crean en la <link>biblioteca de habilidades</link>."
+    },
     "runs": {
       "description": "Sus últimas ejecuciones, guardadas durante {days} días.",
       "refresh": "Actualizar",
@@ -402,6 +422,15 @@
         "approved": "aprobada",
         "answered": "respondida por un propietario",
         "note": "Nota: {note}"
+      },
+      "skill": {
+        "used": "Siguió la habilidad <name></name>",
+        "hidden": "una habilidad que no puedes abrir",
+        "skipped": {
+          "notASkill": "Dejó fuera <name></name>: ya no es una habilidad",
+          "editable": "Dejó fuera <name></name>: alguien además de los propietarios puede editarla",
+          "tooLong": "Dejó fuera <name></name>: no cabía en lo que puede leer una ejecución"
+        }
       }
     },
     "templates": {
@@ -459,6 +488,9 @@
       "tooMany": "Un espacio de trabajo puede tener como máximo {max} agentes.",
       "archived": "Restaura el agente para cambiarlo.",
       "notAPage": "Esta página no se puede compartir con el agente: necesitas acceso completo a ella.",
+      "tooManySkills": "Un agente puede tener como máximo {max} habilidades.",
+      "skillEditable": "Alguien además de los propietarios del espacio de trabajo puede editar «{title}». Un agente solo sigue habilidades que únicamente los propietarios pueden cambiar: primero limita quién puede editar la página.",
+      "notASkill": "Esta página no es una habilidad.",
       "accessDenied": "Solo los propietarios del espacio de trabajo pueden cambiar agentes.",
       "reasons": {
         "name": "Ponle un nombre al agente.",

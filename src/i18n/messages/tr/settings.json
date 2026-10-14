@@ -298,6 +298,7 @@
       "archived": "Arşiv",
       "settings": "Ayarlar",
       "access": "Erişim",
+      "skills": "Beceriler",
       "runs": "Çalışmalar",
       "connections": "Bağlantılar"
     },
@@ -358,6 +359,25 @@
       "fullOnly": "Tam erişiminiz olan sayfaları paylaşabilirsiniz.",
       "automationNote": "Bu ajanı çalıştıran bir otomasyon kaydedildiğinde ajana kendi veritabanında düzenleme erişimi verir."
     },
+    "skills": {
+      "description": "Beceriler, ajanın her çalışmada kendi talimatlarından sonra, bu sırayla izlediği talimat sayfalarıdır.",
+      "rule": "Ajan yalnızca çalışma alanı sahipleri dışında kimsenin düzenleyemediği becerileri izler. Sonradan bir üye, teamspace, grup, misafir ya da ajan düzenleyebilir hale gelirse çalışmalar o beceriyi atlar ve adımlarında bunu belirtir.",
+      "list": "Ajanın becerileri",
+      "empty": "Bu ajanın henüz becerisi yok.",
+      "hidden": "{count, plural, one {Sizin açamadığınız # beceri daha var.} other {Sizin açamadığınız # beceri daha var.}}",
+      "archived": "Beceri vermek için ajanı geri getirin.",
+      "status": {
+        "usable": "Her çalışmada izleniyor",
+        "notASkill": "Atlanıyor: artık bir beceri değil",
+        "editable": "Atlanıyor: sahipler dışında biri düzenleyebiliyor"
+      },
+      "remove": "{title} becerisini kaldır",
+      "add": "Beceri ekle",
+      "search": "Beceri ara",
+      "noSkills": "Açabildiğiniz başka beceri yok.",
+      "full": "Bir ajanın en fazla {max} becerisi olabilir.",
+      "libraryNote": "Beceriler <link>beceri kütüphanesinde</link> oluşturulur."
+    },
     "runs": {
       "description": "Son çalışmaları; {days} gün saklanır.",
       "refresh": "Yenile",
@@ -402,6 +422,15 @@
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
         "note": "Not: {note}"
+      },
+      "skill": {
+        "used": "<name></name> becerisini izledi",
+        "hidden": "açamadığınız bir beceri",
+        "skipped": {
+          "notASkill": "<name></name> atlandı: artık bir beceri değil",
+          "editable": "<name></name> atlandı: sahipler dışında biri düzenleyebiliyor",
+          "tooLong": "<name></name> atlandı: bir çalışmanın okuyabileceğine sığmadı"
+        }
       }
     },
     "templates": {
@@ -459,6 +488,9 @@
       "tooMany": "Bir çalışma alanında en fazla {max} ajan olabilir.",
       "archived": "Değiştirmek için ajanı geri getirin.",
       "notAPage": "Bu sayfa ajanla paylaşılamaz: sayfaya tam erişiminiz olmalı.",
+      "tooManySkills": "Bir ajanın en fazla {max} becerisi olabilir.",
+      "skillEditable": "“{title}” sayfasını çalışma alanı sahipleri dışında biri düzenleyebiliyor. Ajan yalnızca sahiplerin değiştirebildiği becerileri izler: önce sayfayı kimin düzenleyebileceğini sınırlayın.",
+      "notASkill": "Bu sayfa bir beceri değil.",
       "accessDenied": "Ajanları yalnızca çalışma alanı sahipleri değiştirebilir.",
       "reasons": {
         "name": "Ajana bir ad verin.",

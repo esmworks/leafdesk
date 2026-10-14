@@ -1392,6 +1392,7 @@ list until it is restored.
   (and an optional `input`) to the client. Names come from titles and are unique across the user's
   workspaces (`review-checklist`, `review-checklist-2`). The server's instructions tell the model
   to follow a skill only when the user asked for it or picked its prompt.
+- **Agents**: owners give an agent skills to follow on every run (see [Agents](#agents)).
 - **Export**: *Export as SKILL.md* in the page menu (and the download button in the library)
   downloads `<name>.zip` holding `<name>/SKILL.md`: front matter with the name and description,
   then the body as Markdown with links to the app in full: the folder layout AI assistants install
@@ -1434,6 +1435,19 @@ a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `provider`, `timeout`,
 `tooManyAttempts` or `error`).
 
+**Skills.** In the agent's *Skills* tab, owners give it up to 10 [skills](#skills) of the
+workspace that they can open; each run sends their instructions to the model after the agent's
+own, in the order they were given, as part of its orders. Because a skill's body becomes the
+agent's orders, an agent may only have skills that no one besides the workspace's owners can
+edit: not a member, a teamspace, a group, a guest or an agent (the agent itself included). Giving
+one that others can edit is refused, and every run checks again: a skill someone else can edit by
+then, or that is no longer a skill (unmarked, in the trash), is left out, and the run says so in
+its steps, as the tab does next to the skill. A skill that doesn't fit in what a run may read
+(12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS`) is left
+out whole, never cut. Owners who can't open a skill another owner gave see it only counted, and
+unnamed in runs. Giving and taking skills is recorded in the audit log as a change to the agent.
+Like anything shared with the agent, what a skill says can end up in the rows it writes.
+
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.
 
@@ -1453,7 +1467,7 @@ log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
 shared. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
-`set_agent_access` and `list_agent_runs`. The REST API has no agent endpoints.
+`set_agent_access`, `set_agent_skill` and `list_agent_runs`. The REST API has no agent endpoints.
 
 > [!WARNING]
 > Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in
@@ -1675,9 +1689,10 @@ The tools cover:
   properties are named by name or id and people by id, email, name or `"me"`, and
   `list_automations` shows names next to the stored ids. A `run_agent` action names an agent
   by id or name.
-- **Agents:** `list_agents`, `get_agent` (its instructions and the pages shared with it),
-  `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access` (view,
-  comment, edit or remove) and `list_agent_runs` (each run's steps summarized). Owners manage
+- **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it and its
+  skills), `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access`
+  (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit)
+  and `list_agent_runs` (each run's steps summarized). Owners manage
   agents; members can list them (see [Agents](#agents)).
 
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that

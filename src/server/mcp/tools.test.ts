@@ -127,6 +127,13 @@ const agents = vi.hoisted(() => {
 });
 vi.mock("@/server/agents/manage", () => agents);
 
+const agentSkills = vi.hoisted(() => ({
+  listAgentSkills: vi.fn(async () => ({ skills: [] as unknown[], hidden: 0 })),
+  addAgentSkill: vi.fn(),
+  removeAgentSkill: vi.fn(),
+}));
+vi.mock("@/server/agents/skills", () => agentSkills);
+
 const files = vi.hoisted(() => {
   class FileError extends Error {
     constructor(
@@ -1935,13 +1942,14 @@ describe("agents", () => {
   it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     for (const name of ["list_agents", "get_agent", "list_agent_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
-    for (const name of ["create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access"]) {
+    for (const name of ["create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill"]) {
       expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
     }
     expect(tools.get("archive_agent")?.annotations?.destructiveHint).toBe(true);
     expect(tools.get("create_agent")!.inputSchema.required).toEqual(["workspace_id", "name"]);
     expect(tools.get("update_agent")!.inputSchema.required).toEqual(["agent_id"]);
     expect(tools.get("set_agent_access")!.inputSchema.properties.level.enum).toEqual(["view", "comment", "edit", "remove"]);
+    expect(tools.get("set_agent_skill")!.inputSchema.required).toEqual(["agent_id", "skill_id", "use"]);
     // The automation tools take the run_agent action, with the agent by id or name and a bounded task.
     const actions = JSON.stringify(tools.get("create_automation")!.inputSchema.properties.actions);
     expect(actions).toMatch(/run_agent/);
@@ -1971,6 +1979,48 @@ describe("agents", () => {
         hidden: 1,
       },
     });
+  });
+
+  it("shows an agent's skills with whether its runs follow them, and gives and takes them", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    agents.listAgentAccess.mockResolvedValue(access);
+    agentSkills.listAgentSkills.mockResolvedValue({
+      skills: [
+        { pageId: "s-1", title: "Triage", icon: null, description: "How to sort tickets", status: "usable" },
+        { pageId: "s-2", title: "Tone", icon: null, description: "", status: "editable" },
+      ],
+      hidden: 1,
+    });
+    const got = await callTool(reader, "get_agent", { agent_id: "agent-1" });
+    expect(agentSkills.listAgentSkills).toHaveBeenCalledWith("user-1", "agent-1");
+    expect(got.data.skills).toMatchObject({
+      pages: [
+        { skill_id: "s-1", title: "Triage", status: "usable", url: expect.stringMatching(/\/w\/ws-1\/p\/s-1$/) },
+        { skill_id: "s-2", status: "editable", note: expect.stringMatching(/owners/) },
+      ],
+      hidden: 1,
+    });
+
+    const given = await callTool(writer, "set_agent_skill", { agent_id: "agent-1", skill_id: "s-1", use: true });
+    expect(given.isError).toBe(false);
+    expect(agentSkills.addAgentSkill).toHaveBeenCalledWith("user-1", "agent-1", "s-1");
+    expect(given.data.skills.pages).toHaveLength(2);
+    await callTool(writer, "set_agent_skill", { agent_id: "agent-1", skill_id: "s-2", use: false });
+    expect(agentSkills.removeAgentSkill).toHaveBeenCalledWith("user-1", "agent-1", "s-2");
+
+    const readOnly = await callTool(reader, "set_agent_skill", { agent_id: "agent-1", skill_id: "s-1", use: true });
+    expect(readOnly.isError).toBe(true);
+    const cases: [string, Record<string, string>, RegExp][] = [
+      ["notASkill", {}, /list_skills/],
+      ["skillEditable", { title: "Tone" }, /"Tone".*just the owners may change/],
+      ["tooManySkills", { max: "10" }, /at most 10 skills/],
+    ];
+    for (const [code, params, message] of cases) {
+      agentSkills.addAgentSkill.mockRejectedValueOnce(new agents.AgentError(code, "x", params));
+      const result = await callTool(writer, "set_agent_skill", { agent_id: "agent-1", skill_id: "s-9", use: true });
+      expect(result.isError).toBe(true);
+      expect(result.text).toMatch(message);
+    }
   });
 
   it("creates, changes, archives and restores agents with what was given", async () => {
@@ -2062,6 +2112,8 @@ describe("agents", () => {
             changes: [{ property: "Priority", value: "High" }],
           },
           { kind: "comment", pageId: "row-1", text: "Set to High.", outcome: "done" },
+          { kind: "skill", pageId: "s-1", title: "Triage", outcome: "used" },
+          { kind: "skill", pageId: "s-2", title: "", outcome: "skipped", reason: "editable" },
         ],
         answer: "Done.",
         usage: { inputTokens: 900, outputTokens: 40, costUsd: 0.001, rounds: 3 },
@@ -2085,6 +2137,8 @@ describe("agents", () => {
       "Hardware issue.",
       'Changed the row: "Priority" to "High"',
       'Commented: "Set to High."',
+      'Followed the skill "Triage"',
+      "Left out a skill the user can't open: someone besides the workspace's owners may edit it",
     ]);
     expect(data.runs[1]).toMatchObject({ status: "failed", code: "aiOff", row: { id: "row-2", title: null } });
     expect(data.runs[1].row).not.toHaveProperty("url");

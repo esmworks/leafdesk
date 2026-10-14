@@ -442,6 +442,18 @@ export function pageVisibleTo(userId: string, alias?: string): SQL {
   return sql`${accessRank(userId, pageIdColumn(alias))} > 0`;
 }
 
+/**
+ * SQL condition: someone in the workspace besides its owners (a member, a guest or an agent,
+ * through a teamspace, a group or the page's own sharing) may edit the page: what keeps a page
+ * from being an agent's skill (server/agents/skills.ts). One access check per such person.
+ */
+export function editableByNonOwners(workspaceId: string, pageId: SQL | AnyColumn): SQL {
+  return sql`exists (
+    select 1 from ${workspaceMember} wm
+    where wm.workspace_id = ${workspaceId} and wm.role <> 'owner' and page_access_level(wm.user_id, ${pageId}) >= ${rank("edit")}
+  )`;
+}
+
 /** The page id column, or `alias.id` in raw queries. */
 export function pageIdColumn(alias?: string): SQL {
   if (alias !== undefined && !/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);

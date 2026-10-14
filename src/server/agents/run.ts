@@ -40,6 +40,7 @@ import {
   type AgentRunContext,
   type AgentRunSource,
   type AgentRunUsage,
+  type AgentSkillRecord,
   type AgentStepRecord,
 } from "@/lib/agents";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
@@ -58,6 +59,7 @@ import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset }
 import { getProperties } from "@/server/databases";
 import type * as ops from "@/server/operations";
 import { agentsWorker } from "./kick";
+import { runSkills } from "./skills";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
@@ -287,12 +289,23 @@ async function converse(agent: Agent, run: Run, { member, trusted }: { member: s
   const toolset = await agentToolset(agent.id);
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...toolset.tools];
-  const system = agentSystemPrompt(agent, { row: rowRun, connections, askEveryTool });
+  // Checked when the run starts and again when it goes on after waiting for approval, so a skill
+  // someone else may edit by then is left out (see steps below).
+  const skillSet = await runSkills(agent, Math.floor(limits.maxInputChars / 4));
+  const system = agentSystemPrompt(agent, { row: rowRun, connections, askEveryTool, skills: skillSet.skills });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
   const registry: Registry = { sources: [], byKey: new Map() };
   const steps: AgentStepRecord[] = [...run.steps];
+  // A run says once which skills it followed; one that goes on after waiting adds a step only for
+  // a skill that changed since (left out now, or back).
+  const lastSkill = new Map<string, AgentSkillRecord>();
+  for (const step of steps) if (step.kind === "skill") lastSkill.set(step.pageId, step);
+  for (const step of skillSet.steps) {
+    const before = lastSkill.get(step.pageId);
+    if (!before || before.outcome !== step.outcome) steps.push(step);
+  }
   const usage: AgentRunUsage = run.usage ? { ...run.usage } : { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 };
   let messages: AiMessage[];
   let writes = 0;

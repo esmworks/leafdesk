@@ -298,6 +298,7 @@
       "archived": "Archivés",
       "settings": "Paramètres",
       "access": "Accès",
+      "skills": "Compétences",
       "runs": "Exécutions",
       "connections": "Connexions"
     },
@@ -358,6 +359,25 @@
       "fullOnly": "Vous pouvez partager les pages auxquelles vous avez un accès complet.",
       "automationNote": "Une automatisation qui lance cet agent lui donne, à l’enregistrement, un accès en modification à sa base de données."
     },
+    "skills": {
+      "description": "Les compétences sont des pages d’instructions que l’agent suit à chaque exécution, après ses propres instructions, dans cet ordre.",
+      "rule": "Un agent ne suit que les compétences que personne d’autre que les propriétaires de l’espace de travail ne peut modifier. Si un membre, un espace d’équipe, un groupe, un invité ou un agent peut en modifier une plus tard, les exécutions la laissent de côté et l’indiquent dans leurs étapes.",
+      "list": "Compétences de l’agent",
+      "empty": "Cet agent n’a pas encore de compétences.",
+      "hidden": "{count, plural, one {Il a # autre compétence que vous ne pouvez pas ouvrir.} other {Il a # autres compétences que vous ne pouvez pas ouvrir.}}",
+      "archived": "Restaurez l’agent pour lui donner des compétences.",
+      "status": {
+        "usable": "Suivie à chaque exécution",
+        "notASkill": "Laissée de côté : ce n’est plus une compétence",
+        "editable": "Laissée de côté : d’autres que les propriétaires peuvent la modifier"
+      },
+      "remove": "Retirer {title}",
+      "add": "Ajouter une compétence",
+      "search": "Rechercher des compétences",
+      "noSkills": "Aucune autre compétence que vous pouvez ouvrir.",
+      "full": "Un agent peut avoir au plus {max} compétences.",
+      "libraryNote": "Les compétences se créent dans la <link>bibliothèque de compétences</link>."
+    },
     "runs": {
       "description": "Ses dernières exécutions, conservées {days} jours.",
       "refresh": "Actualiser",
@@ -402,6 +422,15 @@
         "approved": "approuvé",
         "answered": "répondu par un propriétaire",
         "note": "Note : {note}"
+      },
+      "skill": {
+        "used": "A suivi la compétence <name></name>",
+        "hidden": "une compétence que vous ne pouvez pas ouvrir",
+        "skipped": {
+          "notASkill": "<name></name> laissée de côté : ce n’est plus une compétence",
+          "editable": "<name></name> laissée de côté : d’autres que les propriétaires peuvent la modifier",
+          "tooLong": "<name></name> laissée de côté : elle ne tenait pas dans ce qu’une exécution peut lire"
+        }
       }
     },
     "templates": {
@@ -459,6 +488,9 @@
       "tooMany": "Un espace de travail peut avoir au plus {max} agents.",
       "archived": "Restaurez l’agent pour le modifier.",
       "notAPage": "Cette page ne peut pas être partagée avec l’agent : il vous faut un accès complet à celle-ci.",
+      "tooManySkills": "Un agent peut avoir au plus {max} compétences.",
+      "skillEditable": "Quelqu’un d’autre que les propriétaires de l’espace de travail peut modifier « {title} ». Un agent ne suit que les compétences que seuls les propriétaires peuvent modifier : limitez d’abord qui peut modifier la page.",
+      "notASkill": "Cette page n’est pas une compétence.",
       "accessDenied": "Seuls les propriétaires de l’espace de travail peuvent modifier des agents.",
       "reasons": {
         "name": "Donnez un nom à l’agent.",

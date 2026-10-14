@@ -298,6 +298,7 @@
       "archived": "Archived",
       "settings": "Settings",
       "access": "Access",
+      "skills": "Skills",
       "runs": "Runs",
       "connections": "Connections"
     },
@@ -358,6 +359,25 @@
       "fullOnly": "You can share pages you have full access to.",
       "automationNote": "An automation that runs this agent gives it edit access to its database when it’s saved."
     },
+    "skills": {
+      "description": "Skills are pages with instructions the agent follows on every run, after its own instructions, in this order.",
+      "rule": "An agent only follows skills that no one but the workspace owners can edit. If a member, teamspace, group, guest or agent can edit one later, runs leave it out and say so in their steps.",
+      "list": "The agent’s skills",
+      "empty": "This agent has no skills yet.",
+      "hidden": "{count, plural, one {It has # more skill you can’t open.} other {It has # more skills you can’t open.}}",
+      "archived": "Restore the agent to give it skills.",
+      "status": {
+        "usable": "Followed on every run",
+        "notASkill": "Left out: no longer a skill",
+        "editable": "Left out: someone besides the owners can edit it"
+      },
+      "remove": "Take {title} away",
+      "add": "Add a skill",
+      "search": "Search skills",
+      "noSkills": "No other skill you can open.",
+      "full": "An agent can have at most {max} skills.",
+      "libraryNote": "Skills are made in the <link>skills library</link>."
+    },
     "runs": {
       "description": "Its latest runs, kept for {days} days.",
       "refresh": "Refresh",
@@ -402,6 +422,15 @@
         "approved": "approved",
         "answered": "answered by an owner",
         "note": "Note: {note}"
+      },
+      "skill": {
+        "used": "Followed the skill <name></name>",
+        "hidden": "a skill you can’t open",
+        "skipped": {
+          "notASkill": "Left out <name></name>: it’s no longer a skill",
+          "editable": "Left out <name></name>: someone besides the owners can edit it",
+          "tooLong": "Left out <name></name>: it didn’t fit in what a run can read"
+        }
       }
     },
     "templates": {
@@ -459,6 +488,9 @@
       "tooMany": "A workspace can have at most {max} agents.",
       "archived": "Restore the agent to change it.",
       "notAPage": "This page can’t be shared with the agent: you need full access to it.",
+      "tooManySkills": "An agent can have at most {max} skills.",
+      "skillEditable": "Someone besides the workspace owners can edit “{title}”. An agent only follows skills that just owners can change: limit who can edit the page first.",
+      "notASkill": "This page isn’t a skill.",
       "accessDenied": "Only workspace owners can change agents.",
       "reasons": {
         "name": "Give the agent a name.",

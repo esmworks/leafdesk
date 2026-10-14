@@ -5,8 +5,10 @@ import {
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
+  MAX_AGENT_SKILLS,
   MAX_AGENTS,
   type AgentAccessView,
+  type AgentSkillView,
   type AgentRunView,
   type AgentStepRecord,
   type AgentView,
@@ -68,6 +70,11 @@ export const agentInputs = {
       .enum([...AGENT_ACCESS_LEVELS, "remove"])
       .describe('What the agent may do with the page and everything under it: "view", "comment" or "edit"; "remove" stops sharing it.'),
   }),
+  skill: z.object({
+    agent_id: id("agent"),
+    skill_id: id("page").describe("The skill's page id, from list_skills."),
+    use: z.boolean().describe("true gives the agent the skill; false takes it away."),
+  }),
   runs: z.object({
     agent_id: id("agent"),
     limit: z.number().int().min(1).max(100).default(20).describe("Maximum runs (1-100, default 20)."),
@@ -115,6 +122,14 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "invalid":
           throw new ToolInputError(INVALID[error.params.reason ?? ""] ?? `${error.message}.`);
+        case "notASkill":
+          throw new ToolInputError("This page isn't a skill. list_skills lists the workspace's skills; set_skill marks a page as one.");
+        case "skillEditable":
+          throw new ToolInputError(
+            `Someone besides the workspace's owners may edit "${error.params.title ?? ""}" (a member, a teamspace, a group, a guest or an agent): an agent follows only skills that just the owners may change. Limit who may edit the page first.`,
+          );
+        case "tooManySkills":
+          throw new ToolInputError(`An agent has at most ${error.params.max ?? MAX_AGENT_SKILLS} skills. Take one away first.`);
       }
     }
     if (error instanceof PermissionError) throw new ToolInputError(`${error.message}.`);
@@ -152,8 +167,18 @@ export function describeAgentSummary(agent: AgentView) {
   };
 }
 
+const SKILL_STATUS = {
+  usable: "its runs follow it",
+  notASkill: "left out: no longer a skill",
+  editable: "left out: someone besides the workspace's owners may edit it",
+} as const;
+
 /** An agent as get_agent and the write tools return it. */
-export function describeAgent(agent: AgentView, access?: { pages: AgentAccessView[]; hidden: number }) {
+export function describeAgent(
+  agent: AgentView,
+  access?: { pages: AgentAccessView[]; hidden: number },
+  skills?: { skills: AgentSkillView[]; hidden: number },
+) {
   return {
     ...describeAgentSummary(agent),
     workspace_id: agent.workspaceId,
@@ -171,6 +196,21 @@ export function describeAgent(agent: AgentView, access?: { pages: AgentAccessVie
               url: pageUrl(agent.workspaceId, p.pageId),
             })),
             ...(access.hidden ? { hidden: access.hidden, note: `${access.hidden} more shared pages the user can't open themselves.` } : {}),
+          },
+        }
+      : {}),
+    ...(skills
+      ? {
+          skills: {
+            pages: skills.skills.map((s) => ({
+              skill_id: s.pageId,
+              title: pageLabel(s.title),
+              description: s.description,
+              status: s.status,
+              note: SKILL_STATUS[s.status],
+              url: pageUrl(agent.workspaceId, s.pageId),
+            })),
+            ...(skills.hidden ? { hidden: skills.hidden, note: `${skills.hidden} more skills the user can't open themselves.` } : {}),
           },
         }
       : {}),
@@ -212,6 +252,16 @@ export function describeAgentStep(step: AgentStepRecord) {
       };
     case "thought":
       return { kind: "thought", summary: step.text };
+    case "skill": {
+      const name = step.title ? `the skill ${quote(step.title)}` : "a skill the user can't open";
+      const why = step.outcome === "skipped" ? { notASkill: "it is no longer a skill", editable: "someone besides the workspace's owners may edit it", tooLong: "it didn't fit in what a run may read" }[step.reason] : "";
+      return {
+        kind: "skill",
+        outcome: step.outcome,
+        page_id: step.pageId,
+        summary: step.outcome === "used" ? `Followed ${name}` : `Left out ${name}: ${why}`,
+      };
+    }
     case "tool": {
       const how = { done: "Used", failed: "Failed to use", declined: "Declined (not sent):", redo: "Sent back to redo (not sent):", expired: "No one answered (not sent):" }[step.outcome];
       return {

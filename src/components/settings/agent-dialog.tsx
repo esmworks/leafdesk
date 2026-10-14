@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, ChevronRight, MessageSquare, MessageSquareOff, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, ChevronRight, MessageSquare, MessageSquareOff, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -29,13 +29,15 @@ import {
   MAX_AGENT_NAME,
   type AgentAccessLevel,
   type AgentAccessView,
+  type AgentSkillRecord,
   type AgentToolRecord,
   type AgentView,
 } from "@/lib/agents";
 import { AgentConnectionsTab } from "./agent-connections-tab";
+import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "connections" | "runs";
+export type AgentTab = "settings" | "access" | "skills" | "connections" | "runs";
 
 
 /** An agent's emoji, or a robot when it has none. */
@@ -44,7 +46,7 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it, the connections' tools it may use and its latest runs, in tabs. */
+/** One agent: its settings, the pages shared with it, its skills, the connections' tools it may use and its latest runs, in tabs. */
 export function AgentDialog({
   workspaceId,
   agent,
@@ -80,9 +82,10 @@ export function AgentDialog({
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      <div className="border-b border-border px-5 py-2">
+      {/* Five tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
+      <div className="overflow-x-auto border-b border-border px-5 py-2">
         <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          {(["settings", "access", "connections", "runs"] as const).map((name) => (
+          {(["settings", "access", "skills", "connections", "runs"] as const).map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
               {t(`tabs.${name}`)}
             </TabButton>
@@ -93,6 +96,8 @@ export function AgentDialog({
         <AgentForm workspaceId={workspaceId} agent={agent} onDone={onClose} />
       ) : tab === "access" ? (
         <AccessTab workspaceId={workspaceId} agent={agent} />
+      ) : tab === "skills" ? (
+        <AgentSkillsTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "connections" ? (
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
       ) : (
@@ -509,6 +514,7 @@ function RunItem({
 function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
   const t = useTranslations("settings.agents.runs");
   if (step.kind === "tool") return <ToolStepLine step={step} connection={connections[step.connectionId] ?? t("removedConnection")} />;
+  if (step.kind === "skill") return <SkillStepLine step={step} onOpen={onOpen} />;
   if (step.kind !== "comment") return <StepLine step={step} onSource={(source) => source.pageId && onOpen(source.pageId)} />;
   const failed = step.outcome === "failed";
   const Icon = failed ? MessageSquareOff : MessageSquare;
@@ -524,6 +530,27 @@ function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; con
           </>
         )}
       </span>
+    </>
+  );
+}
+
+/** A skill the run followed, or left out and why; named only to those who may open it. */
+function SkillStepLine({ step, onOpen }: { step: AgentSkillRecord; onOpen: (pageId: string) => void }) {
+  const t = useTranslations("settings.agents.runs.skill");
+  const tc = useTranslations("common");
+  const skipped = step.outcome === "skipped";
+  const Icon = skipped ? BookX : BookCheck;
+  const name = step.title ? (
+    <button type="button" onClick={() => onOpen(step.pageId)} className="text-fg hover:underline">
+      {pageLabel(step.title, tc("untitled"))}
+    </button>
+  ) : (
+    t("hidden")
+  );
+  return (
+    <>
+      <Icon className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", skipped && "text-danger")} />
+      <span className="min-w-0 break-words">{skipped ? t.rich(`skipped.${step.reason}`, { name: () => name }) : t.rich("used", { name: () => name })}</span>
     </>
   );
 }
