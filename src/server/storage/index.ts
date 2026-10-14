@@ -37,7 +37,7 @@ export function uploadLimits() {
  */
 export function driverFromEnv(env: Record<string, string | undefined> = process.env): StorageDriver {
   const kind = env.STORAGE_DRIVER?.trim().toLowerCase() || (env.S3_BUCKET ? "s3" : "local");
-  if (kind === "local") return localDriver(resolve(env.UPLOAD_DIR?.trim() || DEFAULT_UPLOAD_DIR));
+  if (kind === "local") return localDriver(resolve(/*turbopackIgnore: true*/ env.UPLOAD_DIR?.trim() || DEFAULT_UPLOAD_DIR));
   if (kind !== "s3") throw new Error(`STORAGE_DRIVER must be "local" or "s3", not "${kind}"`);
   const need = (name: string) => {
     const value = env[name]?.trim();

@@ -5,7 +5,12 @@ import { auth } from "@/lib/auth";
 import { isStrongSession } from "@/lib/auth-security";
 import { policyHoldFor, type PolicyHold } from "@/server/access";
 
-export const getSession = cache(async () => auth.api.getSession({ headers: await headers() }));
+export const getSession = cache(async () => {
+  // Headers first: while `next build` prerenders, reading them ends the attempt before Better
+  // Auth is created (it queries the database as it sets up; see lib/auth).
+  const requestHeaders = await headers();
+  return auth.api.getSession({ headers: requestHeaders });
+});
 
 /** Set by src/proxy.ts on app routes: the path being requested, to come back to after signing in. */
 const PATH_HEADER = "x-leafdesk-path";

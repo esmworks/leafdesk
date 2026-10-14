@@ -168,7 +168,7 @@ export async function storeFile(
       await tx.insert(file).values({ id, workspaceId, pageId, storageKey, name, contentType, size: spooled.size, uploadedBy });
     });
     try {
-      await getStorage().put(storageKey, createReadStream(spooled.path), { size: spooled.size, contentType });
+      await getStorage().put(storageKey, createReadStream(/*turbopackIgnore: true*/ spooled.path), { size: spooled.size, contentType });
     } catch (error) {
       await db.delete(file).where(eq(file.id, id));
       throw error;

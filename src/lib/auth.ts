@@ -36,12 +36,6 @@ import { acceptInvitation, createPersonalWorkspace, invitationAllowsSignUp, join
 
 export { MCP_SCOPES } from "@/lib/auth-options";
 
-const base = baseAuthOptions({
-  invitationAllowsSignUp,
-  instanceOidc: env.instanceOidc,
-  sso: { resolveProvider: resolveSsoProvider },
-});
-
 type HookContext = { path?: string; params?: unknown } | null | undefined;
 
 /** The provider of a single sign-on that is creating or signing in a user, or null. */
@@ -125,145 +119,179 @@ async function rememberSignInLocale(userId: string, ctx: { request?: Request; he
   if (stated) await rememberLocale(userId, stated.locale, { onlyIfUnknown: !stated.chosen });
 }
 
-export const auth = betterAuth({
-  ...base,
-  secret: env.authSecret,
-  database: drizzleAdapter(db, { provider: "pg", schema }),
-  // Following the verification link from another browser takes the account over from whoever
-  // signed up with the address (see claimOnEmailVerification). Runs before the plugins' hooks.
-  hooks: { ...base.hooks, after: claimOnEmailVerification(forgetUnprovenHolder) },
-  // Proving an address matters for allowed email domains (a verified address may join a workspace
-  // on its own) and for being added by email (an unverified account is invited instead); nobody
-  // has to verify to sign in. Without email on this server nothing can be verified this way: only
-  // providers that vouch for the address count (see join-requests).
-  ...(mailStatus() === "disabled"
-    ? {}
-    : {
-        emailVerification: {
-          sendVerificationEmail,
-          sendOnSignUp: true,
-          autoSignInAfterVerification: true,
-          afterEmailVerification: async (user: { id: string }) => {
-            await domainPolicies(user.id);
+function createAuth() {
+  const base = baseAuthOptions({
+    invitationAllowsSignUp,
+    instanceOidc: env.instanceOidc,
+    sso: { resolveProvider: resolveSsoProvider },
+  });
+  return betterAuth({
+    ...base,
+    secret: env.authSecret,
+    database: drizzleAdapter(db, { provider: "pg", schema }),
+    // Following the verification link from another browser takes the account over from whoever
+    // signed up with the address (see claimOnEmailVerification). Runs before the plugins' hooks.
+    hooks: { ...base.hooks, after: claimOnEmailVerification(forgetUnprovenHolder) },
+    // Proving an address matters for allowed email domains (a verified address may join a workspace
+    // on its own) and for being added by email (an unverified account is invited instead); nobody
+    // has to verify to sign in. Without email on this server nothing can be verified this way: only
+    // providers that vouch for the address count (see join-requests).
+    ...(mailStatus() === "disabled"
+      ? {}
+      : {
+          emailVerification: {
+            sendVerificationEmail,
+            sendOnSignUp: true,
+            autoSignInAfterVerification: true,
+            afterEmailVerification: async (user: { id: string }) => {
+              await domainPolicies(user.id);
+            },
+          },
+        }),
+    emailAndPassword: {
+      ...base.emailAndPassword,
+      // Without email the endpoint answers RESET_PASSWORD_DISABLED and the page explains why.
+      sendResetPassword: mailStatus() === "disabled" ? undefined : sendResetPassword,
+      resetPasswordTokenExpiresIn: PASSWORD_RESET_MINUTES * 60,
+      revokeSessionsOnPasswordReset: true,
+      // A reset through the emailed link proves the address, so it counts as verified, and allowed
+      // email domains apply as after any other verification. The apps the user connected are cut
+      // off there too (afterPasswordReset).
+      onPasswordReset: async ({ user }) => {
+        await afterPasswordReset(user.id);
+        await domainPolicies(user.id);
+      },
+    },
+    rateLimit: {
+      customRules: {
+        "/request-password-reset": { window: 60, max: 3 },
+        "/reset-password": { window: 60, max: 10 },
+        "/send-verification-email": { window: 60, max: 3 },
+      },
+    },
+    ...socialAuthOptions(env.socialProviders),
+    // Identity providers on a private network that SSO may call (the instance issuer, SSO_TRUSTED_ORIGINS).
+    trustedOrigins: env.ssoTrustedOrigins,
+    databaseHooks: {
+      user: {
+        create: {
+          before: beforeUserCreate,
+          after: async (user, ctx) => {
+            await rememberSignInLocale(user.id, ctx);
+            // A workspace connection's sign-in joins that workspace instead (account.create.after).
+            if (workspaceOfProvider(ssoProviderOf(ctx))) return;
+            // Signing up from an invitation link joins that workspace instead of creating a
+            // personal one; if the invitation was revoked meanwhile, fall back to a personal one.
+            const token = await signUpTokenOf(ctx, "invite");
+            if (token) {
+              try {
+                await acceptInvitation(token, user.id, user.email);
+                return;
+              } catch (error) {
+                console.error("could not accept invitation on sign-up", error);
+              }
+            }
+            // Same for a workspace's join link (it never opens closed sign-up, see baseAuthOptions),
+            // unless the link only asked an owner to let them in.
+            const joinToken = await signUpTokenOf(ctx, "join");
+            if (joinToken) {
+              try {
+                if ((await joinWithLink(joinToken, user.id, user.email)).status === "joined") return;
+              } catch (error) {
+                console.error("could not join with link on sign-up", error);
+              }
+            }
+            // A verified address (Google, GitHub, the instance's SSO) on a workspace's allowed
+            // domain joins that workspace; they start there instead of in a personal one. Only a
+            // domain the workspace proved by DNS does that (server/allowed-domains.ts), so nobody
+            // lands in a workspace that merely typed in their domain.
+            if ((await domainPolicies(user.id)).length) return;
+            await createPersonalWorkspace(user.id, user.name);
           },
         },
-      }),
-  emailAndPassword: {
-    ...base.emailAndPassword,
-    // Without email the endpoint answers RESET_PASSWORD_DISABLED and the page explains why.
-    sendResetPassword: mailStatus() === "disabled" ? undefined : sendResetPassword,
-    resetPasswordTokenExpiresIn: PASSWORD_RESET_MINUTES * 60,
-    revokeSessionsOnPasswordReset: true,
-    // A reset through the emailed link proves the address, so it counts as verified, and allowed
-    // email domains apply as after any other verification. The apps the user connected are cut
-    // off there too (afterPasswordReset).
-    onPasswordReset: async ({ user }) => {
-      await afterPasswordReset(user.id);
-      await domainPolicies(user.id);
-    },
-  },
-  rateLimit: {
-    customRules: {
-      "/request-password-reset": { window: 60, max: 3 },
-      "/reset-password": { window: 60, max: 10 },
-      "/send-verification-email": { window: 60, max: 3 },
-    },
-  },
-  ...socialAuthOptions(env.socialProviders),
-  // Identity providers on a private network that SSO may call (the instance issuer, SSO_TRUSTED_ORIGINS).
-  trustedOrigins: env.ssoTrustedOrigins,
-  databaseHooks: {
-    user: {
-      create: {
-        before: beforeUserCreate,
-        after: async (user, ctx) => {
-          await rememberSignInLocale(user.id, ctx);
-          // A workspace connection's sign-in joins that workspace instead (account.create.after).
-          if (workspaceOfProvider(ssoProviderOf(ctx))) return;
-          // Signing up from an invitation link joins that workspace instead of creating a
-          // personal one; if the invitation was revoked meanwhile, fall back to a personal one.
-          const token = await signUpTokenOf(ctx, "invite");
-          if (token) {
-            try {
-              await acceptInvitation(token, user.id, user.email);
-              return;
-            } catch (error) {
-              console.error("could not accept invitation on sign-up", error);
+        update: {
+          before: async (data) => {
+            refuseAgentAddress(data);
+          },
+        },
+      },
+      account: {
+        // Claiming an account by email also ends what was set up before: passkeys, two-step
+        // verification, API tokens and app grants (see forgetUnprovenHolder).
+        create: {
+          // No password or provider account for an agent's user, so nothing can ever sign it in.
+          before: async (account) => {
+            await agentGuard(account);
+            return withoutProviderTokens(account, { create: true });
+          },
+          after: async (account, ctx) => {
+            await claimOnEmailLink(forgetUnprovenHolder)(account, ctx);
+            // The first sign-in through a workspace's connection (a new account, or an existing one
+            // linked by email) joins that workspace. Only the first: someone an owner removed later
+            // stays out; their identity provider brings them back over SCIM.
+            if (workspaceOfProvider(ssoProviderOf(ctx)) && account.providerId === ssoProviderOf(ctx)) {
+              const owner = await ctx?.context.internalAdapter.findUserById(account.userId);
+              if (owner) await joinThroughSso(account.providerId, owner);
             }
-          }
-          // Same for a workspace's join link (it never opens closed sign-up, see baseAuthOptions),
-          // unless the link only asked an owner to let them in.
-          const joinToken = await signUpTokenOf(ctx, "join");
-          if (joinToken) {
-            try {
-              if ((await joinWithLink(joinToken, user.id, user.email)).status === "joined") return;
-            } catch (error) {
-              console.error("could not join with link on sign-up", error);
-            }
-          }
-          // A verified address (Google, GitHub, the instance's SSO) on a workspace's allowed
-          // domain joins that workspace; they start there instead of in a personal one. Only a
-          // domain the workspace proved by DNS does that (server/allowed-domains.ts), so nobody
-          // lands in a workspace that merely typed in their domain.
-          if ((await domainPolicies(user.id)).length) return;
-          await createPersonalWorkspace(user.id, user.name);
+          },
+        },
+        // Better Auth updates the credential account only to change its password (/change-password);
+        // a new one means an instance admin's "choose a new password" is done.
+        update: {
+          // A later sign-in brings the provider's tokens again: not kept either.
+          before: async (account) => withoutProviderTokens(account),
+          after: async (account) => {
+            if (account?.providerId === "credential") await clearPasswordResetRequirement(account.userId);
+          },
         },
       },
-      update: {
-        before: async (data) => {
-          refuseAgentAddress(data);
-        },
-      },
-    },
-    account: {
-      // Claiming an account by email also ends what was set up before: passkeys, two-step
-      // verification, API tokens and app grants (see forgetUnprovenHolder).
-      create: {
-        // No password or provider account for an agent's user, so nothing can ever sign it in.
-        before: async (account) => {
-          await agentGuard(account);
-          return withoutProviderTokens(account, { create: true });
-        },
-        after: async (account, ctx) => {
-          await claimOnEmailLink(forgetUnprovenHolder)(account, ctx);
-          // The first sign-in through a workspace's connection (a new account, or an existing one
-          // linked by email) joins that workspace. Only the first: someone an owner removed later
-          // stays out; their identity provider brings them back over SCIM.
-          if (workspaceOfProvider(ssoProviderOf(ctx)) && account.providerId === ssoProviderOf(ctx)) {
-            const owner = await ctx?.context.internalAdapter.findUserById(account.userId);
-            if (owner) await joinThroughSso(account.providerId, owner);
-          }
-        },
-      },
-      // Better Auth updates the credential account only to change its password (/change-password);
-      // a new one means an instance admin's "choose a new password" is done.
-      update: {
-        // A later sign-in brings the provider's tokens again: not kept either.
-        before: async (account) => withoutProviderTokens(account),
-        after: async (account) => {
-          if (account?.providerId === "credential") await clearPasswordResetRequirement(account.userId);
+      session: {
+        create: {
+          // How the session was signed in: a passkey sign-in passes "require two-step verification".
+          before: async (session, ctx) => {
+            await agentGuard(session);
+            // A password sign-in of an account that has to choose a new password gets no session.
+            await holdRequiredPasswordReset(session, ctx);
+            return recordAuthMethod(session, ctx);
+          },
+          // Every sign-in: workspaces that allow the (verified) email domain and haven't dealt with
+          // this person yet let them in or take their request.
+          after: async (session, ctx) => {
+            await rememberSignInLocale(session.userId, ctx);
+            await domainPolicies(session.userId);
+          },
         },
       },
     },
-    session: {
-      create: {
-        // How the session was signed in: a passkey sign-in passes "require two-step verification".
-        before: async (session, ctx) => {
-          await agentGuard(session);
-          // A password sign-in of an account that has to choose a new password gets no session.
-          await holdRequiredPasswordReset(session, ctx);
-          return recordAuthMethod(session, ctx);
-        },
-        // Every sign-in: workspaces that allow the (verified) email domain and haven't dealt with
-        // this person yet let them in or take their request.
-        after: async (session, ctx) => {
-          await rememberSignInLocale(session.userId, ctx);
-          await domainPolicies(session.userId);
-        },
-      },
-    },
-  },
-  plugins: [...base.plugins, requiredPasswordPlugin(), connectedAppAuditPlugin(), nextCookies()],
+    plugins: [...base.plugins, requiredPasswordPlugin(), connectedAppAuditPlugin(), nextCookies()],
+  });
+}
+
+type Auth = ReturnType<typeof createAuth>;
+
+let instance: Auth | null = null;
+
+/**
+ * Better Auth sets itself up as soon as it is created, and that setup queries the database (the
+ * OAuth provider records the MCP resource). A failed setup is never retried: every later request
+ * would wait on the same rejected promise. So the instance is created on first use rather than
+ * at import (`next build` imports this module without a database), and one whose setup failed is
+ * dropped so the next request creates it again.
+ */
+function currentAuth(): Auth {
+  if (instance) return instance;
+  const created = createAuth();
+  instance = created;
+  created.$context.catch((error: unknown) => {
+    if (instance === created) instance = null;
+    console.error("[auth] setup failed; retrying on the next request", error);
+  });
+  return created;
+}
+
+export const auth = new Proxy({} as Auth, {
+  get: (_, property) => Reflect.get(currentAuth(), property),
+  has: (_, property) => Reflect.has(currentAuth(), property),
 });
 
 export type Session = typeof auth.$Infer.Session;

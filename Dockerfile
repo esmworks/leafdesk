@@ -14,7 +14,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
-# Placeholders so modules that read env at import time load during `next build`; nothing connects.
+# Placeholders so modules that read env at import time load during `next build`; nothing connects
+# (Better Auth, which queries the database when it is set up, is created on first use: lib/auth.ts).
 RUN DATABASE_URL=postgres://build:build@localhost:5432/build BETTER_AUTH_SECRET=build-only-placeholder-not-used-at-runtime-000000 pnpm build
 
 FROM base AS runner
