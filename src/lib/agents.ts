@@ -214,14 +214,14 @@ export type AgentAccessView = {
 
 /**
  * A skill given to an agent, as its owners see it: whether its runs follow it now (`usable`) or
- * leave it out, and why.
+ * leave it out, and why (`tooLong` told from the length of its text).
  */
 export type AgentSkillView = {
   pageId: string;
   title: string;
   icon: string | null;
   description: string;
-  status: "usable" | Exclude<AgentSkillSkip, "tooLong">;
+  status: "usable" | AgentSkillSkip;
 };
 
 /** A run as the agent's history shows it. */

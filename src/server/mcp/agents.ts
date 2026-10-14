@@ -171,6 +171,7 @@ const SKILL_STATUS = {
   usable: "its runs follow it",
   notASkill: "left out: no longer a skill",
   editable: "left out: someone besides the workspace's owners may edit it",
+  tooLong: "left out: it doesn't fit in what a run may read, with the skills before it",
 } as const;
 
 /** An agent as get_agent and the write tools return it. */

@@ -369,7 +369,8 @@
       "status": {
         "usable": "Her çalışmada izleniyor",
         "notASkill": "Atlanıyor: artık bir beceri değil",
-        "editable": "Atlanıyor: sahipler dışında biri düzenleyebiliyor"
+        "editable": "Atlanıyor: sahipler dışında biri düzenleyebiliyor",
+        "tooLong": "Atlanıyor: üstündeki becerilerle birlikte sığmıyor"
       },
       "remove": "{title} becerisini kaldır",
       "add": "Beceri ekle",

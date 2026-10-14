@@ -369,7 +369,8 @@
       "status": {
         "usable": "Se sigue en cada ejecución",
         "notASkill": "Se deja fuera: ya no es una habilidad",
-        "editable": "Se deja fuera: alguien además de los propietarios puede editarla"
+        "editable": "Se deja fuera: alguien además de los propietarios puede editarla",
+        "tooLong": "Se deja fuera: demasiado larga para caber con las habilidades de arriba"
       },
       "remove": "Quitar {title}",
       "add": "Añadir una habilidad",

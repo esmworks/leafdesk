@@ -29,6 +29,8 @@ type SkillState = {
   editable: boolean;
   /** The viewer may open it (no viewer: true). */
   visible: boolean;
+  /** Length of its text, about what a run reads of it. */
+  chars: number;
 };
 
 /**
@@ -47,10 +49,11 @@ async function skillStates(workspaceId: string, pageIds: string[], viewer?: stri
     skill: boolean;
     editable: boolean;
     visible: boolean;
+    chars: number;
   }>(sql`
     select s.*, s.skill and ${editableByNonOwners(workspaceId, sql.raw(`"s"."id"`))} as editable
     from (
-      select p.id, p.title, p.icon, p.skill_description, left(p.content_text, 400) as body,
+      select p.id, p.title, p.icon, p.skill_description, left(p.content_text, 400) as body, length(p.content_text) as chars,
         (p.workspace_id = ${workspaceId} and p.is_skill and p.kind = 'page' and p.archived_at is null
           and not p.is_template and not p.in_template) as skill,
         ${viewer ? sql`page_access_level(${viewer}, p.id) > 0` : sql`true`} as visible
@@ -72,26 +75,39 @@ async function skillStates(workspaceId: string, pageIds: string[], viewer?: stri
         skill: r.skill,
         editable: r.editable,
         visible: r.visible,
+        chars: Number(r.chars ?? 0),
       },
     ]),
   );
 }
+
+/** What the <skill> tag around a skill adds to the prompt, about. */
+const SKILL_OVERHEAD = 40;
 
 const attachedIds = async (agentId: string) =>
   (await db.select({ pageId: agentSkill.pageId }).from(agentSkill).where(eq(agentSkill.agentId, agentId)).orderBy(asc(agentSkill.position), asc(agentSkill.createdAt))).map(
     (r) => r.pageId,
   );
 
-/** The agent's skills for an owner, in the order runs follow them; those they can't open are only counted. */
+/**
+ * The agent's skills for an owner, in the order runs follow them; those they can't open are only
+ * counted. Whether one fits in what a run reads is told from the length of its text, as runs count.
+ */
 export async function listAgentSkills(userId: string, agentId: string): Promise<{ skills: AgentSkillView[]; hidden: number }> {
   const agent = await ownedAgent(userId, agentId);
   const ids = await attachedIds(agent.id);
   const states = await skillStates(agent.workspaceId, ids, userId);
   const skills: AgentSkillView[] = [];
   let hidden = 0;
+  let left = MAX_AGENT_SKILL_CHARS;
   for (const id of ids) {
     const state = states.get(id);
-    if (!state?.visible) {
+    if (!state) continue;
+    const usable = state.skill && !state.editable;
+    const size = state.chars + pageLabel(state.title).length + SKILL_OVERHEAD;
+    const fits = usable && size <= left;
+    if (fits) left -= size;
+    if (!state.visible) {
       hidden += 1;
       continue;
     }
@@ -100,7 +116,7 @@ export async function listAgentSkills(userId: string, agentId: string): Promise<
       title: state.title,
       icon: state.icon,
       description: state.description,
-      status: !state.skill ? "notASkill" : state.editable ? "editable" : "usable",
+      status: !state.skill ? "notASkill" : state.editable ? "editable" : fits ? "usable" : "tooLong",
     });
   }
   return { skills, hidden };
@@ -185,11 +201,11 @@ export async function runSkills(
     const content = await getCollab().readPage(id);
     const body = (await labelPageLinks(agent.userId, content.markdown)).trim();
     const name = pageLabel(content.title || state.title);
-    if (body.length + name.length + 40 > left) {
+    if (body.length + name.length + SKILL_OVERHEAD > left) {
       steps.push({ kind: "skill", pageId: id, title: name, outcome: "skipped", reason: "tooLong" });
       continue;
     }
-    left -= body.length + name.length + 40;
+    left -= body.length + name.length + SKILL_OVERHEAD;
     skills.push({ pageId: id, title: name, body });
     steps.push({ kind: "skill", pageId: id, title: name, outcome: "used" });
   }

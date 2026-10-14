@@ -369,7 +369,8 @@
       "status": {
         "usable": "Wird bei jedem Lauf befolgt",
         "notASkill": "Ausgelassen: kein Skill mehr",
-        "editable": "Ausgelassen: Auch andere als die Inhaber können ihn bearbeiten"
+        "editable": "Ausgelassen: Auch andere als die Inhaber können ihn bearbeiten",
+        "tooLong": "Ausgelassen: zu lang, um mit den Skills darüber hineinzupassen"
       },
       "remove": "{title} entfernen",
       "add": "Skill hinzufügen",

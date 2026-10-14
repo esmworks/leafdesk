@@ -369,7 +369,8 @@
       "status": {
         "usable": "Followed on every run",
         "notASkill": "Left out: no longer a skill",
-        "editable": "Left out: someone besides the owners can edit it"
+        "editable": "Left out: someone besides the owners can edit it",
+        "tooLong": "Left out: too long to fit with the skills above it"
       },
       "remove": "Take {title} away",
       "add": "Add a skill",

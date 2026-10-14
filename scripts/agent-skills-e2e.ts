@@ -216,6 +216,8 @@ try {
   await setSkill(ids.owner, long.id, { skill: true });
   await removeAgentSkill(ids.owner, router.id, triage.id);
   await addAgentSkill(ids.owner, router.id, long.id);
+  const longStatus = (await listAgentSkills(ids.owner, router.id)).skills.find((s) => s.pageId === long.id)?.status;
+  check(longStatus === "tooLong", "owners see that a skill too long to fit is left out", longStatus);
   const tooLong = await runOnce("A long skill");
   check(
     tooLong.run.status === "done" && tooLong.skills.find((s) => s.pageId === long.id)?.outcome === "skipped" && !tooLong.system.includes("word word"),

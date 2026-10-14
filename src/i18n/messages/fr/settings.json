@@ -369,7 +369,8 @@
       "status": {
         "usable": "Suivie à chaque exécution",
         "notASkill": "Laissée de côté : ce n’est plus une compétence",
-        "editable": "Laissée de côté : d’autres que les propriétaires peuvent la modifier"
+        "editable": "Laissée de côté : d’autres que les propriétaires peuvent la modifier",
+        "tooLong": "Laissée de côté : trop longue pour tenir avec les compétences au-dessus"
       },
       "remove": "Retirer {title}",
       "add": "Ajouter une compétence",

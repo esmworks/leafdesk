@@ -1465,7 +1465,7 @@ workspace has at most 50 agents. A paused agent doesn't run: its queued runs end
 `agentDisabled`. Archiving one also unshares every page shared with it (each recorded in the audit
 log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
-shared. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
+shared; its skills stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
 `set_agent_access`, `set_agent_skill` and `list_agent_runs`. The REST API has no agent endpoints.
 
