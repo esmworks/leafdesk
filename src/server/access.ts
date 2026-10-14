@@ -443,15 +443,53 @@ export function pageVisibleTo(userId: string, alias?: string): SQL {
 }
 
 /**
- * SQL condition: someone in the workspace besides its owners (a member, a guest or an agent,
- * through a teamspace, a group or the page's own sharing) may edit the page: what keeps a page
- * from being an agent's skill (server/agents/skills.ts). One access check per such person.
+ * Of these pages, those someone in the workspace besides its owners (a member, a guest or an
+ * agent, through a teamspace, a group or the pages' own sharing) may edit: what keeps a page from
+ * being an agent's skill (server/agents/skills.ts). page_access_level decides, asked only of who
+ * could reach edit at all (page_access_level's sources): people and groups given edit or full on
+ * the page or above it, and everyone in the workspace when the page is in a teamspace or
+ * "everyone" may edit it. A private page shared with no one costs no access check.
  */
-export function editableByNonOwners(workspaceId: string, pageId: SQL | AnyColumn): SQL {
-  return sql`exists (
-    select 1 from ${workspaceMember} wm
-    where wm.workspace_id = ${workspaceId} and wm.role <> 'owner' and page_access_level(wm.user_id, ${pageId}) >= ${rank("edit")}
-  )`;
+export async function pagesOthersMayEdit(workspaceId: string, pageIds: string[]): Promise<Set<string>> {
+  if (!pageIds.length) return new Set();
+  const ids = sql.join(
+    pageIds.map((id) => sql`${id}`),
+    sql`, `,
+  );
+  const editing = sql`('edit', 'full')`;
+  const rows = await db.execute<{ id: string }>(sql`
+    with recursive chain as (
+      select p.id as page_id, p.id, p.parent_id, 0 as depth from page p where p.id in (${ids})
+      union all
+      select c.page_id, p.id, p.parent_id, c.depth + 1 from page p join chain c on p.id = c.parent_id where c.depth < 64
+    ),
+    candidate as (
+      select c.page_id, pp.user_id from chain c
+        join page_permission pp on pp.page_id = c.id and pp.user_id is not null and pp.level in ${editing}
+      union
+      select c.page_id, gm.user_id from chain c
+        join page_group_permission gp on gp.page_id = c.id and gp.level in ${editing}
+        join member_group_member gm on gm.group_id = gp.group_id
+      union
+      select t.id, wm.user_id from page t
+        join ${workspaceMember} wm on wm.workspace_id = ${workspaceId}
+      where t.id in (${ids}) and (
+        t.teamspace_id is not null
+        or exists (
+          select 1 from chain c join page_permission pp on pp.page_id = c.id and pp.user_id is null and pp.level in ${editing}
+          where c.page_id = t.id
+        )
+      )
+    )
+    select t.id from page t
+    where t.id in (${ids}) and exists (
+      select 1 from candidate cand
+        join ${workspaceMember} wm on wm.workspace_id = ${workspaceId} and wm.user_id = cand.user_id and wm.role <> 'owner'
+      where cand.page_id = t.id
+        and page_access_level(cand.user_id, t.id) >= ${rank("edit")}
+    )
+  `);
+  return new Set(rows.map((r) => r.id));
 }
 
 /** The page id column, or `alias.id` in raw queries. */

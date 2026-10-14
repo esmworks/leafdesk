@@ -360,7 +360,7 @@
       "automationNote": "Bu ajanı çalıştıran bir otomasyon kaydedildiğinde ajana kendi veritabanında düzenleme erişimi verir."
     },
     "skills": {
-      "description": "Beceriler, ajanın her çalışmada kendi talimatlarından sonra, bu sırayla izlediği talimat sayfalarıdır.",
+      "description": "Beceriler, ajanın her çalışmada kendi talimatlarından sonra, bu sırayla izlediği talimat sayfalarıdır. Birinin değişikliğiyle ya da herkese açık bir formun yanıtıyla başlayan çalışma yalnızca o kişinin (ya da formu yayımlayanın) açabildiği becerileri kullanır: dahil etmek için beceriyi onlarla görüntüleme yetkisiyle paylaşın.",
       "rule": "Ajan yalnızca çalışma alanı sahipleri dışında kimsenin düzenleyemediği becerileri izler. Sonradan bir üye, teamspace, grup, misafir ya da ajan düzenleyebilir hale gelirse çalışmalar o beceriyi atlar ve adımlarında bunu belirtir.",
       "list": "Ajanın becerileri",
       "empty": "Bu ajanın henüz becerisi yok.",
@@ -430,7 +430,9 @@
         "skipped": {
           "notASkill": "<name></name> atlandı: artık bir beceri değil",
           "editable": "<name></name> atlandı: sahipler dışında biri düzenleyebiliyor",
-          "tooLong": "<name></name> atlandı: bir çalışmanın okuyabileceğine sığmadı"
+          "tooLong": "<name></name> atlandı: bir çalışmanın okuyabileceğine sığmadı",
+          "hidden": "<name></name> atlandı: çalışmayı başlatan kişi bu sayfayı açamıyor",
+          "removed": "<name></name> atlandı: çalışma beklerken bir sahip bu beceriyi ajandan kaldırdı"
         }
       }
     },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AGENT_EMAIL_DOMAIN, agentEmail, callToSend, INBOX_CALL_CHARS, inboxCallInput, isAgentEmail } from "./agents";
+import { AGENT_EMAIL_DOMAIN, agentEmail, callToSend, INBOX_CALL_CHARS, inboxCallInput, isAgentEmail, skillStepsToAdd, type AgentSkillRecord } from "./agents";
 import { redactValue } from "./redact";
 
 describe("agents' addresses", () => {
@@ -54,5 +54,38 @@ describe("a waiting call, as approvers see it", () => {
 
   it("isn't, when the run no longer holds the call", () => {
     expect(inboxCallInput({ a: 1 }, null).whole).toBe(false);
+  });
+});
+
+describe("a run's skill steps", () => {
+  const used = (pageId: string): AgentSkillRecord => ({ kind: "skill", pageId, title: pageId.toUpperCase(), outcome: "used" });
+  const skipped = (pageId: string, reason: "editable" | "hidden" | "notASkill"): AgentSkillRecord => ({ kind: "skill", pageId, title: pageId.toUpperCase(), outcome: "skipped", reason });
+
+  it("names every skill when the run starts", () => {
+    expect(skillStepsToAdd([], [used("a"), skipped("b", "editable")])).toEqual([used("a"), skipped("b", "editable")]);
+  });
+
+  it("adds nothing when a run goes on and its skills stand as they did", () => {
+    const before = [used("a"), { kind: "thought" as const, text: "Thinking" }, skipped("b", "editable")];
+    expect(skillStepsToAdd(before, [used("a"), skipped("b", "editable")])).toEqual([]);
+  });
+
+  it("says when a skill is left out now, back, or left out for another reason", () => {
+    const before = [used("a"), skipped("b", "editable"), skipped("c", "hidden")];
+    expect(skillStepsToAdd(before, [skipped("a", "editable"), used("b"), skipped("c", "notASkill")])).toEqual([
+      skipped("a", "editable"),
+      used("b"),
+      skipped("c", "notASkill"),
+    ]);
+  });
+
+  it("compares with the latest step of each skill", () => {
+    expect(skillStepsToAdd([used("a"), skipped("a", "editable")], [skipped("a", "editable")])).toEqual([]);
+  });
+
+  it("says a skill it followed was taken from the agent meanwhile, once", () => {
+    const removed: AgentSkillRecord = { kind: "skill", pageId: "a", title: "A", outcome: "skipped", reason: "removed" };
+    expect(skillStepsToAdd([used("a"), skipped("b", "editable")], [])).toEqual([removed]);
+    expect(skillStepsToAdd([used("a"), removed], [])).toEqual([]);
   });
 });

@@ -360,7 +360,7 @@
       "automationNote": "An automation that runs this agent gives it edit access to its database when it’s saved."
     },
     "skills": {
-      "description": "Skills are pages with instructions the agent follows on every run, after its own instructions, in this order.",
+      "description": "Skills are pages with instructions the agent follows on every run, after its own instructions, in this order. A run started by someone’s change, or by an answer to a public form, only uses the skills that person (or the form’s publisher) can open: share a skill with them at view to include it.",
       "rule": "An agent only follows skills that no one but the workspace owners can edit. If a member, teamspace, group, guest or agent can edit one later, runs leave it out and say so in their steps.",
       "list": "The agent’s skills",
       "empty": "This agent has no skills yet.",
@@ -430,7 +430,9 @@
         "skipped": {
           "notASkill": "Left out <name></name>: it’s no longer a skill",
           "editable": "Left out <name></name>: someone besides the owners can edit it",
-          "tooLong": "Left out <name></name>: it didn’t fit in what a run can read"
+          "tooLong": "Left out <name></name>: it didn’t fit in what a run can read",
+          "hidden": "Left out <name></name>: the person who started the run can’t open it",
+          "removed": "Left out <name></name>: an owner took it from the agent while the run waited"
         }
       }
     },

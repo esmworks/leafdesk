@@ -10,8 +10,9 @@
   skills library (searchable, with *New skill*). In the AI chat, `/` at the start of the empty box
   picks a skill whose instructions the next question follows, without widening what the chat may
   change; the question keeps it, and *Answer again* and *Edit* use it again. MCP clients get
-  `list_skills`, `get_skill` and `set_skill`, `get_page` says whether a page is a skill, and every
-  skill the user can open is also a prompt of its name, unique across their workspaces. The page
+  `list_skills`, `get_skill` (which refuses a title several skills share) and `set_skill`,
+  `get_page` says whether a page is a skill, and every skill the user can open is also a prompt of
+  its name, unique across their workspaces. The page
   menu and the library export a skill as a ZIP holding `<name>/SKILL.md`. Skills follow page
   access everywhere and leave every list while in the trash. Migration `0060_skills` adds
   `page.is_skill` and `page.skill_description`. Covered in `scripts/skills-e2e.ts` and
@@ -21,9 +22,10 @@
   the workspace's owners can edit (not members, teamspaces, groups, guests or agents, the agent
   itself included) can be given; a run checks again and leaves out, saying so in its steps, a skill
   someone else can edit by then, one no longer marked as a skill, or one that doesn't fit in what a
-  run may read (12,000 characters together), and the tab shows each skill's state. MCP clients get
-  `set_agent_skill`, and `get_agent` lists the agent's skills. Giving and taking a skill is
-  recorded in the audit log. Migration `0061_agent_skills` adds `agent_skill`. Covered in
+  run may read (12,000 characters together), and the tab shows each skill's state. A run started
+  by a member's change or a public form leaves out the skills that person can't open, and a run
+  that goes on after an approval checks its skills again. MCP clients get `set_agent_skill`, and
+  `get_agent` lists the agent's skills. Giving and taking a skill is recorded in the audit log. Migration `0061_agent_skills` adds `agent_skill`. Covered in
   `scripts/agent-skills-e2e.ts`.
 - **Copy ID.** A page's, database's or row's menu (also in the row panel) has *Copy ID*, and a
   column's menu, in the table and on a row's page, *Copy property ID*: the ids the REST API and MCP

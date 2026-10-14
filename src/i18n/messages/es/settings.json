@@ -360,7 +360,7 @@
       "automationNote": "Una automatización que ejecuta este agente le da acceso de edición a su base de datos al guardarse."
     },
     "skills": {
-      "description": "Las habilidades son páginas con instrucciones que el agente sigue en cada ejecución, después de sus propias instrucciones, en este orden.",
+      "description": "Las habilidades son páginas con instrucciones que el agente sigue en cada ejecución, después de sus propias instrucciones, en este orden. Una ejecución iniciada por el cambio de una persona, o por una respuesta a un formulario público, solo usa las habilidades que esa persona (o quien publicó el formulario) puede abrir: comparte una habilidad con ella para ver y así incluirla.",
       "rule": "Un agente solo sigue habilidades que nadie más que los propietarios del espacio de trabajo puede editar. Si más adelante un miembro, un espacio de equipo, un grupo, un invitado o un agente puede editar una, las ejecuciones la dejan fuera y lo indican en sus pasos.",
       "list": "Habilidades del agente",
       "empty": "Este agente todavía no tiene habilidades.",
@@ -430,7 +430,9 @@
         "skipped": {
           "notASkill": "Dejó fuera <name></name>: ya no es una habilidad",
           "editable": "Dejó fuera <name></name>: alguien además de los propietarios puede editarla",
-          "tooLong": "Dejó fuera <name></name>: no cabía en lo que puede leer una ejecución"
+          "tooLong": "Dejó fuera <name></name>: no cabía en lo que puede leer una ejecución",
+          "hidden": "Dejó fuera <name></name>: la persona que inició la ejecución no puede abrirla",
+          "removed": "Dejó fuera <name></name>: un propietario se la quitó al agente mientras la ejecución esperaba"
         }
       }
     },

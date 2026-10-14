@@ -116,14 +116,35 @@ export type AgentToolRecord = {
 
 /**
  * Why a run left out one of its agent's skills: the page is no longer a skill (unmarked, in the
- * trash, moved into a template), someone besides the workspace's owners may edit it, or it didn't
- * fit in what the run may read.
+ * trash, moved into a template), someone besides the workspace's owners may edit it, it didn't fit
+ * in what the run may read, the person whose access holds the run can't open it, or an owner took
+ * it from the agent while the run waited for approval.
  */
-export const AGENT_SKILL_SKIPS = ["notASkill", "editable", "tooLong"] as const;
+export const AGENT_SKILL_SKIPS = ["notASkill", "editable", "tooLong", "hidden", "removed"] as const;
 export type AgentSkillSkip = (typeof AGENT_SKILL_SKIPS)[number];
 
 /** A skill of the agent, followed on this run (`used`) or left out, and why. */
 export type AgentSkillRecord = { kind: "skill"; pageId: string; title: string } & ({ outcome: "used" } | { outcome: "skipped"; reason: AgentSkillSkip });
+
+/**
+ * The skill steps a run adds when it starts (`steps` empty) or goes on after waiting for approval
+ * (`steps` what it did so far), given the skills as checked now: each skill once, then again only
+ * when how it stands changed (left out now, back, or left out for another reason), and a skill it
+ * followed that the agent no longer has, as removed.
+ */
+export function skillStepsToAdd(steps: AgentStepRecord[], now: AgentSkillRecord[]): AgentSkillRecord[] {
+  const last = new Map<string, AgentSkillRecord>();
+  for (const step of steps) if (step.kind === "skill") last.set(step.pageId, step);
+  const changed = now.filter((step) => {
+    const before = last.get(step.pageId);
+    return !before || before.outcome !== step.outcome || (before.outcome === "skipped" && step.outcome === "skipped" && before.reason !== step.reason);
+  });
+  const kept = new Set(now.map((s) => s.pageId));
+  const removed = [...last.values()]
+    .filter((s) => s.outcome === "used" && !kept.has(s.pageId))
+    .map((s): AgentSkillRecord => ({ kind: "skill", pageId: s.pageId, title: s.title, outcome: "skipped", reason: "removed" }));
+  return [...changed, ...removed];
+}
 
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented or used a tool. */
 export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord;
@@ -214,14 +235,15 @@ export type AgentAccessView = {
 
 /**
  * A skill given to an agent, as its owners see it: whether its runs follow it now (`usable`) or
- * leave it out, and why (`tooLong` told from the length of its text).
+ * leave it out, and why.
  */
 export type AgentSkillView = {
   pageId: string;
   title: string;
   icon: string | null;
   description: string;
-  status: "usable" | AgentSkillSkip;
+  /** Whoever starts a run: one held to someone who can't open the skill leaves it out too. */
+  status: "usable" | "notASkill" | "editable" | "tooLong";
 };
 
 /** A run as the agent's history shows it. */

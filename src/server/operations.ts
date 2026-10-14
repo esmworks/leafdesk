@@ -1144,8 +1144,13 @@ export async function getSkill(ctx: OperationContext, { skill, offset }: Args<"g
   const wanted = skill.trim();
   const pageId = idFromLink("page_id", wanted);
   const named = await skills.namedSkills(ctx.userId);
-  // Its name, or its title as the name is made from it, or its page.
-  const found = named.find((s) => s.name === wanted.toLowerCase()) ?? named.find((s) => s.name === skillSlug(wanted)) ?? named.find((s) => s.id === pageId);
+  // Its name, or its page, or its title (as names are made from titles); a title several skills
+  // share names none of them.
+  const titled = named.filter((s) => skillSlug(s.title) === skillSlug(wanted));
+  if (!named.some((s) => s.name === wanted.toLowerCase() || s.id === pageId) && titled.length > 1) {
+    throw new ToolInputError(`Several skills are titled "${wanted}": ${titled.map((s) => s.name).join(", ")}. Pass one of these names.`);
+  }
+  const found = named.find((s) => s.name === wanted.toLowerCase()) ?? named.find((s) => s.id === pageId) ?? titled[0];
   if (!found) {
     throw new ToolInputError(
       named.length ? `No skill named "${wanted}". Call list_skills to see the user's skills.` : "The user has no skills yet.",

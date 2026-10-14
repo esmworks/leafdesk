@@ -4,18 +4,21 @@
  * the workspace's owners may edit it (members, teamspaces, groups, guests and agents, the agent
  * itself too, all count). Owners can't give an agent a skill others may edit, and a run checks
  * again: a skill that is no longer one, or that someone else may now edit, is left out and the run
- * says so in its steps.
+ * says so in its steps. A run held to someone's access (the member whose change started it, or a
+ * public form's publisher) also leaves out the skills that person can't open, as it does pages.
  */
-import { and, asc, eq, max, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, max, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentSkill, page } from "@/db/schema";
-import { MAX_AGENT_SKILL_CHARS, MAX_AGENT_SKILLS, type AgentSkillRecord, type AgentSkillView } from "@/lib/agents";
+import { agentSkill, page, workspaceAgent } from "@/db/schema";
+import { MAX_AGENT_SKILL_CHARS, MAX_AGENT_SKILLS, type AgentSkillRecord, type AgentSkillSkip, type AgentSkillView } from "@/lib/agents";
 import { pageLabel } from "@/lib/labels";
 import { describeSkill } from "@/lib/skills";
-import { AccessError, ConnectedAppReadOnlyError, editableByNonOwners, requirePageAccess } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, pagesOthersMayEdit, requirePageAccess } from "@/server/access";
+import { aiConfig } from "@/server/ai";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { labelPageLinks } from "@/server/mentions";
+import { isSkill } from "@/server/skills";
 import { AgentError, auditDetails, ownedAgent } from "./manage";
 
 type SkillState = {
@@ -27,43 +30,30 @@ type SkillState = {
   skill: boolean;
   /** Someone besides the workspace's owners may edit it. */
   editable: boolean;
-  /** The viewer may open it (no viewer: true). */
+  /** `viewer` may open it (no viewer: true). */
   visible: boolean;
-  /** Length of its text, about what a run reads of it. */
-  chars: number;
 };
 
-/**
- * Where these pages stand as skills of the workspace, and whether `viewer` may open them. Who
- * else may edit a page is asked only of pages that are still skills: it is one access check per
- * member who isn't an owner.
- */
+/** Where these pages stand as skills of the workspace, and whether `viewer` may open them. */
 async function skillStates(workspaceId: string, pageIds: string[], viewer?: string): Promise<Map<string, SkillState>> {
   if (!pageIds.length) return new Map();
-  const rows = await db.execute<{
-    id: string;
-    title: string;
-    icon: string | null;
-    skill_description: string;
-    body: string;
-    skill: boolean;
-    editable: boolean;
-    visible: boolean;
-    chars: number;
-  }>(sql`
-    select s.*, s.skill and ${editableByNonOwners(workspaceId, sql.raw(`"s"."id"`))} as editable
-    from (
-      select p.id, p.title, p.icon, p.skill_description, left(p.content_text, 400) as body, length(p.content_text) as chars,
-        (p.workspace_id = ${workspaceId} and p.is_skill and p.kind = 'page' and p.archived_at is null
-          and not p.is_template and not p.in_template) as skill,
-        ${viewer ? sql`page_access_level(${viewer}, p.id) > 0` : sql`true`} as visible
-      from ${page} p
-      where p.id in (${sql.join(
-        pageIds.map((id) => sql`${id}`),
-        sql`, `,
-      )})
-    ) s
-  `);
+  const rows = await db
+    .select({
+      id: page.id,
+      title: page.title,
+      icon: page.icon,
+      skillDescription: page.skillDescription,
+      body: sql<string>`left(${page.contentText}, 400)`,
+      skill: sql<boolean>`(${page.workspaceId} = ${workspaceId} and ${isSkill("page")})`,
+      visible: viewer ? sql<boolean>`page_access_level(${viewer}, ${page.id}) > 0` : sql<boolean>`true`,
+    })
+    .from(page)
+    .where(inArray(page.id, pageIds));
+  // Who else may edit is asked only of pages that are still skills.
+  const editable = await pagesOthersMayEdit(
+    workspaceId,
+    rows.filter((r) => r.skill).map((r) => r.id),
+  );
   return new Map(
     rows.map((r) => [
       r.id,
@@ -71,11 +61,10 @@ async function skillStates(workspaceId: string, pageIds: string[], viewer?: stri
         id: r.id,
         title: r.title,
         icon: r.icon,
-        description: describeSkill(r.skill_description, r.body).description,
+        description: describeSkill(r.skillDescription, r.body).description,
         skill: r.skill,
-        editable: r.editable,
+        editable: editable.has(r.id),
         visible: r.visible,
-        chars: Number(r.chars ?? 0),
       },
     ]),
   );
@@ -84,39 +73,95 @@ async function skillStates(workspaceId: string, pageIds: string[], viewer?: stri
 /** What the <skill> tag around a skill adds to the prompt, about. */
 const SKILL_OVERHEAD = 40;
 
+/** How much of a run's prompt its skills may take, together. */
+export const agentSkillRoom = () => Math.min(MAX_AGENT_SKILL_CHARS, Math.floor(aiConfig().limits.maxInputChars / 4));
+
 const attachedIds = async (agentId: string) =>
   (await db.select({ pageId: agentSkill.pageId }).from(agentSkill).where(eq(agentSkill.agentId, agentId)).orderBy(asc(agentSkill.position), asc(agentSkill.createdAt))).map(
     (r) => r.pageId,
   );
 
+type Fitted = { pageId: string; title: string } & ({ body: string } | { reason: AgentSkillSkip });
+
+/**
+ * The agent's skills in order, each with its body as a run reads it (Markdown, page links named as
+ * the agent may see them), or why a run leaves it out: `leftOut` says so for one it can't follow,
+ * and a skill that doesn't fit in `room` with the ones before it is left out whole, never cut.
+ * The bodies are read together.
+ */
+async function fitSkills(
+  agent: { userId: string },
+  ids: string[],
+  states: Map<string, SkillState>,
+  room: number,
+  leftOut: (state: SkillState) => AgentSkillSkip | null,
+): Promise<Fitted[]> {
+  const read = new Map(
+    await Promise.all(
+      ids
+        .filter((id) => {
+          const state = states.get(id);
+          return state && !leftOut(state);
+        })
+        .map(async (id) => {
+          const content = await getCollab().readPage(id);
+          const body = (await labelPageLinks(agent.userId, content.markdown)).trim();
+          return [id, { title: pageLabel(content.title || states.get(id)!.title), body }] as const;
+        }),
+    ),
+  );
+  const fitted: Fitted[] = [];
+  let left = room;
+  for (const id of ids) {
+    const state = states.get(id);
+    if (!state) continue;
+    const reason = leftOut(state);
+    const found = read.get(id);
+    if (reason || !found) {
+      fitted.push({ pageId: id, title: pageLabel(state.title), reason: reason ?? "notASkill" });
+      continue;
+    }
+    const size = found.body.length + found.title.length + SKILL_OVERHEAD;
+    if (size > left) {
+      fitted.push({ pageId: id, title: found.title, reason: "tooLong" });
+      continue;
+    }
+    left -= size;
+    fitted.push({ pageId: id, title: found.title, body: found.body });
+  }
+  return fitted;
+}
+
+/** Why no run follows the skill, whoever started it. */
+const neverFollowed = (state: SkillState): AgentSkillSkip | null => (!state.skill ? "notASkill" : state.editable ? "editable" : null);
+
 /**
  * The agent's skills for an owner, in the order runs follow them; those they can't open are only
- * counted. Whether one fits in what a run reads is told from the length of its text, as runs count.
+ * counted. Whether one fits is told as a run started by an owner would count, so a run held to
+ * someone who can't open some of the skills has more room than this says.
  */
 export async function listAgentSkills(userId: string, agentId: string): Promise<{ skills: AgentSkillView[]; hidden: number }> {
   const agent = await ownedAgent(userId, agentId);
   const ids = await attachedIds(agent.id);
   const states = await skillStates(agent.workspaceId, ids, userId);
+  const fitted = new Map((await fitSkills(agent, ids, states, agentSkillRoom(), neverFollowed)).map((f) => [f.pageId, f]));
   const skills: AgentSkillView[] = [];
   let hidden = 0;
-  let left = MAX_AGENT_SKILL_CHARS;
   for (const id of ids) {
     const state = states.get(id);
-    if (!state) continue;
-    const usable = state.skill && !state.editable;
-    const size = state.chars + pageLabel(state.title).length + SKILL_OVERHEAD;
-    const fits = usable && size <= left;
-    if (fits) left -= size;
+    const fit = fitted.get(id);
+    if (!state || !fit) continue;
     if (!state.visible) {
       hidden += 1;
       continue;
     }
+    const status = "reason" in fit ? fit.reason : "usable";
     skills.push({
       pageId: id,
       title: state.title,
       icon: state.icon,
       description: state.description,
-      status: !state.skill ? "notASkill" : state.editable ? "editable" : fits ? "usable" : "tooLong",
+      status: status === "notASkill" || status === "editable" || status === "tooLong" ? status : "usable",
     });
   }
   return { skills, hidden };
@@ -139,14 +184,17 @@ export async function addAgentSkill(userId: string, agentId: string, pageId: str
   if (!state?.skill) throw new AgentError("notASkill", "This page isn't a skill");
   const title = pageLabel(state.title);
   if (state.editable) throw new AgentError("skillEditable", "Someone besides the workspace's owners may edit this skill", { title });
-  const ids = await attachedIds(agent.id);
-  if (ids.includes(pageId)) return;
-  if (ids.length >= MAX_AGENT_SKILLS) throw new AgentError("tooManySkills", `An agent has at most ${MAX_AGENT_SKILLS} skills`, { max: String(MAX_AGENT_SKILLS) });
-  const [last] = await db.select({ position: max(agentSkill.position) }).from(agentSkill).where(eq(agentSkill.agentId, agent.id));
-  await db
-    .insert(agentSkill)
-    .values({ agentId: agent.id, pageId, position: (last?.position ?? -1) + 1, addedBy: userId })
-    .onConflictDoNothing();
+  // One at a time per agent, so two owners adding at once can't go past the limit.
+  const added = await db.transaction(async (tx) => {
+    await tx.select({ id: workspaceAgent.id }).from(workspaceAgent).where(eq(workspaceAgent.id, agent.id)).for("update");
+    const ids = (await tx.select({ pageId: agentSkill.pageId }).from(agentSkill).where(eq(agentSkill.agentId, agent.id))).map((r) => r.pageId);
+    if (ids.includes(pageId)) return false;
+    if (ids.length >= MAX_AGENT_SKILLS) throw new AgentError("tooManySkills", `An agent has at most ${MAX_AGENT_SKILLS} skills`, { max: String(MAX_AGENT_SKILLS) });
+    const [last] = await tx.select({ position: max(agentSkill.position) }).from(agentSkill).where(eq(agentSkill.agentId, agent.id));
+    await tx.insert(agentSkill).values({ agentId: agent.id, pageId, position: (last?.position ?? -1) + 1, addedBy: userId });
+    return true;
+  });
+  if (!added) return;
   await recordAudit({
     workspaceId: agent.workspaceId,
     actorId: userId,
@@ -178,36 +226,21 @@ export type RunSkill = { pageId: string; title: string; body: string };
 
 /**
  * The skills a run of the agent follows, checked now, and a step for each: used, or left out and
- * why. Together they read at most `room` characters (and MAX_AGENT_SKILL_CHARS); a skill that
- * doesn't fit is left out whole, never cut. Page links are named as the agent may see them.
+ * why. `bound` is whose access holds the run besides the agent's own (see processRun in run.ts):
+ * skills they can't open are left out, as their content could end up in the row the run writes.
  */
 export async function runSkills(
   agent: { id: string; workspaceId: string; userId: string },
   room: number,
+  bound: string | null,
 ): Promise<{ skills: RunSkill[]; steps: AgentSkillRecord[] }> {
   const ids = await attachedIds(agent.id);
-  const states = await skillStates(agent.workspaceId, ids);
-  const skills: RunSkill[] = [];
-  const steps: AgentSkillRecord[] = [];
-  let left = Math.min(MAX_AGENT_SKILL_CHARS, room);
-  for (const id of ids) {
-    const state = states.get(id);
-    if (!state) continue;
-    const title = pageLabel(state.title);
-    if (!state.skill || state.editable) {
-      steps.push({ kind: "skill", pageId: id, title, outcome: "skipped", reason: state.skill ? "editable" : "notASkill" });
-      continue;
-    }
-    const content = await getCollab().readPage(id);
-    const body = (await labelPageLinks(agent.userId, content.markdown)).trim();
-    const name = pageLabel(content.title || state.title);
-    if (body.length + name.length + SKILL_OVERHEAD > left) {
-      steps.push({ kind: "skill", pageId: id, title: name, outcome: "skipped", reason: "tooLong" });
-      continue;
-    }
-    left -= body.length + name.length + SKILL_OVERHEAD;
-    skills.push({ pageId: id, title: name, body });
-    steps.push({ kind: "skill", pageId: id, title: name, outcome: "used" });
-  }
-  return { skills, steps };
+  const states = await skillStates(agent.workspaceId, ids, bound ?? undefined);
+  const fitted = await fitSkills(agent, ids, states, room, (state) => neverFollowed(state) ?? (state.visible ? null : "hidden"));
+  return {
+    skills: fitted.flatMap((f) => ("body" in f ? [{ pageId: f.pageId, title: f.title, body: f.body }] : [])),
+    steps: fitted.map((f): AgentSkillRecord =>
+      "body" in f ? { kind: "skill", pageId: f.pageId, title: f.title, outcome: "used" } : { kind: "skill", pageId: f.pageId, title: f.title, outcome: "skipped", reason: f.reason },
+    ),
+  };
 }

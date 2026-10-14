@@ -360,7 +360,7 @@
       "automationNote": "Eine Automatisierung, die diesen Agenten ausführt, gibt ihm beim Speichern Bearbeitungszugriff auf ihre Datenbank."
     },
     "skills": {
-      "description": "Skills sind Seiten mit Anweisungen, denen der Agent bei jedem Lauf nach seinen eigenen Anweisungen folgt, in dieser Reihenfolge.",
+      "description": "Skills sind Seiten mit Anweisungen, denen der Agent bei jedem Lauf nach seinen eigenen Anweisungen folgt, in dieser Reihenfolge. Ein Lauf, den die Änderung einer Person oder eine Antwort auf ein öffentliches Formular gestartet hat, nutzt nur die Skills, die diese Person (oder wer das Formular veröffentlicht hat) öffnen kann: Teile einen Skill zum Ansehen mit ihr, damit er dabei ist.",
       "rule": "Ein Agent folgt nur Skills, die außer den Workspace-Inhabern niemand bearbeiten kann. Kann später ein Mitglied, ein Teamspace, eine Gruppe, ein Gast oder ein Agent einen bearbeiten, lassen Läufe ihn aus und vermerken das in ihren Schritten.",
       "list": "Skills des Agenten",
       "empty": "Dieser Agent hat noch keine Skills.",
@@ -430,7 +430,9 @@
         "skipped": {
           "notASkill": "<name></name> ausgelassen: kein Skill mehr",
           "editable": "<name></name> ausgelassen: Auch andere als die Inhaber können ihn bearbeiten",
-          "tooLong": "<name></name> ausgelassen: passte nicht in das, was ein Lauf lesen kann"
+          "tooLong": "<name></name> ausgelassen: passte nicht in das, was ein Lauf lesen kann",
+          "hidden": "<name></name> ausgelassen: Die Person, die den Lauf gestartet hat, kann ihn nicht öffnen",
+          "removed": "<name></name> ausgelassen: Ein Inhaber hat ihn dem Agenten weggenommen, während der Lauf wartete"
         }
       }
     },

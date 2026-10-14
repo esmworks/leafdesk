@@ -1387,8 +1387,8 @@ list until it is restored.
   chat may change: the mode under the box still decides. The question keeps the skill it used
   (shown above it), *Answer again* and *Edit* use it again, and later questions go without it.
   A skill longer than 20,000 characters can't be used in the chat.
-- **MCP**: `list_skills`, `get_skill` (by name, title, page id or link) and `set_skill` (mark, unmark,
-  describe), and every skill the user can open is a prompt of its name, which hands its instructions
+- **MCP**: `list_skills`, `get_skill` (by name, title, page id or link; a title several skills
+  share is refused with their names) and `set_skill` (mark, unmark, describe), and every skill the user can open is a prompt of its name, which hands its instructions
   (and an optional `input`) to the client. Names come from titles and are unique across the user's
   workspaces (`review-checklist`, `review-checklist-2`). The server's instructions tell the model
   to follow a skill only when the user asked for it or picked its prompt.
@@ -1444,8 +1444,12 @@ one that others can edit is refused, and every run checks again: a skill someone
 then, or that is no longer a skill (unmarked, in the trash), is left out, and the run says so in
 its steps, as the tab does next to the skill. A skill that doesn't fit in what a run may read
 (12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS`) is left
-out whole, never cut. Owners who can't open a skill another owner gave see it only counted, and
-unnamed in runs. Giving and taking skills is recorded in the audit log as a change to the agent.
+out whole, never cut. A run held to someone's access (the member whose change started it, or a
+public form's publisher) also leaves out the skills that person can't open, as it does pages;
+sharing a skill with members at *Can view* lets their runs follow it and keeps it a skill only
+owners can edit. A run that goes on after an approval checks its skills again and says which ones
+it now leaves out or were taken away. Owners who can't open a skill another owner gave see it only
+counted, and unnamed in runs. Giving and taking skills is recorded in the audit log as a change to the agent.
 Like anything shared with the agent, what a skill says can end up in the rows it writes.
 
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see

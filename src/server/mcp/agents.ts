@@ -8,6 +8,7 @@ import {
   MAX_AGENT_SKILLS,
   MAX_AGENTS,
   type AgentAccessView,
+  type AgentSkillSkip,
   type AgentSkillView,
   type AgentRunView,
   type AgentStepRecord,
@@ -167,6 +168,15 @@ export function describeAgentSummary(agent: AgentView) {
   };
 }
 
+/** Why a run left a skill out, for its step. */
+const SKIPPED: Record<AgentSkillSkip, string> = {
+  notASkill: "it is no longer a skill",
+  editable: "someone besides the workspace's owners may edit it",
+  tooLong: "it didn't fit in what a run may read",
+  hidden: "the person whose access the run was held to can't open it",
+  removed: "an owner took it from the agent while the run waited",
+};
+
 const SKILL_STATUS = {
   usable: "its runs follow it",
   notASkill: "left out: no longer a skill",
@@ -255,7 +265,7 @@ export function describeAgentStep(step: AgentStepRecord) {
       return { kind: "thought", summary: step.text };
     case "skill": {
       const name = step.title ? `the skill ${quote(step.title)}` : "a skill the user can't open";
-      const why = step.outcome === "skipped" ? { notASkill: "it is no longer a skill", editable: "someone besides the workspace's owners may edit it", tooLong: "it didn't fit in what a run may read" }[step.reason] : "";
+      const why = step.outcome === "skipped" ? SKIPPED[step.reason] : "";
       return {
         kind: "skill",
         outcome: step.outcome,

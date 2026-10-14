@@ -360,7 +360,7 @@
       "automationNote": "Une automatisation qui lance cet agent lui donne, à l’enregistrement, un accès en modification à sa base de données."
     },
     "skills": {
-      "description": "Les compétences sont des pages d’instructions que l’agent suit à chaque exécution, après ses propres instructions, dans cet ordre.",
+      "description": "Les compétences sont des pages d’instructions que l’agent suit à chaque exécution, après ses propres instructions, dans cet ordre. Une exécution lancée par la modification d’une personne, ou par une réponse à un formulaire public, n’utilise que les compétences que cette personne (ou qui a publié le formulaire) peut ouvrir : partagez une compétence avec elle en lecture pour l’inclure.",
       "rule": "Un agent ne suit que les compétences que personne d’autre que les propriétaires de l’espace de travail ne peut modifier. Si un membre, un espace d’équipe, un groupe, un invité ou un agent peut en modifier une plus tard, les exécutions la laissent de côté et l’indiquent dans leurs étapes.",
       "list": "Compétences de l’agent",
       "empty": "Cet agent n’a pas encore de compétences.",
@@ -430,7 +430,9 @@
         "skipped": {
           "notASkill": "<name></name> laissée de côté : ce n’est plus une compétence",
           "editable": "<name></name> laissée de côté : d’autres que les propriétaires peuvent la modifier",
-          "tooLong": "<name></name> laissée de côté : elle ne tenait pas dans ce qu’une exécution peut lire"
+          "tooLong": "<name></name> laissée de côté : elle ne tenait pas dans ce qu’une exécution peut lire",
+          "hidden": "<name></name> laissée de côté : la personne qui a lancé l’exécution ne peut pas l’ouvrir",
+          "removed": "<name></name> laissée de côté : un propriétaire l’a retirée à l’agent pendant que l’exécution attendait"
         }
       }
     },

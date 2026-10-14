@@ -6,7 +6,7 @@
  * there is no access of their own. Templates and pages inside them are never skills; a skill in
  * the trash keeps its mark but leaves every list until it is restored.
  */
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { page } from "@/db/schema";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
@@ -29,6 +29,15 @@ export class SkillError extends Error {
     super(message);
     this.name = "SkillError";
   }
+}
+
+/**
+ * SQL condition: the page (aliased in a raw query) is a skill: marked, a page or row rather than a
+ * database, not in the trash, not a template or in one.
+ */
+export function isSkill(alias: string): SQL {
+  if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
+  return sql.raw(`("${alias}".is_skill and "${alias}".kind = 'page' and "${alias}".archived_at is null and not "${alias}".in_template)`);
 }
 
 export type SkillSummary = {
@@ -92,7 +101,7 @@ export async function listSkills(userId: string, workspaceId: string): Promise<S
       p.created_at, p.updated_at
     from ${page} p
     left join ${page} parent on parent.id = p.parent_id
-    where p.workspace_id = ${workspaceId} and p.is_skill and p.archived_at is null and not p.in_template
+    where p.workspace_id = ${workspaceId} and ${isSkill("p")}
       and page_access_level(${userId}, p.id) > 0
     order by lower(p.title), p.created_at
   `);
