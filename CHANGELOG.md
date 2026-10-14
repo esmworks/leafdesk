@@ -29,7 +29,8 @@
   Migration `0061_agent_skills` adds `agent_skill`. Covered in `scripts/agent-skills-e2e.ts`.
 - **Apps that reach a workspace.** Settings → Security shows its owners the MCP apps the
   workspace's people connected and their REST API tokens for it, with what each may do, who
-  connected it and when it last reached this workspace (not before this version). An owner can
+  connected it and when it last reached this workspace (not before this version), the 100 apps
+  and 100 tokens used here most recently first. An owner can
   disconnect one person's app or revoke their token; as both belong to the person, it stops
   reaching all of their workspaces, and this workspace's audit log records it with the owner as
   who did it. Migration `0062_connected_app_use` adds `connected_app_use`. Covered in

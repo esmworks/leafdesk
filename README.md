@@ -763,8 +763,9 @@ the REST API.
 - **Apps that reach this workspace** (owners): the MCP apps the workspace's people connected and
   their API tokens for it (for all their workspaces or this one; expired ones and the server's
   own clients are left out), with what each may do, who connected it, when, and when it last
-  reached this workspace (recorded at most once a minute, from when this list was added; not
-  while connected apps are *Off* here). *Disconnect* (an app) and *Revoke* (a token) take it from
+  reached this workspace (recorded at most once a minute, from when this list was added, for
+  requests the workspace let through). It shows the 100 apps and 100 tokens used here most
+  recently, and how many there are in all. *Disconnect* (an app) and *Revoke* (a token) take it from
   that person's account: an app or a token belongs to the person, so it stops reaching all of their
   workspaces until they connect it again or make a new token. Only this workspace's audit log
   records it, with the owner as who did it and the person it was about.
