@@ -886,6 +886,8 @@
       "person": "Connected by {name}",
       "writes": "Reads and edits",
       "reads": "Reads only",
+      "readsHere": "Reads only here: connected apps may only read",
+      "offHere": "No access here: connected apps are off",
       "thisWorkspaceOnly": "This workspace only",
       "connected": "Connected {date}",
       "lastUsed": "Last used here {when}",
@@ -896,7 +898,8 @@
       "confirmEverywhere": "{kind, select, api_token {Revoke {person}'s token {name}? It stops working in all their workspaces.} other {Disconnect {name} from {person}'s account? It loses access to all their workspaces until they connect it again.}}",
       "confirmHere": "Revoke {person}'s token {name}? It stops working.",
       "error": "Could not disconnect it. Try again.",
-      "gone": "It's already disconnected, or no longer reaches this workspace."
+      "gone": "It's already disconnected, or no longer reaches this workspace.",
+      "shown": "Showing the {shown} used here most recently of {total}."
     }
   },
   "audit": {

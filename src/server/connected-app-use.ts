@@ -1,6 +1,6 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { connectedAppUse } from "@/db/schema";
+import { apiToken, connectedAppUse, oauthConsent } from "@/db/schema";
 import type { ConnectedAppIdentity } from "@/server/connected-app";
 
 /** A row is written at most this often. */
@@ -23,13 +23,19 @@ export function noteConnectedAppUse(userId: string, app: ConnectedAppIdentity, w
   if (written.size >= MAX_REMEMBERED) written.clear();
   written.set(key, now);
   const at = new Date(now);
+  // Only while the app is still connected (the token still there): a request that was under way
+  // when it was disconnected doesn't bring back when it was used.
+  const connected =
+    app.kind === "connected_app"
+      ? sql`exists (select 1 from ${oauthConsent} where ${oauthConsent.userId} = ${userId} and ${oauthConsent.clientId} = ${app.id})`
+      : sql`exists (select 1 from ${apiToken} where ${apiToken.id} = ${app.id})`;
   void db
-    .insert(connectedAppUse)
-    .values({ workspaceId, userId, appKind: app.kind, appId: app.id, lastUsedAt: at })
-    .onConflictDoUpdate({
-      target: [connectedAppUse.workspaceId, connectedAppUse.userId, connectedAppUse.appKind, connectedAppUse.appId],
-      set: { lastUsedAt: sql`greatest(${connectedAppUse.lastUsedAt}, excluded.last_used_at)` },
-    })
+    .execute(
+      sql`insert into ${connectedAppUse} (workspace_id, user_id, app_kind, app_id, last_used_at)
+        select ${workspaceId}, ${userId}, ${app.kind}, ${app.id}, ${at.toISOString()}::timestamptz where ${connected}
+        on conflict (workspace_id, user_id, app_kind, app_id)
+        do update set last_used_at = greatest(${connectedAppUse}.last_used_at, excluded.last_used_at)`,
+    )
     .catch((error) => console.error("[connected-apps] could not record when an app was last used", error));
 }
 

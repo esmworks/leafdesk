@@ -168,7 +168,9 @@ export async function revokeApiToken(userId: string, tokenId: string, by?: { act
     .delete(apiToken)
     .where(and(eq(apiToken.id, tokenId), eq(apiToken.userId, userId)))
     .returning({ id: apiToken.id, name: apiToken.name, workspaceId: apiToken.workspaceId, scopes: apiToken.scopes });
-  await forgetApiTokenUse({ tokenIds: deleted.map((t) => t.id) });
+  await forgetApiTokenUse({ tokenIds: deleted.map((t) => t.id) }).catch((error) =>
+    console.error("[api-tokens] could not forget when a token was last used", error),
+  );
   for (const token of deleted) {
     if (!by || by.actorId === userId) await recordToken(userId, token, "api_token.revoked");
     else {

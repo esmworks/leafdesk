@@ -31,7 +31,8 @@ const { createApiToken } = await import("@/server/api/tokens");
 const { handleApiRequest } = await import("@/server/api");
 const { runAsConnectedApp } = await import("@/server/connected-app");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
-const { disconnectWorkspaceApp, listWorkspaceApps } = await import("@/server/workspace-apps");
+const { disconnectWorkspaceApp, listWorkspaceApps, pruneConnectedAppUse } = await import("@/server/workspace-apps");
+const { noteConnectedAppUse } = await import("@/server/connected-app-use");
 
 const RUN = `workspace-apps-e2e-${Date.now().toString(36)}`;
 
@@ -123,7 +124,7 @@ try {
   await db.update(apiToken).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(apiToken.id, expired.token.id));
 
   // ── Who sees what ───────────────────────────────────────────────────────────────────────────
-  const listed = await listWorkspaceApps(ids.owner, ws);
+  const { apps: listed, total } = await listWorkspaceApps(ids.owner, ws);
   const keys = listed.map((a) => `${a.kind}:${a.person.id}:${a.id}`).sort();
   check(
     JSON.stringify(keys) ===
@@ -133,6 +134,7 @@ try {
     "owners see their people's apps and tokens that reach the workspace, not others', the server's own, other workspaces' or expired ones",
     keys,
   );
+  check(total === 3, "…and how many there are in all", total);
   const app = listed.find((a) => a.kind === "connected_app")!;
   const token = listed.find((a) => a.id === here.token.id)!;
   check(
@@ -161,7 +163,7 @@ try {
   rows = await usesOf(ids.member);
   const appUse = rows.find((r) => r.appKind === "connected_app");
   check(appUse?.workspaceId === ws, "an MCP request reaching the workspace is recorded as the app's use there", rows);
-  const listedAfter = await listWorkspaceApps(ids.owner, ws);
+  const listedAfter = (await listWorkspaceApps(ids.owner, ws)).apps;
   check(
     listedAfter[0]?.kind === "connected_app" && listedAfter[0].lastUsedHere !== null && listedAfter.find((a) => a.id === everywhere.token.id)?.lastUsedHere === null,
     "owners see when each was last used here, most recent first",
@@ -183,6 +185,18 @@ try {
     hidden.status === 404 && !(await usesOf(ids.member)).some((r) => r.appId === everywhere.token.id),
     "while connected apps are off here, a request isn't let in and isn't counted as a use",
     hidden.status,
+  );
+  await updateWorkspaceSettings(ids.owner, ws, { connectedApps: "read" });
+  const tokenApp = { kind: "api_token" as const, id: everywhere.token.id };
+  const write = await runAsConnectedApp({ userId: ids.member, app: tokenApp, writing: true }, () => requirePageAccess(ids.member, page.id, "edit")).then(
+    () => "allowed",
+    () => "refused",
+  );
+  await settle();
+  check(
+    write === "refused" && !(await usesOf(ids.member)).some((r) => r.appId === everywhere.token.id),
+    "where apps may only read, a refused write isn't counted as a use either",
+    write,
   );
   await updateWorkspaceSettings(ids.owner, ws, { connectedApps: "full" });
 
@@ -212,6 +226,12 @@ try {
     !(await usesOf(ids.member)).some((r) => r.appKind === "connected_app"),
     "…and when it was last used is forgotten, in every workspace",
   );
+  noteConnectedAppUse(ids.member, mcp, ws);
+  await settle();
+  check(
+    !(await usesOf(ids.member)).some((r) => r.appKind === "connected_app"),
+    "a request that was under way when it was disconnected doesn't bring its use back",
+  );
   await disconnectWorkspaceApp(ids.owner, ws, { kind: "api_token", userId: ids.member, id: here.token.id });
   check((await rest(here.secret)).status === 401, "an owner revokes the member's token: it stops working");
   check(
@@ -228,8 +248,22 @@ try {
     revokes.map((e) => [e.workspaceId, e.action, e.actorUserId, e.details]),
   );
   check(
-    (await listWorkspaceApps(ids.owner, ws)).map((a) => a.id).join() === everywhere.token.id,
+    (await listWorkspaceApps(ids.owner, ws)).apps.map((a) => a.id).join() === everywhere.token.id,
     "the list then shows only what still reaches the workspace",
+  );
+
+  // ── Daily cleanup ───────────────────────────────────────────────────────────────────────────
+  await db.insert(connectedAppUse).values([
+    { workspaceId: ws, userId: ids.member, appKind: "api_token", appId: everywhere.token.id, lastUsedAt: now },
+    { workspaceId: ws, userId: ids.member, appKind: "api_token", appId: expired.token.id, lastUsedAt: now },
+    { workspaceId: ws, userId: ids.outsider, appKind: "connected_app", appId: clients.assistant, lastUsedAt: now },
+  ]);
+  const pruned = await pruneConnectedAppUse([ws, other]);
+  const left = await db.select().from(connectedAppUse).where(inArray(connectedAppUse.workspaceId, [ws, other]));
+  check(
+    pruned === 2 && left.length === 1 && left[0].appId === everywhere.token.id,
+    "the daily cleanup forgets uses of expired tokens and of people no longer in the workspace, and keeps the rest",
+    { pruned, left },
   );
 
   console.log(`\n${passed} checks passed`);

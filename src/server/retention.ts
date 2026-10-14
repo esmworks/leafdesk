@@ -4,6 +4,7 @@ import { auditEvent, databaseProperty, databaseView, DEFAULT_WORKSPACE_SETTINGS,
 import { auditCutoff, HISTORY_RETENTION, historyCutoffs } from "@/lib/retention";
 import { purgeDeletedProperties, purgeDeletedViews } from "@/server/databases";
 import { deleteTrashedPages } from "@/server/pages";
+import { pruneConnectedAppUse } from "@/server/workspace-apps";
 
 /**
  * Data retention, applied once a day by the app server (startRetention, from server.ts):
@@ -11,7 +12,9 @@ import { deleteTrashedPages } from "@/server/pages";
  *    deleted for good, the way "Delete permanently" does it (files included);
  *  - so are database properties and views deleted longer ago than that (purgeExpiredSchema);
  *  - page history is pruned by the rules in lib/retention.ts (HISTORY_RETENTION);
- *  - audit log events older than AUDIT_RETENTION_DAYS are deleted.
+ *  - audit log events older than AUDIT_RETENTION_DAYS are deleted;
+ *  - when connected apps were last used is forgotten for apps and tokens that are gone and for
+ *    people no longer in the workspace (pruneConnectedAppUse).
  *
  * Each replica has its own daily timer; a session advisory lock keeps two of them from running at
  * once. The work is idempotent, so a replica that runs later the same day only finds what has
@@ -33,6 +36,7 @@ export type RetentionResult = {
   deletedViews: number;
   snapshots: number;
   auditEvents: number;
+  appUses: number;
 };
 
 const LOCK = "leafdesk:retention";
@@ -160,7 +164,7 @@ export async function pruneAuditEvents({ now = new Date(), workspaceIds }: Reten
 }
 
 /**
- * One retention run: the trash, page history, then the audit log. Returns null when another
+ * One retention run: the trash, page history, the audit log, then app uses. Returns null when another
  * replica is running it right now. The lock is a session lock, so it is taken on a connection held
  * for the run and goes away with it if the process dies midway.
  */
@@ -174,7 +178,8 @@ export async function runRetention(options: RetentionOptions = {}): Promise<Rete
       const schema = await purgeExpiredSchema(options);
       const snapshots = await pruneSnapshots(options);
       const auditEvents = await pruneAuditEvents(options);
-      return { ...trash, ...schema, snapshots, auditEvents };
+      const appUses = await pruneConnectedAppUse(options.workspaceIds, options.now);
+      return { ...trash, ...schema, snapshots, auditEvents, appUses };
     } finally {
       await connection`select pg_advisory_unlock(hashtext(${LOCK}))`;
     }
@@ -198,7 +203,7 @@ export function startRetention() {
       console.log(
         `[retention] deleted ${result.trashedPages} pages from the trash of ${result.workspaces} workspaces, ` +
           `${result.deletedProperties} deleted properties, ${result.deletedViews} deleted views, ` +
-          `${result.snapshots} old page versions and ${result.auditEvents} old audit log events`,
+          `${result.snapshots} old page versions, ${result.auditEvents} old audit log events and ${result.appUses} uses of apps that are gone`,
       );
     } catch (error) {
       console.error("[retention] cleanup failed", error);

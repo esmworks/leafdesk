@@ -886,6 +886,8 @@
       "person": "Verbunden von {name}",
       "writes": "Liest und bearbeitet",
       "reads": "Liest nur",
+      "readsHere": "Liest hier nur: verbundene Apps dürfen nur lesen",
+      "offHere": "Hier kein Zugriff: verbundene Apps sind aus",
       "thisWorkspaceOnly": "Nur dieser Workspace",
       "connected": "Verbunden am {date}",
       "lastUsed": "Hier zuletzt genutzt {when}",
@@ -896,7 +898,8 @@
       "confirmEverywhere": "{kind, select, api_token {Das Token {name} von {person} widerrufen? Es funktioniert dann in keinem ihrer Workspaces mehr.} other {{name} vom Konto von {person} trennen? Die App verliert den Zugriff auf alle ihre Workspaces, bis sie sie neu verbindet.}}",
       "confirmHere": "Das Token {name} von {person} widerrufen? Es funktioniert dann nicht mehr.",
       "error": "Konnte nicht getrennt werden. Versuch es noch einmal.",
-      "gone": "Sie ist schon getrennt oder erreicht diesen Workspace nicht mehr."
+      "gone": "Sie ist schon getrennt oder erreicht diesen Workspace nicht mehr.",
+      "shown": "Die {shown} hier zuletzt genutzten von {total} werden angezeigt."
     }
   },
   "audit": {

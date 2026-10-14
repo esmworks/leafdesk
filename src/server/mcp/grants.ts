@@ -184,7 +184,8 @@ export async function revokeConnectedApp(userId: string, clientId: string, by?: 
       );
     return consents;
   });
-  await forgetConnectedAppUse(userId, clientId);
+  // The app is cut off by now: forgetting when it was used must not keep the audit log from it.
+  await forgetConnectedAppUse(userId, clientId).catch((error) => console.error("[connected-apps] could not forget when an app was last used", error));
   if (!revoked.length) return false;
   // After the commit: one event per workspace of the user, recorded on their own.
   if (!by || by.actorId === userId) await recordConnectedApps(userId, [{ clientId, scopes: revoked[0].scopes }], "connected_app.revoked");

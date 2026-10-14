@@ -886,6 +886,8 @@
       "person": "Conectada por {name}",
       "writes": "Lee y edita",
       "reads": "Solo lee",
+      "readsHere": "Solo lee aquí: las apps conectadas solo pueden leer",
+      "offHere": "Sin acceso aquí: las apps conectadas están desactivadas",
       "thisWorkspaceOnly": "Solo este espacio de trabajo",
       "connected": "Conectada el {date}",
       "lastUsed": "Último uso aquí {when}",
@@ -896,7 +898,8 @@
       "confirmEverywhere": "{kind, select, api_token {¿Revocar el token {name} de {person}? Deja de funcionar en todos sus espacios de trabajo.} other {¿Desconectar {name} de la cuenta de {person}? Pierde el acceso a todos sus espacios de trabajo hasta que la vuelva a conectar.}}",
       "confirmHere": "¿Revocar el token {name} de {person}? Deja de funcionar.",
       "error": "No se pudo desconectar. Inténtelo de nuevo.",
-      "gone": "Ya está desconectada, o ya no llega a este espacio de trabajo."
+      "gone": "Ya está desconectada, o ya no llega a este espacio de trabajo.",
+      "shown": "Se muestran las {shown} usadas aquí más recientemente de {total}."
     }
   },
   "audit": {

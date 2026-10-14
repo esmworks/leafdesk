@@ -68,6 +68,7 @@ import {
 } from "@/lib/settings-tabs";
 import { AccessError, isGuest } from "@/server/access";
 import { proofSetupOf } from "@/server/account";
+import { connectedAppsMode } from "@/server/connected-app";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { listAgents } from "@/server/agents/manage";
@@ -85,7 +86,6 @@ import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
 import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
 import { getSite } from "@/server/site";
-import { listWorkspaceApps } from "@/server/workspace-apps";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
 import {
   canInviteGuests,
@@ -99,6 +99,7 @@ import {
   memberInviteAccess,
   ssoAvailable,
 } from "@/server/workspaces";
+import { listWorkspaceApps } from "@/server/workspace-apps";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings");
@@ -339,7 +340,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       </SettingsGroup>
       {apps && (
         <SettingsGroup title={t("security.workspaceApps.title")} description={t("security.workspaceApps.description")}>
-          <WorkspaceApps workspaceId={workspaceId} apps={apps} />
+          <WorkspaceApps workspaceId={workspaceId} apps={apps.apps} total={apps.total} mode={connectedAppsMode(settings.connectedApps)} />
         </SettingsGroup>
       )}
       <SettingsGroup title={t("security.publishingHeading")}>

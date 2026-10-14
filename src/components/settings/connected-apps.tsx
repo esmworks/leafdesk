@@ -3,6 +3,7 @@ import { scopeKey } from "@/app/oauth/consent/scopes";
 import { safeHttpUrl } from "@/server/mcp/consent";
 import { listConnectedApps } from "@/server/mcp/grants";
 import { requireUser } from "@/server/session";
+import { AppTile } from "./app-tile";
 import { RevokeAppButton } from "./revoke-app-button";
 import { SettingsGroup } from "./section";
 
@@ -27,17 +28,10 @@ export async function ConnectedApps() {
         <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("empty")}</p>
       ) : (
         apps.map((app) => {
-          const icon = safeHttpUrl(app.icon);
           const uri = safeHttpUrl(app.uri);
           return (
             <div key={app.clientId} className="flex items-start gap-4 px-5 py-4">
-              {icon ? (
-                <img src={icon} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-border bg-bg object-cover" />
-              ) : (
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-bg text-sm font-semibold text-fg-muted">
-                  {app.name.slice(0, 1).toUpperCase()}
-                </span>
-              )}
+              <AppTile name={app.name} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline gap-2">
                   <span className="truncate text-sm font-medium">{app.name}</span>

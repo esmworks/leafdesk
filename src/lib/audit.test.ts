@@ -89,6 +89,18 @@ describe("describeAuditEvent", () => {
     );
   });
 
+  it("names whose app or token an owner took away, and not when it was the person's own", () => {
+    const owners = { subjectType: "user", subject: "Mert", scopes: ["pages:read"] };
+    expect(describeAuditEvent(event("connected_app.revoked", { targetLabel: "Claude", details: owners }), t)).toBe("Disconnected Mert's app Claude");
+    expect(describeAuditEvent(event("connected_app.revoked", { targetLabel: "Claude", details: { scopes: [] } }), t)).toBe("Disconnected the app Claude");
+    expect(describeAuditEvent(event("api_token.revoked", { targetLabel: "Reports", details: owners }), t)).toBe("Revoked Mert's API token Reports");
+    expect(describeAuditEvent(event("api_token.revoked", { targetLabel: "Reports", details: {} }), t)).toBe("Revoked the API token Reports");
+    expect(describeAuditEvent(event("connected_app.revoked", { targetLabel: "Claude", details: owners }), tTr)).toBe(
+      "Mert kişisinin uygulamasının bağlantısı kesildi: Claude",
+    );
+    expect(describeAuditEvent(event("api_token.revoked", { targetLabel: "Reports", details: {} }), tTr)).toBe("API anahtarı iptal edildi: Reports");
+  });
+
   it("tells a join request from an invite request", () => {
     expect(describeAuditEvent(event("join_request.approved", { targetLabel: "Can", details: { kind: "join", role: "member" } }), t)).toBe(
       "Approved the request of Can to join as member",

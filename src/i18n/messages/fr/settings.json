@@ -886,6 +886,8 @@
       "person": "Connectée par {name}",
       "writes": "Lit et modifie",
       "reads": "Lit seulement",
+      "readsHere": "Lit seulement ici : les applications connectées ne peuvent que lire",
+      "offHere": "Aucun accès ici : les applications connectées sont désactivées",
       "thisWorkspaceOnly": "Cet espace de travail seulement",
       "connected": "Connectée le {date}",
       "lastUsed": "Dernière utilisation ici {when}",
@@ -896,7 +898,8 @@
       "confirmEverywhere": "{kind, select, api_token {Révoquer le jeton {name} de {person} ? Il cesse de fonctionner dans tous ses espaces de travail.} other {Déconnecter {name} du compte de {person} ? L’application perd l’accès à tous ses espaces de travail jusqu’à ce qu’elle la reconnecte.}}",
       "confirmHere": "Révoquer le jeton {name} de {person} ? Il cesse de fonctionner.",
       "error": "Impossible de la déconnecter. Réessayez.",
-      "gone": "Elle est déjà déconnectée, ou n’atteint plus cet espace de travail."
+      "gone": "Elle est déjà déconnectée, ou n’atteint plus cet espace de travail.",
+      "shown": "Affichage des {shown} utilisées le plus récemment ici, sur {total}."
     }
   },
   "audit": {

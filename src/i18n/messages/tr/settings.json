@@ -886,6 +886,8 @@
       "person": "Bağlayan: {name}",
       "writes": "Okur ve düzenler",
       "reads": "Yalnızca okur",
+      "readsHere": "Burada yalnızca okur: bağlı uygulamalar yalnızca okuyabilir",
+      "offHere": "Burada erişimi yok: bağlı uygulamalar kapalı",
       "thisWorkspaceOnly": "Yalnızca bu çalışma alanı",
       "connected": "Bağlandı: {date}",
       "lastUsed": "Burada son kullanım: {when}",
@@ -896,7 +898,8 @@
       "confirmEverywhere": "{kind, select, api_token {{person} kişisinin {name} anahtarı iptal edilsin mi? Tüm çalışma alanlarında çalışmayı bırakır.} other {{name}, {person} kişisinin hesabından kesilsin mi? Kişi yeniden bağlayana kadar hiçbir çalışma alanına ulaşamaz.}}",
       "confirmHere": "{person} kişisinin {name} anahtarı iptal edilsin mi? Çalışmayı bırakır.",
       "error": "Bağlantı kesilemedi. Tekrar deneyin.",
-      "gone": "Bağlantı zaten kesilmiş ya da artık bu çalışma alanına ulaşmıyor."
+      "gone": "Bağlantı zaten kesilmiş ya da artık bu çalışma alanına ulaşmıyor.",
+      "shown": "{total} uygulama ve anahtardan burada en son kullanılan {shown} tanesi gösteriliyor."
     }
   },
   "audit": {

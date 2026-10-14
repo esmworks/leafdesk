@@ -198,8 +198,9 @@ function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<Connec
       .limit(1)
       .then(([row]) => {
         const found = connectedAppsMode(row?.mode);
-        // The app reached the workspace: its owners see when (calendar feeds aren't apps).
-        if (found !== "off" && call.app) noteConnectedAppUse(call.userId, call.app, workspaceId);
+        // The app reached the workspace: its owners see when (calendar feeds aren't apps). Not when
+        // the setting turns it away: hidden here, or a write where apps may only read.
+        if (call.app && connectedAppRefusal(found, call.writing) === null) noteConnectedAppUse(call.userId, call.app, workspaceId);
         return found;
       });
     call.modes.set(workspaceId, mode);
@@ -364,7 +365,7 @@ export async function memberWorkspaceIds(userId: string): Promise<string[]> {
 }
 
 /** SQL: whether the user (an id expression) is in the workspace, guests included, for filters inside larger queries. */
-export const inWorkspace = (userId: SQL | AnyColumn, workspaceId: string) =>
+export const inWorkspace = (userId: SQL | AnyColumn, workspaceId: string | SQL | AnyColumn) =>
   sql<boolean>`exists (select 1 from ${workspaceMember} wm where wm.workspace_id = ${workspaceId} and wm.user_id = ${userId})`;
 
 /** SQL: whether the user owns the workspace (an id expression), for filters inside larger queries. */
