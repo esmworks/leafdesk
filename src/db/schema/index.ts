@@ -16,3 +16,4 @@ export * from "./agents";
 export * from "./connections";
 export * from "./schedules";
 export * from "./calendar-feeds";
+export * from "./connected-apps";

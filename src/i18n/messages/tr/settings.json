@@ -876,6 +876,27 @@
       "full": "Okuma ve düzenleme",
       "read": "Yalnızca okuma",
       "off": "Erişim yok"
+    },
+    "workspaceApps": {
+      "title": "Bu çalışma alanına ulaşan uygulamalar",
+      "description": "Buradaki kişilerin MCP ile bağladığı yapay zekâ asistanları ve diğer uygulamalar ile bu çalışma alanına ulaşan REST API anahtarları; her birinin burada en son ne zaman kullanıldığıyla. Birinin bağlantısını kestiğinizde o kişinin hesabından kalkar: kişi yeniden bağlayana kadar hiçbir çalışma alanına ulaşamaz.",
+      "list": "Bu çalışma alanına ulaşan uygulamalar",
+      "empty": "Buradaki kimse bu çalışma alanına ulaşan bir uygulama bağlamadı ya da API anahtarı oluşturmadı.",
+      "token": "API anahtarı {prefix}…",
+      "person": "Bağlayan: {name}",
+      "writes": "Okur ve düzenler",
+      "reads": "Yalnızca okur",
+      "thisWorkspaceOnly": "Yalnızca bu çalışma alanı",
+      "connected": "Bağlandı: {date}",
+      "lastUsed": "Burada son kullanım: {when}",
+      "notUsed": "Burada kullanım kaydı yok",
+      "disconnect": "Bağlantıyı kes",
+      "revoke": "İptal et",
+      "working": "Kesiliyor…",
+      "confirmEverywhere": "{kind, select, api_token {{person} kişisinin {name} anahtarı iptal edilsin mi? Tüm çalışma alanlarında çalışmayı bırakır.} other {{name}, {person} kişisinin hesabından kesilsin mi? Kişi yeniden bağlayana kadar hiçbir çalışma alanına ulaşamaz.}}",
+      "confirmHere": "{person} kişisinin {name} anahtarı iptal edilsin mi? Çalışmayı bırakır.",
+      "error": "Bağlantı kesilemedi. Tekrar deneyin.",
+      "gone": "Bağlantı zaten kesilmiş ya da artık bu çalışma alanına ulaşmıyor."
     }
   },
   "audit": {
@@ -1111,11 +1132,11 @@
       },
       "connected_app": {
         "connected": "Uygulama bağlandı: {target}",
-        "revoked": "Uygulamanın bağlantısı kesildi: {target}"
+        "revoked": "{hasSubject, select, yes {{subject} kişisinin uygulamasının bağlantısı kesildi: {target}} other {Uygulamanın bağlantısı kesildi: {target}}}"
       },
       "api_token": {
         "created": "API anahtarı oluşturuldu: {target}",
-        "revoked": "API anahtarı iptal edildi: {target}"
+        "revoked": "{hasSubject, select, yes {{subject} kişisinin API anahtarı iptal edildi: {target}} other {API anahtarı iptal edildi: {target}}}"
       },
       "automation": {
         "created": "{target} içinde “{name}” otomasyonu oluşturuldu",

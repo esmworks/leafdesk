@@ -14,6 +14,7 @@ import { env } from "@/lib/env";
 import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
 import { connectedAppCall, connectedAppRefusal, connectedAppsMode, type ConnectedAppCall, type ConnectedAppsMode } from "@/server/connected-app";
+import { noteConnectedAppUse } from "@/server/connected-app-use";
 import { requestSession } from "@/server/request-session";
 import { actingFor } from "@/server/acting-for";
 
@@ -195,7 +196,12 @@ function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<Connec
       .from(workspace)
       .where(eq(workspace.id, workspaceId))
       .limit(1)
-      .then(([row]) => connectedAppsMode(row?.mode));
+      .then(([row]) => {
+        const found = connectedAppsMode(row?.mode);
+        // The app reached the workspace: its owners see when (calendar feeds aren't apps).
+        if (found !== "off" && call.app) noteConnectedAppUse(call.userId, call.app, workspaceId);
+        return found;
+      });
     call.modes.set(workspaceId, mode);
   }
   return mode;
@@ -356,6 +362,10 @@ export async function memberWorkspaceIds(userId: string): Promise<string[]> {
   const rows = await db.select({ id: workspaceMember.workspaceId }).from(workspaceMember).where(eq(workspaceMember.userId, userId));
   return rows.map((row) => row.id);
 }
+
+/** SQL: whether the user (an id expression) is in the workspace, guests included, for filters inside larger queries. */
+export const inWorkspace = (userId: SQL | AnyColumn, workspaceId: string) =>
+  sql<boolean>`exists (select 1 from ${workspaceMember} wm where wm.workspace_id = ${workspaceId} and wm.user_id = ${userId})`;
 
 /** SQL: whether the user owns the workspace (an id expression), for filters inside larger queries. */
 export const ownsWorkspace = (userId: string, workspaceId: SQL | AnyColumn) =>

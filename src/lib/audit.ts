@@ -361,6 +361,8 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
   const values: Record<string, string | number> = {
     target,
     subject,
+    // Whether the event names whom it was about: an owner disconnecting someone else's app, say.
+    hasSubject: d.subjectType ? "yes" : "no",
     role: role(t, d.role),
     from: text(d.from),
     to: text(d.to),

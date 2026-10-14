@@ -876,6 +876,27 @@
       "full": "Read and edit",
       "read": "Read only",
       "off": "No access"
+    },
+    "workspaceApps": {
+      "title": "Apps that reach this workspace",
+      "description": "AI assistants and other apps that people here connected over MCP, and their REST API tokens that can reach this workspace, with when each last did. Disconnecting one takes it from that person's account: it reaches none of their workspaces until they connect it again.",
+      "list": "Apps that reach this workspace",
+      "empty": "No one here has connected an app or made an API token that reaches this workspace.",
+      "token": "API token {prefix}…",
+      "person": "Connected by {name}",
+      "writes": "Reads and edits",
+      "reads": "Reads only",
+      "thisWorkspaceOnly": "This workspace only",
+      "connected": "Connected {date}",
+      "lastUsed": "Last used here {when}",
+      "notUsed": "No use recorded here",
+      "disconnect": "Disconnect",
+      "revoke": "Revoke",
+      "working": "Disconnecting…",
+      "confirmEverywhere": "{kind, select, api_token {Revoke {person}'s token {name}? It stops working in all their workspaces.} other {Disconnect {name} from {person}'s account? It loses access to all their workspaces until they connect it again.}}",
+      "confirmHere": "Revoke {person}'s token {name}? It stops working.",
+      "error": "Could not disconnect it. Try again.",
+      "gone": "It's already disconnected, or no longer reaches this workspace."
     }
   },
   "audit": {
@@ -1111,11 +1132,11 @@
       },
       "connected_app": {
         "connected": "Connected the app {target}",
-        "revoked": "Disconnected the app {target}"
+        "revoked": "{hasSubject, select, yes {Disconnected {subject}'s app {target}} other {Disconnected the app {target}}}"
       },
       "api_token": {
         "created": "Created the API token {target}",
-        "revoked": "Revoked the API token {target}"
+        "revoked": "{hasSubject, select, yes {Revoked {subject}'s API token {target}} other {Revoked the API token {target}}}"
       },
       "automation": {
         "created": "Created the automation “{name}” in {target}",

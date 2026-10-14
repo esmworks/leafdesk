@@ -6,6 +6,7 @@ import { oauthAccessToken, oauthClient, oauthConsent, oauthRefreshToken } from "
 import { isStrongSession } from "@/lib/auth-security";
 import { firstPolicyHold, memberWorkspaceIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import { forgetConnectedAppUse } from "@/server/connected-app-use";
 
 /**
  * JWT access tokens are verified statelessly, so revoking an app in settings would not stop
@@ -157,8 +158,12 @@ export function connectedAppAuditPlugin() {
   } satisfies BetterAuthPlugin;
 }
 
-/** Removes the user's consent for a client and revokes every token it holds for the user. */
-export async function revokeConnectedApp(userId: string, clientId: string) {
+/**
+ * Removes the user's consent for a client and revokes every token it holds for the user, in all
+ * their workspaces. `by`: a workspace's owner disconnecting someone else's app from its settings;
+ * only that workspace records it, with the owner as who did it. False when nothing was connected.
+ */
+export async function revokeConnectedApp(userId: string, clientId: string, by?: { actorId: string; workspaceId: string }): Promise<boolean> {
   const now = new Date();
   const revoked = await db.transaction(async (tx) => {
     const consents = await tx
@@ -179,8 +184,22 @@ export async function revokeConnectedApp(userId: string, clientId: string) {
       );
     return consents;
   });
+  await forgetConnectedAppUse(userId, clientId);
+  if (!revoked.length) return false;
   // After the commit: one event per workspace of the user, recorded on their own.
-  if (revoked.length) await recordConnectedApps(userId, [{ clientId, scopes: revoked[0].scopes }], "connected_app.revoked");
+  if (!by || by.actorId === userId) await recordConnectedApps(userId, [{ clientId, scopes: revoked[0].scopes }], "connected_app.revoked");
+  else {
+    const [client] = await db.select({ name: oauthClient.name }).from(oauthClient).where(eq(oauthClient.clientId, clientId)).limit(1);
+    await recordAudit({
+      workspaceId: by.workspaceId,
+      actorId: by.actorId,
+      action: "connected_app.revoked",
+      target: { type: "connected_app", id: clientId, label: clientDisplayName(client?.name, clientId) },
+      subject: { type: "user", id: userId },
+      details: { scopes: revoked[0].scopes },
+    });
+  }
+  return true;
 }
 
 /**
@@ -206,6 +225,7 @@ export async function revokeAllConnectedApps(userId: string) {
       .where(and(eq(oauthAccessToken.userId, userId), isNull(oauthAccessToken.revoked)));
     return consents;
   });
+  await forgetConnectedAppUse(userId).catch((error) => console.error("[connected-apps] could not forget when apps were last used", error));
   // After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log.
   await recordConnectedApps(userId, revoked, "connected_app.revoked").catch((error) =>
     console.error("[connected-apps] could not record disconnected apps in the audit log", error),

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { API_TOKEN_SCOPES, apiToken, workspace, type ApiTokenScope } from "@/db/schema";
 import { findMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import { forgetApiTokenUse } from "@/server/connected-app-use";
 
 /**
  * Personal access tokens for the REST API. A token is `esi_` plus 40 letters and digits (about 238
@@ -157,19 +158,37 @@ export async function listApiTokens(userId: string): Promise<ApiTokenInfo[]> {
   return rows.map((r) => ({ ...r, scopes: normalizeScopes(r.scopes) }));
 }
 
-/** Deletes one of the user's tokens; false when they have no such token. */
-export async function revokeApiToken(userId: string, tokenId: string): Promise<boolean> {
+/**
+ * Deletes one of the user's tokens; false when they have no such token. `by`: a workspace's owner
+ * revoking someone else's token from its settings; only that workspace records it, with the owner
+ * as who did it.
+ */
+export async function revokeApiToken(userId: string, tokenId: string, by?: { actorId: string; workspaceId: string }): Promise<boolean> {
   const deleted = await db
     .delete(apiToken)
     .where(and(eq(apiToken.id, tokenId), eq(apiToken.userId, userId)))
     .returning({ id: apiToken.id, name: apiToken.name, workspaceId: apiToken.workspaceId, scopes: apiToken.scopes });
-  for (const token of deleted) await recordToken(userId, token, "api_token.revoked");
+  await forgetApiTokenUse({ tokenIds: deleted.map((t) => t.id) });
+  for (const token of deleted) {
+    if (!by || by.actorId === userId) await recordToken(userId, token, "api_token.revoked");
+    else {
+      await recordAudit({
+        workspaceId: by.workspaceId,
+        actorId: by.actorId,
+        action: "api_token.revoked",
+        target: { type: "api_token", id: token.id, label: token.name },
+        subject: { type: "user", id: userId },
+        details: { scopes: normalizeScopes(token.scopes), allWorkspaces: token.workspaceId === null },
+      });
+    }
+  }
   return deleted.length > 0;
-
 }
 
 export async function revokeAllApiTokens(userId: string) {
   await db.delete(apiToken).where(eq(apiToken.userId, userId));
+  // It runs where an account is being secured: once the tokens are gone, nothing after may fail.
+  await forgetApiTokenUse({ userId }).catch((error) => console.error("[api-tokens] could not forget when tokens were last used", error));
 }
 
 /** Who a verified token acts for, and what it may do. */

@@ -435,6 +435,13 @@
       "when": 1791994255041,
       "tag": "0061_agent_skills",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1791999784972,
+      "tag": "0062_connected_app_use",
+      "breakpoints": true
     }
   ]
 }

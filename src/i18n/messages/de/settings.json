@@ -876,6 +876,27 @@
       "full": "Lesen und bearbeiten",
       "read": "Nur lesen",
       "off": "Kein Zugriff"
+    },
+    "workspaceApps": {
+      "title": "Apps mit Zugriff auf diesen Workspace",
+      "description": "KI-Assistenten und andere Apps, die Personen hier über MCP verbunden haben, und ihre REST-API-Token, die diesen Workspace erreichen, mit dem Zeitpunkt der letzten Nutzung hier. Trennst du eine, verschwindet sie aus dem Konto der Person: Sie erreicht keinen ihrer Workspaces mehr, bis sie sie neu verbindet.",
+      "list": "Apps mit Zugriff auf diesen Workspace",
+      "empty": "Niemand hier hat eine App verbunden oder ein API-Token erstellt, das diesen Workspace erreicht.",
+      "token": "API-Token {prefix}…",
+      "person": "Verbunden von {name}",
+      "writes": "Liest und bearbeitet",
+      "reads": "Liest nur",
+      "thisWorkspaceOnly": "Nur dieser Workspace",
+      "connected": "Verbunden am {date}",
+      "lastUsed": "Hier zuletzt genutzt {when}",
+      "notUsed": "Hier keine Nutzung erfasst",
+      "disconnect": "Trennen",
+      "revoke": "Widerrufen",
+      "working": "Wird getrennt…",
+      "confirmEverywhere": "{kind, select, api_token {Das Token {name} von {person} widerrufen? Es funktioniert dann in keinem ihrer Workspaces mehr.} other {{name} vom Konto von {person} trennen? Die App verliert den Zugriff auf alle ihre Workspaces, bis sie sie neu verbindet.}}",
+      "confirmHere": "Das Token {name} von {person} widerrufen? Es funktioniert dann nicht mehr.",
+      "error": "Konnte nicht getrennt werden. Versuch es noch einmal.",
+      "gone": "Sie ist schon getrennt oder erreicht diesen Workspace nicht mehr."
     }
   },
   "audit": {
@@ -1111,11 +1132,11 @@
       },
       "connected_app": {
         "connected": "Hat die App {target} verbunden",
-        "revoked": "Hat die Verbindung der App {target} getrennt"
+        "revoked": "{hasSubject, select, yes {Hat die Verbindung der App {target} von {subject} getrennt} other {Hat die Verbindung der App {target} getrennt}}"
       },
       "api_token": {
         "created": "Hat das API-Token {target} erstellt",
-        "revoked": "Hat das API-Token {target} widerrufen"
+        "revoked": "{hasSubject, select, yes {Hat das API-Token {target} von {subject} widerrufen} other {Hat das API-Token {target} widerrufen}}"
       },
       "automation": {
         "created": "Hat die Automatisierung „{name}“ in {target} erstellt",

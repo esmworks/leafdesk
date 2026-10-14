@@ -760,6 +760,14 @@ the REST API.
   workspace is hidden from them: `list_workspaces` and `GET /workspaces` leave it out, and its
   pages answer as pages the user can't see). This applies to the MCP server and the REST API
   only; the app itself in the browser is not affected.
+- **Apps that reach this workspace** (owners): the MCP apps the workspace's people connected and
+  their API tokens for it (for all their workspaces or this one; expired ones and the server's
+  own clients are left out), with what each may do, who connected it, when, and when it last
+  reached this workspace (recorded at most once a minute, from when this list was added; not
+  while connected apps are *Off* here). *Disconnect* (an app) and *Revoke* (a token) take it from
+  that person's account: an app or a token belongs to the person, so it stops reaching all of their
+  workspaces until they connect it again or make a new token. Only this workspace's audit log
+  records it, with the owner as who did it and the person it was about.
 
 ## Who can join a workspace
 
@@ -874,7 +882,8 @@ refuses it. The page has:
   neither are other ways in: GitHub, Google, single sign-on and passkeys still sign them in.
 
 Apps connected over MCP and REST API tokens use OAuth or personal access tokens, not sessions,
-so signing people out doesn't disconnect them; the person revokes them under Connected apps.
+so signing people out doesn't disconnect them; the person revokes them under Connected apps, and
+a workspace's owners can disconnect one from Settings → Security → *Apps that reach this workspace*.
 Every administrator action is written to the server log (`[admin] …`).
 
 ## Single sign-on (OIDC, SAML) and SCIM
@@ -1783,6 +1792,7 @@ Useful scripts:
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
+| `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |
 | `pnpm tsx scripts/security-switches-e2e.ts` | End-to-end check of the workspace security switches (export, publishing, connected apps) through the settings action, the export and public routes, MCP and the REST API, against a running server |
 | `pnpm tsx scripts/auth-e2e.ts` | End-to-end password reset check against a running server with SMTP pointed at [Mailpit](https://mailpit.axllent.org) |
 | `pnpm tsx scripts/two-factor-e2e.ts` | End-to-end two-step verification check (sign-in challenge, recovery codes, workspace policy) against a running server |

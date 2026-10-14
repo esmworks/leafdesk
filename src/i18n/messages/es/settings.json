@@ -876,6 +876,27 @@
       "full": "Leer y editar",
       "read": "Solo lectura",
       "off": "Sin acceso"
+    },
+    "workspaceApps": {
+      "title": "Apps que acceden a este espacio de trabajo",
+      "description": "Los asistentes de IA y otras apps que las personas de aquí conectaron por MCP, y sus tokens de la API REST que llegan a este espacio de trabajo, con cuándo se usó cada uno aquí por última vez. Al desconectar una, sale de la cuenta de esa persona: no llega a ninguno de sus espacios de trabajo hasta que la vuelva a conectar.",
+      "list": "Apps que acceden a este espacio de trabajo",
+      "empty": "Nadie aquí ha conectado una app ni creado un token de API que llegue a este espacio de trabajo.",
+      "token": "Token de API {prefix}…",
+      "person": "Conectada por {name}",
+      "writes": "Lee y edita",
+      "reads": "Solo lee",
+      "thisWorkspaceOnly": "Solo este espacio de trabajo",
+      "connected": "Conectada el {date}",
+      "lastUsed": "Último uso aquí {when}",
+      "notUsed": "Sin uso registrado aquí",
+      "disconnect": "Desconectar",
+      "revoke": "Revocar",
+      "working": "Desconectando…",
+      "confirmEverywhere": "{kind, select, api_token {¿Revocar el token {name} de {person}? Deja de funcionar en todos sus espacios de trabajo.} other {¿Desconectar {name} de la cuenta de {person}? Pierde el acceso a todos sus espacios de trabajo hasta que la vuelva a conectar.}}",
+      "confirmHere": "¿Revocar el token {name} de {person}? Deja de funcionar.",
+      "error": "No se pudo desconectar. Inténtelo de nuevo.",
+      "gone": "Ya está desconectada, o ya no llega a este espacio de trabajo."
     }
   },
   "audit": {
@@ -1111,11 +1132,11 @@
       },
       "connected_app": {
         "connected": "Conectó la app {target}",
-        "revoked": "Desconectó la app {target}"
+        "revoked": "{hasSubject, select, yes {Desconectó la app {target} de {subject}} other {Desconectó la app {target}}}"
       },
       "api_token": {
         "created": "Creó el token de API {target}",
-        "revoked": "Revocó el token de API {target}"
+        "revoked": "{hasSubject, select, yes {Revocó el token de API {target} de {subject}} other {Revocó el token de API {target}}}"
       },
       "automation": {
         "created": "Creó la automatización «{name}» en {target}",

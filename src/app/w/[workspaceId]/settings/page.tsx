@@ -51,6 +51,7 @@ import {
 } from "@/components/settings/sso-settings";
 import { SitePages, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
+import { WorkspaceApps } from "@/components/settings/workspace-apps";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
@@ -84,6 +85,7 @@ import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
 import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
 import { getSite } from "@/server/site";
+import { listWorkspaceApps } from "@/server/workspace-apps";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
 import {
   canInviteGuests,
@@ -260,7 +262,7 @@ async function DeleteGroup({ workspaceId, name, session }: { workspaceId: string
 }
 
 async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, t] =
+  const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
       isOwner ? listWorkspacePublications(userId, workspaceId) : null,
@@ -272,6 +274,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       isOwner ? listScimTokens(userId, workspaceId) : [],
       isOwner ? scimManagedCount(workspaceId) : 0,
       allowedDomainsStatus(userId, workspaceId),
+      isOwner ? listWorkspaceApps(userId, workspaceId) : null,
       getTranslations("settings"),
     ]);
   const setup = ssoSetupInfo(workspaceId);
@@ -334,6 +337,11 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         <ExportSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
       </SettingsGroup>
+      {apps && (
+        <SettingsGroup title={t("security.workspaceApps.title")} description={t("security.workspaceApps.description")}>
+          <WorkspaceApps workspaceId={workspaceId} apps={apps} />
+        </SettingsGroup>
+      )}
       <SettingsGroup title={t("security.publishingHeading")}>
         <PublishingSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
       </SettingsGroup>

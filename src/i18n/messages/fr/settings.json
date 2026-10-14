@@ -876,6 +876,27 @@
       "full": "Lecture et modification",
       "read": "Lecture seule",
       "off": "Aucun accès"
+    },
+    "workspaceApps": {
+      "title": "Applications qui accèdent à cet espace de travail",
+      "description": "Les assistants IA et autres applications que les personnes d’ici ont connectés par MCP, et leurs jetons d’API REST qui atteignent cet espace de travail, avec leur dernière utilisation ici. En déconnecter une la retire du compte de la personne : elle n’atteint plus aucun de ses espaces de travail tant qu’elle ne la reconnecte pas.",
+      "list": "Applications qui accèdent à cet espace de travail",
+      "empty": "Personne ici n’a connecté d’application ni créé de jeton d’API qui atteigne cet espace de travail.",
+      "token": "Jeton d’API {prefix}…",
+      "person": "Connectée par {name}",
+      "writes": "Lit et modifie",
+      "reads": "Lit seulement",
+      "thisWorkspaceOnly": "Cet espace de travail seulement",
+      "connected": "Connectée le {date}",
+      "lastUsed": "Dernière utilisation ici {when}",
+      "notUsed": "Aucune utilisation enregistrée ici",
+      "disconnect": "Déconnecter",
+      "revoke": "Révoquer",
+      "working": "Déconnexion…",
+      "confirmEverywhere": "{kind, select, api_token {Révoquer le jeton {name} de {person} ? Il cesse de fonctionner dans tous ses espaces de travail.} other {Déconnecter {name} du compte de {person} ? L’application perd l’accès à tous ses espaces de travail jusqu’à ce qu’elle la reconnecte.}}",
+      "confirmHere": "Révoquer le jeton {name} de {person} ? Il cesse de fonctionner.",
+      "error": "Impossible de la déconnecter. Réessayez.",
+      "gone": "Elle est déjà déconnectée, ou n’atteint plus cet espace de travail."
     }
   },
   "audit": {
@@ -1111,11 +1132,11 @@
       },
       "connected_app": {
         "connected": "A connecté l’application {target}",
-        "revoked": "A déconnecté l’application {target}"
+        "revoked": "{hasSubject, select, yes {A déconnecté l’application {target} de {subject}} other {A déconnecté l’application {target}}}"
       },
       "api_token": {
         "created": "A créé le jeton d’API {target}",
-        "revoked": "A révoqué le jeton d’API {target}"
+        "revoked": "{hasSubject, select, yes {A révoqué le jeton d’API {target} de {subject}} other {A révoqué le jeton d’API {target}}}"
       },
       "automation": {
         "created": "A créé l’automatisation « {name} » dans {target}",

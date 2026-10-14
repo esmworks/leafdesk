@@ -27,6 +27,13 @@
   that goes on after an approval checks its skills again. MCP clients get `set_agent_skill`, and
   `get_agent` lists the agent's skills. Giving and taking a skill is recorded in the audit log.
   Migration `0061_agent_skills` adds `agent_skill`. Covered in `scripts/agent-skills-e2e.ts`.
+- **Apps that reach a workspace.** Settings → Security shows its owners the MCP apps the
+  workspace's people connected and their REST API tokens for it, with what each may do, who
+  connected it and when it last reached this workspace (not before this version). An owner can
+  disconnect one person's app or revoke their token; as both belong to the person, it stops
+  reaching all of their workspaces, and this workspace's audit log records it with the owner as
+  who did it. Migration `0062_connected_app_use` adds `connected_app_use`. Covered in
+  `scripts/workspace-apps-e2e.ts`.
 - **About.** Settings (and the account page) have an *About* tab: the Leafdesk version the server
   runs with a link to its release notes, who makes it, the license, the website, the source code,
   where to report a problem and the third-party notices. The version is read from `package.json`,
