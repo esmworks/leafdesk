@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_member" ADD COLUMN "ai_memory" boolean DEFAULT true NOT NULL;

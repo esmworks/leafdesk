@@ -7,7 +7,7 @@ import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { deleteConversations, getConversation, listConversations } from "@/server/ai-chat";
-import { addMemory, deleteMemories, listMemories, MemoryError, updateMemory } from "@/server/ai-memory";
+import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
@@ -92,6 +92,16 @@ export async function deleteConversationAction(workspaceId: string, conversation
 /** What the AI chat remembers about the person in a workspace, oldest first. */
 export async function listMemoriesAction(workspaceId: string) {
   return run((userId) => listMemories(userId, String(workspaceId)));
+}
+
+/** Whether the person has the AI chat's memory on in a workspace (their own switch). */
+export async function memoryUseAction(workspaceId: string) {
+  return run((userId) => memoryUse(userId, String(workspaceId)));
+}
+
+/** Turns the AI chat's memory on or off for the person in a workspace; their notes stay. */
+export async function setMemoryUseAction(workspaceId: string, on: boolean) {
+  return run((userId) => setMemoryUse(userId, String(workspaceId), on === true));
 }
 
 /** Adds a note to the person's memory in a workspace. */

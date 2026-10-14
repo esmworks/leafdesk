@@ -105,6 +105,8 @@
     "enabled": "Fonctions d’IA",
     "enabledHint": "Si elles sont activées, les membres peuvent envoyer le contenu des pages et les valeurs des lignes qu’ils voient au fournisseur d’IA ci-dessous. Désactivez-les pour tenir le contenu de cet espace de travail à l’écart.",
     "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
+    "memory": "Mémoire de l’IA",
+    "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées.",
     "provider": "Fournisseur",
     "providerValue": "{provider}, modèle {model}",
     "notConfigured": "Aucun fournisseur d’IA ni modèle d’embeddings n’est configuré sur ce serveur, les fonctions d’IA sont donc désactivées. Un administrateur peut les configurer avec les variables d’environnement AI_PROVIDER et AI_MODEL (et AI_EMBEDDINGS_MODEL) (voir le README).",
@@ -232,6 +234,8 @@
     "close": "Fermer",
     "updated": "Mémoire mise à jour",
     "intro": "Des notes que l'IA garde sur vous dans cet espace de travail et envoie avec chacune de vos questions ici. Elle en ajoute une quand vous parlez de vous ou lui demandez de retenir quelque chose. Vous seul les voyez.",
+    "use": "Utiliser la mémoire",
+    "useHint": "Désactivée, vos questions ici partent sans ces notes et l’IA n’en garde pas de nouvelles. Les notes restent.",
     "empty": "Rien pour l'instant. Parlez de vous à l'IA ou ajoutez une note ici.",
     "offline": "La mémoire a besoin d'une connexion au serveur.",
     "addLabel": "Nouvelle note",
@@ -250,7 +254,8 @@
       "empty": "Écrivez ce qu'il faut retenir.",
       "tooLong": "Une note peut contenir au plus {max} caractères.",
       "full": "La mémoire contient au plus {max} notes. Supprimez-en une d'abord.",
-      "notFound": "Cette note n'existe plus."
+      "notFound": "Cette note n'existe plus.",
+      "off": "La mémoire de l’IA est désactivée dans cet espace de travail."
     }
   }
 }

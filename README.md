@@ -1328,6 +1328,12 @@ notes per workspace, 300 characters each. Notes are private to you, never sent w
 questions or in another workspace, and are deleted when you leave the workspace or delete your
 account.
 
+The *Use memory* switch at the top of *Memory* turns it off for you in that workspace: your
+questions then go without your notes and the chat isn't offered `remember` or `forget` (it says
+the memory is off when asked to remember something). Workspace owners can turn the memory off for
+everyone under Settings → General → AI → *AI memory*, which also hides the *Memory* button. Neither
+switch deletes a note: they come back when the memory is turned on again.
+
 **Privacy.** Requests run as the person who asked, with their access at the time: the assistant
 works only on pages they may edit, an AI property sends only the row values they can see, and the
 chat and semantic search only find and read pages they can open, checked again on every search and

@@ -9,6 +9,11 @@
  * itself off as a lasting note: unless the chat's mode is `auto`, the person approves each note
  * the chat keeps or drops before it is (ai-chat.ts), as with changes to the workspace.
  *
+ * Two switches turn it off without deleting a note: the person's own in the Memory view, for them
+ * in the workspace (kept with their membership), and the owners' for the whole workspace (the
+ * `aiMemory` workspace setting, which also hides the Memory view). Off, questions carry no notes
+ * and the chat isn't offered `remember` or `forget`.
+ *
  * Notes are the person's own, like their conversations: only they ever see them, other people's
  * questions never carry them, and they go with the person's account, when they leave the workspace
  * and with the workspace. They are notes for the model, sent as data: they never widen what the
@@ -18,12 +23,13 @@ import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { aiMemory, type ChatMemoryRecord } from "@/db/schema";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS, type ChatActionView, type MemoryView } from "@/lib/ai-chat";
-import { requireMembership } from "@/server/access";
+import { AccessError, requireMembership } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import type { ToolOutcome } from "@/server/ai-tools";
+import { getMemberAiMemory, setMemberAiMemory, workspaceSettings } from "@/server/workspaces";
 
-export type MemoryErrorCode = "empty" | "tooLong" | "full" | "notFound";
+export type MemoryErrorCode = "empty" | "tooLong" | "full" | "notFound" | "off";
 
 export class MemoryError extends Error {
   constructor(
@@ -33,6 +39,31 @@ export class MemoryError extends Error {
     super(message);
     this.name = "MemoryError";
   }
+}
+
+// ------------------------------------------------------------------------------ the switches
+
+/** Whether the workspace has the chat's memory on: owners turn it off for everyone. */
+export async function memoryAvailable(workspaceId: string): Promise<boolean> {
+  return (await workspaceSettings(workspaceId)).aiMemory !== false;
+}
+
+/** Whether the person has the memory on in the workspace (their own switch, on by default). */
+export async function memoryUse(userId: string, workspaceId: string): Promise<boolean> {
+  const use = await getMemberAiMemory(userId, workspaceId);
+  if (use === null) throw new AccessError();
+  return use;
+}
+
+/** Turns the memory on or off for the person in the workspace; their notes stay either way. */
+export async function setMemoryUse(userId: string, workspaceId: string, on: boolean) {
+  if (!(await setMemberAiMemory(userId, workspaceId, on))) throw new AccessError();
+}
+
+/** Whether the person's questions in the workspace carry their notes and may keep new ones. */
+export async function memoryOn(userId: string, workspaceId: string): Promise<boolean> {
+  const [available, use] = await Promise.all([memoryAvailable(workspaceId), memoryUse(userId, workspaceId)]);
+  return available && use;
 }
 
 /** A note as kept: one line, trimmed. */
@@ -81,6 +112,8 @@ async function writeNote(
   text: string,
   { replaces = null, conversationId = null }: { replaces?: string | null; conversationId?: string | null } = {},
 ): Promise<Note> {
+  // Written only while the workspace has the memory on (the person's own switch aside).
+  if (!(await memoryAvailable(workspaceId))) throw new MemoryError("off", "The AI memory is turned off in this workspace");
   const note = cleanNote(text);
   return db.transaction(async (tx) => {
     // One person's notes change one at a time, so two answers can't both take the last place or
@@ -197,6 +230,7 @@ function refused(error: unknown): ToolOutcome {
   if (!(error instanceof MemoryError)) throw error;
   if (error.code === "notFound") return NOT_FOUND;
   if (error.code === "full") return { content: `The memory is full (${MAX_MEMORIES} notes): replace or forget a note that matters less, or tell the person it is full.`, isError: true };
+  if (error.code === "off") return { content: "The memory is turned off: keep nothing.", isError: true };
   if (error.code === "tooLong") return { content: `Too long: a note may have at most ${MAX_MEMORY_CHARS} characters. Keep it shorter.`, isError: true };
   return { content: "remember needs the text of the note.", isError: true };
 }

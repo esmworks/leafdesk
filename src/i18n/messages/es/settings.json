@@ -1015,6 +1015,7 @@
       "teamspaceCreation": "Quién puede crear espacios de equipo",
       "loginMethod": "Cómo inician sesión los miembros",
       "ai": "Funciones de IA",
+      "aiMemory": "Memoria de la IA",
       "trashRetentionDays": "Eliminar las páginas de la papelera tras",
       "export": "Permitir exportar",
       "connectedApps": "Apps conectadas y tokens de API",

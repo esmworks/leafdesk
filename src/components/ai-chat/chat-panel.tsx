@@ -45,9 +45,20 @@ export function useAiChat() {
 
 /**
  * Holds the chat for a workspace's pages. `available`: AI is on in the workspace (the chat explains
- * when it isn't). Only rendered when the server has an AI provider.
+ * when it isn't); `memory`: so is the chat's memory (its Memory view is shown). Only rendered when
+ * the server has an AI provider.
  */
-export function AiChatProvider({ workspaceId, available, children }: { workspaceId: string; available: boolean; children: ReactNode }) {
+export function AiChatProvider({
+  workspaceId,
+  available,
+  memory,
+  children,
+}: {
+  workspaceId: string;
+  available: boolean;
+  memory: boolean;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
   const onChatPage = isChatPath(pathname, workspaceId);
   const [open, setOpen] = useState(false);
@@ -80,7 +91,14 @@ export function AiChatProvider({ workspaceId, available, children }: { workspace
       {children}
       {/* The full-page chat replaces the panel while it's shown. */}
       {open && !onChatPage && (
-        <ChatPanel key={panel.key} workspaceId={workspaceId} available={available} initialConversation={panel.conversationId} onClose={() => setOpen(false)} />
+        <ChatPanel
+          key={panel.key}
+          workspaceId={workspaceId}
+          available={available}
+          memory={memory}
+          initialConversation={panel.conversationId}
+          onClose={() => setOpen(false)}
+        />
       )}
     </Context.Provider>
   );
@@ -89,11 +107,13 @@ export function AiChatProvider({ workspaceId, available, children }: { workspace
 function ChatPanel({
   workspaceId,
   available,
+  memory,
   initialConversation,
   onClose,
 }: {
   workspaceId: string;
   available: boolean;
+  memory: boolean;
   initialConversation: string | null;
   onClose: () => void;
 }) {
@@ -208,7 +228,7 @@ function ChatPanel({
             </div>
           )}
         </Popover>
-        {available && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
+        {memory && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={chat.newChat} disabled={!messages.length && !conversationId}>
           <SquarePen className="h-4 w-4" />
         </IconButton>

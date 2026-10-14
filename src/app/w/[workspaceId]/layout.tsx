@@ -12,6 +12,7 @@ import { USER_MARKER } from "@/lib/offline";
 import { parseSidebarCookie, SIDEBAR_COOKIE } from "@/lib/sidebar-layout";
 import { getMembership } from "@/server/access";
 import { isEnabled as aiConfigured } from "@/server/ai";
+import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
 import { joinableWorkspaces } from "@/server/join-requests";
 import { listFavorites } from "@/server/page-meta";
@@ -40,7 +41,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -50,6 +51,7 @@ export default async function WorkspaceLayout({
     cookies(),
     aiAvailable(workspaceId),
     getSidebarLayout(user.id, workspaceId),
+    memoryAvailable(workspaceId),
   ]);
 
   const body = (
@@ -86,7 +88,7 @@ export default async function WorkspaceLayout({
       <SidebarProvider initial={parseSidebarCookie(cookieStore.get(SIDEBAR_COOKIE)?.value)}>
         {/* The AI chat panel (#41), when the server has an AI provider. */}
         {aiConfigured() ? (
-          <AiChatProvider workspaceId={workspaceId} available={ai}>
+          <AiChatProvider workspaceId={workspaceId} available={ai} memory={ai && memory}>
             {body}
           </AiChatProvider>
         ) : (

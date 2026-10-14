@@ -3,14 +3,15 @@
 /**
  * What the AI chat remembers about the person in this workspace (server/ai-memory.ts): its notes,
  * each changed in place or deleted, a note to add, and forgetting everything. Only the person sees
- * them; they go with each of their questions in the workspace.
+ * them; they go with each of their questions in the workspace while their "Use memory" switch is on.
+ * Not shown when the workspace has the memory off.
  */
 import { Brain, Check, Loader2, Pencil, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { addMemoryAction, deleteMemoryAction, listMemoriesAction, updateMemoryAction } from "@/app/actions/ai";
+import { addMemoryAction, deleteMemoryAction, listMemoriesAction, memoryUseAction, setMemoryUseAction, updateMemoryAction } from "@/app/actions/ai";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { Button, Dialog, IconButton, Input } from "@/components/ui";
+import { Button, Dialog, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryView } from "@/lib/ai-chat";
 
 /** The button that opens the Memory dialog (in the chat's headers). */
@@ -31,6 +32,8 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
   const t = useTranslations("ai.memory");
   const offline = useIsOffline();
   const [notes, setNotes] = useState<MemoryView[] | null>(null);
+  /** The person's "Use memory" switch; null until loaded. */
+  const [use, setUse] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
@@ -47,7 +50,19 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
     setError(null);
     setEditing(null);
     void load();
-  }, [open, offline, load]);
+    void memoryUseAction(workspaceId).then((result) => {
+      if (result.ok) setUse(result.data);
+    });
+  }, [open, offline, load, workspaceId]);
+
+  async function toggleUse(next: boolean) {
+    setUse(next);
+    setBusy(true);
+    const result = await setMemoryUseAction(workspaceId, next);
+    setBusy(false);
+    setError(result.ok ? null : result.error);
+    if (!result.ok) setUse(!next);
+  }
 
   /** Runs a change, then shows the notes as the server has them. */
   async function change(fn: () => Promise<{ ok: true } | { ok: false; error: string }>) {
@@ -88,6 +103,15 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
       </div>
       <div className="max-h-[60vh] overflow-y-auto px-4 py-3 text-sm">
         <p className="text-fg-muted">{t("intro")}</p>
+        {!offline && use !== null && (
+          <div className="mt-3 flex items-start gap-3 rounded-md border border-border px-3 py-2">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">{t("use")}</p>
+              <p className="text-xs text-fg-muted">{t("useHint")}</p>
+            </div>
+            <Switch checked={use} label={t("use")} disabled={busy} onChange={(next) => void toggleUse(next)} />
+          </div>
+        )}
         {error && (
           <p role="alert" className="mt-2 text-xs text-danger">
             {error}

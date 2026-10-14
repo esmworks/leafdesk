@@ -18,6 +18,13 @@
   everything. Up to 30 notes of 300 characters per person and workspace; they are deleted when the
   person leaves the workspace or deletes their account. Migration `0063_ai_memory` adds
   `ai_memory`. Covered in `scripts/ai-memory-e2e.ts`.
+- **Switches for the AI chat's memory.** *Use memory* at the top of the *Memory* dialog turns the
+  memory off for the person in that workspace, and owners can turn it off for the whole workspace
+  under Settings → General → AI → *AI memory*, which also hides the *Memory* button. While it is
+  off, questions carry no notes and the chat isn't offered `remember` or `forget`; no note is
+  deleted, and owners' changes are in the audit log. Migration `0064_ai_memory_switch` adds
+  `workspace_member.ai_memory`. Covered in `scripts/ai-memory-e2e.ts` and
+  `scripts/ai-chat-e2e.ts`.
 - **Skills.** A page or database row can be marked *Use as skill* in its `⋯` menu (edit access;
   not databases, templates or the pages in them): its body is instructions to reuse, and a bar
   under the title says what it is for. The sidebar's new skills button opens the workspace's

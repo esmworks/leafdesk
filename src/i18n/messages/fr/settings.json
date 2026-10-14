@@ -1015,6 +1015,7 @@
       "teamspaceCreation": "Qui peut créer des espaces d’équipe",
       "loginMethod": "Comment les membres se connectent",
       "ai": "Fonctions d’IA",
+      "aiMemory": "Mémoire de l’IA",
       "trashRetentionDays": "Supprimer les pages de la corbeille après",
       "export": "Autoriser l’exportation",
       "connectedApps": "Applications connectées et jetons d’API",

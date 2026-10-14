@@ -236,7 +236,14 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
   const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("ai.settings")]);
   return (
     <SettingsGroup title={t("heading")} description={t("description")} className="mt-10">
-      <AiSettings workspaceId={workspaceId} enabled={settings.ai !== false} canEdit={isOwner} provider={aiInfo()} embeddings={embeddingModel()} />
+      <AiSettings
+        workspaceId={workspaceId}
+        enabled={settings.ai !== false}
+        memory={settings.aiMemory !== false}
+        canEdit={isOwner}
+        provider={aiInfo()}
+        embeddings={embeddingModel()}
+      />
     </SettingsGroup>
   );
 }

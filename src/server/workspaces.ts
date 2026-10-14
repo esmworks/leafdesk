@@ -1172,6 +1172,7 @@ const SETTING_VALUES: {
   teamspaceCreation: ["owners", "members"],
   loginMethod: ["any", "sso"],
   ai: [true, false],
+  aiMemory: [true, false],
   trashRetentionDays: TRASH_RETENTION_CHOICES,
   memberInvites: ["owners", "members_with_approval", "any_member"],
   domainJoin: ["join", "request"],
@@ -1431,4 +1432,23 @@ export async function setSidebarLayout(userId: string, workspaceId: string, inpu
     .update(workspaceMember)
     .set({ sidebar: sql`${workspaceMember.sidebar} || ${JSON.stringify(patch)}::jsonb` })
     .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+}
+
+/** The member's own switch for the AI chat's memory in this workspace (see server/ai-memory.ts); null when not a member. */
+export async function getMemberAiMemory(userId: string, workspaceId: string): Promise<boolean | null> {
+  const [row] = await db
+    .select({ aiMemory: workspaceMember.aiMemory })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+  return row ? row.aiMemory : null;
+}
+
+/** Sets the member's own switch for the AI chat's memory in this workspace; false when not a member. */
+export async function setMemberAiMemory(userId: string, workspaceId: string, on: boolean): Promise<boolean> {
+  const changed = await db
+    .update(workspaceMember)
+    .set({ aiMemory: on })
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
+    .returning({ userId: workspaceMember.userId });
+  return changed.length > 0;
 }

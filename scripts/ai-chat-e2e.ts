@@ -40,6 +40,7 @@ type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
 const { deleteConversations, getConversation, listConversations, MAX_ROUNDS, startChat } = await import("@/server/ai-chat");
+const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { MAX_CHAT_MESSAGE, MAX_CHAT_TURNS } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
@@ -627,6 +628,27 @@ try {
     fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
     "in read-only mode the model isn't offered changes (keeping notes about the person changes nothing in the workspace)",
   );
+  // With the memory off, by the person or for the workspace, neither mode offers the notes' tools.
+  const toolsOf = (r: (typeof fake.chats)[number]) => r.tools?.map((t) => t.function.name).join();
+  for (const [off, on, who] of [
+    [() => setMemoryUse(alice, workspaceId, false), () => setMemoryUse(alice, workspaceId, true), "the person"],
+    [() => updateWorkspaceSettings(owner, workspaceId, { aiMemory: false }), () => updateWorkspaceSettings(owner, workspaceId, { aiMemory: true }), "the workspace's owners"],
+  ] as const) {
+    await off();
+    fake.chats.length = 0;
+    await ask(alice, { workspaceId, message: "Which tyres?", mode: "read" });
+    const reading = fake.chats.splice(0);
+    await ask(alice, { workspaceId, message: "Which tyres?" });
+    check(
+      reading.length > 0 &&
+        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database") &&
+        fake.chats.length > 0 &&
+        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,create_row,update_row,create_page"),
+      `with the memory turned off by ${who}, remember and forget aren't offered, in either mode`,
+      [...reading, ...fake.chats].map(toolsOf),
+    );
+    await on();
+  }
   fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Sneaky row" })]));
   fake.chats.length = 0;
   const sneaky = await ask(alice, { workspaceId, message: "Add a row", mode: "read" });

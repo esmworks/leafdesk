@@ -76,6 +76,11 @@ export type WorkspaceSettings = {
    */
   ai: boolean;
   /**
+   * Whether the AI chat keeps notes about people and sends them with their questions (see
+   * server/ai-memory.ts). Off, it neither reads nor keeps any; the notes stay, for when it's back on.
+   */
+  aiMemory: boolean;
+  /**
    * Days a page stays in the trash before the daily cleanup deletes it for good, with its files
    * (see server/retention.ts); 0 keeps it until someone deletes it. One of TRASH_RETENTION_CHOICES.
    */
@@ -132,6 +137,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   teamspaceCreation: "members",
   loginMethod: "any",
   ai: true,
+  aiMemory: true,
   trashRetentionDays: 30,
   export: true,
   connectedApps: "full",
@@ -179,6 +185,11 @@ export const workspaceMember = pgTable(
     invitedBy: text("invited_by").references(() => user.id, { onDelete: "set null" }),
     /** How they arranged the sidebar in this workspace: section order, hidden and folded sections. */
     sidebar: jsonb("sidebar").$type<SidebarLayout>().notNull().default({}),
+    /**
+     * Whether the AI chat uses its memory of them in this workspace (server/ai-memory.ts): off, their
+     * questions carry no notes and it keeps none, but the notes they have stay.
+     */
+    aiMemory: boolean("ai_memory").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.workspaceId, t.userId] }), index("workspace_member_user_idx").on(t.userId)],

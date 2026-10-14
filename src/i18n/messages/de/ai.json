@@ -105,6 +105,8 @@
     "enabled": "KI-Funktionen",
     "enabledHint": "Wenn eingeschaltet, können Mitglieder Seiteninhalte und Zeilenwerte, die sie sehen können, an den unten genannten KI-Anbieter senden. Schalte es aus, um die Inhalte dieses Workspace davon fernzuhalten.",
     "ownersOnly": "Nur Eigentümer können dies ändern.",
+    "memory": "KI-Gedächtnis",
+    "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht.",
     "provider": "Anbieter",
     "providerValue": "{provider}, Modell {model}",
     "notConfigured": "Auf diesem Server ist weder ein KI-Anbieter noch ein Embedding-Modell eingerichtet, daher sind KI-Funktionen aus. Eine Administratorin oder ein Administrator kann sie mit den Umgebungsvariablen AI_PROVIDER und AI_MODEL (und AI_EMBEDDINGS_MODEL) einrichten (siehe README).",
@@ -232,6 +234,8 @@
     "close": "Schließen",
     "updated": "Gedächtnis aktualisiert",
     "intro": "Notizen, die die KI in diesem Workspace über dich führt und mit jeder deiner Fragen hier mitschickt. Sie legt eine an, wenn du von dir erzählst oder sie bittest, sich etwas zu merken. Nur du siehst sie.",
+    "use": "Gedächtnis verwenden",
+    "useHint": "Wenn aus, gehen deine Fragen hier ohne diese Notizen raus und die KI legt keine neuen an. Die Notizen bleiben.",
     "empty": "Noch nichts. Erzähl der KI von dir oder füge hier eine Notiz hinzu.",
     "offline": "Das Gedächtnis braucht eine Verbindung zum Server.",
     "addLabel": "Neue Notiz",
@@ -250,7 +254,8 @@
       "empty": "Schreib, was sich die KI merken soll.",
       "tooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
       "full": "Das Gedächtnis fasst höchstens {max} Notizen. Lösche zuerst eine.",
-      "notFound": "Diese Notiz gibt es nicht mehr."
+      "notFound": "Diese Notiz gibt es nicht mehr.",
+      "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet."
     }
   }
 }

@@ -14,7 +14,8 @@
  *    `update_row`, `create_page`, with their edit access checked): in mode `ask` the answer waits
  *    for the person to approve each change (ai-chat-approvals.ts), in `auto` it doesn't;
  * 5. in every mode, may make it keep or drop notes about the person (`remember`, `forget`): what
- *    it remembers goes with their later questions in the workspace (ai-memory.ts);
+ *    it remembers goes with their later questions in the workspace (ai-memory.ts), unless the
+ *    person or the workspace's owners turned the memory off;
  * 6. streams the answer; citations ([n]) link to the pages (and the block a passage starts at).
  *
  * Conversations are kept per person (ai_conversation) and only ever shown to them; cited pages are
@@ -53,7 +54,7 @@ import { aiConfig, AiError, isAiError, stream, takeRateLimit, takeWorkspaceCapac
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
-import { applyMemory, memoryForPrompt, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
+import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import * as ops from "@/server/operations";
 import {
@@ -194,9 +195,11 @@ async function* runChat(
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
-  // and asked about unless the mode is `auto` (a read-only chat asks too).
-  const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...MEMORY_TOOLS];
-  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null);
+  // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
+  // the workspace have the memory on.
+  const remembers = await memoryOn(userId, workspaceId);
+  const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...(remembers ? MEMORY_TOOLS : [])];
+  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null, remembers);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = () => limits.maxInputChars - system.length - toolsSize - 200;
 
@@ -241,7 +244,7 @@ async function* runChat(
     // Nothing is searched for the model: it gets the map of what there is and decides itself.
     const earlier = existing?.messages.slice(0, existing.messages.length - replaced) ?? [];
     const history: AiMessage[] = chatHistory(earlier, Math.floor(room() * HISTORY_SHARE));
-    const memory = await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE));
+    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
     const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - 2_000);
     const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
     const messages: AiMessage[] = [...history, { role: "user", content: chatQuestionPrompt(message, map, skill?.body, memory.text) }];
@@ -289,7 +292,8 @@ async function* runChat(
       for (const call of result.toolCalls) {
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
-        if (MEMORY_TOOL_NAMES.has(call.name)) {
+        // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
+        if (remembers && MEMORY_TOOL_NAMES.has(call.name)) {
           // Text the model read could pass itself off as a lasting note: the person approves each.
           const prepared = await prepareMemory(userId, workspaceId, call);
           let decision: ChatDecision | "timeout" = "approve";

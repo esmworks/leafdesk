@@ -7,8 +7,9 @@
  * (case aside, Turkish dotted I too) kept once;
  * sent with the person's later questions in the workspace as data, and never with anyone else's or
  * in another workspace; the limits (length, count, the share of the prompt); the Memory view's own
- * calls, only ever on the person's own notes; and notes gone when the person leaves the workspace
- * or deletes their account.
+ * calls, only ever on the person's own notes; the person's own switch and the owners' switch for
+ * the workspace, each leaving the notes but sending none and offering no `remember` or `forget`;
+ * and notes gone when the person leaves the workspace or deletes their account.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-memory-e2e.ts
@@ -27,7 +28,7 @@ const { db } = await import("@/db");
 const { aiMemory, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { removeMember } = await import("@/server/workspaces");
+const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
@@ -35,7 +36,9 @@ type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const { getConversation, startChat } = await import("@/server/ai-chat");
 const { decideChange } = await import("@/server/ai-chat-approvals");
-const { addMemory, deleteMemories, listMemories, memoryForPrompt, MemoryError, updateMemory } = await import("@/server/ai-memory");
+const { addMemory, deleteMemories, listMemories, memoryAvailable, memoryForPrompt, MemoryError, memoryUse, setMemoryUse, updateMemory } = await import(
+  "@/server/ai-memory"
+);
 const { MAX_MEMORIES, MAX_MEMORY_CHARS } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatInput = import("@/server/ai-chat").ChatInput;
@@ -195,6 +198,60 @@ try {
     "remember with replaces changes the older note in place",
     afterMove,
   );
+
+  // ── Switched off by the person ──────────────────────────────────────────────────────────────
+  const offers = (request: FakeChatRequest) => toolNames(request).includes("remember") || toolNames(request).includes("forget");
+  check((await memoryUse(alice, workspaceId)) && (await memoryAvailable(workspaceId)), "the memory is on by default, for the person and the workspace");
+  await setMemoryUse(alice, workspaceId, false);
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Works from Izmir." } }]));
+  fake.chats.length = 0;
+  const personOff = await ask(alice, { workspaceId, message: "Remember that I work from Izmir." });
+  const offRequest = fake.chats[0];
+  check(memoryOf(offRequest) === null && !question(offRequest).includes("brand team"), "with the person's switch off, their questions carry no notes", question(offRequest));
+  check(!offers(offRequest), "…the chat isn't offered remember or forget", toolNames(offRequest));
+  check(!/with remember/.test(systemOf(offRequest)) && /the memory is turned off/.test(systemOf(offRequest)), "…nor told to keep notes, only that the memory is off");
+  check(
+    personOff.done && personOff.steps.length === 0 && personOff.approvals.length === 0 && toolResults(fake.chats.at(-1)!).some((r) => r.startsWith("Unknown tool remember")),
+    "…and a remember called anyway keeps nothing, asking nobody",
+    toolResults(fake.chats.at(-1)!),
+  );
+  const keptWhileOff = await notesOf(alice);
+  check(keptWhileOff.length === 1 && keptWhileOff[0].text === "Leads the brand team.", "…while the notes stay", keptWhileOff);
+  check((await listMemories(alice, workspaceId)).length === 1, "…and the Memory view still lists them");
+  fake.setChat(answering);
+  fake.chats.length = 0;
+  await ask(bob, { workspaceId, message: "Hi" });
+  await ask(alice, { workspaceId: otherWs, message: "Hi" });
+  check(fake.chats.every(offers), "one person's switch leaves everyone else's memory on, and their own in other workspaces");
+  await setMemoryUse(alice, workspaceId, true);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  check(memoryOf(fake.chats[0]) === `- (memory_id ${kept.id}) Leads the brand team.` && offers(fake.chats[0]), "switched back on, the notes go with the questions again");
+  const outsiderUse = await setMemoryUse(outsider, workspaceId, false).catch((e) => e);
+  check(outsiderUse instanceof AccessError, "someone outside the workspace has no switch there");
+
+  // ── Switched off for the workspace ──────────────────────────────────────────────────────────
+  const memberOff = await updateWorkspaceSettings(alice, workspaceId, { aiMemory: false }).catch((e) => e);
+  check(memberOff instanceof AccessError && (await memoryAvailable(workspaceId)), "only owners can turn the memory off for the workspace");
+  await updateWorkspaceSettings(owner, workspaceId, { aiMemory: false });
+  check(!(await memoryAvailable(workspaceId)) && (await memoryAvailable(otherWs)), "owners turn it off for their workspace only");
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  await ask(bob, { workspaceId, message: "Hi", mode: "read" });
+  check(
+    fake.chats.length === 2 &&
+      fake.chats.every((r) => memoryOf(r) === null && !offers(r) && /the memory is turned off/.test(systemOf(r)) && !/still works here/.test(systemOf(r))),
+    "with the workspace's memory off, nobody's questions carry notes or are offered remember and forget (a read-only chat isn't told notes still work)",
+    fake.chats.map(toolNames),
+  );
+  const offAdd = await addMemory(alice, workspaceId, "Sneaked in.").catch((e) => e);
+  const offEdit = await updateMemory(alice, workspaceId, kept.id, "Changed.").catch((e) => e);
+  check(offAdd instanceof MemoryError && offAdd.code === "off" && offEdit instanceof MemoryError && offEdit.code === "off", "…nor can notes be written by hand");
+  check((await notesOf(alice)).map((m) => m.text).join() === "Leads the brand team." && (await memoryUse(alice, workspaceId)), "…while the notes stay, and the person's own switch as it was");
+  await updateWorkspaceSettings(owner, workspaceId, { aiMemory: true });
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  check(memoryOf(fake.chats[0]) === `- (memory_id ${kept.id}) Leads the brand team.` && offers(fake.chats[0]), "turned back on, the notes go with the questions again");
 
   // ── Forgetting, only the person's own ───────────────────────────────────────────────────────
   const bobNote = await addMemory(bob, workspaceId, "Prefers tables.");

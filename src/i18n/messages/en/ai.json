@@ -105,6 +105,8 @@
     "enabled": "AI features",
     "enabledHint": "When on, members can send page content and row values they can see to the AI provider below. Turn off to keep this workspace's content away from it.",
     "ownersOnly": "Only owners can change this.",
+    "memory": "AI memory",
+    "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted.",
     "provider": "Provider",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "No AI provider or embeddings model is set up on this server, so AI features are off. An admin can set them up with the AI_PROVIDER and AI_MODEL (and AI_EMBEDDINGS_MODEL) environment variables (see the README).",
@@ -232,6 +234,8 @@
     "close": "Close",
     "updated": "Memory updated",
     "intro": "Notes the AI keeps about you in this workspace, sent with each of your questions here. It adds one when you tell it about yourself or ask it to remember something. Only you see them.",
+    "use": "Use memory",
+    "useHint": "When off, your questions here go without these notes and the AI keeps no new ones. The notes stay.",
     "empty": "Nothing yet. Tell the AI about yourself, or add a note here.",
     "offline": "Memory needs a connection to the server.",
     "addLabel": "New note",
@@ -250,7 +254,8 @@
       "empty": "Write what to remember.",
       "tooLong": "A note may have at most {max} characters.",
       "full": "Memory holds at most {max} notes. Delete one first.",
-      "notFound": "That note isn't there anymore."
+      "notFound": "That note isn't there anymore.",
+      "off": "The AI memory is turned off in this workspace."
     }
   }
 }

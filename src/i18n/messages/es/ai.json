@@ -105,6 +105,8 @@
     "enabled": "Funciones de IA",
     "enabledHint": "Si está activado, los miembros pueden enviar el contenido de las páginas y los valores de las filas que pueden ver al proveedor de IA indicado abajo. Desactívalo para mantener el contenido de este espacio de trabajo fuera de su alcance.",
     "ownersOnly": "Solo los propietarios pueden cambiar esto.",
+    "memory": "Memoria de la IA",
+    "memoryHint": "Si está activada, el chat de IA guarda notas breves sobre las personas que le cuentan algo de sí mismas y las envía con sus preguntas posteriores. Cada persona puede desactivarla para sí. Si está desactivada, la vista Memoria se oculta y ninguna pregunta lleva notas; las notas se conservan, no se eliminan.",
     "provider": "Proveedor",
     "providerValue": "{provider}, modelo {model}",
     "notConfigured": "No hay ningún proveedor de IA ni modelo de embeddings configurado en este servidor, así que las funciones de IA están desactivadas. Un administrador puede configurarlos con las variables de entorno AI_PROVIDER y AI_MODEL (y AI_EMBEDDINGS_MODEL) (consulta el README).",
@@ -232,6 +234,8 @@
     "close": "Cerrar",
     "updated": "Memoria actualizada",
     "intro": "Notas que la IA guarda sobre ti en este espacio de trabajo y envía con cada una de tus preguntas aquí. Añade una cuando le hablas de ti o le pides que recuerde algo. Solo tú las ves.",
+    "use": "Usar la memoria",
+    "useHint": "Si está desactivada, tus preguntas aquí se envían sin estas notas y la IA no guarda notas nuevas. Las notas se conservan.",
     "empty": "Todavía nada. Háblale de ti a la IA o añade una nota aquí.",
     "offline": "La memoria necesita conexión con el servidor.",
     "addLabel": "Nota nueva",
@@ -250,7 +254,8 @@
       "empty": "Escribe qué recordar.",
       "tooLong": "Una nota puede tener como máximo {max} caracteres.",
       "full": "La memoria guarda como máximo {max} notas. Elimina una antes.",
-      "notFound": "Esa nota ya no existe."
+      "notFound": "Esa nota ya no existe.",
+      "off": "La memoria de la IA está desactivada en este espacio de trabajo."
     }
   }
 }

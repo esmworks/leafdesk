@@ -18,7 +18,8 @@ import { ChatThread } from "./chat-thread";
 import { MemoryButton } from "./memory-dialog";
 import { useChat } from "./use-chat";
 
-export function ChatPage({ workspaceId, available }: { workspaceId: string; available: boolean }) {
+/** `memory`: the workspace has the chat's memory on (its Memory view is shown). */
+export function ChatPage({ workspaceId, available, memory }: { workspaceId: string; available: boolean; memory: boolean }) {
   const t = useTranslations("ai.chat");
   const router = useRouter();
   const requested = useSearchParams().get("c");
@@ -71,7 +72,7 @@ export function ChatPage({ workspaceId, available }: { workspaceId: string; avai
       <div className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:pl-1.5">
         <SidebarOpenButton className="mr-1 max-md:mr-0" />
         <h1 className="min-w-0 flex-1 truncate text-sm font-medium">{title || t("title")}</h1>
-        {available && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
+        {memory && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
           <SquarePen className="h-4 w-4" />
         </IconButton>

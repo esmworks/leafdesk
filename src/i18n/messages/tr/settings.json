@@ -1015,6 +1015,7 @@
       "teamspaceCreation": "Kimler teamspace oluşturabilir",
       "loginMethod": "Üyeler nasıl giriş yapar",
       "ai": "Yapay zekâ özellikleri",
+      "aiMemory": "Yapay zekâ hafızası",
       "trashRetentionDays": "Çöp kutusundaki sayfaların silinme süresi",
       "export": "Dışa aktarmaya izin ver",
       "connectedApps": "Bağlı uygulamalar ve API anahtarları",

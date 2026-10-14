@@ -105,6 +105,8 @@
     "enabled": "Yapay zekâ özellikleri",
     "enabledHint": "Açıkken üyeler görebildikleri sayfa içeriğini ve satır değerlerini aşağıdaki yapay zekâ sağlayıcısına gönderebilir. Bu çalışma alanının içeriğini ondan uzak tutmak için kapat.",
     "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
+    "memory": "Yapay zekâ hafızası",
+    "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir. Herkes kendisi için kapatabilir. Kapalıyken Hafıza görünümü gizlenir ve hiçbir soru not taşımaz; notlar silinmez, saklanır.",
     "provider": "Sağlayıcı",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Bu sunucuda bir yapay zekâ sağlayıcısı ya da embedding modeli ayarlanmamış, bu yüzden yapay zekâ özellikleri kapalı. Bir yönetici AI_PROVIDER ve AI_MODEL (ve AI_EMBEDDINGS_MODEL) ortam değişkenleriyle ayarlayabilir (README'ye bak).",
@@ -232,6 +234,8 @@
     "close": "Kapat",
     "updated": "Hafıza güncellendi",
     "intro": "Yapay zekânın bu çalışma alanında senin hakkında tuttuğu notlar; buradaki her sorunla birlikte gönderilir. Kendinden bahsettiğinde ya da bir şeyi hatırlamasını istediğinde not ekler. Notları yalnızca sen görürsün.",
+    "use": "Hafızayı kullan",
+    "useHint": "Kapalıyken buradaki soruların bu notlar olmadan gider ve yapay zekâ yeni not tutmaz. Notlar silinmez.",
     "empty": "Henüz not yok. Yapay zekâya kendinden bahset ya da buraya bir not ekle.",
     "offline": "Hafıza için sunucuya bağlantı gerekir.",
     "addLabel": "Yeni not",
@@ -250,7 +254,8 @@
       "empty": "Neyin hatırlanacağını yaz.",
       "tooLong": "Bir not en fazla {max} karakter olabilir.",
       "full": "Hafıza en fazla {max} not tutar. Önce birini sil.",
-      "notFound": "Bu not artık yok."
+      "notFound": "Bu not artık yok.",
+      "off": "Bu çalışma alanında yapay zekâ hafızası kapalı."
     }
   }
 }

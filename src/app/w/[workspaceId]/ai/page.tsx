@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { ChatPage } from "@/components/ai-chat/chat-page";
 import { isEnabled as aiConfigured } from "@/server/ai";
+import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
 import { requireWorkspaceSession } from "@/server/session";
 
@@ -17,10 +18,10 @@ export default async function AiChatRoute({ params }: { params: Promise<{ worksp
   const { workspaceId } = await params;
   await requireWorkspaceSession(workspaceId);
   if (!aiConfigured()) notFound();
-  const available = await aiAvailable(workspaceId);
+  const [available, memory] = await Promise.all([aiAvailable(workspaceId), memoryAvailable(workspaceId)]);
   return (
     <Suspense>
-      <ChatPage workspaceId={workspaceId} available={available} />
+      <ChatPage workspaceId={workspaceId} available={available} memory={available && memory} />
     </Suspense>
   );
 }

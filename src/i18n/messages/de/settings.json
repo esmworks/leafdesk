@@ -1015,6 +1015,7 @@
       "teamspaceCreation": "Wer Teamspaces erstellen darf",
       "loginMethod": "Wie sich Mitglieder anmelden",
       "ai": "KI-Funktionen",
+      "aiMemory": "KI-Gedächtnis",
       "trashRetentionDays": "Seiten im Papierkorb löschen nach",
       "export": "Export erlauben",
       "connectedApps": "Verbundene Apps und API-Token",
