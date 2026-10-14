@@ -16,7 +16,6 @@
   },
   "about": {
     "description": "Bu sunucuda çalışan Leafdesk, onu kimin yaptığı ve daha fazlasını nerede bulacağınız.",
-    "version": "Sürüm {version}",
     "versionLabel": "Sürüm",
     "releaseNotes": "Sürüm notları",
     "author": "Yapımcı",

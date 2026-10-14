@@ -24,10 +24,7 @@ export async function AboutLeafdesk() {
     <>
       <SettingsHeader title={ta("nav.about")} description={t("description")} />
       <div className="space-y-10">
-        <div className="flex items-center gap-4">
-          <Logo className="h-9 w-auto" />
-          <span className="text-sm text-fg-muted">{t("version", { version: APP_INFO.version })}</span>
-        </div>
+        <Logo className="h-9 w-auto" />
         <SettingsGroup>
           <SettingsRow
             title={t("versionLabel")}

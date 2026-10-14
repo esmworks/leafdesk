@@ -16,7 +16,6 @@
   },
   "about": {
     "description": "Le Leafdesk qui tourne sur ce serveur, qui le fait et où en savoir plus.",
-    "version": "Version {version}",
     "versionLabel": "Version",
     "releaseNotes": "Notes de version",
     "author": "Réalisé par",
