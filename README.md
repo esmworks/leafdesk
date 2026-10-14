@@ -1387,7 +1387,7 @@ list until it is restored.
   chat may change: the mode under the box still decides. The question keeps the skill it used
   (shown above it), *Answer again* and *Edit* use it again, and later questions go without it.
   A skill longer than 20,000 characters can't be used in the chat.
-- **MCP**: `list_skills`, `get_skill` (by name, page id or link) and `set_skill` (mark, unmark,
+- **MCP**: `list_skills`, `get_skill` (by name, title, page id or link) and `set_skill` (mark, unmark,
   describe), and every skill the user can open is a prompt of its name, which hands its instructions
   (and an optional `input`) to the client. Names come from titles and are unique across the user's
   workspaces (`review-checklist`, `review-checklist-2`). The server's instructions tell the model

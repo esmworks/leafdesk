@@ -34,6 +34,7 @@ import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
 import * as skills from "@/server/skills";
+import { skillSlug } from "@/lib/skills";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { valueText } from "@/lib/row-activity";
 import * as teamspaces from "@/server/teamspaces";
@@ -304,7 +305,7 @@ export const inputs = {
     workspace_id: z.string().optional().describe("Only this workspace's skills. Leave out for every workspace."),
   }),
   getSkill: z.object({
-    skill: z.string().min(1).describe("The skill's name (from list_skills), or its page id or link."),
+    skill: z.string().min(1).describe("The skill's name (from list_skills) or title, or its page id or link."),
     offset: z.number().int().min(0).default(0).describe("Character offset into the instructions, for long skills."),
   }),
   setSkill: z.object({
@@ -1143,7 +1144,8 @@ export async function getSkill(ctx: OperationContext, { skill, offset }: Args<"g
   const wanted = skill.trim();
   const pageId = idFromLink("page_id", wanted);
   const named = await skills.namedSkills(ctx.userId);
-  const found = named.find((s) => s.name === wanted.toLowerCase()) ?? named.find((s) => s.id === pageId);
+  // Its name, or its title as the name is made from it, or its page.
+  const found = named.find((s) => s.name === wanted.toLowerCase()) ?? named.find((s) => s.name === skillSlug(wanted)) ?? named.find((s) => s.id === pageId);
   if (!found) {
     throw new ToolInputError(
       named.length ? `No skill named "${wanted}". Call list_skills to see the user's skills.` : "The user has no skills yet.",

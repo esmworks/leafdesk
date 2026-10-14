@@ -209,6 +209,7 @@ try {
   );
   const byName = await ops.getSkill(ctx(alice), { skill: "Review-Checklist-2", offset: 0 });
   check(byName.page_id === sideReview.id && byName.instructions.includes("side project"), "get_skill finds a skill by its name, whatever the case", byName);
+  check((await ops.getSkill(ctx(alice), { skill: "Triage a bug", offset: 0 })).page_id === triage.id, "…or by its title");
   const byLink = await ops.getSkill(ctx(alice), { skill: `http://localhost/w/00000000-0000-4000-8000-000000000000/p/${review.id}`, offset: 0 }, { maxChars: 10 });
   check(
     byLink.page_id === review.id && byLink.instructions.length === 10 && byLink.instructions_truncated === true && byLink.note?.includes("offset=10"),
