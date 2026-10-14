@@ -171,6 +171,10 @@
           "createPage": "Impossible d'ajouter la page :"
         },
         "in": "dans"
+      },
+      "memory": {
+        "remember": "Retenu :",
+        "forget": "Oublié :"
       }
     },
     "stopped": "Arrêté.",
@@ -213,6 +217,33 @@
       "edit": "Modifier",
       "cancel": "Annuler",
       "retry": "Répondre à nouveau"
+    }
+  },
+  "memory": {
+    "open": "Mémoire",
+    "title": "Mémoire",
+    "close": "Fermer",
+    "updated": "Mémoire mise à jour",
+    "intro": "Des notes que l'IA garde sur vous dans cet espace de travail et envoie avec chacune de vos questions ici. Elle en ajoute une quand vous parlez de vous ou lui demandez de retenir quelque chose. Vous seul les voyez.",
+    "empty": "Rien pour l'instant. Parlez de vous à l'IA ou ajoutez une note ici.",
+    "offline": "La mémoire a besoin d'une connexion au serveur.",
+    "addLabel": "Nouvelle note",
+    "addPlaceholder": "ex. Je suis dans l'équipe marketing ; présentez les résultats en tableaux",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "editLabel": "Note",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "count": "{count} notes sur {max}",
+    "full": "La mémoire est pleine ({max} notes)",
+    "forgetAll": "Tout oublier",
+    "confirmForgetAll": "Oublier tout ce que l'IA retient de vous dans cet espace de travail ?",
+    "errors": {
+      "empty": "Écrivez ce qu'il faut retenir.",
+      "tooLong": "Une note peut contenir au plus {max} caractères.",
+      "full": "La mémoire contient au plus {max} notes. Supprimez-en une d'abord.",
+      "notFound": "Cette note n'existe plus."
     }
   }
 }

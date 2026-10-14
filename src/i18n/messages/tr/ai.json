@@ -171,6 +171,10 @@
           "createPage": "Sayfa eklenemedi:"
         },
         "in": "yer:"
+      },
+      "memory": {
+        "remember": "Hatırladı:",
+        "forget": "Unuttu:"
       }
     },
     "stopped": "Durduruldu.",
@@ -213,6 +217,33 @@
       "edit": "Düzenle",
       "cancel": "Vazgeç",
       "retry": "Yeniden yanıtla"
+    }
+  },
+  "memory": {
+    "open": "Hafıza",
+    "title": "Hafıza",
+    "close": "Kapat",
+    "updated": "Hafıza güncellendi",
+    "intro": "Yapay zekânın bu çalışma alanında senin hakkında tuttuğu notlar; buradaki her sorunla birlikte gönderilir. Kendinden bahsettiğinde ya da bir şeyi hatırlamasını istediğinde not ekler. Notları yalnızca sen görürsün.",
+    "empty": "Henüz not yok. Yapay zekâya kendinden bahset ya da buraya bir not ekle.",
+    "offline": "Hafıza için sunucuya bağlantı gerekir.",
+    "addLabel": "Yeni not",
+    "addPlaceholder": "ör. Pazarlama ekibindeyim; sonuçları tablo olarak göster",
+    "add": "Ekle",
+    "edit": "Düzenle",
+    "editLabel": "Not",
+    "save": "Kaydet",
+    "cancel": "Vazgeç",
+    "delete": "Sil",
+    "count": "{count}/{max} not",
+    "full": "Hafıza dolu ({max} not)",
+    "forgetAll": "Her şeyi unut",
+    "confirmForgetAll": "Yapay zekâ bu çalışma alanında senin hakkında hatırladığı her şeyi unutsun mu?",
+    "errors": {
+      "empty": "Neyin hatırlanacağını yaz.",
+      "tooLong": "Bir not en fazla {max} karakter olabilir.",
+      "full": "Hafıza en fazla {max} not tutar. Önce birini sil.",
+      "notFound": "Bu not artık yok."
     }
   }
 }

@@ -171,6 +171,10 @@
           "createPage": "Seite konnte nicht hinzugefügt werden:"
         },
         "in": "in"
+      },
+      "memory": {
+        "remember": "Gemerkt:",
+        "forget": "Vergessen:"
       }
     },
     "stopped": "Gestoppt.",
@@ -213,6 +217,33 @@
       "edit": "Bearbeiten",
       "cancel": "Abbrechen",
       "retry": "Neu beantworten"
+    }
+  },
+  "memory": {
+    "open": "Gedächtnis",
+    "title": "Gedächtnis",
+    "close": "Schließen",
+    "updated": "Gedächtnis aktualisiert",
+    "intro": "Notizen, die die KI in diesem Workspace über dich führt und mit jeder deiner Fragen hier mitschickt. Sie legt eine an, wenn du von dir erzählst oder sie bittest, sich etwas zu merken. Nur du siehst sie.",
+    "empty": "Noch nichts. Erzähl der KI von dir oder füge hier eine Notiz hinzu.",
+    "offline": "Das Gedächtnis braucht eine Verbindung zum Server.",
+    "addLabel": "Neue Notiz",
+    "addPlaceholder": "z. B. Ich bin im Marketingteam; zeig Ergebnisse als Tabellen",
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "editLabel": "Notiz",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "count": "{count} von {max} Notizen",
+    "full": "Das Gedächtnis ist voll ({max} Notizen)",
+    "forgetAll": "Alles vergessen",
+    "confirmForgetAll": "Alles vergessen, was sich die KI in diesem Workspace über dich gemerkt hat?",
+    "errors": {
+      "empty": "Schreib, was sich die KI merken soll.",
+      "tooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
+      "full": "Das Gedächtnis fasst höchstens {max} Notizen. Lösche zuerst eine.",
+      "notFound": "Diese Notiz gibt es nicht mehr."
     }
   }
 }

@@ -13,7 +13,9 @@
  * 4. unless the chat's mode is `read`, may make it change things as the person (`create_row`,
  *    `update_row`, `create_page`, with their edit access checked): in mode `ask` the answer waits
  *    for the person to approve each change (ai-chat-approvals.ts), in `auto` it doesn't;
- * 5. streams the answer; citations ([n]) link to the pages (and the block a passage starts at).
+ * 5. in every mode, may make it keep or drop notes about the person (`remember`, `forget`): what
+ *    it remembers goes with their later questions in the workspace (ai-memory.ts);
+ * 6. streams the answer; citations ([n]) link to the pages (and the block a passage starts at).
  *
  * Conversations are kept per person (ai_conversation) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
@@ -49,6 +51,7 @@ import { aiConfig, AiError, isAiError, stream, takeRateLimit, takeWorkspaceCapac
 import { chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
+import { memoryForPrompt, MEMORY_TOOL_NAMES, MEMORY_TOOLS, runMemoryTool } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import * as ops from "@/server/operations";
 import {
@@ -69,8 +72,9 @@ import {
 export const MAX_ROUNDS = 6;
 /** The most of what the model says before a search or read that is kept as a step. */
 const THOUGHT_CHARS = 300;
-/** Share of the prompt that earlier questions and answers may take. */
+/** Share of the prompt that earlier questions and answers may take, and what the chat remembers. */
 const HISTORY_SHARE = 0.25;
+const MEMORY_SHARE = 0.2;
 /** How often a stream waiting on the person's decision sends a ping. */
 const PING_MS = 20_000;
 /** The longest skill a question can use: its instructions go with the question whole. */
@@ -187,7 +191,8 @@ async function* runChat(
   const limits = aiConfig().limits;
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
-  const tools = mode === "read" ? CHAT_TOOLS : [...CHAT_TOOLS, ...WRITE_TOOLS];
+  // Keeping notes about the person changes nothing in the workspace: it's offered in every mode.
+  const tools = mode === "read" ? [...CHAT_TOOLS, ...MEMORY_TOOLS] : [...CHAT_TOOLS, ...WRITE_TOOLS, ...MEMORY_TOOLS];
   const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = () => limits.maxInputChars - system.length - toolsSize - 200;
@@ -217,9 +222,10 @@ async function* runChat(
     // Nothing is searched for the model: it gets the map of what there is and decides itself.
     const earlier = existing?.messages.slice(0, existing.messages.length - replaced) ?? [];
     const history: AiMessage[] = chatHistory(earlier, Math.floor(room() * HISTORY_SHARE));
-    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - 2_000);
+    const memory = await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE));
+    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - 2_000);
     const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
-    const messages: AiMessage[] = [...history, { role: "user", content: chatQuestionPrompt(message, map, skill?.body) }];
+    const messages: AiMessage[] = [...history, { role: "user", content: chatQuestionPrompt(message, map, skill?.body, memory.text) }];
 
     // ------------------------------------------------------------------------------ model turns
     for (let round = 0; round < MAX_ROUNDS; round++) {
@@ -264,7 +270,8 @@ async function* runChat(
       for (const call of result.toolCalls) {
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
-        if (!WRITE_TOOL_NAMES.has(call.name)) out = await runTool(ctx, workspaceId, scope?.id, call, registry, left);
+        if (MEMORY_TOOL_NAMES.has(call.name)) out = await runMemoryTool(userId, workspaceId, conversation.id, call);
+        else if (!WRITE_TOOL_NAMES.has(call.name)) out = await runTool(ctx, workspaceId, scope?.id, call, registry, left);
         else if (mode === "read") out = { content: "Changes are off in this chat: say what you would change instead.", isError: true };
         else {
           const prepared = await prepareWrite(ctx, workspaceId, scope?.id ?? null, call);

@@ -2,10 +2,12 @@
 
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
+import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { deleteConversations, getConversation, listConversations } from "@/server/ai-chat";
+import { addMemory, deleteMemories, listMemories, MemoryError, updateMemory } from "@/server/ai-memory";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
@@ -24,6 +26,9 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     if (isAiError(error)) {
       const seconds = error.retryAfterMs ? Math.ceil(error.retryAfterMs / 1000) : 0;
       return { ok: false, error: t(`ai.errors.${error.code}`, { seconds }), code: error.code };
+    }
+    if (error instanceof MemoryError) {
+      return { ok: false, error: t(`ai.memory.errors.${error.code}`, { max: error.code === "full" ? MAX_MEMORIES : MAX_MEMORY_CHARS }), code: error.code };
     }
     if (error instanceof AutofillError) {
       return { ok: false, error: t(`ai.autofill.errors.${error.code}`, error.params), code: error.code };
@@ -82,6 +87,26 @@ export async function getConversationAction(workspaceId: string, conversationId:
 /** Deletes one of the person's conversations, or all of them in the workspace. */
 export async function deleteConversationAction(workspaceId: string, conversationId: string | "all") {
   return run((userId) => deleteConversations(userId, String(workspaceId), conversationId === "all" ? "all" : [String(conversationId)]));
+}
+
+/** What the AI chat remembers about the person in a workspace, oldest first. */
+export async function listMemoriesAction(workspaceId: string) {
+  return run((userId) => listMemories(userId, String(workspaceId)));
+}
+
+/** Adds a note to the person's memory in a workspace. */
+export async function addMemoryAction(workspaceId: string, text: string) {
+  return run((userId) => addMemory(userId, String(workspaceId), String(text)));
+}
+
+/** Changes one of the person's notes. */
+export async function updateMemoryAction(workspaceId: string, memoryId: string, text: string) {
+  return run((userId) => updateMemory(userId, String(workspaceId), String(memoryId), String(text)));
+}
+
+/** Deletes one of the person's notes, or all of them in the workspace. */
+export async function deleteMemoryAction(workspaceId: string, memoryId: string | "all") {
+  return run((userId) => deleteMemories(userId, String(workspaceId), memoryId === "all" ? "all" : [String(memoryId)]));
 }
 
 /**

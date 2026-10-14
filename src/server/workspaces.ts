@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
   aiConversation,
+  aiMemory,
   apiToken,
   calendarFeed,
   databaseView,
@@ -954,8 +955,10 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     await dropFromTeamspaces(tx, workspaceId, targetId, heir);
     if (heir) await handOverOrphanedPages(tx, workspaceId, heir);
     await forgetWorkspaceGrants(tx, workspaceId, targetId);
-    // Their AI chat conversations quote the workspace's pages: they go with them.
+    // Their AI chat conversations quote the workspace's pages, and what it remembers about them is
+    // the workspace's context: they go with them.
     await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, targetId)));
+    await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, targetId)));
     // An allowed email domain doesn't bring them back on their next sign-in; someone an owner
     // removed can't come back through it on their own either, only ask (see domainAccess).
     await rememberDeparture(tx, workspaceId, targetId, actorId === targetId ? "accepted" : "declined", actorId);
@@ -1320,8 +1323,10 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     if (!current) return false;
     if (current.role === "owner") throw new WorkspaceError("lastOwnerRemove", "Owners are managed in the app");
     await tx.delete(workspaceMember).where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
-    // Their AI chat conversations quote the workspace's pages: they go with the membership.
+    // Their AI chat conversations quote the workspace's pages, and what it remembers about them is
+    // the workspace's context: they go with the membership.
     await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, userId)));
+    await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, userId)));
     const heir = await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, userId, heir);
     if (heir) await handOverOrphanedPages(tx, workspaceId, heir);

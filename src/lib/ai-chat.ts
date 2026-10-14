@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatChange, ChatWriteAction } from "@/db/schema/ai";
+import type { ChatChange, ChatMemoryRecord, ChatWriteAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { AiErrorCode } from "./ai";
 
@@ -12,10 +12,17 @@ export const MAX_CHAT_TURNS = 40;
 /** Conversations kept per person and workspace; the oldest go first. */
 export const MAX_CONVERSATIONS = 50;
 
+/** Notes the chat may keep about a person in a workspace (its memory), and the longest one. */
+export const MAX_MEMORIES = 30;
+export const MAX_MEMORY_CHARS = 300;
+
+/** A note of the chat's memory, as the Memory view lists it. */
+export type MemoryView = { id: string; text: string; createdAt: string; updatedAt: string };
+
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatChange, ChatWriteAction };
+export type { ChatChange, ChatMemoryRecord, ChatWriteAction };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`
@@ -47,14 +54,15 @@ export type ChatPageView = { pageId: string; workspaceId: string; title: string;
 /**
  * A step the chat took on the way to an answer (shown above it): a search (`query` null for the
  * search with the question itself) and how many pages it found, a page it read, a database it
- * queried (its filters and how many rows matched), a change (see ChatWriteView), or what the model
- * said before searching or reading.
+ * queried (its filters and how many rows matched), a change (see ChatWriteView), a note it kept
+ * about the person or dropped (ChatMemoryRecord), or what the model said before searching or reading.
  */
 export type ChatStepView =
   | { kind: "search"; query: string | null; results: number }
   | { kind: "read"; page: ChatPageView }
   | { kind: "query"; database: ChatPageView; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteView
+  | ChatMemoryRecord
   | { kind: "thought"; text: string };
 
 /**

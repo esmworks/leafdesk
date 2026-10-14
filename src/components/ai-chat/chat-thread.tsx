@@ -9,6 +9,7 @@
  * box's place until the person decides.
  */
 import {
+  Brain,
   Check,
   ChevronDown,
   ChevronRight,
@@ -28,6 +29,7 @@ import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode }
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { CHAT_MODES, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { MemoryDialog } from "./memory-dialog";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
 import type { ChangeDecision, Chat, ChatMessage, ChatSkillPick, ChatStatus, PendingChange } from "./use-chat";
@@ -51,6 +53,7 @@ export function ChatThread({
   variant: "panel" | "page";
 }) {
   const t = useTranslations("ai.chat");
+  const [memoryOpen, setMemoryOpen] = useState(false);
   const tSkills = useTranslations("skills.chat");
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
@@ -119,6 +122,7 @@ export function ChatThread({
                         askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content, skill: messages[i - 1].skill }) : undefined
                       }
                       onSource={onSource}
+                      onMemory={() => setMemoryOpen(true)}
                       labels={{ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }}
                     />
                   )}
@@ -226,6 +230,7 @@ export function ChatThread({
           <p className={cn("mt-1.5 text-xs text-fg-faint", page && "text-center")}>{t("note")}</p>
         </div>
       </div>
+      <MemoryDialog workspaceId={chat.workspaceId} open={memoryOpen} onClose={() => setMemoryOpen(false)} />
     </>
   );
 }
@@ -239,6 +244,7 @@ function Answer({
   last,
   onRetry,
   onSource,
+  onMemory,
   labels,
 }: {
   message: ChatMessage;
@@ -250,9 +256,12 @@ function Answer({
   /** Answers its question again, when it may be. */
   onRetry?: () => void;
   onSource: (source: ChatSourceView) => void;
+  /** Opens the Memory dialog (from the line saying the answer kept or dropped a note). */
+  onMemory: () => void;
   labels: Labels;
 }) {
   const t = useTranslations("ai.chat.actions");
+  const tMemory = useTranslations("ai.memory");
   const byNumber = new Map((message.sources ?? []).map((s) => [s.n, s]));
   const done = status === null && !waiting && (message.content.trim() !== "" || message.ms !== undefined);
   return (
@@ -271,6 +280,13 @@ function Answer({
       )}
       {message.content && <AnswerText text={message.content} sources={byNumber} onSource={onSource} />}
       {message.note && <p className="mt-1 text-xs text-fg-muted">{message.note === "stopped" ? labels.stopped : labels.cutOff}</p>}
+      {/* Notes kept or dropped show even with the steps folded: the person should know. */}
+      {done && message.steps?.some((s) => s.kind === "memory") && (
+        <button type="button" onClick={onMemory} className="-ml-1 mt-1.5 flex items-center gap-1.5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
+          <Brain className="h-3.5 w-3.5 shrink-0" />
+          {tMemory("updated")}
+        </button>
+      )}
       {done && (
         <div className={cn("mt-1.5 -ml-1 flex items-center gap-0.5", !last && revealed)}>
           {message.content.trim() && <CopyAction text={stripCitations(message.content).trim()} />}

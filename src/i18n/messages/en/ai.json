@@ -171,6 +171,10 @@
           "createPage": "Couldn't add the page:"
         },
         "in": "in"
+      },
+      "memory": {
+        "remember": "Remembered:",
+        "forget": "Forgot:"
       }
     },
     "stopped": "Stopped.",
@@ -213,6 +217,33 @@
       "edit": "Edit",
       "cancel": "Cancel",
       "retry": "Answer again"
+    }
+  },
+  "memory": {
+    "open": "Memory",
+    "title": "Memory",
+    "close": "Close",
+    "updated": "Memory updated",
+    "intro": "Notes the AI keeps about you in this workspace, sent with each of your questions here. It adds one when you tell it about yourself or ask it to remember something. Only you see them.",
+    "empty": "Nothing yet. Tell the AI about yourself, or add a note here.",
+    "offline": "Memory needs a connection to the server.",
+    "addLabel": "New note",
+    "addPlaceholder": "e.g. I'm on the marketing team; show results as tables",
+    "add": "Add",
+    "edit": "Edit",
+    "editLabel": "Note",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "count": "{count} of {max} notes",
+    "full": "Memory is full ({max} notes)",
+    "forgetAll": "Forget everything",
+    "confirmForgetAll": "Forget everything the AI remembers about you in this workspace?",
+    "errors": {
+      "empty": "Write what to remember.",
+      "tooLong": "A note may have at most {max} characters.",
+      "full": "Memory holds at most {max} notes. Delete one first.",
+      "notFound": "That note isn't there anymore."
     }
   }
 }

@@ -442,6 +442,13 @@
       "when": 1791999784972,
       "tag": "0062_connected_app_use",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1792012585507,
+      "tag": "0063_ai_memory",
+      "breakpoints": true
     }
   ]
 }

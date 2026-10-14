@@ -90,15 +90,23 @@ export type ChatSourceRef = { n: number; pageId: string; blockId: string | null 
 /**
  * A step the AI chat took on the way to an answer: a search (`query` null for the one with the
  * question itself) and how many pages it found, a page it read, a database it queried (with the
- * filters and how many rows matched), a change it made or was refused (see ChatWriteRecord), or
- * what the model said before searching or reading.
+ * filters and how many rows matched), a change it made or was refused (see ChatWriteRecord), a
+ * note it kept or dropped about the person (ChatMemoryRecord), or what the model said before
+ * searching or reading.
  */
 export type ChatStepRecord =
   | { kind: "search"; query: string | null; results: number }
   | { kind: "read"; pageId: string }
   | { kind: "query"; databaseId: string; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteRecord
+  | ChatMemoryRecord
   | { kind: "thought"; text: string };
+
+/**
+ * A note the chat kept about the person (`remember`, also in place of an older note) or dropped
+ * (`forget`), with its text then; see server/ai-memory.ts.
+ */
+export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "forget"; text: string };
 
 /** A change the AI chat may make: add a database row, change one, or add a page. */
 export type ChatWriteAction = "createRow" | "updateRow" | "createPage";
@@ -164,4 +172,31 @@ export const aiConversation = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("ai_conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt)],
+);
+
+/**
+ * What the AI chat remembers about a person in a workspace (see server/ai-memory.ts): short notes
+ * on who they are, what they work on and how they want answers, kept by the chat when they tell it
+ * or written by them in the chat's Memory view. Private to that person like their conversations,
+ * and deleted with their account, when they leave the workspace and with the workspace.
+ * `conversationId` is where the chat noted it (null: the person wrote it, or the conversation is gone).
+ */
+export const aiMemory = pgTable(
+  "ai_memory",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ai_memory_user_idx").on(t.userId, t.workspaceId, t.createdAt)],
 );

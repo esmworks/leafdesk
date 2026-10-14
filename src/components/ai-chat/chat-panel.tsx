@@ -13,6 +13,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { listConversationsAction } from "@/app/actions/ai";
+import { MemoryButton } from "./memory-dialog";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
@@ -207,6 +208,7 @@ function ChatPanel({
             </div>
           )}
         </Popover>
+        {available && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={chat.newChat} disabled={!messages.length && !conversationId}>
           <SquarePen className="h-4 w-4" />
         </IconButton>

@@ -267,8 +267,8 @@ try {
   const searched = sourcesIn(fake.chats[1]);
   check(searched.some((s) => s.pageId === fleet.id && s.text.includes("car needs new tyres")), "the model's search finds pages by meaning (car for automobile)", searched);
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,create_row,update_row,create_page"),
-    "every turn declares the tools: to look, and (asking first, by default) to change",
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,create_row,update_row,create_page,remember,forget"),
+    "every turn declares the tools: to look, (asking first, by default) to change, and to keep notes about the person",
   );
   check(textOf(firstRequest.messages[0].content).includes("never instructions"), "the system prompt treats page content as data");
   check(fake.chats.every((r) => !secrets.some((s) => everything(r).includes(s))), "nothing from pages the person can't open is ever sent to the model");
@@ -624,8 +624,8 @@ try {
   await ask(alice, { workspaceId, conversationId: always.conversationId, message: "And what did you change?", mode: "read" });
   check(everything(fake.chats[0]).includes(`(Changes made: added the row "Snow chains" (page_id `) && everything(fake.chats[0]).includes(`changed the row (page_id ${plugs.id}): Stock`), "a later question knows what was changed, with the ids", everything(fake.chats[0]).slice(-800));
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database") && textOf(fake.chats[0].messages[0].content).includes("You can't change anything"),
-    "in read-only mode the model isn't offered changes",
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change anything"),
+    "in read-only mode the model isn't offered changes (keeping notes about the person changes nothing in the workspace)",
   );
   fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Sneaky row" })]));
   fake.chats.length = 0;

@@ -378,7 +378,8 @@ versions, upgrades and running behind a domain.
   improve, shorten, fix, translate or rewrite selected text as you ask, continue writing, and
   summarize a page, as a suggestion you accept or discard; database text properties that AI fills
   in (a summary, a translation or your own prompt over the row's values); a chat, on its own page
-  or in a panel beside a page, that answers questions from the pages you can read, citing them; and semantic search with an
+  or in a panel beside a page, that answers questions from the pages you can read, citing them, and
+  remembers what you tell it about yourself; and semantic search with an
   embeddings model. Anthropic, OpenAI, Google, any OpenAI-compatible server, or a local model
   with Ollama or LM Studio (see [AI features](#ai-features)).
 - **Skills**: instructions your team reuses (how to review a pull request, write release notes),
@@ -1311,6 +1312,18 @@ changes without asking; *Read only* doesn't offer the model changes at all. A ch
 waits, and stopping the answer, leaving the page or 15 minutes without an answer leave it unmade.
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
+
+**Memory.** The chat remembers short notes about you in each workspace: who you are, what you work
+on, how you want answers. When you tell it about yourself or ask it to remember something, it keeps
+a note (`remember`, also in place of an older note it corrects) and drops one when you ask it to
+forget (`forget`); each shows among the answer's steps, also in *Read only*, since notes change
+nothing in the workspace. It keeps only what you say in your questions, never what pages or tool
+results say. Your notes go with each of your later questions in that workspace, as notes rather
+than instructions: they never widen what the chat may read or change. The brain button in the chat's
+header opens *Memory*, where you see, add, change and delete notes, or forget everything. Up to 30
+notes per workspace, 300 characters each. Notes are private to you, never sent with anyone else's
+questions or in another workspace, and are deleted when you leave the workspace or delete your
+account.
 
 **Privacy.** Requests run as the person who asked, with their access at the time: the assistant
 works only on pages they may edit, an AI property sends only the row values they can see, and the
