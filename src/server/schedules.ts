@@ -1,4 +1,4 @@
-import { and, asc, count, eq, lte } from "drizzle-orm";
+import { and, asc, count, eq, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, schedule } from "@/db/schema";
 import {
@@ -24,7 +24,8 @@ import { startSweep } from "@/server/sweep";
  * with FOR UPDATE SKIP LOCKED and moves their next run on before doing anything, so a run happens
  * at most once even with several replicas or a crash; a server that was down catches up with one
  * run, then keeps to the rule. What a run does depends on the schedule's kind (see
- * registerScheduleHandler); "row_template" adds a row from a database's row template.
+ * registerScheduleHandler); "row_template" adds a row from a database's row template, "agent" starts
+ * a run of an agent (server/agents/schedules.ts, which registers its handler).
  *
  * A schedule runs as the person who set it last, with their access at the time. A run they could
  * no longer do pauses it (`enabled` off, with the reason in `lastError`) until someone sets it again.
@@ -34,6 +35,16 @@ const SWEEP_INTERVAL_MS = 30_000;
 const BATCH = 20;
 /** Schedules a workspace may have, of every kind. */
 export const MAX_SCHEDULES_PER_WORKSPACE = 200;
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Holds the workspace's schedules until the transaction ends, so that schedules added at once (of
+ * any kind) are counted against MAX_SCHEDULES_PER_WORKSPACE one after another.
+ */
+export async function lockWorkspaceSchedules(tx: Tx, workspaceId: string) {
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`schedule:${workspaceId}`}))`);
+}
 
 export type ScheduleRow = typeof schedule.$inferSelect;
 
@@ -75,7 +86,7 @@ async function claimDue(now: Date) {
     for (const row of due) {
       const rule = parseRepeatRule(row.rule);
       if (!rule || !isTimeZone(row.timeZone)) {
-        // Only written through setTemplateRepeat, which checks both; a runtime that lost a zone pauses it.
+        // Only written through setTemplateRepeat and setAgentSchedule, which check both; a runtime that lost a zone pauses it.
         await tx.update(schedule).set({ enabled: false, nextRunAt: null, lastError: "failed" }).where(eq(schedule.id, row.id));
         continue;
       }
@@ -105,7 +116,8 @@ async function runOne(row: ScheduleRow, at: Date, now: Date) {
     .update(schedule)
     .set(pause ? { enabled: false, nextRunAt: null, lastError: error } : { lastRunAt: done ? now : undefined, lastError: error })
     .where(eq(schedule.id, row.id));
-  if (row.databaseId) getCollab().broadcast(`db:${row.databaseId}`, "rows");
+  // The template's menu shows how it repeats; an agent's run changes rows (and says so) on its own.
+  if (row.kind === "row_template" && row.databaseId) getCollab().broadcast(`db:${row.databaseId}`, "rows");
 }
 
 /** Runs every schedule due at `now`. Returns how many ran (or tried to). */
@@ -208,12 +220,15 @@ export async function setTemplateRepeat(userId: string, templateId: string, inpu
   if (existing) {
     await db.update(schedule).set(values).where(eq(schedule.id, existing.id));
   } else {
-    const [{ n }] = await db.select({ n: count() }).from(schedule).where(eq(schedule.workspaceId, template.workspaceId));
-    if (n >= MAX_SCHEDULES_PER_WORKSPACE) throw withCode(new Error("Too many schedules in this workspace"), "tooManySchedules");
-    await db
-      .insert(schedule)
-      .values({ ...values, workspaceId: template.workspaceId, kind: "row_template", templateId, databaseId: template.databaseId, createdBy: userId })
-      .onConflictDoUpdate({ target: schedule.templateId, set: values });
+    await db.transaction(async (tx) => {
+      await lockWorkspaceSchedules(tx, template.workspaceId);
+      const [{ n }] = await tx.select({ n: count() }).from(schedule).where(eq(schedule.workspaceId, template.workspaceId));
+      if (n >= MAX_SCHEDULES_PER_WORKSPACE) throw withCode(new Error("Too many schedules in this workspace"), "tooManySchedules");
+      await tx
+        .insert(schedule)
+        .values({ ...values, workspaceId: template.workspaceId, kind: "row_template", templateId, databaseId: template.databaseId, createdBy: userId })
+        .onConflictDoUpdate({ target: schedule.templateId, set: values });
+    });
   }
   getCollab().broadcast(`db:${template.databaseId}`, "rows");
   return (await getTemplateRepeat(userId, templateId))!;

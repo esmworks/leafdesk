@@ -301,7 +301,8 @@
       "skills": "Skills",
       "memory": "Gedächtnis",
       "runs": "Durchläufe",
-      "connections": "Verbindungen"
+      "connections": "Verbindungen",
+      "schedules": "Zeitpläne"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",
@@ -399,6 +400,7 @@
       "fromHiddenRow": "Aus einem Lauf auf einer Zeile, die Sie nicht öffnen können",
       "fromConnection": "Aus einem Lauf, den {connection} gestartet hat",
       "fromRequest": "Aus einem Lauf, den ein Inhaber angefordert hat",
+      "fromSchedule": "Aus einem geplanten Lauf",
       "removedConnection": "eine entfernte Verbindung",
       "keep": "Behalten",
       "keepEdited": "Mit diesem Text behalten",
@@ -432,6 +434,10 @@
       "rowHidden": "Eine Zeile, die du nicht öffnen kannst",
       "took": "dauerte {time}",
       "requestedBy": "angefordert von {name} ({via, select, api {API} other {KI-Assistent}})",
+      "scheduledBy": "eingeplant von {name}",
+      "fromSchedule": "Nach Zeitplan",
+      "fromScheduleOn": "Nach Zeitplan · {database}",
+      "fromScheduleHidden": "Nach Zeitplan · eine Datenbank, die du nicht öffnen kannst",
       "task": "Aufgabe:",
       "showDetails": "Zeigen, was er getan hat",
       "hideDetails": "Ausblenden, was er getan hat",
@@ -445,6 +451,7 @@
         "agentDisabled": "Der Agent war pausiert oder archiviert.",
         "noAccess": "Der Agent oder die Person, deren Änderung den Lauf gestartet hat, kann die Zeile oder ihre Datenbank nicht öffnen.",
         "rowGone": "Die Zeile wurde gelöscht.",
+        "databaseGone": "Die Datenbank, um die er sich kümmert, wurde gelöscht oder in den Papierkorb verschoben.",
         "provider": "Der KI-Anbieter hat nicht geantwortet.",
         "timeout": "Der Durchlauf hat zu lange gedauert.",
         "tooManyAttempts": "Er konnte nicht rechtzeitig starten: Das KI-Kontingent des Workspaces blieb aufgebraucht.",
@@ -555,7 +562,10 @@
         "option": "Wähle zwei verschiedene Optionen der Eigenschaft.",
         "rules": "Schreib die Regeln, denen er folgt.",
         "pages": "Wähle die Seiten, die er liest.",
-        "limit": "Gib als Token-Limit eine ganze Zahl von 1 bis 1.000.000.000 ein."
+        "limit": "Gib als Token-Limit eine ganze Zahl von 1 bis 1.000.000.000 ein.",
+        "task": "Schreib die Aufgabe, die er bei jedem Lauf erledigt.",
+        "taskLength": "Eine Aufgabe hat höchstens 2.000 Zeichen.",
+        "repeat": "Prüfe, wann er sich wiederholt, und die Zeitzone."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -565,7 +575,10 @@
       "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
       "limitReached": "Der Agent hat sein monatliches Token-Limit ({limit} Tokens) aufgebraucht.",
       "tooManyRuns": "{max} angeforderte Durchläufe dieses Agenten warten noch. Versuch es wieder, wenn einer fertig ist.",
-      "notARow": "Zeile nicht gefunden."
+      "notARow": "Zeile nicht gefunden.",
+      "notADatabase": "Wähle eine Datenbank dieses Workspaces, die du öffnen kannst.",
+      "tooManySchedules": "Für einen weiteren Zeitplan ist kein Platz (höchstens {max}).",
+      "scheduleNotFound": "Diesen Zeitplan gibt es nicht mehr."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
@@ -573,6 +586,47 @@
       "allowedCount": "{n} von {total} erlaubt",
       "notReady": "Diese Verbindung ist nicht bereit (sie braucht eine Anmeldung oder schlägt fehl), daher kann der Agent ihre Werkzeuge vorerst nicht nutzen.",
       "noTools": "Noch keine Werkzeuge aufgelistet."
+    },
+    "schedules": {
+      "description": "Lass diesen Agenten nach Zeitplan von selbst laufen: Jeder Lauf erledigt die Aufgabe, auf Wunsch in einer Datenbank, und sein Bericht landet in deinem Posteingang. Seine Läufe öffnen nur, was du öffnen kannst.",
+      "agentPaused": "Der Agent ist pausiert: Seine Zeitpläne überspringen ihre Läufe, bis du ihn wieder einschaltest.",
+      "archived": "Stelle den Agenten wieder her, um seine Zeitpläne zu ändern.",
+      "list": "Die Zeitpläne des Agenten",
+      "empty": "Noch keine Zeitpläne. Füge einen hinzu, etwa jeden Morgen um 8:00, um ein Board durchzugehen.",
+      "seeRuns": "Seine Läufe ansehen",
+      "add": "Zeitplan hinzufügen",
+      "editHeading": "Zeitplan ändern",
+      "edit": "Ändern",
+      "remove": "Zeitplan löschen",
+      "every": "Alle {count} {unit}",
+      "summary": "{how} · {time} ({zone})",
+      "summaryOn": "{how} am {days} · {time} ({zone})",
+      "noDatabase": "Keine Datenbank: Er liest nur",
+      "databaseHidden": "Eine Datenbank, die du nicht öffnen kannst",
+      "setBy": "eingerichtet von {name}",
+      "next": "Nächster Lauf: {date}",
+      "lastRun": "Letzter Lauf: {date}",
+      "lastFailed": "Sein letzter Lauf konnte nicht starten; beim nächsten Mal versucht er es erneut.",
+      "paused": {
+        "runAsGone": "Pausiert: Das Konto der Person, die ihn eingerichtet hat, gibt es nicht mehr. Speichere ihn, damit er in deinem Namen läuft.",
+        "accessLost": "Pausiert: Die Person, die ihn eingerichtet hat, ist keine Inhaberin mehr oder kann die Datenbank nicht öffnen. Speichere ihn, damit er in deinem Namen läuft.",
+        "templateGone": "Pausiert.",
+        "agentGone": "Pausiert: Der Agent wurde archiviert.",
+        "failed": "Pausiert: Sein letzter Lauf konnte nicht starten."
+      },
+      "access": {
+        "none": "Der Agent kann diese Datenbank nicht öffnen: Er überspringt seine Läufe, bis du sie im Tab „Zugriff“ mit ihm teilst.",
+        "view": "Der Agent kann diese Datenbank nur ansehen: Gib ihm im Tab „Zugriff“ Bearbeitungsrechte, damit er Zeilen ändern kann.",
+        "comment": "Der Agent kann diese Datenbank nur kommentieren: Gib ihm im Tab „Zugriff“ Bearbeitungsrechte, damit er Zeilen ändern kann."
+      },
+      "database": "Datenbank, um die er sich kümmert",
+      "noDatabaseOption": "Keine: Er liest nur",
+      "databaseHint": "Jeder Lauf liest zuerst diese Datenbank und darf ihre Zeilen ändern und kommentieren (höchstens {max} Änderungen pro Lauf).",
+      "noDatabaseHint": "Ohne Datenbank ändert er nichts: Er liest, was mit ihm geteilt ist, und berichtet.",
+      "task": "Aufgabe",
+      "taskPlaceholder": "z. B. Geh alle Zeilen durch. Setze den Status auf „Verspätet“, wo das Fälligkeitsdatum vorbei ist, und liste auf, was ich heute erledigen muss.",
+      "taskKept": "Du kannst die Datenbank nicht öffnen und daher die Aufgabe nicht lesen. Lass das Feld leer, um sie zu behalten, oder schreib eine neue.",
+      "reportHint": "Wenn ein Lauf endet, kommt sein Bericht in deinen Posteingang."
     }
   },
   "analytics": {
@@ -1215,7 +1269,9 @@
         "created": "Hat den Agenten „{target}“ erstellt",
         "updated": "{change, select, on {Hat den Agenten „{target}“ eingeschaltet} off {Hat den Agenten „{target}“ pausiert} other {Hat den Agenten „{target}“ geändert}}",
         "archived": "Hat den Agenten „{target}“ archiviert",
-        "run_requested": "Hat beim Agenten „{target}“ einen Durchlauf angefordert"
+        "run_requested": "Hat beim Agenten „{target}“ einen Durchlauf angefordert",
+        "schedule_set": "Hat einen Zeitplan für den Agenten „{target}“ eingerichtet",
+        "schedule_removed": "Hat einen Zeitplan des Agenten „{target}“ gelöscht"
       },
       "connection": {
         "created": "Hat die Verbindung „{target}“ hinzugefügt",

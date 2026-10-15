@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCheck, BookX, Bot, ChevronRight, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -38,10 +38,12 @@ import {
 } from "@/lib/agents";
 import { AgentConnectionsTab } from "./agent-connections-tab";
 import { AgentMemoryTab } from "./agent-memory-tab";
+import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 
-export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "runs";
+export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs";
+export const AGENT_TABS: readonly AgentTab[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs"];
 
 
 /** An agent's emoji, or a robot when it has none. */
@@ -50,7 +52,7 @@ export function AgentIcon({ icon, className }: { icon: string | null; className?
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use and its latest runs, in tabs. */
+/** One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools it may use, its schedules and its latest runs, in tabs. */
 export function AgentDialog({
   workspaceId,
   agent,
@@ -91,10 +93,10 @@ export function AgentDialog({
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      {/* Six tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
+      {/* Seven tabs don't fit a phone: they scroll on their own rather than widening the dialog. */}
       <div className="overflow-x-auto border-b border-border px-5 py-2">
         <div role="tablist" aria-label={agent.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          {(["settings", "access", "skills", "memory", "connections", "runs"] as const).map((name) => (
+          {AGENT_TABS.map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
               {t(`tabs.${name}`)}
               {name === "memory" && proposals > 0 && (
@@ -116,6 +118,8 @@ export function AgentDialog({
         <AgentMemoryTab workspaceId={workspaceId} agent={agent} memoryOff={memoryOff} />
       ) : tab === "connections" ? (
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} />
+      ) : tab === "schedules" ? (
+        <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
       ) : (
         <RunsTab workspaceId={workspaceId} agent={agent} runId={runId} />
       )}
@@ -545,6 +549,17 @@ function RunItem({
                   {t("fromConnection", { connection: run.connections[run.source.connectionId] ?? t("removedConnection"), event: run.eventType ?? "" })}
                 </span>
               </span>
+            ) : run.source.kind === "schedule" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className="truncate">
+                  {!run.schedule?.databaseId
+                    ? t("fromSchedule")
+                    : run.schedule.databaseTitle
+                      ? t("fromScheduleOn", { database: pageLabel(run.schedule.databaseTitle, tc("untitled")) })
+                      : t("fromScheduleHidden")}
+                </span>
+              </span>
             ) : run.source.kind === "request" && !run.source.rowId ? (
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -565,15 +580,16 @@ function RunItem({
             {format.dateTime(new Date(run.createdAt), { dateStyle: "medium", timeStyle: "short" })}
             {took && ` · ${t("took", { time: took })}`}
             {run.request && ` · ${t("requestedBy", { name: run.request.byName, via: run.request.via })}`}
+            {run.schedule && ` · ${t("scheduledBy", { name: run.schedule.byName })}`}
           </div>
           {failed && run.code && <p className="mt-0.5 text-xs text-danger">{t(`reason.${run.code}`)}</p>}
         </div>
       </div>
       {open && (
         <div className="mt-2 ml-6 space-y-2 text-sm">
-          {run.request?.task && (
+          {(run.request?.task || run.schedule?.task) && (
             <p className="whitespace-pre-wrap text-fg-muted">
-              <span className="text-xs font-medium">{t("task")}</span> {run.request.task}
+              <span className="text-xs font-medium">{t("task")}</span> {run.request?.task || run.schedule?.task}
             </p>
           )}
           {run.steps.length > 0 ? (

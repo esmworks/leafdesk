@@ -10,13 +10,14 @@
  */
 import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, user, workspaceAgent } from "@/db/schema";
+import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent } from "@/db/schema";
 import {
   agentEmail,
   callToSend,
   isAgentAccessLevel,
   isEventRun,
   isRowRun,
+  isScheduleRun,
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
@@ -50,7 +51,10 @@ export type AgentErrorCode =
   | "aiOff"
   | "limitReached"
   | "tooManyRuns"
-  | "notARow";
+  | "notARow"
+  | "notADatabase"
+  | "tooManySchedules"
+  | "scheduleNotFound";
 
 export class AgentError extends Error {
   constructor(
@@ -420,7 +424,21 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
   const connectionNames = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
   );
-  const requesterIds = [...new Set(runs.flatMap((r) => (r.source.kind === "request" ? [r.source.requestedBy] : [])))];
+  // A schedule's run on a database: its title, and what the run read and wrote, only for those who can open it.
+  const scheduledDatabaseIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : [])))];
+  const databaseTitles = new Map(
+    scheduledDatabaseIds.length
+      ? (await db.select({ id: page.id, title: page.title }).from(page).where(and(inArray(page.id, scheduledDatabaseIds), pageVisibleTo(userId)))).map((d) => [d.id, d.title])
+      : [],
+  );
+  // A schedule removed since keeps its runs; they just no longer name it.
+  const scheduleIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) ? [r.source.scheduleId] : [])))];
+  const liveSchedules = new Set(
+    scheduleIds.length ? (await db.select({ id: schedule.id }).from(schedule).where(inArray(schedule.id, scheduleIds))).map((s) => s.id) : [],
+  );
+  const requesterIds = [
+    ...new Set(runs.flatMap((r) => (r.source.kind === "request" ? [r.source.requestedBy] : r.source.kind === "schedule" ? [r.source.scheduledBy] : []))),
+  ];
   const requesters = new Map(
     requesterIds.length ? (await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, requesterIds))).map((u) => [u.id, u.name]) : [],
   );
@@ -428,7 +446,11 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
   // not; it all ends up on the row anyway, so only people who can open the row see it. A
   // connection's event is the owners' (they set up the connection), as is the run it started.
   return runs.map((r) => {
-    const open = isRowRun(r.source) ? titles.has(r.source.rowId) : true;
+    const open = isRowRun(r.source)
+      ? titles.has(r.source.rowId)
+      : isScheduleRun(r.source) && r.source.databaseId
+        ? databaseTitles.has(r.source.databaseId)
+        : true;
     return {
       id: r.id,
       status: r.status,
@@ -452,6 +474,16 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
         r.source.kind === "request"
           ? { by: r.source.requestedBy, byName: requesters.get(r.source.requestedBy) ?? "", via: r.source.via, task: open ? r.prompt : "" }
           : null,
+      schedule: isScheduleRun(r.source)
+        ? {
+            id: liveSchedules.has(r.source.scheduleId) ? r.source.scheduleId : "",
+            by: r.source.scheduledBy,
+            byName: requesters.get(r.source.scheduledBy) ?? "",
+            task: open ? r.prompt : "",
+            databaseId: r.source.databaseId ?? null,
+            databaseTitle: r.source.databaseId ? (databaseTitles.get(r.source.databaseId) ?? "") : "",
+          }
+        : null,
       connections: Object.fromEntries(connectionIds.filter((id) => connectionNames.has(id)).map((id) => [id, connectionNames.get(id)!])),
       createdAt: r.createdAt.toISOString(),
       finishedAt: r.finishedAt?.toISOString() ?? null,

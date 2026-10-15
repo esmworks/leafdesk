@@ -12,6 +12,24 @@
   results say, and to tell you what it kept. *Memory* shows which app kept or last changed a note
   (*Kept by …*). With your *Use memory* switch or the workspace's *AI memory* switch off, an app
   sees no notes and keeps none, but can still delete them for you.
+- **Agents run on a schedule.** An agent's new *Schedules* tab (Settings → Agents) sets it to run
+  on its own, every day, week (on chosen weekdays), month or year at a time of day in a time zone,
+  with a task and, optionally, a database it looks after: for example every day at 08:00, go
+  through the board, mark what is overdue and say what needs me. A run on a database reads it first
+  and may change and comment on any of its rows (up to 30 changes, where a run on a row makes 5);
+  without one it only reads and uses its connections' tools. Each run is held to the access of the
+  owner who set the schedule last as well as the agent's, and ends with a report in that owner's
+  inbox (and as a push notification, without the report's text). The run's history names the
+  schedule, who set it and its task. A schedule whose last run still waits skips a run; a paused
+  agent, a database in the trash or one not shared with the agent skips runs; and a schedule pauses
+  when the agent is archived or whoever set it is no longer an owner or can't open the database,
+  until an owner sets it again. The tab warns when the agent can't open or change the database (it
+  isn't shared on its own). A run over a database with rows no one in the workspace stands behind,
+  such as anonymous form answers, asks an owner before each connection tool and proposes no notes. Up to 10 schedules per agent. The REST API has `GET`/`POST
+  /agents/{agent_id}/schedules` and `PATCH`/`DELETE /agents/{agent_id}/schedules/{schedule_id}`,
+  MCP has `add_agent_schedule`, `update_agent_schedule` and `delete_agent_schedule`, and
+  `get_agent` lists an agent's schedules. Migration `0069_agent_schedules` adds `schedule.agent_id`
+  and the `agent_report` notification. Covered in `scripts/agent-schedule-e2e.ts`.
 
 ### Changed
 

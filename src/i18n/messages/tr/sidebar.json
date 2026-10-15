@@ -107,7 +107,12 @@
     "memoryTitle": "{agent} bir şey hatırlamak istiyor",
     "memory": "“{text}”{more, plural, =0 {} other { ve # not daha}}",
     "memoryHidden": "{count, plural, one {Açamadığınız bir satırdaki çalışmadan bir not} other {Açamadığınız bir satırdaki çalışmadan # not}}",
-    "memoryAnswered": "Zaten incelendi"
+    "memoryAnswered": "Zaten incelendi",
+    "reportTitle": "{agent} raporu",
+    "reportDone": "Zamanlanmış çalışması bitti.",
+    "reportFailed": "Zamanlanmış çalışması başarısız oldu. Nedenini görmek için aç.",
+    "reportHidden": "Zamanlanmış çalışması, açamadığın bir veritabanında bitti.",
+    "reportGone": "Çalışma artık saklanmıyor."
   },
   "templates": {
     "title": "Şablonlar",

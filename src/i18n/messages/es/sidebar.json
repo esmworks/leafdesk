@@ -107,7 +107,12 @@
     "memoryTitle": "{agent} quiere recordar algo",
     "memory": "«{text}»{more, plural, =0 {} one { y # nota más} other { y # notas más}}",
     "memoryHidden": "{count, plural, one {Una nota} other {# notas}} de una ejecución en una fila que no puedes abrir",
-    "memoryAnswered": "Ya revisado"
+    "memoryAnswered": "Ya revisado",
+    "reportTitle": "Informe de {agent}",
+    "reportDone": "Su ejecución programada terminó.",
+    "reportFailed": "Su ejecución programada falló. Ábrela para ver por qué.",
+    "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",
+    "reportGone": "La ejecución ya no se conserva."
   },
   "templates": {
     "title": "Plantillas",

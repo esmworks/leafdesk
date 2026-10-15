@@ -107,7 +107,12 @@
     "memoryTitle": "{agent} möchte sich etwas merken",
     "memory": "„{text}“{more, plural, =0 {} one { und # weitere Notiz} other { und # weitere Notizen}}",
     "memoryHidden": "{count, plural, one {Eine Notiz} other {# Notizen}} aus einem Lauf auf einer Zeile, die du nicht öffnen kannst",
-    "memoryAnswered": "Bereits geprüft"
+    "memoryAnswered": "Bereits geprüft",
+    "reportTitle": "Bericht von {agent}",
+    "reportDone": "Sein geplanter Lauf ist fertig.",
+    "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen. Öffne ihn, um zu sehen, warum.",
+    "reportHidden": "Sein geplanter Lauf ist fertig, in einer Datenbank, die du nicht öffnen kannst.",
+    "reportGone": "Der Lauf wird nicht mehr aufbewahrt."
   },
   "templates": {
     "title": "Vorlagen",

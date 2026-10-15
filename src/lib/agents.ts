@@ -2,6 +2,7 @@
 // automation editor.
 
 import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
+import type { RepeatRule, ScheduleError } from "./schedule";
 
 /**
  * Agents: named AI helpers with instructions of their own that run without anyone asking, when
@@ -31,6 +32,13 @@ export const MAX_AGENT_INSTRUCTIONS = 8_000;
 export const MAX_AGENT_PROMPT = 2_000;
 /** Runs owners asked for that one agent may have waiting or under way at once. */
 export const MAX_REQUESTED_RUNS = 5;
+/** Schedules one agent may have. */
+export const MAX_AGENT_SCHEDULES = 10;
+/**
+ * Changes a schedule's run on a database may make (rows changed and comments written, together): it
+ * looks after the whole database, where a row's run looks after one row (MAX_AGENT_WRITES).
+ */
+export const MAX_SCHEDULED_WRITES = 30;
 /** Months of an agent's usage kept, this one included. */
 export const AGENT_USAGE_MONTHS = 12;
 /** The highest monthly token limit an owner may set (a billion). */
@@ -51,6 +59,8 @@ export const MAX_AGENT_PROPOSALS = 10;
 
 /** Where an agent's memory opens in Settings (its Memory tab), for its owners. */
 export const agentMemoryPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&agentTab=memory`;
+/** Where one of an agent's runs opens in Settings (its Runs tab), for its owners. */
+export const agentRunPath = (workspaceId: string, agentId: string, runId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&run=${runId}`;
 /** Finished runs are kept this long, as the agent's history. */
 export const AGENT_RUN_HISTORY_DAYS = 30;
 
@@ -69,8 +79,9 @@ export const AGENT_RUN_VIAS = ["api", "mcp"] as const;
 export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
 
 /**
- * What started a run: an automation on a row, an event a connection received, or an owner who asked
- * for it with a task of their own (on a row of a database, or on none).
+ * What started a run: an automation on a row, an event a connection received, an owner who asked
+ * for it with a task of their own (on a row of a database, or on none), or one of the agent's
+ * schedules (on a database, or on none).
  */
 export type AgentRunSource =
   | {
@@ -94,6 +105,14 @@ export type AgentRunSource =
       via: AgentRunVia;
       /** The row it works on, when it was asked for one. */
       rowId?: string;
+      databaseId?: string;
+    }
+  | {
+      kind: "schedule";
+      scheduleId: string;
+      /** The owner who set the schedule last; the run is held to their access as well. */
+      scheduledBy: string;
+      /** The database it looks after, when the schedule names one: it may change and comment on its rows. */
       databaseId?: string;
     };
 
@@ -121,8 +140,10 @@ export type AgentRunContext =
       body: string;
     }
   | {
-      /** The owner who asked for the run (as `source.requestedBy`). */
+      /** The owner who asked for the run (as `source.requestedBy`), or set its schedule (`source.scheduledBy`). */
       actorId: string;
+      /** A schedule's run: when it was due (ISO). */
+      scheduledFor?: string;
     };
 
 /** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */
@@ -231,6 +252,7 @@ export const AGENT_RUN_CODES = [
   "agentDisabled",
   "noAccess",
   "rowGone",
+  "databaseGone",
   "provider",
   "timeout",
   "tooManyAttempts",
@@ -299,9 +321,43 @@ export type AgentMemoryView = {
   id: string;
   text: string | null;
   status: MemoryStatus;
-  run: { id: string; createdAt: string; rowId: string | null; rowTitle: string | null; connectionName: string | null; requested: boolean } | null;
+  run: {
+    id: string;
+    createdAt: string;
+    rowId: string | null;
+    rowTitle: string | null;
+    connectionName: string | null;
+    requested: boolean;
+    /** A schedule started it; `databaseHidden`: on a database the viewer can't open (its proposals' text is hidden too). */
+    scheduled: boolean;
+    databaseHidden: boolean;
+  } | null;
   createdAt: string;
   updatedAt: string;
+};
+
+/**
+ * One of an agent's schedules as its owners see it: when it runs, the task, the database it looks
+ * after (its title only for those who can open it) and how the agent may open that database now.
+ */
+export type AgentScheduleView = {
+  id: string;
+  rule: RepeatRule;
+  timeZone: string;
+  /** Empty when it is hidden: the viewer can't open the database, and the task may name what is in it. */
+  task: string;
+  taskHidden: boolean;
+  databaseId: string | null;
+  databaseTitle: string | null;
+  databaseIcon: string | null;
+  /** The agent's access to the database: "none" (its runs skip until it is shared), "view" and "comment" (it can't change rows). */
+  agentAccess: "none" | "view" | "comment" | "edit" | null;
+  enabled: boolean;
+  nextRunAt: string | null;
+  lastRunAt: string | null;
+  lastError: ScheduleError | null;
+  /** The owner who set it last: its runs are held to their access. */
+  setBy: { id: string; name: string } | null;
 };
 
 /** A run as the agent's history shows it. */
@@ -325,6 +381,11 @@ export type AgentRunView = {
   eventType: string | null;
   /** For a run an owner asked for: who, where, and the task they gave it (empty where its row is hidden). */
   request: { by: string; byName: string; via: AgentRunVia; task: string } | null;
+  /**
+   * For a run a schedule started: the schedule, who set it, the task and the database it looks
+   * after (`databaseTitle` and `task` empty where the viewer can't open the database).
+   */
+  schedule: { id: string; by: string; byName: string; task: string; databaseId: string | null; databaseTitle: string } | null;
   /** Names of the connections the run's source, steps and waiting call name (removed ones are left out). */
   connections: Record<string, string>;
   createdAt: string;
@@ -336,6 +397,12 @@ type RowSource = Extract<AgentRunSource, { kind: "automation" }> | (Extract<Agen
 /** Whether a run works on a row: an automation's, or one asked for on a row. */
 export const isRowRun = (source: AgentRunSource): source is RowSource =>
   source.kind === "automation" || (source.kind === "request" && typeof source.rowId === "string" && typeof source.databaseId === "string");
+
+/** Whether a schedule started a run. */
+export const isScheduleRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "schedule" }> => source.kind === "schedule";
+
+/** The task a schedule gives its agent each time. */
+export const MAX_SCHEDULE_TASK = MAX_AGENT_PROMPT;
 
 /** Whether a run answers an event a connection received. */
 export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "connection" }> => source.kind === "connection";

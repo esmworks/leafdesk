@@ -64,6 +64,9 @@ const texts: Record<string, string> = {
   approval: "Wants to call “{tool}” on {connection}",
   memoryTitle: "{agent} wants to remember",
   memory: "Proposes {count} notes for its memory",
+  reportTitle: "{agent} reports",
+  reportDone: "Finished its scheduled run",
+  reportFailed: "Its scheduled run didn't finish",
   untitled: "Untitled",
   snooze: "Snooze 1 hour",
 };
@@ -86,6 +89,7 @@ const item = (over: Partial<PushItem>): PushItem => ({
   requestEmail: null,
   approval: null,
   memory: null,
+  report: null,
   ...over,
 });
 
@@ -151,9 +155,23 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "agent_memory", pageId: null, memory: null }), t, date)).toBeNull();
   });
 
+  it("leads a scheduled run's report to the run, without what it says", () => {
+    const report = { agentId: "a1", runId: "r1", agentName: "Board keeper", status: "done" };
+    expect(pushPayload(item({ kind: "agent_report", pageId: null, pageTitle: null, report }), t, date)).toEqual({
+      title: "Board keeper reports",
+      body: "Finished its scheduled run",
+      url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
+      tag: "n1",
+      snooze: "Snooze 1 hour",
+    });
+    expect(pushPayload(item({ kind: "agent_report", pageId: null, report: { ...report, status: "failed" } }), t, date)?.body).toBe("Its scheduled run didn't finish");
+    expect(pushPayload(item({ kind: "agent_report", pageId: null, report: null }), t, date)).toBeNull();
+  });
+
   it("links like the inbox does", () => {
     expect(pushLink(item({ kind: "agent_approval", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
     expect(pushLink(item({ kind: "agent_memory", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
+    expect(pushLink(item({ kind: "agent_report", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
   });
 });
 

@@ -295,6 +295,7 @@ function AgentRow({
                 {item(t("tabs.settings"), () => onOpen("settings"))}
                 {item(t("tabs.access"), () => onOpen("access"))}
                 {item(t("tabs.memory"), () => onOpen("memory"))}
+                {item(t("tabs.schedules"), () => onOpen("schedules"))}
                 {item(t("tabs.runs"), () => onOpen("runs"))}
                 {item(agent.enabled ? t("pause") : t("resume"), onToggle)}
                 <MenuSeparator />

@@ -103,16 +103,19 @@ import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceTe
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
 import * as agentMemory from "@/server/agents/memory";
+import * as agentSchedules from "@/server/agents/schedules";
 import * as agentSkills from "@/server/agents/skills";
 import { requestAgentRun } from "@/server/agents/requests";
 import { usageMonthsOf } from "@/server/agents/usage";
 import {
   agentInputs,
   describeAgent,
+  describeAgentSchedule,
   describeAgentRun,
   describeAgentSummary,
   notesToDrop,
   toAgentPatch,
+  toScheduleInput,
   withAgentErrors,
   withSharingErrors,
 } from "./agents";
@@ -120,7 +123,18 @@ import { describeMemory, memoryInputs, requireMemoryOn, withMemoryErrors } from 
 import * as connections from "@/server/connections/manage";
 import { connectionInputs, describeConnection, withConnectionErrors } from "./connections";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
-import { AGENT_RUN_HISTORY_DAYS, AGENT_RUN_TIMEOUT_MS, agentMemoryPath, MAX_AGENT_ROUNDS, MAX_AGENT_SKILLS, MAX_AGENT_WRITES, MAX_REQUESTED_RUNS } from "@/lib/agents";
+import {
+  AGENT_RUN_HISTORY_DAYS,
+  AGENT_RUN_TIMEOUT_MS,
+  agentMemoryPath,
+  agentRunPath,
+  MAX_AGENT_ROUNDS,
+  MAX_AGENT_SCHEDULES,
+  MAX_AGENT_SKILLS,
+  MAX_AGENT_WRITES,
+  MAX_REQUESTED_RUNS,
+  MAX_SCHEDULED_WRITES,
+} from "@/lib/agents";
 import {
   automationContext,
   automationInputs,
@@ -1008,6 +1022,27 @@ export function createMcpServer(principal: McpPrincipal) {
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
                 url: m ? `${env.appUrl}${agentMemoryPath(n.workspaceId, m.agentId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
+              };
+            }
+            // A scheduled run's report: list_agent_runs has the whole run.
+            if (n.kind === "agent_report") {
+              const r = n.report;
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: !r
+                  ? "A scheduled run of an agent finished; the run is no longer kept"
+                  : r.status === "failed"
+                    ? `A scheduled run of the agent "${r.agentName}" failed (${r.code ?? "error"}); list_agent_runs shows why`
+                    : r.text === null
+                      ? `A scheduled run of the agent "${r.agentName}" finished, on a database the user can no longer open: its report is hidden`
+                      : `A scheduled run of the agent "${r.agentName}" finished${r.text ? `, reporting: "${r.text}"` : ""} (list_agent_runs has the whole run)`,
+                ...(r ? { agent_id: r.agentId, run_id: r.runId } : {}),
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: r ? `${env.appUrl}${agentRunPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
               };
             }
             // Join requests are about the workspace, not a page; owners decide them in the app.
@@ -2006,7 +2041,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_agent",
     {
       title: "Get an agent",
-      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it; its monthly_token_limit, and the tokens, cost (0 where the AI provider names no price) and runs it used by calendar month (UTC), this month first. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
+      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it; its schedules (add_agent_schedule), each with when it runs next and what stands in its way; its monthly_token_limit, and the tokens, cost (0 where the AI provider names no price) and runs it used by calendar month (UTC), this month first. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: READ,
     },
@@ -2020,6 +2055,7 @@ export function createMcpServer(principal: McpPrincipal) {
             await agentSkills.listAgentSkills(userId, agent_id),
             await agentMemory.listAgentMemory(userId, agent_id),
             await usageMonthsOf(agent.id),
+            await agentSchedules.listAgentSchedules(userId, agent_id),
           );
         }),
       ),
@@ -2226,7 +2262,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; or an owner's request with start_agent_run or the REST API, with its task), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, the row's title only when the user can open it; a connection's event; an owner's request with start_agent_run or the REST API, with its task; or one of its schedules, with its task and database), its status (pending, running, awaiting_approval, done, failed), why it failed (code: aiOff, agentDisabled, noAccess, rowGone, databaseGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error), what it did step by step (followed or left out a skill, searched, read, queried, changed the row, commented, called a connection's tool, its thoughts), the call it waits on (credentials in its input masked), its final answer and the tokens it used. A call waiting for approval is answered by an owner in Leafdesk (the inbox, or the agent's runs, which show the call exactly as it will be sent), not here. ${RUN_NOTE} ${AGENT_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },
@@ -2254,6 +2290,61 @@ export function createMcpServer(principal: McpPrincipal) {
         const run = await requestAgentRun(userId, agent_id, { task, rowId: row_id ?? null, via: "mcp" });
         const agent = await agents.getAgent(userId, agent_id);
         return { agent_id, run: describeAgentRun(agent.workspaceId, run) };
+      }),
+    ),
+  );
+
+  const SCHEDULE_NOTE = `A schedule's run follows the agent's instructions and skills, held to what the owner who set the schedule last can open as well as what is shared with the agent. With a database it reads the database first and may change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run); without one it only reads (and uses its connections' tools). Each run ends with a report in that owner's Leafdesk inbox; list_agent_runs shows it too. A schedule pauses when the agent is archived, or when whoever set it is no longer an owner or can't open the database; setting it again turns it back on, as the user. A schedule whose last run still waits skips a run. Runs use the workspace's AI allowance and the agent's monthly token limit.`;
+
+  server.registerTool(
+    "add_agent_schedule",
+    {
+      title: "Add a schedule to an agent",
+      description: `Make an agent from list_agents run on its own on a repeat rule: every day, week (on chosen weekdays), month or year at a time of day in a time zone, with a task, and optionally a database it looks after (for example: every day at 08:00, go through the board, update each row's status and tell me what needs me). ${SCHEDULE_NOTE} An agent has at most ${MAX_AGENT_SCHEDULES} schedules. Returns the schedule with its next run. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.schedule,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, ...args }) =>
+      withAgentErrors(async () => {
+        const agent = await agents.getAgent(userId, agent_id);
+        const schedule = await agentSchedules.setAgentSchedule(userId, agent_id, null, toScheduleInput(args));
+        return { agent_id, schedule: describeAgentSchedule(agent.workspaceId, schedule) };
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "update_agent_schedule",
+    {
+      title: "Change an agent's schedule",
+      description: `Change one of an agent's schedules (get_agent lists them): its repeat rule, time zone, task or database (null: none). What you leave out stays as it is. Its runs are held to the user's access from now on, and a paused schedule turns back on. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.scheduleUpdate,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, schedule_id, ...args }) =>
+      withAgentErrors(async () => {
+        const agent = await agents.getAgent(userId, agent_id);
+        const schedule = await agentSchedules.setAgentSchedule(userId, agent_id, schedule_id, toScheduleInput(args));
+        return { agent_id, schedule: describeAgentSchedule(agent.workspaceId, schedule) };
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "delete_agent_schedule",
+    {
+      title: "Delete an agent's schedule",
+      description: `Delete one of an agent's schedules (get_agent lists them): the agent no longer runs on it. A run it already started goes on. ${AGENT_NOTE}`,
+      inputSchema: agentInputs.scheduleId,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, schedule_id }) =>
+      withAgentErrors(async () => {
+        await agentSchedules.removeAgentSchedule(userId, agent_id, schedule_id);
+        return { agent_id, deleted: schedule_id };
       }),
     ),
   );

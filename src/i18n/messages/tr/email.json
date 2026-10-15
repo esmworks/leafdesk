@@ -200,6 +200,9 @@
     "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
     "memoryTitle": "{agent} bir şey hatırlamak istiyor",
     "memory": "{count, plural, one {Hafızası için bir not öneriyor} other {Hafızası için # not öneriyor}}",
+    "reportTitle": "{agent} raporu",
+    "reportDone": "Zamanlanmış çalışması bitti",
+    "reportFailed": "Zamanlanmış çalışması başarısız oldu",
     "untitled": "Adsız",
     "snooze": "1 saat ertele"
   },

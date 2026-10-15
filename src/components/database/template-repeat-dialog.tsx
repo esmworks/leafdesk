@@ -1,46 +1,16 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { getTemplateRepeatAction, removeTemplateRepeatAction, setTemplateRepeatAction } from "@/app/actions/templates";
-import { Button, cn, Dialog, Input, pageLabel, Switch } from "@/components/ui";
-import {
-  MAX_REPEAT_INTERVAL,
-  nextOccurrence,
-  parseRepeatRule,
-  REPEAT_FREQUENCIES,
-  WEEKDAYS_FROM_MONDAY,
-  type RepeatFrequency,
-  type ScheduleError,
-} from "@/lib/schedule";
-import { browserTimeZone, dayString, isTimeZone, listTimeZones, localDay, timeZoneLabel } from "@/lib/time-zone";
+import { freshRepeatForm, RepeatRuleFields, repeatFormOf, useRepeatRule, type RepeatForm } from "@/components/repeat-rule-fields";
+import { Button, cn, Dialog, pageLabel, Switch } from "@/components/ui";
+import type { TemplateScheduleError } from "@/lib/schedule";
 
-const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
-
-type Form = {
-  frequency: RepeatFrequency;
-  interval: string;
-  weekdays: number[];
-  time: string;
-  start: string;
-  timeZone: string;
-  dateInTitle: boolean;
-};
+type Form = RepeatForm & { dateInTitle: boolean };
 
 /** A new rule: every week on today's weekday, at 09:00, from today, in the browser's time zone. */
-function freshForm(): Form {
-  const timeZone = browserTimeZone();
-  const today = localDay(Date.now(), timeZone);
-  return {
-    frequency: "weekly",
-    interval: "1",
-    weekdays: [new Date(today * 86_400_000).getUTCDay()],
-    time: "09:00",
-    start: dayString(today),
-    timeZone,
-    dateInTitle: true,
-  };
-}
+const freshForm = (): Form => ({ ...freshRepeatForm(), dateInTitle: true });
 
 /**
  * Sets how a row template repeats: a row is added from it on the rule, in a time zone, as the
@@ -61,7 +31,7 @@ export function TemplateRepeatDialog({
   const tc = useTranslations("common");
   const locale = useLocale();
   const [form, setForm] = useState<Form>(freshForm);
-  const [existing, setExisting] = useState<{ lastError: ScheduleError | null; lastRunAt: string | null; enabled: boolean } | null>(null);
+  const [existing, setExisting] = useState<{ lastError: TemplateScheduleError | null; lastRunAt: string | null; enabled: boolean } | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -77,7 +47,7 @@ export function TemplateRepeatDialog({
       if (!result.ok) setError(result.error);
       else if (result.data) {
         const { rule, timeZone, dateInTitle, lastError, lastRunAt, enabled } = result.data;
-        setForm({ ...rule, interval: String(rule.interval), timeZone, dateInTitle });
+        setForm({ ...repeatFormOf(rule, timeZone), dateInTitle });
         setExisting({ lastError, lastRunAt, enabled });
       } else {
         setForm(freshForm());
@@ -90,23 +60,12 @@ export function TemplateRepeatDialog({
     };
   }, [templateId]);
 
-  const rule = useMemo(
-    () => parseRepeatRule({ ...form, interval: Number(form.interval), weekdays: form.frequency === "weekly" ? form.weekdays : [] }),
-    [form],
-  );
-  const valid = rule !== null && isTimeZone(form.timeZone);
-  const next = useMemo(() => (rule && isTimeZone(form.timeZone) ? nextOccurrence(rule, form.timeZone, new Date()) : null), [rule, form.timeZone]);
-  const zoneList = useMemo(() => listTimeZones(form.timeZone), [form.timeZone]);
+  const { rule, valid, next } = useRepeatRule(form);
 
   const formatAt = (at: Date | string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: "full", timeStyle: "short", timeZone: form.timeZone }).format(new Date(at));
-  const weekdayName = (day: number) =>
-    // 2026-10-04 was a Sunday: day 0 of that week.
-    new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 4 + day)));
 
   const set = (change: Partial<Form>) => setForm((f) => ({ ...f, ...change }));
-  const toggleDay = (day: number) =>
-    set({ weekdays: form.weekdays.includes(day) ? form.weekdays.filter((d) => d !== day) : [...form.weekdays, day] });
 
   const save = () => {
     if (!templateId || !rule) return;
@@ -129,9 +88,6 @@ export function TemplateRepeatDialog({
       onClose();
     });
   };
-
-  const field = "space-y-1";
-  const label = "block text-xs font-medium text-fg-muted";
 
   return (
     <Dialog open={template !== null} onClose={onClose} className="max-w-md">
@@ -159,104 +115,7 @@ export function TemplateRepeatDialog({
           </p>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className={field}>
-            <label htmlFor="repeat-frequency" className={label}>
-              {t("frequency")}
-            </label>
-            <select
-              id="repeat-frequency"
-              className={selectClass}
-              value={form.frequency}
-              onChange={(e) => {
-                const frequency = e.target.value as RepeatFrequency;
-                // Weekly needs a day: the first day's weekday, to start with.
-                const startDay = new Date(`${form.start}T00:00:00Z`).getUTCDay();
-                const weekdays = frequency === "weekly" && !form.weekdays.length ? [Number.isNaN(startDay) ? 1 : startDay] : form.weekdays;
-                set({ frequency, weekdays });
-              }}
-            >
-              {REPEAT_FREQUENCIES.map((f) => (
-                <option key={f} value={f}>
-                  {t(`frequencies.${f}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={field}>
-            <label htmlFor="repeat-interval" className={label}>
-              {t("every")}
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="w-16 shrink-0">
-                <Input
-                  id="repeat-interval"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={MAX_REPEAT_INTERVAL}
-                  value={form.interval}
-                  onChange={(e) => set({ interval: e.target.value })}
-                />
-              </div>
-              <span className="text-sm text-fg-muted">{t(`units.${form.frequency}`, { count: Number(form.interval) || 1 })}</span>
-            </div>
-          </div>
-        </div>
-
-        {form.frequency === "weekly" && (
-          <fieldset className={field}>
-            <legend className={label}>{t("on")}</legend>
-            <div className="flex flex-wrap gap-1">
-              {WEEKDAYS_FROM_MONDAY.map((day) => {
-                const on = form.weekdays.includes(day);
-                return (
-                  <button
-                    key={day}
-                    type="button"
-                    aria-pressed={on}
-                    onClick={() => toggleDay(day)}
-                    className={cn(
-                      "h-8 min-w-10 rounded-md border px-2 text-sm",
-                      on ? "border-accent bg-accent text-accent-fg" : "border-border hover:bg-bg-hover",
-                    )}
-                  >
-                    {weekdayName(day)}
-                  </button>
-                );
-              })}
-            </div>
-            {!form.weekdays.length && <p className="text-xs text-danger">{t("noWeekday")}</p>}
-          </fieldset>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className={field}>
-            <label htmlFor="repeat-start" className={label}>
-              {t("start")}
-            </label>
-            <Input id="repeat-start" type="date" value={form.start} onChange={(e) => set({ start: e.target.value })} />
-          </div>
-          <div className={field}>
-            <label htmlFor="repeat-time" className={label}>
-              {t("time")}
-            </label>
-            <Input id="repeat-time" type="time" value={form.time} onChange={(e) => set({ time: e.target.value })} />
-          </div>
-        </div>
-
-        <div className={field}>
-          <label htmlFor="repeat-zone" className={label}>
-            {t("timeZone")}
-          </label>
-          <select id="repeat-zone" className={selectClass} value={zoneList.current} onChange={(e) => set({ timeZone: e.target.value })}>
-            {zoneList.zones.map((zone) => (
-              <option key={zone} value={zone}>
-                {timeZoneLabel(zone)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <RepeatRuleFields form={form} onChange={set} idPrefix="repeat" />
 
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm">

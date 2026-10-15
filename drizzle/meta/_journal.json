@@ -484,6 +484,13 @@
       "when": 1792058052625,
       "tag": "0068_ai_memory_app",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1792067015714,
+      "tag": "0069_agent_schedules",
+      "breakpoints": true
     }
   ]
 }

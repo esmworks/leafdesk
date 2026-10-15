@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { AgentAccessLevel, AgentCommentRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
+import type { RepeatRule } from "@/lib/schedule";
 import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
@@ -22,6 +23,7 @@ import {
   type AgentInput,
 } from "@/server/agents/manage";
 import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
+import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { agentUsageMonths } from "@/server/agents/usage";
 import { viewStep } from "@/server/ai-chat";
@@ -33,7 +35,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -185,6 +187,32 @@ export async function deleteAgentMemoryAction(workspaceId: string, agentId: stri
 export type AgentCommentView = Omit<AgentCommentRecord, "text"> & { text: string | null };
 export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | AgentSkillRecord;
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
+
+/** An agent's schedules (server/agents/schedules.ts), for its owners. */
+export async function listAgentSchedulesAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => listAgentSchedules(userId, agentId));
+}
+
+/** Adds a schedule (`scheduleId` null) or changes one; returns the agent's schedules as they are now. */
+export async function setAgentScheduleAction(
+  workspaceId: string,
+  agentId: string,
+  scheduleId: string | null,
+  /** `task` null keeps the one it has (one the owner can't read). */
+  value: { rule: RepeatRule; timeZone: string; task: string | null; databaseId: string | null },
+) {
+  return run(workspaceId, async (userId) => {
+    await setAgentSchedule(userId, agentId, scheduleId, { rule: value?.rule, timeZone: value?.timeZone, task: value?.task, databaseId: value?.databaseId ?? null });
+    return listAgentSchedules(userId, agentId);
+  });
+}
+
+export async function removeAgentScheduleAction(workspaceId: string, agentId: string, scheduleId: string) {
+  return run(workspaceId, async (userId) => {
+    await removeAgentSchedule(userId, agentId, scheduleId);
+    return listAgentSchedules(userId, agentId);
+  });
+}
 
 /** What the agent's runs used by month, this month first. */
 export async function agentUsageAction(workspaceId: string, agentId: string) {

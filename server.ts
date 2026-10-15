@@ -43,6 +43,8 @@ const { startAutomations } = await import("./src/server/automations/run");
 const { startDatePassedAutomations } = await import("./src/server/automations/timed");
 const { startAgents } = await import("./src/server/agents/run");
 const { startSchedules } = await import("./src/server/schedules");
+// Registers what agents' schedules do when they run.
+await import("./src/server/agents/schedules");
 const { retentionJobEnabled } = await import("./src/lib/retention");
 
 const { hocuspocus, service } = createCollab();

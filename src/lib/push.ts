@@ -3,7 +3,7 @@
  * subscription, and what a push message says about a notification (see server/push.ts).
  */
 
-import { agentMemoryPath } from "./agents";
+import { agentMemoryPath, agentRunPath } from "./agents";
 import { canSnooze } from "./snooze";
 
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
@@ -116,6 +116,7 @@ export type PushItem = {
   requestEmail: string | null;
   approval: { agentId: string; runId: string; agentName: string; tool: string; connectionName: string } | null;
   memory: { agentId: string; agentName: string; count: number } | null;
+  report: { agentId: string; runId: string; agentName: string; status: string } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -127,6 +128,7 @@ export function pushLink(item: PushItem): string {
     return `/w/${item.workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`;
   }
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
+  if (item.kind === "agent_report") return item.report ? agentRunPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   return `/w/${item.workspaceId}/p/${item.pageId}`;
 }
@@ -150,6 +152,11 @@ export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoD
     if (!item.memory) return null;
     title = t("memoryTitle", { agent: item.memory.agentName || actor });
     line = t("memory", { count: item.memory.count });
+  } else if (item.kind === "agent_report") {
+    // Not what the report says either: it may quote the database.
+    if (!item.report) return null;
+    title = t("reportTitle", { agent: item.report.agentName || actor });
+    line = item.report.status === "failed" ? t("reportFailed") : t("reportDone");
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");
     line = item.requestKind === "invite" ? t("inviteRequest", { actor, email: item.requestEmail ?? "" }) : t("joinRequest", { actor });

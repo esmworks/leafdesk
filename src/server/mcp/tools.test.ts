@@ -171,6 +171,13 @@ const agentUsage = vi.hoisted(() => ({
 }));
 vi.mock("@/server/agents/usage", () => agentUsage);
 
+const agentSchedules = vi.hoisted(() => ({
+  listAgentSchedules: vi.fn(async () => [] as unknown[]),
+  setAgentSchedule: vi.fn(),
+  removeAgentSchedule: vi.fn(async () => undefined),
+}));
+vi.mock("@/server/agents/schedules", () => agentSchedules);
+
 const agentRequests = vi.hoisted(() => ({ requestAgentRun: vi.fn() }));
 vi.mock("@/server/agents/requests", () => agentRequests);
 
@@ -2373,6 +2380,81 @@ describe("agents", () => {
     const cleared = await callTool(writer, "update_agent", { agent_id: "agent-1", monthly_token_limit: null });
     expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { monthlyTokenLimit: null });
     expect(cleared.data.monthly_token_limit).toBeNull();
+  });
+
+  it("adds, changes and deletes an agent's schedules, and get_agent says what stands in their way", async () => {
+    const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
+    expect(tools.get("add_agent_schedule")!.inputSchema.required).toEqual(["agent_id", "repeat", "time_zone", "task"]);
+    expect(tools.get("update_agent_schedule")!.inputSchema.required).toEqual(["agent_id", "schedule_id"]);
+    expect(tools.get("delete_agent_schedule")?.annotations?.destructiveHint).toBe(true);
+
+    const schedule = {
+      id: "sched-1",
+      rule: { frequency: "daily", interval: 1, weekdays: [], time: "08:00", start: "2026-10-15" },
+      timeZone: "Europe/Istanbul",
+      task: "Mark overdue rows Late and tell me what needs me",
+      taskHidden: false,
+      databaseId: "db-1",
+      databaseTitle: "Tickets",
+      databaseIcon: null,
+      agentAccess: "view",
+      enabled: true,
+      nextRunAt: "2026-10-16T05:00:00.000Z",
+      lastRunAt: null,
+      lastError: null,
+      setBy: { id: "user-1", name: "Erhan" },
+    };
+    agents.getAgent.mockResolvedValue(agent);
+    agentSchedules.setAgentSchedule.mockResolvedValueOnce(schedule);
+    const added = await callTool(writer, "add_agent_schedule", {
+      agent_id: "agent-1",
+      repeat: { frequency: "daily", time: "08:00" },
+      time_zone: "Europe/Istanbul",
+      task: schedule.task,
+      database_id: "db-1",
+    });
+    expect(added.isError).toBe(false);
+    expect(agentSchedules.setAgentSchedule).toHaveBeenLastCalledWith("user-1", "agent-1", null, {
+      rule: expect.objectContaining({ frequency: "daily", time: "08:00", weekdays: [] }),
+      timeZone: "Europe/Istanbul",
+      task: schedule.task,
+      databaseId: "db-1",
+    });
+    expect(added.data.schedule).toMatchObject({
+      schedule_id: "sched-1",
+      next_run_at: "2026-10-16T05:00:00.000Z",
+      database: { id: "db-1", title: "Tickets", agent_access: "view", url: expect.stringMatching(/\/w\/ws-1\/p\/db-1$/) },
+      set_by: { id: "user-1", name: "Erhan" },
+    });
+    expect(added.data.schedule.note).toMatch(/give it edit access/);
+    expect((await callTool(reader, "add_agent_schedule", { agent_id: "agent-1", repeat: { frequency: "daily", time: "08:00" }, time_zone: "UTC", task: "x" })).isError).toBe(true);
+
+    // What is left out stays as it is; null takes the database away.
+    agentSchedules.setAgentSchedule.mockResolvedValueOnce({ ...schedule, databaseId: null, databaseTitle: null, agentAccess: null });
+    const changed = await callTool(writer, "update_agent_schedule", { agent_id: "agent-1", schedule_id: "sched-1", database_id: null });
+    expect(agentSchedules.setAgentSchedule).toHaveBeenLastCalledWith("user-1", "agent-1", "sched-1", { databaseId: null });
+    expect(changed.data.schedule.database).toBeNull();
+    agentSchedules.setAgentSchedule.mockRejectedValueOnce(new agents.AgentError("scheduleNotFound", "No such schedule"));
+    expect((await callTool(writer, "update_agent_schedule", { agent_id: "agent-1", schedule_id: "nope", task: "x" })).isError).toBe(true);
+
+    const deleted = await callTool(writer, "delete_agent_schedule", { agent_id: "agent-1", schedule_id: "sched-1" });
+    expect(agentSchedules.removeAgentSchedule).toHaveBeenCalledWith("user-1", "agent-1", "sched-1");
+    expect(deleted.data).toEqual({ agent_id: "agent-1", deleted: "sched-1" });
+
+    // A paused schedule says why, and how to turn it back on.
+    agents.listAgentAccess.mockResolvedValue({ pages: [], hidden: 0 });
+    agentSchedules.listAgentSchedules.mockResolvedValueOnce([
+      { ...schedule, enabled: false, lastError: "accessLost", agentAccess: "edit" },
+      { ...schedule, id: "sched-2", task: "", taskHidden: true, databaseTitle: null, agentAccess: "none" },
+    ]);
+    const got = await callTool(reader, "get_agent", { agent_id: "agent-1" });
+    expect(got.data.schedules).toHaveLength(2);
+    expect(got.data.schedules[0]).toMatchObject({ schedule_id: "sched-1", enabled: false });
+    expect(got.data.schedules[0].note).toMatch(/update_agent_schedule/);
+    // A task the user can't read is kept unless they give a new one; an agent the database isn't shared with skips.
+    expect(got.data.schedules[1]).toMatchObject({ schedule_id: "sched-2", task: "", database: { id: "db-1", title: null } });
+    expect(got.data.schedules[1].note).toMatch(/skips its runs/);
+    expect(got.data.schedules[1].note).toMatch(/task is hidden.*keeps it/);
   });
 
   it("passes run_agent actions through and names the agent in automations", async () => {

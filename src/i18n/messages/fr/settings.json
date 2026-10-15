@@ -301,7 +301,8 @@
       "skills": "Compétences",
       "memory": "Mémoire",
       "runs": "Exécutions",
-      "connections": "Connexions"
+      "connections": "Connexions",
+      "schedules": "Planifications"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
@@ -399,6 +400,7 @@
       "fromHiddenRow": "D’une exécution sur une ligne que vous ne pouvez pas ouvrir",
       "fromConnection": "D’une exécution lancée par {connection}",
       "fromRequest": "D’une exécution demandée par un propriétaire",
+      "fromSchedule": "D’une exécution planifiée",
       "removedConnection": "une connexion supprimée",
       "keep": "Garder",
       "keepEdited": "Garder avec ce texte",
@@ -432,6 +434,10 @@
       "rowHidden": "Une ligne que vous ne pouvez pas ouvrir",
       "took": "a pris {time}",
       "requestedBy": "demandée par {name} ({via, select, api {API} other {assistant IA}})",
+      "scheduledBy": "planifiée par {name}",
+      "fromSchedule": "Planifiée",
+      "fromScheduleOn": "Planifiée · {database}",
+      "fromScheduleHidden": "Planifiée · une base de données que vous ne pouvez pas ouvrir",
       "task": "Tâche :",
       "showDetails": "Afficher ce qu’il a fait",
       "hideDetails": "Masquer ce qu’il a fait",
@@ -445,6 +451,7 @@
         "agentDisabled": "L’agent était en pause ou archivé.",
         "noAccess": "L’agent, ou la personne dont la modification a lancé l’exécution, ne peut pas ouvrir la ligne ou sa base de données.",
         "rowGone": "La ligne a été supprimée.",
+        "databaseGone": "La base de données dont il s’occupe a été supprimée ou mise à la corbeille.",
         "provider": "Le fournisseur d’IA n’a pas répondu.",
         "timeout": "L’exécution a pris trop de temps.",
         "tooManyAttempts": "Il n’a pas pu démarrer à temps : le quota d’IA de l’espace de travail est resté épuisé.",
@@ -555,7 +562,10 @@
         "option": "Choisissez deux options différentes de la propriété.",
         "rules": "Écrivez les règles qu’il suit.",
         "pages": "Choisissez les pages qu’il lit.",
-        "limit": "Saisissez une limite de tokens entière de 1 à 1 000 000 000."
+        "limit": "Saisissez une limite de tokens entière de 1 à 1 000 000 000.",
+        "task": "Écrivez la tâche qu’il fait à chaque exécution.",
+        "taskLength": "Une tâche compte au plus 2 000 caractères.",
+        "repeat": "Vérifiez quand elle se répète et son fuseau horaire."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
@@ -565,7 +575,10 @@
       "aiOff": "L’IA est désactivée dans cet espace de travail.",
       "limitReached": "L’agent a atteint sa limite mensuelle de tokens ({limit} tokens).",
       "tooManyRuns": "{max} exécutions demandées à cet agent attendent encore. Réessayez quand l’une d’elles sera terminée.",
-      "notARow": "Ligne introuvable."
+      "notARow": "Ligne introuvable.",
+      "notADatabase": "Choisissez une base de données de cet espace de travail que vous pouvez ouvrir.",
+      "tooManySchedules": "Il n’y a pas de place pour une autre planification ({max} au plus).",
+      "scheduleNotFound": "Cette planification n’existe plus."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -573,6 +586,47 @@
       "allowedCount": "{n} sur {total} autorisés",
       "notReady": "Cette connexion n’est pas prête (elle demande une connexion ou échoue) : l’agent ne peut pas utiliser ses outils pour l’instant.",
       "noTools": "Aucun outil listé pour l’instant."
+    },
+    "schedules": {
+      "description": "Laissez cet agent s’exécuter tout seul selon une planification : chaque exécution fait la tâche, sur la base de données choisie le cas échéant, et son rapport arrive dans votre boîte de réception. Ses exécutions n’ouvrent que ce que vous pouvez ouvrir.",
+      "agentPaused": "L’agent est en pause : ses planifications sautent leurs exécutions jusqu’à ce que vous le réactiviez.",
+      "archived": "Restaurez l’agent pour modifier ses planifications.",
+      "list": "Les planifications de l’agent",
+      "empty": "Aucune planification pour l’instant. Ajoutez-en une, par exemple chaque matin à 8 h pour passer un tableau en revue.",
+      "seeRuns": "Voir ses exécutions",
+      "add": "Ajouter une planification",
+      "editHeading": "Modifier la planification",
+      "edit": "Modifier",
+      "remove": "Supprimer la planification",
+      "every": "Tous les {count} {unit}",
+      "summary": "{how} · {time} ({zone})",
+      "summaryOn": "{how} le {days} · {time} ({zone})",
+      "noDatabase": "Aucune base de données : il ne fait que lire",
+      "databaseHidden": "Une base de données que vous ne pouvez pas ouvrir",
+      "setBy": "définie par {name}",
+      "next": "Prochaine exécution : {date}",
+      "lastRun": "Dernière exécution : {date}",
+      "lastFailed": "Sa dernière exécution n’a pas pu démarrer ; il réessaiera la prochaine fois.",
+      "paused": {
+        "runAsGone": "En pause : le compte de la personne qui l’a définie n’existe plus. Enregistrez-la pour qu’elle s’exécute en votre nom.",
+        "accessLost": "En pause : la personne qui l’a définie n’est plus propriétaire ou ne peut plus ouvrir la base de données. Enregistrez-la pour qu’elle s’exécute en votre nom.",
+        "templateGone": "En pause.",
+        "agentGone": "En pause : l’agent a été archivé.",
+        "failed": "En pause : sa dernière exécution n’a pas pu démarrer."
+      },
+      "access": {
+        "none": "L’agent ne peut pas ouvrir cette base de données : il saute ses exécutions tant que vous ne la partagez pas dans l’onglet Accès.",
+        "view": "L’agent peut seulement voir cette base de données : donnez-lui l’accès en modification dans l’onglet Accès pour qu’il modifie des lignes.",
+        "comment": "L’agent peut seulement commenter cette base de données : donnez-lui l’accès en modification dans l’onglet Accès pour qu’il modifie des lignes."
+      },
+      "database": "Base de données dont il s’occupe",
+      "noDatabaseOption": "Aucune : il ne fait que lire",
+      "databaseHint": "Chaque exécution lit d’abord cette base de données et peut modifier et commenter ses lignes ({max} modifications au plus par exécution).",
+      "noDatabaseHint": "Sans base de données, il ne modifie rien : il lit ce qui est partagé avec lui et fait un rapport.",
+      "task": "Tâche",
+      "taskPlaceholder": "p. ex. Passe toutes les lignes en revue. Mets le Statut sur En retard quand l’échéance est passée, et liste ce que je dois faire aujourd’hui.",
+      "taskKept": "Vous ne pouvez pas ouvrir la base de données, donc vous ne pouvez pas lire la tâche. Laissez ce champ vide pour la garder, ou écrivez-en une nouvelle.",
+      "reportHint": "Quand une exécution se termine, son rapport arrive dans votre boîte de réception."
     }
   },
   "analytics": {
@@ -1215,7 +1269,9 @@
         "created": "A créé l’agent « {target} »",
         "updated": "{change, select, on {A activé l’agent « {target} »} off {A mis en pause l’agent « {target} »} other {A modifié l’agent « {target} »}}",
         "archived": "A archivé l’agent « {target} »",
-        "run_requested": "A demandé une exécution à l’agent « {target} »"
+        "run_requested": "A demandé une exécution à l’agent « {target} »",
+        "schedule_set": "A défini une planification pour l’agent « {target} »",
+        "schedule_removed": "A supprimé une planification de l’agent « {target} »"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",

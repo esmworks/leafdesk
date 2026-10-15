@@ -200,6 +200,9 @@
     "approval": "Veut appeler « {tool} » sur {connection}",
     "memoryTitle": "{agent} veut retenir quelque chose",
     "memory": "{count, plural, one {Propose une note pour sa mémoire} other {Propose # notes pour sa mémoire}}",
+    "reportTitle": "Rapport de {agent}",
+    "reportDone": "Son exécution planifiée est terminée",
+    "reportFailed": "Son exécution planifiée a échoué",
     "untitled": "Sans titre",
     "snooze": "Reporter d’1 heure"
   },

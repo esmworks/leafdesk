@@ -1,12 +1,15 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { RepeatRule, ScheduleKind, ScheduleSettings } from "@/lib/schedule";
+import { workspaceAgent } from "./agents";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
 /**
  * Something that happens on a repeat rule (see lib/schedule, server/schedules): `kind` says what.
  * A "row_template" schedule adds a row from a database's row template; it goes with the template.
+ * An "agent" schedule starts a run of `agentId` with the task in `settings`, on `databaseId` when it
+ * names one; it goes with the agent.
  * It runs as the person who set it last, with their access at the time, and pauses (`enabled`
  * off, with `lastError`) when they can no longer do it.
  */
@@ -20,13 +23,15 @@ export const schedule = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     kind: text("kind").$type<ScheduleKind>().notNull(),
-    /** "row_template": the template rows are made from, and its database. */
+    /** "row_template": the template rows are made from, and its database. "agent": the database it looks after, if any. */
     templateId: text("template_id").references(() => page.id, { onDelete: "cascade" }),
     databaseId: text("database_id").references(() => page.id, { onDelete: "cascade" }),
+    /** "agent": the agent it runs. */
+    agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "cascade" }),
     rule: jsonb("rule").$type<RepeatRule>().notNull(),
     /** The IANA time zone the rule's days and time are in. */
     timeZone: text("time_zone").notNull(),
-    /** What a run does beyond its kind (for "row_template", whether the title gets the day). */
+    /** What a run does beyond its kind (for "row_template", whether the title gets the day; for "agent", the task). */
     settings: jsonb("settings").$type<ScheduleSettings>().notNull().default({}),
     enabled: boolean("enabled").notNull().default(true),
     /** When it runs next; moved on before each run, so a run happens at most once. */
@@ -47,5 +52,6 @@ export const schedule = pgTable(
     index("schedule_due_idx").on(t.nextRunAt).where(sql`${t.enabled}`),
     uniqueIndex("schedule_template_idx").on(t.templateId),
     index("schedule_database_idx").on(t.databaseId),
+    index("schedule_agent_idx").on(t.agentId),
   ],
 );

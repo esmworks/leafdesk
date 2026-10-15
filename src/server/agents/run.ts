@@ -1,6 +1,6 @@
 /**
  * The agents' worker: takes queued runs (`agent_run`, queued by an automation's "Run an agent"
- * action or a connection's trigger) and does them, as the agent's own user, with the access it has
+ * action, a connection's trigger, an owner's request or one of the agent's schedules) and does them, as the agent's own user, with the access it has
  * now. A row's run started by a member's change is also held to what that member may
  * (acting-for.ts): the agent reads and changes only pages and values both of them can, so it never
  * hands someone what they couldn't open themselves. An answer to a public form no member stands
@@ -12,11 +12,15 @@
  * A run is a short conversation with the model: the agent's instructions, what happened (a row
  * changed, or an event came in), a map of what the agent can open, then up to MAX_AGENT_ROUNDS
  * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent, and, on a
- * row's run, changing or commenting on that row, at most MAX_AGENT_WRITES times. Changes it makes
+ * row's run, changing or commenting on that row, at most MAX_AGENT_WRITES times; a schedule's run on
+ * a database may change and comment on that database's rows instead, at most MAX_SCHEDULED_WRITES
+ * times, over more turns (MAX_SCHEDULED_ROUNDS), and tells the owner who set the schedule how it
+ * went (`agent_report`). Changes it makes
  * start no automations (`asAutomation`), so agents can't set each other off. On top of those come
  * the tools of connections an owner allowed it: one that only reads runs at once, except where what
  * the run reads was written by someone the workspace doesn't know (a row's run no member started,
- * an anonymous form answer; an event's run whose trigger an owner hasn't marked trusted), where
+ * an anonymous form answer; a schedule's run over a database with such rows; an event's run whose
+ * trigger an owner hasn't marked trusted), where
  * every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved in
  * `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
  *
@@ -30,17 +34,19 @@
  * waiting call as the agent made it; only owners approving that call see it from there (the
  * agent's runs in the app), and it is cleared once the run ends.
  */
-import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, lte, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, connection, connectionEvent, connectionTrigger, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
+import { agentRun, connection, connectionEvent, connectionTrigger, notification, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
 import {
   AGENT_RUN_HISTORY_DAYS,
   AGENT_RUN_TIMEOUT_MS,
   isEventRun,
   isRowRun,
+  isScheduleRun,
   MAX_AGENT_PROMPT,
   MAX_AGENT_ROUNDS,
   MAX_AGENT_WRITES,
+  MAX_SCHEDULED_WRITES,
   skillStepsToAdd,
   type AgentPendingCall,
   type AgentRunCode,
@@ -52,10 +58,10 @@ import {
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
-import { AccessError, findMembership, pageAccessOf } from "@/server/access";
+import { AccessError, findMembership, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
-import { agentEventPrompt, agentRequestPrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
+import { agentEventPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
@@ -64,6 +70,8 @@ import { changeComments } from "@/server/comments";
 import { notifyApprovers, withdrawApproval } from "@/server/connections/approvals";
 import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset } from "@/server/connections/tools";
 import { getProperties } from "@/server/databases";
+import { signalInbox } from "@/server/notifications";
+import { pushNotifications } from "@/server/push";
 import type * as ops from "@/server/operations";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
@@ -71,7 +79,7 @@ import { agentSkillRoom, runSkills } from "./skills";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 
 const SWEEP_INTERVAL_MS = 5_000;
-/** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
+/** A run taken (or last gone on with, see converse) this long ago and not finished belongs to a worker that stopped: it's taken again. */
 const STALE_MS = 10 * 60_000;
 /** A run taken this many times (waiting for the AI allowance, or stopping the worker) fails. */
 const MAX_CLAIMS = 40;
@@ -85,6 +93,11 @@ const THOUGHT_CHARS = 300;
 const EVENT_CHARS = 8_000;
 /** The most of the prompt the agent's memory may take. */
 const MEMORY_CHARS = 6_000;
+/** A schedule's run on a database goes through the whole of it: more turns, and more time, than a row's. */
+const MAX_SCHEDULED_ROUNDS = 16;
+const SCHEDULED_RUN_TIMEOUT_MS = 6 * 60_000;
+/** The most of the database a schedule's run reads before its first turn. */
+const DATABASE_CHARS = 16_000;
 
 type Run = typeof agentRun.$inferSelect;
 type Agent = typeof workspaceAgent.$inferSelect;
@@ -100,18 +113,43 @@ const ADD_COMMENT: AiTool = {
   },
 };
 
+const ADD_ROW_COMMENT: AiTool = {
+  name: "add_comment",
+  description: "Writes a comment on a row of the database this run looks after, as you. Use it to explain a change, or to ask a person for what is missing.",
+  parameters: {
+    type: "object",
+    properties: {
+      row_id: { type: "string", description: "The row's page_id (from a source)." },
+      text: { type: "string", description: "The comment, in plain text." },
+    },
+    required: ["row_id", "text"],
+    additionalProperties: false,
+  },
+};
+
 const UPDATE_ROW = WRITE_TOOLS.find((t) => t.name === "update_row")!;
 /** Leafdesk's tools on a row's run; a connection event's run only reads. Either may also keep notes (memory.ts). */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_COMMENT];
+/** Leafdesk's tools on a schedule's run on a database: update_row and add_comment on any of its rows. */
+export const SCHEDULED_DATABASE_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_ROW_COMMENT];
+
+/** The database a schedule's run looks after, if any. */
+const scheduledDatabase = (source: AgentRunSource) => (isScheduleRun(source) ? (source.databaseId ?? null) : null);
 
 // ------------------------------------------------------------------------------------ queue
 
 const state = agentsWorker;
 
-/** What makes two queued runs the same run: the automation's run, or the event and trigger. Each run an owner asks for is its own. */
-function sameSource(source: AgentRunSource) {
+/**
+ * What makes two queued runs the same run: the automation's run, the event and trigger, or the
+ * schedule and the time it was due. Each run an owner asks for is its own.
+ */
+function sameSource(source: AgentRunSource, context: AgentRunContext) {
   if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId}`;
   if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
+  if (source.kind === "schedule" && "scheduledFor" in context && context.scheduledFor) {
+    return sql`${agentRun.source}->>'scheduleId' = ${source.scheduleId} and ${agentRun.context}->>'scheduledFor' = ${context.scheduledFor}`;
+  }
   return sql`false`;
 }
 
@@ -131,7 +169,7 @@ export async function queueAgentRun(input: {
   const [queued] = await db
     .select({ id: agentRun.id })
     .from(agentRun)
-    .where(and(eq(agentRun.agentId, input.agentId), sameSource(input.source), eq(agentRun.prompt, prompt)))
+    .where(and(eq(agentRun.agentId, input.agentId), sameSource(input.source, input.context), eq(agentRun.prompt, prompt)))
     .limit(1);
   if (queued) return queued.id;
   const [run] = await db
@@ -179,6 +217,27 @@ async function finish(run: Run, values: Ending) {
       finishedAt: new Date(),
     })
     .where(eq(agentRun.id, run.id));
+  await reportScheduledRun(run);
+}
+
+/**
+ * Tells the owner who set a schedule that its run ended (done or failed): the report is the run
+ * itself, which their inbox shows. Never throws; the run's ending is saved either way.
+ */
+async function reportScheduledRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">) {
+  if (!isScheduleRun(run.source)) return;
+  try {
+    // From the agent's user, looked up in the same statement.
+    const actorId = sql<string>`(select ${workspaceAgent.userId} from ${workspaceAgent} where ${workspaceAgent.id} = ${run.agentId})`;
+    const inserted = await db
+      .insert(notification)
+      .values({ userId: run.source.scheduledBy, workspaceId: run.workspaceId, kind: "agent_report", actorId, agentRunId: run.id })
+      .returning({ id: notification.id });
+    signalInbox(run.workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("[agents] could not report a scheduled run", redactError(error));
+  }
 }
 
 /** Puts a run back to wait (for the workspace's AI allowance) until `at`. */
@@ -230,13 +289,25 @@ export async function processRun(run: Run): Promise<void> {
   // too (turning it off holds back the calls of runs already under way). A trigger since removed
   // isn't trusted.
   let trusted = false;
-  // A run an owner asked for is held to their access, and stands behind what it reads as they do;
-  // only owners ask for runs, so one whose asker is no longer an owner opens nothing.
-  if (run.source.kind === "request") {
-    const asker = await findMembership(run.source.requestedBy, run.workspaceId);
+  // A run an owner asked for (or set a schedule for) is held to their access, and stands behind
+  // what it reads as they do; only owners ask for runs and set schedules, so one whose owner is no
+  // longer an owner opens nothing.
+  if (run.source.kind === "request" || run.source.kind === "schedule") {
+    const ownerId = run.source.kind === "request" ? run.source.requestedBy : run.source.scheduledBy;
+    const asker = await findMembership(ownerId, run.workspaceId);
     if (asker?.role !== "owner") return finish(run, { status: "failed", code: "noAccess" });
-    member = bound = run.source.requestedBy;
+    member = bound = ownerId;
     trusted = true;
+  }
+  const databaseId = scheduledDatabase(run.source);
+  if (databaseId) {
+    const [database] = await db.select({ kind: page.kind, archivedAt: page.archivedAt }).from(page).where(eq(page.id, databaseId));
+    if (!database || database.archivedAt || database.kind !== "database") return finish(run, { status: "failed", code: "databaseGone" });
+    const { level } = await withinMember(agent, bound, () => pageAccessOf(agent.userId, databaseId));
+    if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
+    // The run reads every row unattended: the owner stands behind rows people of the workspace
+    // wrote, not an anonymous form answer or a row someone since gone last changed.
+    trusted = await rowsStoodBehind(databaseId, run.workspaceId);
   }
   if (isRowRun(run.source)) {
     const { rowId, databaseId } = run.source;
@@ -290,6 +361,28 @@ async function memberBehind(run: Run): Promise<string | null> {
   return (await findMembership(actorId, run.workspaceId)) ? actorId : null;
 }
 
+/**
+ * Whether people of the workspace (agents included, whose changes are held to someone's access)
+ * created and last changed every live row of the database. A row from someone the workspace doesn't
+ * know may carry anyone's instructions, so a schedule's run over such a database asks before each
+ * connection tool and proposes no notes, as a row's run no member started does.
+ */
+async function rowsStoodBehind(databaseId: string, workspaceId: string) {
+  const [stranger] = await db
+    .select({ id: page.id })
+    .from(page)
+    .where(
+      and(
+        eq(page.parentId, databaseId),
+        isNull(page.archivedAt),
+        eq(page.isTemplate, false),
+        or(isNull(page.createdBy), not(inWorkspace(page.createdBy, workspaceId)), and(isNotNull(page.updatedBy), not(inWorkspace(page.updatedBy, workspaceId)))),
+      ),
+    )
+    .limit(1);
+  return !stranger;
+}
+
 /** Runs `fn` with the agent held to this member's access as well (no one: the agent's own). */
 function withinMember<T>(agent: Agent, member: string | null, fn: () => Promise<T>): Promise<T> {
   return member ? runActingFor({ userId: agent.userId, forUserId: member }, fn) : fn();
@@ -306,24 +399,37 @@ async function converse(
 ): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
   const rowRun = isRowRun(run.source);
+  const scheduled = isScheduleRun(run.source);
+  const databaseId = scheduledDatabase(run.source);
+  // Changes it may make in all, and turns with the model it may take.
+  const maxWrites = databaseId ? MAX_SCHEDULED_WRITES : MAX_AGENT_WRITES;
+  const maxRounds = databaseId ? MAX_SCHEDULED_ROUNDS : MAX_AGENT_ROUNDS;
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
   const limits = aiConfig().limits;
   // The run's own time, from now: the wait for an answer doesn't count.
-  const signal = AbortSignal.timeout(AGENT_RUN_TIMEOUT_MS);
+  const signal = AbortSignal.timeout(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
   const toolset = await agentToolset(agent.id);
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   // What a run reads that no one in the workspace stands behind could fill the owners' review with
   // its own notes: such a run proposes none.
   const memoryOn = await memoryAvailable(run.workspaceId);
   const remembers = memoryOn && !askEveryTool;
-  const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...(remembers ? AGENT_MEMORY_TOOLS : []), ...toolset.tools];
+  const tools = [...(rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : CHAT_TOOLS), ...(remembers ? AGENT_MEMORY_TOOLS : []), ...toolset.tools];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
   // someone else may edit by then is left out (see steps below).
   const skillSet = await runSkills(agent, agentSkillRoom(), bound);
   const requested = run.source.kind === "request";
-  const system = agentSystemPrompt(agent, { row: rowRun, requested, connections, askEveryTool, skills: skillSet.skills, remembers });
+  const system = agentSystemPrompt(agent, {
+    row: rowRun,
+    requested,
+    scheduled: scheduled ? { database: Boolean(databaseId), maxWrites } : undefined,
+    connections,
+    askEveryTool,
+    skills: skillSet.skills,
+    remembers,
+  });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
@@ -351,6 +457,15 @@ async function converse(
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map, memory: memory.text }) }];
+  } else if (scheduled) {
+    // The database it looks after, read as the agent (within the owner's access), as source 1.
+    const read = databaseId
+      ? await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: databaseId } }, registry, Math.min(DATABASE_CHARS, room([])))
+      : null;
+    if (read?.isError) return { status: "failed", code: "noAccess", steps, usage };
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
+    messages = [{ role: "user", content: agentSchedulePrompt({ task: run.prompt, event: await eventText(run), database: read?.content ?? null, map, memory: memory.text }) }];
   } else if (requested) {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
@@ -367,8 +482,8 @@ async function converse(
   const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<CallResult | null> => {
     const external = toolset.byName.get(call.name);
     if (external) {
-      if (external.tool.kind === "write" && writes >= MAX_AGENT_WRITES) {
-        return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
+      if (external.tool.kind === "write" && writes >= maxWrites) {
+        return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
       }
       if ((external.tool.kind === "write" || askEveryTool) && !approved) return null;
       const left = MAX_RUN_EXTERNAL_CHARS - externalChars;
@@ -383,8 +498,8 @@ async function converse(
       if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
       return runAgentMemoryTool(agent, run.id, call);
     }
-    if (rowRun && (call.name === "update_row" || call.name === "add_comment")) {
-      if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
+    if ((rowRun || databaseId) && (call.name === "update_row" || call.name === "add_comment")) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
       const out: CallResult = call.name === "update_row" ? await updateRow(ctx, run, call) : await addComment(agent, run, call.arguments);
       if (!out.isError) writes += 1;
       return out;
@@ -441,15 +556,17 @@ async function converse(
   }
 
   let finalAnswer = "";
-  for (let round = Math.max(firstRound, usage.rounds); round < MAX_AGENT_ROUNDS; round++) {
+  for (let round = Math.max(firstRound, usage.rounds); round < maxRounds; round++) {
     if (round > firstRound) {
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
+      // Still under way: a run that takes long (a schedule's, over a database) isn't taken again as stale.
+      await db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")));
     }
     // The month's tokens may have run out since the run started or was taken again (other runs of
     // the agent use them too); a new run's first turn was checked in processRun.
     if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
-    const last = round === MAX_AGENT_ROUNDS - 1;
+    const last = round === maxRounds - 1;
     const result = await complete({
       feature: "agent",
       userId: agent.userId,
@@ -507,11 +624,30 @@ async function decided(
   };
 }
 
-/** update_row, on the run's row only, made at once (no one to ask) and starting no automations. */
+/** Whether a page is a row (not a template) of the database, still out of the trash. */
+async function isRowOf(rowId: string, databaseId: string) {
+  if (!rowId) return false;
+  const [row] = await db
+    .select({ parentId: page.parentId, archivedAt: page.archivedAt, isTemplate: page.isTemplate, inTemplate: page.inTemplate })
+    .from(page)
+    .where(eq(page.id, rowId));
+  return Boolean(row && row.parentId === databaseId && !row.archivedAt && !row.isTemplate && !row.inTemplate);
+}
+
+/**
+ * update_row, made at once (no one to ask) and starting no automations: on the run's row only, or,
+ * on a schedule's run, on the rows of the database it looks after.
+ */
 async function updateRow(ctx: ops.OperationContext, run: Run, call: { name: string; arguments: Record<string, unknown> }): Promise<ToolOutcome> {
-  if (!isRowRun(run.source)) return { content: "This run has no row to change.", isError: true };
   const rowId = typeof call.arguments.row_id === "string" ? call.arguments.row_id.trim() : "";
-  if (rowId !== run.source.rowId) {
+  const databaseId = scheduledDatabase(run.source);
+  if (databaseId) {
+    if (!(await isRowOf(rowId, databaseId))) {
+      return { content: `You may change only rows of the database this run looks after (database_id ${databaseId}). Nothing was changed.`, isError: true };
+    }
+  } else if (!isRowRun(run.source)) {
+    return { content: "This run has no row to change.", isError: true };
+  } else if (rowId !== run.source.rowId) {
     return { content: `You may change only the row that started this run (row_id ${run.source.rowId}). Nothing was changed.`, isError: true };
   }
   const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
@@ -520,10 +656,16 @@ async function updateRow(ctx: ops.OperationContext, run: Run, call: { name: stri
   return asAutomation(() => applyWrite(prepared, "approve", registry));
 }
 
-/** add_comment: a new comment thread on the run's row, as the agent. */
+/** add_comment: a new comment thread, as the agent, on the run's row (or a row of the database a schedule's run looks after). */
 async function addComment(agent: Agent, run: Run, args: Record<string, unknown>): Promise<CallResult> {
-  if (!isRowRun(run.source)) return { content: "This run has no row to comment on.", isError: true };
-  const rowId = run.source.rowId;
+  const databaseId = scheduledDatabase(run.source);
+  let rowId: string;
+  if (databaseId) {
+    rowId = typeof args.row_id === "string" ? args.row_id.trim() : "";
+    if (!(await isRowOf(rowId, databaseId))) return { content: `You may comment only on rows of the database this run looks after (database_id ${databaseId}).`, isError: true };
+  } else if (isRowRun(run.source)) {
+    rowId = run.source.rowId;
+  } else return { content: "This run has no row to comment on.", isError: true };
   const text = typeof args.text === "string" ? args.text.trim().slice(0, MAX_COMMENT) : "";
   if (!text) return { content: "add_comment needs text.", isError: true };
   try {
@@ -537,8 +679,14 @@ async function addComment(agent: Agent, run: Run, args: Record<string, unknown>)
   }
 }
 
-/** What happened, in words: the row added or the properties changed, and by whom; or the event received. */
+/** What happened, in words: the row added or the properties changed, and by whom; the event received; or who asked, or set the schedule. */
 async function eventText(run: Run) {
+  if (isScheduleRun(run.source)) {
+    const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.scheduledBy));
+    const due = "scheduledFor" in run.context && run.context.scheduledFor ? ` It was due at ${run.context.scheduledFor} (UTC).` : "";
+    const on = run.source.databaseId ? ", to look after the database below" : "";
+    return `${owner?.name ?? "An owner"} set a schedule for you that started this run${on}.${due}`;
+  }
   if (run.source.kind === "request") {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.requestedBy));
     const via = run.source.via === "api" ? "the REST API" : "an AI assistant (MCP)";
@@ -616,7 +764,7 @@ export async function expireApprovals() {
       .update(agentRun)
       .set({ status: "failed", code: "approvalTimeout", finishedAt: new Date(), state: null })
       .where(and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date())))
-      .returning({ id: agentRun.id, steps: agentRun.steps, pending: agentRun.pending });
+      .returning({ id: agentRun.id, steps: agentRun.steps, pending: agentRun.pending, workspaceId: agentRun.workspaceId, agentId: agentRun.agentId, source: agentRun.source });
     for (const run of expired) {
       const pending = run.pending;
       if (pending) {
@@ -624,6 +772,7 @@ export async function expireApprovals() {
         await db.update(agentRun).set({ steps: [...run.steps, step], pending: null }).where(eq(agentRun.id, run.id));
       }
       await withdrawApproval(run.id);
+      await reportScheduledRun(run);
     }
   } catch (error) {
     console.error("[agents] could not expire approvals", redactError(error));

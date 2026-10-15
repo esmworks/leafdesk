@@ -19,7 +19,7 @@ import {
   type JoinRequestKind,
   type NotificationKind,
 } from "@/db/schema";
-import { callToSend, inboxCallInput } from "@/lib/agents";
+import { callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import {
   FULL_RANK,
@@ -38,6 +38,7 @@ import { mailStatus } from "@/server/mail";
 import { requestLocale } from "@/server/mail/locale";
 import { inboxKinds } from "@/server/notification-preferences";
 import { pushNotifications } from "@/server/push";
+import { snippetOf } from "@/server/semantic-text";
 import { canInviteGuests } from "@/server/workspaces";
 import { startSweep } from "@/server/sweep";
 
@@ -456,7 +457,22 @@ export type InboxItem = {
   approval: InboxApproval | null;
   /** Agents' notes: what the run proposed for the agent's memory, while some of it still waits. */
   memory: InboxAgentMemory | null;
+  /** A scheduled run's report: how the run ended and what the agent said. */
+  report: InboxAgentReport | null;
 };
+
+export type InboxAgentReport = {
+  runId: string;
+  agentId: string;
+  agentName: string;
+  status: AgentRunStatus;
+  code: AgentRunCode | null;
+  /** The start of the agent's answer; null when the run looked after a database the user can no longer open. */
+  text: string | null;
+};
+
+/** The most of a report the inbox shows; the whole of it is in the run. */
+const REPORT_CHARS = 400;
 
 export type InboxAgentMemory = {
   runId: string;
@@ -603,13 +619,18 @@ export async function listNotifications(
     return inviting.get(id)!;
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
-  const [approvals, proposals] = await Promise.all([approvalsOf(runsOf("agent_approval")), inboxProposals(userId, runsOf("agent_memory"))]);
+  const [approvals, proposals, reports] = await Promise.all([
+    approvalsOf(runsOf("agent_approval")),
+    inboxProposals(userId, runsOf("agent_memory")),
+    reportsOf(userId, runsOf("agent_report")),
+  ]);
   return Promise.all(
     rows.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, ...row }) => ({
       ...row,
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,
+      report: agentRunId && row.kind === "agent_report" ? (reports.get(agentRunId) ?? null) : null,
       accessRequest:
         row.kind === "access_request" && requestId
           ? {
@@ -622,6 +643,42 @@ export async function listNotifications(
           : null,
     })),
   );
+}
+
+/** How these scheduled runs ended, for their reports in `viewer`'s inbox. */
+async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, InboxAgentReport>> {
+  if (!runIds.length) return new Map();
+  const runs = await db
+    .select({
+      id: agentRun.id,
+      status: agentRun.status,
+      code: agentRun.code,
+      answer: agentRun.answer,
+      source: agentRun.source,
+      agentId: agentRun.agentId,
+      agentName: workspaceAgent.name,
+    })
+    .from(agentRun)
+    .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
+    .where(inArray(agentRun.id, runIds));
+  const databaseIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : [])))];
+  const open = new Set(
+    databaseIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, databaseIds), pageVisibleTo(viewer)))).map((p) => p.id) : [],
+  );
+  const out = new Map<string, InboxAgentReport>();
+  for (const r of runs) {
+    // What it says may quote the database: only for those who can still open it.
+    const hidden = isScheduleRun(r.source) && Boolean(r.source.databaseId) && !open.has(r.source.databaseId!);
+    out.set(r.id, {
+      runId: r.id,
+      agentId: r.agentId,
+      agentName: r.agentName,
+      status: r.status,
+      code: r.code ?? null,
+      text: hidden ? null : snippetOf(r.answer, REPORT_CHARS),
+    });
+  }
+  return out;
 }
 
 /** The calls these runs wait on (runs no longer waiting are left out). */
