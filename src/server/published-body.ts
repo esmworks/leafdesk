@@ -5,6 +5,7 @@ import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
 import { BREADCRUMB_BLOCK, MERMAID_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
+import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
@@ -160,6 +161,8 @@ export type BodyHeading = { anchor: string; level: number; text: string };
 export type BodySegment =
   | { kind: "html"; html: string }
   | { kind: "embed"; type: EmbedBlockType; databaseId: string; view: LinkedView | null }
+  /** A dashboard's widgets, each a database seen through its own view. */
+  | { kind: "dashboard"; widgets: DashboardWidget[] }
   | { kind: "toc"; headings: BodyHeading[] }
   | { kind: "breadcrumb" }
   | { kind: "mermaid"; source: string }
@@ -187,6 +190,7 @@ function pdfOf(block: PageBlock): string | null {
 const isStandalone = (block: PageBlock) =>
   block.type === COLUMN_LIST_BLOCK ||
   isEmbedBlockType(block.type) ||
+  block.type === DASHBOARD_BLOCK ||
   isWebBlockType(block.type) ||
   block.type === TOC_BLOCK ||
   block.type === BREADCRUMB_BLOCK ||
@@ -386,6 +390,13 @@ export async function bodySegmentsFromBlocks(
           name: typeof props.name === "string" ? props.name : "",
           caption: typeof props.caption === "string" ? props.caption : "",
         });
+        return;
+      }
+      if (block.type === DASHBOARD_BLOCK) {
+        const widgets = parseDashboard((block.props as { widgets?: unknown }).widgets);
+        if (!widgets.length) return;
+        await flush();
+        segments.push({ kind: "dashboard", widgets });
         return;
       }
       if (block.type === MERMAID_BLOCK) {

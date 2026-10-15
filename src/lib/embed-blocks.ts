@@ -63,6 +63,11 @@ export function parseLinkedView(value: unknown): LinkedView {
   } catch {
     return DEFAULT_LINKED_VIEW;
   }
+  return checkLinkedView(parsed);
+}
+
+/** A linked view already parsed from JSON (a dashboard widget's), checked like parseLinkedView's. */
+export function checkLinkedView(parsed: unknown): LinkedView {
   if (!parsed || typeof parsed !== "object") return DEFAULT_LINKED_VIEW;
   const { type, config } = parsed as { type?: unknown; config?: unknown };
   if (!isViewType(type) || type === "form") return DEFAULT_LINKED_VIEW;

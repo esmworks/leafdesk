@@ -44,6 +44,8 @@ import { isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
 import { idFromLink, pageUrl, sliceText, ToolInputError } from "./mcp/format";
+import { dashboardsOutput } from "./mcp/dashboards";
+import { markdownDashboards } from "@/lib/dashboard";
 import {
   describeAccessSettings,
   describeChartSeries,
@@ -544,6 +546,9 @@ export async function getPage(
         in_trash: e.database?.inTrash ?? false,
         url: e.database ? pageUrl(e.database.workspaceId, e.database.id) : null,
       }));
+    }
+    if (markdownDashboards(content.markdown).length) {
+      out.dashboards = await dashboardsOutput(userId, (await getCollab().readBlocks(page.id)).blocks);
     }
     const children = await pages.listChildren(userId, page.workspaceId, page.id);
     out.child_pages = children.slice(0, 100).map((c) => ({ id: c.id, title: pageLabel(c.title), kind: c.kind }));

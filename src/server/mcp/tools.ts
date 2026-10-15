@@ -75,7 +75,23 @@ import * as notifications from "@/server/notifications";
 import * as pages from "@/server/pages";
 import * as templates from "@/server/templates";
 import { builtinTemplates } from "@/lib/builtin-templates";
-import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, requirePageAccess } from "@/server/access";
+import {
+  DASHBOARD_BLOCK,
+  DASHBOARD_COLUMNS,
+  defaultSpan,
+  MAX_WIDGET_TITLE,
+  MAX_WIDGETS,
+  newWidgetId,
+  parseDashboard,
+  placeWidget,
+  serializeDashboard,
+  updateWidget,
+  type DashboardWidget,
+  type WidgetSpan,
+} from "@/lib/dashboard";
+import { checkLinkedView } from "@/lib/embed-blocks";
+import { dashboardsIn, describeWidgets } from "./dashboards";
 import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import * as skills from "@/server/skills";
@@ -152,7 +168,7 @@ function withContentNote(result: CallToolResult): CallToolResult {
 }
 
 const EMBED_NOTE =
-  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases.";
+  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards.";
 
 /** How formulas are written, for tool descriptions. */
 const FORMULA_HELP =
@@ -320,7 +336,9 @@ const viewLayoutInputs = {
   chart_type: z
     .enum(CHART_TYPES)
     .optional()
-    .describe('Chart only: "bar" (vertical columns, the default), "horizontal_bar", "line" or "donut" (a pie chart with a hole).'),
+    .describe(
+      'Chart only: "bar" (vertical columns, the default), "horizontal_bar", "line", "donut" (a pie chart with a hole) or "number" (one value: the aggregate over every row the view shows; it groups by nothing).',
+    ),
   aggregate: z
     .enum(["count", ...CHART_AGGREGATE_FNS])
     .optional()
@@ -403,6 +421,41 @@ const groupSettingsInput = {
     .optional()
     .describe('Grouping by a status: one group per option (the default) or per status group ("group": todo, in_progress, done).'),
   hide_empty_groups: z.boolean().optional().describe("Leave out groups without rows."),
+};
+
+/** Layouts a dashboard widget shows: any view but a form. */
+const WIDGET_TYPE = z.enum(VIEW_TYPES).exclude(["form"]);
+
+/** A dashboard widget's settings besides its database and layout, shared by add_dashboard and update_dashboard_widget. */
+const widgetInputs = {
+  title: z.string().max(MAX_WIDGET_TITLE).optional().describe("Shown above the widget; empty for the database's title."),
+  width: z
+    .number()
+    .int()
+    .min(1)
+    .max(DASHBOARD_COLUMNS)
+    .optional()
+    .describe(
+      `How many of the dashboard's ${DASHBOARD_COLUMNS} columns the widget takes on a wide page (narrower pages show two columns, phones one widget per row). By default 1 for a number, 2 for a chart or list and 4 for other layouts.`,
+    ),
+  group_by: z
+    .string()
+    .optional()
+    .describe("Charts, boards and tables: the property to group rows by. Charts and boards default to the first select or status property."),
+  ...groupSettingsInput,
+  date_by: z.string().optional().describe("Calendars and timelines: the date property that places rows."),
+  ...viewLayoutInputs,
+  filters: filtersInput.optional(),
+  filter_combinator: filterCombinatorInput,
+  sorts: sortsInput.optional(),
+};
+
+type WidgetInput = ViewInput & {
+  database_id?: string;
+  type?: Exclude<ViewType, "form">;
+  title?: string;
+  width?: number;
+  group_by?: string;
 };
 
 /** The view settings the caller asked to change, converted from names to stored ids. */
@@ -2360,6 +2413,171 @@ export function createMcpServer(principal: McpPrincipal) {
               : ((await forms.formPublicationsOf([view_id])).get(view_id) ?? null);
         const saved = { ...view, name: name?.trim() || view.name, config };
         return { ...viewOutput(database, properties, saved, lookups), ...ops.formLinkOutput(view.type, link) };
+      }),
+  );
+
+  /**
+   * A widget built from tool input. Changing `current`, settings left out keep their values; another
+   * database or layout starts the view over.
+   */
+  const widgetFrom = async (input: WidgetInput, taken: DashboardWidget[], current?: DashboardWidget): Promise<DashboardWidget> => {
+    const { database_id, type: askedType, title, width, filters, filter_combinator, sorts, ...layout } = input;
+    const databaseId = database_id ?? current?.databaseId;
+    if (!databaseId) throw new ToolInputError("Give database_id: the database the widget shows.");
+    const { database, properties } = await databases.getDatabase(userId, databaseId);
+    if (database.archivedAt) throw new ToolInputError(`The database "${pageLabel(database.title)}" is in the trash.`);
+    const lookups = await databases.getLookups(userId, properties);
+    const type = askedType ?? current?.view.type ?? "chart";
+    const same = current !== undefined && current.databaseId === databaseId && current.view.type === type;
+    const base = same ? current.view.config : {};
+    const patch = viewConfigPatch(properties, type, { ...layout, filters, filter_combinator, sorts }, lookups, base);
+    const view = checkLinkedView({ type, config: { ...base, ...patch } });
+    return {
+      id: current?.id ?? newWidgetId(taken),
+      databaseId,
+      title: (title ?? current?.title ?? "").trim(),
+      span: (width as WidgetSpan | undefined) ?? (same ? current.span : defaultSpan(view)),
+      view,
+    };
+  };
+
+  /** A page that may get or change a dashboard: one the user can edit, with a body, not trashed or locked. */
+  const dashboardPage = async (pageId: string) => {
+    const page = await requirePageAccess(userId, pageId, "edit");
+    if (page.kind === "database") throw new ToolInputError("A database has no body to hold a dashboard; add it to a page.");
+    if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before editing.");
+    if (isPageLocked(page)) throw new ToolInputError(PAGE_LOCKED_MESSAGE);
+    return page;
+  };
+
+  server.registerTool(
+    "add_dashboard",
+    {
+      title: "Add a dashboard to a page",
+      description: `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget. A history snapshot is saved first.`,
+      inputSchema: z.object({
+        page_id: id("page"),
+        widgets: z
+          .array(z.object({ database_id: id("database"), type: WIDGET_TYPE.default("chart"), ...widgetInputs }))
+          .min(1)
+          .max(MAX_WIDGETS)
+          .describe("The widgets, in reading order (left to right, then down)."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    ({ page_id, widgets }) =>
+      runTool(async () => {
+        assertWrite();
+        const page = await dashboardPage(page_id);
+        const built: DashboardWidget[] = [];
+        for (const input of widgets) built.push(await widgetFrom(input, built));
+        const blockId = crypto.randomUUID();
+        await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props: { widgets: serializeDashboard(built) } }], actor, true);
+        return {
+          dashboard_id: blockId,
+          page_id,
+          widgets: await describeWidgets(userId, built),
+          url: pageUrl(page.workspaceId, page.id),
+          snapshot: "Saved the previous version to page history before adding the dashboard.",
+        };
+      }),
+  );
+
+  server.registerTool(
+    "update_dashboard_widget",
+    {
+      title: "Add, change, move or remove a dashboard widget",
+      description: `Change a dashboard on a page (see add_dashboard; get_page lists dashboards and their widgets under dashboards). With widget_id, change that widget: its title, width or view settings (settings you leave out keep their values; a new database_id or type starts its view over), move it with before_widget_id or after_widget_id, or remove it with remove. Without widget_id, add a widget (database_id needed) at the end, or next to before_widget_id / after_widget_id; a dashboard holds up to ${MAX_WIDGETS}. A history snapshot is saved first.`,
+      inputSchema: z.object({
+        page_id: id("page"),
+        dashboard_id: z.string().min(1).optional().describe("The dashboard to change; needed only when the page has more than one."),
+        widget_id: z.string().min(1).optional().describe("The widget to change, move or remove; leave out to add a widget."),
+        remove: z.boolean().optional().describe("Remove the widget."),
+        before_widget_id: z.string().min(1).optional().describe("Put the widget right before this one."),
+        after_widget_id: z.string().min(1).optional().describe("Put the widget right after this one."),
+        database_id: id("database").optional().describe("The database the widget shows: needed for a new widget."),
+        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery" or "timeline". New widgets are charts.'),
+        ...widgetInputs,
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    ({ page_id, dashboard_id, widget_id, remove, before_widget_id, after_widget_id, ...input }) =>
+      runTool(async () => {
+        assertWrite();
+        const page = await dashboardPage(page_id);
+        const found = dashboardsIn((await getCollab().readBlocks(page_id)).blocks);
+        const dashboard = dashboard_id ? found.find((d) => d.id === dashboard_id) : found.length === 1 ? found[0] : undefined;
+        if (!dashboard) {
+          throw new ToolInputError(
+            dashboard_id
+              ? `No dashboard with id "${dashboard_id}" on this page. get_page lists them under dashboards.`
+              : found.length
+                ? "This page has more than one dashboard: give dashboard_id (get_page lists them under dashboards)."
+                : "This page has no dashboard. Add one with add_dashboard.",
+          );
+        }
+        if (before_widget_id !== undefined && after_widget_id !== undefined) {
+          throw new ToolInputError("Give before_widget_id or after_widget_id, not both.");
+        }
+        const target = before_widget_id ?? after_widget_id;
+        const side = before_widget_id !== undefined ? "before" : "after";
+        const current = widget_id === undefined ? undefined : dashboard.widgets.find((w) => w.id === widget_id);
+        if (widget_id !== undefined && !current) throw new ToolInputError(`No widget with id "${widget_id}" on this dashboard.`);
+        if (target !== undefined && (target === widget_id || !dashboard.widgets.some((w) => w.id === target))) {
+          throw new ToolInputError(`No other widget with id "${target}" on this dashboard.`);
+        }
+        const settings = Object.values(input).some((v) => v !== undefined);
+        let change: (widgets: DashboardWidget[]) => DashboardWidget[] | null;
+        let changed: { removed: string } | { added: string } | { updated: string };
+        if (remove) {
+          if (!current) throw new ToolInputError("Give widget_id: the widget to remove.");
+          if (settings || target !== undefined) throw new ToolInputError("remove takes no other settings.");
+          change = (list) => (list.some((w) => w.id === current.id) ? updateWidget(list, current.id, () => null) : null);
+          changed = { removed: current.id };
+        } else if (!current) {
+          if (dashboard.widgets.length >= MAX_WIDGETS) throw new ToolInputError(`A dashboard holds up to ${MAX_WIDGETS} widgets; remove one first.`);
+          const added = await widgetFrom(input, dashboard.widgets);
+          change = (list) => {
+            if (list.length >= MAX_WIDGETS || list.some((w) => w.id === added.id)) return null;
+            const next = [...list, added];
+            return target !== undefined ? placeWidget(next, added.id, target, side) : next;
+          };
+          changed = { added: added.id };
+        } else {
+          if (!settings && target === undefined) {
+            throw new ToolInputError("Nothing to change: give a widget setting, before_widget_id or after_widget_id, or remove.");
+          }
+          const next = settings ? await widgetFrom(input, dashboard.widgets, current) : current;
+          change = (list) => {
+            if (!list.some((w) => w.id === current.id)) return null;
+            const updated = updateWidget(list, current.id, () => next);
+            return target !== undefined ? placeWidget(updated, current.id, target, side) : updated;
+          };
+          changed = { updated: current.id };
+        }
+        let written = null as DashboardWidget[] | null;
+        await getCollab().updateBlockProps(
+          page_id,
+          dashboard.id,
+          (props, type) => {
+            if (type !== DASHBOARD_BLOCK) return null;
+            written = change(parseDashboard(props.widgets));
+            return written && { ...props, widgets: serializeDashboard(written) };
+          },
+          actor,
+          true,
+        );
+        if (!written) throw new ToolInputError("The dashboard changed while this ran. Call get_page and try again.");
+        return {
+          dashboard_id: dashboard.id,
+          page_id,
+          ...changed,
+          widgets: await describeWidgets(userId, written),
+          url: pageUrl(page.workspaceId, page.id),
+          snapshot: "Saved the previous version to page history before changing the dashboard.",
+        };
       }),
   );
 

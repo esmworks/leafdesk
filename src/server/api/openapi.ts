@@ -223,6 +223,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
       ...rowAccessFields,
       database_properties: { type: "array", items: { type: "object", additionalProperties: true }, description: "For databases." },
       embedded_databases: { type: "array", items: { type: "object", additionalProperties: true } },
+      dashboards: {
+        type: "array",
+        items: { type: "object", additionalProperties: true },
+        description: "The body's dashboards, each with its widgets (a database and the view it shows).",
+      },
       child_pages: { type: "array", items: loose({ id, title: { type: "string" }, kind: pageKind }) },
       child_pages_truncated: { type: "integer", description: "How many sub-pages there are, when over 100." },
       linked_from: { type: "array", items: loose({ id, title: { type: "string" }, url }) },

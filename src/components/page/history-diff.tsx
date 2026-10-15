@@ -7,6 +7,7 @@ import {
   Database,
   File as FileIcon,
   Image as ImageIcon,
+  LayoutDashboard,
   MonitorPlay,
   Music,
   Route,
@@ -94,6 +95,8 @@ function BlockBody({ block, text }: { block: DiffBlock; text: ReactNode }) {
       return marker(<TableOfContents className="mt-1 h-4 w-4" />);
     case "breadcrumb":
       return marker(<Route className="mt-1 h-4 w-4" />);
+    case "dashboard":
+      return marker(<LayoutDashboard className="mt-1 h-4 w-4" />);
     case "table":
       return <div className="whitespace-pre-wrap text-sm">{text}</div>;
     case "divider":
@@ -115,6 +118,7 @@ function ChangeRow({ change }: { change: BlockChange }) {
   const t = useTranslations("page.history");
   const te = useTranslations("page.embed");
   const tb = useTranslations("page.blocks");
+  const td = useTranslations("page.dashboard");
   const { block } = change;
   // A database block is only named: the version keeps which database, not its rows back then.
   // An empty block still takes a line (a no-break space), so an added or removed empty paragraph shows.
@@ -124,7 +128,9 @@ function ChangeRow({ change }: { change: BlockChange }) {
       ? tb("toc.label")
       : block.type === "breadcrumb"
         ? tb("breadcrumb.label")
-        : block.text || "\u00a0";
+        : block.type === "dashboard"
+          ? td("title")
+          : block.text || "\u00a0";
   const text =
     change.op === "changed" ? (
       <Words words={change.words} />

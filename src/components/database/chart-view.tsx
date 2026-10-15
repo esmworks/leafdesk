@@ -17,7 +17,9 @@ import {
   countsWholeNumbers,
   isAdditive,
   MAX_CHART_SERIES,
+  measureRows,
   niceTicks,
+  rowCountOf,
   type ChartData,
   type ChartGroup,
   type ChartMeasure,
@@ -69,9 +71,17 @@ export function ChartView({
   const context = useGroupContext(groupBy ?? undefined);
   const stackContext = useGroupContext(stackBy ?? undefined);
   const data = useMemo(
-    () => (groupBy ? chartData(rows, { groupBy, stackBy, measure, config, context, stackContext }) : null),
-    [rows, groupBy, stackBy, measure, config, context, stackContext],
+    () => (groupBy && chartType !== "number" ? chartData(rows, { groupBy, stackBy, measure, config, context, stackContext }) : null),
+    [rows, groupBy, stackBy, measure, config, context, stackContext, chartType],
   );
+
+  if (chartType === "number") {
+    return (
+      <div className="page-gutter pb-6">
+        <NumberChart workspaceId={workspaceId} view={view} properties={properties} measure={measure} rows={rows} />
+      </div>
+    );
+  }
 
   if (!groupBy || !data) {
     return (
@@ -113,10 +123,111 @@ export function ChartView({
   );
 }
 
-/** What a mark stands for: a group, or one segment of a stacked bar. */
-type Target = { group: ChartGroup<Row>; segment?: number };
+/** What a chart measures, by name: "Count", or "Sum of Estimate". */
+export function useMeasureName(measure: ChartMeasure, properties: Pick<Property, "id" | "name">[]) {
+  const t = useTranslations("database");
+  const tc = useTranslations("database.calculate");
+  return measure.kind === "count"
+    ? t("chart.countShort")
+    : t("chart.measureOf", { calculation: tc(`menu.${measure.fn}`), property: properties.find((p) => p.id === measure.prop.id)?.name ?? "" });
+}
 
-function Chart({
+/**
+ * One value drawn large with what it measures under it: a number chart, or a dashboard widget
+ * showing one. Clicking it lists the rows behind it when `onOpen` is given.
+ */
+export function NumberFigure({
+  value,
+  label,
+  openLabel,
+  onOpen,
+  compact,
+}: {
+  value: string;
+  label: string;
+  openLabel?: string;
+  onOpen?: (anchor: HTMLElement) => void;
+  compact?: boolean;
+}) {
+  const figure = (
+    <>
+      <span className={cn("block truncate font-semibold tracking-tight tabular-nums", compact ? "text-3xl" : "text-5xl")}>{value}</span>
+      <span className="mt-1 block truncate text-sm text-fg-muted">{label}</span>
+    </>
+  );
+  if (!onOpen) return <div className="min-w-0 py-1">{figure}</div>;
+  return (
+    <button
+      type="button"
+      aria-label={openLabel}
+      onClick={(e) => onOpen(e.currentTarget)}
+      className="block max-w-full min-w-0 rounded-md py-1 text-left outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      {figure}
+    </button>
+  );
+}
+
+/** A number chart: the view's measure over all of its rows; clicking it lists them. */
+function NumberChart({
+  workspaceId,
+  view,
+  properties,
+  measure,
+  rows,
+}: {
+  workspaceId: string;
+  view: View;
+  properties: Property[];
+  measure: ChartMeasure;
+  rows: Row[];
+}) {
+  const t = useTranslations("database");
+  const formatResult = useFormatResult();
+  const [open, setOpen] = useState<HTMLElement | null>(null);
+  const name = useMeasureName(measure, properties);
+  const fn: AggregateFn = measure.kind === "count" ? "count_all" : measure.fn;
+  const result = useMemo(() => measureRows(rows, measure), [rows, measure]);
+  const value = result ? formatResult(fn, result, measure.kind === "count" ? undefined : measure.prop.options) : "–";
+  return (
+    <>
+      <NumberFigure value={value} label={name} openLabel={t("chart.openRows", { group: name, value })} onOpen={setOpen} />
+      {open && (
+        <GroupRows
+          workspaceId={workspaceId}
+          view={view}
+          properties={properties}
+          title={name}
+          value={value}
+          rows={rows}
+          anchor={open}
+          onClose={() => setOpen(null)}
+        />
+      )}
+    </>
+  );
+}
+
+/** What a mark stands for: a group, or one segment of a stacked bar. */
+type Target = { group: ChartGroup<unknown>; segment?: number };
+
+/** The rows behind a clicked mark, for a chart that draws its own list (see Chart `renderRows`). */
+export type OpenedMark = {
+  /** The group's key, and the segment's series key on a stacked bar. */
+  groupKey: string;
+  seriesKey?: string;
+  title: string;
+  value: string;
+  anchor: HTMLElement;
+  onClose: () => void;
+};
+
+/**
+ * The marks, tooltips, legend and accessible table of a chart over `data`. Its rows are only
+ * counted (rowCountOf) and listed when a mark is clicked: by default from the data itself, or by
+ * `renderRows` for data sent without them (a dashboard widget).
+ */
+export function Chart<R>({
   workspaceId,
   view,
   properties,
@@ -124,17 +235,18 @@ function Chart({
   stackBy,
   measure,
   data,
+  renderRows,
 }: {
   workspaceId: string;
-  view: View;
-  properties: Property[];
-  groupBy: Property;
-  stackBy: Property | null;
+  view: Pick<View, "config"> & Partial<View>;
+  properties: Pick<Property, "id" | "name">[];
+  groupBy: Pick<Property, "name" | "type">;
+  stackBy: Pick<Property, "name"> | null;
   measure: ChartMeasure;
-  data: ChartData<Row>;
+  data: ChartData<R>;
+  renderRows?: (opened: OpenedMark) => ReactNode;
 }) {
   const t = useTranslations("database");
-  const tc = useTranslations("database.calculate");
   const config = view.config;
   const chartType = chartTypeOf(config);
   const titleId = useId();
@@ -152,10 +264,7 @@ function Chart({
 
   const fn: AggregateFn = measure.kind === "count" ? "count_all" : measure.fn;
   const accumulate = chartAccumulateOf(config, groupBy, measure);
-  const measured =
-    measure.kind === "count"
-      ? t("chart.countShort")
-      : t("chart.measureOf", { calculation: tc(`menu.${measure.fn}`), property: properties.find((p) => p.id === measure.prop.id)?.name ?? "" });
+  const measured = useMeasureName(measure, properties);
   // Running totals say so wherever the value is named: the axis, tooltips, row lists, the table.
   const measureName = accumulate ? t(`chart.running.${accumulate}`, { measure: measured }) : measured;
   const nameOf = (g: { key: string; value: GroupValue; other?: boolean }) => (g.other ? t("chart.other") : groupName(g));
@@ -213,7 +322,7 @@ function Chart({
   });
 
   // A segment of a stacked bar answers hover and clicks on its own; its bar keeps keyboard focus.
-  const segment = (group: ChartGroup<Row>, index: number): React.SVGProps<SVGPathElement> => ({
+  const segment = (group: ChartGroup<unknown>, index: number): React.SVGProps<SVGPathElement> => ({
     onMouseEnter: (e) => {
       e.stopPropagation();
       pointAt({ group, segment: index }, e.currentTarget);
@@ -263,7 +372,7 @@ function Chart({
             )}
             <div className="text-fg-muted">
               {t("chart.rowCount", {
-                count: hoverSeries && hover.segment !== undefined ? hover.group.segments[hover.segment].rows.length : hover.group.rows.length,
+                count: rowCountOf(hoverSeries && hover.segment !== undefined ? hover.group.segments[hover.segment] : hover.group),
               })}
             </div>
           </Tooltip>
@@ -302,22 +411,32 @@ function Chart({
         </tbody>
       </table>
 
-      {open && (
-        <GroupRows
-          workspaceId={workspaceId}
-          view={view}
-          properties={properties}
-          title={
+      {open &&
+        (() => {
+          const title =
             open.segment !== undefined
               ? t("chart.segment", { group: nameOf(open.group), series: seriesLabel(data.series[open.segment]) })
-              : nameOf(open.group)
+              : nameOf(open.group);
+          const value = `${measureName}: ${show(open.segment !== undefined ? open.group.segments[open.segment].result : open.group.result)}`;
+          const onClose = () => setOpen(null);
+          if (renderRows) {
+            const seriesKey = open.segment !== undefined ? data.series[open.segment]?.key : undefined;
+            return renderRows({ groupKey: open.group.key, ...(seriesKey !== undefined ? { seriesKey } : {}), title, value, anchor: open.anchor, onClose });
           }
-          value={`${measureName}: ${show(open.segment !== undefined ? open.group.segments[open.segment].result : open.group.result)}`}
-          rows={open.segment !== undefined ? open.group.segments[open.segment].rows : open.group.rows}
-          anchor={open.anchor}
-          onClose={() => setOpen(null)}
-        />
-      )}
+          // Without renderRows the data carries its rows: ChartView's.
+          return (
+            <GroupRows
+              workspaceId={workspaceId}
+              view={view as View}
+              properties={properties as Property[]}
+              title={title}
+              value={value}
+              rows={(open.segment !== undefined ? open.group.segments[open.segment].rows : open.group.rows) as Row[]}
+              anchor={open.anchor}
+              onClose={onClose}
+            />
+          );
+        })()}
     </div>
   );
 }
@@ -353,9 +472,9 @@ function markColor(value: GroupValue, slot: number, other: boolean | undefined, 
 }
 
 type MarkProps = {
-  data: ChartData<Row>;
+  data: ChartData<unknown>;
   handlers: (target: Target) => React.SVGProps<SVGGElement>;
-  segment: (group: ChartGroup<Row>, index: number) => React.SVGProps<SVGPathElement>;
+  segment: (group: ChartGroup<unknown>, index: number) => React.SVGProps<SVGPathElement>;
   pointAt: (target: Target, el: Element) => void;
   openRows: (target: Target, el: Element) => void;
   clearHover: () => void;
@@ -381,7 +500,7 @@ function fit(text: string, max: number) {
 }
 
 /** The value axis: round ticks over the data's range, whole numbers for counts. */
-function scaleOf(data: ChartData<Row>, measure: ChartMeasure, count: number) {
+function scaleOf(data: ChartData<unknown>, measure: ChartMeasure, count: number) {
   const ticks = niceTicks(data.min, data.max, count, data.format === "number" && countsWholeNumbers(measure));
   return { ticks, lo: ticks[0], hi: ticks[ticks.length - 1] };
 }

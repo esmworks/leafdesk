@@ -623,7 +623,8 @@
       "bar": "Dikey çubuk",
       "horizontal_bar": "Yatay çubuk",
       "line": "Çizgi",
-      "donut": "Halka"
+      "donut": "Halka",
+      "number": "Sayı"
     },
     "groupBy": "Grupla",
     "measure": "Değer",

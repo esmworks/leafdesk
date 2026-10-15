@@ -32,6 +32,7 @@ import {
   splitMarkdownReferences,
   isEmbedBlockType,
 } from "@/lib/embed-blocks";
+import { dashboardBlockConfig, restoreDashboards } from "@/lib/dashboard";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { restoreBookmarks } from "@/lib/web-blocks";
 import { webBlockServerSpecs } from "./web-blocks";
@@ -138,6 +139,7 @@ export const pageSchema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     database: createBlockSpec(databaseBlockConfig, marker("database"))(),
     linkedView: createBlockSpec(linkedViewBlockConfig, marker("linkedView"))(),
+    dashboard: createBlockSpec(dashboardBlockConfig, marker("dashboard"))(),
     ...contentBlockSpecs,
     ...webBlockServerSpecs,
     pageLink: createBlockSpec(pageLinkBlockConfig, marker("pageLink"))(),
@@ -224,6 +226,7 @@ export async function markdownToBlocks(
   );
   const blocks = groupColumns(mergeReferencedBlocks(parts, existing, { keepMissingInline }));
   carryOverMentions(blocks, carryOver ? existing : []);
-  // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines.
-  return keepMissingInline ? restoreBookmarks(blocks, existing) : blocks;
+  // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines
+  // and its dashboards from theirs; an append makes no dashboard (restoreDashboards drops the lines).
+  return keepMissingInline ? restoreDashboards(restoreBookmarks(blocks, existing), existing) : restoreDashboards(blocks, []);
 }

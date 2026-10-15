@@ -623,7 +623,8 @@
       "bar": "Vertical bar",
       "horizontal_bar": "Horizontal bar",
       "line": "Line",
-      "donut": "Donut"
+      "donut": "Donut",
+      "number": "Number"
     },
     "groupBy": "Group by",
     "measure": "Value",

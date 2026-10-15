@@ -102,6 +102,30 @@
   page; one picked starts at *Can view*, as from the agent's settings. An agent's row shows its
   icon and "Agent", and its levels are view, comment and edit only. The server already let anyone
   with full access to a page share it with an agent; the menu now offers it.
+- **Dashboards.** The `/dashboard` block shows numbers, charts and lists from any of the
+  workspace's databases on one page, in a grid of up to 12 widgets that each take a quarter, half,
+  three quarters or all of its width (two columns on narrow pages, one on phones), and that can be
+  moved and removed from their menu. A widget is a database seen through its own view: a new
+  *Number* chart type gives one value (a count, or a sum, average or other calculation over the
+  rows its filters keep), charts and lists are worked out on the server for each reader (only the
+  rows and values they may see, and no rows sent for a chart), and other layouts show as a linked
+  view. Widgets are set up in place with the linked view's own toolbar, update while their rows
+  change, say under them how many rows they count, by what, with how many filters and when, and
+  open the rows behind a number, bar or slice. A widget on a database the reader can't open says
+  only that. Published pages show numbers and lists, and charts as a table of their figures; a
+  widget on a database outside the publication shows nothing of it. In Markdown a dashboard is the
+  line `<!-- leafdesk:dashboard <id> -->`, which keeps it through a rewrite. MCP's new
+  `add_dashboard` and `update_dashboard_widget` add a dashboard and add, change, move or remove its
+  widgets, and `get_page` lists dashboards and their widgets. Copies of published pages keep the
+  widgets whose database was copied too. No migration. Covered in `scripts/dashboard-e2e.ts`.
+
+### Changed
+
+- **Published charts show their figures.** A chart view on a published page (a published
+  database's tab or a linked view in its body) shows its number, or a table of each group's value
+  (and each stacked series'), worked out on the server from the public properties only, instead of
+  a table of its rows; no rows are sent. A chart grouped or measured by a property visitors can't
+  see shows nothing to group by, or counts rows. Covered in `scripts/chart-e2e.ts`.
 
 ### Fixed
 

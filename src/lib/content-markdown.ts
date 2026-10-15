@@ -20,6 +20,7 @@ import {
   parseColumnMarker,
   type ColumnMarker,
 } from "./columns";
+import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
@@ -77,7 +78,7 @@ import {
  */
 
 /** The part of a BlockNote block these helpers read and write. */
-export type MdBlock = { type: string; props?: Record<string, unknown>; content?: unknown; children?: MdBlock[] };
+export type MdBlock = { id?: string; type: string; props?: Record<string, unknown>; content?: unknown; children?: MdBlock[] };
 type Inline = { type: string; text?: string; content?: unknown; styles?: Record<string, unknown>; href?: string };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -195,6 +196,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
           return { type: "codeBlock", props: { language: "mermaid" }, content: plainText(block.content), children } as unknown as B;
         case TOC_BLOCK:
           return paragraph(blockToken("<!-- leafdesk:toc -->"));
+        case DASHBOARD_BLOCK:
+          return paragraph(block.id ? blockToken(dashboardLine(block.id)) : "");
         case BREADCRUMB_BLOCK:
           return paragraph(blockToken("<!-- leafdesk:breadcrumb -->"));
         case BOOKMARK_BLOCK:
@@ -266,7 +269,8 @@ type Pending =
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
   | { type: typeof PAGE_LINK_BLOCK; pageId: string }
-  | { type: typeof COLUMN_BLOCK; marker: ColumnMarker };
+  | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
+  | { type: typeof DASHBOARD_BLOCK; id: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
@@ -315,6 +319,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const marker = MARKER_LINE.exec(line);
     if (marker) {
       blockLine({ type: marker[1] === "toc" ? TOC_BLOCK : BREADCRUMB_BLOCK });
+      continue;
+    }
+    const dashboard = parseDashboardLine(line);
+    if (dashboard) {
+      blockLine({ type: DASHBOARD_BLOCK, id: dashboard });
       continue;
     }
     const web = WEB_LINE.exec(line);
@@ -501,6 +510,9 @@ export async function finishMarkdownImport<B extends MdBlock>(
       }
       case PAGE_LINK_BLOCK:
         return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
+      case DASHBOARD_BLOCK:
+        // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
+        return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;
       case COLUMN_BLOCK:
         return columnMarkerBlock<B>(pending.marker);
       case CALLOUT_BLOCK: {

@@ -9,12 +9,11 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Database, Search, SquareArrowOutUpRight } from "lucide-react";
+import { Database, LayoutDashboard, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
-import { listDatabasesAction } from "@/app/actions/databases";
+import { useMemo } from "react";
 import { createInlineDatabaseAction } from "@/app/actions/embeds";
-import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
+import { DASHBOARD_BLOCK } from "@/lib/dashboard";
 import {
   DATABASE_BLOCK,
   databaseBlockConfig,
@@ -27,11 +26,13 @@ import { CodeBlock } from "./code-block";
 import { columnEditorBlockSpecs } from "./columns";
 import { contentBlockSpecs, contentInlineSpecs } from "./content-blocks";
 import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
+import { DashboardBlock } from "./dashboard-block";
 import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
-import { searchFold } from "@/lib/search-fold";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
+
+export { DatabasePicker } from "./database-picker";
 
 /**
  * The page editor's schema: BlockNote's blocks plus the database blocks (configs shared with the
@@ -83,6 +84,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     codeBlock: CodeBlock(),
     database: DatabaseBlock(),
     linkedView: LinkedViewBlock(),
+    // Widgets over the workspace's databases (see dashboard-block.tsx).
+    dashboard: DashboardBlock(),
     ...contentBlockSpecs,
     ...webBlockSpecs,
     ...mentionBlockSpecs,
@@ -171,6 +174,15 @@ export function useEmbedSlashItems(
         icon: <SquareArrowOutUpRight size={18} />,
         onItemClick: () => onPickDatabase(editor.getTextCursorPosition().block.id),
       },
+      {
+        title: t("slash.dashboard.title"),
+        subtext: t("slash.dashboard.subtext"),
+        aliases: t("slash.dashboard.aliases").split(" "),
+        group,
+        icon: <LayoutDashboard size={18} />,
+        // Empty: its "Add widget" button picks the first database.
+        onItemClick: () => placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "" } }),
+      },
     ];
   }, [editor, host, t, onCreateError, onPickDatabase]);
 }
@@ -186,79 +198,4 @@ export function withEmbedItems(items: DefaultReactSuggestionItem[], extras: Defa
     out = at < 0 ? [...out, extra] : [...out.slice(0, at + 1), extra, ...out.slice(at + 1)];
   }
   return out;
-}
-
-/** Picks the database a new linked view shows: any database of the workspace the user can see. */
-export function DatabasePicker({
-  open,
-  workspaceId,
-  onPick,
-  onClose,
-}: {
-  open: boolean;
-  workspaceId: string;
-  onPick: (databaseId: string) => void;
-  onClose: () => void;
-}) {
-  const t = useTranslations("page.embed.picker");
-  const tc = useTranslations("common");
-  const [databases, setDatabases] = useState<{ id: string; title: string; icon: string | null }[] | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    if (!open) return;
-    setQuery("");
-    setFailed(false);
-    setDatabases(null);
-    listDatabasesAction(workspaceId)
-      .then((res) => {
-        if (res.ok) setDatabases(res.data);
-        else setFailed(true);
-      })
-      .catch(() => setFailed(true));
-  }, [open, workspaceId]);
-
-  const matches = useMemo(() => {
-    const q = searchFold(query.trim());
-    return (databases ?? [])
-      .filter((d) => !q || searchFold(pageLabel(d.title, tc("untitled"))).includes(q))
-      .slice(0, 50);
-  }, [databases, query, tc]);
-
-  return (
-    <Dialog open={open} onClose={onClose} className="max-w-md">
-      <div className="flex items-center gap-2 border-b border-border px-3">
-        <Search className="h-4 w-4 text-fg-muted" />
-        <input
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("search")}
-          aria-label={t("title")}
-          className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
-        />
-      </div>
-      <div className={cn("max-h-80 overflow-y-auto p-1", !databases && !failed && "opacity-70")}>
-        {matches.map((d) => (
-          <button
-            key={d.id}
-            type="button"
-            onClick={() => onPick(d.id)}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
-          >
-            <PageIcon icon={d.icon} kind="database" className="text-sm" />
-            <span className="truncate">{pageLabel(d.title, tc("untitled"))}</span>
-          </button>
-        ))}
-        {failed && (
-          <p role="alert" className="px-2 py-3 text-sm text-danger">
-            {t("failed")}
-          </p>
-        )}
-        {!databases && !failed && <p className="px-2 py-3 text-sm text-fg-muted">{tc("loading")}</p>}
-        {databases && !matches.length && <p className="px-2 py-3 text-sm text-fg-muted">{t("empty")}</p>}
-      </div>
-    </Dialog>
-  );
 }

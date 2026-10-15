@@ -9,10 +9,14 @@ import {
   chartGroupProperty,
   chartMeasure,
   fillDateGaps,
+  isNumberChart,
   isStackable,
   measureFormat,
+  measureRows,
   niceTicks,
   OTHER_KEY,
+  rowCountOf,
+  withoutRows,
   type ChartInput,
   type ChartMeasure,
 } from "./chart";
@@ -409,5 +413,47 @@ describe("a linked chart view", () => {
 
   it("reads malformed chart settings as none", () => {
     expect(parseLinkedView(JSON.stringify({ type: "chart", config: { chartType: "radar" } }))).toEqual({ type: "chart", config: {} });
+  });
+});
+
+describe("number charts", () => {
+  it("are a chart type of their own", () => {
+    expect(layoutConfigError({ chartType: "number" })).toBeNull();
+    expect(isNumberChart({ chartType: "number" })).toBe(true);
+    expect(isNumberChart({})).toBe(false);
+  });
+
+  it("measure every row once", () => {
+    expect(measureRows(rows, COUNT)).toEqual({ format: "number", value: 4 });
+    expect(measureRows(rows, sum)).toEqual({ format: "number", value: 18 });
+    // An average of nothing has no value; a sum of nothing is 0.
+    expect(measureRows([], { ...sum, fn: "average" })).toBeNull();
+    expect(measureRows([], sum)).toEqual({ format: "number", value: 0 });
+  });
+
+  it("run no totals and stack nothing", () => {
+    expect(canAccumulate("number", due, COUNT)).toBe(false);
+    expect(canStack("number", COUNT)).toBe(false);
+  });
+});
+
+describe("withoutRows", () => {
+  it("keeps what a chart draws and how many rows each part stands for", () => {
+    const data = chart(rows, { stackBy: done });
+    const sent = withoutRows(data);
+    expect(sent.groups.every((g) => g.rows.length === 0 && g.segments.every((s) => s.rows.length === 0))).toBe(true);
+    expect(sent.groups.map(rowCountOf)).toEqual(data.groups.map((g) => g.rows.length));
+    expect(sent.groups.map((g) => g.segments.map(rowCountOf))).toEqual(data.groups.map((g) => g.segments.map((s) => s.rows.length)));
+    expect(amounts(sent)).toEqual(amounts(data));
+    expect(sent.total).toBe(data.total);
+    expect(JSON.parse(JSON.stringify(sent))).toEqual(sent);
+  });
+
+  it("counts a running total's period too", () => {
+    const dated = [row("a", { p_date: "2026-01-02" }), row("b", { p_date: "2026-02-03" }), row("c", { p_date: "2026-02-04" })];
+    const data = chart(dated, { groupBy: due, config: { groupDateBy: "month", chartAccumulate: "cumulative" } });
+    const sent = withoutRows(data);
+    expect(sent.groups.map(rowCountOf)).toEqual([1, 3]);
+    expect(sent.groups.map((g) => (g.period ? rowCountOf(g.period) : null))).toEqual([1, 2]);
   });
 });

@@ -12,6 +12,7 @@ import { diffSnapshotAction, getSnapshotAction, listSnapshotsAction, restoreSnap
 import { Button, cn, IconButton, pageLabel } from "@/components/ui";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
+import { parseDashboardLine } from "@/lib/dashboard";
 import { DATABASE_BLOCK, mapReferenceLines } from "@/lib/embed-blocks";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { HistoryDiff, type VersionDiff } from "./history-diff";
@@ -27,11 +28,16 @@ const previewSchema = BlockNoteSchema.create({ styleSpecs: { ...defaultStyleSpec
 function Preview({ markdown }: { markdown: string }) {
   const dictionary = useEditorDictionary();
   const te = useTranslations("page.embed");
+  const td = useTranslations("page.dashboard");
   const editor = useCreateBlockNote({ schema: previewSchema, dictionary }, [dictionary]);
-  // A database block is only named here: the version keeps which database, not its rows back then.
+  // A database block or dashboard is only named here: the version keeps which databases, not their rows back then.
   const text = useMemo(
-    () => mapReferenceLines(markdown || "", (ref) => `*${te(ref.type === DATABASE_BLOCK ? "label" : "linkedLabel")}*`),
-    [markdown, te],
+    () =>
+      mapReferenceLines(markdown || "", (ref) => `*${te(ref.type === DATABASE_BLOCK ? "label" : "linkedLabel")}*`)
+        .split("\n")
+        .map((line) => (parseDashboardLine(line) ? `*${td("title")}*` : line))
+        .join("\n"),
+    [markdown, te, td],
   );
   useEffect(() => {
     let cancelled = false;

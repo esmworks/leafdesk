@@ -586,7 +586,8 @@ export type CalendarMode = "month" | "week";
 /** Where a view opens a row: in a panel beside the view, or as its own page. */
 export type OpenRows = "panel" | "page";
 /** Chart kinds: vertical bars (columns), horizontal bars, a line, or a donut (a pie with a hole). */
-export type ChartType = "bar" | "horizontal_bar" | "line" | "donut";
+/** `number` shows one value: the measure over all of the view's rows (see lib/chart isNumberChart). */
+export type ChartType = "bar" | "horizontal_bar" | "line" | "donut" | "number";
 /** Chart group order: the grouping's own order (see lib/grouping), or by value. */
 export type ChartSort = "group" | "value_desc" | "value_asc";
 /**

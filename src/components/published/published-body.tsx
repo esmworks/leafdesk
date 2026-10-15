@@ -8,6 +8,7 @@ import { HeadingList, Trail } from "@/components/page/page-outline";
 import { PdfViewer } from "@/components/page/pdf-viewer";
 import { BookmarkCard, EmbedFrame } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
+import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS } from "@/lib/dashboard";
 import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
@@ -67,11 +68,12 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [tc, tb, tw, tp] = await Promise.all([
+  const [tc, tb, tw, tp, td] = await Promise.all([
     getTranslations("common"),
     getTranslations("page.blocks"),
     getTranslations("page.web"),
     getTranslations("page.pdf"),
+    getTranslations("page.dashboard"),
   ]);
   const untitled = tc("untitled");
   const titles = new Map(crumbs.map((c) => [c.id, c.title]));
@@ -102,6 +104,43 @@ export async function PublishedBody({
                   {column.segments.map((inner, j) => segment(inner, j, true))}
                 </div>
               ))}
+            </div>
+          </div>
+        );
+      case "dashboard":
+        // Each widget is its database as its view shows it: a number, a chart's figures, a list or a table.
+        return (
+          <div key={i} className={cn("my-4", DASHBOARD_CLASS, pad)}>
+            <div className={DASHBOARD_GRID_CLASS}>
+              {block.widgets.map((widget) => {
+                const { database } = widget;
+                const more = database ? widget.rowCount - database.table.rows.length : 0;
+                return (
+                  <section
+                    key={widget.id}
+                    className={cn("flex min-w-0 flex-col rounded-lg border border-border p-3", styles.keep, WIDGET_SPAN_CLASS[widget.span])}
+                  >
+                    {database ? (
+                      <>
+                        <h2 className="mb-2 flex min-w-0 items-center gap-1.5 text-sm font-medium">
+                          <PageIcon icon={database.icon} kind="database" className="text-base" />
+                          {href ? (
+                            <Link href={href(database.id, database.title)} className="truncate hover:underline">
+                              {widget.title || pageLabel(database.title, untitled)}
+                            </Link>
+                          ) : (
+                            <span className="truncate">{widget.title || pageLabel(database.title, untitled)}</span>
+                          )}
+                        </h2>
+                        <PublishedDatabaseView table={database.table} links={links} print={print} compact className="min-w-0" />
+                        {database.table.layout === "list" && more > 0 && <p className="mt-1 text-xs text-fg-faint">{td("more", { count: more })}</p>}
+                      </>
+                    ) : (
+                      <p className="text-sm text-fg-faint">{unavailable}</p>
+                    )}
+                  </section>
+                );
+              })}
             </div>
           </div>
         );

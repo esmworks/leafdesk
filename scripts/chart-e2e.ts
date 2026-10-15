@@ -3,7 +3,7 @@
  * config validation, the series a chart plots from the rows its filters let through (counts,
  * multi-select rows in each option, sums over numbers and number formulas, date buckets,
  * stacks), rows the viewer can't see staying out, duplicating and deleting the properties a chart
- * uses, what a published chart shows, and creating, describing and querying charts over MCP.
+ * uses, what a published chart shows (its figures, no rows), and creating, describing and querying charts over MCP.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/chart-e2e.ts
@@ -306,7 +306,7 @@ try {
     after.map((v) => v.config),
   );
 
-  // A published chart shows its rows as a table of the properties the chart shows
+  // A published chart shows its figures over the rows its filters keep, and no rows
   const published = await createPage(actor, { workspaceId, kind: "database", title: "Public chart" });
   const [firstView] = (await getDatabaseSnapshot(ids.owner, published.id)).views;
   const kind = (await getProperties(published.id)).find((p) => p.type === "select" || p.type === "status")!;
@@ -321,16 +321,16 @@ try {
   await deleteView(ids.owner, firstView.id);
   const { token } = await publishPage(ids.owner, published.id);
   const publicDb = (await getPublishedPage(token))?.database;
-  const columns = publicDb?.properties.map((p) => p.id);
   check(
-    columns?.length === 1 && columns[0] === shown.id && !columns.includes(secret.id) && !columns.includes(kind.id),
-    "a published chart shows only the properties it shows",
-    columns,
+    publicDb?.layout === "chart" && publicDb.rows.length === 0 && publicDb.properties.length === 0,
+    "a published chart sends no rows or columns",
+    publicDb,
   );
+  const figures = publicDb.chart;
   check(
-    publicDb?.rows.map((r) => r.title).join() === "Visible",
-    "a published chart's rows follow its filters",
-    publicDb?.rows.map((r) => r.title),
+    figures?.groupById === kind.id && figures.data?.total === 1 && !figures.properties.some((p) => p.id === secret.id || p.id === shown.id),
+    "a published chart's figures follow its filters and name only what it groups and measures",
+    figures,
   );
 
   console.log(`\n${passed} checks passed`);

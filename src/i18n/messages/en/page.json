@@ -280,6 +280,11 @@
         "title": "Linked view of database",
         "subtext": "Show an existing database with a view of its own",
         "aliases": "linked view database db"
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "subtext": "Numbers, charts and lists from your databases",
+        "aliases": "dashboard widgets kpi metrics charts numbers"
       }
     }
   },
@@ -504,5 +509,38 @@
     "save": "Save note",
     "shortcut": "New quick note",
     "shortcutShort": "Quick note"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "empty": "This dashboard has no widgets yet.",
+    "emptyEditable": "Show numbers, charts and lists from the workspace's databases here. They stay up to date as rows change.",
+    "add": "Add widget",
+    "full": "A dashboard holds up to {max} widgets.",
+    "menu": "Widget options",
+    "edit": "Edit",
+    "done": "Done",
+    "remove": "Remove widget",
+    "moveBefore": "Move before",
+    "moveAfter": "Move after",
+    "width": "Width",
+    "widths": {
+      "1": "A quarter of the width",
+      "2": "Half the width",
+      "3": "Three quarters of the width",
+      "4": "The full width"
+    },
+    "titleLabel": "Widget title",
+    "titlePlaceholder": "Title (the database's when empty)",
+    "unavailable": "You don't have access to this data.",
+    "inTrash": "This database is in the trash.",
+    "loadFailed": "This widget couldn't be loaded.",
+    "retry": "Try again",
+    "noGroup": "The database has nothing to group by yet: add a select, status or date property.",
+    "more": "{count, plural, one {# more row} other {# more rows}}",
+    "rows": "{count, plural, one {# row} other {# rows}}",
+    "byGroup": "by {property}",
+    "filters": "{count, plural, one {# filter} other {# filters}}",
+    "updatedNow": "updated just now",
+    "updated": "updated {time}"
   }
 }

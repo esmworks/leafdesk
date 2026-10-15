@@ -565,6 +565,32 @@ export function createCollab() {
       await writeBlocks(pageId, actor, async (existing) => [...withoutTrailingEmpty(existing), ...(blocks as typeof existing)], snapshot);
     },
 
+    async updateBlockProps(pageId, blockId, update, actor, snapshot = false) {
+      let found = false;
+      await writeBlocks(
+        pageId,
+        actor,
+        async (existing) => {
+          let changed = false;
+          const visit = (blocks: typeof existing): typeof existing =>
+            blocks.map((block) => {
+              if (block.id === blockId) {
+                found = true;
+                const props = update(block.props as Record<string, unknown>, block.type);
+                if (!props) return block;
+                changed = true;
+                return { ...block, props } as typeof block;
+              }
+              return block.children?.length ? { ...block, children: visit(block.children) } : block;
+            });
+          const next = visit(existing);
+          return changed ? next : null;
+        },
+        snapshot,
+      );
+      return found;
+    },
+
     async linkPageMention(pageId, targetId, title, actor) {
       return writeBlocks(pageId, actor, async (existing) => (linkTitle(existing, title, targetId) ? existing : null), false);
     },

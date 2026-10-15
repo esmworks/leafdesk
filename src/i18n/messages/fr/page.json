@@ -280,6 +280,11 @@
         "title": "Vue liée d’une base de données",
         "subtext": "Afficher une base de données existante avec sa propre vue",
         "aliases": "linked view database db vue liée base de données bdd"
+      },
+      "dashboard": {
+        "title": "Tableau de bord",
+        "subtext": "Des chiffres, graphiques et listes tirés de vos bases de données",
+        "aliases": "dashboard widgets kpi metrics charts tableau de bord graphiques indicateurs"
       }
     }
   },
@@ -504,5 +509,38 @@
     "save": "Enregistrer la note",
     "shortcut": "Nouvelle note rapide",
     "shortcutShort": "Note rapide"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "empty": "Ce tableau de bord n'a pas encore de widget.",
+    "emptyEditable": "Affichez ici des chiffres, graphiques et listes tirés des bases de données de l'espace de travail. Ils restent à jour quand les lignes changent.",
+    "add": "Ajouter un widget",
+    "full": "Un tableau de bord contient au plus {max} widgets.",
+    "menu": "Options du widget",
+    "edit": "Modifier",
+    "done": "Terminé",
+    "remove": "Retirer le widget",
+    "moveBefore": "Déplacer avant",
+    "moveAfter": "Déplacer après",
+    "width": "Largeur",
+    "widths": {
+      "1": "Un quart de la largeur",
+      "2": "La moitié de la largeur",
+      "3": "Trois quarts de la largeur",
+      "4": "Toute la largeur"
+    },
+    "titleLabel": "Titre du widget",
+    "titlePlaceholder": "Titre (celui de la base si vide)",
+    "unavailable": "Vous n'avez pas accès à ces données.",
+    "inTrash": "Cette base de données est dans la corbeille.",
+    "loadFailed": "Ce widget n'a pas pu être chargé.",
+    "retry": "Réessayer",
+    "noGroup": "La base de données n'a encore rien pour regrouper : ajoutez une propriété de sélection, de statut ou de date.",
+    "more": "{count, plural, one {# ligne de plus} other {# lignes de plus}}",
+    "rows": "{count, plural, one {# ligne} other {# lignes}}",
+    "byGroup": "par {property}",
+    "filters": "{count, plural, one {# filtre} other {# filtres}}",
+    "updatedNow": "mis à jour à l'instant",
+    "updated": "mis à jour {time}"
   }
 }

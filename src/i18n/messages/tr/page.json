@@ -280,6 +280,11 @@
         "title": "Veritabanının bağlı görünümü",
         "subtext": "Var olan bir veritabanını kendi görünümüyle göster",
         "aliases": "linked view database db bağlı görünüm bagli gorunum veritabanı veritabani"
+      },
+      "dashboard": {
+        "title": "Gösterge paneli",
+        "subtext": "Veritabanlarınızdan sayılar, grafikler ve listeler",
+        "aliases": "dashboard widgets kpi metrics charts gösterge paneli gosterge panel grafik sayı sayi metrik"
       }
     }
   },
@@ -504,5 +509,38 @@
     "save": "Notu kaydet",
     "shortcut": "Yeni hızlı not",
     "shortcutShort": "Hızlı not"
+  },
+  "dashboard": {
+    "title": "Gösterge paneli",
+    "empty": "Bu panelde henüz widget yok.",
+    "emptyEditable": "Çalışma alanının veritabanlarından sayıları, grafikleri ve listeleri burada gösterin. Satırlar değiştikçe güncel kalırlar.",
+    "add": "Widget ekle",
+    "full": "Bir panelde en çok {max} widget olabilir.",
+    "menu": "Widget seçenekleri",
+    "edit": "Düzenle",
+    "done": "Bitti",
+    "remove": "Widget'ı kaldır",
+    "moveBefore": "Öne taşı",
+    "moveAfter": "Arkaya taşı",
+    "width": "Genişlik",
+    "widths": {
+      "1": "Genişliğin dörtte biri",
+      "2": "Genişliğin yarısı",
+      "3": "Genişliğin dörtte üçü",
+      "4": "Tam genişlik"
+    },
+    "titleLabel": "Widget başlığı",
+    "titlePlaceholder": "Başlık (boşsa veritabanınınki)",
+    "unavailable": "Bu veriye erişiminiz yok.",
+    "inTrash": "Bu veritabanı çöpte.",
+    "loadFailed": "Bu widget yüklenemedi.",
+    "retry": "Yeniden dene",
+    "noGroup": "Veritabanında gruplanacak bir şey yok: bir seçim, durum ya da tarih özelliği ekleyin.",
+    "more": "{count, plural, one {# satır daha} other {# satır daha}}",
+    "rows": "{count, plural, one {# satır} other {# satır}}",
+    "byGroup": "{property} özelliğine göre",
+    "filters": "{count, plural, one {# süzgeç} other {# süzgeç}}",
+    "updatedNow": "az önce güncellendi",
+    "updated": "{time} güncellendi"
   }
 }

@@ -280,6 +280,11 @@
         "title": "Verknüpfte Datenbankansicht",
         "subtext": "Eine bestehende Datenbank mit eigener Ansicht anzeigen",
         "aliases": "linked view database db verknüpfte ansicht datenbank"
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "subtext": "Zahlen, Diagramme und Listen aus Ihren Datenbanken",
+        "aliases": "dashboard widgets kpi metrics charts kennzahlen diagramme zahlen"
       }
     }
   },
@@ -504,5 +509,38 @@
     "save": "Notiz speichern",
     "shortcut": "Neue schnelle Notiz",
     "shortcutShort": "Schnelle Notiz"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "empty": "Dieses Dashboard hat noch keine Widgets.",
+    "emptyEditable": "Zeigen Sie hier Zahlen, Diagramme und Listen aus den Datenbanken des Arbeitsbereichs. Sie bleiben aktuell, wenn sich Zeilen ändern.",
+    "add": "Widget hinzufügen",
+    "full": "Ein Dashboard fasst bis zu {max} Widgets.",
+    "menu": "Widget-Optionen",
+    "edit": "Bearbeiten",
+    "done": "Fertig",
+    "remove": "Widget entfernen",
+    "moveBefore": "Nach vorne",
+    "moveAfter": "Nach hinten",
+    "width": "Breite",
+    "widths": {
+      "1": "Ein Viertel der Breite",
+      "2": "Halbe Breite",
+      "3": "Drei Viertel der Breite",
+      "4": "Volle Breite"
+    },
+    "titleLabel": "Widget-Titel",
+    "titlePlaceholder": "Titel (leer: der der Datenbank)",
+    "unavailable": "Sie haben keinen Zugriff auf diese Daten.",
+    "inTrash": "Diese Datenbank liegt im Papierkorb.",
+    "loadFailed": "Dieses Widget konnte nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "noGroup": "Die Datenbank hat noch nichts zum Gruppieren: Fügen Sie eine Auswahl-, Status- oder Datumseigenschaft hinzu.",
+    "more": "{count, plural, one {# weitere Zeile} other {# weitere Zeilen}}",
+    "rows": "{count, plural, one {# Zeile} other {# Zeilen}}",
+    "byGroup": "nach {property}",
+    "filters": "{count, plural, one {# Filter} other {# Filter}}",
+    "updatedNow": "gerade aktualisiert",
+    "updated": "aktualisiert {time}"
   }
 }

@@ -623,7 +623,8 @@
       "bar": "Säulen",
       "horizontal_bar": "Balken",
       "line": "Linie",
-      "donut": "Ring"
+      "donut": "Ring",
+      "number": "Zahl"
     },
     "groupBy": "Gruppieren nach",
     "measure": "Wert",

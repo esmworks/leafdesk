@@ -623,7 +623,8 @@
       "bar": "Barras verticales",
       "horizontal_bar": "Barras horizontales",
       "line": "Líneas",
-      "donut": "Anillo"
+      "donut": "Anillo",
+      "number": "Número"
     },
     "groupBy": "Agrupar por",
     "measure": "Valor",

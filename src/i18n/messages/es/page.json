@@ -280,6 +280,11 @@
         "title": "Vista vinculada de base de datos",
         "subtext": "Muestra una base de datos existente con una vista propia",
         "aliases": "linked view database db vista vinculada base datos bd"
+      },
+      "dashboard": {
+        "title": "Panel",
+        "subtext": "Números, gráficos y listas de tus bases de datos",
+        "aliases": "dashboard widgets kpi metrics charts panel tablero gráficos graficos métricas metricas"
       }
     }
   },
@@ -504,5 +509,38 @@
     "save": "Guardar nota",
     "shortcut": "Nueva nota rápida",
     "shortcutShort": "Nota rápida"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "empty": "Este panel aún no tiene widgets.",
+    "emptyEditable": "Muestra aquí números, gráficos y listas de las bases de datos del espacio de trabajo. Se mantienen al día cuando cambian las filas.",
+    "add": "Añadir widget",
+    "full": "Un panel admite hasta {max} widgets.",
+    "menu": "Opciones del widget",
+    "edit": "Editar",
+    "done": "Listo",
+    "remove": "Quitar widget",
+    "moveBefore": "Mover antes",
+    "moveAfter": "Mover después",
+    "width": "Ancho",
+    "widths": {
+      "1": "Un cuarto del ancho",
+      "2": "La mitad del ancho",
+      "3": "Tres cuartos del ancho",
+      "4": "Todo el ancho"
+    },
+    "titleLabel": "Título del widget",
+    "titlePlaceholder": "Título (el de la base de datos si está vacío)",
+    "unavailable": "No tienes acceso a estos datos.",
+    "inTrash": "Esta base de datos está en la papelera.",
+    "loadFailed": "No se pudo cargar este widget.",
+    "retry": "Reintentar",
+    "noGroup": "La base de datos aún no tiene nada por lo que agrupar: añade una propiedad de selección, estado o fecha.",
+    "more": "{count, plural, one {# fila más} other {# filas más}}",
+    "rows": "{count, plural, one {# fila} other {# filas}}",
+    "byGroup": "por {property}",
+    "filters": "{count, plural, one {# filtro} other {# filtros}}",
+    "updatedNow": "actualizado ahora mismo",
+    "updated": "actualizado {time}"
   }
 }

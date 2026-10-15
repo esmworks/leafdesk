@@ -27,7 +27,7 @@ import { holdsTimestamp } from "./property-types";
  * by a calculation over one property (lib/aggregate). Pure: no React, no database.
  */
 
-export const CHART_TYPES = ["bar", "horizontal_bar", "line", "donut"] as const satisfies readonly ChartType[];
+export const CHART_TYPES = ["bar", "horizontal_bar", "line", "donut", "number"] as const satisfies readonly ChartType[];
 export const CHART_SORTS = ["group", "value_desc", "value_asc"] as const satisfies readonly ChartSort[];
 export const CHART_ACCUMULATES = ["cumulative", "remaining"] as const satisfies readonly ChartAccumulate[];
 export const DEFAULT_CHART_TYPE: ChartType = "bar";
@@ -112,7 +112,7 @@ export function isStackable(type: PropertyType) {
  * whose values add up, on bars or a line (a donut has no order to run along).
  */
 export function canAccumulate(chartType: ChartType, groupBy: { type: PropertyType } | null | undefined, measure: ChartMeasure) {
-  return !!groupBy && isDateLike(groupBy.type) && isAdditive(measure) && chartType !== "donut";
+  return !!groupBy && isDateLike(groupBy.type) && isAdditive(measure) && chartType !== "donut" && chartType !== "number";
 }
 
 /** The view's running totals, or null to plot each period on its own (also when the chart can't run them). */
@@ -124,6 +124,14 @@ export function chartAccumulateOf(
   const mode = config.chartAccumulate;
   if (!mode || !CHART_ACCUMULATES.includes(mode)) return null;
   return canAccumulate(chartTypeOf(config), groupBy, measure) ? mode : null;
+}
+
+/**
+ * A number chart shows one value: the measure over every row of the view (a count, a sum, an
+ * average…). It groups by nothing, so it needs no groupable property.
+ */
+export function isNumberChart(config: Pick<ViewConfig, "chartType">) {
+  return chartTypeOf(config) === "number";
 }
 
 /** Whether values are whole counts, so axis ticks never fall between them. */
@@ -148,8 +156,33 @@ export function measureRows(rows: { properties: Record<string, unknown> }[], mea
   );
 }
 
-/** A measured bunch of rows: `amount` is what gets plotted (0 when `result` is null). */
-type Measured<T> = { rows: T[]; result: AggregateResult | null; amount: number };
+/**
+ * A measured bunch of rows: `amount` is what gets plotted (0 when `result` is null). `count` is
+ * how many rows there were when they were left out to send the chart (see withoutRows).
+ */
+type Measured<T> = { rows: T[]; result: AggregateResult | null; amount: number; count?: number };
+
+/** How many rows a group, segment or period stands for, whether or not they came along. */
+export function rowCountOf(bunch: { rows: unknown[]; count?: number }) {
+  return bunch.count ?? bunch.rows.length;
+}
+
+/**
+ * The chart with each bunch's rows replaced by their count: what a dashboard widget sends to the
+ * browser, which lists a mark's rows only when asked (see server/dashboards).
+ */
+export function withoutRows<T>(data: ChartData<T>): ChartData<never> {
+  const strip = (m: Measured<T>): Measured<never> => ({ rows: [], result: m.result, amount: m.amount, count: rowCountOf(m) });
+  return {
+    ...data,
+    groups: data.groups.map(({ period, segments, ...g }): ChartGroup<never> => ({
+      ...g,
+      ...strip(g),
+      segments: segments.map((s) => ({ key: s.key, ...strip(s) })),
+      ...(period ? { period: strip(period) } : {}),
+    })),
+  };
+}
 
 function measured<T extends { properties: Record<string, unknown> }>(rows: T[], measure: ChartMeasure): Measured<T> {
   const result = measureRows(rows, measure);

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, ListTree, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
+import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, ListTree, Plus, SlidersHorizontal, Waypoints } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -430,7 +430,7 @@ function TimelineSettings({
   );
 }
 
-const CHART_ICONS = { bar: ChartColumnBig, horizontal_bar: ChartBarBig, line: ChartLine, donut: ChartPie } as const;
+const CHART_ICONS = { bar: ChartColumnBig, horizontal_bar: ChartBarBig, line: ChartLine, donut: ChartPie, number: Hash } as const;
 
 /**
  * Chart settings: the kind of chart, what it groups by (with the date and status grouping), what
@@ -464,7 +464,7 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
     onSet({ chartAggregate: { fn, propertyId: prop.id } });
   };
 
-  return (
+  const typePicker = (
     <>
       <Heading>{t("chart.type")}</Heading>
       <div className="grid grid-cols-2 gap-0.5">
@@ -478,6 +478,45 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
         })}
       </div>
       <MenuSeparator />
+    </>
+  );
+  const measureSettings = (
+    <SettingRow label={t("chart.measure")}>
+      <NativeSelect
+        label={t("chart.measure")}
+        value={measure.kind === "count" ? "" : measure.prop.id}
+        onChange={setMeasure}
+        options={[{ value: "", label: t("chart.count") }, ...measurable.map((p) => ({ value: p.id, label: p.name }))]}
+        className="w-36"
+      />
+    </SettingRow>
+  );
+  const calculationSettings = measure.kind === "aggregate" && (
+    <SettingRow label={t("chart.calculation")}>
+      <NativeSelect
+        label={t("chart.calculation")}
+        value={measure.fn}
+        onChange={(fn) => onSet({ chartAggregate: { fn: fn as AggregateFn, propertyId: measure.prop.id } })}
+        options={chartAggregateFunctions(measure.prop.type).map((fn) => ({ value: fn, label: t(`calculate.menu.${fn}`) }))}
+        className="w-36"
+      />
+    </SettingRow>
+  );
+
+  // A number groups by nothing: what it measures is all there is to set.
+  if (chartType === "number") {
+    return (
+      <>
+        {typePicker}
+        {measureSettings}
+        {calculationSettings}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {typePicker}
       <SettingRow label={t("chart.groupBy")}>
         <NativeSelect
           label={t("chart.groupBy")}
@@ -512,26 +551,8 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
           />
         </SettingRow>
       )}
-      <SettingRow label={t("chart.measure")}>
-        <NativeSelect
-          label={t("chart.measure")}
-          value={measure.kind === "count" ? "" : measure.prop.id}
-          onChange={setMeasure}
-          options={[{ value: "", label: t("chart.count") }, ...measurable.map((p) => ({ value: p.id, label: p.name }))]}
-          className="w-36"
-        />
-      </SettingRow>
-      {measure.kind === "aggregate" && (
-        <SettingRow label={t("chart.calculation")}>
-          <NativeSelect
-            label={t("chart.calculation")}
-            value={measure.fn}
-            onChange={(fn) => onSet({ chartAggregate: { fn: fn as AggregateFn, propertyId: measure.prop.id } })}
-            options={chartAggregateFunctions(measure.prop.type).map((fn) => ({ value: fn, label: t(`calculate.menu.${fn}`) }))}
-            className="w-36"
-          />
-        </SettingRow>
-      )}
+      {measureSettings}
+      {calculationSettings}
       {accumulable && (
         <>
           <SettingRow label={t("chart.accumulate")}>

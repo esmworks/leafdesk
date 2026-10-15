@@ -623,7 +623,8 @@
       "bar": "Barres verticales",
       "horizontal_bar": "Barres horizontales",
       "line": "Courbe",
-      "donut": "Anneau"
+      "donut": "Anneau",
+      "number": "Nombre"
     },
     "groupBy": "Regrouper par",
     "measure": "Valeur",

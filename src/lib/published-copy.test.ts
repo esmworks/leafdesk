@@ -75,6 +75,19 @@ describe("copyPublishedBlocks", () => {
     expect(out[0].props).toMatchObject({ databaseId: "copy-of-db" });
   });
 
+  it("keeps dashboard widgets whose database was copied", () => {
+    const widget = (id: string, databaseId: string) => ({ id, databaseId, span: 1, view: { type: "list", config: {} } });
+    const out = copyPublishedBlocks(
+      [
+        { id: "x1", type: "dashboard", props: { widgets: JSON.stringify([widget("a", "db"), widget("b", "elsewhere")]) }, children: [] },
+        { id: "x2", type: "dashboard", props: { widgets: JSON.stringify([widget("c", "elsewhere")]) }, children: [] },
+      ],
+      refs,
+    );
+    expect(out.map((b) => b.id)).toEqual(["x1"]);
+    expect(JSON.parse(String(out[0].props.widgets))).toEqual([widget("a", "copy-of-db")]);
+  });
+
   it("points media, links and nested blocks at copied files", () => {
     const out = copyPublishedBlocks(
       [

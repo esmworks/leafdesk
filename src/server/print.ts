@@ -13,6 +13,7 @@ import { getBreadcrumbs } from "@/server/pages";
 import {
   publishedDatabase,
   publishedRow,
+  widgetShowing,
   type PublishedBlock,
   type PublishedChild,
   type PublishedCrumb,
@@ -153,6 +154,12 @@ async function printSection(userId: string, pageId: string, depth: number, index
           return {
             kind: "columns",
             columns: await Promise.all(segment.columns.map(async (column) => ({ width: column.width, segments: await resolve(column.segments) }))),
+          };
+        }
+        if (segment.kind === "dashboard") {
+          return {
+            kind: "dashboard",
+            widgets: await Promise.all(segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view })))),
           };
         }
         if (segment.kind !== "embed") return segment;

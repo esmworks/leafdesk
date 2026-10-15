@@ -134,6 +134,9 @@ jobs:
       - name: Chart views end-to-end
         run: pnpm tsx scripts/chart-e2e.ts
 
+      - name: Dashboards end-to-end
+        run: pnpm tsx scripts/dashboard-e2e.ts
+
       - name: Form views end-to-end
         run: pnpm tsx scripts/form-e2e.ts
 

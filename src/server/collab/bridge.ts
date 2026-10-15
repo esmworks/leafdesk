@@ -44,6 +44,18 @@ export interface CollabService {
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
   appendBlocks(pageId: string, blocks: unknown[], actor: WriteActor, snapshot?: boolean): Promise<void>;
   /**
+   * Changes the props of the block `blockId`, wherever it sits (in columns or nested too): `update`
+   * gets its current props and type and returns the new props, or null to leave the body as it is.
+   * Resolves to whether the page has the block.
+   */
+  updateBlockProps(
+    pageId: string,
+    blockId: string,
+    update: (props: Record<string, unknown>, type: string) => Record<string, unknown> | null,
+    actor: WriteActor,
+    snapshot?: boolean,
+  ): Promise<boolean>;
+  /**
    * Turns the first place the body writes `title` in plain text into a mention of `targetId` (see
    * lib/link-context linkTitle). Returns the new body's blocks, or null when the title isn't there.
    */

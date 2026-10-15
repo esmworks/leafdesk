@@ -80,6 +80,13 @@ versions, upgrades and running behind a domain.
   dragged in and out with the side menu, stacked on phones), also on published pages and in
   Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
   their code in it, published pages and the print view included.
+- **Dashboards**: the `/dashboard` block puts numbers, charts and lists from any of the
+  workspace's databases on a page, up to 12 widgets in a grid of four columns (two on narrow pages,
+  one on phones). Each widget is a database seen through its own view (a *Number* chart for one
+  value, a chart, a list, or any other layout), set up in place, kept up to date as rows change,
+  and worked out for each reader from the rows and values they may see; a number, bar or slice
+  opens the rows behind it. Published pages show numbers and lists, and charts as a table of their
+  figures.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -1754,6 +1761,11 @@ The tools cover:
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property).
+- **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
+  a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
+  of a page, and `update_dashboard_widget` adds, changes, moves or removes one widget. `get_page`
+  lists a page's dashboards and their widgets; a widget on a database the user can't open names
+  nothing of it.
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
   `delete_automation` and `list_automation_runs` (see
   [Automations and webhooks](#automations-and-webhooks)). They need full access to the database;
@@ -1848,7 +1860,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

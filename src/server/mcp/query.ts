@@ -11,7 +11,18 @@ import type {
 } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import { AUTOFILL_BODY, AUTOFILL_TITLE, type AiAutofillConfig } from "@/lib/ai";
-import { canStack, chartAccumulateOf, chartData, chartGroupProperty, chartMeasure, chartSortOf, chartTypeOf, OTHER_KEY } from "@/lib/chart";
+import {
+  canStack,
+  chartAccumulateOf,
+  chartData,
+  chartGroupProperty,
+  chartMeasure,
+  chartSortOf,
+  chartTypeOf,
+  measureFormat,
+  measureRows,
+  OTHER_KEY,
+} from "@/lib/chart";
 import {
   isDayCount,
   isFilterGroup,
@@ -382,6 +393,12 @@ function describeForm(props: PropertyDef[], form: NonNullable<ViewConfig["form"]
 function describeChart(props: PropertyDef[], config: ViewConfig) {
   const measure = chartMeasure(config, props);
   const chartType = chartTypeOf(config);
+  const aggregate = {
+    aggregate: measure.kind === "count" ? "count" : measure.fn,
+    ...(measure.kind === "aggregate" ? { aggregate_property: keyName(props, measure.prop.id) } : {}),
+  };
+  // A number groups, stacks and sorts nothing.
+  if (chartType === "number") return { chart_type: chartType, ...aggregate };
   const stackBy = config.stackBy && props.find((p) => p.id === config.stackBy);
   // Like the chart itself, a chart without a (usable) saved grouping groups the way a board would.
   const groupBy = chartGroupProperty(props, config);
@@ -389,8 +406,7 @@ function describeChart(props: PropertyDef[], config: ViewConfig) {
   return {
     ...(groupBy ? { group_by: groupBy.name } : {}),
     chart_type: chartType,
-    aggregate: measure.kind === "count" ? "count" : measure.fn,
-    ...(measure.kind === "aggregate" ? { aggregate_property: keyName(props, measure.prop.id) } : {}),
+    ...aggregate,
     ...(accumulate ? { accumulate } : {}),
     ...(stackBy && canStack(chartType, measure) && !accumulate ? { stack_by: stackBy.name } : {}),
     // Running totals go oldest first whatever the saved sort.
@@ -442,6 +458,11 @@ export function describeChartSeries(
   rows: { id: string; properties: Record<string, unknown> }[],
   lookups: Lookups = NO_LOOKUPS,
 ) {
+  if (chartTypeOf(config) === "number") {
+    const measure = chartMeasure(config, props);
+    const result = measureRows(rows, measure);
+    return { format: measureFormat(measure), value: result && result.format !== "date" ? result.value : null, row_count: rows.length };
+  }
   const groupBy = chartGroupProperty(props, config);
   if (!groupBy) return { note: "This chart has no property to group by; add a select, status, date or other groupable property." };
   const measure = chartMeasure(config, props);

@@ -33,10 +33,13 @@ export const useEmbedHost = () => useContext(EmbedHostContext);
 export function DatabaseEmbed({
   databaseId,
   linked,
+  bare,
 }: {
   databaseId: string;
   /** Linked views: their settings, and how to change them (only when the page is editable). */
   linked?: { view: LinkedView; onChange?: (view: LinkedView) => void };
+  /** Without the database's title above it: a dashboard widget, which has its own. */
+  bare?: boolean;
 }) {
   const t = useTranslations("page.embed");
   const tc = useTranslations("common");
@@ -68,8 +71,8 @@ export function DatabaseEmbed({
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
 
   const embed = useMemo(
-    () => ({ linked, header: (snapshot: DatabaseSnapshot) => <EmbedHeader snapshot={snapshot} linked={linked} /> }),
-    [linked],
+    () => ({ linked, header: bare ? undefined : (snapshot: DatabaseSnapshot) => <EmbedHeader snapshot={snapshot} linked={linked} /> }),
+    [linked, bare],
   );
 
   if (!info) {

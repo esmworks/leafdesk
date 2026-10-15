@@ -11,6 +11,7 @@ import type { CardSize } from "@/db/schema";
 import { pageLabel } from "@/lib/labels";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import type { PublishedDatabase, PublishedRow } from "@/server/publication";
+import { PublishedChartFigures } from "./published-chart";
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
 
@@ -31,12 +32,14 @@ type Props = {
   className?: string;
   /** For print: boards wrap their columns and tables fit the page instead of scrolling sideways. */
   print?: boolean;
+  /** Smaller figures, for dashboard widgets. */
+  compact?: boolean;
 };
 
 type Href = ((id: string) => string) | null;
 
 /** A published database drawn like its view: a table, board, list or gallery, read-only. */
-export function PublishedDatabaseView({ table, links, viewPath, className, print = false }: Props) {
+export function PublishedDatabaseView({ table, links, viewPath, className, print = false, compact = false }: Props) {
   const titles = new Map(table.rows.map((r) => [r.id, r.title]));
   const href: Href = links ? (id: string) => publishedHref(links, id, titles.get(id) ?? "") : null;
   const viewHref = (viewId: string) => `${viewPath}?view=${encodeURIComponent(viewId)}`;
@@ -65,13 +68,15 @@ export function PublishedDatabaseView({ table, links, viewPath, className, print
           })}
         </nav>
       )}
-      <Layout table={table} href={href} print={print} />
+      <Layout table={table} href={href} print={print} compact={compact} />
     </div>
   );
 }
 
-function Layout({ table, href, print }: { table: PublishedDatabase; href: Href; print: boolean }) {
+function Layout({ table, href, print, compact }: { table: PublishedDatabase; href: Href; print: boolean; compact: boolean }) {
   const t = useTranslations("publish");
+  // A chart brings its figures, not rows.
+  if (table.layout === "chart") return table.chart ? <PublishedChartFigures chart={table.chart} compact={compact} print={print} /> : null;
   if (!table.rows.length) return <p className="border-y border-border px-2 py-6 text-sm text-fg-faint">{t("noRows")}</p>;
   const byId = new Map(table.rows.map((r) => [r.id, r]));
   const rowsOf = (ids: string[]) => ids.flatMap((id) => byId.get(id) ?? []);

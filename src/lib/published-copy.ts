@@ -1,3 +1,4 @@
+import { DASHBOARD_BLOCK, parseDashboard, serializeDashboard } from "./dashboard";
 import { isEmbedBlockType } from "./embed-blocks";
 import { MENTION, mentionProps, mentionText, PAGE_LINK_BLOCK } from "./mentions";
 import type { PropertyAccess } from "./property-access-rows";
@@ -14,7 +15,8 @@ import type { PropertyAccess } from "./property-access-rows";
  * - Page mentions and "Link to page" blocks follow the copied pages; other pages read as the
  *   published page showed them (`outside`: a link to their public address, or plain text).
  * - Database blocks (inline databases, linked views) stay when their database was copied too, and
- *   are left out otherwise: the new workspace can't show a database of another workspace.
+ *   are left out otherwise: the new workspace can't show a database of another workspace. So are
+ *   dashboard widgets, and a dashboard none of whose databases was copied.
  * - Uploaded files point at the copies made in the new workspace (`fileIds`).
  */
 
@@ -106,6 +108,13 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
     if (isEmbedBlockType(block.type)) {
       const copy = refs.pageIds.get(String(props?.databaseId ?? ""));
       return copy ? [{ ...block, props: { ...props, databaseId: copy }, children }] : (children as B[]);
+    }
+    if (block.type === DASHBOARD_BLOCK) {
+      const widgets = parseDashboard(props?.widgets).flatMap((w) => {
+        const copy = refs.pageIds.get(w.databaseId);
+        return copy ? [{ ...w, databaseId: copy }] : [];
+      });
+      return widgets.length ? [{ ...block, props: { ...props, widgets: serializeDashboard(widgets) }, children }] : (children as B[]);
     }
     if (block.type === PAGE_LINK_BLOCK) {
       const pageId = String(props?.pageId ?? "");

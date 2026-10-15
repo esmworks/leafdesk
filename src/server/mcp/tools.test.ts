@@ -13,6 +13,8 @@ const collab = vi.hoisted(() => ({
   replaceContent: vi.fn(),
   appendContent: vi.fn(),
   appendBlocks: vi.fn(),
+  readBlocks: vi.fn(),
+  updateBlockProps: vi.fn(),
   setTitle: vi.fn(),
   restoreSnapshot: vi.fn(),
   broadcast: vi.fn(),
@@ -2322,5 +2324,136 @@ describe("agents", () => {
       actions: [{ type: "run_agent", agent: "Ticket router", prompt: "x".repeat(2001) }],
     });
     expect(tooLong.isError).toBe(true);
+  });
+});
+
+describe("dashboards", () => {
+  const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
+  // Stored widgets leave out empty titles.
+  const widgetsOf = (props: { widgets: string }) => JSON.parse(props.widgets).map((w: object) => ({ title: "", ...w }));
+  const stored = [
+    { id: "w1", databaseId: "db-1", title: "Open", span: 1, view: { type: "chart", config: { chartType: "number", filters: [] } } },
+    { id: "w2", databaseId: "db-1", title: "", span: 2, view: { type: "chart", config: { groupBy: "prop-status", chartType: "donut" } } },
+  ];
+  const dashboardBlock = (widgets: unknown[] = stored) => ({ id: "dash-1", type: "dashboard", props: { widgets: JSON.stringify(widgets) }, children: [] });
+  /** The dashboard as update_dashboard_widget writes it, from `widgets` as stored. */
+  const written = () => {
+    const update = collab.updateBlockProps.mock.calls[0][2];
+    return update(dashboardBlock().props, "dashboard");
+  };
+
+  beforeEach(() => {
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, amount] });
+    collab.readBlocks.mockResolvedValue({ title: "Plan", blocks: [{ id: "p", type: "paragraph", props: {}, children: [] }, dashboardBlock()] });
+    collab.updateBlockProps.mockImplementation(async (_page: string, _block: string, update: (props: object, type: string) => unknown) => {
+      update(dashboardBlock().props, "dashboard");
+      return true;
+    });
+  });
+
+  it("adds a dashboard of widgets set up like views", async () => {
+    const r = await callTool(writer, "add_dashboard", {
+      page_id: "page-1",
+      widgets: [
+        { database_id: "db-1", title: " Done ", chart_type: "number", filters: [{ property: "Status", op: "equals", value: "Done" }] },
+        { database_id: "db-1", chart_type: "bar", aggregate: "sum", aggregate_property: "Amount", width: 4 },
+        { database_id: "db-1", type: "list", sorts: [{ property: "Notes", direction: "asc" }] },
+      ],
+    });
+    expect(r.isError).toBe(false);
+    const [pageId, blocks, , snapshot] = collab.appendBlocks.mock.calls[0];
+    expect([pageId, snapshot, blocks[0].type, blocks[0].id]).toEqual(["page-1", true, "dashboard", r.data.dashboard_id]);
+    const widgets = widgetsOf(blocks[0].props);
+    expect(widgets.map((w: { title: string; span: number; view: unknown }) => [w.title, w.span, w.view])).toEqual([
+      ["Done", 1, { type: "chart", config: { chartType: "number", filters: [{ propertyId: "prop-status", op: "equals", value: "opt-done" }] } }],
+      ["", 4, { type: "chart", config: { chartType: "bar", chartAggregate: { fn: "sum", propertyId: "prop-amount" } } }],
+      ["", 2, { type: "list", config: { sorts: [{ propertyId: "prop-notes", direction: "asc" }] } }],
+    ]);
+    expect(new Set(widgets.map((w: { id: string }) => w.id)).size).toBe(3);
+    expect(r.data.widgets[0]).toMatchObject({ title: "Done", width: 1, accessible: true, database_title: "Tasks", type: "chart", chart_type: "number" });
+  });
+
+  it("refuses forms and settings a layout doesn't have, before writing", async () => {
+    const form = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-1", type: "form" }] });
+    expect(form.isError).toBe(true);
+    const listGroup = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-1", type: "list", group_by: "Status" }] });
+    expect(listGroup.text).toMatch(/group_by only applies to/);
+    databases.getDatabase.mockRejectedValueOnce(new AccessError("No access"));
+    const hidden = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-2" }] });
+    expect(hidden.isError).toBe(true);
+    expect(collab.appendBlocks).not.toHaveBeenCalled();
+  });
+
+  it("changes a widget, keeping the settings left out", async () => {
+    const r = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w2", title: "By status", show_legend: false, width: 4 });
+    expect(r.isError).toBe(false);
+    expect(collab.updateBlockProps.mock.calls[0].slice(0, 2)).toEqual(["page-1", "dash-1"]);
+    expect(widgetsOf(written())[1]).toEqual({
+      id: "w2",
+      databaseId: "db-1",
+      title: "By status",
+      span: 4,
+      view: { type: "chart", config: { groupBy: "prop-status", chartType: "donut", showLegend: false } },
+    });
+    expect(r.data).toMatchObject({ dashboard_id: "dash-1", updated: "w2" });
+  });
+
+  it("starts the view over on another layout", async () => {
+    await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w2", type: "list" });
+    expect(widgetsOf(written())[1]).toMatchObject({ span: 2, view: { type: "list", config: {} } });
+  });
+
+  it("adds, moves and removes widgets", async () => {
+    const added = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", database_id: "db-1", type: "list", before_widget_id: "w2" });
+    const ids = widgetsOf(written()).map((w: { id: string }) => w.id);
+    expect(ids).toEqual(["w1", added.data.added, "w2"]);
+
+    collab.updateBlockProps.mockClear();
+    await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1", after_widget_id: "w2" });
+    expect(widgetsOf(written()).map((w: { id: string }) => w.id)).toEqual(["w2", "w1"]);
+
+    collab.updateBlockProps.mockClear();
+    const removed = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1", remove: true });
+    expect(widgetsOf(written()).map((w: { id: string }) => w.id)).toEqual(["w2"]);
+    expect(removed.data.removed).toBe("w1");
+  });
+
+  it("says what is missing", async () => {
+    const none = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "nope", title: "x" });
+    expect(none.text).toMatch(/No widget with id "nope"/);
+    const nothing = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1" });
+    expect(nothing.text).toMatch(/Nothing to change/);
+    const noDatabase = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", type: "list" });
+    expect(noDatabase.text).toMatch(/Give database_id/);
+    collab.readBlocks.mockResolvedValueOnce({ title: "Plan", blocks: [] });
+    const noDashboard = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1", title: "x" });
+    expect(noDashboard.text).toMatch(/no dashboard/);
+    collab.readBlocks.mockResolvedValueOnce({ title: "Plan", blocks: [dashboardBlock(), { ...dashboardBlock(), id: "dash-2" }] });
+    const two = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1", title: "x" });
+    expect(two.text).toMatch(/more than one dashboard/);
+    expect(collab.updateBlockProps).not.toHaveBeenCalled();
+  });
+
+  it("lists a page's dashboards, keeping databases the user can't open private", async () => {
+    collab.readPage.mockResolvedValue({ title: "Plan", markdown: "Hi\n\n<!-- leafdesk:dashboard dash-1 -->\n", text: "Hi" });
+    databases.getDatabase.mockImplementation(async (_: string, id: string) => {
+      if (id === "db-1") return { ...database, properties: [status, notes, amount] };
+      throw new AccessError("No access");
+    });
+    collab.readBlocks.mockResolvedValue({
+      title: "Plan",
+      blocks: [dashboardBlock([...stored, { id: "w3", databaseId: "db-secret", title: "Salaries", span: 1, view: { type: "list", config: {} } }])],
+    });
+    const r = await callTool(writer, "get_page", { page_id: "page-1" });
+    expect(r.data.dashboards).toEqual([
+      {
+        id: "dash-1",
+        widgets: [
+          expect.objectContaining({ id: "w1", title: "Open", width: 1, accessible: true, type: "chart", chart_type: "number" }),
+          expect.objectContaining({ id: "w2", title: null, width: 2, accessible: true, group_by: "Status", chart_type: "donut" }),
+          { id: "w3", title: "Salaries", width: 1, database_id: "db-secret", accessible: false },
+        ],
+      },
+    ]);
   });
 });

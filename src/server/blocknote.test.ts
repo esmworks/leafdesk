@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { dashboardLine, newWidget, serializeDashboard } from "@/lib/dashboard";
 import { LINKED_VIEW_TYPES, parseLinkedView, remapInlineDatabases, serializeLinkedView } from "@/lib/embed-blocks";
 import { blocksToMarkdown, markdownToBlocks, serverEditor, type PageBlock } from "./blocknote";
 import { anchorThread, reanchor, threadQuotes } from "./collab/comment-marks";
@@ -97,6 +98,37 @@ describe("database blocks in page bodies", () => {
     expect(appended.map((b) => b.type)).toEqual(["paragraph"]);
     const moved = await markdownToBlocks(`<!-- leafdesk:database ${DB} -->\n\nText`, existing);
     expect(moved.map((b) => b.type)).toEqual(["database", "paragraph"]);
+  });
+
+  it("keep a dashboard a rewrite names, with its widgets, and make none from Markdown", async () => {
+    const widgets = serializeDashboard([newWidget("w1", DB)]);
+    const existing = read(
+      docFrom([
+        { type: "paragraph", content: "Old" },
+        { id: "dash1", type: "dashboard", props: { widgets } },
+      ]),
+    );
+    const markdown = (await blocksToMarkdown(existing)).trim();
+    expect(markdown).toBe(`Old\n\n${dashboardLine("dash1")}`);
+    // The widgets never show in the Markdown: only the block's id.
+    expect(markdown).not.toContain(DB);
+
+    const kept = await markdownToBlocks(`${dashboardLine("dash1")}\n\nNew`, existing);
+    expect(kept.map((b) => [b.type, b.id ?? null])).toEqual([
+      ["dashboard", "dash1"],
+      ["paragraph", expect.anything()],
+    ]);
+    expect(kept[0].props).toEqual({ widgets });
+    const doc = new Y.Doc();
+    doc.transact(() => serverEditor.blocksToYXmlFragment(kept, doc.getXmlFragment(COLLAB_FRAGMENT)));
+    expect(read(doc)[0].props).toEqual({ widgets });
+
+    const dropped = await markdownToBlocks("New", existing);
+    expect(dropped.map((b) => b.type)).toEqual(["paragraph"]);
+    const unknown = await markdownToBlocks(dashboardLine("elsewhere"), existing);
+    expect(unknown.map((b) => b.type)).toEqual([]);
+    const appended = await markdownToBlocks(dashboardLine("dash1"), existing, { keepMissingInline: false });
+    expect(appended).toEqual([]);
   });
 
   it("points copied inline databases at their copies, not linked views", () => {

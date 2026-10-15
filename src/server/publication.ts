@@ -3,9 +3,25 @@ import { and, asc, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { databaseProperty, databaseView, page, pagePublication, user, workspace, type CardSize, type PageKind, type ViewConfig, type ViewType } from "@/db/schema";
-import type { DateOptions, FormulaConfig, PropertyOptions } from "@/db/schema/app";
+import type { ChartAccumulate, ChartType, DateOptions, FormulaConfig, PropertyOptions, PropertyType } from "@/db/schema/app";
+import type { AggregateResult } from "@/lib/aggregate";
+import {
+  canStack,
+  chartAccumulateOf,
+  chartData,
+  chartGroupProperty,
+  chartMeasure,
+  chartTypeOf,
+  isStackable,
+  measureRows,
+  withoutRows,
+  type ChartData,
+  type ChartMeasure,
+} from "@/lib/chart";
+import { timestampDay } from "@/lib/time-zone";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
+import { LIST_WIDGET_ROWS, type DashboardWidget, type WidgetSpan } from "@/lib/dashboard";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
@@ -291,8 +307,27 @@ export type PublishedRow = {
   styles?: Record<string, FormulaStyle>;
 };
 export type PublishedViewTab = { id: string; name: string; type: ViewType };
-/** How a published view is drawn; calendars, timelines and charts show as tables. */
-export type PublishedLayout = "table" | "board" | "list" | "gallery";
+/** How a published view is drawn; calendars and timelines show as tables, charts as their numbers. */
+export type PublishedLayout = "table" | "board" | "list" | "gallery" | "chart";
+/**
+ * A chart view's numbers, worked out on the server from the rows the page publishes and only its
+ * public properties: one value for a number chart, else each group's (and stack segment's) value.
+ * No rows ride along; visitors see the figures, as a table.
+ */
+export type PublishedChart = {
+  chartType: ChartType;
+  measure: ChartMeasure;
+  accumulate: ChartAccumulate | null;
+  /** The properties the chart names: what it measures, groups and stacks by. */
+  properties: { id: string; name: string; type: PropertyType }[];
+  groupById: string | null;
+  stackById: string | null;
+  rowCount: number;
+  /** Number charts: the value. */
+  result: AggregateResult | null;
+  /** Other charts: the groups, or null when there is nothing public to group by. */
+  data: ChartData<never> | null;
+};
 /**
  * A property as a published page sends it to the visitor's browser (see publishedProperty): what
  * drawing its values takes, and nothing of how it is worked out or set up.
@@ -319,6 +354,8 @@ export type PublishedDatabase = {
   groups: { property: PublishedProperty; list: { key: string; value: GroupValue; rowIds: string[] }[] } | null;
   /** Galleries. */
   cardSize: CardSize;
+  /** Charts (layout "chart"). */
+  chart?: PublishedChart;
 };
 /**
  * A part of a published page's body: text, a database block, or a block the page draws itself (a
@@ -333,6 +370,7 @@ export type PublishedBlock =
   | { kind: "webEmbed"; url: string; embed: EmbedTarget }
   | { kind: "pdf"; fileId: string; name: string; caption: string }
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
+  | { kind: "dashboard"; widgets: PublishedWidget[] }
   | {
       kind: "embed";
       type: EmbedBlockType;
@@ -342,6 +380,19 @@ export type PublishedBlock =
        */
       database: { id: string; title: string; icon: string | null; table: PublishedDatabase } | null;
     };
+/**
+ * A dashboard widget on a published page: its database as its view shows it, published under the
+ * same rules as a linked view (null when it isn't). List widgets carry their first rows only.
+ */
+export type PublishedWidget = {
+  id: string;
+  title: string;
+  span: WidgetSpan;
+  database: PublishedEmbed | null;
+  /** List widgets: how many rows the list has in all. */
+  rowCount: number;
+};
+export type PublishedEmbed = { id: string; title: string; icon: string | null; table: PublishedDatabase };
 export type PublishedPage = {
   token: string;
   /** Search engines may index it (the publication allows it). */
@@ -624,6 +675,9 @@ async function publishedBody(
             columns: await Promise.all(segment.columns.map(async (column) => ({ width: column.width, segments: await resolve(column.segments) }))),
           };
         }
+        if (segment.kind === "dashboard") {
+          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, w))) };
+        }
         if (segment.kind !== "embed") return segment;
         return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, segment.databaseId, segment.view) };
       }),
@@ -631,7 +685,19 @@ async function publishedBody(
   return resolve(segments);
 }
 
-async function publishedEmbed(publisher: string, rootId: string, databaseId: string, view: LinkedView | null) {
+async function publishedWidget(publisher: string, rootId: string, widget: DashboardWidget): Promise<PublishedWidget> {
+  return widgetShowing(widget, await publishedEmbed(publisher, rootId, widget.databaseId, widget.view));
+}
+
+/** A widget showing `database` (published or printed), a list widget's rows cut to its first ones. */
+export function widgetShowing(widget: DashboardWidget, database: PublishedEmbed | null): PublishedWidget {
+  const rowCount = database?.table.rows.length ?? 0;
+  const shown =
+    database && widget.view.type === "list" ? { ...database, table: { ...database.table, rows: database.table.rows.slice(0, LIST_WIDGET_ROWS) } } : database;
+  return { id: widget.id, title: widget.title, span: widget.span, database: shown, rowCount };
+}
+
+async function publishedEmbed(publisher: string, rootId: string, databaseId: string, view: LinkedView | null): Promise<PublishedEmbed | null> {
   const [target] = await db
     .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
     .from(page)
@@ -822,6 +888,18 @@ export async function publishedDatabase(
     access,
   );
   const viewed = applyView(rows, chosen.config, allProperties, { people: await sortNames(rows, allProperties, chosen.config) });
+  if (chosen.type === "chart") {
+    return {
+      properties: [],
+      view: { id: chosen.id, name: chosen.name, type: chosen.type },
+      views: tabs,
+      layout: "chart",
+      rows: [],
+      groups: null,
+      cardSize: "medium",
+      chart: publishedChart(chosen.config, properties, allProperties, viewed),
+    };
+  }
   const covers = withCovers ? await rowCovers(stored) : null;
   // A gallery taking covers from a files property shows each row's first image there.
   const coverFrom = chosen.type === "gallery" ? coverProperty(chosen.config, properties) : null;
@@ -841,6 +919,38 @@ export async function publishedDatabase(
     rows: viewed.map((row) => ({ ...onlyValuesOf(row, shown), ...coverOf(row) })),
     groups: layout === "board" || layout === "table" ? groups : null,
     cardSize: chosen.config.cardSize ?? "medium",
+  };
+}
+
+/**
+ * A chart's figures over `rows`, measured and grouped by public properties only: to visitors the
+ * others aren't there, so a chart grouped by one has nothing to group by and a calculation over one
+ * counts rows. Created and edited times count by their UTC day, as in publishedGroups.
+ */
+function publishedChart(config: ViewConfig, properties: DatabaseProperty[], known: DatabaseProperty[], rows: PublishedRow[]): PublishedChart {
+  const measure = chartMeasure(config, properties);
+  const chartType = chartTypeOf(config);
+  const hiddenGroup = !!config.groupBy && !properties.some((p) => p.id === config.groupBy) && known.some((p) => p.id === config.groupBy);
+  const groupBy = chartType === "number" || hiddenGroup ? null : chartGroupProperty(properties, config);
+  const accumulate = groupBy ? chartAccumulateOf(config, groupBy, measure) : null;
+  const stackBy =
+    (groupBy &&
+      !accumulate &&
+      properties.find((p) => p.id === config.stackBy && p.id !== groupBy.id && isStackable(p.type) && canStack(chartType, measure))) ||
+    null;
+  const context = { people: [], dayOf: (value: unknown) => timestampDay(value, "UTC") };
+  const data = groupBy ? withoutRows(chartData(rows, { groupBy, stackBy, measure, config, context, stackContext: context })) : null;
+  const named = new Set([groupBy?.id, stackBy?.id, measure.kind === "aggregate" ? measure.prop.id : undefined]);
+  return {
+    chartType,
+    measure,
+    accumulate,
+    properties: properties.filter((p) => named.has(p.id)).map(({ id, name, type }) => ({ id, name, type })),
+    groupById: groupBy?.id ?? null,
+    stackById: stackBy?.id ?? null,
+    rowCount: rows.length,
+    result: chartType === "number" ? measureRows(rows, measure) : null,
+    data,
   };
 }
 
