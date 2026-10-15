@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * "Voice note" in the page editor's slash menu: a dialog records a note, the server writes it up
+ * "Voice note" in the page editor's slash menu: a dialog records a note (starting right away), the server writes it up
  * (see voice-note-recorder.tsx), and it goes in where the slash menu was opened: the AI's title as
  * a heading, the note, and the transcript in a toggle under it. Like the AI assistant's
  * suggestions, the page is saved to its history first and the blocks are added in this editor, so
@@ -11,7 +11,7 @@ import type { DefaultReactSuggestionItem } from "@blocknote/react";
 import { Mic, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { snapshotBeforeAiEditAction } from "@/app/actions/ai";
+import { snapshotBeforeVoiceNoteAction } from "@/app/actions/ai";
 import { Dialog, IconButton } from "@/components/ui";
 import { demoteHeadings, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits } from "@/lib/voice-notes";
 import type { PageEditor } from "@/components/page/embed-blocks";
@@ -52,7 +52,7 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
   const insert = useCallback(
     async (draft: VoiceNoteDraft) => {
       if (!at) return;
-      const saved = await snapshotBeforeAiEditAction(pageId);
+      const saved = await snapshotBeforeVoiceNoteAction(pageId);
       if (!saved.ok) return setError(saved.error);
       try {
         const blocks = noteBlocks(editor, draft, t("transcriptToggle"));
@@ -86,7 +86,8 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
           </IconButton>
         </div>
         <div className="space-y-2 p-4">
-          <VoiceNoteRecorder limits={limits} fields={{ pageId }} onDraft={(draft) => void insert(draft)} onBusyChange={setBusy} />
+          {/* Choosing "Voice note" is the request to record: it starts right away. */}
+          <VoiceNoteRecorder limits={limits} fields={{ pageId }} onDraft={(draft) => void insert(draft)} onBusyChange={setBusy} autoStart />
           {error && (
             <p role="alert" className="text-xs text-danger">
               {error}

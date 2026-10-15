@@ -121,6 +121,16 @@ export async function prepareVoiceNote(userId: string, target: VoiceNoteTarget) 
 }
 
 /**
+ * Saves the page to its history before a voice note goes in at the cursor, like the writing
+ * assistant's suggestions ("Before AI assistant edit"). Checked as voice notes are: the person may
+ * edit the page and voice notes work in its workspace, with or without a chat model.
+ */
+export async function snapshotBeforeVoiceNote(userId: string, pageId: string) {
+  await prepareVoiceNote(userId, { pageId });
+  await getCollab().snapshot(pageId, "before_ai_edit", { userId });
+}
+
+/**
  * Writes a recording up as a note. `onStage` hears when the transcript is done and writing starts.
  * When the AI can't write it up (no chat model, a provider failure, an answer cut off at the output
  * limit), the note is the transcript itself with its first words as the title. Throws AiError for

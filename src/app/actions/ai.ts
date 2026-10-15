@@ -13,7 +13,7 @@ import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-propert
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
 import { requireUserId } from "@/server/session";
-import { saveVoiceNote, voiceNoteDatabases, voiceNoteLimits } from "@/server/voice-notes";
+import { saveVoiceNote, snapshotBeforeVoiceNote, voiceNoteDatabases, voiceNoteLimits } from "@/server/voice-notes";
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
@@ -129,6 +129,11 @@ export async function decideChangeAction(approvalId: string, decision: ChatDecis
     if (decision !== "approve" && decision !== "always" && decision !== "decline") return false;
     return decideChange(userId, String(approvalId), decision);
   });
+}
+
+/** Saves the page to its history right before a voice note is put in at the cursor. */
+export async function snapshotBeforeVoiceNoteAction(pageId: string) {
+  return run((userId) => snapshotBeforeVoiceNote(userId, String(pageId)));
 }
 
 /**
