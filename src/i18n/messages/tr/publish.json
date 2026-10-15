@@ -31,6 +31,8 @@
   "views": "Web'deki görünümler",
   "viewsHint": "Ziyaretçiler, bu veritabanı nerede yayınlanırsa yayınlansın, seçtiğiniz görünümler arasında geçiş yapabilir.",
   "asTable": "tablo olarak gösterilir",
+  "leftOut": "{count, plural, one {Bu veritabanı bu sayfanın altında olmadığı için yayımlanan sayfada görünmez:} other {Bu veritabanları bu sayfanın altında olmadığı için yayımlanan sayfada görünmez:}}",
+  "leftOutHint": "{count, plural, one {Sayfayla birlikte yayımlanması için onu bu sayfanın altına taşıyın.} other {Sayfayla birlikte yayımlanmaları için onları bu sayfanın altına taşıyın.}}",
   "inSite": "Çalışma alanının sitesinde göster",
   "inSiteHint": "Sitenin gezinme menüsü bu sayfayı ve alt sayfalarını listeler.",
   "siteLinkLabel": "Sitedeki adresi",

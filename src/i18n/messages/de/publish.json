@@ -31,6 +31,8 @@
   "views": "Ansichten im Web",
   "viewsHint": "Besucher können zwischen den ausgewählten Ansichten wechseln, überall dort, wo diese Datenbank veröffentlicht ist.",
   "asTable": "als Tabelle angezeigt",
+  "leftOut": "{count, plural, one {Diese Datenbank liegt nicht unter dieser Seite, deshalb zeigt die veröffentlichte Seite sie nicht:} other {Diese Datenbanken liegen nicht unter dieser Seite, deshalb zeigt die veröffentlichte Seite sie nicht:}}",
+  "leftOutHint": "{count, plural, one {Verschiebe sie unter diese Seite, um sie mit der Seite zu veröffentlichen.} other {Verschiebe sie unter diese Seite, um sie mit der Seite zu veröffentlichen.}}",
   "inSite": "Auf der Website des Workspace anzeigen",
   "inSiteHint": "Die Navigation der Website führt diese Seite und ihre Unterseiten auf.",
   "siteLinkLabel": "Adresse auf der Website",

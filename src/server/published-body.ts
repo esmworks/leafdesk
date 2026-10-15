@@ -431,6 +431,28 @@ export async function bodySegmentsFromBlocks(
   return await segmentsOf(blocks);
 }
 
+/**
+ * The databases a body shows, each once, in order: those of its database blocks and dashboard
+ * widgets, wherever they sit (in columns, nested under other blocks). The same blocks
+ * `bodySegmentsFromBlocks` turns into embed and dashboard segments, without writing any HTML.
+ */
+export function bodyDatabaseIds(blocks: PageBlock[]): string[] {
+  const ids = new Set<string>();
+  const walk = (list: PageBlock[]) => {
+    for (const block of list) {
+      const props = block.props as { databaseId?: unknown; widgets?: unknown };
+      if (block.type === DASHBOARD_BLOCK) {
+        for (const widget of parseDashboard(props.widgets)) ids.add(widget.databaseId);
+      } else if (isEmbedBlockType(block.type) && typeof props.databaseId === "string" && props.databaseId) {
+        ids.add(props.databaseId);
+      }
+      if (block.children?.length) walk(block.children as PageBlock[]);
+    }
+  };
+  walk(blocks);
+  return [...ids];
+}
+
 /** The body as one HTML string, leaving database blocks out (columns' HTML one after another). */
 export async function bodyHtmlFromYdoc(state: Uint8Array | null): Promise<string> {
   const html = (segments: BodySegment[]): string =>

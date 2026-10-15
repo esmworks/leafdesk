@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Globe, Link2 } from "lucide-react";
+import { Check, ExternalLink, Globe, Link2, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
@@ -11,7 +11,7 @@ import {
   updatePublicationAction,
 } from "@/app/actions/publication";
 import { ViewIcon } from "@/components/database/property-icons";
-import { Button, cn, Switch } from "@/components/ui";
+import { Button, cn, PageIcon, Switch } from "@/components/ui";
 import type { ViewType } from "@/db/schema";
 
 type Publication = {
@@ -25,6 +25,7 @@ type Publication = {
 } | null;
 type Option = "indexable" | "inSite" | "allowDuplicate";
 type WebView = { id: string; name: string; type: ViewType; published: boolean };
+type LeftOut = { id: string; title: string; icon: string | null };
 
 /** Published pages draw these views as they are; the rest show as tables. */
 const DRAWN: ViewType[] = ["table", "board", "list", "gallery"];
@@ -33,6 +34,7 @@ type Blocker = "needsFullAccess" | "notAllowed" | "publishingOff" | null;
 /** Publish tab of the Share popover: turn the public, read-only link on or off. */
 export function PublishTab({ pageId }: { pageId: string }) {
   const t = useTranslations("publish");
+  const tc = useTranslations("common");
   const [publication, setPublication] = useState<Publication | undefined>(undefined);
   // Publishing needs full access and the workspace's publishing policy; unpublishing only full
   // access. The server enforces both; this explains a disabled button.
@@ -41,6 +43,8 @@ export function PublishTab({ pageId }: { pageId: string }) {
   const [views, setViews] = useState<WebView[] | null>(null);
   // The workspace's site, when it has one: pages can be listed in it.
   const [site, setSite] = useState<{ url: string } | null>(null);
+  // Databases the body shows that the published page leaves out: they don't lie under the page.
+  const [leftOut, setLeftOut] = useState<LeftOut[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -51,6 +55,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
       setBlocker(r.blocker);
       setViews(r.views);
       setSite(r.site);
+      setLeftOut(r.leftOut);
       return r;
     });
 
@@ -149,6 +154,24 @@ export function PublishTab({ pageId }: { pageId: string }) {
             />
           </div>
         ))}
+
+      {leftOut.length > 0 && (
+        <div className="mt-3 rounded-md border border-border bg-bg-subtle p-2 text-xs">
+          <p className="flex items-start gap-1.5">
+            <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg-muted" aria-hidden />
+            {t("leftOut", { count: leftOut.length })}
+          </p>
+          <ul className="mt-1.5 flex flex-col gap-0.5 pl-5">
+            {leftOut.map((database) => (
+              <li key={database.id} className="flex min-w-0 items-center gap-1.5">
+                <PageIcon icon={database.icon} kind="database" className="shrink-0 text-sm" />
+                <span className="min-w-0 truncate">{database.title || tc("untitled")}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5 pl-5 text-fg-muted">{t("leftOutHint", { count: leftOut.length })}</p>
+        </div>
+      )}
 
       {views && views.length > 0 && (
         <div className="mt-4">

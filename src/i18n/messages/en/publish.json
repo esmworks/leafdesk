@@ -31,6 +31,8 @@
   "views": "Views on the web",
   "viewsHint": "Visitors can switch between the views you pick, wherever this database is published.",
   "asTable": "shown as a table",
+  "leftOut": "{count, plural, one {This database doesn't lie under this page, so the published page won't show it:} other {These databases don't lie under this page, so the published page won't show them:}}",
+  "leftOutHint": "{count, plural, one {Move it under this page to publish it with the page.} other {Move them under this page to publish them with the page.}}",
   "inSite": "Show in the workspace's site",
   "inSiteHint": "The site's navigation lists this page and its subpages.",
   "siteLinkLabel": "Address in the site",

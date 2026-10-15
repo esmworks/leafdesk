@@ -1,6 +1,7 @@
 "use server";
 
 import * as publication from "@/server/publication";
+import { databasesLeftOut } from "@/server/publish-reach";
 import { requireUserId } from "@/server/session";
 import { siteForPage } from "@/server/site";
 
@@ -9,16 +10,17 @@ const publicPath = (token: string) => `/s/${token}`;
 
 /**
  * The page's publication, if any, why the viewer can't publish it (null when they can), for
- * databases the views published pages show, and the workspace's site (with the page's address
- * there, when it is listed).
+ * databases the views published pages show, the workspace's site (with the page's address
+ * there, when it is listed) and the databases its body shows that the published page leaves out.
  */
 export async function getPublicationAction(pageId: string) {
   const userId = await requireUserId();
-  const [found, blocker, views, site] = await Promise.all([
+  const [found, blocker, views, site, leftOut] = await Promise.all([
     publication.getPublication(userId, pageId),
     publication.publishBlocker(userId, pageId),
     publication.getWebViews(userId, pageId),
     siteForPage(userId, pageId),
+    databasesLeftOut(userId, pageId),
   ]);
   return {
     publication: found
@@ -35,6 +37,7 @@ export async function getPublicationAction(pageId: string) {
     blocker,
     views,
     site: site ? { url: site.url } : null,
+    leftOut,
   };
 }
 

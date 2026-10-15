@@ -31,6 +31,8 @@
   "views": "Vues sur le Web",
   "viewsHint": "Les visiteurs peuvent passer d’une vue choisie à l’autre, partout où cette base de données est publiée.",
   "asTable": "affichée sous forme de table",
+  "leftOut": "{count, plural, one {Cette base de données ne se trouve pas sous cette page, la page publiée ne l’affichera donc pas :} other {Ces bases de données ne se trouvent pas sous cette page, la page publiée ne les affichera donc pas :}}",
+  "leftOutHint": "{count, plural, one {Déplacez-la sous cette page pour la publier avec elle.} other {Déplacez-les sous cette page pour les publier avec elle.}}",
   "inSite": "Afficher dans le site de l’espace de travail",
   "inSiteHint": "La navigation du site liste cette page et ses sous-pages.",
   "siteLinkLabel": "Adresse dans le site",

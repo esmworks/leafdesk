@@ -287,6 +287,10 @@
 - **Dashboard widgets move by dragging.** Editors pick a widget up by its title bar and drop it
   beside another (or above or below one as wide as the dashboard); a line shows where it lands. The
   widget's menu still moves it one place at a time.
+- **Publishing names the databases a page leaves out.** A published page shows only the databases
+  that lie under it, so a dashboard or database view over a database elsewhere stays empty for
+  visitors. The *Publish* tab now lists those databases, before and after publishing, and says to
+  move them under the page to publish them with it.
 
 ## 0.5.2 — 2026-10-15
 
