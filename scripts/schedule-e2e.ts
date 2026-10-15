@@ -183,6 +183,10 @@ try {
   check((await db.select().from(schedule).where(eq(schedule.workspaceId, workspaceId))).length === 0, "deleting the template deletes its repeat");
 
   console.log(`\n${passed} checks passed`);
+} catch (error) {
+  // Exiting in `finally` would drop the error: say what failed, and fail.
+  console.error(error);
+  process.exitCode = 1;
 } finally {
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, userIds));
