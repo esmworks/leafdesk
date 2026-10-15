@@ -12,7 +12,7 @@
     "read": "Nur lesen",
     "readHint": "Seiten, Datenbanken, Zeilen und Kommentare lesen.",
     "write": "Lesen und schreiben",
-    "writeHint": "Außerdem Seiten, Zeilen und Kommentare erstellen und ändern sowie Seiten in den Papierkorb verschieben.",
+    "writeHint": "Außerdem Seiten, Zeilen und Kommentare erstellen und ändern, Seiten in den Papierkorb verschieben und (als Workspace-Inhaber) Agenten ändern und Durchläufe anfordern.",
     "workspace": "Workspace",
     "allWorkspaces": "Alle meine Workspaces",
     "expiry": "Gültigkeitsdauer",

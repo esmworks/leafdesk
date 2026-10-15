@@ -1,11 +1,12 @@
 "use client";
 
-import { BookCheck, BookX, Bot, ChevronRight, MessageSquare, MessageSquareOff, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, ChevronRight, MessageSquare, MessageSquareOff, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 import {
+  agentUsageAction,
   createAgentAction,
   listAgentAccessAction,
   listAgentRunsAction,
@@ -27,10 +28,12 @@ import {
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
+  MAX_AGENT_TOKEN_LIMIT,
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentSkillRecord,
   type AgentToolRecord,
+  type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
 import { AgentConnectionsTab } from "./agent-connections-tab";
@@ -139,13 +142,17 @@ export function AgentForm({
   const [description, setDescription] = useState(agent?.description ?? "");
   const [instructions, setInstructions] = useState(agent?.instructions ?? "");
   const [enabled, setEnabled] = useState(agent?.enabled ?? true);
+  const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const { pending, error, run } = useAction();
   const locked = Boolean(agent?.archived);
   const clean = name.trim();
+  // Empty: no limit. The server checks the number again.
+  const monthlyTokenLimit = limit.trim() ? Number(limit.trim()) : null;
+  const limitValid = monthlyTokenLimit === null || (Number.isInteger(monthlyTokenLimit) && monthlyTokenLimit >= 1 && monthlyTokenLimit <= MAX_AGENT_TOKEN_LIMIT);
 
   const submit = () => {
-    if (!clean || locked) return;
-    const value = { name: clean, icon, description, instructions, enabled };
+    if (!clean || locked || !limitValid) return;
+    const value = { name: clean, icon, description, instructions, enabled, monthlyTokenLimit };
     if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
     else run(() => createAgentAction(workspaceId, value), (created) => onCreated?.(created));
   };
@@ -211,6 +218,22 @@ export function AgentForm({
           </div>
           <Switch checked={enabled} label={t("active")} disabled={locked} onChange={setEnabled} />
         </div>
+        <label className="block border-t border-border pt-3">
+          <span className="mb-1 block text-sm">{t("limit")}</span>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_AGENT_TOKEN_LIMIT}
+            step={1}
+            value={limit}
+            placeholder={t("limitPlaceholder")}
+            aria-invalid={!limitValid}
+            onChange={(e) => setLimit(e.target.value)}
+            className="w-48"
+          />
+          <span className={cn("mt-1 block text-xs", limitValid ? "text-fg-muted" : "text-danger")}>{limitValid ? t("limitHelp") : t("limitInvalid")}</span>
+        </label>
       </fieldset>
       <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
         {error && (
@@ -221,7 +244,7 @@ export function AgentForm({
         <Button variant="ghost" onClick={onDone}>
           {tc("cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={locked || pending || !clean}>
+        <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid}>
           {agent ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
         </Button>
       </div>
@@ -372,12 +395,16 @@ function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: Ag
   const t = useTranslations("settings.agents.runs");
   const tc = useTranslations("common");
   const [runs, setRuns] = useState<AgentRunDetails[] | null>(null);
+  const [usage, setUsage] = useState<AgentUsageMonth[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
     let live = true;
+    agentUsageAction(workspaceId, agent.id)
+      .then((res) => live && res.ok && setUsage(res.data))
+      .catch(() => undefined);
     listAgentRunsAction(workspaceId, agent.id)
       .then((res) => {
         if (!live) return;
@@ -410,6 +437,7 @@ function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: Ag
           {t("refresh")}
         </Button>
       </div>
+      {usage && <UsageSummary usage={usage} limit={agent.monthlyTokenLimit} />}
       {!runs ? (
         <p className="py-3 text-sm text-fg-muted" role={error ? "alert" : undefined}>
           {error ?? tc("loading")}
@@ -422,6 +450,54 @@ function RunsTab({ workspaceId, agent, runId }: { workspaceId: string; agent: Ag
             <RunItem key={run.id} workspaceId={workspaceId} run={run} initiallyOpen={run.id === runId} onChanged={() => setVersion((v) => v + 1)} />
           ))}
         </ul>
+      )}
+    </div>
+  );
+}
+
+/** What the agent's runs used this month (against its limit), and in the months before. */
+function UsageSummary({ usage, limit }: { usage: AgentUsageMonth[]; limit: number | null }) {
+  const t = useTranslations("settings.agents.usage");
+  const format = useFormatter();
+  const [current, ...earlier] = usage;
+  const tokens = (m: AgentUsageMonth) => m.inputTokens + m.outputTokens;
+  const used = tokens(current);
+  const share = limit ? Math.min(1, used / limit) : 0;
+  const month = (m: AgentUsageMonth) => format.dateTime(new Date(`${m.month}-01T00:00:00Z`), { year: "numeric", month: "long", timeZone: "UTC" });
+  const line = (m: AgentUsageMonth) =>
+    [
+      t("tokens", { count: tokens(m) }),
+      ...(m.costUsd > 0 ? [format.number(m.costUsd, { style: "currency", currency: "USD", maximumFractionDigits: m.costUsd < 1 ? 4 : 2 })] : []),
+      t("runs", { count: m.runs }),
+    ].join(" · ");
+
+  return (
+    <div className="mb-2 rounded-md border border-border px-3 py-2 text-sm">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+        <span>{t("thisMonth", { usage: line(current) })}</span>
+        {limit !== null && (
+          <span className={cn("text-xs", used >= limit ? "text-danger" : "text-fg-muted")}>
+            {used >= limit ? t("limitReached", { limit: format.number(limit) }) : t("ofLimit", { limit: format.number(limit) })}
+          </span>
+        )}
+      </div>
+      {limit !== null && (
+        <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-bg-hover" aria-hidden>
+          <div className={cn("h-full", used >= limit ? "bg-danger" : "bg-fg-muted")} style={{ width: `${share * 100}%` }} />
+        </div>
+      )}
+      {earlier.length > 0 && (
+        <details className="mt-1.5 text-xs text-fg-muted">
+          <summary className="cursor-pointer select-none">{t("earlier")}</summary>
+          <ul className="mt-1 space-y-0.5">
+            {earlier.map((m) => (
+              <li key={m.month} className="flex justify-between gap-3">
+                <span>{month(m)}</span>
+                <span className="tabular-nums">{line(m)}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
     </div>
   );
@@ -469,6 +545,11 @@ function RunItem({
                   {t("fromConnection", { connection: run.connections[run.source.connectionId] ?? t("removedConnection"), event: run.eventType ?? "" })}
                 </span>
               </span>
+            ) : run.source.kind === "request" && !run.source.rowId ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className="truncate">{run.request?.task}</span>
+              </span>
             ) : run.rowTitle !== null ? (
               <Link href={`/w/${workspaceId}/p/${run.source.rowId}`} className="min-w-0 flex-1 truncate text-sm hover:underline">
                 {pageLabel(run.rowTitle, tc("untitled"))}
@@ -483,12 +564,18 @@ function RunItem({
           <div className="text-xs text-fg-faint">
             {format.dateTime(new Date(run.createdAt), { dateStyle: "medium", timeStyle: "short" })}
             {took && ` · ${t("took", { time: took })}`}
+            {run.request && ` · ${t("requestedBy", { name: run.request.byName, via: run.request.via })}`}
           </div>
           {failed && run.code && <p className="mt-0.5 text-xs text-danger">{t(`reason.${run.code}`)}</p>}
         </div>
       </div>
       {open && (
         <div className="mt-2 ml-6 space-y-2 text-sm">
+          {run.request?.task && (
+            <p className="whitespace-pre-wrap text-fg-muted">
+              <span className="text-xs font-medium">{t("task")}</span> {run.request.task}
+            </p>
+          )}
           {run.steps.length > 0 ? (
             <ol className="ml-1.5 space-y-1 border-l border-border pl-3 text-fg-muted">
               {run.steps.map((step, i) => (

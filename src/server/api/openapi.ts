@@ -13,6 +13,7 @@ const TAGS = [
   { name: "Databases", description: "Database schemas and row queries." },
   { name: "Rows", description: "Database rows and their property values." },
   { name: "Comments", description: "Comment threads on pages." },
+  { name: "Agents", description: "A workspace's agents: their settings, runs asked for now, run history and monthly usage." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -369,6 +370,78 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["page_id", "threads"],
   ),
   CommentCreated: loose({ thread_id: id, comment_id: id, url }, ["thread_id", "comment_id"]),
+  AgentSummary: loose(
+    {
+      id,
+      name: { type: "string" },
+      icon: { type: ["string", "null"] },
+      description: { type: "string" },
+      enabled: { type: "boolean", description: "Paused agents don't run." },
+      archived: { type: "boolean" },
+      user_id: { type: "string", description: "The agent's own user: what its changes and comments show." },
+    },
+    ["id", "name", "enabled", "archived", "user_id"],
+  ),
+  AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
+  AgentUsageMonth: loose(
+    {
+      month: { type: "string", description: "The calendar month (UTC), YYYY-MM." },
+      runs: { type: "integer" },
+      input_tokens: { type: "integer" },
+      output_tokens: { type: "integer" },
+      cost_usd: { type: "number", description: "0 where the AI provider names no price." },
+    },
+    ["month", "runs", "input_tokens", "output_tokens", "cost_usd"],
+  ),
+  Agent: {
+    allOf: [
+      ref("AgentSummary"),
+      loose(
+        {
+          workspace_id: id,
+          instructions: { type: "string" },
+          monthly_token_limit: { type: ["integer", "null"], description: "The most tokens its runs may use in a calendar month (UTC); null: no limit." },
+          usage_this_month: ref("AgentUsageMonth"),
+          created_at: { type: "string", format: "date-time" },
+          updated_at: { type: "string", format: "date-time" },
+        },
+        ["workspace_id", "instructions", "monthly_token_limit", "usage_this_month"],
+      ),
+    ],
+  },
+  AgentRun: loose(
+    {
+      id,
+      status: { type: "string", enum: ["pending", "running", "awaiting_approval", "done", "failed"] },
+      code: { type: "string", description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error." },
+      error: { type: "string" },
+      source: loose(
+        {
+          kind: { type: "string", enum: ["automation", "connection", "request"] },
+          requested_by: loose({ id, name: { type: "string" } }),
+          via: { type: "string", enum: ["api", "mcp"] },
+          task: { type: "string", description: "The task asked for (empty where the run's row is hidden from the user)." },
+        },
+        ["kind"],
+      ),
+      row: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the row." }, url }),
+      steps: { type: "array", items: loose({ kind: { type: "string" }, summary: { type: "string" } }) },
+      answer: { type: "string", description: "What the agent said at the end." },
+      usage: loose({ rounds: { type: "integer" }, input_tokens: { type: "integer" }, output_tokens: { type: "integer" }, cost_usd: { type: "number" } }),
+      created_at: { type: "string", format: "date-time" },
+      finished_at: { type: ["string", "null"], format: "date-time" },
+    },
+    ["id", "status", "source", "steps", "answer", "created_at", "finished_at"],
+  ),
+  AgentRunList: loose({ agent_id: id, runs: { type: "array", items: ref("AgentRun") } }, ["agent_id", "runs"]),
+  AgentUsage: loose(
+    {
+      agent_id: id,
+      monthly_token_limit: { type: ["integer", "null"] },
+      months: { type: "array", items: ref("AgentUsageMonth") },
+    },
+    ["agent_id", "monthly_token_limit", "months"],
+  ),
 };
 
 const ERROR_RESPONSES: Record<string, { description: string }> = {
@@ -379,6 +452,7 @@ const ERROR_RESPONSES: Record<string, { description: string }> = {
       "The token lacks the scope (insufficient_scope), or the user may not do this, or the workspace lets API tokens only read (forbidden).",
   },
   "404": { description: "Not found, or the user (or the token's workspace) may not access it." },
+  "409": { description: "The agent can't do this now (agent_unavailable, limit_reached, too_many_runs)." },
   "413": { description: "The request body is too large (payload_too_large)." },
   "429": { description: "Rate limited; wait for Retry-After seconds." },
 };
@@ -418,7 +492,7 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
   const paths: Record<string, Record<string, unknown>> = {};
   for (const route of routes) {
     const status = String(route.status ?? 200);
-    const errors = ["400", "401", "403", "404", "429", ...(route.body ? ["413"] : [])];
+    const errors = ["400", "401", "403", "404", ...(route.conflict ? ["409"] : []), "429", ...(route.body ? ["413"] : [])];
     const parameters = parametersOf(route);
     (paths[route.path] ??= {})[route.method.toLowerCase()] = {
       operationId: route.operationId,

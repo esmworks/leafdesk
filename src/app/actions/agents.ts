@@ -23,6 +23,7 @@ import {
 } from "@/server/agents/manage";
 import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
+import { agentUsageMonths } from "@/server/agents/usage";
 import { viewStep } from "@/server/ai-chat";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { requireUserId } from "@/server/session";
@@ -32,7 +33,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -74,6 +75,7 @@ const input = (value: AgentInput): AgentInput => ({
   description: value?.description,
   instructions: value?.instructions,
   enabled: value?.enabled,
+  monthlyTokenLimit: value?.monthlyTokenLimit,
 });
 
 export async function createAgentAction(workspaceId: string, value: AgentInput) {
@@ -185,6 +187,11 @@ export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | 
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
 
 /** An agent's latest runs, with the pages their steps name as the viewer may see them now. */
+/** What the agent's runs used by month, this month first. */
+export async function agentUsageAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => agentUsageMonths(userId, agentId));
+}
+
 export async function listAgentRunsAction(workspaceId: string, agentId: string): Promise<ActionResult<AgentRunDetails[]>> {
   return run(workspaceId, async (userId) => {
     // An owner approves a waiting call here: they see it exactly as it will be sent.

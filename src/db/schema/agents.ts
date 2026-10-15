@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type {
   AgentAccessLevel,
   AgentPendingCall,
@@ -53,6 +53,8 @@ export const workspaceAgent = pgTable(
     instructions: text("instructions").notNull().default(""),
     /** Paused agents don't run; their queued runs end as `agentDisabled`. */
     enabled: boolean("enabled").notNull().default(true),
+    /** The most tokens its runs may use in a calendar month (UTC); null: no limit (see agent_usage). */
+    monthlyTokenLimit: integer("monthly_token_limit"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -104,6 +106,26 @@ export const agentRun = pgTable(
     finishedAt: timestamp("finished_at", { withTimezone: true }),
   },
   (t) => [index("agent_run_due_idx").on(t.status, t.nextAt), index("agent_run_agent_idx").on(t.agentId, t.createdAt)],
+);
+
+/**
+ * What an agent's runs used in a calendar month (UTC), added to after each turn with the model, so
+ * a run that fails still counts what it used. Kept AGENT_USAGE_MONTHS, longer than the runs.
+ */
+export const agentUsage = pgTable(
+  "agent_usage",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    /** The month's first day. */
+    month: date("month").notNull(),
+    runs: integer("runs").notNull().default(0),
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull().default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull().default(0),
+    costUsd: doublePrecision("cost_usd").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.month] })],
 );
 
 /**

@@ -143,6 +143,14 @@ const agentMemory = vi.hoisted(() => ({
 }));
 vi.mock("@/server/agents/memory", () => agentMemory);
 
+const agentUsage = vi.hoisted(() => ({
+  agentUsageMonths: vi.fn(async () => [{ month: "2026-10", runs: 3, inputTokens: 1200, outputTokens: 300, costUsd: 0.02 }]),
+}));
+vi.mock("@/server/agents/usage", () => agentUsage);
+
+const agentRequests = vi.hoisted(() => ({ requestAgentRun: vi.fn() }));
+vi.mock("@/server/agents/requests", () => agentRequests);
+
 const files = vi.hoisted(() => {
   class FileError extends Error {
     constructor(
@@ -1974,6 +1982,7 @@ describe("agents", () => {
     instructions: "Set the priority from the ticket's text.",
     enabled: true,
     archived: false,
+    monthlyTokenLimit: 50_000,
     createdAt: "2026-10-01T00:00:00.000Z",
     updatedAt: "2026-10-01T00:00:00.000Z",
   };
@@ -2037,7 +2046,7 @@ describe("agents", () => {
         id: "m-2",
         text: "Refunds over 100 EUR need a lead",
         status: "proposed",
-        run: { id: "run-1", createdAt: "2026-10-02T00:00:00.000Z", rowId: "row-1", rowTitle: "Refund for order 7", connectionName: null },
+        run: { id: "run-1", createdAt: "2026-10-02T00:00:00.000Z", rowId: "row-1", rowTitle: "Refund for order 7", connectionName: null, requested: false },
         createdAt: "2026-10-02T00:00:00.000Z",
         updatedAt: "2026-10-02T00:00:00.000Z",
       },
@@ -2045,7 +2054,7 @@ describe("agents", () => {
         id: "m-3",
         text: null,
         status: "proposed",
-        run: { id: "run-2", createdAt: "2026-10-03T00:00:00.000Z", rowId: "row-2", rowTitle: null, connectionName: null },
+        run: { id: "run-2", createdAt: "2026-10-03T00:00:00.000Z", rowId: "row-2", rowTitle: null, connectionName: null, requested: false },
         createdAt: "2026-10-03T00:00:00.000Z",
         updatedAt: "2026-10-03T00:00:00.000Z",
       },
@@ -2066,7 +2075,7 @@ describe("agents", () => {
       id: "m-2",
       text: "Refunds over 100 EUR need a lead",
       status: "proposed",
-      run: { id: "run-1", createdAt: "2026-10-02T00:00:00.000Z", rowId: "row-1", rowTitle: "Refund for order 7", connectionName: null },
+      run: { id: "run-1", createdAt: "2026-10-02T00:00:00.000Z", rowId: "row-1", rowTitle: "Refund for order 7", connectionName: null, requested: false },
       createdAt: "2026-10-02T00:00:00.000Z",
       updatedAt: "2026-10-02T00:00:00.000Z",
     };
@@ -2282,6 +2291,65 @@ describe("agents", () => {
     ]);
     expect(data.runs[1]).toMatchObject({ status: "failed", code: "aiOff", row: { id: "row-2", title: null } });
     expect(data.runs[1].row).not.toHaveProperty("url");
+  });
+
+  it("starts a run an owner asks for, and shows who asked, the task, the limit and the usage", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    const requested = {
+      id: "run-9",
+      status: "pending",
+      code: null,
+      error: null,
+      source: { kind: "request", requestedBy: "user-1", via: "mcp" },
+      rowTitle: null,
+      steps: [],
+      answer: "",
+      usage: null,
+      pending: null,
+      eventType: null,
+      request: { by: "user-1", byName: "Erhan", via: "mcp", task: "Summarize this week's tickets" },
+      connections: {},
+      createdAt: "2026-10-15T00:00:00.000Z",
+      finishedAt: null,
+    };
+    agentRequests.requestAgentRun.mockResolvedValueOnce(requested);
+    const started = await callTool(writer, "start_agent_run", { agent_id: "agent-1", task: "Summarize this week's tickets" });
+    expect(started.isError).toBe(false);
+    expect(agentRequests.requestAgentRun).toHaveBeenCalledWith("user-1", "agent-1", { task: "Summarize this week's tickets", rowId: null, via: "mcp" });
+    expect(started.data.run).toMatchObject({
+      id: "run-9",
+      status: "pending",
+      source: { kind: "request", requested_by: { id: "user-1", name: "Erhan" }, via: "mcp", task: "Summarize this week's tickets" },
+    });
+    expect(started.data.run).not.toHaveProperty("row");
+
+    // On a row: the row is linked as an automation's run's is.
+    agentRequests.requestAgentRun.mockResolvedValueOnce({
+      ...requested,
+      source: { kind: "request", requestedBy: "user-1", via: "mcp", rowId: "row-1", databaseId: "db-1" },
+      rowTitle: "Printer jammed",
+    });
+    const onRow = await callTool(writer, "start_agent_run", { agent_id: "agent-1", task: "Set the priority", row_id: "row-1" });
+    expect(agentRequests.requestAgentRun).toHaveBeenLastCalledWith("user-1", "agent-1", { task: "Set the priority", rowId: "row-1", via: "mcp" });
+    expect(onRow.data.run).toMatchObject({ source: { kind: "request", database_id: "db-1" }, row: { id: "row-1", title: "Printer jammed" } });
+
+    // Refusals say what to do next.
+    agentRequests.requestAgentRun.mockRejectedValueOnce(new agents.AgentError("limitReached", "The agent used its tokens for this month", { limit: "50000" }));
+    const over = await callTool(writer, "start_agent_run", { agent_id: "agent-1", task: "Again" });
+    expect(over.isError).toBe(true);
+    expect(over.text).toMatch(/monthly token limit \(50000 tokens\).*monthly_token_limit/);
+    agentRequests.requestAgentRun.mockRejectedValueOnce(new agents.AgentError("paused", "Turn the agent on to run it"));
+    expect((await callTool(writer, "start_agent_run", { agent_id: "agent-1", task: "Again" })).text).toMatch(/enabled: true/);
+    expect((await callTool(reader, "start_agent_run", { agent_id: "agent-1", task: "Again" })).isError).toBe(true);
+
+    // get_agent shows the limit and the months; update_agent changes the limit alone.
+    agents.listAgentAccess.mockResolvedValue({ pages: [], hidden: 0 });
+    const got = await callTool(reader, "get_agent", { agent_id: "agent-1" });
+    expect(got.data).toMatchObject({ monthly_token_limit: 50_000, usage: [{ month: "2026-10", runs: 3, input_tokens: 1200, output_tokens: 300, cost_usd: 0.02 }] });
+    agents.updateAgent.mockResolvedValueOnce({ ...agent, monthlyTokenLimit: null });
+    const cleared = await callTool(writer, "update_agent", { agent_id: "agent-1", monthly_token_limit: null });
+    expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { monthlyTokenLimit: null });
+    expect(cleared.data.monthly_token_limit).toBeNull();
   });
 
   it("passes run_agent actions through and names the agent in automations", async () => {

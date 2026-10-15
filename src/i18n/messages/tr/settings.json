@@ -334,6 +334,10 @@
       "count": "{count} / {max}",
       "active": "Etkin",
       "activeHelp": "Duraklatılmış bir ajanın çalışmaları hiçbir şey yapmadan biter.",
+      "limit": "Aylık token sınırı",
+      "limitPlaceholder": "Sınır yok",
+      "limitHelp": "Çalışmalarının bir takvim ayında (UTC) kullanabileceği en fazla token. Sınıra ulaşınca çalışmaları gelecek aya kadar durur.",
+      "limitInvalid": "1 ile 1.000.000.000 arasında bir tam sayı girin ya da sınır koymamak için boş bırakın.",
       "create": "Ajan oluştur",
       "creating": "Oluşturuluyor…",
       "archivedNote": "Değiştirmek için ajanı geri getirin."
@@ -394,6 +398,7 @@
       "fromRow": "<row>satır</row> satırındaki çalışmadan",
       "fromHiddenRow": "Açamadığınız bir satırdaki çalışmadan",
       "fromConnection": "{connection} ile başlayan bir çalışmadan",
+      "fromRequest": "Bir sahibin istediği çalışmadan",
       "removedConnection": "kaldırılmış bir bağlantı",
       "keep": "Tut",
       "keepEdited": "Bu metinle tut",
@@ -426,6 +431,8 @@
       },
       "rowHidden": "Açamadığınız bir satır",
       "took": "{time} sürdü",
+      "requestedBy": "{name} istedi ({via, select, api {API} other {yapay zekâ asistanı}})",
+      "task": "Görev:",
       "showDetails": "Ne yaptığını göster",
       "hideDetails": "Ne yaptığını gizle",
       "noSteps": "Hiçbir şey aramadı, okumadı ya da değiştirmedi.",
@@ -443,7 +450,8 @@
         "tooManyAttempts": "Zamanında başlayamadı: çalışma alanının yapay zekâ kotası dolu kaldı.",
         "error": "Bir şeyler ters gitti.",
         "approvalTimeout": "Çağrısını bir gün içinde kimse yanıtlamadı; hiçbir şey gönderilmedi.",
-        "connectionGone": "Onu başlatan bağlantı kaldırıldı."
+        "connectionGone": "Onu başlatan bağlantı kaldırıldı.",
+        "limitReached": "Ajanın aylık token sınırı dolmuştu."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Kaldırılmış bir bağlantı",
@@ -469,6 +477,14 @@
           "removed": "<name></name> atlandı: çalışma beklerken bir sahip bu beceriyi ajandan kaldırdı"
         }
       }
+    },
+    "usage": {
+      "thisMonth": "Bu ay: {usage}",
+      "tokens": "{count, plural, other {# token}}",
+      "runs": "{count, plural, other {# çalışma}}",
+      "ofLimit": "aylık sınır {limit}",
+      "limitReached": "{limit} token sınırına ulaştı: çalışmalar gelecek aya kadar durur",
+      "earlier": "Önceki aylar"
     },
     "templates": {
       "heading": "Şablonla başlayın",
@@ -538,12 +554,18 @@
         "property": "Doğru türde özellikler seçin.",
         "option": "Özelliğin birbirinden farklı iki seçeneğini seçin.",
         "rules": "Uyacağı kuralları yazın.",
-        "pages": "Okuyacağı sayfaları seçin."
+        "pages": "Okuyacağı sayfaları seçin.",
+        "limit": "Token sınırını 1 ile 1.000.000.000 arasında bir tam sayı olarak girin."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
       "memoryFull": "Bir ajan en fazla {max} not tutar. Önce birini silin.",
-      "noteNotFound": "Bu not artık yok."
+      "noteNotFound": "Bu not artık yok.",
+      "paused": "Çalıştırmak için ajanı açın.",
+      "aiOff": "Bu çalışma alanında yapay zekâ kapalı.",
+      "limitReached": "Ajan aylık token sınırını doldurdu ({limit} token).",
+      "tooManyRuns": "Bu ajandan istenen {max} çalışma hâlâ bekliyor. Biri bitince yeniden deneyin.",
+      "notARow": "Satır bulunamadı."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -1192,7 +1214,8 @@
       "agent": {
         "created": "“{target}” ajanını oluşturdu",
         "updated": "{change, select, on {“{target}” ajanını açtı} off {“{target}” ajanını duraklattı} other {“{target}” ajanını değiştirdi}}",
-        "archived": "“{target}” ajanını arşivledi"
+        "archived": "“{target}” ajanını arşivledi",
+        "run_requested": "“{target}” ajanından bir çalışma istedi"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",

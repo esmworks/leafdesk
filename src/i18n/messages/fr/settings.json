@@ -334,6 +334,10 @@
       "count": "{count} / {max}",
       "active": "Actif",
       "activeHelp": "Les exécutions d’un agent en pause se terminent sans rien faire.",
+      "limit": "Limite mensuelle de tokens",
+      "limitPlaceholder": "Aucune limite",
+      "limitHelp": "Le nombre maximal de tokens que ses exécutions peuvent utiliser par mois civil (UTC). Une fois la limite atteinte, elles s’arrêtent jusqu’au mois suivant.",
+      "limitInvalid": "Saisissez un nombre entier de 1 à 1 000 000 000, ou laissez vide pour aucune limite.",
       "create": "Créer l’agent",
       "creating": "Création…",
       "archivedNote": "Restaurez l’agent pour le modifier."
@@ -394,6 +398,7 @@
       "fromRow": "D’une exécution sur <row>une ligne</row>",
       "fromHiddenRow": "D’une exécution sur une ligne que vous ne pouvez pas ouvrir",
       "fromConnection": "D’une exécution lancée par {connection}",
+      "fromRequest": "D’une exécution demandée par un propriétaire",
       "removedConnection": "une connexion supprimée",
       "keep": "Garder",
       "keepEdited": "Garder avec ce texte",
@@ -426,6 +431,8 @@
       },
       "rowHidden": "Une ligne que vous ne pouvez pas ouvrir",
       "took": "a pris {time}",
+      "requestedBy": "demandée par {name} ({via, select, api {API} other {assistant IA}})",
+      "task": "Tâche :",
       "showDetails": "Afficher ce qu’il a fait",
       "hideDetails": "Masquer ce qu’il a fait",
       "noSteps": "Il n’a rien cherché, lu ni modifié.",
@@ -443,7 +450,8 @@
         "tooManyAttempts": "Il n’a pas pu démarrer à temps : le quota d’IA de l’espace de travail est resté épuisé.",
         "error": "Un problème est survenu.",
         "approvalTimeout": "Personne n’a répondu à son appel dans la journée : rien n’a été envoyé.",
-        "connectionGone": "La connexion qui l’a lancée a été supprimée."
+        "connectionGone": "La connexion qui l’a lancée a été supprimée.",
+        "limitReached": "La limite mensuelle de tokens de l’agent était atteinte."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Une connexion supprimée",
@@ -469,6 +477,14 @@
           "removed": "<name></name> laissée de côté : un propriétaire l’a retirée à l’agent pendant que l’exécution attendait"
         }
       }
+    },
+    "usage": {
+      "thisMonth": "Ce mois-ci : {usage}",
+      "tokens": "{count, plural, one {# token} other {# tokens}}",
+      "runs": "{count, plural, one {# exécution} other {# exécutions}}",
+      "ofLimit": "sur {limit} par mois",
+      "limitReached": "Limite de {limit} atteinte : les exécutions s’arrêtent jusqu’au mois prochain",
+      "earlier": "Mois précédents"
     },
     "templates": {
       "heading": "Partir d’un modèle",
@@ -538,12 +554,18 @@
         "property": "Choisissez des propriétés du bon type.",
         "option": "Choisissez deux options différentes de la propriété.",
         "rules": "Écrivez les règles qu’il suit.",
-        "pages": "Choisissez les pages qu’il lit."
+        "pages": "Choisissez les pages qu’il lit.",
+        "limit": "Saisissez une limite de tokens entière de 1 à 1 000 000 000."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
       "memoryFull": "Un agent garde au plus {max} notes. Supprimez-en une d’abord.",
-      "noteNotFound": "Cette note n’existe plus."
+      "noteNotFound": "Cette note n’existe plus.",
+      "paused": "Activez l’agent pour le lancer.",
+      "aiOff": "L’IA est désactivée dans cet espace de travail.",
+      "limitReached": "L’agent a atteint sa limite mensuelle de tokens ({limit} tokens).",
+      "tooManyRuns": "{max} exécutions demandées à cet agent attendent encore. Réessayez quand l’une d’elles sera terminée.",
+      "notARow": "Ligne introuvable."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -1192,7 +1214,8 @@
       "agent": {
         "created": "A créé l’agent « {target} »",
         "updated": "{change, select, on {A activé l’agent « {target} »} off {A mis en pause l’agent « {target} »} other {A modifié l’agent « {target} »}}",
-        "archived": "A archivé l’agent « {target} »"
+        "archived": "A archivé l’agent « {target} »",
+        "run_requested": "A demandé une exécution à l’agent « {target} »"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",

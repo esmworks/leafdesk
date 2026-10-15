@@ -1437,7 +1437,8 @@ list until it is restored.
 An agent is an AI helper of a workspace with a name, an emoji, a description and instructions of
 its own. An automation's *Run an agent* action starts it: when the automation runs on a row, the
 agent gets its instructions, the action's task, what happened to the row and the row itself, and
-works on it. An event a connection receives can start it too (see [Connections](#connections)).
+works on it. An event a connection receives can start it too (see [Connections](#connections)),
+and owners can ask one for a task of their own over the REST API or MCP.
 
 **Its own user.** Each agent acts as a user of its own: a bot user that can't sign in (its address,
 `agent-<id>@agents.leafdesk.invalid`, can't receive mail), added to the workspace as a guest. Like
@@ -1467,7 +1468,28 @@ a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
 used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `provider`, `timeout`,
-`tooManyAttempts` or `error`).
+`tooManyAttempts`, `limitReached` or `error`).
+
+**Runs owners ask for.** An owner can ask an agent to do a task now, over the REST API
+(`POST /api/v1/agents/{id}/runs`) or MCP (`start_agent_run`), with a task of up to 2000
+characters, on a database row or on none. The run is queued like any other and held to the asking
+owner's access as well as the agent's, as a run a member's change started is held to that
+member's: it reads only what both can open. On a row it may change and comment on that row; on
+none it only reads (and uses its connections' tools) and its answer is what it found or did. The
+run shows who asked, from where and the task; read how it went with
+`GET /api/v1/agents/{id}/runs/{run_id}` or `list_agent_runs`. Asking is refused, not queued, while
+the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
+limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
+
+**Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
+for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
+AI provider names no price). The agent's *Runs* tab shows this month against its limit, and the
+months before; MCP's `get_agent` and the REST API's `GET /api/v1/agents/{id}/usage` show them too.
+Twelve months are kept. In the agent's settings an owner can set a monthly token limit (input and
+output together): once the month's tokens reach it, a run under way stops at its next turn
+(`limitReached`, counting what it used) and no run starts until the next month or until the limit
+is raised. Several runs of one agent under way at once can each take one more turn past it. The
+limit counts tokens rather than money because not every provider reports a price.
 
 **Skills.** In the agent's *Skills* tab, owners give it up to 10 [skills](#skills) of the
 workspace that they can open; each run sends their instructions to the model after the agent's
@@ -1537,8 +1559,9 @@ its user stays, so what it did keeps its name. A restored agent comes back pause
 shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
 `set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
-`keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory` and `list_agent_runs`. The REST
-API has no agent endpoints.
+`keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs` and
+`start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, the
+monthly limit), asking for a run, and reading runs and usage (see [REST API](#rest-api)).
 
 > [!WARNING]
 > Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in
@@ -1765,8 +1788,10 @@ The tools cover:
   (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit),
   `keep_agent_memory` and `dismiss_agent_memory` (answer the notes its runs proposed),
   `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` (an owner's own notes)
-  and `list_agent_runs` (each run's steps summarized). Owners manage
-  agents; members can list them (see [Agents](#agents)).
+  and `list_agent_runs` (each run's steps summarized), `start_agent_run` (ask an agent for a task
+  now, on a row or on none); `get_agent` also shows its monthly token limit and usage by month,
+  and `update_agent` sets the limit. Owners manage agents; members can list them (see
+  [Agents](#agents)).
 
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that
 change anything, and a workspace's owners can let apps only read it, or hide it from them (see
@@ -1808,8 +1833,15 @@ curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   /databases/{id}/rows/bulk` (up to 100), `PATCH /databases/{id}/rows` (same values on many rows),
   `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first).
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
+- **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
+  resuming, the monthly token limit; with this month's usage), `POST /agents/{id}/runs` (ask for a
+  task now, optionally on a row), `GET /agents/{id}/runs`, `GET /agents/{id}/runs/{run_id}` and
+  `GET /agents/{id}/usage` (by month). Owners only, except the list. Asking for a run answers
+  `409` when the agent can't run now (`agent_unavailable`), used its monthly limit
+  (`limit_reached`) or has too many runs waiting (`too_many_runs`). A `pages:write` token may thus
+  start runs that use the workspace's AI allowance.
 
-Automations and agents have no REST endpoints: they are managed in the app or over MCP.
+Automations have no REST endpoints: they are managed in the app or over MCP.
 
 The API and the MCP server share one service layer (`src/server/operations.ts`), so they check
 input, access and history the same way: a token acts as its user, with that user's own access to
@@ -1852,6 +1884,7 @@ Useful scripts:
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
+| `pnpm tsx scripts/agent-api-e2e.ts` | End-to-end check of agents over the REST API: settings, runs asked for on a row or on none, the asking owner's access, usage by month and the monthly limit, with a fake AI server, against the database |
 | `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |
 | `pnpm tsx scripts/security-switches-e2e.ts` | End-to-end check of the workspace security switches (export, publishing, connected apps) through the settings action, the export and public routes, MCP and the REST API, against a running server |
 | `pnpm tsx scripts/auth-e2e.ts` | End-to-end password reset check against a running server with SMTP pointed at [Mailpit](https://mailpit.axllent.org) |

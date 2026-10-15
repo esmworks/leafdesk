@@ -15,10 +15,12 @@ import {
   agentEmail,
   callToSend,
   isAgentAccessLevel,
+  isEventRun,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
+  MAX_AGENT_TOKEN_LIMIT,
   MAX_AGENTS,
   type AgentAccessLevel,
   type AgentAccessView,
@@ -43,7 +45,12 @@ export type AgentErrorCode =
   | "noteEmpty"
   | "noteTooLong"
   | "memoryFull"
-  | "noteNotFound";
+  | "noteNotFound"
+  | "paused"
+  | "aiOff"
+  | "limitReached"
+  | "tooManyRuns"
+  | "notARow";
 
 export class AgentError extends Error {
   constructor(
@@ -67,6 +74,8 @@ export type AgentInput = {
   description?: string;
   instructions?: string;
   enabled?: boolean;
+  /** Tokens a month; null removes the limit. */
+  monthlyTokenLimit?: number | null;
 };
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : undefined);
@@ -75,6 +84,14 @@ function checkName(value: unknown) {
   const name = clean(value, MAX_AGENT_NAME);
   if (!name) throw new AgentError("invalid", "An agent needs a name", { reason: "name" });
   return name;
+}
+
+function checkLimit(value: unknown) {
+  if (value === null) return null;
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > MAX_AGENT_TOKEN_LIMIT) {
+    throw new AgentError("invalid", "A monthly token limit is a whole number of tokens, from 1 to a billion", { reason: "limit" });
+  }
+  return value;
 }
 
 function checkIcon(value: unknown) {
@@ -96,12 +113,13 @@ export function viewAgent(a: Agent): AgentView {
     instructions: a.instructions,
     enabled: a.enabled,
     archived: a.archivedAt !== null,
+    monthlyTokenLimit: a.monthlyTokenLimit,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
   };
 }
 
-export const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null });
+export const auditDetails = (a: Agent) => ({ name: a.name, enabled: a.enabled, archived: a.archivedAt !== null, monthlyTokenLimit: a.monthlyTokenLimit });
 
 /** The agent with this id, for an owner of its workspace. */
 export async function ownedAgent(userId: string, agentId: string) {
@@ -140,6 +158,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
   const icon = checkIcon(input.icon);
   const description = clean(input.description, MAX_AGENT_DESCRIPTION) ?? "";
   const instructions = clean(input.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
+  const monthlyTokenLimit = input.monthlyTokenLimit === undefined ? null : checkLimit(input.monthlyTokenLimit);
   const created = await db.transaction(async (tx) => {
     const [{ n }] = await tx
       .select({ n: count() })
@@ -152,7 +171,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
     await addAgentMembership(tx, workspaceId, userIdOfAgent, userId);
     const [agent] = await tx
       .insert(workspaceAgent)
-      .values({ id, workspaceId, userId: userIdOfAgent, name, icon, description, instructions, enabled: input.enabled ?? true, createdBy: userId })
+      .values({ id, workspaceId, userId: userIdOfAgent, name, icon, description, instructions, enabled: input.enabled ?? true, monthlyTokenLimit, createdBy: userId })
       .returning();
     return agent;
   });
@@ -170,6 +189,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.description !== undefined) set.description = clean(patch.description, MAX_AGENT_DESCRIPTION) ?? "";
   if (patch.instructions !== undefined) set.instructions = clean(patch.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   if (patch.enabled !== undefined) set.enabled = Boolean(patch.enabled);
+  if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (!Object.keys(set).length) return viewAgent(current);
   const updated = await db.transaction(async (tx) => {
     const [agent] = await tx.update(workspaceAgent).set(set).where(eq(workspaceAgent.id, agentId)).returning();
@@ -357,6 +377,23 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
     .where(eq(agentRun.agentId, agent.id))
     .orderBy(desc(agentRun.createdAt))
     .limit(Math.min(Math.max(limit, 1), 100));
+  return viewRuns(userId, runs, exact);
+}
+
+/** One of an agent's runs, for its owners, as listAgentRuns shows it. */
+export async function getAgentRun(userId: string, agentId: string, runId: string, { exact = false }: { exact?: boolean } = {}): Promise<AgentRunView> {
+  const agent = await ownedAgent(userId, agentId);
+  const [run] = await db
+    .select()
+    .from(agentRun)
+    .where(and(eq(agentRun.id, runId), eq(agentRun.agentId, agent.id)))
+    .limit(1);
+  if (!run) throw new AgentError("notFound", "Run not found");
+  return (await viewRuns(userId, [run], exact))[0];
+}
+
+/** Runs as `userId` may see them (see listAgentRuns). */
+async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], exact: boolean): Promise<AgentRunView[]> {
   const rowIds = [...new Set(runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : [])))];
   const titles = new Map<string, string>();
   if (rowIds.length) {
@@ -375,13 +412,17 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
     ...new Set(
       runs.flatMap((r) => [
         ...(r.pending ? [r.pending.connectionId] : []),
-        ...(isRowRun(r.source) ? [] : [r.source.connectionId]),
+        ...(isEventRun(r.source) ? [r.source.connectionId] : []),
         ...r.steps.flatMap((s) => (s.kind === "tool" ? [s.connectionId] : [])),
       ]),
     ),
   ];
   const connectionNames = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
+  );
+  const requesterIds = [...new Set(runs.flatMap((r) => (r.source.kind === "request" ? [r.source.requestedBy] : [])))];
+  const requesters = new Map(
+    requesterIds.length ? (await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, requesterIds))).map((u) => [u.id, u.name]) : [],
   );
   // What a run read, thought and answered can quote pages the agent may open and the viewer may
   // not; it all ends up on the row anyway, so only people who can open the row see it. A
@@ -407,6 +448,10 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
             }
           : null,
       eventType: "eventType" in r.context ? r.context.eventType : null,
+      request:
+        r.source.kind === "request"
+          ? { by: r.source.requestedBy, byName: requesters.get(r.source.requestedBy) ?? "", via: r.source.via, task: open ? r.prompt : "" }
+          : null,
       connections: Object.fromEntries(connectionIds.filter((id) => connectionNames.has(id)).map((id) => [id, connectionNames.get(id)!])),
       createdAt: r.createdAt.toISOString(),
       finishedAt: r.finishedAt?.toISOString() ?? null,

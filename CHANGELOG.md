@@ -102,6 +102,25 @@
   page; one picked starts at *Can view*, as from the agent's settings. An agent's row shows its
   icon and "Agent", and its levels are view, comment and edit only. The server already let anyone
   with full access to a page share it with an agent; the menu now offers it.
+- **Agents over the REST API, and runs owners ask for.** New endpoints list a workspace's agents
+  (`GET /workspaces/{id}/agents`), read and change one (`GET` and `PATCH /agents/{id}`: settings,
+  pausing and resuming, the monthly token limit), ask one for a task now
+  (`POST /agents/{id}/runs`), and read its runs (`GET /agents/{id}/runs`,
+  `GET /agents/{id}/runs/{run_id}`) and usage (`GET /agents/{id}/usage`), owners only except the
+  list. MCP clients get `start_agent_run`. A run an owner asks for works on a database row (and may
+  change and comment on it) or on none (it only reads and answers), held to the owner's access as
+  well as the agent's; it shows who asked, from where and the task, and each request is recorded in
+  the audit log. Asking is refused with `409` while the agent is paused or archived or AI is off
+  (`agent_unavailable`), once it used its monthly limit (`limit_reached`), or while 5 runs asked of
+  it still wait (`too_many_runs`). Covered in `scripts/agent-api-e2e.ts`.
+- **Agents' usage and a monthly token limit.** Each turn a run takes is added to the agent's usage
+  for the calendar month (UTC): runs, input and output tokens and cost, kept for 12 months. The
+  agent's *Runs* tab shows this month against its limit and the months before; MCP's `get_agent`
+  shows them too. An owner can set a monthly token limit in the agent's settings (or with
+  `update_agent` and `PATCH /agents/{id}`): once the month reaches it, a run under way stops at its
+  next turn as `limitReached` and no run starts until the next month. Migration `0067_agent_usage`
+  adds `agent_usage` and `workspace_agent.monthly_token_limit`. Covered in
+  `scripts/agent-api-e2e.ts`.
 
 ### Fixed
 
@@ -110,6 +129,8 @@
   automation runs it. A level someone set or removed meanwhile from the Share menu was overwritten
   then (only the agent's settings counted as setting it); now any change to the agent's own entry
   keeps it. Covered in `scripts/agents-e2e.ts`.
+- **`list_agent_runs` names the waiting status as it returns it.** Its description said
+  `waiting_for_approval` for a run that waits for an owner; runs come back as `awaiting_approval`.
 
 ## 0.5.1 — 2026-10-12
 

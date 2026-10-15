@@ -36,6 +36,7 @@ import { agentRun, connection, connectionEvent, connectionTrigger, page, user, w
 import {
   AGENT_RUN_HISTORY_DAYS,
   AGENT_RUN_TIMEOUT_MS,
+  isEventRun,
   isRowRun,
   MAX_AGENT_PROMPT,
   MAX_AGENT_ROUNDS,
@@ -54,7 +55,7 @@ import { redactError, redactText, redactValue } from "@/lib/redact";
 import { AccessError, findMembership, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
-import { agentEventPrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
+import { agentEventPrompt, agentRequestPrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOLS, type Registry, type ToolOutcome } from "@/server/ai-tools";
@@ -67,6 +68,7 @@ import type * as ops from "@/server/operations";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
+import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
@@ -106,11 +108,11 @@ export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_COMMENT];
 
 const state = agentsWorker;
 
-/** What makes two queued runs the same run: the automation's run, or the event and trigger. */
+/** What makes two queued runs the same run: the automation's run, or the event and trigger. Each run an owner asks for is its own. */
 function sameSource(source: AgentRunSource) {
-  return source.kind === "automation"
-    ? sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId}`
-    : sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
+  if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId}`;
+  if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
+  return sql`false`;
 }
 
 /**
@@ -214,6 +216,7 @@ export async function processRun(run: Run): Promise<void> {
   if (!agent || agent.archivedAt || !agent.enabled) return finish(run, { status: "failed", code: "agentDisabled" });
   if (run.attempts > MAX_CLAIMS) return finish(run, { status: "failed", code: "tooManyAttempts" });
   if (!(await aiAvailable(run.workspaceId))) return finish(run, { status: "failed", code: "aiOff" });
+  if (await overMonthlyLimit(agent)) return finish(run, { status: "failed", code: "limitReached" });
 
   // The member whose change started a row's run: the agent works within their access as well. Asked
   // again each time the run is taken (after an approval too): their access as it is now counts, and
@@ -225,11 +228,18 @@ export async function processRun(run: Run): Promise<void> {
   // too (turning it off holds back the calls of runs already under way). A trigger since removed
   // isn't trusted.
   let trusted = false;
+  // A run an owner asked for is held to their access, and stands behind what it reads as they do.
+  if (run.source.kind === "request") {
+    member = await memberBehind(run);
+    if (!member) return finish(run, { status: "failed", code: "noAccess" });
+    bound = member;
+    trusted = true;
+  }
   if (isRowRun(run.source)) {
     const { rowId, databaseId } = run.source;
     const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
     if (!row || row.archivedAt || row.parentId !== databaseId) return finish(run, { status: "failed", code: "rowGone" });
-    member = await memberBehind(run);
+    if (run.source.kind === "automation") member = await memberBehind(run);
     if (!member) {
       // An answer to a public form from someone the workspace doesn't know: held to the form's
       // publisher, who must still be in the workspace (or the run opens nothing).
@@ -241,7 +251,7 @@ export async function processRun(run: Run): Promise<void> {
     } else bound = member;
     const { level } = await withinMember(agent, bound, () => pageAccessOf(agent.userId, rowId));
     if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
-  } else {
+  } else if (isEventRun(run.source)) {
     const [conn] = await db.select({ id: connection.id }).from(connection).where(eq(connection.id, run.source.connectionId));
     if (!conn) return finish(run, { status: "failed", code: "connectionGone" });
     const [trigger] = await db
@@ -309,7 +319,8 @@ async function converse(
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
   // someone else may edit by then is left out (see steps below).
   const skillSet = await runSkills(agent, agentSkillRoom(), bound);
-  const system = agentSystemPrompt(agent, { row: rowRun, connections, askEveryTool, skills: skillSet.skills, remembers });
+  const requested = run.source.kind === "request";
+  const system = agentSystemPrompt(agent, { row: rowRun, requested, connections, askEveryTool, skills: skillSet.skills, remembers });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
@@ -337,6 +348,10 @@ async function converse(
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map, memory: memory.text }) }];
+  } else if (requested) {
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
+    messages = [{ role: "user", content: agentRequestPrompt({ task: run.prompt, event: await eventText(run), map, memory: memory.text }) }];
   } else {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
@@ -428,6 +443,8 @@ async function converse(
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
     }
+    // The month's tokens may have run out since the run started (other runs of the agent use them too).
+    if (round > firstRound && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
     const last = round === MAX_AGENT_ROUNDS - 1;
     const result = await complete({
       feature: "agent",
@@ -440,6 +457,11 @@ async function converse(
       signal,
       sessionId: run.id,
     });
+    // Counted as it comes back, so a run that fails later still counts what it used; a run is one
+    // of the month's runs at its first turn.
+    await addAgentUsage(agent.id, { runs: usage.rounds === 0 ? 1 : 0, ...result.usage }).catch((error) =>
+      console.error("[agents] could not count what a run used", redactError(error)),
+    );
     usage.rounds += 1;
     usage.inputTokens += result.usage.inputTokens;
     usage.outputTokens += result.usage.outputTokens;
@@ -513,7 +535,12 @@ async function addComment(agent: Agent, run: Run, args: Record<string, unknown>)
 
 /** What happened, in words: the row added or the properties changed, and by whom; or the event received. */
 async function eventText(run: Run) {
-  if (!isRowRun(run.source)) {
+  if (run.source.kind === "request") {
+    const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.requestedBy));
+    const via = run.source.via === "api" ? "the REST API" : "an AI assistant (MCP)";
+    return `${owner?.name ?? "An owner"} asked for this run over ${via}${isRowRun(run.source) ? ", on the row below" : ""}.`;
+  }
+  if (isEventRun(run.source)) {
     // The type is the sender's word (often an unsigned header): it goes with the event's data, not here.
     const [conn] = await db.select({ name: connection.name }).from(connection).where(eq(connection.id, run.source.connectionId));
     return `The connection "${conn?.name ?? "?"}" received an event.`;
@@ -628,6 +655,7 @@ export async function pruneAgentRuns() {
     .delete(connectionEvent)
     .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))
     .catch((error) => console.error("[connections] could not prune events", redactError(error)));
+  await pruneAgentUsage().catch((error) => console.error("[agents] could not prune usage", redactError(error)));
 }
 
 /** Server only: runs queued agents, right away when they are queued and every few seconds. */

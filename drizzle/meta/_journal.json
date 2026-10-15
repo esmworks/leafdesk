@@ -470,6 +470,13 @@
       "when": 1792015905885,
       "tag": "0066_agent_memory_notice",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1792047127640,
+      "tag": "0067_agent_usage",
+      "breakpoints": true
     }
   ]
 }
