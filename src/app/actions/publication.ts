@@ -1,7 +1,7 @@
 "use server";
 
 import * as publication from "@/server/publication";
-import { databasesLeftOut } from "@/server/publish-reach";
+import { outsideDatabases, setOutsideDatabases } from "@/server/publish-reach";
 import { requireUserId } from "@/server/session";
 import { siteForPage } from "@/server/site";
 
@@ -11,16 +11,16 @@ const publicPath = (token: string) => `/s/${token}`;
 /**
  * The page's publication, if any, why the viewer can't publish it (null when they can), for
  * databases the views published pages show, the workspace's site (with the page's address
- * there, when it is listed) and the databases its body shows that the published page leaves out.
+ * there, when it is listed) and the databases its body shows from outside it (see publish-reach).
  */
 export async function getPublicationAction(pageId: string) {
   const userId = await requireUserId();
-  const [found, blocker, views, site, leftOut] = await Promise.all([
+  const [found, blocker, views, site, outside] = await Promise.all([
     publication.getPublication(userId, pageId),
     publication.publishBlocker(userId, pageId),
     publication.getWebViews(userId, pageId),
     siteForPage(userId, pageId),
-    databasesLeftOut(userId, pageId),
+    outsideDatabases(userId, pageId),
   ]);
   return {
     publication: found
@@ -37,14 +37,16 @@ export async function getPublicationAction(pageId: string) {
     blocker,
     views,
     site: site ? { url: site.url } : null,
-    leftOut,
+    outside,
   };
 }
 
-export async function publishPageAction(pageId: string) {
+/** Publishes the page, showing the outside databases `shown` names (see setOutsideDatabases). */
+export async function publishPageAction(pageId: string, shown: string[] = []) {
   const userId = await requireUserId();
   await publication.publishPage(userId, pageId);
-  return (await getPublicationAction(pageId)).publication!;
+  if (shown.length) await setOutsideDatabases(userId, pageId, shown);
+  return getPublicationAction(pageId);
 }
 
 export async function unpublishPageAction(pageId: string) {
@@ -62,6 +64,13 @@ export async function updatePublicationAction(pageId: string, patch: Partial<pub
   const userId = await requireUserId();
   await publication.updatePublication(userId, pageId, patch);
   return (await getPublicationAction(pageId)).publication;
+}
+
+/** Which databases from outside the page its publication shows; returns them all again. */
+export async function setOutsideDatabasesAction(pageId: string, shown: string[]) {
+  const userId = await requireUserId();
+  await setOutsideDatabases(userId, pageId, shown);
+  return outsideDatabases(userId, pageId);
 }
 
 export async function setWebViewsAction(databaseId: string, viewIds: string[]) {

@@ -1,0 +1,1 @@
+ALTER TABLE "page_publication" ADD COLUMN "outside_database_ids" text[] DEFAULT '{}' NOT NULL;

@@ -13,7 +13,7 @@ import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { displayHost } from "@/lib/web-blocks";
-import type { PublishedBlock, PublishedCrumb, PublishedPage } from "@/server/publication";
+import type { PublishedBlock, PublishedCrumb, PublishedEmbed, PublishedPage } from "@/server/publication";
 import { PublishedDatabaseView } from "./published-database";
 import styles from "./published-body.module.css";
 
@@ -78,6 +78,8 @@ export async function PublishedBody({
   const untitled = tc("untitled");
   const titles = new Map(crumbs.map((c) => [c.id, c.title]));
   const href = links ? (id: string, title?: string) => publishedHref(links, id, title ?? titles.get(id) ?? "") : null;
+  // A database shown from outside the page has no published address, nor do its rows: no links to them.
+  const linksOf = (database: PublishedEmbed) => (database.outside ? null : links);
 
   /**
    * A part of the body. At the top level each part has the page's side padding (in print the
@@ -124,7 +126,7 @@ export async function PublishedBody({
                       <>
                         <h2 className="mb-2 flex min-w-0 items-center gap-1.5 text-sm font-medium">
                           <PageIcon icon={database.icon} kind="database" className="text-base" />
-                          {href ? (
+                          {href && !database.outside ? (
                             <Link href={href(database.id, database.title)} className="truncate hover:underline">
                               {widget.title || pageLabel(database.title, untitled)}
                             </Link>
@@ -132,7 +134,7 @@ export async function PublishedBody({
                             <span className="truncate">{widget.title || pageLabel(database.title, untitled)}</span>
                           )}
                         </h2>
-                        <PublishedDatabaseView table={database.table} links={links} print={print} compact className="min-w-0" />
+                        <PublishedDatabaseView table={database.table} links={linksOf(database)} print={print} compact className="min-w-0" />
                         {database.table.layout === "list" && more > 0 && <p className="mt-1 text-xs text-fg-faint">{td("more", { count: more })}</p>}
                       </>
                     ) : (
@@ -217,7 +219,7 @@ export async function PublishedBody({
         return (
           <section key={i} className="my-4">
             <h2 className={cn("text-base font-semibold", pad, styles.heading)}>
-              {href ? (
+              {href && !block.database.outside ? (
                 <Link href={href(block.database.id, block.database.title)} className="inline-flex items-center gap-1.5 hover:underline">
                   {label}
                 </Link>
@@ -225,7 +227,7 @@ export async function PublishedBody({
                 <span className="inline-flex items-center gap-1.5">{label}</span>
               )}
             </h2>
-            <PublishedDatabaseView table={block.database.table} links={links} print={print} className={cn("mt-2", pad)} />
+            <PublishedDatabaseView table={block.database.table} links={linksOf(block.database)} print={print} className={cn("mt-2", pad)} />
           </section>
         );
       }

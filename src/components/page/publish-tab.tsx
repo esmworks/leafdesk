@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   getPublicationAction,
   publishPageAction,
+  setOutsideDatabasesAction,
   setWebViewsAction,
   unpublishPageAction,
   updatePublicationAction,
@@ -25,7 +26,8 @@ type Publication = {
 } | null;
 type Option = "indexable" | "inSite" | "allowDuplicate";
 type WebView = { id: string; name: string; type: ViewType; published: boolean };
-type LeftOut = { id: string; title: string; icon: string | null };
+/** A database the body shows from outside the page; `shown` when the publication shows it anyway. */
+type Outside = { id: string; title: string; icon: string | null; shown: boolean };
 
 /** Published pages draw these views as they are; the rest show as tables. */
 const DRAWN: ViewType[] = ["table", "board", "list", "gallery"];
@@ -43,8 +45,8 @@ export function PublishTab({ pageId }: { pageId: string }) {
   const [views, setViews] = useState<WebView[] | null>(null);
   // The workspace's site, when it has one: pages can be listed in it.
   const [site, setSite] = useState<{ url: string } | null>(null);
-  // Databases the body shows that the published page leaves out: they don't lie under the page.
-  const [leftOut, setLeftOut] = useState<LeftOut[]>([]);
+  // Databases the body shows that don't lie under the page: shown only when the publisher picks them.
+  const [outside, setOutside] = useState<Outside[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -55,7 +57,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
       setBlocker(r.blocker);
       setViews(r.views);
       setSite(r.site);
-      setLeftOut(r.leftOut);
+      setOutside(r.outside);
       return r;
     });
 
@@ -155,21 +157,45 @@ export function PublishTab({ pageId }: { pageId: string }) {
           </div>
         ))}
 
-      {leftOut.length > 0 && (
-        <div className="mt-3 rounded-md border border-border bg-bg-subtle p-2 text-xs">
-          <p className="flex items-start gap-1.5">
-            <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg-muted" aria-hidden />
-            {t("leftOut", { count: leftOut.length })}
-          </p>
-          <ul className="mt-1.5 flex flex-col gap-0.5 pl-5">
-            {leftOut.map((database) => (
-              <li key={database.id} className="flex min-w-0 items-center gap-1.5">
-                <PageIcon icon={database.icon} kind="database" className="shrink-0 text-sm" />
-                <span className="min-w-0 truncate">{database.title || tc("untitled")}</span>
+      {outside.length > 0 && (
+        <div className="mt-4">
+          <p className="text-sm">{t("outside")}</p>
+          <p className="mt-0.5 text-xs text-fg-muted">{t("outsideHint")}</p>
+          <ul className="mt-2 flex flex-col">
+            {outside.map((database) => (
+              <li key={database.id}>
+                <label
+                  className={cn(
+                    "-mx-1 flex items-center gap-2 rounded px-1 py-1 text-sm",
+                    busy || blocker !== null ? "cursor-default" : "cursor-pointer hover:bg-bg-hover",
+                  )}
+                >
+                  <PageIcon icon={database.icon} kind="database" className="shrink-0 text-sm" />
+                  <span className="min-w-0 flex-1 truncate">{database.title || tc("untitled")}</span>
+                  <span className="shrink-0 text-xs text-fg-muted">{t("showOutside")}</span>
+                  <input
+                    type="checkbox"
+                    checked={database.shown}
+                    disabled={busy || blocker !== null}
+                    onChange={(e) => {
+                      const next = outside.map((d) => (d.id === database.id ? { ...d, shown: e.target.checked } : d));
+                      // Before publishing, the choice goes along with Publish; after, it is saved at once.
+                      if (!publication) return setOutside(next);
+                      const shown = next.filter((d) => d.shown).map((d) => d.id);
+                      void change(async () => setOutside(await setOutsideDatabasesAction(pageId, shown)));
+                    }}
+                    className="h-4 w-4 shrink-0 accent-[var(--color-accent)]"
+                  />
+                </label>
               </li>
             ))}
           </ul>
-          <p className="mt-1.5 pl-5 text-fg-muted">{t("leftOutHint", { count: leftOut.length })}</p>
+          {outside.some((d) => !d.shown) && (
+            <p className="mt-1 flex items-start gap-1.5 text-xs text-fg-muted">
+              <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              {t("outsideHidden", { count: outside.filter((d) => !d.shown).length })}
+            </p>
+          )}
         </div>
       )}
 
@@ -240,7 +266,16 @@ export function PublishTab({ pageId }: { pageId: string }) {
             variant="primary"
             className="w-full justify-center"
             disabled={busy || blocker !== null}
-            onClick={() => void change(async () => setPublication(await publishPageAction(pageId)))}
+            onClick={() =>
+              void change(async () => {
+                const now = await publishPageAction(
+                  pageId,
+                  outside.filter((d) => d.shown).map((d) => d.id),
+                );
+                setPublication(now.publication);
+                setOutside(now.outside);
+              })
+            }
           >
             {t("publish")}
           </Button>

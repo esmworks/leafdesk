@@ -533,6 +533,13 @@
       "when": 1792225666028,
       "tag": "0075_page_search_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1792228644793,
+      "tag": "0076_publication_outside_databases",
+      "breakpoints": true
     }
   ]
 }

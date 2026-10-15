@@ -2,9 +2,9 @@
  * End-to-end check of dashboards against the database: what widgets show for a viewer (numbers,
  * charts and lists over the rows a view's filters keep), rows and properties the viewer can't see
  * staying out of every figure, the rows behind a number or a bar, widgets on databases the viewer
- * can't open, what a published dashboard shows (and that a widget never publishes a database outside
- * the publication, rows or people's names), and adding, listing, changing and keeping dashboards
- * over MCP and through a Markdown rewrite. Also what keeps dashboards from doing more work than
+ * can't open, what a published dashboard shows (and that a widget never publishes rows or people's
+ * names, nor a database outside the publication unless the publisher picked it, see publish-reach),
+ * and adding, listing, changing and keeping dashboards over MCP and through a Markdown rewrite. Also what keeps dashboards from doing more work than
  * they need: which channels a change signals and which databases' stamps it changes (what the
  * browser asks again for), and that a published page reads each database once, however many
  * widgets show it. Creates its own users and workspace and deletes them afterwards.
@@ -38,7 +38,9 @@ const { createCollab } = await import("@/server/collab/service");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
 const { addProperty, deleteProperty, getProperties } = await import("@/server/databases");
-const { getPublishedPage, publishedDatabase, publishPage } = await import("@/server/publication");
+const { anyPagePublished, getPublishedPage, publishedDatabase, publishPage, updatePublication } = await import("@/server/publication");
+const { outsideDatabases, setOutsideDatabases } = await import("@/server/publish-reach");
+const { duplicatePublishedPage } = await import("@/server/published-duplicate");
 const { archivePage, createPage, renamePage, restorePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { setPropertyAccess } = await import("@/server/property-access");
@@ -454,6 +456,66 @@ try {
     color: "none",
   });
   check(!cleared.isError && cleared.data.widgets[4].color === null, "color none makes the widget plain again", cleared.data?.widgets[4]);
+
+  // Databases from outside the page, shown because the publisher chose to
+  const salaryRow = await createPage(actor, { workspaceId, parentId: secret.id, title: "Alice" });
+  const outsideOf = async (userId: string, pageId: string) => (await outsideDatabases(userId, pageId)).map((d) => `${d.title}:${d.shown}`);
+  check(
+    JSON.stringify(await outsideOf(ids.owner, report.id)) === JSON.stringify(["Salaries:false"]),
+    "the publish tab lists the databases the page shows from outside it",
+    await outsideOf(ids.owner, report.id),
+  );
+  const salariesShown = async () => {
+    const shown = (await getPublishedPage(token))?.body.find((b) => b.kind === "dashboard");
+    return shown?.kind === "dashboard" ? shown.widgets[4].database : undefined;
+  };
+  check((await salariesShown()) === null, "an outside database the publisher didn't pick stays out", await salariesShown());
+  check(!(await anyPagePublished([salaryRow.id])), "and so do its rows' files");
+  await setOutsideDatabases(ids.owner, report.id, [secret.id, deals.id, notes.id]);
+  check(
+    JSON.stringify(await outsideOf(ids.owner, report.id)) === JSON.stringify(["Salaries:true"]),
+    "picking keeps only the page's outside databases",
+    await outsideOf(ids.owner, report.id),
+  );
+  const pickedSalaries = await salariesShown();
+  check(
+    pickedSalaries?.id === secret.id && pickedSalaries.outside === true && pickedSalaries.table.rows.some((r) => r.title === "Alice"),
+    "a picked outside database shows on the dashboard, marked as from outside",
+    pickedSalaries,
+  );
+  check((await getPublishedPage(token, secret.id)) === null, "it gets no published address of its own");
+  check((await getPublishedPage(token, salaryRow.id)) === null, "nor do its rows");
+  check(await anyPagePublished([salaryRow.id]), "its rows' files load for visitors");
+  await archivePage(ids.owner, secret.id);
+  check((await salariesShown()) === null && !(await anyPagePublished([salaryRow.id])), "trashing the database hides it again");
+  await restorePage(ids.owner, secret.id);
+  check((await salariesShown())?.id === secret.id, "and restoring it shows it again");
+
+  // Duplicating the published page leaves the outside database behind
+  await updatePublication(ids.owner, report.id, { allowDuplicate: true });
+  const copy = await duplicatePublishedPage(member, { key: token, workspaceId });
+  const copied = await dashboardsOf(copy.pageId);
+  check(
+    copied.length === 2 && copied[0].widgets.length === 5 && !copied.flatMap((d) => d.widgets).some((w) => w.databaseId === secret.id),
+    "duplicating copies the dashboard without the outside database's widget",
+    copied.map((d) => d.widgets.map((w) => w.databaseId)),
+  );
+
+  // Losing access to the database hides it on a page the member published
+  const shared = await createPage(actor, { workspaceId, kind: "database", title: "Shared" });
+  const memberBoard = await createPage(member, { workspaceId, title: "Member board" });
+  const memberAdded = await callTool(ids.member, "add_dashboard", { page_id: memberBoard.id, widgets: [{ database_id: shared.id, type: "list" }] });
+  check(!memberAdded.isError, "the member adds a dashboard over a database elsewhere", memberAdded.text);
+  const { token: memberToken } = await publishPage(ids.member, memberBoard.id);
+  await setOutsideDatabases(ids.member, memberBoard.id, [shared.id]);
+  const memberShown = async () => {
+    const shown = (await getPublishedPage(memberToken))?.body.find((b) => b.kind === "dashboard");
+    return shown?.kind === "dashboard" ? shown.widgets[0].database : undefined;
+  };
+  check((await memberShown())?.id === shared.id, "the member's picked database shows on their published page");
+  await setPagePermission(ids.owner, shared.id, ids.owner, "full");
+  await setPagePermission(ids.owner, shared.id, null, "none");
+  check((await memberShown()) === null, "once the publisher can't see it, it is hidden again", await memberShown());
 
   console.log(`\n${passed} checks passed`);
 } finally {

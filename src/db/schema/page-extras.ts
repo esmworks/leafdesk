@@ -38,6 +38,13 @@ export const pagePublication = pgTable("page_publication", {
   inSite: boolean("in_site").notNull().default(false),
   /** Signed-in visitors may copy the page (as published) into a workspace of theirs. Off by default. */
   allowDuplicate: boolean("allow_duplicate").notNull().default(false),
+  /**
+   * Databases outside the page that its body shows (dashboard widgets, linked views) and the
+   * publisher chose to show there anyway. Only through those blocks: they get no address of their
+   * own, and every request checks again that the publisher can still see them (see publication.ts
+   * outsideShown). Ids the body no longer shows are ignored.
+   */
+  outsideDatabaseIds: text("outside_database_ids").array().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

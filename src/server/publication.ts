@@ -54,6 +54,10 @@ import type { EmbedTarget } from "@/lib/web-blocks";
  *
  * A publication shows only what its publisher can see right now: subpages or rows restricted from
  * them stay private, and it stops working once they lose access to the page or leave.
+ *
+ * Databases the body shows from outside the page (dashboard widgets, linked views) are left out,
+ * unless the publisher chose to show them (`outsideDatabaseIds`, see server/publish-reach.ts): then
+ * those blocks show them, and nothing else does (see outsideShown).
  */
 
 /** Deepest subpage reachable from a published page; deeper pages are not served. */
@@ -375,10 +379,11 @@ export type PublishedBlock =
       kind: "embed";
       type: EmbedBlockType;
       /**
-       * The database, when it is published with this page (it lies under the published page, is
-       * live and its publisher can see it). Null otherwise: the block then shows nothing about it.
+       * The database, when it is published with this page (it lies under the published page, or
+       * the publisher chose to show it from outside; it is live and its publisher can see it).
+       * Null otherwise: the block then shows nothing about it.
        */
-      database: { id: string; title: string; icon: string | null; table: PublishedDatabase } | null;
+      database: PublishedEmbed | null;
     };
 /**
  * A dashboard widget on a published page: its database as its view shows it, published under the
@@ -393,7 +398,12 @@ export type PublishedWidget = {
   /** List widgets: how many rows the list has in all. */
   rowCount: number;
 };
-export type PublishedEmbed = { id: string; title: string; icon: string | null; table: PublishedDatabase };
+/**
+ * A database a block shows. `outside`: a database outside the published page that the publisher
+ * chose to show there (see outsideShown); it is shown through the block only, without links to it
+ * or its rows, which have no published address.
+ */
+export type PublishedEmbed = { id: string; title: string; icon: string | null; outside?: true; table: PublishedDatabase };
 export type PublishedPage = {
   token: string;
   /** Search engines may index it (the publication allows it). */
@@ -451,6 +461,7 @@ export async function getPublishedPage(
       publishedBy: pagePublication.publishedBy,
       indexable: pagePublication.indexable,
       allowDuplicate: pagePublication.allowDuplicate,
+      outside: pagePublication.outsideDatabaseIds,
     })
     .from(pagePublication)
     .innerJoin(page, eq(page.id, pagePublication.pageId))
@@ -493,7 +504,7 @@ export async function getPublishedPage(
     : undefined;
 
   const [body, children, database, row] = await Promise.all([
-    target.kind === "page" ? publishedBody(publisher, root.id, links, target.ydoc, options.elsewhere) : Promise.resolve([]),
+    target.kind === "page" ? publishedBody(publisher, root.id, root.outside, links, target.ydoc, options.elsewhere) : Promise.resolve([]),
     target.kind === "database" ? Promise.resolve([]) : liveChildren(publisher, target.id),
     target.kind === "database" ? publishedDatabase(publisher, target.id, { viewId }) : Promise.resolve(null),
     parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId) : Promise.resolve(null),
@@ -631,14 +642,34 @@ export async function anyPagePublished(pageIds: string[]): Promise<boolean> {
   for (const row of rows) {
     if (row.published_by && (await chainTo(row.published_by, row.start, row.root))) return true;
   }
+  // Rows of a database a publication shows from outside its page (gallery covers, files): served
+  // while that database may be shown (outsideShown), the published page is and the row lies live
+  // under the database.
+  const outside = await db.execute<{ start: string; database_id: string; root: string; published_by: string | null }>(sql`
+    with recursive up as (
+      select id, parent_id, id as start, 0 as depth from ${page} where ${inArray(page.id, ids)}
+      union all
+      select p.id, p.parent_id, up.start, up.depth + 1
+      from ${page} p join up on p.id = up.parent_id
+      where up.depth < ${MAX_DEPTH}
+    )
+    select up.start, up.id as database_id, pub.page_id as root, pub.published_by
+    from up join ${pagePublication} pub on up.id = any(pub.outside_database_ids)
+  `);
+  for (const row of outside) {
+    const publisher = row.published_by;
+    if (!publisher) continue;
+    if (
+      (await outsideShown(publisher, row.root, row.database_id)) &&
+      (await chainTo(publisher, row.start, row.database_id)) &&
+      (await chainTo(publisher, row.root, row.root))
+    ) {
+      return true;
+    }
+  }
   return false;
 }
 
-/**
- * The page body with its database blocks resolved. A block's database is shown only when it is
- * published with this page, i.e. reachable from the published page like any of its subpages: an
- * inline database under the page is, a linked view of a database elsewhere is not.
- */
 /** How a published page names pages it can't show, in the visitor's language (English outside a request). */
 export async function mentionLabels() {
   try {
@@ -649,9 +680,16 @@ export async function mentionLabels() {
   }
 }
 
+/**
+ * The page body with its database blocks resolved. A block's database is shown when it is
+ * published with this page, i.e. reachable from the published page like any of its subpages (an
+ * inline database under the page is), or when it is one of the publication's `outside` databases
+ * that may still be shown (see outsideShown).
+ */
 async function publishedBody(
   publisher: string,
   rootId: string,
+  outside: readonly string[],
   links: PublishedLinks,
   ydoc: Uint8Array | null,
   elsewhere?: (pageId: string) => Promise<boolean>,
@@ -679,17 +717,23 @@ async function publishedBody(
           };
         }
         if (segment.kind === "dashboard") {
-          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, w, loads))) };
+          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, loads))) };
         }
         if (segment.kind !== "embed") return segment;
-        return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, segment.databaseId, segment.view, loads) };
+        return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, outside, segment.databaseId, segment.view, loads) };
       }),
     );
   return resolve(segments);
 }
 
-async function publishedWidget(publisher: string, rootId: string, widget: DashboardWidget, loads: PublishedLoads): Promise<PublishedWidget> {
-  return widgetShowing(widget, await publishedEmbed(publisher, rootId, widget.databaseId, widget.view, loads));
+async function publishedWidget(
+  publisher: string,
+  rootId: string,
+  outside: readonly string[],
+  widget: DashboardWidget,
+  loads: PublishedLoads,
+): Promise<PublishedWidget> {
+  return widgetShowing(widget, await publishedEmbed(publisher, rootId, outside, widget.databaseId, widget.view, loads));
 }
 
 /** A widget showing `database` (published or printed), a list widget's rows cut to its first ones. */
@@ -703,6 +747,7 @@ export function widgetShowing(widget: DashboardWidget, database: PublishedEmbed 
 async function publishedEmbed(
   publisher: string,
   rootId: string,
+  outside: readonly string[],
   databaseId: string,
   view: LinkedView | null,
   loads?: PublishedLoads,
@@ -715,10 +760,37 @@ async function publishedEmbed(
       .where(and(eq(page.id, databaseId), isNull(page.archivedAt)))
       .limit(1);
     if (found?.kind !== "database") return null;
-    return (await chainTo(publisher, found.id, rootId)) ? found : null;
+    if (await chainTo(publisher, found.id, rootId)) return found;
+    return outside.includes(found.id) && (await outsideShown(publisher, rootId, found.id)) ? { ...found, outside: true as const } : null;
   });
   if (!target) return null;
-  return { id: target.id, title: target.title, icon: target.icon, table: await publishedDatabase(publisher, target.id, { linked: view, loads }) };
+  return {
+    id: target.id,
+    title: target.title,
+    icon: target.icon,
+    ...("outside" in target ? { outside: true as const } : {}),
+    table: await publishedDatabase(publisher, target.id, { linked: view, loads }),
+  };
+}
+
+/**
+ * Whether the publication of `rootId` may show `databaseId`, one of its outside databases, right
+ * now: it is a live database (not in the trash, not a template) of the published page's workspace,
+ * the publisher can still see it and the workspace has publishing on. Asked on every request, so
+ * losing access, trashing the database or turning publishing off hides it again.
+ */
+export async function outsideShown(publisher: string, rootId: string, databaseId: string): Promise<boolean> {
+  const rows = await db.execute<{ id: string }>(sql`
+    select d.id
+    from ${page} d
+    join ${page} r on r.id = ${rootId}
+    join ${workspace} w on w.id = d.workspace_id
+    where d.id = ${databaseId} and d.kind = 'database' and d.archived_at is null and not d.in_template
+      and d.workspace_id = r.workspace_id
+      and ${accessRank(publisher, sql`d.id`)} > 0
+      and (w.settings->>'publishing') is distinct from 'off'
+  `);
+  return [...rows].length > 0;
 }
 
 async function liveChildren(publisher: string, parentId: string): Promise<PublishedChild[]> {
