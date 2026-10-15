@@ -1419,6 +1419,39 @@
     "addDescription": "Saisissez l’adresse du serveur MCP du service. Leafdesk garde ses identifiants scellés sur le serveur ; ils ne sont plus jamais affichés.",
     "addAndSignIn": "Ajouter et se connecter",
     "addButton": "Ajouter",
+    "catalog": {
+      "description": "Choisissez un service : Leafdesk remplit son adresse et son mode de connexion. Vous pouvez aussi ajouter tout autre serveur MCP distant.",
+      "search": "Rechercher un service",
+      "allCategories": "Toutes les catégories",
+      "count": "{n, plural, one {# service} other {# services}}",
+      "none": "Aucun service ne correspond.",
+      "added": "Ajouté",
+      "custom": "Ajouter un autre serveur",
+      "customHint": "Pas dans la liste ?",
+      "back": "Retour à la liste",
+      "auth": {
+        "oauth": "Connexion",
+        "token": "Clé d’API",
+        "none": "Sans connexion"
+      },
+      "categories": {
+        "projects": "Projets et tâches",
+        "docs": "Documents et connaissances",
+        "design": "Design et contenu",
+        "dev": "Développement",
+        "monitoring": "Surveillance et sécurité",
+        "analytics": "Analytique",
+        "sales": "Ventes et CRM",
+        "support": "Support client",
+        "marketing": "Marketing et formulaires",
+        "finance": "Finance et paiements",
+        "meetings": "Réunions et agenda",
+        "hr": "RH et recrutement",
+        "automation": "Automatisation",
+        "web": "Web et recherche",
+        "media": "IA et médias"
+      }
+    },
     "fields": {
       "name": "Nom",
       "namePlaceholder": "Slack",
@@ -1442,7 +1475,8 @@
         "hmac": "Signature Leafdesk (Zapier, Make, n8n, la vôtre)",
         "slack": "Slack Events API",
         "github": "Webhooks GitHub"
-      }
+      },
+      "tokenHelp": "Créer une clé sur {name}"
     },
     "tabs": {
       "tools": "Outils",

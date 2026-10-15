@@ -4,6 +4,15 @@
 
 ### Added
 
+- **A catalog of ready-made connections.** *Add connection* (Settings → Connections) now opens a
+  list of 139 services in 15 categories, from Linear, Atlassian, GitLab, Sentry and Stripe to
+  Intercom, Zapier and meeting recorders, with search by name or category. Picking one fills in
+  its MCP address, how it signs in and, for GitHub, how its events are signed; *Add another
+  server* still takes any remote MCP server. Every listed address was checked to sign in a way
+  Leafdesk handles as it is: OAuth metadata naming that address with self-registration, an API
+  key, or no sign-in at all; services that only let pre-registered apps sign in, such as Slack and
+  HubSpot, aren't listed yet. Connections to a listed service show its initial on its category's color instead of
+  a plug.
 - **Voice notes.** Speak, and AI writes what you said up as a clean note: a title, short paragraphs,
   lists kept, filler words gone, and the transcript in a *Transcript* toggle under it. In the quick
   note (and the installed app's new *Voice note* shortcut, which starts recording), the note fills

@@ -1419,6 +1419,39 @@
     "addDescription": "Servisin MCP sunucusunun adresini girin. Leafdesk kimlik bilgilerini sunucuda mühürlü saklar; bir daha gösterilmez.",
     "addAndSignIn": "Ekle ve giriş yap",
     "addButton": "Ekle",
+    "catalog": {
+      "description": "Bir servis seçin; Leafdesk adresini ve giriş yöntemini doldurur. Listede olmayan başka bir uzak MCP sunucusunu da ekleyebilirsiniz.",
+      "search": "Servis ara",
+      "allCategories": "Tüm kategoriler",
+      "count": "{n, plural, one {# servis} other {# servis}}",
+      "none": "Eşleşen servis yok.",
+      "added": "Eklendi",
+      "custom": "Başka bir sunucu ekle",
+      "customHint": "Listede yok mu?",
+      "back": "Listeye dön",
+      "auth": {
+        "oauth": "Giriş yaparak",
+        "token": "API anahtarı",
+        "none": "Girişsiz"
+      },
+      "categories": {
+        "projects": "Projeler ve görevler",
+        "docs": "Belgeler ve bilgi",
+        "design": "Tasarım ve içerik",
+        "dev": "Geliştirme",
+        "monitoring": "İzleme ve güvenlik",
+        "analytics": "Analitik",
+        "sales": "Satış ve CRM",
+        "support": "Müşteri desteği",
+        "marketing": "Pazarlama ve formlar",
+        "finance": "Finans ve ödemeler",
+        "meetings": "Toplantı ve takvim",
+        "hr": "İK ve işe alım",
+        "automation": "Otomasyon",
+        "web": "Web ve arama",
+        "media": "Yapay zekâ ve medya"
+      }
+    },
     "fields": {
       "name": "Ad",
       "namePlaceholder": "Slack",
@@ -1442,7 +1475,8 @@
         "hmac": "Leafdesk imzası (Zapier, Make, n8n, kendi sisteminiz)",
         "slack": "Slack Events API",
         "github": "GitHub webhook’ları"
-      }
+      },
+      "tokenHelp": "{name} üzerinde anahtar oluşturun"
     },
     "tabs": {
       "tools": "Araçlar",

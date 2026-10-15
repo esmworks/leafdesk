@@ -1682,7 +1682,14 @@ AI apps use Leafdesk; here Leafdesk's agents use the outside service. Owners of 
 connections in Settings → *Connections*; members and guests don't see them. A workspace has at most
 20.
 
-**Adding one.** Give it a name and the server's URL (Streamable HTTP), and how it signs in:
+**Adding one.** *Add connection* first shows a catalog of services Leafdesk can reach as they are
+(Linear, Atlassian, GitLab, Sentry, Stripe, Zapier and more, in categories, with search); picking
+one fills in the form below, which can still be changed. The catalog lives in
+`src/lib/connection-catalog.ts`: it lists only servers that, at that address, either publish OAuth
+metadata naming it with a registration endpoint Leafdesk can use, take an API key, or answer
+without any sign-in; none needs an app registered with the service beforehand. *Add another
+server* starts from an empty form. Give it a name and the server's URL (Streamable HTTP),
+and how it signs in:
 
 - **OAuth**: Leafdesk registers itself with the server (dynamic client registration), sends you to
   the service to approve access (with PKCE), and keeps the tokens it gets back, refreshing them as

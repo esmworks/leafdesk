@@ -1,8 +1,8 @@
 "use client";
 
-import { Plug, Plus, RefreshCw, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, Plug, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   beginConnectionOAuthAction,
   createConnectionAction,
@@ -38,15 +38,50 @@ import {
   type ToolKind,
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
+import { CATALOG_CATEGORIES, catalogEntryFor, searchCatalog, type CatalogCategory, type CatalogEntry } from "@/lib/connection-catalog";
 
 export type ConnectionAgent = { id: string; name: string; icon: string | null };
 
 type ConnectionTab = "tools" | "events" | "settings";
 
-/** A connection's emoji, or a plug when it has none. */
-export function ConnectionIcon({ icon, className }: { icon: string | null; className?: string }) {
+/** A connection's emoji; else, for a service of the catalog, its initial; else a plug. */
+export function ConnectionIcon({ icon, url, className }: { icon: string | null; url?: string; className?: string }) {
   if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
+  const entry = url ? catalogEntryFor(url) : undefined;
+  if (entry) return <CatalogMark entry={entry} />;
   return <Plug className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
+}
+
+/** Each category's color, from the select option colors, so a service's mark says what kind it is. */
+const CATEGORY_COLORS: Record<CatalogCategory, string> = {
+  projects: "blue",
+  docs: "gray",
+  design: "pink",
+  dev: "purple",
+  monitoring: "red",
+  analytics: "orange",
+  sales: "green",
+  support: "yellow",
+  marketing: "pink",
+  finance: "green",
+  meetings: "blue",
+  hr: "brown",
+  automation: "orange",
+  web: "yellow",
+  media: "purple",
+};
+
+/** A catalog service's mark: its initial on its category's color, filling the box it sits in. */
+function CatalogMark({ entry }: { entry: CatalogEntry }) {
+  const initial = [...entry.name.replace(/^[^\p{L}\p{N}]+/u, "")][0]?.toLocaleUpperCase() ?? "?";
+  return (
+    <span
+      aria-hidden
+      className={cn(`opt-${CATEGORY_COLORS[entry.category]}`, "flex h-full w-full items-center justify-center rounded-md bg-[var(--opt-bg)] font-semibold text-[var(--opt-fg)]")}
+    >
+      {initial}
+    </span>
+  );
 }
 
 /** Whether a tool runs at once (it only reads) or waits for an owner's approval. */
@@ -123,7 +158,7 @@ export function ConnectionsPanel({
                 <li key={conn.id}>
                   <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-bg-hover">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-                      <ConnectionIcon icon={conn.icon} />
+                      <ConnectionIcon icon={conn.icon} url={conn.url} />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{conn.name}</span>
@@ -143,6 +178,7 @@ export function ConnectionsPanel({
       {adding && (
         <AddConnectionDialog
           workspaceId={workspaceId}
+          existing={list}
           onClose={() => setAdding(false)}
           onAdded={(view) => {
             replace(view);
@@ -201,63 +237,245 @@ function useSignIn(workspaceId: string, onChange: (view: ConnectionView) => void
   return { pending, error, signIn };
 }
 
-function AddConnectionDialog({ workspaceId, onClose, onAdded }: { workspaceId: string; onClose: () => void; onAdded: (view: ConnectionView) => void }) {
+/**
+ * Adding a connection: first the catalog of services Leafdesk knows how to reach, then the form,
+ * filled in from the service picked (or empty, for any other server).
+ */
+function AddConnectionDialog({
+  workspaceId,
+  existing,
+  onClose,
+  onAdded,
+}: {
+  workspaceId: string;
+  existing: ConnectionView[];
+  onClose: () => void;
+  onAdded: (view: ConnectionView) => void;
+}) {
+  // null: still choosing; "custom": a server of the owner's own.
+  const [picked, setPicked] = useState<CatalogEntry | "custom" | null>(null);
+  // Kept here so going back to the list finds it as it was left.
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<CatalogCategory | "">("");
+  return (
+    <Dialog open onClose={onClose} className="max-w-2xl">
+      {picked === null ? (
+        <CatalogPicker
+          existing={existing}
+          query={query}
+          category={category}
+          onQuery={setQuery}
+          onCategory={setCategory}
+          onPick={setPicked}
+          onClose={onClose}
+        />
+      ) : (
+        <AddConnectionForm
+          key={picked === "custom" ? "custom" : picked.id}
+          workspaceId={workspaceId}
+          entry={picked === "custom" ? null : picked}
+          onBack={() => setPicked(null)}
+          onClose={onClose}
+          onAdded={onAdded}
+        />
+      )}
+    </Dialog>
+  );
+}
+
+function CatalogPicker({
+  existing,
+  query,
+  category,
+  onQuery,
+  onCategory,
+  onPick,
+  onClose,
+}: {
+  existing: ConnectionView[];
+  query: string;
+  category: CatalogCategory | "";
+  onQuery: (query: string) => void;
+  onCategory: (category: CatalogCategory | "") => void;
+  onPick: (entry: CatalogEntry | "custom") => void;
+  onClose: () => void;
+}) {
   const t = useTranslations("settings.connections");
   const tc = useTranslations("common");
-  const [name, setName] = useState("");
-  const [url, setUrl] = useState("");
-  const [authType, setAuthType] = useState<ConnectionAuthType>("oauth");
-  const [token, setToken] = useState("");
-  const [eventPreset, setEventPreset] = useState<EventPreset>("hmac");
-  const { pending, error, run } = useAction();
-  const sign = useSignIn(workspaceId, onAdded);
+  const categoryLabel = (c: CatalogCategory) => t(`catalog.categories.${c}`);
+  const found = searchCatalog(query, categoryLabel).filter((entry) => !category || entry.category === category);
+  const added = useMemo(() => new Set(existing.map((conn) => catalogEntryFor(conn.url)?.id).filter(Boolean)), [existing]);
+  const groups = CATALOG_CATEGORIES.map((c) => ({ category: c, entries: found.filter((entry) => entry.category === c) })).filter((g) => g.entries.length);
 
   return (
-    <Dialog open onClose={onClose}>
-      <form
-        className="space-y-4 px-5 py-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          run(
-            () => createConnectionAction(workspaceId, { name, url, authType, token: authType === "token" ? token : undefined, eventPreset }),
-            (view) => {
-              // An OAuth connection goes straight on to signing in at the service.
-              if (view.authType === "oauth") sign.signIn(view);
-              else onAdded(view);
-            },
-          );
-        }}
-      >
-        <h2 className="text-base font-semibold">{t("addTitle")}</h2>
-        <p className="text-sm text-fg-muted">{t("addDescription")}</p>
-        <ConnectionFields
-          name={name}
-          url={url}
-          authType={authType}
-          token={token}
-          eventPreset={eventPreset}
-          onName={setName}
-          onUrl={setUrl}
-          onAuthType={setAuthType}
-          onToken={setToken}
-          onEventPreset={setEventPreset}
-          tokenRequired
-        />
-        {(error || sign.error) && (
-          <p role="alert" className="text-sm text-danger">
-            {error || sign.error}
-          </p>
-        )}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button type="submit" variant="primary" disabled={pending || sign.pending || !name.trim() || !url.trim() || (authType === "token" && !token.trim())}>
-            {authType === "oauth" ? t("addAndSignIn") : t("addButton")}
-          </Button>
+    <div>
+      <div className="space-y-3 border-b border-border px-5 py-4">
+        <div className="flex items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold">{t("addTitle")}</h2>
+            <p className="text-sm text-fg-muted">{t("catalog.description")}</p>
+          </div>
+          <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
+            <X className="h-4 w-4" />
+          </IconButton>
         </div>
-      </form>
-    </Dialog>
+        <div className="flex flex-wrap gap-2">
+          <label className="relative min-w-48 flex-1">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
+            <Input
+              autoFocus
+              type="search"
+              value={query}
+              onChange={(e) => onQuery(e.target.value)}
+              placeholder={t("catalog.search")}
+              aria-label={t("catalog.search")}
+              className="pl-8"
+            />
+          </label>
+          <select
+            className={cn(selectClass, "max-w-full")}
+            value={category}
+            aria-label={t("catalog.allCategories")}
+            onChange={(e) => onCategory(e.target.value as CatalogCategory | "")}
+          >
+            <option value="">{t("catalog.allCategories")}</option>
+            {CATALOG_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {categoryLabel(c)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="max-h-[40vh] overflow-y-auto px-5 py-3 sm:max-h-[55vh]">
+        {groups.length === 0 ? (
+          <p className="py-8 text-center text-sm text-fg-muted">{t("catalog.none")}</p>
+        ) : (
+          groups.map((group) => (
+            <section key={group.category} className="mb-3 last:mb-0">
+              <h3 className="py-1.5 text-xs font-medium text-fg-muted">{categoryLabel(group.category)}</h3>
+              <ul className="grid gap-1 sm:grid-cols-2">
+                {group.entries.map((entry) => (
+                  <li key={entry.id}>
+                    <button type="button" onClick={() => onPick(entry)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-bg-hover">
+                      <span className="flex h-8 w-8 shrink-0 text-sm">
+                        <CatalogMark entry={entry} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{entry.name}</span>
+                        <span className="block truncate text-xs text-fg-muted">
+                          {added.has(entry.id) ? t("catalog.added") : t(`catalog.auth.${entry.authType}`)}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        )}
+      </div>
+      <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
+        <p className="min-w-0 flex-1 text-xs text-fg-muted">{t("catalog.count", { n: found.length })}</p>
+        <span className="text-sm text-fg-muted">{t("catalog.customHint")}</span>
+        <Button variant="secondary" onClick={() => onPick("custom")}>
+          <Plus className="h-3.5 w-3.5" />
+          {t("catalog.custom")}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function AddConnectionForm({
+  workspaceId,
+  entry,
+  onBack,
+  onClose,
+  onAdded,
+}: {
+  workspaceId: string;
+  /** The catalog's service the form starts from (null: an empty form). */
+  entry: CatalogEntry | null;
+  onBack: () => void;
+  onClose: () => void;
+  onAdded: (view: ConnectionView) => void;
+}) {
+  const t = useTranslations("settings.connections");
+  const tc = useTranslations("common");
+  const [name, setName] = useState(entry?.name ?? "");
+  const [url, setUrl] = useState(entry?.url ?? "");
+  const [authType, setAuthType] = useState<ConnectionAuthType>(entry?.authType ?? "oauth");
+  const [token, setToken] = useState("");
+  const [eventPreset, setEventPreset] = useState<EventPreset>(entry?.eventPreset ?? "hmac");
+  const { pending, error, run } = useAction();
+  const sign = useSignIn(workspaceId, onAdded);
+  // The link to the service's keys only while the form still points at that service.
+  const tokenHelp = entry?.tokenHelp && url.trim() === entry.url ? { href: entry.tokenHelp, name: entry.name } : undefined;
+
+  return (
+    <form
+      className="space-y-4 px-5 py-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        run(
+          () => createConnectionAction(workspaceId, { name, url, authType, token: authType === "token" ? token : undefined, eventPreset }),
+          (view) => {
+            // An OAuth connection goes straight on to signing in at the service.
+            if (view.authType === "oauth") sign.signIn(view);
+            else onAdded(view);
+          },
+        );
+      }}
+    >
+      <button type="button" onClick={onBack} className="-ml-1 flex items-center gap-1 rounded px-1 text-sm text-fg-muted hover:text-fg">
+        <ArrowLeft className="h-3.5 w-3.5" />
+        {t("catalog.back")}
+      </button>
+      {entry ? (
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 text-base">
+            <CatalogMark entry={entry} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-base font-semibold">{entry.name}</h2>
+            <p className="truncate text-sm text-fg-muted">{t(`catalog.categories.${entry.category}`)}</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <h2 className="text-base font-semibold">{t("addTitle")}</h2>
+          <p className="text-sm text-fg-muted">{t("addDescription")}</p>
+        </>
+      )}
+      <ConnectionFields
+        name={name}
+        url={url}
+        authType={authType}
+        token={token}
+        eventPreset={eventPreset}
+        onName={setName}
+        onUrl={setUrl}
+        onAuthType={setAuthType}
+        onToken={setToken}
+        onEventPreset={setEventPreset}
+        tokenRequired
+        tokenHelp={tokenHelp}
+      />
+      {(error || sign.error) && (
+        <p role="alert" className="text-sm text-danger">
+          {error || sign.error}
+        </p>
+      )}
+      <div className="flex justify-end gap-2">
+        <Button variant="ghost" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button type="submit" variant="primary" disabled={pending || sign.pending || !name.trim() || !url.trim() || (authType === "token" && !token.trim())}>
+          {authType === "oauth" ? t("addAndSignIn") : t("addButton")}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -274,6 +492,8 @@ function ConnectionFields(props: {
   onEventPreset: (v: EventPreset) => void;
   /** A new connection needs its token; a saved one keeps it when left empty. */
   tokenRequired: boolean;
+  /** Where the service's tokens are made, for a service of the catalog. */
+  tokenHelp?: { href: string; name: string };
 }) {
   const t = useTranslations("settings.connections.fields");
   return (
@@ -299,16 +519,24 @@ function ConnectionFields(props: {
         <span className="block text-xs text-fg-muted">{t(`authHelp.${props.authType}`)}</span>
       </label>
       {props.authType === "token" && (
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("token")}</span>
-          <Input
-            value={props.token}
-            type="password"
-            autoComplete="off"
-            onChange={(e) => props.onToken(e.target.value)}
-            placeholder={props.tokenRequired ? undefined : t("tokenKeep")}
-          />
-        </label>
+        <div className="space-y-1">
+          <label className="block space-y-1">
+            <span className="text-sm font-medium">{t("token")}</span>
+            <Input
+              value={props.token}
+              type="password"
+              autoComplete="off"
+              onChange={(e) => props.onToken(e.target.value)}
+              placeholder={props.tokenRequired ? undefined : t("tokenKeep")}
+            />
+          </label>
+          {props.tokenHelp && (
+            <a href={props.tokenHelp.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-fg-muted underline hover:text-fg">
+              {t("tokenHelp", { name: props.tokenHelp.name })}
+              <ExternalLink className="h-3 w-3" aria-hidden />
+            </a>
+          )}
+        </div>
       )}
       <label className="block space-y-1">
         <span className="text-sm font-medium">{t("eventPreset")}</span>
@@ -350,7 +578,7 @@ function ConnectionDialog({
     <Dialog open onClose={onClose} className="max-w-2xl">
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-          <ConnectionIcon icon={conn.icon} />
+          <ConnectionIcon icon={conn.icon} url={conn.url} />
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-base font-semibold">{conn.name}</h2>

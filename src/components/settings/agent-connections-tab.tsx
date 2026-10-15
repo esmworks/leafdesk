@@ -92,7 +92,9 @@ export function AgentConnectionsTab({ workspaceId, agent }: { workspaceId: strin
           return (
             <section key={conn.id} className="rounded-lg border border-border">
               <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-                <ConnectionIcon icon={conn.icon} />
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center text-xs">
+                  <ConnectionIcon icon={conn.icon} url={conn.url} />
+                </span>
                 <h3 className="min-w-0 flex-1 truncate text-sm font-medium">{conn.name}</h3>
                 <span className="shrink-0 text-xs text-fg-muted">{t("allowedCount", { n: chosen.size, total: conn.tools.length })}</span>
               </div>
