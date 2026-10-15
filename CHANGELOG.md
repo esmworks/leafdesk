@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.5.2 — 2026-10-15
+
+### Upgrading from 0.5.1
+
+- **Migrations** (0060–0067) run automatically when the container starts. Nothing changes in
+  `docker-compose.yml` or `.env`.
+- **The AI chat's memory is on.** Where AI is on, the chat may keep notes about the people who use
+  it (asking them first, unless the mode is *Auto*), and agents' runs may propose notes for owners
+  to review. Owners who don't want it turn it off per workspace under Settings → General → AI →
+  *AI memory*; each person can also turn it off for themselves in the *Memory* dialog.
+- **Write tokens and MCP apps reach agents.** For a workspace owner, an API token or MCP app with
+  `pages:write` can now change the workspace's agents (pause them, set a monthly token limit) and
+  ask them for runs, which use the workspace's AI allowance. Give integrations that only read a
+  `pages:read` token, or let apps only read under Settings → Security.
+- **Apps that reach a workspace** show when each app or token last reached it from this version
+  on; earlier use isn't known.
+
 ### Added
 
 - **Memory for the AI chat.** The chat keeps short notes about each person in a workspace (who
@@ -166,6 +183,11 @@
   automation runs it. A level someone set or removed meanwhile from the Share menu was overwritten
   then (only the agent's settings counted as setting it); now any change to the agent's own entry
   keeps it. Covered in `scripts/agents-e2e.ts`.
+- **Sign-in recovers when the database was down at startup.** The sign-in library queries the
+  database when it is set up, and it was set up once, when the server loaded it: if the database
+  couldn't be reached then, sign-in, sessions, MCP and its keys kept failing until a restart. It
+  is now set up on first use and again after a failed setup, and `next build` no longer logs a
+  failed query from every worker.
 - **`list_agent_runs` names the waiting status as it returns it.** Its description said
   `waiting_for_approval` for a run that waits for an owner; runs come back as `awaiting_approval`.
 
