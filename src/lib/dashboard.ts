@@ -140,8 +140,29 @@ export const serializeDashboard = (widgets: DashboardWidget[]) =>
   );
 
 /** The databases a dashboard shows, each once, in order. */
-export function dashboardDatabaseIds(widgets: DashboardWidget[]): string[] {
+export function dashboardDatabaseIds(widgets: Pick<DashboardWidget, "databaseId">[]): string[] {
   return [...new Set(widgets.map((w) => w.databaseId))];
+}
+
+/** What a widget says of its database: its name and icon and whether it is in the trash; null when it can't be seen. */
+export type WidgetDatabaseHeader = { title: string; icon: string | null; inTrash: boolean } | null;
+
+/**
+ * A database as a widget's reader sees it, in a few characters ("none" when they can't). Rows
+ * changing signal on the database's own channel; sharing, trashing, moving and renaming only signal
+ * the workspace's page tree, which changes with every page anyone touches. So the browser compares
+ * stamps (server/dashboards widgetStamps) and asks again only for widgets whose database changed.
+ */
+export function widgetStamp(header: WidgetDatabaseHeader): string {
+  return header ? JSON.stringify([header.title, header.icon, header.inTrash]) : "none";
+}
+
+/**
+ * The widgets to ask again after the page tree changed: those whose database's stamp differs from
+ * `now`, and those whose stamp isn't known (still loading, or failed).
+ */
+export function staleWidgets(shown: { id: string; databaseId: string; stamp: string | null }[], now: Record<string, string>): string[] {
+  return shown.filter((w) => w.stamp === null || (now[w.databaseId] ?? "none") !== w.stamp).map((w) => w.id);
 }
 
 /** `widgets` with the one whose id is `id` changed by `change` (or taken out when it returns null). */

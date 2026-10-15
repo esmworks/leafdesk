@@ -34,3 +34,10 @@ export async function widgetRowsAction(input: Source, target: dashboards.WidgetT
   };
   return dashboards.widgetRows({ userId }, checked, clean, { timeZone });
 }
+
+/** Stamps of the databases a dashboard shows (server/dashboards widgetStamps), asked after the page tree changed. */
+export async function widgetStampsAction(databaseIds: string[]): Promise<Record<string, string>> {
+  const userId = await requireUserId();
+  if (!Array.isArray(databaseIds)) return {};
+  return dashboards.widgetStamps({ userId }, databaseIds.filter((id): id is string => typeof id === "string"));
+}

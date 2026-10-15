@@ -4,8 +4,10 @@
  * staying out of every figure, the rows behind a number or a bar, widgets on databases the viewer
  * can't open, what a published dashboard shows (and that a widget never publishes a database outside
  * the publication, rows or people's names), and adding, listing, changing and keeping dashboards
- * over MCP and through a Markdown rewrite. Creates its own users and workspace and deletes them
- * afterwards.
+ * over MCP and through a Markdown rewrite. Also what keeps dashboards from doing more work than
+ * they need: which channels a change signals and which databases' stamps it changes (what the
+ * browser asks again for), and that a published page reads each database once, however many
+ * widgets show it. Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/dashboard-e2e.ts
  *
@@ -17,7 +19,16 @@ try {
   process.loadEnvFile();
 } catch {}
 
-// Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
+// Imported after .env is loaded: the database client reads DATABASE_URL when it is created. The
+// pool is made here, before @/db makes its own, so the queries a published page sends can be counted.
+const { default: postgres } = await import("postgres");
+const { env } = await import("@/lib/env");
+const queries: { text: string; params: unknown[] }[] = [];
+let counting = false;
+(globalThis as unknown as { __leafdeskSql?: unknown }).__leafdeskSql = postgres(env.databaseUrl, {
+  max: 10,
+  debug: (_connection, text, params) => void (counting && queries.push({ text, params })),
+});
 const { inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { user, workspace, workspaceMember } = await import("@/db/schema");
@@ -27,16 +38,23 @@ const { createCollab } = await import("@/server/collab/service");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
 const { addProperty, deleteProperty, getProperties } = await import("@/server/databases");
-const { getPublishedPage, publishPage } = await import("@/server/publication");
-const { createPage } = await import("@/server/pages");
+const { getPublishedPage, publishedDatabase, publishPage } = await import("@/server/publication");
+const { archivePage, createPage, renamePage, restorePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { setPropertyAccess } = await import("@/server/property-access");
-const { widgetData, widgetRows } = await import("@/server/dashboards");
-const { DASHBOARD_BLOCK, LIST_WIDGET_ROWS, parseDashboard } = await import("@/lib/dashboard");
+const { widgetData, widgetRows, widgetStamps } = await import("@/server/dashboards");
+const { DASHBOARD_BLOCK, LIST_WIDGET_ROWS, parseDashboard, widgetStamp } = await import("@/lib/dashboard");
 
 const RUN = `dashboard-e2e-${Date.now().toString(36)}`;
 
 const { hocuspocus, service } = createCollab();
+// What the server signals to browsers, channel and event ("db:<id> rows").
+const sent: string[] = [];
+const broadcast = service.broadcast;
+service.broadcast = (channel, event) => {
+  sent.push(`${channel} ${event}`);
+  broadcast(channel, event);
+};
 registerCollab(service);
 
 let passed = 0;
@@ -197,6 +215,65 @@ try {
     check(data.state === "unavailable" && drill === null, `a widget on ${label} says nothing about it`, data);
   }
 
+  // Live refresh. Rows signal their own database's channel; the page tree, which changes with every
+  // page anyone touches, makes the browser compare stamps and ask again only where one changed.
+  const notes = await createPage(actor, { workspaceId, parentId: report.id, kind: "database", title: "Notes" });
+  const elsewhere = await createPage(actor, { workspaceId, title: "Elsewhere" });
+  const watched = [deals.id, notes.id, secret.id];
+  const before = await widgetStamps(member, watched);
+  const dealsData = await widgetData(member, { databaseId: deals.id, view: wonCount });
+  const notesData = await widgetData(member, { databaseId: notes.id, view: { type: "list", config: {} } });
+  check(
+    dealsData.state === "ok" &&
+      notesData.state === "ok" &&
+      before[deals.id] === widgetStamp(dealsData.database) &&
+      before[notes.id] === widgetStamp(notesData.database) &&
+      before[secret.id] === widgetStamp(null),
+    "a database's stamp is the one its widgets show, and says nothing of one the viewer can't see",
+    before,
+  );
+  sent.length = 0;
+  await createPage(actor, { workspaceId, parentId: notes.id, title: "A note" });
+  check(
+    sent.includes(`db:${notes.id} rows`) && !sent.some((s) => s.startsWith(`db:${deals.id} `)),
+    "a new row signals its own database's channel, not other databases'",
+    sent,
+  );
+  await renamePage(actor, elsewhere.id, "Elsewhere, renamed");
+  await createPage(actor, { workspaceId, title: "Another page" });
+  check(
+    JSON.stringify(await widgetStamps(member, watched)) === JSON.stringify(before),
+    "new rows and changes to other pages leave every stamp as it was",
+    await widgetStamps(member, watched),
+  );
+  await renamePage(actor, notes.id, "Meeting notes");
+  const afterRenaming = await widgetStamps(member, watched);
+  check(
+    afterRenaming[notes.id] !== before[notes.id] && afterRenaming[deals.id] === before[deals.id],
+    "renaming a database changes its stamp only",
+    afterRenaming,
+  );
+  await archivePage(ids.owner, notes.id);
+  const afterTrashing = await widgetStamps(owner, watched);
+  check(
+    afterTrashing[notes.id] !== afterRenaming[notes.id] && afterTrashing[notes.id] !== widgetStamp(null) && afterTrashing[deals.id] === before[deals.id],
+    "trashing a database changes its stamp only",
+    afterTrashing,
+  );
+  await restorePage(ids.owner, notes.id);
+  await setPagePermission(ids.owner, notes.id, ids.owner, "full");
+  await setPagePermission(ids.owner, notes.id, null, "none");
+  const afterSharing = await widgetStamps(member, watched);
+  check(
+    afterSharing[notes.id] === widgetStamp(null) && afterSharing[deals.id] === before[deals.id],
+    "a database the viewer can no longer see stamps as nothing, the others as before",
+    afterSharing,
+  );
+  check(
+    JSON.stringify(await widgetStamps(member, [`${RUN}-missing`, report.id])) === JSON.stringify({ [report.id]: widgetStamp(null) }),
+    "stamps say nothing of pages that aren't databases, and skip ids that aren't ids",
+  );
+
   // MCP: add a dashboard, list it, change it
   const added = await callTool(ids.owner, "add_dashboard", {
     page_id: report.id,
@@ -296,6 +373,61 @@ try {
     hiddenSum?.measure.kind === "count" && hiddenSum.result?.value === total && !hiddenSum.properties.some((p) => p.id === margin.id),
     "a published sum over a property visitors can't see counts rows instead",
     hiddenSum,
+  );
+
+  // A published page reads each database once, however many widgets show it: a second dashboard
+  // with six widgets on two databases, beside the first one's five on one of them.
+  const second = await callTool(ids.owner, "add_dashboard", {
+    page_id: report.id,
+    widgets: [
+      { database_id: deals.id, chart_type: "number", filters: [{ property: "Stage", op: "equals", value: "Won" }] },
+      { database_id: deals.id, group_by: "Stage", aggregate: "sum", aggregate_property: "Amount" },
+      { database_id: deals.id, type: "list" },
+      { database_id: deals.id, type: "table" },
+      { database_id: notes.id, chart_type: "number" },
+      { database_id: notes.id, type: "list" },
+    ],
+  });
+  check(!second.isError && second.data.widgets.length === 6, "a second dashboard with six widgets on two databases", second);
+  queries.length = 0;
+  counting = true;
+  const again = await getPublishedPage(token);
+  counting = false;
+  const rowLoads = (databaseId: string) => queries.filter((q) => q.text.includes('"is_template"') && q.params.includes(databaseId)).length;
+  check(
+    rowLoads(deals.id) === 1 && rowLoads(notes.id) === 1 && rowLoads(secret.id) === 0,
+    "a published page loads each database's rows once for all its widgets",
+    { deals: rowLoads(deals.id), notes: rowLoads(notes.id), secret: rowLoads(secret.id) },
+  );
+  // Nothing else about a database (its properties, deleted ones, who may see which) is read twice either.
+  const repeated = Object.entries(
+    Object.groupBy(
+      queries.filter((q) => q.params.includes(deals.id) || q.params.includes(notes.id)),
+      (q) => JSON.stringify([q.text, q.params]),
+    ),
+  )
+    .filter(([, same]) => (same?.length ?? 0) > 1)
+    .map(([key, same]) => ({ query: key.slice(0, 200), times: same?.length }));
+  check(repeated.length === 0, "and reads nothing else about a database twice", repeated);
+  const dashboards = again?.body.filter((b) => b.kind === "dashboard") ?? [];
+  const secondBlock = dashboards[1];
+  check(secondBlock?.kind === "dashboard" && secondBlock.widgets.length === 6, "the published page shows both dashboards", dashboards.length);
+  const [, secondStored] = await dashboardsOf(report.id);
+  const alone = await Promise.all(
+    secondStored.widgets.map(async (w) => {
+      const table = await publishedDatabase(ids.owner, w.databaseId, { linked: w.view });
+      return w.view.type === "list" ? { ...table, rows: table.rows.slice(0, LIST_WIDGET_ROWS) } : table;
+    }),
+  );
+  check(
+    secondBlock.widgets.every((w, i) => JSON.stringify(w.database?.table) === JSON.stringify(alone[i])),
+    "each widget still shows its own view, as it does read alone",
+    secondBlock.widgets.map((w, i) => ({ shared: w.database?.table.layout, alone: alone[i].layout })),
+  );
+  check(
+    secondBlock.widgets[0].database?.table.chart?.result?.value === 2 && secondBlock.widgets[4].database?.table.chart?.result?.value === 1,
+    "widgets on the same load still filter on their own",
+    secondBlock.widgets.map((w) => w.database?.table.chart?.result),
   );
 
   console.log(`\n${passed} checks passed`);

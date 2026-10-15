@@ -82,6 +82,8 @@ async function change<T>(
   if (target) {
     // Sidebars refetch the tree, since what a member can see may have changed.
     getCollab().broadcast(`ws:${target.workspaceId}`, "tree");
+    // A row's own sharing changes which of its database's rows a member sees.
+    if (target.parentId) getCollab().broadcast(`db:${target.parentId}`, "rows");
     revalidatePath(`/w/${target.workspaceId}`, "layout");
   }
   return { ok: true, data };

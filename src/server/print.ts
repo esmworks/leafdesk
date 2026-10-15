@@ -12,12 +12,14 @@ import { resolvePageRefs } from "@/server/mentions";
 import { getBreadcrumbs } from "@/server/pages";
 import {
   publishedDatabase,
+  publishedLoads,
   publishedRow,
   widgetShowing,
   type PublishedBlock,
   type PublishedChild,
   type PublishedCrumb,
   type PublishedDatabase,
+  type PublishedLoads,
   type PublishedPage,
 } from "@/server/publication";
 import { bodySegmentsFromBlocks, type BodySegment, type PublishedPageRef } from "@/server/published-body";
@@ -89,11 +91,11 @@ async function printRefs(userId: string, pageIds: string[]): Promise<Map<string,
 }
 
 /** The database a block shows, when `userId` can open it (and it isn't in the trash). */
-async function printedEmbed(userId: string, databaseId: string, view: Parameters<typeof publishedDatabase>[2]) {
+async function printedEmbed(userId: string, databaseId: string, view: Parameters<typeof publishedDatabase>[2], loads: PublishedLoads) {
   try {
     const found = await requirePageAccess(userId, databaseId, "view");
     if (found.kind !== "database" || found.archivedAt) return null;
-    return { id: found.id, title: found.title, icon: found.icon, table: await publishedDatabase(userId, found.id, { ...view, reader: userId }) };
+    return { id: found.id, title: found.title, icon: found.icon, table: await publishedDatabase(userId, found.id, { ...view, reader: userId, loads }) };
   } catch {
     return null;
   }
@@ -146,7 +148,9 @@ async function printSection(userId: string, pageId: string, depth: number, index
         anchorPrefix: index === 0 ? "" : `p${index + 1}-`,
       })
     : [];
-  // Database blocks, in columns too, as the databases the reader can open.
+  // Database blocks, in columns too, as the databases the reader can open. Widgets and blocks
+  // showing the same database read it once (see PublishedLoads).
+  const loads = publishedLoads();
   const resolve = (list: BodySegment[]): Promise<PublishedBlock[]> =>
     Promise.all(
       list.map(async (segment): Promise<PublishedBlock> => {
@@ -159,14 +163,14 @@ async function printSection(userId: string, pageId: string, depth: number, index
         if (segment.kind === "dashboard") {
           return {
             kind: "dashboard",
-            widgets: await Promise.all(segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view })))),
+            widgets: await Promise.all(segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view }, loads)))),
           };
         }
         if (segment.kind !== "embed") return segment;
         return {
           kind: "embed",
           type: segment.type,
-          database: await printedEmbed(userId, segment.databaseId, segment.type === "linkedView" ? { linked: segment.view } : {}),
+          database: await printedEmbed(userId, segment.databaseId, segment.type === "linkedView" ? { linked: segment.view } : {}, loads),
         };
       }),
     );

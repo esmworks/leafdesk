@@ -15,7 +15,9 @@ import {
   parseDashboardLine,
   restoreDashboards,
   serializeDashboard,
+  staleWidgets,
   updateWidget,
+  widgetStamp,
   type DashboardWidget,
 } from "./dashboard";
 
@@ -152,5 +154,32 @@ describe("dashboards in Markdown", () => {
       { id: "p2", type: "paragraph", props: {}, children: [] },
     ]);
     expect(restoreDashboards(parsed, [])).toEqual([{ id: "p2", type: "paragraph", props: {}, children: [] }]);
+  });
+});
+
+describe("widgetStamp and staleWidgets", () => {
+  const sales = { title: "Sales", icon: null, inTrash: false };
+
+  it("stamps what the reader sees of a database", () => {
+    expect(widgetStamp(null)).toBe("none");
+    expect(widgetStamp(sales)).toBe(widgetStamp({ ...sales }));
+    expect(widgetStamp({ ...sales, title: "Leads" })).not.toBe(widgetStamp(sales));
+    expect(widgetStamp({ ...sales, icon: "📈" })).not.toBe(widgetStamp(sales));
+    expect(widgetStamp({ ...sales, inTrash: true })).not.toBe(widgetStamp(sales));
+    expect(widgetStamp(sales)).not.toBe("none");
+  });
+
+  it("asks again only for widgets whose database changed, or that have nothing yet", () => {
+    const shown = [
+      { id: "a", databaseId: DB, stamp: widgetStamp(sales) },
+      { id: "b", databaseId: DB, stamp: widgetStamp(sales) },
+      { id: "c", databaseId: OTHER, stamp: widgetStamp(sales) },
+      { id: "d", databaseId: OTHER, stamp: null },
+    ];
+    expect(staleWidgets(shown, { [DB]: widgetStamp(sales), [OTHER]: widgetStamp(sales) })).toEqual(["d"]);
+    expect(staleWidgets(shown, { [DB]: widgetStamp({ ...sales, inTrash: true }), [OTHER]: widgetStamp(sales) })).toEqual(["a", "b", "d"]);
+    // A database missing from the answer can't be seen any more.
+    expect(staleWidgets(shown, { [DB]: widgetStamp(sales) })).toEqual(["c", "d"]);
+    expect(staleWidgets([{ id: "e", databaseId: DB, stamp: "none" }], {})).toEqual([]);
   });
 });

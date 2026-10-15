@@ -4,8 +4,8 @@ import { createReactBlockSpec } from "@blocknote/react";
 import { ArrowLeft, ArrowRight, Lock, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useNow, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { widgetDataAction, widgetRowsAction } from "@/app/actions/dashboards";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { widgetDataAction, widgetRowsAction, widgetStampsAction } from "@/app/actions/dashboards";
 import { useChannel } from "@/components/collab/use-channel";
 import { Chart, NumberFigure, useMeasureName, type OpenedMark } from "@/components/database/chart-view";
 import { Floating, useFloating } from "@/components/database/floating";
@@ -17,6 +17,7 @@ import type { AggregateFn } from "@/lib/aggregate";
 import { chartMeasure } from "@/lib/chart";
 import {
   dashboardBlockConfig,
+  dashboardDatabaseIds,
   MAX_WIDGET_TITLE,
   MAX_WIDGETS,
   moveWidget,
@@ -28,6 +29,8 @@ import {
   type DashboardWidget,
   type WidgetSpan,
   newWidgetId,
+  staleWidgets,
+  widgetStamp,
   DASHBOARD_CLASS,
   DASHBOARD_GRID_CLASS,
   WIDGET_SPAN_CLASS,
@@ -40,8 +43,8 @@ import { DatabasePicker } from "./database-picker";
 /**
  * The dashboard block (see lib/dashboard): widgets in a grid, each a view of a database the reader
  * may see. Numbers, charts and lists come worked out from the server (server/dashboards) and are
- * asked for again when their database changes; other layouts are linked views. Editors set a
- * widget up in place, with the linked view's own toolbar.
+ * asked for again when their database changes (its rows, or how the reader sees it); other layouts
+ * are linked views. Editors set a widget up in place, with the linked view's own toolbar.
  */
 export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
   meta: { selectable: false },
@@ -71,6 +74,8 @@ function Dashboard({ widgets, onChange }: { widgets: DashboardWidget[]; onChange
   const [editing, setEditing] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const full = widgets.length >= MAX_WIDGETS;
+  const shown = useRef(new Map<string, ShownWidget>());
+  useTreeRefresh(host?.workspaceId ?? null, shown);
 
   const add = (databaseId: string) => {
     setPicking(false);
@@ -104,7 +109,7 @@ function Dashboard({ widgets, onChange }: { widgets: DashboardWidget[]; onChange
               <Widget
                 key={widget.id}
                 widget={widget}
-                workspaceId={host?.workspaceId ?? null}
+                shown={shown}
                 editing={editing === widget.id}
                 actions={
                   onChange && {
@@ -141,13 +146,43 @@ type WidgetActions = {
   remove: () => void;
 };
 
-/** A widget's data, asked for again (shortly after) whenever its database or the page tree changes. */
-function useWidgetData(widget: DashboardWidget, workspaceId: string | null) {
+/** A widget as the dashboard knows it: its database, how that looked when the widget loaded, and how to load again. */
+type ShownWidget = { databaseId: string; stamp: string | null; reload: () => void };
+
+/**
+ * Sharing, moving, trashing and renaming change what the reader sees of a database but only signal
+ * the workspace's page tree, which changes with every page anyone creates or renames. So once a
+ * burst of tree changes settles, the dashboard asks for its databases' stamps in one request and
+ * loads again only the widgets whose database changed (lib/dashboard widgetStamp).
+ */
+function useTreeRefresh(workspaceId: string | null, shown: RefObject<Map<string, ShownWidget>>) {
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const check = useCallback(async () => {
+    const list = [...shown.current].map(([id, w]) => ({ id, ...w }));
+    if (!list.length) return;
+    const now = await widgetStampsAction(dashboardDatabaseIds(list)).catch(() => null);
+    // Without stamps nothing tells which changed: load them all, as a change of the tree may matter.
+    const stale = now ? new Set(staleWidgets(list, now)) : null;
+    for (const w of list) if (!stale || stale.has(w.id)) w.reload();
+  }, [shown]);
+  useChannel(workspaceId ? `ws:${workspaceId}` : null, (event) => {
+    if (event !== "tree") return;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => void check(), 300);
+  });
+  useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
+}
+
+/**
+ * A widget's data, asked for again (shortly after) whenever its database's rows or schema change,
+ * or the dashboard finds the database changed for the reader (useTreeRefresh).
+ */
+function useWidgetData(widget: DashboardWidget, shown: RefObject<Map<string, ShownWidget>>) {
   const timeZone = useViewerTimeZone();
   const [data, setData] = useState<WidgetData | null>(null);
   const [failed, setFailed] = useState(false);
   const [fetchedAt, setFetchedAt] = useState<number | null>(null);
-  const { databaseId, view } = widget;
+  const { id, databaseId, view } = widget;
   const key = JSON.stringify({ databaseId, view });
   const asked = useRef(0);
 
@@ -175,26 +210,31 @@ function useWidgetData(widget: DashboardWidget, workspaceId: string | null) {
   }, [load]);
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
   useChannel(`db:${databaseId}`, later);
-  // Sharing, moving and trashing change what the reader may see.
-  useChannel(workspaceId ? `ws:${workspaceId}` : null, (event) => event === "tree" && later());
+
+  const stamp = data && !failed ? widgetStamp(data.state === "ok" ? data.database : null) : null;
+  useEffect(() => {
+    const map = shown.current;
+    map.set(id, { databaseId, stamp, reload: load });
+    return () => void map.delete(id);
+  }, [shown, id, databaseId, stamp, load]);
 
   return { data, failed, fetchedAt, retry: load };
 }
 
 function Widget({
   widget,
-  workspaceId,
+  shown,
   editing,
   actions,
 }: {
   widget: DashboardWidget;
-  workspaceId: string | null;
+  shown: RefObject<Map<string, ShownWidget>>;
   editing: boolean;
   actions?: WidgetActions;
 }) {
   const t = useTranslations("page.dashboard");
   const tc = useTranslations("common");
-  const { data, failed, fetchedAt, retry } = useWidgetData(widget, workspaceId);
+  const { data, failed, fetchedAt, retry } = useWidgetData(widget, shown);
   const ok = data?.state === "ok" ? data : null;
   const title = widget.title || (ok ? pageLabel(ok.database.title, tc("untitled")) : "");
   const href = ok ? `/w/${ok.database.workspaceId}/p/${ok.database.id}` : null;

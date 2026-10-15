@@ -666,6 +666,8 @@ async function publishedBody(
       });
     },
   });
+  // Widgets and database blocks showing the same database read it once (see PublishedLoads).
+  const loads = publishedLoads();
   const resolve = (list: BodySegment[]): Promise<PublishedBlock[]> =>
     Promise.all(
       list.map(async (segment): Promise<PublishedBlock> => {
@@ -676,17 +678,17 @@ async function publishedBody(
           };
         }
         if (segment.kind === "dashboard") {
-          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, w))) };
+          return { kind: "dashboard", widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, w, loads))) };
         }
         if (segment.kind !== "embed") return segment;
-        return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, segment.databaseId, segment.view) };
+        return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, segment.databaseId, segment.view, loads) };
       }),
     );
   return resolve(segments);
 }
 
-async function publishedWidget(publisher: string, rootId: string, widget: DashboardWidget): Promise<PublishedWidget> {
-  return widgetShowing(widget, await publishedEmbed(publisher, rootId, widget.databaseId, widget.view));
+async function publishedWidget(publisher: string, rootId: string, widget: DashboardWidget, loads: PublishedLoads): Promise<PublishedWidget> {
+  return widgetShowing(widget, await publishedEmbed(publisher, rootId, widget.databaseId, widget.view, loads));
 }
 
 /** A widget showing `database` (published or printed), a list widget's rows cut to its first ones. */
@@ -697,15 +699,25 @@ export function widgetShowing(widget: DashboardWidget, database: PublishedEmbed 
   return { id: widget.id, title: widget.title, span: widget.span, database: shown, rowCount };
 }
 
-async function publishedEmbed(publisher: string, rootId: string, databaseId: string, view: LinkedView | null): Promise<PublishedEmbed | null> {
-  const [target] = await db
-    .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
-    .from(page)
-    .where(and(eq(page.id, databaseId), isNull(page.archivedAt)))
-    .limit(1);
-  if (target?.kind !== "database") return null;
-  if (!(await chainTo(publisher, target.id, rootId))) return null;
-  return { id: target.id, title: target.title, icon: target.icon, table: await publishedDatabase(publisher, target.id, { linked: view }) };
+async function publishedEmbed(
+  publisher: string,
+  rootId: string,
+  databaseId: string,
+  view: LinkedView | null,
+  loads?: PublishedLoads,
+): Promise<PublishedEmbed | null> {
+  // Whether the database is published with the page: asked once per database, however many views show it.
+  const target = await once(loads, ["embed", publisher, rootId, databaseId], async () => {
+    const [found] = await db
+      .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind })
+      .from(page)
+      .where(and(eq(page.id, databaseId), isNull(page.archivedAt)))
+      .limit(1);
+    if (found?.kind !== "database") return null;
+    return (await chainTo(publisher, found.id, rootId)) ? found : null;
+  });
+  if (!target) return null;
+  return { id: target.id, title: target.title, icon: target.icon, table: await publishedDatabase(publisher, target.id, { linked: view, loads }) };
 }
 
 async function liveChildren(publisher: string, parentId: string): Promise<PublishedChild[]> {
@@ -808,6 +820,85 @@ export function webViews<V extends { published: boolean }>(views: V[]): V[] {
 const LAYOUTS: Partial<Record<ViewType, PublishedLayout>> = { board: "board", list: "list", gallery: "gallery" };
 
 /**
+ * What publishedDatabase reads of a database whichever view shows it, for one request: a page
+ * showing a database several times (a dashboard's widgets, database blocks) reads its properties
+ * and rows once, and each view filters, sorts, groups and charts them on its own. Made per request
+ * (publishedLoads) and never kept beyond it: who publishes and who reads differ between requests,
+ * and rows change.
+ */
+export type PublishedLoads = Map<string, Promise<unknown>>;
+export const publishedLoads = (): PublishedLoads => new Map();
+
+function once<T>(loads: PublishedLoads | undefined, key: unknown[], load: () => PromiseLike<T>): Promise<T> {
+  // A query builder runs its query again each time it is awaited: keep the one promise of its result.
+  if (!loads) return Promise.resolve(load());
+  const id = JSON.stringify(key);
+  let found = loads.get(id) as Promise<T> | undefined;
+  if (!found) loads.set(id, (found = Promise.resolve(load())));
+  return found;
+}
+
+/** A database's properties and what the reader may know of them. */
+function loadSchema(loads: PublishedLoads | undefined, databaseId: string, reader: string | null) {
+  return once(loads, ["schema", databaseId, reader], async () => {
+    const [storedProperties, deleted] = await Promise.all([databaseProperties(databaseId), deletedPropertyIds(databaseId)]);
+    const access = await readerAccess(reader, databaseId, storedProperties);
+    return { storedProperties, deleted, access };
+  });
+}
+
+type Schema = Awaited<ReturnType<typeof loadSchema>>;
+
+/**
+ * The live rows `publisher` can see. Whether they say if their body holds an image (for gallery
+ * covers) is part of the key: few views need it, and it costs a pattern match on every row.
+ */
+function loadRows(loads: PublishedLoads | undefined, publisher: string, databaseId: string, withCovers: boolean) {
+  return once(loads, ["rows", publisher, databaseId, withCovers], () =>
+    db
+      .select({
+        id: page.id,
+        title: page.title,
+        icon: page.icon,
+        properties: page.properties,
+        createdBy: page.createdBy,
+        updatedBy: page.updatedBy,
+        createdAt: page.createdAt,
+        updatedAt: page.updatedAt,
+        hasImage: withCovers ? sql<boolean>`${page.contentMarkdown} ~ ${PG_MARKDOWN_IMAGE_PATTERN}` : sql<boolean>`false`,
+      })
+      .from(page)
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(publisher)))
+      .orderBy(asc(page.position), asc(page.createdAt)),
+  );
+}
+
+type StoredRow = Awaited<ReturnType<typeof loadRows>>[number];
+
+/** The rows with their computed values and formulas, as the reader may see them (publicValues), before any view. */
+function loadValues(
+  loads: PublishedLoads | undefined,
+  publisher: string,
+  databaseId: string,
+  reader: string | null,
+  withCovers: boolean,
+  { storedProperties, access }: Schema,
+  stored: StoredRow[],
+) {
+  return once(loads, ["values", publisher, databaseId, reader, withCovers], () =>
+    publicValues(
+      stored.map(({ createdBy, updatedBy, hasImage: _, ...row }) => ({
+        ...row,
+        createdBy,
+        properties: { ...row.properties, ...computedValues(storedProperties, { createdBy, updatedBy, ...row }) },
+      })),
+      storedProperties,
+      access,
+    ),
+  );
+}
+
+/**
  * A published database's rows as one of its web views shows them (`viewId`, else the first), or as
  * `linked` (a linked view's own settings) does. Only rows `publisher` can see are listed; the
  * print view (server/print.ts) passes the person printing.
@@ -819,40 +910,28 @@ export async function publishedDatabase(
     viewId,
     linked = null,
     reader = null,
+    loads,
   }: {
     viewId?: string;
     linked?: LinkedView | null;
     /** Whose property access applies: null for anonymous visitors (see readerAccess). */
     reader?: string | null;
+    /** What other views of the same request read already (see PublishedLoads). */
+    loads?: PublishedLoads;
   } = {},
 ): Promise<PublishedDatabase> {
-  const [storedProperties, shownViews, deleted] = await Promise.all([
-    databaseProperties(databaseId),
+  const [schema, shownViews] = await Promise.all([
+    loadSchema(loads, databaseId, reader),
     linked ? Promise.resolve([]) : readableViews(databaseId).then(webViews),
-    deletedPropertyIds(databaseId),
   ]);
-  const access = await readerAccess(reader, databaseId, storedProperties);
+  const { storedProperties, deleted, access } = schema;
   // Every property the reader may know of: filters and sorts may use relations and people, so
   // applyView needs them too; the columns are only the public ones (see publicProperties).
   const allProperties = access.known(storedProperties);
   const picked = linked ? { id: "", name: "", ...linked } : (shownViews.find((v) => v.id === viewId) ?? shownViews[0]);
   const chosen = picked && { ...picked, config: access.config(withoutDeleted(picked.config, deleted)) };
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
-  const stored = await db
-    .select({
-      id: page.id,
-      title: page.title,
-      icon: page.icon,
-      properties: page.properties,
-      createdBy: page.createdBy,
-      updatedBy: page.updatedBy,
-      createdAt: page.createdAt,
-      updatedAt: page.updatedAt,
-      hasImage: withCovers ? sql<boolean>`${page.contentMarkdown} ~ ${PG_MARKDOWN_IMAGE_PATTERN}` : sql<boolean>`false`,
-    })
-    .from(page)
-    .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(publisher)))
-    .orderBy(asc(page.position), asc(page.createdAt));
+  const stored = await loadRows(loads, publisher, databaseId, withCovers);
   const properties = publicProperties(allProperties);
   const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type }));
   if (!chosen) {
@@ -878,15 +957,7 @@ export async function publishedDatabase(
   // Filters and sorts may use relation and people properties; applyView needs every property for that.
   // The columns are the ones the view itself shows, so a list or timeline never publishes what it
   // keeps hidden.
-  const rows = await publicValues(
-    stored.map(({ createdBy, updatedBy, hasImage: _, ...row }) => ({
-      ...row,
-      createdBy,
-      properties: { ...row.properties, ...computedValues(storedProperties, { createdBy, updatedBy, ...row }) },
-    })),
-    storedProperties,
-    access,
-  );
+  const rows = await loadValues(loads, publisher, databaseId, reader, withCovers, schema, stored);
   const viewed = applyView(rows, chosen.config, allProperties, { people: await sortNames(rows, allProperties, chosen.config) });
   if (chosen.type === "chart") {
     return {

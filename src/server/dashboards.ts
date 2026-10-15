@@ -1,3 +1,6 @@
+import { and, eq, inArray } from "drizzle-orm";
+import { db } from "@/db";
+import { page } from "@/db/schema";
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import {
@@ -12,12 +15,12 @@ import {
   withoutRows,
   type ChartData,
 } from "@/lib/chart";
-import { isComputedWidget, LIST_WIDGET_ROWS, WIDGET_DRILL_ROWS } from "@/lib/dashboard";
+import { isComputedWidget, LIST_WIDGET_ROWS, MAX_WIDGETS, WIDGET_DRILL_ROWS, widgetStamp } from "@/lib/dashboard";
 import type { LinkedView } from "@/lib/embed-blocks";
 import type { GroupContext } from "@/lib/grouping";
 import { holdsPeople } from "@/lib/property-types";
 import { timestampDay } from "@/lib/time-zone";
-import { AccessError } from "@/server/access";
+import { AccessError, pageVisibleTo } from "@/server/access";
 import * as databases from "@/server/databases";
 
 /**
@@ -28,7 +31,7 @@ import * as databases from "@/server/databases";
  *
  * Nothing here knows the block, the page or the browser: a widget is a database and a view, read
  * for a viewer. Anything that shows workspace data in the viewer's name (dashboards, and later
- * code someone writes against the workspace) asks through these two functions.
+ * code someone writes against the workspace) asks through these functions.
  */
 
 export type WidgetViewer = { userId: string };
@@ -177,6 +180,27 @@ export async function widgetRows(
   return { rows: rows.slice(0, WIDGET_DRILL_ROWS).map(rowRef), total: rows.length };
 }
 
-function header(database: { id: string; workspaceId: string; title: string; icon: string | null; archivedAt: Date | null }) {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The stamps (lib/dashboard widgetStamp) of these databases for `viewer`, in one query: what the
+ * browser compares after the page tree changed, so only widgets whose database changed ask again.
+ * Databases the viewer can't see, and ids that aren't databases, stamp as "none", as their widgets
+ * do: nothing about them is said.
+ */
+export async function widgetStamps(viewer: WidgetViewer, databaseIds: string[]): Promise<Record<string, string>> {
+  const ids = [...new Set(databaseIds)].filter((id) => UUID.test(id)).slice(0, MAX_WIDGETS);
+  const found = ids.length
+    ? await db
+        .select({ id: page.id, title: page.title, icon: page.icon, archivedAt: page.archivedAt })
+        .from(page)
+        .where(and(inArray(page.id, ids), eq(page.kind, "database"), pageVisibleTo(viewer.userId)))
+    : [];
+  const stamps: Record<string, string> = Object.fromEntries(ids.map((id) => [id, widgetStamp(null)]));
+  for (const d of found) stamps[d.id] = widgetStamp({ title: d.title, icon: d.icon, inTrash: !!d.archivedAt });
+  return stamps;
+}
+
+function header(database:{ id: string; workspaceId: string; title: string; icon: string | null; archivedAt: Date | null }) {
   return { id: database.id, workspaceId: database.workspaceId, title: database.title, icon: database.icon, inTrash: !!database.archivedAt };
 }

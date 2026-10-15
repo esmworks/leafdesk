@@ -145,6 +145,14 @@
   (and each stacked series'), worked out on the server from the public properties only, instead of
   a table of its rows; no rows are sent. A chart grouped or measured by a property visitors can't
   see shows nothing to group by, or counts rows. Covered in `scripts/chart-e2e.ts`.
+- **Dashboards do less work.** An open dashboard used to reload every widget whenever any page in
+  the workspace was created, renamed, moved or shared. Now a widget reloads when its own database's
+  rows or properties change. Changes elsewhere in the workspace cost one request for the whole
+  dashboard, which checks its databases' names, icons, trash state and the reader's access, and
+  only the widgets of a database that changed reload. Sharing a single row now also refreshes open
+  views of its database. A published or printed page reads each database once, however many
+  widgets and database blocks show it, and each widget still applies its own filters, chart and
+  list length. Covered in `scripts/dashboard-e2e.ts`.
 
 ### Fixed
 
