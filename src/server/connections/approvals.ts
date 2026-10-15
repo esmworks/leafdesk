@@ -1,7 +1,7 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, connection, notification, workspaceAgent } from "@/db/schema";
-import type { AgentPendingCall, ApprovalDecision } from "@/lib/agents";
+import { OWN_TOOLS_NAME, type AgentPendingCall, type ApprovalDecision } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
 import { redactError } from "@/lib/redact";
 import { AccessError, ConnectedAppReadOnlyError, requireMembership, WorkspacePolicyError, workspaceOwnerIds } from "@/server/access";
@@ -93,13 +93,18 @@ export async function decideApproval(userId: string, input: { runId: string; cal
   await withdrawApproval(run.id);
   kickAgents();
   const pending = taken.pending as AgentPendingCall;
-  const [conn] = await db.select({ name: connection.name }).from(connection).where(eq(connection.id, pending.connectionId));
+  const [conn] = pending.connectionId
+    ? await db.select({ name: connection.name }).from(connection).where(eq(connection.id, pending.connectionId))
+    : [];
   const [agent] = await db.select({ name: workspaceAgent.name }).from(workspaceAgent).where(eq(workspaceAgent.id, run.agentId));
   await recordAudit({
     workspaceId: run.workspaceId,
     actorId: userId,
     action: "connection.approval_decided",
-    target: { type: "connection", id: pending.connectionId, label: conn?.name ?? null },
+    // Leafdesk's own tool (a row an event's run adds) is on the workspace, not a connection.
+    target: pending.connectionId
+      ? { type: "connection", id: pending.connectionId, label: conn?.name ?? null }
+      : { type: "workspace", id: run.workspaceId, label: OWN_TOOLS_NAME },
     details: { tool: pending.tool, decision: input.decision, agent: agent?.name ?? null, input: inputSummary(pending.arguments), ...(note ? { note: note.slice(0, 200) } : {}) },
   });
   return { runId: run.id };

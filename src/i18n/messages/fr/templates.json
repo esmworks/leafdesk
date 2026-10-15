@@ -40,5 +40,57 @@
       "milestone": "Planifier le premier jalon",
       "team": "Inviter l’équipe"
     }
+  },
+  "wins-log": {
+    "title": "Journal des réussites",
+    "description": "Réussites, compliments et travail terminé au même endroit, avec des graphiques par mois, type et domaine.",
+    "markdown": "Chaque réussite, compliment et travail terminé va ici, avec un lien vers l’endroit où c’est arrivé. Ajoutez-les à la main, ou laissez l’agent Consignateur de réussites les ajouter depuis vos connexions.",
+    "database": "Réussites",
+    "table": "Toutes les réussites",
+    "board": "Par type",
+    "properties": {
+      "type": "Type",
+      "area": "Domaine",
+      "date": "Date",
+      "impact": "Impact",
+      "source": "Source",
+      "person": "Personnes"
+    },
+    "types": {
+      "feedback": "Retour",
+      "delivery": "Livraison",
+      "metric": "Indicateur",
+      "event": "Événement",
+      "other": "Autre"
+    },
+    "areas": {
+      "product": "Produit",
+      "customers": "Clients",
+      "team": "Équipe",
+      "operations": "Opérations",
+      "sales": "Ventes"
+    },
+    "impacts": {
+      "high": "Élevé",
+      "medium": "Moyen",
+      "low": "Faible"
+    },
+    "widgets": {
+      "total": "Réussites",
+      "byMonth": "Réussites par mois",
+      "byArea": "Par domaine",
+      "byImpact": "Par impact"
+    },
+    "rowTemplate": {
+      "title": "Nouvelle réussite",
+      "markdown": "## Ce qui s’est passé\n\n\n\n## Pourquoi c’est important\n\n\n\n## Preuve\n\n- "
+    },
+    "rows": {
+      "praise": "Un client a salué le nouvel accueil",
+      "launch": "L’export de facturation est en ligne",
+      "response": "Le support répond désormais en moins de deux heures",
+      "talk": "Présentation donnée au séminaire d’équipe",
+      "thanks": "L’équipe commerciale nous a remerciés pour la démo"
+    }
   }
 }

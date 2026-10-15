@@ -29,6 +29,7 @@ import {
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
   MAX_AGENT_TOKEN_LIMIT,
+  OWN_TOOLS_NAME,
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentSkillRecord,
@@ -613,7 +614,10 @@ function RunItem({
 /** A step of a run: the chat's steps, the comments the agent wrote, and its calls to connections. */
 function AgentStepLine({ step, connections, onOpen }: { step: AgentStepView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
   const t = useTranslations("settings.agents.runs");
-  if (step.kind === "tool") return <ToolStepLine step={step} connection={connections[step.connectionId] ?? t("removedConnection")} />;
+  if (step.kind === "tool") {
+    const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
+    return <ToolStepLine step={step} connection={connection} />;
+  }
   if (step.kind === "skill") return <SkillStepLine step={step} onOpen={onOpen} />;
   if (step.kind !== "comment") return <StepLine step={step} onSource={(source) => source.pageId && onOpen(source.pageId)} />;
   const failed = step.outcome === "failed";

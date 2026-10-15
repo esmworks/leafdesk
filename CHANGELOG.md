@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Added
+
+- **Wins log template.** The template gallery has a *Wins log*: a page with a dashboard (wins in
+  all, wins by month stacked by type, by area and by impact) above a database of wins with their
+  type, area, date, impact, source link and people, a board by type, a row template and a few
+  example rows. Built-in database templates can now bring views of any kind and a dashboard.
+- **Wins logger agent.** A built-in agent that a connection's events run rather than an
+  automation: it reads each event (a Slack message, a GitHub pull request, a CRM deal or an email
+  sent through a signed webhook) and adds a row to the wins log when it is a win or praise, and
+  nothing otherwise. Its setup picks the log, the connection, the event type and whether the
+  service is trusted, and says so when the workspace has no connection yet.
+- **Agents add rows from events.** A run a connection's event started may now add rows
+  (`create_row`) to databases shared with the agent to edit, within the run's limit of changes and
+  starting no automations. While the trigger isn't trusted, each row waits for an owner's approval
+  in the inbox and the agent's runs, as calls to connected services do.
+
 ### Changed
 
 - **A page's icon sits beside its title.** Pages show their icon at the start of the title's line,

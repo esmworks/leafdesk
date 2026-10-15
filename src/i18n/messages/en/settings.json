@@ -495,11 +495,17 @@
       "steps": {
         "database": "Choose a database",
         "properties": "Choose its properties",
-        "pages": "Choose the pages it reads"
+        "pages": "Choose the pages it reads",
+        "connection": "Choose where its events come from"
       },
       "chooseDatabase": "Which database should it work on? You need full access to it.",
       "searchDatabases": "Search databases",
       "noDatabases": "No database you have full access to.",
+      "chooseLog": "Which database should it add wins to? The Wins log template makes one. You need full access to it.",
+      "connection": "Connection",
+      "connectionHelp": "It reads each event this connection receives and adds a row only when the event is a win or praise.",
+      "noConnections": "This workspace has no connections yet, so nothing can send the agent events. <link>Add a connection</link> (Slack, GitHub, or your CRM or email through a signed webhook), then set the agent up.",
+      "eventTypeHelp": "Only events of this type start it: “message” for Slack messages, “pull_request” for GitHub pull requests. Leave it empty for every event.",
       "routerProperties": "Properties to set",
       "routerPropertiesHelp": "Up to {max}. For a select or status it picks one of the options; for a person, someone of the workspace.",
       "anyPerson": "Someone of the workspace",
@@ -523,6 +529,8 @@
       "name": "Agent name",
       "summary": "Creating it adds the agent and an automation on {database} that runs it on every new row. The agent gets edit access to {database}.",
       "summaryPages": "The pages you chose are shared with it to view.",
+      "summaryEvents": "Creating it adds the agent and a trigger on {connection} that runs it on each event. The agent gets edit access to {database}.",
+      "summaryApproval": "Each row it adds waits for an owner’s approval in the inbox.",
       "back": "Back",
       "next": "Next",
       "create": "Create agent",
@@ -532,7 +540,8 @@
         "needRules": "Write the rules it follows.",
         "sameOptions": "Choose two different options.",
         "needPages": "Choose at least one page.",
-        "needName": "Give the agent a name."
+        "needName": "Give the agent a name.",
+        "needConnection": "Choose a connection."
       }
     },
     "errors": {
@@ -1419,8 +1428,8 @@
       "anyEvent": "every event",
       "enabled": "On",
       "trusted": "Trust what this service sends",
-      "trustedOff": "Every call to a connected service, reading ones too, waits for an owner’s approval: anyone who can make the service send an event writes what the agent reads.",
-      "trustedOn": "Reading tools run without asking. Turn this on only if no one outside your team can make this service send events (no public repositories, open channels or forms): an event’s text can talk the agent into reading what is shared with it and sending it out through a reading tool.",
+      "trustedOff": "Every call to a connected service, reading ones too, and every row the agent adds waits for an owner’s approval: anyone who can make the service send an event writes what the agent reads.",
+      "trustedOn": "Reading tools run and rows are added without asking. Turn this on only if no one outside your team can make this service send events (no public repositories, open channels or forms): an event’s text can talk the agent into reading what is shared with it and sending it out through a reading tool.",
       "archivedAgent": "An archived agent",
       "recent": "Recent events",
       "reload": "Reload",

@@ -40,5 +40,57 @@
       "milestone": "Ersten Meilenstein planen",
       "team": "Team einladen"
     }
+  },
+  "wins-log": {
+    "title": "Erfolgslog",
+    "description": "Erfolge, Lob und erledigte Arbeit an einem Ort, mit Diagrammen nach Monat, Art und Bereich.",
+    "markdown": "Jeder Erfolg, jedes Lob und jede erledigte Arbeit kommt hierher, mit einem Link dorthin, wo es passiert ist. Trag sie selbst ein oder lass den Agenten Erfolgsprotokollierer sie aus deinen Verbindungen eintragen.",
+    "database": "Erfolge",
+    "table": "Alle Erfolge",
+    "board": "Nach Art",
+    "properties": {
+      "type": "Art",
+      "area": "Bereich",
+      "date": "Datum",
+      "impact": "Wirkung",
+      "source": "Quelle",
+      "person": "Personen"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Lieferung",
+      "metric": "Kennzahl",
+      "event": "Veranstaltung",
+      "other": "Sonstiges"
+    },
+    "areas": {
+      "product": "Produkt",
+      "customers": "Kunden",
+      "team": "Team",
+      "operations": "Betrieb",
+      "sales": "Vertrieb"
+    },
+    "impacts": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "widgets": {
+      "total": "Erfolge",
+      "byMonth": "Erfolge nach Monat",
+      "byArea": "Nach Bereich",
+      "byImpact": "Nach Wirkung"
+    },
+    "rowTemplate": {
+      "title": "Neuer Erfolg",
+      "markdown": "## Was passiert ist\n\n\n\n## Warum es zählt\n\n\n\n## Beleg\n\n- "
+    },
+    "rows": {
+      "praise": "Ein Kunde hat das neue Onboarding gelobt",
+      "launch": "Der Rechnungsexport ist live",
+      "response": "Support antwortet jetzt in unter zwei Stunden",
+      "talk": "Vortrag beim Team-Offsite gehalten",
+      "thanks": "Der Vertrieb hat sich für das Demo-Setup bedankt"
+    }
   }
 }

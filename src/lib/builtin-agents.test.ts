@@ -6,6 +6,7 @@ import { MAX_AGENT_INSTRUCTIONS, MAX_AGENT_PROMPT } from "./agents";
 import {
   BUILTIN_AGENT_KEYS,
   buildBuiltinAgent,
+  isEventAgentKey,
   builtinAgentGallery,
   fill,
   MAX_ROUTER_PROPERTIES,
@@ -30,6 +31,19 @@ const examples: BuiltinAgentNames[] = [
   },
   { key: "request-answerer", database: "Requests", property: "Answer", answered: "Done", needsPerson: "Escalate", pages: ["Refund policy", ""] },
   { key: "duplicate-finder", database: "Bugs", property: "Duplicate?" },
+  {
+    key: "wins-logger",
+    database: "Wins",
+    databaseId: "db-wins",
+    connection: "Team chat",
+    properties: [
+      { name: "Type", type: "select", options: ["Feedback", "Delivery"] },
+      { name: "Date", type: "date", options: [] },
+      { name: "Source", type: "url", options: [] },
+      { name: "People", type: "person", options: [] },
+      { name: "Note", type: "text", options: [] },
+    ],
+  },
 ];
 
 describe("fill", () => {
@@ -48,7 +62,8 @@ describe("built-in agents", () => {
       expect(agent.name.trim(), `${locale} ${names.key}`).not.toBe("");
       expect(agent.description.trim()).not.toBe("");
       expect(agent.task.length).toBeLessThanOrEqual(MAX_AGENT_PROMPT);
-      expect(agent.automation("Bot")).toContain("Bot");
+      if (isEventAgentKey(names.key)) expect(agent.automation).toBeNull();
+      else expect(agent.automation!("Bot")).toContain("Bot");
       // Only the rules the owner wrote may still have braces.
       const withoutRules = names.key === "ticket-router" ? agent.instructions.replace(names.rules, "") : agent.instructions;
       expect(withoutRules, `${locale} ${names.key}`).not.toMatch(/\{\w+\}/);
@@ -61,6 +76,12 @@ describe("built-in agents", () => {
         for (const value of [names.property, names.answered, names.needsPerson, "Refund policy", texts.untitled]) {
           expect(agent.instructions).toContain(quote(value));
         }
+      } else if (names.key === "wins-logger") {
+        for (const p of names.properties) expect(agent.instructions).toContain(quote(p.name));
+        expect(agent.instructions).toContain(`${quote("Feedback")}, ${quote("Delivery")}`);
+        expect(agent.instructions).toContain(quote("Team chat"));
+        expect(agent.instructions).toContain("db-wins");
+        expect(agent.instructions).toContain("create_row");
       } else {
         expect(agent.instructions).toContain(quote(names.property));
       }
@@ -70,6 +91,7 @@ describe("built-in agents", () => {
   it.each(LOCALES)("%s: a new property's options are distinct", async (locale) => {
     const texts = await textsOf(locale);
     for (const key of BUILTIN_AGENT_KEYS) {
+      if (isEventAgentKey(key)) continue;
       const own = newPropertyNames(texts, key);
       expect(own.name.trim()).not.toBe("");
       expect(new Set(own.options).size).toBe(own.options.length);
@@ -89,6 +111,23 @@ describe("built-in agents", () => {
       rules: "r".repeat(MAX_ROUTER_RULES),
     });
     expect(longest.instructions.length).toBeLessThanOrEqual(MAX_AGENT_INSTRUCTIONS);
+  });
+
+  it("leaves out a log's last properties rather than going past an agent's instructions", () => {
+    const logger = buildBuiltinAgent(en, {
+      key: "wins-logger",
+      database: "x".repeat(200),
+      databaseId: "db",
+      connection: "c",
+      properties: Array.from({ length: 12 }, (_, i) => ({
+        name: `Property ${i}`,
+        type: "select" as const,
+        options: Array.from({ length: 40 }, (_, j) => `A rather long option name ${j}`),
+      })),
+    });
+    expect(logger.instructions.length).toBeLessThanOrEqual(MAX_AGENT_INSTRUCTIONS);
+    expect(logger.instructions).toContain("“Property 0”");
+    expect(logger.instructions).not.toContain("“Property 11”");
   });
 
   it("uses the database's own name, or Untitled", () => {

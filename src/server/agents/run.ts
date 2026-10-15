@@ -11,14 +11,16 @@
  *
  * A run is a short conversation with the model: the agent's instructions, what happened (a row
  * changed, or an event came in), a map of what the agent can open, then up to MAX_AGENT_ROUNDS
- * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent, and, on a
- * row's run, changing or commenting on that row, at most MAX_AGENT_WRITES times. Changes it makes
- * start no automations (`asAutomation`), so agents can't set each other off. On top of those come
- * the tools of connections an owner allowed it: one that only reads runs at once, except where what
- * the run reads was written by someone the workspace doesn't know (a row's run no member started,
- * an anonymous form answer; an event's run whose trigger an owner hasn't marked trusted), where
- * every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved in
- * `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
+ * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent; on a
+ * row's run, changing or commenting on that row; on an event's run, adding rows to databases
+ * shared with it to edit (a log of what came in); at most MAX_AGENT_WRITES changes in all. Changes
+ * it makes start no automations (`asAutomation`), so agents can't set each other off. On top of
+ * those come the tools of connections an owner allowed it: one that only reads runs at once, except
+ * where what the run reads was written by someone the workspace doesn't know (a row's run no member
+ * started, an anonymous form answer; an event's run whose trigger an owner hasn't marked trusted),
+ * where every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved
+ * in `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS. An
+ * event's run whose trigger isn't trusted waits the same way before each row it adds.
  *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
  * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
@@ -101,8 +103,11 @@ const ADD_COMMENT: AiTool = {
 };
 
 const UPDATE_ROW = WRITE_TOOLS.find((t) => t.name === "update_row")!;
-/** Leafdesk's tools on a row's run; a connection event's run only reads. Either may also keep notes (memory.ts). */
+const CREATE_ROW = WRITE_TOOLS.find((t) => t.name === "create_row")!;
+/** Leafdesk's tools on a row's run. Any run may also keep notes (memory.ts). */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_COMMENT];
+/** Leafdesk's tools on a connection event's run: reading, and adding rows where the agent may edit. */
+export const EVENT_TOOLS: AiTool[] = [...CHAT_TOOLS, CREATE_ROW];
 
 // ------------------------------------------------------------------------------------ queue
 
@@ -306,6 +311,7 @@ async function converse(
 ): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
   const rowRun = isRowRun(run.source);
+  const eventRun = isEventRun(run.source);
   // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
   // instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
@@ -318,12 +324,12 @@ async function converse(
   // its own notes: such a run proposes none.
   const memoryOn = await memoryAvailable(run.workspaceId);
   const remembers = memoryOn && !askEveryTool;
-  const tools = [...(rowRun ? AGENT_TOOLS : CHAT_TOOLS), ...(remembers ? AGENT_MEMORY_TOOLS : []), ...toolset.tools];
+  const tools = [...(rowRun ? AGENT_TOOLS : eventRun ? EVENT_TOOLS : CHAT_TOOLS), ...(remembers ? AGENT_MEMORY_TOOLS : []), ...toolset.tools];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
   // someone else may edit by then is left out (see steps below).
   const skillSet = await runSkills(agent, agentSkillRoom(), bound);
   const requested = run.source.kind === "request";
-  const system = agentSystemPrompt(agent, { row: rowRun, requested, connections, askEveryTool, skills: skillSet.skills, remembers });
+  const system = agentSystemPrompt(agent, { row: rowRun, requested, addsRows: eventRun, connections, askEveryTool, skills: skillSet.skills, remembers });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const room = (messages: AiMessage[]) => limits.maxInputChars - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
 
@@ -383,6 +389,17 @@ async function converse(
       if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
       return runAgentMemoryTool(agent, run.id, call);
     }
+    if (eventRun && call.name === "create_row") {
+      if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
+      // Checked first, so a call that can't be made goes back to the agent rather than to an owner.
+      const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
+      if (!("action" in prepared)) return prepared;
+      // What an untrusted service sent may carry anyone's instructions: no row is added without an owner.
+      if (askEveryTool && !approved) return null;
+      const out = await asAutomation(() => applyWrite(prepared, "approve", registry));
+      if (!out.isError) writes += 1;
+      return out;
+    }
     if (rowRun && (call.name === "update_row" || call.name === "add_comment")) {
       if (writes >= MAX_AGENT_WRITES) return { content: `You have made ${MAX_AGENT_WRITES} changes, the most one run may make. Finish now.`, isError: true };
       const out: CallResult = call.name === "update_row" ? await updateRow(ctx, run, call) : await addComment(agent, run, call.arguments);
@@ -414,15 +431,22 @@ async function converse(
       const answered = Boolean(pendingDecision);
       let out: CallResult | null;
       if (pendingDecision) {
-        out = await decided(call, pendingDecision, toolset, answer);
+        out = await decided(call, pendingDecision, toolset, answer, eventRun);
         pendingDecision = undefined;
       } else out = await answer(call, null);
       if (!out) {
-        const external = toolset.byName.get(call.name)!;
+        // A connection's tool, or Leafdesk's own (create_row on an event's run): no connection.
+        const external = toolset.byName.get(call.name);
         return {
           status: "awaiting",
           state: { messages, queue, rounds: usage.rounds, writes, externalChars },
-          pending: { callId: call.id, connectionId: external.connection.id, tool: external.tool.name, arguments: call.arguments, askedAt: new Date().toISOString() },
+          pending: {
+            callId: call.id,
+            connectionId: external?.connection.id ?? null,
+            tool: external?.tool.name ?? call.name,
+            arguments: call.arguments,
+            askedAt: new Date().toISOString(),
+          },
           steps,
           usage,
         };
@@ -484,19 +508,30 @@ async function converse(
   return { status: "done", steps, answer: finalAnswer, usage };
 }
 
-/** Answers the call an owner decided on: sends it (approved), or tells the agent it was declined or sent back. */
+/**
+ * Answers the call an owner decided on: sends it (approved), or tells the agent it was declined or
+ * sent back. `eventRun`: the run may add rows, so a create_row call is Leafdesk's own to make.
+ */
 async function decided(
   call: AiToolCall,
   decision: NonNullable<AgentRunState["decision"]>,
   toolset: ConnectionToolset,
   answer: (call: AiToolCall, approved: { userId: string } | null) => Promise<CallResult | null>,
+  eventRun: boolean,
 ): Promise<CallResult> {
   const external = toolset.byName.get(call.name);
-  if (!external) {
+  const own = eventRun && call.name === "create_row";
+  if (!external && !own) {
     // The tool was taken away (or its connection) while the call waited: nothing is sent.
     return { content: `The tool "${call.name}" is no longer allowed to you. Nothing was sent; finish without it.`, isError: true };
   }
-  const base = { kind: "tool" as const, connectionId: external.connection.id, tool: external.tool.name, input: inputSummary(call.arguments), decidedBy: decision.userId };
+  const base = {
+    kind: "tool" as const,
+    connectionId: external?.connection.id ?? null,
+    tool: external?.tool.name ?? call.name,
+    input: inputSummary(call.arguments),
+    decidedBy: decision.userId,
+  };
   if (decision.decision === "approve") return (await answer(call, { userId: decision.userId }))!;
   if (decision.decision === "decline") {
     return { content: "A person declined this call: it was not sent. Don't call it again in this run; finish without it, saying what you would have done.", step: { ...base, outcome: "declined" } };

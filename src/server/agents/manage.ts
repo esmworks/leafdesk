@@ -13,6 +13,7 @@ import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, user, workspaceAgent } from "@/db/schema";
 import {
   agentEmail,
+  callConnectionName,
   callToSend,
   isAgentAccessLevel,
   isEventRun,
@@ -411,9 +412,9 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
   const connectionIds = [
     ...new Set(
       runs.flatMap((r) => [
-        ...(r.pending ? [r.pending.connectionId] : []),
+        ...(r.pending?.connectionId ? [r.pending.connectionId] : []),
         ...(isEventRun(r.source) ? [r.source.connectionId] : []),
-        ...r.steps.flatMap((s) => (s.kind === "tool" ? [s.connectionId] : [])),
+        ...r.steps.flatMap((s) => (s.kind === "tool" && s.connectionId ? [s.connectionId] : [])),
       ]),
     ),
   ];
@@ -444,7 +445,7 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
           ? {
               ...r.pending,
               arguments: (exact && callToSend(r.pending, r.state?.queue)) || r.pending.arguments,
-              connectionName: connectionNames.get(r.pending.connectionId) ?? "",
+              connectionName: callConnectionName(r.pending.connectionId, connectionNames),
             }
           : null,
       eventType: "eventType" in r.context ? r.context.eventType : null,

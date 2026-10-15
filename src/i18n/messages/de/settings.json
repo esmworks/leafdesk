@@ -495,11 +495,17 @@
       "steps": {
         "database": "Datenbank wählen",
         "properties": "Eigenschaften wählen",
-        "pages": "Seiten wählen, die er liest"
+        "pages": "Seiten wählen, die er liest",
+        "connection": "Wählen, woher seine Ereignisse kommen"
       },
       "chooseDatabase": "In welcher Datenbank soll er arbeiten? Du brauchst Vollzugriff darauf.",
       "searchDatabases": "Datenbanken suchen",
       "noDatabases": "Keine Datenbank, auf die du Vollzugriff hast.",
+      "chooseLog": "In welche Datenbank soll er Erfolge eintragen? Die Vorlage Erfolgslog legt eine an. Du brauchst Vollzugriff darauf.",
+      "connection": "Verbindung",
+      "connectionHelp": "Er liest jedes Ereignis, das diese Verbindung empfängt, und fügt nur dann eine Zeile hinzu, wenn es ein Erfolg oder Lob ist.",
+      "noConnections": "Dieser Arbeitsbereich hat noch keine Verbindungen, also kann nichts dem Agenten Ereignisse senden. <link>Füge eine Verbindung hinzu</link> (Slack, GitHub oder dein CRM oder E-Mail über einen signierten Webhook) und richte den Agenten dann ein.",
+      "eventTypeHelp": "Nur Ereignisse dieser Art starten ihn: „message“ für Slack-Nachrichten, „pull_request“ für GitHub-Pull-Requests. Leer lassen für jedes Ereignis.",
       "routerProperties": "Zu setzende Eigenschaften",
       "routerPropertiesHelp": "Bis zu {max}. Bei Auswahl oder Status wählt er eine der Optionen, bei Person jemanden aus dem Workspace.",
       "anyPerson": "Jemand aus dem Workspace",
@@ -523,6 +529,8 @@
       "name": "Name des Agenten",
       "summary": "Beim Erstellen kommen der Agent und eine Automatisierung auf {database} hinzu, die ihn bei jeder neuen Zeile ausführt. Der Agent bekommt Bearbeitungszugriff auf {database}.",
       "summaryPages": "Die gewählten Seiten werden zum Ansehen mit ihm geteilt.",
+      "summaryEvents": "Beim Erstellen kommen der Agent und ein Auslöser auf {connection} hinzu, der ihn bei jedem Ereignis ausführt. Der Agent bekommt Bearbeitungszugriff auf {database}.",
+      "summaryApproval": "Jede Zeile, die er hinzufügt, wartet im Posteingang auf die Freigabe eines Inhabers.",
       "back": "Zurück",
       "next": "Weiter",
       "create": "Agent erstellen",
@@ -532,7 +540,8 @@
         "needRules": "Schreib die Regeln, denen er folgt.",
         "sameOptions": "Wähle zwei verschiedene Optionen.",
         "needPages": "Wähle mindestens eine Seite.",
-        "needName": "Gib dem Agenten einen Namen."
+        "needName": "Gib dem Agenten einen Namen.",
+        "needConnection": "Wähle eine Verbindung."
       }
     },
     "errors": {
@@ -1419,8 +1428,8 @@
       "anyEvent": "jedem Ereignis",
       "enabled": "An",
       "trusted": "Dem vertrauen, was dieser Dienst sendet",
-      "trustedOff": "Jeder Aufruf eines verbundenen Dienstes, auch lesende, wartet auf die Freigabe eines Inhabers: Wer den Dienst ein Ereignis senden lassen kann, schreibt, was der Agent liest.",
-      "trustedOn": "Lesende Werkzeuge laufen ohne Rückfrage. Schalte das nur ein, wenn niemand außerhalb deines Teams diesen Dienst Ereignisse senden lassen kann (keine öffentlichen Repositorys, offenen Kanäle oder Formulare): Der Text eines Ereignisses kann den Agenten dazu bringen, mit ihm Geteiltes zu lesen und über ein lesendes Werkzeug nach außen zu senden.",
+      "trustedOff": "Jeder Aufruf eines verbundenen Dienstes, auch lesende, und jede Zeile, die der Agent hinzufügt, wartet auf die Freigabe eines Inhabers: Wer den Dienst ein Ereignis senden lassen kann, schreibt, was der Agent liest.",
+      "trustedOn": "Lesende Werkzeuge laufen und Zeilen kommen ohne Rückfrage hinzu. Schalte das nur ein, wenn niemand außerhalb deines Teams diesen Dienst Ereignisse senden lassen kann (keine öffentlichen Repositorys, offenen Kanäle oder Formulare): Der Text eines Ereignisses kann den Agenten dazu bringen, mit ihm Geteiltes zu lesen und über ein lesendes Werkzeug nach außen zu senden.",
       "archivedAgent": "Ein archivierter Agent",
       "recent": "Letzte Ereignisse",
       "reload": "Neu laden",

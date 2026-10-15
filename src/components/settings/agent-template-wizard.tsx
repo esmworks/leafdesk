@@ -1,9 +1,11 @@
 "use client";
 
 import { ArrowLeft, X } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { builtinAgentPropertiesAction, installBuiltinAgentAction } from "@/app/actions/agents";
+import { listConnectionsAction } from "@/app/actions/connections";
 import { PropertyTypeIcon } from "@/components/database/property-icons";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, textareaClass } from "@/components/ui";
@@ -19,6 +21,7 @@ import {
   type BuiltinAgentSetup,
   type BuiltinAgentSummary,
 } from "@/lib/builtin-agents";
+import { MAX_TRIGGER_EVENT, type ConnectionView, type EventPreset } from "@/lib/connections";
 import { Field } from "./agent-dialog";
 import { PagePicker, useShareablePages, type PickablePage } from "./agent-page-picker";
 
@@ -29,22 +32,31 @@ const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-
 
 const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
-/**
- * Sets up a built-in agent: the database it works on, the properties it uses there (existing
- * ones of the right type, or a new one it brings), for the answerer the pages it reads, and its
- * name. Creating it adds the agent and the automation that runs it on every new row.
- */
-export function TemplateWizard({
-  workspaceId,
-  template,
-  onClose,
-  onCreated,
-}: {
+type WizardProps = {
   workspaceId: string;
   template: BuiltinAgentSummary;
   onClose: () => void;
   onCreated: (agent: AgentView) => void;
-}) {
+};
+
+/** Sets up a built-in agent: one an automation runs on new rows, or one a connection's events run. */
+export function TemplateWizard(props: WizardProps) {
+  const { template } = props;
+  if (!template.newProperty) return <EventAgentWizard {...props} />;
+  return <RowAgentWizard {...props} template={{ ...template, newProperty: template.newProperty }} />;
+}
+
+/**
+ * The database it works on, the properties it uses there (existing ones of the right type, or a
+ * new one it brings), for the answerer the pages it reads, and its name. Creating it adds the
+ * agent and the automation that runs it on every new row.
+ */
+function RowAgentWizard({
+  workspaceId,
+  template,
+  onClose,
+  onCreated,
+}: WizardProps & { template: { newProperty: NonNullable<BuiltinAgentSummary["newProperty"]> } }) {
   const t = useTranslations("settings.agents.wizard");
   const tc = useTranslations("common");
   const pages = useShareablePages(workspaceId);
@@ -123,7 +135,7 @@ export function TemplateWizard({
         ? { ...base, key: template.key, properties: routed, rules }
         : template.key === "request-answerer"
           ? { ...base, key: template.key, property, answered, needsPerson, pages: knowledge }
-          : { ...base, key: template.key, property };
+          : { ...base, key: "duplicate-finder", property };
     run(() => installBuiltinAgentAction(workspaceId, setup), (result) => onCreated(result.agent));
   };
 
@@ -325,6 +337,186 @@ export function TemplateWizard({
           </Button>
           <Button variant="primary" disabled={pending} onClick={next}>
             {step === last ? (pending ? t("creating") : t("create")) : t("next")}
+          </Button>
+        </div>
+      )}
+      {step === "database" && error && (
+        <p role="alert" className="border-t border-border px-5 py-3 text-xs text-danger">
+          {error}
+        </p>
+      )}
+    </Dialog>
+  );
+}
+
+/** The events an agent starts on by default: Slack's messages, GitHub's pull requests, anything signed as Leafdesk signs. */
+const DEFAULT_EVENT: Record<EventPreset, string> = { slack: "message", github: "pull_request", hmac: "" };
+
+/**
+ * The wins logger's setup: the log it adds rows to, the connection whose events it reads (of one
+ * type, or any), whether that service is trusted, and its name. Creating it adds the agent, shares
+ * the log with it to edit and adds the connection's trigger that runs it.
+ */
+function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardProps) {
+  const t = useTranslations("settings.agents.wizard");
+  const te = useTranslations("settings.connections.events");
+  const tc = useTranslations("common");
+  const pages = useShareablePages(workspaceId);
+  const [step, setStep] = useState<"database" | "connection">("database");
+  const [database, setDatabase] = useState<PickablePage | null>(null);
+  const [connections, setConnections] = useState<ConnectionView[] | null>(null);
+  const [connectionId, setConnectionId] = useState("");
+  const [eventType, setEventType] = useState("");
+  const [trusted, setTrusted] = useState(false);
+  const [name, setName] = useState(template.name);
+  const [tried, setTried] = useState(false);
+  const { pending, error, run } = useAction();
+
+  useEffect(() => {
+    let live = true;
+    void listConnectionsAction(workspaceId)
+      .then((res) => {
+        if (!live || !res.ok) return;
+        setConnections(res.data);
+        const first = res.data[0];
+        if (first) {
+          setConnectionId(first.id);
+          setEventType(DEFAULT_EVENT[first.eventPreset]);
+        }
+      })
+      .catch(() => live && setConnections([]));
+    return () => {
+      live = false;
+    };
+  }, [workspaceId]);
+
+  const connection = connections?.find((c) => c.id === connectionId);
+  const missing = (): "needConnection" | "needName" | null => (!connection ? "needConnection" : !name.trim() ? "needName" : null);
+  const gap = tried ? missing() : null;
+
+  const create = () => {
+    setTried(true);
+    if (missing() || !database || !connection) return;
+    const setup: BuiltinAgentSetup = {
+      key: "wins-logger",
+      databaseId: database.id,
+      name: name.trim(),
+      connectionId: connection.id,
+      eventType: eventType.trim() || null,
+      trusted,
+    };
+    run(() => installBuiltinAgentAction(workspaceId, setup), (result) => onCreated(result.agent));
+  };
+
+  const databases = pages && pages.filter((p) => p.kind === "database");
+  const databaseTitle = pageLabel(database?.title ?? "", tc("untitled"));
+
+  return (
+    <Dialog open onClose={onClose} className="max-w-xl">
+      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
+        {step !== "database" && (
+          <IconButton label={t("back")} onClick={() => setStep("database")} className="mt-1">
+            <ArrowLeft className="h-4 w-4" />
+          </IconButton>
+        )}
+        <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-base font-semibold">{t("title", { name: template.name })}</h2>
+          <p className="truncate text-sm text-fg-muted">
+            {t(`steps.${step}`)}
+            {database && step !== "database" && ` · ${databaseTitle}`}
+          </p>
+        </div>
+        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
+          <X className="h-4 w-4" />
+        </IconButton>
+      </div>
+
+      <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "pointer-events-none opacity-70")}>
+        {step === "database" && (
+          <>
+            <p className="text-sm text-fg-muted">{t("chooseLog")}</p>
+            <PagePicker
+              autoFocus
+              pages={databases}
+              label={t("searchDatabases")}
+              empty={t("noDatabases")}
+              onPick={(page) => {
+                setDatabase(page);
+                setTried(false);
+                setStep("connection");
+              }}
+            />
+          </>
+        )}
+
+        {step === "connection" &&
+          (!connections ? (
+            <p className="text-sm text-fg-muted">{tc("loading")}</p>
+          ) : !connections.length ? (
+            <p className="text-sm text-fg-muted">
+              {t.rich("noConnections", {
+                link: (chunks) => (
+                  <Link href={`/w/${workspaceId}/settings?tab=connections`} className="text-fg underline underline-offset-2 hover:text-accent">
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
+          ) : (
+            <>
+              <Field label={t("connection")} help={t("connectionHelp")}>
+                <select
+                  value={connectionId}
+                  aria-label={t("connection")}
+                  onChange={(e) => {
+                    setConnectionId(e.target.value);
+                    const picked = connections.find((c) => c.id === e.target.value);
+                    if (picked) setEventType(DEFAULT_EVENT[picked.eventPreset]);
+                  }}
+                  className={selectClass}
+                >
+                  {connections.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={te("eventType")} help={t("eventTypeHelp")}>
+                <Input value={eventType} maxLength={MAX_TRIGGER_EVENT} onChange={(e) => setEventType(e.target.value)} placeholder={te("eventTypePlaceholder")} />
+              </Field>
+              <div className="space-y-0.5">
+                <label className="flex items-start gap-1.5 text-sm">
+                  <input type="checkbox" className="mt-1 accent-accent" checked={trusted} onChange={(e) => setTrusted(e.target.checked)} />
+                  <span>{te("trusted")}</span>
+                </label>
+                <p className={cn("text-xs", trusted ? "text-danger" : "text-fg-muted")}>{trusted ? te("trustedOn") : te("trustedOff")}</p>
+              </div>
+              <div className="space-y-3 border-t border-border pt-4">
+                <Field label={t("name")}>
+                  <Input value={name} maxLength={MAX_AGENT_NAME} onChange={(e) => setName(e.target.value)} />
+                </Field>
+                <p className="text-xs text-fg-muted">
+                  {t("summaryEvents", { database: databaseTitle, connection: connection?.name ?? "" })} {trusted ? "" : t("summaryApproval")}
+                </p>
+              </div>
+            </>
+          ))}
+      </div>
+
+      {step === "connection" && (
+        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          {(gap || error) && (
+            <p role="alert" className="mr-auto text-xs text-danger">
+              {gap ? t(`errors.${gap}`) : error}
+            </p>
+          )}
+          <Button variant="ghost" onClick={() => setStep("database")}>
+            {t("back")}
+          </Button>
+          <Button variant="primary" disabled={pending || !connections?.length} onClick={create}>
+            {pending ? t("creating") : t("create")}
           </Button>
         </div>
       )}

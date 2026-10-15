@@ -495,11 +495,17 @@
       "steps": {
         "database": "Choisir une base de données",
         "properties": "Choisir ses propriétés",
-        "pages": "Choisir les pages qu’il lit"
+        "pages": "Choisir les pages qu’il lit",
+        "connection": "Choisir d’où viennent ses événements"
       },
       "chooseDatabase": "Sur quelle base de données doit-il travailler ? Il vous faut un accès complet à celle-ci.",
       "searchDatabases": "Rechercher des bases de données",
       "noDatabases": "Aucune base de données à laquelle vous avez un accès complet.",
+      "chooseLog": "Dans quelle base de données doit-il ajouter les réussites ? Le modèle Journal des réussites en crée une. Il vous faut un accès complet à celle-ci.",
+      "connection": "Connexion",
+      "connectionHelp": "Il lit chaque événement que reçoit cette connexion et n’ajoute une ligne que si l’événement est une réussite ou un compliment.",
+      "noConnections": "Cet espace de travail n’a pas encore de connexion : rien ne peut envoyer d’événements à l’agent. <link>Ajoutez une connexion</link> (Slack, GitHub, ou votre CRM ou vos e-mails par un webhook signé), puis configurez l’agent.",
+      "eventTypeHelp": "Seuls les événements de ce type le lancent : « message » pour les messages Slack, « pull_request » pour les pull requests GitHub. Laissez vide pour tous les événements.",
       "routerProperties": "Propriétés à remplir",
       "routerPropertiesHelp": "Jusqu’à {max}. Pour une sélection ou un statut, il choisit l’une des options ; pour une personne, quelqu’un de l’espace de travail.",
       "anyPerson": "Quelqu’un de l’espace de travail",
@@ -523,6 +529,8 @@
       "name": "Nom de l’agent",
       "summary": "La création ajoute l’agent et une automatisation sur {database} qui le lance à chaque nouvelle ligne. L’agent obtient un accès en modification à {database}.",
       "summaryPages": "Les pages choisies sont partagées avec lui en consultation.",
+      "summaryEvents": "La création ajoute l’agent et un déclencheur sur {connection} qui le lance à chaque événement. L’agent obtient un accès en modification à {database}.",
+      "summaryApproval": "Chaque ligne qu’il ajoute attend l’accord d’un propriétaire dans la boîte de réception.",
       "back": "Retour",
       "next": "Suivant",
       "create": "Créer l’agent",
@@ -532,7 +540,8 @@
         "needRules": "Écrivez les règles qu’il suit.",
         "sameOptions": "Choisissez deux options différentes.",
         "needPages": "Choisissez au moins une page.",
-        "needName": "Donnez un nom à l’agent."
+        "needName": "Donnez un nom à l’agent.",
+        "needConnection": "Choisissez une connexion."
       }
     },
     "errors": {
@@ -1419,8 +1428,8 @@
       "anyEvent": "chaque événement",
       "enabled": "Actif",
       "trusted": "Faire confiance à ce que ce service envoie",
-      "trustedOff": "Chaque appel à un service connecté, même en lecture, attend l’accord d’un propriétaire : quiconque peut faire envoyer un événement au service écrit ce que lit l’agent.",
-      "trustedOn": "Les outils de lecture s’exécutent sans demander. N’activez cette option que si personne hors de votre équipe ne peut faire envoyer d’événements à ce service (pas de dépôt public, de canal ouvert ni de formulaire) : le texte d’un événement peut amener l’agent à lire ce qui est partagé avec lui et à l’envoyer au-dehors par un outil de lecture.",
+      "trustedOff": "Chaque appel à un service connecté, même en lecture, et chaque ligne que l’agent ajoute attend l’accord d’un propriétaire : quiconque peut faire envoyer un événement au service écrit ce que lit l’agent.",
+      "trustedOn": "Les outils de lecture s’exécutent et les lignes s’ajoutent sans demander. N’activez cette option que si personne hors de votre équipe ne peut faire envoyer d’événements à ce service (pas de dépôt public, de canal ouvert ni de formulaire) : le texte d’un événement peut amener l’agent à lire ce qui est partagé avec lui et à l’envoyer au-dehors par un outil de lecture.",
       "archivedAgent": "Un agent archivé",
       "recent": "Événements récents",
       "reload": "Recharger",

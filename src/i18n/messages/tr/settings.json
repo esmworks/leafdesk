@@ -495,11 +495,17 @@
       "steps": {
         "database": "Veritabanı seçin",
         "properties": "Özelliklerini seçin",
-        "pages": "Okuyacağı sayfaları seçin"
+        "pages": "Okuyacağı sayfaları seçin",
+        "connection": "Olayların nereden geleceğini seçin"
       },
       "chooseDatabase": "Hangi veritabanında çalışsın? Veritabanına tam erişiminiz olmalı.",
       "searchDatabases": "Veritabanı ara",
       "noDatabases": "Tam erişiminiz olan veritabanı yok.",
+      "chooseLog": "Kazanımları hangi veritabanına eklesin? Kazanım günlüğü şablonu bir tane oluşturur. Veritabanına tam erişiminiz olmalı.",
+      "connection": "Bağlantı",
+      "connectionHelp": "Bu bağlantının aldığı her olayı okur ve yalnızca olay bir kazanım ya da övgüyse satır ekler.",
+      "noConnections": "Bu çalışma alanında henüz bağlantı yok, bu yüzden ajana hiçbir şey olay gönderemez. <link>Bir bağlantı ekleyin</link> (Slack, GitHub ya da imzalı bir webhook üzerinden CRM'iniz veya e-postanız), sonra ajanı kurun.",
+      "eventTypeHelp": "Yalnızca bu türdeki olaylar onu başlatır: Slack mesajları için “message”, GitHub pull request'leri için “pull_request”. Her olay için boş bırakın.",
       "routerProperties": "Doldurulacak özellikler",
       "routerPropertiesHelp": "En fazla {max}. Seçim ya da durum özelliğinde seçeneklerden birini, kişi özelliğinde çalışma alanından birini seçer.",
       "anyPerson": "Çalışma alanından biri",
@@ -523,6 +529,8 @@
       "name": "Ajanın adı",
       "summary": "Oluşturunca ajan ve onu {database} veritabanındaki her yeni satırda çalıştıran bir otomasyon eklenir. Ajan {database} üzerinde düzenleme erişimi alır.",
       "summaryPages": "Seçtiğiniz sayfalar onunla görüntüleme erişimiyle paylaşılır.",
+      "summaryEvents": "Oluşturunca ajan ve onu her olayda çalıştıran, {connection} üzerinde bir tetikleyici eklenir. Ajan {database} üzerinde düzenleme erişimi alır.",
+      "summaryApproval": "Eklediği her satır gelen kutusunda bir sahibin onayını bekler.",
       "back": "Geri",
       "next": "İleri",
       "create": "Ajan oluştur",
@@ -532,7 +540,8 @@
         "needRules": "Uyacağı kuralları yazın.",
         "sameOptions": "Birbirinden farklı iki seçenek seçin.",
         "needPages": "En az bir sayfa seçin.",
-        "needName": "Ajana bir ad verin."
+        "needName": "Ajana bir ad verin.",
+        "needConnection": "Bir bağlantı seçin."
       }
     },
     "errors": {
@@ -1419,8 +1428,8 @@
       "anyEvent": "her olay",
       "enabled": "Açık",
       "trusted": "Bu servisin gönderdiklerine güven",
-      "trustedOff": "Bağlı servislere yapılan her çağrı, okuyanlar da, bir sahibin onayını bekler: servise olay gönderttirebilen herkes ajanın okuduğu metni yazar.",
-      "trustedOn": "Okuyan araçlar sormadan çalışır. Bunu yalnızca ekibiniz dışında kimse bu servise olay gönderttiremiyorsa açın (herkese açık depo, açık kanal veya form yoksa): bir olayın metni ajanı, kendisiyle paylaşılanları okuyup bir okuma aracıyla dışarı göndermeye ikna edebilir.",
+      "trustedOff": "Bağlı servislere yapılan her çağrı, okuyanlar da, ve ajanın eklediği her satır bir sahibin onayını bekler: servise olay gönderttirebilen herkes ajanın okuduğu metni yazar.",
+      "trustedOn": "Okuyan araçlar sormadan çalışır ve satırlar sormadan eklenir. Bunu yalnızca ekibiniz dışında kimse bu servise olay gönderttiremiyorsa açın (herkese açık depo, açık kanal veya form yoksa): bir olayın metni ajanı, kendisiyle paylaşılanları okuyup bir okuma aracıyla dışarı göndermeye ikna edebilir.",
       "archivedAgent": "Arşivlenmiş bir ajan",
       "recent": "Son olaylar",
       "reload": "Yenile",

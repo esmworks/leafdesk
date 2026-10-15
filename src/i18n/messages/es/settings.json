@@ -495,11 +495,17 @@
       "steps": {
         "database": "Elige una base de datos",
         "properties": "Elige sus propiedades",
-        "pages": "Elige las páginas que lee"
+        "pages": "Elige las páginas que lee",
+        "connection": "Elige de dónde vienen sus eventos"
       },
       "chooseDatabase": "¿En qué base de datos debe trabajar? Necesitas acceso completo a ella.",
       "searchDatabases": "Buscar bases de datos",
       "noDatabases": "No hay ninguna base de datos a la que tengas acceso completo.",
+      "chooseLog": "¿En qué base de datos debe añadir los logros? La plantilla Registro de logros crea una. Necesitas acceso completo a ella.",
+      "connection": "Conexión",
+      "connectionHelp": "Lee cada evento que recibe esta conexión y añade una fila solo cuando el evento es un logro o un elogio.",
+      "noConnections": "Este espacio de trabajo aún no tiene conexiones, así que nada puede enviar eventos al agente. <link>Añade una conexión</link> (Slack, GitHub, o tu CRM o correo con un webhook firmado) y luego configura el agente.",
+      "eventTypeHelp": "Solo lo inician los eventos de este tipo: «message» para mensajes de Slack, «pull_request» para pull requests de GitHub. Déjalo vacío para todos los eventos.",
       "routerProperties": "Propiedades que rellena",
       "routerPropertiesHelp": "Hasta {max}. En una selección o un estado elige una de las opciones; en una persona, a alguien del espacio de trabajo.",
       "anyPerson": "Alguien del espacio de trabajo",
@@ -523,6 +529,8 @@
       "name": "Nombre del agente",
       "summary": "Al crearlo se añaden el agente y una automatización en {database} que lo ejecuta con cada fila nueva. El agente obtiene acceso de edición a {database}.",
       "summaryPages": "Las páginas elegidas se comparten con él para ver.",
+      "summaryEvents": "Al crearlo se añaden el agente y un disparador en {connection} que lo ejecuta con cada evento. El agente obtiene acceso de edición a {database}.",
+      "summaryApproval": "Cada fila que añade espera la aprobación de un propietario en la bandeja de entrada.",
       "back": "Atrás",
       "next": "Siguiente",
       "create": "Crear agente",
@@ -532,7 +540,8 @@
         "needRules": "Escribe las reglas que sigue.",
         "sameOptions": "Elige dos opciones distintas.",
         "needPages": "Elige al menos una página.",
-        "needName": "Ponle un nombre al agente."
+        "needName": "Ponle un nombre al agente.",
+        "needConnection": "Elige una conexión."
       }
     },
     "errors": {
@@ -1419,8 +1428,8 @@
       "anyEvent": "cada evento",
       "enabled": "Activo",
       "trusted": "Confiar en lo que envía este servicio",
-      "trustedOff": "Cada llamada a un servicio conectado, también las de lectura, espera la aprobación de un propietario: quien pueda hacer que el servicio envíe un evento escribe lo que lee el agente.",
-      "trustedOn": "Las herramientas de lectura se ejecutan sin preguntar. Actívalo solo si nadie fuera de tu equipo puede hacer que este servicio envíe eventos (sin repositorios públicos, canales abiertos ni formularios): el texto de un evento puede llevar al agente a leer lo que se comparte con él y enviarlo fuera con una herramienta de lectura.",
+      "trustedOff": "Cada llamada a un servicio conectado, también las de lectura, y cada fila que añade el agente espera la aprobación de un propietario: quien pueda hacer que el servicio envíe un evento escribe lo que lee el agente.",
+      "trustedOn": "Las herramientas de lectura se ejecutan y las filas se añaden sin preguntar. Actívalo solo si nadie fuera de tu equipo puede hacer que este servicio envíe eventos (sin repositorios públicos, canales abiertos ni formularios): el texto de un evento puede llevar al agente a leer lo que se comparte con él y enviarlo fuera con una herramienta de lectura.",
       "archivedAgent": "Un agente archivado",
       "recent": "Eventos recientes",
       "reload": "Recargar",

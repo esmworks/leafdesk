@@ -1,7 +1,10 @@
 import { and, asc, eq, isNull, max, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, type PageKind } from "@/db/schema";
-import { builtinTemplate, isBuiltinTemplateKey, type BuiltinTemplateKey } from "@/lib/builtin-templates";
+import type { ViewConfig } from "@/db/schema/app";
+import { builtinTemplate, isBuiltinTemplateKey, type BuiltinTemplateKey, type BuiltinViewConfig } from "@/lib/builtin-templates";
+import { DASHBOARD_BLOCK, newWidgetId, serializeDashboard, type DashboardWidget } from "@/lib/dashboard";
+import { DATABASE_BLOCK } from "@/lib/embed-blocks";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
@@ -344,10 +347,21 @@ export async function deleteTemplate(userId: string, templateId: string) {
   return { workspaceId: template.workspaceId, databaseId: template.parentId };
 }
 
+/** A template's view settings with the new database's property ids in place of their names. */
+function builtinViewConfig(config: BuiltinViewConfig, properties: { id: string; name: string }[]): ViewConfig {
+  const id = (name: string | undefined) => (name === undefined ? undefined : properties.find((p) => p.name === name)?.id);
+  const { groupBy, stackBy, ...rest } = config;
+  const out: ViewConfig = { ...rest };
+  if (groupBy !== undefined) out.groupBy = id(groupBy);
+  if (stackBy !== undefined) out.stackBy = id(stackBy);
+  return out;
+}
+
 /**
  * A new page from the built-in gallery (see lib/builtin-templates), in the user's language: a
- * page with its Markdown, or a database with its properties, board, default row template and a
- * few example rows. Goes where a new page would (`parentId`, else the top level).
+ * page with its Markdown, or a database with its properties, views, default row template and a
+ * few example rows. A database with a dashboard comes inside a page of its own, under the
+ * dashboard. Goes where a new page would (`parentId`, else the top level).
  */
 export async function createFromBuiltin(
   actor: WriteActor,
@@ -374,27 +388,56 @@ export async function createFromBuiltin(
   }
 
   const { userId } = actor;
+  const { dashboard } = builtin;
+  const host = dashboard
+    ? await createPage(actor, { workspaceId, parentId, teamspaceId, title: builtin.title, icon: builtin.icon, markdown: dashboard.markdown })
+    : null;
   const database = await createPage(actor, {
     workspaceId,
-    parentId,
+    parentId: host?.id ?? parentId,
     teamspaceId,
     kind: "database",
-    title: builtin.title,
+    title: dashboard?.database ?? builtin.title,
     icon: builtin.icon,
     seedNames: builtin.seedNames,
+    seedProperties: builtin.seedProperties,
   });
   for (const property of builtin.properties) {
     await addProperty(userId, database.id, { name: property.name, type: property.type, options: property.options });
   }
-  const board = await addView(userId, database.id, { name: builtin.board, type: "board" });
-  // The board groups by the status every new database starts with.
-  const status = (await getProperties(database.id)).find((p) => p.type === "status");
-  if (status) await updateView(userId, board.id, { config: { ...board.config, groupBy: status.id } });
+  const properties = await getProperties(database.id);
+  for (const view of builtin.views) {
+    const added = await addView(userId, database.id, { name: view.name, type: view.type });
+    await updateView(userId, added.id, { config: { ...added.config, ...builtinViewConfig(view.config, properties) } });
+  }
   const template = await createRowTemplate(actor, database.id, builtin.rowTemplate);
   await setDefaultRowTemplate(userId, database.id, template.id);
   for (const row of builtin.rows) {
     await createPage(actor, { workspaceId, parentId: database.id, title: row.title, properties: row.properties });
   }
-  return { id: database.id, workspaceId: database.workspaceId };
-}
+  if (!host || !dashboard) return { id: database.id, workspaceId: database.workspaceId };
 
+  // The dashboard first, then the database it charts, shown in the page.
+  const widgets: DashboardWidget[] = [];
+  for (const widget of dashboard.widgets) {
+    widgets.push({
+      id: newWidgetId(widgets),
+      databaseId: database.id,
+      title: widget.title,
+      span: widget.span,
+      view: { type: widget.view.type, config: builtinViewConfig(widget.view.config, properties) },
+    });
+  }
+  const collab = getCollab();
+  await collab.appendBlocks(
+    host.id,
+    [
+      { id: crypto.randomUUID(), type: DASHBOARD_BLOCK, props: { widgets: serializeDashboard(widgets) } },
+      { id: crypto.randomUUID(), type: DATABASE_BLOCK, props: { databaseId: database.id } },
+    ],
+    actor,
+  );
+  // The grid needs the room, as when a dashboard is added in the editor.
+  await collab.setPageStyle(host.id, { fullWidth: true }, actor);
+  return { id: host.id, workspaceId: host.workspaceId };
+}
