@@ -553,6 +553,7 @@
     "stop": "Durdur ve nota çevir",
     "discard": "Vazgeç",
     "cancel": "İptal",
+    "retry": "Yeniden ekle",
     "close": "Kapat",
     "limit": "En fazla {minutes} dk",
     "chooseFile": "Ya da bir ses dosyası seç",

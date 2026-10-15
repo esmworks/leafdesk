@@ -3,6 +3,7 @@ import { voiceAudioType } from "@/lib/voice-notes";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError, sttLimits } from "@/server/ai";
 import { isCrossSite } from "@/server/cross-site";
+import { BodyTooLargeError, readFormLimited } from "@/server/request-body";
 import { draftVoiceNote, prepareVoiceNote, type VoiceNoteTarget } from "@/server/voice-notes";
 
 /**
@@ -26,10 +27,14 @@ export async function POST(request: Request) {
   const limits = sttLimits();
   if (!limits) return fail("disabled", "Speech to text is not configured on this server", 403);
   if (!(request.headers.get("content-type") ?? "").includes("multipart/form-data")) return fail("invalid", "Send multipart form data", 415);
-  // Room for the form's other fields on top of the audio.
-  if (Number(request.headers.get("content-length") ?? "0") > limits.maxBytes + 64 * 1024) return tooLarge(limits.maxBytes);
-
-  const form = await request.formData().catch(() => null);
+  // Room for the form's other fields on top of the audio; a larger body isn't read to its end.
+  let form: FormData | null;
+  try {
+    form = await readFormLimited(request, limits.maxBytes + 64 * 1024);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) return tooLarge(limits.maxBytes);
+    form = null;
+  }
   const audio = form?.get("audio");
   if (!form || !(audio instanceof Blob)) return fail("invalid", "Send the recording as `audio`", 400);
   const type = voiceAudioType(audio.type, audio instanceof File ? audio.name : null);

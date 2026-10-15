@@ -1,18 +1,19 @@
 "use client";
 
 /**
- * "Voice note" in the page editor's slash menu: a dialog records a note (starting right away), the server writes it up
- * (see voice-note-recorder.tsx), and it goes in where the slash menu was opened: the AI's title as
- * a heading, the note, and the transcript in a toggle under it. Like the AI assistant's
- * suggestions, the page is saved to its history first and the blocks are added in this editor, so
- * everyone sees them live and Undo takes them back.
+ * "Voice note" in the page editor's slash menu: a dialog records a note (starting right away), the
+ * server writes it up (see voice-note-recorder.tsx), and it goes in where the slash menu was
+ * opened: the AI's title as a heading, the note, and the transcript in a toggle under it. Like the
+ * AI assistant's suggestions, the page is saved to its history first and the blocks are added in
+ * this editor, so everyone sees them live and Undo takes them back. When that fails, the note is
+ * kept to try again, so nobody has to say it twice.
  */
 import type { DefaultReactSuggestionItem } from "@blocknote/react";
 import { Mic, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { snapshotBeforeVoiceNoteAction } from "@/app/actions/ai";
-import { Dialog, IconButton } from "@/components/ui";
+import { Button, Dialog, IconButton } from "@/components/ui";
 import { demoteHeadings, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits } from "@/lib/voice-notes";
 import type { PageEditor } from "@/components/page/embed-blocks";
 import { VoiceNoteRecorder } from "./voice-note-recorder";
@@ -37,23 +38,35 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
   const [at, setAt] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** A written-up note that couldn't go in yet. */
+  const [pending, setPending] = useState<VoiceNoteDraft | null>(null);
+  const [inserting, setInserting] = useState(false);
 
   const open = useCallback(() => {
     if (!limits) return;
     setError(null);
+    setPending(null);
     setAt(editor.getTextCursorPosition().block.id);
   }, [editor, limits]);
 
   const close = useCallback(() => {
     setAt(null);
     setBusy(false);
+    setPending(null);
   }, []);
 
   const insert = useCallback(
     async (draft: VoiceNoteDraft) => {
       if (!at) return;
-      const saved = await snapshotBeforeVoiceNoteAction(pageId);
-      if (!saved.ok) return setError(saved.error);
+      setError(null);
+      setInserting(true);
+      const failed = (message: string) => {
+        setPending(draft);
+        setError(message);
+        setInserting(false);
+      };
+      const saved = await snapshotBeforeVoiceNoteAction(pageId).catch(() => null);
+      if (!saved?.ok) return failed(saved?.error ?? t("errors.insert"));
       try {
         const blocks = noteBlocks(editor, draft, t("transcriptToggle"));
         const anchor = editor.getBlock(at) as AnyBlock | undefined;
@@ -64,9 +77,10 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
           if (empty) editor.replaceBlocks([anchor], blocks as never);
           else editor.insertBlocks(blocks as never, anchor, "after");
         }
+        setInserting(false);
         close();
       } catch {
-        setError(t("errors.insert"));
+        failed(t("errors.insert"));
       }
     },
     [at, close, editor, pageId, t],
@@ -86,8 +100,17 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
           </IconButton>
         </div>
         <div className="space-y-2 p-4">
-          {/* Choosing "Voice note" is the request to record: it starts right away. */}
-          <VoiceNoteRecorder limits={limits} fields={{ pageId }} onDraft={(draft) => void insert(draft)} onBusyChange={setBusy} autoStart />
+          {pending ? (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <p className="mr-auto min-w-0 truncate text-sm font-medium">{pending.title}</p>
+              <Button size="md" variant="primary" onClick={() => void insert(pending)} disabled={inserting}>
+                {t("retry")}
+              </Button>
+            </div>
+          ) : (
+            // Choosing "Voice note" is the request to record: it starts right away.
+            <VoiceNoteRecorder limits={limits} fields={{ pageId }} onDraft={(draft) => void insert(draft)} onBusyChange={setBusy} autoStart />
+          )}
           {error && (
             <p role="alert" className="text-xs text-danger">
               {error}

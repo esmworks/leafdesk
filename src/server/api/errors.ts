@@ -36,6 +36,10 @@ export const API_ERROR_CODES = {
   agent_unavailable: { status: 409, description: "The agent can't run now: it is paused or archived, or AI is off for its workspace." },
   limit_reached: { status: 409, description: "The agent used its monthly token limit; it runs again next month, or once an owner raises the limit." },
   too_many_runs: { status: 409, description: "Too many runs asked of the agent are still waiting or under way; ask again once one has finished." },
+  ai_unavailable: {
+    status: 409,
+    description: "AI can't be used: the server has no provider for what was asked, or the workspace turned AI off.",
+  },
   voice_notes_unavailable: {
     status: 409,
     description: "Voice notes can't be made: the server has no speech to text set up, or the workspace turned AI off.",
@@ -54,6 +58,8 @@ export class ApiError extends Error {
     readonly code: ApiErrorCode,
     message: string,
     readonly details?: unknown,
+    /** Sent as Retry-After (a 429 for limits other than the token's own). */
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
     this.name = "ApiError";
@@ -99,22 +105,30 @@ export function apiErrorFor(error: unknown): ApiError {
   return new ApiError(500, "internal_error", "Something went wrong on the server. Try again later.");
 }
 
-/** Failures of the AI layer (voice notes' transcription), in the API's terms. */
+/**
+ * Failures of the AI layer, in the API's terms. Endpoints with a more specific answer (voice notes'
+ * voice_notes_unavailable) map "disabled" themselves. A provider's own error text stays in the
+ * server log (the AI layer logs it): it can name the provider's setup or part of its key.
+ */
 function apiErrorForAi(error: AiError): ApiError {
   switch (error.code) {
     case "disabled":
-      return new ApiError(409, "voice_notes_unavailable", `${error.message}.`);
+      return new ApiError(409, "ai_unavailable", `${error.message}.`);
     case "noAccess":
       return new ApiError(404, "not_found", "Not found or access denied");
     case "tooLarge":
       return new ApiError(413, "payload_too_large", `${error.message}.`);
-    case "rateLimited":
-      return new ApiError(429, "rate_limited", `${error.message}.`);
+    case "rateLimited": {
+      const seconds = Math.max(1, Math.ceil((error.retryAfterMs ?? 1000) / 1000));
+      return new ApiError(429, "rate_limited", "Too many AI requests for this user or workspace; try again shortly.", undefined, seconds);
+    }
     case "invalid":
     case "empty":
       return new ApiError(400, "invalid_request", `${error.message}.`);
+    case "timeout":
+      return new ApiError(502, "upstream_error", "The speech to text or AI provider took too long to answer. Try again later.");
     default:
-      return new ApiError(502, "upstream_error", `${error.message}.`);
+      return new ApiError(502, "upstream_error", "The speech to text or AI provider failed. Try again later.");
   }
 }
 

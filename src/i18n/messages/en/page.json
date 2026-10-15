@@ -553,6 +553,7 @@
     "stop": "Stop and write up",
     "discard": "Discard",
     "cancel": "Cancel",
+    "retry": "Insert again",
     "close": "Close",
     "limit": "Up to {minutes} min",
     "chooseFile": "Or choose an audio file",

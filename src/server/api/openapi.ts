@@ -472,7 +472,7 @@ const ERROR_RESPONSES: Record<string, { description: string }> = {
   "404": { description: "Not found, or the user (or the token's workspace) may not access it." },
   "409": {
     description:
-      "It can't be done now: the agent can't run (agent_unavailable, limit_reached, too_many_runs), or voice notes aren't available (voice_notes_unavailable).",
+      "It can't be done now: the agent can't run (agent_unavailable, limit_reached, too_many_runs), or voice notes or AI aren't available (voice_notes_unavailable, ai_unavailable).",
   },
   "413": { description: "The request body is too large (payload_too_large)." },
   "415": { description: "The body or its file is of a kind the endpoint doesn't take (unsupported_media_type)." },

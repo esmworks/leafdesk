@@ -109,12 +109,12 @@ export function VoiceNoteRecorder({
     onBusyChange?.(busy);
   }, [busy, onBusyChange]);
 
-  const started = useRef(false);
+  // Once per mount: a remount (React's development double mount included) cancels the earlier
+  // start while it waits for the microphone, and this one takes over.
+  const { start } = recorder;
   useEffect(() => {
-    if (!autoStart || started.current) return;
-    started.current = true;
-    void recorder.start();
-  }, [autoStart, recorder]);
+    if (autoStart) void start();
+  }, [autoStart, start]);
 
   // Closing the dialog or leaving the page stops waiting for the server.
   useEffect(() => () => abort.current?.abort(), []);

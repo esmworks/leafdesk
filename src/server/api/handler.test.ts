@@ -75,7 +75,9 @@ const routes: ApiRoute[] = [
     response: "Page",
     handler: async ({ body, files, signal }) => {
       if (body.label === "slow") throw new AiError("timeout", "The request took too long");
-      if (body.label === "off") throw new AiError("disabled", "Voice notes are off for this workspace");
+      if (body.label === "off") throw new AiError("disabled", "AI is off for this workspace");
+      if (body.label === "busy") throw new AiError("rateLimited", "Too many AI requests; try again shortly", 4_200);
+      if (body.label === "bad") throw new AiError("provider", 'Transcription endpoint answered 401: {"error":"Incorrect API key sk-proj-abcd"}');
       return { label: body.label ?? null, files: Object.keys(files), name: files.audio.name, size: files.audio.size, aborted: signal.aborted };
     },
   }),
@@ -239,7 +241,40 @@ describe("REST API handler", () => {
     const slow = await send("slow");
     expect([slow.status, (await errorOf(slow)).code]).toEqual([502, "upstream_error"]);
     const off = await send("off");
-    expect([off.status, await errorOf(off)]).toEqual([409, { code: "voice_notes_unavailable", message: "Voice notes are off for this workspace." }]);
+    expect([off.status, await errorOf(off)]).toEqual([409, { code: "ai_unavailable", message: "AI is off for this workspace." }]);
+    const busy = await send("busy");
+    expect([busy.status, (await errorOf(busy)).code]).toEqual([429, "rate_limited"]);
+    expect(busy.headers.get("retry-after")).toBe("5");
+  });
+
+  it("keeps the provider's own error text out of the answer", async () => {
+    const form = new FormData();
+    form.set("label", "bad");
+    form.set("audio", new File(["abc"], "a.webm"));
+    const res = await call(handler(), "POST", "/recordings", { token: WRITE, body: form });
+    const error = await errorOf(res);
+    expect([res.status, error.code]).toEqual([502, "upstream_error"]);
+    expect(error.message).not.toMatch(/401|sk-proj|Incorrect/);
+  });
+
+  it("stops reading a chunked body without a length once it passes the limit", async () => {
+    let pulled = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (pulled++ === 10_000) return controller.close();
+        controller.enqueue(new Uint8Array(1024));
+      },
+    });
+    const res = await handler()(
+      new Request("http://app.test/api/v1/things", {
+        method: "POST",
+        headers: { authorization: `Bearer ${WRITE}`, "content-type": "application/json" },
+        body,
+        duplex: "half",
+      } as RequestInit),
+    );
+    expect([res.status, (await errorOf(res)).code]).toEqual([413, "payload_too_large"]);
+    expect(pulled).toBeLessThan(5 * 1024 + 10);
   });
 
   it("maps domain errors and hides unexpected ones", async () => {

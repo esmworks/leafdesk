@@ -2,6 +2,7 @@ import * as z from "zod";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { limitFromEnv, SlidingWindowLimiter } from "@/lib/rate-limit";
 import { runAsConnectedApp } from "@/server/connected-app";
+import { BodyTooLargeError, readBodyLimited, readFormLimited } from "@/server/request-body";
 import { ApiError, apiErrorFor, errorBody } from "./errors";
 import { matchRoute, type ApiRoute } from "./routes";
 import type { ApiPrincipal, TokenCheck } from "./tokens";
@@ -76,11 +77,14 @@ function issues(error: z.ZodError) {
 }
 
 async function readBody(request: Request): Promise<unknown> {
-  const declared = Number(request.headers.get("content-length") ?? "0");
-  if (declared > MAX_BODY_BYTES) throw new ApiError(413, "payload_too_large", `Request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB.`);
-  const text = await request.text();
-  if (Buffer.byteLength(text) > MAX_BODY_BYTES) {
-    throw new ApiError(413, "payload_too_large", `Request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB.`);
+  let text: string;
+  try {
+    text = new TextDecoder().decode(await readBodyLimited(request, MAX_BODY_BYTES));
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      throw new ApiError(413, "payload_too_large", `Request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB.`);
+    }
+    throw error;
   }
   if (!text.trim()) return {};
   let parsed: unknown;
@@ -105,11 +109,11 @@ async function readForm(request: Request, route: ApiRoute & { form: NonNullable<
   if (!(request.headers.get("content-type") ?? "").toLowerCase().startsWith("multipart/form-data")) {
     throw new ApiError(415, "unsupported_media_type", "Send multipart/form-data.");
   }
-  if (Number(request.headers.get("content-length") ?? "0") > maxBytes + FORM_OVERHEAD_BYTES) throw tooLarge();
   let form: FormData;
   try {
-    form = await request.formData();
-  } catch {
+    form = await readFormLimited(request, maxBytes + FORM_OVERHEAD_BYTES);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) throw tooLarge();
     throw new ApiError(400, "invalid_request", "The request body is not valid multipart form data.");
   }
   const fields: Record<string, string> = {};
@@ -263,7 +267,8 @@ export function createApiHandler(deps: ApiDeps) {
       return json(route.status ?? 200, result, headers);
     } catch (error) {
       const apiError = apiErrorFor(error);
-      return json(apiError.status, errorBody(apiError), headers);
+      const retry: Record<string, string> = apiError.retryAfterSeconds ? { "Retry-After": String(apiError.retryAfterSeconds) } : {};
+      return json(apiError.status, errorBody(apiError), { ...headers, ...retry });
     }
   };
 }

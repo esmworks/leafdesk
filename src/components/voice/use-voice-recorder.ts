@@ -44,6 +44,13 @@ export function useVoiceRecorder(limits: VoiceNoteLimits, onRecorded: (recording
     discard: boolean;
     limited: boolean;
   } | null>(null);
+  /**
+   * Bumped by every start() and cancel(): a start() still waiting for the microphone (the permission
+   * prompt) that finds it changed, or the component gone, lets go of the microphone instead of
+   * recording.
+   */
+  const attempt = useRef(0);
+  const mounted = useRef(true);
   const handler = useRef(onRecorded);
   useEffect(() => {
     handler.current = onRecorded;
@@ -67,6 +74,7 @@ export function useVoiceRecorder(limits: VoiceNoteLimits, onRecorded: (recording
   }, []);
 
   const cancel = useCallback(() => {
+    attempt.current++;
     const current = session.current;
     if (!current) return setState({ status: "idle" });
     current.discard = true;
@@ -78,12 +86,19 @@ export function useVoiceRecorder(limits: VoiceNoteLimits, onRecorded: (recording
     if (session.current) return;
     if (!window.isSecureContext) return setState({ status: "error", code: "insecure" });
     if (!canRecord()) return setState({ status: "error", code: "unsupported" });
+    const mine = ++attempt.current;
     setState({ status: "starting" });
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
     } catch (error) {
-      return setState({ status: "error", code: startError(error) });
+      if (mine === attempt.current && mounted.current) setState({ status: "error", code: startError(error) });
+      return;
+    }
+    // Cancelled, closed or started again while the browser asked for the microphone.
+    if (mine !== attempt.current || !mounted.current || session.current) {
+      stream.getTracks().forEach((track) => track.stop());
+      return;
     }
     const mimeType = RECORDER_TYPES.find((type) => MediaRecorder.isTypeSupported?.(type)) ?? "";
     let recorder: MediaRecorder;
@@ -147,16 +162,17 @@ export function useVoiceRecorder(limits: VoiceNoteLimits, onRecorded: (recording
   }, [limits.maxBytes, limits.maxSeconds, release, stop]);
 
   // Leaving the page (or closing the dialog) lets go of the microphone.
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
       const current = session.current;
       if (!current) return;
       current.discard = true;
       if (current.recorder.state !== "inactive") current.recorder.stop();
       current.stream.getTracks().forEach((track) => track.stop());
-    },
-    [],
-  );
+    };
+  }, []);
 
   return { state, level, start, stop: () => stop(false), cancel };
 }

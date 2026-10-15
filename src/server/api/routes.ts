@@ -12,7 +12,7 @@ import { getPage } from "@/server/pages";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { voiceAudioType } from "@/lib/voice-notes";
-import { sttLimits } from "@/server/ai";
+import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { createVoiceNote } from "@/server/voice-notes";
 import { ApiError } from "./errors";
@@ -330,7 +330,12 @@ export const API_ROUTES: ApiRoute[] = [
       const type = voiceAudioType(audio.type, audio.name);
       if (!type) throw new ApiError(415, "unsupported_media_type", "This kind of audio file isn't supported: send WebM, Ogg, M4A/MP4, MP3, WAV or FLAC.");
       if (!audio.size) throw new ApiError(400, "invalid_request", "The audio file is empty.");
-      const note = await createVoiceNote(principal.userId, { workspaceId, databaseId: body.database_id ?? null }, { bytes: audio, type }, { signal });
+      const note = await createVoiceNote(principal.userId, { workspaceId, databaseId: body.database_id ?? null }, { bytes: audio, type }, { signal }).catch(
+        (error: unknown) => {
+          if (error instanceof AiError && error.code === "disabled") throw new ApiError(409, "voice_notes_unavailable", `${error.message}.`);
+          throw error;
+        },
+      );
       return {
         id: note.id,
         title: note.draft.title,

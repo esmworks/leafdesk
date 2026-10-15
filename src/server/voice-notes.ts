@@ -14,13 +14,22 @@
  * workspace's file storage for something nobody reads again; people who want the recording can
  * upload the file to the page like any other.
  */
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page } from "@/db/schema";
 import { MAX_TRANSCRIPT, pickTagValues, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits, type VoiceNoteTagProperty } from "@/lib/voice-notes";
 import { isPageLocked } from "@/lib/page-lock";
 import { PropertyValueError } from "@/lib/properties";
-import { AccessError, ConnectedAppReadOnlyError, hasLevel, requireMembership, requirePageAccess, resolvePageAccess, WorkspacePolicyError } from "@/server/access";
+import {
+  AccessError,
+  accessRank,
+  ConnectedAppReadOnlyError,
+  hasLevel,
+  levelFromRank,
+  requireMembership,
+  requirePageAccess,
+  WorkspacePolicyError,
+} from "@/server/access";
 import { aiConfig, AiError, complete, sttLimits, transcribe } from "@/server/ai";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -70,19 +79,14 @@ async function targetDatabase(userId: string, workspaceId: string, databaseId: s
 
 /** The databases of a workspace a voice note can be added to as a row: the ones the person may edit. */
 export async function voiceNoteDatabases(userId: string, workspaceId: string): Promise<{ id: string; title: string; icon: string | null }[]> {
+  // The workspace's sign-in policies are checked here, once; access to each database in the query.
   await requireMembership(userId, workspaceId);
   const rows = await db
-    .select({ id: page.id, title: page.title, icon: page.icon })
+    .select({ id: page.id, title: page.title, icon: page.icon, level: accessRank(userId, sql`${page.id}`) })
     .from(page)
-    .where(and(eq(page.workspaceId, workspaceId), eq(page.kind, "database"), eq(page.inTemplate, false)))
+    .where(and(eq(page.workspaceId, workspaceId), eq(page.kind, "database"), eq(page.inTemplate, false), isNull(page.archivedAt)))
     .orderBy(page.title);
-  const checked = await Promise.all(
-    rows.map(async (row) => {
-      const { page: found, level } = await resolvePageAccess(userId, row.id);
-      return found && !found.archivedAt && hasLevel(level, "edit") ? row : null;
-    }),
-  );
-  return checked.filter((row) => row !== null);
+  return rows.filter((row) => hasLevel(levelFromRank(row.level), "edit")).map(({ level: _level, ...row }) => row);
 }
 
 /** The select and multi-select properties (with options) of a database the AI may fill for a note. */

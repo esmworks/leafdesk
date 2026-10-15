@@ -5,7 +5,8 @@
  * the options), the transcript toggle in the person's language, the AI falling back to the
  * transcript, workspace-bound tokens, and every refusal (speech to text off, AI off in the
  * workspace, apps only reading, a read-only token, no workspace, a file that isn't audio, JSON,
- * nothing heard). The API's handler runs in this process. Creates its own users and workspaces and
+ * nothing heard), and which databases the quick note offers. The API's handler runs in this
+ * process. Creates its own users and workspaces and
  * deletes them afterwards.
  *
  *   pnpm tsx scripts/voice-api-e2e.ts
@@ -24,7 +25,8 @@ const { db } = await import("@/db");
 const { page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { createPage } = await import("@/server/pages");
+const { archivePage, createPage } = await import("@/server/pages");
+const { voiceNoteDatabases } = await import("@/server/voice-notes");
 const { getProperties, makeOption, updateProperty } = await import("@/server/databases");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { rememberLocale } = await import("@/server/mail/locale");
@@ -179,6 +181,16 @@ try {
   const readApps = await api("POST", "/voice-notes", W, recording("x", { workspace_id: wsA }));
   const after = (await db.select({ id: page.id }).from(page).where(eq(page.workspaceId, wsA))).length;
   check(readApps.status === 403 && errorCode(readApps) === "forbidden" && after === before, "a workspace letting apps only read: 403, nothing saved", readApps.body);
+
+  // ------------------------------------------------------------------ databases the quick note offers
+  const shared = await createPage({ userId: ids.owner }, { workspaceId: wsA, kind: "database", title: `${RUN} Shared`, teamspaceId: null });
+  const trashed = await createPage({ userId: ids.owner }, { workspaceId: wsA, kind: "database", title: `${RUN} Old`, teamspaceId: null });
+  await archivePage(ids.owner, trashed.id);
+  const offered = (await voiceNoteDatabases(ids.owner, wsA)).map((d) => d.id);
+  check(offered.includes(database.id) && offered.includes(shared.id), "the quick note offers the databases the person may edit", offered);
+  check(!offered.includes(trashed.id), "…not ones in the trash");
+  const forMember = (await voiceNoteDatabases(ids.member, wsA)).map((d) => d.id);
+  check(!forMember.includes(database.id) && !forMember.includes(shared.id), "…nor someone else's private ones", forMember);
 
   // ------------------------------------------------------------------ the reference
   const doc = openApiDocument() as any;

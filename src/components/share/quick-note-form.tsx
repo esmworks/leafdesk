@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { quickNoteTargetsAction, saveVoiceNoteAction } from "@/app/actions/ai";
 import { createPageAction } from "@/app/actions/pages";
 import { Button, buttonClass, cn, Input, pageLabel, selectClass, textareaClass } from "@/components/ui";
@@ -47,6 +47,9 @@ export function QuickNoteForm({
   /** The voice note in the fields, with the database its properties were picked for. */
   const [draft, setDraft] = useState<(VoiceNoteDraft & { databaseId: string }) | null>(null);
   const [recording, setRecording] = useState(false);
+  /** The "Voice note" shortcut records once, when the page opens; not again on another workspace. */
+  const [autoVoice, setAutoVoice] = useState(startVoice);
+  const chosenWorkspace = useRef(initialWorkspace);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,13 +58,17 @@ export function QuickNoteForm({
     document.cookie = `${SHARED_COOKIE}=; Max-Age=0; Path=${SHARED_COOKIE_PATH}${location.protocol === "https:" ? "; Secure" : ""}`;
   }, []);
 
+  // A voice note in the fields stays: its transcript is saved with it in the new workspace too, and
+  // properties picked for a database of the old one are left out (see save).
   const chooseWorkspace = async (id: string) => {
+    chosenWorkspace.current = id;
     setWorkspaceId(id);
     setDatabaseId("");
-    setDraft(null);
+    setAutoVoice(false);
     setTargets({ limits: null, databases: [] });
     const result = await quickNoteTargetsAction(id);
-    if (result.ok) setTargets(result.data);
+    // Another workspace was chosen while this one's answer was on its way.
+    if (result.ok && chosenWorkspace.current === id) setTargets(result.data);
   };
 
   const onDraft = useCallback(
@@ -149,7 +156,7 @@ export function QuickNoteForm({
             limits={targets.limits}
             fields={{ workspaceId, databaseId }}
             onDraft={onDraft}
-            autoStart={startVoice}
+            autoStart={autoVoice}
             onBusyChange={setRecording}
           />
         </div>

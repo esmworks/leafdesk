@@ -553,6 +553,7 @@
     "stop": "Beenden und ausformulieren",
     "discard": "Verwerfen",
     "cancel": "Abbrechen",
+    "retry": "Erneut einfügen",
     "close": "Schließen",
     "limit": "Bis zu {minutes} Min.",
     "chooseFile": "Oder eine Audiodatei wählen",
