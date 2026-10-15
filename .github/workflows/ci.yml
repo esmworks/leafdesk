@@ -267,6 +267,9 @@ jobs:
       - name: Agents' memory end-to-end
         run: pnpm tsx scripts/agent-memory-e2e.ts
 
+      - name: Agents over the REST API end-to-end
+        run: pnpm tsx scripts/agent-api-e2e.ts
+
       - name: Apps that reach a workspace end-to-end
         run: pnpm tsx scripts/workspace-apps-e2e.ts
 

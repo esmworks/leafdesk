@@ -25,7 +25,7 @@
 import { and, asc, count, eq, inArray, notExists, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, aiMemory, connection, notification, page, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
-import { isRowRun, MAX_AGENT_PROPOSALS, type AgentMemoryView } from "@/lib/agents";
+import { isEventRun, isRowRun, MAX_AGENT_PROPOSALS, type AgentMemoryView } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { redactError, redactText } from "@/lib/redact";
 import { pageVisibleTo, requireMembership, workspaceOwnerIds } from "@/server/access";
@@ -71,7 +71,7 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
   if (!runIds.length) return new Map();
   const runs = await db.select({ id: agentRun.id, source: agentRun.source, createdAt: agentRun.createdAt }).from(agentRun).where(inArray(agentRun.id, runIds));
   const rowIds = runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : []));
-  const connectionIds = runs.flatMap((r) => (isRowRun(r.source) ? [] : [r.source.connectionId]));
+  const connectionIds = runs.flatMap((r) => (isEventRun(r.source) ? [r.source.connectionId] : []));
   const titles = new Map(
     rowIds.length ? (await db.select({ id: page.id, title: page.title }).from(page).where(and(inArray(page.id, rowIds), pageVisibleTo(viewer)))).map((p) => [p.id, p.title]) : [],
   );
@@ -86,7 +86,8 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
         createdAt: r.createdAt.toISOString(),
         rowId: isRowRun(r.source) ? r.source.rowId : null,
         rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
-        connectionName: isRowRun(r.source) ? null : (names.get(r.source.connectionId) ?? ""),
+        connectionName: isEventRun(r.source) ? (names.get(r.source.connectionId) ?? "") : null,
+        requested: r.source.kind === "request",
       },
     ]),
   );

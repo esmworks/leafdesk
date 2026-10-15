@@ -101,6 +101,11 @@ describe("describeAuditEvent", () => {
     expect(describeAuditEvent(event("api_token.revoked", { targetLabel: "Reports", details: {} }), tTr)).toBe("API anahtarı iptal edildi: Reports");
   });
 
+  it("names the agent an owner asked for a run", () => {
+    expect(describeAuditEvent(event("agent.run_requested", { targetLabel: "Router", details: { name: "Router", runId: "run-1" } }), t)).toBe("Asked the agent “Router” for a run");
+    expect(describeAuditEvent(event("agent.run_requested", { targetLabel: "Router", details: { name: "Router", runId: "run-1" } }), tTr)).toBe("“Router” ajanından bir çalışma istedi");
+  });
+
   it("tells a join request from an invite request", () => {
     expect(describeAuditEvent(event("join_request.approved", { targetLabel: "Can", details: { kind: "join", role: "member" } }), t)).toBe(
       "Approved the request of Can to join as member",

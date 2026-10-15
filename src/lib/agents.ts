@@ -29,6 +29,12 @@ export const MAX_AGENT_DESCRIPTION = 300;
 export const MAX_AGENT_INSTRUCTIONS = 8_000;
 /** The task an automation's "Run an agent" action gives the agent. */
 export const MAX_AGENT_PROMPT = 2_000;
+/** Runs owners asked for that one agent may have waiting or under way at once. */
+export const MAX_REQUESTED_RUNS = 5;
+/** Months of an agent's usage kept, this one included. */
+export const AGENT_USAGE_MONTHS = 12;
+/** The highest monthly token limit an owner may set (a billion). */
+export const MAX_AGENT_TOKEN_LIMIT = 1_000_000_000;
 
 /** Model turns one run may take, writes it may make, and how long it may last. */
 export const MAX_AGENT_ROUNDS = 8;
@@ -58,7 +64,14 @@ export type AgentAccessLevel = (typeof AGENT_ACCESS_LEVELS)[number];
 export const isAgentAccessLevel = (value: unknown): value is AgentAccessLevel =>
   typeof value === "string" && (AGENT_ACCESS_LEVELS as readonly string[]).includes(value);
 
-/** What started a run: an automation on a row, or an event a connection received. */
+/** Where an owner asked for a run: the REST API or an MCP client. */
+export const AGENT_RUN_VIAS = ["api", "mcp"] as const;
+export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
+
+/**
+ * What started a run: an automation on a row, an event a connection received, or an owner who asked
+ * for it with a task of their own (on a row of a database, or on none).
+ */
 export type AgentRunSource =
   | {
       kind: "automation";
@@ -73,6 +86,15 @@ export type AgentRunSource =
       triggerId: string;
       /** The received event (`connection_event`). */
       eventId: string;
+    }
+  | {
+      kind: "request";
+      /** Who asked; the run is held to their access as well. */
+      requestedBy: string;
+      via: AgentRunVia;
+      /** The row it works on, when it was asked for one. */
+      rowId?: string;
+      databaseId?: string;
     };
 
 /** What happened that the run responds to, for its prompt and its history. */
@@ -97,6 +119,10 @@ export type AgentRunContext =
       eventType: string;
       /** The event's body, cut to fit (data from outside, never instructions). */
       body: string;
+    }
+  | {
+      /** The owner who asked for the run (as `source.requestedBy`). */
+      actorId: string;
     };
 
 /** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */
@@ -197,8 +223,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
 
 /**
  * Why a run ended without doing its work: the workspace turned AI off, the agent was paused or
- * archived, it can't open the row, the model failed, the run took too long, or no one answered a
- * call that waited for approval.
+ * archived, it can't open the row, the model failed, the run took too long, no one answered a
+ * call that waited for approval, or the agent used its tokens for the month.
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -210,6 +236,7 @@ export const AGENT_RUN_CODES = [
   "tooManyAttempts",
   "approvalTimeout",
   "connectionGone",
+  "limitReached",
   "error",
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];
@@ -228,9 +255,17 @@ export type AgentView = {
   instructions: string;
   enabled: boolean;
   archived: boolean;
+  /**
+   * The most tokens (in and out) its runs may use in a calendar month (UTC); null: no limit. A run
+   * stops at its first turn once the month's tokens reach it.
+   */
+  monthlyTokenLimit: number | null;
   createdAt: string;
   updatedAt: string;
 };
+
+/** What an agent's runs used in one calendar month (UTC). `costUsd` is 0 where the provider names no price. */
+export type AgentUsageMonth = { month: string; runs: number; inputTokens: number; outputTokens: number; costUsd: number };
 
 /** A page shared with an agent, as its settings list it. */
 export type AgentAccessView = {
@@ -264,7 +299,7 @@ export type AgentMemoryView = {
   id: string;
   text: string | null;
   status: MemoryStatus;
-  run: { id: string; createdAt: string; rowId: string | null; rowTitle: string | null; connectionName: string | null } | null;
+  run: { id: string; createdAt: string; rowId: string | null; rowTitle: string | null; connectionName: string | null; requested: boolean } | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -288,11 +323,19 @@ export type AgentRunView = {
   pending: (AgentPendingCall & { connectionName: string }) | null;
   /** The connection event's type, for runs a connection started. */
   eventType: string | null;
+  /** For a run an owner asked for: who, where, and the task they gave it (empty where its row is hidden). */
+  request: { by: string; byName: string; via: AgentRunVia; task: string } | null;
   /** Names of the connections the run's source, steps and waiting call name (removed ones are left out). */
   connections: Record<string, string>;
   createdAt: string;
   finishedAt: string | null;
 };
 
-/** Whether a run's source is an automation on a row. */
-export const isRowRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "automation" }> => source.kind === "automation";
+type RowSource = Extract<AgentRunSource, { kind: "automation" }> | (Extract<AgentRunSource, { kind: "request" }> & { rowId: string; databaseId: string });
+
+/** Whether a run works on a row: an automation's, or one asked for on a row. */
+export const isRowRun = (source: AgentRunSource): source is RowSource =>
+  source.kind === "automation" || (source.kind === "request" && typeof source.rowId === "string" && typeof source.databaseId === "string");
+
+/** Whether a run answers an event a connection received. */
+export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "connection" }> => source.kind === "connection";

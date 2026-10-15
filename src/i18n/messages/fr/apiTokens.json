@@ -12,7 +12,7 @@
     "read": "Lecture seule",
     "readHint": "Lire les pages, les bases de données, les lignes et les commentaires.",
     "write": "Lecture et écriture",
-    "writeHint": "Aussi créer et modifier des pages, des lignes et des commentaires, et placer des pages dans la corbeille.",
+    "writeHint": "Aussi créer et modifier des pages, des lignes et des commentaires, placer des pages dans la corbeille et (en tant que propriétaire de l’espace de travail) modifier des agents et leur demander des exécutions.",
     "workspace": "Espace de travail",
     "allWorkspaces": "Tous mes espaces de travail",
     "expiry": "Expire après",

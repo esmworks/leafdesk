@@ -334,6 +334,10 @@
       "count": "{count} / {max}",
       "active": "Active",
       "activeHelp": "A paused agent’s runs end without doing anything.",
+      "limit": "Monthly token limit",
+      "limitPlaceholder": "No limit",
+      "limitHelp": "The most tokens its runs may use in a calendar month (UTC). Once they reach it, its runs stop until the next month.",
+      "limitInvalid": "Enter a whole number from 1 to 1,000,000,000, or leave it empty for no limit.",
       "create": "Create agent",
       "creating": "Creating…",
       "archivedNote": "Restore the agent to change it."
@@ -394,6 +398,7 @@
       "fromRow": "From a run on <row>a row</row>",
       "fromHiddenRow": "From a run on a row you can’t open",
       "fromConnection": "From a run started by {connection}",
+      "fromRequest": "From a run an owner asked for",
       "removedConnection": "a removed connection",
       "keep": "Keep",
       "keepEdited": "Keep with this text",
@@ -426,6 +431,8 @@
       },
       "rowHidden": "A row you can’t open",
       "took": "took {time}",
+      "requestedBy": "asked by {name} ({via, select, api {API} other {AI assistant}})",
+      "task": "Task:",
       "showDetails": "Show what it did",
       "hideDetails": "Hide what it did",
       "noSteps": "It didn’t search, read or change anything.",
@@ -443,7 +450,8 @@
         "tooManyAttempts": "It couldn’t start in time: the workspace’s AI allowance stayed used up.",
         "error": "Something went wrong.",
         "approvalTimeout": "No one answered its call within a day, so nothing was sent.",
-        "connectionGone": "The connection that started it was removed."
+        "connectionGone": "The connection that started it was removed.",
+        "limitReached": "It had used the agent’s monthly token limit."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "A removed connection",
@@ -469,6 +477,14 @@
           "removed": "Left out <name></name>: an owner took it from the agent while the run waited"
         }
       }
+    },
+    "usage": {
+      "thisMonth": "This month: {usage}",
+      "tokens": "{count, plural, one {# token} other {# tokens}}",
+      "runs": "{count, plural, one {# run} other {# runs}}",
+      "ofLimit": "of {limit} a month",
+      "limitReached": "Limit of {limit} reached: runs stop until next month",
+      "earlier": "Earlier months"
     },
     "templates": {
       "heading": "Start from a template",
@@ -538,12 +554,18 @@
         "property": "Choose properties of the right type.",
         "option": "Choose two different options of the property.",
         "rules": "Write the rules it follows.",
-        "pages": "Choose the pages it reads."
+        "pages": "Choose the pages it reads.",
+        "limit": "Enter a token limit as a whole number from 1 to 1,000,000,000."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
       "memoryFull": "An agent keeps at most {max} notes. Delete one first.",
-      "noteNotFound": "This note no longer exists."
+      "noteNotFound": "This note no longer exists.",
+      "paused": "Turn the agent on to run it.",
+      "aiOff": "AI is off in this workspace.",
+      "limitReached": "The agent used its monthly token limit ({limit} tokens).",
+      "tooManyRuns": "{max} runs asked of this agent are still waiting. Try again once one finishes.",
+      "notARow": "Row not found."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -1192,7 +1214,8 @@
       "agent": {
         "created": "Created the agent “{target}”",
         "updated": "{change, select, on {Turned on the agent “{target}”} off {Paused the agent “{target}”} other {Changed the agent “{target}”}}",
-        "archived": "Archived the agent “{target}”"
+        "archived": "Archived the agent “{target}”",
+        "run_requested": "Asked the agent “{target}” for a run"
       },
       "connection": {
         "created": "Added the connection “{target}”",

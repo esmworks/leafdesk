@@ -4,6 +4,9 @@ import {
   AGENT_ACCESS_LEVELS,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
+  MAX_AGENT_PROMPT,
+  MAX_AGENT_TOKEN_LIMIT,
+  MAX_REQUESTED_RUNS,
   MAX_AGENT_INSTRUCTIONS,
   MAX_AGENT_NAME,
   MAX_AGENT_SKILLS,
@@ -14,6 +17,7 @@ import {
   type AgentSkillView,
   type AgentRunView,
   type AgentStepRecord,
+  type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
@@ -68,6 +72,27 @@ export const agentInputs = {
     description: descriptionInput.optional(),
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Pause (false) or resume (true) the agent."),
+    monthly_token_limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_AGENT_TOKEN_LIMIT)
+      .nullable()
+      .optional()
+      .describe(
+        "The most tokens (input and output) its runs may use in a calendar month (UTC); a run stops once the month reaches it, and runs aren't started until the next month. null removes the limit.",
+      ),
+  }),
+  run: z.object({
+    agent_id: id("agent"),
+    task: z
+      .string()
+      .min(1)
+      .max(MAX_AGENT_PROMPT)
+      .describe(`What the agent should do this time, in plain language (at most ${MAX_AGENT_PROMPT} characters); it follows its instructions and skills too.`),
+    row_id: id("row")
+      .optional()
+      .describe("A database row for the run to work on: the agent may then change and comment on that row. Leave out for a run that only reads and answers."),
   }),
   access: z.object({
     agent_id: id("agent"),
@@ -125,13 +150,14 @@ export function notesToDrop(args: { memory_ids?: string[]; all: boolean }): stri
 
 /** update_agent's arguments as a patch: only what was given. */
 export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "agent_id">) {
-  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean } = {};
+  const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null } = {};
   if (args.name !== undefined) patch.name = args.name;
   if (args.icon !== undefined) patch.icon = args.icon;
   if (args.description !== undefined) patch.description = args.description;
   if (args.instructions !== undefined) patch.instructions = args.instructions;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
-  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions or enabled.");
+  if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
+  if (!Object.keys(patch).length) throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled or monthly_token_limit.");
   return patch;
 }
 
@@ -139,6 +165,9 @@ const INVALID: Record<string, string> = {
   name: "An agent needs a name.",
   icon: "An agent's icon is one emoji; pass null to remove it.",
   level: 'An agent can view, comment on or edit a page ("view", "comment" or "edit"), never get full access.',
+  limit: `A monthly token limit is a whole number from 1 to ${MAX_AGENT_TOKEN_LIMIT}; pass null to remove it.`,
+  task: "A run needs a task: say what the agent should do.",
+  taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
 };
 
 /** AgentError (and sharing's refusals) as errors with a next step. */
@@ -179,6 +208,22 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
         case "memoryFull":
           throw new ToolInputError(
             `The agent's memory is full (${error.params.max ?? MAX_MEMORIES} kept notes). Delete a note with delete_agent_memory first, or change one with update_agent_memory.`,
+          );
+        case "paused":
+          throw new ToolInputError("This agent is paused. Turn it on with update_agent (enabled: true) to run it.");
+        case "aiOff":
+          throw new ToolInputError("AI is off for this workspace (or not set up on the server), so agents don't run. A workspace owner can turn it on in Settings.");
+        case "limitReached":
+          throw new ToolInputError(
+            `The agent has used its monthly token limit (${error.params.limit ?? ""} tokens): it runs again next month. An owner can raise the limit with update_agent (monthly_token_limit) or remove it (null).`,
+          );
+        case "tooManyRuns":
+          throw new ToolInputError(
+            `${error.params.max ?? MAX_REQUESTED_RUNS} runs asked of this agent are still waiting or under way. Check them with list_agent_runs and ask again once one has finished.`,
+          );
+        case "notARow":
+          throw new ToolInputError(
+            "No row with this id in a database of the agent's workspace that the user can open. Use query_database to find the row, or leave row_id out.",
           );
         case "noteNotFound":
           throw new ToolInputError(
@@ -249,7 +294,9 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
             created_at: note.run.createdAt,
             ...(note.run.rowId !== null
               ? { row: note.run.rowTitle !== null ? { id: note.run.rowId, title: pageLabel(note.run.rowTitle), url: pageUrl(workspaceId, note.run.rowId) } : { id: note.run.rowId, title: null } }
-              : { connection: note.run.connectionName }),
+              : note.run.requested
+                ? { requested: true }
+                : { connection: note.run.connectionName }),
           },
         }
       : {}),
@@ -265,11 +312,14 @@ export function describeAgent(
   access?: { pages: AgentAccessView[]; hidden: number },
   skills?: { skills: AgentSkillView[]; hidden: number },
   memory?: AgentMemoryView[],
+  usage?: AgentUsageMonth[],
 ) {
   return {
     ...describeAgentSummary(agent),
     workspace_id: agent.workspaceId,
     instructions: agent.instructions,
+    monthly_token_limit: agent.monthlyTokenLimit,
+    ...(usage ? { usage: usage.map(describeUsageMonth) } : {}),
     created_at: agent.createdAt,
     updated_at: agent.updatedAt,
     ...(access
@@ -374,6 +424,30 @@ export function describeAgentStep(step: AgentStepRecord) {
   }
 }
 
+/** A month of an agent's usage, snake_case. */
+export const describeUsageMonth = (m: AgentUsageMonth) => ({
+  month: m.month,
+  runs: m.runs,
+  input_tokens: m.inputTokens,
+  output_tokens: m.outputTokens,
+  cost_usd: m.costUsd,
+});
+
+/** What started a run, and the row it works on (named by id only where the user can't open it). */
+function describeRunSource(workspaceId: string, run: AgentRunView) {
+  const source = run.source;
+  const database = isRowRun(source) ? { database_id: source.databaseId, database_url: pageUrl(workspaceId, source.databaseId) } : {};
+  const row = isRowRun(source)
+    ? { row: run.rowTitle !== null ? { id: source.rowId, title: pageLabel(run.rowTitle), url: pageUrl(workspaceId, source.rowId) } : { id: source.rowId, title: null } }
+    : {};
+  if (source.kind === "automation") return { source: { kind: source.kind, automation_id: source.automationId, ...database }, ...row };
+  if (source.kind === "connection") return { source: { kind: source.kind, connection_id: source.connectionId, trigger_id: source.triggerId, event_type: run.eventType } };
+  return {
+    source: { kind: source.kind, requested_by: { id: source.requestedBy, name: run.request?.byName ?? "" }, via: source.via, task: run.request?.task ?? "", ...database },
+    ...row,
+  };
+}
+
 /** A run as list_agent_runs returns it. */
 export function describeAgentRun(workspaceId: string, run: AgentRunView) {
   return {
@@ -381,21 +455,7 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
     status: run.status,
     ...(run.code ? { code: run.code } : {}),
     ...(run.error ? { error: run.error } : {}),
-    ...(isRowRun(run.source)
-      ? {
-          source: {
-            kind: run.source.kind,
-            automation_id: run.source.automationId,
-            database_id: run.source.databaseId,
-            database_url: pageUrl(workspaceId, run.source.databaseId),
-          },
-          // Rows the user can't open are named by id only.
-          row:
-            run.rowTitle !== null
-              ? { id: run.source.rowId, title: pageLabel(run.rowTitle), url: pageUrl(workspaceId, run.source.rowId) }
-              : { id: run.source.rowId, title: null },
-        }
-      : { source: { kind: run.source.kind, connection_id: run.source.connectionId, trigger_id: run.source.triggerId, event_type: run.eventType } }),
+    ...describeRunSource(workspaceId, run),
     ...(run.pending
       ? {
           waiting_for_approval: {

@@ -1,6 +1,7 @@
 import { CommentError } from "@/lib/comments";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
+import { AgentError } from "@/server/agents/manage";
 import { ToolInputError } from "@/server/mcp/format";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
@@ -27,6 +28,9 @@ export const API_ERROR_CODES = {
   invalid_request: { status: 400, description: "The request can't be carried out as asked; the message says why." },
   invalid_property_value: { status: 400, description: "A row property value doesn't fit its property." },
   invalid_cursor: { status: 400, description: "The pagination cursor is malformed." },
+  agent_unavailable: { status: 409, description: "The agent can't run now: it is paused or archived, or AI is off for its workspace." },
+  limit_reached: { status: 409, description: "The agent used its monthly token limit; it runs again next month, or once an owner raises the limit." },
+  too_many_runs: { status: 409, description: "Too many runs asked of the agent are still waiting or under way; ask again once one has finished." },
   payload_too_large: { status: 413, description: "The request body is too large." },
   rate_limited: { status: 429, description: "Too many requests for this token; wait for Retry-After seconds." },
   internal_error: { status: 500, description: "Something went wrong on the server." },
@@ -67,6 +71,13 @@ export function apiErrorFor(error: unknown): ApiError {
       "invalid_request",
       "The database is locked, so its properties and views can't change. Someone with full access can unlock it in the app.",
     );
+  }
+  if (error instanceof AgentError) {
+    if (error.code === "notFound" || error.code === "notARow") return new ApiError(404, "not_found", `${error.message}.`);
+    if (error.code === "archived" || error.code === "paused" || error.code === "aiOff") return new ApiError(409, "agent_unavailable", `${error.message}.`);
+    if (error.code === "limitReached") return new ApiError(409, "limit_reached", `${error.message}.`);
+    if (error.code === "tooManyRuns") return new ApiError(409, "too_many_runs", `${error.message}.`);
+    return new ApiError(400, "invalid_request", `${error.message}.`);
   }
   if (error instanceof CommentError) {
     if (error.code === "notFound") return new ApiError(404, "not_found", error.message);

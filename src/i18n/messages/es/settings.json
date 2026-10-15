@@ -334,6 +334,10 @@
       "count": "{count} / {max}",
       "active": "Activo",
       "activeHelp": "Las ejecuciones de un agente en pausa terminan sin hacer nada.",
+      "limit": "Límite mensual de tokens",
+      "limitPlaceholder": "Sin límite",
+      "limitHelp": "Los tokens que sus ejecuciones pueden usar como máximo en un mes natural (UTC). Al llegar al límite, se detienen hasta el mes siguiente.",
+      "limitInvalid": "Escribe un número entero de 1 a 1.000.000.000, o déjalo vacío para no poner límite.",
       "create": "Crear agente",
       "creating": "Creando…",
       "archivedNote": "Restaura el agente para cambiarlo."
@@ -394,6 +398,7 @@
       "fromRow": "De una ejecución en <row>una fila</row>",
       "fromHiddenRow": "De una ejecución en una fila que no puedes abrir",
       "fromConnection": "De una ejecución iniciada por {connection}",
+      "fromRequest": "De una ejecución pedida por un propietario",
       "removedConnection": "una conexión eliminada",
       "keep": "Guardar",
       "keepEdited": "Guardar con este texto",
@@ -426,6 +431,8 @@
       },
       "rowHidden": "Una fila que no puedes abrir",
       "took": "tardó {time}",
+      "requestedBy": "pedida por {name} ({via, select, api {API} other {asistente de IA}})",
+      "task": "Tarea:",
       "showDetails": "Mostrar lo que hizo",
       "hideDetails": "Ocultar lo que hizo",
       "noSteps": "No buscó, leyó ni cambió nada.",
@@ -443,7 +450,8 @@
         "tooManyAttempts": "No pudo empezar a tiempo: el cupo de IA del espacio de trabajo siguió agotado.",
         "error": "Algo salió mal.",
         "approvalTimeout": "Nadie respondió a su llamada en un día, así que no se envió nada.",
-        "connectionGone": "Se eliminó la conexión que la inició."
+        "connectionGone": "Se eliminó la conexión que la inició.",
+        "limitReached": "El agente había agotado su límite mensual de tokens."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Una conexión eliminada",
@@ -469,6 +477,14 @@
           "removed": "Dejó fuera <name></name>: un propietario se la quitó al agente mientras la ejecución esperaba"
         }
       }
+    },
+    "usage": {
+      "thisMonth": "Este mes: {usage}",
+      "tokens": "{count, plural, one {# token} other {# tokens}}",
+      "runs": "{count, plural, one {# ejecución} other {# ejecuciones}}",
+      "ofLimit": "de {limit} al mes",
+      "limitReached": "Límite de {limit} alcanzado: las ejecuciones se detienen hasta el mes siguiente",
+      "earlier": "Meses anteriores"
     },
     "templates": {
       "heading": "Empezar con una plantilla",
@@ -538,12 +554,18 @@
         "property": "Elige propiedades del tipo adecuado.",
         "option": "Elige dos opciones distintas de la propiedad.",
         "rules": "Escribe las reglas que sigue.",
-        "pages": "Elige las páginas que lee."
+        "pages": "Elige las páginas que lee.",
+        "limit": "Escribe un límite de tokens entero de 1 a 1.000.000.000."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
       "memoryFull": "Un agente guarda como máximo {max} notas. Elimina una primero.",
-      "noteNotFound": "Esta nota ya no existe."
+      "noteNotFound": "Esta nota ya no existe.",
+      "paused": "Activa el agente para ejecutarlo.",
+      "aiOff": "La IA está desactivada en este espacio de trabajo.",
+      "limitReached": "El agente agotó su límite mensual de tokens ({limit} tokens).",
+      "tooManyRuns": "{max} ejecuciones pedidas a este agente siguen esperando. Vuelve a intentarlo cuando termine una.",
+      "notARow": "No se encontró la fila."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
@@ -1192,7 +1214,8 @@
       "agent": {
         "created": "Creó el agente «{target}»",
         "updated": "{change, select, on {Activó el agente «{target}»} off {Pausó el agente «{target}»} other {Cambió el agente «{target}»}}",
-        "archived": "Archivó el agente «{target}»"
+        "archived": "Archivó el agente «{target}»",
+        "run_requested": "Pidió una ejecución al agente «{target}»"
       },
       "connection": {
         "created": "Añadió la conexión «{target}»",

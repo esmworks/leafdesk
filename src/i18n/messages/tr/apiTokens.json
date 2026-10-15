@@ -12,7 +12,7 @@
     "read": "Yalnızca okuma",
     "readHint": "Sayfaları, veritabanlarını, satırları ve yorumları okur.",
     "write": "Okuma ve yazma",
-    "writeHint": "Ayrıca sayfa, satır ve yorum oluşturur, değiştirir ve sayfaları çöp kutusuna taşır.",
+    "writeHint": "Ayrıca sayfa, satır ve yorum oluşturur, değiştirir, sayfaları çöp kutusuna taşır ve (çalışma alanı sahibiyseniz) ajanları değiştirir, onlardan çalışma ister.",
     "workspace": "Çalışma alanı",
     "allWorkspaces": "Tüm çalışma alanlarım",
     "expiry": "Geçerlilik süresi",

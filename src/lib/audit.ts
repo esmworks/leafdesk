@@ -79,7 +79,7 @@ export const AUDIT_CATEGORIES = {
     "automation.updated",
     "automation.deleted",
   ],
-  agents: ["agent.created", "agent.updated", "agent.archived"],
+  agents: ["agent.created", "agent.updated", "agent.archived", "agent.run_requested"],
   connections: [
     "connection.created",
     "connection.updated",

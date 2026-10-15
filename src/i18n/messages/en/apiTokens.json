@@ -12,7 +12,7 @@
     "read": "Read only",
     "readHint": "Read pages, databases, rows and comments.",
     "write": "Read and write",
-    "writeHint": "Also create and change pages, rows and comments, and move pages to the trash.",
+    "writeHint": "Also create and change pages, rows and comments, move pages to the trash, and (as a workspace owner) change agents and ask them for runs.",
     "workspace": "Workspace",
     "allWorkspaces": "All my workspaces",
     "expiry": "Expires after",

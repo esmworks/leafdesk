@@ -12,7 +12,7 @@
     "read": "Solo lectura",
     "readHint": "Leer páginas, bases de datos, filas y comentarios.",
     "write": "Lectura y escritura",
-    "writeHint": "También crear y cambiar páginas, filas y comentarios, y mover páginas a la papelera.",
+    "writeHint": "También crear y cambiar páginas, filas y comentarios, mover páginas a la papelera y (como propietario del espacio de trabajo) cambiar agentes y pedirles ejecuciones.",
     "workspace": "Espacio de trabajo",
     "allWorkspaces": "Todos mis espacios de trabajo",
     "expiry": "Caduca después de",

@@ -334,6 +334,10 @@
       "count": "{count} / {max}",
       "active": "Aktiv",
       "activeHelp": "Durchläufe eines pausierten Agenten enden, ohne etwas zu tun.",
+      "limit": "Monatliches Token-Limit",
+      "limitPlaceholder": "Kein Limit",
+      "limitHelp": "Die meisten Tokens, die seine Durchläufe in einem Kalendermonat (UTC) verbrauchen dürfen. Ist das Limit erreicht, ruhen sie bis zum nächsten Monat.",
+      "limitInvalid": "Gib eine ganze Zahl von 1 bis 1.000.000.000 ein oder lass das Feld für kein Limit leer.",
       "create": "Agent erstellen",
       "creating": "Wird erstellt…",
       "archivedNote": "Stell den Agenten wieder her, um ihn zu ändern."
@@ -394,6 +398,7 @@
       "fromRow": "Aus einem Lauf auf <row>einer Zeile</row>",
       "fromHiddenRow": "Aus einem Lauf auf einer Zeile, die Sie nicht öffnen können",
       "fromConnection": "Aus einem Lauf, den {connection} gestartet hat",
+      "fromRequest": "Aus einem Lauf, den ein Inhaber angefordert hat",
       "removedConnection": "eine entfernte Verbindung",
       "keep": "Behalten",
       "keepEdited": "Mit diesem Text behalten",
@@ -426,6 +431,8 @@
       },
       "rowHidden": "Eine Zeile, die du nicht öffnen kannst",
       "took": "dauerte {time}",
+      "requestedBy": "angefordert von {name} ({via, select, api {API} other {KI-Assistent}})",
+      "task": "Aufgabe:",
       "showDetails": "Zeigen, was er getan hat",
       "hideDetails": "Ausblenden, was er getan hat",
       "noSteps": "Er hat nichts gesucht, gelesen oder geändert.",
@@ -443,7 +450,8 @@
         "tooManyAttempts": "Er konnte nicht rechtzeitig starten: Das KI-Kontingent des Workspaces blieb aufgebraucht.",
         "error": "Etwas ist schiefgelaufen.",
         "approvalTimeout": "Niemand hat seinen Aufruf innerhalb eines Tages beantwortet, daher wurde nichts gesendet.",
-        "connectionGone": "Die Verbindung, die ihn gestartet hat, wurde entfernt."
+        "connectionGone": "Die Verbindung, die ihn gestartet hat, wurde entfernt.",
+        "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Eine entfernte Verbindung",
@@ -469,6 +477,14 @@
           "removed": "<name></name> ausgelassen: Ein Inhaber hat ihn dem Agenten weggenommen, während der Lauf wartete"
         }
       }
+    },
+    "usage": {
+      "thisMonth": "Diesen Monat: {usage}",
+      "tokens": "{count, plural, one {# Token} other {# Tokens}}",
+      "runs": "{count, plural, one {# Durchlauf} other {# Durchläufe}}",
+      "ofLimit": "von {limit} im Monat",
+      "limitReached": "Limit von {limit} erreicht: Durchläufe ruhen bis zum nächsten Monat",
+      "earlier": "Frühere Monate"
     },
     "templates": {
       "heading": "Mit einer Vorlage beginnen",
@@ -538,12 +554,18 @@
         "property": "Wähle Eigenschaften des passenden Typs.",
         "option": "Wähle zwei verschiedene Optionen der Eigenschaft.",
         "rules": "Schreib die Regeln, denen er folgt.",
-        "pages": "Wähle die Seiten, die er liest."
+        "pages": "Wähle die Seiten, die er liest.",
+        "limit": "Gib als Token-Limit eine ganze Zahl von 1 bis 1.000.000.000 ein."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
       "memoryFull": "Ein Agent behält höchstens {max} Notizen. Löschen Sie zuerst eine.",
-      "noteNotFound": "Diese Notiz gibt es nicht mehr."
+      "noteNotFound": "Diese Notiz gibt es nicht mehr.",
+      "paused": "Schalte den Agenten ein, um ihn laufen zu lassen.",
+      "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
+      "limitReached": "Der Agent hat sein monatliches Token-Limit ({limit} Tokens) aufgebraucht.",
+      "tooManyRuns": "{max} angeforderte Durchläufe dieses Agenten warten noch. Versuch es wieder, wenn einer fertig ist.",
+      "notARow": "Zeile nicht gefunden."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
@@ -1192,7 +1214,8 @@
       "agent": {
         "created": "Hat den Agenten „{target}“ erstellt",
         "updated": "{change, select, on {Hat den Agenten „{target}“ eingeschaltet} off {Hat den Agenten „{target}“ pausiert} other {Hat den Agenten „{target}“ geändert}}",
-        "archived": "Hat den Agenten „{target}“ archiviert"
+        "archived": "Hat den Agenten „{target}“ archiviert",
+        "run_requested": "Hat beim Agenten „{target}“ einen Durchlauf angefordert"
       },
       "connection": {
         "created": "Hat die Verbindung „{target}“ hinzugefügt",

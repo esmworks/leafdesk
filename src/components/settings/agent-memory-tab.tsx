@@ -262,7 +262,9 @@ function Origin({ workspaceId, note }: { workspaceId: string; note: AgentMemoryV
               ),
             })
           : t("fromHiddenRow")
-        : t("fromConnection", { connection: run.connectionName || t("removedConnection") })}
+        : run.requested
+          ? t("fromRequest")
+          : t("fromConnection", { connection: run.connectionName || t("removedConnection") })}
       {` · ${when}`}
     </p>
   );

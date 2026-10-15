@@ -1,8 +1,13 @@
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { db } from "@/db";
-import { page, user, type ApiTokenScope } from "@/db/schema";
+import { page, user, workspaceAgent, type ApiTokenScope } from "@/db/schema";
+import type { AgentView } from "@/lib/agents";
 import { AccessError } from "@/server/access";
+import * as agents from "@/server/agents/manage";
+import { requestAgentRun } from "@/server/agents/requests";
+import { usageMonthsOf } from "@/server/agents/usage";
+import { agentInputs, describeAgent, describeAgentRun, describeAgentSummary, describeUsageMonth, toAgentPatch } from "@/server/mcp/agents";
 import { getPage } from "@/server/pages";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
@@ -32,7 +37,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents";
   summary: string;
   description?: string;
   scope: ApiTokenScope;
@@ -40,6 +45,8 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   body?: B;
   /** 201 for endpoints that create something. */
   status?: 200 | 201;
+  /** It may answer 409 when what it acts on can't do it now (see API_ERROR_CODES). */
+  conflict?: boolean;
   /** Name of the response schema in the OpenAPI components. */
   response: string;
   handler: (call: ApiCall<z.infer<Q>, z.infer<B>>) => Promise<unknown>;
@@ -52,6 +59,21 @@ export const defineRoute = <Q extends Schema = Schema, B extends Schema = Schema
 /** A token bound to a workspace sees nothing outside it: other workspaces read as not found. */
 function requireWorkspace(principal: ApiPrincipal, workspaceId: string) {
   if (principal.workspaceId && principal.workspaceId !== workspaceId) throw new AccessError();
+}
+
+/** The agent, for an owner of its workspace (refused for a token of another workspace). */
+async function ownedAgentFor(principal: ApiPrincipal, agentId: string) {
+  if (principal.workspaceId) {
+    const [row] = await db.select({ workspaceId: workspaceAgent.workspaceId }).from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
+    if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
+  }
+  return agents.getAgent(principal.userId, agentId);
+}
+
+/** An agent as GET and PATCH answer it: its settings, and what its runs used this month. */
+async function agentWithUsage(agent: AgentView) {
+  const [month] = await usageMonthsOf(agent.id);
+  return { ...describeAgent(agent), usage_this_month: describeUsageMonth(month) };
 }
 
 async function requirePageInWorkspace(principal: ApiPrincipal, pageId: string) {
@@ -496,6 +518,125 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params, body }) => {
       await requirePageInWorkspace(principal, params.row_id);
       return ops.updateDatabaseRow(ctx, { ...body, row_id: params.row_id });
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/agents",
+    operationId: "listAgents",
+    tag: "Agents",
+    summary: "List agents",
+    description:
+      "The agents of a workspace: AI helpers with instructions of their own, each acting as a user of its own (`user_id`, what its changes and comments show). Owners and members can list them (members get them without instructions); guests can't.",
+    scope: "pages:read",
+    query: z.object({
+      include_archived: z
+        .enum(["true", "false"])
+        .default("false")
+        .transform((v) => v === "true")
+        .describe("Also list archived agents."),
+    }),
+    response: "AgentList",
+    handler: async ({ principal, params, query }) => {
+      requireWorkspace(principal, params.workspace_id);
+      const list = await agents.listAgents(principal.userId, params.workspace_id, { archived: query.include_archived });
+      return { workspace_id: params.workspace_id, agents: list.map(describeAgentSummary) };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/agents/{agent_id}",
+    operationId: "getAgent",
+    tag: "Agents",
+    summary: "Read an agent",
+    description: "An agent's settings, instructions and monthly token limit, and what its runs used this month. Workspace owners only.",
+    scope: "pages:read",
+    response: "Agent",
+    handler: async ({ principal, params }) => {
+      return agentWithUsage(await ownedAgentFor(principal, params.agent_id));
+    },
+  }),
+  defineRoute({
+    method: "PATCH",
+    path: "/agents/{agent_id}",
+    operationId: "updateAgent",
+    tag: "Agents",
+    summary: "Update an agent",
+    description:
+      "Changes an agent's name, icon, description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything) or its monthly token limit (null removes it); fields left out keep their values. Workspace owners only; an archived agent can't change.",
+    scope: "pages:write",
+    body: agentInputs.update.omit({ agent_id: true }),
+    response: "Agent",
+    handler: async ({ principal, params, body }) => {
+      await ownedAgentFor(principal, params.agent_id);
+      return agentWithUsage(await agents.updateAgent(principal.userId, params.agent_id, toAgentPatch(body)));
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/agents/{agent_id}/runs",
+    operationId: "startAgentRun",
+    tag: "Agents",
+    summary: "Start a run",
+    description:
+      "Asks the agent to do a task now. The run is queued and done in the background, held to what the token's user can open as well as what is shared with the agent: on a row (`row_id`) it may change and comment on that row; on none it only reads and answers. Read how it went with the run's endpoint. Workspace owners only. Answers 409 when the agent is paused or archived or AI is off (`agent_unavailable`), when it used its monthly token limit (`limit_reached`), or when too many runs asked of it still wait (`too_many_runs`). Each run uses the workspace's AI allowance.",
+    scope: "pages:write",
+    body: agentInputs.run.omit({ agent_id: true }),
+    status: 201,
+    conflict: true,
+    response: "AgentRun",
+    handler: async ({ principal, params, body }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const run = await requestAgentRun(principal.userId, params.agent_id, { task: body.task, rowId: body.row_id ?? null, via: "api" });
+      return describeAgentRun(agent.workspaceId, run);
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/agents/{agent_id}/runs",
+    operationId: "listAgentRuns",
+    tag: "Agents",
+    summary: "List an agent's runs",
+    description:
+      "An agent's latest runs, newest first (finished ones are kept 30 days): what started each, its status and failure code, its steps, final answer and the tokens it used. What a run read and wrote on a row the user can't open is left out. Workspace owners only.",
+    scope: "pages:read",
+    query: z.object({ limit: limitInput(100, 20) }),
+    response: "AgentRunList",
+    handler: async ({ principal, params, query }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const runs = await agents.listAgentRuns(principal.userId, params.agent_id, query.limit);
+      return { agent_id: agent.id, runs: runs.map((run) => describeAgentRun(agent.workspaceId, run)) };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/agents/{agent_id}/runs/{run_id}",
+    operationId: "getAgentRun",
+    tag: "Agents",
+    summary: "Read a run",
+    description: "One of an agent's runs, as the list shows it: poll it after starting a run until its status is done or failed. Workspace owners only.",
+    scope: "pages:read",
+    response: "AgentRun",
+    handler: async ({ principal, params }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const run = await agents.getAgentRun(principal.userId, params.agent_id, params.run_id);
+      return describeAgentRun(agent.workspaceId, run);
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/agents/{agent_id}/usage",
+    operationId: "getAgentUsage",
+    tag: "Agents",
+    summary: "An agent's usage",
+    description:
+      "The tokens, cost and runs an agent used by calendar month (UTC), this month first, for the last 12 months it ran in. `cost_usd` is 0 where the AI provider names no price. Workspace owners only.",
+    scope: "pages:read",
+    response: "AgentUsage",
+    handler: async ({ principal, params }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const months = await usageMonthsOf(agent.id);
+      return { agent_id: agent.id, monthly_token_limit: agent.monthlyTokenLimit, months: months.map(describeUsageMonth) };
     },
   }),
 ];
