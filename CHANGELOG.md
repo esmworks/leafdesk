@@ -40,6 +40,17 @@
   too: off, runs carry no notes and propose none. Changes are recorded in the audit log, counted. MCP's
   `get_agent` lists the notes and proposals. Migration `0065_agent_memory` adds `status` and
   `agent_run_id` to `ai_memory`. Covered in `scripts/agent-memory-e2e.ts`.
+- **Owners hear of an agent's proposed notes.** When a run proposes a note, each owner of the
+  workspace gets one inbox item for that run, pushed too (without the note's text) and never
+  emailed, whatever their notification choices. It shows the first proposal's text, unless the run
+  was on a row that owner can't open, and how many more there are; it opens the agent's *Memory*
+  tab (`?tab=agents&agent=<id>&agentTab=memory`), can be snoozed, and goes away once every proposal
+  of the run is kept or dismissed. Answering an agent's call no longer takes the run's other inbox
+  items with it. MCP adds `keep_agent_memory` and `dismiss_agent_memory` for proposals, and
+  `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` for an owner's own notes,
+  each answering with the agent's memory as `get_agent` shows it; `list_notifications` summarizes
+  the new item. Migration `0066_agent_memory_notice` lets `agent_memory` notifications have no page
+  and keeps one per run and owner. Covered in `scripts/agent-memory-e2e.ts` and `scripts/mcp-e2e.ts`.
 - **Skills.** A page or database row can be marked *Use as skill* in its `⋯` menu (edit access;
   not databases, templates or the pages in them): its body is instructions to reuse, and a bar
   under the title says what it is for. The sidebar's new skills button opens the workspace's

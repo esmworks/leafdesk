@@ -6,7 +6,9 @@
  * row doesn't see a proposal's text and can't keep it; kept notes go with every later run inside a
  * <memory> data tag, also runs no member started, which can't propose or drop notes; proposals are
  * bounded and go with their run; owners write, change, keep, dismiss and delete notes, members
- * can't; an archived agent's memory can't change but stays; the audit log counts the changes.
+ * can't; a run's proposals put one item in each owner's inbox (its text only for an owner who can
+ * open the row), gone once none waits; an archived agent's memory can't change but stays; the
+ * audit log counts the changes.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-memory-e2e.ts
@@ -23,7 +25,9 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, aiMemory, auditEvent, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, aiMemory, auditEvent, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { listNotifications, unreadCount } = await import("@/server/notifications");
+const { withdrawApproval } = await import("@/server/connections/approvals");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -129,6 +133,8 @@ try {
   };
   const latestRun = async () => (await db.select().from(agentRun).where(eq(agentRun.agentId, router.id)).orderBy(agentRun.createdAt)).at(-1)!;
   const notesInDb = () => db.select().from(aiMemory).where(eq(aiMemory.userId, router.userId)).orderBy(aiMemory.createdAt);
+  const notices = (runId: string) => db.select().from(notification).where(and(eq(notification.agentRunId, runId), eq(notification.kind, "agent_memory")));
+  const inboxItem = async (userId: string, runId: string) => (await listNotifications(userId, { workspaceId })).find((n) => n.kind === "agent_memory" && n.memory?.runId === runId);
 
   // ── A run proposes notes ────────────────────────────────────────────────────────────────────
   const token = "gh" + "p_" + "A1b2C3d4".repeat(5);
@@ -157,6 +163,26 @@ try {
   check((await memory.proposedNoteCounts(ids.owner, workspaceId))[router.id] === 2, "the owners' list of agents counts the proposals waiting");
   check(await fails(memory.proposedNoteCounts(ids.member, workspaceId), (e) => e instanceof AccessError), "…members don't get it");
   check((await listMemories(ids.owner, workspaceId)).length === 0, "an agent's notes are not the owner's chat memory");
+
+  // ── Owners hear of it in their inbox ────────────────────────────────────────────────────────
+  const told = await notices(firstRun.id);
+  check(
+    told.length === 2 && [ids.owner, ids.other].every((id) => told.some((n) => n.userId === id && n.actorId === router.userId && n.pageId === null && n.emailDueAt === null)),
+    "each owner gets one inbox item for the run, from the agent, about no page and not emailed, however many notes it proposed",
+    told,
+  );
+  const ownersItem = await inboxItem(ids.owner, firstRun.id);
+  check(
+    ownersItem?.memory?.agentId === router.id && ownersItem.memory.agentName === "Ticket router" && ownersItem.memory.count === 2 && ownersItem.memory.text === proposals[0].text && !ownersItem.read,
+    "the owner who can open the run's row sees the first proposal's text and how many wait",
+    ownersItem,
+  );
+  const othersItem = await inboxItem(ids.other, firstRun.id);
+  check(othersItem?.memory?.count === 2 && othersItem.memory.text === null, "an owner who can't open the row sees the item without the text", othersItem);
+  check(!(await listNotifications(ids.member, { workspaceId })).some((n) => n.kind === "agent_memory"), "members don't get it");
+  check((await unreadCount(ids.owner, workspaceId)) >= 1, "it counts as unread");
+  await withdrawApproval(firstRun.id);
+  check((await notices(firstRun.id)).length === 2, "answering a call of the run doesn't take the item away");
 
   // ── Proposals go with no run until kept ─────────────────────────────────────────────────────
   fake.chats.length = 0;
@@ -187,8 +213,15 @@ try {
   check(await fails(memory.keepAgentMemory(ids.member, router.id, proposals[0].id), isAccess), "members can't keep a proposal");
   const keptNote = await memory.keepAgentMemory(ids.owner, router.id, proposals[0].id, "Refund questions are Billing tickets.");
   check(keptNote.status === "kept" && keptNote.text === "Refund questions are Billing tickets." && keptNote.run === null, "an owner keeps a proposal, changed", keptNote);
+  const stillWaiting = await inboxItem(ids.owner, firstRun.id);
+  check(stillWaiting?.memory?.count === 1 && stillWaiting.memory.text === proposals[1].text, "the item stays while a proposal of the run waits, showing the next one", stillWaiting);
+  check(
+    (await memory.deleteAgentMemory(ids.other, router.id, [proposals[1].id], "kept")) === 0 && (await notesInDb()).length === 2,
+    "deleting only kept notes leaves a proposal alone",
+  );
   await memory.deleteAgentMemory(ids.other, router.id, [proposals[1].id]);
   check((await notesInDb()).length === 1, "another owner may dismiss a proposal they can't read");
+  check((await notices(firstRun.id)).length === 0, "once no proposal of the run waits, every owner's item goes");
   const written = await memory.addAgentMemory(ids.other, router.id, "Bug tickets need steps to reproduce.");
   check(written.status === "kept", "an owner writes a note: kept at once");
   check(await fails(memory.addAgentMemory(ids.owner, router.id, " "), isCode("noteEmpty")), "a note needs text");
@@ -221,6 +254,13 @@ try {
   check(forgetRun.steps.some((s) => s.kind === "memory" && s.action === "forget" && s.text.startsWith("Bug tickets")), "a run drops a note at once, as a step", forgetRun.steps);
   check((await notesInDb()).map((n) => n.text).join() === "Refund questions are Billing tickets.", "…and only that note", await notesInDb());
   check(toolResults(fake.chats.at(-1)!)[1] === "There is no note with that memory_id.", "it can't drop a note that isn't its own");
+  // A run that drops its own proposal takes its item away too (the tools as a run calls them).
+  const bot = { userId: router.userId, workspaceId };
+  await memory.runAgentMemoryTool(bot, forgetRun.id, { name: "remember", arguments: { text: "Tickets in French go to Sophie." } });
+  check((await notices(forgetRun.id)).length === 2, "a later run's proposal tells the owners again, for that run");
+  const own = (await notesInDb()).find((n) => n.agentRunId === forgetRun.id)!;
+  await memory.runAgentMemoryTool(bot, forgetRun.id, { name: "forget", arguments: { memory_id: own.id } });
+  check((await notices(forgetRun.id)).length === 0, "…and dropping it takes the item away");
 
   // ── A run no member started ─────────────────────────────────────────────────────────────────
   fake.chats.length = 0;
@@ -257,8 +297,11 @@ try {
   const waiting = (await notesInDb()).filter((n) => n.status === "proposed");
   check(waiting.length === MAX_AGENT_PROPOSALS, `at most ${MAX_AGENT_PROPOSALS} proposals wait at once`, waiting.length);
   check(toolResults(fake.chats.at(-1)!).at(-1)?.includes("already wait for an owner"), "…the model hears why", toolResults(fake.chats.at(-1)!).at(-1));
+  check((await notices(floodRun.id)).length === 2 && (await inboxItem(ids.owner, floodRun.id))?.memory?.count === MAX_AGENT_PROPOSALS, "a run's many proposals still make one item per owner", await notices(floodRun.id));
   await db.delete(agentRun).where(eq(agentRun.id, floodRun.id));
   check((await notesInDb()).every((n) => n.status === "kept"), "a proposal no owner answered goes when its run is pruned; kept notes stay");
+  check((await notices(floodRun.id)).length === 0, "…and so does its inbox item");
+
 
   // ── Archived, and the audit log ─────────────────────────────────────────────────────────────
   await agents.archiveAgent(ids.owner, router.id);

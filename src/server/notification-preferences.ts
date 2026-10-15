@@ -1,6 +1,6 @@
 import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { notification, pendingAssignmentEmail, userPreference, type NotificationKind, type PreferenceKind } from "@/db/schema";
+import { isOwnerKind, notification, OWNER_KINDS, pendingAssignmentEmail, userPreference, type NotificationKind, type PreferenceKind } from "@/db/schema";
 
 /**
  * What each person wants to hear about, and where: in the inbox, by email, as push notifications
@@ -46,11 +46,11 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
 
 /**
  * Whether a notification of `kind` is pushed to the person's devices: only what shows in their
- * inbox, unless they turned push off for the kind. An agent's call waiting for approval, which
- * always shows to owners, is always pushed.
+ * inbox, unless they turned push off for the kind. An agent's call or notes waiting for an owner,
+ * which always show to owners, are always pushed.
  */
 export function pushWanted(preferences: NotificationPreferences, kind: NotificationKind) {
-  if (kind === "agent_approval") return true;
+  if (isOwnerKind(kind)) return true;
   return preferences[kind].inbox && preferences[kind].push;
 }
 
@@ -59,10 +59,10 @@ export async function wantsEmail(userId: string, kind: PreferenceKind) {
   return (await getNotificationPreferences(userId))[kind].email;
 }
 
-/** The kinds this person keeps in their inbox (calls waiting for approval always). */
+/** The kinds this person keeps in their inbox (what waits for an owner always). */
 export async function inboxKinds(userId: string): Promise<NotificationKind[]> {
   const prefs = await getNotificationPreferences(userId);
-  return [...KINDS.filter((kind) => prefs[kind].inbox), "agent_approval"];
+  return [...KINDS.filter((kind) => prefs[kind].inbox), ...OWNER_KINDS];
 }
 
 export async function setNotificationPreference(userId: string, kind: PreferenceKind, channel: NotificationChannel, on: boolean) {

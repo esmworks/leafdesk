@@ -62,10 +62,12 @@ const texts: Record<string, string> = {
   inviteRequest: "{actor} asked to invite {email}",
   approvalTitle: "{agent} asks to go ahead",
   approval: "Wants to call “{tool}” on {connection}",
+  memoryTitle: "{agent} wants to remember",
+  memory: "Proposes {count} notes for its memory",
   untitled: "Untitled",
   snooze: "Snooze 1 hour",
 };
-const t = (key: string, values: Record<string, string> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => values[name] ?? "");
+const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
 
 const item = (over: Partial<PushItem>): PushItem => ({
@@ -83,6 +85,7 @@ const item = (over: Partial<PushItem>): PushItem => ({
   requestKind: null,
   requestEmail: null,
   approval: null,
+  memory: null,
   ...over,
 });
 
@@ -135,8 +138,22 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "agent_approval", pageId: null, approval: null }), t, date)).toBeNull();
   });
 
+  it("leads an agent's proposed notes to its memory, without what they say", () => {
+    const notes = item({ kind: "agent_memory", pageId: null, pageTitle: null, memory: { agentId: "a1", agentName: "Helper", count: 2 } });
+    expect(pushPayload(notes, t, date)).toEqual({
+      title: "Helper wants to remember",
+      body: "Proposes 2 notes for its memory",
+      url: "/w/ws1/settings?tab=agents&agent=a1&agentTab=memory",
+      tag: "n1",
+      snooze: "Snooze 1 hour",
+    });
+    // Kept or dismissed before the push went out.
+    expect(pushPayload(item({ kind: "agent_memory", pageId: null, memory: null }), t, date)).toBeNull();
+  });
+
   it("links like the inbox does", () => {
     expect(pushLink(item({ kind: "agent_approval", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
+    expect(pushLink(item({ kind: "agent_memory", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
   });
 });
 

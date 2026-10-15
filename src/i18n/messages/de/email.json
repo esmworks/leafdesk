@@ -198,6 +198,8 @@
     "inviteRequest": "{actor} möchte {email} einladen",
     "approvalTitle": "{agent} bittet um Freigabe",
     "approval": "Möchte „{tool}“ bei {connection} aufrufen",
+    "memoryTitle": "{agent} möchte sich etwas merken",
+    "memory": "{count, plural, one {Schlägt eine Notiz für sein Gedächtnis vor} other {Schlägt # Notizen für sein Gedächtnis vor}}",
     "untitled": "Ohne Titel",
     "snooze": "1 Stunde zurückstellen"
   },

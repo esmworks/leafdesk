@@ -101,7 +101,7 @@ async function deliver(ids: string[]) {
       if (!items.length) return;
       const locale = await recipientLocale(userId, theirs.find((r) => r.locale)?.locale);
       const t = emailTranslator(locale);
-      const texts = (key: string, values?: Record<string, string>) => t(`push.${key}` as Parameters<typeof t>[0], values);
+      const texts = (key: string, values?: Record<string, string | number>) => t(`push.${key}` as Parameters<typeof t>[0], values);
       for (const item of items) {
         const payload = pushPayload(item, texts, (date) => formatIsoDate(date, locale, "medium", "UTC"));
         if (!payload) continue;

@@ -9,6 +9,7 @@ import {
   databaseAutomation,
   databaseProperty,
   notification,
+  OWNER_KINDS,
   page,
   user,
   workspace,
@@ -30,6 +31,7 @@ import {
   workspaceRoleOf,
   workspacesHiddenFromApp,
 } from "@/server/access";
+import { inboxProposals } from "@/server/agents/memory";
 import { agentUserIds, isAgentUser, notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
 import { mailStatus } from "@/server/mail";
@@ -452,6 +454,18 @@ export type InboxItem = {
   requestEmail: string | null;
   /** Agent approvals: the call an agent waits to make, while it still waits. */
   approval: InboxApproval | null;
+  /** Agents' notes: what the run proposed for the agent's memory, while some of it still waits. */
+  memory: InboxAgentMemory | null;
+};
+
+export type InboxAgentMemory = {
+  runId: string;
+  agentId: string;
+  agentName: string;
+  /** How many of the run's proposals still wait for an owner. */
+  count: number;
+  /** The first one's text; null when the run was on a row the user can't open (see agents/memory.ts). */
+  text: string | null;
 };
 
 export type InboxApproval = {
@@ -484,9 +498,9 @@ const actor = alias(user, "actor");
 /**
  * Notifications about pages the user can still open, of the kinds they keep in their inbox; ones
  * for trashed or unshared pages stay hidden. Access requests show only while the user can answer
- * them (full access) and the requester still can't open the page; join requests (which have no
- * page) only while the user owns the workspace; snoozed ones not until their time. Null when every
- * kind is off. Expects `page` left-joined.
+ * them (full access) and the requester still can't open the page; join requests and what agents
+ * leave for an owner (none has a page) only while the user owns the workspace; snoozed ones not
+ * until their time. Null when every kind is off. Expects `page` left-joined.
  */
 async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | null> {
   const kinds = await inboxKinds(userId);
@@ -511,7 +525,7 @@ async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | 
           ),
         ),
       ),
-      and(inArray(notification.kind, ["join_request", "agent_approval"]), ownsWorkspace(userId, notification.workspaceId)),
+      and(inArray(notification.kind, ["join_request", ...OWNER_KINDS]), ownsWorkspace(userId, notification.workspaceId)),
     ),
   )!;
 }
@@ -588,12 +602,14 @@ export async function listNotifications(
     if (!inviting.has(id)) inviting.set(id, canInviteGuests(userId, id));
     return inviting.get(id)!;
   };
-  const approvals = await approvalsOf(rows.flatMap((r) => (r.kind === "agent_approval" && r.agentRunId ? [r.agentRunId] : [])));
+  const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
+  const [approvals, proposals] = await Promise.all([approvalsOf(runsOf("agent_approval")), inboxProposals(userId, runsOf("agent_memory"))]);
   return Promise.all(
     rows.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, ...row }) => ({
       ...row,
       read: readAt !== null,
-      approval: agentRunId ? (approvals.get(agentRunId) ?? null) : null,
+      approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
+      memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,
       accessRequest:
         row.kind === "access_request" && requestId
           ? {

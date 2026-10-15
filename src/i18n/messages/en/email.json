@@ -198,6 +198,8 @@
     "inviteRequest": "{actor} asked to invite {email}",
     "approvalTitle": "{agent} asks to go ahead",
     "approval": "Wants to call “{tool}” on {connection}",
+    "memoryTitle": "{agent} wants to remember",
+    "memory": "{count, plural, one {Proposes a note for its memory} other {Proposes # notes for its memory}}",
     "untitled": "Untitled",
     "snooze": "Snooze 1 hour"
   },

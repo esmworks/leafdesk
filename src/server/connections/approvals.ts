@@ -52,7 +52,11 @@ export async function notifyApprovers(run: { id: string; workspaceId: string }, 
 
 /** Takes a run's approval items out of the inbox (it was answered, or ran out of time). */
 export async function withdrawApproval(runId: string) {
-  const gone = await db.delete(notification).where(eq(notification.agentRunId, runId)).returning({ workspaceId: notification.workspaceId });
+  // Only the approval's: the run's notes for its memory wait for owners on their own (agents/memory.ts).
+  const gone = await db
+    .delete(notification)
+    .where(and(eq(notification.agentRunId, runId), eq(notification.kind, "agent_approval")))
+    .returning({ workspaceId: notification.workspaceId });
   for (const workspaceId of new Set(gone.map((g) => g.workspaceId))) refreshInboxes(workspaceId);
 }
 

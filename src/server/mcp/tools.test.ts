@@ -134,7 +134,13 @@ const agentSkills = vi.hoisted(() => ({
 }));
 vi.mock("@/server/agents/skills", () => agentSkills);
 
-const agentMemory = vi.hoisted(() => ({ listAgentMemory: vi.fn(async () => [] as unknown[]) }));
+const agentMemory = vi.hoisted(() => ({
+  listAgentMemory: vi.fn(async () => [] as unknown[]),
+  addAgentMemory: vi.fn(async () => ({})),
+  updateAgentMemory: vi.fn(async () => ({})),
+  keepAgentMemory: vi.fn(async () => ({})),
+  deleteAgentMemory: vi.fn(async () => 1),
+}));
 vi.mock("@/server/agents/memory", () => agentMemory);
 
 const files = vi.hoisted(() => {
@@ -1894,6 +1900,40 @@ describe("automations", () => {
     });
   });
 
+  it("summarizes an agent's proposed notes in the inbox, with their text only when the user may read it", async () => {
+    const base = {
+      kind: "agent_memory",
+      workspaceId: "ws-1",
+      workspaceName: "Team",
+      createdAt: new Date("2026-10-01T00:00:00Z"),
+      read: false,
+      actorName: "Ticket router",
+      pageId: null,
+      pageTitle: null,
+      pageIcon: null,
+      databaseTitle: null,
+      propertyName: null,
+      approval: null,
+    };
+    notifications.listNotifications.mockResolvedValue([
+      { ...base, id: "n-1", memory: { runId: "run-1", agentId: "agent-1", agentName: "Ticket router", count: 2, text: "Refunds over 100 EUR need a lead" } },
+      { ...base, id: "n-2", memory: { runId: "run-2", agentId: "agent-1", agentName: "Ticket router", count: 1, text: null } },
+      { ...base, id: "n-3", memory: null },
+    ]);
+    const principal = { ...reader, scopes: ["pages:read", "notifications:read"] };
+    const { data } = await callTool(principal, "list_notifications", {});
+    expect(data.notifications[0]).toMatchObject({
+      kind: "agent_memory",
+      agent_id: "agent-1",
+      run_id: "run-1",
+      summary: expect.stringMatching(/proposed 2 notes.*keep_agent_memory.*"Refunds over 100 EUR need a lead" and 1 more$/),
+      url: expect.stringMatching(/\/w\/ws-1\/settings\?tab=agents&agent=agent-1&agentTab=memory$/),
+    });
+    expect(data.notifications[1].summary).toMatch(/can't open.*hidden/);
+    expect(data.notifications[1].summary).not.toMatch(/Refunds/);
+    expect(data.notifications[2]).toMatchObject({ summary: expect.stringMatching(/kept or dismissed/), url: expect.stringMatching(/tab=agents$/) });
+  });
+
   it("summarizes automation notifications in the inbox", async () => {
     notifications.listNotifications.mockResolvedValue([
       {
@@ -1945,10 +1985,14 @@ describe("agents", () => {
   it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     for (const name of ["list_agents", "get_agent", "list_agent_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
-    for (const name of ["create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill"]) {
+    const memoryTools = ["add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory"];
+    for (const name of ["create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", ...memoryTools]) {
       expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
     }
     expect(tools.get("archive_agent")?.annotations?.destructiveHint).toBe(true);
+    for (const name of ["dismiss_agent_memory", "delete_agent_memory"]) expect(tools.get(name)?.annotations?.destructiveHint).toBe(true);
+    expect(tools.get("keep_agent_memory")?.annotations?.destructiveHint).toBe(false);
+    expect(tools.get("keep_agent_memory")!.inputSchema.required).toEqual(["agent_id", "memory_id"]);
     expect(tools.get("create_agent")!.inputSchema.required).toEqual(["workspace_id", "name"]);
     expect(tools.get("update_agent")!.inputSchema.required).toEqual(["agent_id"]);
     expect(tools.get("set_agent_access")!.inputSchema.properties.level.enum).toEqual(["view", "comment", "edit", "remove"]);
@@ -2014,6 +2058,67 @@ describe("agents", () => {
       { memory_id: "m-2", text: "Refunds over 100 EUR need a lead", proposed_by_run: { run_id: "run-1", row: { id: "row-1", title: "Refund for order 7", url: expect.stringMatching(/\/w\/ws-1\/p\/row-1$/) } } },
       { memory_id: "m-3", text: null, proposed_by_run: { run_id: "run-2", row: { id: "row-2", title: null } }, note: expect.stringMatching(/can't open/) },
     ]);
+  });
+
+  it("lets owners write, change, keep, dismiss and delete an agent's notes, answering with its memory as get_agent shows it", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    const proposal = {
+      id: "m-2",
+      text: "Refunds over 100 EUR need a lead",
+      status: "proposed",
+      run: { id: "run-1", createdAt: "2026-10-02T00:00:00.000Z", rowId: "row-1", rowTitle: "Refund for order 7", connectionName: null },
+      createdAt: "2026-10-02T00:00:00.000Z",
+      updatedAt: "2026-10-02T00:00:00.000Z",
+    };
+    agentMemory.listAgentMemory.mockResolvedValue([proposal]);
+
+    const added = await callTool(writer, "add_agent_memory", { agent_id: "agent-1", text: "Billing questions go to Billing" });
+    expect(added.isError).toBe(false);
+    expect(agentMemory.addAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", "Billing questions go to Billing");
+    expect(added.data.memory.proposed).toMatchObject([{ memory_id: "m-2", proposed_by_run: { run_id: "run-1" } }]);
+
+    await callTool(writer, "update_agent_memory", { agent_id: "agent-1", memory_id: "m-2", text: "Refunds over 200 EUR need a lead" });
+    expect(agentMemory.updateAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", "m-2", "Refunds over 200 EUR need a lead");
+    await callTool(writer, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-2" });
+    expect(agentMemory.keepAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", "m-2", undefined);
+    await callTool(writer, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-2", text: "Changed first" });
+    expect(agentMemory.keepAgentMemory).toHaveBeenLastCalledWith("user-1", "agent-1", "m-2", "Changed first");
+
+    // Dismissing takes proposals only, deleting kept notes only: each says so when the ids are the other's.
+    const dismissed = await callTool(writer, "dismiss_agent_memory", { agent_id: "agent-1", memory_ids: ["m-2"] });
+    expect(agentMemory.deleteAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", ["m-2"], "proposed");
+    expect(dismissed.data).toMatchObject({ dismissed: 1, id: "agent-1", memory: { kept: [], proposed: [expect.anything()] } });
+    await callTool(writer, "dismiss_agent_memory", { agent_id: "agent-1", all: true });
+    expect(agentMemory.deleteAgentMemory).toHaveBeenLastCalledWith("user-1", "agent-1", "proposed", "proposed");
+    await callTool(writer, "delete_agent_memory", { agent_id: "agent-1", all: true });
+    expect(agentMemory.deleteAgentMemory).toHaveBeenLastCalledWith("user-1", "agent-1", "kept", "kept");
+    agentMemory.deleteAgentMemory.mockResolvedValueOnce(0);
+    const wrongKind = await callTool(writer, "delete_agent_memory", { agent_id: "agent-1", memory_ids: ["m-2"] });
+    expect(wrongKind.isError).toBe(true);
+    expect(wrongKind.text).toMatch(/dismiss_agent_memory/);
+    for (const args of [{}, { memory_ids: ["m-2"], all: true }]) {
+      const unclear = await callTool(writer, "dismiss_agent_memory", { agent_id: "agent-1", ...args });
+      expect(unclear.isError).toBe(true);
+    }
+
+    // A connection that may only read can't change an agent's memory.
+    const readOnly = await callTool(reader, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-2" });
+    expect(readOnly.isError).toBe(true);
+
+    const cases: [string, Record<string, string>, RegExp][] = [
+      ["noteNotFound", {}, /get_agent.*only be dismissed/],
+      ["memoryFull", { max: "30" }, /full \(30 kept notes\).*delete_agent_memory/],
+      ["noteTooLong", { max: "300" }, /at most 300 characters/],
+      ["noteEmpty", {}, /needs text/],
+      ["archived", {}, /restore_agent/],
+      ["notFound", {}, /list_agents/],
+    ];
+    for (const [code, params, message] of cases) {
+      agentMemory.keepAgentMemory.mockRejectedValueOnce(new agents.AgentError(code, "x", params));
+      const result = await callTool(writer, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-9" });
+      expect(result.isError).toBe(true);
+      expect(result.text).toMatch(message);
+    }
   });
 
   it("shows an agent's skills with whether its runs follow them, and gives and takes them", async () => {

@@ -198,6 +198,8 @@
     "inviteRequest": "{actor}, {email} adresini davet etmek istedi",
     "approvalTitle": "{agent} devam etmek için onay istiyor",
     "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
+    "memoryTitle": "{agent} bir şey hatırlamak istiyor",
+    "memory": "{count, plural, one {Hafızası için bir not öneriyor} other {Hafızası için # not öneriyor}}",
     "untitled": "Adsız",
     "snooze": "1 saat ertele"
   },

@@ -18,17 +18,22 @@
  *
  * The workspace's AI memory switch (ai-memory.ts memoryAvailable) holds for agents too: while it
  * is off, runs carry no notes and keep none; owners still see and change them here.
+ *
+ * A run's first proposal puts an item in each owner's inbox (one per run and owner, pushed too); it
+ * shows a proposal's text by the same rule as here, and goes once none of the run's proposals waits.
  */
-import { and, asc, count, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, inArray, notExists, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, aiMemory, connection, page, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
+import { agentRun, aiMemory, connection, notification, page, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
 import { isRowRun, MAX_AGENT_PROPOSALS, type AgentMemoryView } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
-import { redactText } from "@/lib/redact";
-import { pageVisibleTo, requireMembership } from "@/server/access";
+import { redactError, redactText } from "@/lib/redact";
+import { pageVisibleTo, requireMembership, workspaceOwnerIds } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { cleanNote, lockNotes, MemoryError, sameNote, writeNote } from "@/server/ai-memory";
 import { recordAudit } from "@/server/audit";
+import { signalInbox, type InboxAgentMemory } from "@/server/notifications";
+import { pushNotifications } from "@/server/push";
 import { AgentError, auditDetails, ownedAgent } from "./manage";
 
 type Agent = Awaited<ReturnType<typeof ownedAgent>>;
@@ -128,6 +133,7 @@ export async function addAgentMemory(userId: string, agentId: string, text: stri
     // The same text a run proposed: the owner wrote it themselves, so it is kept (also a proposal
     // they couldn't read: what they wrote hides nothing from them).
     const [kept] = await db.update(aiMemory).set({ status: "kept", agentRunId: null, updatedAt: new Date() }).where(eq(aiMemory.id, note.id)).returning();
+    await withdrawNotices([note.agentRunId]);
     note = kept ?? note;
     await audit(userId, agent, { kept: 1 });
     return view(note, undefined);
@@ -194,12 +200,16 @@ export async function keepAgentMemory(userId: string, agentId: string, memoryId:
     if (!changed) throw new AgentError("noteNotFound", "Note not found");
     return changed;
   });
+  await withdrawNotices([proposal.agentRunId]);
   await audit(userId, agent, { kept: 1 });
   return view(kept, undefined);
 }
 
-/** An owner deletes notes of the agent (dismissing proposals too): some, every kept one, or every proposal. */
-export async function deleteAgentMemory(userId: string, agentId: string, which: string[] | "kept" | "proposed"): Promise<void> {
+/**
+ * An owner deletes notes of the agent (dismissing proposals too): some, every kept one, or every
+ * proposal; with `only`, of the given ids just those in that state. Returns how many went.
+ */
+export async function deleteAgentMemory(userId: string, agentId: string, which: string[] | "kept" | "proposed", only?: "kept" | "proposed"): Promise<number> {
   const agent = await ownedAgent(userId, agentId);
   const gone = await db
     .delete(aiMemory)
@@ -208,13 +218,89 @@ export async function deleteAgentMemory(userId: string, agentId: string, which: 
         eq(aiMemory.userId, agent.userId),
         eq(aiMemory.workspaceId, agent.workspaceId),
         Array.isArray(which) ? inArray(aiMemory.id, which.length ? which : [""]) : eq(aiMemory.status, which),
+        only ? eq(aiMemory.status, only) : undefined,
       ),
     )
-    .returning({ status: aiMemory.status });
-  if (!gone.length) return;
+    .returning({ status: aiMemory.status, agentRunId: aiMemory.agentRunId });
+  if (!gone.length) return 0;
+  await withdrawNotices(gone.map((n) => n.agentRunId));
   const deleted = gone.filter((n) => n.status === "kept").length;
   const dismissed = gone.length - deleted;
   await audit(userId, agent, { ...(deleted ? { deleted } : {}), ...(dismissed ? { dismissed } : {}) });
+  return gone.length;
+}
+
+// ------------------------------------------------------------------------------------ inbox
+
+/** Tells the workspace's open sidebars to fetch their inbox again; the items are saved whether or not it reaches them. */
+function refreshInboxes(workspaceId: string) {
+  try {
+    signalInbox(workspaceId);
+  } catch (error) {
+    console.error("[agents] could not refresh inboxes", redactError(error));
+  }
+}
+
+/** Tells the workspace's owners a run proposed notes: an inbox item each, only the first time for the run. */
+async function noticeProposal(agent: { userId: string; workspaceId: string }, runId: string) {
+  const owners = await workspaceOwnerIds(agent.workspaceId);
+  if (!owners.length) return;
+  const inserted = await db
+    .insert(notification)
+    .values(owners.map((userId) => ({ userId, workspaceId: agent.workspaceId, kind: "agent_memory" as const, actorId: agent.userId, agentRunId: runId })))
+    .onConflictDoNothing({ target: [notification.agentRunId, notification.userId], where: sql`${notification.kind} = 'agent_memory'` })
+    .returning({ id: notification.id });
+  if (!inserted.length) return;
+  refreshInboxes(agent.workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/** Takes these runs' items out of the inbox once none of their proposals waits any more. */
+async function withdrawNotices(runIds: (string | null)[]) {
+  const ids = [...new Set(runIds.filter((id): id is string => id !== null))];
+  if (!ids.length) return;
+  const gone = await db
+    .delete(notification)
+    .where(
+      and(
+        eq(notification.kind, "agent_memory"),
+        inArray(notification.agentRunId, ids),
+        notExists(
+          db
+            .select({ id: aiMemory.id })
+            .from(aiMemory)
+            .where(and(eq(aiMemory.agentRunId, notification.agentRunId), eq(aiMemory.status, "proposed"))),
+        ),
+      ),
+    )
+    .returning({ workspaceId: notification.workspaceId });
+  for (const workspaceId of new Set(gone.map((g) => g.workspaceId))) refreshInboxes(workspaceId);
+}
+
+/**
+ * The proposals of these runs that still wait, as `viewer`'s inbox shows them: how many, and the
+ * first one's text when the viewer may read it (not from a run on a row they can't open).
+ */
+export async function inboxProposals(viewer: string, runIds: string[]): Promise<Map<string, InboxAgentMemory>> {
+  if (!runIds.length) return new Map();
+  const notes = await db
+    .select({ note: aiMemory, agentId: workspaceAgent.id, agentName: workspaceAgent.name })
+    .from(aiMemory)
+    .innerJoin(workspaceAgent, and(eq(workspaceAgent.userId, aiMemory.userId), eq(workspaceAgent.workspaceId, aiMemory.workspaceId)))
+    .where(and(inArray(aiMemory.agentRunId, runIds), eq(aiMemory.status, "proposed")))
+    .orderBy(asc(aiMemory.createdAt), asc(aiMemory.id));
+  const runs = await proposingRuns(viewer, notes.map((n) => n.note));
+  const out = new Map<string, InboxAgentMemory>();
+  for (const { note, agentId, agentName } of notes) {
+    const runId = note.agentRunId!;
+    const seen = out.get(runId);
+    if (seen) {
+      seen.count += 1;
+      continue;
+    }
+    out.set(runId, { runId, agentId, agentName, count: 1, text: readable(runs.get(runId)) ? note.text : null });
+  }
+  return out;
 }
 
 // ------------------------------------------------------------------------------------ runs
@@ -264,12 +350,16 @@ export async function runAgentMemoryTool(
       .where(and(eq(aiMemory.id, id), eq(aiMemory.userId, agent.userId), eq(aiMemory.workspaceId, agent.workspaceId)))
       .returning();
     if (!gone) return notFound;
+    await withdrawNotices([gone.agentRunId]);
     return { content: "Forgotten.", step: step("forget", gone.text) };
   }
   try {
     // A note outlives the run: a credential the run came across must not.
     const note = await writeNote(agent.userId, agent.workspaceId, redactText(arg("text")), { status: "proposed", agentRunId: runId, maxProposed: MAX_AGENT_PROPOSALS });
     if (note.status === "kept") return { content: `Your memory already has this note (memory_id ${note.id}).` };
+    // The owners hear of it (not again when an earlier run proposed the same); the proposal stands
+    // whether or not that reaches them.
+    if (note.agentRunId === runId) await noticeProposal(agent, runId).catch((error: unknown) => console.error("[agents] could not tell owners of a proposed note", redactError(error)));
     return {
       content: "Proposed. An owner of the workspace will read it and decide whether you keep it: it is not in your memory yet, and nothing in this run changes because of it.",
       step: step("propose", note.text),

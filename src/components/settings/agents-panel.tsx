@@ -29,6 +29,7 @@ export function AgentsPanel({
   ai,
   initialAgentId,
   initialRunId,
+  initialTab,
 }: {
   workspaceId: string;
   isOwner: boolean;
@@ -43,13 +44,15 @@ export function AgentsPanel({
   ai: "on" | "off" | "unavailable";
   initialAgentId?: string;
   initialRunId?: string;
+  /** The tab of `initialAgentId` a link opens (its runs when it names a run, else its settings). */
+  initialTab?: AgentTab;
 }) {
   const t = useTranslations("settings.agents");
   const [view, setView] = useState<"active" | "archived">(() =>
     agents.find((a) => a.id === initialAgentId)?.archived ? "archived" : "active",
   );
   const [open, setOpen] = useState<{ id: string; tab: AgentTab } | null>(() =>
-    initialAgentId && agents.some((a) => a.id === initialAgentId) ? { id: initialAgentId, tab: initialRunId ? "runs" : "settings" } : null,
+    initialAgentId && agents.some((a) => a.id === initialAgentId) ? { id: initialAgentId, tab: initialRunId ? "runs" : (initialTab ?? "settings") } : null,
   );
   // An agent just made, until the refreshed list brings it.
   const [made, setMade] = useState<AgentView | null>(null);
@@ -193,6 +196,7 @@ export function AgentsPanel({
             const url = new URL(window.location.href);
             url.searchParams.delete("agent");
             url.searchParams.delete("run");
+            url.searchParams.delete("agentTab");
             window.history.replaceState(null, "", url);
           }}
         />

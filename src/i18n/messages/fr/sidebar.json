@@ -103,7 +103,11 @@
     "inviteRequest": "{actor} a demandé à inviter {email}",
     "approvalTitle": "{agent} demande votre accord",
     "approval": "Veut appeler « {tool} » sur {connection}",
-    "approvalAnswered": "Répondu ou expiré"
+    "approvalAnswered": "Répondu ou expiré",
+    "memoryTitle": "{agent} veut retenir quelque chose",
+    "memory": "« {text} »{more, plural, =0 {} one { et # autre note} other { et # autres notes}}",
+    "memoryHidden": "{count, plural, one {Une note} other {# notes}} d’une exécution sur une ligne que vous ne pouvez pas ouvrir",
+    "memoryAnswered": "Déjà examiné"
   },
   "templates": {
     "title": "Modèles",

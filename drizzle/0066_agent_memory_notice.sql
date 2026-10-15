@@ -1,0 +1,3 @@
+ALTER TABLE "notification" DROP CONSTRAINT "notification_subject_check";--> statement-breakpoint
+CREATE UNIQUE INDEX "notification_agent_memory_idx" ON "notification" USING btree ("agent_run_id","user_id") WHERE "notification"."kind" = 'agent_memory';--> statement-breakpoint
+ALTER TABLE "notification" ADD CONSTRAINT "notification_subject_check" CHECK ("notification"."kind" in ('join_request', 'agent_approval', 'agent_memory') or "notification"."page_id" is not null);

@@ -103,7 +103,11 @@
     "inviteRequest": "{actor} möchte {email} einladen",
     "approvalTitle": "{agent} bittet um Freigabe",
     "approval": "Möchte „{tool}“ bei {connection} aufrufen",
-    "approvalAnswered": "Beantwortet oder abgelaufen"
+    "approvalAnswered": "Beantwortet oder abgelaufen",
+    "memoryTitle": "{agent} möchte sich etwas merken",
+    "memory": "„{text}“{more, plural, =0 {} one { und # weitere Notiz} other { und # weitere Notizen}}",
+    "memoryHidden": "{count, plural, one {Eine Notiz} other {# Notizen}} aus einem Lauf auf einer Zeile, die du nicht öffnen kannst",
+    "memoryAnswered": "Bereits geprüft"
   },
   "templates": {
     "title": "Vorlagen",

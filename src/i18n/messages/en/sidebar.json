@@ -103,7 +103,11 @@
     "inviteRequest": "{actor} asked to invite {email}",
     "approvalTitle": "{agent} asks to go ahead",
     "approval": "Wants to call “{tool}” on {connection}",
-    "approvalAnswered": "Answered or ran out of time"
+    "approvalAnswered": "Answered or ran out of time",
+    "memoryTitle": "{agent} wants to remember",
+    "memory": "“{text}”{more, plural, =0 {} one { and # more note} other { and # more notes}}",
+    "memoryHidden": "{count, plural, one {A note} other {# notes}} from a run on a row you can’t open",
+    "memoryAnswered": "Already reviewed"
   },
   "templates": {
     "title": "Templates",

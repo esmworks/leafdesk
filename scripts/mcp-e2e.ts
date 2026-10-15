@@ -421,7 +421,8 @@ async function main() {
     "list_recent_pages", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
-    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_connections", "set_agent_connection_tools",
+    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_connections",
+    "add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory", "set_agent_connection_tools",
     "list_skills", "get_skill", "set_skill",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
@@ -926,6 +927,54 @@ async function main() {
     "list_agent_runs shows the run the automation started, ended as aiOff without AI",
     agentRuns,
   );
+  // Memory: the run proposes notes (as a run's `remember` does, here in this process), the owner
+  // hears of it in the inbox and answers over MCP.
+  const { runAgentMemoryTool } = await import("@/server/agents/memory");
+  const bot = { userId: triage.user_id as string, workspaceId: ws };
+  for (const text of [`Printers jam on Mondays ${RUN}`, `Toner is in room 4 ${RUN}`]) {
+    const proposed = await runAgentMemoryTool(bot, agentRunEntry.id, { name: "remember", arguments: { text } });
+    check(!proposed.isError, "a run proposes a note", proposed);
+  }
+  const memoryInbox = await mcp.ok("list_notifications", { workspace_id: ws, unread_only: true });
+  const memoryItems = memoryInbox.notifications.filter((n: { kind: string }) => n.kind === "agent_memory");
+  check(
+    memoryItems.length === 1 &&
+      memoryItems[0].agent_id === triage.id &&
+      memoryItems[0].run_id === agentRunEntry.id &&
+      memoryItems[0].summary.includes(`Printers jam on Mondays ${RUN}`) &&
+      memoryItems[0].url === `${BASE}/w/${ws}/settings?tab=agents&agent=${triage.id}&agentTab=memory`,
+    "list_notifications shows one item for the run's proposals, with the first one's text and a link to the agent's memory",
+    memoryItems,
+  );
+  const proposedMemory = await mcp.ok("get_agent", { agent_id: triage.id });
+  check(proposedMemory.memory.proposed.length === 2 && proposedMemory.memory.kept.length === 0, "get_agent lists the proposals", proposedMemory.memory);
+  const [firstProposal, secondProposal] = proposedMemory.memory.proposed;
+  const keptOver = await mcp.ok("keep_agent_memory", { agent_id: triage.id, memory_id: firstProposal.memory_id, text: `Printers jam on Monday mornings ${RUN}` });
+  check(
+    keptOver.memory.kept.length === 1 && keptOver.memory.kept[0].text === `Printers jam on Monday mornings ${RUN}` && keptOver.memory.proposed.length === 1,
+    "keep_agent_memory keeps a proposal, changed, and answers with the memory as get_agent shows it",
+    keptOver.memory,
+  );
+  const dismissKept = await mcp.call("dismiss_agent_memory", { agent_id: triage.id, memory_ids: [keptOver.memory.kept[0].memory_id] });
+  check(dismissKept.isError && /delete_agent_memory/.test(dismissKept.text), "dismiss_agent_memory leaves kept notes alone and says how to delete them", dismissKept.text);
+  const dismissedOver = await mcp.ok("dismiss_agent_memory", { agent_id: triage.id, all: true });
+  check(dismissedOver.dismissed === 1 && dismissedOver.memory.proposed.length === 0, "dismiss_agent_memory dismisses every proposal", dismissedOver);
+  const afterAnswer = await mcp.ok("list_notifications", { workspace_id: ws });
+  check(!afterAnswer.notifications.some((n: { kind: string }) => n.kind === "agent_memory"), "once no proposal waits, the inbox item is gone", afterAnswer.notifications);
+  const keepGone = await mcp.call("keep_agent_memory", { agent_id: triage.id, memory_id: secondProposal.memory_id });
+  check(keepGone.isError && /get_agent/.test(keepGone.text), "keeping a dismissed proposal is a tool error pointing at get_agent", keepGone.text);
+  const ownNote = await mcp.ok("add_agent_memory", { agent_id: triage.id, text: `Escalate outages to IT ${RUN}` });
+  const ownId = ownNote.memory.kept.find((n: { text: string }) => n.text.startsWith("Escalate"))?.memory_id;
+  check(ownNote.memory.kept.length === 2 && ownId, "add_agent_memory writes a kept note", ownNote.memory);
+  const changedOwn = await mcp.ok("update_agent_memory", { agent_id: triage.id, memory_id: ownId, text: `Escalate outages to IT at once ${RUN}` });
+  check(changedOwn.memory.kept.some((n: { text: string }) => n.text === `Escalate outages to IT at once ${RUN}`), "update_agent_memory changes it", changedOwn.memory);
+  const emptyNote = await mcp.call("add_agent_memory", { agent_id: triage.id, text: "   " });
+  check(emptyNote.isError && /needs text/.test(emptyNote.text), "an empty note is a tool error", emptyNote.text);
+  const deletedOwn = await mcp.ok("delete_agent_memory", { agent_id: triage.id, memory_ids: [ownId] });
+  check(deletedOwn.deleted === 1 && deletedOwn.memory.kept.length === 1, "delete_agent_memory deletes a kept note", deletedOwn);
+  const forgotAll = await mcp.ok("delete_agent_memory", { agent_id: triage.id, all: true });
+  check(forgotAll.memory.kept.length === 0, "delete_agent_memory all makes the agent forget everything", forgotAll.memory);
+
   // Connections: owners list them (none yet here) and choose an agent's tools on one.
   const conns = await mcp.ok("list_connections", { workspace_id: ws, agent_id: triage.id });
   check(Array.isArray(conns.connections) && conns.connections.length === 0, "list_connections lists the workspace's connections (none)", conns);

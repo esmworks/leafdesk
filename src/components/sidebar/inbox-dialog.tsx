@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { listInboxAction, markReadAction, snoozeAction } from "@/app/actions/not
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
+import { agentMemoryPath } from "@/lib/agents";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -109,10 +110,15 @@ export function InboxDialog({
               onClick={() => {
                 if (!item.read) void markRead([item.id]);
                 onClose();
-                // Join requests are decided in Settings > Members; an agent's call opens its run.
+                // Join requests are decided in Settings > Members; an agent's call opens its run, its
+                // proposed notes its memory.
                 router.push(
                   item.kind === "agent_approval"
                     ? `/w/${workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`
+                    : item.kind === "agent_memory"
+                    ? item.memory
+                      ? agentMemoryPath(workspaceId, item.memory.agentId)
+                      : `/w/${workspaceId}/settings?tab=agents`
                     : item.pageId === null
                       ? `/w/${workspaceId}/settings?tab=members&view=requests`
                       : `/w/${workspaceId}/p/${item.pageId}`,
@@ -129,6 +135,11 @@ export function InboxDialog({
                     <>
                       <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{t("approvalTitle", { agent: item.approval?.agentName ?? item.actorName ?? t("someone") })}</span>
+                    </>
+                  ) : item.kind === "agent_memory" ? (
+                    <>
+                      <NotebookPen aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                      <span className="truncate">{t("memoryTitle", { agent: item.memory?.agentName ?? item.actorName ?? t("someone") })}</span>
                     </>
                   ) : item.pageId === null ? (
                     <>
@@ -147,6 +158,12 @@ export function InboxDialog({
                     ? item.approval
                       ? t("approval", { tool: item.approval.tool, connection: item.approval.connectionName })
                       : t("approvalAnswered")
+                    : item.kind === "agent_memory"
+                    ? !item.memory
+                      ? t("memoryAnswered")
+                      : item.memory.text === null
+                        ? t("memoryHidden", { count: item.memory.count })
+                        : t("memory", { text: item.memory.text, more: item.memory.count - 1 })
                     : item.kind === "access_request"
                     ? t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
                     : item.kind === "join_request"

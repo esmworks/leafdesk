@@ -103,7 +103,11 @@
     "inviteRequest": "{actor}, {email} adresini davet etmek istedi",
     "approvalTitle": "{agent} devam etmek için onay istiyor",
     "approval": "{connection} üzerinde “{tool}” çağırmak istiyor",
-    "approvalAnswered": "Yanıtlandı ya da süresi doldu"
+    "approvalAnswered": "Yanıtlandı ya da süresi doldu",
+    "memoryTitle": "{agent} bir şey hatırlamak istiyor",
+    "memory": "“{text}”{more, plural, =0 {} other { ve # not daha}}",
+    "memoryHidden": "{count, plural, one {Açamadığınız bir satırdaki çalışmadan bir not} other {Açamadığınız bir satırdaki çalışmadan # not}}",
+    "memoryAnswered": "Zaten incelendi"
   },
   "templates": {
     "title": "Şablonlar",

@@ -210,6 +210,7 @@ export default async function SettingsPage({
               isOwner={isOwner}
               agentId={typeof query.agent === "string" ? query.agent : undefined}
               runId={typeof query.run === "string" ? query.run : undefined}
+              agentTab={query.agentTab === "memory" ? "memory" : undefined}
             />
           )}
           {tab === "connections" && (
@@ -488,12 +489,15 @@ async function AgentsTab({
   isOwner,
   agentId,
   runId,
+  agentTab,
 }: {
   workspaceId: string;
   userId: string;
   isOwner: boolean;
   agentId?: string;
   runId?: string;
+  /** The agent's tab a link opens (a run opens its runs). */
+  agentTab?: "memory";
 }) {
   const [agents, settings, templates, proposals] = await Promise.all([
     listAgents(userId, workspaceId, { archived: isOwner }),
@@ -513,6 +517,7 @@ async function AgentsTab({
       ai={ai}
       initialAgentId={isOwner ? agentId : undefined}
       initialRunId={isOwner ? runId : undefined}
+      initialTab={isOwner ? agentTab : undefined}
     />
   );
 }

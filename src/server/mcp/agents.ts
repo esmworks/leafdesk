@@ -8,6 +8,7 @@ import {
   MAX_AGENT_NAME,
   MAX_AGENT_SKILLS,
   MAX_AGENTS,
+  MAX_AGENT_PROPOSALS,
   type AgentAccessView,
   type AgentSkillSkip,
   type AgentSkillView,
@@ -15,6 +16,7 @@ import {
   type AgentStepRecord,
   type AgentView,
 } from "@/lib/agents";
+import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
 import { AgentError } from "@/server/agents/manage";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
@@ -34,6 +36,8 @@ const iconInput = z
   .max(32)
   .nullable()
   .describe("An emoji shown with the agent's name; null removes it.");
+const noteInput = z.string().min(1).max(MAX_MEMORY_CHARS);
+const memoryIdInput = z.string().min(1).max(100).describe("The note's memory_id, from get_agent's memory.");
 const descriptionInput = z.string().max(MAX_AGENT_DESCRIPTION).describe("A line on what the agent is for, shown where people pick an agent.");
 const instructionsInput = z
   .string()
@@ -81,7 +85,43 @@ export const agentInputs = {
     agent_id: id("agent"),
     limit: z.number().int().min(1).max(100).default(20).describe("Maximum runs (1-100, default 20)."),
   }),
+  addNote: z.object({
+    agent_id: id("agent"),
+    text: noteInput.describe(`The note: one fact, in a sentence of at most ${MAX_MEMORY_CHARS} characters.`),
+  }),
+  updateNote: z.object({
+    agent_id: id("agent"),
+    memory_id: memoryIdInput,
+    text: noteInput.describe(`The note's new text (at most ${MAX_MEMORY_CHARS} characters). A proposal stays one until it is kept.`),
+  }),
+  keepNote: z.object({
+    agent_id: id("agent"),
+    memory_id: memoryIdInput.describe("The memory_id of a proposed note, from get_agent's memory.proposed."),
+    text: noteInput.optional().describe(`Keep it with this text instead (at most ${MAX_MEMORY_CHARS} characters); leave out to keep it as proposed.`),
+  }),
+  dropNotes: (what: "proposed" | "kept") =>
+    z.object({
+      agent_id: id("agent"),
+      memory_ids: z
+        .array(memoryIdInput)
+        .min(1)
+        .max(MAX_MEMORIES + MAX_AGENT_PROPOSALS)
+        .optional()
+        .describe(what === "proposed" ? "The memory_ids of proposals, from get_agent's memory.proposed." : "The memory_ids of kept notes, from get_agent's memory.kept."),
+      all: z
+        .boolean()
+        .default(false)
+        .describe(what === "proposed" ? "Dismiss every proposal waiting for an owner instead." : "Delete every kept note instead: the agent forgets everything it remembers."),
+    }),
 };
+
+/** At least one note, by id or all of them, never both. */
+export function notesToDrop(args: { memory_ids?: string[]; all: boolean }): string[] | "all" {
+  if (args.all && args.memory_ids?.length) throw new ToolInputError("Pass memory_ids or all, not both.");
+  if (args.all) return "all";
+  if (!args.memory_ids?.length) throw new ToolInputError("Pass the memory_ids of the notes, or all: true.");
+  return args.memory_ids;
+}
 
 /** update_agent's arguments as a patch: only what was given. */
 export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "agent_id">) {
@@ -132,6 +172,18 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "tooManySkills":
           throw new ToolInputError(`An agent has at most ${error.params.max ?? MAX_AGENT_SKILLS} skills. Take one away first.`);
+        case "noteEmpty":
+          throw new ToolInputError("A note needs text.");
+        case "noteTooLong":
+          throw new ToolInputError(`A note has at most ${error.params.max ?? MAX_MEMORY_CHARS} characters. Make it shorter.`);
+        case "memoryFull":
+          throw new ToolInputError(
+            `The agent's memory is full (${error.params.max ?? MAX_MEMORIES} kept notes). Delete a note with delete_agent_memory first, or change one with update_agent_memory.`,
+          );
+        case "noteNotFound":
+          throw new ToolInputError(
+            "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (dismiss_agent_memory).",
+          );
       }
     }
     if (error instanceof PermissionError) throw new ToolInputError(`${error.message}.`);

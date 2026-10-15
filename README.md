@@ -230,7 +230,9 @@ versions, upgrades and running behind a domain.
   database rows and pages without connections.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
-  database automation notifies you, and when a reminder you set is due, with an email a little later. Snooze an item
+  database automation notifies you, and when a reminder you set is due, with an email a little later.
+  Owners also find there an agent's call waiting for approval and the notes an agent's run proposed
+  for its memory. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
@@ -1506,6 +1508,15 @@ proposals, but not add, change or keep notes until the agent is restored. With t
 a change to the agent, counted, without the notes' text. MCP's `get_agent` lists the kept notes and
 the proposals.
 
+When a run proposes a note, each owner of the workspace gets one inbox item for that run (and a
+push notification, without the note's text), whatever their notification choices, and no email.
+It shows the first proposal's text, unless the run was on a row that owner can't open, and how
+many more the run proposed; opening it opens the agent's *Memory* tab. It can be snoozed, and goes
+away once every proposal of the run has been kept or dismissed (or dropped by a later run). Over
+MCP, owners keep and dismiss proposals with `keep_agent_memory` and `dismiss_agent_memory`, and
+write, change and delete notes with `add_agent_memory`, `update_agent_memory` and
+`delete_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
+
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.
 
@@ -1525,7 +1536,9 @@ log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
 shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
-`set_agent_access`, `set_agent_skill` and `list_agent_runs`. The REST API has no agent endpoints.
+`set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
+`keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory` and `list_agent_runs`. The REST
+API has no agent endpoints.
 
 > [!WARNING]
 > Anything shared with an agent can end up in the rows it writes: a value it copies, a summary in
@@ -1747,9 +1760,11 @@ The tools cover:
   properties are named by name or id and people by id, email, name or `"me"`, and
   `list_automations` shows names next to the stored ids. A `run_agent` action names an agent
   by id or name.
-- **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it and its
-  skills), `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access`
-  (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit)
+- **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it, its
+  skills and its memory), `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access`
+  (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit),
+  `keep_agent_memory` and `dismiss_agent_memory` (answer the notes its runs proposed),
+  `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` (an owner's own notes)
   and `list_agent_runs` (each run's steps summarized). Owners manage
   agents; members can list them (see [Agents](#agents)).
 

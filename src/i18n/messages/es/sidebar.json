@@ -103,7 +103,11 @@
     "inviteRequest": "{actor} pidió invitar a {email}",
     "approvalTitle": "{agent} pide permiso para seguir",
     "approval": "Quiere llamar a «{tool}» en {connection}",
-    "approvalAnswered": "Respondida o caducada"
+    "approvalAnswered": "Respondida o caducada",
+    "memoryTitle": "{agent} quiere recordar algo",
+    "memory": "«{text}»{more, plural, =0 {} one { y # nota más} other { y # notas más}}",
+    "memoryHidden": "{count, plural, one {Una nota} other {# notas}} de una ejecución en una fila que no puedes abrir",
+    "memoryAnswered": "Ya revisado"
   },
   "templates": {
     "title": "Plantillas",

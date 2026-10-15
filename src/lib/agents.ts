@@ -42,6 +42,9 @@ export const MAX_AGENT_SKILL_CHARS = 12_000;
  * kept notes are bounded as the AI chat's are (MAX_MEMORIES, MAX_MEMORY_CHARS each).
  */
 export const MAX_AGENT_PROPOSALS = 10;
+
+/** Where an agent's memory opens in Settings (its Memory tab), for its owners. */
+export const agentMemoryPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&agentTab=memory`;
 /** Finished runs are kept this long, as the agent's history. */
 export const AGENT_RUN_HISTORY_DAYS = 30;
 

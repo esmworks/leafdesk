@@ -90,13 +90,15 @@ import {
   describeAgent,
   describeAgentRun,
   describeAgentSummary,
+  notesToDrop,
   toAgentPatch,
   withAgentErrors,
   withSharingErrors,
 } from "./agents";
 import * as connections from "@/server/connections/manage";
 import { connectionInputs, describeConnection, withConnectionErrors } from "./connections";
-import { AGENT_RUN_HISTORY_DAYS, AGENT_RUN_TIMEOUT_MS, MAX_AGENT_ROUNDS, MAX_AGENT_SKILLS, MAX_AGENT_WRITES } from "@/lib/agents";
+import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
+import { AGENT_RUN_HISTORY_DAYS, AGENT_RUN_TIMEOUT_MS, agentMemoryPath, MAX_AGENT_ROUNDS, MAX_AGENT_SKILLS, MAX_AGENT_WRITES } from "@/lib/agents";
 import {
   automationContext,
   automationInputs,
@@ -887,7 +889,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, requests for access to pages the user can share and (for owners) join requests, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -922,6 +924,25 @@ export function createMcpServer(principal: McpPrincipal) {
                 url: n.approval
                   ? `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents&agent=${n.approval.agentId}&run=${n.approval.runId}`
                   : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
+              };
+            }
+            // An owner keeps or dismisses a run's notes with keep_agent_memory / dismiss_agent_memory.
+            if (n.kind === "agent_memory") {
+              const m = n.memory;
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: !m
+                  ? "An agent's run proposed notes for its memory; an owner has kept or dismissed them since"
+                  : m.text === null
+                    ? `A run of the agent "${m.agentName}" on a row the user can't open proposed ${m.count === 1 ? "a note" : `${m.count} notes`} for its memory; their text is hidden from the user, who may only dismiss them (dismiss_agent_memory)`
+                    : `The agent "${m.agentName}" proposed ${m.count === 1 ? "a note" : `${m.count} notes`} for its memory, waiting for an owner to keep or dismiss (keep_agent_memory, dismiss_agent_memory; get_agent lists them): "${m.text}"${m.count > 1 ? ` and ${m.count - 1} more` : ""}`,
+                ...(m ? { agent_id: m.agentId, run_id: m.runId } : {}),
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: m ? `${env.appUrl}${agentMemoryPath(n.workspaceId, m.agentId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
               };
             }
             // Join requests are about the workspace, not a page; owners decide them in the app.
@@ -1920,7 +1941,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_agent",
     {
       title: "Get an agent",
-      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them in the app (proposed; a run's notes never go with a run until an owner keeps them), each with the run that proposed it. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
+      description: `Get an agent from list_agents: its instructions, the pages shared with it, each with the agent's level (view, comment or edit) and link, and its skills (set_agent_skill), each with whether its runs follow it now, and its memory: notes that go with every run (kept), and notes its runs proposed that wait for an owner to keep or dismiss them (proposed: keep_agent_memory, dismiss_agent_memory; a run's notes never go with a run until an owner keeps them), each with the run that proposed it. Pages and skills the user can't open are only counted (hidden), and a proposal from a run on a row they can't open has no text. ${AGENT_NOTE}`,
       inputSchema: agentInputs.agentId,
       annotations: READ,
     },
@@ -2036,6 +2057,101 @@ export function createMcpServer(principal: McpPrincipal) {
         else await agentSkills.removeAgentSkill(userId, agent_id, skill_id);
         const agent = await agents.getAgent(userId, agent_id);
         return describeAgent(agent, undefined, await agentSkills.listAgentSkills(userId, agent_id));
+      }),
+    ),
+  );
+  const MEMORY_NOTE = `An agent's memory: short notes that go with every one of its runs (kept), and notes its runs proposed (proposed), which go with no run until an owner keeps them. Only owners manage it. A kept note goes with every later run, whoever starts it, like the agent's instructions: read a proposal before keeping it, since a run proposes what it read in rows, pages and events other people and services wrote. An agent keeps at most ${MAX_MEMORIES} notes of at most ${MAX_MEMORY_CHARS} characters. Returns the agent with its memory, as get_agent shows it.`;
+  const withMemory = async (agentId: string) => describeAgent(await agents.getAgent(userId, agentId), undefined, undefined, await agentMemory.listAgentMemory(userId, agentId));
+
+  server.registerTool(
+    "add_agent_memory",
+    {
+      title: "Write a note into an agent's memory",
+      description: `Write a note into an agent's memory: kept at once, so it goes with the agent's runs from now on (the same text a run proposed keeps that proposal). ${MEMORY_NOTE}`,
+      inputSchema: agentInputs.addNote,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, text }) =>
+      withAgentErrors(async () => {
+        await agentMemory.addAgentMemory(userId, agent_id, text);
+        return withMemory(agent_id);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "update_agent_memory",
+    {
+      title: "Change a note in an agent's memory",
+      description: `Change the text of a note in an agent's memory, kept or proposed (a proposal stays one: keep it with keep_agent_memory). ${MEMORY_NOTE}`,
+      inputSchema: agentInputs.updateNote,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, memory_id, text }) =>
+      withAgentErrors(async () => {
+        await agentMemory.updateAgentMemory(userId, agent_id, memory_id, text);
+        return withMemory(agent_id);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "keep_agent_memory",
+    {
+      title: "Keep a note an agent's run proposed",
+      description: `Keep a note one of the agent's runs proposed (get_agent's memory.proposed), as it is or with text changed first: it goes with every later run of the agent. A proposal from a run on a row the user can't open (its text hidden) can't be kept by them, only dismissed. When the agent already keeps the same text, the proposal just goes. Show the user the note and confirm before keeping it. ${MEMORY_NOTE}`,
+      inputSchema: agentInputs.keepNote,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(({ agent_id, memory_id, text }) =>
+      withAgentErrors(async () => {
+        await agentMemory.keepAgentMemory(userId, agent_id, memory_id, text);
+        return withMemory(agent_id);
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "dismiss_agent_memory",
+    {
+      title: "Dismiss notes an agent's runs proposed",
+      description: `Dismiss notes the agent's runs proposed (get_agent's memory.proposed), by memory_ids or all of them: they are deleted and go with no run. Kept notes are deleted with delete_agent_memory. ${MEMORY_NOTE}`,
+      inputSchema: agentInputs.dropNotes("proposed"),
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write((args) =>
+      withAgentErrors(async () => {
+        const which = notesToDrop(args);
+        const gone = await agentMemory.deleteAgentMemory(userId, args.agent_id, which === "all" ? "proposed" : which, "proposed");
+        if (!gone && which !== "all") {
+          throw new ToolInputError("None of these memory_ids is a proposal waiting for an owner. get_agent lists the agent's notes; kept notes are deleted with delete_agent_memory.");
+        }
+        return { dismissed: gone, ...(await withMemory(args.agent_id)) };
+      }),
+    ),
+  );
+
+  server.registerTool(
+    "delete_agent_memory",
+    {
+      title: "Delete notes from an agent's memory",
+      description: `Delete kept notes from an agent's memory (get_agent's memory.kept), by memory_ids or all of them (the agent forgets everything it remembers; confirm with the user first). Proposals are dismissed with dismiss_agent_memory. ${MEMORY_NOTE}`,
+      inputSchema: agentInputs.dropNotes("kept"),
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write((args) =>
+      withAgentErrors(async () => {
+        const which = notesToDrop(args);
+        const gone = await agentMemory.deleteAgentMemory(userId, args.agent_id, which === "all" ? "kept" : which, "kept");
+        if (!gone && which !== "all") {
+          throw new ToolInputError("None of these memory_ids is a kept note of the agent. get_agent lists its notes; proposals are dismissed with dismiss_agent_memory.");
+        }
+        return { deleted: gone, ...(await withMemory(args.agent_id)) };
       }),
     ),
   );

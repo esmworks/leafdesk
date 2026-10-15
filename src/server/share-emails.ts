@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { accessRequest, databaseAutomation, databaseProperty, notification, page, user, workspace, workspaceJoinRequest } from "@/db/schema";
+import { accessRequest, databaseAutomation, databaseProperty, isOwnerKind, notification, page, user, workspace, workspaceJoinRequest } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { commentText } from "@/lib/comments";
@@ -151,7 +151,7 @@ async function send({
   date,
   propertyId,
 }: Due) {
-  if (readAt || kind === "assignment" || kind === "agent_approval") return;
+  if (readAt || kind === "assignment" || isOwnerKind(kind)) return;
   const locale = await recipientLocale(userId, emailLocale);
   if (kind === "join_request") return sendJoinRequest(userId, workspaceId, joinRequestId, locale);
   if (!pageId) return;

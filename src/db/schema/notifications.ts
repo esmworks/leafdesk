@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, check, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { agentRun } from "./agents";
 import { databaseProperty, page, workspace, workspaceJoinRequest } from "./app";
 import { session, user } from "./auth";
@@ -120,10 +120,15 @@ export const NOTIFICATION_KINDS = [
   "join_request",
   "automation",
   "agent_approval",
+  "agent_memory",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
-/** Kinds people choose to hear about; an agent's call waiting for approval always shows to owners. */
-export type PreferenceKind = Exclude<NotificationKind, "agent_approval">;
+/** Kinds that always show to the workspace's owners: an agent's call or notes waiting for them. */
+export const OWNER_KINDS = ["agent_approval", "agent_memory"] as const satisfies readonly NotificationKind[];
+export type OwnerKind = (typeof OWNER_KINDS)[number];
+export const isOwnerKind = (kind: string): kind is OwnerKind => (OWNER_KINDS as readonly string[]).includes(kind);
+/** Kinds people choose to hear about (not OWNER_KINDS). */
+export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
 
 /**
  * A user's inbox, per workspace. "assignment": `actorId` added the user to the person property
@@ -137,7 +142,9 @@ export type PreferenceKind = Exclude<NotificationKind, "agent_approval">;
  * waits for the workspace's owners; it has no page. "automation": automation `automationId` told the
  * user about row `pageId`, which `actorId` added or changed. "agent_approval": agent `actorId`'s run
  * `agentRunId` waits for an owner to approve a call to a connection's tool; it has no page, and goes
- * away once anyone answers or the call runs out of time. Unread ones are dropped when the change is
+ * away once anyone answers or the call runs out of time. "agent_memory": agent `actorId`'s run
+ * `agentRunId` proposed notes for its memory (server/agents/memory.ts); one per owner and run, with
+ * no page, gone once no proposal of the run waits any more. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */
@@ -168,7 +175,7 @@ export const notification = pgTable(
     joinRequestId: text("join_request_id").references(() => workspaceJoinRequest.id, { onDelete: "cascade" }),
     /** Automation notifications: the automation that sent it. */
     automationId: text("automation_id").references(() => databaseAutomation.id, { onDelete: "cascade" }),
-    /** Agent approval notifications: the run whose call waits. */
+    /** Agent approval and memory notifications: the run whose call or notes wait. */
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     readAt: timestamp("read_at", { withTimezone: true }),
@@ -196,8 +203,10 @@ export const notification = pgTable(
     index("notification_access_request_idx").on(t.accessRequestId),
     index("notification_agent_run_idx").on(t.agentRunId),
     index("notification_snoozed_idx").on(t.snoozedUntil).where(sql`${t.snoozedUntil} is not null`),
-    // Only join requests and agents' approvals are about no page (access requests are about the page asked for).
-    check("notification_subject_check", sql`${t.kind} in ('join_request', 'agent_approval') or ${t.pageId} is not null`),
+    // A run that proposes notes tells each owner once.
+    uniqueIndex("notification_agent_memory_idx").on(t.agentRunId, t.userId).where(sql`${t.kind} = 'agent_memory'`),
+    // Only join requests and agents' approvals and notes are about no page (access requests are about the page asked for).
+    check("notification_subject_check", sql`${t.kind} in ('join_request', 'agent_approval', 'agent_memory') or ${t.pageId} is not null`),
   ],
 );
 

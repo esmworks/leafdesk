@@ -3,6 +3,7 @@
  * subscription, and what a push message says about a notification (see server/push.ts).
  */
 
+import { agentMemoryPath } from "./agents";
 import { canSnooze } from "./snooze";
 
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
@@ -114,16 +115,18 @@ export type PushItem = {
   requestKind: string | null;
   requestEmail: string | null;
   approval: { agentId: string; runId: string; agentName: string; tool: string; connectionName: string } | null;
+  memory: { agentId: string; agentName: string; count: number } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
-export type PushTranslator = (key: string, values?: Record<string, string>) => string;
+export type PushTranslator = (key: string, values?: Record<string, string | number>) => string;
 
 /** Where opening the notification leads: the same place the inbox does. */
 export function pushLink(item: PushItem): string {
   if (item.kind === "agent_approval") {
     return `/w/${item.workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`;
   }
+  if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   return `/w/${item.workspaceId}/p/${item.pageId}`;
 }
@@ -142,6 +145,11 @@ export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoD
     if (!item.approval) return null;
     title = t("approvalTitle", { agent: item.approval.agentName || actor });
     line = t("approval", { tool: item.approval.tool, connection: item.approval.connectionName });
+  } else if (item.kind === "agent_memory") {
+    // Not what the notes say: a lock screen shows it to whoever holds the device.
+    if (!item.memory) return null;
+    title = t("memoryTitle", { agent: item.memory.agentName || actor });
+    line = t("memory", { count: item.memory.count });
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");
     line = item.requestKind === "invite" ? t("inviteRequest", { actor, email: item.requestEmail ?? "" }) : t("joinRequest", { actor });
