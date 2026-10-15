@@ -67,7 +67,7 @@ function clientModeOf(authType: ConnectionAuthType, entry: CatalogEntry | null |
 export function ConnectionIcon({ icon, url, className }: { icon: string | null; url?: string; className?: string }) {
   if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
   const entry = url ? catalogEntryFor(url) : undefined;
-  if (entry) return <ServiceLogo entry={entry} />;
+  if (entry) return <ServiceLogo entry={entry} className={className} />;
   return <Plug className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
@@ -75,7 +75,7 @@ export function ConnectionIcon({ icon, url, className }: { icon: string | null; 
  * A catalog service's logo, filling the box it sits in. It sits on white in either theme, since
  * most logos are drawn for a light background.
  */
-function ServiceLogo({ entry }: { entry: CatalogEntry }) {
+function ServiceLogo({ entry, className }: { entry: CatalogEntry; className?: string }) {
   return (
     <img
       src={catalogLogo(entry)}
@@ -83,7 +83,7 @@ function ServiceLogo({ entry }: { entry: CatalogEntry }) {
       loading="lazy"
       decoding="async"
       draggable={false}
-      className="h-full w-full rounded-[22%] bg-white object-contain ring-1 ring-black/5"
+      className={cn("h-full w-full rounded-[22%] bg-white object-contain ring-1 ring-black/5", className)}
     />
   );
 }
@@ -293,7 +293,11 @@ function CatalogBrowser({
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CatalogCategory | "">("");
   const categoryLabel = (c: CatalogCategory) => t(`catalog.categories.${c}`);
-  const found = searchCatalog(query, categoryLabel).filter((entry) => !category || entry.category === category);
+  const groups = useMemo(() => {
+    const found = searchCatalog(query, (c) => t(`catalog.categories.${c}`)).filter((entry) => !category || entry.category === category);
+    return CATALOG_CATEGORIES.map((c) => ({ category: c, entries: found.filter((entry) => entry.category === c) })).filter((g) => g.entries.length);
+  }, [query, category, t]);
+  const shown = groups.reduce((n, g) => n + g.entries.length, 0);
   const added = useMemo(() => {
     const byEntry = new Map<string, ConnectionView>();
     for (const conn of existing) {
@@ -302,7 +306,6 @@ function CatalogBrowser({
     }
     return byEntry;
   }, [existing]);
-  const groups = CATALOG_CATEGORIES.map((c) => ({ category: c, entries: found.filter((entry) => entry.category === c) })).filter((g) => g.entries.length);
   const tooMany = full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined;
 
   return (
@@ -350,13 +353,13 @@ function CatalogBrowser({
               {group.entries.map((entry) => {
                 const conn = added.get(entry.id);
                 return (
-                  <li key={entry.id}>
+                  <li key={entry.id} className="flex items-center gap-1 rounded-xl border border-border transition-colors hover:bg-bg-hover">
                     <button
                       type="button"
                       disabled={!conn && full}
                       title={conn ? undefined : tooMany}
                       onClick={() => (conn ? onOpen(conn) : onPick(entry))}
-                      className="group flex w-full items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:bg-bg-hover disabled:cursor-not-allowed disabled:opacity-60"
+                      className="group flex min-w-0 flex-1 items-center gap-3 p-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <span className="h-10 w-10 shrink-0">
                         <ServiceLogo entry={entry} />
@@ -378,6 +381,12 @@ function CatalogBrowser({
                         </span>
                       )}
                     </button>
+                    {/* Another connection to the same service: a second workspace, account or org. */}
+                    {conn && !full && (
+                      <IconButton label={t("catalog.addAnother", { name: entry.name })} onClick={() => onPick(entry)} className="mr-2 h-7 w-7 shrink-0">
+                        <Plus className="h-3.5 w-3.5" />
+                      </IconButton>
+                    )}
                   </li>
                 );
               })}
@@ -385,7 +394,7 @@ function CatalogBrowser({
           </section>
         ))
       )}
-      <p className="text-xs text-fg-muted">{t("catalog.count", { n: found.length })}</p>
+      <p className="text-xs text-fg-muted">{t("catalog.count", { n: shown })}</p>
     </div>
   );
 }
@@ -414,8 +423,9 @@ function AddConnectionForm({
   const { pending, error, run } = useAction();
   const sign = useSignIn(workspaceId, onAdded);
   const setup = useContext(OAuthSetupContext);
-  // What comes from the service (the link to its keys, its app) only while the form still points at it.
-  const atEntry = entry && url.trim() === entry.url ? entry : null;
+  // What comes from a listed service (the link to its keys, its app) whenever the address is one of
+  // the catalog's, picked from it or typed in.
+  const atEntry = catalogEntryFor(url.trim()) ?? null;
   const tokenHelp = atEntry?.tokenHelp ? { href: atEntry.tokenHelp, name: atEntry.name } : undefined;
   const clientMode = clientModeOf(authType, atEntry, setup);
   const clientMissing = clientMode === "required" && (!clientId.trim() || (!atEntry?.client?.secretOptional && !clientSecret.trim()));
@@ -466,7 +476,12 @@ function AddConnectionForm({
         token={token}
         eventPreset={eventPreset}
         onName={setName}
-        onUrl={setUrl}
+        onUrl={(next) => {
+          setUrl(next);
+          // A listed service whose events are signed its own way gets that signing once its address is typed.
+          const preset = catalogEntryFor(next.trim())?.eventPreset;
+          if (preset && !catalogEntryFor(url.trim())) setEventPreset(preset);
+        }}
         onAuthType={setAuthType}
         onToken={setToken}
         onEventPreset={setEventPreset}

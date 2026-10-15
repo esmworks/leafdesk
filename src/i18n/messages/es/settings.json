@@ -1437,6 +1437,7 @@
       "none": "Ningún servicio coincide.",
       "added": "Añadido",
       "connect": "Conectar",
+      "addAnother": "Añadir otra conexión de {name}",
       "custom": "Añadir otro servidor",
       "auth": {
         "oauth": "Inicio de sesión",

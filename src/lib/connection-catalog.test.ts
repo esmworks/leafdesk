@@ -49,7 +49,10 @@ describe("connection catalog", () => {
   });
 
   it("has a logo for every entry, and no logo of a service it no longer lists", () => {
-    const files = readdirSync(join(process.cwd(), "public", "connections")).sort();
+    // Only the logos: a folder browsed in a file manager may also hold its own files (.DS_Store).
+    const files = readdirSync(join(process.cwd(), "public", "connections"))
+      .filter((file) => file.endsWith(".png"))
+      .sort();
     expect(files).toEqual(CONNECTION_CATALOG.map((entry) => catalogLogo(entry).replace("/connections/", "")).sort());
   });
 

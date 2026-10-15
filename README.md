@@ -1697,8 +1697,9 @@ before a release run `pnpm catalog:check` (it needs the network and isn't part o
 asks every entry the questions above without credentials, lists those that no longer answer as
 listed and exits with 1 if there are any; `pnpm catalog:check linear sentry` checks only those
 ids. Each entry's logo is `public/connections/<id>.png`: the service's own apple-touch-icon (or its
-largest favicon) scaled to 96 px, e.g. `sips -s format png -z 96 96 icon.png --out <id>.png`, or,
-when the service has no icon that large, its glyph from simple-icons (CC0) in its brand color. A
+largest favicon) fitted into 96 px and padded to a square, e.g. `sips -s format png -Z 96 icon.png
+--out <id>.png && sips -p 96 96 <id>.png`, or, when the service has no icon that large, its glyph
+from simple-icons (CC0) in its brand color. A
 test fails when an entry has no logo, or a logo has no entry. *Add another server* starts from an empty form. Give it a name and the server's URL
 (Streamable HTTP), and how it signs in:
 

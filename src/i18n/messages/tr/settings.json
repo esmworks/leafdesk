@@ -1437,6 +1437,7 @@
       "none": "Eşleşen servis yok.",
       "added": "Eklendi",
       "connect": "Bağlan",
+      "addAnother": "Bir {name} bağlantısı daha ekle",
       "custom": "Başka bir sunucu ekle",
       "auth": {
         "oauth": "Giriş yaparak",

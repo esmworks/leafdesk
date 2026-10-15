@@ -1437,6 +1437,7 @@
       "none": "Kein Dienst passt.",
       "added": "Hinzugefügt",
       "connect": "Verbinden",
+      "addAnother": "Eine weitere {name}-Verbindung hinzufügen",
       "custom": "Anderen Server hinzufügen",
       "auth": {
         "oauth": "Anmeldung",

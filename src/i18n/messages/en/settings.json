@@ -1437,6 +1437,7 @@
       "none": "No service matches.",
       "added": "Added",
       "connect": "Connect",
+      "addAnother": "Add another {name} connection",
       "custom": "Add another server",
       "auth": {
         "oauth": "Sign in",
