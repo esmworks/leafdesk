@@ -11,6 +11,9 @@
 - **Pages with a dashboard use the whole width.** Adding a dashboard, in the editor or with the MCP
   `add_dashboard` tool, turns on the page's *Full width*, so its widgets get the room; the page menu
   turns it off again.
+- **Dashboard widgets move by dragging.** Editors pick a widget up by its title bar and drop it
+  beside another (or above or below one as wide as the dashboard); a line shows where it lands. The
+  widget's menu still moves it one place at a time.
 
 ## 0.5.2 — 2026-10-15
 

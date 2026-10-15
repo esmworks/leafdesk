@@ -192,7 +192,6 @@ export function updateWidget(widgets: DashboardWidget[], id: string, change: (wi
   });
 }
 
-/** `widgets` with the one whose id is `id` moved `by` places (clamped to the ends). */
 /** `widgets` with the widget `id` moved right before or after the widget `target`. */
 export function placeWidget(widgets: DashboardWidget[], id: string, target: string, side: "before" | "after") {
   const moving = widgets.find((w) => w.id === id);
@@ -203,6 +202,7 @@ export function placeWidget(widgets: DashboardWidget[], id: string, target: stri
   return rest;
 }
 
+/** `widgets` with the one whose id is `id` moved `by` places (clamped to the ends). */
 export function moveWidget(widgets: DashboardWidget[], id: string, by: number) {
   const from = widgets.findIndex((w) => w.id === id);
   if (from < 0) return widgets;

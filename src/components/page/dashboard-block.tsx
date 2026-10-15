@@ -11,6 +11,7 @@ import { Chart, NumberFigure, useMeasureName, type OpenedMark } from "@/componen
 import { Floating, useFloating } from "@/components/database/floating";
 import { useFormatResult } from "@/components/database/table-calculations";
 import { useViewerTimeZone } from "@/components/database/use-today";
+import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { Button, cn, IconButton, Input, MenuItem, MenuSeparator, PageIcon, pageLabel } from "@/components/ui";
 import type { FilterEntry } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
@@ -23,6 +24,7 @@ import {
   moveWidget,
   newWidget,
   parseDashboard,
+  placeWidget,
   serializeDashboard,
   updateWidget,
   WIDGET_SPANS,
@@ -49,6 +51,9 @@ import { DatabasePicker } from "./database-picker";
  * asked for again when their database changes (its rows, or how the reader sees it); other layouts
  * are linked views. Editors set a widget up in place, with the linked view's own toolbar.
  */
+/** What a dragged widget carries: not text, so the editor around the dashboard leaves the drop alone. */
+const WIDGET_DRAG_TYPE = "application/x-leafdesk-widget";
+
 export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
   meta: { selectable: false },
   render: function DashboardBlockView({ block, editor }) {
@@ -79,6 +84,7 @@ function Dashboard({ widgets, onChange }: { widgets: DashboardWidget[]; onChange
   const full = widgets.length >= MAX_WIDGETS;
   const shown = useRef(new Map<string, ShownWidget>());
   useTreeRefresh(host?.workspaceId ?? null, shown);
+  const drag = useReorderDrag("grid", (moved, target, side) => onChange?.(placeWidget(widgets, moved, target, side)), WIDGET_DRAG_TYPE);
 
   const add = (databaseId: string) => {
     setPicking(false);
@@ -114,6 +120,7 @@ function Dashboard({ widgets, onChange }: { widgets: DashboardWidget[]; onChange
                 widget={widget}
                 shown={shown}
                 editing={editing === widget.id}
+                drag={onChange && editing !== widget.id ? drag.handlers(widget.id) : undefined}
                 actions={
                   onChange && {
                     first: index === 0,
@@ -228,11 +235,14 @@ function Widget({
   widget,
   shown,
   editing,
+  drag,
   actions,
 }: {
   widget: DashboardWidget;
   shown: RefObject<Map<string, ShownWidget>>;
   editing: boolean;
+  /** Editors move a widget by dragging its title bar onto another widget. */
+  drag?: ReorderDragHandlers;
   actions?: WidgetActions;
 }) {
   const t = useTranslations("page.dashboard");
@@ -270,15 +280,56 @@ function Widget({
     );
   } else body = <WidgetBody widget={widget} data={data} />;
 
+  const box = useRef<HTMLElement>(null);
   return (
     <section
+      ref={box}
       aria-label={title || undefined}
-      className={cn("flex min-w-0 flex-col rounded-lg border p-3", widgetBoxClass(widget.color), WIDGET_SPAN_CLASS[editing ? 4 : widget.span])}
+      onDragOver={drag?.onDragOver}
+      onDrop={drag?.onDrop}
+      className={cn(
+        "relative flex min-w-0 flex-col rounded-lg border p-3",
+        widgetBoxClass(widget.color),
+        WIDGET_SPAN_CLASS[editing ? 4 : widget.span],
+        drag?.dragging && "opacity-50",
+      )}
     >
-      <div className="flex min-h-6 min-w-0 items-center gap-1.5">
+      {drag?.dropSide && (
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute z-10 rounded bg-accent",
+            drag.dropAxis === "y" ? "inset-x-0 h-0.5" : "inset-y-0 w-0.5",
+            drag.dropAxis === "y"
+              ? drag.dropSide === "before"
+                ? "-top-[7px]"
+                : "-bottom-[7px]"
+              : drag.dropSide === "before"
+                ? "-left-[7px]"
+                : "-right-[7px]",
+          )}
+        />
+      )}
+      <div
+        draggable={!!drag}
+        onDragStart={
+          drag &&
+          ((e) => {
+            // The whole widget goes with the pointer, held where it was picked up.
+            const el = box.current;
+            if (el) {
+              const at = el.getBoundingClientRect();
+              e.dataTransfer.setDragImage(el, e.clientX - at.left, e.clientY - at.top);
+            }
+            drag.onDragStart(e);
+          })
+        }
+        onDragEnd={drag?.onDragEnd}
+        className={cn("flex min-h-6 min-w-0 items-center gap-1.5", drag && "cursor-grab active:cursor-grabbing")}
+      >
         {ok && <PageIcon icon={ok.database.icon} kind="database" className="text-sm" />}
         {href ? (
-          <Link href={href} className="min-w-0 truncate text-sm font-medium hover:underline">
+          <Link href={href} draggable={false} className="min-w-0 truncate text-sm font-medium hover:underline">
             {title}
           </Link>
         ) : (
