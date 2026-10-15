@@ -461,7 +461,8 @@ export function describeAgentSchedule(workspaceId: string, s: AgentScheduleView)
   const notes: string[] = [];
   if (!s.enabled && s.lastError) notes.push(`${SCHEDULE_PAUSED[s.lastError]}; set it again (update_agent_schedule) to turn it back on.`);
   else if (s.lastError === "failed") notes.push(SCHEDULE_PAUSED.failed);
-  if (s.agentAccess === "none") notes.push("The agent can't open the database: its runs fail until it is shared with the agent (set_agent_access).");
+  if (s.agentAccess === "none") notes.push("The agent can't open the database: it skips its runs until the database is shared with it (set_agent_access).");
+  if (s.taskHidden) notes.push("The task is hidden: the user can't open the database. update_agent_schedule keeps it unless given a new task.");
   else if (s.agentAccess === "view" || s.agentAccess === "comment") notes.push(`The agent can only ${s.agentAccess === "view" ? "read" : "read and comment on"} the database: give it edit access (set_agent_access) to change rows.`);
   return {
     schedule_id: s.id,

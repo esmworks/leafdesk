@@ -19,7 +19,8 @@
  * start no automations (`asAutomation`), so agents can't set each other off. On top of those come
  * the tools of connections an owner allowed it: one that only reads runs at once, except where what
  * the run reads was written by someone the workspace doesn't know (a row's run no member started,
- * an anonymous form answer; an event's run whose trigger an owner hasn't marked trusted), where
+ * an anonymous form answer; a schedule's run over a database with such rows; an event's run whose
+ * trigger an owner hasn't marked trusted), where
  * every one waits; any other makes the run wait (`awaiting_approval`, its conversation saved in
  * `state`) until an owner answers, and fails it, sending nothing, after APPROVAL_TIMEOUT_MS.
  *
@@ -33,7 +34,7 @@
  * waiting call as the agent made it; only owners approving that call see it from there (the
  * agent's runs in the app), and it is cleared once the run ends.
  */
-import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, lte, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, connection, connectionEvent, connectionTrigger, notification, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
 import {
@@ -57,7 +58,7 @@ import {
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
-import { AccessError, findMembership, pageAccessOf } from "@/server/access";
+import { AccessError, findMembership, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, takeWorkspaceCapacity, type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentEventPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
@@ -78,7 +79,7 @@ import { agentSkillRoom, runSkills } from "./skills";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 
 const SWEEP_INTERVAL_MS = 5_000;
-/** A run taken this long ago and not finished belongs to a worker that stopped: it's taken again. */
+/** A run taken (or last gone on with, see converse) this long ago and not finished belongs to a worker that stopped: it's taken again. */
 const STALE_MS = 10 * 60_000;
 /** A run taken this many times (waiting for the AI allowance, or stopping the worker) fails. */
 const MAX_CLAIMS = 40;
@@ -226,11 +227,11 @@ async function finish(run: Run, values: Ending) {
 async function reportScheduledRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">) {
   if (!isScheduleRun(run.source)) return;
   try {
-    const [agent] = await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(eq(workspaceAgent.id, run.agentId));
-    if (!agent) return;
+    // From the agent's user, looked up in the same statement.
+    const actorId = sql<string>`(select ${workspaceAgent.userId} from ${workspaceAgent} where ${workspaceAgent.id} = ${run.agentId})`;
     const inserted = await db
       .insert(notification)
-      .values({ userId: run.source.scheduledBy, workspaceId: run.workspaceId, kind: "agent_report", actorId: agent.userId, agentRunId: run.id })
+      .values({ userId: run.source.scheduledBy, workspaceId: run.workspaceId, kind: "agent_report", actorId, agentRunId: run.id })
       .returning({ id: notification.id });
     signalInbox(run.workspaceId);
     pushNotifications(inserted.map((n) => n.id));
@@ -304,6 +305,9 @@ export async function processRun(run: Run): Promise<void> {
     if (!database || database.archivedAt || database.kind !== "database") return finish(run, { status: "failed", code: "databaseGone" });
     const { level } = await withinMember(agent, bound, () => pageAccessOf(agent.userId, databaseId));
     if (level === "none") return finish(run, { status: "failed", code: "noAccess" });
+    // The run reads every row unattended: the owner stands behind rows people of the workspace
+    // wrote, not an anonymous form answer or a row someone since gone last changed.
+    trusted = await rowsStoodBehind(databaseId, run.workspaceId);
   }
   if (isRowRun(run.source)) {
     const { rowId, databaseId } = run.source;
@@ -355,6 +359,28 @@ async function memberBehind(run: Run): Promise<string | null> {
   const actorId = "actorId" in run.context ? run.context.actorId : null;
   if (!actorId) return null;
   return (await findMembership(actorId, run.workspaceId)) ? actorId : null;
+}
+
+/**
+ * Whether people of the workspace (agents included, whose changes are held to someone's access)
+ * created and last changed every live row of the database. A row from someone the workspace doesn't
+ * know may carry anyone's instructions, so a schedule's run over such a database asks before each
+ * connection tool and proposes no notes, as a row's run no member started does.
+ */
+async function rowsStoodBehind(databaseId: string, workspaceId: string) {
+  const [stranger] = await db
+    .select({ id: page.id })
+    .from(page)
+    .where(
+      and(
+        eq(page.parentId, databaseId),
+        isNull(page.archivedAt),
+        eq(page.isTemplate, false),
+        or(isNull(page.createdBy), not(inWorkspace(page.createdBy, workspaceId)), and(isNotNull(page.updatedBy), not(inWorkspace(page.updatedBy, workspaceId)))),
+      ),
+    )
+    .limit(1);
+  return !stranger;
 }
 
 /** Runs `fn` with the agent held to this member's access as well (no one: the agent's own). */
@@ -534,6 +560,8 @@ async function converse(
     if (round > firstRound) {
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
+      // Still under way: a run that takes long (a schedule's, over a database) isn't taken again as stale.
+      await db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")));
     }
     // The month's tokens may have run out since the run started or was taken again (other runs of
     // the agent use them too); a new run's first turn was checked in processRun.

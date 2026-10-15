@@ -38,6 +38,7 @@ import { mailStatus } from "@/server/mail";
 import { requestLocale } from "@/server/mail/locale";
 import { inboxKinds } from "@/server/notification-preferences";
 import { pushNotifications } from "@/server/push";
+import { snippetOf } from "@/server/semantic-text";
 import { canInviteGuests } from "@/server/workspaces";
 import { startSweep } from "@/server/sweep";
 
@@ -668,14 +669,13 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
   for (const r of runs) {
     // What it says may quote the database: only for those who can still open it.
     const hidden = isScheduleRun(r.source) && Boolean(r.source.databaseId) && !open.has(r.source.databaseId!);
-    const answer = r.answer.replace(/\s+/g, " ").trim();
     out.set(r.id, {
       runId: r.id,
       agentId: r.agentId,
       agentName: r.agentName,
       status: r.status,
       code: r.code ?? null,
-      text: hidden ? null : answer.length > REPORT_CHARS ? `${answer.slice(0, REPORT_CHARS - 1).trimEnd()}…` : answer,
+      text: hidden ? null : snippetOf(r.answer, REPORT_CHARS),
     });
   }
   return out;

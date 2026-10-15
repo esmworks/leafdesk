@@ -615,7 +615,7 @@
         "failed": "En pause : sa dernière exécution n’a pas pu démarrer."
       },
       "access": {
-        "none": "L’agent ne peut pas ouvrir cette base de données : ses exécutions échouent tant que vous ne la partagez pas dans l’onglet Accès.",
+        "none": "L’agent ne peut pas ouvrir cette base de données : il saute ses exécutions tant que vous ne la partagez pas dans l’onglet Accès.",
         "view": "L’agent peut seulement voir cette base de données : donnez-lui l’accès en modification dans l’onglet Accès pour qu’il modifie des lignes.",
         "comment": "L’agent peut seulement commenter cette base de données : donnez-lui l’accès en modification dans l’onglet Accès pour qu’il modifie des lignes."
       },
@@ -625,6 +625,7 @@
       "noDatabaseHint": "Sans base de données, il ne modifie rien : il lit ce qui est partagé avec lui et fait un rapport.",
       "task": "Tâche",
       "taskPlaceholder": "p. ex. Passe toutes les lignes en revue. Mets le Statut sur En retard quand l’échéance est passée, et liste ce que je dois faire aujourd’hui.",
+      "taskKept": "Vous ne pouvez pas ouvrir la base de données, donc vous ne pouvez pas lire la tâche. Laissez ce champ vide pour la garder, ou écrivez-en une nouvelle.",
       "reportHint": "Quand une exécution se termine, son rapport arrive dans votre boîte de réception."
     }
   },

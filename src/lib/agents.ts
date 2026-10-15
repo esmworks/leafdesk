@@ -344,11 +344,13 @@ export type AgentScheduleView = {
   id: string;
   rule: RepeatRule;
   timeZone: string;
+  /** Empty when it is hidden: the viewer can't open the database, and the task may name what is in it. */
   task: string;
+  taskHidden: boolean;
   databaseId: string | null;
   databaseTitle: string | null;
   databaseIcon: string | null;
-  /** The agent's access to the database: "none" (its runs fail), "view" and "comment" (it can't change rows). */
+  /** The agent's access to the database: "none" (its runs skip until it is shared), "view" and "comment" (it can't change rows). */
   agentAccess: "none" | "view" | "comment" | "edit" | null;
   enabled: boolean;
   nextRunAt: string | null;

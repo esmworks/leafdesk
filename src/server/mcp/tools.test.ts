@@ -2373,6 +2373,7 @@ describe("agents", () => {
       rule: { frequency: "daily", interval: 1, weekdays: [], time: "08:00", start: "2026-10-15" },
       timeZone: "Europe/Istanbul",
       task: "Mark overdue rows Late and tell me what needs me",
+      taskHidden: false,
       databaseId: "db-1",
       databaseTitle: "Tickets",
       databaseIcon: null,
@@ -2422,11 +2423,18 @@ describe("agents", () => {
 
     // A paused schedule says why, and how to turn it back on.
     agents.listAgentAccess.mockResolvedValue({ pages: [], hidden: 0 });
-    agentSchedules.listAgentSchedules.mockResolvedValueOnce([{ ...schedule, enabled: false, lastError: "accessLost", agentAccess: "edit" }]);
+    agentSchedules.listAgentSchedules.mockResolvedValueOnce([
+      { ...schedule, enabled: false, lastError: "accessLost", agentAccess: "edit" },
+      { ...schedule, id: "sched-2", task: "", taskHidden: true, databaseTitle: null, agentAccess: "none" },
+    ]);
     const got = await callTool(reader, "get_agent", { agent_id: "agent-1" });
-    expect(got.data.schedules).toHaveLength(1);
+    expect(got.data.schedules).toHaveLength(2);
     expect(got.data.schedules[0]).toMatchObject({ schedule_id: "sched-1", enabled: false });
     expect(got.data.schedules[0].note).toMatch(/update_agent_schedule/);
+    // A task the user can't read is kept unless they give a new one; an agent the database isn't shared with skips.
+    expect(got.data.schedules[1]).toMatchObject({ schedule_id: "sched-2", task: "", database: { id: "db-1", title: null } });
+    expect(got.data.schedules[1].note).toMatch(/skips its runs/);
+    expect(got.data.schedules[1].note).toMatch(/task is hidden.*keeps it/);
   });
 
   it("passes run_agent actions through and names the agent in automations", async () => {

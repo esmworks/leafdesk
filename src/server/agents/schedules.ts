@@ -8,8 +8,10 @@
  * A schedule's run is held to the access of the owner who set it last, as a run an owner asks for
  * is held to theirs, and stands behind what it reads as they do. The schedule pauses when it can't
  * run any more: the agent archived ("agentGone"), that owner no longer an owner or unable to open
- * the database ("accessLost"). A paused agent or a database in the trash skips runs instead, and a
- * schedule whose last run still waits (for its turn, or for an owner to approve a call) skips one.
+ * the database ("accessLost"). A paused agent, a database in the trash or one not shared with the
+ * agent skips runs instead, and a schedule whose last run still waits (for its turn, or for an owner
+ * to approve a call) skips one. A run over a database with rows no one in the workspace stands
+ * behind (an anonymous form answer) asks an owner before each connection tool (run.ts).
  *
  * The server imports this module for its handler (server.ts); the scheduler itself doesn't, so
  * modules it is imported by stay clear of the agents' worker.
@@ -22,13 +24,14 @@ import { nextOccurrence, parseRepeatRule, SCHEDULE_ERRORS, type ScheduleError } 
 import { dayString, isTimeZone, localDay } from "@/lib/time-zone";
 import { findMembership, pageAccessOf, pageVisibleTo } from "@/server/access";
 import { recordAudit } from "@/server/audit";
-import { MAX_SCHEDULES_PER_WORKSPACE, registerScheduleHandler, ScheduleRunError, type ScheduleRow } from "@/server/schedules";
+import { lockWorkspaceSchedules, MAX_SCHEDULES_PER_WORKSPACE, registerScheduleHandler, ScheduleRunError, type ScheduleRow } from "@/server/schedules";
 import { AgentError, ownedAgent } from "./manage";
 import { queueAgentRun } from "./run";
 
 /**
  * A schedule as set: a new one needs `rule`, `timeZone` and `task`; a change keeps what it leaves
- * out. A rule without `start` starts today, in the time zone.
+ * out (a task null too, for one the owner can't read). A rule without `start` starts today, in the
+ * time zone.
  */
 export type AgentScheduleInput = {
   rule?: unknown;
@@ -67,6 +70,7 @@ async function viewSchedules(userId: string, agentUserId: string, rows: Schedule
       rule: r.rule,
       timeZone: r.timeZone,
       task: open ? (r.settings.task ?? "") : "",
+      taskHidden: !open,
       databaseId: r.databaseId,
       databaseTitle: database?.title ?? null,
       databaseIcon: database?.icon ?? null,
@@ -94,10 +98,13 @@ export async function listAgentSchedules(userId: string, agentId: string): Promi
   return viewSchedules(userId, agent.userId, await schedulesOf(agent.id));
 }
 
-/** A database of the workspace `userId` can open, to look after on a schedule. */
-async function requireScheduleDatabase(userId: string, workspaceId: string, databaseId: string) {
+/**
+ * A database of the workspace `userId` can open, to look after on a schedule. One in the trash only
+ * when the schedule already looks after it (`kept`): its runs skip until it comes back.
+ */
+async function requireScheduleDatabase(userId: string, workspaceId: string, databaseId: string, kept: boolean) {
   const { page: found, level } = await pageAccessOf(userId, databaseId);
-  if (!found || level === "none" || found.workspaceId !== workspaceId || found.kind !== "database" || found.archivedAt || found.isTemplate || found.inTemplate) {
+  if (!found || level === "none" || found.workspaceId !== workspaceId || found.kind !== "database" || (found.archivedAt && !kept) || found.isTemplate || found.inTemplate) {
     throw new AgentError("notADatabase", "Database not found");
   }
   return found;
@@ -139,12 +146,12 @@ export async function setAgentSchedule(
   }
   const rule = parseRepeatRule(ruleInput);
   if (!rule) throw new AgentError("invalid", "Invalid repeat rule or time zone", { reason: "repeat" });
-  const task = checkTask(input.task !== undefined ? input.task : existing?.settings.task);
+  const task = checkTask(input.task !== undefined && input.task !== null ? input.task : existing?.settings.task);
   const databaseInput = input.databaseId !== undefined ? input.databaseId : (existing?.databaseId ?? null);
   if (databaseInput !== null && typeof databaseInput !== "string") throw new AgentError("notADatabase", "Database not found");
   const databaseId = databaseInput || null;
   // Whoever sets it runs it from now on: they need to be able to open the database too.
-  if (databaseId) await requireScheduleDatabase(userId, agent.workspaceId, databaseId);
+  if (databaseId) await requireScheduleDatabase(userId, agent.workspaceId, databaseId, databaseId === existing?.databaseId);
   const values = {
     rule,
     timeZone,
@@ -157,8 +164,8 @@ export async function setAgentSchedule(
   };
 
   const id = await db.transaction(async (tx) => {
-    // Counted under a lock on the workspace, so two owners adding at once can't both pass.
-    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`schedule:${agent.workspaceId}`}))`);
+    // Counted under the lock on the workspace's schedules, so two added at once can't both pass.
+    await lockWorkspaceSchedules(tx, agent.workspaceId);
     if (existing) {
       const [updated] = await tx
         .update(schedule)
@@ -242,6 +249,8 @@ registerScheduleHandler("agent", async ({ schedule: row, runAs, at }) => {
     // A database in the trash isn't looked after; the schedule carries on if it comes back.
     if (database.archivedAt) return false;
     if (level === "none") throw new ScheduleRunError("accessLost", "Whoever set the schedule can no longer open the database");
+    // Not shared with the agent (the tab warns): no run that could only fail; it runs once shared.
+    if ((await pageAccessOf(agent.userId, row.databaseId)).level === "none") return false;
   }
   if (await runWaiting(row)) return false;
   await queueAgentRun({

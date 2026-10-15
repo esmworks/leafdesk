@@ -615,7 +615,7 @@
         "failed": "Duraklatıldı: son çalışması başlayamadı."
       },
       "access": {
-        "none": "Ajan bu veritabanını açamıyor: Erişim sekmesinde paylaşana kadar çalışmaları başarısız olur.",
+        "none": "Ajan bu veritabanını açamıyor: Erişim sekmesinde paylaşana kadar çalışmalarını atlar.",
         "view": "Ajan bu veritabanını yalnızca görüntüleyebiliyor: satırları değiştirebilmesi için Erişim sekmesinde düzenleme izni ver.",
         "comment": "Ajan bu veritabanına yalnızca yorum yapabiliyor: satırları değiştirebilmesi için Erişim sekmesinde düzenleme izni ver."
       },
@@ -625,6 +625,7 @@
       "noDatabaseHint": "Veritabanı olmadan hiçbir şeyi değiştirmez: kendisiyle paylaşılanları okur ve rapor verir.",
       "task": "Görev",
       "taskPlaceholder": "ör. Tüm satırları gözden geçir. Bitiş tarihi geçenlerin Durumunu Gecikti yap ve bugün yapmam gerekenleri listele.",
+      "taskKept": "Veritabanını açamadığın için görevi okuyamazsın. Korumak için boş bırak ya da yenisini yaz.",
       "reportHint": "Bir çalışma bittiğinde raporu gelen kutuna gelir."
     }
   },

@@ -214,6 +214,7 @@ try {
     "its prompt carries the board's rows, who set the schedule and the task",
   );
   check(first.tools?.some((t) => t.function.name === "update_row") && first.tools?.some((t) => t.function.name === "add_comment"), "it may change and comment on rows");
+  check(first.tools?.some((t) => t.function.name === "remember"), "on a board people of the workspace wrote, it may propose notes (the owner stands behind it)");
   const results = toolResults(fake.chats.at(-1)!);
   check(results.some((r) => r.includes("only rows of the database this run looks after")), "a row of another database is refused", results);
   const [reportRow] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, report.id));
@@ -274,7 +275,22 @@ try {
   await archivePage(ids.owner, board.id);
   await runNow(set.id);
   check((await runsOf(keeper.id)).length === 1 && (await scheduleRow(set.id)).enabled, "nothing runs while the board is in the trash");
+  const whileTrashed = await agentSchedules.setAgentSchedule(ids.owner, keeper.id, set.id, { rule: { ...daily, time: "07:30" } });
+  check(whileTrashed.rule.time === "07:30" && whileTrashed.databaseId === board.id && whileTrashed.task === task, "its schedule can still be changed meanwhile, keeping the board");
+  check(
+    await failsWith(agentSchedules.setAgentSchedule(ids.owner, keeper.id, null, { rule: daily, timeZone: ZONE, task, databaseId: board.id }), "notADatabase"),
+    "…but a new schedule can't take a board in the trash",
+  );
   await restorePage(ids.owner, board.id);
+
+  await agents.removeAgentAccess(ids.owner, keeper.id, board.id);
+  const unshared = (await agentSchedules.listAgentSchedules(ids.owner, keeper.id)).find((s) => s.id === set.id);
+  await runNow(set.id);
+  check(
+    unshared?.agentAccess === "none" && (await runsOf(keeper.id)).length === 1 && (await scheduleRow(set.id)).enabled,
+    "while the board isn't shared with the agent, the schedule skips its runs (and says why) rather than failing them",
+  );
+  await agents.setAgentAccess(ids.owner, keeper.id, board.id, "edit");
 
   const ownerRow = and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, ids.owner));
   await db.update(workspaceMember).set({ role: "member" }).where(ownerRow);
@@ -295,6 +311,17 @@ try {
   check(held?.status === "failed" && held.code === "noAccess", "a run whose schedule's owner is no longer an owner opens nothing", held);
   const failedReport = (await listNotifications(ids.owner, { workspaceId })).find((n) => n.report?.runId === held.id);
   check(failedReport?.report?.status === "failed", "a failed run reports too");
+
+  // A row no one in the workspace stands behind (an anonymous form answer): the run proposes no
+  // notes (and would ask an owner before each connection tool).
+  await db.update(page).set({ createdBy: null }).where(eq(page.id, release.id));
+  fake.chats.length = 0;
+  fake.setChat(() => ({ text: "Nothing needs you." }));
+  await runNow(set.id);
+  await flushAgentRuns();
+  const untrusted = fake.chats[0];
+  check(untrusted && !untrusted.tools?.some((t) => t.function.name === "remember"), "over a board with an anonymous row, it proposes no notes", untrusted?.tools?.map((t) => t.function.name));
+  await db.update(page).set({ createdBy: ids.owner }).where(eq(page.id, release.id));
 
   await agents.archiveAgent(ids.owner, keeper.id);
   await runNow(set.id);

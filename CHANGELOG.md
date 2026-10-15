@@ -12,11 +12,12 @@
   without one it only reads and uses its connections' tools. Each run is held to the access of the
   owner who set the schedule last as well as the agent's, and ends with a report in that owner's
   inbox (and as a push notification, without the report's text). The run's history names the
-  schedule, who set it and its task. A schedule whose last run still waits skips a run, a paused
-  agent or a database in the trash skips runs, and a schedule pauses when the agent is archived or
-  whoever set it is no longer an owner or can't open the database, until an owner sets it again.
-  The tab warns when the agent can't change the database's rows; the database isn't shared with it
-  on its own. Up to 10 schedules per agent. The REST API has `GET`/`POST
+  schedule, who set it and its task. A schedule whose last run still waits skips a run; a paused
+  agent, a database in the trash or one not shared with the agent skips runs; and a schedule pauses
+  when the agent is archived or whoever set it is no longer an owner or can't open the database,
+  until an owner sets it again. The tab warns when the agent can't open or change the database (it
+  isn't shared on its own). A run over a database with rows no one in the workspace stands behind,
+  such as anonymous form answers, asks an owner before each connection tool and proposes no notes. Up to 10 schedules per agent. The REST API has `GET`/`POST
   /agents/{agent_id}/schedules` and `PATCH`/`DELETE /agents/{agent_id}/schedules/{schedule_id}`,
   MCP has `add_agent_schedule`, `update_agent_schedule` and `delete_agent_schedule`, and
   `get_agent` lists an agent's schedules. Migration `0068_agent_schedules` adds `schedule.agent_id`

@@ -615,7 +615,7 @@
         "failed": "Pausiert: Sein letzter Lauf konnte nicht starten."
       },
       "access": {
-        "none": "Der Agent kann diese Datenbank nicht öffnen: Seine Läufe schlagen fehl, bis du sie im Tab „Zugriff“ mit ihm teilst.",
+        "none": "Der Agent kann diese Datenbank nicht öffnen: Er überspringt seine Läufe, bis du sie im Tab „Zugriff“ mit ihm teilst.",
         "view": "Der Agent kann diese Datenbank nur ansehen: Gib ihm im Tab „Zugriff“ Bearbeitungsrechte, damit er Zeilen ändern kann.",
         "comment": "Der Agent kann diese Datenbank nur kommentieren: Gib ihm im Tab „Zugriff“ Bearbeitungsrechte, damit er Zeilen ändern kann."
       },
@@ -625,6 +625,7 @@
       "noDatabaseHint": "Ohne Datenbank ändert er nichts: Er liest, was mit ihm geteilt ist, und berichtet.",
       "task": "Aufgabe",
       "taskPlaceholder": "z. B. Geh alle Zeilen durch. Setze den Status auf „Verspätet“, wo das Fälligkeitsdatum vorbei ist, und liste auf, was ich heute erledigen muss.",
+      "taskKept": "Du kannst die Datenbank nicht öffnen und daher die Aufgabe nicht lesen. Lass das Feld leer, um sie zu behalten, oder schreib eine neue.",
       "reportHint": "Wenn ein Lauf endet, kommt sein Bericht in deinen Posteingang."
     }
   },

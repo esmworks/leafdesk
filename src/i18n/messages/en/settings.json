@@ -615,7 +615,7 @@
         "failed": "Paused: its last run couldn't start."
       },
       "access": {
-        "none": "The agent can't open this database: its runs fail until you share it in the Access tab.",
+        "none": "The agent can't open this database: it skips its runs until you share it in the Access tab.",
         "view": "The agent can only view this database: give it edit access in the Access tab to change rows.",
         "comment": "The agent can only comment on this database: give it edit access in the Access tab to change rows."
       },
@@ -625,6 +625,7 @@
       "noDatabaseHint": "Without a database it changes nothing: it reads what is shared with it and reports.",
       "task": "Task",
       "taskPlaceholder": "e.g. Go through every row. Set Status to Late where the due date has passed, and list what I need to do today.",
+      "taskKept": "You can't open the database, so you can't read the task. Leave this empty to keep it, or write a new one.",
       "reportHint": "When a run ends, its report comes to your inbox."
     }
   },

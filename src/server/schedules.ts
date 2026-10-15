@@ -1,4 +1,4 @@
-import { and, asc, count, eq, lte } from "drizzle-orm";
+import { and, asc, count, eq, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, schedule } from "@/db/schema";
 import {
@@ -35,6 +35,16 @@ const SWEEP_INTERVAL_MS = 30_000;
 const BATCH = 20;
 /** Schedules a workspace may have, of every kind. */
 export const MAX_SCHEDULES_PER_WORKSPACE = 200;
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Holds the workspace's schedules until the transaction ends, so that schedules added at once (of
+ * any kind) are counted against MAX_SCHEDULES_PER_WORKSPACE one after another.
+ */
+export async function lockWorkspaceSchedules(tx: Tx, workspaceId: string) {
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`schedule:${workspaceId}`}))`);
+}
 
 export type ScheduleRow = typeof schedule.$inferSelect;
 
@@ -210,12 +220,15 @@ export async function setTemplateRepeat(userId: string, templateId: string, inpu
   if (existing) {
     await db.update(schedule).set(values).where(eq(schedule.id, existing.id));
   } else {
-    const [{ n }] = await db.select({ n: count() }).from(schedule).where(eq(schedule.workspaceId, template.workspaceId));
-    if (n >= MAX_SCHEDULES_PER_WORKSPACE) throw withCode(new Error("Too many schedules in this workspace"), "tooManySchedules");
-    await db
-      .insert(schedule)
-      .values({ ...values, workspaceId: template.workspaceId, kind: "row_template", templateId, databaseId: template.databaseId, createdBy: userId })
-      .onConflictDoUpdate({ target: schedule.templateId, set: values });
+    await db.transaction(async (tx) => {
+      await lockWorkspaceSchedules(tx, template.workspaceId);
+      const [{ n }] = await tx.select({ n: count() }).from(schedule).where(eq(schedule.workspaceId, template.workspaceId));
+      if (n >= MAX_SCHEDULES_PER_WORKSPACE) throw withCode(new Error("Too many schedules in this workspace"), "tooManySchedules");
+      await tx
+        .insert(schedule)
+        .values({ ...values, workspaceId: template.workspaceId, kind: "row_template", templateId, databaseId: template.databaseId, createdBy: userId })
+        .onConflictDoUpdate({ target: schedule.templateId, set: values });
+    });
   }
   getCollab().broadcast(`db:${template.databaseId}`, "rows");
   return (await getTemplateRepeat(userId, templateId))!;

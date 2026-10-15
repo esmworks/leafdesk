@@ -615,7 +615,7 @@
         "failed": "En pausa: su última ejecución no pudo empezar."
       },
       "access": {
-        "none": "El agente no puede abrir esta base de datos: sus ejecuciones fallan hasta que la compartas en la pestaña Acceso.",
+        "none": "El agente no puede abrir esta base de datos: omite sus ejecuciones hasta que la compartas en la pestaña Acceso.",
         "view": "El agente solo puede ver esta base de datos: dale acceso de edición en la pestaña Acceso para que cambie filas.",
         "comment": "El agente solo puede comentar en esta base de datos: dale acceso de edición en la pestaña Acceso para que cambie filas."
       },
@@ -625,6 +625,7 @@
       "noDatabaseHint": "Sin base de datos no cambia nada: lee lo que se ha compartido con él e informa.",
       "task": "Tarea",
       "taskPlaceholder": "p. ej. Revisa todas las filas. Pon el Estado en Atrasada donde la fecha límite ya pasó y enumera lo que tengo que hacer hoy.",
+      "taskKept": "No puedes abrir la base de datos, así que no puedes leer la tarea. Déjalo vacío para conservarla o escribe una nueva.",
       "reportHint": "Cuando termina una ejecución, su informe llega a tu bandeja de entrada."
     }
   },

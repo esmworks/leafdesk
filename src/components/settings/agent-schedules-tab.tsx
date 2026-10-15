@@ -13,9 +13,10 @@ import { WEEKDAYS_FROM_MONDAY, type RepeatRule } from "@/lib/schedule";
 import { timeZoneLabel } from "@/lib/time-zone";
 import { useShareablePages } from "./agent-page-picker";
 
-type Draft = { id: string | null; repeat: RepeatForm; task: string; databaseId: string };
+/** `taskHidden`: the task is one the owner can't read (its database is hidden from them); left empty, it is kept. */
+type Draft = { id: string | null; repeat: RepeatForm; task: string; taskHidden: boolean; databaseId: string };
 
-const newDraft = (): Draft => ({ id: null, repeat: freshRepeatForm({ frequency: "daily", time: "08:00" }), task: "", databaseId: "" });
+const newDraft = (): Draft => ({ id: null, repeat: freshRepeatForm({ frequency: "daily", time: "08:00" }), task: "", taskHidden: false, databaseId: "" });
 
 /**
  * When the agent runs on its own (server/agents/schedules.ts): each schedule's rule, the database
@@ -44,7 +45,7 @@ export function AgentSchedulesTab({ workspaceId, agent, onRuns }: { workspaceId:
     };
   }, [workspaceId, agent.id, tc]);
 
-  const edit = (s: AgentScheduleView) => setDraft({ id: s.id, repeat: repeatFormOf(s.rule, s.timeZone), task: s.task, databaseId: s.databaseId ?? "" });
+  const edit = (s: AgentScheduleView) => setDraft({ id: s.id, repeat: repeatFormOf(s.rule, s.timeZone), task: s.task, taskHidden: s.taskHidden, databaseId: s.databaseId ?? "" });
 
   return (
     <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
@@ -219,7 +220,7 @@ function ScheduleForm({
   pending: boolean;
   error: string | null;
   onCancel: () => void;
-  onSave: (value: { rule: RepeatRule; timeZone: string; task: string; databaseId: string | null }) => void;
+  onSave: (value: { rule: RepeatRule; timeZone: string; task: string | null; databaseId: string | null }) => void;
 }) {
   const t = useTranslations("settings.agents.schedules");
   const tc = useTranslations("common");
@@ -229,6 +230,8 @@ function ScheduleForm({
   const pages = useShareablePages(workspaceId, { anyAccess: true });
   const databases = (pages ?? []).filter((p) => p.kind === "database");
   const task = draft.task.trim();
+  // A hidden task left empty is kept as it is.
+  const keepTask = !task && draft.taskHidden;
   const field = "space-y-1";
   const label = "block text-xs font-medium text-fg-muted";
 
@@ -237,8 +240,8 @@ function ScheduleForm({
       className="space-y-3 border-t border-border pt-4"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!rule || !valid || !task) return;
-        onSave({ rule, timeZone: draft.repeat.timeZone, task, databaseId: draft.databaseId || null });
+        if (!rule || !valid || (!task && !keepTask)) return;
+        onSave({ rule, timeZone: draft.repeat.timeZone, task: keepTask ? null : task, databaseId: draft.databaseId || null });
       }}
     >
       <h3 className="text-sm font-medium">{draft.id ? t("editHeading") : t("add")}</h3>
@@ -278,6 +281,7 @@ function ScheduleForm({
           value={draft.task}
           onChange={(e) => onChange({ task: e.target.value })}
         />
+        {draft.taskHidden && <p className="text-xs text-fg-faint">{t("taskKept")}</p>}
       </div>
       <div className="space-y-0.5 text-sm text-fg-muted" aria-live="polite">
         {next && <p>{t("next", { date: format.dateTime(next, { dateStyle: "full", timeStyle: "short", timeZone: draft.repeat.timeZone }) })}</p>}
@@ -292,7 +296,7 @@ function ScheduleForm({
         <Button variant="ghost" onClick={onCancel}>
           {tc("cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={!valid || !task || pending}>
+        <Button type="submit" variant="primary" disabled={!valid || (!task && !keepTask) || pending}>
           {pending ? tc("saving") : tc("save")}
         </Button>
       </div>

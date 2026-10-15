@@ -198,7 +198,8 @@ export async function setAgentScheduleAction(
   workspaceId: string,
   agentId: string,
   scheduleId: string | null,
-  value: { rule: RepeatRule; timeZone: string; task: string; databaseId: string | null },
+  /** `task` null keeps the one it has (one the owner can't read). */
+  value: { rule: RepeatRule; timeZone: string; task: string | null; databaseId: string | null },
 ) {
   return run(workspaceId, async (userId) => {
     await setAgentSchedule(userId, agentId, scheduleId, { rule: value?.rule, timeZone: value?.timeZone, task: value?.task, databaseId: value?.databaseId ?? null });
