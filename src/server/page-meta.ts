@@ -2,8 +2,10 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { page, pageFavorite, type PageKind, user } from "@/db/schema";
+import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { countAccessRequests } from "@/server/access-requests";
 import { aiAvailable } from "@/server/ai-writing";
+import { voiceNoteLimits } from "@/server/voice-notes";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, resolvePageAccess, type AccessLevel } from "@/server/access";
 import { exportAllowed, topLevelAccess } from "@/server/workspaces";
 
@@ -27,6 +29,8 @@ export type PageHeaderInfo = {
   template: "workspace" | "row" | "inside" | null;
   /** The AI writing assistant is available: the server has a provider and the workspace has AI on. */
   ai: boolean;
+  /** Voice notes work here: the recording limits, null when the server can't transcribe or AI is off. */
+  voice: VoiceNoteLimits | null;
   /** The workspace lets people export its pages (the menu's export and print entries). */
   exportable: boolean;
   /** Requests for access waiting on the page; counted for those who can answer them (full access), else 0. */
@@ -40,7 +44,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   if (!found || level === "none") throw new AccessError();
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
-  const [[names], [star], membership, topLevel, ai, exportable, accessRequests] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests] = await Promise.all([
     db
       .select({ createdBy: creator.name, updatedBy: editor.name })
       .from(page)
@@ -54,6 +58,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     requireMembership(userId, found.workspaceId),
     topLevelAccess(userId, found.workspaceId),
     aiAvailable(found.workspaceId),
+    voiceNoteLimits(found.workspaceId),
     exportAllowed(found.workspaceId),
     level === "full" ? countAccessRequests(pageId) : 0,
   ]);
@@ -69,6 +74,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     locked: Boolean(found.lockedAt),
     template: found.isTemplate ? (found.parentId ? "row" : "workspace") : found.inTemplate ? "inside" : null,
     ai,
+    voice,
     exportable,
     accessRequests,
     skill: found.isSkill && !found.inTemplate ? { description: found.skillDescription } : null,

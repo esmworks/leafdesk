@@ -63,6 +63,7 @@
     "inPath": "Pfad",
     "inQuery": "Query",
     "body": "Request-Body (JSON)",
+    "formBody": "Request-Body (multipart/form-data)",
     "response": "Antwort {status}",
     "name": "Name",
     "type": "Typ",

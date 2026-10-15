@@ -508,7 +508,9 @@
     "bodyPlaceholder": "Bir şeyler yazın ya da bir bağlantı yapıştırın",
     "save": "Notu kaydet",
     "shortcut": "Yeni hızlı not",
-    "shortcutShort": "Hızlı not"
+    "shortcutShort": "Hızlı not",
+    "destination": "Kaydedilecek yer",
+    "privatePage": "Özel sayfa"
   },
   "dashboard": {
     "title": "Gösterge paneli",
@@ -544,5 +546,51 @@
     "filters": "{count, plural, one {# süzgeç} other {# süzgeç}}",
     "updatedNow": "az önce güncellendi",
     "updated": "{time} güncellendi"
+  },
+  "voiceNote": {
+    "record": "Sesli not kaydet",
+    "recording": "Kaydediliyor",
+    "stop": "Durdur ve nota çevir",
+    "discard": "Vazgeç",
+    "cancel": "İptal",
+    "retry": "Yeniden ekle",
+    "close": "Kapat",
+    "limit": "En fazla {minutes} dk",
+    "chooseFile": "Ya da bir ses dosyası seç",
+    "transcribing": "Söyledikleriniz yazıya dökülüyor…",
+    "writing": "AI notu yazıyor…",
+    "autoStopped": "Kayıt {minutes} dakikalık sınırda durdu.",
+    "review": "AI bu notu kaydınızdan yazdı. Kaydetmeden önce kontrol edin.",
+    "notRewritten": "AI bu kaydı nota çeviremedi; not, duyulduğu hâliyle döküm.",
+    "transcriptKept": "Döküm notun altına kaydedilir.",
+    "propertiesPicked": "{count, plural, one {Nottan # özellik dolduruldu.} other {Nottan # özellik dolduruldu.}}",
+    "transcriptToggle": "Döküm",
+    "shortcut": "Yeni sesli not",
+    "shortcutShort": "Sesli not",
+    "dialogTitle": "Sesli not",
+    "dialogDescription": "Konuşun, AI buraya temiz bir not yazsın. Döküm notun altına eklenir.",
+    "slashTitle": "Sesli not",
+    "slashSubtext": "Konuşun, AI buraya nota çevirsin",
+    "slashAliases": "ses sesli kayıt dikte konuşma mikrofon döküm voice audio record",
+    "errors": {
+      "unsupported": "Bu tarayıcı ses kaydedemiyor. Bunun yerine bir ses dosyası seçin.",
+      "insecure": "Kayıt için güvenli (https) bağlantı gerekir. Bunun yerine bir ses dosyası seçin.",
+      "denied": "Leafdesk'in mikrofonu kullanmasına izin verilmemiş. Tarayıcınızın site ayarlarından izin verip tekrar deneyin.",
+      "noDevice": "Mikrofon bulunamadı.",
+      "failed": "Kayıt başlatılamadı. Tekrar deneyin.",
+      "fileType": "Bu tür ses dosyası desteklenmiyor.",
+      "fileTooLarge": "Kayıtlar en fazla {max} olabilir.",
+      "disabled": "Bu çalışma alanında sesli not kullanılamıyor.",
+      "noAccess": "Buraya not ekleyemezsiniz.",
+      "tooLarge": "Kayıt çok büyük. Kayıtlar en fazla {max} olabilir.",
+      "rateLimited": "Çok fazla AI isteği yapıldı. Biraz sonra tekrar deneyin.",
+      "timeout": "Kaydı yazıya dökmek çok uzun sürdü. Tekrar deneyin ya da daha kısa bir not kaydedin.",
+      "aborted": "İptal edildi.",
+      "provider": "Kayıt yazıya dökülemedi. Daha sonra tekrar deneyin ya da bir yöneticiden konuşmayı yazıya dökme ayarlarını kontrol etmesini isteyin.",
+      "empty": "Kayıtta bir şey duyulmadı. Mikrofona daha yakın konuşarak tekrar deneyin.",
+      "invalid": "Kayıt okunamadı. Tekrar deneyin.",
+      "interrupted": "İşlem sürerken sunucu yeniden başladı. Tekrar deneyin.",
+      "insert": "Not sayfaya eklenemedi."
+    }
   }
 }

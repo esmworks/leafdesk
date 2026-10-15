@@ -7,6 +7,7 @@ import { QuickNoteForm } from "@/components/share/quick-note-form";
 import { decodeSharedNote, SHARED_COOKIE } from "@/lib/shared-note";
 import { listWorkspaces } from "@/server/pages";
 import { requireUser } from "@/server/session";
+import { voiceNoteDatabases, voiceNoteLimits } from "@/server/voice-notes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("page.quickNote");
@@ -19,7 +20,8 @@ const param = (value: string | string[] | undefined) => (Array.isArray(value) ? 
  * A quick note: a private page in one of the person's workspaces. The installed app opens it from
  * its shortcut, and from the system's share sheet with what was shared filled in: brought by a
  * cookie (see app/api/share), or as `title`, `text` and `url` in the address from an app installed
- * before shares were posted.
+ * before shares were posted. Where the server can transcribe, it takes voice notes too; its "Voice
+ * note" shortcut (`?voice=1`) starts recording right away.
  */
 export default async function QuickNotePage({
   searchParams,
@@ -38,6 +40,7 @@ export default async function QuickNotePage({
   // Apps often put the link in the text too.
   const body = [text, url && !text.includes(url) ? url : ""].filter(Boolean).join("\n\n");
   const chosen = workspaces.find((w) => w.id === param(query.workspace)) ?? workspaces[0];
+  const [limits, databases] = await Promise.all([voiceNoteLimits(chosen.id), voiceNoteDatabases(user.id, chosen.id)]);
 
   return (
     <main className="flex min-h-full justify-center bg-bg-subtle px-4 py-10 sm:py-16">
@@ -53,6 +56,8 @@ export default async function QuickNotePage({
             workspaceId={chosen.id}
             title={shared.title}
             body={body}
+            targets={{ limits, databases }}
+            voice={param(query.voice) === "1" && limits !== null}
           />
         </div>
       </div>

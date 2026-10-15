@@ -21,6 +21,7 @@ type Schema = {
   anyOf?: Schema[];
   properties?: Record<string, Schema>;
   required?: string[];
+  format?: string;
   description?: string;
   default?: unknown;
   $ref?: string;
@@ -35,7 +36,7 @@ type Operation = {
   description?: string;
   security: Record<string, string[]>[];
   parameters?: Parameter[];
-  requestBody?: { content: { "application/json": { schema: Schema } } };
+  requestBody?: { content: Record<string, { schema: Schema }> };
   responses: Record<string, { $ref?: string; description?: string; content?: { "application/json": { schema: Schema } } }>;
 };
 type Doc = {
@@ -66,6 +67,7 @@ function typeOf(schema: Schema | undefined, schemas: Record<string, Schema>): st
   if (schema.$ref) return schema.$ref.split("/").pop() ?? "object";
   if (schema.enum) return schema.enum.map((v) => JSON.stringify(v)).join(" | ");
   if (schema.anyOf) return [...new Set(schema.anyOf.map((s) => typeOf(s, schemas)))].join(" | ");
+  if (schema.format === "binary") return "file";
   const types = Array.isArray(schema.type) ? schema.type : schema.type ? [schema.type] : [];
   return (
     types.map((type) => (type === "array" ? `${typeOf(schema.items, schemas) || "any"}[]` : type)).join(" | ") ||
@@ -186,7 +188,8 @@ export default async function ApiDocsPage() {
               <p className="mt-1 mb-6 text-sm text-fg-muted">{tag.description}</p>
               <div className="space-y-10">
                 {inTag.map(({ path, method, op }) => {
-                  const body = op.requestBody?.content["application/json"].schema;
+                  const [bodyType, bodyContent] = Object.entries(op.requestBody?.content ?? {})[0] ?? [];
+                  const body = bodyContent?.schema;
                   const success = Object.entries(op.responses).find(([code]) => code.startsWith("2"));
                   const responseRef = success?.[1].content?.["application/json"].schema.$ref;
                   const responseName = responseRef?.split("/").pop();
@@ -223,7 +226,7 @@ export default async function ApiDocsPage() {
                       ) : null}
                       {body?.properties && (
                         <div className="space-y-2">
-                          <h4 className="text-sm font-medium">{t("body")}</h4>
+                          <h4 className="text-sm font-medium">{bodyType === "multipart/form-data" ? t("formBody") : t("body")}</h4>
                           <FieldTable
                             labels={labels}
                             rows={Object.entries(body.properties).map(([name, schema]) => ({

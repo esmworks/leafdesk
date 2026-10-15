@@ -1,6 +1,6 @@
 /**
- * A stand-in for an OpenAI-compatible server (chat completions with streaming and tool calls, and
- * embeddings), for tests and the e2e scripts (scripts/semantic-search-e2e.ts, ai-chat-e2e.ts): the
+ * A stand-in for an OpenAI-compatible server (chat completions with streaming and tool calls,
+ * embeddings and speech to text), for tests and the e2e scripts (scripts/semantic-search-e2e.ts, ai-chat-e2e.ts): the
  * app talks to it over HTTP exactly as it would to Ollama, vLLM or OpenAI. Embeddings are a
  * deterministic hashed bag of words, with a few synonyms folded together so "meaning" can be
  * tested without a model. The app itself never imports this.
@@ -69,6 +69,10 @@ export type FakeOpenAi = {
   chats: FakeChatRequest[];
   /** Every text sent for embedding, in order. */
   embedded: string[];
+  /** Every recording sent to be transcribed: its file name, size and model. */
+  transcribed: { name: string; size: number; model: string }[];
+  /** What a recording reads as (a function of its size and file name). */
+  setTranscript(text: (audio: { name: string; size: number }) => string): void;
   /** Milliseconds between streamed pieces (for cancelling mid-answer). */
   delayMs: number;
   setChat(reply: (request: FakeChatRequest) => FakeReply | Promise<FakeReply>): void;
@@ -86,11 +90,16 @@ export async function startFakeOpenAi(
   { port = 0 }: { port?: number } = {},
 ) {
   let answer = reply;
+  let transcript = (_audio: { name: string; size: number }) => "This is a test recording.";
   const state: FakeOpenAi = {
     baseUrl: "",
     chats: [],
     embedded: [],
+    transcribed: [],
     delayMs: 0,
+    setTranscript(next) {
+      transcript = next;
+    },
     setChat(next) {
       answer = next;
     },
@@ -98,6 +107,22 @@ export async function startFakeOpenAi(
   };
   const server: Server = createServer(async (req, res) => {
     try {
+      if (req.url === "/v1/audio/transcriptions") {
+        // Multipart: the fields are read through the platform's own parser.
+        const chunks: Buffer[] = [];
+        for await (const chunk of req) chunks.push(chunk as Buffer);
+        const form = await new Response(Buffer.concat(chunks), { headers: { "Content-Type": req.headers["content-type"] ?? "" } }).formData();
+        const file = form.get("file");
+        if (!(file instanceof File) || !form.get("model")) {
+          res.writeHead(400, { "Content-Type": "application/json" }).end(JSON.stringify({ error: { message: "file and model are required" } }));
+          return;
+        }
+        const audio = { name: file.name, size: file.size };
+        state.transcribed.push({ ...audio, model: String(form.get("model")) });
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ text: transcript(audio) }));
+        return;
+      }
       const body = await readBody(req);
       if (req.url === "/v1/embeddings") {
         const input = (Array.isArray(body.input) ? body.input : [body.input]) as string[];

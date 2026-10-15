@@ -21,6 +21,10 @@ import {
 import { getPage } from "@/server/pages";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
+import { voiceAudioType } from "@/lib/voice-notes";
+import { AiError, sttLimits } from "@/server/ai";
+import { pageUrl } from "@/server/mcp/format";
+import { createVoiceNote } from "@/server/voice-notes";
 import { ApiError } from "./errors";
 import { cursorInput, decodeCursor, nextCursor, paginate } from "./pagination";
 import type { ApiPrincipal } from "./tokens";
@@ -38,6 +42,10 @@ export type ApiCall<Q, B> = {
   params: Record<string, string>;
   query: Q;
   body: B;
+  /** The files of a multipart request (see ApiRoute.form), by field name. */
+  files: Record<string, File>;
+  /** Aborted when the client goes away. */
+  signal: AbortSignal;
 };
 
 type Schema = z.ZodObject;
@@ -53,6 +61,12 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   scope: ApiTokenScope;
   query?: Q;
   body?: B;
+  /**
+   * Takes multipart form data instead of JSON: `body` checks its text fields, and `files` names its
+   * file fields (with their descriptions) and `maxBytes` how large the whole body may be. It runs
+   * before the body is read, so it may also throw to refuse the request (an ApiError).
+   */
+  form?: { files: Record<string, { description: string; required?: boolean }>; maxBytes: () => number };
   /** 201 for endpoints that create something. */
   status?: 200 | 201;
   /** It may answer 409 when what it acts on can't do it now (see API_ERROR_CODES). */
@@ -117,6 +131,26 @@ const pageBodies = {
   movePage: ops.inputs.movePage.omit({ page_id: true }),
   addComment: ops.inputs.addComment.omit({ page_id: true }),
 };
+
+/** The workspace a page or database is in (AccessError when there is none). */
+async function workspaceOfPage(pageId: string) {
+  const [row] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId)).limit(1);
+  if (!row) throw new AccessError();
+  return row.workspaceId;
+}
+
+const voiceNoteBody = z.object({
+  workspace_id: z
+    .string()
+    .max(100)
+    .optional()
+    .describe("The workspace the note goes into, as a private page. Needed unless database_id is given or the token is limited to a workspace."),
+  database_id: z
+    .string()
+    .max(100)
+    .optional()
+    .describe("A database to add the note to as a row instead; its select and multi-select properties are filled from their options."),
+});
 
 const listQuery = z.object({ limit: limitInput(100, 50), cursor: cursorInput });
 
@@ -270,6 +304,58 @@ export const API_ROUTES: ApiRoute[] = [
       else if (body.workspace_id) requireWorkspace(principal, body.workspace_id);
       const workspaceId = body.parent_id ? body.workspace_id : (body.workspace_id ?? principal.workspaceId ?? undefined);
       return ops.createPage(ctx, { ...body, workspace_id: workspaceId });
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/voice-notes",
+    operationId: "createVoiceNote",
+    tag: "Pages",
+    summary: "Create a note from a recording",
+    description:
+      "Takes a recording as multipart form data (`audio`: WebM, Ogg, M4A/MP4, MP3, WAV or FLAC), has it transcribed and written up by AI as a clean note with a title, and saves it as a private page of the workspace or a row of `database_id`, with the transcript in a toggle under it. Answers once the note is saved, which can take a while for a long recording. The audio isn't stored. Without a chat model, or when the AI fails, the note is the transcript itself (`rewritten` false).\n\nOnly where the server has speech to text set up and the workspace allows AI; otherwise 409 `voice_notes_unavailable`. The largest recording is the server's `STT_MAX_MB` (25 MB unless set), not the 5 MB of JSON bodies. Transcription and writing up count toward the server's AI rate limits as well as the token's.",
+    scope: "pages:write",
+    body: voiceNoteBody,
+    form: {
+      files: { audio: { description: "The recording.", required: true } },
+      maxBytes: () => {
+        const limits = sttLimits();
+        if (!limits) throw new ApiError(409, "voice_notes_unavailable", "Speech to text is not set up on this server.");
+        return limits.maxBytes;
+      },
+    },
+    status: 201,
+    conflict: true,
+    response: "VoiceNoteCreated",
+    handler: async ({ principal, body, files, signal }) => {
+      if (body.workspace_id) requireWorkspace(principal, body.workspace_id);
+      if (body.database_id) await requirePageInWorkspace(principal, body.database_id);
+      const workspaceId = body.workspace_id ?? (body.database_id ? await workspaceOfPage(body.database_id) : principal.workspaceId);
+      if (!workspaceId) {
+        throw new ApiError(400, "validation_error", "The request body is invalid.", [
+          { path: "workspace_id", message: "Say which workspace the note goes into." },
+        ]);
+      }
+      const audio = files.audio;
+      const type = voiceAudioType(audio.type, audio.name);
+      if (!type) throw new ApiError(415, "unsupported_media_type", "This kind of audio file isn't supported: send WebM, Ogg, M4A/MP4, MP3, WAV or FLAC.");
+      if (!audio.size) throw new ApiError(400, "invalid_request", "The audio file is empty.");
+      const note = await createVoiceNote(principal.userId, { workspaceId, databaseId: body.database_id ?? null }, { bytes: audio, type }, { signal }).catch(
+        (error: unknown) => {
+          if (error instanceof AiError && error.code === "disabled") throw new ApiError(409, "voice_notes_unavailable", `${error.message}.`);
+          throw error;
+        },
+      );
+      return {
+        id: note.id,
+        title: note.draft.title,
+        workspace_id: note.workspaceId,
+        database_id: note.databaseId,
+        rewritten: note.draft.rewritten,
+        transcript: note.draft.transcript,
+        properties: note.properties,
+        url: pageUrl(note.workspaceId, note.id),
+      };
     },
   }),
   defineRoute({

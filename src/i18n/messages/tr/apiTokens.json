@@ -63,6 +63,7 @@
     "inPath": "yol",
     "inQuery": "sorgu",
     "body": "İstek gövdesi (JSON)",
+    "formBody": "İstek gövdesi (multipart form verisi)",
     "response": "Yanıt {status}",
     "name": "Ad",
     "type": "Tür",

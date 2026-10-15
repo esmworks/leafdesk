@@ -508,7 +508,9 @@
     "bodyPlaceholder": "Write something, or paste a link",
     "save": "Save note",
     "shortcut": "New quick note",
-    "shortcutShort": "Quick note"
+    "shortcutShort": "Quick note",
+    "destination": "Save to",
+    "privatePage": "Private page"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -544,5 +546,51 @@
     "filters": "{count, plural, one {# filter} other {# filters}}",
     "updatedNow": "updated just now",
     "updated": "updated {time}"
+  },
+  "voiceNote": {
+    "record": "Record a voice note",
+    "recording": "Recording",
+    "stop": "Stop and write up",
+    "discard": "Discard",
+    "cancel": "Cancel",
+    "retry": "Insert again",
+    "close": "Close",
+    "limit": "Up to {minutes} min",
+    "chooseFile": "Or choose an audio file",
+    "transcribing": "Writing down what you said…",
+    "writing": "AI is writing the note…",
+    "autoStopped": "The recording stopped at the {minutes} min limit.",
+    "review": "AI wrote this note from your recording. Check it before you save.",
+    "notRewritten": "AI couldn't write this recording up, so the note is the transcript as it was heard.",
+    "transcriptKept": "The transcript is saved under the note.",
+    "propertiesPicked": "{count, plural, one {# property was filled in from the note.} other {# properties were filled in from the note.}}",
+    "transcriptToggle": "Transcript",
+    "shortcut": "New voice note",
+    "shortcutShort": "Voice note",
+    "dialogTitle": "Voice note",
+    "dialogDescription": "Speak, and AI writes a clean note here. The transcript goes under it.",
+    "slashTitle": "Voice note",
+    "slashSubtext": "Speak, and AI writes it up here",
+    "slashAliases": "voice audio record dictate speech microphone transcribe",
+    "errors": {
+      "unsupported": "This browser can't record audio. Choose an audio file instead.",
+      "insecure": "Recording needs a secure (https) connection. Choose an audio file instead.",
+      "denied": "Leafdesk isn't allowed to use the microphone. Allow it in your browser's site settings and try again.",
+      "noDevice": "No microphone was found.",
+      "failed": "The recording couldn't start. Try again.",
+      "fileType": "This kind of audio file isn't supported.",
+      "fileTooLarge": "Recordings can be at most {max}.",
+      "disabled": "Voice notes aren't available in this workspace.",
+      "noAccess": "You can't add notes here.",
+      "tooLarge": "The recording is too large. Recordings can be at most {max}.",
+      "rateLimited": "Too many AI requests. Try again in a moment.",
+      "timeout": "Writing down the recording took too long. Try again, or record a shorter note.",
+      "aborted": "Cancelled.",
+      "provider": "The recording couldn't be written down. Try again later, or ask an admin to check the speech to text settings.",
+      "empty": "Nothing was heard in the recording. Try again closer to the microphone.",
+      "invalid": "The recording couldn't be read. Try again.",
+      "interrupted": "The server restarted while this was being worked out. Try again.",
+      "insert": "The note couldn't be added to the page."
+    }
   }
 }

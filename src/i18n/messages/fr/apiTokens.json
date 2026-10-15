@@ -63,6 +63,7 @@
     "inPath": "chemin",
     "inQuery": "requête",
     "body": "Corps de la requête (JSON)",
+    "formBody": "Corps de la requête (multipart/form-data)",
     "response": "Réponse {status}",
     "name": "Nom",
     "type": "Type",

@@ -7,6 +7,8 @@
  * - `complete()` / `stream()`: one model turn, optionally with tools (tool calls come back for the
  *   caller to run and answer with `role: "tool"` messages).
  * - `embed()`: vectors for texts, over an OpenAI-compatible /embeddings endpoint.
+ * - `transcribe()`: the text of spoken audio, over an OpenAI-compatible /audio/transcriptions
+ *   endpoint (STT_PROVIDER, set apart from the chat model).
  *
  * Every request is size-checked, time-limited, rate-limited per person and workspace, and logged
  * with its token usage but never its content. Callers check page access before building prompts:
@@ -20,6 +22,7 @@ import { createBackend, type AiBackend } from "./backend";
 import { DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
+import { fetchTranscription } from "./transcribe";
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
 export type { AiConfig, AiLimits } from "./config";
@@ -137,6 +140,17 @@ export function embeddingModel(): string | null {
   const config = aiConfig();
   if (config.embeddings) return config.embeddings.model;
   return runtime.override?.backend?.embed ? "test" : null;
+}
+
+/** Whether speech to text is configured (voice notes); workspaces with AI off still go without. */
+export function sttEnabled(): boolean {
+  return aiConfig().stt !== null;
+}
+
+/** The recording limits the browser holds to; null without speech to text. */
+export function sttLimits(): { maxSeconds: number; maxBytes: number } | null {
+  const stt = aiConfig().stt;
+  return stt ? { maxSeconds: stt.maxSeconds, maxBytes: stt.maxBytes } : null;
 }
 
 /** How similar a passage must be to a query to count as a semantic match (see config.ts). */
@@ -405,6 +419,50 @@ export function stream(request: AiRequest): AiStream {
     },
     result: () => settle,
   };
+}
+
+/**
+ * The text of spoken audio (`type`: a supported media type, see lib/voice-notes). Size-checked
+ * (STT_MAX_MB), time-limited (STT_TIMEOUT_SECONDS) and rate-limited like any AI request; the audio
+ * is only held in memory and never stored. Throws AiError: "disabled" without speech to text,
+ * "tooLarge", "rateLimited", "timeout", "aborted", "provider", "empty" when nothing was heard.
+ */
+export async function transcribe(
+  audio: { bytes: Blob; type: string },
+  request: { feature: string; userId?: string | null; workspaceId?: string | null; signal?: AbortSignal; skipRateLimit?: boolean },
+): Promise<string> {
+  const config = aiConfig();
+  const stt = config.stt;
+  if (!stt) throw new AiError("disabled", "Speech to text is not configured on this server");
+  if (!audio.bytes.size) throw new AiError("invalid", "The recording is empty");
+  if (audio.bytes.size > stt.maxBytes) throw new AiError("tooLarge", `Recordings can be at most ${Math.round(stt.maxBytes / 1024 / 1024)} MB`);
+  if (!request.skipRateLimit) takeRateLimit(request);
+  const timeout = AbortSignal.timeout(stt.timeoutMs);
+  const signal = request.signal ? AbortSignal.any([request.signal, timeout]) : timeout;
+  const started = performance.now();
+  const testing = runtime.override?.backend?.transcribe;
+  try {
+    const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal);
+    if (!text) throw new AiError("empty", "Nothing was heard in the recording");
+    logUsage({
+      feature: request.feature,
+      userId: request.userId,
+      workspaceId: request.workspaceId,
+      status: "ok",
+      ms: performance.now() - started,
+      model: stt.model,
+      detail: `bytes=${audio.bytes.size}${seconds ? ` seconds=${Math.round(seconds)}` : ""}`,
+    });
+    return text;
+  } catch (error) {
+    throw failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
+      feature: request.feature,
+      userId: request.userId,
+      workspaceId: request.workspaceId,
+      ms: performance.now() - started,
+      model: stt.model,
+    });
+  }
 }
 
 /** Vectors for `texts`, in order. Throws AiError ("disabled" without an embeddings model). */

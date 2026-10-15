@@ -63,6 +63,7 @@
     "inPath": "ruta",
     "inQuery": "consulta",
     "body": "Cuerpo de la solicitud (JSON)",
+    "formBody": "Cuerpo de la solicitud (multipart/form-data)",
     "response": "Respuesta {status}",
     "name": "Nombre",
     "type": "Tipo",

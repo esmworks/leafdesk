@@ -257,6 +257,9 @@ jobs:
       - name: Semantic search end-to-end
         run: pnpm tsx scripts/semantic-search-e2e.ts
 
+      - name: Voice notes over the REST API end-to-end
+        run: pnpm tsx scripts/voice-api-e2e.ts
+
       # Before the server starts: its workers would take the runs and schedules these scripts check.
       - name: Agents end-to-end
         run: pnpm tsx scripts/agents-e2e.ts

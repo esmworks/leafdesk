@@ -13,6 +13,7 @@ import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-propert
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
 import { requireUserId } from "@/server/session";
+import { saveVoiceNote, snapshotBeforeVoiceNote, voiceNoteDatabases, voiceNoteLimits } from "@/server/voice-notes";
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
@@ -127,5 +128,55 @@ export async function decideChangeAction(approvalId: string, decision: ChatDecis
   return run(async (userId) => {
     if (decision !== "approve" && decision !== "always" && decision !== "decline") return false;
     return decideChange(userId, String(approvalId), decision);
+  });
+}
+
+/** Saves the page to its history right before a voice note is put in at the cursor. */
+export async function snapshotBeforeVoiceNoteAction(pageId: string) {
+  return run((userId) => snapshotBeforeVoiceNote(userId, String(pageId)));
+}
+
+/**
+ * Where a quick note can go in a workspace: the databases the person may add it to as a row, and
+ * whether voice notes work there (null limits when not).
+ */
+export async function quickNoteTargetsAction(workspaceId: string) {
+  return run(async (userId) => {
+    const [limits, databases] = await Promise.all([voiceNoteLimits(String(workspaceId)), voiceNoteDatabases(userId, String(workspaceId))]);
+    return { limits, databases };
+  });
+}
+
+/** Most characters of a voice note's text saved here (the note and its transcript). */
+const MAX_VOICE_NOTE_TEXT = 500_000;
+
+/** Saves a voice note the person reviewed (see server/voice-notes): a private page, or a row of `databaseId`. */
+export async function saveVoiceNoteAction(input: {
+  workspaceId: string;
+  databaseId?: string | null;
+  title: string;
+  markdown: string;
+  transcript: string;
+  properties?: Record<string, string | string[]>;
+}) {
+  return run(async (userId) => {
+    const text = (value: unknown) => (typeof value === "string" ? value.slice(0, MAX_VOICE_NOTE_TEXT) : "");
+    const properties: Record<string, string | string[]> = {};
+    if (input.properties && typeof input.properties === "object") {
+      for (const [id, value] of Object.entries(input.properties)) {
+        if (typeof value === "string") properties[id] = value;
+        else if (Array.isArray(value)) properties[id] = value.filter((v): v is string => typeof v === "string");
+      }
+    }
+    const t = await getTranslations("page.voiceNote");
+    return saveVoiceNote(userId, {
+      workspaceId: String(input.workspaceId),
+      databaseId: typeof input.databaseId === "string" && input.databaseId ? input.databaseId : null,
+      title: text(input.title).slice(0, 2000),
+      markdown: text(input.markdown),
+      transcript: text(input.transcript),
+      properties,
+      transcriptLabel: t("transcriptToggle"),
+    });
   });
 }

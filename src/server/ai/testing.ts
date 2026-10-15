@@ -27,7 +27,13 @@ function textOf(content: unknown): string {
  */
 export function installFauxAi(
   script: FauxScript,
-  options: { config?: Partial<AiConfig["limits"]>; tokensPerSecond?: number; embed?: (texts: string[]) => Promise<number[][]> } = {},
+  options: {
+    config?: Partial<AiConfig["limits"]>;
+    tokensPerSecond?: number;
+    embed?: (texts: string[]) => Promise<number[][]>;
+    /** Turns speech to text on, answering every recording with this. */
+    transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string>;
+  } = {},
 ) {
   let current = script;
   const faux = fauxProvider({ provider: "faux", models: [{ id: "faux-writer" }], tokensPerSecond: options.tokensPerSecond });
@@ -56,10 +62,13 @@ export function installFauxAi(
   const config: AiConfig = {
     chat: { provider: "openai-compatible", model: "faux-writer", baseUrl: "http://faux.invalid", apiKey: null },
     embeddings: null,
+    stt: options.transcribe
+      ? { provider: "openai-compatible", model: "faux-listener", baseUrl: "http://faux.invalid", apiKey: null, maxSeconds: 600, maxBytes: 25 * 1024 * 1024, timeoutMs: 60_000 }
+      : null,
     limits: { ...base.limits, ...options.config },
     problems: [],
   };
-  setAiOverride({ config, backend: { models, model: faux.getModel(), embed: options.embed } });
+  setAiOverride({ config, backend: { models, model: faux.getModel(), embed: options.embed, transcribe: options.transcribe } });
   return {
     faux,
     setScript(next: FauxScript) {
@@ -73,7 +82,7 @@ export function installFauxAi(
 
 /** Turns AI off (as without AI_PROVIDER), whatever the environment says. */
 export function disableAi() {
-  setAiOverride({ config: { ...readAiConfig({}), chat: null, embeddings: null }, backend: null });
+  setAiOverride({ config: { ...readAiConfig({}), chat: null, embeddings: null, stt: null }, backend: null });
 }
 
 /** Uses the real providers with settings read from `env` instead of process.env. */

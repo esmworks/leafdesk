@@ -508,7 +508,9 @@
     "bodyPlaceholder": "Schreib etwas oder füge einen Link ein",
     "save": "Notiz speichern",
     "shortcut": "Neue schnelle Notiz",
-    "shortcutShort": "Schnelle Notiz"
+    "shortcutShort": "Schnelle Notiz",
+    "destination": "Speichern in",
+    "privatePage": "Private Seite"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -544,5 +546,51 @@
     "filters": "{count, plural, one {# Filter} other {# Filter}}",
     "updatedNow": "gerade aktualisiert",
     "updated": "aktualisiert {time}"
+  },
+  "voiceNote": {
+    "record": "Sprachnotiz aufnehmen",
+    "recording": "Aufnahme läuft",
+    "stop": "Beenden und ausformulieren",
+    "discard": "Verwerfen",
+    "cancel": "Abbrechen",
+    "retry": "Erneut einfügen",
+    "close": "Schließen",
+    "limit": "Bis zu {minutes} Min.",
+    "chooseFile": "Oder eine Audiodatei wählen",
+    "transcribing": "Das Gesagte wird verschriftlicht…",
+    "writing": "Die KI schreibt die Notiz…",
+    "autoStopped": "Die Aufnahme wurde beim Limit von {minutes} Min. beendet.",
+    "review": "Die KI hat diese Notiz aus deiner Aufnahme geschrieben. Prüfe sie vor dem Speichern.",
+    "notRewritten": "Die KI konnte diese Aufnahme nicht ausformulieren, daher ist die Notiz das Transkript, wie es verstanden wurde.",
+    "transcriptKept": "Das Transkript wird unter der Notiz gespeichert.",
+    "propertiesPicked": "{count, plural, one {# Eigenschaft wurde aus der Notiz ausgefüllt.} other {# Eigenschaften wurden aus der Notiz ausgefüllt.}}",
+    "transcriptToggle": "Transkript",
+    "shortcut": "Neue Sprachnotiz",
+    "shortcutShort": "Sprachnotiz",
+    "dialogTitle": "Sprachnotiz",
+    "dialogDescription": "Sprich, und die KI schreibt hier eine saubere Notiz. Das Transkript kommt darunter.",
+    "slashTitle": "Sprachnotiz",
+    "slashSubtext": "Sprich, und die KI schreibt es hier auf",
+    "slashAliases": "sprache sprachnotiz audio aufnahme diktat mikrofon transkript voice record",
+    "errors": {
+      "unsupported": "Dieser Browser kann kein Audio aufnehmen. Wähle stattdessen eine Audiodatei.",
+      "insecure": "Aufnehmen braucht eine sichere (https-)Verbindung. Wähle stattdessen eine Audiodatei.",
+      "denied": "Leafdesk darf das Mikrofon nicht verwenden. Erlaube es in den Website-Einstellungen deines Browsers und versuche es erneut.",
+      "noDevice": "Es wurde kein Mikrofon gefunden.",
+      "failed": "Die Aufnahme konnte nicht starten. Versuche es erneut.",
+      "fileType": "Diese Art von Audiodatei wird nicht unterstützt.",
+      "fileTooLarge": "Aufnahmen dürfen höchstens {max} groß sein.",
+      "disabled": "Sprachnotizen sind in diesem Workspace nicht verfügbar.",
+      "noAccess": "Du kannst hier keine Notizen hinzufügen.",
+      "tooLarge": "Die Aufnahme ist zu groß. Aufnahmen dürfen höchstens {max} groß sein.",
+      "rateLimited": "Zu viele KI-Anfragen. Versuche es gleich noch einmal.",
+      "timeout": "Das Verschriftlichen hat zu lange gedauert. Versuche es erneut oder nimm eine kürzere Notiz auf.",
+      "aborted": "Abgebrochen.",
+      "provider": "Die Aufnahme konnte nicht verschriftlicht werden. Versuche es später erneut oder bitte einen Admin, die Spracherkennungs-Einstellungen zu prüfen.",
+      "empty": "In der Aufnahme war nichts zu hören. Versuche es näher am Mikrofon.",
+      "invalid": "Die Aufnahme konnte nicht gelesen werden. Versuche es erneut.",
+      "interrupted": "Der Server wurde währenddessen neu gestartet. Versuche es erneut.",
+      "insert": "Die Notiz konnte nicht zur Seite hinzugefügt werden."
+    }
   }
 }

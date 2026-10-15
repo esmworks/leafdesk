@@ -508,7 +508,9 @@
     "bodyPlaceholder": "Écrivez quelque chose ou collez un lien",
     "save": "Enregistrer la note",
     "shortcut": "Nouvelle note rapide",
-    "shortcutShort": "Note rapide"
+    "shortcutShort": "Note rapide",
+    "destination": "Enregistrer dans",
+    "privatePage": "Page privée"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -544,5 +546,51 @@
     "filters": "{count, plural, one {# filtre} other {# filtres}}",
     "updatedNow": "mis à jour à l'instant",
     "updated": "mis à jour {time}"
+  },
+  "voiceNote": {
+    "record": "Enregistrer une note vocale",
+    "recording": "Enregistrement",
+    "stop": "Arrêter et rédiger",
+    "discard": "Abandonner",
+    "cancel": "Annuler",
+    "retry": "Réinsérer",
+    "close": "Fermer",
+    "limit": "Jusqu'à {minutes} min",
+    "chooseFile": "Ou choisir un fichier audio",
+    "transcribing": "Transcription de ce que vous avez dit…",
+    "writing": "L'IA rédige la note…",
+    "autoStopped": "L'enregistrement s'est arrêté à la limite de {minutes} min.",
+    "review": "L'IA a rédigé cette note à partir de votre enregistrement. Relisez-la avant d'enregistrer.",
+    "notRewritten": "L'IA n'a pas pu rédiger cet enregistrement : la note est la transcription telle qu'elle a été entendue.",
+    "transcriptKept": "La transcription est enregistrée sous la note.",
+    "propertiesPicked": "{count, plural, one {# propriété a été remplie à partir de la note.} other {# propriétés ont été remplies à partir de la note.}}",
+    "transcriptToggle": "Transcription",
+    "shortcut": "Nouvelle note vocale",
+    "shortcutShort": "Note vocale",
+    "dialogTitle": "Note vocale",
+    "dialogDescription": "Parlez, et l'IA rédige ici une note propre. La transcription est ajoutée en dessous.",
+    "slashTitle": "Note vocale",
+    "slashSubtext": "Parlez, et l'IA le rédige ici",
+    "slashAliases": "voix vocale audio enregistrer dictée micro transcription voice record",
+    "errors": {
+      "unsupported": "Ce navigateur ne peut pas enregistrer de son. Choisissez plutôt un fichier audio.",
+      "insecure": "L'enregistrement nécessite une connexion sécurisée (https). Choisissez plutôt un fichier audio.",
+      "denied": "Leafdesk n'est pas autorisé à utiliser le micro. Autorisez-le dans les paramètres du site de votre navigateur, puis réessayez.",
+      "noDevice": "Aucun micro n'a été trouvé.",
+      "failed": "L'enregistrement n'a pas pu démarrer. Réessayez.",
+      "fileType": "Ce type de fichier audio n'est pas pris en charge.",
+      "fileTooLarge": "Les enregistrements peuvent faire au plus {max}.",
+      "disabled": "Les notes vocales ne sont pas disponibles dans cet espace de travail.",
+      "noAccess": "Vous ne pouvez pas ajouter de notes ici.",
+      "tooLarge": "L'enregistrement est trop volumineux. Les enregistrements peuvent faire au plus {max}.",
+      "rateLimited": "Trop de requêtes IA. Réessayez dans un instant.",
+      "timeout": "La transcription a pris trop de temps. Réessayez ou enregistrez une note plus courte.",
+      "aborted": "Annulé.",
+      "provider": "L'enregistrement n'a pas pu être transcrit. Réessayez plus tard ou demandez à un administrateur de vérifier les réglages de transcription.",
+      "empty": "Rien n'a été entendu dans l'enregistrement. Réessayez plus près du micro.",
+      "invalid": "L'enregistrement n'a pas pu être lu. Réessayez.",
+      "interrupted": "Le serveur a redémarré pendant le traitement. Réessayez.",
+      "insert": "La note n'a pas pu être ajoutée à la page."
+    }
   }
 }

@@ -4,6 +4,25 @@
 
 ### Added
 
+- **Voice notes.** Speak, and AI writes what you said up as a clean note: a title, short paragraphs,
+  lists kept, filler words gone, and the transcript in a *Transcript* toggle under it. In the quick
+  note (and the installed app's new *Voice note* shortcut, which starts recording), the note fills
+  the fields to check before saving, on a private page or, with the new *Save to*, as a row of a
+  database, whose select and multi-select properties AI fills in from their options. In a page,
+  `/` *Voice note* puts the note where you are. An audio file works too, where the browser can't
+  record. Speech to text is set up apart from the chat model: `STT_PROVIDER` (`openai` or
+  `openai-compatible`, e.g. a local Whisper server), `STT_MODEL`, `STT_BASE_URL`, `STT_API_KEY`,
+  with `STT_MAX_SECONDS`, `STT_MAX_MB` and `STT_TIMEOUT_SECONDS` as limits; without them voice
+  notes stay hidden. The audio is never stored.
+- **Quick notes go into databases.** *Save to* in the quick note adds the note as a row of a
+  database you may edit, instead of a private page.
+- **Voice notes from apps.** `POST /api/v1/voice-notes` takes a recording as multipart form data
+  (`audio`, with `workspace_id` or `database_id`), writes it up like the quick note does and saves
+  it as a private page or a database row, answering with the note's id, title, transcript and the
+  values AI picked. It needs a `pages:write` token, speech to text on the server and AI on in the
+  workspace (else `409 voice_notes_unavailable`), and takes files up to `STT_MAX_MB`. The API's
+  reference shows bodies with files as form data.
+
 - **Apps you connect share the AI chat's memory of you.** Over MCP, `list_memory` reads the notes
   the chat keeps about you in a workspace (or in all of them), `add_memory` keeps one,
   `update_memory` changes one and `delete_memory` deletes some or all, with the chat's limits (30
