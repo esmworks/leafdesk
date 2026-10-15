@@ -5,7 +5,7 @@
 ### Added
 
 - **A catalog of ready-made connections.** *Add connection* (Settings → Connections) now opens a
-  list of 148 services in 16 categories, from Linear, Atlassian, GitLab, Sentry and Stripe to
+  list of 147 services in 16 categories, from Linear, Atlassian, GitLab, Sentry and Stripe to
   Intercom, Zapier and meeting recorders, with search by name or category. Picking one fills in
   its MCP address, how it signs in and, for GitHub, how its events are signed; *Add another
   server* still takes any remote MCP server. Every listed address was checked to sign in a way

@@ -59,7 +59,6 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Linear", "https://mcp.linear.app/mcp", "oauth"],
     ["monday.com", "https://mcp.monday.com/mcp", "oauth"],
     ["Productboard", "https://mcp.productboard.com/mcp", "oauth"],
-    ["Reclaim", "https://mcp.reclaim.ai/mcp", "oauth"],
     ["Shortcut", "https://mcp.shortcut.com/mcp", "oauth"],
     ["Todoist", "https://ai.todoist.net/mcp", "oauth"],
   ],

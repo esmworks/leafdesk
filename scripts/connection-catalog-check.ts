@@ -7,8 +7,10 @@
  *     WWW-Authenticate header, else under /.well-known/oauth-protected-resource for the path, then
  *     the origin) names a `resource` that is the entry's address or a parent of it; and the first
  *     authorization server's metadata (oauth-authorization-server or openid-configuration, for its
- *     path, then its origin) has a `registration_endpoint`, so Leafdesk can register itself. A
- *     server with no such metadata is taken as its own authorization server, as the MCP client does.
+ *     path, then its origin) has a `registration_endpoint`, so Leafdesk can register itself, or
+ *     takes a client metadata document. An entry marked `client` (an app registered with the
+ *     service beforehand) needs only the authorization server's metadata. A server with no such
+ *     metadata is taken as its own authorization server, as the MCP client does.
  *   - `token`: it is answered with 401 or 403.
  *
  *   pnpm catalog:check             every entry
@@ -139,7 +141,13 @@ async function checkOAuth(entry: CatalogEntry, entryUrl: URL, wwwAuthenticate: s
   }
   const server = await firstJson(authServerMetadataUrls(issuer), signal, () => true);
   if (!server) return fail(`no authorization server metadata for ${first}`);
-  if (typeof server.registration_endpoint !== "string") return fail(`${first} has no registration_endpoint`);
+  if (typeof server.authorization_endpoint !== "string") return fail(`${first} has no authorization_endpoint`);
+  // An app registered with the service beforehand needs no registration; else Leafdesk registers
+  // itself, or names itself by its client metadata document where the server takes one.
+  if (entry.client) return;
+  if (typeof server.registration_endpoint !== "string" && server.client_id_metadata_document_supported !== true) {
+    return fail(`${first} has no registration_endpoint and takes no client metadata document`);
+  }
 }
 
 async function check(entry: CatalogEntry) {
