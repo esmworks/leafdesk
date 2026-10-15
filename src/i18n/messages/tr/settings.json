@@ -488,7 +488,7 @@
     },
     "templates": {
       "heading": "Şablonla başlayın",
-      "description": "Bir veritabanı için hazır ajanlar. Her biri her yeni satırda çalışır; veritabanını ve kullanacağı özellikleri siz seçersiniz."
+      "description": "Bir veritabanı için hazır ajanlar. Çoğu her yeni satırda, kazanım kaydedici ise bir bağlantının olaylarında çalışır; veritabanını ve kullanacaklarını siz seçersiniz."
     },
     "wizard": {
       "title": "{name} kurulumu",

@@ -488,7 +488,7 @@
     },
     "templates": {
       "heading": "Start from a template",
-      "description": "Ready-made agents for a database. Each runs on every new row; you choose the database and the properties it uses."
+      "description": "Ready-made agents for a database. Most run on every new row, the wins logger on a connection’s events; you choose the database and what it uses."
     },
     "wizard": {
       "title": "Set up {name}",

@@ -488,7 +488,7 @@
     },
     "templates": {
       "heading": "Empezar con una plantilla",
-      "description": "Agentes listos para una base de datos. Cada uno se ejecuta con cada fila nueva; tú eliges la base de datos y las propiedades que usa."
+      "description": "Agentes listos para una base de datos. La mayoría se ejecuta con cada fila nueva; el registrador de logros, con los eventos de una conexión. Tú eliges la base de datos y lo que usa."
     },
     "wizard": {
       "title": "Configurar {name}",

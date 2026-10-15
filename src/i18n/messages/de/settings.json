@@ -488,7 +488,7 @@
     },
     "templates": {
       "heading": "Mit einer Vorlage beginnen",
-      "description": "Fertige Agenten für eine Datenbank. Jeder läuft bei jeder neuen Zeile; du wählst die Datenbank und die Eigenschaften, die er verwendet."
+      "description": "Fertige Agenten für eine Datenbank. Die meisten laufen bei jeder neuen Zeile, der Erfolgsprotokollierer bei den Ereignissen einer Verbindung; du wählst die Datenbank und was er nutzt."
     },
     "wizard": {
       "title": "{name} einrichten",

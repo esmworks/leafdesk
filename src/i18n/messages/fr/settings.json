@@ -488,7 +488,7 @@
     },
     "templates": {
       "heading": "Partir d’un modèle",
-      "description": "Des agents prêts à l’emploi pour une base de données. Chacun s’exécute à chaque nouvelle ligne ; vous choisissez la base de données et les propriétés qu’il utilise."
+      "description": "Des agents prêts à l’emploi pour une base de données. La plupart se lancent à chaque nouvelle ligne, le consignateur de réussites aux événements d’une connexion ; vous choisissez la base de données et ce qu’il utilise."
     },
     "wizard": {
       "title": "Configurer {name}",
