@@ -17,7 +17,8 @@ export const MAX_MEMORIES = 30;
 export const MAX_MEMORY_CHARS = 300;
 
 /** A note of the chat's memory, as the Memory view lists it. */
-export type MemoryView = { id: string; text: string; createdAt: string; updatedAt: string };
+/** A note about the person; `app`: the connected app that kept or last changed it, if one did. */
+export type MemoryView = { id: string; text: string; app: string | null; createdAt: string; updatedAt: string };
 
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;

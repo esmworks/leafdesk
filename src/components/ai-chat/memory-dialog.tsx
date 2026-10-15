@@ -2,7 +2,8 @@
 
 /**
  * What the AI chat remembers about the person in this workspace (server/ai-memory.ts): its notes,
- * each changed in place or deleted, a note to add, and forgetting everything. Only the person sees
+ * each changed in place or deleted (with the connected app that kept it, when an app did), a note to
+ * add, and forgetting everything. Only the person sees
  * them; they go with each of their questions in the workspace while their "Use memory" switch is on.
  * Not shown when the workspace has the memory off.
  */
@@ -152,7 +153,10 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
                 </li>
               ) : (
                 <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
-                  <p className="min-w-0 flex-1 py-1 break-words">{note.text}</p>
+                  <div className="min-w-0 flex-1 py-1">
+                    <p className="break-words">{note.text}</p>
+                    {note.app && <p className="mt-0.5 text-xs text-fg-muted">{t("viaApp", { app: note.app })}</p>}
+                  </div>
                   <IconButton
                     label={t("edit")}
                     className="h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60"

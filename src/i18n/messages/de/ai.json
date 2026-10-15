@@ -247,6 +247,7 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "delete": "Löschen",
+    "viaApp": "Gespeichert von {app}",
     "count": "{count} von {max} Notizen",
     "full": "Das Gedächtnis ist voll ({max} Notizen)",
     "forgetAll": "Alles vergessen",

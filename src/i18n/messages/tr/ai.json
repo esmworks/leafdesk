@@ -247,6 +247,7 @@
     "save": "Kaydet",
     "cancel": "Vazgeç",
     "delete": "Sil",
+    "viaApp": "{app} kaydetti",
     "count": "{count}/{max} not",
     "full": "Hafıza dolu ({max} not)",
     "forgetAll": "Her şeyi unut",

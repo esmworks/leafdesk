@@ -1,0 +1,1 @@
+ALTER TABLE "ai_memory" ADD COLUMN "oauth_client_id" text;

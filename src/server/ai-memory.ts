@@ -23,7 +23,7 @@
  */
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { aiMemory, type ChatMemoryRecord, type MemoryStatus } from "@/db/schema";
+import { aiMemory, oauthClient, type ChatMemoryRecord, type MemoryStatus } from "@/db/schema";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS, type ChatActionView, type MemoryView } from "@/lib/ai-chat";
 import { AccessError, requireMembership } from "@/server/access";
 import type { AiTool } from "@/server/ai";
@@ -62,20 +62,35 @@ export async function setMemoryUse(userId: string, workspaceId: string, on: bool
   if (!(await setMemberAiMemory(userId, workspaceId, on))) throw new AccessError();
 }
 
+/** Which switch has the person's memory in the workspace off, the owners' first, or null when it is on. */
+async function switchedOff(userId: string, workspaceId: string): Promise<"workspace" | "person" | null> {
+  const [available, use] = await Promise.all([memoryAvailable(workspaceId), memoryUse(userId, workspaceId)]);
+  return !available ? "workspace" : use ? null : "person";
+}
+
 /** Whether the person's questions in the workspace carry their notes and may keep new ones. */
 export async function memoryOn(userId: string, workspaceId: string): Promise<boolean> {
-  const [available, use] = await Promise.all([memoryAvailable(workspaceId), memoryUse(userId, workspaceId)]);
-  return available && use;
+  return (await switchedOff(userId, workspaceId)) === null;
 }
 
 /**
- * Which switch has the person's memory in the workspace off, the owners' first, or null when it is
- * on: for apps the person connected (mcp/memory.ts), which read and keep notes only while it is on.
+ * Which switch has the person's memory in the workspace off, or null when it is on (see
+ * switchedOff), after checking they are in it: for apps the person connected (mcp/memory.ts),
+ * which read and keep notes only while it is on.
  */
 export async function memoryOff(userId: string, workspaceId: string): Promise<"workspace" | "person" | null> {
   await requireMembership(userId, workspaceId);
-  if (!(await memoryAvailable(workspaceId))) return "workspace";
-  return (await memoryUse(userId, workspaceId)) ? null : "person";
+  return switchedOff(userId, workspaceId);
+}
+
+/**
+ * The person's memory in a workspace with one membership check: which switch has it off, if one
+ * does, and their notes (also while it is off: callers decide what to show).
+ */
+export async function memoryState(userId: string, workspaceId: string): Promise<{ off: "workspace" | "person" | null; notes: MemoryView[] }> {
+  await requireMembership(userId, workspaceId);
+  const [off, notes] = await Promise.all([switchedOff(userId, workspaceId), keptNotes(userId, workspaceId)]);
+  return { off, notes };
 }
 
 /** A note as kept: one line, trimmed. */
@@ -112,19 +127,35 @@ async function notesOf(userId: string, workspaceId: string, reader: Pick<typeof 
 export const lockNotes = (tx: Pick<typeof db, "execute">, userId: string, workspaceId: string) =>
   tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`ai_memory:${userId}:${workspaceId}`}))`);
 
-const view = (m: Note): MemoryView => ({
+const view = (m: Note, app: string | null = null): MemoryView => ({
   id: m.id,
   text: m.text,
+  app,
   createdAt: m.createdAt.toISOString(),
   updatedAt: m.updatedAt.toISOString(),
 });
 
 /**
+ * The person's kept notes in a workspace, oldest first, with the app that kept each, if one did
+ * (no membership check: callers make it).
+ */
+export async function keptNotes(userId: string, workspaceId: string): Promise<MemoryView[]> {
+  const rows = await db
+    .select({ note: aiMemory, app: oauthClient.name })
+    .from(aiMemory)
+    .leftJoin(oauthClient, eq(oauthClient.clientId, aiMemory.oauthClientId))
+    .where(and(eq(aiMemory.userId, userId), eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.status, "kept")))
+    .orderBy(asc(aiMemory.createdAt), asc(aiMemory.id));
+  return rows.map((r) => view(r.note, r.app ?? null));
+}
+
+/**
  * Keeps a note, or with `replaces` changes that note to it (no membership check: callers make it).
  * A note the person already has (same text, case aside, also one an agent's run proposed) is kept
- * once: that one is returned, and the replaced note, if any, goes. Refused with `full` at
- * MAX_MEMORIES (for an agent's proposal, `status` proposed: at `maxProposed` proposals) and
- * `notFound` when the replaced note isn't the person's.
+ * once: that one is returned, marked `known`, and the replaced note, if any, goes. Refused with
+ * `full` at MAX_MEMORIES (for an agent's proposal, `status` proposed: at `maxProposed` proposals)
+ * and `notFound` when the replaced note isn't the person's. `app`: the connected app writing it,
+ * recorded on the note it keeps or changes (none: written in Leafdesk).
  */
 export async function writeNote(
   userId: string,
@@ -136,8 +167,16 @@ export async function writeNote(
     status = "kept",
     agentRunId = null,
     maxProposed = MAX_MEMORIES,
-  }: { replaces?: string | null; conversationId?: string | null; status?: MemoryStatus; agentRunId?: string | null; maxProposed?: number } = {},
-): Promise<Note> {
+    app = null,
+  }: {
+    replaces?: string | null;
+    conversationId?: string | null;
+    status?: MemoryStatus;
+    agentRunId?: string | null;
+    maxProposed?: number;
+    app?: string | null;
+  } = {},
+): Promise<Note & { known?: true }> {
   // Written only while the workspace has the memory on (the person's own switch aside).
   if (!(await memoryAvailable(workspaceId))) throw new MemoryError("off", "The AI memory is turned off in this workspace");
   const note = cleanNote(text);
@@ -151,15 +190,15 @@ export async function writeNote(
     const known = notes.find((m) => m.id !== target?.id && sameNote(m.text, note));
     if (known) {
       if (target) await tx.delete(aiMemory).where(eq(aiMemory.id, target.id));
-      return known;
+      return { ...known, known: true as const };
     }
     if (target) {
-      const [changed] = await tx.update(aiMemory).set({ text: note, updatedAt: new Date() }).where(eq(aiMemory.id, target.id)).returning();
+      const [changed] = await tx.update(aiMemory).set({ text: note, oauthClientId: app, updatedAt: new Date() }).where(eq(aiMemory.id, target.id)).returning();
       return changed;
     }
     const max = status === "kept" ? MAX_MEMORIES : maxProposed;
     if (notes.filter((m) => m.status === status).length >= max) throw new MemoryError("full", `The memory holds at most ${max} notes`);
-    const [made] = await tx.insert(aiMemory).values({ userId, workspaceId, text: note, conversationId, status, agentRunId }).returning();
+    const [made] = await tx.insert(aiMemory).values({ userId, workspaceId, text: note, conversationId, status, agentRunId, oauthClientId: app }).returning();
     return made;
   });
 }
@@ -167,7 +206,7 @@ export async function writeNote(
 /** The person's notes in a workspace, oldest first. */
 export async function listMemories(userId: string, workspaceId: string): Promise<MemoryView[]> {
   await requireMembership(userId, workspaceId);
-  return (await notesOf(userId, workspaceId)).map(view);
+  return keptNotes(userId, workspaceId);
 }
 
 /** Keeps a note the person wrote (see writeNote). */
@@ -182,8 +221,8 @@ export async function updateMemory(userId: string, workspaceId: string, memoryId
   return view(await writeNote(userId, workspaceId, text, { replaces: memoryId }));
 }
 
-/** Deletes notes of the person (only theirs): some, or all of them in the workspace. Returns how many went. */
-export async function deleteMemories(userId: string, workspaceId: string, memoryIds: string[] | "all"): Promise<number> {
+/** Deletes notes of the person (only theirs): some, or all of them in the workspace. Returns the ids of those that went. */
+export async function deleteMemories(userId: string, workspaceId: string, memoryIds: string[] | "all"): Promise<string[]> {
   await requireMembership(userId, workspaceId);
   const gone = await db
     .delete(aiMemory)
@@ -195,7 +234,7 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
       ),
     )
     .returning({ id: aiMemory.id });
-  return gone.length;
+  return gone.map((m) => m.id);
 }
 
 // --------------------------------------------------------------------------------- the chat

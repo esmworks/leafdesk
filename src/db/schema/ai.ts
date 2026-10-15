@@ -208,6 +208,8 @@ export const aiMemory = pgTable(
     conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
     status: text("status").$type<MemoryStatus>().notNull().default("kept"),
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
+    /** The connected app (OAuth client) that kept the note or last changed it over MCP, if one did. */
+    oauthClientId: text("oauth_client_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

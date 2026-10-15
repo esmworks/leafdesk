@@ -247,6 +247,7 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
+    "viaApp": "Guardada por {app}",
     "count": "{count} de {max} notas",
     "full": "La memoria está llena ({max} notas)",
     "forgetAll": "Olvidarlo todo",

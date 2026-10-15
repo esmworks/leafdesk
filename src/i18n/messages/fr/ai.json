@@ -247,6 +247,7 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
+    "viaApp": "Enregistrée par {app}",
     "count": "{count} notes sur {max}",
     "full": "La mémoire est pleine ({max} notes)",
     "forgetAll": "Tout oublier",
