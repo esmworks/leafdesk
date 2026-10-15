@@ -42,7 +42,7 @@ export async function describeWidgets(userId: string, widgets: DashboardWidget[]
     widgets.map(async (widget) => {
       if (!opened.has(widget.databaseId)) opened.set(widget.databaseId, openDatabase(userId, widget.databaseId));
       const found = await opened.get(widget.databaseId)!;
-      const base = { id: widget.id, title: widget.title || null, width: widget.span, database_id: widget.databaseId };
+      const base = { id: widget.id, title: widget.title || null, width: widget.span, color: widget.color ?? null, database_id: widget.databaseId };
       if (!found) return { ...base, accessible: false };
       const { database, properties, lookups } = found;
       return {

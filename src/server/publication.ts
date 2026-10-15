@@ -21,7 +21,7 @@ import {
 import { timestampDay } from "@/lib/time-zone";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
-import { LIST_WIDGET_ROWS, type DashboardWidget, type WidgetSpan } from "@/lib/dashboard";
+import { LIST_WIDGET_ROWS, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
@@ -388,6 +388,7 @@ export type PublishedWidget = {
   id: string;
   title: string;
   span: WidgetSpan;
+  color?: WidgetColor;
   database: PublishedEmbed | null;
   /** List widgets: how many rows the list has in all. */
   rowCount: number;
@@ -696,7 +697,7 @@ export function widgetShowing(widget: DashboardWidget, database: PublishedEmbed 
   const rowCount = database?.table.rows.length ?? 0;
   const shown =
     database && widget.view.type === "list" ? { ...database, table: { ...database.table, rows: database.table.rows.slice(0, LIST_WIDGET_ROWS) } } : database;
-  return { id: widget.id, title: widget.title, span: widget.span, database: shown, rowCount };
+  return { id: widget.id, title: widget.title, span: widget.span, ...(widget.color ? { color: widget.color } : {}), database: shown, rowCount };
 }
 
 async function publishedEmbed(

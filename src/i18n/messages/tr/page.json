@@ -529,6 +529,8 @@
       "3": "Genişliğin dörtte üçü",
       "4": "Tam genişlik"
     },
+    "color": "Renk",
+    "colorNone": "Renksiz",
     "titleLabel": "Widget başlığı",
     "titlePlaceholder": "Başlık (boşsa veritabanınınki)",
     "unavailable": "Bu veriye erişiminiz yok.",

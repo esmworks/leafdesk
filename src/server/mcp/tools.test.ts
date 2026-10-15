@@ -2466,6 +2466,26 @@ describe("dashboards", () => {
     expect(r.data).toMatchObject({ dashboard_id: "dash-1", updated: "w2" });
   });
 
+  it("colors a widget and clears its color", async () => {
+    const r = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w2", color: "green" });
+    expect(r.isError).toBe(false);
+    expect(widgetsOf(written())[1]).toMatchObject({ id: "w2", color: "green", view: { type: "chart" } });
+    expect(r.data.widgets[1]).toMatchObject({ id: "w2", color: "green" });
+    const wrong = await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w2", color: "teal" });
+    expect(wrong.isError).toBe(true);
+  });
+
+  it("keeps a widget's color through other changes, and clears it with none", async () => {
+    const colored = stored.map((w) => ({ ...w, color: "red" }));
+    collab.readBlocks.mockResolvedValue({ title: "Plan", blocks: [dashboardBlock(colored)] });
+    const writtenOver = (call: number) => widgetsOf(collab.updateBlockProps.mock.calls[call][2](dashboardBlock(colored).props, "dashboard"));
+    await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1", title: "Still open" });
+    expect(writtenOver(0)[0]).toMatchObject({ title: "Still open", color: "red" });
+    await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w1", color: "none" });
+    expect(writtenOver(1)[0]).not.toHaveProperty("color");
+    expect(writtenOver(1)[1]).toMatchObject({ id: "w2", color: "red" });
+  });
+
   it("starts the view over on another layout", async () => {
     await callTool(writer, "update_dashboard_widget", { page_id: "page-1", widget_id: "w2", type: "list" });
     expect(widgetsOf(written())[1]).toMatchObject({ span: 2, view: { type: "list", config: {} } });
@@ -2519,7 +2539,7 @@ describe("dashboards", () => {
         widgets: [
           expect.objectContaining({ id: "w1", title: "Open", width: 1, accessible: true, type: "chart", chart_type: "number" }),
           expect.objectContaining({ id: "w2", title: null, width: 2, accessible: true, group_by: "Status", chart_type: "donut" }),
-          { id: "w3", title: "Salaries", width: 1, database_id: "db-secret", accessible: false },
+          { id: "w3", title: "Salaries", width: 1, color: null, database_id: "db-secret", accessible: false },
         ],
       },
     ]);

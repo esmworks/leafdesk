@@ -529,6 +529,8 @@
       "3": "Three quarters of the width",
       "4": "The full width"
     },
+    "color": "Color",
+    "colorNone": "No color",
     "titleLabel": "Widget title",
     "titlePlaceholder": "Title (the database's when empty)",
     "unavailable": "You don't have access to this data.",

@@ -8,7 +8,7 @@ import { HeadingList, Trail } from "@/components/page/page-outline";
 import { PdfViewer } from "@/components/page/pdf-viewer";
 import { BookmarkCard, EmbedFrame } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
-import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS } from "@/lib/dashboard";
+import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS, widgetBoxClass } from "@/lib/dashboard";
 import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
@@ -118,7 +118,7 @@ export async function PublishedBody({
                 return (
                   <section
                     key={widget.id}
-                    className={cn("flex min-w-0 flex-col rounded-lg border border-border p-3", styles.keep, WIDGET_SPAN_CLASS[widget.span])}
+                    className={cn("flex min-w-0 flex-col rounded-lg border p-3", widgetBoxClass(widget.color), styles.keep, WIDGET_SPAN_CLASS[widget.span])}
                   >
                     {database ? (
                       <>

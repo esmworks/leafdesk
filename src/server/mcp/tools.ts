@@ -87,7 +87,9 @@ import {
   placeWidget,
   serializeDashboard,
   updateWidget,
+  WIDGET_COLORS,
   type DashboardWidget,
+  type WidgetColor,
   type WidgetSpan,
 } from "@/lib/dashboard";
 import { checkLinkedView } from "@/lib/embed-blocks";
@@ -440,6 +442,10 @@ const widgetInputs = {
     .describe(
       `How many of the dashboard's ${DASHBOARD_COLUMNS} columns the widget takes on a wide page (narrower pages show two columns, phones one widget per row). By default 1 for a number, 2 for a chart or list and 4 for other layouts.`,
     ),
+  color: z
+    .enum(["none", ...WIDGET_COLORS])
+    .optional()
+    .describe('Tints the widget\'s box in one of the option colors; "none" for a plain box (the default).'),
   group_by: z
     .string()
     .optional()
@@ -457,6 +463,7 @@ type WidgetInput = ViewInput & {
   type?: Exclude<ViewType, "form">;
   title?: string;
   width?: number;
+  color?: WidgetColor | "none";
   group_by?: string;
 };
 
@@ -2442,7 +2449,7 @@ export function createMcpServer(principal: McpPrincipal) {
    * database or layout starts the view over.
    */
   const widgetFrom = async (input: WidgetInput, taken: DashboardWidget[], current?: DashboardWidget): Promise<DashboardWidget> => {
-    const { database_id, type: askedType, title, width, filters, filter_combinator, sorts, ...layout } = input;
+    const { database_id, type: askedType, title, width, color: askedColor, filters, filter_combinator, sorts, ...layout } = input;
     const databaseId = database_id ?? current?.databaseId;
     if (!databaseId) throw new ToolInputError("Give database_id: the database the widget shows.");
     const { database, properties } = await databases.getDatabase(userId, databaseId);
@@ -2453,11 +2460,13 @@ export function createMcpServer(principal: McpPrincipal) {
     const base = same ? current.view.config : {};
     const patch = viewConfigPatch(properties, type, { ...layout, filters, filter_combinator, sorts }, lookups, base);
     const view = checkLinkedView({ type, config: { ...base, ...patch } });
+    const color = askedColor === "none" ? undefined : (askedColor ?? current?.color);
     return {
       id: current?.id ?? newWidgetId(taken),
       databaseId,
       title: (title ?? current?.title ?? "").trim(),
       span: (width as WidgetSpan | undefined) ?? (same ? current.span : defaultSpan(view)),
+      ...(color ? { color } : {}),
       view,
     };
   };
@@ -2509,7 +2518,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_dashboard_widget",
     {
       title: "Add, change, move or remove a dashboard widget",
-      description: `Change a dashboard on a page (see add_dashboard; get_page lists dashboards and their widgets under dashboards). With widget_id, change that widget: its title, width or view settings (settings you leave out keep their values; a new database_id or type starts its view over), move it with before_widget_id or after_widget_id, or remove it with remove. Without widget_id, add a widget (database_id needed) at the end, or next to before_widget_id / after_widget_id; a dashboard holds up to ${MAX_WIDGETS}. A history snapshot is saved first.`,
+      description: `Change a dashboard on a page (see add_dashboard; get_page lists dashboards and their widgets under dashboards). With widget_id, change that widget: its title, width, color or view settings (settings you leave out keep their values; a new database_id or type starts its view over), move it with before_widget_id or after_widget_id, or remove it with remove. Without widget_id, add a widget (database_id needed) at the end, or next to before_widget_id / after_widget_id; a dashboard holds up to ${MAX_WIDGETS}. A history snapshot is saved first.`,
       inputSchema: z.object({
         page_id: id("page"),
         dashboard_id: z.string().min(1).optional().describe("The dashboard to change; needed only when the page has more than one."),

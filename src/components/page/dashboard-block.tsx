@@ -30,7 +30,10 @@ import {
   type WidgetSpan,
   newWidgetId,
   staleWidgets,
+  widgetBoxClass,
   widgetStamp,
+  WIDGET_COLORS,
+  type WidgetColor,
   DASHBOARD_CLASS,
   DASHBOARD_GRID_CLASS,
   WIDGET_SPAN_CLASS,
@@ -270,7 +273,7 @@ function Widget({
   return (
     <section
       aria-label={title || undefined}
-      className={cn("flex min-w-0 flex-col rounded-lg border border-border bg-bg p-3", WIDGET_SPAN_CLASS[editing ? 4 : widget.span])}
+      className={cn("flex min-w-0 flex-col rounded-lg border p-3", widgetBoxClass(widget.color), WIDGET_SPAN_CLASS[editing ? 4 : widget.span])}
     >
       <div className="flex min-h-6 min-w-0 items-center gap-1.5">
         {ok && <PageIcon icon={ok.database.icon} kind="database" className="text-sm" />}
@@ -498,6 +501,15 @@ function WidgetMenu({ widget, actions }: { widget: DashboardWidget; actions: Wid
           <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("width")}</div>
           <SpanPicker span={widget.span} onPick={(span) => actions.change({ ...widget, span })} />
           <MenuSeparator />
+          <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("color")}</div>
+          <ColorPicker
+            color={widget.color}
+            onPick={(color) => {
+              const { color: _, ...rest } = widget;
+              actions.change(color ? { ...rest, color } : rest);
+            }}
+          />
+          <MenuSeparator />
           <MenuItem icon={<ArrowLeft className="h-3.5 w-3.5" />} disabled={actions.first} onClick={run(() => actions.move(-1))}>
             {t("moveBefore")}
           </MenuItem>
@@ -535,6 +547,34 @@ function SpanPicker({ span, onPick }: { span: WidgetSpan; onPick: (span: WidgetS
           {s}/4
         </button>
       ))}
+    </div>
+  );
+}
+
+/** No color, or one of the option palette's hues: swatches as board columns show them. */
+function ColorPicker({ color, onPick }: { color: WidgetColor | undefined; onPick: (color: WidgetColor | undefined) => void }) {
+  const t = useTranslations("page.dashboard");
+  const tColor = useTranslations("database.colors");
+  const swatch = (value: WidgetColor | undefined, label: string) => (
+    <button
+      key={value ?? "none"}
+      type="button"
+      role="radio"
+      aria-checked={value === color}
+      aria-label={label}
+      title={label}
+      onClick={() => value !== color && onPick(value)}
+      className={cn(
+        "h-6 rounded border",
+        value ? `opt-${value} border-fg/10` : "border-border bg-bg",
+        value === color && "ring-2 ring-accent ring-offset-1 ring-offset-bg",
+      )}
+    />
+  );
+  return (
+    <div role="radiogroup" aria-label={t("color")} className="grid grid-cols-5 gap-1 px-2 pb-1.5">
+      {swatch(undefined, t("colorNone"))}
+      {WIDGET_COLORS.map((c) => swatch(c, tColor(c)))}
     </div>
   );
 }

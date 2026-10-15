@@ -85,8 +85,8 @@ versions, upgrades and running behind a domain.
   one on phones). Each widget is a database seen through its own view (a *Number* chart for one
   value, a chart, a list, or any other layout), set up in place, kept up to date as rows change,
   and worked out for each reader from the rows and values they may see; a number, bar or slice
-  opens the rows behind it. Published pages show numbers and lists, and charts as a table of their
-  figures.
+  opens the rows behind it. A widget can take one of the option colors, as board columns do.
+  Published pages show numbers and lists, and charts as a table of their figures.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.

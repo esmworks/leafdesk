@@ -17,6 +17,7 @@ import {
   serializeDashboard,
   staleWidgets,
   updateWidget,
+  widgetBoxClass,
   widgetStamp,
   type DashboardWidget,
 } from "./dashboard";
@@ -31,9 +32,23 @@ describe("parseDashboard", () => {
     const widgets = [
       widget("a"),
       widget("b", OTHER, { title: "Open bugs", span: 3, view: { type: "chart", config: { chartType: "donut", groupBy: "p" } } }),
-      widget("c", DB, { span: 4, view: { type: "board", config: { groupBy: "s" } } }),
+      widget("c", DB, { span: 4, color: "blue", view: { type: "board", config: { groupBy: "s" } } }),
     ];
     expect(parseDashboard(serializeDashboard(widgets))).toEqual(widgets);
+  });
+
+  it("keeps palette colors only, and leaves plain widgets without one", () => {
+    const value = JSON.stringify([
+      { id: "a", databaseId: DB, span: 1, color: "green", view: { type: "list", config: {} } },
+      { id: "b", databaseId: DB, span: 1, color: "url(x)", view: { type: "list", config: {} } },
+      { id: "c", databaseId: DB, span: 1, view: { type: "list", config: {} } },
+    ]);
+    const [a, b, c] = parseDashboard(value);
+    expect(a.color).toBe("green");
+    expect(b).not.toHaveProperty("color");
+    expect(JSON.parse(serializeDashboard([c]))[0]).not.toHaveProperty("color");
+    expect(widgetBoxClass("green")).toContain("tint-green");
+    expect(widgetBoxClass(undefined)).not.toContain("tint-");
   });
 
   it("starts a new widget as a row count a quarter wide", () => {

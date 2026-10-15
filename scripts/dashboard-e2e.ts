@@ -430,6 +430,31 @@ try {
     secondBlock.widgets.map((w) => w.database?.table.chart?.result),
   );
 
+  // Colors: a widget's box takes a palette hue, kept in the block and shown on the published page
+  const tinted = await callTool(ids.owner, "update_dashboard_widget", {
+    page_id: report.id,
+    dashboard_id: second.data.dashboard_id,
+    widget_id: secondStored.widgets[4].id,
+    color: "green",
+  });
+  check(!tinted.isError && tinted.data.widgets[4].color === "green", "update_dashboard_widget colors a widget", tinted);
+  const [, colored] = await dashboardsOf(report.id);
+  check(colored.widgets[4].color === "green" && colored.widgets.filter((w) => w.color).length === 1, "the color is kept in the block, on that widget only", colored.widgets);
+  const coloredPage = await getPublishedPage(token);
+  const coloredBlock = coloredPage?.body.filter((b) => b.kind === "dashboard")[1];
+  check(
+    coloredBlock?.kind === "dashboard" && coloredBlock.widgets[4].color === "green" && coloredBlock.widgets[0].color === undefined,
+    "a published widget shows its color",
+    coloredBlock?.kind === "dashboard" && coloredBlock.widgets.map((w) => w.color),
+  );
+  const cleared = await callTool(ids.owner, "update_dashboard_widget", {
+    page_id: report.id,
+    dashboard_id: second.data.dashboard_id,
+    widget_id: secondStored.widgets[4].id,
+    color: "none",
+  });
+  check(!cleared.isError && cleared.data.widgets[4].color === null, "color none makes the widget plain again", cleared.data?.widgets[4]);
+
   console.log(`\n${passed} checks passed`);
 } finally {
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));

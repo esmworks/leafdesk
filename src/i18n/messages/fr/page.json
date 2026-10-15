@@ -529,6 +529,8 @@
       "3": "Trois quarts de la largeur",
       "4": "Toute la largeur"
     },
+    "color": "Couleur",
+    "colorNone": "Aucune couleur",
     "titleLabel": "Titre du widget",
     "titlePlaceholder": "Titre (celui de la base si vide)",
     "unavailable": "Vous n'avez pas accès à ces données.",

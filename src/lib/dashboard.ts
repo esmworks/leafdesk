@@ -1,5 +1,6 @@
 import type { ViewType } from "@/db/schema/app";
 import { checkLinkedView, LINKED_VIEW_TYPES, type LinkedView } from "./embed-blocks";
+import { SELECT_COLORS } from "./properties";
 
 /**
  * Dashboards: a page block laying out widgets in a grid, each one view of a database the reader
@@ -45,6 +46,19 @@ export const WIDGET_SPAN_CLASS: Record<WidgetSpan, string> = {
   3: "@lg:col-span-2 @2xl:col-span-3",
   4: "@lg:col-span-2 @2xl:col-span-4",
 };
+
+/** A widget's color: the option palette's hues, as board columns take them. */
+export const WIDGET_COLORS = SELECT_COLORS;
+export type WidgetColor = (typeof WIDGET_COLORS)[number];
+export const isWidgetColor = (value: unknown): value is WidgetColor => (WIDGET_COLORS as readonly unknown[]).includes(value);
+
+/**
+ * A widget's box: a border on the page's background, or with a color its hue's tint (the
+ * `.tint-*` palette in globals.css), as a board column of that color.
+ */
+export function widgetBoxClass(color: WidgetColor | undefined): string {
+  return color ? `tint-${color} border-transparent bg-[var(--opt-tint)]` : "border-border bg-bg";
+}
 /** Rows a list widget shows; the rest are counted. */
 export const LIST_WIDGET_ROWS = 8;
 /** Rows listed behind a clicked number, bar or slice. */
@@ -57,6 +71,8 @@ export type DashboardWidget = {
   /** Shown above the widget; empty for the database's title. */
   title: string;
   span: WidgetSpan;
+  /** Tints the widget's box; none keeps it plain. */
+  color?: WidgetColor;
   view: LinkedView;
 };
 
@@ -115,7 +131,7 @@ export function parseDashboard(value: unknown): DashboardWidget[] {
 
 function checkWidget(item: unknown): DashboardWidget | null {
   if (!item || typeof item !== "object" || Array.isArray(item)) return null;
-  const { id, databaseId, title, span, view } = item as Record<string, unknown>;
+  const { id, databaseId, title, span, color, view } = item as Record<string, unknown>;
   if (typeof id !== "string" || !ID.test(id) || typeof databaseId !== "string" || !ID.test(databaseId)) return null;
   const checked = checkLinkedView(view);
   if (!(LINKED_VIEW_TYPES as readonly ViewType[]).includes(checked.type)) return null;
@@ -124,17 +140,19 @@ function checkWidget(item: unknown): DashboardWidget | null {
     databaseId,
     title: typeof title === "string" ? title.slice(0, MAX_WIDGET_TITLE) : "",
     span: WIDGET_SPANS.includes(span as WidgetSpan) ? (span as WidgetSpan) : defaultSpan(checked),
+    ...(isWidgetColor(color) ? { color } : {}),
     view: checked,
   };
 }
 
 export const serializeDashboard = (widgets: DashboardWidget[]) =>
   JSON.stringify(
-    widgets.slice(0, MAX_WIDGETS).map(({ id, databaseId, title, span, view }) => ({
+    widgets.slice(0, MAX_WIDGETS).map(({ id, databaseId, title, span, color, view }) => ({
       id,
       databaseId,
       ...(title ? { title } : {}),
       span,
+      ...(color ? { color } : {}),
       view: { type: view.type, config: view.config },
     })),
   );

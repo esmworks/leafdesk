@@ -137,6 +137,11 @@
   `add_dashboard` and `update_dashboard_widget` add a dashboard and add, change, move or remove its
   widgets, and `get_page` lists dashboards and their widgets. Copies of published pages keep the
   widgets whose database was copied too. No migration. Covered in `scripts/dashboard-e2e.ts`.
+- **Colored dashboard widgets.** A widget's menu has a *Color* row: a widget can take one of the
+  option colors as its background, the same light tint board columns use, in light and dark
+  themes. Published pages and the print view show the color too. MCP's `add_dashboard` and
+  `update_dashboard_widget` take `color` (`"none"` for a plain box), and `get_page` lists each
+  widget's color. Covered in `scripts/dashboard-e2e.ts`.
 
 ### Changed
 
