@@ -22,7 +22,6 @@
   values AI picked. It needs a `pages:write` token, speech to text on the server and AI on in the
   workspace (else `409 voice_notes_unavailable`), and takes files up to `STT_MAX_MB`. The API's
   reference shows bodies with files as form data.
-
 - **Apps you connect share the AI chat's memory of you.** Over MCP, `list_memory` reads the notes
   the chat keeps about you in a workspace (or in all of them), `add_memory` keeps one,
   `update_memory` changes one and `delete_memory` deletes some or all, with the chat's limits (30
@@ -44,8 +43,9 @@
   when the agent is archived or whoever set it is no longer an owner or can't open the database,
   until an owner sets it again. The tab warns when the agent can't open or change the database (it
   isn't shared on its own). A run over a database with rows no one in the workspace stands behind,
-  such as anonymous form answers, asks an owner before each connection tool and proposes no notes. Up to 10 schedules per agent. The REST API has `GET`/`POST
-  /agents/{agent_id}/schedules` and `PATCH`/`DELETE /agents/{agent_id}/schedules/{schedule_id}`,
+  such as anonymous form answers, asks an owner before each connection tool and proposes no notes.
+  Up to 10 schedules per agent. The REST API has `GET`/`POST /agents/{agent_id}/schedules` and
+  `PATCH`/`DELETE /agents/{agent_id}/schedules/{schedule_id}`,
   MCP has `add_agent_schedule`, `update_agent_schedule` and `delete_agent_schedule`, and
   `get_agent` lists an agent's schedules. Migration `0069_agent_schedules` adds `schedule.agent_id`
   and the `agent_report` notification. Covered in `scripts/agent-schedule-e2e.ts`.
