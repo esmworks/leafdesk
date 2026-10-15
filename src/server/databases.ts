@@ -2181,12 +2181,17 @@ export async function changePropertyType(
   return { property: changed, converted, cleared };
 }
 
-export async function addView(userId: string, databaseId: string, input: { name: string; type: ViewType }) {
+/** Adds a view with its type's defaults; `config`, when given, goes over them (checked as updateView checks it). */
+export async function addView(userId: string, databaseId: string, input: { name: string; type: ViewType; config?: ViewConfig }) {
   if (!isViewType(input.type)) {
     throw new PropertyValueError(`Unsupported view type "${String(input.type)}"`, "unsupportedViewType", {
       type: String(input.type),
     });
   }
+  const filterError = input.config && filterConfigError(input.config);
+  if (filterError) throw new PropertyValueError(filterError, "invalidFilter");
+  const layoutError = input.config && layoutConfigError(input.config);
+  if (layoutError) throw new PropertyValueError(layoutError, "invalidViewConfig");
   const database = await requireDatabase(userId, databaseId, "edit");
   assertUnlocked(database);
   // Defaults come from properties the user may know of (see server/property-access).
@@ -2206,6 +2211,7 @@ export async function addView(userId: string, databaseId: string, input: { name:
   if (input.type === "chart") config.groupBy = chartGroupProperty(props, {})?.id;
   // Forms start out asking for the name and every property a form can ask for.
   if (input.type === "form") config.form = defaultFormConfig(props);
+  Object.assign(config, input.config);
   const [{ max }] = await db
     .select({ max: sql<number | null>`max(${databaseView.position})` })
     .from(databaseView)

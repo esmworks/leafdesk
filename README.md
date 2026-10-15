@@ -1597,9 +1597,9 @@ automation that runs it on every new row (the wins logger, a trigger on a connec
 - **Wins logger** reads each event a connection you pick receives (a Slack message, a GitHub pull
   request, a CRM deal or an email sent through a signed webhook) and, when it is a win or praise,
   adds a row to a wins log (the *Wins log* template makes one), filling the log's own properties as
-  far as the event tells. Its setup picks the log, the connection, the event type and whether the
-  service is trusted; until it is, each row waits for an owner's approval. A workspace without a
-  connection has to add one first.
+  far as the event tells. Its setup picks the log, the connection and the event type, and lists
+  which of the log's properties it fills; each row waits for an owner's approval. A workspace
+  without a connection has to add one first.
 
 ## Connections
 
@@ -1686,8 +1686,8 @@ handled when the service sends it again. Each accepted event runs the agents who
 its type (a trigger for `issues` also takes `issues.opened`, an empty type takes all), with the
 trigger's task and the event (its type and body, cut to 8000 characters, read as data). Such a run
 reads what is shared with the agent, and the only change it makes in Leafdesk is adding rows
-(`create_row`) to databases shared with the agent to edit, within its limit of changes; otherwise
-it acts through its connection tools, with approval as above. The *Events* tab lists what came in over the last 7
+(`create_row`) to databases shared with the agent to edit, within its limit of changes, each once
+an owner approves it; otherwise it acts through its connection tools, with approval as above. The *Events* tab lists what came in over the last 7
 days and what happened to each.
 
 Anyone who can make the service send an event (open an issue on a public repository, write in a
@@ -1696,8 +1696,8 @@ to talk the agent into reading pages shared with it and sending them out through
 whose input reaches them (a fetch of an address, a search), or copying them into a row. So by
 default every connection tool call of an event's run, reading ones too, and every row it adds waits
 for an owner's approval. An owner can tick *Trust what this service sends* on a trigger whose
-service only people of the workspace can make send events: its runs then call reading tools and add
-rows at once, and only the other calls wait. The setting is read
+service only people of the workspace can make send events: its runs then call reading tools at
+once, and only the others wait, rows it adds included. The setting is read
 each time a run goes on, so turning it off holds back runs already under way.
 
 **Audit.** Adding, changing, signing in to and removing connections, tool classes, agents' tools,

@@ -113,7 +113,7 @@ function checkToken(value: unknown) {
 const newEventSecret = () => `whsec_${randomBytes(24).toString("base64url")}`;
 
 /** The connection with this id, for an owner of its workspace. */
-async function ownedConnection(userId: string, connectionId: string): Promise<ConnectionRow> {
+export async function ownedConnection(userId: string, connectionId: string): Promise<ConnectionRow> {
   const [found] = await db.select().from(connection).where(eq(connection.id, connectionId)).limit(1);
   if (!found) throw new ConnectionError("notFound", "Connection not found");
   await requireMembership(userId, found.workspaceId, "owner").catch((error) => {
@@ -420,11 +420,16 @@ export async function listTriggers(userId: string, connectionId: string): Promis
   return rows.map(viewTrigger);
 }
 
+/** Throws unless the connection has room for one more trigger. */
+export async function assertTriggerRoom(connectionId: string) {
+  const [{ n }] = await db.select({ n: count() }).from(connectionTrigger).where(eq(connectionTrigger.connectionId, connectionId));
+  if (n >= MAX_CONNECTION_TRIGGERS) throw new ConnectionError("tooMany", `A connection has at most ${MAX_CONNECTION_TRIGGERS} triggers`, { max: String(MAX_CONNECTION_TRIGGERS) });
+}
+
 export async function createTrigger(userId: string, connectionId: string, input: TriggerInput): Promise<ConnectionTriggerView> {
   const row = await ownedConnection(userId, connectionId);
   const agent = await checkTriggerAgent(userId, row, input.agentId);
-  const [{ n }] = await db.select({ n: count() }).from(connectionTrigger).where(eq(connectionTrigger.connectionId, connectionId));
-  if (n >= MAX_CONNECTION_TRIGGERS) throw new ConnectionError("tooMany", `A connection has at most ${MAX_CONNECTION_TRIGGERS} triggers`, { max: String(MAX_CONNECTION_TRIGGERS) });
+  await assertTriggerRoom(connectionId);
   const [created] = await db
     .insert(connectionTrigger)
     .values({

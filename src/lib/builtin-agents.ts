@@ -27,7 +27,8 @@ export const BUILTIN_AGENT_ICONS: Record<BuiltinAgentKey, string> = {
 
 /** Agents a connection's events start (through a trigger) rather than an automation on new rows. */
 export const EVENT_AGENT_KEYS = ["wins-logger"] as const satisfies readonly BuiltinAgentKey[];
-export const isEventAgentKey = (key: BuiltinAgentKey): key is (typeof EVENT_AGENT_KEYS)[number] =>
+export type EventAgentKey = (typeof EVENT_AGENT_KEYS)[number];
+export const isEventAgentKey = (key: BuiltinAgentKey): key is EventAgentKey =>
   (EVENT_AGENT_KEYS as readonly string[]).includes(key);
 
 /** Properties the ticket router may set: one value from a known list, or a person. */
@@ -40,7 +41,7 @@ export const FLAG_PROPERTY_TYPES = ["checkbox"] as const satisfies PropertyType[
 export const MAX_ROUTER_PROPERTIES = 5;
 export const MAX_ROUTER_RULES = 4_000;
 export const MAX_KNOWLEDGE_PAGES = 20;
-/** The most of a log's properties the wins logger's instructions describe, in the database's order. */
+/** The most of a log's properties the wins logger's instructions describe (see `logPropertiesOf`). */
 export const MAX_LOG_PROPERTIES = 12;
 /** Properties the wins logger fills, as far as the event says; others are left alone. */
 export const LOG_PROPERTY_TYPES = ["select", "multi_select", "status", "date", "url", "person", "text", "number", "email"] as const satisfies PropertyType[];
@@ -51,21 +52,21 @@ export const NEW_PROPERTY = "new";
 /**
  * What the wizard chose. Properties and options are ids of the database's own, or NEW_PROPERTY;
  * `pages` are the pages the answerer may read (shared with it to view). The wins logger's events
- * come from `connectionId`, of `eventType` (null or empty for any), its trigger `trusted` or not
- * (see lib/connections ConnectionTriggerView). `name` replaces the template's name when given.
+ * come from `connectionId`, of `eventType` (null or empty for any); its trigger starts untrusted,
+ * and each row it adds waits for an owner either way. `name` replaces the template's name when given.
  */
 export type BuiltinAgentSetup = { databaseId: string; name?: string } & (
   | { key: "ticket-router"; properties: string[]; rules: string }
   | { key: "request-answerer"; property: string; answered: string; needsPerson: string; pages: string[] }
   | { key: "duplicate-finder"; property: string }
-  | { key: "wins-logger"; connectionId: string; eventType?: string | null; trusted?: boolean }
+  | { key: "wins-logger"; connectionId: string; eventType?: string | null }
 );
 
 /** The texts of one language (server/agents/builtin.ts `builtinAgentTexts` loads them). */
 export type BuiltinAgentTexts = typeof import("@/i18n/messages/en/agentTemplates.json");
 
 /** The names a new property (and its options) of a template gets, in the texts' language. */
-export function newPropertyNames(texts: BuiltinAgentTexts, key: Exclude<BuiltinAgentKey, (typeof EVENT_AGENT_KEYS)[number]>) {
+export function newPropertyNames(texts: BuiltinAgentTexts, key: Exclude<BuiltinAgentKey, EventAgentKey>) {
   if (key === "ticket-router") {
     const t = texts["ticket-router"];
     return { name: t.newProperty, type: "select" as const, options: Object.values(t.newOptions) };
@@ -104,6 +105,23 @@ export type RouterProperty = { name: string; type: (typeof ROUTER_PROPERTY_TYPES
 
 /** One property of the wins log, with its options when it has a list of them. */
 export type LogProperty = { name: string; type: (typeof LOG_PROPERTY_TYPES)[number]; options: string[] };
+
+/** Fills first: a list to choose from and the day say most about a win; free text least. */
+const logRank = (p: LogProperty) => (p.options.length || p.type === "date" ? 0 : p.type === "person" || p.type === "url" ? 1 : 2);
+
+/**
+ * The properties of a log the wins logger fills (`fills`, at most MAX_LOG_PROPERTIES, the most
+ * telling first, in the database's order within each kind), and the names of those of its types it
+ * leaves out (`left`), for the wizard to say so.
+ */
+export function logPropertiesOf(properties: { name: string; type: string; options: string[] }[]): { fills: LogProperty[]; left: string[] } {
+  const fitting = properties
+    .filter((p): p is LogProperty => (LOG_PROPERTY_TYPES as readonly string[]).includes(p.type))
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => logRank(a.p) - logRank(b.p) || a.i - b.i)
+    .map(({ p }) => ({ name: p.name, type: p.type, options: p.options }));
+  return { fills: fitting.slice(0, MAX_LOG_PROPERTIES), left: fitting.slice(MAX_LOG_PROPERTIES).map((p) => p.name) };
+}
 
 /** The names that go into an agent's texts, once the wizard's choices are resolved. */
 export type BuiltinAgentNames = { database: string } & (

@@ -11,12 +11,12 @@
 - **Wins logger agent.** A built-in agent that a connection's events run rather than an
   automation: it reads each event (a Slack message, a GitHub pull request, a CRM deal or an email
   sent through a signed webhook) and adds a row to the wins log when it is a win or praise, and
-  nothing otherwise. Its setup picks the log, the connection, the event type and whether the
-  service is trusted, and says so when the workspace has no connection yet.
+  nothing otherwise. Its setup picks the log, the connection and the event type, lists which of the
+  log's properties it fills, and says so when the workspace has no connection yet.
 - **Agents add rows from events.** A run a connection's event started may now add rows
   (`create_row`) to databases shared with the agent to edit, within the run's limit of changes and
-  starting no automations. While the trigger isn't trusted, each row waits for an owner's approval
-  in the inbox and the agent's runs, as calls to connected services do.
+  starting no automations. Each row waits for an owner's approval in the inbox and the agent's
+  runs, trusted trigger or not, as a connected service's writing tools do.
 
 ### Changed
 

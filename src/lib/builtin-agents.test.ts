@@ -9,6 +9,8 @@ import {
   isEventAgentKey,
   builtinAgentGallery,
   fill,
+  logPropertiesOf,
+  MAX_LOG_PROPERTIES,
   MAX_ROUTER_PROPERTIES,
   MAX_ROUTER_RULES,
   newPropertyNames,
@@ -133,5 +135,27 @@ describe("built-in agents", () => {
   it("uses the database's own name, or Untitled", () => {
     const agent = buildBuiltinAgent(en, { key: "duplicate-finder", database: "  ", property: "Dup" });
     expect(agent.instructions).toContain("“Untitled”");
+  });
+});
+
+describe("logPropertiesOf", () => {
+  it("fills lists and dates first, then people and links, then free values, and says what it leaves out", () => {
+    const props = [
+      { name: "Notes", type: "text", options: [] },
+      { name: "Created", type: "created_time", options: [] },
+      { name: "Link", type: "url", options: [] },
+      { name: "Area", type: "select", options: ["Product", "Sales"] },
+      { name: "Empty list", type: "select", options: [] },
+      { name: "When", type: "date", options: [] },
+      { name: "Who", type: "person", options: [] },
+    ];
+    expect(logPropertiesOf(props).fills.map((p) => p.name)).toEqual(["Area", "When", "Link", "Who", "Notes", "Empty list"]);
+    expect(logPropertiesOf(props).left).toEqual([]);
+
+    const wide = [...Array.from({ length: MAX_LOG_PROPERTIES + 2 }, (_, i) => ({ name: `Text ${i}`, type: "text", options: [] })), { name: "When", type: "date", options: [] }];
+    const { fills, left } = logPropertiesOf(wide);
+    expect(fills).toHaveLength(MAX_LOG_PROPERTIES);
+    expect(fills[0].name).toBe("When");
+    expect(left).toEqual([`Text ${MAX_LOG_PROPERTIES - 1}`, `Text ${MAX_LOG_PROPERTIES}`, `Text ${MAX_LOG_PROPERTIES + 1}`]);
   });
 });

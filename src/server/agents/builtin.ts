@@ -4,18 +4,18 @@
  * connection), then creates what is missing (a property, an option), the agent with its
  * instructions in the owner's language, shares the pages it reads with it (view), and adds the
  * automation that runs it on every new row, which shares the database with it (edit). The wins
- * logger gets the database shared (edit) and a trigger on the connection instead: untrusted unless
- * the owner says otherwise, so each row it adds from an event waits for an owner's approval.
+ * logger gets the database shared (edit) and an untrusted trigger on the connection instead; each
+ * row it adds from an event waits for an owner's approval (agents/run.ts).
  */
 import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { connection, connectionTrigger, databaseAutomation, workspaceAgent } from "@/db/schema";
+import { databaseAutomation, workspaceAgent } from "@/db/schema";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { loadLocaleFile, withFallback } from "@/i18n/messages";
 import source from "@/i18n/messages/en/agentTemplates.json";
 import { MAX_AGENTS, type AgentView } from "@/lib/agents";
 import { MAX_AUTOMATIONS } from "@/lib/automations";
-import { MAX_CONNECTION_TRIGGERS, MAX_TRIGGER_EVENT } from "@/lib/connections";
+import { MAX_TRIGGER_EVENT } from "@/lib/connections";
 import {
   ANSWER_PROPERTY_TYPES,
   buildBuiltinAgent,
@@ -23,9 +23,8 @@ import {
   FLAG_PROPERTY_TYPES,
   isBuiltinAgentKey,
   isEventAgentKey,
-  LOG_PROPERTY_TYPES,
+  logPropertiesOf,
   MAX_KNOWLEDGE_PAGES,
-  MAX_LOG_PROPERTIES,
   MAX_ROUTER_PROPERTIES,
   MAX_ROUTER_RULES,
   NEW_PROPERTY,
@@ -35,14 +34,14 @@ import {
   type BuiltinAgentNames,
   type BuiltinAgentSetup,
   type BuiltinAgentTexts,
-  type LogProperty,
+  type EventAgentKey,
   type RouterProperty,
 } from "@/lib/builtin-agents";
 import { PropertyValueError } from "@/lib/properties";
 import { pageAccessOf, requireMembership } from "@/server/access";
 import { AgentError, archiveAgent, createAgent, setAgentAccess } from "@/server/agents/manage";
 import { createAutomation } from "@/server/automations/manage";
-import { ConnectionError, createTrigger } from "@/server/connections/manage";
+import { assertTriggerRoom, ConnectionError, createTrigger, ownedConnection } from "@/server/connections/manage";
 import { addProperty, ensureOption, getProperties, requireDatabase } from "@/server/databases";
 
 /** The texts in the given UI language; English for any other, and for texts a language lacks. */
@@ -91,19 +90,11 @@ async function addOwnProperty(
   databaseId: string,
   properties: Property[],
   texts: BuiltinAgentTexts,
-  key: Exclude<BuiltinAgentKey, "wins-logger">,
+  key: Exclude<BuiltinAgentKey, EventAgentKey>,
 ) {
   const own = newPropertyNames(texts, key);
   const created = await addProperty(userId, databaseId, { name: freeName(properties, own.name), type: own.type, options: own.options });
   return created as Property;
-}
-
-/** The properties of a log the wins logger fills, as its instructions list them. */
-function logProperties(properties: Property[]): LogProperty[] {
-  return properties
-    .filter((p) => (LOG_PROPERTY_TYPES as readonly string[]).includes(p.type))
-    .slice(0, MAX_LOG_PROPERTIES)
-    .map((p) => ({ name: p.name, type: p.type as LogProperty["type"], options: optionsOf(p).map((o) => o.name) }));
 }
 
 /**
@@ -134,20 +125,16 @@ export async function installBuiltinAgent(
   let names: BuiltinAgentNames;
   const pages: { id: string; title: string }[] = [];
   let create: () => Promise<void> = async () => {};
-  let trigger: { connectionId: string; eventType: string | null; trusted: boolean } | null = null;
+  let trigger: { connectionId: string; eventType: string | null } | null = null;
   if (setup.key === "wins-logger") {
-    const [conn] = await db
-      .select({ id: connection.id, name: connection.name })
-      .from(connection)
-      .where(and(eq(connection.id, String(setup.connectionId ?? "")), eq(connection.workspaceId, workspaceId)));
-    if (!conn) throw new ConnectionError("notFound", "Connection not found");
-    const [{ triggers }] = await db.select({ triggers: count() }).from(connectionTrigger).where(eq(connectionTrigger.connectionId, conn.id));
-    if (triggers >= MAX_CONNECTION_TRIGGERS) {
-      throw new ConnectionError("tooMany", `A connection has at most ${MAX_CONNECTION_TRIGGERS} triggers`, { max: String(MAX_CONNECTION_TRIGGERS) });
-    }
+    // Checked before anything is made; createTrigger checks the same again once the agent exists.
+    const conn = await ownedConnection(userId, String(setup.connectionId ?? ""));
+    if (conn.workspaceId !== workspaceId) throw new ConnectionError("notFound", "Connection not found");
+    await assertTriggerRoom(conn.id);
     const eventType = typeof setup.eventType === "string" ? setup.eventType.trim().slice(0, MAX_TRIGGER_EVENT) : "";
-    trigger = { connectionId: conn.id, eventType: eventType || null, trusted: setup.trusted === true };
-    names = { key: "wins-logger", database: database.title, databaseId, properties: logProperties(properties), connection: conn.name };
+    trigger = { connectionId: conn.id, eventType: eventType || null };
+    const log = properties.map((p) => ({ name: p.name, type: p.type, options: optionsOf(p).map((o) => o.name) }));
+    names = { key: "wins-logger", database: database.title, databaseId, properties: logPropertiesOf(log).fills, connection: conn.name };
   } else if (setup.key === "ticket-router") {
     const refs = Array.isArray(setup.properties) ? [...new Set(setup.properties)] : [];
     if (!refs.length || refs.length > MAX_ROUTER_PROPERTIES) throw invalid("property", `Choose 1 to ${MAX_ROUTER_PROPERTIES} properties`);
@@ -220,7 +207,7 @@ export async function installBuiltinAgent(
     if (trigger) {
       // It adds rows to the log; a trigger shares nothing by itself.
       await setAgentAccess(userId, agent.id, databaseId, "edit");
-      const created = await createTrigger(userId, trigger.connectionId, { agentId: agent.id, eventType: trigger.eventType, prompt: built.task, trusted: trigger.trusted });
+      const created = await createTrigger(userId, trigger.connectionId, { agentId: agent.id, eventType: trigger.eventType, prompt: built.task, trusted: false });
       return { agent, automationId: null, triggerId: created.id };
     }
     const automation = await createAutomation(userId, databaseId, {

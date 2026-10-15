@@ -3,8 +3,8 @@
  * the built-in template makes a page with a dashboard over a database of wins (its properties,
  * views, row template and example rows, the charts working out from them); the built-in wins logger
  * is set up on that database with a trigger on a connection; a signed event runs it, and the row
- * it adds waits for an owner's approval while the trigger isn't trusted (added once approved,
- * never when declined) and is added at once when it is; an event that isn't a win adds nothing.
+ * it adds waits for an owner's approval (added once approved, never when declined), even when the
+ * trigger is trusted, as a connection's writing tools do; an event that isn't a win adds nothing.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/wins-log-e2e.ts
@@ -204,7 +204,7 @@ try {
   let waiting = await runOf();
   check(
     waiting.status === "awaiting_approval" && waiting.pending?.connectionId === null && waiting.pending?.tool === "create_row" && (await rowsNow()).length === 5,
-    "while the trigger isn't trusted, the row waits for an owner",
+    "the row waits for an owner",
     { status: waiting.status, pending: waiting.pending },
   );
   const inbox = await db.select().from(notification).where(and(eq(notification.agentRunId, waiting.id), eq(notification.kind, "agent_approval")));
@@ -242,14 +242,22 @@ try {
   waiting = await runOf();
   check(waiting.status === "done" && waiting.pending === null && (await rowsNow()).length === 6, "an event that isn't a win adds nothing", waiting);
 
-  // Trusted: the row is added at once.
+  // Trusted: the service's events may be read at once, but a row still waits for an owner.
   fake.setChat(winRow);
   await updateTrigger(ids.owner, trigger.id, { trusted: true });
   await db.delete(page).where(eq(page.id, added.id));
   await slackEvent(conn.id, `${RUN}-4`, "Best release notes yet, again!");
   await flushAgentRuns();
   waiting = await runOf();
-  check(waiting.status === "done" && (await rowsNow()).some((r) => r.title === "Ada praised the release notes"), "with a trusted trigger the row is added without asking", waiting);
+  check(
+    waiting.status === "awaiting_approval" && waiting.pending?.tool === "create_row" && !(await rowsNow()).some((r) => r.title === "Ada praised the release notes"),
+    "with a trusted trigger the row still waits for an owner",
+    { status: waiting.status, pending: waiting.pending },
+  );
+  await decideApproval(ids.owner, { runId: waiting.id, callId: waiting.pending!.callId, decision: "approve" });
+  await flushAgentRuns();
+  waiting = await runOf();
+  check(waiting.status === "done" && (await rowsNow()).some((r) => r.title === "Ada praised the release notes"), "…and is added once approved", waiting);
 
   console.log(`\n${passed} checks passed`);
 } finally {

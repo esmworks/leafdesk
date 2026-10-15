@@ -13,7 +13,9 @@ import { MAX_AGENT_NAME, type AgentView } from "@/lib/agents";
 import {
   ANSWER_PROPERTY_TYPES,
   FLAG_PROPERTY_TYPES,
+  logPropertiesOf,
   MAX_KNOWLEDGE_PAGES,
+  MAX_LOG_PROPERTIES,
   MAX_ROUTER_PROPERTIES,
   MAX_ROUTER_RULES,
   NEW_PROPERTY,
@@ -353,9 +355,10 @@ function RowAgentWizard({
 const DEFAULT_EVENT: Record<EventPreset, string> = { slack: "message", github: "pull_request", hmac: "" };
 
 /**
- * The wins logger's setup: the log it adds rows to, the connection whose events it reads (of one
- * type, or any), whether that service is trusted, and its name. Creating it adds the agent, shares
- * the log with it to edit and adds the connection's trigger that runs it.
+ * The wins logger's setup: the log it adds rows to (and which of its properties it fills), the
+ * connection whose events it reads (of one type, or any), and its name. Creating it adds the agent,
+ * shares the log with it to edit and adds the connection's trigger that runs it; each row it adds
+ * waits for an owner's approval.
  */
 function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardProps) {
   const t = useTranslations("settings.agents.wizard");
@@ -364,10 +367,11 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
   const pages = useShareablePages(workspaceId);
   const [step, setStep] = useState<"database" | "connection">("database");
   const [database, setDatabase] = useState<PickablePage | null>(null);
+  const [log, setLog] = useState<ReturnType<typeof logPropertiesOf> | null>(null);
   const [connections, setConnections] = useState<ConnectionView[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [connectionId, setConnectionId] = useState("");
   const [eventType, setEventType] = useState("");
-  const [trusted, setTrusted] = useState(false);
   const [name, setName] = useState(template.name);
   const [tried, setTried] = useState(false);
   const { pending, error, run } = useAction();
@@ -376,7 +380,12 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
     let live = true;
     void listConnectionsAction(workspaceId)
       .then((res) => {
-        if (!live || !res.ok) return;
+        if (!live) return;
+        if (!res.ok) {
+          setLoadError(res.error);
+          setConnections([]);
+          return;
+        }
         setConnections(res.data);
         const first = res.data[0];
         if (first) {
@@ -384,11 +393,27 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
           setEventType(DEFAULT_EVENT[first.eventPreset]);
         }
       })
-      .catch(() => live && setConnections([]));
+      .catch(() => {
+        if (!live) return;
+        setLoadError(tc("genericError"));
+        setConnections([]);
+      });
     return () => {
       live = false;
     };
-  }, [workspaceId]);
+  }, [workspaceId, tc]);
+
+  const chooseDatabase = (page: PickablePage) => {
+    setDatabase(page);
+    setTried(false);
+    run(
+      () => builtinAgentPropertiesAction(workspaceId, page.id),
+      (loaded) => {
+        setLog(logPropertiesOf(loaded.map((p) => ({ name: p.name, type: p.type, options: p.options.map((o) => o.name) }))));
+        setStep("connection");
+      },
+    );
+  };
 
   const connection = connections?.find((c) => c.id === connectionId);
   const missing = (): "needConnection" | "needName" | null => (!connection ? "needConnection" : !name.trim() ? "needName" : null);
@@ -403,7 +428,6 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
       name: name.trim(),
       connectionId: connection.id,
       eventType: eventType.trim() || null,
-      trusted,
     };
     run(() => installBuiltinAgentAction(workspaceId, setup), (result) => onCreated(result.agent));
   };
@@ -441,18 +465,25 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
               pages={databases}
               label={t("searchDatabases")}
               empty={t("noDatabases")}
-              onPick={(page) => {
-                setDatabase(page);
-                setTried(false);
-                setStep("connection");
-              }}
+              onPick={chooseDatabase}
             />
           </>
+        )}
+
+        {step === "connection" && log && (
+          <p className="text-sm text-fg-muted">
+            {log.fills.length ? t("logFills", { properties: log.fills.map((p) => p.name).join(", ") }) : t("logFillsNone")}
+            {log.left.length > 0 && ` ${t("logLeft", { max: MAX_LOG_PROPERTIES, properties: log.left.join(", ") })}`}
+          </p>
         )}
 
         {step === "connection" &&
           (!connections ? (
             <p className="text-sm text-fg-muted">{tc("loading")}</p>
+          ) : loadError ? (
+            <p role="alert" className="text-sm text-danger">
+              {loadError}
+            </p>
           ) : !connections.length ? (
             <p className="text-sm text-fg-muted">
               {t.rich("noConnections", {
@@ -486,19 +517,12 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
               <Field label={te("eventType")} help={t("eventTypeHelp")}>
                 <Input value={eventType} maxLength={MAX_TRIGGER_EVENT} onChange={(e) => setEventType(e.target.value)} placeholder={te("eventTypePlaceholder")} />
               </Field>
-              <div className="space-y-0.5">
-                <label className="flex items-start gap-1.5 text-sm">
-                  <input type="checkbox" className="mt-1 accent-accent" checked={trusted} onChange={(e) => setTrusted(e.target.checked)} />
-                  <span>{te("trusted")}</span>
-                </label>
-                <p className={cn("text-xs", trusted ? "text-danger" : "text-fg-muted")}>{trusted ? te("trustedOn") : te("trustedOff")}</p>
-              </div>
               <div className="space-y-3 border-t border-border pt-4">
                 <Field label={t("name")}>
                   <Input value={name} maxLength={MAX_AGENT_NAME} onChange={(e) => setName(e.target.value)} />
                 </Field>
                 <p className="text-xs text-fg-muted">
-                  {t("summaryEvents", { database: databaseTitle, connection: connection?.name ?? "" })} {trusted ? "" : t("summaryApproval")}
+                  {t("summaryEvents", { database: databaseTitle, connection: connection?.name ?? "" })} {t("summaryApproval")}
                 </p>
               </div>
             </>
@@ -515,7 +539,7 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
           <Button variant="ghost" onClick={() => setStep("database")}>
             {t("back")}
           </Button>
-          <Button variant="primary" disabled={pending || !connections?.length} onClick={create}>
+          <Button variant="primary" disabled={pending || !connection} onClick={create}>
             {pending ? t("creating") : t("create")}
           </Button>
         </div>

@@ -5,7 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { AgentAccessLevel, AgentCommentRecord, AgentRunView, AgentSkillRecord, AgentToolRecord } from "@/lib/agents";
 import type { ChatStepView } from "@/lib/ai-chat";
-import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
+import { ANSWER_PROPERTY_TYPES, FLAG_PROPERTY_TYPES, LOG_PROPERTY_TYPES, ROUTER_PROPERTY_TYPES, type BuiltinAgentSetup } from "@/lib/builtin-agents";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { installBuiltinAgent } from "@/server/agents/builtin";
@@ -214,7 +214,7 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
 }
 
 /** Property types a built-in agent may use. */
-const TEMPLATE_TYPES: readonly string[] = [...ROUTER_PROPERTY_TYPES, ...ANSWER_PROPERTY_TYPES, ...FLAG_PROPERTY_TYPES];
+const TEMPLATE_TYPES: readonly string[] = [...new Set([...ROUTER_PROPERTY_TYPES, ...ANSWER_PROPERTY_TYPES, ...FLAG_PROPERTY_TYPES, ...LOG_PROPERTY_TYPES])];
 
 /** The properties of a database a built-in agent could use, for its setup (full access only). */
 export async function builtinAgentPropertiesAction(workspaceId: string, databaseId: string) {
