@@ -3,7 +3,8 @@
  * how they want answers) that go with each of their questions there, so later conversations needn't
  * be told again. The chat keeps and drops notes with its `remember` and `forget` tools when the
  * person tells it something about themselves or asks it to (each shows as a step of the answer),
- * and the person lists, writes, changes and deletes them in the chat's Memory view. Agents keep
+ * and the person lists, writes, changes and deletes them in the chat's Memory view. Apps the person
+ * connected read and keep the same notes over MCP (mcp/memory.ts), while the memory is on. Agents keep
  * notes here too, under their own users, that their runs only propose (server/agents/memory.ts).
  *
  * A note goes with every later question, so text the model read on a page could otherwise pass
@@ -65,6 +66,16 @@ export async function setMemoryUse(userId: string, workspaceId: string, on: bool
 export async function memoryOn(userId: string, workspaceId: string): Promise<boolean> {
   const [available, use] = await Promise.all([memoryAvailable(workspaceId), memoryUse(userId, workspaceId)]);
   return available && use;
+}
+
+/**
+ * Which switch has the person's memory in the workspace off, the owners' first, or null when it is
+ * on: for apps the person connected (mcp/memory.ts), which read and keep notes only while it is on.
+ */
+export async function memoryOff(userId: string, workspaceId: string): Promise<"workspace" | "person" | null> {
+  await requireMembership(userId, workspaceId);
+  if (!(await memoryAvailable(workspaceId))) return "workspace";
+  return (await memoryUse(userId, workspaceId)) ? null : "person";
 }
 
 /** A note as kept: one line, trimmed. */
@@ -171,10 +182,10 @@ export async function updateMemory(userId: string, workspaceId: string, memoryId
   return view(await writeNote(userId, workspaceId, text, { replaces: memoryId }));
 }
 
-/** Deletes notes of the person (only theirs): some, or all of them in the workspace. */
-export async function deleteMemories(userId: string, workspaceId: string, memoryIds: string[] | "all") {
+/** Deletes notes of the person (only theirs): some, or all of them in the workspace. Returns how many went. */
+export async function deleteMemories(userId: string, workspaceId: string, memoryIds: string[] | "all"): Promise<number> {
   await requireMembership(userId, workspaceId);
-  await db
+  const gone = await db
     .delete(aiMemory)
     .where(
       and(
@@ -182,7 +193,9 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
         eq(aiMemory.workspaceId, workspaceId),
         memoryIds === "all" ? undefined : inArray(aiMemory.id, memoryIds.length ? memoryIds : [""]),
       ),
-    );
+    )
+    .returning({ id: aiMemory.id });
+  return gone.length;
 }
 
 // --------------------------------------------------------------------------------- the chat

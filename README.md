@@ -1350,6 +1350,13 @@ the memory is off when asked to remember something). Workspace owners can turn t
 everyone under Settings → General → AI → *AI memory*, which also hides the *Memory* button. Neither
 switch deletes a note: they come back when the memory is turned on again.
 
+The same notes reach the AI apps you connect over MCP, so each of them knows you as the chat does:
+`list_memory` reads them (an app is told to at the start of a conversation), `remember` keeps a
+note (also in place of an older one), `update_memory` changes one and `forget` drops some or all of
+them, with the chat's limits. Apps are told to keep only what you say about yourself, never what
+pages or tool results say. With either switch off, an app sees no notes and keeps none, and a
+workspace that lets apps only read refuses their changes to your notes too.
+
 **Privacy.** Requests run as the person who asked, with their access at the time: the assistant
 works only on pages they may edit, an AI property sends only the row values they can see, and the
 chat and semantic search only find and read pages they can open, checked again on every search and
@@ -1811,6 +1818,9 @@ The tools cover:
   now, on a row or on none); `get_agent` also shows its monthly token limit and usage by month,
   and `update_agent` sets the limit. Owners manage agents; members can list them (see
   [Agents](#agents)).
+- **Memory:** `list_memory` (the user's notes in one workspace or all of them), `remember`,
+  `update_memory` and `forget` (by ids or all): the notes the AI chat keeps about the user, theirs
+  alone and only while the memory is on (see [Memory](#ai-features)).
 
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that
 change anything, and a workspace's owners can let apps only read it, or hide it from them (see

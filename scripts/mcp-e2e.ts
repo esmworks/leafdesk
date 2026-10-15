@@ -423,7 +423,7 @@ async function main() {
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
     "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_connections",
     "add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory", "set_agent_connection_tools",
-    "list_skills", "get_skill", "set_skill",
+    "list_skills", "get_skill", "set_skill", "list_memory", "remember", "update_memory", "forget",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
   const getPageTool = list.message.result.tools.find((t: { name: string }) => t.name === "get_page");
@@ -996,6 +996,76 @@ async function main() {
   await updateWorkspaceSettings(userIds[0], ws, { connectedApps: "full" });
   check(readOnlyAgent.isError && /only read/.test(readOnlyAgent.text), "update_agent in a read-only workspace says apps may only read", readOnlyAgent.text);
   check(!readOnlyAgentList.isError, "…while get_agent still reads", readOnlyAgentList.text);
+
+  // ---- the user's memory: the AI chat's notes about them, read and kept by the apps they connect
+  const personal = await import("@/server/ai-memory");
+  const memoryUser = userIds[0];
+  const emptyMemory = await mcp.ok("list_memory", { workspace_id: ws });
+  check(emptyMemory.memory === "on" && emptyMemory.notes.length === 0, "list_memory starts empty", emptyMemory);
+  const remembered = await mcp.ok("remember", { workspace_id: ws, text: `Leads the support team ${RUN}` });
+  const roleId = remembered.remembered?.memory_id as string;
+  check(roleId && remembered.notes.length === 1 && !remembered.already_remembered, "remember keeps a note and answers with the user's notes", remembered);
+  const twice = await mcp.ok("remember", { workspace_id: ws, text: `  leads the SUPPORT   team ${RUN} ` });
+  check(twice.already_remembered === true && twice.remembered.memory_id === roleId && twice.notes.length === 1, "the same note again (case and spaces aside) is kept once", twice);
+  const corrected = await mcp.ok("remember", { workspace_id: ws, text: `Leads the billing team ${RUN}`, replaces: roleId });
+  check(
+    corrected.remembered.memory_id === roleId && corrected.notes.length === 1 && corrected.notes[0].text === `Leads the billing team ${RUN}`,
+    "remember with replaces corrects the older note",
+    corrected,
+  );
+  const tone = await mcp.ok("remember", { workspace_id: ws, text: `Wants short answers ${RUN}` });
+  const toneId = tone.remembered.memory_id as string;
+  const changedTone = await mcp.ok("update_memory", { workspace_id: ws, memory_id: toneId, text: `Wants short answers with links ${RUN}` });
+  check(
+    changedTone.updated.memory_id === toneId && changedTone.notes.map((n: { text: string }) => n.text).join("|") === `Leads the billing team ${RUN}|Wants short answers with links ${RUN}`,
+    "update_memory changes a note",
+    changedTone,
+  );
+  const forPrompt = await personal.memoryForPrompt(memoryUser, ws, 4000);
+  check(forPrompt.count === 2 && forPrompt.text.includes(`Leads the billing team ${RUN}`), "the AI chat's questions carry the notes kept over MCP", forPrompt);
+  const tooLongNote = await mcp.call("remember", { workspace_id: ws, text: "x".repeat(301) });
+  check(tooLongNote.isError, "a note over 300 characters is refused", tooLongNote.text);
+  const emptyPersonal = await mcp.call("remember", { workspace_id: ws, text: "   " });
+  check(emptyPersonal.isError && /needs text/.test(emptyPersonal.text), "an empty note is refused", emptyPersonal.text);
+  const wrongNote = await mcp.call("update_memory", { workspace_id: ws, memory_id: "00000000-0000-0000-0000-000000000000", text: "x" });
+  check(wrongNote.isError && /list_memory/.test(wrongNote.text), "update_memory on an unknown memory_id points at list_memory", wrongNote.text);
+  // Someone else's notes stay theirs: not listed, not forgotten.
+  const theirs = await personal.addMemory(colleagueId, ws, `Colleague note ${RUN}`);
+  const mine = await mcp.ok("list_memory", { workspace_id: ws });
+  const forgetTheirs = await mcp.call("forget", { workspace_id: ws, memory_ids: [theirs.id] });
+  check(!mine.notes.some((n: { memory_id: string }) => n.memory_id === theirs.id) && mine.notes.length === 2, "list_memory shows only the user's own notes", mine);
+  check(forgetTheirs.isError && (await personal.listMemories(colleagueId, ws)).length === 1, "forget leaves another person's note alone", forgetTheirs.text);
+  // The limits are the chat's: 30 notes.
+  for (let i = 0; i < 28; i++) await personal.addMemory(memoryUser, ws, `Filler ${i} ${RUN}`);
+  const memoryFull = await mcp.call("remember", { workspace_id: ws, text: `One too many ${RUN}` });
+  check(memoryFull.isError && /full \(30 notes\)/.test(memoryFull.text), "a full memory is refused with a next step", memoryFull.text);
+  const fillers = (await personal.listMemories(memoryUser, ws)).filter((n) => n.text.startsWith("Filler")).map((n) => n.id);
+  const forgotFillers = await mcp.ok("forget", { workspace_id: ws, memory_ids: fillers });
+  check(forgotFillers.forgotten === 28 && forgotFillers.notes.length === 2, "forget drops notes by memory_ids", forgotFillers);
+  // Off by the user's own switch, or by the owners' for the workspace: nothing read or kept.
+  await personal.setMemoryUse(memoryUser, ws, false);
+  const personOff = await mcp.ok("list_memory", { workspace_id: ws });
+  const personOffWrite = await mcp.call("remember", { workspace_id: ws, text: `Likes tables ${RUN}` });
+  await personal.setMemoryUse(memoryUser, ws, true);
+  check(personOff.memory === "off" && personOff.notes.length === 0 && /Use memory/.test(personOff.why), "with the user's own switch off, list_memory shows no notes", personOff);
+  check(personOffWrite.isError && /turned their memory off/.test(personOffWrite.text), "…and remember says the user turned it off", personOffWrite.text);
+  await updateWorkspaceSettings(memoryUser, ws, { aiMemory: false });
+  const workspaceOff = await mcp.ok("list_memory", {});
+  const workspaceOffForget = await mcp.call("forget", { workspace_id: ws, all: true });
+  await updateWorkspaceSettings(memoryUser, ws, { aiMemory: true });
+  const offEntry = workspaceOff.workspaces.find((w: { workspace_id: string }) => w.workspace_id === ws);
+  check(offEntry?.memory === "off" && offEntry.notes.length === 0 && /owners turned/.test(offEntry.why), "with the owners' switch off, list_memory shows no notes", workspaceOff);
+  check(workspaceOffForget.isError && /owners turned the AI memory off/.test(workspaceOffForget.text), "…and forget says the owners turned it off", workspaceOffForget.text);
+  check((await personal.listMemories(memoryUser, ws)).length === 2, "neither switch deletes a note");
+  await updateWorkspaceSettings(memoryUser, ws, { connectedApps: "read" });
+  const readOnlyRemember = await mcp.call("remember", { workspace_id: ws, text: `Likes tables ${RUN}` });
+  const readOnlyMemory = await mcp.call("list_memory", { workspace_id: ws });
+  await updateWorkspaceSettings(memoryUser, ws, { connectedApps: "full" });
+  check(readOnlyRemember.isError && /only read/.test(readOnlyRemember.text), "remember in a workspace where apps may only read says so", readOnlyRemember.text);
+  check(!readOnlyMemory.isError, "…while list_memory still reads", readOnlyMemory.text);
+  const forgotEverything = await mcp.ok("forget", { workspace_id: ws, all: true });
+  check(forgotEverything.forgotten === 2 && forgotEverything.notes.length === 0, "forget all forgets every note of the user in the workspace", forgotEverything);
+  check((await personal.listMemories(colleagueId, ws)).length === 1, "…and only theirs");
 
   const unshared = await mcp.ok("set_agent_access", { agent_id: triage.id, page_id: root.id, level: "remove" });
   check(!unshared.access.pages.some((p: { page_id: string }) => p.page_id === root.id), "set_agent_access remove stops sharing a page", unshared.access);

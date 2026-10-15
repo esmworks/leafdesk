@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+
+- **Apps you connect share the AI chat's memory of you.** Over MCP, `list_memory` reads the notes
+  the chat keeps about you in a workspace (or in all of them), `remember` keeps one (also in place
+  of an older note), `update_memory` changes one and `forget` drops some or all, with the chat's
+  limits (30 notes of 300 characters, the same note kept once). The tools tell an app to read the
+  notes at the start of a conversation and to keep only what you say about yourself, never what
+  pages or tool results say. With your *Use memory* switch or the workspace's *AI memory* switch
+  off, an app sees no notes and keeps none.
+
 ### Changed
 
 - **A page's icon sits beside its title.** Pages show their icon at the start of the title's line,
