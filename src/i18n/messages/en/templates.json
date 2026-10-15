@@ -40,5 +40,57 @@
       "milestone": "Plan the first milestone",
       "team": "Invite the team"
     }
+  },
+  "wins-log": {
+    "title": "Wins log",
+    "description": "Wins, praise and finished work in one place, with charts by month, type and area.",
+    "markdown": "Every win, piece of praise and finished piece of work goes here, with a link to where it happened. Add them by hand, or let the Wins logger agent add them from your connections.",
+    "database": "Wins",
+    "table": "All wins",
+    "board": "By type",
+    "properties": {
+      "type": "Type",
+      "area": "Area",
+      "date": "Date",
+      "impact": "Impact",
+      "source": "Source",
+      "person": "People"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Delivery",
+      "metric": "Metric",
+      "event": "Event",
+      "other": "Other"
+    },
+    "areas": {
+      "product": "Product",
+      "customers": "Customers",
+      "team": "Team",
+      "operations": "Operations",
+      "sales": "Sales"
+    },
+    "impacts": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "widgets": {
+      "total": "Wins",
+      "byMonth": "Wins by month",
+      "byArea": "By area",
+      "byImpact": "By impact"
+    },
+    "rowTemplate": {
+      "title": "New win",
+      "markdown": "## What happened\n\n\n\n## Why it matters\n\n\n\n## Evidence\n\n- "
+    },
+    "rows": {
+      "praise": "A customer praised the new onboarding",
+      "launch": "Shipped the billing export",
+      "response": "Support replies now take under two hours",
+      "talk": "Gave a talk at the team offsite",
+      "thanks": "Sales thanked us for the demo setup"
+    }
   }
 }

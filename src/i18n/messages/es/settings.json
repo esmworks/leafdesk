@@ -495,18 +495,24 @@
     },
     "templates": {
       "heading": "Empezar con una plantilla",
-      "description": "Agentes listos para una base de datos. Cada uno se ejecuta con cada fila nueva; tú eliges la base de datos y las propiedades que usa."
+      "description": "Agentes listos para una base de datos. La mayoría se ejecuta con cada fila nueva; el registrador de logros, con los eventos de una conexión. Tú eliges la base de datos y lo que usa."
     },
     "wizard": {
       "title": "Configurar {name}",
       "steps": {
         "database": "Elige una base de datos",
         "properties": "Elige sus propiedades",
-        "pages": "Elige las páginas que lee"
+        "pages": "Elige las páginas que lee",
+        "connection": "Elige de dónde vienen sus eventos"
       },
       "chooseDatabase": "¿En qué base de datos debe trabajar? Necesitas acceso completo a ella.",
       "searchDatabases": "Buscar bases de datos",
       "noDatabases": "No hay ninguna base de datos a la que tengas acceso completo.",
+      "chooseLog": "¿En qué base de datos debe añadir los logros? La plantilla Registro de logros crea una. Necesitas acceso completo a ella.",
+      "connection": "Conexión",
+      "connectionHelp": "Lee cada evento que recibe esta conexión y añade una fila solo cuando el evento es un logro o un elogio.",
+      "noConnections": "Este espacio de trabajo aún no tiene conexiones, así que nada puede enviar eventos al agente. <link>Añade una conexión</link> (Slack, GitHub, o tu CRM o correo con un webhook firmado) y luego configura el agente.",
+      "eventTypeHelp": "Solo lo inician los eventos de este tipo: «message» para mensajes de Slack, «pull_request» para pull requests de GitHub. Déjalo vacío para todos los eventos.",
       "routerProperties": "Propiedades que rellena",
       "routerPropertiesHelp": "Hasta {max}. En una selección o un estado elige una de las opciones; en una persona, a alguien del espacio de trabajo.",
       "anyPerson": "Alguien del espacio de trabajo",
@@ -530,6 +536,11 @@
       "name": "Nombre del agente",
       "summary": "Al crearlo se añaden el agente y una automatización en {database} que lo ejecuta con cada fila nueva. El agente obtiene acceso de edición a {database}.",
       "summaryPages": "Las páginas elegidas se comparten con él para ver.",
+      "summaryEvents": "Al crearlo se añaden el agente y un disparador en {connection} que lo ejecuta con cada evento. El agente obtiene acceso de edición a {database}.",
+      "summaryApproval": "Cada fila que añade espera la aprobación de un propietario en la bandeja de entrada.",
+      "logFills": "Rellena {properties}.",
+      "logFillsNone": "El registro no tiene propiedades que pueda rellenar (listas, fechas, enlaces, personas, texto); solo añade el título y el texto de cada logro.",
+      "logLeft": "Quedan fuera, pasadas las primeras {max}: {properties}.",
       "back": "Atrás",
       "next": "Siguiente",
       "create": "Crear agente",
@@ -539,7 +550,8 @@
         "needRules": "Escribe las reglas que sigue.",
         "sameOptions": "Elige dos opciones distintas.",
         "needPages": "Elige al menos una página.",
-        "needName": "Ponle un nombre al agente."
+        "needName": "Ponle un nombre al agente.",
+        "needConnection": "Elige una conexión."
       }
     },
     "errors": {

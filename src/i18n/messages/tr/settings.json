@@ -495,18 +495,24 @@
     },
     "templates": {
       "heading": "Şablonla başlayın",
-      "description": "Bir veritabanı için hazır ajanlar. Her biri her yeni satırda çalışır; veritabanını ve kullanacağı özellikleri siz seçersiniz."
+      "description": "Bir veritabanı için hazır ajanlar. Çoğu her yeni satırda, kazanım kaydedici ise bir bağlantının olaylarında çalışır; veritabanını ve kullanacaklarını siz seçersiniz."
     },
     "wizard": {
       "title": "{name} kurulumu",
       "steps": {
         "database": "Veritabanı seçin",
         "properties": "Özelliklerini seçin",
-        "pages": "Okuyacağı sayfaları seçin"
+        "pages": "Okuyacağı sayfaları seçin",
+        "connection": "Olayların nereden geleceğini seçin"
       },
       "chooseDatabase": "Hangi veritabanında çalışsın? Veritabanına tam erişiminiz olmalı.",
       "searchDatabases": "Veritabanı ara",
       "noDatabases": "Tam erişiminiz olan veritabanı yok.",
+      "chooseLog": "Kazanımları hangi veritabanına eklesin? Kazanım günlüğü şablonu bir tane oluşturur. Veritabanına tam erişiminiz olmalı.",
+      "connection": "Bağlantı",
+      "connectionHelp": "Bu bağlantının aldığı her olayı okur ve yalnızca olay bir kazanım ya da övgüyse satır ekler.",
+      "noConnections": "Bu çalışma alanında henüz bağlantı yok, bu yüzden ajana hiçbir şey olay gönderemez. <link>Bir bağlantı ekleyin</link> (Slack, GitHub ya da imzalı bir webhook üzerinden CRM'iniz veya e-postanız), sonra ajanı kurun.",
+      "eventTypeHelp": "Yalnızca bu türdeki olaylar onu başlatır: Slack mesajları için “message”, GitHub pull request'leri için “pull_request”. Her olay için boş bırakın.",
       "routerProperties": "Doldurulacak özellikler",
       "routerPropertiesHelp": "En fazla {max}. Seçim ya da durum özelliğinde seçeneklerden birini, kişi özelliğinde çalışma alanından birini seçer.",
       "anyPerson": "Çalışma alanından biri",
@@ -530,6 +536,11 @@
       "name": "Ajanın adı",
       "summary": "Oluşturunca ajan ve onu {database} veritabanındaki her yeni satırda çalıştıran bir otomasyon eklenir. Ajan {database} üzerinde düzenleme erişimi alır.",
       "summaryPages": "Seçtiğiniz sayfalar onunla görüntüleme erişimiyle paylaşılır.",
+      "summaryEvents": "Oluşturunca ajan ve onu her olayda çalıştıran, {connection} üzerinde bir tetikleyici eklenir. Ajan {database} üzerinde düzenleme erişimi alır.",
+      "summaryApproval": "Eklediği her satır gelen kutusunda bir sahibin onayını bekler.",
+      "logFills": "Doldurduğu özellikler: {properties}.",
+      "logFillsNone": "Günlükte doldurabileceği bir özellik yok (liste, tarih, bağlantı, kişi, metin); her kazanımın yalnızca başlığını ve metnini ekler.",
+      "logLeft": "İlk {max} özellikten sonrakiler dışarıda kalır: {properties}.",
       "back": "Geri",
       "next": "İleri",
       "create": "Ajan oluştur",
@@ -539,7 +550,8 @@
         "needRules": "Uyacağı kuralları yazın.",
         "sameOptions": "Birbirinden farklı iki seçenek seçin.",
         "needPages": "En az bir sayfa seçin.",
-        "needName": "Ajana bir ad verin."
+        "needName": "Ajana bir ad verin.",
+        "needConnection": "Bir bağlantı seçin."
       }
     },
     "errors": {

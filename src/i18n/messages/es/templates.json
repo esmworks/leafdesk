@@ -40,5 +40,57 @@
       "milestone": "Planificar el primer hito",
       "team": "Invitar al equipo"
     }
+  },
+  "wins-log": {
+    "title": "Registro de logros",
+    "description": "Logros, elogios y trabajo terminado en un solo lugar, con gráficos por mes, tipo y área.",
+    "markdown": "Cada logro, elogio y trabajo terminado va aquí, con un enlace a donde ocurrió. Añádelos a mano o deja que el agente Registrador de logros los añada desde tus conexiones.",
+    "database": "Logros",
+    "table": "Todos los logros",
+    "board": "Por tipo",
+    "properties": {
+      "type": "Tipo",
+      "area": "Área",
+      "date": "Fecha",
+      "impact": "Impacto",
+      "source": "Fuente",
+      "person": "Personas"
+    },
+    "types": {
+      "feedback": "Comentario",
+      "delivery": "Entrega",
+      "metric": "Métrica",
+      "event": "Evento",
+      "other": "Otro"
+    },
+    "areas": {
+      "product": "Producto",
+      "customers": "Clientes",
+      "team": "Equipo",
+      "operations": "Operaciones",
+      "sales": "Ventas"
+    },
+    "impacts": {
+      "high": "Alto",
+      "medium": "Medio",
+      "low": "Bajo"
+    },
+    "widgets": {
+      "total": "Logros",
+      "byMonth": "Logros por mes",
+      "byArea": "Por área",
+      "byImpact": "Por impacto"
+    },
+    "rowTemplate": {
+      "title": "Nuevo logro",
+      "markdown": "## Qué pasó\n\n\n\n## Por qué importa\n\n\n\n## Prueba\n\n- "
+    },
+    "rows": {
+      "praise": "Un cliente elogió la nueva incorporación",
+      "launch": "Publicamos la exportación de facturación",
+      "response": "Soporte responde ahora en menos de dos horas",
+      "talk": "Dimos una charla en el encuentro del equipo",
+      "thanks": "Ventas nos agradeció la preparación de la demo"
+    }
   }
 }

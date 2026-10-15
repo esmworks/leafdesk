@@ -1,9 +1,11 @@
 /**
  * Built-in agents (see lib/builtin-agents.ts): sets one up on a database in a single step. Checks
- * everything first (the database, the properties and options chosen, the pages to read), then
- * creates what is missing (a property, an option), the agent with its instructions in the
- * owner's language, shares the pages it reads with it (view), and adds the automation that runs it
- * on every new row, which shares the database with it (edit).
+ * everything first (the database, the properties and options chosen, the pages to read, the
+ * connection), then creates what is missing (a property, an option), the agent with its
+ * instructions in the owner's language, shares the pages it reads with it (view), and adds the
+ * automation that runs it on every new row, which shares the database with it (edit). The wins
+ * logger gets the database shared (edit) and an untrusted trigger on the connection instead; each
+ * row it adds from an event waits for an owner's approval (agents/run.ts).
  */
 import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
@@ -13,12 +15,15 @@ import { loadLocaleFile, withFallback } from "@/i18n/messages";
 import source from "@/i18n/messages/en/agentTemplates.json";
 import { MAX_AGENTS, type AgentView } from "@/lib/agents";
 import { MAX_AUTOMATIONS } from "@/lib/automations";
+import { MAX_TRIGGER_EVENT } from "@/lib/connections";
 import {
   ANSWER_PROPERTY_TYPES,
   buildBuiltinAgent,
   builtinAgentGallery,
   FLAG_PROPERTY_TYPES,
   isBuiltinAgentKey,
+  isEventAgentKey,
+  logPropertiesOf,
   MAX_KNOWLEDGE_PAGES,
   MAX_ROUTER_PROPERTIES,
   MAX_ROUTER_RULES,
@@ -29,12 +34,14 @@ import {
   type BuiltinAgentNames,
   type BuiltinAgentSetup,
   type BuiltinAgentTexts,
+  type EventAgentKey,
   type RouterProperty,
 } from "@/lib/builtin-agents";
 import { PropertyValueError } from "@/lib/properties";
 import { pageAccessOf, requireMembership } from "@/server/access";
 import { AgentError, archiveAgent, createAgent, setAgentAccess } from "@/server/agents/manage";
 import { createAutomation } from "@/server/automations/manage";
+import { assertTriggerRoom, ConnectionError, createTrigger, ownedConnection } from "@/server/connections/manage";
 import { addProperty, ensureOption, getProperties, requireDatabase } from "@/server/databases";
 
 /** The texts in the given UI language; English for any other, and for texts a language lacks. */
@@ -78,7 +85,13 @@ function freeName(properties: Property[], name: string) {
 }
 
 /** Adds the template's own property to the database, named in the texts' language. */
-async function addOwnProperty(userId: string, databaseId: string, properties: Property[], texts: BuiltinAgentTexts, key: BuiltinAgentKey) {
+async function addOwnProperty(
+  userId: string,
+  databaseId: string,
+  properties: Property[],
+  texts: BuiltinAgentTexts,
+  key: Exclude<BuiltinAgentKey, EventAgentKey>,
+) {
   const own = newPropertyNames(texts, key);
   const created = await addProperty(userId, databaseId, { name: freeName(properties, own.name), type: own.type, options: own.options });
   return created as Property;
@@ -86,22 +99,24 @@ async function addOwnProperty(userId: string, databaseId: string, properties: Pr
 
 /**
  * Sets up a built-in agent on a database (owners, with full access to the database). Returns the
- * agent and the automation that runs it.
+ * agent and the automation that runs it, or for the wins logger the connection's trigger.
  */
 export async function installBuiltinAgent(
   userId: string,
   workspaceId: string,
   setup: BuiltinAgentSetup,
   { locale }: { locale?: string } = {},
-): Promise<{ agent: AgentView; automationId: string }> {
+): Promise<{ agent: AgentView; automationId: string | null; triggerId: string | null }> {
   await requireMembership(userId, workspaceId, "owner");
   if (!setup || !isBuiltinAgentKey(setup.key)) throw invalid("template", "Unknown built-in agent");
   const database = await requireDatabase(userId, String(setup.databaseId ?? ""), "full");
   if (database.workspaceId !== workspaceId) throw invalid("database", "The database is in another workspace");
   const databaseId = database.id;
-  const [{ n }] = await db.select({ n: count() }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
-  if (n >= MAX_AUTOMATIONS) {
-    throw new PropertyValueError(`A database has at most ${MAX_AUTOMATIONS} automations`, "tooManyAutomations", { max: String(MAX_AUTOMATIONS) });
+  if (!isEventAgentKey(setup.key)) {
+    const [{ n }] = await db.select({ n: count() }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
+    if (n >= MAX_AUTOMATIONS) {
+      throw new PropertyValueError(`A database has at most ${MAX_AUTOMATIONS} automations`, "tooManyAutomations", { max: String(MAX_AUTOMATIONS) });
+    }
   }
   const texts = await builtinAgentTexts(locale);
   const properties = await getProperties(databaseId);
@@ -110,7 +125,17 @@ export async function installBuiltinAgent(
   let names: BuiltinAgentNames;
   const pages: { id: string; title: string }[] = [];
   let create: () => Promise<void> = async () => {};
-  if (setup.key === "ticket-router") {
+  let trigger: { connectionId: string; eventType: string | null } | null = null;
+  if (setup.key === "wins-logger") {
+    // Checked before anything is made; createTrigger checks the same again once the agent exists.
+    const conn = await ownedConnection(userId, String(setup.connectionId ?? ""));
+    if (conn.workspaceId !== workspaceId) throw new ConnectionError("notFound", "Connection not found");
+    await assertTriggerRoom(conn.id);
+    const eventType = typeof setup.eventType === "string" ? setup.eventType.trim().slice(0, MAX_TRIGGER_EVENT) : "";
+    trigger = { connectionId: conn.id, eventType: eventType || null };
+    const log = properties.map((p) => ({ name: p.name, type: p.type, options: optionsOf(p).map((o) => o.name) }));
+    names = { key: "wins-logger", database: database.title, databaseId, properties: logPropertiesOf(log).fills, connection: conn.name };
+  } else if (setup.key === "ticket-router") {
     const refs = Array.isArray(setup.properties) ? [...new Set(setup.properties)] : [];
     if (!refs.length || refs.length > MAX_ROUTER_PROPERTIES) throw invalid("property", `Choose 1 to ${MAX_ROUTER_PROPERTIES} properties`);
     const picked = refs.map((ref) => pick(properties, ref, ROUTER_PROPERTY_TYPES));
@@ -179,12 +204,18 @@ export async function installBuiltinAgent(
   const agent = await createAgent(userId, workspaceId, { name, icon: built.icon, description: built.description, instructions: built.instructions });
   try {
     for (const page of pages) await setAgentAccess(userId, agent.id, page.id, "view");
+    if (trigger) {
+      // It adds rows to the log; a trigger shares nothing by itself.
+      await setAgentAccess(userId, agent.id, databaseId, "edit");
+      const created = await createTrigger(userId, trigger.connectionId, { agentId: agent.id, eventType: trigger.eventType, prompt: built.task, trusted: false });
+      return { agent, automationId: null, triggerId: created.id };
+    }
     const automation = await createAutomation(userId, databaseId, {
-      name: built.automation(agent.name),
+      name: built.automation!(agent.name),
       trigger: { type: "row_created" },
       actions: [{ type: "run_agent", agent: agent.id, prompt: built.task }],
     });
-    return { agent, automationId: automation.id };
+    return { agent, automationId: automation.id, triggerId: null };
   } catch (error) {
     // No half-made agent left running: it's archived, which also takes back what was shared.
     await archiveAgent(userId, agent.id).catch(() => {});

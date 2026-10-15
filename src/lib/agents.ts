@@ -155,11 +155,13 @@ export type AgentCommentRecord = { kind: "comment"; pageId: string; text: string
 
 /**
  * A call to a connection's tool: read at once (`done`/`failed`), or one that waited for approval
- * and was sent (`done`/`failed`), declined, sent back to be redone, or never answered.
+ * and was sent (`done`/`failed`), declined, sent back to be redone, or never answered. Without a
+ * connection (null), a call to Leafdesk's own tool that waited for approval (a row an event's run
+ * adds) and was declined, sent back or never answered; once made, it shows as the change it made.
  */
 export type AgentToolRecord = {
   kind: "tool";
-  connectionId: string;
+  connectionId: string | null;
   tool: string;
   /** The input, as sent (or as it would have been), cut to fit. */
   input: string;
@@ -204,14 +206,21 @@ export function skillStepsToAdd(steps: AgentStepRecord[], now: AgentSkillRecord[
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented or used a tool. */
 export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentToolRecord | AgentSkillRecord;
 
-/** A call waiting for approval: what will be sent, and since when. */
+/** A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's own tool. */
 export type AgentPendingCall = {
   callId: string;
-  connectionId: string;
+  connectionId: string | null;
   tool: string;
   arguments: Record<string, unknown>;
   askedAt: string;
 };
+
+/** What a call to Leafdesk's own tool (no connection) names in place of a connection. */
+export const OWN_TOOLS_NAME = "Leafdesk";
+
+/** The name of the connection a call goes to, from `names`; Leafdesk's for its own tools. */
+export const callConnectionName = (connectionId: string | null, names: ReadonlyMap<string, string>) =>
+  connectionId === null ? OWN_TOOLS_NAME : (names.get(connectionId) ?? "");
 
 /** The most of a waiting call's input the inbox shows; a longer one is approved from its run. */
 export const INBOX_CALL_CHARS = 4_000;

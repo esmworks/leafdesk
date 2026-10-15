@@ -632,7 +632,7 @@ try {
     "…and its instructions, in that language, name the database, the properties, their options and the rules",
     r.instructions,
   );
-  const [routing] = await db.select().from(databaseAutomation).where(eq(databaseAutomation.id, routed.automationId));
+  const [routing] = await db.select().from(databaseAutomation).where(eq(databaseAutomation.id, routed.automationId!));
   check(
     routing.trigger.type === "row_created" && routing.actions.length === 1 && routing.actions[0].type === "run_agent" && routing.actions[0].agentId === r.id,
     "it runs on every new row, by an automation of the database",

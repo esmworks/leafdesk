@@ -40,5 +40,57 @@
       "milestone": "İlk kilometre taşını planla",
       "team": "Ekibi davet et"
     }
+  },
+  "wins-log": {
+    "title": "Kazanım günlüğü",
+    "description": "Kazanımlar, övgüler ve tamamlanan işler tek yerde; aylara, türe ve alana göre grafiklerle.",
+    "markdown": "Her kazanım, övgü ve tamamlanan iş, olduğu yerin bağlantısıyla buraya yazılır. Elle ekleyin ya da Kazanım kaydedici ajanı bağlantılarınızdan eklesin.",
+    "database": "Kazanımlar",
+    "table": "Tüm kazanımlar",
+    "board": "Türe göre",
+    "properties": {
+      "type": "Tür",
+      "area": "Alan",
+      "date": "Tarih",
+      "impact": "Etki",
+      "source": "Kaynak",
+      "person": "Kişiler"
+    },
+    "types": {
+      "feedback": "Geri bildirim",
+      "delivery": "Teslim",
+      "metric": "Metrik",
+      "event": "Etkinlik",
+      "other": "Diğer"
+    },
+    "areas": {
+      "product": "Ürün",
+      "customers": "Müşteriler",
+      "team": "Ekip",
+      "operations": "Operasyon",
+      "sales": "Satış"
+    },
+    "impacts": {
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük"
+    },
+    "widgets": {
+      "total": "Kazanımlar",
+      "byMonth": "Aylara göre kazanımlar",
+      "byArea": "Alana göre",
+      "byImpact": "Etkiye göre"
+    },
+    "rowTemplate": {
+      "title": "Yeni kazanım",
+      "markdown": "## Ne oldu\n\n\n\n## Neden önemli\n\n\n\n## Kanıt\n\n- "
+    },
+    "rows": {
+      "praise": "Bir müşteri yeni ilk kullanım akışını övdü",
+      "launch": "Fatura dışa aktarma yayına alındı",
+      "response": "Destek yanıtları artık iki saatin altında",
+      "talk": "Ekip buluşmasında sunum yapıldı",
+      "thanks": "Satış ekibi demo kurulumu için teşekkür etti"
+    }
   }
 }

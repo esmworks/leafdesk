@@ -19,7 +19,7 @@ import {
   type JoinRequestKind,
   type NotificationKind,
 } from "@/db/schema";
-import { callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import {
   FULL_RANK,
@@ -696,7 +696,7 @@ async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
     .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")));
-  const connectionIds = [...new Set(runs.flatMap((r) => (r.pending ? [r.pending.connectionId] : [])))];
+  const connectionIds = [...new Set(runs.flatMap((r) => (r.pending?.connectionId ? [r.pending.connectionId] : [])))];
   const names = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
   );
@@ -709,7 +709,7 @@ async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>
       callId: r.pending.callId,
       agentId: r.agentId,
       agentName: r.agentName,
-      connectionName: names.get(r.pending.connectionId) ?? "",
+      connectionName: callConnectionName(r.pending.connectionId, names),
       tool: r.pending.tool,
       input,
       whole,

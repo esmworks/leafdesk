@@ -320,6 +320,8 @@ export function agentSystemPrompt(
     requested?: boolean;
     /** One of the agent's schedules started the run: on a database it looks after (with how many changes it may make), or on none. */
     scheduled?: { database: boolean; maxWrites: number };
+    /** A connection event's run: it may add rows to databases shared with it to edit, each once approved. */
+    addsRows?: boolean;
     connections: string[];
     askEveryTool?: boolean;
     skills?: { title: string; body: string }[];
@@ -341,7 +343,9 @@ export function agentSystemPrompt(
       ? `update_row changes values or the title of rows of the database you look after, and only its rows. add_comment writes a comment on one of its rows. You may make ${scheduled.maxWrites} changes in all: change only what the task and your instructions call for; when nothing needs changing, change nothing.`
       : run.row
         ? "update_row changes values or the title of the row that started this run, and only that row. add_comment writes a comment on that row. Change only what the task and your instructions call for; when nothing needs changing, change nothing."
-        : "You can't change pages in this run; you may only read them, and use the tools of connected services.",
+        : run.addsRows
+          ? "create_row adds a row to a database shared with you to edit; it is the only change you can make to pages in this run. Each row is added only after a person approves it: call it once with exactly the row to add, and you will hear whether it was added, declined or sent back with a note. Add a row only when the task and your instructions call for it."
+          : "You can't change pages in this run; you may only read them, and use the tools of connected services.",
     run.connections.length
       ? `Tools named <service>__<tool> belong to connected services (${run.connections.map((c) => `"${attr(c)}"`).join(", ")}). ${run.askEveryTool ? "Each" : "Tools that only read run at once. Any other"} is sent only after a person approves it: call it once with exactly what should be sent, and you will hear whether it was sent, declined or sent back with a note. Never call such a tool to try things out.`
       : "",

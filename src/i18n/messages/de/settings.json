@@ -495,18 +495,24 @@
     },
     "templates": {
       "heading": "Mit einer Vorlage beginnen",
-      "description": "Fertige Agenten für eine Datenbank. Jeder läuft bei jeder neuen Zeile; du wählst die Datenbank und die Eigenschaften, die er verwendet."
+      "description": "Fertige Agenten für eine Datenbank. Die meisten laufen bei jeder neuen Zeile, der Erfolgsprotokollierer bei den Ereignissen einer Verbindung; du wählst die Datenbank und was er nutzt."
     },
     "wizard": {
       "title": "{name} einrichten",
       "steps": {
         "database": "Datenbank wählen",
         "properties": "Eigenschaften wählen",
-        "pages": "Seiten wählen, die er liest"
+        "pages": "Seiten wählen, die er liest",
+        "connection": "Wählen, woher seine Ereignisse kommen"
       },
       "chooseDatabase": "In welcher Datenbank soll er arbeiten? Du brauchst Vollzugriff darauf.",
       "searchDatabases": "Datenbanken suchen",
       "noDatabases": "Keine Datenbank, auf die du Vollzugriff hast.",
+      "chooseLog": "In welche Datenbank soll er Erfolge eintragen? Die Vorlage Erfolgslog legt eine an. Du brauchst Vollzugriff darauf.",
+      "connection": "Verbindung",
+      "connectionHelp": "Er liest jedes Ereignis, das diese Verbindung empfängt, und fügt nur dann eine Zeile hinzu, wenn es ein Erfolg oder Lob ist.",
+      "noConnections": "Dieser Arbeitsbereich hat noch keine Verbindungen, also kann nichts dem Agenten Ereignisse senden. <link>Füge eine Verbindung hinzu</link> (Slack, GitHub oder dein CRM oder E-Mail über einen signierten Webhook) und richte den Agenten dann ein.",
+      "eventTypeHelp": "Nur Ereignisse dieser Art starten ihn: „message“ für Slack-Nachrichten, „pull_request“ für GitHub-Pull-Requests. Leer lassen für jedes Ereignis.",
       "routerProperties": "Zu setzende Eigenschaften",
       "routerPropertiesHelp": "Bis zu {max}. Bei Auswahl oder Status wählt er eine der Optionen, bei Person jemanden aus dem Workspace.",
       "anyPerson": "Jemand aus dem Workspace",
@@ -530,6 +536,11 @@
       "name": "Name des Agenten",
       "summary": "Beim Erstellen kommen der Agent und eine Automatisierung auf {database} hinzu, die ihn bei jeder neuen Zeile ausführt. Der Agent bekommt Bearbeitungszugriff auf {database}.",
       "summaryPages": "Die gewählten Seiten werden zum Ansehen mit ihm geteilt.",
+      "summaryEvents": "Beim Erstellen kommen der Agent und ein Auslöser auf {connection} hinzu, der ihn bei jedem Ereignis ausführt. Der Agent bekommt Bearbeitungszugriff auf {database}.",
+      "summaryApproval": "Jede Zeile, die er hinzufügt, wartet im Posteingang auf die Freigabe eines Inhabers.",
+      "logFills": "Es füllt {properties}.",
+      "logFillsNone": "Das Protokoll hat keine Eigenschaften, die es füllt (Listen, Daten, Links, Personen, Text); es fügt nur Titel und Text jedes Erfolgs hinzu.",
+      "logLeft": "Nach den ersten {max} ausgelassen: {properties}.",
       "back": "Zurück",
       "next": "Weiter",
       "create": "Agent erstellen",
@@ -539,7 +550,8 @@
         "needRules": "Schreib die Regeln, denen er folgt.",
         "sameOptions": "Wähle zwei verschiedene Optionen.",
         "needPages": "Wähle mindestens eine Seite.",
-        "needName": "Gib dem Agenten einen Namen."
+        "needName": "Gib dem Agenten einen Namen.",
+        "needConnection": "Wähle eine Verbindung."
       }
     },
     "errors": {

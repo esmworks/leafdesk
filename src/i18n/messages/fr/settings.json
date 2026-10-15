@@ -495,18 +495,24 @@
     },
     "templates": {
       "heading": "Partir d’un modèle",
-      "description": "Des agents prêts à l’emploi pour une base de données. Chacun s’exécute à chaque nouvelle ligne ; vous choisissez la base de données et les propriétés qu’il utilise."
+      "description": "Des agents prêts à l’emploi pour une base de données. La plupart se lancent à chaque nouvelle ligne, le consignateur de réussites aux événements d’une connexion ; vous choisissez la base de données et ce qu’il utilise."
     },
     "wizard": {
       "title": "Configurer {name}",
       "steps": {
         "database": "Choisir une base de données",
         "properties": "Choisir ses propriétés",
-        "pages": "Choisir les pages qu’il lit"
+        "pages": "Choisir les pages qu’il lit",
+        "connection": "Choisir d’où viennent ses événements"
       },
       "chooseDatabase": "Sur quelle base de données doit-il travailler ? Il vous faut un accès complet à celle-ci.",
       "searchDatabases": "Rechercher des bases de données",
       "noDatabases": "Aucune base de données à laquelle vous avez un accès complet.",
+      "chooseLog": "Dans quelle base de données doit-il ajouter les réussites ? Le modèle Journal des réussites en crée une. Il vous faut un accès complet à celle-ci.",
+      "connection": "Connexion",
+      "connectionHelp": "Il lit chaque événement que reçoit cette connexion et n’ajoute une ligne que si l’événement est une réussite ou un compliment.",
+      "noConnections": "Cet espace de travail n’a pas encore de connexion : rien ne peut envoyer d’événements à l’agent. <link>Ajoutez une connexion</link> (Slack, GitHub, ou votre CRM ou vos e-mails par un webhook signé), puis configurez l’agent.",
+      "eventTypeHelp": "Seuls les événements de ce type le lancent : « message » pour les messages Slack, « pull_request » pour les pull requests GitHub. Laissez vide pour tous les événements.",
       "routerProperties": "Propriétés à remplir",
       "routerPropertiesHelp": "Jusqu’à {max}. Pour une sélection ou un statut, il choisit l’une des options ; pour une personne, quelqu’un de l’espace de travail.",
       "anyPerson": "Quelqu’un de l’espace de travail",
@@ -530,6 +536,11 @@
       "name": "Nom de l’agent",
       "summary": "La création ajoute l’agent et une automatisation sur {database} qui le lance à chaque nouvelle ligne. L’agent obtient un accès en modification à {database}.",
       "summaryPages": "Les pages choisies sont partagées avec lui en consultation.",
+      "summaryEvents": "La création ajoute l’agent et un déclencheur sur {connection} qui le lance à chaque événement. L’agent obtient un accès en modification à {database}.",
+      "summaryApproval": "Chaque ligne qu’il ajoute attend l’accord d’un propriétaire dans la boîte de réception.",
+      "logFills": "Il remplit {properties}.",
+      "logFillsNone": "Le journal n’a aucune des propriétés qu’il remplit (listes, dates, liens, personnes, texte) ; il n’ajoute que le titre et le texte de chaque réussite.",
+      "logLeft": "Laissées de côté, au-delà des {max} premières : {properties}.",
       "back": "Retour",
       "next": "Suivant",
       "create": "Créer l’agent",
@@ -539,7 +550,8 @@
         "needRules": "Écrivez les règles qu’il suit.",
         "sameOptions": "Choisissez deux options différentes.",
         "needPages": "Choisissez au moins une page.",
-        "needName": "Donnez un nom à l’agent."
+        "needName": "Donnez un nom à l’agent.",
+        "needConnection": "Choisissez une connexion."
       }
     },
     "errors": {
