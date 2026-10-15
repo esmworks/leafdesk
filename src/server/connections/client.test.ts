@@ -196,10 +196,17 @@ describe("signing in with Leafdesk's client metadata document", () => {
   it("gives the document's address as its client ID, from an https address", async () => {
     process.env.APP_URL = "https://desk.example.com";
     service = CIMD;
-    const started = await startOAuth(rowOf(CIMD.mcp, {}));
+    const row = rowOf(CIMD.mcp, {});
+    const started = await startOAuth(row);
     expect(started!.url.searchParams.get("client_id")).toBe("https://desk.example.com/api/connections/oauth/client");
     expect(oauthClientMetadataUrl()).toBe("https://desk.example.com/api/connections/oauth/client");
     expect(seen.some((r) => r.method === "POST")).toBe(false);
+
+    await finishOAuth(reread(row), started!.verifier, "the-code", undefined);
+    const form = new URLSearchParams(seen.find((r) => r.url === CIMD.metadata.token_endpoint)!.body);
+    expect(form.get("client_id")).toBe("https://desk.example.com/api/connections/oauth/client");
+    expect(form.has("client_secret")).toBe(false);
+    expect(secretsOf(reread(row)).oauth?.tokens?.access_token).toBe(ACCESS_TOKEN);
   });
 
   it("can't from a plain http address, which the service couldn't fetch", async () => {
