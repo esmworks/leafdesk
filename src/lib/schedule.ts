@@ -11,16 +11,21 @@ import { dayNumber, dayString, localDay, monthDay, weekdayOf, zonedInstant } fro
  */
 export type RepeatFrequency = "daily" | "weekly" | "monthly" | "yearly";
 
-/** What a schedule does when it runs. */
-export type ScheduleKind = "row_template";
-/** "row_template": `dateInTitle` puts the day it runs after the template's title. */
-export type ScheduleSettings = { dateInTitle?: boolean };
+/** What a schedule does when it runs: add a row from a row template, or start an agent's run. */
+export type ScheduleKind = "row_template" | "agent";
+/**
+ * "row_template": `dateInTitle` puts the day it runs after the template's title. "agent": `task`
+ * is what the agent is asked to do each time.
+ */
+export type ScheduleSettings = { dateInTitle?: boolean; task?: string };
 /**
  * Why a run didn't happen. Each pauses the schedule except "failed" (a passing problem; it runs
  * again next time): "runAsGone" (whoever set it has no account), "accessLost" (they can no longer
- * add rows to the database or see the template), "templateGone" (it's no longer a template).
+ * add rows to the database or see the template; for an agent's, they no longer own the workspace or
+ * can't open the database), "templateGone" (it's no longer a template), "agentGone" (the agent was
+ * archived).
  */
-export type ScheduleError = "runAsGone" | "accessLost" | "templateGone" | "failed";
+export type ScheduleError = "runAsGone" | "accessLost" | "templateGone" | "agentGone" | "failed";
 
 export type RepeatRule = {
   frequency: RepeatFrequency;
@@ -132,15 +137,19 @@ export function nextOccurrence(rule: RepeatRule, timeZone: string, after: Date):
   throw new Error("No next occurrence");
 }
 
-/** How a row template repeats, for the template menu. */
-export type TemplateRepeatSummary = { enabled: boolean; nextRunAt: string | null; lastError: ScheduleError | null };
+/** Why a row template's schedule didn't run (an agent's reasons never apply). */
+export type TemplateScheduleError = Exclude<ScheduleError, "agentGone">;
 
-const SCHEDULE_ERRORS: readonly ScheduleError[] = ["runAsGone", "accessLost", "templateGone", "failed"];
+/** How a row template repeats, for the template menu. */
+export type TemplateRepeatSummary = { enabled: boolean; nextRunAt: string | null; lastError: TemplateScheduleError | null };
+
+export const SCHEDULE_ERRORS: readonly ScheduleError[] = ["runAsGone", "accessLost", "templateGone", "agentGone", "failed"];
+const TEMPLATE_ERRORS: readonly ScheduleError[] = SCHEDULE_ERRORS.filter((e) => e !== "agentGone");
 
 export function repeatSummary(row: { enabled: boolean; nextRunAt: Date | null; lastError: string | null }): TemplateRepeatSummary {
   return {
     enabled: row.enabled,
     nextRunAt: row.enabled && row.nextRunAt ? row.nextRunAt.toISOString() : null,
-    lastError: SCHEDULE_ERRORS.includes(row.lastError as ScheduleError) ? (row.lastError as ScheduleError) : null,
+    lastError: TEMPLATE_ERRORS.includes(row.lastError as ScheduleError) ? (row.lastError as TemplateScheduleError) : null,
   };
 }

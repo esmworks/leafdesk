@@ -6,8 +6,18 @@ import type { AgentView } from "@/lib/agents";
 import { AccessError } from "@/server/access";
 import * as agents from "@/server/agents/manage";
 import { requestAgentRun } from "@/server/agents/requests";
+import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { usageMonthsOf } from "@/server/agents/usage";
-import { agentInputs, describeAgent, describeAgentRun, describeAgentSummary, describeUsageMonth, toAgentPatch } from "@/server/mcp/agents";
+import {
+  agentInputs,
+  describeAgent,
+  describeAgentRun,
+  describeAgentSchedule,
+  describeAgentSummary,
+  describeUsageMonth,
+  toAgentPatch,
+  toScheduleInput,
+} from "@/server/mcp/agents";
 import { getPage } from "@/server/pages";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
@@ -33,7 +43,7 @@ export type ApiCall<Q, B> = {
 type Schema = z.ZodObject;
 
 export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
-  method: "GET" | "POST" | "PATCH";
+  method: "GET" | "POST" | "PATCH" | "DELETE";
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
@@ -637,6 +647,72 @@ export const API_ROUTES: ApiRoute[] = [
       const agent = await ownedAgentFor(principal, params.agent_id);
       const months = await usageMonthsOf(agent.id);
       return { agent_id: agent.id, monthly_token_limit: agent.monthlyTokenLimit, months: months.map(describeUsageMonth) };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/agents/{agent_id}/schedules",
+    operationId: "listAgentSchedules",
+    tag: "Agents",
+    summary: "List an agent's schedules",
+    description:
+      "When the agent runs on its own: each schedule's repeat rule and time zone, its task, the database it looks after (with the agent's access to it), when it runs next and who set it. A paused schedule says why in `note`. Workspace owners only.",
+    scope: "pages:read",
+    response: "AgentScheduleList",
+    handler: async ({ principal, params }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const schedules = await listAgentSchedules(principal.userId, agent.id);
+      return { agent_id: agent.id, schedules: schedules.map((s) => describeAgentSchedule(agent.workspaceId, s)) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/agents/{agent_id}/schedules",
+    operationId: "addAgentSchedule",
+    tag: "Agents",
+    summary: "Add a schedule",
+    description:
+      "Makes the agent run on its own on a repeat rule, with a task and optionally a database it looks after: each run reads that database first and may change and comment on its rows; without one it only reads. Runs are held to what the token's user can open as well as what is shared with the agent, and each ends with a report in the user's inbox. Workspace owners only.",
+    scope: "pages:write",
+    body: agentInputs.schedule.omit({ agent_id: true }),
+    status: 201,
+    response: "AgentSchedule",
+    handler: async ({ principal, params, body }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const schedule = await setAgentSchedule(principal.userId, agent.id, null, toScheduleInput(body));
+      return describeAgentSchedule(agent.workspaceId, schedule);
+    },
+  }),
+  defineRoute({
+    method: "PATCH",
+    path: "/agents/{agent_id}/schedules/{schedule_id}",
+    operationId: "updateAgentSchedule",
+    tag: "Agents",
+    summary: "Change a schedule",
+    description:
+      "Changes a schedule's repeat rule, time zone, task or database (null: none); fields left out keep their values. Its runs are held to the token's user from now on, and a paused schedule turns back on. Workspace owners only.",
+    scope: "pages:write",
+    body: agentInputs.scheduleUpdate.omit({ agent_id: true, schedule_id: true }),
+    response: "AgentSchedule",
+    handler: async ({ principal, params, body }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const schedule = await setAgentSchedule(principal.userId, agent.id, params.schedule_id, toScheduleInput(body));
+      return describeAgentSchedule(agent.workspaceId, schedule);
+    },
+  }),
+  defineRoute({
+    method: "DELETE",
+    path: "/agents/{agent_id}/schedules/{schedule_id}",
+    operationId: "deleteAgentSchedule",
+    tag: "Agents",
+    summary: "Delete a schedule",
+    description: "The agent no longer runs on this schedule; a run it already started goes on. Workspace owners only.",
+    scope: "pages:write",
+    response: "AgentScheduleDeleted",
+    handler: async ({ principal, params }) => {
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      await removeAgentSchedule(principal.userId, agent.id, params.schedule_id);
+      return { agent_id: agent.id, deleted: params.schedule_id };
     },
   }),
 ];

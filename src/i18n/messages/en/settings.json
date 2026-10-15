@@ -301,7 +301,8 @@
       "skills": "Skills",
       "memory": "Memory",
       "runs": "Runs",
-      "connections": "Connections"
+      "connections": "Connections",
+      "schedules": "Schedules"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",
@@ -399,6 +400,7 @@
       "fromHiddenRow": "From a run on a row you can’t open",
       "fromConnection": "From a run started by {connection}",
       "fromRequest": "From a run an owner asked for",
+      "fromSchedule": "From a scheduled run",
       "removedConnection": "a removed connection",
       "keep": "Keep",
       "keepEdited": "Keep with this text",
@@ -432,6 +434,10 @@
       "rowHidden": "A row you can’t open",
       "took": "took {time}",
       "requestedBy": "asked by {name} ({via, select, api {API} other {AI assistant}})",
+      "scheduledBy": "scheduled by {name}",
+      "fromSchedule": "On a schedule",
+      "fromScheduleOn": "On a schedule · {database}",
+      "fromScheduleHidden": "On a schedule · a database you can't open",
       "task": "Task:",
       "showDetails": "Show what it did",
       "hideDetails": "Hide what it did",
@@ -445,6 +451,7 @@
         "agentDisabled": "The agent was paused or archived.",
         "noAccess": "The agent, or the person whose change started the run, can’t open the row or its database.",
         "rowGone": "The row was deleted.",
+        "databaseGone": "The database it looks after was deleted or moved to the trash.",
         "provider": "The AI provider didn’t answer.",
         "timeout": "The run took too long.",
         "tooManyAttempts": "It couldn’t start in time: the workspace’s AI allowance stayed used up.",
@@ -555,7 +562,10 @@
         "option": "Choose two different options of the property.",
         "rules": "Write the rules it follows.",
         "pages": "Choose the pages it reads.",
-        "limit": "Enter a token limit as a whole number from 1 to 1,000,000,000."
+        "limit": "Enter a token limit as a whole number from 1 to 1,000,000,000.",
+        "task": "Write the task it does on each run.",
+        "taskLength": "A task can have at most 2,000 characters.",
+        "repeat": "Check when it repeats and its time zone."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -565,7 +575,10 @@
       "aiOff": "AI is off in this workspace.",
       "limitReached": "The agent used its monthly token limit ({limit} tokens).",
       "tooManyRuns": "{max} runs asked of this agent are still waiting. Try again once one finishes.",
-      "notARow": "Row not found."
+      "notARow": "Row not found.",
+      "notADatabase": "Choose a database of this workspace that you can open.",
+      "tooManySchedules": "There's no room for another schedule (at most {max}).",
+      "scheduleNotFound": "This schedule no longer exists."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -573,6 +586,46 @@
       "allowedCount": "{n} of {total} allowed",
       "notReady": "This connection isn’t ready (it needs a sign-in or fails), so the agent can’t use its tools for now.",
       "noTools": "No tools listed yet."
+    },
+    "schedules": {
+      "description": "Let this agent run on its own, on a schedule: each run does the task, on the database you choose if any, and you get its report in your inbox. Its runs can open only what you can open.",
+      "agentPaused": "The agent is paused: its schedules skip their runs until you turn it on.",
+      "archived": "Restore the agent to change its schedules.",
+      "list": "The agent's schedules",
+      "empty": "No schedules yet. Add one, for example every morning at 8:00 to go through a board.",
+      "seeRuns": "See its runs",
+      "add": "Add a schedule",
+      "editHeading": "Change the schedule",
+      "edit": "Change",
+      "remove": "Delete schedule",
+      "every": "Every {count} {unit}",
+      "summary": "{how} · {time} ({zone})",
+      "summaryOn": "{how} on {days} · {time} ({zone})",
+      "noDatabase": "No database: it only reads",
+      "databaseHidden": "A database you can't open",
+      "setBy": "set by {name}",
+      "next": "Next run: {date}",
+      "lastRun": "Last run: {date}",
+      "lastFailed": "Its last run couldn't start; it tries again next time.",
+      "paused": {
+        "runAsGone": "Paused: the account of the person who set it is gone. Save it to run it as you.",
+        "accessLost": "Paused: the person who set it is no longer an owner or can't open the database. Save it to run it as you.",
+        "templateGone": "Paused.",
+        "agentGone": "Paused: the agent was archived.",
+        "failed": "Paused: its last run couldn't start."
+      },
+      "access": {
+        "none": "The agent can't open this database: its runs fail until you share it in the Access tab.",
+        "view": "The agent can only view this database: give it edit access in the Access tab to change rows.",
+        "comment": "The agent can only comment on this database: give it edit access in the Access tab to change rows."
+      },
+      "database": "Database it looks after",
+      "noDatabaseOption": "None: it only reads",
+      "databaseHint": "Each run reads this database first and may change and comment on its rows (at most {max} changes a run).",
+      "noDatabaseHint": "Without a database it changes nothing: it reads what is shared with it and reports.",
+      "task": "Task",
+      "taskPlaceholder": "e.g. Go through every row. Set Status to Late where the due date has passed, and list what I need to do today.",
+      "reportHint": "When a run ends, its report comes to your inbox."
     }
   },
   "analytics": {
@@ -1215,7 +1268,9 @@
         "created": "Created the agent “{target}”",
         "updated": "{change, select, on {Turned on the agent “{target}”} off {Paused the agent “{target}”} other {Changed the agent “{target}”}}",
         "archived": "Archived the agent “{target}”",
-        "run_requested": "Asked the agent “{target}” for a run"
+        "run_requested": "Asked the agent “{target}” for a run",
+        "schedule_set": "Set a schedule for the agent “{target}”",
+        "schedule_removed": "Deleted a schedule of the agent “{target}”"
       },
       "connection": {
         "created": "Added the connection “{target}”",

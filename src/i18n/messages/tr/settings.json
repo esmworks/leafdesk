@@ -301,7 +301,8 @@
       "skills": "Beceriler",
       "memory": "Hafıza",
       "runs": "Çalışmalar",
-      "connections": "Bağlantılar"
+      "connections": "Bağlantılar",
+      "schedules": "Zamanlamalar"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",
@@ -399,6 +400,7 @@
       "fromHiddenRow": "Açamadığınız bir satırdaki çalışmadan",
       "fromConnection": "{connection} ile başlayan bir çalışmadan",
       "fromRequest": "Bir sahibin istediği çalışmadan",
+      "fromSchedule": "Zamanlanmış bir çalışmadan",
       "removedConnection": "kaldırılmış bir bağlantı",
       "keep": "Tut",
       "keepEdited": "Bu metinle tut",
@@ -432,6 +434,10 @@
       "rowHidden": "Açamadığınız bir satır",
       "took": "{time} sürdü",
       "requestedBy": "{name} istedi ({via, select, api {API} other {yapay zekâ asistanı}})",
+      "scheduledBy": "zamanlayan: {name}",
+      "fromSchedule": "Zamanlamayla",
+      "fromScheduleOn": "Zamanlamayla · {database}",
+      "fromScheduleHidden": "Zamanlamayla · açamadığın bir veritabanı",
       "task": "Görev:",
       "showDetails": "Ne yaptığını göster",
       "hideDetails": "Ne yaptığını gizle",
@@ -445,6 +451,7 @@
         "agentDisabled": "Ajan duraklatılmış ya da arşivlenmişti.",
         "noAccess": "Ajan ya da çalışmayı değişikliğiyle başlatan kişi satırı veya veritabanını açamıyor.",
         "rowGone": "Satır silinmiş.",
+        "databaseGone": "Baktığı veritabanı silindi ya da çöp kutusuna taşındı.",
         "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
         "timeout": "Çalışma çok uzun sürdü.",
         "tooManyAttempts": "Zamanında başlayamadı: çalışma alanının yapay zekâ kotası dolu kaldı.",
@@ -555,7 +562,10 @@
         "option": "Özelliğin birbirinden farklı iki seçeneğini seçin.",
         "rules": "Uyacağı kuralları yazın.",
         "pages": "Okuyacağı sayfaları seçin.",
-        "limit": "Token sınırını 1 ile 1.000.000.000 arasında bir tam sayı olarak girin."
+        "limit": "Token sınırını 1 ile 1.000.000.000 arasında bir tam sayı olarak girin.",
+        "task": "Her çalışmada yapacağı görevi yaz.",
+        "taskLength": "Bir görev en fazla 2.000 karakter olabilir.",
+        "repeat": "Ne zaman tekrarlandığını ve saat dilimini kontrol et."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -565,7 +575,10 @@
       "aiOff": "Bu çalışma alanında yapay zekâ kapalı.",
       "limitReached": "Ajan aylık token sınırını doldurdu ({limit} token).",
       "tooManyRuns": "Bu ajandan istenen {max} çalışma hâlâ bekliyor. Biri bitince yeniden deneyin.",
-      "notARow": "Satır bulunamadı."
+      "notARow": "Satır bulunamadı.",
+      "notADatabase": "Bu çalışma alanında açabildiğin bir veritabanı seç.",
+      "tooManySchedules": "Başka bir zamanlamaya yer yok (en fazla {max}).",
+      "scheduleNotFound": "Bu zamanlama artık yok."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -573,6 +586,46 @@
       "allowedCount": "{total} araçtan {n} izinli",
       "notReady": "Bu bağlantı hazır değil (giriş gerekiyor ya da hata veriyor); ajan şimdilik araçlarını kullanamaz.",
       "noTools": "Henüz listelenmiş araç yok."
+    },
+    "schedules": {
+      "description": "Bu ajan bir zamanlamayla kendiliğinden çalışsın: her çalışma görevi yapar, seçtiysen bir veritabanı üzerinde; raporu gelen kutuna düşer. Çalışmaları yalnızca senin açabildiklerini açabilir.",
+      "agentPaused": "Ajan duraklatıldı: siz açana kadar zamanlamaları çalışmalarını atlar.",
+      "archived": "Zamanlamalarını değiştirmek için ajanı geri yükle.",
+      "list": "Ajanın zamanlamaları",
+      "empty": "Henüz zamanlama yok. Örneğin her sabah 08:00'de bir panoyu gözden geçirmesi için bir tane ekle.",
+      "seeRuns": "Çalışmalarını gör",
+      "add": "Zamanlama ekle",
+      "editHeading": "Zamanlamayı değiştir",
+      "edit": "Değiştir",
+      "remove": "Zamanlamayı sil",
+      "every": "Her {count} {unit}",
+      "summary": "{how} · {time} ({zone})",
+      "summaryOn": "{how}, {days} · {time} ({zone})",
+      "noDatabase": "Veritabanı yok: yalnızca okur",
+      "databaseHidden": "Açamadığın bir veritabanı",
+      "setBy": "kuran: {name}",
+      "next": "Sonraki çalışma: {date}",
+      "lastRun": "Son çalışma: {date}",
+      "lastFailed": "Son çalışması başlayamadı; bir dahaki sefer yeniden dener.",
+      "paused": {
+        "runAsGone": "Duraklatıldı: kuran kişinin hesabı artık yok. Senin adına çalışması için kaydet.",
+        "accessLost": "Duraklatıldı: kuran kişi artık sahip değil ya da veritabanını açamıyor. Senin adına çalışması için kaydet.",
+        "templateGone": "Duraklatıldı.",
+        "agentGone": "Duraklatıldı: ajan arşivlendi.",
+        "failed": "Duraklatıldı: son çalışması başlayamadı."
+      },
+      "access": {
+        "none": "Ajan bu veritabanını açamıyor: Erişim sekmesinde paylaşana kadar çalışmaları başarısız olur.",
+        "view": "Ajan bu veritabanını yalnızca görüntüleyebiliyor: satırları değiştirebilmesi için Erişim sekmesinde düzenleme izni ver.",
+        "comment": "Ajan bu veritabanına yalnızca yorum yapabiliyor: satırları değiştirebilmesi için Erişim sekmesinde düzenleme izni ver."
+      },
+      "database": "Baktığı veritabanı",
+      "noDatabaseOption": "Yok: yalnızca okur",
+      "databaseHint": "Her çalışma önce bu veritabanını okur, satırlarını değiştirebilir ve yorum yazabilir (çalışma başına en fazla {max} değişiklik).",
+      "noDatabaseHint": "Veritabanı olmadan hiçbir şeyi değiştirmez: kendisiyle paylaşılanları okur ve rapor verir.",
+      "task": "Görev",
+      "taskPlaceholder": "ör. Tüm satırları gözden geçir. Bitiş tarihi geçenlerin Durumunu Gecikti yap ve bugün yapmam gerekenleri listele.",
+      "reportHint": "Bir çalışma bittiğinde raporu gelen kutuna gelir."
     }
   },
   "analytics": {
@@ -1215,7 +1268,9 @@
         "created": "“{target}” ajanını oluşturdu",
         "updated": "{change, select, on {“{target}” ajanını açtı} off {“{target}” ajanını duraklattı} other {“{target}” ajanını değiştirdi}}",
         "archived": "“{target}” ajanını arşivledi",
-        "run_requested": "“{target}” ajanından bir çalışma istedi"
+        "run_requested": "“{target}” ajanından bir çalışma istedi",
+        "schedule_set": "“{target}” ajanı için bir zamanlama kurdu",
+        "schedule_removed": "“{target}” ajanının bir zamanlamasını sildi"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",

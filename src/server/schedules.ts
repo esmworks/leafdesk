@@ -24,7 +24,8 @@ import { startSweep } from "@/server/sweep";
  * with FOR UPDATE SKIP LOCKED and moves their next run on before doing anything, so a run happens
  * at most once even with several replicas or a crash; a server that was down catches up with one
  * run, then keeps to the rule. What a run does depends on the schedule's kind (see
- * registerScheduleHandler); "row_template" adds a row from a database's row template.
+ * registerScheduleHandler); "row_template" adds a row from a database's row template, "agent" starts
+ * a run of an agent (server/agents/schedules.ts, which registers its handler).
  *
  * A schedule runs as the person who set it last, with their access at the time. A run they could
  * no longer do pauses it (`enabled` off, with the reason in `lastError`) until someone sets it again.
@@ -75,7 +76,7 @@ async function claimDue(now: Date) {
     for (const row of due) {
       const rule = parseRepeatRule(row.rule);
       if (!rule || !isTimeZone(row.timeZone)) {
-        // Only written through setTemplateRepeat, which checks both; a runtime that lost a zone pauses it.
+        // Only written through setTemplateRepeat and setAgentSchedule, which check both; a runtime that lost a zone pauses it.
         await tx.update(schedule).set({ enabled: false, nextRunAt: null, lastError: "failed" }).where(eq(schedule.id, row.id));
         continue;
       }
@@ -105,7 +106,8 @@ async function runOne(row: ScheduleRow, at: Date, now: Date) {
     .update(schedule)
     .set(pause ? { enabled: false, nextRunAt: null, lastError: error } : { lastRunAt: done ? now : undefined, lastError: error })
     .where(eq(schedule.id, row.id));
-  if (row.databaseId) getCollab().broadcast(`db:${row.databaseId}`, "rows");
+  // The template's menu shows how it repeats; an agent's run changes rows (and says so) on its own.
+  if (row.kind === "row_template" && row.databaseId) getCollab().broadcast(`db:${row.databaseId}`, "rows");
 }
 
 /** Runs every schedule due at `now`. Returns how many ran (or tried to). */

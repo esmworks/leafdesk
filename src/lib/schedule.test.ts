@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextOccurrence, parseRepeatRule, type RepeatRule } from "./schedule";
+import { nextOccurrence, parseRepeatRule, repeatSummary, SCHEDULE_ERRORS, type RepeatRule } from "./schedule";
 import { dayNumber, isTimeZone, listTimeZones, timeZoneLabel, zonedInstant } from "./time-zone";
 
 const rule = (r: Partial<RepeatRule>): RepeatRule => ({
@@ -194,5 +194,23 @@ describe("nextOccurrence", () => {
     expect(nextOccurrence(rule({ frequency: "weekly", weekdays: [1], start: "2026-01-05" }), "UTC", new Date("2026-10-07T00:00:00Z")).toISOString()).toBe(
       "2026-10-12T09:00:00.000Z",
     );
+  });
+});
+
+describe("repeatSummary", () => {
+  const at = new Date("2026-10-15T05:00:00Z");
+
+  it("says when a schedule that is on runs next, and nothing when it is off", () => {
+    expect(repeatSummary({ enabled: true, nextRunAt: at, lastError: null })).toEqual({ enabled: true, nextRunAt: at.toISOString(), lastError: null });
+    expect(repeatSummary({ enabled: false, nextRunAt: at, lastError: "accessLost" })).toEqual({ enabled: false, nextRunAt: null, lastError: "accessLost" });
+  });
+
+  it("keeps a row template's reasons, and drops an agent's or an unknown one", () => {
+    for (const reason of SCHEDULE_ERRORS.filter((e) => e !== "agentGone")) {
+      expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: reason }).lastError).toBe(reason);
+    }
+    expect(SCHEDULE_ERRORS).toContain("agentGone");
+    expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: "agentGone" }).lastError).toBeNull();
+    expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: "somethingElse" }).lastError).toBeNull();
   });
 });

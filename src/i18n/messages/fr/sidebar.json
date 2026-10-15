@@ -107,7 +107,12 @@
     "memoryTitle": "{agent} veut retenir quelque chose",
     "memory": "« {text} »{more, plural, =0 {} one { et # autre note} other { et # autres notes}}",
     "memoryHidden": "{count, plural, one {Une note} other {# notes}} d’une exécution sur une ligne que vous ne pouvez pas ouvrir",
-    "memoryAnswered": "Déjà examiné"
+    "memoryAnswered": "Déjà examiné",
+    "reportTitle": "Rapport de {agent}",
+    "reportDone": "Son exécution planifiée est terminée.",
+    "reportFailed": "Son exécution planifiée a échoué. Ouvrez-la pour voir pourquoi.",
+    "reportHidden": "Son exécution planifiée est terminée, sur une base de données que vous ne pouvez pas ouvrir.",
+    "reportGone": "L’exécution n’est plus conservée."
   },
   "templates": {
     "title": "Modèles",

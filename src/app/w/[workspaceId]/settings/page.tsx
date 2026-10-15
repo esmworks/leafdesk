@@ -210,7 +210,7 @@ export default async function SettingsPage({
               isOwner={isOwner}
               agentId={typeof query.agent === "string" ? query.agent : undefined}
               runId={typeof query.run === "string" ? query.run : undefined}
-              agentTab={query.agentTab === "memory" ? "memory" : undefined}
+              agentTab={query.agentTab === "memory" || query.agentTab === "schedules" ? query.agentTab : undefined}
             />
           )}
           {tab === "connections" && (
@@ -497,7 +497,7 @@ async function AgentsTab({
   agentId?: string;
   runId?: string;
   /** The agent's tab a link opens (a run opens its runs). */
-  agentTab?: "memory";
+  agentTab?: "memory" | "schedules";
 }) {
   const [agents, settings, templates, proposals] = await Promise.all([
     listAgents(userId, workspaceId, { archived: isOwner }),

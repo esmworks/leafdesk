@@ -73,7 +73,9 @@ export function apiErrorFor(error: unknown): ApiError {
     );
   }
   if (error instanceof AgentError) {
-    if (error.code === "notFound" || error.code === "notARow") return new ApiError(404, "not_found", `${error.message}.`);
+    if (error.code === "notFound" || error.code === "notARow" || error.code === "notADatabase" || error.code === "scheduleNotFound") {
+      return new ApiError(404, "not_found", `${error.message}.`);
+    }
     if (error.code === "archived" || error.code === "paused" || error.code === "aiOff") return new ApiError(409, "agent_unavailable", `${error.message}.`);
     if (error.code === "limitReached") return new ApiError(409, "limit_reached", `${error.message}.`);
     if (error.code === "tooManyRuns") return new ApiError(409, "too_many_runs", `${error.message}.`);

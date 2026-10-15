@@ -12,9 +12,10 @@ export type PickablePage = Pick<TreeNode, "id" | "title" | "icon" | "kind"> & { 
 
 /**
  * The pages and databases of the workspace the person may share, from the sidebar's tree: sharing
- * a page with an agent takes full access to it, as with anyone. Null while loading.
+ * a page with an agent takes full access to it, as with anyone. With `anyAccess`, every one the
+ * person can open instead. Null while loading.
  */
-export function useShareablePages(workspaceId: string): PickablePage[] | null {
+export function useShareablePages(workspaceId: string, { anyAccess = false }: { anyAccess?: boolean } = {}): PickablePage[] | null {
   const t = useTranslations("page.move");
   const [pages, setPages] = useState<PickablePage[] | null>(null);
   useEffect(() => {
@@ -25,7 +26,7 @@ export function useShareablePages(workspaceId: string): PickablePage[] | null {
         const spaces = new Map(teamspaces.map((ts) => [ts.id, ts.name]));
         setPages(
           tree
-            .filter((n) => n.level === "full")
+            .filter((n) => anyAccess || n.level === "full")
             .map((n) => ({
               id: n.id,
               title: n.title,
@@ -39,7 +40,7 @@ export function useShareablePages(workspaceId: string): PickablePage[] | null {
     return () => {
       live = false;
     };
-  }, [workspaceId, t]);
+  }, [workspaceId, anyAccess, t]);
   return pages;
 }
 

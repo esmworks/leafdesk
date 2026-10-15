@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { AGENT_EMAIL_DOMAIN, agentEmail, callToSend, INBOX_CALL_CHARS, inboxCallInput, isAgentEmail, skillStepsToAdd, type AgentSkillRecord } from "./agents";
+import {
+  AGENT_EMAIL_DOMAIN,
+  agentEmail,
+  agentRunPath,
+  callToSend,
+  INBOX_CALL_CHARS,
+  inboxCallInput,
+  isAgentEmail,
+  isScheduleRun,
+  MAX_AGENT_WRITES,
+  MAX_SCHEDULED_WRITES,
+  skillStepsToAdd,
+  type AgentSkillRecord,
+} from "./agents";
 import { redactValue } from "./redact";
 
 describe("agents' addresses", () => {
@@ -87,5 +100,21 @@ describe("a run's skill steps", () => {
     const removed: AgentSkillRecord = { kind: "skill", pageId: "a", title: "A", outcome: "skipped", reason: "removed" };
     expect(skillStepsToAdd([used("a"), skipped("b", "editable")], [])).toEqual([removed]);
     expect(skillStepsToAdd([used("a"), removed], [])).toEqual([]);
+  });
+});
+
+describe("scheduled runs", () => {
+  it("are told apart by their source", () => {
+    expect(isScheduleRun({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1", databaseId: "d1" })).toBe(true);
+    expect(isScheduleRun({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1" })).toBe(true);
+    expect(isScheduleRun({ kind: "request", requestedBy: "u1" } as Parameters<typeof isScheduleRun>[0])).toBe(false);
+  });
+
+  it("may change more rows than a run on one row, to go through a database", () => {
+    expect(MAX_SCHEDULED_WRITES).toBeGreaterThan(MAX_AGENT_WRITES);
+  });
+
+  it("are linked to in the agent's settings", () => {
+    expect(agentRunPath("ws1", "a1", "r1")).toBe("/w/ws1/settings?tab=agents&agent=a1&run=r1");
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, CalendarClock, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { listInboxAction, markReadAction, snoozeAction } from "@/app/actions/not
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
-import { agentMemoryPath } from "@/lib/agents";
+import { agentMemoryPath, agentRunPath } from "@/lib/agents";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -110,14 +110,18 @@ export function InboxDialog({
               onClick={() => {
                 if (!item.read) void markRead([item.id]);
                 onClose();
-                // Join requests are decided in Settings > Members; an agent's call opens its run, its
-                // proposed notes its memory.
+                // Join requests are decided in Settings > Members; an agent's call (or a scheduled
+                // run's report) opens its run, its proposed notes its memory.
                 router.push(
                   item.kind === "agent_approval"
                     ? `/w/${workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`
                     : item.kind === "agent_memory"
                     ? item.memory
                       ? agentMemoryPath(workspaceId, item.memory.agentId)
+                      : `/w/${workspaceId}/settings?tab=agents`
+                    : item.kind === "agent_report"
+                    ? item.report
+                      ? agentRunPath(workspaceId, item.report.agentId, item.report.runId)
                       : `/w/${workspaceId}/settings?tab=agents`
                     : item.pageId === null
                       ? `/w/${workspaceId}/settings?tab=members&view=requests`
@@ -140,6 +144,11 @@ export function InboxDialog({
                     <>
                       <NotebookPen aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{t("memoryTitle", { agent: item.memory?.agentName ?? item.actorName ?? t("someone") })}</span>
+                    </>
+                  ) : item.kind === "agent_report" ? (
+                    <>
+                      <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                      <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
                     </>
                   ) : item.pageId === null ? (
                     <>
@@ -164,6 +173,14 @@ export function InboxDialog({
                       : item.memory.text === null
                         ? t("memoryHidden", { count: item.memory.count })
                         : t("memory", { text: item.memory.text, more: item.memory.count - 1 })
+                    : item.kind === "agent_report"
+                    ? !item.report
+                      ? t("reportGone")
+                      : item.report.status === "failed"
+                        ? t("reportFailed")
+                        : item.report.text === null
+                          ? t("reportHidden")
+                          : item.report.text || t("reportDone")
                     : item.kind === "access_request"
                     ? t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
                     : item.kind === "join_request"

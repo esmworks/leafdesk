@@ -13,7 +13,7 @@ const TAGS = [
   { name: "Databases", description: "Database schemas and row queries." },
   { name: "Rows", description: "Database rows and their property values." },
   { name: "Comments", description: "Comment threads on pages." },
-  { name: "Agents", description: "A workspace's agents: their settings, runs asked for now, run history and monthly usage." },
+  { name: "Agents", description: "A workspace's agents: their settings, runs asked for now, schedules, run history and monthly usage." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -418,14 +418,20 @@ const SCHEMAS: Record<string, JsonSchema> = {
     {
       id,
       status: { type: "string", enum: ["pending", "running", "awaiting_approval", "done", "failed"] },
-      code: { type: "string", description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error." },
+      code: {
+        type: "string",
+        description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error.",
+      },
       error: { type: "string" },
       source: loose(
         {
-          kind: { type: "string", enum: ["automation", "connection", "request"] },
+          kind: { type: "string", enum: ["automation", "connection", "request", "schedule"] },
           requested_by: loose({ id, name: { type: "string" } }),
           via: { type: "string", enum: ["api", "mcp"] },
-          task: { type: "string", description: "The task asked for (empty where the run's row is hidden from the user)." },
+          task: { type: "string", description: "The task asked for, or the schedule's (empty where the run's row or database is hidden from the user)." },
+          schedule_id: { type: ["string", "null"], description: "The schedule that started it; null once the schedule was deleted." },
+          scheduled_by: loose({ id, name: { type: "string" } }),
+          database: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the database." }, url }),
         },
         ["kind"],
       ),
@@ -439,6 +445,45 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["id", "status", "source", "steps", "answer", "created_at", "finished_at"],
   ),
   AgentRunList: loose({ agent_id: id, runs: { type: "array", items: ref("AgentRun") } }, ["agent_id", "runs"]),
+  AgentSchedule: loose(
+    {
+      schedule_id: id,
+      repeat: loose(
+        {
+          frequency: { type: "string", enum: ["daily", "weekly", "monthly", "yearly"] },
+          interval: { type: "integer" },
+          weekdays: { type: "array", items: { type: "integer" }, description: "Weekly only: 0 for Sunday to 6 for Saturday." },
+          time: { type: "string", description: "HH:MM, in time_zone." },
+          start: { type: "string", format: "date" },
+        },
+        ["frequency", "interval", "time", "start"],
+      ),
+      time_zone: { type: "string" },
+      task: { type: "string", description: "Empty where the user can't open the database." },
+      database: {
+        oneOf: [
+          { type: "null" },
+          loose(
+            {
+              id,
+              title: { type: ["string", "null"], description: "null where the user can't open the database." },
+              url,
+              agent_access: { type: "string", enum: ["none", "view", "comment", "edit"], description: "What the agent may do with it: edit to change rows." },
+            },
+            ["id", "agent_access"],
+          ),
+        ],
+      },
+      enabled: { type: "boolean", description: "false while paused; `note` says why." },
+      next_run_at: { type: ["string", "null"], format: "date-time" },
+      last_run_at: { type: ["string", "null"], format: "date-time" },
+      set_by: loose({ id, name: { type: "string" } }),
+      note: { type: "string", description: "What stands in its way, if anything." },
+    },
+    ["schedule_id", "repeat", "time_zone", "task", "database", "enabled", "next_run_at"],
+  ),
+  AgentScheduleList: loose({ agent_id: id, schedules: { type: "array", items: ref("AgentSchedule") } }, ["agent_id", "schedules"]),
+  AgentScheduleDeleted: loose({ agent_id: id, deleted: { type: "string", description: "The deleted schedule's id." } }, ["agent_id", "deleted"]),
   AgentUsage: loose(
     {
       agent_id: id,

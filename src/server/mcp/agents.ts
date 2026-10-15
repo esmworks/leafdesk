@@ -4,6 +4,9 @@ import {
   AGENT_ACCESS_LEVELS,
   isRowRun,
   MAX_AGENT_DESCRIPTION,
+  MAX_AGENT_SCHEDULES,
+  MAX_SCHEDULE_TASK,
+  MAX_SCHEDULED_WRITES,
   MAX_AGENT_PROMPT,
   MAX_AGENT_TOKEN_LIMIT,
   MAX_REQUESTED_RUNS,
@@ -16,12 +19,14 @@ import {
   type AgentSkillSkip,
   type AgentSkillView,
   type AgentRunView,
+  type AgentScheduleView,
   type AgentStepRecord,
   type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { pageLabel } from "@/lib/labels";
+import { MAX_REPEAT_INTERVAL, REPEAT_FREQUENCIES } from "@/lib/schedule";
 import { AgentError } from "@/server/agents/manage";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { id } from "@/server/operations";
@@ -48,6 +53,39 @@ const instructionsInput = z
   .max(MAX_AGENT_INSTRUCTIONS)
   .describe(
     `What the agent does and how, in plain language (at most ${MAX_AGENT_INSTRUCTIONS} characters): it reads them on every run, before the task an automation gives it.`,
+  );
+
+const repeatInput = z
+  .object({
+    frequency: z.enum(REPEAT_FREQUENCIES as [string, ...string[]]).describe("daily, weekly, monthly or yearly."),
+    interval: z.number().int().min(1).max(MAX_REPEAT_INTERVAL).default(1).describe("Every how many days, weeks, months or years (default 1)."),
+    weekdays: z
+      .array(z.number().int().min(0).max(6))
+      .min(1)
+      .max(7)
+      .optional()
+      .describe("Weekly only (and needed then): the days it runs, 0 for Sunday to 6 for Saturday."),
+    time: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+      .describe('The time of day it runs, "HH:MM" on a 24-hour clock, in time_zone.'),
+    start: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional()
+      .describe("The first day it may run, YYYY-MM-DD in time_zone (default today). A monthly rule runs on this day of the month, a yearly one on this date."),
+  })
+  .describe("When it runs.");
+const timeZoneInput = z.string().min(1).max(64).describe(`The IANA time zone its days and time are in, such as "Europe/Istanbul": the user's own, unless they say otherwise.`);
+const scheduleTaskInput = z
+  .string()
+  .min(1)
+  .max(MAX_SCHEDULE_TASK)
+  .describe(`What the agent does on each run, in plain language (at most ${MAX_SCHEDULE_TASK} characters); it follows its instructions and skills too.`);
+const scheduleDatabaseInput = id("database")
+  .nullable()
+  .describe(
+    `A database for the agent to look after: each run reads it first and may change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run). The user must be able to open it, and the agent needs edit access to change rows (set_agent_access). null: the run only reads and reports.`,
   );
 
 export const agentInputs = {
@@ -93,6 +131,26 @@ export const agentInputs = {
     row_id: id("row")
       .optional()
       .describe("A database row for the run to work on: the agent may then change and comment on that row. Leave out for a run that only reads and answers."),
+  }),
+  schedule: z.object({
+    agent_id: id("agent"),
+    repeat: repeatInput,
+    time_zone: timeZoneInput,
+    task: scheduleTaskInput,
+    database_id: scheduleDatabaseInput.optional(),
+  }),
+  // No defaults here: what is left out stays as it is.
+  scheduleUpdate: z.object({
+    agent_id: id("agent"),
+    schedule_id: id("schedule").describe("The schedule's id, from get_agent's schedules."),
+    repeat: repeatInput.optional(),
+    time_zone: timeZoneInput.optional(),
+    task: scheduleTaskInput.optional(),
+    database_id: scheduleDatabaseInput.optional(),
+  }),
+  scheduleId: z.object({
+    agent_id: id("agent"),
+    schedule_id: id("schedule").describe("The schedule's id, from get_agent's schedules."),
   }),
   access: z.object({
     agent_id: id("agent"),
@@ -148,6 +206,18 @@ export function notesToDrop(args: { memory_ids?: string[]; all: boolean }): stri
   return args.memory_ids;
 }
 
+type RepeatArgs = z.infer<typeof repeatInput>;
+
+/** A schedule tool's (or endpoint's) arguments as setAgentSchedule takes them: only what was given. */
+export function toScheduleInput(args: { repeat?: RepeatArgs; time_zone?: string; task?: string; database_id?: string | null }) {
+  return {
+    ...(args.repeat ? { rule: { ...args.repeat, weekdays: args.repeat.weekdays ?? [] } } : {}),
+    ...(args.time_zone !== undefined ? { timeZone: args.time_zone } : {}),
+    ...(args.task !== undefined ? { task: args.task } : {}),
+    ...(args.database_id !== undefined ? { databaseId: args.database_id } : {}),
+  };
+}
+
 /** update_agent's arguments as a patch: only what was given. */
 export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "agent_id">) {
   const patch: { name?: string; icon?: string | null; description?: string; instructions?: string; enabled?: boolean; monthlyTokenLimit?: number | null } = {};
@@ -168,6 +238,8 @@ const INVALID: Record<string, string> = {
   limit: `A monthly token limit is a whole number from 1 to ${MAX_AGENT_TOKEN_LIMIT}; pass null to remove it.`,
   task: "A run needs a task: say what the agent should do.",
   taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
+  repeat:
+    'Invalid repeat rule or time zone: frequency daily, weekly, monthly or yearly; weekdays (0-6) for a weekly rule; time as "HH:MM"; start as a real YYYY-MM-DD day; time_zone an IANA name such as "Europe/Istanbul".',
 };
 
 /** AgentError (and sharing's refusals) as errors with a next step. */
@@ -225,6 +297,16 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError(
             "No row with this id in a database of the agent's workspace that the user can open. Use query_database to find the row, or leave row_id out.",
           );
+        case "notADatabase":
+          throw new ToolInputError(
+            "No database with this id in the agent's workspace that the user can open (rows, templates and pages in the trash aren't databases). Use search or list_pages to find it, or pass database_id: null.",
+          );
+        case "tooManySchedules":
+          throw new ToolInputError(
+            `No room for another schedule (an agent has at most ${MAX_AGENT_SCHEDULES}, and a workspace has a limit too). Change one with update_agent_schedule, or delete one with delete_agent_schedule.`,
+          );
+        case "scheduleNotFound":
+          throw new ToolInputError("No schedule with this schedule_id on the agent. Call get_agent to see its schedules.");
         case "noteNotFound":
           throw new ToolInputError(
             "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (dismiss_agent_memory).",
@@ -296,11 +378,13 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
               ? { row: note.run.rowTitle !== null ? { id: note.run.rowId, title: pageLabel(note.run.rowTitle), url: pageUrl(workspaceId, note.run.rowId) } : { id: note.run.rowId, title: null } }
               : note.run.requested
                 ? { requested: true }
-                : { connection: note.run.connectionName }),
+                : note.run.scheduled
+                  ? { scheduled: true }
+                  : { connection: note.run.connectionName }),
           },
         }
       : {}),
-    ...(note.text === null ? { note: "Proposed by a run on a row the user can't open: its text is hidden." } : {}),
+    ...(note.text === null ? { note: "Proposed by a run on a row (or a database) the user can't open: its text is hidden." } : {}),
     created_at: note.createdAt,
     updated_at: note.updatedAt,
   };
@@ -313,6 +397,7 @@ export function describeAgent(
   skills?: { skills: AgentSkillView[]; hidden: number },
   memory?: AgentMemoryView[],
   usage?: AgentUsageMonth[],
+  schedules?: AgentScheduleView[],
 ) {
   return {
     ...describeAgentSummary(agent),
@@ -351,6 +436,7 @@ export function describeAgent(
           },
         }
       : {}),
+    ...(schedules ? { schedules: schedules.map((s) => describeAgentSchedule(agent.workspaceId, s)) } : {}),
     ...(memory
       ? {
           memory: {
@@ -359,6 +445,40 @@ export function describeAgent(
           },
         }
       : {}),
+  };
+}
+
+const SCHEDULE_PAUSED = {
+  runAsGone: "paused: the account of whoever set it is gone",
+  accessLost: "paused: whoever set it no longer owns the workspace or can't open the database",
+  templateGone: "paused",
+  agentGone: "paused: the agent was archived",
+  failed: "its last run couldn't start; it tries again next time",
+} as const;
+
+/** One of an agent's schedules, snake_case, with a note on what stands in its way. */
+export function describeAgentSchedule(workspaceId: string, s: AgentScheduleView) {
+  const notes: string[] = [];
+  if (!s.enabled && s.lastError) notes.push(`${SCHEDULE_PAUSED[s.lastError]}; set it again (update_agent_schedule) to turn it back on.`);
+  else if (s.lastError === "failed") notes.push(SCHEDULE_PAUSED.failed);
+  if (s.agentAccess === "none") notes.push("The agent can't open the database: its runs fail until it is shared with the agent (set_agent_access).");
+  else if (s.agentAccess === "view" || s.agentAccess === "comment") notes.push(`The agent can only ${s.agentAccess === "view" ? "read" : "read and comment on"} the database: give it edit access (set_agent_access) to change rows.`);
+  return {
+    schedule_id: s.id,
+    repeat: { ...s.rule, ...(s.rule.frequency === "weekly" ? {} : { weekdays: undefined }) },
+    time_zone: s.timeZone,
+    task: s.task,
+    database:
+      s.databaseId === null
+        ? null
+        : s.databaseTitle !== null
+          ? { id: s.databaseId, title: pageLabel(s.databaseTitle), url: pageUrl(workspaceId, s.databaseId), agent_access: s.agentAccess }
+          : { id: s.databaseId, title: null, agent_access: s.agentAccess },
+    enabled: s.enabled,
+    next_run_at: s.nextRunAt,
+    last_run_at: s.lastRunAt,
+    ...(s.setBy ? { set_by: { id: s.setBy.id, name: s.setBy.name } } : {}),
+    ...(notes.length ? { note: notes.join(" ") } : {}),
   };
 }
 
@@ -442,6 +562,24 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
     : {};
   if (source.kind === "automation") return { source: { kind: source.kind, automation_id: source.automationId, ...database }, ...row };
   if (source.kind === "connection") return { source: { kind: source.kind, connection_id: source.connectionId, trigger_id: source.triggerId, event_type: run.eventType } };
+  if (source.kind === "schedule") {
+    const s = run.schedule;
+    const database = source.databaseId
+      ? s?.databaseTitle
+        ? { database: { id: source.databaseId, title: pageLabel(s.databaseTitle), url: pageUrl(workspaceId, source.databaseId) } }
+        : { database: { id: source.databaseId, title: null } }
+      : {};
+    return {
+      source: {
+        kind: source.kind,
+        // Empty once the schedule was removed.
+        schedule_id: s?.id || null,
+        scheduled_by: { id: source.scheduledBy, name: s?.byName ?? "" },
+        task: s?.task ?? "",
+        ...database,
+      },
+    };
+  }
   return {
     source: { kind: source.kind, requested_by: { id: source.requestedBy, name: run.request?.byName ?? "" }, via: source.via, task: run.request?.task ?? "", ...database },
     ...row,

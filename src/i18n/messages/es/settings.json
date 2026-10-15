@@ -301,7 +301,8 @@
       "skills": "Habilidades",
       "memory": "Memoria",
       "runs": "Ejecuciones",
-      "connections": "Conexiones"
+      "connections": "Conexiones",
+      "schedules": "Programaciones"
     },
     "empty": "Todavía no hay agentes.",
     "emptyOwner": "Todavía no hay agentes. Crea uno o empieza con una plantilla de abajo.",
@@ -399,6 +400,7 @@
       "fromHiddenRow": "De una ejecución en una fila que no puedes abrir",
       "fromConnection": "De una ejecución iniciada por {connection}",
       "fromRequest": "De una ejecución pedida por un propietario",
+      "fromSchedule": "De una ejecución programada",
       "removedConnection": "una conexión eliminada",
       "keep": "Guardar",
       "keepEdited": "Guardar con este texto",
@@ -432,6 +434,10 @@
       "rowHidden": "Una fila que no puedes abrir",
       "took": "tardó {time}",
       "requestedBy": "pedida por {name} ({via, select, api {API} other {asistente de IA}})",
+      "scheduledBy": "programada por {name}",
+      "fromSchedule": "Programada",
+      "fromScheduleOn": "Programada · {database}",
+      "fromScheduleHidden": "Programada · una base de datos que no puedes abrir",
       "task": "Tarea:",
       "showDetails": "Mostrar lo que hizo",
       "hideDetails": "Ocultar lo que hizo",
@@ -445,6 +451,7 @@
         "agentDisabled": "El agente estaba en pausa o archivado.",
         "noAccess": "El agente, o la persona cuyo cambio inició la ejecución, no puede abrir la fila o su base de datos.",
         "rowGone": "La fila se eliminó.",
+        "databaseGone": "La base de datos que atiende se eliminó o se movió a la papelera.",
         "provider": "El proveedor de IA no respondió.",
         "timeout": "La ejecución tardó demasiado.",
         "tooManyAttempts": "No pudo empezar a tiempo: el cupo de IA del espacio de trabajo siguió agotado.",
@@ -555,7 +562,10 @@
         "option": "Elige dos opciones distintas de la propiedad.",
         "rules": "Escribe las reglas que sigue.",
         "pages": "Elige las páginas que lee.",
-        "limit": "Escribe un límite de tokens entero de 1 a 1.000.000.000."
+        "limit": "Escribe un límite de tokens entero de 1 a 1.000.000.000.",
+        "task": "Escribe la tarea que hace en cada ejecución.",
+        "taskLength": "Una tarea tiene como mucho 2000 caracteres.",
+        "repeat": "Revisa cuándo se repite y su zona horaria."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
@@ -565,7 +575,10 @@
       "aiOff": "La IA está desactivada en este espacio de trabajo.",
       "limitReached": "El agente agotó su límite mensual de tokens ({limit} tokens).",
       "tooManyRuns": "{max} ejecuciones pedidas a este agente siguen esperando. Vuelve a intentarlo cuando termine una.",
-      "notARow": "No se encontró la fila."
+      "notARow": "No se encontró la fila.",
+      "notADatabase": "Elige una base de datos de este espacio de trabajo que puedas abrir.",
+      "tooManySchedules": "No hay sitio para otra programación (como mucho {max}).",
+      "scheduleNotFound": "Esta programación ya no existe."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
@@ -573,6 +586,46 @@
       "allowedCount": "{n} de {total} permitidas",
       "notReady": "Esta conexión no está lista (necesita iniciar sesión o falla), así que el agente no puede usar sus herramientas por ahora.",
       "noTools": "Aún no hay herramientas listadas."
+    },
+    "schedules": {
+      "description": "Deja que este agente se ejecute solo según una programación: cada ejecución hace la tarea, en la base de datos que elijas si eliges una, y su informe llega a tu bandeja de entrada. Sus ejecuciones solo abren lo que tú puedes abrir.",
+      "agentPaused": "El agente está en pausa: sus programaciones omiten sus ejecuciones hasta que lo reactives.",
+      "archived": "Restaura el agente para cambiar sus programaciones.",
+      "list": "Las programaciones del agente",
+      "empty": "Aún no hay programaciones. Añade una, por ejemplo cada mañana a las 8:00 para revisar un tablero.",
+      "seeRuns": "Ver sus ejecuciones",
+      "add": "Añadir programación",
+      "editHeading": "Cambiar la programación",
+      "edit": "Cambiar",
+      "remove": "Eliminar programación",
+      "every": "Cada {count} {unit}",
+      "summary": "{how} · {time} ({zone})",
+      "summaryOn": "{how} el {days} · {time} ({zone})",
+      "noDatabase": "Sin base de datos: solo lee",
+      "databaseHidden": "Una base de datos que no puedes abrir",
+      "setBy": "programada por {name}",
+      "next": "Próxima ejecución: {date}",
+      "lastRun": "Última ejecución: {date}",
+      "lastFailed": "Su última ejecución no pudo empezar; lo intentará de nuevo la próxima vez.",
+      "paused": {
+        "runAsGone": "En pausa: la cuenta de quien la programó ya no existe. Guárdala para que se ejecute en tu nombre.",
+        "accessLost": "En pausa: quien la programó ya no es propietario o no puede abrir la base de datos. Guárdala para que se ejecute en tu nombre.",
+        "templateGone": "En pausa.",
+        "agentGone": "En pausa: el agente se archivó.",
+        "failed": "En pausa: su última ejecución no pudo empezar."
+      },
+      "access": {
+        "none": "El agente no puede abrir esta base de datos: sus ejecuciones fallan hasta que la compartas en la pestaña Acceso.",
+        "view": "El agente solo puede ver esta base de datos: dale acceso de edición en la pestaña Acceso para que cambie filas.",
+        "comment": "El agente solo puede comentar en esta base de datos: dale acceso de edición en la pestaña Acceso para que cambie filas."
+      },
+      "database": "Base de datos que atiende",
+      "noDatabaseOption": "Ninguna: solo lee",
+      "databaseHint": "Cada ejecución lee primero esta base de datos y puede cambiar y comentar sus filas (como mucho {max} cambios por ejecución).",
+      "noDatabaseHint": "Sin base de datos no cambia nada: lee lo que se ha compartido con él e informa.",
+      "task": "Tarea",
+      "taskPlaceholder": "p. ej. Revisa todas las filas. Pon el Estado en Atrasada donde la fecha límite ya pasó y enumera lo que tengo que hacer hoy.",
+      "reportHint": "Cuando termina una ejecución, su informe llega a tu bandeja de entrada."
     }
   },
   "analytics": {
@@ -1215,7 +1268,9 @@
         "created": "Creó el agente «{target}»",
         "updated": "{change, select, on {Activó el agente «{target}»} off {Pausó el agente «{target}»} other {Cambió el agente «{target}»}}",
         "archived": "Archivó el agente «{target}»",
-        "run_requested": "Pidió una ejecución al agente «{target}»"
+        "run_requested": "Pidió una ejecución al agente «{target}»",
+        "schedule_set": "Programó el agente «{target}»",
+        "schedule_removed": "Eliminó una programación del agente «{target}»"
       },
       "connection": {
         "created": "Añadió la conexión «{target}»",

@@ -477,6 +477,13 @@
       "when": 1792047127640,
       "tag": "0067_agent_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1792057307625,
+      "tag": "0068_agent_schedules",
+      "breakpoints": true
     }
   ]
 }
