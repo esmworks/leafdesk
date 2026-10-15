@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
 import { getTranslations } from "next-intl/server";
 import { THEME_COLORS } from "@/lib/theme";
+import { sttEnabled } from "@/server/ai";
 
 /**
  * Web app manifest (/manifest.webmanifest): installable on desktop (Chrome, Edge) and phones.
  * `start_url` is the root, which opens the last workspace; offline, the service worker sends it to
  * the last page it kept instead. Icons live in public/icons (generated from public/icons/icon.svg).
  * The quick note (app/share) is both a shortcut and where the system's share sheet sends text and
- * links.
+ * links; where the server can transcribe, a second shortcut opens it recording a voice note.
  *
  * The description follows the visitor's language (same key as the page metadata), so the manifest
  * can't be prerendered.
@@ -15,7 +16,8 @@ import { THEME_COLORS } from "@/lib/theme";
 export const dynamic = "force-dynamic";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  const [t, tn] = await Promise.all([getTranslations("common"), getTranslations("page.quickNote")]);
+  const [t, tn, tv] = await Promise.all([getTranslations("common"), getTranslations("page.quickNote"), getTranslations("page.voiceNote")]);
+  const icons = [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }];
   return {
     id: "/",
     name: "Leafdesk",
@@ -32,8 +34,9 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         name: tn("shortcut"),
         short_name: tn("shortcutShort"),
         url: "/share",
-        icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+        icons,
       },
+      ...(sttEnabled() ? [{ name: tv("shortcut"), short_name: tv("shortcutShort"), url: "/share?voice=1", icons }] : []),
     ],
     share_target: {
       // Posted, so what is shared stays out of addresses and logs (see app/api/share).

@@ -103,7 +103,9 @@ versions, upgrades and running behind a domain.
 - **Installable app**: install Leafdesk from the browser on desktop (Chrome, Edge) or add it to
   the home screen on phones; it opens in its own window. The app's icon offers a quick note, and on
   phones that support it Leafdesk shows up in the share sheet: text and links shared to it open the
-  quick note filled in, saved as a private page in the workspace you pick.
+  quick note filled in, saved as a private page in the workspace you pick or as a row of one of its
+  databases. Where the server can transcribe, the quick note takes voice notes too (see
+  [Voice notes](#voice-notes)).
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
@@ -398,6 +400,12 @@ versions, upgrades and running behind a domain.
   everyone, can turn the memory off, see [Memory](#ai-features)); and semantic search with an
   embeddings model. Anthropic, OpenAI, Google, any OpenAI-compatible server, or a local model
   with Ollama or LM Studio (see [AI features](#ai-features)).
+- **Voice notes** (optional, off until speech to text is set up): speak in the quick note or with
+  `/` *Voice note* in a page, and AI writes what you said up as a clean note with a title, lists
+  kept, the transcript in a toggle under it. From the quick note it is saved as a private page or a
+  database row whose select and multi-select properties it fills from their options. OpenAI or any
+  server with an OpenAI-compatible transcription API, such as a local Whisper server (see
+  [Voice notes](#voice-notes)).
 - **Skills**: instructions your team reuses (how to review a pull request, write release notes),
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
@@ -1379,6 +1387,57 @@ everything on your machines.
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size assumed for OpenAI-compatible and local models |
+
+### Voice notes
+
+People record a note, it is written down (speech to text), and the chat model writes it up as a
+clean note. Speech to text is set up on its own, since many chat providers can't transcribe: any
+server with an OpenAI-compatible `POST /audio/transcriptions` endpoint works, OpenAI's own or one
+you run (a Whisper server such as faster-whisper or whisper.cpp behind a compatible API). Voice
+notes stay hidden until `STT_PROVIDER` and `STT_MODEL` are set, and in workspaces whose owners
+turned AI off.
+
+| Speech to text | `STT_PROVIDER` | Needs |
+| --- | --- | --- |
+| OpenAI | `openai` | `STT_API_KEY` (or `OPENAI_API_KEY`, or the chat's key when `AI_PROVIDER=openai`) |
+| Any OpenAI-compatible transcription server | `openai-compatible` | `STT_BASE_URL` (the `/v1` root), a key if it wants one |
+
+```bash
+STT_PROVIDER=openai
+STT_MODEL=whisper-1
+
+# or a server of your own
+STT_PROVIDER=openai-compatible
+STT_MODEL=base  # a model your server serves
+STT_BASE_URL=http://whisper:8000/v1
+```
+
+The chat's key is reused only for the chat's own endpoint, never sent to another host.
+
+**Recording.** In the quick note (the app's *Voice note* shortcut opens it recording), choose
+*Record a voice note*, speak, and *Stop and write up*; or choose an audio file (WebM, Ogg, M4A/MP4,
+MP3, WAV, FLAC), where the browser can't record or you have one already. The note fills the title
+and text fields to check and change before *Save note*; *Save to* puts it on a private page or in
+a database row, whose select and multi-select properties AI fills in from the options they have
+(never new ones). In a page, `/` *Voice note* records in a dialog and puts the note where the slash
+menu was opened, its title as a heading; like the writing assistant, the page is saved to its
+history first and Undo takes the note back. Recording needs a secure (https) connection and the
+browser's permission to use the microphone; when either is missing, or the browser can't record,
+the app says so and offers the file instead. A recording stops by itself at the length or size
+limit.
+
+**What is kept.** The note, and the transcript in a *Transcript* toggle under it to check what the
+AI made of it. The audio is not stored: it is held in memory for the transcription request and
+dropped with it. Without a chat model, or when the AI fails or its answer reaches
+`AI_MAX_OUTPUT_TOKENS`, the note is the transcript as it was heard, titled with its first words.
+The transcription and the write-up count toward `AI_RATE_LIMIT` and `AI_WORKSPACE_RATE_LIMIT`, and
+the server logs them like other AI requests (size and time, never the audio or the text).
+
+| Variable | Default | |
+| --- | --- | --- |
+| `STT_MAX_SECONDS` | 600 | Longest recording, in seconds |
+| `STT_MAX_MB` | 25 | Largest audio file (OpenAI's own limit is 25 MB) |
+| `STT_TIMEOUT_SECONDS` | 120 | |
 
 ### Semantic search
 

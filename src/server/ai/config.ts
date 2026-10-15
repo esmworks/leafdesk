@@ -50,6 +50,27 @@ export type AiEmbeddingsConfig = {
 
 export const DEFAULT_MIN_SIMILARITY = 0.3;
 
+/** Where speech goes to be written down: both speak the OpenAI-compatible transcription API. */
+export const STT_PROVIDERS = ["openai", "openai-compatible"] as const;
+export type SttProviderKind = (typeof STT_PROVIDERS)[number];
+
+/**
+ * Speech to text (voice notes), set apart from the chat model because many chat providers can't
+ * transcribe. Off unless STT_PROVIDER and STT_MODEL are set.
+ */
+export type AiSttConfig = {
+  provider: SttProviderKind;
+  model: string;
+  /** An OpenAI-compatible API root; `/audio/transcriptions` is appended. */
+  baseUrl: string;
+  apiKey: string | null;
+  /** Longest recording the app lets people make, in seconds. */
+  maxSeconds: number;
+  /** Largest audio file one request may send. */
+  maxBytes: number;
+  timeoutMs: number;
+};
+
 export type AiLimits = {
   /** Characters of prompt (instructions plus content) one request may send. */
   maxInputChars: number;
@@ -69,6 +90,7 @@ export type AiLimits = {
 export type AiConfig = {
   chat: AiChatConfig | null;
   embeddings: AiEmbeddingsConfig | null;
+  stt: AiSttConfig | null;
   limits: AiLimits;
   /** Why AI is off although something was set, for the startup log. */
   problems: string[];
@@ -156,7 +178,58 @@ export function readAiConfig(env: Env = process.env): AiConfig {
     } else embeddings = { model: embeddingModel, baseUrl, apiKey, dimensions, minSimilarity };
   }
 
-  return { chat, embeddings, limits, problems };
+  const stt = readSttConfig(env, chat, problems);
+
+  return { chat, embeddings, stt, limits, problems };
+}
+
+/**
+ * Speech to text over the OpenAI-compatible `/audio/transcriptions` API: OpenAI itself, or a
+ * server of your own (a local Whisper server, a hosted compatible one) with STT_BASE_URL. Like
+ * embeddings, a key is only reused for the endpoint it belongs to.
+ */
+function readSttConfig(env: Env, chat: AiChatConfig | null, problems: string[]): AiSttConfig | null {
+  const providerRaw = clean(env.STT_PROVIDER)?.toLowerCase() ?? null;
+  const model = clean(env.STT_MODEL);
+  if (providerRaw === null) {
+    if (model) problems.push("STT_MODEL is set but STT_PROVIDER is not");
+    return null;
+  }
+  if (!(STT_PROVIDERS as readonly string[]).includes(providerRaw)) {
+    problems.push(`STT_PROVIDER must be one of ${STT_PROVIDERS.join(", ")}`);
+    return null;
+  }
+  const provider = providerRaw as SttProviderKind;
+  const explicit = url(clean(env.STT_BASE_URL), "STT_BASE_URL", problems);
+  if (explicit === undefined) return null;
+  const openAi = HOSTED_EMBEDDING_URLS.openai!;
+  const baseUrl = explicit ?? (provider === "openai" ? openAi : null);
+  if (!model) {
+    problems.push("STT_MODEL is not set");
+    return null;
+  }
+  if (!baseUrl) {
+    problems.push("STT_BASE_URL is required with STT_PROVIDER=openai-compatible");
+    return null;
+  }
+  const inherited = chat ? inheritedEmbeddingsUrl(chat) : null;
+  const apiKey =
+    clean(env.STT_API_KEY) ??
+    (baseUrl === openAi ? clean(env.OPENAI_API_KEY) : null) ??
+    (baseUrl === inherited ? (chat?.apiKey ?? null) : null);
+  if (provider === "openai" && !apiKey) {
+    problems.push("STT_API_KEY is required with STT_PROVIDER=openai");
+    return null;
+  }
+  return {
+    provider,
+    model,
+    baseUrl,
+    apiKey,
+    maxSeconds: positive(env, "STT_MAX_SECONDS", 600, problems),
+    maxBytes: positive(env, "STT_MAX_MB", 25, problems) * 1024 * 1024,
+    timeoutMs: positive(env, "STT_TIMEOUT_SECONDS", 120, problems) * 1000,
+  };
 }
 
 function similarity(env: Env, problems: string[]) {
@@ -199,6 +272,7 @@ export function describeAiConfig(config: AiConfig): string {
     parts.push("AI: off");
   }
   if (config.embeddings) parts.push(`embeddings: ${config.embeddings.model} at ${config.embeddings.baseUrl}`);
+  if (config.stt) parts.push(`speech to text: ${config.stt.model} at ${config.stt.baseUrl}`);
   if (config.problems.length) parts.push(`(${config.problems.join("; ")})`);
   return parts.join(", ");
 }

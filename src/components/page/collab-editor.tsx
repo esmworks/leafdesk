@@ -24,6 +24,8 @@ import { useBlockFocus } from "./block-focus";
 import { commentUsersAction } from "@/app/actions/comments";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { AskAiToolbarButton, useAiAssist, useAiSlashItems, type AiAssist } from "./ai-assist";
+import { useVoiceNote, useVoiceSlashItems, type VoiceNote } from "@/components/voice/voice-note-dialog";
+import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { yUndoPluginKey } from "y-prosemirror";
 import type { UndoManager } from "yjs";
 import { useEditorDictionary } from "@/i18n/blocknote";
@@ -79,6 +81,7 @@ export default function CollabEditor({
   onCloseComments,
   offline = false,
   ai = false,
+  voice = null,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
@@ -99,6 +102,8 @@ export default function CollabEditor({
   offline?: boolean;
   /** The AI writing assistant is available (the person may edit, AI is on, the server is reachable). */
   ai?: boolean;
+  /** Voice notes are available, with these limits (as for `ai`, and the server can transcribe). */
+  voice?: VoiceNoteLimits | null;
 }) {
   const locale = useLocale();
   const colorScheme = useColorScheme();
@@ -192,6 +197,7 @@ export default function CollabEditor({
   }, [threadStore, editor]);
 
   const assistant = useAiAssist(editor, pageId, ai && editable && !offline);
+  const voiceNote = useVoiceNote(editor, pageId, voice && editable && !offline ? voice : null);
   // Links to a passage (the AI chat's citations) scroll to its block.
   useBlockFocus();
 
@@ -219,6 +225,7 @@ export default function CollabEditor({
             onPickPage={setLinkAt}
             onDashboard={widenForDashboard}
             assistant={ai && editable && !offline ? assistant : null}
+            voiceNote={voice && editable && !offline ? voiceNote : null}
           />
           {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
           {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
@@ -237,6 +244,7 @@ export default function CollabEditor({
           {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
         </BlockNoteView>
         {assistant.panel}
+        {voiceNote.dialog}
       </PageTrailProvider>
       {embedError && (
         <div role="alert" className="mx-4 mt-2 md:mx-[54px] flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm">
@@ -296,6 +304,7 @@ function SlashMenu({
   onPickPage,
   onDashboard,
   assistant,
+  voiceNote,
 }: {
   editor: PageEditor;
   onCreateError: (message: string) => void;
@@ -305,6 +314,8 @@ function SlashMenu({
   onDashboard: () => void;
   /** The AI writing assistant, when available: its entries go at the end of the menu. */
   assistant: AiAssist | null;
+  /** Voice notes, when available: "Voice note" joins the AI entries. */
+  voiceNote: VoiceNote | null;
 }) {
   const embedItems = useEmbedSlashItems(editor, { onCreateError, onPickDatabase, onDashboard });
   const contentItems = useContentSlashItems(editor);
@@ -313,6 +324,7 @@ function SlashMenu({
   const columnItems = useColumnSlashItems(editor);
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
+  const voiceItems = useVoiceSlashItems(voiceNote?.open ?? noop, voiceNote !== null);
   return (
     <SuggestionMenuController
       triggerCharacter="/"
@@ -326,6 +338,7 @@ function SlashMenu({
             ...pageLinkItems,
             ...colorItems(),
             ...aiItems,
+            ...voiceItems,
           ]),
           query,
         )

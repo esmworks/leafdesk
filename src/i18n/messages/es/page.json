@@ -508,7 +508,9 @@
     "bodyPlaceholder": "Escribe algo o pega un enlace",
     "save": "Guardar nota",
     "shortcut": "Nueva nota rápida",
-    "shortcutShort": "Nota rápida"
+    "shortcutShort": "Nota rápida",
+    "destination": "Guardar en",
+    "privatePage": "Página privada"
   },
   "dashboard": {
     "title": "Panel",
@@ -544,5 +546,50 @@
     "filters": "{count, plural, one {# filtro} other {# filtros}}",
     "updatedNow": "actualizado ahora mismo",
     "updated": "actualizado {time}"
+  },
+  "voiceNote": {
+    "record": "Grabar una nota de voz",
+    "recording": "Grabando",
+    "stop": "Detener y redactar",
+    "discard": "Descartar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "limit": "Hasta {minutes} min",
+    "chooseFile": "O elige un archivo de audio",
+    "transcribing": "Transcribiendo lo que dijiste…",
+    "writing": "La IA está redactando la nota…",
+    "autoStopped": "La grabación se detuvo en el límite de {minutes} min.",
+    "review": "La IA redactó esta nota a partir de tu grabación. Revísala antes de guardarla.",
+    "notRewritten": "La IA no pudo redactar esta grabación, así que la nota es la transcripción tal como se oyó.",
+    "transcriptKept": "La transcripción se guarda debajo de la nota.",
+    "propertiesPicked": "{count, plural, one {Se rellenó # propiedad a partir de la nota.} other {Se rellenaron # propiedades a partir de la nota.}}",
+    "transcriptToggle": "Transcripción",
+    "shortcut": "Nueva nota de voz",
+    "shortcutShort": "Nota de voz",
+    "dialogTitle": "Nota de voz",
+    "dialogDescription": "Habla y la IA escribe aquí una nota limpia. La transcripción va debajo.",
+    "slashTitle": "Nota de voz",
+    "slashSubtext": "Habla y la IA lo redacta aquí",
+    "slashAliases": "voz audio grabar dictado micrófono transcripción voice record",
+    "errors": {
+      "unsupported": "Este navegador no puede grabar audio. Elige un archivo de audio en su lugar.",
+      "insecure": "Grabar requiere una conexión segura (https). Elige un archivo de audio en su lugar.",
+      "denied": "Leafdesk no tiene permiso para usar el micrófono. Permítelo en la configuración del sitio de tu navegador y vuelve a intentarlo.",
+      "noDevice": "No se encontró ningún micrófono.",
+      "failed": "No se pudo iniciar la grabación. Vuelve a intentarlo.",
+      "fileType": "Este tipo de archivo de audio no es compatible.",
+      "fileTooLarge": "Las grabaciones pueden ocupar como máximo {max}.",
+      "disabled": "Las notas de voz no están disponibles en este espacio de trabajo.",
+      "noAccess": "No puedes añadir notas aquí.",
+      "tooLarge": "La grabación es demasiado grande. Las grabaciones pueden ocupar como máximo {max}.",
+      "rateLimited": "Demasiadas solicitudes de IA. Vuelve a intentarlo en un momento.",
+      "timeout": "La transcripción tardó demasiado. Vuelve a intentarlo o graba una nota más corta.",
+      "aborted": "Cancelado.",
+      "provider": "No se pudo transcribir la grabación. Inténtalo más tarde o pide a un administrador que revise la configuración de transcripción.",
+      "empty": "No se oyó nada en la grabación. Vuelve a intentarlo más cerca del micrófono.",
+      "invalid": "No se pudo leer la grabación. Vuelve a intentarlo.",
+      "interrupted": "El servidor se reinició mientras se procesaba. Vuelve a intentarlo.",
+      "insert": "No se pudo añadir la nota a la página."
+    }
   }
 }
