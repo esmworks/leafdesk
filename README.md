@@ -1687,7 +1687,11 @@ connections in Settings → *Connections*; members and guests don't see them. A 
 one fills in the form below, which can still be changed. The catalog lives in
 `src/lib/connection-catalog.ts`: it lists only servers that, at that address, either publish OAuth
 metadata naming it with a registration endpoint Leafdesk can use, take an API key, or answer
-without any sign-in; none needs an app registered with the service beforehand. *Add another
+without any sign-in; none needs an app registered with the service beforehand. Vendors move their
+MCP addresses now and then, so before a release run `pnpm catalog:check` (it needs the network
+and isn't part of the tests): it asks every entry the questions above without credentials, lists
+those that no longer answer as listed and exits with 1 if there are any; `pnpm catalog:check
+linear sentry` checks only those ids. *Add another
 server* starts from an empty form. Give it a name and the server's URL (Streamable HTTP),
 and how it signs in:
 
