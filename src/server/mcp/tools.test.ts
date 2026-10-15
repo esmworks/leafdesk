@@ -16,6 +16,7 @@ const collab = vi.hoisted(() => ({
   readBlocks: vi.fn(),
   updateBlockProps: vi.fn(),
   setTitle: vi.fn(),
+  setPageStyle: vi.fn(),
   restoreSnapshot: vi.fn(),
   broadcast: vi.fn(),
 }));
@@ -2439,6 +2440,7 @@ describe("dashboards", () => {
     ]);
     expect(new Set(widgets.map((w: { id: string }) => w.id)).size).toBe(3);
     expect(r.data.widgets[0]).toMatchObject({ title: "Done", width: 1, accessible: true, database_title: "Tasks", type: "chart", chart_type: "number" });
+    expect(collab.setPageStyle).toHaveBeenCalledWith("page-1", { fullWidth: true }, expect.anything());
   });
 
   it("refuses forms and settings a layout doesn't have, before writing", async () => {
@@ -2450,6 +2452,7 @@ describe("dashboards", () => {
     const hidden = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-2" }] });
     expect(hidden.isError).toBe(true);
     expect(collab.appendBlocks).not.toHaveBeenCalled();
+    expect(collab.setPageStyle).not.toHaveBeenCalled();
   });
 
   it("changes a widget, keeping the settings left out", async () => {

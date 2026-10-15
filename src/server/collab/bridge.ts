@@ -6,6 +6,7 @@
  */
 
 import type { CommentOp, PlainComment, PlainThread } from "@/lib/comments";
+import type { PageStyle } from "@/lib/page-style";
 
 export type CommentOpResult = {
   /** The thread after the change; missing when it was deleted. */
@@ -61,6 +62,8 @@ export interface CollabService {
    */
   linkPageMention(pageId: string, targetId: string, title: string, actor: WriteActor): Promise<unknown[] | null>;
   setTitle(pageId: string, title: string, actor: WriteActor): Promise<void>;
+  /** Changes some of the page's style (lib/page-style), as the page menu does. */
+  setPageStyle(pageId: string, change: Partial<PageStyle>, actor: WriteActor): Promise<void>;
   restoreSnapshot(snapshotId: string, actor: WriteActor): Promise<void>;
   /**
    * Saves the page as it is now (the live document when it is open) as a history version, e.g.

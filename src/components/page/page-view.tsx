@@ -284,8 +284,11 @@ export function PageView({
   );
 
   const canChangeHeader = !page.archived && canEdit && !offline && !locked;
+  // Touch screens show the header buttons beside the title all the time: icons only, so the title
+  // keeps its room on a phone.
+  const headerButtonLabel = "pointer-coarse:sr-only";
   const backgroundButton = canChangeHeader ? (
-    <BackgroundPicker background={background} onChange={changeBackground} align={wide ? "end" : "start"}>
+    <BackgroundPicker background={background} onChange={changeBackground} align="end">
       {(toggle) => (
         <Button
           size="sm"
@@ -293,22 +296,24 @@ export function PageView({
           onClick={toggle}
           className="-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
         >
-          <Paintbrush className="h-4 w-4" /> {t(background ? "background.change" : "background.add")}
+          <Paintbrush className="h-4 w-4" />
+          <span className={headerButtonLabel}>{t(background ? "background.change" : "background.add")}</span>
         </Button>
       )}
     </BackgroundPicker>
   ) : null;
 
   const iconPicker = (
-    <IconPicker icon={icon} onChange={changeIcon} disabled={!canChangeHeader} align={wide && !icon ? "end" : "start"}>
+    <IconPicker icon={icon} onChange={changeIcon} disabled={!canChangeHeader} align={icon ? "start" : "end"}>
       {(toggle) =>
         icon ? (
           <button
             type="button"
             onClick={toggle}
             className={cn(
-              "-ml-1 rounded-md p-1 leading-none",
-              wide ? "text-3xl" : "text-5xl",
+              "-ml-1 shrink-0 rounded-md p-1 leading-none",
+              // The title's size, so the icon reads as part of its first line.
+              wide ? "text-2xl md:text-3xl" : "text-[1.75rem] md:text-4xl",
               canChangeHeader ? "hover:bg-bg-hover" : "cursor-default",
             )}
           >
@@ -325,7 +330,8 @@ export function PageView({
               !canChangeHeader && "hidden",
             )}
           >
-            <SmilePlus className="h-4 w-4" /> {t("icon.add")}
+            <SmilePlus className="h-4 w-4" />
+            <span className={headerButtonLabel}>{t("icon.add")}</span>
           </Button>
         )
       }
@@ -452,19 +458,12 @@ export function PageView({
           )}
         >
           <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
-            {!wide && (
-              <div className="relative mb-2 flex h-8 items-end gap-1">
-                {iconPicker}
-                {backgroundButton}
-              </div>
-            )}
-            {!wide && icon && <div className="h-8" />}
-            {/* Wide (database) pages keep everything on the title's line so the view starts higher: the
-                icon before the title, the add-icon and background buttons over its right end. Those
-                show on hover or focus and take no room, so the title keeps its width; on touch
-                screens, where they always show, they sit after it instead. */}
-            <div className={cn(wide && "relative flex items-center gap-3")}>
-              {wide && icon && iconPicker}
+            {/* Everything stays on the title's line so the content starts higher: the icon before the
+                title, the add-icon and background buttons over its right end. Those show on hover or
+                focus and take no room, so the title keeps its width; on touch screens, where they
+                always show, they sit after it instead. */}
+            <div className="relative flex items-start gap-3">
+              {icon && iconPicker}
               <TitleField
                 inputRef={titleRef}
                 value={title}
@@ -473,7 +472,7 @@ export function PageView({
                 onChange={(v) => pageDoc && setDocTitle(pageDoc.doc, v)}
                 onEnter={() => rootRef.current?.querySelector<HTMLElement>(".leafdesk-editor .ProseMirror")?.focus()}
               />
-              {wide && (
+              {canChangeHeader && (
                 <div
                   className={cn(
                     "absolute top-1/2 right-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg pl-2",

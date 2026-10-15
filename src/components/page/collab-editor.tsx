@@ -19,7 +19,7 @@ import {
 } from "@blocknote/react";
 import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockFocus } from "./block-focus";
 import { commentUsersAction } from "@/app/actions/comments";
 import { useColorScheme } from "@/components/theme/theme-provider";
@@ -35,6 +35,7 @@ import { CommentAuth, ServerThreadStore } from "./comment-store";
 import { useColumnSlashItems } from "./columns";
 import { PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
 import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
+import { writePageStyle } from "@/lib/page-style";
 import { PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { userColor } from "@/lib/presence";
 import { codeHighlighting } from "./code-block";
@@ -108,6 +109,8 @@ export default function CollabEditor({
   const trail = useMemo(() => ({ workspaceId, crumbs }), [workspaceId, crumbs]);
   // Block id where "Linked view of database" was chosen, while its database picker is open.
   const [pickAt, setPickAt] = useState<string | null>(null);
+  // A dashboard's grid needs the room: the page takes the whole width (the page menu turns it back).
+  const widenForDashboard = useCallback(() => writePageStyle(pageDoc.doc, { fullWidth: true }), [pageDoc]);
   // Block id where "Link to page" was chosen, while its page picker is open.
   const [linkAt, setLinkAt] = useState<string | null>(null);
   usePageRefUpdates(workspaceId);
@@ -214,6 +217,7 @@ export default function CollabEditor({
             onCreateError={setEmbedError}
             onPickDatabase={setPickAt}
             onPickPage={setLinkAt}
+            onDashboard={widenForDashboard}
             assistant={ai && editable && !offline ? assistant : null}
           />
           {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
@@ -290,16 +294,19 @@ function SlashMenu({
   onCreateError,
   onPickDatabase,
   onPickPage,
+  onDashboard,
   assistant,
 }: {
   editor: PageEditor;
   onCreateError: (message: string) => void;
   onPickDatabase: (at: string) => void;
   onPickPage: (at: string) => void;
+  /** A dashboard was added from the menu. */
+  onDashboard: () => void;
   /** The AI writing assistant, when available: its entries go at the end of the menu. */
   assistant: AiAssist | null;
 }) {
-  const embedItems = useEmbedSlashItems(editor, { onCreateError, onPickDatabase });
+  const embedItems = useEmbedSlashItems(editor, { onCreateError, onPickDatabase, onDashboard });
   const contentItems = useContentSlashItems(editor);
   const webItems = useWebSlashItems(editor);
   const pageLinkItems = usePageLinkSlashItem(editor, onPickPage);

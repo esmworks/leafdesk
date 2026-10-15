@@ -89,8 +89,10 @@ async function Section({
             ))}
           </p>
         )}
-        {section.icon && <div className="mb-3 text-5xl leading-none">{section.icon}</div>}
-        <h1 className="text-4xl leading-tight font-bold break-words">{pageLabel(section.title, untitled)}</h1>
+        <div className="flex items-start gap-3">
+          {section.icon && <div className="shrink-0 text-4xl leading-tight">{section.icon}</div>}
+          <h1 className="min-w-0 text-4xl leading-tight font-bold break-words">{pageLabel(section.title, untitled)}</h1>
+        </div>
         <p className="mt-2 text-xs text-fg-faint">{updated}</p>
       </header>
 

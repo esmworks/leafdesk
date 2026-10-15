@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Changed
+
+- **A page's icon sits beside its title.** Pages show their icon at the start of the title's line,
+  as databases already did, so the content starts higher; *Add icon* and *Add background* show over
+  the title's right end on hover (on touch screens as icons after the title). Published pages and
+  printouts follow.
+- **Pages with a dashboard use the whole width.** Adding a dashboard, in the editor or with the MCP
+  `add_dashboard` tool, turns on the page's *Full width*, so its widgets get the room; the page menu
+  turns it off again.
+
 ## 0.5.2 — 2026-10-15
 
 ### Upgrading from 0.5.1

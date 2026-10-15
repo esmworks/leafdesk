@@ -15,6 +15,7 @@ import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainTh
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { assertPageUnlocked } from "@/lib/page-lock";
+import { writePageStyle } from "@/lib/page-style";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
@@ -600,6 +601,11 @@ export function createCollab() {
       await transactPage(pageId, actor, (doc) => {
         writeDocTitle(doc, title, { source: "local", context: actor });
       });
+    },
+
+    async setPageStyle(pageId, change, actor) {
+      await assertWritable(pageId);
+      await transactPage(pageId, actor, (doc) => writePageStyle(doc, change, { source: "local", context: actor }));
     },
 
     async restoreSnapshot(snapshotId, actor) {

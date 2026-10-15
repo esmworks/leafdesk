@@ -135,7 +135,11 @@ export function placeEmbedBlock(editor: PageEditor, at: string, block: PageBlock
 /** Slash menu entries for the database blocks, placed after BlockNote's own "Table". */
 export function useEmbedSlashItems(
   editor: PageEditor,
-  { onCreateError, onPickDatabase }: { onCreateError: (message: string) => void; onPickDatabase: (at: string) => void },
+  {
+    onCreateError,
+    onPickDatabase,
+    onDashboard,
+  }: { onCreateError: (message: string) => void; onPickDatabase: (at: string) => void; onDashboard?: () => void },
 ) {
   const t = useTranslations("page.embed");
   const host = useEmbedHost();
@@ -181,10 +185,13 @@ export function useEmbedSlashItems(
         group,
         icon: <LayoutDashboard size={18} />,
         // Empty: its "Add widget" button picks the first database.
-        onItemClick: () => placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "" } }),
+        onItemClick: () => {
+          placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "" } });
+          onDashboard?.();
+        },
       },
     ];
-  }, [editor, host, t, onCreateError, onPickDatabase]);
+  }, [editor, host, t, onCreateError, onPickDatabase, onDashboard]);
 }
 
 /** Inserts each extra item after the last item of its group (e.g. BlockNote's "Advanced"), in order. */

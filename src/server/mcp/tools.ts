@@ -2484,7 +2484,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "add_dashboard",
     {
       title: "Add a dashboard to a page",
-      description: `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget. A history snapshot is saved first.`,
+      description: `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget. The page switches to its full width, which the page menu can turn off. A history snapshot is saved first.`,
       inputSchema: z.object({
         page_id: id("page"),
         widgets: z
@@ -2504,6 +2504,8 @@ export function createMcpServer(principal: McpPrincipal) {
         for (const input of widgets) built.push(await widgetFrom(input, built));
         const blockId = crypto.randomUUID();
         await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props: { widgets: serializeDashboard(built) } }], actor, true);
+        // The grid needs the room, as when a dashboard is added in the editor.
+        await getCollab().setPageStyle(page_id, { fullWidth: true }, actor);
         return {
           dashboard_id: blockId,
           page_id,
