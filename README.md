@@ -1686,23 +1686,33 @@ connections in Settings → *Connections*; members and guests don't see them. A 
 (Linear, Atlassian, GitLab, Sentry, Stripe, Zapier and more, in categories, with search); picking
 one fills in the form below, which can still be changed. The catalog lives in
 `src/lib/connection-catalog.ts`: it lists only servers that, at that address, either publish OAuth
-metadata naming it with a registration endpoint Leafdesk can use, take an API key, or answer
-without any sign-in; none needs an app registered with the service beforehand. Vendors move their
-MCP addresses now and then, so before a release run `pnpm catalog:check` (it needs the network
-and isn't part of the tests): it asks every entry the questions above without credentials, lists
-those that no longer answer as listed and exits with 1 if there are any; `pnpm catalog:check
-linear sentry` checks only those ids. *Add another
-server* starts from an empty form. Give it a name and the server's URL (Streamable HTTP),
-and how it signs in:
+metadata naming it that Leafdesk can sign in with, take an API key, or answer without any sign-in.
+A few services (Slack, HubSpot, Asana, Box, Discord, Front, PagerDuty, Xero) sign in only apps
+registered with them beforehand: for those the form asks for the client ID and secret of an app
+you create at the service, links to where it's made, and shows the redirect URL to give it
+(`APP_URL/api/connections/oauth/callback`). Vendors move their MCP addresses now and then, so
+before a release run `pnpm catalog:check` (it needs the network and isn't part of the tests): it
+asks every entry the questions above without credentials, lists those that no longer answer as
+listed and exits with 1 if there are any; `pnpm catalog:check linear sentry` checks only those
+ids. *Add another server* starts from an empty form. Give it a name and the server's URL
+(Streamable HTTP), and how it signs in:
 
 - **OAuth**: Leafdesk registers itself with the server (dynamic client registration), sends you to
   the service to approve access (with PKCE), and keeps the tokens it gets back, refreshing them as
-  needed. Who signs in decides what the agents can reach there: they act as that account.
+  needed. Who signs in decides what the agents can reach there: they act as that account. A
+  server that takes no registrations needs an app registered with it: enter its client ID (and
+  secret, if it has one) on the connection, or set one for the whole instance in
+  `CONNECTION_OAUTH_CLIENTS` by catalog id (`slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID`),
+  used for connections to that service's catalog address that have no app of their own. Where
+  such a server instead takes a client metadata document (as ElevenLabs does), Leafdesk gives the
+  address of its own, `APP_URL/api/connections/oauth/client`, as its client ID: this needs an
+  `https` `APP_URL` the service can fetch.
 - **Token**: an API key or personal token, sent as `Authorization: Bearer <token>`.
 - **None**: for servers that need nothing.
 
 Changing a connection's address signs it out, and starts it over as a new server: a token must be
-pasted again (a token is never sent to an address it wasn't given for), its tools are listed
+pasted again (a token is never sent to an address it wasn't given for), so must an app's client
+ID and secret, its tools are listed
 afresh with the classes the server marks, and agents lose its tools until an owner gives them
 again, since another server's tool of the same name may do something else.
 

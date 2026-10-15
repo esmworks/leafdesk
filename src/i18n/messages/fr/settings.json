@@ -1399,6 +1399,9 @@
       "notFound": "Cela n’existe plus.",
       "invalidToken": "Collez le jeton ou le secret.",
       "tokenForNewUrl": "Une nouvelle adresse a besoin de son jeton : collez-le à nouveau.",
+      "invalidClient": "Collez l’identifiant client de l’application (et son secret, s’il y en a un).",
+      "clientForNewUrl": "Une nouvelle adresse demande son application : saisissez à nouveau l’identifiant et le secret client.",
+      "needsClient": "Ce service ne permet pas à Leafdesk de s’enregistrer. Créez-y une application et saisissez son identifiant et son secret client dans les réglages de la connexion.",
       "invalidTrigger": "Choisissez un agent de cet espace.",
       "unknownTool": "La connexion n’a pas d’outil « {tool} ».",
       "oauthFailed": "La connexion a échoué. Réessayez.",
@@ -1434,6 +1437,7 @@
         "token": "Clé d’API",
         "none": "Sans connexion"
       },
+      "ownApp": "Connexion avec votre application",
       "categories": {
         "projects": "Projets et tâches",
         "docs": "Documents et connaissances",
@@ -1442,6 +1446,7 @@
         "monitoring": "Surveillance et sécurité",
         "analytics": "Analytique",
         "sales": "Ventes et CRM",
+        "messaging": "Messagerie et chat",
         "support": "Support client",
         "marketing": "Marketing et formulaires",
         "finance": "Finance et paiements",
@@ -1464,7 +1469,7 @@
         "none": "Aucune"
       },
       "authHelp": {
-        "oauth": "Vous vous connectez sur le service ; Leafdesk s’enregistre et garde l’accès obtenu.",
+        "oauth": "Vous vous connectez au service ; Leafdesk s’enregistre (ou se connecte comme une application que vous y avez enregistrée) et conserve l’accès obtenu.",
         "token": "Envoyé comme jeton bearer à chaque appel.",
         "none": "Pour les serveurs qui ne demandent pas de connexion."
       },
@@ -1476,7 +1481,17 @@
         "slack": "Slack Events API",
         "github": "Webhooks GitHub"
       },
-      "tokenHelp": "Créer une clé sur {name}"
+      "tokenHelp": "Créer une clé sur {name}",
+      "redirectUrl": "URL de redirection",
+      "redirectUrlHelp": "Ajoutez-la aux URL de redirection (callback) de l’application sur le service.",
+      "clientId": "Identifiant client",
+      "clientSecret": "Secret client",
+      "clientSecretOptional": "Laissez vide si l’application n’en a pas",
+      "clientRequired": "{name} n’accepte que les applications enregistrées chez lui. Créez-y une application, donnez-lui l’URL de redirection ci-dessous, puis collez son identifiant et son secret client.",
+      "clientHelp": "Créer une application sur {name}",
+      "clientInstance": "Cette instance se connecte à {name} avec sa propre application.",
+      "clientOverride": "Utiliser plutôt votre propre application",
+      "clientOptional": "Se connecter comme une application enregistrée sur le service"
     },
     "tabs": {
       "tools": "Outils",

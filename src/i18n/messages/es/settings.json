@@ -1399,6 +1399,9 @@
       "notFound": "Ya no existe.",
       "invalidToken": "Pega el token o el secreto.",
       "tokenForNewUrl": "Una dirección nueva necesita su token: pégalo de nuevo.",
+      "invalidClient": "Pega el ID de cliente de la aplicación (y su secreto, si tiene).",
+      "clientForNewUrl": "Una dirección nueva necesita su aplicación: vuelve a introducir el ID y el secreto de cliente.",
+      "needsClient": "Este servicio no permite que Leafdesk se registre. Crea allí una aplicación e introduce su ID y secreto de cliente en los ajustes de la conexión.",
       "invalidTrigger": "Elige un agente de este espacio de trabajo.",
       "unknownTool": "La conexión no tiene la herramienta «{tool}».",
       "oauthFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
@@ -1434,6 +1437,7 @@
         "token": "Clave de API",
         "none": "Sin inicio de sesión"
       },
+      "ownApp": "Inicia sesión con tu aplicación",
       "categories": {
         "projects": "Proyectos y tareas",
         "docs": "Documentos y conocimiento",
@@ -1442,6 +1446,7 @@
         "monitoring": "Monitorización y seguridad",
         "analytics": "Analítica",
         "sales": "Ventas y CRM",
+        "messaging": "Mensajería y chat",
         "support": "Atención al cliente",
         "marketing": "Marketing y formularios",
         "finance": "Finanzas y pagos",
@@ -1464,7 +1469,7 @@
         "none": "Ninguno"
       },
       "authHelp": {
-        "oauth": "Inicias sesión en el servicio; Leafdesk se registra y guarda el acceso que obtiene.",
+        "oauth": "Inicias sesión en el servicio; Leafdesk se registra (o inicia sesión como una aplicación que registraste allí) y guarda el acceso que obtiene.",
         "token": "Se envía como token bearer en cada llamada.",
         "none": "Para servidores que no piden iniciar sesión."
       },
@@ -1476,7 +1481,17 @@
         "slack": "Slack Events API",
         "github": "Webhooks de GitHub"
       },
-      "tokenHelp": "Crea una clave en {name}"
+      "tokenHelp": "Crea una clave en {name}",
+      "redirectUrl": "URL de redirección",
+      "redirectUrlHelp": "Añádela a las URL de redirección (callback) de la aplicación en el servicio.",
+      "clientId": "ID de cliente",
+      "clientSecret": "Secreto de cliente",
+      "clientSecretOptional": "Déjalo vacío si la aplicación no tiene",
+      "clientRequired": "{name} solo admite aplicaciones registradas en él. Crea allí una aplicación, dale la URL de redirección de abajo y pega su ID y secreto de cliente.",
+      "clientHelp": "Crear una aplicación en {name}",
+      "clientInstance": "Esta instancia inicia sesión en {name} con su propia aplicación.",
+      "clientOverride": "Usar tu propia aplicación en su lugar",
+      "clientOptional": "Iniciar sesión como una aplicación registrada en el servicio"
     },
     "tabs": {
       "tools": "Herramientas",

@@ -1399,6 +1399,9 @@
       "notFound": "Das gibt es nicht mehr.",
       "invalidToken": "Füge das Token oder Secret ein.",
       "tokenForNewUrl": "Eine neue Adresse braucht ihr Token: Füge es erneut ein.",
+      "invalidClient": "Füge die Client-ID der App ein (und ihr Secret, falls sie eins hat).",
+      "clientForNewUrl": "Eine neue Adresse braucht ihre App: Gib Client-ID und Secret erneut ein.",
+      "needsClient": "Dieser Dienst lässt Leafdesk sich nicht selbst registrieren. Erstelle dort eine App und trage Client-ID und Secret in den Einstellungen der Verbindung ein.",
       "invalidTrigger": "Wähle einen Agenten dieses Workspaces.",
       "unknownTool": "Die Verbindung hat kein Werkzeug „{tool}“.",
       "oauthFailed": "Die Anmeldung hat nicht geklappt. Versuche es erneut.",
@@ -1434,6 +1437,7 @@
         "token": "API-Schlüssel",
         "none": "Ohne Anmeldung"
       },
+      "ownApp": "Mit eigener App anmelden",
       "categories": {
         "projects": "Projekte & Aufgaben",
         "docs": "Dokumente & Wissen",
@@ -1442,6 +1446,7 @@
         "monitoring": "Monitoring & Sicherheit",
         "analytics": "Analyse",
         "sales": "Vertrieb & CRM",
+        "messaging": "Nachrichten & Chat",
         "support": "Kundensupport",
         "marketing": "Marketing & Formulare",
         "finance": "Finanzen & Zahlungen",
@@ -1464,7 +1469,7 @@
         "none": "Keine"
       },
       "authHelp": {
-        "oauth": "Du meldest dich beim Dienst an; Leafdesk registriert sich und bewahrt den erhaltenen Zugang auf.",
+        "oauth": "Du meldest dich beim Dienst an; Leafdesk registriert sich (oder meldet sich als eine dort registrierte App an) und bewahrt den erhaltenen Zugang auf.",
         "token": "Wird bei jedem Aufruf als Bearer-Token gesendet.",
         "none": "Für Server, die keine Anmeldung brauchen."
       },
@@ -1476,7 +1481,17 @@
         "slack": "Slack Events API",
         "github": "GitHub-Webhooks"
       },
-      "tokenHelp": "Schlüssel bei {name} erstellen"
+      "tokenHelp": "Schlüssel bei {name} erstellen",
+      "redirectUrl": "Weiterleitungs-URL",
+      "redirectUrlHelp": "Trage sie beim Dienst als Weiterleitungs-URL (Callback) der App ein.",
+      "clientId": "Client-ID",
+      "clientSecret": "Client-Secret",
+      "clientSecretOptional": "Leer lassen, wenn die App keins hat",
+      "clientRequired": "{name} lässt nur dort registrierte Apps zu. Erstelle dort eine App, gib ihr die Weiterleitungs-URL unten und füge dann ihre Client-ID und ihr Secret ein.",
+      "clientHelp": "App bei {name} erstellen",
+      "clientInstance": "Diese Instanz meldet sich mit ihrer eigenen App bei {name} an.",
+      "clientOverride": "Stattdessen eine eigene App verwenden",
+      "clientOptional": "Als beim Dienst registrierte App anmelden"
     },
     "tabs": {
       "tools": "Werkzeuge",

@@ -5,14 +5,24 @@
 ### Added
 
 - **A catalog of ready-made connections.** *Add connection* (Settings → Connections) now opens a
-  list of 139 services in 15 categories, from Linear, Atlassian, GitLab, Sentry and Stripe to
+  list of 148 services in 16 categories, from Linear, Atlassian, GitLab, Sentry and Stripe to
   Intercom, Zapier and meeting recorders, with search by name or category. Picking one fills in
   its MCP address, how it signs in and, for GitHub, how its events are signed; *Add another
   server* still takes any remote MCP server. Every listed address was checked to sign in a way
-  Leafdesk handles as it is: OAuth metadata naming that address with self-registration, an API
-  key, or no sign-in at all; services that only let pre-registered apps sign in, such as Slack and
-  HubSpot, aren't listed yet. Connections to a listed service show its initial on its category's color instead of
-  a plug.
+  Leafdesk handles: OAuth metadata naming that address, an API key, or no sign-in at all.
+  Connections to a listed service show its initial on its category's color instead of a plug.
+- **Connections to services that sign in only registered apps.** Slack, HubSpot, Asana, Box,
+  Discord, Front, PagerDuty and Xero are in the catalog of *Add connection* (Slack, Discord and
+  their category *Messaging & chat* are new to it). Their servers don't let Leafdesk register
+  itself, so the form asks for the client ID and secret of an app you create at the service, links
+  to where it's made and shows the redirect URL to give it; the secret is sealed like a token,
+  never shown again, kept when signing out, and must be entered again for a new address. Any
+  other OAuth server can take an app the same way, folded under *Sign in as an app registered
+  with the service*. An instance can register one app per service for everyone in
+  `CONNECTION_OAUTH_CLIENTS` (`slack=CLIENT_ID:CLIENT_SECRET,…`). A server that takes neither
+  registrations nor an app now says so instead of failing to sign in. ElevenLabs is listed too: it
+  takes Leafdesk's client metadata document (`/api/connections/oauth/client`) as its client ID,
+  from an instance on a public `https` address.
 - **Voice notes.** Speak, and AI writes what you said up as a clean note: a title, short paragraphs,
   lists kept, filler words gone, and the transcript in a *Transcript* toggle under it. In the quick
   note (and the installed app's new *Voice note* shortcut, which starts recording), the note fills

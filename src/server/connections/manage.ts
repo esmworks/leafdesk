@@ -12,6 +12,7 @@ import {
   connectionSlug,
   isConnectionAuthType,
   isEventPreset,
+  MAX_CONNECTION_CLIENT_ID,
   MAX_CONNECTION_NAME,
   MAX_CONNECTION_TOKEN,
   MAX_CONNECTION_TRIGGERS,
@@ -32,7 +33,18 @@ import { redactText } from "@/lib/redact";
 import { AccessError, ConnectedAppReadOnlyError, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { open, seal, sealJson } from "../secret-box";
-import { ConnectionClientError, dropClient, finishOAuth, listConnectionTools, secretsOf, startOAuth, type ConnectionRow, type ConnectionSecrets } from "./client";
+import {
+  ConnectionClientError,
+  dropClient,
+  finishOAuth,
+  listConnectionTools,
+  ownClientOf,
+  secretsOf,
+  startOAuth,
+  type ConnectionRow,
+  type ConnectionSecrets,
+  type OwnOAuthClient,
+} from "./client";
 import { checkConnectionUrl, ConnectionFetchError } from "./fetch";
 
 export class ConnectionError extends Error {
@@ -56,12 +68,19 @@ export type ConnectionInput = {
   authType?: ConnectionAuthType;
   /** For `token` connections: the token (a bearer token the service gave). */
   token?: string;
+  /**
+   * For `oauth` connections to a service that signs in only apps registered with it: the app an
+   * owner registered there (a secret left empty keeps the saved one for the same client ID); null
+   * forgets it, so Leafdesk registers itself again.
+   */
+  oauthClient?: { clientId?: string; clientSecret?: string } | null;
   eventPreset?: EventPreset;
 };
 
 export const eventUrlOf = (connectionId: string) => `${env.appUrl}/api/connections/${connectionId}/events`;
 
 export function viewConnection(row: ConnectionRow): ConnectionView {
+  const app = ownClientOf(row);
   return {
     id: row.id,
     name: row.name,
@@ -69,6 +88,7 @@ export function viewConnection(row: ConnectionRow): ConnectionView {
     url: row.url,
     authType: row.authType,
     hasToken: row.authType === "token" ? Boolean(row.secrets && secretsOf(row).token) : row.authType === "oauth" ? Boolean(row.secrets && secretsOf(row).oauth?.tokens) : false,
+    oauthClient: app ? { clientId: app.client.client_id, hasSecret: Boolean(app.client.client_secret), fromInstance: app.fromInstance } : null,
     status: row.status,
     statusError: row.statusError,
     tools: row.tools,
@@ -108,6 +128,19 @@ function checkToken(value: unknown) {
   const token = typeof value === "string" ? value.trim() : "";
   if (!token || token.length > MAX_CONNECTION_TOKEN || /\s/.test(token)) throw new ConnectionError("invalidToken", "Paste the service's token");
   return token;
+}
+
+/**
+ * The OAuth app an owner entered: its client ID, and its secret if it has one. A secret left empty
+ * keeps `kept`'s, when that is the same app.
+ */
+function checkClient(value: ConnectionInput["oauthClient"], kept?: OwnOAuthClient): OwnOAuthClient {
+  const clientId = typeof value?.clientId === "string" ? value.clientId.trim() : "";
+  if (!clientId || clientId.length > MAX_CONNECTION_CLIENT_ID || /\s/.test(clientId)) throw new ConnectionError("invalidClient", "Paste the app's client ID");
+  const secret = typeof value?.clientSecret === "string" ? value.clientSecret.trim() : "";
+  if (secret.length > MAX_CONNECTION_TOKEN || /\s/.test(secret)) throw new ConnectionError("invalidClient", "Paste the app's client secret");
+  const clientSecret = secret || (kept?.client_id === clientId ? kept.client_secret : undefined);
+  return clientSecret ? { client_id: clientId, client_secret: clientSecret } : { client_id: clientId };
 }
 
 const newEventSecret = () => `whsec_${randomBytes(24).toString("base64url")}`;
@@ -178,7 +211,8 @@ export async function createConnection(userId: string, workspaceId: string, inpu
   const url = checkUrl(input.url);
   const authType = isConnectionAuthType(input.authType) ? input.authType : "oauth";
   const eventPreset = isEventPreset(input.eventPreset) ? input.eventPreset : "hmac";
-  const secrets: ConnectionSecrets = authType === "token" ? { token: checkToken(input.token) } : {};
+  const secrets: ConnectionSecrets =
+    authType === "token" ? { token: checkToken(input.token) } : authType === "oauth" && input.oauthClient ? { ownClient: checkClient(input.oauthClient) } : {};
   const created = await db.transaction(async (tx) => {
     const existing = await tx.select({ slug: connection.slug }).from(connection).where(eq(connection.workspaceId, workspaceId));
     if (existing.length >= MAX_CONNECTIONS) throw new ConnectionError("tooMany", `A workspace has at most ${MAX_CONNECTIONS} connections`, { max: String(MAX_CONNECTIONS) });
@@ -215,7 +249,7 @@ export async function updateConnection(userId: string, connectionId: string, inp
   if (input.eventPreset !== undefined && isEventPreset(input.eventPreset)) set.eventPreset = input.eventPreset;
   const authType = set.authType ?? current.authType;
   const moved = set.url !== undefined && set.url !== current.url;
-  const reconnect = moved || authType !== current.authType || input.token !== undefined;
+  const reconnect = moved || authType !== current.authType || input.token !== undefined || input.oauthClient !== undefined;
   if (reconnect) {
     if (authType === "token") {
       // A token goes only to the server it was given for: a new address needs it pasted again, or
@@ -223,8 +257,14 @@ export async function updateConnection(userId: string, connectionId: string, inp
       if (moved && input.token === undefined) throw new ConnectionError("tokenForNewUrl", "Paste the token again for the new address");
       set.secrets = sealJson({ token: input.token !== undefined ? checkToken(input.token) : secretsOf(current).token ?? checkToken("") });
     } else if (authType === "none") set.secrets = null;
-    // OAuth: what the old service gave is no good for a new one.
-    else set.secrets = sealJson({});
+    else {
+      // OAuth: what the old service gave is no good for a new one. The owner's app stays, but not
+      // for a new address unless entered again: its secret goes only where it was given for.
+      const kept = current.authType === "oauth" ? secretsOf(current).ownClient : undefined;
+      if (moved && kept && input.oauthClient === undefined) throw new ConnectionError("clientForNewUrl", "Enter the app's client ID again for the new address");
+      const ownClient = input.oauthClient === null ? undefined : input.oauthClient ? checkClient(input.oauthClient, moved ? undefined : kept) : kept;
+      set.secrets = sealJson(ownClient ? { ownClient } : {});
+    }
     set.status = "needsAuth";
     set.statusError = null;
   }
@@ -246,7 +286,13 @@ export async function updateConnection(userId: string, connectionId: string, inp
     actorId: userId,
     action: "connection.updated",
     target: { type: "connection", id: connectionId, label: updated.name },
-    details: { ...auditDetails(updated), previous: auditDetails(current), tokenChanged: input.token !== undefined || undefined, ...(grantsRemoved ? { grantsRemoved } : {}) },
+    details: {
+      ...auditDetails(updated),
+      previous: auditDetails(current),
+      tokenChanged: input.token !== undefined || undefined,
+      clientChanged: input.oauthClient !== undefined || undefined,
+      ...(grantsRemoved ? { grantsRemoved } : {}),
+    },
   });
   return viewConnection(reconnect && authType !== "oauth" ? await refresh(updated) : updated);
 }
@@ -299,6 +345,8 @@ export async function beginConnectionOAuth(userId: string, connectionId: string)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await db.update(connection).set({ status: "error", statusError: redactText(`oauth: ${message}`).slice(0, 300) }).where(eq(connection.id, row.id));
+    // The service signs in only apps registered with it, and none is set.
+    if (/dynamic client registration/i.test(message) && !ownClientOf(row)) throw new ConnectionError("needsClient", message);
     throw new ConnectionError("oauthFailed", message);
   }
   if (!started) {
@@ -352,9 +400,10 @@ export async function completeConnectionOAuth(userId: string, input: { state: st
 /** Forgets what the service gave at sign-in: the connection waits for a new sign-in. */
 export async function signOutConnection(userId: string, connectionId: string): Promise<ConnectionView> {
   const row = await ownedConnection(userId, connectionId);
+  const ownClient = row.authType === "oauth" ? secretsOf(row).ownClient : undefined;
   const [updated] = await db
     .update(connection)
-    .set({ secrets: row.authType === "token" ? row.secrets : row.authType === "none" ? null : sealJson({}), status: "needsAuth", statusError: null })
+    .set({ secrets: row.authType === "token" ? row.secrets : row.authType === "none" ? null : sealJson(ownClient ? { ownClient } : {}), status: "needsAuth", statusError: null })
     .where(eq(connection.id, connectionId))
     .returning();
   dropClient(connectionId);

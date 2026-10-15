@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { connectionSlug, namespacedTool } from "./connections";
+import { connectionOAuthClientsFrom, connectionSlug, namespacedTool } from "./connections";
 
 describe("connectionSlug", () => {
   it("keeps lower-case letters and digits of the name, at most 10", () => {
@@ -25,5 +25,21 @@ describe("namespacedTool", () => {
     expect(namespacedTool("slack", "post_message")).toBe("slack__post_message");
     expect(namespacedTool("github", "issues.create")).toBe("github__issues_create");
     expect(namespacedTool("x", "a".repeat(100))).toHaveLength(64);
+  });
+});
+
+describe("connectionOAuthClientsFrom", () => {
+  it("reads each service's app by catalog id, its secret after the first colon", () => {
+    expect(connectionOAuthClientsFrom(" Slack=1234.5678:abc:def , discord=998877,hubspot = 0a1b-2c : s3cret ")).toEqual({
+      slack: { client_id: "1234.5678", client_secret: "abc:def" },
+      discord: { client_id: "998877" },
+      hubspot: { client_id: "0a1b-2c", client_secret: "s3cret" },
+    });
+  });
+
+  it("skips what it can't read", () => {
+    expect(connectionOAuthClientsFrom(undefined)).toEqual({});
+    expect(connectionOAuthClientsFrom("slack,=id:secret,slack=,slack=:secret,bad id=x,box=a b:c")).toEqual({});
+    expect(connectionOAuthClientsFrom(`box=${"x".repeat(501)}`)).toEqual({});
   });
 });

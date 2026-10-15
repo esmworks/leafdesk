@@ -1399,6 +1399,9 @@
       "notFound": "It isn’t there anymore.",
       "invalidToken": "Paste the token or secret.",
       "tokenForNewUrl": "A new address needs its token: paste it again.",
+      "invalidClient": "Paste the app’s client ID (and its secret, if it has one).",
+      "clientForNewUrl": "A new address needs its app: enter the client ID and secret again.",
+      "needsClient": "This service doesn’t let Leafdesk register itself. Create an app there and enter its client ID and secret in the connection’s settings.",
       "invalidTrigger": "Pick an agent of this workspace.",
       "unknownTool": "The connection has no tool “{tool}”.",
       "oauthFailed": "Signing in didn’t work. Try again.",
@@ -1434,6 +1437,7 @@
         "token": "API key",
         "none": "No sign-in"
       },
+      "ownApp": "Sign in with your app",
       "categories": {
         "projects": "Projects & tasks",
         "docs": "Docs & knowledge",
@@ -1442,6 +1446,7 @@
         "monitoring": "Monitoring & security",
         "analytics": "Analytics",
         "sales": "Sales & CRM",
+        "messaging": "Messaging & chat",
         "support": "Customer support",
         "marketing": "Marketing & forms",
         "finance": "Finance & payments",
@@ -1464,7 +1469,7 @@
         "none": "None"
       },
       "authHelp": {
-        "oauth": "You sign in at the service; Leafdesk registers itself and keeps the access it gets.",
+        "oauth": "You sign in at the service; Leafdesk registers itself (or signs in as an app you registered there) and keeps the access it gets.",
         "token": "Sent as a bearer token with every call.",
         "none": "For servers that need no sign-in."
       },
@@ -1476,7 +1481,17 @@
         "slack": "Slack Events API",
         "github": "GitHub webhooks"
       },
-      "tokenHelp": "Create a key at {name}"
+      "tokenHelp": "Create a key at {name}",
+      "redirectUrl": "Redirect URL",
+      "redirectUrlHelp": "Add this to the app’s redirect (callback) URLs at the service.",
+      "clientId": "Client ID",
+      "clientSecret": "Client secret",
+      "clientSecretOptional": "Leave empty if the app has none",
+      "clientRequired": "{name} signs in only apps registered with it. Create an app there, give it the redirect URL below, then paste its client ID and secret.",
+      "clientHelp": "Create an app at {name}",
+      "clientInstance": "This instance signs in to {name} with its own app.",
+      "clientOverride": "Use an app of your own instead",
+      "clientOptional": "Sign in as an app registered with the service"
     },
     "tabs": {
       "tools": "Tools",

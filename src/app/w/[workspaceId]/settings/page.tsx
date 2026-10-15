@@ -74,6 +74,8 @@ import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
+import { oauthRedirectUrl } from "@/server/connections/client";
+import { env } from "@/lib/env";
 import { aiInfo, embeddingModel } from "@/server/ai";
 import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
@@ -545,6 +547,7 @@ async function ConnectionsTab({
       agents={agents.filter((a) => !a.archived).map((a) => ({ id: a.id, name: a.name, icon: a.icon }))}
       initialConnectionId={connectionId}
       notice={notice}
+      oauthSetup={{ redirectUrl: oauthRedirectUrl(), instanceClients: Object.keys(env.connectionOAuthClients) }}
     />
   );
 }

@@ -35,6 +35,17 @@ describe("connection catalog", () => {
     }
   });
 
+  it("asks for an app only on OAuth entries, made at an https address", () => {
+    const withApp = CONNECTION_CATALOG.filter((entry) => entry.client);
+    expect(withApp.length).toBeGreaterThan(0);
+    for (const entry of withApp) {
+      expect(entry.authType, entry.name).toBe("oauth");
+      expect(entry.client!.help, entry.name).toMatch(/^https:\/\//);
+    }
+    expect(CONNECTION_CATALOG.find((entry) => entry.id === "slack")).toMatchObject({ authType: "oauth", eventPreset: "slack", client: { help: "https://api.slack.com/apps" } });
+    expect(CONNECTION_CATALOG.find((entry) => entry.id === "discord")?.client?.secretOptional).toBe(true);
+  });
+
   it("signs GitHub's events as GitHub does", () => {
     expect(CONNECTION_CATALOG.find((entry) => entry.id === "github")).toMatchObject({ authType: "token", eventPreset: "github" });
   });

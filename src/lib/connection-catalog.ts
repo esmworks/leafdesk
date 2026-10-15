@@ -1,9 +1,11 @@
 /**
  * Ready-made connections an owner picks from when adding one (see lib/connections.ts): services
  * whose remote MCP server Leafdesk can sign in to as it is. Each was checked against the service:
- * an OAuth one answers with metadata naming this address and lets Leafdesk register itself; an
- * open one answers without any sign-in; a token one takes the service's key as a bearer token.
- * Services that only sign in apps registered with them beforehand aren't listed.
+ * an OAuth one answers with metadata naming this address and lets Leafdesk register itself (or
+ * takes its client metadata document); an open one answers without any sign-in; a token one takes
+ * the service's key as a bearer token. A service that signs in only apps registered with it
+ * beforehand is marked `client`: the owner registers one there and enters its client ID and secret,
+ * unless the instance has one for it (CONNECTION_OAUTH_CLIENTS).
  */
 import type { ConnectionAuthType, EventPreset } from "./connections";
 
@@ -15,6 +17,7 @@ export const CATALOG_CATEGORIES = [
   "monitoring",
   "analytics",
   "sales",
+  "messaging",
   "support",
   "marketing",
   "finance",
@@ -38,12 +41,18 @@ export type CatalogEntry = {
   eventPreset?: EventPreset;
   /** Where to make the token, for token entries. */
   tokenHelp?: string;
+  /**
+   * For an OAuth service that signs in only apps registered with it: where an owner registers one
+   * (with Leafdesk's redirect URL), and whether the app may have no secret.
+   */
+  client?: { help: string; secretOptional?: boolean };
 };
 
-type Row = [name: string, url: string, authType: ConnectionAuthType, extra?: Pick<CatalogEntry, "eventPreset" | "tokenHelp">];
+type Row = [name: string, url: string, authType: ConnectionAuthType, extra?: Pick<CatalogEntry, "eventPreset" | "tokenHelp" | "client">];
 
 const ROWS: Record<CatalogCategory, Row[]> = {
   projects: [
+    ["Asana", "https://mcp.asana.com/v2/mcp", "oauth", { client: { help: "https://app.asana.com/0/my-apps" } }],
     ["Atlassian (Jira, Confluence)", "https://mcp.atlassian.com/v2/mcp", "oauth"],
     ["Basecamp", "https://mcp.basecamp.com/mcp", "oauth"],
     ["ClickUp", "https://mcp.clickup.com/mcp", "oauth"],
@@ -58,6 +67,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Airtable", "https://mcp.airtable.com/mcp", "oauth"],
     ["AWS Knowledge", "https://knowledge-mcp.global.api.aws/", "none"],
     ["Coda", "https://coda.io/apis/mcp", "oauth"],
+    ["Box", "https://mcp.box.com/", "oauth", { client: { help: "https://app.box.com/developers/console" } }],
     ["Context7", "https://mcp.context7.com/mcp", "none"],
     ["DeepWiki", "https://mcp.deepwiki.com/mcp", "none"],
     ["Dropbox", "https://mcp.dropbox.com/mcp", "oauth"],
@@ -128,6 +138,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Honeycomb", "https://mcp.honeycomb.io/mcp", "oauth"],
     ["incident.io", "https://mcp.incident.io/mcp", "oauth"],
     ["New Relic", "https://mcp.newrelic.com/mcp/", "oauth"],
+    ["PagerDuty", "https://mcp.pagerduty.com/mcp", "oauth", { client: { help: "https://docs.pagerduty.com/developer/private-apps" } }],
     ["Rootly", "https://mcp.rootly.com/mcp", "oauth"],
     ["Sentry", "https://mcp.sentry.dev/mcp", "oauth"],
     ["Vanta", "https://mcp.vanta.com/mcp", "oauth"],
@@ -145,12 +156,23 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Attio", "https://mcp.attio.com/mcp", "oauth"],
     ["Close", "https://mcp.close.com/mcp", "oauth"],
     ["Gong", "https://mcp.gong.io/mcp", "oauth"],
+    [
+      "HubSpot",
+      "https://mcp.hubspot.com/",
+      "oauth",
+      { client: { help: "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server" } },
+    ],
     ["Hunter", "https://mcp.hunter.io/mcp", "oauth"],
     ["Instantly", "https://mcp.instantly.ai/mcp", "oauth"],
     ["PandaDoc", "https://mcp.pandadoc.com/v1/mcp", "oauth"],
     ["ZoomInfo", "https://mcp.zoominfo.com/mcp", "oauth"],
   ],
+  messaging: [
+    ["Discord", "https://mcp.discord.com/mcp", "oauth", { client: { help: "https://discord.com/developers/applications", secretOptional: true } }],
+    ["Slack", "https://mcp.slack.com/mcp", "oauth", { eventPreset: "slack", client: { help: "https://api.slack.com/apps" } }],
+  ],
   support: [
+    ["Front", "https://mcp.frontapp.com/mcp", "oauth", { client: { help: "https://dev.frontapp.com/docs/create-and-manage-apps" } }],
     ["Help Scout", "https://mcp.helpscout.net/mcp", "oauth"],
     ["Intercom", "https://mcp.intercom.com/mcp", "oauth"],
   ],
@@ -179,6 +201,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Ramp", "https://mcp.ramp.com/mcp", "oauth"],
     ["Square", "https://mcp.squareup.com/mcp", "oauth"],
     ["Stripe", "https://mcp.stripe.com/", "oauth"],
+    ["Xero", "https://mcp.xero.com/mcp", "oauth", { client: { help: "https://developer.xero.com/app/manage" } }],
   ],
   meetings: [
     ["Cal.com", "https://mcp.cal.com/mcp", "oauth"],
@@ -211,6 +234,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Tavily", "https://mcp.tavily.com/mcp", "oauth"],
   ],
   media: [
+    ["ElevenLabs", "https://api.us.elevenlabs.io/v1/mcp", "oauth"],
     ["Hugging Face", "https://huggingface.co/mcp", "none"],
     ["invideo", "https://mcp.invideo.io/mcp", "oauth"],
     ["Mux", "https://mcp.mux.com/", "oauth"],

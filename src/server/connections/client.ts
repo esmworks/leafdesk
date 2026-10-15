@@ -18,6 +18,7 @@ import {
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { connection } from "@/db/schema";
+import { catalogEntryFor } from "@/lib/connection-catalog";
 import { CONNECTION_CALL_TIMEOUT_MS, MAX_CONNECTION_TOOLS, type ConnectionTool, type ToolKind } from "@/lib/connections";
 import { env } from "@/lib/env";
 import { openJson, sealJson } from "../secret-box";
@@ -32,9 +33,16 @@ import { connectionFetch } from "./fetch";
 
 export type ConnectionRow = typeof connection.$inferSelect;
 
-/** What a connection keeps sealed: a token, or what its OAuth sign-in found and was given. */
+/** An OAuth app registered with a service beforehand, which Leafdesk signs in as. */
+export type OwnOAuthClient = { client_id: string; client_secret?: string };
+
+/**
+ * What a connection keeps sealed: a token; or what its OAuth sign-in found and was given, and the
+ * OAuth app an owner registered with the service, kept when signing out (it is their setting).
+ */
 export type ConnectionSecrets = {
   token?: string;
+  ownClient?: OwnOAuthClient;
   oauth?: {
     client?: StoredOAuthClientInformation;
     tokens?: StoredOAuthTokens;
@@ -57,9 +65,38 @@ const CONNECT_TIMEOUT_MS = 15_000;
 
 export const oauthRedirectUrl = () => `${env.appUrl}/api/connections/oauth/callback`;
 
+/** Where Leafdesk's client metadata document is served: its client ID at services that take one (CIMD). */
+export const oauthClientMetadataUrl = () => `${env.appUrl}/api/connections/oauth/client`;
+
+/** Leafdesk as an OAuth client: what it registers with a service, and what its metadata document says. */
+export function oauthClientMetadata(): OAuthClientMetadata {
+  return {
+    client_name: "Leafdesk",
+    client_uri: env.appUrl,
+    redirect_uris: [oauthRedirectUrl()],
+    grant_types: ["authorization_code", "refresh_token"],
+    response_types: ["code"],
+    token_endpoint_auth_method: "none",
+  };
+}
+
 export function secretsOf(row: Pick<ConnectionRow, "secrets">): ConnectionSecrets {
   if (!row.secrets) return {};
   return openJson<ConnectionSecrets>(row.secrets);
+}
+
+/**
+ * The OAuth app a connection signs in as instead of registering itself: the one an owner entered
+ * on it, else the instance's for the catalog service at its address (CONNECTION_OAUTH_CLIENTS).
+ * The instance's goes only to that service's own address, so its secret reaches only that service.
+ */
+export function ownClientOf(row: Pick<ConnectionRow, "url" | "secrets" | "authType">): { client: OwnOAuthClient; fromInstance: boolean } | null {
+  if (row.authType !== "oauth") return null;
+  const own = secretsOf(row).ownClient;
+  if (own) return { client: own, fromInstance: false };
+  const entry = catalogEntryFor(row.url);
+  const instance = entry ? env.connectionOAuthClients[entry.id] : undefined;
+  return instance ? { client: instance, fromInstance: true } : null;
 }
 
 async function saveSecrets(connectionId: string, secrets: ConnectionSecrets) {
@@ -70,9 +107,11 @@ async function saveSecrets(connectionId: string, secrets: ConnectionSecrets) {
 
 /**
  * Leafdesk's side of a connection's OAuth sign-in, keeping what the service gives in the
- * connection's sealed secrets. Leafdesk registers itself with the service's authorization server
- * (dynamic client registration) and uses PKCE; `start` is a sign-in an owner begins in the
- * browser, `finish` its return, `use` everything else (refreshing tokens as they run out).
+ * connection's sealed secrets, with PKCE. Leafdesk signs in as the OAuth app an owner (or the
+ * instance) registered with the service when there is one; else it registers itself with the
+ * service's authorization server (dynamic client registration); else, where the server takes
+ * them, it gives the address of its client metadata document as its client ID (CIMD, only from an
+ * https address the server can fetch).
  */
 export class ConnectionOAuthProvider implements OAuthClientProvider {
   /** Where the browser should go, once auth() asked to redirect. */
@@ -84,6 +123,7 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
     private readonly connectionId: string,
     private secrets: ConnectionSecrets,
     verifier: string | null = null,
+    private readonly ownClient: OwnOAuthClient | null = null,
   ) {
     this.verifier = verifier;
   }
@@ -93,14 +133,18 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
   }
 
   get clientMetadata(): OAuthClientMetadata {
-    return {
-      client_name: "Leafdesk",
-      client_uri: env.appUrl,
-      redirect_uris: [this.redirectUrl],
-      grant_types: ["authorization_code", "refresh_token"],
-      response_types: ["code"],
-      token_endpoint_auth_method: "none",
-    };
+    return oauthClientMetadata();
+  }
+
+  /**
+   * The metadata document's address, offered only to a server that doesn't take registrations
+   * (where it does, Leafdesk registers as before) and only from an https address. The SDK reads it
+   * after saving what discovery found, and uses it only where the server says it takes one.
+   */
+  get clientMetadataUrl() {
+    if (!env.appUrl.startsWith("https://")) return undefined;
+    const metadata = this.secrets.oauth?.discovery?.authorizationServerMetadata;
+    return metadata && !metadata.registration_endpoint ? oauthClientMetadataUrl() : undefined;
   }
 
   state() {
@@ -117,12 +161,17 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
     return this.verifier;
   }
 
-  clientInformation() {
-    return this.secrets.oauth?.client;
+  clientInformation(): StoredOAuthClientInformation | undefined {
+    const saved = this.secrets.oauth?.client;
+    if (!this.ownClient) return saved;
+    // What the SDK stamped on the app (the issuer it was used with) is kept; the app is the owner's.
+    return saved?.client_id === this.ownClient.client_id ? { ...saved, ...this.ownClient } : { ...this.ownClient };
   }
 
   async saveClientInformation(client: StoredOAuthClientInformation) {
-    this.secrets = { ...this.secrets, oauth: { ...this.secrets.oauth, client } };
+    // An owner's app's secret stays where they put it, not copied next to it.
+    const saved = this.ownClient && client.client_id === this.ownClient.client_id ? { ...client, client_secret: undefined } : client;
+    this.secrets = { ...this.secrets, oauth: { ...this.secrets.oauth, client: saved } };
     await saveSecrets(this.connectionId, this.secrets);
   }
 
@@ -170,7 +219,7 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
 
 /** Begins an OAuth sign-in to a connection's service: the address to send the browser to, or null when already signed in. */
 export async function startOAuth(row: ConnectionRow) {
-  const provider = new ConnectionOAuthProvider(row.id, secretsOf(row));
+  const provider = new ConnectionOAuthProvider(row.id, secretsOf(row), null, ownClientOf(row)?.client);
   const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, fetchFn: connectionFetch }));
   if (result === "AUTHORIZED") return null;
   if (!provider.authorizationUrl || !provider.startedState || !provider.codeVerifierValue) {
@@ -181,7 +230,7 @@ export async function startOAuth(row: ConnectionRow) {
 
 /** Finishes an OAuth sign-in with the code the service sent back. */
 export async function finishOAuth(row: ConnectionRow, verifier: string, code: string, iss: string | undefined) {
-  const provider = new ConnectionOAuthProvider(row.id, secretsOf(row), verifier);
+  const provider = new ConnectionOAuthProvider(row.id, secretsOf(row), verifier, ownClientOf(row)?.client);
   const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, authorizationCode: code, iss, fetchFn: connectionFetch }));
   if (result !== "AUTHORIZED") throw new ConnectionClientError("unauthorized", "The service didn't accept the sign-in");
   dropClient(row.id);
@@ -216,7 +265,7 @@ function authProviderOf(row: ConnectionRow): AuthProvider | OAuthClientProvider 
     const token = secretsOf(row).token;
     return { token: async () => token };
   }
-  return new ConnectionOAuthProvider(row.id, secretsOf(row));
+  return new ConnectionOAuthProvider(row.id, secretsOf(row), null, ownClientOf(row)?.client);
 }
 
 async function connect(row: ConnectionRow): Promise<Client> {

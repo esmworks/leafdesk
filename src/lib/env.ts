@@ -1,3 +1,4 @@
+import { connectionOAuthClientsFrom } from "@/lib/connections";
 import { sessionDaysFrom } from "@/lib/session-lifetime";
 import { adminEmailsFrom, workspaceCreationFrom } from "@/lib/instance-admin";
 import { vapidFrom } from "@/lib/push";
@@ -69,6 +70,14 @@ export const env = {
       .split(",")
       .map((h) => h.trim().toLowerCase())
       .filter(Boolean);
+  },
+  /**
+   * CONNECTION_OAUTH_CLIENTS: OAuth apps the instance registered with services of the connection
+   * catalog that don't let Leafdesk register itself (Slack, HubSpot…), so owners needn't make their
+   * own: `slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID` (see connectionOAuthClientsFrom).
+   */
+  get connectionOAuthClients() {
+    return connectionOAuthClientsFrom(process.env.CONNECTION_OAUTH_CLIENTS);
   },
   /**
    * VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT (a mailto: or https: address the push

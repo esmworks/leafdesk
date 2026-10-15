@@ -64,6 +64,8 @@ const input = (value: ConnectionInput): ConnectionInput => ({
   url: value?.url,
   authType: value?.authType,
   token: value?.token,
+  oauthClient:
+    value?.oauthClient === null ? null : value?.oauthClient ? { clientId: value.oauthClient.clientId, clientSecret: value.oauthClient.clientSecret } : undefined,
   eventPreset: value?.eventPreset,
 });
 

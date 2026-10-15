@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ExternalLink, Plug, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   beginConnectionOAuthAction,
   createConnectionAction,
@@ -44,6 +44,25 @@ export type ConnectionAgent = { id: string; name: string; icon: string | null };
 
 type ConnectionTab = "tools" | "events" | "settings";
 
+/**
+ * What an owner needs to sign in as an OAuth app of their own: the redirect URL to give the app,
+ * and the catalog services the instance already has an app for (CONNECTION_OAUTH_CLIENTS).
+ */
+export type OAuthSetup = { redirectUrl: string; instanceClients: readonly string[] };
+const OAuthSetupContext = createContext<OAuthSetup>({ redirectUrl: "", instanceClients: [] });
+
+/**
+ * How the form asks for an OAuth app: `required` for a service that signs in only registered apps
+ * (and the instance has none), `instance` when the instance's app is used, else `optional`.
+ */
+type ClientMode = "required" | "instance" | "optional";
+
+function clientModeOf(authType: ConnectionAuthType, entry: CatalogEntry | null | undefined, setup: OAuthSetup): ClientMode | null {
+  if (authType !== "oauth") return null;
+  if (!entry?.client) return "optional";
+  return setup.instanceClients.includes(entry.id) ? "instance" : "required";
+}
+
 /** A connection's emoji; else, for a service of the catalog, its initial; else a plug. */
 export function ConnectionIcon({ icon, url, className }: { icon: string | null; url?: string; className?: string }) {
   if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
@@ -61,6 +80,7 @@ const CATEGORY_COLORS: Record<CatalogCategory, string> = {
   monitoring: "red",
   analytics: "orange",
   sales: "green",
+  messaging: "brown",
   support: "yellow",
   marketing: "pink",
   finance: "green",
@@ -96,7 +116,15 @@ export function ToolKindLabel({ kind }: { kind: ToolKind }) {
  * address to the service and set which agent runs on which events. Which tools each agent may use
  * is set on the agent.
  */
-export function ConnectionsPanel({
+export function ConnectionsPanel({ oauthSetup, ...props }: Parameters<typeof ConnectionList>[0] & { oauthSetup: OAuthSetup }) {
+  return (
+    <OAuthSetupContext.Provider value={oauthSetup}>
+      <ConnectionList {...props} />
+    </OAuthSetupContext.Provider>
+  );
+}
+
+function ConnectionList({
   workspaceId,
   connections,
   agents,
@@ -302,6 +330,7 @@ function CatalogPicker({
 }) {
   const t = useTranslations("settings.connections");
   const tc = useTranslations("common");
+  const setup = useContext(OAuthSetupContext);
   const categoryLabel = (c: CatalogCategory) => t(`catalog.categories.${c}`);
   const found = searchCatalog(query, categoryLabel).filter((entry) => !category || entry.category === category);
   const added = useMemo(() => new Set(existing.map((conn) => catalogEntryFor(conn.url)?.id).filter(Boolean)), [existing]);
@@ -364,7 +393,11 @@ function CatalogPicker({
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium">{entry.name}</span>
                         <span className="block truncate text-xs text-fg-muted">
-                          {added.has(entry.id) ? t("catalog.added") : t(`catalog.auth.${entry.authType}`)}
+                          {added.has(entry.id)
+                            ? t("catalog.added")
+                            : clientModeOf(entry.authType, entry, setup) === "required"
+                              ? t("catalog.ownApp")
+                              : t(`catalog.auth.${entry.authType}`)}
                         </span>
                       </span>
                     </button>
@@ -407,11 +440,17 @@ function AddConnectionForm({
   const [url, setUrl] = useState(entry?.url ?? "");
   const [authType, setAuthType] = useState<ConnectionAuthType>(entry?.authType ?? "oauth");
   const [token, setToken] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
   const [eventPreset, setEventPreset] = useState<EventPreset>(entry?.eventPreset ?? "hmac");
   const { pending, error, run } = useAction();
   const sign = useSignIn(workspaceId, onAdded);
-  // The link to the service's keys only while the form still points at that service.
-  const tokenHelp = entry?.tokenHelp && url.trim() === entry.url ? { href: entry.tokenHelp, name: entry.name } : undefined;
+  const setup = useContext(OAuthSetupContext);
+  // What comes from the service (the link to its keys, its app) only while the form still points at it.
+  const atEntry = entry && url.trim() === entry.url ? entry : null;
+  const tokenHelp = atEntry?.tokenHelp ? { href: atEntry.tokenHelp, name: atEntry.name } : undefined;
+  const clientMode = clientModeOf(authType, atEntry, setup);
+  const clientMissing = clientMode === "required" && (!clientId.trim() || (!atEntry?.client?.secretOptional && !clientSecret.trim()));
 
   return (
     <form
@@ -419,7 +458,15 @@ function AddConnectionForm({
       onSubmit={(e) => {
         e.preventDefault();
         run(
-          () => createConnectionAction(workspaceId, { name, url, authType, token: authType === "token" ? token : undefined, eventPreset }),
+          () =>
+            createConnectionAction(workspaceId, {
+              name,
+              url,
+              authType,
+              token: authType === "token" ? token : undefined,
+              oauthClient: authType === "oauth" && clientId.trim() ? { clientId, clientSecret } : undefined,
+              eventPreset,
+            }),
           (view) => {
             // An OAuth connection goes straight on to signing in at the service.
             if (view.authType === "oauth") sign.signIn(view);
@@ -461,7 +508,19 @@ function AddConnectionForm({
         onEventPreset={setEventPreset}
         tokenRequired
         tokenHelp={tokenHelp}
-      />
+      >
+        {clientMode && (
+          <OAuthClientFields
+            mode={clientMode}
+            service={atEntry ?? undefined}
+            clientId={clientId}
+            clientSecret={clientSecret}
+            onClientId={setClientId}
+            onClientSecret={setClientSecret}
+            secretKept={false}
+          />
+        )}
+      </ConnectionFields>
       {(error || sign.error) && (
         <p role="alert" className="text-sm text-danger">
           {error || sign.error}
@@ -471,7 +530,7 @@ function AddConnectionForm({
         <Button variant="ghost" onClick={onClose}>
           {tc("cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={pending || sign.pending || !name.trim() || !url.trim() || (authType === "token" && !token.trim())}>
+        <Button type="submit" variant="primary" disabled={pending || sign.pending || !name.trim() || !url.trim() || (authType === "token" && !token.trim()) || clientMissing}>
           {authType === "oauth" ? t("addAndSignIn") : t("addButton")}
         </Button>
       </div>
@@ -494,6 +553,8 @@ function ConnectionFields(props: {
   tokenRequired: boolean;
   /** Where the service's tokens are made, for a service of the catalog. */
   tokenHelp?: { href: string; name: string };
+  /** The OAuth app's fields, under how it signs in. */
+  children?: ReactNode;
 }) {
   const t = useTranslations("settings.connections.fields");
   return (
@@ -518,6 +579,7 @@ function ConnectionFields(props: {
         </select>
         <span className="block text-xs text-fg-muted">{t(`authHelp.${props.authType}`)}</span>
       </label>
+      {props.children}
       {props.authType === "token" && (
         <div className="space-y-1">
           <label className="block space-y-1">
@@ -549,6 +611,89 @@ function ConnectionFields(props: {
         </select>
       </label>
     </div>
+  );
+}
+
+/**
+ * The OAuth app a connection signs in as: asked for outright for a service that signs in only apps
+ * registered with it, else folded away (any other server may want one too). Shows the redirect
+ * URL the app must have.
+ */
+function OAuthClientFields(props: {
+  mode: ClientMode;
+  /** The catalog's service, for its name, where its apps are made and whether one may lack a secret. */
+  service?: Pick<CatalogEntry, "name" | "client">;
+  clientId: string;
+  clientSecret: string;
+  onClientId: (v: string) => void;
+  onClientSecret: (v: string) => void;
+  /** A saved secret stays when the field is left empty. */
+  secretKept: boolean;
+}) {
+  const t = useTranslations("settings.connections.fields");
+  const { redirectUrl } = useContext(OAuthSetupContext);
+  const name = props.service?.name ?? "";
+  const secretOptional = props.mode !== "required" || props.service?.client?.secretOptional;
+  const fields = (
+    <div className="space-y-3">
+      <div className="space-y-1">
+        <span className="text-sm font-medium">{t("redirectUrl")}</span>
+        <div className="flex items-center gap-2">
+          <Input readOnly value={redirectUrl} aria-label={t("redirectUrl")} className="min-w-0 flex-1 text-xs" onFocus={(e) => e.currentTarget.select()} />
+          <CopyButton value={redirectUrl} />
+        </div>
+        <span className="block text-xs text-fg-muted">{t("redirectUrlHelp")}</span>
+      </div>
+      <label className="block space-y-1">
+        <span className="text-sm font-medium">{t("clientId")}</span>
+        <Input value={props.clientId} autoComplete="off" spellCheck={false} onChange={(e) => props.onClientId(e.target.value)} />
+      </label>
+      <label className="block space-y-1">
+        <span className="text-sm font-medium">{t("clientSecret")}</span>
+        <Input
+          value={props.clientSecret}
+          type="password"
+          autoComplete="off"
+          onChange={(e) => props.onClientSecret(e.target.value)}
+          placeholder={props.secretKept ? t("tokenKeep") : secretOptional ? t("clientSecretOptional") : undefined}
+        />
+      </label>
+    </div>
+  );
+  if (props.mode === "required") {
+    return (
+      <div className="space-y-3 rounded-lg border border-border p-3">
+        <div className="space-y-1">
+          <p className="text-xs text-fg-muted">{t("clientRequired", { name })}</p>
+          {props.service?.client && (
+            <a href={props.service.client.help} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-fg-muted underline hover:text-fg">
+              {t("clientHelp", { name })}
+              <ExternalLink className="h-3 w-3" aria-hidden />
+            </a>
+          )}
+        </div>
+        {fields}
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2">
+      {props.mode === "instance" && <p className="text-xs text-fg-muted">{t("clientInstance", { name })}</p>}
+      <Folded summary={t(props.mode === "instance" ? "clientOverride" : "clientOptional")} open={Boolean(props.clientId)}>
+        {fields}
+      </Folded>
+    </div>
+  );
+}
+
+/** Folded fields, open at first when they hold something (then the owner's to fold). */
+function Folded({ summary, open, children }: { summary: string; open: boolean; children: ReactNode }) {
+  const [initiallyOpen] = useState(open);
+  return (
+    <details open={initiallyOpen}>
+      <summary className="cursor-pointer text-sm text-fg-muted hover:text-fg">{summary}</summary>
+      <div className="mt-3">{children}</div>
+    </details>
   );
 }
 
@@ -946,11 +1091,24 @@ function SettingsTab({
   const [url, setUrl] = useState(conn.url);
   const [authType, setAuthType] = useState(conn.authType);
   const [token, setToken] = useState("");
+  // The owner's own app (the instance's isn't theirs to change here, only to replace).
+  const savedClientId = conn.oauthClient && !conn.oauthClient.fromInstance ? conn.oauthClient.clientId : "";
+  const [clientId, setClientId] = useState(savedClientId);
+  const [clientSecret, setClientSecret] = useState("");
   const [eventPreset, setEventPreset] = useState(conn.eventPreset);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saved, setSaved] = useState(false);
   const { pending, error, run } = useAction();
-  const reconnects = url.trim() !== conn.url || authType !== conn.authType || token !== "";
+  const setup = useContext(OAuthSetupContext);
+  const moved = url.trim() !== conn.url;
+  const entry = catalogEntryFor(url.trim());
+  const clientMode = clientModeOf(authType, entry, setup);
+  // A saved secret goes only to the address it was given for: a new one needs it typed again.
+  const secretKept = !moved && Boolean(conn.oauthClient?.hasSecret) && clientId.trim() === savedClientId && Boolean(savedClientId);
+  const clientChanged = authType === "oauth" && (clientId.trim() !== savedClientId || clientSecret !== "" || (moved && Boolean(savedClientId)));
+  const clientMissing =
+    clientMode === "required" && (!clientId.trim() || (!entry?.client?.secretOptional && !clientSecret.trim() && !secretKept));
+  const reconnects = moved || authType !== conn.authType || token !== "" || clientChanged;
 
   return (
     <div className="space-y-6">
@@ -967,10 +1125,13 @@ function SettingsTab({
                 authType,
                 eventPreset,
                 ...(authType === "token" && (token || authType !== conn.authType) ? { token } : {}),
+                ...(clientChanged ? { oauthClient: clientId.trim() ? { clientId, clientSecret } : null } : {}),
               }),
             (view) => {
               onChange(view);
               setToken("");
+              setClientId(view.oauthClient && !view.oauthClient.fromInstance ? view.oauthClient.clientId : "");
+              setClientSecret("");
               setSaved(true);
             },
           );
@@ -988,7 +1149,19 @@ function SettingsTab({
           onToken={setToken}
           onEventPreset={setEventPreset}
           tokenRequired={conn.authType !== "token" || url.trim() !== conn.url}
-        />
+        >
+          {clientMode && (
+            <OAuthClientFields
+              mode={clientMode}
+              service={entry}
+              clientId={clientId}
+              clientSecret={clientSecret}
+              onClientId={setClientId}
+              onClientSecret={setClientSecret}
+              secretKept={secretKept}
+            />
+          )}
+        </ConnectionFields>
         {reconnects && <p className="text-xs text-fg-muted">{t("reconnectNote")}</p>}
         {error && (
           <p role="alert" className="text-sm text-danger">
@@ -996,7 +1169,7 @@ function SettingsTab({
           </p>
         )}
         <div className="flex items-center gap-2">
-          <Button type="submit" variant="primary" disabled={pending || !name.trim() || !url.trim()}>
+          <Button type="submit" variant="primary" disabled={pending || !name.trim() || !url.trim() || clientMissing}>
             {tc("save")}
           </Button>
           {saved && !pending && <span className="text-xs text-fg-muted">{tc("saved")}</span>}

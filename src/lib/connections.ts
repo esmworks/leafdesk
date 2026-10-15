@@ -14,6 +14,8 @@ export const MAX_CONNECTIONS = 20;
 export const MAX_CONNECTION_NAME = 80;
 export const MAX_CONNECTION_URL = 2_000;
 export const MAX_CONNECTION_TOKEN = 4_000;
+/** The longest client ID of an OAuth app an owner registered with a service. */
+export const MAX_CONNECTION_CLIENT_ID = 500;
 /** The most tools of a connection that are kept (and offered to agents). */
 export const MAX_CONNECTION_TOOLS = 200;
 /** The most triggers a connection has. */
@@ -84,6 +86,12 @@ export type ConnectionView = {
   url: string;
   authType: ConnectionAuthType;
   hasToken: boolean;
+  /**
+   * The OAuth app it signs in as, for a service that doesn't let Leafdesk register itself: one an
+   * owner registered there (its client ID shown, its secret never), or the instance's for that
+   * service. Null: Leafdesk registers itself, or the connection doesn't sign in with OAuth.
+   */
+  oauthClient: { clientId: string; hasSecret: boolean; fromInstance: boolean } | null;
   status: ConnectionStatus;
   statusError: string | null;
   tools: ConnectionTool[];
@@ -137,11 +145,35 @@ export const CONNECTION_ERROR_CODES = [
   "notFound",
   "invalidToken",
   "tokenForNewUrl",
+  "invalidClient",
+  "clientForNewUrl",
+  "needsClient",
   "invalidTrigger",
   "unknownTool",
   "oauthFailed",
 ] as const;
 export type ConnectionErrorCode = (typeof CONNECTION_ERROR_CODES)[number];
+
+/**
+ * OAuth apps the instance registered with services that don't let Leafdesk register itself
+ * (CONNECTION_OAUTH_CLIENTS), by catalog id: `slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID`,
+ * the secret left out for an app that has none. Malformed items are skipped.
+ */
+export function connectionOAuthClientsFrom(value: string | undefined): Record<string, { client_id: string; client_secret?: string }> {
+  const clients: Record<string, { client_id: string; client_secret?: string }> = {};
+  for (const item of (value ?? "").split(",")) {
+    const equals = item.indexOf("=");
+    const id = item.slice(0, equals).trim().toLowerCase();
+    const credentials = item.slice(equals + 1).trim();
+    if (equals < 0 || !/^[a-z0-9-]+$/.test(id) || !credentials) continue;
+    const colon = credentials.indexOf(":");
+    const clientId = (colon < 0 ? credentials : credentials.slice(0, colon)).trim();
+    const secret = colon < 0 ? "" : credentials.slice(colon + 1).trim();
+    if (!clientId || clientId.length > MAX_CONNECTION_CLIENT_ID || /\s/.test(clientId + secret)) continue;
+    clients[id] = secret ? { client_id: clientId, client_secret: secret } : { client_id: clientId };
+  }
+  return clients;
+}
 
 /** A name for the model: the connection's slug and the tool's name, within 64 characters. */
 export function namespacedTool(slug: string, tool: string) {

@@ -1399,6 +1399,9 @@
       "notFound": "Artık orada değil.",
       "invalidToken": "Token’ı ya da gizli anahtarı yapıştırın.",
       "tokenForNewUrl": "Yeni adres için token gerekiyor: yeniden yapıştırın.",
+      "invalidClient": "Uygulamanın istemci kimliğini (ve varsa sırrını) yapıştırın.",
+      "clientForNewUrl": "Yeni adres için uygulama gerekiyor: istemci kimliğini ve sırrını yeniden girin.",
+      "needsClient": "Bu servis Leafdesk'in kendini kaydetmesine izin vermiyor. Orada bir uygulama oluşturup istemci kimliğini ve sırrını bağlantının ayarlarına girin.",
       "invalidTrigger": "Bu çalışma alanından bir ajan seçin.",
       "unknownTool": "Bağlantıda “{tool}” diye bir araç yok.",
       "oauthFailed": "Giriş yapılamadı. Yeniden deneyin.",
@@ -1434,6 +1437,7 @@
         "token": "API anahtarı",
         "none": "Girişsiz"
       },
+      "ownApp": "Kendi uygulamanızla giriş",
       "categories": {
         "projects": "Projeler ve görevler",
         "docs": "Belgeler ve bilgi",
@@ -1442,6 +1446,7 @@
         "monitoring": "İzleme ve güvenlik",
         "analytics": "Analitik",
         "sales": "Satış ve CRM",
+        "messaging": "Mesajlaşma ve sohbet",
         "support": "Müşteri desteği",
         "marketing": "Pazarlama ve formlar",
         "finance": "Finans ve ödemeler",
@@ -1464,7 +1469,7 @@
         "none": "Yok"
       },
       "authHelp": {
-        "oauth": "Servis üzerinde giriş yaparsınız; Leafdesk kendini kaydeder ve aldığı erişimi saklar.",
+        "oauth": "Servis üzerinde giriş yaparsınız; Leafdesk kendini kaydeder (ya da orada kaydettiğiniz bir uygulama olarak giriş yapar) ve aldığı erişimi saklar.",
         "token": "Her çağrıda bearer token olarak gönderilir.",
         "none": "Giriş gerektirmeyen sunucular için."
       },
@@ -1476,7 +1481,17 @@
         "slack": "Slack Events API",
         "github": "GitHub webhook’ları"
       },
-      "tokenHelp": "{name} üzerinde anahtar oluşturun"
+      "tokenHelp": "{name} üzerinde anahtar oluşturun",
+      "redirectUrl": "Yönlendirme URL'si",
+      "redirectUrlHelp": "Bunu servisteki uygulamanın yönlendirme (callback) URL'lerine ekleyin.",
+      "clientId": "İstemci kimliği (client ID)",
+      "clientSecret": "İstemci sırrı (client secret)",
+      "clientSecretOptional": "Uygulamanın sırrı yoksa boş bırakın",
+      "clientRequired": "{name} yalnızca kendisine kayıtlı uygulamalarla girişe izin veriyor. Orada bir uygulama oluşturun, aşağıdaki yönlendirme URL'sini ekleyin, sonra istemci kimliğini ve sırrını yapıştırın.",
+      "clientHelp": "{name} üzerinde uygulama oluşturun",
+      "clientInstance": "Bu kurulum {name} hizmetine kendi uygulamasıyla giriş yapıyor.",
+      "clientOverride": "Bunun yerine kendi uygulamanızı kullanın",
+      "clientOptional": "Serviste kayıtlı bir uygulama olarak giriş yapın"
     },
     "tabs": {
       "tools": "Araçlar",
