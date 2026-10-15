@@ -35,7 +35,7 @@ const DESCRIPTION = `A REST API for the pages, databases, rows and comments of L
 
 **Pagination.** Lists return \`next_cursor\` and \`has_more\`; pass \`cursor=<next_cursor>\` (a body field for the query endpoint) to read on.
 
-**Rate limits.** Each token may make ${DEFAULT_RATE_LIMIT} requests a minute unless the server sets another limit; \`X-RateLimit-Limit\` and \`X-RateLimit-Remaining\` show where you stand, and \`429 rate_limited\` comes with \`Retry-After\`. Request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB.
+**Rate limits.** Each token may make ${DEFAULT_RATE_LIMIT} requests a minute unless the server sets another limit; \`X-RateLimit-Limit\` and \`X-RateLimit-Remaining\` show where you stand, and \`429 rate_limited\` comes with \`Retry-After\`. JSON request bodies can be at most ${MAX_BODY_BYTES / 1024 / 1024} MB; endpoints that take files (multipart form data) say their own limit.
 
 **CORS** is off unless the server lists allowed origins, so browsers can't call the API from other sites by default.
 
@@ -247,6 +247,19 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "title", "workspace_id", "url"],
   ),
+  VoiceNoteCreated: loose(
+    {
+      id,
+      title: { type: "string", description: "The title AI gave the note, or the transcript's first words." },
+      workspace_id: id,
+      database_id: { type: ["string", "null"], description: "The database the note is a row of; null for a private page." },
+      rewritten: { type: "boolean", description: "False when the note is the transcript as it was heard (no chat model, or the AI failed)." },
+      transcript: { type: "string", description: "What was heard, also kept in a toggle under the note." },
+      properties: { ...propertyValues, description: "The select and multi-select values AI picked for the row, by property name." },
+      url,
+    },
+    ["id", "title", "workspace_id", "database_id", "rewritten", "transcript", "url"],
+  ),
   PageChanged: loose({ id, changed: { type: "array", items: { type: "string" } }, snapshot: { type: "string" }, url }, ["id", "changed", "url"]),
   PageMoved: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, ...teamspaceFields, url }, ["id", "parent_id", "url"]),
   PageTrashState: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, in_trash: { type: "boolean" }, url }, [
@@ -457,9 +470,14 @@ const ERROR_RESPONSES: Record<string, { description: string }> = {
       "The token lacks the scope (insufficient_scope), or the user may not do this, or the workspace lets API tokens only read (forbidden).",
   },
   "404": { description: "Not found, or the user (or the token's workspace) may not access it." },
-  "409": { description: "The agent can't do this now (agent_unavailable, limit_reached, too_many_runs)." },
+  "409": {
+    description:
+      "It can't be done now: the agent can't run (agent_unavailable, limit_reached, too_many_runs), or voice notes aren't available (voice_notes_unavailable).",
+  },
   "413": { description: "The request body is too large (payload_too_large)." },
+  "415": { description: "The body or its file is of a kind the endpoint doesn't take (unsupported_media_type)." },
   "429": { description: "Rate limited; wait for Retry-After seconds." },
+  "502": { description: "The speech to text or AI provider failed or took too long (upstream_error)." },
 };
 
 /** A zod schema as JSON Schema (draft 2020-12, as OpenAPI 3.1 uses), for what clients send. */
@@ -492,12 +510,45 @@ function parametersOf(route: ApiRoute) {
   return params;
 }
 
+/** A route's body: JSON, or multipart form data with its files as binary fields. */
+function requestBodyOf(route: ApiRoute) {
+  if (route.form) {
+    const fields = (route.body ? jsonSchemaOf(route.body) : { type: "object", properties: {} }) as {
+      properties?: Record<string, JsonSchema>;
+      required?: string[];
+    };
+    const files = Object.entries(route.form.files);
+    const required = [...(fields.required ?? []), ...files.filter(([, file]) => file.required).map(([name]) => name)];
+    const schema = {
+      ...fields,
+      properties: {
+        ...Object.fromEntries(files.map(([name, file]) => [name, { type: "string", format: "binary", description: file.description }])),
+        ...fields.properties,
+      },
+      ...(required.length ? { required } : {}),
+    };
+    return { requestBody: { required: true, content: { "multipart/form-data": { schema } } } };
+  }
+  if (!route.body) return {};
+  return { requestBody: { required: true, content: { "application/json": { schema: jsonSchemaOf(route.body) } } } };
+}
+
 /** The OpenAPI 3.1 description of the REST API, built from its route table. */
 export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { appUrl: string; version: string }) {
   const paths: Record<string, Record<string, unknown>> = {};
   for (const route of routes) {
     const status = String(route.status ?? 200);
-    const errors = ["400", "401", "403", "404", ...(route.conflict ? ["409"] : []), "429", ...(route.body ? ["413"] : [])];
+    const errors = [
+      "400",
+      "401",
+      "403",
+      "404",
+      ...(route.conflict ? ["409"] : []),
+      ...(route.body || route.form ? ["413"] : []),
+      ...(route.form ? ["415"] : []),
+      "429",
+      ...(route.form ? ["502"] : []),
+    ];
     const parameters = parametersOf(route);
     (paths[route.path] ??= {})[route.method.toLowerCase()] = {
       operationId: route.operationId,
@@ -506,7 +557,7 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
       ...(route.description ? { description: `${route.description}\n\nScope: \`${route.scope}\`.` } : {}),
       security: [{ bearerAuth: [route.scope] }],
       ...(parameters.length ? { parameters } : {}),
-      ...(route.body ? { requestBody: { required: true, content: { "application/json": { schema: jsonSchemaOf(route.body) } } } } : {}),
+      ...requestBodyOf(route),
       responses: {
         [status]: {
           description: status === "201" ? "Created" : "OK",

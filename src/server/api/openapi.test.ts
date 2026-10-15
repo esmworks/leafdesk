@@ -71,7 +71,7 @@ describe("OpenAPI document", () => {
         expect(["path", "query"]).toContain(p.in);
         expect(p.schema, `${op.operationId} ${p.name}`).toEqual(expect.any(Object));
       }
-      const body = op.requestBody?.content?.["application/json"]?.schema;
+      const body = (Object.values(op.requestBody?.content ?? {})[0] as Json | undefined)?.schema;
       if (op.requestBody) {
         expect(body?.type, op.operationId).toBe("object");
         expect(body.$schema).toBeUndefined();
@@ -82,6 +82,16 @@ describe("OpenAPI document", () => {
     const query = doc.paths["/databases/{database_id}/query"].post.requestBody.content["application/json"].schema;
     expect(Object.keys(query.properties)).toEqual(expect.arrayContaining(["filters", "sorts", "limit", "cursor"]));
     expect(query.properties.database_id).toBeUndefined();
+  });
+
+  it("describes bodies with files as multipart form data", () => {
+    const op = doc.paths["/voice-notes"].post;
+    const schema = op.requestBody.content["multipart/form-data"].schema;
+    expect(op.requestBody.content["application/json"]).toBeUndefined();
+    expect(schema.properties.audio).toMatchObject({ type: "string", format: "binary" });
+    expect(Object.keys(schema.properties)).toEqual(expect.arrayContaining(["workspace_id", "database_id"]));
+    expect(schema.required).toEqual(["audio"]);
+    expect(Object.keys(op.responses)).toEqual(expect.arrayContaining(["201", "409", "413", "415", "502"]));
   });
 
   it("only refers to things it defines", () => {

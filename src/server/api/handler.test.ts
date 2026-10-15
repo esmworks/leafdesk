@@ -2,6 +2,8 @@ import * as z from "zod";
 import { describe, expect, it, vi } from "vitest";
 import { SlidingWindowLimiter } from "@/lib/rate-limit";
 import { AccessError } from "@/server/access";
+import { AiError } from "@/server/ai/errors";
+import { ApiError } from "./errors";
 import { ToolInputError } from "@/server/mcp/format";
 import { corsOriginsFromEnv, createApiHandler, rateLimitFromEnv } from "./handler";
 import { defineRoute, matchRoute, type ApiRoute } from "./routes";
@@ -54,7 +56,31 @@ const routes: ApiRoute[] = [
     response: "Page",
     handler: async ({ body }) => ({ created: body.title }),
   }),
+  defineRoute({
+    method: "POST",
+    path: "/recordings",
+    operationId: "createRecording",
+    tag: "Pages",
+    summary: "",
+    scope: "pages:write",
+    body: z.object({ label: z.string().max(5).optional() }),
+    form: {
+      files: { audio: { description: "", required: true } },
+      maxBytes: () => {
+        if (recordingsOff) throw new ApiError(409, "voice_notes_unavailable", "Off.");
+        return 1024;
+      },
+    },
+    status: 201,
+    response: "Page",
+    handler: async ({ body, files, signal }) => {
+      if (body.label === "slow") throw new AiError("timeout", "The request took too long");
+      if (body.label === "off") throw new AiError("disabled", "Voice notes are off for this workspace");
+      return { label: body.label ?? null, files: Object.keys(files), name: files.audio.name, size: files.audio.size, aborted: signal.aborted };
+    },
+  }),
 ];
+let recordingsOff = false;
 
 function handler(options: { limit?: number; cors?: string[] } = {}) {
   return createApiHandler({
@@ -70,7 +96,7 @@ const call = (
   h: ReturnType<typeof handler>,
   method: string,
   path: string,
-  { token, body, headers = {} }: { token?: string; body?: string; headers?: Record<string, string> } = {},
+  { token, body, headers = {} }: { token?: string; body?: string | FormData; headers?: Record<string, string> } = {},
 ) =>
   h(
     new Request(`http://app.test/api/v1${path}`, {
@@ -144,6 +170,76 @@ describe("REST API handler", () => {
   it("refuses bodies over the size limit", async () => {
     const res = await call(handler(), "POST", "/things", { token: WRITE, body: JSON.stringify({ title: "x".repeat(6 * 1024 * 1024) }) });
     expect([res.status, (await errorOf(res)).code]).toEqual([413, "payload_too_large"]);
+  });
+
+  it("takes multipart form data on routes with files: fields checked like a body, files by name", async () => {
+    const form = new FormData();
+    form.set("label", "hi");
+    form.set("audio", new File(["abc"], "a.webm", { type: "audio/webm" }));
+    form.set("other", new File(["zz"], "b.txt"));
+    const res = await call(handler(), "POST", "/recordings", { token: WRITE, body: form });
+    expect(res.status).toBe(201);
+    expect(await res.json()).toEqual({ label: "hi", files: ["audio"], name: "a.webm", size: 3, aborted: false });
+  });
+
+  it("refuses other bodies, missing files, bad fields and files over the route's limit", async () => {
+    const json = await call(handler(), "POST", "/recordings", {
+      token: WRITE,
+      body: JSON.stringify({ label: "hi" }),
+      headers: { "content-type": "application/json" },
+    });
+    expect([json.status, (await errorOf(json)).code]).toEqual([415, "unsupported_media_type"]);
+
+    const noFile = new FormData();
+    noFile.set("label", "hi");
+    const missing = await call(handler(), "POST", "/recordings", { token: WRITE, body: noFile });
+    const missingError = await errorOf(missing);
+    expect([missing.status, missingError.code]).toEqual([400, "validation_error"]);
+    expect(missingError.details).toEqual([expect.objectContaining({ path: "audio" })]);
+
+    const badField = new FormData();
+    badField.set("label", "far too long");
+    badField.set("audio", new File(["abc"], "a.webm"));
+    const bad = await call(handler(), "POST", "/recordings", { token: WRITE, body: badField });
+    expect([bad.status, (await errorOf(bad)).details]).toEqual([400, [expect.objectContaining({ path: "label" })]]);
+
+    const large = new FormData();
+    large.set("audio", new File([new Uint8Array(2048)], "a.webm"));
+    const tooLarge = await call(handler(), "POST", "/recordings", { token: WRITE, body: large });
+    expect([tooLarge.status, (await errorOf(tooLarge)).code]).toEqual([413, "payload_too_large"]);
+    const declared = await call(handler(), "POST", "/recordings", {
+      token: WRITE,
+      body: "x",
+      headers: { "content-type": "multipart/form-data; boundary=x", "content-length": String(10 * 1024 * 1024) },
+    });
+    expect([declared.status, (await errorOf(declared)).code]).toEqual([413, "payload_too_large"]);
+  });
+
+  it("lets a route with files refuse before its body is read, after the token and scope are checked", async () => {
+    recordingsOff = true;
+    try {
+      const form = new FormData();
+      form.set("audio", new File(["abc"], "a.webm"));
+      const off = await call(handler(), "POST", "/recordings", { token: WRITE, body: form });
+      expect([off.status, (await errorOf(off)).code]).toEqual([409, "voice_notes_unavailable"]);
+      const readOnly = await call(handler(), "POST", "/recordings", { token: READ, body: form });
+      expect([readOnly.status, (await errorOf(readOnly)).code]).toEqual([403, "insufficient_scope"]);
+    } finally {
+      recordingsOff = false;
+    }
+  });
+
+  it("maps AI failures to the API's codes", async () => {
+    const send = (label: string) => {
+      const form = new FormData();
+      form.set("label", label);
+      form.set("audio", new File(["abc"], "a.webm"));
+      return call(handler(), "POST", "/recordings", { token: WRITE, body: form });
+    };
+    const slow = await send("slow");
+    expect([slow.status, (await errorOf(slow)).code]).toEqual([502, "upstream_error"]);
+    const off = await send("off");
+    expect([off.status, await errorOf(off)]).toEqual([409, { code: "voice_notes_unavailable", message: "Voice notes are off for this workspace." }]);
   });
 
   it("maps domain errors and hides unexpected ones", async () => {

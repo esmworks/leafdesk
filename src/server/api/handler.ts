@@ -1,4 +1,4 @@
-import type * as z from "zod";
+import * as z from "zod";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { limitFromEnv, SlidingWindowLimiter } from "@/lib/rate-limit";
 import { runAsConnectedApp } from "@/server/connected-app";
@@ -8,7 +8,8 @@ import type { ApiPrincipal, TokenCheck } from "./tokens";
 
 /**
  * The REST API under /api/v1: personal access tokens (`Authorization: Bearer esi_…`), per-token
- * rate limits, JSON in and out, errors as `{error: {code, message, details?}}`.
+ * rate limits, JSON in and out (multipart form data in where a route takes files), errors as
+ * `{error: {code, message, details?}}`.
  *
  * Only tokens authenticate here, never the browser's session cookie, so pages can't be made to call
  * the API on a signed-in user's behalf. Like MCP's OAuth tokens, requests a token authenticated are
@@ -16,7 +17,7 @@ import type { ApiPrincipal, TokenCheck } from "./tokens";
  * connected-apps setting instead (see connected-app.ts).
  */
 export const API_PREFIX = "/api/v1";
-/** Largest request body accepted. */
+/** Largest JSON request body accepted (routes that take files set their own limit). */
 export const MAX_BODY_BYTES = 5 * 1024 * 1024;
 /** Requests per token per minute when API_RATE_LIMIT isn't set. */
 export const DEFAULT_RATE_LIMIT = 180;
@@ -92,6 +93,47 @@ async function readBody(request: Request): Promise<unknown> {
     throw new ApiError(400, "invalid_json", "The request body must be a JSON object.");
   }
   return parsed;
+}
+
+/** Room for a form's text fields and boundaries on top of its files. */
+const FORM_OVERHEAD_BYTES = 64 * 1024;
+
+/** A multipart request's text fields (to check like a JSON body) and files. */
+async function readForm(request: Request, route: ApiRoute & { form: NonNullable<ApiRoute["form"]> }) {
+  const maxBytes = route.form.maxBytes();
+  const tooLarge = () => new ApiError(413, "payload_too_large", `The files can be at most ${Math.round(maxBytes / 1024 / 1024)} MB.`);
+  if (!(request.headers.get("content-type") ?? "").toLowerCase().startsWith("multipart/form-data")) {
+    throw new ApiError(415, "unsupported_media_type", "Send multipart/form-data.");
+  }
+  if (Number(request.headers.get("content-length") ?? "0") > maxBytes + FORM_OVERHEAD_BYTES) throw tooLarge();
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    throw new ApiError(400, "invalid_request", "The request body is not valid multipart form data.");
+  }
+  const fields: Record<string, string> = {};
+  const files: Record<string, File> = {};
+  let size = 0;
+  for (const [name, value] of form.entries()) {
+    if (typeof value === "string") {
+      if (value.trim()) fields[name] = value.trim();
+    } else if (name in route.form.files) {
+      files[name] = value;
+      size += value.size;
+    }
+  }
+  if (size > maxBytes) throw tooLarge();
+  const missing = Object.entries(route.form.files).filter(([name, file]) => file.required && !files[name]);
+  if (missing.length) {
+    throw new ApiError(
+      400,
+      "validation_error",
+      "The request body is invalid.",
+      missing.map(([name]) => ({ path: name, message: "Send this file as a form field." })),
+    );
+  }
+  return { fields, files };
 }
 
 /** Query parameters as an object; a repeated name keeps its last value. */
@@ -193,7 +235,14 @@ export function createApiHandler(deps: ApiDeps) {
         query = parsed.data;
       }
       let body: Record<string, unknown> = {};
-      if (route.body) {
+      let files: Record<string, File> = {};
+      if (route.form) {
+        const form = await readForm(request, { ...route, form: route.form });
+        files = form.files;
+        const parsed = (route.body ?? z.object({})).safeParse(form.fields);
+        if (!parsed.success) throw new ApiError(400, "validation_error", "The request body is invalid.", issues(parsed.error));
+        body = parsed.data;
+      } else if (route.body) {
         const parsed = route.body.safeParse(await readBody(request));
         if (!parsed.success) throw new ApiError(400, "validation_error", "The request body is invalid.", issues(parsed.error));
         body = parsed.data;
@@ -209,7 +258,7 @@ export function createApiHandler(deps: ApiDeps) {
         userAgent: request.headers.get("user-agent"),
       };
       const result = await runAsConnectedApp({ userId: principal.userId, writing: route.scope === "pages:write", app }, () =>
-        route.handler({ principal, ctx, params, query, body }),
+        route.handler({ principal, ctx, params, query, body, files, signal: request.signal }),
       );
       return json(route.status ?? 200, result, headers);
     } catch (error) {

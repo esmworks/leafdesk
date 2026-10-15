@@ -63,6 +63,7 @@
     "inPath": "path",
     "inQuery": "query",
     "body": "Request body (JSON)",
+    "formBody": "Request body (multipart form data)",
     "response": "Response {status}",
     "name": "Name",
     "type": "Type",

@@ -2,6 +2,7 @@ import { CommentError } from "@/lib/comments";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { AgentError } from "@/server/agents/manage";
+import { AiError } from "@/server/ai/errors";
 import { ToolInputError } from "@/server/mcp/format";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
@@ -24,6 +25,10 @@ export const API_ERROR_CODES = {
   },
   method_not_allowed: { status: 405, description: "The endpoint doesn't take this HTTP method." },
   invalid_json: { status: 400, description: "The request body isn't a JSON object." },
+  unsupported_media_type: {
+    status: 415,
+    description: "The body or the file it carries is of a kind the endpoint doesn't take (voice notes take multipart form data with an audio file).",
+  },
   validation_error: { status: 400, description: "A parameter or body field is missing or invalid; `details` lists which." },
   invalid_request: { status: 400, description: "The request can't be carried out as asked; the message says why." },
   invalid_property_value: { status: 400, description: "A row property value doesn't fit its property." },
@@ -31,9 +36,14 @@ export const API_ERROR_CODES = {
   agent_unavailable: { status: 409, description: "The agent can't run now: it is paused or archived, or AI is off for its workspace." },
   limit_reached: { status: 409, description: "The agent used its monthly token limit; it runs again next month, or once an owner raises the limit." },
   too_many_runs: { status: 409, description: "Too many runs asked of the agent are still waiting or under way; ask again once one has finished." },
+  voice_notes_unavailable: {
+    status: 409,
+    description: "Voice notes can't be made: the server has no speech to text set up, or the workspace turned AI off.",
+  },
   payload_too_large: { status: 413, description: "The request body is too large." },
   rate_limited: { status: 429, description: "Too many requests for this token; wait for Retry-After seconds." },
   internal_error: { status: 500, description: "Something went wrong on the server." },
+  upstream_error: { status: 502, description: "The speech to text or AI provider failed or took too long; try again later." },
 } as const;
 
 export type ApiErrorCode = keyof typeof API_ERROR_CODES;
@@ -79,6 +89,7 @@ export function apiErrorFor(error: unknown): ApiError {
     if (error.code === "tooManyRuns") return new ApiError(409, "too_many_runs", `${error.message}.`);
     return new ApiError(400, "invalid_request", `${error.message}.`);
   }
+  if (error instanceof AiError) return apiErrorForAi(error);
   if (error instanceof CommentError) {
     if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
     if (error.code === "notAllowed") return new ApiError(403, "forbidden", error.message);
@@ -86,6 +97,25 @@ export function apiErrorFor(error: unknown): ApiError {
   }
   console.error("[api] request failed", error);
   return new ApiError(500, "internal_error", "Something went wrong on the server. Try again later.");
+}
+
+/** Failures of the AI layer (voice notes' transcription), in the API's terms. */
+function apiErrorForAi(error: AiError): ApiError {
+  switch (error.code) {
+    case "disabled":
+      return new ApiError(409, "voice_notes_unavailable", `${error.message}.`);
+    case "noAccess":
+      return new ApiError(404, "not_found", "Not found or access denied");
+    case "tooLarge":
+      return new ApiError(413, "payload_too_large", `${error.message}.`);
+    case "rateLimited":
+      return new ApiError(429, "rate_limited", `${error.message}.`);
+    case "invalid":
+    case "empty":
+      return new ApiError(400, "invalid_request", `${error.message}.`);
+    default:
+      return new ApiError(502, "upstream_error", `${error.message}.`);
+  }
 }
 
 export function errorBody(error: ApiError) {

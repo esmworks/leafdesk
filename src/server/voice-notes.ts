@@ -6,7 +6,8 @@
  *
  * Writing up happens first (`draftVoiceNote`), saving after (`saveVoiceNote`), so the quick note
  * shows the note and the person can change it before it is saved. The raw transcript goes along in
- * a toggle block under the note, to check what the AI made of it.
+ * a toggle block under the note, to check what the AI made of it. Apps sending a recording through
+ * the REST API (`POST /api/v1/voice-notes`) get both in one go (`createVoiceNote`).
  *
  * The audio is never stored: it is held in memory for the transcription request and dropped with
  * it. The transcript under the note keeps what was said, and recordings would otherwise take up the
@@ -19,12 +20,14 @@ import { page } from "@/db/schema";
 import { MAX_TRANSCRIPT, pickTagValues, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits, type VoiceNoteTagProperty } from "@/lib/voice-notes";
 import { isPageLocked } from "@/lib/page-lock";
 import { PropertyValueError } from "@/lib/properties";
-import { AccessError, hasLevel, requireMembership, requirePageAccess, resolvePageAccess, WorkspacePolicyError } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, hasLevel, requireMembership, requirePageAccess, resolvePageAccess, WorkspacePolicyError } from "@/server/access";
 import { aiConfig, AiError, complete, sttLimits, transcribe } from "@/server/ai";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
 import { knownProperties } from "@/server/databases";
+import { loadMessages } from "@/i18n/messages";
+import { recipientLocale } from "@/server/mail/locale";
 import { createPage } from "@/server/pages";
 import { workspaceSettings } from "@/server/workspaces";
 
@@ -45,9 +48,14 @@ export async function voiceNoteLimits(workspaceId: string): Promise<VoiceNoteLim
   return (await workspaceSettings(workspaceId)).ai !== false ? limits : null;
 }
 
-/** Turns access failures into AiError("noAccess"), as the AI routes answer them. */
+/**
+ * Turns access failures into AiError("noAccess"), as the AI routes answer them. Refusals that say
+ * why (a sign-in policy, a workspace letting apps only read) go through as they are.
+ */
 function noAccess(error: unknown): never {
-  if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) throw new AiError("noAccess", "Not found");
+  if (error instanceof AccessError && !(error instanceof WorkspacePolicyError) && !(error instanceof ConnectedAppReadOnlyError)) {
+    throw new AiError("noAccess", "Not found");
+  }
   throw error;
 }
 
@@ -193,21 +201,27 @@ export type SaveVoiceNoteInput = {
  * with the property values the AI picked (left out when one can't be set, e.g. a property the
  * person may not change). The transcript goes in a toggle under the note. Returns the new page.
  */
-export async function saveVoiceNote(userId: string, input: SaveVoiceNoteInput): Promise<{ id: string; workspaceId: string }> {
+export async function saveVoiceNote(
+  userId: string,
+  input: SaveVoiceNoteInput,
+): Promise<{ id: string; workspaceId: string; properties: Record<string, string | string[]> }> {
   const actor = { userId };
   await requireMembership(userId, input.workspaceId);
   const title = input.title.trim();
   const markdown = input.markdown;
   let created;
+  /** The values the row got (none when they no longer fit the database). */
+  let properties: Record<string, string | string[]> = {};
   if (input.databaseId) {
     const database = await targetDatabase(userId, input.workspaceId, input.databaseId);
-    const properties = input.properties ?? {};
+    properties = input.properties ?? {};
     const create = (values: Record<string, unknown>) =>
       createPage(actor, { workspaceId: database.workspaceId, parentId: database.id, title, properties: values, markdown });
     try {
       created = await create(properties);
     } catch (error) {
       if (!Object.keys(properties).length || !(error instanceof PropertyValueError || error instanceof AccessError)) throw error;
+      properties = {};
       created = await create({});
     }
   } else {
@@ -215,5 +229,35 @@ export async function saveVoiceNote(userId: string, input: SaveVoiceNoteInput): 
   }
   const transcript = input.transcript.trim().slice(0, MAX_TRANSCRIPT);
   if (transcript) await getCollab().appendBlocks(created.id, [transcriptBlock(transcript, input.transcriptLabel)], actor);
-  return { id: created.id, workspaceId: created.workspaceId };
+  return { id: created.id, workspaceId: created.workspaceId, properties };
+}
+
+/**
+ * A recording written up and saved in one go, for apps (the REST API): a private page of the
+ * workspace, or a row of `databaseId`. The transcript toggle is titled in the language the person
+ * last used the app in. `properties` are the values the row got, by property name. Throws AiError
+ * ("noAccess", "disabled", and transcription failures).
+ */
+export async function createVoiceNote(
+  userId: string,
+  target: { workspaceId: string; databaseId?: string | null },
+  audio: { bytes: Blob; type: string },
+  { signal }: { signal?: AbortSignal } = {},
+) {
+  const prepared = await prepareVoiceNote(userId, target);
+  const draft = await draftVoiceNote(userId, prepared, audio, { signal });
+  const messages = await loadMessages(await recipientLocale(userId, null));
+  const created = await saveVoiceNote(userId, {
+    workspaceId: prepared.workspaceId,
+    databaseId: prepared.databaseId,
+    title: draft.title,
+    markdown: draft.markdown,
+    transcript: draft.transcript,
+    properties: draft.properties,
+    transcriptLabel: messages.page.voiceNote.transcriptToggle,
+  });
+  // By property name, as apps read and write them.
+  const names = new Map(prepared.databaseId ? (await knownProperties(userId, prepared.databaseId)).map((p) => [p.id, p.name]) : []);
+  const properties = Object.fromEntries(Object.entries(created.properties).flatMap(([id, value]) => (names.has(id) ? [[names.get(id)!, value]] : [])));
+  return { id: created.id, workspaceId: created.workspaceId, databaseId: prepared.databaseId, draft, properties };
 }

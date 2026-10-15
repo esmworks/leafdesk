@@ -1426,6 +1426,10 @@ browser's permission to use the microphone; when either is missing, or the brows
 the app says so and offers the file instead. A recording stops by itself at the length or size
 limit.
 
+**From other apps.** A script or app with a personal access token can send a recording to
+`POST /api/v1/voice-notes` as multipart form data and get the note saved in one call (see
+[REST API](#rest-api)); there is no MCP tool for it, since MCP tools take text, not audio.
+
 **What is kept.** The note, and the transcript in a *Transcript* toggle under it to check what the
 AI made of it. The audio is not stored: it is held in memory for the transcription request and
 dropped with it. Without a chat model, or when the AI fails or its answer reaches
@@ -1920,6 +1924,18 @@ curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   sorts, a saved view, cursor pagination), `POST /databases/{id}/rows`, `POST
   /databases/{id}/rows/bulk` (up to 100), `PATCH /databases/{id}/rows` (same values on many rows),
   `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first).
+- **Voice notes:** `POST /voice-notes` takes a recording as multipart form data (`audio`, and
+  `workspace_id` or `database_id`), has it transcribed and written up by AI and saves the note as a
+  private page or a database row, answering when it is saved (`201`, with the transcript and the
+  select values AI picked). Only where speech to text is set up and the workspace allows AI
+  (otherwise `409 voice_notes_unavailable`); files may be up to `STT_MAX_MB` (see
+  [Voice notes](#voice-notes)), unsupported files answer `415` and provider failures `502`.
+
+  ```bash
+  curl -X POST http://localhost:3000/api/v1/voice-notes \
+    -H "Authorization: Bearer $LEAFDESK_TOKEN" \
+    -F audio=@memo.m4a -F workspace_id=<workspace_id>
+  ```
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
 - **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
   resuming, the monthly token limit; with this month's usage), `POST /agents/{id}/runs` (ask for a
@@ -1936,8 +1952,8 @@ input, access and history the same way: a token acts as its user, with that user
 pages, and every body change is saved to page history first. Pages the user can't see (or outside
 a token's workspace) answer `404`. Errors are JSON, `{"error": {"code", "message", "details"}}`;
 lists page with `next_cursor`. Each token may make 180 requests a minute (`API_RATE_LIMIT`;
-`X-RateLimit-*` headers, `429` with `Retry-After` beyond it), and request bodies are limited to
-5 MB. Only tokens authenticate (never the browser session), and CORS is off unless
+`X-RateLimit-*` headers, `429` with `Retry-After` beyond it), and JSON request bodies are limited
+to 5 MB. Only tokens authenticate (never the browser session), and CORS is off unless
 `API_CORS_ORIGINS` lists origins. Like connected MCP apps, tokens are not held back by a
 workspace's "require two-step verification" policy: it guards browser sessions. They are held to
 its **Connected apps and API tokens** switch: in a read-only workspace write endpoints answer
@@ -1972,6 +1988,7 @@ Useful scripts:
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
+| `pnpm tsx scripts/voice-api-e2e.ts` | End-to-end check of voice notes over the REST API: a recording saved as a private page or a database row, the transcript toggle, the AI falling back to the transcript, workspace-bound tokens and every refusal, with a faux model and transcription, against the database |
 | `pnpm tsx scripts/agent-api-e2e.ts` | End-to-end check of agents over the REST API: settings, runs asked for on a row or on none, the asking owner's access, usage by month and the monthly limit, with a fake AI server, against the database |
 | `pnpm tsx scripts/workspace-apps-e2e.ts` | End-to-end check of the apps that reach a workspace: what its owners see, when each was last used there, and disconnecting one, against the database |
 | `pnpm tsx scripts/security-switches-e2e.ts` | End-to-end check of the workspace security switches (export, publishing, connected apps) through the settings action, the export and public routes, MCP and the REST API, against a running server |

@@ -16,6 +16,12 @@
   notes stay hidden. The audio is never stored.
 - **Quick notes go into databases.** *Save to* in the quick note adds the note as a row of a
   database you may edit, instead of a private page.
+- **Voice notes from apps.** `POST /api/v1/voice-notes` takes a recording as multipart form data
+  (`audio`, with `workspace_id` or `database_id`), writes it up like the quick note does and saves
+  it as a private page or a database row, answering with the note's id, title, transcript and the
+  values AI picked. It needs a `pages:write` token, speech to text on the server and AI on in the
+  workspace (else `409 voice_notes_unavailable`), and takes files up to `STT_MAX_MB`. The API's
+  reference shows bodies with files as form data.
 
 - **Apps you connect share the AI chat's memory of you.** Over MCP, `list_memory` reads the notes
   the chat keeps about you in a workspace (or in all of them), `remember` keeps one (also in place
