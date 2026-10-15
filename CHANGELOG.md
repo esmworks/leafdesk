@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.5.3 — 2026-10-16
+
+### Upgrading from 0.5.2
+
+- **Migrations** (0068–0069) run automatically when the container starts.
+- **Docker Compose:** download the new `docker-compose.yml`. It passes the settings that are new in
+  this release to the app: voice notes' `STT_PROVIDER`, `STT_MODEL`, `STT_BASE_URL`,
+  `STT_API_KEY`, `STT_MAX_SECONDS`, `STT_MAX_MB` and `STT_TIMEOUT_SECONDS`, and
+  `CONNECTION_OAUTH_CLIENTS`; without it they stay unset in the container, voice notes stay hidden
+  and owners enter their own app for services that need one.
+- **Apps reach the AI chat's memory.** MCP apps someone connected can now read the notes the chat
+  keeps about them and keep new ones. Turn it off per person with *Use memory* in the *Memory*
+  dialog, or per workspace under Settings → General → AI → *AI memory*.
+- **Event runs may add rows.** An agent that a connection's events run may now add rows to
+  databases shared with it to edit; each row waits for an owner's approval in the inbox.
+
 ### Added
 
 - **A catalog of ready-made connections.** Settings → Connections now opens on *Browse*: 147
