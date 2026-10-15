@@ -28,6 +28,7 @@ const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { archivePage, createPage, restorePage } = await import("@/server/pages");
 const { addProperty, createRows } = await import("@/server/databases");
+const { MAX_AGENT_WRITES } = await import("@/lib/agents");
 const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -182,6 +183,8 @@ try {
         { name: "update_row", arguments: { row_id: report.id, properties: { Stage: "Late" } } },
         { name: "update_row", arguments: { row_id: elsewhere.id, properties: { Stage: "Late" } } },
         { name: "add_comment", arguments: { row_id: release.id, text: "Who owns this release?" } },
+        // More changes than a row's run may make: a run on a database is held to its own limit.
+        ...Array.from({ length: MAX_AGENT_WRITES }, (_, i) => ({ name: "add_comment", arguments: { row_id: report.id, text: `Reminder ${i + 1}` } })),
       ],
       "Marked the quarterly report Late. Today: finish the quarterly report; say who owns release 2.1.",
     ),
@@ -227,6 +230,9 @@ try {
     results,
   });
   check(done.steps.some((s) => s.kind === "comment" && s.pageId === release.id && s.outcome === "done"), "it commented on another row of the board", done.steps);
+  // With the row it changed, more changes than a row's run may make.
+  const comments = done.steps.filter((s) => s.kind === "comment" && s.outcome === "done").length;
+  check(comments === MAX_AGENT_WRITES + 1, `it may make more than a row's run's ${MAX_AGENT_WRITES} changes`, { comments, steps: done.steps });
 
   const inbox = await listNotifications(ids.owner, { workspaceId });
   const reported = inbox.find((n) => n.kind === "agent_report");
