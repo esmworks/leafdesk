@@ -18,11 +18,12 @@ after you approve them over OAuth.
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
   shown as table, board, calendar, gallery, list, timeline, chart or form, with relations,
-  formulas and rollups.
+  formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
-  what it may read or change; optional AI writing, AI properties and chat with Anthropic, OpenAI,
-  Google or a local model.
+  what it may read or change; optional AI writing, AI properties, a chat that remembers what you
+  tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
+  or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Markdown files,
   Word documents, a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
@@ -52,7 +53,7 @@ versions, upgrades and running behind a domain.
 ## Features
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu (block text and background
-  colors included) and markdown shortcuts, icons, backgrounds (a color that suits the light and dark theme, or black, with an optional faint
+  colors included) and markdown shortcuts, icons (beside the title), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
   pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text, and also by meaning when the server has an embeddings model
@@ -85,8 +86,10 @@ versions, upgrades and running behind a domain.
   one on phones). Each widget is a database seen through its own view (a *Number* chart for one
   value, a chart, a list, or any other layout), set up in place, kept up to date as rows change,
   and worked out for each reader from the rows and values they may see; a number, bar or slice
-  opens the rows behind it. A widget can take one of the option colors, as board columns do.
-  Published pages show numbers and lists, and charts as a table of their figures.
+  opens the rows behind it. A widget can take one of the option colors, as board columns do, and
+  editors move widgets by dragging their title bar. A page with a dashboard uses the full width.
+  Published pages show numbers and lists, and charts as a table of their figures. Over MCP,
+  `add_dashboard` and `update_dashboard_widget` build one.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -207,9 +210,12 @@ versions, upgrades and running behind a domain.
   set properties, notify people, send the row to a webhook signed with HMAC-SHA256, run an agent
   on the row, or move it to the trash, with a 30-day run history (see
   [Automations and webhooks](#automations-and-webhooks)).
-- **Agents**: AI helpers with instructions of their own that automations run on database rows.
-  Each acts as a user of its own that sees only the pages shared with it, and its changes and
-  comments show its name (see [Agents](#agents)).
+- **Agents**: AI helpers with instructions of their own that automations run on database rows,
+  or that owners ask for a task over the REST API or MCP. Each acts as a user of its own that sees
+  only the pages shared with it (from its settings or the page's Share menu), and its changes and
+  comments show its name. Agents follow the skills they're given, keep a memory whose notes an
+  owner reviews before they count, and show their monthly usage, with an optional token limit
+  (see [Agents](#agents)).
 - **Connections**: link a workspace to any remote MCP server (Slack, GitHub, a CRM, another
   Leafdesk) so agents can use its tools: reading tools run at once, anything else waits for an
   owner's approval in the inbox; signed events from the service can start agents, whose every call
@@ -388,7 +394,8 @@ versions, upgrades and running behind a domain.
   summarize a page, as a suggestion you accept or discard; database text properties that AI fills
   in (a summary, a translation or your own prompt over the row's values); a chat, on its own page
   or in a panel beside a page, that answers questions from the pages you can read, citing them, and
-  remembers what you tell it about yourself; and semantic search with an
+  remembers what you tell it about yourself (asking first; each person, or a workspace's owners for
+  everyone, can turn the memory off, see [Memory](#ai-features)); and semantic search with an
   embeddings model. Anthropic, OpenAI, Google, any OpenAI-compatible server, or a local model
   with Ollama or LM Studio (see [AI features](#ai-features)).
 - **Skills**: instructions your team reuses (how to review a pull request, write release notes),
