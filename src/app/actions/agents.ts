@@ -186,12 +186,12 @@ export type AgentCommentView = Omit<AgentCommentRecord, "text"> & { text: string
 export type AgentStepView = ChatStepView | AgentCommentView | AgentToolRecord | AgentSkillRecord;
 export type AgentRunDetails = Omit<AgentRunView, "steps"> & { steps: AgentStepView[] };
 
-/** An agent's latest runs, with the pages their steps name as the viewer may see them now. */
 /** What the agent's runs used by month, this month first. */
 export async function agentUsageAction(workspaceId: string, agentId: string) {
   return run(workspaceId, (userId) => agentUsageMonths(userId, agentId));
 }
 
+/** An agent's latest runs, with the pages their steps name as the viewer may see them now. */
 export async function listAgentRunsAction(workspaceId: string, agentId: string): Promise<ActionResult<AgentRunDetails[]>> {
   return run(workspaceId, async (userId) => {
     // An owner approves a waiting call here: they see it exactly as it will be sent.

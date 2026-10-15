@@ -16,8 +16,8 @@ import { MAX_AGENT_PROMPT, MAX_REQUESTED_RUNS, type AgentRunVia, type AgentRunVi
 import { pageAccessOf } from "@/server/access";
 import { aiAvailable } from "@/server/ai-writing";
 import { recordAudit } from "@/server/audit";
+import { kickAgents } from "./kick";
 import { AgentError, getAgentRun, ownedAgent } from "./manage";
-import { queueAgentRun } from "./run";
 import { overMonthlyLimit } from "./usage";
 
 export type AgentRunRequest = {
@@ -43,7 +43,8 @@ export async function requestAgentRun(userId: string, agentId: string, request: 
       .select({ id: page.id, databaseId: database.id })
       .from(page)
       .innerJoin(database, and(eq(database.id, page.parentId), eq(database.kind, "database")))
-      .where(and(eq(page.id, request.rowId), eq(page.workspaceId, agent.workspaceId), isNull(page.archivedAt)))
+      // A row template (or a row of a database kept as a template) isn't a row to work on.
+      .where(and(eq(page.id, request.rowId), eq(page.workspaceId, agent.workspaceId), isNull(page.archivedAt), eq(page.isTemplate, false), eq(page.inTemplate, false)))
       .limit(1);
     if (!found || (await pageAccessOf(userId, found.id)).level === "none") throw new AgentError("notARow", "Row not found");
     row = { rowId: found.id, databaseId: found.databaseId };
@@ -51,25 +52,33 @@ export async function requestAgentRun(userId: string, agentId: string, request: 
 
   if (!(await aiAvailable(agent.workspaceId))) throw new AgentError("aiOff", "AI is off for this workspace");
   if (await overMonthlyLimit(agent)) throw new AgentError("limitReached", "The agent used its tokens for this month", { limit: String(agent.monthlyTokenLimit) });
-  const [waiting] = await db
-    .select({ n: count() })
-    .from(agentRun)
-    .where(
-      and(
-        eq(agentRun.agentId, agent.id),
-        inArray(agentRun.status, ["pending", "running", "awaiting_approval"]),
-        sql`${agentRun.source}->>'kind' = 'request'`,
-      ),
-    );
-  if ((waiting?.n ?? 0) >= MAX_REQUESTED_RUNS) throw new AgentError("tooManyRuns", "Too many runs of this agent are waiting", { max: String(MAX_REQUESTED_RUNS) });
-
-  const runId = await queueAgentRun({
-    agentId: agent.id,
-    workspaceId: agent.workspaceId,
-    source: { kind: "request", requestedBy: userId, via: request.via, ...(row ?? {}) },
-    context: { actorId: userId },
-    prompt: task,
+  // Counted and queued under a lock on the agent, so requests at the same moment can't all pass.
+  const runId = await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`agent_request:${agent.id}`}))`);
+    const [waiting] = await tx
+      .select({ n: count() })
+      .from(agentRun)
+      .where(
+        and(
+          eq(agentRun.agentId, agent.id),
+          inArray(agentRun.status, ["pending", "running", "awaiting_approval"]),
+          sql`${agentRun.source}->>'kind' = 'request'`,
+        ),
+      );
+    if ((waiting?.n ?? 0) >= MAX_REQUESTED_RUNS) throw new AgentError("tooManyRuns", "Too many runs of this agent are waiting", { max: String(MAX_REQUESTED_RUNS) });
+    const [queued] = await tx
+      .insert(agentRun)
+      .values({
+        agentId: agent.id,
+        workspaceId: agent.workspaceId,
+        source: { kind: "request", requestedBy: userId, via: request.via, ...(row ?? {}) },
+        context: { actorId: userId },
+        prompt: task,
+      })
+      .returning({ id: agentRun.id });
+    return queued.id;
   });
+  kickAgents();
   await recordAudit({
     workspaceId: agent.workspaceId,
     actorId: userId,

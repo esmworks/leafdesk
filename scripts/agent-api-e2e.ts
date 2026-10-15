@@ -24,7 +24,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, agentUsage, auditEvent, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, agentUsage, auditEvent, page, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -164,6 +164,9 @@ try {
   const notARow = await api(full, "POST", `/agents/${router.id}/runs`, { task: "Anything", row_id: faq.id });
   check(notARow.status === 404, "row_id must be a database row", notARow.json);
   check((await api(full, "POST", `/agents/${router.id}/runs`, { task: "Anything", row_id: diary.id })).status === 404, "…the owner can open");
+  const [template] = await createRows(ids.owner, tickets.id, [{ title: "New ticket" }]);
+  await db.update(page).set({ isTemplate: true }).where(eq(page.id, template.id));
+  check((await api(full, "POST", `/agents/${router.id}/runs`, { task: "Anything", row_id: template.id })).status === 404, "…and not a row template");
   await updateWorkspaceSettings(ids.owner, workspaceId, { connectedApps: "read" });
   const readMode = await api(full, "POST", `/agents/${router.id}/runs`, { task: "Anything" });
   check(readMode.status === 403 && readMode.json.error.code === "forbidden", "a workspace that lets apps only read refuses runs", readMode.json);
@@ -241,6 +244,29 @@ try {
   check(stopped.json.status === "failed" && stopped.json.code === "limitReached" && stopped.json.usage?.rounds === 1, "a run under way stops at its next turn once the month reaches the limit", stopped.json);
   const after = (await api(full, "GET", `/agents/${router.id}/usage`)).json.months[0];
   check(after.runs === 3 && after.input_tokens + after.output_tokens === 90, "…having counted what it used", after);
+  // A run taken again (after an owner's answer, or after its worker stopped) first answers the calls
+  // it had waiting, then stops before its next turn.
+  const waitingCall = { id: "call-1", name: "search_pages", arguments: { query: "refund" } };
+  const [resumed] = await db
+    .insert(agentRun)
+    .values({
+      agentId: router.id,
+      workspaceId,
+      source: { kind: "request", requestedBy: ids.owner, via: "api" },
+      context: { actorId: ids.owner },
+      prompt: "Go on",
+      state: { messages: [{ role: "user", content: "Go on" }, { role: "assistant", content: "", toolCalls: [waitingCall] }], queue: [waitingCall], rounds: 1, writes: 0, externalChars: 0 },
+      usage: { inputTokens: 10, outputTokens: 5, costUsd: 0, rounds: 1 },
+    })
+    .returning({ id: agentRun.id });
+  fake.chats.length = 0;
+  await flushAgentRuns();
+  const resumedRun = await api(full, "GET", `/agents/${router.id}/runs/${resumed.id}`);
+  check(
+    resumedRun.json.status === "failed" && resumedRun.json.code === "limitReached" && resumedRun.json.steps?.some((s: Json) => s.kind === "search") && fake.chats.length === 0,
+    "a run taken again past the limit answers the calls it had waiting, then stops before its next turn",
+    resumedRun.json,
+  );
   const cleared = await api(full, "PATCH", `/agents/${router.id}`, { monthly_token_limit: null });
   check(cleared.json.monthly_token_limit === null, "null removes the limit");
 
@@ -254,6 +280,22 @@ try {
   await flushAgentRuns();
   check((await api(full, "POST", `/agents/${router.id}/runs`, { task: "After" })).status === 201, "once they finish, owners may ask again");
   await flushAgentRuns();
+  const burst = await Promise.all(Array.from({ length: MAX_REQUESTED_RUNS + 3 }, (_, i) => api(full, "POST", `/agents/${router.id}/runs`, { task: `Burst ${i}` })));
+  check(
+    burst.filter((r) => r.status === 201).length === MAX_REQUESTED_RUNS && burst.filter((r) => r.json.error?.code === "too_many_runs").length === 3,
+    `asking many times at once still queues at most ${MAX_REQUESTED_RUNS}`,
+    burst.map((r) => r.status),
+  );
+  await flushAgentRuns();
+
+  // ── An asker who is no longer an owner ────────────────────────────────────────────────────────
+  const ownerRow = and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, ids.owner));
+  const beforeDemotion = await api(full, "POST", `/agents/${router.id}/runs`, { task: "Later" });
+  await db.update(workspaceMember).set({ role: "member" }).where(ownerRow);
+  await flushAgentRuns();
+  await db.update(workspaceMember).set({ role: "owner" }).where(ownerRow);
+  const demoted = await api(full, "GET", `/agents/${router.id}/runs/${beforeDemotion.json.id}`);
+  check(demoted.json.status === "failed" && demoted.json.code === "noAccess", "a run whose asker is no longer an owner opens nothing", demoted.json);
 
   // ── The docs, the audit log and the cleanup ───────────────────────────────────────────────────
   const doc = (await (await handleApiRequest(new Request("http://localhost/api/v1/openapi.json"))).json()) as Json;
@@ -265,7 +307,7 @@ try {
     .select({ actor: auditEvent.actorUserId })
     .from(auditEvent)
     .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "agent.run_requested")));
-  check(requested.length === 3 + MAX_REQUESTED_RUNS + 1 && requested.every((e) => e.actor === ids.owner), "the audit log records each run asked for, by the owner", requested.length);
+  check(requested.length === 3 + MAX_REQUESTED_RUNS + 1 + MAX_REQUESTED_RUNS + 1 && requested.every((e) => e.actor === ids.owner), "the audit log records each run asked for, by the owner", requested.length);
   await db.insert(agentUsage).values({ agentId: router.id, month: "2024-01-01", runs: 1, inputTokens: 1, outputTokens: 1, costUsd: 0 });
   await pruneAgentUsage();
   const months = await db.select({ month: agentUsage.month }).from(agentUsage).where(eq(agentUsage.agentId, router.id));

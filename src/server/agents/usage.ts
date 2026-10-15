@@ -58,7 +58,12 @@ const view = (row: typeof agentUsage.$inferSelect): AgentUsageMonth => ({
  */
 export async function agentUsageMonths(userId: string, agentId: string, now = new Date()): Promise<AgentUsageMonth[]> {
   const agent = await ownedAgent(userId, agentId);
-  const rows = await db.select().from(agentUsage).where(eq(agentUsage.agentId, agent.id)).orderBy(desc(agentUsage.month)).limit(AGENT_USAGE_MONTHS);
+  return usageMonthsOf(agent.id, now);
+}
+
+/** agentUsageMonths for an agent the caller already found its owner may see. */
+export async function usageMonthsOf(agentId: string, now = new Date()): Promise<AgentUsageMonth[]> {
+  const rows = await db.select().from(agentUsage).where(eq(agentUsage.agentId, agentId)).orderBy(desc(agentUsage.month)).limit(AGENT_USAGE_MONTHS);
   const months = rows.map(view);
   const current = monthOf(now).slice(0, 7);
   if (months[0]?.month !== current) months.unshift({ month: current, runs: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 });

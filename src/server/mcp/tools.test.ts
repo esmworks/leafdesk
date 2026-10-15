@@ -144,7 +144,7 @@ const agentMemory = vi.hoisted(() => ({
 vi.mock("@/server/agents/memory", () => agentMemory);
 
 const agentUsage = vi.hoisted(() => ({
-  agentUsageMonths: vi.fn(async () => [{ month: "2026-10", runs: 3, inputTokens: 1200, outputTokens: 300, costUsd: 0.02 }]),
+  usageMonthsOf: vi.fn(async () => [{ month: "2026-10", runs: 3, inputTokens: 1200, outputTokens: 300, costUsd: 0.02 }]),
 }));
 vi.mock("@/server/agents/usage", () => agentUsage);
 

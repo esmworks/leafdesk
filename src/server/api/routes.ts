@@ -2,10 +2,11 @@ import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { db } from "@/db";
 import { page, user, workspaceAgent, type ApiTokenScope } from "@/db/schema";
+import type { AgentView } from "@/lib/agents";
 import { AccessError } from "@/server/access";
 import * as agents from "@/server/agents/manage";
 import { requestAgentRun } from "@/server/agents/requests";
-import { agentUsageMonths } from "@/server/agents/usage";
+import { usageMonthsOf } from "@/server/agents/usage";
 import { agentInputs, describeAgent, describeAgentRun, describeAgentSummary, describeUsageMonth, toAgentPatch } from "@/server/mcp/agents";
 import { getPage } from "@/server/pages";
 import * as ops from "@/server/operations";
@@ -60,16 +61,18 @@ function requireWorkspace(principal: ApiPrincipal, workspaceId: string) {
   if (principal.workspaceId && principal.workspaceId !== workspaceId) throw new AccessError();
 }
 
-async function requireAgentInWorkspace(principal: ApiPrincipal, agentId: string) {
-  if (!principal.workspaceId) return;
-  const [row] = await db.select({ workspaceId: workspaceAgent.workspaceId }).from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
-  if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
+/** The agent, for an owner of its workspace (refused for a token of another workspace). */
+async function ownedAgentFor(principal: ApiPrincipal, agentId: string) {
+  if (principal.workspaceId) {
+    const [row] = await db.select({ workspaceId: workspaceAgent.workspaceId }).from(workspaceAgent).where(eq(workspaceAgent.id, agentId)).limit(1);
+    if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
+  }
+  return agents.getAgent(principal.userId, agentId);
 }
 
 /** An agent as GET and PATCH answer it: its settings, and what its runs used this month. */
-async function agentWithUsage(userId: string, agentId: string) {
-  const agent = await agents.getAgent(userId, agentId);
-  const [month] = await agentUsageMonths(userId, agentId);
+async function agentWithUsage(agent: AgentView) {
+  const [month] = await usageMonthsOf(agent.id);
   return { ...describeAgent(agent), usage_this_month: describeUsageMonth(month) };
 }
 
@@ -550,8 +553,7 @@ export const API_ROUTES: ApiRoute[] = [
     scope: "pages:read",
     response: "Agent",
     handler: async ({ principal, params }) => {
-      await requireAgentInWorkspace(principal, params.agent_id);
-      return agentWithUsage(principal.userId, params.agent_id);
+      return agentWithUsage(await ownedAgentFor(principal, params.agent_id));
     },
   }),
   defineRoute({
@@ -566,9 +568,8 @@ export const API_ROUTES: ApiRoute[] = [
     body: agentInputs.update.omit({ agent_id: true }),
     response: "Agent",
     handler: async ({ principal, params, body }) => {
-      await requireAgentInWorkspace(principal, params.agent_id);
-      await agents.updateAgent(principal.userId, params.agent_id, toAgentPatch(body));
-      return agentWithUsage(principal.userId, params.agent_id);
+      await ownedAgentFor(principal, params.agent_id);
+      return agentWithUsage(await agents.updateAgent(principal.userId, params.agent_id, toAgentPatch(body)));
     },
   }),
   defineRoute({
@@ -585,9 +586,8 @@ export const API_ROUTES: ApiRoute[] = [
     conflict: true,
     response: "AgentRun",
     handler: async ({ principal, params, body }) => {
-      await requireAgentInWorkspace(principal, params.agent_id);
+      const agent = await ownedAgentFor(principal, params.agent_id);
       const run = await requestAgentRun(principal.userId, params.agent_id, { task: body.task, rowId: body.row_id ?? null, via: "api" });
-      const agent = await agents.getAgent(principal.userId, params.agent_id);
       return describeAgentRun(agent.workspaceId, run);
     },
   }),
@@ -603,8 +603,7 @@ export const API_ROUTES: ApiRoute[] = [
     query: z.object({ limit: limitInput(100, 20) }),
     response: "AgentRunList",
     handler: async ({ principal, params, query }) => {
-      await requireAgentInWorkspace(principal, params.agent_id);
-      const agent = await agents.getAgent(principal.userId, params.agent_id);
+      const agent = await ownedAgentFor(principal, params.agent_id);
       const runs = await agents.listAgentRuns(principal.userId, params.agent_id, query.limit);
       return { agent_id: agent.id, runs: runs.map((run) => describeAgentRun(agent.workspaceId, run)) };
     },
@@ -619,9 +618,8 @@ export const API_ROUTES: ApiRoute[] = [
     scope: "pages:read",
     response: "AgentRun",
     handler: async ({ principal, params }) => {
-      await requireAgentInWorkspace(principal, params.agent_id);
+      const agent = await ownedAgentFor(principal, params.agent_id);
       const run = await agents.getAgentRun(principal.userId, params.agent_id, params.run_id);
-      const agent = await agents.getAgent(principal.userId, params.agent_id);
       return describeAgentRun(agent.workspaceId, run);
     },
   }),
@@ -636,9 +634,8 @@ export const API_ROUTES: ApiRoute[] = [
     scope: "pages:read",
     response: "AgentUsage",
     handler: async ({ principal, params }) => {
-      await requireAgentInWorkspace(principal, params.agent_id);
-      const agent = await agents.getAgent(principal.userId, params.agent_id);
-      const months = await agentUsageMonths(principal.userId, params.agent_id);
+      const agent = await ownedAgentFor(principal, params.agent_id);
+      const months = await usageMonthsOf(agent.id);
       return { agent_id: agent.id, monthly_token_limit: agent.monthlyTokenLimit, months: months.map(describeUsageMonth) };
     },
   }),

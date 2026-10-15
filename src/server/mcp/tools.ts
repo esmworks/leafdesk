@@ -86,7 +86,7 @@ import * as agents from "@/server/agents/manage";
 import * as agentMemory from "@/server/agents/memory";
 import * as agentSkills from "@/server/agents/skills";
 import { requestAgentRun } from "@/server/agents/requests";
-import { agentUsageMonths } from "@/server/agents/usage";
+import { usageMonthsOf } from "@/server/agents/usage";
 import {
   agentInputs,
   describeAgent,
@@ -1956,7 +1956,7 @@ export function createMcpServer(principal: McpPrincipal) {
             await agents.listAgentAccess(userId, agent_id),
             await agentSkills.listAgentSkills(userId, agent_id),
             await agentMemory.listAgentMemory(userId, agent_id),
-            await agentUsageMonths(userId, agent_id),
+            await usageMonthsOf(agent.id),
           );
         }),
       ),

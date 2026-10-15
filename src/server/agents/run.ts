@@ -216,7 +216,9 @@ export async function processRun(run: Run): Promise<void> {
   if (!agent || agent.archivedAt || !agent.enabled) return finish(run, { status: "failed", code: "agentDisabled" });
   if (run.attempts > MAX_CLAIMS) return finish(run, { status: "failed", code: "tooManyAttempts" });
   if (!(await aiAvailable(run.workspaceId))) return finish(run, { status: "failed", code: "aiOff" });
-  if (await overMonthlyLimit(agent)) return finish(run, { status: "failed", code: "limitReached" });
+  // A run going on after an owner's answer sends what they approved first; converse checks the
+  // limit before its next turn.
+  if (!run.state && (await overMonthlyLimit(agent))) return finish(run, { status: "failed", code: "limitReached" });
 
   // The member whose change started a row's run: the agent works within their access as well. Asked
   // again each time the run is taken (after an approval too): their access as it is now counts, and
@@ -228,11 +230,12 @@ export async function processRun(run: Run): Promise<void> {
   // too (turning it off holds back the calls of runs already under way). A trigger since removed
   // isn't trusted.
   let trusted = false;
-  // A run an owner asked for is held to their access, and stands behind what it reads as they do.
+  // A run an owner asked for is held to their access, and stands behind what it reads as they do;
+  // only owners ask for runs, so one whose asker is no longer an owner opens nothing.
   if (run.source.kind === "request") {
-    member = await memberBehind(run);
-    if (!member) return finish(run, { status: "failed", code: "noAccess" });
-    bound = member;
+    const asker = await findMembership(run.source.requestedBy, run.workspaceId);
+    if (asker?.role !== "owner") return finish(run, { status: "failed", code: "noAccess" });
+    member = bound = run.source.requestedBy;
     trusted = true;
   }
   if (isRowRun(run.source)) {
@@ -443,8 +446,9 @@ async function converse(
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
     }
-    // The month's tokens may have run out since the run started (other runs of the agent use them too).
-    if (round > firstRound && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
+    // The month's tokens may have run out since the run started or was taken again (other runs of
+    // the agent use them too); a new run's first turn was checked in processRun.
+    if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
     const last = round === MAX_AGENT_ROUNDS - 1;
     const result = await complete({
       feature: "agent",
