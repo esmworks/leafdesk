@@ -4,15 +4,16 @@
 
 ### Added
 
-- **A catalog of ready-made connections.** *Add connection* (Settings → Connections) now opens a
-  list of 147 services in 16 categories, from Linear, Atlassian, GitLab, Sentry and Stripe to
-  Intercom, Zapier and meeting recorders, with search by name or category. Picking one fills in
-  its MCP address, how it signs in and, for GitHub, how its events are signed; *Add another
+- **A catalog of ready-made connections.** Settings → Connections now opens on *Browse*: 147
+  services in 16 categories, as cards with each service's logo, from Linear, Atlassian, GitLab,
+  Sentry and Stripe to Intercom, Zapier and meeting recorders, with search by name or category.
+  *Connect* on a card fills in its MCP address, how it signs in and, for GitHub, how its events are signed; *Add another
   server* still takes any remote MCP server. Every listed address was checked to sign in a way
   Leafdesk handles: OAuth metadata naming that address, an API key, or no sign-in at all.
-  Connections to a listed service show its initial on its category's color instead of a plug.
+  The workspace's own connections are under *Connected*, and those to a listed service show its
+  logo instead of a plug.
 - **Connections to services that sign in only registered apps.** Slack, HubSpot, Asana, Box,
-  Discord, Front, PagerDuty and Xero are in the catalog of *Add connection* (Slack, Discord and
+  Discord, Front, PagerDuty and Xero are in the connection catalog (Slack, Discord and
   their category *Messaging & chat* are new to it). Their servers don't let Leafdesk register
   itself, so the form asks for the client ID and secret of an app you create at the service, links
   to where it's made and shows the redirect URL to give it; the secret is sealed like a token,

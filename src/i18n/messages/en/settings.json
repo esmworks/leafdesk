@@ -1380,9 +1380,16 @@
   "connections": {
     "heading": "Connections",
     "description": "Services your agents use: Slack, GitHub, a CRM, another Leafdesk… anything with a remote MCP server. Only owners see and manage them; which tools each agent may use is set on the agent. (Programs that use Leafdesk are under Security › Connected apps.)",
+    "tabs": {
+      "browse": "Browse",
+      "connected": "Connected",
+      "tools": "Tools",
+      "events": "Events",
+      "settings": "Settings"
+    },
     "approvalNote": "Agents run tools that only read at once, except on a row from an anonymous form answer. Every other call waits for an owner’s approval in the inbox; unanswered for a day, nothing is sent.",
-    "add": "Add connection",
     "empty": "No connections yet.",
+    "browse": "Browse services",
     "dismiss": "Dismiss",
     "notices": {
       "signedIn": "Signed in. The connection’s tools are listed below.",
@@ -1429,9 +1436,8 @@
       "count": "{n, plural, one {# service} other {# services}}",
       "none": "No service matches.",
       "added": "Added",
+      "connect": "Connect",
       "custom": "Add another server",
-      "customHint": "Not in the list?",
-      "back": "Back to the list",
       "auth": {
         "oauth": "Sign in",
         "token": "API key",
@@ -1492,11 +1498,6 @@
       "clientInstance": "This instance signs in to {name} with its own app.",
       "clientOverride": "Use an app of your own instead",
       "clientOptional": "Sign in as an app registered with the service"
-    },
-    "tabs": {
-      "tools": "Tools",
-      "events": "Events",
-      "settings": "Settings"
     },
     "checkedAt": "listed {time}",
     "signIn": "Sign in",

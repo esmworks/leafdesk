@@ -1380,9 +1380,16 @@
   "connections": {
     "heading": "Connexions",
     "description": "Les services que vos agents utilisent : Slack, GitHub, un CRM, un autre Leafdesk… tout ce qui a un serveur MCP distant. Seuls les propriétaires les voient et les gèrent ; les outils permis à chaque agent se règlent sur l’agent. (Les programmes qui utilisent Leafdesk sont dans Sécurité › Applications connectées.)",
+    "tabs": {
+      "browse": "Parcourir",
+      "connected": "Connectées",
+      "tools": "Outils",
+      "events": "Événements",
+      "settings": "Paramètres"
+    },
     "approvalNote": "Les agents exécutent aussitôt les outils qui ne font que lire, sauf sur une ligne issue d’une réponse anonyme à un formulaire. Tout autre appel attend l’approbation d’un propriétaire dans la boîte de réception ; sans réponse sous un jour, rien n’est envoyé.",
-    "add": "Ajouter une connexion",
     "empty": "Aucune connexion pour l’instant.",
+    "browse": "Parcourir les services",
     "dismiss": "Fermer",
     "notices": {
       "signedIn": "Connecté. Les outils de la connexion sont listés ci-dessous.",
@@ -1429,9 +1436,8 @@
       "count": "{n, plural, one {# service} other {# services}}",
       "none": "Aucun service ne correspond.",
       "added": "Ajouté",
+      "connect": "Connecter",
       "custom": "Ajouter un autre serveur",
-      "customHint": "Pas dans la liste ?",
-      "back": "Retour à la liste",
       "auth": {
         "oauth": "Connexion",
         "token": "Clé d’API",
@@ -1492,11 +1498,6 @@
       "clientInstance": "Cette instance se connecte à {name} avec sa propre application.",
       "clientOverride": "Utiliser plutôt votre propre application",
       "clientOptional": "Se connecter comme une application enregistrée sur le service"
-    },
-    "tabs": {
-      "tools": "Outils",
-      "events": "Événements",
-      "settings": "Paramètres"
     },
     "checkedAt": "listés {time}",
     "signIn": "Se connecter",

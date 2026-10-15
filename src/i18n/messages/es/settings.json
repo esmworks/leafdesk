@@ -1380,9 +1380,16 @@
   "connections": {
     "heading": "Conexiones",
     "description": "Servicios que usan tus agentes: Slack, GitHub, un CRM, otro Leafdesk… cualquier cosa con un servidor MCP remoto. Solo los propietarios los ven y gestionan; qué herramientas puede usar cada agente se ajusta en el agente. (Los programas que usan Leafdesk están en Seguridad › Apps conectadas.)",
+    "tabs": {
+      "browse": "Explorar",
+      "connected": "Conectadas",
+      "tools": "Herramientas",
+      "events": "Eventos",
+      "settings": "Configuración"
+    },
     "approvalNote": "Los agentes ejecutan al momento las herramientas que solo leen, salvo en una fila que viene de una respuesta anónima a un formulario. Cualquier otra llamada espera la aprobación de un propietario en la bandeja de entrada; si nadie responde en un día, no se envía nada.",
-    "add": "Añadir conexión",
     "empty": "Aún no hay conexiones.",
+    "browse": "Explorar servicios",
     "dismiss": "Cerrar",
     "notices": {
       "signedIn": "Sesión iniciada. Las herramientas de la conexión están abajo.",
@@ -1429,9 +1436,8 @@
       "count": "{n, plural, one {# servicio} other {# servicios}}",
       "none": "Ningún servicio coincide.",
       "added": "Añadido",
+      "connect": "Conectar",
       "custom": "Añadir otro servidor",
-      "customHint": "¿No está en la lista?",
-      "back": "Volver a la lista",
       "auth": {
         "oauth": "Inicio de sesión",
         "token": "Clave de API",
@@ -1492,11 +1498,6 @@
       "clientInstance": "Esta instancia inicia sesión en {name} con su propia aplicación.",
       "clientOverride": "Usar tu propia aplicación en su lugar",
       "clientOptional": "Iniciar sesión como una aplicación registrada en el servicio"
-    },
-    "tabs": {
-      "tools": "Herramientas",
-      "events": "Eventos",
-      "settings": "Configuración"
     },
     "checkedAt": "listadas {time}",
     "signIn": "Iniciar sesión",

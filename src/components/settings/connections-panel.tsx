@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ExternalLink, Plug, Plus, RefreshCw, Search, X } from "lucide-react";
+import { Check, ExternalLink, Plug, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
@@ -38,7 +38,7 @@ import {
   type ToolKind,
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
-import { CATALOG_CATEGORIES, catalogEntryFor, searchCatalog, type CatalogCategory, type CatalogEntry } from "@/lib/connection-catalog";
+import { CATALOG_CATEGORIES, catalogEntryFor, catalogLogo, searchCatalog, type CatalogCategory, type CatalogEntry } from "@/lib/connection-catalog";
 
 export type ConnectionAgent = { id: string; name: string; icon: string | null };
 
@@ -63,44 +63,28 @@ function clientModeOf(authType: ConnectionAuthType, entry: CatalogEntry | null |
   return setup.instanceClients.includes(entry.id) ? "instance" : "required";
 }
 
-/** A connection's emoji; else, for a service of the catalog, its initial; else a plug. */
+/** A connection's emoji; else, for a service of the catalog, its logo; else a plug. */
 export function ConnectionIcon({ icon, url, className }: { icon: string | null; url?: string; className?: string }) {
   if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
   const entry = url ? catalogEntryFor(url) : undefined;
-  if (entry) return <CatalogMark entry={entry} />;
+  if (entry) return <ServiceLogo entry={entry} />;
   return <Plug className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 
-/** Each category's color, from the select option colors, so a service's mark says what kind it is. */
-const CATEGORY_COLORS: Record<CatalogCategory, string> = {
-  projects: "blue",
-  docs: "gray",
-  design: "pink",
-  dev: "purple",
-  monitoring: "red",
-  analytics: "orange",
-  sales: "green",
-  messaging: "brown",
-  support: "yellow",
-  marketing: "pink",
-  finance: "green",
-  meetings: "blue",
-  hr: "brown",
-  automation: "orange",
-  web: "yellow",
-  media: "purple",
-};
-
-/** A catalog service's mark: its initial on its category's color, filling the box it sits in. */
-function CatalogMark({ entry }: { entry: CatalogEntry }) {
-  const initial = [...entry.name.replace(/^[^\p{L}\p{N}]+/u, "")][0]?.toLocaleUpperCase() ?? "?";
+/**
+ * A catalog service's logo, filling the box it sits in. It sits on white in either theme, since
+ * most logos are drawn for a light background.
+ */
+function ServiceLogo({ entry }: { entry: CatalogEntry }) {
   return (
-    <span
-      aria-hidden
-      className={cn(`opt-${CATEGORY_COLORS[entry.category]}`, "flex h-full w-full items-center justify-center rounded-md bg-[var(--opt-bg)] font-semibold text-[var(--opt-fg)]")}
-    >
-      {initial}
-    </span>
+    <img
+      src={catalogLogo(entry)}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+      className="h-full w-full rounded-[22%] bg-white object-contain ring-1 ring-black/5"
+    />
   );
 }
 
@@ -141,10 +125,12 @@ function ConnectionList({
 }) {
   const t = useTranslations("settings.connections");
   const [list, setList] = useState(connections);
-  const [adding, setAdding] = useState(false);
+  // A service of the catalog being added, or "custom" for a server of the owner's own.
+  const [adding, setAdding] = useState<CatalogEntry | "custom" | null>(null);
   const [open, setOpen] = useState<{ id: string; tab: ConnectionTab } | null>(() =>
     initialConnectionId && connections.some((c) => c.id === initialConnectionId) ? { id: initialConnectionId, tab: "tools" } : null,
   );
+  const [view, setView] = useState<"browse" | "connected">(initialConnectionId ? "connected" : "browse");
   const [shownNotice, setShownNotice] = useState(notice);
 
   useEffect(() => setList(connections), [connections]);
@@ -172,48 +158,69 @@ function ConnectionList({
             </button>
           </p>
         )}
-        <div className="flex items-center gap-2">
-          <p className="min-w-0 flex-1 text-xs text-fg-muted">{t("approvalNote")}</p>
-          <Button variant="primary" disabled={full} title={full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined} onClick={() => setAdding(true)}>
-            <Plus className="h-3.5 w-3.5" />
-            {t("add")}
-          </Button>
+        <div role="tablist" aria-label={t("heading")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
+          <TabButton active={view === "browse"} onClick={() => setView("browse")}>
+            {t("tabs.browse")}
+          </TabButton>
+          <TabButton active={view === "connected"} onClick={() => setView("connected")}>
+            {t("tabs.connected")} <span className="text-fg-faint">{list.length}</span>
+          </TabButton>
         </div>
-        <div className="overflow-hidden rounded-xl border border-border">
-          {list.length ? (
-            <ul className="divide-y divide-border">
-              {list.map((conn) => (
-                <li key={conn.id}>
-                  <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-bg-hover">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-                      <ConnectionIcon icon={conn.icon} url={conn.url} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">{conn.name}</span>
-                      <span className="block truncate text-xs text-fg-muted">{hostOf(conn.url)}</span>
-                    </span>
-                    <StatusText conn={conn} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="px-4 py-8 text-center text-sm text-fg-muted">{t("empty")}</p>
-          )}
-        </div>
+        {view === "browse" ? (
+          <CatalogBrowser
+            existing={list}
+            full={full}
+            onPick={setAdding}
+            onOpen={(conn) => setOpen({ id: conn.id, tab: "tools" })}
+          />
+        ) : (
+          <>
+            <p className="text-xs text-fg-muted">{t("approvalNote")}</p>
+            <div className="overflow-hidden rounded-xl border border-border">
+              {list.length ? (
+                <ul className="divide-y divide-border">
+                  {list.map((conn) => (
+                    <li key={conn.id}>
+                      <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-bg-hover">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
+                          <ConnectionIcon icon={conn.icon} url={conn.url} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">{conn.name}</span>
+                          <span className="block truncate text-xs text-fg-muted">{hostOf(conn.url)}</span>
+                        </span>
+                        <StatusText conn={conn} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="space-y-3 px-4 py-8 text-center">
+                  <p className="text-sm text-fg-muted">{t("empty")}</p>
+                  <Button variant="secondary" onClick={() => setView("browse")}>
+                    {t("browse")}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {adding && (
-        <AddConnectionDialog
-          workspaceId={workspaceId}
-          existing={list}
-          onClose={() => setAdding(false)}
-          onAdded={(view) => {
-            replace(view);
-            setAdding(false);
-            setOpen({ id: view.id, tab: "tools" });
-          }}
-        />
+        <Dialog open onClose={() => setAdding(null)} className="max-w-lg">
+          <AddConnectionForm
+            workspaceId={workspaceId}
+            entry={adding === "custom" ? null : adding}
+            onClose={() => setAdding(null)}
+            onAdded={(added) => {
+              replace(added);
+              setAdding(null);
+              setView("connected");
+              setOpen({ id: added.id, tab: "tools" });
+            }}
+          />
+        </Dialog>
       )}
       {opened && open && (
         <ConnectionDialog
@@ -266,156 +273,119 @@ function useSignIn(workspaceId: string, onChange: (view: ConnectionView) => void
 }
 
 /**
- * Adding a connection: first the catalog of services Leafdesk knows how to reach, then the form,
- * filled in from the service picked (or empty, for any other server).
+ * The catalog of services Leafdesk knows how to reach, as cards by category: picking one opens the
+ * form filled in from it, and a service already added opens its connection.
  */
-function AddConnectionDialog({
-  workspaceId,
+function CatalogBrowser({
   existing,
-  onClose,
-  onAdded,
-}: {
-  workspaceId: string;
-  existing: ConnectionView[];
-  onClose: () => void;
-  onAdded: (view: ConnectionView) => void;
-}) {
-  // null: still choosing; "custom": a server of the owner's own.
-  const [picked, setPicked] = useState<CatalogEntry | "custom" | null>(null);
-  // Kept here so going back to the list finds it as it was left.
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<CatalogCategory | "">("");
-  return (
-    <Dialog open onClose={onClose} className="max-w-2xl">
-      {picked === null ? (
-        <CatalogPicker
-          existing={existing}
-          query={query}
-          category={category}
-          onQuery={setQuery}
-          onCategory={setCategory}
-          onPick={setPicked}
-          onClose={onClose}
-        />
-      ) : (
-        <AddConnectionForm
-          key={picked === "custom" ? "custom" : picked.id}
-          workspaceId={workspaceId}
-          entry={picked === "custom" ? null : picked}
-          onBack={() => setPicked(null)}
-          onClose={onClose}
-          onAdded={onAdded}
-        />
-      )}
-    </Dialog>
-  );
-}
-
-function CatalogPicker({
-  existing,
-  query,
-  category,
-  onQuery,
-  onCategory,
+  full,
   onPick,
-  onClose,
+  onOpen,
 }: {
   existing: ConnectionView[];
-  query: string;
-  category: CatalogCategory | "";
-  onQuery: (query: string) => void;
-  onCategory: (category: CatalogCategory | "") => void;
+  /** At the most connections a workspace takes: nothing more can be added. */
+  full: boolean;
   onPick: (entry: CatalogEntry | "custom") => void;
-  onClose: () => void;
+  onOpen: (conn: ConnectionView) => void;
 }) {
   const t = useTranslations("settings.connections");
-  const tc = useTranslations("common");
   const setup = useContext(OAuthSetupContext);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<CatalogCategory | "">("");
   const categoryLabel = (c: CatalogCategory) => t(`catalog.categories.${c}`);
   const found = searchCatalog(query, categoryLabel).filter((entry) => !category || entry.category === category);
-  const added = useMemo(() => new Set(existing.map((conn) => catalogEntryFor(conn.url)?.id).filter(Boolean)), [existing]);
+  const added = useMemo(() => {
+    const byEntry = new Map<string, ConnectionView>();
+    for (const conn of existing) {
+      const id = catalogEntryFor(conn.url)?.id;
+      if (id && !byEntry.has(id)) byEntry.set(id, conn);
+    }
+    return byEntry;
+  }, [existing]);
   const groups = CATALOG_CATEGORIES.map((c) => ({ category: c, entries: found.filter((entry) => entry.category === c) })).filter((g) => g.entries.length);
+  const tooMany = full ? t("errors.tooMany", { max: MAX_CONNECTIONS }) : undefined;
 
   return (
-    <div>
-      <div className="space-y-3 border-b border-border px-5 py-4">
-        <div className="flex items-start gap-3">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-base font-semibold">{t("addTitle")}</h2>
-            <p className="text-sm text-fg-muted">{t("catalog.description")}</p>
-          </div>
-          <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-            <X className="h-4 w-4" />
-          </IconButton>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <label className="relative min-w-48 flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
-            <Input
-              autoFocus
-              type="search"
-              value={query}
-              onChange={(e) => onQuery(e.target.value)}
-              placeholder={t("catalog.search")}
-              aria-label={t("catalog.search")}
-              className="pl-8"
-            />
-          </label>
-          <select
-            className={cn(selectClass, "max-w-full")}
-            value={category}
-            aria-label={t("catalog.allCategories")}
-            onChange={(e) => onCategory(e.target.value as CatalogCategory | "")}
-          >
-            <option value="">{t("catalog.allCategories")}</option>
-            {CATALOG_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {categoryLabel(c)}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-      <div className="max-h-[40vh] overflow-y-auto px-5 py-3 sm:max-h-[55vh]">
-        {groups.length === 0 ? (
-          <p className="py-8 text-center text-sm text-fg-muted">{t("catalog.none")}</p>
-        ) : (
-          groups.map((group) => (
-            <section key={group.category} className="mb-3 last:mb-0">
-              <h3 className="py-1.5 text-xs font-medium text-fg-muted">{categoryLabel(group.category)}</h3>
-              <ul className="grid gap-1 sm:grid-cols-2">
-                {group.entries.map((entry) => (
-                  <li key={entry.id}>
-                    <button type="button" onClick={() => onPick(entry)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-bg-hover">
-                      <span className="flex h-8 w-8 shrink-0 text-sm">
-                        <CatalogMark entry={entry} />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{entry.name}</span>
-                        <span className="block truncate text-xs text-fg-muted">
-                          {added.has(entry.id)
-                            ? t("catalog.added")
-                            : clientModeOf(entry.authType, entry, setup) === "required"
-                              ? t("catalog.ownApp")
-                              : t(`catalog.auth.${entry.authType}`)}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))
-        )}
-      </div>
-      <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
-        <p className="min-w-0 flex-1 text-xs text-fg-muted">{t("catalog.count", { n: found.length })}</p>
-        <span className="text-sm text-fg-muted">{t("catalog.customHint")}</span>
-        <Button variant="secondary" onClick={() => onPick("custom")}>
+    <div className="space-y-4">
+      <p className="text-sm text-fg-muted">{t("catalog.description")}</p>
+      <div className="flex flex-wrap gap-2">
+        <label className="relative min-w-48 flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("catalog.search")}
+            aria-label={t("catalog.search")}
+            className="pl-8"
+          />
+        </label>
+        <select
+          className={cn(selectClass, "max-w-full")}
+          value={category}
+          aria-label={t("catalog.allCategories")}
+          onChange={(e) => setCategory(e.target.value as CatalogCategory | "")}
+        >
+          <option value="">{t("catalog.allCategories")}</option>
+          {CATALOG_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {categoryLabel(c)}
+            </option>
+          ))}
+        </select>
+        <Button variant="secondary" disabled={full} title={tooMany} onClick={() => onPick("custom")}>
           <Plus className="h-3.5 w-3.5" />
           {t("catalog.custom")}
         </Button>
       </div>
+      {groups.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-fg-muted">{t("catalog.none")}</p>
+      ) : (
+        groups.map((group) => (
+          <section key={group.category}>
+            <h3 className="mb-2 text-sm font-medium">
+              {categoryLabel(group.category)} <span className="font-normal text-fg-faint">{group.entries.length}</span>
+            </h3>
+            <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {group.entries.map((entry) => {
+                const conn = added.get(entry.id);
+                return (
+                  <li key={entry.id}>
+                    <button
+                      type="button"
+                      disabled={!conn && full}
+                      title={conn ? undefined : tooMany}
+                      onClick={() => (conn ? onOpen(conn) : onPick(entry))}
+                      className="group flex w-full items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:bg-bg-hover disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <span className="h-10 w-10 shrink-0">
+                        <ServiceLogo entry={entry} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{entry.name}</span>
+                        <span className="block truncate text-xs text-fg-muted">
+                          {clientModeOf(entry.authType, entry, setup) === "required" ? t("catalog.ownApp") : t(`catalog.auth.${entry.authType}`)}
+                        </span>
+                      </span>
+                      {conn ? (
+                        <span className="flex shrink-0 items-center gap-1 text-xs text-fg-muted">
+                          <Check className="h-3.5 w-3.5" aria-hidden />
+                          {t("catalog.added")}
+                        </span>
+                      ) : (
+                        <span className="shrink-0 rounded-md border border-border bg-bg px-2 py-1 text-xs font-medium group-hover:border-fg-faint">
+                          {t("catalog.connect")}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))
+      )}
+      <p className="text-xs text-fg-muted">{t("catalog.count", { n: found.length })}</p>
     </div>
   );
 }
@@ -423,14 +393,12 @@ function CatalogPicker({
 function AddConnectionForm({
   workspaceId,
   entry,
-  onBack,
   onClose,
   onAdded,
 }: {
   workspaceId: string;
   /** The catalog's service the form starts from (null: an empty form). */
   entry: CatalogEntry | null;
-  onBack: () => void;
   onClose: () => void;
   onAdded: (view: ConnectionView) => void;
 }) {
@@ -475,14 +443,10 @@ function AddConnectionForm({
         );
       }}
     >
-      <button type="button" onClick={onBack} className="-ml-1 flex items-center gap-1 rounded px-1 text-sm text-fg-muted hover:text-fg">
-        <ArrowLeft className="h-3.5 w-3.5" />
-        {t("catalog.back")}
-      </button>
       {entry ? (
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 text-base">
-            <CatalogMark entry={entry} />
+          <span className="h-10 w-10 shrink-0">
+            <ServiceLogo entry={entry} />
           </span>
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-base font-semibold">{entry.name}</h2>

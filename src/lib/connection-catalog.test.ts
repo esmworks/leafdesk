@@ -1,6 +1,8 @@
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { checkConnectionUrl } from "@/server/connections/fetch";
-import { CATALOG_CATEGORIES, catalogEntryFor, CONNECTION_CATALOG, searchCatalog } from "./connection-catalog";
+import { CATALOG_CATEGORIES, catalogEntryFor, catalogLogo, CONNECTION_CATALOG, searchCatalog } from "./connection-catalog";
 import { connectionSlug, MAX_CONNECTION_NAME } from "./connections";
 
 describe("connection catalog", () => {
@@ -44,6 +46,11 @@ describe("connection catalog", () => {
     }
     expect(CONNECTION_CATALOG.find((entry) => entry.id === "slack")).toMatchObject({ authType: "oauth", eventPreset: "slack", client: { help: "https://api.slack.com/apps" } });
     expect(CONNECTION_CATALOG.find((entry) => entry.id === "discord")?.client?.secretOptional).toBe(true);
+  });
+
+  it("has a logo for every entry, and no logo of a service it no longer lists", () => {
+    const files = readdirSync(join(process.cwd(), "public", "connections")).sort();
+    expect(files).toEqual(CONNECTION_CATALOG.map((entry) => catalogLogo(entry).replace("/connections/", "")).sort());
   });
 
   it("signs GitHub's events as GitHub does", () => {

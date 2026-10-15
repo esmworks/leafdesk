@@ -1682,9 +1682,11 @@ AI apps use Leafdesk; here Leafdesk's agents use the outside service. Owners of 
 connections in Settings → *Connections*; members and guests don't see them. A workspace has at most
 20.
 
-**Adding one.** *Add connection* first shows a catalog of services Leafdesk can reach as they are
-(Linear, Atlassian, GitLab, Sentry, Stripe, Zapier and more, in categories, with search); picking
-one fills in the form below, which can still be changed. The catalog lives in
+**Adding one.** The page opens on *Browse*: a catalog of services Leafdesk can reach as they are
+(Linear, Atlassian, GitLab, Sentry, Stripe, Zapier and more), as cards with each service's logo, in
+categories, with search; *Connected* lists the workspace's connections. *Connect* on a card opens
+the form below filled in from that service, which can still be changed; a service already added
+opens its connection instead. The catalog lives in
 `src/lib/connection-catalog.ts`: it lists only servers that, at that address, either publish OAuth
 metadata naming it that Leafdesk can sign in with, take an API key, or answer without any sign-in.
 A few services (Slack, HubSpot, Asana, Box, Discord, Front, PagerDuty, Xero) sign in only apps
@@ -1694,7 +1696,10 @@ you create at the service, links to where it's made, and shows the redirect URL 
 before a release run `pnpm catalog:check` (it needs the network and isn't part of the tests): it
 asks every entry the questions above without credentials, lists those that no longer answer as
 listed and exits with 1 if there are any; `pnpm catalog:check linear sentry` checks only those
-ids. *Add another server* starts from an empty form. Give it a name and the server's URL
+ids. Each entry's logo is `public/connections/<id>.png`: the service's own apple-touch-icon (or its
+largest favicon) scaled to 96 px, e.g. `sips -s format png -z 96 96 icon.png --out <id>.png`, or,
+when the service has no icon that large, its glyph from simple-icons (CC0) in its brand color. A
+test fails when an entry has no logo, or a logo has no entry. *Add another server* starts from an empty form. Give it a name and the server's URL
 (Streamable HTTP), and how it signs in:
 
 - **OAuth**: Leafdesk registers itself with the server (dynamic client registration), sends you to
@@ -2099,4 +2104,6 @@ It also lists the settings that matter when you run Leafdesk on a server.
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
 alternative to and what it imports from. Obsidian is a trademark of its owner; Leafdesk is not
-affiliated with it either, and names it only to describe what it imports.
+affiliated with it either, and names it only to describe what it imports. The names and logos of
+the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
+identify the service a connection reaches, and is not affiliated with or endorsed by them.

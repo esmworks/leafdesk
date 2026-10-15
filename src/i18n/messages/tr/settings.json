@@ -1380,9 +1380,16 @@
   "connections": {
     "heading": "Bağlantılar",
     "description": "Ajanlarınızın kullandığı servisler: Slack, GitHub, bir CRM, başka bir Leafdesk… uzak MCP sunucusu olan her şey. Yalnızca sahipler görür ve yönetir; her ajanın hangi araçları kullanabileceği ajanın kendisinde ayarlanır. (Leafdesk’i kullanan programlar Güvenlik › Bağlı uygulamalar altındadır.)",
+    "tabs": {
+      "browse": "Keşfet",
+      "connected": "Bağlı",
+      "tools": "Araçlar",
+      "events": "Olaylar",
+      "settings": "Ayarlar"
+    },
     "approvalNote": "Ajanlar yalnızca okuyan araçları hemen çalıştırır (anonim bir form yanıtından gelen satırda hariç). Diğer her çağrı gelen kutusunda bir sahibin onayını bekler; bir gün yanıtsız kalırsa hiçbir şey gönderilmez.",
-    "add": "Bağlantı ekle",
     "empty": "Henüz bağlantı yok.",
+    "browse": "Servislere göz at",
     "dismiss": "Kapat",
     "notices": {
       "signedIn": "Giriş yapıldı. Bağlantının araçları aşağıda.",
@@ -1429,9 +1436,8 @@
       "count": "{n, plural, one {# servis} other {# servis}}",
       "none": "Eşleşen servis yok.",
       "added": "Eklendi",
+      "connect": "Bağlan",
       "custom": "Başka bir sunucu ekle",
-      "customHint": "Listede yok mu?",
-      "back": "Listeye dön",
       "auth": {
         "oauth": "Giriş yaparak",
         "token": "API anahtarı",
@@ -1492,11 +1498,6 @@
       "clientInstance": "Bu kurulum {name} hizmetine kendi uygulamasıyla giriş yapıyor.",
       "clientOverride": "Bunun yerine kendi uygulamanızı kullanın",
       "clientOptional": "Serviste kayıtlı bir uygulama olarak giriş yapın"
-    },
-    "tabs": {
-      "tools": "Araçlar",
-      "events": "Olaylar",
-      "settings": "Ayarlar"
     },
     "checkedAt": "{time} tarihinde listelendi",
     "signIn": "Giriş yap",

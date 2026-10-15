@@ -279,3 +279,8 @@ export function searchCatalog(query: string, categoryLabel: (category: CatalogCa
     return words.every((word) => text.includes(word));
   });
 }
+
+/** Where an entry's logo is served: a 96px PNG of the service's own icon, kept in public/connections. */
+export function catalogLogo(entry: CatalogEntry): string {
+  return `/connections/${entry.id}.png`;
+}

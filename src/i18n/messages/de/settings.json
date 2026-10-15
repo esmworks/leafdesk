@@ -1380,9 +1380,16 @@
   "connections": {
     "heading": "Verbindungen",
     "description": "Dienste, die deine Agenten nutzen: Slack, GitHub, ein CRM, ein anderes Leafdesk… alles mit einem entfernten MCP-Server. Nur Inhaber sehen und verwalten sie; welche Werkzeuge ein Agent nutzen darf, wird beim Agenten festgelegt. (Programme, die Leafdesk nutzen, findest du unter Sicherheit › Verbundene Apps.)",
+    "tabs": {
+      "browse": "Entdecken",
+      "connected": "Verbunden",
+      "tools": "Werkzeuge",
+      "events": "Ereignisse",
+      "settings": "Einstellungen"
+    },
     "approvalNote": "Agenten führen Werkzeuge, die nur lesen, sofort aus, außer bei einer Zeile aus einer anonymen Formularantwort. Jeder andere Aufruf wartet im Posteingang auf die Freigabe eines Inhabers; bleibt er einen Tag unbeantwortet, wird nichts gesendet.",
-    "add": "Verbindung hinzufügen",
     "empty": "Noch keine Verbindungen.",
+    "browse": "Dienste ansehen",
     "dismiss": "Schließen",
     "notices": {
       "signedIn": "Angemeldet. Die Werkzeuge der Verbindung stehen unten.",
@@ -1429,9 +1436,8 @@
       "count": "{n, plural, one {# Dienst} other {# Dienste}}",
       "none": "Kein Dienst passt.",
       "added": "Hinzugefügt",
+      "connect": "Verbinden",
       "custom": "Anderen Server hinzufügen",
-      "customHint": "Nicht in der Liste?",
-      "back": "Zurück zur Liste",
       "auth": {
         "oauth": "Anmeldung",
         "token": "API-Schlüssel",
@@ -1492,11 +1498,6 @@
       "clientInstance": "Diese Instanz meldet sich mit ihrer eigenen App bei {name} an.",
       "clientOverride": "Stattdessen eine eigene App verwenden",
       "clientOptional": "Als beim Dienst registrierte App anmelden"
-    },
-    "tabs": {
-      "tools": "Werkzeuge",
-      "events": "Ereignisse",
-      "settings": "Einstellungen"
     },
     "checkedAt": "aufgelistet {time}",
     "signIn": "Anmelden",
