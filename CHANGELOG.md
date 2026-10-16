@@ -12,6 +12,16 @@
   Body writes report the new `version`, so an app can make several changes in a row without reading
   the page in between. Comments don't change the version. Without `expected_version` writes work
   as before. Covered in `scripts/mcp-e2e.ts`.
+- **The AI chat answers from attached PDFs and Word documents.** The text of a PDF or .docx shown
+  in a page's file block now goes into the page's semantic index, in passages headed "Page › file
+  name" that point at the file block, so the chat can answer from inside the document and its
+  citation opens the page at the file. A document is read once and its text kept (migration
+  0071, `file_text`); the same file uploaded again isn't read twice. Only the first 50 pages or
+  200,000 characters of a document are read (the record says when it was cut), up to 20 documents
+  per page, and files over 25 MB are left out; a scan with no text layer, or a damaged or locked
+  file, adds nothing. Only files the page's readers may open through the page count, and search
+  checks access to the page when it runs, as for the rest of its text. Existing pages are indexed
+  again by the next sweep or `pnpm search:index`; their unchanged passages aren't embedded again.
 
 ### Fixed
 

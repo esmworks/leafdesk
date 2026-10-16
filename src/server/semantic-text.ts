@@ -13,6 +13,8 @@ export const CHUNK_TARGET = 900;
 export const CHUNK_MAX = 1_400;
 /** Chunks one page may have; text beyond them isn't searched by meaning (full-text still finds it). */
 export const MAX_CHUNKS_PER_PAGE = 200;
+/** Chunks the text of a page's attached documents may add on top (see server/file-text.ts). */
+export const MAX_FILE_CHUNKS_PER_PAGE = 300;
 
 /**
  * Which version of the chunking the index was built with. Raise it whenever the chunks a page
@@ -20,7 +22,7 @@ export const MAX_CHUNKS_PER_PAGE = 200;
  * indexed with another version count as stale, so the sweep and `pnpm search:index` go over them
  * again. Chunks whose text stays the same aren't embedded again.
  */
-export const CHUNKER_VERSION = 1;
+export const CHUNKER_VERSION = 2;
 
 /**
  * Row values that go into a row's text. Relations and people are left out: their names are other
@@ -71,7 +73,11 @@ export type ChunkSource = {
   /** Row values (see rowPropertyLines); they open the first chunk. */
   properties?: string[];
   blocks: { id: string | null; text: string }[];
+  /** The text of documents attached to the page (PDFs, Word), each with the block that shows it. */
+  files?: FileSource[];
 };
+
+export type FileSource = { blockId: string; name: string; text: string };
 
 export type ChunkDraft = {
   position: number;
@@ -104,23 +110,11 @@ export function splitLong(text: string, max = CHUNK_MAX): string[] {
   return parts;
 }
 
-/**
- * A page's text in chunks of about CHUNK_TARGET characters, each starting with the page's title (so
- * a passage carries what it is about) and made of whole blocks where they fit. A page with nothing
- * but a title is one chunk. Chunks with the same text appear once.
- */
-export function chunkPage(source: ChunkSource, { target = CHUNK_TARGET, max = CHUNK_MAX } = {}): ChunkDraft[] {
-  const title = source.title.trim().replace(/\s+/g, " ");
-  const prefix = title ? `${title}\n` : "";
-  const pieces: { blockId: string | null; text: string }[] = [];
-  if (source.properties?.length) {
-    for (const part of splitLong(source.properties.join("\n"), max)) pieces.push({ blockId: null, text: part });
-  }
-  for (const block of source.blocks) {
-    for (const part of splitLong(block.text, max)) pieces.push({ blockId: block.id, text: part });
-  }
+type Piece = { blockId: string | null; text: string };
 
-  const bodies: { blockId: string | null; text: string }[] = [];
+/** Packs pieces into passages of about `target` characters; a passage starts at its first piece's block. */
+function pack(pieces: Piece[], target: number): Piece[] {
+  const bodies: Piece[] = [];
   let current: { blockId: string | null; parts: string[]; size: number } | null = null;
   for (const piece of pieces) {
     if (current && current.size + piece.text.length + 1 <= target) {
@@ -132,18 +126,57 @@ export function chunkPage(source: ChunkSource, { target = CHUNK_TARGET, max = CH
     current = { blockId: piece.blockId, parts: [piece.text], size: piece.text.length };
   }
   if (current) bodies.push({ blockId: current.blockId, text: current.parts.join("\n") });
+  return bodies;
+}
+
+/**
+ * A page's text in chunks of about CHUNK_TARGET characters, each starting with the page's title (so
+ * a passage carries what it is about) and made of whole blocks where they fit. A page with nothing
+ * but a title is one chunk. Chunks with the same text appear once.
+ *
+ * The text of each attached document follows in chunks of its own, which start with "Title › file
+ * name" and point at the block showing the file, so an answer quoting one links to the document.
+ * They have their own allowance (MAX_FILE_CHUNKS_PER_PAGE): a long PDF doesn't push the page's own
+ * text out of the index.
+ */
+export function chunkPage(source: ChunkSource, { target = CHUNK_TARGET, max = CHUNK_MAX } = {}): ChunkDraft[] {
+  const title = source.title.trim().replace(/\s+/g, " ");
+  const prefix = title ? `${title}\n` : "";
+  const pieces: Piece[] = [];
+  if (source.properties?.length) {
+    for (const part of splitLong(source.properties.join("\n"), max)) pieces.push({ blockId: null, text: part });
+  }
+  for (const block of source.blocks) {
+    for (const part of splitLong(block.text, max)) pieces.push({ blockId: block.id, text: part });
+  }
+
+  const bodies = pack(pieces, target);
   if (!bodies.length && title) bodies.push({ blockId: null, text: "" });
 
   const seen = new Set<string>();
   const chunks: ChunkDraft[] = [];
-  for (const body of bodies) {
-    const text = `${prefix}${body.text}`.trim();
-    if (!text) continue;
+  const add = (head: string, body: Piece) => {
+    const text = `${head}${body.text}`.trim();
+    if (!text) return;
     const hash = sha256(text);
-    if (seen.has(hash)) continue;
+    if (seen.has(hash)) return;
     seen.add(hash);
     chunks.push({ position: chunks.length, blockId: body.blockId, text, hash });
+  };
+  for (const body of bodies) {
+    add(prefix, body);
     if (chunks.length >= MAX_CHUNKS_PER_PAGE) break;
+  }
+
+  const allowance = chunks.length + MAX_FILE_CHUNKS_PER_PAGE;
+  for (const file of source.files ?? []) {
+    const name = file.name.trim().replace(/\s+/g, " ") || "file";
+    const head = title ? `${title} › ${name}\n` : `${name}\n`;
+    const parts = file.text.split(/\n\s*\n/).flatMap((paragraph) => splitLong(paragraph.replace(/\s+/g, " "), max));
+    for (const body of pack(parts.map((text) => ({ blockId: file.blockId, text })), target)) {
+      if (chunks.length >= allowance) return chunks;
+      add(head, body);
+    }
   }
   return chunks;
 }
@@ -158,7 +191,9 @@ export function passageOf(chunkText: string, title: string): string {
   const t = title.trim().replace(/\s+/g, " ");
   // A page with only a title has nothing else to show.
   if (t && chunkText.trim() === t) return "";
-  const body = t && chunkText.startsWith(`${t}\n`) ? chunkText.slice(t.length + 1) : chunkText;
+  // An attached document's passage keeps its file name as its first line.
+  const head = [`${t}\n`, `${t} › `].find((h) => t && chunkText.startsWith(h));
+  const body = head ? chunkText.slice(head.length) : chunkText;
   return body.trim();
 }
 
