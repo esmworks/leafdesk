@@ -104,17 +104,6 @@ export async function pasteRows(
     // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
     if (!row.inTemplate) changes.push({ rowId: row.id, before: row.properties, after });
   }
-  let skippedRows = found.skipped.length;
-  // Titles live in each row's shared document (see pages.renamePage); a locked row keeps its own.
-  for (const { row, title } of writes) {
-    if (title === undefined) continue;
-    try {
-      await renamePage(actor, row.id, title);
-    } catch (error) {
-      if ((error as { code?: string }).code !== "pageLocked" && !(error instanceof AccessError)) throw error;
-      skippedRows++;
-    }
-  }
   if (changes.length) {
     await syncPairedRelationsMany(databaseId, changes);
     await afterRowWrites(userId, databaseId, changes);
@@ -124,6 +113,18 @@ export async function pasteRows(
     for (const { row } of writes) rowChanged({ rowId: row.id, databaseId, userId });
   }
 
+  let skippedRows = found.skipped.length;
+  // Titles last, once the values above are written and announced. They live in each row's shared
+  // document (see pages.renamePage); a locked row keeps its own.
+  for (const { row, title } of writes) {
+    if (title === undefined) continue;
+    try {
+      await renamePage(actor, row.id, title);
+    } catch (error) {
+      if ((error as { code?: string }).code !== "pageLocked" && !(error instanceof AccessError)) throw error;
+      skippedRows++;
+    }
+  }
   // Rows below the last one: checked and added together, as an import adds them.
   const created = added.length ? await writeRows(database, userId, await checkRows(userId, databaseId, added, props, invalid)) : [];
 

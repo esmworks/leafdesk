@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Added
+
+- **Table cells work from the keyboard and the clipboard.** Click a cell (or move with the arrow
+  keys) to make it the active cell; Shift with an arrow, Shift+click or a drag selects a range.
+  Enter opens the active cell's editor and Esc brings you back to the cell, Delete clears the
+  range. Copy puts the range on the clipboard as tab-separated text, the way exports write values,
+  and pasting cells copied from a spreadsheet writes them from the active cell on: each value is
+  read as the CSV import reads it (numbers like `1.234,5` or `15%`, dates, yes/no, option and
+  people names), options a select lacks are added, and rows past the last one are added in an
+  ungrouped table. One pasted value fills the whole selected range. Cells that don't fit their
+  column or that you may not change are left out and counted.
+
+### Changed
+
+- **Long tables render only the rows in view.** From 120 rows on, a table view renders the rows
+  near the visible part of the page and stands in for the rest, so tables with thousands of rows
+  open and scroll without lag. Grouped tables, sub-items, frozen columns and group calculations
+  work as before.
+
 ### Fixed
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index
