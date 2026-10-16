@@ -67,6 +67,11 @@
   skipped them. The index now records the chunking it was built with (migration 0070), and pages
   built with another one count as stale for the sweep and `pnpm search:index`. Chunks whose text
   stays the same aren't embedded again. Covered in `scripts/semantic-search-e2e.ts`.
+- **Edits of different properties of one row no longer undo each other.** Editing a row's value
+  wrote back the whole row as it was read a moment before, so a value someone else, an agent or
+  an automation had just set in another property of the same row could quietly disappear. Single
+  row edits now merge into the stored values the way bulk edits already did. Covered in
+  `scripts/database-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 
