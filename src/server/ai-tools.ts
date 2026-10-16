@@ -10,14 +10,18 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
 import type { ChatActionView, ChatPageView } from "@/lib/ai-chat";
+import { BLOCK_EDIT_OPS, blockEditProblem, MAX_BLOCK_EDITS, type BlockEdit } from "@/lib/block-edits";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
+import { foldUnchanged, type BlockChange } from "@/lib/page-diff";
+import { reviewChanges, type ReviewBlock } from "@/lib/page-review";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, pageAccessOf } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
+import { getCollab } from "@/server/collab/bridge";
 import { normalizeRowProperties } from "@/server/databases";
 import { ToolInputError } from "@/server/mcp/format";
 import * as ops from "@/server/operations";
@@ -41,6 +45,8 @@ const MAX_QUERY_ROWS = 100;
 const STEP_CONDITIONS = 6;
 /** The start of a new page's text the person is shown when asked. */
 const CONTENT_PREVIEW = 400;
+/** The most blocks a page edit shows the person when asked (its changes and a block around each). */
+const PREVIEW_BLOCKS = 40;
 
 export const CHAT_TOOLS: AiTool[] = [
   {
@@ -60,7 +66,10 @@ export const CHAT_TOOLS: AiTool[] = [
       "Reads a whole page by the page_id of a source: its text, a database row's values, or a database's properties (with their types and options) and rows with their values. Returns it as a numbered source.",
     parameters: {
       type: "object",
-      properties: { page_id: { type: "string", description: "The page_id attribute of a source." } },
+      properties: {
+        page_id: { type: "string", description: "The page_id attribute of a source." },
+        with_block_ids: { type: "boolean", description: 'Put a line "<!-- block <id> -->" before each block of the text, to change single blocks with edit_page.' },
+      },
       required: ["page_id"],
       additionalProperties: false,
     },
@@ -159,6 +168,35 @@ export const WRITE_TOOLS: AiTool[] = [
         content: { type: "string", description: "The page's text, in Markdown." },
       },
       required: ["title"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "edit_page",
+    description: [
+      "Changes the text of a page or database row, as the person, block by block: read it first with read_page with_block_ids to see each block's id.",
+      'Edits, made in order: {"op": "replace", "block_id", "markdown"} puts the Markdown in place of the block; {"op": "insert_after", "block_id", "markdown"} adds it after the block; {"op": "append", "markdown"} adds it at the end; {"op": "delete", "block_id"} removes the block.',
+      "Blocks not named stay as they are. The page is saved to its history first, and the person can keep or undo each change on the page.",
+    ].join(" "),
+    parameters: {
+      type: "object",
+      properties: {
+        page_id: { type: "string", description: "The page's page_id (from a source)." },
+        edits: {
+          type: "array",
+          description: `The edits, at most ${MAX_BLOCK_EDITS}.`,
+          items: {
+            type: "object",
+            properties: {
+              op: { type: "string", enum: [...BLOCK_EDIT_OPS] },
+              block_id: { type: "string", description: "The block's id, from its <!-- block <id> --> line." },
+              markdown: { type: "string", description: "The new text, in Markdown (without block lines)." },
+            },
+            required: ["op"],
+          },
+        },
+      },
+      required: ["page_id", "edits"],
       additionalProperties: false,
     },
   },
@@ -323,7 +361,8 @@ export async function runTool(
     const missing: ToolOutcome = { content: "No page with that id can be read. Use a page_id from a source.", isError: true };
     if (!pageId || pageId.length > 100) return missing;
     // Checked on every call, with the access the person has now.
-    const read = await readPage(ctx, workspaceId, scopeId, pageId, Math.min(PAGE_CHARS, room - 500)).catch((error) => {
+    const withBlockIds = call.arguments.with_block_ids === true;
+    const read = await readPage(ctx, workspaceId, scopeId, pageId, Math.min(PAGE_CHARS, room - 500), withBlockIds).catch((error) => {
       if (error instanceof AccessError || (error as Error)?.name === "ToolInputError") return null;
       throw error;
     });
@@ -475,13 +514,47 @@ export async function prepareWrite(
       if (input.properties && Object.keys(input.properties).length) {
         await normalizeRowProperties(userId, parent.page.id, input.properties, target.page.properties, { createdBy: target.page.createdBy });
       }
-      const changes = changesOf(input.properties);
+      // What the person sees beside each new value: the value it has now, as they may see it.
+      const now = Object.keys(input.properties ?? {}).length ? ((await ops.rowFields(ctx, target.page.id)).properties as Record<string, unknown>) : {};
+      const changes = changesOf(input.properties, now);
       return {
-        action: { action: "updateRow", target: await pageView(userId, target.page.id), title: input.title ?? null, changes, content: null },
-        record: { kind: "write", action: "updateRow", targetId: target.page.id, title: input.title ?? null, changes },
+        action: {
+          action: "updateRow",
+          target: await pageView(userId, target.page.id),
+          title: input.title ?? null,
+          ...(input.title !== undefined ? { previousTitle: target.page.title } : {}),
+          changes,
+          content: null,
+        },
+        // The values it had are for the person deciding, not kept with the conversation.
+        record: { kind: "write", action: "updateRow", targetId: target.page.id, title: input.title ?? null, changes: changes.map(({ property, value }) => ({ property, value })) },
         execute: async () => {
           const row = await ops.updateDatabaseRow(ctx, input);
           return { id: row.id, title: row.title, text: valuesLine(row.properties as Record<string, unknown>) };
+        },
+      };
+    }
+    if (call.name === "edit_page") {
+      const pageId = text(args.page_id) ?? "";
+      const edits = parseEdits(args.edits);
+      if (typeof edits === "string") return invalidChange(edits);
+      const target = await writeTarget(userId, workspaceId, scopeId, pageId);
+      if (!target) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
+      if (target.page.kind === "database") return invalidChange("page_id is a database, which has no text: change its rows with update_row.");
+      if (!canEdit(target.level)) return readOnly;
+      if (isPageLocked(target.page)) return { content: PAGE_LOCKED_MESSAGE, isError: true };
+      // Worked out now for the person to see; made again on the page as it is once they agree.
+      const preview = await getCollab().editBlocks(pageId, edits, ctx.actor, { dryRun: true });
+      if (preview.missing !== null) return invalidChange(`the page has no block ${preview.missing}. Read it again with read_page with_block_ids.`);
+      const diff = previewDiff(preview.before ?? [], preview.after ?? []);
+      return {
+        action: { action: "editPage", target: await pageView(userId, pageId), title: null, changes: [], content: null, diff },
+        record: { kind: "write", action: "editPage", targetId: pageId, title: null, changes: [] },
+        execute: async () => {
+          const write = await getCollab().editBlocks(pageId, edits, ctx.actor, { snapshot: true });
+          if (write.missing !== null) throw new ToolInputError(`the page no longer has the block ${write.missing}. Read it again with read_page with_block_ids.`);
+          const read = await ops.getPage(ctx, { page_id: pageId, offset: 0 }, { maxMarkdownChars: PASSAGE_CHARS });
+          return { id: pageId, title: String(read.title ?? ""), text: typeof read.markdown === "string" ? read.markdown : "" };
         },
       };
     }
@@ -538,8 +611,40 @@ async function pageView(userId: string, pageId: string): Promise<ChatPageView> {
   return seen ? { pageId, ...seen } : null;
 }
 
-/** The values a change sets, as the person is shown them. */
-function changesOf(properties: Record<string, unknown> | undefined): ChatChange[] {
+/** edit_page's edits as the model gave them, checked; or what is wrong with them. */
+function parseEdits(value: unknown): BlockEdit[] | string {
+  if (!Array.isArray(value) || !value.length) return "give at least one edit.";
+  if (value.length > MAX_BLOCK_EDITS) return `give at most ${MAX_BLOCK_EDITS} edits at once.`;
+  const edits: BlockEdit[] = [];
+  for (const [i, entry] of value.entries()) {
+    const e = (entry && typeof entry === "object" ? entry : {}) as Record<string, unknown>;
+    const edit: BlockEdit = {
+      op: e.op as BlockEdit["op"],
+      ...(typeof e.block_id === "string" && e.block_id.trim() ? { blockId: e.block_id.trim().slice(0, 100) } : {}),
+      ...(typeof e.markdown === "string" ? { markdown: e.markdown } : {}),
+    };
+    const problem = blockEditProblem(edit);
+    if (problem) return `edits.${i}: ${problem}.`;
+    edits.push(edit);
+  }
+  return edits;
+}
+
+/** The blocks an edit changes, with one unchanged block around each, for the person to see. */
+function previewDiff(before: unknown[], after: unknown[]): BlockChange[] {
+  const changes = reviewChanges(before as ReviewBlock[], after as ReviewBlock[]);
+  const out: BlockChange[] = [];
+  for (const item of foldUnchanged(changes)) {
+    if (item.op === "hidden") continue;
+    const bare = item.op === "changed" ? { ...item, block: { ...item.block, key: "" }, before: { ...item.before, key: "" } } : { ...item, block: { ...item.block, key: "" } };
+    out.push(bare);
+    if (out.length >= PREVIEW_BLOCKS) break;
+  }
+  return out;
+}
+
+/** The values a change sets, as the person is shown them, with those the row has now (`now`) when known. */
+function changesOf(properties: Record<string, unknown> | undefined, now?: Record<string, unknown>): ChatChange[] {
   const shown = (value: unknown): string => {
     if (value === null || value === undefined) return "";
     if (Array.isArray(value)) return value.map(shown).filter(Boolean).join(", ");
@@ -551,7 +656,15 @@ function changesOf(properties: Record<string, unknown> | undefined): ChatChange[
   };
   return Object.entries(properties ?? {})
     .slice(0, 30)
-    .map(([property, value]) => ({ property: property.slice(0, 100), value: shown(value).slice(0, 300) }));
+    .map(([property, value]) => {
+      const change: ChatChange = { property: property.slice(0, 100), value: shown(value).slice(0, 300) };
+      if (now) {
+        // By the name the model used, or the property's own name when it differs only in case.
+        const key = property in now ? property : Object.keys(now).find((k) => k.toLowerCase() === property.toLowerCase());
+        change.before = key === undefined ? "" : shown(now[key]).slice(0, 300);
+      }
+      return change;
+    });
 }
 
 function preview(markdown: string | undefined) {
@@ -575,7 +688,8 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
   try {
     const made = await prepared.execute();
     const entry = register(registry, { pageId: made.id, blockId: null, title: made.title, text: made.text || "(no values)" });
-    const what = record.action === "createRow" ? "Added the row" : record.action === "updateRow" ? "Changed the row" : "Added the page";
+    const what =
+      record.action === "createRow" ? "Added the row" : record.action === "updateRow" ? "Changed the row" : record.action === "editPage" ? "Changed the page's text" : "Added the page";
     return { content: `${what}; it is this source now:\n${formatSources([entry])}`, step: { ...record, outcome: "done", pageId: made.id } };
   } catch (error) {
     // The page was locked since the change was checked.
@@ -591,12 +705,12 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
 }
 
 /** A page's text as the person may read it now, or null when it's out of reach or scope. */
-async function readPage(ctx: ops.OperationContext, workspaceId: string, scopeId: string | undefined, pageId: string, maxChars: number) {
+async function readPage(ctx: ops.OperationContext, workspaceId: string, scopeId: string | undefined, pageId: string, maxChars: number, withBlockIds = false) {
   if (scopeId) {
     const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inSubtree(scopeId)}`);
     if (!inside) return null;
   }
-  const out = (await ops.getPage(ctx, { page_id: pageId, offset: 0 }, { maxMarkdownChars: maxChars })) as Record<string, unknown>;
+  const out = (await ops.getPage(ctx, { page_id: pageId, offset: 0, with_block_ids: withBlockIds }, { maxMarkdownChars: maxChars })) as Record<string, unknown>;
   if (out.workspace_id !== workspaceId || out.in_trash || out.template) return null;
   const parts: string[] = [];
   if (typeof out.path === "string") parts.push(`Path: ${out.path}`);

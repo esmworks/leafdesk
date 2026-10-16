@@ -131,10 +131,11 @@ const ADD_ROW_COMMENT: AiTool = {
 
 const UPDATE_ROW = WRITE_TOOLS.find((t) => t.name === "update_row")!;
 const CREATE_ROW = WRITE_TOOLS.find((t) => t.name === "create_row")!;
-/** Leafdesk's tools on a row's run. Any run may also keep notes (memory.ts). */
-export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_COMMENT];
-/** Leafdesk's tools on a schedule's run on a database: update_row and add_comment on any of its rows. */
-export const SCHEDULED_DATABASE_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, ADD_ROW_COMMENT];
+const EDIT_PAGE = WRITE_TOOLS.find((t) => t.name === "edit_page")!;
+/** Leafdesk's tools on a row's run: update_row and edit_page on that row. Any run may also keep notes (memory.ts). */
+export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_COMMENT];
+/** Leafdesk's tools on a schedule's run on a database: update_row, edit_page and add_comment on any of its rows. */
+export const SCHEDULED_DATABASE_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_ROW_COMMENT];
 
 /** The database a schedule's run looks after, if any. */
 const scheduledDatabase = (source: AgentRunSource) => (isScheduleRun(source) ? (source.databaseId ?? null) : null);
@@ -526,9 +527,9 @@ async function converse(
       if (!out.isError) writes += 1;
       return out;
     }
-    if ((rowRun || databaseId) && (call.name === "update_row" || call.name === "add_comment")) {
+    if ((rowRun || databaseId) && (call.name === "update_row" || call.name === "edit_page" || call.name === "add_comment")) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
-      const out: CallResult = call.name === "update_row" ? await updateRow(ctx, run, call) : await addComment(agent, run, call.arguments);
+      const out: CallResult = call.name === "add_comment" ? await addComment(agent, run, call.arguments) : await changeRow(ctx, run, call);
       if (!out.isError) writes += 1;
       return out;
     }
@@ -681,11 +682,13 @@ async function isRowOf(rowId: string, databaseId: string) {
 }
 
 /**
- * update_row, made at once (no one to ask) and starting no automations: on the run's row only, or,
- * on a schedule's run, on the rows of the database it looks after.
+ * update_row and edit_page, made at once (no one to ask) and starting no automations: on the run's
+ * row only, or, on a schedule's run, on the rows of the database it looks after. A row's text
+ * changed shows on its page for review, as any AI change does.
  */
-async function updateRow(ctx: ops.OperationContext, run: Run, call: { name: string; arguments: Record<string, unknown> }): Promise<ToolOutcome> {
-  const rowId = typeof call.arguments.row_id === "string" ? call.arguments.row_id.trim() : "";
+async function changeRow(ctx: ops.OperationContext, run: Run, call: { name: string; arguments: Record<string, unknown> }): Promise<ToolOutcome> {
+  const given = call.name === "edit_page" ? call.arguments.page_id : call.arguments.row_id;
+  const rowId = typeof given === "string" ? given.trim() : "";
   const databaseId = scheduledDatabase(run.source);
   if (databaseId) {
     if (!(await isRowOf(rowId, databaseId))) {

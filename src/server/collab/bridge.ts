@@ -5,6 +5,7 @@
  * module instance in the process.
  */
 
+import type { BlockEdit } from "@/lib/block-edits";
 import type { CommentOp, PlainComment, PlainThread } from "@/lib/comments";
 import type { PageStyle } from "@/lib/page-style";
 
@@ -75,6 +76,19 @@ export interface CollabService {
     actor: WriteActor,
     options?: { snapshot?: boolean | "before_restore" } & VersionCheck,
   ): Promise<BodyWrite & { changed: boolean }>;
+  /**
+   * Edits the body block by block (lib/block-edits): each edit's Markdown parsed as appendContent
+   * parses it, then the edits made in order. `missing` names a block id the body doesn't have:
+   * nothing is written then. `dryRun` writes nothing and returns the body before and after.
+   */
+  editBlocks(
+    pageId: string,
+    edits: BlockEdit[],
+    actor: WriteActor,
+    options?: { snapshot?: boolean; dryRun?: boolean } & VersionCheck,
+  ): Promise<BodyWrite & { missing: string | null; before?: unknown[]; after?: unknown[] }>;
+  /** The body's blocks a read with block ids lists (lib/block-edits listedBlocks), each as Markdown. */
+  blockMarkdown(pageId: string): Promise<{ id: string; markdown: string }[]>;
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
   appendBlocks(pageId: string, blocks: unknown[], actor: WriteActor, snapshot?: boolean): Promise<void>;
   /**

@@ -7,6 +7,7 @@
  */
 import * as z from "zod";
 import { commentText, MAX_COMMENT_LENGTH } from "@/lib/comments";
+import { blockMarker, stripBlockMarkers } from "@/lib/block-edits";
 import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { parseIcon } from "@/lib/icon";
@@ -166,6 +167,12 @@ export const inputs = {
   getPage: z.object({
     page_id: id("page"),
     offset: z.number().int().min(0).default(0).describe("Character offset into the Markdown body, for long pages."),
+    with_block_ids: z
+      .boolean()
+      .optional()
+      .describe(
+        'Put a line "<!-- block <id> -->" before each block of the body, to change single blocks with update_page (modes replace_block, insert_after, delete_block).',
+      ),
   }),
   createPage: z.object({
     workspace_id: z.string().optional().describe("Workspace for a top-level page. Ignored when parent_id is set."),
@@ -194,9 +201,16 @@ export const inputs = {
     title: z.string().min(1).max(500).optional().describe("New title."),
     markdown: z.string().optional().describe("Markdown to write into the body."),
     mode: z
-      .enum(["replace", "append"])
+      .enum(["replace", "append", "replace_block", "insert_after", "delete_block"])
       .default("replace")
-      .describe('"replace" (default) overwrites the body; "append" adds to the end.'),
+      .describe(
+        '"replace" (default) overwrites the body; "append" adds to the end. With block_id: "replace_block" puts the Markdown in place of that block, "insert_after" adds it after the block, "delete_block" removes the block (no markdown).',
+      ),
+    block_id: z
+      .string()
+      .max(100)
+      .optional()
+      .describe('The block the block modes change, from get_page with with_block_ids (the id in its "<!-- block <id> -->" line).'),
     expected_version: z
       .string()
       .max(64)
@@ -488,7 +502,7 @@ export async function listPages(ctx: OperationContext, { workspace_id, parent_id
 /** `maxMarkdownChars` bounds the body returned (MCP keeps it to what a model reads at once). */
 export async function getPage(
   ctx: OperationContext,
-  { page_id, offset }: Args<"getPage">,
+  { page_id, offset, with_block_ids }: Args<"getPage">,
   { maxMarkdownChars }: { maxMarkdownChars?: number } = {},
 ) {
   const { userId } = ctx;
@@ -502,7 +516,12 @@ export async function getPage(
   ]);
   const workspace = workspaces.find((w) => w.id === page.workspaceId);
   // Mentioned pages read as their current title, as far as the user can see them.
-  const body = sliceText(await labelPageLinks(userId, content.markdown), offset, maxMarkdownChars);
+  // With block ids: each block's Markdown after a line naming it (lib/block-edits blockMarker).
+  const markdown =
+    with_block_ids && page.kind !== "database"
+      ? (await getCollab().blockMarkdown(page_id)).map((b) => `${blockMarker(b.id)}\n${b.markdown}`).join("\n\n")
+      : content.markdown;
+  const body = sliceText(await labelPageLinks(userId, markdown), offset, maxMarkdownChars);
   const out: Record<string, unknown> = {
     id: page.id,
     title: pageLabel(content.title || page.title),
@@ -659,12 +678,19 @@ function backgroundFromInput(background: string | null) {
 /** `icon` (null clears it) is REST only: the MCP tool doesn't take it. */
 export async function updatePage(
   ctx: OperationContext,
-  { page_id, title, markdown, mode, expected_version, icon, background }: Args<"updatePage"> & { icon?: string | null },
+  { page_id, title, markdown, mode, block_id, expected_version, icon, background }: Args<"updatePage"> & { icon?: string | null },
 ) {
   const { userId, actor } = ctx;
-  if (title === undefined && markdown === undefined && icon === undefined && background === undefined) {
+  const blockMode = mode === "replace_block" || mode === "insert_after" || mode === "delete_block";
+  if (title === undefined && markdown === undefined && icon === undefined && background === undefined && !blockMode) {
     throw new ToolInputError("Provide title, markdown and/or background.");
   }
+  if (blockMode && !block_id) throw new ToolInputError(`mode "${mode}" needs block_id: read the page with get_page with_block_ids for the ids.`);
+  if (block_id !== undefined && !blockMode) throw new ToolInputError('block_id goes with mode "replace_block", "insert_after" or "delete_block".');
+  if ((mode === "replace_block" || mode === "insert_after") && !stripBlockMarkers(markdown ?? "").trim()) {
+    throw new ToolInputError(`mode "${mode}" needs markdown.`);
+  }
+  if (mode === "delete_block" && markdown !== undefined) throw new ToolInputError('mode "delete_block" takes no markdown.');
   const { page } = await loadPage(ctx, page_id);
   if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before editing.");
   // Before any of it is written: a locked page refuses the whole call.
@@ -674,7 +700,7 @@ export async function updatePage(
   }
   const changed: string[] = [];
   let version: string | undefined;
-  if (markdown !== undefined) {
+  if (markdown !== undefined || blockMode) {
     if (page.kind === "database") {
       throw new ToolInputError("Databases have no text body. Use create_database_row or update_database_row.");
     }
@@ -682,11 +708,31 @@ export async function updatePage(
     await requirePageAccess(userId, page_id, "edit");
     const collab = getCollab();
     const check = { expectedVersion: expected_version, reportVersion: true };
-    const write =
-      mode === "append" ? await collab.appendContent(page_id, markdown, actor, true, check) : await collab.replaceContent(page_id, markdown, actor, true, check);
+    let write;
+    if (blockMode) {
+      const op = mode === "replace_block" ? "replace" : mode === "delete_block" ? "delete" : "insert_after";
+      write = await collab.editBlocks(page_id, [{ op, blockId: block_id, markdown }], actor, { snapshot: true, ...check });
+      if (write.missing !== null) {
+        throw new ToolInputError(`The page has no block ${write.missing} (any more). Read it again with get_page with_block_ids.`);
+      }
+    } else {
+      // Block markers copied from a read with block ids aren't written.
+      const body = stripBlockMarkers(markdown!);
+      write = mode === "append" ? await collab.appendContent(page_id, body, actor, true, check) : await collab.replaceContent(page_id, body, actor, true, check);
+    }
     if (write?.conflict) throw new VersionConflictError(expected_version!, write.version);
     version = write?.version;
-    changed.push(mode === "append" ? "body (appended)" : "body (replaced)");
+    changed.push(
+      mode === "append"
+        ? "body (appended)"
+        : mode === "replace_block"
+          ? "body (block replaced)"
+          : mode === "insert_after"
+            ? "body (inserted after the block)"
+            : mode === "delete_block"
+              ? "body (block deleted)"
+              : "body (replaced)",
+    );
   } else if (expected_version !== undefined) {
     // Only the title or background changes, but the writer asked to change it as the page it read.
     version = await getCollab().pageVersion(page_id);
@@ -707,7 +753,7 @@ export async function updatePage(
   return {
     id: page.id,
     changed,
-    ...(markdown !== undefined ? { snapshot: "Saved the previous version to page history before writing." } : {}),
+    ...(markdown !== undefined || blockMode ? { snapshot: "Saved the previous version to page history before writing." } : {}),
     ...(version ? { version } : {}),
     url: pageUrl(page.workspaceId, page.id),
   };

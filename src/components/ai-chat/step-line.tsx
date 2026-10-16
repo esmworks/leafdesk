@@ -5,7 +5,7 @@
  * change made, a note kept about the person or dropped, a thought), as a line: an icon and what
  * happened, the pages it names as links.
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, FilePlus, Filter, Lightbulb, ListPlus, PencilLine, Search } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, FilePen, FilePlus, Filter, Lightbulb, ListPlus, PencilLine, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -79,7 +79,7 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
   );
 }
 
-const WRITE_ICONS = { createRow: ListPlus, updateRow: PencilLine, createPage: FilePlus } as const;
+const WRITE_ICONS = { createRow: ListPlus, updateRow: PencilLine, createPage: FilePlus, editPage: FilePen } as const;
 
 /**
  * A change made ("Row added: <row> · in <database>", with the values set), declined or failed. The
@@ -88,8 +88,10 @@ const WRITE_ICONS = { createRow: ListPlus, updateRow: PencilLine, createPage: Fi
 function WriteLine({ step, onSource }: { step: ChatWriteView; onSource: (source: ChatSourceView) => void }) {
   const t = useTranslations("ai.chat.steps.write");
   const Icon = step.outcome === "declined" ? Ban : step.outcome === "failed" ? CircleAlert : WRITE_ICONS[step.action];
-  const where = step.action === "updateRow" ? null : step.target;
-  const subject = step.page ?? (step.action === "updateRow" ? step.target : null);
+  // A row or page changed is the change's subject; a row or page added goes into its target.
+  const changedInPlace = step.action === "updateRow" || step.action === "editPage";
+  const where = changedInPlace ? null : step.target;
+  const subject = step.page ?? (changedInPlace ? step.target : null);
   return (
     <>
       <Icon className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", step.outcome === "failed" && "text-danger")} />

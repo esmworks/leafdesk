@@ -69,9 +69,9 @@ export function withoutKept(changes: readonly BlockChange[], ids: readonly (stri
 }
 
 /** Where a block sits: the list holding it, its place there, and the blocks above it (columns too). */
-type Place = { list: ReviewBlock[]; index: number; path: ReviewBlock[] };
+export type Place = { list: ReviewBlock[]; index: number; path: ReviewBlock[] };
 
-function locate(blocks: ReviewBlock[], id: string, path: ReviewBlock[] = []): Place | null {
+export function locate(blocks: ReviewBlock[], id: string, path: ReviewBlock[] = []): Place | null {
   for (let index = 0; index < blocks.length; index++) {
     const block = blocks[index];
     if (block.id === id) return { list: blocks, index, path };
@@ -92,7 +92,7 @@ function idsOf(blocks: readonly ReviewBlock[], out = new Set<string>()) {
 }
 
 /** Columns left empty go, and a row of columns left with one column becomes its blocks. */
-function tidyColumns(blocks: ReviewBlock[]): ReviewBlock[] {
+export function tidyColumns(blocks: ReviewBlock[]): ReviewBlock[] {
   return blocks.flatMap((block): ReviewBlock[] => {
     if (block.type === "columnList") {
       const columns = (block.children ?? []).map((c) => ({ ...c, children: tidyColumns(c.children ?? []) })).filter((c) => c.children.length);

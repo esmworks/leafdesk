@@ -12,6 +12,23 @@
   Body writes report the new `version`, so an app can make several changes in a row without reading
   the page in between. Comments don't change the version. Without `expected_version` writes work
   as before. Covered in `scripts/mcp-e2e.ts`.
+- **AI changes to a page can be kept or undone one by one.** After an AI app, the chat or an agent
+  writes to a page body, the page shows a bar above the body with how many blocks changed and
+  who changed them: *Review* opens the changes block by block with *Keep* and *Undo* for each,
+  next to *Keep all* and *Undo all*. Undoing goes through the page's shared document, so editors
+  open on the page follow at once, and *Undo all* saves a version first. Writes in a row are
+  reviewed together; the bar goes away once every change is decided or someone edits the page.
+  Only people who may edit the page see it (migration 0071).
+- **Changing one block instead of the whole body.** The chat and agents have a new `edit_page`
+  tool that replaces, inserts after, appends or deletes blocks by id, and `update_page` (MCP) and
+  `PATCH /pages/{id}` take the modes `replace_block`, `insert_after` and `delete_block` with a
+  `block_id`. `get_page` / `GET /pages/{id}` give the ids with `with_block_ids`. Like every AI
+  write, these save the page first and can be reviewed on the page. Agents may use `edit_page` on
+  the rows they already may update.
+- **Approval cards show what changes.** Before the chat changes a page's text, the approval card
+  shows the blocks it changes, adds and removes; for a row it shows each property's old value
+  next to the new one, and the old title when it is renamed. Covered in `scripts/ai-chat-e2e.ts`
+  and `scripts/mcp-e2e.ts`.
 
 ### Fixed
 

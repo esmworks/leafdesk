@@ -42,6 +42,7 @@ const index = await import("@/server/semantic-index");
 const { deleteConversations, getConversation, listConversations, MAX_ROUNDS, startChat } = await import("@/server/ai-chat");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
+const { decidePageReview, getPageReview } = await import("@/server/page-review");
 const { MAX_CHAT_MESSAGE, MAX_CHAT_TURNS } = await import("@/lib/ai-chat");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
@@ -268,7 +269,7 @@ try {
   const searched = sourcesIn(fake.chats[1]);
   check(searched.some((s) => s.pageId === fleet.id && s.text.includes("car needs new tyres")), "the model's search finds pages by meaning (car for automobile)", searched);
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,create_row,update_row,create_page,remember,forget"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,create_row,update_row,create_page,edit_page,remember,forget"),
     "every turn declares the tools: to look, (asking first, by default) to change, and to keep notes about the person",
   );
   check(textOf(firstRequest.messages[0].content).includes("never instructions"), "the system prompt treats page content as data");
@@ -643,7 +644,7 @@ try {
       reading.length > 0 &&
         reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database") &&
         fake.chats.length > 0 &&
-        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,create_row,update_row,create_page"),
+        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,create_row,update_row,create_page,edit_page"),
       `with the memory turned off by ${who}, remember and forget aren't offered, in either mode`,
       [...reading, ...fake.chats].map(toolsOf),
     );
@@ -659,6 +660,80 @@ try {
   const pageMade = await ask(alice, { workspaceId, message: "Make a winter checklist under fleet notes", mode: "auto" });
   const [checklist] = await db.select().from(page).where(and(eq(page.parentId, fleet.id), eq(page.title, "Winter checklist")));
   check(pageMade.done && checklist?.createdBy === alice && pageMade.steps.includes("write:createPage:done:Winter checklist"), "the chat adds a page under a page", pageMade.steps);
+
+  // A row's values: the person sees each value next to the one it replaces.
+  fake.setChat(caller([write("update_row", { row_id: plugs.id, title: "Spark plugs (4)", properties: { Stock: "Ordered" } })]));
+  let rowAsked: Extract<ChatEvent, { type: "approval" }>["action"] | null = null;
+  await ask(alice, { workspaceId, message: "Mark the plugs ordered" }, {
+    onEvent: (e) => {
+      if (e.type !== "approval") return;
+      rowAsked = e.action;
+      decideChange(alice, e.id, "decline");
+    },
+  });
+  const rowAction = rowAsked as Extract<ChatEvent, { type: "approval" }>["action"] | null;
+  check(
+    rowAction?.changes[0]?.before === "In stock" && rowAction.changes[0].value === "Ordered" && rowAction.previousTitle === "Spark plugs" && rowAction.title === "Spark plugs (4)",
+    "a row change shows each value and the title as they are and as they would be",
+    rowAction,
+  );
+
+  // A page's text, block by block, read with its block ids first.
+  const blockList = await service.blockMarkdown(checklist.id);
+  check(blockList.length === 1 && blockList[0].markdown === "* Fit the tyres", "a page's blocks are blockList with their ids and Markdown", blockList);
+  fake.setChat(
+    caller([
+      write("read_page", { page_id: checklist.id, with_block_ids: true }),
+      write("edit_page", {
+        page_id: checklist.id,
+        edits: [
+          { op: "replace", block_id: blockList[0].id, markdown: `<!-- block ${blockList[0].id} -->\n- Fit the winter tyres` },
+          { op: "append", markdown: "- Check the battery" },
+        ],
+      }),
+    ]),
+  );
+  fake.chats.length = 0;
+  let editAsked: Extract<ChatEvent, { type: "approval" }>["action"] | null = null;
+  let editedBeforeApproval = true;
+  const edited = await ask(alice, { workspaceId, message: "Say winter tyres, and add the battery" }, {
+    onEvent: async (e) => {
+      if (e.type !== "approval") return;
+      editAsked = e.action;
+      editedBeforeApproval = (await service.readPage(checklist.id)).markdown.includes("battery");
+      decideChange(alice, e.id, "approve");
+    },
+  });
+  check(toolResults(fake.chats[1]).some((r) => r.includes(`<!-- block ${blockList[0].id} -->`)), "read_page shows the block ids when asked", toolResults(fake.chats[1]));
+  const editAction = editAsked as Extract<ChatEvent, { type: "approval" }>["action"] | null;
+  check(
+    editAction?.action === "editPage" &&
+      editAction.target?.pageId === checklist.id &&
+      editAction.diff?.map((c) => c.op).join() === "changed,added" &&
+      editAction.diff.every((c) => c.block.key === ""),
+    "an edit of a page's text asks first, showing the blocks it changes",
+    editAction,
+  );
+  check(!editedBeforeApproval, "…nothing is written before the person approves");
+  const editedBody = (await service.readPage(checklist.id)).markdown;
+  check(
+    edited.done && editedBody === "* Fit the winter tyres\n* Check the battery" && edited.steps.includes("write:editPage:done:Winter checklist"),
+    "once approved, the blocks change (block lines copied back aren't written), shown as a step",
+    { editedBody, steps: edited.steps },
+  );
+  const review = await getPageReview(alice, checklist.id);
+  check(review?.ids.filter(Boolean).length === 2 && review.actors[0]?.name === alice, "…and the page offers the changes for review", review);
+  const reverted = await decidePageReview({ userId: alice }, checklist.id, review.version, null, "undo");
+  check(!reverted.stale && reverted.review === null && (await service.readPage(checklist.id)).markdown === "* Fit the tyres", "undoing all of them brings the text back", reverted);
+
+  fake.setChat(caller([write("edit_page", { page_id: checklist.id, edits: [{ op: "delete", block_id: "no-such-block" }] })]));
+  fake.chats.length = 0;
+  const missingBlock = await ask(alice, { workspaceId, message: "Delete that", mode: "auto" });
+  check(
+    missingBlock.done && toolResults(fake.chats.at(-1)!).some((r) => r.startsWith("The change is not valid: the page has no block no-such-block")),
+    "an edit naming a block the page doesn't have is refused, nothing written",
+    toolResults(fake.chats.at(-1)!),
+  );
 
   // What the person may not change.
   const sealed = await createPage(actor, { workspaceId, teamspaceId: null, kind: "database", title: "Sealed register" });

@@ -6,6 +6,7 @@ import { YjsThreadStore } from "@blocknote/core/yjs";
 import * as Y from "yjs";
 import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
+import { applyBlockEdits, listedBlocks, stripBlockMarkers, type BlockEdit } from "@/lib/block-edits";
 import { blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
@@ -15,6 +16,7 @@ import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainTh
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { assertPageUnlocked } from "@/lib/page-lock";
+import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
@@ -449,9 +451,11 @@ export function createCollab() {
             return { next: null, write: { conflict: true, version: touched ? await version() : current } satisfies BodyWrite };
           }
         }
-        if (snapshot) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
         const existing = editor.yXmlFragmentToBlocks(fragment);
         const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl });
+        if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
+        // Only a write that changes something is saved before.
+        if (snapshot && next) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
         if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
         // `next` null: nothing to write.
         if (next) {
@@ -487,6 +491,29 @@ export function createCollab() {
       linkWikilinks(blocks, (title) => pages.get(titleKey(title))?.id);
     }
     return blocks;
+  };
+
+  /** The edits' Markdown as blocks, made in order on `existing` (lib/block-edits). */
+  const buildEdits = async (
+    pageId: string,
+    actor: WriteActor,
+    existing: Awaited<ReturnType<typeof deriveContent>>["blocks"],
+    mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
+    edits: BlockEdit[],
+  ) => {
+    const parsed = [];
+    for (const edit of edits) {
+      const blocks =
+        edit.op === "delete" || edit.markdown === undefined
+          ? []
+          : await linkWritten(
+              pageId,
+              actor,
+              await markdownToBlocks(stripBlockMarkers(edit.markdown), existing, { ...mentions, keepMissingInline: false, carryOver: false }),
+            );
+      parsed.push({ op: edit.op, blockId: edit.blockId, blocks: blocks as ReviewBlock[] });
+    }
+    return applyBlockEdits(existing as ReviewBlock[], parsed);
   };
 
   const service: CollabService = {
@@ -639,6 +666,42 @@ export function createCollab() {
         { ...check, reportVersion: true },
       );
       return { ...write!, changed };
+    },
+
+    async editBlocks(pageId, edits, actor, { snapshot = false, dryRun = false, ...check } = {}) {
+      if (dryRun) {
+        const existing = (await service.readBlocks(pageId)).blocks as Awaited<ReturnType<typeof deriveContent>>["blocks"];
+        const made = await buildEdits(pageId, actor, existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl }, edits);
+        const version = await service.pageVersion(pageId);
+        if ("missing" in made) return { conflict: false, version, missing: made.missing };
+        return { conflict: false, version, missing: null, before: existing, after: made.blocks };
+      }
+      let missing: string | null = null;
+      const { write } = await writeBlocks(
+        pageId,
+        actor,
+        async (existing, mentions) => {
+          const made = await buildEdits(pageId, actor, existing, mentions, edits);
+          if ("missing" in made) {
+            missing = made.missing;
+            return null;
+          }
+          return made.blocks as typeof existing;
+        },
+        snapshot,
+        { ...check, reportVersion: true },
+      );
+      return { ...write!, missing };
+    },
+
+    async blockMarkdown(pageId) {
+      const [{ blocks }, workspaceId] = await Promise.all([service.readBlocks(pageId), workspaceOf(pageId)]);
+      const out: { id: string; markdown: string }[] = [];
+      for (const block of listedBlocks(blocks as ReviewBlock[])) {
+        if (!block.id) continue;
+        out.push({ id: block.id, markdown: (await blocksToMarkdown([block] as Parameters<typeof blocksToMarkdown>[0], { workspaceId })).trim() });
+      }
+      return out;
     },
 
     async appendBlocks(pageId, blocks, actor, snapshot = false) {

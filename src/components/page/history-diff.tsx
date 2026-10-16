@@ -51,7 +51,7 @@ const MEDIA_ICONS: Record<string, typeof FileIcon> = {
 };
 
 /** A block drawn by its type, close to how the editor shows it, with `text` as its content. */
-function BlockBody({ block, text }: { block: DiffBlock; text: ReactNode }) {
+function BlockBody({ block, text, compact }: { block: DiffBlock; text: ReactNode; compact?: boolean }) {
   const marker = (m: ReactNode) => (
     <div className="flex gap-2">
       <span className="shrink-0 select-none text-fg-muted">{m}</span>
@@ -64,7 +64,7 @@ function BlockBody({ block, text }: { block: DiffBlock; text: ReactNode }) {
         <div
           className={cn(
             "whitespace-pre-wrap font-semibold",
-            block.level === 1 ? "text-2xl" : block.level === 2 ? "text-xl" : "text-lg",
+            !compact && (block.level === 1 ? "text-2xl" : block.level === 2 ? "text-xl" : "text-lg"),
           )}
         >
           {text}
@@ -114,7 +114,7 @@ function BlockBody({ block, text }: { block: DiffBlock; text: ReactNode }) {
 
 const BAR = { same: "border-transparent", added: "border-added-bar", removed: "border-removed-bar", changed: "border-accent" };
 
-function ChangeRow({ change, actions }: { change: BlockChange; actions?: ReactNode }) {
+function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?: ReactNode; compact?: boolean }) {
   const t = useTranslations("page.history");
   const te = useTranslations("page.embed");
   const tb = useTranslations("page.blocks");
@@ -148,7 +148,7 @@ function ChangeRow({ change, actions }: { change: BlockChange; actions?: ReactNo
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <BlockBody block={block} text={text} />
+          <BlockBody block={block} text={text} compact={compact} />
           {onlyFormatChanged(change) && <p className="mt-0.5 text-xs text-fg-muted">{t("diff.formatOnly")}</p>}
         </div>
         {actions}
@@ -161,7 +161,16 @@ function ChangeRow({ change, actions }: { change: BlockChange; actions?: ReactNo
  * Changed blocks with their words marked, unchanged blocks dimmed and longer unchanged stretches
  * folded until opened. `actions` adds controls beside each change (the page review's Keep and Undo).
  */
-export function BlockChanges({ changes, actions }: { changes: BlockChange[]; actions?: (index: number) => ReactNode }) {
+export function BlockChanges({
+  changes,
+  actions,
+  compact,
+}: {
+  changes: BlockChange[];
+  actions?: (index: number) => ReactNode;
+  /** Headings at the text's size, for a small space. */
+  compact?: boolean;
+}) {
   const t = useTranslations("page.history");
   const [opened, setOpened] = useState<ReadonlySet<number>>(new Set());
   // Each change keeps its index in `changes`, which folding would lose.
@@ -175,9 +184,9 @@ export function BlockChanges({ changes, actions }: { changes: BlockChange[]; act
   }, [changes]);
   return items.map(({ item, index }, i) =>
     item.op !== "hidden" ? (
-      <ChangeRow key={i} change={item} actions={item.op !== "same" ? actions?.(index) : undefined} />
+      <ChangeRow key={i} change={item} compact={compact} actions={item.op !== "same" ? actions?.(index) : undefined} />
     ) : opened.has(i) ? (
-      item.blocks.map((block, j) => <ChangeRow key={`${i}-${j}`} change={{ op: "same", block }} />)
+      item.blocks.map((block, j) => <ChangeRow key={`${i}-${j}`} change={{ op: "same", block }} compact={compact} />)
     ) : (
       <button
         key={i}
