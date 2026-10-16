@@ -12,3 +12,8 @@ export const AUTO_SNAPSHOT_INTERVAL_MS = 10 * 60 * 1000;
  * reloads them, so everyone who has the page open sees the change.
  */
 export const PAGE_HEADER_EVENT = "header";
+/**
+ * Sent on a page's own document after an AI app, the chat or an agent changed its body: the page
+ * view looks for changes to review (server/page-review.ts).
+ */
+export const AI_EDIT_EVENT = "ai-edit";

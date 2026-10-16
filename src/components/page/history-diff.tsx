@@ -21,7 +21,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import type { diffSnapshotAction } from "@/app/actions/pages";
 import { cn } from "@/components/ui";
 import { DATABASE_BLOCK, isEmbedBlockType } from "@/lib/embed-blocks";
-import { foldUnchanged, onlyFormatChanged, type BlockChange, type DiffBlock, type WordSegment } from "@/lib/page-diff";
+import { foldUnchanged, onlyFormatChanged, type BlockChange, type ChangeActor, type DiffBlock, type WordSegment } from "@/lib/page-diff";
 
 export type VersionDiff = NonNullable<Awaited<ReturnType<typeof diffSnapshotAction>>>;
 
@@ -114,7 +114,7 @@ function BlockBody({ block, text }: { block: DiffBlock; text: ReactNode }) {
 
 const BAR = { same: "border-transparent", added: "border-added-bar", removed: "border-removed-bar", changed: "border-accent" };
 
-function ChangeRow({ change }: { change: BlockChange }) {
+function ChangeRow({ change, actions }: { change: BlockChange; actions?: ReactNode }) {
   const t = useTranslations("page.history");
   const te = useTranslations("page.embed");
   const tb = useTranslations("page.blocks");
@@ -146,9 +146,64 @@ function ChangeRow({ change }: { change: BlockChange }) {
       className={cn("border-l-2 py-1 pl-3", BAR[change.op], change.op === "same" && "opacity-50")}
       style={block.depth ? { marginLeft: `${block.depth * 1.5}rem` } : undefined}
     >
-      <BlockBody block={block} text={text} />
-      {onlyFormatChanged(change) && <p className="mt-0.5 text-xs text-fg-muted">{t("diff.formatOnly")}</p>}
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <BlockBody block={block} text={text} />
+          {onlyFormatChanged(change) && <p className="mt-0.5 text-xs text-fg-muted">{t("diff.formatOnly")}</p>}
+        </div>
+        {actions}
+      </div>
     </div>
+  );
+}
+
+/**
+ * Changed blocks with their words marked, unchanged blocks dimmed and longer unchanged stretches
+ * folded until opened. `actions` adds controls beside each change (the page review's Keep and Undo).
+ */
+export function BlockChanges({ changes, actions }: { changes: BlockChange[]; actions?: (index: number) => ReactNode }) {
+  const t = useTranslations("page.history");
+  const [opened, setOpened] = useState<ReadonlySet<number>>(new Set());
+  // Each change keeps its index in `changes`, which folding would lose.
+  const items = useMemo(() => {
+    let at = 0;
+    return foldUnchanged(changes).map((item) => {
+      const start = at;
+      at += item.op === "hidden" ? item.blocks.length : 1;
+      return { item, index: start };
+    });
+  }, [changes]);
+  return items.map(({ item, index }, i) =>
+    item.op !== "hidden" ? (
+      <ChangeRow key={i} change={item} actions={item.op !== "same" ? actions?.(index) : undefined} />
+    ) : opened.has(i) ? (
+      item.blocks.map((block, j) => <ChangeRow key={`${i}-${j}`} change={{ op: "same", block }} />)
+    ) : (
+      <button
+        key={i}
+        type="button"
+        onClick={() => setOpened((s) => new Set(s).add(i))}
+        className="flex w-full items-center gap-2 rounded-md px-3 py-1 text-left text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+      >
+        <ChevronsUpDown className="h-3.5 w-3.5" />
+        {t("diff.showUnchanged", { count: item.blocks.length })}
+      </button>
+    ),
+  );
+}
+
+/** Who made changes, as the page shows them: an AI app for its person, an agent as such. */
+export function useActorLabels(actors: ChangeActor[]) {
+  const t = useTranslations("page.history");
+  const tc = useTranslations("common");
+  return actors.map((a) =>
+    a.client
+      ? a.name
+        ? t("diff.actorApp", { client: a.client, name: a.name })
+        : a.client
+      : a.isAgent && a.name
+        ? tc("agentName", { name: a.name })
+        : (a.name ?? ""),
   );
 }
 
@@ -158,20 +213,9 @@ function ChangeRow({ change }: { change: BlockChange }) {
  */
 export function HistoryDiff({ diff, range }: { diff: VersionDiff; range: string }) {
   const t = useTranslations("page.history");
-  const tc = useTranslations("common");
   const format = useFormatter();
-  const [opened, setOpened] = useState<ReadonlySet<number>>(new Set());
-  const items = useMemo(() => foldUnchanged(diff.changes), [diff]);
   const changed = diff.title !== null || diff.changes.some((c) => c.op !== "same");
-  const actors = diff.actors.map((a) =>
-    a.client
-      ? a.name
-        ? t("diff.actorApp", { client: a.client, name: a.name })
-        : a.client
-      : a.isAgent && a.name
-        ? tc("agentName", { name: a.name })
-        : (a.name ?? ""),
-  );
+  const actors = useActorLabels(diff.actors);
 
   return (
     <div className="px-4 md:px-12">
@@ -188,23 +232,7 @@ export function HistoryDiff({ diff, range }: { diff: VersionDiff; range: string 
               <Words words={diff.title} />
             </h1>
           )}
-          {items.map((item, i) =>
-            item.op !== "hidden" ? (
-              <ChangeRow key={i} change={item} />
-            ) : opened.has(i) ? (
-              item.blocks.map((block, j) => <ChangeRow key={`${i}-${j}`} change={{ op: "same", block }} />)
-            ) : (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setOpened((s) => new Set(s).add(i))}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-1 text-left text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
-              >
-                <ChevronsUpDown className="h-3.5 w-3.5" />
-                {t("diff.showUnchanged", { count: item.blocks.length })}
-              </button>
-            ),
-          )}
+          <BlockChanges changes={diff.changes} />
         </div>
       )}
     </div>

@@ -747,6 +747,16 @@ export const pageSnapshot = pgTable(
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     /** OAuth client that triggered the write, for MCP-originated snapshots. */
     oauthClientId: text("oauth_client_id"),
+    /**
+     * `before_mcp_write` only: the body's version (CollabService.pageVersion) right after the write
+     * it was saved before, so the page can offer the write for review while nobody changed the body
+     * since (server/page-review.ts). Null when the write changed nothing.
+     */
+    afterVersion: text("after_version"),
+    /** When the AI changes after this version were kept or undone as a whole on the page. */
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    /** Changes after this version kept one by one on the page (ids from lib/page-review changeIds). */
+    reviewKept: jsonb("review_kept").$type<string[]>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("page_snapshot_page_idx").on(t.pageId, t.createdAt)],

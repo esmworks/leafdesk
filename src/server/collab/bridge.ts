@@ -63,6 +63,18 @@ export interface CollabService {
     options?: { wikilinks?: boolean } & VersionCheck,
   ): Promise<BodyWrite | null>;
   appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean, options?: VersionCheck): Promise<BodyWrite | null>;
+  /**
+   * Writes the body `transform` makes of the current one (BlockNote blocks as plain JSON), or
+   * nothing when it returns null. `snapshot: true` saves the page first as an AI write (offered for
+   * review), `"before_restore"` as the way back from undoing one. Reports the body's version after,
+   * and whether anything was written (`changed`).
+   */
+  transformBlocks(
+    pageId: string,
+    transform: (blocks: unknown[]) => unknown[] | null,
+    actor: WriteActor,
+    options?: { snapshot?: boolean | "before_restore" } & VersionCheck,
+  ): Promise<BodyWrite & { changed: boolean }>;
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
   appendBlocks(pageId: string, blocks: unknown[], actor: WriteActor, snapshot?: boolean): Promise<void>;
   /**

@@ -592,5 +592,18 @@
       "interrupted": "The server restarted while this was being worked out. Try again.",
       "insert": "The note couldn't be added to the page."
     }
+  },
+  "review": {
+    "bar": "{count, plural, one {# AI change to review} other {# AI changes to review}}",
+    "by": "by {names}",
+    "open": "Review",
+    "keepAll": "Keep all",
+    "undoAll": "Undo all",
+    "keep": "Keep",
+    "undo": "Undo",
+    "title": "Review AI changes",
+    "hint": "Keep or undo each change. Undo all saves the page as it is now to its history first.",
+    "stale": "The page changed in the meantime: these are the changes as they are now.",
+    "failed": "That didn't work. Try again."
   }
 }
