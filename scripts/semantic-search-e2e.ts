@@ -31,7 +31,7 @@ const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE } = await import("@/server/mcp/principal");
 const { registerCollab, getCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { archivePage, createPage, deletePagePermanently, fullTextSearch, renamePage, restorePage, searchPages } = await import("@/server/pages");
+const { archivePage, createPage, deletePagePermanently, fullTextSearch, movePage, renamePage, restorePage, searchPages } = await import("@/server/pages");
 const databases = await import("@/server/databases");
 const { removePageGroupPermission, setPageGroupPermission, setPagePermission } = await import("@/server/permissions");
 const { createGroup } = await import("@/server/groups");
@@ -197,10 +197,13 @@ try {
     "chunks store their model, dimensions and vector",
     { model: fleetChunk.model, dimensions: fleetChunk.dimensions },
   );
-  check(fleetChunk.text === "Fleet notes\nOur car needs new tyres before winter.", "a chunk is the page title and its text", fleetChunk.text);
+  check(fleetChunk.text === "Fleet notes\n\nOur car needs new tyres before winter.", "a chunk is the page title, a blank line and its text", fleetChunk.text);
+  const vendorsText = async () => (await db.select({ text: pageChunk.text }).from(pageChunk).where(eq(pageChunk.pageId, vendors.id)))[0]?.text ?? "";
+  check((await vendorsText()).startsWith("Fleet notes › Tyre vendors\n\n"), "a subpage's chunk starts with the page above it", await vendorsText());
   check((await chunkCount(handbook.id)) >= 2, "a long page is cut into several chunks");
   const [acmeChunk] = await db.select().from(pageChunk).where(eq(pageChunk.pageId, acme.id));
   check(acmeChunk.text.includes("Notes: Runs hound training classes"), "a row's chunk includes its property values", acmeChunk.text);
+  check(acmeChunk.text.startsWith("Contacts › Acme\n\n"), "a row's chunk names its database", acmeChunk.text);
 
   // ── Search by meaning ───────────────────────────────────────────────────────────────────────
   const auto = await found(alice, "automobile");
@@ -284,6 +287,21 @@ try {
   await settle();
   const [officeChunk] = await db.select({ text: pageChunk.text }).from(pageChunk).where(eq(pageChunk.pageId, office.id));
   check(officeChunk?.text.startsWith("Kennel rules\n"), "a renamed page is indexed again with its new title", officeChunk);
+
+  // Chunks name the pages above: moving a page or renaming one above it indexes it again.
+  const garage = await createPage(actor, { workspaceId, teamspaceId: general.id, title: "Garage", markdown: "Spanners." });
+  await settle();
+  await movePage(owner, vendors.id, garage.id);
+  await settle();
+  check((await vendorsText()).startsWith("Garage › Tyre vendors\n\n"), "a moved page is indexed again under its new place", await vendorsText());
+  await renamePage(actor, garage.id, "Workshop");
+  await settle();
+  check((await vendorsText()).startsWith("Workshop › Tyre vendors\n\n"), "renaming a page indexes the pages under it again", await vendorsText());
+  const passage = (await searchPages(owner, "tyre suppliers", { workspaceId })).find((h) => h.id === vendors.id)?.passage;
+  check(passage === "Vehicle tyre suppliers we trust.", "…and results show the passage without the pages above", passage);
+  await movePage(owner, vendors.id, fleet.id);
+  await settle();
+  check((await vendorsText()).startsWith("Fleet notes › Tyre vendors\n\n"), "…moved back, under its old place again", await vendorsText());
 
   await databases.updateRowProperties(owner, acme.id, { [notes.id]: "Sells automobile parts" });
   await settle();

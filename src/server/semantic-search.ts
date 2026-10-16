@@ -7,7 +7,7 @@
  * The query's embedding is cached briefly and limited per person (search runs as they type); when
  * the model can't be reached or the limit is reached, search quietly falls back to full text.
  */
-import { sql, type SQL } from "drizzle-orm";
+import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageChunk } from "@/db/schema";
 import type { PageKind } from "@/db/schema";
@@ -108,6 +108,22 @@ export function inSubtree(rootId: string, alias = "p"): SQL {
       select c.id from ${page} c join sub on c.parent_id = sub.id
     ) select id from sub
   )`;
+}
+
+/**
+ * The indexed chunks of `pageIds` (of the current model), by page. No access checks: only for
+ * pages a search just found for the reader.
+ */
+export async function chunksOfPages(pageIds: string[]): Promise<Map<string, { blockId: string | null; position: number; text: string }[]>> {
+  const model = embeddingModel();
+  const out = new Map<string, { blockId: string | null; position: number; text: string }[]>();
+  if (!model || !pageIds.length) return out;
+  const rows = await db
+    .select({ pageId: pageChunk.pageId, blockId: pageChunk.blockId, position: pageChunk.position, text: pageChunk.text })
+    .from(pageChunk)
+    .where(and(inArray(pageChunk.pageId, pageIds), eq(pageChunk.model, model)));
+  for (const { pageId, ...chunk } of rows) out.set(pageId, [...(out.get(pageId) ?? []), chunk]);
+  return out;
 }
 
 /** Where a search looks: under pages (any of them), and at pages of some kinds (see lib/search-query). */

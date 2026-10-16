@@ -1,7 +1,8 @@
-import { index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
 import { databaseProperty, page, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
+import { file } from "./files";
 
 /**
  * Where an AI autofill value of a row stands (see server/ai-properties.ts): waiting or being worked
@@ -85,6 +86,33 @@ export const pageIndexState = pgTable(
     indexedAt: timestamp("indexed_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("page_index_state_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * The text of an uploaded PDF or Word document, as semantic search indexes it (see
+ * server/file-text.ts): read once per file and kept, since a stored file's bytes never change.
+ * `contentHash` is the sha256 of the bytes, so the same document uploaded again elsewhere isn't read
+ * again either. `text` is empty when the file has none to give (a scan, a damaged or locked file);
+ * `partial` says only its start was read (the page and length limits). Rows of an older
+ * `extractorVersion` are read again.
+ */
+export const fileText = pgTable(
+  "file_text",
+  {
+    fileId: text("file_id")
+      .primaryKey()
+      .references(() => file.id, { onDelete: "cascade" }),
+    contentHash: text("content_hash").notNull(),
+    extractorVersion: integer("extractor_version").notNull(),
+    text: text("text").notNull(),
+    /** Pages of a PDF (all of them, not only those read); null for other files. */
+    pages: integer("pages"),
+    partial: boolean("partial").notNull().default(false),
+    /** The file couldn't be read at all (as opposed to having no text). */
+    failed: boolean("failed").notNull().default(false),
+    extractedAt: timestamp("extracted_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("file_text_content_hash_idx").on(t.contentHash)],
 );
 
 /** A source an answer of the AI chat cites: a page (and the block the passage starts at). */

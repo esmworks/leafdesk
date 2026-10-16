@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { fakeEmbedding, fakeTokens } from "./ai/fake-openai";
 import {
+  bestChunkForTerms,
   blockTexts,
   CHUNK_MAX,
+  CHUNKER_VERSION,
+  chunkContext,
   chunkPage,
+  CONTEXT_MAX,
   cosineSimilarity,
   MAX_CHUNKS_PER_PAGE,
+  MAX_FILE_CHUNKS_PER_PAGE,
   passageOf,
   reciprocalRankFusion,
   rowPropertyLines,
@@ -24,11 +29,13 @@ describe("what a page's text is for semantic search", () => {
       { ...para("a", "Parent"), children: [para("b", "Child")] },
       para("c", "   "),
       { id: "d", type: "table", content: { type: "tableContent", rows: [{ cells: [[{ type: "text", text: "x" }], [{ type: "text", text: "y" }]] }] } },
+      { id: "h", type: "heading", props: { level: 2 }, content: [{ type: "text", text: "Risks" }], children: [] },
     ];
     expect(blockTexts(blocks as never)).toEqual([
       { id: "a", text: "Parent" },
       { id: "b", text: "Child" },
       { id: "d", text: "x y" },
+      { id: "h", text: "Risks", heading: true },
     ]);
   });
 
@@ -63,9 +70,9 @@ describe("chunks", () => {
   it("opens with a row's values, and a page with only a title is one chunk", () => {
     const row = chunkPage({ title: "Acme", properties: ["Status: Done"], blocks: [{ id: "x", text: "Body" }] });
     expect(row).toHaveLength(1);
-    expect(row[0].text).toBe("Acme\nStatus: Done\nBody");
+    expect(row[0].text).toBe("Acme\n\nStatus: Done\nBody");
     expect(row[0].blockId).toBeNull();
-    expect(chunkPage({ title: "  Just a   title ", blocks: [] }).map((c) => c.text)).toEqual(["Just a title"]);
+    expect(chunkPage({ title: "  Just a   title ", blocks: [] }).map((c) => c.text)).toEqual(["Just a title\n\n"]);
     expect(chunkPage({ title: "", blocks: [] })).toEqual([]);
   });
 
@@ -87,6 +94,48 @@ describe("chunks", () => {
     expect(chunkPage({ title: "Big", blocks })).toHaveLength(MAX_CHUNKS_PER_PAGE);
   });
 
+  it("puts the pages above, the title and the heading a chunk lies under in front of it", () => {
+    const blocks = [
+      { id: "p0", text: "Intro to the plan." },
+      { id: "h1", text: "Risks", heading: true as const },
+      { id: "p1", text: "Suppliers may be late." },
+      { id: "p2", text: "Prices may rise." },
+    ];
+    const chunks = chunkPage({ title: "2026 plan", path: ["Sales"], blocks }, { target: 40, max: 1400 });
+    expect(chunks.map((c) => [c.blockId, c.text])).toEqual([
+      // A heading starts a new chunk.
+      ["p0", "Sales › 2026 plan\n\nIntro to the plan."],
+      // Starting at the heading: it's in the text already.
+      ["h1", "Sales › 2026 plan\n\nRisks\nSuppliers may be late."],
+      ["p2", "Sales › 2026 plan\nRisks\n\nPrices may rise."],
+    ]);
+    expect(chunks.map((c) => passageOf(c.text, "2026 plan"))).toEqual(["Intro to the plan.", "Risks\nSuppliers may be late.", "Prices may rise."]);
+    // A row: its database is the page above it.
+    const row = chunkPage({ title: "Acme", path: ["Wiki", "Customers"], properties: ["Status: Done"], blocks: [] });
+    expect(row.map((c) => c.text)).toEqual(["Wiki › Customers › Acme\n\nStatus: Done"]);
+    // Untitled pages above and below are left out of the path.
+    expect(chunkPage({ title: "", path: ["", "Notes"], blocks: [{ id: "a", text: "x" }] })[0].text).toBe("Notes\n\nx");
+    expect(chunkPage({ title: "", blocks: [{ id: "a", text: "x" }] })[0].text).toBe("x");
+  });
+
+  it("keeps where a chunk is short, leaving out the pages farthest up first", () => {
+    const path = Array.from({ length: 8 }, (_, i) => `Section number ${i} of the handbook`);
+    const context = chunkContext(path, "Travel policy", "Booking flights");
+    expect(context.length).toBeLessThanOrEqual(CONTEXT_MAX);
+    expect(context).toMatch(/^… › .* › Section number 7 of the handbook › Travel policy\nBooking flights$/);
+    expect(context).not.toContain("Section number 0");
+    const long = chunkContext(["x".repeat(500)], "y".repeat(500), "z".repeat(500));
+    expect(long.length).toBeLessThanOrEqual(CONTEXT_MAX);
+    expect(long.split("\n")).toHaveLength(2);
+    // A blank line inside a block can't end the context early.
+    const [chunk] = chunkPage({ title: "T", blocks: [{ id: "c", text: "line 1\n\n\nline 2" }] });
+    expect(passageOf(chunk.text, "T")).toBe("line 1\nline 2");
+  });
+
+  it("is the second chunker, so pages indexed with the first are indexed again", () => {
+    expect(CHUNKER_VERSION).toBe(2);
+  });
+
   it("fingerprints chunks with the model, so another model indexes again", () => {
     const chunks = chunkPage({ title: "T", blocks: [{ id: "a", text: "one" }] });
     expect(sourceHash("m1", chunks)).toBe(sourceHash("m1", chunkPage({ title: "T", blocks: [{ id: "a", text: "one" }] })));
@@ -95,12 +144,72 @@ describe("chunks", () => {
     expect(sourceHash("m1", chunks)).not.toBe(sourceHash("m1", chunkPage({ title: "T", blocks: [{ id: "b", text: "one" }] })));
   });
 
-  it("shows a passage without its title line", () => {
+  it("gives each attached document chunks of its own, after the page's, pointing at its block", () => {
+    const report = { blockId: "f1", name: " Annual   report.pdf ", text: `Revenue grew.\nIn all regions.\n\n${"Costs fell. ".repeat(100)}` };
+    const chunks = chunkPage(
+      { title: "Plans", blocks: [{ id: "a", text: "We go north." }], files: [report, { blockId: "f2", name: "", text: "Short." }] },
+      { target: 700, max: 1400 },
+    );
+    expect(chunks[0]).toMatchObject({ blockId: "a", text: "Plans\n\nWe go north." });
+    const fromFiles = chunks.slice(1);
+    expect(fromFiles.map((c) => c.blockId)).toEqual(["f1", "f1", "f2"]);
+    expect(fromFiles.map((c) => c.position)).toEqual([1, 2, 3]);
+    // Lines of a paragraph join up; paragraphs stay apart, packed together while they fit.
+    expect(fromFiles[0].text.startsWith("Plans\n\nAnnual report.pdf\nRevenue grew. In all regions.")).toBe(true);
+    expect(fromFiles.slice(0, 2).every((c) => c.text.startsWith("Plans\n\nAnnual report.pdf\n"))).toBe(true);
+    expect(fromFiles[2].text).toBe("Plans\n\nfile\nShort.");
+    // The passage shown keeps the file name, and says where the page is only in the context.
+    expect(passageOf(fromFiles[2].text, "Plans")).toBe("file\nShort.");
+    // Without a title the file name leads.
+    expect(chunkPage({ title: "", blocks: [], files: [{ blockId: "f", name: "a.pdf", text: "Hi." }] }).map((c) => c.text)).toEqual(["a.pdf\nHi."]);
+  });
+
+  it("gives documents their own allowance, so a long one leaves the page's text in", () => {
+    const blocks = Array.from({ length: MAX_CHUNKS_PER_PAGE + 10 }, (_, i) => ({ id: `b${i}`, text: `${i} ${"z".repeat(1000)}` }));
+    const text = Array.from({ length: MAX_FILE_CHUNKS_PER_PAGE + 40 }, (_, i) => `${i} ${"q".repeat(1000)}`).join("\n\n");
+    const chunks = chunkPage({ title: "Big", blocks, files: [{ blockId: "f", name: "long.pdf", text }] });
+    expect(chunks.filter((c) => c.blockId !== "f")).toHaveLength(MAX_CHUNKS_PER_PAGE);
+    expect(chunks.filter((c) => c.blockId === "f")).toHaveLength(MAX_FILE_CHUNKS_PER_PAGE);
+  });
+
+  it("shows a passage without where it is", () => {
+    expect(passageOf("Sales › Plans\nRisks\n\nWe go north.\nThen east.", "Plans")).toBe("We go north.\nThen east.");
+    expect(passageOf("Sales › Plans\n\n", "Plans")).toBe("");
+    expect(passageOf("We go north.", "")).toBe("We go north.");
+    // Indexed by the first chunker: only the title line in front.
     expect(passageOf("Plans\nWe go north.", "Plans")).toBe("We go north.");
     expect(passageOf("Other\nWe go north.", "Plans")).toBe("Other\nWe go north.");
     expect(passageOf("Plans", "Plans")).toBe("");
     expect(snippetOf("a\n  b ".repeat(3))).toBe("a b a b a b");
     expect(snippetOf("x".repeat(200), 10)).toBe(`${"x".repeat(9)}…`);
+  });
+});
+
+describe("the passage the text search found a page for", () => {
+  const chunk = (position: number, passage: string, blockId = `b${position}`) => ({ position, blockId, text: `Wiki › Plans\nGoals\n\n${passage}` });
+
+  it("takes the chunk with the most of the query's words, matched as word starts", () => {
+    const chunks = [chunk(0, "We grow the team."), chunk(1, "Supplier risks: late deliveries."), chunk(2, "Risks of the budget and supplier prices.")];
+    expect(bestChunkForTerms(chunks, ["supplier", "risks"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms(chunks, ["budge", "suppl"], "Plans")?.blockId).toBe("b2");
+    // More matches of the same words win, then the earlier chunk.
+    expect(bestChunkForTerms([chunk(0, "risk"), chunk(1, "risk and risk")], ["risk"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms([chunk(3, "risk"), chunk(1, "risk")], ["risk"], "Plans")?.blockId).toBe("b1");
+  });
+
+  it("doesn't count words of where a chunk is, nor parts of words", () => {
+    const chunks = [chunk(0, "Nothing here."), chunk(1, "We reach our goals.")];
+    // "Goals" is the heading in front of every chunk; "each" is inside "reach".
+    expect(bestChunkForTerms(chunks, ["goals"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms(chunks, ["each"], "Plans")?.blockId).toBe("b0");
+  });
+
+  it("matches Turkish letters whatever their case, and falls back to the first chunk", () => {
+    const chunks = [chunk(0, "Giriş."), chunk(1, "İSTANBUL ofisi ışıkları")];
+    expect(bestChunkForTerms(chunks, ["istanbul"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms(chunks, ["Işık"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms(chunks, ["nowhere"], "Plans")?.blockId).toBe("b0");
+    expect(bestChunkForTerms([], ["x"], "Plans")).toBeNull();
   });
 });
 

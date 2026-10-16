@@ -1483,6 +1483,14 @@ indexes everything at once, e.g. after setting `AI_EMBEDDINGS_MODEL` or changing
 respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out of results at once
 (their chunks stay for a restore); deleted pages take their chunks with them.
 
+**Attached documents.** The text of PDFs and Word documents (.docx) in a page's file blocks is
+indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
+chat can answer from a document and cite it. A document is read once and its text kept in
+`file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
+page, files over 25 MB are skipped, and a scan without a text layer adds nothing. A page indexes
+only the files its readers may open through it. Their text is sent to the embeddings endpoint
+like the page's own.
+
 **Access** is never stored in the index: every search filters the chunks to the pages the person
 can open right now (`page_access_level`) before ranking them, so guests only find what was shared
 with them and private pages stay private.
