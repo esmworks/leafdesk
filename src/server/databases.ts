@@ -2791,7 +2791,10 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
   for (const view of views) {
     for (const rule of filterRules(access.viewConfig(view.config).filters)) {
       const person = personProps.some((p) => p.id === rule.propertyId);
-      if (person && typeof rule.value === "string" && rule.value !== PERSON_ME) referenced.add(rule.value);
+      if (!person) continue;
+      for (const value of Array.isArray(rule.value) ? rule.value : [rule.value]) {
+        if (typeof value === "string" && value !== PERSON_ME) referenced.add(value);
+      }
     }
   }
   const guest = isGuest(membership.role);

@@ -29,6 +29,16 @@
   file, adds nothing. Only files the page's readers may open through the page count, and search
   checks access to the page when it runs, as for the rest of its text. Existing pages are indexed
   again by the next sweep or `pnpm search:index`; their unchanged passages aren't embedded again.
+- **More filter conditions.** Text, URL, email, phone and title filters (and formulas and rollups
+  with a text result) gain *Does not contain*, which ignores case as *Contains* does and matches
+  empty values. Numbers gain ≥ and ≤, and dates, created and edited times *Is on or before* and
+  *Is on or after*, which match a date range when any of its days does, as *Is before* and *Is
+  after* do. Selects and statuses gain *Is any of* and *Is none of*, and tags, relations and
+  people *Contains any of* and *Contains none of*: one rule with several values, where "Me" counts
+  for whoever looks. They work the same in the app, on published pages, in dashboards, for
+  restricted properties and through the API, MCP (`query_database`, saved views) and the AI chat,
+  as `does_not_contain`, `gte`, `lte`, `is_any_of` and `is_none_of` (the last two with a list of
+  values). Saved views keep working unchanged.
 
 ### Changed
 

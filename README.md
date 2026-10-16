@@ -115,8 +115,11 @@ versions, upgrades and running behind a domain.
     "last edited by".
   - Views: table, board, calendar, gallery, list, timeline and chart, each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
-    combine with "and"/"or" in groups and take relative dates such as "this week". A "Me" filter
-    shows each viewer their own rows.
+    combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
+    filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
+    before, after, on or before and on or after a day, and selects, statuses, tags, relations and
+    people on any of several values or none of them in one rule. A "Me" filter (also inside such a
+    list) shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
@@ -1958,8 +1961,11 @@ curl http://localhost:3000/api/v1/workspaces -H "Authorization: Bearer $LEAFDESK
 
 curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   -H "Authorization: Bearer $LEAFDESK_TOKEN" -H "Content-Type: application/json" \
-  -d '{"filters": [{"property": "Status", "op": "equals", "value": "Done"}], "limit": 20}'
+  -d '{"filters": [{"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}], "limit": 20}'
 ```
+
+Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` and `is_none_of`
+(with a list of values), `is_empty`, `is_not_empty`, `gt`, `gte`, `lt`, `lte` and `is_within`.
 
 - **Account and workspaces:** `GET /me`, `GET /workspaces`, `GET /workspaces/{id}/teamspaces`, `GET /workspaces/{id}/groups`,
   `GET /workspaces/{id}/pages` (`teamspace_id` narrows it to one teamspace, or `private`).

@@ -74,7 +74,9 @@ export const CHAT_TOOLS: AiTool[] = [
       "Properties are named as read_page shows them (or title, created_at, updated_at); select and status values by option name.",
       `Ops: ${FILTER_OPS.join(", ")}. is_empty and is_not_empty take no value.`,
       'People (person, created_by, last_edited_by): contains or not_equals with "me" for the person asking, or a name.',
-      "Relations: contains or not_equals with a related row's title. Numbers and dates: equals, gt, lt; dates as YYYY-MM-DD (a range matches when it covers, starts before or ends after the day).",
+      "Relations: contains or not_equals with a related row's title. Text: contains, does_not_contain (ignoring case), equals, not_equals.",
+      "Numbers and dates: equals, gt, gte, lt, lte (gte / lte include the value: on or after, on or before); dates as YYYY-MM-DD (a range matches when it covers, starts before or ends after the day).",
+      'Several values in one rule: is_any_of / is_none_of with a list, on select and status (option names), multi_select, relations and people ("me" included).',
       'is_within on dates: today, this_week, this_month, or past_n_days / next_n_days with "days".',
       `Rules all match unless filter_combinator is "or"; a group {"type": "group", "combinator": "and" | "or", "rules": [...]} mixes them (${MAX_FILTER_DEPTH} levels at most).`,
     ].join(" "),
@@ -90,7 +92,10 @@ export const CHAT_TOOLS: AiTool[] = [
             properties: {
               property: { type: "string" },
               op: { type: "string", enum: [...FILTER_OPS] },
-              value: { type: "string", description: "What to compare with, as text (numbers, dates, true/false, option names, \"me\")." },
+              value: {
+                anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+                description: "What to compare with, as text (numbers, dates, true/false, option names, \"me\"); a list for is_any_of / is_none_of.",
+              },
               days: { type: "integer", description: "past_n_days / next_n_days only." },
               type: { type: "string", enum: ["group"] },
               combinator: { type: "string", enum: ["and", "or"] },
@@ -427,7 +432,8 @@ function conditionsOf(filters: unknown[]): ChatQueryCondition[] {
       const e = entry as { type?: string; rules?: unknown[]; property?: string; op?: string; value?: unknown; days?: number };
       if (e.type === "group") walk(e.rules ?? []);
       else if (e.property && e.op) {
-        const value = e.value === undefined ? null : `${String(e.value)}${e.days ? ` ${e.days}` : ""}`.slice(0, 80);
+        const shown = Array.isArray(e.value) ? e.value.map(String).join(", ") : String(e.value);
+        const value = e.value === undefined ? null : `${shown}${e.days ? ` ${e.days}` : ""}`.slice(0, 80);
         out.push({ property: e.property.slice(0, 80), op: e.op, value });
       }
     }

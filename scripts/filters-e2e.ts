@@ -1,7 +1,7 @@
 /**
  * End-to-end check of database view filters against the database: "and" / "or" at the top level
- * and in groups, person "me" inside groups, relative date ranges, stored configs from before
- * groups existed, rejected malformed configs, and the places that walk filter trees (deleting a
+ * and in groups, person "me" inside groups, relative date ranges, "any of" / "none of" lists (with
+ * "me"), on or before / after, does not contain, stored configs from before groups existed, rejected malformed configs, and the places that walk filter trees (deleting a
  * property, people a guest may see, duplicating a database).
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -187,7 +187,37 @@ try {
   const created = await titles({ filters: [{ propertyId: "created_at", op: "is_within", value: "today" }] });
   check(created === (await titles({})), "rows created today match created time is today", created);
 
+  // Lists of values, on or before / after, does not contain: stored and filtered by the server
+  const anyStage: ViewConfig = { filters: [{ propertyId: stage.id, op: "is_any_of", value: [todo.id, doing.id] }] };
+  await updateView(ids.owner, view.id, { config: anyStage });
+  const [storedList] = await db.select().from(databaseView).where(eq(databaseView.id, view.id));
+  check(
+    (await titles(storedList.config)) === "far ahead,soon,today",
+    "a stored stage is any of todo, doing",
+    await titles(storedList.config),
+  );
+  const noneStage = await titles({ filters: [{ propertyId: stage.id, op: "is_none_of", value: [todo.id, doing.id] }] });
+  check(noneStage === "far past,recent,undated", "stage is none of todo, doing (rows without a stage too)", noneStage);
+  const anyTag = await titles({ filters: [{ propertyId: tags.id, op: "is_any_of", value: [ui.id] }] });
+  check(anyTag === "recent,soon", "tags contain any of ui", anyTag);
+  const mineList: ViewConfig = { filters: [{ propertyId: assignee.id, op: "is_any_of", value: ["me"] }] };
+  check((await titles(mineList, ids.member)) === "far ahead,soon", "assignee is any of me, seen by the member", await titles(mineList, ids.member));
+  check((await titles(mineList, ids.owner)) === "today", "…and by the owner", await titles(mineList, ids.owner));
+  const notMine = await titles({ filters: [{ propertyId: assignee.id, op: "is_none_of", value: ["me", ids.owner] }] }, ids.member);
+  check(notMine === "far past,recent,undated", "assignee is none of me and the owner", notMine);
+  const onOrBefore = await titles({ filters: [{ propertyId: due.id, op: "lte", value: day(0) }] });
+  check(onOrBefore === "far past,recent,today", "due on or before today", onOrBefore);
+  const onOrAfter = await titles({ filters: [{ propertyId: due.id, op: "gte", value: day(0) }] });
+  check(onOrAfter === "far ahead,soon,today", "due on or after today", onOrAfter);
+  const createdOnOrAfter = await titles({ filters: [{ propertyId: "created_at", op: "gte", value: day(0) }] });
+  check(createdOnOrAfter === (await titles({})), "rows created today are created on or after today", createdOnOrAfter);
+  const notFar = await titles({ filters: [{ propertyId: "title", op: "does_not_contain", value: "FAR" }] });
+  check(notFar === "recent,soon,today,undated", "title does not contain far, ignoring case", notFar);
+  const emptyList = await titles({ filters: [{ propertyId: stage.id, op: "is_any_of", value: [] }] });
+  check(emptyList === (await titles({})), "an empty any of list filters nothing yet", emptyList);
+
   // Malformed configs are rejected and leave the stored one alone
+  await updateView(ids.owner, view.id, { config: legacy });
   const bad: [string, ViewConfig][] = [
     ["an unknown op", { filters: [{ propertyId: stage.id, op: "matches" as never, value: "x" }] }],
     ["an unknown combinator", { filters: [], filterCombinator: "xor" as never }],
@@ -201,6 +231,7 @@ try {
     ],
     ["an unknown relative range", { filters: [{ propertyId: due.id, op: "is_within", value: "someday" }] }],
     ["a day count of zero", { filters: [{ propertyId: due.id, op: "is_within", value: "past_n_days", days: 0 }] }],
+    ["an any of rule without a list", { filters: [{ propertyId: stage.id, op: "is_any_of", value: todo.id }] }],
   ];
   for (const [what, config] of bad) {
     check(await rejectsFilter(updateView(ids.owner, view.id, { config })), `a view config with ${what} is rejected`);
@@ -227,6 +258,11 @@ try {
   await db.update(page).set({ properties: {} }).where(eq(page.id, rows.today));
   const seen = (await getPeople(ids.guest, properties)).map((p) => p.id);
   check(seen.includes(ids.owner), "a guest sees a person named only by a nested filter", seen);
+  await updateView(ids.owner, view.id, {
+    config: { filters: [{ propertyId: assignee.id, op: "is_none_of", value: ["me", ids.owner] }] },
+  });
+  const seenInList = (await getPeople(ids.guest, properties)).map((p) => p.id);
+  check(seenInList.includes(ids.owner), "…and one named in a none of list", seenInList);
 
   // Duplicating the database carries groups over with the copy's property ids
   await updateView(ids.owner, view.id, { config: { ...mineOrDone, filterCombinator: "or" } });
