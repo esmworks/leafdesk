@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Upgrading from 0.5.3
+
+- **Every passage is embedded again once.** Passages now start with where they are (see
+  *Changed*), so their text changes and the embeddings model sees each of them once more after
+  the upgrade: through the background sweep as people search, or all at once with
+  `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
+
 ### Changed
 
 - **Semantic search knows where a passage is.** Each indexed passage now carries the titles of
@@ -10,8 +17,7 @@
   › Risks* is found for questions about sales risks even when it never says "sales". A heading now
   starts a new passage. Renaming or moving a page indexes the pages under it again. Results and
   the AI chat show the passage without that path, since it can name pages the reader can't open.
-  Pages are indexed again after upgrading (the chunking version went up); `pnpm search:index`
-  does it at once.
+  Pages are indexed again after upgrading (the chunking version went up).
 - **The AI chat cites the right block for pages found by their words.** A page that only the
   full-text search found reached the model as a short snippet without a block, so its answer
   cited the whole page and it often read the page again. It now gets the page's indexed passage
@@ -24,8 +30,7 @@
   differently: pages kept their old chunks until someone edited them, and `pnpm search:index`
   skipped them. The index now records the chunking it was built with (migration 0070), and pages
   built with another one count as stale for the sweep and `pnpm search:index`. Chunks whose text
-  stays the same aren't embedded again, so after upgrading the first sweep only looks the pages
-  over. Covered in `scripts/semantic-search-e2e.ts`.
+  stays the same aren't embedded again. Covered in `scripts/semantic-search-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 
