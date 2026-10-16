@@ -2,7 +2,7 @@
 
 import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus, Trash2 } from "lucide-react";
 import { useTimeZone, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
@@ -357,7 +357,7 @@ export function TableView({
     return (
       <tr
         key={row.id}
-        ref={bodyWindow.measure}
+        ref={measureRow}
         data-index={index}
         {...openRowProps(opener, row.id, false)}
         className={cn("group", selected && "bg-accent/5")}
@@ -485,20 +485,10 @@ export function TableView({
       if (calculated && group.rows.length > 0) items.push({ kind: "calc", key: `calc\u0000${group.key}`, group });
     }
   const [thead, setThead] = useState<HTMLTableSectionElement | null>(null);
-  const bodyWindow = useTableWindow({
-    start: thead,
-    count: items.length,
-    estimate: (i) => ESTIMATE[items[i].kind],
-    keyOf: (i) => items[i].key,
-  });
-  // Rendered items in runs of the same group, each run a <tbody> named after its group.
-  const bodyChunks: { group?: Group<Row>; indexes: number[] }[] = [];
-  for (const index of bodyWindow.indexes) {
-    const { group } = items[index];
-    const last = bodyChunks[bodyChunks.length - 1];
-    if (last && last.group === group) last.indexes.push(index);
-    else bodyChunks.push({ group, indexes: [index] });
-  }
+  // The body renders on its own as the page scrolls (see TableBody); what it needs from here goes
+  // through these refs: how to measure a row, and how to bring one into view.
+  const bodyControls = useRef<BodyControls | null>(null);
+  const measureRow = (el: HTMLTableRowElement | null) => bodyControls.current?.measure(el);
 
   const rowsById = useMemo(() => new Map(rows.map((r) => [r.id, r] as const)), [rows]);
   const gridColumns: PasteColumn[] = [{ key: TITLE, type: "title" }, ...visible.map((p) => ({ key: p.id, type: p.type }))];
@@ -535,17 +525,24 @@ export function TableView({
       ]);
       void api.pasteRows(plan, shown);
     },
-    reveal: (r) => (gridRows[r] ? bodyWindow.reveal(gridRows[r].item) : false),
+    reveal: (r) => (gridRows[r] && bodyControls.current ? bodyControls.current.reveal(gridRows[r].item) : false),
   });
 
+  // Each item is made once per render of the table: while only the scroll position changes, the body
+  // gets back the same elements for the rows that stay, and React leaves them as they are.
+  const made = new Map<number, React.ReactNode>();
   const renderItem = (index: number) => {
+    if (!made.has(index)) made.set(index, makeItem(index));
+    return made.get(index);
+  };
+  const makeItem = (index: number) => {
     const item = items[index];
     if (item.kind === "row") return renderRow(item.line, item.group, item.at, index);
     const group = item.group;
     if (item.kind === "group") {
       const name = groupName(group);
       return (
-        <tr key={item.key} ref={bodyWindow.measure} data-index={index}>
+        <tr key={item.key} ref={measureRow} data-index={index}>
           <td colSpan={columnCount} className="p-0">
             <GroupHeader
               prop={groupBy!}
@@ -565,7 +562,7 @@ export function TableView({
     }
     if (item.kind === "add") {
       return (
-        <tr key={item.key} ref={bodyWindow.measure} data-index={index}>
+        <tr key={item.key} ref={measureRow} data-index={index}>
           <td colSpan={columnCount} className="p-0">
             <button
               type="button"
@@ -581,7 +578,7 @@ export function TableView({
       );
     }
     return (
-      <tr key={item.key} ref={bodyWindow.measure} data-index={index}>
+      <tr key={item.key} ref={measureRow} data-index={index}>
         <td colSpan={columnCount} className="p-0">
           {/* Per-group results; calculations are picked in the table's own footer. */}
           <CalculationRow
@@ -709,17 +706,14 @@ export function TableView({
             )}
           </tr>
         </thead>
-        {bodyWindow.padTop > 0 && <Spacer height={bodyWindow.padTop} columns={columnCount} />}
-        {bodyChunks.map((chunk) =>
-          chunk.group ? (
-            <tbody key={chunk.group.key || "__none"} aria-label={groupName(chunk.group)}>
-              {chunk.indexes.map(renderItem)}
-            </tbody>
-          ) : (
-            <tbody key="rows">{chunk.indexes.map(renderItem)}</tbody>
-          ),
-        )}
-        {bodyWindow.padBottom > 0 && <Spacer height={bodyWindow.padBottom} columns={columnCount} />}
+        <TableBody
+          start={thead}
+          items={items}
+          columns={columnCount}
+          groupName={groupName}
+          renderItem={renderItem}
+          controls={bodyControls}
+        />
       </table>
       {(grouping ? !grouping.shown.length : !rows.length) && (
         <div
@@ -1023,6 +1017,71 @@ function RowMenu({ opener, rowId, onDelete }: { opener: RowOpener; rowId: string
           {tc("delete")}
         </MenuItem>
       </Floating>
+    </>
+  );
+}
+
+type BodyControls = { measure: (el: HTMLTableRowElement | null) => void; reveal: (index: number) => boolean };
+
+/**
+ * The table's body: only the items near the visible part of the page (see useTableWindow), in runs
+ * of the same group, each run a <tbody> named after its group. Scrolling renders this alone.
+ */
+function TableBody({
+  start,
+  items,
+  columns,
+  groupName,
+  renderItem,
+  controls,
+}: {
+  start: HTMLElement | null;
+  items: BodyItem[];
+  columns: number;
+  groupName: (group: Group<Row>) => string;
+  renderItem: (index: number) => React.ReactNode;
+  controls: React.RefObject<BodyControls | null>;
+}) {
+  const body = useTableWindow({
+    start,
+    count: items.length,
+    estimate: (i) => ESTIMATE[items[i].kind],
+    keyOf: (i) => items[i].key,
+  });
+  const { measure, reveal } = body;
+  const measured = useRef(new WeakSet<Element>());
+  useLayoutEffect(() => {
+    controls.current = { measure: (el) => measure?.(el), reveal };
+    // Rows attach before this runs on the first render, and rows reused from an earlier render
+    // don't attach again: whatever shows that isn't measured yet is measured here.
+    if (!measure) return;
+    for (const row of start?.closest("table")?.querySelectorAll<HTMLTableRowElement>(":scope > tbody > tr[data-index]") ?? []) {
+      if (!measured.current.has(row)) {
+        measured.current.add(row);
+        measure(row);
+      }
+    }
+  });
+  const chunks: { group?: Group<Row>; indexes: number[] }[] = [];
+  for (const index of body.indexes) {
+    const { group } = items[index];
+    const last = chunks[chunks.length - 1];
+    if (last && last.group === group) last.indexes.push(index);
+    else chunks.push({ group, indexes: [index] });
+  }
+  return (
+    <>
+      {body.padTop > 0 && <Spacer height={body.padTop} columns={columns} />}
+      {chunks.map((chunk) =>
+        chunk.group ? (
+          <tbody key={chunk.group.key || "__none"} aria-label={groupName(chunk.group)}>
+            {chunk.indexes.map(renderItem)}
+          </tbody>
+        ) : (
+          <tbody key="rows">{chunk.indexes.map(renderItem)}</tbody>
+        ),
+      )}
+      {body.padBottom > 0 && <Spacer height={body.padBottom} columns={columns} />}
     </>
   );
 }

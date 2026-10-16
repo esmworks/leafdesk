@@ -55,8 +55,10 @@ export function useCellGrid({
   const size = { rows: rowCount, cols: columns.length };
   const range = stored && clampRange(stored, size);
   const bounds = useMemo(() => range && rangeBounds(range), [range]);
-  // After a keyboard move: the cell that takes focus, and the one to scroll to.
-  const pending = useRef<{ focus: CellPoint; show: CellPoint } | null>(null);
+  // After a keyboard move: the cell that takes focus, and the one to scroll to. A row scrolled into
+  // view renders in the body alone (see useTableWindow), so this looks again a few times.
+  const pending = useRef<{ focus: CellPoint; show: CellPoint; tries: number } | null>(null);
+  const [, lookAgain] = useState(0);
   const dragging = useRef(false);
   const shiftClick = useRef(false);
 
@@ -67,7 +69,11 @@ export function useCellGrid({
     const next = pending.current;
     if (!next) return;
     const shown = cellAt(next.show);
-    if (!shown && reveal(next.show.row)) return;
+    if (!shown && next.tries < 10 && (next.tries > 0 || reveal(next.show.row))) {
+      next.tries++;
+      const timer = setTimeout(() => lookAgain((n) => n + 1), 30);
+      return () => clearTimeout(timer);
+    }
     shown?.scrollIntoView({ block: "nearest", inline: "nearest" });
     const target = cellAt(next.focus) ?? box.current;
     if (target && !target.contains(document.activeElement)) target.focus({ preventScroll: true });
@@ -92,7 +98,7 @@ export function useCellGrid({
   }, [stored, box]);
 
   const select = (next: CellRange) => {
-    pending.current = { focus: next.anchor, show: next.focus };
+    pending.current = { focus: next.anchor, show: next.focus, tries: 0 };
     setRange(next);
   };
 

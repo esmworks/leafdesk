@@ -8,13 +8,23 @@ export const WINDOW_FROM = 120;
 /** Rows kept above and below the visible ones, so a quick scroll doesn't show blank space. */
 const OVERSCAN = 12;
 
-/** The element that scrolls `el` up and down: its nearest ancestor that scrolls vertically. */
-function scrollParent(el: HTMLElement | null): HTMLElement | null {
-  for (let node = el?.parentElement; node; node = node.parentElement) {
+/** Rows rendered before the scrolling element is known: enough to fill a screen, few enough to be quick. */
+const FIRST_ROWS = 60;
+
+/**
+ * The element that scrolls a table's rows up and down: the nearest ancestor of the table's own box
+ * (which only scrolls sideways, though it computes as `overflow-y: auto` too) that may scroll
+ * vertically, preferring one that has more to show than fits.
+ */
+function scrollParent(start: HTMLElement | null): HTMLElement | null {
+  let first: HTMLElement | null = null;
+  for (let node = start?.closest("table")?.parentElement?.parentElement; node; node = node.parentElement) {
     const { overflowY } = getComputedStyle(node);
-    if (overflowY === "auto" || overflowY === "scroll") return node;
+    if (overflowY !== "auto" && overflowY !== "scroll") continue;
+    if (node.scrollHeight > node.clientHeight) return node;
+    first ??= node;
   }
-  return null;
+  return first;
 }
 
 /**
@@ -35,13 +45,16 @@ export function useTableWindow({
   estimate: (index: number) => number;
   keyOf: (index: number) => string;
 }) {
-  const [scroller, setScroller] = useState<HTMLElement | null>(null);
+  // Undefined until looked for, null when nothing scrolls the table (then every row renders).
+  const [scroller, setScroller] = useState<HTMLElement | null | undefined>(undefined);
   const [margin, setMargin] = useState(0);
-  const windowed = count >= WINDOW_FROM && !!scroller;
+  const long = count >= WINDOW_FROM;
+  const windowed = long && !!scroller;
 
-  useEffect(() => {
-    setScroller(scrollParent(start));
-  }, [start]);
+  // Looked for before the first paint, once the table is long enough to need it.
+  useLayoutEffect(() => {
+    if (long && start) setScroller(scrollParent(start));
+  }, [start, long]);
 
   // Where the body starts within the scrolling content; what's above the table (a page's text,
   // the view bar) can change without the table rendering again, so scrolling checks it too.
@@ -67,7 +80,7 @@ export function useTableWindow({
   // eslint-disable-next-line react-hooks/incompatible-library -- what it returns is read during this render only, never passed on
   const virtualizer = useVirtualizer({
     count,
-    getScrollElement: () => scroller,
+    getScrollElement: () => scroller ?? null,
     estimateSize: estimate,
     getItemKey: keyOf,
     overscan: OVERSCAN,
@@ -78,7 +91,7 @@ export function useTableWindow({
   if (!windowed) {
     return {
       windowed,
-      indexes: Array.from({ length: count }, (_, i) => i),
+      indexes: Array.from({ length: long && scroller === undefined ? Math.min(count, FIRST_ROWS) : count }, (_, i) => i),
       padTop: 0,
       padBottom: 0,
       measure: undefined,

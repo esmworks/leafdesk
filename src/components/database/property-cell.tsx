@@ -605,7 +605,7 @@ export function PropertyCell({
             setEditing(false);
             // Closed from the keyboard (Enter, Esc), the cell takes focus back, so the keyboard
             // carries on from it; a click elsewhere keeps what it focused.
-            requestAnimationFrame(() => {
+            setTimeout(() => {
               if ((!document.activeElement || document.activeElement === document.body) && anchor?.isConnected) {
                 anchor.focus({ preventScroll: true });
               }
