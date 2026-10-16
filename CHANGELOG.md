@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Changed
+
+- **Semantic search knows where a passage is.** Each indexed passage now carries the titles of
+  the pages above its page, the page's own title and the heading it lies under (at most 200
+  characters; a database row's path includes its database), so a passage under *Sales › 2026 plan
+  › Risks* is found for questions about sales risks even when it never says "sales". A heading now
+  starts a new passage. Renaming or moving a page indexes the pages under it again. Results and
+  the AI chat show the passage without that path, since it can name pages the reader can't open.
+  Pages are indexed again after upgrading (the chunking version went up); `pnpm search:index`
+  does it at once.
+- **The AI chat cites the right block for pages found by their words.** A page that only the
+  full-text search found reached the model as a short snippet without a block, so its answer
+  cited the whole page and it often read the page again. It now gets the page's indexed passage
+  with the most of the question's words, and the citation links to that block.
+
 ### Fixed
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index

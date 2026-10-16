@@ -69,6 +69,9 @@ const queue = ((globalThis as Record<string, unknown>)[KEY] ??= {
   idle: [],
 } satisfies IndexQueue) as IndexQueue;
 
+/** Subtrees being looked up to be indexed again (reindexSubtree), not yet in the queue. */
+const subtrees = ((globalThis as Record<string, unknown>)[`${KEY}Subtrees`] ??= new Set<Promise<void>>()) as Set<Promise<void>>;
+
 /** Indexes `pageId` once it has stayed unchanged for `delayMs`. Does nothing without embeddings. */
 export function scheduleIndex(pageId: string, delayMs = SETTLE_MS) {
   if (!embeddingsEnabled()) return;
@@ -95,7 +98,7 @@ export function enqueueIndex(pageIds: string[]) {
 }
 
 /** Whether anything is waiting, debounced or being indexed in this process. */
-export const indexBusy = () => queue.active.size > 0 || queue.debounce.size > 0;
+export const indexBusy = () => queue.active.size > 0 || queue.debounce.size > 0 || subtrees.size > 0;
 
 /** Settles when nothing is queued or running (debounced pages not counted). For scripts and tests. */
 export function whenIndexIdle(): Promise<void> {
@@ -405,7 +408,10 @@ export async function indexCounts(workspaceIds: string[]) {
 
 onPageChanged("semantic-index", ({ pageId, subtree }) => {
   if (!subtree) return scheduleIndex(pageId);
-  void reindexSubtree(pageId).catch((error) => console.error("[semantic] reindexing a subtree failed", error));
+  const job = reindexSubtree(pageId)
+    .catch((error) => console.error("[semantic] reindexing a subtree failed", error))
+    .finally(() => subtrees.delete(job));
+  subtrees.add(job);
 });
 onRowChanged("semantic-index", ({ rowId }) => scheduleIndex(rowId));
 
