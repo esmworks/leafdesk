@@ -436,7 +436,8 @@ export function createCollab() {
       const touch = () => {
         touched = true;
       };
-      if (check.expectedVersion !== undefined) fragment.observeDeep(touch);
+      const watching = check.expectedVersion !== undefined;
+      if (watching) fragment.observeDeep(touch);
       try {
         if (check.expectedVersion !== undefined) {
           const current = await version();
@@ -461,7 +462,7 @@ export function createCollab() {
         }
         return { next, write: versioned ? ({ conflict: false, version: await version() } satisfies BodyWrite) : null };
       } finally {
-        fragment.unobserveDeep(touch);
+        if (watching) fragment.unobserveDeep(touch);
       }
     });
   };
