@@ -100,6 +100,12 @@
   an automation had just set in another property of the same row could quietly disappear. Single
   row edits now merge into the stored values the way bulk edits already did. Covered in
   `scripts/database-e2e.ts`.
+- **Stopping the server no longer loses the last edits.** On SIGINT/SIGTERM the server started the
+  saves still waiting out their debounce but exited half a second later whether they had finished
+  or not, so on a large page or a slow database up to the last ten seconds of typing could be lost.
+  It now closes the editors' connections, waits until every open page is saved (at most eight
+  seconds, inside Docker's ten-second grace period) and logs it when it had to stop waiting. A
+  second Ctrl+C exits at once.
 
 ## 0.5.3 — 2026-10-16
 

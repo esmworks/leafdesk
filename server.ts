@@ -25,6 +25,7 @@ void env.authSecret;
 // Imported after env is loaded: these modules read DATABASE_URL at import time.
 const { createCollab } = await import("./src/server/collab/service");
 const { registerCollab } = await import("./src/server/collab/bridge");
+const { flushCollab } = await import("./src/server/collab/shutdown");
 const { describeMailSetup } = await import("./src/server/mail");
 const { startAssignmentEmails } = await import("./src/server/assignments");
 const { startShareEmails } = await import("./src/server/share-emails");
@@ -142,12 +143,13 @@ server.listen(port, hostname, () => {
 let shuttingDown = false;
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, async () => {
-    if (shuttingDown) return;
+    // A second Ctrl+C doesn't wait for the saves.
+    if (shuttingDown) process.exit(1);
     shuttingDown = true;
-    // Persist debounced documents before exiting.
-    hocuspocus.flushPendingStores();
-    await new Promise((r) => setTimeout(r, 500));
+    // No new requests or websockets; open ones finish or are closed below.
     server.close();
+    // Writes the edits still waiting for their debounced save, and waits for them.
+    if (!(await flushCollab(hocuspocus))) console.error("[collab] exiting before every open page was saved");
     process.exit(0);
   });
 }
