@@ -15,6 +15,21 @@
 
 ### Fixed
 
+- **AI autofill values count as row changes.** A value AI filled in was saved past everything a
+  row write sets off: semantic search didn't index it until something else changed the row, the
+  row's activity didn't show it, and automations waiting for the property to change never ran.
+  Values are now saved like any other change (as the person who asked for them), and only when
+  they differ from the stored one. They start automations, except when an automation's change set
+  them off: those count as the automation's own changes, which start none, so automations and AI
+  values can't keep setting each other off. After an AI value is written, only the automatic AI
+  values that read it update, and none twice in a row of updates.
+  - Other AI values, and formulas over them, go into an AI property's prompt only when its settings
+    name them (a `{Property}` placeholder, the translated property); summaries no longer take them
+    in on their own. Values whose prompt changes this way are worked out again the next time their
+    row changes.
+  - Settings that would make an AI property read itself through other AI properties are refused
+    with a message naming the property in the way. Covered in `scripts/ai-e2e.ts`.
+
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index
   noticed pages that changed and a new embeddings model, but not a release that chunks pages
   differently: pages kept their old chunks until someone edited them, and `pnpm search:index`

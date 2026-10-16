@@ -95,6 +95,7 @@
       "promptRequired": "Bir komut yaz.",
       "promptTooLong": "Komut en fazla {max} karakter olabilir.",
       "unknownPlaceholder": "“{name}” adında bir özellik yok.",
+      "cycle": "“{name}” bu özelliği zaten okuyor (doğrudan ya da başka AI özellikleri üzerinden); bu yüzden bu özellik onu okuyamaz.",
       "notText": "Yalnızca metin özellikleri yapay zekâyla doldurulabilir.",
       "databaseLocked": "Veritabanı kilitli."
     }
