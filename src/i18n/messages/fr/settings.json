@@ -11,6 +11,7 @@
     "agents": "Agents",
     "connections": "Connexions",
     "analytics": "Statistiques",
+    "health": "Santé",
     "security": "Sécurité",
     "audit": "Journal d’audit",
     "site": "Site"
@@ -667,6 +668,63 @@
       "lastEdit": "Dernière modification",
       "page": "Page",
       "editors": "Contributeurs"
+    }
+  },
+  "health": {
+    "description": "Ce qui mérite d’être rangé parmi les pages que vous pouvez ouvrir, vérifié à chaque ouverture de cet onglet. Rien ne change tant que vous ne corrigez pas.",
+    "checked": "{count, plural, one {# page vérifiée.} other {# pages vérifiées.}}",
+    "truncated": "Seules les pages modifiées le plus récemment ont été vérifiées : l’espace de travail en compte plus qu’une vérification n’en regarde.",
+    "periods": "Inchangées depuis",
+    "months": "{months} mois",
+    "linksTo": "renvoie vers",
+    "inTrash": "{title} (dans la corbeille)",
+    "deletedPage": "Une page supprimée",
+    "restore": "Restaurer",
+    "writtenIn": "Son titre figure dans {title}",
+    "linkThere": "Y ajouter le lien",
+    "moveToTrash": "Mettre à la corbeille",
+    "confirmTrash": "Mettre « {title} » à la corbeille ?",
+    "lastEdited": "Dernière modification {when}",
+    "alike": "Similaires à {similarity, number, percent}",
+    "inProperty": "{property} dans {database}",
+    "removeFromRelation": "Retirer",
+    "more": "{count, plural, one {# autre non affichée.} other {# autres non affichées.}}",
+    "brokenLinks": {
+      "title": "Liens cassés",
+      "description": "Liens et mentions d’une page vers une page dans la corbeille ou supprimée définitivement.",
+      "none": "Aucun lien cassé."
+    },
+    "orphans": {
+      "title": "Pages auxquelles rien ne mène",
+      "description": "Pages de premier niveau sans sous-pages vers lesquelles aucune autre page ne renvoie. Là où une autre page écrit le titre, elle peut ajouter le lien.",
+      "none": "Chaque page est liée ou se trouve sous une autre page."
+    },
+    "empty": {
+      "title": "Pages vides",
+      "description": "Pages avec un titre et rien d’autre : ni contenu ni sous-pages.",
+      "none": "Aucune page vide."
+    },
+    "stale": {
+      "title": "Pages inchangées",
+      "description": "Pages que personne n’a modifiées depuis {months} mois, les plus anciennes d’abord. Elles sont peut-être dépassées.",
+      "none": "Chaque page a été modifiée récemment."
+    },
+    "duplicates": {
+      "title": "Doublons possibles",
+      "description": "Paires de pages qui disent presque la même chose, comparées par leur sens. Lisez les deux avant de les fusionner.",
+      "none": "Aucune page ne dit presque la même chose qu’une autre.",
+      "noEmbeddings": "Non vérifié : ce serveur n’a pas de modèle d’embeddings pour comparer les pages par leur sens.",
+      "aiOff": "Non vérifié : l’IA est désactivée dans cet espace de travail, les pages ne sont donc pas comparées par leur sens."
+    },
+    "brokenRelations": {
+      "title": "Relations cassées",
+      "description": "Lignes de bases de données liées à une ligne dans la corbeille ou supprimée définitivement.",
+      "none": "Aucune relation cassée."
+    },
+    "errors": {
+      "gone": "C’est déjà corrigé ou cela a changé entre-temps.",
+      "denied": "Vous ne pouvez pas modifier cette page.",
+      "locked": "La page est verrouillée."
     }
   },
   "preferences": {

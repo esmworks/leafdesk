@@ -11,6 +11,7 @@
     "agents": "Agentes",
     "connections": "Conexiones",
     "analytics": "Analíticas",
+    "health": "Salud",
     "security": "Seguridad",
     "audit": "Registro de auditoría",
     "site": "Sitio"
@@ -667,6 +668,63 @@
       "lastEdit": "Última edición",
       "page": "Página",
       "editors": "Editores"
+    }
+  },
+  "health": {
+    "description": "Lo que vale la pena ordenar entre las páginas que puedes abrir, revisado cada vez que abres esta pestaña. Nada cambia hasta que lo corriges.",
+    "checked": "{count, plural, one {# página revisada.} other {# páginas revisadas.}}",
+    "truncated": "Solo se revisaron las páginas editadas más recientemente: el espacio de trabajo tiene más de las que mira una revisión.",
+    "periods": "Sin tocar desde hace",
+    "months": "{months} meses",
+    "linksTo": "enlaza a",
+    "inTrash": "{title} (en la papelera)",
+    "deletedPage": "Una página eliminada",
+    "restore": "Restaurar",
+    "writtenIn": "Su título aparece en {title}",
+    "linkThere": "Enlazarla ahí",
+    "moveToTrash": "Mover a la papelera",
+    "confirmTrash": "¿Mover “{title}” a la papelera?",
+    "lastEdited": "Editada por última vez {when}",
+    "alike": "{similarity, number, percent} parecidas",
+    "inProperty": "{property} en {database}",
+    "removeFromRelation": "Quitar",
+    "more": "{count, plural, one {# más no mostrada.} other {# más no mostradas.}}",
+    "brokenLinks": {
+      "title": "Enlaces rotos",
+      "description": "Enlaces y menciones de una página a una página en la papelera o eliminada para siempre.",
+      "none": "No hay enlaces rotos."
+    },
+    "orphans": {
+      "title": "Páginas a las que nada lleva",
+      "description": "Páginas de nivel superior sin páginas dentro a las que ninguna otra página enlaza. Donde otra página escribe el título, puede enlazarla.",
+      "none": "Cada página está enlazada o dentro de otra página."
+    },
+    "empty": {
+      "title": "Páginas vacías",
+      "description": "Páginas con título y nada más: sin contenido ni páginas dentro.",
+      "none": "No hay páginas vacías."
+    },
+    "stale": {
+      "title": "Páginas sin tocar",
+      "description": "Páginas que nadie editó en los últimos {months} meses, primero las que llevan más tiempo sin tocar. Pueden estar desactualizadas.",
+      "none": "Cada página se editó hace poco."
+    },
+    "duplicates": {
+      "title": "Posibles duplicados",
+      "description": "Pares de páginas que dicen casi lo mismo, comparadas por su significado. Lee ambas antes de unirlas.",
+      "none": "Ninguna página dice casi lo mismo que otra.",
+      "noEmbeddings": "No revisado: este servidor no tiene un modelo de embeddings para comparar páginas por su significado.",
+      "aiOff": "No revisado: la IA está desactivada en este espacio de trabajo, así que las páginas no se comparan por significado."
+    },
+    "brokenRelations": {
+      "title": "Relaciones rotas",
+      "description": "Filas de bases de datos relacionadas con una fila en la papelera o eliminada para siempre.",
+      "none": "No hay relaciones rotas."
+    },
+    "errors": {
+      "gone": "Esto ya se corrigió o cambió mientras tanto.",
+      "denied": "No puedes cambiar esta página.",
+      "locked": "La página está bloqueada."
     }
   },
   "preferences": {

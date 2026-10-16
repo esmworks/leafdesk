@@ -418,7 +418,7 @@ async function main() {
     "list_workspaces", "search", "list_pages", "get_page", "create_page", "update_page", "archive_page",
     "get_database", "query_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
     "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page",
-    "list_recent_pages", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
+    "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs",
     "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_connections",

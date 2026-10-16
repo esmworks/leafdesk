@@ -11,6 +11,7 @@
     "agents": "Agenten",
     "connections": "Verbindungen",
     "analytics": "Analysen",
+    "health": "Zustand",
     "security": "Sicherheit",
     "audit": "Audit-Log",
     "site": "Website"
@@ -667,6 +668,63 @@
       "lastEdit": "Letzte Bearbeitung",
       "page": "Seite",
       "editors": "Bearbeiter"
+    }
+  },
+  "health": {
+    "description": "Was sich unter den Seiten, die du öffnen kannst, aufzuräumen lohnt – bei jedem Öffnen dieses Tabs neu geprüft. Nichts ändert sich, bis du es behebst.",
+    "checked": "{count, plural, one {# Seite geprüft.} other {# Seiten geprüft.}}",
+    "truncated": "Nur die zuletzt bearbeiteten Seiten wurden geprüft: Der Workspace hat mehr, als eine Prüfung ansieht.",
+    "periods": "Unverändert seit",
+    "months": "{months} Monaten",
+    "linksTo": "verlinkt auf",
+    "inTrash": "{title} (im Papierkorb)",
+    "deletedPage": "Eine gelöschte Seite",
+    "restore": "Wiederherstellen",
+    "writtenIn": "Der Titel steht in {title}",
+    "linkThere": "Dort verlinken",
+    "moveToTrash": "In den Papierkorb",
+    "confirmTrash": "„{title}“ in den Papierkorb verschieben?",
+    "lastEdited": "Zuletzt bearbeitet {when}",
+    "alike": "{similarity, number, percent} ähnlich",
+    "inProperty": "{property} in {database}",
+    "removeFromRelation": "Entfernen",
+    "more": "{count, plural, one {# weitere nicht angezeigt.} other {# weitere nicht angezeigt.}}",
+    "brokenLinks": {
+      "title": "Defekte Links",
+      "description": "Links und Erwähnungen auf einer Seite, die zu einer Seite im Papierkorb oder einer endgültig gelöschten führen.",
+      "none": "Keine defekten Links."
+    },
+    "orphans": {
+      "title": "Seiten, zu denen nichts führt",
+      "description": "Seiten der obersten Ebene ohne Unterseiten, auf die keine andere Seite verlinkt. Wo eine andere Seite den Titel schreibt, kann sie ihn verlinken.",
+      "none": "Jede Seite ist verlinkt oder liegt unter einer anderen Seite."
+    },
+    "empty": {
+      "title": "Leere Seiten",
+      "description": "Seiten mit Titel und sonst nichts: kein Inhalt, keine Unterseiten.",
+      "none": "Keine leeren Seiten."
+    },
+    "stale": {
+      "title": "Unberührte Seiten",
+      "description": "Seiten, die in den letzten {months} Monaten niemand bearbeitet hat, die am längsten unberührten zuerst. Sie könnten veraltet sein.",
+      "none": "Jede Seite wurde kürzlich bearbeitet."
+    },
+    "duplicates": {
+      "title": "Mögliche Duplikate",
+      "description": "Seitenpaare, die nach Bedeutung verglichen fast dasselbe sagen. Lies beide, bevor du sie zusammenführst.",
+      "none": "Keine Seiten sagen fast dasselbe.",
+      "noEmbeddings": "Nicht geprüft: Dieser Server hat kein Embedding-Modell, um Seiten nach Bedeutung zu vergleichen.",
+      "aiOff": "Nicht geprüft: KI ist in diesem Workspace aus, daher werden Seiten nicht nach Bedeutung verglichen."
+    },
+    "brokenRelations": {
+      "title": "Defekte Relationen",
+      "description": "Datenbankzeilen mit einer Relation zu einer Zeile im Papierkorb oder einer endgültig gelöschten.",
+      "none": "Keine defekten Relationen."
+    },
+    "errors": {
+      "gone": "Das wurde schon behoben oder hat sich inzwischen geändert.",
+      "denied": "Du kannst diese Seite nicht ändern.",
+      "locked": "Die Seite ist gesperrt."
     }
   },
   "preferences": {

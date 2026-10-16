@@ -353,3 +353,37 @@ export function localReminderAt(date: string, daysBefore: number, hour = 9) {
   const [y, m, d] = date.split("-").map(Number);
   return new Date(y, m - 1, d - daysBefore, hour, 0, 0, 0).toISOString();
 }
+
+const MARKDOWN_FENCE = /^ {0,3}(`{3,}|~{3,})/;
+
+/** A link to a page of this app in Markdown, `[text](/w/<workspace>/p/<page>)`: text, path and page id. */
+export const MARKDOWN_PAGE_LINK = /\[((?:[^\]\\\n]|\\.)*)\]\(\s*<?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))>?\s*\)/g;
+
+/** For each of the Markdown's lines, whether it is fenced code (the fences themselves included). */
+export function fencedLines(lines: string[]): boolean[] {
+  const code: boolean[] = [];
+  let fence: string | null = null;
+  for (const line of lines) {
+    const open = MARKDOWN_FENCE.exec(line);
+    if (fence) {
+      code.push(true);
+      if (open && open[1][0] === fence[0] && open[1].length >= fence.length && !line.trim().slice(open[0].trim().length)) fence = null;
+      continue;
+    }
+    if (open) fence = open[1];
+    code.push(Boolean(open));
+  }
+  return code;
+}
+
+/** The pages Markdown mentions or links to outside fenced code, each once, in the order they come. */
+export function markdownPageIds(markdown: string): string[] {
+  if (!markdown.includes("/p/")) return [];
+  const lines = markdown.split("\n");
+  const code = fencedLines(lines);
+  const ids = new Set<string>();
+  lines.forEach((line, i) => {
+    if (!code[i]) for (const match of line.matchAll(MARKDOWN_PAGE_LINK)) ids.add(match[3]);
+  });
+  return [...ids];
+}
