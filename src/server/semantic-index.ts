@@ -3,7 +3,8 @@
  * see semantic-text.ts for what text and how it's cut). Pages are indexed in the background:
  *
  * - a few seconds after their document is saved with an edit, they are created or restored, or a
- *   row's values change (page-events.ts, row-events.ts), debounced per page;
+ *   row's values change (page-events.ts, row-events.ts), debounced per page; with every page under
+ *   them when their title changes or they move, since chunks name the pages above them;
  * - by a sweep of a workspace that picks up pages changed since they were last indexed (or never
  *   indexed, or indexed with another model or CHUNKER_VERSION): started lazily by searches in the workspace, at most
  *   every SWEEP_INTERVAL_MS, and by `pnpm search:index` for a full backfill.
@@ -18,6 +19,7 @@
 import { and, eq, inArray, isNull, ne, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageChunk, pageIndexState, propertyPermission } from "@/db/schema";
+import { MAX_PAGE_DEPTH } from "@/lib/page-depth";
 import { sharedLimiter } from "@/lib/rate-limit";
 import { aiConfig, embed, embeddingModel, embeddingsEnabled, isAiError } from "@/server/ai";
 import { getCollab } from "@/server/collab/bridge";
@@ -184,9 +186,44 @@ export async function reindexDatabaseRows(databaseId: string) {
   enqueueIndex(ids.map((r) => r.id));
 }
 
-/** The chunks a page's current text makes (title, a row's values, the body's blocks). */
+/**
+ * A page's subtree must be indexed again: its title or its place changed, which every chunk under
+ * it names (chunkContext). Their index state goes, so a sweep still finds them if the process ends
+ * before the queue gets to them. Only chunks whose text changed are embedded again.
+ */
+export async function reindexSubtree(pageId: string) {
+  if (!embeddingsEnabled()) return;
+  const ids = (
+    await db.execute<{ id: string }>(sql`
+      with recursive sub as (
+        select id, 0 as depth from ${page} where id = ${pageId}
+        union all
+        select c.id, sub.depth + 1 from ${page} c join sub on c.parent_id = sub.id where sub.depth <= ${MAX_PAGE_DEPTH}
+      ) select id from sub
+    `)
+  ).map((r) => r.id);
+  for (let i = 0; i < ids.length; i += 1_000) {
+    await db.delete(pageIndexState).where(inArray(pageIndexState.pageId, ids.slice(i, i + 1_000)));
+  }
+  for (const id of ids) scheduleIndex(id);
+}
+
+/** Titles of the pages above `pageId`, top first. */
+async function ancestorTitles(pageId: string): Promise<string[]> {
+  const rows = await db.execute<{ title: string }>(sql`
+    with recursive up as (
+      select parent_id, 0 as depth from ${page} where id = ${pageId}
+      union all
+      select p.parent_id, up.depth + 1 from ${page} p join up on p.id = up.parent_id where up.depth <= ${MAX_PAGE_DEPTH}
+    )
+    select p.title from up join ${page} p on p.id = up.parent_id order by up.depth desc
+  `);
+  return rows.map((r) => r.title);
+}
+
+/** The chunks a page's current text makes (where it is, title, a row's values, the body's blocks). */
 export async function pageChunks(row: { id: string; parentId: string | null; kind: string; properties: Record<string, unknown> }) {
-  const { title, blocks } = await getCollab().readBlocks(row.id);
+  const [{ title, blocks }, path] = await Promise.all([getCollab().readBlocks(row.id), row.parentId ? ancestorTitles(row.id) : []]);
   let properties: string[] = [];
   if (row.parentId) {
     const [parent] = await db.select({ kind: page.kind }).from(page).where(eq(page.id, row.parentId)).limit(1);
@@ -195,7 +232,7 @@ export async function pageChunks(row: { id: string; parentId: string | null; kin
       properties = rowPropertyLines(all, row.properties, restricted);
     }
   }
-  return chunkPage({ title, properties, blocks: row.kind === "database" ? [] : blockTexts(blocks as Parameters<typeof blockTexts>[0]) });
+  return chunkPage({ title, path, properties, blocks: row.kind === "database" ? [] : blockTexts(blocks as Parameters<typeof blockTexts>[0]) });
 }
 
 /**
@@ -366,7 +403,10 @@ export async function indexCounts(workspaceIds: string[]) {
   return { pages: pages?.n ?? 0, chunks: chunks?.n ?? 0 };
 }
 
-onPageChanged("semantic-index", ({ pageId }) => scheduleIndex(pageId));
+onPageChanged("semantic-index", ({ pageId, subtree }) => {
+  if (!subtree) return scheduleIndex(pageId);
+  void reindexSubtree(pageId).catch((error) => console.error("[semantic] reindexing a subtree failed", error));
+});
 onRowChanged("semantic-index", ({ rowId }) => scheduleIndex(rowId));
 
 /** Called once at startup (server.ts): importing this module starts listening for changes. */

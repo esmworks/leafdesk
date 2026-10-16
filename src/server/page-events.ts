@@ -1,12 +1,13 @@
 /**
  * "A page's searchable text may have changed" notices: its document was saved with an edit
- * (collab/service.ts), it was created or restored from the trash (pages.ts). Semantic search
+ * (collab/service.ts), it was created or restored from the trash (pages.ts). `subtree`: its title
+ * changed or it moved, which changes what the pages under it say about where they are too. Semantic search
  * listens to index the page again in the background (see semantic-index.ts). Listeners live on
  * globalThis: the collab server and Next's route handlers are separate module graphs in one
  * process. Row value changes come through row-events.ts.
  */
 
-export type PageChange = { pageId: string };
+export type PageChange = { pageId: string; subtree?: boolean };
 
 type Listener = (change: PageChange) => void;
 

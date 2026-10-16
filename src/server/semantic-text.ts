@@ -20,7 +20,13 @@ export const MAX_CHUNKS_PER_PAGE = 200;
  * indexed with another version count as stale, so the sweep and `pnpm search:index` go over them
  * again. Chunks whose text stays the same aren't embedded again.
  */
-export const CHUNKER_VERSION = 1;
+export const CHUNKER_VERSION = 2;
+
+/** The most characters of where a chunk is (its page's place and section) that go in front of it. */
+export const CONTEXT_MAX = 200;
+/** The most characters of one page title or heading in that context. */
+const CONTEXT_PART_MAX = 80;
+const PATH_SEPARATOR = " › ";
 
 /**
  * Row values that go into a row's text. Relations and people are left out: their names are other
@@ -52,13 +58,15 @@ export function rowPropertyLines(
 
 type BlockWithId = BlockLike & { id?: string; children?: BlockWithId[] };
 
-/** Each block's own text (children separately), with its id, in document order. */
-export function blockTexts(blocks: BlockWithId[]): { id: string | null; text: string }[] {
-  const out: { id: string | null; text: string }[] = [];
+export type BlockText = { id: string | null; text: string; heading?: true };
+
+/** Each block's own text (children separately), with its id, in document order; headings marked. */
+export function blockTexts(blocks: BlockWithId[]): BlockText[] {
+  const out: BlockText[] = [];
   const walk = (list: BlockWithId[]) => {
     for (const block of list) {
       const text = blocksToPlainText([{ ...block, children: [] }]).trim();
-      if (text) out.push({ id: block.id ?? null, text });
+      if (text) out.push(block.type === "heading" ? { id: block.id ?? null, text, heading: true } : { id: block.id ?? null, text });
       if (block.children?.length) walk(block.children);
     }
   };
@@ -68,19 +76,41 @@ export function blockTexts(blocks: BlockWithId[]): { id: string | null; text: st
 
 export type ChunkSource = {
   title: string;
+  /** Titles of the pages above, top first (a row's database last). */
+  path?: string[];
   /** Row values (see rowPropertyLines); they open the first chunk. */
   properties?: string[];
-  blocks: { id: string | null; text: string }[];
+  blocks: BlockText[];
 };
 
 export type ChunkDraft = {
   position: number;
   /** The block the chunk starts at; null for the title and the row's values. */
   blockId: string | null;
-  /** What is embedded: the page title, then the passage. */
+  /**
+   * What is embedded: where the passage is (see chunkContext), a blank line, then the passage.
+   * The passage itself never has a blank line, so passageOf can find where it starts.
+   */
   text: string;
   hash: string;
 };
+
+const oneLine = (text: string) => text.trim().replace(/\s+/g, " ");
+const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
+
+/**
+ * Where a chunk is, in at most CONTEXT_MAX characters: the titles of the pages above and the
+ * page's own ("Sales › 2026 plan"), then the heading the chunk lies under, if any. Pages farthest
+ * up are left out first ("… › 2026 plan"). Empty when there is nothing to say.
+ */
+export function chunkContext(path: string[], title: string, heading?: string | null): string {
+  const head = heading ? clip(oneLine(heading), CONTEXT_PART_MAX) : "";
+  const parts = [...path, title].map((t) => clip(oneLine(t), CONTEXT_PART_MAX)).filter(Boolean);
+  const room = CONTEXT_MAX - (head ? head.length + 1 : 0);
+  let line = parts.join(PATH_SEPARATOR);
+  for (let drop = 1; line.length > room && drop < parts.length; drop++) line = ["…", ...parts.slice(drop)].join(PATH_SEPARATOR);
+  return [clip(line, room), head].filter(Boolean).join("\n");
+}
 
 export const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
@@ -105,40 +135,50 @@ export function splitLong(text: string, max = CHUNK_MAX): string[] {
 }
 
 /**
- * A page's text in chunks of about CHUNK_TARGET characters, each starting with the page's title (so
- * a passage carries what it is about) and made of whole blocks where they fit. A page with nothing
- * but a title is one chunk. Chunks with the same text appear once.
+ * A page's text in chunks of about CHUNK_TARGET characters, made of whole blocks where they fit,
+ * a heading starting a new one. Each starts with where it is (chunkContext: the pages above, the page's title, the heading it
+ * lies under), so a passage carries what it is about. A page with nothing but a title is one
+ * chunk. Chunks with the same text appear once.
  */
 export function chunkPage(source: ChunkSource, { target = CHUNK_TARGET, max = CHUNK_MAX } = {}): ChunkDraft[] {
-  const title = source.title.trim().replace(/\s+/g, " ");
-  const prefix = title ? `${title}\n` : "";
-  const pieces: { blockId: string | null; text: string }[] = [];
+  const path = source.path ?? [];
+  // Blank lines inside a passage would end it early (see passageOf).
+  const flat = (text: string) => text.replace(/\n\s*\n/g, "\n");
+  type Piece = { blockId: string | null; text: string; heading: string | null; isHeading: boolean };
+  const pieces: Piece[] = [];
   if (source.properties?.length) {
-    for (const part of splitLong(source.properties.join("\n"), max)) pieces.push({ blockId: null, text: part });
+    for (const part of splitLong(flat(source.properties.join("\n")), max)) pieces.push({ blockId: null, text: part, heading: null, isHeading: false });
   }
+  let heading: string | null = null;
   for (const block of source.blocks) {
-    for (const part of splitLong(block.text, max)) pieces.push({ blockId: block.id, text: part });
+    if (block.heading) heading = block.text;
+    for (const part of splitLong(flat(block.text), max)) pieces.push({ blockId: block.id, text: part, heading, isHeading: !!block.heading });
   }
 
-  const bodies: { blockId: string | null; text: string }[] = [];
-  let current: { blockId: string | null; parts: string[]; size: number } | null = null;
+  const bodies: { blockId: string | null; heading: string | null; text: string }[] = [];
+  let current: { blockId: string | null; heading: string | null; parts: string[]; size: number } | null = null;
   for (const piece of pieces) {
-    if (current && current.size + piece.text.length + 1 <= target) {
+    // A heading opens a new chunk (one section per chunk), unless the one so far is very short.
+    const fits = current && current.size + piece.text.length + 1 <= target && !(piece.isHeading && current.size >= target / 4);
+    if (current && fits) {
       current.parts.push(piece.text);
       current.size += piece.text.length + 1;
       continue;
     }
-    if (current) bodies.push({ blockId: current.blockId, text: current.parts.join("\n") });
-    current = { blockId: piece.blockId, parts: [piece.text], size: piece.text.length };
+    if (current) bodies.push({ blockId: current.blockId, heading: current.heading, text: current.parts.join("\n") });
+    // A chunk starting at a heading has it in its text already.
+    current = { blockId: piece.blockId, heading: piece.isHeading ? null : piece.heading, parts: [piece.text], size: piece.text.length };
   }
-  if (current) bodies.push({ blockId: current.blockId, text: current.parts.join("\n") });
-  if (!bodies.length && title) bodies.push({ blockId: null, text: "" });
+  if (current) bodies.push({ blockId: current.blockId, heading: current.heading, text: current.parts.join("\n") });
+  if (!bodies.length && chunkContext(path, source.title)) bodies.push({ blockId: null, heading: null, text: "" });
 
   const seen = new Set<string>();
   const chunks: ChunkDraft[] = [];
   for (const body of bodies) {
-    const text = `${prefix}${body.text}`.trim();
-    if (!text) continue;
+    const context = chunkContext(path, source.title, body.heading);
+    const passage = body.text.trim();
+    const text = context ? `${context}\n\n${passage}` : passage;
+    if (!text.trim()) continue;
     const hash = sha256(text);
     if (seen.has(hash)) continue;
     seen.add(hash);
@@ -153,13 +193,51 @@ export function sourceHash(model: string, chunks: Pick<ChunkDraft, "hash" | "blo
   return sha256(JSON.stringify([model, chunks.map((c) => [c.hash, c.blockId])]));
 }
 
-/** A chunk's passage without the title line it was embedded with, for snippets. */
+/**
+ * A chunk's passage without where it is (chunkContext), for snippets and the AI chat. That names
+ * pages above, which the reader may not be allowed to see, so it never shows.
+ */
 export function passageOf(chunkText: string, title: string): string {
+  const split = chunkText.indexOf("\n\n");
+  if (split !== -1) return chunkText.slice(split + 2).trim();
+  // Indexed by the first chunker (CHUNKER_VERSION 1), not yet again: just the title line in front.
   const t = title.trim().replace(/\s+/g, " ");
   // A page with only a title has nothing else to show.
   if (t && chunkText.trim() === t) return "";
   const body = t && chunkText.startsWith(`${t}\n`) ? chunkText.slice(t.length + 1) : chunkText;
   return body.trim();
+}
+
+/** Lower-cased for comparing words, the dotted and dotless i alike (Turkish). */
+const foldWord = (word: string) => word.toLocaleLowerCase("tr").replace(/ı/g, "i");
+
+/**
+ * Of a page's chunks, the one whose passage has the most of `terms` (see lib/search-words: words
+ * matched as prefixes), then the most matches, then the earliest. Where the text search found the
+ * page, this is the passage it was found for. With no term in any passage (the title matched),
+ * the first chunk. Null without chunks.
+ */
+export function bestChunkForTerms<T extends { position: number; text: string }>(chunks: T[], terms: string[], title: string): T | null {
+  const wanted = [...new Set(terms.map(foldWord).filter(Boolean))];
+  let best: { chunk: T; distinct: number; total: number } | null = null;
+  for (const chunk of chunks) {
+    const words = (passageOf(chunk.text, title).match(/[\p{L}\p{N}]+/gu) ?? []).map(foldWord);
+    let distinct = 0;
+    let total = 0;
+    for (const term of wanted) {
+      const hits = words.filter((w) => w.startsWith(term)).length;
+      if (hits) distinct++;
+      total += hits;
+    }
+    if (
+      !best ||
+      distinct > best.distinct ||
+      (distinct === best.distinct && (total > best.total || (total === best.total && chunk.position < best.chunk.position)))
+    ) {
+      best = { chunk, distinct, total };
+    }
+  }
+  return best?.chunk ?? null;
 }
 
 /** The start of a passage as one line of at most `max` characters. */
