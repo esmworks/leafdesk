@@ -14,6 +14,7 @@ import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { PropertyValueError } from "@/lib/properties";
+import { anyWordTerms } from "@/lib/search-words";
 import { AccessError, pageAccessOf } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
@@ -22,7 +23,8 @@ import { normalizeRowProperties } from "@/server/databases";
 import { ToolInputError } from "@/server/mcp/format";
 import * as ops from "@/server/operations";
 import { getTree } from "@/server/pages";
-import { inSubtree } from "@/server/semantic-search";
+import { chunksOfPages, inSubtree } from "@/server/semantic-search";
+import { bestChunkForTerms, passageOf } from "@/server/semantic-text";
 
 /** The most of the prompt the workspace map takes, and the databases it lists properties of. */
 export const MAP_CHARS = 8_000;
@@ -246,20 +248,42 @@ async function searchSources(
   maxChars: number,
 ) {
   const { results } = await ops.search(ctx, { query, workspace_id: workspaceId, limit: PASSAGES }, { withinPageId: scopeId, passages: true, anyWord: true });
-  const values = await rowValues(ctx, results);
+  const [values, found] = await Promise.all([rowValues(ctx, results), textPassages(results, query)]);
   return results.map((r) => {
-    const passage = r.passage || r.snippet || "";
+    const best = r.passage ? { passage: r.passage, blockId: r.block_id ?? null } : found.get(r.id);
+    const passage = best?.passage || r.snippet || "";
     const row = values.get(r.id);
     // A row's database first (to query it), then its values, so they survive the cut: what it
     // says is mostly in them.
     const head = row ? [`A row of the database "${row.database}" (database_id ${row.databaseId}).`, row.values].filter(Boolean).join("\n") : "";
     return register(registry, {
       pageId: r.id,
-      blockId: r.passage ? (r.block_id ?? null) : null,
+      blockId: best?.passage ? best.blockId : null,
       title: r.title,
       text: truncateText([head, passage].filter(Boolean).join("\n"), maxChars),
     });
   });
+}
+
+/**
+ * For results the text search found without a passage (semantic search found none for them): the
+ * indexed passage of the page with the most of the query's words (bestChunkForTerms) and the
+ * block it starts at, so the model gets the part that matched and a citation of it rather than a
+ * snippet. Pages without an index (AI off, not indexed yet) aren't included. The results come
+ * from a search as the person, so their pages are ones they may read.
+ */
+export async function textPassages(results: { id: string; title: string; passage?: string | null }[], query: string) {
+  const out = new Map<string, { passage: string; blockId: string | null }>();
+  const missing = results.filter((r) => !r.passage);
+  if (!missing.length) return out;
+  const chunks = await chunksOfPages(missing.map((r) => r.id));
+  const terms = anyWordTerms(query);
+  for (const r of missing) {
+    const best = bestChunkForTerms(chunks.get(r.id) ?? [], terms, r.title);
+    const passage = best ? passageOf(best.text, r.title) : "";
+    if (best && passage) out.set(r.id, { passage, blockId: best.blockId });
+  }
+  return out;
 }
 
 /**

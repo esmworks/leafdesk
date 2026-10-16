@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Upgrading from 0.5.3
+
+- **Every passage is embedded again once.** Passages now start with where they are (see
+  *Changed*), so their text changes and the embeddings model sees each of them once more after
+  the upgrade: through the background sweep as people search, or all at once with
+  `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
+
 ### Added
 
 - **Apps can't overwrite edits they haven't seen.** `get_page` (MCP) and `GET /pages/{id}` now give
@@ -13,8 +20,8 @@
   the page in between. Comments don't change the version. Without `expected_version` writes work
   as before. Covered in `scripts/mcp-e2e.ts`.
 - **The AI chat answers from attached PDFs and Word documents.** The text of a PDF or .docx shown
-  in a page's file block now goes into the page's semantic index, in passages headed "Page › file
-  name" that point at the file block, so the chat can answer from inside the document and its
+  in a page's file block now goes into the page's semantic index, in passages that start with the file name and point
+  at the file block, so the chat can answer from inside the document and its
   citation opens the page at the file. A document is read once and its text kept (migration
   0071, `file_text`); the same file uploaded again isn't read twice. Only the first 50 pages or
   200,000 characters of a document are read (the record says when it was cut), up to 20 documents
@@ -23,6 +30,20 @@
   checks access to the page when it runs, as for the rest of its text. Existing pages are indexed
   again by the next sweep or `pnpm search:index`; their unchanged passages aren't embedded again.
 
+### Changed
+
+- **Semantic search knows where a passage is.** Each indexed passage now carries the titles of
+  the pages above its page, the page's own title and the heading it lies under (at most 200
+  characters; a database row's path includes its database), so a passage under *Sales › 2026 plan
+  › Risks* is found for questions about sales risks even when it never says "sales". A heading now
+  starts a new passage. Renaming or moving a page indexes the pages under it again. Results and
+  the AI chat show the passage without that path, since it can name pages the reader can't open.
+  Pages are indexed again after upgrading (the chunking version went up).
+- **The AI chat cites the right block for pages found by their words.** A page that only the
+  full-text search found reached the model as a short snippet without a block, so its answer
+  cited the whole page and it often read the page again. It now gets the page's indexed passage
+  with the most of the question's words, and the citation links to that block.
+
 ### Fixed
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index
@@ -30,8 +51,7 @@
   differently: pages kept their old chunks until someone edited them, and `pnpm search:index`
   skipped them. The index now records the chunking it was built with (migration 0070), and pages
   built with another one count as stale for the sweep and `pnpm search:index`. Chunks whose text
-  stays the same aren't embedded again, so after upgrading the first sweep only looks the pages
-  over. Covered in `scripts/semantic-search-e2e.ts`.
+  stays the same aren't embedded again. Covered in `scripts/semantic-search-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 
