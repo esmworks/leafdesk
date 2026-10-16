@@ -1,0 +1,1 @@
+ALTER TABLE "page_index_state" ADD COLUMN "chunker_version" integer DEFAULT 0 NOT NULL;

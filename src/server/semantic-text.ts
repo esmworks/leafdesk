@@ -15,6 +15,14 @@ export const CHUNK_MAX = 1_400;
 export const MAX_CHUNKS_PER_PAGE = 200;
 
 /**
+ * Which version of the chunking the index was built with. Raise it whenever the chunks a page
+ * makes change for the same page (what text goes in, how it's cut, the limits above): pages
+ * indexed with another version count as stale, so the sweep and `pnpm search:index` go over them
+ * again. Chunks whose text stays the same aren't embedded again.
+ */
+export const CHUNKER_VERSION = 1;
+
+/**
  * Row values that go into a row's text. Relations and people are left out: their names are other
  * pages' titles and people's names, which the row's readers may not be allowed to see. Formulas and
  * rollups can reach through relations too.

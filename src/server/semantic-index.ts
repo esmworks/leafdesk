@@ -5,7 +5,7 @@
  * - a few seconds after their document is saved with an edit, they are created or restored, or a
  *   row's values change (page-events.ts, row-events.ts), debounced per page;
  * - by a sweep of a workspace that picks up pages changed since they were last indexed (or never
- *   indexed, or indexed with another model): started lazily by searches in the workspace, at most
+ *   indexed, or indexed with another model or CHUNKER_VERSION): started lazily by searches in the workspace, at most
  *   every SWEEP_INTERVAL_MS, and by `pnpm search:index` for a full backfill.
  *
  * Only chunks whose text changed are embedded again. Jobs run at most AI_CONCURRENCY at a time,
@@ -24,7 +24,7 @@ import { getCollab } from "@/server/collab/bridge";
 import * as databases from "@/server/databases";
 import { onPageChanged } from "@/server/page-events";
 import { onRowChanged } from "@/server/row-events";
-import { blockTexts, chunkPage, rowPropertyLines, sourceHash, type ChunkDraft } from "@/server/semantic-text";
+import { blockTexts, CHUNKER_VERSION, chunkPage, rowPropertyLines, sourceHash, type ChunkDraft } from "@/server/semantic-text";
 import { workspaceSettings } from "@/server/workspaces";
 
 /** How long a page must stay unchanged before it is indexed again. */
@@ -231,7 +231,10 @@ export async function indexPage(pageId: string): Promise<IndexOutcome | number> 
   const hash = sourceHash(model, chunks);
   const [state] = await db.select().from(pageIndexState).where(eq(pageIndexState.pageId, pageId)).limit(1);
   if (state?.model === model && state.sourceHash === hash) {
-    await db.update(pageIndexState).set({ sourceUpdatedAt: sql`${row.updatedAt}::timestamptz` }).where(eq(pageIndexState.pageId, pageId));
+    await db
+      .update(pageIndexState)
+      .set({ chunkerVersion: CHUNKER_VERSION, sourceUpdatedAt: sql`${row.updatedAt}::timestamptz` })
+      .where(eq(pageIndexState.pageId, pageId));
     return "unchanged";
   }
 
@@ -297,7 +300,15 @@ export async function indexPage(pageId: string): Promise<IndexOutcome | number> 
           .set({ position: c.position, blockId: c.blockId })
           .where(and(eq(pageChunk.pageId, pageId), eq(pageChunk.contentHash, c.hash)));
       }
-      const values = { pageId, workspaceId: row.workspaceId, model, sourceHash: hash, sourceUpdatedAt: sql`${row.updatedAt}::timestamptz`, indexedAt: new Date() };
+      const values = {
+        pageId,
+        workspaceId: row.workspaceId,
+        model,
+        sourceHash: hash,
+        chunkerVersion: CHUNKER_VERSION,
+        sourceUpdatedAt: sql`${row.updatedAt}::timestamptz`,
+        indexedAt: new Date(),
+      };
       await tx.insert(pageIndexState).values(values).onConflictDoUpdate({ target: pageIndexState.pageId, set: values });
     });
   } catch (error) {
@@ -318,7 +329,7 @@ export async function stalePages(workspaceId: string, limit = SWEEP_BATCH): Prom
     select p.id from ${page} p
     left join ${pageIndexState} s on s.page_id = p.id
     where p.workspace_id = ${workspaceId} and p.archived_at is null and not p.in_template
-      and (s.page_id is null or s.model <> ${model} or p.updated_at > s.source_updated_at)
+      and (s.page_id is null or s.model <> ${model} or s.chunker_version <> ${CHUNKER_VERSION} or p.updated_at > s.source_updated_at)
     order by p.updated_at desc
     limit ${limit}
   `);

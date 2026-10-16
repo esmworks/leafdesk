@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Semantic search catches up when the way pages are cut into chunks changes.** The index
+  noticed pages that changed and a new embeddings model, but not a release that chunks pages
+  differently: pages kept their old chunks until someone edited them, and `pnpm search:index`
+  skipped them. The index now records the chunking it was built with (migration 0070), and pages
+  built with another one count as stale for the sweep and `pnpm search:index`. Chunks whose text
+  stays the same aren't embedded again, so after upgrading the first sweep only looks the pages
+  over. Covered in `scripts/semantic-search-e2e.ts`.
+
 ## 0.5.3 — 2026-10-16
 
 ### Upgrading from 0.5.2

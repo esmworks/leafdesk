@@ -65,8 +65,9 @@ export const pageChunk = pgTable(
 
 /**
  * When a page was last indexed for semantic search, and from what: `sourceHash` fingerprints its
- * chunks and the model, `sourceUpdatedAt` is the page's `updated_at` then. Pages changed since
- * (or never indexed, or indexed with another model) are picked up by the background sweep.
+ * chunks and the model, `chunkerVersion` is the CHUNKER_VERSION of the chunking (semantic-text.ts),
+ * `sourceUpdatedAt` is the page's `updated_at` then. Pages changed since (or never indexed, or
+ * indexed with another model or chunking) are picked up by the background sweep.
  */
 export const pageIndexState = pgTable(
   "page_index_state",
@@ -79,6 +80,7 @@ export const pageIndexState = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
     model: text("model").notNull(),
     sourceHash: text("source_hash").notNull(),
+    chunkerVersion: integer("chunker_version").notNull().default(0),
     sourceUpdatedAt: timestamp("source_updated_at", { withTimezone: true }).notNull(),
     indexedAt: timestamp("indexed_at", { withTimezone: true }).notNull().defaultNow(),
   },

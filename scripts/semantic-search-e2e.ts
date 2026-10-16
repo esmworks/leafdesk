@@ -6,9 +6,10 @@
  * changed chunks embedded again; results by meaning merged with full-text results; rows found by
  * their property values; trashed, restored and deleted pages; the workspace AI switch; a server
  * without an embeddings model (exactly full-text search); another embeddings model; the sweep that
- * backfills pages the index missed; a subtree scope; and access, checked when the query runs: a
- * private page nobody else was given, a private teamspace, a page shared with a group (and taken
- * back), guests seeing only what was shared with them, another workspace, MCP and REST.
+ * backfills pages the index missed; pages indexed with an older chunking; a subtree scope; and
+ * access, checked when the query runs: a private page nobody else was given, a private teamspace,
+ * a page shared with a group (and taken back), guests seeing only what was shared with them,
+ * another workspace, MCP and REST.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/semantic-search-e2e.ts
@@ -42,6 +43,7 @@ const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, FAKE_DIMENSIONS } = await import("@/server/ai/fake-openai");
 const index = await import("@/server/semantic-index");
 const { clearQueryCache, semanticSearch } = await import("@/server/semantic-search");
+const { CHUNKER_VERSION } = await import("@/server/semantic-text");
 
 const RUN = `semsearch-e2e-${Date.now().toString(36)}`;
 
@@ -323,6 +325,14 @@ try {
   check(stale.length === 0, "…leaving nothing stale", staleRows);
   sent = fake.embedded.length;
   check((await index.sweepWorkspace(workspaceId)) === 0 && fake.embedded.length === sent, "a second sweep has nothing to do");
+
+  // Pages indexed with an older chunking count as stale; when their chunks come out the same,
+  // indexing them again embeds nothing.
+  await db.update(pageIndexState).set({ chunkerVersion: CHUNKER_VERSION - 1 }).where(eq(pageIndexState.pageId, handbook.id));
+  check((await index.stalePages(workspaceId)).includes(handbook.id), "a page indexed with an older chunking counts as stale");
+  sent = fake.embedded.length;
+  check((await index.indexPage(handbook.id)) === "unchanged" && fake.embedded.length === sent, "…indexing it again embeds nothing when its chunks stay the same");
+  check(!(await index.stalePages(workspaceId)).includes(handbook.id), "…and it is up to date afterwards");
 
   // ── The workspace switch ────────────────────────────────────────────────────────────────────
   await updateWorkspaceSettings(owner, workspaceId, { ai: false });
