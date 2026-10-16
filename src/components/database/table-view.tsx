@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
@@ -16,6 +16,7 @@ import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
 import type { SubItemLine } from "@/lib/sub-items";
+import { cellText, type PasteColumn, type PastePlan } from "@/lib/table-clipboard";
 import { AiCell, useAiAutofill } from "./ai-autofill";
 import { BulkActionBar, SelectBox, useRowSelection } from "./bulk-actions";
 import { uploadToPage } from "./files-cell";
@@ -32,7 +33,10 @@ import { useRelations } from "./relation-context";
 import { OpenRowItems } from "./open-row-items";
 import { QuickAddContext } from "./quick-add";
 import { openRowProps, useRowOpener, type RowOpener } from "./row-panel-context";
+import { useCellGrid } from "./use-cell-grid";
+import type { ShownValue } from "./use-database";
 import { useNewRow } from "./use-new-row";
+import { useTableWindow } from "./use-table-window";
 import { useToday } from "./use-today";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { TITLE, type Property, type Row, type View } from "./types";
@@ -44,6 +48,15 @@ const WIDTHS: Partial<Record<Property["type"], number>> = { checkbox: 110, numbe
 const defaultWidth = (p: Property) => WIDTHS[p.type] ?? 200;
 /** Room frozen columns leave for the others to scroll by; below it they don't freeze. */
 const MIN_SCROLL_ROOM = 160;
+/** Types whose pasted values are stored as the paste reads them, so they show before the server answers. */
+const SHOWN_AS_PASTED = new Set<string>(["text", "number", "date", "checkbox", "url", "email", "phone"]);
+
+/** What the table body shows, top to bottom: rows, and in a grouped table each group's header, "New" and calculations. */
+type BodyItem =
+  | { kind: "row"; key: string; line: SubItemLine<Row>; group?: Group<Row>; at: number }
+  | { kind: "group" | "add" | "calc"; key: string; group: Group<Row> };
+/** Heights to place rows by until they are measured (see useTableWindow). */
+const ESTIMATE: Record<BodyItem["kind"], number> = { row: 34, group: 40, add: 33, calc: 34 };
 
 /** The implicit Name column as a text property; `name` is its translated label. */
 export function titleProperty(databaseId: string, name: string): Property {
@@ -335,13 +348,20 @@ export function TableView({
     void setConfig({ ...view.config, hiddenGroups: next });
   };
 
-  const renderRow = (line: SubItemLine<Row>, group?: Group<Row>) => {
+  /** A body row: `at` is its line among the rows the keyboard moves through, `index` its place in the body. */
+  const renderRow = (line: SubItemLine<Row>, group: Group<Row> | undefined, at: number, index: number) => {
     const row = line.row;
     // The row open in the panel beside the table is tinted like a selected one.
     const selected = selection.isSelected(row.id) || opener.current === row.id;
     const label = pageLabel(row.title, tc("untitled"));
     return (
-      <tr key={row.id} {...openRowProps(opener, row.id, false)} className={cn("group", selected && "bg-accent/5")}>
+      <tr
+        key={row.id}
+        ref={bodyWindow.measure}
+        data-index={index}
+        {...openRowProps(opener, row.id, false)}
+        className={cn("group", selected && "bg-accent/5")}
+      >
         <td className={cn("p-0 align-middle", frozen(-1, selected).className)} style={frozen(-1).style}>
           <div className="flex items-center justify-end">
             {!readOnly && <RowMenu opener={opener} rowId={row.id} onDelete={() => api.deleteRow(row.id)} />}
@@ -354,9 +374,11 @@ export function TableView({
           </div>
         </td>
         <td
-          className={cn("relative border-b border-border p-0 align-top", frozen(0, selected).className)}
+          {...grid.cellProps(at, 0)}
+          className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className)}
           style={frozen(0).style}
         >
+          <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
           <div className="flex font-medium" style={subItems.nested ? { paddingLeft: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
             <div className="min-w-0 flex-1">
@@ -402,9 +424,11 @@ export function TableView({
           return (
             <td
               key={p.id}
-              className={cn("border-b border-l border-border p-0 align-top", frozen(i + 1, selected).className)}
+              {...grid.cellProps(at, i + 1)}
+              className={cn("relative border-b border-l border-border p-0 align-top outline-none", frozen(i + 1, selected).className)}
               style={frozen(i + 1).style}
             >
+              <CellMark active={grid.isActive(at, i + 1)} selected={grid.spans && grid.isSelected(at, i + 1)} />
               {valueAccess === "hidden" ? (
                 <PropertyCell prop={p} value={undefined} hidden onChange={() => {}} onCreateOption={createOption} />
               ) : (
@@ -441,10 +465,143 @@ export function TableView({
 
   const totalWidth = handles + nameWidth + visible.reduce((sum, p) => sum + colWidth(p), 0) + (readOnly ? 0 : 36);
 
+  // The body as one list, so only the rows near the visible part of the page render, and the rows
+  // the keyboard moves through (a row shows once in every group it is in, so lines count by place).
+  const items: BodyItem[] = [];
+  const gridRows: { line: SubItemLine<Row>; item: number }[] = [];
+  const addLines = (list: SubItemLine<Row>[], group?: Group<Row>) => {
+    for (const line of list) {
+      items.push({ kind: "row", key: `${group?.key ?? ""}\u0000${line.row.id}`, line, group, at: gridRows.length });
+      gridRows.push({ line, item: items.length - 1 });
+    }
+  };
+  if (!grouping) addLines(lines.all);
+  else
+    for (const group of grouping.shown) {
+      items.push({ kind: "group", key: `group\u0000${group.key}`, group });
+      if (collapsed.has(group.key)) continue;
+      addLines(lines.groups.get(group.key) ?? [], group);
+      if (canAddTo(group)) items.push({ kind: "add", key: `add\u0000${group.key}`, group });
+      if (calculated && group.rows.length > 0) items.push({ kind: "calc", key: `calc\u0000${group.key}`, group });
+    }
+  const [thead, setThead] = useState<HTMLTableSectionElement | null>(null);
+  const bodyWindow = useTableWindow({
+    start: thead,
+    count: items.length,
+    estimate: (i) => ESTIMATE[items[i].kind],
+    keyOf: (i) => items[i].key,
+  });
+  // Rendered items in runs of the same group, each run a <tbody> named after its group.
+  const bodyChunks: { group?: Group<Row>; indexes: number[] }[] = [];
+  for (const index of bodyWindow.indexes) {
+    const { group } = items[index];
+    const last = bodyChunks[bodyChunks.length - 1];
+    if (last && last.group === group) last.indexes.push(index);
+    else bodyChunks.push({ group, indexes: [index] });
+  }
+
+  const rowsById = useMemo(() => new Map(rows.map((r) => [r.id, r] as const)), [rows]);
+  const gridColumns: PasteColumn[] = [{ key: TITLE, type: "title" }, ...visible.map((p) => ({ key: p.id, type: p.type }))];
+  const timeZone = useTimeZone() ?? "UTC";
+  const grid = useCellGrid({
+    box,
+    rowCount: gridRows.length,
+    columns: gridColumns,
+    rowIdAt: (i) => gridRows[i].line.row.id,
+    copyText: (r, c) => {
+      const row = gridRows[r]?.line.row;
+      if (!row) return null;
+      if (c === 0) return row.title || null;
+      const p = visible[c - 1];
+      if (!p || access.valueAccess(row, p.id) === "hidden") return null;
+      const titleOf = new Map((relations?.targets[p.id]?.rows ?? []).map((r) => [r.id, r.title] as const));
+      const nameOf = new Map(people.map((person) => [person.id, person.name] as const));
+      return cellText(p, row.properties[p.id], { titleOf, nameOf, fileText: (f) => `${f.name} (${window.location.origin}${f.url})` });
+    },
+    canEdit: (rowId, key) => {
+      if (readOnly) return false;
+      if (key === TITLE) return true;
+      return access.valueAccess(rowId ? rowsById.get(rowId) : null, key) === "edit";
+    },
+    // Rows pasted past the last one are added; a grouped table wouldn't know which group they go in.
+    canAddRows: !readOnly && !grouping,
+    timeZone,
+    write: (plan: PastePlan) => {
+      const shown: ShownValue[] = plan.updates.flatMap((u) => [
+        ...(u.title !== undefined ? [{ rowId: u.rowId, key: TITLE, value: u.title }] : []),
+        ...Object.entries(u.values)
+          .filter(([key]) => SHOWN_AS_PASTED.has(properties.find((p) => p.id === key)?.type ?? ""))
+          .map(([key, value]) => ({ rowId: u.rowId, key, value })),
+      ]);
+      void api.pasteRows(plan, shown);
+    },
+    reveal: (r) => (gridRows[r] ? bodyWindow.reveal(gridRows[r].item) : false),
+  });
+
+  const renderItem = (index: number) => {
+    const item = items[index];
+    if (item.kind === "row") return renderRow(item.line, item.group, item.at, index);
+    const group = item.group;
+    if (item.kind === "group") {
+      const name = groupName(group);
+      return (
+        <tr key={item.key} ref={bodyWindow.measure} data-index={index}>
+          <td colSpan={columnCount} className="p-0">
+            <GroupHeader
+              prop={groupBy!}
+              group={group}
+              name={name}
+              open={!collapsed.has(group.key)}
+              offset={handles}
+              readOnly={readOnly}
+              canAdd={canAddTo(group)}
+              onToggle={() => toggleCollapsed(group.key)}
+              onHide={() => setGroupHidden(group.key, true)}
+              onAdd={() => addRow(group)}
+            />
+          </td>
+        </tr>
+      );
+    }
+    if (item.kind === "add") {
+      return (
+        <tr key={item.key} ref={bodyWindow.measure} data-index={index}>
+          <td colSpan={columnCount} className="p-0">
+            <button
+              type="button"
+              onClick={() => addRow(group)}
+              className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+              style={{ paddingLeft: handles + 8 }}
+            >
+              <Plus className="h-4 w-4" />
+              {t("table.new")}
+            </button>
+          </td>
+        </tr>
+      );
+    }
+    return (
+      <tr key={item.key} ref={bodyWindow.measure} data-index={index}>
+        <td colSpan={columnCount} className="p-0">
+          {/* Per-group results; calculations are picked in the table's own footer. */}
+          <CalculationRow
+            offset={handles}
+            columns={calculationColumns}
+            rows={parentsOnly ? (lines.groups.get(group.key) ?? []).map((l) => l.row) : group.rows}
+            calculations={view.config.calculations}
+            readOnly
+            onChange={setCalculation}
+          />
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <div
       ref={box}
-      className="page-gutter-table overflow-x-auto pb-3 [color-scheme:light_dark]"
+      {...grid.containerProps}
+      className={cn("page-gutter-table overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", grid.spans && "select-none")}
       style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
     >
       <table className="table-fixed border-collapse text-sm" style={{ width: totalWidth }}>
@@ -456,7 +613,7 @@ export function TableView({
           ))}
           {!readOnly && <col style={{ width: 36 }} />}
         </colgroup>
-        <thead>
+        <thead ref={setThead}>
           <tr className="group">
             <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
               <div className="flex justify-end">
@@ -552,65 +709,17 @@ export function TableView({
             )}
           </tr>
         </thead>
-        {!grouping ? (
-          <tbody>{lines.all.map((line) => renderRow(line))}</tbody>
-        ) : (
-          grouping.shown.map((group) => {
-            const open = !collapsed.has(group.key);
-            const name = groupName(group);
-            return (
-              <tbody key={group.key || "__none"} aria-label={name}>
-                <tr>
-                  <td colSpan={columnCount} className="p-0">
-                    <GroupHeader
-                      prop={groupBy!}
-                      group={group}
-                      name={name}
-                      open={open}
-                      offset={handles}
-                      readOnly={readOnly}
-                      canAdd={canAddTo(group)}
-                      onToggle={() => toggleCollapsed(group.key)}
-                      onHide={() => setGroupHidden(group.key, true)}
-                      onAdd={() => addRow(group)}
-                    />
-                  </td>
-                </tr>
-                {open && (lines.groups.get(group.key) ?? []).map((line) => renderRow(line, group))}
-                {open && canAddTo(group) && (
-                  <tr>
-                    <td colSpan={columnCount} className="p-0">
-                      <button
-                        type="button"
-                        onClick={() => addRow(group)}
-                        className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-                        style={{ paddingLeft: handles + 8 }}
-                      >
-                        <Plus className="h-4 w-4" />
-                        {t("table.new")}
-                      </button>
-                    </td>
-                  </tr>
-                )}
-                {open && calculated && group.rows.length > 0 && (
-                  <tr>
-                    <td colSpan={columnCount} className="p-0">
-                      {/* Per-group results; calculations are picked in the table's own footer. */}
-                      <CalculationRow
-                        offset={handles}
-                        columns={calculationColumns}
-                        rows={parentsOnly ? (lines.groups.get(group.key) ?? []).map((l) => l.row) : group.rows}
-                        calculations={view.config.calculations}
-                        readOnly
-                        onChange={setCalculation}
-                      />
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            );
-          })
+        {bodyWindow.padTop > 0 && <Spacer height={bodyWindow.padTop} columns={columnCount} />}
+        {bodyChunks.map((chunk) =>
+          chunk.group ? (
+            <tbody key={chunk.group.key || "__none"} aria-label={groupName(chunk.group)}>
+              {chunk.indexes.map(renderItem)}
+            </tbody>
+          ) : (
+            <tbody key="rows">{chunk.indexes.map(renderItem)}</tbody>
+          ),
         )}
+        {bodyWindow.padBottom > 0 && <Spacer height={bodyWindow.padBottom} columns={columnCount} />}
       </table>
       {(grouping ? !grouping.shown.length : !rows.length) && (
         <div
@@ -915,5 +1024,31 @@ function RowMenu({ opener, rowId, onDelete }: { opener: RowOpener; rowId: string
         </MenuItem>
       </Floating>
     </>
+  );
+}
+
+/** Stands in for body rows that aren't rendered (see useTableWindow), keeping the table's height. */
+function Spacer({ height, columns }: { height: number; columns: number }) {
+  return (
+    <tbody aria-hidden>
+      <tr>
+        <td colSpan={columns} className="p-0" style={{ height }} />
+      </tr>
+    </tbody>
+  );
+}
+
+/** The active cell's outline and the selected range's tint, over a body cell. */
+function CellMark({ active, selected }: { active: boolean; selected: boolean }) {
+  if (!active && !selected) return null;
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute inset-0 z-10",
+        selected && "bg-accent/10",
+        active && "shadow-[inset_0_0_0_2px_var(--accent)]",
+      )}
+    />
   );
 }

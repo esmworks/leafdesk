@@ -274,6 +274,7 @@
     "clearSelection": "Seçimi temizle",
     "confirmTrash": "{count} satır çöp kutusuna taşınsın mı?",
     "skipped": "{count} satır, değiştirme izniniz olmadığı için atlandı.",
+    "pasteLeftOut": "{count, plural, one {Yapıştırılan # hücre atlandı: sütununa uymuyor ya da onu değiştiremezsin.} other {Yapıştırılan # hücre atlandı: sütunlarına uymuyor ya da onları değiştiremezsin.}}",
     "exportDisabled": "Bu çalışma alanında dışa aktarma kapalı."
   },
   "calculate": {

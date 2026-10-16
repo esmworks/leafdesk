@@ -220,7 +220,7 @@ export async function setDatabaseLocked(userId: string, databaseId: string, lock
   notifySchema(databaseId);
 }
 
-function notifyRows(databaseId: string) {
+export function notifyRows(databaseId: string) {
   getCollab().broadcast(`db:${databaseId}`, "rows");
 }
 function notifySchema(databaseId: string) {
@@ -630,7 +630,7 @@ async function checkDependencyLoops(databaseId: string, writes: { rowId: string;
 }
 
 /** Refuses writes that close a loop of sub-items or of dependencies. */
-async function checkLoops(databaseId: string, writes: { rowId: string; values: Record<string, unknown> }[]) {
+export async function checkLoops(databaseId: string, writes: { rowId: string; values: Record<string, unknown> }[]) {
   await checkSubItemLoops(databaseId, writes);
   await checkDependencyLoops(databaseId, writes);
 }

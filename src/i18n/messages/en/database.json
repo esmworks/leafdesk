@@ -274,6 +274,7 @@
     "clearSelection": "Clear selection",
     "confirmTrash": "Move {count, plural, one {# row} other {# rows}} to the trash?",
     "skipped": "{count, plural, one {# row was skipped because you can’t change it.} other {# rows were skipped because you can’t change them.}}",
+    "pasteLeftOut": "{count, plural, one {# pasted cell was left out: it doesn’t fit its column or you can’t change it.} other {# pasted cells were left out: they don’t fit their columns or you can’t change them.}}",
     "exportDisabled": "Export is turned off in this workspace."
   },
   "calculate": {
