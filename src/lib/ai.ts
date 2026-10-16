@@ -1,5 +1,7 @@
 // Client-safe: shared by the AI server code (src/server/ai*) and the editor and database UI.
 
+import { parseFormula } from "./formula";
+
 export const AI_ERROR_CODES = [
   /** The server has no AI provider, or the workspace turned AI off. */
   "disabled",
@@ -66,6 +68,11 @@ export function languageName(code: string): string {
  *   `{title}` for the row's title; with `includeBody` the page content goes along too.
  * Values are worked out on request (a row's refresh, "update all"); with `auto` also after the row's
  * other values or content change.
+ *
+ * Other AI values, and formulas reading them, go into a prompt only where the settings name them
+ * (the translated property, a `{Property}` placeholder): see autofillReads. So what an autofill
+ * reads of other autofills is always spelled out, and settings that would read themselves through
+ * other autofills are refused (`cycle`).
  */
 export type AiAutofillMode = "summary" | "translation" | "custom";
 export const AI_AUTOFILL_MODES: readonly AiAutofillMode[] = ["summary", "translation", "custom"];
@@ -98,15 +105,101 @@ export function promptPlaceholders(prompt: string): string[] {
   return [...new Set(names)];
 }
 
-export const AUTOFILL_ERROR_CODES = ["invalidMode", "unknownLanguage", "unknownSource", "promptRequired", "promptTooLong", "unknownPlaceholder"] as const;
+export const AUTOFILL_ERROR_CODES = [
+  "invalidMode",
+  "unknownLanguage",
+  "unknownSource",
+  "promptRequired",
+  "promptTooLong",
+  "unknownPlaceholder",
+  /** The value would read itself through other AI values (`name`: the one it reads). */
+  "cycle",
+] as const;
 export type AutofillErrorCode = (typeof AUTOFILL_ERROR_CODES)[number];
 export type AutofillCheck = { ok: true; config: AiAutofillConfig } | { ok: false; code: AutofillErrorCode; params?: Record<string, string> };
+
+/** What autofill needs to know of a database property; `type` and `options` matter for what reads what. */
+export type AutofillProperty = {
+  id: string;
+  name: string;
+  type?: string;
+  options?: { ai?: AiAutofillConfig | null; formula?: { expression?: string } | null };
+};
+
+/** The properties settings name as inputs: the translated property, the prompt's placeholders. */
+export function autofillNamedInputs(config: AiAutofillConfig, properties: AutofillProperty[], selfId?: string): string[] {
+  const others = properties.filter((p) => p.id !== selfId);
+  if (config.mode === "translation") return others.some((p) => p.id === config.source) ? [config.source!] : [];
+  if (config.mode !== "custom") return [];
+  const names = new Set(promptPlaceholders(config.prompt ?? "").map((name) => name.toLowerCase()));
+  return others.filter((p) => names.has(p.name.trim().toLowerCase())).map((p) => p.id);
+}
+
+const isAutofill = (p: AutofillProperty) => p.type === "text" && Boolean(p.options?.ai);
+const formulaRefs = (p: AutofillProperty) => (p.type === "formula" ? parseFormula(p.options?.formula?.expression ?? "").refs : []);
+
+/** AI values and the formulas reading them, as far as that goes: what prompts take in only when named. */
+export function aiDerivedProperties(properties: AutofillProperty[]): Set<string> {
+  const derived = new Set(properties.filter(isAutofill).map((p) => p.id));
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const p of properties) {
+      if (derived.has(p.id) || !formulaRefs(p).some((id) => derived.has(id))) continue;
+      derived.add(p.id);
+      grew = true;
+    }
+  }
+  return derived;
+}
+
+/**
+ * The AI values settings read: the AI properties they name, and those the formulas they name read
+ * (through other formulas too). What an AI property reads further is its own input, not theirs.
+ */
+export function autofillReads(config: AiAutofillConfig, properties: AutofillProperty[], selfId?: string): string[] {
+  const byId = new Map(properties.map((p) => [p.id, p]));
+  const reads = new Set<string>();
+  const seen = new Set<string>();
+  const visit = (id: string) => {
+    const p = byId.get(id);
+    if (!p || seen.has(id)) return;
+    seen.add(id);
+    if (isAutofill(p)) reads.add(id);
+    else formulaRefs(p).forEach(visit);
+  };
+  autofillNamedInputs(config, properties, selfId).forEach(visit);
+  reads.delete(selfId ?? "");
+  return [...reads];
+}
+
+/**
+ * The AI property through which settings for `selfId` would read their own value (directly or via
+ * other AI values), or null. Settings stored before this was checked are left as they are; the
+ * automatic updates never go round in circles anyway (ai-properties.ts `followUpTargets`).
+ */
+export function autofillCycle(config: AiAutofillConfig, properties: AutofillProperty[], selfId: string): AutofillProperty | null {
+  const byId = new Map(properties.map((p) => [p.id, p]));
+  const readsOf = (id: string) => {
+    const p = byId.get(id);
+    return p?.options?.ai && isAutofill(p) ? autofillReads(p.options.ai, properties, id) : [];
+  };
+  const seen = new Set<string>();
+  const reaches = (id: string): boolean => {
+    if (id === selfId) return true;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return readsOf(id).some(reaches);
+  };
+  // Self's settings are the new ones; what it reads is checked against what the others read now.
+  const first = autofillReads(config, properties, selfId).find((id) => reaches(id));
+  return first ? byId.get(first)! : null;
+}
 
 /**
  * Checks autofill settings against the database's properties (`selfId`: the property being set up,
  * which can't be its own input) and returns them cleaned: only the fields the mode uses.
  */
-export function checkAutofill(input: unknown, properties: { id: string; name: string }[], selfId?: string): AutofillCheck {
+export function checkAutofill(input: unknown, properties: AutofillProperty[], selfId?: string): AutofillCheck {
   const raw = (input && typeof input === "object" ? input : {}) as Record<string, unknown>;
   const mode = raw.mode as AiAutofillMode;
   if (!AI_AUTOFILL_MODES.includes(mode)) return { ok: false, code: "invalidMode" };
@@ -119,7 +212,7 @@ export function checkAutofill(input: unknown, properties: { id: string; name: st
     if (source !== AUTOFILL_TITLE && source !== AUTOFILL_BODY && !others.some((p) => p.id === source)) {
       return { ok: false, code: "unknownSource" };
     }
-    return { ok: true, config: { mode, language: raw.language, source, auto } };
+    return withoutCycle({ mode, language: raw.language, source, auto }, properties, selfId);
   }
   const prompt = typeof raw.prompt === "string" ? raw.prompt.trim() : "";
   if (!prompt) return { ok: false, code: "promptRequired" };
@@ -127,7 +220,12 @@ export function checkAutofill(input: unknown, properties: { id: string; name: st
   const known = new Set([AUTOFILL_TITLE, ...others.map((p) => p.name.trim().toLowerCase())]);
   const unknown = promptPlaceholders(prompt).find((name) => !known.has(name.toLowerCase()));
   if (unknown) return { ok: false, code: "unknownPlaceholder", params: { name: unknown } };
-  return { ok: true, config: { mode, prompt, includeBody: raw.includeBody === true, auto } };
+  return withoutCycle({ mode, prompt, includeBody: raw.includeBody === true, auto }, properties, selfId);
+}
+
+function withoutCycle(config: AiAutofillConfig, properties: AutofillProperty[], selfId?: string): AutofillCheck {
+  const through = selfId ? autofillCycle(config, properties, selfId) : null;
+  return through ? { ok: false, code: "cycle", params: { name: through.name } } : { ok: true, config };
 }
 
 /** Where a background value stands, per row and property; values without an entry are done. */

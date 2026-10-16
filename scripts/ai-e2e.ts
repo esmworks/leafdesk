@@ -3,8 +3,9 @@
  * for a model (no network): the writing assistant's server path (an action streamed as the person
  * asking, a history version before applying, the change made through the page's shared document),
  * AI autofill properties (settings checks, per-row and bulk refresh through the queue within its
- * concurrency limit, failures, automatic updates after a row changes, interrupted values, turning
- * it off), access checks, the workspace switch, and everything being off without a provider.
+ * concurrency limit, failures, automatic updates after a row changes and what they set off: the
+ * row's activity, automations, the AI values reading them; interrupted values, turning it off),
+ * access checks, the workspace switch, and everything being off without a provider.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-e2e.ts
@@ -20,7 +21,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiPropertyState, databaseProperty, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { aiPropertyState, automationRun, databaseAutomation, databaseProperty, page, rowActivity, user, workspace, workspaceMember } =
+  await import("@/db/schema");
 const { registerCollab, getCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage, listSnapshots } = await import("@/server/pages");
@@ -33,6 +35,7 @@ const { disableAi, installFauxAi } = await import("@/server/ai/testing");
 const { snapshotBeforeAiEdit, startEditorAction } = await import("@/server/ai-writing");
 const { AutofillError, autofillStates, databaseAi, isQueued, requestAutofill, setAutofill } = await import("@/server/ai-properties");
 const { describeProperty } = await import("@/server/mcp/query");
+const { asAutomation } = await import("@/server/automations/queue");
 
 const RUN = `ai-e2e-${Date.now().toString(36)}`;
 
@@ -83,6 +86,8 @@ const script = async ({ prompt }: { prompt: string }) => {
     if (prompt.includes("Improve the writing")) return "An improved sentence.";
     if (prompt.includes("Summarize this page")) return "A short summary of the page.";
     if (prompt.includes("Title: Broken")) throw new Error("model overloaded");
+    const hook = /Hook for (\S+)/.exec(prompt);
+    if (hook) return `HOOK:${hook[1]}`;
     const pitch = /Pitch (.+?) to (\S+)/.exec(prompt);
     if (pitch) return `"PITCH:${pitch[1]}:${pitch[2]}"`;
     return "Something else";
@@ -278,10 +283,67 @@ try {
   // Automatic updates follow a row's changes, once its inputs settle, and only when they changed.
   const auto = await setAutofill(ids.owner, pitchProp.id, { mode: "custom", prompt: "Pitch {title} to {Audience}", auto: true });
   check(auto?.auto === true, "values can follow their row");
+  // An automation waiting for the AI value to change, and an AI value reading it.
+  const [watching] = await db
+    .insert(databaseAutomation)
+    .values({
+      databaseId: books.id,
+      workspaceId,
+      name: "Pitch changed",
+      trigger: { type: "property_changed", propertyId: pitchProp.id },
+      secretSalt: "e2e",
+      runAs: ids.owner,
+    })
+    .returning();
+  const hookProp = await databases.addProperty(ids.owner, books.id, { name: "Hook", type: "text" });
+  await setAutofill(ids.owner, hookProp.id, { mode: "custom", prompt: "Hook for {Pitch}", auto: true });
+  const looping = await failure(() => setAutofill(ids.owner, pitchProp.id, { mode: "custom", prompt: "Pitch {title} to {Hook}", auto: true }));
+  check(looping instanceof AutofillError && looping.code === "cycle" && looping.params.name === "Hook", "AI values can't read each other in a circle", looping);
   await databases.updateRowProperties(ids.owner, rowIds[1], { [audience.id]: "poets" });
   const deadline = Date.now() + 12_000;
   while (Date.now() < deadline && (await valueOf(rowIds[1], pitchProp.id)) !== "PITCH:Emma:poets") await sleep(200);
   check((await valueOf(rowIds[1], pitchProp.id)) === "PITCH:Emma:poets", "a row's value updates a few seconds after the row changes");
+  // Recorded right after the value is saved; merged into the entry of the earlier value (same person).
+  const pitchActivity = () =>
+    db.select().from(rowActivity).where(and(eq(rowActivity.rowId, rowIds[1]), eq(rowActivity.propertyId, pitchProp.id)));
+  let activity = await pitchActivity();
+  for (const until = Date.now() + 3_000; Date.now() < until && !activity.some((a) => a.newValue === "PITCH:Emma:poets"); ) {
+    await sleep(100);
+    activity = await pitchActivity();
+  }
+  check(
+    activity.some((a) => a.newValue === "PITCH:Emma:poets" && a.actorUserId === ids.owner && a.actorKind === "user"),
+    "…recorded in the row's activity, as the person whose change set it off",
+    activity,
+  );
+  const runs = await db
+    .select()
+    .from(automationRun)
+    .where(and(eq(automationRun.automationId, watching.id), eq(automationRun.rowId, rowIds[1])));
+  check(runs.length === 1 && runs[0].changed.includes(pitchProp.id), "…starting the automation waiting for it to change", runs);
+  const hookDeadline = Date.now() + 12_000;
+  while (Date.now() < hookDeadline && (await valueOf(rowIds[1], hookProp.id)) !== "HOOK:PITCH:Emma:poets") await sleep(200);
+  check((await valueOf(rowIds[1], hookProp.id)) === "HOOK:PITCH:Emma:poets", "…and updating the AI value reading it", await valueOf(rowIds[1], hookProp.id));
+  const pitchPrompts = () => prompts.filter((p) => p.includes("Pitch Emma to")).length;
+  const pitchesBefore = pitchPrompts();
+  await sleep(5_500);
+  check(pitchPrompts() === pitchesBefore, "…whose new value doesn't work out the values it doesn't read again", { pitchesBefore, now: pitchPrompts() });
+  check(!prompts.filter((p) => p.includes("Pitch Emma to")).some((p) => p.includes("HOOK:")), "…nor go into their prompts");
+
+  // An automation's change sets off AI values that start no automations: the two can't loop.
+  await asAutomation(() => databases.updateRowProperties(ids.owner, rowIds[3], { [audience.id]: "kids" }));
+  const byAutomation = Date.now() + 12_000;
+  while (Date.now() < byAutomation && (await valueOf(rowIds[3], pitchProp.id)) !== "PITCH:Beloved:kids") await sleep(200);
+  check((await valueOf(rowIds[3], pitchProp.id)) === "PITCH:Beloved:kids", "an automation's change updates the AI values following the row");
+  // Hook, reading Pitch, follows in the same cascade (as the automation too).
+  while (Date.now() < byAutomation + 6_000 && (await valueOf(rowIds[3], hookProp.id)) !== "HOOK:PITCH:Beloved:kids") await sleep(200);
+  check((await valueOf(rowIds[3], hookProp.id)) === "HOOK:PITCH:Beloved:kids", "…and the values reading them");
+  await sleep(500);
+  const loopRuns = await db
+    .select()
+    .from(automationRun)
+    .where(and(eq(automationRun.automationId, watching.id), eq(automationRun.rowId, rowIds[3])));
+  check(loopRuns.length === 0, "…which start no automations, as the automation's own changes don't", loopRuns);
   const callsBefore = calls;
   await databases.updateRowProperties(ids.owner, rowIds[1], { [audience.id]: "poets" });
   await sleep(5_500);

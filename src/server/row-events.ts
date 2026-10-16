@@ -10,6 +10,11 @@ export type RowChange = {
   databaseId: string;
   /** Who made the change; null when unknown (a save without a user). */
   userId: string | null;
+  /**
+   * Set when an AI autofill value made the change: the property it wrote, and every AI property
+   * written in the cascade it belongs to, this one included (see ai-properties.ts).
+   */
+  autofill?: { propertyId: string; chain: string[] };
 };
 
 type Listener = (change: RowChange) => void;

@@ -27,6 +27,9 @@ export const runningAutomation = () => state.als.getStore() === true;
 /** Runs `fn` as an automation's action: the row writes it makes start no automations. */
 export const asAutomation = <T>(fn: () => Promise<T>) => state.als.run(true, fn);
 
+/** Runs `fn` as no automation's action, whatever started the code calling it (timers carry it on). */
+export const outsideAutomation = <T>(fn: () => Promise<T>) => state.als.exit(fn);
+
 /** The worker asks to be woken when runs are queued, so they don't wait for its next sweep. */
 export function onAutomationsQueued(kick: () => void) {
   state.kick = kick;
