@@ -21,7 +21,7 @@ import { pageVisibleTo } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { blocksToMarkdown, serverEditor, type PageBlock } from "@/server/blocknote";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
-import { authorizedPairs, workspaceFiles, workspaceUsage } from "@/server/files";
+import { authorizedPairs, removeStored, workspaceFiles, workspaceUsage } from "@/server/files";
 import { publishedPageRefs, syncPageReferences } from "@/server/mentions";
 import { makePagePrivate } from "@/server/permissions";
 import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
@@ -388,9 +388,8 @@ export async function duplicatePublishedPage(
       if (mentionedPageIds(body.blocks).length) await syncPageReferences(id, target, body.blocks, userId);
     }
   } catch (error) {
-    for (const { storageKey } of copiedFiles) {
-      await storage.delete(storageKey).catch(() => {});
-    }
+    // Queued, so copies storage refuses to delete now are deleted later.
+    await removeStored(copiedFiles.map((f) => f.storageKey));
     throw error;
   }
 

@@ -32,7 +32,7 @@ import { env } from "@/lib/env";
 import { sharedLimiter, takeAll } from "@/lib/rate-limit";
 import { verifyTotp } from "@/lib/totp";
 import { getCollab } from "@/server/collab/bridge";
-import { removeStored } from "@/server/files";
+import { deleteQueued, queueStorageDeletion, removeStored } from "@/server/files";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, sendMail } from "@/server/mail";
@@ -611,10 +611,12 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
     const [gone] = await tx.delete(user).where(eq(user.id, userId)).returning({ image: user.image });
     const own = parseAvatarUrl(gone?.image);
     if (own && own.userId === userId) keys.push(avatarStorageKey(userId, own.name));
+    await queueStorageDeletion(tx, keys);
     return { plan, keys };
   });
 
-  await removeStored(keys);
+  // Queued with the account, so the file cleanup deletes later what fails here.
+  await deleteQueued(keys).catch((error) => console.error("[account] could not remove the files", error));
   try {
     await getCollab().disconnectSessions(userId, []);
   } catch (error) {

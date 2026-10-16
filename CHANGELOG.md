@@ -106,6 +106,12 @@
   It now closes the editors' connections, waits until every open page is saved (at most eight
   seconds, inside Docker's ten-second grace period) and logs it when it had to stop waiting. A
   second Ctrl+C exits at once.
+- **Deleted files no longer stay behind in storage.** Deleting a workspace, an account or orphaned
+  uploads removed the files' records first and their bytes afterwards, at best once: when storage
+  refused or the server stopped midway, the bytes stayed with nothing pointing at them. The objects
+  to delete are now queued in the same transaction as the records (migration 0073), and what
+  storage refuses is tried again by the hourly file cleanup, waiting longer after each failure (up
+  to a day). Covered in `scripts/storage-deletion-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 
