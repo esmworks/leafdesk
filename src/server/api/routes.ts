@@ -516,7 +516,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Databases",
     summary: "Query rows",
     description:
-      'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, equals, not_equals, is_empty, is_not_empty, gt, lt, is_within. A chart view also returns what it plots.',
+      'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of (with a list of values), is_empty, is_not_empty, gt, gte, lt, lte, is_within. A chart view also returns what it plots.',
     scope: "pages:read",
     body: ops.inputs.queryDatabase.omit({ database_id: true }).extend({ cursor: cursorInput }),
     response: "QueryResult",

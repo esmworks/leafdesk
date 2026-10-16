@@ -115,8 +115,11 @@ versions, upgrades and running behind a domain.
     "last edited by".
   - Views: table, board, calendar, gallery, list, timeline and chart, each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
-    combine with "and"/"or" in groups and take relative dates such as "this week". A "Me" filter
-    shows each viewer their own rows.
+    combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
+    filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
+    before, after, on or before and on or after a day, and selects, statuses, tags, relations and
+    people on any of several values or none of them in one rule. A "Me" filter (also inside such a
+    list) shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
@@ -1147,8 +1150,9 @@ notified). Runs on rows you can't open are left out.
 
 **Not (yet) covered.** A copy of a database, or a template made from one, starts without
 automations. The REST API has no automation endpoints; use the app or MCP. Changes that aren't
-row writes don't start automations: a relation's other side updated by a two-way relation, values
-AI autofill writes, and a property or option being deleted.
+row writes don't start automations: a relation's other side updated by a two-way relation, and a
+property or option being deleted. Values AI autofill writes do, unless an automation's change set
+them off: those count as the automation's own changes.
 
 ### Webhooks
 
@@ -1293,8 +1297,12 @@ the REST API and MCP see them like any other text, and people can still edit the
 out in the background, when the property is added, when you hover a cell and click *Update with
 AI* (or on a row's page), with *Update all rows in this view* in the property's menu, and, if you
 tick *Update when the row changes*, a few seconds after a row's values or page change (only when
-what the value depends on changed). Cells show when a value is being worked out or failed, and
-why. Turning AI autofill off leaves the values as plain text.
+what the value depends on changed). A new value counts as a change of the row: it shows in the
+row's activity, semantic search finds it, and automations waiting for the property to change run.
+Other AI properties (and formulas over them) go into a prompt only when you name them, as a
+`{Property name}` or the property to translate; the AI properties that do then update after it.
+A property can't read itself through other AI properties. Cells show when a value is being worked
+out or failed, and why. Turning AI autofill off leaves the values as plain text.
 
 **AI chat.** *Ask AI* in the sidebar opens the chat across the page, where the sidebar lists
 your conversations (today, yesterday, the last 7 and 30 days, older) in place of the pages until
@@ -1477,6 +1485,14 @@ indexes pages the index missed (at most every ten minutes); `pnpm search:index [
 indexes everything at once, e.g. after setting `AI_EMBEDDINGS_MODEL` or changing the model. Jobs
 respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out of results at once
 (their chunks stay for a restore); deleted pages take their chunks with them.
+
+**Attached documents.** The text of PDFs and Word documents (.docx) in a page's file blocks is
+indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
+chat can answer from a document and cite it. A document is read once and its text kept in
+`file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
+page, files over 25 MB are skipped, and a scan without a text layer adds nothing. A page indexes
+only the files its readers may open through it. Their text is sent to the embeddings endpoint
+like the page's own.
 
 **Access** is never stored in the index: every search filters the chunks to the pages the person
 can open right now (`page_access_level`) before ranking them, so guests only find what was shared
@@ -1950,8 +1966,11 @@ curl http://localhost:3000/api/v1/workspaces -H "Authorization: Bearer $LEAFDESK
 
 curl -X POST http://localhost:3000/api/v1/databases/<database_id>/query \
   -H "Authorization: Bearer $LEAFDESK_TOKEN" -H "Content-Type: application/json" \
-  -d '{"filters": [{"property": "Status", "op": "equals", "value": "Done"}], "limit": 20}'
+  -d '{"filters": [{"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}], "limit": 20}'
 ```
+
+Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` and `is_none_of`
+(with a list of values), `is_empty`, `is_not_empty`, `gt`, `gte`, `lt`, `lte` and `is_within`.
 
 - **Account and workspaces:** `GET /me`, `GET /workspaces`, `GET /workspaces/{id}/teamspaces`, `GET /workspaces/{id}/groups`,
   `GET /workspaces/{id}/pages` (`teamspace_id` narrows it to one teamspace, or `private`).

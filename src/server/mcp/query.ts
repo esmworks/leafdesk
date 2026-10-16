@@ -24,8 +24,10 @@ import {
   OTHER_KEY,
 } from "@/lib/chart";
 import {
+  filterValues,
   isDayCount,
   isFilterGroup,
+  isListOp,
   isRelativeDateRange,
   MAX_FILTER_DEPTH,
   MAX_FILTER_RULES,
@@ -120,7 +122,21 @@ const SPECIAL_KEYS: Record<string, string> = {
   updated_at: UPDATED_KEY,
 };
 
-const VALUE_OPS = new Set<FilterOp>(["contains", "equals", "not_equals", "gt", "lt", "is_within"]);
+const VALUE_OPS = new Set<FilterOp>([
+  "contains",
+  "does_not_contain",
+  "equals",
+  "not_equals",
+  "is_any_of",
+  "is_none_of",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "is_within",
+]);
+const COMPARISONS = new Set<FilterOp>(["gt", "gte", "lt", "lte"]);
+const DAY_OPS = new Set<FilterOp>(["equals", "gt", "gte", "lt", "lte"]);
 
 /** Whether a property (or built-in key) holds dates or timestamps that relative date filters apply to. */
 function holdsDates(key: string, prop: PropertyDef | undefined) {
@@ -178,6 +194,10 @@ export function toFilterRule(props: PropertyDef[], input: FilterInput, lookups: 
     throw new PropertyValueError(`Filter "${input.op}" on "${input.property}" needs a value`);
   }
   if (input.op === "is_within") return relativeDateRule(key, prop, input);
+  if (isListOp(input.op)) return listRule(key, prop, input, lookups);
+  if (Array.isArray(input.value)) {
+    throw new PropertyValueError(`Filter "${input.op}" on "${input.property}" takes a single value; is_any_of and is_none_of take a list`);
+  }
   let value: unknown = input.value;
   // A formula filters like a property of its result type.
   const type = prop && valueType(prop);
@@ -186,8 +206,10 @@ export function toFilterRule(props: PropertyDef[], input: FilterInput, lookups: 
   } else if (prop?.type === "files") {
     throw new PropertyValueError(`Files "${prop.name}" supports is_empty and is_not_empty`);
   } else if (prop && filtersByDay(prop)) {
-    if (input.op !== "equals" && input.op !== "gt" && input.op !== "lt") {
-      throw new PropertyValueError(`"${prop.name}" supports equals (on the day), gt (after), lt (before), is_within, is_empty and is_not_empty`);
+    if (!DAY_OPS.has(input.op)) {
+      throw new PropertyValueError(
+        `"${prop.name}" supports equals (on the day), gt (after), gte (on or after), lt (before), lte (on or before), is_within, is_empty and is_not_empty`,
+      );
     }
     const day = String(value);
     if (!/^\d{4}-\d{2}-\d{2}/.test(day) || Number.isNaN(Date.parse(day.slice(0, 10)))) {
@@ -197,31 +219,51 @@ export function toFilterRule(props: PropertyDef[], input: FilterInput, lookups: 
   } else if (prop?.type === "relation") {
     if (input.op !== "contains" && input.op !== "not_equals") {
       throw new PropertyValueError(
-        `Relation "${prop.name}" supports contains, not_equals (does not contain), is_empty and is_not_empty`,
+        `Relation "${prop.name}" supports contains, not_equals (does not contain), is_any_of, is_none_of, is_empty and is_not_empty`,
       );
     }
     value = relatedRowId(prop, lookups.relations, value);
   } else if (prop && holdsPeople(prop.type)) {
     if (input.op !== "contains" && input.op !== "not_equals") {
       throw new PropertyValueError(
-        `${PEOPLE_LABELS[prop.type]} "${prop.name}" supports contains, not_equals (does not contain), is_empty and is_not_empty`,
+        `${PEOPLE_LABELS[prop.type]} "${prop.name}" supports contains, not_equals (does not contain), is_any_of, is_none_of, is_empty and is_not_empty`,
       );
     }
     value = personId(prop, lookups.people, value);
   } else if (prop && holdsOptions(prop.type)) {
-    if (input.op === "gt" || input.op === "lt") {
+    if (COMPARISONS.has(input.op)) {
       throw new PropertyValueError(`"${input.op}" is not supported on select property "${prop.name}"`);
     }
     value = optionId(prop, value);
   } else if (type === "checkbox") {
     if (value === "true") value = true;
     else if (value === "false") value = false;
-  } else if (prop && type === "number" && (input.op === "gt" || input.op === "lt" || input.op === "equals" || input.op === "not_equals")) {
+  } else if (prop && type === "number" && (COMPARISONS.has(input.op) || input.op === "equals" || input.op === "not_equals")) {
     const n = typeof value === "number" ? value : Number(value);
     if (!Number.isFinite(n)) throw new PropertyValueError(`"${prop.name}" filter value must be a number`);
     value = n;
   }
   return { propertyId: key, op: input.op, value };
+}
+
+/**
+ * An is_any_of / is_none_of rule: a list of options (select, status, multi_select), related rows or
+ * people ("me" included), each named as a single rule would name it. A single value counts as a
+ * list of one.
+ */
+function listRule(key: string, prop: PropertyDef | undefined, input: FilterInput, lookups: Lookups): FilterRule {
+  const values = filterValues(input.value);
+  if (!values.length) throw new PropertyValueError(`Filter "${input.op}" on "${input.property}" needs at least one value`);
+  let toId: (value: unknown) => string;
+  if (prop?.type === "relation") toId = (v) => relatedRowId(prop, lookups.relations, v);
+  else if (prop && holdsPeople(prop.type)) toId = (v) => personId(prop, lookups.people, v);
+  else if (prop && holdsOptions(prop.type)) toId = (v) => optionId(prop, v);
+  else {
+    throw new PropertyValueError(
+      `${input.op} applies to select, status, multi_select, relation, person, created_by and last_edited_by properties; "${input.property}" is ${prop?.type ?? "text"}`,
+    );
+  }
+  return { propertyId: key, op: input.op, value: [...new Set(values.map(toId))] };
 }
 
 /** An is_within rule: a relative range on a date, plus a day count for past / next N days. */
@@ -333,7 +375,12 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
   const describeEntry = (f: FilterEntry): object => {
     if (isFilterGroup(f)) return { type: "group", combinator: f.combinator, rules: f.rules.map(describeEntry) };
     const prop = byId.get(f.propertyId);
-    const value = prop && f.value !== undefined && f.op !== "is_within" ? filterValue(prop, f.value) : f.value;
+    const value =
+      !prop || f.value === undefined || f.op === "is_within"
+        ? f.value
+        : Array.isArray(f.value)
+          ? f.value.map((v) => filterValue(prop, v))
+          : filterValue(prop, f.value);
     return {
       property: keyName(props, f.propertyId),
       op: f.op,

@@ -93,9 +93,11 @@ const filterRuleInput = z.object({
   property: z.string().min(1).describe("Property name or id, or title / created_at / updated_at."),
   op: z.enum(FILTER_OPS),
   value: z
-    .union([z.string(), z.number(), z.boolean()])
+    .union([z.string(), z.number(), z.boolean(), z.array(z.string()).min(1)])
     .optional()
-    .describe(`Comparison value; omit for is_empty / is_not_empty. For is_within: ${RELATIVE_DATE_RANGES.join(", ")}.`),
+    .describe(
+      `Comparison value; omit for is_empty / is_not_empty. For is_within: ${RELATIVE_DATE_RANGES.join(", ")}. For is_any_of / is_none_of: a list of option names, people or related rows.`,
+    ),
   days: z
     .number()
     .int()

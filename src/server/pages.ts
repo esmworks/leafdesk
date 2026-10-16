@@ -539,8 +539,9 @@ export async function restorePage(userId: string, pageId: string) {
       details: { kind: p.kind },
     });
   }
-  // Back in search; the index catches up if it was left behind meanwhile.
-  pageChanged({ pageId });
+  // Back in search; the index catches up if it was left behind meanwhile (with the pages under it
+  // when it was lifted to the top: their chunks name the pages above).
+  pageChanged({ pageId, subtree: parentId !== p.parentId });
   getCollab().broadcast(`ws:${p.workspaceId}`, "tree");
   if (parentId) getCollab().broadcast(`db:${parentId}`, "rows");
 }
@@ -718,6 +719,8 @@ export async function movePage(
   for (const id of [p.parentId, newParentId]) if (id) getCollab().broadcast(`db:${id}`, "rows");
   // Under another parent or in another space the page inherits other entries, which may give less.
   if (p.parentId !== newParentId || changesSpace) await getCollab().disconnectLostAccess(p.workspaceId);
+  // Semantic search names the pages above in every chunk: the page and those under it are indexed again.
+  if (p.parentId !== newParentId) pageChanged({ pageId, subtree: true });
 }
 
 export type SearchHit = {

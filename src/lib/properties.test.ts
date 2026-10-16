@@ -288,7 +288,7 @@ describe("relation values", () => {
   });
 
   it("filters by linked row and is not sortable", () => {
-    expect(filterOperators("relation").map((o) => o.op)).toEqual(["contains", "not_equals", "is_empty", "is_not_empty"]);
+    expect(filterOperators("relation").map((o) => o.op)).toEqual(["contains", "not_equals", "is_any_of", "is_none_of", "is_empty", "is_not_empty"]);
     expect(isSortable("relation")).toBe(false);
     expect(isSortable("date")).toBe(true);
     const rows = [row("a", "A", { p_relation: ["r1", "r2"] }), row("b", "B", { p_relation: ["r3"] }), row("c", "C")];
@@ -452,7 +452,7 @@ describe("created by properties", () => {
     expect(
       applyView(rows, { sorts: [{ propertyId: "p_created_by", direction: "asc" }] }, [creator], { people }).map((r) => r.id),
     ).toEqual(["b", "a", "c"]);
-    expect(filterOperators("created_by").map((o) => o.op)).toEqual(["contains", "not_equals", "is_empty", "is_not_empty"]);
+    expect(filterOperators("created_by").map((o) => o.op)).toEqual(["contains", "not_equals", "is_any_of", "is_none_of", "is_empty", "is_not_empty"]);
     expect(boardGroupProperty([prop("text"), creator])).toBe(creator);
     // New rows in a "created by me" view need nothing: they are the creator's anyway.
     expect(defaultsFromFilters(mine, [creator], { viewerId: "u1" })).toEqual({});
@@ -492,7 +492,7 @@ describe("person properties", () => {
   });
 
   it("offers contains / does not contain / empty filters and sorting", () => {
-    expect(filterOperators("person").map((o) => o.op)).toEqual(["contains", "not_equals", "is_empty", "is_not_empty"]);
+    expect(filterOperators("person").map((o) => o.op)).toEqual(["contains", "not_equals", "is_any_of", "is_none_of", "is_empty", "is_not_empty"]);
     expect(isSortable("person")).toBe(true);
   });
 

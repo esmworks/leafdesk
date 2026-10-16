@@ -14,7 +14,9 @@ import type {
 import {
   compileFilters,
   dayString,
+  filterValues,
   isDayCount,
+  isListOp,
   isRelativeDateRange,
   pruneFilters,
   rangeNeedsDays,
@@ -518,6 +520,7 @@ function filterDays(row: RowLike, key: string, prop: PropertyDef | undefined): D
 /**
  * Date rules match a value by the days it covers, so a range matches when any of its days does:
  * "is" the day falls within it, "is before" it starts before the day, "is after" it ends after
+ * the day, "is on or before" it starts on or before the day, "is on or after" it ends on or after
  * the day, "is within" a period it overlaps the period. A single day is a range of one day.
  */
 function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date): boolean {
@@ -535,14 +538,47 @@ function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date): boolean
       return !(days.start <= day && day <= days.end);
     case "lt":
       return days.start < day;
+    case "lte":
+      return days.start <= day;
     case "gt":
       return days.end > day;
+    case "gte":
+      return days.end >= day;
     default:
       return false;
   }
 }
 
-const DATE_OPS = new Set<FilterOp>(["is_within", "equals", "not_equals", "lt", "gt"]);
+const DATE_OPS = new Set<FilterOp>(["is_within", "equals", "not_equals", "lt", "lte", "gt", "gte"]);
+
+/** "Contains" on text: case-insensitive; lists (multi-select names, rollup values) match an item exactly. */
+function containsText(v: unknown, value: unknown) {
+  const needle = String(value ?? "").toLowerCase();
+  if (Array.isArray(v)) return v.some((x) => String(x).toLowerCase() === needle);
+  return String(v ?? "").toLowerCase().includes(needle);
+}
+
+/**
+ * Whether a value is, or for lists (multi-select, people, relations) holds, one of `values`. Single
+ * values compare as text too, as "is" does, so a number stored as text still matches.
+ */
+function isAnyOf(v: unknown, values: unknown[]) {
+  if (Array.isArray(v)) return v.some((x) => values.includes(x));
+  if (isEmpty(v)) return false;
+  return values.some((x) => x === v || String(x ?? "") === String(v));
+}
+
+/** Empty values never satisfy a comparison (otherwise "" < "5" would match every blank row). */
+function compareTo(v: unknown, value: unknown): number | null {
+  if (isEmpty(v)) return null;
+  if (typeof v === "number") {
+    const n = Number(value);
+    return Number.isNaN(n) ? null : v - n;
+  }
+  const a = String(v);
+  const b = String(value ?? "");
+  return a < b ? -1 : a > b ? 1 : 0;
+}
 
 function matches(row: RowLike, rule: FilterRule, prop: PropertyDef | undefined, now: Date): boolean {
   if (DATE_OPS.has(rule.op)) {
@@ -560,24 +596,29 @@ function matches(row: RowLike, rule: FilterRule, prop: PropertyDef | undefined, 
       return isEmpty(v);
     case "is_not_empty":
       return !isEmpty(v);
-    case "contains": {
-      const needle = String(rule.value ?? "").toLowerCase();
-      if (Array.isArray(v)) return v.some((x) => String(x).toLowerCase() === needle);
-      return String(v ?? "").toLowerCase().includes(needle);
-    }
+    case "contains":
+      return containsText(v, rule.value);
+    // Empty values don't contain the text, so they match, as they do "is not".
+    case "does_not_contain":
+      return !containsText(v, rule.value);
+    case "is_any_of":
+      return isAnyOf(v, filterValues(rule.value));
+    case "is_none_of":
+      return !isAnyOf(v, filterValues(rule.value));
     case "equals":
       if (Array.isArray(v)) return v.includes(rule.value);
       return v === rule.value || String(v ?? "") === String(rule.value ?? "");
     case "not_equals":
       if (Array.isArray(v)) return !v.includes(rule.value);
       return String(v ?? "") !== String(rule.value ?? "");
-    // Empty values never satisfy a comparison (otherwise "" < "5" would match every blank row).
     case "gt":
-      if (isEmpty(v)) return false;
-      return typeof v === "number" ? v > Number(rule.value) : String(v) > String(rule.value ?? "");
+    case "gte":
     case "lt":
-      if (isEmpty(v)) return false;
-      return typeof v === "number" ? v < Number(rule.value) : String(v) < String(rule.value ?? "");
+    case "lte": {
+      const c = compareTo(v, rule.value);
+      if (c === null) return false;
+      return rule.op === "gt" ? c > 0 : rule.op === "gte" ? c >= 0 : rule.op === "lt" ? c < 0 : c <= 0;
+    }
   }
 }
 
@@ -598,6 +639,7 @@ export function isIncompleteFilter(rule: FilterRule) {
   if (rule.op === "is_within") {
     return !isRelativeDateRange(rule.value) || (rangeNeedsDays(rule.value) && !isDayCount(rule.days));
   }
+  if (isListOp(rule.op)) return filterValues(rule.value).length === 0;
   return filterNeedsValue(rule.op) && (rule.value === undefined || rule.value === null || rule.value === "");
 }
 
@@ -609,12 +651,14 @@ export function isIncompleteFilter(rule: FilterRule) {
 export type ViewViewer = { viewerId?: string | null; people?: { id: string; name: string }[]; now?: Date };
 
 /**
- * A person rule's value with "me" swapped for the viewer's id. Without a viewer (a published
- * page) "me" is nobody, so "contains me" matches no row.
+ * A person rule's value with "me" swapped for the viewer's id, in a list rule too. Without a viewer
+ * (a published page) "me" is nobody, so "contains me" matches no row and "is none of me" every row.
  */
 function resolveViewer(rule: FilterRule, prop: PropertyDef | undefined, viewerId: string | null | undefined): FilterRule {
-  if (!prop || !holdsPeople(prop.type) || rule.value !== PERSON_ME) return rule;
-  return { ...rule, value: viewerId ?? "\u0000nobody" };
+  if (!prop || !holdsPeople(prop.type)) return rule;
+  const me = viewerId ?? "\u0000nobody";
+  if (isListOp(rule.op)) return { ...rule, value: filterValues(rule.value).map((v) => (v === PERSON_ME ? me : v)) };
+  return rule.value === PERSON_ME ? { ...rule, value: me } : rule;
 }
 
 export function applyView<T extends RowLike>(
@@ -701,9 +745,17 @@ export type FilterOpLabel =
   | "equals"
   | "notEquals"
   | "greaterThan"
+  | "greaterOrEqual"
   | "lessThan"
+  | "lessOrEqual"
   | "isBefore"
   | "isAfter"
+  | "isOnOrBefore"
+  | "isOnOrAfter"
+  | "isAnyOf"
+  | "isNoneOf"
+  | "containsAnyOf"
+  | "containsNoneOf"
   | "isChecked"
   | "isUnchecked"
   | "isWithin";
@@ -725,6 +777,7 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
     case "phone":
       return [
         { op: "contains", label: "contains" },
+        { op: "does_not_contain", label: "doesNotContain" },
         { op: "equals", label: "is" },
         { op: "not_equals", label: "isNot" },
         ...empty,
@@ -734,18 +787,34 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
         { op: "equals", label: "equals" },
         { op: "not_equals", label: "notEquals" },
         { op: "gt", label: "greaterThan" },
+        { op: "gte", label: "greaterOrEqual" },
         { op: "lt", label: "lessThan" },
+        { op: "lte", label: "lessOrEqual" },
         ...empty,
       ];
     case "select":
     case "status":
-      return [{ op: "equals", label: "is" }, { op: "not_equals", label: "isNot" }, ...empty];
+      return [
+        { op: "equals", label: "is" },
+        { op: "not_equals", label: "isNot" },
+        { op: "is_any_of", label: "isAnyOf" },
+        { op: "is_none_of", label: "isNoneOf" },
+        ...empty,
+      ];
+    // These hold lists, so "any of" matches a row holding at least one of the values and "none of"
+    // one holding none of them.
     case "multi_select":
     case "relation":
     case "person":
     case "created_by":
     case "last_edited_by":
-      return [{ op: "contains", label: "contains" }, { op: "not_equals", label: "doesNotContain" }, ...empty];
+      return [
+        { op: "contains", label: "contains" },
+        { op: "not_equals", label: "doesNotContain" },
+        { op: "is_any_of", label: "containsAnyOf" },
+        { op: "is_none_of", label: "containsNoneOf" },
+        ...empty,
+      ];
     case "checklist":
     case "files":
       return empty;
@@ -756,6 +825,8 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
         { op: "equals", label: "is" },
         { op: "lt", label: "isBefore" },
         { op: "gt", label: "isAfter" },
+        { op: "lte", label: "isOnOrBefore" },
+        { op: "gte", label: "isOnOrAfter" },
         { op: "is_within", label: "isWithin" },
         ...empty,
       ];
@@ -775,8 +846,9 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
 /**
  * Values a new row needs so the view's filters keep showing it: "Status is Done" makes the
  * row Done, "Tags contains X" tags it X, "Done is checked" ticks it, "Due is
- * within this week" dates it today (every relative range includes today). Rules that can't be
- * satisfied by one value (not equals, before/after, empty…) are left alone.
+ * within this week" dates it today (every relative range includes today), "Status is any of
+ * Done" with a single value as "is" does. Rules that can't be satisfied by one value (not equals,
+ * before/after, any of several, empty…) are left alone.
  *
  * Only rules every visible row must satisfy count, i.e. those joined by "and". Rules inside an
  * "or" are skipped rather than taking its first branch: an "or" names alternatives, and writing
@@ -791,7 +863,7 @@ export function defaultsFromFilters(
 ) {
   const out: Record<string, unknown> = {};
   const active = pruneFilters(filters, (rule) => !isIncompleteFilter(rule));
-  for (const rule of requiredFilterRules(active, filterCombinator)) {
+  for (let rule of requiredFilterRules(active, filterCombinator)) {
     const prop = props.find((p) => p.id === rule.propertyId);
     if (!prop || prop.id in out) continue;
     if (prop.type === "checkbox") {
@@ -799,6 +871,12 @@ export function defaultsFromFilters(
       continue;
     }
     if (isIncompleteFilter(rule)) continue;
+    // "Any of" one value asks for that value: as "is" on a select or status, as "contains" on lists.
+    if (isListOp(rule.op)) {
+      const values = filterValues(rule.value);
+      if (rule.op === "is_none_of" || values.length !== 1) continue;
+      rule = { ...rule, op: prop.type === "select" || prop.type === "status" ? "equals" : "contains", value: values[0] };
+    }
     if (rule.op === "equals" && ["select", "status", "text", "number", "date"].includes(prop.type)) out[prop.id] = rule.value;
     else if (rule.op === "is_within" && prop.type === "date") out[prop.id] = dayString(now);
     else if (rule.op === "contains" && prop.type === "multi_select") out[prop.id] = [rule.value];

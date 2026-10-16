@@ -333,7 +333,8 @@ export function remapViewConfig(
   if (config.filters) {
     out.filters = mapFilterRules(config.filters, (f) => {
       const rowIds = rowIdsFor(f.propertyId);
-      const value = rowIds && typeof f.value === "string" ? (rowIds.get(f.value) ?? f.value) : structuredClone(f.value);
+      const copied = (v: unknown) => (rowIds && typeof v === "string" ? (rowIds.get(v) ?? v) : structuredClone(v));
+      const value = Array.isArray(f.value) ? f.value.map(copied) : copied(f.value);
       return { ...f, propertyId: map(f.propertyId), ...(f.value !== undefined ? { value } : {}) };
     });
   }

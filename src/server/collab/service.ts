@@ -269,8 +269,9 @@ export function createCollab() {
     // Every save, not only edits: a reminder changes the document but not its Markdown.
     await syncPageReferences(pageId, row.workspaceId, blocks, userId ?? null, context?.locale ?? null);
     if (!edited) return;
-    // Semantic search indexes the page again (debounced, in the background).
-    pageChanged({ pageId });
+    // Semantic search indexes the page again (debounced, in the background), and the pages under
+    // it after a new title, which their chunks name.
+    pageChanged({ pageId, subtree: title !== row.title });
     // A database row's title or content changed: AI autofill values that follow it may update.
     if (row.parentId) rowChanged({ rowId: pageId, databaseId: row.parentId, userId: userId ?? null });
     if (row.parentId && title !== row.title) await recordTitleChange(pageId, row.title, title, userId ?? null);
@@ -443,7 +444,8 @@ export function createCollab() {
       const touch = () => {
         touched = true;
       };
-      if (check.expectedVersion !== undefined) fragment.observeDeep(touch);
+      const watching = check.expectedVersion !== undefined;
+      if (watching) fragment.observeDeep(touch);
       try {
         if (check.expectedVersion !== undefined) {
           const current = await version();
@@ -472,7 +474,7 @@ export function createCollab() {
         if (aiWrite && next) afterVersion = after;
         return { next, write: versioned ? ({ conflict: false, version: after! } satisfies BodyWrite) : null };
       } finally {
-        fragment.unobserveDeep(touch);
+        if (watching) fragment.unobserveDeep(touch);
       }
     });
     if (snapshotId && afterVersion) {

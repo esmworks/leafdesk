@@ -140,10 +140,15 @@ export function PageLink({ page, onSource }: { page: NonNullable<ChatPageView>; 
 
 const OP_LABELS = {
   contains: "contains",
+  does_not_contain: "doesNotContain",
   equals: "equals",
   not_equals: "notEquals",
+  is_any_of: "isAnyOf",
+  is_none_of: "isNoneOf",
   gt: "greaterThan",
+  gte: "greaterOrEqual",
   lt: "lessThan",
+  lte: "lessOrEqual",
   is_empty: "isEmpty",
   is_not_empty: "isNotEmpty",
   is_within: "isWithin",

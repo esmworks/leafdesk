@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { checkAutofill, promptPlaceholders } from "@/lib/ai";
+import { aiDerivedProperties, autofillReads, checkAutofill, promptPlaceholders, type AiAutofillConfig } from "@/lib/ai";
 import { describeAiConfig, readAiConfig } from "./config";
 import { AiError, aiInfo, complete, embed, embeddingsEnabled, isEnabled, stream } from "./index";
 import { autofillNeedsBody, autofillPrompt, cleanValue, editorPrompt, fillPlaceholders, formatValue, truncateText } from "./prompts";
@@ -194,6 +194,32 @@ describe("autofill settings", () => {
       code: "unknownPlaceholder",
       params: { name: "Pitch" },
     });
+  });
+
+  // Two AI properties and a formula over one of them.
+  const ai = (id: string, name: string, config: AiAutofillConfig) => ({ id, name, type: "text", options: { ai: config } });
+  const graph = [
+    { id: "notes", name: "Notes", type: "text", options: {} },
+    ai("a", "Summary", { mode: "summary", auto: true }),
+    ai("b", "Category", { mode: "custom", prompt: "Classify {Summary}", auto: true }),
+    { id: "f", name: "Short", type: "formula", options: { formula: { expression: 'prop("b")' } } },
+  ];
+
+  it("refuses AI properties that read each other", () => {
+    // Summary reading Category, which reads Summary: refused, naming the one it reads.
+    expect(checkAutofill({ mode: "custom", prompt: "Sum up {Category}" }, graph, "a")).toEqual({ ok: false, code: "cycle", params: { name: "Category" } });
+    // …also through a formula over Category, and as a translation's source.
+    expect(checkAutofill({ mode: "custom", prompt: "Sum up {Short}" }, graph, "a")).toMatchObject({ ok: false, code: "cycle" });
+    expect(checkAutofill({ mode: "translation", language: "de", source: "b" }, graph, "a")).toMatchObject({ ok: false, code: "cycle" });
+    // Reading in one direction only is fine, and so are plain inputs.
+    expect(checkAutofill({ mode: "custom", prompt: "Classify {Summary} and {Notes}" }, graph, "b")).toMatchObject({ ok: true });
+    expect(checkAutofill({ mode: "custom", prompt: "Sum up {Notes}" }, graph, "a")).toMatchObject({ ok: true });
+  });
+
+  it("tells which AI values settings read", () => {
+    expect(autofillReads({ mode: "custom", prompt: "Use {Short} and {Notes}" }, graph, "x")).toEqual(["b"]);
+    expect(autofillReads({ mode: "summary" }, graph, "x")).toEqual([]);
+    expect([...aiDerivedProperties(graph)].sort()).toEqual(["a", "b", "f"]);
   });
 });
 

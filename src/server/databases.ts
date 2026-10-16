@@ -20,6 +20,7 @@ import {
   type PropertyType,
   type RelationConfig,
   type RollupConfig,
+  type RowProperties,
   type SelectOption,
   type ViewConfig,
   type ViewType,
@@ -751,12 +752,16 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   await requireDatabase(userId, row.parentId, "view");
   const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy });
   await checkLoops(row.parentId, [{ rowId, values: normalized }]);
-  const next = { ...row.properties };
-  for (const [id, value] of Object.entries(normalized)) {
-    if (value === null) delete next[id];
-    else next[id] = value;
-  }
-  await db.update(page).set({ properties: next, updatedBy: userId }).where(eq(page.id, rowId));
+  const { set, cleared } = splitPatch(normalized);
+  const next = { ...row.properties, ...set };
+  for (const k of cleared) delete next[k];
+  // Merged in SQL, so a write to another property of this row since it was read here (another
+  // person, an agent or an automation) is kept rather than overwritten with what was read.
+  const [written] = await db
+    .update(page)
+    .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+    .where(eq(page.id, rowId))
+    .returning({ properties: page.properties });
   // Templates link one way and assign nobody: their values only seed the rows made from them.
   if (!row.inTemplate) {
     await syncPairedRelations(rowId, row.parentId, row.properties, next);
@@ -766,7 +771,28 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   }
   notifyRows(row.parentId);
   rowChanged({ rowId, databaseId: row.parentId, userId });
-  return next;
+  return written?.properties ?? next;
+}
+
+/** Normalized row values split into the ones to store and the ids to clear (null values). */
+function splitPatch(normalized: Record<string, unknown>) {
+  const set = Object.fromEntries(Object.entries(normalized).filter(([, v]) => v !== null));
+  const cleared = Object.keys(normalized).filter((k) => normalized[k] === null);
+  return { set, cleared };
+}
+
+/**
+ * A row's stored properties with `set` written over them and `cleared` removed, worked out by the
+ * database at write time: values other writes left in properties this call doesn't touch stay.
+ */
+function mergedProperties(set: Record<string, unknown>, cleared: string[]) {
+  const minus = cleared.length
+    ? sql` - ARRAY[${sql.join(
+        cleared.map((k) => sql`${k}::text`),
+        sql`, `,
+      )}]::text[]`
+    : sql``;
+  return sql<RowProperties>`(${page.properties} || ${JSON.stringify(set)}::jsonb)${minus}`;
 }
 
 /** Bulk row actions take at most this many rows per call. */
@@ -847,22 +873,12 @@ export async function updateRowsProperties(
   if (!rows.length || !Object.keys(normalized).length) return { done: [], skipped };
   await checkLoops(databaseId, rows.map((row) => ({ rowId: row.id, values: normalized })));
 
-  const set = Object.fromEntries(Object.entries(normalized).filter(([, v]) => v !== null));
-  const cleared = Object.keys(normalized).filter((k) => normalized[k] === null);
+  const { set, cleared } = splitPatch(normalized);
   // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
-  const minus = cleared.length
-    ? sql` - ARRAY[${sql.join(
-        cleared.map((k) => sql`${k}::text`),
-        sql`, `,
-      )}]::text[]`
-    : sql``;
-  await db.execute(sql`
-    update ${page} set
-      properties = (properties || ${JSON.stringify(set)}::jsonb)${minus},
-      updated_by = ${userId},
-      updated_at = now()
-    where ${inArray(page.id, rows.map((r) => r.id))}
-  `);
+  await db
+    .update(page)
+    .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+    .where(inArray(page.id, rows.map((r) => r.id)));
 
   // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
   const changeOf = (row: (typeof rows)[number]) => {
@@ -2775,7 +2791,10 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
   for (const view of views) {
     for (const rule of filterRules(access.viewConfig(view.config).filters)) {
       const person = personProps.some((p) => p.id === rule.propertyId);
-      if (person && typeof rule.value === "string" && rule.value !== PERSON_ME) referenced.add(rule.value);
+      if (!person) continue;
+      for (const value of Array.isArray(rule.value) ? rule.value : [rule.value]) {
+        if (typeof value === "string" && value !== PERSON_ME) referenced.add(value);
+      }
     }
   }
   const guest = isGuest(membership.role);

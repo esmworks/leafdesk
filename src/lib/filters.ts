@@ -16,14 +16,32 @@ import type {
 
 export const FILTER_OPS = [
   "contains",
+  "does_not_contain",
   "equals",
   "not_equals",
+  "is_any_of",
+  "is_none_of",
   "is_empty",
   "is_not_empty",
   "gt",
+  "gte",
   "lt",
+  "lte",
   "is_within",
 ] as const satisfies readonly FilterOp[];
+
+/** Ops whose value is a list: a row matches when its value is (or holds) any / none of them. */
+export const LIST_OPS = ["is_any_of", "is_none_of"] as const satisfies readonly FilterOp[];
+
+export function isListOp(op: FilterOp): op is (typeof LIST_OPS)[number] {
+  return op === "is_any_of" || op === "is_none_of";
+}
+
+/** A list rule's values: a stored list, or a single value saved before the rule became a list. */
+export function filterValues(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value;
+  return value === undefined || value === null || value === "" ? [] : [value];
+}
 
 export const FILTER_COMBINATORS = ["and", "or"] as const satisfies readonly FilterCombinator[];
 
@@ -139,6 +157,9 @@ export function filterConfigError(config: Pick<ViewConfig, "filters" | "filterCo
         if (!RELATIVE_DATE_RANGES.includes(e.value as RelativeDateRange)) {
           return `"is_within" takes one of: ${RELATIVE_DATE_RANGES.join(", ")}`;
         }
+      }
+      if (isListOp(e.op as FilterOp) && e.value !== undefined && e.value !== null && !Array.isArray(e.value)) {
+        return `"${String(e.op)}" takes a list of values`;
       }
       if (e.days !== undefined && !isDayCount(e.days)) {
         return `Days must be a whole number from 1 to ${MAX_RELATIVE_DAYS}`;

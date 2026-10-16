@@ -36,7 +36,9 @@ import type {
 } from "@/db/schema/app";
 import {
   filterRules,
+  filterValues,
   isFilterGroup,
+  isListOp,
   isRelativeDateRange,
   MAX_RELATIVE_DAYS,
   RELATIVE_DATE_RANGES,
@@ -849,14 +851,20 @@ function useDescribeFilter() {
     if (!filterNeedsValue(f.op) || col.type === "checkbox") {
       return t("filterWithoutValue", { property: col.name, operator });
     }
+    // One option, row or person by name; a list rule shows its values joined.
+    const choiceName = (id: unknown) => {
+      if (col.prop && holdsOptions(col.type)) return col.prop.options.options?.find((o) => o.id === id)?.name ?? "…";
+      if (col.prop && col.type === "relation") {
+        const row = linkedRows(relations?.targets[col.prop.id], [id])[0];
+        return row ? pageLabel(row.title, tc("untitled")) : "…";
+      }
+      return id === PERSON_ME ? tf("me") : (people.find((p) => p.id === id)?.name || tp("unknown"));
+    };
     let value = String(f.value ?? "");
-    if (col.prop && holdsOptions(col.type)) {
-      value = col.prop.options.options?.find((o) => o.id === f.value)?.name ?? "…";
-    } else if (col.prop && col.type === "relation") {
-      const row = linkedRows(relations?.targets[col.prop.id], [f.value])[0];
-      value = row ? pageLabel(row.title, tc("untitled")) : "…";
-    } else if (holdsPeople(col.type)) {
-      value = f.value === PERSON_ME ? tf("me") : (people.find((p) => p.id === f.value)?.name || tp("unknown"));
+    if (isListOp(f.op)) {
+      value = filterValues(f.value).map(choiceName).join(", ");
+    } else if ((col.prop && (holdsOptions(col.type) || col.type === "relation")) || holdsPeople(col.type)) {
+      value = choiceName(f.value);
     } else if (col.type === "number" && typeof f.value === "number") {
       // Percentages filter in percent points (see lib/properties); amounts show with their currency.
       const unit = col.prop?.type === "number" ? col.prop.options.number : undefined;
@@ -1069,9 +1077,12 @@ function FilterRuleRow({
   const ops = filterOperators(col.type);
   const set = (patch: Partial<FilterRule>, debounce = false) => onChange({ ...rule, ...patch }, debounce);
   // "Is within" takes a range instead of a value, so switching to or from it starts the value over.
+  // "Is any of" takes a list: a single value becomes its first entry, and the first entry the value.
   const setOp = (op: FilterOp) => {
-    if ((op === "is_within") === (rule.op === "is_within")) return set({ op });
-    onChange({ propertyId: rule.propertyId, op });
+    if ((op === "is_within") !== (rule.op === "is_within")) return onChange({ propertyId: rule.propertyId, op });
+    if (isListOp(op) === isListOp(rule.op)) return set({ op });
+    const values = filterValues(rule.value);
+    set({ op, value: isListOp(op) ? values : values[0] });
   };
   return (
     <>
@@ -1101,7 +1112,11 @@ function FilterRuleRow({
           filterNeedsValue(rule.op) &&
           col.type !== "checkbox" && (
             <div className="min-w-0 flex-1 basis-32">
-              <FilterValue col={col} value={rule.value} onChange={(value, debounce) => set({ value }, debounce)} />
+              {isListOp(rule.op) ? (
+                <FilterValueList col={col} value={rule.value} onChange={(value) => set({ value })} />
+              ) : (
+                <FilterValue col={col} value={rule.value} onChange={(value, debounce) => set({ value }, debounce)} />
+              )}
             </div>
           )
         )}
@@ -1178,6 +1193,75 @@ function RelativeDateValue({
   );
 }
 
+/**
+ * What a person, relation or option rule can pick from, or null for columns typed in. `chosen`
+ * keeps former members listed while a filter still points at them.
+ */
+function useFilterChoices() {
+  const t = useTranslations("database.filter");
+  const tc = useTranslations("common");
+  const tp = useTranslations("database.person");
+  const relations = useRelations();
+  const { people, viewerId } = usePeople();
+  return (col: Column, chosen: unknown[]): { value: string; label: string }[] | null => {
+    if (holdsPeople(col.type)) {
+      return [
+        { value: PERSON_ME, label: t("me") },
+        ...people
+          .filter((p) => p.active || chosen.includes(p.id))
+          .map((p) => ({ value: p.id, label: p.id === viewerId ? tp("you", { name: p.name }) : p.name || tp("unknown") })),
+      ];
+    }
+    if (col.type === "relation" && col.prop) {
+      const rows = relations?.targets[col.prop.id]?.rows ?? [];
+      return rows.map((r) => ({ value: r.id, label: pageLabel(r.title, tc("untitled")) }));
+    }
+    if (holdsOptions(col.type) && col.prop) return (col.prop.options.options ?? []).map((o) => ({ value: o.id, label: o.name }));
+    return null;
+  };
+}
+
+/** The values of an "is any of" / "is none of" rule, ticked in a list that opens below. */
+function FilterValueList({ col, value, onChange }: { col: Column; value: unknown; onChange: (value: unknown[]) => void }) {
+  const t = useTranslations("database.filter");
+  const menu = useFloating<HTMLButtonElement>();
+  const chosen = filterValues(value);
+  const choices = useFilterChoices()(col, chosen) ?? [];
+  const names = choices.filter((c) => chosen.includes(c.value)).map((c) => c.label);
+  const toggle = (id: string) => onChange(chosen.includes(id) ? chosen.filter((v) => v !== id) : [...chosen, id]);
+  return (
+    <>
+      <button
+        ref={menu.ref}
+        type="button"
+        aria-label={t("value")}
+        aria-haspopup="true"
+        aria-expanded={menu.open}
+        title={names.join(", ")}
+        onClick={menu.toggle}
+        className="flex h-7 w-full min-w-0 items-center gap-1 rounded-md border border-border bg-bg px-1.5 text-left text-sm outline-none focus:border-accent"
+      >
+        <span className={cn("min-w-0 flex-1 truncate", !names.length && "text-fg-muted")}>
+          {names.length ? names.join(", ") : t("choose")}
+        </span>
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+      </button>
+      <Floating open={menu.open} anchor={menu.el} onClose={menu.close} className="max-h-72 overflow-y-auto">
+        {choices.map((c) => (
+          <MenuItem
+            key={c.value}
+            pressed={chosen.includes(c.value)}
+            onClick={() => toggle(c.value)}
+            trailing={chosen.includes(c.value) ? <Check className="h-3.5 w-3.5" /> : undefined}
+          >
+            {c.label}
+          </MenuItem>
+        ))}
+      </Floating>
+    </>
+  );
+}
+
 function FilterValue({
   col,
   value,
@@ -1188,50 +1272,14 @@ function FilterValue({
   onChange: (value: unknown, debounce?: boolean) => void;
 }) {
   const t = useTranslations("database.filter");
-  const tc = useTranslations("common");
-  const relations = useRelations();
-  const { people, viewerId } = usePeople();
-  const tp = useTranslations("database.person");
-  if (holdsPeople(col.type)) {
-    // Former members stay listed only while a filter still points at them.
-    const listed = people.filter((p) => p.active || p.id === value);
+  const choices = useFilterChoices()(col, [value]);
+  if (choices) {
     return (
       <NativeSelect
         label={t("value")}
         value={typeof value === "string" ? value : ""}
         onChange={(v) => onChange(v || undefined)}
-        options={[
-          { value: "", label: t("choose") },
-          { value: PERSON_ME, label: t("me") },
-          ...listed.map((p) => ({
-            value: p.id,
-            label: p.id === viewerId ? tp("you", { name: p.name }) : p.name || tp("unknown"),
-          })),
-        ]}
-        className="w-full"
-      />
-    );
-  }
-  if (col.type === "relation" && col.prop) {
-    const rows = relations?.targets[col.prop.id]?.rows ?? [];
-    return (
-      <NativeSelect
-        label={t("value")}
-        value={typeof value === "string" ? value : ""}
-        onChange={(v) => onChange(v || undefined)}
-        options={[{ value: "", label: t("choose") }, ...rows.map((r) => ({ value: r.id, label: pageLabel(r.title, tc("untitled")) }))]}
-        className="w-full"
-      />
-    );
-  }
-  if (holdsOptions(col.type) && col.prop) {
-    const options = col.prop.options.options ?? [];
-    return (
-      <NativeSelect
-        label={t("value")}
-        value={typeof value === "string" ? value : ""}
-        onChange={(v) => onChange(v || undefined)}
-        options={[{ value: "", label: t("choose") }, ...options.map((o) => ({ value: o.id, label: o.name }))]}
+        options={[{ value: "", label: t("choose") }, ...choices]}
         className="w-full"
       />
     );

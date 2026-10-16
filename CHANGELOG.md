@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Upgrading from 0.5.3
+
+- **Every passage is embedded again once.** Passages now start with where they are (see
+  *Changed*), so their text changes and the embeddings model sees each of them once more after
+  the upgrade: through the background sweep as people search, or all at once with
+  `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
+
 ### Added
 
 - **Apps can't overwrite edits they haven't seen.** `get_page` (MCP) and `GET /pages/{id}` now give
@@ -12,13 +19,34 @@
   Body writes report the new `version`, so an app can make several changes in a row without reading
   the page in between. Comments don't change the version. Without `expected_version` writes work
   as before. Covered in `scripts/mcp-e2e.ts`.
+- **The AI chat answers from attached PDFs and Word documents.** The text of a PDF or .docx shown
+  in a page's file block now goes into the page's semantic index, in passages that start with the file name and point
+  at the file block, so the chat can answer from inside the document and its
+  citation opens the page at the file. A document is read once and its text kept (migration
+  0071, `file_text`); the same file uploaded again isn't read twice. Only the first 50 pages or
+  200,000 characters of a document are read (the record says when it was cut), up to 20 documents
+  per page, and files over 25 MB are left out; a scan with no text layer, or a damaged or locked
+  file, adds nothing. Only files the page's readers may open through the page count, and search
+  checks access to the page when it runs, as for the rest of its text. Existing pages are indexed
+  again by the next sweep or `pnpm search:index`; their unchanged passages aren't embedded again.
+- **More filter conditions.** Text, URL, email, phone and title filters (and formulas and rollups
+  with a text result) gain *Does not contain*, which ignores case as *Contains* does and matches
+  empty values. Numbers gain ≥ and ≤, and dates, created and edited times *Is on or before* and
+  *Is on or after*, which match a date range when any of its days does, as *Is before* and *Is
+  after* do. Selects and statuses gain *Is any of* and *Is none of*, and tags, relations and
+  people *Contains any of* and *Contains none of*: one rule with several values, where "Me" counts
+  for whoever looks. They work the same in the app, on published pages, in dashboards, for
+  restricted properties and through the API, MCP (`query_database`, saved views) and the AI chat,
+  as `does_not_contain`, `gte`, `lte`, `is_any_of` and `is_none_of` (the last two with a list of
+  values). Saved views keep working unchanged.
+
 - **AI changes to a page can be kept or undone one by one.** After an AI app, the chat or an agent
   writes to a page body, the page shows a bar above the body with how many blocks changed and
   who changed them: *Review* opens the changes block by block with *Keep* and *Undo* for each,
   next to *Keep all* and *Undo all*. Undoing goes through the page's shared document, so editors
   open on the page follow at once, and *Undo all* saves a version first. Writes in a row are
   reviewed together; the bar goes away once every change is decided or someone edits the page.
-  Only people who may edit the page see it (migration 0071).
+  Only people who may edit the page see it (migration 0072).
 - **Changing one block instead of the whole body.** The chat and agents have a new `edit_page`
   tool that replaces, inserts after, appends or deletes blocks by id, and `update_page` (MCP) and
   `PATCH /pages/{id}` take the modes `replace_block`, `insert_after` and `delete_block` with a
@@ -30,15 +58,48 @@
   next to the new one, and the old title when it is renamed. Covered in `scripts/ai-chat-e2e.ts`
   and `scripts/mcp-e2e.ts`.
 
+### Changed
+
+- **Semantic search knows where a passage is.** Each indexed passage now carries the titles of
+  the pages above its page, the page's own title and the heading it lies under (at most 200
+  characters; a database row's path includes its database), so a passage under *Sales › 2026 plan
+  › Risks* is found for questions about sales risks even when it never says "sales". A heading now
+  starts a new passage. Renaming or moving a page indexes the pages under it again. Results and
+  the AI chat show the passage without that path, since it can name pages the reader can't open.
+  Pages are indexed again after upgrading (the chunking version went up).
+- **The AI chat cites the right block for pages found by their words.** A page that only the
+  full-text search found reached the model as a short snippet without a block, so its answer
+  cited the whole page and it often read the page again. It now gets the page's indexed passage
+  with the most of the question's words, and the citation links to that block.
+
 ### Fixed
+
+- **AI autofill values count as row changes.** A value AI filled in was saved past everything a
+  row write sets off: semantic search didn't index it until something else changed the row, the
+  row's activity didn't show it, and automations waiting for the property to change never ran.
+  Values are now saved like any other change (as the person who asked for them), and only when
+  they differ from the stored one. They start automations, except when an automation's change set
+  them off: those count as the automation's own changes, which start none, so automations and AI
+  values can't keep setting each other off. After an AI value is written, only the automatic AI
+  values that read it update, and none twice in a row of updates.
+  - Other AI values, and formulas over them, go into an AI property's prompt only when its settings
+    name them (a `{Property}` placeholder, the translated property); summaries no longer take them
+    in on their own. Values whose prompt changes this way are worked out again the next time their
+    row changes.
+  - Settings that would make an AI property read itself through other AI properties are refused
+    with a message naming the property in the way. Covered in `scripts/ai-e2e.ts`.
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index
   noticed pages that changed and a new embeddings model, but not a release that chunks pages
   differently: pages kept their old chunks until someone edited them, and `pnpm search:index`
   skipped them. The index now records the chunking it was built with (migration 0070), and pages
   built with another one count as stale for the sweep and `pnpm search:index`. Chunks whose text
-  stays the same aren't embedded again, so after upgrading the first sweep only looks the pages
-  over. Covered in `scripts/semantic-search-e2e.ts`.
+  stays the same aren't embedded again. Covered in `scripts/semantic-search-e2e.ts`.
+- **Edits of different properties of one row no longer undo each other.** Editing a row's value
+  wrote back the whole row as it was read a moment before, so a value someone else, an agent or
+  an automation had just set in another property of the same row could quietly disappear. Single
+  row edits now merge into the stored values the way bulk edits already did. Covered in
+  `scripts/database-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 

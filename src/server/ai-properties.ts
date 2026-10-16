@@ -9,12 +9,20 @@
  * time it runs: rows they can no longer edit are skipped, and only values they can see go into the
  * prompt. They ask by refreshing a row, "Update all rows" for a view's rows, or, for properties set
  * to follow their row, by changing the row (debounced; nothing runs when its inputs are the same).
+ *
+ * A new value is saved like any row write (saveValue): the row's activity, search, automations and
+ * the AI values that read it (and only those) see it. AI values start automations as the change
+ * that set them off would: one an automation's change set off starts none, so automations and AI
+ * values can't feed each other forever. A cascade of AI values updates each property at most once.
  */
 import { createHash } from "node:crypto";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { aiPropertyState, databaseProperty, page, type PropertyOptions } from "@/db/schema";
 import {
+  aiDerivedProperties,
+  autofillNamedInputs,
+  autofillReads,
   checkAutofill,
   MAX_AUTOFILL_ROWS,
   MAX_AUTOFILL_VALUE,
@@ -35,7 +43,8 @@ import { compileFormulas, relatedDatabases } from "@/lib/derived";
 import { formulaReferences, restrictedProperties } from "@/lib/property-access";
 import { loadProperties, relatedSchemasFor } from "@/server/derived";
 import { loadPropertyRules, propertyAccessFor, type AccessRow, type PropertyAccess } from "@/server/property-access";
-import { onRowChanged, type RowChange } from "@/server/row-events";
+import { asAutomation, outsideAutomation, runningAutomation } from "@/server/automations/queue";
+import { onRowChanged, rowChanged, type RowChange } from "@/server/row-events";
 
 type Property = databases.DatabaseProperty;
 
@@ -118,6 +127,10 @@ type Job = {
   userId: string;
   /** Asked for explicitly: runs even when the inputs didn't change. */
   force: boolean;
+  /** The AI properties of the row written in the cascade this job follows from (see followUpTargets). */
+  chain: string[];
+  /** Set off by an automation's change: runs as one, so its write starts no automations. */
+  fromAutomation: boolean;
 };
 
 type Queue = {
@@ -126,7 +139,7 @@ type Queue = {
   active: Set<string>;
   running: Map<string, { again?: Job }>;
   /** Automatic updates waiting for a row to settle, per row id. */
-  debounce: Map<string, ReturnType<typeof setTimeout>>;
+  followUps: Map<string, FollowUp>;
 };
 
 const KEY = "__leafdeskAiQueue";
@@ -134,13 +147,26 @@ const queue = ((globalThis as Record<string, unknown>)[KEY] ??= {
   waiting: [],
   active: new Set(),
   running: new Map(),
-  debounce: new Map(),
+  followUps: new Map(),
 } satisfies Queue) as Queue;
+// A queue made by an older version of this module (dev reloads) lacks it.
+queue.followUps ??= new Map();
 
 const jobKey = (job: { rowId: string; propertyId: string }) => `${job.rowId}:${job.propertyId}`;
 
 /** Whether a value is waiting or being worked out in this process. */
 export const isQueued = (rowId: string, propertyId: string) => queue.active.has(jobKey({ rowId, propertyId }));
+
+/**
+ * One job for two requests of the same value: the newer one's person, run as an automation only if
+ * both would be, and skipping what either cascade wrote already.
+ */
+const mergeJobs = (older: Job, newer: Job): Job => ({
+  ...newer,
+  force: older.force || newer.force,
+  fromAutomation: older.fromAutomation && newer.fromAutomation,
+  chain: [...new Set([...older.chain, ...newer.chain])],
+});
 
 /** Queues jobs (a job already waiting takes the newer request; a running one runs again after). */
 function enqueue(jobs: Job[]) {
@@ -148,11 +174,11 @@ function enqueue(jobs: Job[]) {
     const key = jobKey(job);
     const running = queue.running.get(key);
     if (running) {
-      running.again = job;
+      running.again = running.again ? mergeJobs(running.again, job) : job;
       continue;
     }
     const at = queue.waiting.findIndex((j) => jobKey(j) === key);
-    if (at >= 0) queue.waiting[at] = { ...job, force: job.force || queue.waiting[at].force };
+    if (at >= 0) queue.waiting[at] = mergeJobs(queue.waiting[at], job);
     else if (!queue.active.has(key)) {
       queue.waiting.push(job);
       queue.active.add(key);
@@ -166,7 +192,8 @@ function pump() {
     const job = queue.waiting.shift()!;
     const key = jobKey(job);
     queue.running.set(key, {});
-    void runJob(job).then((retryIn) => {
+    // As the change that set it off, not as whatever code happened to call pump.
+    void (job.fromAutomation ? asAutomation : outsideAutomation)(() => runJob(job)).then((retryIn) => {
       const again = queue.running.get(key)?.again;
       queue.running.delete(key);
       if (again) {
@@ -217,7 +244,10 @@ async function rowInput(
   row: databases.DatabaseRow & { createdBy: string | null; updatedBy: string | null; parentId: string | null },
   props: Property[], prop: Property) {
   const config = prop.options.ai!;
-  const inputs = props.filter((p) => p.id !== prop.id);
+  // Other AI values (and formulas over them) only where the settings name them: see AiAutofillConfig.
+  const derived = aiDerivedProperties(props);
+  const named = new Set(autofillNamedInputs(config, props, prop.id));
+  const inputs = props.filter((p) => p.id !== prop.id && (!derived.has(p.id) || named.has(p.id)));
   const values = await databases.rowValues(userId, row, props);
   // As the person sees them: option names, people and related rows they can see, by name.
   const shown = displayProperties(inputs, values, await databases.getLookups(userId, props));
@@ -371,16 +401,7 @@ async function runJob(job: Job): Promise<number> {
       .where(and(eq(databaseProperty.id, prop.id), isNull(databaseProperty.deletedAt)));
     // Deleted meanwhile, the property keeps the values it had.
     if (!current || JSON.stringify(current.options.ai) !== JSON.stringify(input.config)) return 0;
-    const key = prop.id;
-    await db
-      .update(page)
-      .set({
-        properties: value
-          ? sql`${page.properties} || jsonb_build_object(${key}::text, ${value}::text)`
-          : sql`${page.properties} - ${key}::text`,
-        updatedBy: job.userId,
-      })
-      .where(and(eq(page.id, job.rowId), eq(page.parentId, job.databaseId)));
+    await saveValue(job, prop.id, value);
     await setState(job, { status: "done", sourceHash: input.hash });
     notify(job.databaseId, "rows");
   } catch (error) {
@@ -390,6 +411,40 @@ async function runJob(job: Job): Promise<number> {
     notify(job.databaseId, "rows");
   }
   return 0;
+}
+
+/**
+ * Saves a worked-out value (an empty one clears it) when it differs from the stored one, and sets
+ * off what any row write does: activity, automations (unless the job runs as one), and the row
+ * listeners (search, the AI values reading this one). Returns whether it changed anything.
+ */
+export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId" | "chain">, propertyId: string, value: string) {
+  const written = await db.transaction(async (tx) => {
+    const [row] = await tx
+      .select({ properties: page.properties, inTemplate: page.inTemplate })
+      .from(page)
+      .where(and(eq(page.id, job.rowId), eq(page.parentId, job.databaseId)))
+      .for("update");
+    if (!row || (row.properties[propertyId] ?? "") === value) return null;
+    // The row is locked until the end of the transaction: no other write of it gets lost.
+    const after = { ...row.properties };
+    if (value) after[propertyId] = value;
+    else delete after[propertyId];
+    await tx.update(page).set({ properties: after, updatedBy: job.userId }).where(eq(page.id, job.rowId));
+    return { before: row.properties, after, inTemplate: row.inTemplate };
+  });
+  if (!written) return false;
+  // Rows of a database kept as a template set nothing off (see databases.updateRowProperties).
+  if (!written.inTemplate) {
+    await databases.afterRowWrites(job.userId, job.databaseId, [{ rowId: job.rowId, before: written.before, after: written.after }]);
+  }
+  rowChanged({
+    rowId: job.rowId,
+    databaseId: job.databaseId,
+    userId: job.userId,
+    autofill: { propertyId, chain: [...new Set([...job.chain, propertyId])] },
+  });
+  return true;
 }
 
 // ------------------------------------------------------------------------------- requests
@@ -428,6 +483,8 @@ export async function requestAutofill(userId: string, propertyId: string, rowIds
     workspaceId: database.workspaceId,
     userId,
     force: true,
+    chain: [],
+    fromAutomation: runningAutomation(),
   }));
   // Queued before their pending state is written (so a reader never sees "pending" for a job this
   // process doesn't know), started after it (so "done" can't be overwritten by "pending").
@@ -468,24 +525,80 @@ export async function autofillStates(properties: Property[]): Promise<Record<str
 /** How long a row must stay unchanged before values that follow it update. */
 const SETTLE_MS = 4_000;
 
-function scheduleFollowUp(change: RowChange) {
-  if (!change.userId || !aiConfig().chat) return;
-  const pending = queue.debounce.get(change.rowId);
-  if (pending) clearTimeout(pending);
-  const timer = setTimeout(() => {
-    queue.debounce.delete(change.rowId);
-    void followUp(change).catch((error) => console.error("[ai] autofill follow-up failed", error));
-  }, SETTLE_MS);
-  timer.unref?.();
-  queue.debounce.set(change.rowId, timer);
+/** What a row's changes while it settles ask of its automatic values. */
+export type FollowUpScope = {
+  databaseId: string;
+  /** Who made the latest change: the values are worked out as them. */
+  userId: string;
+  /** A change other than an AI value's: every automatic value updates. */
+  broad: boolean;
+  /**
+   * Otherwise the AI values written, each with its cascade (RowChange `autofill`): the values
+   * reading one update, unless its cascade wrote them already.
+   */
+  cascades: { propertyId: string; chain: string[] }[];
+  /** Every change was an automation's (or followed from one): the values run as automations. */
+  fromAutomation: boolean;
+};
+
+type FollowUp = FollowUpScope & { timer: ReturnType<typeof setTimeout> };
+
+/** Adds a change to what a row's pending update asks for (`pending`: the changes before it). */
+export function mergeFollowUp(
+  pending: FollowUpScope | undefined,
+  change: RowChange & { userId: string },
+  fromAutomation: boolean,
+): FollowUpScope {
+  const broad = (pending?.broad ?? false) || !change.autofill;
+  return {
+    databaseId: change.databaseId,
+    userId: change.userId,
+    broad,
+    // Kept apart: a value another cascade wrote meanwhile still updates after this one.
+    cascades: broad ? [] : [...(pending?.cascades ?? []), change.autofill!],
+    fromAutomation: (pending?.fromAutomation ?? true) && fromAutomation,
+  };
 }
 
-async function followUp({ rowId, databaseId, userId }: RowChange) {
-  const props = (await databases.getProperties(databaseId)).filter((p) => p.type === "text" && p.options.ai?.auto);
-  if (!props.length || !userId) return;
+/**
+ * The automatic values a row's update works out, each with the cascade it continues: all of them
+ * (starting one) after other changes; after AI values only those reading one (lib/ai
+ * `autofillReads`), and never one that value's cascade wrote already, so values reading each other
+ * (settings saved before such loops were refused, or renamed into one) stop after a round.
+ */
+export function followUpTargets(properties: Property[], scope: Pick<FollowUpScope, "broad" | "cascades">) {
+  const auto = properties.filter((p) => p.type === "text" && p.options.ai?.auto);
+  if (scope.broad) return auto.map((property) => ({ property, chain: [] as string[] }));
+  return auto.flatMap((property) => {
+    const reads = autofillReads(property.options.ai!, properties, property.id);
+    const from = scope.cascades.filter((c) => reads.includes(c.propertyId) && !c.chain.includes(property.id));
+    return from.length ? [{ property, chain: [...new Set(from.flatMap((c) => c.chain))] }] : [];
+  });
+}
+
+function scheduleFollowUp(change: RowChange) {
+  if (!change.userId || !aiConfig().chat) return;
+  const pending = queue.followUps.get(change.rowId);
+  if (pending) clearTimeout(pending.timer);
+  // Read now, while the code that made the change runs: the timer would carry its context on.
+  const scope = mergeFollowUp(pending, { ...change, userId: change.userId }, runningAutomation());
+  const timer = setTimeout(() => {
+    queue.followUps.delete(change.rowId);
+    void followUp(change.rowId, scope).catch((error) => console.error("[ai] autofill follow-up failed", error));
+  }, SETTLE_MS);
+  timer.unref?.();
+  queue.followUps.set(change.rowId, { ...scope, timer });
+}
+
+async function followUp(rowId: string, scope: FollowUpScope) {
+  const { databaseId, userId } = scope;
+  const targets = followUpTargets(await databases.getProperties(databaseId), scope);
+  if (!targets.length) return;
   const [database] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, databaseId)).limit(1);
   if (!database || !(await aiAvailable(database.workspaceId))) return;
-  enqueue(props.map((p) => ({ rowId, propertyId: p.id, databaseId, workspaceId: database.workspaceId, userId, force: false })));
+  const { workspaceId } = database;
+  const { fromAutomation } = scope;
+  enqueue(targets.map(({ property, chain }) => ({ rowId, propertyId: property.id, databaseId, workspaceId, userId, force: false, chain, fromAutomation })));
   pump();
 }
 
