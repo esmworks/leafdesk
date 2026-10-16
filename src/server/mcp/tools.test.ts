@@ -10,6 +10,7 @@ vi.mock("@/db", () => ({ db: {} }));
 
 const collab = vi.hoisted(() => ({
   readPage: vi.fn(),
+  pageVersion: vi.fn(),
   replaceContent: vi.fn(),
   appendContent: vi.fn(),
   appendBlocks: vi.fn(),
@@ -332,6 +333,9 @@ beforeEach(() => {
   pages.listWorkspaces.mockResolvedValue([{ id: "ws-1", name: "Team", icon: null, role: "owner" }]);
   pages.listChildren.mockResolvedValue([]);
   collab.readPage.mockResolvedValue({ title: "Plan", markdown: "Hello", text: "Hello" });
+  collab.pageVersion.mockResolvedValue("v1");
+  collab.replaceContent.mockResolvedValue({ conflict: false, version: "v2" });
+  collab.appendContent.mockResolvedValue({ conflict: false, version: "v2" });
   databases.getDatabase.mockResolvedValue(database);
 });
 
@@ -339,13 +343,20 @@ describe("content writes", () => {
   it("replace snapshots first and attributes the write to the OAuth client", async () => {
     const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "# New" });
     expect(r.isError).toBe(false);
-    expect(collab.replaceContent).toHaveBeenCalledWith("page-1", "# New", { userId: "user-1", oauthClientId: "client-1" }, true);
+    expect(collab.replaceContent).toHaveBeenCalledWith(
+      "page-1",
+      "# New",
+      { userId: "user-1", oauthClientId: "client-1" },
+      true,
+      { expectedVersion: undefined, reportVersion: true },
+    );
     expect(r.data.url).toBe("http://localhost:3000/w/ws-1/p/page-1");
+    expect(r.data.version).toBe("v2");
   });
 
   it("append snapshots first too", async () => {
     await callTool(writer, "update_page", { page_id: "page-1", markdown: "- more", mode: "append" });
-    expect(collab.appendContent).toHaveBeenCalledWith("page-1", "- more", expect.anything(), true);
+    expect(collab.appendContent).toHaveBeenCalledWith("page-1", "- more", expect.anything(), true, expect.anything());
     expect(collab.replaceContent).not.toHaveBeenCalled();
   });
 
@@ -372,6 +383,52 @@ describe("content writes", () => {
     const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "x" });
     expect(r.isError).toBe(true);
     expect(r.text).toMatch(/This page is locked/);
+  });
+
+  it("get_page gives the body's version", async () => {
+    const r = await callTool(reader, "get_page", { page_id: "page-1" });
+    expect(r.data.version).toBe("v1");
+    expect(collab.pageVersion).toHaveBeenCalledWith("page-1");
+  });
+
+  it("writes the body only while it still has the expected version", async () => {
+    const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "# New", expected_version: "v1" });
+    expect(r.isError).toBe(false);
+    expect(collab.replaceContent).toHaveBeenCalledWith("page-1", "# New", expect.anything(), true, {
+      expectedVersion: "v1",
+      reportVersion: true,
+    });
+    expect(r.data.version).toBe("v2");
+  });
+
+  it("refuses a body changed since it was read, before changing the title", async () => {
+    collab.replaceContent.mockResolvedValueOnce({ conflict: true, version: "v9" });
+    const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "# New", title: "New", expected_version: "v1" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/changed after you read it/);
+    expect(r.text).toMatch(/v9/);
+    expect(r.text).toMatch(/get_page/);
+    expect(pages.renamePage).not.toHaveBeenCalled();
+  });
+
+  it("checks the version for a title-only change too", async () => {
+    const stale = await callTool(writer, "update_page", { page_id: "page-1", title: "New", expected_version: "v0" });
+    expect(stale.isError).toBe(true);
+    expect(stale.text).toMatch(/changed after you read it/);
+    expect(pages.renamePage).not.toHaveBeenCalled();
+
+    const fresh = await callTool(writer, "update_page", { page_id: "page-1", title: "New", expected_version: "v1" });
+    expect(fresh.isError).toBe(false);
+    expect(pages.renamePage).toHaveBeenCalledTimes(1);
+    expect(collab.replaceContent).not.toHaveBeenCalled();
+  });
+
+  it("databases have no version to expect", async () => {
+    pages.getPage.mockResolvedValue({ ...page, kind: "database" });
+    const r = await callTool(writer, "update_page", { page_id: "page-1", title: "New", expected_version: "v1" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/no version/);
+    expect(pages.renamePage).not.toHaveBeenCalled();
   });
 
   it("read-only tokens cannot write even without an HTTP scope challenge", async () => {

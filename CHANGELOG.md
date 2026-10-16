@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+- **Apps can't overwrite edits they haven't seen.** `get_page` (MCP) and `GET /pages/{id}` now give
+  the body's `version`, and `update_page` / `PATCH /pages/{id}` take it back as `expected_version`:
+  the page changes only while its body still has that version. When someone edited it after the
+  app read it, also in an editor that is open right now, nothing is written; MCP tells the app to
+  read the page again, and the REST API answers 409 `version_conflict` with the current version.
+  Body writes report the new `version`, so an app can make several changes in a row without reading
+  the page in between. Comments don't change the version. Without `expected_version` writes work
+  as before. Covered in `scripts/mcp-e2e.ts`.
+
 ### Fixed
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index

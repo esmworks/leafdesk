@@ -455,6 +455,26 @@ async function main() {
   check(page.markdown.trim() === "Replaced body.", "replace overwrites the body", page.markdown);
   check(page.title === `MCP e2e ${RUN} renamed`, "update_page renames", page.title);
 
+  // ---- expected_version: a body changed since it was read isn't overwritten
+  const read = await mcp.ok("get_page", { page_id: root.id });
+  check(typeof read.version === "string" && read.version.length > 0, "get_page gives the body's version", read);
+  check((await mcp.ok("get_page", { page_id: root.id })).version === read.version, "an unchanged body keeps its version");
+  // Someone else adds to the body after it was read.
+  const other = await mcp.ok("update_page", { page_id: root.id, markdown: "Someone else's line.", mode: "append" });
+  check(other.version && other.version !== read.version, "a body write reports the new version", other);
+  const stale = await mcp.call("update_page", { page_id: root.id, markdown: "Stale rewrite.", expected_version: read.version });
+  check(stale.isError && /changed after you read it/.test(stale.text), "a stale expected_version is refused", stale.text);
+  page = await mcp.ok("get_page", { page_id: root.id });
+  check(
+    page.markdown.includes("Someone else's line.") && !page.markdown.includes("Stale rewrite."),
+    "the refused write leaves the body as it was",
+    page.markdown,
+  );
+  check(page.version === other.version, "the version a write reports is the one a read gives", [page.version, other.version]);
+  const fresh = await mcp.ok("update_page", { page_id: root.id, markdown: "Replaced body.", expected_version: page.version });
+  page = await mcp.ok("get_page", { page_id: root.id });
+  check(page.markdown.trim() === "Replaced body." && page.version === fresh.version, "the current version writes", [page.markdown, page.version, fresh.version]);
+
   // ---- skills: a page made a skill is a prompt of its name, over HTTP as well
   check(init.capabilities?.prompts !== undefined, "the server offers prompts", init.capabilities);
   const skill = await mcp.ok("set_skill", { page_id: root.id, skill: true, description: "Answers like the e2e page." });

@@ -218,6 +218,10 @@ const SCHEMAS: Record<string, JsonSchema> = {
       updated_at: { type: "string", format: "date-time" },
       url,
       markdown: { type: "string", description: "The body (pages and rows; databases have none)." },
+      version: {
+        type: "string",
+        description: "The body's version: pass it as expected_version when updating the page, so changes made since aren't overwritten.",
+      },
       template: { type: "string", enum: ["page_template", "row_template", "inside_template"] },
       database_id: { type: "string", description: "For rows: their database." },
       properties: propertyValues,
@@ -260,7 +264,16 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "title", "workspace_id", "database_id", "rewritten", "transcript", "url"],
   ),
-  PageChanged: loose({ id, changed: { type: "array", items: { type: "string" } }, snapshot: { type: "string" }, url }, ["id", "changed", "url"]),
+  PageChanged: loose(
+    {
+      id,
+      changed: { type: "array", items: { type: "string" } },
+      snapshot: { type: "string" },
+      version: { type: "string", description: "The body's version after the change, for the next expected_version." },
+      url,
+    },
+    ["id", "changed", "url"],
+  ),
   PageMoved: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, ...teamspaceFields, url }, ["id", "parent_id", "url"]),
   PageTrashState: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, in_trash: { type: "boolean" }, url }, [
     "id",

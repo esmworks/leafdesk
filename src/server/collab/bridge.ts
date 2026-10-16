@@ -21,6 +21,16 @@ export type WriteActor = { userId: string; oauthClientId?: string | null };
 
 export type PageContent = { title: string; markdown: string; text: string };
 
+/**
+ * A body write that checked or reported the body's version (see CollabService.pageVersion):
+ * `conflict` when the body no longer had the version the writer expected, and nothing was written.
+ * `version` is the body's version after the write, or the current one on a conflict.
+ */
+export type BodyWrite = { conflict: boolean; version: string };
+
+/** `expectedVersion` writes only while the body still has that version; either reports a BodyWrite. */
+export type VersionCheck = { expectedVersion?: string; reportVersion?: boolean };
+
 /** Signal channels, and a page's own document (its open editors hear PAGE_HEADER_EVENT on it). */
 export type Channel = `ws:${string}` | `db:${string}` | `page:${string}`;
 
@@ -33,6 +43,11 @@ export interface CollabService {
   /** Current title and body as BlockNote blocks (plain JSON), from the live document when it is open. */
   readBlocks(pageId: string): Promise<{ title: string; blocks: unknown[] }>;
   /**
+   * A short hash of the body's Markdown as a write would find it (the live document when it is
+   * open), so a writer can tell whether the body changed since it read it. Comments don't change it.
+   */
+  pageVersion(pageId: string): Promise<string>;
+  /**
    * Replaces the body. Snapshots first when `snapshot` is set (MCP writes). This and the other
    * writes of the title or body below refuse a locked page (lib/page-lock).
    */
@@ -40,8 +55,14 @@ export interface CollabService {
    * `wikilinks: false` leaves `[[Title]]` as written (imports, which resolve their own links);
    * otherwise it links to the page of that title the writer can open (lib/wikilinks).
    */
-  replaceContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean, options?: { wikilinks?: boolean }): Promise<void>;
-  appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean): Promise<void>;
+  replaceContent(
+    pageId: string,
+    markdown: string,
+    actor: WriteActor,
+    snapshot?: boolean,
+    options?: { wikilinks?: boolean } & VersionCheck,
+  ): Promise<BodyWrite | null>;
+  appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean, options?: VersionCheck): Promise<BodyWrite | null>;
   /** Adds BlockNote blocks (plain JSON, e.g. an image block) to the end of the body. */
   appendBlocks(pageId: string, blocks: unknown[], actor: WriteActor, snapshot?: boolean): Promise<void>;
   /**

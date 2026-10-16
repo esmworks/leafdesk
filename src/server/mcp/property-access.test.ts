@@ -8,7 +8,7 @@ import { createMcpServer } from "./tools";
 
 vi.mock("@/db", () => ({ db: {} }));
 
-const collab = vi.hoisted(() => ({ readPage: vi.fn(), broadcast: vi.fn(), appendBlocks: vi.fn() }));
+const collab = vi.hoisted(() => ({ readPage: vi.fn(), pageVersion: vi.fn(async () => "v1"), broadcast: vi.fn(), appendBlocks: vi.fn() }));
 vi.mock("@/server/collab/bridge", () => ({ getCollab: () => collab }));
 
 const pages = vi.hoisted(() => ({

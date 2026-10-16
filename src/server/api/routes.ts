@@ -380,7 +380,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Update a page",
     description:
-      'Changes the title, icon, background and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end. The previous body is saved to page history first, and open editors update live.',
+      'Changes the title, icon, background and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end. With `expected_version` (the `version` a read of the page returned) the page changes only while its body still has that version; otherwise nothing is written and the answer is 409 `version_conflict`. The previous body is saved to page history first, and open editors update live.',
     scope: "pages:write",
     body: pageBodies.updatePage,
     response: "PageChanged",

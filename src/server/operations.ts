@@ -43,7 +43,7 @@ import * as templates from "@/server/templates";
 import { isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
-import { idFromLink, pageUrl, sliceText, ToolInputError } from "./mcp/format";
+import { idFromLink, pageUrl, sliceText, ToolInputError, VersionConflictError } from "./mcp/format";
 import { dashboardsOutput } from "./mcp/dashboards";
 import { markdownDashboards } from "@/lib/dashboard";
 import {
@@ -197,6 +197,13 @@ export const inputs = {
       .enum(["replace", "append"])
       .default("replace")
       .describe('"replace" (default) overwrites the body; "append" adds to the end.'),
+    expected_version: z
+      .string()
+      .max(64)
+      .optional()
+      .describe(
+        "The body's version from get_page (or from your last update_page). The page is changed only while its body still has that version, so edits someone made after you read it aren't overwritten. Pass it whenever you replace a body you read before.",
+      ),
     background: z
       .string()
       .max(64)
@@ -486,11 +493,12 @@ export async function getPage(
 ) {
   const { userId } = ctx;
   const { page, parent, parentDatabase } = await loadPage(ctx, page_id);
-  const [crumbs, content, workspaces, favorite] = await Promise.all([
+  const [crumbs, content, workspaces, favorite, version] = await Promise.all([
     pages.getBreadcrumbs(userId, page_id),
     getCollab().readPage(page_id),
     pages.listWorkspaces(userId),
     pageMeta.isFavorite(userId, page_id),
+    page.kind === "database" ? null : getCollab().pageVersion(page_id),
   ]);
   const workspace = workspaces.find((w) => w.id === page.workspaceId);
   // Mentioned pages read as their current title, as far as the user can see them.
@@ -530,6 +538,7 @@ export async function getPage(
     out.note = "This is a database. Use query_database to list its rows and get_database for its full schema.";
   } else {
     out.markdown = body.text;
+    if (version) out.version = version;
     if (body.truncated) {
       out.markdown_truncated = true;
       out.markdown_total_chars = body.totalChars;
@@ -650,7 +659,7 @@ function backgroundFromInput(background: string | null) {
 /** `icon` (null clears it) is REST only: the MCP tool doesn't take it. */
 export async function updatePage(
   ctx: OperationContext,
-  { page_id, title, markdown, mode, icon, background }: Args<"updatePage"> & { icon?: string | null },
+  { page_id, title, markdown, mode, expected_version, icon, background }: Args<"updatePage"> & { icon?: string | null },
 ) {
   const { userId, actor } = ctx;
   if (title === undefined && markdown === undefined && icon === undefined && background === undefined) {
@@ -660,7 +669,11 @@ export async function updatePage(
   if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it in Leafdesk before editing.");
   // Before any of it is written: a locked page refuses the whole call.
   if (isPageLocked(page)) throw new ToolInputError(PAGE_LOCKED_MESSAGE);
+  if (expected_version !== undefined && page.kind === "database") {
+    throw new ToolInputError("Databases have no body, so they have no version: leave expected_version out.");
+  }
   const changed: string[] = [];
+  let version: string | undefined;
   if (markdown !== undefined) {
     if (page.kind === "database") {
       throw new ToolInputError("Databases have no text body. Use create_database_row or update_database_row.");
@@ -668,9 +681,16 @@ export async function updatePage(
     // The body goes through a direct collab connection, which checks no access of its own.
     await requirePageAccess(userId, page_id, "edit");
     const collab = getCollab();
-    if (mode === "append") await collab.appendContent(page_id, markdown, actor, true);
-    else await collab.replaceContent(page_id, markdown, actor, true);
+    const check = { expectedVersion: expected_version, reportVersion: true };
+    const write =
+      mode === "append" ? await collab.appendContent(page_id, markdown, actor, true, check) : await collab.replaceContent(page_id, markdown, actor, true, check);
+    if (write?.conflict) throw new VersionConflictError(expected_version!, write.version);
+    version = write?.version;
     changed.push(mode === "append" ? "body (appended)" : "body (replaced)");
+  } else if (expected_version !== undefined) {
+    // Only the title or background changes, but the writer asked to change it as the page it read.
+    version = await getCollab().pageVersion(page_id);
+    if (version !== expected_version) throw new VersionConflictError(expected_version, version);
   }
   if (title !== undefined) {
     await pages.renamePage(actor, page_id, title);
@@ -688,6 +708,7 @@ export async function updatePage(
     id: page.id,
     changed,
     ...(markdown !== undefined ? { snapshot: "Saved the previous version to page history before writing." } : {}),
+    ...(version ? { version } : {}),
     url: pageUrl(page.workspaceId, page.id),
   };
 }

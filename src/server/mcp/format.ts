@@ -19,6 +19,19 @@ export class ToolInputError extends Error {
   }
 }
 
+/** update_page's expected_version no longer matches the body: someone changed it since it was read. */
+export class VersionConflictError extends ToolInputError {
+  constructor(
+    readonly expected: string,
+    readonly current: string,
+  ) {
+    super(
+      `The page changed after you read it: its body has version ${current} now, not ${expected}. Nothing was written. Read it again with get_page and make your change on its current text.`,
+    );
+    this.name = "VersionConflictError";
+  }
+}
+
 export const pageUrl = (workspaceId: string, pageId: string) => `${env.appUrl}/w/${workspaceId}/p/${pageId}`;
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";

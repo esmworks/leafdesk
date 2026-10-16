@@ -29,7 +29,7 @@ import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
 import { authorizeCollab, parseDocName as parseName } from "./authorize";
-import type { Channel, CollabService, CommentOpResult, PageContent, WriteActor } from "./bridge";
+import type { BodyWrite, Channel, CollabService, CommentOpResult, PageContent, VersionCheck, WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
 import { stampPresence } from "./presence";
 import { touchesThreads } from "./thread-guard";
@@ -104,6 +104,12 @@ async function deriveContent(doc: Y.Doc, workspaceId?: string) {
   const blocks = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
   const markdown = (await blocksToMarkdown(blocks, { workspaceId })).trim();
   return { blocks, markdown, text: blocksToPlainText(blocks) };
+}
+
+/** CollabService.pageVersion of a body read as these blocks: its Markdown as deriveContent writes it, hashed. */
+async function versionOf(blocks: Parameters<typeof blocksToMarkdown>[0], workspaceId?: string) {
+  const markdown = (await blocksToMarkdown(blocks, { workspaceId })).trim();
+  return createHash("sha256").update(markdown).digest("hex").slice(0, 16);
 }
 
 /**
@@ -415,23 +421,47 @@ export function createCollab() {
       mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
     ) => Promise<typeof existing | null>,
     snapshot: boolean,
+    check: VersionCheck = {},
   ) => {
     await assertWritable(pageId);
+    const versioned = check.expectedVersion !== undefined || Boolean(check.reportVersion);
+    const workspaceId = versioned ? await workspaceOf(pageId) : undefined;
     return transactPage(pageId, actor, async (doc) => {
-      if (snapshot) await snapshotBefore(pageId, doc, "before_mcp_write", actor);
-      const existing = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
-      const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl });
-      // Nothing to write.
-      if (!next) return null;
-      doc.transact(
-        () =>
-          keepingComments(doc, () => {
-            // Diff-based: unchanged blocks keep their Yjs identity, so open editors keep cursors.
-            editor.blocksToYXmlFragment(next, doc.getXmlFragment(COLLAB_FRAGMENT));
-          }),
-        { source: "local", context: actor },
-      );
-      return next;
+      const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
+      // Read in the same synchronous run as the write or the check it stands for; hashed afterwards.
+      const version = () => versionOf(editor.yXmlFragmentToBlocks(fragment), workspaceId);
+      // Open editors can change the body while this write awaits: the check holds only while none did.
+      let touched = false;
+      const touch = () => {
+        touched = true;
+      };
+      if (check.expectedVersion !== undefined) fragment.observeDeep(touch);
+      try {
+        if (check.expectedVersion !== undefined) {
+          const current = await version();
+          if (touched || current !== check.expectedVersion) {
+            return { next: null, write: { conflict: true, version: touched ? await version() : current } satisfies BodyWrite };
+          }
+        }
+        if (snapshot) await snapshotBefore(pageId, doc, "before_mcp_write", actor);
+        const existing = editor.yXmlFragmentToBlocks(fragment);
+        const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl });
+        if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
+        // `next` null: nothing to write.
+        if (next) {
+          doc.transact(
+            () =>
+              keepingComments(doc, () => {
+                // Diff-based: unchanged blocks keep their Yjs identity, so open editors keep cursors.
+                editor.blocksToYXmlFragment(next, fragment);
+              }),
+            { source: "local", context: actor },
+          );
+        }
+        return { next, write: versioned ? ({ conflict: false, version: await version() } satisfies BodyWrite) : null };
+      } finally {
+        fragment.unobserveDeep(touch);
+      }
     });
   };
 
@@ -478,6 +508,21 @@ export function createCollab() {
       try {
         Y.applyUpdate(doc, row.ydoc);
         return { title: readTitle(doc) ?? row.title, blocks: editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)) };
+      } finally {
+        doc.destroy();
+      }
+    },
+
+    async pageVersion(pageId) {
+      const workspaceId = await workspaceOf(pageId);
+      const live = hocuspocus.documents.get(pageDocName(pageId));
+      if (live) return versionOf(editor.yXmlFragmentToBlocks(live.getXmlFragment(COLLAB_FRAGMENT)), workspaceId);
+      // As onLoadDocument would load it for a write.
+      const [row] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, pageId)).limit(1);
+      const doc = new Y.Doc();
+      try {
+        if (row?.ydoc) Y.applyUpdate(doc, row.ydoc);
+        return await versionOf(editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), workspaceId);
       } finally {
         doc.destroy();
       }
@@ -533,9 +578,9 @@ export function createCollab() {
       });
     },
 
-    async replaceContent(pageId, markdown, actor, snapshot = false, { wikilinks = true } = {}) {
+    async replaceContent(pageId, markdown, actor, snapshot = false, { wikilinks = true, ...check } = {}) {
       // Database blocks the Markdown names keep their settings; inline databases it leaves out stay.
-      await writeBlocks(
+      const { write } = await writeBlocks(
         pageId,
         actor,
         async (existing, mentions) => {
@@ -543,11 +588,13 @@ export function createCollab() {
           return wikilinks ? linkWritten(pageId, actor, blocks) : blocks;
         },
         snapshot,
+        check,
       );
+      return write;
     },
 
-    async appendContent(pageId, markdown, actor, snapshot = false) {
-      await writeBlocks(
+    async appendContent(pageId, markdown, actor, snapshot = false, check = {}) {
+      const { write } = await writeBlocks(
         pageId,
         actor,
         async (existing, mentions) => [
@@ -559,7 +606,9 @@ export function createCollab() {
           )),
         ],
         snapshot,
+        check,
       );
+      return write;
     },
 
     async appendBlocks(pageId, blocks, actor, snapshot = false) {
@@ -593,7 +642,8 @@ export function createCollab() {
     },
 
     async linkPageMention(pageId, targetId, title, actor) {
-      return writeBlocks(pageId, actor, async (existing) => (linkTitle(existing, title, targetId) ? existing : null), false);
+      const { next } = await writeBlocks(pageId, actor, async (existing) => (linkTitle(existing, title, targetId) ? existing : null), false);
+      return next;
     },
 
     async setTitle(pageId, title, actor) {

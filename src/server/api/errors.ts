@@ -3,7 +3,7 @@ import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { AgentError } from "@/server/agents/manage";
 import { AiError } from "@/server/ai/errors";
-import { ToolInputError } from "@/server/mcp/format";
+import { ToolInputError, VersionConflictError } from "@/server/mcp/format";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
@@ -44,6 +44,10 @@ export const API_ERROR_CODES = {
     status: 409,
     description: "Voice notes can't be made: the server has no speech to text set up, or the workspace turned AI off.",
   },
+  version_conflict: {
+    status: 409,
+    description: "The page's body changed since `expected_version` was read, and nothing was written. Read the page again and make the change on its current body.",
+  },
   payload_too_large: { status: 413, description: "The request body is too large." },
   rate_limited: { status: 429, description: "Too many requests for this token; wait for Retry-After seconds." },
   internal_error: { status: 500, description: "Something went wrong on the server." },
@@ -73,6 +77,9 @@ export function apiErrorFor(error: unknown): ApiError {
   if (error instanceof ConnectedAppReadOnlyError) return new ApiError(403, "forbidden", `${error.message}.`);
   // Missing and not allowed look the same, so ids never reveal what exists.
   if (error instanceof AccessError) return new ApiError(404, "not_found", "Not found or access denied");
+  if (error instanceof VersionConflictError) {
+    return new ApiError(409, "version_conflict", error.message, { expected_version: error.expected, version: error.current });
+  }
   if (error instanceof ToolInputError) return new ApiError(400, "invalid_request", error.message);
   if (error instanceof PropertyValueError) return new ApiError(400, "invalid_property_value", error.message);
   if (error instanceof TeamspaceError) return new ApiError(403, "forbidden", error.message);
