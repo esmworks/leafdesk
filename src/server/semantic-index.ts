@@ -8,6 +8,7 @@
  *   indexed, or indexed with another model or CHUNKER_VERSION): started lazily by searches in the workspace, at most
  *   every SWEEP_INTERVAL_MS, and by `pnpm search:index` for a full backfill.
  *
+ * The text of PDFs and Word documents the page shows goes in too (file-text.ts), read once per file.
  * Only chunks whose text changed are embedded again. Jobs run at most AI_CONCURRENCY at a time,
  * each workspace within its own allowance of AI_WORKSPACE_RATE_LIMIT embedding requests a minute
  * (jobs wait for their turn). Nothing is embedded while the server has no embeddings model or the
@@ -22,6 +23,7 @@ import { sharedLimiter } from "@/lib/rate-limit";
 import { aiConfig, embed, embeddingModel, embeddingsEnabled, isAiError } from "@/server/ai";
 import { getCollab } from "@/server/collab/bridge";
 import * as databases from "@/server/databases";
+import { pageDocuments } from "@/server/file-text";
 import { onPageChanged } from "@/server/page-events";
 import { onRowChanged } from "@/server/row-events";
 import { blockTexts, CHUNKER_VERSION, chunkPage, rowPropertyLines, sourceHash, type ChunkDraft } from "@/server/semantic-text";
@@ -184,8 +186,8 @@ export async function reindexDatabaseRows(databaseId: string) {
   enqueueIndex(ids.map((r) => r.id));
 }
 
-/** The chunks a page's current text makes (title, a row's values, the body's blocks). */
-export async function pageChunks(row: { id: string; parentId: string | null; kind: string; properties: Record<string, unknown> }) {
+/** The chunks a page's current text makes (title, a row's values, the body's blocks, the documents it shows). */
+export async function pageChunks(row: { id: string; workspaceId: string; parentId: string | null; kind: string; properties: Record<string, unknown> }) {
   const { title, blocks } = await getCollab().readBlocks(row.id);
   let properties: string[] = [];
   if (row.parentId) {
@@ -195,7 +197,9 @@ export async function pageChunks(row: { id: string; parentId: string | null; kin
       properties = rowPropertyLines(all, row.properties, restricted);
     }
   }
-  return chunkPage({ title, properties, blocks: row.kind === "database" ? [] : blockTexts(blocks as Parameters<typeof blockTexts>[0]) });
+  if (row.kind === "database") return chunkPage({ title, properties, blocks: [] });
+  const body = blocks as Parameters<typeof blockTexts>[0];
+  return chunkPage({ title, properties, blocks: blockTexts(body), files: await pageDocuments(row, body) });
 }
 
 /**

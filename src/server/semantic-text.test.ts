@@ -6,6 +6,7 @@ import {
   chunkPage,
   cosineSimilarity,
   MAX_CHUNKS_PER_PAGE,
+  MAX_FILE_CHUNKS_PER_PAGE,
   passageOf,
   reciprocalRankFusion,
   rowPropertyLines,
@@ -95,8 +96,35 @@ describe("chunks", () => {
     expect(sourceHash("m1", chunks)).not.toBe(sourceHash("m1", chunkPage({ title: "T", blocks: [{ id: "b", text: "one" }] })));
   });
 
+  it("gives each attached document chunks of its own, after the page's, pointing at its block", () => {
+    const report = { blockId: "f1", name: " Annual   report.pdf ", text: `Revenue grew.\nIn all regions.\n\n${"Costs fell. ".repeat(100)}` };
+    const chunks = chunkPage(
+      { title: "Plans", blocks: [{ id: "a", text: "We go north." }], files: [report, { blockId: "f2", name: "", text: "Short." }] },
+      { target: 700, max: 1400 },
+    );
+    expect(chunks[0]).toMatchObject({ blockId: "a", text: "Plans\nWe go north." });
+    const fromFiles = chunks.slice(1);
+    expect(fromFiles.map((c) => c.blockId)).toEqual(["f1", "f1", "f2"]);
+    expect(fromFiles.map((c) => c.position)).toEqual([1, 2, 3]);
+    // Lines of a paragraph join up; paragraphs stay apart, packed together while they fit.
+    expect(fromFiles[0].text.startsWith("Plans › Annual report.pdf\nRevenue grew. In all regions.")).toBe(true);
+    expect(fromFiles.slice(0, 2).every((c) => c.text.startsWith("Plans › Annual report.pdf\n"))).toBe(true);
+    expect(fromFiles[2].text).toBe("Plans › file\nShort.");
+    // Without a title the file name leads.
+    expect(chunkPage({ title: "", blocks: [], files: [{ blockId: "f", name: "a.pdf", text: "Hi." }] }).map((c) => c.text)).toEqual(["a.pdf\nHi."]);
+  });
+
+  it("gives documents their own allowance, so a long one leaves the page's text in", () => {
+    const blocks = Array.from({ length: MAX_CHUNKS_PER_PAGE + 10 }, (_, i) => ({ id: `b${i}`, text: `${i} ${"z".repeat(1000)}` }));
+    const text = Array.from({ length: MAX_FILE_CHUNKS_PER_PAGE + 40 }, (_, i) => `${i} ${"q".repeat(1000)}`).join("\n\n");
+    const chunks = chunkPage({ title: "Big", blocks, files: [{ blockId: "f", name: "long.pdf", text }] });
+    expect(chunks.filter((c) => c.blockId !== "f")).toHaveLength(MAX_CHUNKS_PER_PAGE);
+    expect(chunks.filter((c) => c.blockId === "f")).toHaveLength(MAX_FILE_CHUNKS_PER_PAGE);
+  });
+
   it("shows a passage without its title line", () => {
     expect(passageOf("Plans\nWe go north.", "Plans")).toBe("We go north.");
+    expect(passageOf("Plans › report.pdf\nRevenue grew.", "Plans")).toBe("report.pdf\nRevenue grew.");
     expect(passageOf("Other\nWe go north.", "Plans")).toBe("Other\nWe go north.");
     expect(passageOf("Plans", "Plans")).toBe("");
     expect(snippetOf("a\n  b ".repeat(3))).toBe("a b a b a b");
