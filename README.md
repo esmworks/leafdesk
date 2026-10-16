@@ -1147,8 +1147,9 @@ notified). Runs on rows you can't open are left out.
 
 **Not (yet) covered.** A copy of a database, or a template made from one, starts without
 automations. The REST API has no automation endpoints; use the app or MCP. Changes that aren't
-row writes don't start automations: a relation's other side updated by a two-way relation, values
-AI autofill writes, and a property or option being deleted.
+row writes don't start automations: a relation's other side updated by a two-way relation, and a
+property or option being deleted. Values AI autofill writes do, unless an automation's change set
+them off: those count as the automation's own changes.
 
 ### Webhooks
 
@@ -1293,8 +1294,12 @@ the REST API and MCP see them like any other text, and people can still edit the
 out in the background, when the property is added, when you hover a cell and click *Update with
 AI* (or on a row's page), with *Update all rows in this view* in the property's menu, and, if you
 tick *Update when the row changes*, a few seconds after a row's values or page change (only when
-what the value depends on changed). Cells show when a value is being worked out or failed, and
-why. Turning AI autofill off leaves the values as plain text.
+what the value depends on changed). A new value counts as a change of the row: it shows in the
+row's activity, semantic search finds it, and automations waiting for the property to change run.
+Other AI properties (and formulas over them) go into a prompt only when you name them, as a
+`{Property name}` or the property to translate; the AI properties that do then update after it.
+A property can't read itself through other AI properties. Cells show when a value is being worked
+out or failed, and why. Turning AI autofill off leaves the values as plain text.
 
 **AI chat.** *Ask AI* in the sidebar opens the chat across the page, where the sidebar lists
 your conversations (today, yesterday, the last 7 and 30 days, older) in place of the pages until
