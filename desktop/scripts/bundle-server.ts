@@ -73,6 +73,19 @@ fs.cpSync(path.join(repo, "drizzle"), path.join(out, "drizzle"), { recursive: tr
  */
 function layOutPackages(top: string): Map<string, string> {
   const SEGMENT = `${path.sep}node_modules${path.sep}`;
+  /**
+   * The folder a link leads to, read link by link rather than with realpath: on Windows the build
+   * copies pnpm's links to folders as links to files, which the system refuses to follow (EPERM).
+   * Throws ENOENT for a link to nothing.
+   */
+  const resolveLink = (file: string) => {
+    let at = file;
+    for (let hops = 0; fs.lstatSync(at).isSymbolicLink(); hops++) {
+      if (hops === 40) throw new Error(`Too many links from ${file}`);
+      at = path.resolve(path.dirname(at), fs.readlinkSync(at).replace(/^\\\\\?\\/, ""));
+    }
+    return at;
+  };
   const namesIn = (folder: string) =>
     fs
       .readdirSync(folder)
@@ -87,8 +100,11 @@ function layOutPackages(top: string): Map<string, string> {
     for (const name of namesIn(folder)) {
       if (name === self) continue;
       try {
-        dependencies.set(name, fs.realpathSync(path.join(folder, name)));
-      } catch {} // A dependency the build didn't trace: nothing runs it.
+        dependencies.set(name, resolveLink(path.join(folder, name)));
+      } catch (error) {
+        // A dependency the build didn't trace: nothing runs it.
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      }
     }
     return dependencies;
   };
@@ -119,13 +135,13 @@ function layOutPackages(top: string): Map<string, string> {
     }
   };
   const packages = path.join(standalone, "node_modules");
-  for (const name of namesIn(packages)) queue.push({ name, source: fs.realpathSync(path.join(packages, name)), chain: [top] });
+  for (const name of namesIn(packages)) queue.push({ name, source: resolveLink(path.join(packages, name)), chain: [top] });
   drain();
 
   const names = new Map<string, string>();
   const hashedFolder = path.join(standalone, ".next", "node_modules");
   for (const alias of namesIn(hashedFolder)) {
-    const source = fs.realpathSync(path.join(hashedFolder, alias));
+    const source = resolveLink(path.join(hashedFolder, alias));
     const name = alias.replace(/-[0-9a-f]{16}$/, "");
     const there = placed.get(top)?.get(name);
     // Another version under the plain name: this one keeps its hashed name.
