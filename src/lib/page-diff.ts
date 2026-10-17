@@ -140,6 +140,8 @@ export function similarity(before: string, after: string) {
 
 /** One block of a page body, without its children (they follow it with a larger depth). */
 export type DiffBlock = {
+  /** The block's id in its version, when it has one: the page review finds the block by it. */
+  id?: string;
   type: string;
   depth: number;
   /** Visible text: inline text, table cells, a file's caption or name. */
@@ -161,6 +163,7 @@ type TableCell = InlineNode[] | { content?: InlineNode[] };
 type Content = InlineNode[] | string | { type?: string; rows?: { cells: TableCell[] }[] } | undefined;
 /** Structural view of a BlockNote block; enough to compare and show it. */
 export type BlockInput = {
+  id?: string;
   type: string;
   props?: Record<string, unknown>;
   content?: Content;
@@ -205,6 +208,7 @@ export function flattenBlocks(blocks: readonly BlockInput[]): DiffBlock[] {
       if (MEDIA.has(block.type)) text = str("caption") || str("name") || str("url");
       if (block.type === "bookmark" || block.type === "webEmbed") text = str("title") || str("url");
       const diffBlock: DiffBlock = {
+        ...(typeof block.id === "string" ? { id: block.id } : {}),
         type: block.type,
         depth,
         text,

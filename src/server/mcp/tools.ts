@@ -1129,7 +1129,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_page",
     {
       title: "Read a page",
-      description: `Read a page: title, breadcrumb path, Markdown body, sub-pages and a link. locked: true means nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app. For database rows it also returns the row's properties; for databases it returns the schema summary (use query_database for rows). Long bodies are cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue reading. ${EMBED_NOTE}`,
+      description: `Read a page: title, breadcrumb path, Markdown body, sub-pages and a link. locked: true means nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app. For database rows it also returns the row's properties; for databases it returns the schema summary (use query_database for rows). Long bodies are cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue reading. with_block_ids puts a "<!-- block <id> -->" line before each block, for update_page's block modes. ${EMBED_NOTE}`,
       inputSchema: ops.inputs.getPage,
       annotations: READ,
     },
@@ -1196,7 +1196,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a page",
       description:
-        `Change a page's title, body and/or background (the color and pattern behind its text). mode "replace" overwrites the whole body with the given Markdown; mode "append" adds it to the end. Pass the version get_page gave you as expected_version: when someone changed the body since you read it, nothing is written and you are told to read it again. A history snapshot is saved before the body changes, and open editors update live. Works for database rows too (use update_database_row for their properties). ${EMBED_NOTE} Keep those lines where the databases should stay; a linked view whose line is left out is removed, while an inline database whose line is left out stays at the end of the page.`,
+        `Change a page's title, body and/or background (the color and pattern behind its text). mode "replace" overwrites the whole body with the given Markdown; mode "append" adds it to the end. To change part of a long body, read it with get_page with_block_ids and change single blocks by block_id: mode "replace_block" puts the Markdown in its place, "insert_after" adds it after the block, "delete_block" removes it. Pass the version get_page gave you as expected_version: when someone changed the body since you read it, nothing is written and you are told to read it again. A history snapshot is saved before the body changes, open editors update live, and the page offers the changes to its editors to keep or undo. Works for database rows too (use update_database_row for their properties). ${EMBED_NOTE} Keep those lines where the databases should stay; a linked view whose line is left out is removed, while an inline database whose line is left out stays at the end of the page.`,
       inputSchema: ops.inputs.updatePage,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,

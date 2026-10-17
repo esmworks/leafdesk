@@ -6,15 +6,17 @@ import { YjsThreadStore } from "@blocknote/core/yjs";
 import * as Y from "yjs";
 import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
+import { applyBlockEdits, listedBlocks, stripBlockMarkers, type BlockEdit } from "@/lib/block-edits";
 import { blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
-import { AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { AI_EDIT_EVENT, AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { assertPageUnlocked } from "@/lib/page-lock";
+import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
@@ -134,7 +136,7 @@ async function insertSnapshot(
   fallbackTitle: string,
 ) {
   const { markdown } = await deriveContent(doc, await workspaceOf(pageId));
-  await db.insert(pageSnapshot).values({
+  const [row] = await db.insert(pageSnapshot).values({
     pageId,
     title: readTitle(doc) ?? fallbackTitle,
     ydoc: Y.encodeStateAsUpdate(doc),
@@ -142,7 +144,8 @@ async function insertSnapshot(
     reason,
     createdBy: actor.userId ?? null,
     oauthClientId: actor.oauthClientId ?? null,
-  });
+  }).returning({ id: pageSnapshot.id });
+  return row.id;
 }
 
 async function maybeAutoSnapshot(pageId: string, doc: Y.Doc, markdown: string, title: string, userId?: string) {
@@ -411,7 +414,7 @@ export function createCollab() {
 
   const snapshotBefore = async (pageId: string, doc: Y.Doc, reason: SnapshotReason, actor: WriteActor) => {
     const [row] = await db.select({ title: page.title }).from(page).where(eq(page.id, pageId)).limit(1);
-    await insertSnapshot(pageId, doc, reason, actor, row?.title ?? "");
+    return insertSnapshot(pageId, doc, reason, actor, row?.title ?? "");
   };
 
   const writeBlocks = async (
@@ -421,13 +424,18 @@ export function createCollab() {
       existing: Awaited<ReturnType<typeof deriveContent>>["blocks"],
       mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
     ) => Promise<typeof existing | null>,
-    snapshot: boolean,
+    /** `true`: an AI app's or the chat's write, saved as `before_mcp_write` and offered for review. */
+    snapshot: boolean | "before_restore",
     check: VersionCheck = {},
   ) => {
     await assertWritable(pageId);
+    const aiWrite = snapshot === true;
     const versioned = check.expectedVersion !== undefined || Boolean(check.reportVersion);
-    const workspaceId = versioned ? await workspaceOf(pageId) : undefined;
-    return transactPage(pageId, actor, async (doc) => {
+    // An AI write records the body's version after it (page_snapshot.afterVersion), as pageVersion hashes it.
+    const workspaceId = versioned || aiWrite ? await workspaceOf(pageId) : undefined;
+    let snapshotId: string | null = null;
+    let afterVersion: string | null = null;
+    const result = await transactPage(pageId, actor, async (doc) => {
       const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
       // Read in the same synchronous run as the write or the check it stands for; hashed afterwards.
       const version = () => versionOf(editor.yXmlFragmentToBlocks(fragment), workspaceId);
@@ -445,9 +453,11 @@ export function createCollab() {
             return { next: null, write: { conflict: true, version: touched ? await version() : current } satisfies BodyWrite };
           }
         }
-        if (snapshot) await snapshotBefore(pageId, doc, "before_mcp_write", actor);
         const existing = editor.yXmlFragmentToBlocks(fragment);
         const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl });
+        if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
+        // Only a write that changes something is saved before.
+        if (snapshot && next) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
         if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
         // `next` null: nothing to write.
         if (next) {
@@ -460,11 +470,19 @@ export function createCollab() {
             { source: "local", context: actor },
           );
         }
-        return { next, write: versioned ? ({ conflict: false, version: await version() } satisfies BodyWrite) : null };
+        const after = versioned || (aiWrite && next) ? await version() : null;
+        if (aiWrite && next) afterVersion = after;
+        return { next, write: versioned ? ({ conflict: false, version: after! } satisfies BodyWrite) : null };
       } finally {
         if (watching) fragment.unobserveDeep(touch);
       }
     });
+    if (snapshotId && afterVersion) {
+      // Open pages offer the write for review (server/page-review.ts) while nobody changed the body since.
+      await db.update(pageSnapshot).set({ afterVersion }).where(eq(pageSnapshot.id, snapshotId));
+      broadcast(`page:${pageId}`, AI_EDIT_EVENT);
+    }
+    return result;
   };
 
   /** Blocks written as Markdown, with `[[Title]]` linked to the pages the writer can see (lib/wikilinks). */
@@ -475,6 +493,29 @@ export function createCollab() {
       linkWikilinks(blocks, (title) => pages.get(titleKey(title))?.id);
     }
     return blocks;
+  };
+
+  /** The edits' Markdown as blocks, made in order on `existing` (lib/block-edits). */
+  const buildEdits = async (
+    pageId: string,
+    actor: WriteActor,
+    existing: Awaited<ReturnType<typeof deriveContent>>["blocks"],
+    mentions: NonNullable<Parameters<typeof markdownToBlocks>[2]>,
+    edits: BlockEdit[],
+  ) => {
+    const parsed = [];
+    for (const edit of edits) {
+      const blocks =
+        edit.op === "delete" || edit.markdown === undefined
+          ? []
+          : await linkWritten(
+              pageId,
+              actor,
+              await markdownToBlocks(stripBlockMarkers(edit.markdown), existing, { ...mentions, keepMissingInline: false, carryOver: false }),
+            );
+      parsed.push({ op: edit.op, blockId: edit.blockId, blocks: blocks as ReviewBlock[] });
+    }
+    return applyBlockEdits(existing as ReviewBlock[], parsed);
   };
 
   const service: CollabService = {
@@ -611,6 +652,58 @@ export function createCollab() {
         check,
       );
       return write;
+    },
+
+    async transformBlocks(pageId, transform, actor, { snapshot = false, ...check } = {}) {
+      let changed = false;
+      const { write } = await writeBlocks(
+        pageId,
+        actor,
+        async (existing) => {
+          const next = transform(existing);
+          changed = next !== null;
+          return next as typeof existing | null;
+        },
+        snapshot,
+        { ...check, reportVersion: true },
+      );
+      return { ...write!, changed };
+    },
+
+    async editBlocks(pageId, edits, actor, { snapshot = false, dryRun = false, ...check } = {}) {
+      if (dryRun) {
+        const existing = (await service.readBlocks(pageId)).blocks as Awaited<ReturnType<typeof deriveContent>>["blocks"];
+        const made = await buildEdits(pageId, actor, existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl }, edits);
+        const version = await service.pageVersion(pageId);
+        if ("missing" in made) return { conflict: false, version, missing: made.missing };
+        return { conflict: false, version, missing: null, before: existing, after: made.blocks };
+      }
+      let missing: string | null = null;
+      const { write } = await writeBlocks(
+        pageId,
+        actor,
+        async (existing, mentions) => {
+          const made = await buildEdits(pageId, actor, existing, mentions, edits);
+          if ("missing" in made) {
+            missing = made.missing;
+            return null;
+          }
+          return made.blocks as typeof existing;
+        },
+        snapshot,
+        { ...check, reportVersion: true },
+      );
+      return { ...write!, missing };
+    },
+
+    async blockMarkdown(pageId) {
+      const [{ blocks }, workspaceId] = await Promise.all([service.readBlocks(pageId), workspaceOf(pageId)]);
+      const out: { id: string; markdown: string }[] = [];
+      for (const block of listedBlocks(blocks as ReviewBlock[])) {
+        if (!block.id) continue;
+        out.push({ id: block.id, markdown: (await blocksToMarkdown([block] as Parameters<typeof blocksToMarkdown>[0], { workspaceId })).trim() });
+      }
+      return out;
     },
 
     async appendBlocks(pageId, blocks, actor, snapshot = false) {

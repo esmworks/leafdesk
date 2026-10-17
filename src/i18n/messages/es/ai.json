@@ -161,17 +161,20 @@
         "done": {
           "createRow": "Fila añadida:",
           "updateRow": "Fila cambiada:",
-          "createPage": "Página añadida:"
+          "createPage": "Página añadida:",
+          "editPage": "Texto de la página cambiado:"
         },
         "declined": {
           "createRow": "Rechazado añadir la fila:",
           "updateRow": "Cambio rechazado:",
-          "createPage": "Rechazado añadir la página:"
+          "createPage": "Rechazado añadir la página:",
+          "editPage": "Cambio del texto rechazado:"
         },
         "failed": {
           "createRow": "No se pudo añadir la fila:",
           "updateRow": "No se pudo cambiar:",
-          "createPage": "No se pudo añadir la página:"
+          "createPage": "No se pudo añadir la página:",
+          "editPage": "No se pudo cambiar el texto de:"
         },
         "in": "en"
       },
@@ -203,7 +206,8 @@
         "updateRow": "¿Cambiar esta fila?",
         "createPage": "¿Añadir esta página?",
         "remember": "¿Recordar esto sobre ti?",
-        "forget": "¿Olvidar esta nota?"
+        "forget": "¿Olvidar esta nota?",
+        "editPage": "¿Cambiar el texto de esta página?"
       },
       "in": "En",
       "row": "Fila",
@@ -213,7 +217,9 @@
       "approve": "Sí",
       "always": "Sí, y no volver a preguntar (Automático)",
       "decline": "No",
-      "waiting": "Esperando tu aprobación"
+      "waiting": "Esperando tu aprobación",
+      "page": "Página",
+      "empty": "(vacío)"
     },
     "mode": {
       "label": "Cambios",

@@ -3,6 +3,7 @@
 
 import type { ChatChange, ChatMemoryRecord, ChatWriteAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
+import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
 
 /** Longest question one message may ask. */
@@ -92,8 +93,12 @@ export type ChatActionView = {
   action: ChatWriteAction | "remember" | "forget";
   target: ChatPageView;
   title: string | null;
+  /** A row renamed: its title now. */
+  previousTitle?: string;
   changes: ChatChange[];
   content: string | null;
+  /** A page's text changed: the blocks it changes, with one unchanged block around each. */
+  diff?: BlockChange[];
 };
 
 /**

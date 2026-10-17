@@ -161,17 +161,20 @@
         "done": {
           "createRow": "Satır eklendi:",
           "updateRow": "Satır değiştirildi:",
-          "createPage": "Sayfa eklendi:"
+          "createPage": "Sayfa eklendi:",
+          "editPage": "Sayfa metni değiştirildi:"
         },
         "declined": {
           "createRow": "Satır ekleme reddedildi:",
           "updateRow": "Değişiklik reddedildi:",
-          "createPage": "Sayfa ekleme reddedildi:"
+          "createPage": "Sayfa ekleme reddedildi:",
+          "editPage": "Metin değişikliği reddedildi:"
         },
         "failed": {
           "createRow": "Satır eklenemedi:",
           "updateRow": "Değiştirilemedi:",
-          "createPage": "Sayfa eklenemedi:"
+          "createPage": "Sayfa eklenemedi:",
+          "editPage": "Metni değiştirilemedi:"
         },
         "in": "yer:"
       },
@@ -203,7 +206,8 @@
         "updateRow": "Bu satır değiştirilsin mi?",
         "createPage": "Bu sayfa eklensin mi?",
         "remember": "Bunu senin hakkında hatırlasın mı?",
-        "forget": "Bu not unutulsun mu?"
+        "forget": "Bu not unutulsun mu?",
+        "editPage": "Bu sayfanın metni değiştirilsin mi?"
       },
       "in": "Yer:",
       "row": "Satır:",
@@ -213,7 +217,9 @@
       "approve": "Evet",
       "always": "Evet, bundan sonra sorma (Otomatik)",
       "decline": "Hayır",
-      "waiting": "Onayını bekliyor"
+      "waiting": "Onayını bekliyor",
+      "page": "Sayfa:",
+      "empty": "(boş)"
     },
     "mode": {
       "label": "Değişiklikler",

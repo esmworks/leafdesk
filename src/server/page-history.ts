@@ -34,7 +34,7 @@ export type VersionDiff = {
   actors: ChangeActor[];
 };
 
-function snapshotBlocks(state: Uint8Array) {
+export function snapshotBlocks(state: Uint8Array) {
   const doc = new Y.Doc();
   try {
     Y.applyUpdate(doc, state);

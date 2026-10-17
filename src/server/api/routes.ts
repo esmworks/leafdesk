@@ -367,10 +367,19 @@ export const API_ROUTES: ApiRoute[] = [
     description:
       "Title, icon, breadcrumb path and the whole body as Markdown, with sub-pages, databases shown in the body and pages linking here. A database row also has its property values; a database has its property list instead of a body.",
     scope: "pages:read",
+    query: z.object({
+      with_block_ids: z
+        .enum(["true", "false"])
+        .default("false")
+        .transform((v) => v === "true")
+        .describe('Put a line "<!-- block <id> -->" before each block of the body, for the block modes of updating a page.'),
+    }),
     response: "Page",
-    handler: async ({ principal, ctx, params }) => {
+    handler: async ({ principal, ctx, params, query }) => {
       await requirePageInWorkspace(principal, params.page_id);
-      return withoutNote(await ops.getPage(ctx, { page_id: params.page_id, offset: 0 }, { maxMarkdownChars: Infinity }));
+      return withoutNote(
+        await ops.getPage(ctx, { page_id: params.page_id, offset: 0, with_block_ids: query.with_block_ids }, { maxMarkdownChars: Infinity }),
+      );
     },
   }),
   defineRoute({
@@ -380,7 +389,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Update a page",
     description:
-      'Changes the title, icon, background and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end. With `expected_version` (the `version` a read of the page returned) the page changes only while its body still has that version; otherwise nothing is written and the answer is 409 `version_conflict`. The previous body is saved to page history first, and open editors update live.',
+      'Changes the title, icon, background and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end; with `block_id` (from a read with `with_block_ids`), "replace_block" puts the Markdown in place of that block, "insert_after" adds it after the block and "delete_block" removes it. With `expected_version` (the `version` a read of the page returned) the page changes only while its body still has that version; otherwise nothing is written and the answer is 409 `version_conflict`. The previous body is saved to page history first, and open editors update live.',
     scope: "pages:write",
     body: pageBodies.updatePage,
     response: "PageChanged",
