@@ -1145,11 +1145,25 @@ export async function pagesTitled(userId: string, workspaceId: string, titles: s
 
 export async function recentPages(userId: string, workspaceId: string, limit = 8) {
   await requireMembership(userId, workspaceId);
-  return db
-    .select({ id: page.id, title: page.title, icon: page.icon, kind: page.kind, updatedAt: page.updatedAt })
+  const live = and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), eq(page.inTemplate, false));
+  const columns = { id: page.id, title: page.title, icon: page.icon, kind: page.kind, updatedAt: page.updatedAt };
+  // Access is asked of the latest pages, newest first, until enough are found: asked of every page
+  // in the workspace before sorting, it took seconds in a large one. When too few of the latest are
+  // visible, every page is asked.
+  const latest = db
+    .select(columns)
     .from(page)
-    .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), eq(page.inTemplate, false), pageVisibleTo(userId)))
+    .where(live)
     .orderBy(desc(page.updatedAt))
+    .limit(Math.max(200, limit * 20))
+    .as("latest");
+  const found = await db
+    .select({ id: latest.id, title: latest.title, icon: latest.icon, kind: latest.kind, updatedAt: latest.updatedAt })
+    .from(latest)
+    .where(pageVisibleTo(userId, "latest"))
+    .orderBy(desc(latest.updatedAt))
     .limit(limit);
+  if (found.length === limit) return found;
+  return db.select(columns).from(page).where(and(live, pageVisibleTo(userId))).orderBy(desc(page.updatedAt)).limit(limit);
 }
 

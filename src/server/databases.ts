@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { queueAutomations } from "./automations/queue";
@@ -82,6 +82,7 @@ import {
 import {
   AccessError,
   accessRank,
+  childVisibleTo,
   getMembership,
   hasLevel,
   isGuest,
@@ -400,7 +401,7 @@ async function readRows(
         position: page.position,
       })
       .from(page)
-      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(userId)))
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, databaseId)))
       .orderBy(asc(page.position), asc(page.createdAt)),
     known ?? getProperties(databaseId),
     propertyAccessFor(userId, databaseId),
@@ -583,7 +584,7 @@ async function resolveRelationValue(userId: string, prop: DatabaseProperty, inpu
   const rows = await db
     .select({ id: page.id, title: page.title, archivedAt: page.archivedAt })
     .from(page)
-    .where(and(eq(page.parentId, targetId), eq(page.isTemplate, false), pageVisibleTo(userId)));
+    .where(and(eq(page.parentId, targetId), eq(page.isTemplate, false), childVisibleTo(userId, targetId)));
   const ids = new Set(rows.map((r) => r.id));
   const unseen = existing.filter((id) => !ids.has(id) && input.includes(id));
   const hidden = new Set(
@@ -2149,7 +2150,7 @@ export async function changePropertyType(
     // In the table's order, so options made from the values come in the order they appear.
     .orderBy(asc(page.position), asc(page.createdAt));
   const visible = new Set(
-    (await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), pageVisibleTo(userId)))).map((r) => r.id),
+    (await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), childVisibleTo(userId, prop.databaseId)))).map((r) => r.id),
   );
   let derived = new Map<string, unknown>();
   if (isDerived(prop.type)) {
@@ -2180,7 +2181,7 @@ export async function changePropertyType(
     ? await db
         .select({ id: page.id, title: page.title })
         .from(page)
-        .where(and(eq(page.parentId, target.id), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(userId)))
+        .where(and(eq(page.parentId, target.id), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, target.id)))
     : undefined;
   const conversion = planConversion(prop, { type: input.type }, values, { people, sourceTitles, targetRows, yes: input.yes });
 
@@ -2703,7 +2704,7 @@ export async function getDatabaseSnapshot(
         eq(page.isTemplate, false),
         // A trashed database still shows (and exports) the rows that went to the trash with it.
         database.archivedAt ? eq(page.archivedAt, database.archivedAt) : isNull(page.archivedAt),
-        pageVisibleTo(userId),
+        childVisibleTo(userId, databaseId),
       ),
     )
     .orderBy(asc(page.position), asc(page.createdAt));
@@ -2774,7 +2775,14 @@ export async function getRelationTargets(
     db
       .select({ id: page.id, title: page.title, icon: page.icon, parentId: page.parentId })
       .from(page)
-      .where(and(inArray(page.parentId, targetIds), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(userId)))
+      .where(
+        and(
+          inArray(page.parentId, targetIds),
+          eq(page.isTemplate, false),
+          isNull(page.archivedAt),
+          or(...targetIds.map((id) => and(eq(page.parentId, id), childVisibleTo(userId, id)))),
+        ),
+      )
       .orderBy(asc(page.position), asc(page.createdAt)),
     pairedIds.length
       ? db
@@ -2851,7 +2859,7 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
     db
       .select({ properties: page.properties, createdBy: page.createdBy, updatedBy: page.updatedBy })
       .from(page)
-      .where(and(eq(page.parentId, databaseId), pageVisibleTo(userId))),
+      .where(and(eq(page.parentId, databaseId), childVisibleTo(userId, databaseId))),
     db.select({ config: databaseView.config }).from(databaseView).where(eq(databaseView.databaseId, databaseId)),
     propertyAccessFor(userId, databaseId),
   ]);
