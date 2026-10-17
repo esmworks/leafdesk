@@ -7,6 +7,26 @@ opening a pull request (CI runs them too, plus a build and the end-to-end script
 Security problems are the exception: report them privately as [SECURITY.md](SECURITY.md)
 describes, not in an issue or pull request.
 
+## Licensing of contributions
+
+Leafdesk is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only).
+By opening a pull request or otherwise submitting a contribution (code, documentation,
+translations, images), you agree to the following:
+
+1. **Your contribution is licensed under AGPL-3.0-only**, like the rest of Leafdesk.
+2. **You also grant esmworks** a perpetual, worldwide, non-exclusive, royalty-free, irrevocable
+   license to use, copy, modify, distribute and sublicense your contribution, and to license it
+   under other terms, including commercial ones. You keep the copyright to your contribution and
+   may use it however you like.
+3. **You have the right to grant this**: the contribution is your own work, or you have
+   permission to contribute it under these terms (from your employer too, if it owns what you
+   write). If any of it comes from somewhere else, say so in the pull request.
+
+Code, styles, texts or images from other projects come in only under a license that allows the
+above, such as MIT, BSD or Apache-2.0, with their notice added to [NOTICE](NOTICE). Code under the
+GPL or AGPL from other projects can't be accepted, because esmworks couldn't grant point 2 for it:
+take the idea and write it yourself.
+
 ## Translations
 
 Leafdesk's interface is available in English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean and Chinese.
