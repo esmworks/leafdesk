@@ -30,7 +30,7 @@ const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { setPropertyAccess } = await import("@/server/property-access");
 const { changeComments } = await import("@/server/comments");
-const { listInbox } = await import("@/server/notifications");
+const { listInbox, snoozeNotification } = await import("@/server/notifications");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
 const { flushRowUpdates, isFollowing, pendingRowUpdates, setFollowing } = await import("@/server/row-follow");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
@@ -205,6 +205,11 @@ try {
     "a second update before the first was read joins it",
     memberUpdates.map(said),
   );
+  await snoozeNotification(ids.member, memberUpdates[0].id, new Date(Date.now() + 3_600_000));
+  await databases.updateRowProperties(ids.owner, row.id, { [notes.id]: "final 2" });
+  await flushRowUpdates();
+  const afterSnooze = await db.select().from(notification).where(and(eq(notification.userId, ids.member), eq(notification.kind, "row_update")));
+  check(afterSnooze.length === 2 && afterSnooze.filter((n) => n.snoozedUntil).length === 1, "a snoozed update stays snoozed; the next one comes on its own", afterSnooze);
 
   // Choosing not to follow wins over being assigned
   await clearInboxes();

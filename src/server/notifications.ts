@@ -454,6 +454,8 @@ export async function recordRowUpdate(
             eq(notification.actorId, actorId),
             inArray(notification.userId, recipients.map((r) => r.userId)),
             isNull(notification.readAt),
+            // A snoozed one waits for its time as it is; this update comes on its own.
+            isNull(notification.snoozedUntil),
           ),
         )
         .returning({ userId: notification.userId, changes: notification.changes });
