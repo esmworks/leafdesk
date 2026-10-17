@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { getTableColumns, sql } from "drizzle-orm";
 import {
   boolean,
   check,
@@ -418,6 +418,9 @@ export const page = pgTable(
     index("page_search_vector_idx").using("gin", t.searchVector),
   ],
 );
+
+/** The page's columns but its search vector (large, and only full-text search reads it): for loading whole pages. */
+export const pageColumns = (({ searchVector: _searchVector, ...rest }) => rest)(getTableColumns(page));
 
 export { PROPERTY_TYPES, type PropertyType, type StatusGroup };
 /** An option of a select, multi-select or status property. Status options belong to a `group`. */

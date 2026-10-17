@@ -12,6 +12,7 @@ import {
   databaseView,
   oauthClient,
   page,
+  pageColumns,
   pagePermission,
   pageSnapshot,
   type PageKind,
@@ -333,7 +334,7 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
         createdBy: userId,
         updatedBy: userId,
       })
-      .returning();
+      .returning(pageColumns);
     if (placement.private) await makePagePrivate(tx, workspaceId, row.id, userId);
     else if (!input.parentId && placement.teamspaceId) await keepFullAccess(tx, workspaceId, row.id, userId);
     if (audit && !inTemplate && parentKind !== "database") {

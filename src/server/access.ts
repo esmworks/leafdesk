@@ -1,7 +1,8 @@
-import { and, eq, getTableColumns, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
+import { and, eq, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import {
   page,
+  pageColumns,
   PAGE_LEVELS,
   ssoProvider,
   workspace,
@@ -399,7 +400,7 @@ export async function resolvePageAccess(userId: string, pageId: string) {
  */
 export async function pageAccessOf(userId: string, pageId: string) {
   const [row] = await db
-    .select({ ...getTableColumns(page), level: accessRank(userId, sql`${page.id}`) })
+    .select({ ...pageColumns, level: accessRank(userId, sql`${page.id}`) })
     .from(page)
     .where(eq(page.id, pageId))
     .limit(1);
