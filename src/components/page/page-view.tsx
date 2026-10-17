@@ -35,6 +35,7 @@ import { SkillBar } from "@/components/skills/skill-bar";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
+import { threadOfHash } from "@/lib/comments";
 import type { PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 
@@ -162,6 +163,18 @@ export function PageView({
     wasArchived.current = page.archived;
   }, [page.archived, pageDoc]);
   useEffect(() => setBackground(page.background), [page.background]);
+  // A link to one of the page's threads (`#comment-<id>`) opens the comments; the panel selects it.
+  useEffect(() => {
+    if (!showBody) return;
+    const fromHash = () => {
+      if (!threadOfHash(window.location.hash)) return;
+      setGraphOpen(false);
+      setCommentsOpen(true);
+    };
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, [showBody]);
 
   // Someone else changed the icon or background (server/pages.ts): load them again.
   const provider = pageDoc?.provider;

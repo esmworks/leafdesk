@@ -184,6 +184,12 @@ describe("pushPayload", () => {
     expect(pushLink(item({ kind: "agent_memory", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
     expect(pushLink(item({ kind: "agent_report", pageId: null }))).toBe("/w/ws1/settings?tab=agents");
   });
+
+  it("opens a comment's thread on its page", () => {
+    expect(pushLink(item({ kind: "comment", pageId: "p1", threadId: "t1" }))).toBe("/w/ws1/p/p1#comment-t1");
+    expect(pushLink(item({ kind: "comment", pageId: "p1", threadId: null }))).toBe("/w/ws1/p/p1");
+    expect(pushLink(item({ kind: "mention", pageId: "p1", threadId: "t1" }))).toBe("/w/ws1/p/p1");
+  });
 });
 
 describe("encodePushPayload", () => {

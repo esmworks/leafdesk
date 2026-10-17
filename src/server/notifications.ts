@@ -443,6 +443,8 @@ export type InboxItem = {
   pageId: string | null;
   pageTitle: string | null;
   pageIcon: string | null;
+  /** Comments: the thread it is about. */
+  threadId: string | null;
   databaseTitle: string | null;
   propertyName: string | null;
   /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). Automations: set for a "date passed" run. */
@@ -583,6 +585,7 @@ export async function listNotifications(
       pageId: page.id,
       pageTitle: page.title,
       pageIcon: page.icon,
+      threadId: notification.threadId,
       // A row can be shared without its database: then the database's name stays hidden too.
       databaseTitle: sql<string | null>`case when page_access_level(${userId}, ${databasePage.id}) > 0 then ${databasePage.title} end`,
       propertyName: databaseProperty.name,

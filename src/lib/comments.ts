@@ -8,6 +8,16 @@
 /** The map in the page's document holding its threads, as BlockNote's thread stores expect. */
 export const THREADS_MAP = "threads";
 
+/**
+ * A link's fragment for a thread of the page (`#comment-<id>`): the page opens its comments with
+ * that thread selected and scrolls to the text it is about. Notifications about comments lead there.
+ */
+export const commentHash = (threadId: string) => `#comment-${threadId}`;
+const COMMENT_HASH = /^#comment-([\w-]{1,100})$/;
+
+/** The thread a link's fragment (`location.hash`) names, if it names one. */
+export const threadOfHash = (hash: string): string | undefined => COMMENT_HASH.exec(hash)?.[1];
+
 /** Longest comment, in characters of text. */
 export const MAX_COMMENT_LENGTH = 10_000;
 const MAX_PARAGRAPHS = 100;
