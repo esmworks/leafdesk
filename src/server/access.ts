@@ -455,6 +455,38 @@ export function pageVisibleTo(userId: string, alias?: string): SQL {
 }
 
 /**
+ * pageVisibleTo for the pages under `parentId` (a database's rows), worked out once for the parent
+ * instead of once per page where that gives the same answer: page_access_level reads a page's
+ * access from the entries on it and above it, so a page with no entries of its own, in its
+ * parent's workspace and teamspace, has its parent's access. The walk up from the page goes one
+ * step further than from the parent and stops after 64 (page_access_level), so that holds while the
+ * parent's walk reaches the top within 63. Every other page is asked on its own.
+ */
+export function childVisibleTo(userId: string, parentId: string, alias?: string): SQL {
+  const child = pageIdColumn(alias);
+  const [parentColumn, workspaceColumn, teamspaceColumn] = alias
+    ? ["parent_id", "workspace_id", "teamspace_id"].map((name) => sql.raw(`"${alias}"."${name}"`))
+    : [sql`${page.parentId}`, sql`${page.workspaceId}`, sql`${page.teamspaceId}`];
+  return sql`(case
+    when ${parentColumn} = ${parentId}
+      and ${workspaceColumn} = (select pa.workspace_id from page pa where pa.id = ${parentId})
+      and ${teamspaceColumn} is not distinct from (select pa.teamspace_id from page pa where pa.id = ${parentId})
+      and (
+        with recursive up as (
+          select pa.parent_id, 0 as depth from page pa where pa.id = ${parentId}
+          union all
+          select pa.parent_id, up.depth + 1 from page pa join up on pa.id = up.parent_id where up.depth < 63
+        )
+        select coalesce(bool_or(up.parent_id is null), false) from up
+      )
+      and not exists (select 1 from page_permission pp where pp.page_id = ${child})
+      and not exists (select 1 from page_group_permission gp where gp.page_id = ${child})
+    then (select ${accessRank(userId, sql`${parentId}`)})
+    else ${accessRank(userId, child)}
+  end) > 0`;
+}
+
+/**
  * Of these pages, those someone in the workspace besides its owners (a member, a guest or an
  * agent, through a teamspace, a group or the pages' own sharing) may edit: what keeps a page from
  * being an agent's skill (server/agents/skills.ts). page_access_level decides, asked only of who
