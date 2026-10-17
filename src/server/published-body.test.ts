@@ -20,7 +20,24 @@ describe("published page body", () => {
     expect(isSafeLink("data:text/html,x")).toBe(false);
     expect(isSafeMediaUrl("/files/a.png")).toBe(true);
     expect(isSafeMediaUrl("//evil.example/a.png")).toBe(false);
+    expect(isSafeMediaUrl("/\\evil.example/a.png")).toBe(false);
     expect(isSafeMediaUrl("javascript:alert(1)")).toBe(false);
+  });
+
+  it("unwraps unsafe links in table cells of the older, array form", () => {
+    const [block] = sanitizeBlocks([
+      {
+        type: "table",
+        props: {},
+        content: {
+          type: "tableContent",
+          rows: [{ cells: [[{ type: "link", href: "javascript:alert(1)", content: [{ type: "text", text: "x", styles: {} }] }]] }],
+        },
+        children: [],
+      },
+    ]);
+    expect(JSON.stringify(block)).not.toContain("javascript:");
+    expect((block.content as any).rows[0].cells[0]).toEqual([{ type: "text", text: "x", styles: {} }]);
   });
 
   it("unwraps unsafe links and clears unsafe media urls", () => {

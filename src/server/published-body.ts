@@ -42,8 +42,9 @@ export function isSafeLink(href: unknown): href is string {
 export function isSafeMediaUrl(url: unknown): url is string {
   if (typeof url !== "string") return false;
   const value = url.trim();
-  // Same-origin absolute paths are fine; "//host" is protocol-relative, i.e. another origin.
-  return SAFE_MEDIA.test(value) || (value.startsWith("/") && !value.startsWith("//"));
+  // Same-origin absolute paths are fine; "//host" is protocol-relative, i.e. another origin, and
+  // browsers read "/\host" the same way.
+  return SAFE_MEDIA.test(value) || /^\/(?![/\\])/.test(value);
 }
 
 /** Inline content: unsafe links become their plain text; everything else is walked. */
@@ -61,7 +62,8 @@ function sanitizeInline(items: Json[]): Json[] {
       out.push(sanitizeValue(node));
       continue;
     }
-    out.push(item);
+    // A table cell of the older form is a list of inline content of its own.
+    out.push(Array.isArray(item) ? sanitizeInline(item) : item);
   }
   return out;
 }

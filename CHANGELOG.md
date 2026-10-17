@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Upgrading
+
+- **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
+  included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
+  in the pages' policy). A public form or published page put inside another website with an
+  `<iframe>` shows an error there instead; link to it.
+- **A reverse proxy that sets its own Content-Security-Policy** now adds to the app's: the browser
+  enforces both, so drop the proxy's (or make sure it allows at least what the app's does, see
+  `src/lib/content-security-policy.ts`).
+
 ### Added
 
 - **Board columns can show a calculation.** Next to its name, each column of a board shows how
@@ -12,6 +22,17 @@
   keeps its own choice; published boards don't show it.
   Over MCP, `create_database_view` and `update_database_view` set it on boards with `aggregate`
   and `aggregate_property`, as on charts, and describe it with the view.
+
+### Security
+
+- **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response
+  run, so HTML that ever got past the sanitizers of a published page, a bookmark or a diagram
+  can't run script where the session lives; frames may only come from the embed providers, and
+  forms and `<base>` stay on this site. Offline copies of pages keep their policy.
+- **Bookmark cards in the editor link and load only web addresses.** A bookmark written with
+  another kind of address (by hand in the document, or by an app) shows without a link or image.
+- **Published pages check links in tables of the older form too**, and refuse image and video
+  addresses like `/\example.com/…`, which browsers read as another site.
 
 ## 0.5.4 — 2026-10-17
 

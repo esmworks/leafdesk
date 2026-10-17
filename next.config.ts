@@ -27,6 +27,20 @@ const config = (phase: string): NextConfig => ({
   // Dev only: Next prints every server action call with its arguments, and account actions take
   // passwords and two-step codes. Dev logs end up pasted into issues.
   logging: { serverFunctions: false },
+  async headers() {
+    // Every response, API routes and files included: no other site frames anything of ours (pages
+    // also say so in their Content-Security-Policy, see src/proxy.ts; this covers older browsers),
+    // and nothing is read as another type than it is served as.
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     // OAuth / MCP discovery documents must live at the origin root.
     return [{ source: "/.well-known/:path*", destination: "/api/well-known/:path*" }];
