@@ -135,8 +135,8 @@
   on.** Chinese and Japanese write no spaces between words, so search took a whole sentence as one
   word and found a page only by its first characters: "会議" didn't find "明日の会議について". The
   search vector now also keeps every two-character piece of such text (migration 0077,
-  `cjk_bigrams`, for the first 30,000 such characters of a page, which keeps the vector far below
-  Postgres' limit), and queries are cut the same way: a word is found anywhere, a single character
+  `cjk_bigrams`, for the first 30,000 such characters within the first 80,000 of a page), and
+  queries are cut the same way: a word is found anywhere, a single character
   as it is typed, and the pieces of a word only side by side ("東京都" doesn't find a page about
   "東京" and "京都"). Korean is written with spaces, so its words are still found by their start
   ("회의" finds "회의를", not "국회의원"). The AI chat's any-word search takes the words of such a
