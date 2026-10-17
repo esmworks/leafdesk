@@ -44,12 +44,12 @@ beforeEach(() => {
 describe("saveValue", () => {
   const job = { rowId: "row", databaseId: "db", userId: "ada", chain: ["summary"] };
 
-  it("saves a new value as a row write: activity and automations, then the row listeners", async () => {
+  it("saves a new value as an AI row write: activity and automations, then the row listeners", async () => {
     expect(await saveValue(job, "category", "Billing")).toBe(true);
     expect(updates).toEqual([{ notes: "Hello", category: "Billing" }]);
     expect(afterRowWrites).toHaveBeenCalledWith("ada", "db", [
       { rowId: "row", before: { notes: "Hello" }, after: { notes: "Hello", category: "Billing" } },
-    ]);
+    ], { ai: true });
     expect(rowChanged).toHaveBeenCalledWith({
       rowId: "row",
       databaseId: "db",

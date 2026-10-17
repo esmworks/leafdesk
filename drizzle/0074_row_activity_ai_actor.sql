@@ -1,0 +1,2 @@
+ALTER TABLE "row_activity" DROP CONSTRAINT "row_activity_actor_kind_check";--> statement-breakpoint
+ALTER TABLE "row_activity" ADD CONSTRAINT "row_activity_actor_kind_check" CHECK ("row_activity"."actor_kind" in ('user', 'agent', 'automation', 'ai', 'form'));

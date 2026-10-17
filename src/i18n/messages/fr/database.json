@@ -503,6 +503,8 @@
     "formAnswer": "Une réponse de formulaire",
     "agent": "agent",
     "automation": "automatisation",
+    "ai": "IA",
+    "aiFor": "(pour {name})",
     "created": "<actor>{name}</actor> a créé cette ligne",
     "titled": "<actor>{name}</actor> a défini le titre sur <new>{to}</new>",
     "renamed": "<actor>{name}</actor> a renommé cette ligne de <old>{from}</old> en <new>{to}</new>",

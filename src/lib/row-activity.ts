@@ -11,9 +11,10 @@ import { isReadOnlyType, type PropertyType } from "./property-types";
 
 /**
  * Who made a change: a person, an agent (which acts as a user of its own), an automation (acting
- * as the person who saved it) or an anonymous answer to a public form (nobody to name).
+ * as the person who saved it), an AI value (worked out for the person whose request or change set
+ * it off, an automation's too) or an anonymous answer to a public form (nobody to name).
  */
-export const ROW_ACTIVITY_ACTORS = ["user", "agent", "automation", "form"] as const;
+export const ROW_ACTIVITY_ACTORS = ["user", "agent", "automation", "ai", "form"] as const;
 export type RowActivityActor = (typeof ROW_ACTIVITY_ACTORS)[number];
 
 /** What an entry is about: the row being made, its title, or one of its property values. */

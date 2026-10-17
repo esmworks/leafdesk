@@ -519,6 +519,13 @@
       "when": 1792224026776,
       "tag": "0073_storage_deletion",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1792224580657,
+      "tag": "0074_row_activity_ai_actor",
+      "breakpoints": true
     }
   ]
 }

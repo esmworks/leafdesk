@@ -75,6 +75,13 @@ describe("coalesce", () => {
     expect(coalesce(open({ actorKind: "automation" }), change, now)).toEqual({ action: "insert" });
   });
 
+  it("keeps an AI value apart from the person's own edits it was worked out for, and merges quick AI values", () => {
+    const ai = { ...change, actorKind: "ai" as const };
+    expect(coalesce(open(), ai, now)).toEqual({ action: "insert" });
+    expect(coalesce(open({ actorKind: "ai" }), change, now)).toEqual({ action: "insert" });
+    expect(coalesce(open({ actorKind: "ai" }), ai, now)).toEqual({ action: "update", id: "e1" });
+  });
+
   it("never merges changes nobody is named for", () => {
     expect(coalesce(open({ actorUserId: null }), { ...change, actorUserId: null }, now)).toEqual({ action: "insert" });
   });

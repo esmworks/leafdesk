@@ -2989,7 +2989,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List a row's activity",
       description:
-        'List what happened to a database row, newest first: who created it and who changed its title or a property value, from what to what. actor says whether a person, an agent, an automation (acting as the person named) or an anonymous form answer did it. Quick changes by the same actor to the same value are merged into one entry. Entries about properties the user can\'t see in the row are left out; linked rows they can\'t open read as "(no access)". Read further back with offset.',
+        'List what happened to a database row, newest first: who created it and who changed its title or a property value, from what to what. actor says whether a person, an agent, an automation (acting as the person named), an AI autofill value (worked out for the person named) or an anonymous form answer did it. Quick changes by the same actor to the same value are merged into one entry. Entries about properties the user can\'t see in the row are left out; linked rows they can\'t open read as "(no access)". Read further back with offset.',
       inputSchema: ops.inputs.listRowActivity,
       annotations: READ,
     },

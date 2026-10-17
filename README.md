@@ -193,9 +193,9 @@ versions, upgrades and running behind a domain.
   - Select rows to edit a property, duplicate, export or trash them at once.
   - Row activity: under a row page's properties, who created the row and who changed its title or
     a value, from what to what ("Ayşe changed Status from In progress to Done · 2 hours ago"),
-    newest first, whether in the app, in bulk, by a form, an automation, an agent, MCP or the API.
-    Changes by the same person to the same value within five minutes are one entry, and one that
-    ends where it started leaves none. Formulas, rollups and who/when values aren't recorded. Each
+    newest first, whether in the app, in bulk, by a form, an automation, an agent, AI autofill, MCP
+    or the API. Changes by the same person to the same value within five minutes are one entry, and
+    one that ends where it started leaves none. Formulas, rollups and who/when values aren't recorded. Each
     viewer sees only the entries about values they may see in the row, linked rows they can't open
     aren't named, and entries about a deleted property come back with it. Text is kept with
     credentials masked; the activity goes with the row when it is deleted for good.

@@ -917,16 +917,22 @@ export async function announceAssignments(
  * What every saved row write sets off: the rows' activity (server/row-activity), authorizing the
  * files its values gained, assignment notices, the database's automations
  * (server/automations/queue) and moving the rows waiting for rows whose dates moved. `created` for
- * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more.
+ * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more;
+ * `ai` for AI values written for the actor, which read as the AI's in the activity.
  */
 export async function afterRowWrites(
   actorId: string | null,
   databaseId: string,
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
-  { created = false, shifted = false, boundTo = null }: { created?: boolean; shifted?: boolean; boundTo?: string | null } = {},
+  {
+    created = false,
+    shifted = false,
+    boundTo = null,
+    ai = false,
+  }: { created?: boolean; shifted?: boolean; boundTo?: string | null; ai?: boolean } = {},
 ) {
   // Alongside the rest: recording never throws and nothing below waits for it.
-  const recording = recordRowWrites(actorId, databaseId, changes, { created, anonymousForm: !actorId && boundTo !== null });
+  const recording = recordRowWrites(actorId, databaseId, changes, { created, anonymousForm: !actorId && boundTo !== null, ai });
   await authorizeRowFiles(actorId, changes);
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);

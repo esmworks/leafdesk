@@ -415,8 +415,9 @@ async function runJob(job: Job): Promise<number> {
 
 /**
  * Saves a worked-out value (an empty one clears it) when it differs from the stored one, and sets
- * off what any row write does: activity, automations (unless the job runs as one), and the row
- * listeners (search, the AI values reading this one). Returns whether it changed anything.
+ * off what any row write does: activity (as the AI's, for the job's person), automations (unless
+ * the job runs as one), and the row listeners (search, the AI values reading this one). Returns
+ * whether it changed anything.
  */
 export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId" | "chain">, propertyId: string, value: string) {
   const written = await db.transaction(async (tx) => {
@@ -436,7 +437,9 @@ export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId"
   if (!written) return false;
   // Rows of a database kept as a template set nothing off (see databases.updateRowProperties).
   if (!written.inTemplate) {
-    await databases.afterRowWrites(job.userId, job.databaseId, [{ rowId: job.rowId, before: written.before, after: written.after }]);
+    await databases.afterRowWrites(job.userId, job.databaseId, [{ rowId: job.rowId, before: written.before, after: written.after }], {
+      ai: true,
+    });
   }
   rowChanged({
     rowId: job.rowId,

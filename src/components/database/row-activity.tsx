@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, Sparkles } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { loadRowActivityAction } from "@/app/actions/databases";
@@ -144,13 +144,15 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
   const format = useFormatter();
   const at = new Date(entry.at);
   const { person, kind } = entry.actor;
-  const name = kind === "form" ? t("formAnswer") : (person?.name ?? t("someone"));
+  const name = kind === "form" ? t("formAnswer") : kind === "ai" ? t("ai") : (person?.name ?? t("someone"));
   const actor = (
     <>
       <span className="font-medium text-fg">{name}</span>
       {(kind === "agent" || kind === "automation") && (
         <span className="ml-1 rounded bg-bg-active px-1 py-px align-[1px] text-[11px] leading-none text-fg-muted">{t(kind)}</span>
       )}
+      {/* An AI value names who it was worked out for: whoever asked, or whose change set it off. */}
+      {kind === "ai" && <span className="ml-1">{t("aiFor", { name: person?.name ?? t("someone") })}</span>}
     </>
   );
   const tags = {
@@ -188,10 +190,11 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
 function Avatar({ entry, name }: { entry: RowActivityEntry; name: string }) {
   const { person, kind } = entry.actor;
   const box = "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-bg-active text-fg-muted";
-  if (kind === "form") {
+  if (kind === "form" || kind === "ai") {
+    const Icon = kind === "form" ? FileText : Sparkles;
     return (
       <span aria-hidden className={box}>
-        <FileText className="h-3 w-3" />
+        <Icon className="h-3 w-3" />
       </span>
     );
   }
