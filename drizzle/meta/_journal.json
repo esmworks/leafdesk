@@ -568,6 +568,13 @@
       "when": 1792248834083,
       "tag": "0080_file_text_search",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1792250296430,
+      "tag": "0081_daily_notes",
+      "breakpoints": true
     }
   ]
 }
