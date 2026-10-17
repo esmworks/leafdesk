@@ -1,6 +1,6 @@
 /**
  * Mentions and page links in page bodies: an `@` mention of a person, a page or a date inside a
- * line of text, and a "Link to page" block.
+ * line of text, a "Link to page" block, and a synced page block (another page's body shown live).
  *
  * Like the other custom content (lib/content-blocks, lib/embed-blocks), the configs here are shared
  * by the editor (React specs, components/page/mentions.tsx) and the server (server/blocknote.ts):
@@ -19,6 +19,10 @@
  *   [Roadmap](/w/<ws>/p/<page>) <!-- leafdesk:page-link -->
  *                                          a "Link to page" block: that link alone on its line,
  *                                          followed by the marker.
+ *   [Roadmap](/w/<ws>/p/<page>) <!-- leafdesk:synced-page -->
+ *                                          a synced page block: likewise, with its own marker. The
+ *                                          page's body is never written into the Markdown of the
+ *                                          page showing it (it is that page's own to index).
  *   @Ada Lovelace                          a person: "@" and their name as the workspace knows it.
  *   @2026-10-01                            a date (ISO 8601). A reminder set on a date stays with it
  *                                          when the Markdown is written back; it is set in the editor.
@@ -30,6 +34,8 @@ import { COLLAB_FRAGMENT } from "./collab-constants";
 export const MENTION = "mention";
 export const PAGE_LINK_BLOCK = "pageLink";
 export const PAGE_LINK_MARKER = "<!-- leafdesk:page-link -->";
+export const SYNCED_PAGE_BLOCK = "syncedPage";
+export const SYNCED_PAGE_MARKER = "<!-- leafdesk:synced-page -->";
 
 export type MentionKind = "user" | "page" | "date";
 
@@ -61,6 +67,19 @@ export const pageLinkBlockConfig = {
   propSchema: { pageId: { default: "" } },
   content: "none",
 } as const;
+
+/**
+ * A synced page: another page's body, shown and edited in place (components/page/synced-page.tsx).
+ * Only the page's id is stored; what a reader sees follows their own access to that page.
+ */
+export const syncedPageBlockConfig = {
+  type: SYNCED_PAGE_BLOCK,
+  propSchema: { pageId: { default: "" } },
+  content: "none",
+} as const;
+
+/** Blocks that stand for a whole page: "Link to page" blocks and synced pages. */
+export const isPageBlockType = (type: unknown) => type === PAGE_LINK_BLOCK || type === SYNCED_PAGE_BLOCK;
 
 export type MentionProps = {
   kind: MentionKind;
@@ -232,7 +251,7 @@ export function eachMention(blocks: AnyBlock[], fn: (props: MentionProps, node: 
 }
 
 export type BodyReferences = {
-  /** Pages the body links to: page mentions and "Link to page" blocks. */
+  /** Pages the body links to: page mentions, "Link to page" blocks and synced pages. */
   pageIds: string[];
   /** Person mentions: `key` is the mention's id (or, for one without, the person). */
   people: { key: string; userId: string }[];
@@ -247,7 +266,7 @@ export function bodyReferences(blocks: AnyBlock[]): BodyReferences {
   const reminders = new Map<string, { date: string; remindAt: string }>();
   const walk = (list: AnyBlock[]) => {
     for (const block of list) {
-      if (block.type === PAGE_LINK_BLOCK) {
+      if (isPageBlockType(block.type)) {
         const pageId = (block.props as { pageId?: unknown } | undefined)?.pageId;
         if (typeof pageId === "string" && pageId) pageIds.add(pageId);
       }

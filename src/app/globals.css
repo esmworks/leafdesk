@@ -914,6 +914,30 @@
 }
 
 /*
+ * A synced page's editor sits inside a block of the page showing it, without block handles of its
+ * own (see collab-editor.tsx): its text starts near the box's edge, under the page's title.
+ */
+.leafdesk-synced {
+  white-space: normal;
+}
+.leafdesk-synced .bn-container .bn-editor {
+  padding-block: 4px;
+  padding-inline: 12px;
+}
+/* Its top-level blocks are top-level: the nested-block indent and line are the outer editor's. */
+:root .leafdesk-synced .bn-editor > .bn-block-group {
+  margin-left: 0;
+  margin-inline-start: 0;
+}
+:root .leafdesk-synced .bn-editor > .bn-block-group > .bn-block-outer::before {
+  content: none;
+}
+/* Read-only, there is nothing to add after the last block. */
+.leafdesk-synced .bn-editor[contenteditable="false"] .bn-trailing-block {
+  display: none;
+}
+
+/*
  * Mentions: inline text with a small icon, no chip background until hovered. Page mentions are
  * underlined like links; ones that can't be opened (no access, deleted) are muted.
  */

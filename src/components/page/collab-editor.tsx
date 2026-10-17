@@ -40,7 +40,7 @@ import { useColumnSlashItems } from "./columns";
 import { PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
 import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
 import { writePageStyle } from "@/lib/page-style";
-import { PAGE_LINK_BLOCK } from "@/lib/mentions";
+import { PAGE_LINK_BLOCK, SYNCED_PAGE_BLOCK } from "@/lib/mentions";
 import { userColor } from "@/lib/presence";
 import { BlockDirection } from "./block-direction";
 import { codeHighlighting } from "./code-block";
@@ -50,6 +50,7 @@ import { FindReplace } from "./find-replace";
 import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, withEmbedItems, type PageEditor } from "./embed-blocks";
 import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
 import type { PageDoc } from "./use-page-doc";
+import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./synced-page";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
@@ -81,11 +82,12 @@ export default function CollabEditor({
   workspaceId,
   pageId,
   crumbs,
-  commentsOpen,
+  commentsOpen: commentsWanted,
   onCloseComments,
   offline = false,
-  ai = false,
-  voice = null,
+  ai: aiWanted = false,
+  voice: voiceWanted = null,
+  nested = false,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
@@ -108,6 +110,12 @@ export default function CollabEditor({
   ai?: boolean;
   /** Voice notes are available, with these limits (as for `ai`, and the server can transcribe). */
   voice?: VoiceNoteLimits | null;
+  /**
+   * The editor of a synced page inside another page's body (see synced-page.tsx): the same editor
+   * (and schema, so nothing in the page reads differently), without the page's own find bar, focus
+   * on linked blocks, block handles, comments panel and AI.
+   */
+  nested?: boolean;
 }) {
   const locale = useLocale();
   const colorScheme = useColorScheme();
@@ -120,8 +128,19 @@ export default function CollabEditor({
   const [pickAt, setPickAt] = useState<string | null>(null);
   // A dashboard's grid needs the room: the page takes the whole width (the page menu turns it back).
   const widenForDashboard = useCallback(() => writePageStyle(pageDoc.doc, { fullWidth: true }), [pageDoc]);
-  // Block id where "Link to page" was chosen, while its page picker is open.
-  const [linkAt, setLinkAt] = useState<string | null>(null);
+  // Block id where "Link to page" or "Synced page" was chosen, while its page picker is open.
+  const [linkAt, setLinkAt] = useState<{ at: string; type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK } | null>(null);
+  const pickLink = useCallback((at: string) => setLinkAt({ at, type: PAGE_LINK_BLOCK }), []);
+  const pickSynced = useCallback((at: string) => setLinkAt({ at, type: SYNCED_PAGE_BLOCK }), []);
+  const tSynced = useTranslations("page.blocks.syncedPage");
+  // The pages shown around this editor, for the synced pages in it (see synced-page.tsx).
+  const outer = useSyncedFrame();
+  const frame = useMemo(
+    () => ({ chain: [...(outer?.chain ?? []), pageId], user, offline }),
+    // `user` is a new object on every render of the page: its fields are what matter.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [outer, pageId, user.id, user.name, offline],
+  );
   usePageRefUpdates(workspaceId);
   const [embedError, setEmbedError] = useState<string | null>(null);
   // The side menu's block menu, with "Turn into database" for tables (setEmbedError never changes).
@@ -200,10 +219,13 @@ export default function CollabEditor({
     threadStore.anchor = () => selectionAnchor(editor);
   }, [threadStore, editor]);
 
+  const ai = aiWanted && !nested;
+  const voice = nested ? null : voiceWanted;
+  const commentsOpen = commentsWanted && !nested;
   const assistant = useAiAssist(editor, pageId, ai && editable && !offline);
   const voiceNote = useVoiceNote(editor, pageId, voice && editable && !offline ? voice : null);
-  // Links to a passage (the AI chat's citations) scroll to its block.
-  useBlockFocus();
+  // Links to a passage (the AI chat's citations) scroll to its block: the page's own blocks.
+  useBlockFocus(!nested);
 
   // The editor's menus and its block handles follow the interface language's direction: right to
   // left, the handles sit to the right of the blocks and submenus open to the left.
@@ -215,83 +237,92 @@ export default function CollabEditor({
 
   // Keyed by language so the new editor mounts into a fresh element.
   return (
-    <EmbedHostProvider value={host}>
-      <PageTrailProvider value={trail}>
-        {/* Search works for everyone; replacing only for people who may edit. */}
-        <FindBar editor={editor} editable={editable} />
-        <DirectionProvider initialDirection={dir}>
-          <BlockNoteView
-            key={locale}
-            editor={editor}
-            theme={colorScheme}
-            editable={mountEditable}
-            slashMenu={false}
-            sideMenu={false}
-            formattingToolbar={false}
-            className="leafdesk-editor"
-          >
-            <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
-            <SlashMenu
+    <SyncedFrameProvider value={frame}>
+      <EmbedHostProvider value={host}>
+        <PageTrailProvider value={trail}>
+          {/* Search works for everyone; replacing only for people who may edit. */}
+          {!nested && <FindBar editor={editor} editable={editable} />}
+          <DirectionProvider initialDirection={dir}>
+            <BlockNoteView
+              key={locale}
               editor={editor}
-              onCreateError={setEmbedError}
-              onPickDatabase={setPickAt}
-              onPickPage={setLinkAt}
-              onDashboard={widenForDashboard}
-              assistant={ai && editable && !offline ? assistant : null}
-              voiceNote={voice && editable && !offline ? voiceNote : null}
-            />
-            {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
-            {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
-            <PasteLinkMenu editor={editor} />
-            {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
-            {(editable || canComment) && (
-              <FormattingToolbarController
-                formattingToolbar={() => (
-                  <FormattingToolbar>
-                    {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
-                    {withSideAlignButtons(withTextScriptButtons(getFormattingToolbarItems())).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
-                  </FormattingToolbar>
-                )}
+              theme={colorScheme}
+              editable={mountEditable}
+              slashMenu={false}
+              sideMenu={false}
+              formattingToolbar={false}
+              className="leafdesk-editor"
+            >
+              {/*
+                BlockNote shows one block handle at a time, for the editor it finds first under the
+                pointer: the page's own. A synced page's blocks are added with "/" instead, and the
+                page's handle moves the synced page as a whole.
+              */}
+              {!nested && <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />}
+              <SlashMenu
+                editor={editor}
+                onCreateError={setEmbedError}
+                onPickDatabase={setPickAt}
+                onPickPage={pickLink}
+                onPickSynced={pickSynced}
+                onDashboard={widenForDashboard}
+                assistant={ai && editable && !offline ? assistant : null}
+                voiceNote={voice && editable && !offline ? voiceNote : null}
               />
-            )}
-            {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
-          </BlockNoteView>
-        </DirectionProvider>
-        {assistant.panel}
-        {voiceNote.dialog}
-      </PageTrailProvider>
-      {embedError && (
-        <div role="alert" className="mx-4 mt-2 md:mx-[54px] flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm">
-          <span className="flex-1 text-danger">{embedError}</span>
-          <button
-            type="button"
-            aria-label={tc("close")}
-            onClick={() => setEmbedError(null)}
-            className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
-      <DatabasePicker
-        open={pickAt !== null}
-        workspaceId={workspaceId}
-        onClose={() => setPickAt(null)}
-        onPick={(databaseId) => {
-          if (pickAt) placeEmbedBlock(editor, pickAt, { type: LINKED_VIEW_BLOCK, props: { databaseId, view: "" } });
-          setPickAt(null);
-        }}
-      />
-      <PagePicker
-        open={linkAt !== null}
-        pageId={pageId}
-        onClose={() => setLinkAt(null)}
-        onPick={(target) => {
-          if (linkAt) placeEmbedBlock(editor, linkAt, { type: PAGE_LINK_BLOCK, props: { pageId: target } });
-          setLinkAt(null);
-        }}
-      />
-    </EmbedHostProvider>
+              {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
+              {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
+              <PasteLinkMenu editor={editor} />
+              {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
+              {(editable || canComment) && (
+                <FormattingToolbarController
+                  formattingToolbar={() => (
+                    <FormattingToolbar>
+                      {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
+                      {withSideAlignButtons(withTextScriptButtons(getFormattingToolbarItems())).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
+                    </FormattingToolbar>
+                  )}
+                />
+              )}
+              {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
+            </BlockNoteView>
+          </DirectionProvider>
+          {assistant.panel}
+          {voiceNote.dialog}
+        </PageTrailProvider>
+        {embedError && (
+          <div role="alert" className="mx-4 mt-2 md:mx-[54px] flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm">
+            <span className="flex-1 text-danger">{embedError}</span>
+            <button
+              type="button"
+              aria-label={tc("close")}
+              onClick={() => setEmbedError(null)}
+              className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+        <DatabasePicker
+          open={pickAt !== null}
+          workspaceId={workspaceId}
+          onClose={() => setPickAt(null)}
+          onPick={(databaseId) => {
+            if (pickAt) placeEmbedBlock(editor, pickAt, { type: LINKED_VIEW_BLOCK, props: { databaseId, view: "" } });
+            setPickAt(null);
+          }}
+        />
+        <PagePicker
+          open={linkAt !== null}
+          pageId={pageId}
+          title={linkAt?.type === SYNCED_PAGE_BLOCK ? tSynced("title") : undefined}
+          onClose={() => setLinkAt(null)}
+          onPick={(target) => {
+            if (linkAt) placeEmbedBlock(editor, linkAt.at, { type: linkAt.type, props: { pageId: target } });
+            setLinkAt(null);
+          }}
+        />
+      </EmbedHostProvider>
+    </SyncedFrameProvider>
   );
 }
 
@@ -316,6 +347,7 @@ function SlashMenu({
   onCreateError,
   onPickDatabase,
   onPickPage,
+  onPickSynced,
   onDashboard,
   assistant,
   voiceNote,
@@ -324,6 +356,7 @@ function SlashMenu({
   onCreateError: (message: string) => void;
   onPickDatabase: (at: string) => void;
   onPickPage: (at: string) => void;
+  onPickSynced: (at: string) => void;
   /** A dashboard was added from the menu. */
   onDashboard: () => void;
   /** The AI writing assistant, when available: its entries go at the end of the menu. */
@@ -335,6 +368,7 @@ function SlashMenu({
   const contentItems = useContentSlashItems(editor);
   const webItems = useWebSlashItems(editor);
   const pageLinkItems = usePageLinkSlashItem(editor, onPickPage);
+  const syncedPageItems = useSyncedPageSlashItem(editor, onPickSynced);
   const columnItems = useColumnSlashItems(editor);
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
@@ -350,6 +384,7 @@ function SlashMenu({
             ...columnItems(),
             ...webItems,
             ...pageLinkItems,
+            ...syncedPageItems,
             ...colorItems(),
             ...aiItems,
             ...voiceItems,

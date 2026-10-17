@@ -33,6 +33,8 @@ import {
   PAGE_LINK_MARKER,
   pageLinkMarkdown,
   splitMentionText,
+  SYNCED_PAGE_BLOCK,
+  SYNCED_PAGE_MARKER,
   type MentionPerson,
 } from "./mentions";
 
@@ -209,9 +211,12 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const link = `[${markdownLinkText(title || url)}](${markdownLinkDestination(url)})`;
           return paragraph(blockToken(block.type === WEB_EMBED_BLOCK ? `${link} <!-- leafdesk:embed -->` : link));
         }
-        case PAGE_LINK_BLOCK: {
+        case PAGE_LINK_BLOCK:
+        case SYNCED_PAGE_BLOCK: {
+          // A synced page writes only its line: the page's body is that page's own Markdown.
           const pageId = String(block.props?.pageId ?? "");
-          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId)} ${PAGE_LINK_MARKER}` : ""));
+          const marker = block.type === SYNCED_PAGE_BLOCK ? SYNCED_PAGE_MARKER : PAGE_LINK_MARKER;
+          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId)} ${marker}` : ""));
         }
         case CALLOUT_BLOCK: {
           const i = callouts.push({
@@ -268,7 +273,7 @@ type Pending =
   | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
-  | { type: typeof PAGE_LINK_BLOCK; pageId: string }
+  | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string };
 
@@ -281,8 +286,11 @@ const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb)\s*-->\s*$/;
 /** `[text](url) <!-- leafdesk:embed -->` (or a bare URL before the marker); "bookmark" likewise. */
 const WEB_LINE =
   /^ {0,3}(?:\[((?:\\.|[^\\\]])*)\]\((<[^<>\n]*>|[^\s()<>]+)\)|<?(https?:\/\/[^\s<>]+?)>?)\s*<!--\s*leafdesk:(embed|bookmark)\s*-->\s*$/i;
-/** A link alone on its line, then the page-link marker: `[Title](/w/…/p/…) <!-- leafdesk:page-link -->`. */
-const PAGE_LINK_LINE = /^ {0,3}\[(?:[^\]\\]|\\.)*\]\(\s*<?([^)\s>]+)>?\s*\)\s*<!--\s*leafdesk:page-link\s*-->\s*$/;
+/**
+ * A link alone on its line, then the page-link or synced-page marker:
+ * `[Title](/w/…/p/…) <!-- leafdesk:page-link -->`.
+ */
+const PAGE_LINK_LINE = /^ {0,3}\[(?:[^\]\\]|\\.)*\]\(\s*<?([^)\s>]+)>?\s*\)\s*<!--\s*leafdesk:(page-link|synced-page)\s*-->\s*$/i;
 
 /**
  * Swaps the Markdown forms above for tokens BlockNote's parser keeps as plain text. Only lines of
@@ -336,7 +344,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const pageLink = PAGE_LINK_LINE.exec(line);
     const linkedId = pageLink ? linkedPageId(pageLink[1], appUrl) : null;
     if (linkedId) {
-      blockLine({ type: PAGE_LINK_BLOCK, pageId: linkedId });
+      blockLine({ type: pageLink![2].toLowerCase() === "synced-page" ? SYNCED_PAGE_BLOCK : PAGE_LINK_BLOCK, pageId: linkedId });
       continue;
     }
     const callout = CALLOUT_START.exec(line);
@@ -509,7 +517,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: BOOKMARK_BLOCK, props: { url: pending.url, title }, children: [] } as unknown as B;
       }
       case PAGE_LINK_BLOCK:
-        return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
+      case SYNCED_PAGE_BLOCK:
+        return { type: pending.type, props: { pageId: pending.pageId }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;

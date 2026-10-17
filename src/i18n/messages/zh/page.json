@@ -388,6 +388,11 @@
       "subtext": "指向另一个页面的链接，标题实时更新",
       "aliases": "link page mention reference 链接 页面 提及 引用"
     },
+    "syncedPage": {
+      "title": "同步页面",
+      "subtext": "在此实时显示并编辑另一个页面的内容",
+      "aliases": "同步 镜像 嵌入 页面 synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "颜色",
       "text": "{color}文字",
@@ -472,6 +477,11 @@
     "search": "搜索页面…",
     "empty": "未找到页面",
     "failed": "无法加载页面。"
+  },
+  "syncedPage": {
+    "label": "同步页面",
+    "viewOnly": "仅查看",
+    "cycle": "此页面已在上方显示，这里只显示链接。"
   },
   "backlinks": {
     "title": "链接来源",

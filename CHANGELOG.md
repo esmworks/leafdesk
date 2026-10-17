@@ -26,6 +26,16 @@
   `linked_from_truncated` when not every linking page is listed.
 - **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
   block and highlights it.
+- **Synced pages.** "Synced page" in the `/` menu shows another page's body inside this one, live:
+  people who may edit that page edit it in place and see everyone's changes as they happen, people
+  who may only view it (or while it is locked) read it, and people who can't open it see
+  "No access", as mentions show them. The page showing it links there, so the shown page lists it
+  under "Linked from"; its own search, history, AI review and Markdown hold just one line for it.
+  A page that would show itself, directly or through other synced pages, is shown once and then
+  as a link with a note; synced pages inside synced pages go two levels deep. Published pages show
+  the block as a link to the page (its public address when it is published too). In Markdown and
+  over MCP it is the page's link alone on its line followed by `<!-- leafdesk:synced-page -->`,
+  which `update_page` keeps.
 
 ### Fixed
 

@@ -9,7 +9,7 @@ import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/das
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
-import { bodyReferences, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
+import { bodyReferences, isPageBlockType, MENTION, mentionPlainText, mentionProps } from "@/lib/mentions";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
 
 /**
@@ -129,12 +129,13 @@ function resolveInline(content: Json, refs: Map<string, PublishedPageRef>): Json
 
 /**
  * Mentions as plain text or links, and "Link to page" blocks as a line holding one, as `refs`
- * allows (runs after sanitizeBlocks: these links are the publication's own).
+ * allows (runs after sanitizeBlocks: these links are the publication's own). Synced pages read the
+ * same as "Link to page" blocks: the other page's body is that page's to publish, not this one's.
  */
 function resolveMentions(blocks: PageBlock[], refs: Map<string, PublishedPageRef>): PageBlock[] {
   return blocks.map((block) => {
     const children = block.children?.length ? resolveMentions(block.children, refs) : block.children;
-    if (block.type === PAGE_LINK_BLOCK) {
+    if (isPageBlockType(block.type)) {
       const pageId = String((block.props as { pageId?: unknown }).pageId ?? "");
       return { id: block.id, type: "paragraph", props: {}, content: pageRefInline(refs.get(pageId)), children } as unknown as PageBlock;
     }

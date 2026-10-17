@@ -388,6 +388,11 @@
       "subtext": "ほかのページへのリンク（タイトルは自動で更新）",
       "aliases": "link page mention reference リンク ページ 参照"
     },
+    "syncedPage": {
+      "title": "同期ページ",
+      "subtext": "ほかのページの内容をここにライブ表示し、その場で編集",
+      "aliases": "同期 ミラー 埋め込み ページ synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "色",
       "text": "{color}の文字",
@@ -472,6 +477,11 @@
     "search": "ページを検索…",
     "empty": "ページが見つかりません",
     "failed": "ページを読み込めませんでした。"
+  },
+  "syncedPage": {
+    "label": "同期ページ",
+    "viewOnly": "閲覧のみ",
+    "cycle": "このページはすでに上に表示されているため、ここにはリンクだけを表示します。"
   },
   "backlinks": {
     "title": "リンク元",

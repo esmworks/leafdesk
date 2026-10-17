@@ -388,6 +388,11 @@
       "subtext": "실시간 제목이 표시되는 다른 페이지 링크",
       "aliases": "link page mention reference 링크 페이지 멘션 참조"
     },
+    "syncedPage": {
+      "title": "동기화된 페이지",
+      "subtext": "다른 페이지의 내용을 여기서 실시간으로 보고 편집",
+      "aliases": "동기화 미러 임베드 페이지 synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "색상",
       "text": "{color} 텍스트",
@@ -472,6 +477,11 @@
     "search": "페이지 검색…",
     "empty": "페이지가 없습니다",
     "failed": "페이지를 불러오지 못했습니다."
+  },
+  "syncedPage": {
+    "label": "동기화된 페이지",
+    "viewOnly": "보기 전용",
+    "cycle": "이 페이지는 이미 위에 표시되어 있어 여기에는 링크만 표시됩니다."
   },
   "backlinks": {
     "title": "링크한 페이지",

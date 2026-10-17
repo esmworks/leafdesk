@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { linkContexts, linkPlaces } from "@/lib/link-context";
 import { bodyReferences, carryOverMentions, eachMention, isIsoDate, linkedPageId, splitMentionText, stripReminders } from "@/lib/mentions";
+import { copyPublishedBlocks, mentionedPageIds } from "@/lib/published-copy";
 import { blocksToMarkdown, markdownToBlocks, pageSchema, serverEditor, type PageBlock } from "./blocknote";
 import { bodySegmentsFromYdoc } from "./published-body";
 
@@ -140,6 +142,84 @@ describe("mentions in Markdown", () => {
     expect(ids.slice(0, 1)).toEqual(["a1"]);
     expect(ids[2]).toBe("a2");
     expect(new Set(ids).size).toBe(4);
+  });
+});
+
+describe("synced pages", () => {
+  const body = [
+    { id: "b1", type: "paragraph", content: [text("Weekly notes")] },
+    { id: "b2", type: "syncedPage", props: { pageId: OTHER } },
+    { id: "b3", type: "paragraph", content: [text("After")] },
+  ];
+
+  it("are known to the schema and keep their page through the Yjs document", () => {
+    expect(pageSchema.blockSchema).toHaveProperty("syncedPage");
+    const blocks = stored(body);
+    expect(blocks.map((b) => b.type)).toEqual(["paragraph", "syncedPage", "paragraph"]);
+    expect(blocks[1].props).toMatchObject({ pageId: OTHER });
+  });
+
+  it("are written as the page's line with their marker, and read back as the block", async () => {
+    const existing = stored(body);
+    const markdown = (await blocksToMarkdown(existing, { workspaceId: WS })).trim();
+    expect(markdown).toBe(`Weekly notes\n\n[page](/w/${WS}/p/${OTHER}) <!-- leafdesk:synced-page -->\n\nAfter`);
+    const back = stored(await markdownToBlocks(markdown, existing));
+    expect(back.map((b) => b.type)).toEqual(["paragraph", "syncedPage", "paragraph"]);
+    expect(back[1].props).toMatchObject({ pageId: OTHER });
+    expect((await blocksToMarkdown(back, { workspaceId: WS })).trim()).toBe(markdown);
+  });
+
+  it("are read from a line with any link text, an absolute link and either marker spelling", async () => {
+    const blocks = stored(
+      await markdownToBlocks(
+        `[Team rules](https://app.test/w/${WS}/p/${PAGE}) <!--leafdesk:synced-page-->\n\n[x](/w/${WS}/p/${OTHER}) <!-- leafdesk:page-link -->`,
+        [],
+        { appUrl: "https://app.test" },
+      ),
+    );
+    expect(blocks.map((b) => [b.type, (b.props as { pageId?: string }).pageId])).toEqual([
+      ["syncedPage", PAGE],
+      ["pageLink", OTHER],
+    ]);
+  });
+
+  it("stay text inside fenced code, lists and with more on the line", async () => {
+    const line = `[page](/w/${WS}/p/${OTHER}) <!-- leafdesk:synced-page -->`;
+    const blocks = stored(await markdownToBlocks(`\`\`\`\n${line}\n\`\`\`\n\n- ${line}\n\nSee ${line}`));
+    expect(blocks.some((b) => b.type === "syncedPage")).toBe(false);
+  });
+
+  it("add none of the page's text to the page showing it", async () => {
+    expect(blocksToPlainText(stored(body))).toBe("Weekly notes\nAfter");
+  });
+
+  it("are links of the page showing them: backlinks list it, at the block", () => {
+    const blocks = stored(body);
+    expect(bodyReferences(blocks).pageIds).toEqual([OTHER]);
+    expect(linkPlaces(blocks).get(OTHER)).toEqual([{ block: "b2", context: null }]);
+    expect(linkContexts(blocks).has(OTHER)).toBe(false);
+  });
+
+  it("show on published pages only as a link line, never the page's body", async () => {
+    const doc = docFrom(body);
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc), {
+      resolvePages: async (ids) => new Map(ids.map((id) => [id, { text: "Team rules", href: `/s/token` }])),
+    });
+    const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(html).toContain('<a href="/s/token"');
+    expect(html).toContain("Team rules");
+    expect(segments.every((s) => s.kind === "html")).toBe(true);
+    const unresolved = (await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc))).map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(unresolved).not.toContain(OTHER);
+  });
+
+  it("follow the copied pages in a copy of a published page, and read as text otherwise", () => {
+    const blocks = stored(body);
+    expect(mentionedPageIds(blocks)).toEqual([OTHER]);
+    const refs = { pageIds: new Map([[OTHER, "copy"]]), fileIds: new Map(), outside: new Map() };
+    expect(copyPublishedBlocks(blocks, refs as never)[1]).toMatchObject({ type: "syncedPage", props: { pageId: "copy" } });
+    const outside = copyPublishedBlocks(blocks, { ...refs, pageIds: new Map(), outside: new Map([[OTHER, { text: "Team rules", href: null }]]) } as never);
+    expect(outside[1].type).toBe("paragraph");
   });
 });
 
