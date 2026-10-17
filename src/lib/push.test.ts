@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { formatIsoDate } from "./mentions";
 import { encodePushPayload, MAX_PUSH_PAYLOAD, parsePushSubscription, pushLink, pushPayload, vapidFrom, type PushItem } from "./push";
 
 const b64 = (bytes: number) => Buffer.alloc(bytes, 7).toString("base64url");
@@ -83,6 +84,7 @@ const item = (over: Partial<PushItem>): PushItem => ({
   databaseTitle: null,
   propertyName: null,
   reminderDate: null,
+  reminderTimeZone: null,
   automationName: null,
   accessRequest: null,
   requestKind: null,
@@ -105,6 +107,15 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "comment", pageTitle: "  " }), t, date)).toMatchObject({ title: "Untitled", body: "Ayşe commented in a thread you're in" });
     expect(pushPayload(item({ kind: "page_shared", actorName: null }), t, date)?.body).toBe("Someone shared this page with you");
     expect(pushPayload(item({ kind: "reminder", actorName: null, reminderDate: "2026-10-09" }), t, date)?.body).toBe("Reminder: on 2026-10-09");
+  });
+
+  it("reads a reminder's time on the clock of the reminder's zone", () => {
+    const zoned = (iso: string, timeZone: string) => `on ${formatIsoDate(iso, "en-GB", "medium", timeZone)}`;
+    const reminder = (reminderTimeZone: string | null) =>
+      pushPayload(item({ kind: "reminder", actorName: null, reminderDate: "2026-10-12T11:30:00.000Z", reminderTimeZone }), t, zoned)?.body;
+    expect(reminder("Europe/Istanbul")).toContain("14:30");
+    expect(reminder(null)).toContain("11:30");
+    expect(reminder("Mars/Olympus")).toContain("11:30");
   });
 
   it("names the database of a row, and the property of an assignment", () => {

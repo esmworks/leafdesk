@@ -25,7 +25,7 @@ import {
   valueDay,
 } from "./filters";
 import { checkDateInput, dateDays, dateSortKey, isDay, type DaySpan } from "./date-value";
-import { dayNumber } from "./time-zone";
+import { dayNumber, timestampDay } from "./time-zone";
 import { asFiles, cleanFileName, fileIdOf, fileUrl, MAX_FILES_PER_VALUE, type FileValue } from "./files";
 import { derivedType, isErrorValue, rollupFormat } from "./derived";
 import {
@@ -458,11 +458,12 @@ function isEmpty(v: unknown) {
 }
 
 /**
- * The calendar day (`YYYY-MM-DD`) of a timestamp in the local time zone: the viewer's in the
- * browser, the server's for MCP and published pages.
+ * The calendar day (`YYYY-MM-DD`) of a timestamp in `timeZone`, else in the local time zone: the
+ * viewer's in the browser, the server's for MCP and published pages.
  */
-export function localDay(value: unknown): string | null {
+export function localDay(value: unknown, timeZone?: string): string | null {
   if (typeof value !== "string" && !(value instanceof Date)) return null;
+  if (timeZone) return timestampDay(value, timeZone);
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -473,12 +474,12 @@ export function localDay(value: unknown): string | null {
  * The value filters compare: without ids of select options that no longer exist (they display
  * as empty), and timestamps as days, so "Created is Sep 27" works like a date filter.
  */
-function liveValue(row: RowLike, key: string, prop: PropertyDef | undefined): unknown {
+function liveValue(row: RowLike, key: string, prop: PropertyDef | undefined, timeZone?: string): unknown {
   const v = rawValue(row, key);
-  if (prop && holdsTimestamp(prop.type)) return localDay(v);
+  if (prop && holdsTimestamp(prop.type)) return localDay(v, timeZone);
   if (prop && isDerived(prop.type)) {
     const plain = derivedSortValue(v);
-    if (derivedType(prop) === "date") return valueDay(plain);
+    if (derivedType(prop) === "date") return valueDay(plain, timeZone);
     // Rollup percentages are fractions (0.25); filters compare the percent people see (25). So do
     // sums, averages… of a number property shown as a percentage.
     const rollup = prop.type === "rollup" ? prop.options.rollup : undefined;
@@ -506,15 +507,15 @@ function derivedSortValue(v: unknown): unknown {
 /**
  * The days a date filter compares a value by, or undefined for values that aren't dates. Date
  * properties may hold ranges and times (see lib/date-value); times, like created and edited times,
- * count on their day in the runtime's zone (the viewer's in the browser).
+ * count on their day in `timeZone`, else in the runtime's zone (the viewer's in the browser).
  */
-function filterDays(row: RowLike, key: string, prop: PropertyDef | undefined): DaySpan | null | undefined {
+function filterDays(row: RowLike, key: string, prop: PropertyDef | undefined, timeZone?: string): DaySpan | null | undefined {
   const v = rawValue(row, key);
-  if (prop?.type === "date") return dateDays(v);
-  if ((prop && holdsTimestamp(prop.type)) || (!prop && (key === CREATED_KEY || key === UPDATED_KEY))) return dateDays(localDay(v));
+  if (prop?.type === "date") return dateDays(v, timeZone);
+  if ((prop && holdsTimestamp(prop.type)) || (!prop && (key === CREATED_KEY || key === UPDATED_KEY))) return dateDays(localDay(v, timeZone));
   if (prop && isDerived(prop.type) && derivedType(prop) === "date") {
     const plain = derivedSortValue(v);
-    return dateDays(plain) ?? dateDays(valueDay(plain));
+    return dateDays(plain, timeZone) ?? dateDays(valueDay(plain, timeZone));
   }
   return undefined;
 }
@@ -525,10 +526,10 @@ function filterDays(row: RowLike, key: string, prop: PropertyDef | undefined): D
  * the day, "is on or before" it starts on or before the day, "is on or after" it ends on or after
  * the day, "is within" a period it overlaps the period. A single day is a range of one day.
  */
-function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date): boolean {
+function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date, timeZone?: string): boolean {
   if (!days) return false;
   if (rule.op === "is_within") {
-    const range = relativeDateRange(rule.value, rule.days, now);
+    const range = relativeDateRange(rule.value, rule.days, now, timeZone);
     return Boolean(range && days.start <= dayNumber(range.end) && days.end >= dayNumber(range.start));
   }
   if (!isDay(rule.value)) return false;
@@ -582,16 +583,16 @@ function compareTo(v: unknown, value: unknown): number | null {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-function matches(row: RowLike, rule: FilterRule, prop: PropertyDef | undefined, now: Date): boolean {
+function matches(row: RowLike, rule: FilterRule, prop: PropertyDef | undefined, now: Date, timeZone?: string): boolean {
   if (DATE_OPS.has(rule.op)) {
-    const days = filterDays(row, rule.propertyId, prop);
-    if (days !== undefined) return rule.op === "not_equals" && !days ? true : matchesDays(days, rule, now);
+    const days = filterDays(row, rule.propertyId, prop, timeZone);
+    if (days !== undefined) return rule.op === "not_equals" && !days ? true : matchesDays(days, rule, now, timeZone);
   }
-  const v = liveValue(row, rule.propertyId, prop);
+  const v = liveValue(row, rule.propertyId, prop, timeZone);
   switch (rule.op) {
     case "is_within": {
-      const day = valueDay(v);
-      const range = relativeDateRange(rule.value, rule.days, now);
+      const day = valueDay(v, timeZone);
+      const range = relativeDateRange(rule.value, rule.days, now, timeZone);
       return Boolean(day && range && day >= range.start && day <= range.end);
     }
     case "is_empty":
@@ -647,10 +648,11 @@ export function isIncompleteFilter(rule: FilterRule) {
 
 /**
  * Who is looking at a view (person filters on "me" match their rows), the names of the people
- * rows hold, which person sorts order by, and when: relative date filters ("this week") count
- * from `now`'s local day, the current time when left out.
+ * rows hold, which person sorts order by, and when and where: relative date filters ("this
+ * week") count from `now`'s day (the current time when left out) in `timeZone`, and times count
+ * on their day there; the runtime's zone when left out, which on the server is the server's own.
  */
-export type ViewViewer = { viewerId?: string | null; people?: { id: string; name: string }[]; now?: Date };
+export type ViewViewer = { viewerId?: string | null; people?: { id: string; name: string }[]; now?: Date; timeZone?: string };
 
 /**
  * A person rule's value with "me" swapped for the viewer's id, in a list rule too. Without a viewer
@@ -733,7 +735,7 @@ export function applyView<T extends RowLike>(
     sorts = [],
   }: { filters?: FilterEntry[]; filterCombinator?: FilterCombinator; sorts?: SortRule[] },
   props: PropertyDef[] = [],
-  { viewerId, people = [], now = new Date() }: ViewViewer = {},
+  { viewerId, people = [], now = new Date(), timeZone }: ViewViewer = {},
 ): T[] {
   const byId = new Map(props.map((p) => [p.id, p]));
   const test = compileFilters<T>(
@@ -742,7 +744,7 @@ export function applyView<T extends RowLike>(
     (rule) => {
       const prop = byId.get(rule.propertyId);
       const resolved = resolveViewer(rule, prop, viewerId);
-      return (row) => matches(row, resolved, prop, now);
+      return (row) => matches(row, resolved, prop, now, timeZone);
     },
   );
   const filtered = test ? rows.filter(test) : rows;
@@ -876,7 +878,7 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
 export function defaultsFromFilters(
   filters: FilterEntry[] = [],
   props: PropertyDef[] = [],
-  { viewerId, now = new Date() }: ViewViewer = {},
+  { viewerId, now = new Date(), timeZone }: ViewViewer = {},
   filterCombinator?: FilterCombinator,
 ) {
   const out: Record<string, unknown> = {};
@@ -896,7 +898,7 @@ export function defaultsFromFilters(
       rule = { ...rule, op: prop.type === "select" || prop.type === "status" ? "equals" : "contains", value: values[0] };
     }
     if (rule.op === "equals" && ["select", "status", "text", "number", "date"].includes(prop.type)) out[prop.id] = rule.value;
-    else if (rule.op === "is_within" && prop.type === "date") out[prop.id] = dayString(now);
+    else if (rule.op === "is_within" && prop.type === "date") out[prop.id] = timeZone ? timestampDay(now, timeZone)! : dayString(now);
     else if (rule.op === "contains" && prop.type === "multi_select") out[prop.id] = [rule.value];
     else if (rule.op === "contains" && prop.type === "text") out[prop.id] = rule.value;
     else if (rule.op === "contains" && prop.type === "person") {

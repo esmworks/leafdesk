@@ -334,15 +334,17 @@ export async function listRows(userId: string, databaseId: string, config: ViewC
 
 /**
  * listRows of a database the user is known to see (checked by the caller); `known` is its
- * properties when they're already loaded.
+ * properties when they're already loaded. Relative date filters ("today") and times count in
+ * `timeZone`, the server's when left out.
  */
 export async function viewedRows(
   userId: string,
   databaseId: string,
   config: ViewConfig = {},
   known?: Awaited<ReturnType<typeof getProperties>>,
+  { now, timeZone }: { now?: Date; timeZone?: string } = {},
 ) {
-  return (await readRows(userId, databaseId, config, known)).rows;
+  return (await readRows(userId, databaseId, config, known, { now, timeZone })).rows;
 }
 
 /** A row's place in listRowsInOrder: its sort values, then its position, created time and id. */
@@ -381,6 +383,7 @@ async function readRows(
   databaseId: string,
   config: ViewConfig,
   known?: Awaited<ReturnType<typeof getProperties>>,
+  { now, timeZone }: { now?: Date; timeZone?: string } = {},
 ) {
   const [stored, all, access, deleted] = await Promise.all([
     db
@@ -414,6 +417,8 @@ async function readRows(
     rows: applyView<DatabaseRow>(await withValues(userId, databaseId, rows, all, undefined, access), config, properties, {
       viewerId: userId,
       people,
+      now,
+      timeZone,
     }),
     sorts: config.sorts ?? [],
     properties,

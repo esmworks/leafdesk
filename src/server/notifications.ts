@@ -447,6 +447,8 @@ export type InboxItem = {
   propertyName: string | null;
   /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). Automations: set for a "date passed" run. */
   reminderDate: string | null;
+  /** Reminders on a date property: the zone a date's time reads in (whoever set the reminder's), when it has one. */
+  reminderTimeZone: string | null;
   /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
   automationName: string | null;
   /** Access requests: what the user needs to answer it. */
@@ -585,6 +587,7 @@ export async function listNotifications(
       databaseTitle: sql<string | null>`case when page_access_level(${userId}, ${databasePage.id}) > 0 then ${databasePage.title} end`,
       propertyName: databaseProperty.name,
       reminderDate: notification.date,
+      reminderTimeZone: sql<string | null>`${databaseProperty.options}->'date'->'reminder'->>'timeZone'`,
       automationName: databaseAutomation.name,
       requestKind: workspaceJoinRequest.kind,
       requestEmail: workspaceJoinRequest.email,

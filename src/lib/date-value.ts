@@ -1,4 +1,4 @@
-import { browserTimeZone, dayNumber, dayString, localDay, zonedInstant } from "./time-zone";
+import { browserTimeZone, dayNumber, dayString, localDay, zonedInstant, zoneOffset } from "./time-zone";
 
 /**
  * Values of date properties. A value is one ISO 8601 string in one of four shapes:
@@ -201,10 +201,14 @@ export function dateMillis(value: unknown): { start: number; end: number; time: 
   return { start: at(parts.start), end: at(parts.end ?? parts.start), time: parts.time };
 }
 
-/** Minutes past midnight of an instant in `timeZone`. */
+/**
+ * The time on the clock of an instant in `timeZone`, as minutes past midnight: 14:30 is 870 even
+ * on a day the clocks change, when more or fewer minutes than that have passed since midnight.
+ */
 function minutesOfDay(iso: string, timeZone: string): number {
   const at = ms(iso);
-  return Math.round((at - zonedInstant(localDay(at, timeZone), 0, timeZone)) / 60_000);
+  const clock = (((at + zoneOffset(at, timeZone)) % DAY_MS) + DAY_MS) % DAY_MS;
+  return Math.floor(clock / 60_000);
 }
 
 /** An instant moved by `days` calendar days, keeping its wall-clock time in `timeZone`. */
