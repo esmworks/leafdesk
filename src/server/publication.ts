@@ -34,7 +34,7 @@ import { hideReferences, unknownProperties } from "@/lib/property-access-rows";
 import { holdsOptions, holdsPeople, UNPUBLISHED_PROPERTY_TYPES } from "@/lib/property-types";
 import { unknownToVisitors } from "@/lib/published-copy";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
-import { AccessError, accessRank, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
+import { AccessError, accessRank, childVisibleTo, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/databases";
 import { formulasReadingRelated } from "@/lib/derived";
@@ -966,7 +966,7 @@ function loadRows(loads: PublishedLoads | undefined, publisher: string, database
         hasImage: withCovers ? sql<boolean>`${page.contentMarkdown} ~ ${PG_MARKDOWN_IMAGE_PATTERN}` : sql<boolean>`false`,
       })
       .from(page)
-      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(publisher)))
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(publisher, databaseId)))
       .orderBy(asc(page.position), asc(page.createdAt)),
   );
 }
