@@ -5,6 +5,7 @@
  * token scopes, a token's workspace) before calling. Outputs use snake_case keys and carry an app
  * `url` for everything they name.
  */
+import { createHash } from "node:crypto";
 import * as z from "zod";
 import { commentText, MAX_COMMENT_LENGTH } from "@/lib/comments";
 import { markdownReferences } from "@/lib/embed-blocks";
@@ -43,6 +44,7 @@ import * as templates from "@/server/templates";
 import { isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
+import { normalizeValue } from "@/lib/properties";
 import { idFromLink, pageUrl, sliceText, ToolInputError } from "./mcp/format";
 import { dashboardsOutput } from "./mcp/dashboards";
 import { markdownDashboards } from "@/lib/dashboard";
@@ -135,6 +137,14 @@ export const filtersInput = z
 export const filterCombinatorInput = combinatorInput
   .optional()
   .describe('How the top-level filters combine: "and" (default, all must match) or "or" (any may match).');
+/** The property create_database_row(s) match existing rows by, to update them instead of adding. */
+export const MATCH_TYPES = ["text", "number", "email", "phone", "url", "select", "status"] as const;
+const matchByInput = z
+  .string()
+  .min(1)
+  .describe(
+    `Upsert by this property (a name or id, or "title"): a row of the database whose value equals the one given is updated instead of a new one being added, and only when none does is the row added. Works with the title and ${MATCH_TYPES.join(", ")} properties (text and title compare trimmed, emails ignoring case); every row must give a value for it. When more than one existing row has the value, or two given rows share one, nothing is written and the error says so. An updated row gets the given title, properties and markdown (which replaces its body); template_id only applies to rows that are added.`,
+  );
 export const sortsInput = z.array(
   z.object({ property: z.string().min(1), direction: z.enum(["asc", "desc"]).default("asc") }),
 );
@@ -225,7 +235,18 @@ export const inputs = {
       .string()
       .optional()
       .describe("Apply a saved view's filters and sorts first (ids from get_database); rows must match both the view's filters and yours."),
-    limit: z.number().int().min(1).max(200).default(50).describe("Maximum rows to return (1-200, default 50)."),
+    limit: z.number().int().min(1).max(200).default(50).describe("Maximum rows per page (1-200, default 50)."),
+    cursor: z
+      .string()
+      .optional()
+      .describe("next_cursor from the previous call, to read the next page. Pass the same filters, filter_combinator, sorts and view_id with it."),
+    properties: z
+      .array(z.string().min(1))
+      .max(200)
+      .optional()
+      .describe(
+        "Only return these properties' values in each row (names, case-insensitive, or ids); [] returns just each row's id, title and url. Leave out for every property.",
+      ),
   }),
   createDatabaseRow: z.object({
     database_id: id("database"),
@@ -236,6 +257,7 @@ export const inputs = {
       .string()
       .optional()
       .describe('A row template of this database from list_templates, or "none" for a blank row even when the database has a default template.'),
+    match_by: matchByInput.optional(),
   }),
   createDatabaseRows: z.object({
     database_id: id("database"),
@@ -250,6 +272,7 @@ export const inputs = {
       .min(1)
       .max(MAX_BULK_ROWS)
       .describe(`The rows to add (1-${MAX_BULK_ROWS}).`),
+    match_by: matchByInput.optional(),
   }),
   updateDatabaseRow: z.object({
     row_id: id("row"),
@@ -260,6 +283,19 @@ export const inputs = {
     database_id: id("database"),
     row_ids: z.array(z.string().min(1)).min(1).max(MAX_BULK_ROWS).describe(`Ids of the rows to change (1-${MAX_BULK_ROWS}).`),
     properties: rowProperties,
+    expect: z
+      .number()
+      .int()
+      .min(0)
+      .max(MAX_BULK_ROWS)
+      .optional()
+      .describe(
+        "How many rows you expect to change. When the rows the call would change (row_ids the user may edit, repeats counted once) are a different number, nothing is written and the error says how many and which ids would be skipped.",
+      ),
+    dry_run: z
+      .boolean()
+      .default(false)
+      .describe("true checks the values and reports which rows would change (row_ids) and which would be skipped, without writing anything."),
   }),
   listRowActivity: z.object({
     row_id: id("row"),
@@ -819,13 +855,56 @@ export function formLinkOutput(type: string, link: { url: string; anonymous: boo
 }
 
 /**
- * Rows matching the filters, `limit` of them from `offset` on (REST pages through them; MCP reads
- * the first ones). A chart view also returns what it plots, over every matching row.
+ * Where a page of query_database starts: after the row a cursor names, by the key that placed it
+ * (see databases.listRowsInOrder), so rows added, removed or moved between calls neither repeat
+ * nor go missing. The cursor also carries a fingerprint of the query it belongs to. Cursors of the
+ * REST API from before keys (`{o: offset}`) still read on from their position.
+ */
+type RowCursor = { offset: number } | { query: string; after: databases.RowOrderKey };
+
+function queryFingerprint(args: Pick<Args<"queryDatabase">, "database_id" | "filters" | "filter_combinator" | "sorts" | "view_id">) {
+  const { database_id, filters = [], filter_combinator = "and", sorts = [], view_id = null } = args;
+  return createHash("sha256")
+    .update(JSON.stringify({ database_id, filters, filter_combinator, sorts, view_id }))
+    .digest("base64url")
+    .slice(0, 16);
+}
+
+export function encodeRowCursor(query: string, key: databases.RowOrderKey) {
+  return Buffer.from(JSON.stringify({ q: query, s: key.sort, p: key.position, c: key.created, i: key.id })).toString("base64url");
+}
+
+const INVALID_CURSOR = "The cursor is not valid. Pass next_cursor from the previous response as it is, or leave cursor out to start from the first row.";
+
+export function decodeRowCursor(cursor: string): RowCursor {
+  let data: unknown;
+  try {
+    data = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
+  } catch {
+    throw new ToolInputError(INVALID_CURSOR);
+  }
+  const c = (data ?? {}) as Record<string, unknown>;
+  if (typeof c.o === "number" && Number.isInteger(c.o) && c.o >= 0) return { offset: c.o };
+  if (
+    typeof c.q !== "string" ||
+    !Array.isArray(c.s) ||
+    typeof c.p !== "number" ||
+    typeof c.c !== "number" ||
+    typeof c.i !== "string"
+  ) {
+    throw new ToolInputError(INVALID_CURSOR);
+  }
+  return { query: c.q, after: { sort: c.s, position: c.p, created: c.c, id: c.i } };
+}
+
+/**
+ * Rows matching the filters, a page of `limit` at a time: `next_cursor` reads on from where the
+ * page ends (null after the last). `properties` narrows the values each row returns. The first
+ * page of a chart view also returns what the chart plots, over every matching row.
  */
 export async function queryDatabase(
   ctx: OperationContext,
-  { database_id, filters, filter_combinator, sorts, view_id, limit }: Args<"queryDatabase">,
-  { offset = 0 }: { offset?: number } = {},
+  { database_id, filters, filter_combinator, sorts, view_id, limit, cursor, properties: only }: Args<"queryDatabase">,
 ) {
   const { userId } = ctx;
   const { database, properties, views, propertyAccess: levels } = await databases.getDatabase(userId, database_id);
@@ -844,36 +923,75 @@ export async function queryDatabase(
   refuseHiddenValues(props, levels, used);
   const own = { type: "group", combinator: filter_combinator ?? "and", rules: ownRules } as const;
   const saved = { type: "group", combinator: view?.config.filterCombinator ?? "and", rules: view?.config.filters ?? [] } as const;
+  const shown = only ? projectedProperties(props, only) : props;
+  const query = queryFingerprint({ database_id, filters, filter_combinator, sorts, view_id });
+  const from = cursor ? decodeRowCursor(cursor) : { offset: 0 };
+  if ("query" in from && from.query !== query) {
+    throw new ToolInputError(
+      "This cursor belongs to another query. Pass the same filters, filter_combinator, sorts and view_id as the call that returned it, or leave cursor out to start from the first row.",
+    );
+  }
   // Filters and sorts run on the values the caller may see (databases.listRows): rows whose values
   // are kept from them count as empty there, so neither the rows returned nor total say anything
   // about those values.
-  const rows = await databases.listRows(userId, database_id, {
+  const { rows: ordered, sorts: applied } = await databases.listRowsInOrder(userId, database_id, {
     filters: [saved, own].filter((g) => g.rules.length),
     sorts: ownSorts ?? view?.config.sorts ?? [],
   });
-  const window = rows.slice(offset, offset + limit);
+  let start: number;
+  if ("query" in from) {
+    // A view's sorts may have changed since; its key then no longer says where the page ends.
+    if (from.after.sort.length !== applied.length) {
+      throw new ToolInputError("The view's sorts changed since this cursor was made. Leave cursor out to start from the first row.");
+    }
+    const next = ordered.findIndex((r) => databases.compareRowOrder(r.key, from.after, applied) > 0);
+    start = next === -1 ? ordered.length : next;
+  } else start = from.offset;
+  const window = ordered.slice(start, start + limit);
+  const rest = ordered.length - start - window.length;
+  const last = window.at(-1);
+  const next_cursor = rest > 0 && last ? encodeRowCursor(query, last.key) : null;
   return {
     database_id: database.id,
     title: pageLabel(database.title),
-    total: rows.length,
+    total: ordered.length,
     returned: window.length,
-    rows: window.map((r) => ({
+    rows: window.map(({ row: r }) => ({
       id: r.id,
       title: pageLabel(r.title),
-      properties: displayProperties(props, r.properties, lookups, env.appUrl),
-      ...describeRowAccess(props, r),
+      properties: displayProperties(shown, r.properties, lookups, env.appUrl),
+      ...describeRowAccess(shown, r),
       url: pageUrl(database.workspaceId, r.id),
     })),
-    ...(rows.length > offset + limit ? { note: `Only the first ${limit} rows are shown; narrow the filters or raise limit.` } : {}),
-    ...(view?.type === "chart"
+    next_cursor,
+    has_more: next_cursor !== null,
+    ...(next_cursor ? { note: `${rest} more matching rows: pass next_cursor as cursor (with the same filters and sorts) to read on.` } : {}),
+    ...(view?.type === "chart" && !cursor
       ? {
           chart: {
             ...describeViewConfig(props, { ...view.config, filters: undefined, sorts: undefined }, lookups, "chart"),
-            ...describeChartSeries(props, view.config, rows, lookups),
+            ...describeChartSeries(
+              props,
+              view.config,
+              ordered.map((r) => r.row),
+              lookups,
+            ),
           },
         }
       : {}),
   };
+}
+
+/** The properties a query's `properties` names, by name (case-insensitive) or id; "title" is always returned. */
+function projectedProperties(props: PropertyDef[], names: string[]) {
+  const ids = new Set<string>();
+  for (const name of names) {
+    if (name.trim().toLowerCase() === "title") continue;
+    const { prop } = resolvePropertyKey(props, name);
+    if (!prop) throw new ToolInputError(`"${name}" is not a property whose values rows return.`);
+    ids.add(prop.id);
+  }
+  return props.filter((p) => ids.has(p.id));
 }
 
 /**
@@ -897,11 +1015,30 @@ export function refuseHiddenValues(
 
 export async function createDatabaseRow(
   ctx: OperationContext,
-  { database_id, title, properties, markdown, template_id }: Args<"createDatabaseRow">,
+  { database_id, title, properties, markdown, template_id, match_by }: Args<"createDatabaseRow">,
 ) {
-  const { userId, actor } = ctx;
-  const { database } = await databases.getDatabase(userId, database_id);
+  const { userId } = ctx;
+  const { database, properties: props, propertyAccess: levels } = await databases.getDatabase(userId, database_id);
   if (database.archivedAt) throw new ToolInputError("This database is in the trash.");
+  if (match_by) {
+    const [match] = await findMatches(ctx, database.id, props, levels, match_by, [{ title, properties }]);
+    if (match) {
+      const update = [{ match, title, properties, markdown }];
+      await checkMatched(ctx, database.id, update);
+      await updateMatched(ctx, database.id, update);
+      return { ...(await rowOutput(ctx, database.id, match.id)), title, action: "updated" as const };
+    }
+    return { ...(await addRow(ctx, database, { title, properties, markdown, template_id })), action: "created" as const };
+  }
+  return addRow(ctx, database, { title, properties, markdown, template_id });
+}
+
+async function addRow(
+  ctx: OperationContext,
+  database: { id: string; workspaceId: string },
+  { title, properties, markdown, template_id }: Omit<Args<"createDatabaseRow">, "database_id" | "match_by">,
+) {
+  const { actor } = ctx;
   const blank = template_id === "none";
   const noValues = !Object.keys(properties ?? {}).length && markdown === undefined;
   if (!blank && (template_id || noValues)) {
@@ -925,22 +1062,150 @@ export async function createDatabaseRow(
   return rowOutput(ctx, database.id, created.id);
 }
 
-export async function createDatabaseRows(ctx: OperationContext, { database_id, rows }: Args<"createDatabaseRows">) {
+export async function createDatabaseRows(ctx: OperationContext, { database_id, rows, match_by }: Args<"createDatabaseRows">) {
   const { userId, actor } = ctx;
-  const { database } = await databases.getDatabase(userId, database_id);
+  const { database, properties: props, propertyAccess: levels } = await databases.getDatabase(userId, database_id);
   if (database.archivedAt) throw new ToolInputError("This database is in the trash.");
-  const created = await databases.createRows(userId, database.id, rows);
+  const matches = match_by ? await findMatches(ctx, database.id, props, levels, match_by, rows) : rows.map(() => null);
+  const fresh = rows.filter((_, i) => !matches[i]);
+  const updates = rows.flatMap((row, i) => (matches[i] ? [{ ...row, match: matches[i] }] : []));
+  // Every value is checked before anything is written: the matched rows' here, the new rows' by
+  // createRows itself before it inserts them.
+  if (updates.length) await checkMatched(ctx, database.id, updates);
+  const created = await databases.createRows(userId, database.id, fresh);
   const collab = getCollab();
   for (const [i, row] of created.entries()) {
-    const markdown = rows[i].markdown;
+    const markdown = fresh[i].markdown;
     if (markdown?.trim()) await collab.replaceContent(row.id, markdown, actor);
   }
+  await updateMatched(ctx, database.id, updates);
+  const createdRows = [...created];
+  const out = rows.map((row, i) => {
+    const match = matches[i];
+    const r = match ? { id: match.id, title: row.title } : createdRows.shift()!;
+    return {
+      id: r.id,
+      title: pageLabel(r.title),
+      ...(match_by ? { action: match ? ("updated" as const) : ("created" as const) } : {}),
+      url: pageUrl(database.workspaceId, r.id),
+    };
+  });
   return {
     database_id: database.id,
     created: created.length,
-    rows: created.map((r) => ({ id: r.id, title: pageLabel(r.title), url: pageUrl(database.workspaceId, r.id) })),
+    ...(match_by ? { updated: updates.length } : {}),
+    rows: out,
     url: pageUrl(database.workspaceId, database.id),
   };
+}
+
+type MatchedRow = { id: string; title: string };
+type RowWrite = { title: string; properties?: Record<string, unknown>; markdown?: string };
+
+/**
+ * For create_database_row(s) with match_by: the existing row each given row stands for, or null
+ * when none does. Rows are matched on the values the user may see; a property they can't see in
+ * any row can't be matched on. Refuses (writing nothing) a row without a value to match, two given
+ * rows with the same value, and a value more than one existing row holds.
+ */
+async function findMatches(
+  ctx: OperationContext,
+  databaseId: string,
+  props: PropertyDef[],
+  levels: Record<string, PropertyAccessNote> | undefined,
+  matchBy: string,
+  rows: { title: string; properties?: Record<string, unknown> }[],
+): Promise<(MatchedRow | null)[]> {
+  const { prop } = resolvePropertyKey(props, matchBy);
+  const byTitle = !prop && matchBy.trim().toLowerCase() === "title";
+  if (!byTitle && (!prop || !(MATCH_TYPES as readonly string[]).includes(prop.type))) {
+    throw new ToolInputError(`match_by must name the title or a ${MATCH_TYPES.join(", ")} property; "${matchBy}" isn't one.`);
+  }
+  if (prop) refuseHiddenValues(props, levels, [prop.id]);
+  const name = prop?.name ?? "title";
+  const which = (i: number) => (rows.length > 1 ? `Row ${i + 1} ("${rows[i].title.trim()}")` : "The row");
+  // Values are compared as they are stored: options by id, numbers as numbers, text trimmed.
+  const keyOf = (value: unknown) => {
+    if (value === null || value === undefined || value === "") return null;
+    if (prop?.type === "email") return JSON.stringify(String(value).trim().toLowerCase());
+    return JSON.stringify(typeof value === "string" ? value.trim() : value);
+  };
+  const wanted = rows.map((row, i) => {
+    let key: string | null;
+    if (byTitle) key = keyOf(row.title);
+    else {
+      const given = Object.entries(row.properties ?? {}).find(([k]) => resolvePropertyKey(props, k).prop?.id === prop!.id);
+      key = given ? keyOf(normalizeValue(prop!, given[1])) : null;
+    }
+    if (key === null) throw new ToolInputError(`${which(i)} has no value for "${name}", which match_by needs.`);
+    return key;
+  });
+  const first = new Map<string, number>();
+  for (const [i, key] of wanted.entries()) {
+    const seen = first.get(key);
+    if (seen !== undefined) {
+      throw new ToolInputError(`Rows ${seen + 1} and ${i + 1} have the same "${name}"; give each value once.`);
+    }
+    first.set(key, i);
+  }
+  const existing = new Map<string, MatchedRow[]>();
+  for (const row of await databases.listRows(ctx.userId, databaseId)) {
+    const key = keyOf(byTitle ? row.title : row.properties[prop!.id]);
+    if (key === null || !first.has(key)) continue;
+    existing.set(key, [...(existing.get(key) ?? []), { id: row.id, title: row.title }]);
+  }
+  return wanted.map((key, i) => {
+    const found = existing.get(key) ?? [];
+    if (found.length > 1) {
+      throw new ToolInputError(
+        `${which(i)}: ${found.length} rows already have this "${name}" (${found.map((r) => r.id).join(", ")}), so match_by can't tell which to update. Update one of them by id instead.`,
+      );
+    }
+    return found[0] ?? null;
+  });
+}
+
+/**
+ * Checks, before anything is written, that every matched row can take its update: the user may
+ * edit it and the values given (see databases.normalizeRowProperties), and rename it if its title
+ * changes (a locked row keeps its title).
+ */
+async function checkMatched(ctx: OperationContext, databaseId: string, updates: (RowWrite & { match: MatchedRow })[]) {
+  const { rows, skipped } = await databases.rowsWithAccess(
+    ctx.userId,
+    databaseId,
+    updates.map((u) => u.match.id),
+    "edit",
+  );
+  if (skipped.length) {
+    throw new ToolInputError(`match_by found rows you can't edit (${skipped.join(", ")}), so nothing was written.`);
+  }
+  const stored = new Map(rows.map((r) => [r.id, r]));
+  for (const update of updates) {
+    const row = stored.get(update.match.id)!;
+    const label = `Row "${update.title.trim()}"`;
+    try {
+      if (update.properties && Object.keys(update.properties).length) {
+        await databases.normalizeRowProperties(ctx.userId, databaseId, update.properties, row.properties, { createdBy: row.createdBy });
+      }
+    } catch (error) {
+      if (error instanceof Error) error.message = `${label}: ${error.message}`;
+      throw error;
+    }
+    if (update.title.trim() !== update.match.title && isPageLocked(await pages.getPage(ctx.userId, row.id))) {
+      throw new ToolInputError(`${label}: ${PAGE_LOCKED_MESSAGE}`);
+    }
+  }
+}
+
+/** Writes the update of each matched row, checked by checkMatched first: values, then title, then body. */
+async function updateMatched(ctx: OperationContext, databaseId: string, updates: (RowWrite & { match: MatchedRow })[]) {
+  const collab = getCollab();
+  for (const { match, title, properties, markdown } of updates) {
+    if (properties && Object.keys(properties).length) await databases.updateRowProperties(ctx.userId, match.id, properties);
+    if (title.trim() !== match.title) await pages.renamePage(ctx.actor, match.id, title);
+    if (markdown !== undefined) await collab.replaceContent(match.id, markdown, ctx.actor);
+  }
 }
 
 /** A database row with its property values (REST only; MCP reads rows with get_page). */
@@ -994,15 +1259,24 @@ export async function updateDatabaseRow(ctx: OperationContext, { row_id, title, 
 
 export async function updateDatabaseRows(
   ctx: OperationContext,
-  { database_id, row_ids, properties }: Args<"updateDatabaseRows">,
+  { database_id, row_ids, properties, expect, dry_run = false }: Args<"updateDatabaseRows">,
 ) {
   if (!Object.keys(properties).length) throw new ToolInputError("Provide at least one property value.");
   const { database } = await databases.getDatabase(ctx.userId, database_id);
   if (database.archivedAt) throw new ToolInputError("This database is in the trash.");
-  const { done, skipped } = await databases.updateRowsProperties(ctx.userId, database.id, row_ids, properties);
+  const guard = ({ done, skipped }: databases.BulkResult) => {
+    if (expect === undefined || done.length === expect) return;
+    throw new ToolInputError(
+      `Expected ${expect} ${expect === 1 ? "row" : "rows"} to change, but ${done.length} would${skipped.length ? ` (skipped: ${skipped.join(", ")})` : ""}. Nothing was written.`,
+    );
+  };
+  const { done, skipped } = await databases.updateRowsProperties(ctx.userId, database.id, row_ids, properties, {
+    guard,
+    dryRun: dry_run,
+  });
   return {
     database_id: database.id,
-    updated: done.length,
+    ...(dry_run ? { dry_run: true, would_update: done.length, row_ids: done } : { updated: done.length }),
     ...(skipped.length ? { skipped_row_ids: skipped } : {}),
     url: pageUrl(database.workspaceId, database.id),
   };

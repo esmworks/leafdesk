@@ -3,6 +3,8 @@ import type { ChecklistItem, FilterRule, PropertyOptions, PropertyType } from "@
 import {
   applyView,
   boardGroupProperty,
+  compareSortKeys,
+  sortKeyReader,
   checklistProgress,
   computedValues,
   isGroupable,
@@ -230,6 +232,35 @@ describe("applyView", () => {
     const copy = [...rows];
     applyView(rows, { sorts: [{ propertyId: "title", direction: "desc" }] });
     expect(rows).toEqual(copy);
+  });
+});
+
+describe("sort keys", () => {
+  const rows = [
+    row("a", "Alpha", { p_number: 3, p_select: "o3" }, 1),
+    row("b", "beta", { p_number: 10, p_select: "o1" }, 2),
+    row("c", "Gamma", { p_select: "o3" }, 3),
+  ];
+  const props = [prop("number"), status];
+  const sorts = [
+    { propertyId: "p_select", direction: "desc" as const },
+    { propertyId: "p_number", direction: "asc" as const },
+  ];
+
+  it("are plain values that survive JSON and order rows as applyView does", () => {
+    const keyOf = sortKeyReader(sorts, props);
+    expect(keyOf(rows[0])).toEqual([2, 3]);
+    const stored = JSON.parse(JSON.stringify(rows.map(keyOf))) as unknown[][];
+    const order = [0, 1, 2].sort((i, j) => compareSortKeys(stored[i], stored[j], sorts)).map((i) => rows[i].id);
+    expect(order).toEqual(applyView(rows, { sorts }, props).map((r) => r.id));
+    expect(order).toEqual(["a", "c", "b"]);
+  });
+
+  it("put empty values last in either direction", () => {
+    const desc = [{ propertyId: "p_number", direction: "desc" as const }];
+    expect(compareSortKeys([null], [1], desc)).toBeGreaterThan(0);
+    expect(compareSortKeys([1], [null], sorts.slice(1))).toBeLessThan(0);
+    expect(compareSortKeys([null], [null], desc)).toBe(0);
   });
 });
 

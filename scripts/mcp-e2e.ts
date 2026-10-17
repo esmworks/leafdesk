@@ -823,6 +823,74 @@ async function main() {
   );
   const repairPage = await mcp.ok("get_page", { page_id: repair.id });
   check(repairPage.markdown.includes("Compressor noise"), "create_database_rows writes row bodies", repairPage.markdown);
+
+  // Reading a large database a page at a time, upserts and guarded bulk edits (scripts/row-safety-e2e.ts
+  // covers the edge cases against the database).
+  const leads = await mcp.ok("create_database", { parent_id: root.id, title: "Leads" });
+  await mcp.ok("add_database_property", { database_id: leads.id, name: "Email", type: "email" });
+  for (let from = 0; from < 250; from += 100) {
+    await mcp.ok("create_database_rows", {
+      database_id: leads.id,
+      rows: Array.from({ length: Math.min(100, 250 - from) }, (_, i) => ({
+        title: `Lead ${from + i + 1}`,
+        properties: { Email: `lead${from + i + 1}@example.test` },
+      })),
+    });
+  }
+  const leadsPage1 = await mcp.ok("query_database", { database_id: leads.id, limit: 200 });
+  check(
+    leadsPage1.total === 250 && leadsPage1.returned === 200 && leadsPage1.has_more && typeof leadsPage1.next_cursor === "string",
+    "query_database returns a first page of 200 with next_cursor",
+    { total: leadsPage1.total, returned: leadsPage1.returned, has_more: leadsPage1.has_more },
+  );
+  const leadsPage2 = await mcp.ok("query_database", { database_id: leads.id, limit: 200, cursor: leadsPage1.next_cursor });
+  const leadIds = [...leadsPage1.rows, ...leadsPage2.rows].map((r: { id: string }) => r.id);
+  check(
+    leadsPage2.returned === 50 && leadsPage2.next_cursor === null && !leadsPage2.has_more && new Set(leadIds).size === 250,
+    "query_database reads all 250 rows in two pages, each once",
+    { second: leadsPage2.returned, unique: new Set(leadIds).size },
+  );
+  const leadEmails = await mcp.ok("query_database", { database_id: leads.id, limit: 2, properties: ["Email"] });
+  check(
+    Object.keys(leadEmails.rows[0].properties).join() === "Email",
+    "query_database returns only the properties asked for",
+    leadEmails.rows[0],
+  );
+  const upserted = await mcp.ok("create_database_rows", {
+    database_id: leads.id,
+    match_by: "Email",
+    rows: [
+      { title: "Lead 1 (called)", properties: { Email: "LEAD1@example.test" } },
+      { title: "Lead 251", properties: { Email: "lead251@example.test" } },
+    ],
+  });
+  check(
+    upserted.created === 1 && upserted.updated === 1 && upserted.rows.map((r: { action: string }) => r.action).join() === "updated,created",
+    "create_database_rows with match_by updates the matching row and adds the other",
+    upserted,
+  );
+  const leadsDry = await mcp.ok("update_database_rows", {
+    database_id: leads.id,
+    row_ids: leadIds.slice(0, 3),
+    properties: { Email: "same@example.test" },
+    dry_run: true,
+  });
+  check(leadsDry.dry_run === true && leadsDry.would_update === 3 && !("updated" in leadsDry), "update_database_rows dry_run writes nothing", leadsDry);
+  const leadsOff = await mcp.call("update_database_rows", {
+    database_id: leads.id,
+    row_ids: [...leadIds.slice(0, 3), "no-such-row"],
+    properties: { Email: "same@example.test" },
+    expect: 4,
+  });
+  const leadsAfter = await mcp.ok("query_database", {
+    database_id: leads.id,
+    filters: [{ property: "Email", op: "equals", value: "same@example.test" }],
+  });
+  check(
+    leadsOff.isError && /Expected 4 rows to change, but 3 would/.test(leadsOff.text) && leadsAfter.total === 0,
+    "update_database_rows with a wrong expect refuses and writes nothing",
+    { text: leadsOff.text, written: leadsAfter.total },
+  );
   const badLink = await mcp.call("update_database_row", { row_id: job.id, properties: { Customer: ["Nobody"] } });
   check(badLink.isError && badLink.text.includes("not a row"), "relations reject rows outside the related database", badLink.text);
   await mcp.ok("delete_database_property", { database_id: dbPage.id, property: "Customer" });

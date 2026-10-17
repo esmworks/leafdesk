@@ -23,6 +23,15 @@ const databases = vi.hoisted(() => ({
   getDatabase: vi.fn(),
   getRow: vi.fn(),
   listRows: vi.fn(async () => []),
+  // query_database pages through rows in listRows' order here.
+  listRowsInOrder: vi.fn(async (...args: unknown[]) => ({
+    rows: (((await (databases.listRows as (...a: unknown[]) => Promise<unknown>)(...args)) ?? []) as { id: string }[]).map((row, position) => ({
+      row,
+      key: { sort: [], position, created: 0, id: row.id },
+    })),
+    sorts: [],
+  })),
+  compareRowOrder: (a: { position: number }, b: { position: number }) => a.position - b.position,
   addView: vi.fn(),
   updateView: vi.fn(),
   updateRowProperties: vi.fn(),

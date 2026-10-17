@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Added
+
+- **Agents read every row and write rows safely.** `query_database` (MCP and `POST
+  /databases/{id}/query`) now returns `next_cursor` and `has_more`: pass the cursor back with the
+  same filters and sorts to read the next page, until it is null. Pages follow on from the last row
+  returned, so rows added or removed between calls neither repeat nor go missing; a cursor from
+  another query is refused. `properties` narrows each row to the values asked for.
+  `create_database_row(s)` take `match_by` (the title or a text, number, email, phone, URL, select
+  or status property) to upsert: a row with the same value is updated instead of a new one being
+  added, so a retried import adds nothing twice, and each row says whether it was `created` or
+  `updated`. A value two given rows share, or that several existing rows hold, is refused before
+  anything is written. `update_database_rows` takes `expect` (refuses, writing nothing, unless
+  exactly that many rows would change) and `dry_run`. Covered in `scripts/row-safety-e2e.ts` and
+  `scripts/mcp-e2e.ts`.
+
 ### Fixed
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index
