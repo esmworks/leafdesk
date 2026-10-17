@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { API_TOKEN_SCOPES, apiToken, workspace, type ApiTokenScope } from "@/db/schema";
 import { findMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
@@ -189,6 +189,21 @@ export async function revokeApiToken(userId: string, tokenId: string, by?: { act
 
 export async function revokeAllApiTokens(userId: string) {
   await db.delete(apiToken).where(eq(apiToken.userId, userId));
+  await afterApiTokensRevoked(userId);
+}
+
+/**
+ * Deletes every API token of these people inside the caller's transaction, so they stop working
+ * together with whatever else it changes. Returns how many; once the transaction commits, call
+ * afterApiTokensRevoked for each person.
+ */
+export async function revokeApiTokensIn(tx: Pick<typeof db, "delete">, userIds: string[]) {
+  if (!userIds.length) return 0;
+  const deleted = await tx.delete(apiToken).where(inArray(apiToken.userId, userIds)).returning({ id: apiToken.id });
+  return deleted.length;
+}
+
+export async function afterApiTokensRevoked(userId: string) {
   // It runs where an account is being secured: once the tokens are gone, nothing after may fail.
   await forgetApiTokenUse({ userId }).catch((error) => console.error("[api-tokens] could not forget when tokens were last used", error));
 }

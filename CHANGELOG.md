@@ -266,6 +266,11 @@
 
 ### Security
 
+- **Moving or removing a workspace's SSO connection revokes API tokens and connected apps.** Pointing
+  the connection at another identity provider, or removing it, ended the sessions signed in through
+  it, but the API tokens and connected apps of the people who signed in that way kept working. They
+  are now revoked with the sessions, as on a password reset, and the audit log entry says how many.
+  A change that keeps the identity provider (a new client secret, other domains) revokes nothing.
 - **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response
   run, so HTML that ever got past the sanitizers of a published page, a bookmark or a diagram
   can't run script where the session lives; frames may only come from the embed providers, and

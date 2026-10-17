@@ -21,7 +21,9 @@ import {
 import { requireMembership } from "@/server/access";
 import { disconnectEndedSessions } from "@/server/account-security";
 import { allowedDomainsProvenElsewhere } from "@/server/allowed-domains";
+import { afterApiTokensRevoked, revokeApiTokensIn } from "@/server/api/tokens";
 import { recordAudit } from "@/server/audit";
+import { afterConnectedAppsRevoked, revokeConnectedAppsIn } from "@/server/mcp/grants";
 import { fetchRemoteFile, isBlockedAddress, readRemoteText } from "@/server/remote-fetch";
 import { joinAsMember } from "@/server/workspaces";
 
@@ -387,25 +389,52 @@ const newVerificationToken = () => randomBytes(18).toString("base64url");
  * under the connection's provider id, which never changes (`ws-<workspace id>`); another identity
  * provider behind it could send any of those ids and sign in as that person. Afterwards people are
  * linked again by their verified domain's address, as on their first sign-in. Returns the people
- * whose sessions ended, for closing their open pages once the transaction commits
- * (closeEndedSessions).
+ * whose sessions ended and everyone it forgot.
  */
-export async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string): Promise<string[]> {
-  await tx.delete(account).where(eq(account.providerId, providerId));
+export async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string) {
+  const linked = await tx.delete(account).where(eq(account.providerId, providerId)).returning({ userId: account.userId });
   const ended = await tx.delete(session).where(eq(session.ssoProviderId, providerId)).returning({ userId: session.userId });
-  return [...new Set(ended.map((s) => s.userId))];
+  const signedOut = [...new Set(ended.map((s) => s.userId))];
+  return { signedOut, people: [...new Set([...linked.map((a) => a.userId), ...signedOut])] };
 }
 
-/** Closes the open pages of sessions forgetConnectionSignIns ended: they would stay writable. */
-async function closeEndedSessions(userIds: string[]) {
-  for (const userId of userIds) await disconnectEndedSessions(userId);
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * forgetConnectionSignIns, and the API tokens and connected apps of everyone it forgot go too, as
+ * on a password reset: whoever signed in through the connection made them, and they aren't held to
+ * the sign-in policies, so they would outlast it. In the same transaction, so there is no moment
+ * the sign-ins are gone and the tokens still work, and nobody to find again if the process stops
+ * after the commit. The counts are for the audit log; once the transaction commits, finish with
+ * afterCutOff.
+ */
+async function cutOffConnection(tx: Tx, providerId: string) {
+  const { signedOut, people } = await forgetConnectionSignIns(tx, providerId);
+  const revokedApiTokens = await revokeApiTokensIn(tx, people);
+  const apps = await revokeConnectedAppsIn(tx, people);
+  return { signedOut, people, apps, counts: { revokedApiTokens, revokedConnectedApps: apps.length } };
+}
+
+/**
+ * Closes the open pages of the sessions cutOffConnection ended (they would stay writable), forgets
+ * when the revoked tokens and apps were used and records the apps disconnected.
+ */
+async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnection>>[]) {
+  for (const { signedOut, people, apps } of cutOff) {
+    for (const userId of signedOut) await disconnectEndedSessions(userId);
+    for (const userId of people) {
+      await afterApiTokensRevoked(userId);
+      await afterConnectedAppsRevoked(userId, apps.filter((app) => app.userId === userId));
+    }
+  }
 }
 
 /**
  * Creates or replaces the workspace's connection. Owners only. Changing the domains (or the
  * identity provider behind them) asks for them to be verified again; a secret left empty keeps the
  * stored one. Sessions already signed in through the connection stay signed in while the identity
- * provider stays the same; another one signs everyone out of it (forgetConnectionSignIns).
+ * provider stays the same; another one signs everyone out of it and revokes what they reach the
+ * app with besides (cutOffConnection).
  */
 export async function saveSsoConnection(
   actorId: string,
@@ -468,10 +497,9 @@ export async function saveSsoConnection(
     domain: domains.join(","),
     domainVerified: verified,
   };
-  const signedOut = await db.transaction(async (tx) => {
-    let ended: string[] = [];
+  const cutOff = await db.transaction(async (tx) => {
+    const cutOff = existing && !sameIdentity ? await cutOffConnection(tx, providerId) : null;
     if (existing) {
-      if (!sameIdentity) ended = await forgetConnectionSignIns(tx, providerId);
       await tx.update(ssoProvider).set(fields).where(eq(ssoProvider.providerId, providerId));
       await tx
         .update(workspaceSso)
@@ -493,13 +521,13 @@ export async function saveSsoConnection(
         actorId,
         action: "sso.configured",
         target: { type: "sso", id: providerId },
-        details: { protocol: input.protocol, domains, created: !existing, verified },
+        details: { protocol: input.protocol, domains, created: !existing, verified, ...cutOff?.counts },
       },
       tx,
     );
-    return ended;
+    return cutOff;
   });
-  await closeEndedSessions(signedOut);
+  if (cutOff) await afterCutOff([cutOff]);
   return getSsoConnection(actorId, workspaceId);
 }
 
@@ -544,18 +572,19 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
 
 /**
  * Removes the connection (its provider row goes with it, see the trigger in 0022_sso.sql) and
- * everyone's sign-ins through it (forgetConnectionSignIns: a new connection gets the same provider
- * id). The "SSO only" login method falls back to any method unless the instance provider remains.
+ * everyone's sign-ins through it, with their API tokens and connected apps (cutOffConnection: a new
+ * connection gets the same provider id). The "SSO only" login method falls back to any method unless the instance provider remains.
  * Owners only.
  */
 export async function removeSsoConnection(actorId: string, workspaceId: string) {
   await requireMembership(actorId, workspaceId, "owner");
-  const signedOut = await db.transaction(async (tx) => {
-    const ended: string[] = [];
+  const cutOff = await db.transaction(async (tx) => {
+    const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
     const removed = await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId)).returning({ providerId: workspaceSso.providerId });
     for (const { providerId } of removed) {
-      ended.push(...(await forgetConnectionSignIns(tx, providerId)));
-      await recordAudit({ workspaceId, actorId, action: "sso.removed", target: { type: "sso", id: providerId } }, tx);
+      const connection = await cutOffConnection(tx, providerId);
+      cutOff.push(connection);
+      await recordAudit({ workspaceId, actorId, action: "sso.removed", target: { type: "sso", id: providerId }, details: connection.counts }, tx);
     }
     if (!env.instanceOidc) {
       const [row] = await tx.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, workspaceId)).limit(1);
@@ -566,9 +595,9 @@ export async function removeSsoConnection(actorId: string, workspaceId: string) 
           .where(eq(workspace.id, workspaceId));
       }
     }
-    return ended;
+    return cutOff;
   });
-  await closeEndedSessions(signedOut);
+  await afterCutOff(cutOff);
 }
 
 /** For the "SSO only" gate: the provider a member of the workspace signs in with. */
