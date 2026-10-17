@@ -20,6 +20,15 @@ export function assertPageUnlocked(p: { kind: PageKind; lockedAt?: Date | string
   if (isPageLocked(p)) throw pageLockedError();
 }
 
+/**
+ * A page in the trash keeps its title, icon, background, body and (a row) property values until it
+ * is restored: its open editors are read-only too (see collab/authorize.ts). Moving, restoring and
+ * deleting it still work.
+ */
+export function assertNotInTrash(p: { archivedAt?: Date | string | null }) {
+  if (p.archivedAt) throw Object.assign(new Error("The page is in the trash. Restore it first."), { code: "pageInTrash" as const });
+}
+
 /** How MCP tools, the REST API and AI tools explain a refused write. */
 export const PAGE_LOCKED_MESSAGE =
   "This page is locked, so its title, icon, background and body can't change. Comments, sharing and moving it still work, and so do a database row's properties. Someone who can edit the page can unlock it in Leafdesk, from the page's ... menu.";

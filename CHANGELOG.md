@@ -4,10 +4,19 @@
 
 ### Upgrading
 
-- **Migration 0078** runs automatically when the container starts (from source, run
-  `pnpm db:migrate`). It adds a column to `page_link`; after the upgrade the server reads each page
-  that links somewhere once, in the background, to fill in where its links are.
-- **Migration 0079** adds the `journal` and `daily_note` tables for daily notes.
+- **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
+  included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
+  in the pages' policy). A public form or published page put inside another website with an
+  `<iframe>` shows an error there instead; link to it.
+- **A reverse proxy that sets its own Content-Security-Policy** now adds to the app's: the browser
+  enforces both, so drop the proxy's (or make sure it allows at least what the app's does, see
+  `src/lib/content-security-policy.ts`).
+- **Migrations 0078 to 0080** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). 0078 adds a column to `page_link`; after the upgrade the server reads each page
+  that links somewhere once, in the background, to fill in where its links are. 0079 adds the time
+  zone of calendar feeds (see *Fixed*); feeds made before it take their user's zone the next time
+  they open the feed's dialog, and count days in UTC until then. 0080 adds the `journal` and
+  `daily_note` tables for daily notes.
 
 ### Added
 
@@ -40,6 +49,75 @@
 
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
+
+### Changed
+
+- **Webhooks follow the export switch.** With export turned off in Settings → Security, an
+  automation can't get a new webhook (`webhookExportOff`), and a webhook saved before sends nothing:
+  its runs fail with that code until export is turned back on. Calendar feeds already stopped.
+- **AI autofill leaves out related rows and people.** Relations, rollups, people and created/edited
+  by properties, and formulas reading them, are no longer part of what autofill sends to the model:
+  they could name rows and people the readers of the filled-in text can't open. A prompt or a
+  translation source naming one is refused (`hiddenInput`).
+
+### Fixed
+
+- **Templates keep the access a subpage had.** Saving a subpage as a template copied only its own
+  sharing, so a page closed to everyone above it could become a template the whole workspace
+  opens. The entries it had from its parents are now copied onto the template too.
+- **Comment threads can't lose comments to edits from the future.** An edit could delete parts of
+  a page the server hadn't received yet, slipping past the check that keeps others' comments in
+  place; such edits are refused.
+- **Password resets end everything.** Changing a password with "sign out other devices", a reset
+  by email and a reset an instance admin required now also revoke API tokens (and, for a required
+  reset, connected apps), and close the pages open in the signed-out sessions. Replacing or removing
+  a workspace's SSO connection closes the open pages of the sessions it ends.
+- **Pages in the trash can't be changed.** Their content, title, icon, cover, properties and
+  snapshots could still be written, by open tabs too. Open tabs turn read-only when a page goes to
+  the trash and writable again when it is restored.
+- **Moving or adding pages under a page in the trash is refused** (`parentInTrash`). A page moved
+  there could be deleted for good with it, and one moved while its new parent was being trashed
+  now goes to the trash with it.
+- **Guests don't learn members' email addresses.** Naming people in an automation's notification
+  by address or name, access requests in the share panel, the inbox and their emails showed guests
+  who is in the workspace under which address. Guests now name people by id, and see requesters
+  by name only.
+- **Pasting into a database view adds options only with edit access.** Pasting values that aren't
+  options of a select property yet added them for people who may only change rows; now only those
+  who may edit the database (or add rows) do.
+- **An owner's own agent runs stay theirs.** A run an owner asked for, or one a schedule without a
+  database started, reads with that owner's access, but every owner saw its steps, answer, task and
+  the notes it proposed. Others now see only that it ran and how it ended.
+- **Tighter checks on addresses the server fetches.** An SSO issuer's discovery document is cut off
+  at its size limit even without a Content-Length, file attachments by URL refuse the local NAT64
+  and IPv4-translated IPv6 ranges, and MCP clients can't register a back-channel logout address.
+- **Times on days the clocks change.** On a day daylight saving starts or ends, a date's time was
+  read as the time passed since midnight instead of the time on the clock: 14:30 on a 25-hour day
+  showed as 15:30 in the date picker and on the calendar, and editing the date, dragging it to
+  another day or a reminder some days before it saved the time an hour off. Times now read as the
+  clock shows them, and stay on the clock when moved to another day.
+- **Skipped times in zones far ahead of UTC.** A time the clocks skip when daylight saving starts
+  (02:30 on 27 September 2026 in New Zealand) moved an hour back instead of forward in zones 13 or
+  more hours ahead of UTC, in the date picker, new calendar events and repeating schedules. It now
+  moves forward past the change, as it always did elsewhere.
+- **Relative date filters on dashboards and calendar feeds.** Dashboard widgets and calendar feeds
+  applied filters such as "is within today", "this week" or "is on a day" in the server's time
+  zone, so near midnight they counted another day's rows than the table showed. Widgets now count
+  days in the viewer's zone and calendar feeds in their user's zone, kept with the feed when it is
+  made.
+- **Push reminders of timed dates.** A push notification for a reminder on a date with a time
+  showed the time in UTC; it now shows it in the reminder's zone, as the email does.
+
+### Security
+
+- **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response
+  run, so HTML that ever got past the sanitizers of a published page, a bookmark or a diagram
+  can't run script where the session lives; frames may only come from the embed providers, and
+  forms and `<base>` stay on this site. Offline copies of pages keep their policy.
+- **Bookmark cards in the editor link and load only web addresses.** A bookmark written with
+  another kind of address (by hand in the document, or by an app) shows without a link or image.
+- **Published pages check links in tables of the older form too**, and refuse image and video
+  addresses like `/\example.com/…`, which browsers read as another site.
 
 ## 0.5.4 — 2026-10-17
 

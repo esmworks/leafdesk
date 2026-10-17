@@ -84,6 +84,30 @@ export function touchesThreads(doc: Y.Doc, update: Uint8Array): boolean {
   };
 
   if (items.some((item) => isThreads(item))) return true;
+
+  // Deletions of clocks neither the document nor this update holds yet: Yjs keeps them aside and
+  // applies them once those clocks arrive, so they would delete what the server writes later (a
+  // thread, a body written over the API, a restored version). No editor sends them: a browser only
+  // deletes what it has, and what the server lacks of that comes in the same update.
+  // The update's structs of a client cover more only where they continue the document's: after a
+  // gap, Yjs keeps them aside too.
+  const docEnd = (client: number) => {
+    const existing = (doc.store.clients.get(client) ?? []) as Struct[];
+    const last = existing[existing.length - 1];
+    return last ? last.id.clock + last.length : 0;
+  };
+  const covered = new Map<number, number>();
+  for (const struct of [...structs].sort((a, b) => a.id.clock - b.id.clock)) {
+    if (struct instanceof Y.Skip) continue;
+    const { client, clock } = struct.id;
+    const end = covered.get(client) ?? docEnd(client);
+    if (clock <= end) covered.set(client, Math.max(end, clock + struct.length));
+  }
+  for (const [client, deletes] of ds.clients) {
+    const end = covered.get(client) ?? docEnd(client);
+    for (const { clock, len } of deletes) if (len > 0 && clock + len > end) return true;
+  }
+
   if (!threads) return false;
   // Deletions: walk the document's structs each range covers. Ranges are taken in clock order and
   // never walk a struct twice, so overlapping or tiny ranges cost no more than the document's length.

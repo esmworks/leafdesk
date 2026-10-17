@@ -23,6 +23,7 @@ import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, type Age
 import { newAssignees } from "@/lib/properties";
 import {
   FULL_RANK,
+  findMembership,
   ownsWorkspace,
   pageVisibleTo,
   peopleWithFullAccess,
@@ -446,6 +447,8 @@ export type InboxItem = {
   propertyName: string | null;
   /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). Automations: set for a "date passed" run. */
   reminderDate: string | null;
+  /** Reminders on a date property: the zone a date's time reads in (whoever set the reminder's), when it has one. */
+  reminderTimeZone: string | null;
   /** Automations: the name of the automation that sent it (`pageId` is the row, `databaseTitle` its database). */
   automationName: string | null;
   /** Access requests: what the user needs to answer it. */
@@ -500,6 +503,7 @@ export type InboxApproval = {
 
 export type InboxAccessRequest = {
   id: string;
+  /** Empty for a guest's inbox when the requester is in the workspace: guests don't learn members' addresses. */
   requesterEmail: string;
   message: string | null;
   /** The requester is in the workspace (as a member or guest); otherwise approving adds them as a guest. */
@@ -583,6 +587,7 @@ export async function listNotifications(
       databaseTitle: sql<string | null>`case when page_access_level(${userId}, ${databasePage.id}) > 0 then ${databasePage.title} end`,
       propertyName: databaseProperty.name,
       reminderDate: notification.date,
+      reminderTimeZone: sql<string | null>`${databaseProperty.options}->'date'->'reminder'->>'timeZone'`,
       automationName: databaseAutomation.name,
       requestKind: workspaceJoinRequest.kind,
       requestEmail: workspaceJoinRequest.email,
@@ -612,6 +617,12 @@ export async function listNotifications(
     )
     .orderBy(desc(notification.createdAt))
     .limit(limit);
+  // Guests don't learn the addresses of people in the workspace (see listAccessRequests).
+  const guestIn = new Map<string, Promise<boolean>>();
+  const isGuestIn = (id: string) => {
+    if (!guestIn.has(id)) guestIn.set(id, findMembership(userId, id).then((m) => m?.role === "guest"));
+    return guestIn.get(id)!;
+  };
   // Approving someone from outside brings them in as a guest, which not everyone may do.
   const inviting = new Map<string, Promise<boolean>>();
   const mayInvite = (id: string) => {
@@ -635,7 +646,7 @@ export async function listNotifications(
         row.kind === "access_request" && requestId
           ? {
               id: requestId,
-              requesterEmail: actorEmail ?? "",
+              requesterEmail: requesterRole !== null && (await isGuestIn(row.workspaceId)) ? "" : (actorEmail ?? ""),
               message: requestMessage,
               inWorkspace: requesterRole !== null,
               approvable: requesterRole !== null || (await mayInvite(row.workspaceId)),

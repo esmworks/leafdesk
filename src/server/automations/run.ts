@@ -25,6 +25,7 @@ import { queueAgentRun } from "@/server/agents/run";
 import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { archivePage } from "@/server/pages";
+import { exportAllowed } from "@/server/workspaces";
 import { asAutomation, onAutomationsQueued } from "./queue";
 import { automationZone, followOwnEdit } from "./timed";
 import { sendWebhook, WebhookError, webhookSecret } from "./webhook";
@@ -179,6 +180,10 @@ export async function processRun(run: Run) {
           await moveToTrash(automation, run);
           step.status = "done";
         } else {
+          // A webhook sends the row out of the workspace: not while its owners have export off.
+          if (!(await exportAllowed(automation.workspaceId))) {
+            throw Object.assign(new Error("The workspace's owners turned export off"), { code: "webhookExportOff" });
+          }
           // The row as it is now (after the actions before this one); its retries send the same.
           if (step.attempts === 1 || !payload) payload = await webhookPayload(automation, run, row);
           const status = await sendWebhook(action.url, {

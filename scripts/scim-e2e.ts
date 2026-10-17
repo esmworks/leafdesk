@@ -41,6 +41,7 @@ const Y = await import("yjs");
 // Page and group changes made here (not over HTTP) notify open editors through the collab
 // service, which runs inside the app server only.
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},

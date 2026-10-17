@@ -97,6 +97,7 @@ const RUN = `access-e2e-${Date.now().toString(36)}`;
 // Open editors whose access is checked again, as [workspace, the users or "everyone"].
 const rechecked: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},

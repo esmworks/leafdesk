@@ -45,6 +45,7 @@ setStorage({
 });
 
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   openPageIds: () => [],
   async disconnectWorkspace() {},

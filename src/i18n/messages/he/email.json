@@ -96,6 +96,7 @@
     "subject": "{requester} ביקש גישה אל “{page}”",
     "heading": "{requester} ביקש גישה אל “{page}”",
     "body": "{requester} ({email}) מבקש לפתוח את “{page}” ב־{workspace}.",
+    "bodyWithoutEmail": "{requester} מבקש לפתוח את “{page}” ב־{workspace}.",
     "message": "ההודעה שצורפה: “{message}”",
     "answer": "אפשר לשתף את הדף ולבחור מה תהיה ההרשאה, או לדחות את הבקשה. אפשר לענות מתיבת הדואר הנכנס או מ“שיתוף” בדף.",
     "action": "פתיחת הדף",

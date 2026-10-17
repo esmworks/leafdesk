@@ -34,6 +34,7 @@ const RUN = `api-e2e-${Date.now().toString(36)}`;
 // Pages made here (the database, the hidden page) skip the app's live documents; the server's own
 // writes go through its collab service as usual.
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},

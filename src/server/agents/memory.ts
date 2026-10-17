@@ -71,6 +71,9 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
   if (!runIds.length) return new Map();
   const runs = await db.select({ id: agentRun.id, source: agentRun.source, createdAt: agentRun.createdAt }).from(agentRun).where(inArray(agentRun.id, runIds));
   const rowIds = runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : []));
+  // A run another owner asked for, or one of their schedules without a database, read with their access (see viewRuns).
+  const othersRun = (source: (typeof runs)[number]["source"]) =>
+    source.kind === "request" ? source.requestedBy !== viewer : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
   const databaseIds = runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : []));
   const openDatabases = new Set(
     databaseIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, databaseIds), pageVisibleTo(viewer)))).map((p) => p.id) : [],
@@ -94,13 +97,18 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
         requested: r.source.kind === "request",
         scheduled: isScheduleRun(r.source),
         databaseHidden: isScheduleRun(r.source) && Boolean(r.source.databaseId) && !openDatabases.has(r.source.databaseId!),
+        othersRun: othersRun(r.source),
       },
     ]),
   );
 }
 
-/** Whether `viewer` may read a proposal: not when it came from a run on a row (or a schedule's database) they can't open. */
-const readable = (run: AgentMemoryView["run"] | undefined) => !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden);
+/**
+ * Whether `viewer` may read a proposal: not when it came from a run on a row (or a schedule's
+ * database) they can't open, nor from a run another owner started for themselves.
+ */
+const readable = (run: AgentMemoryView["run"] | undefined) =>
+  !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden && !run.othersRun);
 
 function view(note: Note, run: AgentMemoryView["run"] | undefined): AgentMemoryView {
   return {

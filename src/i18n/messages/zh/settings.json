@@ -397,6 +397,7 @@
       "keptList": "智能体的笔记",
       "empty": "还什么都没有。保留其运行提议的笔记，或在这里写一条。",
       "hiddenText": "在你无法打开的某一行上提议。",
+      "hiddenOthersText": "由另一位所有者启动的运行提出。",
       "fromRow": "来自在<row>某一行</row>上的运行",
       "fromHiddenRow": "来自在你无法打开的某一行上的运行",
       "fromConnection": "来自由 {connection} 发起的运行",

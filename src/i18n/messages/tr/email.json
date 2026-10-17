@@ -96,6 +96,7 @@
     "subject": "{requester} “{page}” sayfasına erişim istedi",
     "heading": "{requester} “{page}” sayfasına erişim istedi",
     "body": "{requester} ({email}), {workspace} içindeki “{page}” sayfasını açmak istiyor.",
+    "bodyWithoutEmail": "{requester}, {workspace} içindeki “{page}” sayfasını açmak istiyor.",
     "message": "Mesajı: “{message}”",
     "answer": "Ne yapabileceğini seçerek sayfayı onunla paylaşın ya da isteği reddedin. Gelen kutunuzdan veya sayfadaki Paylaş menüsünden yanıtlayabilirsiniz.",
     "action": "Sayfayı aç",

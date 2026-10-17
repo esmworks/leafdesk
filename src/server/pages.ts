@@ -3,7 +3,7 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { parseIcon } from "@/lib/icon";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
-import { assertPageUnlocked } from "@/lib/page-lock";
+import { assertNotInTrash, assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
 import { anyWordTerms, anyWordTsQuery, searchQueryParts } from "@/lib/search-words";
@@ -280,6 +280,19 @@ async function pagePlace(parentId: string | null, teamspaceId: string | null): P
  * `audit: false` leaves the page out of the audit log: imports record themselves once, as a whole
  * (and take back what they created when they fail).
  */
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * In the transaction that puts a page under `parentId`: refuses a parent in the trash (a page
+ * under it would be hidden, and deleted with it), and holds the parent until the transaction ends.
+ * Trashing it meanwhile waits, and its sweep then takes the new page along (archivePage); a page
+ * put there after it was trashed finds it in the trash.
+ */
+export async function lockLiveParent(tx: Tx, parentId: string) {
+  const [row] = await tx.execute<{ archived_at: Date | null }>(sql`select archived_at from ${page} where id = ${parentId} for share`);
+  if (!row || row.archived_at) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
+}
+
 export async function createPage(actor: WriteActor, input: CreatePageInput, { audit = true }: { audit?: boolean } = {}) {
   const { userId } = actor;
   const kind = input.kind ?? "page";
@@ -318,6 +331,7 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
 
   const position = await nextPosition(workspaceId, input.parentId ?? null);
   const created = await db.transaction(async (tx) => {
+    if (input.parentId) await lockLiveParent(tx, input.parentId);
     const [row] = await tx
       .insert(page)
       .values({
@@ -383,8 +397,14 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
   return created;
 }
 
+/** The checks every change of a page's title, icon, background or body makes. */
+function assertChangeable(p: Parameters<typeof assertPageUnlocked>[0] & Parameters<typeof assertNotInTrash>[0]) {
+  assertNotInTrash(p);
+  assertPageUnlocked(p);
+}
+
 export async function renamePage(actor: WriteActor, pageId: string, title: string) {
-  assertPageUnlocked(await requirePageAccess(actor.userId, pageId, "edit"));
+  assertChangeable(await requirePageAccess(actor.userId, pageId, "edit"));
   // Title lives in the shared doc so open editors update live; the store hook persists it.
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
@@ -399,7 +419,7 @@ function checkedIcon(value: unknown) {
 export async function setPageIcon(userId: string, pageId: string, icon: string | null) {
   const checked = icon === null ? null : checkedIcon(icon);
   const p = await requirePageAccess(userId, pageId, "edit");
-  assertPageUnlocked(p);
+  assertChangeable(p);
   await db.update(page).set({ icon: checked, updatedBy: userId }).where(eq(page.id, pageId));
   pageHeaderChanged(p);
 }
@@ -436,7 +456,7 @@ function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: strin
 /** Sets or removes the page's background color (lib/page-background). */
 export async function setPageBackground(userId: string, pageId: string, background: PageBackground | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
-  assertPageUnlocked(p);
+  assertChangeable(p);
   const checked = background === null ? null : parsePageBackground(background);
   if (background !== null && !checked) throw new Error("Not a background");
   await db.update(page).set({ background: checked, updatedBy: userId }).where(eq(page.id, pageId));
@@ -457,10 +477,18 @@ export async function archivePage(userId: string, pageId: string) {
   const p = await requirePageAccess(userId, pageId, "edit");
   // Templates aren't listed in the trash; they are deleted from the template picker instead.
   if (p.isTemplate) throw withCode(new Error("Templates are deleted, not moved to the trash"), "isTemplate");
-  await db
-    .update(page)
-    .set({ archivedAt: new Date(), updatedBy: userId })
-    .where(and(sql`${page.id} in ${subtreeIds(pageId)}`, isNull(page.archivedAt)));
+  const archivedAt = new Date();
+  const sweep = () =>
+    db
+      .update(page)
+      .set({ archivedAt, updatedBy: userId })
+      .where(and(sql`${page.id} in ${subtreeIds(pageId)}`, isNull(page.archivedAt)))
+      .returning({ id: page.id });
+  // Twice: a page moved or added under one of these while the first sweep waited for it
+  // (lockLiveParent) isn't in what that sweep read, and would be left alive under a page in the trash.
+  const trashed = [...(await sweep()), ...(await sweep())];
+  // Open editors stop writing at once: a page in the trash doesn't change (assertNotInTrash).
+  await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   if (!p.archivedAt && (await auditedAsPage(p))) {
     await recordAudit({
       workspaceId: p.workspaceId,
@@ -487,21 +515,27 @@ export async function archiveRows(userId: string, databaseId: string, rowIds: st
   const { rows, skipped } = await rowsWithAccess(userId, databaseId, ids, "edit");
   if (!rows.length) return { done: [], skipped };
   const roots = rows.map((r) => r.id);
-  await db
-    .update(page)
-    .set({ archivedAt: new Date(), updatedBy: userId })
-    .where(
-      and(
-        sql`${page.id} in (
-          with recursive sub as (
-            select id from ${page} where ${inArray(page.id, roots)}
-            union all
-            select p.id from ${page} p join sub on p.parent_id = sub.id
-          ) select id from sub
-        )`,
-        isNull(page.archivedAt),
-      ),
-    );
+  const archivedAt = new Date();
+  const sweep = () =>
+    db
+      .update(page)
+      .set({ archivedAt, updatedBy: userId })
+      .where(
+        and(
+          sql`${page.id} in (
+            with recursive sub as (
+              select id from ${page} where ${inArray(page.id, roots)}
+              union all
+              select p.id from ${page} p join sub on p.parent_id = sub.id
+            ) select id from sub
+          )`,
+          isNull(page.archivedAt),
+        ),
+      )
+      .returning({ id: page.id });
+  // Twice, as in archivePage.
+  const trashed = [...(await sweep()), ...(await sweep())];
+  await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   getCollab().broadcast(`ws:${database.workspaceId}`, "tree");
   getCollab().broadcast(`db:${databaseId}`, "rows");
   return { done: roots, skipped };
@@ -517,7 +551,7 @@ export async function restorePage(userId: string, pageId: string) {
   }
   // Only what was trashed together with it: subpages trashed earlier stay in the trash as their own
   // entries (archivePage stamps just the pages that weren't archived yet).
-  await db
+  const restored = await db
     .update(page)
     .set({ archivedAt: null })
     .where(
@@ -525,7 +559,9 @@ export async function restorePage(userId: string, pageId: string) {
         sql`${page.id} in ${subtreeIds(pageId)}`,
         sql`${page.archivedAt} = (select root.archived_at from ${page} root where root.id = ${pageId})`,
       ),
-    );
+    )
+    .returning({ id: page.id });
+  await getCollab().pagesTrashed(restored.map((r) => r.id), false);
   if (parentId !== p.parentId) {
     // Lifted to the top of its teamspace (or of the private pages): it keeps the access it had
     // from its old ancestors rather than opening up to everyone there, or to nobody.
@@ -675,6 +711,7 @@ export async function movePage(
       throw withCode(new Error("Pages can't be moved into or out of a template"), "isTemplate");
     }
     if (parent.workspaceId !== p.workspaceId) throw new AccessError("Cannot move across workspaces");
+    if (parent.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
     if (parent.kind === "database" && p.kind === "database") throw new Error("A database cannot be a row");
     const cycle = await db.execute<{ hit: number }>(
       sql`select 1 as hit from ${subtreeIds(pageId)} s where s.id = ${newParentId}`,
@@ -695,6 +732,7 @@ export async function movePage(
       ? { from: await pagePlace(p.parentId, p.teamspaceId), to: await pagePlace(newParentId, space ?? null) }
       : null;
   await db.transaction(async (tx) => {
+    if (newParentId && newParentId !== p.parentId) await lockLiveParent(tx, newParentId);
     // Under a parent the database copies its teamspace (and to everything below it).
     await tx
       .update(page)
@@ -1007,7 +1045,7 @@ export async function getSnapshot(userId: string, snapshotId: string) {
 
 export async function restoreSnapshot(actor: WriteActor, snapshotId: string) {
   const snap = await getSnapshot(actor.userId, snapshotId);
-  assertPageUnlocked(await requirePageAccess(actor.userId, snap.pageId, "edit"));
+  assertChangeable(await requirePageAccess(actor.userId, snap.pageId, "edit"));
   await getCollab().restoreSnapshot(snapshotId, actor);
   return snap.pageId;
 }

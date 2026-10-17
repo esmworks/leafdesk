@@ -513,9 +513,9 @@ function AccessRequestRow({
   return (
     <li className="list-none">
       <div className="flex items-center gap-2">
-        <Avatar name={request.name || request.email} image={request.image} />
+        <Avatar name={request.name || request.email || "?"} image={request.image} />
         <div className="min-w-0 flex-1">
-          <PersonLabel name={request.name || request.email} detail={request.email} />
+          <PersonLabel name={request.name || request.email || "?"} detail={request.email ?? undefined} />
         </div>
       </div>
       {request.message && (

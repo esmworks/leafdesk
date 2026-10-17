@@ -96,6 +96,7 @@
       "promptTooLong": "Polecenie może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
       "unknownPlaceholder": "Nie ma właściwości o nazwie „{name}”.",
       "cycle": "„{name}” już odczytuje tę właściwość (bezpośrednio lub przez inne właściwości AI), więc ta nie może odczytywać tamtej.",
+      "hiddenInput": "„{name}” nie może trafić do wartości AI: pokazuje powiązane wiersze lub osoby, których nie każdy czytający wiersz może zobaczyć.",
       "notText": "AI może wypełniać tylko właściwości tekstowe.",
       "databaseLocked": "Baza danych jest zablokowana."
     }

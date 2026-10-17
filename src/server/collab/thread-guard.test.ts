@@ -104,6 +104,34 @@ describe("touchesThreads", () => {
     ranges.push([2999, 10]);
     expect(touchesThreads(server, deletions([[server.clientID, ranges]]))).toBe(true);
   });
+
+  it("refuses deletions of clocks the document hasn't reached yet", async () => {
+    const { server, client } = await setup();
+    // Yjs would keep these aside and apply them to whatever the server writes next: a new thread,
+    // a body written over the API, a restored version.
+    const next = Y.getState(server.store, server.clientID);
+    expect(touchesThreads(server, deletions([[server.clientID, [[next, 100_000]]]]))).toBe(true);
+    expect(touchesThreads(server, deletions([[server.clientID, [[next - 1, 2]]]]))).toBe(true);
+    // A client the document has never seen.
+    expect(touchesThreads(server, deletions([[424242, [[0, 1]]]]))).toBe(true);
+    // Also on a page without threads.
+    const plain = new Y.Doc();
+    plain.getText("body").insert(0, "Hello");
+    expect(touchesThreads(plain, deletions([[plain.clientID, [[5, 10]]]]))).toBe(true);
+    // A browser deleting what it typed in the same update is fine.
+    const update = updateFrom(client, () => {
+      client.getText("body").insert(0, "abc");
+      client.getText("body").delete(0, 2);
+    });
+    expect(touchesThreads(server, update)).toBe(false);
+    // An update that continues what the server never got: its deletes wait like its structs.
+    updateFrom(client, () => client.getText("body").insert(0, "a")); // never sent
+    const gapped = updateFrom(client, () => {
+      client.getText("body").insert(0, "b");
+      client.getText("body").delete(1, 1);
+    });
+    expect(touchesThreads(server, gapped)).toBe(true);
+  });
 });
 
 /** An update that only deletes these [clock, length] ranges, as a browser could send it (V1). */

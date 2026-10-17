@@ -190,6 +190,29 @@ describe("relative date filters", () => {
     expect(valueDay("not a date")).toBeNull();
   });
 
+  it("counts days in the viewer's zone when given one, whatever the runtime's", () => {
+    // 22:30 UTC on Oct 12 is already Oct 13 in Istanbul and still Oct 12 in Los Angeles.
+    const now = new Date("2026-10-12T22:30:00Z");
+    const list = [
+      ...dated("2026-10-12", "2026-10-13"),
+      row("at", { p_date: "2026-10-12T22:00:00.000Z" }),
+      row("created", {}, new Date("2026-10-12T21:30:00Z")),
+    ];
+    const inZone = (filter: FilterRule, timeZone: string) => applyView(list, { filters: [filter] }, props, { now, timeZone }).map((r) => r.id);
+    expect(inZone(within("today"), "Europe/Istanbul")).toEqual(["2026-10-13", "at"]);
+    expect(inZone(within("today"), "America/Los_Angeles")).toEqual(["2026-10-12", "at"]);
+    expect(inZone({ propertyId: "p_date", op: "equals", value: "2026-10-13" }, "Europe/Istanbul")).toEqual(["2026-10-13", "at"]);
+    const created: FilterRule = { propertyId: "created_at", op: "is_within", value: "today" };
+    expect(inZone(created, "Europe/Istanbul")).toEqual(["created"]);
+    expect(inZone(created, "Asia/Tokyo")).toEqual(["created"]);
+    expect(inZone(created, "America/Los_Angeles")).toEqual(["created"]);
+    expect(applyView([row("created", {}, new Date("2026-10-12T20:30:00Z"))], { filters: [created] }, props, { now, timeZone: "Europe/Istanbul" })).toEqual([]);
+    expect(relativeDateRange("this_week", undefined, now, "Europe/Istanbul")).toEqual({ start: "2026-10-12", end: "2026-10-18" });
+    expect(relativeDateRange("this_month", undefined, new Date("2026-10-31T22:30:00Z"), "Europe/Istanbul")).toEqual({ start: "2026-11-01", end: "2026-11-30" });
+    expect(relativeDateRange("this_month", undefined, new Date("2026-10-31T22:30:00Z"), "America/Los_Angeles")).toEqual({ start: "2026-10-01", end: "2026-10-31" });
+    expect(defaultsFromFilters([within("today")], props, { now, timeZone: "Europe/Istanbul" })).toEqual({ p_date: "2026-10-13" });
+  });
+
   it("treats a rule without a range or day count as incomplete", () => {
     expect(isIncompleteFilter(within(undefined))).toBe(true);
     expect(isIncompleteFilter(within("past_n_days"))).toBe(true);

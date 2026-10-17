@@ -43,6 +43,7 @@ const RUN = `timed-automation-e2e-${Date.now().toString(36)}`;
 const DAY_MS = 86_400_000;
 
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async disconnectLostAccess() {},
   async replaceContent() {},

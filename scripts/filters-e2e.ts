@@ -36,7 +36,7 @@ const RUN = `filters-e2e-${Date.now().toString(36)}`;
 
 // Writes notify open editors through the collab service, which only runs inside the app server.
 // Duplicating also titles the copy through it; the copy's page row carries the title anyway.
-registerCollab({ broadcast() {}, async setTitle() {}, async disconnectLostAccess() {} } as unknown as Parameters<typeof registerCollab>[0]);
+registerCollab({ async pagesTrashed() {}, broadcast() {}, async setTitle() {}, async disconnectLostAccess() {} } as unknown as Parameters<typeof registerCollab>[0]);
 // Rows are created with people assigned; their emails are dropped instead of sent.
 setAssignmentMailer(async () => {});
 

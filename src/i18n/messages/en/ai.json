@@ -96,6 +96,7 @@
       "promptTooLong": "The prompt can be at most {max} characters.",
       "unknownPlaceholder": "There is no property called “{name}”.",
       "cycle": "“{name}” already reads this property (directly or through other AI properties), so this one can't read it.",
+      "hiddenInput": "“{name}” can’t go into an AI value: it shows related rows or people that not everyone who reads the row may see.",
       "notText": "Only text properties can be filled in by AI.",
       "databaseLocked": "The database is locked."
     }

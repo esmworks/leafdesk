@@ -103,7 +103,7 @@ async function deliver(ids: string[]) {
       const t = emailTranslator(locale);
       const texts = (key: string, values?: Record<string, string | number>) => t(`push.${key}` as Parameters<typeof t>[0], values);
       for (const item of items) {
-        const payload = pushPayload(item, texts, (date) => formatIsoDate(date, locale, "medium", "UTC"));
+        const payload = pushPayload(item, texts, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
         if (!payload) continue;
         const json = encodePushPayload({ ...payload, url: `${env.appUrl}${payload.url}` });
         await Promise.all(targets.map((target) => sendTo(target, json, vapid)));

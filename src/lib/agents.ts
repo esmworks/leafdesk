@@ -324,7 +324,8 @@ export type AgentSkillView = {
  * A note of an agent's memory as its owners see it: kept (it goes with every run), or proposed by a
  * run and waiting for an owner. `run` is the run that proposed it: its row (the title only when the
  * viewer can open it) or the connection whose event started it. A proposal from a run on a row the
- * viewer can't open has no `text` for them: it may quote the row; they may only dismiss it.
+ * viewer can't open, or from a run another owner started for themselves, has no `text` for them:
+ * it may quote what they can't open; they may only dismiss it.
  */
 export type AgentMemoryView = {
   id: string;
@@ -340,6 +341,8 @@ export type AgentMemoryView = {
     /** A schedule started it; `databaseHidden`: on a database the viewer can't open (its proposals' text is hidden too). */
     scheduled: boolean;
     databaseHidden: boolean;
+    /** Another owner asked for it, or a schedule of theirs without a database started it: its proposals' text is theirs alone. */
+    othersRun: boolean;
   } | null;
   createdAt: string;
   updatedAt: string;

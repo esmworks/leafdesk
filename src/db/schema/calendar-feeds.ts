@@ -23,6 +23,11 @@ export const calendarFeed = pgTable(
     viewId: text("view_id").references(() => databaseView.id, { onDelete: "cascade" }),
     /** The workspace of a feed of assigned rows; null for a view's feed. */
     workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "cascade" }),
+    /**
+     * The zone the feed's days are its user's in: "today" in the view's filters counts from their
+     * day there. Theirs when they made the feed, or when they last opened it if it had none.
+     */
+    timeZone: text("time_zone"),
     /** Hex SHA-256 of the secret. */
     tokenHash: text("token_hash").notNull().unique(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
