@@ -35,6 +35,7 @@ const { duplicatePage } = await import("@/server/duplicate");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { FILES_SCOPE, READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
 const pages = await import("@/server/pages");
+const databases = await import("@/server/databases");
 const { setPagePermission } = await import("@/server/permissions");
 
 const RUN = `page-lock-e2e-${Date.now().toString(36)}`;
@@ -60,6 +61,7 @@ async function failure(fn: () => Promise<unknown>): Promise<string | null> {
     return null;
   } catch (error) {
     if ((error as { code?: unknown }).code === "pageLocked") return "locked";
+    if ((error as { code?: unknown }).code === "pageInTrash") return "trash";
     if (error instanceof AiError) return `ai:${error.code}`;
     if (error instanceof AccessError) return "access";
     throw error;
@@ -250,6 +252,31 @@ try {
   check(reopened.title === "Notes again" && reopened.markdown.includes("Added after the unlock."), "writes work again", reopened);
   const unlocked = await callTool(ids.owner, "update_page", { page_id: notes.id, background: "color:green" });
   check(!unlocked.isError, "and so does MCP", unlocked.text);
+
+  // A page in the trash doesn't change until it is restored
+  await collab.snapshot(copy.id, "manual", owner);
+  const [copyVersion] = await db.select({ id: pageSnapshot.id }).from(pageSnapshot).where(eq(pageSnapshot.pageId, copy.id));
+  await pages.archivePage(ids.owner, copy.id);
+  check((await authorizeCollab(ids.owner, { kind: "page", id: copy.id })).readOnly, "a page in the trash opens read-only, full access included");
+  check((await failure(() => pages.renamePage(owner, copy.id, "Trashed rename"))) === "trash", "…renaming it is refused");
+  check((await failure(() => pages.setPageIcon(ids.owner, copy.id, "🔥"))) === "trash", "…so is changing its icon");
+  check(
+    (await failure(() => pages.setPageBackground(ids.owner, copy.id, { color: "green", pattern: null }))) === "trash",
+    "…and its background",
+  );
+  check((await failure(() => pages.restoreSnapshot(owner, copyVersion.id))) === "trash", "…and restoring a version of it");
+  await pages.setPageLocked(ids.owner, row.id, false);
+  await pages.archivePage(ids.owner, row.id);
+  check(
+    (await failure(() => databases.updateRowProperties(ids.owner, row.id, { Status: "In progress" }))) === "trash",
+    "a row in the trash keeps its values",
+  );
+  await pages.restorePage(ids.owner, copy.id);
+  await pages.restorePage(ids.owner, row.id);
+  check(!(await authorizeCollab(ids.owner, { kind: "page", id: copy.id })).readOnly, "restored, it opens writable again");
+  await pages.renamePage(owner, copy.id, "Copy restored");
+  await databases.updateRowProperties(ids.owner, row.id, { Status: "In progress" });
+  check((await collab.readPage(copy.id)).title === "Copy restored", "…and takes changes again");
 
   console.log(`\n${passed} checks passed`);
 } finally {

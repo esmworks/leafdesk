@@ -36,7 +36,8 @@ import { bulkRowIds, dropCopiedSubItems, rowsWithAccess, syncPairedRelations, wi
 import { inheritFileReferences } from "@/server/files";
 import { copyReferences } from "@/server/mentions";
 import { assertNestable } from "@/server/page-depth";
-import { keepFullAccess, makePagePrivate } from "@/server/permissions";
+import { lockLiveParent } from "@/server/pages";
+import { freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
 import type { PropertyAccess } from "@/lib/property-access-rows";
 import { propertyAccessFor } from "@/server/property-access";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
@@ -96,6 +97,7 @@ export async function copyPageTree(
   const accessOf = await accessForCopy(userId, source);
 
   const copied = await db.transaction(async (tx) => {
+    if (target.parentId) await lockLiveParent(tx, target.parentId);
     // Walk down live pages the user can see; a hidden page hides its whole subtree.
     const pages = await tx.execute<{
       id: string;
@@ -235,7 +237,7 @@ export async function copyPageTree(
     // A page deleted since the walk would leave a hole in the copy; start over instead.
     if (inserted.length !== rows.length) throw new Error("The page changed while duplicating it; try again");
 
-    // Entries inherited from above need nothing: the copy sits under the same parent.
+    // Entries inherited from above need nothing when the copy sits under the same parent (see below).
     await tx.execute(sql`
       insert into ${pagePermission} (id, page_id, workspace_id, user_id, level, created_by)
       select gen_random_uuid()::text, m.id, pp.workspace_id, pp.user_id, pp.level, ${userId}
@@ -250,6 +252,12 @@ export async function copyPageTree(
       join ${pageGroupPermission} gp on gp.page_id = m.source_id
       ${target.rootPermissions ? sql`` : sql`where m.id <> ${plan.rootId}`}
     `);
+    // A copy that keeps its source's access but leaves its ancestors (a template saved from a
+    // subpage goes to the top level) takes what the source inherits from them along: otherwise it
+    // would open up to everyone in its new place.
+    if (target.rootPermissions && source.parentId && target.parentId !== source.parentId) {
+      await freezeInheritedEntries(tx, source.workspaceId, plan.rootId, pageId);
+    }
     if (target.private) await makePagePrivate(tx, source.workspaceId, plan.rootId, userId);
     else if (!target.parentId && target.teamspaceId) await keepFullAccess(tx, source.workspaceId, plan.rootId, userId);
     await pointAtCopiedDatabases(tx, plan);

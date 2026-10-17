@@ -397,6 +397,7 @@
       "keptList": "The agent’s notes",
       "empty": "Nothing yet. Keep a note its runs propose, or write one here.",
       "hiddenText": "Proposed on a row you can’t open.",
+      "hiddenOthersText": "Proposed by a run another owner started.",
       "fromRow": "From a run on <row>a row</row>",
       "fromHiddenRow": "From a run on a row you can’t open",
       "fromConnection": "From a run started by {connection}",

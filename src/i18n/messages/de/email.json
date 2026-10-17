@@ -96,6 +96,7 @@
     "subject": "{requester} möchte Zugriff auf „{page}“",
     "heading": "{requester} möchte Zugriff auf „{page}“",
     "body": "{requester} ({email}) möchte „{page}“ in {workspace} öffnen.",
+    "bodyWithoutEmail": "{requester} möchte „{page}“ in {workspace} öffnen.",
     "message": "Nachricht: „{message}“",
     "answer": "Teile die Seite mit dieser Person und wähle, was sie tun darf, oder lehne die Anfrage ab. Du kannst in deinem Posteingang oder über Teilen auf der Seite antworten.",
     "action": "Seite öffnen",

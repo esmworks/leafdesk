@@ -144,6 +144,12 @@ export interface CollabService {
    * connections read-only at once; unlocking makes those of people who may edit it writable again.
    */
   pageLockChanged(pageId: string, locked: boolean): Promise<void>;
+  /**
+   * The pages went to the trash, or came back from it (server/pages.ts). Trashing makes their open
+   * browser connections read-only at once; restoring makes those of people who may edit them
+   * writable again, unless a page is locked.
+   */
+  pagesTrashed(pageIds: string[], trashed: boolean): Promise<void>;
   /** Tells subscribed clients to refetch (sidebar tree, database rows). */
   broadcast(channel: Channel, event: string): void;
   /** Drops a user's live connections to the workspace's documents (after removal from it). */

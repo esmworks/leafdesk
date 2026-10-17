@@ -33,6 +33,7 @@ const RUN = `rowsafety-e2e-${Date.now().toString(36)}`;
 // the database (titles) or are recorded (bodies).
 const bodies = new Map<string, string>();
 registerCollab({
+  async pagesTrashed() {},
   broadcast: () => {},
   async disconnectLostAccess() {},
   async setTitle(pageId: string, title: string) {

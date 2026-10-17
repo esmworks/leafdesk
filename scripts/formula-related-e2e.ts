@@ -35,6 +35,7 @@ const { PropertyValueError } = await import("@/lib/properties");
 const RUN = `fxrel-e2e-${Date.now().toString(36)}`;
 
 registerCollab({
+  async pagesTrashed() {},
   broadcast: () => {},
   async disconnectLostAccess() {},
 } as unknown as Parameters<typeof registerCollab>[0]);

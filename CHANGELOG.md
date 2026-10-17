@@ -23,6 +23,48 @@
   Over MCP, `create_database_view` and `update_database_view` set it on boards with `aggregate`
   and `aggregate_property`, as on charts, and describe it with the view.
 
+### Changed
+
+- **Webhooks follow the export switch.** With export turned off in Settings → Security, an
+  automation can't get a new webhook (`webhookExportOff`), and a webhook saved before sends nothing:
+  its runs fail with that code until export is turned back on. Calendar feeds already stopped.
+- **AI autofill leaves out related rows and people.** Relations, rollups, people and created/edited
+  by properties, and formulas reading them, are no longer part of what autofill sends to the model:
+  they could name rows and people the readers of the filled-in text can't open. A prompt or a
+  translation source naming one is refused (`hiddenInput`).
+
+### Fixed
+
+- **Templates keep the access a subpage had.** Saving a subpage as a template copied only its own
+  sharing, so a page closed to everyone above it could become a template the whole workspace
+  opens. The entries it had from its parents are now copied onto the template too.
+- **Comment threads can't lose comments to edits from the future.** An edit could delete parts of
+  a page the server hadn't received yet, slipping past the check that keeps others' comments in
+  place; such edits are refused.
+- **Password resets end everything.** Changing a password with "sign out other devices", a reset
+  by email and a reset an instance admin required now also revoke API tokens (and, for a required
+  reset, connected apps), and close the pages open in the signed-out sessions. Replacing or removing
+  a workspace's SSO connection closes the open pages of the sessions it ends.
+- **Pages in the trash can't be changed.** Their content, title, icon, cover, properties and
+  snapshots could still be written, by open tabs too. Open tabs turn read-only when a page goes to
+  the trash and writable again when it is restored.
+- **Moving or adding pages under a page in the trash is refused** (`parentInTrash`). A page moved
+  there could be deleted for good with it, and one moved while its new parent was being trashed
+  now goes to the trash with it.
+- **Guests don't learn members' email addresses.** Naming people in an automation's notification
+  by address or name, access requests in the share panel, the inbox and their emails showed guests
+  who is in the workspace under which address. Guests now name people by id, and see requesters
+  by name only.
+- **Pasting into a database view adds options only with edit access.** Pasting values that aren't
+  options of a select property yet added them for people who may only change rows; now only those
+  who may edit the database (or add rows) do.
+- **An owner's own agent runs stay theirs.** A run an owner asked for, or one a schedule without a
+  database started, reads with that owner's access, but every owner saw its steps, answer, task and
+  the notes it proposed. Others now see only that it ran and how it ended.
+- **Tighter checks on addresses the server fetches.** An SSO issuer's discovery document is cut off
+  at its size limit even without a Content-Length, file attachments by URL refuse the local NAT64
+  and IPv4-translated IPv6 ranges, and MCP clients can't register a back-channel logout address.
+
 ### Security
 
 - **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response

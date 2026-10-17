@@ -1,7 +1,7 @@
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { fetchRemoteFile, isBlockedAddress, RemoteFetchError } from "./remote-fetch";
+import { fetchRemoteFile, isBlockedAddress, readRemoteText, RemoteFetchError } from "./remote-fetch";
 
 describe("isBlockedAddress", () => {
   it.each([
@@ -29,6 +29,10 @@ describe("isBlockedAddress", () => {
     "fc12:3456::1",
     "ff02::1",
     "2001:db8::1",
+    "64:ff9b:1::a00:1",
+    "::ffff:0:127.0.0.1",
+    "::ffff:0:a9fe:a9fe",
+    "3fff::1",
     "[::1]",
     "not-an-ip",
   ])("blocks %s", (address) => {
@@ -61,6 +65,11 @@ describe("fetchRemoteFile", () => {
         res.writeHead(302, { location: "/loop" }).end();
       } else if (req.url === "/big") {
         res.writeHead(200, { "content-type": "application/octet-stream", "content-length": "1000000" }).end(Buffer.alloc(1_000_000));
+      } else if (req.url === "/big-unsized") {
+        // No Content-Length: only counting what arrives can stop it.
+        res.writeHead(200, { "content-type": "application/json" });
+        res.write(Buffer.alloc(600));
+        res.end(Buffer.alloc(600));
       } else if (req.url === "/slow") {
         res.writeHead(200, { "content-type": "text/plain" });
         res.write("a");
@@ -133,6 +142,15 @@ describe("fetchRemoteFile", () => {
     expect(await failure(fetchRemoteFile(`http://127.0.0.1:${port}/missing`, { maxBytes: 1000, isBlocked: onlyTestServer }))).toBe(
       "httpError",
     );
+  });
+
+  it("cuts off a body over the limit that came without its size", async () => {
+    const file = await fetchRemoteFile(`http://127.0.0.1:${port}/big-unsized`, { maxBytes: 1000, isBlocked: onlyTestServer });
+    expect(file.size).toBe(null);
+    expect(await failure(readRemoteText(file, 1000))).toBe("tooLarge");
+    expect(file.body.destroyed).toBe(true);
+    const small = await fetchRemoteFile(`http://127.0.0.1:${port}/named`, { maxBytes: 1000, isBlocked: onlyTestServer });
+    expect(await readRemoteText(small, 1000)).toBe("hi");
   });
 
   it("stops a transfer that takes too long", async () => {

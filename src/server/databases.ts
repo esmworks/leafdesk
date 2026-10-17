@@ -30,6 +30,7 @@ import { avatarSrc } from "@/lib/avatar";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileIdsInProperties, fileUrl, type FileValue } from "@/lib/files";
+import { assertNotInTrash } from "@/lib/page-lock";
 import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, relatedDatabases, TITLE_FIELD, valueType, type RelatedSchemas } from "@/lib/derived";
@@ -801,6 +802,7 @@ export async function dropCopiedSubItems(rowId: string, databaseId: string, prop
 export async function updateRowProperties(userId: string, rowId: string, patch: Record<string, unknown>) {
   const row = await requirePageAccess(userId, rowId, "edit");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
+  assertNotInTrash(row);
   await requireDatabase(userId, row.parentId, "view");
   const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy });
   await checkLoops(row.parentId, [{ rowId, values: normalized }]);

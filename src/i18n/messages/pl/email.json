@@ -96,6 +96,7 @@
     "subject": "{requester} prosi o dostęp do „{page}”",
     "heading": "{requester} prosi o dostęp do „{page}”",
     "body": "{requester} ({email}) chce otworzyć „{page}” w obszarze roboczym {workspace}.",
+    "bodyWithoutEmail": "{requester} chce otworzyć „{page}” w obszarze roboczym {workspace}.",
     "message": "Wiadomość: „{message}”",
     "answer": "Udostępnij stronę tej osobie, wybierając, co może robić, albo odrzuć prośbę. Możesz odpowiedzieć ze skrzynki odbiorczej lub przez Udostępnij na stronie.",
     "action": "Otwórz stronę",

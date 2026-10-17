@@ -444,14 +444,22 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
     requesterIds.length ? (await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, requesterIds))).map((u) => [u.id, u.name]) : [],
   );
   // What a run read, thought and answered can quote pages the agent may open and the viewer may
-  // not; it all ends up on the row anyway, so only people who can open the row see it. A
-  // connection's event is the owners' (they set up the connection), as is the run it started.
+  // not. A row's run puts it all on the row anyway, so only people who can open the row see it,
+  // and a schedule's run on a database only those who can open the database. A run an owner asked
+  // for, or one of a schedule without a database, read with that owner's access: it is theirs
+  // alone. A connection's event is the owners' (they set up the connection), as is the run it started.
+  // An owner may still answer a waiting call of any run (`pending`), as the inbox offers it to them.
+  const visible = (r: (typeof runs)[number]) => {
+    const source = r.source;
+    if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || titles.has(source.rowId));
+    if (isRowRun(source)) return titles.has(source.rowId);
+    if (isScheduleRun(source)) return source.databaseId ? databaseTitles.has(source.databaseId) : source.scheduledBy === userId;
+    return true;
+  };
+  const answerable = (r: (typeof runs)[number]) =>
+    isRowRun(r.source) ? titles.has(r.source.rowId) : isScheduleRun(r.source) && r.source.databaseId ? databaseTitles.has(r.source.databaseId) : true;
   return runs.map((r) => {
-    const open = isRowRun(r.source)
-      ? titles.has(r.source.rowId)
-      : isScheduleRun(r.source) && r.source.databaseId
-        ? databaseTitles.has(r.source.databaseId)
-        : true;
+    const open = visible(r);
     return {
       id: r.id,
       status: r.status,
@@ -463,7 +471,7 @@ async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], 
       answer: open ? r.answer : "",
       usage: r.usage,
       pending:
-        open && r.pending
+        answerable(r) && r.pending
           ? {
               ...r.pending,
               arguments: (exact && callToSend(r.pending, r.state?.queue)) || r.pending.arguments,

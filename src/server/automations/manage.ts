@@ -28,7 +28,7 @@ import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
 import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
-import { workspacePeople } from "@/server/workspaces";
+import { exportAllowed, workspacePeople } from "@/server/workspaces";
 import { countDatePassedMatches, forgetFired } from "./timed";
 import { newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
 
@@ -197,6 +197,9 @@ async function checkActions(
     } else if (action?.type === "notify") {
       const refs = action.people ?? [];
       people ??= await workspacePeople(workspaceId);
+      // Guests name people by id only, as in person properties (resolvePersonValue): matching an
+      // address or a name would tell them who is in the workspace, and under which address.
+      const byEmailOrName = people.find((p) => p.id === userId)?.role !== "guest";
       const userIds = [
         ...new Set(
           refs.map((ref) => {
@@ -204,8 +207,9 @@ async function checkActions(
             const needle = ref.trim().toLowerCase();
             const person =
               people!.find((p) => p.id === ref) ??
-              people!.find((p) => p.email.toLowerCase() === needle) ??
-              people!.find((p) => p.name.toLowerCase() === needle);
+              (byEmailOrName
+                ? (people!.find((p) => p.email.toLowerCase() === needle) ?? people!.find((p) => p.name.toLowerCase() === needle))
+                : undefined);
             if (!person) throw invalid(`"${ref}" is not in this workspace`, { value: ref });
             return person.id;
           }),
@@ -237,6 +241,12 @@ async function checkActions(
         else if (error instanceof WebhookError || error instanceof LinkPreviewError) {
           throw new PropertyValueError(`"${action.url}" is not a valid http(s) address`, "invalidWebhookUrl", { value: String(action.url ?? "") });
         } else throw error;
+      }
+      // A webhook sends rows out of the workspace: not while its owners have export turned off
+      // (one already saved may stay, but sends nothing until export is back on; see run.ts).
+      const kept = current.some((a) => a.type === "webhook" && a.url === url.toString());
+      if (!kept && !(await exportAllowed(workspaceId))) {
+        throw new PropertyValueError("The workspace's owners turned export off, so automations can't send webhooks", "webhookExportOff", {});
       }
       out.push({ type: "webhook", url: url.toString() });
     } else if (action?.type === "run_agent") {
@@ -413,8 +423,14 @@ export async function testAutomationWebhooks(userId: string, automationId: strin
     database: { id: automation.databaseId },
   });
   const results: { url: string; ok: boolean; httpStatus?: number; code?: string; error?: string }[] = [];
+  // Like the runs, a ping isn't sent while the workspace's owners have export off.
+  const exportOff = !(await exportAllowed(automation.workspaceId));
   for (const action of automation.actions) {
     if (action.type !== "webhook") continue;
+    if (exportOff) {
+      results.push({ url: action.url, ok: false, code: "webhookExportOff", error: "The workspace's owners turned export off" });
+      continue;
+    }
     try {
       const httpStatus = await sendWebhook(action.url, { id, event: "ping", body, secret: webhookSecret(automation.secretSalt) });
       results.push({ url: action.url, ok: true, httpStatus });
