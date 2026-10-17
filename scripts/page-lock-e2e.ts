@@ -400,3 +400,7 @@ try {
   hocuspocus.closeConnections();
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
 }
+
+// Nothing is left open, yet the process sometimes stays up after the websocket part (as in
+// mentions-e2e); end it explicitly. A failure above throws before this.
+process.exit(0);
