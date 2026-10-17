@@ -5,3 +5,9 @@ allowBuilds:
   electron: true
   # Builds Squirrel installers for Windows; the app ships an NSIS installer instead.
   electron-winstaller: false
+  # PostgreSQL for local mode: their script restores the symbolic links between its libraries.
+  '@embedded-postgres/darwin-arm64': true
+  '@embedded-postgres/darwin-x64': true
+  '@embedded-postgres/linux-arm64': true
+  '@embedded-postgres/linux-x64': true
+  '@embedded-postgres/windows-x64': true
