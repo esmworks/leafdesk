@@ -868,7 +868,7 @@ export async function fullTextSearch(
         where p.workspace_id in (${sql.join(workspaces.map((w) => sql`${w}`), sql`, `)})
           and p.archived_at is null
           and not p.in_template
-          ${searchScope(scope)}
+          ${searchScope(scope, userId)}
           and ${matches}
         order by rank desc, p.updated_at desc
         offset 0

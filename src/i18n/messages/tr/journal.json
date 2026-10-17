@@ -1,0 +1,20 @@
+{
+  "today": "Bugün",
+  "todayNote": "Bugünün notu",
+  "openToday": "Bugünün notunu aç",
+  "startToday": "Bugünün notunu başlat",
+  "calendar": "Günlük notlar takvimi",
+  "previousMonth": "Önceki ay",
+  "nextMonth": "Sonraki ay",
+  "hasNote": "{day} — notu var",
+  "openDay": "O günün notunu aç",
+  "recent": "Önceki notlar",
+  "startWith": "Yeni notlar şununla başlar",
+  "startDefault": "Birkaç başlık",
+  "startBlank": "Boş sayfa",
+  "startTemplates": "Şablonlar",
+  "openFailed": "Günlük not açılamadı",
+  "saveFailed": "Ayar kaydedilemedi",
+  "searchHint": "günlük notların",
+  "yesterday": "Dünün notu"
+}

@@ -9,8 +9,8 @@ import {
   useExtensionState,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
-import { Bell, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Bell, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Search } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
@@ -24,6 +24,7 @@ import {
 } from "@/app/actions/mentions";
 import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
+import { useOpenDailyNote } from "@/components/journal/daily-notes";
 import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import {
@@ -186,6 +187,9 @@ function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: (
   const locale = useLocale();
   const t = useTranslations("page.mention");
   const [open, setOpen] = useState(false);
+  // In the app (not a published page), anyone reading it may open that day's note.
+  const workspaceId = useParams<{ workspaceId?: string }>()?.workspaceId ?? null;
+  const opens = Boolean(onChange || workspaceId);
   const anchor = useRef<HTMLSpanElement>(null);
   const when = props.remindAt ? new Date(props.remindAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }) : null;
   return (
@@ -194,36 +198,41 @@ function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: (
         ref={anchor}
         className="leafdesk-mention leafdesk-mention-date"
         title={when ? t("reminderSet", { when }) : undefined}
-        onClick={onChange ? () => setOpen((v) => !v) : undefined}
-        style={onChange ? undefined : { cursor: "default" }}
+        onClick={opens ? () => setOpen((v) => !v) : undefined}
+        style={opens ? undefined : { cursor: "default" }}
       >
         <CalendarDays className="leafdesk-mention-icon" aria-hidden />
         <span className="leafdesk-mention-label">{formatIsoDate(props.date, locale)}</span>
         {props.remindAt && <Bell className="leafdesk-mention-icon" style={{ marginInlineStart: "0.25em", marginInlineEnd: 0 }} aria-label={t("reminder")} />}
       </span>
-      {open && onChange && anchor.current && (
-        <DatePopover anchor={anchor.current} props={props} onChange={onChange} onClose={() => setOpen(false)} />
+      {open && opens && anchor.current && (
+        <DatePopover anchor={anchor.current} props={props} onChange={onChange} workspaceId={workspaceId} onClose={() => setOpen(false)} />
       )}
     </>
   );
 }
 
 /**
- * Changes a date mention and its reminder. It sits in a portal outside the editor, so typing in it
+ * Changes a date mention and its reminder (when the page can be edited), and opens the user's
+ * daily note of its day (in the app). It sits in a portal outside the editor, so typing in it
  * never reaches the document.
  */
 function DatePopover({
   anchor,
   props,
   onChange,
+  workspaceId,
   onClose,
 }: {
   anchor: HTMLElement;
   props: MentionProps;
-  onChange: (next: Partial<MentionProps>) => void;
+  onChange: ((next: Partial<MentionProps>) => void) | null;
+  workspaceId: string | null;
   onClose: () => void;
 }) {
   const t = useTranslations("page.mention");
+  const tJournal = useTranslations("journal");
+  const dailyNote = useOpenDailyNote(workspaceId ?? "");
   const locale = useLocale();
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
@@ -260,13 +269,13 @@ function DatePopover({
   }, [anchor, onClose]);
 
   const setDate = (date: string) => {
-    if (!isIsoDate(date)) return;
+    if (!onChange || !isIsoDate(date)) return;
     // A reminder "the day before" stays the day before the new date.
     const remindAt = typeof choice === "number" ? localReminderAt(date, choice) : props.remindAt;
     onChange({ date, remindAt });
   };
   const setReminder = (next: ReminderChoice) => {
-    if (next === "custom") return;
+    if (!onChange || next === "custom") return;
     onChange({ remindAt: next === "none" ? "" : localReminderAt(props.date, next), id: props.id || newMentionId() });
   };
   const past = props.remindAt && new Date(props.remindAt).getTime() < Date.now();
@@ -282,38 +291,66 @@ function DatePopover({
       style={{ position: "fixed", top: position.top, left: position.left }}
       className="z-50 w-72 rounded-lg border border-border bg-bg p-3 text-sm shadow-lg"
     >
-      <label className="block text-xs text-fg-muted" htmlFor="mention-date">
-        {t("date")}
-      </label>
-      <input
-        id="mention-date"
-        type="date"
-        value={props.date}
-        onChange={(e) => setDate(e.target.value)}
-        className="mt-1 h-8 w-full rounded-md border border-border bg-bg px-2 outline-none focus:border-accent"
-      />
-      <p className="mt-3 text-xs text-fg-muted">{t("reminder")}</p>
-      <div className="mt-1 flex flex-col">
-        {(["none", ...REMINDER_DAYS] as const).map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={choice === option}
-            onClick={() => setReminder(option)}
-            className={cn("flex items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover", choice === option && "bg-bg-active")}
-          >
-            {option === "none" ? t("remindNone") : label(option)}
-          </button>
-        ))}
-      </div>
-      {props.remindAt && (
+      {onChange ? (
+        <>
+          <label className="block text-xs text-fg-muted" htmlFor="mention-date">
+            {t("date")}
+          </label>
+          <input
+            id="mention-date"
+            type="date"
+            value={props.date}
+            onChange={(e) => setDate(e.target.value)}
+            className="mt-1 h-8 w-full rounded-md border border-border bg-bg px-2 outline-none focus:border-accent"
+          />
+        </>
+      ) : (
+        <p className="font-medium">{formatIsoDate(props.date, locale)}</p>
+      )}
+      {onChange && (
+        <>
+          <p className="mt-3 text-xs text-fg-muted">{t("reminder")}</p>
+          <div className="mt-1 flex flex-col">
+            {(["none", ...REMINDER_DAYS] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={choice === option}
+                onClick={() => setReminder(option)}
+                className={cn("flex items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover", choice === option && "bg-bg-active")}
+              >
+                {option === "none" ? t("remindNone") : label(option)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {onChange && props.remindAt && (
         <p className={cn("mt-2 text-xs", past ? "text-danger" : "text-fg-muted")}>
           {past
             ? t("reminderPast")
             : `${t("reminderSet", { when: new Date(props.remindAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }) })}. ${t("reminderHint")}`}
         </p>
       )}
-      <div className="mt-3 flex justify-end">
+      {dailyNote.error && (
+        <p role="alert" className="mt-2 text-xs text-danger">
+          {dailyNote.error}
+        </p>
+      )}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        {workspaceId && isIsoDate(props.date) ? (
+          <button
+            type="button"
+            onClick={() => dailyNote.open(props.date)}
+            disabled={dailyNote.pending}
+            className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-60"
+          >
+            <CalendarCheck className="h-4 w-4" aria-hidden />
+            {tJournal("openDay")}
+          </button>
+        ) : (
+          <span />
+        )}
         <button type="button" onClick={onClose} className="rounded-md border border-border px-2.5 py-1 hover:bg-bg-hover">
           {t("done")}
         </button>

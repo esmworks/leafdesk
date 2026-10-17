@@ -1,0 +1,20 @@
+{
+  "today": "今日",
+  "todayNote": "今日のノート",
+  "openToday": "今日のノートを開く",
+  "startToday": "今日のノートを始める",
+  "calendar": "デイリーノートのカレンダー",
+  "previousMonth": "前の月",
+  "nextMonth": "次の月",
+  "hasNote": "{day} — ノートあり",
+  "openDay": "その日のノートを開く",
+  "recent": "以前のノート",
+  "startWith": "新しいノートの始め方",
+  "startDefault": "いくつかの見出し",
+  "startBlank": "空白のページ",
+  "startTemplates": "テンプレート",
+  "openFailed": "デイリーノートを開けませんでした",
+  "saveFailed": "設定を保存できませんでした",
+  "searchHint": "あなたのデイリーノート",
+  "yesterday": "昨日のノート"
+}

@@ -256,6 +256,21 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "title", "workspace_id", "url"],
   ),
+  DailyNote: loose(
+    {
+      date: { type: "string", format: "date" },
+      id,
+      title: { type: "string" },
+      created: { type: "boolean", description: "Whether the note was made by this request." },
+      workspace_id: id,
+      url,
+    },
+    ["date", "id", "title", "created", "workspace_id", "url"],
+  ),
+  DailyNoteList: loose(
+    { notes: { type: "array", items: loose({ date: { type: "string", format: "date" }, id, title: { type: "string" }, url }) } },
+    ["notes"],
+  ),
   VoiceNoteCreated: loose(
     {
       id,

@@ -1,0 +1,20 @@
+{
+  "today": "Heute",
+  "todayNote": "Notiz von heute",
+  "openToday": "Notiz von heute öffnen",
+  "startToday": "Notiz für heute beginnen",
+  "calendar": "Kalender der Tagesnotizen",
+  "previousMonth": "Vorheriger Monat",
+  "nextMonth": "Nächster Monat",
+  "hasNote": "{day} — mit Notiz",
+  "openDay": "Notiz dieses Tages öffnen",
+  "recent": "Frühere Notizen",
+  "startWith": "Neue Notizen beginnen mit",
+  "startDefault": "Ein paar Überschriften",
+  "startBlank": "Einer leeren Seite",
+  "startTemplates": "Vorlagen",
+  "openFailed": "Die Tagesnotiz konnte nicht geöffnet werden",
+  "saveFailed": "Die Einstellung konnte nicht gespeichert werden",
+  "searchHint": "deine Tagesnotizen",
+  "yesterday": "Notiz von gestern"
+}

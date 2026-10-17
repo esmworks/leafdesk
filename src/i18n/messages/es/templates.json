@@ -92,5 +92,9 @@
       "talk": "Dimos una charla en el encuentro del equipo",
       "thanks": "Ventas nos agradeció la preparación de la demo"
     }
+  },
+  "journal": {
+    "title": "Diario",
+    "markdown": "## Enfoque\n\n- [ ] \n\n## Notas\n\n## Hecho hoy\n"
   }
 }

@@ -1,0 +1,20 @@
+{
+  "today": "היום",
+  "todayNote": "הפתק של היום",
+  "openToday": "פתיחת הפתק של היום",
+  "startToday": "התחלת הפתק של היום",
+  "calendar": "לוח השנה של הפתקים היומיים",
+  "previousMonth": "החודש הקודם",
+  "nextMonth": "החודש הבא",
+  "hasNote": "{day} — יש פתק",
+  "openDay": "פתיחת הפתק של אותו יום",
+  "recent": "פתקים קודמים",
+  "startWith": "פתקים חדשים מתחילים עם",
+  "startDefault": "כמה כותרות",
+  "startBlank": "דף ריק",
+  "startTemplates": "תבניות",
+  "openFailed": "לא ניתן לפתוח את הפתק היומי",
+  "saveFailed": "לא ניתן לשמור את ההגדרה",
+  "searchHint": "הפתקים היומיים שלך",
+  "yesterday": "הפתק של אתמול"
+}

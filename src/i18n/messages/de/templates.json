@@ -92,5 +92,9 @@
       "talk": "Vortrag beim Team-Offsite gehalten",
       "thanks": "Der Vertrieb hat sich für das Demo-Setup bedankt"
     }
+  },
+  "journal": {
+    "title": "Journal",
+    "markdown": "## Fokus\n\n- [ ] \n\n## Notizen\n\n## Heute erledigt\n"
   }
 }

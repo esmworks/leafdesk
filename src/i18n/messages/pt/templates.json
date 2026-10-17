@@ -92,5 +92,9 @@
       "talk": "Fizemos uma palestra no encontro externo da equipe",
       "thanks": "Vendas nos agradeceu pela configuração da demo"
     }
+  },
+  "journal": {
+    "title": "Diário",
+    "markdown": "## Foco\n\n- [ ] \n\n## Notas\n\n## Feito hoje\n"
   }
 }
