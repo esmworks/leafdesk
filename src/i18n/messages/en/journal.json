@@ -1,0 +1,19 @@
+{
+  "today": "Today",
+  "todayNote": "Today's note",
+  "openToday": "Open today's note",
+  "startToday": "Start today's note",
+  "calendar": "Daily notes calendar",
+  "previousMonth": "Previous month",
+  "nextMonth": "Next month",
+  "hasNote": "{day} — has a note",
+  "openDay": "Open that day's note",
+  "recent": "Earlier notes",
+  "none": "No daily notes yet. Today's is one click away.",
+  "startWith": "New notes start with",
+  "startDefault": "A few headings",
+  "startBlank": "A blank page",
+  "startTemplates": "Templates",
+  "openFailed": "Couldn't open the daily note",
+  "saveFailed": "Couldn't save the setting"
+}

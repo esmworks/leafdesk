@@ -17,3 +17,4 @@ export * from "./connections";
 export * from "./schedules";
 export * from "./calendar-feeds";
 export * from "./connected-apps";
+export * from "./journal";
