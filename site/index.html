@@ -242,7 +242,7 @@
         View on GitHub
       </a>
     </div>
-    <p class="meta">Free and open source under Apache-2.0 · Runs with Docker Compose · Your data in your PostgreSQL</p>
+    <p class="meta">Free and open source under Apache-2.0 · Runs with Docker Compose · Your data in your PostgreSQL · In 16 languages</p>
 
     <div class="shot">
       <picture>
@@ -316,6 +316,26 @@
           <p>Teamspaces, page and property permissions, guests, SSO with OIDC and SAML, SCIM,
             two-step verification, passkeys and an audit log.</p>
         </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+          <h3>Search that finds it</h3>
+          <p>Pages show up while you type, found by their words and, with an embeddings model, by
+            meaning, attached PDFs and Word documents included. Japanese and Chinese words are found
+            inside a sentence.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div>
+          <h3>A tidy workspace</h3>
+          <p>Workspace health lists broken links, pages nothing links to, empty and long-untouched
+            pages, and pages that say nearly the same thing, many with a one-click fix.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3z"/></svg></div>
+          <h3>In 16 languages</h3>
+          <p>The app, emails and templates in English, Turkish, German, Japanese, Arabic and eleven
+            more. Arabic, Hebrew and Persian lay it out right to left, and every paragraph follows
+            its own text's direction.</p>
+        </div>
       </div>
       <div class="views" aria-label="Database views">
         <span>Table</span><span>Board</span><span>Calendar</span><span>Gallery</span><span>List</span><span>Timeline</span><span>Chart</span><span>Form</span>
@@ -334,6 +354,8 @@
           <li><strong>You approve every app</strong> on a consent screen, read-only or read-write.</li>
           <li><strong>Revoke access any time</strong> in My account → Connected apps.</li>
           <li><strong>Nothing is lost:</strong> a version is saved before every AI edit, and page history shows which app changed what.</li>
+          <li><strong>Keep or undo, block by block:</strong> a page an assistant changed shows which blocks it touched, and you keep or undo each one.</li>
+          <li><strong>Your edits stay yours:</strong> an app can change one block instead of the whole page, and can ask to write only if nobody edited the page since it read it.</li>
           <li><strong>Permissions still apply:</strong> an assistant only sees what the person who approved it can see.</li>
           <li><strong>One memory of you:</strong> every assistant you connect reads and keeps the same short notes about you as the AI chat, each showing which assistant kept it, and none while you have the memory off.</li>
         </ul>
@@ -449,7 +471,11 @@ docker compose up -d</code></pre>
         <details>
           <summary>Which languages does it support?</summary>
           <p>The interface is in 16 languages (English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean and Chinese), taken from the browser or chosen in My
-            account. Arabic, Hebrew and Persian lay it out right to left.</p>
+            account, and emails go out in each recipient's language. Arabic, Hebrew and Persian lay
+            it out right to left, and each paragraph of a page follows the direction of its own
+            text. Search finds Japanese and Chinese words inside a sentence and Korean words with a
+            particle attached, and quick add reads dates written in your language. Only Turkish has
+            been checked by a native speaker so far; corrections are welcome.</p>
         </details>
       </div>
     </div>
