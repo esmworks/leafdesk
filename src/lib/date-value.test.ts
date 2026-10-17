@@ -117,6 +117,13 @@ describe("shiftDateValue", () => {
       "2026-10-26T13:30:00.000Z/2026-10-26T14:30:00.000Z",
     );
   });
+
+  it("keeps the time on the clock when moving from a day the clocks change", () => {
+    // 14:30 on Los Angeles' 25-hour day (PST) is 14:30 PST the day after.
+    expect(shiftDateValue("2026-11-01T22:30:00.000Z", 1, "America/Los_Angeles")).toBe("2026-11-02T22:30:00.000Z");
+    // 10:00 on its 23-hour day (PDT) is 10:00 PDT the day after.
+    expect(shiftDateValue("2026-03-08T17:00:00.000Z", 1, "America/Los_Angeles")).toBe("2026-03-09T17:00:00.000Z");
+  });
 });
 
 describe("setDateDays", () => {
@@ -157,6 +164,21 @@ describe("dateDraft and draftValue", () => {
       startMinutes: 14 * 60 + 30,
       endMinutes: 15 * 60 + 30,
     });
+  });
+
+  it("read the clock, not the time since midnight, on days the clocks change", () => {
+    // Los Angeles: summer time ends 2026-11-01 at 02:00 (a 25-hour day) and starts 2026-03-08 at
+    // 02:00 (a 23-hour day). Santiago starts summer time at midnight on 2026-09-06 (00:00 → 01:00).
+    const cases: [string, string, number][] = [
+      ["2026-11-01T22:30:00.000Z", "America/Los_Angeles", 14 * 60 + 30],
+      ["2026-03-08T17:00:00.000Z", "America/Los_Angeles", 10 * 60],
+      ["2026-09-06T13:00:00.000Z", "America/Santiago", 10 * 60],
+      ["2026-10-25T12:30:00.000Z", "Europe/Berlin", 13 * 60 + 30],
+    ];
+    for (const [value, zone, minutes] of cases) {
+      expect(dateDraft(value, zone)!.startMinutes).toBe(minutes);
+      expect(draftValue(dateDraft(value, zone)!, zone)).toBe(value);
+    }
   });
 
   it("never stores an end before the start", () => {

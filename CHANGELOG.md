@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Upgrading
+
+- **Migration 0078** runs automatically when the container starts (from source, run
+  `pnpm db:migrate`). It adds the time zone of calendar feeds (see *Fixed*); feeds made before it
+  take their user's zone the next time they open the feed's dialog, and count days in UTC until
+  then.
+
+### Fixed
+
+- **Times on days the clocks change.** On a day daylight saving starts or ends, a date's time was
+  read as the time passed since midnight instead of the time on the clock: 14:30 on a 25-hour day
+  showed as 15:30 in the date picker and on the calendar, and editing the date, dragging it to
+  another day or a reminder some days before it saved the time an hour off. Times now read as the
+  clock shows them, and stay on the clock when moved to another day.
+- **Skipped times in zones far ahead of UTC.** A time the clocks skip when daylight saving starts
+  (02:30 on 27 September 2026 in New Zealand) moved an hour back instead of forward in zones 13 or
+  more hours ahead of UTC, in the date picker, new calendar events and repeating schedules. It now
+  moves forward past the change, as it always did elsewhere.
+- **Relative date filters on dashboards and calendar feeds.** Dashboard widgets and calendar feeds
+  applied filters such as "is within today", "this week" or "is on a day" in the server's time
+  zone, so near midnight they counted another day's rows than the table showed. Widgets now count
+  days in the viewer's zone and calendar feeds in their user's zone, kept with the feed when it is
+  made.
+- **Push reminders of timed dates.** A push notification for a reminder on a date with a time
+  showed the time in UTC; it now shows it in the reminder's zone, as the email does.
+
 ## 0.5.4 — 2026-10-17
 
 ### Upgrading from 0.5.3

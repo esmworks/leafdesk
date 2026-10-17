@@ -37,7 +37,10 @@ import * as databases from "@/server/databases";
 export type WidgetViewer = { userId: string };
 export type WidgetSource = { databaseId: string; view: LinkedView };
 export type WidgetOptions = {
-  /** The viewer's time zone (IANA): created and edited times group by their day there. */
+  /**
+   * The viewer's time zone (IANA): relative date filters ("today") count from their day there, and
+   * times (dates, created and edited times) filter and group by their day there. UTC when left out.
+   */
   timeZone?: string;
 };
 
@@ -93,7 +96,15 @@ async function worked(viewer: WidgetViewer, source: WidgetSource, options: Widge
   if (!found) return null;
   const { database, properties } = found;
   const config = source.view.config;
-  const rows = await databases.viewedRows(viewer.userId, database.id, { filters: config.filters, filterCombinator: config.filterCombinator, sorts: config.sorts });
+  // Days are the viewer's: "today" in a filter, and the day a time falls on.
+  const timeZone = validTimeZone(options.timeZone) ?? "UTC";
+  const rows = await databases.viewedRows(
+    viewer.userId,
+    database.id,
+    { filters: config.filters, filterCombinator: config.filterCombinator, sorts: config.sorts },
+    undefined,
+    { timeZone },
+  );
   const measure = chartMeasure(config, properties);
   const chartType = chartTypeOf(config);
   const groupBy = chartType === "number" ? null : chartGroupProperty(properties, config);
@@ -102,7 +113,6 @@ async function worked(viewer: WidgetViewer, source: WidgetSource, options: Widge
       !chartAccumulateOf(config, groupBy, measure) &&
       properties.find((p) => p.id === config.stackBy && p.id !== groupBy.id && isStackable(p.type) && canStack(chartType, measure))) ||
     null;
-  const timeZone = validTimeZone(options.timeZone) ?? "UTC";
   // Person groups are named from the workspace's people, relation groups from the related rows.
   const grouping = [groupBy, stackBy].filter((p) => !!p);
   const [people, lookups] = await Promise.all([

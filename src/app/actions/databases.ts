@@ -1,9 +1,11 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DateOptionsInput } from "@/lib/date-options";
+import { TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
@@ -346,14 +348,21 @@ export async function setPropertyAccessAction(
   return run((userId) => setPropertyAccess(userId, propertyId, input));
 }
 
+/** The browser's time zone, from its cookie (see TimeZoneCookie); unchecked, undefined without one. */
+async function cookieTimeZone() {
+  return (await cookies()).get(TIME_ZONE_COOKIE)?.value || undefined;
+}
+
 /** Whether the workspace allows calendar feeds, and the user's feed of the calendar view. */
 export async function getCalendarFeedAction(viewId: string) {
-  return run((userId) => calendarFeeds.getCalendarFeed(userId, viewId));
+  const timeZone = await cookieTimeZone();
+  return run((userId) => calendarFeeds.getCalendarFeed(userId, viewId, timeZone));
 }
 
 /** Makes the user a new feed of the calendar view (replacing theirs) and returns its address, shown once. */
 export async function createCalendarFeedAction(viewId: string) {
-  return run((userId) => calendarFeeds.createCalendarFeed(userId, viewId));
+  const timeZone = await cookieTimeZone();
+  return run((userId) => calendarFeeds.createCalendarFeed(userId, viewId, timeZone));
 }
 
 /** Stops the user's feed of the calendar view. */
@@ -363,12 +372,14 @@ export async function deleteCalendarFeedAction(viewId: string) {
 
 /** Whether the workspace allows calendar feeds, and the user's feed of the rows assigned to them there. */
 export async function getAssignedCalendarFeedAction(workspaceId: string) {
-  return run((userId) => calendarFeeds.getAssignedCalendarFeed(userId, workspaceId));
+  const timeZone = await cookieTimeZone();
+  return run((userId) => calendarFeeds.getAssignedCalendarFeed(userId, workspaceId, timeZone));
 }
 
 /** Makes the user a new feed of the rows assigned to them in the workspace and returns its address, shown once. */
 export async function createAssignedCalendarFeedAction(workspaceId: string) {
-  return run((userId) => calendarFeeds.createAssignedCalendarFeed(userId, workspaceId));
+  const timeZone = await cookieTimeZone();
+  return run((userId) => calendarFeeds.createAssignedCalendarFeed(userId, workspaceId, timeZone));
 }
 
 /** Stops the user's feed of the rows assigned to them in the workspace. */

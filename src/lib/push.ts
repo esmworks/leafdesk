@@ -5,6 +5,7 @@
 
 import { agentMemoryPath, agentRunPath } from "./agents";
 import { canSnooze } from "./snooze";
+import { isTimeZone } from "./time-zone";
 
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
 
@@ -110,6 +111,7 @@ export type PushItem = {
   databaseTitle: string | null;
   propertyName: string | null;
   reminderDate: string | null;
+  reminderTimeZone: string | null;
   automationName: string | null;
   accessRequest: { requesterEmail: string } | null;
   requestKind: string | null;
@@ -133,13 +135,20 @@ export function pushLink(item: PushItem): string {
   return `/w/${item.workspaceId}/p/${item.pageId}`;
 }
 
+/** The zone a reminder's time reads in: the one stored with the reminder, UTC without a valid one. */
+const reminderZone = (item: PushItem) => (isTimeZone(item.reminderTimeZone) ? item.reminderTimeZone : "UTC");
+
 /**
  * A push message about an inbox item: the two lines the inbox shows for it (the page, or what
  * the notification is about, then who did what), opening where the inbox opens it. Null for an
  * agent's call that no longer waits. `formatDate` writes a reminder's date in the recipient's
- * language.
+ * language, a time on the clock of `timeZone`: the reminder's zone, UTC when it has none.
  */
-export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoDate: string) => string): PushPayload | null {
+export function pushPayload(
+  item: PushItem,
+  t: PushTranslator,
+  formatDate: (isoDate: string, timeZone: string) => string,
+): PushPayload | null {
   const actor = item.actorName || t("someone");
   let title: string;
   let line: string;
@@ -176,7 +185,7 @@ export function pushPayload(item: PushItem, t: PushTranslator, formatDate: (isoD
         line = t("mention", { actor });
         break;
       case "reminder":
-        line = t("reminder", { date: item.reminderDate ? formatDate(item.reminderDate) : "" });
+        line = t("reminder", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
         break;
       case "automation":
         line = item.reminderDate ? t("automationDatePassed", { name: item.automationName ?? "" }) : t("automation", { name: item.automationName ?? "", actor });
