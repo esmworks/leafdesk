@@ -388,6 +388,11 @@
       "subtext": "رابط إلى صفحة أخرى، بعنوانها المباشر",
       "aliases": "link page mention reference رابط صفحة إشارة مرجع"
     },
+    "syncedPage": {
+      "title": "صفحة متزامنة",
+      "subtext": "محتوى صفحة أخرى، مباشرةً وقابلًا للتحرير هنا",
+      "aliases": "متزامنة مزامنة مرآة تضمين صفحة synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "الألوان",
       "text": "نص {color}",
@@ -473,6 +478,11 @@
     "search": "البحث في الصفحات…",
     "empty": "لم يتم العثور على صفحات",
     "failed": "تعذّر تحميل الصفحات."
+  },
+  "syncedPage": {
+    "label": "صفحة متزامنة",
+    "viewOnly": "عرض فقط",
+    "cycle": "هذه الصفحة معروضة أعلاه بالفعل، لذا يظهر رابطها هنا فقط."
   },
   "backlinks": {
     "title": "مرتبطة من",

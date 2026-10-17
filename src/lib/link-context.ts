@@ -8,7 +8,7 @@
  * is LINK_PLACEHOLDER, shown as the linked page's live title.
  */
 import { blockText, type BlockLike } from "./blocks";
-import { EMPTY_MENTION, eachMention, MENTION, PAGE_LINK_BLOCK } from "./mentions";
+import { EMPTY_MENTION, eachMention, isPageBlockType, MENTION } from "./mentions";
 import { searchFold } from "./search-fold";
 import { cjkScript, hasKana, isFunctionChar } from "./search-words";
 
@@ -143,7 +143,7 @@ function contextIn(block: BlockLike, pageId: string): string | null {
 
 /**
  * For each page a body links to, the blocks that do, in document order (MAX_LINK_PLACES at most):
- * blocks whose text mentions the page, and "Link to page" blocks. Blocks without an id are left out.
+ * blocks whose text mentions the page, and "Link to page" and synced page blocks. Blocks without an id are left out.
  */
 export function linkPlaces(blocks: unknown[]): Map<string, LinkPlace[]> {
   const out = new Map<string, LinkPlace[]>();
@@ -155,7 +155,7 @@ export function linkPlaces(blocks: unknown[]): Map<string, LinkPlace[]> {
   const walk = (list: (BlockLike & { id?: unknown })[]) => {
     for (const block of list) {
       const id = typeof block.id === "string" && block.id ? block.id : null;
-      if (id && block.type === PAGE_LINK_BLOCK) {
+      if (id && isPageBlockType(block.type)) {
         const pageId = block.props?.pageId;
         if (typeof pageId === "string" && pageId) add(pageId, { block: id, context: null });
       } else if (id) {
@@ -178,7 +178,7 @@ export function linkContexts(blocks: unknown[]): Map<string, string> {
   const seen = new Set<string>();
   const walk = (list: BlockLike[]) => {
     for (const block of list) {
-      if (block.type !== PAGE_LINK_BLOCK) {
+      if (!isPageBlockType(block.type)) {
         for (const pageId of pagesMentionedIn(block)) {
           if (seen.has(pageId)) continue;
           seen.add(pageId);

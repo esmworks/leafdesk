@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
-import { linkPlaces } from "@/lib/link-context";
+import { linkContexts, linkPlaces } from "@/lib/link-context";
 import {
   blockIdOfHash,
   bodyReferences,
@@ -16,6 +16,7 @@ import {
   splitMentionText,
   stripReminders,
 } from "@/lib/mentions";
+import { copyPublishedBlocks, mentionedPageIds } from "@/lib/published-copy";
 import { blocksToMarkdown, markdownToBlocks, pageSchema, serverEditor, type PageBlock } from "./blocknote";
 import { bodySegmentsFromYdoc } from "./published-body";
 
@@ -153,6 +154,112 @@ describe("mentions in Markdown", () => {
     expect(ids.slice(0, 1)).toEqual(["a1"]);
     expect(ids[2]).toBe("a2");
     expect(new Set(ids).size).toBe(4);
+  });
+});
+
+describe("synced pages", () => {
+  const body = [
+    { id: "b1", type: "paragraph", content: [text("Weekly notes")] },
+    { id: "b2", type: "syncedPage", props: { pageId: OTHER } },
+    { id: "b3", type: "paragraph", content: [text("After")] },
+  ];
+
+  it("are known to the schema and keep their page through the Yjs document", () => {
+    expect(pageSchema.blockSchema).toHaveProperty("syncedPage");
+    const blocks = stored(body);
+    expect(blocks.map((b) => b.type)).toEqual(["paragraph", "syncedPage", "paragraph"]);
+    expect(blocks[1].props).toMatchObject({ pageId: OTHER });
+  });
+
+  it("are written as the page's line with their marker, and read back as the block", async () => {
+    const existing = stored(body);
+    const markdown = (await blocksToMarkdown(existing, { workspaceId: WS })).trim();
+    expect(markdown).toBe(`Weekly notes\n\n[page](/w/${WS}/p/${OTHER}) <!-- leafdesk:synced-page -->\n\nAfter`);
+    const back = stored(await markdownToBlocks(markdown, existing));
+    expect(back.map((b) => b.type)).toEqual(["paragraph", "syncedPage", "paragraph"]);
+    expect(back[1].props).toMatchObject({ pageId: OTHER });
+    expect((await blocksToMarkdown(back, { workspaceId: WS })).trim()).toBe(markdown);
+  });
+
+  it("are read from a line with any link text, an absolute link and either marker spelling", async () => {
+    const blocks = stored(
+      await markdownToBlocks(
+        `[Team rules](https://app.test/w/${WS}/p/${PAGE}) <!--leafdesk:synced-page-->\n\n[x](/w/${WS}/p/${OTHER}) <!-- leafdesk:page-link -->`,
+        [],
+        { appUrl: "https://app.test" },
+      ),
+    );
+    expect(blocks.map((b) => [b.type, (b.props as { pageId?: string }).pageId])).toEqual([
+      ["syncedPage", PAGE],
+      ["pageLink", OTHER],
+    ]);
+  });
+
+  it("stay text inside fenced code, lists and with more on the line", async () => {
+    const line = `[page](/w/${WS}/p/${OTHER}) <!-- leafdesk:synced-page -->`;
+    const blocks = stored(await markdownToBlocks(`\`\`\`\n${line}\n\`\`\`\n\n- ${line}\n\nSee ${line}`));
+    expect(blocks.some((b) => b.type === "syncedPage")).toBe(false);
+  });
+
+  it("keep their line nested in callouts, quotes and toggles", async () => {
+    const synced = (id: string) => ({ id, type: "syncedPage", props: { pageId: OTHER } });
+    const existing = stored([
+      { id: "c", type: "callout", props: { icon: "💡", backgroundColor: "blue" }, content: [text("Read first")], children: [synced("s1")] },
+      { id: "q", type: "quote", content: [text("Quoted")], children: [synced("s2")] },
+      { id: "t", type: "toggleListItem", content: [text("More")], children: [synced("s3")] },
+      { id: "h", type: "heading", props: { level: 2, isToggleable: true }, content: [text("Section")], children: [synced("s4")] },
+      { id: "l", type: "pageLink", props: { pageId: PAGE, blockId: "b2" } },
+      synced("s5"),
+    ]);
+    const markdown = (await blocksToMarkdown(existing, { workspaceId: WS })).trim();
+    expect(markdown).toContain(`> [page](/w/${WS}/p/${OTHER}) <!-- leafdesk:synced-page -->`);
+    expect(markdown.match(/leafdesk:synced-page/g)).toHaveLength(5);
+    const shape = (blocks: PageBlock[]): unknown[] =>
+      blocks.map((b) => [b.type, (b.props as { pageId?: string }).pageId ?? null, shape(b.children as PageBlock[])]);
+    const back = stored(await markdownToBlocks(markdown, existing));
+    expect(shape(back)).toEqual([
+      ["callout", null, [["syncedPage", OTHER, []]]],
+      ["quote", null, [["syncedPage", OTHER, []]]],
+      ["toggleListItem", null, [["syncedPage", OTHER, []]]],
+      ["heading", null, [["syncedPage", OTHER, []]]],
+      ["pageLink", PAGE, []],
+      ["syncedPage", OTHER, []],
+    ]);
+    expect(back[4].props).toMatchObject({ blockId: "b2" });
+    expect((await blocksToMarkdown(back, { workspaceId: WS })).trim()).toBe(markdown);
+  });
+
+  it("add none of the page's text to the page showing it", async () => {
+    expect(blocksToPlainText(stored(body))).toBe("Weekly notes\nAfter");
+  });
+
+  it("are links of the page showing them: backlinks list it, at the block", () => {
+    const blocks = stored(body);
+    expect(bodyReferences(blocks).pageIds).toEqual([OTHER]);
+    expect(linkPlaces(blocks).get(OTHER)).toEqual([{ block: "b2", context: null }]);
+    expect(linkContexts(blocks).has(OTHER)).toBe(false);
+  });
+
+  it("show on published pages only as a link line, never the page's body", async () => {
+    const doc = docFrom(body);
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc), {
+      resolvePages: async (ids) => new Map(ids.map((id) => [id, { text: "Team rules", href: `/s/token` }])),
+    });
+    const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(html).toContain('<a href="/s/token"');
+    expect(html).toContain("Team rules");
+    expect(segments.every((s) => s.kind === "html")).toBe(true);
+    const unresolved = (await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc))).map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(unresolved).not.toContain(OTHER);
+  });
+
+  it("follow the copied pages in a copy of a published page, and read as text otherwise", () => {
+    const blocks = stored(body);
+    expect(mentionedPageIds(blocks)).toEqual([OTHER]);
+    const refs = { pageIds: new Map([[OTHER, "copy"]]), fileIds: new Map(), outside: new Map() };
+    expect(copyPublishedBlocks(blocks, refs as never)[1]).toMatchObject({ type: "syncedPage", props: { pageId: "copy" } });
+    const outside = copyPublishedBlocks(blocks, { ...refs, pageIds: new Map(), outside: new Map([[OTHER, { text: "Team rules", href: null }]]) } as never);
+    expect(outside[1].type).toBe("paragraph");
   });
 });
 

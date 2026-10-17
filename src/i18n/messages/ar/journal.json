@@ -1,0 +1,20 @@
+{
+  "today": "اليوم",
+  "todayNote": "ملاحظة اليوم",
+  "openToday": "فتح ملاحظة اليوم",
+  "startToday": "بدء ملاحظة اليوم",
+  "calendar": "تقويم الملاحظات اليومية",
+  "previousMonth": "الشهر السابق",
+  "nextMonth": "الشهر التالي",
+  "hasNote": "{day} — فيه ملاحظة",
+  "openDay": "فتح ملاحظة ذلك اليوم",
+  "recent": "ملاحظات سابقة",
+  "startWith": "تبدأ الملاحظات الجديدة بـ",
+  "startDefault": "بعض العناوين",
+  "startBlank": "صفحة فارغة",
+  "startTemplates": "القوالب",
+  "openFailed": "تعذّر فتح الملاحظة اليومية",
+  "saveFailed": "تعذّر حفظ الإعداد",
+  "searchHint": "ملاحظاتك اليومية",
+  "yesterday": "ملاحظة الأمس"
+}

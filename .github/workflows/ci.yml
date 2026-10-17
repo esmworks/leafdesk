@@ -100,6 +100,10 @@ jobs:
       - name: Backlinks end-to-end
         run: pnpm tsx scripts/backlinks-e2e.ts
 
+      # What a synced page shows each reader, its Markdown line over MCP, and published pages.
+      - name: Synced pages end-to-end
+        run: pnpm tsx scripts/synced-page-e2e.ts
+
       - name: Search filters end-to-end
         run: pnpm tsx scripts/search-e2e.ts
 
@@ -206,6 +210,9 @@ jobs:
 
       - name: Templates end-to-end
         run: pnpm tsx scripts/templates-e2e.ts
+
+      - name: Daily notes end-to-end
+        run: pnpm tsx scripts/daily-notes-e2e.ts
 
       - name: Page history end-to-end
         run: pnpm tsx scripts/history-e2e.ts

@@ -53,6 +53,7 @@ export function SearchDialog({
   const router = useRouter();
   const t = useTranslations("sidebar.search");
   const tc = useTranslations("common");
+  const tj = useTranslations("journal");
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [recent, setRecent] = useState<PageItem[]>([]);
@@ -214,6 +215,7 @@ export function SearchDialog({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border px-4 py-2 text-xs text-fg-muted">
         <HintButton onClick={() => insert('in:"')} token='in:"…"' label={t("hint.in")} />
         <HintButton onClick={() => insert("type:database")} token="type:database" label={t("hint.type")} />
+        <HintButton onClick={() => insert("type:journal")} token="type:journal" label={tj("searchHint")} />
         {commands.length > 0 && <HintButton onClick={() => insert(">")} token=">" label={t("hint.commands")} />}
       </div>
     </Dialog>

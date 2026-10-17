@@ -388,6 +388,11 @@
       "subtext": "A link to another page, with its live title",
       "aliases": "link page mention reference"
     },
+    "syncedPage": {
+      "title": "Synced page",
+      "subtext": "Another page's content, live and editable here",
+      "aliases": "synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colors",
       "text": "{color} text",
@@ -473,6 +478,11 @@
     "search": "Search pages…",
     "empty": "No pages found",
     "failed": "Couldn't load pages."
+  },
+  "syncedPage": {
+    "label": "Synced page",
+    "viewOnly": "View only",
+    "cycle": "This page is already shown above, so it's only linked here."
   },
   "backlinks": {
     "title": "Linked from",

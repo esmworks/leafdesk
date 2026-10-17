@@ -64,9 +64,10 @@ function focusBlock(id: string): () => void {
   };
 }
 
-/** Follows `#block-<id>` in the address and FOCUS_BLOCK_EVENT for the page's editor. */
-export function useBlockFocus() {
+/** Follows `#block-<id>` in the address and FOCUS_BLOCK_EVENT for the page's editor (when `enabled`). */
+export function useBlockFocus(enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
     let cancel: (() => void) | undefined;
     const go = (id: string) => {
       cancel?.();
@@ -88,7 +89,7 @@ export function useBlockFocus() {
       window.removeEventListener("hashchange", fromHash);
       window.removeEventListener(FOCUS_BLOCK_EVENT, onEvent);
     };
-  }, []);
+  }, [enabled]);
 }
 
 /**

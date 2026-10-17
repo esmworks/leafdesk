@@ -1,6 +1,6 @@
 import { DASHBOARD_BLOCK, parseDashboard, serializeDashboard } from "./dashboard";
 import { isEmbedBlockType } from "./embed-blocks";
-import { MENTION, mentionProps, mentionText, PAGE_LINK_BLOCK } from "./mentions";
+import { isPageBlockType, MENTION, mentionProps, mentionText } from "./mentions";
 import type { PropertyAccess } from "./property-access-rows";
 
 /**
@@ -12,8 +12,8 @@ import type { PropertyAccess } from "./property-access-rows";
  * - People mentions become their text (`@Name`, as the published page shows them): the person
  *   isn't in the new workspace, and their id stays behind.
  * - Date mentions keep their date without a reminder.
- * - Page mentions and "Link to page" blocks follow the copied pages; other pages read as the
- *   published page showed them (`outside`: a link to their public address, or plain text).
+ * - Page mentions, "Link to page" blocks and synced pages follow the copied pages; other pages read
+ *   as the published page showed them (`outside`: a link to their public address, or plain text).
  * - Database blocks (inline databases, linked views) stay when their database was copied too, and
  *   are left out otherwise: the new workspace can't show a database of another workspace. So are
  *   dashboard widgets, and a dashboard none of whose databases was copied.
@@ -116,7 +116,7 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
       });
       return widgets.length ? [{ ...block, props: { ...props, widgets: serializeDashboard(widgets) }, children }] : (children as B[]);
     }
-    if (block.type === PAGE_LINK_BLOCK) {
+    if (isPageBlockType(block.type)) {
       const pageId = String(props?.pageId ?? "");
       const copy = refs.pageIds.get(pageId);
       if (copy) return [{ ...block, props: { ...props, pageId: copy }, children }];
@@ -126,7 +126,7 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
   });
 }
 
-/** Ids of the pages a block tree mentions or links to with "Link to page" blocks. */
+/** Ids of the pages a block tree mentions or links to with "Link to page" or synced page blocks. */
 export function mentionedPageIds(blocks: Block[]): string[] {
   const ids = new Set<string>();
   const inline = (items: Json) => {
@@ -147,7 +147,7 @@ export function mentionedPageIds(blocks: Block[]): string[] {
   };
   const walk = (list: Block[]) => {
     for (const block of list) {
-      if (block.type === PAGE_LINK_BLOCK) {
+      if (isPageBlockType(block.type)) {
         const pageId = String((block.props as Node | undefined)?.pageId ?? "");
         if (pageId) ids.add(pageId);
       }

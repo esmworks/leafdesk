@@ -11,7 +11,7 @@
 - **A reverse proxy that sets its own Content-Security-Policy** now adds to the app's: the browser
   enforces both, so drop the proxy's (or make sure it allows at least what the app's does, see
   `src/lib/content-security-policy.ts`).
-- **Migrations 0078 and 0079** run automatically when the container starts (from source, run
+- **Migrations 0078 to 0081** run automatically when the container starts (from source, run
   `pnpm db:migrate`). 0078 adds a column to `page_link`; after the upgrade the server reads each page
   that links somewhere once, in the background, to fill in where its links are. 0079 adds the time
   zone of calendar feeds (see *Fixed*); feeds made before it take their user's zone the next time
@@ -20,9 +20,18 @@
   vector; the table holds one row per PDF or Word document read so far, so it is quick. Documents
   uploaded before this release are read for search gradually, a couple of hundred per workspace
   at a time as people search; until then their words find nothing.
+- **Migration 0081 adds the `journal` and `daily_note` tables** for daily notes.
 
 ### Added
 
+- **Daily notes.** *Today* in the sidebar opens your note for the day, made the first time under
+  *Journal*, a private page of yours where the newest day comes first. The calendar beside it marks
+  the days with a note and opens any day's; the home page shows today's note and the ones before
+  it; a date mention's menu opens that day's note; and `type:journal` in the search box lists your
+  notes. Pick at the bottom of the calendar whether new notes start with a few headings, blank, or
+  from one of the workspace's page templates. "Today" is your browser's day. Over MCP,
+  `get_or_create_daily_note` and `list_daily_notes`; over the REST API,
+  `GET` and `POST /workspaces/{id}/daily-notes`.
 - **Board columns can show a calculation.** Next to its name, each column of a board shows how
   many cards it holds; editors can now click that count and have every column show one
   calculation over a property for its cards on the line under its name: the sum of the estimates,
@@ -54,6 +63,16 @@
   around the words. Only documents the page's readers may open through it count, and `in:` and
   `type:` narrow these results like any other. Documents are read in the background once they are
   uploaded.
+- **Synced pages.** "Synced page" in the `/` menu shows another page's body inside this one, live:
+  people who may edit that page edit it in place and see everyone's changes as they happen, people
+  who may only view it (or while it is locked) read it, and people who can't open it see
+  "No access", as mentions show them. The page showing it links there, so the shown page lists it
+  under "Linked from"; its own search, history, AI review and Markdown hold just one line for it.
+  A page that would show itself, directly or through other synced pages, is shown once and then
+  as a link with a note; synced pages inside synced pages go two levels deep. Published pages show
+  the block as a link to the page (its public address when it is published too). In Markdown and
+  over MCP it is the page's link alone on its line followed by `<!-- leafdesk:synced-page -->`,
+  which `update_page` keeps.
 
 ### Fixed
 

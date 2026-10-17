@@ -7,12 +7,13 @@
  *   type:page              plain pages, not database rows
  *   type:database          databases
  *   type:row               database rows
+ *   type:journal           the user's daily notes
  *
  * A filter's key and value are case-insensitive; an unknown key (`foo:bar`) or value
  * (`type:foo`) is searched as text, and so is a quoted phrase ("a b", without its quotes).
  */
 
-export type SearchKind = "page" | "database" | "row";
+export type SearchKind = "page" | "database" | "row" | "journal";
 
 export type SearchQuery = {
   /** The free text, filters removed. */
@@ -76,6 +77,9 @@ const KIND_NAMES: Record<string, SearchKind> = {
   db: "database",
   row: "row",
   rows: "row",
+  journal: "journal",
+  journals: "journal",
+  daily: "journal",
 };
 
 /** Adds the filter `key:value` to `parsed`; false when it isn't one (then it's text). */
