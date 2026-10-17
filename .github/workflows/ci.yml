@@ -75,6 +75,9 @@ jobs:
       - name: Page permissions end-to-end
         run: pnpm tsx scripts/access-e2e.ts
 
+      - name: Database rows' access end-to-end
+        run: pnpm tsx scripts/row-access-e2e.ts
+
       # Emails are captured by the script, never sent.
       - name: Access requests end-to-end
         run: pnpm tsx scripts/access-requests-e2e.ts
