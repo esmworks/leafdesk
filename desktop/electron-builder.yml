@@ -25,8 +25,8 @@ mac:
   hardenedRuntime: true
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
-  # Signed with the Developer ID certificate in CSC_LINK, notarized with the App Store Connect key
-  # in APPLE_API_KEY, APPLE_API_KEY_ID and APPLE_API_ISSUER.
+  # Signed with the Developer ID certificate in CSC_LINK, notarized with APPLE_ID,
+  # APPLE_APP_SPECIFIC_PASSWORD and APPLE_TEAM_ID (see .github/workflows/desktop.yml).
   notarize: true
   extendInfo:
     NSMicrophoneUsageDescription: Leafdesk uses the microphone while you record a voice note.

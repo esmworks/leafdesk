@@ -784,9 +784,10 @@ passkeys may not work in it; sign in with a password, a code or single sign-on t
 **Updates.** The app checks the latest GitHub release when it starts and every six hours, downloads
 a newer version in the background and asks to restart; it installs when you quit otherwise. Set
 `LEAFDESK_DISABLE_UPDATES=1` to turn this off (for an app managed by your IT, for example).
-Releases build the apps in `.github/workflows/desktop.yml`; signing the macOS app needs the
-`CSC_LINK` (the Developer ID certificate as a base64 `.p12`), `CSC_KEY_PASSWORD`, `APPLE_API_KEY`
-(the App Store Connect API key's `.p8` text), `APPLE_API_KEY_ID` and `APPLE_API_ISSUER` secrets.
+Releases build the apps in `.github/workflows/desktop.yml`; signing and notarizing the macOS app
+needs the `APPLE_CERTIFICATE` (the Developer ID Application certificate as a base64 `.p12`),
+`APPLE_CERTIFICATE_PASSWORD`, `APPLE_ID`, `APPLE_PASSWORD` (an app-specific password for that
+Apple ID) and `APPLE_TEAM_ID` secrets.
 
 To work on it, see [`desktop/`](desktop/): `pnpm install`, then `pnpm start` there (Node.js 24,
 pnpm 11).
