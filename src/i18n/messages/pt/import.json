@@ -1,11 +1,12 @@
 {
   "open": "Importar",
   "title": "Importar",
-  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, ou linhas de um arquivo CSV ou planilha do Excel.",
+  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, linhas de um arquivo CSV ou pasta de trabalho do Excel, ou um quadro do Trello.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
-    "csv": "CSV e Excel"
+    "csv": "CSV e Excel",
+    "trello": "Trello"
   },
   "destination": "Colocar em",
   "topLevel": "Nível superior do espaço de trabalho",
@@ -45,6 +46,25 @@
     "noDatabases": "Não há nenhum banco de dados ao qual você possa adicionar linhas.",
     "cantLoad": "Não foi possível carregar as propriedades deste banco de dados.",
     "newOptions": "Valores de seleção que o banco de dados ainda não tem são adicionados como opções."
+  },
+  "trello": {
+    "help": "No Trello, abra o menu do quadro e escolha Imprimir, exportar e compartilhar → Exportar como JSON, depois escolha o arquivo baixado. O quadro vira um banco de dados com visualização de quadro: listas, etiquetas, membros, datas, checklists, campos personalizados, descrições e comentários vêm junto. Listas e cartões arquivados ficam de fora.",
+    "attachments": "Nada é baixado do Trello: anexos que são links continuam links, e arquivos enviados ao Trello ficam com link na página de cada cartão.",
+    "choose": "Escolher uma exportação do Trello (.json)",
+    "summary": "{name}: {lists, plural, one {# lista} other {# listas}}, {cards, plural, one {# cartão} other {# cartões}}",
+    "archived": "Arquivados, por isso ficam de fora: {lists, plural, one {# lista} other {# listas}} e {cards, plural, one {# cartão} other {# cartões}}.",
+    "names": {
+      "list": "Lista",
+      "labels": "Etiquetas",
+      "members": "Membros",
+      "otherMembers": "Outros membros",
+      "dates": "Datas",
+      "complete": "Concluído",
+      "checklist": "Checklist",
+      "link": "Link",
+      "attachments": "Anexos",
+      "comments": "Comentários"
+    }
   },
   "import": "Importar",
   "importing": "Importando…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "Só é possível importar pastas de trabalho .xlsx sem senha. Salve o arquivo como Pasta de Trabalho do Excel (.xlsx) sem senha e tente novamente.",
     "badDocx": "Não foi possível ler “{name}” como documento do Word. Só arquivos .docx podem ser importados; salve arquivos .doc antigos como .docx primeiro.",
     "docxTooComplex": "“{name}” é grande ou complexo demais para importar como uma página.",
+    "badTrello": "O arquivo não é uma exportação de quadro do Trello. No Trello, escolha Exportar como JSON no menu do quadro e escolha esse arquivo.",
     "badMapping": "Escolha para onde vai pelo menos uma coluna, e cada propriedade só uma vez.",
     "noAccess": "Você não pode adicionar páginas ali, ou o local não existe mais.",
     "notADatabase": "Linhas só podem ser adicionadas a um banco de dados.",

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+
+- **Import from Trello.** Import has a Trello tab that takes a board's JSON export (*Print, export
+  and share → Export as JSON*) and makes it a database opening on a board grouped by list. Lists,
+  labels (in the nearest colors), members (as people when their name matches one person in the
+  workspace, else as text), start and due dates, checklists, custom fields, linked attachments,
+  descriptions and comments come along; comments go in the row's body under their author and time.
+  Nothing is downloaded from Trello, and archived lists and cards are left out.
+
 ## 0.5.4 — 2026-10-17
 
 ### Upgrading from 0.5.3

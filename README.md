@@ -24,8 +24,8 @@ after you approve them over OAuth.
   what it may read or change; optional AI writing, AI properties, a chat that remembers what you
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
-- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Markdown files,
-  Word documents, a folder or CSV.
+- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
+  Markdown files, Word documents, a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -404,6 +404,19 @@ versions, upgrades and running behind a domain.
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Trello**: in Trello, choose *Print, export and share → Export as JSON* in the
+  board's menu, and pick the downloaded file on Import's Trello tab. The board becomes a database
+  that opens on a board view grouped by list: lists become a select property in the board's order,
+  labels a multi-select in the nearest colors, members people when exactly one person in the
+  workspace has their name (the export has no email addresses) and text otherwise, start and due
+  dates one date (a range when both are set), checklists one checklist per card, and custom fields
+  properties of their own type. A card's description becomes its row's body, followed by its other
+  attachments and its comments, each under its author and time (comments can't be posted in
+  someone else's name). Links between cards lead to the imported rows. Nothing is downloaded from
+  Trello: the first linked attachment goes in a Link property, files uploaded to Trello stay links
+  to Trello, and images in descriptions become links. Archived lists and cards are left out and
+  counted before importing. Trello's export holds only a board's more recent actions, so the oldest
+  comments of a busy board may be missing.
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
@@ -2227,7 +2240,7 @@ It also lists the settings that matter when you run Leafdesk on a server.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian is a trademark of its owner; Leafdesk is not
-affiliated with it either, and names it only to describe what it imports. The names and logos of
+alternative to and what it imports from. Obsidian and Trello are trademarks of their owners;
+Leafdesk is not affiliated with them either, and names them only to describe what it imports. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

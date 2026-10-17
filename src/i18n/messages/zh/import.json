@@ -1,11 +1,12 @@
 {
   "open": "导入",
   "title": "导入",
-  "description": "从 Markdown 文件、ZIP 导出包和 Word 文档导入页面，或从 CSV 文件或 Excel 工作簿导入行。",
+  "description": "从 Markdown 文件、ZIP 导出和 Word 文档导入页面，从 CSV 文件或 Excel 工作簿导入行，或导入一个 Trello 看板。",
   "tabs": {
     "pages": "Markdown 和 ZIP",
     "docx": "Word",
-    "csv": "CSV 和 Excel"
+    "csv": "CSV 和 Excel",
+    "trello": "Trello"
   },
   "destination": "放在",
   "topLevel": "工作区顶层",
@@ -45,6 +46,25 @@
     "noDatabases": "没有你可以添加行的数据库。",
     "cantLoad": "无法加载此数据库的属性。",
     "newOptions": "数据库中尚不存在的选择值会被添加为选项。"
+  },
+  "trello": {
+    "help": "在 Trello 中打开看板菜单，选择“打印、导出和共享”→“导出为 JSON”，然后选择下载的文件。看板会变成带看板视图的数据库：列表、标签、成员、日期、清单、自定义字段、描述和评论都会一起导入。已归档的列表和卡片不会导入。",
+    "attachments": "不会从 Trello 下载任何内容：链接类附件仍是链接，上传到 Trello 的文件会在每张卡片的页面中以链接形式列出。",
+    "choose": "选择 Trello 导出文件（.json）",
+    "summary": "{name}：{lists} 个列表，{cards} 张卡片",
+    "archived": "已归档，因此未导入：{lists} 个列表和 {cards} 张卡片。",
+    "names": {
+      "list": "列表",
+      "labels": "标签",
+      "members": "成员",
+      "otherMembers": "其他成员",
+      "dates": "日期",
+      "complete": "已完成",
+      "checklist": "清单",
+      "link": "链接",
+      "attachments": "附件",
+      "comments": "评论"
+    }
   },
   "import": "导入",
   "importing": "正在导入…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "只能导入没有密码的 .xlsx 工作簿。请将文件另存为不带密码的 Excel 工作簿（.xlsx）后重试。",
     "badDocx": "无法将“{name}”作为 Word 文档读取。只能导入 .docx 文件；请先将较旧的 .doc 文件另存为 .docx。",
     "docxTooComplex": "“{name}”过大或过于复杂，无法作为一个页面导入。",
+    "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
     "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
     "noAccess": "你无法在那里添加页面，或它已不存在。",
     "notADatabase": "只能向数据库添加行。",
