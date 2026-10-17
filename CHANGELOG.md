@@ -79,6 +79,11 @@
   `update_page` (or `replace_block`) turned it into an ordinary heading and moved what was folded
   under it out onto the page. It is now written as `<details>` with the heading in the `<summary>`,
   and comes back as a toggle heading of the same level with its nested blocks.
+- **Edit access given while a page is open now works at once.** Someone who had a page open to
+  view or comment on and was then given edit access (by a share, a group, a teamspace or a role)
+  could type, but their edits weren't saved until they reloaded the page. Their open page now takes
+  them right away, the ones typed before included. Unlocking a page or restoring it from the trash
+  sends the edits it held back the same way.
 
 ### Changed
 

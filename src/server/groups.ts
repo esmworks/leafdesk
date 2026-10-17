@@ -186,7 +186,8 @@ export type GroupChanges = { name?: string; add?: string[]; remove?: string[] };
 /**
  * Renames a group and changes who is in it, in one transaction. Workspace owners only. The people
  * added must be owners or members of the workspace. Taking people out hands pages nobody could
- * manage without them to the owner who did it, and drops their open editors that lost access.
+ * manage without them to the owner who did it. The open editors of everyone added or taken out
+ * are checked again (see afterAccessChange).
  * Settings > Groups and SCIM (/scim/v2/Groups, see server/scim.ts) both go through here.
  */
 export async function changeGroup(actorId: string, groupId: string, changes: GroupChanges) {
@@ -196,9 +197,9 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
   const remove = [...new Set(changes.remove ?? [])].filter((id) => !add.includes(id));
   if (name === undefined && !add.length && !remove.length) return;
   await requireGroupable(found.workspaceId, add);
-  let removed: string[];
+  let changed: string[];
   try {
-    removed = await db.transaction(async (tx) => {
+    changed = await db.transaction(async (tx) => {
       await tx
         .update(memberGroup)
         .set({ ...(name !== undefined ? { name } : {}), updatedAt: new Date() })
@@ -208,8 +209,9 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
       if (name !== undefined && name !== found.name) {
         await recordAudit({ ...event, action: "group.renamed", details: { from: found.name, to: name } }, tx);
       }
+      let added: { userId: string }[] = [];
       if (add.length) {
-        const added = await tx
+        added = await tx
           .insert(memberGroupMember)
           .values(add.map((id) => ({ groupId, workspaceId: found.workspaceId, userId: id })))
           .onConflictDoNothing()
@@ -218,7 +220,7 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
           await recordAudit({ ...event, action: "group.members_added", details: { names: await namesOf(tx, added.map((a) => a.userId)) } }, tx);
         }
       }
-      if (!remove.length) return [];
+      if (!remove.length) return added.map((a) => a.userId);
       const gone = await tx
         .delete(memberGroupMember)
         .where(and(eq(memberGroupMember.groupId, groupId), inArray(memberGroupMember.userId, remove)))
@@ -227,14 +229,14 @@ export async function changeGroup(actorId: string, groupId: string, changes: Gro
         await handOverOrphanedPages(tx, found.workspaceId, actorId);
         await recordAudit({ ...event, action: "group.members_removed", details: { names: await namesOf(tx, gone.map((g) => g.userId)) } }, tx);
       }
-      return gone.map((g) => g.userId);
+      return [...added, ...gone].map((g) => g.userId);
     });
   } catch (error) {
     if (isUniqueViolation(error)) throw new GroupError("nameTaken", "Another group already has this name.");
     throw error;
   }
   // Pages and teamspaces the group has may now show up in (or leave) their sidebars.
-  await afterAccessLoss(found.workspaceId, removed);
+  await afterAccessChange(found.workspaceId, changed);
 }
 
 /** Renames a group. Workspace owners only. */
@@ -249,7 +251,7 @@ export async function addGroupMembers(actorId: string, groupId: string, userIds:
 
 /**
  * Takes someone out of a group. Workspace owners only. Pages nobody could manage without them go to
- * the owner who did it, and their open editors that lost access are dropped.
+ * the owner who did it, and their open editors that lost access are dropped (see changeGroup).
  */
 export async function removeGroupMember(actorId: string, groupId: string, targetId: string) {
   await changeGroup(actorId, groupId, { remove: [targetId] });
@@ -271,7 +273,7 @@ export async function deleteGroup(actorId: string, groupId: string) {
     );
   });
 
-  await afterAccessLoss(found.workspaceId, members);
+  await afterAccessChange(found.workspaceId, members);
 }
 
 /** Who is in the group (for dropping their open editors after the group lost something). */
@@ -297,8 +299,12 @@ export async function requireGroupIn(workspaceId: string, groupId: string) {
   return found;
 }
 
-/** Drops open editors of these people that lost access, and refreshes sidebars. */
-export async function afterAccessLoss(workspaceId: string, userIds: string[]) {
+/**
+ * Refreshes sidebars, and checks the open editors of these people again: those they lost access
+ * to are dropped, and read-only ones of pages they may edit now take their edits (see
+ * disconnectLostAccess).
+ */
+export async function afterAccessChange(workspaceId: string, userIds: string[]) {
   getCollab().broadcast(`ws:${workspaceId}`, "tree");
   if (userIds.length) await getCollab().disconnectLostAccess(workspaceId, userIds);
 }

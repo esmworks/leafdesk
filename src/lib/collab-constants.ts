@@ -23,3 +23,10 @@ export const AI_EDIT_EVENT = "ai-edit";
  */
 export const PAGE_SAVE_FAILED_EVENT = "save-failed";
 export const PAGE_SAVED_EVENT = "saved";
+/**
+ * Sent to one connection of a page's document that was read-only and takes edits again, in place:
+ * the page was unlocked or restored, or the person was given edit access while it was open (see
+ * collab/service.ts). The browser syncs again (components/collab/socket), sending the edits the
+ * server turned down meanwhile.
+ */
+export const PAGE_WRITABLE_EVENT = "writable";
