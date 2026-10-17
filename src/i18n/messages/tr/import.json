@@ -1,11 +1,12 @@
 {
   "open": "İçe aktar",
   "title": "İçe aktar",
-  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır getirin.",
+  "description": "Markdown dosyalarından, ZIP dışa aktarımlarından ve Word belgelerinden sayfa, CSV dosyasından veya Excel çalışma kitabından satır ya da bir Trello panosu getirin.",
   "tabs": {
     "pages": "Markdown ve ZIP",
     "docx": "Word",
-    "csv": "CSV ve Excel"
+    "csv": "CSV ve Excel",
+    "trello": "Trello"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -45,6 +46,25 @@
     "noDatabases": "Satır ekleyebileceğiniz bir veritabanı yok.",
     "cantLoad": "Bu veritabanının özellikleri yüklenemedi.",
     "newOptions": "Veritabanında henüz olmayan seçim değerleri seçenek olarak eklenir."
+  },
+  "trello": {
+    "help": "Trello'da panonun menüsünü açıp Yazdır, dışa aktar ve paylaş → JSON olarak dışa aktar'ı seçin, ardından inen dosyayı seçin. Pano, pano görünümlü bir veritabanı olur: listeler, etiketler, üyeler, tarihler, kontrol listeleri, özel alanlar, açıklamalar ve yorumlar da gelir. Arşivlenmiş listeler ve kartlar alınmaz.",
+    "attachments": "Trello'dan hiçbir şey indirilmez: bağlantı olan ekler bağlantı olarak kalır, Trello'ya yüklenmiş dosyalara her kartın sayfasından bağlantı verilir.",
+    "choose": "Trello dışa aktarımı seçin (.json)",
+    "summary": "{name}: {lists, plural, one {# liste} other {# liste}}, {cards, plural, one {# kart} other {# kart}}",
+    "archived": "Arşivlendiği için alınmayanlar: {lists, plural, one {# liste} other {# liste}} ve {cards, plural, one {# kart} other {# kart}}.",
+    "names": {
+      "list": "Liste",
+      "labels": "Etiketler",
+      "members": "Üyeler",
+      "otherMembers": "Diğer üyeler",
+      "dates": "Tarihler",
+      "complete": "Tamamlandı",
+      "checklist": "Kontrol listesi",
+      "link": "Bağlantı",
+      "attachments": "Ekler",
+      "comments": "Yorumlar"
+    }
   },
   "import": "İçe aktar",
   "importing": "İçe aktarılıyor…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "Yalnızca parolasız .xlsx çalışma kitapları içe aktarılabilir. Dosyayı parolasız Excel Çalışma Kitabı (.xlsx) olarak kaydedip yeniden deneyin.",
     "badDocx": "“{name}” bir Word belgesi olarak okunamıyor. Yalnızca .docx dosyaları içe aktarılabilir; eski .doc dosyalarını önce .docx olarak kaydedin.",
     "docxTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük ya da karmaşık.",
+    "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",

@@ -1,11 +1,12 @@
 {
   "open": "Importuj",
   "title": "Import",
-  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word albo wiersze z pliku CSV lub skoroszytu Excel.",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word, wiersze z pliku CSV lub skoroszytu Excel albo tablicę Trello.",
   "tabs": {
     "pages": "Markdown i ZIP",
     "docx": "Word",
-    "csv": "CSV i Excel"
+    "csv": "CSV i Excel",
+    "trello": "Trello"
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
@@ -45,6 +46,25 @@
     "noDatabases": "Nie ma bazy danych, do której możesz dodawać wiersze.",
     "cantLoad": "Nie udało się wczytać właściwości tej bazy danych.",
     "newOptions": "Wartości wyboru, których baza danych jeszcze nie ma, zostaną dodane jako opcje."
+  },
+  "trello": {
+    "help": "W Trello otwórz menu tablicy i wybierz Drukuj, eksportuj i udostępnij → Eksportuj jako JSON, a potem wskaż pobrany plik. Tablica stanie się bazą danych z widokiem tablicy: przeniesione zostaną listy, etykiety, członkowie, daty, listy kontrolne, pola niestandardowe, opisy i komentarze. Zarchiwizowane listy i karty są pomijane.",
+    "attachments": "Nic nie jest pobierane z Trello: załączniki będące linkami pozostają linkami, a pliki przesłane do Trello są podlinkowane na stronie każdej karty.",
+    "choose": "Wybierz eksport z Trello (.json)",
+    "summary": "{name}: {lists, plural, one {# lista} few {# listy} many {# list} other {# listy}}, {cards, plural, one {# karta} few {# karty} many {# kart} other {# karty}}",
+    "archived": "Zarchiwizowane, więc pominięte: {lists, plural, one {# lista} few {# listy} many {# list} other {# listy}} i {cards, plural, one {# karta} few {# karty} many {# kart} other {# karty}}.",
+    "names": {
+      "list": "Lista",
+      "labels": "Etykiety",
+      "members": "Członkowie",
+      "otherMembers": "Pozostali członkowie",
+      "dates": "Daty",
+      "complete": "Ukończone",
+      "checklist": "Lista kontrolna",
+      "link": "Link",
+      "attachments": "Załączniki",
+      "comments": "Komentarze"
+    }
   },
   "import": "Importuj",
   "importing": "Importowanie…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "Można importować tylko skoroszyty .xlsx bez hasła. Zapisz plik jako Skoroszyt programu Excel (.xlsx) bez hasła i spróbuj ponownie.",
     "badDocx": "Nie można odczytać „{name}” jako dokumentu Word. Importować można tylko pliki .docx; starsze pliki .doc najpierw zapisz jako .docx.",
     "docxTooComplex": "Plik „{name}” jest zbyt duży lub złożony, aby zaimportować go jako jedną stronę.",
+    "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
     "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",

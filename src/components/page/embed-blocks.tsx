@@ -27,6 +27,7 @@ import { columnEditorBlockSpecs } from "./columns";
 import { contentBlockSpecs, contentInlineSpecs } from "./content-blocks";
 import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
 import { DashboardBlock } from "./dashboard-block";
+import { SyncedPageBlock } from "./synced-page";
 import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
@@ -89,6 +90,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     ...contentBlockSpecs,
     ...webBlockSpecs,
     ...mentionBlockSpecs,
+    // Another page's body, live (see synced-page.tsx).
+    syncedPage: SyncedPageBlock(),
     // Uploaded PDFs show in place (see file-block.tsx).
     file: FileBlock(),
     // Blocks side by side (see columns.tsx).

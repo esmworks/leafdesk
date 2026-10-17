@@ -53,6 +53,7 @@
     "noResults": "결과 없음",
     "semantic": "비슷한 의미",
     "semanticHint": "의미로 찾음: 검색어와 단어는 다릅니다.",
+    "inDocument": "이 페이지의 문서 {name}에서 찾음",
     "recent": "최근 편집",
     "commands": "명령",
     "noCommands": "일치하는 명령 없음",
@@ -89,6 +90,12 @@
     "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",
     "automation": "자동화 “{name}”: {actor}님이 이 행을 추가하거나 변경했습니다",
     "automationDatePassed": "자동화 “{name}”: 이 행의 날짜가 되었습니다",
+    "rowUpdate": "{actor} 님이 이 행을 변경했습니다",
+    "pageUpdated": "{actor} 님이 이 페이지를 편집했습니다",
+    "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
+    "rowTitle": "제목",
+    "rowChangesMore": "{count, plural, other {외 #개 변경}}",
+    "rowBodyChanged": "본문을 편집했습니다",
     "someone": "누군가",
     "unread": "읽지 않음",
     "snooze": "다시 알림",
@@ -141,7 +148,11 @@
     "leave": "팀스페이스 나가기",
     "confirmLeave": "{name}에서 나갈까요? 해당 페이지가 사이드바에서 사라집니다. 공개 팀스페이스가 아니면 페이지에 대한 액세스 권한도 잃게 됩니다.",
     "empty": "아직 페이지가 없습니다. 페이지 추가",
-    "another": "다른 팀스페이스"
+    "another": "다른 팀스페이스",
+    "watch": "모든 페이지 지켜보기",
+    "watchHint": "다른 사람이 이 팀스페이스의 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받습니다.",
+    "unwatch": "페이지 지켜보기 중지",
+    "unwatchHint": "음소거한 페이지를 제외하고 이 팀스페이스의 모든 페이지에서 편집과 새 댓글 스레드 알림을 받고 있습니다."
   },
   "sections": {
     "shared": "공유됨",

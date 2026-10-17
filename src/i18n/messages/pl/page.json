@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# prośba o dostęp} few {# prośby o dostęp} many {# próśb o dostęp} other {# prośby o dostęp}}",
     "addFavorite": "Dodaj do ulubionych",
     "removeFavorite": "Usuń z ulubionych",
+    "follow": "Obserwuj",
+    "unfollow": "Przestań obserwować",
+    "followHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny zmieni ten wiersz.",
+    "unfollowHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny zmieni ten wiersz.",
     "linkCopied": "Skopiowano link",
     "duplicate": "Duplikuj",
     "duplicateSuffix": " (kopia)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Usuń szablon",
     "exportDisabled": "Eksport jest wyłączony",
     "exportDisabledBody": "Właściciele tego obszaru roboczego wyłączyli eksportowanie i drukowanie jego stron.",
-    "showInGraph": "Pokaż w grafie"
+    "showInGraph": "Pokaż w grafie",
+    "watch": "Obserwuj",
+    "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy.",
+    "mute": "Wycisz",
+    "muteHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy. Wycisz ją, aby przestać."
   },
   "comments": {
     "aboutPage": "O tej stronie",
@@ -388,6 +396,11 @@
       "subtext": "Link do innej strony z jej aktualnym tytułem",
       "aliases": "link strona wzmianka odnośnik link page mention reference"
     },
+    "syncedPage": {
+      "title": "Strona synchronizowana",
+      "subtext": "Treść innej strony, na żywo i do edycji tutaj",
+      "aliases": "synchronizowana synchronizacja lustro osadź strona synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Kolory",
       "text": "Kolor tekstu: {color}",
@@ -455,6 +468,7 @@
     "noAccess": "Brak dostępu",
     "deleted": "Usunięta strona",
     "loading": "Ładowanie…",
+    "atBlock": "Otwiera stronę w miejscu bloku",
     "personLeft": "{name} (nie należy już do obszaru roboczego)",
     "date": "Data",
     "reminder": "Przypomnienie",
@@ -472,6 +486,11 @@
     "search": "Szukaj stron…",
     "empty": "Nie znaleziono stron",
     "failed": "Nie udało się wczytać stron."
+  },
+  "syncedPage": {
+    "label": "Strona synchronizowana",
+    "viewOnly": "Tylko podgląd",
+    "cycle": "Ta strona jest już pokazana wyżej, więc tutaj jest tylko link."
   },
   "backlinks": {
     "title": "Linki z",

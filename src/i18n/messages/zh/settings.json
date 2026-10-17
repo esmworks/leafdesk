@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "加入申请：{channel}",
     "automationTitle": "自动化",
     "automationDescription": "数据库自动化通知你有人添加或更改了某一行。",
-    "automationChannel": "自动化：{channel}"
+    "automationChannel": "自动化：{channel}",
+    "rowUpdateTitle": "你关注的行",
+    "rowUpdateDescription": "其他人更改你关注的数据库行时：你创建的、分配给你的、你评论过或被提及的，或你选择关注的行。",
+    "rowUpdateChannel": "你关注的行：{channel}",
+    "pageUpdateTitle": "你关注的页面",
+    "pageUpdateDescription": "其他人编辑了你关注的页面：你创建或编辑过的页面、你选择关注的页面，或你关注的团队空间中的页面。同一页面的邮件最多每隔几小时发送一次，每天超过几封后，其余的会合并为一封邮件。",
+    "pageUpdateChannel": "你关注的页面：{channel}",
+    "watchedHeading": "关注的页面",
+    "watchedDescription": "你选择关注或编辑过的页面，以及你关注的团队空间。你也会关注自己创建的页面。关注者会收到编辑和新评论串的通知。",
+    "watchedNone": "你还没有关注任何页面",
+    "watchedNoneDescription": "可从页面的 ⋯ 菜单关注页面，或从侧边栏中团队空间的菜单关注整个团队空间。你编辑的页面会自动关注。",
+    "watchedTeamspace": "此团队空间的所有页面 · {workspace}",
+    "stopWatching": "停止关注"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

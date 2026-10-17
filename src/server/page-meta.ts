@@ -7,6 +7,8 @@ import { countAccessRequests } from "@/server/access-requests";
 import { aiAvailable } from "@/server/ai-writing";
 import { voiceNoteLimits } from "@/server/voice-notes";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, resolvePageAccess, type AccessLevel } from "@/server/access";
+import { isWatching } from "@/server/page-watch";
+import { isFollowing } from "@/server/row-follow";
 import { exportAllowed, topLevelAccess } from "@/server/workspaces";
 
 /** What the page header shows: who made and last changed the page, the viewer's access and star. */
@@ -37,6 +39,10 @@ export type PageHeaderInfo = {
   accessRequests: number;
   /** Set when the page is a skill: what it is for (empty until someone writes it). */
   skill: { description: string } | null;
+  /** Database rows: whether the user hears about others' changes to it (server/row-follow); null for other pages. */
+  following: boolean | null;
+  /** Other pages: whether the user hears about others' edits and new comment threads (server/page-watch); null for rows and templates. */
+  watching: boolean | null;
 };
 
 export async function getPageHeaderInfo(userId: string, pageId: string): Promise<PageHeaderInfo> {
@@ -44,7 +50,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   if (!found || level === "none") throw new AccessError();
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching] = await Promise.all([
     db
       .select({ createdBy: creator.name, updatedBy: editor.name })
       .from(page)
@@ -61,6 +67,8 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     voiceNoteLimits(found.workspaceId),
     exportAllowed(found.workspaceId),
     level === "full" ? countAccessRequests(pageId) : 0,
+    found.parentId ? isFollowing(userId, pageId) : null,
+    isWatching(userId, pageId),
   ]);
   return {
     level,
@@ -78,6 +86,8 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     exportable,
     accessRequests,
     skill: found.isSkill && !found.inTemplate ? { description: found.skillDescription } : null,
+    following,
+    watching,
   };
 }
 

@@ -36,6 +36,8 @@ const { getStorage } = await import("./src/server/storage");
 console.log(`file storage: ${getStorage().kind}`);
 const { startLinkPlacesBackfill, startReminders } = await import("./src/server/mentions");
 const { startSnoozes } = await import("./src/server/notifications");
+const { startRowUpdates } = await import("./src/server/row-follow");
+const { startPageUpdates } = await import("./src/server/page-watch");
 const { startDateReminders } = await import("./src/server/date-reminders");
 const { startAiProperties } = await import("./src/server/ai-properties");
 const { startSemanticIndex } = await import("./src/server/semantic-index");
@@ -126,6 +128,9 @@ server.listen(port, hostname, () => {
   startDateReminders();
   // Brings snoozed notifications back to the inbox when their time comes.
   startSnoozes();
+  // Tells rows' followers what someone changed, once they leave the row alone for a minute.
+  startRowUpdates();
+  startPageUpdates();
   // Logs the AI provider (or that AI is off) and follows row changes for auto-updating AI values.
   startAiProperties();
   startSemanticIndex();

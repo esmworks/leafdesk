@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# erişim isteği} other {# erişim isteği}}",
     "addFavorite": "Favorilere ekle",
     "removeFavorite": "Favorilerden çıkar",
+    "follow": "Takip et",
+    "unfollow": "Takibi bırak",
+    "followHint": "Bu satırı başka biri değiştirdiğinde gelen kutunuzda haber alın.",
+    "unfollowHint": "Bu satırı başka biri değiştirdiğinde gelen kutunuzda haber alıyorsunuz.",
     "linkCopied": "Bağlantı kopyalandı",
     "duplicate": "Kopyasını oluştur",
     "duplicateSuffix": " (kopya)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Şablonu sil",
     "exportDisabled": "Dışa aktarma kapalı",
     "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı.",
-    "showInGraph": "Grafikte göster"
+    "showInGraph": "Grafikte göster",
+    "watch": "İzle",
+    "watchHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
+    "mute": "Sessize al",
+    "muteHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alıyorsunuz. Durdurmak için sessize alın."
   },
   "comments": {
     "aboutPage": "Bu sayfa hakkında",
@@ -388,6 +396,11 @@
       "subtext": "Başka bir sayfaya, güncel başlığıyla bağlantı",
       "aliases": "bağlantı sayfa bahset link page mention"
     },
+    "syncedPage": {
+      "title": "Senkron sayfa",
+      "subtext": "Başka bir sayfanın içeriği, burada canlı ve düzenlenebilir",
+      "aliases": "senkron eşitle yansıt gömülü sayfa synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Renkler",
       "text": "{color} metin",
@@ -455,6 +468,7 @@
     "noAccess": "Erişim yok",
     "deleted": "Silinmiş sayfa",
     "loading": "Yükleniyor…",
+    "atBlock": "Sayfayı bir blokta açar",
     "personLeft": "{name} (artık çalışma alanında değil)",
     "date": "Tarih",
     "reminder": "Hatırlatma",
@@ -472,6 +486,11 @@
     "search": "Sayfa ara…",
     "empty": "Sayfa bulunamadı",
     "failed": "Sayfalar yüklenemedi."
+  },
+  "syncedPage": {
+    "label": "Senkron sayfa",
+    "viewOnly": "Yalnızca görüntüleme",
+    "cycle": "Bu sayfa yukarıda zaten gösteriliyor, burada yalnızca bağlantısı var."
   },
   "backlinks": {
     "title": "Bu sayfaya bağlananlar",

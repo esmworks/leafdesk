@@ -1,11 +1,12 @@
 {
   "open": "Importa",
   "title": "Importa",
-  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, oppure righe da un file CSV o da una cartella di lavoro Excel.",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, righe da un file CSV o da una cartella di lavoro Excel, oppure una bacheca Trello.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
-    "csv": "CSV ed Excel"
+    "csv": "CSV ed Excel",
+    "trello": "Trello"
   },
   "destination": "Inserisci in",
   "topLevel": "Livello principale dello spazio di lavoro",
@@ -45,6 +46,25 @@
     "noDatabases": "Non c’è nessun database a cui puoi aggiungere righe.",
     "cantLoad": "Impossibile caricare le proprietà di questo database.",
     "newOptions": "I valori di selezione che il database non ha ancora vengono aggiunti come opzioni."
+  },
+  "trello": {
+    "help": "In Trello, apri il menu della bacheca e scegli Stampa, esporta e condividi → Esporta come JSON, poi scegli il file scaricato. La bacheca diventa un database con una vista bacheca: arrivano liste, etichette, membri, date, checklist, campi personalizzati, descrizioni e commenti. Le liste e le schede archiviate restano fuori.",
+    "attachments": "Da Trello non si scarica nulla: gli allegati che sono link restano link, e i file caricati su Trello sono collegati dalla pagina di ogni scheda.",
+    "choose": "Scegli un’esportazione di Trello (.json)",
+    "summary": "{name}: {lists, plural, one {# lista} other {# liste}}, {cards, plural, one {# scheda} other {# schede}}",
+    "archived": "Archiviate, quindi escluse: {lists, plural, one {# lista} other {# liste}} e {cards, plural, one {# scheda} other {# schede}}.",
+    "names": {
+      "list": "Lista",
+      "labels": "Etichette",
+      "members": "Membri",
+      "otherMembers": "Altri membri",
+      "dates": "Date",
+      "complete": "Completata",
+      "checklist": "Checklist",
+      "link": "Link",
+      "attachments": "Allegati",
+      "comments": "Commenti"
+    }
   },
   "import": "Importa",
   "importing": "Importazione in corso…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "Si possono importare solo cartelle di lavoro .xlsx senza password. Salva il file come Cartella di lavoro di Excel (.xlsx) senza password e riprova.",
     "badDocx": "Impossibile leggere “{name}” come documento Word. Si possono importare solo file .docx: salva prima i vecchi file .doc come .docx.",
     "docxTooComplex": "“{name}” è troppo grande o complesso per essere importato come una sola pagina.",
+    "badTrello": "Il file non è un’esportazione di una bacheca Trello. In Trello, scegli Esporta come JSON dal menu della bacheca e scegli quel file.",
     "badMapping": "Scegli la destinazione di almeno una colonna, e usa ogni proprietà una sola volta.",
     "noAccess": "Non puoi aggiungere pagine lì, oppure non esiste più.",
     "notADatabase": "Le righe si possono aggiungere solo a un database.",

@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# access request} other {# access requests}}",
     "addFavorite": "Add to favorites",
     "removeFavorite": "Remove from favorites",
+    "follow": "Follow",
+    "unfollow": "Stop following",
+    "followHint": "Hear in your inbox when someone else changes this row.",
+    "unfollowHint": "You hear in your inbox when someone else changes this row.",
     "linkCopied": "Link copied",
     "duplicate": "Duplicate",
     "duplicateSuffix": " (copy)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Delete template",
     "exportDisabled": "Export is turned off",
     "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages.",
-    "showInGraph": "Show in graph"
+    "showInGraph": "Show in graph",
+    "watch": "Watch",
+    "watchHint": "Hear in your inbox when someone else edits this page or starts a comment thread on it.",
+    "mute": "Mute",
+    "muteHint": "You hear in your inbox when someone else edits this page or starts a comment thread on it. Mute it to stop."
   },
   "comments": {
     "aboutPage": "About this page",
@@ -388,6 +396,11 @@
       "subtext": "A link to another page, with its live title",
       "aliases": "link page mention reference"
     },
+    "syncedPage": {
+      "title": "Synced page",
+      "subtext": "Another page's content, live and editable here",
+      "aliases": "synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colors",
       "text": "{color} text",
@@ -455,6 +468,7 @@
     "noAccess": "No access",
     "deleted": "Deleted page",
     "loading": "Loading…",
+    "atBlock": "Opens at a block of the page",
     "personLeft": "{name} (no longer in the workspace)",
     "date": "Date",
     "reminder": "Reminder",
@@ -472,6 +486,11 @@
     "search": "Search pages…",
     "empty": "No pages found",
     "failed": "Couldn't load pages."
+  },
+  "syncedPage": {
+    "label": "Synced page",
+    "viewOnly": "View only",
+    "cycle": "This page is already shown above, so it's only linked here."
   },
   "backlinks": {
     "title": "Linked from",

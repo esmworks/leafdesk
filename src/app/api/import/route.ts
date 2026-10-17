@@ -1,9 +1,10 @@
-import { databaseSeedNames } from "@/app/actions/seed-names";
+import { databaseSeedNames, trelloImportNames } from "@/app/actions/seed-names";
 import { requestTimeZone } from "@/i18n/config";
 import { auth } from "@/lib/auth";
-import { CSV_COLUMN_TYPES, type CsvColumnType } from "@/lib/import/csv";
+import { CSV_COLUMN_TYPES, decodeText, type CsvColumnType } from "@/lib/import/csv";
 import { cleanTitle, IMPORT_LIMITS } from "@/lib/import/markdown";
 import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
+import { parseTrelloExport } from "@/lib/import/trello";
 import { spreadsheetTable } from "@/lib/import/xlsx";
 import { PropertyValueError } from "@/lib/properties";
 import { isTimeZone } from "@/lib/time-zone";
@@ -12,6 +13,7 @@ import { isCrossSite } from "@/server/cross-site";
 import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
 import { importDocx } from "@/server/import/docx";
 import { importPages } from "@/server/import/markdown";
+import { importTrello } from "@/server/import/trello";
 import { TeamspaceError } from "@/server/teamspaces";
 
 /**
@@ -27,6 +29,8 @@ import { TeamspaceError } from "@/server/teamspaces";
  *                   none) and `types` (JSON: a property type or null per column; guessed when missing).
  *   mode=csv-merge  One CSV or Excel `file`'s rows added to the database `databaseId`; `mapping`
  *                   (JSON) says where each column goes: "title", a property id, or null.
+ *   mode=trello     One Trello board's JSON export (`file`) as a new database under `parentId` /
+ *                   `workspaceId`, called `title` (the board's name when empty).
  *
  * A workbook's sheet is `sheet` (an index into its visible worksheets); without it the first one is
  * imported and the others are reported as left out.
@@ -87,6 +91,20 @@ export async function POST(request: Request) {
     } else if (mode === "docx") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       result = await importDocx(actor, { workspaceId, parentId, teamspaceId, files });
+    } else if (mode === "trello") {
+      if (uploads.length !== 1) return fail(400, "badRequest", "Send one Trello export");
+      const board = parseTrelloExport(decodeText(new Uint8Array(await uploads[0].arrayBuffer())));
+      const names = await trelloImportNames().catch(() => undefined);
+      result = await importTrello(actor, {
+        workspaceId,
+        parentId,
+        teamspaceId,
+        title: field("title") ?? "",
+        board,
+        seedNames: await seedNames(),
+        names,
+        timeZone,
+      });
     } else if (mode === "csv-new" || mode === "csv-merge") {
       if (uploads.length !== 1) return fail(400, "badRequest", "Send one CSV file");
       const warnings = new WarningList();

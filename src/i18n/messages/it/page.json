@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# richiesta di accesso} other {# richieste di accesso}}",
     "addFavorite": "Aggiungi ai preferiti",
     "removeFavorite": "Rimuovi dai preferiti",
+    "follow": "Segui",
+    "unfollow": "Smetti di seguire",
+    "followHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa riga.",
+    "unfollowHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa riga.",
     "linkCopied": "Link copiato",
     "duplicate": "Duplica",
     "duplicateSuffix": " (copia)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Elimina modello",
     "exportDisabled": "L’esportazione è disattivata",
     "exportDisabledBody": "I proprietari di questo spazio di lavoro hanno disattivato l’esportazione e la stampa delle sue pagine.",
-    "showInGraph": "Mostra nel grafo"
+    "showInGraph": "Mostra nel grafo",
+    "watch": "Osserva",
+    "watchHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione.",
+    "mute": "Silenzia",
+    "muteHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione. Silenziala per smettere."
   },
   "comments": {
     "aboutPage": "Su questa pagina",
@@ -388,6 +396,11 @@
       "subtext": "Un link a un’altra pagina, con il suo titolo sempre aggiornato",
       "aliases": "link page mention reference pagina menzione riferimento collegamento"
     },
+    "syncedPage": {
+      "title": "Pagina sincronizzata",
+      "subtext": "Il contenuto di un'altra pagina, in tempo reale e modificabile qui",
+      "aliases": "sincronizzata sincronizza specchio incorpora pagina synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colori",
       "text": "Testo {color}",
@@ -455,6 +468,7 @@
     "noAccess": "Nessun accesso",
     "deleted": "Pagina eliminata",
     "loading": "Caricamento…",
+    "atBlock": "Apre la pagina a un blocco",
     "personLeft": "{name} (non più nello spazio di lavoro)",
     "date": "Data",
     "reminder": "Promemoria",
@@ -472,6 +486,11 @@
     "search": "Cerca pagine…",
     "empty": "Nessuna pagina trovata",
     "failed": "Impossibile caricare le pagine."
+  },
+  "syncedPage": {
+    "label": "Pagina sincronizzata",
+    "viewOnly": "Sola lettura",
+    "cycle": "Questa pagina è già mostrata più in alto, qui c'è solo il link."
   },
   "backlinks": {
     "title": "Collegamenti in entrata",

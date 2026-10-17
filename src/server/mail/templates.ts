@@ -4,6 +4,8 @@ import type { WorkspaceRole } from "@/db/schema";
 import { emailMessages } from "@/i18n/messages/email";
 import { env } from "@/lib/env";
 import { formatIsoDate } from "@/lib/mentions";
+import { formatDateValueIn } from "@/lib/date-value";
+import type { ActivityValue } from "@/lib/row-activity";
 
 export type EmailContent = {
   subject: string;
@@ -273,6 +275,116 @@ export function automationEmail(
       t("automation.optOut"),
     ],
     action: { label: t("automation.action"), url: automation.link },
+  });
+}
+
+/** How long a text value of a row update may get in an email before it is cut. */
+const ROW_UPDATE_TEXT = 120;
+
+/** A changed value of a row, as an email words it. */
+function rowValueText(value: ActivityValue, locale: Locale): string {
+  const t = emailTranslator(locale);
+  switch (value.type) {
+    case "empty":
+      return t("rowUpdate.empty");
+    case "text":
+      return value.text.length > ROW_UPDATE_TEXT ? `${value.text.slice(0, ROW_UPDATE_TEXT).trimEnd()}…` : value.text;
+    case "number":
+      return value.value.toLocaleString(locale);
+    case "checkbox":
+      return t(value.checked ? "rowUpdate.checked" : "rowUpdate.unchecked");
+    case "date":
+      // No time zone of the recipient's to go by: times read in UTC.
+      return formatDateValueIn(value.value, locale, "UTC") ?? value.value;
+    case "options":
+      return [...value.options.map((o) => o.name), ...(value.missing ? [t("rowUpdate.deletedOption", { count: value.missing })] : [])].join(", ");
+    case "people":
+      return [...value.people.map((p) => p.name), ...(value.missing ? [t("rowUpdate.unknownPerson", { count: value.missing })] : [])].join(", ");
+    case "pages":
+      return value.pages.map((p) => ("noAccess" in p ? t("rowUpdate.noAccess") : p.title || t("rowUpdate.untitled"))).join(", ");
+    case "files":
+      return value.names.join(", ");
+    case "checklist":
+      return t("rowUpdate.checklist", { done: value.done, total: value.total });
+  }
+}
+
+/** To someone who follows a database row: someone else changed it. */
+export function rowUpdateEmail(
+  locale: Locale,
+  /** `databaseTitle`: null when the recipient can't open the database (a row shared on its own). A null property is the title. */
+  update: {
+    actorName: string;
+    pageTitle: string;
+    databaseTitle: string | null;
+    workspaceName: string;
+    changes: { property: string | null; from: ActivityValue; to: ActivityValue }[];
+    body: boolean;
+    link: string;
+  },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = {
+    actor: update.actorName || t("rowUpdate.someone"),
+    page: update.pageTitle,
+    database: update.databaseTitle ?? "",
+    workspace: update.workspaceName,
+  };
+  return renderEmail(locale, {
+    subject: t("rowUpdate.subject", names),
+    heading: t("rowUpdate.heading", names),
+    paragraphs: [
+      t(update.databaseTitle === null ? "rowUpdate.introHidden" : "rowUpdate.intro", names),
+      ...update.changes.map((c) =>
+        t("rowUpdate.change", {
+          property: c.property ?? t("rowUpdate.title"),
+          from: rowValueText(c.from, locale),
+          to: rowValueText(c.to, locale),
+        }),
+      ),
+      ...(update.body ? [t("rowUpdate.body")] : []),
+      t("rowUpdate.optOut"),
+    ],
+    action: { label: t("rowUpdate.action"), url: update.link },
+  });
+}
+
+/** To someone who watches a page: someone else edited it. */
+export function pageUpdateEmail(
+  locale: Locale,
+  update: { actorName: string; pageTitle: string; workspaceName: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { actor: update.actorName || t("pageUpdate.someone"), page: update.pageTitle, workspace: update.workspaceName };
+  return renderEmail(locale, {
+    subject: t("pageUpdate.subject", names),
+    heading: t("pageUpdate.heading", names),
+    paragraphs: [t("pageUpdate.body", names), t("pageUpdate.optOut")],
+    action: { label: t("pageUpdate.action"), url: update.link },
+  });
+}
+
+/**
+ * To someone who watches pages, past the day's page-update emails (see server/share-emails.ts):
+ * the pages edited since, in one email.
+ */
+export function pageUpdateDigestEmail(
+  locale: Locale,
+  digest: { pages: { actorName: string; pageTitle: string; workspaceName: string; link: string }[]; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const count = { count: digest.pages.length };
+  return renderEmail(locale, {
+    subject: t("pageUpdate.digestSubject", count),
+    heading: t("pageUpdate.digestSubject", count),
+    paragraphs: [
+      t("pageUpdate.digestIntro"),
+      ...digest.pages.map((p) =>
+        t("pageUpdate.digestPage", { actor: p.actorName || t("pageUpdate.someone"), page: p.pageTitle, workspace: p.workspaceName, link: p.link }),
+      ),
+      t("pageUpdate.optOut"),
+    ],
+    action: { label: t("pageUpdate.digestAction"), url: digest.link },
   });
 }
 

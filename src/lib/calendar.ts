@@ -163,3 +163,21 @@ export function dayBlocks<T extends CalendarEvent>(events: T[], minLength = 30):
   close();
   return blocks;
 }
+
+/** Where engines have no week info: Sunday or Saturday where weeks start then, else Monday. */
+const FIRST_DAY: Record<string, number> = { en: 0, pt: 0, he: 0, ja: 0, ko: 0, ar: 6, fa: 6 };
+
+/** First weekday of the locale as a `getUTCDay()` index (0 = Sunday). */
+export function firstDayOfWeek(locale: string) {
+  try {
+    const l = new Intl.Locale(locale) as Intl.Locale & {
+      getWeekInfo?: () => { firstDay: number };
+      weekInfo?: { firstDay: number };
+    };
+    const first = l.getWeekInfo?.().firstDay ?? l.weekInfo?.firstDay;
+    if (first) return first % 7;
+  } catch {
+    // Older engines without week info fall through to the default below.
+  }
+  return FIRST_DAY[locale.split("-")[0]] ?? 1;
+}

@@ -17,6 +17,10 @@
     "accessRequests": "{count} 个访问申请",
     "addFavorite": "添加到收藏",
     "removeFavorite": "从收藏中移除",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "followHint": "其他人更改这一行时，在收件箱中通知你。",
+    "unfollowHint": "其他人更改这一行时，你会在收件箱中收到通知。",
     "linkCopied": "链接已复制",
     "duplicate": "创建副本",
     "duplicateSuffix": "（副本）",
@@ -53,7 +57,11 @@
     "deleteTemplate": "删除模板",
     "exportDisabled": "导出已关闭",
     "exportDisabledBody": "此工作区的所有者已关闭其页面的导出和打印功能。",
-    "showInGraph": "在关系图中显示"
+    "showInGraph": "在关系图中显示",
+    "watch": "关注页面",
+    "watchHint": "其他人编辑此页面或在其中发起评论串时，在收件箱中收到通知。",
+    "mute": "静音",
+    "muteHint": "其他人编辑此页面或在其中发起评论串时，你会在收件箱中收到通知。静音即可停止。"
   },
   "comments": {
     "aboutPage": "关于此页面",
@@ -388,6 +396,11 @@
       "subtext": "指向另一个页面的链接，标题实时更新",
       "aliases": "link page mention reference 链接 页面 提及 引用"
     },
+    "syncedPage": {
+      "title": "同步页面",
+      "subtext": "在此实时显示并编辑另一个页面的内容",
+      "aliases": "同步 镜像 嵌入 页面 synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "颜色",
       "text": "{color}文字",
@@ -455,6 +468,7 @@
     "noAccess": "无访问权限",
     "deleted": "已删除的页面",
     "loading": "正在加载…",
+    "atBlock": "在页面的某个块处打开",
     "personLeft": "{name}（已不在工作区中）",
     "date": "日期",
     "reminder": "提醒",
@@ -472,6 +486,11 @@
     "search": "搜索页面…",
     "empty": "未找到页面",
     "failed": "无法加载页面。"
+  },
+  "syncedPage": {
+    "label": "同步页面",
+    "viewOnly": "仅查看",
+    "cycle": "此页面已在上方显示，这里只显示链接。"
   },
   "backlinks": {
     "title": "链接来源",

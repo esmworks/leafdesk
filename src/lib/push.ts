@@ -121,6 +121,8 @@ export type PushItem = {
   approval: { agentId: string; runId: string; agentName: string; tool: string; connectionName: string } | null;
   memory: { agentId: string; agentName: string; count: number } | null;
   report: { agentId: string; runId: string; agentName: string; status: string } | null;
+  /** Row updates: which values changed (a null property is the title), and whether the body. */
+  rowUpdate: { changes: { property: { name: string } | null }[]; body: boolean } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -191,6 +193,18 @@ export function pushPayload(
         break;
       case "automation":
         line = item.reminderDate ? t("automationDatePassed", { name: item.automationName ?? "" }) : t("automation", { name: item.automationName ?? "", actor });
+        break;
+      case "row_update": {
+        // Which values changed, not what to: a lock screen shows it to whoever holds the device.
+        const fields = [
+          ...(item.rowUpdate?.changes ?? []).map((c) => (c.property ? c.property.name.trim() || t("untitled") : t("rowUpdateTitle"))),
+          ...(item.rowUpdate?.body ? [t("rowUpdateBody")] : []),
+        ];
+        line = fields.length ? t("rowUpdate", { actor, fields: fields.join(", ") }) : t("rowUpdateSome", { actor });
+        break;
+      }
+      case "page_updated":
+        line = t("pageUpdated", { actor });
         break;
       default:
         line = t("assignment", { actor, property: item.propertyName ?? "" });

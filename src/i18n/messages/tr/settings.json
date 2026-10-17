@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "Katılma istekleri: {channel}",
     "automationTitle": "Otomasyonlar",
     "automationDescription": "Bir veritabanı otomasyonu, birinin eklediği ya da değiştirdiği bir satır hakkında sizi bilgilendirir.",
-    "automationChannel": "Otomasyonlar: {channel}"
+    "automationChannel": "Otomasyonlar: {channel}",
+    "rowUpdateTitle": "Takip ettiğiniz satırlar",
+    "rowUpdateDescription": "Takip ettiğiniz bir veritabanı satırını başka biri değiştirir: oluşturduğunuz, atandığınız, yorum yaptığınız ya da bahsedildiğiniz veya takip etmeyi seçtiğiniz bir satır.",
+    "rowUpdateChannel": "Takip ettiğiniz satırlar: {channel}",
+    "pageUpdateTitle": "İzlediğiniz sayfalar",
+    "pageUpdateDescription": "İzlediğiniz bir sayfayı başka biri düzenler: oluşturduğunuz ya da düzenlediğiniz, izlemeyi seçtiğiniz veya izlediğiniz bir teamspace'teki bir sayfa. Aynı sayfa hakkındaki e-postalar en fazla birkaç saatte bir gelir; günde birkaç e-postadan sonra kalanlar tek bir e-postada toplanır.",
+    "pageUpdateChannel": "İzlediğiniz sayfalar: {channel}",
+    "watchedHeading": "İzlenen sayfalar",
+    "watchedDescription": "İzlemeyi seçtiğiniz ya da düzenlediğiniz sayfalar ve izlediğiniz teamspace'ler. Oluşturduğunuz sayfaları da izlersiniz. İzleyenler düzenlemelerden ve yeni yorum dizilerinden haber alır.",
+    "watchedNone": "Henüz hiçbir sayfayı izlemiyorsunuz",
+    "watchedNoneDescription": "Bir sayfayı ⋯ menüsünden, bütün bir teamspace'i de kenar çubuğundaki menüsünden izleyin. Düzenlediğiniz sayfalar sizin için izlenir.",
+    "watchedTeamspace": "Bu teamspace'in tüm sayfaları · {workspace}",
+    "stopWatching": "İzlemeyi bırak"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

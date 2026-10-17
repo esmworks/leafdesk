@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "参加リクエスト：{channel}",
     "automationTitle": "オートメーション",
     "automationDescription": "誰かが追加または変更した行について、データベースのオートメーションが知らせるとき。",
-    "automationChannel": "オートメーション：{channel}"
+    "automationChannel": "オートメーション：{channel}",
+    "rowUpdateTitle": "フォロー中の行",
+    "rowUpdateDescription": "フォロー中のデータベースの行を他の人が変更したとき。自分が作成した行、担当に割り当てられた行、コメントした行やメンションされた行、またはフォローを選んだ行です。",
+    "rowUpdateChannel": "フォロー中の行: {channel}",
+    "pageUpdateTitle": "ウォッチ中のページ",
+    "pageUpdateDescription": "ほかの人がウォッチ中のページを編集したとき：作成または編集したページ、ウォッチを選んだページ、ウォッチ中のチームスペースのページ。同じページについてのメールは数時間に1回までで、1日に数通を超えると残りは1通のメールにまとめて届きます。",
+    "pageUpdateChannel": "ウォッチ中のページ: {channel}",
+    "watchedHeading": "ウォッチ中のページ",
+    "watchedDescription": "ウォッチを選んだページや編集したページ、ウォッチ中のチームスペースです。作成したページもウォッチしています。ウォッチしている人には編集と新しいコメントスレッドが通知されます。",
+    "watchedNone": "まだウォッチしているページはありません",
+    "watchedNoneDescription": "ページは⋯メニューから、チームスペース全体はサイドバーのメニューからウォッチできます。編集したページは自動でウォッチされます。",
+    "watchedTeamspace": "このチームスペースのすべてのページ · {workspace}",
+    "stopWatching": "ウォッチをやめる"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

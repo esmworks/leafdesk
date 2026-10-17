@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# solicitação de acesso} other {# solicitações de acesso}}",
     "addFavorite": "Adicionar aos favoritos",
     "removeFavorite": "Remover dos favoritos",
+    "follow": "Seguir",
+    "unfollow": "Deixar de seguir",
+    "followHint": "Saiba na sua caixa de entrada quando outra pessoa alterar esta linha.",
+    "unfollowHint": "Você fica sabendo na sua caixa de entrada quando outra pessoa altera esta linha.",
     "linkCopied": "Link copiado",
     "duplicate": "Duplicar",
     "duplicateSuffix": " (cópia)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Excluir modelo",
     "exportDisabled": "A exportação está desativada",
     "exportDisabledBody": "Os proprietários deste espaço de trabalho desativaram a exportação e a impressão das páginas.",
-    "showInGraph": "Mostrar no grafo"
+    "showInGraph": "Mostrar no grafo",
+    "watch": "Acompanhar",
+    "watchHint": "Saiba na sua caixa de entrada quando outra pessoa editar esta página ou iniciar uma conversa de comentários nela.",
+    "mute": "Silenciar",
+    "muteHint": "Você fica sabendo na sua caixa de entrada quando outra pessoa edita esta página ou inicia uma conversa de comentários nela. Silencie para parar."
   },
   "comments": {
     "aboutPage": "Sobre esta página",
@@ -388,6 +396,11 @@
       "subtext": "Um link para outra página, com o título sempre atualizado",
       "aliases": "link página menção referência page mention"
     },
+    "syncedPage": {
+      "title": "Página sincronizada",
+      "subtext": "O conteúdo de outra página, ao vivo e editável aqui",
+      "aliases": "sincronizada sincronizar espelho incorporar página synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Cores",
       "text": "Texto {color}",
@@ -455,6 +468,7 @@
     "noAccess": "Sem acesso",
     "deleted": "Página excluída",
     "loading": "Carregando…",
+    "atBlock": "Abre a página num bloco",
     "personLeft": "{name} (não está mais no espaço de trabalho)",
     "date": "Data",
     "reminder": "Lembrete",
@@ -472,6 +486,11 @@
     "search": "Pesquisar páginas…",
     "empty": "Nenhuma página encontrada",
     "failed": "Não foi possível carregar as páginas."
+  },
+  "syncedPage": {
+    "label": "Página sincronizada",
+    "viewOnly": "Somente leitura",
+    "cycle": "Esta página já aparece mais acima, então aqui fica só o link."
   },
   "backlinks": {
     "title": "Links para esta página",

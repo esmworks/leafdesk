@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# solicitud de acceso} other {# solicitudes de acceso}}",
     "addFavorite": "Añadir a favoritos",
     "removeFavorite": "Quitar de favoritos",
+    "follow": "Seguir",
+    "unfollow": "Dejar de seguir",
+    "followHint": "Entérate en tu bandeja de entrada cuando otra persona cambie esta fila.",
+    "unfollowHint": "Te enteras en tu bandeja de entrada cuando otra persona cambia esta fila.",
     "linkCopied": "Enlace copiado",
     "duplicate": "Duplicar",
     "duplicateSuffix": " (copia)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Eliminar plantilla",
     "exportDisabled": "La exportación está desactivada",
     "exportDisabledBody": "Los propietarios de este espacio de trabajo han desactivado la exportación y la impresión de sus páginas.",
-    "showInGraph": "Mostrar en el grafo"
+    "showInGraph": "Mostrar en el grafo",
+    "watch": "Observar",
+    "watchHint": "Entérate en tu bandeja de entrada cuando otra persona edite esta página o inicie un hilo de comentarios en ella.",
+    "mute": "Silenciar",
+    "muteHint": "Te enteras en tu bandeja de entrada cuando otra persona edita esta página o inicia un hilo de comentarios en ella. Silénciala para dejar de hacerlo."
   },
   "comments": {
     "aboutPage": "Sobre esta página",
@@ -388,6 +396,11 @@
       "subtext": "Un enlace a otra página, con su título actualizado",
       "aliases": "enlace pagina página mencion mención referencia link page mention"
     },
+    "syncedPage": {
+      "title": "Página sincronizada",
+      "subtext": "El contenido de otra página, en vivo y editable aquí",
+      "aliases": "sincronizada sincronizar espejo incrustar página synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colores",
       "text": "Texto: {color}",
@@ -455,6 +468,7 @@
     "noAccess": "Sin acceso",
     "deleted": "Página eliminada",
     "loading": "Cargando…",
+    "atBlock": "Abre la página en un bloque",
     "personLeft": "{name} (ya no está en el espacio de trabajo)",
     "date": "Fecha",
     "reminder": "Recordatorio",
@@ -472,6 +486,11 @@
     "search": "Buscar páginas…",
     "empty": "No se encontraron páginas",
     "failed": "No se pudieron cargar las páginas."
+  },
+  "syncedPage": {
+    "label": "Página sincronizada",
+    "viewOnly": "Solo lectura",
+    "cycle": "Esta página ya se muestra más arriba, así que aquí solo aparece el enlace."
   },
   "backlinks": {
     "title": "Enlazada desde",

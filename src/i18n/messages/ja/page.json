@@ -17,6 +17,10 @@
     "accessRequests": "{count}件のアクセスリクエスト",
     "addFavorite": "お気に入りに追加",
     "removeFavorite": "お気に入りから削除",
+    "follow": "フォロー",
+    "unfollow": "フォローをやめる",
+    "followHint": "他の人がこの行を変更したら受信トレイでお知らせします。",
+    "unfollowHint": "他の人がこの行を変更すると受信トレイでお知らせが届きます。",
     "linkCopied": "リンクをコピーしました",
     "duplicate": "複製",
     "duplicateSuffix": "（コピー）",
@@ -53,7 +57,11 @@
     "deleteTemplate": "テンプレートを削除",
     "exportDisabled": "エクスポートはオフになっています",
     "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしています。",
-    "showInGraph": "グラフで表示"
+    "showInGraph": "グラフで表示",
+    "watch": "ウォッチ",
+    "watchHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知します。",
+    "mute": "ミュート",
+    "muteHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知されます。止めるにはミュートしてください。"
   },
   "comments": {
     "aboutPage": "このページについて",
@@ -388,6 +396,11 @@
       "subtext": "ほかのページへのリンク（タイトルは自動で更新）",
       "aliases": "link page mention reference リンク ページ 参照"
     },
+    "syncedPage": {
+      "title": "同期ページ",
+      "subtext": "ほかのページの内容をここにライブ表示し、その場で編集",
+      "aliases": "同期 ミラー 埋め込み ページ synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "色",
       "text": "{color}の文字",
@@ -455,6 +468,7 @@
     "noAccess": "アクセス権なし",
     "deleted": "削除されたページ",
     "loading": "読み込み中…",
+    "atBlock": "ページのブロックの位置で開きます",
     "personLeft": "{name}（ワークスペースから退出済み）",
     "date": "日付",
     "reminder": "リマインダー",
@@ -472,6 +486,11 @@
     "search": "ページを検索…",
     "empty": "ページが見つかりません",
     "failed": "ページを読み込めませんでした。"
+  },
+  "syncedPage": {
+    "label": "同期ページ",
+    "viewOnly": "閲覧のみ",
+    "cycle": "このページはすでに上に表示されているため、ここにはリンクだけを表示します。"
   },
   "backlinks": {
     "title": "リンク元",

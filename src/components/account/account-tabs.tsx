@@ -14,6 +14,7 @@ import { ConnectedApps } from "@/components/settings/connected-apps";
 import { LanguageSettings } from "@/components/settings/language-settings";
 import { McpInstructions } from "@/components/settings/mcp-instructions";
 import { NotificationSettings } from "@/components/settings/notification-settings";
+import { WatchedPages } from "@/components/settings/watched-pages";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { ContrastSettings, ThemeSettings } from "@/components/settings/theme-settings";
 import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
@@ -22,6 +23,7 @@ import { getAccountOverview, deletionPlanFor, emailChangeEnabled, proofSetupOf }
 import { getAccountSecurity } from "@/server/account-security";
 import { mailStatus } from "@/server/mail";
 import { getNotificationPreferences } from "@/server/notification-preferences";
+import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import type { requireSession } from "@/server/session";
 
@@ -121,9 +123,10 @@ async function SecurityTab({ session }: { session: Session }) {
 
 async function PreferencesTab({ userId }: { userId: string }) {
   const publicKey = vapidPublicKey();
-  const [cookieStore, notificationPreferences, endpoints, t, ts] = await Promise.all([
+  const [cookieStore, notificationPreferences, watches, endpoints, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
+    listWatches(userId),
     publicKey ? pushEndpoints(userId) : [],
     getTranslations("account"),
     getTranslations("settings"),
@@ -153,6 +156,9 @@ async function PreferencesTab({ userId }: { userId: string }) {
           }
         >
           <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} />
+        </SettingsGroup>
+        <SettingsGroup title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
+          <WatchedPages pages={watches.pages} teamspaces={watches.teamspaces} />
         </SettingsGroup>
       </div>
     </>

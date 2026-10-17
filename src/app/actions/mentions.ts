@@ -37,6 +37,12 @@ export async function resolvePagesAction(pageIds: string[]) {
   return mentions.resolvePageRefs(userId, Array.isArray(pageIds) ? pageIds : []);
 }
 
+/** What a synced page block shows this user of the page it shows (see server/mentions syncedPageInfo). */
+export async function syncedPageAction(pageId: string) {
+  const userId = await requireUserId();
+  return mentions.syncedPageInfo(userId, pageId);
+}
+
 /** The pages linking to this one that the user can see: a batch of them from `offset` on, and how many there are. */
 export async function backlinksAction(pageId: string, offset = 0): Promise<{ pages: mentions.Backlink[]; total: number }> {
   const userId = await requireUserId();

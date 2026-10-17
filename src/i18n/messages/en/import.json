@@ -1,11 +1,12 @@
 {
   "open": "Import",
   "title": "Import",
-  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, or rows from a CSV file or Excel workbook.",
+  "description": "Bring pages in from Markdown files, ZIP exports and Word documents, rows from a CSV file or Excel workbook, or a Trello board.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
-    "csv": "CSV & Excel"
+    "csv": "CSV & Excel",
+    "trello": "Trello"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -45,6 +46,25 @@
     "noDatabases": "There is no database you can add rows to.",
     "cantLoad": "This database's properties couldn't be loaded.",
     "newOptions": "Select values the database doesn't have yet are added as options."
+  },
+  "trello": {
+    "help": "In Trello, open the board's menu and choose Print, export and share → Export as JSON, then pick the downloaded file. The board becomes a database with a board view: lists, labels, members, dates, checklists, custom fields, descriptions and comments come along. Archived lists and cards are left out.",
+    "attachments": "Nothing is downloaded from Trello: linked attachments stay links, and files uploaded to Trello are linked from each card's page.",
+    "choose": "Choose a Trello export (.json)",
+    "summary": "{name}: {lists, plural, one {# list} other {# lists}}, {cards, plural, one {# card} other {# cards}}",
+    "archived": "Archived, so left out: {lists, plural, one {# list} other {# lists}} and {cards, plural, one {# card} other {# cards}}.",
+    "names": {
+      "list": "List",
+      "labels": "Labels",
+      "members": "Members",
+      "otherMembers": "Other members",
+      "dates": "Dates",
+      "complete": "Complete",
+      "checklist": "Checklist",
+      "link": "Link",
+      "attachments": "Attachments",
+      "comments": "Comments"
+    }
   },
   "import": "Import",
   "importing": "Importing…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "Only .xlsx workbooks without a password can be imported. Save the file as an Excel Workbook (.xlsx) without a password and try again.",
     "badDocx": "“{name}” can't be read as a Word document. Only .docx files can be imported; save older .doc files as .docx first.",
     "docxTooComplex": "“{name}” is too large or complex to import as one page.",
+    "badTrello": "The file isn't a Trello board export. In Trello, choose Export as JSON from the board's menu and pick that file.",
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",

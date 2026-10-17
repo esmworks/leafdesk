@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "Beitrittsanfragen: {channel}",
     "automationTitle": "Automatisierungen",
     "automationDescription": "Eine Datenbank-Automatisierung benachrichtigt dich über eine Zeile, die jemand hinzugefügt oder geändert hat.",
-    "automationChannel": "Automatisierungen: {channel}"
+    "automationChannel": "Automatisierungen: {channel}",
+    "rowUpdateTitle": "Zeilen, denen du folgst",
+    "rowUpdateDescription": "Jemand anderes ändert eine Datenbankzeile, der du folgst: eine, die du erstellt hast, der du zugewiesen bist, die du kommentiert hast oder in der du erwähnt wurdest, oder der du folgen wolltest.",
+    "rowUpdateChannel": "Zeilen, denen du folgst: {channel}",
+    "pageUpdateTitle": "Seiten, die du beobachtest",
+    "pageUpdateDescription": "Jemand anderes bearbeitet eine Seite, die du beobachtest: eine, die du erstellt oder bearbeitet hast, beobachten wolltest oder die in einem Teamspace liegt, den du beobachtest. E-Mails zur selben Seite kommen höchstens alle paar Stunden, und nach einigen am Tag kommt der Rest gesammelt in einer E-Mail.",
+    "pageUpdateChannel": "Seiten, die du beobachtest: {channel}",
+    "watchedHeading": "Beobachtete Seiten",
+    "watchedDescription": "Seiten, die du beobachten wolltest oder bearbeitet hast, und Teamspaces, die du beobachtest. Seiten, die du erstellt hast, beobachtest du ebenfalls. Beobachtende erfahren von Bearbeitungen und neuen Kommentar-Threads.",
+    "watchedNone": "Du beobachtest noch keine Seiten",
+    "watchedNoneDescription": "Beobachte eine Seite über ihr ⋯-Menü oder einen ganzen Teamspace über sein Menü in der Seitenleiste. Seiten, die du bearbeitest, werden automatisch beobachtet.",
+    "watchedTeamspace": "Alle Seiten dieses Teamspace · {workspace}",
+    "stopWatching": "Nicht mehr beobachten"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

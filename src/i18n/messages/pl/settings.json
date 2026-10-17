@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "Prośby o dołączenie: {channel}",
     "automationTitle": "Automatyzacje",
     "automationDescription": "Automatyzacja bazy danych powiadamia cię o wierszu, który ktoś dodał lub zmienił.",
-    "automationChannel": "Automatyzacje: {channel}"
+    "automationChannel": "Automatyzacje: {channel}",
+    "rowUpdateTitle": "Obserwowane wiersze",
+    "rowUpdateDescription": "Ktoś inny zmienia obserwowany przez Ciebie wiersz bazy danych: utworzony przez Ciebie, przypisany do Ciebie, skomentowany przez Ciebie lub taki, w którym Cię wspomniano, albo taki, który postanowiłeś obserwować.",
+    "rowUpdateChannel": "Obserwowane wiersze: {channel}",
+    "pageUpdateTitle": "Obserwowane strony",
+    "pageUpdateDescription": "Ktoś inny edytuje obserwowaną stronę: utworzoną lub edytowaną przez Ciebie, wybraną do obserwowania albo leżącą w obserwowanej przestrzeni zespołu. Wiadomości o tej samej stronie przychodzą najwyżej co kilka godzin, a po kilku dziennie reszta przychodzi razem w jednej wiadomości.",
+    "pageUpdateChannel": "Obserwowane strony: {channel}",
+    "watchedHeading": "Obserwowane strony",
+    "watchedDescription": "Strony, które wybrano do obserwowania lub które edytowano, oraz obserwowane przestrzenie zespołu. Obserwujesz też utworzone przez siebie strony. Obserwujący dowiadują się o edycjach i nowych wątkach komentarzy.",
+    "watchedNone": "Nie obserwujesz jeszcze żadnych stron",
+    "watchedNoneDescription": "Obserwuj stronę z jej menu ⋯ albo całą przestrzeń zespołu z jej menu na pasku bocznym. Edytowane strony są obserwowane automatycznie.",
+    "watchedTeamspace": "Wszystkie strony tej przestrzeni zespołu · {workspace}",
+    "stopWatching": "Przestań obserwować"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

@@ -17,6 +17,10 @@
     "accessRequests": "{count, plural, one {# Zugriffsanfrage} other {# Zugriffsanfragen}}",
     "addFavorite": "Zu Favoriten hinzufügen",
     "removeFavorite": "Aus Favoriten entfernen",
+    "follow": "Folgen",
+    "unfollow": "Nicht mehr folgen",
+    "followHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Zeile ändert.",
+    "unfollowHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Zeile ändert.",
     "linkCopied": "Link kopiert",
     "duplicate": "Duplizieren",
     "duplicateSuffix": " (Kopie)",
@@ -53,7 +57,11 @@
     "deleteTemplate": "Vorlage löschen",
     "exportDisabled": "Export ist ausgeschaltet",
     "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet.",
-    "showInGraph": "Im Graphen zeigen"
+    "showInGraph": "Im Graphen zeigen",
+    "watch": "Beobachten",
+    "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt.",
+    "mute": "Stummschalten",
+    "muteHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt. Schalte sie stumm, um das zu beenden."
   },
   "comments": {
     "aboutPage": "Zu dieser Seite",
@@ -388,6 +396,11 @@
       "subtext": "Ein Link zu einer anderen Seite mit ihrem aktuellen Titel",
       "aliases": "link page mention reference seite verweis erwähnung verknüpfung"
     },
+    "syncedPage": {
+      "title": "Synchronisierte Seite",
+      "subtext": "Der Inhalt einer anderen Seite, live und hier bearbeitbar",
+      "aliases": "synchron synchronisiert spiegeln einbetten seite synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Farben",
       "text": "Text: {color}",
@@ -455,6 +468,7 @@
     "noAccess": "Kein Zugriff",
     "deleted": "Gelöschte Seite",
     "loading": "Wird geladen…",
+    "atBlock": "Öffnet die Seite an einem Block",
     "personLeft": "{name} (nicht mehr im Workspace)",
     "date": "Datum",
     "reminder": "Erinnerung",
@@ -472,6 +486,11 @@
     "search": "Seiten suchen…",
     "empty": "Keine Seiten gefunden",
     "failed": "Seiten konnten nicht geladen werden."
+  },
+  "syncedPage": {
+    "label": "Synchronisierte Seite",
+    "viewOnly": "Nur ansehen",
+    "cycle": "Diese Seite wird weiter oben schon gezeigt, hier steht nur ein Link."
   },
   "backlinks": {
     "title": "Verlinkt von",

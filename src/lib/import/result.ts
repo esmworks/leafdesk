@@ -28,6 +28,8 @@ export const IMPORT_ERROR_CODES = [
   "badDocx",
   /** A Word document (`name`) too large or too complex to read as one page in time. */
   "docxTooComplex",
+  /** The file isn't a Trello board's JSON export. */
+  "badTrello",
   /** Merging: no column goes to a property, or two go to the same one. */
   "badMapping",
   /** The destination is missing, in the trash or not editable, or not a database when merging. */

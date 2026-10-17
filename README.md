@@ -24,8 +24,8 @@ after you approve them over OAuth.
   what it may read or change; optional AI writing, AI properties, a chat that remembers what you
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
-- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Markdown files,
-  Word documents, a folder or CSV.
+- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
+  Markdown files, Word documents, a folder or CSV.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -63,14 +63,21 @@ versions, upgrades and running behind a domain.
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
   title has the words come first; past the first 80,000 characters of a huge page's text, words
   aren't found), and also by meaning when the server has an embeddings model
-  (see [Semantic search](#semantic-search)).
-- **Home page**: quick buttons for a new page, database or template; the database rows assigned
-  to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
-  and no date; and the pages edited last.
+  (see [Semantic search](#semantic-search)). Full-text search also looks inside the PDFs and
+  Word documents a page shows, with or without an embeddings model: a page is found when one of
+  its documents has every word, after the pages that have them in their own text, and the result
+  names the document, with the text around the words. Only documents the page's readers may open
+  through it count, as for semantic search; a document's first 80,000 characters are searched,
+  and a scan without a text layer has no words to find.
+- **Home page**: quick buttons for a new page, database or template; today's daily note (or a
+  button that starts it) and the few before it; the database rows assigned to you that aren't done
+  and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
+  pages edited last.
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
-  `type:page`, `type:database` or `type:row` (database rows); filters work without words too,
+  `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes);
+  filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
   results puts each of these into the box. The words you typed show in bold in the text under each
@@ -248,6 +255,13 @@ versions, upgrades and running behind a domain.
   owner's approval in the inbox; signed events from the service can start agents, whose every call
   waits for approval unless an owner trusts what that trigger's service sends (see
   [Connections](#connections)).
+- **Daily notes**: one page of your own for each day. *Today* in the sidebar (or on the home page)
+  opens today's note, made the first time, in your own time zone; the calendar beside it marks the
+  days that have a note and opens any day's, and a date mention's menu has *Open that day's note*.
+  Notes live under *Journal*, a private page of yours (newest day first), so nobody else sees them
+  unless you share one. New notes start with a few headings, blank, or from one of the workspace's
+  page templates, as you pick at the bottom of the calendar. A note in the trash no longer counts:
+  opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker or a
   wins log (a dashboard of wins by month, type, area and impact over the database that holds them).
@@ -264,7 +278,16 @@ versions, upgrades and running behind a domain.
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
   that write the page's title without linking to it, with a button that turns that text into a
   mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
-  "Copy link to block" in a block's menu gives a link that opens the page at that block.
+  "Copy link to block" in a block's menu gives a link that opens the page at that block,
+  highlighted, in the editor, on published pages and in the print view; pasted into a page it
+  becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API
+  keeps it as `[Title](/w/<workspace>/p/<page>#block-<id>)`.
+- **Synced pages**: a block that shows another page's body inside this one, live. People who may
+  edit that page edit it right there, alongside everyone else on either page; people who may only
+  view it read it; people who can't open it see "No access", as a mention shows them. Its text
+  stays that page's own: search, history and Markdown of the page showing it hold one line for it,
+  a page showing itself (or a loop of pages) is shown once with a link, and published pages show
+  the block as a link.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as
@@ -274,9 +297,22 @@ versions, upgrades and running behind a domain.
   database rows and pages without connections.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
-  database automation notifies you, and when a reminder you set is due, with an email a little later.
-  Owners also find there an agent's call waiting for approval and the notes an agent's run proposed
-  for its memory. A comment notification opens the page with that thread selected. Snooze an item
+  database automation notifies you, when someone else changes a row you follow, and when a reminder
+  you set is due, with an email a little later. You follow the database rows you created, are
+  assigned to through a person property, commented on or were mentioned on; *Follow* and *Stop
+  following* in a row's page menu change that for any row you can open. A row's update waits until
+  its author has left the row alone for a minute (ten minutes at most), so a burst of edits is one
+  item, and says what changed: "Status: To do → Done", a new title, edited text. You hear only about
+  the properties you may see in the row, checked again when the inbox or the email shows it, and
+  never about your own changes. Pages work the same way: you watch the pages you created or edited,
+  and anyone can *Watch* or *Mute* a page from its ⋯ menu, or watch every page of a teamspace from
+  the teamspace's menu in the sidebar; a mute wins over all of these. Watchers hear when someone else
+  edits the page (once the author has left it alone for two minutes, fifteen at most) and when a
+  new comment thread starts on it, unless they have the page open at the time. Emails about the
+  same page come at most every four hours, and after five in a day the rest wait and come together
+  in one digest. My account → Preferences lists the pages and teamspaces you watch. Owners also
+  find there an agent's call waiting for approval and the notes an agent's run proposed for its
+  memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
@@ -367,7 +403,7 @@ versions, upgrades and running behind a domain.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](#file-uploads)). Uploaded PDFs show
-  in place.
+  in place, and search finds pages by the words of the PDFs and Word documents they show.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -412,6 +448,19 @@ versions, upgrades and running behind a domain.
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Trello**: in Trello, choose *Print, export and share → Export as JSON* in the
+  board's menu, and pick the downloaded file on Import's Trello tab. The board becomes a database
+  that opens on a board view grouped by list: lists become a select property in the board's order,
+  labels a multi-select in the nearest colors, members people when exactly one person in the
+  workspace has their name (the export has no email addresses) and text otherwise, start and due
+  dates one date (a range when both are set), checklists one checklist per card, and custom fields
+  properties of their own type. A card's description becomes its row's body, followed by its other
+  attachments and its comments, each under its author and time (comments can't be posted in
+  someone else's name). Links between cards lead to the imported rows. Nothing is downloaded from
+  Trello: the first linked attachment goes in a Link property, files uploaded to Trello stay links
+  to Trello, and images in descriptions become links. Archived lists and cards are left out and
+  counted before importing. Trello's export holds only a board's more recent actions, so the oldest
+  comments of a busy board may be missing.
 - **Workspaces and members**: add people by email (several at once) as owners or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
@@ -746,7 +795,7 @@ in production builds over HTTPS (or `localhost`), not under `pnpm dev`. On iPhon
 delivers push only to the installed app (Add to Home Screen).
 
 A push message carries only what the inbox shows for the notification (the page's name, who did
-what), checked against the recipient's access like the inbox, in their language. It is encrypted
+what; for a followed row, the names of the values that changed, not what they changed to), checked against the recipient's access like the inbox, in their language. It is encrypted
 for the browser, and push services keep it a day at most. A device's subscription belongs to the
 sign-in it was made in: signing out, or the session being revoked or running out, stops it. The
 endpoints come from browsers, so the server sends only to public https addresses on port 443,
@@ -1563,9 +1612,13 @@ respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out o
 indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
 chat can answer from a document and cite it. A document is read once and its text kept in
 `file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
-page, files over 25 MB are skipped, and a scan without a text layer adds nothing. A page indexes
-only the files its readers may open through it. Their text is sent to the embeddings endpoint
-like the page's own.
+page, files over 25 MB are skipped, and a scan without a text layer adds nothing. Full-text search
+reads the same text for any PDF or Word document a page shows, also one it only links to.
+Documents are read whether or not the server has an embeddings model, since full-text search finds
+pages by their words too: in the background after they are uploaded, and those uploaded before
+search read them (or while the server was down) a couple of hundred at a time by a sweep that a
+workspace's searches start, at most every 10 minutes. A page indexes only the files its readers
+may open through it. Their text is sent to the embeddings endpoint like the page's own.
 
 **Access** is never stored in the index: every search filters the chunks to the pages the person
 can open right now (`page_access_level`) before ranking them, so guests only find what was shared
@@ -1951,7 +2004,7 @@ to treat it as data, never as instructions.
 
 The tools cover:
 
-- **Finding things:** `list_workspaces`, `list_teamspaces`, `search`, `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
+- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs and Word documents pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
 - **Workspace health:** `check_workspace` lists broken links, pages nothing links to, empty and
   long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
   that fix each (it changes nothing itself).
@@ -1981,6 +2034,9 @@ The tools cover:
   first; a value AI autofill filled in has `actor: "ai"`, with the person it was worked out for in
   `by`.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
+- **Daily notes:** `get_or_create_daily_note` opens the user's note for a day (`date`, or today in
+  `time_zone`), making it as the app would; `list_daily_notes` lists them newest first, from one day
+  to another. Read-only apps can list notes but not make one.
 - **Skills:** `list_skills`, `get_skill`, `set_skill`; every skill is also a prompt of its name
   (see [Skills](#skills)).
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
@@ -1988,6 +2044,8 @@ The tools cover:
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date (see `src/lib/mentions.ts`).
 - **Inbox:** `list_notifications`, when the user also grants the `notifications:read` permission.
+  `watch_page` watches or mutes a page (follows or stops following a row); `get_page` shows
+  `watching`.
 - **Files:** `attach_file` uploads an image, video, audio or other file to a page (or, with
   `property`, to a row's files & media property) from a public URL or base64 data, when the user
   also grants the `files:write` permission. Files properties can only be set to files already
@@ -2073,6 +2131,9 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
 
 - **Account and workspaces:** `GET /me`, `GET /workspaces`, `GET /workspaces/{id}/teamspaces`, `GET /workspaces/{id}/groups`,
   `GET /workspaces/{id}/pages` (`teamspace_id` narrows it to one teamspace, or `private`).
+  `GET /workspaces/{id}/daily-notes` lists the user's daily notes (`from`, `to`, `limit`) and
+  `POST /workspaces/{id}/daily-notes` opens one (`date`, or today in `time_zone`), making it when
+  missing; `created` says which.
   `POST /pages` and `POST /pages/{id}/move` take a `teamspace_id` for top-level pages, as the MCP
   tools do.
 - **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, cover,
@@ -2151,7 +2212,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
@@ -2244,7 +2305,7 @@ It also lists the settings that matter when you run Leafdesk on a server.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian is a trademark of its owner; Leafdesk is not
-affiliated with it either, and names it only to describe what it imports. The names and logos of
+alternative to and what it imports from. Obsidian and Trello are trademarks of their owners;
+Leafdesk is not affiliated with them either, and names them only to describe what it imports. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

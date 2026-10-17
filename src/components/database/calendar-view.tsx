@@ -10,6 +10,7 @@ import {
   calendarEvent,
   dayBlocks,
   eventsOn,
+  firstDayOfWeek,
   isAllDay,
   MINUTES_PER_DAY,
   monthWeeks,
@@ -42,24 +43,6 @@ type RowEvent = CalendarEvent & { row: Row };
 
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
-
-/** Where engines have no week info: Sunday or Saturday where weeks start then, else Monday. */
-const FIRST_DAY: Record<string, number> = { en: 0, pt: 0, he: 0, ja: 0, ko: 0, ar: 6, fa: 6 };
-
-/** First weekday of the locale as a `getUTCDay()` index (0 = Sunday). */
-function firstDayOfWeek(locale: string) {
-  try {
-    const l = new Intl.Locale(locale) as Intl.Locale & {
-      getWeekInfo?: () => { firstDay: number };
-      weekInfo?: { firstDay: number };
-    };
-    const first = l.getWeekInfo?.().firstDay ?? l.weekInfo?.firstDay;
-    if (first) return first % 7;
-  } catch {
-    // Older engines without week info fall through to the default below.
-  }
-  return FIRST_DAY[locale.split("-")[0]] ?? 1;
-}
 
 /**
  * Rows on the days of a date property: a month of days, or a week with its hours. A date over

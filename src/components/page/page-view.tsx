@@ -149,19 +149,6 @@ export function PageView({
   useEffect(() => setIcon(page.icon), [page.icon]);
   useEffect(() => setLockedNow(info.locked), [info.locked]);
   useEffect(() => setSkillNow(info.skill), [info.skill]);
-  // Unlocked (as the server says): sync again, so edits the lock held back, made offline or as it
-  // came in, reach the server now that its connection takes them.
-  const wasLocked = useRef(info.locked);
-  useEffect(() => {
-    if (wasLocked.current && !info.locked) pageDoc?.provider.forceSync();
-    wasLocked.current = info.locked;
-  }, [info.locked, pageDoc]);
-  // Restored from the trash: the same, for what its connection refused while the page was there.
-  const wasArchived = useRef(page.archived);
-  useEffect(() => {
-    if (wasArchived.current && !page.archived) pageDoc?.provider.forceSync();
-    wasArchived.current = page.archived;
-  }, [page.archived, pageDoc]);
   useEffect(() => setBackground(page.background), [page.background]);
   // A link to one of the page's threads (`#comment-<id>`) opens the comments; the panel selects it.
   useEffect(() => {

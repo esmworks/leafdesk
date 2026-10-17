@@ -1,11 +1,12 @@
 {
   "open": "가져오기",
   "title": "가져오기",
-  "description": "Markdown 파일, ZIP 내보내기, Word 문서에서 페이지를 가져오거나 CSV 파일 또는 Excel 통합 문서에서 행을 가져옵니다.",
+  "description": "Markdown 파일, ZIP 내보내기, Word 문서에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, 또는 Trello 보드를 가져옵니다.",
   "tabs": {
     "pages": "Markdown 및 ZIP",
     "docx": "Word",
-    "csv": "CSV 및 Excel"
+    "csv": "CSV 및 Excel",
+    "trello": "Trello"
   },
   "destination": "넣을 위치",
   "topLevel": "워크스페이스 최상위",
@@ -45,6 +46,25 @@
     "noDatabases": "행을 추가할 수 있는 데이터베이스가 없습니다.",
     "cantLoad": "이 데이터베이스의 속성을 불러올 수 없습니다.",
     "newOptions": "데이터베이스에 아직 없는 선택 값은 옵션으로 추가됩니다."
+  },
+  "trello": {
+    "help": "Trello에서 보드 메뉴를 열고 인쇄, 내보내기 및 공유 → JSON으로 내보내기를 선택한 다음 다운로드한 파일을 고르세요. 보드는 보드 보기가 있는 데이터베이스가 되며 목록, 레이블, 멤버, 날짜, 체크리스트, 사용자 지정 필드, 설명, 댓글도 함께 가져옵니다. 보관된 목록과 카드는 가져오지 않습니다.",
+    "attachments": "Trello에서 아무것도 다운로드하지 않습니다. 링크 첨부는 링크로 남고, Trello에 업로드된 파일은 각 카드 페이지에서 링크됩니다.",
+    "choose": "Trello 내보내기 선택(.json)",
+    "summary": "{name}: 목록 {lists}개, 카드 {cards}개",
+    "archived": "보관되어 가져오지 않음: 목록 {lists}개, 카드 {cards}개.",
+    "names": {
+      "list": "목록",
+      "labels": "레이블",
+      "members": "멤버",
+      "otherMembers": "기타 멤버",
+      "dates": "날짜",
+      "complete": "완료",
+      "checklist": "체크리스트",
+      "link": "링크",
+      "attachments": "첨부 파일",
+      "comments": "댓글"
+    }
   },
   "import": "가져오기",
   "importing": "가져오는 중…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "비밀번호가 없는 .xlsx 통합 문서만 가져올 수 있습니다. 파일을 비밀번호 없이 Excel 통합 문서(.xlsx)로 저장한 다음 다시 시도하세요.",
     "badDocx": "“{name}”을(를) Word 문서로 읽을 수 없습니다. .docx 파일만 가져올 수 있으니, 이전 .doc 파일은 먼저 .docx로 저장하세요.",
     "docxTooComplex": "“{name}”은(는) 한 페이지로 가져오기에 너무 크거나 복잡합니다.",
+    "badTrello": "이 파일은 Trello 보드 내보내기가 아닙니다. Trello의 보드 메뉴에서 JSON으로 내보내기를 선택한 후 그 파일을 고르세요.",
     "badMapping": "적어도 한 열의 대상을 선택하고, 각 속성은 한 번만 선택하세요.",
     "noAccess": "그곳에 페이지를 추가할 수 없거나 더 이상 존재하지 않습니다.",
     "notADatabase": "행은 데이터베이스에만 추가할 수 있습니다.",

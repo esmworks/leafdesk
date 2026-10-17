@@ -53,6 +53,7 @@
     "noResults": "无结果",
     "semantic": "语义相近",
     "semanticHint": "按含义找到：用词与你的搜索不同。",
+    "inDocument": "在此页面的文档 {name} 中找到",
     "recent": "最近编辑",
     "commands": "命令",
     "noCommands": "没有匹配的命令",
@@ -89,6 +90,12 @@
     "accessRequest": "{actor} 申请访问此页面",
     "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
     "automationDatePassed": "自动化“{name}”：这一行的日期已到",
+    "rowUpdate": "{actor} 更改了这一行",
+    "pageUpdated": "{actor} 编辑了此页面",
+    "rowChange": "<prop>{property}</prop>：<old>{from}</old> → <new>{to}</new>",
+    "rowTitle": "标题",
+    "rowChangesMore": "{count, plural, other {还有 # 处更改}}",
+    "rowBodyChanged": "编辑了正文",
     "someone": "有人",
     "unread": "未读",
     "snooze": "稍后提醒",
@@ -141,7 +148,11 @@
     "leave": "离开团队空间",
     "confirmLeave": "要离开 {name} 吗？其页面将从你的侧边栏中移除。除非该团队空间是开放的，否则你也将失去对这些页面的访问权限。",
     "empty": "还没有页面。添加一个",
-    "another": "另一个团队空间"
+    "another": "另一个团队空间",
+    "watch": "关注所有页面",
+    "watchHint": "其他人编辑此团队空间的页面或在其中发起评论串时，在收件箱中收到通知。",
+    "unwatch": "停止关注页面",
+    "unwatchHint": "你会收到此团队空间所有页面的编辑和新评论串通知，已静音的页面除外。"
   },
   "sections": {
     "shared": "共享",

@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
-import { boolean, check, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { RowUpdate } from "../../lib/row-updates";
 import { agentRun } from "./agents";
-import { databaseProperty, page, workspace, workspaceJoinRequest } from "./app";
+import { databaseProperty, page, teamspace, workspace, workspaceJoinRequest } from "./app";
 import { session, user } from "./auth";
 import { databaseAutomation } from "./automations";
 import { accessRequest } from "./permissions";
@@ -49,6 +50,14 @@ export const userPreference = pgTable("user_preference", {
   automationEmails: boolean("automation_emails").notNull().default(true),
   /** Show what database automations tell me in my inbox. */
   automationInbox: boolean("automation_inbox").notNull().default(true),
+  /** Email me when someone changes a database row I follow. */
+  rowUpdateEmails: boolean("row_update_emails").notNull().default(true),
+  /** Show changes to the database rows I follow in my inbox. */
+  rowUpdateInbox: boolean("row_update_inbox").notNull().default(true),
+  /** Email me when someone edits a page I watch (throttled, see server/page-watch.ts). */
+  pageUpdateEmails: boolean("page_update_emails").notNull().default(true),
+  /** Show edits to the pages I watch in my inbox. */
+  pageUpdateInbox: boolean("page_update_inbox").notNull().default(true),
   /**
    * Push notifications per kind, to the devices that turned them on (see push_subscription). They
    * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
@@ -62,6 +71,8 @@ export const userPreference = pgTable("user_preference", {
   accessRequestPush: boolean("access_request_push").notNull().default(true),
   joinRequestPush: boolean("join_request_push").notNull().default(true),
   automationPush: boolean("automation_push").notNull().default(true),
+  rowUpdatePush: boolean("row_update_push").notNull().default(true),
+  pageUpdatePush: boolean("page_update_push").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -110,6 +121,131 @@ export const rowReminder = pgTable(
   (t) => [primaryKey({ columns: [t.rowId, t.propertyId, t.date] })],
 );
 
+/**
+ * Who follows a database row besides those who do by being part of it (see server/row-follow.ts):
+ * people who commented or were mentioned on it, or chose to follow it (`following`), and people who
+ * chose not to (`following` false), which wins over everything else, its creator and the people
+ * its person properties name included.
+ */
+export const rowFollower = pgTable(
+  "row_follower",
+  {
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    following: boolean("following").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.rowId, t.userId] }), index("row_follower_user_idx").on(t.userId)],
+);
+
+/**
+ * Changes to a database row waiting out their delay before its followers hear about them (see
+ * server/row-follow.ts): one per row and person who changed it, so a burst of edits becomes one
+ * notification. Kept in the database so a restart doesn't lose them.
+ */
+export const pendingRowUpdate = pgTable(
+  "row_update_pending",
+  {
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    actorId: text("actor_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** What they changed so far, values masked like the row's activity. */
+    changes: jsonb("changes").$type<RowUpdate>().notNull(),
+    /** The actor's interface language when they made the first change, for the emails. */
+    locale: text("locale"),
+    firstAt: timestamp("first_at", { withTimezone: true }).notNull().defaultNow(),
+    dueAt: timestamp("due_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.rowId, t.actorId] }), index("row_update_pending_due_idx").on(t.dueAt)],
+);
+
+/**
+ * Who watches a page besides its creator and the people watching its teamspace (see
+ * server/page-watch.ts): people who chose to watch it or edited it (`watching`), and people who
+ * muted it (`watching` false), which wins over everything else, being its creator included.
+ * Database rows aren't watched: they are followed (row_follower).
+ */
+export const pageWatch = pgTable(
+  "page_watch",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    watching: boolean("watching").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.userId] }), index("page_watch_user_idx").on(t.userId)],
+);
+
+/** People who watch every page of a teamspace, unless they muted the page (see server/page-watch.ts). */
+export const teamspaceWatch = pgTable(
+  "teamspace_watch",
+  {
+    teamspaceId: text("teamspace_id")
+      .notNull()
+      .references(() => teamspace.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.teamspaceId, t.userId] }), index("teamspace_watch_user_idx").on(t.userId)],
+);
+
+/**
+ * Edits to a page waiting out their delay before its watchers hear about them (see
+ * server/page-watch.ts): one per page and person who edited it, so a session of writing becomes one
+ * notification. Kept in the database so a restart doesn't lose them.
+ */
+export const pendingPageUpdate = pgTable(
+  "page_update_pending",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    actorId: text("actor_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** The actor's interface language when they made the first change, for the emails. */
+    locale: text("locale"),
+    firstAt: timestamp("first_at", { withTimezone: true }).notNull().defaultNow(),
+    dueAt: timestamp("due_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.actorId] }), index("page_update_pending_due_idx").on(t.dueAt)],
+);
+
+/**
+ * Page-update emails that went out (see server/share-emails.ts), for their cooldown per page and
+ * their daily cap per person: one per page an email was about, those of one digest sharing `sentAt`.
+ * Kept for a day or two.
+ */
+export const pageUpdateEmail = pgTable(
+  "page_update_email",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("page_update_email_user_idx").on(t.userId, t.sentAt)],
+);
+
 export const NOTIFICATION_KINDS = [
   "assignment",
   "page_shared",
@@ -119,6 +255,8 @@ export const NOTIFICATION_KINDS = [
   "access_request",
   "join_request",
   "automation",
+  "row_update",
+  "page_updated",
   "agent_approval",
   "agent_memory",
   "agent_report",
@@ -141,7 +279,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * access to (request `accessRequestId`); answered by anyone, it goes away, read or not.
  * "join_request": `actorId` asked to join (or to invite someone), request `joinRequestId`, which
  * waits for the workspace's owners; it has no page. "automation": automation `automationId` told the
- * user about row `pageId`, which `actorId` added or changed. "agent_approval": agent `actorId`'s run
+ * user about row `pageId`, which `actorId` added or changed. "row_update": `actorId` changed row
+ * `pageId`, which the user follows; `changes` says what. "page_updated": `actorId` (the latest of
+ * them) edited page `pageId`, which the user watches. "agent_approval": agent `actorId`'s run
  * `agentRunId` waits for an owner to approve a call to a connection's tool; it has no page, and goes
  * away once anyone answers or the call runs out of time. "agent_memory": agent `actorId`'s run
  * `agentRunId` proposed notes for its memory (server/agents/memory.ts); one per owner and run, with
@@ -198,6 +338,11 @@ export const notification = pgTable(
      * `createdAt`) and is pushed again. Null otherwise.
      */
     snoozedUntil: timestamp("snoozed_until", { withTimezone: true }),
+    /**
+     * Row updates: what `actorId` changed, only the values the user could see when it was told
+     * (the inbox checks again), masked like the row's activity.
+     */
+    changes: jsonb("changes").$type<RowUpdate>(),
   },
   (t) => [
     index("notification_inbox_idx").on(t.userId, t.workspaceId, t.createdAt),

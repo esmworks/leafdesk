@@ -1,6 +1,9 @@
 "use client";
 
 import {
+  Bell,
+  BellOff,
+  CalendarCheck,
   ChevronDown,
   ChevronRight,
   ChevronsLeft,
@@ -38,12 +41,13 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransit
 import { unreadCountAction } from "@/app/actions/notifications";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
-import { leaveTeamspaceAction } from "@/app/actions/teamspaces";
+import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import type { FavoritePage } from "@/server/page-meta";
 import { useChannel } from "@/components/collab/use-channel";
 import { ViewIcon } from "@/components/database/property-icons";
 import { markNewPage } from "@/components/page/new-page-focus";
+import { DailyNotesCalendarButton, useOpenDailyNote } from "@/components/journal/daily-notes";
 import { cn, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { PageKind } from "@/db/schema/app";
@@ -188,6 +192,8 @@ export function Sidebar({
   const aiChat = useAiChat();
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
   const tAi = useTranslations("ai.chat");
+  const tJournal = useTranslations("journal");
+  const { open: openDailyNote, pending: openingDailyNote, error: dailyNoteError } = useOpenDailyNote(workspaceId);
   const tOffline = useTranslations("offline");
   const tShortcuts = useTranslations("shortcuts");
   /** Tooltip for a control that needs the server while it can't be reached. */
@@ -516,6 +522,16 @@ export function Sidebar({
     });
   }
 
+  // Watching a teamspace watches all its pages (server/page-watch).
+  function watch(ts: TeamspaceSummary) {
+    setActionError(null);
+    startTransition(async () => {
+      const result = await setTeamspaceWatchingAction(workspaceId, ts.id, !ts.watching);
+      if (!result.ok) setActionError(result.error);
+      refresh();
+    });
+  }
+
   function openTemplates(target: Target) {
     setDialogTarget(target);
     setTemplatesOpen(true);
@@ -689,6 +705,7 @@ export function Sidebar({
               onCreate={() => create(null, "page", ts.id)}
               onEdit={ts.canManage ? () => setTeamspaceDialog({ teamspace: ts }) : undefined}
               onLeave={ts.canLeave ? () => leave(ts) : undefined}
+              onWatch={() => watch(ts)}
               tree={treeProps}
             />
           ))}
@@ -1058,6 +1075,29 @@ export function Sidebar({
                   </Link>
                 ))}
             </div>
+            {/* Daily notes are private top-level pages, so only for those who may add them. */}
+            {topLevel && (
+              <DailyNotesCalendarButton
+                workspaceId={workspaceId}
+                disabled={offline}
+                title={offline ? needsServer(tJournal("calendar")) : undefined}
+                leading={
+                  <SidebarButton
+                    icon={<CalendarCheck className="h-4 w-4" />}
+                    onClick={() => openDailyNote()}
+                    disabled={offline || openingDailyNote}
+                    title={offline ? needsServer(tJournal("openToday")) : tJournal("openToday")}
+                  >
+                    {tJournal("today")}
+                  </SidebarButton>
+                }
+              />
+            )}
+            {dailyNoteError && (
+              <p role="alert" className="px-2 text-xs text-danger">
+                {dailyNoteError}
+              </p>
+            )}
           </div>
         </div>
 
@@ -1144,6 +1184,7 @@ export function Sidebar({
                 { id: "new-page", label: t("pages.newPage"), icon: <FileText className="h-4 w-4" />, run: () => create(null, "page", undefined) },
                 { id: "new-database", label: t("pages.newDatabase"), icon: <Database className="h-4 w-4" />, run: () => create(null, "database", undefined) },
                 { id: "templates", label: t("pages.fromTemplate"), icon: <LayoutTemplate className="h-4 w-4" />, run: () => openTemplates(undefined) },
+                { id: "today", label: tJournal("openToday"), icon: <CalendarCheck className="h-4 w-4" />, run: () => openDailyNote() },
               ]
             : []),
           ...(!offline
@@ -1353,6 +1394,7 @@ function TeamspaceSection({
   onCreate,
   onEdit,
   onLeave,
+  onWatch,
   tree,
 }: {
   teamspace: TeamspaceSummary;
@@ -1363,6 +1405,7 @@ function TeamspaceSection({
   onCreate: () => void;
   onEdit?: () => void;
   onLeave?: () => void;
+  onWatch: () => void;
   tree: TreeContext;
 }) {
   const t = useTranslations("sidebar");
@@ -1425,6 +1468,17 @@ function TeamspaceSection({
                   }}
                 >
                   {t("teamspaces.members")}
+                </MenuItem>
+                <MenuItem
+                  icon={teamspace.watching ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                  title={t(teamspace.watching ? "teamspaces.unwatchHint" : "teamspaces.watchHint")}
+                  disabled={tree.offline}
+                  onClick={() => {
+                    close();
+                    onWatch();
+                  }}
+                >
+                  {t(teamspace.watching ? "teamspaces.unwatch" : "teamspaces.watch")}
                 </MenuItem>
                 {onLeave && (
                   <>

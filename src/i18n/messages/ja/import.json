@@ -1,11 +1,12 @@
 {
   "open": "インポート",
   "title": "インポート",
-  "description": "MarkdownファイルやZIPのエクスポート、Word文書からページを、CSVファイルやExcelブックから行を取り込みます。",
+  "description": "Markdownファイル、ZIPエクスポート、Word文書からページを、CSVファイルやExcelブックから行を、またはTrelloのボードを取り込みます。",
   "tabs": {
     "pages": "MarkdownとZIP",
     "docx": "Word",
-    "csv": "CSVとExcel"
+    "csv": "CSVとExcel",
+    "trello": "Trello"
   },
   "destination": "配置先",
   "topLevel": "ワークスペースの最上位",
@@ -45,6 +46,25 @@
     "noDatabases": "行を追加できるデータベースがありません。",
     "cantLoad": "このデータベースのプロパティを読み込めませんでした。",
     "newOptions": "データベースにまだないセレクトの値は、オプションとして追加されます。"
+  },
+  "trello": {
+    "help": "Trelloでボードのメニューを開き、「印刷、エクスポート、共有」→「JSONとしてエクスポート」を選んで、ダウンロードしたファイルを選択してください。ボードはボードビュー付きのデータベースになり、リスト、ラベル、メンバー、日付、チェックリスト、カスタムフィールド、説明、コメントも取り込まれます。アーカイブ済みのリストとカードは取り込まれません。",
+    "attachments": "Trelloからは何もダウンロードしません。リンクの添付はリンクのまま残り、Trelloにアップロードされたファイルは各カードのページからリンクされます。",
+    "choose": "Trelloのエクスポートを選択（.json）",
+    "summary": "{name}：リスト{lists}個、カード{cards}枚",
+    "archived": "アーカイブ済みのため取り込まれません：リスト{lists}個、カード{cards}枚。",
+    "names": {
+      "list": "リスト",
+      "labels": "ラベル",
+      "members": "メンバー",
+      "otherMembers": "その他のメンバー",
+      "dates": "日付",
+      "complete": "完了",
+      "checklist": "チェックリスト",
+      "link": "リンク",
+      "attachments": "添付ファイル",
+      "comments": "コメント"
+    }
   },
   "import": "インポート",
   "importing": "インポート中…",
@@ -98,6 +118,7 @@
     "unsupportedWorkbook": "インポートできるのは、パスワードのない.xlsxブックだけです。ファイルをパスワードなしのExcelブック（.xlsx）として保存し、もう一度お試しください。",
     "badDocx": "「{name}」をWord文書として読み取れません。インポートできるのは.docxファイルだけです。古い.docファイルは先に.docxとして保存してください。",
     "docxTooComplex": "「{name}」は大きすぎるか複雑すぎるため、1ページとしてインポートできません。",
+    "badTrello": "このファイルはTrelloのボードのエクスポートではありません。Trelloでボードのメニューから「JSONとしてエクスポート」を選び、そのファイルを選択してください。",
     "badMapping": "少なくとも1つの列の取り込み先を選択し、各プロパティは1回だけ使ってください。",
     "noAccess": "そこにはページを追加できないか、すでに存在しません。",
     "notADatabase": "行はデータベースにしか追加できません。",

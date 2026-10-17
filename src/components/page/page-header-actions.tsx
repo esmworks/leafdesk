@@ -2,6 +2,8 @@
 
 import {
   ArrowRightLeft,
+  Bell,
+  BellOff,
   Copy,
   CornerUpLeft,
   Download,
@@ -34,7 +36,9 @@ import {
   getPageHeaderAction,
   setDatabaseLockedAction,
   setFavoriteAction,
+  setFollowingAction,
   setPageLockedAction,
+  setWatchingAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
 import { setSkillAction } from "@/app/actions/skills";
@@ -438,6 +442,34 @@ function PageMenu({
     });
   };
 
+  // Followers of a database row hear about others' changes to it in their inbox (server/row-follow).
+  const toggleFollowing = (close: () => void) =>
+    startTransition(async () => {
+      setError(null);
+      const following = !info.following;
+      try {
+        await setFollowingAction(page.id, following);
+        onInfo({ ...info, following });
+        close();
+      } catch {
+        setError(t("actionFailed"));
+      }
+    });
+
+  // Watchers of a page hear about others' edits and new comment threads in their inbox (server/page-watch).
+  const toggleWatching = (close: () => void) =>
+    startTransition(async () => {
+      setError(null);
+      const watching = !info.watching;
+      try {
+        await setWatchingAction(page.id, watching);
+        onInfo({ ...info, watching });
+        close();
+      } catch {
+        setError(t("actionFailed"));
+      }
+    });
+
   const duplicate = (close: () => void) =>
     startTransition(async () => {
       setError(null);
@@ -508,6 +540,24 @@ function PageMenu({
             >
               {t("copyLink")}
             </MenuItem>
+            {info.following !== null && !page.archived && (
+              <MenuItem
+                icon={info.following ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                title={t(info.following ? "unfollowHint" : "followHint")}
+                onClick={() => toggleFollowing(close)}
+              >
+                {t(info.following ? "unfollow" : "follow")}
+              </MenuItem>
+            )}
+            {info.watching !== null && !page.archived && (
+              <MenuItem
+                icon={info.watching ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                title={t(info.watching ? "muteHint" : "watchHint")}
+                onClick={() => toggleWatching(close)}
+              >
+                {t(info.watching ? "mute" : "watch")}
+              </MenuItem>
+            )}
             {/* For the REST API and MCP clients, which take a page's, database's or row's id. */}
             <MenuItem
               icon={<Hash className="h-4 w-4" />}

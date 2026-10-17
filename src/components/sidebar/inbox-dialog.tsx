@@ -7,17 +7,19 @@ import { useEffect, useState } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
 import { listInboxAction, markReadAction, snoozeAction } from "@/app/actions/notifications";
 import { ApprovalActions } from "@/components/connections/approval-actions";
+import { Value } from "@/components/database/row-activity";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
 import { pushLink } from "@/lib/push";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
-import type { InboxAccessRequest, InboxItem } from "@/server/notifications";
+import type { InboxAccessRequest, InboxItem, InboxRowUpdate } from "@/server/notifications";
 
 /**
  * The workspace inbox: rows the user was assigned to, pages shared with them, comments, mentions,
- * reminders, requests for access to their pages, what database automations tell them and, for
+ * reminders, requests for access to their pages, what database automations tell them, what others
+ * changed in the rows they follow and, for
  * owners, join requests and agents' calls that wait for approval, newest first; opening one marks
  * it read. Access requests and agents' calls can be answered right here, and the others snoozed:
  * they leave the inbox and come back unread when the time is up.
@@ -181,6 +183,10 @@ export function InboxDialog({
                         ? t("mention", { actor: item.actorName || t("someone") })
                         : item.kind === "reminder"
                           ? t("reminder", { date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
+                          : item.kind === "row_update"
+                            ? t("rowUpdate", { actor: item.actorName || t("someone") })
+                          : item.kind === "page_updated"
+                            ? t("pageUpdated", { actor: item.actorName || t("someone") })
                           : item.kind === "automation"
                             ? item.reminderDate
                               ? t("automationDatePassed", { name: item.automationName ?? "" })
@@ -188,6 +194,7 @@ export function InboxDialog({
                             : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
                   {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
                 </span>
+                {item.rowUpdate && <RowUpdateChanges update={item.rowUpdate} />}
               </span>
               <time
                 dateTime={new Date(item.createdAt).toISOString()}
@@ -310,5 +317,42 @@ function AccessRequestActions({ request, onAnswered }: { request: InboxAccessReq
         </p>
       )}
     </div>
+  );
+}
+
+/** The most changes of a row update the inbox lists; the row's activity has all of them. */
+const MAX_ROW_CHANGES = 4;
+
+/** What a followed row's update changed: "Status: To do → Done", one line each, then whether the text. */
+function RowUpdateChanges({ update }: { update: InboxRowUpdate }) {
+  const t = useTranslations("sidebar.inbox");
+  const shown = update.changes.slice(0, MAX_ROW_CHANGES);
+  const more = update.changes.length - shown.length;
+  return (
+    <span className="mt-1 block space-y-0.5 text-xs leading-5 text-fg-muted">
+      {shown.map((change, i) => (
+        <span key={change.property?.id ?? `title-${i}`} className="block break-words">
+          {t.rich("rowChange", {
+            property: change.property?.name ?? t("rowTitle"),
+            // Isolated, so a name or value written the other way doesn't pull the arrow around.
+            prop: (chunks) => <bdi className="text-fg">{chunks}</bdi>,
+            old: () => (
+              <bdi>
+                <Value value={change.from} />
+              </bdi>
+            ),
+            new: () => (
+              <bdi>
+                <Value value={change.to} />
+              </bdi>
+            ),
+            from: "",
+            to: "",
+          })}
+        </span>
+      ))}
+      {more > 0 && <span className="block">{t("rowChangesMore", { count: more })}</span>}
+      {update.body && <span className="block">{t("rowBodyChanged")}</span>}
+    </span>
   );
 }

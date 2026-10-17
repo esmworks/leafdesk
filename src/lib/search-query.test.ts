@@ -19,6 +19,10 @@ describe("parseSearchQuery", () => {
     expect(parseSearchQuery("type:Database type:rows type:db type:page").kinds).toEqual(["database", "row", "page"]);
   });
 
+  it("takes type:journal (and daily) for daily notes", () => {
+    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"] });
+  });
+
   it("searches unknown filters, empty values and phrases as text", () => {
     expect(parseSearchQuery('foo:bar type:folder in: "a phrase" key:"two words"')).toEqual({
       text: "foo:bar type:folder in: a phrase two words",

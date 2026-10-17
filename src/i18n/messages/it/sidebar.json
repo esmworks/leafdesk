@@ -53,6 +53,7 @@
     "noResults": "Nessun risultato",
     "semantic": "Significato simile",
     "semanticHint": "Trovato in base al significato: le parole sono diverse dalla tua ricerca.",
+    "inDocument": "Trovato nel documento {name} di questa pagina",
     "recent": "Modificati di recente",
     "commands": "Comandi",
     "noCommands": "Nessun comando corrispondente",
@@ -89,6 +90,12 @@
     "accessRequest": "{actor} ha chiesto l’accesso a questa pagina",
     "automation": "Automazione “{name}”: {actor} ha aggiunto o modificato questa riga",
     "automationDatePassed": "Automazione “{name}”: è arrivata la data di questa riga",
+    "rowUpdate": "{actor} ha modificato questa riga",
+    "pageUpdated": "{actor} ha modificato questa pagina",
+    "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
+    "rowTitle": "Titolo",
+    "rowChangesMore": "{count, plural, one {e # altra modifica} other {e altre # modifiche}}",
+    "rowBodyChanged": "Ha modificato il testo",
     "someone": "Qualcuno",
     "unread": "Non letta",
     "snooze": "Posticipa",
@@ -141,7 +148,11 @@
     "leave": "Lascia lo spazio del team",
     "confirmLeave": "Lasciare {name}? Le sue pagine spariscono dalla tua barra laterale. Se lo spazio del team non è aperto, perdi anche l’accesso alle pagine.",
     "empty": "Ancora nessuna pagina. Aggiungine una",
-    "another": "un altro spazio del team"
+    "another": "un altro spazio del team",
+    "watch": "Osserva tutte le pagine",
+    "watchHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica una pagina di questo spazio del team o vi avvia una discussione.",
+    "unwatch": "Smetti di osservare le pagine",
+    "unwatchHint": "Ricevi avvisi su modifiche e nuove discussioni in ogni pagina di questo spazio del team, tranne quelle che hai silenziato."
   },
   "sections": {
     "shared": "Condivise",

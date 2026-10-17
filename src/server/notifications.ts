@@ -21,6 +21,9 @@ import {
 } from "@/db/schema";
 import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
+import type { PropertyType } from "@/lib/property-types";
+import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
+import { isEmptyRowUpdate, mergeRowUpdates, parseRowUpdate, visibleRowUpdate, type RowUpdate } from "@/lib/row-updates";
 import {
   FULL_RANK,
   findMembership,
@@ -32,12 +35,14 @@ import {
   workspaceRoleOf,
   workspacesHiddenFromApp,
 } from "@/server/access";
+import { loadLookups } from "@/server/activity-lookups";
 import { inboxProposals } from "@/server/agents/memory";
 import { agentUserIds, isAgentUser, notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
 import { mailStatus } from "@/server/mail";
 import { requestLocale } from "@/server/mail/locale";
 import { inboxKinds } from "@/server/notification-preferences";
+import { propertyAccessFor } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
 import { snippetOf } from "@/server/semantic-text";
 import { canInviteGuests } from "@/server/workspaces";
@@ -423,6 +428,89 @@ export async function withdrawJoinRequest(workspaceId: string, joinRequestId: st
   }
 }
 
+/**
+ * Tells followers of row `pageId` what `actorId` changed in it (see server/row-follow.ts), each
+ * about the changes given for them, and emails them right away (the changes already waited for
+ * the burst of edits to end). An unread update by the same person about the same row is folded in
+ * and moved up, so someone who doesn't look stays one line behind. Never throws.
+ */
+export async function recordRowUpdate(
+  actorId: string,
+  workspaceId: string,
+  pageId: string,
+  told: { userId: string; changes: RowUpdate }[],
+  locale: string | null,
+) {
+  const recipients = told.filter((t) => t.userId !== actorId);
+  if (!recipients.length) return;
+  try {
+    const emailDueAt = mailStatus() === "disabled" ? null : new Date();
+    const inserted = await db.transaction(async (tx) => {
+      const earlier = await tx
+        .delete(notification)
+        .where(
+          and(
+            eq(notification.kind, "row_update"),
+            eq(notification.pageId, pageId),
+            eq(notification.actorId, actorId),
+            inArray(notification.userId, recipients.map((r) => r.userId)),
+            isNull(notification.readAt),
+            // A snoozed one waits for its time as it is; this update comes on its own.
+            isNull(notification.snoozedUntil),
+          ),
+        )
+        .returning({ userId: notification.userId, changes: notification.changes });
+      const before = new Map(earlier.map((e) => [e.userId, parseRowUpdate(e.changes)]));
+      const values = recipients.flatMap(({ userId, changes }) => {
+        const merged = before.has(userId) ? mergeRowUpdates(before.get(userId)!, changes) : changes;
+        if (isEmptyRowUpdate(merged)) return [];
+        return [{ userId, workspaceId, kind: "row_update" as const, actorId, pageId, changes: merged, emailDueAt, emailLocale: locale }];
+      });
+      return values.length ? tx.insert(notification).values(values).returning({ id: notification.id }) : [];
+    });
+    signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("could not record row update notifications", error);
+  }
+}
+
+/**
+ * Tells watchers of page `pageId` that `actorId` edited it (see server/page-watch.ts), and queues
+ * the email about it, which server/share-emails.ts holds back to a cooldown per page and a daily
+ * cap. An unread update about the same page, by anyone, is replaced and moved up, so a page someone
+ * doesn't look at stays one line in their inbox. Never throws.
+ */
+export async function recordPageUpdate(actorId: string, workspaceId: string, pageId: string, userIds: string[], locale: string | null) {
+  const recipients = [...new Set(userIds)].filter((id) => id !== actorId);
+  if (!recipients.length) return;
+  try {
+    const emailDueAt = mailStatus() === "disabled" ? null : new Date();
+    const inserted = await db.transaction(async (tx) => {
+      await tx
+        .delete(notification)
+        .where(
+          and(
+            eq(notification.kind, "page_updated"),
+            eq(notification.pageId, pageId),
+            inArray(notification.userId, recipients),
+            isNull(notification.readAt),
+            // A snoozed one waits for its time as it is; this update comes on its own.
+            isNull(notification.snoozedUntil),
+          ),
+        );
+      return tx
+        .insert(notification)
+        .values(recipients.map((userId) => ({ userId, workspaceId, kind: "page_updated" as const, actorId, pageId, emailDueAt, emailLocale: locale })))
+        .returning({ id: notification.id });
+    });
+    signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("could not record page update notifications", error);
+  }
+}
+
 const unreadShare = (userId: string, pageId: string) =>
   and(
     eq(notification.kind, "page_shared"),
@@ -464,7 +552,19 @@ export type InboxItem = {
   memory: InboxAgentMemory | null;
   /** A scheduled run's report: how the run ended and what the agent said. */
   report: InboxAgentReport | null;
+  /** Row updates: what changed in the row, of what the user may see in it now. */
+  rowUpdate: InboxRowUpdate | null;
 };
+
+/** A change of a row someone follows, as the inbox shows it: "Status: To do → Done". */
+export type InboxRowChange = {
+  /** Null for the row's title. */
+  property: { id: string; name: string; type: PropertyType } | null;
+  from: ActivityValue;
+  to: ActivityValue;
+};
+
+export type InboxRowUpdate = { changes: InboxRowChange[]; body: boolean };
 
 export type InboxAgentReport = {
   runId: string;
@@ -599,6 +699,10 @@ export async function listNotifications(
       requestMessage: accessRequest.message,
       requesterRole: workspaceRoleOf(accessRequest.requesterId, accessRequest.workspaceId),
       agentRunId: notification.agentRunId,
+      rowDatabaseId: page.parentId,
+      rowCreatedBy: page.createdBy,
+      rowProperties: page.properties,
+      changes: notification.changes,
     })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
@@ -633,14 +737,18 @@ export async function listNotifications(
     return inviting.get(id)!;
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
-  const [approvals, proposals, reports] = await Promise.all([
+  const [approvals, proposals, reports, updates] = await Promise.all([
     approvalsOf(runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, runsOf("agent_report")),
+    rowUpdatesOf(userId, rows.filter((r) => r.kind === "row_update")),
   ]);
+  // A row update with nothing left the user may see (a property's access changed since) isn't shown.
+  const shown = rows.filter((r) => r.kind !== "row_update" || updates.has(r.id));
   return Promise.all(
-    rows.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, ...row }) => ({
+    shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, ...row }) => ({
       ...row,
+      rowUpdate: updates.get(row.id) ?? null,
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,
@@ -657,6 +765,97 @@ export async function listNotifications(
           : null,
     })),
   );
+}
+
+/**
+ * What these row updates in `viewer`'s inbox tell, of the properties they may see in each row now
+ * (the access they had when told may have been narrowed since), values read as for them. Updates
+ * with nothing left to tell are left out.
+ */
+async function rowUpdatesOf(
+  viewer: string,
+  rows: {
+    id: string;
+    rowDatabaseId: string | null;
+    rowCreatedBy: string | null;
+    rowProperties: Record<string, unknown> | null;
+    changes: RowUpdate | null;
+  }[],
+): Promise<Map<string, InboxRowUpdate>> {
+  const out = new Map<string, InboxRowUpdate>();
+  const databaseIds = [...new Set(rows.flatMap((r) => (r.rowDatabaseId ? [r.rowDatabaseId] : [])))];
+  if (!databaseIds.length) return out;
+  const [properties, accesses] = await Promise.all([
+    db
+      .select({
+        id: databaseProperty.id,
+        databaseId: databaseProperty.databaseId,
+        name: databaseProperty.name,
+        type: databaseProperty.type,
+        options: databaseProperty.options,
+        deletedAt: databaseProperty.deletedAt,
+      })
+      .from(databaseProperty)
+      .where(inArray(databaseProperty.databaseId, databaseIds)),
+    Promise.all(databaseIds.map(async (id) => [id, await propertyAccessFor(viewer, id)] as const)),
+  ]);
+  const access = new Map(accesses);
+  const byId = new Map(properties.map((p) => [p.id, p]));
+  const visible = rows.flatMap((r) => {
+    if (!r.rowDatabaseId) return [];
+    const row = { properties: r.rowProperties ?? {}, createdBy: r.rowCreatedBy };
+    const readable = readableProperties(
+      properties.filter((p) => p.databaseId === r.rowDatabaseId),
+      access.get(r.rowDatabaseId)!,
+      row,
+    );
+    const update = visibleRowUpdate(parseRowUpdate(r.changes), readable);
+    return isEmptyRowUpdate(update) ? [] : [{ id: r.id, update }];
+  });
+  const ids = referencedIds(
+    visible.flatMap(({ update }) =>
+      update.changes.flatMap((c) => [
+        { type: c.propertyType, value: c.from },
+        { type: c.propertyType, value: c.to },
+      ]),
+    ),
+  );
+  const lookups = await loadLookups(viewer, [...ids.people], [...ids.pages]);
+  for (const { id, update } of visible) {
+    out.set(id, {
+      body: update.body,
+      changes: update.changes.map((c) => {
+        const prop = c.propertyId ? byId.get(c.propertyId) : undefined;
+        const read = (value: unknown) =>
+          prop ? resolveValue(c.propertyType ?? prop.type, prop.options.options ?? [], value, lookups) : resolveValue("text", [], value, lookups);
+        return { property: prop ? { id: prop.id, name: prop.name, type: prop.type } : null, from: read(c.from), to: read(c.to) };
+      }),
+    });
+  }
+  return out;
+}
+
+/**
+ * What row update `notificationId` tells `viewer` now (see rowUpdatesOf), with the row's database
+ * title when they can open it; null when nothing of it is left for them. For its email.
+ */
+export async function rowUpdateFor(viewer: string, notificationId: string) {
+  const [row] = await db
+    .select({
+      id: notification.id,
+      rowDatabaseId: page.parentId,
+      rowCreatedBy: page.createdBy,
+      rowProperties: page.properties,
+      changes: notification.changes,
+      databaseTitle: sql<string | null>`case when page_access_level(${viewer}, ${databasePage.id}) > 0 then ${databasePage.title} end`,
+    })
+    .from(notification)
+    .innerJoin(page, eq(page.id, notification.pageId))
+    .leftJoin(databasePage, and(eq(databasePage.id, page.parentId), eq(databasePage.kind, "database")))
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, viewer), eq(notification.kind, "row_update")));
+  if (!row) return null;
+  const update = (await rowUpdatesOf(viewer, [row])).get(row.id);
+  return update ? { ...update, databaseTitle: row.databaseTitle } : null;
 }
 
 /** How these scheduled runs ended, for their reports in `viewer`'s inbox. */

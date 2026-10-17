@@ -6,6 +6,8 @@ import { duplicatePage } from "@/server/duplicate";
 import { setDatabaseLocked } from "@/server/databases";
 import { getPageHeaderInfo, listFavorites, setFavorite } from "@/server/page-meta";
 import { setPageLocked } from "@/server/pages";
+import { listWatches, setWatching } from "@/server/page-watch";
+import { setFollowing } from "@/server/row-follow";
 import { requireUserId } from "@/server/session";
 
 export async function getPageHeaderAction(pageId: string) {
@@ -16,6 +18,24 @@ export async function getPageHeaderAction(pageId: string) {
 export async function setFavoriteAction(pageId: string, favorite: boolean) {
   const userId = await requireUserId();
   await setFavorite(userId, pageId, favorite);
+}
+
+/** Follows a database row, or stops following it (server/row-follow). */
+export async function setFollowingAction(rowId: string, following: boolean) {
+  const userId = await requireUserId();
+  return setFollowing(userId, rowId, following);
+}
+
+/** Watches a page, or mutes it (server/page-watch). */
+export async function setWatchingAction(pageId: string, watching: boolean) {
+  const userId = await requireUserId();
+  return setWatching(userId, pageId, watching);
+}
+
+/** The pages and teamspaces the user watches, for their notification settings. */
+export async function listWatchesAction() {
+  const userId = await requireUserId();
+  return listWatches(userId);
 }
 
 export async function listFavoritesAction(workspaceId: string) {

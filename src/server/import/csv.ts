@@ -151,7 +151,7 @@ export async function writeRows(
   return created;
 }
 
-function reportInvalid(warnings: WarningList, invalid: Map<string, number>, props: DatabaseProperty[]) {
+export function reportInvalid(warnings: WarningList, invalid: Map<string, number>, props: DatabaseProperty[]) {
   for (const [id, count] of invalid) {
     const prop = props.find((p) => p.id === id);
     if (prop) warnings.add({ code: "invalidValues", column: prop.name, count });

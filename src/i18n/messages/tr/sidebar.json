@@ -53,6 +53,7 @@
     "noResults": "Sonuç bulunamadı",
     "semantic": "Benzer anlam",
     "semanticHint": "Anlamına göre bulundu: kelimeler aramandakilerden farklı.",
+    "inDocument": "Bu sayfadaki {name} belgesinde bulundu",
     "recent": "Son düzenlenenler",
     "commands": "Komutlar",
     "noCommands": "Eşleşen komut yok",
@@ -89,6 +90,12 @@
     "accessRequest": "{actor} bu sayfaya erişim istedi",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
+    "rowUpdate": "{actor} bu satırı değiştirdi",
+    "pageUpdated": "{actor} bu sayfayı düzenledi",
+    "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
+    "rowTitle": "Başlık",
+    "rowChangesMore": "{count, plural, one {ve # değişiklik daha} other {ve # değişiklik daha}}",
+    "rowBodyChanged": "Metni düzenledi",
     "someone": "Biri",
     "unread": "Okunmadı",
     "snooze": "Ertele",
@@ -141,7 +148,11 @@
     "leave": "Teamspace'ten ayrıl",
     "confirmLeave": "{name} teamspace'inden ayrılınsın mı? Sayfaları kenar çubuğunuzdan kalkar. Teamspace açık değilse onlara erişiminizi de kaybedersiniz.",
     "empty": "Henüz sayfa yok. Bir tane ekleyin",
-    "another": "başka bir teamspace"
+    "another": "başka bir teamspace",
+    "watch": "Tüm sayfaları izle",
+    "watchHint": "Bu teamspace'in bir sayfasını başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
+    "unwatch": "Sayfaları izlemeyi bırak",
+    "unwatchHint": "Sessize aldığınız sayfalar dışında bu teamspace'in her sayfasındaki düzenlemelerden ve yeni yorum dizilerinden haber alıyorsunuz."
   },
   "sections": {
     "shared": "Paylaşılanlar",

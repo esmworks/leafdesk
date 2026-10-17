@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "Join requests: {channel}",
     "automationTitle": "Automations",
     "automationDescription": "A database automation lets you know about a row someone added or changed.",
-    "automationChannel": "Automations: {channel}"
+    "automationChannel": "Automations: {channel}",
+    "rowUpdateTitle": "Rows you follow",
+    "rowUpdateDescription": "Someone else changes a database row you follow: one you created, are assigned to, commented on or were mentioned on, or chose to follow.",
+    "rowUpdateChannel": "Rows you follow: {channel}",
+    "pageUpdateTitle": "Pages you watch",
+    "pageUpdateDescription": "Someone else edits a page you watch: one you created or edited, chose to watch, or that is in a teamspace you watch. Emails about the same page come at most every few hours, and after a few a day the rest come together in one email.",
+    "pageUpdateChannel": "Pages you watch: {channel}",
+    "watchedHeading": "Watched pages",
+    "watchedDescription": "Pages you chose to watch or edited, and teamspaces you watch. You also watch the pages you created. Watchers hear about edits and new comment threads.",
+    "watchedNone": "You aren’t watching any pages yet",
+    "watchedNoneDescription": "Watch a page from its ⋯ menu, or a whole teamspace from its menu in the sidebar. Pages you edit are watched for you.",
+    "watchedTeamspace": "All pages of this teamspace · {workspace}",
+    "stopWatching": "Stop watching"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

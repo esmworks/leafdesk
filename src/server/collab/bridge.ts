@@ -172,13 +172,16 @@ export interface CollabService {
   disconnectTeamspace(teamspaceId: string, userIds?: string[]): Promise<void>;
   /**
    * Checks the open page and database connections of these users (or everyone's) in the workspace
-   * again and drops those they may no longer open, or no longer edit through a connection that can
-   * (after a share was narrowed, a page moved, or a group lost a grant, a member, or a teamspace).
-   * They reconnect with whatever access they have left.
+   * again, after their access changed (a share, a page moved, a group or teamspace, a role). Drops
+   * those they may no longer open, or no longer edit through a connection that can; they reconnect
+   * with whatever access they have left. A read-only connection to a page they may edit now takes
+   * their edits from then on, without a reconnect, unless the page is locked or in the trash.
    */
   disconnectLostAccess(workspaceId: string, userIds?: string[]): Promise<void>;
   /** The pages and databases with a document open on this server. */
   openPageIds(): string[];
+  /** The people with the page open in a browser on this server right now (to read or to edit). */
+  openUserIds(pageId: string): string[];
   /**
    * Drops every connection to a deleted workspace: its signals and these pages and databases (its
    * own open ones, listed before they were deleted, since the database can no longer say which

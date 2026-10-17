@@ -53,6 +53,7 @@
     "noResults": "No results",
     "semantic": "Similar meaning",
     "semanticHint": "Found by meaning: the words differ from your search.",
+    "inDocument": "Found in the document {name} on this page",
     "recent": "Recently edited",
     "commands": "Commands",
     "noCommands": "No matching command",
@@ -89,6 +90,12 @@
     "accessRequest": "{actor} asked for access to this page",
     "automation": "Automation “{name}”: {actor} added or changed this row",
     "automationDatePassed": "Automation “{name}”: this row’s date has come",
+    "rowUpdate": "{actor} changed this row",
+    "pageUpdated": "{actor} edited this page",
+    "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
+    "rowTitle": "Title",
+    "rowChangesMore": "{count, plural, one {and # more change} other {and # more changes}}",
+    "rowBodyChanged": "Edited the text",
     "someone": "Someone",
     "unread": "Unread",
     "snooze": "Snooze",
@@ -141,7 +148,11 @@
     "leave": "Leave teamspace",
     "confirmLeave": "Leave {name}? Its pages leave your sidebar. Unless the teamspace is open, you also lose access to them.",
     "empty": "No pages yet. Add one",
-    "another": "another teamspace"
+    "another": "another teamspace",
+    "watch": "Watch all pages",
+    "watchHint": "Hear in your inbox when someone else edits a page of this teamspace or starts a comment thread on it.",
+    "unwatch": "Stop watching pages",
+    "unwatchHint": "You hear about edits and new comment threads on every page of this teamspace, except the pages you muted."
   },
   "sections": {
     "shared": "Shared",

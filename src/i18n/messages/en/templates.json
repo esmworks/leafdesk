@@ -92,5 +92,9 @@
       "talk": "Gave a talk at the team offsite",
       "thanks": "Sales thanked us for the demo setup"
     }
+  },
+  "journal": {
+    "title": "Journal",
+    "markdown": "## Focus\n\n- [ ] \n\n## Notes\n\n## Done today\n"
   }
 }

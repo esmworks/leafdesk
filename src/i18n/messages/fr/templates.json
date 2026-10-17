@@ -92,5 +92,9 @@
       "talk": "Présentation donnée au séminaire d’équipe",
       "thanks": "L’équipe commerciale nous a remerciés pour la démo"
     }
+  },
+  "journal": {
+    "title": "Journal",
+    "markdown": "## Priorités\n\n- [ ] \n\n## Notes\n\n## Fait aujourd’hui\n"
   }
 }

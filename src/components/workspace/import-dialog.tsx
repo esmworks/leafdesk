@@ -22,6 +22,7 @@ import {
 import { cleanTitle, IMPORT_LIMITS, isIgnoredPath } from "@/lib/import/markdown";
 import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
+import { parseTrelloExport, readTrelloBoard, type TrelloBoard } from "@/lib/import/trello";
 import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
 
@@ -54,13 +55,15 @@ type Picked = { file: File; path: string };
 /** What the Word tab's file picker offers, and what it takes from a drop. */
 const DOCX_ACCEPT = ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const isDocx = (file: File) => /\.docx$/i.test(file.name);
+/** What the Trello tab's file picker offers. */
+const TRELLO_ACCEPT = ".json,application/json";
 /** The chosen CSV file or workbook; a workbook's sheets by name, and the one shown. */
 type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets: string[]; sheet: number };
 
 /**
- * Imports Markdown files, folders and ZIPs as pages, Word documents as a page each, or a CSV file
+ * Imports Markdown files, folders and ZIPs as pages, Word documents as a page each, a CSV file
  * or Excel workbook (one of its sheets) as a new database or as rows of an existing one (with a
- * column → property mapping). Sends everything to /api/import and shows what was created and what
+ * column → property mapping), or a Trello board's JSON export as a new database. Sends everything to /api/import and shows what was created and what
  * was left out.
  */
 export function ImportDialog({
@@ -93,13 +96,15 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "csv">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "csv" | "trello">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
   const [vault, setVault] = useState(false);
   const [documents, setDocuments] = useState<File[]>([]);
   const [csv, setCsv] = useState<CsvState | null>(null);
+  const [trello, setTrello] = useState<{ file: File; board: TrelloBoard } | null>(null);
+  const [boardName, setBoardName] = useState("");
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
   const [titleColumn, setTitleColumn] = useState<number | null>(0);
@@ -115,6 +120,7 @@ export function ImportDialog({
   const folderInput = useRef<HTMLInputElement>(null);
   const csvInput = useRef<HTMLInputElement>(null);
   const docxInput = useRef<HTMLInputElement>(null);
+  const trelloInput = useRef<HTMLInputElement>(null);
 
   // Fresh each time it opens, aimed at the page (or database) open now.
   useEffect(() => {
@@ -128,6 +134,7 @@ export function ImportDialog({
     setVault(false);
     setDocuments([]);
     setCsv(null);
+    setTrello(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
     setError(null);
@@ -220,6 +227,20 @@ export function ImportDialog({
     setTypes(guesses);
   }
 
+  /** Reads a Trello export, for its summary and to tell early when the file isn't one. */
+  async function chooseTrello(file: File | undefined) {
+    if (!file) return;
+    setError(null);
+    try {
+      const board = readTrelloBoard(parseTrelloExport(decodeText(new Uint8Array(await file.arrayBuffer()))));
+      setTrello({ file, board });
+      setBoardName(board.title || cleanTitle(file.name));
+    } catch (e) {
+      setTrello(null);
+      setError(errorText(e instanceof ImportError ? { code: e.code, params: e.params } : { code: "badTrello" }));
+    }
+  }
+
   function errorText(body: { code?: string; params?: Record<string, string | number> } | null) {
     const code = body?.code ?? "badRequest";
     const params = { ...body?.params };
@@ -237,6 +258,7 @@ export function ImportDialog({
       "unsupportedWorkbook",
       "badDocx",
       "docxTooComplex",
+      "badTrello",
       "badMapping",
       "noAccess",
       "notADatabase",
@@ -263,6 +285,12 @@ export function ImportDialog({
       form.append("mode", "docx");
       form.append("parentId", destination);
       for (const file of documents) form.append("file", file, file.name);
+    } else if (tab === "trello") {
+      if (!trello) return;
+      form.append("mode", "trello");
+      form.append("parentId", destination);
+      form.append("title", boardName);
+      form.append("file", trello.file, trello.file.name);
     } else if (csv && csvMode === "new") {
       form.append("mode", "csv-new");
       form.append("parentId", destination);
@@ -312,7 +340,9 @@ export function ImportDialog({
       ? picked.length > 0 && destinationValid
       : tab === "docx"
         ? documents.length > 0 && destinationValid
-        : csv !== null &&
+        : tab === "trello"
+          ? trello !== null && destinationValid
+          : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
           : target !== null && target !== "error" && mapping.some((m) => m !== null)));
@@ -370,12 +400,13 @@ export function ImportDialog({
             setVault(false);
             setDocuments([]);
             setCsv(null);
+            setTrello(null);
           }}
         />
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "csv"] as const).map((key) => (
+            {(["pages", "docx", "csv", "trello"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -533,6 +564,47 @@ export function ImportDialog({
                 </div>
               )}
               {destinationPicker}
+            </>
+          ) : tab === "trello" ? (
+            <>
+              <p className="text-sm text-fg-muted">{t("trello.help")}</p>
+              <p className="text-sm text-fg-muted">{t("trello.attachments")}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button disabled={busy} onClick={() => trelloInput.current?.click()}>
+                  <FileUp className="h-4 w-4" />
+                  {t("trello.choose")}
+                </Button>
+                {trello && (
+                  <span className="text-xs text-fg-muted">
+                    {t("trello.summary", { name: trello.file.name, lists: trello.board.lists.length, cards: trello.board.cards.length })}
+                  </span>
+                )}
+                <input
+                  ref={trelloInput}
+                  type="file"
+                  accept={TRELLO_ACCEPT}
+                  hidden
+                  data-import="trello"
+                  onChange={(e) => {
+                    void chooseTrello(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {trello && trello.board.archived.lists + trello.board.archived.cards > 0 && (
+                <p className="text-xs text-fg-muted">
+                  {t("trello.archived", { lists: trello.board.archived.lists, cards: trello.board.archived.cards })}
+                </p>
+              )}
+              {trello && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className={labelClass}>{t("csv.name")}</span>
+                    <Input value={boardName} maxLength={200} disabled={busy} onChange={(e) => setBoardName(e.target.value)} />
+                  </label>
+                  {destinationPicker}
+                </div>
+              )}
             </>
           ) : (
             <>

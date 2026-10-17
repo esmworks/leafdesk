@@ -1401,7 +1401,19 @@
     "joinRequestChannel": "Pedidos para entrar: {channel}",
     "automationTitle": "Automações",
     "automationDescription": "Uma automação de banco de dados avisa você sobre uma linha que alguém adicionou ou alterou.",
-    "automationChannel": "Automações: {channel}"
+    "automationChannel": "Automações: {channel}",
+    "rowUpdateTitle": "Linhas que você segue",
+    "rowUpdateDescription": "Outra pessoa altera uma linha de banco de dados que você segue: uma que você criou, à qual está atribuído, que comentou ou em que foi mencionado, ou que escolheu seguir.",
+    "rowUpdateChannel": "Linhas que você segue: {channel}",
+    "pageUpdateTitle": "Páginas que você acompanha",
+    "pageUpdateDescription": "Outra pessoa edita uma página que você acompanha: uma que você criou ou editou, escolheu acompanhar ou que está em um espaço de equipe que você acompanha. E-mails sobre a mesma página chegam no máximo a cada poucas horas e, depois de alguns por dia, o restante chega junto em um único e-mail.",
+    "pageUpdateChannel": "Páginas que você acompanha: {channel}",
+    "watchedHeading": "Páginas acompanhadas",
+    "watchedDescription": "Páginas que você escolheu acompanhar ou editou, e espaços de equipe que você acompanha. Você também acompanha as páginas que criou. Quem acompanha fica sabendo de edições e novas conversas de comentários.",
+    "watchedNone": "Você ainda não acompanha nenhuma página",
+    "watchedNoneDescription": "Acompanhe uma página pelo menu ⋯ dela, ou um espaço de equipe inteiro pelo menu dele na barra lateral. As páginas que você edita são acompanhadas automaticamente.",
+    "watchedTeamspace": "Todas as páginas deste espaço de equipe · {workspace}",
+    "stopWatching": "Parar de acompanhar"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",
