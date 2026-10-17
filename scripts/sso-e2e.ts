@@ -7,7 +7,10 @@
  * password account is linked, "SSO only" holds back members who signed in otherwise (pages,
  * exports, server actions, collab) but not the owner, two-step verification still asks for its
  * code after SSO and the session keeps counting as SSO, the instance-wide provider from OIDC_*
- * creates accounts, and removing the connection takes its provider with it.
+ * creates accounts, and removing the connection takes its provider with it. Changing the identity
+ * provider behind the connection, and removing it, revokes the API tokens and connected apps of
+ * everyone who signed in through it, and of nobody else; a change that keeps the identity provider
+ * revokes nothing.
  *
  * The app must run with the mock provider trusted and configured as the instance provider:
  *
@@ -40,10 +43,11 @@ process.env.OIDC_CLIENT_SECRET ??= "instance-secret";
 process.env.OIDC_NAME ??= "Mock IdP";
 process.env.OIDC_DOMAINS ??= "instance-sso.test";
 
-const { and, eq, ilike, inArray, or } = await import("drizzle-orm");
+const { and, desc, eq, ilike, inArray, or } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
+const { account, auditEvent, oauthClient, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
 const { saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
+const { createApiToken } = await import("@/server/api/tokens");
 const { AccessError } = await import("@/server/access");
 const { domainRecordName } = await import("@/lib/sso-config");
 const { totpCode, totpKeyFromUri } = await import("@/lib/totp");
@@ -75,6 +79,8 @@ type Grant = Login & { tenant: string; clientId: string; redirectUri: string; no
 
 const TENANTS: Record<string, { clientId: string; clientSecret: string }> = {
   acme: { clientId: "leafdesk-acme", clientSecret: "acme-secret" },
+  /** The identity provider the workspace moves its connection to. */
+  acme2: { clientId: "leafdesk-acme2", clientSecret: "acme2-secret" },
   instance: { clientId: process.env.OIDC_CLIENT_ID!, clientSecret: process.env.OIDC_CLIENT_SECRET! },
 };
 const keys = generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -355,6 +361,148 @@ const roleOf = async (workspaceId: string, userId: string) =>
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
   )[0]?.role ?? null;
 
+// ──────────────────────────────────────────────────────────── API tokens and connected apps
+
+const RESOURCE = `${BASE}/mcp`;
+const REDIRECT_URI = "http://127.0.0.1:33420/callback";
+const APP_SCOPES = "openid offline_access pages:read";
+const clientIds: string[] = [];
+
+/** One step of the authorization in a browser: where it goes next (Better Auth answers fetch with JSON redirects). */
+async function nextStep(jar: Jar, url: string) {
+  const res = await fetch(url, { redirect: "manual", headers: { cookie: jar.header(), accept: "text/html" } });
+  jar.store(res);
+  if (res.status === 200 && (res.headers.get("content-type") ?? "").includes("application/json")) {
+    const body = (await res.json()) as { url?: string };
+    return body.url ? new URL(body.url, BASE).toString() : null;
+  }
+  const location = res.headers.get("location");
+  return location ? new URL(location, BASE).toString() : null;
+}
+
+/** What the consent page posts back: only the signed parameters. */
+function signedQuery(pageUrl: string) {
+  const params = new URL(pageUrl, BASE).searchParams;
+  const names = new Set(params.getAll("ba_param"));
+  const out = new URLSearchParams();
+  for (const [k, v] of params) if (k === "sig" || k === "ba_param" || names.has(k)) out.append(k, v);
+  return out.toString();
+}
+
+type App = { clientId: string; tokenEndpoint: string; accessToken: string; refreshToken: string };
+
+/** Connects an MCP client as the person signed in in `jar`: registers it, consents, exchanges the code. */
+async function connectApp(jar: Jar, label: string): Promise<App> {
+  const prm = await (await fetch(`${BASE}/.well-known/oauth-protected-resource/mcp`)).json();
+  const issuer = new URL(prm.authorization_servers[0]);
+  const as = await (await fetch(`${issuer.origin}/.well-known/oauth-authorization-server${issuer.pathname}`)).json();
+  const registered = await fetch(as.registration_endpoint, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      client_name: `SSO e2e ${label} ${RUN}`,
+      application_type: "native",
+      redirect_uris: [REDIRECT_URI],
+      token_endpoint_auth_method: "none",
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      scope: APP_SCOPES,
+    }),
+  });
+  const client = (await registered.json()) as { client_id?: string };
+  check(registered.ok && client.client_id, `${label} connects an MCP client`, client);
+  clientIds.push(client.client_id);
+  const verifier = randomBytes(32).toString("base64url");
+  const authorize = new URL(as.authorization_endpoint);
+  authorize.search = new URLSearchParams({
+    response_type: "code",
+    client_id: client.client_id,
+    redirect_uri: REDIRECT_URI,
+    scope: APP_SCOPES,
+    state: RUN,
+    code_challenge: createHash("sha256").update(verifier).digest("base64url"),
+    code_challenge_method: "S256",
+    resource: RESOURCE,
+  }).toString();
+  const consentPage = await nextStep(jar, authorize.toString());
+  check(consentPage && new URL(consentPage).pathname === "/oauth/consent", `…reaching its consent page`, consentPage);
+  const consent = await authPost("/oauth2/consent", { accept: true, oauth_query: signedQuery(consentPage) }, jar);
+  const code = typeof consent.body?.url === "string" ? new URL(consent.body.url).searchParams.get("code") : null;
+  check(consent.status === 200 && code, "…allowing it", consent.body);
+  const exchanged = await fetch(as.token_endpoint, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: REDIRECT_URI,
+      client_id: client.client_id,
+      code_verifier: verifier,
+      resource: RESOURCE,
+    }),
+  });
+  const tokens = (await exchanged.json().catch(() => null)) as { access_token?: string; refresh_token?: string } | null;
+  check(exchanged.ok && tokens?.access_token && tokens.refresh_token, "…which gets its tokens", tokens);
+  return { clientId: client.client_id, tokenEndpoint: as.token_endpoint, accessToken: tokens.access_token, refreshToken: tokens.refresh_token };
+}
+
+/** The status /mcp answers the app's access token with. */
+async function mcpStatus(app: App) {
+  const res = await fetch(RESOURCE, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json, text/event-stream",
+      authorization: `Bearer ${app.accessToken}`,
+      "mcp-protocol-version": "2025-11-25",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+  });
+  await res.text();
+  return res.status;
+}
+
+/** Whether the app's refresh token still works; a working one is used up and replaced. */
+async function refreshes(app: App) {
+  const res = await fetch(app.tokenEndpoint, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: app.refreshToken, client_id: app.clientId, resource: RESOURCE }),
+  });
+  const body = (await res.json().catch(() => null)) as { access_token?: string; refresh_token?: string } | null;
+  if (!res.ok || !body?.access_token) return false;
+  app.accessToken = body.access_token;
+  if (body.refresh_token) app.refreshToken = body.refresh_token;
+  return true;
+}
+
+/** What a person reaches the app with besides a session: an API token and a connected app. */
+type Access = { token: string; app: App };
+async function giveAccess(userId: string, jar: Jar, label: string): Promise<Access> {
+  const { secret } = await createApiToken(userId, { name: `SSO e2e ${label}`, scopes: ["pages:read"] });
+  return { token: secret, app: await connectApp(jar, label) };
+}
+
+/** The status the API answers the token with, the one /mcp answers the app with, and whether it refreshes. */
+async function accessNow(access: Access) {
+  const api = await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${access.token}` } });
+  await api.text();
+  return { api: api.status, mcp: await mcpStatus(access.app), refreshes: await refreshes(access.app) };
+}
+const works = (now: Awaited<ReturnType<typeof accessNow>>) => now.api === 200 && now.mcp === 200 && now.refreshes;
+const cutOff = (now: Awaited<ReturnType<typeof accessNow>>) => now.api === 401 && now.mcp === 401 && !now.refreshes;
+
+/** The details of the workspace's latest audit event with this action. */
+const lastAudit = async (workspaceId: string, action: string) =>
+  (
+    await db
+      .select({ details: auditEvent.details })
+      .from(auditEvent)
+      .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, action)))
+      .orderBy(desc(auditEvent.createdAt))
+      .limit(1)
+  )[0]?.details ?? null;
+
 async function main() {
   await new Promise<void>((resolve) => idp.listen(IDP_PORT, "127.0.0.1", resolve));
   const shared = await fetch(`${BASE}/api/auth/sso/callback?code=x&state=y`, { redirect: "manual" });
@@ -450,6 +598,12 @@ async function main() {
   const aliceAgain = await ssoSignIn(new Jar(), { email: `alice@${DOMAIN}` }, { email: `alice@${DOMAIN}`, name: "Alice Doe" });
   const againSession = aliceAgain.location === "/" ? await sessionOf(alice) : null;
   check(aliceAgain.status === 302 && againSession?.user.id === aliceSession.user.id, "signing in again finds the same account", aliceAgain);
+
+  // An API token and a connected app each, for someone who signed in through the connection and a
+  // member who never did (before "SSO only" holds the latter back from making them).
+  const aliceAccess = await giveAccess(aliceSession.user.id, alice, "Alice");
+  const bystanderAccess = await giveAccess(member0.id, member0.jar, "A member signed in with a password");
+  check(works(await accessNow(aliceAccess)) && works(await accessNow(bystanderAccess)), "both reach the API and /mcp");
 
   const outside = await authPost("/sign-in/sso", { email: `mallory@other-${RUN}.test`, callbackURL: "/" }, new Jar());
   check(outside.status === 404 && outside.body?.code === "SSO_NOT_FOUND", "an email outside every connection's domains gets no provider", outside.body);
@@ -556,6 +710,39 @@ async function main() {
   const signInPage = await open("/sign-in", new Jar());
   check(signInPage.text.includes("Continue with Mock IdP") && signInPage.text.includes("Continue with SSO"), "the sign-in page offers both buttons");
 
+  // ── Changing the identity provider ───────────────────────────────────────────────────────
+  // Another client secret for the same issuer is the same identity provider: nothing is revoked.
+  const rotated = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "saveSsoConnectionAction", [
+    workspaceId,
+    { protocol: "oidc", issuer: `${IDP}/acme`, clientId: "leafdesk-acme", clientSecret: "acme-rotated", domains: DOMAIN },
+  ]);
+  check(rotated.text.includes('"ok":true') && rotated.text.includes('"verified":true'), "the owner changes the client secret", rotated.text);
+  const afterRotation = await accessNow(aliceAccess);
+  check(works(afterRotation), "…and the API token and connected app of whoever signed in through it keep working", afterRotation);
+  check((await sessionOf(alice))?.user.id === aliceSession.user.id, "…as does their session");
+  check(!(await lastAudit(workspaceId, "sso.configured"))?.revokedApiTokens, "…and the audit log records nothing revoked", await lastAudit(workspaceId, "sso.configured"));
+
+  // Another issuer could vouch for anyone's id at the provider: whatever those people set up while
+  // signed in through the connection is cut off with their sessions.
+  const moved = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "saveSsoConnectionAction", [
+    workspaceId,
+    { protocol: "oidc", issuer: `${IDP}/acme2`, clientId: "leafdesk-acme2", clientSecret: "acme2-secret", domains: DOMAIN },
+  ]);
+  check(moved.text.includes('"ok":true') && moved.text.includes('"verified":false'), "the owner moves the connection to another identity provider", moved.text);
+  check((await sessionOf(alice)) === null, "…which ends the sessions signed in through it");
+  const afterMove = await accessNow(aliceAccess);
+  check(cutOff(afterMove), "…revokes the API tokens and connected apps of the people who signed in through it", afterMove);
+  const bystanderAfterMove = await accessNow(bystanderAccess);
+  check(works(bystanderAfterMove), "…but not those of a member who never did", bystanderAfterMove);
+  const movedAudit = await lastAudit(workspaceId, "sso.configured");
+  check(movedAudit?.revokedApiTokens === 1 && movedAudit.revokedConnectedApps === 1, "…and records how many in the audit log", movedAudit);
+
+  await verifySsoDomains(owner.id, workspaceId, async (name) => (name === domainRecordName(DOMAIN) ? [[`leafdesk-sso=${row.token}`]] : []));
+  const aliceBack = await ssoSignIn(alice, { email: `alice@${DOMAIN}`, callbackURL: `/w/${workspaceId}` }, { email: `alice@${DOMAIN}`, name: "Alice Doe" });
+  check(aliceBack.start.body?.url?.startsWith(`${IDP}/acme2/authorize`), "once verified again, Continue with SSO goes to the new provider", aliceBack.start.body);
+  check(aliceBack.status === 302 && (await sessionOf(alice))?.user.id === aliceSession.user.id, "…and links the same account by its address", aliceBack);
+  const aliceAccessAgain = await giveAccess(aliceSession.user.id, alice, "Alice, signed in again");
+
   // ── Removing the connection ──────────────────────────────────────────────────────────────
   const removed = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "removeSsoConnectionAction", [workspaceId]);
   check(removed.text.includes('"ok":true'), "the owner removes the connection", removed.text);
@@ -567,6 +754,12 @@ async function main() {
     "sessions signed in through the removed connection end",
     afterRemoval,
   );
+  const afterRemove = await accessNow(aliceAccessAgain);
+  check(cutOff(afterRemove), "…as do the API tokens and connected apps of the people who signed in through it", afterRemove);
+  const bystanderAfterRemove = await accessNow(bystanderAccess);
+  check(works(bystanderAfterRemove), "…but not those of a member who never did", bystanderAfterRemove);
+  const removedAudit = await lastAudit(workspaceId, "sso.removed");
+  check(removedAudit?.revokedApiTokens === 1 && removedAudit.revokedConnectedApps === 1, "…and the audit log records how many", removedAudit);
   const gateNow = await open(`/sso-required/${workspaceId}`, member0.jar);
   check(gateNow.status === 200 && gateNow.text.includes("Continue with Mock IdP"), "…and the gate offers the instance provider instead", gateNow.status);
 
@@ -590,5 +783,6 @@ try {
   const wsIds = [...new Set([...workspaceIds, ...owned.map((w) => w.id)])];
   if (wsIds.length) await db.delete(workspace).where(inArray(workspace.id, wsIds));
   if (ids.length) await db.delete(user).where(inArray(user.id, ids));
+  if (clientIds.length) await db.delete(oauthClient).where(inArray(oauthClient.clientId, clientIds));
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
 }
