@@ -153,7 +153,9 @@ try {
   );
   check(manyLink?.context === `First ${P} here.`, "…and keeps the first link's text as its context");
   check((await backlink(target.id, linkBlock.id))?.places?.[0]?.context === null, "a Link to page block is a place without text");
-  check((await backlink(target.id, copy.id))?.places?.length === 1, "a copy keeps the places of its links");
+  const copyPlace = (await backlink(target.id, copy.id))?.places?.[0]?.block;
+  const copyBlocks = ((await getCollab().readBlocks(copy.id)).blocks as { id: string }[]).map((b) => b.id);
+  check(Boolean(copyPlace) && copyBlocks.includes(copyPlace!), "a copy's places point at blocks of the copy", { copyPlace, copyBlocks });
 
   const mcpMany = (await getPage({ userId: ids.owner, actor: owner }, { page_id: target.id, offset: 0 })) as {
     linked_from?: { id: string; contexts?: string[] }[];
