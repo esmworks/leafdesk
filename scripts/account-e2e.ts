@@ -38,6 +38,7 @@ const { and, eq, inArray, like, ne } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const {
   account,
+  apiToken,
   auditEvent,
   file,
   oauthClient,
@@ -54,6 +55,7 @@ const {
 } = await import("@/db/schema");
 const { totpCode, totpKeyFromUri } = await import("@/lib/totp");
 const { getStorage } = await import("@/server/storage");
+const { createApiToken } = await import("@/server/api/tokens");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 waitOutAuthRateLimits(BASE);
@@ -470,12 +472,15 @@ async function main() {
   const short = await account_(ada.jar, "changePasswordAction", [{ currentPassword: PASSWORD, newPassword: "short", revokeOthers: false }]);
   check(!short.ok && short.code === "passwordTooShort", "…and a new one of 8 characters or more", short);
   const appBefore = await connectApp(ada.id, "password");
+  const tokensOf = async (userId: string) => (await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, userId))).length;
+  await createApiToken(ada.id, { name: `Before ${RUN}`, scopes: ["pages:read"] });
   const changed = await account_(ada.jar, "changePasswordAction", [
     { currentPassword: PASSWORD, newPassword: NEW_PASSWORD, revokeOthers: true },
   ]);
   check(changed.ok, "the password changes, signing out other devices", changed);
   check((await sessionOf(tablet.jar)) === null, "…the other device is signed out");
   check(!(await consentsOf(ada.id)).includes(appBefore), "…and the connected app is disconnected", await consentsOf(ada.id));
+  check((await tokensOf(ada.id)) === 0, "…and the API tokens are revoked", await tokensOf(ada.id));
   const revokedLog = await db
     .select({ actorUserId: auditEvent.actorUserId })
     .from(auditEvent)

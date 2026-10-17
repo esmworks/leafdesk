@@ -36,6 +36,7 @@ const { dayString, localDay } = await import("@/lib/time-zone");
 const RUN = `schedule-e2e-${Date.now().toString(36)}`;
 
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async disconnectLostAccess() {},
   async replaceContent() {},

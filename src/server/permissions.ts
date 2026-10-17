@@ -600,16 +600,17 @@ export async function followNewSpace(
 /**
  * Gives `pageId` entries of its own for what it inherits from its ancestors now, for each
  * principal (person, group or everyone) that has no entry on the page itself. Run before it loses those ancestors (restored
- * out of a deleted parent), so it keeps the access it had.
+ * out of a deleted parent), so it keeps the access it had. With `ancestorsOf`, the entries are
+ * those that page inherits: a copy placed elsewhere keeps the access of its source.
  */
-export async function freezeInheritedEntries(tx: Tx, workspaceId: string, pageId: string) {
+export async function freezeInheritedEntries(tx: Tx, workspaceId: string, pageId: string, ancestorsOf = pageId) {
   await lockPermissions(tx, workspaceId);
   await tx.execute(sql`
     insert into ${pagePermission} (id, page_id, workspace_id, user_id, level, created_by)
     select gen_random_uuid()::text, ${pageId}, inherited.workspace_id, inherited.user_id, inherited.level, inherited.created_by
     from (
       with recursive chain as (
-        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${pageId})
+        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${ancestorsOf})
         union all
         select p.id, p.parent_id, c.depth + 1 from page p join chain c on p.id = c.parent_id where c.depth < 64
       )
@@ -624,7 +625,7 @@ export async function freezeInheritedEntries(tx: Tx, workspaceId: string, pageId
     select gen_random_uuid()::text, ${pageId}, inherited.workspace_id, inherited.group_id, inherited.level, inherited.created_by
     from (
       with recursive chain as (
-        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${pageId})
+        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${ancestorsOf})
         union all
         select p.id, p.parent_id, c.depth + 1 from page p join chain c on p.id = c.parent_id where c.depth < 64
       )

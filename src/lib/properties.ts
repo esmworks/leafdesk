@@ -79,6 +79,7 @@ export const DATABASE_ERROR_CODES = [
   "relationTargetReadOnly",
   "databaseLocked",
   "pageLocked",
+  "pageInTrash",
   "invalidFilter",
   "invalidViewConfig",
   "unsupportedViewType",

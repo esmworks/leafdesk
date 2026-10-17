@@ -16,7 +16,7 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
 const { notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
@@ -415,6 +415,23 @@ try {
   );
   check(!(await templates.listTemplates(ids.member, workspaceId)).some((t) => t.id === tracker.id), "built-ins don't add workspace templates");
   check((await failure(() => templates.createFromBuiltin({ userId: ids.guest }, workspaceId, "weekly-plan"))) === "access", "guests can't add built-ins at the top level");
+
+  // ---------------------------------------------------------------------------------------------
+  // A subpage saved as a template keeps the access it had from above
+  const vault = await pages.createPage(owner, { workspaceId, title: "Vault" });
+  await setPagePermission(ids.owner, vault.id, ids.owner, "full");
+  await setPagePermission(ids.owner, vault.id, null, "none");
+  await setPagePermission(ids.owner, vault.id, ids.member, "view");
+  const vaultNotes = await pages.createPage(owner, { workspaceId, parentId: vault.id, title: "Vault notes", markdown: "Not for everyone." });
+  const vaultTemplate = await templates.saveAsTemplate(member, vaultNotes.id);
+  check((await row(vaultTemplate.id)).parentId === null, "a subpage saved as a template goes to the top level");
+  const levelOf = async (userId: string, pageId: string) =>
+    Number((await db.execute<{ level: number }>(sql`select page_access_level(${userId}, ${pageId}) as level`))[0].level);
+  for (const who of [ids.owner, ids.member, ids.viewer, ids.guest]) {
+    const [source, copy] = [await levelOf(who, vaultNotes.id), await levelOf(who, vaultTemplate.id)];
+    check(copy === source, `…and ${who.slice(RUN.length + 1)} has the same access to it as to the subpage`, { source, copy });
+  }
+  check(!(await templates.listTemplates(ids.viewer, workspaceId)).some((t) => t.id === vaultTemplate.id), "…so members it wasn't shared with don't see it");
 
   // ---------------------------------------------------------------------------------------------
   // MCP

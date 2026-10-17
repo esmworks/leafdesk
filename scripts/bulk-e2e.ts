@@ -35,6 +35,7 @@ const RUN = `bulk-e2e-${Date.now().toString(36)}`;
 // Broadcasts are recorded: a bulk action tells each database's views once.
 const broadcasts: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast: (channel: string, event: string) => void broadcasts.push(`${channel} ${event}`),
   async setTitle() {},
   async disconnectLostAccess() {},

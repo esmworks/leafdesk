@@ -19,6 +19,7 @@ import {
   workspaceProviderId,
 } from "@/lib/sso-config";
 import { requireMembership } from "@/server/access";
+import { disconnectEndedSessions } from "@/server/account-security";
 import { allowedDomainsProvenElsewhere } from "@/server/allowed-domains";
 import { recordAudit } from "@/server/audit";
 import { fetchRemoteFile, isBlockedAddress } from "@/server/remote-fetch";
@@ -387,11 +388,19 @@ const newVerificationToken = () => randomBytes(18).toString("base64url");
  * sessions it signed in. A sign-in finds its person by the id the identity provider gives them,
  * under the connection's provider id, which never changes (`ws-<workspace id>`); another identity
  * provider behind it could send any of those ids and sign in as that person. Afterwards people are
- * linked again by their verified domain's address, as on their first sign-in.
+ * linked again by their verified domain's address, as on their first sign-in. Returns the people
+ * whose sessions ended, for closing their open pages once the transaction commits
+ * (closeEndedSessions).
  */
-export async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string) {
+export async function forgetConnectionSignIns(tx: Pick<typeof db, "delete">, providerId: string): Promise<string[]> {
   await tx.delete(account).where(eq(account.providerId, providerId));
-  await tx.delete(session).where(eq(session.ssoProviderId, providerId));
+  const ended = await tx.delete(session).where(eq(session.ssoProviderId, providerId)).returning({ userId: session.userId });
+  return [...new Set(ended.map((s) => s.userId))];
+}
+
+/** Closes the open pages of sessions forgetConnectionSignIns ended: they would stay writable. */
+async function closeEndedSessions(userIds: string[]) {
+  for (const userId of userIds) await disconnectEndedSessions(userId);
 }
 
 /**
@@ -461,9 +470,10 @@ export async function saveSsoConnection(
     domain: domains.join(","),
     domainVerified: verified,
   };
-  await db.transaction(async (tx) => {
+  const signedOut = await db.transaction(async (tx) => {
+    let ended: string[] = [];
     if (existing) {
-      if (!sameIdentity) await forgetConnectionSignIns(tx, providerId);
+      if (!sameIdentity) ended = await forgetConnectionSignIns(tx, providerId);
       await tx.update(ssoProvider).set(fields).where(eq(ssoProvider.providerId, providerId));
       await tx
         .update(workspaceSso)
@@ -489,7 +499,9 @@ export async function saveSsoConnection(
       },
       tx,
     );
+    return ended;
   });
+  await closeEndedSessions(signedOut);
   return getSsoConnection(actorId, workspaceId);
 }
 
@@ -540,10 +552,11 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
  */
 export async function removeSsoConnection(actorId: string, workspaceId: string) {
   await requireMembership(actorId, workspaceId, "owner");
-  await db.transaction(async (tx) => {
+  const signedOut = await db.transaction(async (tx) => {
+    const ended: string[] = [];
     const removed = await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId)).returning({ providerId: workspaceSso.providerId });
     for (const { providerId } of removed) {
-      await forgetConnectionSignIns(tx, providerId);
+      ended.push(...(await forgetConnectionSignIns(tx, providerId)));
       await recordAudit({ workspaceId, actorId, action: "sso.removed", target: { type: "sso", id: providerId } }, tx);
     }
     if (!env.instanceOidc) {
@@ -555,7 +568,9 @@ export async function removeSsoConnection(actorId: string, workspaceId: string) 
           .where(eq(workspace.id, workspaceId));
       }
     }
+    return ended;
   });
+  await closeEndedSessions(signedOut);
 }
 
 /** For the "SSO only" gate: the provider a member of the workspace signs in with. */

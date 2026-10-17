@@ -15,7 +15,7 @@ import { AI_EDIT_EVENT, AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT, PAGE_SAVE_FA
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
-import { assertPageUnlocked } from "@/lib/page-lock";
+import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
 import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
 import { requestLocale } from "@/i18n/config";
@@ -116,11 +116,18 @@ async function versionOf(blocks: Parameters<typeof blocksToMarkdown>[0], workspa
 
 /**
  * The server's own writes of a title or body (MCP, the REST API, AI and agents, restoring a version)
- * refuse a locked page, like its browser connections do. Comments and history snapshots go on.
+ * refuse a locked page or one in the trash, like its browser connections do. Comments and history
+ * snapshots go on.
  */
 async function assertWritable(pageId: string) {
-  const [row] = await db.select({ kind: page.kind, lockedAt: page.lockedAt }).from(page).where(eq(page.id, pageId)).limit(1);
-  if (row) assertPageUnlocked(row);
+  const [row] = await db
+    .select({ kind: page.kind, lockedAt: page.lockedAt, archivedAt: page.archivedAt })
+    .from(page)
+    .where(eq(page.id, pageId))
+    .limit(1);
+  if (!row) return;
+  assertNotInTrash(row);
+  assertPageUnlocked(row);
 }
 
 async function workspaceOf(pageId: string) {
@@ -208,6 +215,43 @@ function runOp(store: YjsThreadStore, threads: Y.Map<unknown>, op: CommentOp): P
 export function createCollab() {
   const broadcast = (channel: Channel, event: string) => {
     hocuspocus.documents.get(channel)?.broadcastStateless(event);
+  };
+
+  /** Browser connections only: the server's own writes check the page themselves (assertWritable). */
+  const browsersOf = (pageId: string) =>
+    hocuspocus.documents.get(pageDocName(pageId))?.getConnections().filter((c) => (c.context as Context).userId !== undefined) ?? [];
+
+  /**
+   * The page was locked or trashed. In place, without a reconnect: its browsers' edits are refused
+   * from now on (Hocuspocus answers them "not applied"), and the browsers keep them until it can be
+   * edited again.
+   */
+  const closeForWrites = (pageId: string) => {
+    for (const connection of browsersOf(pageId)) connection.readOnly = true;
+  };
+
+  /** The page was unlocked or restored: browsers of people who may edit it write again, if it may change at all. */
+  const reopenForEditors = async (pageId: string) => {
+    const waiting = browsersOf(pageId).filter((c) => c.readOnly);
+    if (!waiting.length) return;
+    const [current] = await db
+      .select({ kind: page.kind, lockedAt: page.lockedAt, archivedAt: page.archivedAt })
+      .from(page)
+      .where(eq(page.id, pageId))
+      .limit(1);
+    if (!current || isPageLocked(current) || current.archivedAt) return;
+    const userIds = [...new Set(waiting.map((c) => (c.context as Context).userId!))];
+    const rows = await db.execute<{ user_id: string; level: number }>(sql`
+      select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
+      from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
+    `);
+    // 3 is edit (page_access_level): people who may only view or comment stay read-only. The
+    // browsers sync again once they hear of the unlock (components/page/page-view), sending the
+    // edits the lock held back.
+    const editors = new Set(rows.filter((r) => Number(r.level) >= 3).map((r) => r.user_id));
+    for (const connection of waiting) {
+      if (editors.has((connection.context as Context).userId!)) connection.readOnly = false;
+    }
   };
 
   /**
@@ -821,28 +865,14 @@ export function createCollab() {
     broadcast,
 
     async pageLockChanged(pageId, locked) {
-      const doc = hocuspocus.documents.get(pageDocName(pageId));
-      // Browser connections only: the server's own writes check the lock themselves (assertWritable).
-      const browsers = doc?.getConnections().filter((c) => (c.context as Context).userId !== undefined) ?? [];
-      if (locked) {
-        // In place, without a reconnect: their edits are refused from now on (Hocuspocus answers them
-        // "not applied"), and the browsers keep them until the page is unlocked.
-        for (const connection of browsers) connection.readOnly = true;
-        return;
-      }
-      const waiting = browsers.filter((c) => c.readOnly);
-      if (!waiting.length) return;
-      const userIds = [...new Set(waiting.map((c) => (c.context as Context).userId!))];
-      const rows = await db.execute<{ user_id: string; level: number }>(sql`
-        select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
-        from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
-      `);
-      // 3 is edit (page_access_level): people who may only view or comment stay read-only. The
-      // browsers sync again once they hear of the unlock (components/page/page-view), sending the
-      // edits the lock held back.
-      const editors = new Set(rows.filter((r) => Number(r.level) >= 3).map((r) => r.user_id));
-      for (const connection of waiting) {
-        if (editors.has((connection.context as Context).userId!)) connection.readOnly = false;
+      if (locked) closeForWrites(pageId);
+      else await reopenForEditors(pageId);
+    },
+
+    async pagesTrashed(pageIds, trashed) {
+      for (const pageId of pageIds) {
+        if (trashed) closeForWrites(pageId);
+        else await reopenForEditors(pageId);
       }
     },
 

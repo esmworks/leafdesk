@@ -155,6 +155,12 @@ export function PageView({
     if (wasLocked.current && !info.locked) pageDoc?.provider.forceSync();
     wasLocked.current = info.locked;
   }, [info.locked, pageDoc]);
+  // Restored from the trash: the same, for what its connection refused while the page was there.
+  const wasArchived = useRef(page.archived);
+  useEffect(() => {
+    if (wasArchived.current && !page.archived) pageDoc?.provider.forceSync();
+    wasArchived.current = page.archived;
+  }, [page.archived, pageDoc]);
   useEffect(() => setBackground(page.background), [page.background]);
 
   // Someone else changed the icon or background (server/pages.ts): load them again.

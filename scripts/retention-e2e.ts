@@ -38,7 +38,7 @@ const RUN = `retention-e2e-${Date.now().toString(36)}`;
 const DAY = 24 * 60 * 60 * 1000;
 
 // Writes notify open editors through the collab service, which only runs inside the app server.
-registerCollab({ broadcast() {}, async disconnectLostAccess() {} } as unknown as Parameters<typeof registerCollab>[0]);
+registerCollab({ async pagesTrashed() {}, broadcast() {}, async disconnectLostAccess() {} } as unknown as Parameters<typeof registerCollab>[0]);
 
 let passed = 0;
 function check(condition: unknown, label: string, detail?: unknown): asserts condition {

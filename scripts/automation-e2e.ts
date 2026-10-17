@@ -58,6 +58,7 @@ const { AccessError } = await import("@/server/access");
 const RUN = `automation-e2e-${Date.now().toString(36)}`;
 
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async disconnectLostAccess() {},
   async replaceContent() {},

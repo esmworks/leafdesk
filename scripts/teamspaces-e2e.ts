@@ -62,6 +62,7 @@ const disconnected: { teamspaceId: string; userIds?: string[] }[] = [];
 // Open editors whose access is checked again, as [workspace, the users or "everyone"].
 const rechecked: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},

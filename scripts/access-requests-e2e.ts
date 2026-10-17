@@ -55,6 +55,7 @@ const RUN = `access-requests-e2e-${Date.now().toString(36)}`;
 // app server. Broadcasts are recorded so the inbox signal can be checked.
 const broadcasts: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast: (channel: string, event: string) => void broadcasts.push(`${channel} ${event}`),
   async disconnectUser() {},
   async disconnectLostAccess() {},
