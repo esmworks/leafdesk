@@ -826,7 +826,7 @@ the REST API.
 - **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
   for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
   automations can't get a webhook nor send one (`webhookExportOff`; a webhook saved before may
-  stay, and its runs fail until export is back on). The member list CSV in
+  stay, and its runs and test pings fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
   workspace, on top of their own permissions and their user's access. *Full access* (default),

@@ -423,8 +423,14 @@ export async function testAutomationWebhooks(userId: string, automationId: strin
     database: { id: automation.databaseId },
   });
   const results: { url: string; ok: boolean; httpStatus?: number; code?: string; error?: string }[] = [];
+  // Like the runs, a ping isn't sent while the workspace's owners have export off.
+  const exportOff = !(await exportAllowed(automation.workspaceId));
   for (const action of automation.actions) {
     if (action.type !== "webhook") continue;
+    if (exportOff) {
+      results.push({ url: action.url, ok: false, code: "webhookExportOff", error: "The workspace's owners turned export off" });
+      continue;
+    }
     try {
       const httpStatus = await sendWebhook(action.url, { id, event: "ping", body, secret: webhookSecret(automation.secretSalt) });
       results.push({ url: action.url, ok: true, httpStatus });

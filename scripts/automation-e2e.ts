@@ -299,6 +299,8 @@ try {
   await flushAutomations();
   const [offRun] = (await runsOf(added.id)).slice(-1);
   check(received.length === 0 && offRun.status === "failed" && offRun.steps[0].code === "webhookExportOff", "…and it sends nothing, failing the run", offRun);
+  const offPings = await manage.testAutomationWebhooks(ids.owner, added.id);
+  check(received.length === 0 && offPings.length === 1 && !offPings[0].ok && offPings[0].code === "webhookExportOff", "…not even a test ping", offPings);
   await updateWorkspaceSettings(ids.owner, workspaceId, { export: true });
 
   await manage.updateAutomation(ids.owner, added.id, { enabled: false });
