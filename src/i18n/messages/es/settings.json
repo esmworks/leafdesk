@@ -1404,7 +1404,16 @@
     "automationChannel": "Automatizaciones: {channel}",
     "rowUpdateTitle": "Filas que sigues",
     "rowUpdateDescription": "Otra persona cambia una fila de base de datos que sigues: una que creaste, a la que estás asignado, que comentaste o en la que te mencionaron, o que elegiste seguir.",
-    "rowUpdateChannel": "Filas que sigues: {channel}"
+    "rowUpdateChannel": "Filas que sigues: {channel}",
+    "pageUpdateTitle": "Páginas que observas",
+    "pageUpdateDescription": "Otra persona edita una página que observas: una que creaste o editaste, que elegiste observar o que está en un espacio de equipo que observas. Los correos sobre la misma página llegan como mucho cada pocas horas y, tras unos cuantos al día, el resto llega junto en un solo correo.",
+    "pageUpdateChannel": "Páginas que observas: {channel}",
+    "watchedHeading": "Páginas observadas",
+    "watchedDescription": "Páginas que elegiste observar o editaste, y espacios de equipo que observas. También observas las páginas que creaste. Quienes observan se enteran de las ediciones y los nuevos hilos de comentarios.",
+    "watchedNone": "Todavía no observas ninguna página",
+    "watchedNoneDescription": "Observa una página desde su menú ⋯, o un espacio de equipo entero desde su menú en la barra lateral. Las páginas que editas se observan automáticamente.",
+    "watchedTeamspace": "Todas las páginas de este espacio de equipo · {workspace}",
+    "stopWatching": "Dejar de observar"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

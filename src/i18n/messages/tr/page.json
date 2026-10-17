@@ -57,7 +57,11 @@
     "deleteTemplate": "Şablonu sil",
     "exportDisabled": "Dışa aktarma kapalı",
     "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı.",
-    "showInGraph": "Grafikte göster"
+    "showInGraph": "Grafikte göster",
+    "watch": "İzle",
+    "watchHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
+    "mute": "Sessize al",
+    "muteHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alıyorsunuz. Durdurmak için sessize alın."
   },
   "comments": {
     "aboutPage": "Bu sayfa hakkında",

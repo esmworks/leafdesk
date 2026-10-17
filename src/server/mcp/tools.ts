@@ -174,7 +174,7 @@ Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.
 check_workspace looks a workspace over for what is worth tidying (broken links, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
-list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, requests for access to pages they can share and, for owners, requests to join their workspaces.
+list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.
@@ -995,7 +995,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval and notes agents' runs proposed for their memory, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -1110,6 +1110,8 @@ export function createMcpServer(principal: McpPrincipal) {
                           ? `${who} asked for access to "${title}", which the user can share (answer from the page's Share menu)`
                           : n.kind === "row_update"
                             ? `${who} changed "${title}" in ${pageLabel(n.databaseTitle)}, a row the user follows`
+                          : n.kind === "page_updated"
+                            ? `${who} edited "${title}", a page the user watches (get_page shows it now; list_page_history what changed)`
                           : n.kind === "automation"
                             ? n.reminderDate
                               ? `Automation "${n.automationName ?? ""}": "${title}" in ${pageLabel(n.databaseTitle)} reached the date it waits for (${n.reminderDate})`
@@ -1165,11 +1167,24 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_page",
     {
       title: "Read a page",
-      description: `Read a page: title, breadcrumb path, Markdown body, sub-pages and a link. locked: true means nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app. For database rows it also returns the row's properties; for databases it returns the schema summary (use query_database for rows). Long bodies are cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue reading. with_block_ids puts a "<!-- block <id> -->" line before each block, for update_page's block modes. ${EMBED_NOTE}`,
+      description: `Read a page: title, breadcrumb path, Markdown body, sub-pages and a link. locked: true means nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app. watching says whether the user hears about others' edits and new comment threads (for a row: follows it; watch_page changes it). For database rows it also returns the row's properties; for databases it returns the schema summary (use query_database for rows). Long bodies are cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue reading. with_block_ids puts a "<!-- block <id> -->" line before each block, for update_page's block modes. ${EMBED_NOTE}`,
       inputSchema: ops.inputs.getPage,
       annotations: READ,
     },
     (args) => runTool(() => ops.getPage(ctx, args)),
+  );
+
+  server.registerTool(
+    "watch_page",
+    {
+      title: "Watch or mute a page",
+      description:
+        "Watch a page (watching: true) to hear in the inbox, by email and as push notifications when others edit it or start a comment thread on it, or mute it (watching: false) to stop. Its creator and everyone who edits a page watch it until they mute it, and so does anyone watching its teamspace; a mute wins over all of these. For a database row this follows or stops following it (others' changes to its values, title and body). get_page shows whether the user watches a page (watching).",
+      inputSchema: ops.inputs.watchPage,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write((args) => ops.watchPage(ctx, args)),
   );
 
   server.registerTool(

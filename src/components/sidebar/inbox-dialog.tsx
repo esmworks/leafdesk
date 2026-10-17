@@ -199,6 +199,8 @@ export function InboxDialog({
                           ? t("reminder", { date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
                           : item.kind === "row_update"
                             ? t("rowUpdate", { actor: item.actorName || t("someone") })
+                          : item.kind === "page_updated"
+                            ? t("pageUpdated", { actor: item.actorName || t("someone") })
                           : item.kind === "automation"
                             ? item.reminderDate
                               ? t("automationDatePassed", { name: item.automationName ?? "" })

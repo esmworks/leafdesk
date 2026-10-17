@@ -201,6 +201,9 @@ export function pushPayload(
         line = fields.length ? t("rowUpdate", { actor, fields: fields.join(", ") }) : t("rowUpdateSome", { actor });
         break;
       }
+      case "page_updated":
+        line = t("pageUpdated", { actor });
+        break;
       default:
         line = t("assignment", { actor, property: item.propertyName ?? "" });
     }

@@ -7,6 +7,7 @@ import { avatarSrc } from "@/lib/avatar";
 import { getCollab } from "@/server/collab/bridge";
 import type { CommentOpResult } from "@/server/collab/bridge";
 import { recordComment, withdrawComments } from "@/server/notifications";
+import { newThreadAudience } from "@/server/page-watch";
 import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
@@ -98,9 +99,12 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const result = await getCollab().commentOp(pageId, { userId, role }, clean);
 
   if ((clean.type === "createThread" || clean.type === "addComment") && result.thread && result.comment) {
-    // Everyone who wrote in the thread before hears about a reply; a new thread tells the page's author.
+    // Everyone who wrote in the thread before hears about a reply; a new thread tells the page's
+    // watchers (a database row's followers), see server/page-watch.
     const recipients =
-      clean.type === "createThread" ? (target.createdBy ? [target.createdBy] : []) : threadParticipants(result.thread, userId, result.comment.id);
+      clean.type === "createThread"
+        ? await newThreadAudience(pageId, target.createdBy)
+        : threadParticipants(result.thread, userId, result.comment.id);
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);

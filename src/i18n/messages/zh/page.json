@@ -57,7 +57,11 @@
     "deleteTemplate": "删除模板",
     "exportDisabled": "导出已关闭",
     "exportDisabledBody": "此工作区的所有者已关闭其页面的导出和打印功能。",
-    "showInGraph": "在关系图中显示"
+    "showInGraph": "在关系图中显示",
+    "watch": "关注页面",
+    "watchHint": "其他人编辑此页面或在其中发起评论串时，在收件箱中收到通知。",
+    "mute": "静音",
+    "muteHint": "其他人编辑此页面或在其中发起评论串时，你会在收件箱中收到通知。静音即可停止。"
   },
   "comments": {
     "aboutPage": "关于此页面",

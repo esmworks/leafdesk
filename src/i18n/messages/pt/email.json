@@ -112,6 +112,18 @@
     "someone": "Alguém",
     "optOut": "Você recebe estes e-mails porque segue esta linha. Deixe de segui-la pelo menu da página da linha ou desative estes e-mails em Minha conta > Preferências."
   },
+  "pageUpdate": {
+    "subject": "{actor} editou “{page}”",
+    "heading": "{actor} editou “{page}”",
+    "body": "“{page}” em {workspace} mudou. Abra-a para ver as novidades; o histórico mostra cada alteração.",
+    "someone": "Alguém",
+    "action": "Abrir página",
+    "optOut": "Você recebe estes e-mails porque acompanha esta página: você a criou ou editou, escolheu acompanhá-la ou acompanha o espaço de equipe dela. Silencie-a pelo menu ⋯ da página ou desative estes e-mails em Minha conta > Preferências.",
+    "digestSubject": "{count, plural, one {# página que você acompanha foi editada} other {# páginas que você acompanha foram editadas}}",
+    "digestIntro": "Você já recebeu os e-mails de hoje sobre páginas que acompanha, então estas edições chegam juntas:",
+    "digestPage": "“{page}” em {workspace}, editada por {actor}: {link}",
+    "digestAction": "Abrir o Leafdesk"
+  },
   "accessRequest": {
     "subject": "{requester} pediu acesso a “{page}”",
     "heading": "{requester} pediu acesso a “{page}”",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} alterou esta linha",
     "rowUpdateTitle": "o título",
     "rowUpdateBody": "o texto",
+    "pageUpdated": "{actor} editou esta página",
     "someone": "Alguém",
     "joinRequestTitle": "Solicitação para participar",
     "joinRequest": "{actor} pediu para participar",

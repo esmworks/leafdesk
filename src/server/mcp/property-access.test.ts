@@ -56,6 +56,12 @@ const groups = vi.hoisted(() => ({ listGroups: vi.fn() }));
 vi.mock("@/server/groups", () => groups);
 
 vi.mock("@/server/page-meta", () => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn(async () => []) }));
+vi.mock("@/server/page-watch", () => ({ isWatching: vi.fn(async () => null), setWatching: vi.fn() }));
+vi.mock("@/server/row-follow", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  isFollowing: vi.fn(async () => true),
+  setFollowing: vi.fn(),
+}));
 
 vi.mock("@/server/mentions", () => ({
   labelPageLinks: vi.fn(async (_: string, markdown: string) => markdown),
