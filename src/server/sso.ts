@@ -22,7 +22,7 @@ import { requireMembership } from "@/server/access";
 import { disconnectEndedSessions } from "@/server/account-security";
 import { allowedDomainsProvenElsewhere } from "@/server/allowed-domains";
 import { recordAudit } from "@/server/audit";
-import { fetchRemoteFile, isBlockedAddress } from "@/server/remote-fetch";
+import { fetchRemoteFile, isBlockedAddress, readRemoteText } from "@/server/remote-fetch";
 import { joinAsMember } from "@/server/workspaces";
 
 /**
@@ -301,9 +301,7 @@ async function fetchDiscovery(url: string): Promise<string> {
     maxRedirects: 0,
     isBlocked: trusted ? () => false : isBlockedAddress,
   });
-  const chunks: Buffer[] = [];
-  for await (const chunk of file.body) chunks.push(chunk as Buffer);
-  return Buffer.concat(chunks).toString("utf8");
+  return readRemoteText(file, MAX_DISCOVERY_BYTES);
 }
 
 const PEM_BODY = /^[A-Za-z0-9+/=\s]+$/;

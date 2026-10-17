@@ -2,6 +2,7 @@ import { lookup as dnsLookup, type LookupAddress } from "node:dns";
 import { request as httpRequest, type IncomingMessage, type RequestOptions } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { isIP, type LookupFunction } from "node:net";
+import { isBlockedAddress as isBlockedIp } from "@/server/ssrf";
 
 /**
  * Fetches a file from a URL someone gave us (MCP's attach_file) without letting that URL reach
@@ -21,94 +22,31 @@ export class RemoteFetchError extends Error {
   }
 }
 
-function ipv4Bytes(address: string): number[] | null {
-  const parts = address.split(".");
-  if (parts.length !== 4) return null;
-  const bytes = parts.map((p) => (/^\d{1,3}$/.test(p) ? Number(p) : NaN));
-  return bytes.every((b) => b >= 0 && b <= 255) ? bytes : null;
-}
-
-function ipv6Bytes(input: string): number[] | null {
-  let address = input.replace(/^\[|\]$/g, "").split("%")[0].toLowerCase();
-  // A trailing dotted quad (::ffff:1.2.3.4) becomes two hextets.
-  const quad = /(\d{1,3}(?:\.\d{1,3}){3})$/.exec(address);
-  if (quad) {
-    const v4 = ipv4Bytes(quad[1]);
-    if (!v4) return null;
-    address = address.slice(0, -quad[1].length) + `${((v4[0] << 8) | v4[1]).toString(16)}:${((v4[2] << 8) | v4[3]).toString(16)}`;
-  }
-  const halves = address.split("::");
-  if (halves.length > 2) return null;
-  const head = halves[0] ? halves[0].split(":") : [];
-  const tail = halves.length === 2 && halves[1] ? halves[1].split(":") : [];
-  const missing = 8 - head.length - tail.length;
-  if (halves.length === 1 ? missing !== 0 : missing < 1) return null;
-  const groups = [...head, ...Array(halves.length === 2 ? missing : 0).fill("0"), ...tail];
-  if (groups.length !== 8 || groups.some((g) => !/^[0-9a-f]{1,4}$/.test(g))) return null;
-  return groups.flatMap((g) => {
-    const n = parseInt(g, 16);
-    return [n >> 8, n & 0xff];
-  });
-}
-
-const inPrefix = (bytes: number[], prefix: number[], bits: number) => {
-  for (let i = 0; i < bits; i++) {
-    const byte = i >> 3;
-    const mask = 0x80 >> (i & 7);
-    if ((bytes[byte] & mask) !== ((prefix[byte] ?? 0) & mask)) return false;
-  }
-  return true;
-};
-
-/** IPv4 ranges that aren't the public internet (RFC 6890 and friends). */
-const BLOCKED_V4: [number[], number][] = [
-  [[0], 8], // "this" network
-  [[10], 8], // private
-  [[100, 64], 10], // carrier-grade NAT
-  [[127], 8], // loopback
-  [[169, 254], 16], // link-local (cloud metadata lives here)
-  [[172, 16], 12], // private
-  [[192, 0, 0], 24], // IETF protocol assignments
-  [[192, 0, 2], 24], // documentation
-  [[192, 88, 99], 24], // 6to4 relay anycast
-  [[192, 168], 16], // private
-  [[198, 18], 15], // benchmarking
-  [[198, 51, 100], 24], // documentation
-  [[203, 0, 113], 24], // documentation
-  [[224], 4], // multicast
-  [[240], 4], // reserved, broadcast
-];
-
-/** IPv6 ranges that aren't the public internet. Ranges that embed an IPv4 address are checked by it. */
-const BLOCKED_V6: [number[], number][] = [
-  [[0x01, 0x00], 64], // discard-only
-  [[0x20, 0x01], 23], // IETF protocol assignments (Teredo included)
-  [[0x20, 0x01, 0x0d, 0xb8], 32], // documentation
-  [[0xfc], 7], // unique local
-  [[0xfe, 0x80], 10], // link-local
-  [[0xfe, 0xc0], 10], // site-local (deprecated)
-  [[0xff], 8], // multicast
-];
-
-/** True for loopback, private, link-local and other addresses a fetch must never reach. */
+/**
+ * True for loopback, private, link-local and other addresses a fetch must never reach: the same
+ * rules as link previews (server/ssrf.ts), with a bracketed IPv6 literal ("[::1]") read as its address.
+ */
 export function isBlockedAddress(address: string): boolean {
-  const family = isIP(address.replace(/^\[|\]$/g, "").split("%")[0]);
-  if (family === 4) {
-    const bytes = ipv4Bytes(address)!;
-    return BLOCKED_V4.some(([prefix, bits]) => inPrefix(bytes, prefix, bits));
+  return isBlockedIp(address.replace(/^\[|\]$/g, ""));
+}
+
+/**
+ * Reads a fetched file's body as text, at most `maxBytes` of it: a server that sends no
+ * Content-Length (or a wrong one) is cut off there instead of filling memory.
+ */
+export async function readRemoteText(file: RemoteFile, maxBytes: number): Promise<string> {
+  const chunks: Buffer[] = [];
+  let total = 0;
+  try {
+    for await (const chunk of file.body) {
+      total += (chunk as Buffer).length;
+      if (total > maxBytes) throw new RemoteFetchError("The file is too large", "tooLarge");
+      chunks.push(chunk as Buffer);
+    }
+  } finally {
+    file.body.destroy();
   }
-  if (family !== 6) return true;
-  const bytes = ipv6Bytes(address);
-  if (!bytes) return true;
-  const zeros = (from: number, to: number) => bytes.slice(from, to).every((b) => b === 0);
-  // ::ffff:a.b.c.d (IPv4-mapped) and 64:ff9b::a.b.c.d (NAT64) reach the embedded IPv4 address.
-  if (zeros(0, 10) && bytes[10] === 0xff && bytes[11] === 0xff) return isBlockedAddress(bytes.slice(12).join("."));
-  if (inPrefix(bytes, [0x00, 0x64, 0xff, 0x9b], 96)) return isBlockedAddress(bytes.slice(12).join("."));
-  // 6to4 (2002:a.b.c.d::/48) as well.
-  if (inPrefix(bytes, [0x20, 0x02], 16)) return isBlockedAddress(bytes.slice(2, 6).join("."));
-  // ::, ::1 and the old IPv4-compatible ::a.b.c.d.
-  if (zeros(0, 12)) return true;
-  return BLOCKED_V6.some(([prefix, bits]) => inPrefix(bytes, prefix, bits));
+  return Buffer.concat(chunks).toString("utf8");
 }
 
 export type RemoteFetchOptions = {

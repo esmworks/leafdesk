@@ -91,6 +91,7 @@ export const DATABASE_ERROR_CODES = [
   "invalidPageVisibility",
   "calendarFeedNotCalendar",
   "calendarFeedExportOff",
+  "webhookExportOff",
   "isTemplate",
   "notATemplate",
   "propertyRestricted",

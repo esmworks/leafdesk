@@ -314,7 +314,8 @@ versions, upgrades and running behind a domain.
   search, AI answer, export, copy, published page, MCP and REST reply of people they are hidden
   from, and their writes are refused. AI autofill never reads a restricted property, nor a
   formula or rollup reading one (of the row or of related rows), whoever asks: the text it writes
-  can be read by people the value is hidden from. Relations and the created/edited by/time
+  can be read by people the value is hidden from. Nor does it read relations, rollups or people
+  properties (or formulas reading them), which can name rows and people its readers can't open. Relations and the created/edited by/time
   properties can't be restricted.
 - **Member groups**: workspace owners gather members into groups (Settings → Groups) and share a
   page with a group, or add it to a teamspace, the way they would with a person. Everyone in the
@@ -589,6 +590,9 @@ the app. An export holds only what the person exporting can see: pages they can'
 out and links to them say "No access". Pages in the trash are left out; exporting a page from the
 trash brings the subpages trashed with it.
 
+A page in the trash can be read but not changed: its content, title, icon, cover and properties
+stay as they are until it is restored, and nothing can be moved or added under it.
+
 Pages stay in the trash for the time owners choose in Settings > Security > Data retention (30
 days by default, or forever); once a day the server deletes the pages whose time is up, with their
 files, and prunes old page history (versions older than 90 days or past the newest 200 of a page;
@@ -820,7 +824,9 @@ the REST API.
   publications and the site's settings stay listed in Settings, and come back as they were when
   publishing is turned on again.
 - **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
-  for everyone, owners included, and the export routes answer `403`. The member list CSV in
+  for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
+  automations can't get a webhook nor send one (`webhookExportOff`; a webhook saved before may
+  stay, and its runs fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
   workspace, on top of their own permissions and their user's access. *Full access* (default),
@@ -1682,7 +1688,8 @@ each proposal is a step of the run, with credentials masked, and goes with no ru
 keeps it. In the agent's *Memory* tab (and a "notes to review" link next to the agent in the list),
 owners see the proposals with the run's row and time, keep one as it is or changed, or dismiss it;
 they also write, change and delete notes, and make it forget everything. An owner who can't open a
-proposal's row doesn't see its text (it may quote the row) and can only dismiss it. A run may drop a
+proposal's row doesn't see its text (it may quote the row) and can only dismiss it, nor does one
+whose proposal came from a run another owner asked for or scheduled without a database. A run may drop a
 note at once with `forget`, which loses at most that note. Runs no member stands behind (an
 anonymous or outside form answer, an event from a trigger no owner marked trusted) get neither
 tool, but the kept notes go with them too. Kept notes reach the model as data, never as
@@ -1713,7 +1720,10 @@ automations can't set each other off.
 **Managing agents.** In Settings → *Agents*, owners of the workspace create, change, pause,
 archive and restore agents, choose what is shared with them and look through their runs; members
 see the list without the agents' instructions. A run's steps, answer and error show only to owners
-who can open its row. Where an agent acted, it shows as an agent: its icon in *Created by* and
+who can open its row (for a schedule on a database, the database). A run an owner asked for, or
+one a schedule without a database started, read with that owner's access: only they see what it
+did, its task and the notes it proposed; the others see that it ran and how it ended, and may
+still answer a call it waits on. Where an agent acted, it shows as an agent: its icon in *Created by* and
 *Last edited by*, "(agent)" after its name on comments and in page history. A comment an agent
 writes about the whole row rather than about some of its text says *About this page* in the
 comments panel, at the top of the list. A

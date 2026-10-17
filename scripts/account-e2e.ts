@@ -234,7 +234,7 @@ async function makeSocialOnly(userId: string) {
 
 // 1×1 PNG.
 /** Registers an MCP client and stores the user's consent to it, as connecting it does. */
-async function connectApp(userId: string, label: string) {
+async function connectApp(userId: string, label: string, extra: Record<string, unknown> = {}) {
   const prm = await (await fetch(`${BASE}/.well-known/oauth-protected-resource/mcp`)).json();
   const issuer = new URL(prm.authorization_servers[0]);
   const as = await (await fetch(`${issuer.origin}/.well-known/oauth-authorization-server${issuer.pathname}`)).json();
@@ -249,6 +249,7 @@ async function connectApp(userId: string, label: string) {
       grant_types: ["authorization_code"],
       response_types: ["code"],
       scope: "openid pages:read",
+      ...extra,
     }),
   });
   const client = (await registered.json()) as { client_id?: string };
@@ -472,6 +473,13 @@ async function main() {
   const short = await account_(ada.jar, "changePasswordAction", [{ currentPassword: PASSWORD, newPassword: "short", revokeOthers: false }]);
   check(!short.ok && short.code === "passwordTooShort", "…and a new one of 8 characters or more", short);
   const appBefore = await connectApp(ada.id, "password");
+  // A back-channel logout URI would have the server post wherever a client says: it isn't kept.
+  const loggingOut = await connectApp(ada.id, "backchannel", { backchannel_logout_uri: "https://example.com/logout", backchannel_logout_session_required: true });
+  const [loggingOutRow] = await db
+    .select({ uri: oauthClient.backchannelLogoutUri, required: oauthClient.backchannelLogoutSessionRequired })
+    .from(oauthClient)
+    .where(eq(oauthClient.clientId, loggingOut));
+  check(loggingOutRow && loggingOutRow.uri === null && !loggingOutRow.required, "a client that registers a back-channel logout URI is stored without it", loggingOutRow);
   const tokensOf = async (userId: string) => (await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, userId))).length;
   await createApiToken(ada.id, { name: `Before ${RUN}`, scopes: ["pages:read"] });
   const changed = await account_(ada.jar, "changePasswordAction", [

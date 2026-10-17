@@ -53,6 +53,7 @@ const { webhookSecret } = await import("@/server/automations/webhook");
 const { listInbox } = await import("@/server/notifications");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
 const { PropertyValueError } = await import("@/lib/properties");
+const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
 
 const RUN = `automation-e2e-${Date.now().toString(36)}`;
@@ -281,6 +282,24 @@ try {
   await flushAutomations();
   const [refused] = (await runsOf(added.id)).slice(-1);
   check(refused.status === "failed" && refused.steps[0].httpStatus === 400, "a 400 fails without a retry", refused);
+
+  // Export off: webhooks send rows out of the workspace, so none is added or sent.
+  await updateWorkspaceSettings(ids.owner, workspaceId, { export: false });
+  check(
+    await failsWith(
+      manage.createAutomation(ids.owner, tasks.id, { name: "x", trigger: { type: "row_created" }, actions: [{ type: "webhook", url: `${hook}?other` }] }),
+      "webhookExportOff",
+    ),
+    "with export off, an automation can't get a webhook",
+  );
+  const keptHook = await manage.updateAutomation(ids.owner, added.id, { name: "New task hook", actions: [{ type: "webhook", url: hook }] });
+  check(keptHook.actions.length === 1, "…though one already saved can stay as it is", keptHook.actions);
+  received.length = 0;
+  await createPage(owner, { workspaceId, parentId: tasks.id, title: "while export is off" });
+  await flushAutomations();
+  const [offRun] = (await runsOf(added.id)).slice(-1);
+  check(received.length === 0 && offRun.status === "failed" && offRun.steps[0].code === "webhookExportOff", "…and it sends nothing, failing the run", offRun);
+  await updateWorkspaceSettings(ids.owner, workspaceId, { export: true });
 
   await manage.updateAutomation(ids.owner, added.id, { enabled: false });
   received.length = 0;

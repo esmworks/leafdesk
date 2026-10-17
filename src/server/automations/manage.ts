@@ -28,7 +28,7 @@ import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
 import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
-import { workspacePeople } from "@/server/workspaces";
+import { exportAllowed, workspacePeople } from "@/server/workspaces";
 import { countDatePassedMatches, forgetFired } from "./timed";
 import { newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
 
@@ -241,6 +241,12 @@ async function checkActions(
         else if (error instanceof WebhookError || error instanceof LinkPreviewError) {
           throw new PropertyValueError(`"${action.url}" is not a valid http(s) address`, "invalidWebhookUrl", { value: String(action.url ?? "") });
         } else throw error;
+      }
+      // A webhook sends rows out of the workspace: not while its owners have export turned off
+      // (one already saved may stay, but sends nothing until export is back on; see run.ts).
+      const kept = current.some((a) => a.type === "webhook" && a.url === url.toString());
+      if (!kept && !(await exportAllowed(workspaceId))) {
+        throw new PropertyValueError("The workspace's owners turned export off, so automations can't send webhooks", "webhookExportOff", {});
       }
       out.push({ type: "webhook", url: url.toString() });
     } else if (action?.type === "run_agent") {
