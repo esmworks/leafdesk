@@ -320,10 +320,11 @@ export async function listUnlinkedMentions(userId: string, pageId: string, { che
   const target = await requirePageAccess(userId, pageId, "view");
   const title = target.title.trim();
   if ([...title].length < MIN_MENTION_TITLE) return [];
-  // The same expression as page_search_idx, so the index narrows the pages down. Postgres lowers
-  // "I" and "İ" to "i" while the title may be written with "ı": the title is looked for as written,
-  // with every i-like letter as "i" and as "ı", and findTitle has the last word.
-  const document = sql`to_tsvector('simple', coalesce(${page.title}, '') || ' ' || coalesce(${page.contentText}, ''))`;
+  // The page's indexed search vector (title, then body, positions running on), so the index narrows
+  // the pages down. Postgres lowers "I" and "İ" to "i" while the title may be written with "ı": the
+  // title is looked for as written, with every i-like letter as "i" and as "ı", and findTitle has
+  // the last word.
+  const document = sql`${page.searchVector}`;
   const folded = searchFold(title);
   const forms = [...new Set([title, folded, folded.replace(/i/g, "ı")])];
   const query = sql.join(

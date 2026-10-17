@@ -56,7 +56,7 @@ import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
 import { placeTopLevel, requireTeamspaceForPages, sidebarTeamspaces, type TeamspaceSummary } from "@/server/teamspaces";
-import { requireTopLevel, workspaceSettings } from "@/server/workspaces";
+import { listWorkspaces, requireTopLevel, workspaceSettings } from "@/server/workspaces";
 
 import { placeInSections, PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
 
@@ -802,7 +802,14 @@ export async function searchPages(userId: string, query: string, options: Search
     .map(({ id }) => byId.get(id)!);
 }
 
-/** Title + body full-text search across the user's workspaces (or one workspace), newest first on ties. */
+/**
+ * Title + body full-text search across the user's workspaces (or one workspace), best first and
+ * newest first on ties. A page matches when it has every word of the query, each also as the start
+ * of a longer word, so a search finds pages while the words are still being typed ("kond plan"
+ * finds "Kondenser planı"). The match and the ranking read the page's stored search vector
+ * (page.searchVector) through its index, and access is checked in rank order only until `limit`
+ * pages pass, so a search costs about the same in a workspace of any size.
+ */
 export async function fullTextSearch(
   userId: string,
   query: string,
@@ -810,28 +817,25 @@ export async function fullTextSearch(
 ): Promise<SearchHit[]> {
   const q = query.trim();
   if (!q && !scoped(scope)) return [];
+  // Without a letter or digit there are no words to look for ("---" finds nothing).
+  if (q && !/[\p{L}\p{N}]/u.test(q)) return [];
   const terms = anyWord ? anyWordTerms(q) : [];
   if (anyWord && !terms.length) return [];
   if (workspaceId) await enforceWorkspacePolicy(userId, workspaceId);
+  const workspaces = workspaceId ? [workspaceId] : await searchedWorkspaces(userId);
+  if (!workspaces.length) return [];
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
-  const words = sql`setweight(to_tsvector('simple', coalesce(p.title, '')), 'A') || setweight(to_tsvector('simple', coalesce(p.content_text, '')), 'B')`;
-  const anyOf = sql`to_tsquery('simple', ${anyWordTsQuery(terms)})`;
+  // Every word as a prefix, cut by the parser that made the vectors ("e-posta" is the word and its
+  // parts, as on the page); null, matching nothing, when the query has no words at all.
+  const allOf = sql`nullif(regexp_replace(plainto_tsquery('simple', ${q})::text, '''( &|$)', ''':*\\1', 'g'), '')::tsquery`;
+  const words = anyWord ? sql`to_tsquery('simple', ${anyWordTsQuery(terms)})` : allOf;
+  // Normalization 1 divides by the log of the page's length: long pages don't win on size alone.
   const rank = !q
     ? sql`0`
     : anyWord
-    ? sql`ts_rank(${words}, ${anyOf})`
-    : sql`(case when p.title ilike ${like} then 2 else 0 end)
-      + ts_rank(to_tsvector('simple', coalesce(p.title, '') || ' ' || coalesce(p.content_text, '')),
-                plainto_tsquery('simple', ${q}))`;
-  const matches = !q
-    ? sql`true`
-    : anyWord
-    ? sql`${words} @@ ${anyOf}`
-    : sql`(
-        p.title ilike ${like} or p.content_text ilike ${like}
-        or to_tsvector('simple', coalesce(p.title, '') || ' ' || coalesce(p.content_text, ''))
-           @@ plainto_tsquery('simple', ${q})
-      )`;
+    ? sql`ts_rank(p.search_vector, ${words}, 1)`
+    : sql`(case when p.title ilike ${like} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
+  const matches = q ? sql`p.search_vector @@ ${words}` : sql`true`;
   const rows = await db.execute<{
     id: string;
     workspace_id: string;
@@ -842,26 +846,35 @@ export async function fullTextSearch(
     icon: string | null;
     content_text: string;
     updated_at: Date;
-    rank: number;
   }>(sql`
+    with hits as (
+      -- Ranked first, then checked in that order until enough pass: the check is a function call
+      -- per page, which a common word (or the first letters of one) would make for most pages.
+      -- "offset 0" keeps the check out of the ranked set, and the ranked set in its order.
+      select r.id, r.rank, r.updated_at from (
+        select p.id, ${rank} as rank, p.updated_at
+        from ${page} p
+        where p.workspace_id in (${sql.join(workspaces.map((w) => sql`${w}`), sql`, `)})
+          and p.archived_at is null
+          and not p.in_template
+          ${searchScope(scope)}
+          and ${matches}
+        order by rank desc, p.updated_at desc
+        offset 0
+      ) r
+      where ${pageVisibleTo(userId, "r")}
+      limit ${limit}
+    )
     select p.id, p.workspace_id, p.teamspace_id,
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
-      p.kind, p.title, p.icon, p.content_text, p.updated_at,
-      ${rank} as rank
-    from ${page} p
+      p.kind, p.title, p.icon, p.content_text, p.updated_at
+    from hits h
+    join ${page} p on p.id = h.id
     left join ${page} parent on parent.id = p.parent_id
-    where p.archived_at is null
-      and not p.in_template
-      and ${pageVisibleTo(userId, "p")}
-      ${workspaceId ? sql`and p.workspace_id = ${workspaceId}` : sql``}
-      ${searchScope(scope)}
-      and ${matches}
-    order by rank desc, p.updated_at desc
-    limit ${limit}
+    order by h.rank desc, h.updated_at desc
   `);
-  const heldBack = workspaceId ? new Set<string>() : await workspacesHeldBack(userId, rows.map((r) => r.workspace_id));
-  return rows.filter((r) => !heldBack.has(r.workspace_id)).map((r) => ({
+  return rows.map((r) => ({
     id: r.id,
     workspaceId: r.workspace_id,
     teamspaceId: r.teamspace_id,
@@ -869,9 +882,16 @@ export async function fullTextSearch(
     kind: r.kind,
     title: r.title,
     icon: r.icon,
-    snippet: makeSnippet(r.content_text, anyWord ? terms : [q]),
+    snippet: makeSnippet(r.content_text, anyWord ? terms : [q, ...q.split(/\s+/)]),
     updatedAt: new Date(r.updated_at),
   }));
+}
+
+/** The workspaces a search over all of the user's looks in: theirs, less those their sign-in doesn't open now. */
+async function searchedWorkspaces(userId: string): Promise<string[]> {
+  const ids = (await listWorkspaces(userId)).map((w) => w.id);
+  const held = await workspacesHeldBack(userId, ids);
+  return ids.filter((id) => !held.has(id));
 }
 
 /** The text around the first of `needles` it contains, or its start. */

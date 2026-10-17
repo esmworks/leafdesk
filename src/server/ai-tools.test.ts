@@ -2,13 +2,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * search_pages in the AI chat: a page the text search found without a passage gets the indexed
- * passage with the most of the query's words, cited at its block, rather than a snippet.
+ * passage with the most of the query's words, cited at its block, rather than a snippet; a page
+ * without an index gets that part of its body's text.
  */
 type Result = { id: string; title: string; parent_id: string | null; snippet: string; passage?: string | null; block_id?: string | null };
 const results: Result[] = [];
 const chunks = new Map<string, { blockId: string | null; position: number; text: string }[]>();
+/** The body text (page.content_text) of pages, by id. */
+const bodies = new Map<string, string>();
 
-vi.mock("@/db", () => ({ db: {} }));
+vi.mock("@/db", () => ({
+  db: { select: () => ({ from: () => ({ where: async () => [...bodies].map(([id, text]) => ({ id, text })) }) }) },
+}));
 vi.mock("@/server/collab/bridge", () => ({ getCollab: vi.fn() }));
 vi.mock("@/server/pages", () => ({ getTree: vi.fn() }));
 vi.mock("@/server/databases", () => ({ normalizeRowProperties: vi.fn() }));
@@ -29,6 +34,7 @@ const search = async (query: string) => {
 beforeEach(() => {
   results.length = 0;
   chunks.clear();
+  bodies.clear();
 });
 
 describe("search_pages passages", () => {
@@ -51,9 +57,20 @@ describe("search_pages passages", () => {
     expect(sources).toEqual([expect.objectContaining({ blockId: "b9", text: "By meaning." })]);
   });
 
-  it("falls back to the snippet, without a block, for a page that isn't indexed", async () => {
+  it("cuts the passage from the body of a page that isn't indexed, without a block", async () => {
     results.push({ id: "p2", title: "Notes", parent_id: null, snippet: "…supplier list…" });
+    const filler = Array.from({ length: 40 }, (_, i) => `Line ${i} about the kitchen rota.`).join("\n");
+    bodies.set("p2", `${filler}\nThe supplier list is in the shared drive.\n${filler}`);
     const { sources } = await search("supplier");
-    expect(sources).toEqual([expect.objectContaining({ pageId: "p2", blockId: null, text: "…supplier list…" })]);
+    expect(sources).toEqual([expect.objectContaining({ pageId: "p2", blockId: null })]);
+    expect(sources[0].text).toContain("The supplier list is in the shared drive.");
+    expect(sources[0].text).not.toMatch(/^Line 0 /);
+  });
+
+  it("falls back to the snippet for a page with no text", async () => {
+    results.push({ id: "p3", title: "Empty", parent_id: null, snippet: "…supplier…" });
+    bodies.set("p3", "");
+    const { sources } = await search("supplier");
+    expect(sources).toEqual([expect.objectContaining({ pageId: "p3", blockId: null, text: "…supplier…" })]);
   });
 });

@@ -119,6 +119,34 @@ try {
   );
   check((await search("type:folder")).length === 0 && (await search("")).length === 0, "an unknown type is text, and an empty query finds nothing");
 
+  // Words as they are typed: each word of the query also as the start of a longer one, in the
+  // title or the body; a title that has them comes before a body that does.
+  const service = await createPage(owner, {
+    workspaceId,
+    parentId: null,
+    title: "Service visit",
+    markdown: "The kondenser of the cold room was cleaned. Next visit: e-posta to the customer.",
+  });
+  const kondTitle = await make("Kondenser plans");
+  check(
+    JSON.stringify(titlesOf(await search("kond"))) === JSON.stringify(["Kondenser plans", "Service visit"]),
+    "the start of a word finds it, in a title and in a body",
+    titlesOf(await search("kond")),
+  );
+  check((await search("kond"))[0]?.id === kondTitle.id, "…the page whose title has it first", await search("kond"));
+  check(
+    JSON.stringify(titlesOf(await search("cold kond"))) === JSON.stringify(["Service visit"]),
+    "every word of the query has to be on the page, in any order",
+    titlesOf(await search("cold kond")),
+  );
+  check((await search("cold kond"))[0]?.snippet.includes("kondenser"), "…and the snippet shows where", (await search("cold kond"))[0]);
+  check(
+    (await search("e-posta")).some((h) => h.id === service.id) && (await search("posta")).some((h) => h.id === service.id),
+    "a hyphenated word is found whole and by its parts",
+  );
+  check((await search("---")).length === 0 && (await search("%")).length === 0, "a query without words finds nothing (and doesn't fail)");
+  check((await search("ondenser")).length === 0, "the middle of a word isn't a match");
+
   // Someone who can only see one page doesn't reach others through in:
   await setPagePermission(ids.owner, launch.id, ids.guest, "view");
   check(

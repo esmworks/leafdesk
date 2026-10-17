@@ -8,6 +8,10 @@
   *Changed*), so their text changes and the embeddings model sees each of them once more after
   the upgrade: through the background sweep as people search, or all at once with
   `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
+- **Migration 0075 rewrites the `page` table once.** It adds the stored search vector (see
+  *Changed*) and fills it for every page; on a server with many pages this takes a while (about
+  15 seconds for 60,000 pages with 2 KB of text each), and pages can't be read or written until
+  it's done: run `pnpm db:migrate` at a quiet time.
 
 ### Added
 
@@ -102,6 +106,21 @@
 
 ### Changed
 
+- **Search stays fast in large workspaces.** Full-text search (the search box, MCP and REST
+  `search`, the AI chat, agents) now matches and ranks pages through an index of a vector Postgres
+  keeps for each page (migration 0075, `page.search_vector`: the title's words weighted above the
+  body's), and checks access only for the best pages until there are enough. Before, every search
+  read the text of every page in the workspace: in a test workspace of 60,000 pages a search for a
+  rare word took 3.7 seconds and now takes under 60 ms, one for a word most pages have went from
+  3.6 seconds to 0.4. A word now also matches as the start of a longer word ("kond" finds
+  "kondenser"), in the body as in the title, so pages show up while a word is typed; the middle of
+  a word no longer matches. Long pages no longer rank above short ones only for their length. The
+  list of pages that write a page's title without linking to it uses the same index. Covered in
+  `scripts/search-e2e.ts`.
+- **The AI chat gets the matching passage without an embeddings model too.** A page the chat's
+  search finds by its words now comes with the part of its text that has the most of them, about
+  900 characters, where the model used to get one line around the first word unless the page was
+  in the semantic index. Covered in `scripts/ai-chat-e2e.ts` and `src/server/ai-tools.test.ts`.
 - **Semantic search knows where a passage is.** Each indexed passage now carries the titles of
   the pages above its page, the page's own title and the heading it lies under (at most 200
   characters; a database row's path includes its database), so a passage under *Sales › 2026 plan

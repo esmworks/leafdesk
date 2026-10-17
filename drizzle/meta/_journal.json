@@ -526,6 +526,13 @@
       "when": 1792224580657,
       "tag": "0074_row_activity_ai_actor",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1792225666028,
+      "tag": "0075_page_search_vector",
+      "breakpoints": true
     }
   ]
 }

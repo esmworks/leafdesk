@@ -457,6 +457,24 @@ try {
     whole.done && fake.chats.flatMap(sourcesIn).some((s) => s.pageId === fleet.id),
     "…also for a whole question, whose words needn't all be on the page (\"need\" finds \"needs\")",
   );
+  // Without an index the model still gets the part of a long page that matched, not its first line.
+  const filler = Array.from({ length: 12 }, (_, i) => `Paragraph ${i} is about the office kitchen, its kettle and the weekly cleaning rota.`).join("\n\n");
+  const manual = await createPage(actor, {
+    workspaceId,
+    teamspaceId: general.id,
+    title: "Garage manual",
+    markdown: `${filler}\n\nWinter pressure for the van: check it every Monday morning before the first delivery round leaves the yard, with the gauge that hangs next to the compressor, and write the result in the log book; the value to aim for is 2.4 bar.\n\n${filler}`,
+  });
+  fake.setChat(researcher({ search: "winter pressure van" }));
+  fake.chats.length = 0;
+  const deep = await ask(alice, { workspaceId, message: "What pressure for the van in winter?" });
+  const manualSource = fake.chats.flatMap(sourcesIn).find((s) => s.pageId === manual.id);
+  check(
+    deep.done && manualSource?.text.includes("2.4 bar") && !manualSource.text.startsWith("Paragraph 0"),
+    "without embeddings a search result brings the passage around its words",
+    manualSource,
+  );
+  fake.setChat(researcher({}));
   const parts = await createPage(actor, { workspaceId, teamspaceId: general.id, kind: "database", title: "Spare parts" });
   const stock = await addProperty(owner, parts.id, { name: "Stock", type: "select", options: ["Ordered", "In stock"] });
   const winter = await createPage(actor, { workspaceId, parentId: parts.id, title: "Winter tyres", properties: { [stock.id]: stock.options.options![0].id } });

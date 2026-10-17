@@ -31,6 +31,9 @@ const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
   fromDriver: (value) => new Uint8Array(value),
 });
 
+/** Postgres full-text vector; the database fills it (see page.searchVector). */
+const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
+
 const id = () =>
   text("id")
     .primaryKey()
@@ -367,6 +370,14 @@ export const page = pgTable(
     /** Derived from ydoc on every store; used for search and MCP reads. */
     contentText: text("content_text").notNull().default(""),
     contentMarkdown: text("content_markdown").notNull().default(""),
+    /**
+     * What full-text search matches and ranks (server/pages.ts fullTextSearch): the title's words
+     * weighted A, the body's B. Kept by Postgres from title and content_text, so ranking doesn't
+     * parse every candidate page again. Large: select it only where a query needs it.
+     */
+    searchVector: tsvector("search_vector").generatedAlwaysAs(
+      sql`setweight(to_tsvector('simple', coalesce(title, '')), 'A') || setweight(to_tsvector('simple', coalesce(content_text, '')), 'B')`,
+    ),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     /** Databases: while set, properties and views can't be added, renamed or removed. Rows stay editable. */
     lockedAt: timestamp("locked_at", { withTimezone: true }),
@@ -404,10 +415,7 @@ export const page = pgTable(
     }),
     index("page_template_idx").on(t.workspaceId, t.parentId).where(sql`${t.isTemplate}`),
     index("page_skill_idx").on(t.workspaceId).where(sql`${t.isSkill}`),
-    index("page_search_idx").using(
-      "gin",
-      sql`to_tsvector('simple', coalesce(${t.title}, '') || ' ' || coalesce(${t.contentText}, ''))`,
-    ),
+    index("page_search_vector_idx").using("gin", t.searchVector),
   ],
 );
 

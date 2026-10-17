@@ -106,6 +106,9 @@ registerCollab({
   async readPage() {
     return { title: "", markdown: "", text: "" };
   },
+  async pageVersion() {
+    return "v0";
+  },
   // Body writes (MCP and REST update_page) go through a direct connection that checks no access.
   async replaceContent(pageId: string) {
     bodyWrites.push(pageId);

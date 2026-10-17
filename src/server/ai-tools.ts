@@ -28,7 +28,7 @@ import { ToolInputError } from "@/server/mcp/format";
 import * as ops from "@/server/operations";
 import { getTree } from "@/server/pages";
 import { chunksOfPages, inSubtree } from "@/server/semantic-search";
-import { bestChunkForTerms, passageOf } from "@/server/semantic-text";
+import { bestChunkForTerms, chunkPage, passageOf } from "@/server/semantic-text";
 
 /** The most of the prompt the workspace map takes, and the databases it lists properties of. */
 export const MAP_CHARS = 8_000;
@@ -310,16 +310,26 @@ async function searchSources(
 
 /**
  * For results the text search found without a passage (semantic search found none for them): the
- * indexed passage of the page with the most of the query's words (bestChunkForTerms) and the
- * block it starts at, so the model gets the part that matched and a citation of it rather than a
- * snippet. Pages without an index (AI off, not indexed yet) aren't included. The results come
- * from a search as the person, so their pages are ones they may read.
+ * passage of the page with the most of the query's words (bestChunkForTerms), so the model gets
+ * the part that matched and a citation of it rather than a snippet. Indexed pages give their
+ * indexed chunk and the block it starts at; pages without an index (no embeddings model, not
+ * indexed yet) are cut the same way from their body's text, without a block to point at. The
+ * results come from a search as the person, so their pages are ones they may read.
  */
 export async function textPassages(results: { id: string; title: string; passage?: string | null }[], query: string) {
   const out = new Map<string, { passage: string; blockId: string | null }>();
   const missing = results.filter((r) => !r.passage);
   if (!missing.length) return out;
   const chunks = await chunksOfPages(missing.map((r) => r.id));
+  const unindexed = missing.filter((r) => !chunks.get(r.id)?.length).map((r) => r.id);
+  if (unindexed.length) {
+    const bodies = await db.select({ id: page.id, text: page.contentText }).from(page).where(inArray(page.id, unindexed));
+    for (const { id, text } of bodies) {
+      const title = missing.find((r) => r.id === id)?.title ?? "";
+      const lines = text.split("\n").filter((line) => line.trim());
+      chunks.set(id, chunkPage({ title, blocks: lines.map((line) => ({ id: null, text: line })) }));
+    }
+  }
   const terms = anyWordTerms(query);
   for (const r of missing) {
     const best = bestChunkForTerms(chunks.get(r.id) ?? [], terms, r.title);
