@@ -57,9 +57,12 @@ versions, upgrades and running behind a domain.
   pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text (every word of the search, each also as the start of a
-  longer word, so pages show up while you type: "kond plan" finds "Kondenser planı"; Japanese and
-  Chinese words also inside a sentence, which has no spaces between words: "会議" finds
-  "明日の会議について"; pages whose title has the words come first), and also by meaning when the server has an embeddings model
+  longer word, so pages show up while you type: "kond plan" finds "Kondenser planı", while the
+  middle of a word doesn't match; Japanese and Chinese words also inside a sentence, which has no
+  spaces between words: "会議" finds "明日の会議について", a word's characters only side by side;
+  Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
+  title has the words come first; past the first 80,000 characters of a huge page's text, words
+  aren't found), and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).
 - **Home page**: quick buttons for a new page, database or template; the database rows assigned
   to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
@@ -102,7 +105,8 @@ versions, upgrades and running behind a domain.
 - **Offline editing**: pages you opened before stay readable and editable without a connection;
   the edits sync when it is back, merged with what others wrote meanwhile. The sidebar and
   recently opened databases stay readable. The page header shows offline, syncing and synced (see
-  [Install and offline use](#install-and-offline-use)).
+  [Install and offline use](#install-and-offline-use)), and *Not saved* when the server couldn't
+  save the latest changes, until a later save goes through.
 - **Installable app**: install Leafdesk from the browser on desktop (Chrome, Edge) or add it to
   the home screen on phones; it opens in its own window. The app's icon offers a quick note, and on
   phones that support it Leafdesk shows up in the share sheet: text and links shared to it open the
@@ -124,9 +128,14 @@ versions, upgrades and running behind a domain.
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
     list) shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
-  - Table cells move with the arrow keys, select in ranges, copy as tab-separated text and take
-    cells pasted from a spreadsheet, adding rows as needed. Long tables render only the rows in
-    view.
+  - Table cells work from the keyboard: click a cell or move with the arrow keys, select a range
+    with Shift and an arrow, Shift+click or a drag; Enter edits the cell, Esc goes back to it and
+    Delete clears the range. Copy puts the range on the clipboard as tab-separated text, and cells
+    pasted from a spreadsheet are written from the active cell on, each value read as the CSV
+    import reads it (numbers, dates, yes/no, option and people names), adding options a select
+    lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
+    range; cells that don't fit their column or that you may not change are left out and counted.
+    From 120 rows on, a table renders only the rows near the visible part of the page.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
     `first`, `last` and `at`), one step away and up to 200 linked rows. `style()` shows a result
@@ -198,7 +207,9 @@ versions, upgrades and running behind a domain.
     a value, from what to what ("Ayşe changed Status from In progress to Done · 2 hours ago"),
     newest first, whether in the app, in bulk, by a form, an automation, an agent, AI autofill, MCP
     or the API. Changes by the same person to the same value within five minutes are one entry, and
-    one that ends where it started leaves none. Formulas, rollups and who/when values aren't recorded. Each
+    one that ends where it started leaves none. A value AI autofill filled in reads as the AI's,
+    naming who it was worked out for ("AI (for Ada) set Category to Billing"), and never merges
+    into that person's own edits. Formulas, rollups and who/when values aren't recorded. Each
     viewer sees only the entries about values they may see in the row, linked rows they can't open
     aren't named, and entries about a deleted property come back with it. Text is kept with
     credentials masked; the activity goes with the row when it is deleted for good.
@@ -245,7 +256,8 @@ versions, upgrades and running behind a domain.
   page of that title; "Link to page"
   blocks; a "Linked from" list of backlinks on
   every page, each with the text around its link, and below it the pages that write the page's
-  title without linking to it, with a button that turns that text into a mention.
+  title without linking to it, with a button that turns that text into a mention (a Japanese or
+  Chinese title is found inside a sentence too, never inside a longer word).
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as
@@ -262,7 +274,9 @@ versions, upgrades and running behind a domain.
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
-  before, and who (or which AI app) changed it.
+  before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
+  page's body can be kept or undone block by block (see
+  [Reviewing AI changes](#ai-features)).
 - **Teamspaces**: group pages and people. Every workspace starts with a *General* teamspace
   everyone is in. A teamspace is **default** (everyone is in it, now and later, and can't leave),
   **open** (anyone sees it and can join; until they do, they read and comment on its pages),
@@ -460,8 +474,11 @@ Open http://localhost:3000 and create an account. Migrations run automatically w
 container starts.
 
 - **Pin a version:** set `LEAFDESK_VERSION=0.5.3` in `.env`. The default is `latest`.
-- **Upgrade:** run `docker compose pull && docker compose up -d`. Coming from 0.2.0 (released under
-  the previous name), first follow the upgrade notes in [CHANGELOG.md](CHANGELOG.md).
+- **Upgrade:** run `docker compose pull && docker compose up -d`. Read the *Upgrading* notes of
+  each release in [CHANGELOG.md](CHANGELOG.md) first. Some migrations rewrite a large table, and
+  pages can't be read or written until they finish; some releases have every page embedded again
+  for semantic search. On a large server, upgrade at a quiet time. Coming from 0.2.0
+  (released under the previous name), first follow its upgrade notes.
 - **Build from source:** clone the repository and run `docker compose up -d --build`.
 
 To stop new sign-ups after creating your own account, set `DISABLE_SIGNUP=true` and restart.
@@ -500,6 +517,11 @@ compose file marks the app healthy on `/api/health/ready`; the image's own `HEAL
 `docker run` and Docker Swarm) uses `/api/health`, so a database outage doesn't get the app
 container replaced.
 
+On SIGINT or SIGTERM (`docker compose stop`, a redeploy, Ctrl+C) the server takes no new
+requests, closes the editors' connections and waits until every open page is saved, at most eight
+seconds, inside Docker's ten-second grace period; it logs it when it had to stop waiting. A second
+Ctrl+C exits at once. Browsers keep what they hadn't sent and send it again when they reconnect.
+
 ### Use an external PostgreSQL
 
 The compose file runs PostgreSQL 18 only while `COMPOSE_PROFILES=bundled-db` is set in `.env`.
@@ -535,7 +557,10 @@ it out too. A file a row holds only in a files & media property hidden from some
 access) doesn't open for them through that row. Only raster images, video,
 audio and PDF open in the browser; everything else, SVG included, is downloaded. When a page is
 deleted for good, its files go once no other page shows them, and uploads no page ever used are
-removed after a day.
+removed after a day. When files go this way, or with a deleted workspace or account, the stored
+objects to delete are queued in the same transaction that removes their records, and what storage
+refuses is tried again by the hourly file cleanup, waiting longer after each failure (up to a
+day), so no bytes stay behind with nothing pointing at them.
 
 ## Export
 
@@ -1351,17 +1376,28 @@ chat is off while offline and when AI is off for the workspace. Every question c
 `AI_RATE_LIMIT`; the model's extra turns count against `AI_WORKSPACE_RATE_LIMIT`.
 
 **Changes from the chat.** The chat can add a database row (`create_row`, with its values and
-text), change a row's values or title (`update_row`) and add a page under a page, or a private one
-at the top of the workspace (`create_page`), as you and only where you may edit (and, with
+text), change a row's values or title (`update_row`), add a page under a page, or a private one
+at the top of the workspace (`create_page`), and change a page's or row's text block by block
+(`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
+first), as you and only where you may edit (and, with
 *Answer from* a page, only under it). What it may do is picked under the question box and
 remembered in the browser: *Ask* (the default) shows each change in the box's place before it is
-made (what, where, the values and the start of the text) with *Yes*, *Yes, and don't ask again*
+made (what, where, a new row's values and the start of a new page's text; for a change to a page's
+text the blocks it changes, adds and removes; for a changed row each property's old value next to
+the new one, and the old title when it is renamed) with *Yes*, *Yes, and don't ask again*
 (the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto* makes
 changes without asking; *Read only* doesn't offer the model changes at all. A change is checked
 (the target, your edit access, the values) before you are asked; nothing is written while it
 waits, and stopping the answer, leaving the page or 15 minutes without an answer leave it unmade.
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
+
+**Reviewing AI changes.** After an AI app, the chat or an agent writes to a page's body, the page
+shows a bar above the body with how many blocks changed and who changed them. *Review* opens the
+changes block by block, with *Keep* and *Undo* for each, next to *Keep all* and *Undo all*. Undoing
+goes through the page's shared document, so editors open on the page follow at once, and *Undo all*
+saves a version first. Writes in a row are reviewed together; the bar goes away once every change
+is decided or someone edits the page. Only people who may edit the page see it.
 
 **Memory.** The chat remembers short notes about you in each workspace: who you are, what you work
 on, how you want answers. When you tell it about yourself or ask it to remember something, it keeps
@@ -1494,10 +1530,17 @@ Embeddings use an OpenAI-compatible `/embeddings` endpoint: the chat provider's 
 unrelated pages show up, lower it if too few do.
 
 **Indexing.** Each page's title and text (a database row's values too) is cut into chunks of
-about 900 characters along its blocks, and each chunk's embedding is stored in `page_chunk` with
-its model, dimensions and a hash of its text. Pages are indexed in the background a few seconds
-after they are edited, created, renamed or restored, or a row's values change; only chunks whose
-text changed are embedded again. A workspace's first search after a restart starts a sweep that
+about 900 characters along its blocks, a heading starting a new one, and each chunk's embedding
+is stored in `page_chunk` with its model, dimensions and a hash of its text. Each chunk starts with
+where it is: the titles of the pages above its page, the page's own title and the heading it lies
+under (at most 200 characters; a database row's path includes its database), so a passage under
+*Sales › 2026 plan › Risks* is found for questions about sales risks even when it never says
+"sales". Results and the chat show the passage without that path, since it can name pages the
+reader can't open. Pages are indexed in the background a few seconds
+after they are edited, created, renamed or restored, or a row's values change, and renaming or
+moving a page indexes the pages under it again; only chunks whose text changed are embedded
+again. The index records how pages were cut into chunks, so after a release that cuts them
+differently the sweep and `pnpm search:index` count them as stale. A workspace's first search after a restart starts a sweep that
 indexes pages the index missed (at most every ten minutes); `pnpm search:index [workspace-id…]`
 indexes everything at once, e.g. after setting `AI_EMBEDDINGS_MODEL` or changing the model. Jobs
 respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out of results at once
@@ -1576,7 +1619,8 @@ that much. That access is taken back once no automation of the database runs the
 you set yourself, in the agent's settings or the Share menu, stays).
 
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
-change or comment on the row that started the run, nothing else. When a member's change started
+change or comment on the row that started the run (its values, or its text block by block with
+`edit_page`), nothing else. When a member's change started
 the run, the agent is also held to what that member may: it opens, reads and changes only the pages
 and property values both of them can, so a run never hands someone what they couldn't open
 themselves. When an answer to a public form started it and no member stands behind the answer
@@ -1905,11 +1949,20 @@ The tools cover:
   everything under it, beside the original), `archive_page`, `list_trash`, `restore_page`.
   `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
   page is starred. `update_page` sets the cover: an uploaded file's URL, an https image link or
-  `gradient:<name>`, with `cover_position` for the band of an image that shows. Wherever a tool takes an id, a Leafdesk link the user pasted works too
+  `gradient:<name>`, with `cover_position` for the band of an image that shows. Besides replacing
+  or appending to the body, `update_page` changes single blocks: `get_page` with `with_block_ids`
+  marks each block's id, and the modes `replace_block`, `insert_after` and `delete_block` take a
+  `block_id`. `get_page` also gives the body's `version`; passed back to `update_page` as
+  `expected_version`, the page changes only while its body still has that version: when someone
+  changed it since, even in an editor open right now, nothing is written and the app is told to read the page
+  again. Body writes report the new `version`, so an app can make several changes in a row;
+  comments don't change it, and without `expected_version` writes work as before. Body changes
+  can be kept or undone on the page (see [Reviewing AI changes](#ai-features)). Wherever a tool takes an id, a Leafdesk link the user pasted works too
   (`https://…/w/<workspace>/p/<page>`, `?view=<view>` for a view).
 - **Page history:** `list_page_history`, `get_page_version`, `diff_page_version`, `restore_page_version`.
 - **Row activity:** `list_row_activity` lists who created a row and who changed what in it, newest
-  first.
+  first; a value AI autofill filled in has `actor: "ai"`, with the person it was worked out for in
+  `by`.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
 - **Skills:** `list_skills`, `get_skill`, `set_skill`; every skill is also a prompt of its name
   (see [Skills](#skills)).
@@ -1935,7 +1988,16 @@ The tools cover:
   for running totals or a burndown, a calendar `calendar_mode` (month or week), and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
-  see and change a property).
+  see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the
+  cursor back with the same filters and sorts reads on from the last row returned, so rows added
+  or removed between calls neither repeat nor go missing (a cursor from another query is refused),
+  and `properties` narrows each row to the values asked for. `create_database_row` and
+  `create_database_rows` take `match_by` (the title or a text, number, email, phone, URL, select
+  or status property) to upsert: a row with the same value is updated instead of a new one added,
+  so a retried import adds nothing twice, and each row says whether it was `created` or `updated`;
+  a value two given rows share, or that several existing rows hold, is refused before anything is
+  written. `update_database_rows` takes `expect` (writes nothing unless exactly that many rows
+  would change) and `dry_run`.
 - **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
   a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
   of a page, and `update_dashboard_widget` adds, changes, moves or removes one widget. `get_page`
@@ -1997,12 +2059,19 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `POST /pages` and `POST /pages/{id}/move` take a `teamspace_id` for top-level pages, as the MCP
   tools do.
 - **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, cover,
-  Markdown body replaced or appended), `GET /pages/{id}/children`, `POST /pages/{id}/move`,
-  `/archive` and `/restore`.
+  Markdown body replaced or appended, or single blocks by `block_id` with the modes
+  `replace_block`, `insert_after` and `delete_block`; `GET` with `with_block_ids` gives the ids),
+  `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore`. `GET /pages/{id}`
+  gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
+  changed since, nothing is written and the answer is `409` `version_conflict` with the current
+  version. Body writes report the new `version`.
 - **Databases and rows:** `GET /databases/{id}` (schema), `POST /databases/{id}/query` (filters,
-  sorts, a saved view, cursor pagination), `POST /databases/{id}/rows`, `POST
-  /databases/{id}/rows/bulk` (up to 100), `PATCH /databases/{id}/rows` (same values on many rows),
-  `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first).
+  sorts, a saved view, cursor pagination with `next_cursor` and `has_more`, `properties` to narrow
+  each row), `POST /databases/{id}/rows`, `POST
+  /databases/{id}/rows/bulk` (up to 100; both take `match_by` to upsert, as the MCP tools do),
+  `PATCH /databases/{id}/rows` (same values on many rows, with `expect` and `dry_run`),
+  `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first;
+  `actor: "ai"` for AI autofill values, with the person in `by`).
 - **Voice notes:** `POST /voice-notes` takes a recording as multipart form data (`audio`, and
   `workspace_id` or `database_id`), has it transcribed and written up by AI and saves the note as a
   private page or a database row, answering when it is saved (`201`, with the transcript and the
@@ -2029,7 +2098,9 @@ Automations have no REST endpoints: they are managed in the app or over MCP.
 The API and the MCP server share one service layer (`src/server/operations.ts`), so they check
 input, access and history the same way: a token acts as its user, with that user's own access to
 pages, and every body change is saved to page history first. Pages the user can't see (or outside
-a token's workspace) answer `404`. Errors are JSON, `{"error": {"code", "message", "details"}}`;
+a token's workspace) answer `404`. A body the database refuses to save answers `500`
+`internal_error` (and AI apps get an error result) rather than passing for written; a page
+created with such a body stays, without it. Errors are JSON, `{"error": {"code", "message", "details"}}`;
 lists page with `next_cursor`. Each token may make 180 requests a minute (`API_RATE_LIMIT`;
 `X-RateLimit-*` headers, `429` with `Retry-After` beyond it), and JSON request bodies are limited
 to 5 MB. Only tokens authenticate (never the browser session), and CORS is off unless
@@ -2063,7 +2134,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
@@ -2084,14 +2155,19 @@ The interface is available in English, Turkish (Türkçe), German (Deutsch), Spa
 French (Français), Italian (Italiano), Brazilian Portuguese (Português), Polish (Polski), Russian
 (Русский), Ukrainian (Українська), Arabic (العربية), Hebrew (עברית), Persian (فارسی), Japanese
 (日本語), Korean (한국어) and Simplified Chinese (简体中文). Arabic, Hebrew and Persian run right to
-left: the sidebar, menus and panels mirror, and in every language each paragraph of a page follows
-the direction of its own text. Each person picks a language in My account → Language, stored per browser;
+left: the sidebar, menus and panels mirror, and emails follow. In every language each paragraph of
+a page follows the direction of its own text, and its alignment runs with it: a right-to-left
+paragraph starts on the right without being aligned, and the align buttons put it on the side they
+show. CSV import knows each language's title column names and yes/no words, quick add its date
+words (Japanese and Chinese ones also without spaces, "来週の金曜日に打ち合わせ"), and the AI chat's
+search leaves out its question words. Each person picks a language in My account → Language, stored per browser;
 without a choice the app follows the browser's `Accept-Language` and falls back to English. Dates
 and numbers are formatted for the language. Emails go out in the recipient's language: the one they
 last picked in My account → Language, else their browser's when they first signed in, stored with
 their account (signing in on another device doesn't trade a picked language for that browser's). Until they have signed in once since, and for invitations to addresses without
-an account, emails use the language of whoever caused them. The editor's own menus use [BlockNote](https://www.blocknotejs.org)'s dictionaries (Turkish is
-ours, in `src/i18n/blocknote/tr.ts`).
+an account, emails use the language of whoever caused them. The editor's own menus use [BlockNote](https://www.blocknotejs.org)'s dictionaries, except
+Turkish, which is ours (`src/i18n/blocknote/tr.ts`), and Hebrew, where `src/i18n/blocknote/index.ts`
+corrects the wording for resolving a comment thread.
 
 Texts live in `src/i18n/messages/<locale>/*.json` (app, `email.json`, `templates.json` for the
 built-in templates), in ICU MessageFormat. English is the source: `pnpm i18n:check` (also part of
@@ -2112,7 +2188,11 @@ so far; corrections to the other languages are welcome as pull requests, as are 
   A page's teamspace is stored on every page of its tree (`page.teamspace_id`, kept in step by
   triggers); null means private.
 - The Yjs document is the source of truth for page content. On every save, the app also stores
-  derived markdown and plain text in PostgreSQL for search and MCP reads.
+  derived markdown and plain text in PostgreSQL for search and MCP reads. Full-text search matches
+  and ranks pages through an index of a vector PostgreSQL keeps for each page
+  (`page.search_vector`: the title's words weighted above the body's, plus every two-character
+  piece of Chinese and Japanese text), built from the first 1,000 characters of the title and the
+  first 80,000 of the body, and checks access only for the best pages until there are enough.
 - Browsers keep each page's Yjs document in IndexedDB (y-indexeddb), loaded before the page
   connects, so offline edits merge on reconnect like any other change; a hand-written service
   worker (`public/sw.js`) keeps the app's scripts and the signed-in pages' HTML per user. See
