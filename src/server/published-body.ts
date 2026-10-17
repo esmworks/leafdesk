@@ -10,6 +10,7 @@ import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView
 import { pdfFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
+import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
 
 /**
@@ -412,6 +413,8 @@ export type BodyOptions = {
    * pass a fixed ASCII prefix of their own.
    */
   anchorPrefix?: string;
+  /** Replaces synced blocks with what the reader may see of them (server/synced-blocks); without it they show nothing. */
+  expandSynced?: (blocks: PageBlock[]) => Promise<PageBlock[]>;
 };
 
 export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: BodyOptions = {}): Promise<BodySegment[]> {
@@ -427,9 +430,10 @@ export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: Bo
 
 /** The same for a body already read as blocks (from the live document, see collab `readBlocks`). */
 export async function bodySegmentsFromBlocks(
-  blocks: PageBlock[],
-  { resolvePages, anchorPrefix = "" }: BodyOptions = {},
+  body: PageBlock[],
+  { resolvePages, anchorPrefix = "", expandSynced }: BodyOptions = {},
 ): Promise<BodySegment[]> {
+  const blocks = expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body);
   const { pageIds } = bodyReferences(blocks);
   const refs = pageIds.length && resolvePages ? await resolvePages(pageIds) : new Map<string, PublishedPageRef>();
   // Every heading of the page, filled in as the runs are written; tables of contents share it.

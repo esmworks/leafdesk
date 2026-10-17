@@ -682,7 +682,7 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
       title: "Leafdesk REST API",
       version,
       description: DESCRIPTION,
-      license: { name: "Apache-2.0", identifier: "Apache-2.0" },
+      license: { name: "AGPL-3.0-only", identifier: "AGPL-3.0-only" },
     },
     servers: [{ url: `${appUrl}${API_PREFIX}` }],
     tags: TAGS,

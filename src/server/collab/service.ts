@@ -25,6 +25,7 @@ import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title
 import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
 import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
+import { mapSyncedBlocks, syncedElementsIn, syncedFragmentName, withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
@@ -110,9 +111,31 @@ function withoutTrailingEmpty<B extends { type: string; children: unknown[] }>(b
   );
 }
 
-/** The body as blocks, Markdown and text. `workspaceId` is the page's: page mentions link into it. */
-async function deriveContent(doc: Y.Doc, workspaceId?: string) {
+/** The blocks of synced block `syncId` kept in `doc` (its source page's), without synced blocks inside. */
+const syncedBlocksOf = (doc: Y.Doc, syncId: string) =>
+  withoutSyncedBlocks(editor.yXmlFragmentToBlocks(doc.getXmlFragment(syncedFragmentName(syncId))));
+
+/**
+ * The body of page `pageId` as blocks, each synced block it is the source of holding its blocks
+ * as children (lib/synced-blocks): they are part of this page's Markdown, text, links and mentions.
+ * References hold none (their blocks are another page's). Blocks nested under a synced block in the
+ * editor follow it instead, so its Markdown markers enclose only its own blocks.
+ */
+function bodyBlocks(doc: Y.Doc, pageId: string | undefined) {
   const blocks = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
+  if (!pageId) return blocks;
+  return mapSyncedBlocks(blocks, (block, ref) => [
+    { ...block, children: ref.pageId === pageId ? syncedBlocksOf(doc, ref.syncId) : [] },
+    ...block.children,
+  ]);
+}
+
+/**
+ * The body as blocks, Markdown and text (with its synced blocks' blocks, see bodyBlocks).
+ * `workspaceId` is the page's: page mentions link into it.
+ */
+async function deriveContent(doc: Y.Doc, workspaceId: string | undefined, pageId: string) {
+  const blocks = bodyBlocks(doc, pageId);
   const markdown = (await blocksToMarkdown(blocks, { workspaceId })).trim();
   return { blocks, markdown, text: blocksToPlainText(blocks) };
 }
@@ -151,7 +174,7 @@ async function insertSnapshot(
   actor: { userId?: string | null; oauthClientId?: string | null },
   fallbackTitle: string,
 ) {
-  const { markdown } = await deriveContent(doc, await workspaceOf(pageId));
+  const { markdown } = await deriveContent(doc, await workspaceOf(pageId), pageId);
   const [row] = await db.insert(pageSnapshot).values({
     pageId,
     title: readTitle(doc) ?? fallbackTitle,
@@ -312,7 +335,7 @@ export function createCollab() {
     // awaits anything), so whoever changed what this save writes is among them, and nobody whose
     // change only the next save holds.
     const wrote = takeWriters(doc, userId);
-    const { blocks, markdown, text } = await deriveContent(doc, row.workspaceId);
+    const { blocks, markdown, text } = await deriveContent(doc, row.workspaceId, pageId);
     const title = readTitle(doc) ?? row.title;
     // Comments and their marks change the document but not the page: they don't count as edits.
     const bodyChanged = row.markdownHash !== createHash("md5").update(markdown).digest("hex");
@@ -544,7 +567,7 @@ export function createCollab() {
     const result = await transactPage(pageId, actor, async (doc) => {
       const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
       // Read in the same synchronous run as the write or the check it stands for; hashed afterwards.
-      const version = () => versionOf(editor.yXmlFragmentToBlocks(fragment), workspaceId);
+      const version = () => versionOf(bodyBlocks(doc, pageId), workspaceId);
       // Open editors can change the body while this write awaits: the check holds only while none did.
       let touched = false;
       const touch = () => {
@@ -560,7 +583,7 @@ export function createCollab() {
           }
         }
         const existing = editor.yXmlFragmentToBlocks(fragment);
-        const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl });
+        const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl, pageId });
         if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
         // Only a write that changes something is saved before.
         if (snapshot && next) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
@@ -629,7 +652,7 @@ export function createCollab() {
       const live = hocuspocus.documents.get(pageDocName(pageId));
       if (live) {
         const [row] = await db.select({ title: page.title, workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId)).limit(1);
-        const { markdown, text } = await deriveContent(live, row?.workspaceId);
+        const { markdown, text } = await deriveContent(live, row?.workspaceId, pageId);
         return { title: readTitle(live) ?? row?.title ?? "", markdown, text };
       }
       const [row] = await db
@@ -665,13 +688,33 @@ export function createCollab() {
     async pageVersion(pageId) {
       const workspaceId = await workspaceOf(pageId);
       const live = hocuspocus.documents.get(pageDocName(pageId));
-      if (live) return versionOf(editor.yXmlFragmentToBlocks(live.getXmlFragment(COLLAB_FRAGMENT)), workspaceId);
+      if (live) return versionOf(bodyBlocks(live, pageId), workspaceId);
       // As onLoadDocument would load it for a write.
       const [row] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, pageId)).limit(1);
       const doc = new Y.Doc();
       try {
         if (row?.ydoc) Y.applyUpdate(doc, row.ydoc);
-        return await versionOf(editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), workspaceId);
+        return await versionOf(bodyBlocks(doc, pageId), workspaceId);
+      } finally {
+        doc.destroy();
+      }
+    },
+
+    async readSynced(pageId, syncIds) {
+      // Only blocks the page body still holds the source of: a deleted one's blocks stay in the
+      // document (Yjs keeps every fragment) but are nobody's to show.
+      const read = (doc: Y.Doc) => {
+        const held = new Set(syncedElementsIn(doc).flatMap((ref) => (ref.pageId === pageId ? [ref.syncId] : [])));
+        return new Map(syncIds.filter((id) => held.has(id)).map((id) => [id, syncedBlocksOf(doc, id) as unknown[]]));
+      };
+      const live = hocuspocus.documents.get(pageDocName(pageId));
+      if (live) return read(live);
+      const [row] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, pageId)).limit(1);
+      if (!row?.ydoc) return new Map();
+      const doc = new Y.Doc();
+      try {
+        Y.applyUpdate(doc, row.ydoc);
+        return read(doc);
       } finally {
         doc.destroy();
       }
@@ -803,7 +846,21 @@ export function createCollab() {
     },
 
     async blockMarkdown(pageId) {
-      const [{ blocks }, workspaceId] = await Promise.all([service.readBlocks(pageId), workspaceOf(pageId)]);
+      // With the blocks of the page's synced blocks, as its Markdown has them (see bodyBlocks).
+      const read = async () => {
+        const live = hocuspocus.documents.get(pageDocName(pageId));
+        if (live) return bodyBlocks(live, pageId);
+        const [row] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, pageId)).limit(1);
+        if (!row?.ydoc) return (await service.readBlocks(pageId)).blocks;
+        const doc = new Y.Doc();
+        try {
+          Y.applyUpdate(doc, row.ydoc);
+          return bodyBlocks(doc, pageId);
+        } finally {
+          doc.destroy();
+        }
+      };
+      const [blocks, workspaceId] = await Promise.all([read(), workspaceOf(pageId)]);
       const out: { id: string; markdown: string }[] = [];
       for (const block of listedBlocks(blocks as ReviewBlock[])) {
         if (!block.id) continue;
@@ -866,12 +923,17 @@ export function createCollab() {
       const old = new Y.Doc();
       Y.applyUpdate(old, snap.ydoc);
       const blocks = editor.yXmlFragmentToBlocks(old.getXmlFragment(COLLAB_FRAGMENT));
+      // The blocks of the page's synced blocks come back as they were too (they are the page's).
+      const synced = syncedElementsIn(old)
+        .filter((ref) => ref.pageId === snap.pageId)
+        .map((ref) => ({ name: syncedFragmentName(ref.syncId), blocks: editor.yXmlFragmentToBlocks(old.getXmlFragment(syncedFragmentName(ref.syncId))) }));
       await transactPage(snap.pageId, actor, async (doc) => {
         await snapshotBefore(snap.pageId, doc, "before_restore", actor);
         migrateDocTitle(doc, { source: "local", context: actor });
         doc.transact(
           () => {
             keepingComments(doc, () => editor.blocksToYXmlFragment(blocks, doc.getXmlFragment(COLLAB_FRAGMENT)));
+            for (const fragment of synced) if (fragment.blocks.length) editor.blocksToYXmlFragment(fragment.blocks, doc.getXmlFragment(fragment.name));
             writeDocTitle(doc, snap.title, { source: "local", context: actor });
           },
           { source: "local", context: actor },

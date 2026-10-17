@@ -4,6 +4,13 @@
 
 ### Upgrading
 
+- **Leafdesk is now licensed under the GNU Affero General Public License v3.0** (AGPL-3.0-only)
+  instead of the Apache License 2.0. Using it, running it for your team or your customers, and
+  changing it for yourself stay free. What's new is the condition on changed versions: if you
+  change Leafdesk and let people use your version over a network, you have to offer them its source
+  code under the same license (the About tab in My account links to the source). Releases up to
+  and including 0.5.4 stay available under Apache-2.0. Contributions now come under the terms in
+  [CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions).
 - **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
   included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
   in the pages' policy). A public form or published page put inside another website with an
@@ -26,9 +33,22 @@
 - **Migration 0083 adds four small tables** for watching pages, and columns to `user_preference`;
   nothing is rewritten. Existing pages are watched by their creators from the start; people start
   watching other pages as they edit them.
+- **Migration 0084 adds the `synced_block_reference` table** for synced blocks (see *Added*);
+  nothing is rewritten. It fills in as pages with synced blocks are saved.
 
 ### Added
 
+- **Synced blocks.** *Turn into synced block* in a block's menu (or `/synced block` in an empty
+  line) keeps the chosen blocks in one place; *Copy synced block* and a paste on another page show
+  them there, live. Editing them in a reference edits the original when you may edit its page, and
+  is read-only otherwise; people who can't open the original page see "No access" and none of its
+  text. A reference says when the original page is in the trash or deleted, or the blocks were
+  removed, and survives the page moving. The original lists the pages showing it, *Unsync* turns a
+  reference into a plain copy, and a synced block can't be put inside another. Published pages,
+  Markdown and PDF exports, `get_page` (MCP) and skills show the blocks for whoever reads them, by
+  the same rules; a published page shows them only when the original page is published too.
+  Markdown written over MCP or the API keeps synced blocks as they are and doesn't change their
+  text. Duplicating a page, or a page from a template, gives the copy its own synced blocks.
 - **A link to the source code for everyone who uses the server.** Published pages and public forms
   now show *Source code* at their foot, for visitors without an account, next to the one in the
   About tab. It leads to the running release's tag, or to `SOURCE_URL` when set: point it at your

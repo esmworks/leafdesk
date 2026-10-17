@@ -416,6 +416,11 @@
       "backgroundDefault": "Sem fundo",
       "textAliases": "cor texto fonte color",
       "backgroundAliases": "fundo destaque realce cor background"
+    },
+    "syncedBlock": {
+      "title": "Bloco sincronizado",
+      "subtext": "Blocos que você pode mostrar e editar em várias páginas",
+      "aliases": "sincronizado sync synced reutilizar compartilhado"
     }
   },
   "web": {
@@ -640,5 +645,28 @@
     "hint": "Mantenha ou desfaça cada alteração. Desfazer todas salva antes a página como está agora no histórico.",
     "stale": "A página mudou nesse meio-tempo: estas são as alterações como estão agora.",
     "failed": "Não deu certo. Tente novamente."
+  },
+  "syncedBlock": {
+    "label": "Bloco sincronizado",
+    "from": "Sincronizado de",
+    "viewOnly": "Somente leitura",
+    "copy": "Copiar bloco sincronizado",
+    "copied": "Copiado",
+    "copyHint": "Cole em outra página para mostrar estes blocos lá, ao vivo",
+    "shownOn": "{count, plural, one {Mostrado em # página} other {Mostrado em # páginas}}",
+    "notShownShort": "Não mostrado em outro lugar",
+    "notShown": "Copie este bloco sincronizado e cole-o em outra página para mostrá-lo lá.",
+    "hiddenPages": "{count, plural, one {e # página que você não pode ver} other {e # páginas que você não pode ver}}",
+    "unsync": "Dessincronizar",
+    "unsyncHint": "Transformar em uma cópia simples destes blocos",
+    "nested": "Um bloco sincronizado não pode ficar dentro de outro bloco sincronizado.",
+    "turnInto": "Transformar em bloco sincronizado",
+    "state": {
+      "noAccess": "Sem acesso",
+      "trashed": "A página do bloco sincronizado original está na lixeira",
+      "deleted": "A página do bloco sincronizado original foi excluída",
+      "removed": "O bloco sincronizado original foi excluído"
+    },
+    "exportNote": "Bloco sincronizado: {state}"
   }
 }

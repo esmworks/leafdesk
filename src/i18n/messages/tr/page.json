@@ -416,6 +416,11 @@
       "backgroundDefault": "Arka plan yok",
       "textAliases": "renk metin yazı color",
       "backgroundAliases": "arka plan zemin vurgu renk background"
+    },
+    "syncedBlock": {
+      "title": "Senkron blok",
+      "subtext": "Birden çok sayfada gösterip düzenleyebileceğiniz bloklar",
+      "aliases": "senkron eşitlenmiş paylaşılan synced sync reuse"
     }
   },
   "web": {
@@ -640,5 +645,28 @@
     "hint": "Her değişikliği tutun ya da geri alın. Hepsini geri almak, sayfanın şimdiki hâlini önce geçmişine kaydeder.",
     "stale": "Sayfa bu arada değişti: değişiklikler şimdiki hâliyle gösteriliyor.",
     "failed": "Bu yapılamadı. Tekrar deneyin."
+  },
+  "syncedBlock": {
+    "label": "Senkron blok",
+    "from": "Kaynak:",
+    "viewOnly": "Yalnızca görüntüleme",
+    "copy": "Senkron bloğu kopyala",
+    "copied": "Kopyalandı",
+    "copyHint": "Bu blokları canlı olarak göstermek için başka bir sayfaya yapıştırın",
+    "shownOn": "{count} sayfada gösteriliyor",
+    "notShownShort": "Başka yerde gösterilmiyor",
+    "notShown": "Bu senkron bloğu kopyalayıp başka bir sayfaya yapıştırarak orada gösterin.",
+    "hiddenPages": "ve göremediğiniz {count} sayfa",
+    "unsync": "Senkronu kaldır",
+    "unsyncHint": "Bu blokların düz bir kopyasına dönüştür",
+    "nested": "Bir senkron blok başka bir senkron bloğun içine konamaz.",
+    "turnInto": "Senkron bloğa dönüştür",
+    "state": {
+      "noAccess": "Erişim yok",
+      "trashed": "Asıl senkron bloğun sayfası çöp kutusunda",
+      "deleted": "Asıl senkron bloğun sayfası silindi",
+      "removed": "Asıl senkron blok silindi"
+    },
+    "exportNote": "Senkron blok: {state}"
   }
 }
