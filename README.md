@@ -29,7 +29,7 @@ after you approve them over OAuth.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
-  Apache-2.0 licensed, in 16 languages.
+  AGPL-3.0 licensed, in 16 languages.
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
@@ -2289,7 +2289,12 @@ It also lists the settings that matter when you run Leafdesk on a server.
 
 ## License
 
-[Apache License 2.0](LICENSE). See [NOTICE](NOTICE).
+[GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only). See [NOTICE](NOTICE).
+
+In short: you may use, change and share Leafdesk, and run it for yourself, your team or your
+customers. If you change it and let people use your changed version over a network, you have to
+offer them its source code under the same license. Releases up to and including 0.5.4 were
+published under the Apache License 2.0 and stay available under it.
 
 ## Trademarks
 

@@ -4,6 +4,13 @@
 
 ### Upgrading
 
+- **Leafdesk is now licensed under the GNU Affero General Public License v3.0** (AGPL-3.0-only)
+  instead of the Apache License 2.0. Using it, running it for your team or your customers, and
+  changing it for yourself stay free. What's new is the condition on changed versions: if you
+  change Leafdesk and let people use your version over a network, you have to offer them its source
+  code under the same license (the About tab in My account links to the source). Releases up to
+  and including 0.5.4 stay available under Apache-2.0. Contributions now come under the terms in
+  [CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions).
 - **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
   included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
   in the pages' policy). A public form or published page put inside another website with an
