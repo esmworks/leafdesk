@@ -7,6 +7,7 @@ import { avatarSrc } from "@/lib/avatar";
 import { getCollab } from "@/server/collab/bridge";
 import type { CommentOpResult } from "@/server/collab/bridge";
 import { recordComment, withdrawComments } from "@/server/notifications";
+import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
 
@@ -101,6 +102,8 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     const recipients =
       clean.type === "createThread" ? (target.createdBy ? [target.createdBy] : []) : threadParticipants(result.thread, userId, result.comment.id);
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, recipients);
+    // Commenting on a database row follows it (server/row-follow).
+    await followOnTakingPart(pageId, [userId]);
   } else if (clean.type === "deleteThread" || (clean.type === "deleteComment" && !result.thread)) {
     await withdrawComments(target.workspaceId, pageId, clean.threadId);
   }

@@ -575,6 +575,13 @@
       "when": 1792250296430,
       "tag": "0081_daily_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1792251557951,
+      "tag": "0082_row_follow",
+      "breakpoints": true
     }
   ]
 }

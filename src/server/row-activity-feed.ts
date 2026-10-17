@@ -7,21 +7,19 @@
 
 import { and, asc, count, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, page, rowActivity, user, type PropertyType } from "@/db/schema";
-import { avatarSrc } from "@/lib/avatar";
+import { databaseProperty, rowActivity, type PropertyType } from "@/db/schema";
 import {
   MAX_ACTIVITY_PAGE,
   readableProperties,
   referencedIds,
   resolveValue,
-  type ActivityLookups,
   type ActivityPerson,
   type ActivityValue,
   type RowActivityActor,
   type RowActivityKind,
 } from "@/lib/row-activity";
-import { pageVisibleTo, requirePageAccess } from "@/server/access";
-import { agentMarks } from "@/server/agents/users";
+import { requirePageAccess } from "@/server/access";
+import { loadLookups } from "@/server/activity-lookups";
 import { requireDatabase, withCode } from "@/server/databases";
 import { propertyAccessFor } from "@/server/property-access";
 
@@ -134,32 +132,4 @@ export async function listRowActivity(
     };
   });
   return { entries, total, hasMore: offset + listed.length < total };
-}
-
-async function loadLookups(viewerId: string, userIds: string[], pageIds: string[]): Promise<ActivityLookups> {
-  const people = [...new Set(userIds)];
-  const pages = [...new Set(pageIds)];
-  const [users, marks, linked] = await Promise.all([
-    people.length
-      ? db.select({ id: user.id, name: user.name, image: user.image }).from(user).where(inArray(user.id, people))
-      : Promise.resolve([]),
-    agentMarks(people),
-    // Linked rows the viewer can't open read as "no access", never by title.
-    pages.length
-      ? db
-          .select({ id: page.id, title: page.title, icon: page.icon })
-          .from(page)
-          .where(and(inArray(page.id, pages), pageVisibleTo(viewerId)))
-      : Promise.resolve([]),
-  ]);
-  return {
-    people: new Map(
-      users.map((u) => {
-        const mark = marks.get(u.id);
-        const person: ActivityPerson = { id: u.id, name: u.name, image: avatarSrc(u.image) };
-        return [u.id, mark ? { ...person, isAgent: true as const, agentIcon: mark.agentIcon } : person];
-      }),
-    ),
-    pages: new Map(linked.map((p) => [p.id, { title: p.title, icon: p.icon }])),
-  };
 }

@@ -1401,7 +1401,10 @@
     "joinRequestChannel": "참여 요청: {channel}",
     "automationTitle": "자동화",
     "automationDescription": "데이터베이스 자동화가 누군가 추가하거나 변경한 행을 알려줍니다.",
-    "automationChannel": "자동화: {channel}"
+    "automationChannel": "자동화: {channel}",
+    "rowUpdateTitle": "팔로우하는 행",
+    "rowUpdateDescription": "팔로우하는 데이터베이스 행을 다른 사람이 변경할 때. 직접 만든 행, 담당자로 지정된 행, 댓글을 달았거나 멘션된 행, 또는 팔로우하기로 한 행입니다.",
+    "rowUpdateChannel": "팔로우하는 행: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",

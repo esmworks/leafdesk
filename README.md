@@ -296,9 +296,15 @@ versions, upgrades and running behind a domain.
   database rows and pages without connections.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
-  database automation notifies you, and when a reminder you set is due, with an email a little later.
-  Owners also find there an agent's call waiting for approval and the notes an agent's run proposed
-  for its memory. Snooze an item
+  database automation notifies you, when someone else changes a row you follow, and when a reminder
+  you set is due, with an email a little later. You follow the database rows you created, are
+  assigned to through a person property, commented on or were mentioned on; *Follow* and *Stop
+  following* in a row's page menu change that for any row you can open. A row's update waits until
+  its author has left the row alone for a minute (ten minutes at most), so a burst of edits is one
+  item, and says what changed: "Status: To do → Done", a new title, edited text. You hear only about
+  the properties you may see in the row, checked again when the inbox or the email shows it, and
+  never about your own changes. Owners also find there an agent's call waiting for approval and the
+  notes an agent's run proposed for its memory. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
@@ -781,7 +787,7 @@ in production builds over HTTPS (or `localhost`), not under `pnpm dev`. On iPhon
 delivers push only to the installed app (Add to Home Screen).
 
 A push message carries only what the inbox shows for the notification (the page's name, who did
-what), checked against the recipient's access like the inbox, in their language. It is encrypted
+what; for a followed row, the names of the values that changed, not what they changed to), checked against the recipient's access like the inbox, in their language. It is encrypted
 for the browser, and push services keep it a day at most. A device's subscription belongs to the
 sign-in it was made in: signing out, or the session being revoked or running out, stops it. The
 endpoints come from browsers, so the server sends only to public https addresses on port 443,

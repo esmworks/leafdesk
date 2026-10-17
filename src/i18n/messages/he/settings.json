@@ -1401,7 +1401,10 @@
     "joinRequestChannel": "בקשות הצטרפות: {channel}",
     "automationTitle": "אוטומציות",
     "automationDescription": "אוטומציה של מסד נתונים מעדכנת אותך על שורה שמישהו הוסיף או שינה.",
-    "automationChannel": "אוטומציות: {channel}"
+    "automationChannel": "אוטומציות: {channel}",
+    "rowUpdateTitle": "שורות שבמעקב שלך",
+    "rowUpdateDescription": "מישהו אחר משנה שורה במסד נתונים שבמעקב שלך: שורה שיצרת, שהוקצית אליה, שהגבת בה או שהוזכרת בה, או שבחרת לעקוב אחריה.",
+    "rowUpdateChannel": "שורות שבמעקב שלך: {channel}"
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",

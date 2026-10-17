@@ -1401,7 +1401,10 @@
     "joinRequestChannel": "Solicitudes de acceso: {channel}",
     "automationTitle": "Automatizaciones",
     "automationDescription": "Una automatización de una base de datos te avisa de una fila que alguien añadió o cambió.",
-    "automationChannel": "Automatizaciones: {channel}"
+    "automationChannel": "Automatizaciones: {channel}",
+    "rowUpdateTitle": "Filas que sigues",
+    "rowUpdateDescription": "Otra persona cambia una fila de base de datos que sigues: una que creaste, a la que estás asignado, que comentaste o en la que te mencionaron, o que elegiste seguir.",
+    "rowUpdateChannel": "Filas que sigues: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

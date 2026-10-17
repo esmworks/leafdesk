@@ -209,7 +209,8 @@ function Avatar({ entry, name }: { entry: RowActivityEntry; name: string }) {
 }
 
 /** A value as the entry shows it: option chips, names, a date in the viewer's time zone… */
-function Value({ value }: { value: ActivityValue | null }) {
+/** A value as a row's activity shows it: chips for options, names for people, dates in the viewer's zone. Also the inbox's, for rows people follow. */
+export function Value({ value }: { value: ActivityValue | null }) {
   const t = useTranslations("database.rowActivity");
   const tc = useTranslations("common");
   const formatDate = useFormatDate();

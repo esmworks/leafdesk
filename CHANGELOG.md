@@ -21,8 +21,21 @@
   uploaded before this release are read for search gradually, a couple of hundred per workspace
   at a time as people search; until then their words find nothing.
 - **Migration 0081 adds the `journal` and `daily_note` tables** for daily notes.
+- **Migration 0082 adds two small tables** for following rows, and columns to `notification` and
+  `user_preference`; nothing is rewritten.
 
 ### Added
+
+- **Follow database rows.** People now hear in their inbox when someone else changes a row they
+  follow: its properties (a status moved, a date or an assignee changed), its title or its text.
+  A row's creator, the people its person properties name, and anyone who comments or is mentioned
+  on it follow it; *Follow* and *Stop following* in the row's page menu change that, and stopping
+  wins over the rest. One person's burst of edits is one item, sent once they've left the row alone
+  for a minute (ten minutes at most), and it says what changed from what to what ("Status: To do →
+  Done"), only for the properties each follower may see, checked again when the inbox or the email
+  shows it. Rows you follow have their own switches for the inbox, email and push in My account →
+  Preferences; push messages name what changed but not the values. `list_notifications` (MCP)
+  includes these updates with their changes.
 
 - **Import from Trello.** Import has a Trello tab that takes a board's JSON export (*Print, export
   and share → Export as JSON*) and makes it a database opening on a board grouped by list. Lists,

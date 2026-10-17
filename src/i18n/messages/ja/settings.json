@@ -1401,7 +1401,10 @@
     "joinRequestChannel": "参加リクエスト：{channel}",
     "automationTitle": "オートメーション",
     "automationDescription": "誰かが追加または変更した行について、データベースのオートメーションが知らせるとき。",
-    "automationChannel": "オートメーション：{channel}"
+    "automationChannel": "オートメーション：{channel}",
+    "rowUpdateTitle": "フォロー中の行",
+    "rowUpdateDescription": "フォロー中のデータベースの行を他の人が変更したとき。自分が作成した行、担当に割り当てられた行、コメントした行やメンションされた行、またはフォローを選んだ行です。",
+    "rowUpdateChannel": "フォロー中の行: {channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",
