@@ -17,3 +17,9 @@ export const PAGE_HEADER_EVENT = "header";
  * view looks for changes to review (server/page-review.ts).
  */
 export const AI_EDIT_EVENT = "ai-edit";
+/**
+ * Sent on a page's own document when saving it to the database failed, and again (PAGE_SAVED_EVENT)
+ * once a later save of it went through: open editors say their changes aren't saved meanwhile.
+ */
+export const PAGE_SAVE_FAILED_EVENT = "save-failed";
+export const PAGE_SAVED_EVENT = "saved";

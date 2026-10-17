@@ -115,7 +115,9 @@
     "syncing": "Wird synchronisiert…",
     "synced": "Synchronisiert",
     "offlinePending": "Offline · Änderungen lokal gespeichert",
-    "offlineHint": "Du bist offline. Du kannst weiter bearbeiten: Änderungen werden in diesem Browser gespeichert und synchronisiert, sobald die Verbindung wieder da ist."
+    "offlineHint": "Du bist offline. Du kannst weiter bearbeiten: Änderungen werden in diesem Browser gespeichert und synchronisiert, sobald die Verbindung wieder da ist.",
+    "notSaved": "Nicht gespeichert",
+    "notSavedHint": "Leafdesk konnte deine letzten Änderungen nicht speichern. Lass die Seite offen: Deine nächste Änderung speichert sie erneut."
   },
   "errors": {
     "accessLost": "Du hast keinen Zugriff mehr auf diese Seite.",

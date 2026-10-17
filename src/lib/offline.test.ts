@@ -147,6 +147,13 @@ describe("sync state", () => {
     expect(syncState({ ...base, socket: "connecting", ready: false })).toBe("connecting");
   });
 
+  it("says not saved while the server's saves fail, unless the connection itself is down", () => {
+    expect(syncState({ ...base, saveFailed: true })).toBe("notSaved");
+    expect(syncState({ ...base, saveFailed: true, unsynced: true })).toBe("notSaved");
+    expect(syncState({ ...base, saveFailed: true, socket: "disconnected" })).toBe("offline");
+    expect(syncState({ ...base, saveFailed: true, socket: "connecting" })).toBe("reconnecting");
+  });
+
   it("puts lost access above everything", () => {
     expect(syncState({ ...base, accessLost: true, browserOffline: true })).toBe("noAccess");
   });

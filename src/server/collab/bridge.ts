@@ -23,6 +23,19 @@ export type WriteActor = { userId: string; oauthClientId?: string | null };
 export type PageContent = { title: string; markdown: string; text: string };
 
 /**
+ * A write of the page's body or title that reached the live document but couldn't be saved to the
+ * database (see collab/service.ts persistPage). Told apart by `code` rather than its class: route
+ * handlers are bundled apart from the collab service and don't share its classes.
+ */
+export const PAGE_SAVE_FAILED = "pageSaveFailed";
+
+export function pageSaveFailedError(cause: unknown) {
+  return Object.assign(new Error("The page couldn't be saved", { cause }), { code: PAGE_SAVE_FAILED });
+}
+
+export const isPageSaveFailed = (error: unknown) => (error as { code?: unknown } | null)?.code === PAGE_SAVE_FAILED;
+
+/**
  * A body write that checked or reported the body's version (see CollabService.pageVersion):
  * `conflict` when the body no longer had the version the writer expected, and nothing was written.
  * `version` is the body's version after the write, or the current one on a conflict.

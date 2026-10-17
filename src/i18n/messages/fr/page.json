@@ -115,7 +115,9 @@
     "syncing": "Synchronisation…",
     "synced": "Synchronisé",
     "offlinePending": "Hors ligne · modifications conservées ici",
-    "offlineHint": "Vous êtes hors ligne. Continuez à modifier : les changements sont enregistrés dans ce navigateur et seront synchronisés au retour de la connexion."
+    "offlineHint": "Vous êtes hors ligne. Continuez à modifier : les changements sont enregistrés dans ce navigateur et seront synchronisés au retour de la connexion.",
+    "notSaved": "Non enregistré",
+    "notSavedHint": "Leafdesk n'a pas pu enregistrer vos dernières modifications. Gardez cette page ouverte : votre prochaine modification les enregistrera à nouveau."
   },
   "errors": {
     "accessLost": "Vous n’avez plus accès à cette page.",

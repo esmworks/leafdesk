@@ -372,10 +372,14 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
   }
 
   const collab = getCollab();
-  if (input.markdown?.trim()) await collab.replaceContent(created.id, input.markdown, actor);
-  pageChanged({ pageId: created.id });
-  collab.broadcast(`ws:${workspaceId}`, "tree");
-  if (parentKind === "database") collab.broadcast(`db:${input.parentId}`, "rows");
+  try {
+    // Rejects when the body couldn't be saved: the page then stays, empty, and the caller hears why.
+    if (input.markdown?.trim()) await collab.replaceContent(created.id, input.markdown, actor);
+  } finally {
+    pageChanged({ pageId: created.id });
+    collab.broadcast(`ws:${workspaceId}`, "tree");
+    if (parentKind === "database") collab.broadcast(`db:${input.parentId}`, "rows");
+  }
   return created;
 }
 

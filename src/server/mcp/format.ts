@@ -7,6 +7,7 @@ import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import { SkillError } from "@/server/skills";
+import { isPageSaveFailed } from "@/server/collab/bridge";
 
 /** Max characters of page markdown returned in one get_page call. */
 export const MAX_MARKDOWN_CHARS = 30_000;
@@ -113,6 +114,8 @@ export function toolErrorFor(error: unknown): CallToolResult {
     );
   }
   if ((error as { code?: unknown } | null)?.code === "pageLocked") return errorResult(PAGE_LOCKED_MESSAGE);
+  // The collab service logged the database's refusal already.
+  if (isPageSaveFailed(error)) return errorResult("Leafdesk couldn't save the page, so this change isn't stored. Try again later.");
   console.error("[mcp] tool failed", error);
   return errorResult("Something went wrong on the Leafdesk server while running this tool. Try again later.");
 }

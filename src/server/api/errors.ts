@@ -7,6 +7,7 @@ import { ToolInputError, VersionConflictError } from "@/server/mcp/format";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
+import { isPageSaveFailed } from "@/server/collab/bridge";
 
 /** Every error code the REST API answers with, for the docs. */
 export const API_ERROR_CODES = {
@@ -105,6 +106,8 @@ export function apiErrorFor(error: unknown): ApiError {
     return new ApiError(400, "invalid_request", `${error.message}.`);
   }
   if (error instanceof AiError) return apiErrorForAi(error);
+  // The collab service logged the database's refusal already; its text can name tables and constraints.
+  if (isPageSaveFailed(error)) return new ApiError(500, "internal_error", "The page couldn't be saved, so this change isn't stored. Try again later.");
   if (error instanceof CommentError) {
     if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
     if (error.code === "notAllowed") return new ApiError(403, "forbidden", error.message);

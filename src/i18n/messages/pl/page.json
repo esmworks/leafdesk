@@ -115,7 +115,9 @@
     "syncing": "Synchronizowanie…",
     "synced": "Zsynchronizowano",
     "offlinePending": "Offline · zmiany zachowane tutaj",
-    "offlineHint": "Jesteś offline. Możesz dalej edytować: zmiany są zapisywane w tej przeglądarce i zsynchronizują się po przywróceniu połączenia."
+    "offlineHint": "Jesteś offline. Możesz dalej edytować: zmiany są zapisywane w tej przeglądarce i zsynchronizują się po przywróceniu połączenia.",
+    "notSaved": "Nie zapisano",
+    "notSavedHint": "Leafdesk nie mógł zapisać ostatnich zmian. Nie zamykaj tej strony: następna edycja zapisze je ponownie."
   },
   "errors": {
     "accessLost": "Nie masz już dostępu do tej strony.",
