@@ -15,6 +15,15 @@ const buildOnly = (phase: string): NextConfig => {
 
 const config = (phase: string): NextConfig => ({
   ...buildOnly(phase),
+  // The desktop app's build (desktop/scripts/bundle-server.ts): only the files the server runs, its
+  // packages traced from the repository alone (not from a checkout around it). Without the image
+  // optimizer, which nothing uses and whose sharp is native code for one kind of processor: the
+  // same server goes into both Mac apps.
+  ...(process.env.LEAFDESK_STANDALONE === "1" && {
+    output: "standalone",
+    outputFileTracingRoot: process.cwd(),
+    images: { unoptimized: true },
+  }),
   // Loaded by the custom server too; keep one copy of each in the process.
   serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "web-push"],
   experimental: {

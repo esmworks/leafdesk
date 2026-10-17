@@ -15,7 +15,8 @@
     "start": "pnpm build && electron .",
     "typecheck": "tsc -p . && tsc -p tsconfig.pages.json --noEmit",
     "test": "node --test \"src/**/*.test.ts\"",
-    "dist": "pnpm build && electron-builder --publish never"
+    "server": "node scripts/bundle-server.ts",
+    "dist": "pnpm build && pnpm server && electron-builder --publish never"
   },
   "dependencies": {
     "electron-updater": "6.8.9"
@@ -31,6 +32,7 @@
     "@types/node": "24.19.2",
     "electron": "44.7.2",
     "electron-builder": "26.15.3",
+    "esbuild": "0.28.2",
     "postgres": "3.4.9",
     "typescript": "6.0.3"
   },

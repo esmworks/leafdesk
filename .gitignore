@@ -8,6 +8,7 @@ coverage
 # Desktop app build output
 /desktop/dist/
 /desktop/release/
+/desktop/server/
 
 # Uploaded files (local storage driver, UPLOAD_DIR default)
 /data/

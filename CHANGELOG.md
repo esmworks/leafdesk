@@ -65,9 +65,10 @@
 - **Desktop app for macOS, Windows and Linux.** Download it from the release, enter your server's
   address once, and Leafdesk opens in its own window, with native menus in your language, links to
   other sites in your browser and offline editing as in the installed web app (on HTTPS). A
-  self-signed certificate can be trusted by its fingerprint. The app updates itself from GitHub
-  releases. The macOS app is signed and notarized; the Windows installer isn't signed yet. See
-  *Desktop app* in the README.
+  self-signed certificate can be trusted by its fingerprint. *On this computer* needs no server at
+  all: the app runs Leafdesk and a database of its own on the computer, signed in to its one
+  account, and keeps the pages there. The app updates itself from GitHub releases. The macOS app is
+  signed and notarized; the Windows installer isn't signed yet. See *Desktop app* in the README.
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.
   A row's creator, the people its person properties name, and anyone who comments or is mentioned
