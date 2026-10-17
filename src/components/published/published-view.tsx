@@ -12,6 +12,7 @@ import { publishedHref } from "@/lib/site";
 import { PublishedBody, PublishedRowProperties, showsSubpages } from "./published-body";
 import { PublishedDatabaseView } from "./published-database";
 import { SiteNav } from "./site-nav";
+import { SourceFooter } from "./source-footer";
 
 // `cn` from components/ui is a client export; server components join classes themselves.
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
@@ -120,7 +121,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
           <DarkScheme dark={data.background?.color === "black"}>
             <main
               className={cn(
-                "w-full min-w-0 flex-1 pb-32",
+                "w-full min-w-0 flex-1 pb-24",
                 wide ? "pt-10" : data.style.fullWidth ? "page-full-width pt-12" : "mx-auto max-w-[900px] pt-12",
                 !wide && pageTextClasses(data.style),
               )}
@@ -167,6 +168,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
                 </section>
               )}
             </main>
+            <SourceFooter />
           </DarkScheme>
         </div>
       </div>

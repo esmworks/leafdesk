@@ -1,6 +1,7 @@
 {
   "appDescription": "Otwartoźródłowy obszar roboczy na dokumenty i bazy danych, z dostępem przez MCP dla agentów AI.",
   "untitled": "Bez tytułu",
+  "sourceCode": "Kod źródłowy",
   "agent": "Agent",
   "agentName": "{name} (agent)",
   "cancel": "Anuluj",

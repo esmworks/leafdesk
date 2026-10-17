@@ -38,7 +38,7 @@ export async function AboutLeafdesk() {
             control={<Outbound href={APP_INFO.licenseText}>{APP_INFO.license}</Outbound>}
           />
           <SettingsRow title={t("website")} control={<Outbound href={APP_INFO.homepage}>{bare(APP_INFO.homepage)}</Outbound>} />
-          <SettingsRow title={t("source")} control={<Outbound href={APP_INFO.repository}>{bare(APP_INFO.repository)}</Outbound>} />
+          <SettingsRow title={t("source")} control={<Outbound href={APP_INFO.source}>{bare(APP_INFO.source)}</Outbound>} />
           <SettingsRow
             title={t("issues")}
             description={t("issuesDescription")}

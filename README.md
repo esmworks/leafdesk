@@ -563,6 +563,14 @@ If the app is reachable under another URL (a domain behind a reverse proxy, anot
 `APP_URL` to that public origin. It is the OAuth issuer and the MCP resource identifier, so it
 must match what clients see.
 
+`SOURCE_URL` is where people can get the source code of what your server runs. The About tab in
+My account links to it, and so does the foot of every published page and public form, for visitors
+without an account. Unset, it is the tag of the running release
+(`https://github.com/esmworks/leafdesk/tree/v<version>`), which is right as long as you run
+Leafdesk unchanged. If you change Leafdesk and let others use your version over a network, the
+license asks you to offer them its source: publish your changes and set `SOURCE_URL` to them, e.g.
+`https://git.example.com/you/leafdesk/tree/my-changes`. Only `http://` and `https://` links count.
+
 `TRUSTED_PROXIES` says how many reverse proxies stand in front of the app. Public forms, uploads
 and sign-in limit attempts per visitor address, and the audit log records it; the app reads that
 address from `X-Forwarded-For` only as far as these proxies wrote it. Left unset, it trusts one

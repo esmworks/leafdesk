@@ -1,6 +1,7 @@
 {
   "appDescription": "סביבת עבודה בקוד פתוח למסמכים ולמסדי נתונים, עם גישת MCP לסוכני AI.",
   "untitled": "ללא כותרת",
+  "sourceCode": "קוד מקור",
   "agent": "סוכן",
   "agentName": "{name} (סוכן)",
   "cancel": "ביטול",

@@ -51,7 +51,10 @@
   text. Duplicating a page, or a page from a template, gives the copy its own synced blocks.
   Search finds a synced block's text on its original page (not on the pages showing it), and a
   version's changes include its synced blocks', as restoring the version brings them back too.
-
+- **A link to the source code for everyone who uses the server.** Published pages and public forms
+  now show *Source code* at their foot, for visitors without an account, next to the one in the
+  About tab. It leads to the running release's tag, or to `SOURCE_URL` when set: point it at your
+  own code if you run a changed Leafdesk for others (see the README).
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.
   A row's creator, the people its person properties name, and anyone who comments or is mentioned
