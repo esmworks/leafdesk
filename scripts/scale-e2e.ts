@@ -5,7 +5,7 @@
  * and agents read them), the search box, opening a page, the sidebar reloading after a change, and
  * connecting to a page's live document. Each is timed RUNS times after a warm-up; the median is
  * held to its limit in LIMITS, set for CI's runners with room for their noise, so that this catches
- * a path that became several times slower rather than a few percent.
+ * a path that became twice as slow rather than a few percent.
  *
  *   pnpm tsx scripts/scale-seed.ts && pnpm tsx scripts/scale-e2e.ts
  *
@@ -42,24 +42,25 @@ const RUNS = 5;
 const OWNER = "scale-e2e-owner";
 
 /**
- * Medians in milliseconds, on CI's runners (ubuntu-24.04, 4 cores). A limit is a few times the
- * median measured there, so a slow runner passes and a path several times slower fails.
+ * Medians in milliseconds. A limit is about twice the median measured on CI's runners (ubuntu-24.04,
+ * the median in the comment; 2026-10-17) and at least 250 ms, so a slower runner passes and a path
+ * that became twice as slow fails.
  */
 const LIMITS: Record<string, number> = {
-  "open the database page": 3_000,
-  "load the table's rows": 6_000,
-  "filter in the browser": 400,
-  "sort in the browser": 800,
-  "API query with a filter": 4_000,
-  "API query sorted": 4_000,
-  "open the search box": 1_000,
-  "search a common word": 1_000,
-  "search a title": 1_000,
-  "open a page": 3_000,
-  "a page's links and mentions": 1_500,
-  "reload the sidebar": 1_500,
-  "connect to a page (first time)": 1_000,
-  "connect to a page again": 500,
+  "open the database page": 3_500, // 1,686
+  "load the table's rows": 6_000, // 2,983
+  "filter in the browser": 250, // 35
+  "sort in the browser": 400, // 118
+  "API query with a filter": 4_000, // 1,783
+  "API query sorted": 4_000, // 1,895
+  "open the search box": 250, // 61
+  "search a common word": 500, // 155
+  "search a title": 250, // 28
+  "open a page": 2_500, // 1,181
+  "a page's links and mentions": 250, // 50
+  "reload the sidebar": 2_500, // 1,080
+  "connect to a page (first time)": 250, // 18
+  "connect to a page again": 250, // 15
 };
 
 let failed = 0;
