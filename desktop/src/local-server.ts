@@ -10,7 +10,7 @@ import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { freePort, startLocalDatabase } from "./local-db.ts";
+import { freePort, startLocalDatabase, type Binaries } from "./local-db.ts";
 
 /** The account's address: `.invalid` reaches nobody, and no server holds addresses there. */
 export const LOCAL_EMAIL = "me@local.leafdesk.invalid";
@@ -24,7 +24,10 @@ const LOG_LIMIT_BYTES = 5 * 1024 * 1024;
 const PASSED_ENV = ["PATH", "PATHEXT", "HOME", "USERPROFILE", "TMPDIR", "TEMP", "TMP", "SystemRoot", "windir", "ComSpec", "APPDATA", "LOCALAPPDATA", "LANG", "LC_ALL", "TZ"];
 
 export type LocalServerOptions = {
-  /** The Leafdesk server's folder (server.ts, scripts, drizzle), where it runs. */
+  /**
+   * The Leafdesk server's folder, where it runs: the repository (server.ts, scripts, drizzle) for a
+   * development server, or a built one (server.mjs and desktop-setup.mjs, scripts/bundle-server.ts).
+   */
   serverDir: string;
   /** Where the database, the files, the secrets and the log are kept. */
   root: string;
@@ -35,6 +38,8 @@ export type LocalServerOptions = {
   nodeEnv?: Record<string, string>;
   /** A development server (Next compiles pages as they are asked for) or a built one. */
   dev: boolean;
+  /** PostgreSQL's binaries, when not this app's own (local-db.ts, localDbBinaries). */
+  binaries?: Binaries;
 };
 
 export type LocalAccount = { email: string; password: string };
@@ -81,7 +86,7 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
   const secrets = secretsIn(root);
   const account = { email: LOCAL_EMAIL, password: secrets.password };
   const log = path.join(root, "server.log");
-  const database = await startLocalDatabase(path.join(root, "database"));
+  const database = await startLocalDatabase(path.join(root, "database"), options.binaries);
   const port = await freePort(options.port);
   const origin = `http://127.0.0.1:${port}`;
 
@@ -104,8 +109,10 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
     NEXT_TELEMETRY_DISABLED: "1",
   };
   const out = openLog(log);
-  const run = (script: string, extra: Record<string, string>) =>
-    spawn(options.node, ["--import", "tsx", script], {
+  // The sources, compiled as they load, or the built server's JavaScript.
+  const command = (source: string) => (options.dev ? ["--import", "tsx", source] : [`${path.basename(source, ".ts")}.mjs`]);
+  const run = (source: string, extra: Record<string, string>) =>
+    spawn(options.node, command(source), {
       cwd: serverDir,
       env: { ...env, ...extra },
       // The IPC channel: the server stops when asked through it, or when the app is gone.
