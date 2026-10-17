@@ -36,12 +36,24 @@ type Binaries = { initdb: string; pgCtl: string };
 /** The PostgreSQL binaries for this platform, outside the app's archive when it is packaged. */
 export function localDbBinaries(): Binaries {
   const require = createRequire(import.meta.url);
-  // The package's entry is its dist/index.js (it exports nothing else); the binaries are beside.
-  const entry = require.resolve(`@embedded-postgres/${process.platform}-${process.arch}`);
+  const platform = process.platform === "win32" ? "windows" : process.platform;
+  // macOS's binaries are universal: either package runs on both kinds of Mac.
+  const arches = platform === "darwin" ? [process.arch, process.arch === "arm64" ? "x64" : "arm64"] : [process.arch];
+  const entry = resolveFirst(require, arches.map((arch) => `@embedded-postgres/${platform}-${arch}`));
   // electron-builder unpacks the binaries next to app.asar; executables can't run from inside it.
   const bin = path.join(path.dirname(entry), "..", "native", "bin").replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
   const exe = process.platform === "win32" ? ".exe" : "";
   return { initdb: path.join(bin, `initdb${exe}`), pgCtl: path.join(bin, `pg_ctl${exe}`) };
+}
+
+/** The entry (dist/index.js, all it exports) of the first of `names` that is installed. */
+function resolveFirst(require: NodeJS.Require, names: string[]): string {
+  for (const name of names) {
+    try {
+      return require.resolve(name);
+    } catch {}
+  }
+  throw new Error(`PostgreSQL for ${process.platform}-${process.arch} isn't installed (${names.join(", ")})`);
 }
 
 /** Runs a binary and waits for it to exit; its output goes to the file `log`. */
