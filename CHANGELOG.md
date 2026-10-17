@@ -35,9 +35,17 @@
   `linked_from_truncated` when not every linking page is listed.
 - **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
   block and highlights it.
+- **Comment notifications open their thread.** From the inbox, the email or a push notification,
+  the page opens with its comments, the thread selected and the text it is about in view (a
+  resolved thread under *All*).
+- **Search results mark the words you typed** in the text shown under each page, where the search
+  found them: at the start of a word, and inside a sentence for Chinese and Japanese.
 
 ### Fixed
 
+- **Imported ZIPs garbled non-English file names** when the tool that made them (macOS's
+  *Compress* among them) didn't mark the names as UTF-8: "Çalışma planı.md" came in as
+  "Ã‡alÄ±ÅŸma planÄ±.md". Such names are now read as UTF-8 whenever they are valid UTF-8.
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
 

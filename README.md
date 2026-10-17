@@ -73,7 +73,8 @@ versions, upgrades and running behind a domain.
   `type:page`, `type:database` or `type:row` (database rows); filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
-  results puts each of these into the box.
+  results puts each of these into the box. The words you typed show in bold in the text under each
+  result.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
@@ -275,7 +276,7 @@ versions, upgrades and running behind a domain.
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
   database automation notifies you, and when a reminder you set is due, with an email a little later.
   Owners also find there an agent's call waiting for approval and the notes an agent's run proposed
-  for its memory. Snooze an item
+  for its memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
