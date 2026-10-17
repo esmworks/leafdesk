@@ -10,7 +10,7 @@ pnpm install
 pnpm start        # builds, then opens the app
 pnpm typecheck
 pnpm test         # node --test, no Electron needed
-pnpm dist         # installers for this computer's system in release/, signed as in a release
+pnpm dist         # installers for this computer's system in release/; needs a release's signing variables
 ```
 
 For an unsigned macOS app to try out (in `release/mac-arm64/`):
