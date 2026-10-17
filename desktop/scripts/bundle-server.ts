@@ -134,6 +134,7 @@ function layOutPackages(top: string): Map<string, string> {
       else if (placed.get(found)!.get(name) !== source) put(chain[0], name, source, chain);
     }
   };
+  const versionAt = (folder: string) => (JSON.parse(fs.readFileSync(path.join(folder, "package.json"), "utf8")) as { version: string }).version;
   const packages = path.join(standalone, "node_modules");
   for (const name of namesIn(packages)) queue.push({ name, source: resolveLink(path.join(packages, name)), chain: [top] });
   drain();
@@ -144,8 +145,14 @@ function layOutPackages(top: string): Map<string, string> {
     const source = resolveLink(path.join(hashedFolder, alias));
     const name = alias.replace(/-[0-9a-f]{16}$/, "");
     const there = placed.get(top)?.get(name);
+    // The same package can come by another path (on Windows the build copies some links' folders
+    // instead): the same version is the same package, kept once with the files traced for either.
+    const same = there === source || (there !== undefined && versionAt(there) === versionAt(source));
+    if (there && same && there !== source) {
+      fs.cpSync(source, path.join(top, ...name.split("/")), { recursive: true, dereference: true, filter: (file) => file !== path.join(source, "node_modules") });
+    }
     // Another version under the plain name: this one keeps its hashed name.
-    const kept = there && there !== source ? alias : name;
+    const kept = there && !same ? alias : name;
     if (!there || kept === alias) put(top, kept, source, [top]);
     drain();
     names.set(alias, kept);
