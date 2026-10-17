@@ -51,6 +51,11 @@
 
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
+- **Edit access given while a page is open now works at once.** Someone who had a page open to
+  view or comment on and was then given edit access (by a share, a group, a teamspace or a role)
+  could type, but their edits weren't saved until they reloaded the page. Their open page now takes
+  them right away, the ones typed before included. Unlocking a page or restoring it from the trash
+  sends the edits it held back the same way.
 
 ### Changed
 
