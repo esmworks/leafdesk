@@ -144,7 +144,7 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                     {editor(note) || (
                       <div className="flex items-start gap-1">
                         <div className="min-w-0 flex-1 py-1">
-                          {note.text === null ? <p className="text-fg-muted">{t("hiddenText")}</p> : <p className="break-words">{note.text}</p>}
+                          {note.text === null ? <p className="text-fg-muted">{t(note.run?.othersRun ? "hiddenOthersText" : "hiddenText")}</p> : <p className="break-words">{note.text}</p>}
                           <Origin workspaceId={workspaceId} note={note} />
                         </div>
                         {editable && note.text !== null && (

@@ -278,6 +278,41 @@ try {
   check(toolResults(fake.chats.at(-1)!)[0] === 'There is no tool "remember" in this run.', "…and a call to remember anyway is refused");
   check((await notesInDb()).length === 1, "…so nothing was proposed");
 
+  // ── A run an owner started for themselves ───────────────────────────────────────────────────
+  // It read with that owner's access: what it read, thought and proposed is theirs alone.
+  const ownRuns = await db
+    .insert(agentRun)
+    .values([
+      { source: { kind: "request" as const, requestedBy: ids.owner, via: "api" as const }, prompt: "MY-OWN-TASK" },
+      { source: { kind: "schedule" as const, scheduleId: `${RUN}-gone`, scheduledBy: ids.owner }, prompt: "MY-SCHEDULED-TASK" },
+    ].map((r) => ({ ...r, agentId: router.id, workspaceId, context: { actorId: ids.owner }, status: "done" as const, error: "MY-ERROR", steps: [{ kind: "thought" as const, text: "MY-THOUGHT" }], answer: "MY-ANSWER", finishedAt: new Date() })))
+    .returning();
+  const ownNotes = await db
+    .insert(aiMemory)
+    .values(ownRuns.map((r) => ({ userId: router.userId, workspaceId, text: `MY-PROPOSAL ${r.source.kind}`, status: "proposed" as const, agentRunId: r.id })))
+    .returning();
+  const runsFor = async (viewer: string) => (await agents.listAgentRuns(viewer, router.id)).filter((r) => ownRuns.some((o) => o.id === r.id));
+  const othersView = await runsFor(ids.other);
+  check(
+    othersView.length === 2 &&
+      othersView.every((r) => r.status === "done" && r.steps.length === 0 && r.answer === "" && r.error === null && (r.request ?? r.schedule)?.task === ""),
+    "another owner sees that an owner's own request or schedule ran, not what it read, thought, answered or was asked",
+    othersView,
+  );
+  const ownersView = await runsFor(ids.owner);
+  check(
+    ownersView.length === 2 && ownersView.every((r) => r.answer === "MY-ANSWER" && r.steps.length === 1 && r.error === "MY-ERROR" && (r.request ?? r.schedule)?.task.startsWith("MY-")),
+    "…the owner who started it sees all of it",
+    ownersView,
+  );
+  const othersNotes = (await memory.listAgentMemory(ids.other, router.id)).filter((n) => ownNotes.some((o) => o.id === n.id));
+  check(othersNotes.length === 2 && othersNotes.every((n) => n.text === null && n.run?.othersRun), "…nor what its proposals say", othersNotes);
+  check(await fails(memory.keepAgentMemory(ids.other, router.id, ownNotes[0].id), isCode("noteNotFound")), "…and can't keep them");
+  const ownersNotes = (await memory.listAgentMemory(ids.owner, router.id)).filter((n) => ownNotes.some((o) => o.id === n.id));
+  check(ownersNotes.length === 2 && ownersNotes.every((n) => n.text?.startsWith("MY-PROPOSAL") && !n.run?.othersRun), "…the owner who started it reads them", ownersNotes);
+  await db.delete(aiMemory).where(inArray(aiMemory.id, ownNotes.map((n) => n.id)));
+  await db.delete(agentRun).where(inArray(agentRun.id, ownRuns.map((r) => r.id)));
+
   // ── The workspace's AI memory switch ────────────────────────────────────────────────────────
   await updateWorkspaceSettings(ids.owner, workspaceId, { aiMemory: false });
   fake.chats.length = 0;

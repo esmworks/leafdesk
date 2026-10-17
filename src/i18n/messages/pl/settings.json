@@ -397,6 +397,7 @@
       "keptList": "Notatki agenta",
       "empty": "Na razie nic. Zachowaj notatkę zaproponowaną przez uruchomienie lub napisz ją tutaj.",
       "hiddenText": "Zaproponowana w wierszu, którego nie możesz otworzyć.",
+      "hiddenOthersText": "Zaproponowane przez uruchomienie rozpoczęte przez innego właściciela.",
       "fromRow": "Z uruchomienia w <row>wierszu</row>",
       "fromHiddenRow": "Z uruchomienia w wierszu, którego nie możesz otworzyć",
       "fromConnection": "Z uruchomienia rozpoczętego przez {connection}",
