@@ -42,12 +42,15 @@
               </div>
             </form>
           </li>
-          <li class="mode unavailable" aria-disabled="true">
+          <li class="mode unavailable" id="local-mode" aria-disabled="true">
             <div class="mode-head">
               <span class="mode-title" data-text="modeLocal"></span>
-              <span class="tag" data-text="comingSoon"></span>
+              <span class="tag" id="local-soon" data-text="comingSoon"></span>
             </div>
             <p class="mode-detail" data-text="modeLocalDetail"></p>
+            <div class="actions" id="local-actions" hidden>
+              <button type="button" class="primary" id="local-start" data-text="startLocal"></button>
+            </div>
           </li>
           <li class="mode unavailable" aria-disabled="true">
             <div class="mode-head">
@@ -73,9 +76,14 @@
         </div>
       </section>
 
+      <section class="card" id="starting" hidden>
+        <h1 data-text="starting"></h1>
+        <p class="faint" data-text="startingDetail"></p>
+      </section>
+
       <section class="card" id="problem" hidden>
         <h1 id="problem-title"></h1>
-        <p data-text="problemBody"></p>
+        <p id="problem-body"></p>
         <p class="faint" id="problem-detail" dir="ltr"></p>
         <div class="actions">
           <button type="button" class="secondary" id="problem-change" data-text="changeServer"></button>

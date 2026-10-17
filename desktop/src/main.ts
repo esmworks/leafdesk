@@ -1,8 +1,9 @@
 /**
- * Leafdesk's desktop app: a window on the person's own Leafdesk server. The pages come from the
- * server, as in a browser, so the app works with whatever version the server runs and offline
- * use is the web app's own (its service worker). The app adds a window of its own, menus, a
- * screen to pick the server, and a way to trust a server's self-signed certificate.
+ * Leafdesk's desktop app: a window on the person's own Leafdesk server, or on Leafdesk running on
+ * this computer (local mode, local-server.ts). The pages come from the server, as in a browser, so
+ * the app works with whatever version the server runs and offline use is the web app's own (its
+ * service worker). The app adds a window of its own, menus, a screen to pick the server, and a way
+ * to trust a server's self-signed certificate.
  */
 import {
   app,
@@ -24,6 +25,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
 import { showContextMenu } from "./context-menu.ts";
+import { hasSession, signIn, startLocalServer, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
 import { decideNavigation, decideNewWindow, isServerPage } from "./navigation.ts";
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
@@ -36,6 +38,8 @@ const PAGE = path.join(APP_DIR, "pages", "app.html");
 const PAGES_URL = `${pathToFileURL(path.join(APP_DIR, "pages")).href}/`;
 const PRELOAD = path.join(import.meta.dirname, "preload.cjs");
 const ICON = path.join(APP_DIR, "build", "icon.png");
+/** The Leafdesk server local mode runs: the repository's, around the app's folder. */
+const SERVER_DIR = path.join(APP_DIR, "..");
 /** The web app's own background (src/lib/theme.ts), so a window doesn't flash before it paints. */
 const BACKGROUND = { light: "#ffffff", dark: "#18191b" };
 const PROBE_TIMEOUT_MS = 10_000;
@@ -47,7 +51,8 @@ const PERMISSIONS = new Set(["notifications", "clipboard-read", "clipboard-sanit
 /** What the app's own page shows. */
 type View =
   | { view: "connect"; address?: string }
-  | { view: "problem"; server: string; detail: string; certificate?: CertificateProblem };
+  | { view: "starting" }
+  | { view: "problem"; server: string; detail: string; certificate?: CertificateProblem; local?: boolean };
 
 type Probe =
   | { kind: "ok"; origin: string }
@@ -65,6 +70,9 @@ export type ConnectReply =
 let settings: Settings = { trustedCertificates: {} };
 let locale: Locale = "en";
 let mainWindow: BrowserWindow | null = null;
+/** Leafdesk on this computer, once started (local mode). */
+let localServer: Promise<LocalServer> | null = null;
+let quitting = false;
 const views = new WeakMap<WebContents, View>();
 const certificates = new CertificateTrust(() => settings.trustedCertificates);
 
@@ -72,6 +80,16 @@ const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 const save = () => saveSettings(settingsFile(), settings);
 const strings = () => STRINGS[locale];
 const systemLocale = () => pickLocale(app.getPreferredSystemLanguages());
+/** Whether this app can run Leafdesk itself: one built from the source, for now; packages don't carry the server yet. */
+const localAvailable = () => !app.isPackaged;
+const isLocal = () => settings.mode === "local" && localAvailable();
+/** The origin of the pages the app shows: the connected server's, or Leafdesk's on this computer once it runs. */
+let localOrigin: string | undefined;
+const currentOrigin = () => (isLocal() ? localOrigin : settings.server);
+
+// The app run from its source keeps its settings and its Leafdesk apart from an installed one's
+// (unless it is given a folder of its own, --user-data-dir).
+if (!app.isPackaged && !app.commandLine.hasSwitch("user-data-dir")) app.setPath("userData", path.join(app.getPath("appData"), "Leafdesk Dev"));
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -84,6 +102,14 @@ if (!app.requestSingleInstanceLock()) {
   });
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
+  });
+  // Leafdesk on this computer stops before the app does, so its pages' last edits are saved.
+  app.on("before-quit", (event) => {
+    if (!localServer) return;
+    event.preventDefault();
+    if (quitting) return;
+    quitting = true;
+    void stopLocal().finally(() => app.quit());
   });
   void app.whenReady().then(start);
 }
@@ -128,7 +154,7 @@ function refreshMenu() {
         window.focus();
       },
       goHome: (window) => {
-        if (settings.server) openServer(window);
+        if (isLocal() || settings.server) openCurrent(window);
       },
     }),
   );
@@ -171,7 +197,7 @@ function openMainWindow() {
   window.on("closed", () => {
     if (mainWindow === window) mainWindow = null;
   });
-  if (settings.server) openServer(window);
+  if (isLocal() || settings.server) openCurrent(window);
   else showView(window, { view: "connect" });
   return window;
 }
@@ -188,11 +214,103 @@ function restoredBounds(): Partial<Rectangle> | undefined {
   return onScreen ? { x, y, width, height } : { width, height };
 }
 
+function openCurrent(window: BrowserWindow) {
+  if (isLocal()) void openLocal(window);
+  else openServer(window);
+}
+
 function openServer(window: BrowserWindow) {
   if (!settings.server) return;
   views.delete(window.webContents);
   // A failed load is shown by did-fail-load (guard), not here.
   window.loadURL(`${settings.server}/`).catch(() => undefined);
+}
+
+/**
+ * Starts Leafdesk on this computer (once), signs in to its account, and opens its home. `signedOut`:
+ * the window came to the sign-in page, so the session is gone whatever the cookies say.
+ */
+async function openLocal(window: BrowserWindow, signedOut = false) {
+  if (!localServer) showView(window, { view: "starting" });
+  try {
+    const server = await startLocal();
+    await signInLocally(server, signedOut);
+    readLeafdeskLanguage(session.defaultSession);
+    if (window.isDestroyed() || !isLocal()) return;
+    views.delete(window.webContents);
+    window.loadURL(`${server.origin}/`).catch(() => undefined);
+  } catch (error) {
+    console.error("Leafdesk on this computer didn't start:", error);
+    if (!window.isDestroyed()) showLocalProblem(window, error instanceof Error ? error.message : String(error));
+  }
+}
+
+function startLocal(): Promise<LocalServer> {
+  localServer ??= startLocalServer({
+    serverDir: SERVER_DIR,
+    root: path.join(app.getPath("userData"), "Local"),
+    port: settings.localPort,
+    // Electron's own Node runs the server.
+    node: process.execPath,
+    nodeEnv: { ELECTRON_RUN_AS_NODE: "1" },
+    dev: !app.isPackaged,
+  }).then(
+    (server) => {
+      localOrigin = server.origin;
+      if (settings.localPort !== server.port) {
+        settings.localPort = server.port;
+        save();
+      }
+      server.onExit((code) => {
+        localServer = null;
+        void server.stop();
+        for (const window of BrowserWindow.getAllWindows()) {
+          if (isServerPage(window.webContents.getURL(), server.origin)) {
+            showLocalProblem(window, `Leafdesk's server stopped with ${code}; see ${server.log}`);
+          }
+        }
+      });
+      return server;
+    },
+    (error: unknown) => {
+      localServer = null;
+      throw error;
+    },
+  );
+  return localServer;
+}
+
+/** Stops Leafdesk on this computer, if it runs (or is starting). */
+async function stopLocal() {
+  const starting = localServer;
+  localServer = null;
+  localOrigin = undefined;
+  const server = await starting?.catch(() => null);
+  await server?.stop().catch((error: unknown) => console.error("Leafdesk on this computer didn't stop cleanly:", error));
+}
+
+function showLocalProblem(window: BrowserWindow, detail: string) {
+  showView(window, { view: "problem", server: "", detail, local: true });
+}
+
+/** The app's browser gets a session of the computer's account, unless it has one the server still knows. */
+async function signInLocally(server: LocalServer, signedOut: boolean) {
+  const ses = session.defaultSession;
+  const cookies = await ses.cookies.get({ url: server.origin });
+  if (!signedOut && (await hasSession(server.origin, cookies.map(({ name, value }) => `${name}=${value}`).join("; ")))) return;
+  const now = Date.now() / 1000;
+  for (const cookie of await signIn(server.origin, server.account)) {
+    await ses.cookies.set({
+      url: server.origin,
+      name: cookie.name,
+      value: cookie.value,
+      path: cookie.path,
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+      sameSite: cookie.sameSite,
+      expirationDate: cookie.maxAge === undefined ? undefined : now + cookie.maxAge,
+    });
+  }
 }
 
 function showView(window: BrowserWindow, view: View) {
@@ -212,7 +330,7 @@ function guard(contents: WebContents) {
     if (decideNavigation(event.url, PAGES_URL) !== "allow") event.preventDefault();
   });
   contents.setWindowOpenHandler(({ url }) => {
-    const decision = decideNewWindow(url, settings.server);
+    const decision = decideNewWindow(url, currentOrigin());
     if (decision === "window") {
       return {
         action: "allow",
@@ -228,11 +346,21 @@ function guard(contents: WebContents) {
     return { action: "deny" };
   });
   contents.on("did-create-window", (child) => guard(child.webContents));
+  // Signing out of Leafdesk on this computer leads to its sign-in page: the app signs in again.
+  contents.on("did-navigate", (_event, url) => {
+    const window = BrowserWindow.fromWebContents(contents);
+    if (window && isLocal() && localOrigin && isServerPage(url, localOrigin) && new URL(url).pathname === "/sign-in") void openLocal(window, true);
+  });
   contents.on("did-fail-load", (_event, code, description, url, isMainFrame) => {
     // -3 is a load that was cancelled, by a newer one for instance.
-    if (!isMainFrame || code === -3 || !settings.server || !isServerPage(url, settings.server)) return;
+    if (!isMainFrame || code === -3) return;
     const window = BrowserWindow.fromWebContents(contents);
     if (!window) return;
+    if (isLocal()) {
+      if (localOrigin && isServerPage(url, localOrigin)) showLocalProblem(window, description);
+      return;
+    }
+    if (!settings.server || !isServerPage(url, settings.server)) return;
     const certificate = isCertificateError(description) ? certificates.problems.get(new URL(settings.server).hostname) : undefined;
     showView(window, { view: "problem", server: settings.server, detail: description, certificate });
   });
@@ -245,14 +373,14 @@ function guard(contents: WebContents) {
 /** Only the connected server's pages get permissions, and only those it uses. */
 function guardPermissions(ses: Session) {
   ses.setPermissionRequestHandler((_contents, permission, callback, details) => {
-    if (!isServerPage(details.requestingUrl, settings.server) || !PERMISSIONS.has(permission)) return callback(false);
+    if (!isServerPage(details.requestingUrl, currentOrigin()) || !PERMISSIONS.has(permission)) return callback(false);
     if (permission !== "media") return callback(true);
     const types = "mediaTypes" in details ? (details.mediaTypes ?? []) : [];
     if (types.includes("video")) return callback(false);
     if (process.platform !== "darwin") return callback(true);
     systemPreferences.askForMediaAccess("microphone").then(callback, () => callback(false));
   });
-  ses.setPermissionCheckHandler((_contents, permission, origin) => isServerPage(origin, settings.server) && PERMISSIONS.has(permission));
+  ses.setPermissionCheckHandler((_contents, permission, origin) => isServerPage(origin, currentOrigin()) && PERMISSIONS.has(permission));
 }
 
 /** macOS and Windows check spelling in the system's languages; elsewhere the session needs them. */
@@ -270,16 +398,18 @@ function setSpellCheckerLanguages(ses: Session) {
 /** The app's menus and own pages switch language with Leafdesk's language setting. */
 function followLeafdeskLanguage(ses: Session) {
   ses.cookies.on("changed", (_event, cookie, cause, removed) => {
-    if (cookie.name !== LOCALE_COOKIE || cause === "overwrite" || !settings.server) return;
-    if (cookie.domain?.replace(/^\./, "") !== new URL(settings.server).hostname) return;
+    const origin = currentOrigin();
+    if (cookie.name !== LOCALE_COOKIE || cause === "overwrite" || !origin) return;
+    if (cookie.domain?.replace(/^\./, "") !== new URL(origin).hostname) return;
     applyLocale(removed ? undefined : cookie.value);
   });
   readLeafdeskLanguage(ses);
 }
 
 function readLeafdeskLanguage(ses: Session) {
-  if (!settings.server) return applyLocale(undefined);
-  ses.cookies.get({ url: settings.server, name: LOCALE_COOKIE }).then(
+  const origin = currentOrigin();
+  if (!origin) return applyLocale(undefined);
+  ses.cookies.get({ url: origin, name: LOCALE_COOKIE }).then(
     ([cookie]) => applyLocale(cookie?.value),
     () => undefined,
   );
@@ -350,9 +480,18 @@ function registerPageBridge() {
     locale,
     dir: direction(locale),
     strings: strings(),
-    current: settings.server,
+    current: isLocal() ? "local" : settings.server,
+    localAvailable: localAvailable(),
     ...(views.get(event.sender) ?? { view: "connect" }),
   }));
+
+  handle("leafdesk:local", (event) => {
+    const window = windowOf(event);
+    if (!localAvailable() || !window) return;
+    settings.mode = "local";
+    save();
+    void openLocal(window);
+  });
 
   handle("leafdesk:connect", async (event, address, force) => {
     if (typeof address !== "string") return { error: "invalid" } satisfies ConnectReply;
@@ -360,7 +499,9 @@ function registerPageBridge() {
     const window = windowOf(event);
     if (origin && window) {
       settings.server = origin;
+      settings.mode = undefined;
       save();
+      void stopLocal();
       readLeafdeskLanguage(session.defaultSession);
       openServer(window);
     }
@@ -378,15 +519,19 @@ function registerPageBridge() {
       return { ok: true };
     }
     // Chromium already turned this certificate down and keeps that until the app restarts.
-    if (problem.origin) settings.server = problem.origin;
+    if (problem.origin) {
+      settings.server = problem.origin;
+      settings.mode = undefined;
+    }
     save();
     app.relaunch();
-    app.exit(0);
+    // Leaving without "before-quit": Leafdesk on this computer is stopped here.
+    void stopLocal().finally(() => app.exit(0));
     return { ok: true };
   });
 
   handle("leafdesk:retry", (event) => {
     const window = windowOf(event);
-    if (window) openServer(window);
+    if (window) openCurrent(window);
   });
 }
