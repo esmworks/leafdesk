@@ -34,4 +34,6 @@ export default defineConfig([
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },
   globalIgnores([".next/**", "out/**", "build/**", "coverage/**", ".claude/**", "next-env.d.ts", "drizzle/**", "desktop/**"]),
+  // Runs inside an older release's checkout against that release's code (scripts/upgrade-test.sh).
+  globalIgnores(["scripts/upgrade/**"]),
 ]);
