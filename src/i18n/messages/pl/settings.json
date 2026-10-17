@@ -1402,7 +1402,7 @@
     "automationDescription": "Automatyzacja bazy danych powiadamia cię o wierszu, który ktoś dodał lub zmienił.",
     "automationChannel": "Automatyzacje: {channel}",
     "rowUpdateTitle": "Obserwowane wiersze",
-    "rowUpdateDescription": "Ktoś inny zmienił obserwowany przez Ciebie wiersz bazy danych: utworzony przez Ciebie, przypisany do Ciebie, skomentowany przez Ciebie lub taki, w którym Cię wspomniano, albo taki, który postanowiłeś obserwować.",
+    "rowUpdateDescription": "Ktoś inny zmienia obserwowany przez Ciebie wiersz bazy danych: utworzony przez Ciebie, przypisany do Ciebie, skomentowany przez Ciebie lub taki, w którym Cię wspomniano, albo taki, który postanowiłeś obserwować.",
     "rowUpdateChannel": "Obserwowane wiersze: {channel}"
   },
   "site": {

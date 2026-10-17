@@ -1402,7 +1402,7 @@
     "automationDescription": "Une automatisation de base de données vous prévient d’une ligne que quelqu’un a ajoutée ou modifiée.",
     "automationChannel": "Automatisations : {channel}",
     "rowUpdateTitle": "Lignes que vous suivez",
-    "rowUpdateDescription": "Quelqu’un d’autre a modifié une ligne de base de données que vous suivez : une ligne que vous avez créée, à laquelle vous êtes assigné, que vous avez commentée ou où l’on vous a mentionné, ou que vous avez choisi de suivre.",
+    "rowUpdateDescription": "Quelqu’un d’autre modifie une ligne de base de données que vous suivez : une ligne que vous avez créée, à laquelle vous êtes assigné, que vous avez commentée ou où l’on vous a mentionné, ou que vous avez choisi de suivre.",
     "rowUpdateChannel": "Lignes que vous suivez : {channel}"
   },
   "site": {

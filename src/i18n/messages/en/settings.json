@@ -1402,7 +1402,7 @@
     "automationDescription": "A database automation lets you know about a row someone added or changed.",
     "automationChannel": "Automations: {channel}",
     "rowUpdateTitle": "Rows you follow",
-    "rowUpdateDescription": "Someone else changed a database row you follow: one you created, are assigned to, commented on or were mentioned on, or chose to follow.",
+    "rowUpdateDescription": "Someone else changes a database row you follow: one you created, are assigned to, commented on or were mentioned on, or chose to follow.",
     "rowUpdateChannel": "Rows you follow: {channel}"
   },
   "site": {

@@ -346,9 +346,18 @@ function RowUpdateChanges({ update }: { update: InboxRowUpdate }) {
         <span key={change.property?.id ?? `title-${i}`} className="block break-words">
           {t.rich("rowChange", {
             property: change.property?.name ?? t("rowTitle"),
-            prop: (chunks) => <span className="text-fg">{chunks}</span>,
-            old: () => <Value value={change.from} />,
-            new: () => <Value value={change.to} />,
+            // Isolated, so a name or value written the other way doesn't pull the arrow around.
+            prop: (chunks) => <bdi className="text-fg">{chunks}</bdi>,
+            old: () => (
+              <bdi>
+                <Value value={change.from} />
+              </bdi>
+            ),
+            new: () => (
+              <bdi>
+                <Value value={change.to} />
+              </bdi>
+            ),
             from: "",
             to: "",
           })}

@@ -1402,7 +1402,7 @@
     "automationDescription": "Bir veritabanı otomasyonu, birinin eklediği ya da değiştirdiği bir satır hakkında sizi bilgilendirir.",
     "automationChannel": "Otomasyonlar: {channel}",
     "rowUpdateTitle": "Takip ettiğiniz satırlar",
-    "rowUpdateDescription": "Takip ettiğiniz bir veritabanı satırını başka biri değiştirdi: oluşturduğunuz, atandığınız, yorum yaptığınız ya da bahsedildiğiniz veya takip etmeyi seçtiğiniz bir satır.",
+    "rowUpdateDescription": "Takip ettiğiniz bir veritabanı satırını başka biri değiştirir: oluşturduğunuz, atandığınız, yorum yaptığınız ya da bahsedildiğiniz veya takip etmeyi seçtiğiniz bir satır.",
     "rowUpdateChannel": "Takip ettiğiniz satırlar: {channel}"
   },
   "site": {

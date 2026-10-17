@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Upgrading from 0.5.4
+
+- **Migration 0078** runs automatically when the container starts (from source, run
+  `pnpm db:migrate`). It adds two small tables and columns to `notification` and
+  `user_preference`; nothing is rewritten.
+
+### Added
+
+- **Follow database rows.** People now hear in their inbox when someone else changes a row they
+  follow: its properties (a status moved, a date or an assignee changed), its title or its text.
+  A row's creator, the people its person properties name, and anyone who comments or is mentioned
+  on it follow it; *Follow* and *Stop following* in the row's page menu change that, and stopping
+  wins over the rest. One person's burst of edits is one item, sent once they've left the row alone
+  for a minute (ten minutes at most), and it says what changed from what to what ("Status: To do →
+  Done"), only for the properties each follower may see, checked again when the inbox or the email
+  shows it. Rows you follow have their own switches for the inbox, email and push in My account →
+  Preferences; push messages name what changed but not the values. `list_notifications` (MCP)
+  includes these updates with their changes.
+
 ## 0.5.4 — 2026-10-17
 
 ### Upgrading from 0.5.3

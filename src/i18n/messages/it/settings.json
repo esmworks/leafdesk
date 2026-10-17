@@ -1402,7 +1402,7 @@
     "automationDescription": "Un’automazione di database ti avvisa di una riga che qualcuno ha aggiunto o modificato.",
     "automationChannel": "Automazioni: {channel}",
     "rowUpdateTitle": "Righe che segui",
-    "rowUpdateDescription": "Qualcun altro ha modificato una riga di database che segui: una che hai creato, a cui sei assegnato, che hai commentato o in cui sei stato menzionato, o che hai scelto di seguire.",
+    "rowUpdateDescription": "Qualcun altro modifica una riga di database che segui: una che hai creato, a cui sei assegnato, che hai commentato o in cui sei stato menzionato, o che hai scelto di seguire.",
     "rowUpdateChannel": "Righe che segui: {channel}"
   },
   "site": {
