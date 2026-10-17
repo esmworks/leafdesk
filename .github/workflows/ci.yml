@@ -207,6 +207,9 @@ jobs:
       - name: Templates end-to-end
         run: pnpm tsx scripts/templates-e2e.ts
 
+      - name: Daily notes end-to-end
+        run: pnpm tsx scripts/daily-notes-e2e.ts
+
       - name: Page history end-to-end
         run: pnpm tsx scripts/history-e2e.ts
 

@@ -7,9 +7,18 @@
 - **Migration 0078** runs automatically when the container starts (from source, run
   `pnpm db:migrate`). It adds a column to `page_link`; after the upgrade the server reads each page
   that links somewhere once, in the background, to fill in where its links are.
+- **Migration 0079** adds the `journal` and `daily_note` tables for daily notes.
 
 ### Added
 
+- **Daily notes.** *Today* in the sidebar opens your note for the day, made the first time under
+  *Journal*, a private page of yours where the newest day comes first. The calendar beside it marks
+  the days with a note and opens any day's; the home page shows today's note and the ones before
+  it; a date mention's menu opens that day's note; and `type:journal` in the search box lists your
+  notes. Pick at the bottom of the calendar whether new notes start with a few headings, blank, or
+  from one of the workspace's page templates. "Today" is your browser's day. Over MCP,
+  `get_or_create_daily_note` and `list_daily_notes`; over the REST API,
+  `GET` and `POST /workspaces/{id}/daily-notes`.
 - **Board columns can show a calculation.** Next to its name, each column of a board shows how
   many cards it holds; editors can now click that count and have every column show one
   calculation over a property for its cards on the line under its name: the sum of the estimates,
