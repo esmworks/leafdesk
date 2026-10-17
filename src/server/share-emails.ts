@@ -5,7 +5,7 @@ import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { commentText } from "@/lib/comments";
 import { pageLabel } from "@/lib/labels";
-import { ownsWorkspace, resolvePageAccess } from "@/server/access";
+import { ownsWorkspace, resolvePageAccess, workspaceRoleOf } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import {
   accessRequestEmail,
@@ -212,12 +212,21 @@ async function send({
   if (kind === "access_request") {
     // Answered since (which deletes the notification too, but the sweep may have taken it first).
     const [request] = accessRequestId
-      ? await db.select({ message: accessRequest.message }).from(accessRequest).where(eq(accessRequest.id, accessRequestId))
+      ? await db
+          .select({
+            message: accessRequest.message,
+            requesterRole: workspaceRoleOf(accessRequest.requesterId, accessRequest.workspaceId),
+            recipientRole: workspaceRoleOf(sql`${userId}`, accessRequest.workspaceId),
+          })
+          .from(accessRequest)
+          .where(eq(accessRequest.id, accessRequestId))
       : [];
     if (!request || !actor) return;
+    // Guests don't learn the addresses of people in the workspace (see listAccessRequests).
+    const hideEmail = request.recipientRole === "guest" && request.requesterRole !== null;
     const content = accessRequestEmail(locale, {
       requesterName: actor.name,
-      requesterEmail: actor.email,
+      requesterEmail: hideEmail ? null : actor.email,
       pageTitle,
       workspaceName: space?.name ?? "",
       message: request.message,

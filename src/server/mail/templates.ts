@@ -279,12 +279,13 @@ export function automationEmail(
 /** To the people with full access to a page: someone asked for access to it. */
 export function accessRequestEmail(
   locale: Locale,
-  request: { requesterName: string; requesterEmail: string; pageTitle: string; workspaceName: string; message: string | null; link: string },
+  /** `requesterEmail` null: the recipient doesn't learn it (a guest, about someone in the workspace). */
+  request: { requesterName: string; requesterEmail: string | null; pageTitle: string; workspaceName: string; message: string | null; link: string },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = {
-    requester: request.requesterName || request.requesterEmail,
-    email: request.requesterEmail,
+    requester: request.requesterName || request.requesterEmail || "?",
+    email: request.requesterEmail ?? "",
     page: request.pageTitle,
     workspace: request.workspaceName,
   };
@@ -292,7 +293,7 @@ export function accessRequestEmail(
     subject: t("accessRequest.subject", names),
     heading: t("accessRequest.heading", names),
     paragraphs: [
-      t("accessRequest.body", names),
+      request.requesterEmail === null ? t("accessRequest.bodyWithoutEmail", names) : t("accessRequest.body", names),
       ...(request.message ? [t("accessRequest.message", { message: request.message })] : []),
       t("accessRequest.answer"),
       t("accessRequest.optOut"),

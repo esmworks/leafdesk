@@ -22,6 +22,8 @@ const { page, pendingAssignmentEmail, user, workspace, workspaceMember } = await
 const { registerCollab } = await import("@/server/collab/bridge");
 const { addProperty, MAX_BULK_ROWS, updateRowsProperties } = await import("@/server/databases");
 const { duplicateRows } = await import("@/server/duplicate");
+const { pasteRows } = await import("@/server/paste");
+const { databaseProperty } = await import("@/db/schema");
 const { listInbox } = await import("@/server/notifications");
 const { archiveRows, createPage, listTrash, restorePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
@@ -271,6 +273,24 @@ try {
   check(same(fromCopy.skipped, [r2.id]), "…and so are bulk edits of them");
   const viewerTrash = await archiveRows(ids.guest, tasks.id, [r1.id]);
   check(same(viewerTrash, { done: [], skipped: [r1.id] }) && !(await row(r1.id)).archivedAt, "viewers can't trash rows");
+
+  // Pasting cells adds the options they name only for people who may edit the database
+  const stageOptions = async () =>
+    ((await db.select({ options: databaseProperty.options }).from(databaseProperty).where(eq(databaseProperty.id, stage.id)))[0].options.options ?? []).map(
+      (o) => o.name,
+    );
+  const before = await stageOptions();
+  const viewOnly = await pasteRows({ userId: ids.guest }, tasks.id, { updates: [{ rowId: r1.id, values: { [stage.id]: "Pasted by a viewer" } }], newRows: [] });
+  check(viewOnly.updated.length === 0 && same(await stageOptions(), before), "someone who may only view the database adds no options by pasting", await stageOptions());
+  await setPagePermission(ids.owner, r1.id, ids.guest, "edit");
+  const rowOnly = await pasteRows({ userId: ids.guest }, tasks.id, {
+    updates: [{ rowId: r1.id, values: { [stage.id]: "Pasted by a row editor", [amount.id]: 42 } }],
+    newRows: [],
+  });
+  check(same(await stageOptions(), before), "…nor someone who may edit only some of its rows", await stageOptions());
+  check(rowOnly.invalid === 1 && (await row(r1.id)).properties[amount.id] === 42, "…whose other values still land, the option counted as left out", rowOnly);
+  await pasteRows({ userId: ids.member }, tasks.id, { updates: [{ rowId: r1.id, values: { [stage.id]: "Pasted by an editor" } }], newRows: [] });
+  check((await stageOptions()).includes("Pasted by an editor"), "someone who may edit the database does");
 
   console.log(`\n${passed} checks passed`);
 } finally {

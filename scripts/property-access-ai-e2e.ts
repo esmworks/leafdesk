@@ -20,9 +20,9 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiPropertyState, page, pageChunk, pageIndexState, user, workspace, workspaceMember } = await import("@/db/schema");
+const { aiPropertyState, databaseProperty, page, pageChunk, pageIndexState, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage, searchPages } = await import("@/server/pages");
@@ -239,8 +239,9 @@ try {
   check(code(await failure(() => requestAutofill(ids.editor, pitch.id, [ada.id]))) === "access", "a property they can't know of can't be refreshed");
   check(code(await failure(() => setAutofill(ids.editor, pitch.id, null))) === "access", "…nor set up");
 
-  // A rollup over a restricted property of related rows never feeds autofill either: whoever's
-  // edit sets it off, the value it writes can be read by people the related value is hidden from.
+  // Related rows never feed autofill: a relation shows each reader only the related rows they may
+  // see, rollups and formulas read through it, and people are names. The value autofill writes is
+  // plain text everyone who reads the row sees, whoever's request or edit set it off.
   await setAutofill(ids.owner, pitch.id, { mode: "summary" });
   const salaries = await createPage(actor, { workspaceId, kind: "database", title: "Salaries" });
   await setPagePermission(ids.owner, salaries.id, ids.owner, "full");
@@ -260,8 +261,35 @@ try {
   await requestAutofill(ids.owner, brief.id, [ada.id]);
   await autofillSettled(brief.id, [ada.id]);
   const briefPrompt = prompts.slice(asked).join("\n");
-  check(briefPrompt.includes("grade-xyzzy"), "a rollup over an open property of related rows feeds autofill", briefPrompt);
-  check(!briefPrompt.includes("987654"), "…one over a restricted property there doesn't, not even the owner's", briefPrompt);
+  check(briefPrompt.includes("likes"), "the summary still reads the row's own values", briefPrompt);
+  check(
+    !briefPrompt.includes("Ada's pay") && !briefPrompt.includes("grade-xyzzy") && !briefPrompt.includes("987654"),
+    "…but not the related rows' titles, nor rollups over them, open properties there included, not even the owner's",
+    briefPrompt,
+  );
+  const answer = await databases.addProperty(ids.owner, staff.id, { name: "Answer", type: "text" });
+  check(
+    code(await failure(() => setAutofill(ids.owner, answer.id, { mode: "custom", prompt: "Answer with {Pay}" }))) === "hiddenInput",
+    "settings can't name a relation",
+  );
+  check(
+    code(await failure(() => setAutofill(ids.owner, answer.id, { mode: "custom", prompt: "Answer with {Pay grade}" }))) === "hiddenInput",
+    "…nor a rollup",
+  );
+  check(
+    code(await failure(() => setAutofill(ids.owner, answer.id, { mode: "translation", language: "de", source: pay.id }))) === "hiddenInput",
+    "…nor translate one",
+  );
+  // Saved before that was checked: the placeholder stays as written, the related row's title out.
+  await db
+    .update(databaseProperty)
+    .set({ options: sql`jsonb_set(${databaseProperty.options}, '{ai}', ${JSON.stringify({ mode: "custom", prompt: "Answer with {Pay}" })}::jsonb)` })
+    .where(eq(databaseProperty.id, answer.id));
+  const before2 = prompts.length;
+  await requestAutofill(ids.owner, answer.id, [ada.id]);
+  await autofillSettled(answer.id, [ada.id]);
+  const answerPrompt = prompts.slice(before2).join("\n");
+  check(answerPrompt.includes("{Pay}") && !answerPrompt.includes("Ada's pay"), "…and settings saved earlier get no related row from it", answerPrompt);
 
   console.log(`\n${passed} checks passed`);
 } finally {

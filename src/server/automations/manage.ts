@@ -197,6 +197,9 @@ async function checkActions(
     } else if (action?.type === "notify") {
       const refs = action.people ?? [];
       people ??= await workspacePeople(workspaceId);
+      // Guests name people by id only, as in person properties (resolvePersonValue): matching an
+      // address or a name would tell them who is in the workspace, and under which address.
+      const byEmailOrName = people.find((p) => p.id === userId)?.role !== "guest";
       const userIds = [
         ...new Set(
           refs.map((ref) => {
@@ -204,8 +207,9 @@ async function checkActions(
             const needle = ref.trim().toLowerCase();
             const person =
               people!.find((p) => p.id === ref) ??
-              people!.find((p) => p.email.toLowerCase() === needle) ??
-              people!.find((p) => p.name.toLowerCase() === needle);
+              (byEmailOrName
+                ? (people!.find((p) => p.email.toLowerCase() === needle) ?? people!.find((p) => p.name.toLowerCase() === needle))
+                : undefined);
             if (!person) throw invalid(`"${ref}" is not in this workspace`, { value: ref });
             return person.id;
           }),

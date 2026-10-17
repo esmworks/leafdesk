@@ -96,6 +96,7 @@
       "promptTooLong": "Der Prompt darf höchstens {max} Zeichen lang sein.",
       "unknownPlaceholder": "Es gibt keine Eigenschaft namens „{name}“.",
       "cycle": "„{name}“ liest diese Eigenschaft bereits (direkt oder über andere KI-Eigenschaften), daher kann diese sie nicht lesen.",
+      "hiddenInput": "„{name}“ kann nicht in einen KI-Wert einfließen: Es zeigt verknüpfte Zeilen oder Personen, die nicht jeder sehen darf, der die Zeile liest.",
       "notText": "Nur Texteigenschaften können von KI ausgefüllt werden.",
       "databaseLocked": "Die Datenbank ist gesperrt."
     }

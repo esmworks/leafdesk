@@ -96,6 +96,7 @@
     "subject": "{requester}が「{page}」へのアクセスをリクエストしました",
     "heading": "{requester}が「{page}」へのアクセスをリクエストしました",
     "body": "{requester}（{email}）が{workspace}の「{page}」を開きたいと希望しています。",
+    "bodyWithoutEmail": "{requester}が{workspace}の「{page}」を開きたいと希望しています。",
     "message": "メッセージ：「{message}」",
     "answer": "権限を選んでページを共有するか、リクエストを拒否してください。受信トレイまたはページの「共有」から回答できます。",
     "action": "ページを開く",

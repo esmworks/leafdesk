@@ -180,6 +180,17 @@ try {
     ),
     "people outside the workspace can't be notified",
   );
+  // A guest with full access names people by id, as in person properties: matching an address or a
+  // name would tell them who is in the workspace.
+  await setPagePermission(ids.owner, tasks.id, ids.viewer, "full");
+  const guestNotify = (person: string) =>
+    manage.createAutomation(ids.viewer, tasks.id, { name: "Tell", trigger: { type: "row_created" }, actions: [{ type: "notify", people: [person] }] });
+  check(await failsWith(guestNotify(`${ids.member}@example.test`), "invalidAutomation"), "a guest can't name a member by address");
+  check(await failsWith(guestNotify("Member Mert"), "invalidAutomation"), "…nor by name");
+  const byId = await guestNotify(ids.member);
+  check(byId.actions[0].type === "notify" && byId.actions[0].userIds.join() === ids.member, "…but by id", byId.actions);
+  await manage.deleteAutomation(ids.viewer, byId.id);
+  await setPagePermission(ids.owner, tasks.id, ids.viewer, "edit");
   check(
     await failsWith(
       manage.createAutomation(ids.owner, tasks.id, { name: "x", trigger: { type: "row_created" }, actions: [{ type: "webhook", url: "http://10.0.0.5/hook" }] }),
@@ -378,7 +389,8 @@ try {
     .where(eq(auditEvent.workspaceId, workspaceId));
   const actions = audit.map((a) => a.action);
   check(
-    actions.filter((a) => a === "automation.created").length === 3 && actions.includes("automation.updated"),
+    // Three here, and the guest's one above.
+    actions.filter((a) => a === "automation.created").length === 4 && actions.includes("automation.updated"),
     "creating and changing automations is in the audit log",
     actions,
   );

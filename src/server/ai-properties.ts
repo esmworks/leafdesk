@@ -21,6 +21,7 @@ import { db } from "@/db";
 import { aiPropertyState, databaseProperty, page, type PropertyOptions } from "@/db/schema";
 import {
   aiDerivedProperties,
+  autofillHiddenInputs,
   autofillNamedInputs,
   autofillReads,
   checkAutofill,
@@ -247,7 +248,9 @@ async function rowInput(
   // Other AI values (and formulas over them) only where the settings name them: see AiAutofillConfig.
   const derived = aiDerivedProperties(props);
   const named = new Set(autofillNamedInputs(config, props, prop.id));
-  const inputs = props.filter((p) => p.id !== prop.id && (!derived.has(p.id) || named.has(p.id)));
+  // Never related rows or people, named or not (settings saved before that was checked too).
+  const hidden = autofillHiddenInputs(props);
+  const inputs = props.filter((p) => p.id !== prop.id && !hidden.has(p.id) && (!derived.has(p.id) || named.has(p.id)));
   const values = await databases.rowValues(userId, row, props);
   // As the person sees them: option names, people and related rows they can see, by name.
   const shown = displayProperties(inputs, values, await databases.getLookups(userId, props));
