@@ -94,6 +94,9 @@ vi.mock("@/server/workspaces", () => workspaces);
 const notifications = vi.hoisted(() => ({ listNotifications: vi.fn() }));
 vi.mock("@/server/notifications", () => notifications);
 
+const workspaceCheck = vi.hoisted(() => ({ checkWorkspace: vi.fn(), removeRelationTarget: vi.fn() }));
+vi.mock("@/server/workspace-check", () => workspaceCheck);
+
 const automations = vi.hoisted(() => ({
   listAutomations: vi.fn(),
   createAutomation: vi.fn(),
@@ -2890,5 +2893,93 @@ describe("the user's memory", () => {
     const outsider = await callTool(reader, "list_memory", { workspace_id: "ws-9" });
     expect(outsider.isError).toBe(true);
     expect(outsider.text).toMatch(/list_workspaces/);
+  });
+});
+
+describe("check_workspace", () => {
+  const page = (id: string, title: string, over: Record<string, unknown> = {}) => ({ id, title, icon: null, kind: "page", canEdit: true, ...over });
+  const report = {
+    workspaceId: "ws-1",
+    checkedAt: "2026-10-17T12:00:00.000Z",
+    pages: 42,
+    truncated: false,
+    staleMonths: 6,
+    brokenLinks: {
+      items: [
+        { source: page("page-1", "Plan"), target: { id: "page-t", status: "trash", title: "Old plan", icon: null, canRestore: true } },
+        { source: page("page-1", "Plan"), target: { id: "page-d", status: "deleted" } },
+      ],
+      total: 2,
+    },
+    orphans: { items: [{ ...page("page-o", ""), linkFrom: { id: "page-1", title: "Plan", icon: null } }], total: 101 },
+    empty: { items: [page("page-e", "Blank")], total: 1 },
+    stale: { items: [{ ...page("page-s", "Q1 notes"), updatedAt: "2025-01-01T00:00:00.000Z" }], total: 1 },
+    duplicates: { status: "skipped", reason: "noEmbeddings" },
+    brokenRelations: {
+      items: [
+        {
+          row: page("row-1", "Task", { kind: "row" }),
+          database: { id: "db-1", title: "Tasks", icon: null },
+          property: { id: "prop-rel", name: "Blocked by" },
+          target: { id: "row-d", status: "deleted" },
+          canFix: true,
+        },
+      ],
+      total: 1,
+    },
+  };
+
+  it("checks with read-only access, passing a pasted link's workspace and the defaults", async () => {
+    workspaceCheck.checkWorkspace.mockResolvedValue(report);
+    const tool = (await listTools(reader)).find((t) => t.name === "check_workspace");
+    expect(tool?.annotations?.readOnlyHint).toBe(true);
+    const r = await callTool(reader, "check_workspace", { workspace_id: "https://app.example/w/3f0c9a4e-1111-4222-8333-444455556666" });
+    expect(r.isError).toBe(false);
+    expect(workspaceCheck.checkWorkspace).toHaveBeenCalledWith("user-1", "3f0c9a4e-1111-4222-8333-444455556666", {
+      staleMonths: 6,
+      minSimilarity: 0.92,
+    });
+    expect(r.content.at(-1)?.text).toBe(CONTENT_NOTE);
+  });
+
+  it("lists each finding with its link and what can be done about it", async () => {
+    workspaceCheck.checkWorkspace.mockResolvedValue(report);
+    const { data } = await callTool(reader, "check_workspace", { workspace_id: "ws-1", stale_months: 12 });
+    expect(workspaceCheck.checkWorkspace.mock.calls[0][2]).toMatchObject({ staleMonths: 12 });
+    expect(data.summary).toEqual({
+      broken_links: 2,
+      orphan_pages: 101,
+      empty_pages: 1,
+      stale_pages: 1,
+      possible_duplicates: "not checked",
+      broken_relations: 1,
+    });
+    expect(data.broken_links.items[0]).toEqual({
+      page: { id: "page-1", title: "Plan", url: expect.stringContaining("/w/ws-1/p/page-1"), kind: "page", can_edit: true },
+      links_to: { id: "page-t", state: "in_trash", title: "Old plan", can_restore: true },
+    });
+    // A page deleted for good has no title left to show.
+    expect(data.broken_links.items[1].links_to).toEqual({ id: "page-d", state: "deleted" });
+    expect(data.orphan_pages.items[0]).toMatchObject({ title: "Untitled", title_written_in: { id: "page-1", title: "Plan" } });
+    expect(data.orphan_pages.more).toBe(100);
+    expect(data.stale_pages.items[0].last_edited).toBe("2025-01-01T00:00:00.000Z");
+    expect(data.possible_duplicates.description).toMatch(/no embeddings model/);
+    expect(data.broken_relations.items[0]).toMatchObject({ property: "Blocked by", database: { title: "Tasks" }, can_fix: true });
+    expect(data.how_to_fix).toMatch(/restore_page/);
+  });
+
+  it("refuses guests and other workspaces with what to check", async () => {
+    workspaceCheck.checkWorkspace.mockRejectedValue(new AccessError());
+    const r = await callTool(reader, "check_workspace", { workspace_id: "ws-2" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/only its owners and members/);
+  });
+
+  it("holds the stale period and the similarity to their ranges", async () => {
+    for (const args of [{ stale_months: 0 }, { stale_months: 61 }, { min_similarity: 0.5 }, { min_similarity: 1 }]) {
+      const r = await callTool(reader, "check_workspace", { workspace_id: "ws-1", ...args });
+      expect(r.isError).toBe(true);
+    }
+    expect(workspaceCheck.checkWorkspace).not.toHaveBeenCalled();
   });
 });

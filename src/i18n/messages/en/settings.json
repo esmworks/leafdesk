@@ -11,6 +11,7 @@
     "agents": "Agents",
     "connections": "Connections",
     "analytics": "Analytics",
+    "health": "Health",
     "security": "Security",
     "audit": "Audit log",
     "site": "Site"
@@ -667,6 +668,63 @@
       "lastEdit": "Last edit",
       "page": "Page",
       "editors": "Editors"
+    }
+  },
+  "health": {
+    "description": "What is worth tidying among the pages you can open, checked each time you open this tab. Nothing changes until you fix it.",
+    "checked": "{count, plural, one {# page checked.} other {# pages checked.}}",
+    "truncated": "Only the most recently edited pages were checked: the workspace has more than one check looks at.",
+    "periods": "Untouched for",
+    "months": "{months} months",
+    "linksTo": "links to",
+    "inTrash": "{title} (in the trash)",
+    "deletedPage": "A deleted page",
+    "restore": "Restore",
+    "writtenIn": "Its title is written in {title}",
+    "linkThere": "Link it there",
+    "moveToTrash": "Move to trash",
+    "confirmTrash": "Move “{title}” to the trash?",
+    "lastEdited": "Last edited {when}",
+    "alike": "{similarity, number, percent} alike",
+    "inProperty": "{property} in {database}",
+    "removeFromRelation": "Remove",
+    "more": "{count, plural, one {# more not shown.} other {# more not shown.}}",
+    "brokenLinks": {
+      "title": "Broken links",
+      "description": "Links and mentions in a page to a page in the trash or deleted for good.",
+      "none": "No broken links."
+    },
+    "orphans": {
+      "title": "Pages nothing leads to",
+      "description": "Top-level pages with no pages inside them that no other page links to. Where another page writes the title, it can link it.",
+      "none": "Every page is linked or sits under another page."
+    },
+    "empty": {
+      "title": "Empty pages",
+      "description": "Pages with a title and nothing else: no body and no pages inside.",
+      "none": "No empty pages."
+    },
+    "stale": {
+      "title": "Untouched pages",
+      "description": "Pages nobody edited in the last {months} months, longest untouched first. They may be out of date.",
+      "none": "Every page was edited recently."
+    },
+    "duplicates": {
+      "title": "Possible duplicates",
+      "description": "Pairs of pages that say nearly the same thing, compared by meaning. Read both before merging them.",
+      "none": "No pages say nearly the same thing.",
+      "noEmbeddings": "Not checked: this server has no embeddings model for comparing pages by meaning.",
+      "aiOff": "Not checked: AI is off in this workspace, so pages aren't compared by meaning."
+    },
+    "brokenRelations": {
+      "title": "Broken relations",
+      "description": "Database rows that relate to a row in the trash or deleted for good.",
+      "none": "No broken relations."
+    },
+    "errors": {
+      "gone": "This was already fixed or changed meanwhile.",
+      "denied": "You can't change this page.",
+      "locked": "The page is locked."
     }
   },
   "preferences": {

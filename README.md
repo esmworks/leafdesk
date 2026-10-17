@@ -304,6 +304,14 @@ versions, upgrades and running behind a domain.
   owners, Settings → Analytics: active members, edits per person and the most edited pages over
   7, 30 or 90 days, with CSV export. Counted from page history and last edits; nothing extra is
   tracked.
+- **Workspace health**: Settings → Health, for owners and members, checks the pages each person
+  can open for what is worth tidying: links and mentions to pages in the trash or deleted, top-level
+  pages nothing links to, pages with a title and no body, pages nobody edited for 3, 6, 12 or 24
+  months, pages that say nearly the same thing (compared by their embeddings, when the server has
+  an embeddings model and the workspace has AI on), and relations to rows in the trash or deleted.
+  Where it can, a finding has a one-click fix: restore the page, link the orphan where another page
+  writes its title, move the empty page to the trash, take the dead row out of the relation. The
+  MCP tool `check_workspace` returns the same report.
 - **Audit log**: for owners, Settings → Audit log lists who changed what in the workspace (members
   and roles, invitations and join requests, page sharing, teamspaces and groups, settings with
   their before and after, single sign-on and SCIM, pages and databases created, duplicated,
@@ -1866,6 +1874,9 @@ to treat it as data, never as instructions.
 The tools cover:
 
 - **Finding things:** `list_workspaces`, `list_teamspaces`, `search`, `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
+- **Workspace health:** `check_workspace` lists broken links, pages nothing links to, empty and
+  long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
+  that fix each (it changes nothing itself).
 - **Members:** `invite_member` adds someone to a workspace by email, as Settings → Members does
   (owners only, and not for read-only apps): someone whose account has a verified address joins
   right away, anyone else gets an invitation, whose link is returned too.
@@ -2032,7 +2043,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, the search box's filters, backlinks and unlinked mentions, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

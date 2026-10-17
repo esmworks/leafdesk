@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray, isNull, lte, ne, notInArray, sql } from "d
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
 import { findTitle, excerpt, linkContexts, linkTitle, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
-import { bodyReferences } from "@/lib/mentions";
+import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { titleKey } from "@/lib/wikilinks";
 import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
@@ -237,9 +237,6 @@ export async function resolvePageRefs(
   });
 }
 
-const FENCE = /^ {0,3}(`{3,}|~{3,})/;
-const PAGE_LINK = /\[((?:[^\]\\\n]|\\.)*)\]\(\s*<?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))>?\s*\)/g;
-
 /**
  * Stored Markdown with the links of page mentions and page links (written with the neutral text
  * "page", see lib/mentions) labelled for `userId`: the page's live title and address when they may
@@ -251,32 +248,17 @@ export async function labelPageLinks(
   markdown: string,
   labels: { untitled: string; noAccess: string; deleted: string } = { untitled: "Untitled", noAccess: "No access", deleted: "Deleted page" },
 ): Promise<string> {
-  if (!markdown.includes("/p/")) return markdown;
+  const ids = markdownPageIds(markdown);
+  if (!ids.length) return markdown;
   const lines = markdown.split("\n");
-  const code: boolean[] = [];
-  let fence: string | null = null;
-  for (const line of lines) {
-    const open = FENCE.exec(line);
-    if (fence) {
-      code.push(true);
-      if (open && open[1][0] === fence[0] && open[1].length >= fence.length && !line.trim().slice(open[0].trim().length)) fence = null;
-      continue;
-    }
-    if (open) fence = open[1];
-    code.push(Boolean(open));
-  }
-  const ids = new Set<string>();
-  lines.forEach((line, i) => {
-    if (!code[i]) for (const match of line.matchAll(PAGE_LINK)) ids.add(match[3]);
-  });
-  if (!ids.size) return markdown;
-  const byId = new Map((await resolvePageRefs(userId, [...ids])).map((ref) => [ref.id, ref]));
+  const code = fencedLines(lines);
+  const byId = new Map((await resolvePageRefs(userId, ids)).map((ref) => [ref.id, ref]));
   const escape = (text: string) => text.replace(/[[\]\\]/g, "\\$&");
   return lines
     .map((line, i) =>
       code[i]
         ? line
-        : line.replace(PAGE_LINK, (whole, _text: string, path: string, id: string) => {
+        : line.replace(MARKDOWN_PAGE_LINK, (whole, _text: string, path: string, id: string) => {
             const ref = byId.get(id);
             if (!ref) return whole;
             if (ref.status === "ok") return `[${escape(ref.title.trim() || labels.untitled)}](/w/${ref.workspaceId}/p/${ref.id})`;

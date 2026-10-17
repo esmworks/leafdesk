@@ -11,6 +11,7 @@
     "agents": "Ajanlar",
     "connections": "Bağlantılar",
     "analytics": "Analitik",
+    "health": "Sağlık",
     "security": "Güvenlik",
     "audit": "Denetim kaydı",
     "site": "Site"
@@ -667,6 +668,63 @@
       "lastEdit": "Son düzenleme",
       "page": "Sayfa",
       "editors": "Düzenleyen"
+    }
+  },
+  "health": {
+    "description": "Açabildiğiniz sayfalarda toparlanmaya değer olanlar; bu sekme her açıldığında yeniden denetlenir. Siz düzeltmedikçe hiçbir şey değişmez.",
+    "checked": "{count, plural, one {# sayfa denetlendi.} other {# sayfa denetlendi.}}",
+    "truncated": "Yalnız en son düzenlenen sayfalar denetlendi: çalışma alanında bir denetimin bakabileceğinden fazla sayfa var.",
+    "periods": "Dokunulmayan süre",
+    "months": "{months} ay",
+    "linksTo": "bağlantı veriyor",
+    "inTrash": "{title} (çöpte)",
+    "deletedPage": "Silinmiş bir sayfa",
+    "restore": "Geri yükle",
+    "writtenIn": "Başlığı {title} sayfasında geçiyor",
+    "linkThere": "Orada bağla",
+    "moveToTrash": "Çöpe taşı",
+    "confirmTrash": "“{title}” çöpe taşınsın mı?",
+    "lastEdited": "Son düzenleme {when}",
+    "alike": "{similarity, number, percent} benzer",
+    "inProperty": "{database} içinde {property}",
+    "removeFromRelation": "Kaldır",
+    "more": "{count, plural, one {# tane daha gösterilmiyor.} other {# tane daha gösterilmiyor.}}",
+    "brokenLinks": {
+      "title": "Kopuk bağlantılar",
+      "description": "Bir sayfadaki, çöpteki ya da kalıcı olarak silinmiş bir sayfaya giden bağlantılar ve anmalar.",
+      "none": "Kopuk bağlantı yok."
+    },
+    "orphans": {
+      "title": "Hiçbir yerden ulaşılmayan sayfalar",
+      "description": "İçinde sayfa olmayan ve başka hiçbir sayfanın bağlantı vermediği üst düzey sayfalar. Başlığı başka bir sayfada geçiyorsa oradan bağlanabilir.",
+      "none": "Her sayfa ya bağlı ya da başka bir sayfanın altında."
+    },
+    "empty": {
+      "title": "Boş sayfalar",
+      "description": "Başlığı olup başka hiçbir şeyi olmayan sayfalar: gövdesi de içinde sayfa da yok.",
+      "none": "Boş sayfa yok."
+    },
+    "stale": {
+      "title": "Dokunulmamış sayfalar",
+      "description": "Son {months} ayda kimsenin düzenlemediği sayfalar, en uzun süredir dokunulmayan önce. Güncelliğini yitirmiş olabilirler.",
+      "none": "Her sayfa yakın zamanda düzenlenmiş."
+    },
+    "duplicates": {
+      "title": "Olası kopyalar",
+      "description": "Anlamca karşılaştırıldığında neredeyse aynı şeyi söyleyen sayfa çiftleri. Birleştirmeden önce ikisini de okuyun.",
+      "none": "Neredeyse aynı şeyi söyleyen sayfa yok.",
+      "noEmbeddings": "Denetlenmedi: bu sunucuda sayfaları anlamca karşılaştıracak bir embedding modeli yok.",
+      "aiOff": "Denetlenmedi: bu çalışma alanında yapay zekâ kapalı, sayfalar anlamca karşılaştırılmıyor."
+    },
+    "brokenRelations": {
+      "title": "Kopuk ilişkiler",
+      "description": "Çöpteki ya da kalıcı olarak silinmiş bir satırla ilişkili veritabanı satırları.",
+      "none": "Kopuk ilişki yok."
+    },
+    "errors": {
+      "gone": "Bu zaten düzeltilmiş ya da bu arada değişmiş.",
+      "denied": "Bu sayfayı değiştiremezsiniz.",
+      "locked": "Sayfa kilitli."
     }
   },
   "preferences": {

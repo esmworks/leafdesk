@@ -4,6 +4,7 @@ import {
   ChartColumn,
   ContactRound,
   Globe,
+  HeartPulse,
   Plug,
   ScrollText,
   Settings,
@@ -23,6 +24,7 @@ import { AuditPanel } from "@/components/settings/audit-panel";
 import { ConnectionsPanel } from "@/components/settings/connections-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
 import { GuestsPanel } from "@/components/settings/guests-panel";
+import { HealthPanel } from "@/components/settings/health-panel";
 import { AiSettings } from "@/components/settings/ai-settings";
 import { DeleteWorkspaceRow } from "@/components/settings/delete-workspace";
 import { LeaveWorkspaceRow } from "@/components/settings/leave-workspace";
@@ -56,6 +58,7 @@ import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { parseAuditFilters } from "@/lib/audit";
+import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
 import { isInstanceAdmin } from "@/lib/instance-admin";
 import {
@@ -103,6 +106,7 @@ import {
   ssoAvailable,
 } from "@/server/workspaces";
 import { listWorkspaceApps } from "@/server/workspace-apps";
+import { checkWorkspace } from "@/server/workspace-check";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings");
@@ -118,6 +122,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   agents: Bot,
   connections: Plug,
   analytics: ChartColumn,
+  health: HeartPulse,
   security: Shield,
   audit: ScrollText,
   site: Globe,
@@ -224,6 +229,7 @@ export default async function SettingsPage({
             />
           )}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
+          {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
           {tab === "audit" && <AuditTab workspaceId={workspaceId} userId={user.id} query={query} />}
           {tab === "site" && (
@@ -557,6 +563,12 @@ async function AnalyticsTab({ workspaceId, userId, days }: { workspaceId: string
   const now = new Date();
   const report = await workspaceAnalytics(userId, workspaceId, parseAnalyticsPeriod(days), now);
   return <AnalyticsPanel workspaceId={workspaceId} report={report} now={now} />;
+}
+
+/** Settings > Health, for owners and members: the check runs each time the tab opens, with the viewer's access. */
+async function HealthTab({ workspaceId, userId, months }: { workspaceId: string; userId: string; months: unknown }) {
+  const check = await checkWorkspace(userId, workspaceId, { staleMonths: parseStaleMonths(months) });
+  return <HealthPanel workspaceId={workspaceId} check={check} />;
 }
 
 /** Settings > Audit log, for owners (the tab isn't offered to anyone else, and the list refuses them). */

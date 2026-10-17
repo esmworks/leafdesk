@@ -29,6 +29,18 @@
   file, adds nothing. Only files the page's readers may open through the page count, and search
   checks access to the page when it runs, as for the rest of its text. Existing pages are indexed
   again by the next sweep or `pnpm search:index`; their unchanged passages aren't embedded again.
+- **Workspace health.** Settings → Health (owners and members) looks over the pages you can open
+  and lists what is worth tidying: links and mentions to pages in the trash or deleted for good,
+  top-level pages nothing links to, pages with a title and no body, pages nobody edited for 3, 6,
+  12 or 24 months, pairs of pages that say nearly the same thing, and database relations to rows in
+  the trash or deleted. Duplicates are compared by the pages' embeddings, so they need an
+  embeddings model on the server and AI on in the workspace; otherwise the report says they
+  weren't checked. Each finding links to its page, and many have a one-click fix: restore the page
+  a link leads to, link an orphan where another page already writes its title, move an empty page
+  to the trash, or take a dead row out of a relation. Pages someone can't open are never named or
+  counted, not even as a broken link. The same report is the new MCP tool `check_workspace`, which
+  changes nothing and says which tools fix each finding. Covered in
+  `scripts/workspace-check-e2e.ts`.
 
 ### Changed
 

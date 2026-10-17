@@ -120,6 +120,9 @@ import {
   withSharingErrors,
 } from "./agents";
 import { describeMemory, memoryInputs, requireMemoryOn, withMemoryErrors } from "./memory";
+import { describeWorkspaceCheck } from "./workspace-check";
+import { checkWorkspace } from "@/server/workspace-check";
+import { DEFAULT_DUPLICATE_SIMILARITY, DEFAULT_STALE_MONTHS, MIN_DUPLICATE_SIMILARITY } from "@/lib/workspace-check";
 import * as connections from "@/server/connections/manage";
 import { connectionInputs, describeConnection, withConnectionErrors } from "./connections";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
@@ -166,6 +169,7 @@ Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace i
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
 Beyond plain Markdown, page bodies know a few block forms: a callout is a GitHub alert (\`> [!NOTE]\`, TIP, IMPORTANT, WARNING or CAUTION on its own line, then the \`> \` text; a leading emoji becomes its icon), \`$…$\` is an inline equation and a \`$$\` line pair wraps a block equation (LaTeX), a \`\`\`mermaid fence is a diagram, and the lines \`<!-- leafdesk:toc -->\` and \`<!-- leafdesk:breadcrumb -->\` are a table of contents and the page's breadcrumb. Columns (2 to 5, side by side) are written between marker lines: \`<!-- leafdesk:columns -->\`, then \`<!-- leafdesk:column -->\` before each column's blocks (\`<!-- leafdesk:column width=2 -->\` makes a column twice as wide as a width-1 one), then \`<!-- leafdesk:/columns -->\`; keep the markers when you write a body back, or the blocks leave their columns. A web bookmark (a link card) reads as a link on a line of its own, \`[Title](url)\`, and stays a bookmark when you write the body back; to add a new one write \`[Title](url) <!-- leafdesk:bookmark -->\`. An embed (YouTube, Vimeo, Loom, Figma, published Google Docs/Sheets/Slides, CodePen, Spotify, Google Maps) is \`[url](url) <!-- leafdesk:embed -->\`. \`<sup>…</sup>\` and \`<sub>…</sub>\` are superscript and subscript text. A dollar sign of the text itself is written \`\\$\`.
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"); \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block. \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around each link (context) when there is any.
+check_workspace looks a workspace over for what is worth tidying (broken links, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads anchored to text of the page: list_comments reads them, add_comment starts a thread on quoted text or replies to one.
 list_notifications shows the user's inbox: rows someone assigned them to, pages shared with them, new comments in their threads, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, requests for access to pages they can share and, for owners, requests to join their workspaces.
 attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
@@ -2784,6 +2788,49 @@ export function createMcpServer(principal: McpPrincipal) {
             url: pageUrl(workspace_id, p.id),
           })),
         };
+      }),
+  );
+
+  server.registerTool(
+    "check_workspace",
+    {
+      title: "Check a workspace",
+      description:
+        "Check the pages of a workspace the user can open for what is worth tidying: links to pages in the trash or deleted, top-level pages nothing links to, pages with a title and no body, pages nobody edited for months, pages that say nearly the same thing (when the server has an embeddings model), and database relations to rows in the trash or deleted. Owners and members only. Each finding links to its page; how_to_fix says which tools act on them. It changes nothing.",
+      inputSchema: z.object({
+        workspace_id: id("workspace"),
+        stale_months: z
+          .number()
+          .int()
+          .min(1)
+          .max(60)
+          .default(DEFAULT_STALE_MONTHS)
+          .describe(`Pages nobody edited for this many months count as stale (1-60, default ${DEFAULT_STALE_MONTHS}).`),
+        min_similarity: z
+          .number()
+          .min(MIN_DUPLICATE_SIMILARITY)
+          .max(0.99)
+          .default(DEFAULT_DUPLICATE_SIMILARITY)
+          .describe(
+            `How alike two pages' meaning must be to be listed as possible duplicates (${MIN_DUPLICATE_SIMILARITY}-0.99, default ${DEFAULT_DUPLICATE_SIMILARITY}).`,
+          ),
+      }),
+      annotations: READ,
+    },
+    ({ workspace_id, stale_months, min_similarity }) =>
+      runTool(async () => {
+        try {
+          return describeWorkspaceCheck(
+            await checkWorkspace(userId, workspace_id, { staleMonths: stale_months, minSimilarity: min_similarity }),
+          );
+        } catch (error) {
+          if (error instanceof AccessError) {
+            throw new ToolInputError(
+              "The user can't check this workspace: only its owners and members can, and guests can't. Check the workspace id and the user's role with list_workspaces.",
+            );
+          }
+          throw error;
+        }
       }),
   );
 
