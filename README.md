@@ -128,6 +128,10 @@ versions, upgrades and running behind a domain.
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
     list) shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
+  - Board columns show how many cards they hold next to their name, and can show one calculation
+    over a property for their cards on the line under it, the same in every column: the sum of the
+    estimates, the average of a score, the earliest due date, how many are checked. Editors pick it
+    by clicking a column's card count, and change it from that line.
   - Table cells work from the keyboard: click a cell or move with the arrow keys, select a range
     with Shift and an arrow, Shift+click or a drag; Enter edits the cell, Esc goes back to it and
     Delete clears the range. Copy puts the range on the clipboard as tab-separated text, and cells
@@ -1985,7 +1989,7 @@ The tools cover:
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
   timeline, chart or form, including a form's public link; a chart over a date takes `accumulate`
-  for running totals or a burndown, a calendar `calendar_mode` (month or week), and table, list and timeline views take `sub_items`;
+  for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { PropertyOptions, PropertyType, ViewConfig } from "@/db/schema/app";
 import {
+  boardAggregateFunctionsOf,
+  boardMeasure,
   canAccumulate,
   canStack,
   chartAccumulateOf,
@@ -345,6 +347,39 @@ describe("chartMeasure", () => {
   });
 });
 
+describe("boardMeasure", () => {
+  const props = [amount, select, due];
+  it("counts cards unless a calculation the property offers is set", () => {
+    expect(boardMeasure({}, props)).toEqual(COUNT);
+    expect(boardMeasure({ boardAggregate: { fn: "sum", propertyId: "p_number" } }, props)).toEqual(sum);
+    expect(boardMeasure({ boardAggregate: { fn: "sum", propertyId: "gone" } }, props)).toEqual(COUNT);
+    expect(boardMeasure({ boardAggregate: { fn: "sum", propertyId: "p_select" } }, props)).toEqual(COUNT);
+    // A chart's measure is no board's: each view keeps its own.
+    expect(boardMeasure({ chartAggregate: { fn: "sum", propertyId: "p_number" } } as ViewConfig, props)).toEqual(COUNT);
+  });
+
+  it("offers dates' earliest and latest, but not counting rows, which the card count does", () => {
+    expect(boardAggregateFunctionsOf(due)).toContain("earliest_date");
+    expect(boardAggregateFunctionsOf(due)).toContain("latest_date");
+    expect(boardAggregateFunctionsOf(amount)).not.toContain("count_all");
+    expect(boardAggregateFunctionsOf(prop("checkbox"))).toEqual(["count_checked", "count_unchecked", "percent_checked", "percent_unchecked"]);
+    const total = prop("formula", { formula: { expression: "1", type: "number" } }, "p_total");
+    expect(boardMeasure({ boardAggregate: { fn: "average", propertyId: "p_total" } }, [total])).toEqual({
+      kind: "aggregate",
+      fn: "average",
+      prop: { id: "p_total", type: "number", options: total.options },
+    });
+  });
+
+  it("works out a column's figure from its cards", () => {
+    const measure = boardMeasure({ boardAggregate: { fn: "latest_date", propertyId: "p_date" } }, props);
+    expect(measureRows([row("a", { p_date: "2026-03-01" }), row("b", { p_date: "2026-05-02" }), row("c", {})], measure)).toMatchObject({
+      format: "date",
+    });
+    expect(measureRows([row("a", {}), row("b", {})], COUNT)).toEqual({ format: "number", value: 2 });
+  });
+});
+
 describe("niceTicks", () => {
   it("steps by 1, 2 or 5 times a power of ten", () => {
     expect(niceTicks(0, 10)).toEqual([0, 2, 4, 6, 8, 10]);
@@ -376,6 +411,7 @@ describe("layoutConfigError for charts", () => {
         groupOrder: ["a"],
       }),
     ).toBeNull();
+    expect(error({ boardAggregate: { fn: "earliest_date", propertyId: "p" } })).toBeNull();
   });
 
   it.each([
@@ -391,6 +427,9 @@ describe("layoutConfigError for charts", () => {
     ["legend", { showLegend: 1 }],
     ["hidden groups", { hiddenGroups: "a" }],
     ["group order", { groupOrder: [1] }],
+    ["board calculation shape", { boardAggregate: "sum" }],
+    ["board calculation property", { boardAggregate: { fn: "sum", propertyId: "" } }],
+    ["board row count", { boardAggregate: { fn: "count_all", propertyId: "p" } }],
   ])("refuses a malformed %s", (_, config) => {
     expect(error(config)).toBeTruthy();
   });

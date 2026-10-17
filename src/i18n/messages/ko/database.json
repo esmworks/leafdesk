@@ -356,7 +356,10 @@
     "colors": "색상",
     "confirmDeleteGroup": "“{name}” 그룹을 삭제할까요? 이 그룹의 카드 {count}개는 {property} 없음 그룹으로 이동합니다.",
     "hiddenGroups": "숨긴 그룹 ({count})",
-    "showGroup": "표시"
+    "showGroup": "표시",
+    "columnsShow": "열에 표시할 값",
+    "cardCountOption": "카드 수",
+    "changeColumnFigure": "열에 표시할 값 변경"
   },
   "cell": {
     "empty": "비어 있음",

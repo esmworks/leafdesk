@@ -356,7 +356,10 @@
     "colors": "Colori",
     "confirmDeleteGroup": "Eliminare il gruppo “{name}”? {count, plural, one {La sua # scheda passa} other {Le sue # schede passano}} in “Senza {property}”.",
     "hiddenGroups": "Gruppi nascosti ({count})",
-    "showGroup": "Mostra"
+    "showGroup": "Mostra",
+    "columnsShow": "Le colonne mostrano",
+    "cardCountOption": "Numero di schede",
+    "changeColumnFigure": "Cambia ciò che mostrano le colonne"
   },
   "cell": {
     "empty": "Vuoto",

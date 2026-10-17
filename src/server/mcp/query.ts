@@ -12,6 +12,7 @@ import type {
 import type { AggregateResult } from "@/lib/aggregate";
 import { AUTOFILL_BODY, AUTOFILL_TITLE, type AiAutofillConfig } from "@/lib/ai";
 import {
+  boardMeasure,
   canStack,
   chartAccumulateOf,
   chartData,
@@ -406,6 +407,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.subItems ? { sub_items: config.subItems } : {}),
     ...(config.openRows === "page" ? { open_rows: "page" } : {}),
     ...(type === "chart" ? describeChart(props, config) : {}),
+    ...(type === "board" ? describeBoard(props, config) : {}),
     ...(config.filters?.length ? { filters: config.filters.map(describeEntry) } : {}),
     ...(config.filters?.length && config.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
     ...(config.sorts?.length
@@ -434,6 +436,12 @@ function describeForm(props: PropertyDef[], form: NonNullable<ViewConfig["form"]
     ...(form.confirmation ? { confirmation_message: form.confirmation } : {}),
     ...(form.allowAnother === false ? { allow_another: false } : {}),
   };
+}
+
+/** What a board's column headers show, by name, when it isn't the card count (a stale calculation counts cards, like the board does). */
+function describeBoard(props: PropertyDef[], config: ViewConfig) {
+  const measure = boardMeasure(config, props);
+  return measure.kind === "count" ? {} : { aggregate: measure.fn, aggregate_property: keyName(props, measure.prop.id) };
 }
 
 /** A chart's settings by name: what it measures (a stale calculation counts rows, like the chart does). */

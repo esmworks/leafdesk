@@ -1001,6 +1001,33 @@ describe("relations and calendars", () => {
     expect(ungrouped.text).toMatch(/Charts always group/);
   });
 
+  it("sets what a board's column headers show, and refuses it on views without them", async () => {
+    const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
+    const due = { id: "prop-due", name: "Due", type: "date", options: {} };
+    const views = [
+      { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status", boardAggregate: { fn: "sum", propertyId: "prop-amount" } } },
+      { id: "view-t", name: "Table", type: "table", config: {} },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, amount, due], views });
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "latest_date", aggregate_property: "Due" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", {
+      config: { groupBy: "prop-status", boardAggregate: { fn: "latest_date", propertyId: "prop-due" } },
+    });
+    expect(r.data).toMatchObject({ type: "board", aggregate: "latest_date", aggregate_property: "Due" });
+    // A calculation alone keeps the saved property.
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "average" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", {
+      config: { groupBy: "prop-status", boardAggregate: { fn: "average", propertyId: "prop-amount" } },
+    });
+    const counted = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "count" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", boardAggregate: undefined } });
+    expect(counted.data).not.toHaveProperty("aggregate");
+    const unsummable = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "sum", aggregate_property: "Notes" });
+    expect(unsummable.text).toMatch(/Board columns can't calculate sum over "Notes"/);
+    const table = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-t", aggregate: "sum", aggregate_property: "Amount" });
+    expect(table.text).toMatch(/aggregate only applies to chart and board views/);
+  });
+
   it("returns what a chart view plots with its rows", async () => {
     const views = [{ id: "view-c", name: "Chart", type: "chart", config: { groupBy: "prop-status", filters: [] } }];
     databases.getDatabase.mockResolvedValue({ ...database, views });

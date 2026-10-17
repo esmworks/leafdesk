@@ -356,7 +356,10 @@
     "colors": "رنگ‌ها",
     "confirmDeleteGroup": "گروه «{name}» حذف شود؟ {count, plural, one {# کارت آن} other {# کارت آن}} به «بدون {property}» منتقل می‌شود.",
     "hiddenGroups": "گروه‌های پنهان ({count})",
-    "showGroup": "نمایش"
+    "showGroup": "نمایش",
+    "columnsShow": "نمایش ستون‌ها",
+    "cardCountOption": "تعداد کارت‌ها",
+    "changeColumnFigure": "تغییر آنچه ستون‌ها نشان می‌دهند"
   },
   "cell": {
     "empty": "خالی",

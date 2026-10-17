@@ -356,7 +356,10 @@
     "colors": "Renkler",
     "confirmDeleteGroup": "“{name}” grubu silinsin mi? İçindeki {count, plural, other {# kart}} {property} yok grubuna geçer.",
     "hiddenGroups": "Gizli gruplar ({count})",
-    "showGroup": "Göster"
+    "showGroup": "Göster",
+    "columnsShow": "Sütunlarda gösterilen",
+    "cardCountOption": "Kart sayısı",
+    "changeColumnFigure": "Sütunlarda gösterileni değiştir"
   },
   "cell": {
     "empty": "Boş",

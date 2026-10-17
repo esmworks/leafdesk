@@ -356,7 +356,10 @@
     "colors": "Kolory",
     "confirmDeleteGroup": "Usunąć grupę „{name}”? {count, plural, one {Jej # karta zostanie przeniesiona} few {Jej # karty zostaną przeniesione} many {Jej # kart zostanie przeniesionych} other {Jej # karty zostanie przeniesione}} do grupy „Brak: {property}”.",
     "hiddenGroups": "Ukryte grupy ({count})",
-    "showGroup": "Pokaż"
+    "showGroup": "Pokaż",
+    "columnsShow": "Kolumny pokazują",
+    "cardCountOption": "Liczba kart",
+    "changeColumnFigure": "Zmień, co pokazują kolumny"
   },
   "cell": {
     "empty": "Puste",

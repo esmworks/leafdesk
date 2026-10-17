@@ -356,7 +356,10 @@
     "colors": "色",
     "confirmDeleteGroup": "グループ「{name}」を削除しますか？{count}枚のカードは「{property}なし」に移動します。",
     "hiddenGroups": "非表示のグループ（{count}）",
-    "showGroup": "表示"
+    "showGroup": "表示",
+    "columnsShow": "列に表示する値",
+    "cardCountOption": "カードの数",
+    "changeColumnFigure": "列に表示する値を変更"
   },
   "cell": {
     "empty": "空",

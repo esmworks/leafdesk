@@ -356,7 +356,10 @@
     "colors": "Farben",
     "confirmDeleteGroup": "Gruppe „{name}“ löschen? {count, plural, one {Die # Karte darin wird} other {Die # Karten darin werden}} nach „Ohne {property}“ verschoben.",
     "hiddenGroups": "Ausgeblendete Gruppen ({count})",
-    "showGroup": "Einblenden"
+    "showGroup": "Einblenden",
+    "columnsShow": "Spalten zeigen",
+    "cardCountOption": "Anzahl der Karten",
+    "changeColumnFigure": "Ändern, was die Spalten zeigen"
   },
   "cell": {
     "empty": "Leer",

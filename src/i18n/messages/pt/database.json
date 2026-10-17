@@ -356,7 +356,10 @@
     "colors": "Cores",
     "confirmDeleteGroup": "Excluir o grupo “{name}”? {count, plural, one {Seu # cartão vai} other {Seus # cartões vão}} para Sem {property}.",
     "hiddenGroups": "Grupos ocultos ({count})",
-    "showGroup": "Mostrar"
+    "showGroup": "Mostrar",
+    "columnsShow": "As colunas mostram",
+    "cardCountOption": "Número de cartões",
+    "changeColumnFigure": "Alterar o que as colunas mostram"
   },
   "cell": {
     "empty": "Vazio",

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+- **Board columns can show a calculation.** Next to its name, each column of a board shows how
+  many cards it holds; editors can now click that count and have every column show one
+  calculation over a property for its cards on the line under its name: the sum of the estimates,
+  the average of a score, the earliest or latest due date, how many are checked, and the rest of
+  what table footers calculate (formulas and rollups like their result type). Each board view
+  keeps its own choice; published boards don't show it.
+  Over MCP, `create_database_view` and `update_database_view` set it on boards with `aggregate`
+  and `aggregate_property`, as on charts, and describe it with the view.
+
 ## 0.5.4 — 2026-10-17
 
 ### Upgrading from 0.5.3

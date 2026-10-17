@@ -356,7 +356,10 @@
     "colors": "Couleurs",
     "confirmDeleteGroup": "Supprimer le groupe « {name} » ? {count, plural, one {# carte est déplacée} other {# cartes sont déplacées}} vers « Sans {property} ».",
     "hiddenGroups": "Groupes masqués ({count})",
-    "showGroup": "Afficher"
+    "showGroup": "Afficher",
+    "columnsShow": "Les colonnes affichent",
+    "cardCountOption": "Nombre de cartes",
+    "changeColumnFigure": "Changer ce qu’affichent les colonnes"
   },
   "cell": {
     "empty": "Vide",

@@ -6,6 +6,7 @@ import {
   type CalendarMode,
   type CardSize,
   type ChartAccumulate,
+  type ChartAggregate,
   type ChartSort,
   type ChartType,
   type FilterCombinator,
@@ -22,10 +23,11 @@ import {
 } from "@/db/schema/app";
 import { AGGREGATE_FNS, ROLLUP_DISPLAYS, type AggregateFn } from "@/lib/aggregate";
 import {
+  BOARD_AGGREGATE_FNS,
+  boardAggregateFunctionsOf,
   canAccumulate,
   canStack,
   CHART_ACCUMULATES,
-  CHART_AGGREGATE_FNS,
   CHART_SORTS,
   CHART_TYPES,
   chartAccumulateOf,
@@ -365,15 +367,15 @@ const viewLayoutInputs = {
       'Chart only: "bar" (vertical columns, the default), "horizontal_bar", "line", "donut" (a pie chart with a hole) or "number" (one value: the aggregate over every row the view shows; it groups by nothing).',
     ),
   aggregate: z
-    .enum(["count", ...CHART_AGGREGATE_FNS])
+    .enum(["count", ...BOARD_AGGREGATE_FNS])
     .optional()
     .describe(
-      'Chart only: what each group measures. "count" (the default) counts rows; the others calculate over aggregate_property: sum, average, median, min, max, range for numbers; count_values, count_unique, count_empty, count_not_empty, percent_empty, percent_not_empty for any property; date_range (in days) for dates; count_checked, count_unchecked, percent_checked, percent_unchecked for checkboxes.',
+      'Chart and board only: what each group measures, on a board shown under the name of every column. "count" (the default) counts rows; the others calculate over aggregate_property: sum, average, median, min, max, range for numbers; count_values, count_unique, count_empty, count_not_empty, percent_empty, percent_not_empty for any property; date_range (in days) for dates, and on boards also earliest_date and latest_date; count_checked, count_unchecked, percent_checked, percent_unchecked for checkboxes.',
     ),
   aggregate_property: z
     .string()
     .optional()
-    .describe("Chart only: the property the aggregate calculates over (needed for every aggregate but count). Formula and rollup properties calculate like their result type: a number formula can be summed."),
+    .describe("Chart and board only: the property the aggregate calculates over (needed for every aggregate but count). Formula and rollup properties calculate like their result type: a number formula can be summed."),
   stack_by: z
     .string()
     .nullable()
@@ -576,8 +578,12 @@ function viewConfigPatch(
   }
   if (type === "chart") Object.assign(patch, chartConfigPatch(props, input, { ...current, ...patch }));
   else {
-    for (const setting of ["chart_type", "aggregate", "aggregate_property", "stack_by", "chart_sort", "accumulate", "show_values", "show_legend"] as const) {
+    for (const setting of ["chart_type", "stack_by", "chart_sort", "accumulate", "show_values", "show_legend"] as const) {
       if (input[setting] !== undefined) only(setting, "chart");
+    }
+    if (input.aggregate !== undefined || input.aggregate_property !== undefined) {
+      only(input.aggregate !== undefined ? "aggregate" : "aggregate_property", "chart", "board");
+      patch.boardAggregate = aggregateFromInput(props, input, current.boardAggregate, "board");
     }
   }
   if (input.sub_items !== undefined) {
@@ -611,6 +617,36 @@ function toCover(props: PropertyDef[], cover: string): ViewCover {
   return { source: "property", propertyId: prop.id };
 }
 
+/**
+ * What a chart measures, or what a board's column headers show, from tool input: undefined for
+ * "count", else a calculation over a property. Either input may change alone: the other one comes
+ * from the saved calculation (`saved`).
+ */
+function aggregateFromInput(
+  props: PropertyDef[],
+  input: ViewInput,
+  saved: ChartAggregate | undefined,
+  view: "chart" | "board",
+): ChartAggregate | undefined {
+  const counted = view === "chart" ? "rows" : "cards";
+  if (input.aggregate === "count") {
+    if (input.aggregate_property !== undefined) throw new ToolInputError(`aggregate_property doesn't apply to "count", which counts ${counted}.`);
+    return undefined;
+  }
+  const fn = input.aggregate ?? saved?.fn;
+  const ref = input.aggregate_property ?? props.find((p) => p.id === saved?.propertyId)?.id;
+  if (!fn) throw new ToolInputError("aggregate_property needs an aggregate to calculate, such as sum or average.");
+  if (!ref) throw new ToolInputError(`aggregate "${fn}" needs aggregate_property: the property to calculate over.`);
+  const prop = requireProperty(props, ref);
+  const offered = view === "chart" ? chartAggregateFunctionsOf(prop) : boardAggregateFunctionsOf(prop);
+  if (!offered.includes(fn)) {
+    throw new ToolInputError(
+      `${view === "chart" ? "Charts" : "Board columns"} can't calculate ${fn} over "${prop.name}" (${prop.type}); it offers count, ${offered.join(", ")}.`,
+    );
+  }
+  return { fn, propertyId: prop.id };
+}
+
 /** A chart's settings from tool input; `current` is the saved config the patch will be merged into. */
 function chartConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewConfig): ViewConfig {
   const patch: ViewConfig = {};
@@ -619,23 +655,8 @@ function chartConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
   if (input.accumulate !== undefined) patch.chartAccumulate = input.accumulate === "none" ? undefined : input.accumulate;
   if (input.show_values !== undefined) patch.showValues = input.show_values || undefined;
   if (input.show_legend !== undefined) patch.showLegend = input.show_legend ? undefined : false;
-  if (input.aggregate === "count") {
-    if (input.aggregate_property !== undefined) throw new ToolInputError('aggregate_property doesn\'t apply to "count", which counts rows.');
-    patch.chartAggregate = undefined;
-  } else if (input.aggregate !== undefined || input.aggregate_property !== undefined) {
-    // Either may change alone: the other one comes from the saved calculation.
-    const fn = input.aggregate ?? current.chartAggregate?.fn;
-    const ref = input.aggregate_property ?? props.find((p) => p.id === current.chartAggregate?.propertyId)?.id;
-    if (!fn) throw new ToolInputError("aggregate_property needs an aggregate to calculate, such as sum or average.");
-    if (!ref) throw new ToolInputError(`aggregate "${fn}" needs aggregate_property: the property to calculate over.`);
-    const prop = requireProperty(props, ref);
-    const offered = chartAggregateFunctionsOf(prop);
-    if (!offered.includes(fn)) {
-      throw new ToolInputError(
-        `Charts can't calculate ${fn} over "${prop.name}" (${prop.type}); it offers count, ${offered.join(", ")}.`,
-      );
-    }
-    patch.chartAggregate = { fn, propertyId: prop.id };
+  if (input.aggregate !== undefined || input.aggregate_property !== undefined) {
+    patch.chartAggregate = aggregateFromInput(props, input, current.chartAggregate, "chart");
   }
   if (input.stack_by !== undefined) {
     if (input.stack_by === null) patch.stackBy = undefined;

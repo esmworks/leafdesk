@@ -356,7 +356,10 @@
     "colors": "Кольори",
     "confirmDeleteGroup": "Видалити групу «{name}»? {count, plural, one {Її # картку буде переміщено} few {Її # картки буде переміщено} many {Її # карток буде переміщено} other {Її # картки буде переміщено}} до групи «{property}: немає».",
     "hiddenGroups": "Приховані групи ({count})",
-    "showGroup": "Показати"
+    "showGroup": "Показати",
+    "columnsShow": "У стовпцях показано",
+    "cardCountOption": "Кількість карток",
+    "changeColumnFigure": "Змінити, що показують стовпці"
   },
   "cell": {
     "empty": "Порожньо",

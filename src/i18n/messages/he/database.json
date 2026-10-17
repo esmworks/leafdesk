@@ -356,7 +356,10 @@
     "colors": "צבעים",
     "confirmDeleteGroup": "למחוק את הקבוצה “{name}”? {count, plural, one {הכרטיס שבה יעבור} other {# הכרטיסים שבה יעברו}} אל “ללא {property}”.",
     "hiddenGroups": "קבוצות מוסתרות ({count})",
-    "showGroup": "הצגה"
+    "showGroup": "הצגה",
+    "columnsShow": "העמודות מציגות",
+    "cardCountOption": "מספר הכרטיסים",
+    "changeColumnFigure": "שינוי מה שהעמודות מציגות"
   },
   "cell": {
     "empty": "ריק",

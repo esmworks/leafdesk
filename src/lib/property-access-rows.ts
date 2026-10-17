@@ -282,6 +282,7 @@ export function restoreReferences(stored: ViewConfig, next: ViewConfig, gone: Re
   }
   if (stored.cover?.source === "property" && gone.has(stored.cover.propertyId)) out.cover = stored.cover;
   if (stored.chartAggregate && gone.has(stored.chartAggregate.propertyId)) out.chartAggregate = stored.chartAggregate;
+  if (stored.boardAggregate && gone.has(stored.boardAggregate.propertyId)) out.boardAggregate = stored.boardAggregate;
   const hiddenSorts = stored.sorts?.filter((s) => gone.has(s.propertyId)) ?? [];
   if (hiddenSorts.length) out.sorts = [...(next.sorts ?? []), ...hiddenSorts];
   const hiddenFilters = stored.filters?.filter((f) => mentions(f, gone)) ?? [];

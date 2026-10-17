@@ -356,7 +356,10 @@
     "colors": "الألوان",
     "confirmDeleteGroup": "حذف المجموعة «{name}»؟ {count, plural, one {تنتقل بطاقتها الوحيدة} two {تنتقل بطاقتاها} few {تنتقل بطاقاتها الـ#} many {تنتقل بطاقاتها الـ#} other {تنتقل بطاقاتها الـ#}} إلى «بلا {property}».",
     "hiddenGroups": "المجموعات المخفية ({count})",
-    "showGroup": "إظهار"
+    "showGroup": "إظهار",
+    "columnsShow": "ما تعرضه الأعمدة",
+    "cardCountOption": "عدد البطاقات",
+    "changeColumnFigure": "تغيير ما تعرضه الأعمدة"
   },
   "cell": {
     "empty": "فارغ",

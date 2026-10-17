@@ -356,7 +356,10 @@
     "colors": "Цвета",
     "confirmDeleteGroup": "Удалить группу «{name}»? {count, plural, one {Её # карточка переместится} few {Её # карточки переместятся} many {Её # карточек переместятся} other {Её # карточки переместятся}} в группу «{property}: пусто».",
     "hiddenGroups": "Скрытые группы ({count})",
-    "showGroup": "Показать"
+    "showGroup": "Показать",
+    "columnsShow": "В столбцах показано",
+    "cardCountOption": "Число карточек",
+    "changeColumnFigure": "Изменить, что показывают столбцы"
   },
   "cell": {
     "empty": "Пусто",

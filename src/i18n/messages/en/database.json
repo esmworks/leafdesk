@@ -356,7 +356,10 @@
     "colors": "Colors",
     "confirmDeleteGroup": "Delete the “{name}” group? Its {count, plural, one {# card moves} other {# cards move}} to No {property}.",
     "hiddenGroups": "Hidden groups ({count})",
-    "showGroup": "Show"
+    "showGroup": "Show",
+    "columnsShow": "Columns show",
+    "cardCountOption": "Card count",
+    "changeColumnFigure": "Change what the columns show"
   },
   "cell": {
     "empty": "Empty",

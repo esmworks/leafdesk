@@ -11,7 +11,7 @@ import type {
   ViewCover,
   ViewType,
 } from "@/db/schema/app";
-import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isChartAggregateFn } from "./chart";
+import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
 import { formConfigError } from "./forms";
 import { SUB_ITEMS_DISPLAYS } from "./sub-items";
 
@@ -122,6 +122,13 @@ export function layoutConfigError(config: ViewConfig): string | null {
       return "chartAggregate must name a property id and a calculation";
     }
     if (!isChartAggregateFn(agg.fn)) return `Charts can't measure "${String(agg.fn)}"`;
+  }
+  if (c.boardAggregate !== undefined) {
+    const agg = c.boardAggregate as { fn?: unknown; propertyId?: unknown } | null;
+    if (!agg || typeof agg !== "object" || typeof agg.propertyId !== "string" || !agg.propertyId) {
+      return "boardAggregate must name a property id and a calculation";
+    }
+    if (!isBoardAggregateFn(agg.fn)) return `Board columns can't calculate "${String(agg.fn)}"`;
   }
   // Charts read these to lay out their groups; a stray value would break every viewer.
   for (const key of ["groupOrder", "hiddenGroups"] as const) {

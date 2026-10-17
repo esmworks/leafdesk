@@ -356,7 +356,10 @@
     "colors": "颜色",
     "confirmDeleteGroup": "要删除“{name}”分组吗？其中的 {count} 张卡片将移至“无{property}”。",
     "hiddenGroups": "隐藏的分组（{count}）",
-    "showGroup": "显示"
+    "showGroup": "显示",
+    "columnsShow": "列显示",
+    "cardCountOption": "卡片数量",
+    "changeColumnFigure": "更改列显示的内容"
   },
   "cell": {
     "empty": "空",
