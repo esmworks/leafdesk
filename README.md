@@ -130,6 +130,10 @@ versions, upgrades and running behind a domain.
     email, phone, files & media (uploads with image thumbnails), person, one- or two-way relations to other databases, formulas, rollups over
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
+  - A two-way relation is one link shown on both rows: linking a row to another, or unlinking it,
+    changes the other row's paired property too. That takes edit access to the row you change and
+    being able to see the row you link, not edit access to the other database; making a two-way
+    relation takes edit access to both databases, since it adds the paired property to the other.
   - Views: table, board, calendar, gallery, list, timeline and chart, each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
     combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
