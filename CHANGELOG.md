@@ -55,6 +55,11 @@
   nested blocks, and toggles are written as `<details>` with their text in the `<summary>`, so they
   come back as toggles with everything that was nested under them. A callout under a list item
   now also stays under it when read back.
+- **Toggle headings keep their shape in Markdown.** A toggle heading was written as a plain
+  heading with its nested blocks after it, so an AI app that read a page and wrote it back with
+  `update_page` (or `replace_block`) turned it into an ordinary heading and moved what was folded
+  under it out onto the page. It is now written as `<details>` with the heading in the `<summary>`,
+  and comes back as a toggle heading of the same level with its nested blocks.
 
 ### Changed
 

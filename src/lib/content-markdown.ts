@@ -58,7 +58,16 @@ import {
  *
  *   </details>
  *
- *   $$                     a display equation
+ *   <details>              a toggle heading: the same, with its text written as a heading
+ *   <summary>              (an empty one as <summary><h2></h2></summary>)
+ *
+ *   ## Text
+ *
+ *   </summary>
+ *   …
+ *   </details>
+ *
+ *   $$                   a display equation
  *   \int_0^1 x\,dx
  *   $$
  *
@@ -251,20 +260,33 @@ export function prepareMarkdownExport<B extends MdBlock>(
             { type: "paragraph", content: [end], children: [] },
           ] as unknown as B[];
         }
-        case "toggleListItem":
-          // Its text goes in the summary as a paragraph of its own, so it keeps its Markdown, and
-          // each part is a block of its own, so blank lines keep the tags apart from the Markdown.
+        case "heading":
+        case "toggleListItem": {
+          if (block.type === "heading" && !block.props?.isToggleable) return { ...block, content: inline(block.content), children };
+          // Its text goes in the summary as a block of its own (a toggle heading's as a heading), so
+          // it keeps its Markdown, and each part is a block of its own, so blank lines keep the tags
+          // apart from the Markdown. An empty heading is written as HTML: "##" alone reads as text.
+          const level = Number(block.props?.level) || 1;
           return [
             ...(plainText(block.content) || (Array.isArray(block.content) && block.content.length)
               ? [
                   { type: "paragraph", content: blockToken("<details>\n<summary>"), children: [] },
-                  { type: "paragraph", content: inline(block.content), children: [] },
+                  block.type === "heading"
+                    ? { type: "heading", props: { level }, content: inline(block.content), children: [] }
+                    : { type: "paragraph", content: inline(block.content), children: [] },
                   { type: "paragraph", content: blockToken("</summary>"), children: [] },
                 ]
-              : [{ type: "paragraph", content: blockToken("<details>\n<summary></summary>"), children: [] }]),
+              : [
+                  {
+                    type: "paragraph",
+                    content: blockToken(`<details>\n<summary>${block.type === "heading" ? `<h${level}></h${level}>` : ""}</summary>`),
+                    children: [],
+                  },
+                ]),
             ...children,
             { type: "paragraph", content: blockToken("</details>"), children: [] },
           ] as unknown as B[];
+        }
         case "codeBlock":
           return { ...block, children };
         default:

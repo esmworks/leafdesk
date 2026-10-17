@@ -353,6 +353,85 @@ describe("content blocks in Markdown", () => {
     expect(await blocksToMarkdown(back)).toBe(await blocksToMarkdown(blocks));
   });
 
+  it("write toggle headings as <details> with a heading inside, so they come back as toggle headings", async () => {
+    const blocks = stored([
+      {
+        type: "heading",
+        props: { level: 2, isToggleable: true },
+        content: [{ type: "text", text: "Agenda", styles: { bold: true } }, text(" for $5")],
+        children: [
+          { type: "paragraph", content: "First paragraph" },
+          { type: "bulletListItem", content: "Point" },
+          { type: "heading", props: { level: 4, isToggleable: true }, content: "Inner", children: [{ type: "paragraph", content: "Deep" }] },
+        ],
+      },
+      { type: "heading", props: { level: 3, isToggleable: true }, content: "", children: [{ type: "paragraph", content: "Under empty" }] },
+      { type: "heading", props: { level: 1, isToggleable: true }, content: "No children" },
+      { type: "callout", props: { backgroundColor: "gray" }, content: "Note", children: [{ type: "heading", props: { level: 2, isToggleable: true }, content: "In a callout", children: [{ type: "paragraph", content: "x" }] }] },
+      { type: "heading", props: { level: 2 }, content: "Plain heading" },
+      { type: "paragraph", content: "After" },
+    ]);
+    expect(blocks[0].props).toMatchObject({ level: 2, isToggleable: true });
+    /** Heading levels and whether they toggle, nested like the blocks. */
+    const headings = (list: any[]): unknown[] =>
+      list.flatMap((b) => [
+        ...(b.type === "heading" ? [`${b.props.level}${b.props.isToggleable ? " toggle" : ""}`] : []),
+        ...headings(b.children ?? []),
+      ]);
+    expect(headings(blocks)).toEqual(["2 toggle", "4 toggle", "3 toggle", "1 toggle", "2 toggle", "2"]);
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toContain(
+      [
+        "<details>",
+        "<summary>",
+        "",
+        "## **Agenda** for \\$5",
+        "",
+        "</summary>",
+        "",
+        "First paragraph",
+        "",
+        "* Point",
+        "",
+        "<details>",
+        "<summary>",
+        "",
+        "#### Inner",
+        "",
+        "</summary>",
+        "",
+        "Deep",
+        "",
+        "</details>",
+        "",
+        "</details>",
+        "",
+        "<details>",
+        "<summary><h3></h3></summary>",
+        "",
+        "Under empty",
+        "",
+        "</details>",
+        "",
+        "<details>",
+        "<summary>",
+        "",
+        "# No children",
+        "",
+        "</summary>",
+        "",
+        "</details>",
+      ].join("\n"),
+    );
+    expect(markdown).toContain("> <details>\n> <summary>\n>\n> ## In a callout");
+    expect(markdown).toContain("\n\n## Plain heading\n\nAfter");
+    const back = stored(await markdownToBlocks(markdown, blocks));
+    expect(shape(back)).toEqual(shape(blocks));
+    expect(headings(back)).toEqual(headings(blocks));
+    expect(back[0].content).toEqual(blocks[0].content);
+    expect(await blocksToMarkdown(back)).toBe(await blocksToMarkdown(blocks));
+  });
+
   it("map alert kinds and colors", () => {
     expect(alertKindForColor("default")).toBe("NOTE");
     expect(alertKindForColor("orange")).toBe("WARNING");
