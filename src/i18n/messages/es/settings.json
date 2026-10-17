@@ -397,6 +397,7 @@
       "keptList": "Las notas del agente",
       "empty": "Nada todavía. Guarda una nota que propongan sus ejecuciones o escribe una aquí.",
       "hiddenText": "Propuesta en una fila que no puedes abrir.",
+      "hiddenOthersText": "Propuesto por una ejecución que inició otro propietario.",
       "fromRow": "De una ejecución en <row>una fila</row>",
       "fromHiddenRow": "De una ejecución en una fila que no puedes abrir",
       "fromConnection": "De una ejecución iniciada por {connection}",

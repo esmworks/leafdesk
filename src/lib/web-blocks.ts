@@ -106,8 +106,8 @@ export type EmbedTarget = {
 };
 
 /**
- * Every origin an embed iframe may load. There is no Content-Security-Policy yet; if one is added,
- * its `frame-src` must list these.
+ * Every origin an embed iframe may load: the pages' Content-Security-Policy lists them in
+ * `frame-src` (see lib/content-security-policy).
  */
 export const EMBED_FRAME_ORIGINS = [
   "https://www.youtube-nocookie.com",

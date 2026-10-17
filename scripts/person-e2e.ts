@@ -42,6 +42,7 @@ const RUN = `person-e2e-${Date.now().toString(36)}`;
 // Broadcasts are recorded so the inbox signal can be checked.
 const broadcasts: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast: (channel: string, event: string) => void broadcasts.push(`${channel} ${event}`),
   async disconnectLostAccess() {},
 } as unknown as Parameters<typeof registerCollab>[0]);

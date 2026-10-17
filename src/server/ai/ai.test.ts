@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { aiDerivedProperties, autofillReads, checkAutofill, promptPlaceholders, type AiAutofillConfig } from "@/lib/ai";
+import { aiDerivedProperties, autofillHiddenInputs, autofillReads, checkAutofill, promptPlaceholders, type AiAutofillConfig } from "@/lib/ai";
 import { describeAiConfig, readAiConfig } from "./config";
 import { AiError, aiInfo, complete, embed, embeddingsEnabled, isEnabled, stream } from "./index";
 import { autofillNeedsBody, autofillPrompt, cleanValue, editorPrompt, fillPlaceholders, formatValue, truncateText } from "./prompts";
@@ -194,6 +194,26 @@ describe("autofill settings", () => {
       code: "unknownPlaceholder",
       params: { name: "Pitch" },
     });
+  });
+
+  it("never takes related rows or people in", () => {
+    const related = [
+      { id: "rel", name: "Project", type: "relation" },
+      { id: "roll", name: "Project lead", type: "rollup" },
+      { id: "who", name: "Owner", type: "person" },
+      { id: "by", name: "Added by", type: "created_by" },
+      { id: "f1", name: "Project name", type: "formula", options: { formula: { expression: 'prop("rel")' } } },
+      { id: "f2", name: "Shout", type: "formula", options: { formula: { expression: 'upper(prop("f1"))' } } },
+      { id: "f3", name: "Plain", type: "formula", options: { formula: { expression: 'prop("notes")' } } },
+      { id: "notes", name: "Notes", type: "text" },
+      { id: "self", name: "Answer", type: "text" },
+    ];
+    expect([...autofillHiddenInputs(related)].sort()).toEqual(["by", "f1", "f2", "rel", "roll", "who"]);
+    for (const name of ["Project", "Project lead", "Owner", "Added by", "Project name", "Shout"]) {
+      expect(checkAutofill({ mode: "custom", prompt: `Answer with {${name}}` }, related, "self")).toEqual({ ok: false, code: "hiddenInput", params: { name } });
+    }
+    expect(checkAutofill({ mode: "translation", language: "de", source: "rel" }, related, "self")).toMatchObject({ ok: false, code: "hiddenInput" });
+    expect(checkAutofill({ mode: "custom", prompt: "Answer with {Plain} and {Notes}" }, related, "self")).toMatchObject({ ok: true });
   });
 
   // Two AI properties and a formula over one of them.

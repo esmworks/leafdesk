@@ -63,7 +63,12 @@ versions, upgrades and running behind a domain.
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
   title has the words come first; past the first 80,000 characters of a huge page's text, words
   aren't found), and also by meaning when the server has an embeddings model
-  (see [Semantic search](#semantic-search)).
+  (see [Semantic search](#semantic-search)). Full-text search also looks inside the PDFs and
+  Word documents a page shows, with or without an embeddings model: a page is found when one of
+  its documents has every word, after the pages that have them in their own text, and the result
+  names the document, with the text around the words. Only documents the page's readers may open
+  through it count, as for semantic search; a document's first 80,000 characters are searched,
+  and a scan without a text layer has no words to find.
 - **Home page**: quick buttons for a new page, database or template; the database rows assigned
   to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
   and no date; and the pages edited last.
@@ -263,7 +268,10 @@ versions, upgrades and running behind a domain.
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
   that write the page's title without linking to it, with a button that turns that text into a
   mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
-  "Copy link to block" in a block's menu gives a link that opens the page at that block.
+  "Copy link to block" in a block's menu gives a link that opens the page at that block,
+  highlighted, in the editor, on published pages and in the print view; pasted into a page it
+  becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API
+  keeps it as `[Title](/w/<workspace>/p/<page>#block-<id>)`.
 - **Synced pages**: a block that shows another page's body inside this one, live. People who may
   edit that page edit it right there, alongside everyone else on either page; people who may only
   view it read it; people who can't open it see "No access", as a mention shows them. Its text
@@ -326,7 +334,8 @@ versions, upgrades and running behind a domain.
   search, AI answer, export, copy, published page, MCP and REST reply of people they are hidden
   from, and their writes are refused. AI autofill never reads a restricted property, nor a
   formula or rollup reading one (of the row or of related rows), whoever asks: the text it writes
-  can be read by people the value is hidden from. Relations and the created/edited by/time
+  can be read by people the value is hidden from. Nor does it read relations, rollups or people
+  properties (or formulas reading them), which can name rows and people its readers can't open. Relations and the created/edited by/time
   properties can't be restricted.
 - **Member groups**: workspace owners gather members into groups (Settings → Groups) and share a
   page with a group, or add it to a teamspace, the way they would with a person. Everyone in the
@@ -371,7 +380,7 @@ versions, upgrades and running behind a domain.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](#file-uploads)). Uploaded PDFs show
-  in place.
+  in place, and search finds pages by the words of the PDFs and Word documents they show.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -600,6 +609,9 @@ Markdown can be opened in an editor such as Obsidian; links to pages that aren't
 the app. An export holds only what the person exporting can see: pages they can't open are left
 out and links to them say "No access". Pages in the trash are left out; exporting a page from the
 trash brings the subpages trashed with it.
+
+A page in the trash can be read but not changed: its content, title, icon, cover and properties
+stay as they are until it is restored, and nothing can be moved or added under it.
 
 Pages stay in the trash for the time owners choose in Settings > Security > Data retention (30
 days by default, or forever); once a day the server deletes the pages whose time is up, with their
@@ -832,7 +844,9 @@ the REST API.
   publications and the site's settings stay listed in Settings, and come back as they were when
   publishing is turned on again.
 - **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
-  for everyone, owners included, and the export routes answer `403`. The member list CSV in
+  for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
+  automations can't get a webhook nor send one (`webhookExportOff`; a webhook saved before may
+  stay, and its runs and test pings fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
   workspace, on top of their own permissions and their user's access. *Full access* (default),
@@ -1562,9 +1576,13 @@ respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out o
 indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
 chat can answer from a document and cite it. A document is read once and its text kept in
 `file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
-page, files over 25 MB are skipped, and a scan without a text layer adds nothing. A page indexes
-only the files its readers may open through it. Their text is sent to the embeddings endpoint
-like the page's own.
+page, files over 25 MB are skipped, and a scan without a text layer adds nothing. Full-text search
+reads the same text for any PDF or Word document a page shows, also one it only links to.
+Documents are read whether or not the server has an embeddings model, since full-text search finds
+pages by their words too: in the background after they are uploaded, and those uploaded before
+search read them (or while the server was down) a couple of hundred at a time by a sweep that a
+workspace's searches start, at most every 10 minutes. A page indexes only the files its readers
+may open through it. Their text is sent to the embeddings endpoint like the page's own.
 
 **Access** is never stored in the index: every search filters the chunks to the pages the person
 can open right now (`page_access_level`) before ranking them, so guests only find what was shared
@@ -1694,7 +1712,8 @@ each proposal is a step of the run, with credentials masked, and goes with no ru
 keeps it. In the agent's *Memory* tab (and a "notes to review" link next to the agent in the list),
 owners see the proposals with the run's row and time, keep one as it is or changed, or dismiss it;
 they also write, change and delete notes, and make it forget everything. An owner who can't open a
-proposal's row doesn't see its text (it may quote the row) and can only dismiss it. A run may drop a
+proposal's row doesn't see its text (it may quote the row) and can only dismiss it, nor does one
+whose proposal came from a run another owner asked for or scheduled without a database. A run may drop a
 note at once with `forget`, which loses at most that note. Runs no member stands behind (an
 anonymous or outside form answer, an event from a trigger no owner marked trusted) get neither
 tool, but the kept notes go with them too. Kept notes reach the model as data, never as
@@ -1725,7 +1744,10 @@ automations can't set each other off.
 **Managing agents.** In Settings → *Agents*, owners of the workspace create, change, pause,
 archive and restore agents, choose what is shared with them and look through their runs; members
 see the list without the agents' instructions. A run's steps, answer and error show only to owners
-who can open its row. Where an agent acted, it shows as an agent: its icon in *Created by* and
+who can open its row (for a schedule on a database, the database). A run an owner asked for, or
+one a schedule without a database started, read with that owner's access: only they see what it
+did, its task and the notes it proposed; the others see that it ran and how it ended, and may
+still answer a call it waits on. Where an agent acted, it shows as an agent: its icon in *Created by* and
 *Last edited by*, "(agent)" after its name on comments and in page history. A comment an agent
 writes about the whole row rather than about some of its text says *About this page* in the
 comments panel, at the top of the list. A
@@ -1946,7 +1968,7 @@ to treat it as data, never as instructions.
 
 The tools cover:
 
-- **Finding things:** `list_workspaces`, `list_teamspaces`, `search`, `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
+- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs and Word documents pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
 - **Workspace health:** `check_workspace` lists broken links, pages nothing links to, empty and
   long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
   that fix each (it changes nothing itself).

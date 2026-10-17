@@ -35,7 +35,8 @@ const { and, eq, inArray, like, notInArray, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { HocuspocusProvider } = await import("@hocuspocus/provider");
 const { db } = await import("@/db");
-const { account, session, user, verification, workspace, workspaceMember } = await import("@/db/schema");
+const { account, apiToken, session, user, verification, workspace, workspaceMember } = await import("@/db/schema");
+const { createApiToken } = await import("@/server/api/tokens");
 const { adminEmailsFrom, workspaceCreationFrom } = await import("@/lib/instance-admin");
 const { totpCode, totpKeyFromUri } = await import("@/lib/totp");
 const { createWorkspace, WorkspaceError } = await import("@/server/workspaces");
@@ -439,8 +440,12 @@ async function main() {
   check(!(await sessionOf(refused.jar)) && (await liveSessions(carol.id)) === 0, "…without a session");
   const wrong = await signIn(carol.email, "not-her-password");
   check(wrong.status === 401 && wrong.body?.code !== "PASSWORD_RESET_REQUIRED", "a wrong password learns nothing about it", wrong);
+  // A token made with the old password (by Carol, or by whoever knew it) stops working with it.
+  await createApiToken(carol.id, { name: "Before the reset", scopes: ["pages:read"] });
   await chooseNewPassword(carol.email, refused, "Carol");
   check(!(await flagOf(carol.id)), "the requirement is cleared");
+  const carolTokens = await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, carol.id));
+  check(carolTokens.length === 0, "…and the API tokens she had are revoked", carolTokens);
   check((await signIn(carol.email, PASSWORD)).status === 401, "the old password no longer works");
   const carolNew = await signIn(carol.email, NEW_PASSWORD);
   check(carolNew.status === 200 && (await sessionOf(carolNew.jar)) !== null, "the new one signs her in");

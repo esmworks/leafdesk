@@ -460,6 +460,7 @@
     "noAccess": "アクセス権なし",
     "deleted": "削除されたページ",
     "loading": "読み込み中…",
+    "atBlock": "ページのブロックの位置で開きます",
     "personLeft": "{name}（ワークスペースから退出済み）",
     "date": "日付",
     "reminder": "リマインダー",

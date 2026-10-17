@@ -114,6 +114,8 @@ export const AUTOFILL_ERROR_CODES = [
   "unknownPlaceholder",
   /** The value would read itself through other AI values (`name`: the one it reads). */
   "cycle",
+  /** The settings name a property that never goes into a prompt (`name`, see autofillHiddenInputs). */
+  "hiddenInput",
 ] as const;
 export type AutofillErrorCode = (typeof AUTOFILL_ERROR_CODES)[number];
 export type AutofillCheck = { ok: true; config: AiAutofillConfig } | { ok: false; code: AutofillErrorCode; params?: Record<string, string> };
@@ -150,6 +152,28 @@ export function aiDerivedProperties(properties: AutofillProperty[]): Set<string>
     }
   }
   return derived;
+}
+
+/**
+ * Property types whose values come from related rows or name people: relations, rollups, people,
+ * and who added or last edited the row. They show each reader only the related rows and people
+ * that reader may see, while an AI value is plain text that everyone who reads the row sees: they
+ * never go into a prompt, named or not (as semantic-text.ts keeps them out of the shared index).
+ */
+const HIDDEN_INPUT_TYPES = new Set(["relation", "rollup", "person", "created_by", "last_edited_by"]);
+
+/** Properties that never go into a prompt: those types, and formulas reading them (through other formulas too). */
+export function autofillHiddenInputs(properties: AutofillProperty[]): Set<string> {
+  const hidden = new Set(properties.filter((p) => HIDDEN_INPUT_TYPES.has(p.type ?? "")).map((p) => p.id));
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const p of properties) {
+      if (hidden.has(p.id) || !formulaRefs(p).some((id) => hidden.has(id))) continue;
+      hidden.add(p.id);
+      grew = true;
+    }
+  }
+  return hidden;
 }
 
 /**
@@ -205,6 +229,7 @@ export function checkAutofill(input: unknown, properties: AutofillProperty[], se
   if (!AI_AUTOFILL_MODES.includes(mode)) return { ok: false, code: "invalidMode" };
   const auto = raw.auto === true;
   const others = properties.filter((p) => p.id !== selfId);
+  const hidden = autofillHiddenInputs(properties);
   if (mode === "summary") return { ok: true, config: { mode, auto } };
   if (mode === "translation") {
     if (!isAiLanguage(raw.language)) return { ok: false, code: "unknownLanguage" };
@@ -212,6 +237,7 @@ export function checkAutofill(input: unknown, properties: AutofillProperty[], se
     if (source !== AUTOFILL_TITLE && source !== AUTOFILL_BODY && !others.some((p) => p.id === source)) {
       return { ok: false, code: "unknownSource" };
     }
+    if (hidden.has(source)) return { ok: false, code: "hiddenInput", params: { name: others.find((p) => p.id === source)!.name } };
     return withoutCycle({ mode, language: raw.language, source, auto }, properties, selfId);
   }
   const prompt = typeof raw.prompt === "string" ? raw.prompt.trim() : "";
@@ -220,6 +246,9 @@ export function checkAutofill(input: unknown, properties: AutofillProperty[], se
   const known = new Set([AUTOFILL_TITLE, ...others.map((p) => p.name.trim().toLowerCase())]);
   const unknown = promptPlaceholders(prompt).find((name) => !known.has(name.toLowerCase()));
   if (unknown) return { ok: false, code: "unknownPlaceholder", params: { name: unknown } };
+  const names = new Set(promptPlaceholders(prompt).map((name) => name.toLowerCase()));
+  const named = others.find((p) => hidden.has(p.id) && names.has(p.name.trim().toLowerCase()));
+  if (named) return { ok: false, code: "hiddenInput", params: { name: named.name } };
   return withoutCycle({ mode, prompt, includeBody: raw.includeBody === true, auto }, properties, selfId);
 }
 

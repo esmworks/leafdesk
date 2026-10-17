@@ -460,6 +460,7 @@
     "noAccess": "Aucun accès",
     "deleted": "Page supprimée",
     "loading": "Chargement…",
+    "atBlock": "Ouvre la page à un bloc",
     "personLeft": "{name} (ne fait plus partie de l’espace de travail)",
     "date": "Date",
     "reminder": "Rappel",

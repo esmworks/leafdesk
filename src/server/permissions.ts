@@ -24,7 +24,7 @@ import { AccessError, FULL_RANK, getMembership, hasLevel, requirePageAccess, res
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
-import { afterAccessLoss, groupMemberIds, requireGroupIn } from "@/server/groups";
+import { afterAccessChange, groupMemberIds, requireGroupIn } from "@/server/groups";
 import { recordShare, signalInbox, withdrawShare } from "@/server/notifications";
 import { addGuest, canInviteGuests, type InvitationDelivery, inviteGuest } from "@/server/workspaces";
 
@@ -335,8 +335,8 @@ export async function removePageInvitation(actorId: string, pageId: string, emai
 /**
  * Sets what `principal` (a member's id, or null for everyone) gets on the page. Needs full access.
  * A member whose own entry is new or raised hears about it in their inbox; setting it to "none"
- * takes that back while it is unread. Open editors of whoever it narrowed for are dropped: a
- * connection's access is only checked when it opens.
+ * takes that back while it is unread. Open editors of whoever it changed for are checked again: a
+ * connection's access is only checked when it opens (see recheckEditors).
  */
 export async function setPagePermission(actorId: string, pageId: string, principal: string | null, level: PageLevel) {
   const target = await requirePageAccess(actorId, pageId, "full");
@@ -373,7 +373,7 @@ export async function setPagePermission(actorId: string, pageId: string, princip
       );
     }
   });
-  await dropLostEditors(target.workspaceId, principal);
+  await recheckEditors(target.workspaceId, principal);
   if (!principal) return;
   await keepAgentEntry(pageId, principal);
   if (level === "none") await withdrawShare(target.workspaceId, principal, pageId);
@@ -420,7 +420,7 @@ export async function removePagePermission(actorId: string, pageId: string, prin
       );
     }
   });
-  await dropLostEditors(target.workspaceId, principal);
+  await recheckEditors(target.workspaceId, principal);
   if (principal) {
     await keepAgentEntry(pageId, principal);
     await withdrawShare(target.workspaceId, principal, pageId);
@@ -443,16 +443,17 @@ async function keepAgentEntry(pageId: string, principal: string) {
     );
 }
 
-/** Drops the open editors `principal` (a member, or everyone for null) may no longer use. */
-const dropLostEditors = (workspaceId: string, principal: string | null) =>
+/**
+ * Brings the open editors of `principal` (a member, or everyone for null) in line with their access
+ * now: drops those they may no longer use, and lets those they may now edit through take edits.
+ */
+const recheckEditors = (workspaceId: string, principal: string | null) =>
   getCollab().disconnectLostAccess(workspaceId, principal ? [principal] : undefined);
-
-const rankOf = (level: PageLevel) => PAGE_LEVELS.indexOf(level);
 
 /**
  * Sets what a group of the page's workspace gets on the page, like a person's own entry, for
- * everyone in the group. Needs full access. Lowering it drops the open editors of the group's
- * members that lost access. Members aren't notified one by one: a group can be large.
+ * everyone in the group. Needs full access. The open editors of the group's members are checked
+ * again (see afterAccessChange). Members aren't notified one by one: a group can be large.
  */
 export async function setPageGroupPermission(actorId: string, pageId: string, groupId: string, level: PageLevel) {
   const target = await requirePageAccess(actorId, pageId, "full");
@@ -483,9 +484,7 @@ export async function setPageGroupPermission(actorId: string, pageId: string, gr
       );
     }
   });
-  if (previous && rankOf(level) < rankOf(previous.level)) {
-    await afterAccessLoss(target.workspaceId, await groupMemberIds(groupId));
-  }
+  if (previous?.level !== level) await afterAccessChange(target.workspaceId, await groupMemberIds(groupId));
 }
 
 /** Removes the page's own entry for a group, so it inherits again. Needs full access. */
@@ -511,7 +510,7 @@ export async function removePageGroupPermission(actorId: string, pageId: string,
     }
   });
 
-  await afterAccessLoss(target.workspaceId, await groupMemberIds(groupId));
+  await afterAccessChange(target.workspaceId, await groupMemberIds(groupId));
 }
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -600,16 +599,17 @@ export async function followNewSpace(
 /**
  * Gives `pageId` entries of its own for what it inherits from its ancestors now, for each
  * principal (person, group or everyone) that has no entry on the page itself. Run before it loses those ancestors (restored
- * out of a deleted parent), so it keeps the access it had.
+ * out of a deleted parent), so it keeps the access it had. With `ancestorsOf`, the entries are
+ * those that page inherits: a copy placed elsewhere keeps the access of its source.
  */
-export async function freezeInheritedEntries(tx: Tx, workspaceId: string, pageId: string) {
+export async function freezeInheritedEntries(tx: Tx, workspaceId: string, pageId: string, ancestorsOf = pageId) {
   await lockPermissions(tx, workspaceId);
   await tx.execute(sql`
     insert into ${pagePermission} (id, page_id, workspace_id, user_id, level, created_by)
     select gen_random_uuid()::text, ${pageId}, inherited.workspace_id, inherited.user_id, inherited.level, inherited.created_by
     from (
       with recursive chain as (
-        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${pageId})
+        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${ancestorsOf})
         union all
         select p.id, p.parent_id, c.depth + 1 from page p join chain c on p.id = c.parent_id where c.depth < 64
       )
@@ -624,7 +624,7 @@ export async function freezeInheritedEntries(tx: Tx, workspaceId: string, pageId
     select gen_random_uuid()::text, ${pageId}, inherited.workspace_id, inherited.group_id, inherited.level, inherited.created_by
     from (
       with recursive chain as (
-        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${pageId})
+        select p.id, p.parent_id, 1 as depth from page p where p.id = (select parent_id from page where id = ${ancestorsOf})
         union all
         select p.id, p.parent_id, c.depth + 1 from page p join chain c on p.id = c.parent_id where c.depth < 64
       )

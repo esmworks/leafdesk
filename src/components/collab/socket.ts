@@ -5,7 +5,7 @@ import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { forgetOfflinePage, markDirty, readOfflineState } from "@/components/offline/offline-store";
 import { BUILD_PARAM, CLIENT_BUILD } from "@/lib/build-id";
-import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { COLLAB_FRAGMENT, PAGE_WRITABLE_EVENT } from "@/lib/collab-constants";
 import { COLLAB_FORBIDDEN, COLLAB_STALE, COLLAB_UNAUTHORIZED, pageStoreName } from "@/lib/offline";
 import { markStale, noteServerBuild, onStale, whenFresh } from "./freshness";
 
@@ -130,7 +130,13 @@ export function acquireDoc(name: string, { offlineFor }: { offlineFor?: string }
           throw error;
         }
       },
-      onStateless: ({ payload }) => listeners.forEach((l) => l(payload)),
+      onStateless: ({ payload }) => {
+        // The server takes this tab's edits again (an unlock, a restore, edit access given while the
+        // page is open): sync, so it gets the edits it turned down meanwhile. Once per document,
+        // however many views of the page share it.
+        if (payload === PAGE_WRITABLE_EVENT) provider.forceSync();
+        listeners.forEach((l) => l(payload));
+      },
       onAuthenticated: () => {
         denied = null;
         renewed = false;

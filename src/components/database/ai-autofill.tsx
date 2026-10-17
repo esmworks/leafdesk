@@ -14,6 +14,7 @@ import {
   AI_LANGUAGES,
   AUTOFILL_BODY,
   AUTOFILL_TITLE,
+  autofillHiddenInputs,
   checkAutofill,
   isAiErrorCode,
   MAX_AUTOFILL_PROMPT,
@@ -135,6 +136,8 @@ export function AutofillEditor({
   }, [locale]);
 
   const check = checkAutofill({ mode, language, source, prompt, includeBody, auto }, others, prop?.id);
+  // Related rows and people never go into a prompt: no button offers them.
+  const hidden = useMemo(() => autofillHiddenInputs(properties), [properties]);
   const error = errorOf(check);
 
   const insert = (placeholder: string) => {
@@ -245,7 +248,7 @@ export function AutofillEditor({
             <p className="mt-1 text-xs text-fg-faint">{t("promptHint")}</p>
             <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-y-auto">
               <PlaceholderButton label={tDatabase("nameColumn")} icon="title" onClick={() => insert(AUTOFILL_TITLE)} />
-              {others.map((p) => (
+              {others.filter((p) => !hidden.has(p.id)).map((p) => (
                 <PlaceholderButton key={p.id} label={p.name} icon={p.type} onClick={() => insert(p.name)} />
               ))}
             </div>

@@ -460,6 +460,7 @@
     "noAccess": "Brak dostępu",
     "deleted": "Usunięta strona",
     "loading": "Ładowanie…",
+    "atBlock": "Otwiera stronę w miejscu bloku",
     "personLeft": "{name} (nie należy już do obszaru roboczego)",
     "date": "Data",
     "reminder": "Przypomnienie",

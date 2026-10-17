@@ -8,6 +8,7 @@ import {
   EMBED_REFERRER_POLICY,
   EMBED_SANDBOX,
   type EmbedTarget,
+  parseWebUrl,
 } from "@/lib/web-blocks";
 
 /**
@@ -31,13 +32,21 @@ function RemoteImage({ src, className }: { src: string; className: string }) {
   );
 }
 
-export function BookmarkCard({ bookmark }: { bookmark: BookmarkView }) {
-  const host = displayHost(bookmark.url);
+export function BookmarkCard({ bookmark: given }: { bookmark: BookmarkView }) {
+  // The editor hands over the block's props as the document holds them, and anyone who can edit a
+  // page (or an MCP client) can write anything there: only web addresses become links and images.
+  const bookmark = {
+    ...given,
+    url: parseWebUrl(given.url)?.href ?? "",
+    image: parseWebUrl(given.image)?.href ?? "",
+    favicon: parseWebUrl(given.favicon)?.href ?? "",
+  };
+  const host = displayHost(given.url);
   const [iconFailed, setIconFailed] = useState<string | null>(null);
   const showIcon = bookmark.favicon && iconFailed !== bookmark.favicon;
   return (
     <a
-      href={bookmark.url}
+      href={bookmark.url || undefined}
       target="_blank"
       rel="noopener noreferrer nofollow"
       className="flex w-full min-w-0 overflow-hidden rounded-md border border-border text-fg no-underline transition-colors hover:bg-bg-hover"

@@ -62,6 +62,7 @@ const { flushPush, PushSubscriptionError, savePushSubscription } = await import(
 const { env } = await import("@/lib/env");
 
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async disconnectLostAccess() {},
   async replaceContent() {},

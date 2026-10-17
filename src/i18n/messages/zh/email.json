@@ -96,6 +96,7 @@
     "subject": "{requester} 申请访问“{page}”",
     "heading": "{requester} 申请访问“{page}”",
     "body": "{requester}（{email}）希望打开 {workspace} 中的“{page}”。",
+    "bodyWithoutEmail": "{requester}希望打开 {workspace} 中的“{page}”。",
     "message": "对方的留言：“{message}”",
     "answer": "你可以与对方分享此页面并选择其权限，或拒绝此申请。你可以在收件箱中或页面上的“分享”中处理。",
     "action": "打开页面",

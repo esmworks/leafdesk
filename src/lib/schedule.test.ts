@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nextOccurrence, parseRepeatRule, repeatSummary, SCHEDULE_ERRORS, type RepeatRule } from "./schedule";
-import { dayNumber, isTimeZone, listTimeZones, timeZoneLabel, zonedInstant } from "./time-zone";
+import { dayNumber, isTimeZone, listTimeZones, timeZoneLabel, zonedInstant, zoneOffset } from "./time-zone";
 
 const rule = (r: Partial<RepeatRule>): RepeatRule => ({
   frequency: "daily",
@@ -32,6 +32,44 @@ describe("zonedInstant", () => {
     // Berlin skips 02:00–03:00 on 2026-03-29 and repeats 02:00–03:00 on 2026-10-25.
     expect(new Date(zonedInstant(dayNumber("2026-03-29"), 2 * 60 + 30, "Europe/Berlin")).toISOString()).toBe("2026-03-29T01:30:00.000Z");
     expect(new Date(zonedInstant(dayNumber("2026-10-25"), 2 * 60 + 30, "Europe/Berlin")).toISOString()).toBe("2026-10-25T00:30:00.000Z");
+  });
+
+  it("moves a skipped time forward in zones far ahead of UTC", () => {
+    // Auckland skips 02:00–03:00 on 2026-09-27 (+12 → +13); Chatham 02:45–03:45 (+12:45 → +13:45).
+    expect(new Date(zonedInstant(dayNumber("2026-09-27"), 2 * 60 + 30, "Pacific/Auckland")).toISOString()).toBe("2026-09-26T14:30:00.000Z");
+    expect(new Date(zonedInstant(dayNumber("2026-09-27"), 3 * 60, "Pacific/Chatham")).toISOString()).toBe("2026-09-26T14:15:00.000Z");
+    expect(new Date(zonedInstant(dayNumber("2026-03-08"), 2 * 60 + 30, "America/Los_Angeles")).toISOString()).toBe("2026-03-08T10:30:00.000Z");
+  });
+
+  it("never goes back in time, in any zone, on any day of 2026", () => {
+    const DAY_MS = 86_400_000;
+    const first = dayNumber("2026-01-01");
+    const wrong: string[] = [];
+    for (const zone of Intl.supportedValuesOf("timeZone")) {
+      // Every 15 minutes of the days around each change of clocks; other days have none to get wrong.
+      const days = new Set<number>();
+      for (let day = first; day < first + 365; day++) {
+        if (zoneOffset(day * DAY_MS, zone) !== zoneOffset((day + 1) * DAY_MS, zone)) [day - 1, day, day + 1, day + 2].forEach((d) => days.add(d));
+      }
+      for (const day of days) {
+        for (let minutes = 0; minutes < 24 * 60; minutes += 15) {
+          const instant = zonedInstant(day, minutes, zone);
+          const clock = instant + zoneOffset(instant, zone);
+          const local = day * DAY_MS + minutes * 60_000;
+          // A time that exists is itself; a skipped one is later on the clock, by at most the change.
+          if (clock < local || clock - local > 2 * 3_600_000) wrong.push(`${zone} ${new Date(local).toISOString()}`);
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+    // Every zone of the runtime: about 2 seconds alone, more next to the rest of the suite.
+  }, 30_000);
+});
+
+describe("nextOccurrence across a change of clocks", () => {
+  it("runs a time the clocks skip just after the change, far ahead of UTC", () => {
+    const at = nextOccurrence(rule({ time: "02:30" }), "Pacific/Auckland", new Date("2026-09-26T12:00:00Z"));
+    expect(at.toISOString()).toBe("2026-09-26T14:30:00.000Z");
   });
 });
 

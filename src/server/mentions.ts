@@ -357,11 +357,13 @@ export async function labelPageLinks(
     .map((line, i) =>
       code[i]
         ? line
-        : line.replace(MARKDOWN_PAGE_LINK, (whole, _text: string, path: string, id: string) => {
+        : line.replace(MARKDOWN_PAGE_LINK, (whole, _text: string, path: string, id: string, block: string | undefined) => {
             const ref = byId.get(id);
             if (!ref) return whole;
-            if (ref.status === "ok") return `[${escape(ref.title.trim() || labels.untitled)}](/w/${ref.workspaceId}/p/${ref.id})`;
-            return `[${escape(ref.status === "noAccess" ? labels.noAccess : labels.deleted)}](${path})`;
+            // A link to one block of the page keeps it.
+            const at = block ?? "";
+            if (ref.status === "ok") return `[${escape(ref.title.trim() || labels.untitled)}](/w/${ref.workspaceId}/p/${ref.id}${at})`;
+            return `[${escape(ref.status === "noAccess" ? labels.noAccess : labels.deleted)}](${path}${at})`;
           }),
     )
     .join("\n");

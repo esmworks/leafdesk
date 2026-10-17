@@ -59,6 +59,7 @@ const RUN = `membership-e2e-${Date.now().toString(36)}`;
 // Removing a member closes their open editors through the collab service, which only runs inside
 // the app server; nothing is open here.
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async disconnectUser() {},
   async disconnectLostAccess() {},

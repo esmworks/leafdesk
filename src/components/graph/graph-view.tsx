@@ -243,8 +243,8 @@ export function useGraphCanvas(
       const [{ default: Graph }, { default: SigmaRenderer }, { default: Layout }, { default: forceAtlas2 }] = await Promise.all([
         import("graphology"),
         import("sigma"),
-        // Runs the layout in a Worker made from a blob: URL. There is no Content-Security-Policy on
-        // pages yet; if one is added, its `worker-src` must allow `blob:`.
+        // Runs the layout in a Worker made from a blob: URL, which the pages' Content-Security-Policy
+        // allows in `worker-src` (see lib/content-security-policy).
         import("graphology-layout-forceatlas2/worker"),
         import("graphology-layout-forceatlas2"),
       ]);

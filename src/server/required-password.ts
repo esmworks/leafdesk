@@ -3,12 +3,13 @@ import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { and, desc, eq, gt, like } from "drizzle-orm";
 import { db } from "@/db";
-import { account, user, verification } from "@/db/schema";
+import { account, session, user, verification } from "@/db/schema";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetRequiredEmail, sendMail } from "@/server/mail";
 import { recipientLocale } from "@/server/mail/locale";
-import { forgetUnprovenHolder } from "@/server/account-security";
+import { disconnectEndedSessions, forgetUnprovenHolder } from "@/server/account-security";
+import { revokeAllApiTokens } from "@/server/api/tokens";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 
 /**
@@ -174,9 +175,9 @@ export async function clearPasswordResetRequirement(userId: string) {
  * `emailAndPassword.onPasswordReset`: a reset link was used. It went to the account's address,
  * which is proven now (instance admins count only with a verified address, see lib/instance-admin.ts).
  * An address proven only now may have been signed up with by someone else: the account is the
- * owner's from here on, without what that person set up (forgetUnprovenHolder; the reset signs
- * every session out). Either way the apps the user connected are cut off like those sessions:
- * whoever knew the old password could have connected one.
+ * owner's from here on, without what that person set up (forgetUnprovenHolder). Either way every
+ * session ends, open pages close, and the apps the user connected and the API tokens they made
+ * are cut off like those sessions: whoever knew the old password could have added one.
  */
 export async function afterPasswordReset(userId: string) {
   await clearPasswordResetRequirement(userId);
@@ -186,7 +187,14 @@ export async function afterPasswordReset(userId: string) {
     .where(and(eq(user.id, userId), eq(user.emailVerified, false)))
     .returning({ id: user.id });
   if (proven.length) await forgetUnprovenHolder(userId);
-  else await revokeAllConnectedApps(userId);
+  else {
+    await revokeAllConnectedApps(userId);
+    await revokeAllApiTokens(userId);
+  }
+  // Better Auth ends the sessions only after this returns (revokeSessionsOnPasswordReset); ending
+  // them here first means the pages closed below can't reconnect with one in between.
+  await db.delete(session).where(eq(session.userId, userId));
+  await disconnectEndedSessions(userId);
 }
 
 /**

@@ -97,9 +97,11 @@ export function localDay(instant: number, timeZone: string): number {
  */
 export function zonedInstant(day: number, minutes: number, timeZone: string): number {
   const local = day * DAY_MS + minutes * 60_000;
-  // The offsets just before and after this time cover any change of clocks near it.
-  const before = zoneOffset(local - DAY_MS / 2, timeZone);
-  const after = zoneOffset(local + DAY_MS / 2, timeZone);
+  // The offsets a day before and after this time cover any change of clocks near it. Taken as an
+  // instant, `local` is off from the time it names by the zone's offset, up to 14 hours either way,
+  // so half a day isn't enough: at UTC+13, `local` less 12 hours is already after the change.
+  const before = zoneOffset(local - DAY_MS, timeZone);
+  const after = zoneOffset(local + DAY_MS, timeZone);
   const matches = [local - before, local - after].filter((instant) => instant + zoneOffset(instant, timeZone) === local);
   if (matches.length) return Math.min(...matches);
   return local - before;

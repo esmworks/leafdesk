@@ -53,6 +53,7 @@
     "noResults": "Nessun risultato",
     "semantic": "Significato simile",
     "semanticHint": "Trovato in base al significato: le parole sono diverse dalla tua ricerca.",
+    "inDocument": "Trovato nel documento {name} di questa pagina",
     "recent": "Modificati di recente",
     "commands": "Comandi",
     "noCommands": "Nessun comando corrispondente",

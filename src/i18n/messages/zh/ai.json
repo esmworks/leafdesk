@@ -96,6 +96,7 @@
       "promptTooLong": "提示词最多 {max} 个字符。",
       "unknownPlaceholder": "没有名为“{name}”的属性。",
       "cycle": "“{name}”已经（直接或通过其他 AI 属性）读取了此属性，因此此属性不能读取它。",
+      "hiddenInput": "“{name}”不能用于 AI 值：它会显示并非每位读者都能看到的关联行或人员。",
       "notText": "只有文本属性可以由 AI 填充。",
       "databaseLocked": "数据库已锁定。"
     }

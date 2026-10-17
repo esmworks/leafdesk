@@ -23,7 +23,7 @@ import type { TeamspaceReach } from "@/lib/teamspace-reach";
 import { AccessError, isGuest, requireMember } from "@/server/access";
 import { changedValues, recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
-import { afterAccessLoss, groupMemberIds, requireGroupIn } from "@/server/groups";
+import { afterAccessChange, groupMemberIds, requireGroupIn } from "@/server/groups";
 import { handOverOrphanedPages } from "@/server/workspaces";
 
 /**
@@ -394,10 +394,14 @@ export async function updateTeamspace(
       );
     }
   });
-  // People who lost its pages drop their open editors and reconnect with what they have left.
+  // People who lost its pages drop their open editors and reconnect with what they have left; those
+  // it gave edit access to write through the editors they have open.
   const narrower =
     ACCESS_RANK[access] < ACCESS_RANK[current.access] || MEMBER_LEVEL_RANK[memberLevel] < MEMBER_LEVEL_RANK[current.memberLevel];
+  const wider =
+    ACCESS_RANK[access] > ACCESS_RANK[current.access] || MEMBER_LEVEL_RANK[memberLevel] > MEMBER_LEVEL_RANK[current.memberLevel];
   if (narrower) await getCollab().disconnectTeamspace(teamspaceId);
+  if (wider) await getCollab().disconnectLostAccess(current.workspaceId);
   getCollab().broadcast(`ws:${current.workspaceId}`, "tree");
 }
 
@@ -443,6 +447,7 @@ export async function joinTeamspace(userId: string, teamspaceId: string) {
       target: { type: "teamspace", id: teamspaceId, label: found.name },
       details: { names: await namesOf(db, [userId]), role: "member" },
     });
+    await getCollab().disconnectLostAccess(found.workspaceId, [userId]);
   }
   getCollab().broadcast(`ws:${found.workspaceId}`, "tree");
 }
@@ -488,6 +493,8 @@ export async function addTeamspaceMembers(
       target: { type: "teamspace", id: teamspaceId, label: found.name },
       details: { names: await namesOf(db, added.map((a) => a.userId)), role: role === "owner" ? "owner" : "member" },
     });
+    // Pages of the teamspace they had open (shared with them, or open to everyone) may take their edits now.
+    await getCollab().disconnectLostAccess(found.workspaceId, added.map((a) => a.userId));
   }
   getCollab().broadcast(`ws:${found.workspaceId}`, "tree");
 }
@@ -546,7 +553,7 @@ export async function removeTeamspaceMember(actorId: string, teamspaceId: string
 /** Makes someone in the teamspace an owner or a member of it. Needs to manage it. */
 export async function setTeamspaceRole(actorId: string, teamspaceId: string, targetId: string, role: TeamspaceRole) {
   const { teamspace: found } = await manageableTeamspace(actorId, teamspaceId);
-  const demoted = await db.transaction(async (tx) => {
+  const changed = await db.transaction(async (tx) => {
     const record = () =>
       recordAudit(
         {
@@ -567,10 +574,10 @@ export async function setTeamspaceRole(actorId: string, teamspaceId: string, tar
     const target = members.find((m) => m.userId === targetId);
     if (!target && found.access !== "default" && (await ownRow(tx, teamspaceId, targetId))?.direct === false) {
       // In through a group: making them an owner gives them a row of their own.
-      if (role !== "owner") return;
+      if (role !== "owner") return false;
       await tx.insert(teamspaceMember).values({ teamspaceId, userId: targetId, role: "owner" });
       await record();
-      return;
+      return true;
     }
     if (!target) {
       // In a default teamspace everyone is a member without a row.
@@ -581,10 +588,10 @@ export async function setTeamspaceRole(actorId: string, teamspaceId: string, tar
       if (found.access !== "default" || !person || isGuest(person.role)) {
         throw new TeamspaceError("notMember", "This person isn't in the teamspace.");
       }
-      if (role !== "owner") return;
+      if (role !== "owner") return false;
       await tx.insert(teamspaceMember).values({ teamspaceId, userId: targetId, role: "owner" });
       await record();
-      return;
+      return true;
     }
     if (target.role === role) return false;
     if (role === "member" && found.access !== "default" && members.filter((m) => m.role === "owner").length <= 1) {
@@ -602,12 +609,12 @@ export async function setTeamspaceRole(actorId: string, teamspaceId: string, tar
         .where(and(eq(teamspaceMember.teamspaceId, teamspaceId), eq(teamspaceMember.userId, targetId)));
     }
     await record();
-    return target.role === "owner";
+    return true;
   });
   await db.update(teamspace).set({ updatedAt: new Date() }).where(eq(teamspace.id, teamspaceId));
   // A teamspace owner has full access to its pages, a member what its member access gives: their
-  // open editors are checked again.
-  if (demoted) await getCollab().disconnectLostAccess(found.workspaceId, [targetId]);
+  // open editors are checked again, whichever way it went.
+  if (changed) await getCollab().disconnectLostAccess(found.workspaceId, [targetId]);
 }
 
 export type TeamspacePerson = {
@@ -748,6 +755,9 @@ export async function addTeamspaceGroups(actorId: string, teamspaceId: string, g
       target: { type: "teamspace", id: teamspaceId, label: found.name },
       details: { names: added.map((a) => groups.get(a.groupId) ?? "") },
     });
+    const members = new Set<string>();
+    for (const { groupId } of added) for (const id of await groupMemberIds(groupId)) members.add(id);
+    await getCollab().disconnectLostAccess(found.workspaceId, [...members]);
   }
   getCollab().broadcast(`ws:${found.workspaceId}`, "tree");
 }
@@ -781,7 +791,7 @@ export async function removeTeamspaceGroup(actorId: string, teamspaceId: string,
     }
   });
 
-  await afterAccessLoss(found.workspaceId, members);
+  await afterAccessChange(found.workspaceId, members);
 }
 
 /**

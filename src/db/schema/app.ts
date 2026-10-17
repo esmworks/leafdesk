@@ -31,8 +31,8 @@ const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
   fromDriver: (value) => new Uint8Array(value),
 });
 
-/** Postgres full-text vector; the database fills it (see page.searchVector). */
-const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
+/** Postgres full-text vector; the database fills it (see page.searchVector, fileText.searchVector). */
+export const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
 
 const id = () =>
   text("id")

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { account, passkey, session, twoFactor, user } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
 import { revokeAllApiTokens } from "@/server/api/tokens";
+import { getCollab } from "@/server/collab/bridge";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 
 export type PasskeySummary = {
@@ -100,4 +101,21 @@ export async function forgetUnprovenHolder(userId: string) {
   });
   await revokeAllApiTokens(userId);
   await revokeAllConnectedApps(userId);
+}
+
+/**
+ * Drops live collab connections (open pages) of the user's sessions that have ended: all of them
+ * once the user has no session left.
+ */
+export async function disconnectEndedSessions(userId: string) {
+  const live = await db
+    .select({ id: session.id })
+    .from(session)
+    .where(and(eq(session.userId, userId), gt(session.expiresAt, new Date())));
+  try {
+    await getCollab().disconnectSessions(userId, live.map((s) => s.id));
+  } catch (error) {
+    // Scripts and tests run without the collab server; its connections end with their tokens.
+    console.warn("[account] could not close collab connections", error);
+  }
 }

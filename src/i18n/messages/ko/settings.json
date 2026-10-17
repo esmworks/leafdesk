@@ -397,6 +397,7 @@
       "keptList": "에이전트의 메모",
       "empty": "아직 없습니다. 실행이 제안한 메모를 보관하거나 여기에 직접 작성하세요.",
       "hiddenText": "열 수 없는 행에서 제안되었습니다.",
+      "hiddenOthersText": "다른 소유자가 시작한 실행이 제안했습니다.",
       "fromRow": "<row>행</row>에서의 실행에서",
       "fromHiddenRow": "열 수 없는 행에서의 실행에서",
       "fromConnection": "{connection}(으)로 시작된 실행에서",

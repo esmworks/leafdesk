@@ -144,6 +144,12 @@ export interface CollabService {
    * connections read-only at once; unlocking makes those of people who may edit it writable again.
    */
   pageLockChanged(pageId: string, locked: boolean): Promise<void>;
+  /**
+   * The pages went to the trash, or came back from it (server/pages.ts). Trashing makes their open
+   * browser connections read-only at once; restoring makes those of people who may edit them
+   * writable again, unless a page is locked.
+   */
+  pagesTrashed(pageIds: string[], trashed: boolean): Promise<void>;
   /** Tells subscribed clients to refetch (sidebar tree, database rows). */
   broadcast(channel: Channel, event: string): void;
   /** Drops a user's live connections to the workspace's documents (after removal from it). */
@@ -166,9 +172,10 @@ export interface CollabService {
   disconnectTeamspace(teamspaceId: string, userIds?: string[]): Promise<void>;
   /**
    * Checks the open page and database connections of these users (or everyone's) in the workspace
-   * again and drops those they may no longer open, or no longer edit through a connection that can
-   * (after a share was narrowed, a page moved, or a group lost a grant, a member, or a teamspace).
-   * They reconnect with whatever access they have left.
+   * again, after their access changed (a share, a page moved, a group or teamspace, a role). Drops
+   * those they may no longer open, or no longer edit through a connection that can; they reconnect
+   * with whatever access they have left. A read-only connection to a page they may edit now takes
+   * their edits from then on, without a reconnect, unless the page is locked or in the trash.
    */
   disconnectLostAccess(workspaceId: string, userIds?: string[]): Promise<void>;
   /** The pages and databases with a document open on this server. */

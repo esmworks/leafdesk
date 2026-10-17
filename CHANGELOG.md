@@ -4,9 +4,22 @@
 
 ### Upgrading
 
-- **Migration 0078** runs automatically when the container starts (from source, run
-  `pnpm db:migrate`). It adds a column to `page_link`; after the upgrade the server reads each page
-  that links somewhere once, in the background, to fill in where its links are.
+- **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
+  included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
+  in the pages' policy). A public form or published page put inside another website with an
+  `<iframe>` shows an error there instead; link to it.
+- **A reverse proxy that sets its own Content-Security-Policy** now adds to the app's: the browser
+  enforces both, so drop the proxy's (or make sure it allows at least what the app's does, see
+  `src/lib/content-security-policy.ts`).
+- **Migrations 0078 and 0079** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). 0078 adds a column to `page_link`; after the upgrade the server reads each page
+  that links somewhere once, in the background, to fill in where its links are. 0079 adds the time
+  zone of calendar feeds (see *Fixed*); feeds made before it take their user's zone the next time
+  they open the feed's dialog, and count days in UTC until then.
+- **Migration 0080 rewrites the `file_text` table once** to give each document's text a search
+  vector; the table holds one row per PDF or Word document read so far, so it is quick. Documents
+  uploaded before this release are read for search gradually, a couple of hundred per workspace
+  at a time as people search; until then their words find nothing.
 
 ### Added
 
@@ -24,8 +37,23 @@
   pages link here, and past the first 100 a button lists the next ones. Over MCP, `get_page` gives
   the text around each link (`contexts`) when a page links more than once, and
   `linked_from_truncated` when not every linking page is listed.
-- **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
-  block and highlights it.
+- **Links to one block of a page.** "Copy link to block" in a block's menu (the handle beside it)
+  copies the page's address with the block's id (`#block-…`), also on a plain-http address. The link
+  opens the page scrolled to that block, highlighted for a moment, once the page has loaded; a block
+  deleted since opens the page at the top. Published pages and the print view open at the block too
+  (any block with text: paragraphs, headings, list items, quotes, callouts, code and tables).
+  Pasted on its own into a page, the link becomes a mention of the page that opens at the block,
+  marked ¶ after the title, and counts under the page's "Linked from" like any link to it. In
+  Markdown read and written over MCP and the API the link keeps its `#block-…` part (in an export,
+  a link to a page left out of it does); a mention of a block on a published page links to that block when its page is published
+  too. Search results found by meaning open their page at the passage that matched.
+- **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and
+  the REST API's `/search` find a page by the words of the PDFs and Word documents it shows, also
+  on servers without an embeddings model: every word of the search in one document, after the
+  pages that have the words in their own text. The result names the document and shows the text
+  around the words. Only documents the page's readers may open through it count, and `in:` and
+  `type:` narrow these results like any other. Documents are read in the background once they are
+  uploaded.
 - **Synced pages.** "Synced page" in the `/` menu shows another page's body inside this one, live:
   people who may edit that page edit it in place and see everyone's changes as they happen, people
   who may only view it (or while it is locked) read it, and people who can't open it see
@@ -41,6 +69,100 @@
 
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
+- **Blocks nested under a callout stay inside it in Markdown.** A callout's nested blocks (a list,
+  an equation, another callout) were written after it, outside the `> [!NOTE]` quote, so Markdown
+  and ZIP exports showed them outside the callout, and an AI app that read a page and wrote it back
+  with `update_page` (or replaced the callout with `replace_block`) moved them out of it. They are
+  now quoted with the callout, a callout inside a callout as `> > [!NOTE]`, and come back where
+  they were.
+- **Quotes and toggle lists keep their shape in Markdown.** A quote's nested blocks were written
+  after it, outside the `>`, and a quote holding a list came back as one line of text with the list
+  run into it; toggle list items were written as plain bullets. So exports lost them, and an AI app
+  that read a page and wrote it back with `update_page` (or `replace_block`) turned toggles into
+  bullet lists, such as a voice note's "Transcript", and quotes into flat text. Quotes now keep
+  their nested blocks inside the `>` and read lists, equations and other quotes in them back as
+  nested blocks, and toggles are written as `<details>` with their text in the `<summary>`, so they
+  come back as toggles with everything that was nested under them. A callout under a list item
+  now also stays under it when read back.
+- **Toggle headings keep their shape in Markdown.** A toggle heading was written as a plain
+  heading with its nested blocks after it, so an AI app that read a page and wrote it back with
+  `update_page` (or `replace_block`) turned it into an ordinary heading and moved what was folded
+  under it out onto the page. It is now written as `<details>` with the heading in the `<summary>`,
+  and comes back as a toggle heading of the same level with its nested blocks.
+- **Edit access given while a page is open now works at once.** Someone who had a page open to
+  view or comment on and was then given edit access (by a share, a group, a teamspace or a role)
+  could type, but their edits weren't saved until they reloaded the page. Their open page now takes
+  them right away, the ones typed before included. Unlocking a page or restoring it from the trash
+  sends the edits it held back the same way.
+
+### Changed
+
+- **Webhooks follow the export switch.** With export turned off in Settings → Security, an
+  automation can't get a new webhook (`webhookExportOff`), and a webhook saved before sends nothing:
+  its runs fail with that code until export is turned back on. Calendar feeds already stopped.
+- **AI autofill leaves out related rows and people.** Relations, rollups, people and created/edited
+  by properties, and formulas reading them, are no longer part of what autofill sends to the model:
+  they could name rows and people the readers of the filled-in text can't open. A prompt or a
+  translation source naming one is refused (`hiddenInput`).
+
+### Fixed
+
+- **Templates keep the access a subpage had.** Saving a subpage as a template copied only its own
+  sharing, so a page closed to everyone above it could become a template the whole workspace
+  opens. The entries it had from its parents are now copied onto the template too.
+- **Comment threads can't lose comments to edits from the future.** An edit could delete parts of
+  a page the server hadn't received yet, slipping past the check that keeps others' comments in
+  place; such edits are refused.
+- **Password resets end everything.** Changing a password with "sign out other devices", a reset
+  by email and a reset an instance admin required now also revoke API tokens (and, for a required
+  reset, connected apps), and close the pages open in the signed-out sessions. Replacing or removing
+  a workspace's SSO connection closes the open pages of the sessions it ends.
+- **Pages in the trash can't be changed.** Their content, title, icon, cover, properties and
+  snapshots could still be written, by open tabs too. Open tabs turn read-only when a page goes to
+  the trash and writable again when it is restored.
+- **Moving or adding pages under a page in the trash is refused** (`parentInTrash`). A page moved
+  there could be deleted for good with it, and one moved while its new parent was being trashed
+  now goes to the trash with it.
+- **Guests don't learn members' email addresses.** Naming people in an automation's notification
+  by address or name, access requests in the share panel, the inbox and their emails showed guests
+  who is in the workspace under which address. Guests now name people by id, and see requesters
+  by name only.
+- **Pasting into a database view adds options only with edit access.** Pasting values that aren't
+  options of a select property yet added them for people who may only change rows; now only those
+  who may edit the database (or add rows) do.
+- **An owner's own agent runs stay theirs.** A run an owner asked for, or one a schedule without a
+  database started, reads with that owner's access, but every owner saw its steps, answer, task and
+  the notes it proposed. Others now see only that it ran and how it ended.
+- **Tighter checks on addresses the server fetches.** An SSO issuer's discovery document is cut off
+  at its size limit even without a Content-Length, file attachments by URL refuse the local NAT64
+  and IPv4-translated IPv6 ranges, and MCP clients can't register a back-channel logout address.
+- **Times on days the clocks change.** On a day daylight saving starts or ends, a date's time was
+  read as the time passed since midnight instead of the time on the clock: 14:30 on a 25-hour day
+  showed as 15:30 in the date picker and on the calendar, and editing the date, dragging it to
+  another day or a reminder some days before it saved the time an hour off. Times now read as the
+  clock shows them, and stay on the clock when moved to another day.
+- **Skipped times in zones far ahead of UTC.** A time the clocks skip when daylight saving starts
+  (02:30 on 27 September 2026 in New Zealand) moved an hour back instead of forward in zones 13 or
+  more hours ahead of UTC, in the date picker, new calendar events and repeating schedules. It now
+  moves forward past the change, as it always did elsewhere.
+- **Relative date filters on dashboards and calendar feeds.** Dashboard widgets and calendar feeds
+  applied filters such as "is within today", "this week" or "is on a day" in the server's time
+  zone, so near midnight they counted another day's rows than the table showed. Widgets now count
+  days in the viewer's zone and calendar feeds in their user's zone, kept with the feed when it is
+  made.
+- **Push reminders of timed dates.** A push notification for a reminder on a date with a time
+  showed the time in UTC; it now shows it in the reminder's zone, as the email does.
+
+### Security
+
+- **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response
+  run, so HTML that ever got past the sanitizers of a published page, a bookmark or a diagram
+  can't run script where the session lives; frames may only come from the embed providers, and
+  forms and `<base>` stay on this site. Offline copies of pages keep their policy.
+- **Bookmark cards in the editor link and load only web addresses.** A bookmark written with
+  another kind of address (by hand in the document, or by an app) shows without a link or image.
+- **Published pages check links in tables of the older form too**, and refuse image and video
+  addresses like `/\example.com/…`, which browsers read as another site.
 
 ## 0.5.4 — 2026-10-17
 

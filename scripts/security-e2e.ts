@@ -368,7 +368,8 @@ try {
   check(!claimed.apiTokens && !claimed.apps && !claimed.sessions, "…so are their API tokens, connected apps and sessions", claimed);
   check((await resetPassword(ids.keeper)).ok, "the owner of a verified address resets their password");
   const kept = await leftOf(ids.keeper);
-  check(kept.passkeys && kept.twoFactor && kept.twoFactorEnabled && kept.apiTokens && !kept.apps && !kept.sessions, "…keeping their passkeys, two-step verification and tokens (signed out everywhere, apps disconnected)", kept);
+  check(kept.passkeys && kept.twoFactor && kept.twoFactorEnabled, "…keeping their passkeys and two-step verification", kept);
+  check(!kept.apiTokens && !kept.apps && !kept.sessions, "…but signed out everywhere, with their API tokens and connected apps revoked", kept);
 
   // ---------------------------------------------------------------- another identity provider behind an SSO connection
   // Saved the way the settings save it, with discovery answered here (no identity provider runs).
@@ -400,11 +401,22 @@ try {
   check((await throughConnection()).accounts === 1 && (await throughConnection()).sessions === 1, "someone signed in through the workspace's connection", await throughConnection());
   await connect("https://idp-a.example.test/realm", `acme-${RUN}.test, beta-${RUN}.test`);
   check((await throughConnection()).accounts === 1 && (await throughConnection()).sessions === 1, "changing only the domains keeps them linked and signed in", await throughConnection());
+  // Their open pages close with the sessions: a connection checks the session only when it opens.
+  const disconnected: string[] = [];
+  const disconnectSessions = service.disconnectSessions;
+  service.disconnectSessions = async (userId, keep) => {
+    if (!keep.length) disconnected.push(userId);
+    return disconnectSessions(userId, keep);
+  };
   await connect("https://idp-b.example.test/realm");
   check(JSON.stringify(await throughConnection()) === JSON.stringify({ accounts: 0, sessions: 0 }), "another identity provider forgets them and signs them out", await throughConnection());
+  check(disconnected.includes(ids.free), "…and closes the pages they have open", disconnected);
   await signInThrough(ids.free);
+  disconnected.length = 0;
   await removeSsoConnection(ids.member, open);
   check(JSON.stringify(await throughConnection()) === JSON.stringify({ accounts: 0, sessions: 0 }), "removing the connection does too", await throughConnection());
+  check(disconnected.includes(ids.free), "…closing their open pages too", disconnected);
+  service.disconnectSessions = disconnectSessions;
 
   // ---------------------------------------------------------------- where signing in goes next
   /** Where the sign-in form goes after signing in: its `next` prop, as the page streams it. */
