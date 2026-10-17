@@ -38,7 +38,7 @@ process.env.AUTOMATION_WEBHOOK_ALLOWED_HOSTS = `127.0.0.1:${port}`;
 const hook = `http://127.0.0.1:${port}/hook`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { auditEvent, automationRun, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -268,8 +268,10 @@ try {
   await flushAutomations();
   let [retrying] = (await runsOf(added.id)).slice(-1);
   check(retrying.status === "pending" && retrying.steps[0].httpStatus === 503 && retrying.nextAt > new Date(), "a 503 is tried again later", retrying);
-  // A minute back, so a database clock a little behind this one still finds it due.
-  await db.update(automationRun).set({ nextAt: new Date(Date.now() - 60_000) }).where(eq(automationRun.id, retrying.id));
+  // Due by the database's clock, the one the worker compares with: this script's clock runs a
+  // little ahead of it under Docker Desktop (about a millisecond), and a time taken here left the
+  // run not yet due about one run in three.
+  await db.update(automationRun).set({ nextAt: sql`now()` }).where(eq(automationRun.id, retrying.id));
   await flushAutomations();
   [retrying] = (await runsOf(added.id)).slice(-1);
   check(
