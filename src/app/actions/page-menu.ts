@@ -6,6 +6,7 @@ import { duplicatePage } from "@/server/duplicate";
 import { setDatabaseLocked } from "@/server/databases";
 import { getPageHeaderInfo, listFavorites, setFavorite } from "@/server/page-meta";
 import { setPageLocked } from "@/server/pages";
+import { setFollowing } from "@/server/row-follow";
 import { requireUserId } from "@/server/session";
 
 export async function getPageHeaderAction(pageId: string) {
@@ -16,6 +17,12 @@ export async function getPageHeaderAction(pageId: string) {
 export async function setFavoriteAction(pageId: string, favorite: boolean) {
   const userId = await requireUserId();
   await setFavorite(userId, pageId, favorite);
+}
+
+/** Follows a database row, or stops following it (server/row-follow). */
+export async function setFollowingAction(rowId: string, following: boolean) {
+  const userId = await requireUserId();
+  return setFollowing(userId, rowId, following);
 }
 
 export async function listFavoritesAction(workspaceId: string) {

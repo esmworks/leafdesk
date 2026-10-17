@@ -10,6 +10,7 @@ import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requi
 import { getCollab } from "@/server/collab/bridge";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
+import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
 import { avatarSrc } from "@/lib/avatar";
 import { startSweep } from "@/server/sweep";
@@ -116,6 +117,8 @@ async function syncMentions(
     .values(added.map((p) => ({ pageId, mentionId: p.key, userId: p.userId })))
     .onConflictDoNothing()
     .returning({ mentionId: pageMention.mentionId, userId: pageMention.userId });
+  // Being mentioned on a database row follows it (server/row-follow).
+  await followOnTakingPart(pageId, inserted.map((m) => m.userId));
   // Mentioning oneself notifies no one; recordMentions also checks each person can view the page.
   const notify = inserted.filter((m) => m.userId !== actorId);
   if (notify.length) await recordMentions(actorId, workspaceId, pageId, notify, locale);

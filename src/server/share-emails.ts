@@ -16,6 +16,7 @@ import {
   mailStatus,
   mentionEmail,
   reminderEmail,
+  rowUpdateEmail,
   sendMail,
   shareEmail,
   type OutgoingMail,
@@ -23,13 +24,15 @@ import {
 import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { wantsEmail } from "@/server/notification-preferences";
+import { rowUpdateFor } from "@/server/notifications";
 import { startSweep } from "@/server/sweep";
 
 /**
  * Emails people about pages shared with them, comments in their threads, mentions of them, their
- * reminders, requests for access to their pages and what database automations tell them, and owners
- * about join requests. The queue is the notification itself: `recordShare`, `recordComment`,
- * `recordMentions`, `recordReminder`, `recordAccessRequest`, `recordJoinRequest` and the automation
+ * reminders, requests for access to their pages, what database automations tell them and changes to
+ * the rows they follow, and owners about join requests. The queue is the notification itself:
+ * `recordShare`, `recordComment`, `recordMentions`, `recordReminder`, `recordAccessRequest`,
+ * `recordJoinRequest`, `recordRowUpdate` and the automation
  * worker set `email_due_at` (a little ahead, or now for reminders and requests), undoing the share or the mention (or answering or deciding the request)
  * deletes the notification, and the sweep sends what is still there once it falls due. A restart
  * delays these emails instead of losing them.
@@ -46,6 +49,7 @@ const SWEEP_INTERVAL_MS = 5_000;
 
 type Due = Pick<
   typeof notification.$inferSelect,
+  | "id"
   | "kind"
   | "userId"
   | "actorId"
@@ -71,13 +75,14 @@ async function deliverDue(everything = false) {
     .set({ emailDueAt: null })
     .where(
       and(
-        inArray(notification.kind, ["page_shared", "comment", "mention", "reminder", "access_request", "join_request", "automation"]),
+        inArray(notification.kind, ["page_shared", "comment", "mention", "reminder", "access_request", "join_request", "automation", "row_update"]),
         everything ? isNotNull(notification.emailDueAt) : lte(notification.emailDueAt, new Date()),
         // A snoozed notification's email waits until it comes back (see snoozeNotification).
         isNull(notification.snoozedUntil),
       ),
     )
     .returning({
+      id: notification.id,
       kind: notification.kind,
       userId: notification.userId,
       actorId: notification.actorId,
@@ -137,6 +142,7 @@ async function sendJoinRequest(userId: string, workspaceId: string, joinRequestI
  * page (see sendJoinRequest).
  */
 async function send({
+  id,
   kind,
   userId,
   actorId,
@@ -247,6 +253,22 @@ async function send({
       link,
       // A "date passed" run's notification has the row's date it ran for.
       datePassed: date !== null,
+    });
+    await mailer({ to: recipient.email, ...content });
+    return;
+  }
+  if (kind === "row_update") {
+    // Only what they may see in the row now: a property's access may have changed since.
+    const update = await rowUpdateFor(userId, id);
+    if (!update) return;
+    const content = rowUpdateEmail(locale, {
+      actorName: actor?.name ?? "",
+      pageTitle,
+      databaseTitle: update.databaseTitle === null ? null : pageLabel(update.databaseTitle, emailTranslator(locale)("share.untitled")),
+      workspaceName: space?.name ?? "",
+      changes: update.changes.map((c) => ({ property: c.property?.name ?? null, from: c.from, to: c.to })),
+      body: update.body,
+      link,
     });
     await mailer({ to: recipient.email, ...content });
     return;

@@ -1400,7 +1400,10 @@
     "joinRequestChannel": "Pedidos para entrar: {channel}",
     "automationTitle": "Automações",
     "automationDescription": "Uma automação de banco de dados avisa você sobre uma linha que alguém adicionou ou alterou.",
-    "automationChannel": "Automações: {channel}"
+    "automationChannel": "Automações: {channel}",
+    "rowUpdateTitle": "Linhas que você segue",
+    "rowUpdateDescription": "Outra pessoa alterou uma linha de banco de dados que você segue: uma que você criou, à qual está atribuído, que comentou ou em que foi mencionado, ou que escolheu seguir.",
+    "rowUpdateChannel": "Linhas que você segue: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

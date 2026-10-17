@@ -2,6 +2,8 @@
 
 import {
   ArrowRightLeft,
+  Bell,
+  BellOff,
   Copy,
   CornerUpLeft,
   Download,
@@ -34,6 +36,7 @@ import {
   getPageHeaderAction,
   setDatabaseLockedAction,
   setFavoriteAction,
+  setFollowingAction,
   setPageLockedAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
@@ -438,6 +441,20 @@ function PageMenu({
     });
   };
 
+  // Followers of a database row hear about others' changes to it in their inbox (server/row-follow).
+  const toggleFollowing = (close: () => void) =>
+    startTransition(async () => {
+      setError(null);
+      const following = !info.following;
+      try {
+        await setFollowingAction(page.id, following);
+        onInfo({ ...info, following });
+        close();
+      } catch {
+        setError(t("actionFailed"));
+      }
+    });
+
   const duplicate = (close: () => void) =>
     startTransition(async () => {
       setError(null);
@@ -508,6 +525,15 @@ function PageMenu({
             >
               {t("copyLink")}
             </MenuItem>
+            {info.following !== null && !page.archived && (
+              <MenuItem
+                icon={info.following ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                title={t(info.following ? "unfollowHint" : "followHint")}
+                onClick={() => toggleFollowing(close)}
+              >
+                {t(info.following ? "unfollow" : "follow")}
+              </MenuItem>
+            )}
             {/* For the REST API and MCP clients, which take a page's, database's or row's id. */}
             <MenuItem
               icon={<Hash className="h-4 w-4" />}

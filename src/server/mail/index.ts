@@ -16,6 +16,7 @@ export {
   passwordChangedEmail,
   reminderEmail,
   dateReminderEmail,
+  rowUpdateEmail,
   type EmailContent,
   type RenderedEmail,
   invitationEmail,

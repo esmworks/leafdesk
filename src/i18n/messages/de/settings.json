@@ -1400,7 +1400,10 @@
     "joinRequestChannel": "Beitrittsanfragen: {channel}",
     "automationTitle": "Automatisierungen",
     "automationDescription": "Eine Datenbank-Automatisierung benachrichtigt dich über eine Zeile, die jemand hinzugefügt oder geändert hat.",
-    "automationChannel": "Automatisierungen: {channel}"
+    "automationChannel": "Automatisierungen: {channel}",
+    "rowUpdateTitle": "Zeilen, denen du folgst",
+    "rowUpdateDescription": "Jemand anderes hat eine Datenbankzeile geändert, der du folgst: eine, die du erstellt hast, der du zugewiesen bist, die du kommentiert hast oder in der du erwähnt wurdest, oder der du folgen wolltest.",
+    "rowUpdateChannel": "Zeilen, denen du folgst: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

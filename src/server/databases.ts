@@ -99,6 +99,7 @@ import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
 import { rowChanged } from "@/server/row-events";
 import { recordRowWrites } from "@/server/row-activity";
+import { queueRowWrites } from "@/server/row-follow";
 import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
@@ -974,7 +975,8 @@ export async function announceAssignments(
 /**
  * What every saved row write sets off: the rows' activity (server/row-activity), authorizing the
  * files its values gained, assignment notices, the database's automations
- * (server/automations/queue) and moving the rows waiting for rows whose dates moved. `created` for
+ * (server/automations/queue), telling the rows' followers (server/row-follow) and moving the rows
+ * waiting for rows whose dates moved. `created` for
  * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more;
  * `ai` for AI values written for the actor, which read as the AI's in the activity.
  */
@@ -994,6 +996,7 @@ export async function afterRowWrites(
   await authorizeRowFiles(actorId, changes);
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);
+  if (!created && !ai) await queueRowWrites(actorId, databaseId, changes);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
   await recording;
 }

@@ -30,6 +30,7 @@ import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/ment
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
+import { queueRowSave } from "@/server/row-follow";
 import { authorizeCollab, parseDocName as parseName } from "./authorize";
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
@@ -293,6 +294,11 @@ export function createCollab() {
     // A database row's title or content changed: AI autofill values that follow it may update.
     if (row.parentId) rowChanged({ rowId: pageId, databaseId: row.parentId, userId: userId ?? null });
     if (row.parentId && title !== row.title) await recordTitleChange(pageId, row.title, title, userId ?? null);
+    // The row's followers hear about it once its writers leave it alone (server/row-follow).
+    if (row.parentId) {
+      const writers = wrote.size ? [...wrote] : userId ? [userId] : [];
+      await queueRowSave(writers, pageId, { before: row.title, after: title, body: bodyChanged }, context?.locale ?? null);
+    }
     if (title !== row.title) {
       broadcast(`ws:${row.workspaceId}`, "tree");
       if (row.parentId) broadcast(`db:${row.parentId}`, "rows");

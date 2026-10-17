@@ -1400,7 +1400,10 @@
     "joinRequestChannel": "Richieste di adesione: {channel}",
     "automationTitle": "Automazioni",
     "automationDescription": "Un’automazione di database ti avvisa di una riga che qualcuno ha aggiunto o modificato.",
-    "automationChannel": "Automazioni: {channel}"
+    "automationChannel": "Automazioni: {channel}",
+    "rowUpdateTitle": "Righe che segui",
+    "rowUpdateDescription": "Qualcun altro ha modificato una riga di database che segui: una che hai creato, a cui sei assegnato, che hai commentato o in cui sei stato menzionato, o che hai scelto di seguire.",
+    "rowUpdateChannel": "Righe che segui: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

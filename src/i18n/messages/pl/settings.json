@@ -1400,7 +1400,10 @@
     "joinRequestChannel": "Prośby o dołączenie: {channel}",
     "automationTitle": "Automatyzacje",
     "automationDescription": "Automatyzacja bazy danych powiadamia cię o wierszu, który ktoś dodał lub zmienił.",
-    "automationChannel": "Automatyzacje: {channel}"
+    "automationChannel": "Automatyzacje: {channel}",
+    "rowUpdateTitle": "Obserwowane wiersze",
+    "rowUpdateDescription": "Ktoś inny zmienił obserwowany przez Ciebie wiersz bazy danych: utworzony przez Ciebie, przypisany do Ciebie, skomentowany przez Ciebie lub taki, w którym Cię wspomniano, albo taki, który postanowiłeś obserwować.",
+    "rowUpdateChannel": "Obserwowane wiersze: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

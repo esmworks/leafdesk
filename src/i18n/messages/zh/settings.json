@@ -1400,7 +1400,10 @@
     "joinRequestChannel": "加入申请：{channel}",
     "automationTitle": "自动化",
     "automationDescription": "数据库自动化通知你有人添加或更改了某一行。",
-    "automationChannel": "自动化：{channel}"
+    "automationChannel": "自动化：{channel}",
+    "rowUpdateTitle": "你关注的行",
+    "rowUpdateDescription": "其他人更改了你关注的数据库行：你创建的、分配给你的、你评论过或被提及的，或你选择关注的行。",
+    "rowUpdateChannel": "你关注的行：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

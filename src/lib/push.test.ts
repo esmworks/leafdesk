@@ -67,6 +67,10 @@ const texts: Record<string, string> = {
   reportTitle: "{agent} reports",
   reportDone: "Finished its scheduled run",
   reportFailed: "Its scheduled run didn't finish",
+  rowUpdate: "{actor} changed {fields}",
+  rowUpdateSome: "{actor} changed this row",
+  rowUpdateTitle: "the title",
+  rowUpdateBody: "the text",
   untitled: "Untitled",
   snooze: "Snooze 1 hour",
 };
@@ -90,6 +94,7 @@ const item = (over: Partial<PushItem>): PushItem => ({
   approval: null,
   memory: null,
   report: null,
+  rowUpdate: null,
   ...over,
 });
 
@@ -166,6 +171,18 @@ describe("pushPayload", () => {
     });
     expect(pushPayload(item({ kind: "agent_report", pageId: null, report: { ...report, status: "failed" } }), t, date)?.body).toBe("Its scheduled run didn't finish");
     expect(pushPayload(item({ kind: "agent_report", pageId: null, report: null }), t, date)).toBeNull();
+  });
+
+  it("names what changed in a followed row, never what to", () => {
+    const rowUpdate = { changes: [{ property: { name: "Status" } }, { property: null }], body: true };
+    expect(pushPayload(item({ kind: "row_update", databaseTitle: "Tasks", rowUpdate }), t, date)).toEqual({
+      title: "Roadmap",
+      body: "Ayşe changed Status, the title, the text · Tasks",
+      url: "/w/ws1/p/p1",
+      tag: "n1",
+      snooze: "Snooze 1 hour",
+    });
+    expect(pushPayload(item({ kind: "row_update", rowUpdate: null }), t, date)?.body).toBe("Ayşe changed this row");
   });
 
   it("links like the inbox does", () => {
