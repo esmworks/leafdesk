@@ -80,13 +80,13 @@ function exitCode(command: string, args: string[], log: string): Promise<number 
   });
 }
 
-/** A port nothing listens on just now, on 127.0.0.1. */
-function freePort(): Promise<number> {
+/** A port nothing listens on just now, on 127.0.0.1: `preferred` when it is free, else any. */
+export function freePort(preferred = 0): Promise<number> {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
     server.unref();
-    server.on("error", reject);
-    server.listen(0, "127.0.0.1", () => {
+    server.on("error", (error) => (preferred ? freePort().then(resolve, reject) : reject(error)));
+    server.listen(preferred, "127.0.0.1", () => {
       const { port } = server.address() as net.AddressInfo;
       server.close(() => resolve(port));
     });

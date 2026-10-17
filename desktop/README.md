@@ -20,13 +20,25 @@ pnpm build && CSC_IDENTITY_AUTO_DISCOVERY=false pnpm exec electron-builder --mac
 ```
 
 To try it against a development server, start one (`pnpm dev` in the repository root) and enter
-`localhost:3000` on the connect screen. Start Electron with `--user-data-dir=<folder>` to keep
-another profile (server address, trusted certificates, cookies), and set
+`localhost:3000` on the connect screen. Started from the source, the app keeps its profile (server
+address, trusted certificates, cookies, Leafdesk on this computer) in a `Leafdesk Dev` folder next
+to an installed app's; start Electron with `--user-data-dir=<folder>` to keep another one, and set
 `LEAFDESK_DISABLE_UPDATES=1` to skip the update check.
+
+**On this computer** (local mode) runs Leafdesk inside the app: a PostgreSQL 18 of its own
+(`src/local-db.ts`) and the repository's server (`server.ts`, in development mode, run by Electron's
+Node), on 127.0.0.1 with a port kept from one start to the next. The first start makes the
+computer's one account (`scripts/desktop-setup.ts`, which also applies the migrations); the app
+signs in to it, so there is no sign-in page. Everything lives in `<profile>/Local`: the database,
+uploaded files, the secrets and `server.log`. It needs the repository's packages (`pnpm install` at
+the root), and its tests start the server, so `pnpm test` does too. Packaged apps don't carry the
+server yet, so they still show the mode as coming soon.
 
 | File | What it does |
 | --- | --- |
-| `src/main.ts` | Window, connecting to a server, the connect and problem pages, permissions |
+| `src/main.ts` | Window, connecting to a server or starting local mode, the app's pages, permissions |
+| `src/local-db.ts` | Local mode's PostgreSQL: made, started on a free port, stopped, recovered |
+| `src/local-server.ts` | Local mode's server: setup, start, signing in to the computer's account, stop |
 | `src/navigation.ts` | Which links stay in the window, open in the browser or go nowhere |
 | `src/certificates.ts` | Certificates the system doesn't trust: fingerprint, trusting one per host |
 | `src/server-address.ts` | Turning what was typed into addresses to try |
@@ -34,6 +46,6 @@ another profile (server address, trusted certificates, cookies), and set
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
 | `src/updates.ts` | Updates from GitHub releases |
 | `src/preload.cts` | The bridge the connect page uses (never given to server pages) |
-| `src/pages/app.ts`, `pages/` | The connect, certificate and problem screens |
+| `src/pages/app.ts`, `pages/` | The connect, certificate, starting and problem screens |
 
 Releases are built by `.github/workflows/desktop.yml`.

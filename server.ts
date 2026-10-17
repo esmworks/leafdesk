@@ -148,15 +148,28 @@ server.listen(port, hostname, () => {
 });
 
 let shuttingDown = false;
+async function shutdown() {
+  shuttingDown = true;
+  // No new requests or websockets; open ones finish or are closed below.
+  server.close();
+  // Writes the edits still waiting for their debounced save, and waits for them.
+  if (!(await flushCollab(hocuspocus))) console.error("[collab] exiting before every open page was saved");
+  process.exit(0);
+}
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
-  process.on(signal, async () => {
+  process.on(signal, () => {
     // A second Ctrl+C doesn't wait for the saves.
     if (shuttingDown) process.exit(1);
-    shuttingDown = true;
-    // No new requests or websockets; open ones finish or are closed below.
-    server.close();
-    // Writes the edits still waiting for their debounced save, and waits for them.
-    if (!(await flushCollab(hocuspocus))) console.error("[collab] exiting before every open page was saved");
-    process.exit(0);
+    void shutdown();
+  });
+}
+// The desktop app runs this server as its child (desktop/src/local-server.ts) and asks it to stop
+// with a message, as Windows has no SIGTERM; a child whose app is gone (it crashed) stops too.
+if (process.send) {
+  process.on("message", (message) => {
+    if (message === "shutdown" && !shuttingDown) void shutdown();
+  });
+  process.on("disconnect", () => {
+    if (!shuttingDown) void shutdown();
   });
 }

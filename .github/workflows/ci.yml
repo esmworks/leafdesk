@@ -404,7 +404,8 @@ jobs:
 
   desktop:
     name: Desktop app on ${{ matrix.name }}
-    # On each platform the app ships for: the local database's test starts PostgreSQL for real.
+    # On each platform the app ships for: the local mode's tests start PostgreSQL and the Leafdesk
+    # server for real.
     strategy:
       fail-fast: false
       matrix:
@@ -416,7 +417,7 @@ jobs:
           - name: Linux
             runner: ubuntu-24.04
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 15
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -435,9 +436,14 @@ jobs:
         with:
           package_json_file: desktop/package.json
           cache: true
-          cache_dependency_path: desktop/pnpm-lock.yaml
+          cache_dependency_path: |
+            pnpm-lock.yaml
+            desktop/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
+      # The server local mode runs (src/local-server.test.ts starts it).
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
       - run: pnpm typecheck
       - run: pnpm test
 

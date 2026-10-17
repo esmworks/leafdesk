@@ -11,9 +11,11 @@ type PageState = {
   dir: "ltr" | "rtl";
   strings: Record<string, string>;
   current?: string;
+  localAvailable: boolean;
 } & (
   | { view: "connect"; address?: string }
-  | { view: "problem"; server: string; detail: string; certificate?: PageCertificate }
+  | { view: "starting" }
+  | { view: "problem"; server: string; detail: string; certificate?: PageCertificate; local?: boolean }
 );
 
 type PageConnectReply =
@@ -29,13 +31,14 @@ interface Window {
     connect(address: string, force: boolean): Promise<PageConnectReply>;
     trust(host: string, fingerprint: string): Promise<{ ok: boolean }>;
     retry(): Promise<void>;
+    startLocal(): Promise<void>;
   };
 }
 
 {
   const bridge = window.leafdesk;
   const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-  const sections = ["connect", "certificate", "problem"].map((id) => byId(id));
+  const sections = ["connect", "certificate", "starting", "problem"].map((id) => byId(id));
   const form = byId<HTMLFormElement>("server-form");
   const input = byId<HTMLInputElement>("address");
   const connectButton = byId<HTMLButtonElement>("connect-button");
@@ -138,6 +141,7 @@ interface Window {
     setError(null);
   });
   byId("problem-retry").addEventListener("click", () => void bridge.retry());
+  byId("local-start").addEventListener("click", () => void bridge.startLocal());
 
   void bridge.state().then((state) => {
     t = state.strings;
@@ -148,7 +152,15 @@ interface Window {
       element.textContent = t[element.dataset.text ?? ""] ?? "";
     }
 
+    if (state.localAvailable) {
+      byId("local-mode").classList.remove("unavailable");
+      byId("local-mode").removeAttribute("aria-disabled");
+      byId("local-soon").hidden = true;
+      byId("local-actions").hidden = false;
+    }
+
     if (state.view === "connect") return showConnect(state.address);
+    if (state.view === "starting") return show("starting");
     const server = state.server;
     byId("problem-change").onclick = () => showConnect(server);
     if (state.certificate) {
@@ -158,7 +170,8 @@ interface Window {
         () => showConnect(server),
       );
     }
-    byId("problem-title").textContent = fill(t.problemTitle, { host: host(server) });
+    byId("problem-title").textContent = state.local ? t.localProblemTitle : fill(t.problemTitle, { host: host(server) });
+    byId("problem-body").textContent = state.local ? t.localProblemBody : t.problemBody;
     byId("problem-detail").textContent = state.detail;
     show("problem");
   });
