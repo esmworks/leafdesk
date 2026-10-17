@@ -53,6 +53,7 @@ import type { PageDoc } from "./use-page-doc";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
+import { withSideAlignButtons } from "./align-buttons";
 import { pageSideMenu } from "./table-to-database";
 
 /**
@@ -248,7 +249,7 @@ export default function CollabEditor({
                 formattingToolbar={() => (
                   <FormattingToolbar>
                     {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
-                    {withTextScriptButtons(getFormattingToolbarItems()).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
+                    {withSideAlignButtons(withTextScriptButtons(getFormattingToolbarItems())).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
                   </FormattingToolbar>
                 )}
               />

@@ -14,6 +14,14 @@ describe("any-word search terms", () => {
     expect(anyWordTerms("Hangi kart?")).toEqual(["kart"]);
   });
 
+  it("drops the question words of the other interface languages, not Turkish words that look alike", () => {
+    expect(anyWordTerms("Was ist der Stand der Rechnung?")).toEqual(["Stand", "Rechn"]);
+    expect(anyWordTerms("¿Dónde está la factura de octubre?")).toEqual(["factu", "octub"]);
+    expect(anyWordTerms("Где счёт за октябрь?")).toEqual(["счёт", "октяб"]);
+    expect(anyWordTerms("أين فاتورة أكتوبر؟")).toEqual(["فاتورة", "أكتوبر"]);
+    expect(anyWordTerms("para transferi")).toEqual(["para", "trans"]);
+  });
+
   it("lets nothing but letters and digits through, each word once", () => {
     expect(anyWordTerms("a'b & c | d:* !(x) '); drop--")).toEqual(["drop"]);
     expect(anyWordTerms("2026 ödeme Ödeme ÖDEME")).toEqual(["2026", "ödeme"]);

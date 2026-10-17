@@ -164,12 +164,34 @@ describe("parseQuickAdd: other languages", () => {
     expect(ko("검토 @김철수 내일")).toMatchObject({ title: "검토", people: ["k"], date: "2026-10-11" });
   });
 
-  it("reads only written dates and English words in Japanese and Chinese, which leave no spaces", () => {
-    expect(parse("明日会議", { locale: "ja" })).toMatchObject({ title: "明日会議", date: null });
-    expect(parse("明天开会", { locale: "zh" })).toMatchObject({ title: "明天开会", date: null });
-    expect(parse("会議 10/15", { locale: "ja" }).date).toBe("2026-10-15");
-    expect(parse("会议 10月15日", { locale: "zh" })).toMatchObject({ title: "会议", date: "2026-10-15" });
-    expect(parse("会議 tomorrow", { locale: "ja" }).date).toBe("2026-10-11");
+  it("reads Japanese, which leaves no spaces between words, a character at a time", () => {
+    const ja = (text: string) => parse(text, { locale: "ja", people: [{ id: "t", name: "田中" }] });
+    expect(ja("明日会議")).toMatchObject({ title: "会議", date: "2026-10-11" });
+    expect(ja("報告書を明後日に送る")).toMatchObject({ title: "報告書を送る", date: "2026-10-12" });
+    expect(ja("報告書を金曜日までに送る")).toMatchObject({ title: "報告書を送る", date: "2026-10-16" });
+    expect(ja("来週の金曜日に打ち合わせ")).toMatchObject({ title: "打ち合わせ", date: "2026-10-16" });
+    expect(ja("来週打ち合わせ").date).toBe("2026-10-12");
+    expect(ja("見積もり3日後").date).toBe("2026-10-13");
+    expect(ja("見積もり1週間後").date).toBe("2026-10-17");
+    expect(ja("税金10月15日")).toMatchObject({ title: "税金", date: "2026-10-15" });
+    expect(ja("会議 10/15").date).toBe("2026-10-15");
+    expect(ja("会議 tomorrow").date).toBe("2026-10-11");
+    expect(ja("確認 @田中 明日")).toMatchObject({ title: "確認", people: ["t"], date: "2026-10-11" });
+  });
+
+  it("reads Chinese a character at a time too", () => {
+    const zh = (text: string) => parse(text, { locale: "zh" });
+    expect(zh("明天开会")).toMatchObject({ title: "开会", date: "2026-10-11" });
+    expect(zh("后天交报告").date).toBe("2026-10-12");
+    expect(zh("下周五开会")).toMatchObject({ title: "开会", date: "2026-10-16" });
+    expect(zh("下个星期五开会").date).toBe("2026-10-16");
+    expect(zh("下周开会")).toMatchObject({ title: "开会", date: "2026-10-12" });
+    expect(zh("周五前交报告")).toMatchObject({ title: "交报告", date: "2026-10-16" });
+    expect(zh("这周五开会").date).toBe("2026-10-16");
+    expect(zh("3天后交报告").date).toBe("2026-10-13");
+    expect(zh("会议 10月15日")).toMatchObject({ title: "会议", date: "2026-10-15" });
+    // Characters that only look like a date part stay in the title.
+    expect(zh("天气预报")).toMatchObject({ title: "天气预报", date: null });
   });
 });
 

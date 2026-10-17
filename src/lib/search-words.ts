@@ -1,13 +1,32 @@
 // Search terms for "any of these words", which the AI chat uses: it searches with whole questions
 // ("Kart ekstreleri ne durumda?"), where requiring every word finds nothing.
 
-/** Question words and fillers that would match almost any page (Turkish, English and Korean). */
+/**
+ * Question words and fillers that would match almost any page, in the interface's languages (words
+ * shorter than three letters are left out anyway). Words that mean something in another of them
+ * are kept out: Spanish and Portuguese "para" is Turkish for money.
+ */
 const STOPWORDS = new Set(
   (
     "acaba ama bana beni benim bir biraz bize bizim bu bunu bunun çok daha diye gibi hangi hangisi hem için ile ise kaç kadar " +
     "mı mi mu mü nasıl ne neden nedir nerede neler niye olan olarak oldu olur sadece şu var veya yok " +
     "about and are can did does for from has have how into its many much should that the their them there " +
     "these this was what when where which who why will with would you your " +
+    // German, Spanish, French, Italian, Portuguese, Polish
+    "aber alle als auch bei das dem den der des die dies diese dieser doch ein eine einem einen einer eines für gibt habe " +
+    "haben hat ich ist mit nach nicht noch oder sich sie sind und uns von welche welcher welches wenn wer wie wir wird zum zur über " +
+    "algo como con cual cuál cuales cuándo cuando del donde dónde ella ellos esa ese esta este esto están está hay las los más " +
+    "muy nos pero por qué que quien quién sobre sus tiene una uno unos " +
+    "aux avec ces comment dans elle être leur les mais mes nous pour quand quel quelle quels qui sont sur vous ont " +
+    "che chi come cosa dei della delle dello dove gli hai per perché quale quali questo questa sono sul sulla " +
+    "com das dos ela essa esse isso pela pelo qual quais quem são sem tem umas uns você onde " +
+    "albo ale ani być czy dla gdzie jak jaki jakie jaka jest kiedy kto mam może nie oraz się tego tej też tym " +
+    // Russian, Ukrainian, Arabic, Hebrew, Persian
+    "был были где для его есть как когда кто или них она они под при про что это эти этот чем мне нас вас вот " +
+    "або але його мене вони вона все які яка який коли хто щоб цей цього там тут " +
+    "ماذا متى أين كيف لماذا هذا هذه ذلك التي الذي على إلى كان كانت ليس " +
+    "מתי איפה איך למה האם זאת אני הוא היא אין " +
+    "چرا کجا چطور آیا این برای است هست نیست " +
     // Korean, as cut by koreanStem: 어디에 → 어디, 있어요 → 있어.
     "어디 무엇 언제 누가 누구 어떻 어떤 어느 무슨 있어 있나 있는 있습 없어 없나 입니 합니 해요 하는 그리 이거 그거 저거"
   ).split(" "),

@@ -57,12 +57,13 @@ type Vocabulary = {
   weekdays?: string[][];
   /** Endings a word may carry without changing its meaning: "금요일까지" reads as "금요일". */
   endings?: string[];
+  /** After a date, taken with it: "までに" in "金曜日までに" (by Friday). */
+  particles?: string[];
 };
 
 // As people type them; folded (see fold) when a language is first used, so the first ones are
-// written folded already. Japanese and Chinese have none: they leave no spaces between words, and
-// words here are what is between spaces. In those languages quick add reads English words and
-// written dates ("10/15", "10月15日").
+// written folded already. Japanese and Chinese leave no spaces between words: their text is read
+// a character at a time (see GLUED), and their phrases are matched the same way.
 const VOCABULARIES: Record<string, Vocabulary> = {
   en: {
     today: ["today"],
@@ -272,7 +273,57 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     // Particles: "금요일까지" (by Friday), "금요일에" (on Friday).
     endings: ["까지", "에는", "에", "엔"],
   },
+  ja: {
+    today: ["今日", "きょう", "本日"],
+    tomorrow: ["明日", "あした", "あす"],
+    dayAfter: ["明後日", "あさって"],
+    nextWeek: ["来週"],
+    nextMonth: ["来月"],
+    nextBefore: ["来週の", "来週"],
+    nextAfter: [],
+    inBefore: [],
+    // "3日後" (in 3 days).
+    inAfter: ["後"],
+    units: { day: ["日", "日間"], week: ["週間", "週"], month: ["か月", "ヶ月", "カ月", "ヵ月"] },
+    // "今週金曜日": this week's Friday, the next one.
+    articles: ["今週の", "今週"],
+    weekdays: [["日曜"], ["月曜"], ["火曜"], ["水曜"], ["木曜"], ["金曜"], ["土曜"]],
+    particles: ["までに", "まで", "には", "に"],
+  },
+  zh: {
+    today: ["今天", "今日"],
+    tomorrow: ["明天", "明日"],
+    dayAfter: ["后天"],
+    nextWeek: ["下周", "下星期", "下礼拜", "下个星期"],
+    nextMonth: ["下个月", "下月"],
+    // "下周五", "下个星期五" (next Friday).
+    nextBefore: ["下个", "下"],
+    nextAfter: [],
+    inBefore: [],
+    inAfter: ["以后", "之后", "后"],
+    units: { day: ["天"], week: ["个星期", "星期", "周"], month: ["个月"] },
+    articles: ["这个", "这", "本"],
+    weekdays: [
+      ["周日", "周天", "星期天", "礼拜天", "礼拜日"],
+      ["周一", "礼拜一"],
+      ["周二", "礼拜二"],
+      ["周三", "礼拜三"],
+      ["周四", "礼拜四"],
+      ["周五", "礼拜五"],
+      ["周六", "礼拜六"],
+    ],
+    // "周五前" (before Friday).
+    particles: ["之前", "以前", "前"],
+  },
 };
+
+/**
+ * Languages written without spaces between words. Their text is read a character at a time
+ * (tokenize), and their phrases are written the same way, a space between characters ("来 週"),
+ * so a phrase of several characters is matched as one of several words elsewhere.
+ */
+const GLUED = new Set(["ja", "zh"]);
+const spaced = (phrase: string) => Array.from(phrase).join(" ");
 
 /** English abbreviations of weekdays; other languages' are too often ordinary words ("so", "do"). */
 const ENGLISH_WEEKDAY_ABBREVIATIONS: Record<string, number> = {
@@ -322,6 +373,16 @@ function foldVocabulary({ units, weekdays, endings, ...phrases }: Vocabulary): V
   };
 }
 
+/** A vocabulary of a GLUED language with its phrases written a character at a time. */
+function spaceVocabulary({ units, weekdays, endings, ...phrases }: Vocabulary): Vocabulary {
+  return {
+    ...(Object.fromEntries(Object.entries(phrases).map(([key, list]) => [key, list.map(spaced)])) as Omit<Vocabulary, "units" | "weekdays" | "endings">),
+    units: { day: units.day.map(spaced), week: units.week.map(spaced), month: units.month.map(spaced) },
+    weekdays: weekdays?.map((forms) => forms.map(spaced)),
+    endings,
+  };
+}
+
 /** Languages that write a slash date month first: "10/15". */
 const MONTH_FIRST = new Set(["en", "ja", "ko", "zh"]);
 
@@ -332,14 +393,17 @@ const languages = new Map<string, Language>();
 function language(code: string): Language {
   let found = languages.get(code);
   if (found) return found;
-  const vocabulary = foldVocabulary(VOCABULARIES[code] ?? VOCABULARIES.en);
+  const glued = GLUED.has(code);
+  const folded = foldVocabulary(VOCABULARIES[code] ?? VOCABULARIES.en);
+  const vocabulary = glued ? spaceVocabulary(folded) : folded;
   // Names may be more than one word ("יום שישי").
   const weekdays = new Map<string, number>();
   // 2024-01-07 was a Sunday: weekday index 0.
   for (let i = 0; i < 7; i++) {
     const date = new Date(Date.UTC(2024, 0, 7 + i));
     const name = new Intl.DateTimeFormat(code, { weekday: "long", timeZone: "UTC" }).format(date);
-    for (const form of [...spellings(fold(name)), ...(vocabulary.weekdays?.[i] ?? [])]) weekdays.set(form, i);
+    const names = spellings(fold(name)).map((form) => (glued ? spaced(form) : form));
+    for (const form of [...names, ...(vocabulary.weekdays?.[i] ?? [])]) weekdays.set(form, i);
   }
   if (code === "en") for (const [name, day] of Object.entries(ENGLISH_WEEKDAY_ABBREVIATIONS)) weekdays.set(name, day);
   const months = new Map<string, number>();
@@ -366,13 +430,26 @@ function language(code: string): Language {
 
 type Token = { word: string; start: number; end: number };
 
+/**
+ * In a GLUED language, the parts of a word: each Chinese character and kana alone, other text
+ * ("10/15", "3", "tomorrow") as it is, and a written date ("10月15日") whole.
+ */
+const GLUED_PART = /\d{1,2}月(?:\d{1,2}日?)?|[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}ー々]|[^\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}ー々]+/gu;
+
 /** Words with their place in the text; trailing commas and the like are not part of the word. */
-function tokenize(text: string): Token[] {
+function tokenize(text: string, glued: boolean): Token[] {
   const tokens: Token[] = [];
   for (const match of text.matchAll(/\S+/g)) {
-    const raw = match[0].replace(/[,;!?)]+$/, "");
+    const raw = match[0].replace(/[,;!?)、，。！？]+$/, "");
     if (!raw) continue;
-    tokens.push({ word: fold(raw), start: match.index, end: match.index + raw.length });
+    if (!glued) {
+      tokens.push({ word: fold(raw), start: match.index, end: match.index + raw.length });
+      continue;
+    }
+    for (const part of raw.matchAll(GLUED_PART)) {
+      const start = match.index + part.index;
+      tokens.push({ word: fold(part[0]), start, end: start + part[0].length });
+    }
   }
   return tokens;
 }
@@ -481,11 +558,15 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
     const number = /^(\d{1,3})(\D*)$/.exec(word(k));
     const count = Number(number?.[1]);
     if (!number || !count) return null;
-    const unit = number[2] || word(k + 1);
-    const length = number[2] ? k + 1 : k + 2;
-    if (v.units.day.includes(unit)) return { length, day: today + count };
-    if (v.units.week.includes(unit)) return { length, day: today + 7 * count };
-    if (v.units.month.includes(unit)) return { length, day: addMonths(today, count) };
+    // The words the unit takes after the number: none when it comes with it, more than one when
+    // it is ("週 間"); -1 when there is no such unit.
+    const unit = (units: string[]) => (number[2] ? (units.includes(number[2]) ? 0 : -1) : phraseAt(tokens, i + k + 1, units) || -1);
+    const days = unit(v.units.day);
+    if (days >= 0) return { length: k + 1 + days, day: today + count };
+    const weeks = unit(v.units.week);
+    if (weeks >= 0) return { length: k + 1 + weeks, day: today + 7 * count };
+    const months = unit(v.units.month);
+    if (months >= 0) return { length: k + 1 + months, day: addMonths(today, count) };
     return null;
   };
   const before = phraseAt(tokens, i, v.inBefore);
@@ -548,14 +629,13 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
   return null;
 }
 
-/** A date at `i`, with an article before it taken along ("on friday"). */
+/** A date at `i`, with an article before it ("on friday") and a particle after it ("金曜日までに") taken along. */
 function dateFrom(tokens: Token[], i: number, lang: Language, today: number): Found | null {
   const article = phraseAt(tokens, i, lang.vocabulary.articles);
-  if (article && i + article < tokens.length) {
-    const found = dateAt(tokens, i + article, lang, today);
-    if (found) return { ...found, length: found.length + article };
-  }
-  return dateAt(tokens, i, lang, today);
+  const afterArticle = article && i + article < tokens.length ? dateAt(tokens, i + article, lang, today) : null;
+  const found = afterArticle ? { ...afterArticle, length: afterArticle.length + article } : dateAt(tokens, i, lang, today);
+  if (!found) return null;
+  return { ...found, length: found.length + phraseAt(tokens, i + found.length, lang.vocabulary.particles ?? []) };
 }
 
 // Each person's or option's name and first word, folded: worked out once, not on every keystroke.
@@ -586,7 +666,7 @@ export function parseQuickAdd(text: string, context: QuickAddContext): QuickAddR
   const today = dayNumber(context.today);
   const code = context.locale.split("-")[0];
   const langs = [language(code), ...(code === "en" ? [] : [language("en")])];
-  const tokens = tokenize(text);
+  const tokens = tokenize(text, GLUED.has(code));
   const readings = langs.map((lang) => ({ lang, tokens: readAs(tokens, lang) }));
   const matches: QuickAddMatch[] = [];
   const people: string[] = [];
@@ -635,7 +715,7 @@ export function parseQuickAdd(text: string, context: QuickAddContext): QuickAddR
     at = match.end;
   }
   title += text.slice(at);
-  title = title.replace(/\s+/g, " ").replace(/\s+([,;.!?])/g, "$1").replace(/^[\s,;]+|[\s,;]+$/g, "");
+  title = title.replace(/\s+/g, " ").replace(/\s+([,;.!?])/g, "$1").replace(/^[\s,;、，]+|[\s,;、，]+$/g, "");
 
   return {
     title,

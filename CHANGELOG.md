@@ -22,9 +22,14 @@
   editor's menus, picked in My account → Language or taken from the browser. Arabic, Hebrew and
   Persian lay the whole app out right to left, and emails follow. Each paragraph of a page now
   follows the direction of its own text, so a right-to-left paragraph reads correctly in a
-  left-to-right interface and the other way round. CSV import knows the new languages' title
-  column names and yes/no words, and quick add understands their date words. The new translations
-  haven't been reviewed by native speakers yet; corrections are welcome.
+  left-to-right interface and the other way round; alignment runs with it too, so a right-to-left
+  paragraph starts on the right without being aligned and the align buttons still put it on the side
+  they show. An Arabic, Hebrew or Persian paragraph aligned right before this release now sits on
+  the left, where its text ends: align it again. CSV import knows the new languages' title column
+  names and yes/no words, quick add understands their date words (Japanese and Chinese, written
+  without spaces, a character at a time: "来週の金曜日に打ち合わせ"), and the AI chat's search leaves out their
+  question words. The new translations haven't been reviewed by native speakers yet; corrections are
+  welcome.
 
 - **Apps can't overwrite edits they haven't seen.** `get_page` (MCP) and `GET /pages/{id}` now give
   the body's `version`, and `update_page` / `PATCH /pages/{id}` take it back as `expected_version`:

@@ -824,6 +824,14 @@
   padding-right: 0;
   padding-inline-end: 16px;
 }
+/* Alignment runs with the text: "left" is where a block's text starts and "right" where it ends,
+   so right to left they swap sides (the toolbar's buttons are by side, align-buttons.tsx). */
+:root [data-text-alignment="left"] {
+  text-align: start !important;
+}
+:root [data-text-alignment="right"] {
+  text-align: end !important;
+}
 /* Code reads left to right in every language. */
 :root .bn-container .bn-block-content[data-content-type="codeBlock"] {
   direction: ltr;
