@@ -351,15 +351,21 @@ export function baseAuthOptions({
       const join = joinTokenOf(ctx);
       if (invite || join) await addOAuthServerContext({ ...(invite && { invite }), ...(join && { join }) });
     }
+    if (ctx.path !== "/oauth2/register") return;
+    const registered = ctx.body as Record<string, unknown> | undefined;
+    if (!registered || typeof registered !== "object") return;
+    // A back-channel logout URI would have the server post to any address a client names when a
+    // session ends, inside our network too: registrations don't get to set one. Removed from the
+    // body itself, as a body a hook returns is merged over the request's (a key left out stays).
+    delete registered.backchannel_logout_uri;
+    delete registered.backchannel_logout_session_required;
     // RFC 7591 defaults `application_type` to "web", which forbids loopback redirects. Desktop and
     // CLI MCP clients often register loopback callbacks without sending the field, so infer
     // "native" for them; the provider still validates every redirect URI for that type.
-    if (ctx.path !== "/oauth2/register") return;
-    const body = ctx.body as { application_type?: unknown; redirect_uris?: unknown } | undefined;
-    if (!body || body.application_type !== undefined) return;
-    const uris = body.redirect_uris;
+    if (registered.application_type !== undefined) return;
+    const uris = registered.redirect_uris;
     if (!Array.isArray(uris) || uris.length === 0 || !uris.every(isNativeRedirect)) return;
-    return { context: { body: { ...body, application_type: "native" } } };
+    return { context: { body: { ...registered, application_type: "native" } } };
   });
 
   // Database-independent options, shared by the app and the schema generator.

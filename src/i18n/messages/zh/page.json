@@ -388,6 +388,11 @@
       "subtext": "指向另一个页面的链接，标题实时更新",
       "aliases": "link page mention reference 链接 页面 提及 引用"
     },
+    "syncedPage": {
+      "title": "同步页面",
+      "subtext": "在此实时显示并编辑另一个页面的内容",
+      "aliases": "同步 镜像 嵌入 页面 synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "颜色",
       "text": "{color}文字",
@@ -455,6 +460,7 @@
     "noAccess": "无访问权限",
     "deleted": "已删除的页面",
     "loading": "正在加载…",
+    "atBlock": "在页面的某个块处打开",
     "personLeft": "{name}（已不在工作区中）",
     "date": "日期",
     "reminder": "提醒",
@@ -473,15 +479,27 @@
     "empty": "未找到页面",
     "failed": "无法加载页面。"
   },
+  "syncedPage": {
+    "label": "同步页面",
+    "viewOnly": "仅查看",
+    "cycle": "此页面已在上方显示，这里只显示链接。"
+  },
   "backlinks": {
     "title": "链接来源",
+    "titleCount": "链接来源 · {count}",
     "count": "{count} 个页面链接到这里",
     "unlinked": "未链接的提及 · {count}",
     "unlinkedHint": "写有此页面标题但未链接到它的页面",
     "link": "链接",
     "linkLabel": "在 {title} 中链接该提及",
     "linkFailed": "那里的标题已不再是纯文本。",
-    "locked": "该页面已锁定，因此无法更改。"
+    "locked": "该页面已锁定，因此无法更改。",
+    "morePlaces": "还有 {count} 处",
+    "fewerPlaces": "收起",
+    "morePages": "再显示 {count} 个页面"
+  },
+  "blockMenu": {
+    "copyLink": "复制块链接"
   },
   "pdf": {
     "untitled": "PDF",

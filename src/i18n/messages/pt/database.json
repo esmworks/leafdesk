@@ -356,7 +356,10 @@
     "colors": "Cores",
     "confirmDeleteGroup": "Excluir o grupo “{name}”? {count, plural, one {Seu # cartão vai} other {Seus # cartões vão}} para Sem {property}.",
     "hiddenGroups": "Grupos ocultos ({count})",
-    "showGroup": "Mostrar"
+    "showGroup": "Mostrar",
+    "columnsShow": "As colunas mostram",
+    "cardCountOption": "Número de cartões",
+    "changeColumnFigure": "Alterar o que as colunas mostram"
   },
   "cell": {
     "empty": "Vazio",
@@ -732,6 +735,7 @@
     "relationTargetReadOnly": "Você só pode ver aquele banco de dados, então o vínculo não pode ser exibido lá também. Desmarque essa opção ou peça acesso de edição.",
     "databaseLocked": "Este banco de dados está bloqueado. Desbloqueie-o para alterar as propriedades e visualizações dele.",
     "pageLocked": "Esta página está bloqueada. Desbloqueie-a pelo menu dela para alterar o título, o ícone, o fundo ou o texto.",
+    "pageInTrash": "Esta página está na lixeira. Restaure-a para alterá-la.",
     "invalidPerson": "“{property}” só pode conter pessoas deste espaço de trabalho.",
     "readOnlyProperty": "“{property}” é preenchida automaticamente e não pode ser alterada.",
     "invalidFilter": "Não é possível salvar este filtro. Recarregue a página e tente novamente.",
@@ -745,6 +749,7 @@
     "invalidPageVisibility": "Não é possível salvar esta configuração da página da linha.",
     "calendarFeedNotCalendar": "Só é possível assinar visualizações de calendário.",
     "calendarFeedExportOff": "Os proprietários do espaço de trabalho desativaram a exportação, então as assinaturas de calendário também estão desativadas.",
+    "webhookExportOff": "Os proprietários do espaço de trabalho desativaram a exportação, então os webhooks também estão desativados.",
     "isTemplate": "Os modelos não podem ser movidos nem colocados na lixeira. Exclua-os pela lista de modelos.",
     "notATemplate": "Esta página não é um modelo deste espaço de trabalho ou banco de dados.",
     "propertyRestricted": "Você não tem acesso para alterar “{property}”.",

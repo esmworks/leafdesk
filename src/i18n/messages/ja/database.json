@@ -356,7 +356,10 @@
     "colors": "色",
     "confirmDeleteGroup": "グループ「{name}」を削除しますか？{count}枚のカードは「{property}なし」に移動します。",
     "hiddenGroups": "非表示のグループ（{count}）",
-    "showGroup": "表示"
+    "showGroup": "表示",
+    "columnsShow": "列に表示する値",
+    "cardCountOption": "カードの数",
+    "changeColumnFigure": "列に表示する値を変更"
   },
   "cell": {
     "empty": "空",
@@ -732,6 +735,7 @@
     "relationTargetReadOnly": "そのデータベースは閲覧のみ可能なため、リンクをそちらにも表示することはできません。そのオプションのチェックを外すか、編集権限をリクエストしてください。",
     "databaseLocked": "このデータベースはロックされています。プロパティやビューを変更するには、ロックを解除してください。",
     "pageLocked": "このページはロックされています。タイトル、アイコン、背景、テキストを変更するには、ページのメニューからロックを解除してください。",
+    "pageInTrash": "このページはゴミ箱にあります。変更するには復元してください。",
     "invalidPerson": "「{property}」には、このワークスペースのユーザーだけを入れられます。",
     "readOnlyProperty": "「{property}」は自動で入力されるため、変更できません。",
     "invalidFilter": "このフィルターは保存できません。ページを再読み込みして、もう一度お試しください。",
@@ -745,6 +749,7 @@
     "invalidPageVisibility": "この行のページの設定は保存できません。",
     "calendarFeedNotCalendar": "購読できるのはカレンダービューだけです。",
     "calendarFeedExportOff": "ワークスペースのオーナーがエクスポートをオフにしたため、カレンダーの購読もオフになっています。",
+    "webhookExportOff": "ワークスペースのオーナーがエクスポートをオフにしたため、Webhook もオフになっています。",
     "isTemplate": "テンプレートは移動したりゴミ箱に入れたりできません。代わりにテンプレートの一覧から削除してください。",
     "notATemplate": "このページは、このワークスペースまたはデータベースのテンプレートではありません。",
     "propertyRestricted": "「{property}」を変更する権限がありません。",

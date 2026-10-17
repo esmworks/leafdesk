@@ -89,6 +89,29 @@ export function chartMeasure(config: Pick<ViewConfig, "chartAggregate">, propert
   return { kind: "aggregate", fn: agg.fn, prop: { id: prop.id, type: valueType(prop), options: prop.options } };
 }
 
+/**
+ * The calculations a board's column headers offer over a property: every one its type has but
+ * counting rows, which the card count already does. Formulas and rollups calculate like their result type.
+ */
+export function boardAggregateFunctionsOf(prop: { type: PropertyType; options: PropertyOptions }): AggregateFn[] {
+  return aggregateFunctions(valueType(prop)).filter((fn) => fn !== "count_all");
+}
+
+/** Every calculation some property type can show in a board's column headers. */
+export const BOARD_AGGREGATE_FNS: AggregateFn[] = AGGREGATE_FNS.filter((fn) => fn !== "count_all");
+
+export function isBoardAggregateFn(fn: unknown): fn is AggregateFn {
+  return isAggregateFn(fn) && fn !== "count_all";
+}
+
+/** What a board's column headers show; a calculation whose property is gone (or no longer offers it) counts cards. */
+export function boardMeasure(config: Pick<ViewConfig, "boardAggregate">, properties: ChartProperty[]): ChartMeasure {
+  const agg = config.boardAggregate;
+  const prop = agg && properties.find((p) => p.id === agg.propertyId);
+  if (!agg || !prop || !boardAggregateFunctionsOf(prop).includes(agg.fn)) return { kind: "count" };
+  return { kind: "aggregate", fn: agg.fn, prop: { id: prop.id, type: valueType(prop), options: prop.options } };
+}
+
 /** Whether group values add up to a meaningful total (the values of an average don't). */
 export function isAdditive(measure: ChartMeasure) {
   return measure.kind === "count" || ADDITIVE.has(measure.fn);

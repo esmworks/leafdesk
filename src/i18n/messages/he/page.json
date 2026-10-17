@@ -388,6 +388,11 @@
       "subtext": "קישור לדף אחר, עם הכותרת העדכנית שלו",
       "aliases": "קישור דף אזכור הפניה link page mention reference"
     },
+    "syncedPage": {
+      "title": "דף מסונכרן",
+      "subtext": "התוכן של דף אחר, בזמן אמת וניתן לעריכה כאן",
+      "aliases": "מסונכרן סנכרון מראה הטמעה דף synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "צבעים",
       "text": "טקסט {color}",
@@ -455,6 +460,7 @@
     "noAccess": "אין גישה",
     "deleted": "דף שנמחק",
     "loading": "בטעינה…",
+    "atBlock": "פותח את הדף בבלוק מסוים",
     "personLeft": "{name} (כבר לא בסביבת העבודה)",
     "date": "תאריך",
     "reminder": "תזכורת",
@@ -473,15 +479,27 @@
     "empty": "לא נמצאו דפים",
     "failed": "לא ניתן היה לטעון את הדפים."
   },
+  "syncedPage": {
+    "label": "דף מסונכרן",
+    "viewOnly": "צפייה בלבד",
+    "cycle": "הדף הזה כבר מוצג למעלה, ולכן כאן מופיע רק הקישור אליו."
+  },
   "backlinks": {
     "title": "מקושר מ־",
+    "titleCount": "מקושר מ־ · {count}",
     "count": "{count, plural, one {דף אחד מקשר לכאן} two {שני דפים מקשרים לכאן} other {# דפים מקשרים לכאן}}",
     "unlinked": "אזכורים לא מקושרים · {count}",
     "unlinkedHint": "דפים שכתובה בהם הכותרת של הדף הזה בלי קישור אליו",
     "link": "קישור",
     "linkLabel": "קישור האזכור ב־{title}",
     "linkFailed": "הכותרת כבר לא כתובה שם כטקסט פשוט.",
-    "locked": "הדף הזה נעול, ולכן אי אפשר לשנות אותו."
+    "locked": "הדף הזה נעול, ולכן אי אפשר לשנות אותו.",
+    "morePlaces": "{count, plural, one {עוד מקום אחד} two {עוד שני מקומות} other {עוד # מקומות}}",
+    "fewerPlaces": "הצגת פחות",
+    "morePages": "{count, plural, one {הצגת עוד דף אחד} two {הצגת עוד שני דפים} other {הצגת עוד # דפים}}"
+  },
+  "blockMenu": {
+    "copyLink": "העתקת קישור לבלוק"
   },
   "pdf": {
     "untitled": "PDF",

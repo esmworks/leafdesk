@@ -92,5 +92,9 @@
       "talk": "Wystąpienie na wyjazdowym spotkaniu zespołu",
       "thanks": "Dział sprzedaży podziękował za przygotowanie demo"
     }
+  },
+  "journal": {
+    "title": "Dziennik",
+    "markdown": "## Cel dnia\n\n- [ ] \n\n## Notatki\n\n## Zrobione dziś\n"
   }
 }

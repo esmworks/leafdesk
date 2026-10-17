@@ -388,6 +388,11 @@
       "subtext": "Başka bir sayfaya, güncel başlığıyla bağlantı",
       "aliases": "bağlantı sayfa bahset link page mention"
     },
+    "syncedPage": {
+      "title": "Senkron sayfa",
+      "subtext": "Başka bir sayfanın içeriği, burada canlı ve düzenlenebilir",
+      "aliases": "senkron eşitle yansıt gömülü sayfa synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Renkler",
       "text": "{color} metin",
@@ -455,6 +460,7 @@
     "noAccess": "Erişim yok",
     "deleted": "Silinmiş sayfa",
     "loading": "Yükleniyor…",
+    "atBlock": "Sayfayı bir blokta açar",
     "personLeft": "{name} (artık çalışma alanında değil)",
     "date": "Tarih",
     "reminder": "Hatırlatma",
@@ -473,15 +479,27 @@
     "empty": "Sayfa bulunamadı",
     "failed": "Sayfalar yüklenemedi."
   },
+  "syncedPage": {
+    "label": "Senkron sayfa",
+    "viewOnly": "Yalnızca görüntüleme",
+    "cycle": "Bu sayfa yukarıda zaten gösteriliyor, burada yalnızca bağlantısı var."
+  },
   "backlinks": {
     "title": "Bu sayfaya bağlananlar",
+    "titleCount": "Bu sayfaya bağlananlar · {count}",
     "count": "{count, plural, one {# sayfa buraya bağlanıyor} other {# sayfa buraya bağlanıyor}}",
     "unlinked": "Bağlanmamış bahsetmeler · {count}",
     "unlinkedHint": "Bu sayfanın başlığını bağlantı vermeden yazan sayfalar",
     "link": "Bağla",
     "linkLabel": "{title} içindeki bahsetmeyi bağla",
     "linkFailed": "Başlık orada artık düz metin olarak geçmiyor.",
-    "locked": "O sayfa kilitli, değiştirilemez."
+    "locked": "O sayfa kilitli, değiştirilemez.",
+    "morePlaces": "{count} yer daha",
+    "fewerPlaces": "Daha az göster",
+    "morePages": "{count} sayfa daha göster"
+  },
+  "blockMenu": {
+    "copyLink": "Bloğun bağlantısını kopyala"
   },
   "pdf": {
     "untitled": "PDF",

@@ -9,7 +9,7 @@
  */
 import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { page, pageChunk } from "@/db/schema";
+import { dailyNote, page, pageChunk } from "@/db/schema";
 import type { PageKind } from "@/db/schema";
 import { sharedLimiter } from "@/lib/rate-limit";
 import type { SearchKind } from "@/lib/search-query";
@@ -132,9 +132,9 @@ export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kin
 /**
  * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
  * inside one of `withinPageIds` (each the page itself or under it), of one of `kinds` (a row is a
- * page whose parent is a database). Empty for no scope.
+ * page whose parent is a database, a journal page one of `userId`'s daily notes). Empty for no scope.
  */
-export function searchScope({ withinPageId, withinPageIds = [], kinds = [] }: SearchScope, alias = "p"): SQL {
+export function searchScope({ withinPageId, withinPageIds = [], kinds = [] }: SearchScope, userId: string, alias = "p"): SQL {
   if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
   const parts: SQL[] = [];
   if (withinPageId) parts.push(inSubtree(withinPageId, alias));
@@ -146,6 +146,7 @@ export function searchScope({ withinPageId, withinPageIds = [], kinds = [] }: Se
       page: sql`(${kind} = 'page' and not ${inDatabase})`,
       database: sql`${kind} = 'database'`,
       row: sql`(${kind} = 'page' and ${inDatabase})`,
+      journal: sql`exists (select 1 from ${dailyNote} dn where dn.page_id = ${sql.raw(`"${alias}"."id"`)} and dn.user_id = ${userId})`,
     };
     parts.push(sql`(${sql.join(kinds.map((k) => byKind[k]), sql` or `)})`);
   }
@@ -193,7 +194,7 @@ export async function semanticSearch(
       -- Access first, then ranking: only pages the user can open right now are compared at all.
       select p.id from ${page} p join candidates k on k.page_id = p.id
       where p.archived_at is null and not p.in_template
-        ${searchScope(scope)}
+        ${searchScope(scope, userId)}
         and ${pageVisibleTo(userId, "p")}
     ),
     ranked as (

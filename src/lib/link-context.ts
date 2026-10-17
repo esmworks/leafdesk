@@ -8,7 +8,7 @@
  * is LINK_PLACEHOLDER, shown as the linked page's live title.
  */
 import { blockText, type BlockLike } from "./blocks";
-import { EMPTY_MENTION, eachMention, MENTION, PAGE_LINK_BLOCK } from "./mentions";
+import { EMPTY_MENTION, eachMention, isPageBlockType, MENTION } from "./mentions";
 import { searchFold } from "./search-fold";
 import { cjkScript, hasKana, isFunctionChar } from "./search-words";
 
@@ -121,6 +121,54 @@ function pagesMentionedIn(block: BlockLike): string[] {
 }
 
 /**
+ * A block of a page's body that links to another page: the block's id, and the text around the
+ * link with the link (and any later one to the same page in that block) as LINK_PLACEHOLDER. A link
+ * with no text around it, and a "Link to page" block, have no context.
+ */
+export type LinkPlace = { block: string; context: string | null };
+
+/** Blocks kept for each page a body links to, at most: the first ones in the body. */
+export const MAX_LINK_PLACES = 20;
+
+/** The text around `pageId`'s mentions in `block`'s own content, or null when there is none. */
+function contextIn(block: BlockLike, pageId: string): string | null {
+  const text = blockText(block, (id) => (id === pageId ? MARK : ""))
+    .replaceAll(LINK_PLACEHOLDER, "")
+    .trim();
+  const at = text.indexOf(MARK);
+  if (at === -1 || text.replaceAll(MARK, "").trim() === "") return null;
+  const { before, after } = excerpt(text, at, at + 1);
+  return `${before}${LINK_PLACEHOLDER}${after}`.replaceAll(MARK, LINK_PLACEHOLDER);
+}
+
+/**
+ * For each page a body links to, the blocks that do, in document order (MAX_LINK_PLACES at most):
+ * blocks whose text mentions the page, and "Link to page" and synced page blocks. Blocks without an id are left out.
+ */
+export function linkPlaces(blocks: unknown[]): Map<string, LinkPlace[]> {
+  const out = new Map<string, LinkPlace[]>();
+  const add = (pageId: string, place: LinkPlace) => {
+    const list = out.get(pageId) ?? [];
+    if (list.length < MAX_LINK_PLACES) list.push(place);
+    out.set(pageId, list);
+  };
+  const walk = (list: (BlockLike & { id?: unknown })[]) => {
+    for (const block of list) {
+      const id = typeof block.id === "string" && block.id ? block.id : null;
+      if (id && isPageBlockType(block.type)) {
+        const pageId = block.props?.pageId;
+        if (typeof pageId === "string" && pageId) add(pageId, { block: id, context: null });
+      } else if (id) {
+        for (const pageId of pagesMentionedIn(block)) add(pageId, { block: id, context: contextIn(block, pageId) });
+      }
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks as BlockLike[]);
+  return out;
+}
+
+/**
  * For each page a body mentions, the text around its first mention, with the mention (and any later
  * one in the same block) as LINK_PLACEHOLDER. A mention with no text around it, and a "Link to page"
  * block, have no context.
@@ -130,17 +178,12 @@ export function linkContexts(blocks: unknown[]): Map<string, string> {
   const seen = new Set<string>();
   const walk = (list: BlockLike[]) => {
     for (const block of list) {
-      if (block.type !== PAGE_LINK_BLOCK) {
+      if (!isPageBlockType(block.type)) {
         for (const pageId of pagesMentionedIn(block)) {
           if (seen.has(pageId)) continue;
           seen.add(pageId);
-          const text = blockText(block, (id) => (id === pageId ? MARK : ""))
-            .replaceAll(LINK_PLACEHOLDER, "")
-            .trim();
-          const at = text.indexOf(MARK);
-          if (at === -1 || text.replaceAll(MARK, "").trim() === "") continue;
-          const { before, after } = excerpt(text, at, at + 1);
-          out.set(pageId, `${before}${LINK_PLACEHOLDER}${after}`.replaceAll(MARK, LINK_PLACEHOLDER));
+          const context = contextIn(block, pageId);
+          if (context !== null) out.set(pageId, context);
         }
       }
       if (block.children?.length) walk(block.children);

@@ -25,7 +25,7 @@ const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { authorizeCollab } = await import("@/server/collab/authorize");
 const { issueCollabToken } = await import("@/server/collab/token");
-const { createPage, movePage } = await import("@/server/pages");
+const { archivePage, createPage, movePage, restorePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { createServer } = await import("node:http");
 const crossws = (await import("crossws/adapters/node")).default;
@@ -224,6 +224,26 @@ try {
     viewerCloses,
   );
   check(ownerCloses.length === 0, "…and leaves the owner's open", ownerCloses);
+
+  // A page in the trash doesn't change: open editors turn read-only, and writable again once it is back.
+  const trashable = await createPage({ userId: ids.owner }, { workspaceId, title: "Old plan" });
+  const trashTab = await openTab(trashable.id, "owner");
+  const live = () => hocuspocus.documents.get(`page:${trashable.id}`);
+  const probe = () => live()?.getText("probe").toString();
+  trashTab.document.getText("probe").insert(0, "a");
+  check(await eventually(() => probe() === "a"), "an open editor's change reaches the page", probe());
+  await archivePage(ids.owner, trashable.id);
+  const connections = live()?.getConnections() ?? [];
+  check(connections.length > 0 && connections.every((c) => c.readOnly), "moving the page to the trash turns its open connections read-only");
+  trashTab.document.getText("probe").insert(1, "b");
+  await new Promise((r) => setTimeout(r, 300));
+  check(probe() === "a", "…so a change from the open tab no longer lands", probe());
+  await restorePage(ids.owner, trashable.id);
+  check((live()?.getConnections() ?? []).every((c) => !c.readOnly), "restoring it makes them writable again");
+  // As the page does once it hears of the restore (components/page/page-view).
+  trashTab.forceSync();
+  trashTab.document.getText("probe").insert(0, "c");
+  check(await eventually(() => probe() === "cab"), "…and changes land again, the refused one with them", probe());
 
   console.log(`\n${passed} checks passed`);
 } finally {

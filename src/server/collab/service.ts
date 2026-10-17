@@ -5,17 +5,24 @@ import { DefaultThreadStoreAuth } from "@blocknote/core/comments";
 import { YjsThreadStore } from "@blocknote/core/yjs";
 import * as Y from "yjs";
 import { db } from "@/db";
-import { databaseProperty, page, pageSnapshot, type SnapshotReason } from "@/db/schema";
+import { databaseProperty, page, pageSnapshot, type PageKind, type SnapshotReason } from "@/db/schema";
 import { applyBlockEdits, listedBlocks, stripBlockMarkers, type BlockEdit } from "@/lib/block-edits";
 import { blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
-import { AI_EDIT_EVENT, AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT, PAGE_SAVE_FAILED_EVENT, PAGE_SAVED_EVENT } from "@/lib/collab-constants";
+import {
+  AI_EDIT_EVENT,
+  AUTO_SNAPSHOT_INTERVAL_MS,
+  COLLAB_FRAGMENT,
+  PAGE_SAVE_FAILED_EVENT,
+  PAGE_SAVED_EVENT,
+  PAGE_WRITABLE_EVENT,
+} from "@/lib/collab-constants";
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
-import { assertPageUnlocked } from "@/lib/page-lock";
+import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
 import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
 import { requestLocale } from "@/i18n/config";
@@ -30,7 +37,7 @@ import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/ment
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
-import { authorizeCollab, parseDocName as parseName } from "./authorize";
+import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./authorize";
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
 import { stampPresence } from "./presence";
@@ -116,11 +123,18 @@ async function versionOf(blocks: Parameters<typeof blocksToMarkdown>[0], workspa
 
 /**
  * The server's own writes of a title or body (MCP, the REST API, AI and agents, restoring a version)
- * refuse a locked page, like its browser connections do. Comments and history snapshots go on.
+ * refuse a locked page or one in the trash, like its browser connections do. Comments and history
+ * snapshots go on.
  */
 async function assertWritable(pageId: string) {
-  const [row] = await db.select({ kind: page.kind, lockedAt: page.lockedAt }).from(page).where(eq(page.id, pageId)).limit(1);
-  if (row) assertPageUnlocked(row);
+  const [row] = await db
+    .select({ kind: page.kind, lockedAt: page.lockedAt, archivedAt: page.archivedAt })
+    .from(page)
+    .where(eq(page.id, pageId))
+    .limit(1);
+  if (!row) return;
+  assertNotInTrash(row);
+  assertPageUnlocked(row);
 }
 
 async function workspaceOf(pageId: string) {
@@ -208,6 +222,51 @@ function runOp(store: YjsThreadStore, threads: Y.Map<unknown>, op: CommentOp): P
 export function createCollab() {
   const broadcast = (channel: Channel, event: string) => {
     hocuspocus.documents.get(channel)?.broadcastStateless(event);
+  };
+
+  /** Browser connections only: the server's own writes check the page themselves (assertWritable). */
+  const browsersOf = (pageId: string) =>
+    hocuspocus.documents.get(pageDocName(pageId))?.getConnections().filter((c) => (c.context as Context).userId !== undefined) ?? [];
+
+  /**
+   * The page was locked or trashed. In place, without a reconnect: its browsers' edits are refused
+   * from now on (Hocuspocus answers them "not applied"), and the browsers keep them until it can be
+   * edited again.
+   */
+  const closeForWrites = (pageId: string) => {
+    for (const connection of browsersOf(pageId)) connection.readOnly = true;
+  };
+
+  /**
+   * Lets a read-only browser connection write again, in place, and tells that browser: it syncs
+   * again (components/collab/socket), sending the edits the server turned down meanwhile. Only for
+   * a page's own document: database signal documents stay read-only.
+   */
+  const reopen = (connection: ReturnType<Document["getConnections"]>[number]) => {
+    connection.readOnly = false;
+    connection.sendStateless(PAGE_WRITABLE_EVENT);
+  };
+
+  /** The page was unlocked or restored: browsers of people who may edit it write again, if it may change at all. */
+  const reopenForEditors = async (pageId: string) => {
+    const waiting = browsersOf(pageId).filter((c) => c.readOnly);
+    if (!waiting.length) return;
+    const [current] = await db
+      .select({ kind: page.kind, lockedAt: page.lockedAt, archivedAt: page.archivedAt })
+      .from(page)
+      .where(eq(page.id, pageId))
+      .limit(1);
+    if (!current || isPageLocked(current) || current.archivedAt) return;
+    const userIds = [...new Set(waiting.map((c) => (c.context as Context).userId!))];
+    const rows = await db.execute<{ user_id: string; level: number }>(sql`
+      select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
+      from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
+    `);
+    // 3 is edit (page_access_level): people who may only view or comment stay read-only.
+    const editors = new Set(rows.filter((r) => Number(r.level) >= 3).map((r) => r.user_id));
+    for (const connection of waiting) {
+      if (editors.has((connection.context as Context).userId!)) reopen(connection);
+    }
   };
 
   /**
@@ -821,28 +880,14 @@ export function createCollab() {
     broadcast,
 
     async pageLockChanged(pageId, locked) {
-      const doc = hocuspocus.documents.get(pageDocName(pageId));
-      // Browser connections only: the server's own writes check the lock themselves (assertWritable).
-      const browsers = doc?.getConnections().filter((c) => (c.context as Context).userId !== undefined) ?? [];
-      if (locked) {
-        // In place, without a reconnect: their edits are refused from now on (Hocuspocus answers them
-        // "not applied"), and the browsers keep them until the page is unlocked.
-        for (const connection of browsers) connection.readOnly = true;
-        return;
-      }
-      const waiting = browsers.filter((c) => c.readOnly);
-      if (!waiting.length) return;
-      const userIds = [...new Set(waiting.map((c) => (c.context as Context).userId!))];
-      const rows = await db.execute<{ user_id: string; level: number }>(sql`
-        select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
-        from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
-      `);
-      // 3 is edit (page_access_level): people who may only view or comment stay read-only. The
-      // browsers sync again once they hear of the unlock (components/page/page-view), sending the
-      // edits the lock held back.
-      const editors = new Set(rows.filter((r) => Number(r.level) >= 3).map((r) => r.user_id));
-      for (const connection of waiting) {
-        if (editors.has((connection.context as Context).userId!)) connection.readOnly = false;
+      if (locked) closeForWrites(pageId);
+      else await reopenForEditors(pageId);
+    },
+
+    async pagesTrashed(pageIds, trashed) {
+      for (const pageId of pageIds) {
+        if (trashed) closeForWrites(pageId);
+        else await reopenForEditors(pageId);
       }
     },
 
@@ -910,7 +955,7 @@ export function createCollab() {
     async disconnectLostAccess(workspaceId, userIds) {
       const who = userIds && new Set(userIds);
       if (who && !who.size) return;
-      const open: { pageId: string; connections: ReturnType<Document["getConnections"]> }[] = [];
+      const open: { target: DocTarget; connections: ReturnType<Document["getConnections"]> }[] = [];
       for (const doc of hocuspocus.documents.values()) {
         const target = parseName(doc.name);
         if (!target || target.kind === "ws") continue;
@@ -918,24 +963,43 @@ export function createCollab() {
           const userId = (c.context as Context).userId;
           return userId !== undefined && (!who || who.has(userId));
         });
-        if (connections.length) open.push({ pageId: target.id, connections });
+        if (connections.length) open.push({ target, connections });
       }
       if (!open.length) return;
-      const pairs = open.flatMap(({ pageId, connections }) =>
-        [...new Set(connections.map((c) => (c.context as Context).userId!))].map((userId) => ({ user_id: userId, page_id: pageId })),
+      const pairs = open.flatMap(({ target, connections }) =>
+        [...new Set(connections.map((c) => (c.context as Context).userId!))].map((userId) => ({ user_id: userId, page_id: target.id })),
       );
-      const rows = await db.execute<{ user_id: string; page_id: string; level: number }>(sql`
-        select x.user_id, x.page_id, page_access_level(x.user_id, x.page_id)::int as level
+      const rows = await db.execute<{
+        user_id: string;
+        page_id: string;
+        level: number;
+        kind: PageKind;
+        locked_at: string | null;
+        archived_at: string | null;
+      }>(sql`
+        select x.user_id, x.page_id, page_access_level(x.user_id, x.page_id)::int as level, p.kind, p.locked_at, p.archived_at
         from jsonb_to_recordset(${JSON.stringify(pairs)}::jsonb) as x(user_id text, page_id text)
         join ${page} p on p.id = x.page_id and p.workspace_id = ${workspaceId}
       `);
-      const levels = new Map(rows.map((r) => [`${r.user_id}:${r.page_id}`, Number(r.level)]));
-      for (const { pageId, connections } of open) {
+      const found = new Map(rows.map((r) => [`${r.user_id}:${r.page_id}`, r]));
+      for (const { target, connections } of open) {
         for (const connection of connections) {
-          const level = levels.get(`${(connection.context as Context).userId}:${pageId}`);
-          if (level === undefined) continue; // another workspace's page
-          // 1 view, 2 comment, 3 edit (page_access_level): below edit, a writable connection is out of date.
+          const row = found.get(`${(connection.context as Context).userId}:${target.id}`);
+          if (!row) continue; // another workspace's page
+          const level = Number(row.level);
+          // 1 view, 2 comment, 3 edit (page_access_level): below edit, a writable connection is out of
+          // date; a read-only one of someone who may edit now takes their edits from here on, unless
+          // the page is locked or in the trash (see authorizeCollab).
           if (level < 1 || (!connection.readOnly && level < 3)) connection.close({ code: 4403, reason: "Forbidden" });
+          else if (
+            connection.readOnly &&
+            level >= 3 &&
+            target.kind === "page" &&
+            !isPageLocked({ kind: row.kind, lockedAt: row.locked_at }) &&
+            !row.archived_at
+          ) {
+            reopen(connection);
+          }
         }
       }
     },

@@ -35,6 +35,8 @@ import { getCollab } from "@/server/collab/bridge";
 import { deleteQueued, queueStorageDeletion, removeStored } from "@/server/files";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
+import { revokeAllApiTokens } from "@/server/api/tokens";
+import { disconnectEndedSessions } from "@/server/account-security";
 import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, sendMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
@@ -343,9 +345,10 @@ export async function changePassword(
   await notify(userId, current.user.email, (locale) => passwordChangedEmail(locale, { name: current.user.name }));
   if (input.revokeOthers === true) {
     await disconnectEndedSessions(userId);
-    // Apps the user connected hold tokens like other sessions: whoever knew the old password
-    // could have connected one, so they are disconnected too.
+    // Apps the user connected and API tokens they made sign in like other sessions: whoever knew
+    // the old password could have added one, so they go too.
     await revokeAllConnectedApps(userId);
+    await revokeAllApiTokens(userId);
   }
 }
 
@@ -369,8 +372,8 @@ export async function setPassword(current: AccountSession, headers: Headers, inp
  * reset its password on a server without email (see server/required-password.ts). Nobody is
  * signed in yet: the token from the refused sign-in stands for the right old password, and
  * accounts with two-step verification also give a code, which a recovery code is used up for.
- * The new password has to differ from the old one. Signs nobody in; the page then signs in with
- * the new password as usual.
+ * The new password has to differ from the old one. Signs nobody in (and disconnects the apps and
+ * API tokens the account had); the page then signs in with the new password as usual.
  */
 export async function finishRequiredPasswordReset(input: { token: unknown; newPassword: unknown; code: unknown }) {
   const token = typeof input.token === "string" ? input.token : "";
@@ -399,6 +402,10 @@ export async function finishRequiredPasswordReset(input: { token: unknown; newPa
   // It had none (every password sign-in was refused), but one from before the flag may have slipped in.
   await db.delete(session).where(eq(session.userId, userId));
   await disconnectEndedSessions(userId);
+  // As after an emailed reset (afterPasswordReset): whoever knew the old password could have
+  // connected an app or made a token.
+  await revokeAllConnectedApps(userId);
+  await revokeAllApiTokens(userId);
   const [owner] = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, userId)).limit(1);
   if (owner) await notify(userId, owner.email, (locale) => passwordChangedEmail(locale, { name: owner.name }));
 }
@@ -542,20 +549,6 @@ export async function confirmEmailChange(token: string) {
 
 // ---------------------------------------------------------------------------------------------
 // Sessions
-
-/** Drops live collab connections (open pages) of the user's sessions that have ended. */
-async function disconnectEndedSessions(userId: string) {
-  const live = await db
-    .select({ id: session.id })
-    .from(session)
-    .where(and(eq(session.userId, userId), gt(session.expiresAt, new Date())));
-  try {
-    await getCollab().disconnectSessions(userId, live.map((s) => s.id));
-  } catch (error) {
-    // Scripts and tests run without the collab server; its connections end with their tokens.
-    console.warn("[account] could not close collab connections", error);
-  }
-}
 
 export async function revokeSession(current: AccountSession, sessionId: string) {
   if (sessionId === current.session.id) throw new AccountError("currentSession");

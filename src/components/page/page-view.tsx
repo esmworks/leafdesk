@@ -148,13 +148,6 @@ export function PageView({
   useEffect(() => setIcon(page.icon), [page.icon]);
   useEffect(() => setLockedNow(info.locked), [info.locked]);
   useEffect(() => setSkillNow(info.skill), [info.skill]);
-  // Unlocked (as the server says): sync again, so edits the lock held back, made offline or as it
-  // came in, reach the server now that its connection takes them.
-  const wasLocked = useRef(info.locked);
-  useEffect(() => {
-    if (wasLocked.current && !info.locked) pageDoc?.provider.forceSync();
-    wasLocked.current = info.locked;
-  }, [info.locked, pageDoc]);
   useEffect(() => setBackground(page.background), [page.background]);
 
   // Someone else changed the icon or background (server/pages.ts): load them again.

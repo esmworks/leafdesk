@@ -25,6 +25,7 @@ const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { createApiToken, revokeApiToken, listApiTokens } = await import("@/server/api/tokens");
 const { API_ROUTES } = await import("@/server/api/routes");
+const { today } = await import("@/lib/journal");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 const API = `${BASE}/api/v1`;
@@ -33,6 +34,7 @@ const RUN = `api-e2e-${Date.now().toString(36)}`;
 // Pages made here (the database, the hidden page) skip the app's live documents; the server's own
 // writes go through its collab service as usual.
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},
@@ -215,6 +217,20 @@ try {
   );
   const noQuote = await api("POST", `/pages/${pageId}/comments`, W, { text: "Hm", quote: "not in the page at all" });
   check(noQuote.status === 400, "quoting text the page doesn't have is a 400");
+
+  // ------------------------------------------------------------------ daily notes
+  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, R, { date: "2026-10-17" })) === "insufficient_scope", "a read token can't make a daily note");
+  const note = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-10-17" });
+  check(note.status === 200 && note.body.created === true && note.body.date === "2026-10-17" && note.body.title === "October 17, 2026", "POST /workspaces/{id}/daily-notes makes the day's note", note.body);
+  const noteAgain = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-10-17" });
+  check(noteAgain.body.id === note.body.id && noteAgain.body.created === false, "…and opens the same note again");
+  const todayNote = await api("POST", `/workspaces/${wsA}/daily-notes`, W, { time_zone: "Pacific/Kiritimati" });
+  check(todayNote.status === 200 && todayNote.body.date === today("Pacific/Kiritimati"), "…for today in the given time zone without a date", todayNote.body);
+  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, W, { time_zone: "Nowhere/Else" })) === "invalid_request", "…refusing an unknown time zone");
+  check(errorCode(await api("POST", `/workspaces/${wsA}/daily-notes`, W, { date: "2026-02-30" })) === "invalid_request", "…and a day that doesn't exist");
+  const notes = await api("GET", `/workspaces/${wsA}/daily-notes?from=2026-10-01&limit=5`, R);
+  check(notes.status === 200 && notes.body.notes.some((n: any) => n.id === note.body.id), "GET /workspaces/{id}/daily-notes lists the user's notes", notes.body);
+  check(errorCode(await api("GET", `/workspaces/${wsBob}/daily-notes`, R)) === "not_found", "…not in a workspace they aren't in");
 
   // ------------------------------------------------------------------ databases and rows
   const database = await createPage({ userId: ids.alice }, { workspaceId: wsA, kind: "database", title: `${RUN} Tasks` });

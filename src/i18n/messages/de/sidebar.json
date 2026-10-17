@@ -53,6 +53,7 @@
     "noResults": "Keine Ergebnisse",
     "semantic": "Ähnliche Bedeutung",
     "semanticHint": "Nach Bedeutung gefunden: Die Wörter unterscheiden sich von deiner Suche.",
+    "inDocument": "Im Dokument {name} auf dieser Seite gefunden",
     "recent": "Zuletzt bearbeitet",
     "commands": "Befehle",
     "noCommands": "Kein passender Befehl",

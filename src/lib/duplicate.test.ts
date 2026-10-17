@@ -297,6 +297,14 @@ describe("remapViewConfig", () => {
     });
   });
 
+  it("maps a board's column calculation to the copied property, and drops it with the property", () => {
+    const ids = new Map([["amount", "amount2"]]);
+    expect(remapViewConfig({ boardAggregate: { fn: "sum", propertyId: "amount" } }, ids, () => null)).toEqual({
+      boardAggregate: { fn: "sum", propertyId: "amount2" },
+    });
+    expect(dropPropertyReferences({ boardAggregate: { fn: "sum", propertyId: "amount" } }, (id) => id === "amount").boardAggregate).toBeUndefined();
+  });
+
   it("maps footer calculations to the copied properties", () => {
     const ids = new Map([["amount", "amount2"]]);
     expect(remapViewConfig({ calculations: { amount: "sum", title: "count_all" } }, ids, () => null)).toEqual({

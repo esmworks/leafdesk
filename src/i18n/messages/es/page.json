@@ -388,6 +388,11 @@
       "subtext": "Un enlace a otra página, con su título actualizado",
       "aliases": "enlace pagina página mencion mención referencia link page mention"
     },
+    "syncedPage": {
+      "title": "Página sincronizada",
+      "subtext": "El contenido de otra página, en vivo y editable aquí",
+      "aliases": "sincronizada sincronizar espejo incrustar página synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colores",
       "text": "Texto: {color}",
@@ -455,6 +460,7 @@
     "noAccess": "Sin acceso",
     "deleted": "Página eliminada",
     "loading": "Cargando…",
+    "atBlock": "Abre la página en un bloque",
     "personLeft": "{name} (ya no está en el espacio de trabajo)",
     "date": "Fecha",
     "reminder": "Recordatorio",
@@ -473,15 +479,27 @@
     "empty": "No se encontraron páginas",
     "failed": "No se pudieron cargar las páginas."
   },
+  "syncedPage": {
+    "label": "Página sincronizada",
+    "viewOnly": "Solo lectura",
+    "cycle": "Esta página ya se muestra más arriba, así que aquí solo aparece el enlace."
+  },
   "backlinks": {
     "title": "Enlazada desde",
+    "titleCount": "Enlazada desde · {count}",
     "count": "{count, plural, one {# página enlaza aquí} other {# páginas enlazan aquí}}",
     "unlinked": "Menciones sin enlazar · {count}",
     "unlinkedHint": "Páginas que escriben el título de esta página sin enlazarla",
     "link": "Enlazar",
     "linkLabel": "Enlazar la mención en {title}",
     "linkFailed": "El título ya no aparece ahí como texto sin formato.",
-    "locked": "Esa página está bloqueada y no se puede cambiar."
+    "locked": "Esa página está bloqueada y no se puede cambiar.",
+    "morePlaces": "{count, plural, one {# lugar más} other {# lugares más}}",
+    "fewerPlaces": "Mostrar menos",
+    "morePages": "{count, plural, one {Mostrar # página más} other {Mostrar # páginas más}}"
+  },
+  "blockMenu": {
+    "copyLink": "Copiar enlace al bloque"
   },
   "pdf": {
     "untitled": "PDF",

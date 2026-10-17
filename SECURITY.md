@@ -96,6 +96,11 @@ won't take action against it.
 - Serve it over HTTPS and set `APP_URL` to the public origin; set `TRUSTED_PROXIES` to the number
   of reverse proxies in front of it (`0` for none), and keep clients from reaching the app's port
   past them. Unset, only a proxy connecting from a private address is trusted.
+- Pages are served with their own Content-Security-Policy (scripts only with a fresh nonce per
+  response, frames only from the embed providers, no framing by other sites), and every response
+  with `X-Frame-Options: SAMEORIGIN` and `X-Content-Type-Options: nosniff`. Leave these to the app:
+  a second policy added by your reverse proxy applies on top of it, and anything either one
+  forbids is blocked.
 - Close sign-up with `DISABLE_SIGNUP=true` once your accounts exist, and choose who may create
   workspaces with `WORKSPACE_CREATION` (see [Instance administrators](README.md#instance-administrators)).
 - Workspace owners decide in Settings → Security what may leave the workspace, who may join, and

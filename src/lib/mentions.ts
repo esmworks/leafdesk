@@ -1,6 +1,6 @@
 /**
  * Mentions and page links in page bodies: an `@` mention of a person, a page or a date inside a
- * line of text, and a "Link to page" block.
+ * line of text, a "Link to page" block, and a synced page block (another page's body shown live).
  *
  * Like the other custom content (lib/content-blocks, lib/embed-blocks), the configs here are shared
  * by the editor (React specs, components/page/mentions.tsx) and the server (server/blocknote.ts):
@@ -16,9 +16,15 @@
  *                                          this app becomes a mention; its text is ignored on the
  *                                          way in (the stored Markdown writes "page", readers get the
  *                                          live title, see labelPageLinks in server/mentions.ts).
+ *   [Roadmap](/w/<ws>/p/<page>#block-<id>) a mention of one block of the page: it opens the page at
+ *                                          that block (still a link to the page, for backlinks).
  *   [Roadmap](/w/<ws>/p/<page>) <!-- leafdesk:page-link -->
  *                                          a "Link to page" block: that link alone on its line,
  *                                          followed by the marker.
+ *   [Roadmap](/w/<ws>/p/<page>) <!-- leafdesk:synced-page -->
+ *                                          a synced page block: likewise, with its own marker. The
+ *                                          page's body is never written into the Markdown of the
+ *                                          page showing it (it is that page's own to index).
  *   @Ada Lovelace                          a person: "@" and their name as the workspace knows it.
  *   @2026-10-01                            a date (ISO 8601). A reminder set on a date stays with it
  *                                          when the Markdown is written back; it is set in the editor.
@@ -30,6 +36,8 @@ import { COLLAB_FRAGMENT } from "./collab-constants";
 export const MENTION = "mention";
 export const PAGE_LINK_BLOCK = "pageLink";
 export const PAGE_LINK_MARKER = "<!-- leafdesk:page-link -->";
+export const SYNCED_PAGE_BLOCK = "syncedPage";
+export const SYNCED_PAGE_MARKER = "<!-- leafdesk:synced-page -->";
 
 export type MentionKind = "user" | "page" | "date";
 
@@ -37,7 +45,7 @@ export type MentionKind = "user" | "page" | "date";
  * - `id`: this mention, for people and dates. A person hears about a mention once (the server keeps
  *   the ids it has notified about), and a date's reminder is keyed by it.
  * - `userId` / `name`: the person, and their name when mentioned (Markdown; shown if they left).
- * - `pageId`: the page.
+ * - `pageId`: the page. `blockId`: a block of it the mention opens the page at, or "".
  * - `date`: YYYY-MM-DD. `remindAt`: an ISO instant, or "" for no reminder. The reminder goes to
  *   whoever set it (the server records who, see server/mentions.ts).
  */
@@ -49,18 +57,32 @@ export const mentionConfig = {
     userId: { default: "" },
     name: { default: "" },
     pageId: { default: "" },
+    blockId: { default: "" },
     date: { default: "" },
     remindAt: { default: "" },
   },
   content: "none",
 } as const;
 
-/** A "Link to page" block: the page's live icon and title on a line of their own. */
+/** A "Link to page" block: the page's live icon and title on a line of their own (`blockId` as for mentions). */
 export const pageLinkBlockConfig = {
   type: PAGE_LINK_BLOCK,
+  propSchema: { pageId: { default: "" }, blockId: { default: "" } },
+  content: "none",
+} as const;
+
+/**
+ * A synced page: another page's body, shown and edited in place (components/page/synced-page.tsx).
+ * Only the page's id is stored; what a reader sees follows their own access to that page.
+ */
+export const syncedPageBlockConfig = {
+  type: SYNCED_PAGE_BLOCK,
   propSchema: { pageId: { default: "" } },
   content: "none",
 } as const;
+
+/** Blocks that stand for a whole page: "Link to page" blocks and synced pages. */
+export const isPageBlockType = (type: unknown) => type === PAGE_LINK_BLOCK || type === SYNCED_PAGE_BLOCK;
 
 export type MentionProps = {
   kind: MentionKind;
@@ -68,31 +90,57 @@ export type MentionProps = {
   userId: string;
   name: string;
   pageId: string;
+  blockId: string;
   date: string;
   remindAt: string;
 };
 
-export const EMPTY_MENTION: MentionProps = { kind: "page", id: "", userId: "", name: "", pageId: "", date: "", remindAt: "" };
+export const EMPTY_MENTION: MentionProps = { kind: "page", id: "", userId: "", name: "", pageId: "", blockId: "", date: "", remindAt: "" };
 
 export const newMentionId = () => crypto.randomUUID();
 
 export const pagePath = (workspaceId: string, pageId: string) => `/w/${workspaceId}/p/${pageId}`;
 
+/** A block of a page: the page's editor scrolls to it and highlights it (components/page/block-focus). */
+export const blockPath = (workspaceId: string, pageId: string, blockId: string) => `${pagePath(workspaceId, pageId)}#block-${blockId}`;
+
+/** A block id as links carry it: what BlockNote makes (a UUID), and nothing that needs escaping. */
+const BLOCK_ID = /^[\w-]{1,100}$/;
+
+export const isBlockId = (value: unknown): value is string => typeof value === "string" && BLOCK_ID.test(value);
+
+/** The block an address's fragment (`#block-<id>`) points at, or null. */
+export function blockIdOfHash(hash: string): string | null {
+  const match = /^#block-(.+)$/.exec(hash);
+  return match && isBlockId(match[1]) ? match[1] : null;
+}
+
+/** A page's address, at one of its blocks when `blockId` is set. */
+export const pageOrBlockPath = (workspaceId: string, pageId: string, blockId?: string | null) =>
+  blockId && isBlockId(blockId) ? blockPath(workspaceId, pageId, blockId) : pagePath(workspaceId, pageId);
+
 const ID = "[\\w-]{1,128}";
 
 /**
- * The page a link points at when it is a link to a page of this app: a path like the app's own
- * (`/w/<workspace>/p/<page>`), relative or on the app's origin. Null for anything else.
+ * The page a link points at when it is a link to a page of this app (a path like the app's own,
+ * `/w/<workspace>/p/<page>`, relative or on the app's origin), and the block its `#block-<id>`
+ * points at ("" without one). Null for anything else.
  */
-export function linkedPageId(href: unknown, appUrl?: string): string | null {
+export function linkedPageRef(href: unknown, appUrl?: string): { pageId: string; blockId: string } | null {
   if (typeof href !== "string") return null;
   let value = href.trim();
   if (appUrl) {
     const origin = appUrl.replace(/\/+$/, "");
     if (value.toLowerCase().startsWith(origin.toLowerCase() + "/")) value = value.slice(origin.length);
   }
-  const match = new RegExp(`^/w/${ID}/p/(${ID})/?(?:[?#].*)?$`).exec(value);
-  return match ? match[1] : null;
+  const match = new RegExp(`^/w/${ID}/p/(${ID})/?(?:\\?[^#]*)?(#.*)?$`).exec(value);
+  if (!match) return null;
+  return { pageId: match[1], blockId: (match[2] && blockIdOfHash(match[2])) || "" };
+}
+
+/** The page of a link to a page of this app (see linkedPageRef), or null. */
+export function linkedPageId(href: unknown, appUrl?: string): string | null {
+  return linkedPageRef(href, appUrl)?.pageId ?? null;
 }
 
 /** Whether `value` is a real calendar date written YYYY-MM-DD. */
@@ -107,7 +155,8 @@ export function mentionProps(props: unknown): MentionProps {
   const p = (props && typeof props === "object" ? props : {}) as Record<string, unknown>;
   const str = (key: keyof MentionProps) => (typeof p[key] === "string" ? (p[key] as string) : "");
   const kind = p.kind === "user" || p.kind === "date" ? p.kind : "page";
-  return { kind, id: str("id"), userId: str("userId"), name: str("name"), pageId: str("pageId"), date: str("date"), remindAt: str("remindAt") };
+  const blockId = isBlockId(p.blockId) ? p.blockId : "";
+  return { kind, id: str("id"), userId: str("userId"), name: str("name"), pageId: str("pageId"), blockId, date: str("date"), remindAt: str("remindAt") };
 }
 
 /** Markdown text of a person or date mention (page mentions are links, written by the caller). */
@@ -123,9 +172,12 @@ export function mentionPlainText(props: unknown): string {
   return p.kind === "page" ? "" : mentionText(p);
 }
 
-/** Markdown link to a page, as mentions and page links are written. Brackets in the text are escaped. */
-export function pageLinkMarkdown(text: string, workspaceId: string, pageId: string) {
-  return `[${text.replace(/[[\]\\]/g, "\\$&")}](${pagePath(workspaceId, pageId)})`;
+/**
+ * Markdown link to a page (at one of its blocks when `blockId` is set), as mentions and page links
+ * are written. Brackets in the text are escaped.
+ */
+export function pageLinkMarkdown(text: string, workspaceId: string, pageId: string, blockId?: string | null) {
+  return `[${text.replace(/[[\]\\]/g, "\\$&")}](${pageOrBlockPath(workspaceId, pageId, blockId)})`;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -229,7 +281,7 @@ export function eachMention(blocks: AnyBlock[], fn: (props: MentionProps, node: 
 }
 
 export type BodyReferences = {
-  /** Pages the body links to: page mentions and "Link to page" blocks. */
+  /** Pages the body links to: page mentions, "Link to page" blocks and synced pages. */
   pageIds: string[];
   /** Person mentions: `key` is the mention's id (or, for one without, the person). */
   people: { key: string; userId: string }[];
@@ -244,7 +296,7 @@ export function bodyReferences(blocks: AnyBlock[]): BodyReferences {
   const reminders = new Map<string, { date: string; remindAt: string }>();
   const walk = (list: AnyBlock[]) => {
     for (const block of list) {
-      if (block.type === PAGE_LINK_BLOCK) {
+      if (isPageBlockType(block.type)) {
         const pageId = (block.props as { pageId?: unknown } | undefined)?.pageId;
         if (typeof pageId === "string" && pageId) pageIds.add(pageId);
       }
@@ -356,8 +408,12 @@ export function localReminderAt(date: string, daysBefore: number, hour = 9) {
 
 const MARKDOWN_FENCE = /^ {0,3}(`{3,}|~{3,})/;
 
-/** A link to a page of this app in Markdown, `[text](/w/<workspace>/p/<page>)`: text, path and page id. */
-export const MARKDOWN_PAGE_LINK = /\[((?:[^\]\\\n]|\\.)*)\]\(\s*<?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))>?\s*\)/g;
+/**
+ * A link to a page of this app in Markdown, `[text](/w/<workspace>/p/<page>)` or one of its blocks,
+ * `[text](/w/<workspace>/p/<page>#block-<id>)`: text, path, page id and the fragment (`#block-…`,
+ * or undefined).
+ */
+export const MARKDOWN_PAGE_LINK = /\[((?:[^\]\\\n]|\\.)*)\]\(\s*<?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))(#block-[\w-]{1,100})?>?\s*\)/g;
 
 /** For each of the Markdown's lines, whether it is fenced code (the fences themselves included). */
 export function fencedLines(lines: string[]): boolean[] {

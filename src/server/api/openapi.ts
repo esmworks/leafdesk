@@ -191,6 +191,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
           parent_id: { type: ["string", "null"] },
           snippet: { type: "string" },
           match: { type: "string", enum: ["text", "semantic"], description: "semantic: found by meaning only (needs an embeddings model on the server)." },
+          document: {
+            type: ["object", "null"],
+            description: "The PDF or Word document the page shows whose words matched, when the page's own text doesn't; the snippet is from it.",
+            properties: { id, name: { type: "string" } },
+          },
           updated_at: { type: "string", format: "date-time" },
           url,
         }),
@@ -255,6 +260,21 @@ const SCHEMAS: Record<string, JsonSchema> = {
       url,
     },
     ["id", "title", "workspace_id", "url"],
+  ),
+  DailyNote: loose(
+    {
+      date: { type: "string", format: "date" },
+      id,
+      title: { type: "string" },
+      created: { type: "boolean", description: "Whether the note was made by this request." },
+      workspace_id: id,
+      url,
+    },
+    ["date", "id", "title", "created", "workspace_id", "url"],
+  ),
+  DailyNoteList: loose(
+    { notes: { type: "array", items: loose({ date: { type: "string", format: "date" }, id, title: { type: "string" }, url }) } },
+    ["notes"],
   ),
   VoiceNoteCreated: loose(
     {

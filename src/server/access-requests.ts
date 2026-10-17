@@ -86,7 +86,8 @@ export type PendingAccessRequest = {
   id: string;
   requesterId: string;
   name: string;
-  email: string;
+  /** Null for guests asking about someone in the workspace: guests don't learn members' addresses. */
+  email: string | null;
   image: string | null;
   message: string | null;
   createdAt: Date;
@@ -118,7 +119,15 @@ export async function listAccessRequests(actorId: string, pageId: string): Promi
     .where(and(eq(accessRequest.pageId, pageId), sql`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId}) = 0`))
     .orderBy(asc(accessRequest.createdAt));
   const mayInvite = rows.some((r) => r.role === null) && (await canInviteGuests(actorId, target.workspaceId));
-  return rows.map(({ role, ...r }) => ({ ...r, inWorkspace: role !== null, approvable: role !== null || mayInvite }));
+  // A guest with full access sees who asked, but not the address of anyone in the workspace (as in
+  // listPagePermissions). Someone outside it gave theirs by asking.
+  const asGuest = (await findMembership(actorId, target.workspaceId))?.role === "guest";
+  return rows.map(({ role, ...r }) => ({
+    ...r,
+    email: asGuest && role !== null && r.requesterId !== actorId ? null : r.email,
+    inWorkspace: role !== null,
+    approvable: role !== null || mayInvite,
+  }));
 }
 
 /** How many requests wait on the page. Only for those who may see them (full access). */

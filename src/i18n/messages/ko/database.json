@@ -356,7 +356,10 @@
     "colors": "색상",
     "confirmDeleteGroup": "“{name}” 그룹을 삭제할까요? 이 그룹의 카드 {count}개는 {property} 없음 그룹으로 이동합니다.",
     "hiddenGroups": "숨긴 그룹 ({count})",
-    "showGroup": "표시"
+    "showGroup": "표시",
+    "columnsShow": "열에 표시할 값",
+    "cardCountOption": "카드 수",
+    "changeColumnFigure": "열에 표시할 값 변경"
   },
   "cell": {
     "empty": "비어 있음",
@@ -732,6 +735,7 @@
     "relationTargetReadOnly": "해당 데이터베이스는 보기만 가능하므로 그곳에 연결을 표시할 수 없습니다. 해당 옵션을 해제하거나 편집 권한을 요청하세요.",
     "databaseLocked": "이 데이터베이스는 잠겨 있습니다. 속성과 보기를 변경하려면 잠금을 해제하세요.",
     "pageLocked": "이 페이지는 잠겨 있습니다. 제목, 아이콘, 배경 또는 텍스트를 변경하려면 메뉴에서 잠금을 해제하세요.",
+    "pageInTrash": "이 페이지는 휴지통에 있습니다. 변경하려면 복원하세요.",
     "invalidPerson": "“{property}”에는 이 워크스페이스의 사람만 넣을 수 있습니다.",
     "readOnlyProperty": "“{property}”은(는) 자동으로 채워지며 변경할 수 없습니다.",
     "invalidFilter": "이 필터를 저장할 수 없습니다. 페이지를 새로고침한 후 다시 시도하세요.",
@@ -745,6 +749,7 @@
     "invalidPageVisibility": "이 행 페이지 설정을 저장할 수 없습니다.",
     "calendarFeedNotCalendar": "캘린더 보기만 구독할 수 있습니다.",
     "calendarFeedExportOff": "워크스페이스 소유자가 내보내기를 꺼서 캘린더 구독도 꺼져 있습니다.",
+    "webhookExportOff": "워크스페이스 소유자가 내보내기를 꺼서 웹훅도 꺼져 있습니다.",
     "isTemplate": "템플릿은 이동하거나 휴지통으로 옮길 수 없습니다. 대신 템플릿 목록에서 삭제하세요.",
     "notATemplate": "이 페이지는 이 워크스페이스나 데이터베이스의 템플릿이 아닙니다.",
     "propertyRestricted": "“{property}”을(를) 변경할 권한이 없습니다.",

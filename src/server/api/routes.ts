@@ -307,6 +307,42 @@ export const API_ROUTES: ApiRoute[] = [
     },
   }),
   defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/daily-notes",
+    operationId: "listDailyNotes",
+    tag: "Pages",
+    summary: "List daily notes",
+    description:
+      "The user's daily notes in a workspace, newest first, optionally from one day to another (YYYY-MM-DD). Each is a private page of the user's; read it with the page endpoint.",
+    scope: "pages:read",
+    query: z.object({
+      from: ops.inputs.listDailyNotes.shape.from,
+      to: ops.inputs.listDailyNotes.shape.to,
+      limit: z.coerce.number().int().min(1).max(366).default(31).describe("Maximum notes (1-366, default 31)."),
+    }),
+    response: "DailyNoteList",
+    handler: async ({ principal, ctx, params, query }) => {
+      requireWorkspace(principal, params.workspace_id);
+      return ops.listDailyNotes(ctx, { workspace_id: params.workspace_id, ...query });
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/workspaces/{workspace_id}/daily-notes",
+    operationId: "getOrCreateDailyNote",
+    tag: "Pages",
+    summary: "Open a daily note",
+    description:
+      "The user's note for a day (today in time_zone when date is left out, UTC without one), made when they have none: a private page under their journal, started the way they chose in the app. `created` says whether it is new; calling again for the same day returns the same page.",
+    scope: "pages:write",
+    body: ops.inputs.dailyNote.omit({ workspace_id: true }),
+    response: "DailyNote",
+    handler: async ({ principal, ctx, params, body }) => {
+      requireWorkspace(principal, params.workspace_id);
+      return ops.getOrCreateDailyNote(ctx, { ...body, workspace_id: params.workspace_id });
+    },
+  }),
+  defineRoute({
     method: "POST",
     path: "/voice-notes",
     operationId: "createVoiceNote",

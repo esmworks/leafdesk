@@ -7,6 +7,7 @@ import type {
   RelativeDateRange,
   ViewConfig,
 } from "@/db/schema/app";
+import { dayString as dayOfNumber, localDay, monthDay, timestampDay, weekdayOf } from "./time-zone";
 
 /**
  * A view's filters form a small tree: the top-level list (combined with `filterCombinator`, "and"
@@ -192,40 +193,44 @@ export function dayString(date: Date) {
 
 /**
  * The calendar day of a stored value: date properties hold YYYY-MM-DD and are taken as-is;
- * timestamps (created_at, updated_at) count on the local day they fall on.
+ * timestamps (created_at, updated_at) count on the day they fall on in `timeZone`, the runtime's
+ * when left out.
  */
-export function valueDay(value: unknown): string | null {
+export function valueDay(value: unknown, timeZone?: string): string | null {
   if (typeof value !== "string" || !value) return null;
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  if (timeZone) return timestampDay(value, timeZone);
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : dayString(date);
 }
 
 /**
- * First and last day (inclusive, YYYY-MM-DD) of a relative range as seen on `now`'s local day, or
- * null for an unknown range or a missing day count. Weeks start on Monday (ISO 8601, as in
- * Turkey and most of Europe). "Past N days" runs from N days ago through today and "next N days"
- * from today through N days ahead, so every range includes today.
+ * First and last day (inclusive, YYYY-MM-DD) of a relative range as seen on `now`'s day in
+ * `timeZone` (the runtime's when left out), or null for an unknown range or a missing day count.
+ * Weeks start on Monday (ISO 8601, as in Turkey and most of Europe). "Past N days" runs from N days
+ * ago through today and "next N days" from today through N days ahead, so every range includes today.
  */
 export function relativeDateRange(
   range: unknown,
   days: unknown,
   now: Date,
+  timeZone?: string,
 ): { start: string; end: string } | null {
   if (!isRelativeDateRange(range)) return null;
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  const d = now.getDate();
-  const day = (offset: number) => dayString(new Date(y, m, d + offset));
+  const today = timeZone ? localDay(now.getTime(), timeZone) : Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86_400_000;
+  const day = (offset: number) => dayOfNumber(today + offset);
   switch (range) {
     case "today":
       return { start: day(0), end: day(0) };
     case "this_week": {
-      const sinceMonday = (now.getDay() + 6) % 7;
+      const sinceMonday = (weekdayOf(today) + 6) % 7;
       return { start: day(-sinceMonday), end: day(6 - sinceMonday) };
     }
-    case "this_month":
-      return { start: dayString(new Date(y, m, 1)), end: dayString(new Date(y, m + 1, 0)) };
+    case "this_month": {
+      const [y, m] = day(0).split("-").map(Number);
+      const month = y * 12 + m - 1;
+      return { start: dayOfNumber(monthDay(month, 1)), end: dayOfNumber(monthDay(month + 1, 1) - 1) };
+    }
     case "past_n_days":
       return isDayCount(days) ? { start: day(-days), end: day(0) } : null;
     case "next_n_days":

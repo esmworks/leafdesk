@@ -465,6 +465,19 @@ describe("files properties", () => {
   });
 });
 
+describe("board column calculations", () => {
+  it("names what a board's column headers show unless it is the card count", () => {
+    const due: PropertyDef = { id: "p_due", name: "Due", type: "date", options: {} };
+    expect(describeViewConfig([due], { boardAggregate: { fn: "latest_date", propertyId: "p_due" } }, undefined, "board")).toEqual({
+      aggregate: "latest_date",
+      aggregate_property: "Due",
+    });
+    // A calculation the property no longer offers counts cards, as the board does.
+    expect(describeViewConfig([due], { boardAggregate: { fn: "sum", propertyId: "p_due" } }, undefined, "board")).toEqual({});
+    expect(describeViewConfig([due], {}, undefined, "board")).toEqual({});
+  });
+});
+
 describe("list, comparison and does-not-contain operators", () => {
   const owner: PropertyDef = { id: "p_owner", name: "Owner", type: "person", options: {} };
   const customer: PropertyDef = {

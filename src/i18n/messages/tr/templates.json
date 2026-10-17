@@ -92,5 +92,9 @@
       "talk": "Ekip buluşmasında sunum yapıldı",
       "thanks": "Satış ekibi demo kurulumu için teşekkür etti"
     }
+  },
+  "journal": {
+    "title": "Günlük",
+    "markdown": "## Odak\n\n- [ ] \n\n## Notlar\n\n## Bugün bitenler\n"
   }
 }

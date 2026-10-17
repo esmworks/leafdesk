@@ -60,15 +60,21 @@ export async function pasteRows(
   const byRow = new Map(updates.map((u) => [u.rowId, { title: u.title, values: known(u.values) }] as const));
   const added = newRows.map((r) => ({ title: (r.title ?? "").replace(/\s+/g, " ").trim(), values: known(r.values) }));
 
-  // Missing options first, so the values below find them.
+  // Missing options first, so the values below find them. Adding one changes the property, which
+  // needs edit access to the database, as typing a new one into a cell does (databases.ensureOption):
+  // someone who may only edit some of its rows gets the values that name an option it lacks left
+  // out instead.
   const all = [...byRow.values(), ...added];
-  props = await Promise.all(
-    props.map(async (prop) => {
-      if (!holdsOptions(prop.type)) return prop;
-      const names = all.flatMap(({ values }) => optionNames(prop, values[prop.id]));
-      return names.length ? ((await addMissingOptions(prop, names)) ?? prop) : prop;
-    }),
-  );
+  const mayAddOptions = newRows.length > 0 || (await requireDatabase(userId, databaseId, "edit").then(() => true, () => false));
+  if (mayAddOptions) {
+    props = await Promise.all(
+      props.map(async (prop) => {
+        if (!holdsOptions(prop.type)) return prop;
+        const names = all.flatMap(({ values }) => optionNames(prop, values[prop.id]));
+        return names.length ? ((await addMissingOptions(prop, names)) ?? prop) : prop;
+      }),
+    );
+  }
 
   // Rows already there: checked one by one against what they hold, then written.
   const found = await rowsWithAccess(userId, databaseId, ids, "edit");

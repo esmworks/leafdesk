@@ -178,6 +178,14 @@ describe("retypeViewConfig", () => {
     expect(next.columnWidths).toEqual({ p: 300 });
   });
 
+  it("keeps a board's column calculation while the new type still offers it", () => {
+    const board: ViewConfig = { boardAggregate: { fn: "count_empty", propertyId: "p" } };
+    expect(retypeViewConfig(board, "p", "number", { type: "text", options: {} }).boardAggregate).toEqual(board.boardAggregate);
+    const summed: ViewConfig = { boardAggregate: { fn: "sum", propertyId: "p" } };
+    expect(retypeViewConfig(summed, "p", "number", { type: "text", options: {} }).boardAggregate).toBeUndefined();
+    expect(retypeViewConfig(summed, "q", "number", { type: "text", options: {} }).boardAggregate).toEqual(summed.boardAggregate);
+  });
+
   it("keeps groups whose keys are option ids that carried over", () => {
     const next = retypeViewConfig(config, "p", "select", { type: "status", options: {} });
     expect(next.groupBy).toBe("p");

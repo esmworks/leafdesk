@@ -62,6 +62,7 @@ const disconnected: { teamspaceId: string; userIds?: string[] }[] = [];
 // Open editors whose access is checked again, as [workspace, the users or "everyone"].
 const rechecked: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},
@@ -285,7 +286,7 @@ try {
   await rejects(() => leaveTeamspace(owner, closed.id), isCode("lastOwner"), "the last owner can't leave");
   rechecked.length = 0;
   await setTeamspaceRole(owner, closed.id, bob, "owner");
-  check(rechecked.length === 0, "becoming a teamspace owner takes nothing away", rechecked);
+  check(rechecked.join() === `${workspaceId}:${bob}`, "becoming a teamspace owner has their open editors checked again, for edits", rechecked);
   await leaveTeamspace(owner, closed.id);
   check((await levels(clPage.id, owner)) === "none", "a workspace owner who left a closed teamspace loses its pages");
   const closedForOwner = (await listTeamspaces(owner, workspaceId)).find((t) => t.id === closed.id)!;

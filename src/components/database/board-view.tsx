@@ -2,11 +2,13 @@
 
 import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useContext, useEffect, useRef, useState, type DragEvent } from "react";
+import { Fragment, useContext, useEffect, useRef, useState, type DragEvent } from "react";
 import { Button, cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { holdsPeople } from "@/lib/property-types";
-import type { SelectOption } from "@/db/schema/app";
+import type { ChartAggregate, SelectOption } from "@/db/schema/app";
+import { aggregateGroup } from "@/lib/aggregate";
+import { boardAggregateFunctionsOf, boardMeasure, measureRows, type ChartMeasure } from "@/lib/chart";
 import {
   arrangeGroups,
   boardGroupProperty,
@@ -27,6 +29,8 @@ import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { openRowProps, useRowOpener } from "./row-panel-context";
+import { PropertyTypeIcon } from "./property-icons";
+import { useFormatResult } from "./table-calculations";
 import { useNewRow } from "./use-new-row";
 import { isRtl } from "@/components/direction";
 import { useToday } from "./use-today";
@@ -91,6 +95,9 @@ export function BoardView({
   }
 
   const cardProps = properties.filter((p) => p.id !== groupBy.id && !isHiddenInView(view, p));
+  const measure = boardMeasure(view.config, properties);
+  const setBoardAggregate = (boardAggregate: ChartAggregate | undefined) =>
+    void api.updateView(view, { config: { ...view.config, boardAggregate } });
   const groupKey = (g: Group<Row>) => g.key;
   const { ordered, shown, hidden: hiddenGroups } = arrangeGroups(
     groupRowsBy(rows, groupBy, view.config, groupContext),
@@ -309,12 +316,20 @@ export function BoardView({
                   ) : (
                     <GroupLabel prop={groupBy} group={group} className="font-medium" />
                   )}
-                  <span
-                    className="text-xs text-fg-muted tabular-nums"
-                    title={t("board.cardCount", { count: group.rows.length })}
-                  >
-                    {group.rows.length}
-                  </span>
+                  {measure.kind === "count" ? (
+                    <ColumnFigure
+                      rows={group.rows}
+                      measure={measure}
+                      properties={properties}
+                      groupBy={groupBy.id}
+                      readOnly={readOnly}
+                      onChange={setBoardAggregate}
+                    />
+                  ) : (
+                    <span className="text-xs text-fg-muted tabular-nums" title={t("board.cardCount", { count: group.rows.length })}>
+                      {group.rows.length}
+                    </span>
+                  )}
                   <span className="flex-1" />
                   {!readOnly && (
                     <GroupMenu
@@ -338,6 +353,19 @@ export function BoardView({
                     </button>
                   )}
                 </header>
+                {/* A calculation gets a line of its own under the column's name, where it has room. */}
+                {measure.kind === "aggregate" && (
+                  <div className="flex px-1 pb-0.5">
+                    <ColumnFigure
+                      rows={group.rows}
+                      measure={measure}
+                      properties={properties}
+                      groupBy={groupBy.id}
+                      readOnly={readOnly}
+                      onChange={setBoardAggregate}
+                    />
+                  </div>
+                )}
                 <div
                   className="flex min-h-10 flex-col gap-2 pt-1"
                   onDragOver={(e) => onDragOver(e, group)}
@@ -413,6 +441,124 @@ export function BoardView({
         </div>
       </div>
     </QuickAddContext>
+  );
+}
+
+/**
+ * A column's figure: how many cards it has (in its header), or the board's calculation over one
+ * property for its cards (on the line under it). Editors pick there what every column of the view shows.
+ */
+function ColumnFigure({
+  rows,
+  measure,
+  properties,
+  groupBy,
+  readOnly,
+  onChange,
+}: {
+  rows: Row[];
+  measure: ChartMeasure;
+  properties: Property[];
+  /** The property the board groups by: the same in a whole column, so nothing to calculate. */
+  groupBy: string;
+  readOnly?: boolean;
+  onChange: (aggregate: ChartAggregate | undefined) => void;
+}) {
+  const t = useTranslations("database");
+  const tc = useTranslations("database.calculate");
+  const menu = useFloating<HTMLButtonElement>();
+  const formatResult = useFormatResult();
+  const measurable = properties.filter((p) => p.id !== groupBy && boardAggregateFunctionsOf(p).length > 0);
+  const result = measureRows(rows, measure);
+  const value = measure.kind === "aggregate" && result ? formatResult(measure.fn, result, measure.prop.options) : "–";
+  const figure =
+    measure.kind === "count" ? (
+      <span className="text-fg-muted">{rows.length}</span>
+    ) : (
+      <>
+        <span className="truncate text-fg-faint">{tc(`label.${measure.fn}`)}</span>
+        <span className="shrink-0 text-fg-muted">{value}</span>
+      </>
+    );
+  const title =
+    measure.kind === "count"
+      ? t("board.cardCount", { count: rows.length })
+      : `${t("chart.measureOf", { calculation: tc(`menu.${measure.fn}`), property: properties.find((p) => p.id === measure.prop.id)?.name ?? "" })}: ${value}`;
+  const className = "flex min-w-0 items-center gap-1 text-xs tabular-nums";
+
+  if (readOnly) {
+    return (
+      <span className={className} title={title}>
+        {figure}
+      </span>
+    );
+  }
+  const pick = (aggregate: ChartAggregate | undefined) => {
+    menu.close();
+    onChange(aggregate);
+  };
+  const pickProperty = (prop: Property) => {
+    const fns = boardAggregateFunctionsOf(prop);
+    // Numbers are summed, dates show the earliest (what's due next) and checkboxes count the
+    // checked ones by default; other types count their values.
+    const fn = fns.find((f) => f === "sum" || f === "earliest_date") ?? fns[0];
+    pick({ fn, propertyId: prop.id });
+  };
+  return (
+    <>
+      <button
+        ref={menu.ref}
+        type="button"
+        draggable={false}
+        title={`${title} · ${t("board.changeColumnFigure")}`}
+        aria-label={`${title}. ${t("board.changeColumnFigure")}`}
+        onClick={menu.toggle}
+        className={cn(className, "-mx-1 h-6 rounded px-1 hover:bg-fg/10")}
+      >
+        {figure}
+      </button>
+      <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="start" className="max-h-96 overflow-y-auto">
+        <div className="w-56">
+          <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("board.columnsShow")}</div>
+          <MenuItem
+            active={measure.kind === "count"}
+            icon={measure.kind === "count" ? <Check className="h-3.5 w-3.5" /> : <span />}
+            onClick={() => pick(undefined)}
+          >
+            {t("board.cardCountOption")}
+          </MenuItem>
+          {measurable.length > 0 && <MenuSeparator />}
+          {measurable.map((p) => (
+            <MenuItem
+              key={p.id}
+              active={measure.kind === "aggregate" && measure.prop.id === p.id}
+              icon={<PropertyTypeIcon type={p.type} />}
+              onClick={() => (measure.kind === "aggregate" && measure.prop.id === p.id ? menu.close() : pickProperty(p))}
+            >
+              {p.name}
+            </MenuItem>
+          ))}
+          {measure.kind === "aggregate" && (
+            <>
+              <MenuSeparator />
+              <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("chart.calculation")}</div>
+              {boardAggregateFunctionsOf(properties.find((p) => p.id === measure.prop.id)!).map((fn, i, fns) => (
+                <Fragment key={fn}>
+                  {i > 0 && aggregateGroup(fn) !== aggregateGroup(fns[i - 1]) && <MenuSeparator />}
+                  <MenuItem
+                    active={fn === measure.fn}
+                    icon={fn === measure.fn ? <Check className="h-3.5 w-3.5" /> : <span />}
+                    onClick={() => (fn === measure.fn ? menu.close() : pick({ fn, propertyId: measure.prop.id }))}
+                  >
+                    {tc(`menu.${fn}`)}
+                  </MenuItem>
+                </Fragment>
+              ))}
+            </>
+          )}
+        </div>
+      </Floating>
+    </>
   );
 }
 

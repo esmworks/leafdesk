@@ -55,6 +55,7 @@ const RUN = `access-requests-e2e-${Date.now().toString(36)}`;
 // app server. Broadcasts are recorded so the inbox signal can be checked.
 const broadcasts: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast: (channel: string, event: string) => void broadcasts.push(`${channel} ${event}`),
   async disconnectUser() {},
   async disconnectLostAccess() {},
@@ -370,6 +371,32 @@ try {
   check((await requestsFor(secret)).some((r) => r.requesterId === alice), "a member asks");
   await setPagePermission(owner, secret, alice, "edit");
   check((await requestsFor(secret)).every((r) => r.requesterId !== alice), "sharing the page with them from the panel answers it");
+
+  // A guest with full access learns who asked, but not the address of anyone in the workspace
+  await db.insert(page).values([P("guestroom")]);
+  const guestRoom = `${RUN}-guestroom`;
+  await setPagePermission(owner, guestRoom, owner, "full");
+  await setPagePermission(owner, guestRoom, null, "none");
+  await setPagePermission(owner, guestRoom, guest, "full");
+  sent.length = 0;
+  await requestPageAccess(bob, guestRoom, "me too");
+  await requestPageAccess(stranger, guestRoom);
+  const asGuest = await listAccessRequests(guest, guestRoom);
+  const bobAsked = asGuest.find((r) => r.requesterId === bob);
+  check(bobAsked?.name === "Name bob" && bobAsked.email === null, "a guest's share panel names a member who asked, without their address", asGuest);
+  check(asGuest.find((r) => r.requesterId === stranger)?.email === emailOf(stranger), "…and shows the address of someone outside, who gave it by asking", asGuest);
+  check((await listAccessRequests(owner, guestRoom)).find((r) => r.requesterId === bob)?.email === emailOf(bob), "…while members still see it");
+  const guestInbox = (await listInbox(guest, workspaceId)).filter((i) => i.kind === "access_request" && i.pageId === guestRoom);
+  const bobInInbox = guestInbox.find((i) => i.actorName === "Name bob");
+  check(bobInInbox?.accessRequest?.requesterEmail === "", "…nor does the guest's inbox", guestInbox);
+  await flushShareEmails();
+  const guestMails = mailTo(emailOf(guest)).filter((m) => m.subject.includes("asked for access"));
+  check(
+    guestMails.length === 2 && guestMails.every((m) => !m.text.includes(emailOf(bob)) && !m.subject.includes(emailOf(bob))),
+    "…nor the email about it",
+    guestMails.map((m) => m.text),
+  );
+  check(guestMails.some((m) => m.text.includes(emailOf(stranger))), "…which does show the outsider's address");
 
   // The workspace setting
   await rejects(() => updateWorkspaceSettings(alice, workspaceId, { accessRequests: false }), isAccessError, "only owners turn requests off");

@@ -23,7 +23,14 @@ import {
 } from "@/lib/content-blocks";
 import { columnBlockSpecs, groupColumns } from "@/lib/columns";
 import { finishMarkdownImport, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
-import { carryOverMentions, mentionConfig, mentionPlainText, pageLinkBlockConfig, type MentionPerson } from "@/lib/mentions";
+import {
+  carryOverMentions,
+  mentionConfig,
+  mentionPlainText,
+  pageLinkBlockConfig,
+  syncedPageBlockConfig,
+  type MentionPerson,
+} from "@/lib/mentions";
 import {
   databaseBlockConfig,
   linkedViewBlockConfig,
@@ -143,6 +150,8 @@ export const pageSchema = BlockNoteSchema.create({
     ...contentBlockSpecs,
     ...webBlockServerSpecs,
     pageLink: createBlockSpec(pageLinkBlockConfig, marker("pageLink"))(),
+    // Only the page's id: its body is never part of this page's text, Markdown or history.
+    syncedPage: createBlockSpec(syncedPageBlockConfig, marker("syncedPage"))(),
     ...columnBlockSpecs(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, mention },

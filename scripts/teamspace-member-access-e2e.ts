@@ -37,6 +37,7 @@ const RUN = `tsaccess-e2e-${Date.now().toString(36)}`;
 
 const disconnected: string[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async readPage() {

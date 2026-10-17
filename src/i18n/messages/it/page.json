@@ -388,6 +388,11 @@
       "subtext": "Un link a un’altra pagina, con il suo titolo sempre aggiornato",
       "aliases": "link page mention reference pagina menzione riferimento collegamento"
     },
+    "syncedPage": {
+      "title": "Pagina sincronizzata",
+      "subtext": "Il contenuto di un'altra pagina, in tempo reale e modificabile qui",
+      "aliases": "sincronizzata sincronizza specchio incorpora pagina synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colori",
       "text": "Testo {color}",
@@ -455,6 +460,7 @@
     "noAccess": "Nessun accesso",
     "deleted": "Pagina eliminata",
     "loading": "Caricamento…",
+    "atBlock": "Apre la pagina a un blocco",
     "personLeft": "{name} (non più nello spazio di lavoro)",
     "date": "Data",
     "reminder": "Promemoria",
@@ -473,15 +479,27 @@
     "empty": "Nessuna pagina trovata",
     "failed": "Impossibile caricare le pagine."
   },
+  "syncedPage": {
+    "label": "Pagina sincronizzata",
+    "viewOnly": "Sola lettura",
+    "cycle": "Questa pagina è già mostrata più in alto, qui c'è solo il link."
+  },
   "backlinks": {
     "title": "Collegamenti in entrata",
+    "titleCount": "Collegamenti in entrata · {count}",
     "count": "{count, plural, one {# pagina rimanda qui} other {# pagine rimandano qui}}",
     "unlinked": "Menzioni non collegate · {count}",
     "unlinkedHint": "Pagine che scrivono il titolo di questa pagina senza collegarla",
     "link": "Collega",
     "linkLabel": "Collega la menzione in {title}",
     "linkFailed": "Il titolo non è più scritto lì come testo semplice.",
-    "locked": "Quella pagina è bloccata, quindi non può cambiare."
+    "locked": "Quella pagina è bloccata, quindi non può cambiare.",
+    "morePlaces": "{count, plural, one {Ancora # punto} other {Ancora # punti}}",
+    "fewerPlaces": "Mostra meno",
+    "morePages": "{count, plural, one {Mostra un'altra pagina} other {Mostra altre # pagine}}"
+  },
+  "blockMenu": {
+    "copyLink": "Copia link al blocco"
   },
   "pdf": {
     "untitled": "PDF",

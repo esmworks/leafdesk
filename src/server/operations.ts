@@ -29,8 +29,11 @@ import * as databases from "@/server/databases";
 import { resolveEmbeds } from "@/server/embeds";
 import * as forms from "@/server/forms";
 import * as groups from "@/server/groups";
+import * as journal from "@/server/journal";
+import * as journalDays from "@/lib/journal";
+import { isTimeZone } from "@/lib/time-zone";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
-import { labelPageLinks, listBacklinks } from "@/server/mentions";
+import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
 import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
@@ -378,6 +381,25 @@ export const inputs = {
       .optional()
       .describe("What the skill is for and when to use it, in a sentence or two. Empty clears it."),
   }),
+  dailyNote: z.object({
+    workspace_id: id("workspace"),
+    date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional()
+      .describe("The day, YYYY-MM-DD. Leave out for today in time_zone."),
+    time_zone: z
+      .string()
+      .max(64)
+      .optional()
+      .describe('The user\'s IANA time zone (such as "Europe/Istanbul"), for what today is when date is left out. UTC when left out.'),
+  }),
+  listDailyNotes: z.object({
+    workspace_id: id("workspace"),
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("First day to list, YYYY-MM-DD."),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Last day to list, YYYY-MM-DD."),
+    limit: z.number().int().min(1).max(366).default(31).describe("Maximum notes (1-366, default 31), newest first."),
+  }),
 };
 
 type Args<K extends keyof typeof inputs> = z.infer<(typeof inputs)[K]>;
@@ -491,7 +513,8 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
 
 /**
  * Full-text search, merged with semantic search where the server has an embeddings model (see
- * pages.searchPages). `match` says how a result was found: "semantic" when only by meaning.
+ * pages.searchPages). `match` says how a result was found: "semantic" when only by meaning;
+ * `document`, the PDF or Word document the page shows whose words matched, when not its own text.
  * `withinPageId` keeps to a page and its subpages; `passages` adds the best matching passage of
  * each page (as far as semantic search found one) and the block it starts at (AI chat). `anyWord`:
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
@@ -512,10 +535,47 @@ export async function search(
       parent_id: h.parentId,
       snippet: h.snippet,
       match: h.match ?? ("text" as const),
+      // Found by the words of a PDF or Word document the page shows (the snippet is from it).
+      document: h.file ? { id: h.file.id, name: h.file.name } : null,
       updated_at: h.updatedAt.toISOString(),
       url: pageUrl(h.workspaceId, h.id),
       ...(passages ? { passage: h.passage ?? null, block_id: h.blockId ?? null } : {}),
     })),
+  };
+}
+
+/** A daily note's day as given, or today in `timeZone` (UTC when it isn't one). */
+function noteDay(date: string | undefined, timeZone: string | undefined) {
+  if (timeZone !== undefined && !isTimeZone(timeZone)) throw new ToolInputError(`"${timeZone}" is not an IANA time zone such as "Europe/Istanbul".`);
+  return date ?? journalDays.today(timeZone ?? "UTC");
+}
+
+function journalCall<T>(fn: () => Promise<T>) {
+  return fn().catch((error) => {
+    if (error instanceof journal.JournalError) throw new ToolInputError(`${error.message}.`);
+    throw error;
+  });
+}
+
+/** The user's note for a day, made under their private journal when they have none yet. */
+export async function getOrCreateDailyNote(ctx: OperationContext, { workspace_id, date, time_zone }: Args<"dailyNote">) {
+  const day = noteDay(date, time_zone);
+  const note = await journalCall(() => journal.getOrCreateDailyNote(ctx.actor, workspace_id, day));
+  return {
+    date: note.day,
+    id: note.pageId,
+    title: pageLabel(note.title),
+    created: note.created,
+    workspace_id,
+    url: pageUrl(workspace_id, note.pageId),
+  };
+}
+
+/** The user's daily notes in a workspace, newest first. */
+export async function listDailyNotes(ctx: OperationContext, { workspace_id, from, to, limit }: Args<"listDailyNotes">) {
+  const notes = await journalCall(() => journal.listDailyNotes(ctx.userId, workspace_id, { from, to, limit }));
+  return {
+    notes: notes.map((n) => ({ date: n.day, id: n.pageId, title: pageLabel(n.title), url: pageUrl(workspace_id, n.pageId) })),
   };
 }
 
@@ -621,13 +681,22 @@ export async function getPage(
     if (children.length > 100) out.child_pages_truncated = children.length;
     const backlinks = await listBacklinks(userId, page.id);
     if (backlinks.length) {
-      out.linked_from = backlinks.map((b) => ({
-        id: b.id,
-        title: pageLabel(b.title),
-        url: pageUrl(b.workspaceId, b.id),
-        // The text around the link, the link read as this page's title.
-        ...(b.context ? { context: b.context.replaceAll(LINK_PLACEHOLDER, pageLabel(page.title)) } : {}),
-      }));
+      const own = (text: string) => text.replaceAll(LINK_PLACEHOLDER, pageLabel(page.title));
+      out.linked_from = backlinks.map((b) => {
+        // The text around each link, the link read as this page's title.
+        const contexts = (b.places ?? []).flatMap((p) => (p.context ? [own(p.context)] : []));
+        return {
+          id: b.id,
+          title: pageLabel(b.title),
+          url: pageUrl(b.workspaceId, b.id),
+          ...(b.context ? { context: own(b.context) } : {}),
+          ...(contexts.length > 1 ? { contexts } : {}),
+        };
+      });
+      if (backlinks.length === MAX_BACKLINKS) {
+        const total = await countBacklinks(userId, page.id);
+        if (total > backlinks.length) out.linked_from_truncated = total;
+      }
     }
   }
   return out;

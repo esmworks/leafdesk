@@ -388,6 +388,11 @@
       "subtext": "A link to another page, with its live title",
       "aliases": "link page mention reference"
     },
+    "syncedPage": {
+      "title": "Synced page",
+      "subtext": "Another page's content, live and editable here",
+      "aliases": "synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colors",
       "text": "{color} text",
@@ -455,6 +460,7 @@
     "noAccess": "No access",
     "deleted": "Deleted page",
     "loading": "Loading…",
+    "atBlock": "Opens at a block of the page",
     "personLeft": "{name} (no longer in the workspace)",
     "date": "Date",
     "reminder": "Reminder",
@@ -473,15 +479,27 @@
     "empty": "No pages found",
     "failed": "Couldn't load pages."
   },
+  "syncedPage": {
+    "label": "Synced page",
+    "viewOnly": "View only",
+    "cycle": "This page is already shown above, so it's only linked here."
+  },
   "backlinks": {
     "title": "Linked from",
+    "titleCount": "Linked from · {count}",
     "count": "{count, plural, one {# page links here} other {# pages link here}}",
     "unlinked": "Unlinked mentions · {count}",
     "unlinkedHint": "Pages that write this page's title without linking to it",
     "link": "Link",
     "linkLabel": "Link the mention in {title}",
     "linkFailed": "The title isn't written there as plain text any more.",
-    "locked": "That page is locked, so it can't change."
+    "locked": "That page is locked, so it can't change.",
+    "morePlaces": "{count, plural, one {# more place} other {# more places}}",
+    "fewerPlaces": "Show fewer",
+    "morePages": "{count, plural, one {Show # more page} other {Show # more pages}}"
+  },
+  "blockMenu": {
+    "copyLink": "Copy link to block"
   },
   "pdf": {
     "untitled": "PDF",

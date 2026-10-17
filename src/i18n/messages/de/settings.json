@@ -397,6 +397,7 @@
       "keptList": "Die Notizen des Agenten",
       "empty": "Noch nichts. Behalten Sie eine Notiz, die seine Läufe vorschlagen, oder schreiben Sie hier eine.",
       "hiddenText": "Auf einer Zeile vorgeschlagen, die Sie nicht öffnen können.",
+      "hiddenOthersText": "Von einem Lauf vorgeschlagen, den ein anderer Inhaber gestartet hat.",
       "fromRow": "Aus einem Lauf auf <row>einer Zeile</row>",
       "fromHiddenRow": "Aus einem Lauf auf einer Zeile, die Sie nicht öffnen können",
       "fromConnection": "Aus einem Lauf, den {connection} gestartet hat",

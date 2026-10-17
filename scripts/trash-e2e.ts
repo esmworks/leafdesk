@@ -14,17 +14,17 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { inArray } = await import("drizzle-orm");
+const { eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
-const { archivePage, getTree, listTrash, restorePage } = await import("@/server/pages");
+const { archivePage, createPage, getTree, listTrash, lockLiveParent, movePage, restorePage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 
 const RUN = `trash-e2e-${Date.now().toString(36)}`;
 
 // Writes notify open editors through the collab service, which only runs inside the app server.
-registerCollab({ broadcast() {}, async disconnectLostAccess() {} } as unknown as Parameters<typeof registerCollab>[0]);
+registerCollab({ async pagesTrashed() {}, broadcast() {}, async disconnectLostAccess() {} } as unknown as Parameters<typeof registerCollab>[0]);
 
 let passed = 0;
 function check(condition: unknown, label: string, detail?: unknown): asserts condition {
@@ -99,6 +99,31 @@ try {
   await archivePage(owner, B);
   const trash = new Map((await listTrash(bob, workspaceId)).map((r) => [r.id, r.level]));
   check(trash.get(B) === "edit" && trash.get(D) === "view", "trash entries carry the level", [...trash]);
+
+  // Nothing goes under a page in the trash: it would be hidden there, and deleted with it
+  const code = (error: unknown) => (error as { code?: string }).code;
+  await restorePage(owner, D);
+  check(code(await movePage(owner, D, B).catch((e) => e)) === "parentInTrash", "a page can't be moved under a page in the trash");
+  check(code(await movePage(owner, D, C).catch((e) => e)) === "parentInTrash", "…nor under a page trashed with it");
+  check(code(await createPage({ userId: owner }, { workspaceId, parentId: C, title: "New" }).catch((e) => e)) === "parentInTrash", "…and none is added there");
+  check((await archived(D)).join() === "false" && (await db.select().from(page).where(eq(page.id, D)))[0].parentId === A, "…so it stays where it was");
+  // A move that holds its new parent while that parent goes to the trash: the trash takes it along.
+  await restorePage(owner, B);
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  const moving = db.transaction(async (tx) => {
+    await lockLiveParent(tx, C);
+    await tx.update(page).set({ parentId: C }).where(eq(page.id, D));
+    await held;
+  });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  const trashing = archivePage(owner, B);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  release();
+  await Promise.all([moving, trashing]);
+  check((await archived(B, C, D)).join() === "true,true,true", "a page moved under one while it goes to the trash goes along", await archived(B, C, D));
+  await restorePage(owner, B);
+  check((await archived(B, C, D)).join() === "false,false,false", "…and comes back with it");
 
   console.log(`\n${passed} checks passed`);
 } finally {

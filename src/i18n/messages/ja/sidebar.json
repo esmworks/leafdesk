@@ -53,6 +53,7 @@
     "noResults": "結果がありません",
     "semantic": "意味が近い結果",
     "semanticHint": "意味で見つかった結果です。検索した語とは異なる語が使われています。",
+    "inDocument": "このページの文書「{name}」で見つかりました",
     "recent": "最近編集したページ",
     "commands": "コマンド",
     "noCommands": "一致するコマンドはありません",

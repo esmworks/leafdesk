@@ -133,7 +133,11 @@ async function keepPage(path, response) {
     recent = [];
   }
   const cache = await caches.open(PAGE_CACHE_PREFIX + owner);
-  await cache.put(path, new Response(html, { headers: { "content-type": type } }));
+  // The page's policy goes with it: its nonce is the one in the kept HTML.
+  const headers = { "content-type": type };
+  const policy = response.headers.get("content-security-policy");
+  if (policy) headers["content-security-policy"] = policy;
+  await cache.put(path, new Response(html, { headers }));
   recent = [path, ...recent.filter((p) => p !== path)];
   await Promise.all(recent.slice(MAX_PAGES).map((p) => cache.delete(p)));
   await writeMeta({ owner, recent: recent.slice(0, MAX_PAGES) });

@@ -397,6 +397,7 @@
       "keptList": "Ajanın notları",
       "empty": "Henüz not yok. Çalışmalarının önerdiği bir notu tutun ya da buraya bir not yazın.",
       "hiddenText": "Açamadığınız bir satırda önerildi.",
+      "hiddenOthersText": "Başka bir sahibin başlattığı bir çalıştırma önerdi.",
       "fromRow": "<row>satır</row> satırındaki çalışmadan",
       "fromHiddenRow": "Açamadığınız bir satırdaki çalışmadan",
       "fromConnection": "{connection} ile başlayan bir çalışmadan",

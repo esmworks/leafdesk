@@ -356,7 +356,10 @@
     "colors": "Colors",
     "confirmDeleteGroup": "Delete the “{name}” group? Its {count, plural, one {# card moves} other {# cards move}} to No {property}.",
     "hiddenGroups": "Hidden groups ({count})",
-    "showGroup": "Show"
+    "showGroup": "Show",
+    "columnsShow": "Columns show",
+    "cardCountOption": "Card count",
+    "changeColumnFigure": "Change what the columns show"
   },
   "cell": {
     "empty": "Empty",
@@ -732,6 +735,7 @@
     "relationTargetReadOnly": "You can only view that database, so the link can’t be shown there too. Untick that option or ask for edit access.",
     "databaseLocked": "This database is locked. Unlock it to change its properties and views.",
     "pageLocked": "This page is locked. Unlock it from its menu to change its title, icon, background or text.",
+    "pageInTrash": "This page is in the trash. Restore it to change it.",
     "invalidPerson": "“{property}” can only hold people of this workspace.",
     "readOnlyProperty": "“{property}” is filled in automatically and can’t be changed.",
     "invalidFilter": "This filter can’t be saved. Reload the page and try again.",
@@ -745,6 +749,7 @@
     "invalidPageVisibility": "This row page setting can’t be saved.",
     "calendarFeedNotCalendar": "Only calendar views can be subscribed to.",
     "calendarFeedExportOff": "The workspace’s owners turned export off, so calendar subscriptions are off too.",
+    "webhookExportOff": "The workspace’s owners turned export off, so webhooks are off too.",
     "isTemplate": "Templates can’t be moved or put in the trash. Delete them from the template list instead.",
     "notATemplate": "This page is not a template of this workspace or database.",
     "propertyRestricted": "You don’t have access to change “{property}”.",

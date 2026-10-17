@@ -1,0 +1,1 @@
+ALTER TABLE "calendar_feed" ADD COLUMN "time_zone" text;

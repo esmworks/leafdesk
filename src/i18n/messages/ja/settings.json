@@ -397,6 +397,7 @@
       "keptList": "エージェントのメモ",
       "empty": "まだ何もありません。実行が提案したメモを保持するか、ここでメモを書いてください。",
       "hiddenText": "あなたが開けない行で提案されました。",
+      "hiddenOthersText": "別のオーナーが開始した実行による提案です。",
       "fromRow": "<row>行</row>での実行から",
       "fromHiddenRow": "あなたが開けない行での実行から",
       "fromConnection": "{connection}によって開始された実行から",

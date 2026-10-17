@@ -3,13 +3,16 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { parseIcon } from "@/lib/icon";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
-import { assertPageUnlocked } from "@/lib/page-lock";
+import { assertNotInTrash, assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
 import { anyWordTerms, anyWordTsQuery, searchQueryParts } from "@/lib/search-words";
 import {
   databaseProperty,
   databaseView,
+  file,
+  fileReference,
+  fileText,
   oauthClient,
   page,
   pageColumns,
@@ -52,6 +55,7 @@ import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
 import { searchFoldSql } from "@/server/search-fold-sql";
+import { sweepDocuments } from "@/server/file-text";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
@@ -280,6 +284,19 @@ async function pagePlace(parentId: string | null, teamspaceId: string | null): P
  * `audit: false` leaves the page out of the audit log: imports record themselves once, as a whole
  * (and take back what they created when they fail).
  */
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * In the transaction that puts a page under `parentId`: refuses a parent in the trash (a page
+ * under it would be hidden, and deleted with it), and holds the parent until the transaction ends.
+ * Trashing it meanwhile waits, and its sweep then takes the new page along (archivePage); a page
+ * put there after it was trashed finds it in the trash.
+ */
+export async function lockLiveParent(tx: Tx, parentId: string) {
+  const [row] = await tx.execute<{ archived_at: Date | null }>(sql`select archived_at from ${page} where id = ${parentId} for share`);
+  if (!row || row.archived_at) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
+}
+
 export async function createPage(actor: WriteActor, input: CreatePageInput, { audit = true }: { audit?: boolean } = {}) {
   const { userId } = actor;
   const kind = input.kind ?? "page";
@@ -318,6 +335,7 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
 
   const position = await nextPosition(workspaceId, input.parentId ?? null);
   const created = await db.transaction(async (tx) => {
+    if (input.parentId) await lockLiveParent(tx, input.parentId);
     const [row] = await tx
       .insert(page)
       .values({
@@ -383,8 +401,14 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
   return created;
 }
 
+/** The checks every change of a page's title, icon, background or body makes. */
+function assertChangeable(p: Parameters<typeof assertPageUnlocked>[0] & Parameters<typeof assertNotInTrash>[0]) {
+  assertNotInTrash(p);
+  assertPageUnlocked(p);
+}
+
 export async function renamePage(actor: WriteActor, pageId: string, title: string) {
-  assertPageUnlocked(await requirePageAccess(actor.userId, pageId, "edit"));
+  assertChangeable(await requirePageAccess(actor.userId, pageId, "edit"));
   // Title lives in the shared doc so open editors update live; the store hook persists it.
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
@@ -399,7 +423,7 @@ function checkedIcon(value: unknown) {
 export async function setPageIcon(userId: string, pageId: string, icon: string | null) {
   const checked = icon === null ? null : checkedIcon(icon);
   const p = await requirePageAccess(userId, pageId, "edit");
-  assertPageUnlocked(p);
+  assertChangeable(p);
   await db.update(page).set({ icon: checked, updatedBy: userId }).where(eq(page.id, pageId));
   pageHeaderChanged(p);
 }
@@ -436,7 +460,7 @@ function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: strin
 /** Sets or removes the page's background color (lib/page-background). */
 export async function setPageBackground(userId: string, pageId: string, background: PageBackground | null) {
   const p = await requirePageAccess(userId, pageId, "edit");
-  assertPageUnlocked(p);
+  assertChangeable(p);
   const checked = background === null ? null : parsePageBackground(background);
   if (background !== null && !checked) throw new Error("Not a background");
   await db.update(page).set({ background: checked, updatedBy: userId }).where(eq(page.id, pageId));
@@ -457,10 +481,18 @@ export async function archivePage(userId: string, pageId: string) {
   const p = await requirePageAccess(userId, pageId, "edit");
   // Templates aren't listed in the trash; they are deleted from the template picker instead.
   if (p.isTemplate) throw withCode(new Error("Templates are deleted, not moved to the trash"), "isTemplate");
-  await db
-    .update(page)
-    .set({ archivedAt: new Date(), updatedBy: userId })
-    .where(and(sql`${page.id} in ${subtreeIds(pageId)}`, isNull(page.archivedAt)));
+  const archivedAt = new Date();
+  const sweep = () =>
+    db
+      .update(page)
+      .set({ archivedAt, updatedBy: userId })
+      .where(and(sql`${page.id} in ${subtreeIds(pageId)}`, isNull(page.archivedAt)))
+      .returning({ id: page.id });
+  // Twice: a page moved or added under one of these while the first sweep waited for it
+  // (lockLiveParent) isn't in what that sweep read, and would be left alive under a page in the trash.
+  const trashed = [...(await sweep()), ...(await sweep())];
+  // Open editors stop writing at once: a page in the trash doesn't change (assertNotInTrash).
+  await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   if (!p.archivedAt && (await auditedAsPage(p))) {
     await recordAudit({
       workspaceId: p.workspaceId,
@@ -487,21 +519,27 @@ export async function archiveRows(userId: string, databaseId: string, rowIds: st
   const { rows, skipped } = await rowsWithAccess(userId, databaseId, ids, "edit");
   if (!rows.length) return { done: [], skipped };
   const roots = rows.map((r) => r.id);
-  await db
-    .update(page)
-    .set({ archivedAt: new Date(), updatedBy: userId })
-    .where(
-      and(
-        sql`${page.id} in (
-          with recursive sub as (
-            select id from ${page} where ${inArray(page.id, roots)}
-            union all
-            select p.id from ${page} p join sub on p.parent_id = sub.id
-          ) select id from sub
-        )`,
-        isNull(page.archivedAt),
-      ),
-    );
+  const archivedAt = new Date();
+  const sweep = () =>
+    db
+      .update(page)
+      .set({ archivedAt, updatedBy: userId })
+      .where(
+        and(
+          sql`${page.id} in (
+            with recursive sub as (
+              select id from ${page} where ${inArray(page.id, roots)}
+              union all
+              select p.id from ${page} p join sub on p.parent_id = sub.id
+            ) select id from sub
+          )`,
+          isNull(page.archivedAt),
+        ),
+      )
+      .returning({ id: page.id });
+  // Twice, as in archivePage.
+  const trashed = [...(await sweep()), ...(await sweep())];
+  await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   getCollab().broadcast(`ws:${database.workspaceId}`, "tree");
   getCollab().broadcast(`db:${databaseId}`, "rows");
   return { done: roots, skipped };
@@ -517,7 +555,7 @@ export async function restorePage(userId: string, pageId: string) {
   }
   // Only what was trashed together with it: subpages trashed earlier stay in the trash as their own
   // entries (archivePage stamps just the pages that weren't archived yet).
-  await db
+  const restored = await db
     .update(page)
     .set({ archivedAt: null })
     .where(
@@ -525,7 +563,9 @@ export async function restorePage(userId: string, pageId: string) {
         sql`${page.id} in ${subtreeIds(pageId)}`,
         sql`${page.archivedAt} = (select root.archived_at from ${page} root where root.id = ${pageId})`,
       ),
-    );
+    )
+    .returning({ id: page.id });
+  await getCollab().pagesTrashed(restored.map((r) => r.id), false);
   if (parentId !== p.parentId) {
     // Lifted to the top of its teamspace (or of the private pages): it keeps the access it had
     // from its old ancestors rather than opening up to everyone there, or to nobody.
@@ -675,6 +715,7 @@ export async function movePage(
       throw withCode(new Error("Pages can't be moved into or out of a template"), "isTemplate");
     }
     if (parent.workspaceId !== p.workspaceId) throw new AccessError("Cannot move across workspaces");
+    if (parent.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
     if (parent.kind === "database" && p.kind === "database") throw new Error("A database cannot be a row");
     const cycle = await db.execute<{ hit: number }>(
       sql`select 1 as hit from ${subtreeIds(pageId)} s where s.id = ${newParentId}`,
@@ -695,6 +736,7 @@ export async function movePage(
       ? { from: await pagePlace(p.parentId, p.teamspaceId), to: await pagePlace(newParentId, space ?? null) }
       : null;
   await db.transaction(async (tx) => {
+    if (newParentId && newParentId !== p.parentId) await lockLiveParent(tx, newParentId);
     // Under a parent the database copies its teamspace (and to everything below it).
     await tx
       .update(page)
@@ -744,6 +786,8 @@ export type SearchHit = {
   /** With semantic search: the passage that matched best, and the block it starts at. */
   passage?: string;
   blockId?: string | null;
+  /** Full-text search found the page by the words of a document its body shows, not its own: that document (the snippet is from it). */
+  file?: { id: string; name: string };
 };
 
 export type SearchOptions = SearchScope & {
@@ -814,6 +858,10 @@ export async function searchPages(userId: string, query: string, options: Search
  * finds "Kondenser planı"). The match and the ranking read the page's stored search vector
  * (page.searchVector) through its index, and access is checked in rank order only until `limit`
  * pages pass, so a search costs about the same in a workspace of any size.
+ *
+ * A page is also found when a PDF or Word document its body shows has every word (each document
+ * on its own, not words spread over the page and its documents), below the pages that have them
+ * in their own text; the hit then names the document and its snippet comes from it.
  */
 export async function fullTextSearch(
   userId: string,
@@ -829,6 +877,8 @@ export async function fullTextSearch(
   if (workspaceId) await enforceWorkspacePolicy(userId, workspaceId);
   const workspaces = workspaceId ? [workspaceId] : await searchedWorkspaces(userId);
   if (!workspaces.length) return [];
+  // Documents uploaded before their text was read for search, read in the background meanwhile.
+  if (q) for (const id of workspaces) void sweepDocuments(id).catch((error) => console.error("[search] queuing documents failed", error));
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   // Every word as a prefix, cut by the parser that made the vectors ("e-posta" is the word and its
   // parts, as on the page), and Chinese and Japanese text by its two-character pieces
@@ -847,6 +897,26 @@ export async function fullTextSearch(
     ? sql`ts_rank(p.search_vector, ${words}, 1)`
     : sql`(case when p.title ilike ${like} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
   const matches = q ? sql`p.search_vector @@ ${words}` : sql`true`;
+  const inWorkspaces = sql.join(workspaces.map((w) => sql`${w}`), sql`, `);
+  // Pages whose body shows a PDF or Word document with the words (file-text.ts), through a
+  // reference its readers may read it by: the rule semantic search indexes documents by
+  // (file-text.pageDocuments), so the document's words find nothing someone couldn't read there.
+  // Its vector has no weight, so a page matching in its own text ranks above one matching only in
+  // a document.
+  const documentHits = q
+    ? sql`
+        union all
+        select p.id, ts_rank(ft.search_vector, ${words}, 1) as rank, ft.file_id
+        from ${fileText} ft
+        join ${file} f on f.id = ft.file_id
+        join ${fileReference} fr on fr.file_id = f.id and (fr.authorized or f.page_id = fr.page_id)
+        join ${page} p on p.id = fr.page_id and p.workspace_id = f.workspace_id
+        where f.workspace_id in (${inWorkspaces})
+          and ft.search_vector @@ ${words}
+          and p.archived_at is null
+          and not p.in_template
+          ${searchScope(scope, userId)}`
+    : sql``;
   const rows = await db.execute<{
     id: string;
     workspace_id: string;
@@ -857,20 +927,39 @@ export async function fullTextSearch(
     icon: string | null;
     content_text: string;
     updated_at: Date;
+    file_id: string | null;
+    file_name: string | null;
+    file_text: string | null;
   }>(sql`
-    with hits as (
+    with candidates as (
+      select p.id, ${rank} as rank, null::text as file_id
+      from ${page} p
+      where p.workspace_id in (${inWorkspaces})
+        and p.archived_at is null
+        and not p.in_template
+        ${searchScope(scope, userId)}
+        and ${matches}
+      ${documentHits}
+    ),
+    scored as (
+      -- A page's own match plus its best document's; the document is named only when the page's
+      -- own text doesn't match.
+      select id,
+        coalesce(max(rank) filter (where file_id is null), 0) + coalesce(max(rank) filter (where file_id is not null), 0) as rank,
+        case when bool_or(file_id is null) then null
+          else (array_agg(file_id order by rank desc, file_id) filter (where file_id is not null))[1] end as file_id
+      from candidates
+      group by id
+    ),
+    hits as (
       -- Ranked first, then checked in that order until enough pass: the check is a function call
       -- per page, which a common word (or the first letters of one) would make for most pages.
       -- "offset 0" keeps the check out of the ranked set, and the ranked set in its order.
-      select r.id, r.rank, r.updated_at from (
-        select p.id, ${rank} as rank, p.updated_at
-        from ${page} p
-        where p.workspace_id in (${sql.join(workspaces.map((w) => sql`${w}`), sql`, `)})
-          and p.archived_at is null
-          and not p.in_template
-          ${searchScope(scope)}
-          and ${matches}
-        order by rank desc, p.updated_at desc
+      select r.id, r.rank, r.updated_at, r.file_id from (
+        select s.id, s.rank, p.updated_at, s.file_id
+        from scored s
+        join ${page} p on p.id = s.id
+        order by s.rank desc, p.updated_at desc
         offset 0
       ) r
       where ${pageVisibleTo(userId, "r")}
@@ -879,12 +968,16 @@ export async function fullTextSearch(
     select p.id, p.workspace_id, p.teamspace_id,
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
-      p.kind, p.title, p.icon, p.content_text, p.updated_at
+      p.kind, p.title, p.icon, p.content_text, p.updated_at,
+      h.file_id, f.name as file_name, left(ft.text, 80000) as file_text
     from hits h
     join ${page} p on p.id = h.id
     left join ${page} parent on parent.id = p.parent_id
+    left join ${file} f on f.id = h.file_id
+    left join ${fileText} ft on ft.file_id = h.file_id
     order by h.rank desc, h.updated_at desc
   `);
+  const needles = anyWord ? terms : [q, ...q.split(/\s+/)];
   return rows.map((r) => ({
     id: r.id,
     workspaceId: r.workspace_id,
@@ -893,8 +986,9 @@ export async function fullTextSearch(
     kind: r.kind,
     title: r.title,
     icon: r.icon,
-    snippet: makeSnippet(r.content_text, anyWord ? terms : [q, ...q.split(/\s+/)]),
+    snippet: makeSnippet(r.file_id ? (r.file_text ?? "") : r.content_text, needles),
     updatedAt: new Date(r.updated_at),
+    ...(r.file_id ? { file: { id: r.file_id, name: r.file_name ?? "" } } : {}),
   }));
 }
 
@@ -1007,7 +1101,7 @@ export async function getSnapshot(userId: string, snapshotId: string) {
 
 export async function restoreSnapshot(actor: WriteActor, snapshotId: string) {
   const snap = await getSnapshot(actor.userId, snapshotId);
-  assertPageUnlocked(await requirePageAccess(actor.userId, snap.pageId, "edit"));
+  assertChangeable(await requirePageAccess(actor.userId, snap.pageId, "edit"));
   await getCollab().restoreSnapshot(snapshotId, actor);
   return snap.pageId;
 }

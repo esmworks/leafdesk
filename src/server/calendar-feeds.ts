@@ -9,6 +9,7 @@ import { pageLabel } from "@/lib/labels";
 import { parseDateValue } from "@/lib/date-value";
 import { viewDateProperty } from "@/lib/views";
 import { sharedLimiter } from "@/lib/rate-limit";
+import { isTimeZone } from "@/lib/time-zone";
 import { AccessError, requireMembership } from "@/server/access";
 import { generateTokenSecret, hashToken, TOKEN_PREFIX } from "@/server/api/tokens";
 import { openAssignedRows } from "@/server/assigned";
@@ -75,37 +76,39 @@ async function assignedScope(userId: string, workspaceId: string): Promise<FeedS
 /** The feed's address for a secret. */
 const calendarFeedUrl = (secret: string) => `${env.appUrl}/api/calendar/${secret}.ics`;
 
-async function feedInfo(scope: FeedScope): Promise<CalendarFeedInfo> {
+async function feedInfo(scope: FeedScope, timeZone: string | undefined): Promise<CalendarFeedInfo> {
   const [allowed, [feed]] = await Promise.all([
     exportAllowed(scope.workspaceId),
     db.select({ createdAt: calendarFeed.createdAt, lastUsedAt: calendarFeed.lastUsedAt }).from(calendarFeed).where(scope.where),
+    // A feed made before feeds kept a zone takes the one its user opens it in.
+    isTimeZone(timeZone) ? db.update(calendarFeed).set({ timeZone }).where(and(scope.where, isNull(calendarFeed.timeZone))) : null,
   ]);
   return { allowed, feed: feed ?? null };
 }
 
-async function createFeed(userId: string, scope: FeedScope): Promise<string> {
+async function createFeed(userId: string, scope: FeedScope, timeZone: string | undefined): Promise<string> {
   if (!(await exportAllowed(scope.workspaceId))) {
     throw withCode(new Error("The workspace's owners turned export off"), "calendarFeedExportOff");
   }
   const secret = FEED_PREFIX + generateTokenSecret().slice(TOKEN_PREFIX.length, TOKEN_PREFIX.length + 36);
   await db.transaction(async (tx) => {
     await tx.delete(calendarFeed).where(scope.where);
-    await tx.insert(calendarFeed).values({ userId, ...scope.values, tokenHash: hashToken(secret) });
+    await tx.insert(calendarFeed).values({ userId, ...scope.values, tokenHash: hashToken(secret), timeZone: isTimeZone(timeZone) ? timeZone : null });
   });
   return calendarFeedUrl(secret);
 }
 
-/** Whether the user has a feed of the view, and since when. */
-export async function getCalendarFeed(userId: string, viewId: string): Promise<CalendarFeedInfo> {
-  return feedInfo(await viewScope(userId, viewId));
+/** Whether the user has a feed of the view, and since when. `timeZone` is theirs (see calendarFeed.timeZone). */
+export async function getCalendarFeed(userId: string, viewId: string, timeZone?: string): Promise<CalendarFeedInfo> {
+  return feedInfo(await viewScope(userId, viewId), timeZone);
 }
 
 /**
  * Makes the user a feed of the view, replacing the one they had (whose address stops working),
- * and returns its address: the only time it is shown.
+ * and returns its address: the only time it is shown. Its days are theirs in `timeZone`.
  */
-export async function createCalendarFeed(userId: string, viewId: string): Promise<string> {
-  return createFeed(userId, await viewScope(userId, viewId));
+export async function createCalendarFeed(userId: string, viewId: string, timeZone?: string): Promise<string> {
+  return createFeed(userId, await viewScope(userId, viewId), timeZone);
 }
 
 /** Stops the user's feed of the view. */
@@ -115,16 +118,16 @@ export async function deleteCalendarFeed(userId: string, viewId: string) {
 }
 
 /** Whether the user has a feed of the rows assigned to them in the workspace, and since when. */
-export async function getAssignedCalendarFeed(userId: string, workspaceId: string): Promise<CalendarFeedInfo> {
-  return feedInfo(await assignedScope(userId, workspaceId));
+export async function getAssignedCalendarFeed(userId: string, workspaceId: string, timeZone?: string): Promise<CalendarFeedInfo> {
+  return feedInfo(await assignedScope(userId, workspaceId), timeZone);
 }
 
 /**
  * Makes the user a feed of the rows assigned to them in the workspace, replacing the one they had,
  * and returns its address: the only time it is shown.
  */
-export async function createAssignedCalendarFeed(userId: string, workspaceId: string): Promise<string> {
-  return createFeed(userId, await assignedScope(userId, workspaceId));
+export async function createAssignedCalendarFeed(userId: string, workspaceId: string, timeZone?: string): Promise<string> {
+  return createFeed(userId, await assignedScope(userId, workspaceId), timeZone);
 }
 
 /** Stops the user's feed of the rows assigned to them in the workspace. */
@@ -195,10 +198,11 @@ async function viewFeedText(feed: Feed, viewId: string, now: Date): Promise<Feed
   const [allowed, properties] = await Promise.all([feedAllowed(feed, database.workspaceId, now), getProperties(database.id)]);
   if (!allowed) return { status: 404 };
 
-  // As the calendar view places rows.
+  // As the calendar view places rows, on the feed's user's days ("today" in a filter is theirs).
   const dateBy = viewDateProperty(view.config, properties);
   // requireCalendarView checked the database.
-  const rows = dateBy ? await viewedRows(feed.userId, database.id, view.config, properties) : [];
+  const timeZone = isTimeZone(feed.timeZone) ? feed.timeZone : "UTC";
+  const rows = dateBy ? await viewedRows(feed.userId, database.id, view.config, properties, { now, timeZone }) : [];
   const events = rows.flatMap((row) => rowEvent(row, row.properties[dateBy!.id], database.workspaceId) ?? []);
   const name = `${pageLabel(database.title, "Untitled")} · ${view.name}`;
   return { status: 200, body: icsCalendar(name, events), name };

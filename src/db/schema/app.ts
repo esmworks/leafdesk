@@ -31,8 +31,8 @@ const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
   fromDriver: (value) => new Uint8Array(value),
 });
 
-/** Postgres full-text vector; the database fills it (see page.searchVector). */
-const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
+/** Postgres full-text vector; the database fills it (see page.searchVector, fileText.searchVector). */
+export const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
 
 const id = () =>
   text("id")
@@ -709,6 +709,8 @@ export type ViewConfig = {
   groupDateBy?: GroupDateBy;
   /** Status grouping: one group per option (the default), or per stage (to do, in progress, done). */
   groupStatusBy?: GroupStatusBy;
+  /** Board views: what each column header shows: its card count when missing, or a calculation over one property. */
+  boardAggregate?: ChartAggregate;
   /** Board, table and chart views: group order by group key (see lib/grouping), "" for no value. Unlisted groups follow in their natural order. */
   groupOrder?: string[];
   /** Board, table and chart views: groups the user hid, by group key ("" for no value). */

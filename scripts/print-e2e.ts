@@ -147,7 +147,8 @@ try {
   const own = await printDocument(ids.owner, report.id);
   check(own.sections.length === 1 && own.sections[0].title === "Quarterly report" && own.workspaceId === workspaceId, "a page prints alone by default");
   const ownHtml = htmlOf(own.sections[0].body);
-  check(/<h2 id="heading-1"[^>]*>Overview<\/h2>/.test(ownHtml), "headings keep their anchors", ownHtml);
+  check(/<h2 id="heading-1"[^>]*>(?:<span id="block-[\w-]+" class="block-anchor"><\/span>)?Overview<\/h2>/.test(ownHtml), "headings keep their anchors", ownHtml);
+  check(/<span id="block-[\w-]+" class="block-anchor"><\/span>Overview/.test(ownHtml), "…and blocks have anchors for links to a block", ownHtml);
   check(ownHtml.includes("<table") && ownHtml.includes("North") && ownHtml.includes("1200"), "tables print", ownHtml);
   check(ownHtml.includes("<pre") && ownHtml.includes("wrap-me-wrap-me"), "code blocks print", ownHtml);
   check(ownHtml.includes(`/api/files/${photo.id}`), "uploaded images point at the file route", ownHtml);

@@ -1,7 +1,9 @@
 /**
  * End-to-end check of the "Linked from" list against the database: the text kept around each link
  * (other pages' titles left out, kept up to date, none for a "Link to page" block, carried to
- * copies, in MCP's get_page), unlinked mentions (whole words, the Turkish dotted and dotless i,
+ * copies, in MCP's get_page), every block linking with its id (counted and listed in batches, filled
+ * in for links indexed before by the backfill), links to one block of a page (a backlink of the
+ * page, the block kept through MCP's Markdown), unlinked mentions (whole words, the Turkish dotted and dotless i,
  * leaving out the page itself, linking pages, the trash, templates, other workspaces and pages the
  * reader can't see) and linking one (first plain occurrence, not in code, edit access, locked
  * pages, a source open in an editor). Creates its own users and workspaces and deletes them
@@ -18,9 +20,9 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { page, pageLink, user, workspace, workspaceMember } = await import("@/db/schema");
 const { LINK_PLACEHOLDER: P } = await import("@/lib/link-context");
 const { eachMention } = await import("@/lib/mentions");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
@@ -28,7 +30,7 @@ const { createCollab } = await import("@/server/collab/service");
 const { archivePage, createPage, setPageLocked } = await import("@/server/pages");
 const { duplicatePage } = await import("@/server/duplicate");
 const { setPagePermission } = await import("@/server/permissions");
-const { linkUnlinkedMention, listBacklinks, listUnlinkedMentions } = await import("@/server/mentions");
+const { backfillLinkPlaces, countBacklinks, linkUnlinkedMention, listBacklinks, listUnlinkedMentions } = await import("@/server/mentions");
 const { getPage } = await import("@/server/operations");
 const { AccessError } = await import("@/server/access");
 
@@ -133,6 +135,93 @@ try {
       mcp.linked_from?.find((l) => l.id === linkBlock.id)?.context === undefined,
     "MCP's get_page shows the context with the page's title",
     mcp.linked_from,
+  );
+
+  // ── Every block linking ──────────────────────────────────────────────────────────────────
+  const many = await make("Retro");
+  await write(many.id, `First ${link(target.id)} here.\n\nUnrelated.\n\n- Then ${link(target.id)} again\n\n${link(target.id)} <!-- leafdesk:page-link -->`);
+  const blockIds = ((await getCollab().readBlocks(many.id)).blocks as { id: string }[]).map((b) => b.id);
+  const manyLink = await backlink(target.id, many.id);
+  check(
+    JSON.stringify(manyLink?.places) ===
+      JSON.stringify([
+        { block: blockIds[0], context: `First ${P} here.` },
+        { block: blockIds[2], context: `Then ${P} again` },
+        { block: blockIds[3], context: null },
+      ]),
+    "a backlink lists every block linking, with its id and the text around the link",
+    { places: manyLink?.places, blockIds },
+  );
+  check(manyLink?.context === `First ${P} here.`, "…and keeps the first link's text as its context");
+  check((await backlink(target.id, linkBlock.id))?.places?.[0]?.context === null, "a Link to page block is a place without text");
+  const copyPlace = (await backlink(target.id, copy.id))?.places?.[0]?.block;
+  const copyBlocks = ((await getCollab().readBlocks(copy.id)).blocks as { id: string }[]).map((b) => b.id);
+  check(Boolean(copyPlace) && copyBlocks.includes(copyPlace!), "a copy's places point at blocks of the copy", { copyPlace, copyBlocks });
+
+  const mcpMany = (await getPage({ userId: ids.owner, actor: owner }, { page_id: target.id, offset: 0 })) as {
+    linked_from?: { id: string; contexts?: string[] }[];
+  };
+  check(
+    JSON.stringify(mcpMany.linked_from?.find((l) => l.id === many.id)?.contexts) ===
+      JSON.stringify(["First Launch plan here.", "Then Launch plan again"]),
+    "MCP's get_page lists the text around each link of a page linking more than once",
+    mcpMany.linked_from,
+  );
+
+  const total = await countBacklinks(ids.owner, target.id);
+  const firstBatch = await listBacklinks(ids.owner, target.id, { limit: 2 });
+  const rest = await listBacklinks(ids.owner, target.id, { offset: 2 });
+  check(
+    total === firstBatch.length + rest.length && firstBatch.length === 2 && !rest.some((r) => firstBatch.some((f) => f.id === r.id)),
+    "backlinks are counted and listed in batches",
+    { total, first: firstBatch.map((b) => b.title), rest: rest.map((b) => b.title) },
+  );
+  check((await countBacklinks(ids.member, secret.id).catch(() => "refused")) === "refused", "counting a page's backlinks needs access to it");
+
+  await db.update(pageLink).set({ places: null }).where(eq(pageLink.sourceId, many.id));
+  check((await backlink(target.id, many.id))?.places === null, "a link indexed before blocks were kept has no places");
+  while ((await backfillLinkPlaces()) > 0);
+  check((await backlink(target.id, many.id))?.places?.length === 3, "the backfill fills them in from the page's body");
+  const [leftover] = await db
+    .select({ places: pageLink.places })
+    .from(pageLink)
+    .where(and(eq(pageLink.sourceId, many.id), eq(pageLink.targetId, target.id)));
+  check(Array.isArray(leftover?.places), "…and leaves none of that page's links without places");
+
+  // ── Links to a block ─────────────────────────────────────────────────────────────────────
+  const targetBlocks = ((await getCollab().readBlocks(many.id)).blocks as { id: string }[]).map((b) => b.id);
+  const atBlock = `/w/${workspaceId}/p/${many.id}#block-${targetBlocks[2]}`;
+  const pointer = await make("Pointer");
+  await write(pointer.id, `Read [x](${atBlock}) first.\n\n[y](${atBlock}) <!-- leafdesk:page-link -->`);
+  const pointerLink = await backlink(many.id, pointer.id);
+  const pointerBlocks = ((await getCollab().readBlocks(pointer.id)).blocks as { id: string }[]).map((b) => b.id);
+  check(
+    JSON.stringify(pointerLink?.places) ===
+      JSON.stringify([
+        { block: pointerBlocks[0], context: `Read ${P} first.` },
+        { block: pointerBlocks[1], context: null },
+      ]),
+    "a link to a block of a page is a backlink of that page, at the block linking",
+    { places: pointerLink?.places, pointerBlocks },
+  );
+  const pointerMentions: { pageId: string; blockId: string }[] = [];
+  eachMention((await getCollab().readBlocks(pointer.id)).blocks as Parameters<typeof eachMention>[0], (m) => pointerMentions.push(m));
+  check(
+    pointerMentions.length === 1 && pointerMentions[0].pageId === many.id && pointerMentions[0].blockId === targetBlocks[2],
+    "…and the mention keeps the block",
+    pointerMentions,
+  );
+  const pointerRead = (await getPage({ userId: ids.owner, actor: owner }, { page_id: pointer.id, offset: 0 })) as { markdown?: string };
+  check(
+    pointerRead.markdown?.trim() === `Read [Retro](${atBlock}) first.\n\n[Retro](${atBlock}) <!-- leafdesk:page-link -->`,
+    "MCP's get_page writes the link to the block, with the page's title",
+    pointerRead.markdown,
+  );
+  await write(pointer.id, pointerRead.markdown!);
+  check(
+    (await backlink(many.id, pointer.id))?.places?.length === 2 &&
+      ((await getPage({ userId: ids.owner, actor: owner }, { page_id: pointer.id, offset: 0 })) as { markdown?: string }).markdown === pointerRead.markdown,
+    "writing that Markdown back keeps the links to the block",
   );
 
   // ── Unlinked mentions ────────────────────────────────────────────────────────────────────

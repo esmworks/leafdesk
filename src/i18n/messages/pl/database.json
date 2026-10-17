@@ -356,7 +356,10 @@
     "colors": "Kolory",
     "confirmDeleteGroup": "Usunąć grupę „{name}”? {count, plural, one {Jej # karta zostanie przeniesiona} few {Jej # karty zostaną przeniesione} many {Jej # kart zostanie przeniesionych} other {Jej # karty zostanie przeniesione}} do grupy „Brak: {property}”.",
     "hiddenGroups": "Ukryte grupy ({count})",
-    "showGroup": "Pokaż"
+    "showGroup": "Pokaż",
+    "columnsShow": "Kolumny pokazują",
+    "cardCountOption": "Liczba kart",
+    "changeColumnFigure": "Zmień, co pokazują kolumny"
   },
   "cell": {
     "empty": "Puste",
@@ -732,6 +735,7 @@
     "relationTargetReadOnly": "Możesz tylko wyświetlać tamtą bazę danych, więc połączenie nie może być tam również pokazane. Odznacz tę opcję lub poproś o dostęp do edycji.",
     "databaseLocked": "Ta baza danych jest zablokowana. Odblokuj ją, aby zmieniać jej właściwości i widoki.",
     "pageLocked": "Ta strona jest zablokowana. Odblokuj ją w jej menu, aby zmienić tytuł, ikonę, tło lub tekst.",
+    "pageInTrash": "Ta strona jest w koszu. Przywróć ją, aby ją zmienić.",
     "invalidPerson": "„{property}” może zawierać tylko osoby z tego obszaru roboczego.",
     "readOnlyProperty": "„{property}” jest wypełniane automatycznie i nie można tego zmienić.",
     "invalidFilter": "Nie można zapisać tego filtra. Odśwież stronę i spróbuj ponownie.",
@@ -745,6 +749,7 @@
     "invalidPageVisibility": "Nie można zapisać tego ustawienia strony wiersza.",
     "calendarFeedNotCalendar": "Subskrybować można tylko widoki kalendarza.",
     "calendarFeedExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc subskrypcje kalendarza również są wyłączone.",
+    "webhookExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc webhooki również są wyłączone.",
     "isTemplate": "Szablonów nie można przenosić ani wrzucać do kosza. Zamiast tego usuń je z listy szablonów.",
     "notATemplate": "Ta strona nie jest szablonem tego obszaru roboczego ani tej bazy danych.",
     "propertyRestricted": "Nie masz uprawnień do zmiany „{property}”.",

@@ -18,6 +18,7 @@ import {
   WEB_EMBED_BLOCK,
   webEmbedBlockConfig,
 } from "@/lib/web-blocks";
+import { linkedPageRef } from "@/lib/mentions";
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 import { BookmarkCard, EmbedFrame } from "./web-card";
@@ -329,7 +330,8 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
       const root = editor.domElement;
       if (!root || !(event.target instanceof Node) || !root.contains(event.target)) return;
       const text = event.clipboardData?.getData("text/plain") ?? "";
-      if (!isLoneUrl(text)) return;
+      // A page of this app becomes a mention instead (see components/page/mentions.tsx).
+      if (!isLoneUrl(text) || linkedPageRef(text.trim(), window.location.origin)) return;
       const cursor = editor.getTextCursorPosition().block;
       const empty = cursor.type === "paragraph" && Array.isArray(cursor.content) && cursor.content.length === 0;
       if (!empty || !editor.prosemirrorState.selection.empty) return;

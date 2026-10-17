@@ -58,6 +58,7 @@ const RUN = `groups-e2e-${Date.now().toString(36)}`;
 // Writes notify open editors through the collab service, which only runs inside the app server.
 const lost: { workspaceId: string; userIds: string[] }[] = [];
 registerCollab({
+  async pagesTrashed() {},
   broadcast() {},
   async setTitle() {},
   async disconnectUser() {},

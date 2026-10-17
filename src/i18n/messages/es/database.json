@@ -356,7 +356,10 @@
     "colors": "Colores",
     "confirmDeleteGroup": "¿Eliminar el grupo “{name}”? {count, plural, one {Su # tarjeta pasa} other {Sus # tarjetas pasan}} a Sin {property}.",
     "hiddenGroups": "Grupos ocultos ({count})",
-    "showGroup": "Mostrar"
+    "showGroup": "Mostrar",
+    "columnsShow": "Las columnas muestran",
+    "cardCountOption": "Número de tarjetas",
+    "changeColumnFigure": "Cambiar lo que muestran las columnas"
   },
   "cell": {
     "empty": "Vacío",
@@ -732,6 +735,7 @@
     "relationTargetReadOnly": "Solo puedes ver esa base de datos, así que el vínculo no se puede mostrar también allí. Desmarca esa opción o pide acceso de edición.",
     "databaseLocked": "Esta base de datos está bloqueada. Desbloquéala para cambiar sus propiedades y vistas.",
     "pageLocked": "Esta página está bloqueada. Desbloquéala desde su menú para cambiar su título, icono, fondo o texto.",
+    "pageInTrash": "Esta página está en la papelera. Restáurala para cambiarla.",
     "invalidPerson": "“{property}” solo puede contener personas de este espacio de trabajo.",
     "readOnlyProperty": "“{property}” se rellena automáticamente y no se puede cambiar.",
     "invalidFilter": "Este filtro no se puede guardar. Recarga la página y vuelve a intentarlo.",
@@ -745,6 +749,7 @@
     "invalidPageVisibility": "Este ajuste de las páginas de fila no se puede guardar.",
     "calendarFeedNotCalendar": "Solo se puede suscribir a vistas de calendario.",
     "calendarFeedExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que las suscripciones de calendario también están desactivadas.",
+    "webhookExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que los webhooks también están desactivados.",
     "isTemplate": "Las plantillas no se pueden mover ni enviar a la papelera. Elimínalas desde la lista de plantillas.",
     "notATemplate": "Esta página no es una plantilla de este espacio de trabajo ni de esta base de datos.",
     "propertyRestricted": "No tienes permiso para cambiar «{property}».",

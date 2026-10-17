@@ -1,5 +1,6 @@
 import { InMemoryTransport, type JSONRPCMessage } from "@modelcontextprotocol/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { today } from "@/lib/journal";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { MAX_MARKDOWN_CHARS } from "./format";
@@ -218,11 +219,25 @@ const templates = vi.hoisted(() => ({
   createRow: vi.fn(),
 }));
 vi.mock("@/server/templates", () => templates);
+const journal = vi.hoisted(() => {
+  class JournalError extends Error {
+    constructor(
+      message: string,
+      readonly code: string,
+    ) {
+      super(message);
+    }
+  }
+  return { JournalError, getOrCreateDailyNote: vi.fn(), listDailyNotes: vi.fn() };
+});
+vi.mock("@/server/journal", () => journal);
 const pageMeta = vi.hoisted(() => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn() }));
 vi.mock("@/server/page-meta", () => pageMeta);
 const mentions = vi.hoisted(() => ({
   labelPageLinks: vi.fn(async (_userId: string, markdown: string) => markdown),
   listBacklinks: vi.fn(async () => []),
+  countBacklinks: vi.fn(async () => 0),
+  MAX_BACKLINKS: 100,
 }));
 vi.mock("@/server/mentions", () => mentions);
 
@@ -999,6 +1014,33 @@ describe("relations and calendars", () => {
     expect(r.data).not.toHaveProperty("aggregate_property");
     const ungrouped = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-c", group_by: null });
     expect(ungrouped.text).toMatch(/Charts always group/);
+  });
+
+  it("sets what a board's column headers show, and refuses it on views without them", async () => {
+    const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
+    const due = { id: "prop-due", name: "Due", type: "date", options: {} };
+    const views = [
+      { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status", boardAggregate: { fn: "sum", propertyId: "prop-amount" } } },
+      { id: "view-t", name: "Table", type: "table", config: {} },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, amount, due], views });
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "latest_date", aggregate_property: "Due" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", {
+      config: { groupBy: "prop-status", boardAggregate: { fn: "latest_date", propertyId: "prop-due" } },
+    });
+    expect(r.data).toMatchObject({ type: "board", aggregate: "latest_date", aggregate_property: "Due" });
+    // A calculation alone keeps the saved property.
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "average" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", {
+      config: { groupBy: "prop-status", boardAggregate: { fn: "average", propertyId: "prop-amount" } },
+    });
+    const counted = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "count" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", boardAggregate: undefined } });
+    expect(counted.data).not.toHaveProperty("aggregate");
+    const unsummable = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "sum", aggregate_property: "Notes" });
+    expect(unsummable.text).toMatch(/Board columns can't calculate sum over "Notes"/);
+    const table = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-t", aggregate: "sum", aggregate_property: "Amount" });
+    expect(table.text).toMatch(/aggregate only applies to chart and board views/);
   });
 
   it("returns what a chart view plots with its rows", async () => {
@@ -3088,5 +3130,54 @@ describe("check_workspace", () => {
       expect(r.isError).toBe(true);
     }
     expect(workspaceCheck.checkWorkspace).not.toHaveBeenCalled();
+  });
+});
+
+describe("daily notes", () => {
+  const note = { day: "2026-10-17", pageId: "note-1", title: "October 17, 2026", icon: null, created: true };
+
+  it("opens the note of a given day as the connected user", async () => {
+    journal.getOrCreateDailyNote.mockResolvedValue(note);
+    const r = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", date: "2026-10-17" });
+    expect(r.isError).toBe(false);
+    expect(journal.getOrCreateDailyNote).toHaveBeenLastCalledWith({ userId: "user-1", oauthClientId: "client-1" }, "ws-1", "2026-10-17");
+    expect(r.data).toMatchObject({ date: "2026-10-17", id: "note-1", created: true, url: expect.stringContaining("/w/ws-1/p/note-1") });
+  });
+
+  it("takes today in the user's time zone when no date is given", async () => {
+    journal.getOrCreateDailyNote.mockResolvedValue({ ...note, created: false });
+    await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", time_zone: "Asia/Tokyo" });
+    expect(journal.getOrCreateDailyNote.mock.lastCall?.[2]).toBe(today("Asia/Tokyo"));
+    await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1" });
+    expect(journal.getOrCreateDailyNote.mock.lastCall?.[2]).toBe(today("UTC"));
+  });
+
+  it("refuses an unknown time zone and a malformed day", async () => {
+    journal.getOrCreateDailyNote.mockClear();
+    const zone = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", time_zone: "Mars/Olympus" });
+    expect(zone.isError).toBe(true);
+    expect(zone.text).toMatch(/time zone/);
+    const day = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", date: "17.10.2026" });
+    expect(day.isError).toBe(true);
+    expect(journal.getOrCreateDailyNote).not.toHaveBeenCalled();
+  });
+
+  it("says why a day is refused", async () => {
+    journal.getOrCreateDailyNote.mockRejectedValue(new journal.JournalError("A day is written YYYY-MM-DD, between 1900 and 2999", "badDay"));
+    const r = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", date: "3001-01-01" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/between 1900 and 2999/);
+  });
+
+  it("lets read-only connections list notes but not make one", async () => {
+    journal.getOrCreateDailyNote.mockClear();
+    const made = await callTool(reader, "get_or_create_daily_note", { workspace_id: "ws-1" });
+    expect(made.isError).toBe(true);
+    expect(journal.getOrCreateDailyNote).not.toHaveBeenCalled();
+    journal.listDailyNotes.mockResolvedValue([note]);
+    const listed = await callTool(reader, "list_daily_notes", { workspace_id: "ws-1", from: "2026-10-01" });
+    expect(listed.isError).toBe(false);
+    expect(journal.listDailyNotes).toHaveBeenLastCalledWith("user-1", "ws-1", { from: "2026-10-01", to: undefined, limit: 31 });
+    expect(listed.data).toMatchObject({ notes: [{ date: "2026-10-17", id: "note-1" }] });
   });
 });

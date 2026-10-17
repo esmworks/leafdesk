@@ -388,6 +388,11 @@
       "subtext": "ほかのページへのリンク（タイトルは自動で更新）",
       "aliases": "link page mention reference リンク ページ 参照"
     },
+    "syncedPage": {
+      "title": "同期ページ",
+      "subtext": "ほかのページの内容をここにライブ表示し、その場で編集",
+      "aliases": "同期 ミラー 埋め込み ページ synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "色",
       "text": "{color}の文字",
@@ -455,6 +460,7 @@
     "noAccess": "アクセス権なし",
     "deleted": "削除されたページ",
     "loading": "読み込み中…",
+    "atBlock": "ページのブロックの位置で開きます",
     "personLeft": "{name}（ワークスペースから退出済み）",
     "date": "日付",
     "reminder": "リマインダー",
@@ -473,15 +479,27 @@
     "empty": "ページが見つかりません",
     "failed": "ページを読み込めませんでした。"
   },
+  "syncedPage": {
+    "label": "同期ページ",
+    "viewOnly": "閲覧のみ",
+    "cycle": "このページはすでに上に表示されているため、ここにはリンクだけを表示します。"
+  },
   "backlinks": {
     "title": "リンク元",
+    "titleCount": "リンク元 · {count}",
     "count": "{count}ページからリンクされています",
     "unlinked": "リンクされていないメンション · {count}",
     "unlinkedHint": "このページのタイトルを書いているが、リンクしていないページ",
     "link": "リンク",
     "linkLabel": "{title}のメンションをリンクにする",
     "linkFailed": "タイトルがもうプレーンテキストとして書かれていません。",
-    "locked": "そのページはロックされているため、変更できません。"
+    "locked": "そのページはロックされているため、変更できません。",
+    "morePlaces": "ほか{count}か所",
+    "fewerPlaces": "表示を減らす",
+    "morePages": "さらに{count}ページを表示"
+  },
+  "blockMenu": {
+    "copyLink": "ブロックへのリンクをコピー"
   },
   "pdf": {
     "untitled": "PDF",

@@ -60,6 +60,8 @@ vi.mock("@/server/page-meta", () => ({ isFavorite: vi.fn(async () => false), lis
 vi.mock("@/server/mentions", () => ({
   labelPageLinks: vi.fn(async (_: string, markdown: string) => markdown),
   listBacklinks: vi.fn(async () => []),
+  countBacklinks: vi.fn(async () => 0),
+  MAX_BACKLINKS: 100,
 }));
 vi.mock("@/server/embeds", () => ({ resolveEmbeds: vi.fn(async () => []) }));
 

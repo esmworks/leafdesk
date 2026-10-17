@@ -305,9 +305,9 @@ export function lostValues(values: unknown[], { convert }: Conversion) {
 
 /**
  * A view's settings once property `id` has its new type (`to`): what was set up for the old type
- * goes. Filters on it compared old values; sorts, groups, covers, chart measures, footer
- * calculations and form questions go when the new type can't have them, and a form's default for
- * it, an old-type value, always. Calendars and charts already fall back when their date or stack
+ * goes. Filters on it compared old values; sorts, groups, covers, chart measures, footer and
+ * board column calculations, and form questions go when the new type can't have them, and a
+ * form's default for it, an old-type value, always. Calendars and charts already fall back when their date or stack
  * property can't be one, so those stay for a later change back.
  */
 export function retypeViewConfig(
@@ -334,6 +334,8 @@ export function retypeViewConfig(
     endDateBy: c.endDateBy === id && !dates ? undefined : c.endDateBy,
     cover: c.cover?.source === "property" && c.cover.propertyId === id && type !== "files" ? undefined : c.cover,
     chartAggregate: c.chartAggregate?.propertyId === id ? undefined : c.chartAggregate,
+    boardAggregate:
+      c.boardAggregate?.propertyId === id && !aggregateFunctions(type).includes(c.boardAggregate.fn) ? undefined : c.boardAggregate,
     calculations:
       fn && !aggregateFunctions(type).includes(fn as never)
         ? Object.fromEntries(Object.entries(c.calculations!).filter(([k]) => k !== id))

@@ -96,6 +96,7 @@
       "promptTooLong": "Komut en fazla {max} karakter olabilir.",
       "unknownPlaceholder": "“{name}” adında bir özellik yok.",
       "cycle": "“{name}” bu özelliği zaten okuyor (doğrudan ya da başka AI özellikleri üzerinden); bu yüzden bu özellik onu okuyamaz.",
+      "hiddenInput": "“{name}” bir AI değerinde kullanılamaz: satırı okuyan herkesin göremeyebileceği ilişkili satırları veya kişileri gösterir.",
       "notText": "Yalnızca metin özellikleri yapay zekâyla doldurulabilir.",
       "databaseLocked": "Veritabanı kilitli."
     }

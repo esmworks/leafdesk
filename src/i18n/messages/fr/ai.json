@@ -96,6 +96,7 @@
       "promptTooLong": "Le prompt peut compter au plus {max} caractères.",
       "unknownPlaceholder": "Aucune propriété ne s’appelle « {name} ».",
       "cycle": "« {name} » lit déjà cette propriété (directement ou via d’autres propriétés IA) : celle-ci ne peut donc pas la lire.",
+      "hiddenInput": "« {name} » ne peut pas servir à une valeur d’IA : il affiche des lignes liées ou des personnes que tous ceux qui lisent la ligne ne peuvent pas forcément voir.",
       "notText": "Seules les propriétés de texte peuvent être remplies par l’IA.",
       "databaseLocked": "La base de données est verrouillée."
     }

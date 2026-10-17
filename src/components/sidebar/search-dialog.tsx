@@ -1,19 +1,34 @@
 "use client";
 
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight, Paperclip, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { recentSearchAction, searchAction } from "@/app/actions/pages";
+import { openBlockLink } from "@/components/page/block-focus";
 import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
+import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import type { SearchHit } from "@/server/pages";
 
 /** Something the search box can do instead of opening a page: typed after `>`. */
 export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void };
 
-type PageItem = { id: string; title: string; icon: string | null; kind: PageKind; snippet?: string; match?: SearchHit["match"] };
+/**
+ * `blockId`: where the passage a search by meaning matched starts; the page opens there. `file`: the
+ * document whose words matched, when not the page's own.
+ */
+type PageItem = {
+  id: string;
+  title: string;
+  icon: string | null;
+  kind: PageKind;
+  snippet?: string;
+  match?: SearchHit["match"];
+  blockId?: string | null;
+  file?: SearchHit["file"];
+};
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
 /** Compared as pickers compare: case and the Turkish dotted and dotless i aside (lib/search-fold). */
@@ -38,6 +53,7 @@ export function SearchDialog({
   const router = useRouter();
   const t = useTranslations("sidebar.search");
   const tc = useTranslations("common");
+  const tj = useTranslations("journal");
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [recent, setRecent] = useState<PageItem[]>([]);
@@ -104,7 +120,7 @@ export function SearchDialog({
     if (!item) return;
     onClose();
     if (item.type === "command") item.command.run();
-    else router.push(`/w/${workspaceId}/p/${item.page.id}`);
+    else openBlockLink(pageOrBlockPath(workspaceId, item.page.id, item.page.blockId), router.push);
   }
 
   /** Puts a filter (or `>`) into the query from the hint line. */
@@ -181,6 +197,13 @@ export function SearchDialog({
                         </span>
                       )}
                     </span>
+                    {/* Found by the words of a document the page shows: its name, then the text around them. */}
+                    {item.page.file && (
+                      <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted" title={t("inDocument", { name: item.page.file.name })}>
+                        <Paperclip className="h-3 w-3 shrink-0" aria-hidden />
+                        <span className="truncate">{item.page.file.name}</span>
+                      </span>
+                    )}
                     {item.page.snippet && <span className="line-clamp-2 text-xs text-fg-muted">{item.page.snippet}</span>}
                   </span>
                 </>
@@ -192,6 +215,7 @@ export function SearchDialog({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border px-4 py-2 text-xs text-fg-muted">
         <HintButton onClick={() => insert('in:"')} token='in:"…"' label={t("hint.in")} />
         <HintButton onClick={() => insert("type:database")} token="type:database" label={t("hint.type")} />
+        <HintButton onClick={() => insert("type:journal")} token="type:journal" label={tj("searchHint")} />
         {commands.length > 0 && <HintButton onClick={() => insert(">")} token=">" label={t("hint.commands")} />}
       </div>
     </Dialog>
