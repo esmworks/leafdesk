@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+## 0.5.4 — 2026-10-17
+
 ### Upgrading from 0.5.3
 
+- **Migrations** (0070–0077) run automatically when the container starts. Compose users
+  don't need a new `docker-compose.yml`: this release adds no settings.
 - **Every passage is embedded again once.** Passages now start with where they are (see
   *Changed*), so their text changes and the embeddings model sees each of them once more after
   the upgrade: through the background sweep as people search, or all at once with
@@ -12,7 +16,8 @@
   vector (see *Changed*) and fills it for every page, 0077 adds the pieces of Chinese and Japanese
   text to it and keeps it to the first 80,000 characters of each page's text; on a server with
   many pages each takes a while (about 15 seconds for 60,000 pages with 2 KB of text each), and
-  pages can't be read or written until it's done: run `pnpm db:migrate` at a quiet time.
+  pages can't be read or written until it's done: upgrade at a quiet time (from source, run
+  `pnpm db:migrate` then).
 
 ### Added
 
@@ -119,6 +124,14 @@
   anything is written. `update_database_rows` takes `expect` (refuses, writing nothing, unless
   exactly that many rows would change) and `dry_run`. Covered in `scripts/row-safety-e2e.ts` and
   `scripts/mcp-e2e.ts`.
+
+- **Published pages can show databases from elsewhere.** A published page shows the databases that
+  lie under it; a dashboard or database view over a database elsewhere used to stay empty for
+  visitors. The *Publish* tab now lists those databases, before and after publishing: tick *Show on
+  this page* to show one there anyway, or move it under the page to publish it with it. A database
+  shown this way appears only in the page's widgets and views, without links to it or its rows, and
+  *Duplicate* leaves it out. It is hidden again as soon as the publisher can no longer see it or it
+  goes to the trash (migration 0076).
 
 ### Changed
 
@@ -326,13 +339,6 @@
 - **Dashboard widgets move by dragging.** Editors pick a widget up by its title bar and drop it
   beside another (or above or below one as wide as the dashboard); a line shows where it lands. The
   widget's menu still moves it one place at a time.
-- **Published pages can show databases from elsewhere.** A published page shows the databases that
-  lie under it; a dashboard or database view over a database elsewhere used to stay empty for
-  visitors. The *Publish* tab now lists those databases, before and after publishing: tick *Show on
-  this page* to show one there anyway, or move it under the page to publish it with it. A database
-  shown this way appears only in the page's widgets and views, without links to it or its rows, and
-  *Duplicate* leaves it out. It is hidden again as soon as the publisher can no longer see it or it
-  goes to the trash.
 
 ## 0.5.2 — 2026-10-15
 
