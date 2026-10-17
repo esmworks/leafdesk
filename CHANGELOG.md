@@ -193,6 +193,11 @@
 
 ### Changed
 
+- **Large databases and workspaces open faster.** Who may see a database's rows is now worked out
+  once for the database wherever that gives the same answer, instead of once for every row: with
+  50,000 rows a table loads about three times faster, and a filtered or sorted query through the
+  REST API or MCP about five times faster. The search box's recently edited pages show at once in a
+  large workspace (about two seconds with 5,000 pages before).
 - **Webhooks follow the export switch.** With export turned off in Settings → Security, an
   automation can't get a new webhook (`webhookExportOff`), and a webhook saved before sends nothing:
   its runs fail with that code until export is turned back on. Calendar feeds already stopped.
