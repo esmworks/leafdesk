@@ -20,10 +20,18 @@
   "dependencies": {
     "electron-updater": "6.8.9"
   },
+  "optionalDependencies": {
+    "@embedded-postgres/darwin-arm64": "18.4.0-beta.17",
+    "@embedded-postgres/darwin-x64": "18.4.0-beta.17",
+    "@embedded-postgres/linux-arm64": "18.4.0-beta.17",
+    "@embedded-postgres/linux-x64": "18.4.0-beta.17",
+    "@embedded-postgres/windows-x64": "18.4.0-beta.17"
+  },
   "devDependencies": {
     "@types/node": "24.19.2",
     "electron": "44.7.2",
     "electron-builder": "26.15.3",
+    "postgres": "3.4.9",
     "typescript": "6.0.3"
   },
   "engines": {
