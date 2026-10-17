@@ -94,6 +94,11 @@
 - **Comment notifications open their thread.** From the inbox, the email or a push notification,
   the page opens with its comments, the thread selected and the text it is about in view (a
   resolved thread under *All*).
+- **Subpages block.** "Subpages" in the `/` menu lists the pages under this one as links, in the
+  sidebar's order, and keeps up as pages are added, moved, renamed or trashed. Each reader sees the
+  subpages they may open; databases the page already shows inline aren't listed again. Published
+  pages and the print view show the list where the block is instead of at the end of the page. In
+  Markdown and over MCP it is `<!-- leafdesk:subpages -->` on a line of its own.
 - **Search results mark the words you typed** in the text shown under each page, where the search
   found them: at the start of a word, and inside a sentence for Chinese and Japanese.
 - **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and

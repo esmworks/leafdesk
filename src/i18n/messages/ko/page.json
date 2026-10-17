@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location 이동 경로 경로 상위 위치",
       "label": "이동 경로"
     },
+    "subpages": {
+      "title": "하위 페이지",
+      "subtext": "이 페이지 아래에 있는 페이지 링크",
+      "aliases": "subpages 하위페이지 하위 페이지 목록 색인",
+      "label": "하위 페이지",
+      "empty": "이 페이지 아래에 추가한 페이지가 여기에 표시됩니다."
+    },
     "columns": {
       "two": {
         "title": "2열",

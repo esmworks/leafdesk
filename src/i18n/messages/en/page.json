@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location",
       "label": "Breadcrumb"
     },
+    "subpages": {
+      "title": "Subpages",
+      "subtext": "The pages under this one, as links",
+      "aliases": "subpages children child pages list index",
+      "label": "Subpages",
+      "empty": "Pages you add under this one are listed here."
+    },
     "columns": {
       "two": {
         "title": "2 columns",

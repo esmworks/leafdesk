@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location fil ariane chemin parents emplacement",
       "label": "Fil d’Ariane"
     },
+    "subpages": {
+      "title": "Sous-pages",
+      "subtext": "Les pages sous celle-ci, sous forme de liens",
+      "aliases": "subpages sous-pages pages enfants liste index",
+      "label": "Sous-pages",
+      "empty": "Les pages que vous ajoutez sous celle-ci apparaissent ici."
+    },
     "columns": {
       "two": {
         "title": "2 colonnes",

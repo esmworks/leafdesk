@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location pfad übergeordnet position navigation",
       "label": "Breadcrumb"
     },
+    "subpages": {
+      "title": "Unterseiten",
+      "subtext": "Die Seiten unter dieser Seite als Links",
+      "aliases": "subpages unterseiten kindseiten liste index",
+      "label": "Unterseiten",
+      "empty": "Seiten, die du unter dieser Seite anlegst, werden hier aufgeführt."
+    },
     "columns": {
       "two": {
         "title": "2 Spalten",

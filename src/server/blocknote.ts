@@ -19,6 +19,7 @@ import {
   KATEX_OPTIONS,
   mathBlockConfig,
   mermaidBlockConfig,
+  subpagesBlockConfig,
   tocBlockConfig,
 } from "@/lib/content-blocks";
 import { columnBlockSpecs, groupColumns } from "@/lib/columns";
@@ -116,6 +117,7 @@ const contentBlockSpecs = {
   })(),
   tableOfContents: createBlockSpec(tocBlockConfig, marker("tableOfContents"))(),
   breadcrumb: createBlockSpec(breadcrumbBlockConfig, marker("breadcrumb"))(),
+  subpages: createBlockSpec(subpagesBlockConfig, marker("subpages"))(),
 };
 
 const inlineMath = createInlineContentSpec(inlineMathConfig, {

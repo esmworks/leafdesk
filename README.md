@@ -91,7 +91,9 @@ versions, upgrades and running behind a domain.
   keeps the current style. Databases always use the full width. With the comments panel open, a
   page moves left of it (and narrows when the window is too small) instead of running under it.
 - **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
-  live preview, a table of contents and a breadcrumb, and columns (2 to 5, resizable, blocks
+  live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
+  seeing those they may open; a page with one doesn't list them again at its end when published or
+  printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
   Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
   their code in it, published pages and the print view included.

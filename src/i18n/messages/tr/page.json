@@ -374,6 +374,13 @@
       "aliases": "breadcrumb sayfa yolu üst sayfalar konum",
       "label": "Sayfa yolu"
     },
+    "subpages": {
+      "title": "Alt sayfalar",
+      "subtext": "Bu sayfanın altındaki sayfalar, bağlantı olarak",
+      "aliases": "subpages alt sayfalar çocuk sayfalar liste dizin",
+      "label": "Alt sayfalar",
+      "empty": "Bu sayfanın altına eklediğiniz sayfalar burada listelenir."
+    },
     "columns": {
       "two": {
         "title": "2 sütun",

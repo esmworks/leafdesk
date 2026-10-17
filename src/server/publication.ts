@@ -363,12 +363,14 @@ export type PublishedDatabase = {
 };
 /**
  * A part of a published page's body: text, a database block, or a block the page draws itself (a
- * table of contents, a breadcrumb from `crumbs`, a Mermaid diagram), or columns of these.
+ * table of contents, a breadcrumb from `crumbs`, the page's subpages from `children`, a Mermaid
+ * diagram), or columns of these.
  */
 export type PublishedBlock =
   | { kind: "html"; html: string }
   | { kind: "toc"; headings: BodyHeading[] }
   | { kind: "breadcrumb" }
+  | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
   | { kind: "bookmark"; bookmark: PublishedBookmark }
   | { kind: "webEmbed"; url: string; embed: EmbedTarget }

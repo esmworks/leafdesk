@@ -374,6 +374,13 @@
       "aliases": "breadcrumb trilha caminho páginas acima localização",
       "label": "Trilha de navegação"
     },
+    "subpages": {
+      "title": "Subpáginas",
+      "subtext": "As páginas abaixo desta, como links",
+      "aliases": "subpages subpáginas páginas filhas lista índice",
+      "label": "Subpáginas",
+      "empty": "As páginas que você adicionar abaixo desta aparecem aqui."
+    },
     "columns": {
       "two": {
         "title": "2 colunas",

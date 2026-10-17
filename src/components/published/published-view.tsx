@@ -9,7 +9,7 @@ import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { pageTextClasses } from "@/lib/page-style";
 import { publishedHref } from "@/lib/site";
-import { PublishedBody, PublishedRowProperties } from "./published-body";
+import { PublishedBody, PublishedRowProperties, showsSubpages } from "./published-body";
 import { PublishedDatabaseView } from "./published-database";
 import { SiteNav } from "./site-nav";
 
@@ -138,14 +138,20 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
               {data.row && data.row.properties.length > 0 && <PublishedRowProperties row={data.row} />}
 
               {data.body.length > 0 && (
-                <PublishedBody blocks={data.body} crumbs={data.crumbs} links={data.links} unavailable={t("embedUnavailable")} />
+                <PublishedBody
+                  blocks={data.body}
+                  crumbs={data.crumbs}
+                  subpages={data.children}
+                  links={data.links}
+                  unavailable={t("embedUnavailable")}
+                />
               )}
 
               {data.database && (
                 <PublishedDatabaseView table={data.database} links={data.links} viewPath={href(data.id, data.title)} className="page-gutter mt-6" />
               )}
 
-              {data.children.length > 0 && (
+              {data.children.length > 0 && !showsSubpages(data.body) && (
                 <section className="mt-10 px-4 sm:px-[54px]">
                   <h2 className="mb-2 text-sm font-medium text-fg-muted">{t("subpages")}</h2>
                   <ul className="flex flex-col">

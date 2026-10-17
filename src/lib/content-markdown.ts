@@ -8,6 +8,7 @@ import {
   leadingEmoji,
   MATH_BLOCK,
   MERMAID_BLOCK,
+  SUBPAGES_BLOCK,
   TOC_BLOCK,
   type AlertKind,
 } from "./content-blocks";
@@ -85,6 +86,7 @@ import {
  *
  *   <!-- leafdesk:toc -->         a table of contents
  *   <!-- leafdesk:breadcrumb -->  a breadcrumb
+ *   <!-- leafdesk:subpages -->    the page's subpages
  *
  *   <!-- leafdesk:columns -->     columns: each "column" line starts one, its blocks follow
  *   <!-- leafdesk:column -->      (see lib/columns; groupColumns builds the lists after parsing)
@@ -227,6 +229,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
           return paragraph(block.id ? blockToken(dashboardLine(block.id)) : "");
         case BREADCRUMB_BLOCK:
           return paragraph(blockToken("<!-- leafdesk:breadcrumb -->"));
+        case SUBPAGES_BLOCK:
+          return paragraph(blockToken("<!-- leafdesk:subpages -->"));
         case BOOKMARK_BLOCK:
         case WEB_EMBED_BLOCK: {
           // A bookmark or embed without a (valid) URL yet has nothing to write.
@@ -341,7 +345,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
 
 type Pending =
   | { type: typeof MATH_BLOCK; latex: string }
-  | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK }
+  | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK | typeof SUBPAGES_BLOCK }
   | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string }
   | { type: "quote"; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
@@ -357,7 +361,8 @@ const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
 /** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
 const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\||(?:[*_-][ \t]*){3,}$|=+[ \t]*$)/;
 const MATH_OPEN = /^ {0,3}\$\$(.*)$/;
-const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb)\s*-->\s*$/;
+const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb|subpages)\s*-->\s*$/;
+const MARKER_BLOCKS = { toc: TOC_BLOCK, breadcrumb: BREADCRUMB_BLOCK, subpages: SUBPAGES_BLOCK } as const;
 /** `[text](url) <!-- leafdesk:embed -->` (or a bare URL before the marker); "bookmark" likewise. */
 const WEB_LINE =
   /^ {0,3}(?:\[((?:\\.|[^\\\]])*)\]\((<[^<>\n]*>|[^\s()<>]+)\)|<?(https?:\/\/[^\s<>]+?)>?)\s*<!--\s*leafdesk:(embed|bookmark)\s*-->\s*$/i;
@@ -402,7 +407,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     }
     const marker = MARKER_LINE.exec(line);
     if (marker) {
-      blockLine({ type: marker[1] === "toc" ? TOC_BLOCK : BREADCRUMB_BLOCK });
+      blockLine({ type: MARKER_BLOCKS[marker[1] as keyof typeof MARKER_BLOCKS] });
       continue;
     }
     const dashboard = parseDashboardLine(line);
@@ -601,6 +606,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: MATH_BLOCK, content: pending.latex, children: [] } as unknown as B;
       case TOC_BLOCK:
       case BREADCRUMB_BLOCK:
+      case SUBPAGES_BLOCK:
         return { type: pending.type, children: [] } as unknown as B;
       case WEB_EMBED_BLOCK:
         return { type: WEB_EMBED_BLOCK, props: { url: pending.url }, children: [] } as unknown as B;

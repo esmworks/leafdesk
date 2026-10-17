@@ -2,7 +2,7 @@ import { defaultProps } from "@blocknote/core";
 
 /**
  * Content blocks beyond BlockNote's own: callouts, equations (block and inline), Mermaid diagrams,
- * a table of contents and a breadcrumb.
+ * a table of contents, a breadcrumb and a list of subpages.
  *
  * Like the database blocks (lib/embed-blocks), the configs here are shared by the editor (React
  * specs, components/page/content-blocks.tsx) and the server (plain specs, server/blocknote.ts).
@@ -19,6 +19,7 @@ export const INLINE_MATH = "inlineMath";
 export const MERMAID_BLOCK = "mermaid";
 export const TOC_BLOCK = "tableOfContents";
 export const BREADCRUMB_BLOCK = "breadcrumb";
+export const SUBPAGES_BLOCK = "subpages";
 
 export const DEFAULT_CALLOUT_ICON = "💡";
 
@@ -50,6 +51,12 @@ export const tocBlockConfig = { type: TOC_BLOCK, propSchema: {}, content: "none"
 
 /** The page's ancestors as links. Nothing is stored: the path follows the page tree. */
 export const breadcrumbBlockConfig = { type: BREADCRUMB_BLOCK, propSchema: {}, content: "none" } as const;
+
+/**
+ * The pages directly under the page, as links in the sidebar's order, each reader seeing those they
+ * may open. Nothing is stored: the list follows the page tree.
+ */
+export const subpagesBlockConfig = { type: SUBPAGES_BLOCK, propSchema: {}, content: "none" } as const;
 
 /** KaTeX settings used everywhere: no \href, \url, \includegraphics or \html… (`trust: false`). */
 export const KATEX_OPTIONS = {
