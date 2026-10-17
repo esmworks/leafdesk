@@ -11,7 +11,7 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
-import { AI_EDIT_EVENT, AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT } from "@/lib/collab-constants";
+import { AI_EDIT_EVENT, AUTO_SNAPSHOT_INTERVAL_MS, COLLAB_FRAGMENT, PAGE_SAVE_FAILED_EVENT, PAGE_SAVED_EVENT } from "@/lib/collab-constants";
 import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
@@ -31,7 +31,7 @@ import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
 import { authorizeCollab, parseDocName as parseName } from "./authorize";
-import type { BodyWrite, Channel, CollabService, CommentOpResult, PageContent, VersionCheck, WriteActor } from "./bridge";
+import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
 import { stampPresence } from "./presence";
 import { touchesThreads } from "./thread-guard";
@@ -224,6 +224,14 @@ export function createCollab() {
     return found;
   };
 
+  /**
+   * Documents the database refused to save last time (pageSaveFailedError). Hocuspocus only logs a
+   * failed save, so the server's own writes look here once theirs is done (see transactPage), and
+   * open editors are told (see onStoreDocument). By document rather than name: a name can belong to
+   * a newer document already.
+   */
+  const failedSaves = new WeakMap<Document, Error>();
+
   const persistPage = async (pageId: string, doc: Document, context?: Context) => {
     const userId = context?.userId;
     const [row] = await db
@@ -249,16 +257,26 @@ export function createCollab() {
     const bodyChanged = row.markdownHash !== createHash("md5").update(markdown).digest("hex");
     const edited = title !== row.title || bodyChanged;
     const shownBefore = bodyChanged ? new Set(await referencedFileIds(pageId)) : null;
-    await db
-      .update(page)
-      .set({
-        ydoc: Y.encodeStateAsUpdate(doc),
-        contentMarkdown: markdown,
-        contentText: text,
-        title,
-        ...(!edited ? { updatedAt: sql`${page.updatedAt}` } : userId ? { updatedBy: userId } : {}),
-      })
-      .where(eq(page.id, pageId));
+    try {
+      await db
+        .update(page)
+        .set({
+          ydoc: Y.encodeStateAsUpdate(doc),
+          contentMarkdown: markdown,
+          contentText: text,
+          title,
+          ...(!edited ? { updatedAt: sql`${page.updatedAt}` } : userId ? { updatedBy: userId } : {}),
+        })
+        .where(eq(page.id, pageId));
+    } catch (error) {
+      // Nothing of these changes was saved: the save that retries them counts their writers again.
+      const later = writers.get(doc);
+      if (later) for (const id of wrote) later.add(id);
+      else writers.set(doc, wrote);
+      throw pageSaveFailedError(error);
+    }
+    // Saved: steps after this one failing doesn't make the page unsaved.
+    if (failedSaves.delete(doc)) doc.broadcastStateless(PAGE_SAVED_EVENT);
     if (shownBefore) {
       // Files this save put into the body (the trigger recorded them, unauthorized) count for the
       // page's viewers when one of the people who changed it since the last save could read them
@@ -383,10 +401,21 @@ export function createCollab() {
       try {
         await persistPage(target.id, document, lastContext);
       } catch (error) {
-        // Hocuspocus swallows hook errors; a failed save must be visible in the logs.
+        // Hocuspocus swallows hook errors; a failed save must be visible in the logs, and to the
+        // writers: open editors stop showing their changes as saved (the next change saves again).
         console.error(`[collab] failed to persist ${documentName}`, error);
+        if (isPageSaveFailed(error)) {
+          failedSaves.set(document, error as Error);
+          document.broadcastStateless(PAGE_SAVE_FAILED_EVENT);
+        }
+        // Thrown on, so Hocuspocus keeps the document in memory rather than unloading it.
         throw error;
       }
+    },
+
+    async connected({ connection }) {
+      // Someone opening a page whose last save failed learns it too.
+      if (failedSaves.has(connection.document)) connection.sendStateless(PAGE_SAVE_FAILED_EVENT);
     },
   };
 
@@ -398,18 +427,29 @@ export function createCollab() {
     extensions: [extension],
   });
 
-  /** Runs a transaction against the page's shared doc (loading it if needed) and persists it. */
+  /**
+   * Runs a transaction against the page's shared doc (loading it if needed) and persists it.
+   * Rejects (pageSaveFailedError) when the save failed: the change may then live on only in open
+   * editors, or nowhere once the document is unloaded.
+   */
   const transactPage = async <T>(pageId: string, actor: WriteActor, fn: (doc: Document) => T | Promise<T>): Promise<T> => {
     const conn = await hocuspocus.openDirectConnection(pageDocName(pageId), {
       userId: actor.userId,
       oauthClientId: actor.oauthClientId,
     });
+    const doc = conn.document!;
+    let result: T;
     try {
       // Async prep (markdown parsing) happens inside fn before its synchronous transact call.
-      return await fn(conn.document!);
+      result = await fn(doc);
     } finally {
+      // Saves the document before it resolves (Hocuspocus stores at once when a direct connection
+      // closes); a failed save doesn't reject it but is in failedSaves by then.
       await conn.disconnect();
     }
+    const failed = failedSaves.get(doc);
+    if (failed) throw failed;
+    return result;
   };
 
   const snapshotBefore = async (pageId: string, doc: Y.Doc, reason: SnapshotReason, actor: WriteActor) => {

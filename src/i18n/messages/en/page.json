@@ -115,7 +115,9 @@
     "syncing": "Syncing…",
     "synced": "Synced",
     "offlinePending": "Offline · edits kept here",
-    "offlineHint": "You're offline. Keep editing: changes are saved in this browser and sync when the connection is back."
+    "offlineHint": "You're offline. Keep editing: changes are saved in this browser and sync when the connection is back.",
+    "notSaved": "Not saved",
+    "notSavedHint": "Leafdesk couldn't save your latest changes. Keep this page open: your next edit saves them again."
   },
   "errors": {
     "accessLost": "You no longer have access to this page.",

@@ -135,13 +135,15 @@ export function snapshotsToEvict(entries: { key: string; savedAt: number }[], ma
     .map((e) => e.key);
 }
 
-export type SyncState = "live" | "syncing" | "connecting" | "reconnecting" | "offline" | "noAccess";
+export type SyncState = "live" | "syncing" | "connecting" | "reconnecting" | "offline" | "noAccess" | "notSaved";
 
 /**
  * What the page header shows about the page's connection.
  * `ready`: the editor has content (from the server, or the offline copy).
  * `unsynced`: edits made here are waiting for the server's confirmation (for a while, so typing
  * doesn't flicker it).
+ * `saveFailed`: the server said its last save of the page failed (collab/service.ts), so edits it
+ * has aren't stored yet.
  */
 export function syncState(input: {
   accessLost: boolean;
@@ -151,10 +153,12 @@ export function syncState(input: {
   serverSynced: boolean;
   ready: boolean;
   unsynced: boolean;
+  saveFailed?: boolean;
 }): SyncState {
   if (input.accessLost) return "noAccess";
   if (input.browserOffline || input.socket === "disconnected" || input.tokenFailed) return "offline";
   if (input.socket === "connecting") return input.ready ? "reconnecting" : "connecting";
+  if (input.saveFailed) return "notSaved";
   if (!input.serverSynced) return input.ready ? "syncing" : "connecting";
   return input.unsynced ? "syncing" : "live";
 }

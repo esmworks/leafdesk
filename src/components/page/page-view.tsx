@@ -651,6 +651,7 @@ const DOT_COLOR: Record<ConnectionState, string> = {
   reconnecting: "bg-amber-400",
   offline: "bg-fg-faint",
   noAccess: "bg-danger",
+  notSaved: "bg-danger",
 };
 
 /** How long "Synced" stays up after edits made offline (or a slow save) have reached the server. */
@@ -668,7 +669,7 @@ function SyncStatus({ connection, pendingEdits }: { connection: ConnectionState;
   useEffect(() => {
     const before = previous.current;
     previous.current = connection;
-    if (connection !== "live" || (before !== "syncing" && before !== "offline" && before !== "reconnecting")) return;
+    if (connection !== "live" || (before !== "syncing" && before !== "offline" && before !== "reconnecting" && before !== "notSaved")) return;
     setJustSynced(true);
     const timer = setTimeout(() => setJustSynced(false), SYNCED_NOTICE_MS);
     return () => clearTimeout(timer);
@@ -680,7 +681,7 @@ function SyncStatus({ connection, pendingEdits }: { connection: ConnectionState;
       role="status"
       data-sync-state={connection}
       className="me-1 flex min-w-0 items-center gap-1.5 text-xs text-fg-faint"
-      title={connection === "offline" ? t("offlineHint") : label}
+      title={connection === "offline" ? t("offlineHint") : connection === "notSaved" ? t("notSavedHint") : label}
     >
       <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", DOT_COLOR[connection])} />
       {(connection !== "live" || justSynced) && <span className="truncate">{label}</span>}

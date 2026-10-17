@@ -169,6 +169,12 @@
 
 ### Fixed
 
+- **A page that can't be saved says so.** When the database refused to save a page (as an
+  oversized search index once did), the failure only reached the server log: creating a page with
+  a body, the REST API, AI apps and imports went on as if the body had been written, and the editor
+  kept showing the page as live. Such writes now fail with an error (500 `internal_error` from the
+  REST API, an error result for AI apps), and the editor's status says "Not saved" until a later
+  save goes through. A page created with a body that couldn't be saved stays, without the body.
 - **AI autofill values count as row changes.** A value AI filled in was saved past everything a
   row write sets off: semantic search didn't index it until something else changed the row, the
   row's activity didn't show it, and automations waiting for the property to change never ran.

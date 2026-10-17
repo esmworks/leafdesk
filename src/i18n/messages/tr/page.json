@@ -115,7 +115,9 @@
     "syncing": "Eşitleniyor…",
     "synced": "Eşitlendi",
     "offlinePending": "Çevrimdışı · değişiklikler burada",
-    "offlineHint": "Çevrimdışısınız. Düzenlemeye devam edebilirsiniz: değişiklikler bu tarayıcıda saklanır, bağlantı gelince eşitlenir."
+    "offlineHint": "Çevrimdışısınız. Düzenlemeye devam edebilirsiniz: değişiklikler bu tarayıcıda saklanır, bağlantı gelince eşitlenir.",
+    "notSaved": "Kaydedilmedi",
+    "notSavedHint": "Leafdesk son değişikliklerinizi kaydedemedi. Sayfayı açık tutun: bir sonraki düzenlemeniz onları yeniden kaydeder."
   },
   "errors": {
     "accessLost": "Artık bu sayfaya erişiminiz yok.",

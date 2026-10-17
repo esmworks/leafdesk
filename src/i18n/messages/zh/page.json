@@ -115,7 +115,9 @@
     "syncing": "正在同步…",
     "synced": "已同步",
     "offlinePending": "离线 · 编辑保存在本地",
-    "offlineHint": "你已离线。可以继续编辑：更改会保存在此浏览器中，连接恢复后自动同步。"
+    "offlineHint": "你已离线。可以继续编辑：更改会保存在此浏览器中，连接恢复后自动同步。",
+    "notSaved": "未保存",
+    "notSavedHint": "Leafdesk 无法保存你最近的更改。请保持此页面打开：下一次编辑会再次保存它们。"
   },
   "errors": {
     "accessLost": "你已无权访问此页面。",
