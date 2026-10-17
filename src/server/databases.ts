@@ -2117,7 +2117,11 @@ export async function changePropertyType(
   }
 }
 
-class PropertyChangedMeanwhile extends Error {}
+class PropertyChangedMeanwhile extends Error {
+  constructor() {
+    super("The property kept changing while its type was being changed; try again");
+  }
+}
 
 async function retypeProperty(
   userId: string,
