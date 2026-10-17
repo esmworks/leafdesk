@@ -2271,7 +2271,7 @@
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "setweight(to_tsvector('simple', coalesce(title, '')), 'A') || setweight(to_tsvector('simple', coalesce(content_text, '')), 'B') || setweight(to_tsvector('simple', cjk_bigrams(title)), 'A') || setweight(to_tsvector('simple', cjk_bigrams(content_text)), 'B')",
+            "as": "setweight(to_tsvector('simple', left(coalesce(title, ''), 1000)), 'A') || setweight(to_tsvector('simple', left(coalesce(content_text, ''), 80000)), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')",
             "type": "stored"
           }
         },

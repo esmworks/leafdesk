@@ -1,15 +1,16 @@
 /**
  * End-to-end check of the search box's filters against the database: `in:` (a title, quoted or
  * not, several pages of one title, a page the person can't see), `type:` (pages, databases, rows),
- * filters without text, filters with text, words inside Japanese, Chinese and Korean sentences, and
- * the pages last edited before anything is typed.
+ * filters without text, filters with text, words inside Japanese, Chinese and Korean sentences, a
+ * page too large for the whole of it to be indexed, and the pages last edited before anything is
+ * typed.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/search-e2e.ts
  *
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied.
  */
-export {};
+import { createHash } from "node:crypto";
 
 try {
   process.loadEnvFile();
@@ -179,6 +180,15 @@ try {
   const asked = idsOf(await fullTextSearch(ids.owner, "明日の会議はどこですか", { workspaceId, anyWord: true }));
   check(asked.includes(japanese.id) && !asked.includes(chinese.id) && !asked.includes(korean.id), "a question in Japanese finds the pages about it, not every page with kana", asked);
   check((await search("纪要"))[0]?.snippet.includes("纪要"), "…and the snippet shows where", (await search("纪要"))[0]);
+
+  // A huge page of unique words (about 2 MB) saves: the index takes only the first 80,000
+  // characters of the body, so its vector stays under Postgres' tsvector limit.
+  const words = Array.from({ length: 62_000 }, (_, i) => `q${createHash("md5").update(`${RUN}-${i}`).digest("hex")}`);
+  const paragraphs = Array.from({ length: words.length / 100 }, (_, p) => words.slice(p * 100, p * 100 + 100).join(" "));
+  const huge = await body("Huge log", `First line: zanderwick.\n\n${paragraphs.join("\n\n")}`);
+  check(idsOf(await search("zanderwick")).includes(huge.id), "a page with 2 MB of unique words saves and is found by a word near its start");
+  check(idsOf(await search(words[300])).includes(huge.id), "…and by one further in");
+  check(!idsOf(await search(words.at(-1)!)).includes(huge.id), "…but not by one past the first 80,000 characters");
 
   // Someone who can only see one page doesn't reach others through in:
   await setPagePermission(ids.owner, launch.id, ids.guest, "view");

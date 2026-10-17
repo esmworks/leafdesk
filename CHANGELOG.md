@@ -10,9 +10,9 @@
   `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
 - **Migrations 0075 and 0077 each rewrite the `page` table once.** 0075 adds the stored search
   vector (see *Changed*) and fills it for every page, 0077 adds the pieces of Chinese and Japanese
-  text to it; on a server with many pages each takes a while (about 15 seconds for
-  60,000 pages with 2 KB of text each), and pages can't be read or written until it's done: run
-  `pnpm db:migrate` at a quiet time.
+  text to it and keeps it to the first 80,000 characters of each page's text; on a server with
+  many pages each takes a while (about 15 seconds for 60,000 pages with 2 KB of text each), and
+  pages can't be read or written until it's done: run `pnpm db:migrate` at a quiet time.
 
 ### Added
 
@@ -120,7 +120,10 @@
 - **Search stays fast in large workspaces.** Full-text search (the search box, MCP and REST
   `search`, the AI chat, agents) now matches and ranks pages through an index of a vector Postgres
   keeps for each page (migration 0075, `page.search_vector`: the title's words weighted above the
-  body's), and checks access only for the best pages until there are enough. Before, every search
+  body's), and checks access only for the best pages until there are enough. The vector holds the
+  first 1,000 characters of a title and the first 80,000 of a body (migration 0077), so a page of
+  a few megabytes of distinct words still saves: words past that point of a huge page aren't
+  found by full-text search. Before, every search
   read the text of every page in the workspace: in a test workspace of 60,000 pages a search for a
   rare word took 3.7 seconds and now takes under 60 ms, one for a word most pages have went from
   3.6 seconds to 0.4. A word now also matches as the start of a longer word ("kond" finds
