@@ -36,6 +36,11 @@
   "zoomOut": "Alejar",
   "fit": "Ajustar el grafo",
   "hint": "Haz clic para seleccionar y doble clic para abrir",
+  "fewEdges": {
+    "title": "Todavía hay pocos vínculos entre páginas",
+    "body": "El grafo muestra los enlaces entre páginas y las relaciones entre filas de bases de datos. Escribe [[ o @ en una página para enlazar otra, o añade una propiedad de relación a una base de datos; los vínculos aparecerán aquí.",
+    "showTree": "Mostrar vínculos de subpáginas"
+  },
   "inspector": {
     "open": "Abrir página",
     "focus": "Centrar en ella",

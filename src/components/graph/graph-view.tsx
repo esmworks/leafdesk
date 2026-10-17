@@ -15,8 +15,11 @@ import {
   DEFAULT_FILTER,
   degrees,
   EDGE_KINDS,
+  FEW_EDGES,
   filterGraph,
+  joiningEdges,
   MAX_DEPTH,
+  OVERVIEW_FILTER,
   type ClusteredEdge,
   type ClusteredNode,
   type GraphEdge,
@@ -447,8 +450,14 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
   // The focus lives in the address (`?focus=`), so a link, a reload and the sidebar's link to the
   // whole graph all show what the address says.
   const focusParam = useSearchParams().get("focus");
-  const [choices, setChoices] = useState<Omit<GraphFilter, "focus">>(DEFAULT_FILTER);
-  const filter = useMemo<GraphFilter>(() => ({ ...choices, focus: focusParam }), [choices, focusParam]);
+  // What the toolbar was set to; the rest as the view starts out, around a page or the whole workspace.
+  const [choices, setChoices] = useState<Partial<Omit<GraphFilter, "focus">>>({});
+  const filter = useMemo<GraphFilter>(
+    () => ({ ...(focusParam ? DEFAULT_FILTER : OVERVIEW_FILTER), ...choices, focus: focusParam }),
+    [choices, focusParam],
+  );
+  // Few links and relations: the whole workspace's graph says how to add them while it leaves the tree out.
+  const fewEdges = !filter.focus && !filter.tree && joiningEdges(graph.edges) < FEW_EDGES;
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(() => new Set<string>());
@@ -523,6 +532,7 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
   }
 
   const toggle = (key: "tree" | "rows" | "orphans") => (checked: boolean) => setChoices((f) => ({ ...f, [key]: checked }));
+  const showTree = () => toggle("tree")(true);
 
   return (
     <div className="flex h-full flex-col">
@@ -610,12 +620,20 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
           {graph.truncated && <span className="text-fg">{t("truncated", { count: graph.nodes.length })}</span>}
         </div>
       </header>
+      {/* Above the graph rather than over it, so it hides none of the few pages there are. */}
+      {fewEdges && shown.nodes.length > 0 && <FewEdges onShowTree={showTree} bar />}
       <div className="relative min-h-0 flex-1">
         <div ref={container} className="absolute inset-0" role="img" aria-label={t("canvas")} />
         {!shown.nodes.length ? (
-          <p className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-fg-muted">
-            {filter.focus && !focused ? t("focusMissing") : t("empty")}
-          </p>
+          fewEdges ? (
+            <div className="absolute inset-0 flex items-center justify-center p-4">
+              <FewEdges onShowTree={showTree} />
+            </div>
+          ) : (
+            <p className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-fg-muted">
+              {filter.focus && !focused ? t("focusMissing") : t("empty")}
+            </p>
+          )
         ) : (
           <>
             <div className="absolute top-3 inset-e-3 flex flex-col overflow-hidden rounded-md border border-border bg-bg shadow-sm md:top-auto md:bottom-3">
@@ -784,6 +802,30 @@ function Inspector({
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+/**
+ * The whole workspace has few links and relations: what the graph shows, and how to add to it. A
+ * bar above the graph, or in place of an empty one.
+ */
+function FewEdges({ onShowTree, bar }: { onShowTree: () => void; bar?: boolean }) {
+  const t = useTranslations("graph");
+  return (
+    <section
+      className={cn(
+        "flex text-sm",
+        bar ? "flex-wrap items-center gap-x-4 gap-y-2 border-b border-border px-4 py-3 md:px-6" : "max-w-sm flex-col items-center gap-1 text-center",
+      )}
+    >
+      <div className={cn("min-w-0", bar && "flex-1 basis-80")}>
+        <h2 className="font-medium">{t("fewEdges.title")}</h2>
+        <p className="mt-0.5 text-fg-muted">{t("fewEdges.body")}</p>
+      </div>
+      <Button size="sm" className={cn(!bar && "mt-2")} onClick={onShowTree}>
+        {t("fewEdges.showTree")}
+      </Button>
     </section>
   );
 }

@@ -36,6 +36,11 @@
   "zoomOut": "Diminuir zoom",
   "fit": "Ajustar o grafo",
   "hint": "Clique para selecionar, clique duas vezes para abrir",
+  "fewEdges": {
+    "title": "Ainda há poucas ligações entre páginas",
+    "body": "O grafo mostra os links entre páginas e as relações entre linhas de bancos de dados. Digite [[ ou @ em uma página para vincular outra, ou adicione uma propriedade de relação a um banco de dados; as ligações aparecem aqui.",
+    "showTree": "Mostrar ligações das subpáginas"
+  },
   "inspector": {
     "open": "Abrir página",
     "focus": "Focar em torno dela",

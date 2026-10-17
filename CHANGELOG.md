@@ -200,6 +200,12 @@
   by properties, and formulas reading them, are no longer part of what autofill sends to the model:
   they could name rows and people the readers of the filled-in text can't open. A prompt or a
   translation source naming one is refused (`hiddenInput`).
+- **The graph opens on what pages say about each other.** The whole workspace's graph now shows
+  only the pages joined by links and relations; the page tree and pages joined to nothing are a
+  switch away (around a focused page they still show). A row related to a page in view comes out of
+  its database's bubble, so the line says which customer an order is for, unless more than 30 rows
+  of that database would. With fewer than 10 links and relations in the workspace, the graph says
+  how to add them.
 
 ### Fixed
 

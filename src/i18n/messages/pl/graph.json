@@ -36,6 +36,11 @@
   "zoomOut": "Pomniejsz",
   "fit": "Dopasuj graf",
   "hint": "Kliknij, aby zaznaczyć, kliknij dwukrotnie, aby otworzyć",
+  "fewEdges": {
+    "title": "Na razie mało powiązań między stronami",
+    "body": "Graf pokazuje linki między stronami i relacje między wierszami baz danych. Wpisz [[ lub @ na stronie, aby połączyć ją z inną, albo dodaj do bazy danych właściwość relacji; powiązania pojawią się tutaj.",
+    "showTree": "Pokaż powiązania podstron"
+  },
   "inspector": {
     "open": "Otwórz stronę",
     "focus": "Skup się wokół niej",

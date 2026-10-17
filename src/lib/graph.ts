@@ -71,7 +71,20 @@ export type GraphFilter = {
   depth: number;
 };
 
+/** Around a focused page: everything joined to it, the page tree too. */
 export const DEFAULT_FILTER: GraphFilter = { tree: true, rows: true, orphans: true, focus: null, depth: 1 };
+
+/**
+ * The whole workspace: only pages joined by links and relations. Every row is inside its database,
+ * so the page tree there would mostly say how many rows each database has.
+ */
+export const OVERVIEW_FILTER: GraphFilter = { ...DEFAULT_FILTER, tree: false, orphans: false };
+
+/** Fewer links and relations than this in the whole workspace, and the graph says how to add them. */
+export const FEW_EDGES = 10;
+
+/** How many of the edges are links or relations (not the page tree). */
+export const joiningEdges = (edges: GraphEdge[]) => edges.filter((e) => e.kind !== "child").length;
 
 /** The pages within `depth` edges of `focus` (itself included), through `edges`. */
 export function neighborhood(edges: GraphEdge[], focus: string, depth: number): Set<string> {
@@ -145,8 +158,10 @@ export type ClusteredGraph = { nodes: ClusteredNode[]; edges: ClusteredEdge[] };
  * database counts them, their edges lead to it instead (one edge per pair of pages, weighed by how
  * many it stands for, of the first kind in EDGE_KINDS among them) and edges between its own rows
  * and to the database fall away. Databases in `expanded` keep their rows, and so do the rows in
- * `keep` (a focused row). Rows whose database isn't in the graph stay as they are: nothing stands
- * in for a page the viewer can't open.
+ * `keep` (a focused row). A row linked or related to a page drawn on its own is drawn on its own
+ * too, so the edge says which row it is, unless more than `threshold` rows of its database would
+ * come out that way. Rows whose database isn't in the graph stay as they are: nothing stands in
+ * for a page the viewer can't open.
  */
 export function clusterRows(
   graph: Pick<WorkspaceGraph, "nodes" | "edges">,
@@ -156,11 +171,28 @@ export function clusterRows(
   const rowCount = new Map<string, number>();
   for (const n of graph.nodes) if (n.kind === "row" && n.parent && ids.has(n.parent)) rowCount.set(n.parent, (rowCount.get(n.parent) ?? 0) + 1);
   const clustered = new Set([...rowCount].filter(([id, count]) => count > threshold && !expanded.has(id)).map(([id]) => id));
+  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+  // The database a row would be drawn as, if any.
+  const clusterOf = (id: string) => {
+    const n = byId.get(id);
+    return n?.kind === "row" && n.parent && clustered.has(n.parent) && !keep.has(id) ? n.parent : null;
+  };
+  // Rows joined to a page drawn on its own (not to their own database), per database.
+  const joined = new Map<string, Set<string>>();
+  for (const e of graph.edges) {
+    if (e.kind === "child") continue;
+    for (const [row, other] of [[e.source, e.target], [e.target, e.source]]) {
+      const into = clusterOf(row);
+      if (!into || clusterOf(other) || other === into) continue;
+      joined.set(into, (joined.get(into) ?? new Set()).add(row));
+    }
+  }
+  const out = new Set([...joined.values()].filter((rows) => rows.size <= threshold).flatMap((rows) => [...rows]));
   // Each page and what draws it.
   const drawnAs = new Map<string, string>();
   const hidden = new Map<string, number>();
   for (const n of graph.nodes) {
-    const into = n.kind === "row" && n.parent && clustered.has(n.parent) && !keep.has(n.id) ? n.parent : n.id;
+    const into = out.has(n.id) ? n.id : (clusterOf(n.id) ?? n.id);
     drawnAs.set(n.id, into);
     if (into !== n.id) hidden.set(into, (hidden.get(into) ?? 0) + 1);
   }

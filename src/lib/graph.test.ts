@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clusterRows, DEFAULT_FILTER, degrees, filterGraph, neighborhood, uniqueEdges, type GraphEdge, type GraphNode } from "./graph";
+import { clusterRows, DEFAULT_FILTER, degrees, filterGraph, joiningEdges, neighborhood, OVERVIEW_FILTER, uniqueEdges, type GraphEdge, type GraphNode } from "./graph";
 
 const node = (id: string, kind: GraphNode["kind"] = "page"): GraphNode => ({ id, title: id, icon: null, kind });
 const edge = (source: string, target: string, kind: GraphEdge["kind"] = "link"): GraphEdge => ({ source, target, kind });
@@ -42,6 +42,13 @@ describe("filterGraph", () => {
     expect(noRows.edges).toEqual([edge("home", "notes", "child")]);
     const joined = filterGraph(graph, { ...DEFAULT_FILTER, rows: false, orphans: false });
     expect(ids(joined.nodes)).toEqual(["home", "notes"]);
+  });
+
+  it("shows only pages joined by links and relations in the overview", () => {
+    const overview = filterGraph(graph, OVERVIEW_FILTER);
+    expect(ids(overview.nodes)).toEqual(["notes", "row1", "row2"]);
+    expect(overview.edges.map((e) => e.kind).sort()).toEqual(["link", "relation"]);
+    expect(joiningEdges(graph.edges)).toBe(2);
   });
 
   it("focuses on a page and its neighbours, keeping the page itself", () => {
@@ -100,10 +107,17 @@ describe("clusterRows", () => {
 
   it("draws the rows of databases past it as the database, their edges weighed", () => {
     const out = clusterRows(graph, { threshold: 2 });
-    expect(ids(out.nodes)).toEqual(["customers", "notes", "orders"]);
-    expect(out.nodes.find((n) => n.id === "customers")?.rows).toBe(3);
+    // c3 is linked from a page drawn on its own, so it comes out of the database.
+    expect(ids(out.nodes)).toEqual(["c3", "customers", "notes", "orders"]);
+    expect(out.nodes.find((n) => n.id === "customers")?.rows).toBe(2);
     // Three relations become one edge between the databases; the page tree and c1-c2 fall away.
-    expect(weights(out.edges)).toEqual({ "customers-orders": "relation×3", "customers-notes": "link×1" });
+    expect(weights(out.edges)).toEqual({ "c3-customers": "child×1", "customers-orders": "relation×3", "c3-notes": "link×1" });
+  });
+
+  it("leaves the rows in when more than the threshold would come out", () => {
+    const out = clusterRows(graph, { threshold: 2, expanded: new Set(["orders"]) });
+    // All three customers are joined to an order or the page drawn on its own: too many to draw.
+    expect(out.nodes.find((n) => n.id === "customers")?.rows).toBe(3);
   });
 
   it("keeps the rows of an expanded database, and a kept row", () => {
@@ -118,10 +132,23 @@ describe("clusterRows", () => {
       "customers-o3": "relation×1",
       "customers-notes": "link×1",
     });
+    // Kept, c1 is drawn on its own, and so come the rows joined to it (and c3, linked from notes).
     const kept = clusterRows(graph, { threshold: 2, keep: new Set(["c1"]) });
-    expect(ids(kept.nodes)).toEqual(["c1", "customers", "notes", "orders"]);
-    expect(kept.nodes.find((n) => n.id === "customers")?.rows).toBe(2);
-    expect(weights(kept.edges)).toEqual({ "c1-customers": "relation×2", "c1-orders": "relation×2", "customers-orders": "relation×1", "customers-notes": "link×1" });
+    expect(ids(kept.nodes)).toEqual(["c1", "c2", "c3", "customers", "notes", "o1", "o2", "orders"]);
+    expect(kept.nodes.find((n) => n.id === "customers")?.rows).toBeUndefined();
+    expect(kept.nodes.find((n) => n.id === "orders")?.rows).toBe(1);
+    expect(weights(kept.edges)).toEqual({
+      "c1-customers": "child×1",
+      "c2-customers": "child×1",
+      "c3-customers": "child×1",
+      "o1-orders": "child×1",
+      "o2-orders": "child×1",
+      "c1-o1": "relation×1",
+      "c1-o2": "relation×1",
+      "c2-orders": "relation×1",
+      "c1-c2": "relation×1",
+      "c3-notes": "link×1",
+    });
   });
 
   it("leaves rows alone whose database isn't in the graph", () => {

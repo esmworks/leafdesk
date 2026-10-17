@@ -36,6 +36,11 @@
   "zoomOut": "Uzaklaştır",
   "fit": "Tümünü sığdır",
   "hint": "Tıklayınca seçilir, çift tıklayınca açılır",
+  "fewEdges": {
+    "title": "Sayfalar arasında henüz pek bağ yok",
+    "body": "Grafik, sayfaların birbirine verdiği bağlantıları ve veritabanı satırları arasındaki ilişkileri gösterir. Bir sayfada [[ ya da @ yazıp başka bir sayfaya bağlantı verin veya bir veritabanına ilişki alanı ekleyin; bağlar burada görünür.",
+    "showTree": "Alt sayfa bağlarını göster"
+  },
   "inspector": {
     "open": "Sayfayı aç",
     "focus": "Çevresine odaklan",

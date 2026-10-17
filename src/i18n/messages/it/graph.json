@@ -36,6 +36,11 @@
   "zoomOut": "Riduci",
   "fit": "Adatta il grafo",
   "hint": "Fai clic per selezionare, doppio clic per aprire",
+  "fewEdges": {
+    "title": "Ancora pochi collegamenti tra le pagine",
+    "body": "Il grafo mostra i link tra le pagine e le relazioni tra le righe dei database. Digita [[ o @ in una pagina per collegarne un’altra, oppure aggiungi una proprietà relazione a un database; i collegamenti compariranno qui.",
+    "showTree": "Mostra i collegamenti delle sottopagine"
+  },
   "inspector": {
     "open": "Apri pagina",
     "focus": "Concentrati attorno",

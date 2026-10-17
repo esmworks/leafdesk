@@ -36,6 +36,11 @@
   "zoomOut": "Verkleinern",
   "fit": "Ganzen Graphen zeigen",
   "hint": "Klicken wählt aus, Doppelklick öffnet",
+  "fewEdges": {
+    "title": "Noch kaum Verbindungen zwischen Seiten",
+    "body": "Der Graph zeigt die Links zwischen Seiten und die Relationen zwischen Datenbankzeilen. Tippen Sie auf einer Seite [[ oder @, um auf eine andere zu verlinken, oder fügen Sie einer Datenbank eine Relation-Eigenschaft hinzu; die Verbindungen erscheinen hier.",
+    "showTree": "Unterseiten-Verbindungen zeigen"
+  },
   "inspector": {
     "open": "Seite öffnen",
     "focus": "Darauf fokussieren",

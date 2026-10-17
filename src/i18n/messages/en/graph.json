@@ -36,6 +36,11 @@
   "zoomOut": "Zoom out",
   "fit": "Fit the graph",
   "hint": "Click to select, double-click to open",
+  "fewEdges": {
+    "title": "Few links between pages yet",
+    "body": "The graph shows the links pages make to each other and the relations between database rows. Type [[ or @ in a page to link to another one, or add a relation property to a database; the links show up here.",
+    "showTree": "Show subpage links"
+  },
   "inspector": {
     "open": "Open page",
     "focus": "Focus around it",

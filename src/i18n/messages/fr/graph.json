@@ -36,6 +36,11 @@
   "zoomOut": "Zoom arrière",
   "fit": "Ajuster le graphe",
   "hint": "Cliquez pour sélectionner, double-cliquez pour ouvrir",
+  "fewEdges": {
+    "title": "Encore peu de liens entre les pages",
+    "body": "Le graphe montre les liens entre pages et les relations entre lignes de bases de données. Tapez [[ ou @ dans une page pour créer un lien vers une autre, ou ajoutez une propriété relation à une base de données ; les liens apparaîtront ici.",
+    "showTree": "Afficher les liens des sous-pages"
+  },
   "inspector": {
     "open": "Ouvrir la page",
     "focus": "Centrer dessus",
