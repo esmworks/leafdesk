@@ -372,8 +372,8 @@ export const page = pgTable(
     contentMarkdown: text("content_markdown").notNull().default(""),
     /**
      * What full-text search matches and ranks (server/pages.ts fullTextSearch): the title's words
-     * weighted A, the body's B, then the same for the two-character pieces of their Japanese,
-     * Chinese and Korean text (cjk_bigrams, migration 0077; lib/search-words cuts queries alike).
+     * weighted A, the body's B, then the same for the two-character pieces of their Chinese and
+     * Japanese text (cjk_bigrams, migration 0077; lib/search-words cuts queries alike).
      * Kept by Postgres from title and content_text, so ranking doesn't parse every candidate page
      * again. Large: select it only where a query needs it.
      */

@@ -10,7 +10,7 @@
 import { blockText, type BlockLike } from "./blocks";
 import { EMPTY_MENTION, eachMention, MENTION, PAGE_LINK_BLOCK } from "./mentions";
 import { searchFold } from "./search-fold";
-import { isCjkTerm } from "./search-words";
+import { cjkScript, hasKana, isFunctionChar } from "./search-words";
 
 /** Stands for the link in a stored context. */
 export const LINK_PLACEHOLDER = "￼";
@@ -20,6 +20,7 @@ const AROUND = 90;
 export const MIN_MENTION_TITLE = 2;
 
 const WORD = /[\p{L}\p{N}_]/u;
+const HANGUL = /\p{Script=Hangul}/u;
 /** Marks the link while a context is built; text can't hold it (Postgres text has no NUL). */
 const MARK = "\u0000";
 
@@ -60,9 +61,8 @@ const CLUSTER = /\P{M}\p{M}*|\p{M}+/gu;
 /**
  * Where `title` first appears in `text` as whole words, compared the way pickers compare (case and
  * the Turkish dotted and dotless i aside, lib/search-fold), whether letters are written composed
- * or with combining marks (NFC or NFD). An edge in Japanese, Chinese or Korean script needs no word
- * boundary: those are written without spaces, or with particles joined on ("会議について"). Null when it doesn't, or when the title is too short to
- * look for.
+ * or with combining marks (NFC or NFD), where the words around it don't go on into it (wordGoesOn).
+ * Null when it doesn't, or when the title is too short to look for.
  */
 export function findTitle(text: string, title: string): { start: number; end: number } | null {
   const wanted = searchFold(title.normalize("NFC").trim());
@@ -77,22 +77,38 @@ export function findTitle(text: string, title: string): { start: number; end: nu
     folded += fold;
   }
   from.push(text.length);
-  const edgeIsWord = (char: string | undefined) => char !== undefined && WORD.test(char);
+  const chinese = !hasKana(folded);
   const first = String.fromCodePoint(wanted.codePointAt(0)!);
-  const last = [...wanted].at(-1);
-  const needsStart = edgeIsWord(first) && !isCjkTerm(first);
-  const needsEnd = edgeIsWord(last) && !isCjkTerm(last ?? "");
+  const last = [...wanted].at(-1)!;
   for (let at = folded.indexOf(wanted); at !== -1; at = folded.indexOf(wanted, at + 1)) {
     const before = at > 0 ? [...folded.slice(Math.max(0, at - 2), at)].at(-1) : undefined;
     const after = folded.slice(at + wanted.length).codePointAt(0);
-    if (needsStart && edgeIsWord(before)) continue;
-    if (needsEnd && after !== undefined && edgeIsWord(String.fromCodePoint(after))) continue;
+    if (wordGoesOn(first, before, "start", chinese)) continue;
+    if (after !== undefined && wordGoesOn(last, String.fromCodePoint(after), "end", chinese)) continue;
     const start = from[at];
     // The end is where the next folded character came from (a folded character may be shorter).
     const end = from[at + wanted.length] ?? text.length;
     return { start, end };
   }
   return null;
+}
+
+/**
+ * Whether the word at a title's `edge` character goes on into `neighbor`, so the title is only part
+ * of a longer word there. Most scripts end a word where letters and digits do. Chinese and Japanese
+ * have no spaces: a Chinese character next to another is taken as the same word (会議 isn't in
+ * 国会議員), except next to a Chinese function word (的会议) in text without kana; katakana next to
+ * katakana likewise (メモ isn't in メモリー); hiragana, which writes particles and endings, ends a
+ * word (会議について). Korean words start after a space but take particles at their end (회의를).
+ */
+function wordGoesOn(edge: string, neighbor: string | undefined, side: "start" | "end", chinese: boolean): boolean {
+  if (neighbor === undefined) return false;
+  const script = cjkScript(edge);
+  if (script === "han") return cjkScript(neighbor) === "han" && !(chinese && isFunctionChar(neighbor));
+  if (script === "katakana") return cjkScript(neighbor) === "katakana";
+  if (script === "hiragana") return false;
+  if (side === "end" && HANGUL.test(edge)) return false;
+  return WORD.test(edge) && WORD.test(neighbor);
 }
 
 /** The pages a block's own content mentions (not its nested blocks'), in order. */

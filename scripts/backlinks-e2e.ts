@@ -212,6 +212,17 @@ try {
   const diary = await make("日記");
   await write(diary.id, "明日の会議について話します。");
   check((await unlinkedIds(meeting.id)).includes(diary.id), "a Japanese title is found inside a sentence, which has no spaces between words");
+  const news = await make("ニュース");
+  await write(news.id, "国会議員が来ます。");
+  check(!(await unlinkedIds(meeting.id)).includes(news.id), "…but not inside a longer word (国会議員)");
+  const minutes = await make("会議室の予約");
+  const plans = await make("予定");
+  await write(plans.id, "来週は会議室の予約をします。");
+  check((await unlinkedIds(minutes.id)).includes(plans.id), "a longer Japanese title is found with its pieces side by side");
+  const koreanTitle = await make("회의 메모");
+  const koreanNote = await make("일정");
+  await write(koreanNote.id, "오늘 회의 메모를 공유합니다.");
+  check((await unlinkedIds(koreanTitle.id)).includes(koreanNote.id), "a Korean title is found with a particle joined to its last word");
 
   // ── Linking ──────────────────────────────────────────────────────────────────────────────
   check((await failure(() => linkUnlinkedMention(ids.guest, plain.id, target.id))) === "access", "linking needs edit access to the source");

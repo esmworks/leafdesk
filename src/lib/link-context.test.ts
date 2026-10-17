@@ -16,8 +16,20 @@ describe("findTitle", () => {
     expect(findTitle("明日の会議について", "会議")).toEqual({ start: 3, end: 5 });
     expect(findTitle("上周的会议纪要", "会议纪要")).toEqual({ start: 3, end: 7 });
     expect(findTitle("회의를 시작합니다", "회의")).toEqual({ start: 0, end: 2 });
+    expect(findTitle("Leafdesk会議の資料", "会議")).toEqual({ start: 8, end: 10 });
     // A Latin edge still needs a word boundary.
     expect(findTitle("Leafdesk会議", "desk会議")).toBeNull();
+  });
+
+  it("doesn't find such a title inside a longer word", () => {
+    // Chinese characters next to Chinese characters, katakana next to katakana, a Korean word's start.
+    expect(findTitle("国会議員が来ます", "会議")).toBeNull();
+    expect(findTitle("メモリーを増やす", "メモ")).toBeNull();
+    expect(findTitle("국회의원 선거", "회의")).toBeNull();
+    expect(findTitle("上周的会议纪要", "会议")).toBeNull();
+    // Next to a Chinese function word a Chinese word ends, but not in Japanese, which has kana.
+    expect(findTitle("这是会议", "会议")).toEqual({ start: 2, end: 4 });
+    expect(findTitle("現在会議の準備", "在会議")).toBeNull();
   });
 
   it("treats the Turkish dotted and dotless i alike", () => {

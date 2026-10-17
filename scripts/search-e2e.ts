@@ -165,7 +165,16 @@ try {
     "a Chinese word is found inside a sentence, and only there",
     titlesOf(await search("纪要")),
   );
-  check(idsOf(await search("의를")).includes(korean.id) && idsOf(await search("회의")).includes(korean.id), "a Korean word is found with a particle joined to it");
+  check(idsOf(await search("회의")).includes(korean.id) && !idsOf(await search("의를")).includes(korean.id), "a Korean word is found with a particle joined to it, by its start");
+  const assembly = await body("국회 소식", "국회의원 선거가 있습니다.");
+  check(!idsOf(await search("회의")).includes(assembly.id), "…not inside a longer Korean word");
+  const trip = await body("出張の予定", "東京から京都へ行きます。");
+  const tokyo = await body("都庁の予定", "東京都の会議があります。");
+  check(
+    idsOf(await search("東京都")).includes(tokyo.id) && !idsOf(await search("東京都")).includes(trip.id),
+    "the pieces of a word must stand together: 東京都 doesn't find a page about 東京 and 京都",
+    titlesOf(await search("東京都")),
+  );
   check(idsOf(await search("会議 メモ")).join() === japanese.id, "pieces and words of a query are all needed, in the title or the body", titlesOf(await search("会議 メモ")));
   const asked = idsOf(await fullTextSearch(ids.owner, "明日の会議はどこですか", { workspaceId, anyWord: true }));
   check(asked.includes(japanese.id) && !asked.includes(chinese.id) && !asked.includes(korean.id), "a question in Japanese finds the pages about it, not every page with kana", asked);

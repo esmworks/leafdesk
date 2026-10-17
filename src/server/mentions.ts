@@ -1,10 +1,10 @@
-import { and, asc, desc, eq, inArray, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, lte, ne, notInArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
 import { findTitle, excerpt, linkContexts, linkTitle, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
 import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
-import { searchQueryText } from "@/lib/search-words";
+import { searchQueryParts } from "@/lib/search-words";
 import { titleKey } from "@/lib/wikilinks";
 import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
@@ -307,6 +307,24 @@ export type UnlinkedMention = {
   linkable?: boolean;
 };
 
+/**
+ * A form of a title in parts, for words the parser doesn't find as written: the text without its
+ * Chinese and Japanese runs as a phrase, its last word as a prefix when it is Korean (회의 finds
+ * 회의를), and each run by its two-character pieces (lib/search-words cjkTsQuery). None when the
+ * title has neither.
+ */
+function titleParts(form: string): SQL[] {
+  const { words, cjk } = searchQueryParts(form);
+  const korean = /\p{Script=Hangul}$/u.test(words.match(/[\p{L}\p{N}]+/gu)?.at(-1) ?? "");
+  if (!cjk.length && !korean) return [];
+  const parts = cjk.map((run) => sql`to_tsquery('simple', ${run})`);
+  if (/[\p{L}\p{N}]/u.test(words)) {
+    const phrase = sql`phraseto_tsquery('simple', ${words})`;
+    parts.unshift(korean ? sql`regexp_replace(${phrase}::text, '''$', ''':*')::tsquery` : phrase);
+  }
+  return [sql`(${sql.join(parts, sql` && `)})`];
+}
+
 /** Pages the full-text index offers, before their text is checked for the title. */
 const UNLINKED_CANDIDATES = 50;
 const UNLINKED_SHOWN = 20;
@@ -324,14 +342,13 @@ export async function listUnlinkedMentions(userId: string, pageId: string, { che
   // The page's indexed search vector (title, then body, positions running on), so the index narrows
   // the pages down. Postgres lowers "I" and "İ" to "i" while the title may be written with "ı": the
   // title is looked for as written, with every i-like letter as "i" and as "ı", and findTitle has
-  // the last word. Japanese, Chinese and Korean titles are also looked for as their two-character
-  // pieces in a row, which the vector holds for such text, so they are found inside a sentence.
+  // the last word. Each form is also looked for in parts (titleParts), which finds Chinese and
+  // Japanese words inside a sentence and Korean ones with a particle joined on.
   const document = sql`${page.searchVector}`;
   const folded = searchFold(title);
-  const written = [title, folded, folded.replace(/i/g, "ı")];
-  const forms = [...new Set([...written, ...written.map(searchQueryText)])];
+  const forms = [...new Set([title, folded, folded.replace(/i/g, "ı")])];
   const query = sql.join(
-    forms.map((form) => sql`phraseto_tsquery('simple', ${form})`),
+    forms.flatMap((form) => [sql`phraseto_tsquery('simple', ${form})`, ...titleParts(form)]),
     sql` || `,
   );
   const rows = await db

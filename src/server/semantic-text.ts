@@ -257,19 +257,21 @@ const foldWord = (word: string) => word.toLocaleLowerCase("tr").replace(/ı/g, "
 
 /**
  * Of a page's chunks, the one whose passage has the most of `terms` (see lib/search-words: words
- * matched as prefixes, Japanese, Chinese and Korean pieces anywhere in a word), then the most matches, then the earliest. Where the text search found the
- * page, this is the passage it was found for. With no term in any passage (the title matched),
- * the first chunk. Null without chunks.
+ * matched as prefixes; Chinese and Japanese words, which have no spaces around them, wherever they
+ * are written, each time counted), then the most matches, then the earliest. Where the text search
+ * found the page, this is the passage it was found for. With no term in any passage (the title
+ * matched), the first chunk. Null without chunks.
  */
 export function bestChunkForTerms<T extends { position: number; text: string }>(chunks: T[], terms: string[], title: string): T | null {
-  const wanted = [...new Set(terms.map(foldWord).filter(Boolean))];
+  const wanted = [...new Set(terms.map(foldWord).filter(Boolean))].map((term) => ({ term, cjk: isCjkTerm(term) }));
   let best: { chunk: T; distinct: number; total: number } | null = null;
   for (const chunk of chunks) {
     const words = (passageOf(chunk.text, title).match(/[\p{L}\p{N}]+/gu) ?? []).map(foldWord);
     let distinct = 0;
     let total = 0;
-    for (const term of wanted) {
-      const hits = words.filter((w) => (isCjkTerm(term) ? w.includes(term) : w.startsWith(term))).length;
+    for (const { term, cjk } of wanted) {
+      let hits = 0;
+      for (const w of words) hits += cjk ? w.split(term).length - 1 : w.startsWith(term) ? 1 : 0;
       if (hits) distinct++;
       total += hits;
     }

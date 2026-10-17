@@ -9,8 +9,8 @@
   the upgrade: through the background sweep as people search, or all at once with
   `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
 - **Migrations 0075 and 0077 each rewrite the `page` table once.** 0075 adds the stored search
-  vector (see *Changed*) and fills it for every page, 0077 adds the pieces of Japanese, Chinese
-  and Korean text to it; on a server with many pages each takes a while (about 15 seconds for
+  vector (see *Changed*) and fills it for every page, 0077 adds the pieces of Chinese and Japanese
+  text to it; on a server with many pages each takes a while (about 15 seconds for
   60,000 pages with 2 KB of text each), and pages can't be read or written until it's done: run
   `pnpm db:migrate` at a quiet time.
 
@@ -128,16 +128,20 @@
   a word no longer matches. Long pages no longer rank above short ones only for their length. The
   list of pages that write a page's title without linking to it uses the same index. Covered in
   `scripts/search-e2e.ts`.
-- **Japanese, Chinese and Korean words are found inside sentences.** These languages write no
-  spaces between words (or join particles to them), so search took a whole sentence as one word
-  and found a page only by its first characters: "会議" didn't find "明日の会議について". The search
-  vector now also keeps every two-character piece of such text (migration 0077, `cjk_bigrams`, for
-  the first 30,000 such characters of a page, which keeps the vector far below Postgres' limit),
-  and queries are cut the same way, so a word is found anywhere, a single character as it is
-  typed, and only where its characters stand together. The AI chat's any-word search leaves out
-  the pieces that are particles or Chinese function words, so a question doesn't match every page;
-  its passages, and the list of pages that write a page's title without linking to it, find such
-  words inside sentences too. Covered in `scripts/search-e2e.ts` and `scripts/backlinks-e2e.ts`.
+- **Japanese and Chinese words are found inside sentences, Korean ones with a particle joined
+  on.** Chinese and Japanese write no spaces between words, so search took a whole sentence as one
+  word and found a page only by its first characters: "会議" didn't find "明日の会議について". The
+  search vector now also keeps every two-character piece of such text (migration 0077,
+  `cjk_bigrams`, for the first 30,000 such characters of a page, which keeps the vector far below
+  Postgres' limit), and queries are cut the same way: a word is found anywhere, a single character
+  as it is typed, and the pieces of a word only side by side ("東京都" doesn't find a page about
+  "東京" and "京都"). Korean is written with spaces, so its words are still found by their start
+  ("회의" finds "회의를", not "국회의원"). The AI chat's any-word search takes the words of such a
+  question without particles and function words ("车在哪里" looks for "车"), and Korean words
+  without a particle at their end. The list of pages that write a page's title without linking to
+  it finds such titles inside sentences too, but not inside a longer word ("会議" isn't offered in
+  "国会議員", "メモ" not in "メモリー"), so linking one never cuts a word apart. Covered in
+  `scripts/search-e2e.ts` and `scripts/backlinks-e2e.ts`.
 - **The AI chat gets the matching passage without an embeddings model too.** A page the chat's
   search finds by its words now comes with the part of its text that has the most of them, about
   900 characters, where the model used to get one line around the first word unless the page was

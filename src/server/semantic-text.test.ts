@@ -204,10 +204,12 @@ describe("the passage the text search found a page for", () => {
     expect(bestChunkForTerms(chunks, ["each"], "Plans")?.blockId).toBe("b0");
   });
 
-  it("finds Japanese, Chinese and Korean pieces inside the runs of a passage", () => {
+  it("finds Chinese and Japanese words inside the sentences of a passage, each time counted", () => {
     const chunks = [chunk(0, "明日の予定です。"), chunk(1, "来週の会議について話します。")];
     expect(bestChunkForTerms(chunks, ["会議"], "Plans")?.blockId).toBe("b1");
-    expect(bestChunkForTerms([chunk(0, "일정"), chunk(1, "회의록을 공유합니다")], ["의록"], "Plans")?.blockId).toBe("b1");
+    const often = [chunk(0, "会議の準備"), chunk(1, "会議の議題と会議の時間と会議室")];
+    expect(bestChunkForTerms(often, ["会議"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms([chunk(0, "일정"), chunk(1, "회의록을 공유합니다")], ["회의록"], "Plans")?.blockId).toBe("b1");
   });
 
   it("matches Turkish letters whatever their case, and falls back to the first chunk", () => {

@@ -6,7 +6,7 @@ import { parsePageBackground, type PageBackground } from "@/lib/page-background"
 import { assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
 import { trashDeletionDate } from "@/lib/retention";
-import { anyWordTerms, anyWordTsQuery, searchQueryText } from "@/lib/search-words";
+import { anyWordTerms, anyWordTsQuery, searchQueryParts } from "@/lib/search-words";
 import {
   databaseProperty,
   databaseView,
@@ -827,9 +827,14 @@ export async function fullTextSearch(
   if (!workspaces.length) return [];
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   // Every word as a prefix, cut by the parser that made the vectors ("e-posta" is the word and its
-  // parts, as on the page; Japanese, Chinese and Korean text its two-character pieces, see
-  // searchQueryText); null, matching nothing, when the query has no words at all.
-  const allOf = sql`nullif(regexp_replace(plainto_tsquery('simple', ${searchQueryText(q)})::text, '''( &|$)', ''':*\\1', 'g'), '')::tsquery`;
+  // parts, as on the page), and Chinese and Japanese text by its two-character pieces
+  // (searchQueryParts); null, matching nothing, when the query has no words at all.
+  const { words: rest, cjk } = searchQueryParts(q);
+  const allOfParts = [
+    ...(/[\p{L}\p{N}]/u.test(rest) ? [sql`nullif(regexp_replace(plainto_tsquery('simple', ${rest})::text, '''( &|$)', ''':*\\1', 'g'), '')::tsquery`] : []),
+    ...cjk.map((run) => sql`to_tsquery('simple', ${run})`),
+  ];
+  const allOf = allOfParts.length ? sql`(${sql.join(allOfParts, sql` && `)})` : sql`null::tsquery`;
   const words = anyWord ? sql`to_tsquery('simple', ${anyWordTsQuery(terms)})` : allOf;
   // Normalization 1 divides by the log of the page's length: long pages don't win on size alone.
   const rank = !q
