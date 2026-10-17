@@ -455,6 +455,7 @@
     "noAccess": "无访问权限",
     "deleted": "已删除的页面",
     "loading": "正在加载…",
+    "atBlock": "在页面的某个块处打开",
     "personLeft": "{name}（已不在工作区中）",
     "date": "日期",
     "reminder": "提醒",

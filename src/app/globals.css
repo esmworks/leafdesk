@@ -941,6 +941,14 @@
 .leafdesk-mention-emoji {
   margin-inline-end: 0.2em;
 }
+/* After the title of a mention of one block of a page. */
+.leafdesk-mention-icon.leafdesk-mention-block {
+  width: 0.8em;
+  height: 0.8em;
+  margin-inline: 0.15em 0;
+  vertical-align: -0.05em;
+  color: var(--fg-faint);
+}
 .leafdesk-mention-page .leafdesk-mention-label {
   font-weight: 500;
   text-decoration: underline;
@@ -970,11 +978,15 @@
   print-color-adjust: exact;
 }
 
-/* A passage a link pointed at (the AI chat's citations, see components/page/block-focus.ts). */
-.leafdesk-editor .bn-block-outer.block-focus > .bn-block > .bn-block-content {
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-  transition: background-color 0.6s;
+/*
+ * A block a link pointed at (block links, the AI chat's citations): components/page/block-focus.ts
+ * runs this on the block for a moment. It ends on the block's own background.
+ */
+@keyframes leafdesk-block-focus {
+  0%,
+  50% {
+    background-color: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
 }
 
 /*

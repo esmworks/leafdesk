@@ -37,8 +37,16 @@
   pages link here, and past the first 100 a button lists the next ones. Over MCP, `get_page` gives
   the text around each link (`contexts`) when a page links more than once, and
   `linked_from_truncated` when not every linking page is listed.
-- **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
-  block and highlights it.
+- **Links to one block of a page.** "Copy link to block" in a block's menu (the handle beside it)
+  copies the page's address with the block's id (`#block-…`), also on a plain-http address. The link
+  opens the page scrolled to that block, highlighted for a moment, once the page has loaded; a block
+  deleted since opens the page at the top. Published pages and the print view open at the block too
+  (any block with text: paragraphs, headings, list items, quotes, callouts, code and tables).
+  Pasted on its own into a page, the link becomes a mention of the page that opens at the block,
+  marked ¶ after the title, and counts under the page's "Linked from" like any link to it. In
+  Markdown read and written over MCP and the API the link keeps its `#block-…` part (in an export,
+  a link to a page left out of it does); a mention of a block on a published page links to that block when its page is published
+  too. Search results found by meaning open their page at the passage that matched.
 - **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and
   the REST API's `/search` find a page by the words of the PDFs and Word documents it shows, also
   on servers without an embeddings model: every word of the search in one document, after the

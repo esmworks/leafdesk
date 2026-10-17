@@ -242,7 +242,7 @@ describe("content blocks on published pages", () => {
     });
     expect(segments[3]).toEqual({ kind: "mermaid", source: "graph TD\n  A-->B" });
     const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
-    expect(html).toMatch(/<h1 id="heading-1"[^>]*>One<\/h1>/);
-    expect(html).toMatch(/<h2 id="heading-2"[^>]*>Two &lt;b&gt;<\/h2>/);
+    expect(html).toMatch(/<h1 id="heading-1"[^>]*><span id="block-[\w-]+" class="block-anchor"><\/span>One<\/h1>/);
+    expect(html).toMatch(/<h2 id="heading-2"[^>]*><span id="block-[\w-]+" class="block-anchor"><\/span>Two &lt;b&gt;<\/h2>/);
   });
 });

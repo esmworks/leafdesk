@@ -2,7 +2,20 @@ import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
-import { bodyReferences, carryOverMentions, eachMention, isIsoDate, linkedPageId, splitMentionText, stripReminders } from "@/lib/mentions";
+import { linkPlaces } from "@/lib/link-context";
+import {
+  blockIdOfHash,
+  bodyReferences,
+  carryOverMentions,
+  eachMention,
+  isIsoDate,
+  linkedPageId,
+  linkedPageRef,
+  markdownPageIds,
+  MARKDOWN_PAGE_LINK,
+  splitMentionText,
+  stripReminders,
+} from "@/lib/mentions";
 import { blocksToMarkdown, markdownToBlocks, pageSchema, serverEditor, type PageBlock } from "./blocknote";
 import { bodySegmentsFromYdoc } from "./published-body";
 
@@ -58,9 +71,9 @@ describe("mentions in the server schema", () => {
     expect(blocks.map((b) => b.type)).toEqual(["paragraph", "pageLink"]);
     expect(blocks[1].props).toMatchObject({ pageId: OTHER });
     expect(mentions(blocks)).toEqual([
-      { kind: "user", id: "m1", userId: "u-ada", name: "Ada Lovelace", pageId: "", date: "", remindAt: "" },
-      { kind: "page", id: "", userId: "", name: "", pageId: PAGE, date: "", remindAt: "" },
-      { kind: "date", id: "m2", userId: "", name: "", pageId: "", date: "2026-10-01", remindAt: "2026-10-01T07:00:00.000Z" },
+      { kind: "user", id: "m1", userId: "u-ada", name: "Ada Lovelace", pageId: "", blockId: "", date: "", remindAt: "" },
+      { kind: "page", id: "", userId: "", name: "", pageId: PAGE, blockId: "", date: "", remindAt: "" },
+      { kind: "date", id: "m2", userId: "", name: "", pageId: "", blockId: "", date: "2026-10-01", remindAt: "2026-10-01T07:00:00.000Z" },
     ]);
   });
 
@@ -198,5 +211,60 @@ describe("mentions on published pages", () => {
     const html = (await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc))).map((s) => (s.kind === "html" ? s.html : "")).join("");
     expect(html).not.toContain(PAGE);
     expect(html).not.toContain(OTHER);
+  });
+});
+
+describe("links to a block of a page", () => {
+  const BLOCK = "9c8b7a6d-1111-4222-8333-444455556666";
+
+  it("are read from links to pages of the app", () => {
+    expect(linkedPageRef(`/w/a/p/${PAGE}#block-${BLOCK}`)).toEqual({ pageId: PAGE, blockId: BLOCK });
+    expect(linkedPageRef(`https://app.test/w/a/p/${PAGE}/?view=1#block-${BLOCK}`, "https://app.test")).toEqual({ pageId: PAGE, blockId: BLOCK });
+    expect(linkedPageRef(`/w/a/p/${PAGE}`)).toEqual({ pageId: PAGE, blockId: "" });
+    // Another fragment, or a block id that isn't one, is a link to the page.
+    expect(linkedPageRef(`/w/a/p/${PAGE}#top`)).toEqual({ pageId: PAGE, blockId: "" });
+    expect(linkedPageRef(`/w/a/p/${PAGE}#block-a"b`)).toEqual({ pageId: PAGE, blockId: "" });
+    expect(linkedPageRef(`/w/a/p/${PAGE}#block-`)).toEqual({ pageId: PAGE, blockId: "" });
+    expect(linkedPageRef(`https://evil.test/w/a/p/${PAGE}#block-${BLOCK}`, "https://app.test")).toBeNull();
+    expect(linkedPageId(`/w/a/p/${PAGE}#block-${BLOCK}`)).toBe(PAGE);
+    expect(blockIdOfHash(`#block-${BLOCK}`)).toBe(BLOCK);
+    expect(blockIdOfHash(`#block-${"x".repeat(101)}`)).toBeNull();
+    expect(blockIdOfHash("#heading-2")).toBeNull();
+  });
+
+  it("are found in Markdown with their block, as links to the page", () => {
+    const markdown = `[A](/w/${WS}/p/${PAGE}#block-${BLOCK}) [B](/w/${WS}/p/${OTHER}) [C](/w/${WS}/p/${OTHER}#top)`;
+    expect([...markdown.matchAll(MARKDOWN_PAGE_LINK)].map((m) => [m[3], m[4]])).toEqual([
+      [PAGE, `#block-${BLOCK}`],
+      [OTHER, undefined],
+    ]);
+    expect(markdownPageIds(markdown)).toEqual([PAGE, OTHER]);
+  });
+
+  it("keep their block through Markdown and back, as mentions and page-link blocks", async () => {
+    const markdown = `See [x](/w/${WS}/p/${PAGE}#block-${BLOCK}) and [y](/w/${WS}/p/${PAGE}).\n\n[z](/w/${WS}/p/${OTHER}#block-${BLOCK}) <!-- leafdesk:page-link -->`;
+    const blocks = stored(await markdownToBlocks(markdown));
+    expect(mentions(blocks).map((m) => [m.pageId, m.blockId])).toEqual([
+      [PAGE, BLOCK],
+      [PAGE, ""],
+    ]);
+    expect(blocks[1]).toMatchObject({ type: "pageLink", props: { pageId: OTHER, blockId: BLOCK } });
+    const written = (await blocksToMarkdown(blocks, { workspaceId: WS })).trim();
+    expect(written).toBe(
+      `See [page](/w/${WS}/p/${PAGE}#block-${BLOCK}) and [page](/w/${WS}/p/${PAGE}).\n\n[page](/w/${WS}/p/${OTHER}#block-${BLOCK}) <!-- leafdesk:page-link -->`,
+    );
+    const again = stored(await markdownToBlocks(written, blocks));
+    expect((await blocksToMarkdown(again, { workspaceId: WS })).trim()).toBe(written);
+  });
+
+  it("count as links to the page for backlinks, at the block linking", async () => {
+    const blocks = stored([
+      { type: "paragraph", content: [text("Read "), mention({ kind: "page", pageId: PAGE, blockId: BLOCK }), text(" first")] },
+      { type: "pageLink", props: { pageId: OTHER, blockId: BLOCK } },
+    ]);
+    expect(bodyReferences(blocks).pageIds.sort()).toEqual([PAGE, OTHER].sort());
+    const places = linkPlaces(blocks);
+    expect(places.get(PAGE)).toEqual([{ block: blocks[0].id, context: expect.stringContaining("Read ") }]);
+    expect(places.get(OTHER)).toEqual([{ block: blocks[1].id, context: null }]);
   });
 });

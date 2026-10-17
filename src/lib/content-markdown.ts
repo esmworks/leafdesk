@@ -25,7 +25,7 @@ import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts"
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
   EMPTY_MENTION,
-  linkedPageId,
+  linkedPageRef,
   MENTION,
   mentionProps,
   mentionText,
@@ -158,7 +158,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
       if (node?.type === MENTION) {
         const props = mentionProps((node as { props?: unknown }).props);
         const markdown =
-          props.kind === "page" ? (props.pageId ? pageLinkMarkdown("page", workspaceId, props.pageId) : "") : mentionText(props);
+          props.kind === "page" ? (props.pageId ? pageLinkMarkdown("page", workspaceId, props.pageId, props.blockId) : "") : mentionText(props);
         return { type: "text", text: `leafdesk${nonce}i${inlineMarkdown.push(markdown) - 1}x`, styles: {} };
       }
       if (node?.type !== INLINE_MATH) return node;
@@ -211,7 +211,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
         }
         case PAGE_LINK_BLOCK: {
           const pageId = String(block.props?.pageId ?? "");
-          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId)} ${PAGE_LINK_MARKER}` : ""));
+          const at = String(block.props?.blockId ?? "");
+          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId, at)} ${PAGE_LINK_MARKER}` : ""));
         }
         case CALLOUT_BLOCK: {
           const i = callouts.push({
@@ -268,7 +269,7 @@ type Pending =
   | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
-  | { type: typeof PAGE_LINK_BLOCK; pageId: string }
+  | { type: typeof PAGE_LINK_BLOCK; pageId: string; blockId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string };
 
@@ -334,9 +335,9 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       continue;
     }
     const pageLink = PAGE_LINK_LINE.exec(line);
-    const linkedId = pageLink ? linkedPageId(pageLink[1], appUrl) : null;
-    if (linkedId) {
-      blockLine({ type: PAGE_LINK_BLOCK, pageId: linkedId });
+    const linked = pageLink ? linkedPageRef(pageLink[1], appUrl) : null;
+    if (linked) {
+      blockLine({ type: PAGE_LINK_BLOCK, pageId: linked.pageId, blockId: linked.blockId });
       continue;
     }
     const callout = CALLOUT_START.exec(line);
@@ -471,8 +472,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
     if (Array.isArray(content)) {
       return content.flatMap((node: Inline) => {
         if (node?.type === "link") {
-          const pageId = linkedPageId(node.href, appUrl);
-          if (pageId) return [mention({ kind: "page", pageId })];
+          const linked = linkedPageRef(node.href, appUrl);
+          if (linked) return [mention({ kind: "page", pageId: linked.pageId, blockId: linked.blockId })];
         }
         if (node?.type === "link" && Array.isArray(node.content)) {
           return [{ ...node, content: node.content.map((n: Inline) => (typeof n.text === "string" ? { ...n, text: restore(n.text) } : n)) }];
@@ -509,7 +510,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: BOOKMARK_BLOCK, props: { url: pending.url, title }, children: [] } as unknown as B;
       }
       case PAGE_LINK_BLOCK:
-        return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
+        return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId, blockId: pending.blockId }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;

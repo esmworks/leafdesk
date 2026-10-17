@@ -455,6 +455,7 @@
     "noAccess": "No access",
     "deleted": "Deleted page",
     "loading": "Loading…",
+    "atBlock": "Opens at a block of the page",
     "personLeft": "{name} (no longer in the workspace)",
     "date": "Date",
     "reminder": "Reminder",

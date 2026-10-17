@@ -5,15 +5,30 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { recentSearchAction, searchAction } from "@/app/actions/pages";
+import { openBlockLink } from "@/components/page/block-focus";
 import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
+import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import type { SearchHit } from "@/server/pages";
 
 /** Something the search box can do instead of opening a page: typed after `>`. */
 export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void };
 
-type PageItem = { id: string; title: string; icon: string | null; kind: PageKind; snippet?: string; match?: SearchHit["match"]; file?: SearchHit["file"] };
+/**
+ * `blockId`: where the passage a search by meaning matched starts; the page opens there. `file`: the
+ * document whose words matched, when not the page's own.
+ */
+type PageItem = {
+  id: string;
+  title: string;
+  icon: string | null;
+  kind: PageKind;
+  snippet?: string;
+  match?: SearchHit["match"];
+  blockId?: string | null;
+  file?: SearchHit["file"];
+};
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
 /** Compared as pickers compare: case and the Turkish dotted and dotless i aside (lib/search-fold). */
@@ -104,7 +119,7 @@ export function SearchDialog({
     if (!item) return;
     onClose();
     if (item.type === "command") item.command.run();
-    else router.push(`/w/${workspaceId}/p/${item.page.id}`);
+    else openBlockLink(pageOrBlockPath(workspaceId, item.page.id, item.page.blockId), router.push);
   }
 
   /** Puts a filter (or `>`) into the query from the hint line. */

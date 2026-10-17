@@ -455,6 +455,7 @@
     "noAccess": "Sin acceso",
     "deleted": "Página eliminada",
     "loading": "Cargando…",
+    "atBlock": "Abre la página en un bloque",
     "personLeft": "{name} (ya no está en el espacio de trabajo)",
     "date": "Fecha",
     "reminder": "Recordatorio",

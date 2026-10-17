@@ -268,7 +268,10 @@ versions, upgrades and running behind a domain.
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
   that write the page's title without linking to it, with a button that turns that text into a
   mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
-  "Copy link to block" in a block's menu gives a link that opens the page at that block.
+  "Copy link to block" in a block's menu gives a link that opens the page at that block,
+  highlighted, in the editor, on published pages and in the print view; pasted into a page it
+  becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API
+  keeps it as `[Title](/w/<workspace>/p/<page>#block-<id>)`.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as

@@ -291,6 +291,27 @@
   scroll-margin-top: 4rem;
 }
 
+/*
+ * A link to one block (`#block-<id>`, see server/published-body.ts) lands on the empty anchor where
+ * the block's text starts, below the sticky header, and the block is highlighted for a moment.
+ */
+.body :global(.block-anchor) {
+  scroll-margin-top: 4rem;
+}
+@media screen {
+  .body :is(p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, td, th, div):has(> :global(.block-anchor):target) {
+    border-radius: 4px;
+    animation: block-target 2.5s ease-out;
+  }
+}
+/* Back to the block's own background (a code block's, a callout's) at the end. */
+@keyframes block-target {
+  0%,
+  50% {
+    background-color: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+}
+
 /* Callouts: see server/blocknote.ts. The color comes from data-background-color above. */
 .body [data-leafdesk-callout] {
   display: flex;

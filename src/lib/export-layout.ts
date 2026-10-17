@@ -185,7 +185,7 @@ function codeLines(lines: string[]): boolean[] {
   });
 }
 
-const PAGE_LINK = /\]\(\s*<?((?:https?:\/\/[^\s()<>]+?)?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))\/?)>?\s*\)/g;
+const PAGE_LINK = /\]\(\s*<?((?:https?:\/\/[^\s()<>]+?)?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))\/?(#block-[\w-]{1,100})?)>?\s*\)/g;
 const FILE_URL = /(?:https?:\/\/[^\s()<>[\]"']+?)?\/api\/files\/([A-Za-z0-9_-]{24})(?:\?view=pdf)?(?![A-Za-z0-9_-])/g;
 
 export type LinkTargets = {
@@ -212,10 +212,12 @@ export function rewriteLinks(markdown: string, from: string, targets: LinkTarget
     .map((line, i) => {
       if (code[i]) return line;
       return line
-        .replace(PAGE_LINK, (whole, _href: string, path: string, id: string) => {
+        .replace(PAGE_LINK, (whole, _href: string, path: string, id: string, block: string | undefined) => {
+          // A link to one block points at the page's file (block ids mean nothing in the archive),
+          // or at that block in the app.
           const to = targets.page(id);
           if (to) return `](${relativeLink(from, to)})`;
-          return whole.includes("://") ? whole : `](${app}${path})`;
+          return whole.includes("://") ? whole : `](${app}${path}${block ?? ""})`;
         })
         .replace(FILE_URL, (whole, id: string) => {
           const to = targets.file(id);
