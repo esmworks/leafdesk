@@ -4,7 +4,9 @@
  * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
  * Excel workbooks (a database exported as one comes back with the same values), Word documents
- * (a page each, titled by their first heading, pictures uploaded), access, limits,
+ * (a page each, titled by their first heading, pictures uploaded), Trello boards (a database on a
+ * board view grouped by list, labels, members as people or text, dates, checklists, custom fields,
+ * comments and card links in the rows' bodies, no assignment notifications), access, limits,
  * taking back a failed import, and the /api/import route.
  * Creates its own users and workspaces, stores files in a temporary directory, and deletes all of
  * it afterwards.
@@ -19,7 +21,7 @@ try {
   process.loadEnvFile();
 } catch {}
 
-const { mkdtemp, rm } = await import("node:fs/promises");
+const { mkdtemp, readFile, rm } = await import("node:fs/promises");
 const { tmpdir } = await import("node:os");
 const { join } = await import("node:path");
 const { randomBytes } = await import("node:crypto");
@@ -33,7 +35,7 @@ process.env.UPLOAD_MAX_FILE_MB = String(10_000 / 1024 / 1024); // 10,000 bytes
 const { and, desc, eq, inArray, isNull } = await import("drizzle-orm");
 const { strToU8, unzipSync, zipSync } = await import("fflate");
 const { db } = await import("@/db");
-const { auditEvent, file, page, session, user, workspace, workspaceMember } = await import("@/db/schema");
+const { auditEvent, databaseView, file, notification, page, session, user, workspace, workspaceMember } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { csvTable } = await import("@/lib/import/csv");
@@ -50,6 +52,7 @@ const { importPages } = await import("@/server/import/markdown");
 const { importDocx } = await import("@/server/import/docx");
 const docxFixture = await import("@/server/import/docx-fixtures");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
+const { importTrello } = await import("@/server/import/trello");
 const { databaseCsv, databaseXlsx } = await import("@/server/export");
 const importRoute = await import("@/app/api/import/route");
 
@@ -89,7 +92,8 @@ async function eventually(fn: () => Promise<boolean>, what: string) {
   throw new Error(`Timed out waiting for ${what}`);
 }
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-guest`, outsider: `${RUN}-outsider` };
+// ayse has the full name of a member of the Trello board.
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-guest`, outsider: `${RUN}-outsider`, ayse: `${RUN}-ayse` };
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
 const otherWorkspace = `${RUN}-ws2`;
@@ -108,7 +112,7 @@ const png = Buffer.concat([Buffer.from("\x89PNG\r\n\x1a\n", "binary"), randomByt
 const NOTION = "0123456789abcdef0123456789abcdef";
 
 try {
-  await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test` })));
+  await db.insert(user).values(userIds.map((id) => ({ id, name: id === ids.ayse ? "Ayşe Yılmaz" : id, email: `${id}@example.test` })));
   await db.insert(workspace).values([
     { id: workspaceId, name: RUN },
     { id: otherWorkspace, name: `${RUN}-2` },
@@ -117,6 +121,7 @@ try {
     { workspaceId, userId: ids.owner, role: "owner" },
     { workspaceId, userId: ids.member, role: "member" },
     { workspaceId, userId: ids.guest, role: "guest" },
+    { workspaceId, userId: ids.ayse, role: "member" },
     { workspaceId: otherWorkspace, userId: ids.outsider, role: "owner" },
   ]);
   const owner = { userId: ids.owner };
@@ -554,6 +559,201 @@ try {
     "Word documents go only where the user may add pages",
   );
 
+  // Trello boards: a database opening on a board view grouped by list
+  const trelloBoard = JSON.parse(await readFile(new URL("../src/lib/import/trello-fixture.json", import.meta.url), "utf8")) as Record<string, unknown>;
+  const boardsHome = await createPage(owner, { workspaceId, title: "Boards" });
+  const fromTrello = await importTrello(owner, { workspaceId, parentId: boardsHome.id, board: trelloBoard, timeZone: "Europe/Istanbul" });
+  const boardId = fromTrello.pages[0].id;
+  check(
+    fromTrello.pages.length === 1 && fromTrello.pages[0].kind === "database" && fromTrello.pages[0].title === "Website relaunch" &&
+      fromTrello.created.databases === 1 && fromTrello.created.rows === 5 && fromTrello.warnings.length === 0,
+    "a Trello board becomes one database named after the board, a row per open card",
+    fromTrello,
+  );
+  const boardDb = await databases.getDatabase(ids.owner, boardId);
+  const boardProp = (name: string) => boardDb.properties.find((p) => p.name === name)!;
+  const options = (name: string) => (boardProp(name).options.options ?? []).map((o) => `${o.name}:${o.color}`);
+  check(
+    JSON.stringify(boardDb.properties.map((p) => `${p.name}:${p.type}`)) ===
+      JSON.stringify([
+        "List:select",
+        "Labels:multi_select",
+        "Members:person",
+        "Other members:text",
+        "Dates:date",
+        "Complete:checkbox",
+        "Checklist:checklist",
+        "Link:url",
+        "Priority:select",
+        "Estimate:number",
+        "Sprint:text",
+        "Reviewed:checkbox",
+        "Launch:date",
+      ]),
+    "…with a property for the list, labels, members (people for a workspace member of the same name, text for the others), dates, checklist, link and each custom field",
+    boardDb.properties.map((p) => `${p.name}:${p.type}`),
+  );
+  check(
+    (boardProp("List").options.options ?? []).map((o) => o.name).join() === "Backlog,In progress,Review,Done",
+    "the lists are options in board order, the archived list left out",
+    options("List"),
+  );
+  check(
+    JSON.stringify(options("Labels")) ===
+      JSON.stringify(["Design:green", "Bug:red", "Backend:blue", "Yellow:yellow", "Frontend:blue", "Blocked:gray", "Purple:purple"]),
+    "labels keep the colors closest to Trello's, color-only ones named after their color",
+    options("Labels"),
+  );
+  check(JSON.stringify(options("Priority")) === JSON.stringify(["High:red", "Low:green"]), "a list custom field is a select with its options' colors", options("Priority"));
+  const views = await db.select().from(databaseView).where(eq(databaseView.databaseId, boardId)).orderBy(databaseView.position);
+  check(
+    views.length === 2 && views[0].type === "board" && views[0].position === 0 && views[0].config.groupBy === boardProp("List").id && views[1].type === "table",
+    "the database opens on a board view grouped by list, before its table",
+    views.map((v) => ({ type: v.type, position: v.position, config: v.config })),
+  );
+
+  const boardRows = await databases.listRows(ids.owner, boardId);
+  const card = (title: string) => boardRows.find((r) => r.title === title)!;
+  const value = (title: string, name: string) => card(title).properties[boardProp(name).id];
+  const optionOf = (name: string, id: unknown) => boardProp(name).options.options?.find((o) => o.id === id)?.name;
+  check(
+    JSON.stringify(boardRows.map((r) => r.title)) ===
+      JSON.stringify(["Draft the new homepage copy", "Set up staging server", "Fix broken contact form", "Write release notes", "Ship v2"]),
+    "rows follow the lists and the cards' order in them; archived cards and the cards of an archived list are left out",
+    boardRows.map((r) => r.title),
+  );
+  check(
+    boardRows.map((r) => optionOf("List", r.properties[boardProp("List").id])).join() === "Backlog,In progress,In progress,Review,Done",
+    "each row has its card's list",
+    boardRows.map((r) => r.properties),
+  );
+  check(
+    (value("Ship v2", "Labels") as string[]).map((id) => optionOf("Labels", id)).join() === "Frontend,Blocked,Purple" &&
+      (value("Fix broken contact form", "Labels") as string[]).map((id) => optionOf("Labels", id)).join() === "Bug",
+    "…its labels, labels of the same name as one option",
+    { ship: value("Ship v2", "Labels"), fix: value("Fix broken contact form", "Labels") },
+  );
+  check(
+    JSON.stringify(value("Write release notes", "Members")) === JSON.stringify([ids.ayse]) &&
+      value("Write release notes", "Other members") === "Bob Stone" &&
+      value("Set up staging server", "Other members") === "Bob Stone" &&
+      value("Set up staging server", "Members") === undefined,
+    "a member whose name one person in the workspace has is that person; the others are text",
+    { notes: card("Write release notes").properties, staging: card("Set up staging server").properties },
+  );
+  const assignments = await db
+    .select()
+    .from(notification)
+    .where(and(eq(notification.userId, ids.ayse), eq(notification.kind, "assignment")));
+  check(assignments.length === 0, "imported assignments notify nobody", assignments);
+  check(
+    value("Fix broken contact form", "Dates") === "2026-10-20T07:00:00.000Z/2026-10-24T15:00:00.000Z" &&
+      value("Draft the new homepage copy", "Dates") === "2026-11-03T09:00:00.000Z" &&
+      value("Set up staging server", "Complete") === true &&
+      value("Draft the new homepage copy", "Complete") === undefined,
+    "start and due dates are a range (the due date alone otherwise), a completed due date checks Complete",
+    { fix: value("Fix broken contact form", "Dates"), draft: value("Draft the new homepage copy", "Dates") },
+  );
+  const checklist = (title: string) => (value(title, "Checklist") as { text: string; checked: boolean }[]).map((i) => `${i.checked ? "x" : " "} ${i.text}`);
+  check(
+    JSON.stringify(checklist("Draft the new homepage copy")) === JSON.stringify(["x Collect old copy", "  Write first draft", "  Review with marketing"]) &&
+      JSON.stringify(checklist("Fix broken contact form")) === JSON.stringify(["x Deploy: Point the form at the new endpoint", "  QA: Test on mobile"]),
+    "checklists are one checklist, items named after their checklist when a card has several",
+    { draft: value("Draft the new homepage copy", "Checklist"), fix: value("Fix broken contact form", "Checklist") },
+  );
+  check(
+    value("Draft the new homepage copy", "Link") === "https://www.figma.com/file/abc123/Homepage" &&
+      value("Set up staging server", "Link") === "https://docs.example.com/runbooks/staging",
+    "the first linked attachment is the Link",
+  );
+  check(
+    value("Set up staging server", "Estimate") === 5 &&
+      value("Set up staging server", "Sprint") === "S42" &&
+      value("Set up staging server", "Reviewed") === true &&
+      value("Set up staging server", "Launch") === "2026-11-15T09:00:00.000Z" &&
+      optionOf("Priority", value("Set up staging server", "Priority")) === "Low" &&
+      optionOf("Priority", value("Fix broken contact form", "Priority")) === "High",
+    "custom fields keep their values",
+    card("Set up staging server").properties,
+  );
+
+  const draftPath = pagePath(workspaceId, card("Draft the new homepage copy").id);
+  const fixId = card("Fix broken contact form").id;
+  await eventually(async () => (await body(fixId)).includes("Bob Stone"), "the contact form card's body");
+  const fixBody = await body(fixId);
+  // A link to a page is stored as a mention of it, shown with the page's title.
+  check(
+    fixBody.slice(0, fixBody.indexOf("### Comments")).includes(`](${draftPath})`) && !fixBody.includes("trello.com/c/"),
+    "a link to another card leads to its row",
+    fixBody,
+  );
+  check(
+    fixBody.includes("### Comments") &&
+      fixBody.indexOf("**Ayşe Yılmaz** · 2026-10-15 00:45") > 0 &&
+      fixBody.indexOf("**Ayşe Yılmaz** · 2026-10-15 00:45") < fixBody.indexOf("**Bob Stone** · 2026-10-16 17:02") &&
+      fixBody.includes(`(${draftPath})`, fixBody.indexOf("**Bob Stone**")),
+    "comments follow the description under their author and time (the importer's time zone), oldest first, card addresses in them leading to rows",
+    fixBody,
+  );
+  const draftId = card("Draft the new homepage copy").id;
+  await eventually(async () => (await body(draftId)).includes("Wireframe"), "the homepage card's body");
+  const draftBody = await body(draftId);
+  check(
+    draftBody.includes("Tone: friendly") &&
+      draftBody.includes("[Wireframe](https://trello.com/1/cards/") &&
+      !draftBody.includes("![") &&
+      draftBody.includes("### Attachments") &&
+      draftBody.includes("wireframe.png") &&
+      (await db.select().from(file).where(eq(file.pageId, draftId))).length === 0,
+    "a card's description is its row's body, images and uploads left as links (nothing downloaded)",
+    draftBody,
+  );
+  const [trelloAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.targetId, boardId)));
+  check(
+    (trelloAudit?.details as { format?: string; count?: number } | undefined)?.format === "trello" && (trelloAudit?.details as { count?: number }).count === 6,
+    "a Trello import is recorded in the audit log",
+    trelloAudit,
+  );
+
+  // A guest can't look people up: every member is text.
+  await setPagePermission(ids.owner, boardsHome.id, ids.guest, "edit");
+  const guestBoard = await importTrello({ userId: ids.guest }, { workspaceId, parentId: boardsHome.id, title: "Guest copy", board: trelloBoard });
+  const guestDb = await databases.getDatabase(ids.guest, guestBoard.pages[0].id);
+  const guestMembers = guestDb.properties.find((p) => p.name === "Members");
+  const guestNotes = (await databases.listRows(ids.guest, guestBoard.pages[0].id)).find((r) => r.title === "Write release notes")!;
+  check(
+    guestBoard.pages[0].title === "Guest copy" &&
+      !guestDb.properties.some((p) => p.type === "person") &&
+      guestMembers?.type === "text" &&
+      guestNotes.properties[guestMembers.id] === "Ayşe Yılmaz, Bob Stone",
+    "a guest's import (named as asked) writes every member as text",
+    { properties: guestDb.properties.map((p) => `${p.name}:${p.type}`), notes: guestNotes.properties },
+  );
+
+  // A failure midway takes the database back with its rows.
+  const pagesBefore = (await db.select({ id: page.id }).from(page).where(eq(page.workspaceId, workspaceId))).length;
+  const replaceContent = service.replaceContent;
+  service.replaceContent = async () => {
+    throw new Error("writing a body failed");
+  };
+  let midway: unknown = null;
+  try {
+    await importTrello(owner, { workspaceId, parentId: boardsHome.id, title: "Doomed", board: trelloBoard });
+  } catch (error) {
+    midway = error;
+  } finally {
+    service.replaceContent = replaceContent;
+  }
+  const pagesAfter = (await db.select({ id: page.id }).from(page).where(eq(page.workspaceId, workspaceId))).length;
+  check(
+    midway instanceof Error && midway.message === "writing a body failed" && pagesAfter === pagesBefore && !(await titles(boardsHome.id)).includes("Doomed"),
+    "a Trello import failing after its rows were written takes the database back",
+    { midway: String(midway), pagesBefore, pagesAfter },
+  );
+
   // The route
   const token = randomBytes(24).toString("hex");
   await db.insert(session).values({ id: `${RUN}-session`, token, userId: ids.member, expiresAt: new Date(Date.now() + 3_600_000), updatedAt: new Date() });
@@ -642,6 +842,20 @@ try {
   check(oldXls.status === 400 && oldXls.json.code === "unsupportedWorkbook", "an old .xls (or a password-protected workbook) is refused with its own code", oldXls);
   const brokenXlsx = await post({ mode: "csv-new", workspaceId, parentId: home.id }, [{ name: "broken.xlsx", data: workbook.xlsx.slice(0, 200) }]);
   check(brokenXlsx.status === 400 && brokenXlsx.json.code === "badWorkbook", "…and a workbook that can't be read with another", brokenXlsx);
+
+  // Trello boards through the route
+  const trelloRoute = await post({ mode: "trello", workspaceId, parentId: home.id }, [{ name: "board.json", data: JSON.stringify(trelloBoard) }]);
+  check(
+    trelloRoute.status === 201 && trelloRoute.json.pages[0].title === "Website relaunch" && trelloRoute.json.created.databases === 1 && trelloRoute.json.created.rows === 5,
+    "the route imports a Trello export as a database named after the board",
+    trelloRoute,
+  );
+  const routeViews = await db.select().from(databaseView).where(eq(databaseView.databaseId, trelloRoute.json.pages[0].id)).orderBy(databaseView.position);
+  check(routeViews[0]?.type === "board", "…opening on its board view", routeViews);
+  const namedRoute = await post({ mode: "trello", workspaceId, parentId: home.id, title: "Relaunch" }, [{ name: "board.json", data: JSON.stringify(trelloBoard) }]);
+  check(namedRoute.status === 201 && namedRoute.json.pages[0].title === "Relaunch", "…or under the name it is given", namedRoute);
+  const notTrello = await post({ mode: "trello", workspaceId, parentId: home.id }, [{ name: "pages.json", data: '{"pages": []}' }]);
+  check(notTrello.status === 400 && notTrello.json.code === "badTrello", "other JSON is refused with a code the dialog translates", notTrello);
 
   console.log(`\n${passed} checks passed`);
 } finally {
