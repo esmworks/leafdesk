@@ -592,5 +592,18 @@
       "interrupted": "El servidor se reinició mientras se procesaba. Vuelve a intentarlo.",
       "insert": "No se pudo añadir la nota a la página."
     }
+  },
+  "review": {
+    "bar": "{count, plural, one {# cambio de la IA por revisar} other {# cambios de la IA por revisar}}",
+    "by": "por {names}",
+    "open": "Revisar",
+    "keepAll": "Conservar todo",
+    "undoAll": "Deshacer todo",
+    "keep": "Conservar",
+    "undo": "Deshacer",
+    "title": "Revisar los cambios de la IA",
+    "hint": "Conserva o deshaz cada cambio. «Deshacer todo» guarda antes la página tal como está en su historial.",
+    "stale": "La página cambió mientras tanto: estos son los cambios tal como están ahora.",
+    "failed": "No ha funcionado. Inténtalo de nuevo."
   }
 }

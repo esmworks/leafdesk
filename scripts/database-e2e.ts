@@ -267,6 +267,23 @@ try {
     { r1: await values(r1.id), pair: await getProperty(refPair!) },
   );
 
+  // Edits of different properties of one row at the same time all stay (people, agents and
+  // automations write rows independently; none of them overwrites the others with what it read)
+  const fields = await Promise.all(
+    ["F1", "F2", "F3", "F4", "F5"].map((name) => addProperty(ids.owner, other.id, { name, type: "text" })),
+  );
+  const busy = await createPage(actor, { workspaceId, parentId: other.id, title: "busy", properties: { [fields[4].id]: "old" } });
+  await Promise.all([
+    ...fields.slice(0, 4).map((f, i) => updateRowProperties(ids.owner, busy.id, { [f.id]: `v${i}` })),
+    updateRowProperties(ids.owner, busy.id, { [fields[4].id]: null }),
+  ]);
+  const merged = await values(busy.id);
+  check(
+    fields.slice(0, 4).every((f, i) => merged[f.id] === `v${i}`) && !(fields[4].id in merged),
+    "concurrent edits of different properties of a row are all kept, and a concurrent clear too",
+    merged,
+  );
+
   // A trashed database lists the rows trashed with it
   await archivePage(ids.owner, tasks.id);
   const trashed = await getDatabaseSnapshot(ids.owner, tasks.id);

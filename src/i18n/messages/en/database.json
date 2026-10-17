@@ -176,16 +176,24 @@
     "ops": {
       "contains": "Contains",
       "doesNotContain": "Does not contain",
+      "containsAnyOf": "Contains any of",
+      "containsNoneOf": "Contains none of",
       "is": "Is",
       "isNot": "Is not",
+      "isAnyOf": "Is any of",
+      "isNoneOf": "Is none of",
       "isEmpty": "Is empty",
       "isNotEmpty": "Is not empty",
       "equals": "=",
       "notEquals": "≠",
       "greaterThan": ">",
+      "greaterOrEqual": "≥",
       "lessThan": "<",
+      "lessOrEqual": "≤",
       "isBefore": "Is before",
       "isAfter": "Is after",
+      "isOnOrBefore": "Is on or before",
+      "isOnOrAfter": "Is on or after",
       "isChecked": "Is checked",
       "isUnchecked": "Is unchecked",
       "isWithin": "Is within"
@@ -274,6 +282,7 @@
     "clearSelection": "Clear selection",
     "confirmTrash": "Move {count, plural, one {# row} other {# rows}} to the trash?",
     "skipped": "{count, plural, one {# row was skipped because you can’t change it.} other {# rows were skipped because you can’t change them.}}",
+    "pasteLeftOut": "{count, plural, one {# pasted cell was left out: it doesn’t fit its column or you can’t change it.} other {# pasted cells were left out: they don’t fit their columns or you can’t change them.}}",
     "exportDisabled": "Export is turned off in this workspace."
   },
   "calculate": {

@@ -501,7 +501,8 @@ export function describeAgentStep(step: AgentStepRecord) {
       };
     case "write": {
       const changes = step.changes.map((c) => `${quote(c.property)} to ${c.value ? quote(short(c.value, 80)) : "empty"}`).join(", ");
-      const what = step.action === "updateRow" ? "Changed the row" : step.action === "createRow" ? "Added a row" : "Added a page";
+      const what =
+        step.action === "updateRow" ? "Changed the row" : step.action === "createRow" ? "Added a row" : step.action === "editPage" ? "Changed the text of a page" : "Added a page";
       return {
         kind: "write",
         outcome: step.outcome,

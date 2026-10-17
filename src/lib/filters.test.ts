@@ -281,3 +281,115 @@ describe("filterConfigError", () => {
     expect(filterConfigError({ filters: many })).toMatch(/at most 100/);
   });
 });
+
+describe("more operators", () => {
+  const matching = (filter: FilterRule, list: RowLike[] = rows, viewerId?: string) =>
+    applyView(list, { filters: [filter] }, props, { viewerId, now: WEDNESDAY }).map((r) => r.id);
+
+  it("does not contain: case-insensitive like contains, empty values match", () => {
+    const list = [row("Ayşe Yılmaz"), row("Mehmet"), row("")];
+    expect(matching(rule("title", "contains", "AYŞE"), list)).toEqual(["Ayşe Yılmaz"]);
+    expect(matching(rule("title", "does_not_contain", "AYŞE"), list)).toEqual(["Mehmet", ""]);
+    // On a list of names an item must match whole, as with contains.
+    const listed = [row("x", { p_text: ["Bug", "UI"] }), row("y", { p_text: ["Bugfix"] })];
+    expect(matching(rule("p_text", "does_not_contain", "bug"), listed)).toEqual(["y"]);
+  });
+
+  it("compares numbers with ≥ and ≤; empty values never match", () => {
+    expect(matching(rule("p_number", "gte", 5))).toEqual(["b", "c"]);
+    expect(matching(rule("p_number", "gt", 5))).toEqual(["c"]);
+    expect(matching(rule("p_number", "lte", 5))).toEqual(["a", "b"]);
+    expect(matching(rule("p_number", "lt", 5))).toEqual(["a"]);
+    expect(matching(rule("p_number", "lte", "x"))).toEqual([]);
+  });
+
+  it("dates on or before / on or after the day, ranges by any of their days", () => {
+    const list = [
+      row("before", { p_date: "2026-09-29" }),
+      row("on", { p_date: "2026-09-30" }),
+      row("after", { p_date: "2026-10-01" }),
+      row("timed", { p_date: new Date(2026, 8, 30, 23, 30).toISOString() }),
+      row("across", { p_date: "2026-09-25/2026-10-05" }),
+      row("ends on", { p_date: "2026-09-20/2026-09-30" }),
+      row("starts on", { p_date: "2026-09-30/2026-10-03" }),
+      row("empty"),
+    ];
+    expect(matching(rule("p_date", "lte", "2026-09-30"), list)).toEqual(["before", "on", "timed", "across", "ends on", "starts on"]);
+    expect(matching(rule("p_date", "lt", "2026-09-30"), list)).toEqual(["before", "across", "ends on"]);
+    expect(matching(rule("p_date", "gte", "2026-09-30"), list)).toEqual(["on", "after", "timed", "across", "ends on", "starts on"]);
+    expect(matching(rule("p_date", "gt", "2026-09-30"), list)).toEqual(["after", "across", "starts on"]);
+  });
+
+  it("created and edited times compare by their local day", () => {
+    const list = [
+      row("tue", {}, new Date(2026, 8, 29, 23, 59)),
+      row("wed", {}, new Date(2026, 8, 30, 0, 1)),
+      row("thu", {}, new Date(2026, 9, 1, 9)),
+    ];
+    expect(matching(rule("created_at", "lte", "2026-09-30"), list)).toEqual(["tue", "wed"]);
+    expect(matching(rule("updated_at", "gte", "2026-09-30"), list)).toEqual(["wed", "thu"]);
+  });
+
+  it("is any of / none of on a select", () => {
+    expect(matching(rule("p_select", "is_any_of", ["o1", "o3"]))).toEqual(["a", "b"]);
+    // Rows without a value are none of them, as they are "not" any one of them.
+    expect(matching(rule("p_select", "is_none_of", ["o1", "o3"]))).toEqual(["c", "d"]);
+    // A single value stored before the rule held a list counts as a list of one.
+    expect(matching(rule("p_select", "is_any_of", "o3"))).toEqual(["a"]);
+  });
+
+  it("is any of / none of on lists: holds at least one, holds none", () => {
+    expect(matching(rule("p_multi_select", "is_any_of", ["t1"]))).toEqual(["a", "c"]);
+    expect(matching(rule("p_multi_select", "is_none_of", ["t1"]))).toEqual(["b", "d"]);
+    expect(matching(rule("p_multi_select", "is_none_of", ["t1", "t2"]))).toEqual(["d"]);
+  });
+
+  it("resolves me inside a list for whoever looks, and to nobody without a viewer", () => {
+    expect(matching(rule("p_person", "is_any_of", ["me"]), rows, "u2")).toEqual(["b", "c"]);
+    expect(matching(rule("p_person", "is_any_of", ["me", "u1"]), rows, "u2")).toEqual(["a", "b", "c"]);
+    expect(matching(rule("p_person", "is_none_of", ["me"]), rows, "u1")).toEqual(["b", "d"]);
+    // A published page has no viewer: nobody is "me".
+    expect(matching(rule("p_person", "is_any_of", ["me"]))).toEqual([]);
+    expect(matching(rule("p_person", "is_none_of", ["me"]))).toEqual(["a", "b", "c", "d"]);
+  });
+
+  it("treats an empty list as a rule still being filled in", () => {
+    expect(isIncompleteFilter(rule("p_select", "is_any_of", []))).toBe(true);
+    expect(isIncompleteFilter(rule("p_select", "is_none_of"))).toBe(true);
+    expect(isIncompleteFilter(rule("p_select", "is_any_of", ["o1"]))).toBe(false);
+    expect(matching(rule("p_select", "is_none_of", []))).toEqual(["a", "b", "c", "d"]);
+  });
+
+  it("works inside groups", () => {
+    expect(ids([or(rule("p_select", "is_any_of", ["o3"]), rule("p_number", "gte", 10))])).toEqual(["a", "c"]);
+  });
+
+  it("fills a new row from a list of one value only", () => {
+    expect(defaultsFromFilters([rule("p_select", "is_any_of", ["o2"])], props)).toEqual({ p_select: "o2" });
+    expect(defaultsFromFilters([rule("p_multi_select", "is_any_of", ["t2"])], props)).toEqual({ p_multi_select: ["t2"] });
+    expect(defaultsFromFilters([rule("p_person", "is_any_of", ["me"])], props, { viewerId: "u9" })).toEqual({ p_person: ["u9"] });
+    expect(defaultsFromFilters([rule("p_select", "is_any_of", ["o1", "o2"])], props)).toEqual({});
+    expect(defaultsFromFilters([rule("p_select", "is_none_of", ["o1"])], props)).toEqual({});
+    expect(defaultsFromFilters([rule("p_number", "gte", 3)], props)).toEqual({});
+  });
+
+  it("offers the operators per type", () => {
+    const ops = (type: Parameters<typeof filterOperators>[0]) => filterOperators(type).map((o) => o.op);
+    expect(ops("text")).toContain("does_not_contain");
+    expect(ops("title")).toContain("does_not_contain");
+    expect(ops("number")).toEqual(expect.arrayContaining(["gte", "lte"]));
+    expect(ops("date")).toEqual(expect.arrayContaining(["gte", "lte"]));
+    expect(ops("created_time")).toEqual(expect.arrayContaining(["gte", "lte"]));
+    for (const type of ["select", "status", "multi_select", "relation", "person", "created_by", "last_edited_by"] as const) {
+      expect(ops(type)).toEqual(expect.arrayContaining(["is_any_of", "is_none_of"]));
+    }
+    expect(ops("formula")).toContain("does_not_contain");
+  });
+
+  it("stores list rules as lists", () => {
+    expect(filterConfigError({ filters: [rule("p_select", "is_any_of", ["o1", "o2"])] })).toBeNull();
+    expect(filterConfigError({ filters: [rule("p_select", "is_none_of")] })).toBeNull();
+    expect(filterConfigError({ filters: [rule("p_number", "gte", 1), rule("title", "does_not_contain", "x")] })).toBeNull();
+    expect(filterConfigError({ filters: [rule("p_select", "is_any_of", "o1")] })).toMatch(/list of values/);
+  });
+});

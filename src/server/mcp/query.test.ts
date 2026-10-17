@@ -464,3 +464,101 @@ describe("files properties", () => {
     expect(describeViewConfig(all, { cover: { source: "none" } })).toEqual({ cover: "none" });
   });
 });
+
+describe("list, comparison and does-not-contain operators", () => {
+  const owner: PropertyDef = { id: "p_owner", name: "Owner", type: "person", options: {} };
+  const customer: PropertyDef = {
+    id: "p_customer",
+    name: "Customer",
+    type: "relation",
+    options: { relation: { databaseId: "db-customers" } },
+  };
+  const due: PropertyDef = { id: "p_due", name: "Due", type: "date", options: {} };
+  const edited: PropertyDef = { id: "p_edited", name: "Edited", type: "last_edited_time", options: {} };
+  const all = [...props, owner, customer, due, edited];
+  const lookups = {
+    relations: { p_customer: { database: { id: "db-customers", title: "Customers" }, rows: [{ id: "c1", title: "Acme" }, { id: "c2", title: "Globex" }] } },
+    people: [
+      { id: "u1", name: "Ayşe", email: "ayse@example.com", active: true },
+      { id: "u2", name: "Mehmet", email: "mehmet@example.com", active: true },
+    ],
+  };
+
+  it("resolves each value of an any of / none of list", () => {
+    expect(toFilterRule(all, { property: "Status", op: "is_any_of", value: ["done", "Not started"] })).toEqual({
+      propertyId: "p_status",
+      op: "is_any_of",
+      value: ["o_done", "o_todo"],
+    });
+    expect(toFilterRule(all, { property: "Tags", op: "is_none_of", value: ["urgent"] }).value).toEqual(["o_urgent"]);
+    expect(toFilterRule(all, { property: "Owner", op: "is_any_of", value: ["Me", "mehmet@example.com"] }, lookups).value).toEqual([
+      "me",
+      "u2",
+    ]);
+    expect(toFilterRule(all, { property: "Customer", op: "is_none_of", value: ["acme", "c2"] }, lookups).value).toEqual(["c1", "c2"]);
+    // A single value is a list of one; repeats collapse.
+    expect(toFilterRule(all, { property: "Status", op: "is_any_of", value: "Done" }).value).toEqual(["o_done"]);
+    expect(toFilterRule(all, { property: "Status", op: "is_any_of", value: ["Done", "done"] }).value).toEqual(["o_done"]);
+  });
+
+  it("refuses lists where they don't fit", () => {
+    expect(() => toFilterRule(all, { property: "Status", op: "is_any_of", value: ["Nope"] })).toThrow(/not an option/);
+    expect(() => toFilterRule(all, { property: "Estimate", op: "is_any_of", value: ["1"] })).toThrow(/applies to select/);
+    expect(() => toFilterRule(all, { property: "title", op: "is_none_of", value: ["x"] })).toThrow(/applies to select/);
+    expect(() => toFilterRule(all, { property: "Status", op: "equals", value: ["Done"] })).toThrow(/single value/);
+  });
+
+  it("takes gte / lte on numbers and dates, and does_not_contain on text", () => {
+    expect(toFilterRule(all, { property: "Estimate", op: "gte", value: "3" })).toEqual({ propertyId: "p_est", op: "gte", value: 3 });
+    expect(toFilterRule(all, { property: "Estimate", op: "lte", value: 3 }).value).toBe(3);
+    expect(() => toFilterRule(all, { property: "Estimate", op: "gte", value: "many" })).toThrow(/must be a number/);
+    expect(toFilterRule(all, { property: "Due", op: "lte", value: "2026-10-01" }).value).toBe("2026-10-01");
+    expect(toFilterRule(all, { property: "Edited", op: "gte", value: "2026-10-01T10:00:00Z" }).value).toBe("2026-10-01");
+    expect(() => toFilterRule(all, { property: "Edited", op: "contains", value: "2026" })).toThrow(/gte \(on or after\)/);
+    expect(() => toFilterRule(all, { property: "Status", op: "gte", value: "Done" })).toThrow(/not supported on select/);
+    expect(toFilterRule(all, { property: "title", op: "does_not_contain", value: "draft" })).toEqual({
+      propertyId: "title",
+      op: "does_not_contain",
+      value: "draft",
+    });
+  });
+
+  it("filters rows the same way the app does", () => {
+    const rows = [
+      row("Draft A", { p_status: "o_done", p_est: 3, p_owner: ["u1"] }),
+      row("Final B", { p_status: "o_todo", p_est: 5, p_owner: ["u2"] }),
+      row("Final C", { p_est: 1 }),
+    ];
+    const filters = toFilterEntries(
+      all,
+      [
+        { property: "Status", op: "is_none_of", value: ["Done"] },
+        { property: "title", op: "does_not_contain", value: "c" },
+        { property: "Estimate", op: "gte", value: 3 },
+        { property: "Owner", op: "is_any_of", value: ["me"] },
+      ],
+      lookups,
+    );
+    expect(applyView(rows, { filters }, all, { viewerId: "u2" }).map((r) => r.id)).toEqual(["Final B"]);
+  });
+
+  it("describes list rules by name", () => {
+    expect(
+      describeViewConfig(
+        all,
+        {
+          filters: [
+            { propertyId: "p_status", op: "is_any_of", value: ["o_done", "o_todo"] },
+            { propertyId: "p_owner", op: "is_none_of", value: ["me", "u1"] },
+          ],
+        },
+        lookups,
+      ),
+    ).toEqual({
+      filters: [
+        { property: "Status", op: "is_any_of", value: ["Done", "Not started"] },
+        { property: "Owner", op: "is_none_of", value: ["me", "Ayşe"] },
+      ],
+    });
+  });
+});

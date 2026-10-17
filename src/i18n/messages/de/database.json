@@ -176,16 +176,24 @@
     "ops": {
       "contains": "Enthält",
       "doesNotContain": "Enthält nicht",
+      "containsAnyOf": "Enthält eines von",
+      "containsNoneOf": "Enthält keines von",
       "is": "Ist",
       "isNot": "Ist nicht",
+      "isAnyOf": "Ist eines von",
+      "isNoneOf": "Ist keines von",
       "isEmpty": "Ist leer",
       "isNotEmpty": "Ist nicht leer",
       "equals": "=",
       "notEquals": "≠",
       "greaterThan": ">",
+      "greaterOrEqual": "≥",
       "lessThan": "<",
+      "lessOrEqual": "≤",
       "isBefore": "Ist vor",
       "isAfter": "Ist nach",
+      "isOnOrBefore": "Ist am oder vor",
+      "isOnOrAfter": "Ist am oder nach",
       "isChecked": "Ist angehakt",
       "isUnchecked": "Ist nicht angehakt",
       "isWithin": "Liegt innerhalb"
@@ -274,6 +282,7 @@
     "clearSelection": "Auswahl aufheben",
     "confirmTrash": "{count, plural, one {# Zeile} other {# Zeilen}} in den Papierkorb verschieben?",
     "skipped": "{count, plural, one {# Zeile wurde übersprungen, weil du sie nicht ändern kannst.} other {# Zeilen wurden übersprungen, weil du sie nicht ändern kannst.}}",
+    "pasteLeftOut": "{count, plural, one {# eingefügte Zelle wurde ausgelassen: Sie passt nicht in ihre Spalte oder du kannst sie nicht ändern.} other {# eingefügte Zellen wurden ausgelassen: Sie passen nicht in ihre Spalten oder du kannst sie nicht ändern.}}",
     "exportDisabled": "In diesem Workspace ist der Export ausgeschaltet."
   },
   "calculate": {

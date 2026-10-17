@@ -592,5 +592,18 @@
       "interrupted": "İşlem sürerken sunucu yeniden başladı. Tekrar deneyin.",
       "insert": "Not sayfaya eklenemedi."
     }
+  },
+  "review": {
+    "bar": "{count, plural, other {İncelenecek # yapay zekâ değişikliği}}",
+    "by": "yapan: {names}",
+    "open": "İncele",
+    "keepAll": "Hepsini tut",
+    "undoAll": "Hepsini geri al",
+    "keep": "Tut",
+    "undo": "Geri al",
+    "title": "Yapay zekâ değişikliklerini incele",
+    "hint": "Her değişikliği tutun ya da geri alın. Hepsini geri almak, sayfanın şimdiki hâlini önce geçmişine kaydeder.",
+    "stale": "Sayfa bu arada değişti: değişiklikler şimdiki hâliyle gösteriliyor.",
+    "failed": "Bu yapılamadı. Tekrar deneyin."
   }
 }

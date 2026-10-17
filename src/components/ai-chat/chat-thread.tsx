@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { CHAT_MODES, changedMemory, MAX_CHAT_MESSAGE, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
@@ -572,13 +573,25 @@ function ChangePrompt({
     >
       <p className="font-medium">{t(`question.${action.action}`)}</p>
       <div className="mt-1.5 space-y-1">
-        {action.title && <p className="font-medium break-words text-fg">{memory ? `“${action.title}”` : action.title}</p>}
+        {action.title && (
+          <p className="font-medium break-words text-fg">
+            {memory ? (
+              `“${action.title}”`
+            ) : action.previousTitle !== undefined ? (
+              <>
+                <span className="text-fg-muted line-through decoration-fg-faint">{action.previousTitle || t("empty")}</span> → {action.title}
+              </>
+            ) : (
+              action.title
+            )}
+          </p>
+        )}
         <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
           {memory ? (
             t("memoryHint")
           ) : action.target ? (
             <>
-              {t(action.action === "updateRow" ? "row" : "in")}
+              {t(action.action === "updateRow" ? "row" : action.action === "editPage" ? "page" : "in")}
               <PageLink page={action.target} onSource={onSource} />
             </>
           ) : (
@@ -589,12 +602,23 @@ function ChangePrompt({
           <ul className="space-y-0.5 text-xs">
             {action.changes.map((c, i) => (
               <li key={i} className="break-words">
-                <span className="text-fg-muted">{c.property}:</span> {c.value || <span className="text-fg-muted">{t("cleared")}</span>}
+                <span className="text-fg-muted">{c.property}:</span>{" "}
+                {c.before !== undefined && (
+                  <>
+                    <span className="text-fg-muted line-through decoration-fg-faint">{c.before || t("empty")}</span> →{" "}
+                  </>
+                )}
+                {c.value || <span className="text-fg-muted">{t("cleared")}</span>}
               </li>
             ))}
           </ul>
         )}
         {action.content && <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>}
+        {action.diff && action.diff.length > 0 && (
+          <div className="max-h-64 space-y-0.5 overflow-y-auto rounded bg-bg-subtle px-1 py-1 text-xs">
+            <BlockChanges changes={action.diff} compact />
+          </div>
+        )}
       </div>
       <div className="mt-2.5 flex flex-col gap-px">
         {decisions.map((d, i) => (

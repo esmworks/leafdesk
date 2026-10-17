@@ -592,5 +592,18 @@
       "interrupted": "Le serveur a redémarré pendant le traitement. Réessayez.",
       "insert": "La note n'a pas pu être ajoutée à la page."
     }
+  },
+  "review": {
+    "bar": "{count, plural, one {# modification de l’IA à vérifier} other {# modifications de l’IA à vérifier}}",
+    "by": "par {names}",
+    "open": "Vérifier",
+    "keepAll": "Tout garder",
+    "undoAll": "Tout annuler",
+    "keep": "Garder",
+    "undo": "Annuler",
+    "title": "Vérifier les modifications de l’IA",
+    "hint": "Gardez ou annulez chaque modification. « Tout annuler » enregistre d’abord la page telle qu’elle est dans son historique.",
+    "stale": "La page a changé entre-temps : voici les modifications telles qu’elles sont maintenant.",
+    "failed": "Cela n’a pas fonctionné. Réessayez."
   }
 }

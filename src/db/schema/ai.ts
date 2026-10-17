@@ -144,11 +144,11 @@ export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "propose" 
 /** A note in use (`kept`), or one an agent's run proposed that waits for an owner (`proposed`). */
 export type MemoryStatus = "kept" | "proposed";
 
-/** A change the AI chat may make: add a database row, change one, or add a page. */
-export type ChatWriteAction = "createRow" | "updateRow" | "createPage";
+/** A change the AI chat may make: add a database row, change one, add a page, or change a page's text. */
+export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage";
 
-/** A value a change sets, as shown to the person ("" clears it). */
-export type ChatChange = { property: string; value: string };
+/** A value a change sets, as shown to the person ("" clears it), and when asked, the value it had ("" none). */
+export type ChatChange = { property: string; value: string; before?: string };
 
 /**
  * A change the AI chat made (`done`), the person declined (`declined`) or that failed once

@@ -95,6 +95,7 @@
       "promptRequired": "Schreibe einen Prompt.",
       "promptTooLong": "Der Prompt darf höchstens {max} Zeichen lang sein.",
       "unknownPlaceholder": "Es gibt keine Eigenschaft namens „{name}“.",
+      "cycle": "„{name}“ liest diese Eigenschaft bereits (direkt oder über andere KI-Eigenschaften), daher kann diese sie nicht lesen.",
       "notText": "Nur Texteigenschaften können von KI ausgefüllt werden.",
       "databaseLocked": "Die Datenbank ist gesperrt."
     }
@@ -160,17 +161,20 @@
         "done": {
           "createRow": "Zeile hinzugefügt:",
           "updateRow": "Zeile geändert:",
-          "createPage": "Seite hinzugefügt:"
+          "createPage": "Seite hinzugefügt:",
+          "editPage": "Seitentext geändert:"
         },
         "declined": {
           "createRow": "Hinzufügen der Zeile abgelehnt:",
           "updateRow": "Änderung abgelehnt:",
-          "createPage": "Hinzufügen der Seite abgelehnt:"
+          "createPage": "Hinzufügen der Seite abgelehnt:",
+          "editPage": "Textänderung abgelehnt:"
         },
         "failed": {
           "createRow": "Zeile konnte nicht hinzugefügt werden:",
           "updateRow": "Konnte nicht geändert werden:",
-          "createPage": "Seite konnte nicht hinzugefügt werden:"
+          "createPage": "Seite konnte nicht hinzugefügt werden:",
+          "editPage": "Text konnte nicht geändert werden:"
         },
         "in": "in"
       },
@@ -202,7 +206,8 @@
         "updateRow": "Diese Zeile ändern?",
         "createPage": "Diese Seite hinzufügen?",
         "remember": "Das über dich merken?",
-        "forget": "Diese Notiz vergessen?"
+        "forget": "Diese Notiz vergessen?",
+        "editPage": "Den Text dieser Seite ändern?"
       },
       "in": "In",
       "row": "Zeile",
@@ -212,7 +217,9 @@
       "approve": "Ja",
       "always": "Ja, nicht mehr fragen (Automatisch)",
       "decline": "Nein",
-      "waiting": "Wartet auf deine Zustimmung"
+      "waiting": "Wartet auf deine Zustimmung",
+      "page": "Seite",
+      "empty": "(leer)"
     },
     "mode": {
       "label": "Änderungen",

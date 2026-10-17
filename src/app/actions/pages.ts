@@ -143,3 +143,24 @@ export async function restoreSnapshotAction(snapshotId: string) {
   const userId = await requireUserId();
   await pages.restoreSnapshot({ userId }, snapshotId);
 }
+
+/** The AI changes waiting for review on the page (server/page-review.ts), or null. */
+export async function getPageReviewAction(pageId: string) {
+  const userId = await requireUserId();
+  // Loaded on demand: it brings the BlockNote server editor along.
+  const { getPageReview } = await import("@/server/page-review");
+  return getPageReview(userId, String(pageId));
+}
+
+/** Keeps or undoes one AI change on the page, or all of them (`changeId` null). */
+export async function decidePageReviewAction(pageId: string, version: string, changeId: string | null, decision: "keep" | "undo") {
+  const userId = await requireUserId();
+  const { decidePageReview } = await import("@/server/page-review");
+  return decidePageReview(
+    { userId },
+    String(pageId),
+    String(version),
+    typeof changeId === "string" ? changeId : null,
+    decision === "undo" ? "undo" : "keep",
+  );
+}

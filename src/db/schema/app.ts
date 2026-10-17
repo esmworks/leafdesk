@@ -561,10 +561,26 @@ export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "ti
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";
 export type SortRule = { propertyId: string; direction: "asc" | "desc" };
-export type FilterOp = "contains" | "equals" | "not_equals" | "is_empty" | "is_not_empty" | "gt" | "lt" | "is_within";
+export type FilterOp =
+  | "contains"
+  | "does_not_contain"
+  | "equals"
+  | "not_equals"
+  | "is_any_of"
+  | "is_none_of"
+  | "is_empty"
+  | "is_not_empty"
+  | "gt"
+  | "gte"
+  | "lt"
+  | "lte"
+  | "is_within";
 /** Values of an `is_within` rule: date ranges relative to the day the view is looked at. */
 export type RelativeDateRange = "today" | "this_week" | "this_month" | "past_n_days" | "next_n_days";
-/** `days` is only used by `is_within` rules with a `past_n_days` / `next_n_days` value. */
+/**
+ * `days` is only used by `is_within` rules with a `past_n_days` / `next_n_days` value. `is_any_of` and
+ * `is_none_of` rules hold a list of values (option, person or row ids).
+ */
 export type FilterRule = { propertyId: string; op: FilterOp; value?: unknown; days?: number };
 export type FilterCombinator = "and" | "or";
 /** Rules combined with their own and/or; groups nest at most MAX_FILTER_DEPTH levels (see lib/filters). */
@@ -747,6 +763,16 @@ export const pageSnapshot = pgTable(
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     /** OAuth client that triggered the write, for MCP-originated snapshots. */
     oauthClientId: text("oauth_client_id"),
+    /**
+     * `before_mcp_write` only: the body's version (CollabService.pageVersion) right after the write
+     * it was saved before, so the page can offer the write for review while nobody changed the body
+     * since (server/page-review.ts). Null when the write changed nothing.
+     */
+    afterVersion: text("after_version"),
+    /** When the AI changes after this version were kept or undone as a whole on the page. */
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    /** Changes after this version kept one by one on the page (ids from lib/page-review changeIds). */
+    reviewKept: jsonb("review_kept").$type<string[]>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("page_snapshot_page_idx").on(t.pageId, t.createdAt)],

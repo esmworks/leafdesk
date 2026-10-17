@@ -20,6 +20,7 @@ import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema/app";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import type { PageHeaderInfo } from "@/server/page-meta";
+import { AiReviewBar } from "./ai-review";
 import { DocumentViewContext } from "./document-title";
 import { HistoryPanel } from "./history-panel";
 import { IconPicker } from "./icon-picker";
@@ -489,6 +490,9 @@ export function PageView({
             </div>
             {skillNow && !wide && !page.archived && (
               <SkillBar workspaceId={workspaceId} pageId={page.id} description={skillNow.description} editable={canEdit && !offline} />
+            )}
+            {showBody && !wide && (
+              <AiReviewBar pageId={page.id} pageDoc={pageDoc} enabled={!page.archived && canEdit && !locked && !offline && synced} />
             )}
             {error && <p className="mt-2 text-sm text-danger">{error}</p>}
             {actionError && !page.archived && (

@@ -95,6 +95,7 @@
       "promptRequired": "Write a prompt.",
       "promptTooLong": "The prompt can be at most {max} characters.",
       "unknownPlaceholder": "There is no property called “{name}”.",
+      "cycle": "“{name}” already reads this property (directly or through other AI properties), so this one can't read it.",
       "notText": "Only text properties can be filled in by AI.",
       "databaseLocked": "The database is locked."
     }
@@ -160,17 +161,20 @@
         "done": {
           "createRow": "Row added:",
           "updateRow": "Row changed:",
-          "createPage": "Page added:"
+          "createPage": "Page added:",
+          "editPage": "Page text changed:"
         },
         "declined": {
           "createRow": "Declined adding the row:",
           "updateRow": "Declined changing:",
-          "createPage": "Declined adding the page:"
+          "createPage": "Declined adding the page:",
+          "editPage": "Declined changing the text of:"
         },
         "failed": {
           "createRow": "Couldn't add the row:",
           "updateRow": "Couldn't change:",
-          "createPage": "Couldn't add the page:"
+          "createPage": "Couldn't add the page:",
+          "editPage": "Couldn't change the text of:"
         },
         "in": "in"
       },
@@ -202,7 +206,8 @@
         "updateRow": "Change this row?",
         "createPage": "Add this page?",
         "remember": "Remember this about you?",
-        "forget": "Forget this note?"
+        "forget": "Forget this note?",
+        "editPage": "Change this page's text?"
       },
       "in": "In",
       "row": "Row",
@@ -212,7 +217,9 @@
       "approve": "Yes",
       "always": "Yes, and don't ask again (Auto)",
       "decline": "No",
-      "waiting": "Waiting for your approval"
+      "waiting": "Waiting for your approval",
+      "page": "Page",
+      "empty": "(empty)"
     },
     "mode": {
       "label": "Changes",

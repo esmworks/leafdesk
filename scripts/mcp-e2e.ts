@@ -475,6 +475,25 @@ async function main() {
   page = await mcp.ok("get_page", { page_id: root.id });
   check(page.markdown.trim() === "Replaced body." && page.version === fresh.version, "the current version writes", [page.markdown, page.version, fresh.version]);
 
+  // ---- block modes: one block changed by its id, the rest left as it is
+  await mcp.ok("update_page", { page_id: root.id, markdown: "Second line.\n\nThird line.", mode: "append" });
+  const withIds = await mcp.ok("get_page", { page_id: root.id, with_block_ids: true });
+  const markers = [...withIds.markdown.matchAll(/<!-- block (\S+) -->/g)].map((m: RegExpMatchArray) => m[1]);
+  check(markers.length === 3, "get_page with_block_ids marks each block", withIds.markdown);
+  await mcp.ok("update_page", { page_id: root.id, mode: "replace_block", block_id: markers[1], markdown: `<!-- block ${markers[1]} -->\nSecond line, edited.` });
+  await mcp.ok("update_page", { page_id: root.id, mode: "insert_after", block_id: markers[0], markdown: "Inserted line." });
+  await mcp.ok("update_page", { page_id: root.id, mode: "delete_block", block_id: markers[2] });
+  page = await mcp.ok("get_page", { page_id: root.id });
+  check(
+    page.markdown.trim() === "Replaced body.\n\nInserted line.\n\nSecond line, edited.",
+    "replace_block, insert_after and delete_block change only their blocks",
+    page.markdown,
+  );
+  const missingBlock = await mcp.call("update_page", { page_id: root.id, mode: "delete_block", block_id: markers[2] });
+  check(missingBlock.isError && missingBlock.text.includes(markers[2]), "a block that isn't there is named in the error", missingBlock.text);
+  const noBlockId = await mcp.call("update_page", { page_id: root.id, mode: "replace_block", markdown: "x" });
+  check(noBlockId.isError && /block_id/.test(noBlockId.text), "a block mode without block_id is refused", noBlockId.text);
+
   // ---- skills: a page made a skill is a prompt of its name, over HTTP as well
   check(init.capabilities?.prompts !== undefined, "the server offers prompts", init.capabilities);
   const skill = await mcp.ok("set_skill", { page_id: root.id, skill: true, description: "Answers like the e2e page." });

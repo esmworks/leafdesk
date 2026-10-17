@@ -332,7 +332,7 @@ export function chatSystemPrompt(scopeTitle?: string | null, canChange = false, 
     "- Tasks, records and lists kept in a database (what is pending, assigned to me, due this week, above an amount): query that database with query_database and filters on its properties.",
     "- Where something is written: search_pages with a few distinctive words or names, not the whole question; try other words when nothing is found. read_page reads a whole page.",
     canChange
-      ? "- When the person asks to add or change something (a task, a row, a page): create_row, update_row or create_page, after finding the database, row or page it goes to. Change only what they asked for, and only when they ask. Don't ask for permission in text: the app asks the person itself when it has to. When a change is declined, don't try it again."
+      ? "- When the person asks to add or change something (a task, a row, a page): create_row, update_row or create_page, after finding the database, row or page it goes to; edit_page changes a page's text, after read_page with_block_ids. Change only what they asked for, and only when they ask. Don't ask for permission in text: the app asks the person itself when it has to. When a change is declined, don't try it again."
       : `- You can't change pages or databases in this chat. When asked to, say that changes are off; the person can allow them under the question box.${memory ? " Keeping notes about the person (remember, forget) still works here." : ""}`,
     "- Greetings, or questions that aren't about the workspace: answer directly, without tools.",
     ...(memory
@@ -409,6 +409,7 @@ function changeNote(step: ChatWriteRecord) {
   const title = step.title ? ` "${attr(step.title)}"` : "";
   if (step.action === "createRow") return `added the row${title} (page_id ${step.pageId}) to the database ${step.targetId}`;
   if (step.action === "updateRow") return `changed the row${title} (page_id ${step.pageId})${step.changes.length ? `: ${step.changes.map((c) => c.property).join(", ")}` : ""}`;
+  if (step.action === "editPage") return `changed the text of the page ${step.pageId}`;
   return `added the page${title} (page_id ${step.pageId})`;
 }
 
@@ -446,9 +447,9 @@ export function agentSystemPrompt(
         : `You are "${attr(agent.name)}", an agent in a notes app. You work on your own: an event from a service outside the app started this run, and you do the task you are given for it.`,
     "You can open only the pages and databases shared with you. search_pages, read_page and query_database find and read them.",
     scheduled?.database
-      ? `update_row changes values or the title of rows of the database you look after, and only its rows. add_comment writes a comment on one of its rows. You may make ${scheduled.maxWrites} changes in all: change only what the task and your instructions call for; when nothing needs changing, change nothing.`
+      ? `update_row changes values or the title of rows of the database you look after, and only its rows; edit_page changes their text (read_page with_block_ids first). add_comment writes a comment on one of its rows. You may make ${scheduled.maxWrites} changes in all: change only what the task and your instructions call for; when nothing needs changing, change nothing.`
       : run.row
-        ? "update_row changes values or the title of the row that started this run, and only that row. add_comment writes a comment on that row. Change only what the task and your instructions call for; when nothing needs changing, change nothing."
+        ? "update_row changes values or the title of the row that started this run, and only that row; edit_page changes its text (read_page with_block_ids first). add_comment writes a comment on that row. Change only what the task and your instructions call for; when nothing needs changing, change nothing."
         : run.addsRows
           ? "create_row adds a row to a database shared with you to edit; it is the only change you can make to pages in this run. Each row is added only after a person approves it: call it once with exactly the row to add, and you will hear whether it was added, declined or sent back with a note. Add a row only when the task and your instructions call for it."
           : "You can't change pages in this run; you may only read them, and use the tools of connected services.",

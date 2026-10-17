@@ -41,6 +41,44 @@
   counted, not even as a broken link. The same report is the new MCP tool `check_workspace`, which
   changes nothing and says which tools fix each finding. Covered in
   `scripts/workspace-check-e2e.ts`.
+- **More filter conditions.** Text, URL, email, phone and title filters (and formulas and rollups
+  with a text result) gain *Does not contain*, which ignores case as *Contains* does and matches
+  empty values. Numbers gain ≥ and ≤, and dates, created and edited times *Is on or before* and
+  *Is on or after*, which match a date range when any of its days does, as *Is before* and *Is
+  after* do. Selects and statuses gain *Is any of* and *Is none of*, and tags, relations and
+  people *Contains any of* and *Contains none of*: one rule with several values, where "Me" counts
+  for whoever looks. They work the same in the app, on published pages, in dashboards, for
+  restricted properties and through the API, MCP (`query_database`, saved views) and the AI chat,
+  as `does_not_contain`, `gte`, `lte`, `is_any_of` and `is_none_of` (the last two with a list of
+  values). Saved views keep working unchanged.
+
+- **AI changes to a page can be kept or undone one by one.** After an AI app, the chat or an agent
+  writes to a page body, the page shows a bar above the body with how many blocks changed and
+  who changed them: *Review* opens the changes block by block with *Keep* and *Undo* for each,
+  next to *Keep all* and *Undo all*. Undoing goes through the page's shared document, so editors
+  open on the page follow at once, and *Undo all* saves a version first. Writes in a row are
+  reviewed together; the bar goes away once every change is decided or someone edits the page.
+  Only people who may edit the page see it (migration 0072).
+- **Changing one block instead of the whole body.** The chat and agents have a new `edit_page`
+  tool that replaces, inserts after, appends or deletes blocks by id, and `update_page` (MCP) and
+  `PATCH /pages/{id}` take the modes `replace_block`, `insert_after` and `delete_block` with a
+  `block_id`. `get_page` / `GET /pages/{id}` give the ids with `with_block_ids`. Like every AI
+  write, these save the page first and can be reviewed on the page. Agents may use `edit_page` on
+  the rows they already may update.
+- **Approval cards show what changes.** Before the chat changes a page's text, the approval card
+  shows the blocks it changes, adds and removes; for a row it shows each property's old value
+  next to the new one, and the old title when it is renamed. Covered in `scripts/ai-chat-e2e.ts`
+  and `scripts/mcp-e2e.ts`.
+
+- **Table cells work from the keyboard and the clipboard.** Click a cell (or move with the arrow
+  keys) to make it the active cell; Shift with an arrow, Shift+click or a drag selects a range.
+  Enter opens the active cell's editor and Esc brings you back to the cell, Delete clears the
+  range. Copy puts the range on the clipboard as tab-separated text, the way exports write values,
+  and pasting cells copied from a spreadsheet writes them from the active cell on: each value is
+  read as the CSV import reads it (numbers like `1.234,5` or `15%`, dates, yes/no, option and
+  people names), options a select lacks are added, and rows past the last one are added in an
+  ungrouped table. One pasted value fills the whole selected range. Cells that don't fit their
+  column or that you may not change are left out and counted.
 
 ### Changed
 
@@ -55,8 +93,27 @@
   full-text search found reached the model as a short snippet without a block, so its answer
   cited the whole page and it often read the page again. It now gets the page's indexed passage
   with the most of the question's words, and the citation links to that block.
+- **Long tables render only the rows in view.** From 120 rows on, a table view renders the rows
+  near the visible part of the page and stands in for the rest, so tables with thousands of rows
+  open and scroll without lag. Grouped tables, sub-items, frozen columns and group calculations
+  work as before.
 
 ### Fixed
+
+- **AI autofill values count as row changes.** A value AI filled in was saved past everything a
+  row write sets off: semantic search didn't index it until something else changed the row, the
+  row's activity didn't show it, and automations waiting for the property to change never ran.
+  Values are now saved like any other change (as the person who asked for them), and only when
+  they differ from the stored one. They start automations, except when an automation's change set
+  them off: those count as the automation's own changes, which start none, so automations and AI
+  values can't keep setting each other off. After an AI value is written, only the automatic AI
+  values that read it update, and none twice in a row of updates.
+  - Other AI values, and formulas over them, go into an AI property's prompt only when its settings
+    name them (a `{Property}` placeholder, the translated property); summaries no longer take them
+    in on their own. Values whose prompt changes this way are worked out again the next time their
+    row changes.
+  - Settings that would make an AI property read itself through other AI properties are refused
+    with a message naming the property in the way. Covered in `scripts/ai-e2e.ts`.
 
 - **Semantic search catches up when the way pages are cut into chunks changes.** The index
   noticed pages that changed and a new embeddings model, but not a release that chunks pages
@@ -64,6 +121,23 @@
   skipped them. The index now records the chunking it was built with (migration 0070), and pages
   built with another one count as stale for the sweep and `pnpm search:index`. Chunks whose text
   stays the same aren't embedded again. Covered in `scripts/semantic-search-e2e.ts`.
+- **Edits of different properties of one row no longer undo each other.** Editing a row's value
+  wrote back the whole row as it was read a moment before, so a value someone else, an agent or
+  an automation had just set in another property of the same row could quietly disappear. Single
+  row edits now merge into the stored values the way bulk edits already did. Covered in
+  `scripts/database-e2e.ts`.
+- **Stopping the server no longer loses the last edits.** On SIGINT/SIGTERM the server started the
+  saves still waiting out their debounce but exited half a second later whether they had finished
+  or not, so on a large page or a slow database up to the last ten seconds of typing could be lost.
+  It now closes the editors' connections, waits until every open page is saved (at most eight
+  seconds, inside Docker's ten-second grace period) and logs it when it had to stop waiting. A
+  second Ctrl+C exits at once.
+- **Deleted files no longer stay behind in storage.** Deleting a workspace, an account or orphaned
+  uploads removed the files' records first and their bytes afterwards, at best once: when storage
+  refused or the server stopped midway, the bytes stayed with nothing pointing at them. The objects
+  to delete are now queued in the same transaction as the records (migration 0073), and what
+  storage refuses is tried again by the hourly file cleanup, waiting longer after each failure (up
+  to a day). Covered in `scripts/storage-deletion-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 

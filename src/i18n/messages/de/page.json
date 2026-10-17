@@ -592,5 +592,18 @@
       "interrupted": "Der Server wurde währenddessen neu gestartet. Versuche es erneut.",
       "insert": "Die Notiz konnte nicht zur Seite hinzugefügt werden."
     }
+  },
+  "review": {
+    "bar": "{count, plural, one {# KI-Änderung zu prüfen} other {# KI-Änderungen zu prüfen}}",
+    "by": "von {names}",
+    "open": "Prüfen",
+    "keepAll": "Alle behalten",
+    "undoAll": "Alle rückgängig",
+    "keep": "Behalten",
+    "undo": "Rückgängig",
+    "title": "KI-Änderungen prüfen",
+    "hint": "Behalten Sie jede Änderung oder machen Sie sie rückgängig. „Alle rückgängig“ speichert die Seite vorher, wie sie jetzt ist, im Verlauf.",
+    "stale": "Die Seite hat sich inzwischen geändert: Das sind die Änderungen, wie sie jetzt sind.",
+    "failed": "Das hat nicht geklappt. Versuchen Sie es noch einmal."
   }
 }

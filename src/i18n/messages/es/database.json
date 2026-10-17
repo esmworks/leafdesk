@@ -176,16 +176,24 @@
     "ops": {
       "contains": "Contiene",
       "doesNotContain": "No contiene",
+      "containsAnyOf": "Contiene alguno de",
+      "containsNoneOf": "No contiene ninguno de",
       "is": "Es",
       "isNot": "No es",
+      "isAnyOf": "Es cualquiera de",
+      "isNoneOf": "No es ninguno de",
       "isEmpty": "Está vacío",
       "isNotEmpty": "No está vacío",
       "equals": "=",
       "notEquals": "≠",
       "greaterThan": ">",
+      "greaterOrEqual": "≥",
       "lessThan": "<",
+      "lessOrEqual": "≤",
       "isBefore": "Es anterior a",
       "isAfter": "Es posterior a",
+      "isOnOrBefore": "Es igual o anterior a",
+      "isOnOrAfter": "Es igual o posterior a",
       "isChecked": "Está marcada",
       "isUnchecked": "No está marcada",
       "isWithin": "Está dentro de"
@@ -274,6 +282,7 @@
     "clearSelection": "Borrar selección",
     "confirmTrash": "¿Mover {count, plural, one {# fila} other {# filas}} a la papelera?",
     "skipped": "{count, plural, one {Se omitió # fila porque no puedes cambiarla.} other {Se omitieron # filas porque no puedes cambiarlas.}}",
+    "pasteLeftOut": "{count, plural, one {Se omitió # celda pegada: no encaja en su columna o no puedes cambiarla.} other {Se omitieron # celdas pegadas: no encajan en sus columnas o no puedes cambiarlas.}}",
     "exportDisabled": "La exportación está desactivada en este espacio de trabajo."
   },
   "calculate": {
