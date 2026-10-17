@@ -259,9 +259,11 @@ versions, upgrades and running behind a domain.
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
   page of that title; "Link to page"
   blocks; a "Linked from" list of backlinks on
-  every page, each with the text around its link, and below it the pages that write the page's
-  title without linking to it, with a button that turns that text into a mention (a Japanese or
-  Chinese title is found inside a sentence too, never inside a longer word).
+  every page, with how many pages link there and, for each, the text around every place it links
+  (the first 20 blocks), each opening that page at the block with the link; and below it the pages
+  that write the page's title without linking to it, with a button that turns that text into a
+  mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
+  "Copy link to block" in a block's menu gives a link that opens the page at that block.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as

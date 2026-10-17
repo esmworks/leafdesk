@@ -34,12 +34,13 @@ import {
   mentionConfig,
   mentionProps,
   newMentionId,
+  blockPath,
   pageLinkBlockConfig,
   pagePath,
   type MentionProps,
 } from "@/lib/mentions";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
-import type { MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
+import type { Backlink, MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
@@ -777,16 +778,24 @@ export function PagePicker({
 // ---------------------------------------------------------------------------------------------
 // Backlinks
 
+/** Places shown for a linking page before "N more". */
+const PLACES_SHOWN = 3;
+
 /**
  * "Linked from": the pages whose body mentions or links to this one, as far as the viewer can see,
- * each with the text around its link; and below, folded away, the pages that write this page's
- * title without linking to it, which someone who may edit them can link from here.
+ * each with the text around every place it links here, each opening the page at that block; and
+ * below, folded away, the pages that write this page's title without linking to it, which someone
+ * who may edit them can link from here.
  */
 export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId: string; pageId: string; title: string; canLink: boolean }) {
   const t = useTranslations("page.backlinks");
   const tc = useTranslations("common");
   const router = useRouter();
-  const [links, setLinks] = useState<Awaited<ReturnType<typeof backlinksAction>>>([]);
+  const [links, setLinks] = useState<Backlink[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  // Linking pages whose every place is shown.
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [unlinked, setUnlinked] = useState<UnlinkedMention[]>([]);
   const [showUnlinked, setShowUnlinked] = useState(false);
   // The page being linked, and why the last one couldn't be.
@@ -803,7 +812,11 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
   useEffect(() => {
     let current = true;
     backlinksAction(pageId).then(
-      (list) => current && setLinks(list),
+      (res) => {
+        if (!current) return;
+        setLinks(res.pages);
+        setTotal(res.total);
+      },
       () => {},
     );
     return () => {
@@ -843,6 +856,19 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
     }
   }
 
+  async function loadMore() {
+    setLoadingMore(true);
+    try {
+      const res = await backlinksAction(pageId, links.length);
+      setLinks((list) => [...list, ...res.pages.filter((p) => !list.some((l) => l.id === p.id))]);
+      setTotal(res.total);
+    } catch {
+      // The button stays for another try.
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
   if (!links.length && !unlinked.length) return null;
   const name = pageLabel(title, tc("untitled"));
   const row = "-mx-1 flex items-center gap-2 rounded px-1 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg";
@@ -850,32 +876,82 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
     <section aria-label={t("title")} className="mt-10 border-t border-border px-4 pt-4 md:px-[54px]">
       {links.length > 0 && (
         <>
-          <h2 className="text-xs font-medium text-fg-muted" title={t("count", { count: links.length })}>
-            {t("title")}
+          <h2 className="text-xs font-medium text-fg-muted" title={t("count", { count: total })}>
+            {t("titleCount", { count: total })}
           </h2>
           <ul className="mt-1.5 flex flex-col">
             {links.map((link) => {
-              const href = pagePath(link.workspaceId, link.id);
+              // Links indexed before their blocks were kept show the text around the first one.
+              const places = link.places ?? (link.context ? [{ block: null, context: link.context }] : []);
+              const first = places.find((p) => p.block)?.block;
+              const href = first ? blockPath(link.workspaceId, link.id, first) : pagePath(link.workspaceId, link.id);
+              const withText = places.filter((p): p is { block: string | null; context: string } => Boolean(p.context));
+              const open = expanded.has(link.id);
+              const shown = open ? withText : withText.slice(0, PLACES_SHOWN);
               return (
-                <li key={link.id}>
+                <li key={link.id} className="mb-1">
                   <a href={href} onClick={(e) => openPage(e, href, router.push)} className={row}>
                     <PageIcon icon={link.icon} kind={link.kind} className="text-sm" />
                     <span className="truncate">{pageLabel(link.title, tc("untitled"))}</span>
                   </a>
-                  {link.context && (
-                    <p className="mb-1 line-clamp-2 ps-6 text-xs text-fg-faint">
-                      {link.context.split(LINK_PLACEHOLDER).map((part, i) => (
-                        <Fragment key={i}>
-                          {i > 0 && <span className="font-medium text-fg-muted">{name}</span>}
-                          {part}
-                        </Fragment>
-                      ))}
-                    </p>
+                  {shown.map((place, i) => {
+                    const text = place.context.split(LINK_PLACEHOLDER).map((part, j) => (
+                      <Fragment key={j}>
+                        {j > 0 && <span className="font-medium text-fg-muted">{name}</span>}
+                        {part}
+                      </Fragment>
+                    ));
+                    const placeClass = "ms-5 line-clamp-2 rounded px-1 py-0.5 text-xs text-fg-faint";
+                    if (!place.block) {
+                      return (
+                        <p key={i} className={placeClass}>
+                          {text}
+                        </p>
+                      );
+                    }
+                    const at = blockPath(link.workspaceId, link.id, place.block);
+                    return (
+                      <a
+                        key={place.block}
+                        href={at}
+                        onClick={(e) => openPage(e, at, router.push)}
+                        className={cn(placeClass, "hover:bg-bg-hover hover:text-fg-muted")}
+                      >
+                        {text}
+                      </a>
+                    );
+                  })}
+                  {withText.length > PLACES_SHOWN && (
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      onClick={() =>
+                        setExpanded((set) => {
+                          const next = new Set(set);
+                          if (open) next.delete(link.id);
+                          else next.add(link.id);
+                          return next;
+                        })
+                      }
+                      className="ms-5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+                    >
+                      {open ? t("fewerPlaces") : t("morePlaces", { count: withText.length - PLACES_SHOWN })}
+                    </button>
                   )}
                 </li>
               );
             })}
           </ul>
+          {links.length < total && (
+            <button
+              type="button"
+              disabled={loadingMore}
+              onClick={() => void loadMore()}
+              className="-mx-1 mt-1 rounded px-1 py-0.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-60"
+            >
+              {loadingMore ? tc("loading") : t("morePages", { count: total - links.length })}
+            </button>
+          )}
         </>
       )}
       {unlinked.length > 0 && (

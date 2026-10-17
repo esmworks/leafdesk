@@ -78,6 +78,9 @@ export const newMentionId = () => crypto.randomUUID();
 
 export const pagePath = (workspaceId: string, pageId: string) => `/w/${workspaceId}/p/${pageId}`;
 
+/** A block of a page: the page's editor scrolls to it and highlights it (components/page/block-focus). */
+export const blockPath = (workspaceId: string, pageId: string, blockId: string) => `${pagePath(workspaceId, pageId)}#block-${blockId}`;
+
 const ID = "[\\w-]{1,128}";
 
 /**

@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "מקושר מ־",
+    "titleCount": "מקושר מ־ · {count}",
     "count": "{count, plural, one {דף אחד מקשר לכאן} two {שני דפים מקשרים לכאן} other {# דפים מקשרים לכאן}}",
     "unlinked": "אזכורים לא מקושרים · {count}",
     "unlinkedHint": "דפים שכתובה בהם הכותרת של הדף הזה בלי קישור אליו",
     "link": "קישור",
     "linkLabel": "קישור האזכור ב־{title}",
     "linkFailed": "הכותרת כבר לא כתובה שם כטקסט פשוט.",
-    "locked": "הדף הזה נעול, ולכן אי אפשר לשנות אותו."
+    "locked": "הדף הזה נעול, ולכן אי אפשר לשנות אותו.",
+    "morePlaces": "{count, plural, one {עוד מקום אחד} two {עוד שני מקומות} other {עוד # מקומות}}",
+    "fewerPlaces": "הצגת פחות",
+    "morePages": "{count, plural, one {הצגת עוד דף אחד} two {הצגת עוד שני דפים} other {הצגת עוד # דפים}}"
+  },
+  "blockMenu": {
+    "copyLink": "העתקת קישור לבלוק"
   },
   "pdf": {
     "untitled": "PDF",

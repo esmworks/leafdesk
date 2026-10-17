@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "链接来源",
+    "titleCount": "链接来源 · {count}",
     "count": "{count} 个页面链接到这里",
     "unlinked": "未链接的提及 · {count}",
     "unlinkedHint": "写有此页面标题但未链接到它的页面",
     "link": "链接",
     "linkLabel": "在 {title} 中链接该提及",
     "linkFailed": "那里的标题已不再是纯文本。",
-    "locked": "该页面已锁定，因此无法更改。"
+    "locked": "该页面已锁定，因此无法更改。",
+    "morePlaces": "还有 {count} 处",
+    "fewerPlaces": "收起",
+    "morePages": "再显示 {count} 个页面"
+  },
+  "blockMenu": {
+    "copyLink": "复制块链接"
   },
   "pdf": {
     "untitled": "PDF",

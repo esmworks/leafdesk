@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "Verlinkt von",
+    "titleCount": "Verlinkt von · {count}",
     "count": "{count, plural, one {# Seite verlinkt hierher} other {# Seiten verlinken hierher}}",
     "unlinked": "Nicht verlinkte Erwähnungen · {count}",
     "unlinkedHint": "Seiten, die den Titel dieser Seite nennen, ohne auf sie zu verlinken",
     "link": "Verlinken",
     "linkLabel": "Erwähnung in {title} verlinken",
     "linkFailed": "Der Titel steht dort nicht mehr als einfacher Text.",
-    "locked": "Diese Seite ist gesperrt und kann nicht geändert werden."
+    "locked": "Diese Seite ist gesperrt und kann nicht geändert werden.",
+    "morePlaces": "{count, plural, one {# weitere Stelle} other {# weitere Stellen}}",
+    "fewerPlaces": "Weniger anzeigen",
+    "morePages": "{count, plural, one {# weitere Seite anzeigen} other {# weitere Seiten anzeigen}}"
+  },
+  "blockMenu": {
+    "copyLink": "Link zum Block kopieren"
   },
   "pdf": {
     "untitled": "PDF",

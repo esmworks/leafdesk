@@ -37,13 +37,17 @@ export async function resolvePagesAction(pageIds: string[]) {
   return mentions.resolvePageRefs(userId, Array.isArray(pageIds) ? pageIds : []);
 }
 
-/** The pages linking to this one that the user can see. */
-export async function backlinksAction(pageId: string) {
+/** The pages linking to this one that the user can see: a batch of them from `offset` on, and how many there are. */
+export async function backlinksAction(pageId: string, offset = 0): Promise<{ pages: mentions.Backlink[]; total: number }> {
   const userId = await requireUserId();
   try {
-    return await mentions.listBacklinks(userId, pageId);
+    const [pages, total] = await Promise.all([
+      mentions.listBacklinks(userId, pageId, { offset: typeof offset === "number" ? offset : 0 }),
+      mentions.countBacklinks(userId, pageId),
+    ]);
+    return { pages, total };
   } catch (error) {
-    if (error instanceof AccessError) return [];
+    if (error instanceof AccessError) return { pages: [], total: 0 };
     throw error;
   }
 }

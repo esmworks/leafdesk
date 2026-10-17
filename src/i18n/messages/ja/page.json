@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "リンク元",
+    "titleCount": "リンク元 · {count}",
     "count": "{count}ページからリンクされています",
     "unlinked": "リンクされていないメンション · {count}",
     "unlinkedHint": "このページのタイトルを書いているが、リンクしていないページ",
     "link": "リンク",
     "linkLabel": "{title}のメンションをリンクにする",
     "linkFailed": "タイトルがもうプレーンテキストとして書かれていません。",
-    "locked": "そのページはロックされているため、変更できません。"
+    "locked": "そのページはロックされているため、変更できません。",
+    "morePlaces": "ほか{count}か所",
+    "fewerPlaces": "表示を減らす",
+    "morePages": "さらに{count}ページを表示"
+  },
+  "blockMenu": {
+    "copyLink": "ブロックへのリンクをコピー"
   },
   "pdf": {
     "untitled": "PDF",

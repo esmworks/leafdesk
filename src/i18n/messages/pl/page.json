@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "Linki z",
+    "titleCount": "Linki z · {count}",
     "count": "{count, plural, one {# strona linkuje tutaj} few {# strony linkują tutaj} many {# stron linkuje tutaj} other {# strony linkuje tutaj}}",
     "unlinked": "Wzmianki bez linku · {count}",
     "unlinkedHint": "Strony, które zawierają tytuł tej strony bez linku do niej",
     "link": "Dodaj link",
     "linkLabel": "Dodaj link do wzmianki na stronie {title}",
     "linkFailed": "Tytuł nie jest już tam zapisany jako zwykły tekst.",
-    "locked": "Ta strona jest zablokowana, więc nie można jej zmienić."
+    "locked": "Ta strona jest zablokowana, więc nie można jej zmienić.",
+    "morePlaces": "{count, plural, one {Jeszcze # miejsce} few {Jeszcze # miejsca} many {Jeszcze # miejsc} other {Jeszcze # miejsca}}",
+    "fewerPlaces": "Pokaż mniej",
+    "morePages": "{count, plural, one {Pokaż jeszcze # stronę} few {Pokaż jeszcze # strony} many {Pokaż jeszcze # stron} other {Pokaż jeszcze # strony}}"
+  },
+  "blockMenu": {
+    "copyLink": "Kopiuj link do bloku"
   },
   "pdf": {
     "untitled": "PDF",

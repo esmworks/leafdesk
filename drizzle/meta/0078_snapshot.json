@@ -1,5 +1,5 @@
 {
-  "id": "b610d811-8699-41c2-989c-cbec8fc260ab",
+  "id": "7692d3af-8e68-48bd-95d7-5eec35603a8f",
   "prevId": "7af36f75-e880-4dd5-b9dc-03a1f62ef8a1",
   "version": "7",
   "dialect": "postgresql",
@@ -5614,6 +5614,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "places": {
+          "name": "places",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -9962,12 +9968,6 @@
         },
         "workspace_id": {
           "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "time_zone": {
-          "name": "time_zone",
           "type": "text",
           "primaryKey": false,
           "notNull": false

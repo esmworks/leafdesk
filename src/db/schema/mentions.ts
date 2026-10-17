@@ -1,4 +1,5 @@
-import { index, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { LinkPlace } from "@/lib/link-context";
 import { sql } from "drizzle-orm";
 import { page } from "./app";
 import { user } from "./auth";
@@ -25,6 +26,13 @@ export const pageLink = pgTable(
      * links indexed before contexts were kept, until the source is saved again.
      */
     context: text("context"),
+    /**
+     * Every block of the source that links to the target, in document order (MAX_LINK_PLACES at
+     * most), with the text around each link: the "Linked from" list shows each and opens the source
+     * at that block. Null for links indexed before blocks were kept, until the source is indexed
+     * again (on its next save, or by the backfill in server/mentions.ts).
+     */
+    places: jsonb("places").$type<LinkPlace[]>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.sourceId, t.targetId] }), index("page_link_target_idx").on(t.targetId)],

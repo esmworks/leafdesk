@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { excerpt, findTitle, LINK_PLACEHOLDER as P, linkContexts, linkTitle } from "./link-context";
+import { excerpt, findTitle, LINK_PLACEHOLDER as P, linkContexts, linkPlaces, linkTitle, MAX_LINK_PLACES } from "./link-context";
 
 const text = (value: string, styles = {}) => ({ type: "text", text: value, styles });
 const mention = (pageId: string) => ({ type: "mention", props: { kind: "page", pageId } });
@@ -96,6 +96,35 @@ describe("linkContexts", () => {
     const contexts = linkContexts(blocks);
     expect(contexts.get("a")).toBe(`Inner  ${P}`);
     expect(contexts.get("b")).toBe(`Cell ${P} here`);
+  });
+});
+
+describe("linkPlaces", () => {
+  const withId = <T extends object>(id: string, block: T) => ({ id, ...block });
+
+  it("lists every block linking to each page, in document order, with the text around the link", () => {
+    const blocks = [
+      withId("b1", paragraph(text("Before "), mention("a"), text(" and "), mention("b"))),
+      withId("b2", { type: "paragraph", content: [text("Top")], children: [withId("b3", paragraph(text("Again "), mention("a"), mention("a")))] }),
+      withId("b4", { type: "pageLink", props: { pageId: "a" }, children: [] }),
+      withId("b5", paragraph(mention("a"))),
+      paragraph(text("No id "), mention("a")),
+    ];
+    const places = linkPlaces(blocks);
+    expect(places.get("a")).toEqual([
+      { block: "b1", context: `Before ${P} and` },
+      { block: "b3", context: `Again ${P}${P}` },
+      { block: "b4", context: null },
+      { block: "b5", context: null },
+    ]);
+    expect(places.get("b")).toEqual([{ block: "b1", context: `Before  and ${P}` }]);
+  });
+
+  it("keeps the first MAX_LINK_PLACES blocks of a page", () => {
+    const blocks = Array.from({ length: MAX_LINK_PLACES + 5 }, (_, i) => withId(`b${i}`, paragraph(text(`Line ${i} `), mention("a"))));
+    const places = linkPlaces(blocks).get("a")!;
+    expect(places).toHaveLength(MAX_LINK_PLACES);
+    expect(places[0].block).toBe("b0");
   });
 });
 
