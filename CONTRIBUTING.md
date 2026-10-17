@@ -20,8 +20,8 @@ fixed before anything new is added:
 3. **Upgrades are tested.** CI's *Upgrade from an older release* job installs an older release
    (`UPGRADE_FROM` in the workflow), fills it with a workspace through that release's own code,
    upgrades the database to the branch and checks that everything is still there and the same,
-   that the schema matches a fresh install, and that the end-to-end scripts pass on it. Green on
-   `main`.
+   that the schema matches a fresh install, and that a set of the end-to-end scripts passes on it.
+   Green on `main`.
 4. **Large workspaces are tested.** CI's *Large workspace* job seeds a database with 50,000 rows
    and a workspace with 5,000 pages and times opening, filtering and sorting the table, searching,
    opening a page and connecting to its live document against the limits in

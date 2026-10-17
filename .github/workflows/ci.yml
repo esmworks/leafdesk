@@ -465,6 +465,120 @@ jobs:
         if: always()
         run: cat "$RUNNER_TEMP/server.log" || true
 
+  upgrade:
+    name: Upgrade from an older release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: leafdesk
+          POSTGRES_PASSWORD: leafdesk
+          POSTGRES_DB: leafdesk_upg
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U leafdesk"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # The release whose database this checkout upgrades.
+      UPGRADE_FROM: v0.5.0
+      APP_URL: http://localhost:3000
+      DATABASE_URL: postgres://leafdesk:leafdesk@localhost:5432/leafdesk_upg
+      FRESH_DATABASE_URL: postgres://leafdesk:leafdesk@localhost:5432/leafdesk_upg_fresh
+      BETTER_AUTH_SECRET: ci-only-secret-that-protects-nothing-000000000000
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      # All history and tags: the older release is unpacked from its tag.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile
+
+      # The fresh install the upgraded schema is compared with, and the backups e2e's second
+      # Leafdesk. No db:migrate: the upgrade test starts from empty databases and migrates them itself.
+      - name: Databases
+        run: |
+          PGPASSWORD=leafdesk createdb -h localhost -U leafdesk leafdesk_upg_fresh
+          PGPASSWORD=leafdesk createdb -h localhost -U leafdesk leafdesk_upg_peer
+
+      # Installs the older release in $RUNNER_TEMP, fills the database through its code, upgrades it
+      # with this checkout's migrations and checks it against what the older release read back.
+      - name: Upgrade from the older release
+        run: scripts/upgrade-test.sh "$UPGRADE_FROM"
+
+      # End-to-end scripts on the upgraded database, next to the older release's workspace.
+      - name: Database edits end-to-end
+        run: pnpm tsx scripts/database-e2e.ts
+
+      - name: Database filters end-to-end
+        run: pnpm tsx scripts/filters-e2e.ts
+
+      - name: Gallery, list and timeline views end-to-end
+        run: pnpm tsx scripts/views-e2e.ts
+
+      - name: Status, checklist and system properties end-to-end
+        run: pnpm tsx scripts/property-types-e2e.ts
+
+      - name: Formula and rollup end-to-end
+        run: pnpm tsx scripts/formula-e2e.ts
+
+      - name: Comments end-to-end
+        run: pnpm tsx scripts/comments-e2e.ts
+
+      - name: Page history end-to-end
+        run: pnpm tsx scripts/history-e2e.ts
+
+      - name: Trash end-to-end
+        run: pnpm tsx scripts/trash-e2e.ts
+
+      - name: Search filters end-to-end
+        run: pnpm tsx scripts/search-e2e.ts
+
+      - name: Mentions end-to-end
+        run: pnpm tsx scripts/mentions-e2e.ts
+
+      - name: Backlinks end-to-end
+        run: pnpm tsx scripts/backlinks-e2e.ts
+
+      # Webhooks go to a server the script starts on 127.0.0.1; emails are captured, never sent.
+      - name: Database automations end-to-end
+        run: pnpm tsx scripts/automation-e2e.ts
+
+      - name: Templates end-to-end
+        run: pnpm tsx scripts/templates-e2e.ts
+
+      - name: Uploads end-to-end
+        run: pnpm tsx scripts/uploads-e2e.ts
+
+      - name: Markdown round trip end-to-end
+        run: pnpm tsx scripts/roundtrip-e2e.ts
+
+      - name: Page permissions end-to-end
+        run: pnpm tsx scripts/access-e2e.ts
+
+      - name: Teamspaces end-to-end
+        run: pnpm tsx scripts/teamspaces-e2e.ts
+
+      - name: Property access end-to-end
+        run: pnpm tsx scripts/property-access-e2e.ts
+
+      # Restores into leafdesk_upg_peer, made above.
+      - name: Workspace backups end-to-end
+        run: pnpm tsx scripts/backup-e2e.ts
+
   desktop:
     name: Desktop app on ${{ matrix.name }}
     # On each platform the app ships for: the local database's test starts PostgreSQL for real.
