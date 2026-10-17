@@ -17,10 +17,10 @@
  * All rows go in one transaction, which stores the files first and removes them again when it fails.
  */
 import { randomBytes } from "node:crypto";
-import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, pagePublication, formPublication, storageDeletion, user, workspace, workspaceSite } from "@/db/schema";
-import { isAgentEmail } from "@/lib/agents";
+import { pagePublication, formPublication, storageDeletion, user, workspace, workspaceSite } from "@/db/schema";
+import { agentEmail } from "@/lib/agents";
 import { decodeValue, entryKind, fileEntryPath, idRewriter, MANIFEST_PATH, parseManifest, rewriteDeep, BACKUP_VERSION, type BackupManifest, type RestoreResult } from "@/lib/backup";
 import { rewriteDocument } from "@/lib/backup-ydoc";
 import { normalizeEmail } from "@/lib/emails";
@@ -231,10 +231,11 @@ function validate(manifest: BackupManifest, rows: Rows, files: Map<string, ZipEn
     if (kind?.kind === "file" && !fileIds.has(kind.id)) throw new BackupError("invalid", `${name} belongs to no file`);
   }
 
-  // Agents' users are the agents' own.
-  const agentUsers = new Set(rows.get("workspace_agent")!.map((a) => a.user_id as string));
+  // Agents' users are the agents' own, with their agent's address.
+  const agentOf = new Map(rows.get("workspace_agent")!.map((a) => [a.user_id as string, a.id as string]));
   for (const person of manifest.people) {
-    if (person.agent !== agentUsers.has(person.id) || (person.agent && !isAgentEmail(person.email))) {
+    const agentId = agentOf.get(person.id);
+    if (person.agent !== Boolean(agentId) || (agentId && normalizeEmail(person.email) !== agentEmail(agentId))) {
       throw new BackupError("invalid", "the backup's agents and their users don't match");
     }
   }
@@ -487,10 +488,10 @@ async function storeAndInsert(actorId: string, archive: string, manifest: Backup
       await tx.execute(sql`set constraints page_home_teamspace immediate`);
       const outside = rows.get("page")!.filter((p) => p.parent_id == null && p.teamspace_id == null).map((p) => p.id as string);
       for (let i = 0; i < outside.length; i += 1000) {
-        await tx
-          .update(page)
-          .set({ teamspaceId: null })
-          .where(and(inArray(page.id, outside.slice(i, i + 1000)), isNotNull(page.teamspaceId)));
+        // In SQL: the schema's update would also stamp updated_at.
+        await tx.execute(
+          sql`update page set teamspace_id = null where teamspace_id is not null and id in (${sql.join(outside.slice(i, i + 1000).map((id) => sql`${id}`), sql`, `)})`,
+        );
       }
       // Objects the old server meant to delete (a workspace restored after deleting it) stay.
       for (let i = 0; i < stored.length; i += 1000) {

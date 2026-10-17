@@ -292,6 +292,11 @@ async function main() {
       .where(eq(page.id, doc.id));
     await db.insert(pageSnapshot).values({ pageId: doc.id, title: "Plans", ydoc: state, contentMarkdown: "Ask", reason: "manual", createdBy: ids.bob } as never);
 
+    // A top-level page outside any teamspace with no entry for everyone (as one whose teamspace was
+    // deleted): restored where it was, not in the default teamspace.
+    const loose = await createPage(owner, { workspaceId: ws, title: "Loose", teamspaceId: null });
+    await createPage(owner, { workspaceId: ws, parentId: loose.id, title: "Loose child" });
+    await db.execute(sql`delete from page_permission where page_id = ${loose.id} and user_id is null`);
     const tasks = await createPage(owner, { workspaceId: ws, kind: "database", title: "Tasks" });
     const person = await databases.addProperty(ids.owner, tasks.id, { name: "Owner", type: "person" });
     const attachments = await databases.addProperty(ids.owner, tasks.id, { name: "Attachments", type: "files" });
@@ -318,6 +323,8 @@ async function main() {
     const archive = join(work, "backup.zip");
     await pipeline(Readable.fromWeb(backupArchive(snapshot) as import("node:stream/web").ReadableStream), createWriteStream(archive));
     const original = await dumpWorkspace(ws);
+    const looseRow = original.page.find((p) => p.id === loose.id)!;
+    check(looseRow.teamspace_id === null && looseRow.parent_id === null, "a top-level page is outside any teamspace");
     const filled = Object.entries(original).filter(([, rows]) => rows.length).map(([name]) => name);
     check(filled.length >= 15, `the workspace fills ${filled.length} tables`, filled);
     check(snapshot.manifest.people.length === 4, "the manifest names the three people and the agent", snapshot.manifest.people);
@@ -413,6 +420,13 @@ async function main() {
     await edited("someone the manifest doesn't name", (f) => {
       moveAll(f);
       editRows(f, "workspace_member", (row) => (row.user_id = "someone-who-isnt-in-the-manifest"));
+    });
+    await edited("an agent's user with another agent's address", (f) => {
+      moveAll(f);
+      const manifest = JSON.parse(Buffer.from(f.get("manifest.json")!).toString("utf8"));
+      const agentPerson = manifest.people.find((p: { agent: boolean }) => p.agent);
+      agentPerson.email = "agent-someone-else@agents.leafdesk.invalid";
+      f.set("manifest.json", Buffer.from(JSON.stringify(manifest)));
     });
     await edited("a file without its bytes", (f) => {
       moveAll(f);
