@@ -126,6 +126,8 @@ async function markReviewed(pending: Pending) {
     .where(inArray(pageSnapshot.id, pending.chain.map((w) => w.id)));
 }
 
+// The main fragment alone: AI writes never change synced blocks' blocks (their Markdown is kept as
+// it is), and undoing a change writes the main fragment back.
 const liveBlocks = async (pageId: string) => (await getCollab().readBlocks(pageId)).blocks as ReviewBlock[];
 
 /** The AI changes waiting for review on a page, for people who may edit it; null for anyone else. */

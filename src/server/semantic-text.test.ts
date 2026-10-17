@@ -132,8 +132,8 @@ describe("chunks", () => {
     expect(passageOf(chunk.text, "T")).toBe("line 1\nline 2");
   });
 
-  it("is the second chunker, so pages indexed with the first are indexed again", () => {
-    expect(CHUNKER_VERSION).toBe(2);
+  it("is the third chunker (the page's own synced blocks go in), so pages indexed before are indexed again", () => {
+    expect(CHUNKER_VERSION).toBe(3);
   });
 
   it("fingerprints chunks with the model, so another model indexes again", () => {

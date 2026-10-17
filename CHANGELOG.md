@@ -49,6 +49,8 @@
   the same rules; a published page shows them only when the original page is published too.
   Markdown written over MCP or the API keeps synced blocks as they are and doesn't change their
   text. Duplicating a page, or a page from a template, gives the copy its own synced blocks.
+  Search finds a synced block's text on its original page (not on the pages showing it), and a
+  version's changes include its synced blocks', as restoring the version brings them back too.
 
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.

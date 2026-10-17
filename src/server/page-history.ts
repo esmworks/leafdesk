@@ -2,7 +2,6 @@ import { asc, eq, inArray, sql } from "drizzle-orm";
 import * as Y from "yjs";
 import { db } from "@/db";
 import { oauthClient, page, pageSnapshot, user, workspaceAgent } from "@/db/schema";
-import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import {
   changeActors,
   diffBlocks,
@@ -15,8 +14,8 @@ import {
   type WordSegment,
 } from "@/lib/page-diff";
 import { AccessError, requirePageAccess } from "@/server/access";
-import { serverEditor as editor } from "@/server/blocknote";
 import { getCollab } from "@/server/collab/bridge";
+import { bodyBlocks } from "@/server/synced-body";
 
 /** What a saved version is compared with: the page as it is now, or the version saved before it. */
 export type DiffAgainst = "current" | "previous";
@@ -34,11 +33,16 @@ export type VersionDiff = {
   actors: ChangeActor[];
 };
 
-export function snapshotBlocks(state: Uint8Array) {
+/**
+ * A saved version's body as blocks. With `pageId`, each synced block the page is the source of
+ * holds its blocks as children (server/synced-body.ts): restoring a version brings them back too,
+ * so the history shows their changes. Without, the main fragment alone, as writes take it.
+ */
+export function snapshotBlocks(state: Uint8Array, pageId?: string) {
   const doc = new Y.Doc();
   try {
     Y.applyUpdate(doc, state);
-    return editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)) as BlockInput[];
+    return bodyBlocks(doc, pageId) as BlockInput[];
   } finally {
     doc.destroy();
   }
@@ -88,9 +92,9 @@ export async function diffSnapshot(userId: string, snapshotId: string, against: 
   const involved: VersionActor[] = versions.slice(from, against === "previous" ? at + 1 : undefined);
   if (against === "previous") {
     const version = stored.find((s) => s.id === snapshotId)!;
-    newer = { title: version.title, blocks: snapshotBlocks(version.ydoc) };
+    newer = { title: version.title, blocks: snapshotBlocks(version.ydoc, snap.pageId) };
   } else {
-    const current = await getCollab().readBlocks(snap.pageId);
+    const current = await getCollab().readBlocks(snap.pageId, { synced: true });
     newer = { title: current.title, blocks: current.blocks as BlockInput[] };
     const [row] = await db
       .select({ userName: user.name, isAgent: sql<boolean>`${workspaceAgent.id} is not null` })
@@ -107,7 +111,7 @@ export async function diffSnapshot(userId: string, snapshotId: string, against: 
     fromId,
     toId: against === "previous" ? snapshotId : null,
     title: older.title === newer.title ? null : diffWords(older.title, newer.title),
-    changes: diffBlocks(flattenBlocks(snapshotBlocks(older.ydoc)), flattenBlocks(newer.blocks)),
+    changes: diffBlocks(flattenBlocks(snapshotBlocks(older.ydoc, snap.pageId)), flattenBlocks(newer.blocks)),
     actors: changeActors(involved),
   };
 }

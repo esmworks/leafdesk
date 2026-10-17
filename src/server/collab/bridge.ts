@@ -54,8 +54,12 @@ export type CommentActor = { userId: string; role: "comment" | "editor" };
 export interface CollabService {
   /** Current content, read from the live document when it is open. */
   readPage(pageId: string): Promise<PageContent>;
-  /** Current title and body as BlockNote blocks (plain JSON), from the live document when it is open. */
-  readBlocks(pageId: string): Promise<{ title: string; blocks: unknown[] }>;
+  /**
+   * Current title and body as BlockNote blocks (plain JSON), from the live document when it is open.
+   * With `synced`, each synced block the page is the source of holds its blocks as children, as
+   * the page's Markdown has them (server/synced-body.ts); for reading only, never to write back.
+   */
+  readBlocks(pageId: string, options?: { synced?: boolean }): Promise<{ title: string; blocks: unknown[] }>;
   /**
    * The blocks of the page's synced blocks `syncIds` (lib/synced-blocks), from the live document
    * when it is open, by sync id; one the page body no longer holds the source of is left out.

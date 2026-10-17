@@ -299,7 +299,8 @@ versions, upgrades and running behind a domain.
   original lists the pages showing it, *Unsync* turns a reference into a plain copy, and a synced
   block can't go inside another. Published pages, Markdown and PDF exports and `get_page` over MCP
   show the blocks with the same rules (a published page only when the original is published too);
-  Markdown written over MCP or the API leaves them as they are.
+  Markdown written over MCP or the API leaves them as they are. Search, by words or by meaning,
+  finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as

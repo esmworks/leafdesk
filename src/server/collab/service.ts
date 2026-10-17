@@ -25,7 +25,7 @@ import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title
 import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
 import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
-import { mapSyncedBlocks, syncedElementsIn, syncedFragmentName, withoutSyncedBlocks } from "@/lib/synced-blocks";
+import { syncedElementsIn, syncedFragmentName } from "@/lib/synced-blocks";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { COLLAB_FORBIDDEN, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP, COLLAB_UNAUTHORIZED } from "@/lib/offline";
@@ -35,6 +35,7 @@ import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/server/blocknote";
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
+import { bodyBlocks, syncedBlocksOf } from "@/server/synced-body";
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
@@ -109,25 +110,6 @@ function withoutTrailingEmpty<B extends { type: string; children: unknown[] }>(b
   return blocks.filter(
     (b, i) => !(i === blocks.length - 1 && b.type === "paragraph" && !blocksToPlainText([b as never]) && !b.children.length),
   );
-}
-
-/** The blocks of synced block `syncId` kept in `doc` (its source page's), without synced blocks inside. */
-const syncedBlocksOf = (doc: Y.Doc, syncId: string) =>
-  withoutSyncedBlocks(editor.yXmlFragmentToBlocks(doc.getXmlFragment(syncedFragmentName(syncId))));
-
-/**
- * The body of page `pageId` as blocks, each synced block it is the source of holding its blocks
- * as children (lib/synced-blocks): they are part of this page's Markdown, text, links and mentions.
- * References hold none (their blocks are another page's). Blocks nested under a synced block in the
- * editor follow it instead, so its Markdown markers enclose only its own blocks.
- */
-function bodyBlocks(doc: Y.Doc, pageId: string | undefined) {
-  const blocks = editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT));
-  if (!pageId) return blocks;
-  return mapSyncedBlocks(blocks, (block, ref) => [
-    { ...block, children: ref.pageId === pageId ? syncedBlocksOf(doc, ref.syncId) : [] },
-    ...block.children,
-  ]);
 }
 
 /**
@@ -663,11 +645,12 @@ export function createCollab() {
       return row ?? { title: "", markdown: "", text: "" };
     },
 
-    async readBlocks(pageId) {
+    async readBlocks(pageId, { synced = false } = {}) {
+      const blocksOf = (doc: Y.Doc) => bodyBlocks(doc, synced ? pageId : undefined);
       const live = hocuspocus.documents.get(pageDocName(pageId));
       if (live) {
         const [row] = await db.select({ title: page.title }).from(page).where(eq(page.id, pageId)).limit(1);
-        return { title: readTitle(live) ?? row?.title ?? "", blocks: editor.yXmlFragmentToBlocks(live.getXmlFragment(COLLAB_FRAGMENT)) };
+        return { title: readTitle(live) ?? row?.title ?? "", blocks: blocksOf(live) };
       }
       const [row] = await db
         .select({ title: page.title, ydoc: page.ydoc, markdown: page.contentMarkdown })
@@ -679,7 +662,7 @@ export function createCollab() {
       const doc = new Y.Doc();
       try {
         Y.applyUpdate(doc, row.ydoc);
-        return { title: readTitle(doc) ?? row.title, blocks: editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)) };
+        return { title: readTitle(doc) ?? row.title, blocks: blocksOf(doc) };
       } finally {
         doc.destroy();
       }
