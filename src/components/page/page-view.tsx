@@ -22,7 +22,6 @@ import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import type { PageHeaderInfo } from "@/server/page-meta";
 import { AiReviewBar } from "./ai-review";
 import { DocumentViewContext } from "./document-title";
-import { HistoryPanel } from "./history-panel";
 import { IconPicker } from "./icon-picker";
 import { BackgroundPicker } from "./page-background";
 import { backdropClass } from "./page-backdrop";
@@ -43,6 +42,8 @@ import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } f
 const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
 // Loaded when it opens: the graph brings its renderer.
 const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel), { ssr: false });
+// Loaded when it opens: its preview brings the editor and the editor's dictionaries.
+const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.HistoryPanel), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
