@@ -418,3 +418,23 @@ export const MAX_SCHEDULE_TASK = MAX_AGENT_PROMPT;
 
 /** Whether a run answers an event a connection received. */
 export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "connection" }> => source.kind === "connection";
+
+/** The page whose access decides who sees a run's work: its row, or its schedule's database. */
+export const runPageOf = (source: AgentRunSource): string | null =>
+  isRowRun(source) ? source.rowId : isScheduleRun(source) ? (source.databaseId ?? null) : null;
+
+/**
+ * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so
+ * may answer that call (`opensPage`: whether they can open runPageOf). What a run did can quote
+ * pages the agent may open and the owner may not. A row's run puts it all on the row anyway, so
+ * it is for those who can open the row; a schedule's run on a database, for those who can open
+ * the database. A run an owner asked for, or one of a schedule without a database, read with that
+ * owner's access: it is theirs alone. A connection's event is the owners' (they set up the
+ * connection), as is the run it started.
+ */
+export function ownerSeesRun(source: AgentRunSource, userId: string, opensPage: boolean): boolean {
+  if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || opensPage);
+  if (isRowRun(source)) return opensPage;
+  if (isScheduleRun(source)) return source.databaseId ? opensPage : source.scheduledBy === userId;
+  return true;
+}

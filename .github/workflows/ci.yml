@@ -287,6 +287,9 @@ jobs:
       - name: Agents over the REST API end-to-end
         run: pnpm tsx scripts/agent-api-e2e.ts
 
+      - name: Who answers an agent's call end-to-end
+        run: pnpm tsx scripts/agent-approvers-e2e.ts
+
       - name: Apps that reach a workspace end-to-end
         run: pnpm tsx scripts/workspace-apps-e2e.ts
 

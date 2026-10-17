@@ -1879,11 +1879,11 @@ automations can't set each other off.
 
 **Managing agents.** In Settings → *Agents*, owners of the workspace create, change, pause,
 archive and restore agents, choose what is shared with them and look through their runs; members
-see the list without the agents' instructions. A run's steps, answer and error show only to owners
-who can open its row (for a schedule on a database, the database). A run an owner asked for, or
-one a schedule without a database started, read with that owner's access: only they see what it
-did, its task and the notes it proposed; the others see that it ran and how it ended, and may
-still answer a call it waits on. Where an agent acted, it shows as an agent: its icon in *Created by* and
+see the list without the agents' instructions. A run's steps, answer and error, and a call it waits
+on, show only to owners who can open its row (for a schedule on a database, the database), and
+only they answer that call. A run an owner asked for, or one a schedule without a database
+started, read with that owner's access: only they see what it did, its task and the notes it
+proposed, and only they answer its calls; the others see that it ran and how it ended. Where an agent acted, it shows as an agent: its icon in *Created by* and
 *Last edited by*, "(agent)" after its name on comments and in page history. A comment an agent
 writes about the whole row rather than about some of its text says *About this page* in the
 comments panel, at the top of the list. A
@@ -1992,9 +1992,10 @@ tab, an owner ticks the tools that agent may use; an agent has no tool of a conn
   the run reads, so there every tool waits as a *write* tool does: on a row an anonymous form
   answer added (or a visitor outside the workspace), and on a run an event started, unless an
   owner marked its trigger *Trust what this service sends* (below).
-- A *write* tool doesn't: the run waits, and every owner of the workspace gets an item in their
-  inbox (and the run shows it in Settings → *Agents* → *Runs*) with the agent, the tool and its
-  input. The run shows the input exactly as it will be sent; the inbox shows it with credentials
+- A *write* tool doesn't: the run waits, and the owners who may see the run (*Managing agents*
+  above: every owner for a run an event started) get an item in their inbox (and the run shows it
+  in Settings → *Agents* → *Runs*) with the agent, the tool and its input; only they answer it. A
+  run on a row no owner can open asks no one, and runs out of time. The run shows the input exactly as it will be sent; the inbox shows it with credentials
   masked and cut to 4000 characters, so it offers *Approve* only when that is all of what would be
   sent, and otherwise a button to open the run and approve there. An owner **approves** (the call is sent as the agent made it),
   **declines** (the agent hears no and goes on), or **sends it back with a note** (the agent gets
