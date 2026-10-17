@@ -403,11 +403,23 @@ jobs:
         run: cat "$RUNNER_TEMP/server.log" || true
 
   desktop:
-    name: Desktop app
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    name: Desktop app on ${{ matrix.name }}
+    # On each platform the app ships for: the local database's test starts PostgreSQL for real.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            runner: macos-15
+          - name: Windows
+            runner: windows-2025
+          - name: Linux
+            runner: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
     defaults:
       run:
+        shell: bash
         working-directory: desktop
     env:
       # Typecheck and unit tests only; Electron itself isn't needed.

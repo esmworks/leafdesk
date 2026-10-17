@@ -12,6 +12,8 @@ files:
   - pages/**
   - build/icon.png
   - package.json
+  # PostgreSQL for local mode (src/local-db.ts) stays out until the app uses it.
+  - "!node_modules/@embedded-postgres/**"
 artifactName: Leafdesk-${version}-${arch}.${ext}
 
 mac:
