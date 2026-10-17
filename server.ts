@@ -34,7 +34,7 @@ const { getStorage } = await import("./src/server/storage");
 
 // Fails fast on a half-configured S3 setup instead of at the first upload.
 console.log(`file storage: ${getStorage().kind}`);
-const { startReminders } = await import("./src/server/mentions");
+const { startLinkPlacesBackfill, startReminders } = await import("./src/server/mentions");
 const { startSnoozes } = await import("./src/server/notifications");
 const { startDateReminders } = await import("./src/server/date-reminders");
 const { startAiProperties } = await import("./src/server/ai-properties");
@@ -120,6 +120,8 @@ server.listen(port, hostname, () => {
   startShareEmails();
   startFileCleanup();
   startReminders();
+  // Links indexed before "Linked from" kept each linking block get theirs, then this stops.
+  startLinkPlacesBackfill();
   // Reminds rows' people ahead of the dates of date properties that have a reminder.
   startDateReminders();
   // Brings snoozed notifications back to the inbox when their time comes.

@@ -223,6 +223,8 @@ vi.mock("@/server/page-meta", () => pageMeta);
 const mentions = vi.hoisted(() => ({
   labelPageLinks: vi.fn(async (_userId: string, markdown: string) => markdown),
   listBacklinks: vi.fn(async () => []),
+  countBacklinks: vi.fn(async () => 0),
+  MAX_BACKLINKS: 100,
 }));
 vi.mock("@/server/mentions", () => mentions);
 

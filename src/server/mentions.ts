@@ -1,7 +1,7 @@
-import { and, asc, desc, eq, inArray, isNull, lte, ne, notInArray, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull, lte, ne, notInArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
-import { findTitle, excerpt, linkContexts, linkTitle, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
+import { findTitle, excerpt, linkContexts, linkPlaces, linkTitle, MIN_MENTION_TITLE, type Excerpt, type LinkPlace } from "@/lib/link-context";
 import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { searchQueryParts } from "@/lib/search-words";
@@ -42,7 +42,7 @@ export async function syncPageReferences(
 ) {
   try {
     const refs = bodyReferences(blocks);
-    await syncLinks(pageId, refs.pageIds, linkContexts(blocks));
+    await syncLinks(pageId, refs.pageIds, blocks);
     await syncMentions(pageId, workspaceId, refs.people, actorId, locale);
     await syncReminders(pageId, refs.reminders, actorId);
   } catch (error) {
@@ -50,22 +50,30 @@ export async function syncPageReferences(
   }
 }
 
-async function syncLinks(pageId: string, targetIds: string[], contexts: Map<string, string>) {
+async function syncLinks(pageId: string, targetIds: string[], blocks: unknown[]) {
+  const contexts = linkContexts(blocks);
+  const places = linkPlaces(blocks);
   const wanted = targetIds.filter((id) => id !== pageId);
   const existing = new Map(
-    (await db.select({ id: pageLink.targetId, context: pageLink.context }).from(pageLink).where(eq(pageLink.sourceId, pageId))).map(
-      (r) => [r.id, r.context],
-    ),
+    (
+      await db
+        .select({ id: pageLink.targetId, context: pageLink.context, places: pageLink.places })
+        .from(pageLink)
+        .where(eq(pageLink.sourceId, pageId))
+    ).map((r) => [r.id, r]),
   );
   const added = wanted.filter((id) => !existing.has(id));
   const kept = new Set(wanted);
   const removed = [...existing.keys()].filter((id) => !kept.has(id));
   if (removed.length) await db.delete(pageLink).where(and(eq(pageLink.sourceId, pageId), inArray(pageLink.targetId, removed)));
-  // The text around a kept link changed with the edit.
+  // The blocks linking, and the text around them, changed with the edit.
   for (const id of wanted) {
+    const row = existing.get(id);
+    if (!row) continue;
     const context = contexts.get(id) ?? null;
-    if (existing.has(id) && existing.get(id) !== context) {
-      await db.update(pageLink).set({ context }).where(and(eq(pageLink.sourceId, pageId), eq(pageLink.targetId, id)));
+    const at = places.get(id) ?? [];
+    if (row.context !== context || JSON.stringify(row.places) !== JSON.stringify(at)) {
+      await db.update(pageLink).set({ context, places: at }).where(and(eq(pageLink.sourceId, pageId), eq(pageLink.targetId, id)));
     }
   }
   if (!added.length) return;
@@ -74,9 +82,48 @@ async function syncLinks(pageId: string, targetIds: string[], contexts: Map<stri
   if (found.length) {
     await db
       .insert(pageLink)
-      .values(found.map((p) => ({ sourceId: pageId, targetId: p.id, context: contexts.get(p.id) ?? null })))
+      .values(found.map((p) => ({ sourceId: pageId, targetId: p.id, context: contexts.get(p.id) ?? null, places: places.get(p.id) ?? [] })))
       .onConflictDoNothing();
   }
+}
+
+/** Source pages looked at in each run of the link places backfill. */
+const BACKFILL_BATCH = 50;
+/** How often the backfill runs while links without places are left. */
+const BACKFILL_SWEEP_MS = 15_000;
+
+/**
+ * Indexes again the pages with links indexed before their blocks were kept (`places` null), a batch
+ * at a time. Pages that can't be read are given empty places, so each is tried once. Returns how
+ * many pages it looked at.
+ */
+export async function backfillLinkPlaces(batch = BACKFILL_BATCH): Promise<number> {
+  const sources = await db.selectDistinct({ id: pageLink.sourceId }).from(pageLink).where(isNull(pageLink.places)).limit(batch);
+  for (const { id } of sources) {
+    try {
+      const { blocks } = await getCollab().readBlocks(id);
+      await syncLinks(id, bodyReferences(blocks as Blocks).pageIds, blocks);
+    } catch (error) {
+      console.error(`could not index the link places of page ${id}`, error);
+    }
+    await db
+      .update(pageLink)
+      .set({ places: [] })
+      .where(and(eq(pageLink.sourceId, id), isNull(pageLink.places)));
+  }
+  return sources.length;
+}
+
+/** Server only: fills in the places of links indexed before they were kept, then stops. */
+export function startLinkPlacesBackfill() {
+  const stop = startSweep(
+    BACKFILL_SWEEP_MS,
+    async () => {
+      if ((await backfillLinkPlaces()) === 0) stop();
+    },
+    "could not backfill link places",
+  );
+  return stop;
 }
 
 async function syncMentions(
@@ -277,18 +324,55 @@ export type Backlink = {
   kind: PageKind;
   /** The text around the link, the link as LINK_PLACEHOLDER (lib/link-context); null when there is none. */
   context: string | null;
+  /** The blocks linking, each with the text around its link; null for a link indexed before they were kept. */
+  places: LinkPlace[] | null;
 };
 
-/** Pages whose body mentions or links to `pageId`, as far as the user can see them. */
-export async function listBacklinks(userId: string, pageId: string): Promise<Backlink[]> {
+/** Pages whose body mentions or links to `pageId` that `userId` can see. */
+const backlinkSources = (userId: string, pageId: string) =>
+  and(eq(pageLink.targetId, pageId), isNull(page.archivedAt), eq(page.inTemplate, false), pageVisibleTo(userId));
+
+/** Linking pages listed at a time, at most. */
+export const MAX_BACKLINKS = 100;
+
+/**
+ * Pages whose body mentions or links to `pageId`, as far as the user can see them, by title:
+ * `limit` of them (MAX_BACKLINKS at most) from `offset` on.
+ */
+export async function listBacklinks(
+  userId: string,
+  pageId: string,
+  { offset = 0, limit = MAX_BACKLINKS }: { offset?: number; limit?: number } = {},
+): Promise<Backlink[]> {
   await requirePageAccess(userId, pageId, "view");
+  const take = Math.min(Math.max(1, Math.floor(limit) || 1), MAX_BACKLINKS);
   return db
-    .select({ id: page.id, workspaceId: page.workspaceId, title: page.title, icon: page.icon, kind: page.kind, context: pageLink.context })
+    .select({
+      id: page.id,
+      workspaceId: page.workspaceId,
+      title: page.title,
+      icon: page.icon,
+      kind: page.kind,
+      context: pageLink.context,
+      places: pageLink.places,
+    })
     .from(pageLink)
     .innerJoin(page, eq(page.id, pageLink.sourceId))
-    .where(and(eq(pageLink.targetId, pageId), isNull(page.archivedAt), eq(page.inTemplate, false), pageVisibleTo(userId)))
+    .where(backlinkSources(userId, pageId))
     .orderBy(asc(page.title), asc(page.id))
-    .limit(100);
+    .offset(Math.max(0, Math.floor(offset) || 0))
+    .limit(take);
+}
+
+/** How many pages the user can see link to `pageId`. */
+export async function countBacklinks(userId: string, pageId: string): Promise<number> {
+  await requirePageAccess(userId, pageId, "view");
+  const [row] = await db
+    .select({ n: count() })
+    .from(pageLink)
+    .innerJoin(page, eq(page.id, pageLink.sourceId))
+    .where(backlinkSources(userId, pageId));
+  return row?.n ?? 0;
 }
 
 /** A page that writes this page's title without linking to it: where, and whether the reader may link it. */
@@ -423,7 +507,7 @@ export async function linkUnlinkedMention(userId: string, sourceId: string, targ
   // While the source is open somewhere its save waits a moment; the list shows the link now. Only
   // the links: people mentioned and reminders set in an open editor belong to whoever saves them.
   try {
-    await syncLinks(sourceId, bodyReferences(blocks as Blocks).pageIds, linkContexts(blocks));
+    await syncLinks(sourceId, bodyReferences(blocks as Blocks).pageIds, blocks);
   } catch (error) {
     console.error(`could not update the links of page ${sourceId}`, error);
   }
@@ -576,8 +660,8 @@ export async function copyReferences(tx: Pick<typeof db, "execute">, pairs: { id
     on conflict do nothing
   `);
   await tx.execute(sql`
-    insert into ${pageLink} (source_id, target_id, context)
-    select m.id, pl.target_id, pl.context
+    insert into ${pageLink} (source_id, target_id, context, places)
+    select m.id, pl.target_id, pl.context, pl.places
     from jsonb_to_recordset(${map}::jsonb) as m(id text, source_id text)
     join ${pageLink} pl on pl.source_id = m.source_id
     on conflict do nothing

@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "링크한 페이지",
+    "titleCount": "링크한 페이지 · {count}",
     "count": "이 페이지를 링크한 페이지 {count}개",
     "unlinked": "링크되지 않은 멘션 · {count}",
     "unlinkedHint": "링크 없이 이 페이지의 제목을 쓴 페이지",
     "link": "링크",
     "linkLabel": "{title}의 멘션을 링크로 변경",
     "linkFailed": "해당 위치에 제목이 더 이상 일반 텍스트로 작성되어 있지 않습니다.",
-    "locked": "해당 페이지가 잠겨 있어 변경할 수 없습니다."
+    "locked": "해당 페이지가 잠겨 있어 변경할 수 없습니다.",
+    "morePlaces": "{count}곳 더",
+    "fewerPlaces": "간단히 보기",
+    "morePages": "페이지 {count}개 더 보기"
+  },
+  "blockMenu": {
+    "copyLink": "블록 링크 복사"
   },
   "pdf": {
     "untitled": "PDF",

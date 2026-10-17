@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "Liée depuis",
+    "titleCount": "Liée depuis · {count}",
     "count": "{count, plural, one {# page renvoie ici} other {# pages renvoient ici}}",
     "unlinked": "Mentions non liées · {count}",
     "unlinkedHint": "Pages qui écrivent le titre de cette page sans y renvoyer",
     "link": "Lier",
     "linkLabel": "Lier la mention dans {title}",
     "linkFailed": "Le titre n'y figure plus en texte simple.",
-    "locked": "Cette page est verrouillée et ne peut pas changer."
+    "locked": "Cette page est verrouillée et ne peut pas changer.",
+    "morePlaces": "{count, plural, one {# autre endroit} other {# autres endroits}}",
+    "fewerPlaces": "Afficher moins",
+    "morePages": "{count, plural, one {Afficher # autre page} other {Afficher # autres pages}}"
+  },
+  "blockMenu": {
+    "copyLink": "Copier le lien vers le bloc"
   },
   "pdf": {
     "untitled": "PDF",

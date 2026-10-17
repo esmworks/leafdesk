@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Upgrading
+
+- **Migration 0078** runs automatically when the container starts (from source, run
+  `pnpm db:migrate`). It adds a column to `page_link`; after the upgrade the server reads each page
+  that links somewhere once, in the background, to fill in where its links are.
+
 ### Added
 
 - **Board columns can show a calculation.** Next to its name, each column of a board shows how
@@ -12,6 +18,19 @@
   keeps its own choice; published boards don't show it.
   Over MCP, `create_database_view` and `update_database_view` set it on boards with `aggregate`
   and `aggregate_property`, as on charts, and describe it with the view.
+- **"Linked from" shows every place a page links here.** Each linking page lists the text around
+  each of its links (three, then "N more"), and a click opens that page at the block with the link,
+  highlighted for a moment; the page's name opens it at its first link. The heading shows how many
+  pages link here, and past the first 100 a button lists the next ones. Over MCP, `get_page` gives
+  the text around each link (`contexts`) when a page links more than once, and
+  `linked_from_truncated` when not every linking page is listed.
+- **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
+  block and highlights it.
+
+### Fixed
+
+- **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
+  you can see.
 
 ## 0.5.4 — 2026-10-17
 

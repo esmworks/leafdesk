@@ -1,7 +1,8 @@
 /**
  * End-to-end check of the "Linked from" list against the database: the text kept around each link
  * (other pages' titles left out, kept up to date, none for a "Link to page" block, carried to
- * copies, in MCP's get_page), unlinked mentions (whole words, the Turkish dotted and dotless i,
+ * copies, in MCP's get_page), every block linking with its id (counted and listed in batches, filled
+ * in for links indexed before by the backfill), unlinked mentions (whole words, the Turkish dotted and dotless i,
  * leaving out the page itself, linking pages, the trash, templates, other workspaces and pages the
  * reader can't see) and linking one (first plain occurrence, not in code, edit access, locked
  * pages, a source open in an editor). Creates its own users and workspaces and deletes them
@@ -18,9 +19,9 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { page, pageLink, user, workspace, workspaceMember } = await import("@/db/schema");
 const { LINK_PLACEHOLDER: P } = await import("@/lib/link-context");
 const { eachMention } = await import("@/lib/mentions");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
@@ -28,7 +29,7 @@ const { createCollab } = await import("@/server/collab/service");
 const { archivePage, createPage, setPageLocked } = await import("@/server/pages");
 const { duplicatePage } = await import("@/server/duplicate");
 const { setPagePermission } = await import("@/server/permissions");
-const { linkUnlinkedMention, listBacklinks, listUnlinkedMentions } = await import("@/server/mentions");
+const { backfillLinkPlaces, countBacklinks, linkUnlinkedMention, listBacklinks, listUnlinkedMentions } = await import("@/server/mentions");
 const { getPage } = await import("@/server/operations");
 const { AccessError } = await import("@/server/access");
 
@@ -134,6 +135,55 @@ try {
     "MCP's get_page shows the context with the page's title",
     mcp.linked_from,
   );
+
+  // ── Every block linking ──────────────────────────────────────────────────────────────────
+  const many = await make("Retro");
+  await write(many.id, `First ${link(target.id)} here.\n\nUnrelated.\n\n- Then ${link(target.id)} again\n\n${link(target.id)} <!-- leafdesk:page-link -->`);
+  const blockIds = ((await getCollab().readBlocks(many.id)).blocks as { id: string }[]).map((b) => b.id);
+  const manyLink = await backlink(target.id, many.id);
+  check(
+    JSON.stringify(manyLink?.places) ===
+      JSON.stringify([
+        { block: blockIds[0], context: `First ${P} here.` },
+        { block: blockIds[2], context: `Then ${P} again` },
+        { block: blockIds[3], context: null },
+      ]),
+    "a backlink lists every block linking, with its id and the text around the link",
+    { places: manyLink?.places, blockIds },
+  );
+  check(manyLink?.context === `First ${P} here.`, "…and keeps the first link's text as its context");
+  check((await backlink(target.id, linkBlock.id))?.places?.[0]?.context === null, "a Link to page block is a place without text");
+  check((await backlink(target.id, copy.id))?.places?.length === 1, "a copy keeps the places of its links");
+
+  const mcpMany = (await getPage({ userId: ids.owner, actor: owner }, { page_id: target.id, offset: 0 })) as {
+    linked_from?: { id: string; contexts?: string[] }[];
+  };
+  check(
+    JSON.stringify(mcpMany.linked_from?.find((l) => l.id === many.id)?.contexts) ===
+      JSON.stringify(["First Launch plan here.", "Then Launch plan again"]),
+    "MCP's get_page lists the text around each link of a page linking more than once",
+    mcpMany.linked_from,
+  );
+
+  const total = await countBacklinks(ids.owner, target.id);
+  const firstBatch = await listBacklinks(ids.owner, target.id, { limit: 2 });
+  const rest = await listBacklinks(ids.owner, target.id, { offset: 2 });
+  check(
+    total === firstBatch.length + rest.length && firstBatch.length === 2 && !rest.some((r) => firstBatch.some((f) => f.id === r.id)),
+    "backlinks are counted and listed in batches",
+    { total, first: firstBatch.map((b) => b.title), rest: rest.map((b) => b.title) },
+  );
+  check((await countBacklinks(ids.member, secret.id).catch(() => "refused")) === "refused", "counting a page's backlinks needs access to it");
+
+  await db.update(pageLink).set({ places: null }).where(eq(pageLink.sourceId, many.id));
+  check((await backlink(target.id, many.id))?.places === null, "a link indexed before blocks were kept has no places");
+  while ((await backfillLinkPlaces()) > 0);
+  check((await backlink(target.id, many.id))?.places?.length === 3, "the backfill fills them in from the page's body");
+  const [leftover] = await db
+    .select({ places: pageLink.places })
+    .from(pageLink)
+    .where(and(eq(pageLink.sourceId, many.id), eq(pageLink.targetId, target.id)));
+  check(Array.isArray(leftover?.places), "…and leaves none of that page's links without places");
 
   // ── Unlinked mentions ────────────────────────────────────────────────────────────────────
   const plain = await make("Standup");

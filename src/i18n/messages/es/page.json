@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "Enlazada desde",
+    "titleCount": "Enlazada desde · {count}",
     "count": "{count, plural, one {# página enlaza aquí} other {# páginas enlazan aquí}}",
     "unlinked": "Menciones sin enlazar · {count}",
     "unlinkedHint": "Páginas que escriben el título de esta página sin enlazarla",
     "link": "Enlazar",
     "linkLabel": "Enlazar la mención en {title}",
     "linkFailed": "El título ya no aparece ahí como texto sin formato.",
-    "locked": "Esa página está bloqueada y no se puede cambiar."
+    "locked": "Esa página está bloqueada y no se puede cambiar.",
+    "morePlaces": "{count, plural, one {# lugar más} other {# lugares más}}",
+    "fewerPlaces": "Mostrar menos",
+    "morePages": "{count, plural, one {Mostrar # página más} other {Mostrar # páginas más}}"
+  },
+  "blockMenu": {
+    "copyLink": "Copiar enlace al bloque"
   },
   "pdf": {
     "untitled": "PDF",

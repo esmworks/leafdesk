@@ -30,7 +30,7 @@ import { resolveEmbeds } from "@/server/embeds";
 import * as forms from "@/server/forms";
 import * as groups from "@/server/groups";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
-import { labelPageLinks, listBacklinks } from "@/server/mentions";
+import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
 import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
@@ -621,13 +621,22 @@ export async function getPage(
     if (children.length > 100) out.child_pages_truncated = children.length;
     const backlinks = await listBacklinks(userId, page.id);
     if (backlinks.length) {
-      out.linked_from = backlinks.map((b) => ({
-        id: b.id,
-        title: pageLabel(b.title),
-        url: pageUrl(b.workspaceId, b.id),
-        // The text around the link, the link read as this page's title.
-        ...(b.context ? { context: b.context.replaceAll(LINK_PLACEHOLDER, pageLabel(page.title)) } : {}),
-      }));
+      const own = (text: string) => text.replaceAll(LINK_PLACEHOLDER, pageLabel(page.title));
+      out.linked_from = backlinks.map((b) => {
+        // The text around each link, the link read as this page's title.
+        const contexts = (b.places ?? []).flatMap((p) => (p.context ? [own(p.context)] : []));
+        return {
+          id: b.id,
+          title: pageLabel(b.title),
+          url: pageUrl(b.workspaceId, b.id),
+          ...(b.context ? { context: own(b.context) } : {}),
+          ...(contexts.length > 1 ? { contexts } : {}),
+        };
+      });
+      if (backlinks.length === MAX_BACKLINKS) {
+        const total = await countBacklinks(userId, page.id);
+        if (total > backlinks.length) out.linked_from_truncated = total;
+      }
     }
   }
   return out;

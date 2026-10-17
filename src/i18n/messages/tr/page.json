@@ -475,13 +475,20 @@
   },
   "backlinks": {
     "title": "Bu sayfaya bağlananlar",
+    "titleCount": "Bu sayfaya bağlananlar · {count}",
     "count": "{count, plural, one {# sayfa buraya bağlanıyor} other {# sayfa buraya bağlanıyor}}",
     "unlinked": "Bağlanmamış bahsetmeler · {count}",
     "unlinkedHint": "Bu sayfanın başlığını bağlantı vermeden yazan sayfalar",
     "link": "Bağla",
     "linkLabel": "{title} içindeki bahsetmeyi bağla",
     "linkFailed": "Başlık orada artık düz metin olarak geçmiyor.",
-    "locked": "O sayfa kilitli, değiştirilemez."
+    "locked": "O sayfa kilitli, değiştirilemez.",
+    "morePlaces": "{count} yer daha",
+    "fewerPlaces": "Daha az göster",
+    "morePages": "{count} sayfa daha göster"
+  },
+  "blockMenu": {
+    "copyLink": "Bloğun bağlantısını kopyala"
   },
   "pdf": {
     "untitled": "PDF",
