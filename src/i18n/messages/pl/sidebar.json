@@ -91,6 +91,7 @@
     "automation": "Automatyzacja „{name}”: {actor} dodaje lub zmienia ten wiersz",
     "automationDatePassed": "Automatyzacja „{name}”: nadeszła data tego wiersza",
     "rowUpdate": "{actor} zmienia ten wiersz",
+    "pageUpdated": "{actor} edytuje tę stronę",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Tytuł",
     "rowChangesMore": "{count, plural, one {i # inna zmiana} few {i # inne zmiany} many {i # innych zmian} other {i # innych zmian}}",
@@ -147,7 +148,11 @@
     "leave": "Opuść przestrzeń zespołu",
     "confirmLeave": "Opuścić {name}? Jej strony znikną z twojego paska bocznego. Jeśli przestrzeń zespołu nie jest otwarta, stracisz też do nich dostęp.",
     "empty": "Brak stron. Dodaj stronę",
-    "another": "inna przestrzeń zespołu"
+    "another": "inna przestrzeń zespołu",
+    "watch": "Obserwuj wszystkie strony",
+    "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje stronę tej przestrzeni zespołu lub rozpocznie na niej wątek komentarzy.",
+    "unwatch": "Przestań obserwować strony",
+    "unwatchHint": "Dowiadujesz się o edycjach i nowych wątkach komentarzy na każdej stronie tej przestrzeni zespołu, poza stronami, które wyciszono."
   },
   "sections": {
     "shared": "Udostępnione",

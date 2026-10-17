@@ -112,6 +112,18 @@
     "someone": "Alguien",
     "optOut": "Recibes estos correos porque sigues esta fila. Deja de seguirla desde el menú de página de la fila, o desactiva estos correos en Mi cuenta > Preferencias."
   },
+  "pageUpdate": {
+    "subject": "{actor} editó «{page}»",
+    "heading": "{actor} editó «{page}»",
+    "body": "«{page}» en {workspace} ha cambiado. Ábrela para ver las novedades; su historial muestra cada cambio.",
+    "someone": "Alguien",
+    "action": "Abrir página",
+    "optOut": "Recibes estos correos porque observas esta página: la creaste o editaste, elegiste observarla u observas su espacio de equipo. Silénciala desde el menú ⋯ de la página, o desactiva estos correos en Mi cuenta > Preferencias.",
+    "digestSubject": "{count, plural, one {Se editó # página que observas} other {Se editaron # páginas que observas}}",
+    "digestIntro": "Ya recibiste los correos de hoy sobre páginas que observas, así que estas ediciones llegan juntas:",
+    "digestPage": "«{page}» en {workspace}, editada por {actor}: {link}",
+    "digestAction": "Abrir Leafdesk"
+  },
   "accessRequest": {
     "subject": "{requester} pidió acceso a “{page}”",
     "heading": "{requester} pidió acceso a “{page}”",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} cambió esta fila",
     "rowUpdateTitle": "el título",
     "rowUpdateBody": "el texto",
+    "pageUpdated": "{actor} editó esta página",
     "someone": "Alguien",
     "joinRequestTitle": "Solicitud de acceso",
     "joinRequest": "{actor} pidió unirse",

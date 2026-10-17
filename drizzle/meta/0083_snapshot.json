@@ -1,5 +1,5 @@
 {
-  "id": "f0f25634-b6eb-4899-8010-a8d8d6d18c52",
+  "id": "6624d5af-fff1-436f-924e-cbf35537c285",
   "prevId": "518b8bac-9615-4cbc-8856-3281c08de7fe",
   "version": "7",
   "dialect": "postgresql",
@@ -4752,6 +4752,182 @@
       },
       "isRLSEnabled": false
     },
+    "public.page_update_email": {
+      "name": "page_update_email",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "page_id": {
+          "name": "page_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "page_update_email_user_idx": {
+          "name": "page_update_email_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sent_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "page_update_email_user_id_user_id_fk": {
+          "name": "page_update_email_user_id_user_id_fk",
+          "tableFrom": "page_update_email",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "page_update_email_page_id_page_id_fk": {
+          "name": "page_update_email_page_id_page_id_fk",
+          "tableFrom": "page_update_email",
+          "tableTo": "page",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.page_watch": {
+      "name": "page_watch",
+      "schema": "",
+      "columns": {
+        "page_id": {
+          "name": "page_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "watching": {
+          "name": "watching",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "page_watch_user_idx": {
+          "name": "page_watch_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "page_watch_page_id_page_id_fk": {
+          "name": "page_watch_page_id_page_id_fk",
+          "tableFrom": "page_watch",
+          "tableTo": "page",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "page_watch_user_id_user_id_fk": {
+          "name": "page_watch_user_id_user_id_fk",
+          "tableFrom": "page_watch",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "page_watch_page_id_user_id_pk": {
+          "name": "page_watch_page_id_user_id_pk",
+          "columns": [
+            "page_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.assignment_email": {
       "name": "assignment_email",
       "schema": "",
@@ -4871,6 +5047,101 @@
             "row_id",
             "property_id",
             "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.page_update_pending": {
+      "name": "page_update_pending",
+      "schema": "",
+      "columns": {
+        "page_id": {
+          "name": "page_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "first_at": {
+          "name": "first_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "due_at": {
+          "name": "due_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "page_update_pending_due_idx": {
+          "name": "page_update_pending_due_idx",
+          "columns": [
+            {
+              "expression": "due_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "page_update_pending_page_id_page_id_fk": {
+          "name": "page_update_pending_page_id_page_id_fk",
+          "tableFrom": "page_update_pending",
+          "tableTo": "page",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "page_update_pending_actor_id_user_id_fk": {
+          "name": "page_update_pending_actor_id_user_id_fk",
+          "tableFrom": "page_update_pending",
+          "tableTo": "user",
+          "columnsFrom": [
+            "actor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "page_update_pending_page_id_actor_id_pk": {
+          "name": "page_update_pending_page_id_actor_id_pk",
+          "columns": [
+            "page_id",
+            "actor_id"
           ]
         }
       },
@@ -5284,6 +5555,89 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.teamspace_watch": {
+      "name": "teamspace_watch",
+      "schema": "",
+      "columns": {
+        "teamspace_id": {
+          "name": "teamspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "teamspace_watch_user_idx": {
+          "name": "teamspace_watch_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "teamspace_watch_teamspace_id_teamspace_id_fk": {
+          "name": "teamspace_watch_teamspace_id_teamspace_id_fk",
+          "tableFrom": "teamspace_watch",
+          "tableTo": "teamspace",
+          "columnsFrom": [
+            "teamspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "teamspace_watch_user_id_user_id_fk": {
+          "name": "teamspace_watch_user_id_user_id_fk",
+          "tableFrom": "teamspace_watch",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "teamspace_watch_teamspace_id_user_id_pk": {
+          "name": "teamspace_watch_teamspace_id_user_id_pk",
+          "columns": [
+            "teamspace_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.user_preference": {
       "name": "user_preference",
       "schema": "",
@@ -5426,6 +5780,20 @@
           "notNull": true,
           "default": true
         },
+        "page_update_emails": {
+          "name": "page_update_emails",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "page_update_inbox": {
+          "name": "page_update_inbox",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "assignment_push": {
           "name": "assignment_push",
           "type": "boolean",
@@ -5484,6 +5852,13 @@
         },
         "row_update_push": {
           "name": "row_update_push",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "page_update_push": {
+          "name": "page_update_push",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -6099,102 +6474,6 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.synced_block_reference": {
-      "name": "synced_block_reference",
-      "schema": "",
-      "columns": {
-        "page_id": {
-          "name": "page_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source_id": {
-          "name": "source_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sync_id": {
-          "name": "sync_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "synced_block_reference_source_idx": {
-          "name": "synced_block_reference_source_idx",
-          "columns": [
-            {
-              "expression": "source_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "sync_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "synced_block_reference_page_id_page_id_fk": {
-          "name": "synced_block_reference_page_id_page_id_fk",
-          "tableFrom": "synced_block_reference",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "synced_block_reference_source_id_page_id_fk": {
-          "name": "synced_block_reference_source_id_page_id_fk",
-          "tableFrom": "synced_block_reference",
-          "tableTo": "page",
-          "columnsFrom": [
-            "source_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "synced_block_reference_page_id_source_id_sync_id_pk": {
-          "name": "synced_block_reference_page_id_source_id_sync_id_pk",
-          "columns": [
-            "page_id",
-            "source_id",
-            "sync_id"
-          ]
-        }
-      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

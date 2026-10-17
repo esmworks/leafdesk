@@ -186,6 +186,8 @@ export interface CollabService {
   disconnectLostAccess(workspaceId: string, userIds?: string[]): Promise<void>;
   /** The pages and databases with a document open on this server. */
   openPageIds(): string[];
+  /** The people with the page open in a browser on this server right now (to read or to edit). */
+  openUserIds(pageId: string): string[];
   /**
    * Drops every connection to a deleted workspace: its signals and these pages and databases (its
    * own open ones, listed before they were deleted, since the database can no longer say which

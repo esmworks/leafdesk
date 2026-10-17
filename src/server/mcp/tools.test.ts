@@ -233,6 +233,16 @@ const journal = vi.hoisted(() => {
 vi.mock("@/server/journal", () => journal);
 const pageMeta = vi.hoisted(() => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn() }));
 vi.mock("@/server/page-meta", () => pageMeta);
+const pageWatch = vi.hoisted(() => ({
+  isWatching: vi.fn<(userId: string, pageId: string) => Promise<boolean | null>>(async () => true),
+  setWatching: vi.fn(async (_userId: string, _pageId: string, watching: boolean) => watching),
+}));
+vi.mock("@/server/page-watch", () => pageWatch);
+const rowFollow = vi.hoisted(() => ({
+  isFollowing: vi.fn<(userId: string, rowId: string) => Promise<boolean | null>>(async () => null),
+  setFollowing: vi.fn(async (_userId: string, _rowId: string, following: boolean) => following),
+}));
+vi.mock("@/server/row-follow", async (importOriginal) => ({ ...(await importOriginal<object>()), ...rowFollow }));
 const mentions = vi.hoisted(() => ({
   labelPageLinks: vi.fn(async (_userId: string, markdown: string) => markdown),
   listBacklinks: vi.fn(async () => []),
@@ -1833,6 +1843,38 @@ describe("favorites", () => {
     const { data } = await callTool(reader, "get_page", { page_id: "page-1" });
     expect(pageMeta.isFavorite).toHaveBeenCalledWith("user-1", "page-1");
     expect(data.favorite).toBe(true);
+  });
+});
+
+describe("watching pages", () => {
+  it("says whether the user watches a page, or follows a row", async () => {
+    pageWatch.isWatching.mockResolvedValueOnce(false);
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.watching).toBe(false);
+    pageWatch.isWatching.mockResolvedValueOnce(null);
+    rowFollow.isFollowing.mockResolvedValueOnce(true);
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.watching).toBe(true);
+  });
+
+  it("mutes a page", async () => {
+    const { isError, data } = await callTool(writer, "watch_page", { page_id: "page-1", watching: false });
+    expect(isError).toBe(false);
+    expect(pageWatch.setWatching).toHaveBeenCalledWith("user-1", "page-1", false);
+    expect(rowFollow.setFollowing).not.toHaveBeenCalled();
+    expect(data).toMatchObject({ id: "page-1", watching: false });
+  });
+
+  it("follows a database row instead of watching it", async () => {
+    rowFollow.isFollowing.mockResolvedValueOnce(false);
+    const { isError } = await callTool(writer, "watch_page", { page_id: "page-1", watching: true });
+    expect(isError).toBe(false);
+    expect(rowFollow.setFollowing).toHaveBeenCalledWith("user-1", "page-1", true);
+    expect(pageWatch.setWatching).not.toHaveBeenCalled();
+  });
+
+  it("needs write access", async () => {
+    const { isError } = await callTool(reader, "watch_page", { page_id: "page-1", watching: true });
+    expect(isError).toBe(true);
+    expect(pageWatch.setWatching).not.toHaveBeenCalled();
   });
 });
 

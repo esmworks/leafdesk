@@ -313,8 +313,15 @@ versions, upgrades and running behind a domain.
   its author has left the row alone for a minute (ten minutes at most), so a burst of edits is one
   item, and says what changed: "Status: To do → Done", a new title, edited text. You hear only about
   the properties you may see in the row, checked again when the inbox or the email shows it, and
-  never about your own changes. Owners also find there an agent's call waiting for approval and the
-  notes an agent's run proposed for its memory. Snooze an item
+  never about your own changes. Pages work the same way: you watch the pages you created or edited,
+  and anyone can *Watch* or *Mute* a page from its ⋯ menu, or watch every page of a teamspace from
+  the teamspace's menu in the sidebar; a mute wins over all of these. Watchers hear when someone else
+  edits the page (once the author has left it alone for two minutes, fifteen at most) and when a
+  new comment thread starts on it, unless they have the page open at the time. Emails about the
+  same page come at most every four hours, and after five in a day the rest wait and come together
+  in one digest. My account → Preferences lists the pages and teamspaces you watch. Owners also
+  find there an agent's call waiting for approval and the notes an agent's run proposed for its
+  memory. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
@@ -2046,6 +2053,8 @@ The tools cover:
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date (see `src/lib/mentions.ts`).
 - **Inbox:** `list_notifications`, when the user also grants the `notifications:read` permission.
+  `watch_page` watches or mutes a page (follows or stops following a row); `get_page` shows
+  `watching`.
 - **Files:** `attach_file` uploads an image, video, audio or other file to a page (or, with
   `property`, to a row's files & media property) from a public URL or base64 data, when the user
   also grants the `files:write` permission. Files properties can only be set to files already

@@ -57,7 +57,11 @@
     "deleteTemplate": "Delete template",
     "exportDisabled": "Export is turned off",
     "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages.",
-    "showInGraph": "Show in graph"
+    "showInGraph": "Show in graph",
+    "watch": "Watch",
+    "watchHint": "Hear in your inbox when someone else edits this page or starts a comment thread on it.",
+    "mute": "Mute",
+    "muteHint": "You hear in your inbox when someone else edits this page or starts a comment thread on it. Mute it to stop."
   },
   "comments": {
     "aboutPage": "About this page",

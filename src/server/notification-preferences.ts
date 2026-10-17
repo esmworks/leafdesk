@@ -23,6 +23,7 @@ const COLUMNS = {
   join_request: { inbox: "joinRequestInbox", email: "joinRequestEmails", push: "joinRequestPush" },
   automation: { inbox: "automationInbox", email: "automationEmails", push: "automationPush" },
   row_update: { inbox: "rowUpdateInbox", email: "rowUpdateEmails", push: "rowUpdatePush" },
+  page_updated: { inbox: "pageUpdateInbox", email: "pageUpdateEmails", push: "pageUpdatePush" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];

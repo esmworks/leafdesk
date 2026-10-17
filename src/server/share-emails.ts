@@ -1,10 +1,22 @@
-import { and, eq, inArray, isNotNull, isNull, lte, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, isNotNull, isNull, lte, max, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { accessRequest, databaseAutomation, databaseProperty, isOwnerKind, notification, page, user, workspace, workspaceJoinRequest } from "@/db/schema";
+import {
+  accessRequest,
+  databaseAutomation,
+  databaseProperty,
+  isOwnerKind,
+  notification,
+  page,
+  pageUpdateEmail as pageUpdateEmailLog,
+  user,
+  workspace,
+  workspaceJoinRequest,
+} from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { commentText } from "@/lib/comments";
 import { pageLabel } from "@/lib/labels";
+import { PAGE_EMAIL_COOLDOWN_MS, PAGE_EMAIL_WINDOW_MS, planPageEmails } from "@/lib/page-watch";
 import { ownsWorkspace, resolvePageAccess, workspaceRoleOf } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import {
@@ -15,6 +27,8 @@ import {
   joinRequestEmail,
   mailStatus,
   mentionEmail,
+  pageUpdateDigestEmail,
+  pageUpdateEmail,
   reminderEmail,
   rowUpdateEmail,
   sendMail,
@@ -75,7 +89,17 @@ async function deliverDue(everything = false) {
     .set({ emailDueAt: null })
     .where(
       and(
-        inArray(notification.kind, ["page_shared", "comment", "mention", "reminder", "access_request", "join_request", "automation", "row_update"]),
+        inArray(notification.kind, [
+          "page_shared",
+          "comment",
+          "mention",
+          "reminder",
+          "access_request",
+          "join_request",
+          "automation",
+          "row_update",
+          "page_updated",
+        ]),
         everything ? isNotNull(notification.emailDueAt) : lte(notification.emailDueAt, new Date()),
         // A snoozed notification's email waits until it comes back (see snoozeNotification).
         isNull(notification.snoozedUntil),
@@ -97,12 +121,108 @@ async function deliverDue(everything = false) {
       date: notification.date,
       propertyId: notification.propertyId,
     });
+  // Page updates are held back together, per person (see sendPageUpdates).
+  const pageUpdates = new Map<string, Due[]>();
   for (const entry of due) {
+    if (entry.kind === "page_updated") {
+      pageUpdates.set(entry.userId, [...(pageUpdates.get(entry.userId) ?? []), entry]);
+      continue;
+    }
     try {
       await send(entry);
     } catch (error) {
       console.error(`could not send ${entry.kind} email`, error);
     }
+  }
+  for (const [userId, entries] of pageUpdates) {
+    try {
+      await sendPageUpdates(userId, entries);
+    } catch (error) {
+      console.error("could not send page update emails", error);
+    }
+  }
+}
+
+/**
+ * Emails one person about pages they watch that others edited (server/page-watch.ts), held back
+ * as lib/page-watch `planPageEmails` says: a page they heard about within the cooldown waits for it
+ * to end, a few emails a day go out one by one, and once that is used up the rest wait and go out
+ * together in one digest. Nothing goes out for a notification they read, a page they can no longer
+ * open or have open right now (they watched it change), or when they turned these emails off.
+ */
+async function sendPageUpdates(userId: string, entries: Due[]) {
+  if (!(await wantsEmail(userId, "page_updated"))) return;
+  const openNow = new Set<string>();
+  const wanted: (Due & { pageId: string; pageTitle: string })[] = [];
+  for (const entry of entries) {
+    if (entry.readAt || !entry.pageId) continue;
+    const { page: target, level } = await resolvePageAccess(userId, entry.pageId);
+    if (!target || target.archivedAt || level === "none") continue;
+    if (!openNow.has(entry.pageId) && getCollab().openUserIds(entry.pageId).includes(userId)) openNow.add(entry.pageId);
+    if (openNow.has(entry.pageId)) continue;
+    wanted.push({ ...entry, pageId: entry.pageId, pageTitle: target.title });
+  }
+  if (!wanted.length) return;
+  const now = new Date();
+  const [lastSent, window] = await Promise.all([
+    db
+      .select({ pageId: pageUpdateEmailLog.pageId, at: max(pageUpdateEmailLog.sentAt) })
+      .from(pageUpdateEmailLog)
+      .where(
+        and(
+          eq(pageUpdateEmailLog.userId, userId),
+          inArray(pageUpdateEmailLog.pageId, wanted.map((w) => w.pageId)),
+          gt(pageUpdateEmailLog.sentAt, new Date(now.getTime() - PAGE_EMAIL_COOLDOWN_MS)),
+        ),
+      )
+      .groupBy(pageUpdateEmailLog.pageId),
+    // One email per time sent: a digest's pages share theirs.
+    db
+      .selectDistinct({ at: pageUpdateEmailLog.sentAt })
+      .from(pageUpdateEmailLog)
+      .where(and(eq(pageUpdateEmailLog.userId, userId), gt(pageUpdateEmailLog.sentAt, new Date(now.getTime() - PAGE_EMAIL_WINDOW_MS)))),
+  ]);
+  const plan = planPageEmails({
+    now,
+    due: wanted.map((w) => ({ id: w.id, pageId: w.pageId })),
+    lastSentByPage: new Map(lastSent.flatMap((l) => (l.at ? [[l.pageId, l.at] as const] : []))),
+    sentInWindow: window.map((w) => w.at),
+  });
+  // Waiting: due again then, unless a newer update about the page replaced it meanwhile.
+  for (const { id, until } of plan.later) {
+    await db.update(notification).set({ emailDueAt: until }).where(and(eq(notification.id, id), isNull(notification.readAt)));
+  }
+  if (!plan.single.length && !plan.digest.length) return;
+  const actorIds = [...new Set(wanted.flatMap((w) => (w.actorId ? [w.actorId] : [])))];
+  const [[recipient], actors, spaces] = await Promise.all([
+    db.select({ email: user.email }).from(user).where(eq(user.id, userId)),
+    actorIds.length ? db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, actorIds)) : [],
+    db
+      .select({ id: workspace.id, name: workspace.name })
+      .from(workspace)
+      .where(inArray(workspace.id, [...new Set(wanted.map((w) => w.workspaceId))])),
+  ]);
+  if (!recipient?.email) return;
+  const locale = await recipientLocale(userId, wanted[0]!.emailLocale);
+  const untitled = emailTranslator(locale)("share.untitled");
+  const about = (w: (typeof wanted)[number]) => ({
+    actorName: actors.find((a) => a.id === w.actorId)?.name ?? "",
+    pageTitle: pageLabel(w.pageTitle, untitled),
+    workspaceName: spaces.find((s) => s.id === w.workspaceId)?.name ?? "",
+    link: `${env.appUrl}/w/${w.workspaceId}/p/${w.pageId}`,
+  });
+  const byId = new Map(wanted.map((w) => [w.id, w]));
+  const logSent = (pageIds: string[], sentAt: Date) =>
+    db.insert(pageUpdateEmailLog).values(pageIds.map((pageId) => ({ userId, pageId, sentAt })));
+  for (const id of plan.single) {
+    const entry = byId.get(id)!;
+    await mailer({ to: recipient.email, ...pageUpdateEmail(locale, about(entry)) });
+    await logSent([entry.pageId], new Date());
+  }
+  if (plan.digest.length) {
+    const pages = plan.digest.map((id) => byId.get(id)!);
+    await mailer({ to: recipient.email, ...pageUpdateDigestEmail(locale, { pages: pages.map(about), link: env.appUrl }) });
+    await logSent([...new Set(pages.map((p) => p.pageId))], new Date());
   }
 }
 

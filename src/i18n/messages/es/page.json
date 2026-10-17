@@ -57,7 +57,11 @@
     "deleteTemplate": "Eliminar plantilla",
     "exportDisabled": "La exportación está desactivada",
     "exportDisabledBody": "Los propietarios de este espacio de trabajo han desactivado la exportación y la impresión de sus páginas.",
-    "showInGraph": "Mostrar en el grafo"
+    "showInGraph": "Mostrar en el grafo",
+    "watch": "Observar",
+    "watchHint": "Entérate en tu bandeja de entrada cuando otra persona edite esta página o inicie un hilo de comentarios en ella.",
+    "mute": "Silenciar",
+    "muteHint": "Te enteras en tu bandeja de entrada cuando otra persona edita esta página o inicia un hilo de comentarios en ella. Silénciala para dejar de hacerlo."
   },
   "comments": {
     "aboutPage": "Sobre esta página",

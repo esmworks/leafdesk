@@ -38,6 +38,7 @@ import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/ment
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
+import { queuePageSave } from "@/server/page-watch";
 import { queueRowSave } from "@/server/row-follow";
 import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./authorize";
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
@@ -377,10 +378,10 @@ export function createCollab() {
     if (row.parentId) rowChanged({ rowId: pageId, databaseId: row.parentId, userId: userId ?? null });
     if (row.parentId && title !== row.title) await recordTitleChange(pageId, row.title, title, userId ?? null);
     // The row's followers hear about it once its writers leave it alone (server/row-follow).
-    if (row.parentId) {
-      const writers = wrote.size ? [...wrote] : userId ? [userId] : [];
-      await queueRowSave(writers, pageId, { before: row.title, after: title, body: bodyChanged }, context?.locale ?? null);
-    }
+    // Watchers of other pages hear about it the same way, and its writers watch it (server/page-watch).
+    const editors = wrote.size ? [...wrote] : userId ? [userId] : [];
+    if (row.parentId) await queueRowSave(editors, pageId, { before: row.title, after: title, body: bodyChanged }, context?.locale ?? null);
+    await queuePageSave(editors, pageId, context?.locale ?? null);
     if (title !== row.title) {
       broadcast(`ws:${row.workspaceId}`, "tree");
       if (row.parentId) broadcast(`db:${row.parentId}`, "rows");
@@ -1077,6 +1078,10 @@ export function createCollab() {
         const target = parseName(doc.name);
         return target && target.kind !== "ws" ? [target.id] : [];
       });
+    },
+
+    openUserIds(pageId) {
+      return [...new Set(browsersOf(pageId).map((c) => (c.context as Context).userId!))];
     },
 
     async disconnectWorkspace(workspaceId, pageIds) {

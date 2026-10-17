@@ -112,6 +112,18 @@
     "someone": "Ktoś",
     "optOut": "Otrzymujesz te wiadomości, bo obserwujesz ten wiersz. Możesz przestać go obserwować w menu strony wiersza albo wyłączyć te wiadomości w Moje konto > Preferencje."
   },
+  "pageUpdate": {
+    "subject": "{actor} edytuje „{page}”",
+    "heading": "{actor} edytuje „{page}”",
+    "body": "Strona „{page}” w {workspace} się zmieniła. Otwórz ją, aby zobaczyć nowości; jej historia pokazuje każdą zmianę.",
+    "someone": "Ktoś",
+    "action": "Otwórz stronę",
+    "optOut": "Otrzymujesz te wiadomości, bo obserwujesz tę stronę: utworzono ją lub edytowano, wybrano ją do obserwowania albo obserwujesz jej przestrzeń zespołu. Wycisz ją w menu ⋯ strony albo wyłącz te wiadomości w Moje konto > Preferencje.",
+    "digestSubject": "{count, plural, one {Zmieniono # obserwowaną stronę} few {Zmieniono # obserwowane strony} many {Zmieniono # obserwowanych stron} other {Zmieniono # obserwowanej strony}}",
+    "digestIntro": "Dzisiejsze wiadomości o obserwowanych stronach już przyszły, więc te edycje przychodzą razem:",
+    "digestPage": "„{page}” w {workspace}, edytuje {actor}: {link}",
+    "digestAction": "Otwórz Leafdesk"
+  },
   "accessRequest": {
     "subject": "{requester} prosi o dostęp do „{page}”",
     "heading": "{requester} prosi o dostęp do „{page}”",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} zmienia ten wiersz",
     "rowUpdateTitle": "tytuł",
     "rowUpdateBody": "tekst",
+    "pageUpdated": "{actor} edytuje tę stronę",
     "someone": "Ktoś",
     "joinRequestTitle": "Prośba o dołączenie",
     "joinRequest": "{actor} prosi o dołączenie",

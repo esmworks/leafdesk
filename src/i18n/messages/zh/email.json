@@ -112,6 +112,18 @@
     "someone": "某人",
     "optOut": "你收到这些邮件是因为你关注了这一行。可在该行的页面菜单中取消关注，或在 我的帐户 > 偏好设置 中关闭这些邮件。"
   },
+  "pageUpdate": {
+    "subject": "{actor} 编辑了“{page}”",
+    "heading": "{actor} 编辑了“{page}”",
+    "body": "{workspace} 中的“{page}”有了变化。打开查看新内容；其历史记录会显示每一处更改。",
+    "someone": "有人",
+    "action": "打开页面",
+    "optOut": "你收到这些邮件是因为你关注了此页面：你创建或编辑过它、选择了关注它，或关注了它所在的团队空间。可在页面的 ⋯ 菜单中将其静音，或在 我的帐户 > 偏好设置 中关闭这些邮件。",
+    "digestSubject": "{count, plural, other {你关注的 # 个页面已被编辑}}",
+    "digestIntro": "你今天关于所关注页面的邮件已经收到过了，因此这些编辑合并发送：",
+    "digestPage": "{workspace} 中的“{page}”，编辑者 {actor}：{link}",
+    "digestAction": "打开 Leafdesk"
+  },
   "accessRequest": {
     "subject": "{requester} 申请访问“{page}”",
     "heading": "{requester} 申请访问“{page}”",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} 更改了这一行",
     "rowUpdateTitle": "标题",
     "rowUpdateBody": "正文",
+    "pageUpdated": "{actor} 编辑了此页面",
     "someone": "有人",
     "joinRequestTitle": "加入申请",
     "joinRequest": "{actor} 申请加入",

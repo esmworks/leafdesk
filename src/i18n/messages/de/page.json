@@ -57,7 +57,11 @@
     "deleteTemplate": "Vorlage löschen",
     "exportDisabled": "Export ist ausgeschaltet",
     "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet.",
-    "showInGraph": "Im Graphen zeigen"
+    "showInGraph": "Im Graphen zeigen",
+    "watch": "Beobachten",
+    "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt.",
+    "mute": "Stummschalten",
+    "muteHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt. Schalte sie stumm, um das zu beenden."
   },
   "comments": {
     "aboutPage": "Zu dieser Seite",

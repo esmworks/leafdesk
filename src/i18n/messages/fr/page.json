@@ -57,7 +57,11 @@
     "deleteTemplate": "Supprimer le modèle",
     "exportDisabled": "L’exportation est désactivée",
     "exportDisabledBody": "Les propriétaires de cet espace de travail ont désactivé l’exportation et l’impression de ses pages.",
-    "showInGraph": "Afficher dans le graphe"
+    "showInGraph": "Afficher dans le graphe",
+    "watch": "Surveiller",
+    "watchHint": "Soyez averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires.",
+    "mute": "Mettre en sourdine",
+    "muteHint": "Vous êtes averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires. Mettez-la en sourdine pour arrêter."
   },
   "comments": {
     "aboutPage": "À propos de cette page",

@@ -38,6 +38,7 @@ import {
   setFavoriteAction,
   setFollowingAction,
   setPageLockedAction,
+  setWatchingAction,
 } from "@/app/actions/page-menu";
 import { getSidebarAction, movePageAction } from "@/app/actions/pages";
 import { setSkillAction } from "@/app/actions/skills";
@@ -455,6 +456,20 @@ function PageMenu({
       }
     });
 
+  // Watchers of a page hear about others' edits and new comment threads in their inbox (server/page-watch).
+  const toggleWatching = (close: () => void) =>
+    startTransition(async () => {
+      setError(null);
+      const watching = !info.watching;
+      try {
+        await setWatchingAction(page.id, watching);
+        onInfo({ ...info, watching });
+        close();
+      } catch {
+        setError(t("actionFailed"));
+      }
+    });
+
   const duplicate = (close: () => void) =>
     startTransition(async () => {
       setError(null);
@@ -532,6 +547,15 @@ function PageMenu({
                 onClick={() => toggleFollowing(close)}
               >
                 {t(info.following ? "unfollow" : "follow")}
+              </MenuItem>
+            )}
+            {info.watching !== null && !page.archived && (
+              <MenuItem
+                icon={info.watching ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                title={t(info.watching ? "muteHint" : "watchHint")}
+                onClick={() => toggleWatching(close)}
+              >
+                {t(info.watching ? "mute" : "watch")}
               </MenuItem>
             )}
             {/* For the REST API and MCP clients, which take a page's, database's or row's id. */}

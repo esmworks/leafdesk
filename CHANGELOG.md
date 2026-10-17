@@ -23,7 +23,10 @@
 - **Migration 0081 adds the `journal` and `daily_note` tables** for daily notes.
 - **Migration 0082 adds two small tables** for following rows, and columns to `notification` and
   `user_preference`; nothing is rewritten.
-- **Migration 0083 adds the `synced_block_reference` table** for synced blocks (see *Added*);
+- **Migration 0083 adds four small tables** for watching pages, and columns to `user_preference`;
+  nothing is rewritten. Existing pages are watched by their creators from the start; people start
+  watching other pages as they edit them.
+- **Migration 0084 adds the `synced_block_reference` table** for synced blocks (see *Added*);
   nothing is rewritten. It fills in as pages with synced blocks are saved.
 
 ### Added
@@ -50,6 +53,18 @@
   shows it. Rows you follow have their own switches for the inbox, email and push in My account →
   Preferences; push messages name what changed but not the values. `list_notifications` (MCP)
   includes these updates with their changes.
+
+- **Watch pages.** People now hear in their inbox when someone else edits a page they watch, and
+  new comment threads on it reach its watchers instead of only its creator. A page's creator and
+  everyone who edits it watch it; *Watch* and *Mute* in the page's ⋯ menu change that, and a mute
+  wins over the rest. *Watch all pages* in a teamspace's sidebar menu watches every page in it. An
+  author's edits go out as one item once they've left the page alone for two minutes (fifteen at
+  most), to watchers who can still open the page and don't have it open right then. Emails are held
+  back: at most one about the same page every four hours, and after five a day the rest come
+  together in one digest. Pages you watch have their own switches for the inbox, email and push in
+  My account → Preferences, which also lists the pages and teamspaces you watch. `get_page` (MCP and
+  REST) shows `watching`, the new `watch_page` tool and `POST /pages/{page_id}/watch` change it, and
+  `list_teamspaces` shows which teamspaces the user watches.
 
 - **Import from Trello.** Import has a Trello tab that takes a board's JSON export (*Print, export
   and share → Export as JSON*) and makes it a database opening on a board grouped by list. Lists,

@@ -57,7 +57,11 @@
     "deleteTemplate": "Usuń szablon",
     "exportDisabled": "Eksport jest wyłączony",
     "exportDisabledBody": "Właściciele tego obszaru roboczego wyłączyli eksportowanie i drukowanie jego stron.",
-    "showInGraph": "Pokaż w grafie"
+    "showInGraph": "Pokaż w grafie",
+    "watch": "Obserwuj",
+    "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy.",
+    "mute": "Wycisz",
+    "muteHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy. Wycisz ją, aby przestać."
   },
   "comments": {
     "aboutPage": "O tej stronie",
