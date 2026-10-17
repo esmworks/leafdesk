@@ -151,7 +151,7 @@ function AutomationsDialog({
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {mode.kind !== "list" && (
           <IconButton label={t("back")} onClick={() => setMode({ kind: "list" })} className="mt-1">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
           </IconButton>
         )}
         <div className="min-w-0 flex-1">
@@ -290,7 +290,7 @@ function AutomationItem({
         <IconButton label={t("delete")} onClick={onDelete} className="hover:text-danger">
           <Trash2 className="h-3.5 w-3.5" />
         </IconButton>
-        <span className="ml-1.5">
+        <span className="ms-1.5">
           <Switch checked={automation.enabled} label={t("toggle", { name: automation.name })} onChange={onToggle} />
         </span>
       </div>

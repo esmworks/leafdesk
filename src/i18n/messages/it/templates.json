@@ -1,0 +1,96 @@
+{
+  "meeting-notes": {
+    "title": "Verbale di riunione",
+    "description": "Ordine del giorno, note, decisioni e azioni da fare.",
+    "markdown": "**Data:** \n\n**Partecipanti:** \n\n## Ordine del giorno\n\n1. \n\n## Note\n\n\n\n## Decisioni\n\n- \n\n## Azioni da fare\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Piano settimanale",
+    "description": "Gli obiettivi della settimana e una checklist per ogni giorno.",
+    "markdown": "## Obiettivi della settimana\n\n- [ ] \n\n### Lunedì\n\n- [ ] \n\n### Martedì\n\n- [ ] \n\n### Mercoledì\n\n- [ ] \n\n### Giovedì\n\n- [ ] \n\n### Venerdì\n\n- [ ] \n\n## Note per la prossima settimana\n"
+  },
+  "project-tracker": {
+    "title": "Monitoraggio progetto",
+    "description": "Attività con stato, priorità, responsabile e scadenza, in una tabella e in una bacheca.",
+    "seedNames": {
+      "status": "Stato",
+      "notStarted": "Da iniziare",
+      "inProgress": "In corso",
+      "done": "Completato",
+      "tags": "Tag",
+      "table": "Tutte le attività"
+    },
+    "properties": {
+      "priority": "Priorità",
+      "owner": "Responsabile",
+      "due": "Scadenza"
+    },
+    "options": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Bassa"
+    },
+    "board": "Bacheca",
+    "rowTemplate": {
+      "title": "Nuova attività",
+      "markdown": "## Obiettivo\n\n\n\n## Passaggi\n\n- [ ] \n\n## Note\n\n"
+    },
+    "rows": {
+      "brief": "Scrivi il brief del progetto",
+      "milestone": "Pianifica la prima milestone",
+      "team": "Invita il team"
+    }
+  },
+  "wins-log": {
+    "title": "Registro dei successi",
+    "description": "Successi, apprezzamenti e lavoro completato in un unico posto, con grafici per mese, tipo e area.",
+    "markdown": "Ogni successo, apprezzamento e lavoro completato finisce qui, con un link al punto in cui è avvenuto. Aggiungili a mano o lascia che l’agente Registro dei successi li aggiunga dalle tue connessioni.",
+    "database": "Successi",
+    "table": "Tutti i successi",
+    "board": "Per tipo",
+    "properties": {
+      "type": "Tipo",
+      "area": "Area",
+      "date": "Data",
+      "impact": "Impatto",
+      "source": "Fonte",
+      "person": "Persone"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Consegna",
+      "metric": "Metrica",
+      "event": "Evento",
+      "other": "Altro"
+    },
+    "areas": {
+      "product": "Prodotto",
+      "customers": "Clienti",
+      "team": "Team",
+      "operations": "Operazioni",
+      "sales": "Vendite"
+    },
+    "impacts": {
+      "high": "Alto",
+      "medium": "Medio",
+      "low": "Basso"
+    },
+    "widgets": {
+      "total": "Successi",
+      "byMonth": "Successi per mese",
+      "byArea": "Per area",
+      "byImpact": "Per impatto"
+    },
+    "rowTemplate": {
+      "title": "Nuovo successo",
+      "markdown": "## Cosa è successo\n\n\n\n## Perché è importante\n\n\n\n## Prove\n\n- "
+    },
+    "rows": {
+      "praise": "Un cliente ha elogiato il nuovo onboarding",
+      "launch": "Rilasciata l’esportazione della fatturazione",
+      "response": "Ora l’assistenza risponde in meno di due ore",
+      "talk": "Presentazione all’offsite del team",
+      "thanks": "Le vendite ci hanno ringraziato per la configurazione della demo"
+    }
+  }
+}

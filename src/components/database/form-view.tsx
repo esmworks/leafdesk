@@ -264,7 +264,7 @@ function FormSharePanel({
 
         {publication && (
           <>
-            <div className="mt-3 flex items-center gap-1 rounded-md border border-border bg-bg-subtle p-1 pl-2">
+            <div className="mt-3 flex items-center gap-1 rounded-md border border-border bg-bg-subtle p-1 ps-2">
               <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{absolute(publication.url)}</span>
               <CopyButton text={absolute(publication.url)} label={t("copyLink")} />
               <a
@@ -524,7 +524,7 @@ function FormBuilder({
                     </IconAction>
                   </div>
                 </div>
-                <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 pl-6 text-xs text-fg-muted">
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ps-6 text-xs text-fg-muted">
                   <span className="min-w-0">
                     {q.prop ? t("savedTo", { property: `${q.prop.name} (${typeLabel(q.prop.type)})` }) : t("savedToName")}
                     {q.prop && !isPublicAskable(q.prop.type) && <> · {t("notPublic")}</>}

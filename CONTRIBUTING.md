@@ -9,8 +9,8 @@ describes, not in an issue or pull request.
 
 ## Translations
 
-Leafdesk's interface is available in English, Turkish, German, Spanish and French. English is the
-source language: every other language is compared with it, and any text a language lacks is shown
+Leafdesk's interface is available in English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean and Chinese.
+English is the source language: every other language is compared with it, and any text a language lacks is shown
 in English until someone translates it.
 
 ### Where the texts are
@@ -78,7 +78,9 @@ change it everywhere.
 1. Add the language to `LOCALE_NAMES` in `src/i18n/config.ts`: its code (lower case BCP 47, such
    as `it` or `pt-br`) and its name in that language (`Italiano`). The language picker, the
    `<html lang>` attribute, date and number formats (through `Intl`) and choosing the language
-   from the browser's `Accept-Language` all follow from this list.
+   from the browser's `Accept-Language` all follow from this list. A language written right to
+   left also goes into `RIGHT_TO_LEFT` there, which sets `<html dir="rtl">`; the layout uses
+   logical CSS (`ms-*`, `ps-*`, `start-*`, `text-start`…), so it mirrors without further code.
 2. Copy `src/i18n/messages/en/` to `src/i18n/messages/<code>/` and translate every file. Nothing
    else loads them: files are found by the folder name.
 3. The editor: if BlockNote has the language (see the list in

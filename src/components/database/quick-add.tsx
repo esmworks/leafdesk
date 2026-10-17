@@ -126,7 +126,7 @@ export function QuickAddParts({ quick, text, floating }: { quick: QuickAdd; text
       onClick={(e) => e.stopPropagation()}
       className={cn(
         "mt-1.5 flex flex-wrap gap-1",
-        floating && "absolute top-full left-0 z-20 w-max max-w-72 rounded-md border border-border bg-bg p-1 shadow-md",
+        floating && "absolute top-full inset-s-0 z-20 w-max max-w-72 rounded-md border border-border bg-bg p-1 shadow-md",
       )}
     >
       {result.matches.map((match) => {
@@ -143,7 +143,7 @@ export function QuickAddParts({ quick, text, floating }: { quick: QuickAdd; text
               aria-label={t("keep", { text: match.text })}
               title={t("keep", { text: match.text })}
               onClick={() => quick.keep(match.text)}
-              className="-mr-0.5 rounded text-fg-faint hover:text-fg"
+              className="-me-0.5 rounded text-fg-faint hover:text-fg"
             >
               <X className="h-3 w-3" />
             </button>

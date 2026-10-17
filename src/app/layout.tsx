@@ -7,6 +7,7 @@ import { AppShellSetup } from "@/components/offline/install-app";
 import { StaleDeploymentReload } from "@/components/stale-deployment";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TimeZoneCookie } from "@/components/time-zone-cookie";
+import { localeDirection } from "@/i18n/config";
 import { clientMessages } from "@/i18n/messages";
 import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COLORS, THEME_COOKIE } from "@/lib/theme";
 import "./globals.css";
@@ -51,7 +52,7 @@ export async function generateViewport(): Promise<Viewport> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [locale, messages, theme, contrast] = await Promise.all([getLocale(), getMessages(), chosenTheme(), chosenContrast()]);
   return (
-    <html lang={locale} data-theme={theme ?? undefined} data-contrast={contrast ?? undefined} suppressHydrationWarning>
+    <html lang={locale} dir={localeDirection(locale)} data-theme={theme ?? undefined} data-contrast={contrast ?? undefined} suppressHydrationWarning>
       <body>
         <NextIntlClientProvider messages={clientMessages(messages)}>
           <ThemeProvider theme={theme}>

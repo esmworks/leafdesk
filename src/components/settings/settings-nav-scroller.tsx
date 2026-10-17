@@ -9,7 +9,11 @@ export function SettingsNavScroller({ className, children }: { className: string
     const el = ref.current;
     const active = el?.querySelector<HTMLElement>('[aria-current="page"]');
     if (!el || !active || el.scrollWidth <= el.clientWidth) return;
-    el.scrollLeft = active.offsetLeft - (el.clientWidth - active.offsetWidth) / 2;
+    // Measured on screen, so it centers the item whichever way the row runs (right to left,
+    // scrollLeft counts down from 0).
+    const box = el.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    el.scrollLeft += item.left + item.width / 2 - (box.left + box.width / 2);
   });
   return (
     <div ref={ref} className={className}>

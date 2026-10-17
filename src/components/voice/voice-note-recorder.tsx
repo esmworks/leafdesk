@@ -162,7 +162,7 @@ export function VoiceNoteRecorder({
             <span className="relative inline-flex h-3 w-3 rounded-full bg-danger" />
           </span>
           <span className="text-sm font-medium">{t("recording")}</span>
-          <span className="ml-auto text-sm tabular-nums text-fg-muted">
+          <span className="ms-auto text-sm tabular-nums text-fg-muted">
             {formatDuration(state.seconds)} / {formatDuration(limits.maxSeconds)}
           </span>
         </div>

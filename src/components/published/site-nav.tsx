@@ -69,7 +69,7 @@ function NavList({
                 <summary className="flex cursor-pointer list-none items-center [&::-webkit-details-marker]:hidden">
                   <span className="shrink-0" style={{ width: `${indent}rem` }} />
                   <span className="flex h-7 w-5 shrink-0 items-center justify-center rounded text-fg-faint hover:bg-bg-hover hover:text-fg-muted">
-                    <ChevronRight className="h-3.5 w-3.5 transition-transform [details[open]>summary>span>&]:rotate-90" aria-hidden />
+                    <ChevronRight className="h-3.5 w-3.5 transition-transform rtl:rotate-180 [details[open]>summary>span>&]:rotate-90" aria-hidden />
                   </span>
                   {row}
                 </summary>

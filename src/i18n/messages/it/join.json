@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Unisciti allo spazio di lavoro",
+  "title": "Unisciti a “{workspace}”",
+  "invalidTitle": "Link non trovato",
+  "invalidBody": "Questo link di accesso non è valido o è stato disattivato. Chiedine uno nuovo a un proprietario dello spazio di lavoro.",
+  "home": "Vai a Leafdesk",
+  "body": "Ti unirai come membro, a meno che tu non sia stato invitato con un ruolo diverso.",
+  "join": "Unisciti allo spazio di lavoro",
+  "joining": "Accesso in corso…",
+  "alreadyMember": "Sei già membro di questo spazio di lavoro.",
+  "open": "Apri lo spazio di lavoro",
+  "signInBody": "Accedi con il tuo account per unirti. Questo server non consente nuovi account.",
+  "signIn": "Accedi",
+  "requestBody": "Un proprietario approva i nuovi membri di questo spazio di lavoro. Invia una richiesta e riceverai una risposta via email.",
+  "request": "Chiedi di unirti",
+  "requesting": "Invio in corso…",
+  "requestedTitle": "Richiesta inviata",
+  "requestedBody": "Un proprietario dello spazio di lavoro esaminerà la tua richiesta. Riceverai un’email quando avrà deciso.",
+  "pendingBody": "Hai già chiesto di unirti a questo spazio di lavoro. Un proprietario se ne occuperà: riceverai un’email quando avrà deciso."
+}

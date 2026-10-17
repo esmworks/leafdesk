@@ -1,0 +1,71 @@
+{
+  "metaTitle": "サーバー管理",
+  "title": "サーバー管理",
+  "description": "このサーバーのアカウント、そのセッションとパスワードです。確認済みのメールアドレスがADMIN_EMAILSに登録されているため、このページが表示されています。",
+  "back": "{workspace}に戻る",
+  "backHome": "戻る",
+  "workspaces": {
+    "heading": "ワークスペースの作成",
+    "everyone": "誰でもワークスペースを作成できます",
+    "admins": "管理者だけがワークスペースを作成できます",
+    "description": "サーバーのWORKSPACE_CREATION（everyoneまたはadmins）で設定します。この設定にかかわらず、登録した人には個人用ワークスペースが作成されます。"
+  },
+  "sessions": {
+    "heading": "全員",
+    "description": "このサーバーでログイン中のセッション：{count}件",
+    "signOutEveryone": "全員をログアウト",
+    "signOutEveryoneDescription": "このブラウザでのあなたのセッションを除き、すべてのデバイスのすべてのセッションを終了します。それらの場所で開いているページは同期を停止します。接続済みアプリとAPIトークンは引き続き使えます。",
+    "signOutEveryoneTitle": "全員をログアウトしますか？",
+    "signOutEveryoneBody": "このサーバーの全員が再ログインする必要があります。あなたもほかのデバイスでは再ログインが必要です。",
+    "signOutEveryoneConfirm": "全員をログアウト",
+    "resetEveryone": "新しいパスワードを要求",
+    "resetEveryoneDescription": "あなたを除き、パスワードでログインしている全員がログアウトされ、次回のログイン時に新しいパスワードを設定する必要があります。シングルサインオン、GitHub、Googleでのみログインするアカウントには影響しません。",
+    "resetByEmail": "ログイン時に、パスワードを設定するためのリンクがメールで届きます。",
+    "resetInApp": "このサーバーではメールが設定されていないため、古いパスワード（使用している場合は2段階認証コードも）でログインした直後に設定します。",
+    "resetEveryoneTitle": "全員に新しいパスワードを要求しますか？",
+    "resetEveryoneBody": "あなたを除き、パスワードを持つ全員が今すぐログアウトされ、現在のパスワードでは再びログインできなくなります。",
+    "resetEveryoneConfirm": "新しいパスワードを要求"
+  },
+  "users": {
+    "heading": "アカウント",
+    "count": "{count}件のアカウント",
+    "countPartial": "{total}件中{shown}件のアカウントを表示しています。ほかのアカウントは検索して見つけてください。",
+    "search": "名前またはメールアドレスで検索",
+    "noMatches": "この検索に一致するアカウントはありません。",
+    "none": "アカウントはまだありません。",
+    "columns": {
+      "user": "アカウント",
+      "workspaces": "ワークスペース",
+      "lastActive": "最終アクティブ",
+      "twoFactor": "2段階認証",
+      "password": "パスワード",
+      "actions": "操作"
+    },
+    "you": "（あなた）",
+    "admin": "管理者",
+    "unverified": "未確認",
+    "signedOut": "未ログイン",
+    "on": "オン",
+    "off": "オフ",
+    "hasPassword": "設定済み",
+    "noPassword": "なし",
+    "resetPending": "再設定が必要",
+    "actionsFor": "{name}の操作",
+    "signOut": "すべての場所でログアウト",
+    "signOutTitle": "{name}をすべての場所でログアウトしますか？",
+    "signOutBody": "この人のセッション{count}件が終了し、開いているページは同期を停止します。接続済みアプリとAPIトークンは引き続き使えます。",
+    "signOutSelfBody": "このブラウザのセッションを除き、あなたのセッション{count}件が終了します。",
+    "signOutConfirm": "ログアウト",
+    "requireReset": "新しいパスワードを要求",
+    "resetTitle": "{name}に新しいパスワードを要求しますか？",
+    "resetBody": "この人は今すぐログアウトされ、次回パスワードでログインするときに新しいパスワードを設定する必要があります。",
+    "resetByEmail": "ログイン時に、パスワードを設定するためのリンクがメールで届きます。",
+    "resetInApp": "このサーバーではメールが設定されていないため、古いパスワード（使用している場合は2段階認証コードも）でログインした直後に設定します。",
+    "resetConfirm": "新しいパスワードを要求"
+  },
+  "errors": {
+    "notFound": "そのアカウントは見つかりませんでした。",
+    "noPassword": "このアカウントにはパスワードがありません。別の方法でログインしています。",
+    "self": "自分のパスワードはアカウントページで変更してください。"
+  }
+}

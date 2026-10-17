@@ -1,0 +1,106 @@
+{
+  "open": "导入",
+  "title": "导入",
+  "description": "从 Markdown 文件、ZIP 导出包和 Word 文档导入页面，或从 CSV 文件或 Excel 工作簿导入行。",
+  "tabs": {
+    "pages": "Markdown 和 ZIP",
+    "docx": "Word",
+    "csv": "CSV 和 Excel"
+  },
+  "destination": "放在",
+  "topLevel": "工作区顶层",
+  "noDestination": "没有你可以添加页面的页面。",
+  "pages": {
+    "help": "Markdown 文件会成为页面，文件夹会保留其结构。CSV 文件会成为数据库，页面中链接的图片会被上传。",
+    "notion": "从 Notion 导入：以“Markdown & CSV”格式导出（包含子页面），然后直接选择下载的 ZIP 文件（拆分的导出包也可以）。子页面、数据库、关联、标注、折叠块和图片都会一并导入。",
+    "obsidian": "从 Obsidian 导入：选择库所在的文件夹，或其 ZIP 压缩包。笔记之间的链接（包括 [[wikilinks]]）、嵌入的图片和文件以及标注都会一并导入。",
+    "chooseFiles": "选择文件",
+    "chooseFolder": "选择文件夹",
+    "drop": "或将文件拖放到这里",
+    "selected": "{count} 个文件，{size}",
+    "clear": "清除"
+  },
+  "docx": {
+    "help": "每个 Word 文档（.docx）都会成为一个页面，包括其中的标题、列表、表格、链接、图片和脚注。文档最开头的标题会成为页面标题；否则使用文件名。",
+    "choose": "选择 Word 文件"
+  },
+  "csv": {
+    "choose": "选择 CSV 或 Excel 文件",
+    "summary": "{name}：{rows} 行，{columns} 列",
+    "sheet": "工作表",
+    "mode": "导入为",
+    "newDatabase": "新数据库",
+    "existing": "某个数据库的行",
+    "name": "名称",
+    "titleColumn": "行标题来自",
+    "noTitle": "无列（无标题行）",
+    "column": "列",
+    "type": "类型",
+    "target": "导入到",
+    "values": "值",
+    "leaveOut": "不导入",
+    "rowTitle": "行标题",
+    "database": "数据库",
+    "chooseDatabase": "选择数据库",
+    "noDatabases": "没有你可以添加行的数据库。",
+    "cantLoad": "无法加载此数据库的属性。",
+    "newOptions": "数据库中尚不存在的选择值会被添加为选项。"
+  },
+  "import": "导入",
+  "importing": "正在导入…",
+  "done": {
+    "title": "导入完成",
+    "created": "已创建 {list}。",
+    "nothing": "没有创建任何新内容。",
+    "open": "打开",
+    "again": "继续导入"
+  },
+  "counts": {
+    "pages": "{count} 个页面",
+    "databases": "{count} 个数据库",
+    "rows": "{count} 行",
+    "templates": "{count} 个模板",
+    "files": "{count} 个文件"
+  },
+  "warnings": {
+    "heading": "已省略或更改的内容",
+    "invalidValues": "“{column}”中有 {count} 个值与属性不符，已留空。",
+    "missingFile": "“{page}”中链接的“{path}”不在上传的内容中。",
+    "unresolvedLink": "“{page}”中的“[[{target}]]”与上传内容中的任何笔记或文件都不匹配，因此保留为文本。",
+    "fileNotStored": {
+      "tooLarge": "“{path}”超过上传大小限制，未被保存。",
+      "quotaExceeded": "“{path}”未被保存：工作区的文件存储空间已用完。",
+      "failed": "无法保存“{path}”。",
+      "external": "“{path}”已省略：该图片链接自文档外部。",
+      "unsupportedType": "“{path}”已省略：页面无法显示此类型的图片。"
+    },
+    "skipped": {
+      "nestedZip": "“{path}”是嵌套过深的 ZIP，已省略。",
+      "nestedDatabase": "“{path}”会成为数据库中的数据库，已省略。",
+      "duplicate": "“{path}”已省略：已导入同一数据库的完整版本。",
+      "tooLarge": "“{path}”对于单个页面来说过大，已省略。",
+      "unused": "“{path}”已省略：没有页面显示或链接到它。",
+      "unsafePath": "“{path}”已省略：其路径指向 ZIP 之外。",
+      "otherSheet": "工作表“{path}”已省略：每次只导入一个工作表。"
+    },
+    "more": "…以及另外 {count} 项。"
+  },
+  "errors": {
+    "tooLarge": "上传内容超过 {limit}。",
+    "tooManyFiles": "每次导入最多包含 {limit} 个文件。",
+    "tooManyPages": "每次导入最多创建 {limit} 个页面。",
+    "tooManyRows": "每个文件最多 {limit} 行。",
+    "tooManyColumns": "每个文件最多 {limit} 列。",
+    "badZip": "无法读取该 ZIP 文件。",
+    "nothingToImport": "没有可导入的 Markdown 或 CSV 文件。",
+    "emptyCsv": "该文件没有标题行。",
+    "badWorkbook": "无法读取该 Excel 文件。",
+    "unsupportedWorkbook": "只能导入没有密码的 .xlsx 工作簿。请将文件另存为不带密码的 Excel 工作簿（.xlsx）后重试。",
+    "badDocx": "无法将“{name}”作为 Word 文档读取。只能导入 .docx 文件；请先将较旧的 .doc 文件另存为 .docx。",
+    "docxTooComplex": "“{name}”过大或过于复杂，无法作为一个页面导入。",
+    "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
+    "noAccess": "你无法在那里添加页面，或它已不存在。",
+    "notADatabase": "只能向数据库添加行。",
+    "badRequest": "导入未成功。没有任何更改。"
+  }
+}

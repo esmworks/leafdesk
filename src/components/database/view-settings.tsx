@@ -639,11 +639,11 @@ function Toggle({ on, onChange, children }: { on: boolean; onChange: (on: boolea
       role="switch"
       aria-checked={on}
       onClick={() => onChange(!on)}
-      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
     >
       <span className="flex-1">{children}</span>
       <span aria-hidden className={cn("relative h-4 w-7 shrink-0 rounded-full transition-colors", on ? "bg-accent" : "bg-bg-active")}>
-        <span className={cn("absolute top-0.5 h-3 w-3 rounded-full bg-bg shadow transition-[left]", on ? "left-3.5" : "left-0.5")} />
+        <span className={cn("absolute top-0.5 h-3 w-3 rounded-full bg-bg shadow transition-[left,right]", on ? "inset-s-3.5" : "inset-s-0.5")} />
       </span>
     </button>
   );
@@ -676,7 +676,7 @@ function Choice({
       role={checkbox ? "menuitemcheckbox" : "menuitemradio"}
       aria-checked={active}
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
     >
       <span className={cn("flex-1", !wrap && "truncate")}>{children}</span>
       {active && <Check className="h-3.5 w-3.5 text-fg-muted" />}

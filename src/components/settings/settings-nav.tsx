@@ -22,13 +22,13 @@ export function SettingsNav({
   return (
     <nav
       aria-label={label}
-      className="shrink-0 border-b border-border bg-bg-subtle p-2 text-sm md:sticky md:top-0 md:h-dvh md:w-60 md:overflow-y-auto md:border-r md:border-b-0"
+      className="shrink-0 border-b border-border bg-bg-subtle p-2 text-sm md:sticky md:top-0 md:h-dvh md:w-60 md:overflow-y-auto md:border-e md:border-b-0"
     >
       <Link
         href={back.href}
         className="flex h-8 items-center gap-2 rounded-md px-2 text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+        <ArrowLeft className="h-4 w-4 shrink-0 rtl:-scale-x-100" aria-hidden />
         <span className="truncate">{back.label}</span>
       </Link>
       <SettingsNavScroller className="relative mt-1 flex gap-1 overflow-x-auto [scrollbar-width:none] md:mt-4 md:flex-col md:gap-5">

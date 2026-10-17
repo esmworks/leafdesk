@@ -1,0 +1,50 @@
+{
+  "metaTitle": "关系图",
+  "heading": "关系图",
+  "count": "{pages} 个页面 · {edges} 条连接",
+  "reload": "重新加载",
+  "find": "查找要聚焦的页面",
+  "focus": "围绕",
+  "depth": "层级",
+  "clearFocus": "显示完整关系图",
+  "tree": "子页面",
+  "rows": "数据库行",
+  "orphans": "无连接的页面",
+  "kinds": {
+    "page": "页面",
+    "database": "数据库",
+    "row": "行"
+  },
+  "edges": {
+    "link": "链接",
+    "relation": "关联",
+    "child": "子页面"
+  },
+  "truncated": "显示最近编辑的 {count} 个页面。",
+  "canvas": "工作区页面关系图",
+  "empty": "没有可显示的页面。",
+  "focusMissing": "该页面不在关系图中：它可能在回收站里，或未与你分享。",
+  "local": {
+    "title": "此页面的关系图",
+    "close": "关闭关系图",
+    "openFull": "在完整关系图中打开",
+    "canvas": "此页面周围的页面关系图",
+    "empty": "还没有页面与此页面相连。",
+    "failed": "无法加载关系图。"
+  },
+  "zoomIn": "放大",
+  "zoomOut": "缩小",
+  "fit": "适应窗口",
+  "hint": "单击选择，双击打开",
+  "inspector": {
+    "open": "打开页面",
+    "focus": "以它为中心聚焦",
+    "expandRows": "显示 {count} 行",
+    "collapseRows": "收起行",
+    "rows": "{count} 行",
+    "none": "未与其他任何页面相连。",
+    "more": "以及另外 {count} 个",
+    "close": "清除选择",
+    "parent": "所在位置"
+  }
+}

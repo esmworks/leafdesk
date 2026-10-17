@@ -1,0 +1,96 @@
+{
+  "meeting-notes": {
+    "title": "議事録",
+    "description": "議題、メモ、決定事項、アクションアイテム。",
+    "markdown": "**日付：** \n\n**参加者：** \n\n## 議題\n\n1. \n\n## メモ\n\n\n\n## 決定事項\n\n- \n\n## アクションアイテム\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "週間計画",
+    "description": "今週の目標と、曜日ごとのチェックリスト。",
+    "markdown": "## 今週の目標\n\n- [ ] \n\n### 月曜日\n\n- [ ] \n\n### 火曜日\n\n- [ ] \n\n### 水曜日\n\n- [ ] \n\n### 木曜日\n\n- [ ] \n\n### 金曜日\n\n- [ ] \n\n## 来週へのメモ\n"
+  },
+  "project-tracker": {
+    "title": "プロジェクト管理",
+    "description": "ステータス、優先度、担当者、期限付きのタスクを、テーブルとボードで管理します。",
+    "seedNames": {
+      "status": "ステータス",
+      "notStarted": "未着手",
+      "inProgress": "進行中",
+      "done": "完了",
+      "tags": "タグ",
+      "table": "すべてのタスク"
+    },
+    "properties": {
+      "priority": "優先度",
+      "owner": "担当者",
+      "due": "期限"
+    },
+    "options": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "board": "ボード",
+    "rowTemplate": {
+      "title": "新しいタスク",
+      "markdown": "## 目的\n\n\n\n## 手順\n\n- [ ] \n\n## メモ\n\n"
+    },
+    "rows": {
+      "brief": "プロジェクト概要を書く",
+      "milestone": "最初のマイルストーンを計画する",
+      "team": "チームを招待する"
+    }
+  },
+  "wins-log": {
+    "title": "成果ログ",
+    "description": "成果、称賛、完了した仕事を1か所に。月別、種類別、領域別のグラフ付き。",
+    "markdown": "成果、称賛、完了した仕事はすべて、それが起きた場所へのリンクとともにここに記録します。手動で追加するか、「成果の記録係」エージェントに接続から追加させましょう。",
+    "database": "成果",
+    "table": "すべての成果",
+    "board": "種類別",
+    "properties": {
+      "type": "種類",
+      "area": "領域",
+      "date": "日付",
+      "impact": "インパクト",
+      "source": "ソース",
+      "person": "関係者"
+    },
+    "types": {
+      "feedback": "フィードバック",
+      "delivery": "納品",
+      "metric": "指標",
+      "event": "イベント",
+      "other": "その他"
+    },
+    "areas": {
+      "product": "プロダクト",
+      "customers": "顧客",
+      "team": "チーム",
+      "operations": "オペレーション",
+      "sales": "営業"
+    },
+    "impacts": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "widgets": {
+      "total": "成果",
+      "byMonth": "月別の成果",
+      "byArea": "領域別",
+      "byImpact": "インパクト別"
+    },
+    "rowTemplate": {
+      "title": "新しい成果",
+      "markdown": "## 何が起きたか\n\n\n\n## なぜ重要か\n\n\n\n## 根拠\n\n- "
+    },
+    "rows": {
+      "praise": "顧客が新しいオンボーディングを高く評価",
+      "launch": "請求データのエクスポートをリリース",
+      "response": "サポートの返信が2時間以内に",
+      "talk": "チームのオフサイトで講演",
+      "thanks": "営業からデモ環境の準備に感謝された"
+    }
+  }
+}

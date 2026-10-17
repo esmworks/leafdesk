@@ -242,7 +242,7 @@ export function AgentForm({
       </fieldset>
       <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
         {error && (
-          <p role="alert" className="mr-auto text-xs text-danger">
+          <p role="alert" className="me-auto text-xs text-danger">
             {error}
           </p>
         )}
@@ -539,7 +539,7 @@ function RunItem({
           onClick={() => setOpen(!open)}
           className="mt-0.5 rounded p-0.5 text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-90")} />
+          <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", open ? "rotate-90" : "rtl:rotate-180")} />
         </button>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
@@ -587,14 +587,14 @@ function RunItem({
         </div>
       </div>
       {open && (
-        <div className="mt-2 ml-6 space-y-2 text-sm">
+        <div className="mt-2 ms-6 space-y-2 text-sm">
           {(run.request?.task || run.schedule?.task) && (
             <p className="whitespace-pre-wrap text-fg-muted">
               <span className="text-xs font-medium">{t("task")}</span> {run.request?.task || run.schedule?.task}
             </p>
           )}
           {run.steps.length > 0 ? (
-            <ol className="ml-1.5 space-y-1 border-l border-border pl-3 text-fg-muted">
+            <ol className="ms-1.5 space-y-1 border-s border-border ps-3 text-fg-muted">
               {run.steps.map((step, i) => (
                 <li key={i} className="flex min-w-0 items-start gap-1.5">
                   <AgentStepLine step={step} connections={run.connections} onOpen={(pageId) => router.push(`/w/${workspaceId}/p/${pageId}`)} />

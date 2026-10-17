@@ -39,6 +39,7 @@ import { useNewRow } from "./use-new-row";
 import { useTableWindow } from "./use-table-window";
 import { useToday } from "./use-today";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
+import { inlineSign } from "@/components/direction";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -200,11 +201,11 @@ export function TableView({
   const frozen = (i: number, selected = false) =>
     frozenCount > 0 && i < frozenCount
       ? {
-          style: { left: i < 0 ? 0 : leftOf(i) },
+          style: { insetInlineStart: i < 0 ? 0 : leftOf(i) },
           className: cn(
             "sticky z-30",
             selected ? "bg-[color-mix(in_srgb,var(--accent)_5%,var(--bg))]" : "bg-bg",
-            i === frozenCount - 1 && "shadow-[inset_-1px_0_0_var(--border)]",
+            i === frozenCount - 1 && "shadow-[inset_-1px_0_0_var(--border)] rtl:shadow-[inset_1px_0_0_var(--border)]",
           ),
         }
       : { style: undefined, className: undefined };
@@ -225,9 +226,11 @@ export function TableView({
     const handle = e.currentTarget;
     handle.setPointerCapture(e.pointerId);
     const from = e.clientX;
+    // Right to left the handle is on the column's left edge: moving left widens it.
+    const sign = inlineSign(handle);
     let width = start;
     const move = (ev: PointerEvent) => {
-      width = Math.round(Math.min(MAX_COLUMN_WIDTH, Math.max(MIN_COLUMN_WIDTH, start + ev.clientX - from)));
+      width = Math.round(Math.min(MAX_COLUMN_WIDTH, Math.max(MIN_COLUMN_WIDTH, start + (ev.clientX - from) * sign)));
       setResizing({ key, width });
     };
     const end = () => {
@@ -379,7 +382,7 @@ export function TableView({
           style={frozen(0).style}
         >
           <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
-          <div className="flex font-medium" style={subItems.nested ? { paddingLeft: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
+          <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
             <div className="min-w-0 flex-1">
               <QuickAddContext value={editTitleOf === row.id ? quick : null}>
@@ -401,12 +404,12 @@ export function TableView({
               </QuickAddContext>
             </div>
             {subItems.parentsOnly && line.children > 0 && (
-              <span className="flex h-[33px] items-center pr-8">
+              <span className="flex h-[33px] items-center pe-8">
                 <SubItemCount count={line.children} />
               </span>
             )}
           </div>
-          <span className="absolute inset-y-0 right-1 hidden items-center gap-1 group-hover:flex">
+          <span className="absolute inset-y-0 inset-e-1 hidden items-center gap-1 group-hover:flex">
             {canAddSubItem && <AddSubItemButton title={label} onAdd={() => void addSubItem(row, group)} />}
             <OpenLink
               href={opener.href(row.id)}
@@ -425,7 +428,7 @@ export function TableView({
             <td
               key={p.id}
               {...grid.cellProps(at, i + 1)}
-              className={cn("relative border-b border-l border-border p-0 align-top outline-none", frozen(i + 1, selected).className)}
+              className={cn("relative border-b border-s border-border p-0 align-top outline-none", frozen(i + 1, selected).className)}
               style={frozen(i + 1).style}
             >
               <CellMark active={grid.isActive(at, i + 1)} selected={grid.spans && grid.isSelected(at, i + 1)} />
@@ -451,7 +454,7 @@ export function TableView({
             </td>
           );
         })}
-        {!readOnly && <td className="border-b border-l border-border" />}
+        {!readOnly && <td className="border-b border-s border-border" />}
       </tr>
     );
   };
@@ -568,7 +571,7 @@ export function TableView({
               type="button"
               onClick={() => addRow(group)}
               className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-              style={{ paddingLeft: handles + 8 }}
+              style={{ paddingInlineStart: handles + 8 }}
             >
               <Plus className="h-4 w-4" />
               {t("table.new")}
@@ -693,7 +696,7 @@ export function TableView({
               );
             })}
             {!readOnly && (
-              <th className="border-y border-border p-0 text-left font-normal">
+              <th className="border-y border-border p-0 text-start font-normal">
                 {!locked && (
                   <AddPropertyButton
                     onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
@@ -718,13 +721,13 @@ export function TableView({
       {(grouping ? !grouping.shown.length : !rows.length) && (
         <div
           className="border-b border-border px-2 py-6 text-sm text-fg-faint"
-          style={{ marginLeft: handles, width: totalWidth - handles }}
+          style={{ marginInlineStart: handles, width: totalWidth - handles }}
         >
           {searched ? t("table.noSearchMatches") : filtered ? t("table.noMatches") : t("table.noRows")}
         </div>
       )}
       {grouping && grouping.hidden.length > 0 && (
-        <div style={{ marginLeft: handles }}>
+        <div style={{ marginInlineStart: handles }}>
           <HiddenGroups
             prop={groupBy!}
             groups={grouping.hidden}
@@ -738,7 +741,7 @@ export function TableView({
           type="button"
           onClick={() => addRow()}
           className="flex h-[33px] items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-          style={{ marginLeft: handles, width: totalWidth - handles }}
+          style={{ marginInlineStart: handles, width: totalWidth - handles }}
         >
           <Plus className="h-4 w-4" />
           {t("table.new")}
@@ -798,8 +801,8 @@ function GroupHeader({
   const menu = useFloating<HTMLButtonElement>();
   return (
     <div
-      className="group/grp sticky left-0 flex h-10 w-max items-center gap-1.5 pt-2"
-      style={{ paddingLeft: Math.max(offset - 28, 0) }}
+      className="group/grp sticky inset-s-0 flex h-10 w-max items-center gap-1.5 pt-2"
+      style={{ paddingInlineStart: Math.max(offset - 28, 0) }}
     >
       <button
         type="button"
@@ -809,7 +812,7 @@ function GroupHeader({
         onClick={onToggle}
         className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        <ChevronRight className={cn("h-4 w-4 transition-transform", open && "rotate-90")} />
+        <ChevronRight className={cn("h-4 w-4 transition-transform", open ? "rotate-90" : "rtl:rotate-180")} />
       </button>
       <GroupLabel prop={prop} group={group} className="font-medium" />
       <span className="text-xs text-fg-muted tabular-nums" title={t("group.rowCount", { count: group.rows.length })}>
@@ -901,8 +904,8 @@ function HeaderCell({
       onDragEnd={drag?.onDragEnd}
       style={frozen?.style}
       className={cn(
-        "relative border-y border-border p-0 text-left font-normal",
-        prop && "border-l",
+        "relative border-y border-border p-0 text-start font-normal",
+        prop && "border-s",
         drag?.dragging && "opacity-50",
         frozen?.className,
       )}
@@ -910,7 +913,7 @@ function HeaderCell({
       {drag?.dropSide && (
         <span
           aria-hidden
-          className={cn("pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-accent", drag.dropSide === "before" ? "-left-px" : "-right-px")}
+          className={cn("pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-accent", drag.dropSide === "before" ? "-inset-s-px" : "-inset-e-px")}
         />
       )}
       <button
@@ -939,11 +942,11 @@ function HeaderCell({
           onMouseDown={(e) => e.preventDefault()}
           onPointerDown={onResize}
           onClick={(e) => e.stopPropagation()}
-          className="group/resize absolute inset-y-0 -right-1 z-20 w-2 cursor-col-resize touch-none"
+          className="group/resize absolute inset-y-0 -inset-e-1 z-20 w-2 cursor-col-resize touch-none"
         >
           <span
             className={cn(
-              "absolute inset-y-0 left-[3px] w-0.5 transition-colors group-hover/resize:bg-accent/60",
+              "absolute inset-y-0 inset-s-[3px] w-0.5 transition-colors group-hover/resize:bg-accent/60",
               resizing && "bg-accent",
             )}
           />

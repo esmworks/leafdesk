@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Autorizza app",
+  "expired": {
+    "title": "Questo link è scaduto",
+    "body": "La richiesta di autorizzazione non è valida o è troppo vecchia. Torna all’app che stavi collegando e ricomincia."
+  },
+  "unknownClient": {
+    "title": "App sconosciuta",
+    "body": "L’app che chiede l’accesso non è registrata in Leafdesk o è stata disattivata. Torna indietro e prova a collegarla di nuovo."
+  },
+  "heading": "{client} vuole accedere al tuo account Leafdesk",
+  "identifiedBy": "Questa app è identificata da {host}.",
+  "unverified": "Questa app si è registrata automaticamente e non è stata verificata da Leafdesk. Continua solo se hai avviato tu questa connessione.",
+  "notYou": "Non sei tu?",
+  "willAllow": "In questo modo {client} potrà:",
+  "readOnlyHint": "Deseleziona per concedere l’accesso in sola lettura. Ogni modifica viene prima salvata nella cronologia della pagina, quindi puoi annullarla.",
+  "access": {
+    "all": "L’accesso riguarda tutti gli spazi di lavoro di cui fai parte. Puoi scollegare l’app in qualsiasi momento dalle Impostazioni.",
+    "listed": "L’accesso riguarda tutti gli spazi di lavoro di cui fai parte: {workspaces}. Puoi scollegare l’app in qualsiasi momento dalle Impostazioni."
+  },
+  "deny": "Rifiuta",
+  "denying": "Rifiuto in corso…",
+  "allow": "Consenti",
+  "allowing": "Autorizzazione in corso…",
+  "redirectNotice": "Verrai reindirizzato a {host}.",
+  "error": "Impossibile completare la richiesta. Torna all’app e riprova.",
+  "scopes": {
+    "openid": "Confermare chi sei",
+    "profile": "Vedere il tuo nome e la tua immagine del profilo",
+    "email": "Vedere il tuo indirizzo email",
+    "offlineAccess": "Restare connesso senza chiederti di accedere di nuovo",
+    "pagesRead": "Leggere le pagine e i database dei tuoi spazi di lavoro",
+    "pagesWrite": "Creare e modificare pagine e righe di database, e spostare pagine nel cestino",
+    "notificationsRead": "Leggere le notifiche della tua Posta in arrivo",
+    "filesWrite": "Caricare file nelle pagine, da un link o dall’app stessa"
+  }
+}

@@ -47,13 +47,13 @@ export default async function AdminPage({
     <div className="flex min-h-full flex-col md:flex-row">
       <nav
         aria-label={t("title")}
-        className="shrink-0 border-b border-border p-2 text-sm md:sticky md:top-0 md:h-dvh md:w-60 md:overflow-y-auto md:border-r md:border-b-0 md:bg-bg-subtle"
+        className="shrink-0 border-b border-border p-2 text-sm md:sticky md:top-0 md:h-dvh md:w-60 md:overflow-y-auto md:border-e md:border-b-0 md:bg-bg-subtle"
       >
         <Link
           href={from ? `/w/${from.id}` : "/"}
           className="mb-2 flex h-7 items-center gap-2 rounded-md px-2 text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+          <ArrowLeft className="h-4 w-4 shrink-0 rtl:-scale-x-100" aria-hidden />
           <span className="truncate">{from ? t("back", { workspace: from.name }) : t("backHome")}</span>
         </Link>
         <div className="px-2 pt-1 pb-1 text-xs font-medium text-fg-muted">{t("title")}</div>
@@ -86,14 +86,14 @@ export default async function AdminPage({
                 </div>
                 <form role="search" action="/admin" className="relative">
                   {from && <input type="hidden" name="from" value={from.id} />}
-                  <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+                  <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
                   <Input
                     type="search"
                     name="q"
                     defaultValue={q}
                     aria-label={t("users.search")}
                     placeholder={t("users.search")}
-                    className="w-56 pl-7 sm:w-72"
+                    className="w-56 ps-7 sm:w-72"
                   />
                 </form>
               </div>

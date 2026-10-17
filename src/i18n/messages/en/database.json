@@ -485,7 +485,7 @@
     "relativeHint": "Dates within a week of today read “tomorrow”, “in 3 days”, “2 days ago”.",
     "reminder": "Reminder",
     "reminderNone": "No reminder",
-    "reminderBefore": "{days, select, 0 {On the day, 9:00} 1 {1 day before, 9:00} 7 {1 week before, 9:00} other {# days before, 9:00}}",
+    "reminderBefore": "{days, select, 0 {On the day, 9:00} 1 {1 day before, 9:00} 7 {1 week before, 9:00} other {{days} days before, 9:00}}",
     "reminderHint": "Notifies the people assigned to each row, or whoever added it, unless the row is done. 9:00 is in your time zone; dates with a time remind at that time instead."
   },
   "rowProperties": {

@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState } from "react";
+import { useDirection } from "@/components/direction";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
@@ -242,6 +243,7 @@ export function PropertyMenu({
   onDone: () => void;
 }) {
   const t = useTranslations("database.propertyMenu");
+  const dir = useDirection();
   const tc = useTranslations("common");
   const typeLabel = usePropertyTypeLabel();
   const ta = useTranslations("ai.autofill");
@@ -540,8 +542,8 @@ export function PropertyMenu({
         icon={icon(Percent)}
         trailing={
           <>
-            <span className="mr-1 text-xs">{numberFormatLabel(prop.options.number)}</span>
-            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="me-1 text-xs">{numberFormatLabel(prop.options.number)}</span>
+            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
           </>
         }
         onClick={() => setPage("number-format")}
@@ -554,7 +556,7 @@ export function PropertyMenu({
         key="date-options"
         // The bell says a reminder is on; the details are a click away.
         icon={icon(prop.options.date?.reminder ? Bell : CalendarCog)}
-        trailing={icon(ChevronRight)}
+        trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
         onClick={() => setPage("date-options")}
       >
         {t("dateOptions")}
@@ -586,8 +588,8 @@ export function PropertyMenu({
         icon={icon(pageVisibilityOf(prop) === "show" ? Eye : EyeOff)}
         trailing={
           <>
-            <span className="mr-1 text-xs">{t(`pageVisibilityShort.${pageVisibilityOf(prop)}`)}</span>
-            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="me-1 text-xs">{t(`pageVisibilityShort.${pageVisibilityOf(prop)}`)}</span>
+            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
           </>
         }
         onClick={() => setPage("page-visibility")}
@@ -639,7 +641,7 @@ export function PropertyMenu({
       </MenuItem>
     ),
     actions.calculation && (
-      <MenuItem key="calculate" icon={icon(Calculator)} trailing={icon(ChevronRight)} onClick={() => setPage("calculate")}>
+      <MenuItem key="calculate" icon={icon(Calculator)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("calculate")}>
         {t("calculate")}
       </MenuItem>
     ),
@@ -673,15 +675,19 @@ export function PropertyMenu({
     ),
   ].filter(Boolean);
   const insert = [
-    ...(actions.insert?.sides ?? []).map((side) => (
-      <MenuItem
-        key={side}
-        icon={icon(side === "before" ? ArrowLeftToLine : ArrowRightToLine)}
-        onClick={() => setPage(side === "before" ? "insert-before" : "insert-after")}
-      >
-        {t(side === "before" ? "insertLeft" : "insertRight")}
-      </MenuItem>
-    )),
+    ...(actions.insert?.sides ?? []).map((side) => {
+      // Columns run from the right when the page does: there, the one before is on the right.
+      const left = (side === "before") !== (dir === "rtl");
+      return (
+        <MenuItem
+          key={side}
+          icon={icon(left ? ArrowLeftToLine : ArrowRightToLine)}
+          onClick={() => setPage(side === "before" ? "insert-before" : "insert-after")}
+        >
+          {t(left ? "insertLeft" : "insertRight")}
+        </MenuItem>
+      );
+    }),
     prop && actions.duplicate && (
       <MenuItem key="duplicate" icon={icon(Copy)} onClick={run(actions.duplicate)}>
         {t("duplicate")}
@@ -728,8 +734,8 @@ export function PropertyMenu({
                 icon={<PropertyTypeIcon type={prop.type} />}
                 trailing={
                   <>
-                    <span className="mr-1 text-xs">{typeLabel(prop.type)}</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
+                    <span className="me-1 text-xs">{typeLabel(prop.type)}</span>
+                    <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
                   </>
                 }
                 onClick={() => setPage("type")}
@@ -779,7 +785,7 @@ function SubmenuHeader({ title, onBack }: { title: string; onBack: () => void })
         onClick={onBack}
         className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
+        <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
       </button>
       <span className="text-sm font-medium">{title}</span>
     </div>
@@ -843,7 +849,7 @@ function OptionsEditor({
             onDone={() => setEditing(null)}
           />
         ) : (
-          <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setEditing(o.id)} title={t("renameOption")}>
+          <button type="button" className="min-w-0 flex-1 text-start" onClick={() => setEditing(o.id)} title={t("renameOption")}>
             <OptionChip option={o} dot={status} />
           </button>
         )}
@@ -925,7 +931,7 @@ function OptionsEditor({
             onClick={onBack}
             className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
           </button>
           <span className="text-sm font-medium">{t("optionsTitle", { name: prop.name })}</span>
         </div>
@@ -966,7 +972,7 @@ function OptionsEditor({
           onClick={onBack}
           className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
         </button>
         <span className="text-sm font-medium">{t("optionsTitle", { name: prop.name })}</span>
       </div>
@@ -990,7 +996,7 @@ function OptionsEditor({
               ) : (
                 <button
                   type="button"
-                  className="min-w-0 flex-1 text-left"
+                  className="min-w-0 flex-1 text-start"
                   onClick={() => setEditing(o.id)}
                   title={t("renameOption")}
                 >

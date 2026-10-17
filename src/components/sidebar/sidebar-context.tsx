@@ -137,19 +137,19 @@ export function SidebarOpenButton({ className }: { className?: string }) {
       onMouseLeave={sidebar.collapsed ? sidebar.hidePeek : undefined}
     >
       <Menu className="h-4 w-4 max-md:h-5 max-md:w-5 md:group-hover/open:hidden" />
-      <ChevronsRight className="hidden h-4 w-4 md:group-hover/open:block" />
+      <ChevronsRight className="hidden h-4 w-4 md:group-hover/open:block rtl:-scale-x-100" />
     </IconButton>
   );
 }
 
-/** Desktop, collapsed: an invisible strip on the left edge that slides the sidebar out. */
+/** Desktop, collapsed: an invisible strip on the sidebar's edge of the window that slides the sidebar out. */
 export function SidebarPeekEdge() {
   const sidebar = useSidebar();
   if (!sidebar?.collapsed) return null;
   return (
     <div
       aria-hidden
-      className="fixed inset-y-0 left-0 z-40 hidden w-2 md:block"
+      className="fixed inset-y-0 inset-s-0 z-40 hidden w-2 md:block"
       onMouseEnter={sidebar.showPeek}
       onMouseLeave={sidebar.hidePeek}
     />

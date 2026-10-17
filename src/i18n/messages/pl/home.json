@@ -1,0 +1,21 @@
+{
+  "hello": "Cześć, {name}",
+  "recent": "Ostatnio edytowane",
+  "assignedEmpty": "Nic nie jest do ciebie przypisane. Tutaj pojawią się wiersze baz danych, do których cię przypisano.",
+  "empty": "Na razie nic tu nie ma. Utwórz pierwszą stronę, aby zacząć.",
+  "emptyGuest": "Nikt jeszcze niczego ci tu nie udostępnił. Strony pojawią się, gdy ktoś ci je udostępni.",
+  "newPage": "Nowa strona",
+  "newDatabase": "Nowa baza danych",
+  "personalWorkspace": "Obszar roboczy: {name}",
+  "generalTeamspace": "Ogólna",
+  "fromTemplate": "Z szablonu",
+  "assigned": "Przypisane do ciebie",
+  "assignedGroups": {
+    "overdue": "Zaległe",
+    "today": "Dzisiaj",
+    "next7": "Następne 7 dni",
+    "later": "Później",
+    "none": "Bez daty"
+  },
+  "assignedMore": "Wyświetlono {shown} z {total}. Przefiltruj bazę danych według „Ja”, aby zobaczyć resztę."
+}

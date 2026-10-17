@@ -1,0 +1,13 @@
+{
+  "metaTitle": "초대",
+  "title": "“{workspace}”에 참여",
+  "invalidTitle": "초대를 찾을 수 없음",
+  "invalidBody": "이 초대 링크가 유효하지 않거나, 만료되었거나, 취소되었습니다. 초대한 사람에게 새 링크를 요청하세요.",
+  "home": "Leafdesk로 이동",
+  "wrongAccount": "이 초대는 {email} 계정용이지만 현재 {current}(으)로 로그인되어 있습니다. 로그아웃한 후 링크를 다시 여세요.",
+  "acceptBody": "{role}(으)로 참여하도록 초대받았습니다.",
+  "signInBody": "{email}을(를) 사용하는 계정이 이미 있습니다. 로그인하여 초대를 수락하세요.",
+  "signIn": "로그인",
+  "join": "워크스페이스 참여",
+  "joining": "참여하는 중…"
+}

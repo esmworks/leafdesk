@@ -416,8 +416,8 @@ export function DatabasePage({
                             />
                           )}
                           {!readOnly && (
-                            <div className="ml-1 flex items-center">
-                              <Button size="sm" variant="primary" onClick={() => void newRow()} className="rounded-r-none">
+                            <div className="ms-1 flex items-center">
+                              <Button size="sm" variant="primary" onClick={() => void newRow()} className="rounded-e-none">
                                 <Plus className="h-3.5 w-3.5" />
                                 {t("page.new")}
                               </Button>

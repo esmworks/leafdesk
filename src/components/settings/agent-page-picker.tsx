@@ -76,7 +76,7 @@ export function PagePicker({
   return (
     <div className="space-y-2">
       <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+        <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
         <Input
           type="search"
           autoFocus={autoFocus}
@@ -84,7 +84,7 @@ export function PagePicker({
           placeholder={label}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-7"
+          className="ps-7"
         />
       </div>
       <ul className="max-h-56 divide-y divide-border overflow-y-auto rounded-md border border-border">
@@ -121,7 +121,7 @@ export function PagePicker({
                   <button
                     type="button"
                     onClick={() => onPick(p)}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-bg-hover"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-start text-sm hover:bg-bg-hover"
                   >
                     {inner}
                   </button>

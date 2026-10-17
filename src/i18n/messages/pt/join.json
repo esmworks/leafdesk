@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Entrar no espaço de trabalho",
+  "title": "Entrar em “{workspace}”",
+  "invalidTitle": "Link não encontrado",
+  "invalidBody": "Este link de entrada é inválido ou foi desativado. Peça um novo a um proprietário do espaço de trabalho.",
+  "home": "Ir para o Leafdesk",
+  "body": "Você vai entrar como membro, a menos que tenha sido convidado com outra função.",
+  "join": "Entrar no espaço de trabalho",
+  "joining": "Entrando…",
+  "alreadyMember": "Você já é membro deste espaço de trabalho.",
+  "open": "Abrir espaço de trabalho",
+  "signInBody": "Entre com sua conta para participar. Este servidor não permite novas contas.",
+  "signIn": "Entrar",
+  "requestBody": "Um proprietário aprova os novos membros deste espaço de trabalho. Envie um pedido, e você receberá a resposta por e-mail.",
+  "request": "Pedir para entrar",
+  "requesting": "Enviando…",
+  "requestedTitle": "Pedido enviado",
+  "requestedBody": "Um proprietário do espaço de trabalho vai analisar seu pedido. Você receberá um e-mail quando ele decidir.",
+  "pendingBody": "Você já pediu para entrar neste espaço de trabalho. Um proprietário vai analisar; você receberá um e-mail quando ele decidir."
+}

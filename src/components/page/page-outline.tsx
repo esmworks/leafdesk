@@ -32,7 +32,7 @@ export function HeadingList({
     <nav aria-label={label} className="w-full py-1">
       <ul className="m-0 flex list-none flex-col p-0">
         {headings.map((h) => (
-          <li key={h.key} className="m-0" style={{ paddingLeft: `${(h.level - top) * 1.25}rem` }}>
+          <li key={h.key} className="m-0" style={{ paddingInlineStart: `${(h.level - top) * 1.25}rem` }}>
             <a
               {...link(h.key)}
               className="block truncate rounded px-1 py-0.5 text-sm text-fg-muted underline decoration-border underline-offset-4 hover:bg-bg-hover hover:text-fg"

@@ -1,0 +1,21 @@
+{
+  "hello": "Olá, {name}",
+  "recent": "Editados recentemente",
+  "assignedEmpty": "Nada está atribuído a você. As linhas de bancos de dados atribuídas a você aparecem aqui.",
+  "empty": "Nada aqui ainda. Crie sua primeira página para começar.",
+  "emptyGuest": "Nada foi compartilhado com você aqui ainda. As páginas aparecem assim que alguém as compartilhar com você.",
+  "newPage": "Nova página",
+  "newDatabase": "Novo banco de dados",
+  "personalWorkspace": "Espaço de trabalho de {name}",
+  "generalTeamspace": "Geral",
+  "fromTemplate": "A partir de um modelo",
+  "assigned": "Atribuídos a você",
+  "assignedGroups": {
+    "overdue": "Atrasados",
+    "today": "Hoje",
+    "next7": "Próximos 7 dias",
+    "later": "Mais tarde",
+    "none": "Sem data"
+  },
+  "assignedMore": "Mostrando {shown} de {total}. Filtre um banco de dados por “Eu” para ver o restante."
+}

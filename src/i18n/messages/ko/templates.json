@@ -1,0 +1,96 @@
+{
+  "meeting-notes": {
+    "title": "회의록",
+    "description": "안건, 메모, 결정 사항, 실행 항목.",
+    "markdown": "**날짜:** \n\n**참석자:** \n\n## 안건\n\n1. \n\n## 메모\n\n\n\n## 결정 사항\n\n- \n\n## 실행 항목\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "주간 계획",
+    "description": "이번 주 목표와 요일별 체크리스트.",
+    "markdown": "## 이번 주 목표\n\n- [ ] \n\n### 월요일\n\n- [ ] \n\n### 화요일\n\n- [ ] \n\n### 수요일\n\n- [ ] \n\n### 목요일\n\n- [ ] \n\n### 금요일\n\n- [ ] \n\n## 다음 주를 위한 메모\n"
+  },
+  "project-tracker": {
+    "title": "프로젝트 트래커",
+    "description": "상태, 우선순위, 담당자, 마감일이 있는 작업을 표와 보드로 관리합니다.",
+    "seedNames": {
+      "status": "상태",
+      "notStarted": "시작 전",
+      "inProgress": "진행 중",
+      "done": "완료",
+      "tags": "태그",
+      "table": "모든 작업"
+    },
+    "properties": {
+      "priority": "우선순위",
+      "owner": "담당자",
+      "due": "마감일"
+    },
+    "options": {
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "board": "보드",
+    "rowTemplate": {
+      "title": "새 작업",
+      "markdown": "## 목표\n\n\n\n## 단계\n\n- [ ] \n\n## 메모\n\n"
+    },
+    "rows": {
+      "brief": "프로젝트 개요 작성",
+      "milestone": "첫 번째 마일스톤 계획",
+      "team": "팀 초대"
+    }
+  },
+  "wins-log": {
+    "title": "성과 기록",
+    "description": "성과, 칭찬, 완료한 작업을 한곳에 모으고 월별, 유형별, 영역별 차트로 보여 줍니다.",
+    "markdown": "모든 성과, 칭찬, 완료한 작업을 발생한 곳의 링크와 함께 여기에 기록합니다. 직접 추가하거나, 성과 기록기 에이전트가 연결에서 추가하도록 하세요.",
+    "database": "성과",
+    "table": "모든 성과",
+    "board": "유형별",
+    "properties": {
+      "type": "유형",
+      "area": "영역",
+      "date": "날짜",
+      "impact": "영향",
+      "source": "출처",
+      "person": "사람"
+    },
+    "types": {
+      "feedback": "피드백",
+      "delivery": "전달",
+      "metric": "지표",
+      "event": "행사",
+      "other": "기타"
+    },
+    "areas": {
+      "product": "제품",
+      "customers": "고객",
+      "team": "팀",
+      "operations": "운영",
+      "sales": "영업"
+    },
+    "impacts": {
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "widgets": {
+      "total": "성과",
+      "byMonth": "월별 성과",
+      "byArea": "영역별",
+      "byImpact": "영향별"
+    },
+    "rowTemplate": {
+      "title": "새 성과",
+      "markdown": "## 무슨 일이 있었나요\n\n\n\n## 왜 중요한가요\n\n\n\n## 근거\n\n- "
+    },
+    "rows": {
+      "praise": "고객이 새 온보딩을 칭찬함",
+      "launch": "결제 내역 내보내기 출시",
+      "response": "고객 지원 응답 시간이 2시간 미만으로 단축됨",
+      "talk": "팀 워크숍에서 발표함",
+      "thanks": "영업팀이 데모 환경 구성에 감사를 전함"
+    }
+  }
+}

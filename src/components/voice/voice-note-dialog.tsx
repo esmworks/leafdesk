@@ -102,7 +102,7 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
         <div className="space-y-2 p-4">
           {pending ? (
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <p className="mr-auto min-w-0 truncate text-sm font-medium">{pending.title}</p>
+              <p className="me-auto min-w-0 truncate text-sm font-medium">{pending.title}</p>
               <Button size="md" variant="primary" onClick={() => void insert(pending)} disabled={inserting}>
                 {t("retry")}
               </Button>

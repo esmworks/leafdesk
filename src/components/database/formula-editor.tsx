@@ -121,7 +121,7 @@ export function FormulaEditor({
             onClick={onBack}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
           </button>
         )}
         <span className="truncate px-1 text-sm font-medium">{t("titleFor", { name })}</span>
@@ -196,7 +196,7 @@ export function FormulaEditor({
                   title={f.signature}
                   aria-label={t("insert", { name: f.signature })}
                   onClick={() => insert(`${f.name}(`)}
-                  className="block w-full truncate rounded px-1 py-0.5 text-left font-mono text-xs text-fg hover:bg-bg-hover"
+                  className="block w-full truncate rounded px-1 py-0.5 text-start font-mono text-xs text-fg hover:bg-bg-hover"
                 >
                   {f.signature}
                 </button>
@@ -234,8 +234,8 @@ function ReferenceButton({
       aria-label={t("insert", { name: label })}
       onClick={onClick}
       className={cn(
-        "flex w-full min-w-0 items-center gap-1.5 rounded px-1 py-0.5 text-left text-xs hover:bg-bg-hover",
-        nested && "pl-5 text-fg-muted",
+        "flex w-full min-w-0 items-center gap-1.5 rounded px-1 py-0.5 text-start text-xs hover:bg-bg-hover",
+        nested && "ps-5 text-fg-muted",
       )}
     >
       <PropertyTypeIcon type={icon} className="h-3 w-3 shrink-0 text-fg-muted" />

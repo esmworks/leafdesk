@@ -37,7 +37,7 @@ function WorkspaceList({ title, items }: { title: string; items: { id: string; n
   return (
     <div className="space-y-1">
       <p className="text-sm">{title}</p>
-      <ul className="list-disc space-y-0.5 pl-5 text-sm text-fg-muted">
+      <ul className="list-disc space-y-0.5 ps-5 text-sm text-fg-muted">
         {items.map((w) => (
           <li key={w.id}>{w.name}</li>
         ))}

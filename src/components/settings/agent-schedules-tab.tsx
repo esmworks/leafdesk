@@ -185,8 +185,8 @@ function ScheduleItem({
           <X className="h-4 w-4" />
         </IconButton>
       </div>
-      {s.task && <p className="ml-6 line-clamp-2 whitespace-pre-wrap text-fg-muted">{s.task}</p>}
-      <div className="ml-6 space-y-0.5 text-xs">
+      {s.task && <p className="ms-6 line-clamp-2 whitespace-pre-wrap text-fg-muted">{s.task}</p>}
+      <div className="ms-6 space-y-0.5 text-xs">
         {s.enabled ? (
           s.nextRunAt && <p className="text-fg-muted">{t("next", { date: when(s.nextRunAt) })}</p>
         ) : (

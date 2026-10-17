@@ -1,0 +1,106 @@
+{
+  "open": "インポート",
+  "title": "インポート",
+  "description": "MarkdownファイルやZIPのエクスポート、Word文書からページを、CSVファイルやExcelブックから行を取り込みます。",
+  "tabs": {
+    "pages": "MarkdownとZIP",
+    "docx": "Word",
+    "csv": "CSVとExcel"
+  },
+  "destination": "配置先",
+  "topLevel": "ワークスペースの最上位",
+  "noDestination": "ページを追加できるページがありません。",
+  "pages": {
+    "help": "Markdownファイルはページになり、フォルダーの構造は保持されます。CSVファイルはデータベースになり、ページがリンクしている画像はアップロードされます。",
+    "notion": "Notionから：サブページを含めて「Markdown & CSV」形式でエクスポートし、ダウンロードしたZIPをそのまま選択してください（分割されたエクスポートにも対応）。サブページ、データベース、リレーション、コールアウト、折りたたみ、画像も取り込まれます。",
+    "obsidian": "Obsidianから：Vaultのフォルダー、またはそのZIPを選択してください。ノート間のリンク（[[wikilinks]]も含む）、埋め込まれた画像やファイル、コールアウトも取り込まれます。",
+    "chooseFiles": "ファイルを選択",
+    "chooseFolder": "フォルダーを選択",
+    "drop": "またはここにファイルをドロップ",
+    "selected": "{count}個のファイル、{size}",
+    "clear": "クリア"
+  },
+  "docx": {
+    "help": "各Word文書（.docx）は、見出し、リスト、表、リンク、画像、脚注を含むページになります。冒頭に見出しがあればそれがページのタイトルになり、なければファイル名がタイトルになります。",
+    "choose": "Wordファイルを選択"
+  },
+  "csv": {
+    "choose": "CSVまたはExcelファイルを選択",
+    "summary": "{name}：{rows}行、{columns}列",
+    "sheet": "シート",
+    "mode": "インポート方法",
+    "newDatabase": "新しいデータベース",
+    "existing": "データベースの行",
+    "name": "名前",
+    "titleColumn": "行のタイトルに使う列",
+    "noTitle": "列なし（無題の行）",
+    "column": "列",
+    "type": "種類",
+    "target": "取り込み先",
+    "values": "値",
+    "leaveOut": "取り込まない",
+    "rowTitle": "行のタイトル",
+    "database": "データベース",
+    "chooseDatabase": "データベースを選択",
+    "noDatabases": "行を追加できるデータベースがありません。",
+    "cantLoad": "このデータベースのプロパティを読み込めませんでした。",
+    "newOptions": "データベースにまだないセレクトの値は、オプションとして追加されます。"
+  },
+  "import": "インポート",
+  "importing": "インポート中…",
+  "done": {
+    "title": "インポートが完了しました",
+    "created": "{list}を作成しました。",
+    "nothing": "新しく作成されたものはありません。",
+    "open": "開く",
+    "again": "さらにインポート"
+  },
+  "counts": {
+    "pages": "{count}ページ",
+    "databases": "{count}個のデータベース",
+    "rows": "{count}行",
+    "templates": "{count}個のテンプレート",
+    "files": "{count}個のファイル"
+  },
+  "warnings": {
+    "heading": "除外または変更されたもの",
+    "invalidValues": "「{column}」の{count}個の値はプロパティに合わなかったため、空のままにしました。",
+    "missingFile": "「{page}」からリンクされている「{path}」は、アップロードに含まれていませんでした。",
+    "unresolvedLink": "「{page}」内の「[[{target}]]」は、アップロードしたノートやファイルのどれとも一致しないため、テキストのまま残ります。",
+    "fileNotStored": {
+      "tooLarge": "「{path}」はアップロードの上限を超えているため、保存されませんでした。",
+      "quotaExceeded": "「{path}」は保存されませんでした。ワークスペースのファイル容量が不足しています。",
+      "failed": "「{path}」を保存できませんでした。",
+      "external": "「{path}」は除外されました。文書の外部からリンクされている画像です。",
+      "unsupportedType": "「{path}」は除外されました。ページではこの種類の画像を表示できません。"
+    },
+    "skipped": {
+      "nestedZip": "「{path}」は入れ子が深すぎるZIPのため、除外されました。",
+      "nestedDatabase": "「{path}」はデータベース内のデータベースになるため、除外されました。",
+      "duplicate": "「{path}」は除外されました。同じデータベースの完全版がインポートされています。",
+      "tooLarge": "「{path}」は1ページには大きすぎるため、除外されました。",
+      "unused": "「{path}」は除外されました。表示またはリンクしているページがありません。",
+      "unsafePath": "「{path}」は除外されました。パスがZIPの外を指しています。",
+      "otherSheet": "シート「{path}」は除外されました。一度にインポートできるのは1シートだけです。"
+    },
+    "more": "…ほか{count}件。"
+  },
+  "errors": {
+    "tooLarge": "アップロードが{limit}を超えています。",
+    "tooManyFiles": "1回のインポートで扱えるファイルは最大{limit}個です。",
+    "tooManyPages": "1回のインポートで作成できるページは最大{limit}ページです。",
+    "tooManyRows": "1つのファイルに含められる行は最大{limit}行です。",
+    "tooManyColumns": "1つのファイルに含められる列は最大{limit}列です。",
+    "badZip": "ZIPファイルを読み取れません。",
+    "nothingToImport": "インポートするMarkdownまたはCSVファイルがありません。",
+    "emptyCsv": "ファイルにヘッダー行がありません。",
+    "badWorkbook": "Excelファイルを読み取れません。",
+    "unsupportedWorkbook": "インポートできるのは、パスワードのない.xlsxブックだけです。ファイルをパスワードなしのExcelブック（.xlsx）として保存し、もう一度お試しください。",
+    "badDocx": "「{name}」をWord文書として読み取れません。インポートできるのは.docxファイルだけです。古い.docファイルは先に.docxとして保存してください。",
+    "docxTooComplex": "「{name}」は大きすぎるか複雑すぎるため、1ページとしてインポートできません。",
+    "badMapping": "少なくとも1つの列の取り込み先を選択し、各プロパティは1回だけ使ってください。",
+    "noAccess": "そこにはページを追加できないか、すでに存在しません。",
+    "notADatabase": "行はデータベースにしか追加できません。",
+    "badRequest": "インポートは完了しませんでした。何も変更されていません。"
+  }
+}

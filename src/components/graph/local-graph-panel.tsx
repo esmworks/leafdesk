@@ -64,11 +64,11 @@ export function LocalGraphPanel({ workspaceId, pageId, onClose }: { workspaceId:
   return (
     <aside
       aria-label={t("local.title")}
-      className="fixed top-11 right-0 bottom-0 z-30 flex w-full flex-col border-l border-border bg-bg print:hidden md:w-[360px]"
+      className="fixed top-11 inset-e-0 bottom-0 z-30 flex w-full flex-col border-s border-border bg-bg print:hidden md:w-[360px]"
     >
       <div className="flex h-11 shrink-0 items-center gap-2 border-b border-border px-3">
         <h2 className="text-sm font-semibold">{t("local.title")}</h2>
-        <label className="ml-auto flex items-center gap-1.5 text-sm text-fg-muted">
+        <label className="ms-auto flex items-center gap-1.5 text-sm text-fg-muted">
           {t("depth")}
           <select
             value={depth}

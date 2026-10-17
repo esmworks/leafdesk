@@ -347,14 +347,14 @@ function AddPeople({
     <section className="space-y-2">
       <h3 className="text-sm font-medium">{t("add")}</h3>
       <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+        <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
         <Input
           type="search"
           aria-label={t("search")}
           placeholder={t("search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-7"
+          className="ps-7"
         />
       </div>
       <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-md border border-border">

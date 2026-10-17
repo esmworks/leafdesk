@@ -1,0 +1,96 @@
+{
+  "meeting-notes": {
+    "title": "会议记录",
+    "description": "议程、记录、决定和待办事项。",
+    "markdown": "**日期：** \n\n**参会人：** \n\n## 议程\n\n1. \n\n## 记录\n\n\n\n## 决定\n\n- \n\n## 待办事项\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "周计划",
+    "description": "本周目标和每日检查清单。",
+    "markdown": "## 本周目标\n\n- [ ] \n\n### 周一\n\n- [ ] \n\n### 周二\n\n- [ ] \n\n### 周三\n\n- [ ] \n\n### 周四\n\n- [ ] \n\n### 周五\n\n- [ ] \n\n## 下周备注\n"
+  },
+  "project-tracker": {
+    "title": "项目跟踪",
+    "description": "包含状态、优先级、负责人和截止日期的任务，以表格和看板展示。",
+    "seedNames": {
+      "status": "状态",
+      "notStarted": "未开始",
+      "inProgress": "进行中",
+      "done": "已完成",
+      "tags": "标签",
+      "table": "所有任务"
+    },
+    "properties": {
+      "priority": "优先级",
+      "owner": "负责人",
+      "due": "截止日期"
+    },
+    "options": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "board": "看板",
+    "rowTemplate": {
+      "title": "新任务",
+      "markdown": "## 目标\n\n\n\n## 步骤\n\n- [ ] \n\n## 备注\n\n"
+    },
+    "rows": {
+      "brief": "撰写项目简介",
+      "milestone": "规划第一个里程碑",
+      "team": "邀请团队成员"
+    }
+  },
+  "wins-log": {
+    "title": "成果日志",
+    "description": "将成果、表扬和已完成的工作集中在一处，并按月份、类型和领域生成图表。",
+    "markdown": "每一项成果、每一条表扬和每一项已完成的工作都记录在这里，并附上其出处链接。你可以手动添加，也可以让“成果记录员”智能体从你的连接中自动添加。",
+    "database": "成果",
+    "table": "所有成果",
+    "board": "按类型",
+    "properties": {
+      "type": "类型",
+      "area": "领域",
+      "date": "日期",
+      "impact": "影响",
+      "source": "来源",
+      "person": "相关人员"
+    },
+    "types": {
+      "feedback": "反馈",
+      "delivery": "交付",
+      "metric": "指标",
+      "event": "活动",
+      "other": "其他"
+    },
+    "areas": {
+      "product": "产品",
+      "customers": "客户",
+      "team": "团队",
+      "operations": "运营",
+      "sales": "销售"
+    },
+    "impacts": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "widgets": {
+      "total": "成果",
+      "byMonth": "每月成果",
+      "byArea": "按领域",
+      "byImpact": "按影响"
+    },
+    "rowTemplate": {
+      "title": "新成果",
+      "markdown": "## 发生了什么\n\n\n\n## 为什么重要\n\n\n\n## 证据\n\n- "
+    },
+    "rows": {
+      "praise": "一位客户称赞了新的入门引导流程",
+      "launch": "上线了账单导出功能",
+      "response": "客服回复时间现已缩短到两小时以内",
+      "talk": "在团队外出活动中做了一次分享",
+      "thanks": "销售团队感谢我们搭建的演示环境"
+    }
+  }
+}

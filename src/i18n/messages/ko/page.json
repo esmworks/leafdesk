@@ -1,0 +1,609 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "페이지 기록",
+    "more": "더 보기",
+    "copyLink": "링크 복사",
+    "copyId": "ID 복사",
+    "moveToTrash": "휴지통으로 이동",
+    "edited": "{time} 편집됨",
+    "activity": "활동",
+    "editedBy": "{name}이(가) 편집함",
+    "createdBy": "{name}이(가) 생성함",
+    "someone": "알 수 없는 사용자",
+    "comments": "댓글",
+    "share": "공유",
+    "accessRequests": "액세스 요청 {count}개",
+    "addFavorite": "즐겨찾기에 추가",
+    "removeFavorite": "즐겨찾기에서 제거",
+    "linkCopied": "링크가 복사되었습니다",
+    "duplicate": "복제",
+    "duplicateSuffix": " (사본)",
+    "duplicateFailed": "페이지를 복제하지 못했습니다.",
+    "moveTo": "이동",
+    "style": {
+      "font": "글꼴",
+      "default": "기본",
+      "serif": "세리프",
+      "mono": "모노",
+      "smallText": "작은 텍스트",
+      "fullWidth": "전체 너비"
+    },
+    "lockDatabase": "데이터베이스 잠금",
+    "lockHint": "잠겨 있는 동안 속성과 보기는 변경할 수 없습니다. 행은 계속 편집할 수 있습니다.",
+    "locked": "잠김",
+    "unlock": "잠금 해제",
+    "lockPage": "페이지 잠금",
+    "lockPageHint": "잠겨 있는 동안 아무도 제목, 아이콘, 배경, 텍스트를 변경할 수 없습니다. 댓글, 공유, 이동은 계속 할 수 있습니다.",
+    "exportMarkdown": "Markdown으로 내보내기",
+    "exportCsv": "CSV로 내보내기",
+    "exportXlsx": "Excel(.xlsx)로 내보내기",
+    "exportZip": "하위 페이지와 함께 내보내기",
+    "exportZipDatabase": "행 페이지와 함께 내보내기",
+    "exportPdf": "PDF로 내보내기",
+    "exportPreparing": "내보내기 준비 중…",
+    "versionHistory": "버전 기록",
+    "lastEdited": "{name}이(가) 마지막으로 편집함",
+    "actionFailed": "작업을 완료하지 못했습니다.",
+    "viewers": "다른 사람 {count}명이 이 페이지를 보고 있습니다",
+    "viewersTitle": "이 페이지를 보는 사람",
+    "saveAsTemplate": "템플릿으로 저장",
+    "saveAsRowTemplate": "행 템플릿으로 저장",
+    "deleteTemplate": "템플릿 삭제",
+    "exportDisabled": "내보내기가 꺼져 있습니다",
+    "exportDisabledBody": "이 워크스페이스의 소유자가 페이지 내보내기와 인쇄를 꺼 두었습니다.",
+    "showInGraph": "그래프에서 보기"
+  },
+  "comments": {
+    "aboutPage": "이 페이지에 대한 댓글",
+    "title": "댓글",
+    "close": "댓글 닫기",
+    "filters": {
+      "open": "열림",
+      "resolved": "해결됨",
+      "all": "전체"
+    },
+    "empty": {
+      "open": "열린 댓글이 없습니다. 페이지에서 텍스트를 선택하고 댓글을 눌러 시작하세요.",
+      "resolved": "해결된 댓글이 없습니다.",
+      "all": "아직 댓글이 없습니다. 페이지에서 텍스트를 선택하고 댓글을 눌러 시작하세요."
+    }
+  },
+  "archived": {
+    "banner": "이 페이지는 휴지통에 있습니다.",
+    "deletePermanently": "영구 삭제",
+    "confirmDelete": "이 페이지와 그 안의 모든 내용을 영구 삭제할까요? 이 작업은 되돌릴 수 없습니다."
+  },
+  "icon": {
+    "add": "아이콘 추가",
+    "remove": "아이콘 제거"
+  },
+  "background": {
+    "add": "배경 추가",
+    "change": "배경",
+    "colors": "색상",
+    "patterns": "패턴",
+    "none": "없음",
+    "remove": "배경 제거",
+    "colorNames": {
+      "gray": "회색",
+      "blue": "파란색",
+      "green": "초록색",
+      "purple": "보라색",
+      "pink": "분홍색",
+      "red": "빨간색",
+      "orange": "주황색",
+      "black": "검은색"
+    },
+    "patternNames": {
+      "dots": "점",
+      "plus": "십자",
+      "grid": "격자",
+      "lines": "선"
+    }
+  },
+  "title": {
+    "label": "페이지 제목"
+  },
+  "connection": {
+    "live": "실시간",
+    "connecting": "연결 중",
+    "offline": "오프라인",
+    "reconnecting": "다시 연결 중",
+    "noAccess": "액세스 없음",
+    "syncing": "동기화 중…",
+    "synced": "동기화됨",
+    "offlinePending": "오프라인 · 편집 내용이 여기에 보관됨",
+    "offlineHint": "오프라인 상태입니다. 계속 편집하세요. 변경 사항은 이 브라우저에 저장되고 연결이 복구되면 동기화됩니다."
+  },
+  "errors": {
+    "accessLost": "더 이상 이 페이지에 액세스할 수 없습니다.",
+    "connectionFailed": "실시간 편집에 연결하지 못했습니다. 다시 시도하는 중…",
+    "notAvailableOffline": "이 페이지는 아직 이 기기에 저장되지 않았습니다. 오프라인에서 사용하려면 온라인 상태에서 한 번 여세요."
+  },
+  "history": {
+    "title": "페이지 기록",
+    "previewTitle": "버전 미리보기",
+    "modes": {
+      "version": "버전",
+      "current": "현재와 비교",
+      "previous": "이전과 비교"
+    },
+    "reasons": {
+      "auto": "자동 저장",
+      "beforeRestore": "복원 전",
+      "manual": "저장된 버전",
+      "beforeAiEdit": "AI 편집 전",
+      "beforeAiEditBy": "{client} 편집 전",
+      "beforeAssistantEdit": "AI 어시스턴트 편집 전"
+    },
+    "empty": "아직 버전이 없습니다. 버전은 편집하는 동안, 그리고 AI 앱이 이 페이지를 변경하기 전에 자동으로 저장됩니다.",
+    "restore": "이 버전 복원",
+    "restoring": "복원 중…",
+    "restoreHint": "현재 내용이 먼저 버전으로 저장됩니다.",
+    "diff": {
+      "rangeCurrent": "{from} 버전에서 현재 페이지까지의 변경 사항",
+      "rangePrevious": "{from}에서 {to}까지의 변경 사항",
+      "earlier": "이전 버전",
+      "changedBy": "변경한 사람: {names}",
+      "actorApp": "{client}({name} 대신)",
+      "none": "변경 사항이 없습니다.",
+      "oldest": "가장 오래된 저장 버전이므로 비교할 이전 버전이 없습니다.",
+      "showUnchanged": "변경되지 않은 블록 {count}개 표시",
+      "formatOnly": "서식이 변경됨"
+    },
+    "errors": {
+      "list": "페이지 기록을 불러올 수 없습니다. 페이지를 새로 고친 후 다시 시도하세요.",
+      "version": "이 버전을 불러올 수 없습니다.",
+      "restore": "이 버전을 복원할 수 없습니다.",
+      "diff": "이 버전들을 비교할 수 없습니다."
+    }
+  },
+  "move": {
+    "title": "이동",
+    "search": "페이지 검색…",
+    "empty": "일치하는 페이지가 없습니다.",
+    "failed": "페이지를 그곳으로 이동하지 못했습니다.",
+    "teamspaceHint": "이 팀스페이스의 최상위: 팀스페이스 멤버가 액세스할 수 있습니다",
+    "private": "비공개",
+    "privateHint": "내 비공개 페이지의 최상위: 공유받은 사람만 액세스할 수 있습니다"
+  },
+  "share": {
+    "tabShare": "공유",
+    "tabPublish": "게시",
+    "addPeople": "사람, 그룹 또는 이메일 추가",
+    "noMatches": "일치하는 멤버나 그룹이 없습니다.",
+    "addPeopleOrAgents": "사람, 그룹, 에이전트 또는 이메일 추가",
+    "noMatchesWithAgents": "일치하는 멤버, 그룹 또는 에이전트가 없습니다.",
+    "agentPaused": "에이전트, 일시 중지됨",
+    "groupMembers": "{count, plural, =0 {멤버가 없는 그룹} other {멤버 #명의 그룹}}",
+    "membersOnly": "워크스페이스 멤버와 공유할 수 있습니다. 이 워크스페이스에서는 외부 사람과 공유할 수 없습니다.",
+    "guestHint": "워크스페이스 외부 사람과 공유하려면 전체 이메일 주소를 입력하세요. 게스트로 참여하며 공유받은 페이지만 볼 수 있습니다.",
+    "shareWith": "{email}와(과) 공유",
+    "asGuest": "게스트로 참여",
+    "pending": "초대됨, 아직 참여하지 않음",
+    "cancelInvite": "초대 취소",
+    "invitedSent": "{email}(으)로 초대를 보냈습니다.",
+    "invitedNoEmail": "{email}을(를) 초대했지만 이메일을 보낼 수 없었습니다. 초대 링크를 직접 보내세요.",
+    "copyInvite": "초대 링크 복사",
+    "you": "나",
+    "inherited": "{title}에서 상속됨",
+    "groupInherited": "그룹, {title}에서 상속됨",
+    "inheritedAbove": "상위 페이지에서 상속됨",
+    "groupInheritedAbove": "그룹, 상위 페이지에서 상속됨",
+    "hiddenGroup": "그룹",
+    "group": "그룹",
+    "viaGeneral": "{level}(일반 액세스)",
+    "viaOwner": "{level}(소유자)",
+    "overridden": "일반 액세스({level})가 더 높으므로 이 설정은 적용되지 않습니다.",
+    "remove": "제거",
+    "generalAccess": "일반 액세스",
+    "everyone": "워크스페이스의 모든 사람",
+    "everyoneHint": "개별적으로 어떤 권한을 주든 멤버는 최소한 이 수준의 액세스를 갖습니다. 추가한 사람에게만 페이지를 열려면 \"액세스 없음\"으로 설정하세요.",
+    "everyoneIn": "{name}의 모든 사람",
+    "everyoneTeamspace": "팀스페이스의 모든 사람",
+    "everyoneTeamspaceHint": "개별적으로 어떤 권한을 주든 팀스페이스 멤버는 최소한 이 수준의 액세스를 갖습니다. 추가한 사람에게만 페이지를 열려면 \"액세스 없음\"으로 설정하세요.",
+    "readOnly": "전체 액세스 권한이 있는 사람만 공유 설정을 변경할 수 있습니다.",
+    "copyLink": "링크 복사",
+    "copied": "복사됨",
+    "loading": "불러오는 중…",
+    "requests": {
+      "heading": "요청",
+      "message": "“{message}”",
+      "level": "액세스 수준",
+      "approve": "공유",
+      "decline": "거절",
+      "outsider": "워크스페이스 외부 사람: 공유하면 게스트로 추가됩니다.",
+      "cantInvite": "워크스페이스 외부 사람이며, 이 워크스페이스에서는 외부 사람과 공유할 수 없습니다."
+    },
+    "levels": {
+      "full": "전체 액세스",
+      "edit": "편집 가능",
+      "comment": "댓글 가능",
+      "view": "보기 가능",
+      "none": "액세스 없음"
+    },
+    "errors": {
+      "notMember": "이 사람은 워크스페이스 멤버가 아닙니다.",
+      "lastFullAccess": "누군가는 페이지에 대한 전체 액세스 권한을 유지해야 합니다. 먼저 다른 사람에게 전체 액세스 권한을 주세요.",
+      "accessDenied": "이 페이지의 공유 설정을 변경할 수 없습니다.",
+      "invalidEmail": "올바른 이메일 주소를 입력하세요.",
+      "invitesRestricted": "이 워크스페이스에서는 외부 사람과 페이지를 공유할 수 없습니다. 소유자에게 문의하세요.",
+      "generic": "공유 설정을 업데이트하지 못했습니다.",
+      "agentFullAccess": "에이전트는 페이지를 보거나, 댓글을 달거나, 편집할 수 있지만 전체 액세스 권한은 받을 수 없습니다."
+    },
+    "everyoneFromTeamspaceHint": "팀스페이스에서 설정됩니다. 팀스페이스 소유자와 워크스페이스 소유자는 전체 액세스 권한을 가집니다. 여기서 수준을 선택하면 이 페이지와 하위 페이지에 적용됩니다."
+  },
+  "noAccess": {
+    "metaTitle": "액세스 없음",
+    "title": "이 페이지에 액세스할 수 없습니다",
+    "description": "액세스를 요청하면 이 페이지를 공유할 수 있는 사람에게 요청이 전달됩니다.",
+    "descriptionNoRequests": "링크를 보낸 사람에게 이 페이지를 공유해 달라고 요청하세요.",
+    "messageLabel": "메시지(선택 사항)",
+    "messagePlaceholder": "공유할 수 있는 사람에게 남길 메모를 추가하세요",
+    "request": "액세스 요청",
+    "sending": "보내는 중…",
+    "sentTitle": "요청을 보냈습니다",
+    "sentDescription": "누군가 페이지를 공유하면 이 링크로 페이지가 열립니다.",
+    "rateLimited": "액세스를 너무 많이 요청했습니다. 잠시 후 다시 시도하세요.",
+    "signedInAs": "{email}(으)로 로그인되어 있습니다.",
+    "home": "내 워크스페이스로 이동"
+  },
+  "embed": {
+    "label": "데이터베이스",
+    "linkedLabel": "데이터베이스의 링크된 보기",
+    "unavailable": "이 데이터베이스를 사용할 수 없습니다. 삭제되었거나 액세스 권한이 없을 수 있습니다.",
+    "inTrash": "이 데이터베이스는 휴지통에 있습니다.",
+    "creating": "데이터베이스 만드는 중…",
+    "createFailed": "데이터베이스를 만들지 못했습니다: {error}",
+    "turnIntoDatabase": "데이터베이스로 전환",
+    "convertFailed": "표를 데이터베이스로 전환하지 못했습니다: {error}",
+    "tableTooLarge": "최대 {rows}행, {columns}열인 표만 데이터베이스로 전환할 수 있습니다.",
+    "open": "페이지로 열기",
+    "linked": "링크된 보기",
+    "layout": "레이아웃",
+    "viewOnly": "이 페이지를 편집할 수 있는 사람만 이 보기를 변경할 수 있습니다.",
+    "picker": {
+      "title": "데이터베이스 선택",
+      "search": "데이터베이스 검색",
+      "empty": "데이터베이스가 없습니다.",
+      "failed": "데이터베이스를 불러오지 못했습니다."
+    },
+    "slash": {
+      "database": {
+        "title": "데이터베이스",
+        "subtext": "이 페이지 안의 새 데이터베이스",
+        "aliases": "database db inline table 데이터베이스 인라인 표"
+      },
+      "linkedView": {
+        "title": "데이터베이스의 링크된 보기",
+        "subtext": "기존 데이터베이스를 별도의 보기로 표시",
+        "aliases": "linked view database db 링크된 보기 데이터베이스"
+      },
+      "dashboard": {
+        "title": "대시보드",
+        "subtext": "데이터베이스의 숫자, 차트, 목록",
+        "aliases": "dashboard widgets kpi metrics charts numbers 대시보드 위젯 지표 차트 숫자"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "위 첨자",
+    "subscript": "아래 첨자"
+  },
+  "find": {
+    "label": "페이지에서 찾기",
+    "placeholder": "찾기",
+    "replacePlaceholder": "바꿀 내용",
+    "noResults": "결과 없음",
+    "matchCase": "대/소문자 구분",
+    "previous": "이전 항목 (Shift+Enter)",
+    "next": "다음 항목 (Enter)",
+    "showReplace": "바꾸기 표시",
+    "hideReplace": "바꾸기 숨기기",
+    "replace": "바꾸기",
+    "replaceAll": "모두 바꾸기",
+    "close": "닫기 (Esc)"
+  },
+  "template": {
+    "workspace": "템플릿입니다. 이 템플릿으로 만든 새 페이지에는 내용과 하위 페이지가 복사됩니다.",
+    "row": "행 템플릿입니다. 이 템플릿으로 만든 새 행에는 속성과 내용이 적용됩니다.",
+    "inside": "이 페이지는 템플릿의 일부입니다.",
+    "use": "템플릿 사용",
+    "confirmDelete": "이 템플릿을 영구 삭제할까요? 이미 이 템플릿으로 만든 페이지는 그대로 유지됩니다."
+  },
+  "blocks": {
+    "callout": {
+      "title": "콜아웃",
+      "subtext": "색상 배경 위에 아이콘과 함께 표시되는 텍스트",
+      "aliases": "callout note tip warning alert box 콜아웃 메모 팁 경고 알림 상자",
+      "icon": "아이콘 변경"
+    },
+    "code": {
+      "language": "언어",
+      "plainText": "일반 텍스트"
+    },
+    "math": {
+      "title": "수식",
+      "subtext": "TeX로 작성하는 블록 수식",
+      "aliases": "math equation latex tex katex formula 수식 수학 방정식 공식",
+      "placeholder": "TeX 수식 추가",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "수식에 오류가 있습니다"
+    },
+    "inlineMath": {
+      "title": "인라인 수식",
+      "subtext": "텍스트 안의 수식",
+      "aliases": "inline math equation latex tex katex formula 인라인 수식 수학 방정식 공식",
+      "placeholder": "새 수식",
+      "sourcePlaceholder": "x^2",
+      "error": "수식 오류"
+    },
+    "mermaid": {
+      "title": "Mermaid 다이어그램",
+      "subtext": "텍스트로 그리는 순서도, 시퀀스 다이어그램 등",
+      "aliases": "mermaid diagram flowchart chart graph sequence gantt 다이어그램 순서도 차트 그래프 시퀀스 간트",
+      "placeholder": "Mermaid 다이어그램 추가",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "다이어그램 그리는 중…",
+      "error": "다이어그램에 오류가 있습니다",
+      "syntaxError": "구문 오류",
+      "label": "다이어그램"
+    },
+    "toc": {
+      "title": "목차",
+      "subtext": "이 페이지의 제목으로 연결되는 링크",
+      "aliases": "toc table contents headings outline 목차 제목 개요",
+      "label": "목차",
+      "empty": "이 페이지에 제목을 추가하면 여기에 표시됩니다."
+    },
+    "breadcrumb": {
+      "title": "이동 경로",
+      "subtext": "이 페이지의 상위 페이지를 링크로 표시",
+      "aliases": "breadcrumb path parents location 이동 경로 경로 상위 위치",
+      "label": "이동 경로"
+    },
+    "columns": {
+      "two": {
+        "title": "2열",
+        "subtext": "나란히 놓인 블록 2열",
+        "aliases": "columns column layout side 2 two 열 레이아웃 나란히 2열"
+      },
+      "three": {
+        "title": "3열",
+        "subtext": "나란히 놓인 블록 3열",
+        "aliases": "columns column layout side 3 three 열 레이아웃 나란히 3열"
+      },
+      "add": {
+        "title": "열 추가",
+        "subtext": "이 열의 오른쪽에 새 열 추가(최대 5개)",
+        "aliases": "column columns add new layout 열 추가 새 레이아웃"
+      }
+    },
+    "pageLink": {
+      "title": "페이지 링크",
+      "subtext": "실시간 제목이 표시되는 다른 페이지 링크",
+      "aliases": "link page mention reference 링크 페이지 멘션 참조"
+    },
+    "colors": {
+      "group": "색상",
+      "text": "{color} 텍스트",
+      "background": "{color} 배경",
+      "textDefault": "기본 텍스트 색상",
+      "backgroundDefault": "배경 없음",
+      "textAliases": "color colour text font 색상 색 텍스트 글꼴",
+      "backgroundAliases": "background highlight color colour 배경 강조 색상 색"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "웹 북마크",
+      "subtext": "제목과 이미지가 있는 카드로 표시되는 링크",
+      "aliases": "bookmark link url web card preview 북마크 링크 웹 카드 미리보기",
+      "placeholder": "북마크할 링크 붙여넣기",
+      "submit": "북마크",
+      "loading": "페이지를 가져오는 중…",
+      "refresh": "미리보기 새로고침",
+      "label": "북마크"
+    },
+    "embed": {
+      "title": "임베드",
+      "subtext": "YouTube, Figma, Google Docs, Maps 등",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 임베드 동영상 비디오 지도",
+      "placeholder": "임베드할 링크 붙여넣기",
+      "submit": "임베드",
+      "providers": "YouTube, Vimeo, Loom, Figma, 게시된 Google Docs·Sheets·Slides, CodePen, Spotify, Google Maps를 지원합니다. 다른 링크는 북마크로 표시됩니다.",
+      "frameTitle": "{host}의 임베드된 콘텐츠",
+      "label": "임베드"
+    },
+    "paste": {
+      "label": "붙여넣기 형식",
+      "bookmark": "북마크",
+      "embed": "임베드",
+      "keep": "링크로 유지"
+    },
+    "invalidUrl": "https://example.com 같은 웹 주소를 입력하세요",
+    "errors": {
+      "accessDenied": "이 페이지를 편집할 수 없습니다.",
+      "rateLimited": "한 번에 너무 많은 링크 미리보기를 요청했습니다. 1분 후 다시 시도하세요.",
+      "invalidUrl": "올바른 웹 주소가 아닙니다.",
+      "blocked": "이 주소는 미리 볼 수 없습니다.",
+      "unreachable": "페이지에 연결할 수 없습니다.",
+      "timeout": "페이지 응답 시간이 너무 오래 걸렸습니다.",
+      "tooManyRedirects": "페이지 리디렉션이 너무 많습니다.",
+      "httpError": "페이지가 오류를 반환했습니다."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name}이(가) 너무 큽니다. 파일은 최대 {limit}까지 업로드할 수 있습니다.",
+    "quotaExceeded": "{name}을(를) 업로드하지 못했습니다. 이 워크스페이스는 파일 저장 공간 {limit}을(를) 모두 사용했습니다.",
+    "failed": "{name}을(를) 업로드하지 못했습니다."
+  },
+  "mention": {
+    "people": "사람",
+    "pages": "페이지",
+    "dates": "날짜",
+    "newPage": "새 페이지: {title}",
+    "newPageHint": "이 페이지 안에 만들기",
+    "today": "오늘",
+    "tomorrow": "내일",
+    "yesterday": "어제",
+    "nextWeek": "다음 주",
+    "noAccess": "액세스 없음",
+    "deleted": "삭제된 페이지",
+    "loading": "불러오는 중…",
+    "personLeft": "{name}(워크스페이스에 없음)",
+    "date": "날짜",
+    "reminder": "리마인더",
+    "remindNone": "리마인더 없음",
+    "remindSameDay": "당일 9:00",
+    "remindDayBefore": "하루 전 9:00",
+    "remindWeekBefore": "일주일 전 9:00",
+    "reminderSet": "리마인더: {when}",
+    "reminderHint": "수신함과 이메일로 받게 됩니다.",
+    "reminderPast": "이미 지난 시간입니다. 더 늦은 날짜나 리마인더를 선택하세요.",
+    "done": "완료"
+  },
+  "pageLinkPicker": {
+    "title": "페이지 링크",
+    "search": "페이지 검색…",
+    "empty": "페이지가 없습니다",
+    "failed": "페이지를 불러오지 못했습니다."
+  },
+  "backlinks": {
+    "title": "링크한 페이지",
+    "count": "이 페이지를 링크한 페이지 {count}개",
+    "unlinked": "링크되지 않은 멘션 · {count}",
+    "unlinkedHint": "링크 없이 이 페이지의 제목을 쓴 페이지",
+    "link": "링크",
+    "linkLabel": "{title}의 멘션을 링크로 변경",
+    "linkFailed": "해당 위치에 제목이 더 이상 일반 텍스트로 작성되어 있지 않습니다.",
+    "locked": "해당 페이지가 잠겨 있어 변경할 수 없습니다."
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "새 탭에서 열기",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "이 브라우저에서는 PDF를 여기에 표시할 수 없습니다. 파일을 열어 확인하세요."
+  },
+  "print": {
+    "print": "인쇄 또는 PDF로 저장",
+    "back": "페이지로 돌아가기",
+    "includeSubpages": "하위 페이지 포함",
+    "preparing": "이미지와 다이어그램을 불러오는 중…",
+    "hint": "인쇄 대화상자에서 대상으로 “PDF로 저장”을 선택하세요.",
+    "truncated": "처음 {count}개 페이지만 포함됩니다.",
+    "lastUpdated": "최종 업데이트: {date}",
+    "subpages": "페이지",
+    "embedUnavailable": "이 데이터베이스를 사용할 수 없습니다."
+  },
+  "quickNote": {
+    "documentTitle": "빠른 메모",
+    "heading": "빠른 메모",
+    "description": "나만 볼 수 있는 비공개 페이지로 저장됩니다. 나중에 이동하거나 공유할 수 있습니다.",
+    "workspace": "워크스페이스",
+    "title": "제목",
+    "body": "메모",
+    "bodyPlaceholder": "내용을 입력하거나 링크를 붙여넣으세요",
+    "save": "메모 저장",
+    "shortcut": "새 빠른 메모",
+    "shortcutShort": "빠른 메모",
+    "destination": "저장 위치",
+    "privatePage": "비공개 페이지"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "empty": "이 대시보드에는 아직 위젯이 없습니다.",
+    "emptyEditable": "워크스페이스 데이터베이스의 숫자, 차트, 목록을 여기에 표시하세요. 행이 바뀌면 자동으로 최신 상태로 유지됩니다.",
+    "add": "위젯 추가",
+    "full": "대시보드에는 위젯을 최대 {max}개까지 넣을 수 있습니다.",
+    "menu": "위젯 옵션",
+    "edit": "편집",
+    "done": "완료",
+    "remove": "위젯 제거",
+    "moveBefore": "앞으로 이동",
+    "moveAfter": "뒤로 이동",
+    "width": "너비",
+    "widths": {
+      "1": "너비의 1/4",
+      "2": "너비의 절반",
+      "3": "너비의 3/4",
+      "4": "전체 너비"
+    },
+    "color": "색상",
+    "colorNone": "색상 없음",
+    "titleLabel": "위젯 제목",
+    "titlePlaceholder": "제목(비워 두면 데이터베이스 제목)",
+    "unavailable": "이 데이터에 액세스할 수 없습니다.",
+    "inTrash": "이 데이터베이스는 휴지통에 있습니다.",
+    "loadFailed": "이 위젯을 불러오지 못했습니다.",
+    "retry": "다시 시도",
+    "noGroup": "데이터베이스에 아직 그룹화 기준으로 쓸 속성이 없습니다. 선택, 상태 또는 날짜 속성을 추가하세요.",
+    "more": "행 {count}개 더 있음",
+    "rows": "행 {count}개",
+    "byGroup": "{property} 기준",
+    "filters": "필터 {count}개",
+    "updatedNow": "방금 업데이트됨",
+    "updated": "{time} 업데이트됨"
+  },
+  "voiceNote": {
+    "record": "음성 메모 녹음",
+    "recording": "녹음 중",
+    "stop": "중지하고 정리",
+    "discard": "버리기",
+    "cancel": "취소",
+    "retry": "다시 삽입",
+    "close": "닫기",
+    "limit": "최대 {minutes}분",
+    "chooseFile": "또는 오디오 파일 선택",
+    "transcribing": "말한 내용을 받아 적는 중…",
+    "writing": "AI가 메모를 작성하는 중…",
+    "autoStopped": "녹음이 {minutes}분 제한에 도달해 중지되었습니다.",
+    "review": "AI가 녹음을 바탕으로 이 메모를 작성했습니다. 저장하기 전에 확인하세요.",
+    "notRewritten": "AI가 이 녹음을 정리하지 못해 들린 그대로의 녹취록이 메모로 저장되었습니다.",
+    "transcriptKept": "녹취록은 메모 아래에 저장됩니다.",
+    "propertiesPicked": "메모 내용으로 속성 {count}개를 채웠습니다.",
+    "transcriptToggle": "녹취록",
+    "shortcut": "새 음성 메모",
+    "shortcutShort": "음성 메모",
+    "dialogTitle": "음성 메모",
+    "dialogDescription": "말하면 AI가 여기에 깔끔한 메모를 작성합니다. 녹취록은 그 아래에 들어갑니다.",
+    "slashTitle": "음성 메모",
+    "slashSubtext": "말하면 AI가 여기에 정리해 줍니다",
+    "slashAliases": "voice audio record dictate speech microphone transcribe 음성 오디오 녹음 받아쓰기 말하기 마이크 녹취",
+    "errors": {
+      "unsupported": "이 브라우저에서는 오디오를 녹음할 수 없습니다. 대신 오디오 파일을 선택하세요.",
+      "insecure": "녹음하려면 보안(https) 연결이 필요합니다. 대신 오디오 파일을 선택하세요.",
+      "denied": "Leafdesk에 마이크 사용 권한이 없습니다. 브라우저의 사이트 설정에서 허용한 후 다시 시도하세요.",
+      "noDevice": "마이크를 찾을 수 없습니다.",
+      "failed": "녹음을 시작할 수 없습니다. 다시 시도하세요.",
+      "fileType": "지원되지 않는 오디오 파일 형식입니다.",
+      "fileTooLarge": "녹음 파일은 최대 {max}까지 가능합니다.",
+      "disabled": "이 워크스페이스에서는 음성 메모를 사용할 수 없습니다.",
+      "noAccess": "여기에 메모를 추가할 수 없습니다.",
+      "tooLarge": "녹음 파일이 너무 큽니다. 녹음 파일은 최대 {max}까지 가능합니다.",
+      "rateLimited": "AI 요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
+      "timeout": "녹음을 받아 적는 데 시간이 너무 오래 걸렸습니다. 다시 시도하거나 더 짧게 녹음하세요.",
+      "aborted": "취소되었습니다.",
+      "provider": "녹음을 받아 적을 수 없습니다. 나중에 다시 시도하거나 관리자에게 음성 텍스트 변환 설정을 확인해 달라고 요청하세요.",
+      "empty": "녹음에서 아무 소리도 들리지 않았습니다. 마이크에 더 가까이에서 다시 시도하세요.",
+      "invalid": "녹음을 읽을 수 없습니다. 다시 시도하세요.",
+      "interrupted": "처리하는 동안 서버가 다시 시작되었습니다. 다시 시도하세요.",
+      "insert": "메모를 페이지에 추가하지 못했습니다."
+    }
+  },
+  "review": {
+    "bar": "검토할 AI 변경 사항 {count}개",
+    "by": "작성: {names}",
+    "open": "검토",
+    "keepAll": "모두 유지",
+    "undoAll": "모두 실행 취소",
+    "keep": "유지",
+    "undo": "실행 취소",
+    "title": "AI 변경 사항 검토",
+    "hint": "각 변경 사항을 유지하거나 실행 취소하세요. 모두 실행 취소를 누르면 먼저 현재 페이지가 기록에 저장됩니다.",
+    "stale": "그동안 페이지가 변경되었습니다. 현재 기준의 변경 사항입니다.",
+    "failed": "작업이 실패했습니다. 다시 시도하세요."
+  }
+}

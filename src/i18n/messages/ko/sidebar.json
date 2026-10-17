@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "내 계정",
+    "newWorkspace": "새 워크스페이스",
+    "settingsAndMembers": "설정 및 멤버",
+    "signOut": "로그아웃",
+    "admin": "서버 관리"
+  },
+  "nav": {
+    "search": "검색",
+    "home": "홈",
+    "inbox": "수신함",
+    "people": "사람",
+    "settings": "설정",
+    "trash": "휴지통",
+    "templates": "템플릿",
+    "import": "가져오기",
+    "graph": "그래프",
+    "skills": "스킬"
+  },
+  "toggle": {
+    "open": "사이드바 열기",
+    "close": "사이드바 숨기기",
+    "resize": "드래그하여 크기 조절",
+    "pin": "사이드바 고정"
+  },
+  "pages": {
+    "heading": "페이지",
+    "new": "새로 만들기",
+    "newPage": "새 페이지",
+    "newDatabase": "새 데이터베이스",
+    "createFirst": "첫 페이지 만들기",
+    "nothingShared": "아직 공유받은 페이지가 없습니다",
+    "collapse": "접기",
+    "expand": "펼치기",
+    "actions": "페이지 작업",
+    "moveToTrash": "휴지통으로 이동",
+    "rename": "이름 변경",
+    "renameLabel": "페이지 이름",
+    "renameFailed": "페이지 이름을 변경할 수 없습니다.",
+    "renameLocked": "이 페이지는 잠겨 있어 이름을 변경할 수 없습니다. 먼저 페이지 메뉴에서 잠금을 해제하세요.",
+    "addInside": "안에 페이지 추가",
+    "noChildren": "하위 페이지 없음",
+    "favorites": "즐겨찾기",
+    "moveFailed": "페이지를 여기로 이동할 수 없습니다. 다른 곳으로 이동하려면 해당 페이지에 대한 전체 액세스 권한이 필요합니다.",
+    "fromTemplate": "템플릿에서",
+    "import": "가져오기…",
+    "confirmMoveSpace": "이 페이지를 {place}(으)로 이동할까요? 볼 수 있는 사람도 그에 맞게 바뀝니다."
+  },
+  "search": {
+    "placeholder": "페이지 및 콘텐츠 검색…",
+    "label": "검색",
+    "noResults": "결과 없음",
+    "semantic": "비슷한 의미",
+    "semanticHint": "의미로 찾음: 검색어와 단어는 다릅니다.",
+    "recent": "최근 편집",
+    "commands": "명령",
+    "noCommands": "일치하는 명령 없음",
+    "hint": {
+      "in": "페이지 안에서",
+      "type": "데이터베이스만 (또는 페이지, 행)",
+      "commands": "명령"
+    }
+  },
+  "trash": {
+    "title": "휴지통",
+    "empty": "휴지통이 비어 있습니다",
+    "deletePermanently": "영구 삭제",
+    "confirmDelete": "영구 삭제할까요? 되돌릴 수 없습니다.",
+    "deletesIn": "{count}일 후 삭제",
+    "deletesSoon": "곧 삭제"
+  },
+  "newWorkspace": {
+    "title": "새 워크스페이스",
+    "description": "자체 페이지와 멤버가 있는 별도의 공간입니다.",
+    "namePlaceholder": "워크스페이스 이름",
+    "create": "만들기",
+    "creating": "만드는 중…"
+  },
+  "inbox": {
+    "title": "수신함",
+    "empty": "아직 알림이 없습니다",
+    "markAllRead": "모두 읽음으로 표시",
+    "assignment": "{actor}님이 “{property}”에 나를 지정했습니다",
+    "pageShared": "{actor}님이 이 페이지를 나와 공유했습니다",
+    "comment": "{actor}님이 참여 중인 스레드에 댓글을 남겼습니다",
+    "mention": "{actor}님이 나를 멘션했습니다",
+    "reminder": "리마인더: {date}",
+    "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",
+    "automation": "자동화 “{name}”: {actor}님이 이 행을 추가하거나 변경했습니다",
+    "automationDatePassed": "자동화 “{name}”: 이 행의 날짜가 되었습니다",
+    "someone": "누군가",
+    "unread": "읽지 않음",
+    "snooze": "다시 알림",
+    "snoozeChoice": {
+      "hour": "1시간 후",
+      "tomorrow": "내일 9:00",
+      "nextWeek": "월요일 9:00"
+    },
+    "unreadCount": "읽지 않은 알림 {count}개",
+    "joinRequestTitle": "참여 요청",
+    "joinRequest": "{actor}님이 참여를 요청했습니다",
+    "inviteRequest": "{actor}님이 {email} 초대를 요청했습니다",
+    "approvalTitle": "{agent}이(가) 진행 승인을 요청합니다",
+    "approval": "{connection}에서 “{tool}”을(를) 호출하려고 합니다",
+    "approvalAnswered": "응답했거나 시간이 초과되었습니다",
+    "memoryTitle": "{agent}이(가) 기억하려고 합니다",
+    "memory": "“{text}”{more, plural, =0 {} other { 외 메모 #개}}",
+    "memoryHidden": "열 수 없는 행에서 실행한 메모 {count}개",
+    "memoryAnswered": "이미 검토됨",
+    "reportTitle": "{agent}의 보고서",
+    "reportDone": "예약된 실행이 완료되었습니다.",
+    "reportFailed": "예약된 실행이 실패했습니다. 열어서 원인을 확인하세요.",
+    "reportHidden": "열 수 없는 데이터베이스에서 예약된 실행이 완료되었습니다.",
+    "reportGone": "이 실행은 더 이상 보관되지 않습니다."
+  },
+  "templates": {
+    "title": "템플릿",
+    "description": "템플릿을 선택하면 새 페이지를 만듭니다.",
+    "workspace": "이 워크스페이스",
+    "builtIn": "기본 제공",
+    "empty": "아직 템플릿이 없습니다. 추가하려면 페이지의 ⋯ 메뉴를 열고 “템플릿으로 저장”을 선택하세요.",
+    "use": "이 템플릿으로 페이지 만들기",
+    "database": "데이터베이스",
+    "edit": "템플릿 편집",
+    "open": "템플릿 열기",
+    "delete": "템플릿 삭제",
+    "confirmDelete": "이 템플릿을 영구 삭제할까요? 이미 이 템플릿으로 만든 페이지는 그대로 유지됩니다."
+  },
+  "teamspaces": {
+    "heading": "팀스페이스",
+    "options": "팀스페이스 옵션",
+    "new": "새 팀스페이스",
+    "addNew": "새로 추가",
+    "browse": "팀스페이스 둘러보기",
+    "none": "아직 참여한 팀스페이스가 없습니다. 팀스페이스 둘러보기",
+    "actions": "{name} 작업",
+    "addPage": "{name}에 페이지 추가",
+    "edit": "팀스페이스 편집",
+    "members": "멤버 및 설정",
+    "leave": "팀스페이스 나가기",
+    "confirmLeave": "{name}에서 나갈까요? 해당 페이지가 사이드바에서 사라집니다. 공개 팀스페이스가 아니면 페이지에 대한 액세스 권한도 잃게 됩니다.",
+    "empty": "아직 페이지가 없습니다. 페이지 추가",
+    "another": "다른 팀스페이스"
+  },
+  "sections": {
+    "shared": "공유됨",
+    "private": "비공개",
+    "newPrivate": "새 비공개 페이지",
+    "more": "{count}개 더 보기",
+    "less": "간단히 보기"
+  },
+  "joinable": {
+    "heading": "참여할 수 있는 워크스페이스",
+    "join": "참여",
+    "request": "참여 요청",
+    "requested": "요청됨"
+  },
+  "customize": {
+    "open": "사이드바 사용자 지정",
+    "heading": "이 워크스페이스에 표시할 섹션",
+    "moveUp": "{section} 위로 이동",
+    "moveDown": "{section} 아래로 이동",
+    "show": "{section} 표시",
+    "hide": "{section} 숨기기",
+    "done": "완료"
+  }
+}

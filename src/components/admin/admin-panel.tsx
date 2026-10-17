@@ -24,7 +24,7 @@ function ConfirmDialog({ confirmation, onClose }: { confirmation: Confirmation; 
   const tc = useTranslations("common");
   const { pending, error, run } = useAction();
   return (
-    <Dialog open onClose={onClose} className="max-w-md text-left">
+    <Dialog open onClose={onClose} className="max-w-md text-start">
       <div className="space-y-3 p-5">
         <h2 className="text-base font-semibold">{confirmation.title}</h2>
         <p className="text-sm text-fg-muted">{confirmation.body}</p>
@@ -123,19 +123,19 @@ export function AdminUsersTable({
       <table className="w-full min-w-[860px] text-sm">
         <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
           <tr>
-            <th scope="col" className="px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="px-4 py-2.5 text-start font-normal">
               {t("columns.user")}
             </th>
-            <th scope="col" className="w-28 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-28 px-4 py-2.5 text-start font-normal">
               {t("columns.workspaces")}
             </th>
-            <th scope="col" className="w-40 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-40 px-4 py-2.5 text-start font-normal">
               {t("columns.lastActive")}
             </th>
-            <th scope="col" className="w-28 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-28 px-4 py-2.5 text-start font-normal">
               {t("columns.twoFactor")}
             </th>
-            <th scope="col" className="w-36 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-36 px-4 py-2.5 text-start font-normal">
               {t("columns.password")}
             </th>
             <th scope="col" className="w-10">
@@ -204,12 +204,12 @@ function UserRow({ user, isSelf, emailReset, now }: { user: InstanceUser; isSelf
           <span className="text-fg-muted">{user.hasPassword ? t("hasPassword") : t("noPassword")}</span>
         )}
       </td>
-      <td className="px-1 py-2.5 text-right">
+      <td className="px-1 py-2.5 text-end">
         <IconButton ref={menu.ref} label={t("actionsFor", { name })} onClick={menu.toggle}>
           <MoreHorizontal className="h-4 w-4" />
         </IconButton>
         {/* Portaled so the table's scroll container doesn't clip it. */}
-        <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-left">
+        <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
           <MenuItem
             disabled={user.sessions === 0}
             onClick={() => {

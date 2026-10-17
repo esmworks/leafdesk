@@ -1,0 +1,106 @@
+{
+  "open": "Importuj",
+  "title": "Import",
+  "description": "Przenieś strony z plików Markdown, eksportów ZIP i dokumentów Word albo wiersze z pliku CSV lub skoroszytu Excel.",
+  "tabs": {
+    "pages": "Markdown i ZIP",
+    "docx": "Word",
+    "csv": "CSV i Excel"
+  },
+  "destination": "Umieść w",
+  "topLevel": "Najwyższy poziom obszaru roboczego",
+  "noDestination": "Nie ma strony, do której możesz dodawać strony.",
+  "pages": {
+    "help": "Pliki Markdown stają się stronami, a foldery zachowują swoją strukturę. Pliki CSV stają się bazami danych, a obrazy, do których linkują strony, są przesyłane.",
+    "notion": "Z Notion: wyeksportuj jako „Markdown & CSV” z podstronami i wybierz pobrany plik ZIP bez zmian (eksporty podzielone na części też działają). Przeniesione zostaną podstrony, bazy danych, relacje, wyróżnienia, listy rozwijane i obrazy.",
+    "obsidian": "Z Obsidian: wybierz folder sejfu lub jego archiwum ZIP. Przeniesione zostaną linki między notatkami (również [[wikilinki]]), osadzone obrazy i pliki oraz wyróżnienia.",
+    "chooseFiles": "Wybierz pliki",
+    "chooseFolder": "Wybierz folder",
+    "drop": "lub upuść pliki tutaj",
+    "selected": "{count, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}, {size}",
+    "clear": "Wyczyść"
+  },
+  "docx": {
+    "help": "Każdy dokument Word (.docx) staje się stroną z nagłówkami, listami, tabelami, linkami, obrazami i przypisami. Nagłówek na samej górze staje się tytułem strony; w przeciwnym razie tytułem jest nazwa pliku.",
+    "choose": "Wybierz pliki Word"
+  },
+  "csv": {
+    "choose": "Wybierz plik CSV lub Excel",
+    "summary": "{name}: {rows, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}, {columns, plural, one {# kolumna} few {# kolumny} many {# kolumn} other {# kolumny}}",
+    "sheet": "Arkusz",
+    "mode": "Importuj jako",
+    "newDatabase": "Nowa baza danych",
+    "existing": "Wiersze bazy danych",
+    "name": "Nazwa",
+    "titleColumn": "Tytuły wierszy z kolumny",
+    "noTitle": "Żadna kolumna (wiersze bez tytułu)",
+    "column": "Kolumna",
+    "type": "Typ",
+    "target": "Trafia do",
+    "values": "Wartości",
+    "leaveOut": "Pomiń",
+    "rowTitle": "Tytuł wiersza",
+    "database": "Baza danych",
+    "chooseDatabase": "Wybierz bazę danych",
+    "noDatabases": "Nie ma bazy danych, do której możesz dodawać wiersze.",
+    "cantLoad": "Nie udało się wczytać właściwości tej bazy danych.",
+    "newOptions": "Wartości wyboru, których baza danych jeszcze nie ma, zostaną dodane jako opcje."
+  },
+  "import": "Importuj",
+  "importing": "Importowanie…",
+  "done": {
+    "title": "Import zakończony",
+    "created": "Utworzono: {list}.",
+    "nothing": "Nie utworzono niczego nowego.",
+    "open": "Otwórz",
+    "again": "Importuj więcej"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# stronę} few {# strony} many {# stron} other {# strony}}",
+    "databases": "{count, plural, one {# bazę danych} few {# bazy danych} many {# baz danych} other {# bazy danych}}",
+    "rows": "{count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+    "templates": "{count, plural, one {# szablon} few {# szablony} many {# szablonów} other {# szablonu}}",
+    "files": "{count, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}"
+  },
+  "warnings": {
+    "heading": "Pominięte lub zmienione",
+    "invalidValues": "W kolumnie „{column}” {count, plural, one {# wartość nie pasowała do właściwości i pozostawiono ją pustą} few {# wartości nie pasowały do właściwości i pozostawiono je puste} many {# wartości nie pasowało do właściwości i pozostawiono je puste} other {# wartości nie pasowało do właściwości i pozostawiono je puste}}.",
+    "missingFile": "Brak w przesłanych plikach: „{path}” (link na stronie „{page}”).",
+    "unresolvedLink": "„[[{target}]]” na stronie „{page}” nie pasuje do żadnej notatki ani pliku z przesłanych, więc pozostaje tekstem.",
+    "fileNotStored": {
+      "tooLarge": "Nie zapisano „{path}”: przekracza limit przesyłania.",
+      "quotaExceeded": "Nie zapisano „{path}”: w obszarze roboczym skończyło się miejsce na pliki.",
+      "failed": "Nie udało się zapisać „{path}”.",
+      "external": "Pominięto „{path}”: obraz jest linkowany spoza dokumentu.",
+      "unsupportedType": "Pominięto „{path}”: strony nie mogą wyświetlać obrazów tego typu."
+    },
+    "skipped": {
+      "nestedZip": "Pominięto „{path}”: to archiwum ZIP zagnieżdżone zbyt głęboko.",
+      "nestedDatabase": "Pominięto „{path}”: byłoby bazą danych wewnątrz bazy danych.",
+      "duplicate": "Pominięto „{path}”: zaimportowano pełną wersję tej samej bazy danych.",
+      "tooLarge": "Pominięto „{path}”: za duże na jedną stronę.",
+      "unused": "Pominięto „{path}”: żadna strona go nie wyświetla ani do niego nie linkuje.",
+      "unsafePath": "Pominięto „{path}”: jego ścieżka prowadzi poza archiwum ZIP.",
+      "otherSheet": "Pominięto arkusz „{path}”: importowany jest tylko jeden arkusz naraz."
+    },
+    "more": "…i jeszcze {count}."
+  },
+  "errors": {
+    "tooLarge": "Przesyłane pliki przekraczają {limit}.",
+    "tooManyFiles": "Import może zawierać najwyżej {limit, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}.",
+    "tooManyPages": "Import może utworzyć najwyżej {limit, plural, one {# stronę} few {# strony} many {# stron} other {# strony}}.",
+    "tooManyRows": "Plik może mieć najwyżej {limit, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}.",
+    "tooManyColumns": "Plik może mieć najwyżej {limit, plural, one {# kolumnę} few {# kolumny} many {# kolumn} other {# kolumny}}.",
+    "badZip": "Nie można odczytać pliku ZIP.",
+    "nothingToImport": "Brak plików Markdown lub CSV do zaimportowania.",
+    "emptyCsv": "Plik nie ma wiersza nagłówka.",
+    "badWorkbook": "Nie można odczytać pliku Excel.",
+    "unsupportedWorkbook": "Można importować tylko skoroszyty .xlsx bez hasła. Zapisz plik jako Skoroszyt programu Excel (.xlsx) bez hasła i spróbuj ponownie.",
+    "badDocx": "Nie można odczytać „{name}” jako dokumentu Word. Importować można tylko pliki .docx; starsze pliki .doc najpierw zapisz jako .docx.",
+    "docxTooComplex": "Plik „{name}” jest zbyt duży lub złożony, aby zaimportować go jako jedną stronę.",
+    "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
+    "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
+    "notADatabase": "Wiersze można dodawać tylko do bazy danych.",
+    "badRequest": "Import się nie powiódł. Niczego nie zmieniono."
+  }
+}

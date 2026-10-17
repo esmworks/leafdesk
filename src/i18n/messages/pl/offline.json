@@ -1,0 +1,24 @@
+{
+  "banner": "Offline",
+  "hint": "Jesteś offline. Strony otwarte wcześniej nadal można czytać i edytować; zmiany zsynchronizują się po przywróceniu połączenia.",
+  "needsConnection": "{action}: wymaga połączenia",
+  "readOnly": "Offline: tylko do odczytu",
+  "readOnlyCopy": "Kopia offline z {time}, tylko do odczytu",
+  "signOutUnsynced": "Niektóre strony mają zmiany, które nie dotarły jeszcze na serwer. Wylogowanie usunie je z tej przeglądarki. Wylogować mimo to?",
+  "installApp": "Zainstaluj aplikację",
+  "page": {
+    "documentTitle": "Offline",
+    "heading": "Jesteś offline",
+    "body": "Leafdesk nie może teraz połączyć się z serwerem. Poniżej znajdziesz strony otwarte na tym urządzeniu; otworzą się z kopii zapisanej w tej przeglądarce.",
+    "saved": "Zapisane na tym urządzeniu",
+    "unsynced": "Zmiany jeszcze niezsynchronizowane",
+    "empty": "Na tym urządzeniu nie zapisano jeszcze żadnych stron. Strony otwierane w trybie online są zachowywane do użytku offline.",
+    "retry": "Spróbuj ponownie"
+  },
+  "stale": {
+    "title": "Leafdesk został zaktualizowany",
+    "body": "Ta karta wciąż działa w poprzedniej wersji, więc jej strony przestały się synchronizować. Odśwież, aby kontynuować. Zmiany wprowadzone tutaj zostaną zachowane i wysłane po odświeżeniu.",
+    "offlineBody": "Ta karta działa w innej wersji niż ta, której ta przeglądarka używała ostatnio, więc jej strony przestały się synchronizować. Odśwież, gdy wrócisz do trybu online. Zmiany wprowadzone tutaj zostaną zachowane i wtedy wysłane.",
+    "reload": "Odśwież"
+  }
+}

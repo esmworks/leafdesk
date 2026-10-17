@@ -1,0 +1,31 @@
+{
+  "appDescription": "开源的文档与数据库工作区，支持 AI 智能体通过 MCP 访问。",
+  "untitled": "无标题",
+  "agent": "智能体",
+  "agentName": "{name}（智能体）",
+  "cancel": "取消",
+  "save": "保存",
+  "saving": "正在保存…",
+  "saved": "已保存。",
+  "close": "关闭",
+  "delete": "删除",
+  "remove": "移除",
+  "restore": "恢复",
+  "loading": "正在加载…",
+  "copy": "复制",
+  "copied": "已复制",
+  "genericError": "出了点问题，请重试。",
+  "errorPage": {
+    "title": "出了点问题",
+    "description": "无法显示此页面，或者你的上一次更改没有成功。",
+    "retry": "重试",
+    "home": "前往主页"
+  },
+  "export": {
+    "failed": "无法开始导出。请重试。",
+    "tooManyPages": "一次导出的内容过多：每次导出最多包含 {limit} 个页面。请导出工作区中较小的一部分。",
+    "tooLarge": "此次导出中的文件总大小超过 {size}。请导出工作区中较小的一部分。",
+    "busy": "你已有一个导出正在进行。请等待其下载完成。",
+    "disabled": "此工作区已关闭导出功能。"
+  }
+}

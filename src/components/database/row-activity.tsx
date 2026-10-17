@@ -101,7 +101,7 @@ export function RowActivity({ rowId, signal }: { rowId: string; signal: number }
         onClick={toggle}
         className="flex h-[30px] w-fit items-center gap-1.5 rounded-md px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
         {t("title")}
       </button>
       {open && (
@@ -147,12 +147,12 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
   const name = kind === "form" ? t("formAnswer") : kind === "ai" ? t("ai") : (person?.name ?? t("someone"));
   const actor = (
     <>
-      <span className="font-medium text-fg">{name}</span>
+      <bdi className="font-medium text-fg">{name}</bdi>
       {(kind === "agent" || kind === "automation") && (
-        <span className="ml-1 rounded bg-bg-active px-1 py-px align-[1px] text-[11px] leading-none text-fg-muted">{t(kind)}</span>
+        <span className="ms-1 rounded bg-bg-active px-1 py-px align-[1px] text-[11px] leading-none text-fg-muted">{t(kind)}</span>
       )}
       {/* An AI value names who it was worked out for: whoever asked, or whose change set it off. */}
-      {kind === "ai" && <span className="ml-1">{t("aiFor", { name: person?.name ?? t("someone") })}</span>}
+      {kind === "ai" && <span className="ms-1">{t("aiFor", { name: person?.name ?? t("someone") })}</span>}
     </>
   );
   const tags = {
@@ -221,9 +221,10 @@ function Value({ value }: { value: ActivityValue | null }) {
     case "text": {
       const cut = value.text.length > MAX_TEXT;
       return (
-        <span className={strong} title={cut ? value.text : undefined}>
+        // Isolated so text written the other way doesn't pull the words around it (the time after it).
+        <bdi className={strong} title={cut ? value.text : undefined}>
           {cut ? `${value.text.slice(0, MAX_TEXT)}…` : value.text}
-        </span>
+        </bdi>
       );
     }
     case "number":

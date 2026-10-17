@@ -1,0 +1,14 @@
+{
+  "metaTitle": "人员",
+  "heading": "人员",
+  "description": "此工作区的所有者和成员，以及他们所在的团队空间、用户组和最近编辑的页面。访客不会列出。",
+  "search": "按姓名、邮箱、团队空间或用户组搜索",
+  "count": "{count} 人",
+  "noMatches": "没有与你的搜索匹配的人。",
+  "you": "（你）",
+  "teamspaces": "团队空间",
+  "groups": "用户组",
+  "recentPages": "最近编辑",
+  "none": "无",
+  "noRecentPages": "没有你可以打开的最近编辑。"
+}

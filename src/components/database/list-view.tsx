@@ -131,9 +131,9 @@ function ListRow({
         "group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover",
         opener.current === row.id && "bg-bg-hover",
       )}
-      style={nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
+      style={nested ? { paddingInlineStart: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
     >
-      {nested && <SubItemToggle line={line} title={label} onToggle={onToggle} className="-mr-1 h-6" />}
+      {nested && <SubItemToggle line={line} title={label} onToggle={onToggle} className="-me-1 h-6" />}
       <div
         role="link"
         tabIndex={0}
@@ -153,7 +153,7 @@ function ListRow({
         {!nested && <SubItemCount count={line.children} />}
         {shown.length > 0 && (
           // Values are chips: they shrink from the left on narrow screens so the title keeps its room.
-          <div className="ml-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
+          <div className="ms-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
             {shown.map((p) => (
               <span key={p.id} className="flex min-w-0 shrink-0 items-center last:shrink" title={p.name}>
                 <RowValue prop={p} row={row} />

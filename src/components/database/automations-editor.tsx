@@ -267,7 +267,7 @@ export function Footer({ error, children }: { error?: string | null; children: R
   return (
     <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
       {error && (
-        <p role="alert" className="mr-auto text-xs text-danger">
+        <p role="alert" className="me-auto text-xs text-danger">
           {error}
         </p>
       )}
@@ -458,7 +458,7 @@ function DatePassedEditor({
             {t("form.statusCondition")}
           </label>
           {status && (
-            <div className="flex flex-col gap-2 pl-6 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-2 ps-6 sm:flex-row sm:items-center">
               {(statuses.length > 1 || statusGone) && (
                 <select
                   value={status.property}
@@ -897,7 +897,7 @@ function PeoplePicker({
             const person = people.find((p) => p.id === id);
             const name = person?.name || person?.email || t("unknownPerson");
             return (
-              <li key={id} className="inline-flex items-center gap-1 rounded-md bg-bg-hover py-0.5 pr-1 pl-0.5 text-sm">
+              <li key={id} className="inline-flex items-center gap-1 rounded-md bg-bg-hover py-0.5 pe-1 ps-0.5 text-sm">
                 {person ? (
                   <UserAvatar name={name} image={person.image} size="xs" colors="bg-accent/15 text-accent" />
                 ) : (
@@ -944,7 +944,7 @@ function PeoplePicker({
               // Keeps the search box focused, so the list stays open for the next pick.
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => add(p.id)}
-              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
             >
               <UserAvatar name={p.name || p.email || "?"} image={p.image} size="md" colors="bg-accent/15 text-accent" />
               <span className="min-w-0">

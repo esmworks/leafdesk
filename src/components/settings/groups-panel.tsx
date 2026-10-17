@@ -61,18 +61,18 @@ export function GroupsPanel({
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1 sm:flex-none">
-            <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+            <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
             <Input
               type="search"
               aria-label={t("search")}
               placeholder={t("search")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-7 sm:w-56"
+              className="ps-7 sm:w-56"
             />
           </div>
           {isOwner && (
-            <Button variant="primary" className="ml-auto" onClick={() => setCreating(true)}>
+            <Button variant="primary" className="ms-auto" onClick={() => setCreating(true)}>
               {t("newButton")}
             </Button>
           )}
@@ -86,13 +86,13 @@ export function GroupsPanel({
               <table className="w-full min-w-[560px] text-sm">
                 <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
                   <tr>
-                    <th scope="col" className="px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="px-4 py-2.5 text-start font-normal">
                       {t("columns.group")}
                     </th>
-                    <th scope="col" className="w-40 px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="w-40 px-4 py-2.5 text-start font-normal">
                       {t("columns.members")}
                     </th>
-                    <th scope="col" className="w-56 px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="w-56 px-4 py-2.5 text-start font-normal">
                       {t("columns.teamspaces")}
                     </th>
                     <th scope="col" className="w-10">
@@ -156,7 +156,7 @@ function GroupRow({
   return (
     <tr className="align-middle">
       <td className="px-4 py-3">
-        <button type="button" onClick={onOpen} className="max-w-full truncate text-left font-medium hover:underline">
+        <button type="button" onClick={onOpen} className="max-w-full truncate text-start font-medium hover:underline">
           {group.name}
         </button>
         {group.provisioned && (
@@ -184,12 +184,12 @@ function GroupRow({
           <span className="text-fg-faint">—</span>
         )}
       </td>
-      <td className="px-1 py-2.5 text-right">
+      <td className="px-1 py-2.5 text-end">
         <IconButton ref={menu.ref} label={t("actionsFor", { name: group.name })} onClick={menu.toggle}>
           <MoreHorizontal className="h-4 w-4" />
         </IconButton>
         {/* Portaled so the table's scroll container doesn't clip it. */}
-        <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-left">
+        <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
           <MenuItem
             onClick={() => {
               menu.close();
@@ -383,14 +383,14 @@ function AddPeople({
     <section className="space-y-2">
       <h3 className="text-sm font-medium">{t("add")}</h3>
       <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+        <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
         <Input
           type="search"
           aria-label={t("search")}
           placeholder={t("search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-7"
+          className="ps-7"
         />
       </div>
       <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-md border border-border">

@@ -53,9 +53,16 @@ type Vocabulary = {
   units: { day: string[]; week: string[]; month: string[] };
   /** Before a date, taken with it: "on friday", "am Freitag". */
   articles: string[];
+  /** Forms of the weekdays besides their names (Sunday first): "пятницу" in "в пятницу". */
+  weekdays?: string[][];
+  /** Endings a word may carry without changing its meaning: "금요일까지" reads as "금요일". */
+  endings?: string[];
 };
 
-// Folded (see fold): lower case, no accents, dotless i as i.
+// As people type them; folded (see fold) when a language is first used, so the first ones are
+// written folded already. Japanese and Chinese have none: they leave no spaces between words, and
+// words here are what is between spaces. In those languages quick add reads English words and
+// written dates ("10/15", "10月15日").
 const VOCABULARIES: Record<string, Vocabulary> = {
   en: {
     today: ["today"],
@@ -122,6 +129,149 @@ const VOCABULARIES: Record<string, Vocabulary> = {
     units: { day: ["jour", "jours"], week: ["semaine", "semaines"], month: ["mois"] },
     articles: ["le"],
   },
+  it: {
+    today: ["oggi"],
+    tomorrow: ["domani"],
+    dayAfter: ["dopodomani", "dopo domani"],
+    nextWeek: ["la prossima settimana", "prossima settimana", "la settimana prossima", "settimana prossima"],
+    nextMonth: ["il prossimo mese", "prossimo mese", "il mese prossimo", "mese prossimo"],
+    nextBefore: ["prossimo", "prossima"],
+    nextAfter: ["prossimo", "prossima"],
+    inBefore: ["tra", "fra"],
+    inAfter: [],
+    units: { day: ["giorno", "giorni"], week: ["settimana", "settimane"], month: ["mese", "mesi"] },
+    articles: ["entro il", "entro", "per il", "per", "il"],
+  },
+  pt: {
+    today: ["hoje"],
+    tomorrow: ["amanhã"],
+    dayAfter: ["depois de amanhã"],
+    nextWeek: ["semana que vem", "próxima semana", "a próxima semana"],
+    nextMonth: ["mês que vem", "próximo mês", "o próximo mês"],
+    nextBefore: ["próximo", "próxima"],
+    nextAfter: ["que vem"],
+    inBefore: ["em", "daqui a", "dentro de"],
+    inAfter: [],
+    units: { day: ["dia", "dias"], week: ["semana", "semanas"], month: ["mês", "meses"] },
+    articles: ["na", "no", "até", "em"],
+    // "sexta" alone is also "sixth", "segunda" "second": only with "feira", hyphen or not.
+    weekdays: [[], ["segunda feira"], ["terça feira"], ["quarta feira"], ["quinta feira"], ["sexta feira"], []],
+  },
+  pl: {
+    today: ["dziś", "dzisiaj"],
+    tomorrow: ["jutro"],
+    dayAfter: ["pojutrze"],
+    nextWeek: ["w przyszłym tygodniu", "przyszły tydzień", "w następnym tygodniu"],
+    nextMonth: ["w przyszłym miesiącu", "przyszły miesiąc", "w następnym miesiącu"],
+    nextBefore: ["przyszły", "przyszłą", "przyszłe", "następny", "następną", "następne"],
+    nextAfter: [],
+    inBefore: ["za"],
+    inAfter: [],
+    units: { day: ["dzień", "dni"], week: ["tydzień", "tygodnie", "tygodni"], month: ["miesiąc", "miesiące", "miesięcy"] },
+    articles: ["w", "we", "do", "na"],
+    // "w środę", "do piątku".
+    weekdays: [["niedzielę", "niedzieli"], ["poniedziałku"], ["wtorku"], ["środę", "środy"], ["czwartku"], ["piątku"], ["sobotę", "soboty"]],
+  },
+  ru: {
+    today: ["сегодня"],
+    tomorrow: ["завтра"],
+    dayAfter: ["послезавтра"],
+    nextWeek: ["на следующей неделе", "следующей неделе", "следующая неделя", "на следующую неделю", "следующую неделю"],
+    nextMonth: ["в следующем месяце", "следующем месяце", "следующий месяц", "на следующий месяц"],
+    nextBefore: ["следующий", "следующую", "следующее", "следующая"],
+    nextAfter: [],
+    inBefore: ["через"],
+    inAfter: [],
+    units: { day: ["день", "дня", "дней"], week: ["неделя", "неделю", "недели", "недель"], month: ["месяц", "месяца", "месяцев"] },
+    articles: ["в", "во", "на", "до", "к", "ко"],
+    // "в пятницу", "до пятницы", "к пятнице". Not "среды", "среде": they are "environment" too.
+    weekdays: [
+      ["воскресенья", "воскресенью"],
+      ["понедельника", "понедельнику"],
+      ["вторника", "вторнику"],
+      ["среду"],
+      ["четверга", "четвергу"],
+      ["пятницу", "пятницы", "пятнице"],
+      ["субботу", "субботы", "субботе"],
+    ],
+  },
+  uk: {
+    today: ["сьогодні"],
+    tomorrow: ["завтра"],
+    dayAfter: ["післязавтра"],
+    nextWeek: ["наступного тижня", "на наступному тижні", "наступний тиждень", "на наступний тиждень"],
+    nextMonth: ["наступного місяця", "в наступному місяці", "у наступному місяці", "наступний місяць", "на наступний місяць"],
+    nextBefore: ["наступний", "наступну", "наступного", "наступної", "наступне", "наступна"],
+    nextAfter: [],
+    inBefore: ["через", "за"],
+    inAfter: [],
+    units: { day: ["день", "дні", "днів"], week: ["тиждень", "тижні", "тижнів"], month: ["місяць", "місяці", "місяців"] },
+    articles: ["в", "у", "до", "на"],
+    // "у п'ятницю", "до п'ятниці".
+    weekdays: [["неділю", "неділі"], ["понеділка"], ["вівторка"], ["середу", "середи"], ["четверга"], ["п'ятницю", "п'ятниці"], ["суботу", "суботи"]],
+  },
+  ar: {
+    today: ["اليوم"],
+    tomorrow: ["غدا", "بكرة"],
+    dayAfter: ["بعد غد", "بعد غدا"],
+    nextWeek: ["الأسبوع القادم", "الأسبوع المقبل"],
+    nextMonth: ["الشهر القادم", "الشهر المقبل"],
+    nextBefore: [],
+    nextAfter: ["القادم", "القادمة", "المقبل", "المقبلة"],
+    inBefore: ["بعد", "خلال"],
+    inAfter: [],
+    units: { day: ["يوم", "أيام"], week: ["أسبوع", "أسابيع"], month: ["شهر", "أشهر", "شهور"] },
+    // "يوم الجمعة": the weekday's name comes after "يوم" (day).
+    articles: ["يوم", "في", "في يوم", "قبل", "قبل يوم"],
+  },
+  he: {
+    today: ["היום"],
+    tomorrow: ["מחר"],
+    dayAfter: ["מחרתיים"],
+    nextWeek: ["בשבוע הבא", "השבוע הבא", "שבוע הבא"],
+    nextMonth: ["בחודש הבא", "החודש הבא", "חודש הבא"],
+    nextBefore: [],
+    nextAfter: ["הבא", "הבאה", "הקרוב", "הקרובה"],
+    inBefore: ["בעוד", "תוך"],
+    inAfter: [],
+    units: { day: ["יום", "ימים"], week: ["שבוע", "שבועות"], month: ["חודש", "חודשים"] },
+    articles: ["עד"],
+    // Weekdays are "יום שישי" (day six), "on" is a prefix: "ביום שישי". Saturday is "שבת" too.
+    weekdays: [["ביום ראשון"], ["ביום שני"], ["ביום שלישי"], ["ביום רביעי"], ["ביום חמישי"], ["ביום שישי"], ["שבת", "בשבת", "ביום שבת"]],
+  },
+  fa: {
+    today: ["امروز"],
+    tomorrow: ["فردا"],
+    dayAfter: ["پس\u200cفردا"],
+    nextWeek: ["هفته بعد", "هفته آینده", "هفته دیگر"],
+    nextMonth: ["ماه بعد", "ماه آینده", "ماه دیگر"],
+    nextBefore: [],
+    nextAfter: ["بعد", "آینده"],
+    inBefore: [],
+    inAfter: ["بعد", "دیگر"],
+    units: { day: ["روز"], week: ["هفته"], month: ["ماه"] },
+    articles: ["تا"],
+    // Intl writes these as one word; people also part them: "پنج‌شنبه".
+    weekdays: [["یک\u200cشنبه"], ["دو\u200cشنبه"], [], ["چهار\u200cشنبه"], ["پنج\u200cشنبه"], [], []],
+    // The ezafe: "هفته‌ی بعد" (the week after).
+    endings: ["\u200cی"],
+  },
+  ko: {
+    today: ["오늘"],
+    tomorrow: ["내일"],
+    dayAfter: ["모레", "내일모레"],
+    nextWeek: ["다음 주", "다음주"],
+    nextMonth: ["다음 달", "다음달"],
+    nextBefore: ["다음 주", "다음주", "다음"],
+    nextAfter: [],
+    inBefore: [],
+    // The unit comes with the number: "3일 후".
+    inAfter: ["후", "뒤"],
+    units: { day: ["일"], week: ["주", "주일"], month: ["달", "개월"] },
+    articles: [],
+    // Particles: "금요일까지" (by Friday), "금요일에" (on Friday).
+    endings: ["까지", "에는", "에", "엔"],
+  },
 };
 
 /** English abbreviations of weekdays; other languages' are too often ordinary words ("so", "do"). */
@@ -136,15 +286,44 @@ const ENGLISH_WEEKDAY_ABBREVIATIONS: Record<string, number> = {
   fri: 5,
 };
 
-/** Lower case without accents, the dotless i as i, curly apostrophes straight. */
+/**
+ * Lower case without accents, the dotless i as i, Polish ł as l, curly apostrophes straight. In Arabic script
+ * without vowel marks and hamza (أ, إ, آ as ا), the Arabic ye and kaf as the Persian ones, and
+ * Arabic-Indic digits as 0–9. Hangul syllables and kana come out whole again.
+ */
 function fold(text: string): string {
   return text
     .toLocaleLowerCase()
     .replace(/ı/g, "i")
-    .replace(/[’`]/g, "'")
+    .replace(/ł/g, "l")
+    .replace(/[’`ʼ]/g, "'")
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+    .replace(/[\u0300-\u036f\u064b-\u065f\u0670]/g, "")
+    .replace(/[يى]/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/[\u0660-\u0669\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) & 15))
+    .normalize("NFC");
 }
+
+/** A folded phrase as people type it: the zero-width non-joiner in Persian words ("سه‌شنبه") is often left out or typed as a space. */
+function spellings(phrase: string): string[] {
+  return phrase.includes("\u200c") ? [phrase, phrase.replace(/\u200c/g, ""), phrase.replace(/\u200c/g, " ")] : [phrase];
+}
+
+const foldPhrases = (phrases: string[]) => phrases.flatMap((phrase) => spellings(fold(phrase)));
+
+function foldVocabulary({ units, weekdays, endings, ...phrases }: Vocabulary): Vocabulary {
+  return {
+    ...(Object.fromEntries(Object.entries(phrases).map(([key, list]) => [key, foldPhrases(list)])) as Omit<Vocabulary, "units" | "weekdays" | "endings">),
+    units: { day: foldPhrases(units.day), week: foldPhrases(units.week), month: foldPhrases(units.month) },
+    weekdays: weekdays?.map(foldPhrases),
+    // Longest first: "에는" before "에".
+    endings: endings?.map(fold).sort((a, b) => b.length - a.length),
+  };
+}
+
+/** Languages that write a slash date month first: "10/15". */
+const MONTH_FIRST = new Set(["en", "ja", "ko", "zh"]);
 
 type Language = { vocabulary: Vocabulary; weekdays: Map<string, number>; months: Map<string, number>; monthFirst: boolean };
 
@@ -153,25 +332,34 @@ const languages = new Map<string, Language>();
 function language(code: string): Language {
   let found = languages.get(code);
   if (found) return found;
-  const vocabulary = VOCABULARIES[code] ?? VOCABULARIES.en;
+  const vocabulary = foldVocabulary(VOCABULARIES[code] ?? VOCABULARIES.en);
+  // Names may be more than one word ("יום שישי").
   const weekdays = new Map<string, number>();
   // 2024-01-07 was a Sunday: weekday index 0.
   for (let i = 0; i < 7; i++) {
     const date = new Date(Date.UTC(2024, 0, 7 + i));
-    weekdays.set(fold(new Intl.DateTimeFormat(code, { weekday: "long", timeZone: "UTC" }).format(date)), i);
+    const name = new Intl.DateTimeFormat(code, { weekday: "long", timeZone: "UTC" }).format(date);
+    for (const form of [...spellings(fold(name)), ...(vocabulary.weekdays?.[i] ?? [])]) weekdays.set(form, i);
   }
   if (code === "en") for (const [name, day] of Object.entries(ENGLISH_WEEKDAY_ABBREVIATIONS)) weekdays.set(name, day);
   const months = new Map<string, number>();
   for (let m = 0; m < 12; m++) {
     const date = new Date(Date.UTC(2024, m, 15));
     for (const month of ["long", "short"] as const) {
-      // "Okt.", "sept." come with a dot; Turkish "Eki" is fine as it is.
-      const name = fold(new Intl.DateTimeFormat(code, { month, timeZone: "UTC" }).format(date)).replace(/\.$/, "");
-      if (name.length >= 3 && !/\d/.test(name)) months.set(name, m + 1);
+      // Gregorian months in every language (Persian's own calendar is the default there). With a
+      // day, Slavic languages decline the name: "15 октября", "15 października".
+      const options = { month, timeZone: "UTC", calendar: "gregory" } as const;
+      const alone = new Intl.DateTimeFormat(code, options).format(date);
+      const withDay = new Intl.DateTimeFormat(code, { ...options, day: "numeric" }).formatToParts(date).find((part) => part.type === "month");
+      for (const form of [alone, withDay?.value ?? alone]) {
+        // "Okt.", "sept." come with a dot; Turkish "Eki" is fine as it is.
+        const name = fold(form).replace(/\.$/, "");
+        if (name.length >= 3 && !/\d/.test(name)) months.set(name, m + 1);
+      }
     }
   }
   if (code === "en") months.set("sept", 9);
-  found = { vocabulary, weekdays, months, monthFirst: code === "en" };
+  found = { vocabulary, weekdays, months, monthFirst: MONTH_FIRST.has(code) };
   languages.set(code, found);
   return found;
 }
@@ -192,6 +380,17 @@ function tokenize(text: string): Token[] {
 /** Without a trailing dot ("Friday." at the end of a sentence, "15." in "15. Oktober"). */
 const bare = (word: string) => word.replace(/\.$/, "");
 
+/** The tokens as `lang` reads them, without the endings its words may carry ("금요일까지" as "금요일"). */
+function readAs(tokens: Token[], lang: Language): Token[] {
+  const endings = lang.vocabulary.endings;
+  if (!endings?.length) return tokens;
+  return tokens.map((token) => {
+    const word = bare(token.word);
+    const ending = endings.find((e) => word.length > e.length && word.endsWith(e));
+    return ending ? { ...token, word: word.slice(0, -ending.length) } : token;
+  });
+}
+
 /** How many tokens from `i` one of `phrases` takes (the longest), or 0. */
 function phraseAt(tokens: Token[], i: number, phrases: string[]): number {
   let best = 0;
@@ -201,6 +400,16 @@ function phraseAt(tokens: Token[], i: number, phrases: string[]): number {
     if (words.every((word, k) => bare(tokens[i + k].word) === word)) best = words.length;
   }
   return best;
+}
+
+/** The weekday at `i` (0 is Sunday) and how many tokens its name takes, the longest name winning. */
+function weekdayAt(tokens: Token[], i: number, lang: Language): { weekday: number; length: number } | null {
+  let found: { weekday: number; length: number } | null = null;
+  for (const [name, weekday] of lang.weekdays) {
+    const length = phraseAt(tokens, i, [name]);
+    if (length > (found?.length ?? 0)) found = { weekday, length };
+  }
+  return found;
 }
 
 function addMonths(day: number, months: number): number {
@@ -246,15 +455,16 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
   if (n) return { length: n, day: today + 1 };
   // "next friday": that day next week (weeks start on Monday); "friday": the next friday after today.
   const next = phraseAt(tokens, i, v.nextBefore);
-  const weekday = lang.weekdays.get(word(next));
-  if (weekday !== undefined) {
-    const after = next ? 0 : phraseAt(tokens, i + 1, v.nextAfter);
+  const named = weekdayAt(tokens, i + next, lang);
+  if (named) {
+    const { weekday } = named;
+    const after = next ? 0 : phraseAt(tokens, i + named.length, v.nextAfter);
     let day = today + ((weekday - weekdayOf(today) + 7) % 7 || 7);
     if (next || after) {
       const mondayNextWeek = today + 7 - ((weekdayOf(today) + 6) % 7);
       day = mondayNextWeek + ((weekday + 6) % 7);
     }
-    return { length: next + 1 + after, day };
+    return { length: next + named.length + after, day };
   }
 
   n = phraseAt(tokens, i, v.nextWeek);
@@ -266,14 +476,16 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
     return { length: n, day: monthDay(y * 12 + m, 1) };
   }
 
-  // "in 3 days", "3 gün sonra", "dans 2 semaines".
+  // "in 3 days", "3 gün sonra", "dans 2 semaines"; the unit may come with the number ("3일 후").
   const counted = (k: number): Found | null => {
-    const count = /^\d{1,3}$/.test(word(k)) ? Number(word(k)) : NaN;
-    if (!count) return null;
-    const unit = word(k + 1);
-    if (v.units.day.includes(unit)) return { length: k + 2, day: today + count };
-    if (v.units.week.includes(unit)) return { length: k + 2, day: today + 7 * count };
-    if (v.units.month.includes(unit)) return { length: k + 2, day: addMonths(today, count) };
+    const number = /^(\d{1,3})(\D*)$/.exec(word(k));
+    const count = Number(number?.[1]);
+    if (!number || !count) return null;
+    const unit = number[2] || word(k + 1);
+    const length = number[2] ? k + 1 : k + 2;
+    if (v.units.day.includes(unit)) return { length, day: today + count };
+    if (v.units.week.includes(unit)) return { length, day: today + 7 * count };
+    if (v.units.month.includes(unit)) return { length, day: addMonths(today, count) };
     return null;
   };
   const before = phraseAt(tokens, i, v.inBefore);
@@ -302,6 +514,14 @@ function dateAt(tokens: Token[], i: number, lang: Language, today: number): Foun
     const [month, date] = lang.monthFirst && m[2] === "/" ? [a, b] : [b, a];
     const day = m[4] ? calendarDay(fullYear(m[4]), month, date) : upcoming(today, month, date);
     return day === null ? null : { length: 1, day };
+  }
+
+  // "10月15日" in Japanese and Chinese, "10월 15일" in Korean.
+  m = /^(\d{1,2})[月월](?:(\d{1,2})[日일]?)?$/.exec(token);
+  if (m) {
+    const date = m[2] ?? /^(\d{1,2})[日일]$/.exec(word(1))?.[1];
+    const day = date ? upcoming(today, Number(m[1]), Number(date)) : null;
+    if (day !== null) return { length: m[2] ? 1 : 2, day };
   }
 
   // "15 Oct", "15. Oktober 2026", "15 de octubre"; "Oct 15, 2026" in English.
@@ -367,6 +587,7 @@ export function parseQuickAdd(text: string, context: QuickAddContext): QuickAddR
   const code = context.locale.split("-")[0];
   const langs = [language(code), ...(code === "en" ? [] : [language("en")])];
   const tokens = tokenize(text);
+  const readings = langs.map((lang) => ({ lang, tokens: readAs(tokens, lang) }));
   const matches: QuickAddMatch[] = [];
   const people: string[] = [];
   const options: QuickAddOption[] = [];
@@ -400,7 +621,7 @@ export function parseQuickAdd(text: string, context: QuickAddContext): QuickAddR
       continue;
     }
     const dated: Found | null | undefined =
-      date === null && context.dates !== false ? langs.map((lang) => dateFrom(tokens, i, lang, today)).find(Boolean) : null;
+      date === null && context.dates !== false ? readings.map((r) => dateFrom(r.tokens, i, r.lang, today)).find(Boolean) : null;
     if (dated && take("date", token.start, tokens[i + dated.length - 1].end)) {
       date = dated.day;
       i += dated.length - 1;

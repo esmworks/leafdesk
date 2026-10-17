@@ -1,0 +1,73 @@
+{
+  "heading": "Tokens de acesso pessoal",
+  "description": "Os tokens permitem que scripts e outros programas usem a API REST do Leafdesk como você, com o seu acesso às páginas. Mantenha-os em segredo, como uma senha.",
+  "docs": "Documentação da API",
+  "empty": "Você ainda não tem tokens.",
+  "create": "Novo token",
+  "form": {
+    "title": "Novo token de acesso pessoal",
+    "name": "Nome",
+    "namePlaceholder": "ex.: Script do relatório semanal",
+    "access": "Acesso",
+    "read": "Somente leitura",
+    "readHint": "Ler páginas, bancos de dados, linhas e comentários.",
+    "write": "Leitura e escrita",
+    "writeHint": "Também criar e alterar páginas, linhas e comentários, mover páginas para a lixeira e (como proprietário do espaço de trabalho) alterar agentes e pedir execuções a eles.",
+    "workspace": "Espaço de trabalho",
+    "allWorkspaces": "Todos os meus espaços de trabalho",
+    "expiry": "Expira após",
+    "days": "{count, plural, one {# dia} other {# dias}}",
+    "never": "Nunca",
+    "submit": "Criar token",
+    "creating": "Criando…"
+  },
+  "created": {
+    "title": "Copie seu novo token",
+    "body": "Esta é a única vez que o token é mostrado. Guarde-o em um lugar seguro; se perdê-lo, revogue-o e crie outro.",
+    "done": "Concluído"
+  },
+  "row": {
+    "readOnly": "Somente leitura",
+    "readWrite": "Leitura e escrita",
+    "allWorkspaces": "Todos os espaços de trabalho",
+    "createdAt": "Criado em {date}",
+    "lastUsed": "usado pela última vez em {date}",
+    "neverUsed": "nunca usado",
+    "expires": "expira em {date}",
+    "expired": "expirou em {date}",
+    "noExpiry": "não expira"
+  },
+  "revoke": "Revogar",
+  "revoking": "Revogando…",
+  "confirmRevoke": "Revogar {name}",
+  "revokeError": "Não foi possível revogar o token. Tente novamente.",
+  "errors": {
+    "name": "Dê ao token um nome com no máximo 100 caracteres.",
+    "scopes": "Escolha o que o token pode fazer.",
+    "workspace": "Você não é membro desse espaço de trabalho.",
+    "expiry": "Escolha quando o token expira.",
+    "limit": "Você atingiu o número máximo de tokens. Revogue um primeiro.",
+    "generic": "Não foi possível criar o token. Tente novamente."
+  },
+  "docsPage": {
+    "metaTitle": "API REST",
+    "openapi": "Documento OpenAPI (JSON)",
+    "tokensWhere": "Crie um token em Minha conta → Apps conectados.",
+    "quickStart": "Início rápido",
+    "baseUrl": "URL base",
+    "errors": "Erros",
+    "code": "Código",
+    "status": "Status",
+    "endpoints": "Endpoints",
+    "parameters": "Parâmetros",
+    "inPath": "caminho",
+    "inQuery": "consulta",
+    "body": "Corpo da requisição (JSON)",
+    "formBody": "Corpo da requisição (multipart form data)",
+    "response": "Resposta {status}",
+    "name": "Nome",
+    "type": "Tipo",
+    "description": "Descrição",
+    "required": "obrigatório"
+  }
+}

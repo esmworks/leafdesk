@@ -94,7 +94,7 @@ export function NumberFormatEditor({
           onClick={onBack}
           className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
         </button>
         <span className="truncate px-1 text-sm font-medium">{t("numberFormat")}</span>
       </div>

@@ -206,7 +206,7 @@ export function PageHeaderActions({
               {info.accessRequests > 0 && (
                 <span
                   title={t("accessRequests", { count: info.accessRequests })}
-                  className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-accent-fg"
+                  className="ms-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-accent-fg"
                 >
                   <span aria-hidden>{info.accessRequests}</span>
                   <span className="sr-only">{t("accessRequests", { count: info.accessRequests })}</span>
@@ -619,7 +619,7 @@ function PageMenu({
                   href={`/w/${workspaceId}/p/${page.id}/export`}
                   download
                   onClick={() => close()}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                 >
                   <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
                     {isDatabase ? <Download className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
@@ -631,7 +631,7 @@ function PageMenu({
                     href={`/w/${workspaceId}/p/${page.id}/export?format=xlsx`}
                     download
                     onClick={() => close()}
-                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                   >
                     <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
                       <FileSpreadsheet className="h-4 w-4" />
@@ -645,7 +645,7 @@ function PageMenu({
                     download
                     onClick={() => close()}
                     title={tSkills("downloadHint")}
-                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                   >
                     <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
                       <ScrollText className="h-4 w-4" />
@@ -665,7 +665,7 @@ function PageMenu({
                   target="_blank"
                   rel="noopener"
                   onClick={() => close()}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                 >
                   <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
                     <Printer className="h-4 w-4" />
@@ -825,7 +825,7 @@ function MoveDialog({
             key={r.key}
             type="button"
             onClick={() => move(null, r.teamspaceId)}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
           >
             {r.icon ? (
               <span className="flex h-4 w-4 items-center justify-center text-sm">{r.icon}</span>
@@ -844,7 +844,7 @@ function MoveDialog({
             key={n.id}
             type="button"
             onClick={() => move(n.id)}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
           >
             <PageIcon icon={n.icon} kind={n.kind} className="text-sm" />
             <span className="min-w-0 flex-1 truncate">{pageLabel(n.title, tc("untitled"))}</span>

@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "Minha conta",
+    "newWorkspace": "Novo espaço de trabalho",
+    "settingsAndMembers": "Configurações e membros",
+    "signOut": "Sair",
+    "admin": "Administração do servidor"
+  },
+  "nav": {
+    "search": "Pesquisar",
+    "home": "Início",
+    "inbox": "Caixa de entrada",
+    "people": "Pessoas",
+    "settings": "Configurações",
+    "trash": "Lixeira",
+    "templates": "Modelos",
+    "import": "Importar",
+    "graph": "Grafo",
+    "skills": "Habilidades"
+  },
+  "toggle": {
+    "open": "Abrir barra lateral",
+    "close": "Ocultar barra lateral",
+    "resize": "Arraste para redimensionar",
+    "pin": "Manter barra lateral aberta"
+  },
+  "pages": {
+    "heading": "Páginas",
+    "new": "Novo",
+    "newPage": "Nova página",
+    "newDatabase": "Novo banco de dados",
+    "createFirst": "Crie sua primeira página",
+    "nothingShared": "Nenhuma página foi compartilhada com você ainda",
+    "collapse": "Recolher",
+    "expand": "Expandir",
+    "actions": "Ações da página",
+    "moveToTrash": "Mover para a lixeira",
+    "rename": "Renomear",
+    "renameLabel": "Nome da página",
+    "renameFailed": "Não foi possível renomear a página.",
+    "renameLocked": "Esta página está bloqueada, então o nome dela não pode mudar. Desbloqueie-a primeiro pelo menu dela.",
+    "addInside": "Adicionar uma página dentro",
+    "noChildren": "Nenhuma página dentro",
+    "favorites": "Favoritos",
+    "moveFailed": "Não foi possível mover a página para cá. Para movê-la para outro lugar, você precisa de acesso total a ela.",
+    "fromTemplate": "A partir de um modelo",
+    "import": "Importar…",
+    "confirmMoveSpace": "Mover esta página para {place}? Quem pode vê-la muda de acordo."
+  },
+  "search": {
+    "placeholder": "Pesquisar páginas e conteúdo…",
+    "label": "Pesquisar",
+    "noResults": "Nenhum resultado",
+    "semantic": "Significado parecido",
+    "semanticHint": "Encontrado pelo significado: as palavras são diferentes da sua pesquisa.",
+    "recent": "Editados recentemente",
+    "commands": "Comandos",
+    "noCommands": "Nenhum comando correspondente",
+    "hint": {
+      "in": "dentro de uma página",
+      "type": "só bancos de dados (ou página, linha)",
+      "commands": "comandos"
+    }
+  },
+  "trash": {
+    "title": "Lixeira",
+    "empty": "A lixeira está vazia",
+    "deletePermanently": "Excluir permanentemente",
+    "confirmDelete": "Excluir permanentemente? Isso não pode ser desfeito.",
+    "deletesIn": "Excluído em {count, plural, one {# dia} other {# dias}}",
+    "deletesSoon": "Será excluído em breve"
+  },
+  "newWorkspace": {
+    "title": "Novo espaço de trabalho",
+    "description": "Um espaço separado, com suas próprias páginas e membros.",
+    "namePlaceholder": "Nome do espaço de trabalho",
+    "create": "Criar",
+    "creating": "Criando…"
+  },
+  "inbox": {
+    "title": "Caixa de entrada",
+    "empty": "Nenhuma notificação ainda",
+    "markAllRead": "Marcar tudo como lido",
+    "assignment": "{actor} atribuiu você a “{property}”",
+    "pageShared": "{actor} compartilhou esta página com você",
+    "comment": "{actor} comentou em uma conversa da qual você participa",
+    "mention": "{actor} mencionou você",
+    "reminder": "Lembrete: {date}",
+    "accessRequest": "{actor} pediu acesso a esta página",
+    "automation": "Automação “{name}”: {actor} adicionou ou alterou esta linha",
+    "automationDatePassed": "Automação “{name}”: chegou a data desta linha",
+    "someone": "Alguém",
+    "unread": "Não lida",
+    "snooze": "Adiar",
+    "snoozeChoice": {
+      "hour": "Em 1 hora",
+      "tomorrow": "Amanhã, 9:00",
+      "nextWeek": "Segunda-feira, 9:00"
+    },
+    "unreadCount": "{count, plural, one {# notificação não lida} other {# notificações não lidas}}",
+    "joinRequestTitle": "Pedido para entrar",
+    "joinRequest": "{actor} pediu para entrar",
+    "inviteRequest": "{actor} pediu para convidar {email}",
+    "approvalTitle": "{agent} pede para continuar",
+    "approval": "Quer chamar “{tool}” em {connection}",
+    "approvalAnswered": "Respondido ou o tempo acabou",
+    "memoryTitle": "{agent} quer lembrar",
+    "memory": "“{text}”{more, plural, =0 {} one { e mais # nota} other { e mais # notas}}",
+    "memoryHidden": "{count, plural, one {Uma nota} other {# notas}} de uma execução em uma linha que você não pode abrir",
+    "memoryAnswered": "Já revisado",
+    "reportTitle": "Relatório de {agent}",
+    "reportDone": "A execução agendada terminou.",
+    "reportFailed": "A execução agendada falhou. Abra para ver o motivo.",
+    "reportHidden": "A execução agendada terminou, em um banco de dados que você não pode abrir.",
+    "reportGone": "A execução não está mais guardada."
+  },
+  "templates": {
+    "title": "Modelos",
+    "description": "Escolha um para criar uma nova página a partir dele.",
+    "workspace": "Neste espaço de trabalho",
+    "builtIn": "Integrados",
+    "empty": "Nenhum modelo ainda. Para adicionar um, abra o menu ⋯ de uma página e escolha “Salvar como modelo”.",
+    "use": "Criar uma página a partir deste modelo",
+    "database": "Banco de dados",
+    "edit": "Editar modelo",
+    "open": "Abrir modelo",
+    "delete": "Excluir modelo",
+    "confirmDelete": "Excluir este modelo de vez? As páginas já criadas a partir dele continuam como estão."
+  },
+  "teamspaces": {
+    "heading": "Espaços de equipe",
+    "options": "Opções do espaço de equipe",
+    "new": "Novo espaço de equipe",
+    "addNew": "Adicionar novo",
+    "browse": "Explorar espaços de equipe",
+    "none": "Você ainda não está em nenhum espaço de equipe. Explorar espaços de equipe",
+    "actions": "Ações de {name}",
+    "addPage": "Adicionar uma página a {name}",
+    "edit": "Editar espaço de equipe",
+    "members": "Membros e configurações",
+    "leave": "Sair do espaço de equipe",
+    "confirmLeave": "Sair de {name}? As páginas dele saem da sua barra lateral. A menos que o espaço de equipe seja aberto, você também perde o acesso a elas.",
+    "empty": "Nenhuma página ainda. Adicionar uma",
+    "another": "outro espaço de equipe"
+  },
+  "sections": {
+    "shared": "Compartilhado",
+    "private": "Privado",
+    "newPrivate": "Nova página privada",
+    "more": "Mais {count}",
+    "less": "Mostrar menos"
+  },
+  "joinable": {
+    "heading": "Espaços de trabalho em que você pode entrar",
+    "join": "Entrar",
+    "request": "Pedir para entrar",
+    "requested": "Pedido enviado"
+  },
+  "customize": {
+    "open": "Personalizar barra lateral",
+    "heading": "Seções mostradas neste espaço de trabalho",
+    "moveUp": "Mover {section} para cima",
+    "moveDown": "Mover {section} para baixo",
+    "show": "Mostrar {section}",
+    "hide": "Ocultar {section}",
+    "done": "Concluído"
+  }
+}

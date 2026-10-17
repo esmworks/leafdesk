@@ -1,0 +1,270 @@
+{
+  "assistant": {
+    "askAi": "询问 AI",
+    "askAiSubtext": "用 AI 改写、翻译或续写",
+    "askAiAliases": "ai assistant write rewrite improve translate AI 助手 写作 改写 润色 翻译",
+    "continueSubtext": "AI 从这里接着写",
+    "continueAliases": "ai continue write more 续写 继续写",
+    "summarizeSubtext": "AI 为此页面添加摘要",
+    "summarizeAliases": "ai summary summarize tldr 摘要 总结",
+    "group": "AI",
+    "label": "AI 助手",
+    "placeholder": "告诉 AI 要写什么…",
+    "placeholderSelection": "告诉 AI 如何处理所选内容…",
+    "send": "发送",
+    "actions": {
+      "improve": "改进写作",
+      "shorten": "缩短篇幅",
+      "fix": "修正拼写和语法",
+      "translate": "翻译…",
+      "continue": "继续写作",
+      "summarize": "总结页面",
+      "custom": "你的指令"
+    },
+    "translateInto": "翻译为",
+    "back": "返回",
+    "writing": "正在写作…",
+    "stop": "停止",
+    "replace": "替换所选内容",
+    "insertBelow": "插入到下方",
+    "retry": "重试",
+    "discard": "放弃",
+    "cutOff": "回答已达到长度上限，可能不完整。",
+    "reviewNote": "AI 可能会出错。保留前请检查文本。",
+    "stopped": "已停止。你仍可保留目前已写出的内容。",
+    "applyFailed": "无法将建议添加到页面。",
+    "selectionChanged": "所选文本在此期间发生了变化，因此建议已添加到其下方。"
+  },
+  "errors": {
+    "disabled": "此工作区无法使用 AI。",
+    "noAccess": "你无法更改此页面。",
+    "tooLarge": "单次 AI 请求的文本过多。请少选一些后重试。",
+    "rateLimited": "AI 请求过多。请稍后重试。",
+    "timeout": "AI 响应时间过长。请重试。",
+    "aborted": "AI 请求已取消。",
+    "provider": "AI 提供方无法响应。请稍后重试，或请管理员检查 AI 设置。",
+    "empty": "AI 没有给出回答。请重试或换个说法。",
+    "invalid": "AI 请求不完整。请重试。",
+    "interrupted": "处理过程中服务器重启了。请重新更新。"
+  },
+  "autofill": {
+    "addEntry": "AI 自动填充",
+    "configure": "AI 自动填充…",
+    "titleNew": "新建 AI 自动填充属性",
+    "titleFor": "{name} 的 AI 自动填充",
+    "back": "返回",
+    "mode": "AI 填充内容",
+    "modes": {
+      "summary": "摘要",
+      "translation": "翻译",
+      "custom": "自定义提示词"
+    },
+    "modeHints": {
+      "summary": "每一行页面的简短摘要。",
+      "translation": "该行某个值的译文。",
+      "custom": "你描述的任何内容，可使用该行的值。"
+    },
+    "defaultNames": {
+      "summary": "AI 摘要",
+      "translation": "翻译",
+      "custom": "AI 文本"
+    },
+    "source": "翻译",
+    "sourceTitle": "名称",
+    "sourceBody": "页面内容",
+    "language": "译为",
+    "prompt": "提示词",
+    "promptPlaceholder": "例如：用一句话向'{Audience}'介绍'{title}'。",
+    "promptHint": "点击某个属性即可插入；该行的值会替换它。",
+    "includeBody": "同时发送该行的页面内容",
+    "auto": "行发生变化时更新",
+    "autoHint": "行的值或页面发生变化几秒后，会重新生成其值。",
+    "privacy": "用于生成每一行值的内容会发送给此服务器的 AI 提供方。",
+    "save": "保存",
+    "create": "添加属性",
+    "turnOff": "关闭 AI 自动填充",
+    "updateAll": "更新此视图中的所有行",
+    "updateRow": "用 AI 更新",
+    "pending": "AI 正在处理…",
+    "failed": "AI 无法填充此项：{reason}",
+    "tooManyRows": "一次最多可更新 {max} 行；正在更新此视图的前 {max} 行。",
+    "errors": {
+      "invalidMode": "请选择 AI 要填充的内容。",
+      "unknownLanguage": "请选择要翻译成的语言。",
+      "unknownSource": "请选择要翻译的内容。",
+      "promptRequired": "请编写提示词。",
+      "promptTooLong": "提示词最多 {max} 个字符。",
+      "unknownPlaceholder": "没有名为“{name}”的属性。",
+      "cycle": "“{name}”已经（直接或通过其他 AI 属性）读取了此属性，因此此属性不能读取它。",
+      "notText": "只有文本属性可以由 AI 填充。",
+      "databaseLocked": "数据库已锁定。"
+    }
+  },
+  "settings": {
+    "heading": "AI",
+    "description": "页面中的 AI 写作助手、数据库中的 AI 自动填充属性、AI 聊天和语义搜索。",
+    "enabled": "AI 功能",
+    "enabledHint": "开启后，成员可以将他们能看到的页面内容和行值发送给下方的 AI 提供方。关闭可使此工作区的内容不被发送给它。",
+    "ownersOnly": "只有所有者可以更改此设置。",
+    "memory": "AI 记忆",
+    "memoryHint": "开启后，AI 聊天会为向它介绍自己的人保存简短笔记，并在他们之后提问时一并发送。每个人都可以为自己关闭此功能。关闭后，“记忆”视图将隐藏，任何人的提问都不会附带笔记；笔记会保留，不会删除。此时智能体的运行也不会附带笔记，也不会提议新笔记。",
+    "provider": "提供方",
+    "providerValue": "{provider}，模型 {model}",
+    "notConfigured": "此服务器未配置 AI 提供方或嵌入模型，因此 AI 功能已关闭。管理员可以通过环境变量 AI_PROVIDER 和 AI_MODEL（以及 AI_EMBEDDINGS_MODEL）进行配置（参见 README）。",
+    "noProvider": "无：写作助手、AI 属性和 AI 聊天需要 AI_PROVIDER 和 AI_MODEL。",
+    "semanticSearch": "语义搜索",
+    "semanticValue": "搜索还会使用嵌入模型 {model} 按含义查找页面。",
+    "semanticOff": "已关闭：搜索仅匹配字词。管理员可以通过 AI_EMBEDDINGS_MODEL 开启。"
+  },
+  "chat": {
+    "open": "询问 AI",
+    "title": "询问 AI",
+    "close": "关闭",
+    "expand": "以完整页面打开",
+    "newChat": "新建聊天",
+    "deleteFailed": "无法删除。请重试。",
+    "backToPages": "返回页面",
+    "history": "对话",
+    "noHistory": "还没有对话。",
+    "groups": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "week": "过去 7 天",
+      "month": "过去 30 天",
+      "older": "更早"
+    },
+    "untitled": "无标题对话",
+    "deleteConversation": "删除对话",
+    "deleteAll": "删除所有对话",
+    "confirmDeleteAll": "要删除你在此工作区中的所有 AI 对话吗？",
+    "intro": "可以询问此工作区中的任何内容。回答来自你能打开的页面，并附有指向这些页面的链接。",
+    "placeholder": "提出问题…",
+    "send": "发送",
+    "stop": "停止",
+    "scope": "回答范围",
+    "scopeWorkspace": "整个工作区",
+    "scopePage": "此页面及其子页面",
+    "thinking": "正在思考…",
+    "steps": {
+      "working": "正在处理 · {time}",
+      "worked": "处理用时 {time}",
+      "seconds": "{s} 秒",
+      "minutes": "{m} 分 {s} 秒",
+      "question": "已按问题搜索页面 · {count, plural, =0 {未找到结果} other {# 个结果}}",
+      "searched": "已搜索“{query}” · {count, plural, =0 {未找到结果} other {# 个结果}}",
+      "read": "已阅读",
+      "readGone": "阅读了一个你已无法打开的页面",
+      "query": "已查询",
+      "rows": "{count, plural, =0 {没有匹配的行} other {# 行}}",
+      "queryGone": "查询了一个你已无法打开的数据库",
+      "write": {
+        "done": {
+          "createRow": "已添加行：",
+          "updateRow": "已更改：",
+          "createPage": "已添加页面：",
+          "editPage": "已更改页面文本："
+        },
+        "declined": {
+          "createRow": "已拒绝添加行：",
+          "updateRow": "已拒绝更改：",
+          "createPage": "已拒绝添加页面：",
+          "editPage": "已拒绝更改其文本："
+        },
+        "failed": {
+          "createRow": "无法添加行：",
+          "updateRow": "无法更改：",
+          "createPage": "无法添加页面：",
+          "editPage": "无法更改其文本："
+        },
+        "in": "位于"
+      },
+      "memory": {
+        "remember": "已记住：",
+        "propose": "提议了一条笔记：",
+        "forget": "已忘记：",
+        "declined": {
+          "remember": "已拒绝记住：",
+          "forget": "已拒绝忘记："
+        }
+      }
+    },
+    "stopped": "已停止。",
+    "cutOff": "回答已达到长度上限，可能不完整。",
+    "note": "AI 可能会出错。请核对来源。",
+    "offline": "AI 聊天需要连接到服务器。",
+    "disabled": "此工作区已关闭 AI。所有者可以在“设置 → 常规 → AI”中开启。",
+    "loadFailed": "无法加载对话。",
+    "errors": {
+      "noAccess": "该对话、页面或技能已不可用。",
+      "tooLarge": "问题或技能过长，或此对话已满。请缩短内容或开始新的聊天。",
+      "disabled": "此工作区已关闭 AI。",
+      "invalid": "请先输入问题。"
+    },
+    "approval": {
+      "question": {
+        "createRow": "要添加这一行吗？",
+        "updateRow": "要更改这一行吗？",
+        "createPage": "要添加此页面吗？",
+        "remember": "要记住关于你的这条信息吗？",
+        "forget": "要忘记这条笔记吗？",
+        "editPage": "要更改此页面的文本吗？"
+      },
+      "in": "位于",
+      "row": "行",
+      "topLevel": "位于工作区顶层，仅你可见",
+      "memoryHint": "记忆：会随你之后在此工作区中的提问一并发送",
+      "cleared": "（已清空）",
+      "approve": "是",
+      "always": "是，且不再询问（自动）",
+      "decline": "否",
+      "waiting": "等待你的批准",
+      "page": "页面",
+      "empty": "（空）"
+    },
+    "mode": {
+      "label": "更改",
+      "ask": "询问",
+      "askHint": "每次更改前都会询问你",
+      "auto": "自动",
+      "autoHint": "直接添加和更改，不询问",
+      "read": "只读",
+      "readHint": "不做任何更改"
+    },
+    "actions": {
+      "edit": "编辑",
+      "cancel": "取消",
+      "retry": "重新回答"
+    }
+  },
+  "memory": {
+    "open": "记忆",
+    "title": "记忆",
+    "close": "关闭",
+    "updated": "记忆已更新",
+    "intro": "AI 在此工作区中保存的关于你的笔记，会随你在这里的每个问题一并发送。当你向它介绍自己或要求它记住某件事时，它会添加一条。只有你能看到这些笔记。",
+    "use": "使用记忆",
+    "useHint": "关闭后，你在这里的提问不会附带这些笔记，AI 也不会保存新的笔记。现有笔记会保留。",
+    "empty": "还什么都没有。向 AI 介绍你自己，或在这里添加一条笔记。",
+    "offline": "记忆需要连接到服务器。",
+    "addLabel": "新笔记",
+    "addPlaceholder": "例如：我在市场团队；请用表格展示结果",
+    "add": "添加",
+    "edit": "编辑",
+    "editLabel": "笔记",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "viaApp": "由 {app} 保存",
+    "count": "{count} / {max} 条笔记",
+    "full": "记忆已满（{max} 条笔记）",
+    "forgetAll": "忘记所有内容",
+    "confirmForgetAll": "要忘记 AI 在此工作区中记住的关于你的所有内容吗？",
+    "errors": {
+      "empty": "请写下要记住的内容。",
+      "tooLong": "每条笔记最多 {max} 个字符。",
+      "full": "记忆最多可保存 {max} 条笔记。请先删除一条。",
+      "notFound": "该笔记已不存在。",
+      "off": "此工作区已关闭 AI 记忆。"
+    }
+  }
+}

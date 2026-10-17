@@ -1,0 +1,215 @@
+{
+  "footer": "האימייל הזה נשלח מ־Leafdesk בכתובת {appUrl}.",
+  "actionFallback": "אם הכפתור לא עובד, אפשר להדביק את הקישור הזה בדפדפן:",
+  "test": {
+    "subject": "אימייל בדיקה מ־Leafdesk",
+    "heading": "שליחת האימייל עובדת",
+    "body": "זו הודעת בדיקה משרת ה־Leafdesk שלך בכתובת {appUrl}. אם ההודעה הזו מוצגת, האימייל מוגדר כראוי."
+  },
+  "invitation": {
+    "subject": "{inviter} הזמין אותך אל “{workspace}” ב־Leafdesk",
+    "heading": "הצטרפות אל “{workspace}”",
+    "body": "{inviter} הזמין אותך להצטרף אל “{workspace}” ב־Leafdesk בתפקיד {role}.",
+    "expires": "הקישור תקף למשך 7 ימים. כדי לקבל את ההזמנה, יש להירשם עם {email}.",
+    "action": "קבלת ההזמנה",
+    "roles": {
+      "owner": "בעלים",
+      "member": "חבר",
+      "guest": "אורח"
+    }
+  },
+  "passwordReset": {
+    "subject": "איפוס הסיסמה ל־Leafdesk",
+    "heading": "איפוס הסיסמה",
+    "body": "שלום {name}, התקבלה בקשה לאפס את הסיסמה של חשבון ה־Leafdesk שלך. אם הבקשה הגיעה ממך, אפשר לבחור סיסמה חדשה באמצעות הכפתור שלמטה.",
+    "expires": "הקישור תקף למשך {minutes} דקות ולשימוש אחד בלבד. אם לא ביקשת זאת, אפשר להתעלם מהאימייל; הסיסמה שלך לא תשתנה.",
+    "action": "בחירת סיסמה חדשה"
+  },
+  "assignment": {
+    "subject": "{actor} הקצה אותך ל־“{row}”",
+    "heading": "הוקצית ל־“{row}”",
+    "body": "{actor} הוסיף אותך ל־“{property}” ב־{database}.",
+    "bodyHidden": "{actor} הוסיף אותך ל־“{property}”.",
+    "action": "פתיחה",
+    "untitled": "ללא כותרת",
+    "someone": "מישהו",
+    "optOut": "אפשר להשבית את האימיילים האלה בהחשבון שלי > העדפות."
+  },
+  "share": {
+    "subject": "{actor} שיתף איתך את “{page}”",
+    "heading": "{actor} שיתף איתך דף",
+    "body": "מעכשיו יש לך הרשאת {level} ל־“{page}” ב־{workspace}.",
+    "levels": {
+      "view": "צפייה",
+      "comment": "צפייה והוספת תגובות",
+      "edit": "עריכה",
+      "full": "צפייה, עריכה ושיתוף"
+    },
+    "action": "פתיחת הדף",
+    "untitled": "ללא כותרת",
+    "optOut": "אפשר להשבית את האימיילים האלה בהחשבון שלי > העדפות."
+  },
+  "comment": {
+    "subject": "{actor} הגיב על “{page}”",
+    "heading": "{actor} הגיב על “{page}”",
+    "quote": "“{text}”",
+    "body": "התגובה נמצאת ב־“{page}” ב־{workspace}. אפשר להשיב או לסמן אותה כנפתרה מהדף.",
+    "action": "פתיחת הדף",
+    "optOut": "האימיילים האלה נשלחים אליך כי השתתפת בשרשור התגובות הזה. אפשר להשבית אותם בהחשבון שלי > העדפות."
+  },
+  "mention": {
+    "subject": "{actor} הזכיר אותך ב־“{page}”",
+    "heading": "{actor} הזכיר אותך ב־“{page}”",
+    "body": "האזכור נמצא ב־“{page}” ב־{workspace}.",
+    "action": "פתיחת הדף",
+    "someone": "מישהו",
+    "optOut": "האימיילים האלה נשלחים אליך כי מישהו הזכיר אותך. אפשר להשבית אותם בהחשבון שלי > העדפות."
+  },
+  "reminder": {
+    "subject": "תזכורת: {date} ב־“{page}”",
+    "heading": "תזכורת: {date}",
+    "body": "ביקשת תזכורת לתאריך {date} ב־“{page}” ב־{workspace}.",
+    "action": "פתיחת הדף",
+    "optOut": "האימיילים האלה נשלחים אליך כי הגדרת תזכורת. אפשר להשבית אותם בהחשבון שלי > העדפות."
+  },
+  "dateReminder": {
+    "subject": "תזכורת: “{page}” ב־{date}",
+    "heading": "“{page}” ב־{date}",
+    "body": "ב־“{page}” במסד הנתונים {database} ({workspace}) המאפיין {property} חל ב־{date}.",
+    "bodyHidden": "ב־“{page}” ({workspace}) המאפיין {property} חל ב־{date}.",
+    "action": "פתיחת השורה",
+    "optOut": "האימיילים האלה נשלחים אליך כי {database} שולח תזכורות לאנשים של השורות שלו. אפשר להשבית תזכורות בהחשבון שלי > העדפות.",
+    "optOutHidden": "האימיילים האלה נשלחים אליך כי מסד הנתונים שולח תזכורות לאנשים של השורות שלו. אפשר להשבית תזכורות בהחשבון שלי > העדפות."
+  },
+  "automation": {
+    "subject": "אוטומציה “{automation}”: “{page}”",
+    "heading": "האוטומציה “{automation}” מעדכנת אותך לגבי “{page}”",
+    "body": "{actor} הוסיף או שינה את “{page}” ב־{database} ({workspace}).",
+    "bodyHidden": "{actor} הוסיף או שינה את “{page}” ({workspace}).",
+    "bodyDatePassed": "“{page}” ב־{database} ({workspace}) הגיע לתאריך שהאוטומציה הזו ממתינה לו.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) הגיע לתאריך שהאוטומציה הזו ממתינה לו.",
+    "action": "פתיחת השורה",
+    "someone": "מישהו",
+    "optOut": "האימיילים האלה נשלחים אליך כי אוטומציה של מסד נתונים מודיעה לך. אפשר להשבית אותם בהחשבון שלי > העדפות."
+  },
+  "accessRequest": {
+    "subject": "{requester} ביקש גישה אל “{page}”",
+    "heading": "{requester} ביקש גישה אל “{page}”",
+    "body": "{requester} ({email}) מבקש לפתוח את “{page}” ב־{workspace}.",
+    "message": "ההודעה שצורפה: “{message}”",
+    "answer": "אפשר לשתף את הדף ולבחור מה תהיה ההרשאה, או לדחות את הבקשה. אפשר לענות מתיבת הדואר הנכנס או מ“שיתוף” בדף.",
+    "action": "פתיחת הדף",
+    "optOut": "האימיילים האלה נשלחים אליך כי יש לך גישה מלאה לדף. אפשר להשבית אותם בהחשבון שלי > העדפות."
+  },
+  "accessApproved": {
+    "subject": "מעכשיו אפשר לפתוח את “{page}”",
+    "heading": "{actor} אישר את הבקשה שלך",
+    "body": "מעכשיו יש לך הרשאת {level} ל־“{page}” ב־{workspace}.",
+    "action": "פתיחת הדף"
+  },
+  "accessDeclined": {
+    "subject": "בקשת הגישה שלך נדחתה",
+    "heading": "הבקשה שלך נדחתה",
+    "body": "בקשת הגישה שלך לדף הזה נדחתה: {link}",
+    "hint": "אם הגישה עדיין נחוצה לך, אפשר לפנות למי ששלח לך את הקישור."
+  },
+  "emailChange": {
+    "subject": "אישור כתובת האימייל החדשה",
+    "heading": "אישור כתובת האימייל החדשה",
+    "body": "שלום {name}, ביקשת להשתמש בכתובת הזו לחשבון ה־Leafdesk שלך במקום {old}. אפשר לאשר זאת באמצעות הכפתור שלמטה.",
+    "expires": "הקישור תקף למשך {hours} שעות ולשימוש אחד בלבד. אם לא ביקשת זאת, אפשר להתעלם מהאימייל; שום דבר לא ישתנה.",
+    "action": "אישור כתובת האימייל"
+  },
+  "emailChanged": {
+    "subject": "כתובת האימייל של חשבון ה־Leafdesk שלך שונתה",
+    "heading": "כתובת האימייל שלך שונתה",
+    "body": "שלום {name}, כתובת האימייל של חשבון ה־Leafdesk שלך שונתה מ־{old} ל־{new}. מעכשיו יש להתחבר עם הכתובת החדשה.",
+    "warning": "אם השינוי הזה לא בוצע על ידך, יש לפנות מיד לאחד הבעלים של סביבת העבודה שלך."
+  },
+  "passwordChanged": {
+    "subject": "הסיסמה שלך ל־Leafdesk שונתה",
+    "heading": "הסיסמה שלך שונתה",
+    "body": "שלום {name}, הסיסמה של חשבון ה־Leafdesk שלך שונתה זה עתה.",
+    "warning": "אם השינוי הזה לא בוצע על ידך, יש לאפס את הסיסמה מדף ההתחברות ולפנות לאחד הבעלים של סביבת העבודה שלך."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} ביקש להצטרף אל “{workspace}”",
+      "heading": "{asker} ביקש להצטרף",
+      "body": "{asker} ({email}) ביקש להצטרף אל “{workspace}” ב־Leafdesk. אפשר לאשר או לדחות את הבקשה בהגדרות > חברים."
+    },
+    "invite": {
+      "subject": "{asker} ביקש להזמין את {email} אל “{workspace}”",
+      "heading": "חבר ביקש להזמין מישהו",
+      "body": "{asker} מבקש להזמין את {email} אל “{workspace}” ב־Leafdesk. ההזמנה תישלח אחרי שאחד הבעלים יאשר אותה."
+    },
+    "action": "בדיקת הבקשות",
+    "optOut": "אפשר להשבית את האימיילים האלה בהחשבון שלי > העדפות."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "הצטרפת אל “{workspace}”",
+      "heading": "ברוכים הבאים אל “{workspace}”",
+      "body": "אחד הבעלים אישר את בקשתך להצטרף אל “{workspace}” ב־Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "בקשתך להצטרף אל “{workspace}”",
+      "heading": "הבקשה שלך לא אושרה",
+      "body": "אחד הבעלים של “{workspace}” דחה את בקשתך להצטרף. אפשר לבקש הזמנה מאחד הבעלים."
+    },
+    "inviteApproved": {
+      "subject": "{email} הוזמן אל “{workspace}”",
+      "heading": "ההזמנה שלך נשלחה",
+      "body": "אחד הבעלים אישר את הבקשה שלך, ו־{email} הוזמן אל “{workspace}” ב־Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "בקשתך להזמין את {email}",
+      "heading": "הבקשה שלך לא אושרה",
+      "body": "אחד הבעלים של “{workspace}” דחה את בקשתך להזמין את {email}."
+    },
+    "action": "פתיחת Leafdesk"
+  },
+  "verification": {
+    "subject": "אימות כתובת האימייל שלך ב־Leafdesk",
+    "heading": "אימות כתובת האימייל",
+    "body": "שלום {name}, אפשר לאשר שהכתובת הזו שייכת לך באמצעות הכפתור שלמטה.",
+    "ignore": "אם לא יצרת חשבון Leafdesk, אפשר להתעלם מהאימייל הזה.",
+    "action": "אימות כתובת האימייל"
+  },
+  "passwordResetRequired": {
+    "subject": "בחירת סיסמה חדשה ל־Leafdesk",
+    "heading": "בחירת סיסמה חדשה",
+    "body": "שלום {name}, מנהל של שרת ה־Leafdesk הזה ביקש לבחור סיסמה חדשה. הסיסמה הישנה כבר לא מאפשרת להתחבר.",
+    "expires": "הקישור תקף למשך {minutes} דקות ולשימוש אחד בלבד. התחברות נוספת עם הסיסמה הישנה תשלח קישור חדש.",
+    "action": "בחירת סיסמה חדשה"
+  },
+  "push": {
+    "assignment": "{actor} הקצה אותך ל־“{property}”",
+    "pageShared": "{actor} שיתף איתך את הדף הזה",
+    "comment": "{actor} הגיב בשרשור שהשתתפת בו",
+    "mention": "{actor} הזכיר אותך",
+    "reminder": "תזכורת: {date}",
+    "accessRequest": "{actor} ביקש גישה לדף הזה",
+    "automation": "אוטומציה “{name}”: {actor} הוסיף או שינה את השורה הזו",
+    "automationDatePassed": "אוטומציה “{name}”: הגיע התאריך של השורה הזו",
+    "someone": "מישהו",
+    "joinRequestTitle": "בקשת הצטרפות",
+    "joinRequest": "{actor} ביקש להצטרף",
+    "inviteRequest": "{actor} ביקש להזמין את {email}",
+    "approvalTitle": "{agent} מבקש אישור להמשיך",
+    "approval": "מבקש להפעיל את “{tool}” ב־{connection}",
+    "memoryTitle": "{agent} מבקש לזכור",
+    "memory": "{count, plural, one {מציע הערה לזיכרון שלו} two {מציע שתי הערות לזיכרון שלו} other {מציע # הערות לזיכרון שלו}}",
+    "reportTitle": "דוח מ־{agent}",
+    "reportDone": "ההרצה המתוזמנת שלו הסתיימה",
+    "reportFailed": "ההרצה המתוזמנת שלו נכשלה",
+    "untitled": "ללא כותרת",
+    "snooze": "דחייה בשעה"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} נמחקה",
+    "heading": "{workspace} נמחקה",
+    "body": "שלום {name}, {by} מחק את סביבת העבודה {workspace} ב־Leafdesk, עם כל הדפים, מסדי הנתונים והקבצים שבה. אין עוד אפשרות לפתוח אותה.",
+    "note": "אי אפשר לשחזר סביבות עבודה שנמחקו. אם זה לא היה צפוי, אפשר לפנות אל {by} או לבעלים אחר של סביבת העבודה."
+  }
+}

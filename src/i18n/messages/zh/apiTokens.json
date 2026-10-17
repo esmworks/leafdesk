@@ -1,0 +1,73 @@
+{
+  "heading": "个人访问令牌",
+  "description": "令牌让脚本和其他程序能以你的身份、凭你对页面的访问权限使用 Leafdesk REST API。请像对待密码一样妥善保密。",
+  "docs": "API 文档",
+  "empty": "你还没有令牌。",
+  "create": "新建令牌",
+  "form": {
+    "title": "新建个人访问令牌",
+    "name": "名称",
+    "namePlaceholder": "例如：周报脚本",
+    "access": "访问权限",
+    "read": "只读",
+    "readHint": "读取页面、数据库、行和评论。",
+    "write": "读写",
+    "writeHint": "还可以创建和更改页面、行和评论，将页面移到回收站，以及（作为工作区所有者）更改智能体并让它们运行。",
+    "workspace": "工作区",
+    "allWorkspaces": "我的所有工作区",
+    "expiry": "有效期",
+    "days": "{count} 天",
+    "never": "永不过期",
+    "submit": "创建令牌",
+    "creating": "正在创建…"
+  },
+  "created": {
+    "title": "复制你的新令牌",
+    "body": "令牌只会显示这一次。请将其保存在安全的地方；如果丢失，请撤销它并重新创建一个。",
+    "done": "完成"
+  },
+  "row": {
+    "readOnly": "只读",
+    "readWrite": "读写",
+    "allWorkspaces": "所有工作区",
+    "createdAt": "创建于 {date}",
+    "lastUsed": "上次使用于 {date}",
+    "neverUsed": "从未使用",
+    "expires": "将于 {date} 过期",
+    "expired": "已于 {date} 过期",
+    "noExpiry": "永不过期"
+  },
+  "revoke": "撤销",
+  "revoking": "正在撤销…",
+  "confirmRevoke": "撤销 {name}",
+  "revokeError": "无法撤销令牌。请重试。",
+  "errors": {
+    "name": "请为令牌命名，最多 100 个字符。",
+    "scopes": "请选择令牌可以执行的操作。",
+    "workspace": "你不是该工作区的成员。",
+    "expiry": "请选择令牌的过期时间。",
+    "limit": "你的令牌数量已达上限。请先撤销一个。",
+    "generic": "无法创建令牌。请重试。"
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPI 文档（JSON）",
+    "tokensWhere": "在“我的账户 → 已连接的应用”中创建令牌。",
+    "quickStart": "快速入门",
+    "baseUrl": "基础 URL",
+    "errors": "错误",
+    "code": "代码",
+    "status": "状态",
+    "endpoints": "端点",
+    "parameters": "参数",
+    "inPath": "路径",
+    "inQuery": "查询",
+    "body": "请求体（JSON）",
+    "formBody": "请求体（multipart 表单数据）",
+    "response": "响应 {status}",
+    "name": "名称",
+    "type": "类型",
+    "description": "描述",
+    "required": "必填"
+  }
+}

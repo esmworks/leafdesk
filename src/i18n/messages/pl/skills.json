@@ -1,0 +1,46 @@
+{
+  "metaTitle": "Umiejętności",
+  "heading": "Umiejętności",
+  "description": "Instrukcje, z których twój zespół korzysta wielokrotnie, przechowywane jako strony: jak przejrzeć pull request, napisać informacje o wydaniu albo sklasyfikować błąd. Wybierz jedną na czacie AI za pomocą / lub z aplikacji AI połączonej z obszarem roboczym. Każda umiejętność to strona lub wiersz bazy danych; każdy widzi umiejętności, które może otworzyć.",
+  "new": "Nowa umiejętność",
+  "search": "Szukaj umiejętności",
+  "count": "{count, plural, one {# umiejętność} few {# umiejętności} many {# umiejętności} other {# umiejętności}}",
+  "noMatches": "Żadna umiejętność nie pasuje do wyszukiwania.",
+  "emptyTitle": "Brak umiejętności",
+  "emptyHint": "Każda strona lub wiersz bazy danych może być umiejętnością: otwórz element i włącz „Użyj jako umiejętności” w menu ⋯ albo zacznij od przycisku „Nowa umiejętność”.",
+  "noDescription": "Brak opisu",
+  "inDatabase": "W bazie danych {database}",
+  "updated": "Zaktualizowano {time}",
+  "download": "Pobierz {title} jako SKILL.md",
+  "downloadHint": "Plik ZIP z SKILL.md umiejętności, dla asystentów AI instalujących umiejętności",
+  "menu": {
+    "toggle": "Użyj jako umiejętności",
+    "hint": "Udostępnij tę stronę jako instrukcje wielokrotnego użytku na czacie AI i aplikacjom AI połączonym z obszarem roboczym",
+    "export": "Eksportuj jako SKILL.md"
+  },
+  "bar": {
+    "label": "Umiejętność",
+    "description": "Do czego służy umiejętność",
+    "placeholder": "Opisz, do czego służy ta umiejętność i kiedy jej używać",
+    "none": "Brak opisu",
+    "library": "Wszystkie umiejętności"
+  },
+  "chat": {
+    "heading": "Umiejętności",
+    "none": "Brak umiejętności.",
+    "library": "Otwórz bibliotekę umiejętności",
+    "noMatches": "Brak pasujących umiejętności.",
+    "using": "Używana umiejętność: {title}",
+    "remove": "Usuń umiejętność",
+    "pick": "Użyj umiejętności",
+    "pickHint": "Użyj umiejętności (lub wpisz / w pustym polu)",
+    "used": "Użyto umiejętności: {title}"
+  },
+  "errors": {
+    "notAPage": "Umiejętnościami mogą być tylko strony i wiersze baz danych, nie bazy danych.",
+    "template": "Szablony i znajdujące się w nich strony nie mogą być umiejętnościami.",
+    "inTrash": "Najpierw przywróć stronę z kosza.",
+    "tooLong": "Opis umiejętności może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
+    "notASkill": "Ta strona nie jest już umiejętnością."
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "マイアカウント",
+    "newWorkspace": "新しいワークスペース",
+    "settingsAndMembers": "設定とメンバー",
+    "signOut": "ログアウト",
+    "admin": "サーバー管理"
+  },
+  "nav": {
+    "search": "検索",
+    "home": "ホーム",
+    "inbox": "受信トレイ",
+    "people": "メンバー一覧",
+    "settings": "設定",
+    "trash": "ゴミ箱",
+    "templates": "テンプレート",
+    "import": "インポート",
+    "graph": "グラフ",
+    "skills": "スキル"
+  },
+  "toggle": {
+    "open": "サイドバーを開く",
+    "close": "サイドバーを隠す",
+    "resize": "ドラッグしてサイズを変更",
+    "pin": "サイドバーを開いたままにする"
+  },
+  "pages": {
+    "heading": "ページ",
+    "new": "新規",
+    "newPage": "新しいページ",
+    "newDatabase": "新しいデータベース",
+    "createFirst": "最初のページを作成",
+    "nothingShared": "まだページが共有されていません",
+    "collapse": "折りたたむ",
+    "expand": "展開",
+    "actions": "ページの操作",
+    "moveToTrash": "ゴミ箱に移動",
+    "rename": "名前を変更",
+    "renameLabel": "ページ名",
+    "renameFailed": "ページの名前を変更できませんでした。",
+    "renameLocked": "このページはロックされているため、名前を変更できません。先にページのメニューからロックを解除してください。",
+    "addInside": "中にページを追加",
+    "noChildren": "中にページはありません",
+    "favorites": "お気に入り",
+    "moveFailed": "ページをここに移動できませんでした。別の場所に移動するには、そのページへのフルアクセスが必要です。",
+    "fromTemplate": "テンプレートから作成",
+    "import": "インポート…",
+    "confirmMoveSpace": "このページを{place}に移動しますか？表示できる人も移動先に合わせて変わります。"
+  },
+  "search": {
+    "placeholder": "ページと内容を検索…",
+    "label": "検索",
+    "noResults": "結果がありません",
+    "semantic": "意味が近い結果",
+    "semanticHint": "意味で見つかった結果です。検索した語とは異なる語が使われています。",
+    "recent": "最近編集したページ",
+    "commands": "コマンド",
+    "noCommands": "一致するコマンドはありません",
+    "hint": {
+      "in": "ページ内",
+      "type": "データベースのみ（またはpage、row）",
+      "commands": "コマンド"
+    }
+  },
+  "trash": {
+    "title": "ゴミ箱",
+    "empty": "ゴミ箱は空です",
+    "deletePermanently": "完全に削除",
+    "confirmDelete": "完全に削除しますか？この操作は元に戻せません。",
+    "deletesIn": "{count}日後に削除",
+    "deletesSoon": "まもなく削除"
+  },
+  "newWorkspace": {
+    "title": "新しいワークスペース",
+    "description": "独自のページとメンバーを持つ、独立したスペースです。",
+    "namePlaceholder": "ワークスペース名",
+    "create": "作成",
+    "creating": "作成中…"
+  },
+  "inbox": {
+    "title": "受信トレイ",
+    "empty": "通知はまだありません",
+    "markAllRead": "すべて既読にする",
+    "assignment": "{actor}があなたを「{property}」に割り当てました",
+    "pageShared": "{actor}がこのページをあなたと共有しました",
+    "comment": "{actor}があなたの参加しているスレッドにコメントしました",
+    "mention": "{actor}があなたをメンションしました",
+    "reminder": "リマインダー：{date}",
+    "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",
+    "automation": "オートメーション「{name}」：{actor}がこの行を追加または変更しました",
+    "automationDatePassed": "オートメーション「{name}」：この行の日付になりました",
+    "someone": "誰か",
+    "unread": "未読",
+    "snooze": "スヌーズ",
+    "snoozeChoice": {
+      "hour": "1時間後",
+      "tomorrow": "明日 9:00",
+      "nextWeek": "月曜日 9:00"
+    },
+    "unreadCount": "未読の通知{count}件",
+    "joinRequestTitle": "参加リクエスト",
+    "joinRequest": "{actor}が参加をリクエストしました",
+    "inviteRequest": "{actor}が{email}の招待をリクエストしました",
+    "approvalTitle": "{agent}が続行の許可を求めています",
+    "approval": "{connection}で「{tool}」を呼び出そうとしています",
+    "approvalAnswered": "回答済みまたは期限切れ",
+    "memoryTitle": "{agent}が記憶しようとしています",
+    "memory": "「{text}」{more, plural, =0 {} other {ほか{more}件のメモ}}",
+    "memoryHidden": "あなたが開けない行での実行からのメモ{count}件",
+    "memoryAnswered": "確認済み",
+    "reportTitle": "{agent}からのレポート",
+    "reportDone": "スケジュールされた実行が完了しました。",
+    "reportFailed": "スケジュールされた実行が失敗しました。開いて理由を確認してください。",
+    "reportHidden": "スケジュールされた実行が、あなたが開けないデータベースで完了しました。",
+    "reportGone": "この実行はもう保存されていません。"
+  },
+  "templates": {
+    "title": "テンプレート",
+    "description": "選択すると、そのテンプレートから新しいページを作成します。",
+    "workspace": "このワークスペース",
+    "builtIn": "組み込み",
+    "empty": "テンプレートはまだありません。追加するには、ページの⋯メニューを開いて「テンプレートとして保存」を選択してください。",
+    "use": "このテンプレートからページを作成",
+    "database": "データベース",
+    "edit": "テンプレートを編集",
+    "open": "テンプレートを開く",
+    "delete": "テンプレートを削除",
+    "confirmDelete": "このテンプレートを完全に削除しますか？このテンプレートから作成済みのページはそのまま残ります。"
+  },
+  "teamspaces": {
+    "heading": "チームスペース",
+    "options": "チームスペースのオプション",
+    "new": "新しいチームスペース",
+    "addNew": "新規追加",
+    "browse": "チームスペースを探す",
+    "none": "まだどのチームスペースにも参加していません。チームスペースを探す",
+    "actions": "{name}の操作",
+    "addPage": "{name}にページを追加",
+    "edit": "チームスペースを編集",
+    "members": "メンバーと設定",
+    "leave": "チームスペースから退出",
+    "confirmLeave": "{name}から退出しますか？そのページはサイドバーから消えます。チームスペースがオープンでない場合は、ページへのアクセスも失います。",
+    "empty": "ページはまだありません。追加する",
+    "another": "別のチームスペース"
+  },
+  "sections": {
+    "shared": "共有",
+    "private": "プライベート",
+    "newPrivate": "新しいプライベートページ",
+    "more": "ほか{count}件",
+    "less": "表示を減らす"
+  },
+  "joinable": {
+    "heading": "参加できるワークスペース",
+    "join": "参加",
+    "request": "参加をリクエスト",
+    "requested": "リクエスト済み"
+  },
+  "customize": {
+    "open": "サイドバーをカスタマイズ",
+    "heading": "このワークスペースで表示するセクション",
+    "moveUp": "{section}を上に移動",
+    "moveDown": "{section}を下に移動",
+    "show": "{section}を表示",
+    "hide": "{section}を非表示",
+    "done": "完了"
+  }
+}

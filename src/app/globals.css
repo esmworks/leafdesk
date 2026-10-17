@@ -16,6 +16,13 @@
 }
 
 /*
+ * Right to left (Arabic, Hebrew, Persian: `<html dir="rtl">`, see i18n/config.ts). Tailwind's own
+ * `rtl:` also matches inside a part pinned left to right (`dir="ltr"`, like the timeline's grid),
+ * where an arrow must not turn around; this one stops at it.
+ */
+@custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *):where(:not([dir="ltr"], [dir="ltr"] *)));
+
+/*
  * High contrast: the system's "increase contrast" unless the person chose standard, or high
  * contrast they chose (Settings > Preferences, lib/theme.ts), which <html data-contrast> carries.
  */
@@ -756,6 +763,72 @@
   min-width: 0;
 }
 
+/*
+ * Writing direction in the editor. Each block of text carries its own `dir` (block-direction.ts),
+ * so BlockNote's left-to-right spacing is restated here from the start and end of the line:
+ * nesting, list markers, check boxes, quotes and toggles follow the block, whichever way it runs.
+ * Each rule first clears the physical side BlockNote sets, then sets the logical one (later wins
+ * within a rule), so left to right looks exactly as BlockNote draws it.
+ */
+:root .bn-container .bn-block-group .bn-block-group {
+  margin-left: 0;
+  margin-inline-start: 24px;
+}
+:root .bn-container .bn-block-group .bn-block-group > .bn-block-outer:not([data-prev-depth-changed])::before {
+  left: auto;
+  inset-inline-start: -20px;
+}
+:root .bn-container .bn-block-group .bn-block:not(:has(.bn-toggle-wrapper)) .bn-block-group .bn-block-outer:not([data-prev-depth-changed])::before {
+  border-left: 0;
+  border-inline-start: 1px solid var(--bn-colors-side-menu);
+}
+:root .bn-container .bn-block-outer[data-prev-depth-change] {
+  margin-left: 0;
+  margin-inline-start: calc(10px * var(--x));
+}
+:root .bn-container .bn-block-outer[data-prev-depth-change] .bn-block-outer[data-prev-depth-change] {
+  margin-inline-start: 0;
+}
+:root .bn-container .bn-block-content::before {
+  margin-right: 0;
+  margin-inline-end: 0;
+}
+:root .bn-container .bn-block-content:is([data-content-type="numberedListItem"], [data-content-type="bulletListItem"])::before {
+  padding-right: 0;
+  padding-inline-end: 4px;
+}
+:root .bn-container .bn-block-content[data-content-type="checkListItem"] > div > input {
+  margin-left: 0;
+  margin-right: 0;
+  margin-inline: 4px 8px;
+}
+:root .bn-container [data-content-type="quote"] blockquote {
+  border-left: 0;
+  padding-left: 0;
+  border-inline-start: 2px solid #7d797a;
+  padding-inline-start: 1em;
+}
+:root .bn-container .bn-toggle-add-block-button {
+  margin-left: 0;
+  margin-inline-start: 22px;
+}
+:root .bn-container .bn-editor [data-content-type="table"] th {
+  text-align: start;
+}
+/* A closed toggle's arrow points along the line, so right to left it points left. */
+:root .bn-container .bn-toggle-wrapper[data-show-children="false"] .bn-toggle-button:dir(rtl) {
+  transform: scaleX(-1);
+}
+/* Slash menu items keep their room for the shortcut at the end of the line. */
+:root .bn-mantine .bn-mt-suggestion-menu-item-body {
+  padding-right: 0;
+  padding-inline-end: 16px;
+}
+/* Code reads left to right in every language. */
+:root .bn-container .bn-block-content[data-content-type="codeBlock"] {
+  direction: ltr;
+}
+
 /* Equations and diagrams sit on the page like text, not in a code box. */
 .bn-block-content[data-content-type="math"] .bn-preview-container,
 .bn-block-content[data-content-type="mermaid"] .bn-preview-container {
@@ -787,7 +860,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  right: -25px;
+  inset-inline-end: -25px;
   width: 10px;
   cursor: col-resize;
   z-index: 1;
@@ -797,7 +870,7 @@
   position: absolute;
   top: 4px;
   bottom: 4px;
-  left: 4px;
+  inset-inline-start: 4px;
   width: 2px;
   border-radius: 1px;
   background: transparent;
@@ -853,12 +926,12 @@
   display: inline-block;
   width: 0.95em;
   height: 0.95em;
-  margin-right: 0.2em;
+  margin-inline-end: 0.2em;
   vertical-align: -0.12em;
   color: var(--fg-muted);
 }
 .leafdesk-mention-emoji {
-  margin-right: 0.2em;
+  margin-inline-end: 0.2em;
 }
 .leafdesk-mention-page .leafdesk-mention-label {
   font-weight: 500;

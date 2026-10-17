@@ -111,7 +111,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
 
       <div className="flex flex-1">
         {site && site.nav.length > 0 && (
-          <aside className="sticky top-11 hidden h-[calc(100dvh-2.75rem)] w-64 shrink-0 overflow-y-auto border-r border-border bg-bg-subtle p-2 md:block">
+          <aside className="sticky top-11 hidden h-[calc(100dvh-2.75rem)] w-64 shrink-0 overflow-y-auto border-e border-border bg-bg-subtle p-2 md:block">
             <SiteNav nodes={site.nav} currentId={data.id} open={current} untitled={untitled} label={t("site.navigation")} />
           </aside>
         )}

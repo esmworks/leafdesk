@@ -21,6 +21,7 @@ import {
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 import { BookmarkCard, EmbedFrame } from "./web-card";
+import { isRtl } from "@/components/direction";
 
 /**
  * The editor's side of the web blocks (configs shared with the server in lib/web-blocks): a
@@ -183,7 +184,7 @@ const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
             aria-label={t("bookmark.refresh")}
             title={t("bookmark.refresh")}
             className={cn(
-              "absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-bg text-fg-muted shadow-sm hover:bg-bg-hover hover:text-fg",
+              "absolute inset-e-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-bg text-fg-muted shadow-sm hover:bg-bg-hover hover:text-fg",
               "opacity-0 transition-opacity focus-visible:opacity-100 group-hover/bookmark:opacity-100",
               loading && "opacity-100",
             )}
@@ -341,7 +342,8 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
         const rect = element?.getBoundingClientRect();
         if (!rect) return;
         setActive(-1);
-        setPasted({ blockId, url, top: rect.bottom + 4, left: rect.left });
+        // Under the block, from its start edge (its right edge right to left; the menu is 224px).
+        setPasted({ blockId, url, top: rect.bottom + 4, left: element && isRtl(element) ? rect.right - 224 : rect.left });
       });
     };
     document.addEventListener("paste", onPaste, true);
@@ -426,7 +428,7 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
           onMouseDown={(event) => event.preventDefault()}
           onMouseEnter={() => setActive(i)}
           onClick={() => choose(option.key)}
-          className={cn("flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-fg", i === active && "bg-bg-hover")}
+          className={cn("flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-fg", i === active && "bg-bg-hover")}
         >
           <span className="text-fg-muted">{option.icon}</span>
           {t(option.key)}

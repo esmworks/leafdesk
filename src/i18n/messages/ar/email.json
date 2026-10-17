@@ -1,0 +1,215 @@
+{
+  "footer": "أُرسلت هذه الرسالة من Leafdesk على {appUrl}.",
+  "actionFallback": "إذا لم يعمل الزر، فالصق هذا الرابط في متصفحك:",
+  "test": {
+    "subject": "رسالة اختبار من Leafdesk",
+    "heading": "إرسال البريد الإلكتروني يعمل",
+    "body": "هذه رسالة اختبار من خادم Leafdesk الخاص بك على {appUrl}. إذا كنت تستطيع قراءتها، فالبريد الإلكتروني مُعَدّ بشكل صحيح."
+  },
+  "invitation": {
+    "subject": "دعاك {inviter} إلى «{workspace}» على Leafdesk",
+    "heading": "الانضمام إلى «{workspace}»",
+    "body": "دعاك {inviter} للانضمام إلى «{workspace}» على Leafdesk بصفة {role}.",
+    "expires": "يعمل الرابط لمدة 7 أيام. أنشئ حسابًا باستخدام {email} لقبول الدعوة.",
+    "action": "قبول الدعوة",
+    "roles": {
+      "owner": "مالك",
+      "member": "عضو",
+      "guest": "ضيف"
+    }
+  },
+  "passwordReset": {
+    "subject": "إعادة تعيين كلمة مرور Leafdesk",
+    "heading": "إعادة تعيين كلمة المرور",
+    "body": "مرحبًا {name}، طلب شخص ما إعادة تعيين كلمة مرور حسابك في Leafdesk. إذا كنت أنت، فاختر كلمة مرور جديدة باستخدام الزر أدناه.",
+    "expires": "يعمل الرابط لمدة {minutes, plural, one {دقيقة واحدة} two {دقيقتين} few {# دقائق} many {# دقيقة} other {# دقيقة}} ولمرة واحدة فقط. إذا لم تطلب ذلك، فتجاهل هذه الرسالة؛ ستبقى كلمة مرورك كما هي.",
+    "action": "اختيار كلمة مرور جديدة"
+  },
+  "assignment": {
+    "subject": "أسند إليك {actor} «{row}»",
+    "heading": "تم إسناد «{row}» إليك",
+    "body": "أضافك {actor} إلى «{property}» في {database}.",
+    "bodyHidden": "أضافك {actor} إلى «{property}».",
+    "action": "فتح",
+    "untitled": "بلا عنوان",
+    "someone": "شخص ما",
+    "optOut": "يمكنك إيقاف هذه الرسائل من حسابي > التفضيلات."
+  },
+  "share": {
+    "subject": "شارك {actor} «{page}» معك",
+    "heading": "شارك {actor} صفحة معك",
+    "body": "يمكنك الآن {level} «{page}» في {workspace}.",
+    "levels": {
+      "view": "عرض",
+      "comment": "عرض والتعليق على",
+      "edit": "تحرير",
+      "full": "عرض وتحرير ومشاركة"
+    },
+    "action": "فتح الصفحة",
+    "untitled": "بلا عنوان",
+    "optOut": "يمكنك إيقاف هذه الرسائل من حسابي > التفضيلات."
+  },
+  "comment": {
+    "subject": "علّق {actor} على «{page}»",
+    "heading": "علّق {actor} على «{page}»",
+    "quote": "«{text}»",
+    "body": "التعليق موجود في «{page}» ضمن {workspace}. يمكنك الرد عليه أو حلّه من الصفحة.",
+    "action": "فتح الصفحة",
+    "optOut": "تصلك هذه الرسائل لأنك شاركت في سلسلة التعليقات هذه. يمكنك إيقافها من حسابي > التفضيلات."
+  },
+  "mention": {
+    "subject": "أشار إليك {actor} في «{page}»",
+    "heading": "أشار إليك {actor} في «{page}»",
+    "body": "الإشارة موجودة في «{page}» ضمن {workspace}.",
+    "action": "فتح الصفحة",
+    "someone": "شخص ما",
+    "optOut": "تصلك هذه الرسائل لأن أحدهم أشار إليك. يمكنك إيقافها من حسابي > التفضيلات."
+  },
+  "reminder": {
+    "subject": "تذكير: {date} في «{page}»",
+    "heading": "تذكير: {date}",
+    "body": "طلبت تذكيرك بـ {date} في «{page}» ضمن {workspace}.",
+    "action": "فتح الصفحة",
+    "optOut": "تصلك هذه الرسائل لأنك ضبطت تذكيرًا. يمكنك إيقافها من حسابي > التفضيلات."
+  },
+  "dateReminder": {
+    "subject": "تذكير: «{page}» في {date}",
+    "heading": "«{page}» في {date}",
+    "body": "«{page}» في {database} ({workspace}) لديها {property} في {date}.",
+    "bodyHidden": "«{page}» ({workspace}) لديها {property} في {date}.",
+    "action": "فتح الصف",
+    "optOut": "تصلك هذه الرسائل لأن {database} تذكّر أشخاص صفوفها. يمكنك إيقاف التذكيرات من حسابي > التفضيلات.",
+    "optOutHidden": "تصلك هذه الرسائل لأن قاعدة بياناتها تذكّر أشخاص صفوفها. يمكنك إيقاف التذكيرات من حسابي > التفضيلات."
+  },
+  "automation": {
+    "subject": "الأتمتة «{automation}»: «{page}»",
+    "heading": "تُعلمك الأتمتة «{automation}» بشأن «{page}»",
+    "body": "أضاف {actor} «{page}» أو غيّرها في {database} ({workspace}).",
+    "bodyHidden": "أضاف {actor} «{page}» أو غيّرها ({workspace}).",
+    "bodyDatePassed": "بلغت «{page}» في {database} ({workspace}) التاريخ الذي تنتظره هذه الأتمتة.",
+    "bodyDatePassedHidden": "بلغت «{page}» ({workspace}) التاريخ الذي تنتظره هذه الأتمتة.",
+    "action": "فتح الصف",
+    "someone": "شخص ما",
+    "optOut": "تصلك هذه الرسائل لأن أتمتة في قاعدة بيانات تُرسل إليك إشعارات. يمكنك إيقافها من حسابي > التفضيلات."
+  },
+  "accessRequest": {
+    "subject": "طلب {requester} الوصول إلى «{page}»",
+    "heading": "طلب {requester} الوصول إلى «{page}»",
+    "body": "يرغب {requester} ({email}) في فتح «{page}» في {workspace}.",
+    "message": "رسالته: «{message}»",
+    "answer": "شارك الصفحة معه مع اختيار ما يمكنه فعله، أو ارفض الطلب. يمكنك الرد من صندوق الوارد أو من «مشاركة» في الصفحة.",
+    "action": "فتح الصفحة",
+    "optOut": "تصلك هذه الرسائل لأن لديك وصولًا كاملًا إلى الصفحة. يمكنك إيقافها من حسابي > التفضيلات."
+  },
+  "accessApproved": {
+    "subject": "يمكنك الآن فتح «{page}»",
+    "heading": "وافق {actor} على طلبك",
+    "body": "يمكنك الآن {level} «{page}» في {workspace}.",
+    "action": "فتح الصفحة"
+  },
+  "accessDeclined": {
+    "subject": "تم رفض طلب الوصول الخاص بك",
+    "heading": "تم رفض طلبك",
+    "body": "تم رفض طلبك للوصول إلى هذه الصفحة: {link}",
+    "hint": "إذا كنت لا تزال بحاجة إليها، فاسأل الشخص الذي أرسل إليك الرابط."
+  },
+  "emailChange": {
+    "subject": "تأكيد عنوان بريدك الإلكتروني الجديد",
+    "heading": "تأكيد عنوان بريدك الإلكتروني الجديد",
+    "body": "مرحبًا {name}، طلبت استخدام هذا العنوان لحسابك في Leafdesk بدلًا من {old}. أكّده باستخدام الزر أدناه.",
+    "expires": "يعمل الرابط لمدة {hours, plural, one {ساعة واحدة} two {ساعتين} few {# ساعات} many {# ساعة} other {# ساعة}} ولمرة واحدة فقط. إذا لم تطلب ذلك، فتجاهل هذه الرسالة؛ لن يتغيّر شيء.",
+    "action": "تأكيد عنوان البريد الإلكتروني"
+  },
+  "emailChanged": {
+    "subject": "تغيّر عنوان البريد الإلكتروني لحسابك في Leafdesk",
+    "heading": "تغيّر عنوان بريدك الإلكتروني",
+    "body": "مرحبًا {name}، تغيّر عنوان البريد الإلكتروني لحسابك في Leafdesk من {old} إلى {new}. من الآن فصاعدًا، سجّل الدخول بالعنوان الجديد.",
+    "warning": "إذا لم تُجرِ هذا التغيير، فتواصل مع أحد مالكي مساحة عملك فورًا."
+  },
+  "passwordChanged": {
+    "subject": "تغيّرت كلمة مرور Leafdesk الخاصة بك",
+    "heading": "تغيّرت كلمة مرورك",
+    "body": "مرحبًا {name}، تم للتو تغيير كلمة مرور حسابك في Leafdesk.",
+    "warning": "إذا لم تُجرِ هذا التغيير، فأعد تعيين كلمة مرورك من صفحة تسجيل الدخول وتواصل مع أحد مالكي مساحة عملك."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "طلب {asker} الانضمام إلى «{workspace}»",
+      "heading": "طلب {asker} الانضمام",
+      "body": "طلب {asker} ({email}) الانضمام إلى «{workspace}» على Leafdesk. وافق على الطلب أو ارفضه من الإعدادات > الأعضاء."
+    },
+    "invite": {
+      "subject": "طلب {asker} دعوة {email} إلى «{workspace}»",
+      "heading": "طلب أحد الأعضاء دعوة شخص ما",
+      "body": "يرغب {asker} في دعوة {email} إلى «{workspace}» على Leafdesk. تُرسل الدعوة بمجرد أن يوافق عليها أحد المالكين."
+    },
+    "action": "مراجعة الطلبات",
+    "optOut": "يمكنك إيقاف هذه الرسائل من حسابي > التفضيلات."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "انضممت إلى «{workspace}»",
+      "heading": "مرحبًا بك في «{workspace}»",
+      "body": "وافق أحد المالكين على طلبك للانضمام إلى «{workspace}» على Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "طلبك للانضمام إلى «{workspace}»",
+      "heading": "لم تتم الموافقة على طلبك",
+      "body": "رفض أحد مالكي «{workspace}» طلبك للانضمام. يمكنك طلب دعوة من أحد مالكيها."
+    },
+    "inviteApproved": {
+      "subject": "تمت دعوة {email} إلى «{workspace}»",
+      "heading": "أُرسلت دعوتك",
+      "body": "وافق أحد المالكين على طلبك، وتمت دعوة {email} إلى «{workspace}» على Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "طلبك لدعوة {email}",
+      "heading": "لم تتم الموافقة على طلبك",
+      "body": "رفض أحد مالكي «{workspace}» طلبك لدعوة {email}."
+    },
+    "action": "فتح Leafdesk"
+  },
+  "verification": {
+    "subject": "تحقق من عنوان بريدك الإلكتروني في Leafdesk",
+    "heading": "تحقق من عنوان بريدك الإلكتروني",
+    "body": "مرحبًا {name}، أكّد أن هذا العنوان يخصك باستخدام الزر أدناه.",
+    "ignore": "إذا لم تُنشئ حسابًا في Leafdesk، فيمكنك تجاهل هذه الرسالة.",
+    "action": "التحقق من عنوان البريد الإلكتروني"
+  },
+  "passwordResetRequired": {
+    "subject": "اختيار كلمة مرور جديدة لـ Leafdesk",
+    "heading": "اختيار كلمة مرور جديدة",
+    "body": "مرحبًا {name}، طلب منك أحد مسؤولي خادم Leafdesk هذا اختيار كلمة مرور جديدة. لم تعد كلمة مرورك القديمة تتيح لك تسجيل الدخول.",
+    "expires": "يعمل الرابط لمدة {minutes, plural, one {دقيقة واحدة} two {دقيقتين} few {# دقائق} many {# دقيقة} other {# دقيقة}} ولمرة واحدة فقط. تسجيل الدخول بكلمة مرورك القديمة مرة أخرى يرسل رابطًا جديدًا.",
+    "action": "اختيار كلمة مرور جديدة"
+  },
+  "push": {
+    "assignment": "أسند إليك {actor} في «{property}»",
+    "pageShared": "شارك {actor} هذه الصفحة معك",
+    "comment": "علّق {actor} في محادثة أنت مشارك فيها",
+    "mention": "أشار إليك {actor}",
+    "reminder": "تذكير: {date}",
+    "accessRequest": "طلب {actor} الوصول إلى هذه الصفحة",
+    "automation": "الأتمتة «{name}»: أضاف {actor} هذا الصف أو غيّره",
+    "automationDatePassed": "الأتمتة «{name}»: حان موعد تاريخ هذا الصف",
+    "someone": "شخص ما",
+    "joinRequestTitle": "طلب انضمام",
+    "joinRequest": "طلب {actor} الانضمام",
+    "inviteRequest": "طلب {actor} دعوة {email}",
+    "approvalTitle": "يطلب {agent} الإذن بالمتابعة",
+    "approval": "يريد استدعاء «{tool}» على {connection}",
+    "memoryTitle": "يريد {agent} أن يتذكر",
+    "memory": "{count, plural, one {يقترح ملاحظة لذاكرته} two {يقترح ملاحظتين لذاكرته} few {يقترح # ملاحظات لذاكرته} many {يقترح # ملاحظة لذاكرته} other {يقترح # ملاحظة لذاكرته}}",
+    "reportTitle": "تقرير من {agent}",
+    "reportDone": "انتهى تشغيله المجدول",
+    "reportFailed": "فشل تشغيله المجدول",
+    "untitled": "بلا عنوان",
+    "snooze": "تأجيل ساعة"
+  },
+  "workspaceDeleted": {
+    "subject": "تم حذف {workspace}",
+    "heading": "تم حذف {workspace}",
+    "body": "مرحبًا {name}، حذف {by} مساحة العمل {workspace} في Leafdesk، بكل صفحاتها وقواعد بياناتها وملفاتها. لم يعد بإمكانك فتحها.",
+    "note": "لا يمكن استعادة مساحات العمل المحذوفة. إذا لم تكن تتوقع ذلك، فتحدّث مع {by} أو مع مالك آخر لمساحة العمل."
+  }
+}

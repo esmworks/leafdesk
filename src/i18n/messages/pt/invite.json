@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Convite",
+  "title": "Entrar em “{workspace}”",
+  "invalidTitle": "Convite não encontrado",
+  "invalidBody": "Este link de convite é inválido, expirou ou foi cancelado. Peça um novo à pessoa que convidou você.",
+  "home": "Ir para o Leafdesk",
+  "wrongAccount": "Este convite é para {email}, mas você entrou como {current}. Saia e abra o link de novo.",
+  "acceptBody": "Você foi convidado para entrar como {role}.",
+  "signInBody": "Uma conta já usa {email}. Entre para aceitar o convite.",
+  "signIn": "Entrar",
+  "join": "Entrar no espaço de trabalho",
+  "joining": "Entrando…"
+}

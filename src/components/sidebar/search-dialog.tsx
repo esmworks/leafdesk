@@ -161,7 +161,7 @@ export function SearchDialog({
               tabIndex={-1}
               onMouseMove={() => setActive(i)}
               onClick={() => choose(item)}
-              className={cn("flex w-full items-start gap-2 rounded-md px-3 py-2 text-left", i === active && "bg-bg-hover")}
+              className={cn("flex w-full items-start gap-2 rounded-md px-3 py-2 text-start", i === active && "bg-bg-hover")}
             >
               {item.type === "command" ? (
                 <>

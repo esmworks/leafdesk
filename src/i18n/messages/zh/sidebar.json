@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "我的账户",
+    "newWorkspace": "新建工作区",
+    "settingsAndMembers": "设置与成员",
+    "signOut": "退出登录",
+    "admin": "服务器管理"
+  },
+  "nav": {
+    "search": "搜索",
+    "home": "主页",
+    "inbox": "收件箱",
+    "people": "人员",
+    "settings": "设置",
+    "trash": "回收站",
+    "templates": "模板",
+    "import": "导入",
+    "graph": "关系图",
+    "skills": "技能"
+  },
+  "toggle": {
+    "open": "打开侧边栏",
+    "close": "隐藏侧边栏",
+    "resize": "拖动以调整大小",
+    "pin": "保持侧边栏打开"
+  },
+  "pages": {
+    "heading": "页面",
+    "new": "新建",
+    "newPage": "新建页面",
+    "newDatabase": "新建数据库",
+    "createFirst": "创建你的第一个页面",
+    "nothingShared": "还没有与你分享的页面",
+    "collapse": "收起",
+    "expand": "展开",
+    "actions": "页面操作",
+    "moveToTrash": "移到回收站",
+    "rename": "重命名",
+    "renameLabel": "页面名称",
+    "renameFailed": "无法重命名页面。",
+    "renameLocked": "此页面已锁定，因此无法更改名称。请先在其菜单中解锁。",
+    "addInside": "在其中添加页面",
+    "noChildren": "其中没有页面",
+    "favorites": "收藏",
+    "moveFailed": "无法将页面移到这里。将其移到其他位置需要对它拥有完全访问权限。",
+    "fromTemplate": "从模板创建",
+    "import": "导入…",
+    "confirmMoveSpace": "要将此页面移到{place}吗？可以查看它的人会随之改变。"
+  },
+  "search": {
+    "placeholder": "搜索页面和内容…",
+    "label": "搜索",
+    "noResults": "无结果",
+    "semantic": "语义相近",
+    "semanticHint": "按含义找到：用词与你的搜索不同。",
+    "recent": "最近编辑",
+    "commands": "命令",
+    "noCommands": "没有匹配的命令",
+    "hint": {
+      "in": "在页面内",
+      "type": "仅数据库（或页面、行）",
+      "commands": "命令"
+    }
+  },
+  "trash": {
+    "title": "回收站",
+    "empty": "回收站是空的",
+    "deletePermanently": "永久删除",
+    "confirmDelete": "要永久删除吗？此操作无法撤销。",
+    "deletesIn": "{count} 天后删除",
+    "deletesSoon": "即将删除"
+  },
+  "newWorkspace": {
+    "title": "新建工作区",
+    "description": "一个独立的空间，拥有自己的页面和成员。",
+    "namePlaceholder": "工作区名称",
+    "create": "创建",
+    "creating": "正在创建…"
+  },
+  "inbox": {
+    "title": "收件箱",
+    "empty": "还没有通知",
+    "markAllRead": "全部标为已读",
+    "assignment": "{actor} 将你分配到了“{property}”",
+    "pageShared": "{actor} 与你分享了此页面",
+    "comment": "{actor} 在你参与的讨论中发表了评论",
+    "mention": "{actor} 提及了你",
+    "reminder": "提醒：{date}",
+    "accessRequest": "{actor} 申请访问此页面",
+    "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
+    "automationDatePassed": "自动化“{name}”：这一行的日期已到",
+    "someone": "有人",
+    "unread": "未读",
+    "snooze": "稍后提醒",
+    "snoozeChoice": {
+      "hour": "1 小时后",
+      "tomorrow": "明天 9:00",
+      "nextWeek": "周一 9:00"
+    },
+    "unreadCount": "{count} 条未读通知",
+    "joinRequestTitle": "加入申请",
+    "joinRequest": "{actor} 申请加入",
+    "inviteRequest": "{actor} 申请邀请 {email}",
+    "approvalTitle": "{agent} 请求继续操作",
+    "approval": "想要调用 {connection} 上的“{tool}”",
+    "approvalAnswered": "已答复或已超时",
+    "memoryTitle": "{agent} 想要记住内容",
+    "memory": "“{text}”{more, plural, =0 {} other {，另有 # 条笔记}}",
+    "memoryHidden": "来自你无法打开的某一行上的运行的 {count} 条笔记",
+    "memoryAnswered": "已审阅",
+    "reportTitle": "来自 {agent} 的报告",
+    "reportDone": "其定时运行已完成。",
+    "reportFailed": "其定时运行失败。打开以查看原因。",
+    "reportHidden": "其定时运行已完成，运行于一个你无法打开的数据库。",
+    "reportGone": "该运行记录已不再保留。"
+  },
+  "templates": {
+    "title": "模板",
+    "description": "选择一个模板来创建新页面。",
+    "workspace": "此工作区中",
+    "builtIn": "内置",
+    "empty": "还没有模板。要添加模板，请打开页面的 ⋯ 菜单并选择“另存为模板”。",
+    "use": "用此模板创建页面",
+    "database": "数据库",
+    "edit": "编辑模板",
+    "open": "打开模板",
+    "delete": "删除模板",
+    "confirmDelete": "要永久删除此模板吗？已基于它创建的页面会保持不变。"
+  },
+  "teamspaces": {
+    "heading": "团队空间",
+    "options": "团队空间选项",
+    "new": "新建团队空间",
+    "addNew": "新建",
+    "browse": "浏览团队空间",
+    "none": "你还没有加入任何团队空间。浏览团队空间",
+    "actions": "{name} 的操作",
+    "addPage": "向 {name} 添加页面",
+    "edit": "编辑团队空间",
+    "members": "成员与设置",
+    "leave": "离开团队空间",
+    "confirmLeave": "要离开 {name} 吗？其页面将从你的侧边栏中移除。除非该团队空间是开放的，否则你也将失去对这些页面的访问权限。",
+    "empty": "还没有页面。添加一个",
+    "another": "另一个团队空间"
+  },
+  "sections": {
+    "shared": "共享",
+    "private": "私有",
+    "newPrivate": "新建私有页面",
+    "more": "还有 {count} 个",
+    "less": "收起"
+  },
+  "joinable": {
+    "heading": "你可以加入的工作区",
+    "join": "加入",
+    "request": "申请加入",
+    "requested": "已申请"
+  },
+  "customize": {
+    "open": "自定义侧边栏",
+    "heading": "此工作区中显示的分区",
+    "moveUp": "上移{section}",
+    "moveDown": "下移{section}",
+    "show": "显示{section}",
+    "hide": "隐藏{section}",
+    "done": "完成"
+  }
+}

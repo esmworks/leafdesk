@@ -1,0 +1,83 @@
+{
+  "access": {
+    "default": "Domyślna",
+    "open": "Otwarta",
+    "closed": "Zamknięta",
+    "private": "Prywatna"
+  },
+  "accessHint": {
+    "default": "Należy do niej każdy w obszarze roboczym i nikt nie może jej opuścić.",
+    "open": "Każdy w obszarze roboczym może ją zobaczyć i do niej dołączyć. Do czasu dołączenia może czytać i komentować jej strony.",
+    "closed": "Każdy w obszarze roboczym widzi, że istnieje. Jej strony otwierają tylko jej członkowie; dodają ich właściciele przestrzeni.",
+    "private": "Widzą ją tylko jej członkowie."
+  },
+  "roles": {
+    "owner": "Właściciel",
+    "member": "Członek"
+  },
+  "errors": {
+    "nameRequired": "Nadaj przestrzeni zespołu nazwę.",
+    "creationRestricted": "W tym obszarze roboczym przestrzenie zespołów mogą tworzyć tylko właściciele obszaru.",
+    "ownersOnly": "Tylko właściciele obszaru roboczego mogą zmieniać, do których przestrzeni zespołów należą wszyscy.",
+    "cannotLeaveDefault": "Do tej przestrzeni zespołu należą wszyscy; nie można jej opuścić.",
+    "lastOwner": "Najpierw ustaw kogoś innego jako właściciela przestrzeni zespołu.",
+    "notJoinable": "Poproś właściciela tej przestrzeni zespołu, aby cię dodał.",
+    "archived": "Ta przestrzeń zespołu jest zarchiwizowana.",
+    "notMember": "Do przestrzeni zespołów mogą należeć tylko właściciele i członkowie obszaru roboczego.",
+    "invalidAccess": "Wybierz, kto może widzieć przestrzeń zespołu.",
+    "inGroup": "Ta osoba należy do przestrzeni zespołu przez grupę. Zamiast tego usuń ją z grupy.",
+    "everyoneIn": "Wszyscy w obszarze roboczym już należą do tej przestrzeni zespołu.",
+    "accessDenied": "Nie możesz tego zrobić w tej przestrzeni zespołu.",
+    "invalidMemberLevel": "Wybierz, jaki dostęp mają członkowie do stron przestrzeni zespołu.",
+    "invalidIcon": "Ikona musi być emoji."
+  },
+  "dialog": {
+    "createTitle": "Nowa przestrzeń zespołu",
+    "editTitle": "Edytuj przestrzeń zespołu",
+    "name": "Nazwa",
+    "namePlaceholder": "Marketing, Inżynieria…",
+    "icon": "Wybierz ikonę",
+    "description": "Opis",
+    "descriptionPlaceholder": "Do czego służy ta przestrzeń zespołu?",
+    "access": "Kto może ją widzieć",
+    "defaultLocked": "Tylko właściciele obszaru roboczego mogą zmienić dostęp do domyślnej przestrzeni zespołu.",
+    "becomesDefault": "Każdy w obszarze roboczym do niej dołączy i nie będzie mógł jej opuścić.",
+    "leavesDefault": "Na razie wszyscy w niej pozostaną, ale będą mogli ją opuścić, a nowi członkowie obszaru roboczego nie będą do niej dodawani.",
+    "create": "Utwórz przestrzeń zespołu",
+    "creating": "Tworzenie…",
+    "memberLevel": "Dostęp członków do jej stron",
+    "memberLevelHint": "Dostęp członków do stron, które same go nie określają. Właściciele przestrzeni zespołu i właściciele obszaru roboczego zawsze mają pełny dostęp; ustawienia udostępniania strony nadal mają pierwszeństwo.",
+    "memberLevelLocked": "Tylko właściciele obszaru roboczego mogą zmienić dostęp wszystkich w domyślnej przestrzeni zespołu."
+  },
+  "members": {
+    "title": "Członkowie: {name}",
+    "everyone": "Każdy w obszarze roboczym należy do tej przestrzeni zespołu. Jej właściciele mogą ją edytować i nią zarządzać.",
+    "readOnly": "Tylko właściciele tej przestrzeni zespołu mogą zmieniać, kto do niej należy.",
+    "add": "Dodaj osoby",
+    "search": "Szukaj osób",
+    "addSelected": "{count, plural, =0 {Dodaj osoby} one {Dodaj #} few {Dodaj #} many {Dodaj #} other {Dodaj #}}",
+    "addAs": "Dodaj jako",
+    "noOneToAdd": "Wszyscy w obszarze roboczym już należą do tej przestrzeni zespołu.",
+    "noMatches": "Nikt nie pasuje do wyszukiwania.",
+    "empty": "Nikt nie należy do tej przestrzeni zespołu.",
+    "list": "Osoby w tej przestrzeni zespołu",
+    "roleOf": "Rola: {name}",
+    "remove": "Usuń {name}",
+    "you": "(ty)",
+    "select": "Zaznacz {name}",
+    "viaGroups": "Przez: {groups}",
+    "groups": "Grupy",
+    "groupsHint": "Każdy w tych grupach jest członkiem przestrzeni zespołu, dopóki należy do grupy.",
+    "noGroups": "Brak grup w tej przestrzeni zespołu.",
+    "chooseGroup": "Wybierz grupę",
+    "addGroupButton": "Dodaj grupę",
+    "removeGroup": "Usuń {name}",
+    "groupMemberCount": "{count, plural, =0 {Brak członków} one {# członek} few {# członków} many {# członków} other {# członka}}"
+  },
+  "memberLevel": {
+    "full": "Pełny dostęp",
+    "edit": "Może edytować",
+    "comment": "Może komentować",
+    "view": "Może wyświetlać"
+  }
+}

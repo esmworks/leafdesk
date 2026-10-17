@@ -1,0 +1,31 @@
+{
+  "appDescription": "Spazio di lavoro open source per documenti e database, con accesso MCP per gli agenti IA.",
+  "untitled": "Senza titolo",
+  "agent": "Agente",
+  "agentName": "{name} (agente)",
+  "cancel": "Annulla",
+  "save": "Salva",
+  "saving": "Salvataggio…",
+  "saved": "Salvato.",
+  "close": "Chiudi",
+  "delete": "Elimina",
+  "remove": "Rimuovi",
+  "restore": "Ripristina",
+  "loading": "Caricamento…",
+  "copy": "Copia",
+  "copied": "Copiato",
+  "genericError": "Si è verificato un errore. Riprova.",
+  "errorPage": {
+    "title": "Si è verificato un errore",
+    "description": "Non è stato possibile mostrare questa pagina, oppure la tua ultima modifica non è andata a buon fine.",
+    "retry": "Riprova",
+    "home": "Vai alla Home"
+  },
+  "export": {
+    "failed": "Impossibile avviare l’esportazione. Riprova.",
+    "tooManyPages": "È troppo da esportare in una volta: un’esportazione può contenere al massimo {limit} pagine. Esporta una parte più piccola dello spazio di lavoro.",
+    "tooLarge": "I file di questa esportazione superano in totale {size}. Esporta una parte più piccola dello spazio di lavoro.",
+    "busy": "Hai già un’esportazione in corso. Attendi che il download sia terminato.",
+    "disabled": "L’esportazione è disattivata in questo spazio di lavoro."
+  }
+}

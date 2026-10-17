@@ -1,0 +1,83 @@
+{
+  "access": {
+    "default": "默认",
+    "open": "开放",
+    "closed": "封闭",
+    "private": "私有"
+  },
+  "accessHint": {
+    "default": "工作区中的所有人都在其中，且无法离开。",
+    "open": "工作区中的任何人都可以看到并加入。加入之前，他们可以阅读和评论其中的页面。",
+    "closed": "工作区中的任何人都可以看到它的存在。只有其成员能打开其中的页面；成员由其所有者添加。",
+    "private": "只有其成员可以看到它。"
+  },
+  "roles": {
+    "owner": "所有者",
+    "member": "成员"
+  },
+  "errors": {
+    "nameRequired": "请为团队空间命名。",
+    "creationRestricted": "在这里只有工作区所有者可以创建团队空间。",
+    "ownersOnly": "只有工作区所有者可以更改所有人所在的团队空间。",
+    "cannotLeaveDefault": "所有人都在此团队空间中，无法离开。",
+    "lastOwner": "请先将其他人设为此团队空间的所有者。",
+    "notJoinable": "请让此团队空间的所有者添加你。",
+    "archived": "此团队空间已归档。",
+    "notMember": "只有工作区的所有者和成员才能加入其团队空间。",
+    "invalidAccess": "请选择谁可以看到此团队空间。",
+    "inGroup": "此人是通过用户组加入团队空间的。请改为将其从用户组中移除。",
+    "everyoneIn": "工作区中的所有人都已在此团队空间中。",
+    "accessDenied": "你无法在此团队空间中执行此操作。",
+    "invalidMemberLevel": "请选择成员对团队空间页面的访问权限。",
+    "invalidIcon": "图标必须是表情符号。"
+  },
+  "dialog": {
+    "createTitle": "新建团队空间",
+    "editTitle": "编辑团队空间",
+    "name": "名称",
+    "namePlaceholder": "市场、研发…",
+    "icon": "选择图标",
+    "description": "描述",
+    "descriptionPlaceholder": "此团队空间的用途是什么？",
+    "access": "谁可以看到",
+    "defaultLocked": "只有工作区所有者可以更改默认团队空间的访问权限。",
+    "becomesDefault": "工作区中的所有人都会加入，且无法离开。",
+    "leavesDefault": "所有人暂时仍在其中，但可以离开，且新的工作区成员不会被自动加入。",
+    "create": "创建团队空间",
+    "creating": "正在创建…",
+    "memberLevel": "成员对其页面的访问权限",
+    "memberLevelHint": "成员在未单独设置权限的页面上获得的权限。团队空间所有者和工作区所有者始终拥有完全访问权限；页面自身的分享设置仍会覆盖此设置。",
+    "memberLevelLocked": "只有工作区所有者可以更改所有人在默认团队空间中的权限。"
+  },
+  "members": {
+    "title": "{name} 的成员",
+    "everyone": "工作区中的所有人都在此团队空间中。其所有者可以编辑和管理它。",
+    "readOnly": "只有此团队空间的所有者可以更改其成员。",
+    "add": "添加人员",
+    "search": "搜索人员",
+    "addSelected": "{count, plural, =0 {添加人员} other {添加 # 人}}",
+    "addAs": "添加为",
+    "noOneToAdd": "工作区中的所有人都已在此团队空间中。",
+    "noMatches": "没有与你的搜索匹配的人。",
+    "empty": "此团队空间中没有人。",
+    "list": "此团队空间中的人员",
+    "roleOf": "{name} 的角色",
+    "remove": "移除 {name}",
+    "you": "（你）",
+    "select": "选择 {name}",
+    "viaGroups": "通过 {groups}",
+    "groups": "用户组",
+    "groupsHint": "这些用户组中的每个人在组内期间都是此团队空间的成员。",
+    "noGroups": "此团队空间中没有用户组。",
+    "chooseGroup": "选择用户组",
+    "addGroupButton": "添加用户组",
+    "removeGroup": "移除 {name}",
+    "groupMemberCount": "{count, plural, =0 {无成员} other {# 位成员}}"
+  },
+  "memberLevel": {
+    "full": "完全访问",
+    "edit": "可编辑",
+    "comment": "可评论",
+    "view": "可查看"
+  }
+}

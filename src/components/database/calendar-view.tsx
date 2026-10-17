@@ -43,6 +43,9 @@ type RowEvent = CalendarEvent & { row: Row };
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
 
+/** Where engines have no week info: Sunday or Saturday where weeks start then, else Monday. */
+const FIRST_DAY: Record<string, number> = { en: 0, pt: 0, he: 0, ja: 0, ko: 0, ar: 6, fa: 6 };
+
 /** First weekday of the locale as a `getUTCDay()` index (0 = Sunday). */
 function firstDayOfWeek(locale: string) {
   try {
@@ -55,7 +58,7 @@ function firstDayOfWeek(locale: string) {
   } catch {
     // Older engines without week info fall through to the default below.
   }
-  return locale.startsWith("en") ? 0 : 1;
+  return FIRST_DAY[locale.split("-")[0]] ?? 1;
 }
 
 /**
@@ -286,7 +289,7 @@ export function CalendarView({
               style={{ gridColumn: i + 1, gridRow: "1 / -1" }}
               className={cn(
                 "group min-w-0 p-1",
-                i > 0 && "border-l border-border",
+                i > 0 && "border-s border-border",
                 !inMonth && "bg-bg-subtle",
                 dragId && dropAt === key && "bg-bg-hover",
               )}
@@ -316,7 +319,7 @@ export function CalendarView({
           <div
             key={bar.event.id}
             style={{ gridColumn: `${bar.col + 1} / span ${bar.span}`, gridRow: bar.lane + first }}
-            className={cn("min-w-0 pb-1", !bar.before && "pl-1", !bar.after && "pr-1", dragId && "pointer-events-none")}
+            className={cn("min-w-0 pb-1", !bar.before && "ps-1", !bar.after && "pe-1", dragId && "pointer-events-none")}
           >
             {entry(bar.event.row, { time: bar.before ? null : timeOf(bar.event), before: bar.before, after: bar.after })}
           </div>
@@ -355,7 +358,7 @@ export function CalendarView({
           <div className="w-14 shrink-0" />
           <div className="grid min-w-0 flex-1 grid-cols-7">
             {days.map((day) => (
-              <div key={day} className="group flex items-center justify-between gap-1 border-l border-border px-1.5 py-1">
+              <div key={day} className="group flex items-center justify-between gap-1 border-s border-border px-1.5 py-1">
                 <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
                   <span className="truncate">{format.dateTime(utcDay(day), { weekday: "short", timeZone: "UTC" })}</span>
                   <DayNumber day={day} today={day === todayDay} />
@@ -376,7 +379,7 @@ export function CalendarView({
           </div>
         </div>
         <div className="flex border-b border-border">
-          <div className="w-14 shrink-0 px-1.5 py-1.5 text-right text-[11px] leading-4 text-fg-muted">{t("calendar.allDay")}</div>
+          <div className="w-14 shrink-0 px-1.5 py-1.5 text-end text-[11px] leading-4 text-fg-muted">{t("calendar.allDay")}</div>
           <div className="min-w-0 flex-1">{weekRow(days[0], events.filter(isAllDay), false)}</div>
         </div>
         <div ref={hours} className="max-h-[32rem] overflow-y-auto">
@@ -386,14 +389,14 @@ export function CalendarView({
                 <span
                   key={h}
                   style={{ top: (h + 1) * HOUR_HEIGHT }}
-                  className="absolute right-1.5 -translate-y-1/2 text-[11px] tabular-nums text-fg-muted"
+                  className="absolute inset-e-1.5 -translate-y-1/2 text-[11px] tabular-nums text-fg-muted"
                 >
                   {format.dateTime(new Date((h + 1) * 3_600_000), { hour: "numeric", timeZone: "UTC" })}
                 </span>
               ))}
             </div>
             {days.map((day) => (
-              <div key={day} className={cn("relative min-w-0 flex-1 border-l border-border", day === todayDay && "bg-bg-subtle")}>
+              <div key={day} className={cn("relative min-w-0 flex-1 border-s border-border", day === todayDay && "bg-bg-subtle")}>
                 {Array.from({ length: MINUTES_PER_DAY / SLOT_MINUTES }, (_, s) => {
                   const minutes = s * SLOT_MINUTES;
                   const key = `${day}@${minutes}`;
@@ -429,7 +432,7 @@ export function CalendarView({
                     style={{
                       top: (b.top / 60) * HOUR_HEIGHT,
                       height: ((b.bottom - b.top) / 60) * HOUR_HEIGHT - 1,
-                      left: `calc(${(b.col / b.cols) * 100}% + 2px)`,
+                      insetInlineStart: `calc(${(b.col / b.cols) * 100}% + 2px)`,
                       width: `calc(${100 / b.cols}% - 4px)`,
                     }}
                     className={cn("absolute", dragId && "pointer-events-none")}
@@ -484,7 +487,7 @@ export function CalendarView({
             onClick={() => move(-1)}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 rtl:-scale-x-100" />
           </button>
           <button
             type="button"
@@ -493,7 +496,7 @@ export function CalendarView({
             onClick={() => move(1)}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />
           </button>
         </div>
 
@@ -523,7 +526,7 @@ export function CalendarView({
               onClick={() => setShowUndated((v) => !v)}
               className="inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
             >
-              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUndated && "rotate-90")} />
+              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUndated ? "rotate-90" : "rtl:rotate-180")} />
               {t("calendar.noDate", { count: undated.length, property: dateBy.name })}
             </button>
             {showUndated && (
@@ -709,8 +712,8 @@ function CalendarEntry({
       }}
       className={cn(
         "min-w-0 cursor-pointer rounded-md border border-border bg-bg px-1.5 py-1 text-xs shadow-sm hover:bg-bg-subtle",
-        before && "rounded-l-none border-l-0",
-        after && "rounded-r-none border-r-0",
+        before && "rounded-s-none border-s-0",
+        after && "rounded-e-none border-e-0",
         block && "h-full overflow-hidden py-0.5",
         dragging && "opacity-40",
         opener.current === row.id && "outline-2 outline-accent/60",

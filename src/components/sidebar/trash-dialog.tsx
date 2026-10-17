@@ -89,7 +89,7 @@ export function TrashDialog({
           <li key={item.id} className="group flex items-center gap-2 rounded-md px-3 py-1.5 hover:bg-bg-hover">
             <button
               type="button"
-              className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm"
+              className="flex min-w-0 flex-1 items-center gap-2 text-start text-sm"
               onClick={() => {
                 onClose();
                 router.push(`/w/${workspaceId}/p/${item.id}`);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isRtl } from "@/components/direction";
 
 type Side = "before" | "after";
 
@@ -22,10 +23,11 @@ type Box = { left: number; top: number; width: number; height: number };
 /**
  * Which side of the item `box` a drag at `point` lands on, and along which axis. In a grid an item
  * as wide as its row (`rowWidth`) is above or below the others, so its halves are top and bottom.
+ * Right to left (`rtl`), an item's right half is the one before it.
  */
-export function dropPlace(axis: "x" | "y" | "grid", box: Box, rowWidth: number | undefined, point: { x: number; y: number }) {
+export function dropPlace(axis: "x" | "y" | "grid", box: Box, rowWidth: number | undefined, point: { x: number; y: number }, rtl = false) {
   const along = axis !== "grid" ? axis : rowWidth !== undefined && box.width >= rowWidth - 1 ? "y" : "x";
-  const before = along === "x" ? point.x < box.left + box.width / 2 : point.y < box.top + box.height / 2;
+  const before = along === "x" ? (point.x < box.left + box.width / 2) !== rtl : point.y < box.top + box.height / 2;
   return { side: (before ? "before" : "after") as Side, axis: along };
 }
 
@@ -47,10 +49,13 @@ export function useReorderDrag(
     setDrop(null);
   };
   const placeOf = (e: React.DragEvent) =>
-    dropPlace(axis, e.currentTarget.getBoundingClientRect(), e.currentTarget.parentElement?.getBoundingClientRect().width, {
-      x: e.clientX,
-      y: e.clientY,
-    });
+    dropPlace(
+      axis,
+      e.currentTarget.getBoundingClientRect(),
+      e.currentTarget.parentElement?.getBoundingClientRect().width,
+      { x: e.clientX, y: e.clientY },
+      isRtl(e.currentTarget),
+    );
   return {
     handlers: (id: string): ReorderDragHandlers => ({
       onDragStart: (e) => {

@@ -1,0 +1,609 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "היסטוריית הדף",
+    "more": "עוד",
+    "copyLink": "העתקת קישור",
+    "copyId": "העתקת מזהה",
+    "moveToTrash": "העברה לאשפה",
+    "edited": "נערך {time}",
+    "activity": "פעילות",
+    "editedBy": "נערך על ידי {name}",
+    "createdBy": "נוצר על ידי {name}",
+    "someone": "מישהו",
+    "comments": "תגובות",
+    "share": "שיתוף",
+    "accessRequests": "{count, plural, one {בקשת גישה אחת} two {שתי בקשות גישה} other {# בקשות גישה}}",
+    "addFavorite": "הוספה למועדפים",
+    "removeFavorite": "הסרה מהמועדפים",
+    "linkCopied": "הקישור הועתק",
+    "duplicate": "שכפול",
+    "duplicateSuffix": " (עותק)",
+    "duplicateFailed": "לא ניתן היה לשכפל את הדף.",
+    "moveTo": "העברה אל",
+    "style": {
+      "font": "גופן",
+      "default": "ברירת מחדל",
+      "serif": "סריף",
+      "mono": "רוחב קבוע",
+      "smallText": "טקסט קטן",
+      "fullWidth": "רוחב מלא"
+    },
+    "lockDatabase": "נעילת מסד הנתונים",
+    "lockHint": "בזמן הנעילה אי אפשר לשנות מאפיינים ותצוגות; את השורות עדיין אפשר לערוך.",
+    "locked": "נעול",
+    "unlock": "ביטול הנעילה",
+    "lockPage": "נעילת הדף",
+    "lockPageHint": "בזמן הנעילה אף אחד לא יכול לשנות את הכותרת, הסמל, הרקע או הטקסט. תגובות, שיתוף והעברה עדיין עובדים.",
+    "exportMarkdown": "ייצוא כ־Markdown",
+    "exportCsv": "ייצוא כ־CSV",
+    "exportXlsx": "ייצוא כ־Excel (.xlsx)",
+    "exportZip": "ייצוא עם דפי המשנה",
+    "exportZipDatabase": "ייצוא עם דפי השורות",
+    "exportPdf": "ייצוא כ־PDF",
+    "exportPreparing": "בהכנת הייצוא…",
+    "versionHistory": "היסטוריית גרסאות",
+    "lastEdited": "נערך לאחרונה על ידי {name}",
+    "actionFailed": "לא ניתן היה להשלים את הפעולה.",
+    "viewers": "{count, plural, one {אדם נוסף צופה בדף הזה} two {שני אנשים נוספים צופים בדף הזה} other {# אנשים נוספים צופים בדף הזה}}",
+    "viewersTitle": "צופים בדף הזה",
+    "saveAsTemplate": "שמירה כתבנית",
+    "saveAsRowTemplate": "שמירה כתבנית שורה",
+    "deleteTemplate": "מחיקת התבנית",
+    "exportDisabled": "הייצוא מושבת",
+    "exportDisabledBody": "הבעלים של סביבת העבודה הזו השביתו את הייצוא וההדפסה של הדפים שלה.",
+    "showInGraph": "הצגה בגרף"
+  },
+  "comments": {
+    "aboutPage": "על הדף הזה",
+    "title": "תגובות",
+    "close": "סגירת התגובות",
+    "filters": {
+      "open": "פתוחות",
+      "resolved": "נפתרו",
+      "all": "הכול"
+    },
+    "empty": {
+      "open": "אין תגובות פתוחות. כדי להתחיל תגובה, יש לבחור טקסט בדף וללחוץ על “תגובה”.",
+      "resolved": "אין תגובות שנפתרו.",
+      "all": "אין עדיין תגובות. כדי להתחיל תגובה, יש לבחור טקסט בדף וללחוץ על “תגובה”."
+    }
+  },
+  "archived": {
+    "banner": "הדף הזה נמצא באשפה.",
+    "deletePermanently": "מחיקה לצמיתות",
+    "confirmDelete": "למחוק לצמיתות את הדף הזה ואת כל מה שבתוכו? אי אפשר לבטל את הפעולה הזו."
+  },
+  "icon": {
+    "add": "הוספת סמל",
+    "remove": "הסרת הסמל"
+  },
+  "background": {
+    "add": "הוספת רקע",
+    "change": "רקע",
+    "colors": "צבע",
+    "patterns": "דוגמה",
+    "none": "ללא",
+    "remove": "הסרת הרקע",
+    "colorNames": {
+      "gray": "אפור",
+      "blue": "כחול",
+      "green": "ירוק",
+      "purple": "סגול",
+      "pink": "ורוד",
+      "red": "אדום",
+      "orange": "כתום",
+      "black": "שחור"
+    },
+    "patternNames": {
+      "dots": "נקודות",
+      "plus": "צלבים",
+      "grid": "רשת",
+      "lines": "קווים"
+    }
+  },
+  "title": {
+    "label": "כותרת הדף"
+  },
+  "connection": {
+    "live": "מחובר",
+    "connecting": "בהתחברות",
+    "offline": "לא מקוון",
+    "reconnecting": "בהתחברות מחדש",
+    "noAccess": "אין גישה",
+    "syncing": "בסנכרון…",
+    "synced": "מסונכרן",
+    "offlinePending": "לא מקוון · העריכות נשמרות כאן",
+    "offlineHint": "אין חיבור לאינטרנט. אפשר להמשיך לערוך: השינויים נשמרים בדפדפן הזה ויסונכרנו כשהחיבור יחזור."
+  },
+  "errors": {
+    "accessLost": "כבר אין לך גישה לדף הזה.",
+    "connectionFailed": "לא ניתן היה להתחבר לעריכה המשותפת. מנסה שוב…",
+    "notAvailableOffline": "הדף הזה עדיין לא נשמר במכשיר הזה. כדי להשתמש בו במצב לא מקוון, יש לפתוח אותו פעם אחת כשיש חיבור."
+  },
+  "history": {
+    "title": "היסטוריית הדף",
+    "previewTitle": "תצוגה מקדימה של הגרסה",
+    "modes": {
+      "version": "גרסה",
+      "current": "השוואה לגרסה הנוכחית",
+      "previous": "השוואה לגרסה הקודמת"
+    },
+    "reasons": {
+      "auto": "שמירה אוטומטית",
+      "beforeRestore": "לפני שחזור",
+      "manual": "גרסה שמורה",
+      "beforeAiEdit": "לפני עריכת AI",
+      "beforeAiEditBy": "לפני עריכה של {client}",
+      "beforeAssistantEdit": "לפני עריכה של עוזר ה־AI"
+    },
+    "empty": "אין עדיין גרסאות. גרסאות נשמרות אוטומטית בזמן העריכה ולפני שאפליקציית AI כלשהי משנה את הדף.",
+    "restore": "שחזור הגרסה הזו",
+    "restoring": "בשחזור…",
+    "restoreHint": "התוכן הנוכחי יישמר קודם כגרסה.",
+    "diff": {
+      "rangeCurrent": "שינויים מהגרסה של {from} ועד הדף הנוכחי",
+      "rangePrevious": "שינויים מ־{from} עד {to}",
+      "earlier": "הגרסה הקודמת",
+      "changedBy": "שונה על ידי {names}",
+      "actorApp": "{client} עבור {name}",
+      "none": "אין שינויים.",
+      "oldest": "זו הגרסה השמורה הוותיקה ביותר, ולכן אין גרסה מוקדמת יותר להשוות אליה.",
+      "showUnchanged": "{count, plural, one {הצגת בלוק אחד שלא השתנה} two {הצגת שני בלוקים שלא השתנו} other {הצגת # בלוקים שלא השתנו}}",
+      "formatOnly": "העיצוב השתנה"
+    },
+    "errors": {
+      "list": "לא ניתן היה לטעון את היסטוריית הדף. יש לטעון מחדש את הדף ולנסות שוב.",
+      "version": "לא ניתן היה לטעון את הגרסה הזו.",
+      "restore": "לא ניתן היה לשחזר את הגרסה הזו.",
+      "diff": "לא ניתן היה להשוות את הגרסאות האלה."
+    }
+  },
+  "move": {
+    "title": "העברה אל",
+    "search": "חיפוש דפים…",
+    "empty": "אין דפים תואמים.",
+    "failed": "לא ניתן היה להעביר את הדף לשם.",
+    "teamspaceHint": "בראש מרחב הצוות הזה: החברים בו יקבלו גישה",
+    "private": "פרטי",
+    "privateHint": "בראש הדפים הפרטיים שלך: רק מי שהדף משותף איתו יקבל גישה"
+  },
+  "share": {
+    "tabShare": "שיתוף",
+    "tabPublish": "פרסום",
+    "addPeople": "הוספת אנשים, קבוצות או כתובות אימייל",
+    "noMatches": "אין חברים או קבוצות תואמים.",
+    "addPeopleOrAgents": "הוספת אנשים, קבוצות, סוכנים או כתובות אימייל",
+    "noMatchesWithAgents": "אין חברים, קבוצות או סוכנים תואמים.",
+    "agentPaused": "סוכן, מושהה",
+    "groupMembers": "{count, plural, =0 {קבוצה ללא חברים} one {קבוצה עם חבר אחד} two {קבוצה עם שני חברים} other {קבוצה עם # חברים}}",
+    "membersOnly": "אפשר לשתף עם חברי סביבת העבודה. סביבת העבודה הזו אינה מאפשרת שיתוף עם אנשים מחוצה לה.",
+    "guestHint": "כדי לשתף עם מישהו מחוץ לסביבת העבודה, יש להקליד כתובת אימייל מלאה. הוא יצטרף כאורח ויראה רק את הדפים ששותפו איתו.",
+    "shareWith": "שיתוף עם {email}",
+    "asGuest": "יצטרף כאורח",
+    "pending": "הוזמן, עדיין לא הצטרף",
+    "cancelInvite": "ביטול ההזמנה",
+    "invitedSent": "ההזמנה נשלחה אל {email}.",
+    "invitedNoEmail": "{email} הוזמן, אבל לא ניתן היה לשלוח אימייל. אפשר לשלוח לו את קישור ההזמנה.",
+    "copyInvite": "העתקת קישור ההזמנה",
+    "you": "אני",
+    "inherited": "מ־{title}",
+    "groupInherited": "קבוצה, מ־{title}",
+    "inheritedAbove": "מדף שמעל",
+    "groupInheritedAbove": "קבוצה, מדף שמעל",
+    "hiddenGroup": "קבוצה",
+    "group": "קבוצה",
+    "viaGeneral": "{level} (מהגישה הכללית)",
+    "viaOwner": "{level} (כבעלים)",
+    "overridden": "הגישה הכללית גבוהה יותר ({level}), ולכן להגדרה הזו אין השפעה.",
+    "remove": "הסרה",
+    "generalAccess": "גישה כללית",
+    "everyone": "כל מי שבסביבת העבודה",
+    "everyoneHint": "החברים מקבלים לפחות את רמת הגישה הזו, בלי קשר למה שניתן להם אישית. כדי לפתוח את הדף רק לאנשים שהוספת, יש לבחור “אין גישה”.",
+    "everyoneIn": "כל מי שב־{name}",
+    "everyoneTeamspace": "כל מי שבמרחב הצוות",
+    "everyoneTeamspaceHint": "חברי מרחב הצוות מקבלים לפחות את רמת הגישה הזו, בלי קשר למה שניתן להם אישית. כדי לפתוח את הדף רק לאנשים שהוספת, יש לבחור “אין גישה”.",
+    "readOnly": "רק מי שיש לו גישה מלאה יכול לשנות את השיתוף.",
+    "copyLink": "העתקת קישור",
+    "copied": "הועתק",
+    "loading": "בטעינה…",
+    "requests": {
+      "heading": "בקשות",
+      "message": "“{message}”",
+      "level": "רמת גישה",
+      "approve": "שיתוף",
+      "decline": "דחייה",
+      "outsider": "לא בסביבת העבודה: שיתוף יוסיף אותו כאורח.",
+      "cantInvite": "לא בסביבת העבודה, וסביבת העבודה הזו אינה מאפשרת שיתוף עם אנשים מחוצה לה."
+    },
+    "levels": {
+      "full": "גישה מלאה",
+      "edit": "עריכה",
+      "comment": "הוספת תגובות",
+      "view": "צפייה",
+      "none": "אין גישה"
+    },
+    "errors": {
+      "notMember": "האדם הזה אינו חבר בסביבת העבודה.",
+      "lastFullAccess": "מישהו חייב לשמור על גישה מלאה לדף. יש לתת קודם גישה מלאה למישהו אחר.",
+      "accessDenied": "אין לך אפשרות לשנות את השיתוף של הדף הזה.",
+      "invalidEmail": "יש להזין כתובת אימייל תקינה.",
+      "invitesRestricted": "סביבת העבודה הזו אינה מאפשרת לשתף דפים עם אנשים מחוצה לה. אפשר לפנות לאחד הבעלים.",
+      "generic": "לא ניתן היה לעדכן את השיתוף.",
+      "agentFullAccess": "סוכנים יכולים לצפות בדף, להגיב עליו או לערוך אותו, אבל לעולם לא מקבלים גישה מלאה."
+    },
+    "everyoneFromTeamspaceHint": "נקבע על ידי מרחב הצוות. לבעלים שלו ולבעלים של סביבת העבודה יש גישה מלאה. אפשר לבחור כאן רמה כדי לקבוע אותה לדף הזה ולדפי המשנה שלו."
+  },
+  "noAccess": {
+    "metaTitle": "אין גישה",
+    "title": "אין לך גישה לדף הזה",
+    "description": "אפשר לבקש גישה, והבקשה תגיע לאנשים שיכולים לשתף את הדף.",
+    "descriptionNoRequests": "אפשר לבקש ממי ששלח לך את הקישור לשתף איתך את הדף.",
+    "messageLabel": "הודעה (לא חובה)",
+    "messagePlaceholder": "הוספת הערה לאנשים שיכולים לשתף את הדף",
+    "request": "בקשת גישה",
+    "sending": "בשליחה…",
+    "sentTitle": "הבקשה נשלחה",
+    "sentDescription": "כשמישהו ישתף איתך את הדף, הקישור הזה יפתח אותו.",
+    "rateLimited": "ביקשת גישה יותר מדי פעמים. יש לנסות שוב בעוד זמן מה.",
+    "signedInAs": "התחברת בתור {email}.",
+    "home": "מעבר לסביבת העבודה שלך"
+  },
+  "embed": {
+    "label": "מסד נתונים",
+    "linkedLabel": "תצוגה מקושרת של מסד נתונים",
+    "unavailable": "מסד הנתונים הזה אינו זמין. ייתכן שהוא נמחק, או שאין לך גישה אליו.",
+    "inTrash": "מסד הנתונים הזה נמצא באשפה.",
+    "creating": "ביצירת מסד הנתונים…",
+    "createFailed": "לא ניתן היה ליצור את מסד הנתונים: {error}",
+    "turnIntoDatabase": "המרה למסד נתונים",
+    "convertFailed": "לא ניתן היה להמיר את הטבלה למסד נתונים: {error}",
+    "tableTooLarge": "אפשר להמיר למסד נתונים טבלאות של עד {rows} שורות ו־{columns} עמודות.",
+    "open": "פתיחה כדף",
+    "linked": "תצוגה מקושרת",
+    "layout": "פריסה",
+    "viewOnly": "רק מי שיכול לערוך את הדף הזה יכול לשנות את התצוגה הזו.",
+    "picker": {
+      "title": "בחירת מסד נתונים",
+      "search": "חיפוש מסדי נתונים",
+      "empty": "לא נמצאו מסדי נתונים.",
+      "failed": "לא ניתן היה לטעון את מסדי הנתונים."
+    },
+    "slash": {
+      "database": {
+        "title": "מסד נתונים",
+        "subtext": "מסד נתונים חדש בתוך הדף הזה",
+        "aliases": "מסד נתונים טבלה database db inline table"
+      },
+      "linkedView": {
+        "title": "תצוגה מקושרת של מסד נתונים",
+        "subtext": "הצגת מסד נתונים קיים בתצוגה משלו",
+        "aliases": "תצוגה מקושרת מסד נתונים linked view database db"
+      },
+      "dashboard": {
+        "title": "לוח בקרה",
+        "subtext": "מספרים, תרשימים ורשימות ממסדי הנתונים שלך",
+        "aliases": "לוח בקרה ווידג׳טים מדדים תרשימים מספרים dashboard widgets kpi metrics charts numbers"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "כתב עילי",
+    "subscript": "כתב תחתי"
+  },
+  "find": {
+    "label": "חיפוש בדף",
+    "placeholder": "חיפוש",
+    "replacePlaceholder": "החלפה ב־",
+    "noResults": "אין תוצאות",
+    "matchCase": "התאמת רישיות",
+    "previous": "ההתאמה הקודמת (Shift+Enter)",
+    "next": "ההתאמה הבאה (Enter)",
+    "showReplace": "הצגת החלפה",
+    "hideReplace": "הסתרת החלפה",
+    "replace": "החלפה",
+    "replaceAll": "החלפת הכול",
+    "close": "סגירה (Esc)"
+  },
+  "template": {
+    "workspace": "זו תבנית. דפים חדשים שנוצרים ממנה מעתיקים את התוכן ואת דפי המשנה שלה.",
+    "row": "זו תבנית שורה. שורות חדשות שנוצרות ממנה מקבלות את המאפיינים והתוכן שלה.",
+    "inside": "הדף הזה הוא חלק מתבנית.",
+    "use": "שימוש בתבנית",
+    "confirmDelete": "למחוק את התבנית הזו לצמיתות? דפים שכבר נוצרו ממנה יישארו כפי שהם."
+  },
+  "blocks": {
+    "callout": {
+      "title": "בלוק הדגשה",
+      "subtext": "טקסט עם סמל על רקע צבעוני",
+      "aliases": "הדגשה הערה טיפ אזהרה התראה תיבה callout note tip warning alert box",
+      "icon": "החלפת הסמל"
+    },
+    "code": {
+      "language": "שפה",
+      "plainText": "טקסט פשוט"
+    },
+    "math": {
+      "title": "משוואה",
+      "subtext": "משוואה בשורה נפרדת שנכתבת ב־TeX",
+      "aliases": "מתמטיקה משוואה נוסחה math equation latex tex katex formula",
+      "placeholder": "הוספת משוואת TeX",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "יש שגיאה במשוואה"
+    },
+    "inlineMath": {
+      "title": "משוואה בשורה",
+      "subtext": "משוואה בתוך הטקסט",
+      "aliases": "מתמטיקה משוואה נוסחה בשורה inline math equation latex tex katex formula",
+      "placeholder": "משוואה חדשה",
+      "sourcePlaceholder": "x^2",
+      "error": "שגיאה במשוואה"
+    },
+    "mermaid": {
+      "title": "תרשים Mermaid",
+      "subtext": "תרשימי זרימה, תרשימי רצף ועוד, שמצוירים מטקסט",
+      "aliases": "תרשים זרימה רצף גאנט mermaid diagram flowchart chart graph sequence gantt",
+      "placeholder": "הוספת תרשים Mermaid",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "בציור התרשים…",
+      "error": "יש שגיאה בתרשים",
+      "syntaxError": "שגיאת תחביר",
+      "label": "תרשים"
+    },
+    "toc": {
+      "title": "תוכן עניינים",
+      "subtext": "קישורים לכותרות בדף הזה",
+      "aliases": "תוכן עניינים כותרות מתאר toc table contents headings outline",
+      "label": "תוכן עניינים",
+      "empty": "כותרות שיתווספו לדף הזה יופיעו כאן."
+    },
+    "breadcrumb": {
+      "title": "נתיב ניווט",
+      "subtext": "הדפים שמעל הדף הזה, כקישורים",
+      "aliases": "נתיב ניווט הורים מיקום breadcrumb path parents location",
+      "label": "נתיב ניווט"
+    },
+    "columns": {
+      "two": {
+        "title": "2 עמודות",
+        "subtext": "שתי עמודות של בלוקים זו לצד זו",
+        "aliases": "עמודות עמודה פריסה צד 2 שתיים columns column layout side two"
+      },
+      "three": {
+        "title": "3 עמודות",
+        "subtext": "שלוש עמודות של בלוקים זו לצד זו",
+        "aliases": "עמודות עמודה פריסה צד 3 שלוש columns column layout side three"
+      },
+      "add": {
+        "title": "הוספת עמודה",
+        "subtext": "עמודה חדשה מימין לעמודה הזו (עד 5)",
+        "aliases": "עמודה עמודות הוספה חדשה פריסה column columns add new layout"
+      }
+    },
+    "pageLink": {
+      "title": "קישור לדף",
+      "subtext": "קישור לדף אחר, עם הכותרת העדכנית שלו",
+      "aliases": "קישור דף אזכור הפניה link page mention reference"
+    },
+    "colors": {
+      "group": "צבעים",
+      "text": "טקסט {color}",
+      "background": "רקע {color}",
+      "textDefault": "צבע טקסט ברירת מחדל",
+      "backgroundDefault": "ללא רקע",
+      "textAliases": "צבע טקסט גופן color colour text font",
+      "backgroundAliases": "רקע הדגשה צבע background highlight color colour"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "סימנייה",
+      "subtext": "קישור שמוצג ככרטיס עם הכותרת והתמונה שלו",
+      "aliases": "סימנייה קישור כתובת אתר כרטיס תצוגה מקדימה bookmark link url web card preview",
+      "placeholder": "הדבקת קישור ליצירת סימנייה",
+      "submit": "יצירת סימנייה",
+      "loading": "בטעינת הדף…",
+      "refresh": "רענון התצוגה המקדימה",
+      "label": "סימנייה"
+    },
+    "embed": {
+      "title": "הטמעה",
+      "subtext": "YouTube, Figma, Google Docs, Maps ועוד",
+      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "placeholder": "הדבקת קישור להטמעה",
+      "submit": "הטמעה",
+      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Spotify ו־Google Maps. קישורים אחרים הופכים לסימנייה.",
+      "frameTitle": "תוכן מוטמע מ־{host}",
+      "label": "הטמעה"
+    },
+    "paste": {
+      "label": "הדבקה בתור",
+      "bookmark": "סימנייה",
+      "embed": "הטמעה",
+      "keep": "השארה כקישור"
+    },
+    "invalidUrl": "יש להזין כתובת אינטרנט, למשל https://example.com",
+    "errors": {
+      "accessDenied": "אין לך אפשרות לערוך את הדף הזה.",
+      "rateLimited": "יותר מדי תצוגות מקדימות של קישורים בבת אחת. יש לנסות שוב בעוד דקה.",
+      "invalidUrl": "זו אינה כתובת אינטרנט.",
+      "blocked": "אי אפשר להציג תצוגה מקדימה של הכתובת הזו.",
+      "unreachable": "לא ניתן היה להגיע לדף.",
+      "timeout": "הדף התעכב יותר מדי בתשובה.",
+      "tooManyRedirects": "הדף מפנה מחדש יותר מדי פעמים.",
+      "httpError": "הדף החזיר שגיאה."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} גדול מדי. גודל קובץ מרבי: {limit}.",
+    "quotaExceeded": "{name} לא הועלה: סביבת העבודה הזו ניצלה את {limit} של אחסון הקבצים שלה.",
+    "failed": "לא ניתן היה להעלות את {name}."
+  },
+  "mention": {
+    "people": "אנשים",
+    "pages": "דפים",
+    "dates": "תאריכים",
+    "newPage": "דף חדש: {title}",
+    "newPageHint": "בתוך הדף הזה",
+    "today": "היום",
+    "tomorrow": "מחר",
+    "yesterday": "אתמול",
+    "nextWeek": "בשבוע הבא",
+    "noAccess": "אין גישה",
+    "deleted": "דף שנמחק",
+    "loading": "בטעינה…",
+    "personLeft": "{name} (כבר לא בסביבת העבודה)",
+    "date": "תאריך",
+    "reminder": "תזכורת",
+    "remindNone": "ללא תזכורת",
+    "remindSameDay": "באותו יום, 9:00",
+    "remindDayBefore": "יום לפני, 9:00",
+    "remindWeekBefore": "שבוע לפני, 9:00",
+    "reminderSet": "תזכורת: {when}",
+    "reminderHint": "התזכורת תגיע לתיבת הדואר הנכנס ובאימייל.",
+    "reminderPast": "המועד הזה כבר עבר; יש לבחור תאריך או תזכורת מאוחרים יותר.",
+    "done": "סיום"
+  },
+  "pageLinkPicker": {
+    "title": "קישור לדף",
+    "search": "חיפוש דפים…",
+    "empty": "לא נמצאו דפים",
+    "failed": "לא ניתן היה לטעון את הדפים."
+  },
+  "backlinks": {
+    "title": "מקושר מ־",
+    "count": "{count, plural, one {דף אחד מקשר לכאן} two {שני דפים מקשרים לכאן} other {# דפים מקשרים לכאן}}",
+    "unlinked": "אזכורים לא מקושרים · {count}",
+    "unlinkedHint": "דפים שכתובה בהם הכותרת של הדף הזה בלי קישור אליו",
+    "link": "קישור",
+    "linkLabel": "קישור האזכור ב־{title}",
+    "linkFailed": "הכותרת כבר לא כתובה שם כטקסט פשוט.",
+    "locked": "הדף הזה נעול, ולכן אי אפשר לשנות אותו."
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "פתיחה בכרטיסייה חדשה",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "הדפדפן הזה לא יכול להציג כאן קובצי PDF. אפשר לפתוח את הקובץ כדי לקרוא אותו."
+  },
+  "print": {
+    "print": "הדפסה או שמירה כ־PDF",
+    "back": "חזרה לדף",
+    "includeSubpages": "כולל דפי משנה",
+    "preparing": "בטעינת תמונות ותרשימים…",
+    "hint": "בחלון ההדפסה, יש לבחור “שמירה כ־PDF” כיעד.",
+    "truncated": "רק {count} הדפים הראשונים נכללים.",
+    "lastUpdated": "עודכן לאחרונה ב־{date}",
+    "subpages": "דפים",
+    "embedUnavailable": "מסד הנתונים הזה אינו זמין לך."
+  },
+  "quickNote": {
+    "documentTitle": "פתק מהיר",
+    "heading": "פתק מהיר",
+    "description": "נשמר כדף פרטי שרק לך יש גישה אליו. אפשר להעביר או לשתף אותו מאוחר יותר.",
+    "workspace": "סביבת עבודה",
+    "title": "כותרת",
+    "body": "פתק",
+    "bodyPlaceholder": "אפשר לכתוב משהו או להדביק קישור",
+    "save": "שמירת הפתק",
+    "shortcut": "פתק מהיר חדש",
+    "shortcutShort": "פתק מהיר",
+    "destination": "שמירה ב־",
+    "privatePage": "דף פרטי"
+  },
+  "dashboard": {
+    "title": "לוח בקרה",
+    "empty": "אין עדיין ווידג׳טים בלוח הבקרה הזה.",
+    "emptyEditable": "כאן אפשר להציג מספרים, תרשימים ורשימות ממסדי הנתונים של סביבת העבודה. הם מתעדכנים כשהשורות משתנות.",
+    "add": "הוספת ווידג׳ט",
+    "full": "לוח בקרה יכול להכיל עד {max} ווידג׳טים.",
+    "menu": "אפשרויות הווידג׳ט",
+    "edit": "עריכה",
+    "done": "סיום",
+    "remove": "הסרת הווידג׳ט",
+    "moveBefore": "הזזה לפני",
+    "moveAfter": "הזזה אחרי",
+    "width": "רוחב",
+    "widths": {
+      "1": "רבע מהרוחב",
+      "2": "חצי מהרוחב",
+      "3": "שלושה רבעים מהרוחב",
+      "4": "הרוחב המלא"
+    },
+    "color": "צבע",
+    "colorNone": "ללא צבע",
+    "titleLabel": "כותרת הווידג׳ט",
+    "titlePlaceholder": "כותרת (של מסד הנתונים, אם ריקה)",
+    "unavailable": "אין לך גישה לנתונים האלה.",
+    "inTrash": "מסד הנתונים הזה נמצא באשפה.",
+    "loadFailed": "לא ניתן היה לטעון את הווידג׳ט הזה.",
+    "retry": "ניסיון חוזר",
+    "noGroup": "עדיין אין במסד הנתונים לפי מה לקבץ: יש להוסיף מאפיין בחירה, סטטוס או תאריך.",
+    "more": "{count, plural, one {עוד שורה אחת} two {עוד שתי שורות} other {עוד # שורות}}",
+    "rows": "{count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}}",
+    "byGroup": "לפי {property}",
+    "filters": "{count, plural, one {מסנן אחד} two {שני מסננים} other {# מסננים}}",
+    "updatedNow": "עודכן הרגע",
+    "updated": "עודכן {time}"
+  },
+  "voiceNote": {
+    "record": "הקלטת הערה קולית",
+    "recording": "בהקלטה",
+    "stop": "עצירה וכתיבה",
+    "discard": "התעלמות",
+    "cancel": "ביטול",
+    "retry": "הוספה מחדש",
+    "close": "סגירה",
+    "limit": "עד {minutes} דק׳",
+    "chooseFile": "או בחירת קובץ אודיו",
+    "transcribing": "בתמלול ההקלטה…",
+    "writing": "ה־AI כותב את ההערה…",
+    "autoStopped": "ההקלטה נעצרה במגבלה של {minutes} דק׳.",
+    "review": "ה־AI כתב את ההערה הזו מההקלטה שלך. כדאי לבדוק אותה לפני השמירה.",
+    "notRewritten": "ה־AI לא הצליח לנסח את ההקלטה הזו, ולכן ההערה היא התמליל כפי שנשמע.",
+    "transcriptKept": "התמליל נשמר מתחת להערה.",
+    "propertiesPicked": "{count, plural, one {מאפיין אחד מולא מתוך ההערה.} two {שני מאפיינים מולאו מתוך ההערה.} other {# מאפיינים מולאו מתוך ההערה.}}",
+    "transcriptToggle": "תמליל",
+    "shortcut": "הערה קולית חדשה",
+    "shortcutShort": "הערה קולית",
+    "dialogTitle": "הערה קולית",
+    "dialogDescription": "מדברים, וה־AI כותב כאן הערה נקייה. התמליל נשמר מתחתיה.",
+    "slashTitle": "הערה קולית",
+    "slashSubtext": "מדברים, וה־AI מנסח את זה כאן",
+    "slashAliases": "קול אודיו הקלטה הכתבה דיבור מיקרופון תמלול voice audio record dictate speech microphone transcribe",
+    "errors": {
+      "unsupported": "הדפדפן הזה לא יכול להקליט אודיו. במקום זאת, אפשר לבחור קובץ אודיו.",
+      "insecure": "הקלטה דורשת חיבור מאובטח (https). במקום זאת, אפשר לבחור קובץ אודיו.",
+      "denied": "ל־Leafdesk אין הרשאה להשתמש במיקרופון. יש לאשר אותה בהגדרות האתר בדפדפן ולנסות שוב.",
+      "noDevice": "לא נמצא מיקרופון.",
+      "failed": "לא ניתן היה להתחיל את ההקלטה. יש לנסות שוב.",
+      "fileType": "סוג קובץ האודיו הזה אינו נתמך.",
+      "fileTooLarge": "גודל הקלטה מרבי: {max}.",
+      "disabled": "הערות קוליות אינן זמינות בסביבת העבודה הזו.",
+      "noAccess": "אין לך אפשרות להוסיף כאן הערות.",
+      "tooLarge": "ההקלטה גדולה מדי. גודל הקלטה מרבי: {max}.",
+      "rateLimited": "יותר מדי בקשות AI. יש לנסות שוב בעוד רגע.",
+      "timeout": "תמלול ההקלטה ארך זמן רב מדי. יש לנסות שוב, או להקליט הערה קצרה יותר.",
+      "aborted": "בוטל.",
+      "provider": "לא ניתן היה לתמלל את ההקלטה. יש לנסות שוב מאוחר יותר, או לבקש ממנהל לבדוק את הגדרות ההמרה מדיבור לטקסט.",
+      "empty": "לא נשמע דבר בהקלטה. יש לנסות שוב קרוב יותר למיקרופון.",
+      "invalid": "לא ניתן היה לקרוא את ההקלטה. יש לנסות שוב.",
+      "interrupted": "השרת הופעל מחדש בזמן העיבוד. יש לנסות שוב.",
+      "insert": "לא ניתן היה להוסיף את ההערה לדף."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, one {שינוי AI אחד לבדיקה} two {שני שינויי AI לבדיקה} other {# שינויי AI לבדיקה}}",
+    "by": "על ידי {names}",
+    "open": "בדיקה",
+    "keepAll": "שמירת הכול",
+    "undoAll": "ביטול הכול",
+    "keep": "שמירה",
+    "undo": "ביטול",
+    "title": "בדיקת שינויי AI",
+    "hint": "אפשר לשמור או לבטל כל שינוי. “ביטול הכול” שומר קודם את הדף במצבו הנוכחי בהיסטוריה שלו.",
+    "stale": "הדף השתנה בינתיים: אלה השינויים כפי שהם עכשיו.",
+    "failed": "זה לא עבד. יש לנסות שוב."
+  }
+}

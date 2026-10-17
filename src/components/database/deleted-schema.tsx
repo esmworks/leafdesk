@@ -149,7 +149,7 @@ function Header({ title, back, onBack }: { title: ReactNode; back: string; onBac
         onClick={onBack}
         className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
+        <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
       </button>
       <span className="text-sm font-medium">{title}</span>
     </div>

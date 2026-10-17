@@ -117,7 +117,7 @@ export function Changes({ changes }: { changes: ChatChange[] }) {
     <span className="break-words">
       ·{" "}
       {changes.map((c, i) => (
-        <span key={i} className="mr-1 inline-block rounded bg-bg-subtle px-1 text-fg last:mr-0">
+        <span key={i} className="me-1 inline-block rounded bg-bg-subtle px-1 text-fg last:me-0">
           {c.property}: {c.value || <span className="text-fg-muted">{t("approval.cleared")}</span>}
         </span>
       ))}
@@ -165,7 +165,7 @@ function Conditions({ conditions, any }: { conditions: ChatQueryCondition[]; any
       ·{" "}
       {conditions.map((c, i) => (
         <Fragment key={i}>
-          {i > 0 && any && <span className="mr-1">{or}</span>}
+          {i > 0 && any && <span className="me-1">{or}</span>}
           <Condition condition={c} />
         </Fragment>
       ))}
@@ -187,7 +187,7 @@ function Condition({ condition }: { condition: ChatQueryCondition }) {
     value = t(range === "past_n_days" ? "relative.pastDays" : "relative.nextDays", { count: Number(days) });
   } else if (value.toLowerCase() === "me") value = t("me");
   return (
-    <span className="mr-1 inline-block rounded bg-bg-subtle px-1 text-fg last:mr-0">
+    <span className="me-1 inline-block rounded bg-bg-subtle px-1 text-fg last:me-0">
       {condition.property} {/\p{L}/u.test(op) ? op.toLocaleLowerCase(locale) : op}
       {value && ` ${value}`}
     </span>

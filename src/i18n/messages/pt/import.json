@@ -1,0 +1,106 @@
+{
+  "open": "Importar",
+  "title": "Importar",
+  "description": "Traga páginas de arquivos Markdown, exportações ZIP e documentos do Word, ou linhas de um arquivo CSV ou planilha do Excel.",
+  "tabs": {
+    "pages": "Markdown e ZIP",
+    "docx": "Word",
+    "csv": "CSV e Excel"
+  },
+  "destination": "Colocar em",
+  "topLevel": "Nível superior do espaço de trabalho",
+  "noDestination": "Não há nenhuma página à qual você possa adicionar páginas.",
+  "pages": {
+    "help": "Arquivos Markdown viram páginas e as pastas mantêm sua estrutura. Arquivos CSV viram bancos de dados, e as imagens vinculadas nas páginas são enviadas.",
+    "notion": "Do Notion: exporte como “Markdown & CSV” com subpáginas e escolha o ZIP como ele foi baixado (exportações divididas também funcionam). Subpáginas, bancos de dados, relações, destaques, blocos expansíveis e imagens vêm junto.",
+    "obsidian": "Do Obsidian: escolha a pasta do cofre, ou um ZIP dela. Links entre notas ([[wikilinks]] também), imagens e arquivos incorporados e destaques vêm junto.",
+    "chooseFiles": "Escolher arquivos",
+    "chooseFolder": "Escolher uma pasta",
+    "drop": "ou solte os arquivos aqui",
+    "selected": "{count, plural, one {# arquivo} other {# arquivos}}, {size}",
+    "clear": "Limpar"
+  },
+  "docx": {
+    "help": "Cada documento do Word (.docx) vira uma página, com títulos, listas, tabelas, links, imagens e notas de rodapé. Um título logo no início vira o título da página; caso contrário, o nome do arquivo é usado.",
+    "choose": "Escolher arquivos do Word"
+  },
+  "csv": {
+    "choose": "Escolher um arquivo CSV ou Excel",
+    "summary": "{name}: {rows, plural, one {# linha} other {# linhas}}, {columns, plural, one {# coluna} other {# colunas}}",
+    "sheet": "Planilha",
+    "mode": "Importar como",
+    "newDatabase": "Um novo banco de dados",
+    "existing": "Linhas de um banco de dados",
+    "name": "Nome",
+    "titleColumn": "Títulos das linhas a partir de",
+    "noTitle": "Nenhuma coluna (linhas sem título)",
+    "column": "Coluna",
+    "type": "Tipo",
+    "target": "Vai para",
+    "values": "Valores",
+    "leaveOut": "Deixar de fora",
+    "rowTitle": "Título da linha",
+    "database": "Banco de dados",
+    "chooseDatabase": "Escolha um banco de dados",
+    "noDatabases": "Não há nenhum banco de dados ao qual você possa adicionar linhas.",
+    "cantLoad": "Não foi possível carregar as propriedades deste banco de dados.",
+    "newOptions": "Valores de seleção que o banco de dados ainda não tem são adicionados como opções."
+  },
+  "import": "Importar",
+  "importing": "Importando…",
+  "done": {
+    "title": "Importação concluída",
+    "created": "Criado: {list}.",
+    "nothing": "Nada novo foi criado.",
+    "open": "Abrir",
+    "again": "Importar mais"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# página} other {# páginas}}",
+    "databases": "{count, plural, one {# banco de dados} other {# bancos de dados}}",
+    "rows": "{count, plural, one {# linha} other {# linhas}}",
+    "templates": "{count, plural, one {# modelo} other {# modelos}}",
+    "files": "{count, plural, one {# arquivo} other {# arquivos}}"
+  },
+  "warnings": {
+    "heading": "Deixado de fora ou alterado",
+    "invalidValues": "{count, plural, one {# valor} other {# valores}} em “{column}” não se encaixaram na propriedade e ficaram vazios.",
+    "missingFile": "“{path}”, vinculado em “{page}”, não estava no envio.",
+    "unresolvedLink": "“[[{target}]]” em “{page}” não corresponde a nenhuma nota ou arquivo do envio, então continua como texto.",
+    "fileNotStored": {
+      "tooLarge": "“{path}” é maior que o limite de envio e não foi armazenado.",
+      "quotaExceeded": "“{path}” não foi armazenado: o espaço de trabalho ficou sem armazenamento de arquivos.",
+      "failed": "Não foi possível armazenar “{path}”.",
+      "external": "“{path}” foi deixado de fora: a imagem está vinculada de fora do documento.",
+      "unsupportedType": "“{path}” foi deixado de fora: as páginas não podem mostrar imagens deste tipo."
+    },
+    "skipped": {
+      "nestedZip": "“{path}” é um ZIP aninhado fundo demais e foi deixado de fora.",
+      "nestedDatabase": "“{path}” seria um banco de dados dentro de outro banco de dados e foi deixado de fora.",
+      "duplicate": "“{path}” foi deixado de fora: a versão completa do mesmo banco de dados foi importada.",
+      "tooLarge": "“{path}” é grande demais para uma página e foi deixado de fora.",
+      "unused": "“{path}” foi deixado de fora: nenhuma página o mostra ou tem link para ele.",
+      "unsafePath": "“{path}” foi deixado de fora: o caminho dele leva para fora do ZIP.",
+      "otherSheet": "A planilha “{path}” foi deixada de fora: só uma planilha é importada por vez."
+    },
+    "more": "…e {count, plural, one {mais #} other {mais #}}."
+  },
+  "errors": {
+    "tooLarge": "O envio é maior que {limit}.",
+    "tooManyFiles": "Uma importação pode ter no máximo {limit} arquivos.",
+    "tooManyPages": "Uma importação pode criar no máximo {limit} páginas.",
+    "tooManyRows": "Um arquivo pode ter no máximo {limit} linhas.",
+    "tooManyColumns": "Um arquivo pode ter no máximo {limit} colunas.",
+    "badZip": "Não foi possível ler o arquivo ZIP.",
+    "nothingToImport": "Não há nenhum arquivo Markdown ou CSV para importar.",
+    "emptyCsv": "O arquivo não tem linha de cabeçalho.",
+    "badWorkbook": "Não foi possível ler o arquivo do Excel.",
+    "unsupportedWorkbook": "Só é possível importar pastas de trabalho .xlsx sem senha. Salve o arquivo como Pasta de Trabalho do Excel (.xlsx) sem senha e tente novamente.",
+    "badDocx": "Não foi possível ler “{name}” como documento do Word. Só arquivos .docx podem ser importados; salve arquivos .doc antigos como .docx primeiro.",
+    "docxTooComplex": "“{name}” é grande ou complexo demais para importar como uma página.",
+    "badMapping": "Escolha para onde vai pelo menos uma coluna, e cada propriedade só uma vez.",
+    "noAccess": "Você não pode adicionar páginas ali, ou o local não existe mais.",
+    "notADatabase": "Linhas só podem ser adicionadas a um banco de dados.",
+    "badRequest": "A importação não foi concluída. Nada foi alterado."
+  }
+}

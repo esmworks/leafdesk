@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { LOCALES } from "@/i18n/config";
 import { agentEmail } from "@/lib/agents";
 import { MailConfigError, readMailConfig } from "./config";
 import { sendMail } from "./index";
@@ -172,7 +173,7 @@ describe("assignmentEmail", () => {
   });
 
   it("leaves out a database the recipient can't open", () => {
-    for (const locale of ["en", "tr", "de", "fr", "es"] as const) {
+    for (const locale of LOCALES) {
       const email = assignmentEmail(locale, { ...assignment, databaseTitle: null });
       expect(email.text).toContain("Sorumlu");
       expect(email.text).not.toContain("İşlerim");
@@ -194,7 +195,7 @@ describe("dateReminderEmail", () => {
 
   it("names the database the row is in, unless the recipient can't open it", () => {
     expect(dateReminderEmail("en", reminder).text).toContain("“Teklif” in İşlerim (Ekip) has Teslim on");
-    for (const locale of ["en", "tr", "de", "fr", "es"] as const) {
+    for (const locale of LOCALES) {
       const email = dateReminderEmail(locale, { ...reminder, databaseTitle: null });
       expect(email.text).toContain("Teklif");
       expect(email.text).not.toContain("İşlerim");
@@ -248,7 +249,7 @@ describe("automationEmail", () => {
   });
 
   it("leaves out a database the recipient can't open", () => {
-    for (const locale of ["en", "tr", "de", "fr", "es"] as const) {
+    for (const locale of LOCALES) {
       const email = automationEmail(locale, { ...automation, databaseTitle: null });
       expect(email.text).not.toContain("İşlerim");
       expect(email.text).not.toMatch(/\{|\}/);

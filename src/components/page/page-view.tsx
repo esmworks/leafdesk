@@ -295,7 +295,7 @@ export function PageView({
           size="sm"
           variant="ghost"
           onClick={toggle}
-          className="-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
+          className="-ms-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
         >
           <Paintbrush className="h-4 w-4" />
           <span className={headerButtonLabel}>{t(background ? "background.change" : "background.add")}</span>
@@ -312,7 +312,7 @@ export function PageView({
             type="button"
             onClick={toggle}
             className={cn(
-              "-ml-1 shrink-0 rounded-md p-1 leading-none",
+              "-ms-1 shrink-0 rounded-md p-1 leading-none",
               // The title's size, so the icon reads as part of its first line.
               wide ? "text-2xl md:text-3xl" : "text-[1.75rem] md:text-4xl",
               canChangeHeader ? "hover:bg-bg-hover" : "cursor-default",
@@ -327,7 +327,7 @@ export function PageView({
             onClick={toggle}
             className={cn(
               // A control, so the app's typeface rather than the page's.
-              "-ml-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100",
+              "-ms-2 font-sans opacity-0 transition-opacity group-hover:opacity-100 pointer-coarse:opacity-100",
               !canChangeHeader && "hidden",
             )}
           >
@@ -345,12 +345,12 @@ export function PageView({
       {/* Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's. */}
       <div ref={rootRef} data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under. */}
-        <header className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:pl-1.5">
+        <header className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent bg-bg/90 px-3 backdrop-blur max-md:ps-1.5">
           {panel ? (
             <div className="flex min-w-0 items-center gap-0.5">{panel.controls}</div>
           ) : (
             <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
-              <SidebarOpenButton className="mr-1 max-md:mr-0" />
+              <SidebarOpenButton className="me-1 max-md:me-0" />
               {parents.map((c) => (
                 <span key={c.id} className="flex min-w-0 items-center gap-1 max-md:hidden">
                   <Link
@@ -476,7 +476,7 @@ export function PageView({
               {canChangeHeader && (
                 <div
                   className={cn(
-                    "absolute top-1/2 right-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg pl-2",
+                    "absolute top-1/2 inset-e-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg ps-2",
                     "pointer-events-none opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
                     // Kept shown while one of their pickers is open (Popover sets data-open).
                     "focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-open]]:pointer-events-auto has-[[data-open]]:opacity-100",
@@ -632,11 +632,11 @@ function shiftIndex(before: string, after: string, i: number) {
 function LockedNotice({ onUnlock, pending }: { onUnlock?: () => void; pending: boolean }) {
   const t = useTranslations("page.header");
   return (
-    <span className="mr-1 flex shrink-0 items-center gap-1 text-xs text-fg-muted" title={t("lockPageHint")}>
+    <span className="me-1 flex shrink-0 items-center gap-1 text-xs text-fg-muted" title={t("lockPageHint")}>
       <Lock className="h-3.5 w-3.5" aria-hidden />
       <span>{t("locked")}</span>
       {onUnlock && (
-        <Button size="sm" variant="ghost" onClick={onUnlock} disabled={pending} className="-my-1 ml-0.5 h-6 px-1.5">
+        <Button size="sm" variant="ghost" onClick={onUnlock} disabled={pending} className="-my-1 ms-0.5 h-6 px-1.5">
           {t("unlock")}
         </Button>
       )}
@@ -679,7 +679,7 @@ function SyncStatus({ connection, pendingEdits }: { connection: ConnectionState;
     <span
       role="status"
       data-sync-state={connection}
-      className="mr-1 flex min-w-0 items-center gap-1.5 text-xs text-fg-faint"
+      className="me-1 flex min-w-0 items-center gap-1.5 text-xs text-fg-faint"
       title={connection === "offline" ? t("offlineHint") : label}
     >
       <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", DOT_COLOR[connection])} />

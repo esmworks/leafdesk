@@ -75,11 +75,11 @@ function BlockBody({ block, text, compact }: { block: DiffBlock; text: ReactNode
     case "numberedListItem":
       return marker(`${block.ordinal ?? 1}.`);
     case "toggleListItem":
-      return marker(<ChevronRight className="mt-1 h-4 w-4" />);
+      return marker(<ChevronRight className="mt-1 h-4 w-4 rtl:-scale-x-100" />);
     case "checkListItem":
       return marker(block.checked ? <SquareCheck className="mt-1 h-4 w-4" /> : <Square className="mt-1 h-4 w-4" />);
     case "quote":
-      return <div className="whitespace-pre-wrap border-l-[3px] border-fg-faint pl-3">{text}</div>;
+      return <div className="whitespace-pre-wrap border-s-[3px] border-fg-faint ps-3">{text}</div>;
     case "codeBlock":
     case "math":
     case "mermaid":
@@ -143,8 +143,8 @@ function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?
     );
   return (
     <div
-      className={cn("border-l-2 py-1 pl-3", BAR[change.op], change.op === "same" && "opacity-50")}
-      style={block.depth ? { marginLeft: `${block.depth * 1.5}rem` } : undefined}
+      className={cn("border-s-2 py-1 ps-3", BAR[change.op], change.op === "same" && "opacity-50")}
+      style={block.depth ? { marginInlineStart: `${block.depth * 1.5}rem` } : undefined}
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
@@ -192,7 +192,7 @@ export function BlockChanges({
         key={i}
         type="button"
         onClick={() => setOpened((s) => new Set(s).add(i))}
-        className="flex w-full items-center gap-2 rounded-md px-3 py-1 text-left text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+        className="flex w-full items-center gap-2 rounded-md px-3 py-1 text-start text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
         <ChevronsUpDown className="h-3.5 w-3.5" />
         {t("diff.showUnchanged", { count: item.blocks.length })}

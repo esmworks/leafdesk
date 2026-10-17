@@ -221,7 +221,7 @@ export function ChatThread({
                   </IconButton>
                 ) : (
                   <IconButton label={t("send")} type="submit" className="h-7 w-7" disabled={Boolean(blocked) || !input.trim() || skills.open}>
-                    <SendHorizontal className="h-4 w-4" />
+                    <SendHorizontal className="h-4 w-4 rtl:-scale-x-100" />
                   </IconButton>
                 )}
               </div>
@@ -283,13 +283,13 @@ function Answer({
       {message.note && <p className="mt-1 text-xs text-fg-muted">{message.note === "stopped" ? labels.stopped : labels.cutOff}</p>}
       {/* Notes kept or dropped show even with the steps folded: the person should know. */}
       {done && message.steps?.some(changedMemory) && (
-        <button type="button" onClick={onMemory} className="-ml-1 mt-1.5 flex items-center gap-1.5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
+        <button type="button" onClick={onMemory} className="-ms-1 mt-1.5 flex items-center gap-1.5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
           <Brain className="h-3.5 w-3.5 shrink-0" />
           {tMemory("updated")}
         </button>
       )}
       {done && (
-        <div className={cn("mt-1.5 -ml-1 flex items-center gap-0.5", !last && revealed)}>
+        <div className={cn("mt-1.5 -ms-1 flex items-center gap-0.5", !last && revealed)}>
           {message.content.trim() && <CopyAction text={stripCitations(message.content).trim()} />}
           {onRetry && (
             <IconButton label={t("retry")} className="h-7 w-7" onClick={onRetry}>
@@ -312,7 +312,7 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
   const tSkills = useTranslations("skills.chat");
   const tc = useTranslations("common");
   const [draft, setDraft] = useState<string | null>(null);
-  const place = page ? "ml-auto w-fit max-w-[80%]" : "ml-8";
+  const place = page ? "ms-auto w-fit max-w-[80%]" : "ms-8";
 
   if (draft !== null && onEdit) {
     const submit = () => {
@@ -321,7 +321,7 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
       onEdit(draft.trim());
     };
     return (
-      <div className={cn("rounded-lg border border-accent bg-bg px-3 py-2", page ? "ml-auto w-full max-w-[80%]" : "ml-8")}>
+      <div className={cn("rounded-lg border border-accent bg-bg px-3 py-2", page ? "ms-auto w-full max-w-[80%]" : "ms-8")}>
         <textarea
           autoFocus
           value={draft}
@@ -356,7 +356,7 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
   return (
     <div className="group/question">
       {message.skill && (
-        <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ml-8")}>
+        <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
           <ScrollText className="h-3.5 w-3.5 shrink-0" />
           <span className="min-w-0 truncate">{tSkills("used", { title: message.skill.title || tc("untitled") })}</span>
         </p>
@@ -444,13 +444,13 @@ function Steps({
         type="button"
         aria-expanded={expanded}
         onClick={() => setOpen(!expanded)}
-        className="-ml-1 flex items-center gap-1.5 rounded px-1 py-0.5 text-fg-muted hover:bg-bg-hover hover:text-fg"
+        className="-ms-1 flex items-center gap-1.5 rounded px-1 py-0.5 text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
         <span className="tabular-nums">{live ? t("steps.working", { time }) : t("steps.worked", { time })}</span>
-        <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")} />
+        <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", expanded ? "rotate-90" : "rtl:rotate-180")} />
       </button>
       {expanded && (
-        <ol className="mt-1 ml-1.5 space-y-1 border-l border-border pl-3 text-fg-muted">
+        <ol className="mt-1 ms-1.5 space-y-1 border-s border-border ps-3 text-fg-muted">
           {steps.map((step, i) => (
             <li key={i} className="flex min-w-0 items-start gap-1.5">
               <StepLine step={step} onSource={onSource} />
@@ -493,7 +493,7 @@ function ModePicker({ mode, onChange }: { mode: ChatMode; onChange: (mode: ChatM
           aria-haspopup="menu"
           aria-label={`${t("label")}: ${t(mode)}`}
           title={t(`${mode}Hint`)}
-          className="-ml-1 flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+          className="-ms-1 flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
           <Icon className="h-3.5 w-3.5" />
           <span>{t(mode)}</span>
@@ -627,7 +627,7 @@ function ChangePrompt({
             ref={i === 0 ? first : undefined}
             type="button"
             onClick={() => onDecide(d)}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none hover:bg-bg-hover focus-visible:bg-bg-hover"
+            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-start outline-none hover:bg-bg-hover focus-visible:bg-bg-hover"
           >
             <span className="w-3 shrink-0 text-xs text-fg-faint tabular-nums">{i + 1}</span>
             <span className={cn(d === "decline" && "text-fg-muted")}>{t(d)}</span>

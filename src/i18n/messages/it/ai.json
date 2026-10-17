@@ -1,0 +1,270 @@
+{
+  "assistant": {
+    "askAi": "Chiedi all’IA",
+    "askAiSubtext": "Riscrivi, traduci o continua a scrivere con l’IA",
+    "askAiAliases": "ia ai assistente scrivi riscrivi migliora traduci",
+    "continueSubtext": "L’IA continua a scrivere da qui",
+    "continueAliases": "ia ai continua scrivi altro",
+    "summarizeSubtext": "L’IA aggiunge un riepilogo di questa pagina",
+    "summarizeAliases": "ia ai riepilogo riassunto riassumi tldr",
+    "group": "IA",
+    "label": "Assistente IA",
+    "placeholder": "Di’ all’IA cosa scrivere…",
+    "placeholderSelection": "Di’ all’IA cosa fare con la selezione…",
+    "send": "Invia",
+    "actions": {
+      "improve": "Migliora la scrittura",
+      "shorten": "Accorcia",
+      "fix": "Correggi ortografia e grammatica",
+      "translate": "Traduci…",
+      "continue": "Continua a scrivere",
+      "summarize": "Riassumi la pagina",
+      "custom": "La tua istruzione"
+    },
+    "translateInto": "Traduci in",
+    "back": "Indietro",
+    "writing": "Scrittura in corso…",
+    "stop": "Interrompi",
+    "replace": "Sostituisci la selezione",
+    "insertBelow": "Inserisci sotto",
+    "retry": "Riprova",
+    "discard": "Scarta",
+    "cutOff": "La risposta ha raggiunto il limite di lunghezza e potrebbe essere troncata.",
+    "reviewNote": "L’IA può commettere errori. Controlla il testo prima di tenerlo.",
+    "stopped": "Interrotto. Puoi comunque tenere quello che è stato scritto finora.",
+    "applyFailed": "Impossibile aggiungere il suggerimento alla pagina.",
+    "selectionChanged": "Nel frattempo il testo selezionato è cambiato, quindi il suggerimento è stato aggiunto sotto."
+  },
+  "errors": {
+    "disabled": "L’IA non è disponibile in questo spazio di lavoro.",
+    "noAccess": "Non puoi modificare questa pagina.",
+    "tooLarge": "C’è troppo testo per una sola richiesta all’IA. Selezionane meno e riprova.",
+    "rateLimited": "Troppe richieste all’IA. Riprova tra un momento.",
+    "timeout": "L’IA ha impiegato troppo tempo a rispondere. Riprova.",
+    "aborted": "La richiesta all’IA è stata annullata.",
+    "provider": "Il provider IA non è riuscito a rispondere. Riprova più tardi o chiedi a un amministratore di controllare le impostazioni IA.",
+    "empty": "L’IA non ha dato alcuna risposta. Riprova o riformula.",
+    "invalid": "La richiesta all’IA era incompleta. Riprova.",
+    "interrupted": "Il server si è riavviato mentre il valore veniva elaborato. Aggiornalo di nuovo."
+  },
+  "autofill": {
+    "addEntry": "Compilazione automatica IA",
+    "configure": "Compilazione automatica IA…",
+    "titleNew": "Nuova proprietà con compilazione automatica IA",
+    "titleFor": "Compilazione automatica IA di {name}",
+    "back": "Indietro",
+    "mode": "L’IA compila",
+    "modes": {
+      "summary": "Un riepilogo",
+      "translation": "Una traduzione",
+      "custom": "Il tuo prompt"
+    },
+    "modeHints": {
+      "summary": "Un breve riepilogo della pagina di ogni riga.",
+      "translation": "Un valore della riga, tradotto.",
+      "custom": "Qualsiasi cosa tu descriva, usando i valori della riga."
+    },
+    "defaultNames": {
+      "summary": "Riepilogo IA",
+      "translation": "Traduzione",
+      "custom": "Testo IA"
+    },
+    "source": "Traduci",
+    "sourceTitle": "Nome",
+    "sourceBody": "Contenuto della pagina",
+    "language": "In",
+    "prompt": "Prompt",
+    "promptPlaceholder": "Per esempio: Scrivi una presentazione di una riga per '{title}' rivolta a '{Audience}'.",
+    "promptHint": "Fai clic su una proprietà per inserirla; al suo posto verrà usato il valore della riga.",
+    "includeBody": "Invia anche il contenuto della pagina della riga",
+    "auto": "Aggiorna quando la riga cambia",
+    "autoHint": "Pochi secondi dopo una modifica ai valori o alla pagina di una riga, il suo valore viene ricalcolato.",
+    "privacy": "I dati da cui viene calcolato il valore di ogni riga vengono inviati al provider IA di questo server.",
+    "save": "Salva",
+    "create": "Aggiungi proprietà",
+    "turnOff": "Disattiva la compilazione automatica IA",
+    "updateAll": "Aggiorna tutte le righe di questa vista",
+    "updateRow": "Aggiorna con l’IA",
+    "pending": "L’IA ci sta lavorando…",
+    "failed": "L’IA non è riuscita a compilare questo campo: {reason}",
+    "tooManyRows": "Si possono aggiornare al massimo {max} righe alla volta; vengono aggiornate le prime {max} di questa vista.",
+    "errors": {
+      "invalidMode": "Scegli cosa deve compilare l’IA.",
+      "unknownLanguage": "Scegli una lingua in cui tradurre.",
+      "unknownSource": "Scegli cosa tradurre.",
+      "promptRequired": "Scrivi un prompt.",
+      "promptTooLong": "Il prompt può avere al massimo {max} caratteri.",
+      "unknownPlaceholder": "Non esiste una proprietà chiamata “{name}”.",
+      "cycle": "“{name}” legge già questa proprietà (direttamente o tramite altre proprietà IA), quindi questa non può leggerla.",
+      "notText": "Solo le proprietà di testo possono essere compilate dall’IA.",
+      "databaseLocked": "Il database è bloccato."
+    }
+  },
+  "settings": {
+    "heading": "IA",
+    "description": "L’assistente di scrittura IA nelle pagine, le proprietà con compilazione automatica IA nei database, la chat IA e la ricerca semantica.",
+    "enabled": "Funzionalità IA",
+    "enabledHint": "Se attive, i membri possono inviare al provider IA indicato sotto il contenuto delle pagine e i valori delle righe che possono vedere. Disattivale per tenere i contenuti di questo spazio di lavoro lontani dal provider.",
+    "ownersOnly": "Solo i proprietari possono modificare questa impostazione.",
+    "memory": "Memoria IA",
+    "memoryHint": "Se attiva, la chat IA conserva brevi note sulle persone che le parlano di sé e le invia insieme alle loro domande successive. Ognuno può disattivarla per sé. Se disattivata, la vista Memoria è nascosta e nessuna domanda include note; le note vengono conservate, non eliminate. Anche le esecuzioni degli agenti non includono note e non ne propongono.",
+    "provider": "Provider",
+    "providerValue": "{provider}, modello {model}",
+    "notConfigured": "Su questo server non è configurato alcun provider IA né modello di embedding, quindi le funzionalità IA sono disattivate. Un amministratore può configurarli con le variabili d’ambiente AI_PROVIDER e AI_MODEL (e AI_EMBEDDINGS_MODEL) (vedi il README).",
+    "noProvider": "Nessuno: l’assistente di scrittura, le proprietà IA e la chat IA richiedono AI_PROVIDER e AI_MODEL.",
+    "semanticSearch": "Ricerca semantica",
+    "semanticValue": "La ricerca trova le pagine anche in base al significato, con il modello di embedding {model}.",
+    "semanticOff": "Disattivata: la ricerca trova solo le parole. Un amministratore può attivarla con AI_EMBEDDINGS_MODEL."
+  },
+  "chat": {
+    "open": "Chiedi all’IA",
+    "title": "Chiedi all’IA",
+    "close": "Chiudi",
+    "expand": "Apri a pagina intera",
+    "newChat": "Nuova chat",
+    "deleteFailed": "Impossibile eliminare. Riprova.",
+    "backToPages": "Torna alle pagine",
+    "history": "Conversazioni",
+    "noHistory": "Ancora nessuna conversazione.",
+    "groups": {
+      "today": "Oggi",
+      "yesterday": "Ieri",
+      "week": "Ultimi 7 giorni",
+      "month": "Ultimi 30 giorni",
+      "older": "Meno recenti"
+    },
+    "untitled": "Conversazione senza titolo",
+    "deleteConversation": "Elimina conversazione",
+    "deleteAll": "Elimina tutte le conversazioni",
+    "confirmDeleteAll": "Eliminare tutte le tue conversazioni con l’IA in questo spazio di lavoro?",
+    "intro": "Chiedi qualsiasi cosa su questo spazio di lavoro. Le risposte arrivano dalle pagine che puoi aprire, con i link alle pagine.",
+    "placeholder": "Fai una domanda…",
+    "send": "Invia",
+    "stop": "Interrompi",
+    "scope": "Rispondi da",
+    "scopeWorkspace": "Tutto lo spazio di lavoro",
+    "scopePage": "Questa pagina e le sue sottopagine",
+    "thinking": "Sto pensando…",
+    "steps": {
+      "working": "Al lavoro · {time}",
+      "worked": "Ha lavorato per {time}",
+      "seconds": "{s} s",
+      "minutes": "{m} min {s} s",
+      "question": "Cercato nelle pagine per la domanda · {count, plural, =0 {nessun risultato} one {# risultato} other {# risultati}}",
+      "searched": "Cercato “{query}” · {count, plural, =0 {nessun risultato} one {# risultato} other {# risultati}}",
+      "read": "Letto",
+      "readGone": "Letta una pagina che non puoi più aprire",
+      "query": "Interrogato",
+      "rows": "{count, plural, =0 {nessuna riga corrispondente} one {# riga} other {# righe}}",
+      "queryGone": "Interrogato un database che non puoi più aprire",
+      "write": {
+        "done": {
+          "createRow": "Riga aggiunta:",
+          "updateRow": "Riga modificata:",
+          "createPage": "Pagina aggiunta:",
+          "editPage": "Testo della pagina modificato:"
+        },
+        "declined": {
+          "createRow": "Aggiunta della riga rifiutata:",
+          "updateRow": "Modifica rifiutata:",
+          "createPage": "Aggiunta della pagina rifiutata:",
+          "editPage": "Modifica del testo rifiutata:"
+        },
+        "failed": {
+          "createRow": "Impossibile aggiungere la riga:",
+          "updateRow": "Impossibile modificare:",
+          "createPage": "Impossibile aggiungere la pagina:",
+          "editPage": "Impossibile modificare il testo di:"
+        },
+        "in": "in"
+      },
+      "memory": {
+        "remember": "Ricordato:",
+        "propose": "Nota proposta:",
+        "forget": "Dimenticato:",
+        "declined": {
+          "remember": "Rifiutato di ricordare:",
+          "forget": "Rifiutato di dimenticare:"
+        }
+      }
+    },
+    "stopped": "Interrotto.",
+    "cutOff": "La risposta ha raggiunto il limite di lunghezza e potrebbe essere troncata.",
+    "note": "L’IA può commettere errori. Controlla le fonti.",
+    "offline": "La chat IA richiede una connessione al server.",
+    "disabled": "L’IA è disattivata in questo spazio di lavoro. I proprietari possono attivarla in Impostazioni → Generali → IA.",
+    "loadFailed": "Impossibile caricare la conversazione.",
+    "errors": {
+      "noAccess": "Quella conversazione, pagina o competenza non è più disponibile.",
+      "tooLarge": "La domanda o la competenza è troppo lunga, oppure questa conversazione è piena. Accorciala o inizia una nuova chat.",
+      "disabled": "L’IA è disattivata in questo spazio di lavoro.",
+      "invalid": "Scrivi prima una domanda."
+    },
+    "approval": {
+      "question": {
+        "createRow": "Aggiungere questa riga?",
+        "updateRow": "Modificare questa riga?",
+        "createPage": "Aggiungere questa pagina?",
+        "remember": "Ricordare questo su di te?",
+        "forget": "Dimenticare questa nota?",
+        "editPage": "Modificare il testo di questa pagina?"
+      },
+      "in": "In",
+      "row": "Riga",
+      "topLevel": "Al primo livello dello spazio di lavoro, visibile solo a te",
+      "memoryHint": "Memoria: inviata con le tue prossime domande in questo spazio di lavoro",
+      "cleared": "(svuotato)",
+      "approve": "Sì",
+      "always": "Sì, e non chiedere più (Auto)",
+      "decline": "No",
+      "waiting": "In attesa della tua approvazione",
+      "page": "Pagina",
+      "empty": "(vuoto)"
+    },
+    "mode": {
+      "label": "Modifiche",
+      "ask": "Chiedi",
+      "askHint": "Ti chiede conferma prima di ogni modifica",
+      "auto": "Auto",
+      "autoHint": "Aggiunge e modifica senza chiedere",
+      "read": "Sola lettura",
+      "readHint": "Non modifica nulla"
+    },
+    "actions": {
+      "edit": "Modifica",
+      "cancel": "Annulla",
+      "retry": "Rispondi di nuovo"
+    }
+  },
+  "memory": {
+    "open": "Memoria",
+    "title": "Memoria",
+    "close": "Chiudi",
+    "updated": "Memoria aggiornata",
+    "intro": "Note che l’IA conserva su di te in questo spazio di lavoro, inviate con ogni tua domanda qui. Ne aggiunge una quando le parli di te o le chiedi di ricordare qualcosa. Solo tu puoi vederle.",
+    "use": "Usa la memoria",
+    "useHint": "Se disattivata, le tue domande qui vengono inviate senza queste note e l’IA non ne conserva di nuove. Le note restano.",
+    "empty": "Ancora niente. Parla di te all’IA o aggiungi una nota qui.",
+    "offline": "La memoria richiede una connessione al server.",
+    "addLabel": "Nuova nota",
+    "addPlaceholder": "es. Faccio parte del team marketing; mostra i risultati in tabelle",
+    "add": "Aggiungi",
+    "edit": "Modifica",
+    "editLabel": "Nota",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "viaApp": "Conservata da {app}",
+    "count": "{count} di {max} note",
+    "full": "La memoria è piena ({max} note)",
+    "forgetAll": "Dimentica tutto",
+    "confirmForgetAll": "Dimenticare tutto ciò che l’IA ricorda di te in questo spazio di lavoro?",
+    "errors": {
+      "empty": "Scrivi cosa ricordare.",
+      "tooLong": "Una nota può avere al massimo {max} caratteri.",
+      "full": "La memoria contiene al massimo {max} note. Eliminane prima una.",
+      "notFound": "Quella nota non esiste più.",
+      "off": "La memoria IA è disattivata in questo spazio di lavoro."
+    }
+  }
+}

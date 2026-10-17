@@ -15,6 +15,16 @@
 
 ### Added
 
+- **Eleven more interface languages.** Leafdesk now speaks Italian, Brazilian Portuguese, Polish,
+  Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean and Simplified Chinese, next to
+  English, Turkish, German, Spanish and French: in the app, emails, built-in templates and the
+  editor's menus, picked in My account → Language or taken from the browser. Arabic, Hebrew and
+  Persian lay the whole app out right to left, and emails follow. Each paragraph of a page now
+  follows the direction of its own text, so a right-to-left paragraph reads correctly in a
+  left-to-right interface and the other way round. CSV import knows the new languages' title
+  column names and yes/no words, and quick add understands their date words. The new translations
+  haven't been reviewed by native speakers yet; corrections are welcome.
+
 - **Apps can't overwrite edits they haven't seen.** `get_page` (MCP) and `GET /pages/{id}` now give
   the body's `version`, and `update_page` / `PATCH /pages/{id}` take it back as `expected_version`:
   the page changes only while its body still has that version. When someone edited it after the

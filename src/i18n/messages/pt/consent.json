@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Autorizar app",
+  "expired": {
+    "title": "Este link expirou",
+    "body": "O pedido de autorização é inválido ou antigo demais. Volte ao app que você estava conectando e comece de novo."
+  },
+  "unknownClient": {
+    "title": "App desconhecido",
+    "body": "O app que está pedindo acesso não está registrado no Leafdesk ou foi desativado. Volte e tente conectar de novo."
+  },
+  "heading": "{client} quer acessar sua conta do Leafdesk",
+  "identifiedBy": "Este app é identificado por {host}.",
+  "unverified": "Este app se registrou automaticamente e não foi revisado pelo Leafdesk. Só continue se foi você quem iniciou esta conexão.",
+  "notYou": "Não é você?",
+  "willAllow": "Isso permitirá que {client}:",
+  "readOnlyHint": "Desmarque para dar acesso somente leitura. Toda edição é salva primeiro no histórico da página, então você pode desfazê-la.",
+  "access": {
+    "all": "O acesso abrange todos os espaços de trabalho de que você participa. Você pode desconectar o app a qualquer momento em Configurações.",
+    "listed": "O acesso abrange todos os espaços de trabalho de que você participa: {workspaces}. Você pode desconectar o app a qualquer momento em Configurações."
+  },
+  "deny": "Negar",
+  "denying": "Negando…",
+  "allow": "Permitir",
+  "allowing": "Permitindo…",
+  "redirectNotice": "Você será levado de volta para {host}.",
+  "error": "Não foi possível concluir o pedido. Volte ao app e tente novamente.",
+  "scopes": {
+    "openid": "Confirme quem você é",
+    "profile": "Veja seu nome e foto de perfil",
+    "email": "Veja seu endereço de e-mail",
+    "offlineAccess": "Continue conectado sem pedir que você entre de novo",
+    "pagesRead": "Leia páginas e bancos de dados nos seus espaços de trabalho",
+    "pagesWrite": "Crie e edite páginas e linhas de bancos de dados e mova páginas para a lixeira",
+    "notificationsRead": "Leia as notificações da sua caixa de entrada",
+    "filesWrite": "Envie arquivos para páginas, a partir de um link ou do próprio app"
+  }
+}

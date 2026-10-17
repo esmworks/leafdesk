@@ -71,6 +71,7 @@ import { chatPath, isChatPath } from "@/lib/ai-chat";
 import { InboxDialog } from "./inbox-dialog";
 import { NewWorkspaceDialog } from "./new-workspace-dialog";
 import { SearchDialog } from "./search-dialog";
+import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
@@ -611,14 +612,14 @@ export function Sidebar({
               <Link
                 href={`/w/${workspaceId}/p/${f.id}`}
                 className={cn(
-                  "flex h-7 items-center gap-0.5 rounded-md pl-1 hover:bg-bg-hover",
+                  "flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover",
                   activeId === f.id && "bg-bg-active font-medium",
                 )}
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   <PageIcon icon={f.icon} kind={f.kind} className="text-sm" />
                 </span>
-                <span className="truncate pl-0.5">{pageLabel(f.title, tc("untitled"))}</span>
+                <span className="truncate ps-0.5">{pageLabel(f.title, tc("untitled"))}</span>
               </Link>
             </li>
           ))}
@@ -700,12 +701,12 @@ export function Sidebar({
           }
           disabled={canCreateTeamspace && offline}
           title={canCreateTeamspace ? needsServer(t("teamspaces.new")) : undefined}
-          className="flex h-7 w-full items-center gap-0.5 rounded-md pl-1 text-left text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
+          className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center">
             <Plus className="h-3.5 w-3.5" />
           </span>
-          <span className="truncate pl-1.5">{canCreateTeamspace ? t("teamspaces.addNew") : t("teamspaces.browse")}</span>
+          <span className="truncate ps-1.5">{canCreateTeamspace ? t("teamspaces.addNew") : t("teamspaces.browse")}</span>
         </button>
       </SectionGroup>
     ),
@@ -746,7 +747,7 @@ export function Sidebar({
             onClick={() => create(null, "page", null)}
             disabled={offline}
             title={needsServer(t("pages.createFirst"))}
-            className="w-full rounded-md px-2 py-1.5 text-left text-fg-muted hover:bg-bg-hover disabled:opacity-50 disabled:hover:bg-transparent"
+            className="w-full rounded-md px-2 py-1.5 text-start text-fg-muted hover:bg-bg-hover disabled:opacity-50 disabled:hover:bg-transparent"
           >
             {t("pages.createFirst")}
           </button>
@@ -775,11 +776,11 @@ export function Sidebar({
         onMouseEnter={sidebar?.collapsed ? sidebar.showPeek : undefined}
         onMouseLeave={sidebar?.collapsed ? sidebar.hidePeek : undefined}
         className={cn(
-          "relative flex shrink-0 flex-col border-r border-border bg-bg-subtle text-sm",
-          "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
+          "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm",
+          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
           sidebar?.collapsed &&
-            "md:fixed md:top-12 md:bottom-3 md:left-0 md:z-50 md:rounded-r-xl md:border md:border-l-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
-          sidebar?.collapsed && (sidebar.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-[calc(100%+1rem)]"),
+            "md:fixed md:top-12 md:bottom-3 md:inset-s-0 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
+          sidebar?.collapsed && (sidebar.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-[calc(100%+1rem)] md:rtl:translate-x-[calc(100%+1rem)]"),
           !sidebar?.drawerOpen && "max-md:hidden",
           // Phones: rows and their buttons grow from 28px to 36px so they are easy to tap.
           "max-md:[&_.h-7]:h-9 max-md:[&_.w-7]:w-9",
@@ -793,7 +794,7 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={toggle}
-                  className="flex h-8 w-full min-w-0 items-center gap-2 rounded-md px-2 text-left hover:bg-bg-hover"
+                  className="flex h-8 w-full min-w-0 items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover"
                 >
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-fg text-[11px] font-semibold text-bg">
                     {workspace?.icon ?? workspace?.name.slice(0, 1).toUpperCase()}
@@ -815,7 +816,7 @@ export function Sidebar({
                       close();
                       router.push(accountPath);
                     }}
-                    className="flex w-full items-center gap-2.5 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                    className="flex w-full items-center gap-2.5 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                   >
                     <UserAvatar name={user.name || user.email} image={user.image} size="md" />
                     <span className="min-w-0 flex-1">
@@ -908,7 +909,7 @@ export function Sidebar({
               {unread > 0 && (
                 <span
                   aria-hidden
-                  className="absolute -top-0.5 -right-0.5 min-w-3.5 rounded-full bg-accent px-0.5 text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums"
+                  className="absolute -top-0.5 -inset-e-0.5 min-w-3.5 rounded-full bg-accent px-0.5 text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums"
                 >
                   {unread > 9 ? "9+" : unread}
                 </span>
@@ -934,7 +935,7 @@ export function Sidebar({
                   onClick={sidebar.toggle}
                   className="hidden h-7 w-7 md:inline-flex"
                 >
-                  <ChevronsRight className="h-4 w-4" />
+                  <ChevronsRight className="h-4 w-4 rtl:-scale-x-100" />
                 </IconButton>
               ) : null)}
             {sidebar && (
@@ -947,7 +948,7 @@ export function Sidebar({
                   sidebar.collapsed && "md:!hidden",
                 )}
               >
-                <ChevronsLeft className="h-4 w-4" />
+                <ChevronsLeft className="h-4 w-4 rtl:-scale-x-100" />
               </IconButton>
             )}
           </div>
@@ -964,7 +965,7 @@ export function Sidebar({
             onClick={() => setSearchOpen(true)}
             disabled={offline}
             title={needsServer(t("nav.search"))}
-            className="mt-1.5 flex h-8 w-full items-center gap-2 rounded-md border border-border bg-bg px-2 text-left text-fg-muted shadow-xs hover:border-fg-faint hover:text-fg disabled:cursor-default disabled:opacity-50"
+            className="mt-1.5 flex h-8 w-full items-center gap-2 rounded-md border border-border bg-bg px-2 text-start text-fg-muted shadow-xs hover:border-fg-faint hover:text-fg disabled:cursor-default disabled:opacity-50"
           >
             <Search className="h-4 w-4 shrink-0" />
             <span className="flex-1 truncate">{t("nav.search")}</span>
@@ -1274,12 +1275,12 @@ function LimitedRoots({
           type="button"
           aria-expanded={all}
           onClick={() => onAll(!all)}
-          className="flex h-7 w-full items-center gap-0.5 rounded-md pl-1 text-left text-fg-muted hover:bg-bg-hover hover:text-fg"
+          className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center">
             {all ? <ChevronUp className="h-3.5 w-3.5" /> : <MoreHorizontal className="h-3.5 w-3.5" />}
           </span>
-          <span className="pl-0.5">{all ? t("less") : t("more", { count: hidden })}</span>
+          <span className="ps-0.5">{all ? t("less") : t("more", { count: hidden })}</span>
         </button>
       )}
     </>
@@ -1307,19 +1308,19 @@ function SectionGroup({
     <section className="mb-2" aria-label={label}>
       <div
         {...handlers}
-        className={cn("group/section flex h-7 items-center rounded-md pr-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
+        className={cn("group/section flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
       >
         <button
           type="button"
           aria-expanded={open}
           onClick={onToggle}
-          className="flex h-full min-w-0 flex-1 items-center gap-1 px-2 text-left text-xs font-medium text-fg-muted"
+          className="flex h-full min-w-0 flex-1 items-center gap-1 px-2 text-start text-xs font-medium text-fg-muted"
         >
           <span className="truncate">{label}</span>
           {open ? (
             <ChevronDown className="h-3 w-3 shrink-0 opacity-0 group-hover/section:opacity-100 pointer-coarse:opacity-100" />
           ) : (
-            <ChevronRight className="h-3 w-3 shrink-0" />
+            <ChevronRight className="h-3 w-3 shrink-0 rtl:-scale-x-100" />
           )}
         </button>
         {actions && (
@@ -1372,14 +1373,14 @@ function TeamspaceSection({
       <div
         {...handlers}
         data-teamspace={teamspace.id}
-        className={cn("group relative flex h-7 items-center gap-0.5 rounded-md pr-1 pl-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
+        className={cn("group relative flex h-7 items-center gap-0.5 rounded-md pe-1 ps-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
       >
         <button
           type="button"
           aria-expanded={open}
           onClick={onToggle}
           title={teamspace.description || undefined}
-          className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-left"
+          className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-start"
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center">
             <span className="flex group-hover:hidden pointer-coarse:hidden">
@@ -1388,7 +1389,7 @@ function TeamspaceSection({
             {open ? (
               <ChevronDown className="hidden h-3.5 w-3.5 text-fg-faint group-hover:block pointer-coarse:block" />
             ) : (
-              <ChevronRight className="hidden h-3.5 w-3.5 text-fg-faint group-hover:block pointer-coarse:block" />
+              <ChevronRight className="hidden h-3.5 w-3.5 text-fg-faint group-hover:block pointer-coarse:block rtl:-scale-x-100" />
             )}
           </span>
           <span className="truncate">{teamspace.name}</span>
@@ -1469,8 +1470,8 @@ function TeamspaceSection({
             type="button"
             onClick={onCreate}
             disabled={tree.offline}
-            className="block w-full rounded-md py-1 pr-2 text-left text-xs text-fg-faint hover:bg-bg-hover disabled:hover:bg-transparent"
-            style={{ paddingLeft: 32 }}
+            className="block w-full rounded-md py-1 pe-2 text-start text-xs text-fg-faint hover:bg-bg-hover disabled:hover:bg-transparent"
+            style={{ paddingInlineStart: 32 }}
           >
             {t("teamspaces.empty")}
           </button>
@@ -1479,11 +1480,11 @@ function TeamspaceSection({
   );
 }
 
-/** Drag the sidebar's right edge to resize it; double-click restores the default width. */
+/** Drag the sidebar's edge beside the page to resize it; double-click restores the default width. */
 function ResizeHandle() {
   const t = useTranslations("sidebar.toggle");
   const sidebar = useSidebar();
-  const start = useRef<{ x: number; width: number } | null>(null);
+  const start = useRef<{ x: number; width: number; sign: 1 | -1 } | null>(null);
   if (!sidebar) return null;
   return (
     <div
@@ -1494,18 +1495,21 @@ function ResizeHandle() {
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
-        start.current = { x: e.clientX, width: sidebar.width };
+        // Right to left the sidebar sits on the right, so it widens as the pointer moves left.
+        start.current = { x: e.clientX, width: sidebar.width, sign: inlineSign() };
       }}
       onPointerMove={(e) => {
-        if (start.current) sidebar.setWidth(start.current.width + e.clientX - start.current.x);
+        const s = start.current;
+        if (s) sidebar.setWidth(s.width + (e.clientX - s.x) * s.sign);
       }}
       onPointerUp={(e) => {
-        if (!start.current) return;
-        sidebar.setWidth(start.current.width + e.clientX - start.current.x, true);
+        const s = start.current;
+        if (!s) return;
+        sidebar.setWidth(s.width + (e.clientX - s.x) * s.sign, true);
         start.current = null;
       }}
       onDoubleClick={() => sidebar.setWidth(SIDEBAR_WIDTH.default, true)}
-      className="absolute inset-y-0 -right-1 z-10 hidden w-2 cursor-col-resize after:absolute after:inset-y-0 after:left-[3px] after:w-0.5 after:transition-colors hover:after:bg-accent/60 md:block"
+      className="absolute inset-y-0 -inset-e-1 z-10 hidden w-2 cursor-col-resize after:absolute after:inset-y-0 after:inset-s-[3px] after:w-0.5 after:transition-colors hover:after:bg-accent/60 md:block"
     />
   );
 }
@@ -1534,7 +1538,7 @@ function SidebarButton({
   badge?: { count: number; label: string };
 }) {
   const className = cn(
-    "flex h-7 w-full items-center gap-2 rounded-md px-2 text-left text-fg-muted hover:bg-bg-hover hover:text-fg",
+    "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg",
     "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg-muted",
     active && "bg-bg-active font-medium text-fg hover:bg-bg-active",
   );
@@ -1711,16 +1715,16 @@ function TreeItem({
         onDragLeave={() => setDrop(null)}
         onDrop={onDrop}
         className={cn(
-          "group relative flex h-7 items-center gap-0.5 rounded-md pr-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover",
+          "group relative flex h-7 items-center gap-0.5 rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover",
           // An open database highlights its current view row instead.
           active && !(isOpen && currentViewId) && "bg-bg-active font-medium hover:bg-bg-active has-[[data-open]]:bg-bg-active",
           drop?.zone === "inside" && "bg-accent/15",
         )}
-        style={{ paddingLeft: 4 + depth * 14 }}
+        style={{ paddingInlineStart: 4 + depth * 14 }}
       >
         {drop && drop.zone !== "inside" && (
           <span
-            className={cn("pointer-events-none absolute left-1 right-1 h-0.5 rounded bg-accent", drop.zone === "before" ? "top-0" : "bottom-0")}
+            className={cn("pointer-events-none absolute inset-s-1 inset-e-1 h-0.5 rounded bg-accent", drop.zone === "before" ? "top-0" : "bottom-0")}
           />
         )}
         {/* The icon doubles as the expand toggle: it turns into a chevron on hover (always on touch). */}
@@ -1739,7 +1743,7 @@ function TreeItem({
             (isOpen ? (
               <ChevronDown className="hidden h-3.5 w-3.5 group-hover:block pointer-coarse:block" />
             ) : (
-              <ChevronRight className="hidden h-3.5 w-3.5 group-hover:block pointer-coarse:block" />
+              <ChevronRight className="hidden h-3.5 w-3.5 group-hover:block pointer-coarse:block rtl:-scale-x-100" />
             ))}
         </button>
         {renaming ? (
@@ -1763,12 +1767,12 @@ function TreeItem({
               if (renameCancelled.current) return void (renameCancelled.current = false);
               onRename(node.id, e.currentTarget.value.trim());
             }}
-            className="ml-0.5 h-6 min-w-0 flex-1 rounded border border-border bg-bg px-1.5 text-sm outline-none focus:border-accent"
+            className="ms-0.5 h-6 min-w-0 flex-1 rounded border border-border bg-bg px-1.5 text-sm outline-none focus:border-accent"
           />
         ) : (
           <Link
             href={`/w/${workspaceId}/p/${node.id}`}
-            className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pl-0.5"
+            className="flex min-w-0 flex-1 items-center gap-1.5 py-1 ps-0.5"
           >
             {expandable && (
               <PageIcon icon={node.icon} kind={node.kind} className="hidden text-sm pointer-coarse:inline" />
@@ -1826,10 +1830,10 @@ function TreeItem({
                 href={`/w/${workspaceId}/p/${node.id}?view=${v.id}`}
                 aria-current={v.id === currentViewId ? "page" : undefined}
                 className={cn(
-                  "flex h-7 items-center gap-1.5 rounded-md pr-2 text-fg-muted hover:bg-bg-hover hover:text-fg",
+                  "flex h-7 items-center gap-1.5 rounded-md pe-2 text-fg-muted hover:bg-bg-hover hover:text-fg",
                   v.id === currentViewId && "bg-bg-active font-medium text-fg hover:bg-bg-active",
                 )}
-                style={{ paddingLeft: 4 + (depth + 1) * 14 }}
+                style={{ paddingInlineStart: 4 + (depth + 1) * 14 }}
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   <ViewIcon type={v.type} className="h-3.5 w-3.5" />
@@ -1844,7 +1848,7 @@ function TreeItem({
         kids.length > 0 ? (
           <TreeLevel nodes={kids} {...props} depth={depth + 1} />
         ) : (
-          <p className="py-1 text-xs text-fg-faint" style={{ paddingLeft: 28 + depth * 14 }}>
+          <p className="py-1 text-xs text-fg-faint" style={{ paddingInlineStart: 28 + depth * 14 }}>
             {t("pages.noChildren")}
           </p>
         )

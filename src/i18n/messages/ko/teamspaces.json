@@ -1,0 +1,83 @@
+{
+  "access": {
+    "default": "기본",
+    "open": "공개",
+    "closed": "제한",
+    "private": "비공개"
+  },
+  "accessHint": {
+    "default": "워크스페이스의 모든 사람이 속해 있으며 나갈 수 없습니다.",
+    "open": "워크스페이스의 누구나 보고 참여할 수 있습니다. 참여하기 전에도 페이지를 읽고 댓글을 달 수 있습니다.",
+    "closed": "워크스페이스의 누구나 존재를 알 수 있습니다. 멤버만 페이지를 열 수 있으며, 멤버는 소유자가 추가합니다.",
+    "private": "멤버만 볼 수 있습니다."
+  },
+  "roles": {
+    "owner": "소유자",
+    "member": "멤버"
+  },
+  "errors": {
+    "nameRequired": "팀스페이스 이름을 입력하세요.",
+    "creationRestricted": "여기에서는 워크스페이스 소유자만 팀스페이스를 만들 수 있습니다.",
+    "ownersOnly": "워크스페이스 소유자만 모든 사람이 속할 팀스페이스를 변경할 수 있습니다.",
+    "cannotLeaveDefault": "모든 사람이 속한 팀스페이스이므로 나갈 수 없습니다.",
+    "lastOwner": "먼저 다른 사람을 팀스페이스 소유자로 지정하세요.",
+    "notJoinable": "이 팀스페이스의 소유자에게 추가를 요청하세요.",
+    "archived": "이 팀스페이스는 보관되었습니다.",
+    "notMember": "워크스페이스의 소유자와 멤버만 팀스페이스에 속할 수 있습니다.",
+    "invalidAccess": "팀스페이스를 볼 수 있는 사람을 선택하세요.",
+    "inGroup": "이 사람은 그룹을 통해 팀스페이스에 속해 있습니다. 대신 그룹에서 제거하세요.",
+    "everyoneIn": "워크스페이스의 모든 사람이 이미 이 팀스페이스에 속해 있습니다.",
+    "accessDenied": "이 팀스페이스에서는 그 작업을 할 수 없습니다.",
+    "invalidMemberLevel": "멤버가 팀스페이스 페이지에서 받을 권한을 선택하세요.",
+    "invalidIcon": "아이콘은 이모지여야 합니다."
+  },
+  "dialog": {
+    "createTitle": "새 팀스페이스",
+    "editTitle": "팀스페이스 편집",
+    "name": "이름",
+    "namePlaceholder": "마케팅, 엔지니어링…",
+    "icon": "아이콘 선택",
+    "description": "설명",
+    "descriptionPlaceholder": "이 팀스페이스의 용도는 무엇인가요?",
+    "access": "볼 수 있는 사람",
+    "defaultLocked": "기본 팀스페이스의 액세스는 워크스페이스 소유자만 변경할 수 있습니다.",
+    "becomesDefault": "워크스페이스의 모든 사람이 참여하며 나갈 수 없습니다.",
+    "leavesDefault": "지금은 모든 사람이 그대로 남지만 나갈 수 있으며, 새 워크스페이스 멤버는 추가되지 않습니다.",
+    "create": "팀스페이스 만들기",
+    "creating": "만드는 중…",
+    "memberLevel": "페이지에 대한 멤버 액세스",
+    "memberLevelHint": "자체 설정이 없는 페이지에서 멤버가 받는 권한입니다. 팀스페이스 소유자와 워크스페이스 소유자는 항상 전체 액세스 권한을 가지며, 페이지의 공유 설정이 이 설정보다 우선합니다.",
+    "memberLevelLocked": "기본 팀스페이스에서 모든 사람이 받는 권한은 워크스페이스 소유자만 변경할 수 있습니다."
+  },
+  "members": {
+    "title": "{name} 멤버",
+    "everyone": "워크스페이스의 모든 사람이 이 팀스페이스에 속해 있습니다. 소유자는 팀스페이스를 편집하고 관리할 수 있습니다.",
+    "readOnly": "이 팀스페이스의 소유자만 멤버를 변경할 수 있습니다.",
+    "add": "사람 추가",
+    "search": "사람 검색",
+    "addSelected": "{count, plural, =0 {사람 추가} other {#명 추가}}",
+    "addAs": "추가할 역할",
+    "noOneToAdd": "워크스페이스의 모든 사람이 이미 이 팀스페이스에 속해 있습니다.",
+    "noMatches": "검색과 일치하는 사람이 없습니다.",
+    "empty": "이 팀스페이스에 속한 사람이 없습니다.",
+    "list": "이 팀스페이스의 사람",
+    "roleOf": "{name}의 역할",
+    "remove": "{name} 제거",
+    "you": "(나)",
+    "select": "{name} 선택",
+    "viaGroups": "{groups}을(를) 통해",
+    "groups": "그룹",
+    "groupsHint": "이 그룹에 속한 모든 사람은 그룹에 속해 있는 동안 팀스페이스의 멤버입니다.",
+    "noGroups": "이 팀스페이스에 그룹이 없습니다.",
+    "chooseGroup": "그룹 선택",
+    "addGroupButton": "그룹 추가",
+    "removeGroup": "{name} 제거",
+    "groupMemberCount": "{count, plural, =0 {멤버 없음} other {멤버 #명}}"
+  },
+  "memberLevel": {
+    "full": "전체 액세스",
+    "edit": "편집 가능",
+    "comment": "댓글 가능",
+    "view": "보기 가능"
+  }
+}

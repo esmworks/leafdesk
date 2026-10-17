@@ -1,0 +1,215 @@
+{
+  "footer": "このメールは{appUrl}のLeafdeskから送信されました。",
+  "actionFallback": "ボタンが機能しない場合は、次のリンクをブラウザに貼り付けてください：",
+  "test": {
+    "subject": "Leafdeskからのテストメール",
+    "heading": "メール送信は正常に動作しています",
+    "body": "これは{appUrl}のLeafdeskサーバーからのテストメッセージです。このメッセージが読めれば、メールは正しく設定されています。"
+  },
+  "invitation": {
+    "subject": "{inviter}からLeafdeskの「{workspace}」に招待されました",
+    "heading": "「{workspace}」に参加",
+    "body": "{inviter}から、Leafdeskの「{workspace}」に{role}として参加するよう招待されました。",
+    "expires": "リンクの有効期間は7日間です。承諾するには{email}で登録してください。",
+    "action": "招待を承諾",
+    "roles": {
+      "owner": "オーナー",
+      "member": "メンバー",
+      "guest": "ゲスト"
+    }
+  },
+  "passwordReset": {
+    "subject": "Leafdeskのパスワードをリセット",
+    "heading": "パスワードをリセット",
+    "body": "{name}様、Leafdeskアカウントのパスワードのリセットがリクエストされました。ご本人によるリクエストの場合は、下のボタンから新しいパスワードを設定してください。",
+    "expires": "リンクの有効期間は{minutes}分で、1回だけ使用できます。お心当たりがない場合は、このメールを無視してください。パスワードは変更されません。",
+    "action": "新しいパスワードを設定"
+  },
+  "assignment": {
+    "subject": "{actor}があなたを「{row}」に割り当てました",
+    "heading": "「{row}」に割り当てられました",
+    "body": "{actor}が{database}の「{property}」にあなたを追加しました。",
+    "bodyHidden": "{actor}が「{property}」にあなたを追加しました。",
+    "action": "開く",
+    "untitled": "無題",
+    "someone": "誰か",
+    "optOut": "このメールは「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "share": {
+    "subject": "{actor}が「{page}」をあなたと共有しました",
+    "heading": "{actor}がページをあなたと共有しました",
+    "body": "{workspace}の「{page}」を{level}できるようになりました。",
+    "levels": {
+      "view": "閲覧",
+      "comment": "閲覧・コメント",
+      "edit": "編集",
+      "full": "閲覧・編集・共有"
+    },
+    "action": "ページを開く",
+    "untitled": "無題",
+    "optOut": "このメールは「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "comment": {
+    "subject": "{actor}が「{page}」にコメントしました",
+    "heading": "{actor}が「{page}」にコメントしました",
+    "quote": "「{text}」",
+    "body": "コメントは{workspace}の「{page}」にあります。ページから返信または解決できます。",
+    "action": "ページを開く",
+    "optOut": "このコメントスレッドに参加しているため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "mention": {
+    "subject": "{actor}が「{page}」であなたをメンションしました",
+    "heading": "{actor}が「{page}」であなたをメンションしました",
+    "body": "メンションは{workspace}の「{page}」にあります。",
+    "action": "ページを開く",
+    "someone": "誰か",
+    "optOut": "メンションされたため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "reminder": {
+    "subject": "リマインダー：「{page}」の{date}",
+    "heading": "リマインダー：{date}",
+    "body": "{workspace}の「{page}」にある{date}のリマインダーを設定していました。",
+    "action": "ページを開く",
+    "optOut": "リマインダーを設定したため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "dateReminder": {
+    "subject": "リマインダー：「{page}」（{date}）",
+    "heading": "「{page}」は{date}です",
+    "body": "{database}（{workspace}）の「{page}」の{property}は{date}です。",
+    "bodyHidden": "「{page}」（{workspace}）の{property}は{date}です。",
+    "action": "行を開く",
+    "optOut": "{database}が行のユーザーにリマインドするよう設定されているため、このメールが届いています。リマインダーは「マイアカウント > 環境設定」でオフにできます。",
+    "optOutHidden": "データベースが行のユーザーにリマインドするよう設定されているため、このメールが届いています。リマインダーは「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "automation": {
+    "subject": "オートメーション「{automation}」：「{page}」",
+    "heading": "オートメーション「{automation}」から「{page}」についてのお知らせ",
+    "body": "{actor}が{database}（{workspace}）の「{page}」を追加または変更しました。",
+    "bodyHidden": "{actor}が「{page}」（{workspace}）を追加または変更しました。",
+    "bodyDatePassed": "{database}（{workspace}）の「{page}」が、このオートメーションが待っている日付になりました。",
+    "bodyDatePassedHidden": "「{page}」（{workspace}）が、このオートメーションが待っている日付になりました。",
+    "action": "行を開く",
+    "someone": "誰か",
+    "optOut": "データベースのオートメーションから通知されるため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "accessRequest": {
+    "subject": "{requester}が「{page}」へのアクセスをリクエストしました",
+    "heading": "{requester}が「{page}」へのアクセスをリクエストしました",
+    "body": "{requester}（{email}）が{workspace}の「{page}」を開きたいと希望しています。",
+    "message": "メッセージ：「{message}」",
+    "answer": "権限を選んでページを共有するか、リクエストを拒否してください。受信トレイまたはページの「共有」から回答できます。",
+    "action": "ページを開く",
+    "optOut": "このページへのフルアクセス権をお持ちのため、このメールが届いています。「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "accessApproved": {
+    "subject": "「{page}」を開けるようになりました",
+    "heading": "{actor}がリクエストを承認しました",
+    "body": "{workspace}の「{page}」を{level}できるようになりました。",
+    "action": "ページを開く"
+  },
+  "accessDeclined": {
+    "subject": "アクセスのリクエストが拒否されました",
+    "heading": "リクエストが拒否されました",
+    "body": "このページへのアクセスのリクエストは拒否されました：{link}",
+    "hint": "引き続きアクセスが必要な場合は、リンクを送った人に依頼してください。"
+  },
+  "emailChange": {
+    "subject": "新しいメールアドレスを確認してください",
+    "heading": "新しいメールアドレスを確認してください",
+    "body": "{name}様、Leafdeskアカウントで{old}の代わりにこのアドレスを使用するようリクエストされました。下のボタンから確認してください。",
+    "expires": "リンクの有効期間は{hours}時間で、1回だけ使用できます。お心当たりがない場合は、このメールを無視してください。何も変更されません。",
+    "action": "メールアドレスを確認"
+  },
+  "emailChanged": {
+    "subject": "Leafdeskアカウントのメールアドレスが変更されました",
+    "heading": "メールアドレスが変更されました",
+    "body": "{name}様、Leafdeskアカウントのメールアドレスが{old}から{new}に変更されました。今後は新しいアドレスでログインしてください。",
+    "warning": "この変更にお心当たりがない場合は、すぐにワークスペースのオーナーに連絡してください。"
+  },
+  "passwordChanged": {
+    "subject": "Leafdeskのパスワードが変更されました",
+    "heading": "パスワードが変更されました",
+    "body": "{name}様、Leafdeskアカウントのパスワードが変更されました。",
+    "warning": "この変更にお心当たりがない場合は、ログインページからパスワードをリセットし、ワークスペースのオーナーに連絡してください。"
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker}が「{workspace}」への参加をリクエストしました",
+      "heading": "{asker}が参加をリクエストしました",
+      "body": "{asker}（{email}）がLeafdeskの「{workspace}」への参加をリクエストしました。「設定 > メンバー」でリクエストを承認または拒否してください。"
+    },
+    "invite": {
+      "subject": "{asker}が{email}を「{workspace}」に招待するようリクエストしました",
+      "heading": "メンバーから招待のリクエストがありました",
+      "body": "{asker}がLeafdeskの「{workspace}」に{email}を招待したいと希望しています。オーナーが承認すると招待が送信されます。"
+    },
+    "action": "リクエストを確認",
+    "optOut": "このメールは「マイアカウント > 環境設定」でオフにできます。"
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "「{workspace}」に参加しました",
+      "heading": "「{workspace}」へようこそ",
+      "body": "オーナーが、Leafdeskの「{workspace}」への参加リクエストを承認しました。"
+    },
+    "joinDeclined": {
+      "subject": "「{workspace}」への参加リクエストについて",
+      "heading": "リクエストは承認されませんでした",
+      "body": "「{workspace}」のオーナーが参加リクエストを拒否しました。オーナーのいずれかに招待を依頼できます。"
+    },
+    "inviteApproved": {
+      "subject": "{email}が「{workspace}」に招待されました",
+      "heading": "招待が送信されました",
+      "body": "オーナーがリクエストを承認し、{email}がLeafdeskの「{workspace}」に招待されました。"
+    },
+    "inviteDeclined": {
+      "subject": "{email}の招待リクエストについて",
+      "heading": "リクエストは承認されませんでした",
+      "body": "「{workspace}」のオーナーが、{email}を招待するリクエストを拒否しました。"
+    },
+    "action": "Leafdeskを開く"
+  },
+  "verification": {
+    "subject": "Leafdeskのメールアドレスを確認してください",
+    "heading": "メールアドレスを確認してください",
+    "body": "{name}様、下のボタンから、このアドレスがご自身のものであることを確認してください。",
+    "ignore": "Leafdeskアカウントを作成した覚えがない場合は、このメールを無視してください。",
+    "action": "メールアドレスを確認"
+  },
+  "passwordResetRequired": {
+    "subject": "Leafdeskの新しいパスワードを設定してください",
+    "heading": "新しいパスワードを設定してください",
+    "body": "{name}様、このLeafdeskサーバーの管理者から、新しいパスワードを設定するよう求められています。古いパスワードではログインできなくなりました。",
+    "expires": "リンクの有効期間は{minutes}分で、1回だけ使用できます。古いパスワードで再度ログインすると、新しいリンクが送信されます。",
+    "action": "新しいパスワードを設定"
+  },
+  "push": {
+    "assignment": "{actor}があなたを「{property}」に割り当てました",
+    "pageShared": "{actor}がこのページをあなたと共有しました",
+    "comment": "{actor}があなたの参加しているスレッドにコメントしました",
+    "mention": "{actor}があなたをメンションしました",
+    "reminder": "リマインダー：{date}",
+    "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",
+    "automation": "オートメーション「{name}」：{actor}がこの行を追加または変更しました",
+    "automationDatePassed": "オートメーション「{name}」：この行の日付になりました",
+    "someone": "誰か",
+    "joinRequestTitle": "参加リクエスト",
+    "joinRequest": "{actor}が参加をリクエストしました",
+    "inviteRequest": "{actor}が{email}の招待をリクエストしました",
+    "approvalTitle": "{agent}が続行の許可を求めています",
+    "approval": "{connection}で「{tool}」を呼び出そうとしています",
+    "memoryTitle": "{agent}が記憶しようとしています",
+    "memory": "メモリーに{count}件のメモを提案しています",
+    "reportTitle": "{agent}からのレポート",
+    "reportDone": "スケジュールされた実行が完了しました",
+    "reportFailed": "スケジュールされた実行が失敗しました",
+    "untitled": "無題",
+    "snooze": "1時間スヌーズ"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace}が削除されました",
+    "heading": "{workspace}が削除されました",
+    "body": "{name}様、{by}がLeafdeskのワークスペース{workspace}を、すべてのページ、データベース、ファイルとともに削除しました。今後は開くことができません。",
+    "note": "削除されたワークスペースは復元できません。予期しない削除の場合は、{by}またはワークスペースのほかのオーナーにご相談ください。"
+  }
+}

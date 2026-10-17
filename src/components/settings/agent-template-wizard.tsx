@@ -158,7 +158,7 @@ function RowAgentWizard({
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {step !== "database" && (
           <IconButton label={t("back")} onClick={back} className="mt-1">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
           </IconButton>
         )}
         <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
@@ -286,7 +286,7 @@ function RowAgentWizard({
                   const page = pages?.find((p) => p.id === id);
                   const title = pageLabel(page?.title ?? "", tc("untitled"));
                   return (
-                    <li key={id} className="inline-flex items-center gap-1 rounded-md bg-bg-hover py-0.5 pr-1 pl-1.5 text-sm">
+                    <li key={id} className="inline-flex items-center gap-1 rounded-md bg-bg-hover py-0.5 pe-1 ps-1.5 text-sm">
                       <PageIcon icon={page?.icon ?? null} kind={page?.kind} className="text-xs" />
                       <span className="max-w-48 truncate">{title}</span>
                       <button
@@ -330,7 +330,7 @@ function RowAgentWizard({
       {step !== "database" && (
         <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
           {(problem || error) && (
-            <p role="alert" className="mr-auto text-xs text-danger">
+            <p role="alert" className="me-auto text-xs text-danger">
               {problem ?? error}
             </p>
           )}
@@ -440,7 +440,7 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {step !== "database" && (
           <IconButton label={t("back")} onClick={() => setStep("database")} className="mt-1">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
           </IconButton>
         )}
         <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
@@ -532,7 +532,7 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
       {step === "connection" && (
         <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
           {(gap || error) && (
-            <p role="alert" className="mr-auto text-xs text-danger">
+            <p role="alert" className="me-auto text-xs text-danger">
               {gap ? t(`errors.${gap}`) : error}
             </p>
           )}

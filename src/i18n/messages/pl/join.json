@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Dołącz do obszaru roboczego",
+  "title": "Dołącz do „{workspace}”",
+  "invalidTitle": "Nie znaleziono linku",
+  "invalidBody": "Ten link do dołączenia jest nieprawidłowy lub został wyłączony. Poproś właściciela obszaru roboczego o nowy.",
+  "home": "Przejdź do Leafdesk",
+  "body": "Dołączysz jako członek, chyba że zaproszono cię z inną rolą.",
+  "join": "Dołącz do obszaru roboczego",
+  "joining": "Dołączanie…",
+  "alreadyMember": "Jesteś już członkiem tego obszaru roboczego.",
+  "open": "Otwórz obszar roboczy",
+  "signInBody": "Zaloguj się na swoje konto, aby dołączyć. Ten serwer nie pozwala zakładać nowych kont.",
+  "signIn": "Zaloguj się",
+  "requestBody": "Nowych członków tego obszaru roboczego zatwierdza właściciel. Wyślij prośbę, a odpowiedź otrzymasz e-mailem.",
+  "request": "Poproś o dołączenie",
+  "requesting": "Wysyłanie…",
+  "requestedTitle": "Prośba wysłana",
+  "requestedBody": "Właściciel obszaru roboczego rozpatrzy twoją prośbę. Gdy podejmie decyzję, otrzymasz e-mail.",
+  "pendingBody": "Twoja prośba o dołączenie do tego obszaru roboczego już czeka. Właściciel się nią zajmie; gdy podejmie decyzję, otrzymasz e-mail."
+}

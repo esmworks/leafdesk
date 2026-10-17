@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Invito",
+  "title": "Unisciti a “{workspace}”",
+  "invalidTitle": "Invito non trovato",
+  "invalidBody": "Questo link di invito non è valido, è scaduto o è stato annullato. Chiedine uno nuovo alla persona che ti ha invitato.",
+  "home": "Vai a Leafdesk",
+  "wrongAccount": "Questo invito è per {email}, ma hai effettuato l’accesso come {current}. Esci e apri di nuovo il link.",
+  "acceptBody": "Sei stato invitato a unirti con il ruolo {role}.",
+  "signInBody": "Esiste già un account con {email}. Accedi per accettare l’invito.",
+  "signIn": "Accedi",
+  "join": "Unisciti allo spazio di lavoro",
+  "joining": "Accesso in corso…"
+}

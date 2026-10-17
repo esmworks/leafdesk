@@ -485,7 +485,7 @@
     "relativeHint": "Bugüne bir haftadan yakın tarihler “yarın”, “3 gün sonra”, “2 gün önce” diye görünür.",
     "reminder": "Hatırlatıcı",
     "reminderNone": "Hatırlatıcı yok",
-    "reminderBefore": "{days, select, 0 {Aynı gün, 09:00} 1 {1 gün önce, 09:00} 7 {1 hafta önce, 09:00} other {# gün önce, 09:00}}",
+    "reminderBefore": "{days, select, 0 {Aynı gün, 09:00} 1 {1 gün önce, 09:00} 7 {1 hafta önce, 09:00} other {{days} gün önce, 09:00}}",
     "reminderHint": "Her satıra atanan kişilere, kimse atanmamışsa satırı ekleyene bildirir; tamamlanan satırlar hatırlatmaz. 09:00 sizin saat diliminize göredir; saati olan tarihler o saatte hatırlatır."
   },
   "rowProperties": {

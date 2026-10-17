@@ -1,0 +1,215 @@
+{
+  "footer": "이 이메일은 {appUrl}의 Leafdesk에서 보냈습니다.",
+  "actionFallback": "버튼이 작동하지 않으면 이 링크를 브라우저에 붙여 넣으세요.",
+  "test": {
+    "subject": "Leafdesk 테스트 이메일",
+    "heading": "이메일 전송이 정상적으로 작동합니다",
+    "body": "{appUrl}의 Leafdesk 서버에서 보낸 테스트 메시지입니다. 이 메시지를 읽을 수 있다면 이메일이 올바르게 설정된 것입니다."
+  },
+  "invitation": {
+    "subject": "{inviter}님이 Leafdesk의 “{workspace}”에 초대했습니다",
+    "heading": "“{workspace}”에 참여하세요",
+    "body": "{inviter}님이 Leafdesk의 “{workspace}”에 {role} 역할로 참여하도록 초대했습니다.",
+    "expires": "링크는 7일 동안 유효합니다. 수락하려면 {email}(으)로 가입하세요.",
+    "action": "초대 수락",
+    "roles": {
+      "owner": "소유자",
+      "member": "멤버",
+      "guest": "게스트"
+    }
+  },
+  "passwordReset": {
+    "subject": "Leafdesk 비밀번호 재설정",
+    "heading": "비밀번호 재설정",
+    "body": "{name}님, 안녕하세요. Leafdesk 계정의 비밀번호 재설정 요청이 있었습니다. 본인이 요청한 경우 아래 버튼을 눌러 새 비밀번호를 정하세요.",
+    "expires": "링크는 {minutes}분 동안 한 번만 사용할 수 있습니다. 요청하지 않았다면 이 이메일을 무시하세요. 비밀번호는 변경되지 않습니다.",
+    "action": "새 비밀번호 정하기"
+  },
+  "assignment": {
+    "subject": "{actor}님이 “{row}”에 회원님을 할당했습니다",
+    "heading": "“{row}”에 할당되었습니다",
+    "body": "{actor}님이 {database}의 “{property}”에 회원님을 추가했습니다.",
+    "bodyHidden": "{actor}님이 “{property}”에 회원님을 추가했습니다.",
+    "action": "열기",
+    "untitled": "제목 없음",
+    "someone": "알 수 없는 사용자",
+    "optOut": "내 계정 > 환경설정에서 이 이메일을 끌 수 있습니다."
+  },
+  "share": {
+    "subject": "{actor}님이 “{page}” 페이지를 공유했습니다",
+    "heading": "{actor}님이 페이지를 공유했습니다",
+    "body": "이제 {workspace}의 “{page}” 페이지를 {level} 수 있습니다.",
+    "levels": {
+      "view": "볼",
+      "comment": "보고 댓글을 달",
+      "edit": "편집할",
+      "full": "보고, 편집하고, 공유할"
+    },
+    "action": "페이지 열기",
+    "untitled": "제목 없음",
+    "optOut": "내 계정 > 환경설정에서 이 이메일을 끌 수 있습니다."
+  },
+  "comment": {
+    "subject": "{actor}님이 “{page}”에 댓글을 남겼습니다",
+    "heading": "{actor}님이 “{page}”에 댓글을 남겼습니다",
+    "quote": "“{text}”",
+    "body": "{workspace}의 “{page}” 페이지에 남겨진 댓글입니다. 페이지에서 답글을 달거나 해결하세요.",
+    "action": "페이지 열기",
+    "optOut": "이 댓글 스레드에 참여했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
+  },
+  "mention": {
+    "subject": "{actor}님이 “{page}”에서 회원님을 멘션했습니다",
+    "heading": "{actor}님이 “{page}”에서 회원님을 멘션했습니다",
+    "body": "{workspace}의 “{page}” 페이지에서 멘션되었습니다.",
+    "action": "페이지 열기",
+    "someone": "알 수 없는 사용자",
+    "optOut": "누군가 회원님을 멘션했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
+  },
+  "reminder": {
+    "subject": "리마인더: “{page}”의 {date}",
+    "heading": "리마인더: {date}",
+    "body": "{workspace}의 “{page}” 페이지에 있는 {date}에 대해 리마인더를 요청했습니다.",
+    "action": "페이지 열기",
+    "optOut": "리마인더를 설정했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
+  },
+  "dateReminder": {
+    "subject": "리마인더: {date}의 “{page}”",
+    "heading": "“{page}” 일정: {date}",
+    "body": "{database}({workspace})의 “{page}”에서 {property} 날짜가 {date}입니다.",
+    "bodyHidden": "“{page}”({workspace})에서 {property} 날짜가 {date}입니다.",
+    "action": "행 열기",
+    "optOut": "{database}에서 행에 지정된 사람에게 리마인더를 보내기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 리마인더를 끌 수 있습니다.",
+    "optOutHidden": "해당 데이터베이스에서 행에 지정된 사람에게 리마인더를 보내기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 리마인더를 끌 수 있습니다."
+  },
+  "automation": {
+    "subject": "자동화 “{automation}”: “{page}”",
+    "heading": "자동화 “{automation}”에서 “{page}”에 대해 알려 드립니다",
+    "body": "{actor}님이 {database}({workspace})에서 “{page}”을(를) 추가하거나 변경했습니다.",
+    "bodyHidden": "{actor}님이 “{page}”({workspace})을(를) 추가하거나 변경했습니다.",
+    "bodyDatePassed": "{database}({workspace})의 “{page}”이(가) 이 자동화가 기다리는 날짜에 도달했습니다.",
+    "bodyDatePassedHidden": "“{page}”({workspace})이(가) 이 자동화가 기다리는 날짜에 도달했습니다.",
+    "action": "행 열기",
+    "someone": "알 수 없는 사용자",
+    "optOut": "데이터베이스 자동화가 회원님에게 알림을 보내기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
+  },
+  "accessRequest": {
+    "subject": "{requester}님이 “{page}”에 대한 액세스를 요청했습니다",
+    "heading": "{requester}님이 “{page}”에 대한 액세스를 요청했습니다",
+    "body": "{requester}({email})님이 {workspace}의 “{page}” 페이지를 열고 싶어 합니다.",
+    "message": "요청 메시지: “{message}”",
+    "answer": "할 수 있는 작업을 선택해 페이지를 공유하거나 요청을 거절하세요. 수신함이나 페이지의 공유 메뉴에서 응답할 수 있습니다.",
+    "action": "페이지 열기",
+    "optOut": "이 페이지에 대한 전체 액세스 권한이 있기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
+  },
+  "accessApproved": {
+    "subject": "이제 “{page}” 페이지를 열 수 있습니다",
+    "heading": "{actor}님이 요청을 승인했습니다",
+    "body": "이제 {workspace}의 “{page}” 페이지를 {level} 수 있습니다.",
+    "action": "페이지 열기"
+  },
+  "accessDeclined": {
+    "subject": "액세스 요청이 거절되었습니다",
+    "heading": "요청이 거절되었습니다",
+    "body": "이 페이지에 대한 액세스 요청이 거절되었습니다: {link}",
+    "hint": "여전히 액세스가 필요하다면 링크를 보낸 사람에게 문의하세요."
+  },
+  "emailChange": {
+    "subject": "새 이메일 주소를 확인하세요",
+    "heading": "새 이메일 주소를 확인하세요",
+    "body": "{name}님, 안녕하세요. Leafdesk 계정에서 {old} 대신 이 주소를 사용하도록 요청했습니다. 아래 버튼을 눌러 확인하세요.",
+    "expires": "링크는 {hours}시간 동안 한 번만 사용할 수 있습니다. 요청하지 않았다면 이 이메일을 무시하세요. 아무것도 변경되지 않습니다.",
+    "action": "이메일 주소 확인"
+  },
+  "emailChanged": {
+    "subject": "Leafdesk 계정의 이메일 주소가 변경되었습니다",
+    "heading": "이메일 주소가 변경되었습니다",
+    "body": "{name}님, 안녕하세요. Leafdesk 계정의 이메일 주소가 {old}에서 {new}(으)로 변경되었습니다. 이제부터 새 주소로 로그인하세요.",
+    "warning": "본인이 변경하지 않았다면 즉시 워크스페이스 소유자에게 연락하세요."
+  },
+  "passwordChanged": {
+    "subject": "Leafdesk 비밀번호가 변경되었습니다",
+    "heading": "비밀번호가 변경되었습니다",
+    "body": "{name}님, 안녕하세요. 방금 Leafdesk 계정의 비밀번호가 변경되었습니다.",
+    "warning": "본인이 변경하지 않았다면 로그인 페이지에서 비밀번호를 재설정하고 워크스페이스 소유자에게 연락하세요."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker}님이 “{workspace}”에 참여를 요청했습니다",
+      "heading": "{asker}님이 참여를 요청했습니다",
+      "body": "{asker}({email})님이 Leafdesk의 “{workspace}”에 참여를 요청했습니다. 설정 > 멤버에서 요청을 승인하거나 거절하세요."
+    },
+    "invite": {
+      "subject": "{asker}님이 {email}을(를) “{workspace}”에 초대하도록 요청했습니다",
+      "heading": "멤버가 다른 사람의 초대를 요청했습니다",
+      "body": "{asker}님이 {email}을(를) Leafdesk의 “{workspace}”에 초대하려고 합니다. 소유자가 승인하면 초대가 전송됩니다."
+    },
+    "action": "요청 검토",
+    "optOut": "내 계정 > 환경설정에서 이 이메일을 끌 수 있습니다."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "“{workspace}”에 참여했습니다",
+      "heading": "“{workspace}”에 오신 것을 환영합니다",
+      "body": "소유자가 Leafdesk의 “{workspace}” 참여 요청을 승인했습니다."
+    },
+    "joinDeclined": {
+      "subject": "“{workspace}” 참여 요청",
+      "heading": "요청이 승인되지 않았습니다",
+      "body": "“{workspace}”의 소유자가 참여 요청을 거절했습니다. 소유자에게 초대를 요청할 수 있습니다."
+    },
+    "inviteApproved": {
+      "subject": "{email}이(가) “{workspace}”에 초대되었습니다",
+      "heading": "초대가 전송되었습니다",
+      "body": "소유자가 요청을 승인하여 {email}이(가) Leafdesk의 “{workspace}”에 초대되었습니다."
+    },
+    "inviteDeclined": {
+      "subject": "{email} 초대 요청",
+      "heading": "요청이 승인되지 않았습니다",
+      "body": "“{workspace}”의 소유자가 {email} 초대 요청을 거절했습니다."
+    },
+    "action": "Leafdesk 열기"
+  },
+  "verification": {
+    "subject": "Leafdesk 이메일 주소를 인증하세요",
+    "heading": "이메일 주소를 인증하세요",
+    "body": "{name}님, 안녕하세요. 아래 버튼을 눌러 이 주소가 본인의 주소인지 확인하세요.",
+    "ignore": "Leafdesk 계정을 만들지 않았다면 이 이메일을 무시해도 됩니다.",
+    "action": "이메일 주소 인증"
+  },
+  "passwordResetRequired": {
+    "subject": "새 Leafdesk 비밀번호를 정하세요",
+    "heading": "새 비밀번호를 정하세요",
+    "body": "{name}님, 안녕하세요. 이 Leafdesk 서버의 관리자가 새 비밀번호를 정하도록 요청했습니다. 이전 비밀번호로는 더 이상 로그인할 수 없습니다.",
+    "expires": "링크는 {minutes}분 동안 한 번만 사용할 수 있습니다. 이전 비밀번호로 다시 로그인하면 새 링크가 전송됩니다.",
+    "action": "새 비밀번호 정하기"
+  },
+  "push": {
+    "assignment": "{actor}님이 “{property}”에 회원님을 할당했습니다",
+    "pageShared": "{actor}님이 이 페이지를 공유했습니다",
+    "comment": "{actor}님이 참여 중인 스레드에 댓글을 남겼습니다",
+    "mention": "{actor}님이 회원님을 멘션했습니다",
+    "reminder": "리마인더: {date}",
+    "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",
+    "automation": "자동화 “{name}”: {actor}님이 이 행을 추가하거나 변경했습니다",
+    "automationDatePassed": "자동화 “{name}”: 이 행의 날짜가 되었습니다",
+    "someone": "알 수 없는 사용자",
+    "joinRequestTitle": "참여 요청",
+    "joinRequest": "{actor}님이 참여를 요청했습니다",
+    "inviteRequest": "{actor}님이 {email} 초대를 요청했습니다",
+    "approvalTitle": "{agent}에서 진행 승인을 요청합니다",
+    "approval": "{connection}에서 “{tool}”을(를) 호출하려고 합니다",
+    "memoryTitle": "{agent}에서 기억하려고 합니다",
+    "memory": "메모리에 저장할 메모 {count}개를 제안합니다",
+    "reportTitle": "{agent}의 보고",
+    "reportDone": "예약된 실행이 완료되었습니다",
+    "reportFailed": "예약된 실행이 실패했습니다",
+    "untitled": "제목 없음",
+    "snooze": "1시간 후 다시 알림"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace}이(가) 삭제되었습니다",
+    "heading": "{workspace}이(가) 삭제되었습니다",
+    "body": "{name}님, 안녕하세요. {by}님이 Leafdesk 워크스페이스 {workspace}을(를) 모든 페이지, 데이터베이스, 파일과 함께 삭제했습니다. 더 이상 열 수 없습니다.",
+    "note": "삭제된 워크스페이스는 복원할 수 없습니다. 예상하지 못한 일이라면 {by}님이나 워크스페이스의 다른 소유자에게 문의하세요."
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "החשבון שלי",
+    "newWorkspace": "סביבת עבודה חדשה",
+    "settingsAndMembers": "הגדרות וחברים",
+    "signOut": "התנתקות",
+    "admin": "ניהול השרת"
+  },
+  "nav": {
+    "search": "חיפוש",
+    "home": "בית",
+    "inbox": "דואר נכנס",
+    "people": "אנשים",
+    "settings": "הגדרות",
+    "trash": "אשפה",
+    "templates": "תבניות",
+    "import": "ייבוא",
+    "graph": "גרף",
+    "skills": "מיומנויות"
+  },
+  "toggle": {
+    "open": "פתיחת סרגל הצד",
+    "close": "הסתרת סרגל הצד",
+    "resize": "גרירה לשינוי הגודל",
+    "pin": "השארת סרגל הצד פתוח"
+  },
+  "pages": {
+    "heading": "דפים",
+    "new": "חדש",
+    "newPage": "דף חדש",
+    "newDatabase": "מסד נתונים חדש",
+    "createFirst": "יצירת הדף הראשון שלך",
+    "nothingShared": "עדיין לא שותפו איתך דפים",
+    "collapse": "כיווץ",
+    "expand": "הרחבה",
+    "actions": "פעולות על הדף",
+    "moveToTrash": "העברה לאשפה",
+    "rename": "שינוי שם",
+    "renameLabel": "שם הדף",
+    "renameFailed": "לא ניתן היה לשנות את שם הדף.",
+    "renameLocked": "הדף הזה נעול, ולכן אי אפשר לשנות את שמו. יש לבטל קודם את הנעילה מהתפריט שלו.",
+    "addInside": "הוספת דף בתוכו",
+    "noChildren": "אין דפים בתוכו",
+    "favorites": "מועדפים",
+    "moveFailed": "לא ניתן היה להעביר את הדף לכאן. כדי להעביר אותו למקום אחר נדרשת אליו גישה מלאה.",
+    "fromTemplate": "מתבנית",
+    "import": "ייבוא…",
+    "confirmMoveSpace": "להעביר את הדף הזה אל {place}? מי שיכול לראות אותו ישתנה בהתאם."
+  },
+  "search": {
+    "placeholder": "חיפוש דפים ותוכן…",
+    "label": "חיפוש",
+    "noResults": "אין תוצאות",
+    "semantic": "משמעות דומה",
+    "semanticHint": "נמצא לפי משמעות: המילים שונות מהחיפוש שלך.",
+    "recent": "נערכו לאחרונה",
+    "commands": "פקודות",
+    "noCommands": "אין פקודה תואמת",
+    "hint": {
+      "in": "בתוך דף",
+      "type": "רק מסדי נתונים (או דף, שורה)",
+      "commands": "פקודות"
+    }
+  },
+  "trash": {
+    "title": "אשפה",
+    "empty": "האשפה ריקה",
+    "deletePermanently": "מחיקה לצמיתות",
+    "confirmDelete": "למחוק לצמיתות? אי אפשר לבטל את הפעולה הזו.",
+    "deletesIn": "יימחק בעוד {count, plural, one {יום אחד} two {יומיים} other {# ימים}}",
+    "deletesSoon": "יימחק בקרוב"
+  },
+  "newWorkspace": {
+    "title": "סביבת עבודה חדשה",
+    "description": "מרחב נפרד עם דפים וחברים משלו.",
+    "namePlaceholder": "שם סביבת העבודה",
+    "create": "יצירה",
+    "creating": "ביצירה…"
+  },
+  "inbox": {
+    "title": "דואר נכנס",
+    "empty": "אין עדיין התראות",
+    "markAllRead": "סימון הכול כנקרא",
+    "assignment": "{actor} הקצה אותך ל־“{property}”",
+    "pageShared": "{actor} שיתף איתך את הדף הזה",
+    "comment": "{actor} הגיב בשרשור שהשתתפת בו",
+    "mention": "{actor} הזכיר אותך",
+    "reminder": "תזכורת: {date}",
+    "accessRequest": "{actor} ביקש גישה לדף הזה",
+    "automation": "אוטומציה “{name}”: {actor} הוסיף או שינה את השורה הזו",
+    "automationDatePassed": "אוטומציה “{name}”: הגיע התאריך של השורה הזו",
+    "someone": "מישהו",
+    "unread": "לא נקראו",
+    "snooze": "דחייה",
+    "snoozeChoice": {
+      "hour": "בעוד שעה",
+      "tomorrow": "מחר, 9:00",
+      "nextWeek": "יום שני, 9:00"
+    },
+    "unreadCount": "{count, plural, one {התראה אחת שלא נקראה} two {שתי התראות שלא נקראו} other {# התראות שלא נקראו}}",
+    "joinRequestTitle": "בקשת הצטרפות",
+    "joinRequest": "{actor} ביקש להצטרף",
+    "inviteRequest": "{actor} ביקש להזמין את {email}",
+    "approvalTitle": "{agent} מבקש אישור להמשיך",
+    "approval": "מבקש להפעיל את “{tool}” ב־{connection}",
+    "approvalAnswered": "נענה או שהזמן עבר",
+    "memoryTitle": "{agent} מבקש לזכור",
+    "memory": "“{text}”{more, plural, =0 {} one { והערה נוספת} two { ועוד שתי הערות} other { ועוד # הערות}}",
+    "memoryHidden": "{count, plural, one {הערה} two {שתי הערות} other {# הערות}} מהרצה על שורה שאין לך גישה אליה",
+    "memoryAnswered": "כבר נבדק",
+    "reportTitle": "דוח מ־{agent}",
+    "reportDone": "ההרצה המתוזמנת שלו הסתיימה.",
+    "reportFailed": "ההרצה המתוזמנת שלו נכשלה. אפשר לפתוח אותה כדי לראות למה.",
+    "reportHidden": "ההרצה המתוזמנת שלו הסתיימה, על מסד נתונים שאין לך גישה אליו.",
+    "reportGone": "ההרצה כבר לא נשמרת."
+  },
+  "templates": {
+    "title": "תבניות",
+    "description": "יש לבחור תבנית כדי ליצור ממנה דף חדש.",
+    "workspace": "בסביבת העבודה הזו",
+    "builtIn": "מובנות",
+    "empty": "אין עדיין תבניות. כדי להוסיף תבנית, יש לפתוח את תפריט ⋯ של דף ולבחור “שמירה כתבנית”.",
+    "use": "יצירת דף מהתבנית הזו",
+    "database": "מסד נתונים",
+    "edit": "עריכת התבנית",
+    "open": "פתיחת התבנית",
+    "delete": "מחיקת התבנית",
+    "confirmDelete": "למחוק את התבנית הזו לצמיתות? דפים שכבר נוצרו ממנה יישארו כפי שהם."
+  },
+  "teamspaces": {
+    "heading": "מרחבי צוות",
+    "options": "אפשרויות מרחב הצוות",
+    "new": "מרחב צוות חדש",
+    "addNew": "הוספה",
+    "browse": "עיון במרחבי הצוות",
+    "none": "אינך חבר עדיין באף מרחב צוות. עיון במרחבי הצוות",
+    "actions": "פעולות עבור {name}",
+    "addPage": "הוספת דף אל {name}",
+    "edit": "עריכת מרחב הצוות",
+    "members": "חברים והגדרות",
+    "leave": "עזיבת מרחב הצוות",
+    "confirmLeave": "לעזוב את {name}? הדפים שלו יוסרו מסרגל הצד שלך. אם מרחב הצוות אינו פתוח, גם הגישה שלך אליהם תבוטל.",
+    "empty": "אין עדיין דפים. הוספת דף",
+    "another": "מרחב צוות אחר"
+  },
+  "sections": {
+    "shared": "משותף",
+    "private": "פרטי",
+    "newPrivate": "דף פרטי חדש",
+    "more": "עוד {count}",
+    "less": "הצגת פחות"
+  },
+  "joinable": {
+    "heading": "סביבות עבודה שאפשר להצטרף אליהן",
+    "join": "הצטרפות",
+    "request": "בקשת הצטרפות",
+    "requested": "הבקשה נשלחה"
+  },
+  "customize": {
+    "open": "התאמה אישית של סרגל הצד",
+    "heading": "המקטעים שמוצגים בסביבת העבודה הזו",
+    "moveUp": "הזזת {section} למעלה",
+    "moveDown": "הזזת {section} למטה",
+    "show": "הצגת {section}",
+    "hide": "הסתרת {section}",
+    "done": "סיום"
+  }
+}

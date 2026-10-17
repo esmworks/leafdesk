@@ -305,8 +305,8 @@ function Widget({
                 ? "-top-[7px]"
                 : "-bottom-[7px]"
               : drag.dropSide === "before"
-                ? "-left-[7px]"
-                : "-right-[7px]",
+                ? "-inset-s-[7px]"
+                : "-inset-e-[7px]",
           )}
         />
       )}
@@ -540,7 +540,7 @@ function WidgetMenu({ widget, actions }: { widget: DashboardWidget; actions: Wid
   };
   return (
     <>
-      <IconButton ref={menu.ref} label={t("menu")} onClick={menu.toggle} className="ml-auto">
+      <IconButton ref={menu.ref} label={t("menu")} onClick={menu.toggle} className="ms-auto">
         <MoreHorizontal className="h-4 w-4" />
       </IconButton>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end">
@@ -561,10 +561,10 @@ function WidgetMenu({ widget, actions }: { widget: DashboardWidget; actions: Wid
             }}
           />
           <MenuSeparator />
-          <MenuItem icon={<ArrowLeft className="h-3.5 w-3.5" />} disabled={actions.first} onClick={run(() => actions.move(-1))}>
+          <MenuItem icon={<ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />} disabled={actions.first} onClick={run(() => actions.move(-1))}>
             {t("moveBefore")}
           </MenuItem>
-          <MenuItem icon={<ArrowRight className="h-3.5 w-3.5" />} disabled={actions.last} onClick={run(() => actions.move(1))}>
+          <MenuItem icon={<ArrowRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} disabled={actions.last} onClick={run(() => actions.move(1))}>
             {t("moveAfter")}
           </MenuItem>
           <MenuSeparator />

@@ -59,13 +59,13 @@ export function OptionChip({
         className,
       )}
     >
-      {dot && <span aria-hidden className="mr-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-70" />}
+      {dot && <span aria-hidden className="me-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-70" />}
       <span className="truncate">{option.name || tc("untitled")}</span>
       {onRemove && (
         <button
           type="button"
           aria-label={t("removeOption", { name: option.name })}
-          className="-mr-0.5 rounded opacity-60 hover:opacity-100"
+          className="-me-0.5 rounded opacity-60 hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
@@ -1257,7 +1257,7 @@ export function OptionPicker({
               onMouseEnter={() => setActive(i)}
               onClick={() => choose(i)}
               className={cn(
-                "flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm",
+                "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
                 i === active && "bg-bg-hover",
               )}
             >

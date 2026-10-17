@@ -1,0 +1,50 @@
+{
+  "metaTitle": "그래프",
+  "heading": "그래프",
+  "count": "페이지 {pages}개 · 연결 {edges}개",
+  "reload": "다시 불러오기",
+  "find": "중심으로 볼 페이지 찾기",
+  "focus": "중심",
+  "depth": "단계",
+  "clearFocus": "전체 그래프 보기",
+  "tree": "하위 페이지",
+  "rows": "데이터베이스 행",
+  "orphans": "연결 없는 페이지",
+  "kinds": {
+    "page": "페이지",
+    "database": "데이터베이스",
+    "row": "행"
+  },
+  "edges": {
+    "link": "링크",
+    "relation": "관계형",
+    "child": "하위 페이지"
+  },
+  "truncated": "가장 최근에 편집한 페이지 {count}개를 표시하고 있습니다.",
+  "canvas": "워크스페이스 페이지 그래프",
+  "empty": "표시할 페이지가 없습니다.",
+  "focusMissing": "해당 페이지는 그래프에 없습니다. 휴지통에 있거나 나와 공유되지 않았을 수 있습니다.",
+  "local": {
+    "title": "이 페이지의 그래프",
+    "close": "그래프 닫기",
+    "openFull": "전체 그래프에서 열기",
+    "canvas": "이 페이지 주변의 페이지 그래프",
+    "empty": "아직 이 페이지에 연결된 페이지가 없습니다.",
+    "failed": "그래프를 불러올 수 없습니다."
+  },
+  "zoomIn": "확대",
+  "zoomOut": "축소",
+  "fit": "그래프 맞추기",
+  "hint": "클릭하여 선택, 더블클릭하여 열기",
+  "inspector": {
+    "open": "페이지 열기",
+    "focus": "이 페이지 중심으로 보기",
+    "expandRows": "행 {count}개 표시",
+    "collapseRows": "행 모으기",
+    "rows": "행 {count}개",
+    "none": "다른 페이지와 연결되지 않았습니다.",
+    "more": "외 {count}개",
+    "close": "선택 해제",
+    "parent": "상위"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "metaTitle": "Administração do servidor",
+  "title": "Administração do servidor",
+  "description": "As contas deste servidor, suas sessões e senhas. Você vê esta página porque seu endereço de e-mail verificado está em ADMIN_EMAILS.",
+  "back": "Voltar para {workspace}",
+  "backHome": "Voltar",
+  "workspaces": {
+    "heading": "Criação de espaços de trabalho",
+    "everyone": "Todos podem criar espaços de trabalho",
+    "admins": "Só administradores podem criar espaços de trabalho",
+    "description": "Definido com WORKSPACE_CREATION no servidor (everyone ou admins). Todos continuam recebendo um espaço de trabalho pessoal ao criar a conta."
+  },
+  "sessions": {
+    "heading": "Todos",
+    "description": "{count, plural, one {# sessão conectada} other {# sessões conectadas}} neste servidor.",
+    "signOutEveryone": "Desconectar todos",
+    "signOutEveryoneDescription": "Encerra todas as sessões em todos os dispositivos, exceto a sua neste navegador, e as páginas abertas nelas param de sincronizar. Apps conectados e tokens de API continuam funcionando.",
+    "signOutEveryoneTitle": "Desconectar todos?",
+    "signOutEveryoneBody": "Todos neste servidor terão que entrar de novo, inclusive você nos seus outros dispositivos.",
+    "signOutEveryoneConfirm": "Desconectar todos",
+    "resetEveryone": "Exigir novas senhas",
+    "resetEveryoneDescription": "Todos que entram com senha, exceto você, são desconectados e terão que escolher uma nova senha no próximo acesso. Contas que só entram com login único (SSO), GitHub ou Google não são afetadas.",
+    "resetByEmail": "Ao entrar, recebem um link por e-mail para escolhê-la.",
+    "resetInApp": "O envio de e-mails não está configurado neste servidor, então a escolha é feita logo após entrar com a senha antiga (e um código de verificação em duas etapas, se usarem).",
+    "resetEveryoneTitle": "Exigir novas senhas de todos?",
+    "resetEveryoneBody": "Todos que têm senha, exceto você, são desconectados agora e não podem mais entrar com a senha atual.",
+    "resetEveryoneConfirm": "Exigir novas senhas"
+  },
+  "users": {
+    "heading": "Contas",
+    "count": "{count, plural, one {# conta} other {# contas}}",
+    "countPartial": "Mostrando {shown} de {total} contas. Pesquise para encontrar as outras.",
+    "search": "Pesquisar por nome ou e-mail",
+    "noMatches": "Nenhuma conta corresponde a esta pesquisa.",
+    "none": "Nenhuma conta ainda.",
+    "columns": {
+      "user": "Conta",
+      "workspaces": "Espaços de trabalho",
+      "lastActive": "Última atividade",
+      "twoFactor": "Duas etapas",
+      "password": "Senha",
+      "actions": "Ações"
+    },
+    "you": "(você)",
+    "admin": "Administrador",
+    "unverified": "Não verificado",
+    "signedOut": "Não conectado",
+    "on": "Ativada",
+    "off": "Desativada",
+    "hasPassword": "Definida",
+    "noPassword": "Nenhuma",
+    "resetPending": "Nova senha exigida",
+    "actionsFor": "Ações de {name}",
+    "signOut": "Desconectar de todos os lugares",
+    "signOutTitle": "Desconectar {name} de todos os lugares?",
+    "signOutBody": "{count, plural, one {A # sessão dessa pessoa é encerrada} other {As # sessões dessa pessoa são encerradas}}, e as páginas abertas param de sincronizar. Apps conectados e tokens de API continuam funcionando.",
+    "signOutSelfBody": "{count, plural, one {Sua # sessão é encerrada} other {Suas # sessões são encerradas}}, exceto a deste navegador.",
+    "signOutConfirm": "Desconectar",
+    "requireReset": "Exigir uma nova senha",
+    "resetTitle": "Exigir uma nova senha de {name}?",
+    "resetBody": "A pessoa é desconectada agora e terá que escolher uma nova senha na próxima vez que entrar com senha.",
+    "resetByEmail": "Ao entrar, recebe um link por e-mail para escolhê-la.",
+    "resetInApp": "O envio de e-mails não está configurado neste servidor, então a escolha é feita logo após entrar com a senha antiga (e um código de verificação em duas etapas, se usar).",
+    "resetConfirm": "Exigir uma nova senha"
+  },
+  "errors": {
+    "notFound": "Essa conta não foi encontrada.",
+    "noPassword": "Esta conta não tem senha; ela entra de outra forma.",
+    "self": "Altere sua própria senha na página da sua conta."
+  }
+}

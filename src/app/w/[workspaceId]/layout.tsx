@@ -72,7 +72,7 @@ export default async function WorkspaceLayout({
           initialLayout={sidebarLayout}
           user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
         />
-        <main className="min-w-0 flex-1 overflow-y-auto md:mr-[var(--row-panel-width,0px)]">
+        <main className="min-w-0 flex-1 overflow-y-auto md:me-[var(--row-panel-width,0px)]">
           <FloatingSidebarButton />
           {children}
         </main>

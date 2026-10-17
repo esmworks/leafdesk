@@ -120,7 +120,7 @@ export function RowTemplatesMenu({
             title={t("menu")}
             aria-expanded={open}
             onClick={toggle}
-            className="inline-flex h-7 items-center justify-center rounded-r-md border-l border-accent-fg/25 bg-accent px-1.5 text-accent-fg hover:opacity-90"
+            className="inline-flex h-7 items-center justify-center rounded-e-md border-s border-accent-fg/25 bg-accent px-1.5 text-accent-fg hover:opacity-90"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
@@ -131,11 +131,11 @@ export function RowTemplatesMenu({
           {snapshot.templates.length === 0 && <p className="px-2 py-1 text-sm text-fg-faint">{t("none")}</p>}
           <ul>
             {snapshot.templates.map((template) => (
-              <li key={template.id} className="group flex items-center gap-1 rounded pr-1 hover:bg-bg-hover">
+              <li key={template.id} className="group flex items-center gap-1 rounded pe-1 hover:bg-bg-hover">
                 <button
                   type="button"
                   onClick={() => create(template.id)}
-                  className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left text-sm"
+                  className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-start text-sm"
                 >
                   <PageIcon icon={template.icon} className="text-sm" />
                   <span className="truncate">{pageLabel(template.title, tc("untitled"))}</span>
@@ -150,11 +150,11 @@ export function RowTemplatesMenu({
                 </IconButton>
               </li>
             ))}
-            <li className="group flex items-center gap-1 rounded pr-1 hover:bg-bg-hover">
+            <li className="group flex items-center gap-1 rounded pe-1 hover:bg-bg-hover">
               <button
                 type="button"
                 onClick={() => create(null)}
-                className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left text-sm"
+                className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-start text-sm"
               >
                 <FileText className="h-4 w-4 text-fg-muted" />
                 <span className="truncate">{t("blank")}</span>
@@ -174,7 +174,7 @@ export function RowTemplatesMenu({
                 },
               )
             }
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
           >
             <Plus className="h-4 w-4 text-fg-muted" />
             {t("newTemplate")}

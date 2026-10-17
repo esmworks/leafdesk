@@ -136,7 +136,7 @@ export function Popover({
           className={cn(
             "absolute z-50 min-w-48 rounded-lg border border-border bg-bg p-1 shadow-lg",
             side === "top" ? "bottom-full mb-1" : "top-full mt-1",
-            align === "end" ? "right-0" : "left-0",
+            align === "end" ? "inset-e-0" : "inset-s-0",
             className,
           )}
         >
@@ -166,7 +166,7 @@ export function MenuItem({
   disabled?: boolean;
   /** Tooltip, e.g. why the item is disabled. */
   title?: string;
-  /** Shown at the right edge: a submenu's arrow, a tick. */
+  /** Shown at the end of the line: a submenu's arrow, a tick. */
   trailing?: ReactNode;
   /** An item that switches something on and off: whether it is on. */
   pressed?: boolean;
@@ -179,7 +179,7 @@ export function MenuItem({
       title={title}
       aria-pressed={pressed}
       className={cn(
-        "flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent",
+        "flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent",
         danger && "text-danger",
         active && "bg-bg-hover",
       )}
@@ -250,7 +250,7 @@ export function Switch({
       <span
         className={cn(
           "h-3.5 w-3.5 rounded-[3px] bg-white shadow-sm transition-transform",
-          checked ? "translate-x-[18px]" : "translate-x-[2px]",
+          checked ? "translate-x-[18px] rtl:-translate-x-[18px]" : "translate-x-[2px] rtl:-translate-x-[2px]",
         )}
       />
     </button>

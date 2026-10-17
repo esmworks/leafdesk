@@ -1,0 +1,21 @@
+{
+  "hello": "你好，{name}",
+  "recent": "最近编辑",
+  "assignedEmpty": "没有分配给你的内容。数据库中分配给你的行会显示在这里。",
+  "empty": "这里还什么都没有。创建你的第一个页面开始吧。",
+  "emptyGuest": "这里还没有与你分享的内容。有人与你分享页面后，页面会出现在这里。",
+  "newPage": "新建页面",
+  "newDatabase": "新建数据库",
+  "personalWorkspace": "{name} 的工作区",
+  "generalTeamspace": "常规",
+  "fromTemplate": "从模板创建",
+  "assigned": "分配给你的",
+  "assignedGroups": {
+    "overdue": "已逾期",
+    "today": "今天",
+    "next7": "未来 7 天",
+    "later": "以后",
+    "none": "无日期"
+  },
+  "assignedMore": "显示 {total} 项中的 {shown} 项。在数据库中按“我”筛选可查看其余内容。"
+}

@@ -1,0 +1,31 @@
+{
+  "appDescription": "Espaço de trabalho de código aberto para documentos e bancos de dados, com acesso MCP para agentes de IA.",
+  "untitled": "Sem título",
+  "agent": "Agente",
+  "agentName": "{name} (agente)",
+  "cancel": "Cancelar",
+  "save": "Salvar",
+  "saving": "Salvando…",
+  "saved": "Salvo.",
+  "close": "Fechar",
+  "delete": "Excluir",
+  "remove": "Remover",
+  "restore": "Restaurar",
+  "loading": "Carregando…",
+  "copy": "Copiar",
+  "copied": "Copiado",
+  "genericError": "Algo deu errado. Tente novamente.",
+  "errorPage": {
+    "title": "Algo deu errado",
+    "description": "Não foi possível mostrar esta página, ou sua última alteração não foi salva.",
+    "retry": "Tentar novamente",
+    "home": "Ir para o início"
+  },
+  "export": {
+    "failed": "Não foi possível iniciar a exportação. Tente novamente.",
+    "tooManyPages": "É conteúdo demais para exportar de uma vez: uma exportação inclui no máximo {limit} páginas. Exporte uma parte menor do espaço de trabalho.",
+    "tooLarge": "Os arquivos desta exportação somam mais de {size}. Exporte uma parte menor do espaço de trabalho.",
+    "busy": "Você já tem uma exportação em andamento. Aguarde o download terminar.",
+    "disabled": "A exportação está desativada neste espaço de trabalho."
+  }
+}

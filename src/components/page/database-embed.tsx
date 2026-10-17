@@ -163,7 +163,7 @@ function EmbedHeader({
       <Link
         href={href}
         title={t("open")}
-        className="group flex min-w-0 items-center gap-1.5 rounded px-1 py-0.5 -ml-1 text-base font-semibold hover:bg-bg-hover"
+        className="group flex min-w-0 items-center gap-1.5 rounded px-1 py-0.5 -ms-1 text-base font-semibold hover:bg-bg-hover"
       >
         <PageIcon icon={database.icon} kind="database" className="text-base" />
         <span className="truncate">{pageLabel(database.title, tc("untitled"))}</span>
@@ -204,7 +204,7 @@ function LayoutMenu({
   const menu = useFloating<HTMLButtonElement>();
   if (!onChange) {
     return (
-      <span className="ml-auto flex shrink-0 items-center gap-1 text-xs text-fg-muted" title={t("viewOnly")}>
+      <span className="ms-auto flex shrink-0 items-center gap-1 text-xs text-fg-muted" title={t("viewOnly")}>
         <ViewIcon type={view.type} />
         {td(`views.${view.type}`)}
       </span>
@@ -217,7 +217,7 @@ function LayoutMenu({
         type="button"
         onClick={menu.toggle}
         aria-label={t("layout")}
-        className="ml-auto flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+        className="ms-auto flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
         <ViewIcon type={view.type} />
         {td(`views.${view.type}`)}

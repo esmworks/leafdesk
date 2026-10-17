@@ -96,6 +96,81 @@ describe("parseQuickAdd: other languages", () => {
     expect(parse("Offre aujourd’hui", { locale: "fr" }).date).toBe("2026-10-10");
     expect(parse("Offre dans 3 jours", { locale: "fr" }).date).toBe("2026-10-13");
   });
+
+  it("reads Italian and Portuguese", () => {
+    const it_ = (text: string) => parse(text, { locale: "it" });
+    expect(it_("Offerta venerdì prossimo")).toMatchObject({ title: "Offerta", date: "2026-10-16" });
+    expect(it_("Offerta tra 3 giorni").date).toBe("2026-10-13");
+    expect(it_("Tasse 15 ottobre").date).toBe("2026-10-15");
+    const pt = (text: string) => parse(text, { locale: "pt" });
+    expect(pt("Proposta sexta-feira que vem")).toMatchObject({ title: "Proposta", date: "2026-10-16" });
+    expect(pt("Proposta sexta feira").date).toBe("2026-10-16");
+    expect(pt("Proposta daqui a 2 semanas").date).toBe("2026-10-24");
+    expect(pt("Impostos 15 de outubro").date).toBe("2026-10-15");
+    // "segunda" alone is "second", not Monday.
+    expect(pt("Revisar a segunda versão").date).toBeNull();
+  });
+
+  it("reads Slavic languages, with weekdays and units as they are declined", () => {
+    const ru = (text: string) => parse(text, { locale: "ru" });
+    expect(ru("Отчёт в пятницу")).toMatchObject({ title: "Отчёт", date: "2026-10-16" });
+    expect(ru("Отчёт до пятницы").date).toBe("2026-10-16");
+    expect(ru("Отчёт в следующую среду").date).toBe("2026-10-14");
+    expect(ru("Отчёт через 1 день").date).toBe("2026-10-11");
+    expect(ru("Отчёт через 3 дня").date).toBe("2026-10-13");
+    expect(ru("Отчёт через 5 дней").date).toBe("2026-10-15");
+    expect(ru("Отчёт на следующей неделе").date).toBe("2026-10-12");
+    expect(ru("Налоги 15 октября")).toMatchObject({ title: "Налоги", date: "2026-10-15" });
+    expect(parse("Звіт у п’ятницю", { locale: "uk" }).date).toBe("2026-10-16");
+    expect(parse("Звіт через 2 тижні", { locale: "uk" }).date).toBe("2026-10-24");
+    const pl = (text: string) => parse(text, { locale: "pl" });
+    expect(pl("Raport za 3 dni")).toMatchObject({ title: "Raport", date: "2026-10-13" });
+    expect(pl("Raport w sobotę").date).toBe("2026-10-17");
+    expect(pl("Raport do piątku").date).toBe("2026-10-16");
+    expect(pl("Raport w poniedzialek").date).toBe("2026-10-12");
+    expect(pl("Podatki 15 października").date).toBe("2026-10-15");
+  });
+
+  it("reads Arabic, Hebrew and Persian, with their digits and spellings", () => {
+    const ar = (text: string) => parse(text, { locale: "ar" });
+    expect(ar("تقرير يوم الجمعة")).toMatchObject({ title: "تقرير", date: "2026-10-16" });
+    expect(ar("تقرير الإثنين القادم").date).toBe("2026-10-12");
+    expect(ar("تقرير غداً").date).toBe("2026-10-11");
+    expect(ar("تقرير بعد ٣ أيام").date).toBe("2026-10-13");
+    expect(ar("تقرير الاسبوع القادم").date).toBe("2026-10-12");
+    const he = (text: string) => parse(text, { locale: "he" });
+    expect(he("דוח יום שני")).toMatchObject({ title: "דוח", date: "2026-10-12" });
+    expect(he("דוח ביום שישי הבא").date).toBe("2026-10-16");
+    expect(he("דוח בעוד 3 ימים").date).toBe("2026-10-13");
+    const fa = (text: string) => parse(text, { locale: "fa" });
+    expect(fa("گزارش ۳ روز دیگر")).toMatchObject({ title: "گزارش", date: "2026-10-13" });
+    expect(fa("گزارش سه\u200cشنبه").date).toBe("2026-10-13");
+    expect(fa("گزارش سه شنبه").date).toBe("2026-10-13");
+    expect(fa("گزارش پس فردا").date).toBe("2026-10-12");
+    expect(fa("گزارش هفته\u200cی بعد").date).toBe("2026-10-12");
+    // Gregorian months, not the Persian calendar's.
+    expect(fa("مالیات ۱۵ اکتبر").date).toBe("2026-10-15");
+  });
+
+  it("reads Korean, its particles and numbers with units", () => {
+    const ko = (text: string) => parse(text, { locale: "ko", people: [{ id: "k", name: "김철수" }] });
+    expect(ko("보고서 내일").date).toBe("2026-10-11");
+    expect(ko("보고서 다음 주 금요일")).toMatchObject({ title: "보고서", date: "2026-10-16" });
+    expect(ko("보고서 금요일까지")).toMatchObject({ title: "보고서", date: "2026-10-16" });
+    expect(ko("보고서 3일 후").date).toBe("2026-10-13");
+    expect(ko("보고서 2주 뒤에").date).toBe("2026-10-24");
+    expect(ko("세금 10월 15일").date).toBe("2026-10-15");
+    expect(ko("세금 10/15").date).toBe("2026-10-15");
+    expect(ko("검토 @김철수 내일")).toMatchObject({ title: "검토", people: ["k"], date: "2026-10-11" });
+  });
+
+  it("reads only written dates and English words in Japanese and Chinese, which leave no spaces", () => {
+    expect(parse("明日会議", { locale: "ja" })).toMatchObject({ title: "明日会議", date: null });
+    expect(parse("明天开会", { locale: "zh" })).toMatchObject({ title: "明天开会", date: null });
+    expect(parse("会議 10/15", { locale: "ja" }).date).toBe("2026-10-15");
+    expect(parse("会议 10月15日", { locale: "zh" })).toMatchObject({ title: "会议", date: "2026-10-15" });
+    expect(parse("会議 tomorrow", { locale: "ja" }).date).toBe("2026-10-11");
+  });
 });
 
 describe("parseQuickAdd: people and options", () => {

@@ -331,7 +331,7 @@ function BulkEditPanel({
           onClick={() => setPropId(null)}
           className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
         </button>
         <span className="truncate text-xs text-fg-muted">{t("setValue", { property: prop.name })}</span>
       </div>

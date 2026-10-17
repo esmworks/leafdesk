@@ -1,0 +1,21 @@
+{
+  "hello": "안녕하세요, {name}님",
+  "recent": "최근 편집",
+  "assignedEmpty": "할당된 항목이 없습니다. 데이터베이스에서 나에게 할당된 행이 여기에 표시됩니다.",
+  "empty": "아직 아무것도 없습니다. 첫 페이지를 만들어 시작하세요.",
+  "emptyGuest": "아직 여기에서 공유된 항목이 없습니다. 누군가 페이지를 공유하면 여기에 표시됩니다.",
+  "newPage": "새 페이지",
+  "newDatabase": "새 데이터베이스",
+  "personalWorkspace": "{name}의 워크스페이스",
+  "generalTeamspace": "일반",
+  "fromTemplate": "템플릿에서 만들기",
+  "assigned": "나에게 할당됨",
+  "assignedGroups": {
+    "overdue": "기한 지남",
+    "today": "오늘",
+    "next7": "다음 7일",
+    "later": "나중",
+    "none": "날짜 없음"
+  },
+  "assignedMore": "{total}개 중 {shown}개를 표시하고 있습니다. 나머지를 보려면 데이터베이스를 “나”로 필터링하세요."
+}

@@ -9,6 +9,13 @@ describe("dropPlace", () => {
     expect(dropPlace("x", box, 800, { x: 250, y: 60 })).toEqual({ side: "after", axis: "x" });
   });
 
+  it("takes the right half as the one before right to left", () => {
+    expect(dropPlace("x", box, 800, { x: 250, y: 60 }, true)).toEqual({ side: "before", axis: "x" });
+    expect(dropPlace("grid", box, 800, { x: 150, y: 60 }, true)).toEqual({ side: "after", axis: "x" });
+    // Top and bottom don't change.
+    expect(dropPlace("y", box, 200, { x: 290, y: 60 }, true)).toEqual({ side: "before", axis: "y" });
+  });
+
   it("splits an item into top and bottom halves along y", () => {
     expect(dropPlace("y", box, 200, { x: 290, y: 60 })).toEqual({ side: "before", axis: "y" });
     expect(dropPlace("y", box, 200, { x: 110, y: 140 })).toEqual({ side: "after", axis: "y" });

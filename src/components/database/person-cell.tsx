@@ -195,7 +195,7 @@ export function PersonPicker({
             type="button"
             onMouseEnter={() => setActive(i)}
             onClick={() => toggle(person.id)}
-            className={cn("flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm", i === active && "bg-bg-hover")}
+            className={cn("flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm", i === active && "bg-bg-hover")}
           >
             <PersonAvatar person={person} />
             <span className="min-w-0 flex-1">

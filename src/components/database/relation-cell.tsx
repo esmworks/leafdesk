@@ -176,7 +176,7 @@ export function RelationPicker({
               onMouseEnter={() => setActive(i)}
               onClick={() => choose(i)}
               className={cn(
-                "flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm",
+                "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
                 i === active && "bg-bg-hover",
               )}
             >
@@ -191,7 +191,7 @@ export function RelationPicker({
               onMouseEnter={() => setActive(i)}
               onClick={() => choose(i)}
               className={cn(
-                "flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm",
+                "flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm",
                 i === active && "bg-bg-hover",
               )}
             >
@@ -260,7 +260,7 @@ export function RelationSetup({
           onClick={onBack}
           className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
         </button>
         <span className="truncate text-sm font-medium">{name}</span>
       </div>
@@ -280,7 +280,7 @@ export function RelationSetup({
                 setPairedName("");
               }}
               className={cn(
-                "flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover",
+                "flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover",
                 d.id === targetId && "bg-bg-hover",
               )}
             >

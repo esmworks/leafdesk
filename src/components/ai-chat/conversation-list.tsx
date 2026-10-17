@@ -42,11 +42,11 @@ export function ConversationList() {
     await refreshConversations();
   }
 
-  const row = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-left text-fg-muted hover:bg-bg-hover hover:text-fg";
+  const row = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg";
   return (
     <div className="space-y-px">
       <Link href={context.backPath()} className={row}>
-        <ArrowLeft className="h-4 w-4 shrink-0" />
+        <ArrowLeft className="h-4 w-4 shrink-0 rtl:-scale-x-100" />
         <span className="flex-1 truncate">{t("backToPages")}</span>
       </Link>
       <Link href={chatPath(workspaceId)} onClick={closeDrawer} className={cn(row, !current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}>
@@ -76,13 +76,13 @@ export function ConversationList() {
                       onClick={closeDrawer}
                       aria-current={c.id === current ? "page" : undefined}
                       title={c.title || t("untitled")}
-                      className={cn(row, "pr-8", c.id === current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+                      className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
                     >
                       <span className="flex-1 truncate">{c.title || t("untitled")}</span>
                     </Link>
                     <IconButton
                       label={t("deleteConversation")}
-                      className="absolute top-0 right-0 h-7 w-7 opacity-0 group-hover/conversation:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60"
+                      className="absolute top-0 inset-e-0 h-7 w-7 opacity-0 group-hover/conversation:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60"
                       disabled={offline}
                       onClick={() => void remove(c.id)}
                     >

@@ -1,0 +1,31 @@
+{
+  "appDescription": "Otwartoźródłowy obszar roboczy na dokumenty i bazy danych, z dostępem przez MCP dla agentów AI.",
+  "untitled": "Bez tytułu",
+  "agent": "Agent",
+  "agentName": "{name} (agent)",
+  "cancel": "Anuluj",
+  "save": "Zapisz",
+  "saving": "Zapisywanie…",
+  "saved": "Zapisano.",
+  "close": "Zamknij",
+  "delete": "Usuń",
+  "remove": "Usuń",
+  "restore": "Przywróć",
+  "loading": "Ładowanie…",
+  "copy": "Kopiuj",
+  "copied": "Skopiowano",
+  "genericError": "Coś poszło nie tak. Spróbuj ponownie.",
+  "errorPage": {
+    "title": "Coś poszło nie tak",
+    "description": "Nie udało się wyświetlić tej strony lub ostatnia zmiana nie została zapisana.",
+    "retry": "Spróbuj ponownie",
+    "home": "Przejdź do strony głównej"
+  },
+  "export": {
+    "failed": "Nie udało się rozpocząć eksportu. Spróbuj ponownie.",
+    "tooManyPages": "To za dużo, aby wyeksportować naraz: eksport może zawierać najwyżej {limit, plural, one {# stronę} few {# strony} many {# stron} other {# strony}}. Wyeksportuj mniejszą część obszaru roboczego.",
+    "tooLarge": "Pliki w tym eksporcie zajmują łącznie ponad {size}. Wyeksportuj mniejszą część obszaru roboczego.",
+    "busy": "Masz już uruchomiony eksport. Poczekaj, aż jego pobieranie się zakończy.",
+    "disabled": "Eksport jest wyłączony w tym obszarze roboczym."
+  }
+}

@@ -69,8 +69,8 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:pl-1.5">
-        <SidebarOpenButton className="mr-1 max-md:mr-0" />
+      <div className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
+        <SidebarOpenButton className="me-1 max-md:me-0" />
         <h1 className="min-w-0 flex-1 truncate text-sm font-medium">{title || t("title")}</h1>
         {memory && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>

@@ -1,0 +1,24 @@
+{
+  "banner": "Offline",
+  "hint": "Sei offline. Le pagine che hai aperto in precedenza si possono ancora leggere e modificare; le modifiche si sincronizzano quando torna la connessione.",
+  "needsConnection": "{action}: serve una connessione",
+  "readOnly": "Offline: sola lettura",
+  "readOnlyCopy": "Copia offline delle {time}, sola lettura",
+  "signOutUnsynced": "Alcune pagine hanno modifiche che non sono ancora arrivate al server. Se esci, verranno rimosse da questo browser. Vuoi uscire comunque?",
+  "installApp": "Installa app",
+  "page": {
+    "documentTitle": "Offline",
+    "heading": "Sei offline",
+    "body": "Al momento Leafdesk non riesce a raggiungere il server. Le pagine che hai aperto su questo dispositivo sono elencate qui sotto e si aprono dalla copia salvata in questo browser.",
+    "saved": "Salvate su questo dispositivo",
+    "unsynced": "Modifiche non ancora sincronizzate",
+    "empty": "Nessuna pagina è ancora salvata su questo dispositivo. Le pagine che apri mentre sei online vengono conservate per l’uso offline.",
+    "retry": "Riprova"
+  },
+  "stale": {
+    "title": "Leafdesk è stato aggiornato",
+    "body": "Questa scheda usa ancora la versione precedente, quindi le sue pagine non si sincronizzano più. Ricarica per continuare. Le modifiche fatte qui vengono conservate e inviate dopo il ricaricamento.",
+    "offlineBody": "Questa scheda usa una versione diversa da quella usata l’ultima volta da questo browser, quindi le sue pagine non si sincronizzano più. Ricarica quando sei di nuovo online. Le modifiche fatte qui vengono conservate e inviate in quel momento.",
+    "reload": "Ricarica"
+  }
+}

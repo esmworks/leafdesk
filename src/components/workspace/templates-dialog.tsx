@@ -97,7 +97,7 @@ export function TemplatesDialog({
             <li key={item.id} className="group flex items-center gap-2 rounded-md px-3 py-1.5 hover:bg-bg-hover">
               <button
                 type="button"
-                className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm"
+                className="flex min-w-0 flex-1 items-center gap-2 text-start text-sm"
                 title={t("use")}
                 onClick={() => create(() => createFromTemplateAction(item.id, null, teamspaceId))}
               >
@@ -123,7 +123,7 @@ export function TemplatesDialog({
             <li key={item.key}>
               <button
                 type="button"
-                className="flex w-full items-start gap-2 rounded-md px-3 py-1.5 text-left hover:bg-bg-hover"
+                className="flex w-full items-start gap-2 rounded-md px-3 py-1.5 text-start hover:bg-bg-hover"
                 onClick={() => create(() => createFromBuiltinAction(workspaceId, item.key, null, teamspaceId))}
               >
                 <PageIcon icon={item.icon} kind={item.kind} className="mt-0.5 text-sm" />

@@ -73,8 +73,8 @@ export function CalculationRow({
   const frozen = columns.some((c) => c.frozen?.className);
   return (
     // As wide as the table, so frozen cells have the whole width to stay put in.
-    <div className="group/footer flex w-max" style={{ paddingLeft: frozen ? 0 : offset }}>
-      {frozen && <div className="sticky left-0 z-30 shrink-0 bg-bg" style={{ width: offset }} />}
+    <div className="group/footer flex w-max" style={{ paddingInlineStart: frozen ? 0 : offset }}>
+      {frozen && <div className="sticky inset-s-0 z-30 shrink-0 bg-bg" style={{ width: offset }} />}
       {columns.map((column) => (
         <div
           key={column.key}

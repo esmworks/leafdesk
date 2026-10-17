@@ -156,7 +156,7 @@ export function ViewTabs({
                     <MenuSeparator />
                     <MenuItem
                       icon={<Trash2 className="h-3.5 w-3.5" />}
-                      trailing={<ChevronRight className="h-3.5 w-3.5" />}
+                      trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
                       onClick={() => setShowDeleted(true)}
                     >
                       {t("deleted.views")}
@@ -215,7 +215,7 @@ function ViewTab({
           aria-hidden
           className={cn(
             "pointer-events-none absolute top-0.5 bottom-1.5 w-0.5 bg-accent",
-            drag.dropSide === "before" ? "-left-px" : "-right-px",
+            drag.dropSide === "before" ? "-inset-s-px" : "-inset-e-px",
           )}
         />
       )}
@@ -363,7 +363,7 @@ export function ViewSearch({ value, onChange }: { value: string; onChange: (valu
   return (
     // On phones the open field covers the toolbar's row instead of pushing it off the screen.
     <div className="relative flex w-48 items-center max-md:absolute max-md:inset-0 max-md:z-10 max-md:w-auto max-md:bg-bg">
-      <Search className="pointer-events-none absolute left-2 h-3.5 w-3.5 text-fg-muted" />
+      <Search className="pointer-events-none absolute inset-s-2 h-3.5 w-3.5 text-fg-muted" />
       <input
         ref={input}
         type="search"
@@ -393,7 +393,7 @@ export function ViewSearch({ value, onChange }: { value: string; onChange: (valu
             onChange("");
             input.current?.focus();
           }}
-          className="absolute right-1 inline-flex h-5 w-5 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+          className="absolute inset-e-1 inline-flex h-5 w-5 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -656,7 +656,7 @@ export function ViewToolbar({
                   onDragEnd={drag.onDragEnd}
                   onClick={() => onConfig(toggleHiddenInView(view, p))}
                   className={cn(
-                    "group/prop relative flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover",
+                    "group/prop relative flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover",
                     drag.dragging && "opacity-50",
                   )}
                 >
@@ -671,9 +671,9 @@ export function ViewToolbar({
                   )}
                   <GripVertical
                     aria-hidden
-                    className="-ml-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
+                    className="-ms-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
                   />
-                  <PropertyTypeIcon type={p.type} className="-ml-1 h-3.5 w-3.5 text-fg-muted" />
+                  <PropertyTypeIcon type={p.type} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
                   <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
                   <PropertyLock propertyId={p.id} />
                   {isHidden ? (
@@ -689,7 +689,7 @@ export function ViewToolbar({
                 <MenuSeparator />
                 <MenuItem
                   icon={<Trash2 className="h-3.5 w-3.5" />}
-                  trailing={<ChevronRight className="h-3.5 w-3.5" />}
+                  trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
                   onClick={() => setShowDeleted(true)}
                 >
                   {t("deleted.properties")}
@@ -1239,7 +1239,7 @@ function FilterValueList({ col, value, onChange }: { col: Column; value: unknown
         aria-expanded={menu.open}
         title={names.join(", ")}
         onClick={menu.toggle}
-        className="flex h-7 w-full min-w-0 items-center gap-1 rounded-md border border-border bg-bg px-1.5 text-left text-sm outline-none focus:border-accent"
+        className="flex h-7 w-full min-w-0 items-center gap-1 rounded-md border border-border bg-bg px-1.5 text-start text-sm outline-none focus:border-accent"
       >
         <span className={cn("min-w-0 flex-1 truncate", !names.length && "text-fg-muted")}>
           {names.length ? names.join(", ") : t("choose")}

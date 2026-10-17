@@ -100,7 +100,7 @@ export function AgentsPanel({
           {isOwner && (
             <Button
               variant="primary"
-              className="ml-auto"
+              className="ms-auto"
               disabled={full}
               title={full ? t("errors.tooMany", { max: MAX_AGENTS }) : undefined}
               onClick={() => setCreating(true)}
@@ -151,7 +151,7 @@ export function AgentsPanel({
                   type="button"
                   disabled={full}
                   onClick={() => setTemplate(item)}
-                  className="flex w-full items-start gap-3 px-5 py-3 text-left hover:bg-bg-hover disabled:opacity-50"
+                  className="flex w-full items-start gap-3 px-5 py-3 text-start hover:bg-bg-hover disabled:opacity-50"
                 >
                   <span className="mt-0.5 text-lg leading-none">{item.icon}</span>
                   <span className="min-w-0 flex-1">
@@ -260,7 +260,7 @@ function AgentRow({
         <AgentIcon icon={agent.icon} />
       </span>
       {isOwner ? (
-        <button type="button" onClick={() => onOpen("settings")} className="min-w-0 flex-1 text-left hover:[&>span:first-child]:underline">
+        <button type="button" onClick={() => onOpen("settings")} className="min-w-0 flex-1 text-start hover:[&>span:first-child]:underline">
           {name}
         </button>
       ) : (
@@ -284,7 +284,7 @@ function AgentRow({
           <IconButton ref={menu.ref} label={t("actionsFor", { name: agent.name })} onClick={menu.toggle}>
             <MoreHorizontal className="h-4 w-4" />
           </IconButton>
-          <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-left">
+          <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
             {agent.archived ? (
               <>
                 {item(t("tabs.runs"), () => onOpen("runs"))}

@@ -170,7 +170,7 @@ function GalleryCard({
         {editTitle ? (
           <CardTitleInput initial={typed || row.title} onDone={onTitle} />
         ) : (
-          <div className="flex min-w-0 gap-1.5 pr-6 text-sm leading-5 font-medium">
+          <div className="flex min-w-0 gap-1.5 pe-6 text-sm leading-5 font-medium">
             {row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}
             <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint")}>
               {pageLabel(row.title, tc("untitled"))}
@@ -192,7 +192,7 @@ function GalleryCard({
           opener={opener}
           rowId={row.id}
           onDelete={onDelete}
-          className={cn("absolute right-1.5", coverClass ? "top-1.5" : "top-2")}
+          className={cn("absolute inset-e-1.5", coverClass ? "top-1.5" : "top-2")}
         />
       )}
     </div>

@@ -53,7 +53,7 @@ export function CustomizeSections({
               onDragOver={handlers.onDragOver}
               onDrop={handlers.onDrop}
               onDragEnd={handlers.onDragEnd}
-              className={cn("group/row relative flex h-8 items-center gap-1 rounded-md pr-1 hover:bg-bg-hover", handlers.dragging && "opacity-50")}
+              className={cn("group/row relative flex h-8 items-center gap-1 rounded-md pe-1 hover:bg-bg-hover", handlers.dragging && "opacity-50")}
             >
               {handlers.dropSide && (
                 <span
@@ -61,8 +61,8 @@ export function CustomizeSections({
                   className={cn("pointer-events-none absolute inset-x-1 h-0.5 rounded bg-accent", handlers.dropSide === "before" ? "-top-px" : "-bottom-px")}
                 />
               )}
-              <GripVertical aria-hidden className="ml-1 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint" />
-              <span className={cn("min-w-0 flex-1 truncate pl-1", isHidden && "text-fg-faint")}>{label}</span>
+              <GripVertical aria-hidden className="ms-1 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint" />
+              <span className={cn("min-w-0 flex-1 truncate ps-1", isHidden && "text-fg-faint")}>{label}</span>
               <span className="flex items-center opacity-0 group-hover/row:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100">
                 <IconButton className="disabled:opacity-30 disabled:hover:bg-transparent" label={t("moveUp", { section: label })} disabled={i === 0} onClick={() => move(i, i - 1)}>
                   <ArrowUp className="h-3.5 w-3.5" />

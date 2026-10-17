@@ -77,7 +77,7 @@ export function SiteSettings({
         htmlFor="site-slug"
         description={problem ? <span className="text-danger">{t(`errors.${problem}`)}</span> : t("slugHint")}
         control={
-          <div className="flex w-full items-center rounded-md border border-border bg-bg pl-2.5 text-sm focus-within:border-accent sm:w-60">
+          <div className="flex w-full items-center rounded-md border border-border bg-bg ps-2.5 text-sm focus-within:border-accent sm:w-60">
             <span className="shrink-0 text-fg-faint">/s/</span>
             <input
               id="site-slug"
@@ -89,7 +89,7 @@ export function SiteSettings({
                 setSlug(e.target.value);
                 setSaved(false);
               }}
-              className="h-8 min-w-0 flex-1 bg-transparent pr-2.5 outline-none"
+              className="h-8 min-w-0 flex-1 bg-transparent pe-2.5 outline-none"
             />
           </div>
         }

@@ -164,7 +164,7 @@ function ChatPanel({
   return (
     <aside
       aria-label={t("title")}
-      className="fixed inset-y-0 right-0 z-40 flex w-full flex-col border-l border-border bg-bg shadow-xl md:w-[400px]"
+      className="fixed inset-y-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[400px]"
     >
       <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border px-3">
         <h2 className="flex-1 truncate text-sm font-semibold">{t("title")}</h2>
@@ -199,7 +199,7 @@ function ChatPanel({
                     <div key={c.id} className={cn("group flex items-center gap-1 rounded", c.id === conversationId && "bg-bg-hover")}>
                       <button
                         type="button"
-                        className="min-w-0 flex-1 truncate rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                        className="min-w-0 flex-1 truncate rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                         onClick={() => {
                           close();
                           void chat.openConversation(c.id);

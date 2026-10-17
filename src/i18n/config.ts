@@ -8,6 +8,17 @@ export const LOCALE_NAMES = {
   de: "Deutsch",
   es: "Español",
   fr: "Français",
+  it: "Italiano",
+  pt: "Português",
+  pl: "Polski",
+  ru: "Русский",
+  uk: "Українська",
+  ar: "العربية",
+  he: "עברית",
+  fa: "فارسی",
+  ja: "日本語",
+  ko: "한국어",
+  zh: "简体中文",
 } as const satisfies Record<string, string>;
 
 export type Locale = keyof typeof LOCALE_NAMES;
@@ -19,6 +30,14 @@ export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 /** Browser time zone, so server-rendered dates match the viewer's clock. */
 export const TIME_ZONE_COOKIE = "TZ";
+
+/** Languages written right to left: the page runs from the right (`<html dir="rtl">`). */
+const RIGHT_TO_LEFT: ReadonlySet<Locale> = new Set(["ar", "he", "fa"]);
+
+/** The writing direction of a language, for the `dir` attribute. */
+export function localeDirection(locale: Locale): "ltr" | "rtl" {
+  return RIGHT_TO_LEFT.has(locale) ? "rtl" : "ltr";
+}
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && Object.hasOwn(LOCALE_NAMES, value);

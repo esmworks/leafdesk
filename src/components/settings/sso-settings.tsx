@@ -512,7 +512,7 @@ function NewScimToken({ workspaceId }: { workspaceId: string }) {
               <h2 className="text-[15px] font-semibold">{t("created.title")}</h2>
               <p className="mt-1 text-sm text-fg-muted">{t("created.body")}</p>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-subtle py-1.5 pr-1.5 pl-3">
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-subtle py-1.5 pe-1.5 ps-3">
               <code className="min-w-0 flex-1 text-xs break-all" data-scim-token-secret>
                 {secret}
               </code>

@@ -485,7 +485,7 @@
     "relativeHint": "Las fechas a menos de una semana de hoy se leen «mañana», «dentro de 3 días», «hace 2 días».",
     "reminder": "Recordatorio",
     "reminderNone": "Sin recordatorio",
-    "reminderBefore": "{days, select, 0 {El mismo día, 9:00} 1 {1 día antes, 9:00} 7 {1 semana antes, 9:00} other {# días antes, 9:00}}",
+    "reminderBefore": "{days, select, 0 {El mismo día, 9:00} 1 {1 día antes, 9:00} 7 {1 semana antes, 9:00} other {{days} días antes, 9:00}}",
     "reminderHint": "Avisa a las personas asignadas a cada fila, o a quien la añadió, salvo que la fila esté terminada. Las 9:00 son en tu zona horaria; las fechas con hora avisan a esa hora."
   },
   "rowProperties": {

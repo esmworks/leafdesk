@@ -143,16 +143,16 @@ export function MembersPanel({
                 </TabButton>
               )}
             </div>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ms-auto flex items-center gap-2">
               <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+                <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
                 <Input
                   type="search"
                   aria-label={t("search")}
                   placeholder={t("search")}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-44 pl-7 sm:w-56"
+                  className="w-44 ps-7 sm:w-56"
                 />
               </div>
               {isOwner && (
@@ -329,7 +329,7 @@ function SortHeader({
     <th
       scope="col"
       aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-      className={cn("px-4 py-2.5 text-left font-normal", className)}
+      className={cn("px-4 py-2.5 text-start font-normal", className)}
     >
       <button type="button" onClick={() => onSort(column)} className="inline-flex items-center gap-1 hover:text-fg">
         {label}
@@ -372,10 +372,10 @@ function MembersTable({
           <tr>
             <SortHeader label={t("columns.user")} column="name" sort={sort} onSort={onSort} />
             <SortHeader label={t("columns.role")} column="role" sort={sort} onSort={onSort} className="w-36" />
-            <th scope="col" className="w-36 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-36 px-4 py-2.5 text-start font-normal">
               {t("columns.teamspaces")}
             </th>
-            <th scope="col" className="w-32 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-32 px-4 py-2.5 text-start font-normal">
               {t("columns.groups")}
             </th>
             <SortHeader label={t("columns.joined")} column="joined" sort={sort} onSort={onSort} className="w-32" />
@@ -483,7 +483,7 @@ function MemberRow({
           <span className="text-fg-faint">{t("neverEdited")}</span>
         )}
       </td>
-      <td className="px-1 py-2.5 text-right">
+      <td className="px-1 py-2.5 text-end">
         {(canRemove || canTransfer) && (
           <>
             <IconButton
@@ -495,7 +495,7 @@ function MemberRow({
               <MoreHorizontal className="h-4 w-4" />
             </IconButton>
             {/* Portaled so the table's scroll container doesn't clip it. */}
-            <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-left">
+            <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
               {canTransfer && (
                 <MenuItem
                   onClick={() => {
@@ -520,7 +520,7 @@ function MemberRow({
             </Floating>
           </>
         )}
-        <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-left">
+        <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-start">
           <div className="space-y-3 p-5">
             <h2 className="text-base font-semibold">
               {confirm === "transfer"
@@ -584,7 +584,7 @@ function TeamspacesCell({ name, teamspaces }: { name: string; teamspaces: Member
         <ChevronDown className="h-3.5 w-3.5" aria-hidden />
       </button>
       {/* Portaled so the table's scroll container doesn't clip it. */}
-      <Floating anchor={list.el} open={list.open} onClose={list.close} className="text-left">
+      <Floating anchor={list.el} open={list.open} onClose={list.close} className="text-start">
         <ul aria-label={t("teamspacesOf", { name })} className="max-h-64 max-w-64 overflow-y-auto">
           {teamspaces.map((ts) => (
             <li key={ts.id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
@@ -619,7 +619,7 @@ function GroupsCell({ name, groups }: { name: string; groups: MemberGroup[] }) {
         <ChevronDown className="h-3.5 w-3.5" aria-hidden />
       </button>
       {/* Portaled so the table's scroll container doesn't clip it. */}
-      <Floating anchor={list.el} open={list.open} onClose={list.close} className="text-left">
+      <Floating anchor={list.el} open={list.open} onClose={list.close} className="text-start">
         <ul aria-label={t("groupsOf", { name })} className="max-h-64 max-w-64 overflow-y-auto">
           {groups.map((group) => (
             <li key={group.id} className="truncate rounded px-2 py-1.5 text-sm">
@@ -650,13 +650,13 @@ function InvitationsTable({
       <table className="w-full min-w-[640px] text-sm">
         <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
           <tr>
-            <th scope="col" className="px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="px-4 py-2.5 text-start font-normal">
               {t("columns.email")}
             </th>
-            <th scope="col" className="w-36 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-36 px-4 py-2.5 text-start font-normal">
               {t("columns.role")}
             </th>
-            <th scope="col" className="w-48 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-48 px-4 py-2.5 text-start font-normal">
               {t("columns.status")}
             </th>
             <th scope="col" className="w-64">
@@ -857,13 +857,13 @@ function RequestsTable({
       <table className="w-full min-w-[640px] text-sm">
         <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
           <tr>
-            <th scope="col" className="px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="px-4 py-2.5 text-start font-normal">
               {t("columns.user")}
             </th>
-            <th scope="col" className="w-56 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-56 px-4 py-2.5 text-start font-normal">
               {t("columns.request")}
             </th>
-            <th scope="col" className="w-32 px-4 py-2.5 text-left font-normal">
+            <th scope="col" className="w-32 px-4 py-2.5 text-start font-normal">
               {t("columns.asked")}
             </th>
             <th scope="col" className="w-48">

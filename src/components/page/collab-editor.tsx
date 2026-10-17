@@ -17,11 +17,13 @@ import {
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
+import { DirectionProvider } from "@mantine/core";
 import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockFocus } from "./block-focus";
 import { commentUsersAction } from "@/app/actions/comments";
+import { useDirection } from "@/components/direction";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { AskAiToolbarButton, useAiAssist, useAiSlashItems, type AiAssist } from "./ai-assist";
 import { useVoiceNote, useVoiceSlashItems, type VoiceNote } from "@/components/voice/voice-note-dialog";
@@ -40,6 +42,7 @@ import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
 import { writePageStyle } from "@/lib/page-style";
 import { PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { userColor } from "@/lib/presence";
+import { BlockDirection } from "./block-direction";
 import { codeHighlighting } from "./code-block";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { FindBar } from "./find-bar";
@@ -173,7 +176,7 @@ export default function CollabEditor({
       schema: pageEditorSchema,
       dictionary,
       uploadFile,
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), comments],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments],
       collaboration: {
         fragment: pageDoc.doc.getXmlFragment(COLLAB_FRAGMENT),
         provider: { awareness: pageDoc.provider.awareness ?? undefined },
@@ -201,48 +204,58 @@ export default function CollabEditor({
   // Links to a passage (the AI chat's citations) scroll to its block.
   useBlockFocus();
 
+  // The editor's menus and its block handles follow the interface language's direction: right to
+  // left, the handles sit to the right of the blocks and submenus open to the left.
+  const dir = useDirection();
+  const sideMenuPlacement = useMemo(
+    () => ({ useFloatingOptions: { placement: dir === "rtl" ? ("right-start" as const) : ("left-start" as const) } }),
+    [dir],
+  );
+
   // Keyed by language so the new editor mounts into a fresh element.
   return (
     <EmbedHostProvider value={host}>
       <PageTrailProvider value={trail}>
         {/* Search works for everyone; replacing only for people who may edit. */}
         <FindBar editor={editor} editable={editable} />
-        <BlockNoteView
-          key={locale}
-          editor={editor}
-          theme={colorScheme}
-          editable={mountEditable}
-          slashMenu={false}
-          sideMenu={false}
-          formattingToolbar={false}
-          className="leafdesk-editor"
-        >
-          <SideMenuController sideMenu={sideMenu} />
-          <SlashMenu
+        <DirectionProvider initialDirection={dir}>
+          <BlockNoteView
+            key={locale}
             editor={editor}
-            onCreateError={setEmbedError}
-            onPickDatabase={setPickAt}
-            onPickPage={setLinkAt}
-            onDashboard={widenForDashboard}
-            assistant={ai && editable && !offline ? assistant : null}
-            voiceNote={voice && editable && !offline ? voiceNote : null}
-          />
-          {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
-          {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
-          <PasteLinkMenu editor={editor} />
-          {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
-          {(editable || canComment) && (
-            <FormattingToolbarController
-              formattingToolbar={() => (
-                <FormattingToolbar>
-                  {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
-                  {withTextScriptButtons(getFormattingToolbarItems()).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
-                </FormattingToolbar>
-              )}
+            theme={colorScheme}
+            editable={mountEditable}
+            slashMenu={false}
+            sideMenu={false}
+            formattingToolbar={false}
+            className="leafdesk-editor"
+          >
+            <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+            <SlashMenu
+              editor={editor}
+              onCreateError={setEmbedError}
+              onPickDatabase={setPickAt}
+              onPickPage={setLinkAt}
+              onDashboard={widenForDashboard}
+              assistant={ai && editable && !offline ? assistant : null}
+              voiceNote={voice && editable && !offline ? voiceNote : null}
             />
-          )}
-          {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
-        </BlockNoteView>
+            {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
+            {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
+            <PasteLinkMenu editor={editor} />
+            {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
+            {(editable || canComment) && (
+              <FormattingToolbarController
+                formattingToolbar={() => (
+                  <FormattingToolbar>
+                    {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
+                    {withTextScriptButtons(getFormattingToolbarItems()).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
+                  </FormattingToolbar>
+                )}
+              />
+            )}
+            {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
+          </BlockNoteView>
+        </DirectionProvider>
         {assistant.panel}
         {voiceNote.dialog}
       </PageTrailProvider>

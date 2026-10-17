@@ -359,7 +359,7 @@ export function RowProperties({
                     onClick={() => setShowMore((v) => !v)}
                     className="mt-1 flex h-[30px] w-fit items-center gap-1.5 rounded-md px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
                   >
-                    {showMore ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                    {showMore ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
                     {t(showMore ? "fewerProperties" : "moreProperties", { count: more.length })}
                   </button>
                 )}

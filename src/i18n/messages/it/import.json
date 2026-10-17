@@ -1,0 +1,106 @@
+{
+  "open": "Importa",
+  "title": "Importa",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, oppure righe da un file CSV o da una cartella di lavoro Excel.",
+  "tabs": {
+    "pages": "Markdown e ZIP",
+    "docx": "Word",
+    "csv": "CSV ed Excel"
+  },
+  "destination": "Inserisci in",
+  "topLevel": "Livello principale dello spazio di lavoro",
+  "noDestination": "Non c’è nessuna pagina a cui puoi aggiungere pagine.",
+  "pages": {
+    "help": "I file Markdown diventano pagine e le cartelle mantengono la loro struttura. I file CSV diventano database e le immagini a cui le pagine rimandano vengono caricate.",
+    "notion": "Da Notion: esporta come “Markdown & CSV” includendo le sottopagine e scegli lo ZIP così come è stato scaricato (funzionano anche le esportazioni suddivise). Sottopagine, database, relazioni, riquadri, elenchi espandibili e immagini vengono importati.",
+    "obsidian": "Da Obsidian: scegli la cartella del vault o uno ZIP che la contiene. Vengono importati i link tra le note (anche i [[wikilink]]), le immagini e i file incorporati e i callout.",
+    "chooseFiles": "Scegli file",
+    "chooseFolder": "Scegli una cartella",
+    "drop": "oppure trascina qui i file",
+    "selected": "{count, plural, one {# file} other {# file}}, {size}",
+    "clear": "Cancella"
+  },
+  "docx": {
+    "help": "Ogni documento Word (.docx) diventa una pagina, con intestazioni, elenchi, tabelle, link, immagini e note a piè di pagina. Un’intestazione all’inizio del documento diventa il titolo della pagina; altrimenti lo diventa il nome del file.",
+    "choose": "Scegli file Word"
+  },
+  "csv": {
+    "choose": "Scegli un file CSV o Excel",
+    "summary": "{name}: {rows, plural, one {# riga} other {# righe}}, {columns, plural, one {# colonna} other {# colonne}}",
+    "sheet": "Foglio",
+    "mode": "Importa come",
+    "newDatabase": "Un nuovo database",
+    "existing": "Righe di un database",
+    "name": "Nome",
+    "titleColumn": "Titoli delle righe da",
+    "noTitle": "Nessuna colonna (righe senza titolo)",
+    "column": "Colonna",
+    "type": "Tipo",
+    "target": "Destinazione",
+    "values": "Valori",
+    "leaveOut": "Escludi",
+    "rowTitle": "Titolo della riga",
+    "database": "Database",
+    "chooseDatabase": "Scegli un database",
+    "noDatabases": "Non c’è nessun database a cui puoi aggiungere righe.",
+    "cantLoad": "Impossibile caricare le proprietà di questo database.",
+    "newOptions": "I valori di selezione che il database non ha ancora vengono aggiunti come opzioni."
+  },
+  "import": "Importa",
+  "importing": "Importazione in corso…",
+  "done": {
+    "title": "Importazione completata",
+    "created": "Creati: {list}.",
+    "nothing": "Non è stato creato nulla di nuovo.",
+    "open": "Apri",
+    "again": "Importa altro"
+  },
+  "counts": {
+    "pages": "{count, plural, one {# pagina} other {# pagine}}",
+    "databases": "{count, plural, one {# database} other {# database}}",
+    "rows": "{count, plural, one {# riga} other {# righe}}",
+    "templates": "{count, plural, one {# modello} other {# modelli}}",
+    "files": "{count, plural, one {# file} other {# file}}"
+  },
+  "warnings": {
+    "heading": "Esclusi o modificati",
+    "invalidValues": "{count, plural, one {# valore} other {# valori}} in “{column}” non erano adatti alla proprietà e sono stati lasciati vuoti.",
+    "missingFile": "“{path}”, collegato da “{page}”, non era tra i file caricati.",
+    "unresolvedLink": "“[[{target}]]” in “{page}” non corrisponde a nessuna nota o file caricato, quindi resta come testo.",
+    "fileNotStored": {
+      "tooLarge": "“{path}” supera il limite di caricamento e non è stato salvato.",
+      "quotaExceeded": "“{path}” non è stato salvato: lo spazio di lavoro ha esaurito lo spazio di archiviazione per i file.",
+      "failed": "Impossibile salvare “{path}”.",
+      "external": "“{path}” è stato escluso: l’immagine è collegata dall’esterno del documento.",
+      "unsupportedType": "“{path}” è stato escluso: le pagine non possono mostrare immagini di questo tipo."
+    },
+    "skipped": {
+      "nestedZip": "“{path}” è uno ZIP annidato troppo in profondità ed è stato escluso.",
+      "nestedDatabase": "“{path}” sarebbe un database dentro un database ed è stato escluso.",
+      "duplicate": "“{path}” è stato escluso: è stata importata la versione completa dello stesso database.",
+      "tooLarge": "“{path}” è troppo grande per una sola pagina ed è stato escluso.",
+      "unused": "“{path}” è stato escluso: nessuna pagina lo mostra o vi rimanda.",
+      "unsafePath": "“{path}” è stato escluso: il suo percorso porta fuori dallo ZIP.",
+      "otherSheet": "Il foglio “{path}” è stato escluso: si importa un solo foglio alla volta."
+    },
+    "more": "…e {count, plural, one {# altro} other {altri #}}."
+  },
+  "errors": {
+    "tooLarge": "Il caricamento supera {limit}.",
+    "tooManyFiles": "Un’importazione può contenere al massimo {limit} file.",
+    "tooManyPages": "Un’importazione può creare al massimo {limit} pagine.",
+    "tooManyRows": "Un file può avere al massimo {limit} righe.",
+    "tooManyColumns": "Un file può avere al massimo {limit} colonne.",
+    "badZip": "Impossibile leggere il file ZIP.",
+    "nothingToImport": "Non c’è nessun file Markdown o CSV da importare.",
+    "emptyCsv": "Il file non ha una riga di intestazione.",
+    "badWorkbook": "Impossibile leggere il file Excel.",
+    "unsupportedWorkbook": "Si possono importare solo cartelle di lavoro .xlsx senza password. Salva il file come Cartella di lavoro di Excel (.xlsx) senza password e riprova.",
+    "badDocx": "Impossibile leggere “{name}” come documento Word. Si possono importare solo file .docx: salva prima i vecchi file .doc come .docx.",
+    "docxTooComplex": "“{name}” è troppo grande o complesso per essere importato come una sola pagina.",
+    "badMapping": "Scegli la destinazione di almeno una colonna, e usa ogni proprietà una sola volta.",
+    "noAccess": "Non puoi aggiungere pagine lì, oppure non esiste più.",
+    "notADatabase": "Le righe si possono aggiungere solo a un database.",
+    "badRequest": "L’importazione non è riuscita. Non è stato modificato nulla."
+  }
+}

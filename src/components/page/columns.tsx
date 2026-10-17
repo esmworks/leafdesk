@@ -17,6 +17,7 @@ import {
   columnWidth,
   MAX_COLUMNS,
 } from "@/lib/columns";
+import { inlineSign } from "@/components/direction";
 import type { PageEditor } from "./embed-blocks";
 
 /**
@@ -66,6 +67,8 @@ const EditorColumnNode = ColumnNode.extend({
         event.preventDefault();
         event.stopPropagation();
         const startX = event.clientX;
+        // Right to left the next column is on the left: moving left widens this one.
+        const sign = inlineSign(dom);
         const px = dom.getBoundingClientRect().width;
         const pxTotal = px + next.getBoundingClientRect().width;
         const total = columnWidth(node.attrs.width) + columnWidth(nextNode.attrs.width);
@@ -73,7 +76,7 @@ const EditorColumnNode = ColumnNode.extend({
         let share = columnWidth(node.attrs.width) / total;
         dom.classList.add("leafdesk-column-resizing");
         const move = (e: PointerEvent) => {
-          share = Math.min(Math.max(px + e.clientX - startX, min), pxTotal - min) / pxTotal;
+          share = Math.min(Math.max(px + (e.clientX - startX) * sign, min), pxTotal - min) / pxTotal;
           // A preview on the elements; the document changes once, when the drag ends.
           dom.style.flexGrow = String(total * share);
           next.style.flexGrow = String(total * (1 - share));

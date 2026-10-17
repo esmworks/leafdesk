@@ -64,7 +64,7 @@ export function BookmarkCard({ bookmark }: { bookmark: BookmarkView }) {
         </span>
       </span>
       {bookmark.image && (
-        <span className="relative hidden w-[32%] max-w-64 shrink-0 border-l border-border bg-bg-subtle sm:block">
+        <span className="relative hidden w-[32%] max-w-64 shrink-0 border-s border-border bg-bg-subtle sm:block">
           <RemoteImage src={bookmark.image} className="absolute inset-0 h-full w-full object-cover" />
         </span>
       )}

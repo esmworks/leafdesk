@@ -1,0 +1,609 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "页面历史",
+    "more": "更多",
+    "copyLink": "复制链接",
+    "copyId": "复制 ID",
+    "moveToTrash": "移到回收站",
+    "edited": "编辑于 {time}",
+    "activity": "动态",
+    "editedBy": "由 {name} 编辑",
+    "createdBy": "由 {name} 创建",
+    "someone": "有人",
+    "comments": "评论",
+    "share": "分享",
+    "accessRequests": "{count} 个访问申请",
+    "addFavorite": "添加到收藏",
+    "removeFavorite": "从收藏中移除",
+    "linkCopied": "链接已复制",
+    "duplicate": "创建副本",
+    "duplicateSuffix": "（副本）",
+    "duplicateFailed": "无法创建页面副本。",
+    "moveTo": "移动到",
+    "style": {
+      "font": "字体",
+      "default": "默认",
+      "serif": "衬线",
+      "mono": "等宽",
+      "smallText": "小号文字",
+      "fullWidth": "全宽"
+    },
+    "lockDatabase": "锁定数据库",
+    "lockHint": "锁定期间，属性和视图无法更改；行仍可编辑。",
+    "locked": "已锁定",
+    "unlock": "解锁",
+    "lockPage": "锁定页面",
+    "lockPageHint": "锁定期间，任何人都无法更改标题、图标、背景或正文。评论、分享和移动仍可使用。",
+    "exportMarkdown": "导出为 Markdown",
+    "exportCsv": "导出为 CSV",
+    "exportXlsx": "导出为 Excel（.xlsx）",
+    "exportZip": "连同子页面导出",
+    "exportZipDatabase": "连同行页面导出",
+    "exportPdf": "导出为 PDF",
+    "exportPreparing": "正在准备导出…",
+    "versionHistory": "版本历史",
+    "lastEdited": "最后由 {name} 编辑",
+    "actionFailed": "无法完成该操作。",
+    "viewers": "另有 {count} 人正在查看此页面",
+    "viewersTitle": "正在查看此页面",
+    "saveAsTemplate": "另存为模板",
+    "saveAsRowTemplate": "另存为行模板",
+    "deleteTemplate": "删除模板",
+    "exportDisabled": "导出已关闭",
+    "exportDisabledBody": "此工作区的所有者已关闭其页面的导出和打印功能。",
+    "showInGraph": "在关系图中显示"
+  },
+  "comments": {
+    "aboutPage": "关于此页面",
+    "title": "评论",
+    "close": "关闭评论",
+    "filters": {
+      "open": "未解决",
+      "resolved": "已解决",
+      "all": "全部"
+    },
+    "empty": {
+      "open": "没有未解决的评论。在页面中选中文本并选择“评论”即可发起评论。",
+      "resolved": "没有已解决的评论。",
+      "all": "还没有评论。在页面中选中文本并选择“评论”即可发起评论。"
+    }
+  },
+  "archived": {
+    "banner": "此页面在回收站中。",
+    "deletePermanently": "永久删除",
+    "confirmDelete": "要永久删除此页面及其中的所有内容吗？此操作无法撤销。"
+  },
+  "icon": {
+    "add": "添加图标",
+    "remove": "移除图标"
+  },
+  "background": {
+    "add": "添加背景",
+    "change": "背景",
+    "colors": "颜色",
+    "patterns": "图案",
+    "none": "无",
+    "remove": "移除背景",
+    "colorNames": {
+      "gray": "灰色",
+      "blue": "蓝色",
+      "green": "绿色",
+      "purple": "紫色",
+      "pink": "粉色",
+      "red": "红色",
+      "orange": "橙色",
+      "black": "黑色"
+    },
+    "patternNames": {
+      "dots": "圆点",
+      "plus": "十字",
+      "grid": "网格",
+      "lines": "线条"
+    }
+  },
+  "title": {
+    "label": "页面标题"
+  },
+  "connection": {
+    "live": "实时",
+    "connecting": "正在连接",
+    "offline": "离线",
+    "reconnecting": "正在重新连接",
+    "noAccess": "无访问权限",
+    "syncing": "正在同步…",
+    "synced": "已同步",
+    "offlinePending": "离线 · 编辑保存在本地",
+    "offlineHint": "你已离线。可以继续编辑：更改会保存在此浏览器中，连接恢复后自动同步。"
+  },
+  "errors": {
+    "accessLost": "你已无权访问此页面。",
+    "connectionFailed": "无法连接到实时编辑。正在重试…",
+    "notAvailableOffline": "此页面尚未保存在此设备上。请在联网时打开一次，以便离线使用。"
+  },
+  "history": {
+    "title": "页面历史",
+    "previewTitle": "版本预览",
+    "modes": {
+      "version": "版本",
+      "current": "与当前版本比较",
+      "previous": "与上一版本比较"
+    },
+    "reasons": {
+      "auto": "自动保存",
+      "beforeRestore": "恢复之前",
+      "manual": "已保存的版本",
+      "beforeAiEdit": "AI 编辑之前",
+      "beforeAiEditBy": "{client} 编辑之前",
+      "beforeAssistantEdit": "AI 助手编辑之前"
+    },
+    "empty": "还没有版本。编辑时以及任何 AI 应用更改此页面之前，都会自动保存版本。",
+    "restore": "恢复此版本",
+    "restoring": "正在恢复…",
+    "restoreHint": "当前内容会先保存为一个版本。",
+    "diff": {
+      "rangeCurrent": "从 {from} 的版本到当前页面的更改",
+      "rangePrevious": "从 {from} 到 {to} 的更改",
+      "earlier": "之前的版本",
+      "changedBy": "由 {names} 更改",
+      "actorApp": "{client}（代表 {name}）",
+      "none": "没有更改。",
+      "oldest": "这是保存的最早版本，没有更早的版本可供比较。",
+      "showUnchanged": "显示 {count} 个未更改的块",
+      "formatOnly": "格式已更改"
+    },
+    "errors": {
+      "list": "无法加载页面历史。请重新加载页面后重试。",
+      "version": "无法加载此版本。",
+      "restore": "无法恢复此版本。",
+      "diff": "无法比较这些版本。"
+    }
+  },
+  "move": {
+    "title": "移动到",
+    "search": "搜索页面…",
+    "empty": "没有匹配的页面。",
+    "failed": "无法将页面移到那里。",
+    "teamspaceHint": "此团队空间的顶层：其成员将获得访问权限",
+    "private": "私有",
+    "privateHint": "你的私有页面的顶层：只有与之分享的人才能访问"
+  },
+  "share": {
+    "tabShare": "分享",
+    "tabPublish": "发布",
+    "addPeople": "添加人员、用户组或邮箱",
+    "noMatches": "没有匹配的成员或用户组。",
+    "addPeopleOrAgents": "添加人员、用户组、智能体或邮箱",
+    "noMatchesWithAgents": "没有匹配的成员、用户组或智能体。",
+    "agentPaused": "智能体，已暂停",
+    "groupMembers": "{count, plural, =0 {没有成员的用户组} other {有 # 位成员的用户组}}",
+    "membersOnly": "你可以与工作区成员分享。此工作区不允许你与工作区之外的人分享。",
+    "guestHint": "输入完整的邮箱地址即可与工作区之外的人分享。对方将以访客身份加入，只能看到与其分享的页面。",
+    "shareWith": "与 {email} 分享",
+    "asGuest": "以访客身份加入",
+    "pending": "已邀请，尚未加入",
+    "cancelInvite": "取消邀请",
+    "invitedSent": "邀请已发送至 {email}。",
+    "invitedNoEmail": "已邀请 {email}，但无法发送邮件。请将邀请链接发给对方。",
+    "copyInvite": "复制邀请链接",
+    "you": "你",
+    "inherited": "来自 {title}",
+    "groupInherited": "用户组，来自 {title}",
+    "inheritedAbove": "来自上级页面",
+    "groupInheritedAbove": "用户组，来自上级页面",
+    "hiddenGroup": "某个用户组",
+    "group": "用户组",
+    "viaGeneral": "{level}（来自常规访问权限）",
+    "viaOwner": "{level}（作为所有者）",
+    "overridden": "常规访问权限更高（{level}），因此此设置无效。",
+    "remove": "移除",
+    "generalAccess": "常规访问权限",
+    "everyone": "工作区中的所有人",
+    "everyoneHint": "无论你单独给予成员什么权限，他们至少拥有此级别的访问权限。设为“无访问权限”可使页面仅对你添加的人开放。",
+    "everyoneIn": "{name} 中的所有人",
+    "everyoneTeamspace": "团队空间中的所有人",
+    "everyoneTeamspaceHint": "无论你单独给予团队空间成员什么权限，他们至少拥有此级别的访问权限。设为“无访问权限”可使页面仅对你添加的人开放。",
+    "readOnly": "只有拥有完全访问权限的人才能更改分享设置。",
+    "copyLink": "复制链接",
+    "copied": "已复制",
+    "loading": "正在加载…",
+    "requests": {
+      "heading": "申请",
+      "message": "“{message}”",
+      "level": "访问级别",
+      "approve": "分享",
+      "decline": "拒绝",
+      "outsider": "不在工作区中：分享后对方将以访客身份加入。",
+      "cantInvite": "不在工作区中，且此工作区不允许你与工作区之外的人分享。"
+    },
+    "levels": {
+      "full": "完全访问",
+      "edit": "可编辑",
+      "comment": "可评论",
+      "view": "可查看",
+      "none": "无访问权限"
+    },
+    "errors": {
+      "notMember": "此人不是工作区成员。",
+      "lastFullAccess": "必须有人保留对此页面的完全访问权限。请先给予其他人完全访问权限。",
+      "accessDenied": "你无法更改此页面的分享设置。",
+      "invalidEmail": "请输入有效的邮箱地址。",
+      "invitesRestricted": "此工作区不允许你与工作区之外的人分享页面。请询问所有者。",
+      "generic": "无法更新分享设置。",
+      "agentFullAccess": "智能体可以查看、评论或编辑页面，但永远不能获得完全访问权限。"
+    },
+    "everyoneFromTeamspaceHint": "由团队空间设定。团队空间所有者和工作区所有者拥有完全访问权限。在此选择一个级别，即可为此页面及其子页面单独设置。"
+  },
+  "noAccess": {
+    "metaTitle": "无访问权限",
+    "title": "你没有此页面的访问权限",
+    "description": "申请访问后，可以分享此页面的人会收到你的申请。",
+    "descriptionNoRequests": "请让发送链接给你的人与你分享此页面。",
+    "messageLabel": "留言（可选）",
+    "messagePlaceholder": "给可以分享此页面的人留言",
+    "request": "申请访问",
+    "sending": "正在发送…",
+    "sentTitle": "申请已发送",
+    "sentDescription": "有人与你分享此页面后，此链接即可打开它。",
+    "rateLimited": "你申请访问的次数过多。请稍后再试。",
+    "signedInAs": "你已登录为 {email}。",
+    "home": "前往你的工作区"
+  },
+  "embed": {
+    "label": "数据库",
+    "linkedLabel": "数据库的关联视图",
+    "unavailable": "此数据库不可用。它可能已被删除，或者你没有访问权限。",
+    "inTrash": "此数据库在回收站中。",
+    "creating": "正在创建数据库…",
+    "createFailed": "无法创建数据库：{error}",
+    "turnIntoDatabase": "转换为数据库",
+    "convertFailed": "无法将表格转换为数据库：{error}",
+    "tableTooLarge": "最多 {rows} 行、{columns} 列的表格才能转换为数据库。",
+    "open": "以页面打开",
+    "linked": "关联视图",
+    "layout": "布局",
+    "viewOnly": "只有能编辑此页面的人才能更改此视图。",
+    "picker": {
+      "title": "选择数据库",
+      "search": "搜索数据库",
+      "empty": "未找到数据库。",
+      "failed": "无法加载数据库。"
+    },
+    "slash": {
+      "database": {
+        "title": "数据库",
+        "subtext": "在此页面内新建数据库",
+        "aliases": "database db inline table 数据库 表格 内联"
+      },
+      "linkedView": {
+        "title": "数据库的关联视图",
+        "subtext": "用独立的视图显示现有数据库",
+        "aliases": "linked view database db 关联视图 数据库"
+      },
+      "dashboard": {
+        "title": "仪表板",
+        "subtext": "来自数据库的数字、图表和列表",
+        "aliases": "dashboard widgets kpi metrics charts numbers 仪表板 仪表盘 组件 指标 图表 数字"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "上标",
+    "subscript": "下标"
+  },
+  "find": {
+    "label": "在页面中查找",
+    "placeholder": "查找",
+    "replacePlaceholder": "替换为",
+    "noResults": "无结果",
+    "matchCase": "区分大小写",
+    "previous": "上一个匹配项（Shift+Enter）",
+    "next": "下一个匹配项（Enter）",
+    "showReplace": "显示替换",
+    "hideReplace": "隐藏替换",
+    "replace": "替换",
+    "replaceAll": "全部替换",
+    "close": "关闭（Esc）"
+  },
+  "template": {
+    "workspace": "这是一个模板。基于它创建的新页面会复制其内容和子页面。",
+    "row": "这是一个行模板。基于它创建的新行会获得其属性和内容。",
+    "inside": "此页面是模板的一部分。",
+    "use": "使用模板",
+    "confirmDelete": "要永久删除此模板吗？已基于它创建的页面会保持不变。"
+  },
+  "blocks": {
+    "callout": {
+      "title": "标注",
+      "subtext": "彩色背景上带图标的文本",
+      "aliases": "callout note tip warning alert box 标注 提示 注意 警告 提示框",
+      "icon": "更换图标"
+    },
+    "code": {
+      "language": "语言",
+      "plainText": "纯文本"
+    },
+    "math": {
+      "title": "公式",
+      "subtext": "用 TeX 编写的独立显示公式",
+      "aliases": "math equation latex tex katex formula 数学 公式 方程",
+      "placeholder": "添加 TeX 公式",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "公式有错误"
+    },
+    "inlineMath": {
+      "title": "行内公式",
+      "subtext": "文本中的公式",
+      "aliases": "inline math equation latex tex katex formula 行内公式 数学 公式",
+      "placeholder": "新公式",
+      "sourcePlaceholder": "x^2",
+      "error": "公式错误"
+    },
+    "mermaid": {
+      "title": "Mermaid 图表",
+      "subtext": "用文本绘制流程图、时序图等",
+      "aliases": "mermaid diagram flowchart chart graph sequence gantt 图表 流程图 时序图 甘特图",
+      "placeholder": "添加 Mermaid 图表",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "正在绘制图表…",
+      "error": "图表有错误",
+      "syntaxError": "语法错误",
+      "label": "图表"
+    },
+    "toc": {
+      "title": "目录",
+      "subtext": "指向此页面标题的链接",
+      "aliases": "toc table contents headings outline 目录 大纲 标题",
+      "label": "目录",
+      "empty": "为此页面添加标题后，它们会列在这里。"
+    },
+    "breadcrumb": {
+      "title": "面包屑",
+      "subtext": "以链接形式显示此页面的上级页面",
+      "aliases": "breadcrumb path parents location 面包屑 路径 位置",
+      "label": "面包屑"
+    },
+    "columns": {
+      "two": {
+        "title": "2 栏",
+        "subtext": "两栏并排的块",
+        "aliases": "columns column layout side 2 two 分栏 两栏 布局"
+      },
+      "three": {
+        "title": "3 栏",
+        "subtext": "三栏并排的块",
+        "aliases": "columns column layout side 3 three 分栏 三栏 布局"
+      },
+      "add": {
+        "title": "添加栏",
+        "subtext": "在此栏右侧新增一栏（最多 5 栏）",
+        "aliases": "column columns add new layout 添加栏 分栏 布局"
+      }
+    },
+    "pageLink": {
+      "title": "链接到页面",
+      "subtext": "指向另一个页面的链接，标题实时更新",
+      "aliases": "link page mention reference 链接 页面 提及 引用"
+    },
+    "colors": {
+      "group": "颜色",
+      "text": "{color}文字",
+      "background": "{color}背景",
+      "textDefault": "默认文字颜色",
+      "backgroundDefault": "无背景",
+      "textAliases": "color colour text font 颜色 文字 字体",
+      "backgroundAliases": "background highlight color colour 背景 高亮 颜色"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "网页书签",
+      "subtext": "以卡片形式显示的链接，包含标题和图片",
+      "aliases": "bookmark link url web card preview 书签 链接 网页 卡片 预览",
+      "placeholder": "粘贴要添加为书签的链接",
+      "submit": "添加书签",
+      "loading": "正在获取页面…",
+      "refresh": "刷新预览",
+      "label": "书签"
+    },
+    "embed": {
+      "title": "嵌入",
+      "subtext": "YouTube、Figma、Google Docs、地图等",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 嵌入 视频 地图",
+      "placeholder": "粘贴要嵌入的链接",
+      "submit": "嵌入",
+      "providers": "YouTube、Vimeo、Loom、Figma、已发布的 Google Docs、Sheets 和 Slides、CodePen、Spotify 和 Google Maps。其他链接会显示为书签。",
+      "frameTitle": "来自 {host} 的嵌入内容",
+      "label": "嵌入"
+    },
+    "paste": {
+      "label": "粘贴为",
+      "bookmark": "书签",
+      "embed": "嵌入",
+      "keep": "保留为链接"
+    },
+    "invalidUrl": "请输入网址，例如 https://example.com",
+    "errors": {
+      "accessDenied": "你无法编辑此页面。",
+      "rateLimited": "同时请求的链接预览过多。请一分钟后重试。",
+      "invalidUrl": "这不是一个网址。",
+      "blocked": "无法预览此地址。",
+      "unreachable": "无法访问该页面。",
+      "timeout": "该页面响应时间过长。",
+      "tooManyRedirects": "该页面重定向次数过多。",
+      "httpError": "该页面返回了错误。"
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} 过大。文件最大为 {limit}。",
+    "quotaExceeded": "{name} 未上传：此工作区已用完其 {limit} 的文件存储空间。",
+    "failed": "无法上传 {name}。"
+  },
+  "mention": {
+    "people": "人员",
+    "pages": "页面",
+    "dates": "日期",
+    "newPage": "新建页面：{title}",
+    "newPageHint": "在此页面内",
+    "today": "今天",
+    "tomorrow": "明天",
+    "yesterday": "昨天",
+    "nextWeek": "下周",
+    "noAccess": "无访问权限",
+    "deleted": "已删除的页面",
+    "loading": "正在加载…",
+    "personLeft": "{name}（已不在工作区中）",
+    "date": "日期",
+    "reminder": "提醒",
+    "remindNone": "不提醒",
+    "remindSameDay": "当天 9:00",
+    "remindDayBefore": "前一天 9:00",
+    "remindWeekBefore": "提前一周 9:00",
+    "reminderSet": "提醒：{when}",
+    "reminderHint": "你会在收件箱中和通过邮件收到提醒。",
+    "reminderPast": "该时间已过；请选择更晚的日期或提醒时间。",
+    "done": "完成"
+  },
+  "pageLinkPicker": {
+    "title": "链接到页面",
+    "search": "搜索页面…",
+    "empty": "未找到页面",
+    "failed": "无法加载页面。"
+  },
+  "backlinks": {
+    "title": "链接来源",
+    "count": "{count} 个页面链接到这里",
+    "unlinked": "未链接的提及 · {count}",
+    "unlinkedHint": "写有此页面标题但未链接到它的页面",
+    "link": "链接",
+    "linkLabel": "在 {title} 中链接该提及",
+    "linkFailed": "那里的标题已不再是纯文本。",
+    "locked": "该页面已锁定，因此无法更改。"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "在新标签页中打开",
+    "frameTitle": "PDF：{name}",
+    "noPreview": "此浏览器无法在这里显示 PDF。请打开文件阅读。"
+  },
+  "print": {
+    "print": "打印或另存为 PDF",
+    "back": "返回页面",
+    "includeSubpages": "包括子页面",
+    "preparing": "正在加载图片和图表…",
+    "hint": "在打印对话框中，选择“另存为 PDF”作为目标。",
+    "truncated": "仅包含前 {count} 个页面。",
+    "lastUpdated": "最后更新于 {date}",
+    "subpages": "页面",
+    "embedUnavailable": "此数据库对你不可用。"
+  },
+  "quickNote": {
+    "documentTitle": "快速笔记",
+    "heading": "快速笔记",
+    "description": "保存为只有你能看到的私有页面。之后你可以移动或分享它。",
+    "workspace": "工作区",
+    "title": "标题",
+    "body": "笔记",
+    "bodyPlaceholder": "写点什么，或粘贴一个链接",
+    "save": "保存笔记",
+    "shortcut": "新建快速笔记",
+    "shortcutShort": "快速笔记",
+    "destination": "保存到",
+    "privatePage": "私有页面"
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "empty": "此仪表板还没有组件。",
+    "emptyEditable": "在这里显示来自工作区数据库的数字、图表和列表。行发生变化时它们会保持最新。",
+    "add": "添加组件",
+    "full": "一个仪表板最多容纳 {max} 个组件。",
+    "menu": "组件选项",
+    "edit": "编辑",
+    "done": "完成",
+    "remove": "移除组件",
+    "moveBefore": "移到前面",
+    "moveAfter": "移到后面",
+    "width": "宽度",
+    "widths": {
+      "1": "四分之一宽度",
+      "2": "一半宽度",
+      "3": "四分之三宽度",
+      "4": "全宽"
+    },
+    "color": "颜色",
+    "colorNone": "无颜色",
+    "titleLabel": "组件标题",
+    "titlePlaceholder": "标题（留空则使用数据库名称）",
+    "unavailable": "你无权访问这些数据。",
+    "inTrash": "此数据库在回收站中。",
+    "loadFailed": "无法加载此组件。",
+    "retry": "重试",
+    "noGroup": "此数据库还没有可用于分组的内容：请添加单选、状态或日期属性。",
+    "more": "还有 {count} 行",
+    "rows": "{count} 行",
+    "byGroup": "按 {property}",
+    "filters": "{count} 个筛选条件",
+    "updatedNow": "刚刚更新",
+    "updated": "更新于 {time}"
+  },
+  "voiceNote": {
+    "record": "录制语音笔记",
+    "recording": "正在录音",
+    "stop": "停止并整理",
+    "discard": "放弃",
+    "cancel": "取消",
+    "retry": "重新插入",
+    "close": "关闭",
+    "limit": "最长 {minutes} 分钟",
+    "chooseFile": "或选择音频文件",
+    "transcribing": "正在记录你说的话…",
+    "writing": "AI 正在撰写笔记…",
+    "autoStopped": "录音已在 {minutes} 分钟的上限处停止。",
+    "review": "这条笔记是 AI 根据你的录音撰写的。保存前请检查。",
+    "notRewritten": "AI 无法整理这段录音，因此笔记内容为原始转写文本。",
+    "transcriptKept": "转写文本保存在笔记下方。",
+    "propertiesPicked": "已根据笔记填写了 {count} 个属性。",
+    "transcriptToggle": "转写文本",
+    "shortcut": "新建语音笔记",
+    "shortcutShort": "语音笔记",
+    "dialogTitle": "语音笔记",
+    "dialogDescription": "说话即可，AI 会在这里写出一条整洁的笔记。转写文本放在其下方。",
+    "slashTitle": "语音笔记",
+    "slashSubtext": "说话即可，AI 会在这里整理成文字",
+    "slashAliases": "voice audio record dictate speech microphone transcribe 语音 录音 听写 麦克风 转写",
+    "errors": {
+      "unsupported": "此浏览器无法录音。请改为选择音频文件。",
+      "insecure": "录音需要安全（https）连接。请改为选择音频文件。",
+      "denied": "Leafdesk 无权使用麦克风。请在浏览器的网站设置中允许后重试。",
+      "noDevice": "未找到麦克风。",
+      "failed": "无法开始录音。请重试。",
+      "fileType": "不支持此类音频文件。",
+      "fileTooLarge": "录音最大为 {max}。",
+      "disabled": "此工作区无法使用语音笔记。",
+      "noAccess": "你无法在这里添加笔记。",
+      "tooLarge": "录音过大。录音最大为 {max}。",
+      "rateLimited": "AI 请求过多。请稍后重试。",
+      "timeout": "转写录音用时过长。请重试，或录制一段更短的笔记。",
+      "aborted": "已取消。",
+      "provider": "无法转写录音。请稍后重试，或请管理员检查语音转文字设置。",
+      "empty": "录音中没有听到任何内容。请靠近麦克风重试。",
+      "invalid": "无法读取录音。请重试。",
+      "interrupted": "处理过程中服务器重启了。请重试。",
+      "insert": "无法将笔记添加到页面。"
+    }
+  },
+  "review": {
+    "bar": "{count} 处 AI 更改待审阅",
+    "by": "由 {names}",
+    "open": "审阅",
+    "keepAll": "全部保留",
+    "undoAll": "全部撤销",
+    "keep": "保留",
+    "undo": "撤销",
+    "title": "审阅 AI 更改",
+    "hint": "逐一保留或撤销每处更改。“全部撤销”会先将页面当前状态保存到历史记录中。",
+    "stale": "页面在此期间发生了变化：以下是当前的更改情况。",
+    "failed": "操作未成功。请重试。"
+  }
+}

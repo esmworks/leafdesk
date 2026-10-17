@@ -51,7 +51,7 @@ export function IconPicker({
                 onChange(null);
                 close();
               }}
-              className="mt-1 w-full rounded px-2 py-1.5 text-left text-sm text-fg-muted hover:bg-bg-hover"
+              className="mt-1 w-full rounded px-2 py-1.5 text-start text-sm text-fg-muted hover:bg-bg-hover"
             >
               {t("remove")}
             </button>

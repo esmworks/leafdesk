@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Osoby",
+  "heading": "Osoby",
+  "description": "Właściciele i członkowie tego obszaru roboczego wraz z ich przestrzeniami zespołów, grupami i ostatnio edytowanymi stronami. Goście nie są wymienieni.",
+  "search": "Szukaj według imienia, e-maila, przestrzeni zespołu lub grupy",
+  "count": "{count, plural, one {# osoba} few {# osoby} many {# osób} other {# osoby}}",
+  "noMatches": "Nikt nie pasuje do wyszukiwania.",
+  "you": "(ty)",
+  "teamspaces": "Przestrzenie zespołów",
+  "groups": "Grupy",
+  "recentPages": "Ostatnio edytowane",
+  "none": "Brak",
+  "noRecentPages": "Brak ostatnich zmian, które możesz otworzyć."
+}

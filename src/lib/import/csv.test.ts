@@ -124,6 +124,22 @@ describe("values", () => {
     expect(parseCheckbox("maybe")).toBeNull();
   });
 
+  it("reads checkboxes in the other interface languages, in any script", () => {
+    expect(parseCheckbox("ДА")).toBe(true);
+    expect(parseCheckbox("Нет")).toBe(false);
+    expect(parseCheckbox("Tak")).toBe(true);
+    expect(parseCheckbox("NIE")).toBe(false);
+    expect(parseCheckbox("Não")).toBe(false);
+    expect(parseCheckbox("نعم")).toBe(true);
+    expect(parseCheckbox("לא")).toBe(false);
+    expect(parseCheckbox("خیر")).toBe(false);
+    // With the Arabic ye it is "good", not "no".
+    expect(parseCheckbox("خير")).toBeNull();
+    expect(parseCheckbox("はい")).toBe(true);
+    expect(parseCheckbox("아니요")).toBe(false);
+    expect(parseCheckbox("否")).toBe(false);
+  });
+
   it("reads dates in each format and refuses impossible ones", () => {
     expect(parseDate("2026-09-28", "iso")).toBe("2026-09-28");
     expect(parseDate("2026-09-28T10:00:00.000Z", "iso")).toBe("2026-09-28T10:00:00.000Z");
@@ -196,6 +212,12 @@ describe("guessColumn", () => {
     expect(guessTitleColumn(["Id", "Título", "Etiquetas"])).toBe(1);
     expect(guessTitleColumn(["Id", "TITRE"])).toBe(1);
     expect(guessTitleColumn(["Kod", "Başlık"])).toBe(1);
+    expect(guessTitleColumn(["Id", "НАЗВАНИЕ"])).toBe(1);
+    expect(guessTitleColumn(["Id", "ІМʼЯ"])).toBe(1);
+    expect(guessTitleColumn(["Kod", "Tytuł"])).toBe(1);
+    expect(guessTitleColumn(["رقم", "الاسم"])).toBe(1);
+    expect(guessTitleColumn(["ID", "名前"])).toBe(1);
+    expect(guessTitleColumn(["번호", "제목"])).toBe(1);
     expect(guessTitleColumn(["Id", "Tags"])).toBe(0);
   });
 });

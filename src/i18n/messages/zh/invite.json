@@ -1,0 +1,13 @@
+{
+  "metaTitle": "邀请",
+  "title": "加入“{workspace}”",
+  "invalidTitle": "未找到邀请",
+  "invalidBody": "此邀请链接无效、已过期或已被取消。请向邀请你的人索取新的链接。",
+  "home": "前往 Leafdesk",
+  "wrongAccount": "此邀请发给的是 {email}，但你当前登录的是 {current}。请退出登录后重新打开链接。",
+  "acceptBody": "你受邀以{role}身份加入。",
+  "signInBody": "已有账户使用 {email}。请登录以接受邀请。",
+  "signIn": "登录",
+  "join": "加入工作区",
+  "joining": "正在加入…"
+}

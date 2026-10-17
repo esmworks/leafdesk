@@ -34,14 +34,14 @@ export function PeopleDirectory({
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative min-w-0 flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+          <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
           <Input
             type="search"
             aria-label={t("search")}
             placeholder={t("search")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-7"
+            className="w-full ps-7"
           />
         </div>
         <span className="text-sm text-fg-muted" aria-live="polite">

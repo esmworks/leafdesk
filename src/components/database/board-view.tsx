@@ -28,6 +28,7 @@ import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { openRowProps, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
+import { isRtl } from "@/components/direction";
 import { useToday } from "./use-today";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -141,9 +142,11 @@ export function BoardView({
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     const cols = [...e.currentTarget.querySelectorAll<HTMLElement>("[data-col]")];
+    // Columns run from the right when the page does.
+    const rtl = isRtl(e.currentTarget);
     let index = cols.findIndex((el) => {
       const r = el.getBoundingClientRect();
-      return e.clientX < r.left + r.width / 2;
+      return (e.clientX < r.left + r.width / 2) !== rtl;
     });
     if (index === -1) index = cols.length;
     if (index !== colDrop) setColDrop(index);
@@ -272,8 +275,8 @@ export function BoardView({
                   dragCol === key && "opacity-50",
                 )}
               >
-                {lineAt === i && <ColumnDropLine side="left" />}
-                {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="right" />}
+                {lineAt === i && <ColumnDropLine side="start" />}
+                {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="end" />}
                 <header
                   draggable={!readOnly && renaming !== key}
                   title={readOnly ? undefined : t("board.moveColumn")}
@@ -474,7 +477,7 @@ function GroupMenu({
                   key={color}
                   type="button"
                   onClick={run(() => color !== option.color && onColor(color))}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                 >
                   <span className={cn(`opt-${color}`, "h-4 w-4 rounded border border-fg/10")} />
                   <span className="flex-1">{tColor(color)}</span>
@@ -516,11 +519,11 @@ function GroupNameInput({ initial, onDone }: { initial: string; onDone: (name: s
   );
 }
 
-function ColumnDropLine({ side }: { side: "left" | "right" }) {
+function ColumnDropLine({ side }: { side: "start" | "end" }) {
   return (
     <div
       aria-hidden
-      className={cn("absolute inset-y-0 w-0.5 rounded bg-accent", side === "left" ? "-left-[7px]" : "-right-[7px]")}
+      className={cn("absolute inset-y-0 w-0.5 rounded bg-accent", side === "start" ? "-inset-s-[7px]" : "-inset-e-[7px]")}
     />
   );
 }
@@ -640,7 +643,7 @@ function Card({
       {editTitle ? (
         <CardTitleInput initial={typed || row.title} onDone={onTitle} />
       ) : (
-        <div className="flex gap-1.5 pr-6 text-sm leading-5 font-medium">
+        <div className="flex gap-1.5 pe-6 text-sm leading-5 font-medium">
           {row.icon && <span className="shrink-0">{row.icon}</span>}
           <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint")}>
             {pageLabel(row.title, tc("untitled"))}
@@ -657,7 +660,7 @@ function Card({
         </div>
       )}
       {!readOnly && !editTitle && (
-        <div className="absolute top-1.5 right-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute top-1.5 inset-e-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             ref={menu.ref}
             type="button"

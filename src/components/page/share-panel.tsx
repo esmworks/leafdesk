@@ -230,7 +230,7 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                     setQuery("");
                     void run(() => setPagePermissionAction(pageId, m.userId, addLevel(m.userId)));
                   }}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                 >
                   <Avatar name={m.name} image={m.image} />
                   <PersonLabel name={m.name} detail={m.email} />
@@ -244,7 +244,7 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                     setQuery("");
                     void run(() => setPageGroupPermissionAction(pageId, g.groupId, "edit"));
                   }}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                 >
                   <GroupAvatar />
                   <PersonLabel name={g.name} detail={t("groupMembers", { count: g.memberCount })} />
@@ -259,7 +259,7 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                     // As in the agent's settings, an agent starts by viewing; its row raises it.
                     void run(() => setPagePermissionAction(pageId, a.userId, "view"));
                   }}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                 >
                   <AgentAvatar icon={a.icon} />
                   <PersonLabel name={a.name} detail={a.enabled ? tc("agent") : t("agentPaused")} />
@@ -269,7 +269,7 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
                 <button
                   type="button"
                   onClick={() => shareByEmail(typedEmail)}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-bg-hover text-fg-muted">
                     <Send className="h-3.5 w-3.5" />
@@ -519,10 +519,10 @@ function AccessRequestRow({
         </div>
       </div>
       {request.message && (
-        <p className="mt-1 ml-9 text-sm break-words whitespace-pre-line text-fg-muted">{t("requests.message", { message: request.message })}</p>
+        <p className="mt-1 ms-9 text-sm break-words whitespace-pre-line text-fg-muted">{t("requests.message", { message: request.message })}</p>
       )}
-      {note && <p className="mt-1 ml-9 text-xs text-fg-faint">{note}</p>}
-      <div className="mt-1.5 ml-9 flex flex-wrap items-center gap-1.5">
+      {note && <p className="mt-1 ms-9 text-xs text-fg-faint">{note}</p>}
+      <div className="mt-1.5 ms-9 flex flex-wrap items-center gap-1.5">
         <select
           value={level}
           aria-label={t("requests.level")}

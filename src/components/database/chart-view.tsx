@@ -161,7 +161,7 @@ export function NumberFigure({
       type="button"
       aria-label={openLabel}
       onClick={(e) => onOpen(e.currentTarget)}
-      className="block max-w-full min-w-0 rounded-md py-1 text-left outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-accent"
+      className="block max-w-full min-w-0 rounded-md py-1 text-start outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-accent"
     >
       {figure}
     </button>
@@ -561,8 +561,9 @@ function Columns({ data, handlers, segment, colorOf, tick, show, nameOf, width, 
   // Every label gets the band it sits in; past that, every k-th label shows (the tooltip names all).
   const every = Math.max(1, Math.ceil(44 / band));
 
+  // Plots are drawn in screen coordinates, so their axes run left to right in every language.
   return (
-    <div className="overflow-x-auto">
+    <div dir="ltr" className="overflow-x-auto">
       <svg width={svgW} height={height} role="group" aria-labelledby={titleId} className="block text-fg-muted" style={{ fontSize: FONT }}>
         <Grid ticks={ticks} tick={tick} y={y} left={left} right={svgW - 8} />
         {data.groups.map((g, i) => {
@@ -645,7 +646,7 @@ function HorizontalBars({
   const single = !stacked && !data.groups.some((g) => g.value.kind === "option" || g.value.kind === "status_group");
 
   return (
-    <svg width={width} height={height} role="group" aria-labelledby={titleId} className="block text-fg-muted" style={{ fontSize: FONT }}>
+    <svg width={width} height={height} role="group" aria-labelledby={titleId} className="block text-fg-muted" style={{ fontSize: FONT, direction: "ltr" }}>
       {ticks.map((v) => (
         <g key={v}>
           <line x1={x(v)} x2={x(v)} y1={top} y2={height - bottom} stroke="var(--chart-grid)" />
@@ -730,7 +731,7 @@ function Line({ data, handlers, tick, show, nameOf, width, measure, showValues, 
   const path = (run: number[]) => run.map((i, k) => `${k ? "L" : "M"}${cx(i)},${y(data.groups[i].amount)}`).join("");
 
   return (
-    <div className="overflow-x-auto">
+    <div dir="ltr" className="overflow-x-auto">
       <svg width={svgW} height={height} role="group" aria-labelledby={titleId} className="block text-fg-muted" style={{ fontSize: FONT }}>
         <Grid ticks={ticks} tick={tick} y={y} left={left} right={svgW - 8} />
         <line x1={left} x2={svgW - 8} y1={zero} y2={zero} stroke="var(--chart-axis)" />
@@ -802,7 +803,7 @@ function Donut({
 
   return (
     <div className={cn("flex gap-6", side ? "flex-row items-center" : "flex-col items-center")}>
-      <svg width={size} height={size} role="group" aria-labelledby={titleId} className="block shrink-0" style={{ fontSize: FONT }}>
+      <svg width={size} height={size} role="group" aria-labelledby={titleId} className="block shrink-0" style={{ fontSize: FONT, direction: "ltr" }}>
         <circle cx={c} cy={c} r={(r0 + r1) / 2} fill="none" stroke="var(--chart-grid)" strokeWidth={r1 - r0} />
         {slices.map(({ g, start, end }) =>
           end - start > 0 ? (
@@ -839,13 +840,13 @@ function Donut({
                 onMouseEnter={(e) => pointAt({ group: g }, e.currentTarget)}
                 onMouseLeave={clearHover}
                 onClick={(e) => openRows({ group: g }, e.currentTarget)}
-                className="flex w-full min-w-0 items-center gap-2 rounded px-1.5 py-0.5 text-left hover:bg-bg-hover"
+                className="flex w-full min-w-0 items-center gap-2 rounded px-1.5 py-0.5 text-start hover:bg-bg-hover"
               >
                 <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: colorOf(g.value, g.slot, g.other, false) }} />
                 <span className="min-w-0 flex-1 truncate">{nameOf(g)}</span>
                 {showValues && <span className="shrink-0 tabular-nums text-fg-muted">{show(g.result)}</span>}
                 {sliced > 0 && (
-                  <span className="w-12 shrink-0 text-right tabular-nums text-fg-faint">
+                  <span className="w-12 shrink-0 text-end tabular-nums text-fg-faint">
                     {format.number(share, { style: "percent", maximumFractionDigits: 0 })}
                   </span>
                 )}
@@ -966,7 +967,7 @@ function GroupRows({
                     <span className={cn("truncate", !row.title && "text-fg-faint")}>{pageLabel(row.title, tc("untitled"))}</span>
                   </span>
                   {chips.length > 0 && (
-                    <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 pl-6 text-xs text-fg-muted">
+                    <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 ps-6 text-xs text-fg-muted">
                       {chips.map((p) => (
                         <span key={p.id} className="flex min-w-0 items-center" title={p.name}>
                           <RowValue prop={p} row={row} />

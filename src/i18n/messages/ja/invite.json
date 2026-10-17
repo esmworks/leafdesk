@@ -1,0 +1,13 @@
+{
+  "metaTitle": "招待",
+  "title": "「{workspace}」に参加",
+  "invalidTitle": "招待が見つかりません",
+  "invalidBody": "この招待リンクは無効か、期限切れか、取り消されています。招待した人に新しいリンクを依頼してください。",
+  "home": "Leafdeskに移動",
+  "wrongAccount": "この招待は{email}宛てですが、{current}としてログインしています。ログアウトしてから、もう一度リンクを開いてください。",
+  "acceptBody": "{role}として参加するよう招待されています。",
+  "signInBody": "{email}はすでにアカウントで使われています。ログインして招待を承諾してください。",
+  "signIn": "ログイン",
+  "join": "ワークスペースに参加",
+  "joining": "参加中…"
+}

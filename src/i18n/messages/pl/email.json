@@ -1,0 +1,215 @@
+{
+  "footer": "Ten e-mail został wysłany przez Leafdesk pod adresem {appUrl}.",
+  "actionFallback": "Jeśli przycisk nie działa, wklej ten link do przeglądarki:",
+  "test": {
+    "subject": "Testowy e-mail z Leafdesk",
+    "heading": "Wysyłanie e-maili działa",
+    "body": "To jest wiadomość testowa z twojego serwera Leafdesk pod adresem {appUrl}. Jeśli możesz ją przeczytać, poczta e-mail jest skonfigurowana prawidłowo."
+  },
+  "invitation": {
+    "subject": "{inviter} zaprasza cię do „{workspace}” w Leafdesk",
+    "heading": "Dołącz do „{workspace}”",
+    "body": "{inviter} zaprasza cię do dołączenia do „{workspace}” w Leafdesk z rolą: {role}.",
+    "expires": "Link jest ważny przez 7 dni. Aby przyjąć zaproszenie, zarejestruj się adresem {email}.",
+    "action": "Przyjmij zaproszenie",
+    "roles": {
+      "owner": "właściciel",
+      "member": "członek",
+      "guest": "gość"
+    }
+  },
+  "passwordReset": {
+    "subject": "Zresetuj hasło do Leafdesk",
+    "heading": "Zresetuj hasło",
+    "body": "Cześć, {name}! Otrzymaliśmy prośbę o zresetowanie hasła do twojego konta Leafdesk. Jeśli to ty, wybierz nowe hasło za pomocą przycisku poniżej.",
+    "expires": "Link jest ważny przez {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}} i tylko jeden raz. Jeśli to nie ty, zignoruj ten e-mail; twoje hasło pozostanie bez zmian.",
+    "action": "Wybierz nowe hasło"
+  },
+  "assignment": {
+    "subject": "{actor} przypisuje cię do „{row}”",
+    "heading": "Przypisano cię do „{row}”",
+    "body": "{actor} dodaje cię do „{property}” w bazie danych {database}.",
+    "bodyHidden": "{actor} dodaje cię do „{property}”.",
+    "action": "Otwórz",
+    "untitled": "Bez tytułu",
+    "someone": "Ktoś",
+    "optOut": "Te e-maile możesz wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "share": {
+    "subject": "{actor} udostępnia ci „{page}”",
+    "heading": "{actor} udostępnia ci stronę",
+    "body": "Możesz teraz {level} „{page}” w obszarze roboczym {workspace}.",
+    "levels": {
+      "view": "wyświetlać",
+      "comment": "wyświetlać i komentować",
+      "edit": "edytować",
+      "full": "wyświetlać, edytować i udostępniać"
+    },
+    "action": "Otwórz stronę",
+    "untitled": "Bez tytułu",
+    "optOut": "Te e-maile możesz wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "comment": {
+    "subject": "{actor} komentuje „{page}”",
+    "heading": "{actor} komentuje „{page}”",
+    "quote": "„{text}”",
+    "body": "Komentarz jest na stronie „{page}” w obszarze roboczym {workspace}. Odpowiedz na niego lub go rozwiąż na stronie.",
+    "action": "Otwórz stronę",
+    "optOut": "Otrzymujesz te e-maile, ponieważ uczestniczysz w tym wątku komentarzy. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "mention": {
+    "subject": "{actor} wspomina o tobie na stronie „{page}”",
+    "heading": "{actor} wspomina o tobie na stronie „{page}”",
+    "body": "Wzmianka jest na stronie „{page}” w obszarze roboczym {workspace}.",
+    "action": "Otwórz stronę",
+    "someone": "Ktoś",
+    "optOut": "Otrzymujesz te e-maile, ponieważ ktoś o tobie wspomniał. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "reminder": {
+    "subject": "Przypomnienie: {date} na stronie „{page}”",
+    "heading": "Przypomnienie: {date}",
+    "body": "Ustawiono przypomnienie o dacie {date} na stronie „{page}” w obszarze roboczym {workspace}.",
+    "action": "Otwórz stronę",
+    "optOut": "Otrzymujesz te e-maile, ponieważ ustawiono przypomnienie. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "dateReminder": {
+    "subject": "Przypomnienie: „{page}”, {date}",
+    "heading": "„{page}”: {date}",
+    "body": "„{page}” w bazie danych {database} ({workspace}) ma {property}: {date}.",
+    "bodyHidden": "„{page}” ({workspace}) ma {property}: {date}.",
+    "action": "Otwórz wiersz",
+    "optOut": "Otrzymujesz te e-maile, ponieważ baza danych {database} przypomina osobom przypisanym do jej wierszy. Przypomnienia możesz wyłączyć w sekcji Moje konto > Preferencje.",
+    "optOutHidden": "Otrzymujesz te e-maile, ponieważ baza danych tego wiersza przypomina osobom przypisanym do jej wierszy. Przypomnienia możesz wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "automation": {
+    "subject": "Automatyzacja „{automation}”: „{page}”",
+    "heading": "Automatyzacja „{automation}” powiadamia cię o „{page}”",
+    "body": "{actor} dodaje lub zmienia „{page}” w bazie danych {database} ({workspace}).",
+    "bodyHidden": "{actor} dodaje lub zmienia „{page}” ({workspace}).",
+    "bodyDatePassed": "„{page}” w bazie danych {database} ({workspace}) osiągnął datę, na którą czeka ta automatyzacja.",
+    "bodyDatePassedHidden": "„{page}” ({workspace}) osiągnął datę, na którą czeka ta automatyzacja.",
+    "action": "Otwórz wiersz",
+    "someone": "Ktoś",
+    "optOut": "Otrzymujesz te e-maile, ponieważ powiadamia cię automatyzacja bazy danych. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "accessRequest": {
+    "subject": "{requester} prosi o dostęp do „{page}”",
+    "heading": "{requester} prosi o dostęp do „{page}”",
+    "body": "{requester} ({email}) chce otworzyć „{page}” w obszarze roboczym {workspace}.",
+    "message": "Wiadomość: „{message}”",
+    "answer": "Udostępnij stronę tej osobie, wybierając, co może robić, albo odrzuć prośbę. Możesz odpowiedzieć ze skrzynki odbiorczej lub przez Udostępnij na stronie.",
+    "action": "Otwórz stronę",
+    "optOut": "Otrzymujesz te e-maile, ponieważ masz pełny dostęp do tej strony. Możesz je wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "accessApproved": {
+    "subject": "Możesz teraz otworzyć „{page}”",
+    "heading": "{actor} zatwierdza twoją prośbę",
+    "body": "Możesz teraz {level} „{page}” w obszarze roboczym {workspace}.",
+    "action": "Otwórz stronę"
+  },
+  "accessDeclined": {
+    "subject": "Twoja prośba o dostęp została odrzucona",
+    "heading": "Twoja prośba została odrzucona",
+    "body": "Twoja prośba o dostęp do tej strony została odrzucona: {link}",
+    "hint": "Jeśli nadal potrzebujesz dostępu, zapytaj osobę, która przesłała ci link."
+  },
+  "emailChange": {
+    "subject": "Potwierdź nowy adres e-mail",
+    "heading": "Potwierdź nowy adres e-mail",
+    "body": "Cześć, {name}! Otrzymaliśmy prośbę o używanie tego adresu dla twojego konta Leafdesk zamiast {old}. Potwierdź go za pomocą przycisku poniżej.",
+    "expires": "Link jest ważny przez {hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godziny}} i tylko jeden raz. Jeśli to nie ty, zignoruj ten e-mail; nic się nie zmieni.",
+    "action": "Potwierdź adres e-mail"
+  },
+  "emailChanged": {
+    "subject": "Adres e-mail twojego konta Leafdesk został zmieniony",
+    "heading": "Twój adres e-mail został zmieniony",
+    "body": "Cześć, {name}! Adres e-mail twojego konta Leafdesk został zmieniony z {old} na {new}. Od teraz loguj się nowym adresem.",
+    "warning": "Jeśli to nie ty wprowadzasz tę zmianę, natychmiast skontaktuj się z właścicielem swojego obszaru roboczego."
+  },
+  "passwordChanged": {
+    "subject": "Hasło do Leafdesk zostało zmienione",
+    "heading": "Twoje hasło zostało zmienione",
+    "body": "Cześć, {name}! Hasło do twojego konta Leafdesk zostało właśnie zmienione.",
+    "warning": "Jeśli to nie ty wprowadzasz tę zmianę, zresetuj hasło na stronie logowania i skontaktuj się z właścicielem swojego obszaru roboczego."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} prosi o dołączenie do „{workspace}”",
+      "heading": "{asker} prosi o dołączenie",
+      "body": "{asker} ({email}) prosi o dołączenie do „{workspace}” w Leafdesk. Zatwierdź lub odrzuć prośbę w sekcji Ustawienia > Członkowie."
+    },
+    "invite": {
+      "subject": "{asker} prosi o zaproszenie {email} do „{workspace}”",
+      "heading": "Członek prosi o zaproszenie kogoś",
+      "body": "{asker} chce zaprosić {email} do „{workspace}” w Leafdesk. Zaproszenie zostanie wysłane, gdy zatwierdzi je właściciel."
+    },
+    "action": "Przejrzyj prośby",
+    "optOut": "Te e-maile możesz wyłączyć w sekcji Moje konto > Preferencje."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Dołączono do „{workspace}”",
+      "heading": "Witaj w „{workspace}”",
+      "body": "Właściciel zatwierdził twoją prośbę o dołączenie do „{workspace}” w Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "Twoja prośba o dołączenie do „{workspace}”",
+      "heading": "Twoja prośba nie została zatwierdzona",
+      "body": "Właściciel „{workspace}” odrzucił twoją prośbę o dołączenie. Możesz poprosić jednego z właścicieli o zaproszenie."
+    },
+    "inviteApproved": {
+      "subject": "Zaproszono {email} do „{workspace}”",
+      "heading": "Twoje zaproszenie zostało wysłane",
+      "body": "Właściciel zatwierdził twoją prośbę i zaproszenie do „{workspace}” w Leafdesk zostało wysłane na adres {email}."
+    },
+    "inviteDeclined": {
+      "subject": "Twoja prośba o zaproszenie {email}",
+      "heading": "Twoja prośba nie została zatwierdzona",
+      "body": "Właściciel „{workspace}” odrzucił twoją prośbę o zaproszenie {email}."
+    },
+    "action": "Otwórz Leafdesk"
+  },
+  "verification": {
+    "subject": "Zweryfikuj adres e-mail w Leafdesk",
+    "heading": "Zweryfikuj adres e-mail",
+    "body": "Cześć, {name}! Potwierdź, że ten adres należy do ciebie, za pomocą przycisku poniżej.",
+    "ignore": "Jeśli nie zakładasz konta w Leafdesk, możesz zignorować ten e-mail.",
+    "action": "Zweryfikuj adres e-mail"
+  },
+  "passwordResetRequired": {
+    "subject": "Wybierz nowe hasło do Leafdesk",
+    "heading": "Wybierz nowe hasło",
+    "body": "Cześć, {name}! Administrator tego serwera Leafdesk prosi cię o wybranie nowego hasła. Stare hasło nie pozwala już się zalogować.",
+    "expires": "Link jest ważny przez {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}} i tylko jeden raz. Ponowne zalogowanie się starym hasłem wyśle nowy link.",
+    "action": "Wybierz nowe hasło"
+  },
+  "push": {
+    "assignment": "{actor} przypisuje cię do „{property}”",
+    "pageShared": "{actor} udostępnia ci tę stronę",
+    "comment": "{actor} komentuje w wątku, w którym uczestniczysz",
+    "mention": "{actor} wspomina o tobie",
+    "reminder": "Przypomnienie: {date}",
+    "accessRequest": "{actor} prosi o dostęp do tej strony",
+    "automation": "Automatyzacja „{name}”: {actor} dodaje lub zmienia ten wiersz",
+    "automationDatePassed": "Automatyzacja „{name}”: nadeszła data tego wiersza",
+    "someone": "Ktoś",
+    "joinRequestTitle": "Prośba o dołączenie",
+    "joinRequest": "{actor} prosi o dołączenie",
+    "inviteRequest": "{actor} prosi o zaproszenie {email}",
+    "approvalTitle": "{agent} prosi o zgodę",
+    "approval": "Chce wywołać „{tool}” w połączeniu {connection}",
+    "memoryTitle": "{agent} chce coś zapamiętać",
+    "memory": "{count, plural, one {Proponuje notatkę do swojej pamięci} few {Proponuje # notatki do swojej pamięci} many {Proponuje # notatek do swojej pamięci} other {Proponuje # notatki do swojej pamięci}}",
+    "reportTitle": "Raport od: {agent}",
+    "reportDone": "Zaplanowane uruchomienie zakończyło się",
+    "reportFailed": "Zaplanowane uruchomienie nie powiodło się",
+    "untitled": "Bez tytułu",
+    "snooze": "Odłóż o 1 godzinę"
+  },
+  "workspaceDeleted": {
+    "subject": "Obszar roboczy {workspace} został usunięty",
+    "heading": "Obszar roboczy {workspace} został usunięty",
+    "body": "Cześć, {name}! Obszar roboczy Leafdesk {workspace} został usunięty wraz ze wszystkimi stronami, bazami danych i plikami (usunięcie: {by}). Nie możesz go już otworzyć.",
+    "note": "Usuniętych obszarów roboczych nie można przywrócić. Jeśli się tego nie spodziewasz, porozmawiaj z: {by} lub innym właścicielem obszaru roboczego."
+  }
+}

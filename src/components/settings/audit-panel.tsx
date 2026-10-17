@@ -140,16 +140,16 @@ export async function AuditPanel({
               <table className="w-full min-w-[720px] text-sm">
                 <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
                   <tr>
-                    <th scope="col" className="w-40 px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="w-40 px-4 py-2.5 text-start font-normal">
                       {t("columns.time")}
                     </th>
-                    <th scope="col" className="w-52 px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="w-52 px-4 py-2.5 text-start font-normal">
                       {t("columns.actor")}
                     </th>
-                    <th scope="col" className="px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="px-4 py-2.5 text-start font-normal">
                       {t("columns.event")}
                     </th>
-                    <th scope="col" className="w-40 px-4 py-2.5 text-left font-normal">
+                    <th scope="col" className="w-40 px-4 py-2.5 text-start font-normal">
                       {t("columns.source")}
                     </th>
                   </tr>

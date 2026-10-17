@@ -186,7 +186,7 @@ export function FormFill<P extends FormProperty>({
                 </label>
               )}
               {q.description && (
-                <p id={`${inputId}-help`} className={cn("mt-0.5 text-xs whitespace-pre-wrap text-fg-muted", inline && "pl-[26px]")}>
+                <p id={`${inputId}-help`} className={cn("mt-0.5 text-xs whitespace-pre-wrap text-fg-muted", inline && "ps-[26px]")}>
                   {q.description}
                 </p>
               )}
@@ -209,7 +209,7 @@ export function FormFill<P extends FormProperty>({
       {honeypot && (
         // People never see or reach this field; bots that fill in every input do. Its name says
         // nothing browsers autofill, and password managers are told to leave it alone.
-        <div aria-hidden className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute -inset-s-[10000px] h-px w-px overflow-hidden">
           <label>
             {t("form.fill.honeypot")}
             <input
@@ -248,7 +248,7 @@ function RequiredMark({ required }: { required: boolean }) {
   if (!required) return null;
   return (
     <>
-      <span aria-hidden className="ml-0.5 text-danger">
+      <span aria-hidden className="ms-0.5 text-danger">
         *
       </span>
       <span className="sr-only"> ({t("requiredMark")})</span>

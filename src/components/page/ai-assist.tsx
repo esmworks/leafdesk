@@ -37,6 +37,7 @@ import { cn } from "@/components/ui";
 import { AI_LANGUAGES, isAiErrorCode, type EditorAction } from "@/lib/ai";
 import { CALLOUT_BLOCK } from "@/lib/content-blocks";
 import type { PageEditor } from "./embed-blocks";
+import { isRtl } from "@/components/direction";
 
 type AnyBlock = PageEditor["document"][number];
 
@@ -285,7 +286,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
         type="button"
         role="menuitem"
         onClick={onClick}
-        className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-fg hover:bg-bg-hover"
+        className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm text-fg hover:bg-bg-hover"
       >
         <span className="flex h-4 w-4 items-center justify-center text-fg-muted">{icon}</span>
         {t(`assistant.actions.${key}`)}
@@ -335,7 +336,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
                 className="h-7 min-w-0 flex-1 bg-transparent outline-none placeholder:text-fg-faint"
               />
               <PanelIconButton label={t("assistant.send")} type="submit" disabled={!instruction.trim()}>
-                <SendHorizontal className="h-3.5 w-3.5" />
+                <SendHorizontal className="h-3.5 w-3.5 rtl:-scale-x-100" />
               </PanelIconButton>
             </form>
             <div role="menu" className="p-1">
@@ -357,7 +358,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
           <div className="p-1">
             <div className="flex items-center gap-1 px-1 pb-1">
               <PanelIconButton label={t("assistant.back")} onClick={() => setPhase({ step: "menu" })}>
-                <ArrowLeft className="h-3.5 w-3.5" />
+                <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
               </PanelIconButton>
               <span className="text-xs text-fg-muted">{t("assistant.translateInto")}</span>
             </div>
@@ -368,7 +369,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
                   type="button"
                   role="menuitem"
                   onClick={() => start({ action: "translate", language: language.code })}
-                  className="truncate rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                  className="truncate rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                 >
                   {language.name}
                 </button>
@@ -529,7 +530,9 @@ function captureTarget(editor: PageEditor): Target | null {
   const before = editor.blocksToMarkdownLossy(document.slice(0, index + 1) as never).trim();
   const coords = view.coordsAtPos(hasSelection ? selection.to : selection.head);
   const start = view.coordsAtPos(hasSelection ? selection.from : selection.head);
-  return { text, plain, range, before, blockId: block.id, top: coords.bottom + 8, left: start.left };
+  // The panel opens from where the text starts: its right edge there when the line runs right to left.
+  const left = isRtl(view.dom) ? start.right - Math.min(PANEL_WIDTH, window.innerWidth - 16) : start.left;
+  return { text, plain, range, before, blockId: block.id, top: coords.bottom + 8, left };
 }
 
 function topLevelOf(editor: PageEditor, id: string): string {

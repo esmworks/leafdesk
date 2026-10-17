@@ -128,10 +128,10 @@ export function TeamspacesPanel({
             options={[{ value: "", label: t("anyAccess") }, ...ACCESS_OPTIONS.map((a) => ({ value: a, label: ta(a) }))]}
             onChange={(v) => setAccess(v as TeamspaceAccess | "")}
           />
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ms-auto flex items-center gap-2">
             {searching || query ? (
               <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+                <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
                 <Input
                   type="search"
                   autoFocus
@@ -146,7 +146,7 @@ export function TeamspacesPanel({
                       setSearching(false);
                     }
                   }}
-                  className="w-44 pl-7 sm:w-56"
+                  className="w-44 ps-7 sm:w-56"
                 />
               </div>
             ) : (
@@ -168,18 +168,18 @@ export function TeamspacesPanel({
             <table className="w-full min-w-[640px] text-sm">
               <thead className="border-y border-border text-xs text-fg-muted">
                 <tr>
-                  <th scope="col" className="px-2 py-2 text-left font-normal">
+                  <th scope="col" className="px-2 py-2 text-start font-normal">
                     {t("columns.teamspace")}
                   </th>
-                  <th scope="col" className="w-48 px-2 py-2 text-left font-normal">
+                  <th scope="col" className="w-48 px-2 py-2 text-start font-normal">
                     {t("columns.owners")}
                   </th>
-                  <th scope="col" className="w-36 px-2 py-2 text-left font-normal">
+                  <th scope="col" className="w-36 px-2 py-2 text-start font-normal">
                     {t("columns.access")}
                   </th>
                   <th
                     scope="col"
-                    className="w-28 px-2 py-2 text-left font-normal"
+                    className="w-28 px-2 py-2 text-start font-normal"
                     aria-sort={newestFirst ? "descending" : "ascending"}
                   >
                     <button
@@ -296,7 +296,7 @@ function FilterMenu({
             }}
           >
             {o.label}
-            {o.count !== undefined && <span className="ml-1.5 text-fg-faint tabular-nums">{o.count}</span>}
+            {o.count !== undefined && <span className="ms-1.5 text-fg-faint tabular-nums">{o.count}</span>}
           </MenuItem>
         ))}
       </Floating>
@@ -415,7 +415,7 @@ function TeamspaceRow({
                     if (option === "default" || teamspace.access === "default") setConfirm({ access: option });
                     else changeAccess(option);
                   }}
-                  className="flex w-full gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                  className="flex w-full gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm">{ta(option)}</span>
@@ -438,12 +438,12 @@ function TeamspaceRow({
           {format.dateTime(teamspace.updatedAt, { dateStyle: "short" })}
         </time>
       </td>
-      <td className="px-1 py-2 text-right">
+      <td className="px-1 py-2 text-end">
         <IconButton ref={menu.ref} label={t("actionsFor", { name: teamspace.name })} onClick={menu.toggle} disabled={pending}>
           <MoreHorizontal className="h-4 w-4" />
         </IconButton>
         {/* Portaled so the table's scroll container doesn't clip it. */}
-        <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-left">
+        <Floating anchor={menu.el} open={menu.open} onClose={menu.close} align="end" className="text-start">
           {teamspace.canManage && <MenuItem onClick={pick(onEdit)}>{t("edit")}</MenuItem>}
           <MenuItem onClick={pick(onMembers)}>{teamspace.canManage ? t("manageMembers") : t("viewMembers")}</MenuItem>
           {(teamspace.canJoin || teamspace.canLeave || teamspace.canManage) && <MenuSeparator />}
@@ -464,7 +464,7 @@ function TeamspaceRow({
               </MenuItem>
             ))}
         </Floating>
-        <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-left">
+        <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-start">
           {confirm && (
             <div className="space-y-3 p-5">
               <h2 className="text-base font-semibold">
@@ -575,7 +575,7 @@ function DefaultTeamspaces({
           )}
         >
           {selected.map((ts) => (
-            <span key={ts.id} className="inline-flex h-6 max-w-full items-center gap-1.5 rounded bg-bg-active pr-0.5 pl-1.5 text-sm">
+            <span key={ts.id} className="inline-flex h-6 max-w-full items-center gap-1.5 rounded bg-bg-active pe-0.5 ps-1.5 text-sm">
               <TeamspaceBadge teamspace={ts} size="sm" />
               <span className="truncate">{ts.name}</span>
               {isOwner && (
@@ -601,7 +601,7 @@ function DefaultTeamspaces({
                 aria-expanded={add.open}
                 disabled={pending}
                 onClick={add.toggle}
-                className="h-6 min-w-24 flex-1 rounded px-1 text-left text-sm text-fg-faint hover:text-fg-muted"
+                className="h-6 min-w-24 flex-1 rounded px-1 text-start text-sm text-fg-faint hover:text-fg-muted"
               >
                 {t("addPlaceholder")}
               </button>

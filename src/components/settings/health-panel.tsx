@@ -92,7 +92,7 @@ export async function HealthPanel({ workspaceId, check }: { workspaceId: string;
           {check.brokenLinks.items.map((f) => (
             <Row key={`${f.source.id}:${f.target.id}`} fix={restore(f.target)}>
               {pageLink(f.source)}
-              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-fg-faint" aria-label={t("linksTo")} />
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-fg-faint rtl:-scale-x-100" aria-label={t("linksTo")} />
               {deadTarget(f.target)}
             </Row>
           ))}
@@ -216,7 +216,7 @@ export async function HealthPanel({ workspaceId, check }: { workspaceId: string;
               }
             >
               {pageLink(f.row)}
-              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-fg-faint" aria-label={t("linksTo")} />
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-fg-faint rtl:-scale-x-100" aria-label={t("linksTo")} />
               {deadTarget(f.target)}
             </Row>
           ))}

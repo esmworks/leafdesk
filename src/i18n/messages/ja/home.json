@@ -1,0 +1,21 @@
+{
+  "hello": "こんにちは、{name}",
+  "recent": "最近編集したページ",
+  "assignedEmpty": "あなたに割り当てられたものはありません。データベースであなたに割り当てられた行がここに表示されます。",
+  "empty": "まだ何もありません。最初のページを作成して始めましょう。",
+  "emptyGuest": "ここではまだ何も共有されていません。誰かがページを共有すると、ここに表示されます。",
+  "newPage": "新しいページ",
+  "newDatabase": "新しいデータベース",
+  "personalWorkspace": "{name}のワークスペース",
+  "generalTeamspace": "全般",
+  "fromTemplate": "テンプレートから作成",
+  "assigned": "あなたに割り当て済み",
+  "assignedGroups": {
+    "overdue": "期限切れ",
+    "today": "今日",
+    "next7": "今後7日間",
+    "later": "それ以降",
+    "none": "日付なし"
+  },
+  "assignedMore": "{total}件中{shown}件を表示しています。残りを見るには、データベースを「自分」でフィルターしてください。"
+}

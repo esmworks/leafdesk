@@ -1,0 +1,46 @@
+{
+  "metaTitle": "Competenze",
+  "heading": "Competenze",
+  "description": "Istruzioni che il tuo team riutilizza, conservate come pagine: come revisionare una pull request, scrivere le note di rilascio o smistare un bug. Scegline una nella chat IA con / oppure da un’app di IA collegata allo spazio di lavoro. Ogni competenza è una pagina o una riga di database; ognuno vede le competenze che può aprire.",
+  "new": "Nuova competenza",
+  "search": "Cerca competenze",
+  "count": "{count, plural, one {# competenza} other {# competenze}}",
+  "noMatches": "Nessuna competenza corrisponde alla ricerca.",
+  "emptyTitle": "Ancora nessuna competenza",
+  "emptyHint": "Qualsiasi pagina o riga di database può diventare una competenza: aprila e attiva Usa come competenza nel suo menu ⋯, oppure iniziane una con Nuova competenza.",
+  "noDescription": "Ancora nessuna descrizione",
+  "inDatabase": "In {database}",
+  "updated": "Aggiornata {time}",
+  "download": "Scarica {title} come SKILL.md",
+  "downloadHint": "Un file ZIP con il SKILL.md della competenza, per gli assistenti IA che installano competenze",
+  "menu": {
+    "toggle": "Usa come competenza",
+    "hint": "Offri questa pagina come istruzioni riutilizzabili nella chat IA e alle app di IA collegate allo spazio di lavoro",
+    "export": "Esporta come SKILL.md"
+  },
+  "bar": {
+    "label": "Competenza",
+    "description": "A cosa serve la competenza",
+    "placeholder": "Spiega a cosa serve questa competenza e quando usarla",
+    "none": "Ancora nessuna descrizione",
+    "library": "Tutte le competenze"
+  },
+  "chat": {
+    "heading": "Competenze",
+    "none": "Ancora nessuna competenza.",
+    "library": "Apri la libreria delle competenze",
+    "noMatches": "Nessuna competenza corrispondente.",
+    "using": "Uso della competenza {title}",
+    "remove": "Rimuovi competenza",
+    "pick": "Usa una competenza",
+    "pickHint": "Usa una competenza (o digita / nella casella vuota)",
+    "used": "Ha usato la competenza {title}"
+  },
+  "errors": {
+    "notAPage": "Solo le pagine e le righe di database possono essere competenze, non i database.",
+    "template": "I modelli e le pagine al loro interno non possono essere competenze.",
+    "inTrash": "Prima ripristina la pagina dal cestino.",
+    "tooLong": "La descrizione di una competenza può avere al massimo {max} caratteri.",
+    "notASkill": "Questa pagina non è più una competenza."
+  }
+}

@@ -104,8 +104,8 @@ export function InboxDialog({
             <button
               type="button"
               className={cn(
-                "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left hover:bg-bg-hover",
-                canSnooze(item.kind) && "pr-10",
+                "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover",
+                canSnooze(item.kind) && "pe-10",
               )}
               onClick={() => {
                 if (!item.read) void markRead([item.id]);
@@ -216,14 +216,14 @@ export function InboxDialog({
               <IconButton
                 label={t("snooze")}
                 aria-expanded={snoozing === item.id}
-                className="absolute right-2 top-2 text-fg-faint"
+                className="absolute inset-e-2 top-2 text-fg-faint"
                 onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
               >
                 <AlarmClock className="h-3.5 w-3.5" />
               </IconButton>
             )}
             {snoozing === item.id && (
-              <div className="flex flex-wrap items-center gap-1 pb-2 pl-[2.125rem] pr-3" role="group" aria-label={t("snooze")}>
+              <div className="flex flex-wrap items-center gap-1 pb-2 ps-[2.125rem] pe-3" role="group" aria-label={t("snooze")}>
                 {SNOOZE_CHOICES.map((choice) => (
                   <Button key={choice} size="sm" variant="secondary" onClick={() => void snooze(item.id, choice)}>
                     {t(`snoozeChoice.${choice}`)}
@@ -235,7 +235,7 @@ export function InboxDialog({
               <ApprovalActions
                 workspaceId={workspaceId}
                 approval={item.approval}
-                className="pb-2 pl-[2.125rem] pr-3"
+                className="pb-2 ps-[2.125rem] pe-3"
                 onOpenRun={() => {
                   if (!item.read) void markRead([item.id]);
                   onClose();
@@ -285,7 +285,7 @@ function AccessRequestActions({ request, onAnswered }: { request: InboxAccessReq
   };
 
   return (
-    <div className="pb-2 pl-[2.125rem] pr-3">
+    <div className="pb-2 ps-[2.125rem] pe-3">
       {request.message && (
         <p className="mb-1.5 text-sm break-words whitespace-pre-line text-fg-muted">{ts("requests.message", { message: request.message })}</p>
       )}

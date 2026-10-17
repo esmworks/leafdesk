@@ -1,0 +1,37 @@
+{
+  "metaTitle": "授权应用",
+  "expired": {
+    "title": "此链接已过期",
+    "body": "授权请求无效或已过期。请返回你正在连接的应用，重新开始。"
+  },
+  "unknownClient": {
+    "title": "未知应用",
+    "body": "请求访问权限的应用未在 Leafdesk 注册，或已被停用。请返回并重新尝试连接。"
+  },
+  "heading": "{client} 想要访问你的 Leafdesk 账户",
+  "identifiedBy": "此应用的标识为 {host}。",
+  "unverified": "此应用是自动注册的，未经 Leafdesk 审核。仅当这个连接是你发起的时才继续。",
+  "notYou": "不是你？",
+  "willAllow": "这将允许 {client}：",
+  "readOnlyHint": "取消勾选即只授予只读权限。每次编辑都会先保存到页面历史，因此你可以撤销。",
+  "access": {
+    "all": "访问范围包括你所在的所有工作区。你可以随时在设置中断开此应用的连接。",
+    "listed": "访问范围包括你所在的所有工作区：{workspaces}。你可以随时在设置中断开此应用的连接。"
+  },
+  "deny": "拒绝",
+  "denying": "正在拒绝…",
+  "allow": "允许",
+  "allowing": "正在允许…",
+  "redirectNotice": "你将被送回 {host}。",
+  "error": "无法完成请求。请返回应用重试。",
+  "scopes": {
+    "openid": "确认你的身份",
+    "profile": "查看你的姓名和头像",
+    "email": "查看你的邮箱地址",
+    "offlineAccess": "保持连接，无需你重新登录",
+    "pagesRead": "读取你工作区中的页面和数据库",
+    "pagesWrite": "创建和编辑页面及数据库行，并将页面移到回收站",
+    "notificationsRead": "读取你收件箱中的通知",
+    "filesWrite": "通过链接或从应用本身向页面上传文件"
+  }
+}

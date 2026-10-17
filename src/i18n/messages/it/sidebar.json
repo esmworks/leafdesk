@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "Il mio account",
+    "newWorkspace": "Nuovo spazio di lavoro",
+    "settingsAndMembers": "Impostazioni e membri",
+    "signOut": "Esci",
+    "admin": "Amministrazione del server"
+  },
+  "nav": {
+    "search": "Cerca",
+    "home": "Home",
+    "inbox": "Posta in arrivo",
+    "people": "Persone",
+    "settings": "Impostazioni",
+    "trash": "Cestino",
+    "templates": "Modelli",
+    "import": "Importa",
+    "graph": "Grafo",
+    "skills": "Competenze"
+  },
+  "toggle": {
+    "open": "Apri la barra laterale",
+    "close": "Nascondi la barra laterale",
+    "resize": "Trascina per ridimensionare",
+    "pin": "Tieni aperta la barra laterale"
+  },
+  "pages": {
+    "heading": "Pagine",
+    "new": "Nuovo",
+    "newPage": "Nuova pagina",
+    "newDatabase": "Nuovo database",
+    "createFirst": "Crea la tua prima pagina",
+    "nothingShared": "Nessuna pagina è stata ancora condivisa con te",
+    "collapse": "Comprimi",
+    "expand": "Espandi",
+    "actions": "Azioni della pagina",
+    "moveToTrash": "Sposta nel cestino",
+    "rename": "Rinomina",
+    "renameLabel": "Nome della pagina",
+    "renameFailed": "Impossibile rinominare la pagina.",
+    "renameLocked": "Questa pagina è bloccata, quindi il suo nome non può cambiare. Prima sbloccala dal suo menu.",
+    "addInside": "Aggiungi una pagina all’interno",
+    "noChildren": "Nessuna pagina all’interno",
+    "favorites": "Preferiti",
+    "moveFailed": "Impossibile spostare la pagina qui. Per spostarla altrove serve l’accesso completo.",
+    "fromTemplate": "Da un modello",
+    "import": "Importa…",
+    "confirmMoveSpace": "Spostare questa pagina in {place}? Chi può vederla cambierà di conseguenza."
+  },
+  "search": {
+    "placeholder": "Cerca pagine e contenuti…",
+    "label": "Cerca",
+    "noResults": "Nessun risultato",
+    "semantic": "Significato simile",
+    "semanticHint": "Trovato in base al significato: le parole sono diverse dalla tua ricerca.",
+    "recent": "Modificati di recente",
+    "commands": "Comandi",
+    "noCommands": "Nessun comando corrispondente",
+    "hint": {
+      "in": "dentro una pagina",
+      "type": "solo database (o page, row)",
+      "commands": "comandi"
+    }
+  },
+  "trash": {
+    "title": "Cestino",
+    "empty": "Il cestino è vuoto",
+    "deletePermanently": "Elimina definitivamente",
+    "confirmDelete": "Eliminare definitivamente? Questa operazione non può essere annullata.",
+    "deletesIn": "Eliminazione tra {count, plural, one {# giorno} other {# giorni}}",
+    "deletesSoon": "Eliminazione a breve"
+  },
+  "newWorkspace": {
+    "title": "Nuovo spazio di lavoro",
+    "description": "Uno spazio separato con pagine e membri propri.",
+    "namePlaceholder": "Nome dello spazio di lavoro",
+    "create": "Crea",
+    "creating": "Creazione…"
+  },
+  "inbox": {
+    "title": "Posta in arrivo",
+    "empty": "Ancora nessuna notifica",
+    "markAllRead": "Segna tutte come lette",
+    "assignment": "{actor} ti ha assegnato a “{property}”",
+    "pageShared": "{actor} ha condiviso questa pagina con te",
+    "comment": "{actor} ha commentato in una discussione a cui partecipi",
+    "mention": "{actor} ti ha menzionato",
+    "reminder": "Promemoria: {date}",
+    "accessRequest": "{actor} ha chiesto l’accesso a questa pagina",
+    "automation": "Automazione “{name}”: {actor} ha aggiunto o modificato questa riga",
+    "automationDatePassed": "Automazione “{name}”: è arrivata la data di questa riga",
+    "someone": "Qualcuno",
+    "unread": "Non letta",
+    "snooze": "Posticipa",
+    "snoozeChoice": {
+      "hour": "Tra 1 ora",
+      "tomorrow": "Domani, 9:00",
+      "nextWeek": "Lunedì, 9:00"
+    },
+    "unreadCount": "{count, plural, one {# notifica non letta} other {# notifiche non lette}}",
+    "joinRequestTitle": "Richiesta di adesione",
+    "joinRequest": "{actor} ha chiesto di unirsi",
+    "inviteRequest": "{actor} ha chiesto di invitare {email}",
+    "approvalTitle": "{agent} chiede di procedere",
+    "approval": "Vuole chiamare “{tool}” su {connection}",
+    "approvalAnswered": "Risposta data o tempo scaduto",
+    "memoryTitle": "{agent} vuole ricordare",
+    "memory": "“{text}”{more, plural, =0 {} one { e # altra nota} other { e altre # note}}",
+    "memoryHidden": "{count, plural, one {Una nota} other {# note}} da un’esecuzione su una riga che non puoi aprire",
+    "memoryAnswered": "Già esaminata",
+    "reportTitle": "Rapporto da {agent}",
+    "reportDone": "La sua esecuzione pianificata è terminata.",
+    "reportFailed": "La sua esecuzione pianificata non è riuscita. Aprila per vedere perché.",
+    "reportHidden": "La sua esecuzione pianificata è terminata, su un database che non puoi aprire.",
+    "reportGone": "L’esecuzione non è più conservata."
+  },
+  "templates": {
+    "title": "Modelli",
+    "description": "Scegline uno per creare una nuova pagina a partire da esso.",
+    "workspace": "In questo spazio di lavoro",
+    "builtIn": "Predefiniti",
+    "empty": "Ancora nessun modello. Per aggiungerne uno, apri il menu ⋯ di una pagina e scegli “Salva come modello”.",
+    "use": "Crea una pagina da questo modello",
+    "database": "Database",
+    "edit": "Modifica modello",
+    "open": "Apri modello",
+    "delete": "Elimina modello",
+    "confirmDelete": "Eliminare definitivamente questo modello? Le pagine già create a partire da esso restano invariate."
+  },
+  "teamspaces": {
+    "heading": "Spazi del team",
+    "options": "Opzioni dello spazio del team",
+    "new": "Nuovo spazio del team",
+    "addNew": "Aggiungi nuovo",
+    "browse": "Sfoglia gli spazi del team",
+    "none": "Non fai ancora parte di nessuno spazio del team. Sfoglia gli spazi del team",
+    "actions": "Azioni per {name}",
+    "addPage": "Aggiungi una pagina a {name}",
+    "edit": "Modifica spazio del team",
+    "members": "Membri e impostazioni",
+    "leave": "Lascia lo spazio del team",
+    "confirmLeave": "Lasciare {name}? Le sue pagine spariscono dalla tua barra laterale. Se lo spazio del team non è aperto, perdi anche l’accesso alle pagine.",
+    "empty": "Ancora nessuna pagina. Aggiungine una",
+    "another": "un altro spazio del team"
+  },
+  "sections": {
+    "shared": "Condivise",
+    "private": "Private",
+    "newPrivate": "Nuova pagina privata",
+    "more": "Altre {count}",
+    "less": "Mostra meno"
+  },
+  "joinable": {
+    "heading": "Spazi di lavoro a cui puoi unirti",
+    "join": "Unisciti",
+    "request": "Chiedi di unirti",
+    "requested": "Richiesta inviata"
+  },
+  "customize": {
+    "open": "Personalizza la barra laterale",
+    "heading": "Sezioni mostrate in questo spazio di lavoro",
+    "moveUp": "Sposta {section} in alto",
+    "moveDown": "Sposta {section} in basso",
+    "show": "Mostra {section}",
+    "hide": "Nascondi {section}",
+    "done": "Fine"
+  }
+}

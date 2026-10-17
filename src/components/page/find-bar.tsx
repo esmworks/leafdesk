@@ -191,7 +191,7 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
         <div
           role="search"
           aria-label={t("label")}
-          className="absolute top-0 right-4 flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-1 rounded-md border border-border bg-bg p-1 shadow-lg md:right-[54px]"
+          className="absolute top-0 inset-e-4 flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-1 rounded-md border border-border bg-bg p-1 shadow-lg md:inset-e-[54px]"
         >
           <div className="flex items-center gap-0.5">
             {editable && (
@@ -201,7 +201,7 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
                 className="h-7 w-6"
                 onClick={() => setReplaceOpen((v) => !v)}
               >
-                {replaceOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {replaceOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />}
               </IconButton>
             )}
             <input
@@ -214,7 +214,7 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
               spellCheck={false}
               className="h-7 min-w-0 flex-1 rounded border border-border bg-bg px-2 text-sm outline-none placeholder:text-fg-faint focus:border-accent"
             />
-            <span aria-live="polite" className={cn("w-16 shrink-0 truncate px-1 text-right text-xs tabular-nums", count === 0 ? "text-fg-faint" : "text-fg-muted")}>
+            <span aria-live="polite" className={cn("w-16 shrink-0 truncate px-1 text-end text-xs tabular-nums", count === 0 ? "text-fg-faint" : "text-fg-muted")}>
               {counter}
             </span>
             <IconButton
@@ -236,7 +236,7 @@ export function FindBar({ editor, editable }: { editor: PageEditor; editable: bo
             </IconButton>
           </div>
           {canReplace && (
-            <div className="flex items-center gap-1 pl-6.5">
+            <div className="flex items-center gap-1 ps-6.5">
               <input
                 value={replacement}
                 onChange={(e) => setReplacement(e.target.value)}

@@ -1,0 +1,215 @@
+{
+  "footer": "Este e-mail foi enviado pelo Leafdesk em {appUrl}.",
+  "actionFallback": "Se o botão não funcionar, cole este link no seu navegador:",
+  "test": {
+    "subject": "E-mail de teste do Leafdesk",
+    "heading": "O envio de e-mails funciona",
+    "body": "Esta é uma mensagem de teste do seu servidor Leafdesk em {appUrl}. Se você consegue lê-la, o e-mail está configurado corretamente."
+  },
+  "invitation": {
+    "subject": "{inviter} convidou você para “{workspace}” no Leafdesk",
+    "heading": "Participe de “{workspace}”",
+    "body": "{inviter} convidou você para participar de “{workspace}” no Leafdesk como {role}.",
+    "expires": "O link funciona por 7 dias. Crie sua conta com {email} para aceitar.",
+    "action": "Aceitar convite",
+    "roles": {
+      "owner": "proprietário",
+      "member": "membro",
+      "guest": "convidado"
+    }
+  },
+  "passwordReset": {
+    "subject": "Redefina sua senha do Leafdesk",
+    "heading": "Redefina sua senha",
+    "body": "Olá, {name}. Alguém pediu para redefinir a senha da sua conta do Leafdesk. Se foi você, escolha uma nova senha com o botão abaixo.",
+    "expires": "O link funciona por {minutes} minutos e só uma vez. Se você não fez esse pedido, ignore este e-mail; sua senha continua a mesma.",
+    "action": "Escolher uma nova senha"
+  },
+  "assignment": {
+    "subject": "{actor} atribuiu você a “{row}”",
+    "heading": "Você foi atribuído a “{row}”",
+    "body": "{actor} adicionou você a “{property}” em {database}.",
+    "bodyHidden": "{actor} adicionou você a “{property}”.",
+    "action": "Abrir",
+    "untitled": "Sem título",
+    "someone": "Alguém",
+    "optOut": "Você pode desativar estes e-mails em Minha conta > Preferências."
+  },
+  "share": {
+    "subject": "{actor} compartilhou “{page}” com você",
+    "heading": "{actor} compartilhou uma página com você",
+    "body": "Agora você pode {level} “{page}” em {workspace}.",
+    "levels": {
+      "view": "ver",
+      "comment": "ver e comentar",
+      "edit": "editar",
+      "full": "ver, editar e compartilhar"
+    },
+    "action": "Abrir página",
+    "untitled": "Sem título",
+    "optOut": "Você pode desativar estes e-mails em Minha conta > Preferências."
+  },
+  "comment": {
+    "subject": "{actor} comentou em “{page}”",
+    "heading": "{actor} comentou em “{page}”",
+    "quote": "“{text}”",
+    "body": "O comentário está em “{page}”, em {workspace}. Responda ou resolva pela página.",
+    "action": "Abrir página",
+    "optOut": "Você recebe estes e-mails porque participou desta conversa de comentários. Você pode desativá-los em Minha conta > Preferências."
+  },
+  "mention": {
+    "subject": "{actor} mencionou você em “{page}”",
+    "heading": "{actor} mencionou você em “{page}”",
+    "body": "A menção está em “{page}”, em {workspace}.",
+    "action": "Abrir página",
+    "someone": "Alguém",
+    "optOut": "Você recebe estes e-mails porque alguém mencionou você. Você pode desativá-los em Minha conta > Preferências."
+  },
+  "reminder": {
+    "subject": "Lembrete: {date} em “{page}”",
+    "heading": "Lembrete: {date}",
+    "body": "Você pediu para ser lembrado de {date} em “{page}”, em {workspace}.",
+    "action": "Abrir página",
+    "optOut": "Você recebe estes e-mails porque definiu um lembrete. Você pode desativá-los em Minha conta > Preferências."
+  },
+  "dateReminder": {
+    "subject": "Lembrete: “{page}” em {date}",
+    "heading": "“{page}” é em {date}",
+    "body": "“{page}” em {database} ({workspace}) tem {property} em {date}.",
+    "bodyHidden": "“{page}” ({workspace}) tem {property} em {date}.",
+    "action": "Abrir linha",
+    "optOut": "Você recebe estes e-mails porque {database} envia lembretes às pessoas das suas linhas. Você pode desativar os lembretes em Minha conta > Preferências.",
+    "optOutHidden": "Você recebe estes e-mails porque o banco de dados envia lembretes às pessoas das suas linhas. Você pode desativar os lembretes em Minha conta > Preferências."
+  },
+  "automation": {
+    "subject": "Automação “{automation}”: “{page}”",
+    "heading": "A automação “{automation}” está avisando você sobre “{page}”",
+    "body": "{actor} adicionou ou alterou “{page}” em {database} ({workspace}).",
+    "bodyHidden": "{actor} adicionou ou alterou “{page}” ({workspace}).",
+    "bodyDatePassed": "“{page}” em {database} ({workspace}) chegou à data que esta automação aguarda.",
+    "bodyDatePassedHidden": "“{page}” ({workspace}) chegou à data que esta automação aguarda.",
+    "action": "Abrir linha",
+    "someone": "Alguém",
+    "optOut": "Você recebe estes e-mails porque uma automação de banco de dados notifica você. Você pode desativá-los em Minha conta > Preferências."
+  },
+  "accessRequest": {
+    "subject": "{requester} pediu acesso a “{page}”",
+    "heading": "{requester} pediu acesso a “{page}”",
+    "body": "{requester} ({email}) gostaria de abrir “{page}” em {workspace}.",
+    "message": "Mensagem: “{message}”",
+    "answer": "Compartilhe a página com a pessoa, escolhendo o que ela pode fazer, ou recuse a solicitação. Você pode responder pela sua caixa de entrada ou pelo botão Compartilhar na página.",
+    "action": "Abrir página",
+    "optOut": "Você recebe estes e-mails porque tem acesso total à página. Você pode desativá-los em Minha conta > Preferências."
+  },
+  "accessApproved": {
+    "subject": "Agora você pode abrir “{page}”",
+    "heading": "{actor} aprovou sua solicitação",
+    "body": "Agora você pode {level} “{page}” em {workspace}.",
+    "action": "Abrir página"
+  },
+  "accessDeclined": {
+    "subject": "Sua solicitação de acesso foi recusada",
+    "heading": "Sua solicitação foi recusada",
+    "body": "Sua solicitação de acesso a esta página foi recusada: {link}",
+    "hint": "Se você ainda precisar dela, peça à pessoa que enviou o link."
+  },
+  "emailChange": {
+    "subject": "Confirme seu novo endereço de e-mail",
+    "heading": "Confirme seu novo endereço de e-mail",
+    "body": "Olá, {name}. Você pediu para usar este endereço na sua conta do Leafdesk em vez de {old}. Confirme com o botão abaixo.",
+    "expires": "O link funciona por {hours} horas e só uma vez. Se você não fez esse pedido, ignore este e-mail; nada muda.",
+    "action": "Confirmar endereço de e-mail"
+  },
+  "emailChanged": {
+    "subject": "O endereço de e-mail da sua conta do Leafdesk mudou",
+    "heading": "Seu endereço de e-mail mudou",
+    "body": "Olá, {name}. O endereço de e-mail da sua conta do Leafdesk mudou de {old} para {new}. A partir de agora, entre com o novo endereço.",
+    "warning": "Se não foi você quem fez essa alteração, entre em contato imediatamente com um proprietário do seu espaço de trabalho."
+  },
+  "passwordChanged": {
+    "subject": "Sua senha do Leafdesk mudou",
+    "heading": "Sua senha mudou",
+    "body": "Olá, {name}. A senha da sua conta do Leafdesk acabou de ser alterada.",
+    "warning": "Se não foi você quem fez essa alteração, redefina sua senha na página de entrada e entre em contato com um proprietário do seu espaço de trabalho."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} pediu para participar de “{workspace}”",
+      "heading": "{asker} pediu para participar",
+      "body": "{asker} ({email}) pediu para participar de “{workspace}” no Leafdesk. Aprove ou recuse a solicitação em Configurações > Membros."
+    },
+    "invite": {
+      "subject": "{asker} pediu para convidar {email} para “{workspace}”",
+      "heading": "Um membro pediu para convidar alguém",
+      "body": "{asker} gostaria de convidar {email} para “{workspace}” no Leafdesk. O convite é enviado assim que um proprietário aprovar."
+    },
+    "action": "Revisar solicitações",
+    "optOut": "Você pode desativar estes e-mails em Minha conta > Preferências."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Você entrou em “{workspace}”",
+      "heading": "Boas-vindas a “{workspace}”",
+      "body": "Um proprietário aprovou sua solicitação para participar de “{workspace}” no Leafdesk."
+    },
+    "joinDeclined": {
+      "subject": "Sua solicitação para participar de “{workspace}”",
+      "heading": "Sua solicitação não foi aprovada",
+      "body": "Um proprietário de “{workspace}” recusou sua solicitação para participar. Você pode pedir um convite a um dos proprietários."
+    },
+    "inviteApproved": {
+      "subject": "{email} foi convidado para “{workspace}”",
+      "heading": "Seu convite foi enviado",
+      "body": "Um proprietário aprovou sua solicitação, e {email} foi convidado para “{workspace}” no Leafdesk."
+    },
+    "inviteDeclined": {
+      "subject": "Sua solicitação para convidar {email}",
+      "heading": "Sua solicitação não foi aprovada",
+      "body": "Um proprietário de “{workspace}” recusou sua solicitação para convidar {email}."
+    },
+    "action": "Abrir o Leafdesk"
+  },
+  "verification": {
+    "subject": "Confirme seu endereço de e-mail do Leafdesk",
+    "heading": "Confirme seu endereço de e-mail",
+    "body": "Olá, {name}. Confirme que este endereço é seu com o botão abaixo.",
+    "ignore": "Se você não criou uma conta no Leafdesk, pode ignorar este e-mail.",
+    "action": "Confirmar endereço de e-mail"
+  },
+  "passwordResetRequired": {
+    "subject": "Escolha uma nova senha do Leafdesk",
+    "heading": "Escolha uma nova senha",
+    "body": "Olá, {name}. Um administrador deste servidor Leafdesk pediu que você escolha uma nova senha. Sua senha antiga não permite mais entrar.",
+    "expires": "O link funciona por {minutes} minutos e só uma vez. Entrar de novo com a senha antiga envia um novo link.",
+    "action": "Escolher uma nova senha"
+  },
+  "push": {
+    "assignment": "{actor} atribuiu você a “{property}”",
+    "pageShared": "{actor} compartilhou esta página com você",
+    "comment": "{actor} comentou em uma conversa da qual você participa",
+    "mention": "{actor} mencionou você",
+    "reminder": "Lembrete: {date}",
+    "accessRequest": "{actor} pediu acesso a esta página",
+    "automation": "Automação “{name}”: {actor} adicionou ou alterou esta linha",
+    "automationDatePassed": "Automação “{name}”: chegou a data desta linha",
+    "someone": "Alguém",
+    "joinRequestTitle": "Solicitação para participar",
+    "joinRequest": "{actor} pediu para participar",
+    "inviteRequest": "{actor} pediu para convidar {email}",
+    "approvalTitle": "{agent} pede para continuar",
+    "approval": "Quer chamar “{tool}” em {connection}",
+    "memoryTitle": "{agent} quer se lembrar",
+    "memory": "{count, plural, one {Propõe uma nota para a memória} other {Propõe # notas para a memória}}",
+    "reportTitle": "Relatório de {agent}",
+    "reportDone": "A execução agendada terminou",
+    "reportFailed": "A execução agendada falhou",
+    "untitled": "Sem título",
+    "snooze": "Adiar 1 hora"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} foi excluído",
+    "heading": "{workspace} foi excluído",
+    "body": "Olá, {name}. {by} excluiu o espaço de trabalho {workspace} do Leafdesk, com todas as páginas, bancos de dados e arquivos dele. Você não pode mais abri-lo.",
+    "note": "Espaços de trabalho excluídos não podem ser restaurados. Se você não esperava por isso, fale com {by} ou com outro proprietário do espaço de trabalho."
+  }
+}

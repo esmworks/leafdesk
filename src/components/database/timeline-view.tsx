@@ -615,8 +615,11 @@ export function TimelineView({
           </Button>
         </div>
 
+        {/* Time runs left to right in every language, like a chart's axis: the bars, the row
+            panel beside them and all the measuring below stay left to right. */}
         <div
           ref={scroller}
+          dir="ltr"
           className="relative max-h-[calc(100dvh-14rem)] min-h-72 overflow-auto rounded-lg border border-border"
         >
           <div ref={body} className="relative" style={{ width: panelWidth + width }} onDragOver={onTimelineDragOver} onDrop={onTimelineDrop}>

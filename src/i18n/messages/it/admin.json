@@ -1,0 +1,71 @@
+{
+  "metaTitle": "Amministrazione del server",
+  "title": "Amministrazione del server",
+  "description": "Gli account di questo server, le loro sessioni e le loro password. Vedi questa pagina perché il tuo indirizzo email verificato è elencato in ADMIN_EMAILS.",
+  "back": "Torna a {workspace}",
+  "backHome": "Indietro",
+  "workspaces": {
+    "heading": "Creazione di spazi di lavoro",
+    "everyone": "Tutti possono creare spazi di lavoro",
+    "admins": "Solo gli amministratori possono creare spazi di lavoro",
+    "description": "Si imposta con WORKSPACE_CREATION sul server (everyone o admins). Ognuno riceve comunque uno spazio di lavoro personale quando si registra."
+  },
+  "sessions": {
+    "heading": "Tutti",
+    "description": "{count, plural, one {# sessione attiva} other {# sessioni attive}} su questo server.",
+    "signOutEveryone": "Disconnetti tutti",
+    "signOutEveryoneDescription": "Chiude ogni sessione su ogni dispositivo tranne la tua in questo browser, e le pagine aperte lì smettono di sincronizzarsi. Le app connesse e i token API continuano a funzionare.",
+    "signOutEveryoneTitle": "Disconnettere tutti?",
+    "signOutEveryoneBody": "Tutti su questo server dovranno accedere di nuovo, anche tu sugli altri tuoi dispositivi.",
+    "signOutEveryoneConfirm": "Disconnetti tutti",
+    "resetEveryone": "Richiedi nuove password",
+    "resetEveryoneDescription": "Chiunque acceda con una password, tranne te, viene disconnesso e dovrà scegliere una nuova password al prossimo accesso. Gli account che accedono solo con single sign-on, GitHub o Google non sono interessati.",
+    "resetByEmail": "Quando accedono, ricevono via email un link per sceglierla.",
+    "resetInApp": "L’email non è configurata su questo server, quindi la scelgono subito dopo aver effettuato l’accesso con la vecchia password (e un codice di verifica in due passaggi, se lo usano).",
+    "resetEveryoneTitle": "Richiedere nuove password a tutti?",
+    "resetEveryoneBody": "Chiunque abbia una password, tranne te, viene disconnesso ora e non potrà più accedere con la password attuale.",
+    "resetEveryoneConfirm": "Richiedi nuove password"
+  },
+  "users": {
+    "heading": "Account",
+    "count": "{count, plural, one {# account} other {# account}}",
+    "countPartial": "{shown} account visualizzati su {total}. Usa la ricerca per trovare gli altri.",
+    "search": "Cerca per nome o email",
+    "noMatches": "Nessun account corrisponde a questa ricerca.",
+    "none": "Ancora nessun account.",
+    "columns": {
+      "user": "Account",
+      "workspaces": "Spazi di lavoro",
+      "lastActive": "Ultima attività",
+      "twoFactor": "Due passaggi",
+      "password": "Password",
+      "actions": "Azioni"
+    },
+    "you": "(tu)",
+    "admin": "Amministratore",
+    "unverified": "Non verificato",
+    "signedOut": "Non connesso",
+    "on": "Attiva",
+    "off": "Non attiva",
+    "hasPassword": "Impostata",
+    "noPassword": "Nessuna",
+    "resetPending": "Da reimpostare",
+    "actionsFor": "Azioni per {name}",
+    "signOut": "Disconnetti ovunque",
+    "signOutTitle": "Disconnettere {name} ovunque?",
+    "signOutBody": "{count, plural, one {La sua # sessione viene chiusa} other {Le sue # sessioni vengono chiuse}} e le pagine che ha aperte smettono di sincronizzarsi. Le app connesse e i token API continuano a funzionare.",
+    "signOutSelfBody": "{count, plural, one {La tua # sessione viene chiusa} other {Le tue # sessioni vengono chiuse}}, tranne quella in questo browser.",
+    "signOutConfirm": "Disconnetti",
+    "requireReset": "Richiedi una nuova password",
+    "resetTitle": "Richiedere una nuova password a {name}?",
+    "resetBody": "Viene disconnesso ora e dovrà scegliere una nuova password la prossima volta che accede con una password.",
+    "resetByEmail": "Quando accede, riceve via email un link per sceglierla.",
+    "resetInApp": "L’email non è configurata su questo server, quindi la sceglie subito dopo aver effettuato l’accesso con la vecchia password (e un codice di verifica in due passaggi, se lo usa).",
+    "resetConfirm": "Richiedi una nuova password"
+  },
+  "errors": {
+    "notFound": "Account non trovato.",
+    "noPassword": "Questo account non ha una password: accede in un altro modo.",
+    "self": "Cambia la tua password nella pagina del tuo account."
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "footer": "此邮件由位于 {appUrl} 的 Leafdesk 发送。",
+  "actionFallback": "如果按钮无法使用，请将此链接粘贴到浏览器中：",
+  "test": {
+    "subject": "来自 Leafdesk 的测试邮件",
+    "heading": "邮件发送正常",
+    "body": "这是来自你位于 {appUrl} 的 Leafdesk 服务器的测试邮件。如果你能看到它，说明邮件已正确配置。"
+  },
+  "invitation": {
+    "subject": "{inviter} 邀请你加入 Leafdesk 上的“{workspace}”",
+    "heading": "加入“{workspace}”",
+    "body": "{inviter} 邀请你以{role}身份加入 Leafdesk 上的“{workspace}”。",
+    "expires": "链接在 7 天内有效。请使用 {email} 注册以接受邀请。",
+    "action": "接受邀请",
+    "roles": {
+      "owner": "所有者",
+      "member": "成员",
+      "guest": "访客"
+    }
+  },
+  "passwordReset": {
+    "subject": "重置你的 Leafdesk 密码",
+    "heading": "重置密码",
+    "body": "{name}，你好！有人申请重置你的 Leafdesk 账户密码。如果是你本人，请点击下方按钮设置新密码。",
+    "expires": "链接在 {minutes} 分钟内有效，且只能使用一次。如果你没有申请重置，请忽略此邮件；你的密码不会改变。",
+    "action": "设置新密码"
+  },
+  "assignment": {
+    "subject": "{actor} 将你分配到了“{row}”",
+    "heading": "你被分配到了“{row}”",
+    "body": "{actor} 在 {database} 中将你添加到了“{property}”。",
+    "bodyHidden": "{actor} 将你添加到了“{property}”。",
+    "action": "打开",
+    "untitled": "无标题",
+    "someone": "有人",
+    "optOut": "你可以在“我的账户 > 偏好设置”中关闭这类邮件。"
+  },
+  "share": {
+    "subject": "{actor} 与你分享了“{page}”",
+    "heading": "{actor} 与你分享了一个页面",
+    "body": "现在你可以{level} {workspace} 中的“{page}”了。",
+    "levels": {
+      "view": "查看",
+      "comment": "查看和评论",
+      "edit": "编辑",
+      "full": "查看、编辑和分享"
+    },
+    "action": "打开页面",
+    "untitled": "无标题",
+    "optOut": "你可以在“我的账户 > 偏好设置”中关闭这类邮件。"
+  },
+  "comment": {
+    "subject": "{actor} 评论了“{page}”",
+    "heading": "{actor} 评论了“{page}”",
+    "quote": "“{text}”",
+    "body": "该评论位于 {workspace} 中的“{page}”。你可以在页面上回复或解决它。",
+    "action": "打开页面",
+    "optOut": "你收到这类邮件是因为你参与了此评论讨论。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
+  "mention": {
+    "subject": "{actor} 在“{page}”中提及了你",
+    "heading": "{actor} 在“{page}”中提及了你",
+    "body": "该提及位于 {workspace} 中的“{page}”。",
+    "action": "打开页面",
+    "someone": "有人",
+    "optOut": "你收到这类邮件是因为有人提及了你。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
+  "reminder": {
+    "subject": "提醒：“{page}”中的 {date}",
+    "heading": "提醒：{date}",
+    "body": "你设置了在 {workspace} 的“{page}”中提醒你 {date}。",
+    "action": "打开页面",
+    "optOut": "你收到这类邮件是因为你设置了提醒。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
+  "dateReminder": {
+    "subject": "提醒：“{page}”在 {date}",
+    "heading": "“{page}”在 {date}",
+    "body": "{database}（{workspace}）中的“{page}”的 {property} 为 {date}。",
+    "bodyHidden": "“{page}”（{workspace}）的 {property} 为 {date}。",
+    "action": "打开行",
+    "optOut": "你收到这类邮件是因为 {database} 会提醒其各行的相关人员。你可以在“我的账户 > 偏好设置”中关闭提醒。",
+    "optOutHidden": "你收到这类邮件是因为其所在数据库会提醒各行的相关人员。你可以在“我的账户 > 偏好设置”中关闭提醒。"
+  },
+  "automation": {
+    "subject": "自动化“{automation}”：“{page}”",
+    "heading": "自动化“{automation}”通知你关于“{page}”的动态",
+    "body": "{actor} 在 {database}（{workspace}）中添加或更改了“{page}”。",
+    "bodyHidden": "{actor} 添加或更改了“{page}”（{workspace}）。",
+    "bodyDatePassed": "{database}（{workspace}）中的“{page}”已到达此自动化所等待的日期。",
+    "bodyDatePassedHidden": "“{page}”（{workspace}）已到达此自动化所等待的日期。",
+    "action": "打开行",
+    "someone": "有人",
+    "optOut": "你收到这类邮件是因为某个数据库自动化会通知你。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
+  "accessRequest": {
+    "subject": "{requester} 申请访问“{page}”",
+    "heading": "{requester} 申请访问“{page}”",
+    "body": "{requester}（{email}）希望打开 {workspace} 中的“{page}”。",
+    "message": "对方的留言：“{message}”",
+    "answer": "你可以与对方分享此页面并选择其权限，或拒绝此申请。你可以在收件箱中或页面上的“分享”中处理。",
+    "action": "打开页面",
+    "optOut": "你收到这类邮件是因为你拥有此页面的完全访问权限。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
+  "accessApproved": {
+    "subject": "现在你可以打开“{page}”了",
+    "heading": "{actor} 批准了你的申请",
+    "body": "现在你可以{level} {workspace} 中的“{page}”了。",
+    "action": "打开页面"
+  },
+  "accessDeclined": {
+    "subject": "你的访问申请已被拒绝",
+    "heading": "你的申请已被拒绝",
+    "body": "你对此页面的访问申请已被拒绝：{link}",
+    "hint": "如果你仍需要访问，请询问发送链接给你的人。"
+  },
+  "emailChange": {
+    "subject": "确认你的新邮箱地址",
+    "heading": "确认你的新邮箱地址",
+    "body": "{name}，你好！你申请将此地址用于你的 Leafdesk 账户，以取代 {old}。请点击下方按钮确认。",
+    "expires": "链接在 {hours} 小时内有效，且只能使用一次。如果你没有申请，请忽略此邮件；什么都不会改变。",
+    "action": "确认邮箱地址"
+  },
+  "emailChanged": {
+    "subject": "你的 Leafdesk 账户邮箱地址已更改",
+    "heading": "你的邮箱地址已更改",
+    "body": "{name}，你好！你的 Leafdesk 账户邮箱地址已从 {old} 更改为 {new}。今后请使用新地址登录。",
+    "warning": "如果这不是你本人所做的更改，请立即联系你所在工作区的所有者。"
+  },
+  "passwordChanged": {
+    "subject": "你的 Leafdesk 密码已更改",
+    "heading": "你的密码已更改",
+    "body": "{name}，你好！你的 Leafdesk 账户密码刚刚被更改。",
+    "warning": "如果这不是你本人所做的更改，请在登录页面重置密码，并联系你所在工作区的所有者。"
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} 申请加入“{workspace}”",
+      "heading": "{asker} 申请加入",
+      "body": "{asker}（{email}）申请加入 Leafdesk 上的“{workspace}”。请在“设置 > 成员”中批准或拒绝此申请。"
+    },
+    "invite": {
+      "subject": "{asker} 申请邀请 {email} 加入“{workspace}”",
+      "heading": "有成员申请邀请他人",
+      "body": "{asker} 希望邀请 {email} 加入 Leafdesk 上的“{workspace}”。所有者批准后，邀请才会发出。"
+    },
+    "action": "查看申请",
+    "optOut": "你可以在“我的账户 > 偏好设置”中关闭这类邮件。"
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "你已加入“{workspace}”",
+      "heading": "欢迎加入“{workspace}”",
+      "body": "所有者已批准你加入 Leafdesk 上的“{workspace}”的申请。"
+    },
+    "joinDeclined": {
+      "subject": "你加入“{workspace}”的申请",
+      "heading": "你的申请未获批准",
+      "body": "“{workspace}”的所有者拒绝了你的加入申请。你可以向其某位所有者索取邀请。"
+    },
+    "inviteApproved": {
+      "subject": "{email} 已受邀加入“{workspace}”",
+      "heading": "你的邀请已发出",
+      "body": "所有者已批准你的申请，{email} 已受邀加入 Leafdesk 上的“{workspace}”。"
+    },
+    "inviteDeclined": {
+      "subject": "你邀请 {email} 的申请",
+      "heading": "你的申请未获批准",
+      "body": "“{workspace}”的所有者拒绝了你邀请 {email} 的申请。"
+    },
+    "action": "打开 Leafdesk"
+  },
+  "verification": {
+    "subject": "验证你的 Leafdesk 邮箱地址",
+    "heading": "验证你的邮箱地址",
+    "body": "{name}，你好！请点击下方按钮，确认此地址属于你。",
+    "ignore": "如果你没有创建 Leafdesk 账户，可以忽略此邮件。",
+    "action": "验证邮箱地址"
+  },
+  "passwordResetRequired": {
+    "subject": "设置新的 Leafdesk 密码",
+    "heading": "设置新密码",
+    "body": "{name}，你好！此 Leafdesk 服务器的管理员要求你设置新密码。你的旧密码已无法登录。",
+    "expires": "链接在 {minutes} 分钟内有效，且只能使用一次。再次使用旧密码登录会发送一个新链接。",
+    "action": "设置新密码"
+  },
+  "push": {
+    "assignment": "{actor} 将你分配到了“{property}”",
+    "pageShared": "{actor} 与你分享了此页面",
+    "comment": "{actor} 在你参与的讨论中发表了评论",
+    "mention": "{actor} 提及了你",
+    "reminder": "提醒：{date}",
+    "accessRequest": "{actor} 申请访问此页面",
+    "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
+    "automationDatePassed": "自动化“{name}”：这一行的日期已到",
+    "someone": "有人",
+    "joinRequestTitle": "加入申请",
+    "joinRequest": "{actor} 申请加入",
+    "inviteRequest": "{actor} 申请邀请 {email}",
+    "approvalTitle": "{agent} 请求继续操作",
+    "approval": "想要调用 {connection} 上的“{tool}”",
+    "memoryTitle": "{agent} 想要记住内容",
+    "memory": "为其记忆提议了 {count} 条笔记",
+    "reportTitle": "来自 {agent} 的报告",
+    "reportDone": "其定时运行已完成",
+    "reportFailed": "其定时运行失败",
+    "untitled": "无标题",
+    "snooze": "稍后 1 小时提醒"
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} 已被删除",
+    "heading": "{workspace} 已被删除",
+    "body": "{name}，你好！{by} 删除了 Leafdesk 工作区 {workspace}，包括其所有页面、数据库和文件。你已无法再打开它。",
+    "note": "已删除的工作区无法恢复。如果你没有预料到此事，请与 {by} 或该工作区的其他所有者联系。"
+  }
+}

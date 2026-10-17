@@ -1,0 +1,270 @@
+{
+  "assistant": {
+    "askAi": "Zapytaj AI",
+    "askAiSubtext": "Przepisz, przetłumacz lub pisz dalej z AI",
+    "askAiAliases": "ai asystent pisz przepisz popraw przetłumacz assistant write rewrite improve translate",
+    "continueSubtext": "AI pisze dalej od tego miejsca",
+    "continueAliases": "ai kontynuuj pisz dalej więcej continue write more",
+    "summarizeSubtext": "AI dodaje podsumowanie tej strony",
+    "summarizeAliases": "ai podsumowanie podsumuj streszczenie summary summarize tldr",
+    "group": "AI",
+    "label": "Asystent AI",
+    "placeholder": "Napisz AI, co ma napisać…",
+    "placeholderSelection": "Napisz AI, co zrobić z zaznaczeniem…",
+    "send": "Wyślij",
+    "actions": {
+      "improve": "Popraw styl",
+      "shorten": "Skróć",
+      "fix": "Popraw pisownię i gramatykę",
+      "translate": "Przetłumacz…",
+      "continue": "Pisz dalej",
+      "summarize": "Podsumuj stronę",
+      "custom": "Twoje polecenie"
+    },
+    "translateInto": "Przetłumacz na",
+    "back": "Wstecz",
+    "writing": "Pisanie…",
+    "stop": "Zatrzymaj",
+    "replace": "Zastąp zaznaczenie",
+    "insertBelow": "Wstaw poniżej",
+    "retry": "Spróbuj ponownie",
+    "discard": "Odrzuć",
+    "cutOff": "Odpowiedź osiągnęła limit długości i może być ucięta.",
+    "reviewNote": "AI może popełniać błędy. Sprawdź tekst, zanim go zachowasz.",
+    "stopped": "Zatrzymano. Nadal możesz zachować to, co zostało dotąd napisane.",
+    "applyFailed": "Nie udało się dodać sugestii do strony.",
+    "selectionChanged": "Zaznaczony tekst w międzyczasie się zmienił, więc sugestię dodano pod nim."
+  },
+  "errors": {
+    "disabled": "AI nie jest dostępna w tym obszarze roboczym.",
+    "noAccess": "Nie możesz zmieniać tej strony.",
+    "tooLarge": "To za dużo tekstu na jedno zapytanie do AI. Zaznacz mniej i spróbuj ponownie.",
+    "rateLimited": "Zbyt wiele zapytań do AI. Spróbuj ponownie za chwilę.",
+    "timeout": "AI zbyt długo nie odpowiadała. Spróbuj ponownie.",
+    "aborted": "Zapytanie do AI zostało anulowane.",
+    "provider": "Dostawca AI nie mógł odpowiedzieć. Spróbuj później lub poproś administratora o sprawdzenie ustawień AI.",
+    "empty": "AI nie udzieliła odpowiedzi. Spróbuj ponownie lub sformułuj to inaczej.",
+    "invalid": "Zapytanie do AI było niekompletne. Spróbuj ponownie.",
+    "interrupted": "Serwer został ponownie uruchomiony w trakcie obliczania. Zaktualizuj ponownie."
+  },
+  "autofill": {
+    "addEntry": "Autouzupełnianie AI",
+    "configure": "Autouzupełnianie AI…",
+    "titleNew": "Nowa właściwość z autouzupełnianiem AI",
+    "titleFor": "Autouzupełnianie AI: {name}",
+    "back": "Wstecz",
+    "mode": "AI wypełnia",
+    "modes": {
+      "summary": "Podsumowanie",
+      "translation": "Tłumaczenie",
+      "custom": "Własne polecenie"
+    },
+    "modeHints": {
+      "summary": "Krótkie podsumowanie strony każdego wiersza.",
+      "translation": "Przetłumaczona wartość wiersza.",
+      "custom": "Cokolwiek opiszesz, na podstawie wartości wiersza."
+    },
+    "defaultNames": {
+      "summary": "Podsumowanie AI",
+      "translation": "Tłumaczenie",
+      "custom": "Tekst AI"
+    },
+    "source": "Przetłumacz",
+    "sourceTitle": "Nazwa",
+    "sourceBody": "Treść strony",
+    "language": "Na",
+    "prompt": "Polecenie",
+    "promptPlaceholder": "Na przykład: Napisz jednozdaniową zachętę do '{title}' skierowaną do '{Audience}'.",
+    "promptHint": "Kliknij właściwość, aby ją wstawić; w jej miejscu pojawi się wartość wiersza.",
+    "includeBody": "Wysyłaj też treść strony wiersza",
+    "auto": "Aktualizuj, gdy wiersz się zmieni",
+    "autoHint": "Kilka sekund po zmianie wartości lub strony wiersza jego wartość jest obliczana ponownie.",
+    "privacy": "Dane, na podstawie których obliczana jest wartość każdego wiersza, trafiają do dostawcy AI tego serwera.",
+    "save": "Zapisz",
+    "create": "Dodaj właściwość",
+    "turnOff": "Wyłącz autouzupełnianie AI",
+    "updateAll": "Aktualizuj wszystkie wiersze w tym widoku",
+    "updateRow": "Aktualizuj za pomocą AI",
+    "pending": "AI nad tym pracuje…",
+    "failed": "AI nie mogła tego wypełnić: {reason}",
+    "tooManyRows": "Naraz można zaktualizować najwyżej {max, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}; aktualizowane są pierwsze wiersze tego widoku (limit: {max}).",
+    "errors": {
+      "invalidMode": "Wybierz, co ma wypełniać AI.",
+      "unknownLanguage": "Wybierz język docelowy tłumaczenia.",
+      "unknownSource": "Wybierz, co przetłumaczyć.",
+      "promptRequired": "Napisz polecenie.",
+      "promptTooLong": "Polecenie może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
+      "unknownPlaceholder": "Nie ma właściwości o nazwie „{name}”.",
+      "cycle": "„{name}” już odczytuje tę właściwość (bezpośrednio lub przez inne właściwości AI), więc ta nie może odczytywać tamtej.",
+      "notText": "AI może wypełniać tylko właściwości tekstowe.",
+      "databaseLocked": "Baza danych jest zablokowana."
+    }
+  },
+  "settings": {
+    "heading": "AI",
+    "description": "Asystent pisania AI na stronach, właściwości z autouzupełnianiem AI w bazach danych, czat AI i wyszukiwanie semantyczne.",
+    "enabled": "Funkcje AI",
+    "enabledHint": "Gdy włączone, członkowie mogą wysyłać widoczną dla nich treść stron i wartości wierszy do poniższego dostawcy AI. Wyłącz, aby treści tego obszaru roboczego do niego nie trafiały.",
+    "ownersOnly": "Tylko właściciele mogą to zmienić.",
+    "memory": "Pamięć AI",
+    "memoryHint": "Gdy włączona, czat AI zachowuje krótkie notatki o osobach, które coś o sobie mówią, i wysyła je razem z ich kolejnymi pytaniami. Każdy może ją wyłączyć dla siebie. Gdy wyłączona, widok Pamięć jest ukryty, a niczyje pytania nie zawierają notatek; notatki są zachowywane, a nie usuwane. Uruchomienia agentów również nie zawierają wtedy notatek ani ich nie proponują.",
+    "provider": "Dostawca",
+    "providerValue": "{provider}, model {model}",
+    "notConfigured": "Na tym serwerze nie skonfigurowano dostawcy AI ani modelu embeddingów, więc funkcje AI są wyłączone. Administrator może je skonfigurować za pomocą zmiennych środowiskowych AI_PROVIDER i AI_MODEL (oraz AI_EMBEDDINGS_MODEL) (zobacz README).",
+    "noProvider": "Brak: asystent pisania, właściwości AI i czat AI wymagają AI_PROVIDER i AI_MODEL.",
+    "semanticSearch": "Wyszukiwanie semantyczne",
+    "semanticValue": "Wyszukiwanie znajduje strony także według znaczenia, za pomocą modelu embeddingów {model}.",
+    "semanticOff": "Wyłączone: wyszukiwanie znajduje tylko słowa. Administrator może je włączyć za pomocą AI_EMBEDDINGS_MODEL."
+  },
+  "chat": {
+    "open": "Zapytaj AI",
+    "title": "Zapytaj AI",
+    "close": "Zamknij",
+    "expand": "Otwórz jako pełną stronę",
+    "newChat": "Nowy czat",
+    "deleteFailed": "Nie udało się usunąć. Spróbuj ponownie.",
+    "backToPages": "Wróć do stron",
+    "history": "Rozmowy",
+    "noHistory": "Brak rozmów.",
+    "groups": {
+      "today": "Dzisiaj",
+      "yesterday": "Wczoraj",
+      "week": "Poprzednie 7 dni",
+      "month": "Poprzednie 30 dni",
+      "older": "Starsze"
+    },
+    "untitled": "Rozmowa bez tytułu",
+    "deleteConversation": "Usuń rozmowę",
+    "deleteAll": "Usuń wszystkie rozmowy",
+    "confirmDeleteAll": "Usunąć wszystkie twoje rozmowy z AI w tym obszarze roboczym?",
+    "intro": "Zapytaj o cokolwiek w tym obszarze roboczym. Odpowiedzi pochodzą ze stron, które możesz otworzyć, z linkami do nich.",
+    "placeholder": "Zadaj pytanie…",
+    "send": "Wyślij",
+    "stop": "Zatrzymaj",
+    "scope": "Odpowiadaj na podstawie",
+    "scopeWorkspace": "Cały obszar roboczy",
+    "scopePage": "Ta strona i jej podstrony",
+    "thinking": "Myślenie…",
+    "steps": {
+      "working": "Praca · {time}",
+      "worked": "Praca trwała {time}",
+      "seconds": "{s} s",
+      "minutes": "{m} min {s} s",
+      "question": "Przeszukano strony pod kątem pytania · {count, plural, =0 {nic nie znaleziono} one {# wynik} few {# wyniki} many {# wyników} other {# wyniku}}",
+      "searched": "Wyszukano „{query}” · {count, plural, =0 {nic nie znaleziono} one {# wynik} few {# wyniki} many {# wyników} other {# wyniku}}",
+      "read": "Przeczytano",
+      "readGone": "Przeczytano stronę, której nie możesz już otworzyć",
+      "query": "Odpytano",
+      "rows": "{count, plural, =0 {brak pasujących wierszy} one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+      "queryGone": "Odpytano bazę danych, której nie możesz już otworzyć",
+      "write": {
+        "done": {
+          "createRow": "Dodano wiersz:",
+          "updateRow": "Zmieniono wiersz:",
+          "createPage": "Dodano stronę:",
+          "editPage": "Zmieniono tekst strony:"
+        },
+        "declined": {
+          "createRow": "Odrzucono dodanie wiersza:",
+          "updateRow": "Odrzucono zmianę:",
+          "createPage": "Odrzucono dodanie strony:",
+          "editPage": "Odrzucono zmianę tekstu:"
+        },
+        "failed": {
+          "createRow": "Nie udało się dodać wiersza:",
+          "updateRow": "Nie udało się zmienić:",
+          "createPage": "Nie udało się dodać strony:",
+          "editPage": "Nie udało się zmienić tekstu:"
+        },
+        "in": "w"
+      },
+      "memory": {
+        "remember": "Zapamiętano:",
+        "propose": "Zaproponowano notatkę:",
+        "forget": "Zapomniano:",
+        "declined": {
+          "remember": "Odrzucono zapamiętanie:",
+          "forget": "Odrzucono zapomnienie:"
+        }
+      }
+    },
+    "stopped": "Zatrzymano.",
+    "cutOff": "Odpowiedź osiągnęła limit długości i może być ucięta.",
+    "note": "AI może popełniać błędy. Sprawdź źródła.",
+    "offline": "Czat AI wymaga połączenia z serwerem.",
+    "disabled": "AI jest wyłączona w tym obszarze roboczym. Właściciele mogą ją włączyć w sekcji Ustawienia → Ogólne → AI.",
+    "loadFailed": "Nie udało się wczytać rozmowy.",
+    "errors": {
+      "noAccess": "Ta rozmowa, strona lub umiejętność nie jest już dostępna.",
+      "tooLarge": "To pytanie lub umiejętność jest za długie albo ta rozmowa jest pełna. Skróć je lub rozpocznij nowy czat.",
+      "disabled": "AI jest wyłączona w tym obszarze roboczym.",
+      "invalid": "Najpierw wpisz pytanie."
+    },
+    "approval": {
+      "question": {
+        "createRow": "Dodać ten wiersz?",
+        "updateRow": "Zmienić ten wiersz?",
+        "createPage": "Dodać tę stronę?",
+        "remember": "Zapamiętać to o tobie?",
+        "forget": "Zapomnieć tę notatkę?",
+        "editPage": "Zmienić tekst tej strony?"
+      },
+      "in": "W",
+      "row": "Wiersz",
+      "topLevel": "Na najwyższym poziomie obszaru roboczego, prywatnie dla ciebie",
+      "memoryHint": "Pamięć: wysyłana z twoimi kolejnymi pytaniami w tym obszarze roboczym",
+      "cleared": "(wyczyszczono)",
+      "approve": "Tak",
+      "always": "Tak i nie pytaj ponownie (Automatycznie)",
+      "decline": "Nie",
+      "waiting": "Oczekiwanie na twoją zgodę",
+      "page": "Strona",
+      "empty": "(puste)"
+    },
+    "mode": {
+      "label": "Zmiany",
+      "ask": "Pytaj",
+      "askHint": "Pyta cię przed każdą zmianą",
+      "auto": "Automatycznie",
+      "autoHint": "Dodaje i zmienia bez pytania",
+      "read": "Tylko odczyt",
+      "readHint": "Niczego nie zmienia"
+    },
+    "actions": {
+      "edit": "Edytuj",
+      "cancel": "Anuluj",
+      "retry": "Odpowiedz ponownie"
+    }
+  },
+  "memory": {
+    "open": "Pamięć",
+    "title": "Pamięć",
+    "close": "Zamknij",
+    "updated": "Pamięć zaktualizowana",
+    "intro": "Notatki, które AI przechowuje o tobie w tym obszarze roboczym i wysyła z każdym twoim pytaniem tutaj. Dodaje notatkę, gdy mówisz coś o sobie lub prosisz o zapamiętanie czegoś. Widzisz je tylko ty.",
+    "use": "Używaj pamięci",
+    "useHint": "Gdy wyłączone, twoje pytania są wysyłane tutaj bez tych notatek, a AI nie zapisuje nowych. Notatki pozostają.",
+    "empty": "Na razie nic. Powiedz AI coś o sobie lub dodaj notatkę tutaj.",
+    "offline": "Pamięć wymaga połączenia z serwerem.",
+    "addLabel": "Nowa notatka",
+    "addPlaceholder": "np. Pracuję w zespole marketingu; pokazuj wyniki w tabelach",
+    "add": "Dodaj",
+    "edit": "Edytuj",
+    "editLabel": "Notatka",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "viaApp": "Zapisane przez {app}",
+    "count": "Notatki: {count} z {max}",
+    "full": "Pamięć jest pełna (notatki: {max})",
+    "forgetAll": "Zapomnij wszystko",
+    "confirmForgetAll": "Zapomnieć wszystko, co AI pamięta o tobie w tym obszarze roboczym?",
+    "errors": {
+      "empty": "Napisz, co zapamiętać.",
+      "tooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
+      "full": "Pamięć mieści najwyżej {max, plural, one {# notatkę} few {# notatki} many {# notatek} other {# notatki}}. Najpierw usuń jedną.",
+      "notFound": "Tej notatki już nie ma.",
+      "off": "Pamięć AI jest wyłączona w tym obszarze roboczym."
+    }
+  }
+}

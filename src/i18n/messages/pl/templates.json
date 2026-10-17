@@ -1,0 +1,96 @@
+{
+  "meeting-notes": {
+    "title": "Notatki ze spotkania",
+    "description": "Agenda, notatki, decyzje i zadania do wykonania.",
+    "markdown": "**Data:** \n\n**Uczestnicy:** \n\n## Agenda\n\n1. \n\n## Notatki\n\n\n\n## Decyzje\n\n- \n\n## Zadania do wykonania\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Plan tygodnia",
+    "description": "Cele na tydzień i lista zadań na każdy dzień.",
+    "markdown": "## Cele na ten tydzień\n\n- [ ] \n\n### Poniedziałek\n\n- [ ] \n\n### Wtorek\n\n- [ ] \n\n### Środa\n\n- [ ] \n\n### Czwartek\n\n- [ ] \n\n### Piątek\n\n- [ ] \n\n## Notatki na przyszły tydzień\n"
+  },
+  "project-tracker": {
+    "title": "Śledzenie projektu",
+    "description": "Zadania ze statusem, priorytetem, osobą odpowiedzialną i terminem, w tabeli i na tablicy.",
+    "seedNames": {
+      "status": "Status",
+      "notStarted": "Nie rozpoczęto",
+      "inProgress": "W toku",
+      "done": "Gotowe",
+      "tags": "Tagi",
+      "table": "Wszystkie zadania"
+    },
+    "properties": {
+      "priority": "Priorytet",
+      "owner": "Odpowiedzialny",
+      "due": "Termin"
+    },
+    "options": {
+      "high": "Wysoki",
+      "medium": "Średni",
+      "low": "Niski"
+    },
+    "board": "Tablica",
+    "rowTemplate": {
+      "title": "Nowe zadanie",
+      "markdown": "## Cel\n\n\n\n## Kroki\n\n- [ ] \n\n## Notatki\n\n"
+    },
+    "rows": {
+      "brief": "Napisać opis projektu",
+      "milestone": "Zaplanować pierwszy kamień milowy",
+      "team": "Zaprosić zespół"
+    }
+  },
+  "wins-log": {
+    "title": "Dziennik sukcesów",
+    "description": "Sukcesy, pochwały i ukończona praca w jednym miejscu, z wykresami według miesiąca, typu i obszaru.",
+    "markdown": "Tutaj trafia każdy sukces, każda pochwała i każda ukończona praca, z linkiem do miejsca, w którym to się wydarzyło. Dodawaj je ręcznie albo pozwól agentowi Rejestrator sukcesów dodawać je z twoich połączeń.",
+    "database": "Sukcesy",
+    "table": "Wszystkie sukcesy",
+    "board": "Według typu",
+    "properties": {
+      "type": "Typ",
+      "area": "Obszar",
+      "date": "Data",
+      "impact": "Wpływ",
+      "source": "Źródło",
+      "person": "Osoby"
+    },
+    "types": {
+      "feedback": "Opinia",
+      "delivery": "Dostarczenie",
+      "metric": "Wskaźnik",
+      "event": "Wydarzenie",
+      "other": "Inne"
+    },
+    "areas": {
+      "product": "Produkt",
+      "customers": "Klienci",
+      "team": "Zespół",
+      "operations": "Operacje",
+      "sales": "Sprzedaż"
+    },
+    "impacts": {
+      "high": "Wysoki",
+      "medium": "Średni",
+      "low": "Niski"
+    },
+    "widgets": {
+      "total": "Sukcesy",
+      "byMonth": "Sukcesy według miesiąca",
+      "byArea": "Według obszaru",
+      "byImpact": "Według wpływu"
+    },
+    "rowTemplate": {
+      "title": "Nowy sukces",
+      "markdown": "## Co się wydarzyło\n\n\n\n## Dlaczego to ważne\n\n\n\n## Dowody\n\n- "
+    },
+    "rows": {
+      "praise": "Klient pochwalił nowy proces wdrażania",
+      "launch": "Wdrożono eksport rozliczeń",
+      "response": "Odpowiedzi wsparcia zajmują teraz mniej niż dwie godziny",
+      "talk": "Wystąpienie na wyjazdowym spotkaniu zespołu",
+      "thanks": "Dział sprzedaży podziękował za przygotowanie demo"
+    }
+  }
+}

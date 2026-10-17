@@ -208,7 +208,7 @@ function ListRow({ row, table, href }: { row: PublishedRow; table: PublishedData
         <Title row={row} className="truncate text-sm font-medium" />
       </RowLink>
       {shown.length > 0 && (
-        <span className="relative ml-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
+        <span className="relative ms-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
             {shown.map((p) => (
             <span key={p.id} className="flex min-w-0 shrink-0 items-center last:shrink" title={p.name}>
               <PropertyDisplay prop={p} value={row.properties[p.id]} style={row.styles?.[p.id]} />
@@ -229,7 +229,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
       <table className={cn("w-full border-collapse text-sm", !print && "min-w-max")}>
         <thead>
           <tr>
-            <th className={cn("h-[33px] border-y border-border px-2 text-left font-normal text-fg-muted", !print && "min-w-60")}>
+            <th className={cn("h-[33px] border-y border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-60")}>
               <span className="flex items-center gap-1.5">
                 <PropertyTypeIcon type="title" className="h-3.5 w-3.5 shrink-0" />
                 {t("name")}
@@ -238,7 +238,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
             {properties.map((prop) => (
               <th
                 key={prop.id}
-                className={cn("h-[33px] border-y border-l border-border px-2 text-left font-normal text-fg-muted", !print && "min-w-40")}
+                className={cn("h-[33px] border-y border-s border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-40")}
               >
                 <span className="flex items-center gap-1.5">
                   <PropertyTypeIcon type={prop.type} className="h-3.5 w-3.5 shrink-0" />
@@ -258,7 +258,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
                 </RowLink>
               </td>
               {properties.map((prop) => (
-                <td key={prop.id} className={cn("border-b border-l border-border px-2 py-1.5 align-top", !print && "max-w-80")}>
+                <td key={prop.id} className={cn("border-b border-s border-border px-2 py-1.5 align-top", !print && "max-w-80")}>
                   <div className="flex min-h-5 min-w-0 items-center">
                     <PropertyDisplay prop={prop} value={row.properties[prop.id]} style={row.styles?.[prop.id]} wrap />
                   </div>

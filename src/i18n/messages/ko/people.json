@@ -1,0 +1,14 @@
+{
+  "metaTitle": "사람",
+  "heading": "사람",
+  "description": "이 워크스페이스의 소유자와 멤버, 그리고 각자의 팀스페이스, 그룹, 최근 편집한 페이지입니다. 게스트는 표시되지 않습니다.",
+  "search": "이름, 이메일, 팀스페이스 또는 그룹으로 검색",
+  "count": "{count}명",
+  "noMatches": "검색과 일치하는 사람이 없습니다.",
+  "you": "(나)",
+  "teamspaces": "팀스페이스",
+  "groups": "그룹",
+  "recentPages": "최근 편집",
+  "none": "없음",
+  "noRecentPages": "열 수 있는 최근 편집이 없습니다."
+}

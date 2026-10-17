@@ -1,5 +1,5 @@
 import { createTranslator } from "next-intl";
-import type { Locale } from "@/i18n/config";
+import { localeDirection, type Locale } from "@/i18n/config";
 import type { WorkspaceRole } from "@/db/schema";
 import { emailMessages } from "@/i18n/messages/email";
 import { env } from "@/lib/env";
@@ -36,9 +36,20 @@ function safeUrl(url: string) {
 
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
+/**
+ * Right to left (Arabic, Hebrew, Persian), the email's text starts on the right. Mail apps drop or
+ * ignore much of a message's CSS (Gmail removes the attributes of <html> and <body>), so the
+ * direction and alignment are spelled out on the tables and cells as well. Left to right adds nothing.
+ */
+function emailDirection(locale: Locale) {
+  if (localeDirection(locale) === "ltr") return { dir: "", align: "", textAlign: "" };
+  return { dir: ' dir="rtl"', align: ' align="right"', textAlign: "text-align:right;" };
+}
+
 /** Plain-text and HTML versions of one email, in the shared layout. */
 export function renderEmail(locale: Locale, content: EmailContent): RenderedEmail {
   const t = emailTranslator(locale);
+  const { dir, align, textAlign } = emailDirection(locale);
   const footer = t("footer", { appUrl: env.appUrl });
   const action = content.action && { label: content.action.label, url: safeUrl(content.action.url) };
 
@@ -53,27 +64,27 @@ export function renderEmail(locale: Locale, content: EmailContent): RenderedEmai
     .map((p) => `<p style="margin:0 0 16px;">${escapeHtml(p)}</p>`)
     .join("\n");
   const button = action
-    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 24px;">
+    ? `<table role="presentation"${align} cellpadding="0" cellspacing="0" style="margin:8px 0 24px;">
 <tr><td style="border-radius:6px;background:#2f7d4f;">
 <a href="${escapeHtml(action.url)}" style="display:inline-block;padding:10px 18px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">${escapeHtml(action.label)}</a>
 </td></tr>
 </table>
 <p style="margin:0;font-size:13px;color:#6b6d75;">${escapeHtml(t("actionFallback"))}<br>
-<a href="${escapeHtml(action.url)}" style="color:#2f7d4f;word-break:break-all;">${escapeHtml(action.url)}</a></p>`
+<a href="${escapeHtml(action.url)}"${dir && ' dir="ltr"'} style="color:#2f7d4f;word-break:break-all;">${escapeHtml(action.url)}</a></p>`
     : "";
 
   const html = `<!doctype html>
-<html lang="${locale}">
+<html lang="${locale}"${dir}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(content.subject)}</title>
 </head>
-<body style="margin:0;padding:0;background:#f3f4f6;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;">
+<body${dir} style="margin:0;padding:0;background:#f3f4f6;">
+<table role="presentation"${dir} width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;">
 <tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;">
-<tr><td style="padding:32px;font-family:${FONT};font-size:15px;line-height:1.6;color:#1f2023;">
+<table role="presentation"${dir} width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;">
+<tr><td${dir}${align} style="padding:32px;font-family:${FONT};font-size:15px;line-height:1.6;color:#1f2023;${textAlign}">
 <p style="margin:0 0 24px;font-size:14px;font-weight:600;color:#6b6d75;">Leafdesk</p>
 <h1 style="margin:0 0 16px;font-size:20px;line-height:1.3;font-weight:600;">${escapeHtml(content.heading)}</h1>
 ${paragraphs}

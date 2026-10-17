@@ -1,0 +1,20 @@
+{
+  "metaTitle": "加入工作区",
+  "title": "加入“{workspace}”",
+  "invalidTitle": "未找到链接",
+  "invalidBody": "此加入链接无效或已被关闭。请向工作区所有者索取新的链接。",
+  "home": "前往 Leafdesk",
+  "body": "你将以成员身份加入，除非邀请你时指定了其他角色。",
+  "join": "加入工作区",
+  "joining": "正在加入…",
+  "alreadyMember": "你已经是此工作区的成员。",
+  "open": "打开工作区",
+  "signInBody": "请登录你的账户后加入。此服务器不允许注册新账户。",
+  "signIn": "登录",
+  "requestBody": "此工作区的新成员需经所有者批准。发送申请后，你会收到邮件回复。",
+  "request": "申请加入",
+  "requesting": "正在发送…",
+  "requestedTitle": "申请已发送",
+  "requestedBody": "工作区所有者会查看你的申请。做出决定后你会收到邮件。",
+  "pendingBody": "你已申请加入此工作区。所有者会处理你的申请；做出决定后你会收到邮件。"
+}

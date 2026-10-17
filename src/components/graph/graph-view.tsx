@@ -529,16 +529,16 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
       <header className="flex flex-col gap-3 border-b border-border px-4 pb-3 md:px-6">
         {/* The first row is as tall as a page's header, and the open button is pulled into the padding, so it sits where it does on pages. */}
         <div className="flex min-h-11 flex-wrap items-center gap-x-4 gap-y-2">
-          <SidebarOpenButton className="-mr-2 -ml-2.5 md:-ml-3" />
+          <SidebarOpenButton className="-me-2 -ms-2.5 md:-ms-3" />
           <h1 className="text-lg font-semibold tracking-tight">{t("heading")}</h1>
           <p className="text-xs text-fg-muted">{t("count", { pages: shown.nodes.length, edges: shown.edges.length })}</p>
-          <IconButton label={t("reload")} onClick={() => router.refresh()} className="ml-auto">
+          <IconButton label={t("reload")} onClick={() => router.refresh()} className="ms-auto">
             <RotateCw className="h-4 w-4" />
           </IconButton>
         </div>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <div className="relative w-full sm:w-64">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-muted" />
+            <Search className="pointer-events-none absolute top-1/2 inset-s-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-muted" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -552,16 +552,16 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
               }}
               placeholder={t("find")}
               aria-label={t("find")}
-              className="h-8 w-full rounded-md border border-border bg-bg pr-2 pl-8 text-base outline-none placeholder:text-fg-faint focus:border-accent sm:text-sm"
+              className="h-8 w-full rounded-md border border-border bg-bg pe-2 ps-8 text-base outline-none placeholder:text-fg-faint focus:border-accent sm:text-sm"
             />
             {matches.length > 0 && (
-              <ul className="absolute top-9 right-0 left-0 z-20 rounded-md border border-border bg-bg p-1 shadow-lg">
+              <ul className="absolute top-9 inset-e-0 inset-s-0 z-20 rounded-md border border-border bg-bg p-1 shadow-lg">
                 {matches.map((n) => (
                   <li key={n.id}>
                     <button
                       type="button"
                       onClick={() => setFocus(n.id)}
-                      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+                      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
                     >
                       <PageIcon icon={n.icon} kind={n.kind === "database" ? "database" : "page"} className="text-sm" />
                       <span className="truncate">{pageLabel(n.title, tc("untitled"))}</span>
@@ -618,7 +618,7 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
           </p>
         ) : (
           <>
-            <div className="absolute top-3 right-3 flex flex-col overflow-hidden rounded-md border border-border bg-bg shadow-sm md:top-auto md:bottom-3">
+            <div className="absolute top-3 inset-e-3 flex flex-col overflow-hidden rounded-md border border-border bg-bg shadow-sm md:top-auto md:bottom-3">
               <ZoomButton label={t("zoomIn")} onClick={() => canvas.current?.zoomIn()}>
                 <ZoomIn className="h-4 w-4" />
               </ZoomButton>
@@ -629,7 +629,7 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
                 <Maximize className="h-4 w-4" />
               </ZoomButton>
             </div>
-            {!selectedNode && <p className="pointer-events-none absolute bottom-3 left-4 hidden text-xs text-fg-faint md:block">{t("hint")}</p>}
+            {!selectedNode && <p className="pointer-events-none absolute bottom-3 inset-s-4 hidden text-xs text-fg-faint md:block">{t("hint")}</p>}
           </>
         )}
         {selectedNode && (
@@ -716,7 +716,7 @@ function Inspector({
     <section
       ref={ref}
       aria-label={title}
-      className="absolute inset-x-2 bottom-2 flex max-h-[55%] flex-col overflow-hidden rounded-lg border border-border bg-bg shadow-lg md:inset-x-auto md:top-3 md:right-3 md:bottom-auto md:max-h-[calc(100%-1.5rem)] md:w-80"
+      className="absolute inset-x-2 bottom-2 flex max-h-[55%] flex-col overflow-hidden rounded-lg border border-border bg-bg shadow-lg md:inset-x-auto md:top-3 md:inset-e-3 md:bottom-auto md:max-h-[calc(100%-1.5rem)] md:w-80"
     >
       <div className="flex items-start gap-2.5 border-b border-border p-3">
         <span
@@ -770,7 +770,7 @@ function Inspector({
                   <button
                     type="button"
                     onClick={() => onSelect(other.id)}
-                    className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm hover:bg-bg-hover"
+                    className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-start text-sm hover:bg-bg-hover"
                   >
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: `var(--graph-${other.kind})` }} aria-hidden />
                     <span className="min-w-0 flex-1 truncate">{pageLabel(other.title, tc("untitled"))}</span>

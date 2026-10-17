@@ -30,8 +30,8 @@ export async function AnalyticsPanel({ workspaceId, report, now }: { workspaceId
     ) : (
       <span className="text-fg-faint">{t("neverEdited")}</span>
     );
-  const th = "px-4 py-2.5 text-left font-normal";
-  const num = "px-4 py-3 text-right tabular-nums";
+  const th = "px-4 py-2.5 text-start font-normal";
+  const num = "px-4 py-3 text-end tabular-nums";
 
   return (
     <div>
@@ -75,8 +75,8 @@ export async function AnalyticsPanel({ workspaceId, report, now }: { workspaceId
                 <tr>
                   <th scope="col" className={th}>{t("columns.person")}</th>
                   <th scope="col" className={cn(th, "w-28")}>{t("columns.role")}</th>
-                  <th scope="col" className={cn(th, "w-24 text-right")}>{t("columns.edits")}</th>
-                  <th scope="col" className={cn(th, "w-24 text-right")}>{t("columns.pages")}</th>
+                  <th scope="col" className={cn(th, "w-24 text-end")}>{t("columns.edits")}</th>
+                  <th scope="col" className={cn(th, "w-24 text-end")}>{t("columns.pages")}</th>
                   <th scope="col" className={cn(th, "w-36")}>{t("columns.lastEdit")}</th>
                 </tr>
               </thead>
@@ -117,8 +117,8 @@ export async function AnalyticsPanel({ workspaceId, report, now }: { workspaceId
                 <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
                   <tr>
                     <th scope="col" className={th}>{t("columns.page")}</th>
-                    <th scope="col" className={cn(th, "w-24 text-right")}>{t("columns.edits")}</th>
-                    <th scope="col" className={cn(th, "w-24 text-right")}>{t("columns.editors")}</th>
+                    <th scope="col" className={cn(th, "w-24 text-end")}>{t("columns.edits")}</th>
+                    <th scope="col" className={cn(th, "w-24 text-end")}>{t("columns.editors")}</th>
                     <th scope="col" className={cn(th, "w-36")}>{t("columns.lastEdit")}</th>
                   </tr>
                 </thead>

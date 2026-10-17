@@ -1,0 +1,83 @@
+{
+  "access": {
+    "default": "Predefinito",
+    "open": "Aperto",
+    "closed": "Chiuso",
+    "private": "Privato"
+  },
+  "accessHint": {
+    "default": "Tutti nello spazio di lavoro ne fanno parte e non possono uscirne.",
+    "open": "Chiunque nello spazio di lavoro può vederlo e unirsi. Finché non si unisce, può leggere e commentare le sue pagine.",
+    "closed": "Chiunque nello spazio di lavoro può vedere che esiste. Solo i suoi membri ne aprono le pagine; sono i proprietari ad aggiungerli.",
+    "private": "Solo i suoi membri possono vederlo."
+  },
+  "roles": {
+    "owner": "Proprietario",
+    "member": "Membro"
+  },
+  "errors": {
+    "nameRequired": "Dai un nome allo spazio del team.",
+    "creationRestricted": "Qui solo i proprietari dello spazio di lavoro possono creare spazi del team.",
+    "ownersOnly": "Solo i proprietari dello spazio di lavoro possono cambiare gli spazi del team di cui fanno parte tutti.",
+    "cannotLeaveDefault": "Tutti fanno parte di questo spazio del team: non è possibile uscirne.",
+    "lastOwner": "Prima nomina proprietario dello spazio del team qualcun altro.",
+    "notJoinable": "Chiedi a un proprietario di questo spazio del team di aggiungerti.",
+    "archived": "Questo spazio del team è archiviato.",
+    "notMember": "Solo i proprietari e i membri dello spazio di lavoro possono far parte dei suoi spazi del team.",
+    "invalidAccess": "Scegli chi può vedere lo spazio del team.",
+    "inGroup": "Questa persona fa parte dello spazio del team tramite un gruppo. Rimuovila invece dal gruppo.",
+    "everyoneIn": "Tutti nello spazio di lavoro fanno già parte di questo spazio del team.",
+    "accessDenied": "Non puoi farlo in questo spazio del team.",
+    "invalidMemberLevel": "Scegli che accesso hanno i membri alle pagine dello spazio del team.",
+    "invalidIcon": "L’icona deve essere un’emoji."
+  },
+  "dialog": {
+    "createTitle": "Nuovo spazio del team",
+    "editTitle": "Modifica spazio del team",
+    "name": "Nome",
+    "namePlaceholder": "Marketing, Ingegneria…",
+    "icon": "Scegli un’icona",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "A cosa serve questo spazio del team?",
+    "access": "Chi può vederlo",
+    "defaultLocked": "Solo i proprietari dello spazio di lavoro possono cambiare l’accesso di uno spazio del team predefinito.",
+    "becomesDefault": "Tutti nello spazio di lavoro ne entrano a far parte e non possono uscirne.",
+    "leavesDefault": "Per ora tutti ne restano membri ma possono uscirne, e i nuovi membri dello spazio di lavoro non vengono aggiunti.",
+    "create": "Crea spazio del team",
+    "creating": "Creazione in corso…",
+    "memberLevel": "Accesso dei membri alle sue pagine",
+    "memberLevelHint": "L’accesso che i membri hanno sulle pagine che non lo impostano da sé. I proprietari dello spazio del team e dello spazio di lavoro hanno sempre accesso completo; le impostazioni di condivisione di una pagina prevalgono comunque su questa.",
+    "memberLevelLocked": "Solo i proprietari dello spazio di lavoro possono cambiare l’accesso di tutti in uno spazio del team predefinito."
+  },
+  "members": {
+    "title": "Membri di {name}",
+    "everyone": "Tutti nello spazio di lavoro fanno parte di questo spazio del team. I suoi proprietari possono modificarlo e gestirlo.",
+    "readOnly": "Solo i proprietari di questo spazio del team possono cambiare chi ne fa parte.",
+    "add": "Aggiungi persone",
+    "search": "Cerca persone",
+    "addSelected": "{count, plural, =0 {Aggiungi persone} other {Aggiungi #}}",
+    "addAs": "Aggiungi come",
+    "noOneToAdd": "Tutti nello spazio di lavoro fanno già parte di questo spazio del team.",
+    "noMatches": "Nessuno corrisponde alla ricerca.",
+    "empty": "Nessuno fa parte di questo spazio del team.",
+    "list": "Persone in questo spazio del team",
+    "roleOf": "Ruolo di {name}",
+    "remove": "Rimuovi {name}",
+    "you": "(tu)",
+    "select": "Seleziona {name}",
+    "viaGroups": "Tramite {groups}",
+    "groups": "Gruppi",
+    "groupsHint": "Tutti i membri di questi gruppi fanno parte dello spazio del team finché restano nel gruppo.",
+    "noGroups": "Nessun gruppo in questo spazio del team.",
+    "chooseGroup": "Scegli un gruppo",
+    "addGroupButton": "Aggiungi gruppo",
+    "removeGroup": "Rimuovi {name}",
+    "groupMemberCount": "{count, plural, =0 {Nessun membro} one {# membro} other {# membri}}"
+  },
+  "memberLevel": {
+    "full": "Accesso completo",
+    "edit": "Può modificare",
+    "comment": "Può commentare",
+    "view": "Può visualizzare"
+  }
+}

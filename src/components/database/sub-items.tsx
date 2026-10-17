@@ -135,7 +135,7 @@ export function SubItemToggle({
         className,
       )}
     >
-      <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", line.open && "rotate-90")} />
+      <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", line.open ? "rotate-90" : "rtl:rotate-180")} />
     </button>
   );
 }

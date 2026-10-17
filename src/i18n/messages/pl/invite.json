@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Zaproszenie",
+  "title": "Dołącz do „{workspace}”",
+  "invalidTitle": "Nie znaleziono zaproszenia",
+  "invalidBody": "Ten link z zaproszeniem jest nieprawidłowy, wygasł lub został anulowany. Poproś osobę, która cię zaprosiła, o nowy.",
+  "home": "Przejdź do Leafdesk",
+  "wrongAccount": "To zaproszenie jest dla {email}, ale zalogowano cię jako {current}. Wyloguj się i otwórz link ponownie.",
+  "acceptBody": "Zaproszono cię do dołączenia z rolą: {role}.",
+  "signInBody": "Konto z adresem {email} już istnieje. Zaloguj się, aby przyjąć zaproszenie.",
+  "signIn": "Zaloguj się",
+  "join": "Dołącz do obszaru roboczego",
+  "joining": "Dołączanie…"
+}

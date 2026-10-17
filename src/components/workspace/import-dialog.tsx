@@ -741,7 +741,7 @@ function ColumnTable({
     <div className="overflow-x-auto rounded-lg border border-border">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border text-left text-xs text-fg-muted">
+          <tr className="border-b border-border text-start text-xs text-fg-muted">
             <th className="px-3 py-1.5 font-medium">{labels.column}</th>
             <th className="w-48 px-3 py-1.5 font-medium">{heading}</th>
             <th className="px-3 py-1.5 font-medium max-sm:hidden">{labels.values}</th>
@@ -784,7 +784,7 @@ function ResultView({
       {result.warnings.length > 0 && (
         <div>
           <h3 className="mb-1 text-xs font-medium text-fg-muted">{t("warnings.heading")}</h3>
-          <ul className="list-disc space-y-0.5 pl-5 text-sm text-fg-muted">
+          <ul className="list-disc space-y-0.5 ps-5 text-sm text-fg-muted">
             {result.warnings.map((w, i) => (
               <li key={i} className="break-words">
                 {warningText(w)}

@@ -277,7 +277,7 @@ export function FilesEditor({
             // The button can't carry aria-invalid; the error it describes says what is wrong.
             aria-describedby={answer?.describedBy}
             onClick={() => picker.current?.click()}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-60"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-60"
           >
             <Upload className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{t("upload")}</span>

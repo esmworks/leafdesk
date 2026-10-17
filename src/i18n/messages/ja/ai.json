@@ -1,0 +1,270 @@
+{
+  "assistant": {
+    "askAi": "AIに質問",
+    "askAiSubtext": "AIで書き直し、翻訳、続きの執筆",
+    "askAiAliases": "ai assistant write rewrite improve translate AI アシスタント 書く 書き直し 改善 翻訳",
+    "continueSubtext": "ここからAIが続きを書きます",
+    "continueAliases": "ai continue write more AI 続き 続きを書く",
+    "summarizeSubtext": "AIがこのページの要約を追加します",
+    "summarizeAliases": "ai summary summarize tldr AI 要約 まとめ",
+    "group": "AI",
+    "label": "AIアシスタント",
+    "placeholder": "AIに書いてほしい内容を入力…",
+    "placeholderSelection": "選択範囲に対してAIにしてほしいことを入力…",
+    "send": "送信",
+    "actions": {
+      "improve": "文章を改善",
+      "shorten": "短くする",
+      "fix": "スペルと文法を修正",
+      "translate": "翻訳…",
+      "continue": "続きを書く",
+      "summarize": "ページを要約",
+      "custom": "自分で指示する"
+    },
+    "translateInto": "翻訳先の言語",
+    "back": "戻る",
+    "writing": "作成中…",
+    "stop": "停止",
+    "replace": "選択範囲を置換",
+    "insertBelow": "下に挿入",
+    "retry": "再試行",
+    "discard": "破棄",
+    "cutOff": "回答が長さの上限に達したため、途中で切れている可能性があります。",
+    "reviewNote": "AIは間違えることがあります。採用する前に文章を確認してください。",
+    "stopped": "停止しました。ここまでに書かれた内容は採用できます。",
+    "applyFailed": "提案をページに追加できませんでした。",
+    "selectionChanged": "その間に選択したテキストが変更されたため、提案はその下に追加されました。"
+  },
+  "errors": {
+    "disabled": "このワークスペースではAIを利用できません。",
+    "noAccess": "このページは変更できません。",
+    "tooLarge": "1回のAIリクエストにはテキストが多すぎます。選択範囲を減らして、もう一度お試しください。",
+    "rateLimited": "AIリクエストが多すぎます。しばらくしてから、もう一度お試しください。",
+    "timeout": "AIの応答に時間がかかりすぎました。もう一度お試しください。",
+    "aborted": "AIリクエストはキャンセルされました。",
+    "provider": "AIプロバイダーが応答できませんでした。時間をおいてもう一度お試しいただくか、管理者にAI設定の確認を依頼してください。",
+    "empty": "AIから回答がありませんでした。もう一度試すか、言い換えてください。",
+    "invalid": "AIリクエストが不完全でした。もう一度お試しください。",
+    "interrupted": "処理中にサーバーが再起動しました。もう一度更新してください。"
+  },
+  "autofill": {
+    "addEntry": "AI自動入力",
+    "configure": "AI自動入力…",
+    "titleNew": "新しいAI自動入力プロパティ",
+    "titleFor": "{name}のAI自動入力",
+    "back": "戻る",
+    "mode": "AIが入力する内容",
+    "modes": {
+      "summary": "要約",
+      "translation": "翻訳",
+      "custom": "独自のプロンプト"
+    },
+    "modeHints": {
+      "summary": "各行のページの短い要約。",
+      "translation": "行の値を翻訳したもの。",
+      "custom": "行の値を使って、説明したとおりの内容。"
+    },
+    "defaultNames": {
+      "summary": "AI要約",
+      "translation": "翻訳",
+      "custom": "AIテキスト"
+    },
+    "source": "翻訳する内容",
+    "sourceTitle": "名前",
+    "sourceBody": "ページの内容",
+    "language": "翻訳先",
+    "prompt": "プロンプト",
+    "promptPlaceholder": "例：'{title}'を'{対象者}'向けに1行で紹介する文を書いてください。",
+    "promptHint": "プロパティをクリックすると挿入され、その位置に行の値が入ります。",
+    "includeBody": "行のページの内容も送信",
+    "auto": "行が変更されたら更新",
+    "autoHint": "行の値やページが変更されてから数秒後に、値が再計算されます。",
+    "privacy": "各行の値の計算元となる内容は、このサーバーのAIプロバイダーに送信されます。",
+    "save": "保存",
+    "create": "プロパティを追加",
+    "turnOff": "AI自動入力をオフにする",
+    "updateAll": "このビューのすべての行を更新",
+    "updateRow": "AIで更新",
+    "pending": "AIが処理しています…",
+    "failed": "AIが入力できませんでした：{reason}",
+    "tooManyRows": "一度に更新できるのは最大{max}行です。このビューの最初の{max}行を更新しています。",
+    "errors": {
+      "invalidMode": "AIが入力する内容を選択してください。",
+      "unknownLanguage": "翻訳先の言語を選択してください。",
+      "unknownSource": "翻訳する内容を選択してください。",
+      "promptRequired": "プロンプトを入力してください。",
+      "promptTooLong": "プロンプトは最大{max}文字です。",
+      "unknownPlaceholder": "「{name}」という名前のプロパティはありません。",
+      "cycle": "「{name}」がすでに（直接またはほかのAIプロパティを通じて）このプロパティを参照しているため、このプロパティから「{name}」を参照することはできません。",
+      "notText": "AIが入力できるのはテキストプロパティだけです。",
+      "databaseLocked": "データベースはロックされています。"
+    }
+  },
+  "settings": {
+    "heading": "AI",
+    "description": "ページ内のAIライティングアシスタント、データベースのAI自動入力プロパティ、AIチャット、セマンティック検索です。",
+    "enabled": "AI機能",
+    "enabledHint": "オンにすると、メンバーは閲覧できるページの内容や行の値を下記のAIプロバイダーに送信できます。このワークスペースの内容をAIプロバイダーに送らないようにするには、オフにしてください。",
+    "ownersOnly": "この設定を変更できるのはオーナーだけです。",
+    "memory": "AIメモリー",
+    "memoryHint": "オンにすると、AIチャットは自分について話した人の短いメモを保持し、以降の質問と一緒に送信します。各自が自分のメモリーをオフにできます。オフにすると、メモリーの画面は非表示になり、誰の質問にもメモは付きません。メモは削除されずに保持されます。エージェントの実行にもメモは付かず、新たなメモの提案も行われません。",
+    "provider": "プロバイダー",
+    "providerValue": "{provider}、モデル{model}",
+    "notConfigured": "このサーバーではAIプロバイダーも埋め込みモデルも設定されていないため、AI機能はオフです。管理者は環境変数AI_PROVIDERとAI_MODEL（およびAI_EMBEDDINGS_MODEL）で設定できます（READMEを参照）。",
+    "noProvider": "なし：ライティングアシスタント、AIプロパティ、AIチャットにはAI_PROVIDERとAI_MODELが必要です。",
+    "semanticSearch": "セマンティック検索",
+    "semanticValue": "埋め込みモデル{model}を使って、意味でもページを検索します。",
+    "semanticOff": "オフ：検索は語句のみで行われます。管理者はAI_EMBEDDINGS_MODELでオンにできます。"
+  },
+  "chat": {
+    "open": "AIに質問",
+    "title": "AIに質問",
+    "close": "閉じる",
+    "expand": "フルページで開く",
+    "newChat": "新しいチャット",
+    "deleteFailed": "削除できませんでした。もう一度お試しください。",
+    "backToPages": "ページに戻る",
+    "history": "会話",
+    "noHistory": "会話はまだありません。",
+    "groups": {
+      "today": "今日",
+      "yesterday": "昨日",
+      "week": "過去7日間",
+      "month": "過去30日間",
+      "older": "それ以前"
+    },
+    "untitled": "無題の会話",
+    "deleteConversation": "会話を削除",
+    "deleteAll": "すべての会話を削除",
+    "confirmDeleteAll": "このワークスペースでのAIとの会話をすべて削除しますか？",
+    "intro": "このワークスペースのことなら何でも質問してください。回答はあなたが開けるページをもとに、リンク付きで返されます。",
+    "placeholder": "質問を入力…",
+    "send": "送信",
+    "stop": "停止",
+    "scope": "回答の範囲",
+    "scopeWorkspace": "ワークスペース全体",
+    "scopePage": "このページとサブページ",
+    "thinking": "考えています…",
+    "steps": {
+      "working": "作業中 · {time}",
+      "worked": "{time}作業しました",
+      "seconds": "{s}秒",
+      "minutes": "{m}分{s}秒",
+      "question": "質問についてページを検索 · {count, plural, =0 {見つかりませんでした} other {{count}件の結果}}",
+      "searched": "「{query}」を検索 · {count, plural, =0 {見つかりませんでした} other {{count}件の結果}}",
+      "read": "読み取り",
+      "readGone": "現在は開けないページを読み取りました",
+      "query": "クエリ",
+      "rows": "{count, plural, =0 {一致する行なし} other {{count}行}}",
+      "queryGone": "現在は開けないデータベースをクエリしました",
+      "write": {
+        "done": {
+          "createRow": "行を追加しました：",
+          "updateRow": "変更しました：",
+          "createPage": "ページを追加しました：",
+          "editPage": "ページのテキストを変更しました："
+        },
+        "declined": {
+          "createRow": "行の追加が拒否されました：",
+          "updateRow": "変更が拒否されました：",
+          "createPage": "ページの追加が拒否されました：",
+          "editPage": "テキストの変更が拒否されました："
+        },
+        "failed": {
+          "createRow": "行を追加できませんでした：",
+          "updateRow": "変更できませんでした：",
+          "createPage": "ページを追加できませんでした：",
+          "editPage": "テキストを変更できませんでした："
+        },
+        "in": "場所："
+      },
+      "memory": {
+        "remember": "記憶しました：",
+        "propose": "メモを提案しました：",
+        "forget": "忘れました：",
+        "declined": {
+          "remember": "記憶が拒否されました：",
+          "forget": "忘れることが拒否されました："
+        }
+      }
+    },
+    "stopped": "停止しました。",
+    "cutOff": "回答が長さの上限に達したため、途中で切れている可能性があります。",
+    "note": "AIは間違えることがあります。出典を確認してください。",
+    "offline": "AIチャットにはサーバーへの接続が必要です。",
+    "disabled": "このワークスペースではAIがオフになっています。オーナーは「設定 → 全般 → AI」でオンにできます。",
+    "loadFailed": "会話を読み込めませんでした。",
+    "errors": {
+      "noAccess": "その会話、ページ、またはスキルはもう利用できません。",
+      "tooLarge": "質問やスキルが長すぎるか、この会話が上限に達しています。短くするか、新しいチャットを始めてください。",
+      "disabled": "このワークスペースではAIがオフになっています。",
+      "invalid": "先に質問を入力してください。"
+    },
+    "approval": {
+      "question": {
+        "createRow": "この行を追加しますか？",
+        "updateRow": "この行を変更しますか？",
+        "createPage": "このページを追加しますか？",
+        "remember": "あなたについてこれを記憶しますか？",
+        "forget": "このメモを忘れますか？",
+        "editPage": "このページのテキストを変更しますか？"
+      },
+      "in": "場所",
+      "row": "行",
+      "topLevel": "ワークスペースの最上位（あなただけに表示）",
+      "memoryHint": "メモリー：このワークスペースでの以降の質問と一緒に送信されます",
+      "cleared": "（クリア済み）",
+      "approve": "はい",
+      "always": "はい、今後は確認しない（自動）",
+      "decline": "いいえ",
+      "waiting": "承認を待っています",
+      "page": "ページ",
+      "empty": "（空）"
+    },
+    "mode": {
+      "label": "変更",
+      "ask": "確認",
+      "askHint": "変更のたびに確認します",
+      "auto": "自動",
+      "autoHint": "確認せずに追加・変更します",
+      "read": "読み取り専用",
+      "readHint": "何も変更しません"
+    },
+    "actions": {
+      "edit": "編集",
+      "cancel": "キャンセル",
+      "retry": "もう一度回答"
+    }
+  },
+  "memory": {
+    "open": "メモリー",
+    "title": "メモリー",
+    "close": "閉じる",
+    "updated": "メモリーを更新しました",
+    "intro": "このワークスペースでAIがあなたについて保持しているメモです。ここでの質問のたびに一緒に送信されます。あなたが自分について話したときや、何かを覚えるよう頼んだときに追加されます。表示されるのはあなただけです。",
+    "use": "メモリーを使用",
+    "useHint": "オフにすると、ここでの質問にはこれらのメモが付かず、AIは新しいメモを保持しません。既存のメモは残ります。",
+    "empty": "まだ何もありません。AIに自分について話すか、ここでメモを追加してください。",
+    "offline": "メモリーにはサーバーへの接続が必要です。",
+    "addLabel": "新しいメモ",
+    "addPlaceholder": "例：マーケティングチームに所属しています。結果は表で表示してください",
+    "add": "追加",
+    "edit": "編集",
+    "editLabel": "メモ",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "viaApp": "{app}が保持",
+    "count": "{count}/{max}件のメモ",
+    "full": "メモリーがいっぱいです（{max}件）",
+    "forgetAll": "すべて忘れる",
+    "confirmForgetAll": "このワークスペースでAIがあなたについて記憶していることをすべて忘れさせますか？",
+    "errors": {
+      "empty": "記憶する内容を入力してください。",
+      "tooLong": "メモは最大{max}文字です。",
+      "full": "メモリーに保存できるメモは最大{max}件です。先にいずれかを削除してください。",
+      "notFound": "そのメモはもうありません。",
+      "off": "このワークスペースではAIメモリーがオフになっています。"
+    }
+  }
+}

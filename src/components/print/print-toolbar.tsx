@@ -89,12 +89,12 @@ export function PrintToolbar({
       <div className="mx-auto flex min-h-11 max-w-[900px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-1.5 sm:px-[54px]">
         <Link
           href={`/w/${workspaceId}/p/${pageId}`}
-          className="-ml-2 flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+          className="-ms-2 flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
           {t("back")}
         </Link>
-        <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="ms-auto flex flex-wrap items-center gap-x-4 gap-y-2">
           {canIncludeSubpages && (
             <label className="flex items-center gap-2 text-sm text-fg-muted">
               <Switch

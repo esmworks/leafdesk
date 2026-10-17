@@ -29,7 +29,7 @@ after you approve them over OAuth.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
-  Apache-2.0 licensed, in English, Turkish, German, Spanish and French.
+  Apache-2.0 licensed, in 16 languages.
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
@@ -427,8 +427,8 @@ versions, upgrades and running behind a domain.
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
   `SKILL.md` (see [Skills](#skills)).
-- **Five interface languages**: English, Turkish, German, Spanish and French, chosen in My account
-  or taken from the browser (see [Languages](#languages)).
+- **16 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean and Chinese, chosen in My account or taken from the
+  browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
   with a high contrast option (stronger secondary text, lines and focus) that also follows the
   system's "increase contrast" setting.
@@ -2078,8 +2078,12 @@ CI (`.github/workflows/ci.yml`) runs every `scripts/*-e2e.ts`, the ones that nee
 
 ## Languages
 
-The interface is available in English, Turkish (Türkçe), German (Deutsch), Spanish (Español) and
-French (Français). Each person picks a language in My account → Language, stored per browser;
+The interface is available in English, Turkish (Türkçe), German (Deutsch), Spanish (Español),
+French (Français), Italian (Italiano), Brazilian Portuguese (Português), Polish (Polski), Russian
+(Русский), Ukrainian (Українська), Arabic (العربية), Hebrew (עברית), Persian (فارسی), Japanese
+(日本語), Korean (한국어) and Simplified Chinese (简体中文). Arabic, Hebrew and Persian run right to
+left: the sidebar, menus and panels mirror, and in every language each paragraph of a page follows
+the direction of its own text. Each person picks a language in My account → Language, stored per browser;
 without a choice the app follows the browser's `Accept-Language` and falls back to English. Dates
 and numbers are formatted for the language. Emails go out in the recipient's language: the one they
 last picked in My account → Language, else their browser's when they first signed in, stored with
@@ -2091,8 +2095,8 @@ Texts live in `src/i18n/messages/<locale>/*.json` (app, `email.json`, `templates
 built-in templates), in ICU MessageFormat. English is the source: `pnpm i18n:check` (also part of
 `pnpm test` and CI) reports what each language lacks or gets wrong, and anything missing shows in
 English. Adding a language is a new folder of JSON files plus one line each in
-`src/i18n/config.ts` and `src/i18n/blocknote/index.ts`. Translations are welcome as pull
-requests; see [CONTRIBUTING.md](CONTRIBUTING.md#translations) for the workflow.
+`src/i18n/config.ts` and `src/i18n/blocknote/index.ts`. Only Turkish is checked by a native speaker
+so far; corrections to the other languages are welcome as pull requests, as are new languages; see [CONTRIBUTING.md](CONTRIBUTING.md#translations) for the workflow.
 
 ## Architecture
 

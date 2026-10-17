@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Autoryzuj aplikację",
+  "expired": {
+    "title": "Ten link wygasł",
+    "body": "Prośba o autoryzację jest nieprawidłowa lub zbyt stara. Wróć do aplikacji, którą łączysz, i zacznij od nowa."
+  },
+  "unknownClient": {
+    "title": "Nieznana aplikacja",
+    "body": "Aplikacja prosząca o dostęp nie jest zarejestrowana w Leafdesk lub została wyłączona. Wróć i spróbuj połączyć się ponownie."
+  },
+  "heading": "{client} chce uzyskać dostęp do twojego konta Leafdesk",
+  "identifiedBy": "Ta aplikacja jest identyfikowana przez {host}.",
+  "unverified": "Ta aplikacja zarejestrowała się automatycznie i nie została sprawdzona przez Leafdesk. Kontynuuj tylko wtedy, gdy to połączenie zostało rozpoczęte przez ciebie.",
+  "notYou": "To nie ty?",
+  "willAllow": "Aplikacja {client} będzie mogła:",
+  "readOnlyHint": "Odznacz, aby dać dostęp tylko do odczytu. Każda zmiana jest najpierw zapisywana w historii strony, więc możesz ją cofnąć.",
+  "access": {
+    "all": "Dostęp obejmuje wszystkie obszary robocze, do których należysz. Możesz w każdej chwili odłączyć aplikację w Ustawieniach.",
+    "listed": "Dostęp obejmuje wszystkie obszary robocze, do których należysz: {workspaces}. Możesz w każdej chwili odłączyć aplikację w Ustawieniach."
+  },
+  "deny": "Odmów",
+  "denying": "Odmawianie…",
+  "allow": "Zezwól",
+  "allowing": "Zezwalanie…",
+  "redirectNotice": "Nastąpi powrót do {host}.",
+  "error": "Nie udało się zrealizować prośby. Wróć do aplikacji i spróbuj ponownie.",
+  "scopes": {
+    "openid": "Potwierdzać twoją tożsamość",
+    "profile": "Widzieć twoje imię i zdjęcie profilowe",
+    "email": "Widzieć twój adres e-mail",
+    "offlineAccess": "Pozostawać w połączeniu bez ponownego logowania",
+    "pagesRead": "Czytać strony i bazy danych w twoich obszarach roboczych",
+    "pagesWrite": "Tworzyć i edytować strony oraz wiersze baz danych, a także przenosić strony do kosza",
+    "notificationsRead": "Czytać powiadomienia ze skrzynki odbiorczej",
+    "filesWrite": "Przesyłać pliki na strony, z linku lub bezpośrednio z aplikacji"
+  }
+}

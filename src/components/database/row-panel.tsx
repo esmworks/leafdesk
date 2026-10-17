@@ -23,6 +23,7 @@ import {
   withRow,
 } from "@/lib/row-panel";
 import { isEditable } from "@/lib/shortcuts";
+import { inlineSign } from "@/components/direction";
 import { RowPanelContext, type RowOrigin, type RowPanelHost } from "./row-panel-context";
 import { RowProperties } from "./row-properties";
 
@@ -461,7 +462,7 @@ function RowPanel({
       tabIndex={-1}
       // The row's comments open beside the panel (components/page/comments-panel.tsx).
       style={{ width, "--comments-right": `${width}px` } as CSSProperties}
-      className="fixed inset-y-0 right-0 z-40 flex flex-col border-l border-border bg-bg shadow-xl outline-none"
+      className="fixed inset-y-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none"
     >
       <ResizeHandle width={width} onResize={onResize} />
       <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
@@ -478,10 +479,13 @@ function Notice({ children }: { children: ReactNode }) {
   );
 }
 
-/** Drag the panel's left edge to resize it (or use the arrow keys on it); double-click restores the default width. */
+/**
+ * Drag the panel's inner edge to resize it (or use the arrow keys on it); double-click restores the default width.
+ * The panel sits at the end of the line, so moving towards its start (left, or right when right to left) widens it.
+ */
 function ResizeHandle({ width, onResize }: { width: number; onResize: (width: number, save: boolean) => void }) {
   const t = useTranslations("database.rowPanel");
-  const start = useRef<{ x: number; width: number } | null>(null);
+  const start = useRef<{ x: number; width: number; sign: 1 | -1 } | null>(null);
   return (
     <div
       role="separator"
@@ -496,14 +500,16 @@ function ResizeHandle({ width, onResize }: { width: number; onResize: (width: nu
         if (e.button !== 0) return;
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
-        start.current = { x: e.clientX, width };
+        start.current = { x: e.clientX, width, sign: inlineSign(e.currentTarget) };
       }}
       onPointerMove={(e) => {
-        if (start.current) onResize(start.current.width - (e.clientX - start.current.x), false);
+        const s = start.current;
+        if (s) onResize(s.width - (e.clientX - s.x) * s.sign, false);
       }}
       onPointerUp={(e) => {
-        if (!start.current) return;
-        onResize(start.current.width - (e.clientX - start.current.x), true);
+        const s = start.current;
+        if (!s) return;
+        onResize(s.width - (e.clientX - s.x) * s.sign, true);
         start.current = null;
       }}
       onPointerCancel={() => void (start.current = null)}
@@ -511,9 +517,10 @@ function ResizeHandle({ width, onResize }: { width: number; onResize: (width: nu
       onKeyDown={(e) => {
         if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
         e.preventDefault();
-        onResize(width + (e.key === "ArrowLeft" ? 32 : -32), true);
+        const towardsStart = e.key === (inlineSign(e.currentTarget) === 1 ? "ArrowLeft" : "ArrowRight");
+        onResize(width + (towardsStart ? 32 : -32), true);
       }}
-      className="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize outline-none after:absolute after:inset-y-0 after:left-[3px] after:w-0.5 after:transition-colors hover:after:bg-accent/60 focus-visible:after:bg-accent"
+      className="absolute inset-y-0 -inset-s-1 z-10 w-2 cursor-col-resize outline-none after:absolute after:inset-y-0 after:inset-s-[3px] after:w-0.5 after:transition-colors hover:after:bg-accent/60 focus-visible:after:bg-accent"
     />
   );
 }

@@ -1,0 +1,71 @@
+{
+  "metaTitle": "服务器管理",
+  "title": "服务器管理",
+  "description": "此服务器上的账户、它们的会话和密码。你能看到此页面，是因为你已验证的邮箱地址列在 ADMIN_EMAILS 中。",
+  "back": "返回 {workspace}",
+  "backHome": "返回",
+  "workspaces": {
+    "heading": "创建工作区",
+    "everyone": "所有人都可以创建工作区",
+    "admins": "只有管理员可以创建工作区",
+    "description": "通过服务器上的 WORKSPACE_CREATION 设置（everyone 或 admins）。所有人注册时仍会获得一个个人工作区。"
+  },
+  "sessions": {
+    "heading": "所有人",
+    "description": "此服务器上有 {count} 个已登录的会话。",
+    "signOutEveryone": "让所有人退出登录",
+    "signOutEveryoneDescription": "结束所有设备上的所有会话（你在此浏览器中的会话除外），在那些设备上打开的页面将停止同步。已连接的应用和 API 令牌仍可继续使用。",
+    "signOutEveryoneTitle": "要让所有人退出登录吗？",
+    "signOutEveryoneBody": "此服务器上的所有人都需要重新登录，你在其他设备上也一样。",
+    "signOutEveryoneConfirm": "让所有人退出登录",
+    "resetEveryone": "要求设置新密码",
+    "resetEveryoneDescription": "除你之外，所有使用密码登录的人都会被退出登录，并须在下次登录时设置新密码。只通过单点登录、GitHub 或 Google 登录的账户不受影响。",
+    "resetByEmail": "他们登录时会收到一封邮件，其中包含设置新密码的链接。",
+    "resetInApp": "此服务器未配置邮件，因此他们需要先用旧密码（以及两步验证码，如果启用了）登录，然后立即设置新密码。",
+    "resetEveryoneTitle": "要求所有人设置新密码吗？",
+    "resetEveryoneBody": "除你之外，所有设置了密码的人现在都会被退出登录，且无法再用当前密码登录。",
+    "resetEveryoneConfirm": "要求设置新密码"
+  },
+  "users": {
+    "heading": "账户",
+    "count": "{count} 个账户",
+    "countPartial": "显示 {total} 个账户中的 {shown} 个。搜索可找到其他账户。",
+    "search": "按姓名或邮箱搜索",
+    "noMatches": "没有与此搜索匹配的账户。",
+    "none": "还没有账户。",
+    "columns": {
+      "user": "账户",
+      "workspaces": "工作区",
+      "lastActive": "最后活跃",
+      "twoFactor": "两步验证",
+      "password": "密码",
+      "actions": "操作"
+    },
+    "you": "（你）",
+    "admin": "管理员",
+    "unverified": "未验证",
+    "signedOut": "未登录",
+    "on": "开启",
+    "off": "关闭",
+    "hasPassword": "已设置",
+    "noPassword": "无",
+    "resetPending": "需设置新密码",
+    "actionsFor": "{name} 的操作",
+    "signOut": "在所有设备上退出登录",
+    "signOutTitle": "要让 {name} 在所有设备上退出登录吗？",
+    "signOutBody": "此人的 {count} 个会话将结束，其打开的页面将停止同步。已连接的应用和 API 令牌仍可继续使用。",
+    "signOutSelfBody": "你的 {count} 个会话将结束（此浏览器中的会话除外）。",
+    "signOutConfirm": "退出登录",
+    "requireReset": "要求设置新密码",
+    "resetTitle": "要求 {name} 设置新密码吗？",
+    "resetBody": "此人现在会被退出登录，并须在下次用密码登录时设置新密码。",
+    "resetByEmail": "他们登录时会收到一封邮件，其中包含设置新密码的链接。",
+    "resetInApp": "此服务器未配置邮件，因此他们需要先用旧密码（以及两步验证码，如果启用了）登录，然后立即设置新密码。",
+    "resetConfirm": "要求设置新密码"
+  },
+  "errors": {
+    "notFound": "未找到该账户。",
+    "noPassword": "此账户没有密码；它通过其他方式登录。",
+    "self": "请在你的账户页面中更改自己的密码。"
+  }
+}

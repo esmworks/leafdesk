@@ -1,0 +1,21 @@
+{
+  "hello": "Ciao, {name}",
+  "recent": "Modificate di recente",
+  "assignedEmpty": "Non hai nulla di assegnato. Le righe dei database assegnate a te compaiono qui.",
+  "empty": "Non c’è ancora niente qui. Crea la tua prima pagina per iniziare.",
+  "emptyGuest": "Qui non è ancora stato condiviso niente con te. Le pagine compaiono quando qualcuno le condivide con te.",
+  "newPage": "Nuova pagina",
+  "newDatabase": "Nuovo database",
+  "personalWorkspace": "Spazio di lavoro di {name}",
+  "generalTeamspace": "Generale",
+  "fromTemplate": "Da un modello",
+  "assigned": "Assegnate a te",
+  "assignedGroups": {
+    "overdue": "In ritardo",
+    "today": "Oggi",
+    "next7": "Prossimi 7 giorni",
+    "later": "Più avanti",
+    "none": "Senza data"
+  },
+  "assignedMore": "{shown} visualizzate su {total}. Filtra un database per “Io” per vedere le altre."
+}

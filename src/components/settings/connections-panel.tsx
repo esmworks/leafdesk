@@ -181,7 +181,7 @@ function ConnectionList({
                 <ul className="divide-y divide-border">
                   {list.map((conn) => (
                     <li key={conn.id}>
-                      <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-bg-hover">
+                      <button type="button" onClick={() => setOpen({ id: conn.id, tab: "tools" })} className="flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-bg-hover">
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
                           <ConnectionIcon icon={conn.icon} url={conn.url} />
                         </span>
@@ -313,14 +313,14 @@ function CatalogBrowser({
       <p className="text-sm text-fg-muted">{t("catalog.description")}</p>
       <div className="flex flex-wrap gap-2">
         <label className="relative min-w-48 flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
+          <Search className="pointer-events-none absolute top-1/2 inset-s-2.5 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
           <Input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("catalog.search")}
             aria-label={t("catalog.search")}
-            className="pl-8"
+            className="ps-8"
           />
         </label>
         <select
@@ -359,7 +359,7 @@ function CatalogBrowser({
                       disabled={!conn && full}
                       title={conn ? undefined : tooMany}
                       onClick={() => (conn ? onOpen(conn) : onPick(entry))}
-                      className="group flex min-w-0 flex-1 items-center gap-3 p-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
+                      className="group flex min-w-0 flex-1 items-center gap-3 p-3 text-start disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <span className="h-10 w-10 shrink-0">
                         <ServiceLogo entry={entry} />
@@ -383,7 +383,7 @@ function CatalogBrowser({
                     </button>
                     {/* Another connection to the same service: a second workspace, account or org. */}
                     {conn && !full && (
-                      <IconButton label={t("catalog.addAnother", { name: entry.name })} onClick={() => onPick(entry)} className="mr-2 h-7 w-7 shrink-0">
+                      <IconButton label={t("catalog.addAnother", { name: entry.name })} onClick={() => onPick(entry)} className="me-2 h-7 w-7 shrink-0">
                         <Plus className="h-3.5 w-3.5" />
                       </IconButton>
                     )}

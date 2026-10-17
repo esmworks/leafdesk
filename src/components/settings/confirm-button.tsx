@@ -41,7 +41,7 @@ export function ConfirmButton({
 
   return (
     <div className="flex shrink-0 flex-col gap-2 sm:max-w-64 sm:items-end">
-      {note && <p className="text-xs text-fg-muted sm:text-right">{note}</p>}
+      {note && <p className="text-xs text-fg-muted sm:text-end">{note}</p>}
       <div className="flex gap-1">
         <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} disabled={pending}>
           {tc("cancel")}

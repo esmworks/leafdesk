@@ -15,6 +15,7 @@ import { useEditorDictionary } from "@/i18n/blocknote";
 import { parseDashboardLine } from "@/lib/dashboard";
 import { DATABASE_BLOCK, mapReferenceLines } from "@/lib/embed-blocks";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
+import { BlockDirection } from "./block-direction";
 import { HistoryDiff, type VersionDiff } from "./history-diff";
 
 type SnapshotItem = Awaited<ReturnType<typeof listSnapshotsAction>>[number];
@@ -29,7 +30,7 @@ function Preview({ markdown }: { markdown: string }) {
   const dictionary = useEditorDictionary();
   const te = useTranslations("page.embed");
   const td = useTranslations("page.dashboard");
-  const editor = useCreateBlockNote({ schema: previewSchema, dictionary }, [dictionary]);
+  const editor = useCreateBlockNote({ schema: previewSchema, dictionary, extensions: [BlockDirection()] }, [dictionary]);
   // A database block or dashboard is only named here: the version keeps which databases, not their rows back then.
   const text = useMemo(
     () =>
@@ -199,7 +200,7 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
           </div>
           <div className="flex-1 overflow-y-auto py-4 md:py-6">{renderBody()}</div>
         </div>
-        <aside className="flex max-h-[45%] shrink-0 flex-col border-b border-border bg-bg-subtle md:max-h-none md:w-72 md:border-b-0 md:border-l">
+        <aside className="flex max-h-[45%] shrink-0 flex-col border-b border-border bg-bg-subtle md:max-h-none md:w-72 md:border-b-0 md:border-s">
           <div className="flex items-center justify-between px-4 py-3">
             <span className="flex items-center gap-2 text-sm font-medium">
               <History className="h-4 w-4" /> {t("title")}
@@ -219,7 +220,7 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
                 type="button"
                 onClick={() => setSelected(s.id)}
                 className={cn(
-                  "mb-0.5 block w-full rounded-md px-2 py-2 text-left hover:bg-bg-hover",
+                  "mb-0.5 block w-full rounded-md px-2 py-2 text-start hover:bg-bg-hover",
                   selected === s.id && "bg-bg-active hover:bg-bg-active",
                 )}
               >

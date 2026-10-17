@@ -485,7 +485,7 @@
     "relativeHint": "Les dates à moins d’une semaine d’aujourd’hui s’affichent « demain », « dans 3 jours », « il y a 2 jours ».",
     "reminder": "Rappel",
     "reminderNone": "Aucun rappel",
-    "reminderBefore": "{days, select, 0 {Le jour même, 9:00} 1 {1 jour avant, 9:00} 7 {1 semaine avant, 9:00} other {# jours avant, 9:00}}",
+    "reminderBefore": "{days, select, 0 {Le jour même, 9:00} 1 {1 jour avant, 9:00} 7 {1 semaine avant, 9:00} other {{days} jours avant, 9:00}}",
     "reminderHint": "Prévient les personnes assignées à chaque ligne, ou celle qui l’a ajoutée, sauf si la ligne est terminée. 9:00 dans votre fuseau horaire ; les dates avec une heure préviennent à cette heure-là."
   },
   "rowProperties": {

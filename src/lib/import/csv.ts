@@ -130,10 +130,17 @@ export function recordsTable([head = [], ...body]: string[][], { guarded = true 
   return { headers, rows };
 }
 
-// English, Turkish, German, Spanish and French.
-const TITLE_HEADERS = ["name", "title", "page", "ad", "isim", "başlık", "baslik", "sayfa", "titel", "seite", "nombre", "título", "titulo", "página", "titre", "nom"];
+// English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian,
+// Arabic, Hebrew, Persian, Japanese, Korean and Chinese. Ukrainian's apostrophe comes typed three ways.
+const TITLE_HEADERS = [
+  ...["name", "title", "page", "ad", "isim", "başlık", "baslik", "sayfa", "titel", "seite", "nombre", "título", "titulo", "página", "titre", "nom"],
+  ...["nome", "titolo", "pagina", "nazwa", "imię", "tytuł", "tytul", "strona"],
+  ...["название", "наименование", "имя", "заголовок", "страница", "назва", "ім'я", "ім’я", "імʼя", "сторінка"],
+  ...["الاسم", "اسم", "العنوان", "عنوان", "الصفحة", "שם", "כותרת", "עמוד", "نام", "صفحه"],
+  ...["名前", "名称", "タイトル", "題名", "件名", "ページ", "이름", "제목", "페이지", "名字", "标题", "页面"],
+];
 
-/** The column that becomes each row's title: one called Name or Title (or Ad, Başlık, Titel, Nombre, Titre…), else the first. */
+/** The column that becomes each row's title: one called Name or Title (or Ad, Başlık, Nome, Название, 名前…), else the first. */
 export function guessTitleColumn(headers: string[]): number {
   // Both ways of lower-casing: Turkish makes "TITLE" "tıtle", others make "BAŞLIK" "başlik".
   const i = headers.findIndex((h) => [h.trim().toLowerCase(), h.trim().toLocaleLowerCase("tr")].some((l) => TITLE_HEADERS.includes(l)));
@@ -175,10 +182,24 @@ function looksLikeCode(raw: string) {
   return /^[+-]?0\d/.test(s) || s.replace(/\D/g, "").length > 15;
 }
 
-const TRUE_WORDS = new Set(["true", "yes", "y", "evet", "ja", "wahr", "sí", "si", "verdadero", "oui", "vrai", "checked", "✓", "✔", "[x]", "x"]);
-const FALSE_WORDS = new Set(["false", "no", "n", "hayır", "hayir", "nein", "falsch", "falso", "non", "faux", "unchecked", "[ ]", "✗"]);
+// No word is "yes" in one language and "no" in another. Persian خیر ("no") only with the Persian
+// ye: with the Arabic one it is "good".
+const TRUE_WORDS = new Set([
+  ...["true", "yes", "y", "evet", "ja", "wahr", "sí", "si", "verdadero", "oui", "vrai", "checked", "✓", "✔", "[x]", "x"],
+  ...["vero", "sim", "verdadeiro", "tak", "prawda", "да", "истина", "так", "істина", "نعم", "صح", "صحيح", "כן", "אמת", "بله", "آره", "درست"],
+  ...["はい", "真", "예", "네", "참", "是", "对"],
+]);
+const FALSE_WORDS = new Set([
+  ...["false", "no", "n", "hayır", "hayir", "nein", "falsch", "falso", "non", "faux", "unchecked", "[ ]", "✗"],
+  ...["não", "nao", "nie", "fałsz", "falsz", "нет", "ложь", "ні", "хибність", "لا", "خطأ", "לא", "שקר", "نه", "خیر", "نادرست"],
+  ...["いいえ", "偽", "아니요", "아니오", "거짓", "否", "错", "假"],
+]);
 
-/** A checkbox cell: yes/no words (English, Turkish, German, Spanish, French), true/false, 1/0, ✓. Null for anything else. */
+/**
+ * A checkbox cell: yes/no words (English, Turkish, German, Spanish, French, Italian, Portuguese,
+ * Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese), true/false,
+ * 1/0, ✓. Null for anything else.
+ */
 export function parseCheckbox(raw: string, { numbers = true } = {}): boolean | null {
   const s = raw.trim().toLocaleLowerCase("tr").replace(/ı/g, "i");
   const word = raw.trim().toLowerCase();

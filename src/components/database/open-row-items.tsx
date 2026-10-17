@@ -11,7 +11,7 @@ export function OpenRowItems({ opener, rowId, onDone }: { opener: RowOpener; row
   return (
     <>
       <MenuItem
-        icon={opener.inPanel ? <PanelRight className="h-3.5 w-3.5" /> : <ExternalLink className="h-3.5 w-3.5" />}
+        icon={opener.inPanel ? <PanelRight className="h-3.5 w-3.5 rtl:-scale-x-100" /> : <ExternalLink className="h-3.5 w-3.5" />}
         onClick={() => {
           onDone();
           opener.open(rowId);

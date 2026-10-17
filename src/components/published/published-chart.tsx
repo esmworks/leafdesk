@@ -42,7 +42,7 @@ export function PublishedChartFigures({ chart, compact = false, print = false }:
   }
   if (!data) return <p className="py-2 text-sm text-fg-faint">{t("chart.needsGroupBody")}</p>;
   if (!data.groups.length) return <p className="py-2 text-sm text-fg-faint">{t("chart.empty")}</p>;
-  const cell = "border-b border-border px-2 py-1.5 text-left align-top";
+  const cell = "border-b border-border px-2 py-1.5 text-start align-top";
   return (
     <div className={cn("pb-1", !print && "overflow-x-auto [color-scheme:light_dark]")}>
       <table className="w-full border-collapse text-sm">
@@ -51,11 +51,11 @@ export function PublishedChartFigures({ chart, compact = false, print = false }:
             <th scope="col" className={cn(cell, "border-t font-normal")}>
               {groupBy.name}
             </th>
-            <th scope="col" className={cn(cell, "border-t border-l text-right font-normal")}>
+            <th scope="col" className={cn(cell, "border-t border-s text-end font-normal")}>
               {measureName}
             </th>
             {data.series.map((s) => (
-              <th key={s.key} scope="col" className={cn(cell, "border-t border-l text-right font-normal")}>
+              <th key={s.key} scope="col" className={cn(cell, "border-t border-s text-end font-normal")}>
                 {s.other ? t("chart.other") : seriesName(s)}
               </th>
             ))}
@@ -67,9 +67,9 @@ export function PublishedChartFigures({ chart, compact = false, print = false }:
               <th scope="row" className={cn(cell, "font-medium")}>
                 {nameOf(g)}
               </th>
-              <td className={cn(cell, "border-l text-right tabular-nums")}>{show(g.result)}</td>
+              <td className={cn(cell, "border-s text-end tabular-nums")}>{show(g.result)}</td>
               {g.segments.map((s) => (
-                <td key={s.key} className={cn(cell, "border-l text-right tabular-nums text-fg-muted")}>
+                <td key={s.key} className={cn(cell, "border-s text-end tabular-nums text-fg-muted")}>
                   {show(s.result)}
                 </td>
               ))}

@@ -1,0 +1,50 @@
+{
+  "metaTitle": "Grafo",
+  "heading": "Grafo",
+  "count": "{pages, plural, one {# página} other {# páginas}} · {edges, plural, one {# conexão} other {# conexões}}",
+  "reload": "Carregar de novo",
+  "find": "Encontre uma página para focar",
+  "focus": "Em torno de",
+  "depth": "Passos",
+  "clearFocus": "Mostrar o grafo inteiro",
+  "tree": "Subpáginas",
+  "rows": "Linhas de bancos de dados",
+  "orphans": "Páginas sem conexões",
+  "kinds": {
+    "page": "Página",
+    "database": "Banco de dados",
+    "row": "Linha"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relação",
+    "child": "Subpágina"
+  },
+  "truncated": "Mostrando as {count} páginas editadas mais recentemente.",
+  "canvas": "Grafo das páginas do espaço de trabalho",
+  "empty": "Nenhuma página para mostrar.",
+  "focusMissing": "Essa página não está no grafo: ela pode estar na lixeira ou não ter sido compartilhada com você.",
+  "local": {
+    "title": "Grafo desta página",
+    "close": "Fechar grafo",
+    "openFull": "Abrir no grafo completo",
+    "canvas": "Grafo das páginas em torno desta página",
+    "empty": "Nenhuma página está conectada a esta ainda.",
+    "failed": "Não foi possível carregar o grafo."
+  },
+  "zoomIn": "Aumentar zoom",
+  "zoomOut": "Diminuir zoom",
+  "fit": "Ajustar o grafo",
+  "hint": "Clique para selecionar, clique duas vezes para abrir",
+  "inspector": {
+    "open": "Abrir página",
+    "focus": "Focar em torno dela",
+    "expandRows": "{count, plural, one {Mostrar # linha} other {Mostrar # linhas}}",
+    "collapseRows": "Agrupar as linhas",
+    "rows": "{count, plural, one {# linha} other {# linhas}}",
+    "none": "Não está ligada a nenhuma outra página.",
+    "more": "e mais {count}",
+    "close": "Limpar seleção",
+    "parent": "Dentro de"
+  }
+}

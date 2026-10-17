@@ -5,7 +5,7 @@ import { SettingsGroup, SettingsRow } from "./section";
 
 function Snippet({ value }: { value: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-border bg-bg py-1.5 pr-1.5 pl-3">
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-bg py-1.5 pe-1.5 ps-3">
       <code className="min-w-0 flex-1 text-xs break-all">{value}</code>
       <CopyButton value={value} />
     </div>

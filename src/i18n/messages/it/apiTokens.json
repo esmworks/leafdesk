@@ -1,0 +1,73 @@
+{
+  "heading": "Token di accesso personali",
+  "description": "I token permettono a script e altri programmi di usare la REST API di Leafdesk a nome tuo, con il tuo accesso alle pagine. Tienili segreti, come una password.",
+  "docs": "Documentazione API",
+  "empty": "Non hai ancora nessun token.",
+  "create": "Nuovo token",
+  "form": {
+    "title": "Nuovo token di accesso personale",
+    "name": "Nome",
+    "namePlaceholder": "es. Script del report settimanale",
+    "access": "Accesso",
+    "read": "Sola lettura",
+    "readHint": "Leggere pagine, database, righe e commenti.",
+    "write": "Lettura e scrittura",
+    "writeHint": "Anche creare e modificare pagine, righe e commenti, spostare pagine nel cestino e (come proprietario dello spazio di lavoro) modificare gli agenti e chiedere loro delle esecuzioni.",
+    "workspace": "Spazio di lavoro",
+    "allWorkspaces": "Tutti i miei spazi di lavoro",
+    "expiry": "Scade dopo",
+    "days": "{count, plural, one {# giorno} other {# giorni}}",
+    "never": "Mai",
+    "submit": "Crea token",
+    "creating": "Creazione in corso…"
+  },
+  "created": {
+    "title": "Copia il tuo nuovo token",
+    "body": "Questa è l’unica volta in cui il token viene mostrato. Conservalo in un posto sicuro; se lo perdi, revocalo e creane un altro.",
+    "done": "Fine"
+  },
+  "row": {
+    "readOnly": "Sola lettura",
+    "readWrite": "Lettura e scrittura",
+    "allWorkspaces": "Tutti gli spazi di lavoro",
+    "createdAt": "Creato {date}",
+    "lastUsed": "ultimo utilizzo {date}",
+    "neverUsed": "mai usato",
+    "expires": "scade {date}",
+    "expired": "scaduto {date}",
+    "noExpiry": "non scade"
+  },
+  "revoke": "Revoca",
+  "revoking": "Revoca in corso…",
+  "confirmRevoke": "Revoca {name}",
+  "revokeError": "Impossibile revocare il token. Riprova.",
+  "errors": {
+    "name": "Dai al token un nome di massimo 100 caratteri.",
+    "scopes": "Scegli cosa può fare il token.",
+    "workspace": "Non sei membro di quello spazio di lavoro.",
+    "expiry": "Scegli quando scade il token.",
+    "limit": "Hai raggiunto il numero massimo di token consentiti. Revocane prima uno.",
+    "generic": "Impossibile creare il token. Riprova."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "Documento OpenAPI (JSON)",
+    "tokensWhere": "Crea un token in Il mio account → App connesse.",
+    "quickStart": "Guida rapida",
+    "baseUrl": "URL di base",
+    "errors": "Errori",
+    "code": "Codice",
+    "status": "Stato",
+    "endpoints": "Endpoint",
+    "parameters": "Parametri",
+    "inPath": "percorso",
+    "inQuery": "query",
+    "body": "Corpo della richiesta (JSON)",
+    "formBody": "Corpo della richiesta (dati di modulo multipart)",
+    "response": "Risposta {status}",
+    "name": "Nome",
+    "type": "Tipo",
+    "description": "Descrizione",
+    "required": "obbligatorio"
+  }
+}

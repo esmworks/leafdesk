@@ -485,7 +485,7 @@
     "relativeHint": "Daten innerhalb einer Woche erscheinen als „morgen“, „in 3 Tagen“, „vor 2 Tagen“.",
     "reminder": "Erinnerung",
     "reminderNone": "Keine Erinnerung",
-    "reminderBefore": "{days, select, 0 {Am selben Tag, 9:00} 1 {1 Tag vorher, 9:00} 7 {1 Woche vorher, 9:00} other {# Tage vorher, 9:00}}",
+    "reminderBefore": "{days, select, 0 {Am selben Tag, 9:00} 1 {1 Tag vorher, 9:00} 7 {1 Woche vorher, 9:00} other {{days} Tage vorher, 9:00}}",
     "reminderHint": "Benachrichtigt die Personen, die der Zeile zugewiesen sind, sonst wer sie angelegt hat; erledigte Zeilen erinnern nicht. 9:00 gilt in deiner Zeitzone; Daten mit Uhrzeit erinnern stattdessen zu dieser Uhrzeit."
   },
   "rowProperties": {

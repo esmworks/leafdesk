@@ -1,0 +1,270 @@
+{
+  "assistant": {
+    "askAi": "Perguntar à IA",
+    "askAiSubtext": "Reescreva, traduza ou continue escrevendo com IA",
+    "askAiAliases": "ia ai assistente escrever reescrever melhorar traduzir",
+    "continueSubtext": "A IA continua escrevendo a partir daqui",
+    "continueAliases": "ia ai continuar escrever mais",
+    "summarizeSubtext": "A IA adiciona um resumo desta página",
+    "summarizeAliases": "ia ai resumo resumir tldr",
+    "group": "IA",
+    "label": "Assistente de IA",
+    "placeholder": "Diga à IA o que escrever…",
+    "placeholderSelection": "Diga à IA o que fazer com a seleção…",
+    "send": "Enviar",
+    "actions": {
+      "improve": "Melhorar a escrita",
+      "shorten": "Encurtar",
+      "fix": "Corrigir ortografia e gramática",
+      "translate": "Traduzir…",
+      "continue": "Continuar escrevendo",
+      "summarize": "Resumir a página",
+      "custom": "Sua instrução"
+    },
+    "translateInto": "Traduzir para",
+    "back": "Voltar",
+    "writing": "Escrevendo…",
+    "stop": "Parar",
+    "replace": "Substituir a seleção",
+    "insertBelow": "Inserir abaixo",
+    "retry": "Tentar novamente",
+    "discard": "Descartar",
+    "cutOff": "A resposta atingiu o limite de tamanho e pode estar cortada.",
+    "reviewNote": "A IA pode cometer erros. Confira o texto antes de mantê-lo.",
+    "stopped": "Parado. Você ainda pode manter o que foi escrito até agora.",
+    "applyFailed": "Não foi possível adicionar a sugestão à página.",
+    "selectionChanged": "O texto selecionado mudou nesse meio-tempo, então a sugestão foi adicionada abaixo dele."
+  },
+  "errors": {
+    "disabled": "A IA não está disponível neste espaço de trabalho.",
+    "noAccess": "Você não pode alterar esta página.",
+    "tooLarge": "Texto demais para uma única solicitação de IA. Selecione menos e tente novamente.",
+    "rateLimited": "Solicitações de IA demais. Tente novamente em instantes.",
+    "timeout": "A IA demorou demais para responder. Tente novamente.",
+    "aborted": "A solicitação de IA foi cancelada.",
+    "provider": "O provedor de IA não conseguiu responder. Tente novamente mais tarde ou peça a um administrador para verificar as configurações de IA.",
+    "empty": "A IA não deu nenhuma resposta. Tente novamente ou reformule.",
+    "invalid": "A solicitação de IA ficou incompleta. Tente novamente.",
+    "interrupted": "O servidor reiniciou enquanto isso era processado. Atualize novamente."
+  },
+  "autofill": {
+    "addEntry": "Preenchimento automático com IA",
+    "configure": "Preenchimento automático com IA…",
+    "titleNew": "Nova propriedade de preenchimento automático com IA",
+    "titleFor": "Preenchimento automático com IA de {name}",
+    "back": "Voltar",
+    "mode": "A IA preenche",
+    "modes": {
+      "summary": "Um resumo",
+      "translation": "Uma tradução",
+      "custom": "Seu próprio prompt"
+    },
+    "modeHints": {
+      "summary": "Um resumo curto da página de cada linha.",
+      "translation": "Um valor da linha, traduzido.",
+      "custom": "O que você descrever, usando os valores da linha."
+    },
+    "defaultNames": {
+      "summary": "Resumo de IA",
+      "translation": "Tradução",
+      "custom": "Texto de IA"
+    },
+    "source": "Traduzir",
+    "sourceTitle": "Nome",
+    "sourceBody": "Conteúdo da página",
+    "language": "Para",
+    "prompt": "Prompt",
+    "promptPlaceholder": "Por exemplo: Escreva uma frase de apresentação de '{title}' voltada para '{Audience}'.",
+    "promptHint": "Clique em uma propriedade para inseri-la; o valor da linha ocupa o lugar dela.",
+    "includeBody": "Enviar também o conteúdo da página da linha",
+    "auto": "Atualizar quando a linha mudar",
+    "autoHint": "Alguns segundos depois que os valores ou a página de uma linha mudam, o valor dela é calculado novamente.",
+    "privacy": "Aquilo a partir do qual o valor de cada linha é calculado vai para o provedor de IA deste servidor.",
+    "save": "Salvar",
+    "create": "Adicionar propriedade",
+    "turnOff": "Desativar o preenchimento automático com IA",
+    "updateAll": "Atualizar todas as linhas desta visualização",
+    "updateRow": "Atualizar com IA",
+    "pending": "A IA está trabalhando nisso…",
+    "failed": "A IA não conseguiu preencher isto: {reason}",
+    "tooManyRows": "No máximo {max} linhas podem ser atualizadas de uma vez; as primeiras {max} desta visualização estão sendo atualizadas.",
+    "errors": {
+      "invalidMode": "Escolha o que a IA deve preencher.",
+      "unknownLanguage": "Escolha um idioma para a tradução.",
+      "unknownSource": "Escolha o que traduzir.",
+      "promptRequired": "Escreva um prompt.",
+      "promptTooLong": "O prompt pode ter no máximo {max} caracteres.",
+      "unknownPlaceholder": "Não há nenhuma propriedade chamada “{name}”.",
+      "cycle": "“{name}” já lê esta propriedade (diretamente ou por meio de outras propriedades de IA), então esta não pode lê-la.",
+      "notText": "Só propriedades de texto podem ser preenchidas pela IA.",
+      "databaseLocked": "O banco de dados está bloqueado."
+    }
+  },
+  "settings": {
+    "heading": "IA",
+    "description": "O assistente de escrita com IA nas páginas, as propriedades de preenchimento automático com IA nos bancos de dados, o chat de IA e a pesquisa semântica.",
+    "enabled": "Recursos de IA",
+    "enabledHint": "Quando ativados, os membros podem enviar o conteúdo das páginas e os valores das linhas que conseguem ver ao provedor de IA abaixo. Desative para manter o conteúdo deste espaço de trabalho longe dele.",
+    "ownersOnly": "Só proprietários podem alterar isto.",
+    "memory": "Memória da IA",
+    "memoryHint": "Quando ativada, o chat de IA guarda notas curtas sobre as pessoas que falam de si mesmas para ele e as envia junto com as perguntas seguintes delas. Cada pessoa pode desativá-la para si. Quando desativada, a tela Memória fica oculta e as perguntas de ninguém levam notas; as notas são mantidas, não excluídas. As execuções dos agentes também passam a não levar notas nem propor novas.",
+    "provider": "Provedor",
+    "providerValue": "{provider}, modelo {model}",
+    "notConfigured": "Nenhum provedor de IA ou modelo de embeddings está configurado neste servidor, então os recursos de IA estão desativados. Um administrador pode configurá-los com as variáveis de ambiente AI_PROVIDER e AI_MODEL (e AI_EMBEDDINGS_MODEL) (veja o README).",
+    "noProvider": "Nenhum: o assistente de escrita, as propriedades de IA e o chat de IA precisam de AI_PROVIDER e AI_MODEL.",
+    "semanticSearch": "Pesquisa semântica",
+    "semanticValue": "A pesquisa também encontra páginas pelo significado, com o modelo de embeddings {model}.",
+    "semanticOff": "Desativada: a pesquisa encontra só palavras. Um administrador pode ativá-la com AI_EMBEDDINGS_MODEL."
+  },
+  "chat": {
+    "open": "Perguntar à IA",
+    "title": "Perguntar à IA",
+    "close": "Fechar",
+    "expand": "Abrir em página inteira",
+    "newChat": "Novo chat",
+    "deleteFailed": "Não foi possível excluir. Tente novamente.",
+    "backToPages": "Voltar para as páginas",
+    "history": "Conversas",
+    "noHistory": "Nenhuma conversa ainda.",
+    "groups": {
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "week": "Últimos 7 dias",
+      "month": "Últimos 30 dias",
+      "older": "Mais antigas"
+    },
+    "untitled": "Conversa sem título",
+    "deleteConversation": "Excluir conversa",
+    "deleteAll": "Excluir todas as conversas",
+    "confirmDeleteAll": "Excluir todas as suas conversas com a IA neste espaço de trabalho?",
+    "intro": "Pergunte sobre qualquer coisa neste espaço de trabalho. As respostas vêm das páginas que você pode abrir, com links para elas.",
+    "placeholder": "Faça uma pergunta…",
+    "send": "Enviar",
+    "stop": "Parar",
+    "scope": "Responder com base em",
+    "scopeWorkspace": "Todo o espaço de trabalho",
+    "scopePage": "Esta página e as subpáginas dela",
+    "thinking": "Pensando…",
+    "steps": {
+      "working": "Trabalhando · {time}",
+      "worked": "Trabalhou por {time}",
+      "seconds": "{s}s",
+      "minutes": "{m}min {s}s",
+      "question": "Pesquisou a pergunta nas páginas · {count, plural, =0 {nada encontrado} one {# resultado} other {# resultados}}",
+      "searched": "Pesquisou “{query}” · {count, plural, =0 {nada encontrado} one {# resultado} other {# resultados}}",
+      "read": "Leu",
+      "readGone": "Leu uma página que você não pode mais abrir",
+      "query": "Consultou",
+      "rows": "{count, plural, =0 {nenhuma linha corresponde} one {# linha} other {# linhas}}",
+      "queryGone": "Consultou um banco de dados que você não pode mais abrir",
+      "write": {
+        "done": {
+          "createRow": "Linha adicionada:",
+          "updateRow": "Linha alterada:",
+          "createPage": "Página adicionada:",
+          "editPage": "Texto da página alterado:"
+        },
+        "declined": {
+          "createRow": "Recusado adicionar a linha:",
+          "updateRow": "Recusado alterar:",
+          "createPage": "Recusado adicionar a página:",
+          "editPage": "Recusado alterar o texto de:"
+        },
+        "failed": {
+          "createRow": "Não foi possível adicionar a linha:",
+          "updateRow": "Não foi possível alterar:",
+          "createPage": "Não foi possível adicionar a página:",
+          "editPage": "Não foi possível alterar o texto de:"
+        },
+        "in": "em"
+      },
+      "memory": {
+        "remember": "Lembrou:",
+        "propose": "Propôs uma nota:",
+        "forget": "Esqueceu:",
+        "declined": {
+          "remember": "Recusado lembrar:",
+          "forget": "Recusado esquecer:"
+        }
+      }
+    },
+    "stopped": "Parado.",
+    "cutOff": "A resposta atingiu o limite de tamanho e pode estar cortada.",
+    "note": "A IA pode cometer erros. Confira as fontes.",
+    "offline": "O chat de IA precisa de conexão com o servidor.",
+    "disabled": "A IA está desativada neste espaço de trabalho. Os proprietários podem ativá-la em Configurações → Geral → Recursos de IA.",
+    "loadFailed": "Não foi possível carregar a conversa.",
+    "errors": {
+      "noAccess": "Essa conversa, página ou habilidade não está mais disponível.",
+      "tooLarge": "Essa pergunta ou habilidade é longa demais, ou esta conversa está cheia. Encurte-a ou comece um novo chat.",
+      "disabled": "A IA está desativada neste espaço de trabalho.",
+      "invalid": "Digite uma pergunta primeiro."
+    },
+    "approval": {
+      "question": {
+        "createRow": "Adicionar esta linha?",
+        "updateRow": "Alterar esta linha?",
+        "createPage": "Adicionar esta página?",
+        "remember": "Lembrar isto sobre você?",
+        "forget": "Esquecer esta nota?",
+        "editPage": "Alterar o texto desta página?"
+      },
+      "in": "Em",
+      "row": "Linha",
+      "topLevel": "No topo do espaço de trabalho, privada para você",
+      "memoryHint": "Memória: enviada com suas próximas perguntas neste espaço de trabalho",
+      "cleared": "(apagado)",
+      "approve": "Sim",
+      "always": "Sim, e não perguntar de novo (Automático)",
+      "decline": "Não",
+      "waiting": "Aguardando sua aprovação",
+      "page": "Página",
+      "empty": "(vazio)"
+    },
+    "mode": {
+      "label": "Alterações",
+      "ask": "Perguntar",
+      "askHint": "Pergunta a você antes de cada alteração",
+      "auto": "Automático",
+      "autoHint": "Adiciona e altera sem perguntar",
+      "read": "Somente leitura",
+      "readHint": "Não altera nada"
+    },
+    "actions": {
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "retry": "Responder novamente"
+    }
+  },
+  "memory": {
+    "open": "Memória",
+    "title": "Memória",
+    "close": "Fechar",
+    "updated": "Memória atualizada",
+    "intro": "Notas que a IA guarda sobre você neste espaço de trabalho, enviadas com cada uma das suas perguntas aqui. Ela adiciona uma quando você fala sobre si ou pede que ela se lembre de algo. Só você as vê.",
+    "use": "Usar memória",
+    "useHint": "Quando desativada, suas perguntas aqui vão sem essas notas e a IA não guarda novas. As notas continuam salvas.",
+    "empty": "Nada ainda. Fale sobre você para a IA ou adicione uma nota aqui.",
+    "offline": "A memória precisa de conexão com o servidor.",
+    "addLabel": "Nova nota",
+    "addPlaceholder": "ex.: Sou da equipe de marketing; mostre os resultados em tabelas",
+    "add": "Adicionar",
+    "edit": "Editar",
+    "editLabel": "Nota",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "viaApp": "Guardada por {app}",
+    "count": "{count} de {max} notas",
+    "full": "A memória está cheia ({max} notas)",
+    "forgetAll": "Esquecer tudo",
+    "confirmForgetAll": "Esquecer tudo o que a IA lembra sobre você neste espaço de trabalho?",
+    "errors": {
+      "empty": "Escreva o que deve ser lembrado.",
+      "tooLong": "Uma nota pode ter no máximo {max} caracteres.",
+      "full": "A memória comporta no máximo {max} notas. Exclua uma primeiro.",
+      "notFound": "Essa nota não existe mais.",
+      "off": "A memória da IA está desativada neste espaço de trabalho."
+    }
+  }
+}

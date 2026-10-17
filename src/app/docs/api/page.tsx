@@ -79,7 +79,7 @@ function FieldTable({ rows, labels }: { rows: { name: string; type: string; requ
   if (!rows.length) return null;
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-start text-sm">
         <thead className="bg-bg-subtle text-xs text-fg-muted">
           <tr>
             <th className="px-3 py-2 font-medium">{labels.name}</th>
@@ -92,7 +92,7 @@ function FieldTable({ rows, labels }: { rows: { name: string; type: string; requ
             <tr key={row.name} className="align-top">
               <td className="px-3 py-2 whitespace-nowrap">
                 <code className="text-[0.85em]">{row.name}</code>
-                {row.required && <span className="ml-1.5 text-xs text-danger">{labels.required}</span>}
+                {row.required && <span className="ms-1.5 text-xs text-danger">{labels.required}</span>}
               </td>
               <td className="px-3 py-2 text-xs break-words text-fg-muted">{row.type}</td>
               <td className="px-3 py-2 text-fg-muted">{row.description ? inline(row.description) : null}</td>
@@ -172,7 +172,7 @@ export default async function ApiDocsPage() {
                 <a href={`#${op.operationId}`} className="flex gap-3 rounded-md px-2 py-1 hover:bg-bg-hover">
                   <span className={`w-12 shrink-0 text-xs font-semibold uppercase leading-5 ${METHOD_COLORS[method] ?? ""}`}>{method}</span>
                   <code className="min-w-0 truncate text-[0.85em] leading-5">{path}</code>
-                  <span className="ml-auto hidden text-fg-muted sm:inline">{op.summary}</span>
+                  <span className="ms-auto hidden text-fg-muted sm:inline">{op.summary}</span>
                 </a>
               </li>
             ))}

@@ -1,0 +1,50 @@
+{
+  "metaTitle": "Grafo",
+  "heading": "Grafo",
+  "count": "{pages, plural, one {# pagina} other {# pagine}} · {edges, plural, one {# collegamento} other {# collegamenti}}",
+  "reload": "Ricarica",
+  "find": "Trova una pagina su cui concentrarti",
+  "focus": "Attorno a",
+  "depth": "Passi",
+  "clearFocus": "Mostra tutto il grafo",
+  "tree": "Sottopagine",
+  "rows": "Righe dei database",
+  "orphans": "Pagine senza collegamenti",
+  "kinds": {
+    "page": "Pagina",
+    "database": "Database",
+    "row": "Riga"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relazione",
+    "child": "Sottopagina"
+  },
+  "truncated": "Sono mostrate le {count} pagine modificate più di recente.",
+  "canvas": "Grafo delle pagine dello spazio di lavoro",
+  "empty": "Nessuna pagina da mostrare.",
+  "focusMissing": "Quella pagina non è nel grafo: potrebbe essere nel cestino o non condivisa con te.",
+  "local": {
+    "title": "Grafo di questa pagina",
+    "close": "Chiudi il grafo",
+    "openFull": "Apri nel grafo completo",
+    "canvas": "Grafo delle pagine attorno a questa pagina",
+    "empty": "Nessuna pagina è ancora collegata a questa.",
+    "failed": "Impossibile caricare il grafo."
+  },
+  "zoomIn": "Ingrandisci",
+  "zoomOut": "Riduci",
+  "fit": "Adatta il grafo",
+  "hint": "Fai clic per selezionare, doppio clic per aprire",
+  "inspector": {
+    "open": "Apri pagina",
+    "focus": "Concentrati attorno",
+    "expandRows": "{count, plural, one {Mostra # riga} other {Mostra # righe}}",
+    "collapseRows": "Raggruppa le righe",
+    "rows": "{count, plural, one {# riga} other {# righe}}",
+    "none": "Non collegata a nessun’altra pagina.",
+    "more": "e {count} in più",
+    "close": "Annulla selezione",
+    "parent": "Dentro"
+  }
+}

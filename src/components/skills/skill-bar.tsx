@@ -85,7 +85,7 @@ export function SkillBar({
         </Link>
       </div>
       {error && (
-        <p role="alert" className="mt-1 pl-6 text-xs text-danger">
+        <p role="alert" className="mt-1 ps-6 text-xs text-danger">
           {error}
         </p>
       )}

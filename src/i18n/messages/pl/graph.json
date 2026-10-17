@@ -1,0 +1,50 @@
+{
+  "metaTitle": "Graf",
+  "heading": "Graf",
+  "count": "{pages, plural, one {# strona} few {# strony} many {# stron} other {# strony}} · {edges, plural, one {# połączenie} few {# połączenia} many {# połączeń} other {# połączenia}}",
+  "reload": "Wczytaj ponownie",
+  "find": "Znajdź stronę, na której chcesz się skupić",
+  "focus": "Wokół",
+  "depth": "Kroki",
+  "clearFocus": "Pokaż cały graf",
+  "tree": "Podstrony",
+  "rows": "Wiersze baz danych",
+  "orphans": "Strony bez połączeń",
+  "kinds": {
+    "page": "Strona",
+    "database": "Baza danych",
+    "row": "Wiersz"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relacja",
+    "child": "Podstrona"
+  },
+  "truncated": "Wyświetlono {count, plural, one {# ostatnio edytowaną stronę} few {# ostatnio edytowane strony} many {# ostatnio edytowanych stron} other {# ostatnio edytowanej strony}}.",
+  "canvas": "Graf stron obszaru roboczego",
+  "empty": "Brak stron do wyświetlenia.",
+  "focusMissing": "Tej strony nie ma w grafie: może być w koszu lub nie została ci udostępniona.",
+  "local": {
+    "title": "Graf tej strony",
+    "close": "Zamknij graf",
+    "openFull": "Otwórz w pełnym grafie",
+    "canvas": "Graf stron wokół tej strony",
+    "empty": "Żadna strona nie jest jeszcze połączona z tą.",
+    "failed": "Nie udało się wczytać grafu."
+  },
+  "zoomIn": "Powiększ",
+  "zoomOut": "Pomniejsz",
+  "fit": "Dopasuj graf",
+  "hint": "Kliknij, aby zaznaczyć, kliknij dwukrotnie, aby otworzyć",
+  "inspector": {
+    "open": "Otwórz stronę",
+    "focus": "Skup się wokół niej",
+    "expandRows": "{count, plural, one {Pokaż # wiersz} few {Pokaż # wiersze} many {Pokaż # wierszy} other {Pokaż # wiersza}}",
+    "collapseRows": "Zwiń wiersze",
+    "rows": "{count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+    "none": "Niepołączona z żadną inną stroną.",
+    "more": "i {count} więcej",
+    "close": "Wyczyść zaznaczenie",
+    "parent": "Wewnątrz"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "workspaceMenu": {
+    "myAccount": "Moje konto",
+    "newWorkspace": "Nowy obszar roboczy",
+    "settingsAndMembers": "Ustawienia i członkowie",
+    "signOut": "Wyloguj się",
+    "admin": "Administracja serwerem"
+  },
+  "nav": {
+    "search": "Szukaj",
+    "home": "Strona główna",
+    "inbox": "Skrzynka odbiorcza",
+    "people": "Osoby",
+    "settings": "Ustawienia",
+    "trash": "Kosz",
+    "templates": "Szablony",
+    "import": "Importuj",
+    "graph": "Graf",
+    "skills": "Umiejętności"
+  },
+  "toggle": {
+    "open": "Otwórz pasek boczny",
+    "close": "Ukryj pasek boczny",
+    "resize": "Przeciągnij, aby zmienić rozmiar",
+    "pin": "Pozostaw pasek boczny otwarty"
+  },
+  "pages": {
+    "heading": "Strony",
+    "new": "Nowa",
+    "newPage": "Nowa strona",
+    "newDatabase": "Nowa baza danych",
+    "createFirst": "Utwórz pierwszą stronę",
+    "nothingShared": "Nikt jeszcze nie udostępnił ci żadnych stron",
+    "collapse": "Zwiń",
+    "expand": "Rozwiń",
+    "actions": "Działania na stronie",
+    "moveToTrash": "Przenieś do kosza",
+    "rename": "Zmień nazwę",
+    "renameLabel": "Nazwa strony",
+    "renameFailed": "Nie udało się zmienić nazwy strony.",
+    "renameLocked": "Ta strona jest zablokowana, więc nie można zmienić jej nazwy. Najpierw odblokuj ją w jej menu.",
+    "addInside": "Dodaj stronę wewnątrz",
+    "noChildren": "Brak stron wewnątrz",
+    "favorites": "Ulubione",
+    "moveFailed": "Nie udało się przenieść strony w to miejsce. Przeniesienie jej gdzie indziej wymaga pełnego dostępu do niej.",
+    "fromTemplate": "Z szablonu",
+    "import": "Importuj…",
+    "confirmMoveSpace": "Przenieść tę stronę do: {place}? Krąg osób, które ją widzą, zmieni się odpowiednio."
+  },
+  "search": {
+    "placeholder": "Szukaj stron i treści…",
+    "label": "Szukaj",
+    "noResults": "Brak wyników",
+    "semantic": "Podobne znaczenie",
+    "semanticHint": "Znalezione według znaczenia: słowa różnią się od wyszukiwanych.",
+    "recent": "Ostatnio edytowane",
+    "commands": "Polecenia",
+    "noCommands": "Brak pasującego polecenia",
+    "hint": {
+      "in": "wewnątrz strony",
+      "type": "tylko bazy danych (lub strony, wiersze)",
+      "commands": "polecenia"
+    }
+  },
+  "trash": {
+    "title": "Kosz",
+    "empty": "Kosz jest pusty",
+    "deletePermanently": "Usuń trwale",
+    "confirmDelete": "Usunąć trwale? Tej operacji nie można cofnąć.",
+    "deletesIn": "Zostanie usunięte za {count, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+    "deletesSoon": "Wkrótce zostanie usunięte"
+  },
+  "newWorkspace": {
+    "title": "Nowy obszar roboczy",
+    "description": "Osobna przestrzeń z własnymi stronami i członkami.",
+    "namePlaceholder": "Nazwa obszaru roboczego",
+    "create": "Utwórz",
+    "creating": "Tworzenie…"
+  },
+  "inbox": {
+    "title": "Skrzynka odbiorcza",
+    "empty": "Brak powiadomień",
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "assignment": "{actor} przypisuje cię do „{property}”",
+    "pageShared": "{actor} udostępnia ci tę stronę",
+    "comment": "{actor} komentuje w wątku, w którym uczestniczysz",
+    "mention": "{actor} wspomina o tobie",
+    "reminder": "Przypomnienie: {date}",
+    "accessRequest": "{actor} prosi o dostęp do tej strony",
+    "automation": "Automatyzacja „{name}”: {actor} dodaje lub zmienia ten wiersz",
+    "automationDatePassed": "Automatyzacja „{name}”: nadeszła data tego wiersza",
+    "someone": "Ktoś",
+    "unread": "Nieprzeczytane",
+    "snooze": "Odłóż",
+    "snoozeChoice": {
+      "hour": "Za 1 godzinę",
+      "tomorrow": "Jutro, 9:00",
+      "nextWeek": "Poniedziałek, 9:00"
+    },
+    "unreadCount": "{count, plural, one {# nieprzeczytane powiadomienie} few {# nieprzeczytane powiadomienia} many {# nieprzeczytanych powiadomień} other {# nieprzeczytanego powiadomienia}}",
+    "joinRequestTitle": "Prośba o dołączenie",
+    "joinRequest": "{actor} prosi o dołączenie",
+    "inviteRequest": "{actor} prosi o zaproszenie {email}",
+    "approvalTitle": "{agent} prosi o zgodę",
+    "approval": "Chce wywołać „{tool}” w połączeniu {connection}",
+    "approvalAnswered": "Odpowiedziano lub upłynął czas",
+    "memoryTitle": "{agent} chce coś zapamiętać",
+    "memory": "„{text}”{more, plural, =0 {} one { i jeszcze # notatka} few { i jeszcze # notatki} many { i jeszcze # notatek} other { i jeszcze # notatki}}",
+    "memoryHidden": "{count, plural, one {Notatka} few {# notatki} many {# notatek} other {# notatki}} z uruchomienia w wierszu, którego nie możesz otworzyć",
+    "memoryAnswered": "Już przejrzane",
+    "reportTitle": "Raport od: {agent}",
+    "reportDone": "Zaplanowane uruchomienie zakończyło się.",
+    "reportFailed": "Zaplanowane uruchomienie nie powiodło się. Otwórz je, aby zobaczyć dlaczego.",
+    "reportHidden": "Zaplanowane uruchomienie zakończyło się w bazie danych, której nie możesz otworzyć.",
+    "reportGone": "To uruchomienie nie jest już przechowywane."
+  },
+  "templates": {
+    "title": "Szablony",
+    "description": "Wybierz szablon, aby utworzyć z niego nową stronę.",
+    "workspace": "W tym obszarze roboczym",
+    "builtIn": "Wbudowane",
+    "empty": "Brak szablonów. Aby dodać szablon, otwórz menu ⋯ strony i wybierz „Zapisz jako szablon”.",
+    "use": "Utwórz stronę z tego szablonu",
+    "database": "Baza danych",
+    "edit": "Edytuj szablon",
+    "open": "Otwórz szablon",
+    "delete": "Usuń szablon",
+    "confirmDelete": "Usunąć ten szablon na stałe? Strony już z niego utworzone pozostaną bez zmian."
+  },
+  "teamspaces": {
+    "heading": "Przestrzenie zespołów",
+    "options": "Opcje przestrzeni zespołu",
+    "new": "Nowa przestrzeń zespołu",
+    "addNew": "Dodaj nową",
+    "browse": "Przeglądaj przestrzenie zespołów",
+    "none": "Nie należysz jeszcze do żadnej przestrzeni zespołu. Przeglądaj przestrzenie zespołów",
+    "actions": "Działania dla {name}",
+    "addPage": "Dodaj stronę do {name}",
+    "edit": "Edytuj przestrzeń zespołu",
+    "members": "Członkowie i ustawienia",
+    "leave": "Opuść przestrzeń zespołu",
+    "confirmLeave": "Opuścić {name}? Jej strony znikną z twojego paska bocznego. Jeśli przestrzeń zespołu nie jest otwarta, stracisz też do nich dostęp.",
+    "empty": "Brak stron. Dodaj stronę",
+    "another": "inna przestrzeń zespołu"
+  },
+  "sections": {
+    "shared": "Udostępnione",
+    "private": "Prywatne",
+    "newPrivate": "Nowa strona prywatna",
+    "more": "Jeszcze {count}",
+    "less": "Pokaż mniej"
+  },
+  "joinable": {
+    "heading": "Obszary robocze, do których możesz dołączyć",
+    "join": "Dołącz",
+    "request": "Poproś o dołączenie",
+    "requested": "Wysłano prośbę"
+  },
+  "customize": {
+    "open": "Dostosuj pasek boczny",
+    "heading": "Sekcje wyświetlane w tym obszarze roboczym",
+    "moveUp": "Przenieś {section} w górę",
+    "moveDown": "Przenieś {section} w dół",
+    "show": "Pokaż {section}",
+    "hide": "Ukryj {section}",
+    "done": "Gotowe"
+  }
+}

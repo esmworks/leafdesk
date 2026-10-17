@@ -110,7 +110,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
       </div>
 
       {publication && (
-        <div className="mt-3 flex items-center gap-1 rounded-md border border-border bg-bg-subtle p-1 pl-2">
+        <div className="mt-3 flex items-center gap-1 rounded-md border border-border bg-bg-subtle p-1 ps-2">
           <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{absolute(shownUrl)}</span>
           <button
             type="button"
@@ -228,7 +228,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
                     />
                     <ViewIcon type={view.type} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="min-w-0 truncate">{view.name}</span>
-                    {!DRAWN.includes(view.type) && <span className="ml-auto shrink-0 text-xs text-fg-faint">{t("asTable")}</span>}
+                    {!DRAWN.includes(view.type) && <span className="ms-auto shrink-0 text-xs text-fg-faint">{t("asTable")}</span>}
                   </label>
                 </li>
               );

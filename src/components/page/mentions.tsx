@@ -43,6 +43,7 @@ import type { MentionCandidates, PageRef, UnlinkedMention } from "@/server/menti
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
+import { isRtl } from "@/components/direction";
 
 /**
  * The editor's side of mentions and page links (configs shared with the server in lib/mentions):
@@ -197,7 +198,7 @@ function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: (
       >
         <CalendarDays className="leafdesk-mention-icon" aria-hidden />
         <span className="leafdesk-mention-label">{formatIsoDate(props.date, locale)}</span>
-        {props.remindAt && <Bell className="leafdesk-mention-icon" style={{ marginLeft: "0.25em", marginRight: 0 }} aria-label={t("reminder")} />}
+        {props.remindAt && <Bell className="leafdesk-mention-icon" style={{ marginInlineStart: "0.25em", marginInlineEnd: 0 }} aria-label={t("reminder")} />}
       </span>
       {open && onChange && anchor.current && (
         <DatePopover anchor={anchor.current} props={props} onChange={onChange} onClose={() => setOpen(false)} />
@@ -230,7 +231,9 @@ function DatePopover({
   useLayoutEffect(() => {
     const place = () => {
       const rect = anchor.getBoundingClientRect();
-      setPosition({ top: rect.bottom + 4, left: Math.max(8, Math.min(rect.left, window.innerWidth - 288)) });
+      // Under the mention, from its start edge (its right edge right to left).
+      const x = isRtl(anchor) ? rect.right - 288 : rect.left;
+      setPosition({ top: rect.bottom + 4, left: Math.max(8, Math.min(x, window.innerWidth - 288)) });
     };
     place();
     window.addEventListener("scroll", place, true);
@@ -296,7 +299,7 @@ function DatePopover({
             type="button"
             aria-pressed={choice === option}
             onClick={() => setReminder(option)}
-            className={cn("flex items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover", choice === option && "bg-bg-active")}
+            className={cn("flex items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover", choice === option && "bg-bg-active")}
           >
             {option === "none" ? t("remindNone") : label(option)}
           </button>
@@ -751,7 +754,7 @@ export function PagePicker({
             onMouseEnter={() => setActive(i)}
             aria-current={i === active || undefined}
             className={cn(
-              "flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover",
+              "flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover",
               i === active && "bg-bg-hover",
             )}
           >
@@ -860,7 +863,7 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
                     <span className="truncate">{pageLabel(link.title, tc("untitled"))}</span>
                   </a>
                   {link.context && (
-                    <p className="mb-1 line-clamp-2 pl-6 text-xs text-fg-faint">
+                    <p className="mb-1 line-clamp-2 ps-6 text-xs text-fg-faint">
                       {link.context.split(LINK_PLACEHOLDER).map((part, i) => (
                         <Fragment key={i}>
                           {i > 0 && <span className="font-medium text-fg-muted">{name}</span>}
@@ -887,7 +890,7 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
             title={t("unlinkedHint")}
             className="-mx-1 flex items-center gap-1 rounded px-1 py-0.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUnlinked && "rotate-90")} />
+            <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", showUnlinked ? "rotate-90" : "rtl:rotate-180")} />
             {t("unlinked", { count: unlinked.length })}
           </button>
           {showUnlinked && (
@@ -915,13 +918,13 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
                         </Button>
                       )}
                     </div>
-                    <p className="line-clamp-2 pl-6 text-xs text-fg-faint">
+                    <p className="line-clamp-2 ps-6 text-xs text-fg-faint">
                       {mention.excerpt.before}
                       <span className="font-medium text-fg-muted">{mention.excerpt.match}</span>
                       {mention.excerpt.after}
                     </p>
                     {failed?.id === mention.id && (
-                      <p role="status" className="pl-6 text-xs text-danger">
+                      <p role="status" className="ps-6 text-xs text-danger">
                         {failed.locked ? t("locked") : t("linkFailed")}
                       </p>
                     )}

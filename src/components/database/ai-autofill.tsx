@@ -53,7 +53,7 @@ export function AiCell({ prop, rowId, readOnly, children }: { prop: Property; ro
   return (
     <div className="group/ai relative">
       {children}
-      <div className="pointer-events-none absolute right-1 top-[7px] flex items-center gap-0.5">
+      <div className="pointer-events-none absolute inset-e-1 top-[7px] flex items-center gap-0.5">
         {state?.status === "pending" && (
           <span role="status" title={t("autofill.pending")} className="inline-flex h-5 w-5 items-center justify-center rounded bg-bg">
             <LoaderCircle className="h-3.5 w-3.5 animate-spin text-fg-muted" aria-hidden />
@@ -164,7 +164,7 @@ export function AutofillEditor({
             onClick={onBack}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
           </button>
         )}
         <span className="truncate px-1 text-sm font-medium">{prop ? t("titleFor", { name }) : t("titleNew")}</span>

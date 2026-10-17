@@ -1,0 +1,609 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "ページ履歴",
+    "more": "その他",
+    "copyLink": "リンクをコピー",
+    "copyId": "IDをコピー",
+    "moveToTrash": "ゴミ箱に移動",
+    "edited": "{time}に編集",
+    "activity": "アクティビティ",
+    "editedBy": "{name}が編集",
+    "createdBy": "{name}が作成",
+    "someone": "誰か",
+    "comments": "コメント",
+    "share": "共有",
+    "accessRequests": "{count}件のアクセスリクエスト",
+    "addFavorite": "お気に入りに追加",
+    "removeFavorite": "お気に入りから削除",
+    "linkCopied": "リンクをコピーしました",
+    "duplicate": "複製",
+    "duplicateSuffix": "（コピー）",
+    "duplicateFailed": "ページを複製できませんでした。",
+    "moveTo": "移動先",
+    "style": {
+      "font": "フォント",
+      "default": "デフォルト",
+      "serif": "セリフ",
+      "mono": "等幅",
+      "smallText": "小さい文字",
+      "fullWidth": "全幅"
+    },
+    "lockDatabase": "データベースをロック",
+    "lockHint": "ロック中はプロパティとビューを変更できません。行は引き続き編集できます。",
+    "locked": "ロック中",
+    "unlock": "ロックを解除",
+    "lockPage": "ページをロック",
+    "lockPageHint": "ロック中は誰もタイトル、アイコン、背景、テキストを変更できません。コメント、共有、移動は引き続き可能です。",
+    "exportMarkdown": "Markdownとしてエクスポート",
+    "exportCsv": "CSVとしてエクスポート",
+    "exportXlsx": "Excel（.xlsx）としてエクスポート",
+    "exportZip": "サブページを含めてエクスポート",
+    "exportZipDatabase": "行のページを含めてエクスポート",
+    "exportPdf": "PDFとしてエクスポート",
+    "exportPreparing": "エクスポートを準備中…",
+    "versionHistory": "バージョン履歴",
+    "lastEdited": "最終編集者：{name}",
+    "actionFailed": "操作を完了できませんでした。",
+    "viewers": "ほかに{count}人がこのページを表示しています",
+    "viewersTitle": "このページを表示中",
+    "saveAsTemplate": "テンプレートとして保存",
+    "saveAsRowTemplate": "行テンプレートとして保存",
+    "deleteTemplate": "テンプレートを削除",
+    "exportDisabled": "エクスポートはオフになっています",
+    "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしています。",
+    "showInGraph": "グラフで表示"
+  },
+  "comments": {
+    "aboutPage": "このページについて",
+    "title": "コメント",
+    "close": "コメントを閉じる",
+    "filters": {
+      "open": "未解決",
+      "resolved": "解決済み",
+      "all": "すべて"
+    },
+    "empty": {
+      "open": "未解決のコメントはありません。ページ内のテキストを選択して「コメント」を選ぶと、コメントを始められます。",
+      "resolved": "解決済みのコメントはありません。",
+      "all": "コメントはまだありません。ページ内のテキストを選択して「コメント」を選ぶと、コメントを始められます。"
+    }
+  },
+  "archived": {
+    "banner": "このページはゴミ箱にあります。",
+    "deletePermanently": "完全に削除",
+    "confirmDelete": "このページとその中のすべてを完全に削除しますか？この操作は元に戻せません。"
+  },
+  "icon": {
+    "add": "アイコンを追加",
+    "remove": "アイコンを削除"
+  },
+  "background": {
+    "add": "背景を追加",
+    "change": "背景",
+    "colors": "色",
+    "patterns": "パターン",
+    "none": "なし",
+    "remove": "背景を削除",
+    "colorNames": {
+      "gray": "グレー",
+      "blue": "青",
+      "green": "緑",
+      "purple": "紫",
+      "pink": "ピンク",
+      "red": "赤",
+      "orange": "オレンジ",
+      "black": "黒"
+    },
+    "patternNames": {
+      "dots": "ドット",
+      "plus": "クロス",
+      "grid": "グリッド",
+      "lines": "ライン"
+    }
+  },
+  "title": {
+    "label": "ページタイトル"
+  },
+  "connection": {
+    "live": "ライブ",
+    "connecting": "接続中",
+    "offline": "オフライン",
+    "reconnecting": "再接続中",
+    "noAccess": "アクセス権なし",
+    "syncing": "同期中…",
+    "synced": "同期済み",
+    "offlinePending": "オフライン · 編集はここに保持",
+    "offlineHint": "オフラインです。そのまま編集を続けられます。変更はこのブラウザに保存され、接続が戻ると同期されます。"
+  },
+  "errors": {
+    "accessLost": "このページへのアクセス権がなくなりました。",
+    "connectionFailed": "リアルタイム編集に接続できませんでした。再試行しています…",
+    "notAvailableOffline": "このページはまだこのデバイスに保存されていません。オフラインで使うには、オンライン中に一度開いてください。"
+  },
+  "history": {
+    "title": "ページ履歴",
+    "previewTitle": "バージョンのプレビュー",
+    "modes": {
+      "version": "バージョン",
+      "current": "現在と比較",
+      "previous": "前のバージョンと比較"
+    },
+    "reasons": {
+      "auto": "自動保存",
+      "beforeRestore": "復元前",
+      "manual": "保存したバージョン",
+      "beforeAiEdit": "AIによる編集前",
+      "beforeAiEditBy": "{client}による編集前",
+      "beforeAssistantEdit": "AIアシスタントによる編集前"
+    },
+    "empty": "バージョンはまだありません。バージョンは編集中と、AIアプリがこのページを変更する前に自動で保存されます。",
+    "restore": "このバージョンを復元",
+    "restoring": "復元中…",
+    "restoreHint": "現在の内容は先にバージョンとして保存されます。",
+    "diff": {
+      "rangeCurrent": "{from}のバージョンから現在のページまでの変更",
+      "rangePrevious": "{from}から{to}までの変更",
+      "earlier": "前のバージョン",
+      "changedBy": "変更者：{names}",
+      "actorApp": "{name}の代理で{client}",
+      "none": "変更はありません。",
+      "oldest": "これは保存されている最も古いバージョンのため、比較できる以前のバージョンはありません。",
+      "showUnchanged": "変更のない{count}個のブロックを表示",
+      "formatOnly": "書式を変更"
+    },
+    "errors": {
+      "list": "ページ履歴を読み込めませんでした。ページを再読み込みして、もう一度お試しください。",
+      "version": "このバージョンを読み込めませんでした。",
+      "restore": "このバージョンを復元できませんでした。",
+      "diff": "これらのバージョンを比較できませんでした。"
+    }
+  },
+  "move": {
+    "title": "移動先",
+    "search": "ページを検索…",
+    "empty": "一致するページはありません。",
+    "failed": "ページをそこに移動できませんでした。",
+    "teamspaceHint": "このチームスペースの最上位：メンバーがアクセスできます",
+    "private": "プライベート",
+    "privateHint": "プライベートページの最上位：共有した人だけがアクセスできます"
+  },
+  "share": {
+    "tabShare": "共有",
+    "tabPublish": "公開",
+    "addPeople": "ユーザー、グループ、メールアドレスを追加",
+    "noMatches": "一致するメンバーやグループはありません。",
+    "addPeopleOrAgents": "ユーザー、グループ、エージェント、メールアドレスを追加",
+    "noMatchesWithAgents": "一致するメンバー、グループ、エージェントはありません。",
+    "agentPaused": "エージェント（一時停止中）",
+    "groupMembers": "{count, plural, =0 {メンバーのいないグループ} other {メンバー{count}人のグループ}}",
+    "membersOnly": "ワークスペースのメンバーと共有できます。このワークスペースでは、外部の人とは共有できません。",
+    "guestHint": "ワークスペース外の人と共有するには、メールアドレスを完全に入力してください。その人はゲストとして参加し、共有されたページだけを閲覧できます。",
+    "shareWith": "{email}と共有",
+    "asGuest": "ゲストとして参加",
+    "pending": "招待済み、未参加",
+    "cancelInvite": "招待を取り消す",
+    "invitedSent": "{email}に招待を送信しました。",
+    "invitedNoEmail": "{email}を招待しましたが、メールを送信できませんでした。招待リンクを送ってください。",
+    "copyInvite": "招待リンクをコピー",
+    "you": "あなた",
+    "inherited": "{title}から継承",
+    "groupInherited": "グループ（{title}から継承）",
+    "inheritedAbove": "上位のページから継承",
+    "groupInheritedAbove": "グループ（上位のページから継承）",
+    "hiddenGroup": "グループ",
+    "group": "グループ",
+    "viaGeneral": "{level}（一般アクセスから）",
+    "viaOwner": "{level}（オーナーとして）",
+    "overridden": "一般アクセスのほうが高い（{level}）ため、この設定は無効です。",
+    "remove": "削除",
+    "generalAccess": "一般アクセス",
+    "everyone": "ワークスペースの全員",
+    "everyoneHint": "個別に与えた権限にかかわらず、メンバーには少なくともこのアクセス権が与えられます。追加した人だけにページを公開するには「アクセス権なし」に設定してください。",
+    "everyoneIn": "{name}の全員",
+    "everyoneTeamspace": "チームスペースの全員",
+    "everyoneTeamspaceHint": "個別に与えた権限にかかわらず、チームスペースのメンバーには少なくともこのアクセス権が与えられます。追加した人だけにページを公開するには「アクセス権なし」に設定してください。",
+    "readOnly": "共有設定を変更できるのはフルアクセス権を持つ人だけです。",
+    "copyLink": "リンクをコピー",
+    "copied": "コピーしました",
+    "loading": "読み込み中…",
+    "requests": {
+      "heading": "リクエスト",
+      "message": "「{message}」",
+      "level": "アクセスレベル",
+      "approve": "共有",
+      "decline": "拒否",
+      "outsider": "ワークスペース外の人です。共有するとゲストとして追加されます。",
+      "cantInvite": "ワークスペース外の人で、このワークスペースでは外部の人とは共有できません。"
+    },
+    "levels": {
+      "full": "フルアクセス",
+      "edit": "編集可能",
+      "comment": "コメント可能",
+      "view": "閲覧可能",
+      "none": "アクセス権なし"
+    },
+    "errors": {
+      "notMember": "この人はワークスペースのメンバーではありません。",
+      "lastFullAccess": "誰かがこのページへのフルアクセス権を持っている必要があります。先にほかの人にフルアクセス権を与えてください。",
+      "accessDenied": "このページの共有設定は変更できません。",
+      "invalidEmail": "有効なメールアドレスを入力してください。",
+      "invitesRestricted": "このワークスペースでは、ページを外部の人と共有できません。オーナーに依頼してください。",
+      "generic": "共有設定を更新できませんでした。",
+      "agentFullAccess": "エージェントはページの閲覧、コメント、編集はできますが、フルアクセス権は与えられません。"
+    },
+    "everyoneFromTeamspaceHint": "チームスペースで設定されています。チームスペースのオーナーとワークスペースのオーナーにはフルアクセス権があります。ここでレベルを選ぶと、このページとサブページに設定されます。"
+  },
+  "noAccess": {
+    "metaTitle": "アクセス権なし",
+    "title": "このページへのアクセス権がありません",
+    "description": "アクセスをリクエストすると、このページを共有できる人にリクエストが届きます。",
+    "descriptionNoRequests": "リンクを送った人に、このページを共有してもらうよう依頼してください。",
+    "messageLabel": "メッセージ（任意）",
+    "messagePlaceholder": "ページを共有できる人へのメモを追加",
+    "request": "アクセスをリクエスト",
+    "sending": "送信中…",
+    "sentTitle": "リクエストを送信しました",
+    "sentDescription": "誰かがページを共有すると、このリンクから開けるようになります。",
+    "rateLimited": "アクセスのリクエスト回数が多すぎます。しばらくしてから、もう一度お試しください。",
+    "signedInAs": "{email}としてログインしています。",
+    "home": "ワークスペースに移動"
+  },
+  "embed": {
+    "label": "データベース",
+    "linkedLabel": "データベースのリンクドビュー",
+    "unavailable": "このデータベースは利用できません。削除されたか、アクセス権がない可能性があります。",
+    "inTrash": "このデータベースはゴミ箱にあります。",
+    "creating": "データベースを作成中…",
+    "createFailed": "データベースを作成できませんでした：{error}",
+    "turnIntoDatabase": "データベースに変換",
+    "convertFailed": "表をデータベースに変換できませんでした：{error}",
+    "tableTooLarge": "データベースに変換できるのは、最大{rows}行、{columns}列の表です。",
+    "open": "ページとして開く",
+    "linked": "リンクドビュー",
+    "layout": "レイアウト",
+    "viewOnly": "このビューを変更できるのは、このページを編集できる人だけです。",
+    "picker": {
+      "title": "データベースを選択",
+      "search": "データベースを検索",
+      "empty": "データベースが見つかりません。",
+      "failed": "データベースを読み込めませんでした。"
+    },
+    "slash": {
+      "database": {
+        "title": "データベース",
+        "subtext": "このページ内の新しいデータベース",
+        "aliases": "database db inline table データベース テーブル インライン"
+      },
+      "linkedView": {
+        "title": "データベースのリンクドビュー",
+        "subtext": "既存のデータベースを独自のビューで表示",
+        "aliases": "linked view database db リンク ビュー データベース"
+      },
+      "dashboard": {
+        "title": "ダッシュボード",
+        "subtext": "データベースの数値、グラフ、リスト",
+        "aliases": "dashboard widgets kpi metrics charts numbers ダッシュボード ウィジェット 指標 グラフ 数値"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "上付き文字",
+    "subscript": "下付き文字"
+  },
+  "find": {
+    "label": "ページ内を検索",
+    "placeholder": "検索",
+    "replacePlaceholder": "置換後の文字列",
+    "noResults": "結果がありません",
+    "matchCase": "大文字と小文字を区別",
+    "previous": "前の一致（Shift+Enter）",
+    "next": "次の一致（Enter）",
+    "showReplace": "置換を表示",
+    "hideReplace": "置換を隠す",
+    "replace": "置換",
+    "replaceAll": "すべて置換",
+    "close": "閉じる（Esc）"
+  },
+  "template": {
+    "workspace": "これはテンプレートです。このテンプレートから作成した新しいページには、内容とサブページがコピーされます。",
+    "row": "これは行テンプレートです。このテンプレートから作成した新しい行には、プロパティと内容が入ります。",
+    "inside": "このページはテンプレートの一部です。",
+    "use": "テンプレートを使用",
+    "confirmDelete": "このテンプレートを完全に削除しますか？このテンプレートから作成済みのページはそのまま残ります。"
+  },
+  "blocks": {
+    "callout": {
+      "title": "コールアウト",
+      "subtext": "色付きの背景にアイコン付きのテキスト",
+      "aliases": "callout note tip warning alert box コールアウト メモ ヒント 注意 警告",
+      "icon": "アイコンを変更"
+    },
+    "code": {
+      "language": "言語",
+      "plainText": "プレーンテキスト"
+    },
+    "math": {
+      "title": "数式ブロック",
+      "subtext": "TeXで書く独立した数式",
+      "aliases": "math equation latex tex katex formula 数式",
+      "placeholder": "TeXの数式を追加",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "数式にエラーがあります"
+    },
+    "inlineMath": {
+      "title": "インライン数式",
+      "subtext": "テキスト内の数式",
+      "aliases": "inline math equation latex tex katex formula インライン 数式",
+      "placeholder": "新しい数式",
+      "sourcePlaceholder": "x^2",
+      "error": "数式エラー"
+    },
+    "mermaid": {
+      "title": "Mermaid図",
+      "subtext": "フローチャート、シーケンス図などをテキストから描画",
+      "aliases": "mermaid diagram flowchart chart graph sequence gantt 図 ダイアグラム フローチャート シーケンス ガント",
+      "placeholder": "Mermaid図を追加",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "図を描画中…",
+      "error": "図にエラーがあります",
+      "syntaxError": "構文エラー",
+      "label": "図"
+    },
+    "toc": {
+      "title": "目次",
+      "subtext": "このページの見出しへのリンク",
+      "aliases": "toc table contents headings outline 目次 見出し アウトライン",
+      "label": "目次",
+      "empty": "このページに見出しを追加すると、ここに一覧表示されます。"
+    },
+    "breadcrumb": {
+      "title": "パンくずリスト",
+      "subtext": "このページの上位のページへのリンク",
+      "aliases": "breadcrumb path parents location パンくず パス 階層",
+      "label": "パンくずリスト"
+    },
+    "columns": {
+      "two": {
+        "title": "2列",
+        "subtext": "ブロックを2列に並べて配置",
+        "aliases": "columns column layout side 2 two 列 段組み レイアウト"
+      },
+      "three": {
+        "title": "3列",
+        "subtext": "ブロックを3列に並べて配置",
+        "aliases": "columns column layout side 3 three 列 段組み レイアウト"
+      },
+      "add": {
+        "title": "列を追加",
+        "subtext": "この列の右に新しい列を追加（最大5列）",
+        "aliases": "column columns add new layout 列 追加 レイアウト"
+      }
+    },
+    "pageLink": {
+      "title": "ページへのリンク",
+      "subtext": "ほかのページへのリンク（タイトルは自動で更新）",
+      "aliases": "link page mention reference リンク ページ 参照"
+    },
+    "colors": {
+      "group": "色",
+      "text": "{color}の文字",
+      "background": "{color}の背景",
+      "textDefault": "デフォルトの文字色",
+      "backgroundDefault": "背景なし",
+      "textAliases": "color colour text font 色 文字色 文字",
+      "backgroundAliases": "background highlight color colour 背景 背景色 ハイライト 色"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Webブックマーク",
+      "subtext": "タイトルと画像付きのカードとして表示するリンク",
+      "aliases": "bookmark link url web card preview ブックマーク リンク ウェブ カード プレビュー",
+      "placeholder": "ブックマークするリンクを貼り付け",
+      "submit": "ブックマーク",
+      "loading": "ページを取得中…",
+      "refresh": "プレビューを更新",
+      "label": "ブックマーク"
+    },
+    "embed": {
+      "title": "埋め込み",
+      "subtext": "YouTube、Figma、Googleドキュメント、マップなど",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 埋め込み 動画 マップ",
+      "placeholder": "埋め込むリンクを貼り付け",
+      "submit": "埋め込む",
+      "providers": "YouTube、Vimeo、Loom、Figma、公開されたGoogleドキュメント・スプレッドシート・スライド、CodePen、Spotify、Googleマップに対応しています。それ以外のリンクはブックマークになります。",
+      "frameTitle": "{host}からの埋め込みコンテンツ",
+      "label": "埋め込み"
+    },
+    "paste": {
+      "label": "貼り付け形式",
+      "bookmark": "ブックマーク",
+      "embed": "埋め込み",
+      "keep": "リンクのまま"
+    },
+    "invalidUrl": "https://example.comのようなWebアドレスを入力してください",
+    "errors": {
+      "accessDenied": "このページは編集できません。",
+      "rateLimited": "同時に取得するリンクのプレビューが多すぎます。1分後にもう一度お試しください。",
+      "invalidUrl": "Webアドレスではありません。",
+      "blocked": "このアドレスはプレビューできません。",
+      "unreachable": "ページにアクセスできませんでした。",
+      "timeout": "ページの応答に時間がかかりすぎました。",
+      "tooManyRedirects": "ページのリダイレクトが多すぎます。",
+      "httpError": "ページがエラーを返しました。"
+    }
+  },
+  "upload": {
+    "tooLarge": "{name}は大きすぎます。ファイルは最大{limit}です。",
+    "quotaExceeded": "{name}はアップロードされませんでした。このワークスペースはファイル容量{limit}を使い切っています。",
+    "failed": "{name}をアップロードできませんでした。"
+  },
+  "mention": {
+    "people": "ユーザー",
+    "pages": "ページ",
+    "dates": "日付",
+    "newPage": "新しいページ：{title}",
+    "newPageHint": "このページ内",
+    "today": "今日",
+    "tomorrow": "明日",
+    "yesterday": "昨日",
+    "nextWeek": "来週",
+    "noAccess": "アクセス権なし",
+    "deleted": "削除されたページ",
+    "loading": "読み込み中…",
+    "personLeft": "{name}（ワークスペースから退出済み）",
+    "date": "日付",
+    "reminder": "リマインダー",
+    "remindNone": "リマインダーなし",
+    "remindSameDay": "当日 9:00",
+    "remindDayBefore": "前日 9:00",
+    "remindWeekBefore": "1週間前 9:00",
+    "reminderSet": "リマインダー：{when}",
+    "reminderHint": "受信トレイとメールに届きます。",
+    "reminderPast": "その時刻は過ぎています。後の日付またはリマインダーを選択してください。",
+    "done": "完了"
+  },
+  "pageLinkPicker": {
+    "title": "ページへのリンク",
+    "search": "ページを検索…",
+    "empty": "ページが見つかりません",
+    "failed": "ページを読み込めませんでした。"
+  },
+  "backlinks": {
+    "title": "リンク元",
+    "count": "{count}ページからリンクされています",
+    "unlinked": "リンクされていないメンション · {count}",
+    "unlinkedHint": "このページのタイトルを書いているが、リンクしていないページ",
+    "link": "リンク",
+    "linkLabel": "{title}のメンションをリンクにする",
+    "linkFailed": "タイトルがもうプレーンテキストとして書かれていません。",
+    "locked": "そのページはロックされているため、変更できません。"
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "新しいタブで開く",
+    "frameTitle": "PDF：{name}",
+    "noPreview": "このブラウザではここにPDFを表示できません。ファイルを開いてお読みください。"
+  },
+  "print": {
+    "print": "印刷またはPDFとして保存",
+    "back": "ページに戻る",
+    "includeSubpages": "サブページを含める",
+    "preparing": "画像と図を読み込み中…",
+    "hint": "印刷ダイアログで、送信先に「PDFに保存」を選択してください。",
+    "truncated": "最初の{count}ページだけが含まれます。",
+    "lastUpdated": "最終更新：{date}",
+    "subpages": "ページ",
+    "embedUnavailable": "このデータベースは利用できません。"
+  },
+  "quickNote": {
+    "documentTitle": "クイックメモ",
+    "heading": "クイックメモ",
+    "description": "あなただけが見られるプライベートページとして保存されます。後から移動や共有ができます。",
+    "workspace": "ワークスペース",
+    "title": "タイトル",
+    "body": "メモ",
+    "bodyPlaceholder": "何か書くか、リンクを貼り付け",
+    "save": "メモを保存",
+    "shortcut": "新しいクイックメモ",
+    "shortcutShort": "クイックメモ",
+    "destination": "保存先",
+    "privatePage": "プライベートページ"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "empty": "このダッシュボードにはまだウィジェットがありません。",
+    "emptyEditable": "ワークスペースのデータベースの数値、グラフ、リストをここに表示します。行が変わると自動で更新されます。",
+    "add": "ウィジェットを追加",
+    "full": "ダッシュボードに配置できるウィジェットは最大{max}個です。",
+    "menu": "ウィジェットのオプション",
+    "edit": "編集",
+    "done": "完了",
+    "remove": "ウィジェットを削除",
+    "moveBefore": "前に移動",
+    "moveAfter": "後ろに移動",
+    "width": "幅",
+    "widths": {
+      "1": "幅の1/4",
+      "2": "幅の半分",
+      "3": "幅の3/4",
+      "4": "全幅"
+    },
+    "color": "色",
+    "colorNone": "色なし",
+    "titleLabel": "ウィジェットのタイトル",
+    "titlePlaceholder": "タイトル（空の場合はデータベース名）",
+    "unavailable": "このデータへのアクセス権がありません。",
+    "inTrash": "このデータベースはゴミ箱にあります。",
+    "loadFailed": "このウィジェットを読み込めませんでした。",
+    "retry": "再試行",
+    "noGroup": "このデータベースにはまだグループ化できるものがありません。セレクト、ステータス、日付のプロパティを追加してください。",
+    "more": "ほか{count}行",
+    "rows": "{count}行",
+    "byGroup": "{property}別",
+    "filters": "{count}個のフィルター",
+    "updatedNow": "たった今更新",
+    "updated": "{time}に更新"
+  },
+  "voiceNote": {
+    "record": "ボイスメモを録音",
+    "recording": "録音中",
+    "stop": "停止して文章化",
+    "discard": "破棄",
+    "cancel": "キャンセル",
+    "retry": "もう一度挿入",
+    "close": "閉じる",
+    "limit": "最大{minutes}分",
+    "chooseFile": "または音声ファイルを選択",
+    "transcribing": "話した内容を書き起こしています…",
+    "writing": "AIがメモを作成しています…",
+    "autoStopped": "録音は上限の{minutes}分で停止しました。",
+    "review": "このメモはAIが録音から作成しました。保存する前に確認してください。",
+    "notRewritten": "AIがこの録音を文章化できなかったため、メモは聞き取ったままの書き起こしです。",
+    "transcriptKept": "書き起こしはメモの下に保存されます。",
+    "propertiesPicked": "メモから{count}個のプロパティが入力されました。",
+    "transcriptToggle": "書き起こし",
+    "shortcut": "新しいボイスメモ",
+    "shortcutShort": "ボイスメモ",
+    "dialogTitle": "ボイスメモ",
+    "dialogDescription": "話すと、AIがここに整ったメモを書きます。書き起こしはその下に入ります。",
+    "slashTitle": "ボイスメモ",
+    "slashSubtext": "話すと、AIがここに文章化します",
+    "slashAliases": "voice audio record dictate speech microphone transcribe 音声 録音 ボイス 口述 マイク 書き起こし",
+    "errors": {
+      "unsupported": "このブラウザでは録音できません。代わりに音声ファイルを選択してください。",
+      "insecure": "録音には安全な（https）接続が必要です。代わりに音声ファイルを選択してください。",
+      "denied": "Leafdeskにマイクの使用が許可されていません。ブラウザのサイト設定で許可して、もう一度お試しください。",
+      "noDevice": "マイクが見つかりませんでした。",
+      "failed": "録音を開始できませんでした。もう一度お試しください。",
+      "fileType": "この種類の音声ファイルには対応していません。",
+      "fileTooLarge": "録音は最大{max}です。",
+      "disabled": "このワークスペースではボイスメモを利用できません。",
+      "noAccess": "ここにはメモを追加できません。",
+      "tooLarge": "録音が大きすぎます。録音は最大{max}です。",
+      "rateLimited": "AIリクエストが多すぎます。しばらくしてから、もう一度お試しください。",
+      "timeout": "録音の書き起こしに時間がかかりすぎました。もう一度試すか、短いメモを録音してください。",
+      "aborted": "キャンセルしました。",
+      "provider": "録音を書き起こせませんでした。時間をおいてもう一度お試しいただくか、管理者に音声認識の設定の確認を依頼してください。",
+      "empty": "録音から何も聞き取れませんでした。マイクに近づいて、もう一度お試しください。",
+      "invalid": "録音を読み取れませんでした。もう一度お試しください。",
+      "interrupted": "処理中にサーバーが再起動しました。もう一度お試しください。",
+      "insert": "メモをページに追加できませんでした。"
+    }
+  },
+  "review": {
+    "bar": "確認が必要なAIの変更：{count}件",
+    "by": "{names}による変更",
+    "open": "確認",
+    "keepAll": "すべて採用",
+    "undoAll": "すべて元に戻す",
+    "keep": "採用",
+    "undo": "元に戻す",
+    "title": "AIの変更を確認",
+    "hint": "変更ごとに採用するか元に戻すかを選んでください。「すべて元に戻す」を選ぶと、先に現在のページが履歴に保存されます。",
+    "stale": "その間にページが変更されました。現時点での変更を表示しています。",
+    "failed": "うまくいきませんでした。もう一度お試しください。"
+  }
+}

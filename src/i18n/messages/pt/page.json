@@ -1,0 +1,609 @@
+{
+  "documentTitle": "{title} · Leafdesk",
+  "documentViewTitle": "{title} · {view} · Leafdesk",
+  "header": {
+    "history": "Histórico da página",
+    "more": "Mais",
+    "copyLink": "Copiar link",
+    "copyId": "Copiar ID",
+    "moveToTrash": "Mover para a lixeira",
+    "edited": "Editado {time}",
+    "activity": "Atividade",
+    "editedBy": "Editado por {name}",
+    "createdBy": "Criado por {name}",
+    "someone": "Alguém",
+    "comments": "Comentários",
+    "share": "Compartilhar",
+    "accessRequests": "{count, plural, one {# solicitação de acesso} other {# solicitações de acesso}}",
+    "addFavorite": "Adicionar aos favoritos",
+    "removeFavorite": "Remover dos favoritos",
+    "linkCopied": "Link copiado",
+    "duplicate": "Duplicar",
+    "duplicateSuffix": " (cópia)",
+    "duplicateFailed": "Não foi possível duplicar a página.",
+    "moveTo": "Mover para",
+    "style": {
+      "font": "Fonte",
+      "default": "Padrão",
+      "serif": "Serifa",
+      "mono": "Mono",
+      "smallText": "Texto pequeno",
+      "fullWidth": "Largura total"
+    },
+    "lockDatabase": "Bloquear banco de dados",
+    "lockHint": "Enquanto estiver bloqueado, as propriedades e visualizações não podem mudar; as linhas continuam editáveis.",
+    "locked": "Bloqueado",
+    "unlock": "Desbloquear",
+    "lockPage": "Bloquear página",
+    "lockPageHint": "Enquanto estiver bloqueada, ninguém pode alterar o título, o ícone, o fundo ou o texto. Comentar, compartilhar e mover continuam funcionando.",
+    "exportMarkdown": "Exportar como Markdown",
+    "exportCsv": "Exportar como CSV",
+    "exportXlsx": "Exportar como Excel (.xlsx)",
+    "exportZip": "Exportar com subpáginas",
+    "exportZipDatabase": "Exportar com as páginas das linhas",
+    "exportPdf": "Exportar como PDF",
+    "exportPreparing": "Preparando a exportação…",
+    "versionHistory": "Histórico de versões",
+    "lastEdited": "Última edição por {name}",
+    "actionFailed": "Não foi possível concluir essa ação.",
+    "viewers": "{count, plural, one {# outra pessoa está vendo esta página} other {# outras pessoas estão vendo esta página}}",
+    "viewersTitle": "Vendo esta página",
+    "saveAsTemplate": "Salvar como modelo",
+    "saveAsRowTemplate": "Salvar como modelo de linha",
+    "deleteTemplate": "Excluir modelo",
+    "exportDisabled": "A exportação está desativada",
+    "exportDisabledBody": "Os proprietários deste espaço de trabalho desativaram a exportação e a impressão das páginas.",
+    "showInGraph": "Mostrar no grafo"
+  },
+  "comments": {
+    "aboutPage": "Sobre esta página",
+    "title": "Comentários",
+    "close": "Fechar comentários",
+    "filters": {
+      "open": "Abertos",
+      "resolved": "Resolvidos",
+      "all": "Todos"
+    },
+    "empty": {
+      "open": "Nenhum comentário aberto. Selecione um texto na página e escolha Comentar para começar.",
+      "resolved": "Nenhum comentário resolvido.",
+      "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar."
+    }
+  },
+  "archived": {
+    "banner": "Esta página está na lixeira.",
+    "deletePermanently": "Excluir permanentemente",
+    "confirmDelete": "Excluir permanentemente esta página e tudo o que há nela? Essa ação não pode ser desfeita."
+  },
+  "icon": {
+    "add": "Adicionar ícone",
+    "remove": "Remover ícone"
+  },
+  "background": {
+    "add": "Adicionar fundo",
+    "change": "Fundo",
+    "colors": "Cor",
+    "patterns": "Padrão",
+    "none": "Nenhum",
+    "remove": "Remover fundo",
+    "colorNames": {
+      "gray": "Cinza",
+      "blue": "Azul",
+      "green": "Verde",
+      "purple": "Roxo",
+      "pink": "Rosa",
+      "red": "Vermelho",
+      "orange": "Laranja",
+      "black": "Preto"
+    },
+    "patternNames": {
+      "dots": "Pontos",
+      "plus": "Cruzes",
+      "grid": "Grade",
+      "lines": "Linhas"
+    }
+  },
+  "title": {
+    "label": "Título da página"
+  },
+  "connection": {
+    "live": "Ao vivo",
+    "connecting": "Conectando",
+    "offline": "Offline",
+    "reconnecting": "Reconectando",
+    "noAccess": "Sem acesso",
+    "syncing": "Sincronizando…",
+    "synced": "Sincronizado",
+    "offlinePending": "Offline · edições guardadas aqui",
+    "offlineHint": "Você está offline. Continue editando: as alterações ficam salvas neste navegador e são sincronizadas quando a conexão voltar."
+  },
+  "errors": {
+    "accessLost": "Você não tem mais acesso a esta página.",
+    "connectionFailed": "Não foi possível conectar à edição ao vivo. Tentando novamente…",
+    "notAvailableOffline": "Esta página ainda não está salva neste dispositivo. Abra-a uma vez com conexão para usá-la offline."
+  },
+  "history": {
+    "title": "Histórico da página",
+    "previewTitle": "Prévia da versão",
+    "modes": {
+      "version": "Versão",
+      "current": "Comparar com a atual",
+      "previous": "Comparar com a anterior"
+    },
+    "reasons": {
+      "auto": "Salvamento automático",
+      "beforeRestore": "Antes de restaurar",
+      "manual": "Versão salva",
+      "beforeAiEdit": "Antes da edição por IA",
+      "beforeAiEditBy": "Antes da edição por {client}",
+      "beforeAssistantEdit": "Antes da edição pelo assistente de IA"
+    },
+    "empty": "Nenhuma versão ainda. As versões são salvas automaticamente enquanto você edita e antes que qualquer app de IA altere esta página.",
+    "restore": "Restaurar esta versão",
+    "restoring": "Restaurando…",
+    "restoreHint": "O conteúdo atual é salvo como uma versão antes.",
+    "diff": {
+      "rangeCurrent": "Alterações da versão de {from} até a página atual",
+      "rangePrevious": "Alterações de {from} até {to}",
+      "earlier": "a versão anterior",
+      "changedBy": "Alterado por {names}",
+      "actorApp": "{client} para {name}",
+      "none": "Nenhuma alteração.",
+      "oldest": "Esta é a versão salva mais antiga, então não há nada anterior para comparar.",
+      "showUnchanged": "{count, plural, one {Mostrar # bloco sem alterações} other {Mostrar # blocos sem alterações}}",
+      "formatOnly": "Formatação alterada"
+    },
+    "errors": {
+      "list": "Não foi possível carregar o histórico da página. Recarregue a página e tente novamente.",
+      "version": "Não foi possível carregar esta versão.",
+      "restore": "Não foi possível restaurar esta versão.",
+      "diff": "Não foi possível comparar estas versões."
+    }
+  },
+  "move": {
+    "title": "Mover para",
+    "search": "Pesquisar páginas…",
+    "empty": "Nenhuma página correspondente.",
+    "failed": "Não foi possível mover a página para lá.",
+    "teamspaceHint": "Topo deste espaço de equipe: os membros dele ganham acesso",
+    "private": "Privado",
+    "privateHint": "Topo das suas páginas privadas: só as pessoas com quem ela for compartilhada ganham acesso"
+  },
+  "share": {
+    "tabShare": "Compartilhar",
+    "tabPublish": "Publicar",
+    "addPeople": "Adicionar pessoas, grupos ou e-mails",
+    "noMatches": "Nenhum membro ou grupo correspondente.",
+    "addPeopleOrAgents": "Adicionar pessoas, grupos, agentes ou e-mails",
+    "noMatchesWithAgents": "Nenhum membro, grupo ou agente correspondente.",
+    "agentPaused": "Agente, pausado",
+    "groupMembers": "{count, plural, =0 {Grupo sem membros} one {Grupo de # membro} other {Grupo de # membros}}",
+    "membersOnly": "Você pode compartilhar com membros do espaço de trabalho. Este espaço de trabalho não permite compartilhar com pessoas de fora.",
+    "guestHint": "Digite um endereço de e-mail completo para compartilhar com alguém de fora do espaço de trabalho. A pessoa entra como convidado e vê só as páginas compartilhadas com ela.",
+    "shareWith": "Compartilhar com {email}",
+    "asGuest": "Entra como convidado",
+    "pending": "Convidado, ainda não entrou",
+    "cancelInvite": "Cancelar convite",
+    "invitedSent": "Convite enviado para {email}.",
+    "invitedNoEmail": "{email} foi convidado, mas não foi possível enviar o e-mail. Envie o link do convite para a pessoa.",
+    "copyInvite": "Copiar link do convite",
+    "you": "Você",
+    "inherited": "De {title}",
+    "groupInherited": "Grupo, de {title}",
+    "inheritedAbove": "De uma página acima",
+    "groupInheritedAbove": "Grupo, de uma página acima",
+    "hiddenGroup": "Um grupo",
+    "group": "Grupo",
+    "viaGeneral": "{level} (pelo acesso geral)",
+    "viaOwner": "{level} (como proprietário)",
+    "overridden": "O acesso geral é maior ({level}), então isto não tem efeito.",
+    "remove": "Remover",
+    "generalAccess": "Acesso geral",
+    "everyone": "Todos no espaço de trabalho",
+    "everyoneHint": "Os membros recebem pelo menos este nível de acesso, seja qual for o acesso individual que você der. Defina como \"Sem acesso\" para abrir a página só para as pessoas que você adicionar.",
+    "everyoneIn": "Todos em {name}",
+    "everyoneTeamspace": "Todos no espaço de equipe",
+    "everyoneTeamspaceHint": "Os membros do espaço de equipe recebem pelo menos este nível de acesso, seja qual for o acesso individual que você der. Defina como \"Sem acesso\" para abrir a página só para as pessoas que você adicionar.",
+    "readOnly": "Só pessoas com acesso total podem alterar o compartilhamento.",
+    "copyLink": "Copiar link",
+    "copied": "Copiado",
+    "loading": "Carregando…",
+    "requests": {
+      "heading": "Solicitações",
+      "message": "“{message}”",
+      "level": "Nível de acesso",
+      "approve": "Compartilhar",
+      "decline": "Recusar",
+      "outsider": "Não está no espaço de trabalho: compartilhar adiciona a pessoa como convidado.",
+      "cantInvite": "Não está no espaço de trabalho, e este espaço de trabalho não permite compartilhar com pessoas de fora."
+    },
+    "levels": {
+      "full": "Acesso total",
+      "edit": "Pode editar",
+      "comment": "Pode comentar",
+      "view": "Pode ver",
+      "none": "Sem acesso"
+    },
+    "errors": {
+      "notMember": "Esta pessoa não é membro do espaço de trabalho.",
+      "lastFullAccess": "Alguém precisa manter acesso total à página. Dê acesso total a outra pessoa primeiro.",
+      "accessDenied": "Você não pode alterar o compartilhamento desta página.",
+      "invalidEmail": "Digite um endereço de e-mail válido.",
+      "invitesRestricted": "Este espaço de trabalho não permite compartilhar páginas com pessoas de fora. Peça a um proprietário.",
+      "generic": "Não foi possível atualizar o compartilhamento.",
+      "agentFullAccess": "Agentes podem ver, comentar ou editar uma página, mas nunca recebem acesso total."
+    },
+    "everyoneFromTeamspaceHint": "Definido pelo espaço de equipe. Os proprietários dele e os proprietários do espaço de trabalho têm acesso total. Escolha um nível aqui para defini-lo para esta página e as subpáginas dela."
+  },
+  "noAccess": {
+    "metaTitle": "Sem acesso",
+    "title": "Você não tem acesso a esta página",
+    "description": "Peça acesso e as pessoas que podem compartilhar esta página receberão sua solicitação.",
+    "descriptionNoRequests": "Peça para a pessoa que enviou o link compartilhar esta página com você.",
+    "messageLabel": "Mensagem (opcional)",
+    "messagePlaceholder": "Adicione uma nota para as pessoas que podem compartilhá-la",
+    "request": "Pedir acesso",
+    "sending": "Enviando…",
+    "sentTitle": "Solicitação enviada",
+    "sentDescription": "Quando alguém compartilhar a página com você, este link vai abri-la.",
+    "rateLimited": "Você pediu acesso vezes demais. Tente novamente daqui a pouco.",
+    "signedInAs": "Você entrou como {email}.",
+    "home": "Ir para o seu espaço de trabalho"
+  },
+  "embed": {
+    "label": "Banco de dados",
+    "linkedLabel": "Visualização vinculada de um banco de dados",
+    "unavailable": "Este banco de dados não está disponível. Ele pode ter sido excluído, ou você não tem acesso a ele.",
+    "inTrash": "Este banco de dados está na lixeira.",
+    "creating": "Criando banco de dados…",
+    "createFailed": "Não foi possível criar o banco de dados: {error}",
+    "turnIntoDatabase": "Transformar em banco de dados",
+    "convertFailed": "Não foi possível transformar a tabela em banco de dados: {error}",
+    "tableTooLarge": "Tabelas de até {rows} linhas e {columns} colunas podem virar um banco de dados.",
+    "open": "Abrir como página",
+    "linked": "Visualização vinculada",
+    "layout": "Layout",
+    "viewOnly": "Só quem pode editar esta página pode alterar esta visualização.",
+    "picker": {
+      "title": "Escolha um banco de dados",
+      "search": "Pesquisar bancos de dados",
+      "empty": "Nenhum banco de dados encontrado.",
+      "failed": "Não foi possível carregar os bancos de dados."
+    },
+    "slash": {
+      "database": {
+        "title": "Banco de dados",
+        "subtext": "Um novo banco de dados dentro desta página",
+        "aliases": "database db inline table banco de dados tabela em linha"
+      },
+      "linkedView": {
+        "title": "Visualização vinculada de banco de dados",
+        "subtext": "Mostra um banco de dados existente com uma visualização própria",
+        "aliases": "linked view database db visualização vinculada banco de dados"
+      },
+      "dashboard": {
+        "title": "Painel",
+        "subtext": "Números, gráficos e listas dos seus bancos de dados",
+        "aliases": "dashboard widgets kpi metrics charts numbers painel gráficos números métricas indicadores"
+      }
+    }
+  },
+  "textStyle": {
+    "superscript": "Sobrescrito",
+    "subscript": "Subscrito"
+  },
+  "find": {
+    "label": "Localizar na página",
+    "placeholder": "Localizar",
+    "replacePlaceholder": "Substituir por",
+    "noResults": "Nenhum resultado",
+    "matchCase": "Diferenciar maiúsculas e minúsculas",
+    "previous": "Resultado anterior (Shift+Enter)",
+    "next": "Próximo resultado (Enter)",
+    "showReplace": "Mostrar substituição",
+    "hideReplace": "Ocultar substituição",
+    "replace": "Substituir",
+    "replaceAll": "Substituir tudo",
+    "close": "Fechar (Esc)"
+  },
+  "template": {
+    "workspace": "Este é um modelo. Novas páginas criadas a partir dele copiam o conteúdo e as subpáginas dele.",
+    "row": "Este é um modelo de linha. Novas linhas criadas a partir dele recebem as propriedades e o conteúdo dele.",
+    "inside": "Esta página faz parte de um modelo.",
+    "use": "Usar modelo",
+    "confirmDelete": "Excluir este modelo de vez? As páginas já criadas a partir dele continuam como estão."
+  },
+  "blocks": {
+    "callout": {
+      "title": "Destaque",
+      "subtext": "Texto com um ícone sobre um fundo colorido",
+      "aliases": "callout destaque nota dica aviso alerta caixa",
+      "icon": "Alterar ícone"
+    },
+    "code": {
+      "language": "Linguagem",
+      "plainText": "Texto simples"
+    },
+    "math": {
+      "title": "Equação",
+      "subtext": "Uma equação em destaque escrita em TeX",
+      "aliases": "math equation matemática equação fórmula latex tex katex",
+      "placeholder": "Adicionar uma equação TeX",
+      "sourcePlaceholder": "E = mc^2",
+      "error": "A equação tem um erro"
+    },
+    "inlineMath": {
+      "title": "Equação em linha",
+      "subtext": "Uma equação dentro do texto",
+      "aliases": "inline math em linha matemática equação fórmula latex tex katex",
+      "placeholder": "Nova equação",
+      "sourcePlaceholder": "x^2",
+      "error": "Erro na equação"
+    },
+    "mermaid": {
+      "title": "Diagrama Mermaid",
+      "subtext": "Fluxogramas, diagramas de sequência e mais, desenhados a partir de texto",
+      "aliases": "mermaid diagram diagrama fluxograma gráfico sequência gantt",
+      "placeholder": "Adicionar um diagrama Mermaid",
+      "sourcePlaceholder": "graph TD\n  A --> B",
+      "loading": "Desenhando o diagrama…",
+      "error": "O diagrama tem um erro",
+      "syntaxError": "Erro de sintaxe",
+      "label": "Diagrama"
+    },
+    "toc": {
+      "title": "Sumário",
+      "subtext": "Links para os títulos desta página",
+      "aliases": "toc sumário índice conteúdo títulos estrutura",
+      "label": "Sumário",
+      "empty": "Adicione títulos a esta página e eles aparecerão aqui."
+    },
+    "breadcrumb": {
+      "title": "Trilha de navegação",
+      "subtext": "As páginas acima desta, como links",
+      "aliases": "breadcrumb trilha caminho páginas acima localização",
+      "label": "Trilha de navegação"
+    },
+    "columns": {
+      "two": {
+        "title": "2 colunas",
+        "subtext": "Duas colunas de blocos lado a lado",
+        "aliases": "colunas coluna layout lado a lado columns 2 duas"
+      },
+      "three": {
+        "title": "3 colunas",
+        "subtext": "Três colunas de blocos lado a lado",
+        "aliases": "colunas coluna layout lado a lado columns 3 três"
+      },
+      "add": {
+        "title": "Adicionar coluna",
+        "subtext": "Uma nova coluna à direita desta (até 5)",
+        "aliases": "adicionar coluna nova colunas layout column add"
+      }
+    },
+    "pageLink": {
+      "title": "Link para página",
+      "subtext": "Um link para outra página, com o título sempre atualizado",
+      "aliases": "link página menção referência page mention"
+    },
+    "colors": {
+      "group": "Cores",
+      "text": "Texto {color}",
+      "background": "Fundo {color}",
+      "textDefault": "Cor de texto padrão",
+      "backgroundDefault": "Sem fundo",
+      "textAliases": "cor texto fonte color",
+      "backgroundAliases": "fundo destaque realce cor background"
+    }
+  },
+  "web": {
+    "bookmark": {
+      "title": "Marcador web",
+      "subtext": "Um link exibido como cartão, com título e imagem",
+      "aliases": "marcador link url web cartão prévia bookmark",
+      "placeholder": "Cole um link para criar um marcador",
+      "submit": "Criar marcador",
+      "loading": "Buscando a página…",
+      "refresh": "Atualizar prévia",
+      "label": "Marcador"
+    },
+    "embed": {
+      "title": "Incorporar",
+      "subtext": "YouTube, Figma, Google Docs, Maps e mais",
+      "aliases": "incorporar embed iframe youtube vimeo loom figma google docs planilhas apresentações sheets slides codepen spotify mapas maps vídeo",
+      "placeholder": "Cole um link para incorporar",
+      "submit": "Incorporar",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides publicados, CodePen, Spotify e Google Maps. Outros links viram um marcador.",
+      "frameTitle": "Conteúdo incorporado de {host}",
+      "label": "Incorporação"
+    },
+    "paste": {
+      "label": "Colar como",
+      "bookmark": "Marcador",
+      "embed": "Incorporação",
+      "keep": "Manter como link"
+    },
+    "invalidUrl": "Digite um endereço web, como https://example.com",
+    "errors": {
+      "accessDenied": "Você não pode editar esta página.",
+      "rateLimited": "Prévias de link demais ao mesmo tempo. Tente novamente em um minuto.",
+      "invalidUrl": "Isso não é um endereço web.",
+      "blocked": "Não é possível gerar a prévia deste endereço.",
+      "unreachable": "Não foi possível acessar a página.",
+      "timeout": "A página demorou demais para responder.",
+      "tooManyRedirects": "A página redireciona vezes demais.",
+      "httpError": "A página respondeu com um erro."
+    }
+  },
+  "upload": {
+    "tooLarge": "{name} é grande demais. Os arquivos podem ter no máximo {limit}.",
+    "quotaExceeded": "{name} não foi enviado: este espaço de trabalho já usou seus {limit} de armazenamento de arquivos.",
+    "failed": "Não foi possível enviar {name}."
+  },
+  "mention": {
+    "people": "Pessoas",
+    "pages": "Páginas",
+    "dates": "Datas",
+    "newPage": "Nova página: {title}",
+    "newPageHint": "Dentro desta página",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "yesterday": "Ontem",
+    "nextWeek": "Próxima semana",
+    "noAccess": "Sem acesso",
+    "deleted": "Página excluída",
+    "loading": "Carregando…",
+    "personLeft": "{name} (não está mais no espaço de trabalho)",
+    "date": "Data",
+    "reminder": "Lembrete",
+    "remindNone": "Sem lembrete",
+    "remindSameDay": "No dia, 9:00",
+    "remindDayBefore": "Na véspera, 9:00",
+    "remindWeekBefore": "Uma semana antes, 9:00",
+    "reminderSet": "Lembrete: {when}",
+    "reminderHint": "Você vai recebê-lo na caixa de entrada e por e-mail.",
+    "reminderPast": "Esse horário já passou; escolha uma data ou um lembrete mais tarde.",
+    "done": "Concluído"
+  },
+  "pageLinkPicker": {
+    "title": "Link para página",
+    "search": "Pesquisar páginas…",
+    "empty": "Nenhuma página encontrada",
+    "failed": "Não foi possível carregar as páginas."
+  },
+  "backlinks": {
+    "title": "Links para esta página",
+    "count": "{count, plural, one {# página tem link para cá} other {# páginas têm link para cá}}",
+    "unlinked": "Menções sem link · {count}",
+    "unlinkedHint": "Páginas que escrevem o título desta página sem link para ela",
+    "link": "Vincular",
+    "linkLabel": "Vincular a menção em {title}",
+    "linkFailed": "O título não está mais escrito lá como texto simples.",
+    "locked": "Essa página está bloqueada, então não pode mudar."
+  },
+  "pdf": {
+    "untitled": "PDF",
+    "openInNewTab": "Abrir em uma nova aba",
+    "frameTitle": "PDF: {name}",
+    "noPreview": "Este navegador não consegue exibir PDFs aqui. Abra o arquivo para lê-lo."
+  },
+  "print": {
+    "print": "Imprimir ou salvar como PDF",
+    "back": "Voltar para a página",
+    "includeSubpages": "Incluir subpáginas",
+    "preparing": "Carregando imagens e diagramas…",
+    "hint": "Na janela de impressão, escolha “Salvar como PDF” como destino.",
+    "truncated": "Só as primeiras {count} páginas foram incluídas.",
+    "lastUpdated": "Última atualização: {date}",
+    "subpages": "Páginas",
+    "embedUnavailable": "Este banco de dados não está disponível para você."
+  },
+  "quickNote": {
+    "documentTitle": "Nota rápida",
+    "heading": "Nota rápida",
+    "description": "Salva como uma página privada que só você vê. Você pode movê-la ou compartilhá-la depois.",
+    "workspace": "Espaço de trabalho",
+    "title": "Título",
+    "body": "Nota",
+    "bodyPlaceholder": "Escreva algo ou cole um link",
+    "save": "Salvar nota",
+    "shortcut": "Nova nota rápida",
+    "shortcutShort": "Nota rápida",
+    "destination": "Salvar em",
+    "privatePage": "Página privada"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "empty": "Este painel ainda não tem widgets.",
+    "emptyEditable": "Mostre aqui números, gráficos e listas dos bancos de dados do espaço de trabalho. Eles se mantêm atualizados conforme as linhas mudam.",
+    "add": "Adicionar widget",
+    "full": "Um painel comporta até {max} widgets.",
+    "menu": "Opções do widget",
+    "edit": "Editar",
+    "done": "Concluído",
+    "remove": "Remover widget",
+    "moveBefore": "Mover para antes",
+    "moveAfter": "Mover para depois",
+    "width": "Largura",
+    "widths": {
+      "1": "Um quarto da largura",
+      "2": "Metade da largura",
+      "3": "Três quartos da largura",
+      "4": "A largura total"
+    },
+    "color": "Cor",
+    "colorNone": "Sem cor",
+    "titleLabel": "Título do widget",
+    "titlePlaceholder": "Título (o do banco de dados, se vazio)",
+    "unavailable": "Você não tem acesso a estes dados.",
+    "inTrash": "Este banco de dados está na lixeira.",
+    "loadFailed": "Não foi possível carregar este widget.",
+    "retry": "Tentar novamente",
+    "noGroup": "O banco de dados ainda não tem nada para agrupar: adicione uma propriedade de seleção, status ou data.",
+    "more": "{count, plural, one {Mais # linha} other {Mais # linhas}}",
+    "rows": "{count, plural, one {# linha} other {# linhas}}",
+    "byGroup": "por {property}",
+    "filters": "{count, plural, one {# filtro} other {# filtros}}",
+    "updatedNow": "atualizado agora mesmo",
+    "updated": "atualizado {time}"
+  },
+  "voiceNote": {
+    "record": "Gravar uma nota de voz",
+    "recording": "Gravando",
+    "stop": "Parar e transcrever",
+    "discard": "Descartar",
+    "cancel": "Cancelar",
+    "retry": "Inserir novamente",
+    "close": "Fechar",
+    "limit": "Até {minutes} min",
+    "chooseFile": "Ou escolha um arquivo de áudio",
+    "transcribing": "Transcrevendo o que você disse…",
+    "writing": "A IA está escrevendo a nota…",
+    "autoStopped": "A gravação parou no limite de {minutes} min.",
+    "review": "A IA escreveu esta nota a partir da sua gravação. Confira antes de salvar.",
+    "notRewritten": "A IA não conseguiu redigir esta gravação, então a nota é a transcrição como foi ouvida.",
+    "transcriptKept": "A transcrição fica salva abaixo da nota.",
+    "propertiesPicked": "{count, plural, one {# propriedade foi preenchida a partir da nota.} other {# propriedades foram preenchidas a partir da nota.}}",
+    "transcriptToggle": "Transcrição",
+    "shortcut": "Nova nota de voz",
+    "shortcutShort": "Nota de voz",
+    "dialogTitle": "Nota de voz",
+    "dialogDescription": "Fale, e a IA escreve uma nota organizada aqui. A transcrição fica abaixo dela.",
+    "slashTitle": "Nota de voz",
+    "slashSubtext": "Fale, e a IA redige aqui",
+    "slashAliases": "voz áudio gravar ditar fala microfone transcrever voice audio record",
+    "errors": {
+      "unsupported": "Este navegador não consegue gravar áudio. Escolha um arquivo de áudio.",
+      "insecure": "A gravação precisa de uma conexão segura (https). Escolha um arquivo de áudio.",
+      "denied": "O Leafdesk não tem permissão para usar o microfone. Permita nas configurações do site no seu navegador e tente novamente.",
+      "noDevice": "Nenhum microfone foi encontrado.",
+      "failed": "Não foi possível iniciar a gravação. Tente novamente.",
+      "fileType": "Este tipo de arquivo de áudio não é compatível.",
+      "fileTooLarge": "As gravações podem ter no máximo {max}.",
+      "disabled": "As notas de voz não estão disponíveis neste espaço de trabalho.",
+      "noAccess": "Você não pode adicionar notas aqui.",
+      "tooLarge": "A gravação é grande demais. As gravações podem ter no máximo {max}.",
+      "rateLimited": "Solicitações de IA demais. Tente novamente em instantes.",
+      "timeout": "A transcrição da gravação demorou demais. Tente novamente ou grave uma nota mais curta.",
+      "aborted": "Cancelado.",
+      "provider": "Não foi possível transcrever a gravação. Tente novamente mais tarde ou peça a um administrador para verificar as configurações de conversão de fala em texto.",
+      "empty": "Nada foi ouvido na gravação. Tente novamente mais perto do microfone.",
+      "invalid": "Não foi possível ler a gravação. Tente novamente.",
+      "interrupted": "O servidor reiniciou enquanto isso era processado. Tente novamente.",
+      "insert": "Não foi possível adicionar a nota à página."
+    }
+  },
+  "review": {
+    "bar": "{count, plural, one {# alteração de IA para revisar} other {# alterações de IA para revisar}}",
+    "by": "por {names}",
+    "open": "Revisar",
+    "keepAll": "Manter todas",
+    "undoAll": "Desfazer todas",
+    "keep": "Manter",
+    "undo": "Desfazer",
+    "title": "Revisar alterações de IA",
+    "hint": "Mantenha ou desfaça cada alteração. Desfazer todas salva antes a página como está agora no histórico.",
+    "stale": "A página mudou nesse meio-tempo: estas são as alterações como estão agora.",
+    "failed": "Não deu certo. Tente novamente."
+  }
+}

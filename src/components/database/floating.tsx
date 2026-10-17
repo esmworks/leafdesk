@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { isRtl } from "@/components/direction";
 import { cn } from "@/components/ui";
 
 const HIDDEN: React.CSSProperties = { top: 0, left: 0, opacity: 0, pointerEvents: "none" };
@@ -45,7 +46,9 @@ export function Floating({
     let top = cover ? a.top : a.bottom + gap;
     if (top + p.height > vh - 8 && a.top - p.height - gap > 8) top = (cover ? a.bottom : a.top - gap) - p.height;
     top = Math.max(8, Math.min(top, vh - p.height - 8));
-    let left = align === "end" ? a.right - p.width : a.left;
+    // "start" lines the panel up with the anchor's start edge: its right edge when right to left.
+    const atEnd = (align === "end") !== isRtl(anchor);
+    let left = atEnd ? a.right - p.width : a.left;
     left = Math.max(8, Math.min(left, vw - p.width - 8));
     setStyle({ top, left, minWidth: cover ? a.width : undefined });
   }, [anchor, align, cover]);

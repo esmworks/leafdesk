@@ -1,0 +1,83 @@
+{
+  "access": {
+    "default": "Padrão",
+    "open": "Aberto",
+    "closed": "Fechado",
+    "private": "Privado"
+  },
+  "accessHint": {
+    "default": "Todos do espaço de trabalho estão nele e não podem sair.",
+    "open": "Qualquer pessoa do espaço de trabalho pode vê-lo e entrar. Até entrar, ela pode ler e comentar nas páginas dele.",
+    "closed": "Qualquer pessoa do espaço de trabalho pode ver que ele existe. Só os membros abrem as páginas dele; os proprietários os adicionam.",
+    "private": "Só os membros podem vê-lo."
+  },
+  "roles": {
+    "owner": "Proprietário",
+    "member": "Membro"
+  },
+  "errors": {
+    "nameRequired": "Dê um nome ao espaço de equipe.",
+    "creationRestricted": "Aqui, só os proprietários do espaço de trabalho podem criar espaços de equipe.",
+    "ownersOnly": "Só os proprietários do espaço de trabalho podem mudar em quais espaços de equipe todos estão.",
+    "cannotLeaveDefault": "Todos estão neste espaço de equipe; não é possível sair dele.",
+    "lastOwner": "Primeiro torne outra pessoa proprietária do espaço de equipe.",
+    "notJoinable": "Peça a um proprietário deste espaço de equipe para adicionar você.",
+    "archived": "Este espaço de equipe está arquivado.",
+    "notMember": "Só proprietários e membros do espaço de trabalho podem estar nos espaços de equipe dele.",
+    "invalidAccess": "Escolha quem pode ver o espaço de equipe.",
+    "inGroup": "Esta pessoa está no espaço de equipe por meio de um grupo. Remova-a do grupo em vez disso.",
+    "everyoneIn": "Todos do espaço de trabalho já estão neste espaço de equipe.",
+    "accessDenied": "Você não pode fazer isso neste espaço de equipe.",
+    "invalidMemberLevel": "Escolha o que os membros recebem nas páginas do espaço de equipe.",
+    "invalidIcon": "O ícone precisa ser um emoji."
+  },
+  "dialog": {
+    "createTitle": "Novo espaço de equipe",
+    "editTitle": "Editar espaço de equipe",
+    "name": "Nome",
+    "namePlaceholder": "Marketing, Engenharia…",
+    "icon": "Escolher um ícone",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Para que serve este espaço de equipe?",
+    "access": "Quem pode vê-lo",
+    "defaultLocked": "Só os proprietários do espaço de trabalho podem alterar o acesso de um espaço de equipe padrão.",
+    "becomesDefault": "Todos do espaço de trabalho entram nele e não podem sair.",
+    "leavesDefault": "Todos continuam nele por enquanto, mas podem sair, e novos membros do espaço de trabalho não são adicionados.",
+    "create": "Criar espaço de equipe",
+    "creating": "Criando…",
+    "memberLevel": "Acesso dos membros às páginas",
+    "memberLevelHint": "O que os membros recebem nas páginas que não definem isso por conta própria. Os proprietários do espaço de equipe e do espaço de trabalho sempre têm acesso total; as configurações de compartilhamento de uma página ainda prevalecem sobre isto.",
+    "memberLevelLocked": "Só os proprietários do espaço de trabalho podem alterar o que todos recebem em um espaço de equipe padrão."
+  },
+  "members": {
+    "title": "Membros de {name}",
+    "everyone": "Todos do espaço de trabalho estão neste espaço de equipe. Os proprietários dele podem editá-lo e gerenciá-lo.",
+    "readOnly": "Só os proprietários deste espaço de equipe podem mudar quem está nele.",
+    "add": "Adicionar pessoas",
+    "search": "Pesquisar pessoas",
+    "addSelected": "{count, plural, =0 {Adicionar pessoas} other {Adicionar #}}",
+    "addAs": "Adicionar como",
+    "noOneToAdd": "Todos do espaço de trabalho já estão neste espaço de equipe.",
+    "noMatches": "Ninguém corresponde à sua pesquisa.",
+    "empty": "Ninguém está neste espaço de equipe.",
+    "list": "Pessoas neste espaço de equipe",
+    "roleOf": "Função de {name}",
+    "remove": "Remover {name}",
+    "you": "(você)",
+    "select": "Selecionar {name}",
+    "viaGroups": "Por meio de {groups}",
+    "groups": "Grupos",
+    "groupsHint": "Todos nestes grupos são membros do espaço de equipe enquanto estiverem no grupo.",
+    "noGroups": "Nenhum grupo neste espaço de equipe.",
+    "chooseGroup": "Escolha um grupo",
+    "addGroupButton": "Adicionar grupo",
+    "removeGroup": "Remover {name}",
+    "groupMemberCount": "{count, plural, =0 {Nenhum membro} one {# membro} other {# membros}}"
+  },
+  "memberLevel": {
+    "full": "Acesso total",
+    "edit": "Pode editar",
+    "comment": "Pode comentar",
+    "view": "Pode ver"
+  }
+}

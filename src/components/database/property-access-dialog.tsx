@@ -265,7 +265,7 @@ function AccessDialog({ prop, onClose }: { prop: Property; onClose: () => void }
                     // Keeps the search box focused, so the list stays open for the next pick.
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => add(c)}
-                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-bg-hover"
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
                   >
                     <EntryAvatar entry={c} />
                     <Label name={c.name} detail={c.detail} />
@@ -322,7 +322,7 @@ function AccessDialog({ prop, onClose }: { prop: Property; onClose: () => void }
 
       <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
         {error && (
-          <p role="alert" className="mr-auto text-xs text-danger">
+          <p role="alert" className="me-auto text-xs text-danger">
             {error}
           </p>
         )}

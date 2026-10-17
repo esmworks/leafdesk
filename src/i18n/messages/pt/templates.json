@@ -1,0 +1,96 @@
+{
+  "meeting-notes": {
+    "title": "Ata de reunião",
+    "description": "Pauta, anotações, decisões e itens de ação.",
+    "markdown": "**Data:** \n\n**Participantes:** \n\n## Pauta\n\n1. \n\n## Anotações\n\n\n\n## Decisões\n\n- \n\n## Itens de ação\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Plano semanal",
+    "description": "Metas da semana e uma lista de verificação por dia.",
+    "markdown": "## Metas da semana\n\n- [ ] \n\n### Segunda-feira\n\n- [ ] \n\n### Terça-feira\n\n- [ ] \n\n### Quarta-feira\n\n- [ ] \n\n### Quinta-feira\n\n- [ ] \n\n### Sexta-feira\n\n- [ ] \n\n## Anotações para a próxima semana\n"
+  },
+  "project-tracker": {
+    "title": "Acompanhamento de projetos",
+    "description": "Tarefas com status, prioridade, responsável e prazo, em uma tabela e um quadro.",
+    "seedNames": {
+      "status": "Status",
+      "notStarted": "Não iniciada",
+      "inProgress": "Em andamento",
+      "done": "Concluída",
+      "tags": "Etiquetas",
+      "table": "Todas as tarefas"
+    },
+    "properties": {
+      "priority": "Prioridade",
+      "owner": "Responsável",
+      "due": "Prazo"
+    },
+    "options": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "board": "Quadro",
+    "rowTemplate": {
+      "title": "Nova tarefa",
+      "markdown": "## Objetivo\n\n\n\n## Etapas\n\n- [ ] \n\n## Anotações\n\n"
+    },
+    "rows": {
+      "brief": "Escrever o briefing do projeto",
+      "milestone": "Planejar o primeiro marco",
+      "team": "Convidar a equipe"
+    }
+  },
+  "wins-log": {
+    "title": "Registro de conquistas",
+    "description": "Conquistas, elogios e trabalhos concluídos em um só lugar, com gráficos por mês, tipo e área.",
+    "markdown": "Toda conquista, todo elogio e todo trabalho concluído vêm para cá, com um link para onde aconteceu. Adicione-os manualmente ou deixe o agente Registrador de conquistas adicioná-los a partir das suas conexões.",
+    "database": "Conquistas",
+    "table": "Todas as conquistas",
+    "board": "Por tipo",
+    "properties": {
+      "type": "Tipo",
+      "area": "Área",
+      "date": "Data",
+      "impact": "Impacto",
+      "source": "Fonte",
+      "person": "Pessoas"
+    },
+    "types": {
+      "feedback": "Feedback",
+      "delivery": "Entrega",
+      "metric": "Métrica",
+      "event": "Evento",
+      "other": "Outro"
+    },
+    "areas": {
+      "product": "Produto",
+      "customers": "Clientes",
+      "team": "Equipe",
+      "operations": "Operações",
+      "sales": "Vendas"
+    },
+    "impacts": {
+      "high": "Alto",
+      "medium": "Médio",
+      "low": "Baixo"
+    },
+    "widgets": {
+      "total": "Conquistas",
+      "byMonth": "Conquistas por mês",
+      "byArea": "Por área",
+      "byImpact": "Por impacto"
+    },
+    "rowTemplate": {
+      "title": "Nova conquista",
+      "markdown": "## O que aconteceu\n\n\n\n## Por que importa\n\n\n\n## Evidências\n\n- "
+    },
+    "rows": {
+      "praise": "Um cliente elogiou o novo onboarding",
+      "launch": "Lançamos a exportação de faturamento",
+      "response": "As respostas do suporte agora levam menos de duas horas",
+      "talk": "Fizemos uma palestra no encontro externo da equipe",
+      "thanks": "Vendas nos agradeceu pela configuração da demo"
+    }
+  }
+}

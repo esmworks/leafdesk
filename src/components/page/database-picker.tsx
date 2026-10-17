@@ -67,7 +67,7 @@ export function DatabasePicker({
             key={d.id}
             type="button"
             onClick={() => onPick(d.id)}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-bg-hover"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
           >
             <PageIcon icon={d.icon} kind="database" className="text-sm" />
             <span className="truncate">{pageLabel(d.title, tc("untitled"))}</span>

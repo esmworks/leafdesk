@@ -1,0 +1,73 @@
+{
+  "heading": "個人アクセストークン",
+  "description": "トークンを使うと、スクリプトやほかのプログラムがあなたとして、あなたのページへのアクセス権でLeafdesk REST APIを利用できます。パスワードと同じように秘密にしてください。",
+  "docs": "APIドキュメント",
+  "empty": "トークンはまだありません。",
+  "create": "新しいトークン",
+  "form": {
+    "title": "新しい個人アクセストークン",
+    "name": "名前",
+    "namePlaceholder": "例：週次レポートのスクリプト",
+    "access": "アクセス",
+    "read": "読み取り専用",
+    "readHint": "ページ、データベース、行、コメントを読み取ります。",
+    "write": "読み取りと書き込み",
+    "writeHint": "さらに、ページ、行、コメントの作成と変更、ページのゴミ箱への移動、（ワークスペースのオーナーとして）エージェントの変更と実行の依頼ができます。",
+    "workspace": "ワークスペース",
+    "allWorkspaces": "自分のすべてのワークスペース",
+    "expiry": "有効期間",
+    "days": "{count}日",
+    "never": "無期限",
+    "submit": "トークンを作成",
+    "creating": "作成中…"
+  },
+  "created": {
+    "title": "新しいトークンをコピー",
+    "body": "トークンが表示されるのは今回だけです。安全な場所に保管してください。紛失した場合は、無効にして新しく作成してください。",
+    "done": "完了"
+  },
+  "row": {
+    "readOnly": "読み取り専用",
+    "readWrite": "読み取りと書き込み",
+    "allWorkspaces": "すべてのワークスペース",
+    "createdAt": "{date}に作成",
+    "lastUsed": "最終使用：{date}",
+    "neverUsed": "未使用",
+    "expires": "有効期限：{date}",
+    "expired": "{date}に期限切れ",
+    "noExpiry": "無期限"
+  },
+  "revoke": "無効にする",
+  "revoking": "無効にしています…",
+  "confirmRevoke": "{name}を無効にする",
+  "revokeError": "トークンを無効にできませんでした。もう一度お試しください。",
+  "errors": {
+    "name": "トークンに100文字以内の名前を付けてください。",
+    "scopes": "トークンに許可する操作を選択してください。",
+    "workspace": "そのワークスペースのメンバーではありません。",
+    "expiry": "トークンの有効期限を選択してください。",
+    "limit": "トークンの数が上限に達しています。先にいずれかを無効にしてください。",
+    "generic": "トークンを作成できませんでした。もう一度お試しください。"
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPIドキュメント（JSON）",
+    "tokensWhere": "トークンは「マイアカウント → 接続済みアプリ」で作成します。",
+    "quickStart": "クイックスタート",
+    "baseUrl": "ベースURL",
+    "errors": "エラー",
+    "code": "コード",
+    "status": "ステータス",
+    "endpoints": "エンドポイント",
+    "parameters": "パラメーター",
+    "inPath": "パス",
+    "inQuery": "クエリ",
+    "body": "リクエストボディ（JSON）",
+    "formBody": "リクエストボディ（マルチパートフォームデータ）",
+    "response": "レスポンス{status}",
+    "name": "名前",
+    "type": "型",
+    "description": "説明",
+    "required": "必須"
+  }
+}

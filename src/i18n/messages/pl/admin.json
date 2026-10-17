@@ -1,0 +1,71 @@
+{
+  "metaTitle": "Administracja serwerem",
+  "title": "Administracja serwerem",
+  "description": "Konta na tym serwerze, ich sesje i hasła. Widzisz tę stronę, ponieważ twój zweryfikowany adres e-mail znajduje się w ADMIN_EMAILS.",
+  "back": "Wróć do {workspace}",
+  "backHome": "Wstecz",
+  "workspaces": {
+    "heading": "Tworzenie obszarów roboczych",
+    "everyone": "Każdy może tworzyć obszary robocze",
+    "admins": "Tylko administratorzy mogą tworzyć obszary robocze",
+    "description": "Ustawiane przez WORKSPACE_CREATION na serwerze (everyone lub admins). Każdy i tak dostaje osobisty obszar roboczy przy rejestracji."
+  },
+  "sessions": {
+    "heading": "Wszyscy",
+    "description": "{count, plural, one {# aktywna sesja} few {# aktywne sesje} many {# aktywnych sesji} other {# aktywnej sesji}} na tym serwerze.",
+    "signOutEveryone": "Wyloguj wszystkich",
+    "signOutEveryoneDescription": "Kończy wszystkie sesje na wszystkich urządzeniach poza twoją w tej przeglądarce, a otwarte tam strony przestają się synchronizować. Połączone aplikacje i tokeny API nadal działają.",
+    "signOutEveryoneTitle": "Wylogować wszystkich?",
+    "signOutEveryoneBody": "Wszyscy na tym serwerze muszą zalogować się ponownie, także ty na innych urządzeniach.",
+    "signOutEveryoneConfirm": "Wyloguj wszystkich",
+    "resetEveryone": "Wymagaj nowych haseł",
+    "resetEveryoneDescription": "Każdy, kto loguje się hasłem, oprócz ciebie, zostaje wylogowany i przy następnym logowaniu musi wybrać nowe hasło. Nie dotyczy to kont logujących się wyłącznie przez logowanie jednokrotne, GitHub lub Google.",
+    "resetByEmail": "Przy logowaniu otrzymają e-mailem link do jego wybrania.",
+    "resetInApp": "Na tym serwerze nie skonfigurowano poczty e-mail, więc wybiorą je zaraz po zalogowaniu starym hasłem (i kodem weryfikacji dwuetapowej, jeśli z niej korzystają).",
+    "resetEveryoneTitle": "Wymagać nowych haseł od wszystkich?",
+    "resetEveryoneBody": "Wszyscy z hasłem, oprócz ciebie, zostaną teraz wylogowani i nie będą mogli ponownie zalogować się obecnym hasłem.",
+    "resetEveryoneConfirm": "Wymagaj nowych haseł"
+  },
+  "users": {
+    "heading": "Konta",
+    "count": "{count, plural, one {# konto} few {# konta} many {# kont} other {# konta}}",
+    "countPartial": "Wyświetlono {shown} z {total} kont. Użyj wyszukiwania, aby znaleźć pozostałe.",
+    "search": "Szukaj według imienia lub e-maila",
+    "noMatches": "Żadne konto nie pasuje do wyszukiwania.",
+    "none": "Brak kont.",
+    "columns": {
+      "user": "Konto",
+      "workspaces": "Obszary robocze",
+      "lastActive": "Ostatnia aktywność",
+      "twoFactor": "Dwuetapowa",
+      "password": "Hasło",
+      "actions": "Działania"
+    },
+    "you": "(ty)",
+    "admin": "Administrator",
+    "unverified": "Niezweryfikowane",
+    "signedOut": "Niezalogowane",
+    "on": "Wł.",
+    "off": "Wył.",
+    "hasPassword": "Ustawione",
+    "noPassword": "Brak",
+    "resetPending": "Wymagane nowe",
+    "actionsFor": "Działania dla {name}",
+    "signOut": "Wyloguj wszędzie",
+    "signOutTitle": "Wylogować {name} wszędzie?",
+    "signOutBody": "{count, plural, one {# sesja tej osoby zostanie zakończona} few {# sesje tej osoby zostaną zakończone} many {# sesji tej osoby zostanie zakończonych} other {# sesji tej osoby zostanie zakończonej}}, a otwarte przez nią strony przestaną się synchronizować. Połączone aplikacje i tokeny API nadal działają.",
+    "signOutSelfBody": "{count, plural, one {Twoja # sesja zostanie zakończona} few {Twoje # sesje zostaną zakończone} many {Twoich # sesji zostanie zakończonych} other {Twoje # sesji zostanie zakończonej}}, z wyjątkiem tej w tej przeglądarce.",
+    "signOutConfirm": "Wyloguj",
+    "requireReset": "Wymagaj nowego hasła",
+    "resetTitle": "Wymagać nowego hasła od {name}?",
+    "resetBody": "Osoba zostanie teraz wylogowana i przy następnym logowaniu hasłem będzie musiała wybrać nowe.",
+    "resetByEmail": "Przy logowaniu otrzyma e-mailem link do jego wybrania.",
+    "resetInApp": "Na tym serwerze nie skonfigurowano poczty e-mail, więc wybierze je zaraz po zalogowaniu starym hasłem (i kodem weryfikacji dwuetapowej, jeśli z niej korzysta).",
+    "resetConfirm": "Wymagaj nowego hasła"
+  },
+  "errors": {
+    "notFound": "Nie znaleziono tego konta.",
+    "noPassword": "To konto nie ma hasła; loguje się w inny sposób.",
+    "self": "Swoje hasło zmienisz na stronie konta."
+  }
+}
