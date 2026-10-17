@@ -69,13 +69,15 @@ versions, upgrades and running behind a domain.
   names the document, with the text around the words. Only documents the page's readers may open
   through it count, as for semantic search; a document's first 80,000 characters are searched,
   and a scan without a text layer has no words to find.
-- **Home page**: quick buttons for a new page, database or template; the database rows assigned
-  to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
-  and no date; and the pages edited last.
+- **Home page**: quick buttons for a new page, database or template; today's daily note (or a
+  button that starts it) and the few before it; the database rows assigned to you that aren't done
+  and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
+  pages edited last.
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
-  `type:page`, `type:database` or `type:row` (database rows); filters work without words too,
+  `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes);
+  filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
   results puts each of these into the box.
@@ -252,6 +254,13 @@ versions, upgrades and running behind a domain.
   owner's approval in the inbox; signed events from the service can start agents, whose every call
   waits for approval unless an owner trusts what that trigger's service sends (see
   [Connections](#connections)).
+- **Daily notes**: one page of your own for each day. *Today* in the sidebar (or on the home page)
+  opens today's note, made the first time, in your own time zone; the calendar beside it marks the
+  days that have a note and opens any day's, and a date mention's menu has *Open that day's note*.
+  Notes live under *Journal*, a private page of yours (newest day first), so nobody else sees them
+  unless you share one. New notes start with a few headings, blank, or from one of the workspace's
+  page templates, as you pick at the bottom of the calendar. A note in the trash no longer counts:
+  opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker or a
   wins log (a dashboard of wins by month, type, area and impact over the database that holds them).
@@ -1998,6 +2007,9 @@ The tools cover:
   first; a value AI autofill filled in has `actor: "ai"`, with the person it was worked out for in
   `by`.
 - **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
+- **Daily notes:** `get_or_create_daily_note` opens the user's note for a day (`date`, or today in
+  `time_zone`), making it as the app would; `list_daily_notes` lists them newest first, from one day
+  to another. Read-only apps can list notes but not make one.
 - **Skills:** `list_skills`, `get_skill`, `set_skill`; every skill is also a prompt of its name
   (see [Skills](#skills)).
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
@@ -2090,6 +2102,9 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
 
 - **Account and workspaces:** `GET /me`, `GET /workspaces`, `GET /workspaces/{id}/teamspaces`, `GET /workspaces/{id}/groups`,
   `GET /workspaces/{id}/pages` (`teamspace_id` narrows it to one teamspace, or `private`).
+  `GET /workspaces/{id}/daily-notes` lists the user's daily notes (`from`, `to`, `limit`) and
+  `POST /workspaces/{id}/daily-notes` opens one (`date`, or today in `time_zone`), making it when
+  missing; `created` says which.
   `POST /pages` and `POST /pages/{id}/move` take a `teamspace_id` for top-level pages, as the MCP
   tools do.
 - **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, cover,

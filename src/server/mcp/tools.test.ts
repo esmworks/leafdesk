@@ -1,5 +1,6 @@
 import { InMemoryTransport, type JSONRPCMessage } from "@modelcontextprotocol/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { today } from "@/lib/journal";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { MAX_MARKDOWN_CHARS } from "./format";
@@ -218,6 +219,18 @@ const templates = vi.hoisted(() => ({
   createRow: vi.fn(),
 }));
 vi.mock("@/server/templates", () => templates);
+const journal = vi.hoisted(() => {
+  class JournalError extends Error {
+    constructor(
+      message: string,
+      readonly code: string,
+    ) {
+      super(message);
+    }
+  }
+  return { JournalError, getOrCreateDailyNote: vi.fn(), listDailyNotes: vi.fn() };
+});
+vi.mock("@/server/journal", () => journal);
 const pageMeta = vi.hoisted(() => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn() }));
 vi.mock("@/server/page-meta", () => pageMeta);
 const mentions = vi.hoisted(() => ({
@@ -3117,5 +3130,54 @@ describe("check_workspace", () => {
       expect(r.isError).toBe(true);
     }
     expect(workspaceCheck.checkWorkspace).not.toHaveBeenCalled();
+  });
+});
+
+describe("daily notes", () => {
+  const note = { day: "2026-10-17", pageId: "note-1", title: "October 17, 2026", icon: null, created: true };
+
+  it("opens the note of a given day as the connected user", async () => {
+    journal.getOrCreateDailyNote.mockResolvedValue(note);
+    const r = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", date: "2026-10-17" });
+    expect(r.isError).toBe(false);
+    expect(journal.getOrCreateDailyNote).toHaveBeenLastCalledWith({ userId: "user-1", oauthClientId: "client-1" }, "ws-1", "2026-10-17");
+    expect(r.data).toMatchObject({ date: "2026-10-17", id: "note-1", created: true, url: expect.stringContaining("/w/ws-1/p/note-1") });
+  });
+
+  it("takes today in the user's time zone when no date is given", async () => {
+    journal.getOrCreateDailyNote.mockResolvedValue({ ...note, created: false });
+    await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", time_zone: "Asia/Tokyo" });
+    expect(journal.getOrCreateDailyNote.mock.lastCall?.[2]).toBe(today("Asia/Tokyo"));
+    await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1" });
+    expect(journal.getOrCreateDailyNote.mock.lastCall?.[2]).toBe(today("UTC"));
+  });
+
+  it("refuses an unknown time zone and a malformed day", async () => {
+    journal.getOrCreateDailyNote.mockClear();
+    const zone = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", time_zone: "Mars/Olympus" });
+    expect(zone.isError).toBe(true);
+    expect(zone.text).toMatch(/time zone/);
+    const day = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", date: "17.10.2026" });
+    expect(day.isError).toBe(true);
+    expect(journal.getOrCreateDailyNote).not.toHaveBeenCalled();
+  });
+
+  it("says why a day is refused", async () => {
+    journal.getOrCreateDailyNote.mockRejectedValue(new journal.JournalError("A day is written YYYY-MM-DD, between 1900 and 2999", "badDay"));
+    const r = await callTool(writer, "get_or_create_daily_note", { workspace_id: "ws-1", date: "3001-01-01" });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/between 1900 and 2999/);
+  });
+
+  it("lets read-only connections list notes but not make one", async () => {
+    journal.getOrCreateDailyNote.mockClear();
+    const made = await callTool(reader, "get_or_create_daily_note", { workspace_id: "ws-1" });
+    expect(made.isError).toBe(true);
+    expect(journal.getOrCreateDailyNote).not.toHaveBeenCalled();
+    journal.listDailyNotes.mockResolvedValue([note]);
+    const listed = await callTool(reader, "list_daily_notes", { workspace_id: "ws-1", from: "2026-10-01" });
+    expect(listed.isError).toBe(false);
+    expect(journal.listDailyNotes).toHaveBeenLastCalledWith("user-1", "ws-1", { from: "2026-10-01", to: undefined, limit: 31 });
+    expect(listed.data).toMatchObject({ notes: [{ date: "2026-10-17", id: "note-1" }] });
   });
 });

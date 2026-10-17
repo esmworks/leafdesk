@@ -915,7 +915,7 @@ export async function fullTextSearch(
           and ft.search_vector @@ ${words}
           and p.archived_at is null
           and not p.in_template
-          ${searchScope(scope)}`
+          ${searchScope(scope, userId)}`
     : sql``;
   const rows = await db.execute<{
     id: string;
@@ -937,7 +937,7 @@ export async function fullTextSearch(
       where p.workspace_id in (${inWorkspaces})
         and p.archived_at is null
         and not p.in_template
-        ${searchScope(scope)}
+        ${searchScope(scope, userId)}
         and ${matches}
       ${documentHits}
     ),

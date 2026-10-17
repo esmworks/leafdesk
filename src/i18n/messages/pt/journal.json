@@ -1,0 +1,20 @@
+{
+  "today": "Hoje",
+  "todayNote": "Nota de hoje",
+  "openToday": "Abrir a nota de hoje",
+  "startToday": "Começar a nota de hoje",
+  "calendar": "Calendário de notas diárias",
+  "previousMonth": "Mês anterior",
+  "nextMonth": "Próximo mês",
+  "hasNote": "{day} — tem nota",
+  "openDay": "Abrir a nota desse dia",
+  "recent": "Notas anteriores",
+  "startWith": "Novas notas começam com",
+  "startDefault": "Alguns títulos",
+  "startBlank": "Uma página em branco",
+  "startTemplates": "Modelos",
+  "openFailed": "Não foi possível abrir a nota diária",
+  "saveFailed": "Não foi possível salvar a configuração",
+  "searchHint": "suas notas diárias",
+  "yesterday": "Nota de ontem"
+}

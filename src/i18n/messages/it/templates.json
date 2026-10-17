@@ -92,5 +92,9 @@
       "talk": "Presentazione all’offsite del team",
       "thanks": "Le vendite ci hanno ringraziato per la configurazione della demo"
     }
+  },
+  "journal": {
+    "title": "Diario",
+    "markdown": "## Obiettivi\n\n- [ ] \n\n## Note\n\n## Fatto oggi\n"
   }
 }

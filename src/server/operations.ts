@@ -29,6 +29,9 @@ import * as databases from "@/server/databases";
 import { resolveEmbeds } from "@/server/embeds";
 import * as forms from "@/server/forms";
 import * as groups from "@/server/groups";
+import * as journal from "@/server/journal";
+import * as journalDays from "@/lib/journal";
+import { isTimeZone } from "@/lib/time-zone";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
 import * as pageMeta from "@/server/page-meta";
@@ -378,6 +381,25 @@ export const inputs = {
       .optional()
       .describe("What the skill is for and when to use it, in a sentence or two. Empty clears it."),
   }),
+  dailyNote: z.object({
+    workspace_id: id("workspace"),
+    date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional()
+      .describe("The day, YYYY-MM-DD. Leave out for today in time_zone."),
+    time_zone: z
+      .string()
+      .max(64)
+      .optional()
+      .describe('The user\'s IANA time zone (such as "Europe/Istanbul"), for what today is when date is left out. UTC when left out.'),
+  }),
+  listDailyNotes: z.object({
+    workspace_id: id("workspace"),
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("First day to list, YYYY-MM-DD."),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Last day to list, YYYY-MM-DD."),
+    limit: z.number().int().min(1).max(366).default(31).describe("Maximum notes (1-366, default 31), newest first."),
+  }),
 };
 
 type Args<K extends keyof typeof inputs> = z.infer<(typeof inputs)[K]>;
@@ -519,6 +541,41 @@ export async function search(
       url: pageUrl(h.workspaceId, h.id),
       ...(passages ? { passage: h.passage ?? null, block_id: h.blockId ?? null } : {}),
     })),
+  };
+}
+
+/** A daily note's day as given, or today in `timeZone` (UTC when it isn't one). */
+function noteDay(date: string | undefined, timeZone: string | undefined) {
+  if (timeZone !== undefined && !isTimeZone(timeZone)) throw new ToolInputError(`"${timeZone}" is not an IANA time zone such as "Europe/Istanbul".`);
+  return date ?? journalDays.today(timeZone ?? "UTC");
+}
+
+function journalCall<T>(fn: () => Promise<T>) {
+  return fn().catch((error) => {
+    if (error instanceof journal.JournalError) throw new ToolInputError(`${error.message}.`);
+    throw error;
+  });
+}
+
+/** The user's note for a day, made under their private journal when they have none yet. */
+export async function getOrCreateDailyNote(ctx: OperationContext, { workspace_id, date, time_zone }: Args<"dailyNote">) {
+  const day = noteDay(date, time_zone);
+  const note = await journalCall(() => journal.getOrCreateDailyNote(ctx.actor, workspace_id, day));
+  return {
+    date: note.day,
+    id: note.pageId,
+    title: pageLabel(note.title),
+    created: note.created,
+    workspace_id,
+    url: pageUrl(workspace_id, note.pageId),
+  };
+}
+
+/** The user's daily notes in a workspace, newest first. */
+export async function listDailyNotes(ctx: OperationContext, { workspace_id, from, to, limit }: Args<"listDailyNotes">) {
+  const notes = await journalCall(() => journal.listDailyNotes(ctx.userId, workspace_id, { from, to, limit }));
+  return {
+    notes: notes.map((n) => ({ date: n.day, id: n.pageId, title: pageLabel(n.title), url: pageUrl(workspace_id, n.pageId) })),
   };
 }
 

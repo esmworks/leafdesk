@@ -1,0 +1,20 @@
+{
+  "today": "Dziś",
+  "todayNote": "Dzisiejsza notatka",
+  "openToday": "Otwórz dzisiejszą notatkę",
+  "startToday": "Zacznij dzisiejszą notatkę",
+  "calendar": "Kalendarz notatek dziennych",
+  "previousMonth": "Poprzedni miesiąc",
+  "nextMonth": "Następny miesiąc",
+  "hasNote": "{day} — jest notatka",
+  "openDay": "Otwórz notatkę z tego dnia",
+  "recent": "Wcześniejsze notatki",
+  "startWith": "Nowe notatki zaczynają się od",
+  "startDefault": "Kilku nagłówków",
+  "startBlank": "Pustej strony",
+  "startTemplates": "Szablony",
+  "openFailed": "Nie udało się otworzyć notatki dziennej",
+  "saveFailed": "Nie udało się zapisać ustawienia",
+  "searchHint": "twoje notatki dzienne",
+  "yesterday": "Wczorajsza notatka"
+}

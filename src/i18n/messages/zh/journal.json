@@ -1,0 +1,20 @@
+{
+  "today": "今天",
+  "todayNote": "今日笔记",
+  "openToday": "打开今日笔记",
+  "startToday": "开始今日笔记",
+  "calendar": "每日笔记日历",
+  "previousMonth": "上个月",
+  "nextMonth": "下个月",
+  "hasNote": "{day} — 有笔记",
+  "openDay": "打开那天的笔记",
+  "recent": "之前的笔记",
+  "startWith": "新笔记的开头",
+  "startDefault": "几个标题",
+  "startBlank": "空白页面",
+  "startTemplates": "模板",
+  "openFailed": "无法打开每日笔记",
+  "saveFailed": "无法保存设置",
+  "searchHint": "你的每日笔记",
+  "yesterday": "昨日笔记"
+}

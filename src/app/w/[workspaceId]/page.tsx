@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getFormatter, getTimeZone, getTranslations } from "next-intl/server";
+import { TodayNoteSection } from "@/components/journal/today-note-section";
 import { AssignedSection } from "@/components/workspace/assigned-section";
 import { QuickCreate } from "@/components/workspace/quick-create";
 import { PageIcon } from "@/components/ui";
@@ -7,6 +8,7 @@ import { pageLabel } from "@/lib/labels";
 import { dayString, localDay } from "@/lib/time-zone";
 import { getMembership, isGuest } from "@/server/access";
 import { assignedRows } from "@/server/assigned";
+import { listDailyNotes } from "@/server/journal";
 import { recentPages } from "@/server/pages";
 import { requireWorkspaceSession } from "@/server/session";
 import { topLevelAccess } from "@/server/workspaces";
@@ -18,11 +20,12 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
   // Today in the viewer's time zone, so a row due today counts as today wherever they are.
   const timeZone = await getTimeZone();
   const today = dayString(localDay(now.getTime(), timeZone));
-  const [pages, membership, topLevel, assigned] = await Promise.all([
+  const [pages, membership, topLevel, assigned, dailyNotes] = await Promise.all([
     recentPages(user.id, workspaceId, 12),
     getMembership(user.id, workspaceId),
     topLevelAccess(user.id, workspaceId),
     assignedRows(user.id, workspaceId, today, timeZone),
+    listDailyNotes(user.id, workspaceId, { to: today, limit: 5 }),
   ]);
   const [t, tc, format] = await Promise.all([getTranslations("home"), getTranslations("common"), getFormatter()]);
   const guest = !membership || isGuest(membership.role);
@@ -38,6 +41,9 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
         </div>
         {topLevel && <QuickCreate workspaceId={workspaceId} />}
       </header>
+
+      {/* Daily notes are private top-level pages: for those who may add them. */}
+      {topLevel && <TodayNoteSection workspaceId={workspaceId} today={today} notes={dailyNotes} />}
 
       {/* Guests see it only once something is assigned to them. */}
       {(assigned.groups.length > 0 || !guest) && <AssignedSection workspaceId={workspaceId} assigned={assigned} today={today} />}
