@@ -402,6 +402,66 @@ jobs:
         if: always()
         run: cat "$RUNNER_TEMP/server.log" || true
 
+  scale:
+    name: Large workspace
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: leafdesk
+          POSTGRES_PASSWORD: leafdesk
+          POSTGRES_DB: leafdesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U leafdesk"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      APP_URL: http://localhost:3000
+      DATABASE_URL: postgres://leafdesk:leafdesk@localhost:5432/leafdesk
+      BETTER_AUTH_SECRET: ci-only-secret-that-protects-nothing-000000000000
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm db:migrate
+
+      # 5,000 pages and a database of 50,000 rows, written through the app's own code.
+      - name: Seed a large workspace
+        run: pnpm tsx scripts/scale-seed.ts
+
+      - name: Start the server
+        run: |
+          pnpm start > "$RUNNER_TEMP/server.log" 2>&1 &
+          for _ in $(seq 60); do
+            curl -fs -o /dev/null http://localhost:3000/sign-in && exit 0
+            sleep 1
+          done
+          echo "The server did not come up within 60 seconds."
+          exit 1
+
+      # Medians against the limits in the script; every timing is printed, over its limit or not.
+      - name: Large workspace timings
+        run: pnpm tsx scripts/scale-e2e.ts
+
+      - name: Server log
+        if: always()
+        run: cat "$RUNNER_TEMP/server.log" || true
+
   desktop:
     name: Desktop app on ${{ matrix.name }}
     # On each platform the app ships for: the local database's test starts PostgreSQL for real.
