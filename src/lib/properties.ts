@@ -661,16 +661,15 @@ function resolveViewer(rule: FilterRule, prop: PropertyDef | undefined, viewerId
   return rule.value === PERSON_ME ? { ...rule, value: me } : rule;
 }
 
-export function applyView<T extends RowLike>(
-  rows: T[],
-  {
-    filters = [],
-    filterCombinator,
-    sorts = [],
-  }: { filters?: FilterEntry[]; filterCombinator?: FilterCombinator; sorts?: SortRule[] },
+/**
+ * What a row sorts by under each of `sorts`, in order: plain values (numbers, strings, booleans or
+ * null) that compareSortKeys orders, so a key can be stored (a page cursor) and compared later.
+ */
+export function sortKeyReader<T extends RowLike>(
+  sorts: SortRule[],
   props: PropertyDef[] = [],
-  { viewerId, people = [], now = new Date() }: ViewViewer = {},
-): T[] {
+  people: { id: string; name: string }[] = [],
+): (row: T) => unknown[] {
   const byId = new Map(props.map((p) => [p.id, p]));
   const nameOf = new Map(people.map((p) => [p.id, p.name]));
   // Select sorts compare option order, not option ids (status options are stored in group order);
@@ -711,6 +710,30 @@ export function applyView<T extends RowLike>(
     }
     return v;
   };
+  return (row) => sorts.map((s) => sortValue(row, s.propertyId));
+}
+
+/** Orders two keys from sortKeyReader under the same sorts: empty values last in either direction. */
+export function compareSortKeys(a: unknown[], b: unknown[], sorts: SortRule[]): number {
+  for (const [i, s] of sorts.entries()) {
+    const bothPresent = !isEmpty(a[i]) && !isEmpty(b[i]);
+    const c = compare(a[i], b[i]) * (bothPresent && s.direction === "desc" ? -1 : 1);
+    if (c !== 0) return c;
+  }
+  return 0;
+}
+
+export function applyView<T extends RowLike>(
+  rows: T[],
+  {
+    filters = [],
+    filterCombinator,
+    sorts = [],
+  }: { filters?: FilterEntry[]; filterCombinator?: FilterCombinator; sorts?: SortRule[] },
+  props: PropertyDef[] = [],
+  { viewerId, people = [], now = new Date() }: ViewViewer = {},
+): T[] {
+  const byId = new Map(props.map((p) => [p.id, p]));
   const test = compileFilters<T>(
     pruneFilters(filters, (rule) => !isIncompleteFilter(rule)),
     filterCombinator,
@@ -722,16 +745,9 @@ export function applyView<T extends RowLike>(
   );
   const filtered = test ? rows.filter(test) : rows;
   if (!sorts.length) return filtered;
-  return [...filtered].sort((a, b) => {
-    for (const s of sorts) {
-      const va = sortValue(a, s.propertyId);
-      const vb = sortValue(b, s.propertyId);
-      const bothPresent = !isEmpty(va) && !isEmpty(vb);
-      const c = compare(va, vb) * (bothPresent && s.direction === "desc" ? -1 : 1);
-      if (c !== 0) return c;
-    }
-    return 0;
-  });
+  const keyOf = sortKeyReader<T>(sorts, props, people);
+  const keys = new Map(filtered.map((row) => [row, keyOf(row)]));
+  return [...filtered].sort((a, b) => compareSortKeys(keys.get(a)!, keys.get(b)!, sorts));
 }
 
 /** Message keys (`database.filter.ops.*`) for filter operator labels. */

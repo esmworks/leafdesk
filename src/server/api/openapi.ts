@@ -59,6 +59,11 @@ const cursorFields = {
   has_more: { type: "boolean" },
 };
 const pageKind = { type: "string", enum: ["page", "database"] };
+const upsertAction = {
+  type: "string",
+  enum: ["created", "updated"],
+  description: "With match_by: whether the row was added or an existing row with the same value was updated.",
+};
 const teamspaceId = { type: ["string", "null"], description: "The page's teamspace; null for a private page." };
 const teamspaceFields = {
   teamspace_id: teamspaceId,
@@ -314,13 +319,19 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "title", "properties", "views", "url"],
   ),
-  Row: loose({ id, title: { type: "string" }, database_id: id, properties: propertyValues, ...rowAccessFields, from_template: { type: "string" }, url }, [
-    "id",
-    "title",
-    "database_id",
-    "properties",
-    "url",
-  ]),
+  Row: loose(
+    {
+      id,
+      title: { type: "string" },
+      database_id: id,
+      properties: propertyValues,
+      ...rowAccessFields,
+      from_template: { type: "string" },
+      action: upsertAction,
+      url,
+    },
+    ["id", "title", "database_id", "properties", "url"],
+  ),
   RowActivity: loose(
     {
       row_id: id,
@@ -366,13 +377,27 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["database_id", "total", "returned", "rows", "next_cursor", "has_more"],
   ),
   RowsCreated: loose(
-    { database_id: id, created: { type: "integer" }, rows: { type: "array", items: loose({ id, title: { type: "string" }, url }) }, url },
+    {
+      database_id: id,
+      created: { type: "integer", description: "Rows added." },
+      updated: { type: "integer", description: "With match_by: existing rows updated instead." },
+      rows: { type: "array", items: loose({ id, title: { type: "string" }, action: upsertAction, url }), description: "In the order given." },
+      url,
+    },
     ["database_id", "created", "rows"],
   ),
-  RowsUpdated: loose({ database_id: id, updated: { type: "integer" }, skipped_row_ids: { type: "array", items: id }, url }, [
-    "database_id",
-    "updated",
-  ]),
+  RowsUpdated: loose(
+    {
+      database_id: id,
+      updated: { type: "integer", description: "Rows changed (not with dry_run)." },
+      dry_run: { type: "boolean" },
+      would_update: { type: "integer", description: "With dry_run: how many rows the call would change." },
+      row_ids: { type: "array", items: id, description: "With dry_run: the rows the call would change." },
+      skipped_row_ids: { type: "array", items: id },
+      url,
+    },
+    ["database_id"],
+  ),
   CommentThreads: loose(
     {
       page_id: id,

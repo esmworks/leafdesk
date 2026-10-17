@@ -50,6 +50,15 @@ vi.mock("@/server/access", async (importOriginal) => ({
 const databases = vi.hoisted(() => ({
   getDatabase: vi.fn(),
   listRows: vi.fn(),
+  // query_database pages through rows in listRows' order here.
+  listRowsInOrder: vi.fn(async (...args: unknown[]) => ({
+    rows: (((await (databases.listRows as (...a: unknown[]) => Promise<unknown>)(...args)) ?? []) as { id: string }[]).map((row, position) => ({
+      row,
+      key: { sort: [], position, created: 0, id: row.id },
+    })),
+    sorts: [],
+  })),
+  compareRowOrder: (a: { position: number }, b: { position: number }) => a.position - b.position,
   updateRowProperties: vi.fn(),
   updateRowsProperties: vi.fn(),
   createRows: vi.fn(),
@@ -1080,6 +1089,55 @@ describe("relations and calendars", () => {
   });
 });
 
+describe("query_database pages", () => {
+  const rows = Array.from({ length: 5 }, (_, i) => ({
+    id: `r${i + 1}`,
+    title: `Row ${i + 1}`,
+    properties: { "prop-status": "opt-done", "prop-notes": `note ${i + 1}` },
+  }));
+
+  it("reads on from next_cursor until it is null, every row once", async () => {
+    databases.listRows.mockResolvedValue(rows);
+    const seen: string[] = [];
+    let cursor: string | undefined;
+    for (let page = 0; page < 5; page++) {
+      const r = await callTool(reader, "query_database", { database_id: "db-1", limit: 2, ...(cursor ? { cursor } : {}) });
+      expect(r.isError).toBe(false);
+      expect(r.data.total).toBe(5);
+      seen.push(...r.data.rows.map((row: { id: string }) => row.id));
+      expect(r.data.has_more).toBe(r.data.next_cursor !== null);
+      if (!r.data.next_cursor) break;
+      expect(r.data.note).toMatch(/more matching rows: pass next_cursor/);
+      cursor = r.data.next_cursor;
+    }
+    expect(seen).toEqual(["r1", "r2", "r3", "r4", "r5"]);
+  });
+
+  it("refuses a cursor of another query, and one that isn't a cursor", async () => {
+    databases.listRows.mockResolvedValue(rows);
+    const first = await callTool(reader, "query_database", { database_id: "db-1", limit: 2 });
+    const other = await callTool(reader, "query_database", {
+      database_id: "db-1",
+      limit: 2,
+      cursor: first.data.next_cursor,
+      filters: [{ property: "Status", op: "equals", value: "Done" }],
+    });
+    expect(other.text).toMatch(/This cursor belongs to another query/);
+    const junk = await callTool(reader, "query_database", { database_id: "db-1", cursor: "not-a-cursor" });
+    expect(junk.text).toMatch(/The cursor is not valid/);
+  });
+
+  it("returns only the properties asked for", async () => {
+    databases.listRows.mockResolvedValue(rows.slice(0, 1));
+    const some = await callTool(reader, "query_database", { database_id: "db-1", properties: ["notes"] });
+    expect(some.data.rows[0]).toEqual({ id: "r1", title: "Row 1", properties: { Notes: "note 1" }, url: "http://localhost:3000/w/ws-1/p/r1" });
+    const none = await callTool(reader, "query_database", { database_id: "db-1", properties: [] });
+    expect(none.data.rows[0].properties).toEqual({});
+    const unknown = await callTool(reader, "query_database", { database_id: "db-1", properties: ["Owner"] });
+    expect(unknown.text).toMatch(/Unknown property "Owner"/);
+  });
+});
+
 describe("create_database_rows", () => {
   it("adds the rows in one call and writes their bodies", async () => {
     databases.createRows.mockResolvedValue([
@@ -1125,8 +1183,57 @@ describe("update_database_rows", () => {
       properties: { Status: "Done" },
     });
     expect(r.isError).toBe(false);
-    expect(databases.updateRowsProperties).toHaveBeenCalledWith("user-1", "db-1", ["row-1", "row-2"], { Status: "Done" });
+    expect(databases.updateRowsProperties).toHaveBeenCalledWith("user-1", "db-1", ["row-1", "row-2"], { Status: "Done" }, {
+      guard: expect.any(Function),
+      dryRun: false,
+    });
     expect(r.data).toMatchObject({ updated: 1, skipped_row_ids: ["row-2"], url: "http://localhost:3000/w/ws-1/p/db-1" });
+  });
+
+  it("writes nothing when the rows that would change aren't as many as expect says", async () => {
+    // The guard runs on what the call would do, before anything is written (databases.updateRowsProperties).
+    const plan = { done: ["row-1"], skipped: ["row-2"] };
+    databases.updateRowsProperties.mockImplementation(async (...args: unknown[]) => {
+      (args[4] as { guard: (p: typeof plan) => void }).guard(plan);
+      return plan;
+    });
+    const wrong = await callTool(writer, "update_database_rows", {
+      database_id: "db-1",
+      row_ids: ["row-1", "row-2"],
+      properties: { Status: "Done" },
+      expect: 2,
+    });
+    expect(wrong.isError).toBe(true);
+    expect(wrong.text).toMatch(/Expected 2 rows to change, but 1 would \(skipped: row-2\)\. Nothing was written\./);
+    const right = await callTool(writer, "update_database_rows", {
+      database_id: "db-1",
+      row_ids: ["row-1", "row-2"],
+      properties: { Status: "Done" },
+      expect: 1,
+    });
+    expect(right.data).toMatchObject({ updated: 1, skipped_row_ids: ["row-2"] });
+  });
+
+  it("reports what a dry run would change", async () => {
+    databases.updateRowsProperties.mockResolvedValue({ done: ["row-1"], skipped: ["row-2"] });
+    const r = await callTool(writer, "update_database_rows", {
+      database_id: "db-1",
+      row_ids: ["row-1", "row-2"],
+      properties: { Status: "Done" },
+      dry_run: true,
+    });
+    expect(databases.updateRowsProperties).toHaveBeenCalledWith("user-1", "db-1", ["row-1", "row-2"], { Status: "Done" }, {
+      guard: expect.any(Function),
+      dryRun: true,
+    });
+    expect(r.data).toEqual({
+      database_id: "db-1",
+      dry_run: true,
+      would_update: 1,
+      row_ids: ["row-1"],
+      skipped_row_ids: ["row-2"],
+      url: "http://localhost:3000/w/ws-1/p/db-1",
+    });
   });
 
   it("leaves skipped_row_ids out when every row changed", async () => {

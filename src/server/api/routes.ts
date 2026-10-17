@@ -516,17 +516,13 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Databases",
     summary: "Query rows",
     description:
-      'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of (with a list of values), is_empty, is_not_empty, gt, gte, lt, lte, is_within. A chart view also returns what it plots.',
+      'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time: pass next_cursor as cursor with the same filters, sorts and view_id to read on. Pages follow on from the last row returned, so rows added or removed in between neither repeat nor go missing. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of (with a list of values), is_empty, is_not_empty, gt, gte, lt, lte, is_within. properties limits the values each row returns. The first page of a chart view also returns what it plots.',
     scope: "pages:read",
-    body: ops.inputs.queryDatabase.omit({ database_id: true }).extend({ cursor: cursorInput }),
+    body: ops.inputs.queryDatabase.omit({ database_id: true }),
     response: "QueryResult",
     handler: async ({ principal, ctx, params, body }) => {
       await requirePageInWorkspace(principal, params.database_id);
-      const { cursor, ...args } = body;
-      const offset = decodeCursor(cursor);
-      const result = withoutNote(await ops.queryDatabase(ctx, { ...args, database_id: params.database_id }, { offset }));
-      const next = nextCursor(offset, args.limit, result.total);
-      return { ...result, next_cursor: next, has_more: next !== null };
+      return withoutNote(await ops.queryDatabase(ctx, { ...body, database_id: params.database_id }));
     },
   }),
   defineRoute({
@@ -536,7 +532,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Rows",
     summary: "Add a row",
     description:
-      "Adds a row with a title, property values (by property name, options by name) and an optional Markdown body. Without properties and body it starts from the database's default row template; template_id picks one.",
+      "Adds a row with a title, property values (by property name, options by name) and an optional Markdown body. Without properties and body it starts from the database's default row template; template_id picks one. With match_by it upserts: a row whose value of that property equals the given one is updated instead (action says which happened).",
     scope: "pages:write",
     body: ops.inputs.createDatabaseRow.omit({ database_id: true }),
     status: 201,
@@ -552,7 +548,7 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "createRows",
     tag: "Rows",
     summary: "Add many rows",
-    description: `Adds up to ${ops.MAX_BULK_ROWS} rows in order. All values are checked first: if one is invalid, nothing is created and the error names the row.`,
+    description: `Adds up to ${ops.MAX_BULK_ROWS} rows in order. All values are checked first: if one is invalid, nothing is created and the error names the row. With match_by it upserts: each row whose value of that property matches an existing row's updates that row instead, and each row says which happened in action.`,
     scope: "pages:write",
     body: ops.inputs.createDatabaseRows.omit({ database_id: true }),
     status: 201,
@@ -568,7 +564,7 @@ export const API_ROUTES: ApiRoute[] = [
     operationId: "updateRows",
     tag: "Rows",
     summary: "Update many rows",
-    description: `Sets the same property values on up to ${ops.MAX_BULK_ROWS} rows. Values are checked first; rows the user can't edit are skipped and listed in skipped_row_ids.`,
+    description: `Sets the same property values on up to ${ops.MAX_BULK_ROWS} rows. Values are checked first; rows the user can't edit are skipped and listed in skipped_row_ids. expect refuses the call, writing nothing, unless exactly that many rows would change; dry_run reports which rows would change without writing.`,
     scope: "pages:write",
     body: ops.inputs.updateDatabaseRows.omit({ database_id: true }),
     response: "RowsUpdated",

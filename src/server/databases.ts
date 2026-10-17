@@ -22,6 +22,7 @@ import {
   type RollupConfig,
   type RowProperties,
   type SelectOption,
+  type SortRule,
   type ViewConfig,
   type ViewType,
 } from "@/db/schema";
@@ -64,6 +65,7 @@ import { shiftDateValue } from "@/lib/date-value";
 import { dayValue } from "@/lib/timeline";
 import {
   applyView,
+  compareSortKeys,
   computedValues,
   isGroupable,
   makeStatusOptions,
@@ -71,6 +73,7 @@ import {
   positionBetween,
   PropertyValueError,
   SELECT_COLORS,
+  sortKeyReader,
   sortStatusOptions,
   statusColor,
   type DatabaseErrorCode,
@@ -338,7 +341,47 @@ export async function viewedRows(
   config: ViewConfig = {},
   known?: Awaited<ReturnType<typeof getProperties>>,
 ) {
-  const [rows, all, access, deleted] = await Promise.all([
+  return (await readRows(userId, databaseId, config, known)).rows;
+}
+
+/** A row's place in listRowsInOrder: its sort values, then its position, created time and id. */
+export type RowOrderKey = { sort: unknown[]; position: number; created: number; id: string };
+
+/** Orders two RowOrderKeys under the same sorts. */
+export function compareRowOrder(a: RowOrderKey, b: RowOrderKey, sorts: SortRule[]) {
+  return (
+    compareSortKeys(a.sort, b.sort, sorts) ||
+    a.position - b.position ||
+    a.created - b.created ||
+    (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+  );
+}
+
+/**
+ * listRows in one total order, for reading a page at a time: the sorts as listRows applies them,
+ * then the rows' own order (position, then created time), then id, each row with the key that
+ * places it. Without ties, a key stored from one call says where the next page starts even after
+ * rows were added, removed or moved in between.
+ */
+export async function listRowsInOrder(userId: string, databaseId: string, config: ViewConfig = {}) {
+  await requireDatabase(userId, databaseId, "view");
+  const { rows, sorts, properties, people, positions } = await readRows(userId, databaseId, config);
+  const sortKeyOf = sortKeyReader<DatabaseRow>(sorts, properties, people);
+  const keyed = rows.map((row) => ({
+    row,
+    key: { sort: sortKeyOf(row), position: positions.get(row.id) ?? 0, created: row.createdAt.getTime(), id: row.id },
+  }));
+  keyed.sort((a, b) => compareRowOrder(a.key, b.key, sorts));
+  return { rows: keyed, sorts };
+}
+
+async function readRows(
+  userId: string,
+  databaseId: string,
+  config: ViewConfig,
+  known?: Awaited<ReturnType<typeof getProperties>>,
+) {
+  const [stored, all, access, deleted] = await Promise.all([
     db
       .select({
         id: page.id,
@@ -349,6 +392,7 @@ export async function viewedRows(
         updatedBy: page.updatedBy,
         createdAt: page.createdAt,
         updatedAt: page.updatedAt,
+        position: page.position,
       })
       .from(page)
       .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), pageVisibleTo(userId)))
@@ -363,10 +407,18 @@ export async function viewedRows(
   const properties = access.visible(all);
   config = access.viewConfig(withoutDeleted(config, deleted));
   const people = await peopleForSorts(userId, properties, config);
-  return applyView<DatabaseRow>(await withValues(userId, databaseId, rows, all, undefined, access), config, properties, {
-    viewerId: userId,
+  const positions = new Map(stored.map((r) => [r.id, r.position]));
+  const rows = stored.map(({ position: _, ...row }) => row);
+  return {
+    rows: applyView<DatabaseRow>(await withValues(userId, databaseId, rows, all, undefined, access), config, properties, {
+      viewerId: userId,
+      people,
+    }),
+    sorts: config.sorts ?? [],
+    properties,
     people,
-  });
+    positions,
+  };
 }
 
 /**
@@ -846,13 +898,16 @@ export type BulkResult = { done: string[]; skipped: string[] };
  * Values are checked once, before anything is written, so a bad value changes nothing. Access is
  * checked per row: rows the user may edit are updated in one statement, the rest are skipped and
  * returned so the caller can say so (nothing is skipped silently). Links to rows the user can't
- * see can't be set in bulk. Other properties of the rows are left as they are.
+ * see can't be set in bulk. Other properties of the rows are left as they are. `guard` sees what
+ * the call would do before anything is written and may throw to stop it; `dryRun` stops there
+ * and returns that instead.
  */
 export async function updateRowsProperties(
   userId: string,
   databaseId: string,
   rowIds: string[],
   patch: Record<string, unknown>,
+  { guard, dryRun = false }: { guard?: (plan: BulkResult) => void; dryRun?: boolean } = {},
 ): Promise<BulkResult> {
   const ids = bulkRowIds(rowIds);
   await requireDatabase(userId, databaseId, "view");
@@ -870,8 +925,11 @@ export async function updateRowsProperties(
   });
   const kept = new Set(rows.map((r) => r.id));
   const skipped = [...found.skipped, ...found.rows.filter((r) => !kept.has(r.id)).map((r) => r.id)];
-  if (!rows.length || !Object.keys(normalized).length) return { done: [], skipped };
+  const plan = { done: Object.keys(normalized).length ? rows.map((r) => r.id) : [], skipped };
+  guard?.(plan);
+  if (!plan.done.length) return plan;
   await checkLoops(databaseId, rows.map((row) => ({ rowId: row.id, values: normalized })));
+  if (dryRun) return plan;
 
   const { set, cleared } = splitPatch(normalized);
   // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
