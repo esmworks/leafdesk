@@ -7,6 +7,29 @@ opening a pull request (CI runs them too, plus a build and the end-to-end script
 Security problems are the exception: report them privately as [SECURITY.md](SECURITY.md)
 describes, not in an issue or pull request.
 
+## What 1.0 means
+
+Leafdesk is called 1.0 when all of the following hold, and a release that breaks one of them is
+fixed before anything new is added:
+
+1. **No known data loss.** No open bug loses or silently changes what someone saved: page text,
+   database rows and their values, comments, files, page history or anything in the trash.
+2. **No known permission leak.** No open bug lets someone read or change what their access
+   doesn't allow, through the app, the REST API, MCP, published pages, exports, search, AI or
+   agents.
+3. **Upgrades are tested.** CI's *Upgrade from an older release* job installs an older release
+   (`UPGRADE_FROM` in the workflow), fills it with a workspace through that release's own code,
+   upgrades the database to the branch and checks that everything is still there and the same,
+   that the schema matches a fresh install, and that the end-to-end scripts pass on it. Green on
+   `main`.
+4. **Large workspaces are tested.** CI's *Large workspace* job seeds a database with 50,000 rows
+   and a workspace with 5,000 pages and times opening, filtering and sorting the table, searching,
+   opening a page and connecting to its live document against the limits in
+   `scripts/scale-e2e.ts`. Green on `main`.
+5. **The end-to-end scripts are stable.** A script that fails without a change to the code is a
+   bug, in the script or in Leafdesk: it is fixed, not re-run until it passes. A fixed flaky script
+   passes 20 runs in a row before the fix is merged.
+
 ## Licensing of contributions
 
 Leafdesk is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only).
