@@ -57,7 +57,13 @@ function resolveFirst(require: NodeJS.Require, names: string[]): string {
 }
 
 /** Runs a binary and waits for it to exit; its output goes to the file `log`. */
-function run(command: string, args: string[], log: string): Promise<void> {
+async function run(command: string, args: string[], log: string): Promise<void> {
+  const code = await exitCode(command, args, log);
+  if (code !== 0) throw new Error(`${path.basename(command)} ${args[0]} exited with ${code}; see ${log}`);
+}
+
+/** Runs a binary and answers its exit code; its output goes to the file `log`. */
+function exitCode(command: string, args: string[], log: string): Promise<number | null> {
   return new Promise((resolve, reject) => {
     // Output to a file, not a pipe: `pg_ctl start` leaves the server running with what it was
     // given, and a pipe the server holds would never close.
@@ -69,8 +75,7 @@ function run(command: string, args: string[], log: string): Promise<void> {
     });
     child.on("exit", (code) => {
       fs.closeSync(out);
-      if (code === 0) resolve();
-      else reject(new Error(`${path.basename(command)} ${args[0]} exited with ${code}; see ${log}`));
+      resolve(code);
     });
   });
 }
@@ -86,6 +91,24 @@ function freePort(): Promise<number> {
       server.close(() => resolve(port));
     });
   });
+}
+
+/**
+ * Waits for the server started on `port` to take connections: its `postmaster.pid` names that port
+ * (so it is this start's server, not one before it) and says it is ready.
+ */
+async function untilReady(pidFile: string, port: number, log: string, timeout = 120_000): Promise<void> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    // Lines 4 and 8 of the file: the port, and the status ("ready" once it takes connections).
+    const lines = fs.existsSync(pidFile) ? fs.readFileSync(pidFile, "utf8").split("\n") : [];
+    if (Number(lines[3]) === port && lines[7]?.trim() === "ready") return;
+    if (Date.now() > deadline) {
+      const tail = fs.existsSync(log) ? fs.readFileSync(log, "utf8").slice(-2000) : "";
+      throw new Error(`PostgreSQL didn't start on port ${port}; ${log} ends with:\n${tail}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
 }
 
 /** Settings the cluster gets once, when it is made. */
@@ -139,13 +162,21 @@ export async function startLocalDatabase(root: string, binaries: Binaries = loca
   }
   const password = fs.readFileSync(secretFile, "utf8").trim();
 
-  // One left running by an app that crashed: stopped first, so it starts on this start's port.
-  if (fs.existsSync(path.join(data, "postmaster.pid"))) {
+  const pidFile = path.join(data, "postmaster.pid");
+  if (fs.existsSync(pidFile)) {
+    // One left running by an app that crashed: stopped first, so it starts on this start's port.
     await run(binaries.pgCtl, ["stop", `--pgdata=${data}`, "--mode=fast", "--wait"], toolLog).catch(() => {});
+    // One that was killed leaves its file behind, which says it is ready. On Windows `pg_ctl start`
+    // takes a file that recent for its new server's and answers before that server listens, so it is
+    // removed, once `pg_ctl status` says no server runs on the data (exit 3), never while one does.
+    if (fs.existsSync(pidFile) && (await exitCode(binaries.pgCtl, ["status", `--pgdata=${data}`], toolLog)) === 3) {
+      fs.rmSync(pidFile, { force: true });
+    }
   }
 
   const port = await freePort();
   await run(binaries.pgCtl, ["start", `--pgdata=${data}`, "--wait", "--timeout=120", `--log=${log}`, `--options=-p ${port}`], toolLog);
+  await untilReady(pidFile, port, log);
 
   return {
     url: `postgres://${LOCAL_DB_USER}:${encodeURIComponent(password)}@127.0.0.1:${port}/${LOCAL_DB_NAME}`,

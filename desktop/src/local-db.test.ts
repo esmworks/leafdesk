@@ -16,9 +16,18 @@ let running: LocalDatabase | null = null;
 const start = async () => (running = await startLocalDatabase(root));
 
 after(async () => {
-  await running?.stop().catch(() => {});
-  fs.rmSync(root, { recursive: true, force: true });
+  await running?.stop().catch((error) => console.error("stopping the database:", error));
+  // Windows holds a folder a moment after the processes in it have exited.
+  fs.rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 });
+
+/** The server's and the tools' logs, shown when the test fails (CI's only view of them). */
+function printLogs() {
+  for (const name of ["tools.log", "postgres.log"]) {
+    const file = path.join(root, name);
+    if (fs.existsSync(file)) console.error(`--- ${name}\n${fs.readFileSync(file, "utf8")}`);
+  }
+}
 
 async function migrate(url: string) {
   const sql = postgres(url, { max: 1, onnotice: () => {} });
@@ -33,7 +42,14 @@ async function migrate(url: string) {
   return journal.entries.length;
 }
 
-test("the local database runs the server's migrations, keeps its data and recovers", { timeout: 300_000 }, async () => {
+test("the local database runs the server's migrations, keeps its data and recovers", { timeout: 300_000 }, () =>
+  lifecycle().catch((error) => {
+    printLogs();
+    throw error;
+  }),
+);
+
+async function lifecycle() {
   const first = await start();
   assert.match(first.url, /^postgres:\/\/leafdesk:[^@]+@127\.0\.0\.1:\d+\/postgres$/);
   const migrations = await migrate(first.url);
@@ -78,4 +94,4 @@ test("the local database runs the server's migrations, keeps its data and recove
   await sql.end();
   await fourth.stop();
   assert.equal(fs.existsSync(path.join(root, "data", "postmaster.pid")), false, "stopped cleanly");
-});
+}
