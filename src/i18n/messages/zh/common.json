@@ -1,6 +1,7 @@
 {
   "appDescription": "开源的文档与数据库工作区，支持 AI 智能体通过 MCP 访问。",
   "untitled": "无标题",
+  "sourceCode": "源代码",
   "agent": "智能体",
   "agentName": "{name}（智能体）",
   "cancel": "取消",

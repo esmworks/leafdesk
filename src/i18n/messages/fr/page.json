@@ -57,7 +57,11 @@
     "deleteTemplate": "Supprimer le modèle",
     "exportDisabled": "L’exportation est désactivée",
     "exportDisabledBody": "Les propriétaires de cet espace de travail ont désactivé l’exportation et l’impression de ses pages.",
-    "showInGraph": "Afficher dans le graphe"
+    "showInGraph": "Afficher dans le graphe",
+    "watch": "Surveiller",
+    "watchHint": "Soyez averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires.",
+    "mute": "Mettre en sourdine",
+    "muteHint": "Vous êtes averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires. Mettez-la en sourdine pour arrêter."
   },
   "comments": {
     "aboutPage": "À propos de cette page",
@@ -370,6 +374,13 @@
       "aliases": "breadcrumb path parents location fil ariane chemin parents emplacement",
       "label": "Fil d’Ariane"
     },
+    "subpages": {
+      "title": "Sous-pages",
+      "subtext": "Les pages sous celle-ci, sous forme de liens",
+      "aliases": "subpages sous-pages pages enfants liste index",
+      "label": "Sous-pages",
+      "empty": "Les pages que vous ajoutez sous celle-ci apparaissent ici."
+    },
     "columns": {
       "two": {
         "title": "2 colonnes",
@@ -405,6 +416,11 @@
       "backgroundDefault": "Sans fond",
       "textAliases": "couleur texte police",
       "backgroundAliases": "fond arrière-plan surlignage couleur"
+    },
+    "syncedBlock": {
+      "title": "Bloc synchronisé",
+      "subtext": "Des blocs à afficher et modifier sur plusieurs pages",
+      "aliases": "synchronisé sync synced réutiliser partagé"
     }
   },
   "web": {
@@ -629,5 +645,28 @@
     "hint": "Gardez ou annulez chaque modification. « Tout annuler » enregistre d’abord la page telle qu’elle est dans son historique.",
     "stale": "La page a changé entre-temps : voici les modifications telles qu’elles sont maintenant.",
     "failed": "Cela n’a pas fonctionné. Réessayez."
+  },
+  "syncedBlock": {
+    "label": "Bloc synchronisé",
+    "from": "Synchronisé depuis",
+    "viewOnly": "Lecture seule",
+    "copy": "Copier le bloc synchronisé",
+    "copied": "Copié",
+    "copyHint": "Collez-le dans une autre page pour y afficher ces blocs, en direct",
+    "shownOn": "{count, plural, one {Affiché sur # page} other {Affiché sur # pages}}",
+    "notShownShort": "Affiché nulle part ailleurs",
+    "notShown": "Copiez ce bloc synchronisé et collez-le dans une autre page pour l’y afficher.",
+    "hiddenPages": "{count, plural, one {et # page que vous ne pouvez pas voir} other {et # pages que vous ne pouvez pas voir}}",
+    "unsync": "Désynchroniser",
+    "unsyncHint": "Transformer en simple copie de ces blocs",
+    "nested": "Un bloc synchronisé ne peut pas aller dans un autre bloc synchronisé.",
+    "turnInto": "Transformer en bloc synchronisé",
+    "state": {
+      "noAccess": "Pas d’accès",
+      "trashed": "La page du bloc synchronisé d’origine est dans la corbeille",
+      "deleted": "La page du bloc synchronisé d’origine a été supprimée",
+      "removed": "Le bloc synchronisé d’origine a été supprimé"
+    },
+    "exportNote": "Bloc synchronisé : {state}"
   }
 }

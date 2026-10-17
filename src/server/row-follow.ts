@@ -78,6 +78,12 @@ async function followersOf(row: Row): Promise<string[]> {
   return [...followers];
 }
 
+/** Who follows the row; null for pages that aren't database rows (or are templates). */
+export async function rowFollowers(rowId: string): Promise<string[] | null> {
+  const row = await loadRow(rowId);
+  return row ? followersOf(row) : null;
+}
+
 /** Whether `userId` follows the row; null for pages that aren't database rows (or are templates), which no one follows. */
 export async function isFollowing(userId: string, rowId: string): Promise<boolean | null> {
   const row = await loadRow(rowId);

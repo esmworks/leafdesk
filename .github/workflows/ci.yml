@@ -156,6 +156,10 @@ jobs:
       - name: Comments end-to-end
         run: pnpm tsx scripts/comments-e2e.ts
 
+      # Emails are captured by the script, never sent.
+      - name: Page watching end-to-end
+        run: pnpm tsx scripts/page-watch-e2e.ts
+
       - name: Locked pages end-to-end
         run: pnpm tsx scripts/page-lock-e2e.ts
 

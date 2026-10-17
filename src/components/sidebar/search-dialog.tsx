@@ -10,6 +10,8 @@ import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
 import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
+import { highlightParts } from "@/lib/search-highlight";
+import { parseSearchQuery } from "@/lib/search-query";
 import type { SearchHit } from "@/server/pages";
 
 /** Something the search box can do instead of opening a page: typed after `>`. */
@@ -65,6 +67,8 @@ export function SearchDialog({
 
   const trimmed = query.trim();
   const commandMode = trimmed.startsWith(">");
+  // The words typed, marked in the results' snippets (filters aside).
+  const words = useMemo(() => (commandMode ? [] : parseSearchQuery(trimmed).text.split(/\s+/)), [trimmed, commandMode]);
 
   useEffect(() => {
     if (!open) {
@@ -204,7 +208,19 @@ export function SearchDialog({
                         <span className="truncate">{item.page.file.name}</span>
                       </span>
                     )}
-                    {item.page.snippet && <span className="line-clamp-2 text-xs text-fg-muted">{item.page.snippet}</span>}
+                    {item.page.snippet && (
+                      <span className="line-clamp-2 text-xs text-fg-muted">
+                        {highlightParts(item.page.snippet, words).map((part, i) =>
+                          part.match ? (
+                            <mark key={i} className="bg-transparent font-semibold text-fg">
+                              {part.text}
+                            </mark>
+                          ) : (
+                            part.text
+                          ),
+                        )}
+                      </span>
+                    )}
                   </span>
                 </>
               )}

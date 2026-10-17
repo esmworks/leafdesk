@@ -54,8 +54,18 @@ export type CommentActor = { userId: string; role: "comment" | "editor" };
 export interface CollabService {
   /** Current content, read from the live document when it is open. */
   readPage(pageId: string): Promise<PageContent>;
-  /** Current title and body as BlockNote blocks (plain JSON), from the live document when it is open. */
-  readBlocks(pageId: string): Promise<{ title: string; blocks: unknown[] }>;
+  /**
+   * Current title and body as BlockNote blocks (plain JSON), from the live document when it is open.
+   * With `synced`, each synced block the page is the source of holds its blocks as children, as
+   * the page's Markdown has them (server/synced-body.ts); for reading only, never to write back.
+   */
+  readBlocks(pageId: string, options?: { synced?: boolean }): Promise<{ title: string; blocks: unknown[] }>;
+  /**
+   * The blocks of the page's synced blocks `syncIds` (lib/synced-blocks), from the live document
+   * when it is open, by sync id; one the page body no longer holds the source of is left out.
+   * Unchecked: callers decide who may read them (server/synced-blocks.ts).
+   */
+  readSynced(pageId: string, syncIds: string[]): Promise<Map<string, unknown[]>>;
   /**
    * A short hash of the body's Markdown as a write would find it (the live document when it is
    * open), so a writer can tell whether the body changed since it read it. Comments don't change it.
@@ -180,6 +190,8 @@ export interface CollabService {
   disconnectLostAccess(workspaceId: string, userIds?: string[]): Promise<void>;
   /** The pages and databases with a document open on this server. */
   openPageIds(): string[];
+  /** The people with the page open in a browser on this server right now (to read or to edit). */
+  openUserIds(pageId: string): string[];
   /**
    * Drops every connection to a deleted workspace: its signals and these pages and databases (its
    * own open ones, listed before they were deleted, since the database can no longer say which

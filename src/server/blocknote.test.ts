@@ -242,3 +242,48 @@ describe("linked view settings", () => {
     });
   });
 });
+
+describe("synced blocks in page bodies", () => {
+  const SRC = "33333333-3333-4333-8333-333333333333";
+  const begin = (pageId: string, syncId: string) => `<!-- leafdesk:synced-block ${pageId} ${syncId} -->`;
+  const end = "<!-- leafdesk:synced-block-end -->";
+
+  it("write their blocks between marker lines, and a reference as the lines alone", async () => {
+    const markdown = await blocksToMarkdown([
+      { type: "paragraph", props: {}, content: [{ type: "text", text: "Intro", styles: {} }], children: [] },
+      {
+        type: "syncedBlock",
+        props: { pageId: SRC, syncId: "s1" },
+        // A source page's reader passes the blocks in as children (see collab/service bodyBlocks).
+        children: [{ type: "paragraph", props: {}, content: [{ type: "text", text: "Shared", styles: {} }], children: [] }],
+      },
+      { type: "syncedBlock", props: { pageId: OTHER, syncId: "s2" }, children: [] },
+    ] as unknown as PageBlock[]);
+    expect(markdown).toContain(`${begin(SRC, "s1")}\n\nShared\n\n${end}`);
+    expect(markdown).toContain(`${begin(OTHER, "s2")}\n\n${end}`);
+  });
+
+  it("come back from Markdown as the block alone: its blocks are never written from Markdown", async () => {
+    const blocks = await markdownToBlocks(`Intro\n\n${begin(SRC, "s1")}\n\nRewritten by someone\n\n${end}\n\nOutro`);
+    expect(blocks.map((b) => b.type)).toEqual(["paragraph", "syncedBlock", "paragraph"]);
+    expect(blocks[1].props).toEqual({ pageId: SRC, syncId: "s1" });
+    expect(blocksToPlainText(blocks)).not.toContain("Rewritten");
+  });
+
+  it("stay on their page when a rewrite leaves them out, as other pages show them", async () => {
+    const existing = read(docFrom([{ type: "syncedBlock", props: { pageId: SRC, syncId: "s1" } }, { type: "syncedBlock", props: { pageId: OTHER, syncId: "s2" } }]));
+    const blocks = await markdownToBlocks("Only text", existing, { pageId: SRC });
+    // The page's own synced block stays; the reference to another page's goes, as written.
+    expect(blocks.map((b) => [b.type, (b.props as { syncId?: string }).syncId])).toEqual([
+      ["paragraph", undefined],
+      ["syncedBlock", "s1"],
+    ]);
+  });
+
+  it("show nothing on a published page unless the publication fills them in", async () => {
+    const doc = docFrom([{ type: "paragraph", content: "Visible" }, { type: "syncedBlock", props: { pageId: OTHER, syncId: "s2" } }]);
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
+    expect(JSON.stringify(segments)).not.toContain("syncedBlock");
+    expect(JSON.stringify(segments)).toContain("Visible");
+  });
+});

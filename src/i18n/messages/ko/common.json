@@ -1,6 +1,7 @@
 {
   "appDescription": "문서와 데이터베이스를 위한 오픈 소스 워크스페이스. AI 에이전트를 위한 MCP 액세스를 제공합니다.",
   "untitled": "제목 없음",
+  "sourceCode": "소스 코드",
   "agent": "에이전트",
   "agentName": "{name}(에이전트)",
   "cancel": "취소",

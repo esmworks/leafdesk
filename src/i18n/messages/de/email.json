@@ -112,6 +112,18 @@
     "someone": "Jemand",
     "optOut": "Du erhältst diese E-Mails, weil du dieser Zeile folgst. Du kannst ihr im Seitenmenü der Zeile nicht mehr folgen oder diese E-Mails unter Mein Konto > Präferenzen abschalten."
   },
+  "pageUpdate": {
+    "subject": "{actor} hat „{page}“ bearbeitet",
+    "heading": "{actor} hat „{page}“ bearbeitet",
+    "body": "„{page}“ in {workspace} wurde geändert. Öffne die Seite, um zu sehen, was neu ist; ihr Verlauf zeigt jede Änderung.",
+    "someone": "Jemand",
+    "action": "Seite öffnen",
+    "optOut": "Du erhältst diese E-Mails, weil du diese Seite beobachtest: Du hast sie erstellt oder bearbeitet, beobachten wollen oder beobachtest ihren Teamspace. Schalte sie im ⋯-Menü der Seite stumm oder schalte diese E-Mails unter Mein Konto > Präferenzen ab.",
+    "digestSubject": "{count, plural, one {# beobachtete Seite wurde bearbeitet} other {# beobachtete Seiten wurden bearbeitet}}",
+    "digestIntro": "Du hast die heutigen E-Mails zu beobachteten Seiten schon erhalten, deshalb kommen diese Bearbeitungen gesammelt:",
+    "digestPage": "„{page}“ in {workspace}, bearbeitet von {actor}: {link}",
+    "digestAction": "Leafdesk öffnen"
+  },
   "accessRequest": {
     "subject": "{requester} möchte Zugriff auf „{page}“",
     "heading": "{requester} möchte Zugriff auf „{page}“",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} hat diese Zeile geändert",
     "rowUpdateTitle": "Titel",
     "rowUpdateBody": "Text",
+    "pageUpdated": "{actor} hat diese Seite bearbeitet",
     "someone": "Jemand",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",

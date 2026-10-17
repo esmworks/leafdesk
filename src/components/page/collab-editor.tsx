@@ -29,6 +29,7 @@ import { AskAiToolbarButton, useAiAssist, useAiSlashItems, type AiAssist } from 
 import { useVoiceNote, useVoiceSlashItems, type VoiceNote } from "@/components/voice/voice-note-dialog";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { yUndoPluginKey } from "y-prosemirror";
+import type * as Y from "yjs";
 import type { UndoManager } from "yjs";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
@@ -51,6 +52,7 @@ import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, 
 import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
 import type { PageDoc } from "./use-page-doc";
 import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./synced-page";
+import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
 import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
@@ -88,6 +90,8 @@ export default function CollabEditor({
   ai: aiWanted = false,
   voice: voiceWanted = null,
   nested = false,
+  fragment = COLLAB_FRAGMENT,
+  syncedBlock = false,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
@@ -116,13 +120,17 @@ export default function CollabEditor({
    * on linked blocks, block handles, comments panel and AI.
    */
   nested?: boolean;
+  /** The document's fragment to edit: the page body, or a synced block's blocks (see synced-block.tsx). */
+  fragment?: string;
+  /** The editor of a synced block's blocks: no synced block may go in it. */
+  syncedBlock?: boolean;
 }) {
   const locale = useLocale();
   const colorScheme = useColorScheme();
   const tc = useTranslations("common");
   const tu = useTranslations("page.upload");
   const dictionary = useEditorDictionary();
-  const host = useMemo<EmbedHost>(() => ({ workspaceId, pageId, editable }), [workspaceId, pageId, editable]);
+  const host = useMemo<EmbedHost>(() => ({ workspaceId, pageId, editable, doc: pageDoc.doc }), [workspaceId, pageId, editable, pageDoc]);
   const trail = useMemo(() => ({ workspaceId, crumbs }), [workspaceId, crumbs]);
   // Block id where "Linked view of database" was chosen, while its database picker is open.
   const [pickAt, setPickAt] = useState<string | null>(null);
@@ -133,13 +141,15 @@ export default function CollabEditor({
   const pickLink = useCallback((at: string) => setLinkAt({ at, type: PAGE_LINK_BLOCK }), []);
   const pickSynced = useCallback((at: string) => setLinkAt({ at, type: SYNCED_PAGE_BLOCK }), []);
   const tSynced = useTranslations("page.blocks.syncedPage");
+  const tSyncedBlock = useTranslations("page.syncedBlock");
   // The pages shown around this editor, for the synced pages in it (see synced-page.tsx).
   const outer = useSyncedFrame();
+  const inSyncedBlock = Boolean(outer?.inSyncedBlock) || syncedBlock;
   const frame = useMemo(
-    () => ({ chain: [...(outer?.chain ?? []), pageId], user, offline }),
+    () => ({ chain: [...(outer?.chain ?? []), pageId], user, offline, inSyncedBlock }),
     // `user` is a new object on every render of the page: its fields are what matter.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [outer, pageId, user.id, user.name, offline],
+    [outer, pageId, user.id, user.name, offline, inSyncedBlock],
   );
   usePageRefUpdates(workspaceId);
   const [embedError, setEmbedError] = useState<string | null>(null);
@@ -157,11 +167,11 @@ export default function CollabEditor({
   );
   // Files dropped, pasted or picked in a file block go to the server (see api/files); the block keeps
   // the URL it answers with. Read through a ref, so the editor isn't re-created when these change.
-  const uploadTo = useRef({ pageId, tu, setEmbedError });
+  const uploadTo = useRef({ pageId, tu, setEmbedError, inSyncedBlock, nestedMessage: tSyncedBlock("nested") });
   // After every render, on purpose: the ref always holds the latest values.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- no dependency list is the point
   useEffect(() => {
-    uploadTo.current = { pageId, tu, setEmbedError };
+    uploadTo.current = { pageId, tu, setEmbedError, inSyncedBlock, nestedMessage: tSyncedBlock("nested") };
   });
   const uploadFile = useMemo(
     () => async (file: File) => {
@@ -197,14 +207,19 @@ export default function CollabEditor({
       dictionary,
       uploadFile,
       extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments],
+      // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
+      pasteHandler: ({ event, editor, defaultPasteHandler }) => {
+        const { inSyncedBlock, setEmbedError, nestedMessage } = uploadTo.current;
+        return pasteSyncedBlock(event, editor as unknown as PageEditor, inSyncedBlock, () => setEmbedError(nestedMessage)) ?? defaultPasteHandler();
+      },
       collaboration: {
-        fragment: pageDoc.doc.getXmlFragment(COLLAB_FRAGMENT),
+        fragment: pageDoc.doc.getXmlFragment(fragment),
         provider: { awareness: pageDoc.provider.awareness ?? undefined },
         user: { name: user.name, color: userColor(user.id) },
         showCursorLabels: "activity",
       },
     }),
-    [pageDoc, dictionary, comments, uploadFile],
+    [pageDoc, fragment, dictionary, comments, uploadFile],
   );
 
   // BlockNoteView re-mounts its view whenever its `editable` prop changes, and while it does, a
@@ -266,6 +281,7 @@ export default function CollabEditor({
                 onPickPage={pickLink}
                 onPickSynced={pickSynced}
                 onDashboard={widenForDashboard}
+                doc={pageDoc.doc}
                 assistant={ai && editable && !offline ? assistant : null}
                 voiceNote={voice && editable && !offline ? voiceNote : null}
               />
@@ -349,6 +365,7 @@ function SlashMenu({
   onPickPage,
   onPickSynced,
   onDashboard,
+  doc,
   assistant,
   voiceNote,
 }: {
@@ -359,6 +376,8 @@ function SlashMenu({
   onPickSynced: (at: string) => void;
   /** A dashboard was added from the menu. */
   onDashboard: () => void;
+  /** The page's document, for new synced blocks. */
+  doc: Y.Doc;
   /** The AI writing assistant, when available: its entries go at the end of the menu. */
   assistant: AiAssist | null;
   /** Voice notes, when available: "Voice note" joins the AI entries. */
@@ -369,6 +388,8 @@ function SlashMenu({
   const webItems = useWebSlashItems(editor);
   const pageLinkItems = usePageLinkSlashItem(editor, onPickPage);
   const syncedPageItems = useSyncedPageSlashItem(editor, onPickSynced);
+  const placeSynced = useCallback((at: string, block: Parameters<typeof placeEmbedBlock>[2]) => placeEmbedBlock(editor, at, block), [editor]);
+  const syncedBlockItems = useSyncedBlockSlashItem(editor, doc, placeSynced);
   const columnItems = useColumnSlashItems(editor);
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
@@ -385,6 +406,7 @@ function SlashMenu({
             ...webItems,
             ...pageLinkItems,
             ...syncedPageItems,
+            ...syncedBlockItems,
             ...colorItems(),
             ...aiItems,
             ...voiceItems,

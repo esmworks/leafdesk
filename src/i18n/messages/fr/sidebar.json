@@ -91,6 +91,7 @@
     "automation": "Automatisation « {name} » : {actor} a ajouté ou modifié cette ligne",
     "automationDatePassed": "Automatisation « {name} » : la date de cette ligne est arrivée",
     "rowUpdate": "{actor} a modifié cette ligne",
+    "pageUpdated": "{actor} a modifié cette page",
     "rowChange": "<prop>{property}</prop> : <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Titre",
     "rowChangesMore": "{count, plural, one {et # autre modification} other {et # autres modifications}}",
@@ -147,7 +148,11 @@
     "leave": "Quitter l’espace d’équipe",
     "confirmLeave": "Quitter {name} ? Ses pages disparaîtront de votre barre latérale. Si l’espace d’équipe n’est pas ouvert, vous perdrez aussi l’accès à ces pages.",
     "empty": "Aucune page pour l’instant. Ajoutez-en une",
-    "another": "un autre espace d’équipe"
+    "another": "un autre espace d’équipe",
+    "watch": "Surveiller toutes les pages",
+    "watchHint": "Soyez averti dans votre boîte de réception quand quelqu’un d’autre modifie une page de cet espace d’équipe ou y lance un fil de commentaires.",
+    "unwatch": "Ne plus surveiller les pages",
+    "unwatchHint": "Vous êtes averti des modifications et des nouveaux fils de commentaires sur chaque page de cet espace d’équipe, sauf celles que vous avez mises en sourdine."
   },
   "sections": {
     "shared": "Partagé",

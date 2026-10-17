@@ -4,6 +4,13 @@
 
 ### Upgrading
 
+- **Leafdesk is now licensed under the GNU Affero General Public License v3.0** (AGPL-3.0-only)
+  instead of the Apache License 2.0. Using it, running it for your team or your customers, and
+  changing it for yourself stay free. What's new is the condition on changed versions: if you
+  change Leafdesk and let people use your version over a network, you have to offer them its source
+  code under the same license (the About tab in My account links to the source). Releases up to
+  and including 0.5.4 stay available under Apache-2.0. Contributions now come under the terms in
+  [CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions).
 - **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
   included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
   in the pages' policy). A public form or published page put inside another website with an
@@ -23,9 +30,31 @@
 - **Migration 0081 adds the `journal` and `daily_note` tables** for daily notes.
 - **Migration 0082 adds two small tables** for following rows, and columns to `notification` and
   `user_preference`; nothing is rewritten.
+- **Migration 0083 adds four small tables** for watching pages, and columns to `user_preference`;
+  nothing is rewritten. Existing pages are watched by their creators from the start; people start
+  watching other pages as they edit them.
+- **Migration 0084 adds the `synced_block_reference` table** for synced blocks (see *Added*);
+  nothing is rewritten. It fills in as pages with synced blocks are saved.
 
 ### Added
 
+- **Synced blocks.** *Turn into synced block* in a block's menu (or `/synced block` in an empty
+  line) keeps the chosen blocks in one place; *Copy synced block* and a paste on another page show
+  them there, live. Editing them in a reference edits the original when you may edit its page, and
+  is read-only otherwise; people who can't open the original page see "No access" and none of its
+  text. A reference says when the original page is in the trash or deleted, or the blocks were
+  removed, and survives the page moving. The original lists the pages showing it, *Unsync* turns a
+  reference into a plain copy, and a synced block can't be put inside another. Published pages,
+  Markdown and PDF exports, `get_page` (MCP) and skills show the blocks for whoever reads them, by
+  the same rules; a published page shows them only when the original page is published too.
+  Markdown written over MCP or the API keeps synced blocks as they are and doesn't change their
+  text. Duplicating a page, or a page from a template, gives the copy its own synced blocks.
+  Search finds a synced block's text on its original page (not on the pages showing it), and a
+  version's changes include its synced blocks', as restoring the version brings them back too.
+- **A link to the source code for everyone who uses the server.** Published pages and public forms
+  now show *Source code* at their foot, for visitors without an account, next to the one in the
+  About tab. It leads to the running release's tag, or to `SOURCE_URL` when set: point it at your
+  own code if you run a changed Leafdesk for others (see the README).
 - **Desktop app for macOS, Windows and Linux.** Download it from the release, enter your server's
   address once, and Leafdesk opens in its own window, with native menus in your language, links to
   other sites in your browser and offline editing as in the installed web app (on HTTPS). A
@@ -42,6 +71,18 @@
   shows it. Rows you follow have their own switches for the inbox, email and push in My account →
   Preferences; push messages name what changed but not the values. `list_notifications` (MCP)
   includes these updates with their changes.
+
+- **Watch pages.** People now hear in their inbox when someone else edits a page they watch, and
+  new comment threads on it reach its watchers instead of only its creator. A page's creator and
+  everyone who edits it watch it; *Watch* and *Mute* in the page's ⋯ menu change that, and a mute
+  wins over the rest. *Watch all pages* in a teamspace's sidebar menu watches every page in it. An
+  author's edits go out as one item once they've left the page alone for two minutes (fifteen at
+  most), to watchers who can still open the page and don't have it open right then. Emails are held
+  back: at most one about the same page every four hours, and after five a day the rest come
+  together in one digest. Pages you watch have their own switches for the inbox, email and push in
+  My account → Preferences, which also lists the pages and teamspaces you watch. `get_page` (MCP and
+  REST) shows `watching`, the new `watch_page` tool and `POST /pages/{page_id}/watch` change it, and
+  `list_teamspaces` shows which teamspaces the user watches.
 
 - **Import from Trello.** Import has a Trello tab that takes a board's JSON export (*Print, export
   and share → Export as JSON*) and makes it a database opening on a board grouped by list. Lists,
@@ -82,6 +123,16 @@
   Markdown read and written over MCP and the API the link keeps its `#block-…` part (in an export,
   a link to a page left out of it does); a mention of a block on a published page links to that block when its page is published
   too. Search results found by meaning open their page at the passage that matched.
+- **Comment notifications open their thread.** From the inbox, the email or a push notification,
+  the page opens with its comments, the thread selected and the text it is about in view (a
+  resolved thread under *All*).
+- **Subpages block.** "Subpages" in the `/` menu lists the pages under this one as links, in the
+  sidebar's order, and keeps up as pages are added, moved, renamed or trashed. Each reader sees the
+  subpages they may open; databases the page already shows inline aren't listed again. Published
+  pages and the print view show the list where the block is instead of at the end of the page. In
+  Markdown and over MCP it is `<!-- leafdesk:subpages -->` on a line of its own.
+- **Search results mark the words you typed** in the text shown under each page, where the search
+  found them: at the start of a word, and inside a sentence for Chinese and Japanese.
 - **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and
   the REST API's `/search` find a page by the words of the PDFs and Word documents it shows, also
   on servers without an embeddings model: every word of the search in one document, after the
@@ -102,6 +153,9 @@
 
 ### Fixed
 
+- **Imported ZIPs garbled non-English file names** when the tool that made them (macOS's
+  *Compress* among them) didn't mark the names as UTF-8: "Çalışma planı.md" came in as
+  "Ã‡alÄ±ÅŸma planÄ±.md". Such names are now read as UTF-8 whenever they are valid UTF-8.
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
 - **Blocks nested under a callout stay inside it in Markdown.** A callout's nested blocks (a list,

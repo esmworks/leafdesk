@@ -475,6 +475,42 @@ export async function recordRowUpdate(
   }
 }
 
+/**
+ * Tells watchers of page `pageId` that `actorId` edited it (see server/page-watch.ts), and queues
+ * the email about it, which server/share-emails.ts holds back to a cooldown per page and a daily
+ * cap. An unread update about the same page, by anyone, is replaced and moved up, so a page someone
+ * doesn't look at stays one line in their inbox. Never throws.
+ */
+export async function recordPageUpdate(actorId: string, workspaceId: string, pageId: string, userIds: string[], locale: string | null) {
+  const recipients = [...new Set(userIds)].filter((id) => id !== actorId);
+  if (!recipients.length) return;
+  try {
+    const emailDueAt = mailStatus() === "disabled" ? null : new Date();
+    const inserted = await db.transaction(async (tx) => {
+      await tx
+        .delete(notification)
+        .where(
+          and(
+            eq(notification.kind, "page_updated"),
+            eq(notification.pageId, pageId),
+            inArray(notification.userId, recipients),
+            isNull(notification.readAt),
+            // A snoozed one waits for its time as it is; this update comes on its own.
+            isNull(notification.snoozedUntil),
+          ),
+        );
+      return tx
+        .insert(notification)
+        .values(recipients.map((userId) => ({ userId, workspaceId, kind: "page_updated" as const, actorId, pageId, emailDueAt, emailLocale: locale })))
+        .returning({ id: notification.id });
+    });
+    signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("could not record page update notifications", error);
+  }
+}
+
 const unreadShare = (userId: string, pageId: string) =>
   and(
     eq(notification.kind, "page_shared"),
@@ -495,6 +531,8 @@ export type InboxItem = {
   pageId: string | null;
   pageTitle: string | null;
   pageIcon: string | null;
+  /** Comments: the thread it is about. */
+  threadId: string | null;
   databaseTitle: string | null;
   propertyName: string | null;
   /** Reminders: the date that fell due (YYYY-MM-DD; see notification.date). Automations: set for a "date passed" run. */
@@ -647,6 +685,7 @@ export async function listNotifications(
       pageId: page.id,
       pageTitle: page.title,
       pageIcon: page.icon,
+      threadId: notification.threadId,
       // A row can be shared without its database: then the database's name stays hidden too.
       databaseTitle: sql<string | null>`case when page_access_level(${userId}, ${databasePage.id}) > 0 then ${databasePage.title} end`,
       propertyName: databaseProperty.name,

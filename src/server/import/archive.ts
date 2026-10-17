@@ -1,4 +1,4 @@
-import { unzipSync } from "fflate";
+import { strToU8, unzipSync } from "fflate";
 import { IMPORT_LIMITS, importFileKind, isIgnoredPath, normalizePath } from "@/lib/import/markdown";
 import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError } from "@/lib/import/result";
@@ -36,6 +36,29 @@ function take(budget: Budget, bytes: number) {
 /** A path to show for an entry that has no safe one: its name, shortened. */
 const shown = (name: string) => (name.length > 200 ? `${name.slice(0, 199)}…` : name);
 
+/**
+ * An entry's name as its ZIP meant it. Names are read as Latin-1 unless the entry flags them as
+ * UTF-8, yet many tools (the Finder's "Compress" among them) write UTF-8 without the flag, which
+ * turns "Planlama ışığı.md" into mojibake. A Latin-1 reading keeps every byte, so when those bytes
+ * are valid UTF-8 with something past ASCII, that is what the name was. Names in an old Windows
+ * code page (not UTF-8) stay as read.
+ */
+const utf8 = new TextDecoder("utf-8", { fatal: true });
+export function entryName(name: string): string {
+  let high = false;
+  for (let i = 0; i < name.length; i++) {
+    const code = name.charCodeAt(i);
+    if (code > 0xff) return name;
+    if (code >= 0x80) high = true;
+  }
+  if (!high) return name;
+  try {
+    return utf8.decode(strToU8(name, true));
+  } catch {
+    return name;
+  }
+}
+
 /** What the upload says about itself while it's read: whether it holds an Obsidian vault's settings folder. */
 type Seen = { vault: boolean };
 
@@ -51,10 +74,11 @@ function unzip(
   try {
     entries = unzipSync(data, {
       filter: (entry) => {
-        if (entry.name.endsWith("/") || entry.name.endsWith("\\")) return false;
-        const path = normalizePath(entry.name);
+        const name = entryName(entry.name);
+        if (name.endsWith("/") || name.endsWith("\\")) return false;
+        const path = normalizePath(name);
         if (!path) {
-          if (entry.name.trim()) skipped.push({ path: shown(entry.name), reason: "unsafePath" });
+          if (name.trim()) skipped.push({ path: shown(name), reason: "unsafePath" });
           return false;
         }
         if (isIgnoredPath(path)) {
@@ -70,7 +94,7 @@ function unzip(
     throw new ImportError("The ZIP file can't be read", "badZip");
   }
   for (const [name, bytes] of Object.entries(entries)) {
-    const path = normalizePath(name)!;
+    const path = normalizePath(entryName(name))!;
     if (importFileKind(path) === "zip") {
       if (depth < 1) unzip(bytes, budget, depth + 1, out, skipped, seen);
       else skipped.push({ path, reason: "nestedZip" });

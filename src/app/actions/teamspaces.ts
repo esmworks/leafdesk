@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import type { TeamspaceAccess, TeamspaceMemberLevel, TeamspaceRole } from "@/db/schema";
 import { AccessError } from "@/server/access";
 import { listGroups } from "@/server/groups";
+import { setWatchingTeamspace } from "@/server/page-watch";
 import { requireUserId } from "@/server/session";
 import {
   addTeamspaceGroups,
@@ -99,6 +100,13 @@ export async function joinTeamspaceAction(workspaceId: string, teamspaceId: stri
 
 export async function leaveTeamspaceAction(workspaceId: string, teamspaceId: string) {
   const result = await run((userId) => leaveTeamspace(userId, teamspaceId));
+  refresh(workspaceId);
+  return result;
+}
+
+/** Watches every page of the teamspace, or stops (server/page-watch). */
+export async function setTeamspaceWatchingAction(workspaceId: string, teamspaceId: string, watching: boolean) {
+  const result = await run((userId) => setWatchingTeamspace(userId, teamspaceId, watching).then(() => watching));
   refresh(workspaceId);
   return result;
 }

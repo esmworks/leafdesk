@@ -112,6 +112,18 @@
     "someone": "Quelqu’un",
     "optOut": "Vous recevez ces e-mails parce que vous suivez cette ligne. Arrêtez de la suivre depuis le menu de page de la ligne, ou désactivez ces e-mails dans Mon compte > Préférences."
   },
+  "pageUpdate": {
+    "subject": "{actor} a modifié « {page} »",
+    "heading": "{actor} a modifié « {page} »",
+    "body": "« {page} » dans {workspace} a changé. Ouvrez-la pour voir les nouveautés ; son historique montre chaque modification.",
+    "someone": "Quelqu’un",
+    "action": "Ouvrir la page",
+    "optOut": "Vous recevez ces e-mails parce que vous surveillez cette page : vous l’avez créée ou modifiée, avez choisi de la surveiller ou surveillez son espace d’équipe. Mettez-la en sourdine depuis le menu ⋯ de la page, ou désactivez ces e-mails dans Mon compte > Préférences.",
+    "digestSubject": "{count, plural, one {# page que vous surveillez a été modifiée} other {# pages que vous surveillez ont été modifiées}}",
+    "digestIntro": "Vous avez déjà reçu les e-mails du jour sur les pages que vous surveillez, ces modifications arrivent donc regroupées :",
+    "digestPage": "« {page} » dans {workspace}, modifiée par {actor} : {link}",
+    "digestAction": "Ouvrir Leafdesk"
+  },
   "accessRequest": {
     "subject": "{requester} demande l’accès à « {page} »",
     "heading": "{requester} demande l’accès à « {page} »",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} a modifié cette ligne",
     "rowUpdateTitle": "le titre",
     "rowUpdateBody": "le texte",
+    "pageUpdated": "{actor} a modifié cette page",
     "someone": "Quelqu’un",
     "joinRequestTitle": "Demande d'accès",
     "joinRequest": "{actor} a demandé à rejoindre l'espace",

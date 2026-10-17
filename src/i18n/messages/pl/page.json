@@ -57,7 +57,11 @@
     "deleteTemplate": "Usuń szablon",
     "exportDisabled": "Eksport jest wyłączony",
     "exportDisabledBody": "Właściciele tego obszaru roboczego wyłączyli eksportowanie i drukowanie jego stron.",
-    "showInGraph": "Pokaż w grafie"
+    "showInGraph": "Pokaż w grafie",
+    "watch": "Obserwuj",
+    "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy.",
+    "mute": "Wycisz",
+    "muteHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy. Wycisz ją, aby przestać."
   },
   "comments": {
     "aboutPage": "O tej stronie",
@@ -370,6 +374,13 @@
       "aliases": "ścieżka nawigacja okruszki rodzice lokalizacja breadcrumb path parents location",
       "label": "Ścieżka nawigacji"
     },
+    "subpages": {
+      "title": "Podstrony",
+      "subtext": "Strony pod tą stroną jako linki",
+      "aliases": "subpages podstrony strony podrzędne lista indeks",
+      "label": "Podstrony",
+      "empty": "Strony dodane pod tą stroną pojawią się tutaj."
+    },
     "columns": {
       "two": {
         "title": "2 kolumny",
@@ -405,6 +416,11 @@
       "backgroundDefault": "Bez tła",
       "textAliases": "kolor tekst czcionka color colour text font",
       "backgroundAliases": "tło wyróżnienie kolor background highlight color colour"
+    },
+    "syncedBlock": {
+      "title": "Blok synchronizowany",
+      "subtext": "Bloki, które możesz pokazywać i edytować na wielu stronach",
+      "aliases": "synchronizowany sync synced ponowne współdzielony"
     }
   },
   "web": {
@@ -629,5 +645,28 @@
     "hint": "Zachowaj lub cofnij każdą zmianę. Cofnij wszystkie najpierw zapisuje bieżący stan strony w jej historii.",
     "stale": "Strona w międzyczasie się zmieniła: oto zmiany w ich obecnym stanie.",
     "failed": "To się nie udało. Spróbuj ponownie."
+  },
+  "syncedBlock": {
+    "label": "Blok synchronizowany",
+    "from": "Synchronizowany z",
+    "viewOnly": "Tylko podgląd",
+    "copy": "Kopiuj blok synchronizowany",
+    "copied": "Skopiowano",
+    "copyHint": "Wklej go na innej stronie, aby pokazać tam te bloki na żywo",
+    "shownOn": "{count, plural, one {Pokazany na # stronie} few {Pokazany na # stronach} many {Pokazany na # stronach} other {Pokazany na # strony}}",
+    "notShownShort": "Nie pokazany nigdzie indziej",
+    "notShown": "Skopiuj ten blok synchronizowany i wklej go na innej stronie, aby go tam pokazać.",
+    "hiddenPages": "{count, plural, one {i # strona, której nie widzisz} few {i # strony, których nie widzisz} many {i # stron, których nie widzisz} other {i # strony, których nie widzisz}}",
+    "unsync": "Wyłącz synchronizację",
+    "unsyncHint": "Zamień na zwykłą kopię tych bloków",
+    "nested": "Blok synchronizowany nie może znaleźć się w innym bloku synchronizowanym.",
+    "turnInto": "Zamień na blok synchronizowany",
+    "state": {
+      "noAccess": "Brak dostępu",
+      "trashed": "Strona oryginalnego bloku synchronizowanego jest w koszu",
+      "deleted": "Strona oryginalnego bloku synchronizowanego została usunięta",
+      "removed": "Oryginalny blok synchronizowany został usunięty"
+    },
+    "exportNote": "Blok synchronizowany: {state}"
   }
 }

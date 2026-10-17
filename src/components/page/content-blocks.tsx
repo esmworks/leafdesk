@@ -11,9 +11,11 @@ import {
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import katex from "katex";
-import { Info, Radical, Route, Sigma, SmilePlus, TableOfContents, Workflow } from "lucide-react";
+import { Info, ListTree, Radical, Route, Sigma, SmilePlus, TableOfContents, Workflow } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { listSubpagesAction } from "@/app/actions/pages";
+import { useChannel } from "@/components/collab/use-channel";
 import {
   breadcrumbBlockConfig,
   calloutBlockConfig,
@@ -22,19 +24,20 @@ import {
   KATEX_OPTIONS,
   mathBlockConfig,
   mermaidBlockConfig,
+  subpagesBlockConfig,
   tocBlockConfig,
 } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import type { PageEditor } from "./embed-blocks";
 import { IconPicker } from "./icon-picker";
 import { MermaidImageView, useMermaid } from "./mermaid-diagram";
-import { HeadingList, Trail, type TrailCrumb } from "./page-outline";
+import { HeadingList, SubpageList, Trail, type TrailCrumb } from "./page-outline";
 
 export type { TrailCrumb };
 
 /**
  * The editor's side of the content blocks (configs shared with the server in lib/content-blocks):
- * callouts, equations, Mermaid diagrams, a table of contents and a breadcrumb.
+ * callouts, equations, Mermaid diagrams, a table of contents, a breadcrumb and a list of subpages.
  */
 
 // ---------------------------------------------------------------------------------------------
@@ -309,6 +312,61 @@ const BreadcrumbBlock = createReactBlockSpec(breadcrumbBlockConfig, {
 });
 
 // ---------------------------------------------------------------------------------------------
+// Subpages
+
+/** The databases the page shows as database blocks: the subpages list leaves them out, as published pages do. */
+function shownDatabases(editor: PageEditor): string {
+  const ids: string[] = [];
+  const walk = (blocks: PageEditor["document"]) => {
+    for (const block of blocks) {
+      if (block.type === "database" && block.props.databaseId) ids.push(block.props.databaseId);
+      if (block.children.length) walk(block.children);
+    }
+  };
+  walk(editor.document);
+  return ids.sort().join(" ");
+}
+
+const SubpagesBlock = createReactBlockSpec(subpagesBlockConfig, {
+  render: function SubpagesView({ editor }) {
+    const t = useTranslations("page.blocks.subpages");
+    const tc = useTranslations("common");
+    const trail = useContext(PageTrailContext);
+    const workspaceId = trail?.workspaceId;
+    const pageId = trail?.crumbs.at(-1)?.id;
+    const typed = editor as unknown as PageEditor;
+    const [subpages, setSubpages] = useState<TrailCrumb[] | null>(null);
+    const [shown, setShown] = useState(() => shownDatabases(typed));
+    useEditorChange(() => setShown(shownDatabases(typed)), editor);
+    // Offline or refused, the list stays as last loaded.
+    const load = useCallback(() => {
+      if (workspaceId && pageId) listSubpagesAction(workspaceId, pageId).then(setSubpages, () => {});
+    }, [workspaceId, pageId]);
+    useEffect(load, [load]);
+    // Pages added, moved, renamed or trashed anywhere in the workspace, as the sidebar hears them.
+    useChannel(workspaceId ? `ws:${workspaceId}` : null, (event) => event !== "inbox" && load());
+    if (!trail) return null;
+    const hidden = new Set(shown.split(" "));
+    return (
+      <div contentEditable={false} className="w-full">
+        {subpages === null ? (
+          <div className="h-8" aria-busy />
+        ) : (
+          <SubpageList
+            pages={subpages.filter((p) => !hidden.has(p.id))}
+            href={(id) => `/w/${trail.workspaceId}/p/${id}`}
+            label={t("label")}
+            empty={t("empty")}
+            untitled={tc("untitled")}
+          />
+        )}
+      </div>
+    );
+  },
+  toExternalHTML: () => <div />,
+});
+
+// ---------------------------------------------------------------------------------------------
 // Schema parts and slash menu
 
 export const contentBlockSpecs = {
@@ -317,6 +375,7 @@ export const contentBlockSpecs = {
   mermaid: MermaidBlock(),
   tableOfContents: TocBlock(),
   breadcrumb: BreadcrumbBlock(),
+  subpages: SubpagesBlock(),
 };
 
 export const contentInlineSpecs = { inlineMath: InlineMath };
@@ -339,7 +398,7 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
     const basic = editor.dictionary.slash_menu.quote.group;
     const advanced = editor.dictionary.slash_menu.table.group;
     const item = (
-      key: "callout" | "math" | "inlineMath" | "mermaid" | "toc" | "breadcrumb",
+      key: "callout" | "math" | "inlineMath" | "mermaid" | "toc" | "breadcrumb" | "subpages",
       group: string,
       icon: React.JSX.Element,
       onItemClick: () => void,
@@ -381,6 +440,9 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
       }),
       item("breadcrumb", advanced, <Route size={18} />, () => {
         insertOrUpdateBlockForSlashMenu(editor, { type: "breadcrumb" });
+      }),
+      item("subpages", advanced, <ListTree size={18} />, () => {
+        insertOrUpdateBlockForSlashMenu(editor, { type: "subpages" });
       }),
     ];
   }, [editor, t]);

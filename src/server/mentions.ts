@@ -26,12 +26,13 @@ import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
 import { avatarSrc } from "@/lib/avatar";
 import { startSweep } from "@/server/sweep";
+import { syncSyncedReferences } from "@/server/synced-blocks";
 
 /**
  * Mentions, page links and reminders on the server. The page's document holds them; each time the
  * collab server saves a page (the one path every edit takes, whoever made it) `syncPageReferences`
  * brings the indexes in line: the page's outgoing links (backlinks), the person mentions it has
- * notified about, and the reminders set on its dates.
+ * notified about, the reminders set on its dates, and the synced blocks it shows (server/synced-blocks).
  */
 
 /** A reminder set on a date already past this long ago is kept but never sent. */
@@ -58,6 +59,7 @@ export async function syncPageReferences(
     await syncLinks(pageId, refs.pageIds, blocks);
     await syncMentions(pageId, workspaceId, refs.people, actorId, locale);
     await syncReminders(pageId, refs.reminders, actorId);
+    await syncSyncedReferences(pageId, blocks);
   } catch (error) {
     console.error(`could not update the mentions and links of page ${pageId}`, error);
   }

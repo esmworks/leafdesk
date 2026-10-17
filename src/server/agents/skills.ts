@@ -18,6 +18,7 @@ import { aiConfig } from "@/server/ai";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { labelPageLinks } from "@/server/mentions";
+import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import { isSkill } from "@/server/skills";
 import { AgentError, auditDetails, ownedAgent } from "./manage";
 
@@ -105,7 +106,7 @@ async function fitSkills(
         })
         .map(async (id) => {
           const content = await getCollab().readPage(id);
-          const body = (await labelPageLinks(agent.userId, content.markdown)).trim();
+          const body = (await labelPageLinks(agent.userId, await expandSyncedMarkdown(agent.userId, id, content.markdown))).trim();
           return [id, { title: pageLabel(content.title || states.get(id)!.title), body }] as const;
         }),
     ),

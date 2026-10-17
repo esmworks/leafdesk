@@ -57,7 +57,11 @@
     "deleteTemplate": "Elimina modello",
     "exportDisabled": "L’esportazione è disattivata",
     "exportDisabledBody": "I proprietari di questo spazio di lavoro hanno disattivato l’esportazione e la stampa delle sue pagine.",
-    "showInGraph": "Mostra nel grafo"
+    "showInGraph": "Mostra nel grafo",
+    "watch": "Osserva",
+    "watchHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione.",
+    "mute": "Silenzia",
+    "muteHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione. Silenziala per smettere."
   },
   "comments": {
     "aboutPage": "Su questa pagina",
@@ -370,6 +374,13 @@
       "aliases": "breadcrumb path parents location percorso briciole posizione",
       "label": "Percorso"
     },
+    "subpages": {
+      "title": "Sottopagine",
+      "subtext": "Le pagine sotto questa, come link",
+      "aliases": "subpages sottopagine pagine figlie elenco indice",
+      "label": "Sottopagine",
+      "empty": "Le pagine che aggiungi sotto questa compaiono qui."
+    },
     "columns": {
       "two": {
         "title": "2 colonne",
@@ -405,6 +416,11 @@
       "backgroundDefault": "Nessuno sfondo",
       "textAliases": "color colour text font colore testo carattere",
       "backgroundAliases": "background highlight color colour sfondo evidenziazione colore"
+    },
+    "syncedBlock": {
+      "title": "Blocco sincronizzato",
+      "subtext": "Blocchi da mostrare e modificare in più pagine",
+      "aliases": "sincronizzato sync synced riutilizzare condiviso"
     }
   },
   "web": {
@@ -629,5 +645,28 @@
     "hint": "Mantieni o annulla ogni modifica. Annulla tutte salva prima la pagina com’è ora nella sua cronologia.",
     "stale": "Nel frattempo la pagina è cambiata: queste sono le modifiche così come sono ora.",
     "failed": "Non ha funzionato. Riprova."
+  },
+  "syncedBlock": {
+    "label": "Blocco sincronizzato",
+    "from": "Sincronizzato da",
+    "viewOnly": "Sola lettura",
+    "copy": "Copia blocco sincronizzato",
+    "copied": "Copiato",
+    "copyHint": "Incollalo in un’altra pagina per mostrare lì questi blocchi, in tempo reale",
+    "shownOn": "{count, plural, one {Mostrato in # pagina} other {Mostrato in # pagine}}",
+    "notShownShort": "Non mostrato altrove",
+    "notShown": "Copia questo blocco sincronizzato e incollalo in un’altra pagina per mostrarlo lì.",
+    "hiddenPages": "{count, plural, one {e # pagina che non puoi vedere} other {e # pagine che non puoi vedere}}",
+    "unsync": "Annulla sincronizzazione",
+    "unsyncHint": "Trasforma in una semplice copia di questi blocchi",
+    "nested": "Un blocco sincronizzato non può stare dentro un altro blocco sincronizzato.",
+    "turnInto": "Trasforma in blocco sincronizzato",
+    "state": {
+      "noAccess": "Nessun accesso",
+      "trashed": "La pagina del blocco sincronizzato originale è nel cestino",
+      "deleted": "La pagina del blocco sincronizzato originale è stata eliminata",
+      "removed": "Il blocco sincronizzato originale è stato eliminato"
+    },
+    "exportNote": "Blocco sincronizzato: {state}"
   }
 }

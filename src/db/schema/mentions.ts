@@ -39,6 +39,25 @@ export const pageLink = pgTable(
 );
 
 /**
+ * `pageId`'s body holds a reference to synced block `syncId` of page `sourceId` (lib/synced-blocks):
+ * the synced block's list of the pages it shows on. Kept like page links, on every save of `pageId`.
+ */
+export const syncedBlockReference = pgTable(
+  "synced_block_reference",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    syncId: text("sync_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.sourceId, t.syncId] }), index("synced_block_reference_source_idx").on(t.sourceId, t.syncId)],
+);
+
+/**
  * Person mentions the server has seen on a page, by the mention's id: each is notified about once.
  * Rows stay when the mention is removed, so undoing a deletion or restoring a version doesn't
  * notify again.

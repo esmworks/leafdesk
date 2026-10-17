@@ -35,12 +35,13 @@ const sample = [
   { type: "mermaid", content: "graph TD\n  A-->B" },
   { type: "tableOfContents" },
   { type: "breadcrumb" },
+  { type: "subpages" },
   { type: "paragraph", content: [text("Euler: "), { type: "inlineMath", content: "e^{i\\pi} + 1 = 0" }, text(" done")] },
 ];
 
 describe("content blocks in the server schema", () => {
   it("are all known to the schema, with the equation inline", () => {
-    for (const type of ["callout", "math", "mermaid", "tableOfContents", "breadcrumb"]) {
+    for (const type of ["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "subpages"]) {
       expect(pageSchema.blockSchema).toHaveProperty(type);
     }
     expect(pageSchema.inlineContentSchema).toHaveProperty("inlineMath");
@@ -48,7 +49,7 @@ describe("content blocks in the server schema", () => {
 
   it("round-trip through the Yjs document without losing anything", () => {
     const blocks = stored(sample);
-    expect(blocks.map((b) => b.type)).toEqual(["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "paragraph"]);
+    expect(blocks.map((b) => b.type)).toEqual(["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "subpages", "paragraph"]);
     expect(blocks[0].props).toMatchObject({ icon: "🔥", backgroundColor: "red" });
     expect(blocks[0].content).toEqual([
       { type: "text", text: "Careful: ", styles: {} },
@@ -56,7 +57,7 @@ describe("content blocks in the server schema", () => {
     ]);
     expect(blocksToPlainText([blocks[1]])).toBe("\\int_0^1 x_1 \\, dx");
     expect(blocksToPlainText([blocks[2]])).toBe("graph TD\n  A-->B");
-    expect(blocks[5].content).toContainEqual({ type: "inlineMath", props: {}, content: "e^{i\\pi} + 1 = 0" });
+    expect(blocks[6].content).toContainEqual({ type: "inlineMath", props: {}, content: "e^{i\\pi} + 1 = 0" });
     // And again: what was read back writes the same document.
     expect(stored(blocks)).toEqual(blocks);
   });
@@ -68,7 +69,7 @@ describe("content blocks in the server schema", () => {
 
   it("show up in the history diff with their sources", () => {
     const flat = flattenBlocks(stored(sample));
-    expect(flat.map((b) => b.type)).toEqual(["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "paragraph"]);
+    expect(flat.map((b) => b.type)).toEqual(["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "subpages", "paragraph"]);
     expect(flat[1].text).toBe("\\int_0^1 x_1 \\, dx");
     expect(flat[0].icon).toBe("🔥");
   });
@@ -95,6 +96,8 @@ describe("content blocks in Markdown", () => {
         "",
         "<!-- leafdesk:breadcrumb -->",
         "",
+        "<!-- leafdesk:subpages -->",
+        "",
         "Euler: $e^{i\\pi} + 1 = 0$ done",
       ].join("\n"),
     );
@@ -105,7 +108,7 @@ describe("content blocks in Markdown", () => {
     const again = await roundTrip(markdown);
     expect(again.markdown).toBe(markdown);
     const blocks = again.blocks;
-    expect(blocks.map((b) => b.type)).toEqual(["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "paragraph"]);
+    expect(blocks.map((b) => b.type)).toEqual(["callout", "math", "mermaid", "tableOfContents", "breadcrumb", "subpages", "paragraph"]);
     expect(blocks[0].props).toMatchObject({ icon: "🔥", backgroundColor: "red" });
     expect(blocks[0].content).toEqual([
       { type: "text", text: "Careful: ", styles: {} },
@@ -468,16 +471,17 @@ describe("content blocks on published pages", () => {
     expect(html).toContain("Hot");
   });
 
-  it("split out diagrams, tables of contents and breadcrumbs, with anchors on the headings", async () => {
+  it("split out diagrams, tables of contents, breadcrumbs and subpages, with anchors on the headings", async () => {
     const doc = docFrom([
       { type: "breadcrumb" },
       { type: "tableOfContents" },
+      { type: "subpages" },
       { type: "heading", props: { level: 1 }, content: "One" },
       { type: "mermaid", content: "graph TD\n  A-->B" },
       { type: "bulletListItem", content: "Item", children: [{ type: "heading", props: { level: 2 }, content: "Two <b>" }] },
     ]);
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
-    expect(segments.map((s) => s.kind)).toEqual(["breadcrumb", "toc", "html", "mermaid", "html"]);
+    expect(segments.map((s) => s.kind)).toEqual(["breadcrumb", "toc", "subpages", "html", "mermaid", "html"]);
     expect(segments[1]).toEqual({
       kind: "toc",
       headings: [
@@ -485,7 +489,8 @@ describe("content blocks on published pages", () => {
         { anchor: "heading-2", level: 2, text: "Two <b>" },
       ],
     });
-    expect(segments[3]).toEqual({ kind: "mermaid", source: "graph TD\n  A-->B" });
+    expect(segments[2]).toEqual({ kind: "subpages" });
+    expect(segments[4]).toEqual({ kind: "mermaid", source: "graph TD\n  A-->B" });
     const html = segments.map((s) => (s.kind === "html" ? s.html : "")).join("");
     expect(html).toMatch(/<h1 id="heading-1"[^>]*><span id="block-[\w-]+" class="block-anchor"><\/span>One<\/h1>/);
     expect(html).toMatch(/<h2 id="heading-2"[^>]*><span id="block-[\w-]+" class="block-anchor"><\/span>Two &lt;b&gt;<\/h2>/);

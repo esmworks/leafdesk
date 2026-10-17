@@ -228,7 +228,7 @@ async function ancestorTitles(pageId: string): Promise<string[]> {
 
 /** The chunks a page's current text makes (where it is, title, a row's values, the body's blocks, the documents it shows). */
 export async function pageChunks(row: { id: string; workspaceId: string; parentId: string | null; kind: string; properties: Record<string, unknown> }) {
-  const [{ title, blocks }, path] = await Promise.all([getCollab().readBlocks(row.id), row.parentId ? ancestorTitles(row.id) : []]);
+  const [{ title, blocks }, path] = await Promise.all([getCollab().readBlocks(row.id, { synced: true }), row.parentId ? ancestorTitles(row.id) : []]);
   let properties: string[] = [];
   if (row.parentId) {
     const [parent] = await db.select({ kind: page.kind }).from(page).where(eq(page.id, row.parentId)).limit(1);

@@ -57,7 +57,11 @@
     "deleteTemplate": "删除模板",
     "exportDisabled": "导出已关闭",
     "exportDisabledBody": "此工作区的所有者已关闭其页面的导出和打印功能。",
-    "showInGraph": "在关系图中显示"
+    "showInGraph": "在关系图中显示",
+    "watch": "关注页面",
+    "watchHint": "其他人编辑此页面或在其中发起评论串时，在收件箱中收到通知。",
+    "mute": "静音",
+    "muteHint": "其他人编辑此页面或在其中发起评论串时，你会在收件箱中收到通知。静音即可停止。"
   },
   "comments": {
     "aboutPage": "关于此页面",
@@ -370,6 +374,13 @@
       "aliases": "breadcrumb path parents location 面包屑 路径 位置",
       "label": "面包屑"
     },
+    "subpages": {
+      "title": "子页面",
+      "subtext": "此页面下的页面链接",
+      "aliases": "subpages 子页面 下级页面 列表 目录",
+      "label": "子页面",
+      "empty": "在此页面下添加的页面会列在这里。"
+    },
     "columns": {
       "two": {
         "title": "2 栏",
@@ -405,6 +416,11 @@
       "backgroundDefault": "无背景",
       "textAliases": "color colour text font 颜色 文字 字体",
       "backgroundAliases": "background highlight color colour 背景 高亮 颜色"
+    },
+    "syncedBlock": {
+      "title": "同步块",
+      "subtext": "可在多个页面中显示和编辑的块",
+      "aliases": "同步 tongbu sync synced 共享 复用"
     }
   },
   "web": {
@@ -629,5 +645,28 @@
     "hint": "逐一保留或撤销每处更改。“全部撤销”会先将页面当前状态保存到历史记录中。",
     "stale": "页面在此期间发生了变化：以下是当前的更改情况。",
     "failed": "操作未成功。请重试。"
+  },
+  "syncedBlock": {
+    "label": "同步块",
+    "from": "同步自",
+    "viewOnly": "仅查看",
+    "copy": "复制同步块",
+    "copied": "已复制",
+    "copyHint": "粘贴到另一个页面，即可在那里实时显示这些块",
+    "shownOn": "显示在 {count} 个页面上",
+    "notShownShort": "未在其他地方显示",
+    "notShown": "复制此同步块并粘贴到另一个页面，即可在那里显示。",
+    "hiddenPages": "以及 {count} 个你看不到的页面",
+    "unsync": "取消同步",
+    "unsyncHint": "变成这些块的普通副本",
+    "nested": "同步块不能放在另一个同步块里。",
+    "turnInto": "转换为同步块",
+    "state": {
+      "noAccess": "无访问权限",
+      "trashed": "原同步块所在的页面在回收站中",
+      "deleted": "原同步块所在的页面已删除",
+      "removed": "原同步块已删除"
+    },
+    "exportNote": "同步块：{state}"
   }
 }

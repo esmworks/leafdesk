@@ -10,6 +10,7 @@ import { getCollab } from "@/server/collab/bridge";
 import { assertExportAllowed, recordExport } from "@/server/export";
 import { resolvePageRefs } from "@/server/mentions";
 import { getBreadcrumbs } from "@/server/pages";
+import { ENGLISH_SYNCED_LABELS, expandSyncedBlocks, readerStates, syncedNotice, type SyncedLabels } from "@/server/synced-blocks";
 import {
   publishedDatabase,
   publishedLoads,
@@ -72,6 +73,17 @@ async function refLabels() {
     return { untitled: tc("untitled"), noAccess: t("noAccess"), deleted: t("deleted") };
   } catch {
     return { untitled: "Untitled", noAccess: "No access", deleted: "Deleted page" };
+  }
+}
+
+/** Why a synced block prints nothing, in the reader's language (English outside a request). */
+async function syncedLabels(): Promise<SyncedLabels> {
+  try {
+    const t = await getTranslations("page.syncedBlock");
+    const note = (state: keyof SyncedLabels) => t("exportNote", { state: t(`state.${state}`) });
+    return { noAccess: note("noAccess"), trashed: note("trashed"), deleted: note("deleted"), removed: note("removed") };
+  } catch {
+    return ENGLISH_SYNCED_LABELS;
   }
 }
 
@@ -141,8 +153,15 @@ async function printSection(userId: string, pageId: string, depth: number, index
     isDatabase ? publishedDatabase(userId, target.id, { reader: userId }) : Promise.resolve(null),
     parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId, userId) : Promise.resolve(null),
   ]);
-  const segments = content
-    ? await bodySegmentsFromBlocks(content.blocks as PageBlock[], {
+  // Synced blocks as their blocks, from other pages only as far as the reader may see them.
+  const labels = content ? await syncedLabels() : null;
+  const blocks = content
+    ? await expandSyncedBlocks(content.blocks as PageBlock[], target.id, readerStates(userId), (state) =>
+        state === "editable" || state === "readOnly" ? [] : syncedNotice(labels![state]),
+      )
+    : null;
+  const segments = blocks
+    ? await bodySegmentsFromBlocks(blocks, {
         resolvePages: (ids) => printRefs(userId, ids),
         // Headings of every printed page share the document; the first page keeps plain anchors.
         anchorPrefix: index === 0 ? "" : `p${index + 1}-`,

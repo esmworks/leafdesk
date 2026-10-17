@@ -17,6 +17,7 @@ import { getCollab } from "@/server/collab/bridge";
 import { getDatabaseSnapshot } from "@/server/databases";
 import { resolveEmbeds } from "@/server/embeds";
 import { labelPageLinks } from "@/server/mentions";
+import { ENGLISH_SYNCED_LABELS, expandSyncedMarkdown, type SyncedLabels } from "@/server/synced-blocks";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
 import { getStorage } from "@/server/storage";
 import { exportAllowed } from "@/server/workspaces";
@@ -39,13 +40,14 @@ import { exportAllowed } from "@/server/workspaces";
  * reads it; limits on pages and file bytes are checked before the first byte is sent.
  */
 
-export type ExportLabels = { untitled: string; noAccess: string; deleted: string; unavailable: string };
+export type ExportLabels = { untitled: string; noAccess: string; deleted: string; unavailable: string; synced: SyncedLabels };
 
 export const ENGLISH_EXPORT_LABELS: ExportLabels = {
   untitled: "Untitled",
   noAccess: "No access",
   deleted: "Deleted page",
   unavailable: "Database unavailable",
+  synced: ENGLISH_SYNCED_LABELS,
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -53,11 +55,14 @@ export const ENGLISH_EXPORT_LABELS: ExportLabels = {
 
 /**
  * A page's body as Markdown for `userId`: mentions and page links under the titles they may see,
- * database blocks as links to databases they may see. Links stay app paths (`/w/…/p/…`).
+ * database blocks as links to databases they may see, synced blocks from other pages as their
+ * blocks when they may see those (server/synced-blocks). Links stay app paths (`/w/…/p/…`).
  */
 export async function pageMarkdown(userId: string, pageId: string, labels: ExportLabels = ENGLISH_EXPORT_LABELS) {
   const content = await getCollab().readPage(pageId);
-  const labelled = await labelPageLinks(userId, content.markdown.trim(), labels);
+  // Synced blocks shown from other pages first, so their links and databases are labelled too.
+  const expanded = await expandSyncedMarkdown(userId, pageId, content.markdown.trim(), labels.synced);
+  const labelled = await labelPageLinks(userId, expanded, labels);
   return { title: content.title, body: await linkEmbeds(userId, labelled, labels) };
 }
 

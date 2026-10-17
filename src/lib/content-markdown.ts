@@ -8,6 +8,7 @@ import {
   leadingEmoji,
   MATH_BLOCK,
   MERMAID_BLOCK,
+  SUBPAGES_BLOCK,
   TOC_BLOCK,
   type AlertKind,
 } from "./content-blocks";
@@ -37,6 +38,7 @@ import {
   SYNCED_PAGE_MARKER,
   type MentionPerson,
 } from "./mentions";
+import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, syncedRefOf } from "./synced-blocks";
 
 /**
  * The Markdown form of the content blocks (see lib/content-blocks), on top of what BlockNote's own
@@ -85,6 +87,7 @@ import {
  *
  *   <!-- leafdesk:toc -->         a table of contents
  *   <!-- leafdesk:breadcrumb -->  a breadcrumb
+ *   <!-- leafdesk:subpages -->    the page's subpages
  *
  *   <!-- leafdesk:columns -->     columns: each "column" line starts one, its blocks follow
  *   <!-- leafdesk:column -->      (see lib/columns; groupColumns builds the lists after parsing)
@@ -227,6 +230,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
           return paragraph(block.id ? blockToken(dashboardLine(block.id)) : "");
         case BREADCRUMB_BLOCK:
           return paragraph(blockToken("<!-- leafdesk:breadcrumb -->"));
+        case SUBPAGES_BLOCK:
+          return paragraph(blockToken("<!-- leafdesk:subpages -->"));
         case BOOKMARK_BLOCK:
         case WEB_EMBED_BLOCK: {
           // A bookmark or embed without a (valid) URL yet has nothing to write.
@@ -244,6 +249,17 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const at = block.type === SYNCED_PAGE_BLOCK ? "" : String(block.props?.blockId ?? "");
           const marker = block.type === SYNCED_PAGE_BLOCK ? SYNCED_PAGE_MARKER : PAGE_LINK_MARKER;
           return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId, at)} ${marker}` : ""));
+        }
+        case SYNCED_BLOCK: {
+          // Its blocks between its marker lines (lib/synced-blocks): a source page's reader passes
+          // them in as the block's children, a reference has none of its own.
+          const ref = syncedRefOf(block.props);
+          if (!ref) return paragraph("");
+          return [
+            { type: "paragraph", content: blockToken(syncedBeginLine(ref)), children: [] },
+            ...children,
+            { type: "paragraph", content: blockToken(SYNCED_END_LINE), children: [] },
+          ] as unknown as B[];
         }
         case "quote":
         case CALLOUT_BLOCK: {
@@ -341,14 +357,15 @@ export function prepareMarkdownExport<B extends MdBlock>(
 
 type Pending =
   | { type: typeof MATH_BLOCK; latex: string }
-  | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK }
+  | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK | typeof SUBPAGES_BLOCK }
   | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string }
   | { type: "quote"; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
   | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string; blockId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
-  | { type: typeof DASHBOARD_BLOCK; id: string };
+  | { type: typeof DASHBOARD_BLOCK; id: string }
+  | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
@@ -357,7 +374,9 @@ const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
 /** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
 const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\||(?:[*_-][ \t]*){3,}$|=+[ \t]*$)/;
 const MATH_OPEN = /^ {0,3}\$\$(.*)$/;
-const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb)\s*-->\s*$/;
+const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb|subpages)\s*-->\s*$/;
+const MARKER_BLOCKS = { toc: TOC_BLOCK, breadcrumb: BREADCRUMB_BLOCK, subpages: SUBPAGES_BLOCK } as const;
+const SYNCED_END = /^ {0,3}<!--\s*leafdesk:synced-block-end\s*-->\s*$/;
 /** `[text](url) <!-- leafdesk:embed -->` (or a bare URL before the marker); "bookmark" likewise. */
 const WEB_LINE =
   /^ {0,3}(?:\[((?:\\.|[^\\\]])*)\]\((<[^<>\n]*>|[^\s()<>]+)\)|<?(https?:\/\/[^\s<>]+?)>?)\s*<!--\s*leafdesk:(embed|bookmark)\s*-->\s*$/i;
@@ -400,9 +419,17 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       blockLine({ type: COLUMN_BLOCK, marker: columnMarker });
       continue;
     }
+    // A synced block's begin line is the block; what follows up to its end line is the source
+    // page's (markdownToBlocks leaves only the begin line, see lib/synced-blocks).
+    const synced = parseSyncedBegin(line);
+    if (synced) {
+      blockLine({ type: SYNCED_BLOCK, ...synced });
+      continue;
+    }
+    if (SYNCED_END.test(line)) continue;
     const marker = MARKER_LINE.exec(line);
     if (marker) {
-      blockLine({ type: marker[1] === "toc" ? TOC_BLOCK : BREADCRUMB_BLOCK });
+      blockLine({ type: MARKER_BLOCKS[marker[1] as keyof typeof MARKER_BLOCKS] });
       continue;
     }
     const dashboard = parseDashboardLine(line);
@@ -601,6 +628,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: MATH_BLOCK, content: pending.latex, children: [] } as unknown as B;
       case TOC_BLOCK:
       case BREADCRUMB_BLOCK:
+      case SUBPAGES_BLOCK:
         return { type: pending.type, children: [] } as unknown as B;
       case WEB_EMBED_BLOCK:
         return { type: WEB_EMBED_BLOCK, props: { url: pending.url }, children: [] } as unknown as B;
@@ -613,6 +641,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId, blockId: pending.blockId }, children: [] } as unknown as B;
       case SYNCED_PAGE_BLOCK:
         return { type: SYNCED_PAGE_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
+      case SYNCED_BLOCK:
+        return { type: SYNCED_BLOCK, props: { pageId: pending.pageId, syncId: pending.syncId }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;

@@ -349,6 +349,45 @@ export function rowUpdateEmail(
   });
 }
 
+/** To someone who watches a page: someone else edited it. */
+export function pageUpdateEmail(
+  locale: Locale,
+  update: { actorName: string; pageTitle: string; workspaceName: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { actor: update.actorName || t("pageUpdate.someone"), page: update.pageTitle, workspace: update.workspaceName };
+  return renderEmail(locale, {
+    subject: t("pageUpdate.subject", names),
+    heading: t("pageUpdate.heading", names),
+    paragraphs: [t("pageUpdate.body", names), t("pageUpdate.optOut")],
+    action: { label: t("pageUpdate.action"), url: update.link },
+  });
+}
+
+/**
+ * To someone who watches pages, past the day's page-update emails (see server/share-emails.ts):
+ * the pages edited since, in one email.
+ */
+export function pageUpdateDigestEmail(
+  locale: Locale,
+  digest: { pages: { actorName: string; pageTitle: string; workspaceName: string; link: string }[]; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const count = { count: digest.pages.length };
+  return renderEmail(locale, {
+    subject: t("pageUpdate.digestSubject", count),
+    heading: t("pageUpdate.digestSubject", count),
+    paragraphs: [
+      t("pageUpdate.digestIntro"),
+      ...digest.pages.map((p) =>
+        t("pageUpdate.digestPage", { actor: p.actorName || t("pageUpdate.someone"), page: p.pageTitle, workspace: p.workspaceName, link: p.link }),
+      ),
+      t("pageUpdate.optOut"),
+    ],
+    action: { label: t("pageUpdate.digestAction"), url: digest.link },
+  });
+}
+
 /** To the people with full access to a page: someone asked for access to it. */
 export function accessRequestEmail(
   locale: Locale,

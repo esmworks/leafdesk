@@ -16,10 +16,17 @@ import type { ViewConfig, ViewType } from "@/db/schema/app";
 import { chartGroupProperty } from "@/lib/chart";
 import { LINKED_VIEW_TYPES, type LinkedView } from "@/lib/embed-blocks";
 import type { EmbedInfo } from "@/server/embeds";
+import type * as Y from "yjs";
 import { hasLevel } from "./page-header-actions";
 
 /** The page whose body shows the blocks: where new inline databases go and who may change it. */
-export type EmbedHost = { workspaceId: string; pageId: string; editable: boolean };
+export type EmbedHost = {
+  workspaceId: string;
+  pageId: string;
+  editable: boolean;
+  /** The page's document (new synced blocks keep their blocks in it, see synced-block.tsx). */
+  doc?: Y.Doc;
+};
 
 const EmbedHostContext = createContext<EmbedHost | null>(null);
 export const EmbedHostProvider = EmbedHostContext.Provider;

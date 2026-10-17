@@ -130,6 +130,7 @@ const pageBodies = {
   }),
   movePage: ops.inputs.movePage.omit({ page_id: true }),
   addComment: ops.inputs.addComment.omit({ page_id: true }),
+  watchPage: ops.inputs.watchPage.omit({ page_id: true }),
 };
 
 /** The workspace a page or database is in (AccessError when there is none). */
@@ -497,6 +498,22 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params }) => {
       await requirePageInWorkspace(principal, params.page_id);
       return withoutNote(await ops.restorePage(ctx, { page_id: params.page_id }));
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/pages/{page_id}/watch",
+    operationId: "watchPage",
+    tag: "Pages",
+    summary: "Watch or mute a page",
+    description:
+      "With `watching: true` the user hears about others' edits to the page and new comment threads on it (in the inbox, by email and as push notifications, as they chose); `false` mutes it. Its creator and the people who edit a page watch it until they mute it, and so does anyone watching its teamspace. For a database row this follows it or stops. Reading the page shows `watching`.",
+    scope: "pages:write",
+    body: pageBodies.watchPage,
+    response: "PageWatch",
+    handler: async ({ principal, ctx, params, body }) => {
+      await requirePageInWorkspace(principal, params.page_id);
+      return ops.watchPage(ctx, { page_id: params.page_id, watching: body.watching });
     },
   }),
   defineRoute({

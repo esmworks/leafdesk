@@ -57,7 +57,11 @@
     "deleteTemplate": "テンプレートを削除",
     "exportDisabled": "エクスポートはオフになっています",
     "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしています。",
-    "showInGraph": "グラフで表示"
+    "showInGraph": "グラフで表示",
+    "watch": "ウォッチ",
+    "watchHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知します。",
+    "mute": "ミュート",
+    "muteHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知されます。止めるにはミュートしてください。"
   },
   "comments": {
     "aboutPage": "このページについて",
@@ -370,6 +374,13 @@
       "aliases": "breadcrumb path parents location パンくず パス 階層",
       "label": "パンくずリスト"
     },
+    "subpages": {
+      "title": "サブページ",
+      "subtext": "このページの下にあるページへのリンク",
+      "aliases": "subpages サブページ 子ページ 一覧 目次",
+      "label": "サブページ",
+      "empty": "このページの下に追加したページがここに表示されます。"
+    },
     "columns": {
       "two": {
         "title": "2列",
@@ -405,6 +416,11 @@
       "backgroundDefault": "背景なし",
       "textAliases": "color colour text font 色 文字色 文字",
       "backgroundAliases": "background highlight color colour 背景 背景色 ハイライト 色"
+    },
+    "syncedBlock": {
+      "title": "同期ブロック",
+      "subtext": "複数のページで表示・編集できるブロック",
+      "aliases": "同期 どうき sync synced 共有 再利用"
     }
   },
   "web": {
@@ -629,5 +645,28 @@
     "hint": "変更ごとに採用するか元に戻すかを選んでください。「すべて元に戻す」を選ぶと、先に現在のページが履歴に保存されます。",
     "stale": "その間にページが変更されました。現時点での変更を表示しています。",
     "failed": "うまくいきませんでした。もう一度お試しください。"
+  },
+  "syncedBlock": {
+    "label": "同期ブロック",
+    "from": "同期元",
+    "viewOnly": "閲覧のみ",
+    "copy": "同期ブロックをコピー",
+    "copied": "コピーしました",
+    "copyHint": "別のページに貼り付けると、そこにこれらのブロックをリアルタイムで表示します",
+    "shownOn": "{count}ページに表示中",
+    "notShownShort": "ほかのページには表示されていません",
+    "notShown": "この同期ブロックをコピーして別のページに貼り付けると、そこに表示されます。",
+    "hiddenPages": "ほかに表示できないページが{count}件",
+    "unsync": "同期を解除",
+    "unsyncHint": "これらのブロックの通常のコピーにする",
+    "nested": "同期ブロックの中に別の同期ブロックは置けません。",
+    "turnInto": "同期ブロックに変換",
+    "state": {
+      "noAccess": "アクセス権がありません",
+      "trashed": "元の同期ブロックのページはゴミ箱にあります",
+      "deleted": "元の同期ブロックのページは削除されました",
+      "removed": "元の同期ブロックは削除されました"
+    },
+    "exportNote": "同期ブロック: {state}"
   }
 }

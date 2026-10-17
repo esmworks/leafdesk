@@ -1,6 +1,6 @@
 import "katex/dist/katex.min.css";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { PublishedBody, PublishedRowProperties } from "@/components/published/published-body";
+import { PublishedBody, PublishedRowProperties, showsSubpages } from "@/components/published/published-body";
 import { PublishedDatabaseView } from "@/components/published/published-database";
 import styles from "@/components/published/published-body.module.css";
 import { PageIcon } from "@/components/ui";
@@ -99,12 +99,19 @@ async function Section({
       {section.row && section.row.properties.length > 0 && <PublishedRowProperties row={section.row} print />}
 
       {section.body.length > 0 && (
-        <PublishedBody blocks={section.body} crumbs={section.crumbs} links={null} unavailable={t("embedUnavailable")} print />
+        <PublishedBody
+          blocks={section.body}
+          crumbs={section.crumbs}
+          subpages={section.children}
+          links={null}
+          unavailable={t("embedUnavailable")}
+          print
+        />
       )}
 
       {section.database && <PublishedDatabaseView table={section.database} links={null} print className="mt-6" />}
 
-      {listChildren && section.children.length > 0 && (
+      {listChildren && section.children.length > 0 && !showsSubpages(section.body) && (
         <section className={cn("mt-10", styles.keep)}>
           <h2 className="mb-2 text-sm font-medium text-fg-muted">{t("subpages")}</h2>
           <ul className="flex flex-col">

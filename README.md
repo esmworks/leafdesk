@@ -29,7 +29,7 @@ after you approve them over OAuth.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
-  Apache-2.0 licensed, in 16 languages.
+  AGPL-3.0 licensed, in 16 languages.
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
@@ -80,7 +80,8 @@ versions, upgrades and running behind a domain.
   filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
-  results puts each of these into the box.
+  results puts each of these into the box. The words you typed show in bold in the text under each
+  result.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
@@ -90,7 +91,9 @@ versions, upgrades and running behind a domain.
   keeps the current style. Databases always use the full width. With the comments panel open, a
   page moves left of it (and narrows when the window is too small) instead of running under it.
 - **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
-  live preview, a table of contents and a breadcrumb, and columns (2 to 5, resizable, blocks
+  live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
+  seeing those they may open; a page with one doesn't list them again at its end when published or
+  printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
   Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
   their code in it, published pages and the print view included.
@@ -287,6 +290,17 @@ versions, upgrades and running behind a domain.
   stays that page's own: search, history and Markdown of the page showing it hold one line for it,
   a page showing itself (or a loop of pages) is shown once with a link, and published pages show
   the block as a link.
+- **Synced blocks**: a few blocks kept on one page and shown live on others. *Turn into synced
+  block* in a block's menu (or `/synced block`) wraps them; *Copy synced block* and a paste on
+  another page add a reference that shows them as they are now. People who may edit the original
+  page edit them right there, people who may only view it read them, and people who can't open it
+  see "No access" and nothing of them; a reference says so when the original page is in the trash
+  or deleted, or when the blocks were removed from it, and keeps working when that page moves. The
+  original lists the pages showing it, *Unsync* turns a reference into a plain copy, and a synced
+  block can't go inside another. Published pages, Markdown and PDF exports and `get_page` over MCP
+  show the blocks with the same rules (a published page only when the original is published too);
+  Markdown written over MCP or the API leaves them as they are. Search, by words or by meaning,
+  finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as
@@ -303,8 +317,15 @@ versions, upgrades and running behind a domain.
   its author has left the row alone for a minute (ten minutes at most), so a burst of edits is one
   item, and says what changed: "Status: To do → Done", a new title, edited text. You hear only about
   the properties you may see in the row, checked again when the inbox or the email shows it, and
-  never about your own changes. Owners also find there an agent's call waiting for approval and the
-  notes an agent's run proposed for its memory. Snooze an item
+  never about your own changes. Pages work the same way: you watch the pages you created or edited,
+  and anyone can *Watch* or *Mute* a page from its ⋯ menu, or watch every page of a teamspace from
+  the teamspace's menu in the sidebar; a mute wins over all of these. Watchers hear when someone else
+  edits the page (once the author has left it alone for two minutes, fifteen at most) and when a
+  new comment thread starts on it, unless they have the page open at the time. Emails about the
+  same page come at most every four hours, and after five in a day the rest wait and come together
+  in one digest. My account → Preferences lists the pages and teamspaces you watch. Owners also
+  find there an agent's call waiting for approval and the notes an agent's run proposed for its
+  memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
@@ -541,6 +562,14 @@ People without an account can use it only while sign-up is open.
 If the app is reachable under another URL (a domain behind a reverse proxy, another port), set
 `APP_URL` to that public origin. It is the OAuth issuer and the MCP resource identifier, so it
 must match what clients see.
+
+`SOURCE_URL` is where people can get the source code of what your server runs. The About tab in
+My account links to it, and so does the foot of every published page and public form, for visitors
+without an account. Unset, it is the tag of the running release
+(`https://github.com/esmworks/leafdesk/tree/v<version>`), which is right as long as you run
+Leafdesk unchanged. If you change Leafdesk and let others use your version over a network, the
+license asks you to offer them its source: publish your changes and set `SOURCE_URL` to them, e.g.
+`https://git.example.com/you/leafdesk/tree/my-changes`. Only `http://` and `https://` links count.
 
 `TRUSTED_PROXIES` says how many reverse proxies stand in front of the app. Public forms, uploads
 and sign-in limit attempts per visitor address, and the audit log records it; the app reads that
@@ -2070,6 +2099,8 @@ The tools cover:
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date (see `src/lib/mentions.ts`).
 - **Inbox:** `list_notifications`, when the user also grants the `notifications:read` permission.
+  `watch_page` watches or mutes a page (follows or stops following a row); `get_page` shows
+  `watching`.
 - **Files:** `attach_file` uploads an image, video, audio or other file to a page (or, with
   `property`, to a row's files & media property) from a public URL or base64 data, when the user
   also grants the `files:write` permission. Files properties can only be set to files already
@@ -2323,7 +2354,12 @@ It also lists the settings that matter when you run Leafdesk on a server.
 
 ## License
 
-[Apache License 2.0](LICENSE). See [NOTICE](NOTICE).
+[GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only). See [NOTICE](NOTICE).
+
+In short: you may use, change and share Leafdesk, and run it for yourself, your team or your
+customers. If you change it and let people use your changed version over a network, you have to
+offer them its source code under the same license. Releases up to and including 0.5.4 were
+published under the Apache License 2.0 and stay available under it.
 
 ## Trademarks
 

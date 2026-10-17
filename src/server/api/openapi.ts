@@ -225,6 +225,10 @@ const SCHEMAS: Record<string, JsonSchema> = {
           "Nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app.",
       },
       favorite: { type: "boolean", description: "The user starred the page (Favorites in the sidebar)." },
+      watching: {
+        type: "boolean",
+        description: "The user hears about others' edits and new comment threads (for a row: follows it). Left out for templates.",
+      },
       updated_at: { type: "string", format: "date-time" },
       url,
       markdown: { type: "string", description: "The body (pages and rows; databases have none)." },
@@ -299,6 +303,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "changed", "url"],
   ),
+  PageWatch: loose({ id, watching: { type: "boolean" }, url }, ["id", "watching", "url"]),
   PageMoved: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, ...teamspaceFields, url }, ["id", "parent_id", "url"]),
   PageTrashState: loose({ id, title: { type: "string" }, parent_id: { type: ["string", "null"] }, in_trash: { type: "boolean" }, url }, [
     "id",
@@ -677,7 +682,7 @@ export function buildOpenApiDocument(routes: ApiRoute[], { appUrl, version }: { 
       title: "Leafdesk REST API",
       version,
       description: DESCRIPTION,
-      license: { name: "Apache-2.0", identifier: "Apache-2.0" },
+      license: { name: "AGPL-3.0-only", identifier: "AGPL-3.0-only" },
     },
     servers: [{ url: `${appUrl}${API_PREFIX}` }],
     tags: TAGS,

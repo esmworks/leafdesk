@@ -112,6 +112,18 @@
     "someone": "Someone",
     "optOut": "You get these because you follow this row. Stop following it from the row’s page menu, or turn these emails off in My account > Preferences."
   },
+  "pageUpdate": {
+    "subject": "{actor} edited “{page}”",
+    "heading": "{actor} edited “{page}”",
+    "body": "“{page}” in {workspace} has changed. Open it to see what’s new; its history shows each change.",
+    "someone": "Someone",
+    "action": "Open page",
+    "optOut": "You get these because you watch this page: you created or edited it, chose to watch it, or watch its teamspace. Mute it from the page’s ⋯ menu, or turn these emails off in My account > Preferences.",
+    "digestSubject": "{count, plural, one {# page you watch was edited} other {# pages you watch were edited}}",
+    "digestIntro": "You already had today’s emails about pages you watch, so these edits come together:",
+    "digestPage": "“{page}” in {workspace}, edited by {actor}: {link}",
+    "digestAction": "Open Leafdesk"
+  },
   "accessRequest": {
     "subject": "{requester} asked for access to “{page}”",
     "heading": "{requester} asked for access to “{page}”",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} changed this row",
     "rowUpdateTitle": "the title",
     "rowUpdateBody": "the text",
+    "pageUpdated": "{actor} edited this page",
     "someone": "Someone",
     "joinRequestTitle": "Join request",
     "joinRequest": "{actor} asked to join",

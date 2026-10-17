@@ -23,7 +23,7 @@ export const MAX_FILE_CHUNKS_PER_PAGE = 300;
  * indexed with another version count as stale, so the sweep and `pnpm search:index` go over them
  * again. Chunks whose text stays the same aren't embedded again.
  */
-export const CHUNKER_VERSION = 2;
+export const CHUNKER_VERSION = 3;
 
 /** The most characters of where a chunk is (its page's place and section) that go in front of it. */
 export const CONTEXT_MAX = 200;
