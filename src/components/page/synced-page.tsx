@@ -42,6 +42,8 @@ export type SyncedFrame = {
   chain: string[];
   user: { id: string; name: string };
   offline: boolean;
+  /** This point is inside a synced block's blocks (see synced-block.tsx): synced blocks don't nest. */
+  inSyncedBlock?: boolean;
 };
 
 const SyncedFrameContext = createContext<SyncedFrame | null>(null);

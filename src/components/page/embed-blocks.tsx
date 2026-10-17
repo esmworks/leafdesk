@@ -28,6 +28,7 @@ import { contentBlockSpecs, contentInlineSpecs } from "./content-blocks";
 import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
 import { DashboardBlock } from "./dashboard-block";
 import { SyncedPageBlock } from "./synced-page";
+import { SyncedBlockSpec } from "./synced-block";
 import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
@@ -92,6 +93,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     ...mentionBlockSpecs,
     // Another page's body, live (see synced-page.tsx).
     syncedPage: SyncedPageBlock(),
+    // Blocks kept on one page and shown live on others (see synced-block.tsx).
+    syncedBlock: SyncedBlockSpec(),
     // Uploaded PDFs show in place (see file-block.tsx).
     file: FileBlock(),
     // Blocks side by side (see columns.tsx).

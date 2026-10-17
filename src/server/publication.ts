@@ -40,6 +40,7 @@ import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/d
 import { formulasReadingRelated } from "@/lib/derived";
 import { computeDerived, withAllFormulaTypes } from "@/server/derived";
 import { publishedPageRefs } from "@/server/mentions";
+import { expandSyncedBlocks, syncedSources } from "@/server/synced-blocks";
 import { propertyAccessFor } from "@/server/property-access";
 import { canPublish, publishingOn } from "@/server/workspaces";
 import type { BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
@@ -504,7 +505,7 @@ export async function getPublishedPage(
     : undefined;
 
   const [body, children, database, row] = await Promise.all([
-    target.kind === "page" ? publishedBody(publisher, root.id, root.outside, links, target.ydoc, options.elsewhere) : Promise.resolve([]),
+    target.kind === "page" ? publishedBody(publisher, root.id, root.outside, links, target.id, target.ydoc, options.elsewhere) : Promise.resolve([]),
     target.kind === "database" ? Promise.resolve([]) : liveChildren(publisher, target.id),
     target.kind === "database" ? publishedDatabase(publisher, target.id, { viewId }) : Promise.resolve(null),
     parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId) : Promise.resolve(null),
@@ -691,11 +692,33 @@ async function publishedBody(
   rootId: string,
   outside: readonly string[],
   links: PublishedLinks,
+  pageId: string,
   ydoc: Uint8Array | null,
   elsewhere?: (pageId: string) => Promise<boolean>,
 ): Promise<PublishedBlock[]> {
   const { bodySegmentsFromYdoc } = await import("@/server/published-body");
   const segments = await bodySegmentsFromYdoc(ydoc, {
+    // Synced blocks as their blocks: the page's own, and those of other pages that are published
+    // too (with this page or on their own), as the publisher may read them. Anything else shows
+    // nothing: visitors are nobody the source page was shared with.
+    expandSynced: (blocks) =>
+      expandSyncedBlocks(
+        blocks,
+        pageId,
+        async (ids) => {
+          const sources = await syncedSources(publisher, ids, { standing: true });
+          const states = await Promise.all(
+            ids.map(async (id) => {
+              const state = sources.get(id)?.state ?? "noAccess";
+              if (state !== "editable" && state !== "readOnly") return [id, state] as const;
+              const published = (await chainTo(publisher, id, rootId)) !== null || (await elsewhere?.(id)) === true;
+              return [id, published ? ("readOnly" as const) : ("noAccess" as const)] as const;
+            }),
+          );
+          return new Map(states);
+        },
+        () => [],
+      ),
     // Mentioned pages published with this page (or on their own) are links; the rest plain text.
     resolvePages: async (pageIds) => {
       return publishedPageRefs(publisher, pageIds, {

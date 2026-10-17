@@ -405,6 +405,11 @@
       "backgroundDefault": "Kein Hintergrund",
       "textAliases": "farbe textfarbe schrift text",
       "backgroundAliases": "hintergrund hervorhebung farbe"
+    },
+    "syncedBlock": {
+      "title": "Synchronisierter Block",
+      "subtext": "Blöcke, die du auf mehreren Seiten zeigen und bearbeiten kannst",
+      "aliases": "synchronisiert sync synced wiederverwenden geteilt"
     }
   },
   "web": {
@@ -629,5 +634,28 @@
     "hint": "Behalten Sie jede Änderung oder machen Sie sie rückgängig. „Alle rückgängig“ speichert die Seite vorher, wie sie jetzt ist, im Verlauf.",
     "stale": "Die Seite hat sich inzwischen geändert: Das sind die Änderungen, wie sie jetzt sind.",
     "failed": "Das hat nicht geklappt. Versuchen Sie es noch einmal."
+  },
+  "syncedBlock": {
+    "label": "Synchronisierter Block",
+    "from": "Synchronisiert von",
+    "viewOnly": "Nur ansehen",
+    "copy": "Synchronisierten Block kopieren",
+    "copied": "Kopiert",
+    "copyHint": "Auf einer anderen Seite einfügen, um diese Blöcke dort live anzuzeigen",
+    "shownOn": "{count, plural, one {Auf # Seite angezeigt} other {Auf # Seiten angezeigt}}",
+    "notShownShort": "Nirgends sonst angezeigt",
+    "notShown": "Kopiere diesen synchronisierten Block und füge ihn auf einer anderen Seite ein, um ihn dort anzuzeigen.",
+    "hiddenPages": "{count, plural, one {und # Seite, die du nicht sehen kannst} other {und # Seiten, die du nicht sehen kannst}}",
+    "unsync": "Synchronisierung aufheben",
+    "unsyncHint": "In eine einfache Kopie dieser Blöcke umwandeln",
+    "nested": "Ein synchronisierter Block kann nicht in einem anderen synchronisierten Block stehen.",
+    "turnInto": "In synchronisierten Block umwandeln",
+    "state": {
+      "noAccess": "Kein Zugriff",
+      "trashed": "Die Seite des ursprünglichen synchronisierten Blocks ist im Papierkorb",
+      "deleted": "Die Seite des ursprünglichen synchronisierten Blocks wurde gelöscht",
+      "removed": "Der ursprüngliche synchronisierte Block wurde gelöscht"
+    },
+    "exportNote": "Synchronisierter Block: {state}"
   }
 }

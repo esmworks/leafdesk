@@ -14,6 +14,7 @@ import { pageLabel } from "@/lib/labels";
 import { requireMembership, requirePageAccess } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { labelPageLinks } from "@/server/mentions";
+import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import { listWorkspaces } from "@/server/workspaces";
 import { describeSkill, MAX_SKILL_DESCRIPTION, skillNames, skillSlug } from "@/lib/skills";
 
@@ -142,7 +143,7 @@ export async function getSkillContent(userId: string, pageId: string): Promise<S
   const found = await requirePageAccess(userId, pageId, "view");
   if (!found.isSkill || found.archivedAt || found.inTemplate || found.kind !== "page") throw new SkillError("notASkill", "This page isn't a skill");
   const content = await getCollab().readPage(pageId);
-  const body = await labelPageLinks(userId, content.markdown);
+  const body = await labelPageLinks(userId, await expandSyncedMarkdown(userId, pageId, content.markdown));
   return {
     id: found.id,
     workspaceId: found.workspaceId,

@@ -23,8 +23,22 @@
 - **Migration 0081 adds the `journal` and `daily_note` tables** for daily notes.
 - **Migration 0082 adds two small tables** for following rows, and columns to `notification` and
   `user_preference`; nothing is rewritten.
+- **Migration 0083 adds the `synced_block_reference` table** for synced blocks (see *Added*);
+  nothing is rewritten. It fills in as pages with synced blocks are saved.
 
 ### Added
+
+- **Synced blocks.** *Turn into synced block* in a block's menu (or `/synced block` in an empty
+  line) keeps the chosen blocks in one place; *Copy synced block* and a paste on another page show
+  them there, live. Editing them in a reference edits the original when you may edit its page, and
+  is read-only otherwise; people who can't open the original page see "No access" and none of its
+  text. A reference says when the original page is in the trash or deleted, or the blocks were
+  removed, and survives the page moving. The original lists the pages showing it, *Unsync* turns a
+  reference into a plain copy, and a synced block can't be put inside another. Published pages,
+  Markdown and PDF exports, `get_page` (MCP) and skills show the blocks for whoever reads them, by
+  the same rules; a published page shows them only when the original page is published too.
+  Markdown written over MCP or the API keeps synced blocks as they are and doesn't change their
+  text. Duplicating a page, or a page from a template, gives the copy its own synced blocks.
 
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.

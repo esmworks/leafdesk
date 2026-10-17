@@ -57,6 +57,12 @@ export interface CollabService {
   /** Current title and body as BlockNote blocks (plain JSON), from the live document when it is open. */
   readBlocks(pageId: string): Promise<{ title: string; blocks: unknown[] }>;
   /**
+   * The blocks of the page's synced blocks `syncIds` (lib/synced-blocks), from the live document
+   * when it is open, by sync id; one the page body no longer holds the source of is left out.
+   * Unchecked: callers decide who may read them (server/synced-blocks.ts).
+   */
+  readSynced(pageId: string, syncIds: string[]): Promise<Map<string, unknown[]>>;
+  /**
    * A short hash of the body's Markdown as a write would find it (the live document when it is
    * open), so a writer can tell whether the body changed since it read it. Comments don't change it.
    */

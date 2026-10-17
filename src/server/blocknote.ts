@@ -42,6 +42,7 @@ import {
 import { dashboardBlockConfig, restoreDashboards } from "@/lib/dashboard";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { restoreBookmarks } from "@/lib/web-blocks";
+import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlockConfig, syncedBlocksIn } from "@/lib/synced-blocks";
 import { webBlockServerSpecs } from "./web-blocks";
 
 /**
@@ -152,6 +153,8 @@ export const pageSchema = BlockNoteSchema.create({
     pageLink: createBlockSpec(pageLinkBlockConfig, marker("pageLink"))(),
     // Only the page's id: its body is never part of this page's text, Markdown or history.
     syncedPage: createBlockSpec(syncedPageBlockConfig, marker("syncedPage"))(),
+    // Only its ids: its blocks are a fragment of the source page's document (lib/synced-blocks).
+    syncedBlock: createBlockSpec(syncedBlockConfig, marker("syncedBlock"))(),
     ...columnBlockSpecs(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, mention },
@@ -195,6 +198,11 @@ export async function blocksToMarkdown(blocks: PageBlock[], { workspaceId }: { w
 }
 
 export type MentionContext = {
+  /**
+   * The page written to: its synced blocks (sources) the Markdown leaves out stay at the end of a
+   * rewrite, like inline databases, as other pages show them.
+   */
+  pageId?: string;
   /** People `@Name` may mention: the page's workspace. */
   people?: MentionPerson[];
   /** The app's origin: absolute links to its pages become page mentions too. */
@@ -228,14 +236,29 @@ export async function markdownToBlocks(
     carryOver?: boolean;
   } & MentionContext = {},
 ): Promise<PageBlock[]> {
+  // A synced block's blocks are never written from Markdown: only its begin line counts.
   const parts = await Promise.all(
-    splitMarkdownReferences(markdown).map(async (part) =>
+    splitMarkdownReferences(collapseSyncedRegions(markdown)).map(async (part) =>
       "markdown" in part ? { blocks: await parseMarkdown(part.markdown, context) } : part,
     ),
   );
   const blocks = groupColumns(mergeReferencedBlocks(parts, existing, { keepMissingInline }));
+  if (keepMissingInline && context.pageId) blocks.push(...missingSources(blocks, existing, context.pageId));
   carryOverMentions(blocks, carryOver ? existing : []);
   // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines
   // and its dashboards from theirs; an append makes no dashboard (restoreDashboards drops the lines).
   return keepMissingInline ? restoreDashboards(restoreBookmarks(blocks, existing), existing) : restoreDashboards(blocks, []);
+}
+
+/** The page's synced blocks (sources) that `blocks` leave out, as blocks to add back. */
+function missingSources(blocks: PageBlock[], existing: PageBlock[], pageId: string): PageBlock[] {
+  const kept = new Set(syncedBlocksIn(blocks).map((ref) => `${ref.pageId}:${ref.syncId}`));
+  const out: PageBlock[] = [];
+  for (const ref of syncedBlocksIn(existing)) {
+    const key = `${ref.pageId}:${ref.syncId}`;
+    if (ref.pageId !== pageId || kept.has(key)) continue;
+    kept.add(key);
+    out.push({ type: SYNCED_BLOCK, props: { pageId: ref.pageId, syncId: ref.syncId }, children: [] } as unknown as PageBlock);
+  }
+  return out;
 }

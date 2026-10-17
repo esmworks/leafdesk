@@ -287,6 +287,16 @@ versions, upgrades and running behind a domain.
   stays that page's own: search, history and Markdown of the page showing it hold one line for it,
   a page showing itself (or a loop of pages) is shown once with a link, and published pages show
   the block as a link.
+- **Synced blocks**: a few blocks kept on one page and shown live on others. *Turn into synced
+  block* in a block's menu (or `/synced block`) wraps them; *Copy synced block* and a paste on
+  another page add a reference that shows them as they are now. People who may edit the original
+  page edit them right there, people who may only view it read them, and people who can't open it
+  see "No access" and nothing of them; a reference says so when the original page is in the trash
+  or deleted, or when the blocks were removed from it, and keeps working when that page moves. The
+  original lists the pages showing it, *Unsync* turns a reference into a plain copy, and a synced
+  block can't go inside another. Published pages, Markdown and PDF exports and `get_page` over MCP
+  show the blocks with the same rules (a published page only when the original is published too);
+  Markdown written over MCP or the API leaves them as they are.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. A database with
   many rows is one point with their count until you show its rows, its rows' relations drawn as

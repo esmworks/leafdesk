@@ -34,6 +34,7 @@ import * as journalDays from "@/lib/journal";
 import { isTimeZone } from "@/lib/time-zone";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
+import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import * as pageMeta from "@/server/page-meta";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
@@ -619,7 +620,8 @@ export async function getPage(
     with_block_ids && page.kind !== "database"
       ? (await getCollab().blockMarkdown(page_id)).map((b) => `${blockMarker(b.id)}\n${b.markdown}`).join("\n\n")
       : content.markdown;
-  const body = sliceText(await labelPageLinks(userId, markdown), offset, maxMarkdownChars);
+  // Synced blocks shown from other pages read as their blocks, as far as the user can see them.
+  const body = sliceText(await labelPageLinks(userId, await expandSyncedMarkdown(userId, page_id, markdown)), offset, maxMarkdownChars);
   const out: Record<string, unknown> = {
     id: page.id,
     title: pageLabel(content.title || page.title),

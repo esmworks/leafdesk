@@ -18,11 +18,13 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { tableToDatabaseAction } from "@/app/actions/embeds";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
+import { SYNCED_BLOCK } from "@/lib/synced-blocks";
 import { copyText } from "@/components/settings/copy-button";
 import { blockPath } from "@/lib/mentions";
 import { tableRecords, type TableBlockContent } from "@/lib/table-to-database";
 import { useEmbedHost } from "./database-embed";
 import { placeEmbedBlock, type PageEditor } from "./embed-blocks";
+import { turnIntoSyncedBlock } from "./synced-block";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -62,6 +64,33 @@ function TurnIntoDatabaseItem({ onError }: { onError: (message: string) => void 
       }}
     >
       {t("turnIntoDatabase")}
+    </Components.Generic.Menu.Item>
+  );
+}
+
+/**
+ * "Turn into synced block": the block (or the selected blocks, when it is among them) moves into a
+ * new synced block in its place (see synced-block.tsx), in one step. Not for a synced block itself,
+ * nor for blocks holding one: synced blocks don't nest.
+ */
+function TurnIntoSyncedBlockItem({ onError }: { onError: (message: string) => void }) {
+  const Components = useComponentsContext()!;
+  const editor = useBlockNoteEditor() as unknown as PageEditor;
+  const block = useExtensionState(SideMenuExtension, { editor, selector: (state) => state?.block });
+  const host = useEmbedHost();
+  const t = useTranslations("page.syncedBlock");
+  if (!block || block.type === SYNCED_BLOCK || !host?.editable || !host.doc) return null;
+  const doc = host.doc;
+  return (
+    <Components.Generic.Menu.Item
+      className="bn-menu-item"
+      onClick={() => {
+        const selected = editor.getSelection()?.blocks.map((b) => b.id) ?? [];
+        const ids = selected.includes(block.id) ? selected : [block.id];
+        if (!turnIntoSyncedBlock(editor, doc, host.pageId, ids)) onError(t("nested"));
+      }}
+    >
+      {t("turnInto")}
     </Components.Generic.Menu.Item>
   );
 }
@@ -108,6 +137,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <TableColumnHeaderItem>{dict.drag_handle.header_column_menuitem}</TableColumnHeaderItem>
         <CopyBlockLinkItem />
         <TurnIntoDatabaseItem onError={onError} />
+        <TurnIntoSyncedBlockItem onError={onError} />
       </DragHandleMenu>
     );
   }

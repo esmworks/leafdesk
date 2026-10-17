@@ -8,6 +8,7 @@ import {
   pageGroupPermission,
   pagePermission,
   propertyPermission,
+  syncedBlockReference,
   type PageKind,
   type RowProperties,
 } from "@/db/schema";
@@ -27,6 +28,7 @@ import { DATABASE_BLOCK, mapReferenceLines, referenceLine, remapInlineDatabases 
 import { positionBetween } from "@/lib/properties";
 import { stripReminders } from "@/lib/mentions";
 import { stripComments } from "@/lib/strip-comments";
+import { remapSyncedBlocks, syncedElementsIn } from "@/lib/synced-blocks";
 import { treeHeight } from "@/lib/page-depth";
 import { AccessError, pageVisibleTo, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
@@ -261,6 +263,7 @@ export async function copyPageTree(
     if (target.private) await makePagePrivate(tx, source.workspaceId, plan.rootId, userId);
     else if (!target.parentId && target.teamspaceId) await keepFullAccess(tx, source.workspaceId, plan.rootId, userId);
     await pointAtCopiedDatabases(tx, plan);
+    await pointAtCopiedSyncedBlocks(tx, plan);
     if (target.stripComments) await stripCopiedComments(tx, plan);
     await copyReferences(tx, rows);
     await stripCopiedReminders(tx, plan);
@@ -533,6 +536,45 @@ async function pointAtCopiedDatabases(tx: Tx, plan: DuplicatePlan) {
         referenceLine(ref.type, ref.type === DATABASE_BLOCK ? (plan.pageIds.get(ref.databaseId) ?? ref.databaseId) : ref.databaseId),
       );
       await tx.update(page).set({ ydoc: Y.encodeStateAsUpdate(doc), contentMarkdown: markdown }).where(eq(page.id, body.id));
+    } finally {
+      doc.destroy();
+    }
+  }
+}
+
+/**
+ * Copied pages hold synced blocks of their own (lib/synced-blocks): a source copied with its page
+ * is the copy's, with the blocks copied in its document, not a reference back to the original
+ * (a page made from a template gets its own). References to a page copied along show the copy;
+ * other references stay, and are indexed for the copy.
+ */
+async function pointAtCopiedSyncedBlocks(tx: Tx, plan: DuplicatePlan) {
+  const copies = plan.pages.filter((p) => p.kind === "page").map((p) => p.id);
+  if (!copies.length) return;
+  const bodies = await tx
+    .select({ id: page.id, ydoc: page.ydoc, markdown: page.contentMarkdown })
+    .from(page)
+    .where(and(inArray(page.id, copies), like(page.contentMarkdown, "%<!-- leafdesk:synced-block %")));
+  for (const body of bodies) {
+    if (!body.ydoc?.byteLength) continue;
+    const doc = new Y.Doc();
+    try {
+      Y.applyUpdate(doc, body.ydoc);
+      if (remapSyncedBlocks(doc, plan.pageIds)) {
+        const markdown = body.markdown.replace(
+          /(<!--\s*leafdesk:synced-block\s+)([\w-]{1,128})(\s)/g,
+          (whole, start: string, id: string, gap: string) => `${start}${plan.pageIds.get(id) ?? id}${gap}`,
+        );
+        await tx.update(page).set({ ydoc: Y.encodeStateAsUpdate(doc), contentMarkdown: markdown }).where(eq(page.id, body.id));
+      }
+      const refs = syncedElementsIn(doc).filter((ref) => ref.pageId !== body.id);
+      if (refs.length) {
+        const sources = new Set(
+          (await tx.select({ id: page.id }).from(page).where(inArray(page.id, [...new Set(refs.map((r) => r.pageId))]))).map((r) => r.id),
+        );
+        const rows = refs.filter((ref) => sources.has(ref.pageId)).map((ref) => ({ pageId: body.id, sourceId: ref.pageId, syncId: ref.syncId }));
+        if (rows.length) await tx.insert(syncedBlockReference).values(rows).onConflictDoNothing();
+      }
     } finally {
       doc.destroy();
     }
