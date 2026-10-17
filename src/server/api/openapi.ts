@@ -191,6 +191,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
           parent_id: { type: ["string", "null"] },
           snippet: { type: "string" },
           match: { type: "string", enum: ["text", "semantic"], description: "semantic: found by meaning only (needs an embeddings model on the server)." },
+          document: {
+            type: ["object", "null"],
+            description: "The PDF or Word document the page shows whose words matched, when the page's own text doesn't; the snippet is from it.",
+            properties: { id, name: { type: "string" } },
+          },
           updated_at: { type: "string", format: "date-time" },
           url,
         }),

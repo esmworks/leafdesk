@@ -16,6 +16,10 @@
   that links somewhere once, in the background, to fill in where its links are. 0079 adds the time
   zone of calendar feeds (see *Fixed*); feeds made before it take their user's zone the next time
   they open the feed's dialog, and count days in UTC until then.
+- **Migration 0080 rewrites the `file_text` table once** to give each document's text a search
+  vector; the table holds one row per PDF or Word document read so far, so it is quick. Documents
+  uploaded before this release are read for search gradually, a couple of hundred per workspace
+  at a time as people search; until then their words find nothing.
 
 ### Added
 
@@ -35,6 +39,13 @@
   `linked_from_truncated` when not every linking page is listed.
 - **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
   block and highlights it.
+- **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and
+  the REST API's `/search` find a page by the words of the PDFs and Word documents it shows, also
+  on servers without an embeddings model: every word of the search in one document, after the
+  pages that have the words in their own text. The result names the document and shows the text
+  around the words. Only documents the page's readers may open through it count, and `in:` and
+  `type:` narrow these results like any other. Documents are read in the background once they are
+  uploaded.
 
 ### Fixed
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight, Paperclip, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -13,7 +13,7 @@ import type { SearchHit } from "@/server/pages";
 /** Something the search box can do instead of opening a page: typed after `>`. */
 export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void };
 
-type PageItem = { id: string; title: string; icon: string | null; kind: PageKind; snippet?: string; match?: SearchHit["match"] };
+type PageItem = { id: string; title: string; icon: string | null; kind: PageKind; snippet?: string; match?: SearchHit["match"]; file?: SearchHit["file"] };
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
 /** Compared as pickers compare: case and the Turkish dotted and dotless i aside (lib/search-fold). */
@@ -181,6 +181,13 @@ export function SearchDialog({
                         </span>
                       )}
                     </span>
+                    {/* Found by the words of a document the page shows: its name, then the text around them. */}
+                    {item.page.file && (
+                      <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted" title={t("inDocument", { name: item.page.file.name })}>
+                        <Paperclip className="h-3 w-3 shrink-0" aria-hidden />
+                        <span className="truncate">{item.page.file.name}</span>
+                      </span>
+                    )}
                     {item.page.snippet && <span className="line-clamp-2 text-xs text-fg-muted">{item.page.snippet}</span>}
                   </span>
                 </>

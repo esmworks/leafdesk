@@ -63,7 +63,12 @@ versions, upgrades and running behind a domain.
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
   title has the words come first; past the first 80,000 characters of a huge page's text, words
   aren't found), and also by meaning when the server has an embeddings model
-  (see [Semantic search](#semantic-search)).
+  (see [Semantic search](#semantic-search)). Full-text search also looks inside the PDFs and
+  Word documents a page shows, with or without an embeddings model: a page is found when one of
+  its documents has every word, after the pages that have them in their own text, and the result
+  names the document, with the text around the words. Only documents the page's readers may open
+  through it count, as for semantic search; a document's first 80,000 characters are searched,
+  and a scan without a text layer has no words to find.
 - **Home page**: quick buttons for a new page, database or template; the database rows assigned
   to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
   and no date; and the pages edited last.
@@ -366,7 +371,7 @@ versions, upgrades and running behind a domain.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](#file-uploads)). Uploaded PDFs show
-  in place.
+  in place, and search finds pages by the words of the PDFs and Word documents they show.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -1562,7 +1567,11 @@ respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out o
 indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
 chat can answer from a document and cite it. A document is read once and its text kept in
 `file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
-page, files over 25 MB are skipped, and a scan without a text layer adds nothing. A page indexes
+page, files over 25 MB are skipped, and a scan without a text layer adds nothing. Documents are
+read whether or not the server has an embeddings model, since full-text search finds pages by
+their words too: in the background after they are uploaded, and those uploaded before search read them (or
+while the server was down) a couple of hundred at a time by a sweep that a workspace's searches
+start, at most every 10 minutes. A page indexes
 only the files its readers may open through it. Their text is sent to the embeddings endpoint
 like the page's own.
 
@@ -1950,7 +1959,7 @@ to treat it as data, never as instructions.
 
 The tools cover:
 
-- **Finding things:** `list_workspaces`, `list_teamspaces`, `search`, `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
+- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs and Word documents pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
 - **Workspace health:** `check_workspace` lists broken links, pages nothing links to, empty and
   long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
   that fix each (it changes nothing itself).

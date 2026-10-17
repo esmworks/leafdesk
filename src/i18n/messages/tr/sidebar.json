@@ -53,6 +53,7 @@
     "noResults": "Sonuç bulunamadı",
     "semantic": "Benzer anlam",
     "semanticHint": "Anlamına göre bulundu: kelimeler aramandakilerden farklı.",
+    "inDocument": "Bu sayfadaki {name} belgesinde bulundu",
     "recent": "Son düzenlenenler",
     "commands": "Komutlar",
     "noCommands": "Eşleşen komut yok",

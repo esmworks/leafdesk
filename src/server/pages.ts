@@ -10,6 +10,9 @@ import { anyWordTerms, anyWordTsQuery, searchQueryParts } from "@/lib/search-wor
 import {
   databaseProperty,
   databaseView,
+  file,
+  fileReference,
+  fileText,
   oauthClient,
   page,
   pageColumns,
@@ -52,6 +55,7 @@ import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
 import { searchFoldSql } from "@/server/search-fold-sql";
+import { sweepDocuments } from "@/server/file-text";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
@@ -782,6 +786,8 @@ export type SearchHit = {
   /** With semantic search: the passage that matched best, and the block it starts at. */
   passage?: string;
   blockId?: string | null;
+  /** Full-text search found the page by the words of a document its body shows, not its own: that document (the snippet is from it). */
+  file?: { id: string; name: string };
 };
 
 export type SearchOptions = SearchScope & {
@@ -852,6 +858,10 @@ export async function searchPages(userId: string, query: string, options: Search
  * finds "Kondenser planı"). The match and the ranking read the page's stored search vector
  * (page.searchVector) through its index, and access is checked in rank order only until `limit`
  * pages pass, so a search costs about the same in a workspace of any size.
+ *
+ * A page is also found when a PDF or Word document its body shows has every word (each document
+ * on its own, not words spread over the page and its documents), below the pages that have them
+ * in their own text; the hit then names the document and its snippet comes from it.
  */
 export async function fullTextSearch(
   userId: string,
@@ -867,6 +877,8 @@ export async function fullTextSearch(
   if (workspaceId) await enforceWorkspacePolicy(userId, workspaceId);
   const workspaces = workspaceId ? [workspaceId] : await searchedWorkspaces(userId);
   if (!workspaces.length) return [];
+  // Documents uploaded before their text was read for search, read in the background meanwhile.
+  if (q) for (const id of workspaces) void sweepDocuments(id).catch((error) => console.error("[search] queuing documents failed", error));
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   // Every word as a prefix, cut by the parser that made the vectors ("e-posta" is the word and its
   // parts, as on the page), and Chinese and Japanese text by its two-character pieces
@@ -885,6 +897,26 @@ export async function fullTextSearch(
     ? sql`ts_rank(p.search_vector, ${words}, 1)`
     : sql`(case when p.title ilike ${like} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
   const matches = q ? sql`p.search_vector @@ ${words}` : sql`true`;
+  const inWorkspaces = sql.join(workspaces.map((w) => sql`${w}`), sql`, `);
+  // Pages whose body shows a PDF or Word document with the words (file-text.ts), through a
+  // reference its readers may read it by: the rule semantic search indexes documents by
+  // (file-text.pageDocuments), so the document's words find nothing someone couldn't read there.
+  // Its vector has no weight, so a page matching in its own text ranks above one matching only in
+  // a document.
+  const documentHits = q
+    ? sql`
+        union all
+        select p.id, ts_rank(ft.search_vector, ${words}, 1) as rank, ft.file_id
+        from ${fileText} ft
+        join ${file} f on f.id = ft.file_id
+        join ${fileReference} fr on fr.file_id = f.id and (fr.authorized or f.page_id = fr.page_id)
+        join ${page} p on p.id = fr.page_id and p.workspace_id = f.workspace_id
+        where f.workspace_id in (${inWorkspaces})
+          and ft.search_vector @@ ${words}
+          and p.archived_at is null
+          and not p.in_template
+          ${searchScope(scope)}`
+    : sql``;
   const rows = await db.execute<{
     id: string;
     workspace_id: string;
@@ -895,20 +927,39 @@ export async function fullTextSearch(
     icon: string | null;
     content_text: string;
     updated_at: Date;
+    file_id: string | null;
+    file_name: string | null;
+    file_text: string | null;
   }>(sql`
-    with hits as (
+    with candidates as (
+      select p.id, ${rank} as rank, null::text as file_id
+      from ${page} p
+      where p.workspace_id in (${inWorkspaces})
+        and p.archived_at is null
+        and not p.in_template
+        ${searchScope(scope)}
+        and ${matches}
+      ${documentHits}
+    ),
+    scored as (
+      -- A page's own match plus its best document's; the document is named only when the page's
+      -- own text doesn't match.
+      select id,
+        coalesce(max(rank) filter (where file_id is null), 0) + coalesce(max(rank) filter (where file_id is not null), 0) as rank,
+        case when bool_or(file_id is null) then null
+          else (array_agg(file_id order by rank desc, file_id) filter (where file_id is not null))[1] end as file_id
+      from candidates
+      group by id
+    ),
+    hits as (
       -- Ranked first, then checked in that order until enough pass: the check is a function call
       -- per page, which a common word (or the first letters of one) would make for most pages.
       -- "offset 0" keeps the check out of the ranked set, and the ranked set in its order.
-      select r.id, r.rank, r.updated_at from (
-        select p.id, ${rank} as rank, p.updated_at
-        from ${page} p
-        where p.workspace_id in (${sql.join(workspaces.map((w) => sql`${w}`), sql`, `)})
-          and p.archived_at is null
-          and not p.in_template
-          ${searchScope(scope)}
-          and ${matches}
-        order by rank desc, p.updated_at desc
+      select r.id, r.rank, r.updated_at, r.file_id from (
+        select s.id, s.rank, p.updated_at, s.file_id
+        from scored s
+        join ${page} p on p.id = s.id
+        order by s.rank desc, p.updated_at desc
         offset 0
       ) r
       where ${pageVisibleTo(userId, "r")}
@@ -917,12 +968,16 @@ export async function fullTextSearch(
     select p.id, p.workspace_id, p.teamspace_id,
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
-      p.kind, p.title, p.icon, p.content_text, p.updated_at
+      p.kind, p.title, p.icon, p.content_text, p.updated_at,
+      h.file_id, f.name as file_name, left(ft.text, 80000) as file_text
     from hits h
     join ${page} p on p.id = h.id
     left join ${page} parent on parent.id = p.parent_id
+    left join ${file} f on f.id = h.file_id
+    left join ${fileText} ft on ft.file_id = h.file_id
     order by h.rank desc, h.updated_at desc
   `);
+  const needles = anyWord ? terms : [q, ...q.split(/\s+/)];
   return rows.map((r) => ({
     id: r.id,
     workspaceId: r.workspace_id,
@@ -931,8 +986,9 @@ export async function fullTextSearch(
     kind: r.kind,
     title: r.title,
     icon: r.icon,
-    snippet: makeSnippet(r.content_text, anyWord ? terms : [q, ...q.split(/\s+/)]),
+    snippet: makeSnippet(r.file_id ? (r.file_text ?? "") : r.content_text, needles),
     updatedAt: new Date(r.updated_at),
+    ...(r.file_id ? { file: { id: r.file_id, name: r.file_name ?? "" } } : {}),
   }));
 }
 

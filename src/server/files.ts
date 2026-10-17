@@ -10,6 +10,7 @@ import { db } from "@/db";
 import { file, fileReference, page, propertyPermission, storageDeletion } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
+import { queueDocument } from "@/server/file-text";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
@@ -173,6 +174,8 @@ export async function storeFile(
       await db.delete(file).where(eq(file.id, id));
       throw error;
     }
+    // A PDF or Word document is read in the background, so search finds its words.
+    queueDocument({ id, name, contentType, size: spooled.size, storageKey });
     return { id, url: fileUrl(id), name, contentType, size: spooled.size, pageId, workspaceId };
   } finally {
     await rm(spooled.dir, { recursive: true, force: true });

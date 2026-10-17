@@ -1,7 +1,13 @@
 /**
- * The text of PDFs and Word documents attached to pages, for semantic search: each file block of a
- * page that shows such a document adds its text to the page's index (semantic-text.chunkPage), so
- * the AI chat can answer from inside the document and cite the block showing it.
+ * The text of PDFs and Word documents attached to pages, for search. Full-text search finds a page
+ * by the words of the documents its body shows (file_text.search_vector, see pages.fullTextSearch).
+ * For semantic search, each file block of a page that shows such a document adds its text to the
+ * page's index (semantic-text.chunkPage), so the AI chat can answer from inside the document and
+ * cite the block showing it.
+ *
+ * Documents are read in the background after they are uploaded, and those uploaded earlier by a
+ * sweep its searches start (queueDocument, sweepDocuments); semantic indexing reads the ones it
+ * needs too.
  *
  * A document is read once: its text is kept in `file_text` (a stored file's bytes never change),
  * and the same bytes uploaded again as another file are found by their hash and not read again.
@@ -14,7 +20,7 @@
  * as for the rest of the page's text.
  */
 import { createHash } from "node:crypto";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, exists, getTableColumns, ilike, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { file, fileReference, fileText } from "@/db/schema";
 import { blocksToPlainText, type BlockLike } from "@/lib/blocks";
@@ -113,7 +119,10 @@ export async function extractText(kind: DocumentKind, name: string, bytes: Uint8
 
 // ---------------------------------------------------------------------------------- cache
 
-export type FileTextRow = typeof fileText.$inferSelect;
+/** The columns of file_text but its search vector (large, and only full-text search reads it). */
+const { searchVector: _searchVector, ...fileTextColumns } = getTableColumns(fileText);
+
+export type FileTextRow = Omit<typeof fileText.$inferSelect, "searchVector">;
 export type StoredDocument = { id: string; name: string; contentType: string; size: number; storageKey: string };
 
 /** Where the cache reads and writes, and how a document is read (replaced in tests). */
@@ -129,12 +138,12 @@ export type FileTextStore = {
 
 const dbStore: FileTextStore = {
   async byFile(fileId) {
-    const [row] = await db.select().from(fileText).where(eq(fileText.fileId, fileId)).limit(1);
+    const [row] = await db.select(fileTextColumns).from(fileText).where(eq(fileText.fileId, fileId)).limit(1);
     return row ?? null;
   },
   async byHash(contentHash) {
     const [row] = await db
-      .select()
+      .select(fileTextColumns)
       .from(fileText)
       .where(and(eq(fileText.contentHash, contentHash), eq(fileText.extractorVersion, EXTRACTOR_VERSION)))
       .limit(1);
@@ -248,4 +257,108 @@ export async function pageDocuments(page: { id: string; workspaceId: string }, b
     if (text) out.push({ blockId: block.blockId, name: block.name.trim() || found.name, text: text.text });
   }
   return out;
+}
+
+// ------------------------------------------------------------------------- background reading
+
+/** How often a workspace's documents are checked for ones not read yet (per process). */
+export const SWEEP_INTERVAL_MS = 10 * 60_000;
+/** Documents one sweep queues at most; the next sweep goes on from there. */
+const SWEEP_BATCH = 200;
+
+type ReadQueue = {
+  waiting: { found: StoredDocument; store?: FileTextStore }[];
+  /** Waiting or being read. */
+  queued: Set<string>;
+  running: boolean;
+  sweptAt: Map<string, number>;
+  /** Where each workspace's sweep goes on: the last document it queued (newest first). */
+  cursor: Map<string, { createdAt: Date; id: string }>;
+  idle: (() => void)[];
+};
+
+const QUEUE_KEY = "__leafdeskFileText";
+const readQueue = ((globalThis as Record<string, unknown>)[QUEUE_KEY] ??= {
+  waiting: [],
+  queued: new Set(),
+  running: false,
+  sweptAt: new Map(),
+  cursor: new Map(),
+  idle: [],
+} satisfies ReadQueue) as ReadQueue;
+
+/**
+ * Reads a PDF or Word document in the background (documentText), so full-text search finds its
+ * words whether or not semantic search runs: called once a document is uploaded (files.storeFile)
+ * and by sweepDocuments. Anything else, a document too large to read, or one already queued, is
+ * left alone. One document at a time per process, since a PDF is parsed in the server's own
+ * process; nothing waits for it.
+ */
+export function queueDocument(found: StoredDocument, store?: FileTextStore) {
+  if (!documentKind(found.contentType, found.name) || found.size > FILE_TEXT_LIMITS.bytes) return;
+  if (readQueue.queued.has(found.id)) return;
+  readQueue.queued.add(found.id);
+  readQueue.waiting.push({ found, store });
+  void drainDocuments();
+}
+
+async function drainDocuments() {
+  if (readQueue.running) return;
+  readQueue.running = true;
+  try {
+    while (readQueue.waiting.length) {
+      const { found, store } = readQueue.waiting.shift()!;
+      await documentText(found, store).catch((error) => console.error("[file-text] reading a document failed", error));
+      readQueue.queued.delete(found.id);
+    }
+  } finally {
+    readQueue.running = false;
+    for (const resolve of readQueue.idle.splice(0)) resolve();
+  }
+}
+
+/** Settles when no document is waiting or being read. For scripts and tests. */
+export function whenDocumentsRead(): Promise<void> {
+  if (!readQueue.running && !readQueue.waiting.length) return Promise.resolve();
+  return new Promise((resolve) => readQueue.idle.push(resolve));
+}
+
+/**
+ * Queues the documents of a workspace that some page shows and that weren't read yet, or were read
+ * by an older EXTRACTOR_VERSION: uploaded before full-text search read documents, or while the
+ * server was down. Started by the workspace's searches, at most every SWEEP_INTERVAL_MS and not
+ * while documents are still waiting; each sweep takes up to SWEEP_BATCH, newest first, and the
+ * next goes on after them, so documents that can't be read (missing from the storage) don't hold
+ * the others up. Returns how many it queued.
+ */
+export async function sweepDocuments(workspaceId: string, { force = false }: { force?: boolean } = {}): Promise<number> {
+  const now = Date.now();
+  if (!force && (readQueue.waiting.length || now - (readQueue.sweptAt.get(workspaceId) ?? 0) < SWEEP_INTERVAL_MS)) return 0;
+  readQueue.sweptAt.set(workspaceId, now);
+  const after = readQueue.cursor.get(workspaceId);
+  const type = sql`lower(trim(split_part(${file.contentType}, ';', 1)))`;
+  const rows = await db
+    .select({ id: file.id, name: file.name, contentType: file.contentType, size: file.size, storageKey: file.storageKey, createdAt: file.createdAt })
+    .from(file)
+    .leftJoin(fileText, and(eq(fileText.fileId, file.id), eq(fileText.extractorVersion, EXTRACTOR_VERSION)))
+    .where(
+      and(
+        eq(file.workspaceId, workspaceId),
+        isNull(fileText.fileId),
+        lte(file.size, FILE_TEXT_LIMITS.bytes),
+        or(
+          sql`${type} in ('application/pdf', ${DOCX_TYPE})`,
+          and(sql`${type} in ('application/octet-stream', 'application/zip')`, ilike(file.name, "%.docx")),
+        ),
+        exists(db.select({ one: sql`1` }).from(fileReference).where(eq(fileReference.fileId, file.id))),
+        after ? sql`(${file.createdAt}, ${file.id}) < (${after.createdAt}, ${after.id})` : undefined,
+      ),
+    )
+    .orderBy(desc(file.createdAt), desc(file.id))
+    .limit(SWEEP_BATCH);
+  // A short batch reached the oldest document: the next sweep starts from the newest again.
+  if (rows.length < SWEEP_BATCH) readQueue.cursor.delete(workspaceId);
+  else readQueue.cursor.set(workspaceId, rows[rows.length - 1]);
+  for (const { createdAt: _createdAt, ...found } of rows) queueDocument(found);
+  return rows.length;
 }
