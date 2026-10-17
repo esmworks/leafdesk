@@ -502,6 +502,8 @@
     "formAnswer": "Eine Formularantwort",
     "agent": "Agent",
     "automation": "Automation",
+    "ai": "KI",
+    "aiFor": "(für {name})",
     "created": "<actor>{name}</actor> hat diese Zeile erstellt",
     "titled": "<actor>{name}</actor> hat den Titel auf <new>{to}</new> gesetzt",
     "renamed": "<actor>{name}</actor> hat diese Zeile von <old>{from}</old> in <new>{to}</new> umbenannt",

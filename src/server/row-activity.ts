@@ -36,11 +36,14 @@ type NewEntry = {
 const CHUNK = 500;
 
 /**
- * Who a write is by. An agent's writes run as automations do (so they start none), and still read
- * as the agent's; nobody named is an anonymous form answer when it made the row.
+ * Who a write is by. An AI value is the AI's whoever set it off (a person, an agent or an
+ * automation), worked out for the person named. An agent's writes run as automations do (so they
+ * start none), and still read as the agent's; nobody named is an anonymous form answer when it
+ * made the row.
  */
-async function actorKindOf(actorId: string | null, anonymousForm: boolean): Promise<RowActivityActor> {
+async function actorKindOf(actorId: string | null, anonymousForm: boolean, ai = false): Promise<RowActivityActor> {
   if (!actorId) return anonymousForm ? "form" : "user";
+  if (ai) return "ai";
   if (await isAgentUser(actorId)) return "agent";
   return runningAutomation() ? "automation" : "user";
 }
@@ -49,19 +52,20 @@ async function actorKindOf(actorId: string | null, anonymousForm: boolean): Prom
  * Records what saved row writes changed. New rows get one "created" entry each, whatever values
  * they came with (imports, forms, templates alike). Changes of one row by a named actor merge into
  * that actor's newest entry about the same value when it is recent (lib/row-activity `coalesce`);
- * several rows at once (bulk edits) get one entry per row and value.
+ * several rows at once (bulk edits) get one entry per row and value. `ai` for AI values
+ * (server/ai-properties), whose actor is the person they were worked out for.
  */
 export async function recordRowWrites(
   actorId: string | null,
   databaseId: string,
   changes: RowWrite[],
-  { created = false, anonymousForm = false }: { created?: boolean; anonymousForm?: boolean } = {},
+  { created = false, anonymousForm = false, ai = false }: { created?: boolean; anonymousForm?: boolean; ai?: boolean } = {},
 ) {
   if (!changes.length) return;
   try {
     const [database] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, databaseId));
     if (!database) return;
-    const actorKind = await actorKindOf(actorId, anonymousForm);
+    const actorKind = await actorKindOf(actorId, anonymousForm, ai);
     if (created) {
       const entries = changes.map(({ rowId }) => createdEntry(rowId));
       await insertEntries(db, database.workspaceId, databaseId, actorId, actorKind, entries);

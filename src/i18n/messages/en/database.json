@@ -502,6 +502,8 @@
     "formAnswer": "A form answer",
     "agent": "agent",
     "automation": "automation",
+    "ai": "AI",
+    "aiFor": "(for {name})",
     "created": "<actor>{name}</actor> created this row",
     "titled": "<actor>{name}</actor> set the title to <new>{to}</new>",
     "renamed": "<actor>{name}</actor> renamed this row from <old>{from}</old> to <new>{to}</new>",

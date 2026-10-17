@@ -19,7 +19,7 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, desc, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { aiPropertyState, automationRun, databaseAutomation, databaseProperty, page, rowActivity, user, workspace, workspaceMember } =
   await import("@/db/schema");
@@ -312,8 +312,8 @@ try {
     activity = await pitchActivity();
   }
   check(
-    activity.some((a) => a.newValue === "PITCH:Emma:poets" && a.actorUserId === ids.owner && a.actorKind === "user"),
-    "…recorded in the row's activity, as the person whose change set it off",
+    activity.some((a) => a.newValue === "PITCH:Emma:poets" && a.actorUserId === ids.owner && a.actorKind === "ai"),
+    "…recorded in the row's activity as the AI's, for the person whose change set it off",
     activity,
   );
   const runs = await db
@@ -344,6 +344,16 @@ try {
     .from(automationRun)
     .where(and(eq(automationRun.automationId, watching.id), eq(automationRun.rowId, rowIds[3])));
   check(loopRuns.length === 0, "…which start no automations, as the automation's own changes don't", loopRuns);
+  const [automationPitch] = await db
+    .select()
+    .from(rowActivity)
+    .where(and(eq(rowActivity.rowId, rowIds[3]), eq(rowActivity.propertyId, pitchProp.id)))
+    .orderBy(desc(rowActivity.createdAt));
+  check(
+    automationPitch?.newValue === "PITCH:Beloved:kids" && automationPitch.actorKind === "ai" && automationPitch.actorUserId === ids.owner,
+    "…and read as the AI's in the row's activity, for the automation's person",
+    automationPitch,
+  );
   const callsBefore = calls;
   await databases.updateRowProperties(ids.owner, rowIds[1], { [audience.id]: "poets" });
   await sleep(5_500);

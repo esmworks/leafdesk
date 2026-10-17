@@ -4,7 +4,7 @@
  * what to what; quick changes by the same person merge, and a value changed back drops its entry;
  * credentials typed into text are masked; entries about a property the viewer may not see, or a
  * deleted one, are left out (and come back with it); linked rows the viewer can't open aren't
- * named; automations and agents show as such; a trashed row's activity is for those who see it
+ * named; automations, agents and AI values show as such; a trashed row's activity is for those who see it
  * there, and it goes with the row when the row is deleted for good.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -33,6 +33,7 @@ const { archivePage, createPage, deletePagePermanently } = await import("@/serve
 const { setPagePermission } = await import("@/server/permissions");
 const { setPropertyAccess } = await import("@/server/property-access");
 const { asAutomation } = await import("@/server/automations/queue");
+const { saveValue } = await import("@/server/ai-properties");
 const { listRowActivity } = await import("@/server/row-activity-feed");
 const ops = await import("@/server/operations");
 const { AccessError } = await import("@/server/access");
@@ -232,6 +233,26 @@ try {
   const byAgent = mine.find((e) => e.property?.id === notes.id && e.actor.person?.id === ids.agent);
   check(byAutomation?.actor.kind === "automation", "a change an automation made reads as the automation's", byAutomation);
   check(byAgent?.actor.kind === "agent" && byAgent.actor.person?.isAgent, "a change an agent made reads as the agent's, not an automation's", byAgent);
+
+  // AI values read as the AI's, for the person they were worked out for, apart from that person's edits
+  await databases.updateRowProperties(ids.owner, row.id, { [notes.id]: "owner notes" });
+  await saveValue({ rowId: row.id, databaseId: tasks.id, userId: ids.owner, chain: [] }, notes.id, "AI notes");
+  const ownerNotes = (await stored(row.id)).filter((e) => e.propertyId === notes.id && e.actorUserId === ids.owner);
+  const aiNote = ownerNotes.find((e) => e.actorKind === "ai");
+  check(
+    aiNote?.oldValue === "owner notes" && aiNote.newValue === "AI notes" && ownerNotes.some((e) => e.actorKind === "user" && e.newValue === "owner notes"),
+    "an AI value is an entry of its own, not merged into the edit the person made just before",
+    ownerNotes,
+  );
+  await asAutomation(() => saveValue({ rowId: row.id, databaseId: tasks.id, userId: ids.member, chain: [] }, notes.id, "AI notes 2"));
+  mine = await feed(ids.owner, row.id);
+  const byAi = mine.find((e) => e.property?.id === notes.id && e.actor.kind === "ai" && e.actor.person?.id === ids.owner);
+  const byAiForAutomation = mine.find((e) => e.property?.id === notes.id && e.actor.person?.id === ids.member && e.actor.kind === "ai");
+  check(Boolean(byAi), "the feed reads an AI value as the AI's, naming who it was worked out for", byAi);
+  check(Boolean(byAiForAutomation), "an AI value an automation's change set off reads as the AI's too, for the automation's person", mine);
+  const listedAi = await callTool(ids.owner, "list_row_activity", { row_id: row.id, limit: 50 });
+  const mcpAi = listedAi.data?.entries.find((e: { property?: string; actor?: string; by?: string }) => e.property === "Notes" && e.actor === "ai" && e.by === "owner");
+  check(mcpAi?.to === "AI notes", "MCP lists the AI value with actor ai and the person in by", listedAi.data?.entries);
 
   // Values read for the viewer: options, people and linked rows they may open
   const open = await createPage(actor, { workspaceId, parentId: docs.id, title: "Open doc" });

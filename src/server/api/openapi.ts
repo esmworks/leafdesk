@@ -335,8 +335,9 @@ const SCHEMAS: Record<string, JsonSchema> = {
             by_user_id: { type: ["string", "null"] },
             actor: {
               type: "string",
-              enum: ["user", "agent", "automation", "form"],
-              description: 'Who acted: a person, an agent, an automation (acting as the person in by) or an anonymous form answer.',
+              enum: ["user", "agent", "automation", "ai", "form"],
+              description:
+                "Who acted: a person, an agent, an automation (acting as the person in by), an AI autofill value (worked out for the person in by) or an anonymous form answer.",
             },
             change: { type: "string", enum: ["created", "title", "property"] },
             property: { type: "string", description: "For property changes: the property's name." },

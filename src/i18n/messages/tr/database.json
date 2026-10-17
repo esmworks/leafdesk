@@ -502,6 +502,8 @@
     "formAnswer": "Bir form yanıtı",
     "agent": "ajan",
     "automation": "otomasyon",
+    "ai": "Yapay zekâ",
+    "aiFor": "({name} adına)",
     "created": "<actor>{name}</actor> bu satırı oluşturdu",
     "titled": "<actor>{name}</actor> başlığı <new>{to}</new> olarak ayarladı",
     "renamed": "<actor>{name}</actor> bu satırı yeniden adlandırdı: <old>{from}</old> → <new>{to}</new>",

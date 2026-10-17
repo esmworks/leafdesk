@@ -58,6 +58,14 @@
   next to the new one, and the old title when it is renamed. Covered in `scripts/ai-chat-e2e.ts`
   and `scripts/mcp-e2e.ts`.
 
+- **Row activity tells AI values apart.** A value AI autofill filled in now reads as the AI's in
+  the row's activity, naming who it was worked out for: "AI (for Ada) set Category to Billing",
+  with a sparkle in place of a face. That person is whoever refreshed the row or updated the
+  view's rows, or whose change of the row set the value off; for an automation's change, the
+  person it acts as, its own entry for the change sitting right below. AI entries never merge into
+  that person's own edits of the value. `list_row_activity` (MCP) and `GET /rows/{id}/activity`
+  give `actor: "ai"`, with the person in `by`. Needs migration 0073.
+
 ### Changed
 
 - **Semantic search knows where a passage is.** Each indexed passage now carries the titles of
@@ -77,7 +85,7 @@
 - **AI autofill values count as row changes.** A value AI filled in was saved past everything a
   row write sets off: semantic search didn't index it until something else changed the row, the
   row's activity didn't show it, and automations waiting for the property to change never ran.
-  Values are now saved like any other change (as the person who asked for them), and only when
+  Values are now saved like any other change (for the person who asked for them), and only when
   they differ from the stored one. They start automations, except when an automation's change set
   them off: those count as the automation's own changes, which start none, so automations and AI
   values can't keep setting each other off. After an AI value is written, only the automatic AI

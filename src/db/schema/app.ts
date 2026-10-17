@@ -801,7 +801,10 @@ export const rowActivity = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
-    /** Who acted (an agent's own user, or an automation's person); null for an anonymous form answer. */
+    /**
+     * Who acted (an agent's own user, an automation's person, or the person an AI value was worked
+     * out for); null for an anonymous form answer.
+     */
     actorUserId: text("actor_user_id").references(() => user.id, { onDelete: "set null" }),
     actorKind: text("actor_kind").$type<RowActivityActor>().notNull(),
     kind: text("kind").$type<RowActivityKind>().notNull(),
@@ -819,7 +822,7 @@ export const rowActivity = pgTable(
   (t) => [
     // A row's feed, newest first; also the newest entry about a value, for merging.
     index("row_activity_row_time_idx").on(t.rowId, t.createdAt.desc(), t.id.desc()),
-    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'form')`),
+    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form')`),
     check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property')`),
     check("row_activity_property_check", sql`(${t.kind} = 'property') = (${t.propertyId} is not null)`),
   ],
