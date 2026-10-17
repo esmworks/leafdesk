@@ -1567,13 +1567,13 @@ respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out o
 indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
 chat can answer from a document and cite it. A document is read once and its text kept in
 `file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
-page, files over 25 MB are skipped, and a scan without a text layer adds nothing. Documents are
-read whether or not the server has an embeddings model, since full-text search finds pages by
-their words too: in the background after they are uploaded, and those uploaded before search read them (or
-while the server was down) a couple of hundred at a time by a sweep that a workspace's searches
-start, at most every 10 minutes. A page indexes
-only the files its readers may open through it. Their text is sent to the embeddings endpoint
-like the page's own.
+page, files over 25 MB are skipped, and a scan without a text layer adds nothing. Full-text search
+reads the same text for any PDF or Word document a page shows, also one it only links to.
+Documents are read whether or not the server has an embeddings model, since full-text search finds
+pages by their words too: in the background after they are uploaded, and those uploaded before
+search read them (or while the server was down) a couple of hundred at a time by a sweep that a
+workspace's searches start, at most every 10 minutes. A page indexes only the files its readers
+may open through it. Their text is sent to the embeddings endpoint like the page's own.
 
 **Access** is never stored in the index: every search filters the chunks to the pages the person
 can open right now (`page_access_level`) before ranking them, so guests only find what was shared
