@@ -12,7 +12,7 @@ import { formatValue } from "@/server/ai/prompts";
 /** Characters a chunk aims for, and the most it may have (a longer block is split). */
 export const CHUNK_TARGET = 900;
 export const CHUNK_MAX = 1_400;
-/** Chunks one page may have; text beyond them isn't searched by meaning (full-text still finds it). */
+/** Chunks one page may have; text beyond them isn't searched by meaning. */
 export const MAX_CHUNKS_PER_PAGE = 200;
 /** Chunks the text of a page's attached documents may add on top (see server/file-text.ts). */
 export const MAX_FILE_CHUNKS_PER_PAGE = 300;
