@@ -455,6 +455,7 @@
     "noAccess": "액세스 없음",
     "deleted": "삭제된 페이지",
     "loading": "불러오는 중…",
+    "atBlock": "페이지의 블록 위치에서 엽니다",
     "personLeft": "{name}(워크스페이스에 없음)",
     "date": "날짜",
     "reminder": "리마인더",

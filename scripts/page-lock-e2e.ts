@@ -4,7 +4,10 @@
  * functions behind the app's actions, the collab service's own writes, MCP tools, the REST API and
  * the AI writing assistant) and its live connections open read-only; comments, sharing, moving it
  * to the trash and back, a row's property values and duplicating it stay open, and unlocking
- * brings the writes back. Creates its own users and workspace and deletes them afterwards.
+ * brings the writes back. A browser's open connection (a real provider) turns read-only and back
+ * in place with the lock, and takes the edits of someone given edit access while it is open (by a
+ * share or a group), the ones turned down before included, without reconnecting. Creates its own
+ * users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/page-lock-e2e.ts
  *
@@ -18,10 +21,18 @@ try {
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray } = await import("drizzle-orm");
+const Y = await import("yjs");
+const { createServer } = await import("node:http");
+const crossws = (await import("crossws/adapters/node")).default;
+const { HocuspocusProvider } = await import("@hocuspocus/provider");
 const { db } = await import("@/db");
 const { apiToken, file, page, pageSnapshot, user, workspace, workspaceMember } = await import("@/db/schema");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { env } = await import("@/lib/env");
+const { COLLAB_FRAGMENT, PAGE_WRITABLE_EVENT } = await import("@/lib/collab-constants");
+const { serverEditor } = await import("@/server/blocknote");
+const { issueCollabToken } = await import("@/server/collab/token");
+const { changeGroup, createGroup } = await import("@/server/groups");
 const { AccessError } = await import("@/server/access");
 const { AiError } = await import("@/server/ai");
 const { snapshotBeforeAiEdit } = await import("@/server/ai-writing");
@@ -36,7 +47,7 @@ const { createMcpServer } = await import("@/server/mcp/tools");
 const { FILES_SCOPE, READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
 const pages = await import("@/server/pages");
 const databases = await import("@/server/databases");
-const { setPagePermission } = await import("@/server/permissions");
+const { setPageGroupPermission, setPagePermission } = await import("@/server/permissions");
 
 const RUN = `page-lock-e2e-${Date.now().toString(36)}`;
 
@@ -111,7 +122,7 @@ async function rest(token: string, method: string, path: string, body?: unknown)
   return { status: res.status, body: (await res.json()) as any };
 }
 
-const ids = { owner: `${RUN}-owner`, editor: `${RUN}-editor`, viewer: `${RUN}-viewer` };
+const ids = { owner: `${RUN}-owner`, editor: `${RUN}-editor`, viewer: `${RUN}-viewer`, grouped: `${RUN}-grouped` };
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
 
@@ -122,6 +133,7 @@ try {
     { workspaceId, userId: ids.owner, role: "owner" },
     { workspaceId, userId: ids.editor, role: "member" },
     { workspaceId, userId: ids.viewer, role: "member" },
+    { workspaceId, userId: ids.grouped, role: "member" },
   ]);
   const owner = { userId: ids.owner };
   const collab = getCollab();
@@ -277,6 +289,108 @@ try {
   await pages.renamePage(owner, copy.id, "Copy restored");
   await databases.updateRowProperties(ids.owner, row.id, { Status: "In progress" });
   check((await collab.readPage(copy.id)).title === "Copy restored", "…and takes changes again");
+
+  // A browser's open connection
+  const ws = crossws({
+    hooks: {
+      open(peer) {
+        (peer as unknown as { hp: ReturnType<typeof hocuspocus.handleConnection> }).hp = hocuspocus.handleConnection(
+          peer.websocket as never,
+          peer.request as Request,
+        );
+      },
+      message(peer, message) {
+        (peer as unknown as { hp?: { handleMessage(m: Uint8Array): void } }).hp?.handleMessage(message.uint8Array());
+      },
+      close(peer, event) {
+        (peer as unknown as { hp?: { handleClose(e: unknown): void } }).hp?.handleClose({ code: event.code, reason: event.reason });
+      },
+    },
+  });
+  const server = createServer();
+  server.on("upgrade", (req, socket, head) => ws.handleUpgrade(req, socket, head));
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const port = (server.address() as { port: number }).port;
+  const browsers: InstanceType<typeof HocuspocusProvider>[] = [];
+  /** Opens the page the way a tab does, syncing again when the server says it takes edits (components/collab/socket). */
+  const openTab = async (userId: string, pageId: string) => {
+    const doc = new Y.Doc();
+    const tab = { doc, writable: 0, closes: [] as number[] };
+    const provider = new HocuspocusProvider({
+      url: `ws://127.0.0.1:${port}`,
+      name: `page:${pageId}`,
+      document: doc,
+      token: issueCollabToken(userId, userId),
+      onStateless: ({ payload }) => {
+        if (payload !== PAGE_WRITABLE_EVENT) return;
+        tab.writable++;
+        provider.forceSync();
+      },
+      onClose: ({ event }) => void tab.closes.push(event.code),
+    });
+    browsers.push(provider);
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("the tab never synced")), 5000);
+      provider.on("synced", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
+    return tab;
+  };
+  /** How often the server told the tab it takes edits again, and how often its connection closed. */
+  const seen = (tab: { writable: number; closes: number[] }) => ({ writable: tab.writable, closes: tab.closes.length });
+  const type = (doc: InstanceType<typeof Y.Doc>, text: string) => {
+    const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
+    const current = serverEditor.yXmlFragmentToBlocks(fragment);
+    doc.transact(() =>
+      serverEditor.blocksToYXmlFragment([...current, { type: "paragraph", content: [{ type: "text", text, styles: {} }] }] as never, fragment),
+    );
+  };
+  const live = (pageId: string) => hocuspocus.documents.get(`page:${pageId}`)?.getXmlFragment(COLLAB_FRAGMENT).toString() ?? "";
+  /** Whether the server's copy of the page has the text within `ms`. */
+  const arrives = async (pageId: string, text: string, ms = 5000) => {
+    for (let waited = 0; waited < ms; waited += 50) {
+      if (live(pageId).includes(text)) return true;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    return live(pageId).includes(text);
+  };
+  try {
+    const viewing = await openTab(ids.viewer, notes.id);
+    type(viewing.doc, "Typed while viewing.");
+    check(!(await arrives(notes.id, "Typed while viewing.", 500)), "a viewer's open page doesn't take their edits");
+    await setPagePermission(ids.owner, notes.id, ids.viewer, "edit");
+    check(await arrives(notes.id, "Typed while viewing."), "given edit access, the edits it turned down arrive", live(notes.id));
+    check(seen(viewing).writable === 1 && seen(viewing).closes === 0, "…on the same connection, which the server told", viewing);
+    type(viewing.doc, "Typed as an editor.");
+    check(await arrives(notes.id, "Typed as an editor."), "…and new edits do too");
+
+    await pages.setPageLocked(ids.owner, notes.id, true);
+    type(viewing.doc, "Typed while locked.");
+    check(!(await arrives(notes.id, "Typed while locked.", 500)), "locked, the open page turns its edits down in place");
+    await setPagePermission(ids.owner, notes.id, ids.viewer, "full");
+    check(!(await arrives(notes.id, "Typed while locked.", 500)) && seen(viewing).writable === 1, "…and more access doesn't open a locked page");
+    await pages.setPageLocked(ids.owner, notes.id, false);
+    check(await arrives(notes.id, "Typed while locked."), "unlocked, the held-back edits arrive", live(notes.id));
+    check(seen(viewing).writable === 2 && seen(viewing).closes === 0, "…without a reconnect", viewing);
+
+    const group = await createGroup(ids.owner, workspaceId, `${RUN} writers`);
+    await setPageGroupPermission(ids.owner, notes.id, group.id, "edit");
+    const grouped = await openTab(ids.grouped, notes.id);
+    type(grouped.doc, "Typed before joining the group.");
+    check(!(await arrives(notes.id, "Typed before joining the group.", 500)), "someone outside a group that may edit only views");
+    await changeGroup(ids.owner, group.id, { add: [ids.grouped] });
+    check(await arrives(notes.id, "Typed before joining the group."), "added to the group, their open page takes their edits", live(notes.id));
+    check(seen(grouped).writable === 1 && seen(grouped).closes === 0, "…without a reconnect", grouped);
+
+    await setPagePermission(ids.owner, notes.id, ids.viewer, "view");
+    for (let waited = 0; waited < 2000 && !seen(viewing).closes; waited += 50) await new Promise((r) => setTimeout(r, 50));
+    check(seen(viewing).closes === 1, "taking edit access back still closes the open connection", viewing);
+  } finally {
+    for (const provider of browsers) provider.destroy();
+    await new Promise((resolve) => server.close(resolve));
+  }
 
   console.log(`\n${passed} checks passed`);
 } finally {

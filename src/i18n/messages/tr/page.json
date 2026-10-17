@@ -455,6 +455,7 @@
     "noAccess": "Erişim yok",
     "deleted": "Silinmiş sayfa",
     "loading": "Yükleniyor…",
+    "atBlock": "Sayfayı bir blokta açar",
     "personLeft": "{name} (artık çalışma alanında değil)",
     "date": "Tarih",
     "reminder": "Hatırlatma",

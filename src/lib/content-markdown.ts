@@ -25,7 +25,7 @@ import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts"
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
   EMPTY_MENTION,
-  linkedPageId,
+  linkedPageRef,
   MENTION,
   mentionProps,
   mentionText,
@@ -42,8 +42,32 @@ import {
  *
  *   > [!NOTE]              a callout: a GitHub alert, the kind picks the color and a
  *   > 💡 Text              leading emoji is the icon
+ *   >
+ *   > * Nested             the blocks nested under a callout or a quote are quoted with its
+ *                          text (BlockNote would write them after the quote); read back, the
+ *                          first paragraph is its text and the rest is nested under it
  *
- *   $$                     a display equation
+ *   <details>              a toggle list item: its text is a paragraph of its own inside the
+ *   <summary>              summary, so it keeps its formatting, and its nested blocks follow
+ *                          the summary (BlockNote's parser reads <details> as a toggle, so
+ *   Text                   HTML-style <details><summary>Text</summary> reads too)
+ *
+ *   </summary>
+ *
+ *   Nested
+ *
+ *   </details>
+ *
+ *   <details>              a toggle heading: the same, with its text written as a heading
+ *   <summary>              (an empty one as <summary><h2></h2></summary>)
+ *
+ *   ## Text
+ *
+ *   </summary>
+ *   …
+ *   </details>
+ *
+ *   $$                   a display equation
  *   \int_0^1 x\,dx
  *   $$
  *
@@ -116,7 +140,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
 ) {
   const blockMarkdown: string[] = [];
   const inlineMarkdown: string[] = [];
-  const callouts: { kind: AlertKind; icon: string }[] = [];
+  /** Callouts and quotes with nested blocks, by token: a quote has no kind. */
+  const callouts: { kind: AlertKind | null; icon: string }[] = [];
   const blockToken = (markdown: string) => `leafdesk${nonce}b${blockMarkdown.push(markdown) - 1}x`;
   const dollarToken = `leafdesk${nonce}dx`;
 
@@ -158,7 +183,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
       if (node?.type === MENTION) {
         const props = mentionProps((node as { props?: unknown }).props);
         const markdown =
-          props.kind === "page" ? (props.pageId ? pageLinkMarkdown("page", workspaceId, props.pageId) : "") : mentionText(props);
+          props.kind === "page" ? (props.pageId ? pageLinkMarkdown("page", workspaceId, props.pageId, props.blockId) : "") : mentionText(props);
         return { type: "text", text: `leafdesk${nonce}i${inlineMarkdown.push(markdown) - 1}x`, styles: {} };
       }
       if (node?.type !== INLINE_MATH) return node;
@@ -211,23 +236,57 @@ export function prepareMarkdownExport<B extends MdBlock>(
         }
         case PAGE_LINK_BLOCK: {
           const pageId = String(block.props?.pageId ?? "");
-          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId)} ${PAGE_LINK_MARKER}` : ""));
+          const at = String(block.props?.blockId ?? "");
+          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId, at)} ${PAGE_LINK_MARKER}` : ""));
         }
+        case "quote":
         case CALLOUT_BLOCK: {
-          const i = callouts.push({
-            kind: alertKindForColor(String(block.props?.backgroundColor ?? "")),
-            icon: String(block.props?.icon ?? "").trim(),
-          });
+          // A quote without nested blocks is BlockNote's own.
+          if (block.type === "quote" && !children.length) return { ...block, content: inline(block.content), children };
+          const i = callouts.push(
+            block.type === "quote"
+              ? { kind: null, icon: "" }
+              : { kind: alertKindForColor(String(block.props?.backgroundColor ?? "")), icon: String(block.props?.icon ?? "").trim() },
+          );
           const content = inline(block.content);
-          return {
-            type: "paragraph",
-            content: [
-              { type: "text", text: `leafdesk${nonce}c${i - 1}x`, styles: {} },
-              ...(Array.isArray(content) ? content : []),
-              { type: "text", text: `leafdesk${nonce}e${i - 1}x`, styles: {} },
-            ],
-            children,
-          } as unknown as B;
+          const start = { type: "text", text: `leafdesk${nonce}c${i - 1}x`, styles: {} };
+          const end = { type: "text", text: `leafdesk${nonce}e${i - 1}x`, styles: {} };
+          const text = Array.isArray(content) ? content : [];
+          if (!children.length) return { type: "paragraph", content: [start, ...text, end], children } as unknown as B;
+          // The blocks nested under it are written after its text, at the same indent, and the end
+          // token after them: finish quotes them all, so they come back inside the callout.
+          return [
+            { type: "paragraph", content: [start, ...text], children: [] },
+            ...children,
+            { type: "paragraph", content: [end], children: [] },
+          ] as unknown as B[];
+        }
+        case "heading":
+        case "toggleListItem": {
+          if (block.type === "heading" && !block.props?.isToggleable) return { ...block, content: inline(block.content), children };
+          // Its text goes in the summary as a block of its own (a toggle heading's as a heading), so
+          // it keeps its Markdown, and each part is a block of its own, so blank lines keep the tags
+          // apart from the Markdown. An empty heading is written as HTML: "##" alone reads as text.
+          const level = Number(block.props?.level) || 1;
+          return [
+            ...(plainText(block.content) || (Array.isArray(block.content) && block.content.length)
+              ? [
+                  { type: "paragraph", content: blockToken("<details>\n<summary>"), children: [] },
+                  block.type === "heading"
+                    ? { type: "heading", props: { level }, content: inline(block.content), children: [] }
+                    : { type: "paragraph", content: inline(block.content), children: [] },
+                  { type: "paragraph", content: blockToken("</summary>"), children: [] },
+                ]
+              : [
+                  {
+                    type: "paragraph",
+                    content: blockToken(`<details>\n<summary>${block.type === "heading" ? `<h${level}></h${level}>` : ""}</summary>`),
+                    children: [],
+                  },
+                ]),
+            ...children,
+            { type: "paragraph", content: blockToken("</details>"), children: [] },
+          ] as unknown as B[];
         }
         case "codeBlock":
           return { ...block, children };
@@ -236,22 +295,34 @@ export function prepareMarkdownExport<B extends MdBlock>(
       }
     });
 
+  // A callout (or quote) with no other one inside it: the innermost go first, so an outer one quotes them
+  // already written.
+  const innerCallout = new RegExp(
+    `^([ \\t]*)leafdesk${nonce}c(\\d+)x((?:(?!leafdesk${nonce}c\\d+x)[\\s\\S])*?)leafdesk${nonce}e\\2x`,
+    "gm",
+  );
+  const quoteCallouts = (markdown: string): string => {
+    const quoted = markdown.replace(innerCallout, (_, indent: string, i: string, text: string) => {
+      const { kind, icon } = callouts[Number(i)];
+      const lines = text.replace(/\s+$/, "").split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
+      if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
+      return (kind ? [`[!${kind}]`, ...lines] : lines)
+        .map((line) => `${indent}> ${line}`.trimEnd())
+        .join("\n");
+    });
+    return quoted === markdown ? markdown : quoteCallouts(quoted);
+  };
+
   const finish = (markdown: string) =>
-    markdown
-      .replace(new RegExp(`^([ \\t]*)leafdesk${nonce}c(\\d+)x([\\s\\S]*?)leafdesk${nonce}e\\2x`, "gm"), (_, indent: string, i: string, text: string) => {
-        const { kind, icon } = callouts[Number(i)];
-        const lines = text.split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
-        if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
-        return [`[!${kind}]`, ...lines]
-          .map((line) => `${indent}> ${line}`.trimEnd())
-          .join("\n");
-      })
-      .replace(TOKEN_LINE(nonce), (_, indent: string, i: string) =>
+    // Block lines before callouts: inside a callout they'd no longer start their line.
+    quoteCallouts(
+      markdown.replace(TOKEN_LINE(nonce), (_, indent: string, i: string) =>
         blockMarkdown[Number(i)]
           .split("\n")
           .map((line) => (line ? indent + line : line))
           .join("\n"),
-      )
+      ),
+    )
       .replace(new RegExp(`leafdesk${nonce}(e?)(sup|sub)x`, "g"), (_, end: string, tag: string) => `<${end ? "/" : ""}${tag}>`)
       .replace(new RegExp(`leafdesk${nonce}i(\\d+)x`, "g"), (_, i: string) => inlineMarkdown[Number(i)])
       .replaceAll(dollarToken, () => "\\$");
@@ -266,16 +337,19 @@ type Pending =
   | { type: typeof MATH_BLOCK; latex: string }
   | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK }
   | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string }
+  | { type: "quote"; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
-  | { type: typeof PAGE_LINK_BLOCK; pageId: string }
+  | { type: typeof PAGE_LINK_BLOCK; pageId: string; blockId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
-const CALLOUT_START = new RegExp(`^ {0,3}> ?\\[!(${ALERT_KINDS.join("|")})\\][ \\t]*(.*)$`, "i");
-const QUOTE_LINE = /^ {0,3}> ?(.*)$/;
+const CALLOUT_START = new RegExp(`^( {0,3})> ?\\[!(${ALERT_KINDS.join("|")})\\][ \\t]*(.*)$`, "i");
+const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
+/** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
+const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\||(?:[*_-][ \t]*){3,}$|=+[ \t]*$)/;
 const MATH_OPEN = /^ {0,3}\$\$(.*)$/;
 const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb)\s*-->\s*$/;
 /** `[text](url) <!-- leafdesk:embed -->` (or a bare URL before the marker); "bookmark" likewise. */
@@ -286,15 +360,16 @@ const PAGE_LINK_LINE = /^ {0,3}\[(?:[^\]\\]|\\.)*\]\(\s*<?([^)\s>]+)>?\s*\)\s*<!
 
 /**
  * Swaps the Markdown forms above for tokens BlockNote's parser keeps as plain text. Only lines of
- * their own count for blocks (not ones inside lists or quotes), and nothing inside fenced code.
+ * their own count for blocks (not ones inside lists or quotes, but a quote or callout under a list
+ * item keeps its place there), and nothing inside fenced code.
  */
 export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl }: { appUrl?: string } = {}) {
   const blocks: Pending[] = [];
   const inlines: string[] = [];
   const out: string[] = [];
   const lines = markdown.split(/\r?\n/);
-  const blockLine = (pending: Pending) => {
-    out.push("", `leafdesk${nonce}b${blocks.push(pending) - 1}x`, "");
+  const blockLine = (pending: Pending, indent = "") => {
+    out.push("", `${indent}leafdesk${nonce}b${blocks.push(pending) - 1}x`, "");
   };
   let fence: string | null = null;
   for (let i = 0; i < lines.length; i++) {
@@ -334,16 +409,31 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       continue;
     }
     const pageLink = PAGE_LINK_LINE.exec(line);
-    const linkedId = pageLink ? linkedPageId(pageLink[1], appUrl) : null;
-    if (linkedId) {
-      blockLine({ type: PAGE_LINK_BLOCK, pageId: linkedId });
+    const linked = pageLink ? linkedPageRef(pageLink[1], appUrl) : null;
+    if (linked) {
+      blockLine({ type: PAGE_LINK_BLOCK, pageId: linked.pageId, blockId: linked.blockId });
       continue;
     }
+    // A callout or quote is read on its own, so the blocks quoted with its text (lists, equations,
+    // other quotes) come back nested under it rather than run into its text.
     const callout = CALLOUT_START.exec(line);
-    if (callout) {
-      const body = callout[2].trim() ? [callout[2]] : [];
-      while (i + 1 < lines.length && QUOTE_LINE.test(lines[i + 1])) body.push(QUOTE_LINE.exec(lines[++i])![1]);
-      blockLine({ type: CALLOUT_BLOCK, kind: callout[1].toUpperCase() as AlertKind, markdown: body.join("\n") });
+    const quote = callout ? null : QUOTE_LINE.exec(line);
+    if (callout || quote) {
+      const body = callout ? (callout[3].trim() ? [callout[3]] : []) : [quote![2]];
+      for (;;) {
+        const next = lines[i + 1];
+        if (next === undefined) break;
+        const quoted = QUOTE_LINE.exec(next);
+        // A line without its ">" still belongs to a quoted paragraph it continues.
+        if (quoted) body.push(quoted[2]);
+        else if (body.length && body[body.length - 1].trim() && !BLOCK_START.test(body[body.length - 1]) && !BLOCK_START.test(next)) body.push(next);
+        else break;
+        i++;
+      }
+      const markdown = body.join("\n");
+      // At the quote's indent: one under a list item stays in it.
+      const indent = (callout ?? quote)![1];
+      blockLine(callout ? { type: CALLOUT_BLOCK, kind: callout[2].toUpperCase() as AlertKind, markdown } : { type: "quote", markdown }, indent);
       continue;
     }
     const math = MATH_OPEN.exec(line);
@@ -471,8 +561,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
     if (Array.isArray(content)) {
       return content.flatMap((node: Inline) => {
         if (node?.type === "link") {
-          const pageId = linkedPageId(node.href, appUrl);
-          if (pageId) return [mention({ kind: "page", pageId })];
+          const linked = linkedPageRef(node.href, appUrl);
+          if (linked) return [mention({ kind: "page", pageId: linked.pageId, blockId: linked.blockId })];
         }
         if (node?.type === "link" && Array.isArray(node.content)) {
           return [{ ...node, content: node.content.map((n: Inline) => (typeof n.text === "string" ? { ...n, text: restore(n.text) } : n)) }];
@@ -509,12 +599,23 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: BOOKMARK_BLOCK, props: { url: pending.url, title }, children: [] } as unknown as B;
       }
       case PAGE_LINK_BLOCK:
-        return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
+        return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId, blockId: pending.blockId }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;
       case COLUMN_BLOCK:
         return columnMarkerBlock<B>(pending.marker);
+      case "quote": {
+        // Like a callout's: the first paragraph is the quote's text, anything after it nested.
+        const inner = pending.markdown.trim() ? await parse(pending.markdown) : [];
+        const first = inner[0]?.type === "paragraph" ? inner.shift()! : null;
+        return {
+          type: "quote",
+          props: {},
+          content: Array.isArray(first?.content) ? first.content : [],
+          children: [...(first?.children ?? []), ...inner],
+        } as unknown as B;
+      }
       case CALLOUT_BLOCK: {
         // The first paragraph is the callout's text; anything after it is nested under it.
         const inner = pending.markdown.trim() ? await parse(pending.markdown) : [];

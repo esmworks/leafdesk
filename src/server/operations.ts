@@ -513,7 +513,8 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
 
 /**
  * Full-text search, merged with semantic search where the server has an embeddings model (see
- * pages.searchPages). `match` says how a result was found: "semantic" when only by meaning.
+ * pages.searchPages). `match` says how a result was found: "semantic" when only by meaning;
+ * `document`, the PDF or Word document the page shows whose words matched, when not its own text.
  * `withinPageId` keeps to a page and its subpages; `passages` adds the best matching passage of
  * each page (as far as semantic search found one) and the block it starts at (AI chat). `anyWord`:
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
@@ -534,6 +535,8 @@ export async function search(
       parent_id: h.parentId,
       snippet: h.snippet,
       match: h.match ?? ("text" as const),
+      // Found by the words of a PDF or Word document the page shows (the snippet is from it).
+      document: h.file ? { id: h.file.id, name: h.file.name } : null,
       updated_at: h.updatedAt.toISOString(),
       url: pageUrl(h.workspaceId, h.id),
       ...(passages ? { passage: h.passage ?? null, block_id: h.blockId ?? null } : {}),

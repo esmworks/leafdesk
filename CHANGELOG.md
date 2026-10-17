@@ -11,12 +11,16 @@
 - **A reverse proxy that sets its own Content-Security-Policy** now adds to the app's: the browser
   enforces both, so drop the proxy's (or make sure it allows at least what the app's does, see
   `src/lib/content-security-policy.ts`).
-- **Migrations 0078 to 0080** run automatically when the container starts (from source, run
+- **Migrations 0078 to 0081** run automatically when the container starts (from source, run
   `pnpm db:migrate`). 0078 adds a column to `page_link`; after the upgrade the server reads each page
   that links somewhere once, in the background, to fill in where its links are. 0079 adds the time
   zone of calendar feeds (see *Fixed*); feeds made before it take their user's zone the next time
-  they open the feed's dialog, and count days in UTC until then. 0080 adds the `journal` and
-  `daily_note` tables for daily notes.
+  they open the feed's dialog, and count days in UTC until then.
+- **Migration 0080 rewrites the `file_text` table once** to give each document's text a search
+  vector; the table holds one row per PDF or Word document read so far, so it is quick. Documents
+  uploaded before this release are read for search gradually, a couple of hundred per workspace
+  at a time as people search; until then their words find nothing.
+- **Migration 0081 adds the `journal` and `daily_note` tables** for daily notes.
 
 ### Added
 
@@ -42,13 +46,53 @@
   pages link here, and past the first 100 a button lists the next ones. Over MCP, `get_page` gives
   the text around each link (`contexts`) when a page links more than once, and
   `linked_from_truncated` when not every linking page is listed.
-- **Copy link to block** in a block's menu (the handle beside it): the link opens the page at that
-  block and highlights it.
+- **Links to one block of a page.** "Copy link to block" in a block's menu (the handle beside it)
+  copies the page's address with the block's id (`#block-…`), also on a plain-http address. The link
+  opens the page scrolled to that block, highlighted for a moment, once the page has loaded; a block
+  deleted since opens the page at the top. Published pages and the print view open at the block too
+  (any block with text: paragraphs, headings, list items, quotes, callouts, code and tables).
+  Pasted on its own into a page, the link becomes a mention of the page that opens at the block,
+  marked ¶ after the title, and counts under the page's "Linked from" like any link to it. In
+  Markdown read and written over MCP and the API the link keeps its `#block-…` part (in an export,
+  a link to a page left out of it does); a mention of a block on a published page links to that block when its page is published
+  too. Search results found by meaning open their page at the passage that matched.
+- **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and
+  the REST API's `/search` find a page by the words of the PDFs and Word documents it shows, also
+  on servers without an embeddings model: every word of the search in one document, after the
+  pages that have the words in their own text. The result names the document and shows the text
+  around the words. Only documents the page's readers may open through it count, and `in:` and
+  `type:` narrow these results like any other. Documents are read in the background once they are
+  uploaded.
 
 ### Fixed
 
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
+- **Blocks nested under a callout stay inside it in Markdown.** A callout's nested blocks (a list,
+  an equation, another callout) were written after it, outside the `> [!NOTE]` quote, so Markdown
+  and ZIP exports showed them outside the callout, and an AI app that read a page and wrote it back
+  with `update_page` (or replaced the callout with `replace_block`) moved them out of it. They are
+  now quoted with the callout, a callout inside a callout as `> > [!NOTE]`, and come back where
+  they were.
+- **Quotes and toggle lists keep their shape in Markdown.** A quote's nested blocks were written
+  after it, outside the `>`, and a quote holding a list came back as one line of text with the list
+  run into it; toggle list items were written as plain bullets. So exports lost them, and an AI app
+  that read a page and wrote it back with `update_page` (or `replace_block`) turned toggles into
+  bullet lists, such as a voice note's "Transcript", and quotes into flat text. Quotes now keep
+  their nested blocks inside the `>` and read lists, equations and other quotes in them back as
+  nested blocks, and toggles are written as `<details>` with their text in the `<summary>`, so they
+  come back as toggles with everything that was nested under them. A callout under a list item
+  now also stays under it when read back.
+- **Toggle headings keep their shape in Markdown.** A toggle heading was written as a plain
+  heading with its nested blocks after it, so an AI app that read a page and wrote it back with
+  `update_page` (or `replace_block`) turned it into an ordinary heading and moved what was folded
+  under it out onto the page. It is now written as `<details>` with the heading in the `<summary>`,
+  and comes back as a toggle heading of the same level with its nested blocks.
+- **Edit access given while a page is open now works at once.** Someone who had a page open to
+  view or comment on and was then given edit access (by a share, a group, a teamspace or a role)
+  could type, but their edits weren't saved until they reloaded the page. Their open page now takes
+  them right away, the ones typed before included. Unlocking a page or restoring it from the trash
+  sends the edits it held back the same way.
 
 ### Changed
 

@@ -1,5 +1,6 @@
+import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core";
-import { databaseProperty, page, workspace } from "./app";
+import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
 import { file } from "./files";
@@ -89,8 +90,8 @@ export const pageIndexState = pgTable(
 );
 
 /**
- * The text of an uploaded PDF or Word document, as semantic search indexes it (see
- * server/file-text.ts): read once per file and kept, since a stored file's bytes never change.
+ * The text of an uploaded PDF or Word document, as search finds it (see server/file-text.ts): read
+ * once per file and kept, since a stored file's bytes never change.
  * `contentHash` is the sha256 of the bytes, so the same document uploaded again elsewhere isn't read
  * again either. `text` is empty when the file has none to give (a scan, a damaged or locked file);
  * `partial` says only its start was read (the page and length limits). Rows of an older
@@ -111,8 +112,17 @@ export const fileText = pgTable(
     /** The file couldn't be read at all (as opposed to having no text). */
     failed: boolean("failed").notNull().default(false),
     extractedAt: timestamp("extracted_at", { withTimezone: true }).notNull().defaultNow(),
+    /**
+     * What full-text search matches in the document (server/pages.ts fullTextSearch): its words and
+     * the two-character pieces of its Chinese and Japanese text, from its first 80,000 characters
+     * as for a page's body, so that the vector stays under Postgres' tsvector limit (migration
+     * 0077). Large: select it only where a query needs it.
+     */
+    searchVector: tsvector("search_vector").generatedAlwaysAs(
+      sql`to_tsvector('simple', left(text, 80000)) || to_tsvector('simple', cjk_bigrams(left(text, 80000)))`,
+    ),
   },
-  (t) => [index("file_text_content_hash_idx").on(t.contentHash)],
+  (t) => [index("file_text_content_hash_idx").on(t.contentHash), index("file_text_search_vector_idx").using("gin", t.searchVector)],
 );
 
 /** A source an answer of the AI chat cites: a page (and the block the passage starts at). */

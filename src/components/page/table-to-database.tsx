@@ -18,6 +18,7 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { tableToDatabaseAction } from "@/app/actions/embeds";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
+import { copyText } from "@/components/settings/copy-button";
 import { blockPath } from "@/lib/mentions";
 import { tableRecords, type TableBlockContent } from "@/lib/table-to-database";
 import { useEmbedHost } from "./database-embed";
@@ -67,7 +68,8 @@ function TurnIntoDatabaseItem({ onError }: { onError: (message: string) => void 
 
 /**
  * "Copy link to block": the address of the page with the block's id, which opens the page scrolled
- * to the block and highlights it (block-focus.ts).
+ * to the block and highlights it (block-focus.ts). Pasted into a page, it becomes a mention of the
+ * block (mentions.tsx).
  */
 function CopyBlockLinkItem() {
   const Components = useComponentsContext()!;
@@ -79,7 +81,10 @@ function CopyBlockLinkItem() {
   return (
     <Components.Generic.Menu.Item
       className="bn-menu-item"
-      onClick={() => void navigator.clipboard.writeText(new URL(blockPath(host.workspaceId, host.pageId, block.id), window.location.origin).href)}
+      onClick={() => {
+        const url = new URL(blockPath(host.workspaceId, host.pageId, block.id), window.location.origin).href;
+        void copyText(url, editor.domElement ?? document.body);
+      }}
     >
       {t("copyLink")}
     </Components.Generic.Menu.Item>

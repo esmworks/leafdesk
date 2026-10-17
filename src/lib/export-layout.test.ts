@@ -163,6 +163,11 @@ describe("rewriteLinks", () => {
     expect(rewriteLinks("[x](https://elsewhere.test/w/a/p/b)", "A.md", targets)).toBe("[x](https://elsewhere.test/w/a/p/b)");
   });
 
+  it("points links to a block at the page's file, or at the block in the app", () => {
+    expect(rewriteLinks("[Plan](/w/ws1/p/p1#block-b1)", "Project.md", targets)).toBe("[Plan](Project/Plan.md)");
+    expect(rewriteLinks("[x](/w/ws1/p/secret#block-b1)", "A.md", targets)).toBe("[x](https://notes.example.com/w/ws1/p/secret#block-b1)");
+  });
+
   it("points uploaded files at their copy in the archive", () => {
     const md = `![photo](/api/files/${ID})\n[doc.pdf](https://notes.example.com/api/files/${ID}?view=pdf)`;
     expect(rewriteLinks(md, "Project/Plan.md", targets)).toBe("![photo](../files/photo%201.png)\n[doc.pdf](../files/photo%201.png)");

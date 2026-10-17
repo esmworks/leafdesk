@@ -3,13 +3,13 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { highlightCode } from "@/lib/code-highlighter";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
-import { BREADCRUMB_BLOCK, MERMAID_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
+import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
-import { bodyReferences, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
+import { bodyReferences, isBlockId, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
 
 /**
@@ -27,7 +27,8 @@ import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
  * lib/web-blocks), and uploaded PDFs, which the page shows in place. Equations are serialized: KaTeX builds them on the server (see server/blocknote.ts).
  * Code blocks are colored here too, the way the editor colors them (see lib/code-highlighter).
  * Columns come back as a segment holding each column's own segments, so everything above works
- * inside them too.
+ * inside them too. Blocks with text carry an anchor, so a link to one block (`#block-<id>`) opens
+ * the page there (see withBlockAnchors).
  */
 
 type Json = unknown;
@@ -99,9 +100,12 @@ export type PublishedPageRef = { text: string; href: string | null };
 
 const textNode = (text: string) => ({ type: "text", text, styles: {} });
 
-function pageRefInline(ref: PublishedPageRef | undefined): Json[] {
+/** The page as a link where it is published (at `blockId` when set, see withBlockAnchors), else its text. */
+function pageRefInline(ref: PublishedPageRef | undefined, blockId = ""): Json[] {
   if (!ref) return [];
-  return ref.href ? [{ type: "link", href: ref.href, content: [textNode(ref.text)] }] : [textNode(ref.text)];
+  if (!ref.href) return [textNode(ref.text)];
+  const href = blockId && isBlockId(blockId) ? `${ref.href}#block-${blockId}` : ref.href;
+  return [{ type: "link", href, content: [textNode(ref.text)] }];
 }
 
 function resolveInline(content: Json, refs: Map<string, PublishedPageRef>): Json {
@@ -110,7 +114,7 @@ function resolveInline(content: Json, refs: Map<string, PublishedPageRef>): Json
       const node = item as Record<string, Json> | null;
       if (node?.type !== MENTION) return [item];
       const props = mentionProps(node.props);
-      if (props.kind === "page") return pageRefInline(refs.get(props.pageId));
+      if (props.kind === "page") return pageRefInline(refs.get(props.pageId), props.blockId);
       return [textNode(mentionPlainText(props))];
     });
   }
@@ -137,8 +141,9 @@ function resolveMentions(blocks: PageBlock[], refs: Map<string, PublishedPageRef
   return blocks.map((block) => {
     const children = block.children?.length ? resolveMentions(block.children, refs) : block.children;
     if (block.type === PAGE_LINK_BLOCK) {
-      const pageId = String((block.props as { pageId?: unknown }).pageId ?? "");
-      return { id: block.id, type: "paragraph", props: {}, content: pageRefInline(refs.get(pageId)), children } as unknown as PageBlock;
+      const { pageId, blockId } = block.props as { pageId?: unknown; blockId?: unknown };
+      const content = pageRefInline(refs.get(String(pageId ?? "")), typeof blockId === "string" ? blockId : "");
+      return { id: block.id, type: "paragraph", props: {}, content, children } as unknown as PageBlock;
     }
     return { ...block, content: resolveInline(block.content as Json, refs), children } as PageBlock;
   });
@@ -266,6 +271,91 @@ async function withHeadingAnchors(html: string, anchors: string[]): Promise<stri
   });
 }
 
+/**
+ * Blocks whose HTML holds their text as text: the ones a link can open the page at. Others (images,
+ * files, equations) have no text to mark, or turn it into something else.
+ */
+const ANCHORED = new Set(["paragraph", "heading", "quote", "bulletListItem", "numberedListItem", "checkListItem", "toggleListItem", "codeBlock", "table", CALLOUT_BLOCK]);
+
+const hasText = (content: Json): boolean =>
+  typeof content === "string" ? content.length > 0 : Array.isArray(content) ? content.length > 0 : false;
+
+/** `content` with `marker` as text before the rest, or null when it holds no text to put it with. */
+function withMarker(content: Json, marker: string): Json | null {
+  const text = { type: "text", text: marker, styles: {} };
+  if (typeof content === "string") return content ? [text, { type: "text", text: content, styles: {} }] : null;
+  if (Array.isArray(content)) return content.length ? [text, ...content] : null;
+  const table = content as { type?: string; rows?: { cells?: Json[] }[] } | null;
+  const first = table?.type === "tableContent" ? table.rows?.[0]?.cells?.[0] : undefined;
+  if (!table || first === undefined) return null;
+  const cell = Array.isArray(first) ? first : (first as { content?: Json } | null)?.content;
+  if (!hasText(cell ?? null)) return null;
+  const marked = withMarker(cell as Json, marker);
+  const cells = [Array.isArray(first) ? marked : { ...(first as object), content: marked }, ...(table.rows![0].cells ?? []).slice(1)];
+  return { ...table, rows: [{ ...table.rows![0], cells }, ...table.rows!.slice(1)] };
+}
+
+/**
+ * Puts a marker before the text of each block in ANCHORED (nested ones too): `nonce`, the block's
+ * place in `ids` and characters nobody types, for withBlockAnchors to find in the HTML. Blocks
+ * without text get none: an empty line needs no anchor.
+ */
+function markBlocks(blocks: PageBlock[], nonce: string, ids: string[]): PageBlock[] {
+  return blocks.map((block) => {
+    const children = block.children?.length ? markBlocks(block.children, nonce, ids) : block.children;
+    if (!ANCHORED.has(block.type) || !isBlockId(block.id)) return { ...block, children } as PageBlock;
+    const content = withMarker(block.content as Json, `\uE000${nonce}:${ids.length}\uE001`);
+    if (content === null) return { ...block, children } as PageBlock;
+    ids.push(block.id);
+    return { ...block, content, children } as PageBlock;
+  });
+}
+
+/**
+ * Turns markBlocks' markers into anchors: an empty `<span id="block-<id>">` where the block's text
+ * starts (before the code in a code block, which withHighlightedCode rewrites), so the browser
+ * scrolls to it and the stylesheet highlights the block. Like the heading anchors, set on parsed
+ * elements: the ids are BlockNote's (checked by isBlockId), the markers ours.
+ */
+async function withBlockAnchors(html: string, nonce: string, ids: string[]): Promise<string> {
+  if (!ids.length) return html;
+  const marker = new RegExp(`\uE000${nonce}:(\\d+)\uE001`, "g");
+  return editor._withJSDOM(async () => {
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    const texts: Text[] = [];
+    const collect = (node: Node) => {
+      for (const child of node.childNodes) {
+        if (child.nodeType === 3) texts.push(child as Text);
+        else collect(child);
+      }
+    };
+    collect(container);
+    for (const text of texts) {
+      const value = text.data;
+      if (!value.includes("\uE000")) continue;
+      const parent = text.parentNode;
+      if (!parent) continue;
+      let last = 0;
+      for (const match of value.matchAll(marker)) {
+        if (match.index > last) parent.insertBefore(document.createTextNode(value.slice(last, match.index)), text);
+        last = match.index + match[0].length;
+        const id = ids[Number(match[1])];
+        if (!id) continue;
+        const anchor = document.createElement("span");
+        anchor.setAttribute("id", `block-${id}`);
+        anchor.setAttribute("class", "block-anchor");
+        const code = text.parentElement?.closest("pre > code");
+        if (code?.parentElement) code.parentElement.insertBefore(anchor, code);
+        else parent.insertBefore(anchor, text);
+      }
+      if (last < value.length) parent.insertBefore(document.createTextNode(value.slice(last)), text);
+      parent.removeChild(text);
+    }
+    return container.innerHTML;
+  });
+}
+
 const SHIKI_COLOR = /^#[0-9a-f]{3,8}$/i;
 
 /**
@@ -354,9 +444,13 @@ export async function bodySegmentsFromBlocks(
         headings.push(heading);
         return heading;
       });
-      const serialized = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(resolveMentions(sanitizeBlocks(run), refs)));
+      const nonce = crypto.randomUUID().slice(0, 8);
+      const anchored: string[] = [];
+      const marked = markBlocks(resolveMentions(sanitizeBlocks(run), refs), nonce, anchored);
+      const serialized = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(marked));
       run = [];
-      const html = await withHighlightedCode(await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor)));
+      const headed = await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor));
+      const html = await withHighlightedCode(await withBlockAnchors(headed, nonce, anchored));
       if (html) segments.push({ kind: "html", html });
     };
     const standalone = async (block: PageBlock) => {

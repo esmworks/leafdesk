@@ -9,7 +9,7 @@ import {
   useExtensionState,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
-import { Bell, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Search } from "lucide-react";
+import { Bell, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FilePlus, FileX2, Link2, Lock, Pilcrow, Search } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
@@ -36,10 +36,13 @@ import {
   mentionProps,
   newMentionId,
   blockPath,
+  linkedPageRef,
   pageLinkBlockConfig,
+  pageOrBlockPath,
   pagePath,
   type MentionProps,
 } from "@/lib/mentions";
+import { openBlockLink } from "./block-focus";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import type { Backlink, MentionCandidates, PageRef, UnlinkedMention } from "@/server/mentions";
 import type { PageEditor } from "./embed-blocks";
@@ -124,11 +127,14 @@ function openPage(event: MouseEvent, href: string, push: (href: string) => void)
   // New tab and friends keep the browser's behaviour.
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   event.preventDefault();
-  push(href);
+  openBlockLink(href, push);
 }
 
-/** A mentioned page: its live icon and title, or a note that names nothing. */
-function PageMentionChip({ pageId }: { pageId: string }) {
+/**
+ * A mentioned page: its live icon and title, or a note that names nothing. A mention of one of its
+ * blocks opens the page there, and says so with a mark after the title.
+ */
+function PageMentionChip({ pageId, blockId }: { pageId: string; blockId: string }) {
   const t = useTranslations("page.mention");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -150,9 +156,15 @@ function PageMentionChip({ pageId }: { pageId: string }) {
       </span>
     );
   }
-  const href = pagePath(ref.workspaceId, ref.id);
+  const href = pageOrBlockPath(ref.workspaceId, ref.id, blockId);
   return (
-    <a href={href} className="leafdesk-mention leafdesk-mention-page" onClick={(e) => openPage(e, href, router.push)} data-mention-status="ok">
+    <a
+      href={href}
+      className="leafdesk-mention leafdesk-mention-page"
+      onClick={(e) => openPage(e, href, router.push)}
+      data-mention-status="ok"
+      title={blockId ? t("atBlock") : undefined}
+    >
       {ref.icon ? (
         <span className="leafdesk-mention-emoji" aria-hidden>
           {ref.icon}
@@ -161,6 +173,7 @@ function PageMentionChip({ pageId }: { pageId: string }) {
         <PageIcon icon={null} kind={ref.kind} className="leafdesk-mention-icon" />
       )}
       <span className="leafdesk-mention-label">{pageLabel(ref.title, tc("untitled"))}</span>
+      {blockId && <Pilcrow className="leafdesk-mention-icon leafdesk-mention-block" aria-label={t("atBlock")} />}
     </a>
   );
 }
@@ -368,7 +381,7 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [updateInlineContent, JSON.stringify(props)],
     );
-    if (props.kind === "page") return <PageMentionChip pageId={props.pageId} />;
+    if (props.kind === "page") return <PageMentionChip pageId={props.pageId} blockId={props.blockId} />;
     if (props.kind === "user") return <PersonMentionChip name={props.name} />;
     return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} />;
   },
@@ -379,7 +392,7 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     if (props.kind === "user") return <span>@{props.name}</span>;
     if (props.kind === "date") return <span>{props.date}</span>;
     const ref = refs.get(props.pageId);
-    return ref?.status === "ok" ? <a href={pagePath(ref.workspaceId, ref.id)}>{ref.title}</a> : <span />;
+    return ref?.status === "ok" ? <a href={pageOrBlockPath(ref.workspaceId, ref.id, props.blockId)}>{ref.title}</a> : <span />;
   },
 });
 
@@ -403,12 +416,13 @@ const PageLinkBlock = createReactBlockSpec(pageLinkBlockConfig, {
         </div>
       );
     }
-    const href = pagePath(ref.workspaceId, ref.id);
+    const href = pageOrBlockPath(ref.workspaceId, ref.id, block.props.blockId);
     return (
       <div contentEditable={false} className="w-full">
         <a href={href} onClick={(e) => openPage(e, href, router.push)} className={cn(row, "hover:bg-bg-hover")} data-mention-status="ok">
           <PageIcon icon={ref.icon} kind={ref.kind} className="shrink-0 text-base" />
           <span className="truncate font-medium underline decoration-fg-faint underline-offset-2">{pageLabel(ref.title, tc("untitled"))}</span>
+          {block.props.blockId && <Pilcrow className="h-3.5 w-3.5 shrink-0 text-fg-faint" aria-label={t("atBlock")} />}
         </a>
       </div>
     );
@@ -417,7 +431,7 @@ const PageLinkBlock = createReactBlockSpec(pageLinkBlockConfig, {
     const ref = refs.get(block.props.pageId);
     return ref?.status === "ok" ? (
       <p>
-        <a href={pagePath(ref.workspaceId, ref.id)}>{ref.title}</a>
+        <a href={pageOrBlockPath(ref.workspaceId, ref.id, block.props.blockId)}>{ref.title}</a>
       </p>
     ) : (
       <p />
@@ -643,6 +657,7 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
   }, [query, load, suggestionMenu, editor, workspaceId]);
 
   usePastedWikilinks(editor, workspaceId, pageId);
+  usePastedPageLinks(editor);
 
   return <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />;
 }
@@ -708,6 +723,32 @@ function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: str
       document.removeEventListener("paste", onPaste, true);
     };
   }, [editor, workspaceId, pageId]);
+}
+
+/**
+ * A link to a page of this workspace's app pasted on its own (an address copied from the browser,
+ * or "Copy link to block") becomes a mention of that page, at the block when the link has one: the
+ * live title instead of an address, and a link backlinks count. Pasted over a selection, it links
+ * the selected text as usual.
+ */
+function usePastedPageLinks(editor: PageEditor) {
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const root = editor.domElement;
+      if (!root || !(event.target instanceof Node) || !root.contains(event.target) || !editor.isEditable) return;
+      const text = (event.clipboardData?.getData("text/plain") ?? "").trim();
+      if (!text || /\s/.test(text) || !editor.prosemirrorState.selection.empty) return;
+      const linked = linkedPageRef(text, window.location.origin);
+      if (!linked) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      editor.insertInlineContent([{ type: "mention", props: { kind: "page", pageId: linked.pageId, blockId: linked.blockId } }, " "] as never, {
+        updateSelection: true,
+      });
+    };
+    document.addEventListener("paste", onPaste, true);
+    return () => document.removeEventListener("paste", onPaste, true);
+  }, [editor]);
 }
 
 // ---------------------------------------------------------------------------------------------

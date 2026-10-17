@@ -455,6 +455,7 @@
     "noAccess": "Kein Zugriff",
     "deleted": "Gelöschte Seite",
     "loading": "Wird geladen…",
+    "atBlock": "Öffnet die Seite an einem Block",
     "personLeft": "{name} (nicht mehr im Workspace)",
     "date": "Datum",
     "reminder": "Erinnerung",
