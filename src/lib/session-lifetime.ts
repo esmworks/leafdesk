@@ -9,13 +9,21 @@ const DAY_SECONDS = 24 * 60 * 60;
 
 /** Better Auth's own default, used when SESSION_MAX_AGE_DAYS is unset or invalid. */
 export const DEFAULT_SESSION_DAYS = 7;
-export const MAX_SESSION_DAYS = 3650;
+/**
+ * The session cookie lasts as long as the session, and browsers keep a cookie at most 400 days:
+ * Better Auth refuses to set a longer one, and sign-up and sign-in then fail with a server error.
+ */
+export const MAX_SESSION_DAYS = 400;
 
-/** SESSION_MAX_AGE_DAYS as whole days, 1 to 3650; anything else gives the default. */
+/**
+ * SESSION_MAX_AGE_DAYS as whole days from 1 to 400. More days than that give 400, the longest a
+ * browser keeps the cookie; anything else that isn't a whole number of days gives the default.
+ */
 export function sessionDaysFrom(value: string | undefined): number {
   if (value === undefined || value.trim() === "") return DEFAULT_SESSION_DAYS;
   const days = Number(value);
-  return Number.isInteger(days) && days >= 1 && days <= MAX_SESSION_DAYS ? days : DEFAULT_SESSION_DAYS;
+  if (!Number.isInteger(days) || days < 1) return DEFAULT_SESSION_DAYS;
+  return Math.min(days, MAX_SESSION_DAYS);
 }
 
 /**
