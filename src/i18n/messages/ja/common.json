@@ -1,6 +1,7 @@
 {
   "appDescription": "ドキュメントとデータベースのためのオープンソースのワークスペース。AIエージェントからMCPでアクセスできます。",
   "untitled": "無題",
+  "sourceCode": "ソースコード",
   "agent": "エージェント",
   "agentName": "{name}（エージェント）",
   "cancel": "キャンセル",

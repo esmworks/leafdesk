@@ -29,6 +29,10 @@
 
 ### Added
 
+- **A link to the source code for everyone who uses the server.** Published pages and public forms
+  now show *Source code* at their foot, for visitors without an account, next to the one in the
+  About tab. It leads to the running release's tag, or to `SOURCE_URL` when set: point it at your
+  own code if you run a changed Leafdesk for others (see the README).
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.
   A row's creator, the people its person properties name, and anyone who comments or is mentioned

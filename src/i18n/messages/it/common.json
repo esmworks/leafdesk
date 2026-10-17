@@ -1,6 +1,7 @@
 {
   "appDescription": "Spazio di lavoro open source per documenti e database, con accesso MCP per gli agenti IA.",
   "untitled": "Senza titolo",
+  "sourceCode": "Codice sorgente",
   "agent": "Agente",
   "agentName": "{name} (agente)",
   "cancel": "Annulla",

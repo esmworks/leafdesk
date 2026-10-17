@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 import { PublicFormFill } from "@/components/published/public-form";
+import { SourceFooter } from "@/components/published/source-footer";
 import { getPublicForm, issueFormTicket } from "@/server/forms";
 import { getSession } from "@/server/session";
 
@@ -38,7 +39,7 @@ export default async function PublicFormRoute({ params }: Params) {
           leafdesk
         </Link>
       </header>
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-10 pb-24 sm:pt-14">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-10 pb-16 sm:pt-14">
         {!form.anonymous && !session ? (
           <div>
             <h1 className="text-3xl font-bold leading-tight break-words">{form.title || tc("untitled")}</h1>
@@ -61,6 +62,7 @@ export default async function PublicFormRoute({ params }: Params) {
           />
         )}
       </main>
+      <SourceFooter />
     </div>
   );
 }
