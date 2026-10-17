@@ -362,43 +362,57 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
 // ---------------------------------------------------------------------------------------------
 // "Link to page" block
 
-const PageLinkBlock = createReactBlockSpec(pageLinkBlockConfig, {
-  render: function PageLinkView({ block }) {
-    const t = useTranslations("page.mention");
-    const tc = useTranslations("common");
-    const router = useRouter();
-    const ref = usePageRef(block.props.pageId);
-    const row = "flex w-full items-center gap-2 rounded-md px-1 py-1";
-    if (!block.props.pageId) return <div className="w-full" />;
-    if (!ref || ref.status !== "ok") {
-      const Icon = !ref ? Link2 : ref.status === "noAccess" ? Lock : FileX2;
-      return (
-        <div contentEditable={false} className={cn(row, "text-fg-faint")} data-mention-status={ref?.status ?? "loading"}>
-          <Icon className="h-4 w-4 shrink-0" aria-hidden />
-          <span>{!ref ? t("loading") : t(ref.status === "noAccess" ? "noAccess" : "deleted")}</span>
-        </div>
-      );
-    }
-    const href = pageOrBlockPath(ref.workspaceId, ref.id, block.props.blockId);
+/**
+ * A page on a line of its own: its live icon and title as a link (to `blockId` of it when given), or
+ * the note a mention shows when the reader can't open it. Synced pages fall back to it too (see
+ * synced-page.tsx).
+ */
+export function PageLinkCard({ pageId, blockId = "" }: { pageId: string; blockId?: string }) {
+  const t = useTranslations("page.mention");
+  const tc = useTranslations("common");
+  const router = useRouter();
+  const ref = usePageRef(pageId);
+  const row = "flex w-full items-center gap-2 rounded-md px-1 py-1";
+  if (!pageId) return <div className="w-full" />;
+  if (!ref || ref.status !== "ok") {
+    const Icon = !ref ? Link2 : ref.status === "noAccess" ? Lock : FileX2;
     return (
-      <div contentEditable={false} className="w-full">
-        <a href={href} onClick={(e) => openPage(e, href, router.push)} className={cn(row, "hover:bg-bg-hover")} data-mention-status="ok">
-          <PageIcon icon={ref.icon} kind={ref.kind} className="shrink-0 text-base" />
-          <span className="truncate font-medium underline decoration-fg-faint underline-offset-2">{pageLabel(ref.title, tc("untitled"))}</span>
-          {block.props.blockId && <Pilcrow className="h-3.5 w-3.5 shrink-0 text-fg-faint" aria-label={t("atBlock")} />}
-        </a>
+      <div contentEditable={false} className={cn(row, "text-fg-faint")} data-mention-status={ref?.status ?? "loading"}>
+        <Icon className="h-4 w-4 shrink-0" aria-hidden />
+        <span>{!ref ? t("loading") : t(ref.status === "noAccess" ? "noAccess" : "deleted")}</span>
       </div>
     );
+  }
+  const href = pageOrBlockPath(ref.workspaceId, ref.id, blockId);
+  return (
+    <div contentEditable={false} className="w-full">
+      <a href={href} onClick={(e) => openPage(e, href, router.push)} className={cn(row, "hover:bg-bg-hover")} data-mention-status="ok">
+        <PageIcon icon={ref.icon} kind={ref.kind} className="shrink-0 text-base" />
+        <span className="truncate font-medium underline decoration-fg-faint underline-offset-2">{pageLabel(ref.title, tc("untitled"))}</span>
+        {blockId && <Pilcrow className="h-3.5 w-3.5 shrink-0 text-fg-faint" aria-label={t("atBlock")} />}
+      </a>
+    </div>
+  );
+}
+
+/** A page block copied out of the editor: a link to the page (or its block) when the reader may open it. */
+export function PageLinkHTML({ pageId, blockId = "" }: { pageId: string; blockId?: string }) {
+  const ref = refs.get(pageId);
+  return ref?.status === "ok" ? (
+    <p>
+      <a href={pageOrBlockPath(ref.workspaceId, ref.id, blockId)}>{ref.title}</a>
+    </p>
+  ) : (
+    <p />
+  );
+}
+
+const PageLinkBlock = createReactBlockSpec(pageLinkBlockConfig, {
+  render: function PageLinkView({ block }) {
+    return <PageLinkCard pageId={block.props.pageId} blockId={block.props.blockId} />;
   },
-  toExternalHTML: function PageLinkHTML({ block }) {
-    const ref = refs.get(block.props.pageId);
-    return ref?.status === "ok" ? (
-      <p>
-        <a href={pageOrBlockPath(ref.workspaceId, ref.id, block.props.blockId)}>{ref.title}</a>
-      </p>
-    ) : (
-      <p />
-    );
+  toExternalHTML: function PageLinkBlockHTML({ block }) {
+    return <PageLinkHTML pageId={block.props.pageId} blockId={block.props.blockId} />;
   },
 });
 
@@ -721,11 +735,14 @@ function usePastedPageLinks(editor: PageEditor) {
 export function PagePicker({
   open,
   pageId,
+  title,
   onPick,
   onClose,
 }: {
   open: boolean;
   pageId: string;
+  /** What the picker is for, for screen readers ("Link to page" by default). */
+  title?: string;
   onPick: (pageId: string) => void;
   onClose: () => void;
 }) {
@@ -783,7 +800,7 @@ export function PagePicker({
             }
           }}
           placeholder={t("search")}
-          aria-label={t("title")}
+          aria-label={title ?? t("title")}
           className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
         />
       </div>

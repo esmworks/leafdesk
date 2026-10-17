@@ -388,6 +388,11 @@
       "subtext": "Un link a un’altra pagina, con il suo titolo sempre aggiornato",
       "aliases": "link page mention reference pagina menzione riferimento collegamento"
     },
+    "syncedPage": {
+      "title": "Pagina sincronizzata",
+      "subtext": "Il contenuto di un'altra pagina, in tempo reale e modificabile qui",
+      "aliases": "sincronizzata sincronizza specchio incorpora pagina synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Colori",
       "text": "Testo {color}",
@@ -473,6 +478,11 @@
     "search": "Cerca pagine…",
     "empty": "Nessuna pagina trovata",
     "failed": "Impossibile caricare le pagine."
+  },
+  "syncedPage": {
+    "label": "Pagina sincronizzata",
+    "viewOnly": "Sola lettura",
+    "cycle": "Questa pagina è già mostrata più in alto, qui c'è solo il link."
   },
   "backlinks": {
     "title": "Collegamenti in entrata",

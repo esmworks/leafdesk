@@ -6,7 +6,19 @@ import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds } from
 import { searchFold } from "@/lib/search-fold";
 import { searchQueryParts } from "@/lib/search-words";
 import { titleKey } from "@/lib/wikilinks";
-import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
+import { isPageLocked } from "@/lib/page-lock";
+import {
+  accessRank,
+  getMembership,
+  hasLevel,
+  isGuest,
+  levelFromRank,
+  pageAccessOf,
+  pageVisibleTo,
+  requirePageAccess,
+  workspacesHeldBack,
+  type AccessLevel,
+} from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
@@ -283,6 +295,45 @@ export async function resolvePageRefs(
     if (!row || row.archived) return { id, status: "deleted" };
     return { id, status: "ok", workspaceId: row.workspaceId, title: row.title, icon: row.icon, kind: row.kind };
   });
+}
+
+/**
+ * What a synced page block may show its reader about the page it shows: the same as a page
+ * mention ("No access" for a page they can't see, whether it exists or not), and for a page they
+ * can see, how far they may go with its body. `editable`: they may edit it (edit access, and the
+ * page isn't locked); the body opens read-only otherwise. Databases have no body to show: the
+ * block reads as a link to them (`kind`).
+ */
+export type SyncedPageInfo =
+  | { id: string; status: "noAccess" | "deleted" }
+  | {
+      id: string;
+      status: "ok";
+      workspaceId: string;
+      title: string;
+      icon: string | null;
+      kind: PageKind;
+      level: AccessLevel;
+      editable: boolean;
+    };
+
+export async function syncedPageInfo(userId: string, pageId: string): Promise<SyncedPageInfo> {
+  if (typeof pageId !== "string" || !pageId || pageId.length > 128) return { id: String(pageId), status: "deleted" };
+  const { page: found, level } = await pageAccessOf(userId, pageId);
+  if (found && (level === "none" || (await workspacesHeldBack(userId, [found.workspaceId])).has(found.workspaceId))) {
+    return { id: pageId, status: "noAccess" };
+  }
+  if (!found || found.archivedAt) return { id: pageId, status: "deleted" };
+  return {
+    id: pageId,
+    status: "ok",
+    workspaceId: found.workspaceId,
+    title: found.title,
+    icon: found.icon,
+    kind: found.kind,
+    level,
+    editable: hasLevel(level, "edit") && !isPageLocked(found),
+  };
 }
 
 /**

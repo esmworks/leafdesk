@@ -388,6 +388,11 @@
       "subtext": "Link do innej strony z jej aktualnym tytułem",
       "aliases": "link strona wzmianka odnośnik link page mention reference"
     },
+    "syncedPage": {
+      "title": "Strona synchronizowana",
+      "subtext": "Treść innej strony, na żywo i do edycji tutaj",
+      "aliases": "synchronizowana synchronizacja lustro osadź strona synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Kolory",
       "text": "Kolor tekstu: {color}",
@@ -473,6 +478,11 @@
     "search": "Szukaj stron…",
     "empty": "Nie znaleziono stron",
     "failed": "Nie udało się wczytać stron."
+  },
+  "syncedPage": {
+    "label": "Strona synchronizowana",
+    "viewOnly": "Tylko podgląd",
+    "cycle": "Ta strona jest już pokazana wyżej, więc tutaj jest tylko link."
   },
   "backlinks": {
     "title": "Linki z",

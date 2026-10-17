@@ -388,6 +388,11 @@
       "subtext": "Başka bir sayfaya, güncel başlığıyla bağlantı",
       "aliases": "bağlantı sayfa bahset link page mention"
     },
+    "syncedPage": {
+      "title": "Senkron sayfa",
+      "subtext": "Başka bir sayfanın içeriği, burada canlı ve düzenlenebilir",
+      "aliases": "senkron eşitle yansıt gömülü sayfa synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "Renkler",
       "text": "{color} metin",
@@ -473,6 +478,11 @@
     "search": "Sayfa ara…",
     "empty": "Sayfa bulunamadı",
     "failed": "Sayfalar yüklenemedi."
+  },
+  "syncedPage": {
+    "label": "Senkron sayfa",
+    "viewOnly": "Yalnızca görüntüleme",
+    "cycle": "Bu sayfa yukarıda zaten gösteriliyor, burada yalnızca bağlantısı var."
   },
   "backlinks": {
     "title": "Bu sayfaya bağlananlar",

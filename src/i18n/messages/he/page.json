@@ -388,6 +388,11 @@
       "subtext": "קישור לדף אחר, עם הכותרת העדכנית שלו",
       "aliases": "קישור דף אזכור הפניה link page mention reference"
     },
+    "syncedPage": {
+      "title": "דף מסונכרן",
+      "subtext": "התוכן של דף אחר, בזמן אמת וניתן לעריכה כאן",
+      "aliases": "מסונכרן סנכרון מראה הטמעה דף synced sync embed mirror transclude page"
+    },
     "colors": {
       "group": "צבעים",
       "text": "טקסט {color}",
@@ -473,6 +478,11 @@
     "search": "חיפוש דפים…",
     "empty": "לא נמצאו דפים",
     "failed": "לא ניתן היה לטעון את הדפים."
+  },
+  "syncedPage": {
+    "label": "דף מסונכרן",
+    "viewOnly": "צפייה בלבד",
+    "cycle": "הדף הזה כבר מוצג למעלה, ולכן כאן מופיע רק הקישור אליו."
   },
   "backlinks": {
     "title": "מקושר מ־",

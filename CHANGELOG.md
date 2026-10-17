@@ -54,6 +54,16 @@
   around the words. Only documents the page's readers may open through it count, and `in:` and
   `type:` narrow these results like any other. Documents are read in the background once they are
   uploaded.
+- **Synced pages.** "Synced page" in the `/` menu shows another page's body inside this one, live:
+  people who may edit that page edit it in place and see everyone's changes as they happen, people
+  who may only view it (or while it is locked) read it, and people who can't open it see
+  "No access", as mentions show them. The page showing it links there, so the shown page lists it
+  under "Linked from"; its own search, history, AI review and Markdown hold just one line for it.
+  A page that would show itself, directly or through other synced pages, is shown once and then
+  as a link with a note; synced pages inside synced pages go two levels deep. Published pages show
+  the block as a link to the page (its public address when it is published too). In Markdown and
+  over MCP it is the page's link alone on its line followed by `<!-- leafdesk:synced-page -->`,
+  which `update_page` keeps.
 
 ### Fixed
 
