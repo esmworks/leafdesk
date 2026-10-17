@@ -5,6 +5,10 @@ node_modules
 *.tsbuildinfo
 next-env.d.ts
 coverage
+# Desktop app build output
+/desktop/dist/
+/desktop/release/
+
 # Uploaded files (local storage driver, UPLOAD_DIR default)
 /data/
 

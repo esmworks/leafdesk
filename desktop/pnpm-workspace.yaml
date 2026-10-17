@@ -1,0 +1,7 @@
+# The desktop app is its own project with its own lockfile: this file keeps pnpm from treating it
+# as part of the server's workspace one folder up.
+allowBuilds:
+  # Downloads the Electron binary for this platform.
+  electron: true
+  # Builds Squirrel installers for Windows; the app ships an NSIS installer instead.
+  electron-winstaller: false

@@ -712,21 +712,55 @@ the collaboration socket. Images and files in pages are not kept offline.
 
 ### Desktop app
 
-Installing the web app is the desktop app for now. We looked at wrapping it:
+The desktop app for macOS, Windows and Linux is a window on your Leafdesk server: it opens the
+server's own pages, so it always runs the server's build (see *After an update*) and has nothing
+of its own to keep in step with it. Download it from the
+[latest release](https://github.com/esmworks/leafdesk/releases/latest):
 
-| | Installed web app | Tauri | Electron |
-| --- | --- | --- | --- |
-| Size | nothing to download | ~10 MB, the system's web view | ~100 MB+, ships Chromium |
-| Offline editing | yes (service worker + IndexedDB) | the same web code | the same web code |
-| Updates | with the server, automatic | signed releases per platform | signed releases per platform |
-| Extras | install from the browser | native menus, tray, file access; Safari's WebKit on macOS, WebView2 on Windows | native menus, tray, file access, one engine everywhere |
-| Cost | none | a Rust shell, code signing, a release pipeline | code signing, a release pipeline, frequent Chromium security updates |
+| System | File |
+| --- | --- |
+| macOS, Apple silicon | `Leafdesk-<version>-arm64.dmg` |
+| macOS, Intel | `Leafdesk-<version>-x64.dmg` |
+| Windows (64-bit) | `Leafdesk-Setup-<version>.exe` |
+| Linux, x64 or arm64 | the `.AppImage` for your processor (make it executable, then run it) |
 
-A shell would load the same self-hosted server, so it adds no offline ability the installed app
-lacks; it would add a place to keep the server address, native menus and global shortcuts. If
-that becomes worth it, Tauri is the better fit (small, uses the system web view, and the app
-already works in WebKit through Safari); Electron only if one rendering engine everywhere
-matters more than size.
+The macOS app is signed and notarized. The Windows installer isn't signed yet, so SmartScreen
+warns the first time: choose *More info*, then *Run anyway*.
+
+**Connecting.** On first start the app asks where your workspace is. *My own server* takes the
+server's address (`leafdesk.example.com`, or with `https://`, a port or `http://` for a server on
+your network); the app tries HTTPS first and checks that the address answers like a Leafdesk server
+(`/api/health` and the web app manifest) before it opens the sign-in page. *On this computer* and
+*Leafdesk account* are shown as coming later. *Change Server…* in the app menu (File on Windows
+and Linux) goes back to this screen; signing in again isn't needed for a server you used before.
+
+**Self-signed certificates.** When the server's certificate isn't trusted by the system, the app
+shows its SHA-256 fingerprint; compare it with the server's
+(`openssl x509 -noout -fingerprint -sha256 -in cert.pem`) and choose *Trust this certificate*. The
+app then trusts that one certificate for that host only, and asks again when it changes. A
+certificate from a certificate authority the computer trusts (an internal one included) needs
+nothing.
+
+**What it does differently from a browser tab.** Links to other sites open in your browser, and
+windows the pages open stay in the app only when they are on your server. Menus follow the
+language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
+full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
+connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
+remembers its size and place. Offline editing works as in the installed web app, which needs HTTPS
+(or `localhost`) for the service worker.
+
+**Not yet.** Push notifications don't reach the desktop app (the inbox still shows what's new), and
+passkeys may not work in it; sign in with a password, a code or single sign-on there.
+
+**Updates.** The app checks the latest GitHub release when it starts and every six hours, downloads
+a newer version in the background and asks to restart; it installs when you quit otherwise. Set
+`LEAFDESK_DISABLE_UPDATES=1` to turn this off (for an app managed by your IT, for example).
+Releases build the apps in `.github/workflows/desktop.yml`; signing the macOS app needs the
+`CSC_LINK` (the Developer ID certificate as a base64 `.p12`), `CSC_KEY_PASSWORD`, `APPLE_API_KEY`
+(the App Store Connect API key's `.p8` text), `APPLE_API_KEY_ID` and `APPLE_API_ISSUER` secrets.
+
+To work on it, see [`desktop/`](desktop/): `pnpm install`, then `pnpm start` there (Node.js 24,
+pnpm 11).
 
 ## Email
 

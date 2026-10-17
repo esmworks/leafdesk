@@ -9,3 +9,5 @@ data
 *.tsbuildinfo
 Dockerfile
 docker-compose*.yml
+# The desktop app is built and released on its own.
+desktop

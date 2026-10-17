@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Leafdesk</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <picture class="logo">
+        <source srcset="logo-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img src="logo.svg" alt="Leafdesk" />
+      </picture>
+
+      <section class="card" id="connect" hidden>
+        <h1 data-text="welcomeTitle"></h1>
+        <p class="lead" data-text="welcomeLead"></p>
+        <ul class="modes">
+          <li class="mode selected">
+            <div class="mode-head"><span class="mode-title" data-text="modeServer"></span></div>
+            <p class="mode-detail" data-text="modeServerDetail"></p>
+            <form id="server-form" novalidate>
+              <label for="address" data-text="serverAddress"></label>
+              <input
+                id="address"
+                type="text"
+                inputmode="url"
+                autocomplete="url"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="leafdesk.example.com"
+                dir="ltr"
+              />
+              <p class="note warning" id="insecure" data-text="insecureWarning" hidden></p>
+              <p class="note error" id="error" role="alert" hidden></p>
+              <div class="actions">
+                <button type="button" class="secondary" id="back" data-text="back" hidden></button>
+                <button type="button" class="secondary" id="anyway" data-text="connectAnyway" hidden></button>
+                <button type="submit" class="primary" id="connect-button" data-text="connect"></button>
+              </div>
+            </form>
+          </li>
+          <li class="mode unavailable" aria-disabled="true">
+            <div class="mode-head">
+              <span class="mode-title" data-text="modeLocal"></span>
+              <span class="tag" data-text="comingSoon"></span>
+            </div>
+            <p class="mode-detail" data-text="modeLocalDetail"></p>
+          </li>
+          <li class="mode unavailable" aria-disabled="true">
+            <div class="mode-head">
+              <span class="mode-title" data-text="modeAccount"></span>
+              <span class="tag" data-text="comingSoon"></span>
+            </div>
+            <p class="mode-detail" data-text="modeAccountDetail"></p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card" id="certificate" hidden>
+        <h1 data-text="certTitle"></h1>
+        <p id="certificate-body"></p>
+        <dl class="fingerprint">
+          <dt data-text="certFingerprint"></dt>
+          <dd id="certificate-fingerprint" dir="ltr"></dd>
+        </dl>
+        <p class="faint" id="certificate-detail" dir="ltr"></p>
+        <div class="actions">
+          <button type="button" class="secondary" id="certificate-back" data-text="back"></button>
+          <button type="button" class="primary" id="certificate-trust" data-text="certTrust"></button>
+        </div>
+      </section>
+
+      <section class="card" id="problem" hidden>
+        <h1 id="problem-title"></h1>
+        <p data-text="problemBody"></p>
+        <p class="faint" id="problem-detail" dir="ltr"></p>
+        <div class="actions">
+          <button type="button" class="secondary" id="problem-change" data-text="changeServer"></button>
+          <button type="button" class="primary" id="problem-retry" data-text="retry"></button>
+        </div>
+      </section>
+    </main>
+    <script src="../dist/pages/app.js"></script>
+  </body>
+</html>

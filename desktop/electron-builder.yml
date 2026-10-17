@@ -1,0 +1,50 @@
+# Packaging (electron-builder). Releases build in .github/workflows/desktop.yml, which sets the
+# version from the release tag and uploads the files to that GitHub release; the apps update
+# themselves from there (`publish`).
+appId: io.github.esmworks.leafdesk
+productName: Leafdesk
+copyright: Copyright © esmworks
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**
+  - pages/**
+  - build/icon.png
+  - package.json
+artifactName: Leafdesk-${version}-${arch}.${ext}
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    # The zip is what an installed app downloads to update itself.
+    - target: zip
+      arch: [arm64, x64]
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # Signed with the Developer ID certificate in CSC_LINK, notarized with the App Store Connect key
+  # in APPLE_API_KEY, APPLE_API_KEY_ID and APPLE_API_ISSUER.
+  notarize: true
+  extendInfo:
+    NSMicrophoneUsageDescription: Leafdesk uses the microphone while you record a voice note.
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  artifactName: Leafdesk-Setup-${version}.${ext}
+
+linux:
+  category: Office
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+
+publish:
+  provider: github
+  owner: esmworks
+  repo: leafdesk

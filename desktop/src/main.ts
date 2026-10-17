@@ -1,0 +1,392 @@
+/**
+ * Leafdesk's desktop app: a window on the person's own Leafdesk server. The pages come from the
+ * server, as in a browser, so the app works with whatever version the server runs and offline
+ * use is the web app's own (its service worker). The app adds a window of its own, menus, a
+ * screen to pick the server, and a way to trust a server's self-signed certificate.
+ */
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  nativeTheme,
+  screen,
+  session,
+  shell,
+  systemPreferences,
+  type IpcMainInvokeEvent,
+  type Rectangle,
+  type Session,
+  type WebContents,
+  type WebPreferences,
+} from "electron";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
+import { showContextMenu } from "./context-menu.ts";
+import { buildMenu, WEBSITE } from "./menu.ts";
+import { decideNavigation, decideNewWindow, isServerPage } from "./navigation.ts";
+import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
+import { loadSettings, saveSettings, type Settings } from "./settings.ts";
+import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
+import { startUpdates } from "./updates.ts";
+
+const APP_DIR = path.join(import.meta.dirname, "..");
+const PAGE = path.join(APP_DIR, "pages", "app.html");
+const PAGES_URL = `${pathToFileURL(path.join(APP_DIR, "pages")).href}/`;
+const PRELOAD = path.join(import.meta.dirname, "preload.cjs");
+const ICON = path.join(APP_DIR, "build", "icon.png");
+/** The web app's own background (src/lib/theme.ts), so a window doesn't flash before it paints. */
+const BACKGROUND = { light: "#ffffff", dark: "#18191b" };
+const PROBE_TIMEOUT_MS = 10_000;
+/** The language picked in Leafdesk (src/i18n/config.ts); the app's own words follow it. */
+const LOCALE_COOKIE = "NEXT_LOCALE";
+/** What the server's pages may ask for: notifications, the clipboard, full screen and the microphone (voice notes). */
+const PERMISSIONS = new Set(["notifications", "clipboard-read", "clipboard-sanitized-write", "fullscreen", "media"]);
+
+/** What the app's own page shows. */
+type View =
+  | { view: "connect"; address?: string }
+  | { view: "problem"; server: string; detail: string; certificate?: CertificateProblem };
+
+type Probe =
+  | { kind: "ok"; origin: string }
+  | { kind: "not-leafdesk"; origin: string }
+  | { kind: "certificate"; certificate: CertificateProblem }
+  | { kind: "unreachable" };
+
+export type ConnectReply =
+  | { ok: true }
+  | { error: "invalid" }
+  | { error: "unreachable"; host: string }
+  | { error: "not-leafdesk"; host: string }
+  | { error: "certificate"; host: string; certificate: CertificateProblem };
+
+let settings: Settings = { trustedCertificates: {} };
+let locale: Locale = "en";
+let mainWindow: BrowserWindow | null = null;
+const views = new WeakMap<WebContents, View>();
+const certificates = new CertificateTrust(() => settings.trustedCertificates);
+
+const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
+const save = () => saveSettings(settingsFile(), settings);
+const strings = () => STRINGS[locale];
+const systemLocale = () => pickLocale(app.getPreferredSystemLanguages());
+
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    const window = mainWindow ?? BrowserWindow.getAllWindows()[0];
+    if (!window) return openMainWindow();
+    if (window.isMinimized()) window.restore();
+    window.focus();
+  });
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") app.quit();
+  });
+  void app.whenReady().then(start);
+}
+
+function start() {
+  settings = loadSettings(settingsFile());
+  locale = systemLocale();
+  app.userAgentFallback = plainUserAgent(app.userAgentFallback);
+  if (process.platform === "win32") app.setAppUserModelId("io.github.esmworks.leafdesk");
+  app.setAboutPanelOptions({ applicationName: "Leafdesk", applicationVersion: app.getVersion(), website: WEBSITE });
+
+  const ses = session.defaultSession;
+  certificates.install(ses);
+  guardPermissions(ses);
+  setSpellCheckerLanguages(ses);
+  followLeafdeskLanguage(ses);
+  registerPageBridge();
+  refreshMenu();
+  openMainWindow();
+  startUpdates(strings);
+
+  app.on("activate", () => {
+    if (!BrowserWindow.getAllWindows().length) openMainWindow();
+  });
+}
+
+/**
+ * The browser's user agent without the Electron and app tokens: some sign-in pages (Google's)
+ * turn down embedded browsers by them, while this window is a full Chromium.
+ */
+function plainUserAgent(agent: string) {
+  const names = [...new Set(["Electron", app.getName(), "leafdesk-desktop"])].map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  return agent.replace(new RegExp(` (?:${names.join("|")})/\\S+`, "g"), "");
+}
+
+function refreshMenu() {
+  Menu.setApplicationMenu(
+    buildMenu(strings(), {
+      changeServer: () => {
+        const window = mainWindow ?? openMainWindow();
+        showView(window, { view: "connect", address: settings.server });
+        window.focus();
+      },
+      goHome: (window) => {
+        if (settings.server) openServer(window);
+      },
+    }),
+  );
+}
+
+function webPreferences(): WebPreferences {
+  return { preload: PRELOAD, contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: true };
+}
+
+function createWindow(bounds?: Partial<Rectangle>) {
+  const window = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    ...bounds,
+    minWidth: 420,
+    minHeight: 480,
+    show: false,
+    title: "Leafdesk",
+    backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
+    icon: process.platform === "linux" ? ICON : undefined,
+    webPreferences: webPreferences(),
+  });
+  window.once("ready-to-show", () => window.show());
+  // A page that never paints (a server that holds the connection open) still gets its window.
+  setTimeout(() => {
+    if (!window.isDestroyed() && !window.isVisible()) window.show();
+  }, 3000);
+  guard(window.webContents);
+  return window;
+}
+
+function openMainWindow() {
+  const window = createWindow(restoredBounds());
+  mainWindow = window;
+  if (settings.window?.maximized) window.maximize();
+  window.on("close", () => {
+    settings.window = { ...window.getNormalBounds(), maximized: window.isMaximized() };
+    save();
+  });
+  window.on("closed", () => {
+    if (mainWindow === window) mainWindow = null;
+  });
+  if (settings.server) openServer(window);
+  else showView(window, { view: "connect" });
+  return window;
+}
+
+/** The size and place the window had, unless that place is off every screen now. */
+function restoredBounds(): Partial<Rectangle> | undefined {
+  const saved = settings.window;
+  if (!saved) return undefined;
+  const { x, y, width, height } = saved;
+  if (x === undefined || y === undefined) return { width, height };
+  const onScreen = screen
+    .getAllDisplays()
+    .some(({ workArea: area }) => x < area.x + area.width - 100 && x + width > area.x + 100 && y >= area.y - 20 && y < area.y + area.height - 100);
+  return onScreen ? { x, y, width, height } : { width, height };
+}
+
+function openServer(window: BrowserWindow) {
+  if (!settings.server) return;
+  views.delete(window.webContents);
+  // A failed load is shown by did-fail-load (guard), not here.
+  window.loadURL(`${settings.server}/`).catch(() => undefined);
+}
+
+function showView(window: BrowserWindow, view: View) {
+  views.set(window.webContents, view);
+  window.loadFile(PAGE).catch(() => undefined);
+}
+
+/** Navigation, new windows, failed loads and the context menu of a window's page. */
+function guard(contents: WebContents) {
+  contents.on("will-navigate", (event) => {
+    const decision = decideNavigation(event.url, PAGES_URL);
+    if (decision === "allow") return;
+    event.preventDefault();
+    if (decision === "external") void shell.openExternal(event.url);
+  });
+  contents.on("will-redirect", (event) => {
+    if (decideNavigation(event.url, PAGES_URL) !== "allow") event.preventDefault();
+  });
+  contents.setWindowOpenHandler(({ url }) => {
+    const decision = decideNewWindow(url, settings.server);
+    if (decision === "window") {
+      return {
+        action: "allow",
+        overrideBrowserWindowOptions: {
+          width: 1100,
+          height: 800,
+          backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
+          webPreferences: webPreferences(),
+        },
+      };
+    }
+    if (decision === "external") void shell.openExternal(url);
+    return { action: "deny" };
+  });
+  contents.on("did-create-window", (child) => guard(child.webContents));
+  contents.on("did-fail-load", (_event, code, description, url, isMainFrame) => {
+    // -3 is a load that was cancelled, by a newer one for instance.
+    if (!isMainFrame || code === -3 || !settings.server || !isServerPage(url, settings.server)) return;
+    const window = BrowserWindow.fromWebContents(contents);
+    if (!window) return;
+    const certificate = isCertificateError(description) ? certificates.problems.get(new URL(settings.server).hostname) : undefined;
+    showView(window, { view: "problem", server: settings.server, detail: description, certificate });
+  });
+  contents.on("context-menu", (_event, params) => showContextMenu(contents, params, strings()));
+  contents.on("render-process-gone", (_event, details) => {
+    if (details.reason !== "clean-exit") contents.reload();
+  });
+}
+
+/** Only the connected server's pages get permissions, and only those it uses. */
+function guardPermissions(ses: Session) {
+  ses.setPermissionRequestHandler((_contents, permission, callback, details) => {
+    if (!isServerPage(details.requestingUrl, settings.server) || !PERMISSIONS.has(permission)) return callback(false);
+    if (permission !== "media") return callback(true);
+    const types = "mediaTypes" in details ? (details.mediaTypes ?? []) : [];
+    if (types.includes("video")) return callback(false);
+    if (process.platform !== "darwin") return callback(true);
+    systemPreferences.askForMediaAccess("microphone").then(callback, () => callback(false));
+  });
+  ses.setPermissionCheckHandler((_contents, permission, origin) => isServerPage(origin, settings.server) && PERMISSIONS.has(permission));
+}
+
+/** macOS and Windows check spelling in the system's languages; elsewhere the session needs them. */
+function setSpellCheckerLanguages(ses: Session) {
+  if (process.platform === "darwin" || process.platform === "win32") return;
+  const available = ses.availableSpellCheckerLanguages;
+  const base = (tag: string) => tag.toLowerCase().split(/[-_]/)[0];
+  const languages = app
+    .getPreferredSystemLanguages()
+    .map((tag) => available.find((code) => code.toLowerCase() === tag.toLowerCase()) ?? available.find((code) => base(code) === base(tag)))
+    .filter((code): code is string => !!code);
+  if (languages.length) ses.setSpellCheckerLanguages([...new Set(languages)].slice(0, 3));
+}
+
+/** The app's menus and own pages switch language with Leafdesk's language setting. */
+function followLeafdeskLanguage(ses: Session) {
+  ses.cookies.on("changed", (_event, cookie, cause, removed) => {
+    if (cookie.name !== LOCALE_COOKIE || cause === "overwrite" || !settings.server) return;
+    if (cookie.domain?.replace(/^\./, "") !== new URL(settings.server).hostname) return;
+    applyLocale(removed ? undefined : cookie.value);
+  });
+  readLeafdeskLanguage(ses);
+}
+
+function readLeafdeskLanguage(ses: Session) {
+  if (!settings.server) return applyLocale(undefined);
+  ses.cookies.get({ url: settings.server, name: LOCALE_COOKIE }).then(
+    ([cookie]) => applyLocale(cookie?.value),
+    () => undefined,
+  );
+}
+
+function applyLocale(value: string | undefined) {
+  const next = value && isLocale(value) ? value : systemLocale();
+  if (next === locale) return;
+  locale = next;
+  refreshMenu();
+}
+
+/** Whether a server answers at an origin, and whether it is Leafdesk: its health check and manifest. */
+async function probe(origin: string, redirects = 1): Promise<Probe> {
+  const ses = session.defaultSession;
+  const get = (url: string) => ses.fetch(url, { redirect: "manual", signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) });
+  try {
+    const health = await get(`${origin}/api/health`);
+    const location = health.headers.get("location");
+    // A server that sends plain HTTP on to HTTPS (or to another host) is kept by where it sends.
+    if (health.status >= 300 && health.status < 400 && location && redirects > 0) {
+      return probe(new URL(location, `${origin}/`).origin, redirects - 1);
+    }
+    const healthy = health.ok && ((await health.json().catch(() => null)) as { status?: unknown } | null)?.status === "ok";
+    if (!healthy) return { kind: "not-leafdesk", origin };
+    const manifest = await get(`${origin}/manifest.webmanifest`);
+    const leafdesk = manifest.ok && isLeafdeskManifest(await manifest.json().catch(() => null));
+    return leafdesk ? { kind: "ok", origin } : { kind: "not-leafdesk", origin };
+  } catch (error) {
+    const message = error instanceof Error ? `${error.message} ${String(error.cause ?? "")}` : String(error);
+    console.warn(`No answer from ${origin}:`, message);
+    const certificate = isCertificateError(message) ? certificates.problems.get(new URL(origin).hostname) : undefined;
+    if (!certificate) return { kind: "unreachable" };
+    certificate.origin = origin;
+    return { kind: "certificate", certificate };
+  }
+}
+
+async function connect(address: string, force: boolean): Promise<{ reply: ConnectReply; origin?: string }> {
+  const candidates = addressCandidates(address);
+  if (!candidates) return { reply: { error: "invalid" } };
+  let reply: ConnectReply = { error: "unreachable", host: hostOf(candidates[0]) };
+  for (const origin of candidates) {
+    const untrusted = await certificates.inspect(origin);
+    if (untrusted) return { reply: { error: "certificate", host: untrusted.host, certificate: untrusted } };
+    const result = await probe(origin);
+    if (result.kind === "ok") return { reply: { ok: true }, origin: result.origin };
+    // Never falls back to plain HTTP past a certificate it couldn't check.
+    if (result.kind === "certificate") return { reply: { error: "certificate", host: result.certificate.host, certificate: result.certificate } };
+    if (result.kind === "not-leafdesk") {
+      if (force) return { reply: { ok: true }, origin: result.origin };
+      reply = { error: "not-leafdesk", host: hostOf(result.origin) };
+    }
+  }
+  return { reply };
+}
+
+/** The bridge pages/app.html talks to (preload.cts); nothing else may call it. */
+function registerPageBridge() {
+  const handle = (channel: string, listener: (event: IpcMainInvokeEvent, ...args: unknown[]) => unknown) =>
+    ipcMain.handle(channel, (event, ...args) => {
+      if (!event.senderFrame?.url.startsWith(PAGES_URL)) throw new Error("Not allowed");
+      return listener(event, ...args);
+    });
+  const windowOf = (event: IpcMainInvokeEvent) => BrowserWindow.fromWebContents(event.sender);
+
+  handle("leafdesk:state", (event) => ({
+    locale,
+    dir: direction(locale),
+    strings: strings(),
+    current: settings.server,
+    ...(views.get(event.sender) ?? { view: "connect" }),
+  }));
+
+  handle("leafdesk:connect", async (event, address, force) => {
+    if (typeof address !== "string") return { error: "invalid" } satisfies ConnectReply;
+    const { reply, origin } = await connect(address, force === true);
+    const window = windowOf(event);
+    if (origin && window) {
+      settings.server = origin;
+      save();
+      readLeafdeskLanguage(session.defaultSession);
+      openServer(window);
+    }
+    return reply;
+  });
+
+  handle("leafdesk:trust", (_event, host, fingerprint) => {
+    const problem = typeof host === "string" ? certificates.problems.get(host) : undefined;
+    // Only the certificate the page showed: one that changed meanwhile has to be looked at again.
+    if (!problem || problem.fingerprint !== fingerprint) return { ok: false };
+    settings.trustedCertificates[problem.host] = problem.fingerprint;
+    certificates.problems.delete(problem.host);
+    if (!problem.seenByChromium) {
+      save();
+      return { ok: true };
+    }
+    // Chromium already turned this certificate down and keeps that until the app restarts.
+    if (problem.origin) settings.server = problem.origin;
+    save();
+    app.relaunch();
+    app.exit(0);
+    return { ok: true };
+  });
+
+  handle("leafdesk:retry", (event) => {
+    const window = windowOf(event);
+    if (window) openServer(window);
+  });
+}

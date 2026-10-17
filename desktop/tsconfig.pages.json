@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "legacy",
+    "types": [],
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": "src/pages",
+    "outDir": "dist/pages"
+  },
+  "include": ["src/pages"]
+}

@@ -33,5 +33,5 @@ export default defineConfig([
     files: ["scripts/**", "**/*.test.ts", "**/*.test.tsx"],
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "coverage/**", ".claude/**", "next-env.d.ts", "drizzle/**"]),
+  globalIgnores([".next/**", "out/**", "build/**", "coverage/**", ".claude/**", "next-env.d.ts", "drizzle/**", "desktop/**"]),
 ]);

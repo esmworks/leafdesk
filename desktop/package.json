@@ -1,0 +1,33 @@
+{
+  "name": "leafdesk-desktop",
+  "productName": "Leafdesk",
+  "version": "0.0.0",
+  "description": "Leafdesk for macOS, Windows and Linux: a window on your own Leafdesk server.",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "esmworks",
+  "homepage": "https://esmworks.github.io/leafdesk/",
+  "repository": "github:esmworks/leafdesk",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.pages.json",
+    "start": "pnpm build && electron .",
+    "typecheck": "tsc -p . && tsc -p tsconfig.pages.json --noEmit",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "dist": "pnpm build && electron-builder --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "electron": "44.7.2",
+    "electron-builder": "26.15.3",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.9.0"
+}
