@@ -558,6 +558,7 @@ export function PropertyCell({
           aria-checked={value === true}
           aria-label={prop.name}
           disabled={readOnly}
+          data-cell-edit={readOnly ? undefined : ""}
           className="inline-flex disabled:cursor-default"
           onClick={() => onChange(!(value === true))}
         >
@@ -576,6 +577,7 @@ export function PropertyCell({
         className={base}
         role={readOnly ? undefined : "button"}
         tabIndex={readOnly ? undefined : 0}
+        data-cell-edit={readOnly ? undefined : ""}
         onClick={() => !readOnly && setEditing(true)}
         onKeyDown={(e) => {
           if (!readOnly && (e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
@@ -599,7 +601,16 @@ export function PropertyCell({
           anchor={anchor}
           onChange={onChange}
           onCreateOption={onCreateOption}
-          onClose={() => setEditing(false)}
+          onClose={() => {
+            setEditing(false);
+            // Closed from the keyboard (Enter, Esc), the cell takes focus back, so the keyboard
+            // carries on from it; a click elsewhere keeps what it focused.
+            setTimeout(() => {
+              if ((!document.activeElement || document.activeElement === document.body) && anchor?.isConnected) {
+                anchor.focus({ preventScroll: true });
+              }
+            });
+          }}
           draft={draft}
           upload={upload}
         />

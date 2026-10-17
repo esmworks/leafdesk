@@ -1,4 +1,4 @@
-import { bigint, boolean, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, boolean, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -54,4 +54,23 @@ export const fileReference = pgTable(
     authorized: boolean("authorized").notNull().default(false),
   },
   (t) => [primaryKey({ columns: [t.fileId, t.pageId] }), index("file_reference_page_idx").on(t.pageId)],
+);
+
+/**
+ * Stored objects to delete (see server/files.ts, `removeStored`). Whatever removes a file's row adds
+ * its key here in the same transaction, so the bytes can't outlive the row unnoticed: the cleanup
+ * deletes the object and then this row, and an object storage refused stays here to be tried again
+ * later, also after a restart.
+ */
+export const storageDeletion = pgTable(
+  "storage_deletion",
+  {
+    storageKey: text("storage_key").primaryKey(),
+    attempts: integer("attempts").notNull().default(0),
+    /** Not before then: later after each failure. */
+    nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }).notNull().defaultNow(),
+    lastError: text("last_error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("storage_deletion_next_attempt_idx").on(t.nextAttemptAt)],
 );

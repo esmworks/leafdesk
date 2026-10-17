@@ -3,16 +3,14 @@ import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
 import { file, fileReference, page, propertyPermission, type PageKind, workspace } from "@/db/schema";
 import { toCsv } from "@/lib/csv";
-import { dateValueText } from "@/lib/date-value";
-import { isErrorValue, valueType } from "@/lib/derived";
+import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { layoutExport, relativeLink, rewriteLinks, type ExportLayout } from "@/lib/export-layout";
-import { asFiles, fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
+import { fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
-import { asChecklist, displayValue } from "@/lib/properties";
 import { toXlsx, type XlsxValue } from "@/lib/xlsx";
-import { holdsPeople } from "@/lib/property-types";
+import { cellText } from "@/lib/table-clipboard";
 import { accessRank, pageIdColumn, requireMembership, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
@@ -100,32 +98,9 @@ export function databaseTable(
   // A relation to the same database would otherwise print ids for its trashed rows.
   if (snapshot.database.archived) for (const row of rows) if (!titleOf.has(row.id)) titleOf.set(row.id, row.title);
   const nameOf = new Map(snapshot.people.map((p) => [p.id, p.name] as const));
-  const cell = (value: unknown, names: Map<string, string>): string | number | null => {
-    if (value === null || value === undefined || value === "") return null;
-    if (Array.isArray(value)) return value.map((v) => names.get(String(v)) ?? String(v)).join(", ");
-    if (typeof value === "boolean") return value ? "true" : "false";
-    return typeof value === "number" ? value : String(value);
-  };
-  // One line per checklist item, "[x] Done thing" / "[ ] Open thing".
-  const checklist = (value: unknown) =>
-    asChecklist(value)
-      .map((item) => `[${item.checked ? "x" : " "}] ${item.text}`)
-      .join("\n") || null;
-  const files = (value: unknown) => asFiles(value).map(fileText).join("\n") || null;
   return {
     header: ["Name", ...snapshot.properties.map((p) => p.name)],
-    cells: rows.map((row) => [
-      row.title,
-      ...snapshot.properties.map((p) => {
-        const value = row.properties[p.id];
-        // A formula that fails on this row says why.
-        if (isErrorValue(value)) return `#ERROR: ${value.error.message}`;
-        if (p.type === "files") return files(value);
-        // "2026-10-12 → 2026-10-14" for ranges, times in UTC: what the CSV import reads back.
-        if (p.type === "date") return dateValueText(value);
-        return p.type === "checklist" ? checklist(value) : cell(displayValue(p, value), holdsPeople(p.type) ? nameOf : titleOf);
-      }),
-    ]),
+    cells: rows.map((row) => [row.title, ...snapshot.properties.map((p) => cellText(p, row.properties[p.id], { titleOf, nameOf, fileText }))]),
   };
 }
 

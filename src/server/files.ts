@@ -5,15 +5,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { file, fileReference, page, propertyPermission } from "@/db/schema";
+import { file, fileReference, page, propertyPermission, storageDeletion } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
-import { getStorage, uploadLimits } from "@/server/storage";
+import { getStorage, type StorageDriver, uploadLimits } from "@/server/storage";
 
 /**
  * Uploaded files (images, video, audio and attachments in page bodies, and the values of files
@@ -404,15 +404,99 @@ async function pagesShowing(found: FileRow): Promise<string[]> {
   return [...new Set([...(found.pageId ? [found.pageId] : []), ...refs.map((r) => r.pageId)])];
 }
 
-export async function removeStored(keys: string[]) {
-  const storage = getStorage();
+/**
+ * Queues stored objects for deletion (see `storageDeletion`). Called in the transaction that removes
+ * their rows, so no object is left behind unrecorded when deleting it fails or the server stops
+ * first. `deleteQueued` or the cleanup (`drainStorageDeletions`) deletes them afterwards.
+ */
+export async function queueStorageDeletion(tx: Tx | typeof db, keys: string[]) {
+  for (let i = 0; i < keys.length; i += 1000) {
+    await tx
+      .insert(storageDeletion)
+      .values(keys.slice(i, i + 1000).map((storageKey) => ({ storageKey })))
+      .onConflictDoNothing();
+  }
+}
+
+/**
+ * Deletes the queued objects `keys` from storage now, each with its queue entry. An object the
+ * storage refuses to delete stays queued and is tried again later (`drainStorageDeletions`): a
+ * minute after the first failure, then twice as long after each one, up to a day. Returns how many
+ * went.
+ */
+export async function deleteQueued(keys: string[], storage: StorageDriver = getStorage()): Promise<number> {
+  const done: string[] = [];
   for (const key of keys) {
     try {
       await storage.delete(key);
+      done.push(key);
     } catch (error) {
-      // The row is gone already; a leftover object only takes space.
-      console.error(`[files] couldn't delete ${key} from storage`, error);
+      console.error(`[files] couldn't delete ${key} from storage; will try again`, error);
+      await db
+        .update(storageDeletion)
+        .set({
+          attempts: sql`${storageDeletion.attempts} + 1`,
+          nextAttemptAt: sql`now() + least(interval '1 minute' * power(2, ${storageDeletion.attempts}), interval '1 day')`,
+          lastError: String(error).slice(0, 1000),
+        })
+        .where(eq(storageDeletion.storageKey, key));
     }
+  }
+  for (let i = 0; i < done.length; i += 1000) {
+    await db.delete(storageDeletion).where(inArray(storageDeletion.storageKey, done.slice(i, i + 1000)));
+  }
+  return done.length;
+}
+
+/**
+ * Deletes stored objects that no row records (any more): queued first, so a failure is retried.
+ * Never throws: the change that made them unneeded is done already.
+ */
+export async function removeStored(keys: string[]) {
+  if (!keys.length) return;
+  try {
+    await queueStorageDeletion(db, keys);
+    await deleteQueued(keys);
+  } catch (error) {
+    console.error("[files] couldn't delete files from storage", error);
+  }
+}
+
+const DELETION_LOCK = "leafdesk:storage-deletion";
+const DELETION_BATCH = 100;
+
+/**
+ * Deletes every queued object that is due: those whose deletion failed before, and those queued by a
+ * server that stopped before it got to them. Returns how many went and how many failed again, or
+ * null when another server is at it right now (a session lock, released with the connection if the
+ * process dies midway).
+ */
+export async function drainStorageDeletions(storage: StorageDriver = getStorage()): Promise<{ deleted: number; failed: number } | null> {
+  const connection = await db.$client.reserve();
+  try {
+    const [row] = await connection<{ locked: boolean }[]>`select pg_try_advisory_lock(hashtext(${DELETION_LOCK})) as locked`;
+    if (!row?.locked) return null;
+    try {
+      let deleted = 0;
+      let failed = 0;
+      for (;;) {
+        // A failure moves its entry past now(), so each round takes new ones and this ends.
+        const due = await db
+          .select({ key: storageDeletion.storageKey })
+          .from(storageDeletion)
+          .where(lte(storageDeletion.nextAttemptAt, sql`now()`))
+          .orderBy(asc(storageDeletion.nextAttemptAt))
+          .limit(DELETION_BATCH);
+        const went = await deleteQueued(due.map((d) => d.key), storage);
+        deleted += went;
+        failed += due.length - went;
+        if (due.length < DELETION_BATCH) return { deleted, failed };
+      }
+    } finally {
+      await connection`select pg_advisory_unlock(hashtext(${DELETION_LOCK}))`;
+    }
+  } finally {
+    connection.release();
   }
 }
 
@@ -422,18 +506,22 @@ export async function removeStored(keys: string[]) {
  * file through it. Returns how many went.
  */
 export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
-  const gone = await db
-    .delete(file)
-    .where(
-      and(
-        isNull(file.pageId),
-        sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
-        workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
-      ),
-    )
-    .returning({ key: file.storageKey });
-  await removeStored(gone.map((g) => g.key));
-  return gone.length;
+  const keys = await db.transaction(async (tx) => {
+    const gone = await tx
+      .delete(file)
+      .where(
+        and(
+          isNull(file.pageId),
+          sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
+          workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
+        ),
+      )
+      .returning({ key: file.storageKey });
+    await queueStorageDeletion(tx, gone.map((g) => g.key));
+    return gone.map((g) => g.key);
+  });
+  await deleteQueued(keys);
+  return keys.length;
 }
 
 /**
@@ -441,24 +529,31 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
  * (in `workspaceId`, or everywhere).
  */
 export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, workspaceId }: { olderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
-  const gone = await db
-    .delete(file)
-    .where(
-      and(
-        workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
-        isNull(file.referencedAt),
-        sql`${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})`,
-        sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
-      ),
-    )
-    .returning({ key: file.storageKey });
-  await removeStored(gone.map((g) => g.key));
-  return gone.length;
+  const keys = await db.transaction(async (tx) => {
+    const gone = await tx
+      .delete(file)
+      .where(
+        and(
+          workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
+          isNull(file.referencedAt),
+          sql`${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})`,
+          sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
+        ),
+      )
+      .returning({ key: file.storageKey });
+    await queueStorageDeletion(tx, gone.map((g) => g.key));
+    return gone.map((g) => g.key);
+  });
+  await deleteQueued(keys);
+  return keys.length;
 }
 
 let sweeper: NodeJS.Timeout | null = null;
 
-/** Runs both cleanups a minute after start and hourly after that (server.ts). */
+/**
+ * Runs both cleanups, then the deletions still queued, a minute after start and hourly after that
+ * (server.ts).
+ */
 export function startFileCleanup() {
   if (sweeper) return;
   const sweep = async () => {
@@ -466,6 +561,10 @@ export function startFileCleanup() {
       const orphans = await purgeOrphanFiles();
       const unused = await purgeUnusedUploads();
       if (orphans || unused) console.log(`[files] removed ${orphans} orphaned and ${unused} unused uploads`);
+      const queued = await drainStorageDeletions();
+      if (queued?.deleted || queued?.failed) {
+        console.log(`[files] deleted ${queued.deleted} queued objects from storage, ${queued.failed} to try again later`);
+      }
     } catch (error) {
       console.error("[files] cleanup failed", error);
     }

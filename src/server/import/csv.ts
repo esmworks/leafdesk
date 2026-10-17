@@ -91,31 +91,43 @@ function rowValues(
  * relations by name). A value it refuses is dropped from the row and counted, and the row checked
  * again. Returns the stored values.
  */
-async function checkRows(userId: string, databaseId: string, rows: PendingRow[], props: DatabaseProperty[], invalid: Map<string, number>) {
+export async function checkRows(userId: string, databaseId: string, rows: PendingRow[], props: DatabaseProperty[], invalid: Map<string, number>) {
   const checked: { title: string; properties: Record<string, unknown> }[] = [];
-  for (const row of rows) {
-    const values = { ...row.values };
-    for (;;) {
-      try {
-        checked.push({ title: row.title, properties: await normalizeRowProperties(userId, databaseId, values) });
-        break;
-      } catch (error) {
-        if (!(error instanceof PropertyValueError)) throw error;
-        const prop = props.find((p) => p.id in values && p.name === error.params.property);
-        if (!prop) throw error;
-        delete values[prop.id];
-        invalid.set(prop.id, (invalid.get(prop.id) ?? 0) + 1);
-      }
+  for (const row of rows) checked.push({ title: row.title, properties: await checkValues(userId, databaseId, row.values, props, invalid) });
+  return checked;
+}
+
+/**
+ * One row's values checked as normalizeRowProperties checks them (against the row's stored values
+ * and creator when it exists), leaving out and counting each value it refuses.
+ */
+export async function checkValues(
+  userId: string,
+  databaseId: string,
+  input: Record<string, unknown>,
+  props: DatabaseProperty[],
+  invalid: Map<string, number>,
+  row?: { properties: Record<string, unknown>; createdBy: string | null },
+) {
+  const values = { ...input };
+  for (;;) {
+    try {
+      return await normalizeRowProperties(userId, databaseId, values, row?.properties, row && { createdBy: row.createdBy });
+    } catch (error) {
+      if (!(error instanceof PropertyValueError)) throw error;
+      const prop = props.find((p) => p.id in values && p.name === error.params.property);
+      if (!prop) throw error;
+      delete values[prop.id];
+      invalid.set(prop.id, (invalid.get(prop.id) ?? 0) + 1);
     }
   }
-  return checked;
 }
 
 /**
  * Writes checked rows; if a write fails, the rows already written go again. Rows of a database in a
  * template belong to the template, like every page under one (see server/templates).
  */
-async function writeRows(
+export async function writeRows(
   database: { id: string; workspaceId: string; inTemplate: boolean },
   userId: string,
   rows: { title: string; properties: Record<string, unknown> }[],
@@ -331,7 +343,7 @@ export async function importCsvIntoDatabase(
  * new one into a cell does (see databases.ensureOption): even on a locked database. New status
  * options start as to do. Returns the updated property, or null when nothing was missing.
  */
-async function addMissingOptions(prop: DatabaseProperty, names: string[]): Promise<DatabaseProperty | null> {
+export async function addMissingOptions(prop: DatabaseProperty, names: string[]): Promise<DatabaseProperty | null> {
   const options: SelectOption[] = [...(prop.options.options ?? [])];
   const known = new Set(options.map((o) => o.name.toLowerCase()));
   let added = false;

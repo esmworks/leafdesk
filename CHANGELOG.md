@@ -58,13 +58,22 @@
   next to the new one, and the old title when it is renamed. Covered in `scripts/ai-chat-e2e.ts`
   and `scripts/mcp-e2e.ts`.
 
+- **Table cells work from the keyboard and the clipboard.** Click a cell (or move with the arrow
+  keys) to make it the active cell; Shift with an arrow, Shift+click or a drag selects a range.
+  Enter opens the active cell's editor and Esc brings you back to the cell, Delete clears the
+  range. Copy puts the range on the clipboard as tab-separated text, the way exports write values,
+  and pasting cells copied from a spreadsheet writes them from the active cell on: each value is
+  read as the CSV import reads it (numbers like `1.234,5` or `15%`, dates, yes/no, option and
+  people names), options a select lacks are added, and rows past the last one are added in an
+  ungrouped table. One pasted value fills the whole selected range. Cells that don't fit their
+  column or that you may not change are left out and counted.
 - **Row activity tells AI values apart.** A value AI autofill filled in now reads as the AI's in
   the row's activity, naming who it was worked out for: "AI (for Ada) set Category to Billing",
   with a sparkle in place of a face. That person is whoever refreshed the row or updated the
   view's rows, or whose change of the row set the value off; for an automation's change, the
   person it acts as, its own entry for the change sitting right below. AI entries never merge into
   that person's own edits of the value. `list_row_activity` (MCP) and `GET /rows/{id}/activity`
-  give `actor: "ai"`, with the person in `by`. Needs migration 0073.
+  give `actor: "ai"`, with the person in `by`. Needs migration 0074.
 
 ### Changed
 
@@ -79,6 +88,10 @@
   full-text search found reached the model as a short snippet without a block, so its answer
   cited the whole page and it often read the page again. It now gets the page's indexed passage
   with the most of the question's words, and the citation links to that block.
+- **Long tables render only the rows in view.** From 120 rows on, a table view renders the rows
+  near the visible part of the page and stands in for the rest, so tables with thousands of rows
+  open and scroll without lag. Grouped tables, sub-items, frozen columns and group calculations
+  work as before.
 
 ### Fixed
 
@@ -108,6 +121,18 @@
   an automation had just set in another property of the same row could quietly disappear. Single
   row edits now merge into the stored values the way bulk edits already did. Covered in
   `scripts/database-e2e.ts`.
+- **Stopping the server no longer loses the last edits.** On SIGINT/SIGTERM the server started the
+  saves still waiting out their debounce but exited half a second later whether they had finished
+  or not, so on a large page or a slow database up to the last ten seconds of typing could be lost.
+  It now closes the editors' connections, waits until every open page is saved (at most eight
+  seconds, inside Docker's ten-second grace period) and logs it when it had to stop waiting. A
+  second Ctrl+C exits at once.
+- **Deleted files no longer stay behind in storage.** Deleting a workspace, an account or orphaned
+  uploads removed the files' records first and their bytes afterwards, at best once: when storage
+  refused or the server stopped midway, the bytes stayed with nothing pointing at them. The objects
+  to delete are now queued in the same transaction as the records (migration 0073), and what
+  storage refuses is tried again by the hourly file cleanup, waiting longer after each failure (up
+  to a day). Covered in `scripts/storage-deletion-e2e.ts`.
 
 ## 0.5.3 — 2026-10-16
 

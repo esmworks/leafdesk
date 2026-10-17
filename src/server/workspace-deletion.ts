@@ -5,7 +5,7 @@ import { confirmsWorkspaceName, type Proof } from "@/lib/account";
 import { type AccountSession, reauthenticate } from "@/server/account";
 import { AccessError, requireMembership } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
-import { removeStored } from "@/server/files";
+import { deleteQueued, queueStorageDeletion } from "@/server/files";
 import { mailStatus, sendMail, workspaceDeletedEmail } from "@/server/mail";
 import { recipientLocale } from "@/server/mail/locale";
 import { forgetConnectionSignIns } from "@/server/sso";
@@ -20,8 +20,9 @@ import { deleteWorkspaces, lockOwnedWorkspace, WorkspaceError } from "@/server/w
  * is removed; then the workspace goes with everything that belongs to it (by foreign keys: members,
  * pages, databases, comments, teamspaces, groups, agents and their users, connections, tokens, its
  * audit log). Once that commits, every open editor of its pages is disconnected, the other people
- * in it are emailed, and its files are removed from storage in the background. Its audit log goes
- * with it, so the deletion is written to the server log.
+ * in it are emailed, and its files are removed from storage in the background (queued in the
+ * transaction, so none is forgotten when that fails). Its audit log goes with it, so the deletion is
+ * written to the server log.
  */
 export async function deleteWorkspace(current: AccountSession, workspaceId: string, input: { confirmation: unknown; proof: Proof }) {
   const userId = current.user.id;
@@ -48,6 +49,7 @@ export async function deleteWorkspace(current: AccountSession, workspaceId: stri
       .where(eq(workspaceSso.workspaceId, workspaceId));
     for (const { providerId } of connections) await forgetConnectionSignIns(tx, providerId);
     const files = await tx.delete(file).where(eq(file.workspaceId, workspaceId)).returning({ key: file.storageKey });
+    await queueStorageDeletion(tx, files.map((f) => f.key));
     await deleteWorkspaces(tx, [workspaceId]);
     return { keys: files.map((f) => f.key), pageIds: pages.map((p) => p.id), people };
   });
@@ -59,8 +61,9 @@ export async function deleteWorkspace(current: AccountSession, workspaceId: stri
     console.warn("[workspaces] could not close collab connections", error);
   }
   tellPeople(people, row.name, current.user.name);
-  // Not awaited: removing thousands of files mustn't hold up the answer; failures are logged.
-  void removeStored(keys).catch((error) => console.error("[workspaces] could not remove the files", error));
+  // Not awaited: removing thousands of files mustn't hold up the answer. They were queued with the
+  // deletion, so whatever fails here, or is cut short by a restart, the file cleanup deletes later.
+  void deleteQueued(keys).catch((error) => console.error("[workspaces] could not remove the files", error));
 }
 
 /** The pages and databases open in collab, or none when it doesn't run in this process. */

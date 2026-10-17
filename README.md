@@ -121,6 +121,9 @@ versions, upgrades and running behind a domain.
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
     list) shows each viewer their own rows.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
+  - Table cells move with the arrow keys, select in ranges, copy as tab-separated text and take
+    cells pasted from a spreadsheet, adding rows as needed. Long tables render only the rows in
+    view.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
     `first`, `last` and `at`), one step away and up to 200 linked rows. `style()` shows a result
