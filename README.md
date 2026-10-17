@@ -57,8 +57,9 @@ versions, upgrades and running behind a domain.
   pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), export as Markdown or PDF (or, with
   subpages, as a ZIP; owners can export the whole workspace, see [Export](#export)), and search
   over titles and content: full-text (every word of the search, each also as the start of a
-  longer word, so pages show up while you type: "kond plan" finds "Kondenser planı"; pages whose
-  title has the words come first), and also by meaning when the server has an embeddings model
+  longer word, so pages show up while you type: "kond plan" finds "Kondenser planı"; Japanese,
+  Chinese and Korean words also inside a sentence, which has no spaces between words: "会議"
+  finds "明日の会議について"; pages whose title has the words come first), and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)).
 - **Home page**: quick buttons for a new page, database or template; the database rows assigned
   to you that aren't done and that you can open, grouped as overdue, today, the next 7 days, later
@@ -1331,8 +1332,9 @@ database that match filters on its properties (`query_database`, the same filter
 the MCP tool, each row a source to cite), up to six turns per question; greetings are answered
 without tools. A database row found by a search comes with its database and its values (those the
 person may see). The chat's full-text search finds pages with any of the search's words (as
-prefixes, so "ekstreleri" finds "ekstresi"; question words such as "what" or "nedir" left out),
-titles first, where the search box wants all of them. Each page found comes with its passage
+prefixes, so "ekstreleri" finds "ekstresi"; question words such as "what" or "nedir" left out;
+Japanese, Chinese and Korean questions by their two-character pieces, without particles and
+function words), titles first, where the search box wants all of them. Each page found comes with its passage
 that has the most of the search's words (from the semantic index, else cut from the page's text
 the same way), not just a line around the first of them. While an answer is written, the steps it
 takes are listed above it (searches with how many pages they found, pages read, databases

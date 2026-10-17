@@ -12,6 +12,14 @@ describe("findTitle", () => {
     expect(findTitle("Replan, then Plan.", "Plan")).toEqual({ start: 13, end: 17 });
   });
 
+  it("finds a Japanese, Chinese or Korean title inside a sentence, which has no spaces between words", () => {
+    expect(findTitle("明日の会議について", "会議")).toEqual({ start: 3, end: 5 });
+    expect(findTitle("上周的会议纪要", "会议纪要")).toEqual({ start: 3, end: 7 });
+    expect(findTitle("회의를 시작합니다", "회의")).toEqual({ start: 0, end: 2 });
+    // A Latin edge still needs a word boundary.
+    expect(findTitle("Leafdesk会議", "desk会議")).toBeNull();
+  });
+
   it("treats the Turkish dotted and dotless i alike", () => {
     expect(findTitle("içe aktarma notları", "İçe aktarma")).toEqual({ start: 0, end: 11 });
     expect(findTitle("ISPARTA ziyareti", "Isparta")).toEqual({ start: 0, end: 7 });

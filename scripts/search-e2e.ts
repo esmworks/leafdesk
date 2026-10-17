@@ -1,7 +1,8 @@
 /**
  * End-to-end check of the search box's filters against the database: `in:` (a title, quoted or
  * not, several pages of one title, a page the person can't see), `type:` (pages, databases, rows),
- * filters without text, filters with text, and the pages last edited before anything is typed.
+ * filters without text, filters with text, words inside Japanese, Chinese and Korean sentences, and
+ * the pages last edited before anything is typed.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/search-e2e.ts
@@ -20,7 +21,7 @@ const { db } = await import("@/db");
 const { user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { createPage, recentPages, searchWithQuery } = await import("@/server/pages");
+const { createPage, fullTextSearch, recentPages, searchWithQuery } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 
 const RUN = `search-e2e-${Date.now().toString(36)}`;
@@ -146,6 +147,29 @@ try {
   );
   check((await search("---")).length === 0 && (await search("%")).length === 0, "a query without words finds nothing (and doesn't fail)");
   check((await search("ondenser")).length === 0, "the middle of a word isn't a match");
+
+  // Japanese, Chinese and Korean: no spaces between words (or particles joined on), so a word is
+  // found inside a sentence through the two-character pieces the index holds for such text.
+  const body = (title: string, markdown: string) => createPage(owner, { workspaceId, parentId: null, title, markdown });
+  const japanese = await body("週次メモ", "明日の会議について話します。");
+  const chinese = await body("项目周报", "上周的会议纪要已经整理好了。");
+  const korean = await body("주간 메모", "회의를 시작합니다.");
+  const room = await make("会議室の予約");
+  const idsOf = (hits: { id: string }[]) => hits.map((h) => h.id);
+  check(idsOf(await search("会議")).includes(japanese.id), "a Japanese word is found in the middle of a sentence", titlesOf(await search("会議")));
+  check((await search("会議"))[0]?.id === room.id, "…a title that has it first", titlesOf(await search("会議")));
+  check(idsOf(await search("会")).includes(japanese.id), "…and a single character as it is typed");
+  check(!idsOf(await search("議論")).includes(japanese.id), "characters that aren't next to each other on the page don't match", titlesOf(await search("議論")));
+  check(
+    JSON.stringify(idsOf(await search("纪要"))) === JSON.stringify([chinese.id]) && idsOf(await search("会议纪要")).includes(chinese.id),
+    "a Chinese word is found inside a sentence, and only there",
+    titlesOf(await search("纪要")),
+  );
+  check(idsOf(await search("의를")).includes(korean.id) && idsOf(await search("회의")).includes(korean.id), "a Korean word is found with a particle joined to it");
+  check(idsOf(await search("会議 メモ")).join() === japanese.id, "pieces and words of a query are all needed, in the title or the body", titlesOf(await search("会議 メモ")));
+  const asked = idsOf(await fullTextSearch(ids.owner, "明日の会議はどこですか", { workspaceId, anyWord: true }));
+  check(asked.includes(japanese.id) && !asked.includes(chinese.id) && !asked.includes(korean.id), "a question in Japanese finds the pages about it, not every page with kana", asked);
+  check((await search("纪要"))[0]?.snippet.includes("纪要"), "…and the snippet shows where", (await search("纪要"))[0]);
 
   // Someone who can only see one page doesn't reach others through in:
   await setPagePermission(ids.owner, launch.id, ids.guest, "view");

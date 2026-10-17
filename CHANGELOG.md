@@ -8,10 +8,11 @@
   *Changed*), so their text changes and the embeddings model sees each of them once more after
   the upgrade: through the background sweep as people search, or all at once with
   `pnpm search:index`. On large workspaces with a paid embeddings provider, run it at a quiet time.
-- **Migration 0075 rewrites the `page` table once.** It adds the stored search vector (see
-  *Changed*) and fills it for every page; on a server with many pages this takes a while (about
-  15 seconds for 60,000 pages with 2 KB of text each), and pages can't be read or written until
-  it's done: run `pnpm db:migrate` at a quiet time.
+- **Migrations 0075 and 0077 each rewrite the `page` table once.** 0075 adds the stored search
+  vector (see *Changed*) and fills it for every page, 0077 adds the pieces of Japanese, Chinese
+  and Korean text to it; on a server with many pages each takes a while (about 15 seconds for
+  60,000 pages with 2 KB of text each), and pages can't be read or written until it's done: run
+  `pnpm db:migrate` at a quiet time.
 
 ### Added
 
@@ -127,6 +128,16 @@
   a word no longer matches. Long pages no longer rank above short ones only for their length. The
   list of pages that write a page's title without linking to it uses the same index. Covered in
   `scripts/search-e2e.ts`.
+- **Japanese, Chinese and Korean words are found inside sentences.** These languages write no
+  spaces between words (or join particles to them), so search took a whole sentence as one word
+  and found a page only by its first characters: "会議" didn't find "明日の会議について". The search
+  vector now also keeps every two-character piece of such text (migration 0077, `cjk_bigrams`, for
+  the first 30,000 such characters of a page, which keeps the vector far below Postgres' limit),
+  and queries are cut the same way, so a word is found anywhere, a single character as it is
+  typed, and only where its characters stand together. The AI chat's any-word search leaves out
+  the pieces that are particles or Chinese function words, so a question doesn't match every page;
+  its passages, and the list of pages that write a page's title without linking to it, find such
+  words inside sentences too. Covered in `scripts/search-e2e.ts` and `scripts/backlinks-e2e.ts`.
 - **The AI chat gets the matching passage without an embeddings model too.** A page the chat's
   search finds by its words now comes with the part of its text that has the most of them, about
   900 characters, where the model used to get one line around the first word unless the page was

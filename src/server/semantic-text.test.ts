@@ -204,6 +204,12 @@ describe("the passage the text search found a page for", () => {
     expect(bestChunkForTerms(chunks, ["each"], "Plans")?.blockId).toBe("b0");
   });
 
+  it("finds Japanese, Chinese and Korean pieces inside the runs of a passage", () => {
+    const chunks = [chunk(0, "明日の予定です。"), chunk(1, "来週の会議について話します。")];
+    expect(bestChunkForTerms(chunks, ["会議"], "Plans")?.blockId).toBe("b1");
+    expect(bestChunkForTerms([chunk(0, "일정"), chunk(1, "회의록을 공유합니다")], ["의록"], "Plans")?.blockId).toBe("b1");
+  });
+
   it("matches Turkish letters whatever their case, and falls back to the first chunk", () => {
     const chunks = [chunk(0, "Giriş."), chunk(1, "İSTANBUL ofisi ışıkları")];
     expect(bestChunkForTerms(chunks, ["istanbul"], "Plans")?.blockId).toBe("b1");

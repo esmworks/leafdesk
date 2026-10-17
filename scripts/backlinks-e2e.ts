@@ -208,6 +208,10 @@ try {
   const short = await make("Q");
   await write(turkishNote.id, "Q and q everywhere.");
   check((await listUnlinkedMentions(ids.owner, short.id)).length === 0, "titles too short to look for find nothing");
+  const meeting = await make("会議");
+  const diary = await make("日記");
+  await write(diary.id, "明日の会議について話します。");
+  check((await unlinkedIds(meeting.id)).includes(diary.id), "a Japanese title is found inside a sentence, which has no spaces between words");
 
   // ── Linking ──────────────────────────────────────────────────────────────────────────────
   check((await failure(() => linkUnlinkedMention(ids.guest, plain.id, target.id))) === "access", "linking needs edit access to the source");

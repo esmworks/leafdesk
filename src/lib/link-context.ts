@@ -10,6 +10,7 @@
 import { blockText, type BlockLike } from "./blocks";
 import { EMPTY_MENTION, eachMention, MENTION, PAGE_LINK_BLOCK } from "./mentions";
 import { searchFold } from "./search-fold";
+import { isCjkTerm } from "./search-words";
 
 /** Stands for the link in a stored context. */
 export const LINK_PLACEHOLDER = "￼";
@@ -59,7 +60,8 @@ const CLUSTER = /\P{M}\p{M}*|\p{M}+/gu;
 /**
  * Where `title` first appears in `text` as whole words, compared the way pickers compare (case and
  * the Turkish dotted and dotless i aside, lib/search-fold), whether letters are written composed
- * or with combining marks (NFC or NFD). Null when it doesn't, or when the title is too short to
+ * or with combining marks (NFC or NFD). An edge in Japanese, Chinese or Korean script needs no word
+ * boundary: those are written without spaces, or with particles joined on ("会議について"). Null when it doesn't, or when the title is too short to
  * look for.
  */
 export function findTitle(text: string, title: string): { start: number; end: number } | null {
@@ -76,8 +78,10 @@ export function findTitle(text: string, title: string): { start: number; end: nu
   }
   from.push(text.length);
   const edgeIsWord = (char: string | undefined) => char !== undefined && WORD.test(char);
-  const needsStart = edgeIsWord(String.fromCodePoint(wanted.codePointAt(0)!));
-  const needsEnd = edgeIsWord([...wanted].at(-1));
+  const first = String.fromCodePoint(wanted.codePointAt(0)!);
+  const last = [...wanted].at(-1);
+  const needsStart = edgeIsWord(first) && !isCjkTerm(first);
+  const needsEnd = edgeIsWord(last) && !isCjkTerm(last ?? "");
   for (let at = folded.indexOf(wanted); at !== -1; at = folded.indexOf(wanted, at + 1)) {
     const before = at > 0 ? [...folded.slice(Math.max(0, at - 2), at)].at(-1) : undefined;
     const after = folded.slice(at + wanted.length).codePointAt(0);

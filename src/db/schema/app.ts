@@ -372,11 +372,13 @@ export const page = pgTable(
     contentMarkdown: text("content_markdown").notNull().default(""),
     /**
      * What full-text search matches and ranks (server/pages.ts fullTextSearch): the title's words
-     * weighted A, the body's B. Kept by Postgres from title and content_text, so ranking doesn't
-     * parse every candidate page again. Large: select it only where a query needs it.
+     * weighted A, the body's B, then the same for the two-character pieces of their Japanese,
+     * Chinese and Korean text (cjk_bigrams, migration 0077; lib/search-words cuts queries alike).
+     * Kept by Postgres from title and content_text, so ranking doesn't parse every candidate page
+     * again. Large: select it only where a query needs it.
      */
     searchVector: tsvector("search_vector").generatedAlwaysAs(
-      sql`setweight(to_tsvector('simple', coalesce(title, '')), 'A') || setweight(to_tsvector('simple', coalesce(content_text, '')), 'B')`,
+      sql`setweight(to_tsvector('simple', coalesce(title, '')), 'A') || setweight(to_tsvector('simple', coalesce(content_text, '')), 'B') || setweight(to_tsvector('simple', cjk_bigrams(title)), 'A') || setweight(to_tsvector('simple', cjk_bigrams(content_text)), 'B')`,
     ),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     /** Databases: while set, properties and views can't be added, renamed or removed. Rows stay editable. */

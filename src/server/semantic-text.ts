@@ -6,6 +6,7 @@
 import { createHash } from "node:crypto";
 import { blocksToPlainText, type BlockLike } from "@/lib/blocks";
 import { displayValue } from "@/lib/properties";
+import { isCjkTerm } from "@/lib/search-words";
 import { formatValue } from "@/server/ai/prompts";
 
 /** Characters a chunk aims for, and the most it may have (a longer block is split). */
@@ -256,7 +257,7 @@ const foldWord = (word: string) => word.toLocaleLowerCase("tr").replace(/ı/g, "
 
 /**
  * Of a page's chunks, the one whose passage has the most of `terms` (see lib/search-words: words
- * matched as prefixes), then the most matches, then the earliest. Where the text search found the
+ * matched as prefixes, Japanese, Chinese and Korean pieces anywhere in a word), then the most matches, then the earliest. Where the text search found the
  * page, this is the passage it was found for. With no term in any passage (the title matched),
  * the first chunk. Null without chunks.
  */
@@ -268,7 +269,7 @@ export function bestChunkForTerms<T extends { position: number; text: string }>(
     let distinct = 0;
     let total = 0;
     for (const term of wanted) {
-      const hits = words.filter((w) => w.startsWith(term)).length;
+      const hits = words.filter((w) => (isCjkTerm(term) ? w.includes(term) : w.startsWith(term))).length;
       if (hits) distinct++;
       total += hits;
     }

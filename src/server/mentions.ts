@@ -4,6 +4,7 @@ import { page, pageLink, pageMention, pagePublication, pageReminder, user, type 
 import { findTitle, excerpt, linkContexts, linkTitle, MIN_MENTION_TITLE, type Excerpt } from "@/lib/link-context";
 import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
+import { searchQueryText } from "@/lib/search-words";
 import { titleKey } from "@/lib/wikilinks";
 import { accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
@@ -323,10 +324,12 @@ export async function listUnlinkedMentions(userId: string, pageId: string, { che
   // The page's indexed search vector (title, then body, positions running on), so the index narrows
   // the pages down. Postgres lowers "I" and "İ" to "i" while the title may be written with "ı": the
   // title is looked for as written, with every i-like letter as "i" and as "ı", and findTitle has
-  // the last word.
+  // the last word. Japanese, Chinese and Korean titles are also looked for as their two-character
+  // pieces in a row, which the vector holds for such text, so they are found inside a sentence.
   const document = sql`${page.searchVector}`;
   const folded = searchFold(title);
-  const forms = [...new Set([title, folded, folded.replace(/i/g, "ı")])];
+  const written = [title, folded, folded.replace(/i/g, "ı")];
+  const forms = [...new Set([...written, ...written.map(searchQueryText)])];
   const query = sql.join(
     forms.map((form) => sql`phraseto_tsquery('simple', ${form})`),
     sql` || `,
