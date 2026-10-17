@@ -2105,7 +2105,29 @@ export async function changePropertyType(
   userId: string,
   propertyId: string,
   input: TypeChange,
-  { dryRun = false }: { dryRun?: boolean } = {},
+  options: { dryRun?: boolean } = {},
+): Promise<{ property: DatabaseProperty; converted: number; cleared: number }> {
+  // The property changed between being checked and being locked: check it again as it is now.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await retypeProperty(userId, propertyId, input, options);
+    } catch (error) {
+      if (!(error instanceof PropertyChangedMeanwhile) || attempt === 3) throw error;
+    }
+  }
+}
+
+class PropertyChangedMeanwhile extends Error {
+  constructor() {
+    super("The property kept changing while its type was being changed; try again");
+  }
+}
+
+async function retypeProperty(
+  userId: string,
+  propertyId: string,
+  input: TypeChange,
+  { dryRun = false }: { dryRun?: boolean },
 ): Promise<{ property: DatabaseProperty; converted: number; cleared: number }> {
   const prop = await requireProperty(userId, propertyId);
   if (!PROPERTY_TYPES.includes(input.type)) {
@@ -2134,85 +2156,111 @@ export async function changePropertyType(
   const rollup = input.type === "rollup" ? await rollupConfig(userId, input.rollup, known, self) : undefined;
   const target = input.type === "relation" ? await relationTarget(userId, database, input.relation) : null;
 
-  // What the values are now: stored, filled in by Leafdesk, or (formulas, rollups) worked out.
-  const rows = await db
-    .select({
-      id: page.id,
-      title: page.title,
-      properties: page.properties,
-      createdBy: page.createdBy,
-      updatedBy: page.updatedBy,
-      createdAt: page.createdAt,
-      updatedAt: page.updatedAt,
-    })
-    .from(page)
-    .where(eq(page.parentId, prop.databaseId))
-    // In the table's order, so options made from the values come in the order they appear.
-    .orderBy(asc(page.position), asc(page.createdAt));
-  const visible = new Set(
-    (await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), childVisibleTo(userId, prop.databaseId)))).map((r) => r.id),
-  );
-  let derived = new Map<string, unknown>();
-  if (isDerived(prop.type)) {
-    const read = await withValues(userId, prop.databaseId, rows.filter((r) => visible.has(r.id)), await getProperties(prop.databaseId));
-    derived = new Map(read.map((r) => [r.id, r.properties[propertyId]]));
-  }
-  const current = (row: (typeof rows)[number]) =>
-    isComputed(prop.type)
-      ? computedValues([prop], row)[propertyId]
-      : isDerived(prop.type)
-        ? (derived.get(row.id) ?? null)
-        : row.properties[propertyId];
-  const values = rows.map(current);
-
-  // People and related rows, as far as the user may see them.
-  const members = await workspacePeopleOf(prop.databaseId);
-  const actor = members.find((m) => m.id === userId);
-  const people: ConversionContext["people"] = [
-    ...(holdsPeople(prop.type) ? await getPeople(userId, [prop]) : []),
-    // Only members look people up, as when they type a name into a cell.
-    ...(input.type === "person" && actor && !isGuest(actor.role) ? members : []),
-  ];
-  const sourceTitles =
-    prop.type === "relation"
-      ? new Map(((await getRelationTargets(userId, [prop]))[propertyId]?.rows ?? []).map((r) => [r.id, r.title]))
-      : undefined;
+  // Read once, outside the transaction: neither depends on the rows' values.
   const targetRows = target
     ? await db
         .select({ id: page.id, title: page.title })
         .from(page)
         .where(and(eq(page.parentId, target.id), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, target.id)))
     : undefined;
-  const conversion = planConversion(prop, { type: input.type }, values, { people, sourceTitles, targetRows, yes: input.yes });
+  const properties = isDerived(prop.type) ? await getProperties(prop.databaseId) : [];
 
-  const typeOptions: PropertyOptions = conversion.options
-    ? { options: conversion.options }
-    : target
-      ? { relation: { databaseId: target.id } }
-      : formula
-      ? { formula }
-      : rollup
-        ? { rollup }
-        : {};
-  // Whether it shows on row pages doesn't depend on the type.
-  const { pageVisibility } = prop.options;
-  const options: PropertyOptions = pageVisibility ? { ...typeOptions, pageVisibility } : typeOptions;
-  // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
-  const next: Record<string, unknown> = {};
-  rows.forEach((row, i) => {
-    const value = isReadOnlyType(input.type) ? null : conversion.convert(values[i]);
-    const stored = value === false ? null : value;
-    if (stored !== null || propertyId in row.properties) next[row.id] = stored;
-  });
-  // Counted on the rows the user sees: the others aren't theirs to know about.
-  const seen = values.filter((_, i) => visible.has(rows[i].id));
-  const cleared = lostValues(seen, conversion);
-  const converted = isReadOnlyType(input.type) ? 0 : seen.filter((v) => !isEmptyValue(conversion.convert(v))).length;
-  if (dryRun) return { property: { ...prop, type: input.type, options }, converted, cleared };
+  // What the values are now and what they become. Rows are read with `lock` in the transaction
+  // that writes them, so a cell saved since can't be overwritten with what an older value became.
+  const plan = async (exec: Executor, lock: boolean) => {
+    // What the values are now: stored, filled in by Leafdesk, or (formulas, rollups) worked out.
+    const query = exec
+      .select({
+        id: page.id,
+        title: page.title,
+        properties: page.properties,
+        createdBy: page.createdBy,
+        updatedBy: page.updatedBy,
+        createdAt: page.createdAt,
+        updatedAt: page.updatedAt,
+      })
+      .from(page)
+      .where(eq(page.parentId, prop.databaseId))
+      // In the table's order, so options made from the values come in the order they appear.
+      .orderBy(asc(page.position), asc(page.createdAt));
+    const rows = await (lock ? query.for("update") : query);
+    const visible = new Set(
+      (await exec.select({ id: page.id }).from(page).where(and(eq(page.parentId, prop.databaseId), childVisibleTo(userId, prop.databaseId)))).map((r) => r.id),
+    );
+    // Formulas and rollups are worked out from the rows just read, so from the same cells.
+    let derived = new Map<string, unknown>();
+    if (isDerived(prop.type)) {
+      const read = await withValues(userId, prop.databaseId, rows.filter((r) => visible.has(r.id)), properties);
+      derived = new Map(read.map((r) => [r.id, r.properties[propertyId]]));
+    }
+    const current = (row: (typeof rows)[number]) =>
+      isComputed(prop.type)
+        ? computedValues([prop], row)[propertyId]
+        : isDerived(prop.type)
+          ? (derived.get(row.id) ?? null)
+          : row.properties[propertyId];
+    const values = rows.map(current);
+
+    // People and related rows, as far as the user may see them (read from the rows' values too).
+    const members = await workspacePeopleOf(prop.databaseId);
+    const actor = members.find((m) => m.id === userId);
+    const people: ConversionContext["people"] = [
+      ...(holdsPeople(prop.type) ? await getPeople(userId, [prop]) : []),
+      // Only members look people up, as when they type a name into a cell.
+      ...(input.type === "person" && actor && !isGuest(actor.role) ? members : []),
+    ];
+    const sourceTitles =
+      prop.type === "relation"
+        ? new Map(((await getRelationTargets(userId, [prop]))[propertyId]?.rows ?? []).map((r) => [r.id, r.title]))
+        : undefined;
+    const conversion = planConversion(prop, { type: input.type }, values, { people, sourceTitles, targetRows, yes: input.yes });
+
+    const typeOptions: PropertyOptions = conversion.options
+      ? { options: conversion.options }
+      : target
+        ? { relation: { databaseId: target.id } }
+        : formula
+        ? { formula }
+        : rollup
+          ? { rollup }
+          : {};
+    // Whether it shows on row pages doesn't depend on the type.
+    const { pageVisibility } = prop.options;
+    const options: PropertyOptions = pageVisibility ? { ...typeOptions, pageVisibility } : typeOptions;
+    // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
+    const next: Record<string, unknown> = {};
+    rows.forEach((row, i) => {
+      const value = isReadOnlyType(input.type) ? null : conversion.convert(values[i]);
+      const stored = value === false ? null : value;
+      if (stored !== null || propertyId in row.properties) next[row.id] = stored;
+    });
+    // Counted on the rows the user sees: the others aren't theirs to know about.
+    const seen = values.filter((_, i) => visible.has(rows[i].id));
+    const cleared = lostValues(seen, conversion);
+    const converted = isReadOnlyType(input.type) ? 0 : seen.filter((v) => !isEmptyValue(conversion.convert(v))).length;
+    return { options, next, converted, cleared };
+  };
+
+  // A preview changes nothing, so it holds up no one.
+  if (dryRun) {
+    const { options, converted, cleared } = await plan(db, false);
+    return { property: { ...prop, type: input.type, options }, converted, cleared };
+  }
 
   const pairedId = prop.type === "relation" ? prop.options.relation?.pairedPropertyId : null;
-  const [paired] = pairedId ? await db.select().from(databaseProperty).where(eq(databaseProperty.id, pairedId)) : [];
-  const changed = await db.transaction(async (tx) => {
+  const { changed, next, converted, cleared, paired } = await db.transaction(async (tx) => {
+    // Held until the change is written, so a second change of the property waits for this one. One
+    // made since the checks above makes this one start over from it (see changePropertyType).
+    const [locked] = await tx
+      .select({ type: databaseProperty.type, updatedAt: databaseProperty.updatedAt, deletedAt: databaseProperty.deletedAt })
+      .from(databaseProperty)
+      .where(eq(databaseProperty.id, propertyId))
+      .for("update");
+    if (!locked || locked.deletedAt || locked.type !== prop.type || locked.updatedAt.getTime() !== prop.updatedAt.getTime()) {
+      throw new PropertyChangedMeanwhile();
+    }
+    const { options, next, converted, cleared } = await plan(tx, true);
+    const [paired] = pairedId ? await tx.select().from(databaseProperty).where(eq(databaseProperty.id, pairedId)) : [];
     let relation: RelationConfig | undefined = target ? { databaseId: target.id } : undefined;
     // The other side of a two-way relation stays, as a one-way relation with its values intact.
     if (paired?.options.relation) {
@@ -2256,7 +2304,7 @@ export async function changePropertyType(
         .set({ config: retypeViewConfig(view.config, propertyId, prop.type, updated) })
         .where(eq(databaseView.id, view.id));
     }
-    return updated;
+    return { changed: updated, next, converted, cleared, paired };
   });
   // A new two-way relation links the rows back.
   if (target && input.relation?.twoWay) {
