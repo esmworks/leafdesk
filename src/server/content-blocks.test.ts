@@ -286,8 +286,16 @@ describe("content blocks in Markdown", () => {
     const lazy = await markdownToBlocks("> One\ntwo\n\nAfter");
     expect(shape(lazy)).toEqual(["quote", "paragraph"]);
     expect(blocksToPlainText([lazy[0]])).toMatch(/^One\n\s*two$/);
+    // But a rule after it is a rule, not a heading underline.
+    for (const rule of ["---", "***", "___", "==="]) {
+      const after = await markdownToBlocks(`> Quote\n${rule}\n\nAfter`);
+      expect(shape(after)[0]).toBe("quote");
+      expect(after[0].content).toEqual([text("Quote")]);
+    }
     const nested = await markdownToBlocks("* Item\n  > Quoted\n* Next");
     expect(shape(nested)).toEqual([{ bulletListItem: ["quote"] }, "bulletListItem"]);
+    const callout = await markdownToBlocks("* Item\n  > [!NOTE]\n  > Hi\n* Next");
+    expect(shape(callout)).toEqual([{ bulletListItem: ["callout"] }, "bulletListItem"]);
   });
 
   it("write toggle list items as <details>, so they come back as toggles with what's nested under them", async () => {

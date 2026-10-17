@@ -44,8 +44,8 @@
   bullet lists, such as a voice note's "Transcript", and quotes into flat text. Quotes now keep
   their nested blocks inside the `>` and read lists, equations and other quotes in them back as
   nested blocks, and toggles are written as `<details>` with their text in the `<summary>`, so they
-  come back as toggles with everything that was nested under them. A quote under a list item, and
-  a callout, now also stays under it when read back.
+  come back as toggles with everything that was nested under them. A callout under a list item
+  now also stays under it when read back.
 
 ## 0.5.4 — 2026-10-17
 

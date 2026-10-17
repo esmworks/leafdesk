@@ -326,7 +326,7 @@ const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
 const CALLOUT_START = new RegExp(`^( {0,3})> ?\\[!(${ALERT_KINDS.join("|")})\\][ \\t]*(.*)$`, "i");
 const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
 /** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
-const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\|)/;
+const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\||(?:[*_-][ \t]*){3,}$|=+[ \t]*$)/;
 const MATH_OPEN = /^ {0,3}\$\$(.*)$/;
 const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(toc|breadcrumb)\s*-->\s*$/;
 /** `[text](url) <!-- leafdesk:embed -->` (or a bare URL before the marker); "bookmark" likewise. */
