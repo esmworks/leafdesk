@@ -187,6 +187,49 @@ describe("content blocks in Markdown", () => {
     expect(markdown).toContain("* Item $n$");
   });
 
+  it("write the blocks nested under a callout inside it, so they come back there", async () => {
+    const shape = (list: any[]): unknown[] => list.map((b) => (b.children?.length ? { [b.type]: shape(b.children) } : b.type));
+    const blocks = stored([
+      {
+        type: "callout",
+        props: { icon: "💡", backgroundColor: "gray" },
+        content: "Steps",
+        children: [
+          { type: "bulletListItem", content: "One" },
+          { type: "bulletListItem", content: "Two" },
+          { type: "math", content: "x^2" },
+          { type: "callout", props: { backgroundColor: "red" }, content: "Inner", children: [{ type: "paragraph", content: "Deep" }] },
+        ],
+      },
+      { type: "paragraph", content: "After" },
+    ]);
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(
+      [
+        "> [!NOTE]",
+        "> 💡 Steps",
+        ">",
+        "> * One",
+        "> * Two",
+        ">",
+        "> $$",
+        "> x^2",
+        "> $$",
+        ">",
+        "> > [!CAUTION]",
+        "> > 💡 Inner",
+        "> >",
+        "> > Deep",
+        "",
+        "After",
+      ].join("\n"),
+    );
+    const back = stored(await markdownToBlocks(markdown, blocks));
+    expect(shape(back)).toEqual(shape(blocks));
+    expect(back[0].props).toMatchObject({ icon: "💡", backgroundColor: "gray" });
+    expect(await blocksToMarkdown(back)).toBe(await blocksToMarkdown(blocks));
+  });
+
   it("map alert kinds and colors", () => {
     expect(alertKindForColor("default")).toBe("NOTE");
     expect(alertKindForColor("orange")).toBe("WARNING");

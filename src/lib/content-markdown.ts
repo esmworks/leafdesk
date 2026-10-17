@@ -219,15 +219,17 @@ export function prepareMarkdownExport<B extends MdBlock>(
             icon: String(block.props?.icon ?? "").trim(),
           });
           const content = inline(block.content);
-          return {
-            type: "paragraph",
-            content: [
-              { type: "text", text: `leafdesk${nonce}c${i - 1}x`, styles: {} },
-              ...(Array.isArray(content) ? content : []),
-              { type: "text", text: `leafdesk${nonce}e${i - 1}x`, styles: {} },
-            ],
-            children,
-          } as unknown as B;
+          const start = { type: "text", text: `leafdesk${nonce}c${i - 1}x`, styles: {} };
+          const end = { type: "text", text: `leafdesk${nonce}e${i - 1}x`, styles: {} };
+          const text = Array.isArray(content) ? content : [];
+          if (!children.length) return { type: "paragraph", content: [start, ...text, end], children } as unknown as B;
+          // The blocks nested under it are written after its text, at the same indent, and the end
+          // token after them: finish quotes them all, so they come back inside the callout.
+          return [
+            { type: "paragraph", content: [start, ...text], children: [] },
+            ...children,
+            { type: "paragraph", content: [end], children: [] },
+          ] as unknown as B[];
         }
         case "codeBlock":
           return { ...block, children };
@@ -236,22 +238,34 @@ export function prepareMarkdownExport<B extends MdBlock>(
       }
     });
 
+  // A callout with no other callout inside it: the innermost go first, so an outer one quotes them
+  // already written.
+  const innerCallout = new RegExp(
+    `^([ \\t]*)leafdesk${nonce}c(\\d+)x((?:(?!leafdesk${nonce}c\\d+x)[\\s\\S])*?)leafdesk${nonce}e\\2x`,
+    "gm",
+  );
+  const quoteCallouts = (markdown: string): string => {
+    const quoted = markdown.replace(innerCallout, (_, indent: string, i: string, text: string) => {
+      const { kind, icon } = callouts[Number(i)];
+      const lines = text.replace(/\s+$/, "").split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
+      if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
+      return [`[!${kind}]`, ...lines]
+        .map((line) => `${indent}> ${line}`.trimEnd())
+        .join("\n");
+    });
+    return quoted === markdown ? markdown : quoteCallouts(quoted);
+  };
+
   const finish = (markdown: string) =>
-    markdown
-      .replace(new RegExp(`^([ \\t]*)leafdesk${nonce}c(\\d+)x([\\s\\S]*?)leafdesk${nonce}e\\2x`, "gm"), (_, indent: string, i: string, text: string) => {
-        const { kind, icon } = callouts[Number(i)];
-        const lines = text.split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
-        if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
-        return [`[!${kind}]`, ...lines]
-          .map((line) => `${indent}> ${line}`.trimEnd())
-          .join("\n");
-      })
-      .replace(TOKEN_LINE(nonce), (_, indent: string, i: string) =>
+    // Block lines before callouts: inside a callout they'd no longer start their line.
+    quoteCallouts(
+      markdown.replace(TOKEN_LINE(nonce), (_, indent: string, i: string) =>
         blockMarkdown[Number(i)]
           .split("\n")
           .map((line) => (line ? indent + line : line))
           .join("\n"),
-      )
+      ),
+    )
       .replace(new RegExp(`leafdesk${nonce}(e?)(sup|sub)x`, "g"), (_, end: string, tag: string) => `<${end ? "/" : ""}${tag}>`)
       .replace(new RegExp(`leafdesk${nonce}i(\\d+)x`, "g"), (_, i: string) => inlineMarkdown[Number(i)])
       .replaceAll(dollarToken, () => "\\$");

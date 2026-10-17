@@ -31,6 +31,12 @@
 
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
+- **Blocks nested under a callout stay inside it in Markdown.** A callout's nested blocks (a list,
+  an equation, another callout) were written after it, outside the `> [!NOTE]` quote, so Markdown
+  and ZIP exports showed them outside the callout, and an AI app that read a page and wrote it back
+  with `update_page` (or replaced the callout with `replace_block`) moved them out of it. They are
+  now quoted with the callout, a callout inside a callout as `> > [!NOTE]`, and come back where
+  they were.
 
 ## 0.5.4 — 2026-10-17
 
