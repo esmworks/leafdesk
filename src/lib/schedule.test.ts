@@ -62,7 +62,8 @@ describe("zonedInstant", () => {
       }
     }
     expect(wrong).toEqual([]);
-  });
+    // Every zone of the runtime: about 2 seconds alone, more next to the rest of the suite.
+  }, 30_000);
 });
 
 describe("nextOccurrence across a change of clocks", () => {
