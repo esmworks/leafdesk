@@ -112,6 +112,18 @@
     "someone": "Biri",
     "optOut": "Bu satırı takip ettiğiniz için bu e-postaları alıyorsunuz. Takibi satırın sayfa menüsünden bırakabilir ya da bu e-postaları Hesabım > Tercihler'den kapatabilirsiniz."
   },
+  "pageUpdate": {
+    "subject": "{actor}, “{page}” sayfasını düzenledi",
+    "heading": "{actor}, “{page}” sayfasını düzenledi",
+    "body": "{workspace} çalışma alanındaki “{page}” değişti. Yenilikleri görmek için açın; geçmişi her değişikliği gösterir.",
+    "someone": "Biri",
+    "action": "Sayfayı aç",
+    "optOut": "Bunları bu sayfayı izlediğiniz için alıyorsunuz: onu oluşturdunuz ya da düzenlediniz, izlemeyi seçtiniz veya teamspace'ini izliyorsunuz. Sayfanın ⋯ menüsünden sessize alın ya da bu e-postaları Hesabım > Tercihler'den kapatın.",
+    "digestSubject": "{count, plural, one {İzlediğiniz # sayfa düzenlendi} other {İzlediğiniz # sayfa düzenlendi}}",
+    "digestIntro": "İzlediğiniz sayfalarla ilgili bugünkü e-postalarınızı zaten aldınız, bu yüzden bu düzenlemeler bir arada geliyor:",
+    "digestPage": "{workspace} içindeki “{page}”, düzenleyen {actor}: {link}",
+    "digestAction": "Leafdesk'i aç"
+  },
   "accessRequest": {
     "subject": "{requester} “{page}” sayfasına erişim istedi",
     "heading": "{requester} “{page}” sayfasına erişim istedi",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor} bu satırı değiştirdi",
     "rowUpdateTitle": "başlık",
     "rowUpdateBody": "metin",
+    "pageUpdated": "{actor} bu sayfayı düzenledi",
     "someone": "Biri",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

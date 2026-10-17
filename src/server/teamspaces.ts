@@ -9,6 +9,7 @@ import {
   teamspace,
   teamspaceGroup,
   teamspaceMember,
+  teamspaceWatch,
   user,
   workspace,
   workspaceMember,
@@ -156,6 +157,8 @@ export type TeamspaceSummary = {
   role: TeamspaceRole | null;
   /** The viewer is in it only through a group (they leave it by leaving the group). */
   viaGroup: boolean;
+  /** The viewer watches all its pages (server/page-watch.ts). */
+  watching: boolean;
   canManage: boolean;
   canJoin: boolean;
   canLeave: boolean;
@@ -185,10 +188,12 @@ export async function listTeamspaces(
     workspace_id: string;
     own_role: TeamspaceRole | null;
     via_group: boolean;
+    watching: boolean;
     member_count: number;
   }>(sql`
     select t.*,
       (select m.role from ${teamspaceMember} m where m.teamspace_id = t.id and m.user_id = ${userId}) as own_role,
+      exists (select 1 from ${teamspaceWatch} w where w.teamspace_id = t.id and w.user_id = ${userId}) as watching,
       ${viaGroupSql(sql`t.id`, userId)} as via_group,
       case when t.access = 'default' then
         (select count(*) from ${workspaceMember} wm where wm.workspace_id = t.workspace_id and wm.role in ('owner', 'member'))
@@ -238,6 +243,7 @@ export async function listTeamspaces(
       joined,
       role: joined ? (row?.role ?? "member") : null,
       viaGroup: Boolean(r.via_group) && r.access !== "default",
+      watching: Boolean(r.watching),
       canManage: canManage(t, workspaceRole, row),
       canJoin: !joined && r.access === "open" && !r.archived_at,
       // The last owner hands the teamspace on first (a default teamspace's owners are optional).

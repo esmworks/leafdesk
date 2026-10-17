@@ -13,6 +13,8 @@ export {
   emailChangeEmail,
   emailChangedEmail,
   mentionEmail,
+  pageUpdateDigestEmail,
+  pageUpdateEmail,
   passwordChangedEmail,
   reminderEmail,
   dateReminderEmail,

@@ -1404,7 +1404,16 @@
     "automationChannel": "자동화: {channel}",
     "rowUpdateTitle": "팔로우하는 행",
     "rowUpdateDescription": "팔로우하는 데이터베이스 행을 다른 사람이 변경할 때. 직접 만든 행, 담당자로 지정된 행, 댓글을 달았거나 멘션된 행, 또는 팔로우하기로 한 행입니다.",
-    "rowUpdateChannel": "팔로우하는 행: {channel}"
+    "rowUpdateChannel": "팔로우하는 행: {channel}",
+    "pageUpdateTitle": "지켜보는 페이지",
+    "pageUpdateDescription": "다른 사람이 지켜보는 페이지를 편집할 때: 내가 만들었거나 편집한 페이지, 지켜보기로 한 페이지, 지켜보는 팀스페이스에 있는 페이지. 같은 페이지에 대한 이메일은 많아야 몇 시간에 한 번 오고, 하루에 몇 통이 넘으면 나머지는 한 통의 이메일로 모아서 옵니다.",
+    "pageUpdateChannel": "지켜보는 페이지: {channel}",
+    "watchedHeading": "지켜보는 페이지",
+    "watchedDescription": "지켜보기로 했거나 편집한 페이지와 지켜보는 팀스페이스입니다. 내가 만든 페이지도 지켜봅니다. 지켜보는 사람은 편집과 새 댓글 스레드 알림을 받습니다.",
+    "watchedNone": "아직 지켜보는 페이지가 없습니다",
+    "watchedNoneDescription": "페이지는 ⋯ 메뉴에서, 팀스페이스 전체는 사이드바의 메뉴에서 지켜볼 수 있습니다. 편집한 페이지는 자동으로 지켜봅니다.",
+    "watchedTeamspace": "이 팀스페이스의 모든 페이지 · {workspace}",
+    "stopWatching": "지켜보기 중지"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",

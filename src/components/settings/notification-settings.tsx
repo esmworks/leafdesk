@@ -21,6 +21,7 @@ const KIND_KEYS = {
   join_request: "joinRequest",
   automation: "automation",
   row_update: "rowUpdate",
+  page_updated: "pageUpdate",
 } as const satisfies Record<PreferenceKind, string>;
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by

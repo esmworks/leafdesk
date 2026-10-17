@@ -1404,7 +1404,16 @@
     "automationChannel": "Automazioni: {channel}",
     "rowUpdateTitle": "Righe che segui",
     "rowUpdateDescription": "Qualcun altro modifica una riga di database che segui: una che hai creato, a cui sei assegnato, che hai commentato o in cui sei stato menzionato, o che hai scelto di seguire.",
-    "rowUpdateChannel": "Righe che segui: {channel}"
+    "rowUpdateChannel": "Righe che segui: {channel}",
+    "pageUpdateTitle": "Pagine che osservi",
+    "pageUpdateDescription": "Qualcun altro modifica una pagina che osservi: una che hai creato o modificato, che hai scelto di osservare o che si trova in uno spazio del team che osservi. Le email sulla stessa pagina arrivano al massimo ogni qualche ora e, dopo alcune al giorno, le altre arrivano insieme in un’unica email.",
+    "pageUpdateChannel": "Pagine che osservi: {channel}",
+    "watchedHeading": "Pagine osservate",
+    "watchedDescription": "Le pagine che hai scelto di osservare o hai modificato, e gli spazi del team che osservi. Osservi anche le pagine che hai creato. Chi osserva riceve avvisi su modifiche e nuove discussioni.",
+    "watchedNone": "Non stai ancora osservando nessuna pagina",
+    "watchedNoneDescription": "Osserva una pagina dal suo menu ⋯, o un intero spazio del team dal suo menu nella barra laterale. Le pagine che modifichi vengono osservate per te.",
+    "watchedTeamspace": "Tutte le pagine di questo spazio del team · {workspace}",
+    "stopWatching": "Smetti di osservare"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

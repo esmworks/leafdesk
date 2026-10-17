@@ -57,7 +57,11 @@
     "deleteTemplate": "템플릿 삭제",
     "exportDisabled": "내보내기가 꺼져 있습니다",
     "exportDisabledBody": "이 워크스페이스의 소유자가 페이지 내보내기와 인쇄를 꺼 두었습니다.",
-    "showInGraph": "그래프에서 보기"
+    "showInGraph": "그래프에서 보기",
+    "watch": "지켜보기",
+    "watchHint": "다른 사람이 이 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받습니다.",
+    "mute": "음소거",
+    "muteHint": "다른 사람이 이 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받고 있습니다. 그만 받으려면 음소거하세요."
   },
   "comments": {
     "aboutPage": "이 페이지에 대한 댓글",

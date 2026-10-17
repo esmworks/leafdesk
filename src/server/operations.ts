@@ -35,6 +35,8 @@ import { isTimeZone } from "@/lib/time-zone";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
 import * as pageMeta from "@/server/page-meta";
+import { isWatching, setWatching } from "@/server/page-watch";
+import { isFollowing, setFollowing } from "@/server/row-follow";
 import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
@@ -188,6 +190,12 @@ export const inputs = {
       .describe(
         'Put a line "<!-- block <id> -->" before each block of the body, to change single blocks with update_page (modes replace_block, insert_after, delete_block).',
       ),
+  }),
+  watchPage: z.object({
+    page_id: id("page"),
+    watching: z
+      .boolean()
+      .describe("true to watch the page (or follow the database row), false to mute it: no more notifications about its edits and new comment threads."),
   }),
   createPage: z.object({
     workspace_id: z.string().optional().describe("Workspace for a top-level page. Ignored when parent_id is set."),
@@ -492,6 +500,8 @@ export async function listTeamspaces(ctx: OperationContext, { workspace_id, incl
       owners: t.owners.map((o) => o.name),
       joined: t.joined,
       role: t.role,
+      // Watching a teamspace watches all its pages (watch_page mutes single ones).
+      watching: t.watching,
       can_add_pages: t.joined && !t.archivedAt,
     })),
     note: 'Pages outside every teamspace are private: create_page / move_page with teamspace_id "private".',
@@ -605,12 +615,13 @@ export async function getPage(
 ) {
   const { userId } = ctx;
   const { page, parent, parentDatabase } = await loadPage(ctx, page_id);
-  const [crumbs, content, workspaces, favorite, version] = await Promise.all([
+  const [crumbs, content, workspaces, favorite, version, watching] = await Promise.all([
     pages.getBreadcrumbs(userId, page_id),
     getCollab().readPage(page_id),
     pages.listWorkspaces(userId),
     pageMeta.isFavorite(userId, page_id),
     page.kind === "database" ? null : getCollab().pageVersion(page_id),
+    watchState(userId, page_id),
   ]);
   const workspace = workspaces.find((w) => w.id === page.workspaceId);
   // Mentioned pages read as their current title, as far as the user can see them.
@@ -635,6 +646,8 @@ export async function getPage(
     // A locked page's title, icon, background and body can't change; a locked database's properties and views.
     locked: Boolean(page.lockedAt),
     favorite,
+    // Templates are neither watched nor followed.
+    ...(watching === null ? {} : { watching }),
     // A skill's body is instructions someone may ask to follow; get_skill reads it under its name.
     ...(page.isSkill && !page.inTemplate ? { skill: true, skill_description: page.skillDescription } : {}),
     updated_at: page.updatedAt.toISOString(),
@@ -700,6 +713,23 @@ export async function getPage(
     }
   }
   return out;
+}
+
+/** Whether the user watches the page, or follows the database row; null for templates, which are neither. */
+async function watchState(userId: string, pageId: string) {
+  return (await isWatching(userId, pageId)) ?? (await isFollowing(userId, pageId));
+}
+
+/**
+ * Watches a page or mutes it; for a database row, follows it or stops (server/page-watch.ts,
+ * server/row-follow.ts).
+ */
+export async function watchPage(ctx: OperationContext, { page_id, watching }: Args<"watchPage">) {
+  const { page } = await loadPage(ctx, page_id);
+  if (page.isTemplate || page.inTemplate) throw new ToolInputError("Templates aren't watched: watch the pages made from them.");
+  if ((await isFollowing(ctx.userId, page_id)) !== null) await setFollowing(ctx.userId, page_id, watching);
+  else await setWatching(ctx.userId, page_id, watching);
+  return { id: page.id, watching, url: pageUrl(page.workspaceId, page.id) };
 }
 
 export async function createPage(

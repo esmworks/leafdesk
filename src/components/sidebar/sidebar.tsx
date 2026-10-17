@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  Bell,
+  BellOff,
   CalendarCheck,
   ChevronDown,
   ChevronRight,
@@ -39,7 +41,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransit
 import { unreadCountAction } from "@/app/actions/notifications";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
-import { leaveTeamspaceAction } from "@/app/actions/teamspaces";
+import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import type { FavoritePage } from "@/server/page-meta";
 import { useChannel } from "@/components/collab/use-channel";
@@ -520,6 +522,16 @@ export function Sidebar({
     });
   }
 
+  // Watching a teamspace watches all its pages (server/page-watch).
+  function watch(ts: TeamspaceSummary) {
+    setActionError(null);
+    startTransition(async () => {
+      const result = await setTeamspaceWatchingAction(workspaceId, ts.id, !ts.watching);
+      if (!result.ok) setActionError(result.error);
+      refresh();
+    });
+  }
+
   function openTemplates(target: Target) {
     setDialogTarget(target);
     setTemplatesOpen(true);
@@ -693,6 +705,7 @@ export function Sidebar({
               onCreate={() => create(null, "page", ts.id)}
               onEdit={ts.canManage ? () => setTeamspaceDialog({ teamspace: ts }) : undefined}
               onLeave={ts.canLeave ? () => leave(ts) : undefined}
+              onWatch={() => watch(ts)}
               tree={treeProps}
             />
           ))}
@@ -1381,6 +1394,7 @@ function TeamspaceSection({
   onCreate,
   onEdit,
   onLeave,
+  onWatch,
   tree,
 }: {
   teamspace: TeamspaceSummary;
@@ -1391,6 +1405,7 @@ function TeamspaceSection({
   onCreate: () => void;
   onEdit?: () => void;
   onLeave?: () => void;
+  onWatch: () => void;
   tree: TreeContext;
 }) {
   const t = useTranslations("sidebar");
@@ -1453,6 +1468,17 @@ function TeamspaceSection({
                   }}
                 >
                   {t("teamspaces.members")}
+                </MenuItem>
+                <MenuItem
+                  icon={teamspace.watching ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                  title={t(teamspace.watching ? "teamspaces.unwatchHint" : "teamspaces.watchHint")}
+                  disabled={tree.offline}
+                  onClick={() => {
+                    close();
+                    onWatch();
+                  }}
+                >
+                  {t(teamspace.watching ? "teamspaces.unwatch" : "teamspaces.watch")}
                 </MenuItem>
                 {onLeave && (
                   <>

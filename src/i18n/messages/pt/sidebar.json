@@ -91,6 +91,7 @@
     "automation": "Automação “{name}”: {actor} adicionou ou alterou esta linha",
     "automationDatePassed": "Automação “{name}”: chegou a data desta linha",
     "rowUpdate": "{actor} alterou esta linha",
+    "pageUpdated": "{actor} editou esta página",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Título",
     "rowChangesMore": "{count, plural, one {e mais # alteração} other {e mais # alterações}}",
@@ -147,7 +148,11 @@
     "leave": "Sair do espaço de equipe",
     "confirmLeave": "Sair de {name}? As páginas dele saem da sua barra lateral. A menos que o espaço de equipe seja aberto, você também perde o acesso a elas.",
     "empty": "Nenhuma página ainda. Adicionar uma",
-    "another": "outro espaço de equipe"
+    "another": "outro espaço de equipe",
+    "watch": "Acompanhar todas as páginas",
+    "watchHint": "Saiba na sua caixa de entrada quando outra pessoa editar uma página deste espaço de equipe ou iniciar uma conversa de comentários nela.",
+    "unwatch": "Parar de acompanhar as páginas",
+    "unwatchHint": "Você fica sabendo de edições e novas conversas de comentários em todas as páginas deste espaço de equipe, exceto nas que silenciou."
   },
   "sections": {
     "shared": "Compartilhado",

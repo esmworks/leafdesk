@@ -112,6 +112,18 @@
     "someone": "شخص ما",
     "optOut": "تصلك هذه الرسائل لأنك تتابع هذا الصف. أوقف متابعته من قائمة صفحة الصف، أو أوقف هذه الرسائل من حسابي > التفضيلات."
   },
+  "pageUpdate": {
+    "subject": "عدّل {actor} «{page}»",
+    "heading": "عدّل {actor} «{page}»",
+    "body": "تغيّرت «{page}» في {workspace}. افتحها لترى الجديد؛ يعرض سجلّها كل تغيير.",
+    "someone": "شخص ما",
+    "action": "فتح الصفحة",
+    "optOut": "تصلك هذه الرسائل لأنك تراقب هذه الصفحة: أنشأتها أو عدّلتها أو اخترت مراقبتها أو تراقب مساحة فريقها. اكتمها من قائمة ⋯ في الصفحة، أو أوقف هذه الرسائل من حسابي > التفضيلات.",
+    "digestSubject": "{count, plural, zero {لم تُعدَّل أي صفحة تراقبها} one {عُدّلت صفحة تراقبها} two {عُدّلت صفحتان تراقبهما} few {عُدّلت # صفحات تراقبها} many {عُدّلت # صفحة تراقبها} other {عُدّلت # صفحة تراقبها}}",
+    "digestIntro": "وصلتك رسائل اليوم عن الصفحات التي تراقبها، لذا تصل هذه التعديلات مجمّعة:",
+    "digestPage": "«{page}» في {workspace}، عدّلها {actor}: {link}",
+    "digestAction": "فتح Leafdesk"
+  },
   "accessRequest": {
     "subject": "طلب {requester} الوصول إلى «{page}»",
     "heading": "طلب {requester} الوصول إلى «{page}»",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "غيّر {actor} هذا الصف",
     "rowUpdateTitle": "العنوان",
     "rowUpdateBody": "النص",
+    "pageUpdated": "عدّل {actor} هذه الصفحة",
     "someone": "شخص ما",
     "joinRequestTitle": "طلب انضمام",
     "joinRequest": "طلب {actor} الانضمام",

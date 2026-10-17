@@ -112,6 +112,18 @@
     "someone": "誰か",
     "optOut": "この行をフォローしているため、このメールが届いています。行のページメニューからフォローをやめるか、マイアカウント > 設定でこのメールをオフにできます。"
   },
+  "pageUpdate": {
+    "subject": "{actor}さんが「{page}」を編集しました",
+    "heading": "{actor}さんが「{page}」を編集しました",
+    "body": "{workspace}の「{page}」が変更されました。開いて新しい内容を確認してください。履歴で各変更を確認できます。",
+    "someone": "誰か",
+    "action": "ページを開く",
+    "optOut": "このページをウォッチしているため、このメールが届いています（作成または編集した、ウォッチを選んだ、またはチームスペースをウォッチしている）。ページの⋯メニューからミュートするか、マイアカウント > 設定でこのメールをオフにできます。",
+    "digestSubject": "{count, plural, other {ウォッチ中の#件のページが編集されました}}",
+    "digestIntro": "ウォッチ中のページについての今日のメールはすでに届いているため、これらの編集はまとめてお知らせします：",
+    "digestPage": "{workspace}の「{page}」（編集: {actor}）: {link}",
+    "digestAction": "Leafdeskを開く"
+  },
   "accessRequest": {
     "subject": "{requester}が「{page}」へのアクセスをリクエストしました",
     "heading": "{requester}が「{page}」へのアクセスをリクエストしました",
@@ -217,6 +229,7 @@
     "rowUpdateSome": "{actor}さんがこの行を変更しました",
     "rowUpdateTitle": "タイトル",
     "rowUpdateBody": "本文",
+    "pageUpdated": "{actor}さんがこのページを編集しました",
     "someone": "誰か",
     "joinRequestTitle": "参加リクエスト",
     "joinRequest": "{actor}が参加をリクエストしました",
