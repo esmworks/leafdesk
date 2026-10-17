@@ -18,6 +18,7 @@ import {
   loadDatabaseAction,
   moveRowAction,
   moveViewAction,
+  pasteRowsAction,
   updatePropertyAction,
   renameRowAction,
   updateRowPropertiesAction,
@@ -38,11 +39,14 @@ import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateRow, mergeResults, relatedSchemasFrom, type CompiledFormula } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
 import type { PageVisibility } from "@/lib/page-visibility";
+import type { PastePlan } from "@/lib/table-clipboard";
 import type { RollupConfig } from "@/db/schema/app";
 import type { DatabaseSnapshot, DerivedInput, Property, RelationInput, RollupInput, Row, View } from "./types";
 import { TITLE } from "./types";
 
 type Pending = { rowId: string; key: string; value: unknown; version: number };
+/** A value that shows in a cell before the server confirms it. */
+export type ShownValue = Omit<Pending, "version">;
 
 /** A failed database action; its message is already translated on the server. */
 class ActionError extends Error {}
@@ -267,6 +271,42 @@ export function useDatabase(
     [databaseId, refetch, report, tb],
   );
 
+  /**
+   * Writes cells pasted into the table (see lib/table-clipboard planPaste) in one call. `shown` are
+   * the values that show right away, already stored as they are (text, numbers, dates); the rest
+   * (option and people names) show once the server has resolved them. Cells left out, here or by
+   * the server, and rows the viewer can't change are reported.
+   */
+  const pasteRows = useCallback(
+    async (plan: PastePlan, shown: ShownValue[] = []) => {
+      const v = ++version.current;
+      const tokens = shown.map((p) => `${p.rowId}\u0000${p.key}`);
+      setPending((p) => {
+        const next = { ...p };
+        for (const item of shown) next[`${item.rowId}\u0000${item.key}`] = { ...item, version: v };
+        return next;
+      });
+      try {
+        const result = await unwrap(pasteRowsAction(databaseId, { updates: plan.updates, newRows: plan.newRows }));
+        const leftOut = plan.invalid + plan.skipped + result.invalid;
+        if (result.skippedRows) setError(tb("skipped", { count: result.skippedRows }));
+        else if (leftOut) setError(tb("pasteLeftOut", { count: leftOut }));
+        await refetch();
+        return result;
+      } catch (e) {
+        report(e);
+        return null;
+      } finally {
+        setPending((p) => {
+          const next = { ...p };
+          for (const token of tokens) if (next[token]?.version === v) delete next[token];
+          return next;
+        });
+      }
+    },
+    [databaseId, refetch, report, tb],
+  );
+
   /** Applies a local schema change immediately, then persists it and refetches. */
   const mutateSchema = useCallback(
     async <T,>(local: (s: DatabaseSnapshot) => DatabaseSnapshot, write: () => Promise<ActionResult<T>>) => {
@@ -295,6 +335,7 @@ export function useDatabase(
       setCell,
       setRowValues,
       setCells,
+      pasteRows,
       clearError: () => setError(null),
       /** Shows an already translated message in the error banner. */
       showError: (message: string) => setError(message),
@@ -589,7 +630,7 @@ export function useDatabase(
     }),
     // patchProperty is a pure helper; the rest are stable callbacks.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only the workspace id of the snapshot is read
-    [databaseId, snapshot?.database.workspaceId, refetch, setCell, setRowValues, setCells, mutateSchema, report, tb, ta],
+    [databaseId, snapshot?.database.workspaceId, refetch, setCell, setRowValues, setCells, pasteRows, mutateSchema, report, tb, ta],
   );
 
   // Back online: replace the offline copy with the server's rows.

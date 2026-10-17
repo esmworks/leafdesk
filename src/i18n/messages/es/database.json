@@ -282,6 +282,7 @@
     "clearSelection": "Borrar selección",
     "confirmTrash": "¿Mover {count, plural, one {# fila} other {# filas}} a la papelera?",
     "skipped": "{count, plural, one {Se omitió # fila porque no puedes cambiarla.} other {Se omitieron # filas porque no puedes cambiarlas.}}",
+    "pasteLeftOut": "{count, plural, one {Se omitió # celda pegada: no encaja en su columna o no puedes cambiarla.} other {Se omitieron # celdas pegadas: no encajan en sus columnas o no puedes cambiarlas.}}",
     "exportDisabled": "La exportación está desactivada en este espacio de trabajo."
   },
   "calculate": {

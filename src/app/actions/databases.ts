@@ -8,12 +8,14 @@ import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
+import type { PastedRow } from "@/lib/table-clipboard";
 import { AccessError, pageAccessOf } from "@/server/access";
 import { databaseAi } from "@/server/ai-properties";
 import * as calendarFeeds from "@/server/calendar-feeds";
 import * as databases from "@/server/databases";
 import { duplicateRows } from "@/server/duplicate";
 import { listGroups } from "@/server/groups";
+import { pasteRows } from "@/server/paste";
 import { getPropertyAccessSettings, loadPropertyRules, setPropertyAccess } from "@/server/property-access";
 import { listRowActivity } from "@/server/row-activity-feed";
 import { listMembers } from "@/server/workspaces";
@@ -136,6 +138,26 @@ export async function updateRowPropertiesAction(rowId: string, patch: Record<str
 export async function updateRowsPropertiesAction(databaseId: string, rowIds: string[], patch: Record<string, unknown>) {
   return run((userId) => databases.updateRowsProperties(userId, databaseId, rowIds, patch));
 }
+
+/** Cells pasted into a table: each row's own values, and rows added below the last (see server/paste). */
+export async function pasteRowsAction(databaseId: string, input: { updates: (PastedRow & { rowId: string })[]; newRows: PastedRow[] }) {
+  return run((userId) => {
+    const updates = Array.isArray(input?.updates) ? input.updates : [];
+    const newRows = Array.isArray(input?.newRows) ? input.newRows : [];
+    if (![...updates, ...newRows].every(isPastedRow) || !updates.every((u) => typeof u.rowId === "string")) {
+      throw new Error("Invalid paste");
+    }
+    return pasteRows({ userId }, databaseId, { updates, newRows });
+  });
+}
+
+const isPastedRow = (row: PastedRow) =>
+  !!row &&
+  typeof row === "object" &&
+  (row.title === undefined || typeof row.title === "string") &&
+  !!row.values &&
+  typeof row.values === "object" &&
+  !Array.isArray(row.values);
 
 export async function archiveRowsAction(databaseId: string, rowIds: string[]) {
   return run((userId) => pages.archiveRows(userId, databaseId, rowIds));
