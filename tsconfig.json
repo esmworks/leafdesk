@@ -37,6 +37,8 @@
   ],
   "exclude": [
     "node_modules",
-    "desktop"
+    "desktop",
+    // Runs inside an older release's checkout against that release's code (scripts/upgrade-test.sh).
+    "scripts/upgrade"
   ]
 }
