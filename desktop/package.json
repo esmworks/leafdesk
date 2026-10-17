@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Leafdesk for macOS, Windows and Linux: a window on your own Leafdesk server.",
   "private": true,
-  "license": "Apache-2.0",
+  "license": "AGPL-3.0-only",
   "author": "esmworks",
   "homepage": "https://esmworks.github.io/leafdesk/",
   "repository": "github:esmworks/leafdesk",
