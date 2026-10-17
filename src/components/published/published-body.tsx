@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { PropertyDisplay } from "@/components/database/property-cell";
 import { PropertyTypeIcon } from "@/components/database/property-icons";
 import { PublishedMermaid } from "@/components/page/mermaid-diagram";
-import { HeadingList, Trail } from "@/components/page/page-outline";
+import { HeadingList, SubpageList, Trail } from "@/components/page/page-outline";
 import { PdfViewer } from "@/components/page/pdf-viewer";
 import { BookmarkCard, EmbedFrame } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
@@ -13,7 +13,7 @@ import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import { displayHost } from "@/lib/web-blocks";
-import type { PublishedBlock, PublishedCrumb, PublishedEmbed, PublishedPage } from "@/server/publication";
+import type { PublishedBlock, PublishedChild, PublishedCrumb, PublishedEmbed, PublishedPage } from "@/server/publication";
 import { PublishedDatabaseView } from "./published-database";
 import styles from "./published-body.module.css";
 
@@ -21,6 +21,10 @@ import styles from "./published-body.module.css";
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
 
 const GUTTER = "px-4 sm:px-[54px]";
+
+/** Whether the body has a subpages block, in columns too: the page then lists its subpages there, not again at its end. */
+export const showsSubpages = (blocks: PublishedBlock[]): boolean =>
+  blocks.some((b) => b.kind === "subpages" || (b.kind === "columns" && b.columns.some((c) => showsSubpages(c.segments))));
 
 /**
  * A database row's properties above its body: those a row page shows before "more properties" is
@@ -57,12 +61,15 @@ export function PublishedRowProperties({ row, print = false }: { row: NonNullabl
 export async function PublishedBody({
   blocks,
   crumbs,
+  subpages,
   links,
   unavailable,
   print = false,
 }: {
   blocks: PublishedBlock[];
   crumbs: PublishedCrumb[];
+  /** The page's subpages the reader may see, for subpages blocks. */
+  subpages: PublishedChild[];
   links: PublishedLinks | null;
   /** What a database block the reader can't see says. */
   unavailable: string;
@@ -162,6 +169,18 @@ export async function PublishedBody({
         return (
           <div key={i} className={cn("my-2", pad)}>
             <Trail crumbs={crumbs} href={href ? (id) => href(id) : undefined} label={tb("breadcrumb.label")} untitled={untitled} />
+          </div>
+        );
+      case "subpages":
+        return (
+          <div key={i} className={cn("my-2", pad, print && styles.keep)}>
+            <SubpageList
+              pages={subpages}
+              href={href ? (id) => href(id, subpages.find((p) => p.id === id)?.title) : undefined}
+              label={tb("subpages.label")}
+              empty={tb("subpages.empty")}
+              untitled={untitled}
+            />
           </div>
         );
       case "mermaid":

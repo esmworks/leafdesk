@@ -89,6 +89,13 @@ export async function movePageAction(pageId: string, parentId: string | null, po
   await pages.movePage(userId, pageId, parentId, position, teamspaceId);
 }
 
+/** The pages directly under a page that the user can open, in the sidebar's order (subpages blocks). */
+export async function listSubpagesAction(workspaceId: string, pageId: string) {
+  const userId = await requireUserId();
+  const rows = await pages.listChildren(userId, workspaceId, pageId);
+  return rows.map(({ id, kind, title, icon }) => ({ id, kind, title, icon }));
+}
+
 /** The sidebar's tree and the teamspaces it has sections for. */
 export async function getSidebarAction(workspaceId: string) {
   const userId = await requireUserId();

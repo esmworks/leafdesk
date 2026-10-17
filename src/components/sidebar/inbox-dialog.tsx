@@ -10,7 +10,7 @@ import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Value } from "@/components/database/row-activity";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
-import { agentMemoryPath, agentRunPath } from "@/lib/agents";
+import { pushLink } from "@/lib/push";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -114,21 +114,7 @@ export function InboxDialog({
                 onClose();
                 // Join requests are decided in Settings > Members; an agent's call (or a scheduled
                 // run's report) opens its run, its proposed notes its memory.
-                router.push(
-                  item.kind === "agent_approval"
-                    ? `/w/${workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`
-                    : item.kind === "agent_memory"
-                    ? item.memory
-                      ? agentMemoryPath(workspaceId, item.memory.agentId)
-                      : `/w/${workspaceId}/settings?tab=agents`
-                    : item.kind === "agent_report"
-                    ? item.report
-                      ? agentRunPath(workspaceId, item.report.agentId, item.report.runId)
-                      : `/w/${workspaceId}/settings?tab=agents`
-                    : item.pageId === null
-                      ? `/w/${workspaceId}/settings?tab=members&view=requests`
-                      : `/w/${workspaceId}/p/${item.pageId}`,
-                );
+                router.push(pushLink({ ...item, workspaceId }));
               }}
             >
               <span

@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location パンくず パス 階層",
       "label": "パンくずリスト"
     },
+    "subpages": {
+      "title": "サブページ",
+      "subtext": "このページの下にあるページへのリンク",
+      "aliases": "subpages サブページ 子ページ 一覧 目次",
+      "label": "サブページ",
+      "empty": "このページの下に追加したページがここに表示されます。"
+    },
     "columns": {
       "two": {
         "title": "2列",

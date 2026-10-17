@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useState, type FocusEvent } from "react";
 import { cn, IconButton } from "@/components/ui";
-import { isPageThread } from "@/lib/comments";
+import { isPageThread, threadOfHash } from "@/lib/comments";
 
 const FILTERS = ["open", "resolved", "all"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -54,7 +54,7 @@ export function CommentsPanel({ onClose }: { onClose: () => void }) {
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        <Threads filter={filter} />
+        <Threads filter={filter} onFilter={setFilter} />
         <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{t(`empty.${filter}`)}</p>
       </div>
     </aside>
@@ -67,13 +67,44 @@ export function CommentsPanel({ onClose }: { onClose: () => void }) {
  * its text was deleted. (BlockNote's own sidebar can't tell a thread about the page from one whose
  * text is gone.)
  */
-function Threads({ filter }: { filter: Filter }) {
+function Threads({ filter, onFilter }: { filter: Filter; onFilter: (filter: Filter) => void }) {
   const t = useTranslations("page.comments");
   const editor = useBlockNoteEditor();
+  const comments = useExtension(CommentsExtension);
   const threads = useThreads();
   const positions = useExtensionState(CommentsExtension, { selector: (state) => state.threadPositions });
   const selectedThreadId = useExtensionState(CommentsExtension, { selector: (state) => state.selectedThreadId });
   const deleted = editor.dictionary.comments.deleted_reference_text;
+
+  // The thread a link names (`#comment-<id>`): selected once it has loaded, after its text has
+  // (so the page scrolls there), or a moment later for a thread whose text is gone. A resolved one
+  // shows under all threads. One that was deleted leaves just the panel open.
+  const [linked, setLinked] = useState<string | undefined>();
+  const [waited, setWaited] = useState(false);
+  useEffect(() => {
+    const fromHash = () => {
+      setLinked(threadOfHash(window.location.hash));
+      setWaited(false);
+    };
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, []);
+  useEffect(() => {
+    if (!linked) return;
+    const timer = setTimeout(() => setWaited(true), 3_000);
+    return () => clearTimeout(timer);
+  }, [linked]);
+  useEffect(() => {
+    const thread = linked ? threads.get(linked) : undefined;
+    if (!linked || !thread || !(positions.has(linked) || isPageThread(thread.metadata) || waited)) return;
+    setLinked(undefined);
+    if (thread.resolved && filter === "open") onFilter("all");
+    comments.selectThread(linked);
+    requestAnimationFrame(() =>
+      document.querySelector(".comments-panel .bn-thread.selected")?.scrollIntoView({ block: "nearest" }),
+    );
+  }, [linked, threads, positions, waited, filter, onFilter, comments]);
 
   const shown = useMemo(() => {
     const at = (thread: ThreadData) => (isPageThread(thread.metadata) ? -1 : (positions.get(thread.id)?.from ?? Number.MAX_VALUE));

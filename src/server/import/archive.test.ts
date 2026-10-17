@@ -1,13 +1,32 @@
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
-import { collectFiles } from "./archive";
+import { collectFiles, entryName } from "./archive";
 
 const ID = "0123456789abcdef0123456789abcdef";
 const UUID = "4f2e8c1a-1b2c-4d3e-8f90-123456789abc";
 const zip = (files: Record<string, string | Uint8Array>) =>
   zipSync(Object.fromEntries(Object.entries(files).map(([k, v]) => [k, typeof v === "string" ? strToU8(v) : v])));
 
+/** The ZIP with every entry's "name is UTF-8" flag cleared, as tools that don't set it write it. */
+function withoutUtf8Flag(data: Uint8Array) {
+  const out = data.slice();
+  const view = new DataView(out.buffer);
+  for (let i = 0; i + 10 < out.length; i++) {
+    const sig = view.getUint32(i, true);
+    const at = sig === 0x04034b50 ? i + 6 : sig === 0x02014b50 ? i + 8 : -1;
+    if (at !== -1) view.setUint16(at, view.getUint16(at, true) & ~0x800, true);
+  }
+  return out;
+}
+
 describe("collectFiles", () => {
+  it("reads UTF-8 names in a ZIP that doesn't flag them as UTF-8", () => {
+    const data = withoutUtf8Flag(zip({ "Toplantı notları/Çalışma planı.md": "# Plan", "plain.md": "x" }));
+    const { files, skipped } = collectFiles([{ path: "upload.zip", data }]);
+    expect([...files.keys()].sort()).toEqual(["Toplantı notları/Çalışma planı.md", "plain.md"]);
+    expect(skipped).toEqual([]);
+  });
+
   it("unpacks Notion's split export: an Export ZIP holding its parts", () => {
     const outer = zip({
       [`Export-${UUID}-Part-1.zip`]: zip({ [`Home ${ID}.md`]: "# Home", [`Home ${ID}/Child.md`]: "# Child" }),
@@ -92,3 +111,12 @@ function storedZipSharingOneEntry(payload: Uint8Array, records: number): Uint8Ar
   view.setUint32(at + 16, localSize, true);
   return out;
 }
+
+describe("entryName", () => {
+  it("keeps names that aren't UTF-8 read as Latin-1, and names already read right", () => {
+    expect(entryName("café.md")).toBe("café.md");
+    expect(entryName("Çalışma.md")).toBe("Çalışma.md");
+    expect(entryName("notes.md")).toBe("notes.md");
+    expect(entryName("Ã§ay.md")).toBe("çay.md");
+  });
+});

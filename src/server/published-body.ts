@@ -3,7 +3,7 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { highlightCode } from "@/lib/code-highlighter";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
-import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
+import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
@@ -166,8 +166,8 @@ export type BodyHeading = { anchor: string; level: number; text: string };
 
 /**
  * A run of ordinary blocks as HTML, or a block the page draws itself at that point: a database, a
- * table of contents (with every heading of the page), a breadcrumb or a Mermaid diagram (drawn in
- * the visitor's browser, see components/published).
+ * table of contents (with every heading of the page), a breadcrumb, the page's subpages or a
+ * Mermaid diagram (drawn in the visitor's browser, see components/published).
  */
 export type BodySegment =
   | { kind: "html"; html: string }
@@ -176,6 +176,7 @@ export type BodySegment =
   | { kind: "dashboard"; widgets: DashboardWidget[] }
   | { kind: "toc"; headings: BodyHeading[] }
   | { kind: "breadcrumb" }
+  | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
   | { kind: "bookmark"; bookmark: PublishedBookmark }
   /** An embed of an allowlisted provider; any other URL comes back as a bookmark. */
@@ -205,6 +206,7 @@ const isStandalone = (block: PageBlock) =>
   isWebBlockType(block.type) ||
   block.type === TOC_BLOCK ||
   block.type === BREADCRUMB_BLOCK ||
+  block.type === SUBPAGES_BLOCK ||
   block.type === MERMAID_BLOCK ||
   pdfOf(block) !== null;
 
@@ -471,9 +473,9 @@ export async function bodySegmentsFromBlocks(
         if (columns.length) segments.push({ kind: "columns", columns });
         return;
       }
-      if (block.type === TOC_BLOCK || block.type === BREADCRUMB_BLOCK) {
+      if (block.type === TOC_BLOCK || block.type === BREADCRUMB_BLOCK || block.type === SUBPAGES_BLOCK) {
         await flush();
-        segments.push(block.type === TOC_BLOCK ? { kind: "toc", headings } : { kind: "breadcrumb" });
+        segments.push(block.type === TOC_BLOCK ? { kind: "toc", headings } : { kind: block.type === BREADCRUMB_BLOCK ? "breadcrumb" : "subpages" });
         return;
       }
       if (isWebBlockType(block.type)) {

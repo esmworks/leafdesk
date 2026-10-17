@@ -374,6 +374,13 @@
       "aliases": "breadcrumb ruta navegacion navegación migas superiores ubicacion ubicación",
       "label": "Ruta de navegación"
     },
+    "subpages": {
+      "title": "Subpáginas",
+      "subtext": "Las páginas bajo esta, como enlaces",
+      "aliases": "subpages subpáginas páginas hijas lista índice",
+      "label": "Subpáginas",
+      "empty": "Las páginas que añadas bajo esta aparecerán aquí."
+    },
     "columns": {
       "two": {
         "title": "2 columnas",

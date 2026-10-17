@@ -29,7 +29,7 @@ after you approve them over OAuth.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
-  Apache-2.0 licensed, in 16 languages.
+  AGPL-3.0 licensed, in 16 languages.
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
@@ -80,7 +80,8 @@ versions, upgrades and running behind a domain.
   filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
-  results puts each of these into the box.
+  results puts each of these into the box. The words you typed show in bold in the text under each
+  result.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
@@ -90,7 +91,9 @@ versions, upgrades and running behind a domain.
   keeps the current style. Databases always use the full width. With the comments panel open, a
   page moves left of it (and narrows when the window is too small) instead of running under it.
 - **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
-  live preview, a table of contents and a breadcrumb, and columns (2 to 5, resizable, blocks
+  live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
+  seeing those they may open; a page with one doesn't list them again at its end when published or
+  printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
   Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
   their code in it, published pages and the print view included.
@@ -321,7 +324,7 @@ versions, upgrades and running behind a domain.
   same page come at most every four hours, and after five in a day the rest wait and come together
   in one digest. My account → Preferences lists the pages and teamspaces you watch. Owners also
   find there an agent's call waiting for approval and the notes an agent's run proposed for its
-  memory. Snooze an item
+  memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
   then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
@@ -2308,7 +2311,12 @@ It also lists the settings that matter when you run Leafdesk on a server.
 
 ## License
 
-[Apache License 2.0](LICENSE). See [NOTICE](NOTICE).
+[GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only). See [NOTICE](NOTICE).
+
+In short: you may use, change and share Leafdesk, and run it for yourself, your team or your
+customers. If you change it and let people use your changed version over a network, you have to
+offer them its source code under the same license. Releases up to and including 0.5.4 were
+published under the Apache License 2.0 and stay available under it.
 
 ## Trademarks
 

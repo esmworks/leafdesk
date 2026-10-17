@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location percorso briciole posizione",
       "label": "Percorso"
     },
+    "subpages": {
+      "title": "Sottopagine",
+      "subtext": "Le pagine sotto questa, come link",
+      "aliases": "subpages sottopagine pagine figlie elenco indice",
+      "label": "Sottopagine",
+      "empty": "Le pagine che aggiungi sotto questa compaiono qui."
+    },
     "columns": {
       "two": {
         "title": "2 colonne",

@@ -14,7 +14,7 @@ import {
 } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { env } from "@/lib/env";
-import { commentText } from "@/lib/comments";
+import { commentHash, commentText } from "@/lib/comments";
 import { pageLabel } from "@/lib/labels";
 import { PAGE_EMAIL_COOLDOWN_MS, PAGE_EMAIL_WINDOW_MS, planPageEmails } from "@/lib/page-watch";
 import { ownsWorkspace, resolvePageAccess, workspaceRoleOf } from "@/server/access";
@@ -403,7 +403,13 @@ async function send({
     return;
   }
   if (kind === "comment") {
-    const content = commentEmail(locale, { actorName: actor?.name ?? "", pageTitle, workspaceName: space?.name ?? "", text, link });
+    const content = commentEmail(locale, {
+      actorName: actor?.name ?? "",
+      pageTitle,
+      workspaceName: space?.name ?? "",
+      text,
+      link: threadId ? `${link}${commentHash(threadId)}` : link,
+    });
     await mailer({ to: recipient.email, ...content });
     return;
   }

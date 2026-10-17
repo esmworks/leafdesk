@@ -374,6 +374,13 @@
       "aliases": "breadcrumb path parents location 面包屑 路径 位置",
       "label": "面包屑"
     },
+    "subpages": {
+      "title": "子页面",
+      "subtext": "此页面下的页面链接",
+      "aliases": "subpages 子页面 下级页面 列表 目录",
+      "label": "子页面",
+      "empty": "在此页面下添加的页面会列在这里。"
+    },
     "columns": {
       "two": {
         "title": "2 栏",

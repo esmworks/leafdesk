@@ -2,7 +2,7 @@
   "name": "leafdesk",
   "version": "0.5.4",
   "private": true,
-  "license": "Apache-2.0",
+  "license": "AGPL-3.0-only",
   "author": "esmworks",
   "homepage": "https://esmworks.github.io/leafdesk/",
   "repository": "github:esmworks/leafdesk",

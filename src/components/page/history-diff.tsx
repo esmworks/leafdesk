@@ -8,6 +8,7 @@ import {
   File as FileIcon,
   Image as ImageIcon,
   LayoutDashboard,
+  ListTree,
   MonitorPlay,
   Music,
   Route,
@@ -95,6 +96,8 @@ function BlockBody({ block, text, compact }: { block: DiffBlock; text: ReactNode
       return marker(<TableOfContents className="mt-1 h-4 w-4" />);
     case "breadcrumb":
       return marker(<Route className="mt-1 h-4 w-4" />);
+    case "subpages":
+      return marker(<ListTree className="mt-1 h-4 w-4" />);
     case "dashboard":
       return marker(<LayoutDashboard className="mt-1 h-4 w-4" />);
     case "table":
@@ -128,7 +131,9 @@ function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?
       ? tb("toc.label")
       : block.type === "breadcrumb"
         ? tb("breadcrumb.label")
-        : block.type === "dashboard"
+        : block.type === "subpages"
+          ? tb("subpages.label")
+          : block.type === "dashboard"
           ? td("title")
           : block.text || "\u00a0";
   const text =

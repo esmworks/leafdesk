@@ -374,6 +374,13 @@
       "aliases": "ścieżka nawigacja okruszki rodzice lokalizacja breadcrumb path parents location",
       "label": "Ścieżka nawigacji"
     },
+    "subpages": {
+      "title": "Podstrony",
+      "subtext": "Strony pod tą stroną jako linki",
+      "aliases": "subpages podstrony strony podrzędne lista indeks",
+      "label": "Podstrony",
+      "empty": "Strony dodane pod tą stroną pojawią się tutaj."
+    },
     "columns": {
       "two": {
         "title": "2 kolumny",

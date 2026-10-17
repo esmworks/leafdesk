@@ -374,6 +374,13 @@
       "aliases": "נתיב ניווט הורים מיקום breadcrumb path parents location",
       "label": "נתיב ניווט"
     },
+    "subpages": {
+      "title": "דפי משנה",
+      "subtext": "הדפים שמתחת לדף זה, כקישורים",
+      "aliases": "subpages דפי משנה דפי צאצא רשימה אינדקס",
+      "label": "דפי משנה",
+      "empty": "דפים שתוסיפו מתחת לדף זה יופיעו כאן."
+    },
     "columns": {
       "two": {
         "title": "2 עמודות",

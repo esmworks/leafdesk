@@ -4,6 +4,7 @@
  */
 
 import { agentMemoryPath, agentRunPath } from "./agents";
+import { commentHash } from "./comments";
 import { canSnooze } from "./snooze";
 import { isTimeZone } from "./time-zone";
 
@@ -108,6 +109,7 @@ export type PushItem = {
   actorName: string | null;
   pageId: string | null;
   pageTitle: string | null;
+  threadId?: string | null;
   databaseTitle: string | null;
   propertyName: string | null;
   reminderDate: string | null;
@@ -134,7 +136,7 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "agent_report") return item.report ? agentRunPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
-  return `/w/${item.workspaceId}/p/${item.pageId}`;
+  return `/w/${item.workspaceId}/p/${item.pageId}${item.kind === "comment" && item.threadId ? commentHash(item.threadId) : ""}`;
 }
 
 /** The zone a reminder's time reads in: the one stored with the reminder, UTC without a valid one. */

@@ -4,6 +4,13 @@
 
 ### Upgrading
 
+- **Leafdesk is now licensed under the GNU Affero General Public License v3.0** (AGPL-3.0-only)
+  instead of the Apache License 2.0. Using it, running it for your team or your customers, and
+  changing it for yourself stay free. What's new is the condition on changed versions: if you
+  change Leafdesk and let people use your version over a network, you have to offer them its source
+  code under the same license (the About tab in My account links to the source). Releases up to
+  and including 0.5.4 stay available under Apache-2.0. Contributions now come under the terms in
+  [CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions).
 - **Other sites can no longer show Leafdesk in a frame.** Pages, published pages and public forms
   included: every response now says so (`X-Frame-Options: SAMEORIGIN`, and `frame-ancestors 'self'`
   in the pages' policy). A public form or published page put inside another website with an
@@ -105,6 +112,16 @@
   Markdown read and written over MCP and the API the link keeps its `#block-…` part (in an export,
   a link to a page left out of it does); a mention of a block on a published page links to that block when its page is published
   too. Search results found by meaning open their page at the passage that matched.
+- **Comment notifications open their thread.** From the inbox, the email or a push notification,
+  the page opens with its comments, the thread selected and the text it is about in view (a
+  resolved thread under *All*).
+- **Subpages block.** "Subpages" in the `/` menu lists the pages under this one as links, in the
+  sidebar's order, and keeps up as pages are added, moved, renamed or trashed. Each reader sees the
+  subpages they may open; databases the page already shows inline aren't listed again. Published
+  pages and the print view show the list where the block is instead of at the end of the page. In
+  Markdown and over MCP it is `<!-- leafdesk:subpages -->` on a line of its own.
+- **Search results mark the words you typed** in the text shown under each page, where the search
+  found them: at the start of a word, and inside a sentence for Chinese and Japanese.
 - **Search looks inside attached PDFs and Word documents.** The search box, MCP's `search` and
   the REST API's `/search` find a page by the words of the PDFs and Word documents it shows, also
   on servers without an embeddings model: every word of the search in one document, after the
@@ -125,6 +142,9 @@
 
 ### Fixed
 
+- **Imported ZIPs garbled non-English file names** when the tool that made them (macOS's
+  *Compress* among them) didn't mark the names as UTF-8: "Çalışma planı.md" came in as
+  "Ã‡alÄ±ÅŸma planÄ±.md". Such names are now read as UTF-8 whenever they are valid UTF-8.
 - **"Linked from" counted at most 100 pages.** The count now covers every page linking here that
   you can see.
 - **Blocks nested under a callout stay inside it in Markdown.** A callout's nested blocks (a list,
