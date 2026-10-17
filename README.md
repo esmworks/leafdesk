@@ -962,7 +962,7 @@ How long a sign-in lasts is set for the whole server:
 
 | Variable | Meaning |
 | --- | --- |
-| `SESSION_MAX_AGE_DAYS` | Days a session lasts, in whole days from 1 to 3650. Default `7`. A session in use is extended (about once a day, or halfway through for a one-day lifetime), so this is how long a device may sit unused before it has to sign in again. Existing sessions keep the expiry they have until they are next extended. |
+| `SESSION_MAX_AGE_DAYS` | Days a session lasts, in whole days from 1 to 400. Default `7`. More than 400 is read as 400, the longest a browser keeps the session cookie. A session in use is extended (about once a day, or halfway through for a one-day lifetime), so this is how long a device may sit unused before it has to sign in again. Existing sessions keep the expiry they have until they are next extended. |
 
 ## Workspace security switches
 

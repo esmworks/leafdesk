@@ -160,6 +160,10 @@
 
 ### Fixed
 
+- **A session length over 400 days broke sign-in.** With `SESSION_MAX_AGE_DAYS` between 401 and
+  3650, which the docs allowed, every email sign-up and sign-in failed with a server error: the
+  session cookie would have outlived the 400 days a browser keeps one. Sessions are now capped at
+  400 days, and a longer setting is read as 400.
 - **Imported ZIPs garbled non-English file names** when the tool that made them (macOS's
   *Compress* among them) didn't mark the names as UTF-8: "Çalışma planı.md" came in as
   "Ã‡alÄ±ÅŸma planÄ±.md". Such names are now read as UTF-8 whenever they are valid UTF-8.
