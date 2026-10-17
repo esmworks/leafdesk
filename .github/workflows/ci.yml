@@ -85,6 +85,10 @@ jobs:
       - name: Database edits end-to-end
         run: pnpm tsx scripts/database-e2e.ts
 
+      # A cell saved while its property's type changes, held at a known point by a second connection.
+      - name: Type change with a concurrent edit end-to-end
+        run: pnpm tsx scripts/type-change-race-e2e.ts
+
       - name: Database filters end-to-end
         run: pnpm tsx scripts/filters-e2e.ts
 

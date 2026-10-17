@@ -160,6 +160,11 @@
 
 ### Fixed
 
+- **Changing a property's type could undo a cell saved at the same moment.** A value saved in that
+  column while the change was being made was replaced by what the older value became; a formula or
+  rollup froze from the cells as they were before. The change now reads the rows when it writes
+  them and holds them until it is done, so a cell saved meanwhile is the one converted. Changing a
+  property that someone else changed in the meantime now starts over from their version.
 - **A session length over 400 days broke sign-in.** With `SESSION_MAX_AGE_DAYS` between 401 and
   3650, which the docs allowed, every email sign-up and sign-in failed with a server error: the
   session cookie would have outlived the 400 days a browser keeps one. Sessions are now capped at
