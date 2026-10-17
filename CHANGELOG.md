@@ -37,6 +37,15 @@
   with `update_page` (or replaced the callout with `replace_block`) moved them out of it. They are
   now quoted with the callout, a callout inside a callout as `> > [!NOTE]`, and come back where
   they were.
+- **Quotes and toggle lists keep their shape in Markdown.** A quote's nested blocks were written
+  after it, outside the `>`, and a quote holding a list came back as one line of text with the list
+  run into it; toggle list items were written as plain bullets. So exports lost them, and an AI app
+  that read a page and wrote it back with `update_page` (or `replace_block`) turned toggles into
+  bullet lists, such as a voice note's "Transcript", and quotes into flat text. Quotes now keep
+  their nested blocks inside the `>` and read lists, equations and other quotes in them back as
+  nested blocks, and toggles are written as `<details>` with their text in the `<summary>`, so they
+  come back as toggles with everything that was nested under them. A quote under a list item, and
+  a callout, now also stays under it when read back.
 
 ## 0.5.4 — 2026-10-17
 

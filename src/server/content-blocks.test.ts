@@ -26,6 +26,9 @@ async function roundTrip(markdown: string) {
 
 const text = (value: string) => ({ type: "text", text: value, styles: {} });
 
+/** Block types with what's nested under them. */
+const shape = (list: any[]): unknown[] => list.map((b) => (b.children?.length ? { [b.type]: shape(b.children) } : b.type));
+
 const sample = [
   { type: "callout", props: { icon: "🔥", backgroundColor: "red" }, content: [text("Careful: "), { type: "inlineMath", content: "x^2" }] },
   { type: "math", content: "\\int_0^1 x_1 \\, dx" },
@@ -188,7 +191,6 @@ describe("content blocks in Markdown", () => {
   });
 
   it("write the blocks nested under a callout inside it, so they come back there", async () => {
-    const shape = (list: any[]): unknown[] => list.map((b) => (b.children?.length ? { [b.type]: shape(b.children) } : b.type));
     const blocks = stored([
       {
         type: "callout",
@@ -227,6 +229,119 @@ describe("content blocks in Markdown", () => {
     const back = stored(await markdownToBlocks(markdown, blocks));
     expect(shape(back)).toEqual(shape(blocks));
     expect(back[0].props).toMatchObject({ icon: "💡", backgroundColor: "gray" });
+    expect(await blocksToMarkdown(back)).toBe(await blocksToMarkdown(blocks));
+  });
+
+  it("write the blocks nested under a quote inside it, so they come back there", async () => {
+    const blocks = stored([
+      {
+        type: "quote",
+        content: "Quote line",
+        children: [
+          { type: "bulletListItem", content: "item one" },
+          { type: "bulletListItem", content: "item two" },
+          { type: "numberedListItem", content: "first" },
+          { type: "quote", content: "Inner", children: [{ type: "paragraph", content: "Deep" }] },
+          { type: "callout", props: { backgroundColor: "red" }, content: "Careful", children: [{ type: "paragraph", content: "In" }] },
+        ],
+      },
+      { type: "quote", content: "Plain" },
+      { type: "paragraph", content: "After" },
+    ]);
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(
+      [
+        "> Quote line",
+        ">",
+        "> * item one",
+        "> * item two",
+        ">",
+        "> 1. first",
+        ">",
+        "> > Inner",
+        "> >",
+        "> > Deep",
+        ">",
+        "> > [!CAUTION]",
+        "> > 💡 Careful",
+        "> >",
+        "> > In",
+        "",
+        "> Plain",
+        "",
+        "After",
+      ].join("\n"),
+    );
+    const back = stored(await markdownToBlocks(markdown, blocks));
+    expect(shape(back)).toEqual(shape(blocks));
+    expect(blocksToPlainText([back[0]]).split("\n")[0]).toBe("Quote line");
+    expect(await blocksToMarkdown(back)).toBe(await blocksToMarkdown(blocks));
+  });
+
+  it("read a quote's lists as blocks under it, and keep a quote under a list item there", async () => {
+    const quote = await markdownToBlocks("> Quote line\n> - item one\n> - item two\n> 1. first");
+    expect(shape(quote)).toEqual([{ quote: ["bulletListItem", "bulletListItem", "numberedListItem"] }]);
+    expect(quote[0].content).toEqual([text("Quote line")]);
+    // A line without its ">" still continues the quoted paragraph.
+    const lazy = await markdownToBlocks("> One\ntwo\n\nAfter");
+    expect(shape(lazy)).toEqual(["quote", "paragraph"]);
+    expect(blocksToPlainText([lazy[0]])).toMatch(/^One\n\s*two$/);
+    const nested = await markdownToBlocks("* Item\n  > Quoted\n* Next");
+    expect(shape(nested)).toEqual([{ bulletListItem: ["quote"] }, "bulletListItem"]);
+  });
+
+  it("write toggle list items as <details>, so they come back as toggles with what's nested under them", async () => {
+    const blocks = stored([
+      {
+        type: "toggleListItem",
+        content: [{ type: "text", text: "Transcript", styles: { bold: true } }, text(" of $5")],
+        children: [
+          { type: "paragraph", content: "First paragraph" },
+          { type: "paragraph", content: "Second paragraph" },
+          { type: "toggleListItem", content: "Inner", children: [{ type: "bulletListItem", content: "Point" }] },
+        ],
+      },
+      { type: "toggleListItem", content: "" },
+      { type: "callout", props: { backgroundColor: "gray" }, content: "Note", children: [{ type: "toggleListItem", content: "In a callout", children: [{ type: "paragraph", content: "x" }] }] },
+      { type: "paragraph", content: "After" },
+    ]);
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toContain(
+      [
+        "<details>",
+        "<summary>",
+        "",
+        "**Transcript** of \\$5",
+        "",
+        "</summary>",
+        "",
+        "First paragraph",
+        "",
+        "Second paragraph",
+        "",
+        "<details>",
+        "<summary>",
+        "",
+        "Inner",
+        "",
+        "</summary>",
+        "",
+        "* Point",
+        "",
+        "</details>",
+        "",
+        "</details>",
+        "",
+        "<details>",
+        "<summary></summary>",
+        "",
+        "</details>",
+      ].join("\n"),
+    );
+    expect(markdown).toContain("> <details>\n> <summary>\n>\n> In a callout");
+    const back = stored(await markdownToBlocks(markdown, blocks));
+    expect(shape(back)).toEqual(shape(blocks));
+    expect(back[0].content).toEqual(blocks[0].content);
     expect(await blocksToMarkdown(back)).toBe(await blocksToMarkdown(blocks));
   });
 
