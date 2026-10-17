@@ -76,7 +76,31 @@
     "description": "Un espacio independiente con sus propias páginas y miembros.",
     "namePlaceholder": "Nombre del espacio de trabajo",
     "create": "Crear",
-    "creating": "Creando…"
+    "creating": "Creando…",
+    "restore": {
+      "description": "O recupera un espacio de trabajo desde un archivo de copia de seguridad.",
+      "choose": "Restaurar desde copia de seguridad…",
+      "uploading": "Subiendo la copia de seguridad… {percent} %",
+      "restoring": "Restaurando… Esto puede tardar unos minutos.",
+      "done": "{name} se ha restaurado, con {pages, plural, one {# página} other {# páginas}} y {files, plural, one {# archivo} other {# archivos}}.",
+      "withoutAccount": "{count, plural, one {# persona no tiene} other {# personas no tienen}} cuenta en este servidor. Lo que escribieron sigue a su nombre; invítalas para devolverles el acceso:",
+      "andMore": "y {count} más",
+      "connections": "{count, plural, one {# conexión necesita} other {# conexiones necesitan}} volver a iniciar sesión en Configuración → Conexiones.",
+      "siteLeftOut": "La dirección del sitio ya está en uso en este servidor, así que el sitio se dejó fuera. Vuelve a configurarlo en Configuración → Sitio.",
+      "searchIndexDropped": "La búsqueda semántica vuelve a crear su índice; cuando termine, lo encontrará todo.",
+      "open": "Abrir espacio de trabajo",
+      "errors": {
+        "invalid": "Este archivo no es una copia de seguridad de Leafdesk o está dañado.",
+        "newer": "Esta copia de seguridad procede de una versión más reciente de Leafdesk. Actualiza este servidor y vuelve a intentarlo.",
+        "alreadyHere": "Este espacio de trabajo ya está en este servidor. Una copia de seguridad recupera un espacio de trabajo que no está aquí, como uno que se eliminó.",
+        "notAllowed": "No puedes crear espacios de trabajo en este servidor.",
+        "quota": "Los archivos de la copia de seguridad no caben en el límite de almacenamiento de este servidor para un espacio de trabajo.",
+        "conflict": "Parte del contenido de esta copia de seguridad ya está en este servidor.",
+        "busy": "Ya tienes una copia de seguridad o una restauración en curso. Vuelve a intentarlo cuando termine.",
+        "tooLarge": "La copia de seguridad es demasiado grande para restaurarla.",
+        "failed": "No se pudo restaurar la copia de seguridad. Vuelve a intentarlo."
+      }
+    }
   },
   "inbox": {
     "title": "Bandeja de entrada",

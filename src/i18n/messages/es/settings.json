@@ -1350,6 +1350,10 @@
         "deleted": "Eliminó la conexión «{target}»",
         "tool_called": "Llamó a «{tool}» en «{target}» ({outcome})",
         "approval_decided": "Llamada a «{tool}» en «{target}» del agente «{agent}»: {decision}"
+      },
+      "backup": {
+        "created": "Hizo una copia de seguridad del espacio de trabajo ({count, plural, one {# página} other {# páginas}})",
+        "restored": "Restauró el espacio de trabajo desde una copia de seguridad ({count, plural, one {# página} other {# páginas}})"
       }
     },
     "decisions": {
@@ -1646,5 +1650,12 @@
       "notWhole": "Esta llamada es más larga de lo que se muestra aquí o contiene valores ocultos aquí. Abre su ejecución para ver todo lo que se enviaría antes de aprobarla.",
       "openRun": "Abrir la ejecución para aprobar"
     }
+  },
+  "backup": {
+    "title": "Hacer copia de seguridad del espacio de trabajo",
+    "description": "Descarga todo el contenido del espacio de trabajo en un solo archivo para restaurarlo aquí o en otro Leafdesk: páginas con su historial, bases de datos, comentarios, archivos, espacios de equipo, grupos y accesos, agentes y automatizaciones.",
+    "button": "Hacer copia",
+    "preparing": "Preparando…",
+    "disabled": "Las copias de seguridad se desactivan junto con la exportación en Configuración → Seguridad."
   }
 }

@@ -1350,6 +1350,10 @@
         "deleted": "Hat die Verbindung „{target}“ entfernt",
         "tool_called": "Hat „{tool}“ bei „{target}“ aufgerufen ({outcome})",
         "approval_decided": "Aufruf von „{tool}“ bei „{target}“ durch den Agenten „{agent}“: {decision}"
+      },
+      "backup": {
+        "created": "Hat den Workspace gesichert ({count, plural, one {# Seite} other {# Seiten}})",
+        "restored": "Hat den Workspace aus einem Backup wiederhergestellt ({count, plural, one {# Seite} other {# Seiten}})"
       }
     },
     "decisions": {
@@ -1646,5 +1650,12 @@
       "notWhole": "Dieser Aufruf ist länger als hier gezeigt oder enthält hier maskierte Werte. Öffne seinen Durchlauf, um alles zu sehen, was gesendet würde, bevor du ihn freigibst.",
       "openRun": "Zum Freigeben den Durchlauf öffnen"
     }
+  },
+  "backup": {
+    "title": "Workspace sichern",
+    "description": "Lade alles aus dem Workspace als eine Datei herunter, um es hier oder auf einem anderen Leafdesk wiederherzustellen: Seiten mit ihrem Verlauf, Datenbanken, Kommentare, Dateien, Teamspaces, Gruppen und Zugriffsrechte, Agenten und Automatisierungen.",
+    "button": "Sichern",
+    "preparing": "Wird vorbereitet…",
+    "disabled": "Backups sind zusammen mit dem Export unter Einstellungen → Sicherheit ausgeschaltet."
   }
 }

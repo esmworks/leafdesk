@@ -31,6 +31,7 @@ import {
 import { isLocale, type Locale } from "@/i18n/config";
 import { type DeletionPlan, planAccountDeletion, type WorkspaceStanding } from "@/lib/account";
 import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
 import { assignableRoles, invitationApplies, linkAccess, memberInviteMode } from "@/lib/membership-policy";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
@@ -369,7 +370,7 @@ export async function addMember(
 ): Promise<AddMemberResult> {
   const mode = await memberInviteModeFor(actorId, workspaceId, role);
   const clean = normalizeEmail(email);
-  if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
+  if (isReservedEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
   if (mode === "request") {
     const [existing] = await db
       .select({ one: sql<number>`1` })
@@ -401,7 +402,7 @@ export async function addMemberAs(
 ): Promise<Exclude<AddMemberResult, { kind: "requested" }>> {
   const clean = normalizeEmail(email);
   // Agents' users are added only to their own workspace, by creating the agent.
-  if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
+  if (isReservedEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
   const [target] = await db
     .select({ id: user.id, emailVerified: user.emailVerified })
     .from(user)
@@ -452,7 +453,7 @@ const ROLE_RANK: Record<WorkspaceRole, number> = { guest: 0, member: 1, owner: 2
 export async function inviteGuest(actorId: string, workspaceId: string, email: string) {
   if (!(await canInviteGuests(actorId, workspaceId))) throw new AccessError();
   const clean = normalizeEmail(email);
-  if (isAgentEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be invited.");
+  if (isReservedEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be invited.");
   const [existing] = await db
     .select({ token: workspaceInvitation.token, role: workspaceInvitation.role, expiresAt: workspaceInvitation.expiresAt })
     .from(workspaceInvitation)

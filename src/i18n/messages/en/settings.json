@@ -1350,6 +1350,10 @@
         "deleted": "Removed the connection “{target}”",
         "tool_called": "Called “{tool}” on “{target}” ({outcome})",
         "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”"
+      },
+      "backup": {
+        "created": "Backed up the workspace ({count, plural, one {# page} other {# pages}})",
+        "restored": "Restored the workspace from a backup ({count, plural, one {# page} other {# pages}})"
       }
     },
     "decisions": {
@@ -1646,5 +1650,12 @@
       "notWhole": "This call is longer than shown here, or holds values masked here. Open its run to see all of what would be sent before approving it.",
       "openRun": "Open the run to approve"
     }
+  },
+  "backup": {
+    "title": "Back up workspace",
+    "description": "Download everything in the workspace as one file, to restore here or on another Leafdesk: pages with their history, databases, comments, files, teamspaces, groups and access, agents and automations.",
+    "button": "Back up",
+    "preparing": "Preparing…",
+    "disabled": "Backups are turned off together with export in Settings → Security."
   }
 }

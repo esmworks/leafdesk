@@ -14,8 +14,20 @@ export async function flushCollab(
   hocuspocus: Hocuspocus,
   { timeoutMs = 8000, pollMs = 25 }: { timeoutMs?: number; pollMs?: number } = {},
 ): Promise<boolean> {
-  const deadline = Date.now() + timeoutMs;
   hocuspocus.closeConnections();
+  return saveOpenDocuments(hocuspocus, { timeoutMs, pollMs });
+}
+
+/**
+ * Starts the pending saves of every open document and waits until none is pending or running, or
+ * `timeoutMs` passed (false then). Connections stay open, so edits made meanwhile are saved later;
+ * a workspace backup (server/backup) calls it so its pages are read as they were a moment before.
+ */
+export async function saveOpenDocuments(
+  hocuspocus: Hocuspocus,
+  { timeoutMs = 8000, pollMs = 25 }: { timeoutMs?: number; pollMs?: number } = {},
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
   for (;;) {
     // Again on each round: closing a connection, or a direct write finishing, can queue another save.
     hocuspocus.flushPendingStores();

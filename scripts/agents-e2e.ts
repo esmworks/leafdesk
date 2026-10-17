@@ -47,7 +47,7 @@ const { listPagePermissions, PermissionError, removePagePermission, setPagePermi
 const { recordAssignments, recordComment } = await import("@/server/notifications");
 const { recordAudit } = await import("@/server/audit");
 const { setPropertyAccess } = await import("@/server/property-access");
-const { isAgentAccount } = await import("@/server/agents/users");
+const { isReservedAccount } = await import("@/server/agents/users");
 const { AccessError, pageAccessOf } = await import("@/server/access");
 const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
@@ -355,7 +355,7 @@ try {
     await fails(setPagePermission(ids.owner, faq.id, botId, "full"), (e) => e instanceof PermissionError && e.code === "agentFullAccess"),
     "an agent never gets full access through sharing either",
   );
-  check((await isAgentAccount(botId)) && !(await isAgentAccount(ids.owner)), "sign-in tells an agent's user apart from people (its sessions are refused)");
+  check((await isReservedAccount(botId)) && !(await isReservedAccount(ids.owner)), "sign-in tells an agent's user apart from people (its sessions are refused)");
 
   // Notifications: being shared a page, a reply in its thread, an assignment.
   await recordComment(ids.member, workspaceId, ticket.id, threads[0].id, [botId, ids.owner]);

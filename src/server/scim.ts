@@ -12,7 +12,7 @@ import {
   workspaceSso,
 } from "@/db/schema";
 import { cleanName } from "@/lib/account";
-import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { env } from "@/lib/env";
 import { sharedLimiter } from "@/lib/rate-limit";
@@ -306,7 +306,7 @@ async function createUser(workspaceId: string, resource: Record<string, unknown>
   const email = emailOfResource(resource);
   if (!email) throw new ScimError(400, "userName (or a primary email) must be an email address.", "invalidValue");
   // Agents' users are no people an identity provider manages.
-  if (isAgentEmail(email)) throw new ScimError(400, `${email} belongs to an agent, not a person.`, "invalidValue");
+  if (isReservedEmail(email)) throw new ScimError(400, `${email} belongs to an agent or a restored person, not a person here.`, "invalidValue");
   const changes = changesFromResource(resource);
   const [existing] = await db
     .select({ id: user.id })

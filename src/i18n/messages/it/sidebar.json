@@ -76,7 +76,31 @@
     "description": "Uno spazio separato con pagine e membri propri.",
     "namePlaceholder": "Nome dello spazio di lavoro",
     "create": "Crea",
-    "creating": "Creazione…"
+    "creating": "Creazione…",
+    "restore": {
+      "description": "Oppure recupera uno spazio di lavoro da un file di backup.",
+      "choose": "Ripristina da backup…",
+      "uploading": "Caricamento del backup… {percent}%",
+      "restoring": "Ripristino in corso… Può richiedere alcuni minuti.",
+      "done": "{name} è stato ripristinato, con {pages, plural, one {# pagina} other {# pagine}} e {files, plural, one {# file} other {# file}}.",
+      "withoutAccount": "{count, plural, one {# persona non ha} other {# persone non hanno}} un account su questo server. Ciò che hanno scritto resta a loro nome; invitale per ridare loro l’accesso:",
+      "andMore": "e altri {count}",
+      "connections": "{count, plural, one {# connessione richiede} other {# connessioni richiedono}} un nuovo accesso in Impostazioni → Connessioni.",
+      "siteLeftOut": "L’indirizzo del sito è già in uso su questo server, quindi il sito è stato escluso. Configuralo di nuovo in Impostazioni → Sito.",
+      "searchIndexDropped": "La ricerca semantica ricostruisce il suo indice; al termine troverà di nuovo tutto.",
+      "open": "Apri spazio di lavoro",
+      "errors": {
+        "invalid": "Questo file non è un backup di Leafdesk oppure è danneggiato.",
+        "newer": "Questo backup proviene da una versione più recente di Leafdesk. Aggiorna questo server e riprova.",
+        "alreadyHere": "Questo spazio di lavoro è già su questo server. Un backup recupera uno spazio di lavoro che non è qui, ad esempio uno eliminato.",
+        "notAllowed": "Non puoi creare spazi di lavoro su questo server.",
+        "quota": "I file del backup superano il limite di spazio di archiviazione di questo server per uno spazio di lavoro.",
+        "conflict": "Parte del contenuto di questo backup è già su questo server.",
+        "busy": "Hai già un backup o un ripristino in corso. Riprova quando è terminato.",
+        "tooLarge": "Il backup è troppo grande per essere ripristinato.",
+        "failed": "Impossibile ripristinare il backup. Riprova."
+      }
+    }
   },
   "inbox": {
     "title": "Posta in arrivo",

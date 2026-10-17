@@ -18,7 +18,7 @@ import {
 } from "@/db/schema";
 import { teamspaceLabel, teamspaceReach } from "@/server/teamspaces";
 import { everyoneFloor } from "@/lib/teamspace-reach";
-import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { AccessError, FULL_RANK, getMembership, hasLevel, requirePageAccess, resolvePageAccess } from "@/server/access";
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
@@ -250,7 +250,7 @@ export async function sharePageByEmail(
   const target = await requirePageAccess(actorId, pageId, "full");
   const clean = normalizeEmail(email);
   // Agents' addresses are no one's: pages are shared with an agent from its settings.
-  if (!isEmail(clean) || isAgentEmail(clean)) throw new PermissionError("invalidEmail", "Enter a valid email address");
+  if (!isEmail(clean) || isReservedEmail(clean)) throw new PermissionError("invalidEmail", "Enter a valid email address");
   const [account] = await db
     .select({ id: user.id, emailVerified: user.emailVerified })
     .from(user)

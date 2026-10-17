@@ -14,6 +14,7 @@ import { sso } from "@better-auth/sso";
 import { cleanName } from "@/lib/account";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { isAgentEmail } from "@/lib/agents";
+import { isRestoredEmail } from "@/lib/reserved-emails";
 import { env, mcpResource } from "@/lib/env";
 import { sessionLifetime } from "@/lib/session-lifetime";
 import type { SocialCredentials, SocialProvider } from "@/lib/social-providers";
@@ -72,6 +73,10 @@ export async function signUpTokenOf(ctx: AuthContextLike, name: "invite" | "join
 export function refuseAgentAddress(user: { email?: unknown }) {
   if (typeof user.email === "string" && isAgentEmail(user.email)) {
     throw APIError.from("FORBIDDEN", { message: "This address belongs to an agent", code: "agent_account" });
+  }
+  // Nor with a restored person's (lib/reserved-emails), who would otherwise take over what they wrote.
+  if (typeof user.email === "string" && isRestoredEmail(user.email)) {
+    throw APIError.from("FORBIDDEN", { message: "This address belongs to no one", code: "reserved_address" });
   }
 }
 

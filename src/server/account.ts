@@ -26,7 +26,7 @@ import {
   parseAvatarUrl,
   sniffImage,
 } from "@/lib/avatar";
-import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { env } from "@/lib/env";
 import { sharedLimiter, takeAll } from "@/lib/rate-limit";
@@ -462,8 +462,8 @@ export async function requestEmailChange(current: AccountSession, input: { newEm
   if (!emailChangeEnabled()) throw new AccountError("mailDisabled");
   const userId = current.user.id;
   const email = typeof input.newEmail === "string" ? normalizeEmail(input.newEmail) : "";
-  // Agents' addresses (see lib/agents.ts) are no one's.
-  if (!isEmail(email) || email.length > 254 || isAgentEmail(email)) throw new AccountError("invalidEmail");
+  // Agents' and restored people's addresses (see lib/reserved-emails.ts) are no one's.
+  if (!isEmail(email) || email.length > 254 || isReservedEmail(email)) throw new AccountError("invalidEmail");
   if (email === normalizeEmail(current.user.email)) throw new AccountError("sameEmail");
   limit("email", userId);
   await reauthenticate(current, input.proof);

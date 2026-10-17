@@ -38,6 +38,13 @@
 
 ### Added
 
+- **Workspace backups.** Owners download the whole workspace as one file in Settings → General →
+  *Back up workspace*: every page with its history and comments, databases, files, teamspaces,
+  groups, permissions, published pages, the site, agents, automations and daily notes. *New
+  workspace → Restore from backup…* brings it back, on this server after the workspace was deleted
+  or on another one, with the same ids, so links keep working. People are matched by email; those
+  without an account on the server keep their name on what they wrote, and the restore lists them
+  to invite. Connections ask to be signed in to again. See [Backups](README.md#backups).
 - **Synced blocks.** *Turn into synced block* in a block's menu (or `/synced block` in an empty
   line) keeps the chosen blocks in one place; *Copy synced block* and a paste on another page show
   them there, live. Editing them in a reference edits the original when you may edit its page, and

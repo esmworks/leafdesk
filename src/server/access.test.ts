@@ -79,6 +79,7 @@ describe("access checks stay in one place", () => {
   // server/scim.ts is member management too: an identity provider adding and removing members.
   // server/guests.ts lists the guests; the pages it names are filtered with page_access_level.
   // server/join-requests.ts is member management too: requests that end in someone joining.
+  // server/backup/tables.ts lists the tables a workspace backup copies as they are; it reads no access.
   const ALLOWED = new Set([
     "server/guests.ts",
     "server/join-requests.ts",
@@ -88,6 +89,7 @@ describe("access checks stay in one place", () => {
     "server/teamspaces.ts",
     "server/scim.ts",
     "server/groups.ts",
+    "server/backup/tables.ts",
   ]);
 
   function sources(dir: string): string[] {
@@ -109,7 +111,7 @@ describe("access checks stay in one place", () => {
   it("no other module reads teamspace_member: who is in a teamspace is teamspaces.ts's business", () => {
     const offenders = sources(root)
       .map((path) => relative(root, path))
-      .filter((path) => path !== "server/teamspaces.ts")
+      .filter((path) => path !== "server/teamspaces.ts" && path !== "server/backup/tables.ts")
       .filter((path) => /\bteamspaceMember\b|teamspace_member/.test(readFileSync(join(root, path), "utf8")));
     expect(offenders).toEqual([]);
   });

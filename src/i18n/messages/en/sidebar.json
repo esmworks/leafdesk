@@ -76,7 +76,31 @@
     "description": "A separate space with its own pages and members.",
     "namePlaceholder": "Workspace name",
     "create": "Create",
-    "creating": "Creating…"
+    "creating": "Creating…",
+    "restore": {
+      "description": "Or bring back a workspace from a backup file.",
+      "choose": "Restore from backup…",
+      "uploading": "Uploading the backup… {percent}%",
+      "restoring": "Restoring… This can take a few minutes.",
+      "done": "{name} is restored, with {pages, plural, one {# page} other {# pages}} and {files, plural, one {# file} other {# files}}.",
+      "withoutAccount": "{count, plural, one {# person has} other {# people have}} no account on this server. What they wrote stays under their name; invite them to give them access again:",
+      "andMore": "and {count} more",
+      "connections": "{count, plural, one {# connection needs} other {# connections need}} signing in again in Settings → Connections.",
+      "siteLeftOut": "The site's address is taken on this server, so the site was left out. Set it up again in Settings → Site.",
+      "searchIndexDropped": "Semantic search builds its index again; it finds everything once that's done.",
+      "open": "Open workspace",
+      "errors": {
+        "invalid": "This file isn't a Leafdesk backup, or it's damaged.",
+        "newer": "This backup comes from a newer Leafdesk. Update this server and try again.",
+        "alreadyHere": "This workspace is already on this server. A backup brings back a workspace that isn't here, such as one that was deleted.",
+        "notAllowed": "You can't create workspaces on this server.",
+        "quota": "The backup's files don't fit in this server's storage limit for a workspace.",
+        "conflict": "Some of this backup's contents are already on this server.",
+        "busy": "A backup or restore of yours is already running. Try again when it's done.",
+        "tooLarge": "The backup is too large to restore.",
+        "failed": "The backup couldn't be restored. Try again."
+      }
+    }
   },
   "inbox": {
     "title": "Inbox",

@@ -1350,6 +1350,10 @@
         "deleted": "“{target}” bağlantısını kaldırdı",
         "tool_called": "“{target}” üzerinde “{tool}” çağırdı ({outcome})",
         "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}"
+      },
+      "backup": {
+        "created": "Çalışma alanı yedeklendi ({count, plural, other {# sayfa}})",
+        "restored": "Çalışma alanı bir yedekten geri yüklendi ({count, plural, other {# sayfa}})"
       }
     },
     "decisions": {
@@ -1646,5 +1650,12 @@
       "notWhole": "Bu çağrı burada gösterilenden uzun ya da burada gizlenen değerler içeriyor. Onaylamadan önce gönderilecek her şeyi görmek için çalışmasını açın.",
       "openRun": "Onaylamak için çalışmayı aç"
     }
+  },
+  "backup": {
+    "title": "Çalışma alanını yedekle",
+    "description": "Çalışma alanındaki her şeyi tek bir dosya olarak indirin; burada ya da başka bir Leafdesk'te geri yükleyebilirsiniz: geçmişleriyle sayfalar, veritabanları, yorumlar, dosyalar, teamspace'ler, gruplar ve erişimler, ajanlar ve otomasyonlar.",
+    "button": "Yedekle",
+    "preparing": "Hazırlanıyor…",
+    "disabled": "Yedekleme, dışa aktarmayla birlikte Ayarlar → Güvenlik bölümünden kapatılmış."
   }
 }

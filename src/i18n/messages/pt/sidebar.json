@@ -76,7 +76,31 @@
     "description": "Um espaço separado, com suas próprias páginas e membros.",
     "namePlaceholder": "Nome do espaço de trabalho",
     "create": "Criar",
-    "creating": "Criando…"
+    "creating": "Criando…",
+    "restore": {
+      "description": "Ou recupere um espaço de trabalho a partir de um arquivo de backup.",
+      "choose": "Restaurar de um backup…",
+      "uploading": "Enviando o backup… {percent}%",
+      "restoring": "Restaurando… Isso pode levar alguns minutos.",
+      "done": "{name} foi restaurado, com {pages, plural, one {# página} other {# páginas}} e {files, plural, one {# arquivo} other {# arquivos}}.",
+      "withoutAccount": "{count, plural, one {# pessoa não tem} other {# pessoas não têm}} conta neste servidor. O que escreveram continua no nome delas; convide-as para devolver o acesso:",
+      "andMore": "e mais {count}",
+      "connections": "{count, plural, one {# conexão precisa} other {# conexões precisam}} de um novo login em Configurações → Conexões.",
+      "siteLeftOut": "O endereço do site já está em uso neste servidor, então o site ficou de fora. Configure-o novamente em Configurações → Site.",
+      "searchIndexDropped": "A pesquisa semântica está recriando o índice; quando terminar, ela encontrará tudo.",
+      "open": "Abrir espaço de trabalho",
+      "errors": {
+        "invalid": "Este arquivo não é um backup do Leafdesk ou está danificado.",
+        "newer": "Este backup vem de uma versão mais recente do Leafdesk. Atualize este servidor e tente novamente.",
+        "alreadyHere": "Este espaço de trabalho já está neste servidor. Um backup recupera um espaço de trabalho que não está aqui, como um que foi excluído.",
+        "notAllowed": "Você não pode criar espaços de trabalho neste servidor.",
+        "quota": "Os arquivos do backup não cabem no limite de armazenamento deste servidor para um espaço de trabalho.",
+        "conflict": "Parte do conteúdo deste backup já está neste servidor.",
+        "busy": "Você já tem um backup ou uma restauração em andamento. Tente novamente quando terminar.",
+        "tooLarge": "O backup é grande demais para ser restaurado.",
+        "failed": "Não foi possível restaurar o backup. Tente novamente."
+      }
+    }
   },
   "inbox": {
     "title": "Caixa de entrada",

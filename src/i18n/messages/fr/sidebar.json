@@ -76,7 +76,31 @@
     "description": "Un espace distinct avec ses propres pages et ses propres membres.",
     "namePlaceholder": "Nom de l’espace de travail",
     "create": "Créer",
-    "creating": "Création…"
+    "creating": "Création…",
+    "restore": {
+      "description": "Ou récupérez un espace de travail à partir d’un fichier de sauvegarde.",
+      "choose": "Restaurer depuis une sauvegarde…",
+      "uploading": "Envoi de la sauvegarde… {percent} %",
+      "restoring": "Restauration… Cela peut prendre quelques minutes.",
+      "done": "{name} est restauré, avec {pages, plural, one {# page} other {# pages}} et {files, plural, one {# fichier} other {# fichiers}}.",
+      "withoutAccount": "{count, plural, one {# personne n’a} other {# personnes n’ont}} pas de compte sur ce serveur. Ce qu’elles ont écrit reste à leur nom ; invitez-les pour leur redonner l’accès :",
+      "andMore": "et {count} de plus",
+      "connections": "Il faut se reconnecter à {count, plural, one {# connexion} other {# connexions}} dans Paramètres → Connexions.",
+      "siteLeftOut": "L’adresse du site est déjà prise sur ce serveur, le site n’a donc pas été restauré. Configurez-le à nouveau dans Paramètres → Site.",
+      "searchIndexDropped": "La recherche sémantique reconstruit son index ; elle retrouvera tout une fois l’opération terminée.",
+      "open": "Ouvrir l’espace de travail",
+      "errors": {
+        "invalid": "Ce fichier n’est pas une sauvegarde Leafdesk, ou il est endommagé.",
+        "newer": "Cette sauvegarde provient d’une version plus récente de Leafdesk. Mettez ce serveur à jour et réessayez.",
+        "alreadyHere": "Cet espace de travail est déjà sur ce serveur. Une sauvegarde permet de récupérer un espace de travail absent d’ici, par exemple un espace supprimé.",
+        "notAllowed": "Vous ne pouvez pas créer d’espaces de travail sur ce serveur.",
+        "quota": "Les fichiers de la sauvegarde dépassent la limite de stockage de ce serveur pour un espace de travail.",
+        "conflict": "Une partie du contenu de cette sauvegarde est déjà sur ce serveur.",
+        "busy": "Une de vos sauvegardes ou restaurations est déjà en cours. Réessayez quand elle sera terminée.",
+        "tooLarge": "La sauvegarde est trop volumineuse pour être restaurée.",
+        "failed": "La sauvegarde n’a pas pu être restaurée. Réessayez."
+      }
+    }
   },
   "inbox": {
     "title": "Boîte de réception",

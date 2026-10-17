@@ -54,6 +54,7 @@ import {
 import { SitePages, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
 import { WorkspaceApps } from "@/components/settings/workspace-apps";
+import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
@@ -258,12 +259,13 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
   );
 }
 
-/** Settings > General > Export, for owners: off while the workspace has export turned off. */
+/** Settings > General > Export and backup, for owners: off while the workspace has export turned off. */
 async function ExportGroup({ workspaceId, userId }: { workspaceId: string; userId: string }) {
   const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("settings")]);
   return (
     <SettingsGroup title={t("export.heading")} className="mt-10">
       <WorkspaceExport workspaceId={workspaceId} disabled={settings.export === false} />
+      <WorkspaceBackup workspaceId={workspaceId} disabled={settings.export === false} />
     </SettingsGroup>
   );
 }

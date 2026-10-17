@@ -1,5 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
-import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 import { type MailConfig, MailConfigError, readMailConfig } from "./config";
 
 export { MailConfigError } from "./config";
@@ -87,11 +87,11 @@ export function describeMailSetup(): string {
 }
 
 /**
- * Sends an email (or, without SMTP in development, prints it). An agent's address is no one's:
- * mail to it is dropped, whatever sent it.
+ * Sends an email (or, without SMTP in development, prints it). An agent's or a restored person's
+ * address (lib/reserved-emails) is no one's: mail to it is dropped, whatever sent it.
  */
 export async function sendMail(mail: OutgoingMail): Promise<void> {
-  if (isAgentEmail(mail.to)) return;
+  if (isReservedEmail(mail.to)) return;
   const { config, error } = getSetup();
   if (error) throw error;
   if (!config) {

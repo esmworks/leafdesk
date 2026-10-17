@@ -1,0 +1,206 @@
+/**
+ * Which tables a workspace backup holds (server/backup), which rows of each, and in what order a
+ * restore inserts them. Columns, keys and foreign keys come from the Drizzle schema, so a new column
+ * is backed up without a change here; a new table must be put in BACKED_UP or LEFT_OUT (a test
+ * checks that each one is).
+ */
+import { getTableColumns, getTableName, is, sql, type SQL } from "drizzle-orm";
+import { getTableConfig, PgTable } from "drizzle-orm/pg-core";
+import * as schema from "@/db/schema";
+import type { ColumnKind } from "@/lib/backup";
+
+type Scope = (workspaceId: string) => SQL;
+
+const own: Scope = (ws) => sql`workspace_id = ${ws}`;
+const pages = (ws: string) => sql`(select id from page where workspace_id = ${ws})`;
+const ofPages =
+  (column: string): Scope =>
+  (ws) =>
+    sql`${sql.identifier(column)} in ${pages(ws)}`;
+const ofTeamspaces: Scope = (ws) => sql`teamspace_id in (select id from teamspace where workspace_id = ${ws})`;
+const ofAgents: Scope = (ws) => sql`agent_id in (select id from workspace_agent where workspace_id = ${ws})`;
+const ofConnections: Scope = (ws) => sql`connection_id in (select id from connection where workspace_id = ${ws})`;
+const ofFiles: Scope = (ws) => sql`file_id in (select id from file where workspace_id = ${ws})`;
+
+/** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
+export const BACKED_UP: Record<string, Scope> = {
+  workspace: (ws) => sql`id = ${ws}`,
+  workspace_member: own,
+  teamspace: own,
+  teamspace_member: ofTeamspaces,
+  teamspace_watch: ofTeamspaces,
+  member_group: own,
+  member_group_member: own,
+  teamspace_group: own,
+  page: own,
+  database_property: ofPages("database_id"),
+  database_view: ofPages("database_id"),
+  page_snapshot: ofPages("page_id"),
+  row_activity: own,
+  page_permission: own,
+  page_group_permission: ofPages("page_id"),
+  property_permission: own,
+  page_favorite: ofPages("page_id"),
+  page_watch: ofPages("page_id"),
+  row_follower: ofPages("row_id"),
+  row_reminder: ofPages("row_id"),
+  page_publication: ofPages("page_id"),
+  form_publication: (ws) => sql`view_id in (select id from database_view where database_id in ${pages(ws)})`,
+  workspace_site: own,
+  file: own,
+  file_reference: ofFiles,
+  file_text: ofFiles,
+  page_link: ofPages("source_id"),
+  synced_block_reference: ofPages("page_id"),
+  page_mention: ofPages("page_id"),
+  page_reminder: ofPages("page_id"),
+  ai_property_state: ofPages("row_id"),
+  page_chunk: own,
+  page_index_state: own,
+  ai_conversation: own,
+  ai_memory: own,
+  workspace_agent: own,
+  agent_usage: ofAgents,
+  agent_database_share: ofAgents,
+  agent_skill: ofAgents,
+  database_automation: own,
+  automation_fire: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
+  schedule: own,
+  connection: own,
+  agent_grant: ofConnections,
+  connection_trigger: ofConnections,
+  journal: own,
+  daily_note: own,
+};
+
+/** The table of a workspace's members and their roles. */
+export const WORKSPACE_MEMBERS = "workspace_member";
+/** Tables that make someone a member of something (a restore leaves out who has no account). */
+export const MEMBERSHIP_TABLES = [WORKSPACE_MEMBERS, "teamspace_member", "member_group_member"];
+
+/** The tables a backup leaves out, and why. */
+export const LEFT_OUT: Record<string, string> = {
+  user: "accounts belong to the server; the people a backup names are in its manifest",
+  session: "signed-in sessions",
+  account: "passwords and provider accounts",
+  verification: "sign-in and email verification codes",
+  two_factor: "two-step verification secrets",
+  passkey: "passkeys",
+  jwks: "the server's signing keys",
+  oauth_client: "apps registered on the server",
+  oauth_resource: "the server's OAuth setup",
+  oauth_client_resource: "the server's OAuth setup",
+  oauth_refresh_token: "app tokens",
+  oauth_access_token: "app tokens",
+  oauth_consent: "people's consent to apps on the server",
+  oauth_client_assertion: "the server's OAuth setup",
+  sso_provider: "single sign-on secrets, set up again on the new server",
+  workspace_sso: "single sign-on, set up again on the new server",
+  scim_token: "SCIM tokens",
+  scim_identity: "the identity provider provisions people again",
+  scim_group: "the identity provider provisions groups again",
+  api_token: "API tokens",
+  calendar_feed: "calendar feed links (secret tokens)",
+  connected_app_use: "when apps reached the workspace on the old server",
+  push_subscription: "browsers subscribed to push on the old server",
+  user_preference: "people's own settings on the old server",
+  workspace_invitation: "pending invitations (their links)",
+  workspace_join_request: "pending requests to join",
+  page_invitation: "pending page invitations (their links)",
+  access_request: "pending access requests",
+  notification: "inboxes",
+  audit_event: "the old server's audit log; a backup file can be edited, so it would prove nothing",
+  agent_run: "agent runs, kept a few weeks only",
+  automation_run: "automation runs; pending ones would run again",
+  connection_event: "events received from connected services",
+  connection_oauth: "connection sign-ins in progress",
+  storage_deletion: "the old server's queue of files to delete",
+  assignment_email: "emails waiting to go out",
+  row_update_pending: "emails waiting to go out",
+  page_update_pending: "emails waiting to go out",
+  page_update_email: "emails waiting to go out",
+};
+
+export type BackupColumn = {
+  /** The SQL name, as backups key their rows. */
+  name: string;
+  /** The Drizzle property name, for inserts. */
+  key: string;
+  kind: ColumnKind;
+  notNull: boolean;
+  hasDefault: boolean;
+};
+
+export type BackupForeignKey = { columns: string[]; table: string; foreignColumns: string[] };
+
+export type BackupTable = {
+  name: string;
+  table: PgTable;
+  scope: Scope;
+  /** Without generated columns (search vectors), which Postgres fills in. */
+  columns: BackupColumn[];
+  primaryKey: string[];
+  foreignKeys: BackupForeignKey[];
+};
+
+/** Every table of the schema, by SQL name. */
+export function schemaTables(): Map<string, PgTable> {
+  const tables = new Map<string, PgTable>();
+  for (const value of Object.values(schema)) if (is(value, PgTable)) tables.set(getTableName(value), value);
+  return tables;
+}
+
+function describe(name: string, table: PgTable, scope: Scope): BackupTable {
+  const config = getTableConfig(table);
+  const columns = Object.entries(getTableColumns(table))
+    .filter(([, column]) => !column.generated)
+    .map(([key, column]) => ({
+      name: column.name,
+      key,
+      kind: (column.columnType === "PgTimestamp" ? "timestamp" : column.getSQLType() === "bytea" ? "bytes" : "other") as ColumnKind,
+      notNull: column.notNull,
+      hasDefault: column.hasDefault,
+    }));
+  const primaryKey = [
+    ...Object.values(getTableColumns(table))
+      .filter((column) => column.primary)
+      .map((column) => column.name),
+    ...config.primaryKeys.flatMap((key) => key.columns.map((column) => column.name)),
+  ];
+  const foreignKeys = config.foreignKeys.map((key) => {
+    const reference = key.reference();
+    return {
+      columns: reference.columns.map((column) => column.name),
+      table: getTableName(reference.foreignTable),
+      foreignColumns: reference.foreignColumns.map((column) => column.name),
+    };
+  });
+  return { name, table, scope, columns, primaryKey, foreignKeys };
+}
+
+let cached: BackupTable[] | null = null;
+
+/**
+ * The backed-up tables in the order a restore inserts them: each after the tables its foreign keys
+ * point at (a table's keys to itself, like a page's parent, are ordered row by row instead).
+ */
+export function backupTables(): BackupTable[] {
+  if (cached) return cached;
+  const all = schemaTables();
+  const described = new Map(Object.entries(BACKED_UP).map(([name, scope]) => [name, describe(name, all.get(name)!, scope)]));
+  const order: BackupTable[] = [];
+  const placed = new Set<string>();
+  while (order.length < described.size) {
+    const ready = [...described.values()]
+      .filter((t) => !placed.has(t.name))
+      .filter((t) => t.foreignKeys.every((key) => key.table === t.name || placed.has(key.table) || !described.has(key.table)))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    if (!ready.length) throw new Error("backup tables refer to each other in a circle");
+    for (const t of ready) {
+      order.push(t);
+      placed.add(t.name);
+    }
+  }
+  cached = order;
+  return order;
+}

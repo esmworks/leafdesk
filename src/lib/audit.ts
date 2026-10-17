@@ -87,7 +87,7 @@ export const AUDIT_CATEGORIES = {
     "connection.tool_called",
     "connection.approval_decided",
   ],
-  exports: ["export.workspace", "export.page"],
+  exports: ["export.workspace", "export.page", "backup.created", "backup.restored"],
 } as const;
 
 export type AuditCategory = keyof typeof AUDIT_CATEGORIES;
@@ -409,6 +409,8 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
       values.settings = settingChanges(t, d.changes);
       break;
     case "export.workspace":
+    case "backup.created":
+    case "backup.restored":
       values.count = typeof d.pages === "number" ? d.pages : 0;
       break;
     case "agent.updated":

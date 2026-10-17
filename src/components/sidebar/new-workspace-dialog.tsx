@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { createWorkspaceAction } from "@/app/actions/workspaces";
 import { Button, Dialog, Input } from "@/components/ui";
+import { RestoreBackup } from "./restore-backup";
 
 export function NewWorkspaceDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
@@ -13,17 +14,22 @@ export function NewWorkspaceDialog({ open, onClose }: { open: boolean; onClose: 
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [restoring, setRestoring] = useState(false);
+  const [restored, setRestored] = useState(false);
 
   function close() {
+    // A restore can't be called off halfway; the dialog stays until it's over.
+    if (restoring) return;
     setName("");
     setError(null);
+    setRestored(false);
     onClose();
   }
 
   return (
     <Dialog open={open} onClose={close} className="max-w-md">
       <form
-        className="space-y-3 p-5"
+        className={restored ? "hidden" : "space-y-3 p-5"}
         onSubmit={(e) => {
           e.preventDefault();
           setError(null);
@@ -48,6 +54,9 @@ export function NewWorkspaceDialog({ open, onClose }: { open: boolean; onClose: 
           </Button>
         </div>
       </form>
+      <div className={restored ? "p-5" : "px-5 pb-5"}>
+        <RestoreBackup onBusy={setRestoring} onRestored={() => setRestored(true)} onDone={close} />
+      </div>
     </Dialog>
   );
 }

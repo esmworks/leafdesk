@@ -76,7 +76,31 @@
     "description": "Ein eigener Bereich mit eigenen Seiten und Mitgliedern.",
     "namePlaceholder": "Name des Workspace",
     "create": "Erstellen",
-    "creating": "Wird erstellt…"
+    "creating": "Wird erstellt…",
+    "restore": {
+      "description": "Oder hol einen Workspace aus einer Backup-Datei zurück.",
+      "choose": "Aus Backup wiederherstellen…",
+      "uploading": "Backup wird hochgeladen… {percent} %",
+      "restoring": "Wird wiederhergestellt… Das kann einige Minuten dauern.",
+      "done": "{name} ist wiederhergestellt, mit {pages, plural, one {# Seite} other {# Seiten}} und {files, plural, one {# Datei} other {# Dateien}}.",
+      "withoutAccount": "{count, plural, one {# Person hat} other {# Personen haben}} kein Konto auf diesem Server. Was sie geschrieben haben, bleibt unter ihrem Namen; lade sie ein, um ihnen wieder Zugriff zu geben:",
+      "andMore": "und {count} weitere",
+      "connections": "Bei {count, plural, one {# Verbindung} other {# Verbindungen}} musst du dich unter Einstellungen → Verbindungen erneut anmelden.",
+      "siteLeftOut": "Die Adresse der Website ist auf diesem Server schon vergeben, deshalb wurde die Website ausgelassen. Richte sie unter Einstellungen → Website neu ein.",
+      "searchIndexDropped": "Die semantische Suche baut ihren Index neu auf; danach findet sie wieder alles.",
+      "open": "Workspace öffnen",
+      "errors": {
+        "invalid": "Diese Datei ist kein Leafdesk-Backup oder sie ist beschädigt.",
+        "newer": "Dieses Backup stammt von einer neueren Leafdesk-Version. Aktualisiere diesen Server und versuche es erneut.",
+        "alreadyHere": "Dieser Workspace ist bereits auf diesem Server. Ein Backup holt einen Workspace zurück, der nicht hier ist, zum Beispiel einen gelöschten.",
+        "notAllowed": "Du kannst auf diesem Server keine Workspaces erstellen.",
+        "quota": "Die Dateien des Backups passen nicht in das Speicherlimit dieses Servers für einen Workspace.",
+        "conflict": "Einige Inhalte dieses Backups sind bereits auf diesem Server.",
+        "busy": "Ein Backup oder eine Wiederherstellung von dir läuft bereits. Versuche es erneut, wenn es fertig ist.",
+        "tooLarge": "Das Backup ist zu groß zum Wiederherstellen.",
+        "failed": "Das Backup konnte nicht wiederhergestellt werden. Versuche es erneut."
+      }
+    }
   },
   "inbox": {
     "title": "Posteingang",

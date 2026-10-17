@@ -45,6 +45,7 @@ import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./au
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
 import { stampPresence } from "./presence";
+import { saveOpenDocuments } from "./shutdown";
 import { touchesThreads } from "./thread-guard";
 import { verifyCollabToken } from "./token";
 
@@ -1067,6 +1068,7 @@ export function createCollab() {
       return [...new Set(browsersOf(pageId).map((c) => (c.context as Context).userId!))];
     },
 
+    saveOpen: () => saveOpenDocuments(hocuspocus),
     async disconnectWorkspace(workspaceId, pageIds) {
       const gone = new Set(pageIds);
       for (const doc of hocuspocus.documents.values()) {

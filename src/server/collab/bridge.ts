@@ -198,6 +198,11 @@ export interface CollabService {
    * they were).
    */
   disconnectWorkspace(workspaceId: string, pageIds: string[]): Promise<void>;
+  /**
+   * Saves every open document's pending edits now (collab/shutdown.ts saveOpenDocuments), so the
+   * database holds them; false when that took too long. Connections stay open.
+   */
+  saveOpen(): Promise<boolean>;
 }
 
 const KEY = "__leafdeskCollab";

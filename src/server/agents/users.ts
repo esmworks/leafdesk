@@ -10,7 +10,7 @@
 import { eq, inArray, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { user, workspaceAgent } from "@/db/schema";
-import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 
 /** SQL: the user (an id column or expression) is a person, not an agent's user. */
 export const notAgentUser = (userId: AnyColumn | SQL) =>
@@ -29,17 +29,18 @@ export async function isAgentUser(userId: string): Promise<boolean> {
 }
 
 /**
- * Whether the user is an agent's: has an agent, or an agent's address (the cheap check, which
- * also holds should the agent's row be gone). For sign-in, which must never let one through.
+ * Whether the user is an agent's (has an agent, or an agent's address: the cheap check, which
+ * also holds should the agent's row be gone) or a person a restored backup brought along without an
+ * account (lib/reserved-emails). For sign-in, which must never let one through.
  */
-export async function isAgentAccount(userId: string): Promise<boolean> {
+export async function isReservedAccount(userId: string): Promise<boolean> {
   const [row] = await db
     .select({ email: user.email, agentId: workspaceAgent.id })
     .from(user)
     .leftJoin(workspaceAgent, eq(workspaceAgent.userId, user.id))
     .where(eq(user.id, userId))
     .limit(1);
-  return Boolean(row && (row.agentId || isAgentEmail(row.email)));
+  return Boolean(row && (row.agentId || isReservedEmail(row.email)));
 }
 
 /** How a user summary marks an agent: its icon (an emoji) when it has one. */

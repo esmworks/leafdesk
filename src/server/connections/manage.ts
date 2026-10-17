@@ -143,7 +143,7 @@ function checkClient(value: ConnectionInput["oauthClient"], kept?: OwnOAuthClien
   return clientSecret ? { client_id: clientId, client_secret: clientSecret } : { client_id: clientId };
 }
 
-const newEventSecret = () => `whsec_${randomBytes(24).toString("base64url")}`;
+export const newEventSecret = () => `whsec_${randomBytes(24).toString("base64url")}`;
 
 /** The connection with this id, for an owner of its workspace. */
 export async function ownedConnection(userId: string, connectionId: string): Promise<ConnectionRow> {

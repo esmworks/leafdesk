@@ -7,7 +7,7 @@ import { isSsoSignInPath, recordAuthMethod } from "@/lib/auth-security";
 import { workspaceOfProvider } from "@/lib/sso-config";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
-import { isAgentEmail } from "@/lib/agents";
+import { isReservedEmail } from "@/lib/reserved-emails";
 import {
   agentSignInGuard,
   baseAuthOptions,
@@ -19,7 +19,7 @@ import {
   socialAuthOptions,
   withoutProviderTokens,
 } from "@/lib/auth-options";
-import { isAgentAccount } from "@/server/agents/users";
+import { isReservedAccount } from "@/server/agents/users";
 import { forgetUnprovenHolder } from "@/server/account-security";
 import { connectedAppAuditPlugin } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
@@ -46,8 +46,8 @@ function ssoProviderOf(ctx: HookContext) {
 }
 
 const signUpGuard = closedSignUpGuard(invitationAllowsSignUp);
-/** Agents' users never sign in (see refuseAgentAddress for their addresses). */
-const agentGuard = agentSignInGuard(isAgentAccount);
+/** Agents' users, and people a restored backup brought along, never sign in (see refuseAgentAddress). */
+const agentGuard = agentSignInGuard(isReservedAccount);
 
 /**
  * `databaseHooks.user.create.before`. A single sign-on creates accounts by its own rules (see
@@ -77,8 +77,8 @@ async function beforeUserCreate(user: { email: string } & Record<string, unknown
  * for the address; failures only reach the log.
  */
 async function sendResetPassword({ user, url }: { user: { id: string; email: string; name: string }; url: string }, request?: Request) {
-  // An agent's user has no password to reset (and its address no inbox).
-  if (isAgentEmail(user.email)) return;
+  // An agent's or a restored person's user has no password to reset (and its address no inbox).
+  if (isReservedEmail(user.email)) return;
   void recipientLocale(user.id, request ? requestLocale(request.headers) : null)
     .then((locale) => sendMail({ to: user.email, ...passwordResetEmail(locale, { name: user.name, url }) }))
     .catch((error) => console.error("could not send password reset email", error));
@@ -102,7 +102,7 @@ async function domainPolicies(userId: string) {
  * account page sends another on request. Not awaited, like password resets.
  */
 async function sendVerificationEmail({ user, url }: { user: { id: string; email: string; name: string }; url: string }, request?: Request) {
-  if (isAgentEmail(user.email)) return;
+  if (isReservedEmail(user.email)) return;
   void recipientLocale(user.id, request ? requestLocale(request.headers) : null)
     .then((locale) => sendMail({ to: user.email, ...verificationEmail(locale, { name: user.name, url }) }))
     .catch((error) => console.error("could not send verification email", error));

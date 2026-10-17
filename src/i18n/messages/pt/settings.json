@@ -1350,6 +1350,10 @@
         "deleted": "Removeu a conexão “{target}”",
         "tool_called": "Chamou “{tool}” em “{target}” ({outcome})",
         "approval_decided": "{decision} a chamada de “{tool}” em “{target}” feita pelo agente “{agent}”"
+      },
+      "backup": {
+        "created": "Fez backup do espaço de trabalho ({count, plural, one {# página} other {# páginas}})",
+        "restored": "Restaurou o espaço de trabalho a partir de um backup ({count, plural, one {# página} other {# páginas}})"
       }
     },
     "decisions": {
@@ -1646,5 +1650,12 @@
       "notWhole": "Esta chamada é maior do que o mostrado aqui ou contém valores mascarados aqui. Abra a execução dela para ver tudo o que seria enviado antes de aprová-la.",
       "openRun": "Abrir a execução para aprovar"
     }
+  },
+  "backup": {
+    "title": "Fazer backup do espaço de trabalho",
+    "description": "Baixe tudo o que há no espaço de trabalho em um único arquivo, para restaurar aqui ou em outro Leafdesk: páginas com seu histórico, bancos de dados, comentários, arquivos, espaços de equipe, grupos e acessos, agentes e automações.",
+    "button": "Fazer backup",
+    "preparing": "Preparando…",
+    "disabled": "Os backups são desativados junto com a exportação em Configurações → Segurança."
   }
 }

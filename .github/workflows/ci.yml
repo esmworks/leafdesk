@@ -296,6 +296,10 @@ jobs:
           PGPASSWORD=leafdesk createdb -h localhost -U leafdesk leafdesk_peer
           pnpm tsx scripts/connector-e2e.ts
 
+      # Restores into the second Leafdesk's database too (the connections e2e made it).
+      - name: Workspace backups end-to-end
+        run: pnpm tsx scripts/backup-e2e.ts
+
       # The admin e2e's administrator, and new workspaces for administrators only (the other policy
       # is checked against the database).
       - name: Start the server

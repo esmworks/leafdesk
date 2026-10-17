@@ -1350,6 +1350,10 @@
         "deleted": "移除了连接“{target}”",
         "tool_called": "调用了“{target}”上的“{tool}”（{outcome}）",
         "approval_decided": "{decision}了智能体“{agent}”对“{target}”上“{tool}”的调用"
+      },
+      "backup": {
+        "created": "备份了工作区（{count} 个页面）",
+        "restored": "从备份恢复了工作区（{count} 个页面）"
       }
     },
     "decisions": {
@@ -1646,5 +1650,12 @@
       "notWhole": "此调用的内容比这里显示的更长，或包含此处已隐藏的值。批准前请打开其运行记录，查看将要发送的全部内容。",
       "openRun": "打开运行记录以批准"
     }
+  },
+  "backup": {
+    "title": "备份工作区",
+    "description": "将工作区中的所有内容下载为一个文件，可在此处或其他 Leafdesk 上恢复：包括页面及其历史记录、数据库、评论、文件、团队空间、用户组和访问权限、智能体和自动化。",
+    "button": "备份",
+    "preparing": "正在准备…",
+    "disabled": "备份与导出一起在“设置 → 安全”中关闭了。"
   }
 }

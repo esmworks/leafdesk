@@ -645,7 +645,8 @@ day), so no bytes stay behind with nothing pointing at them.
 The page menu exports a page as Markdown or a database as CSV, and a skill as `SKILL.md` (see
 [Skills](#skills)). "Export with subpages" (for a
 database, "Export with row pages") downloads a ZIP of the page and everything under it; owners
-can download the whole workspace from Settings → General → Export. Owners can turn exporting off
+can download the whole workspace from Settings → General → Export (to move a workspace to another
+server, back it up instead, see [Backups](#backups)). Owners can turn exporting off
 in Settings → Security (see [Workspace security switches](#workspace-security-switches)). The
 archive mirrors the sidebar:
 
@@ -684,6 +685,45 @@ refused up front with a message:
 | --- | --- |
 | `EXPORT_MAX_PAGES` | Most pages (rows and templates included) one export may hold. Default `10000`. |
 | `EXPORT_MAX_FILES_MB` | Most MB of uploaded files one export may hold. Default `2048` (at most about 3.5 GB). |
+
+### Backups
+
+An export is for reading; a backup is for bringing a workspace back. Owners download one from
+Settings → General → Back up workspace: a single ZIP (`<name> <date>.leafdesk.zip`) holding every
+row of the workspace as the database has it, and its uploaded files. Pages keep their history,
+comments, ids and links; databases their properties, views and rows; and so do teamspaces, groups,
+permissions, favorites, published pages and forms, the site, agents with their memory and skills,
+automations and schedules, daily notes and semantic search's index. Open pages are saved first,
+so a change made a moment ago is in. Backups are turned off together with export in Settings →
+Security.
+
+Anyone who may create workspaces restores one from **New workspace → Restore from backup…**, on
+the same server or another (also with another storage or database), and becomes one of its
+owners. A backup comes back with the ids it had, so it restores only where that workspace isn't:
+on another server, or here after the workspace was deleted. A backup made by a newer Leafdesk is
+refused: update the server first.
+
+People are matched by email. Whoever restores the backup stands for the person with their
+address, and someone with a verified account on the server keeps what they had under that
+account. Everyone else keeps what they wrote and were assigned, under their name, as a person
+without an account (nobody can sign in as them or email them); the restore lists them so you can
+invite them, and their own sign-up is unaffected. Some things belong to the server and don't
+travel: pending invitations and join requests, the invite link, SSO and SCIM setup, API tokens,
+connected apps, notifications, the audit log, agent and automation runs, and connections'
+sign-ins (connections ask to be signed in to again). Allowed email domains must be verified again,
+a site whose address is taken on the new server is left out, and semantic search builds its index
+again when the server uses another embeddings model.
+
+A backup file can be edited, so a restore trusts nothing in it: every row must belong to the
+backed-up workspace and point only at rows of the backup, and anything else refuses the whole
+file. One backup or restore runs at a time per person, and two per server.
+
+| Variable | Meaning |
+| --- | --- |
+| `BACKUP_MAX_ROWS_MB` | Most MB of rows (before compression) one restore reads into memory. Default `2048`. |
+
+A backup holds at most about 3.5 GB of files and 60,000 of them (a ZIP without ZIP64), and a
+restore checks them against the server's per-workspace storage limit.
 
 ### PDF
 

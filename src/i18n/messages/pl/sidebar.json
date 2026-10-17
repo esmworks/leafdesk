@@ -76,7 +76,31 @@
     "description": "Osobna przestrzeń z własnymi stronami i członkami.",
     "namePlaceholder": "Nazwa obszaru roboczego",
     "create": "Utwórz",
-    "creating": "Tworzenie…"
+    "creating": "Tworzenie…",
+    "restore": {
+      "description": "Możesz też przywrócić obszar roboczy z pliku kopii zapasowej.",
+      "choose": "Przywróć z kopii zapasowej…",
+      "uploading": "Przesyłanie kopii zapasowej… {percent}%",
+      "restoring": "Przywracanie… Może to potrwać kilka minut.",
+      "done": "Przywrócono {name}: {pages, plural, one {# strona} few {# strony} many {# stron} other {# strony}} i {files, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}.",
+      "withoutAccount": "{count, plural, one {# osoba nie ma} few {# osoby nie mają} many {# osób nie ma} other {# osoby nie ma}} konta na tym serwerze. To, co napisały, pozostaje pod ich nazwiskiem; zaproś je, aby ponownie dać im dostęp:",
+      "andMore": "i {count} więcej",
+      "connections": "{count, plural, one {# połączenie wymaga} few {# połączenia wymagają} many {# połączeń wymaga} other {# połączenia wymaga}} ponownego zalogowania w sekcji Ustawienia → Połączenia.",
+      "siteLeftOut": "Adres witryny jest już zajęty na tym serwerze, więc witryna została pominięta. Skonfiguruj ją ponownie w sekcji Ustawienia → Witryna.",
+      "searchIndexDropped": "Wyszukiwanie semantyczne ponownie buduje swój indeks; po zakończeniu znajdzie wszystko.",
+      "open": "Otwórz obszar roboczy",
+      "errors": {
+        "invalid": "Ten plik nie jest kopią zapasową Leafdesk lub jest uszkodzony.",
+        "newer": "Ta kopia zapasowa pochodzi z nowszej wersji Leafdesk. Zaktualizuj ten serwer i spróbuj ponownie.",
+        "alreadyHere": "Ten obszar roboczy jest już na tym serwerze. Kopia zapasowa przywraca obszar roboczy, którego tu nie ma, na przykład usunięty.",
+        "notAllowed": "Nie możesz tworzyć obszarów roboczych na tym serwerze.",
+        "quota": "Pliki z kopii zapasowej nie mieszczą się w limicie miejsca tego serwera na obszar roboczy.",
+        "conflict": "Część zawartości tej kopii zapasowej jest już na tym serwerze.",
+        "busy": "Twoja kopia zapasowa lub przywracanie już trwa. Spróbuj ponownie, gdy się zakończy.",
+        "tooLarge": "Kopia zapasowa jest zbyt duża, aby ją przywrócić.",
+        "failed": "Nie udało się przywrócić kopii zapasowej. Spróbuj ponownie."
+      }
+    }
   },
   "inbox": {
     "title": "Skrzynka odbiorcza",

@@ -76,7 +76,31 @@
     "description": "Kendi sayfaları ve üyeleri olan ayrı bir alan.",
     "namePlaceholder": "Çalışma alanı adı",
     "create": "Oluştur",
-    "creating": "Oluşturuluyor…"
+    "creating": "Oluşturuluyor…",
+    "restore": {
+      "description": "Ya da bir yedek dosyasından çalışma alanını geri getirin.",
+      "choose": "Yedekten geri yükle…",
+      "uploading": "Yedek yükleniyor… %{percent}",
+      "restoring": "Geri yükleniyor… Bu birkaç dakika sürebilir.",
+      "done": "{name} geri yüklendi: {pages} sayfa ve {files} dosya.",
+      "withoutAccount": "{count} kişinin bu sunucuda hesabı yok. Yazdıkları kendi adlarıyla kalır; yeniden erişim vermek için onları davet edin:",
+      "andMore": "ve {count} kişi daha",
+      "connections": "{count} bağlantı için Ayarlar → Bağlantılar bölümünden yeniden oturum açmak gerekiyor.",
+      "siteLeftOut": "Sitenin adresi bu sunucuda kullanımda olduğu için site dahil edilmedi. Ayarlar → Site bölümünden yeniden kurun.",
+      "searchIndexDropped": "Anlamsal arama dizinini yeniden oluşturuyor; bu bitince her şeyi bulur.",
+      "open": "Çalışma alanını aç",
+      "errors": {
+        "invalid": "Bu dosya bir Leafdesk yedeği değil ya da bozuk.",
+        "newer": "Bu yedek daha yeni bir Leafdesk sürümünden geliyor. Bu sunucuyu güncelleyip yeniden deneyin.",
+        "alreadyHere": "Bu çalışma alanı zaten bu sunucuda. Yedek, burada olmayan bir çalışma alanını, örneğin silinmiş birini geri getirir.",
+        "notAllowed": "Bu sunucuda çalışma alanı oluşturamazsınız.",
+        "quota": "Yedekteki dosyalar bu sunucunun çalışma alanı başına depolama sınırına sığmıyor.",
+        "conflict": "Bu yedeğin içeriğinin bir kısmı zaten bu sunucuda.",
+        "busy": "Başlattığınız bir yedekleme ya da geri yükleme zaten sürüyor. Bitince yeniden deneyin.",
+        "tooLarge": "Yedek, geri yüklenemeyecek kadar büyük.",
+        "failed": "Yedek geri yüklenemedi. Yeniden deneyin."
+      }
+    }
   },
   "inbox": {
     "title": "Gelen kutusu",
