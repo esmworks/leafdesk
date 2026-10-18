@@ -227,8 +227,9 @@ function createAuth() {
           after: async (account, ctx) => {
             await claimOnEmailLink(forgetUnprovenHolder)(account, ctx);
             // The first sign-in through a workspace's connection (a new account, or an existing one
-            // linked by email) joins that workspace. Only the first: someone an owner removed later
-            // stays out; their identity provider brings them back over SCIM.
+            // linked by email) joins that workspace. Only the first, and not for someone who left
+            // or whom an owner removed, even when a new connection makes their next sign-in the
+            // first again: their identity provider brings them back over SCIM, or an owner does.
             if (workspaceOfProvider(ssoProviderOf(ctx)) && account.providerId === ssoProviderOf(ctx)) {
               const owner = await ctx?.context.internalAdapter.findUserById(account.userId);
               if (owner) await joinThroughSso(account.providerId, owner);

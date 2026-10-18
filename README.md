@@ -1154,8 +1154,10 @@ for are `openid email profile`, with PKCE.
 
 - **First sign-in creates the account.** Through a workspace connection, only for addresses in
   its verified domains; the person also joins that workspace as a member. So does an existing
-  account on its first sign-in through the connection. Only then: someone an owner removes later
-  stays out (their provider can bring them back over SCIM). Through the instance provider, for anyone it signs in, or only
+  account on its first sign-in through the connection. Only then, and not someone who left the
+  workspace or whom an owner removed, even when a new connection makes their next sign-in the first
+  again: their provider can bring them back over SCIM, or an owner by adding or inviting them
+  again. Through the instance provider, for anyone it signs in, or only
   for `OIDC_DOMAINS` when those are set; it creates accounts even with `DISABLE_SIGNUP=true`,
   since the operator configured it. Set `OIDC_DOMAINS` for a provider that signs in people outside
   your organization (Google does).

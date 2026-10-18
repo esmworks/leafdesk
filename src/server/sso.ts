@@ -131,7 +131,8 @@ export async function ssoAccountCreation(providerId: string, email: string) {
 /**
  * After the first sign-in through a workspace's connection (the account is created or linked to
  * it, see auth.ts): someone with an address in its verified domains joins the workspace as a
- * member, unless they are in it already or its identity provider has deactivated them over SCIM.
+ * member, unless they are in it already, its identity provider has deactivated them over SCIM, or
+ * they left it or were kept out of it before (see joinAsMember).
  */
 export async function joinThroughSso(providerId: string, user: { id: string; email: string }) {
   const workspaceId = workspaceOfProvider(providerId);

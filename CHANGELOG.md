@@ -352,6 +352,13 @@
   a connection now removes them, ending those sessions and revoking those people's API tokens and
   connected apps as moving the connection to another identity provider does; the audit log entry
   says how many.
+- **Single sign-on no longer brings back people who left a workspace or were removed from it.**
+  The first sign-in through a workspace's connection joins the workspace, and moving the
+  connection to another identity provider, or setting one up again, makes everyone's next sign-in
+  through it the first again: someone an owner had removed, or who had left, was back in by signing
+  in. Now they stay out, as does someone whose request to join was declined, unless an invitation
+  to join as a member or owner is waiting for their address. An owner adding them again, or their
+  identity provider over SCIM, still brings them back.
 
 ## 0.5.4 — 2026-10-17
 

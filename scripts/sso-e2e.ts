@@ -48,7 +48,8 @@ process.env.OIDC_DOMAINS ??= "instance-sso.test";
 
 const { and, desc, eq, ilike, inArray, or } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, auditEvent, oauthClient, oauthConsent, session, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
+const { account, auditEvent, oauthClient, oauthConsent, session, ssoProvider, user, workspace, workspaceInvitation, workspaceMember, workspaceSso } =
+  await import("@/db/schema");
 const { saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
 const { createApiToken } = await import("@/server/api/tokens");
 const { AccessError } = await import("@/server/access");
@@ -689,6 +690,13 @@ async function main() {
   check(removedFrank.status === 200 && (await roleOf(workspaceId, frankId)) === null, "…the owner removes them", removedFrank.status);
   const frankAgain = await ssoSignIn(new Jar(), { email: `frank@${DOMAIN}` }, { email: `frank@${DOMAIN}`, name: "Frank" });
   check(frankAgain.status === 302 && (await roleOf(workspaceId, frankId)) === null, "…and signing in again doesn't bring them back", frankAgain);
+  // Nor someone who left.
+  const gwen = new Jar();
+  await ssoSignIn(gwen, { email: `gwen@${DOMAIN}` }, { email: `gwen@${DOMAIN}`, name: "Gwen" });
+  const gwenId = (await sessionOf(gwen))!.user.id;
+  userIds.push(gwenId);
+  const gwenLeft = await callAction(gwen, settingsPath, "src/app/actions/workspaces.ts", "removeMemberAction", [workspaceId, gwenId]);
+  check(gwenLeft.status === 200 && (await roleOf(workspaceId, gwenId)) === null, "a member who joined through SSO leaves", gwenLeft.status);
 
   // ── SSO only ─────────────────────────────────────────────────────────────────────────────
   const PAGES_ACTIONS = "src/app/actions/pages.ts";
@@ -793,6 +801,53 @@ async function main() {
   check(aliceBack.start.body?.url?.startsWith(`${IDP}/acme2/authorize`), "once verified again, Continue with SSO goes to the new provider", aliceBack.start.body);
   check(aliceBack.status === 302 && (await sessionOf(alice))?.user.id === aliceSession.user.id, "…and links the same account by its address", aliceBack);
   const aliceAccessAgain = await giveAccess(aliceSession.user.id, alice, "Alice, signed in again");
+
+  // ── Coming back after the connection changed ─────────────────────────────────────────────
+  // The move forgot everyone's sign-in through the connection, so each person's next one is their
+  // first through it again. That brings in nobody who was in the workspace and is out now: an
+  // owner removed them, or they left. Their identity provider (over SCIM) and an owner do.
+  const linksOf = async (userId: string) =>
+    (await db.select({ id: account.id }).from(account).where(and(eq(account.userId, userId), eq(account.providerId, providerId)))).length;
+  check((await linksOf(frankId)) === 0, "the move forgot the sign-ins of people no longer in the workspace too");
+  const frankAfterMove = await ssoSignIn(new Jar(), { email: `frank@${DOMAIN}` }, { email: `frank@${DOMAIN}`, name: "Frank" });
+  check(frankAfterMove.status === 302 && (await linksOf(frankId)) === 1, "someone the owner removed signs in through the new identity provider", frankAfterMove);
+  check((await roleOf(workspaceId, frankId)) === null, "…which links them again but doesn't bring them back");
+  const gwenAfterMove = await ssoSignIn(new Jar(), { email: `gwen@${DOMAIN}` }, { email: `gwen@${DOMAIN}`, name: "Gwen" });
+  check(gwenAfterMove.status === 302 && (await linksOf(gwenId)) === 1 && (await roleOf(workspaceId, gwenId)) === null, "…nor someone who left", gwenAfterMove);
+
+  const MEMBER_ACTIONS = "src/app/actions/workspaces.ts";
+  const gwenAdded = await callAction(owner.jar, settingsPath, MEMBER_ACTIONS, "addMembersAction", [workspaceId, [`gwen@${DOMAIN}`], "member"]);
+  check(gwenAdded.text.includes('"kind":"added"') && (await roleOf(workspaceId, gwenId)) === "member", "an owner adding them again brings them back", gwenAdded.text);
+  const scimCreated = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "createScimTokenAction", [workspaceId, "SSO e2e"]);
+  const scimToken = /"data":"(scim_[A-Za-z0-9]{40})"/.exec(scimCreated.text)?.[1];
+  check(scimToken, "the owner creates a SCIM token", scimCreated.text);
+  const provisioned = await fetch(`${BASE}/scim/v2/Users`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${scimToken}`, "content-type": "application/scim+json" },
+    body: JSON.stringify({ schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"], userName: `frank@${DOMAIN}`, active: true }),
+  });
+  await provisioned.text();
+  check(provisioned.status === 201 && (await roleOf(workspaceId, frankId)) === "member", "…and so does their identity provider over SCIM", provisioned.status);
+
+  // An invitation for the address of someone the owner removed lets their first sign-in through
+  // the connection bring them back: their account's address was never verified, so adding them
+  // again invited them, and the sign-in proves the address.
+  const grace = await signUp("grace", `grace@${DOMAIN}`);
+  await db.insert(workspaceMember).values({ workspaceId, userId: grace.id, role: "member" });
+  const graceRemoved = await callAction(owner.jar, settingsPath, MEMBER_ACTIONS, "removeMemberAction", [workspaceId, grace.id]);
+  check(graceRemoved.status === 200 && (await roleOf(workspaceId, grace.id)) === null, "the owner removes a member who signed up with a password", graceRemoved.status);
+  const graceInvited = await callAction(owner.jar, settingsPath, MEMBER_ACTIONS, "addMembersAction", [workspaceId, [`grace@${DOMAIN}`], "member"]);
+  check(graceInvited.text.includes('"kind":"invited"'), "…and, their address unverified, invites them again", graceInvited.text);
+  const graceIn = await ssoSignIn(new Jar(), { email: `grace@${DOMAIN}` }, { email: `grace@${DOMAIN}`, name: "Grace" });
+  const graceInvitations = await db
+    .select({ id: workspaceInvitation.id })
+    .from(workspaceInvitation)
+    .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, `grace@${DOMAIN}`)));
+  check(
+    graceIn.status === 302 && (await roleOf(workspaceId, grace.id)) === "member" && graceInvitations.length === 0,
+    "…so their first single sign-on brings them back, using up the invitation",
+    { graceIn, graceInvitations },
+  );
 
   // ── Removing the connection ──────────────────────────────────────────────────────────────
   const removed = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "removeSsoConnectionAction", [workspaceId]);

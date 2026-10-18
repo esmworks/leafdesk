@@ -1302,13 +1302,19 @@ export async function ssoAvailable(workspaceId: string) {
  * keeps their role. Pending page invitations for their address come along, as when an owner adds
  * them. They came in on their own, so nobody invited them, unless an unexpired invitation to the
  * workspace was waiting for their address: its sender did. Returns whether they were added.
+ *
+ * Single sign-on doesn't bring back someone who left the workspace, or whom it kept out (an owner
+ * or its identity provider removed them, or an owner declined their request to join): a new
+ * connection, or one pointed at another identity provider, makes everyone's next sign-in through
+ * it their first again. An invitation to join as a member or owner does, as their identity
+ * provider does over SCIM.
  */
 export async function joinAsMember(workspaceId: string, userId: string, email: string, via: "sso" | "scim" | "domain") {
   const clean = normalizeEmail(email);
   if (isAgentEmail(clean) || (await isAgentUser(userId))) return false;
   const joined = await db.transaction(async (tx) => {
     const [invitation] = await tx
-      .select({ invitedBy: workspaceInvitation.invitedBy })
+      .select({ role: workspaceInvitation.role, invitedBy: workspaceInvitation.invitedBy })
       .from(workspaceInvitation)
       .where(
         and(
@@ -1317,6 +1323,17 @@ export async function joinAsMember(workspaceId: string, userId: string, email: s
           gt(workspaceInvitation.expiresAt, new Date()),
         ),
       );
+    if (via === "sso" && (!invitation || invitation.role === "guest")) {
+      // Waits for a removal under way, so the departure it records is read below.
+      const [member] = await tx
+        .select({ role: workspaceMember.role })
+        .from(workspaceMember)
+        .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
+        .for("update");
+      if (member) return false;
+      const record = await joinRecordOf(tx, workspaceId, userId);
+      if (record === "accepted" || record === "declined") return false;
+    }
     const rows = await tx
       .insert(workspaceMember)
       .values({ workspaceId, userId, role: "member", invitedBy: invitation?.invitedBy ?? null })
