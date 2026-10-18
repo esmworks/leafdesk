@@ -8,7 +8,10 @@
  * proving it's you with a two-step or recovery code or a recent sign-in, changing the email through
  * the confirmation link, and deleting the account: refused while the only owner of a shared
  * workspace, then leaving shared workspaces (their private pages handed to an owner) and deleting
- * the ones nobody else is in, files and grants included. Then an owner deleting a workspace from
+ * the ones nobody else is in, files and grants included. Their single sign-on connections are cut
+ * off (the sign-ins through them, with the API tokens and connected apps of the people who signed
+ * in, also of those no longer in them), and a connection the person set up in a workspace that
+ * stays passes to an owner there, even one they had left. Then an owner deleting a workspace from
  * its settings: refused to a member, to a mistyped name (before the password is checked) and to a
  * wrong password, then gone with its members, files and single sign-on connection, and the sign-ins
  * through it with those people's API tokens and connected apps (another member's token stays). Creates its own @example.test users and deletes them afterwards.
@@ -291,6 +294,133 @@ async function stored(key: string) {
   if (!body) return false;
   await body.cancel();
   return true;
+}
+
+/** What the API answers an API token with: 200 while it works, 401 once it's revoked. */
+async function tokenAnswer(token: string) {
+  const res = await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${token}` } });
+  await res.text();
+  return res.status;
+}
+
+/** A workspace's single sign-on connection as `setUpBy` set it up, its domain verified. */
+async function ssoConnection(workspaceId: string, setUpBy: string, label: string) {
+  const providerId = `ws-${workspaceId}`;
+  await db.insert(ssoProvider).values({
+    id: `e2e-${RUN}-${label}`,
+    issuer: `https://idp.example.test/${label}`,
+    userId: setUpBy,
+    providerId,
+    domain: `${label}-${RUN}.example.test`,
+    domainVerified: true,
+  });
+  await db.insert(workspaceSso).values({ workspaceId, providerId, protocol: "oidc", verificationToken: `${RUN}-${label}`, createdBy: setUpBy });
+  return providerId;
+}
+
+/** Whether `userId` is still in the workspace. */
+async function isMember(workspaceId: string, userId: string) {
+  const rows = await db
+    .select({ role: workspaceMember.role })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+  return rows.length > 0;
+}
+
+/** What signing in through the connection leaves: the person's account at it, and a session marked as its. */
+async function signedInThrough(providerId: string, userId: string) {
+  const at = new Date();
+  await db.insert(account).values({ id: `e2e-${RUN}-${userId}-sso`, accountId: `sub-${userId}`, providerId, userId, createdAt: at, updatedAt: at });
+  await db.update(session).set({ ssoProviderId: providerId }).where(eq(session.userId, userId));
+}
+
+/**
+ * Deleting accounts and single sign-on connections. The last person in a workspace with one
+ * deletes their account: the sign-ins through it go with the workspace, with the API tokens and
+ * connected apps of the people who signed in, also of those no longer in it. The owner who set up
+ * the connections of two workspaces, one of which they have left, deletes theirs: both connections
+ * stay, passed to an owner still there.
+ */
+async function deletingAccountsAndSingleSignOn() {
+  const WS_ACTIONS = "src/app/actions/workspaces.ts";
+  // Lone's workspace has a connection Fay signed in through; Fay and Gus (signed in with a
+  // password) were members until Lone removed them.
+  const lone = await signUp("lone");
+  const fay = await signUp("fay");
+  const gus = await signUp("gus");
+  const loneProvider = await ssoConnection(lone.workspaceId, lone.id, "lone");
+  await db.insert(workspaceMember).values([
+    { workspaceId: lone.workspaceId, userId: fay.id, role: "member" },
+    { workspaceId: lone.workspaceId, userId: gus.id, role: "member" },
+  ]);
+  await signedInThrough(loneProvider, fay.id);
+  const fayToken = (await createApiToken(fay.id, { name: `Fay ${RUN}`, scopes: ["pages:read"] })).secret;
+  const fayApp = await connectApp(fay.id, "fay");
+  const gusToken = (await createApiToken(gus.id, { name: `Gus ${RUN}`, scopes: ["pages:read"] })).secret;
+  const loneSettings = `/w/${lone.workspaceId}/settings`;
+  check((await open(`${loneSettings}?tab=members`, lone.jar)).status === 200, "Lone opens the members of a workspace with single sign-on");
+  for (const person of [fay, gus]) {
+    const removed = await callAction(lone.jar, loneSettings, WS_ACTIONS, "removeMemberAction", [lone.workspaceId, person.id]);
+    check(
+      removed.status === 200 && removed.text.includes('"ok":true') && !(await isMember(lone.workspaceId, person.id)),
+      "…and removes a member",
+      removed.text,
+    );
+  }
+  check(
+    (await sessionOf(fay.jar)) !== null && (await tokenAnswer(fayToken)) === 200,
+    "…whose session through the connection and API token keep working, as the connection does",
+  );
+
+  const loneDeleted = await account_(lone.jar, "deleteAccountAction", [{ confirmation: emailOf("lone"), proof: { password: PASSWORD } }]);
+  check(loneDeleted.ok, "the last person in it deletes their account", loneDeleted);
+  check(
+    (await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, lone.workspaceId))).length === 0,
+    "…and the workspace goes with it",
+  );
+  const loneLinks = await db.select({ id: account.id }).from(account).where(eq(account.providerId, loneProvider));
+  check(loneLinks.length === 0, "…with the sign-ins through its connection", loneLinks);
+  check((await sessionOf(fay.jar)) === null, "…ending the session of someone who signed in through it, though no longer in it");
+  const fayAnswer = await tokenAnswer(fayToken);
+  check(fayAnswer === 401, "…revoking their API tokens", fayAnswer);
+  check(!(await consentsOf(fay.id)).includes(fayApp), "…and connected apps", await consentsOf(fay.id));
+  const gusAnswer = await tokenAnswer(gusToken);
+  check(gusAnswer === 200 && (await sessionOf(gus.jar)) !== null, "someone who never signed in through it keeps their session and token", gusAnswer);
+
+  // Hal set up the connections of two workspaces Ida owns too: Hal's own, which Ida signed in
+  // through and Hal has left, and Ida's, which Hal is still in.
+  const hal = await signUp("hal");
+  const ida = await signUp("ida");
+  await db.insert(workspaceMember).values([
+    { workspaceId: hal.workspaceId, userId: ida.id, role: "owner" },
+    { workspaceId: ida.workspaceId, userId: hal.id, role: "owner" },
+  ]);
+  const halProvider = await ssoConnection(hal.workspaceId, hal.id, "hal");
+  const idaProvider = await ssoConnection(ida.workspaceId, hal.id, "ida");
+  await signedInThrough(halProvider, ida.id);
+  const idaToken = (await createApiToken(ida.id, { name: `Ida ${RUN}`, scopes: ["pages:read"] })).secret;
+  const halSettings = `/w/${hal.workspaceId}/settings`;
+  check((await open(`${halSettings}?tab=members`, hal.jar)).status === 200, "Hal opens the members of a workspace whose connection Hal set up");
+  const halLeft = await callAction(hal.jar, halSettings, WS_ACTIONS, "removeMemberAction", [hal.workspaceId, hal.id]);
+  check(halLeft.status === 200 && halLeft.text.includes('"ok":true') && !(await isMember(hal.workspaceId, hal.id)), "…and leaves it", halLeft.text);
+  const halDeleted = await account_(hal.jar, "deleteAccountAction", [{ confirmation: emailOf("hal"), proof: { password: PASSWORD } }]);
+  check(halDeleted.ok, "then Hal deletes their account", halDeleted);
+  const connections = await db
+    .select({ userId: ssoProvider.userId, workspaceId: workspaceSso.workspaceId })
+    .from(ssoProvider)
+    .innerJoin(workspaceSso, eq(workspaceSso.providerId, ssoProvider.providerId))
+    .where(inArray(ssoProvider.providerId, [halProvider, idaProvider]));
+  check(
+    connections.length === 2 && connections.every((c) => c.userId === ida.id),
+    "…and both connections stay, passed to the owner still there",
+    connections,
+  );
+  const idaLinks = await db.select({ id: account.id }).from(account).where(eq(account.providerId, halProvider));
+  check(
+    idaLinks.length === 1 && (await sessionOf(ida.jar)) !== null && (await tokenAnswer(idaToken)) === 200,
+    "…cutting off nobody who signed in through them",
+    idaLinks,
+  );
 }
 
 async function main() {
@@ -722,6 +852,8 @@ async function main() {
     (await db.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, solo.workspaceId))).length === 0,
     "…and its workspace",
   );
+
+  await deletingAccountsAndSingleSignOn();
 
   // Deleting a workspace from its settings: Dora owns "Doomed", with Eve in it, a file and a
   // single sign-on connection Eve signed in through.

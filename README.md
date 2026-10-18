@@ -1192,6 +1192,12 @@ the workspace signs out everyone who signed in through it and revokes their API 
 connected apps, which reach all their workspaces; removing it (or the workspace) also removes its
 provider.
 
+Deleting the account of the last person in a workspace deletes the workspace too, and with it the
+connection: everyone who signed in through it is signed out and their API tokens and connected apps
+are revoked. A new connection starts with nobody linked to it: people are linked again by their
+address when they next sign in through it (see *Existing accounts* above). A connection doesn't go
+with the account of the owner who set it up: another owner of the workspace takes it over.
+
 **How members sign in** (Settings → Security): *Any method* (default) or *Single sign-on only*.
 With single sign-on only, members whose session didn't come through the workspace's connection
 (or the instance provider) are sent to a page that signs them in with it, and like two-step

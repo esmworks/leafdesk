@@ -441,7 +441,9 @@ export async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnec
  * identity provider behind them) asks for them to be verified again; a secret left empty keeps the
  * stored one. Sessions already signed in through the connection stay signed in while the identity
  * provider stays the same; another one signs everyone out of it and revokes what they reach the
- * app with besides (cutOffConnection).
+ * app with besides (cutOffConnection). A new connection does the same to whatever is still on
+ * record under its provider id from before (the workspace's id may have had a connection already,
+ * as a deleted workspace restored from a backup did): its identity provider is a new one too.
  */
 export async function saveSsoConnection(
   actorId: string,
@@ -506,7 +508,8 @@ export async function saveSsoConnection(
     domainVerified: verified,
   };
   const cutOff = await db.transaction(async (tx) => {
-    const cutOff = existing && !sameIdentity ? await cutOffConnection(tx, providerId) : null;
+    // A new connection is never the same identity provider (sameIdentity is false without one).
+    const cutOff = sameIdentity ? null : await cutOffConnection(tx, providerId);
     if (existing) {
       await tx.update(ssoProvider).set(fields).where(eq(ssoProvider.providerId, providerId));
       await tx

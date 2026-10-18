@@ -10,7 +10,9 @@
  * creates accounts, and removing the connection takes its provider with it. Changing the identity
  * provider behind the connection, and removing it, revokes the API tokens and connected apps of
  * everyone who signed in through it, and of nobody else; a change that keeps the identity provider
- * revokes nothing.
+ * revokes nothing. A new connection does the same to the sign-ins still on record under the
+ * workspace's provider id, so an id its identity provider sends finds only the address it vouches
+ * for.
  *
  * The app must run with the mock provider trusted and configured as the instance provider:
  *
@@ -45,7 +47,7 @@ process.env.OIDC_DOMAINS ??= "instance-sso.test";
 
 const { and, desc, eq, ilike, inArray, or } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, auditEvent, oauthClient, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
+const { account, auditEvent, oauthClient, oauthConsent, session, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
 const { saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
 const { createApiToken } = await import("@/server/api/tokens");
 const { AccessError } = await import("@/server/access");
@@ -74,7 +76,8 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
 
 // ───────────────────────────────────────────────────────────────────────── mock OIDC provider
 
-type Login = { email: string; name: string };
+/** `sub`: the id the provider gives the person; one made from the address unless given. */
+type Login = { email: string; name: string; sub?: string };
 type Grant = Login & { tenant: string; clientId: string; redirectUri: string; nonce?: string; challenge?: string };
 
 const TENANTS: Record<string, { clientId: string; clientSecret: string }> = {
@@ -103,7 +106,7 @@ function idToken(grant: Grant) {
     JSON.stringify({
       iss: issuerOf(grant.tenant),
       aud: grant.clientId,
-      sub: subOf(grant.email),
+      sub: grant.sub ?? subOf(grant.email),
       email: grant.email,
       email_verified: true,
       name: grant.name,
@@ -199,7 +202,7 @@ const idp = createServer(async (req, res) => {
   if (route === "userinfo") {
     const grant = accessTokens.get(/^Bearer (.+)$/.exec(req.headers.authorization ?? "")?.[1] ?? "");
     if (!grant) return send(res, 401, { error: "invalid_token" });
-    return send(res, 200, { sub: subOf(grant.email), email: grant.email, email_verified: true, name: grant.name });
+    return send(res, 200, { sub: grant.sub ?? subOf(grant.email), email: grant.email, email_verified: true, name: grant.name });
   }
   return send(res, 404, { error: "not found" });
 });
@@ -762,6 +765,64 @@ async function main() {
   check(removedAudit?.revokedApiTokens === 1 && removedAudit.revokedConnectedApps === 1, "…and the audit log records how many", removedAudit);
   const gateNow = await open(`/sso-required/${workspaceId}`, member0.jar);
   check(gateNow.status === 200 && gateNow.text.includes("Continue with Mock IdP"), "…and the gate offers the instance provider instead", gateNow.status);
+
+  // ── A new connection ─────────────────────────────────────────────────────────────────────
+  // The workspace's next connection gets the same provider id. A sign-in still on record under it
+  // (as older versions left them when a workspace's connection went some other way, and a backup can
+  // bring the id back): Alice's, with her id at the old identity provider and a session it signed
+  // in, and an API token and a connected app of hers.
+  const aliceId = aliceSession.user.id;
+  const at = new Date();
+  const staleId = `sso-e2e-${RUN}-stale`;
+  await db.insert(account).values({ id: staleId, accountId: subOf(`alice@${DOMAIN}`), providerId, userId: aliceId, createdAt: at, updatedAt: at });
+  await db.insert(session).values({
+    id: staleId,
+    token: randomBytes(16).toString("hex"),
+    userId: aliceId,
+    expiresAt: new Date(at.getTime() + 24 * 60 * 60 * 1000),
+    createdAt: at,
+    updatedAt: at,
+    authMethod: "sso",
+    ssoProviderId: providerId,
+  });
+  await db.insert(oauthConsent).values({ id: staleId, clientId: aliceAccessAgain.app.clientId, userId: aliceId, scopes: APP_SCOPES.split(" "), createdAt: at, updatedAt: at });
+  const { secret: aliceLaterToken } = await createApiToken(aliceId, { name: "SSO e2e Alice, after the connection went", scopes: ["pages:read"] });
+  const recreated = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "saveSsoConnectionAction", [
+    workspaceId,
+    { protocol: "oidc", issuer: `${IDP}/acme2`, clientId: "leafdesk-acme2", clientSecret: "acme2-secret", domains: DOMAIN },
+  ]);
+  check(recreated.text.includes('"ok":true'), "the owner sets up a connection again", recreated.text);
+  const stale = await db.select({ id: account.id }).from(account).where(eq(account.providerId, providerId));
+  check(stale.length === 0, "…which forgets the sign-ins still on record under its provider id", stale);
+  const staleSessions = await db.select({ id: session.id }).from(session).where(eq(session.ssoProviderId, providerId));
+  check(staleSessions.length === 0, "…ending the sessions they signed in", staleSessions);
+  const laterApi = await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${aliceLaterToken}` } });
+  await laterApi.text();
+  const aliceConsents = await db.select({ clientId: oauthConsent.clientId }).from(oauthConsent).where(eq(oauthConsent.userId, aliceId));
+  check(
+    laterApi.status === 401 && aliceConsents.length === 0,
+    "…and revokes the API tokens and connected apps of the people they were for",
+    { api: laterApi.status, aliceConsents },
+  );
+  const recreatedAudit = await lastAudit(workspaceId, "sso.configured");
+  check(
+    recreatedAudit?.created === true && recreatedAudit.revokedApiTokens === 1 && recreatedAudit.revokedConnectedApps === 1,
+    "…recording how many in the audit log",
+    recreatedAudit,
+  );
+
+  const [renewed] = await db.select({ token: workspaceSso.verificationToken }).from(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId));
+  await verifySsoDomains(owner.id, workspaceId, async (name) => (name === domainRecordName(DOMAIN) ? [[`leafdesk-sso=${renewed.token}`]] : []));
+  // Its identity provider gives someone of the domain the id Alice had at the old one.
+  const oscar = new Jar();
+  const oscarIn = await ssoSignIn(oscar, { email: `oscar@${DOMAIN}` }, { email: `oscar@${DOMAIN}`, name: "Oscar", sub: subOf(`alice@${DOMAIN}`) });
+  const oscarSession = await sessionOf(oscar);
+  if (oscarSession) userIds.push(oscarSession.user.id);
+  check(
+    oscarIn.status === 302 && oscarSession?.user.email === `oscar@${DOMAIN}` && oscarSession.user.id !== aliceId,
+    "an id the new identity provider sends signs in the address it vouches for, not whoever had that id before",
+    { oscarIn, user: oscarSession?.user },
+  );
 
   check(idpRequests.some((r) => r.endsWith("/acme/token")) && idpRequests.some((r) => r.endsWith("/acme/jwks")), "the app used the provider's token and key endpoints");
   console.log(`\n${passed} checks passed`);

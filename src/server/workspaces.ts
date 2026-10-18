@@ -1014,22 +1014,42 @@ export async function accountDeletionPlan(userId: string): Promise<DeletionPlan>
  * nobody else is in, with their pages and files (returning the files' storage keys, to remove once
  * the transaction commits), and leaves the others the way leaving does: an owner takes over the
  * pages only this person could manage.
+ *
+ * The deleted workspaces' single sign-on connections are for the caller to cut off as removing one
+ * does (cutOffConnection, with the provider ids returned), last in its transaction: the people who
+ * signed in through them, members or not by now, may be in other workspaces, and a backup brings a
+ * workspace's id, and with it its connection's provider id, back. The sign-ins point at the provider
+ * id without a foreign key, so they outlive the workspace's rows. A connection the person set up in
+ * a workspace that stays, whether or not they are still in it, passes to an owner there: the SSO
+ * plugin's provider row belongs to whoever set it up, and would go with their account.
  */
-export async function withdrawFromWorkspaces(tx: Tx, userId: string): Promise<{ plan: DeletionPlan; fileKeys: string[] }> {
+export async function withdrawFromWorkspaces(
+  tx: Tx,
+  userId: string,
+): Promise<{ plan: DeletionPlan; fileKeys: string[]; providerIds: string[] }> {
   const ids = (
     await tx.select({ id: workspaceMember.workspaceId }).from(workspaceMember).where(eq(workspaceMember.userId, userId))
   ).map((r) => r.id);
   // Locking the workspaces holds off people joining them (adding a member takes a key-share lock
-  // on its workspace row) and owner changes until this transaction ends.
-  if (ids.length) {
-    await tx.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, ids)).orderBy(asc(workspace.id)).for("update");
+  // on its workspace row) until this transaction ends, and serializes it with deleting the
+  // workspace or another account in it. Also those whose connection they set up, so the owner who
+  // takes it over isn't deleting their account meanwhile.
+  const locked = [...new Set([...ids, ...(await connectionsSetUpBy(tx, userId)).map((c) => c.workspaceId)])];
+  if (locked.length) {
+    await tx.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, locked)).orderBy(asc(workspace.id)).for("update");
   }
   const plan = planAccountDeletion(await standingsOf(tx, userId));
-  if (plan.blockers.length) return { plan, fileKeys: [] };
+  if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [] };
 
   const fileKeys: string[] = [];
+  const providerIds: string[] = [];
   const deleted = plan.deleted.map((w) => w.id);
   if (deleted.length) {
+    const connections = await tx
+      .select({ providerId: workspaceSso.providerId })
+      .from(workspaceSso)
+      .where(inArray(workspaceSso.workspaceId, deleted));
+    providerIds.push(...connections.map((c) => c.providerId));
     const files = await tx.delete(file).where(inArray(file.workspaceId, deleted)).returning({ key: file.storageKey });
     fileKeys.push(...files.map((f) => f.key));
     await deleteWorkspaces(tx, deleted);
@@ -1043,16 +1063,23 @@ export async function withdrawFromWorkspaces(tx: Tx, userId: string): Promise<{ 
     await tx.delete(workspaceMember).where(and(eq(workspaceMember.workspaceId, id), eq(workspaceMember.userId, userId)));
     const heir = await oldestOwner(tx, id);
     if (heir) await handOverOrphanedPages(tx, id, heir);
-    // The SSO plugin's provider row belongs to the owner who set it up, and goes with their
-    // account; the workspace's connection should not, so an owner who stays takes it over.
-    if (heir) {
-      await tx
-        .update(ssoProvider)
-        .set({ userId: heir })
-        .where(and(eq(ssoProvider.userId, userId), sql`${ssoProvider.providerId} in (select provider_id from ${workspaceSso} where workspace_id = ${id})`));
-    }
   }
-  return { plan, fileKeys };
+  // Once they are out of every workspace, so the heir is someone who stays (the deleted
+  // workspaces' connections are gone by now).
+  for (const { workspaceId, providerId } of await connectionsSetUpBy(tx, userId)) {
+    const heir = await oldestOwner(tx, workspaceId);
+    if (heir) await tx.update(ssoProvider).set({ userId: heir }).where(eq(ssoProvider.providerId, providerId));
+  }
+  return { plan, fileKeys, providerIds };
+}
+
+/** The single sign-on connections whose provider row belongs to `userId`, who set them up. */
+async function connectionsSetUpBy(reader: Pick<typeof db, "select">, userId: string) {
+  return reader
+    .select({ workspaceId: workspaceSso.workspaceId, providerId: workspaceSso.providerId })
+    .from(workspaceSso)
+    .innerJoin(ssoProvider, eq(ssoProvider.providerId, workspaceSso.providerId))
+    .where(eq(ssoProvider.userId, userId));
 }
 
 /**
