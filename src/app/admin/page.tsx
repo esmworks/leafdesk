@@ -47,6 +47,9 @@ export default async function AdminPage({
     <div className="flex min-h-full flex-col md:flex-row">
       <nav
         aria-label={t("title")}
+        // In the sidebar's place, so the desktop app keeps its window buttons clear of it the same way (globals.css).
+        data-sidebar
+        data-sidebar-open
         className="shrink-0 border-b border-border p-2 text-sm md:sticky md:top-0 md:h-dvh md:w-60 md:overflow-y-auto md:border-e md:border-b-0 md:bg-bg-subtle"
       >
         <Link

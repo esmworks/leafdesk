@@ -23,7 +23,7 @@ if (location.protocol === "file:") {
  */
 const controls = process.argv.find((arg) => arg.startsWith("--leafdesk-window-controls="))?.split("=")[1];
 if (controls) {
-  let fullScreen = false;
+  let fullScreen = ipcRenderer.sendSync("leafdesk:full-screen") === true;
   const mark = () => {
     const root = document.documentElement;
     if (!root) return;

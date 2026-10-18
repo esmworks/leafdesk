@@ -234,7 +234,10 @@ function titleBar(): BrowserWindowConstructorOptions {
   return INSET_WINDOW_CONTROLS ? { titleBarStyle: "hidden", trafficLightPosition: TRAFFIC_LIGHTS } : {};
 }
 
-/** Tells the page when the window enters or leaves full screen, where macOS hides the window's buttons. */
+/**
+ * Tells the page when the window enters or leaves full screen, where macOS hides the window's
+ * buttons; a page that loads asks (registerPageBridge), so it doesn't first draw room for them.
+ */
 function reportFullScreen(window: BrowserWindow) {
   if (!INSET_WINDOW_CONTROLS) return;
   const send = () => {
@@ -242,7 +245,6 @@ function reportFullScreen(window: BrowserWindow) {
   };
   window.on("enter-full-screen", send);
   window.on("leave-full-screen", send);
-  window.webContents.on("dom-ready", send);
 }
 
 function createWindow(bounds?: Partial<Rectangle>) {
@@ -567,6 +569,11 @@ function registerPageBridge() {
       return listener(event, ...args);
     });
   const windowOf = (event: IpcMainInvokeEvent) => BrowserWindow.fromWebContents(event.sender);
+
+  // Every page's preload asks this, the server's too: it tells nothing but the window's state.
+  ipcMain.on("leafdesk:full-screen", (event) => {
+    event.returnValue = BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false;
+  });
 
   handle("leafdesk:state", (event) => ({
     locale,

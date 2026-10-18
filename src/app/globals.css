@@ -1030,9 +1030,10 @@
  * The desktop app on macOS has no title bar: the window's buttons sit over the page's top-left
  * corner, centered on the 44px header row, and that row moves the window (desktop/src/main.ts and
  * preload.cts set <html data-window-controls>; data-full-screen when macOS hides the buttons).
- * The sidebar (and the settings' navigation) starts below them; a header the buttons would cover (no sidebar beside it, or the
- * sidebar on the right) leaves their width free. The region dragging the window is a strip over the
- * whole width (the root layout's data-window-drag); what can be clicked or typed in there is cut out of it.
+ * The sidebar, and the navigation that takes its place in settings and admin, starts below them;
+ * a header the buttons would cover (no sidebar beside it, or the sidebar on the right) leaves
+ * their width free. The region dragging the window is a strip over the whole width (the root
+ * layout's data-window-drag); what can be clicked or typed in there is cut out of it.
  */
 :root {
   --window-controls-height: 2.75rem;
