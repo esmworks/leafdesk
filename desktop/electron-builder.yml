@@ -38,6 +38,20 @@ mac:
   extendInfo:
     NSMicrophoneUsageDescription: Leafdesk uses the microphone while you record a voice note.
 
+# The disk image's window: the app and the Applications folder side by side, centred on the arrow
+# drawn in build/background.png (its @2x for Retina; both made from build/background.svg). The
+# window takes the picture's size, less the title bar.
+dmg:
+  iconSize: 96
+  contents:
+    - x: 140
+      y: 150
+      type: file
+    - x: 400
+      y: 150
+      type: link
+      path: /Applications
+
 win:
   target:
     - target: nsis
