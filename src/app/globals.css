@@ -1097,3 +1097,10 @@
     padding-left: var(--window-controls-width);
   }
 }
+
+/* While a board is panned by dragging its floor (scroll-x.tsx), the pointer stays a grabbing hand. */
+:root[data-panning],
+:root[data-panning] * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}

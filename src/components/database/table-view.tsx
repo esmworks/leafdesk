@@ -29,6 +29,7 @@ import { PropertyTypeIcon } from "./property-icons";
 import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
+import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
 import { OpenRowItems } from "./open-row-items";
@@ -599,176 +600,179 @@ export function TableView({
   };
 
   return (
-    <div
-      ref={box}
-      {...grid.containerProps}
-      className={cn("page-gutter-table overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", grid.spans && "select-none")}
-      style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
-    >
-      <table className="table-fixed border-collapse text-sm" style={{ width: totalWidth }}>
-        <colgroup>
-          <col style={{ width: handles }} />
-          <col style={{ width: nameWidth }} />
-          {visible.map((p) => (
-            <col key={p.id} style={{ width: colWidth(p) }} />
-          ))}
-          {!readOnly && <col style={{ width: 36 }} />}
-        </colgroup>
-        <thead ref={setThead}>
-          <tr className="group">
-            <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
-              <div className="flex justify-end">
-                <SelectBox
-                  checked={selection.all}
-                  indeterminate={selection.some && !selection.all}
-                  label={t("bulk.selectAll")}
-                  visible={selection.some}
-                  onToggle={selection.toggleAll}
-                />
-              </div>
-            </th>
-            <HeaderCell
-              prop={null}
-              label={t("nameColumn")}
-              icon="title"
-              sort={sortOf(TITLE)}
-              frozen={frozen(0)}
-              readOnly={readOnly}
-              onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
-              resizing={resizing?.key === TITLE}
-              actions={{
-                ...viewActions(TITLE, TITLE),
-                sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
-                insert: insertBeside(TITLE, ["after"]),
-              }}
-            />
-            {visible.map((p, i) => {
-              // Property access: changing the property itself needs "edit" on it.
-              const fixed = locked || !access.canEditSchema(p.id);
-              return (
-                <HeaderCell
-                  key={p.id}
-                  prop={p}
-                  label={p.name}
-                  icon={p.type}
-                  sort={sortOf(p.id)}
-                  frozen={frozen(i + 1)}
-                  readOnly={readOnly}
-                  drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
-                  onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
-                  resizing={resizing?.key === p.id}
-                  actions={{
-                    ...viewActions(p.id, valueType(p)),
-                    group:
-                      settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
-                        ? undefined
-                        : () => setConfig({ ...view.config, groupBy: p.id }),
-                    ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
-                    insert: insertBeside(p.id, ["before", "after"]),
-                    rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
-                    sort: isSortable(p.type)
-                      ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
-                      : undefined,
-                    hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
-                    setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
-                    setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
-                    setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
-                    setNumberFormat:
-                      fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
-                    setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
-                    setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
-                    setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
-                    setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
-                    updateAllAutofill:
-                      !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
-                        ? undefined
-                        : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
-                    duplicate: fixed
-                      ? undefined
-                      : async () =>
-                          placeBeside(
-                            (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
-                            p.id,
-                            "after",
-                          ),
-                    changeType: fixed ? undefined : typeChange(p),
-                    remove: fixed ? undefined : () => api.deleteProperty(p.id),
-                  }}
-                />
-              );
-            })}
-            {!readOnly && (
-              <th className="border-y border-border p-0 text-start font-normal">
-                {!locked && (
-                  <AddPropertyButton
-                    onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
-                    onCreateAutofill={
-                      ai.enabled ? (name, config) => api.addAutofillProperty(name, config, inView.map((r) => r.id)) : undefined
-                    }
+    <>
+      <div
+        ref={box}
+        {...grid.containerProps}
+        className={cn("page-gutter-table overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", HIDE_SCROLLBAR, grid.spans && "select-none")}
+        style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
+      >
+        <table className="table-fixed border-collapse text-sm" style={{ width: totalWidth }}>
+          <colgroup>
+            <col style={{ width: handles }} />
+            <col style={{ width: nameWidth }} />
+            {visible.map((p) => (
+              <col key={p.id} style={{ width: colWidth(p) }} />
+            ))}
+            {!readOnly && <col style={{ width: 36 }} />}
+          </colgroup>
+          <thead ref={setThead}>
+            <tr className="group">
+              <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
+                <div className="flex justify-end">
+                  <SelectBox
+                    checked={selection.all}
+                    indeterminate={selection.some && !selection.all}
+                    label={t("bulk.selectAll")}
+                    visible={selection.some}
+                    onToggle={selection.toggleAll}
                   />
-                )}
+                </div>
               </th>
-            )}
-          </tr>
-        </thead>
-        <TableBody
-          start={thead}
-          items={items}
-          columns={columnCount}
-          groupName={groupName}
-          renderItem={renderItem}
-          controls={bodyControls}
-        />
-      </table>
-      {(grouping ? !grouping.shown.length : !rows.length) && (
-        <div
-          className="border-b border-border px-2 py-6 text-sm text-fg-faint"
-          style={{ marginInlineStart: handles, width: totalWidth - handles }}
-        >
-          {searched ? t("table.noSearchMatches") : filtered ? t("table.noMatches") : t("table.noRows")}
-        </div>
-      )}
-      {grouping && grouping.hidden.length > 0 && (
-        <div style={{ marginInlineStart: handles }}>
-          <HiddenGroups
-            prop={groupBy!}
-            groups={grouping.hidden}
-            readOnly={readOnly}
-            onShow={(key) => setGroupHidden(key, false)}
+              <HeaderCell
+                prop={null}
+                label={t("nameColumn")}
+                icon="title"
+                sort={sortOf(TITLE)}
+                frozen={frozen(0)}
+                readOnly={readOnly}
+                onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
+                resizing={resizing?.key === TITLE}
+                actions={{
+                  ...viewActions(TITLE, TITLE),
+                  sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
+                  insert: insertBeside(TITLE, ["after"]),
+                }}
+              />
+              {visible.map((p, i) => {
+                // Property access: changing the property itself needs "edit" on it.
+                const fixed = locked || !access.canEditSchema(p.id);
+                return (
+                  <HeaderCell
+                    key={p.id}
+                    prop={p}
+                    label={p.name}
+                    icon={p.type}
+                    sort={sortOf(p.id)}
+                    frozen={frozen(i + 1)}
+                    readOnly={readOnly}
+                    drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
+                    onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
+                    resizing={resizing?.key === p.id}
+                    actions={{
+                      ...viewActions(p.id, valueType(p)),
+                      group:
+                        settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
+                          ? undefined
+                          : () => setConfig({ ...view.config, groupBy: p.id }),
+                      ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
+                      insert: insertBeside(p.id, ["before", "after"]),
+                      rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
+                      sort: isSortable(p.type)
+                        ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
+                        : undefined,
+                      hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
+                      setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
+                      setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
+                      setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
+                      setNumberFormat:
+                        fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
+                      setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
+                      setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
+                      setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
+                      setAutofill: fixed || !ai.enabled || p.type !== "text" ? undefined : (config) => api.setAutofill(p, config),
+                      updateAllAutofill:
+                        !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
+                          ? undefined
+                          : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
+                      duplicate: fixed
+                        ? undefined
+                        : async () =>
+                            placeBeside(
+                              (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
+                              p.id,
+                              "after",
+                            ),
+                      changeType: fixed ? undefined : typeChange(p),
+                      remove: fixed ? undefined : () => api.deleteProperty(p.id),
+                    }}
+                  />
+                );
+              })}
+              {!readOnly && (
+                <th className="border-y border-border p-0 text-start font-normal">
+                  {!locked && (
+                    <AddPropertyButton
+                      onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
+                      onCreateAutofill={
+                        ai.enabled ? (name, config) => api.addAutofillProperty(name, config, inView.map((r) => r.id)) : undefined
+                      }
+                    />
+                  )}
+                </th>
+              )}
+            </tr>
+          </thead>
+          <TableBody
+            start={thead}
+            items={items}
+            columns={columnCount}
+            groupName={groupName}
+            renderItem={renderItem}
+            controls={bodyControls}
           />
-        </div>
-      )}
-      {!readOnly && !grouping && (
-        <button
-          type="button"
-          onClick={() => addRow()}
-          className="flex h-[33px] items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-          style={{ marginInlineStart: handles, width: totalWidth - handles }}
-        >
-          <Plus className="h-4 w-4" />
-          {t("table.new")}
-        </button>
-      )}
-      <CalculationRow
-        offset={handles}
-        columns={calculationColumns}
-        rows={inView}
-        calculations={view.config.calculations}
-        readOnly={readOnly}
-        onChange={setCalculation}
-      />
-      <BulkActionBar
-        workspaceId={workspaceId}
-        databaseId={databaseId}
-        properties={properties}
-        rows={expanded}
-        selection={selection}
-        api={api}
-        readOnly={readOnly}
-        guest={guest}
-        exportable={exportable}
-      />
-    </div>
+        </table>
+        {(grouping ? !grouping.shown.length : !rows.length) && (
+          <div
+            className="border-b border-border px-2 py-6 text-sm text-fg-faint"
+            style={{ marginInlineStart: handles, width: totalWidth - handles }}
+          >
+            {searched ? t("table.noSearchMatches") : filtered ? t("table.noMatches") : t("table.noRows")}
+          </div>
+        )}
+        {grouping && grouping.hidden.length > 0 && (
+          <div style={{ marginInlineStart: handles }}>
+            <HiddenGroups
+              prop={groupBy!}
+              groups={grouping.hidden}
+              readOnly={readOnly}
+              onShow={(key) => setGroupHidden(key, false)}
+            />
+          </div>
+        )}
+        {!readOnly && !grouping && (
+          <button
+            type="button"
+            onClick={() => addRow()}
+            className="flex h-[33px] items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            style={{ marginInlineStart: handles, width: totalWidth - handles }}
+          >
+            <Plus className="h-4 w-4" />
+            {t("table.new")}
+          </button>
+        )}
+        <CalculationRow
+          offset={handles}
+          columns={calculationColumns}
+          rows={inView}
+          calculations={view.config.calculations}
+          readOnly={readOnly}
+          onChange={setCalculation}
+        />
+        <BulkActionBar
+          workspaceId={workspaceId}
+          databaseId={databaseId}
+          properties={properties}
+          rows={expanded}
+          selection={selection}
+          api={api}
+          readOnly={readOnly}
+          guest={guest}
+          exportable={exportable}
+        />
+      </div>
+      <StickyScrollbar target={box} />
+    </>
   );
 }
 

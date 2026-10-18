@@ -28,6 +28,7 @@ import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
+import { HIDE_SCROLLBAR, StickyScrollbar, useDragPan } from "./scroll-x";
 import { openRowProps, useRowOpener } from "./row-panel-context";
 import { PropertyTypeIcon } from "./property-icons";
 import { useFormatResult } from "./table-calculations";
@@ -74,6 +75,8 @@ export function BoardView({
   const [colDrop, setColDrop] = useState<number | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
   const access = usePropertyAccess();
+  const scroller = useRef<HTMLDivElement>(null);
+  useDragPan(scroller, !!groupBy);
 
   if (!groupBy) {
     return (
@@ -253,7 +256,7 @@ export function BoardView({
 
   return (
     <QuickAddContext value={quick}>
-      <div className="page-gutter overflow-x-auto pb-6">
+      <div ref={scroller} className={cn("page-gutter overflow-x-auto pb-6", HIDE_SCROLLBAR)}>
         <div
           className="flex w-max items-start gap-3"
           onDragOver={onColDragOver}
@@ -440,6 +443,7 @@ export function BoardView({
           )}
         </div>
       </div>
+      <StickyScrollbar target={scroller} />
     </QuickAddContext>
   );
 }

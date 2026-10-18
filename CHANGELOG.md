@@ -277,6 +277,12 @@
 
 ### Changed
 
+- **Wide boards and tables keep their sideways scrollbar in view.** When the columns run past the
+  window's edge, a scrollbar stays at the bottom of the window wherever you are on the page, and
+  rests under the board or table once you reach its end; it isn't there when everything fits. It
+  used to be under the last row or the longest column, so reaching the columns on the right with a
+  mouse meant scrolling all the way down first. A board also pans sideways when you drag its empty
+  floor between and below the columns.
 - **Large databases and workspaces open faster.** Who may see a database's rows is now worked out
   once for the database wherever that gives the same answer, instead of once for every row: with
   50,000 rows a table loads about three times faster, and a filtered or sorted query through the
