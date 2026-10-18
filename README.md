@@ -306,12 +306,14 @@ versions, upgrades and running behind a domain.
   Markdown written over MCP or the API leaves them as they are. Search, by words or by meaning,
   finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
-  pages, database relations and the page tree, laid out by how they connect. A database with
-  many rows is one point with their count until you show its rows, its rows' relations drawn as
-  one weighted edge. Hover a page to see its neighbours, click it for a card of everything it is
-  joined to, double-click to open it, or focus on one page and the pages up to three steps from
-  it, also beside the page ("Show in graph" in a page's menu); switches hide the page tree,
-  database rows and pages without connections.
+  pages, database relations and the page tree, laid out by how they connect. It is beside a page
+  ("Show in graph" in a page's menu: the page and the pages up to three steps from it), and the
+  whole workspace's graph opens from there or from search (*Graph*). The whole graph starts with
+  the pages joined by links and relations, and says how to add some when there are few; switches
+  show the page tree, database rows and pages without connections. A database with many rows is
+  one point with their count until you show its rows; a row related to a page in view is drawn on
+  its own, and the rest's relations as one weighted edge. Hover a page to see its neighbours, click
+  it for a card of everything it is joined to, double-click to open it.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
   database automation notifies you, when someone else changes a row you follow, and when a reminder
@@ -1753,7 +1755,7 @@ templates and the pages in them can't be skills, and a copy of a skill isn't one
 access of their own: everyone sees the skills they can open, and a skill in the trash leaves every
 list until it is restored.
 
-- **Skills library**: the sidebar's skills button (next to the people and graph buttons) opens
+- **Skills library**: the sidebar's skills button (next to the people button) opens
   `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable. *New skill*
   makes a private page already marked as one.
 - **Ready-made skills**: six skills to start from (*Wrap up meeting notes*, *Weekly status summary*,

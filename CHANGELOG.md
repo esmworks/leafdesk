@@ -229,7 +229,8 @@
   switch away (around a focused page they still show). A row related to a page in view comes out of
   its database's bubble, so the line says which customer an order is for, unless more than 30 rows
   of that database would. With fewer than 10 links and relations in the workspace, the graph says
-  how to add them.
+  how to add them. It no longer has a button in the sidebar: it opens from a page's graph (*Show in
+  graph*, then *Open in the full graph*) or from search.
 
 ### Fixed
 
