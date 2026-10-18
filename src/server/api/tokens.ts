@@ -226,7 +226,10 @@ export async function verifyApiToken(secret: string, now = new Date()): Promise<
   if (!row) return { ok: false, reason: "invalid" };
   if (row.expiresAt && row.expiresAt.getTime() <= now.getTime()) return { ok: false, reason: "expired" };
   if (!row.lastUsedAt || now.getTime() - row.lastUsedAt.getTime() >= TOUCH_INTERVAL_MS) {
-    await db.update(apiToken).set({ lastUsedAt: now }).where(eq(apiToken.id, row.id));
+    // Waits for a transaction deleting the token meanwhile (revoking it, or cutting off its owner's
+    // sign-ins), and then finds it gone.
+    const touched = await db.update(apiToken).set({ lastUsedAt: now }).where(eq(apiToken.id, row.id)).returning({ id: apiToken.id });
+    if (!touched.length) return { ok: false, reason: "invalid" };
   }
   return {
     ok: true,

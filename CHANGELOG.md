@@ -409,6 +409,10 @@
   *Upgrading*). Releases since 0.3.0 are affected. A connection pointed at another identity provider
   before 0.5.0 kept its sign-ins too, and the migration can't tell them from later ones: if one of
   yours was, remove it and set it up again, which forgets everyone's sign-ins through it.
+- **An API token deleted while a request used it no longer serves that request.** Recording when
+  a token was last used waits for a transaction deleting the token at that moment (revoking it, or
+  cutting off its owner's sign-ins); the request then went ahead with the token gone. It is now
+  refused as an invalid token.
 
 ## 0.5.4 — 2026-10-17
 
