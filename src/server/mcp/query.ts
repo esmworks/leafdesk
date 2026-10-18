@@ -52,6 +52,7 @@ import {
 } from "@/lib/properties";
 import { derivedType, formulaForEditing, rollupFormat, TITLE_FIELD, valueType } from "@/lib/derived";
 import { dependencySettings } from "@/lib/dependencies";
+import { valueFormat } from "@/lib/number-format";
 import { formulaReferences, type PropertyLevel } from "@/lib/property-access";
 import { parseFormula, relatedReads } from "@/lib/formula";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType, PERSON_ME, STATUS_GROUPS } from "@/lib/property-types";
@@ -669,7 +670,7 @@ export function describeProperty(
       : {}),
     ...(prop.type === "rollup" ? { rollup: describeRollup(prop, lookups, props) } : {}),
     // How the app shows the values; they stay plain numbers here (a percentage as its fraction).
-    ...(prop.type === "number" && prop.options.number ? { number_format: prop.options.number } : {}),
+    ...(valueFormat(prop) ? { number_format: valueFormat(prop) } : {}),
     ...(prop.type === "date" && prop.options.date
       ? {
           date_options: {

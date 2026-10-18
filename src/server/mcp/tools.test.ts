@@ -760,6 +760,33 @@ describe("database properties", () => {
     expect(plain.data.property).not.toHaveProperty("number_format");
   });
 
+  it("sets and shows the format of a formula giving a number, and none on one giving text", async () => {
+    const price = { id: "prop-price", name: "Price", type: "number", options: {} };
+    const currency = { format: "currency", currency: "EUR", decimals: 2 };
+    const total = { id: "prop-total", name: "Total", type: "formula", options: { formula: { expression: 'prop("prop-price") * 2' }, number: currency } };
+    databases.getDatabase.mockResolvedValue({ database: { id: "db-1", workspaceId: "ws-1" }, access: openAccess, properties: [price], views: [] });
+    databases.addProperty.mockResolvedValue(total);
+    const added = await callTool(writer, "add_database_property", {
+      database_id: "db-1",
+      name: "Total",
+      type: "formula",
+      formula: 'prop("Price") * 2',
+      number_format: currency,
+    });
+    expect(databases.addProperty).toHaveBeenCalledWith("user-1", "db-1", expect.objectContaining({ type: "formula", number: currency }));
+    expect(added.data.property).toMatchObject({ name: "Total", result_type: "number", number_format: currency });
+
+    // A format left on a formula that gives text (a property it reads changed) doesn't show.
+    const label = { ...total, options: { formula: { expression: 'format(prop("prop-price")) + " €"' }, number: currency } };
+    databases.getDatabase.mockResolvedValue({ database: { id: "db-1", workspaceId: "ws-1" }, access: openAccess, properties: [price, label], views: [] });
+    const renamed = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Total", name: "Label" });
+    expect(renamed.data.property.result_type).toBe("text");
+    expect(renamed.data.property).not.toHaveProperty("number_format");
+    const cleared = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Total", number_format: null });
+    expect(databases.updateProperty).toHaveBeenLastCalledWith("user-1", "prop-total", { number: null });
+    expect(cleared.isError).toBe(false);
+  });
+
   it("refuses a number format on other properties and unknown formats", async () => {
     const onText = await callTool(writer, "add_database_property", {
       database_id: "db-1",
@@ -767,9 +794,9 @@ describe("database properties", () => {
       type: "text",
       number_format: { format: "percent" },
     });
-    expect(onText.text).toMatch(/only applies to number properties/);
+    expect(onText.text).toMatch(/only applies to number properties and formulas giving a number/);
     const update = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Notes", number_format: { format: "percent" } });
-    expect(update.text).toMatch(/only numbers have a number format/);
+    expect(update.text).toMatch(/only numbers and formulas giving a number have a number format/);
     const unknown = await callTool(writer, "add_database_property", {
       database_id: "db-1",
       name: "Score",

@@ -445,6 +445,11 @@ try {
   check(JSON.stringify(acceptedRow[q.get("İşler")!.id]) === JSON.stringify([late.id]), "a quote shows the jobs made from it", acceptedRow);
   const net = async (id: string) => (await getRow(ids.owner, id)).row.properties[b.get("Net etki")!.id];
   check((await net(cash.id)) === 50000 && (await net(owed.id)) === -20000, "what is owed counts against the net worth", [await net(cash.id), await net(owed.id)]);
+  check(
+    JSON.stringify(b.get("Net etki")!.options.number) === JSON.stringify(b.get("Tutar")!.options.number) && b.get("Net etki")!.options.number?.currency === "TRY",
+    "the net effect shows in the amounts' currency",
+    b.get("Net etki")!.options,
+  );
 
   const [dashboardBlock] = ((await service.readBlocks(parts[0].id)).blocks as { type: string; props: Record<string, string> }[]).filter((x) => x.type === DASHBOARD_BLOCK);
   const widgets = parseDashboard(dashboardBlock.props.widgets);
@@ -458,6 +463,8 @@ try {
   const total = (d: (typeof data)[number]) => (d.state === "ok" && d.kind === "chart" ? d.chart?.total : undefined);
   check(count(openJobs) === 2 && count(dueJobs) === 1 && count(openQuotes) === 1, "the numbers count open jobs, those due or late, and open quotes", [count(openJobs), count(dueJobs), count(openQuotes)]);
   check(value(netWorth) === 60000, "the net worth adds up this month's entries, what is owed taken off", netWorth);
+  const measured = netWorth.state === "ok" ? netWorth.properties.find((p) => p.id === b.get("Net etki")!.id) : undefined;
+  check(measured?.options.number?.currency === "TRY", "…and shows in the amounts' currency on the dashboard", measured);
   check(total(jobsByPerson) === 2 && total(quotesByStatus) === 3 && total(customersByStage) === 2, "the charts count open jobs, all quotes and all customers", [total(jobsByPerson), total(quotesByStatus), total(customersByStage)]);
   check(JSON.stringify(listed(upcomingJobs)) === JSON.stringify(["Montaj", "Keşif"]), "open jobs are listed by due date, the late one first", upcomingJobs);
   check(JSON.stringify(listed(quoteFollowUps)) === JSON.stringify(["Soğuk oda"]) && JSON.stringify(listed(customerFollowUps)) === JSON.stringify(["Ege Gıda"]), "quotes and customers to follow up are listed", [quoteFollowUps, customerFollowUps]);

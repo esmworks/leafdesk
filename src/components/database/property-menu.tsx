@@ -44,7 +44,7 @@ import type { AiAutofillConfig } from "@/lib/ai";
 import type { AggregateFn } from "@/lib/aggregate";
 import type { DateOptionsInput } from "@/lib/date-options";
 import type { NumberDisplay } from "@/lib/number-display";
-import type { NumberFormat } from "@/lib/number-format";
+import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
@@ -419,7 +419,8 @@ export function PropertyMenu({
       <NumberFormatEditor
         prop={prop}
         onChange={actions.setNumberFormat}
-        onDisplayChange={actions.setNumberDisplay}
+        // Formulas show their result as the number; only number properties show a bar or a ring.
+        onDisplayChange={prop.type === "number" ? actions.setNumberDisplay : undefined}
         onBack={() => setPage("main")}
       />
     );
@@ -536,7 +537,7 @@ export function PropertyMenu({
         {t("editRollup")}
       </MenuItem>
     ),
-    prop?.type === "number" && actions.setNumberFormat && (
+    prop && takesNumberFormat(prop.type, prop.options.formula?.type) && actions.setNumberFormat && (
       <MenuItem
         key="number-format"
         icon={icon(Percent)}

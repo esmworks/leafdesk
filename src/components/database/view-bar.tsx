@@ -58,7 +58,7 @@ import {
   setAllHiddenInView,
   toggleHiddenInView,
 } from "@/lib/properties";
-import { fromPercentPoints, isPercent } from "@/lib/number-format";
+import { fromPercentPoints, isPercent, valueFormat } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
 import { VIEW_TYPES, viewDateProperty } from "@/lib/views";
 import { DeletedSchemaList } from "./deleted-schema";
@@ -867,7 +867,7 @@ function useDescribeFilter() {
       value = choiceName(f.value);
     } else if (col.type === "number" && typeof f.value === "number") {
       // Percentages filter in percent points (see lib/properties); amounts show with their currency.
-      const unit = col.prop?.type === "number" ? col.prop.options.number : undefined;
+      const unit = col.prop ? valueFormat(col.prop) : undefined;
       value = formatNumber(isPercent(unit) ? fromPercentPoints(f.value) : f.value, unit);
     } else if ((col.type === "date" || holdsTimestamp(col.type)) && value) {
       value = formatDate(value);

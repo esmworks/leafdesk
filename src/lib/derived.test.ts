@@ -157,6 +157,16 @@ describe("formula properties", () => {
     expect(valueType(props.find((p) => p.id === "a")!)).toBe("date");
   });
 
+  it("keep a number format only while they give a number", () => {
+    const currency = { format: "currency" as const, currency: "EUR" };
+    const withFormat = (id: string, expression: string) => prop(id, id, "formula", { formula: { expression }, number: currency });
+    const props = withFormulaTypes([...base, withFormat("amount", 'prop("price") * 2'), withFormat("text", 'format(prop("price"))')]);
+    expect(props.find((p) => p.id === "amount")!.options.number).toEqual(currency);
+    // A format left from when it gave a number (a property it reads changed) doesn't show.
+    expect(props.find((p) => p.id === "text")!.options).not.toHaveProperty("number");
+    expect(props.find((p) => p.id === "text")!.options.formula?.type).toBe("text");
+  });
+
   it("are read-only", () => {
     expect(() => normalizeValue(formula("f", "Total", "1"), 5)).toThrow(PropertyValueError);
   });
@@ -193,6 +203,14 @@ describe("views on formula values", () => {
     expect(titles(applyView(rows, { filters: [{ propertyId: "when", op: "equals", value: "2026-09-28" }] }, props))).toEqual(["a"]);
     expect(titles(applyView(rows, { filters: [{ propertyId: "big", op: "is_not_empty" }] }, props))).toEqual(["b"]);
     expect(titles(applyView(rows, { sorts: [{ propertyId: "total", direction: "desc" }] }, props))).toEqual(["b", "a", "c"]);
+  });
+
+  it("filter a formula shown as a percentage in percent points", () => {
+    const shown = props.map((p) => (p.id === "ratio" ? { ...p, options: { ...p.options, number: { format: "percent" as const } } } : p));
+    // Ratios: 2/3 (67 %) and 5/4 (125 %); c divides by zero.
+    expect(titles(applyView(rows, { filters: [{ propertyId: "ratio", op: "gt", value: 100 }] }, shown))).toEqual(["b"]);
+    expect(titles(applyView(rows, { filters: [{ propertyId: "ratio", op: "lt", value: 1 }] }, shown))).toEqual([]);
+    expect(titles(applyView(rows, { filters: [{ propertyId: "ratio", op: "lt", value: 1 }] }, props))).toEqual(["a"]);
   });
 
   it("treat errors as empty", () => {

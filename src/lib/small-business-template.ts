@@ -254,6 +254,7 @@ export function smallBusiness(texts: TemplateTexts["small-business"], weeklyPlan
             name: b.net,
             type: "formula",
             formula: `if(prop(${quote(b.side)}) == ${quote(balance.sides.liability)}, -prop(${quote(b.amount)}), prop(${quote(b.amount)}))`,
+            number: money,
           },
           { name: b.note, type: "text" },
         ],

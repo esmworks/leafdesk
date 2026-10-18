@@ -34,7 +34,7 @@ import { assertNotInTrash } from "@/lib/page-lock";
 import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
 import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, relatedDatabases, TITLE_FIELD, valueType, type RelatedSchemas } from "@/lib/derived";
-import type { FormulaStyle } from "@/lib/formula";
+import type { FormulaResultType, FormulaStyle } from "@/lib/formula";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
@@ -58,7 +58,7 @@ import {
   type DependencyInput,
   type Span,
 } from "@/lib/dependencies";
-import { calculationFormat, checkNumberFormat } from "@/lib/number-format";
+import { calculationFormat, checkNumberFormat, takesNumberFormat, valueFormat } from "@/lib/number-format";
 import { checkNumberDisplay } from "@/lib/number-display";
 import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
@@ -272,8 +272,9 @@ export async function knownRelatedSchemas(userId: string, props: Pick<DatabasePr
 }
 
 /**
- * Rollups that sum, average… a number property get its format (RollupConfig.number), so they show
- * in it and filters compare what they show; read each time, a change of that format shows at once.
+ * Rollups that sum, average… a number property (or a formula giving a number) get its format
+ * (RollupConfig.number), so they show in it and filters compare what they show; read each time, a
+ * change of that format shows at once.
  */
 async function withRollupUnits(properties: DatabaseProperty[]): Promise<DatabaseProperty[]> {
   const related = new Map(properties.flatMap((p) => (p.type === "relation" && p.options.relation ? [[p.id, p.options.relation.databaseId]] : [])));
@@ -285,7 +286,7 @@ async function withRollupUnits(properties: DatabaseProperty[]): Promise<Database
     const config = p.options.rollup;
     const databaseId = databaseOf(p);
     const target = config && databaseId ? targets.get(databaseId)?.find((t) => t.id === config.targetPropertyId) : undefined;
-    const number = config && target?.type === "number" ? calculationFormat(config.function, target.options) : undefined;
+    const number = config && target ? calculationFormat(config.function, { number: valueFormat(target) }) : undefined;
     return number ? { ...p, options: { ...p.options, rollup: { ...config!, number } } } : p;
   });
 }
@@ -1233,21 +1234,22 @@ async function formulaConfig(
   expression: string,
   properties: DatabaseProperty[],
   self: { id: string; name: string },
-): Promise<FormulaConfig> {
+): Promise<{ config: FormulaConfig; type: FormulaResultType }> {
   const others = properties.filter((p) => p.id !== self.id);
   const draft = { ...self, type: "formula" as const, options: { formula: { expression: expression.trim() } } };
   // Properties read on related rows are checked against what the user may know of there too.
   const related = await knownRelatedSchemas(userId, [...others, draft]);
   const stored = formulaForStorage(expression.trim(), [...others, self], [], related);
   const props = [...others, { ...self, type: "formula" as const, options: { formula: { expression: stored } } }];
-  const error = compileFormulas(props, related).get(self.id)?.error;
+  const compiled = compileFormulas(props, related).get(self.id);
+  const error = compiled?.error;
   if (error) {
     throw new PropertyValueError(`Invalid formula for "${self.name}": ${error.message}`, "invalidFormula", {
       property: self.name,
       message: error.message,
     });
   }
-  return { expression: stored };
+  return { config: { expression: stored }, type: compiled?.type ?? "text" };
 }
 
 /** A rollup's settings as given: property ids (or "title" for the related rows' titles). */
@@ -1331,10 +1333,19 @@ async function relationTarget(
   return target;
 }
 
-/** A number format given for a property of `type`, checked (see lib/number-format); null for plain numbers. */
-function numberFormat(type: PropertyType, input: unknown): NumberFormat | null {
-  if (input !== null && type !== "number") {
-    throw new PropertyValueError(`Only number properties have a number format`, "invalidNumberFormat");
+/**
+ * A number format given for a property of `type` (a formula's: giving `formulaType`), checked
+ * (see lib/number-format); null for plain numbers. Formulas giving text, a date or a checkbox
+ * are refused one, as other types are.
+ */
+function numberFormat(type: PropertyType, input: unknown, formulaType?: FormulaResultType): NumberFormat | null {
+  if (input !== null && !takesNumberFormat(type, formulaType)) {
+    throw new PropertyValueError(
+      type === "formula"
+        ? `Only formulas that give a number have a number format (this one gives ${formulaType === "checkbox" ? "a checkbox" : formulaType === "date" ? "a date" : "text"})`
+        : `Only number properties and formulas that give a number have a number format`,
+      "invalidNumberFormat",
+    );
   }
   const checked = checkNumberFormat(input);
   if (!checked.ok) throw new PropertyValueError(checked.message, "invalidNumberFormat");
@@ -1371,7 +1382,7 @@ export async function addProperty(
     formula?: { expression: string };
     /** Rollups: what to calculate over which relation. */
     rollup?: RollupInput;
-    /** Numbers: how values show (see lib/number-format). */
+    /** Numbers and formulas giving a number: how values show (see lib/number-format). */
     number?: NumberFormat | null;
     /** Dates: relative display and a reminder (see lib/date-options). */
     date?: DateOptionsInput;
@@ -1392,12 +1403,10 @@ export async function addProperty(
       ? await rollupConfig(userId, input.rollup, await knownProperties(userId, databaseId), { id: "\u0000new", name })
       : undefined;
   const target = input.type === "relation" ? await relationTarget(userId, database, input.relation) : null;
-  const number = input.number !== undefined ? numberFormat(input.type, input.number) : null;
+  const number = input.number !== undefined ? numberFormat(input.type, input.number, formula?.type) : null;
   const date = input.date !== undefined ? dateOptions(input.type, input.date, undefined) : null;
-  const options: PropertyOptions =
-    number
-      ? { number }
-      : date
+  const typeOptions: PropertyOptions =
+    date
       ? { date }
       : input.type === "select" || input.type === "multi_select"
       ? { options: (input.options ?? []).map((o, i) => makeOption(typeof o === "string" ? o : o.name, i)) }
@@ -1406,10 +1415,12 @@ export async function addProperty(
         : target
           ? { relation: { databaseId: target.id } }
           : formula
-            ? { formula }
+            ? { formula: formula.config }
             : rollup
               ? { rollup }
               : {};
+  // A formula keeps its expression beside its format.
+  const options: PropertyOptions = number ? { ...typeOptions, number } : typeOptions;
   const created = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(databaseProperty)
@@ -1651,7 +1662,7 @@ export async function updateProperty(
     formula?: { expression: string };
     /** Rollups: settings to change; the others stay. */
     rollup?: Partial<RollupInput>;
-    /** Numbers: how values show; null for plain numbers. */
+    /** Numbers and formulas giving a number: how values show; null for plain numbers. */
     number?: NumberFormat | null;
     /** Dates: the display and reminder to change; what is left out stays. */
     date?: DateOptionsInput;
@@ -1665,13 +1676,8 @@ export async function updateProperty(
   if (patch.pageVisibility !== undefined && !isPageVisibility(patch.pageVisibility)) {
     throw new PropertyValueError(`Unknown page visibility "${String(patch.pageVisibility)}"`, "invalidPageVisibility");
   }
-  const { pageVisibility: _visibility, ...withoutVisibility } = prop.options;
   const display = patch.numberDisplay !== undefined ? numberDisplay(prop.type, patch.numberDisplay) : undefined;
-  const { numberDisplay: _display, ...withoutDisplay } = prop.options;
-  const number = patch.number !== undefined ? numberFormat(prop.type, patch.number) : undefined;
-  const { number: _number, ...rest } = prop.options;
   const date = patch.date !== undefined ? dateOptions(prop.type, patch.date, prop.options.date) : undefined;
-  const { date: _date, ...withoutDate } = prop.options;
   const formula =
     patch.formula && prop.type === "formula"
       ? await formulaConfig(userId, patch.formula.expression, await knownProperties(userId, prop.databaseId), {
@@ -1679,6 +1685,16 @@ export async function updateProperty(
           name: patch.name?.trim() || prop.name,
         })
       : undefined;
+  // A formula takes a number format while it gives a number: the new expression's, else the current one's.
+  const formulaType =
+    prop.type !== "formula"
+      ? undefined
+      : formula
+        ? formula.type
+        : patch.number
+          ? (await getProperties(prop.databaseId)).find((p) => p.id === prop.id)?.options.formula?.type
+          : undefined;
+  const number = patch.number !== undefined ? numberFormat(prop.type, patch.number, formulaType) : undefined;
   const rollup =
     patch.rollup && prop.type === "rollup"
       ? await rollupConfig(userId, { ...prop.options.rollup, ...patch.rollup }, await knownProperties(userId, prop.databaseId), {
@@ -1692,23 +1708,33 @@ export async function updateProperty(
   const removed = patch.options
     ? (prop.options.options ?? []).filter((o) => !patch.options!.some((n) => n.id === o.id)).map((o) => o.id)
     : [];
+  // The options as they'll be stored, each change made on top of the others (unchanged: undefined).
+  let options: PropertyOptions | undefined;
+  const change = (next: (current: PropertyOptions) => PropertyOptions) => {
+    options = next(options ?? prop.options);
+  };
+  const without = (current: PropertyOptions, key: keyof PropertyOptions) => {
+    const { [key]: _removed, ...rest } = current;
+    return rest;
+  };
+  if (patch.options !== undefined) change((o) => ({ ...o, options: patch.options }));
+  if (formula) change((o) => ({ ...o, formula: formula.config }));
+  if (rollup) change((o) => ({ ...o, rollup }));
+  if (number !== undefined) change((o) => (number ? { ...o, number } : without(o, "number")));
+  // An expression that no longer gives a number drops the format it had.
+  else if (formula && formula.type !== "number" && prop.options.number) change((o) => without(o, "number"));
+  if (date !== undefined) change((o) => (date ? { ...o, date } : without(o, "date")));
+  if (display !== undefined) change((o) => (display ? { ...o, numberDisplay: display } : without(o, "numberDisplay")));
+  if (patch.pageVisibility !== undefined) {
+    const visibility = patch.pageVisibility;
+    change((o) => (visibility === "show" ? without(o, "pageVisibility") : { ...o, pageVisibility: visibility }));
+  }
   await db.transaction(async (tx) => {
     await tx
       .update(databaseProperty)
       .set({
         ...(patch.name !== undefined ? { name: patch.name.trim() || prop.name } : {}),
-        ...(patch.options !== undefined ? { options: { ...prop.options, options: patch.options } } : {}),
-        ...(formula ? { options: { ...prop.options, formula } } : {}),
-        ...(rollup ? { options: { ...prop.options, rollup } } : {}),
-        ...(number !== undefined ? { options: number ? { ...rest, number } : rest } : {}),
-        ...(date !== undefined ? { options: date ? { ...withoutDate, date } : withoutDate } : {}),
-        ...(display !== undefined ? { options: display ? { ...withoutDisplay, numberDisplay: display } : withoutDisplay } : {}),
-        ...(patch.pageVisibility !== undefined
-          ? {
-              options:
-                patch.pageVisibility === "show" ? withoutVisibility : { ...withoutVisibility, pageVisibility: patch.pageVisibility },
-            }
-          : {}),
+        ...(options ? { options } : {}),
         ...(patch.position !== undefined ? { position: patch.position } : {}),
       })
       .where(eq(databaseProperty.id, propertyId));
@@ -2220,7 +2246,7 @@ async function retypeProperty(
       : target
         ? { relation: { databaseId: target.id } }
         : formula
-        ? { formula }
+        ? { formula: formula.config }
         : rollup
           ? { rollup }
           : {};

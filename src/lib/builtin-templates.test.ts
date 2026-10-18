@@ -124,6 +124,10 @@ describe("built-in templates", () => {
           // The side it subtracts is an option of the side property.
           const side = column(key, parsed.refs.find((ref) => column(key, ref, p.name).type === "select"), p.name);
           expect(side.options.some((o) => p.formula!.includes(quote(o)))).toBe(true);
+          // It shows in the currency of the amounts it adds up.
+          const amount = database.properties.find((other) => other.type === "number" && parsed.refs.includes(other.name));
+          expect(p.number, `${locale}: ${key}.${p.name}`).toEqual(amount?.number);
+          expect(p.number?.format).toBe("currency");
         }
       }
 

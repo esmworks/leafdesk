@@ -215,6 +215,15 @@
   the block as a link to the page (its public address when it is published too). In Markdown and
   over MCP it is the page's link alone on its line followed by `<!-- leafdesk:synced-page -->`,
   which `update_page` keeps.
+- **Number formats on formulas.** A formula whose result is a number gets the "Number format"
+  menu too: a plain number, a percentage or an amount in a currency, with its decimal places. Its
+  values, column calculations, board column totals, charts, dashboard numbers, published pages and
+  rollups summing it show the format, and a percentage filters by the percent shown. Formulas
+  giving text, a date or a checkbox have none: one is refused, and changing a formula so it no
+  longer gives a number drops its format. MCP's `add_database_property` and
+  `update_database_property` take `number_format` for formulas, and `get_database` (and the REST
+  API's database schema) shows it. The small business kit's balance sheet shows its net effect, and
+  the dashboard its net worth, in the kit's currency.
 
 ### Fixed
 

@@ -8,7 +8,9 @@ import {
   parseTypedNumber,
   readNumber,
   stripNumberDecor,
+  takesNumberFormat,
   toPercentPoints,
+  valueFormat,
 } from "./number-format";
 
 const show = (locale: string, value: number, ...args: Parameters<typeof numberFormatOptions>) =>
@@ -88,6 +90,27 @@ describe("calculationFormat", () => {
     expect(calculationFormat("count_values", options)).toBeUndefined();
     expect(calculationFormat("percent_empty", options)).toBeUndefined();
     expect(calculationFormat("sum", {})).toBeUndefined();
+  });
+});
+
+describe("valueFormat", () => {
+  const number = { format: "currency" as const, currency: "TRY" };
+  it("is a number property's, and a formula's while it gives a number", () => {
+    expect(valueFormat({ type: "number", options: { number } })).toEqual(number);
+    expect(valueFormat({ type: "formula", options: { number, formula: { type: "number" } } })).toEqual(number);
+    expect(valueFormat({ type: "formula", options: { number, formula: { type: "text" } } })).toBeUndefined();
+    expect(valueFormat({ type: "formula", options: { number } })).toBeUndefined();
+    expect(valueFormat({ type: "text", options: { number } })).toBeUndefined();
+    expect(valueFormat({ type: "number", options: {} })).toBeUndefined();
+  });
+  it("is taken by numbers and formulas giving a number only", () => {
+    expect(takesNumberFormat("number")).toBe(true);
+    expect(takesNumberFormat("formula", "number")).toBe(true);
+    for (const type of ["text", "date", "checkbox", undefined]) expect(takesNumberFormat("formula", type)).toBe(false);
+    expect(takesNumberFormat("rollup", "number")).toBe(false);
+  });
+  it("makes calculations over a formula show in it", () => {
+    expect(calculationFormat("sum", { number: valueFormat({ type: "formula", options: { number, formula: { type: "number" } } }) })).toEqual(number);
   });
 });
 
