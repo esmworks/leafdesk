@@ -1,16 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { WorkspaceRole, WorkspaceSettings } from "@/db/schema";
 import { type Proof, proofOf } from "@/lib/account";
 import { isStrongSession } from "@/lib/auth-security";
+import { isBuiltinTemplateKey, type BuiltinTemplateKey } from "@/lib/builtin-templates";
 import { AccessError } from "@/server/access";
 import { AccountError } from "@/server/account";
 import { revokeFormPublication } from "@/server/forms";
 import { approveJoinRequest, declineJoinRequest, joinFromSwitcher } from "@/server/join-requests";
 import { revokePublication } from "@/server/publication";
 import { getSession, requireUserId } from "@/server/session";
+import { createWorkspaceWithBuiltin } from "@/server/templates";
 import { deleteWorkspace } from "@/server/workspace-deletion";
 import {
   acceptInvitation,
@@ -54,9 +56,17 @@ async function fail(code: WorkspaceErrorCode | "ownersOnly" | "unknownRole", det
 const ROLES: WorkspaceRole[] = ["owner", "member", "guest"];
 const refresh = (workspaceId: string) => revalidatePath(`/w/${workspaceId}`, "layout");
 
-export async function createWorkspaceAction(name: string) {
+/**
+ * A new workspace, empty or with a template of the gallery (a kit, such as the small business one)
+ * set up in it. `pageId` is the page to open: null for an empty workspace, and for one whose
+ * template couldn't be set up.
+ */
+export async function createWorkspaceAction(name: string, template: BuiltinTemplateKey | null = null) {
   const userId = await requireUserId();
-  return run(async () => (await createWorkspace(userId, name)).id);
+  if (template === null) return run(async () => ({ workspaceId: (await createWorkspace(userId, name)).id, pageId: null }));
+  if (!isBuiltinTemplateKey(template)) throw new Error("Unknown template");
+  const locale = await getLocale();
+  return run(() => createWorkspaceWithBuiltin(userId, name, template, { locale }));
 }
 
 export async function updateWorkspaceSettingsAction(workspaceId: string, patch: Partial<WorkspaceSettings>) {

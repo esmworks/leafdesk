@@ -1217,7 +1217,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List templates",
       description:
-        'List templates to start new pages from: the page templates of a workspace plus the built-in gallery (ids "builtin:<key>"), or, with database_id, the row templates of that database and which one is the default. Pass an id as template_id to create_page or create_database_row. Templates are pages: read or edit one with get_page / update_page.',
+        'List templates to start new pages from: the page templates of a workspace plus the built-in gallery (ids "builtin:<key>"; kind "kit" sets up several linked pages and databases at once, such as a dashboard over them), or, with database_id, the row templates of that database and which one is the default. Pass an id as template_id to create_page or create_database_row. Templates are pages: read or edit one with get_page / update_page.',
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Workspace whose page templates to list. Ignored when database_id is set."),
         database_id: z.string().optional().describe("Database whose row templates to list."),
@@ -1259,7 +1259,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a page",
       description:
-        "Create a new page at the top level of a workspace (workspace_id, in a teamspace given by teamspace_id, else private to the user) or nested under another page (parent_id; it then belongs to the parent's teamspace), with an optional Markdown body, or copy a template (template_id from list_templates) with its sub-pages. To add a row to a database use create_database_row instead.",
+        "Create a new page at the top level of a workspace (workspace_id, in a teamspace given by teamspace_id, else private to the user) or nested under another page (parent_id; it then belongs to the parent's teamspace), with an optional Markdown body, or copy a template (template_id from list_templates) with its sub-pages. A built-in kit sets up all its pages and databases side by side where the page would go, and lists them under parts; it takes no title, icon or markdown. To add a row to a database use create_database_row instead.",
       inputSchema: ops.inputs.createPage,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,

@@ -93,6 +93,144 @@
       "thanks": "Ventas nos agradeció la preparación de la demo"
     }
   },
+  "small-business": {
+    "title": "Pequeña empresa",
+    "description": "Clientes, los presupuestos que les haces, trabajos y un balance, vinculados entre sí, con un panel y un plan semanal.",
+    "currency": "EUR",
+    "dashboard": {
+      "title": "Panel",
+      "markdown": "> [!NOTE]\n> Trabajos, presupuestos, clientes y el balance en una sola pantalla. Los widgets se actualizan a medida que cambian las bases de datos.\n\nAñade primero tus clientes y después los presupuestos que les haces. Cuando acepten un presupuesto, añade un trabajo y vincúlalo al presupuesto y al cliente. Introduce el balance con la fecha del día en que haces el recuento: los widgets muestran los registros de este mes.",
+      "widgets": {
+        "openJobs": "Trabajos pendientes",
+        "dueJobs": "Para hoy o atrasados",
+        "openQuotes": "Presupuestos pendientes",
+        "netWorth": "Patrimonio neto de este mes",
+        "jobsByPerson": "Trabajos pendientes por persona y prioridad",
+        "upcomingJobs": "Trabajos pendientes por fecha límite",
+        "quotesByStatus": "Presupuestos por estado",
+        "quoteFollowUps": "Seguimiento de presupuestos",
+        "customersByStage": "Clientes por etapa",
+        "customerFollowUps": "Seguimiento de clientes",
+        "balanceBreakdown": "Balance de este mes",
+        "netWorthByDate": "Patrimonio neto por fecha"
+      }
+    },
+    "customers": {
+      "title": "Clientes",
+      "table": "Todos los clientes",
+      "board": "Por etapa",
+      "properties": {
+        "stage": "Etapa",
+        "city": "Ciudad",
+        "contact": "Persona de contacto",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "nextStep": "Próximo paso",
+        "nextStepDate": "Fecha del próximo paso",
+        "quotes": "Presupuestos",
+        "jobs": "Trabajos",
+        "quoted": "Total presupuestado"
+      },
+      "stages": {
+        "lead": "Posible cliente",
+        "prospect": "En negociación",
+        "customer": "Cliente",
+        "inactive": "Inactivo"
+      }
+    },
+    "quotes": {
+      "title": "Presupuestos",
+      "table": "Todos los presupuestos",
+      "board": "Por estado",
+      "calendar": "Seguimientos",
+      "properties": {
+        "customer": "Cliente",
+        "status": "Estado",
+        "amount": "Importe",
+        "followUp": "Fecha de seguimiento",
+        "date": "Fecha",
+        "validUntil": "Válido hasta",
+        "preparedBy": "Preparado por",
+        "jobs": "Trabajos"
+      },
+      "statuses": {
+        "draft": "Borrador",
+        "sent": "Enviado",
+        "revision": "Revisión solicitada",
+        "accepted": "Aceptado",
+        "lost": "Perdido"
+      },
+      "rowTemplate": {
+        "title": "Nuevo presupuesto",
+        "markdown": "## Conceptos\n\n- \n\n## Condiciones\n\n**Pago:** \n\n**Entrega:** \n\n## Notas\n"
+      }
+    },
+    "jobs": {
+      "title": "Trabajos",
+      "table": "Todos los trabajos",
+      "board": "Tablero",
+      "byPerson": "Por persona",
+      "calendar": "Calendario",
+      "properties": {
+        "status": "Estado",
+        "priority": "Prioridad",
+        "assignee": "Responsable",
+        "due": "Fecha límite",
+        "customer": "Cliente",
+        "quote": "Presupuesto",
+        "notes": "Notas"
+      },
+      "statuses": {
+        "todo": "Por hacer",
+        "waiting": "En espera",
+        "inProgress": "En curso",
+        "done": "Listo"
+      },
+      "priorities": {
+        "urgent": "Urgente",
+        "high": "Alta",
+        "normal": "Normal",
+        "low": "Baja"
+      },
+      "rowTemplate": {
+        "title": "Nuevo trabajo",
+        "markdown": "## Pasos\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Balance",
+      "table": "Todos los registros",
+      "byDate": "Por fecha",
+      "netWorth": "Patrimonio neto",
+      "thisMonth": "Este mes",
+      "properties": {
+        "date": "Fecha",
+        "side": "Tipo",
+        "group": "Categoría",
+        "amount": "Importe",
+        "net": "Efecto neto",
+        "note": "Nota"
+      },
+      "sides": {
+        "asset": "Activo",
+        "liability": "Pasivo"
+      },
+      "groups": {
+        "cash": "Caja y bancos",
+        "receivables": "Cobros pendientes",
+        "chequesIn": "Cheques recibidos",
+        "stock": "Existencias",
+        "equipment": "Equipamiento",
+        "payables": "Deudas con proveedores",
+        "chequesOut": "Cheques emitidos",
+        "card": "Tarjetas de crédito",
+        "loans": "Préstamos bancarios",
+        "taxes": "Impuestos y Seguridad Social",
+        "wages": "Sueldos pendientes",
+        "other": "Otros"
+      }
+    }
+  },
   "journal": {
     "title": "Diario",
     "markdown": "## Enfoque\n\n- [ ] \n\n## Notas\n\n## Hecho hoy\n"

@@ -77,6 +77,10 @@
     "namePlaceholder": "Nom de l’espace de travail",
     "create": "Créer",
     "creating": "Création…",
+    "startWith": "Point de départ",
+    "empty": "Vide",
+    "emptyDescription": "Ajoutez vos propres pages et bases de données.",
+    "templateFailed": "L’espace de travail a été créé, mais le modèle n’a pas pu y être mis en place. Vous pouvez l’ajouter depuis Modèles dans l’espace de travail.",
     "restore": {
       "description": "Ou récupérez un espace de travail à partir d’un fichier de sauvegarde.",
       "choose": "Restaurer depuis une sauvegarde…",

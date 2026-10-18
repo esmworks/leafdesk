@@ -93,6 +93,144 @@
       "thanks": "Satış ekibi demo kurulumu için teşekkür etti"
     }
   },
+  "small-business": {
+    "title": "Küçük işletme",
+    "description": "Müşteriler, onlara verdiğiniz teklifler, işler ve bilanço; birbirine bağlı, bir gösterge paneli ve haftalık planla birlikte.",
+    "currency": "TRY",
+    "dashboard": {
+      "title": "Gösterge Paneli",
+      "markdown": "> [!NOTE]\n> İşler, teklifler, müşteriler ve bilanço tek ekranda. Widget'lar veritabanları değiştikçe güncellenir.\n\nÖnce müşterilerinizi, sonra onlara verdiğiniz teklifleri ekleyin. Bir teklif kabul edilince bir iş ekleyip onu teklife ve müşteriye bağlayın. Bilançoyu saydığınız günün tarihiyle girin: widget'lar bu ayın kayıtlarını gösterir.",
+      "widgets": {
+        "openJobs": "Açık işler",
+        "dueJobs": "Günü gelen ya da geciken",
+        "openQuotes": "Açık teklifler",
+        "netWorth": "Bu ayki net varlık",
+        "jobsByPerson": "Kişiye ve önceliğe göre açık işler",
+        "upcomingJobs": "Teslim tarihine göre açık işler",
+        "quotesByStatus": "Duruma göre teklifler",
+        "quoteFollowUps": "Takip edilecek teklifler",
+        "customersByStage": "Aşamaya göre müşteriler",
+        "customerFollowUps": "Takip edilecek müşteriler",
+        "balanceBreakdown": "Bu ayın bilançosu",
+        "netWorthByDate": "Tarihe göre net varlık"
+      }
+    },
+    "customers": {
+      "title": "Müşteriler",
+      "table": "Tüm müşteriler",
+      "board": "Aşamaya göre",
+      "properties": {
+        "stage": "Aşama",
+        "city": "Şehir",
+        "contact": "Yetkili kişi",
+        "phone": "Telefon",
+        "email": "E-posta",
+        "nextStep": "Sonraki adım",
+        "nextStepDate": "Sonraki adım tarihi",
+        "quotes": "Teklifler",
+        "jobs": "İşler",
+        "quoted": "Teklif toplamı"
+      },
+      "stages": {
+        "lead": "Aday",
+        "prospect": "Görüşülüyor",
+        "customer": "Müşteri",
+        "inactive": "Pasif"
+      }
+    },
+    "quotes": {
+      "title": "Verilen Teklifler",
+      "table": "Tüm teklifler",
+      "board": "Duruma göre",
+      "calendar": "Takipler",
+      "properties": {
+        "customer": "Müşteri",
+        "status": "Durum",
+        "amount": "Tutar",
+        "followUp": "Takip tarihi",
+        "date": "Teklif tarihi",
+        "validUntil": "Son geçerlilik",
+        "preparedBy": "Hazırlayan",
+        "jobs": "İşler"
+      },
+      "statuses": {
+        "draft": "Taslak",
+        "sent": "Gönderildi",
+        "revision": "Revizyon istendi",
+        "accepted": "Kabul edildi",
+        "lost": "Kaybedildi"
+      },
+      "rowTemplate": {
+        "title": "Yeni teklif",
+        "markdown": "## Kalemler\n\n- \n\n## Koşullar\n\n**Ödeme:** \n\n**Teslimat:** \n\n## Notlar\n"
+      }
+    },
+    "jobs": {
+      "title": "İşlerim",
+      "table": "Tüm işler",
+      "board": "Pano",
+      "byPerson": "Kişiye göre",
+      "calendar": "Takvim",
+      "properties": {
+        "status": "Durum",
+        "priority": "Öncelik",
+        "assignee": "Sorumlu",
+        "due": "Teslim tarihi",
+        "customer": "Müşteri",
+        "quote": "Teklif",
+        "notes": "Notlar"
+      },
+      "statuses": {
+        "todo": "Yapılacak",
+        "waiting": "Beklemede",
+        "inProgress": "Devam ediyor",
+        "done": "Tamamlandı"
+      },
+      "priorities": {
+        "urgent": "Acil",
+        "high": "Yüksek",
+        "normal": "Normal",
+        "low": "Düşük"
+      },
+      "rowTemplate": {
+        "title": "Yeni iş",
+        "markdown": "## Adımlar\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Bilanço",
+      "table": "Tüm kayıtlar",
+      "byDate": "Tarihe göre",
+      "netWorth": "Net varlık",
+      "thisMonth": "Bu ay",
+      "properties": {
+        "date": "Tarih",
+        "side": "Taraf",
+        "group": "Grup",
+        "amount": "Tutar",
+        "net": "Net etki",
+        "note": "Not"
+      },
+      "sides": {
+        "asset": "Varlık",
+        "liability": "Borç"
+      },
+      "groups": {
+        "cash": "Kasa ve banka",
+        "receivables": "Müşteri alacakları",
+        "chequesIn": "Alınan çekler",
+        "stock": "Stok",
+        "equipment": "Demirbaş",
+        "payables": "Tedarikçi borçları",
+        "chequesOut": "Verilen çekler",
+        "card": "Kredi kartı borcu",
+        "loans": "Banka kredisi",
+        "taxes": "Vergi ve SGK borcu",
+        "wages": "Personel borcu",
+        "other": "Diğer"
+      }
+    }
+  },
   "journal": {
     "title": "Günlük",
     "markdown": "## Odak\n\n- [ ] \n\n## Notlar\n\n## Bugün bitenler\n"

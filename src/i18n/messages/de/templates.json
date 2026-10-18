@@ -93,6 +93,144 @@
       "thanks": "Der Vertrieb hat sich für das Demo-Setup bedankt"
     }
   },
+  "small-business": {
+    "title": "Kleinunternehmen",
+    "description": "Kunden, die Angebote, die du ihnen machst, Aufträge und eine Bilanz, miteinander verknüpft, mit einem Dashboard und einem Wochenplan.",
+    "currency": "EUR",
+    "dashboard": {
+      "title": "Dashboard",
+      "markdown": "> [!NOTE]\n> Aufträge, Angebote, Kunden und die Bilanz auf einen Blick. Die Widgets bleiben aktuell, wenn sich die Datenbanken ändern.\n\nLege zuerst deine Kunden an, dann die Angebote, die du ihnen machst. Wird ein Angebot angenommen, lege einen Auftrag an und verknüpfe ihn mit dem Angebot und dem Kunden. Trag die Bilanz mit dem Tag ein, an dem du sie aufstellst: Die Widgets zeigen die Einträge dieses Monats.",
+      "widgets": {
+        "openJobs": "Offene Aufträge",
+        "dueJobs": "Fällig oder überfällig",
+        "openQuotes": "Offene Angebote",
+        "netWorth": "Nettovermögen dieses Monats",
+        "jobsByPerson": "Offene Aufträge nach Person und Priorität",
+        "upcomingJobs": "Offene Aufträge nach Fälligkeit",
+        "quotesByStatus": "Angebote nach Status",
+        "quoteFollowUps": "Angebote zum Nachfassen",
+        "customersByStage": "Kunden nach Phase",
+        "customerFollowUps": "Kunden zum Nachfassen",
+        "balanceBreakdown": "Bilanz dieses Monats",
+        "netWorthByDate": "Nettovermögen nach Datum"
+      }
+    },
+    "customers": {
+      "title": "Kunden",
+      "table": "Alle Kunden",
+      "board": "Nach Phase",
+      "properties": {
+        "stage": "Phase",
+        "city": "Ort",
+        "contact": "Ansprechperson",
+        "phone": "Telefon",
+        "email": "E-Mail",
+        "nextStep": "Nächster Schritt",
+        "nextStepDate": "Nächster Schritt am",
+        "quotes": "Angebote",
+        "jobs": "Aufträge",
+        "quoted": "Summe der Angebote"
+      },
+      "stages": {
+        "lead": "Interessent",
+        "prospect": "Im Gespräch",
+        "customer": "Kunde",
+        "inactive": "Inaktiv"
+      }
+    },
+    "quotes": {
+      "title": "Angebote",
+      "table": "Alle Angebote",
+      "board": "Nach Status",
+      "calendar": "Nachfasstermine",
+      "properties": {
+        "customer": "Kunde",
+        "status": "Status",
+        "amount": "Betrag",
+        "followUp": "Nachfassen am",
+        "date": "Datum",
+        "validUntil": "Gültig bis",
+        "preparedBy": "Zuständig",
+        "jobs": "Aufträge"
+      },
+      "statuses": {
+        "draft": "Entwurf",
+        "sent": "Versendet",
+        "revision": "Änderung gewünscht",
+        "accepted": "Angenommen",
+        "lost": "Abgelehnt"
+      },
+      "rowTemplate": {
+        "title": "Neues Angebot",
+        "markdown": "## Positionen\n\n- \n\n## Bedingungen\n\n**Zahlung:** \n\n**Lieferung:** \n\n## Notizen\n"
+      }
+    },
+    "jobs": {
+      "title": "Aufträge",
+      "table": "Alle Aufträge",
+      "board": "Board",
+      "byPerson": "Nach Person",
+      "calendar": "Kalender",
+      "properties": {
+        "status": "Status",
+        "priority": "Priorität",
+        "assignee": "Zuständig",
+        "due": "Fällig am",
+        "customer": "Kunde",
+        "quote": "Angebot",
+        "notes": "Notizen"
+      },
+      "statuses": {
+        "todo": "Zu erledigen",
+        "waiting": "Wartet",
+        "inProgress": "In Bearbeitung",
+        "done": "Erledigt"
+      },
+      "priorities": {
+        "urgent": "Dringend",
+        "high": "Hoch",
+        "normal": "Normal",
+        "low": "Niedrig"
+      },
+      "rowTemplate": {
+        "title": "Neuer Auftrag",
+        "markdown": "## Schritte\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Bilanz",
+      "table": "Alle Einträge",
+      "byDate": "Nach Datum",
+      "netWorth": "Nettovermögen",
+      "thisMonth": "Dieser Monat",
+      "properties": {
+        "date": "Datum",
+        "side": "Seite",
+        "group": "Posten",
+        "amount": "Betrag",
+        "net": "Nettowirkung",
+        "note": "Notiz"
+      },
+      "sides": {
+        "asset": "Vermögen",
+        "liability": "Schulden"
+      },
+      "groups": {
+        "cash": "Kasse und Bank",
+        "receivables": "Forderungen",
+        "chequesIn": "Erhaltene Schecks",
+        "stock": "Vorräte",
+        "equipment": "Betriebsausstattung",
+        "payables": "Verbindlichkeiten",
+        "chequesOut": "Ausgestellte Schecks",
+        "card": "Kreditkartenschulden",
+        "loans": "Bankkredite",
+        "taxes": "Steuern und Sozialabgaben",
+        "wages": "Offene Löhne",
+        "other": "Sonstiges"
+      }
+    }
+  },
   "journal": {
     "title": "Journal",
     "markdown": "## Fokus\n\n- [ ] \n\n## Notizen\n\n## Heute erledigt\n"

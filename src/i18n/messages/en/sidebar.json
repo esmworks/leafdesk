@@ -77,6 +77,10 @@
     "namePlaceholder": "Workspace name",
     "create": "Create",
     "creating": "Creating…",
+    "startWith": "Start with",
+    "empty": "Empty",
+    "emptyDescription": "Add your own pages and databases.",
+    "templateFailed": "The workspace was created, but the template couldn't be set up in it. You can add it from Templates in the workspace.",
     "restore": {
       "description": "Or bring back a workspace from a backup file.",
       "choose": "Restore from backup…",

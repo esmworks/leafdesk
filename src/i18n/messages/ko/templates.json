@@ -93,6 +93,144 @@
       "thanks": "영업팀이 데모 환경 구성에 감사를 전함"
     }
   },
+  "small-business": {
+    "title": "소규모 사업",
+    "description": "고객, 고객에게 내는 견적, 작업, 재무상태표를 서로 연결하고 대시보드와 주간 계획까지 함께 제공합니다.",
+    "currency": "KRW",
+    "dashboard": {
+      "title": "대시보드",
+      "markdown": "> [!NOTE]\n> 작업, 견적, 고객, 재무상태표를 한 화면에서 볼 수 있습니다. 위젯은 데이터베이스가 바뀌면 함께 업데이트됩니다.\n\n먼저 고객을 추가하고, 그다음 고객에게 내는 견적을 추가하세요. 견적이 수주로 이어지면 작업을 추가하고 그 견적과 고객에 연결하세요. 재무상태표는 금액을 확인한 날짜로 입력하세요. 위젯에는 이번 달 항목이 표시됩니다.",
+      "widgets": {
+        "openJobs": "미완료 작업",
+        "dueJobs": "오늘 마감·기한 지남",
+        "openQuotes": "진행 중인 견적",
+        "netWorth": "이번 달 순자산",
+        "jobsByPerson": "담당자·우선순위별 미완료 작업",
+        "upcomingJobs": "마감일순 미완료 작업",
+        "quotesByStatus": "상태별 견적",
+        "quoteFollowUps": "후속 연락할 견적",
+        "customersByStage": "단계별 고객",
+        "customerFollowUps": "후속 연락할 고객",
+        "balanceBreakdown": "이번 달 재무상태표",
+        "netWorthByDate": "날짜별 순자산"
+      }
+    },
+    "customers": {
+      "title": "고객",
+      "table": "모든 고객",
+      "board": "단계별",
+      "properties": {
+        "stage": "단계",
+        "city": "지역",
+        "contact": "담당자",
+        "phone": "전화번호",
+        "email": "이메일",
+        "nextStep": "다음 할 일",
+        "nextStepDate": "다음 할 일 날짜",
+        "quotes": "견적",
+        "jobs": "작업",
+        "quoted": "견적 총액"
+      },
+      "stages": {
+        "lead": "잠재 고객",
+        "prospect": "상담 중",
+        "customer": "거래 중",
+        "inactive": "휴면"
+      }
+    },
+    "quotes": {
+      "title": "견적",
+      "table": "모든 견적",
+      "board": "상태별",
+      "calendar": "후속 연락",
+      "properties": {
+        "customer": "고객",
+        "status": "상태",
+        "amount": "금액",
+        "followUp": "후속 연락일",
+        "date": "견적일",
+        "validUntil": "유효 기한",
+        "preparedBy": "작성자",
+        "jobs": "작업"
+      },
+      "statuses": {
+        "draft": "작성 중",
+        "sent": "발송됨",
+        "revision": "수정 요청",
+        "accepted": "수주",
+        "lost": "실주"
+      },
+      "rowTemplate": {
+        "title": "새 견적",
+        "markdown": "## 품목\n\n- \n\n## 거래 조건\n\n**결제:** \n\n**납기:** \n\n## 비고\n"
+      }
+    },
+    "jobs": {
+      "title": "작업",
+      "table": "모든 작업",
+      "board": "보드",
+      "byPerson": "담당자별",
+      "calendar": "캘린더",
+      "properties": {
+        "status": "상태",
+        "priority": "우선순위",
+        "assignee": "담당자",
+        "due": "마감일",
+        "customer": "고객",
+        "quote": "견적",
+        "notes": "메모"
+      },
+      "statuses": {
+        "todo": "할 일",
+        "waiting": "대기 중",
+        "inProgress": "진행 중",
+        "done": "완료"
+      },
+      "priorities": {
+        "urgent": "긴급",
+        "high": "높음",
+        "normal": "보통",
+        "low": "낮음"
+      },
+      "rowTemplate": {
+        "title": "새 작업",
+        "markdown": "## 단계\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "재무상태표",
+      "table": "모든 항목",
+      "byDate": "날짜별",
+      "netWorth": "순자산",
+      "thisMonth": "이번 달",
+      "properties": {
+        "date": "날짜",
+        "side": "구분",
+        "group": "계정과목",
+        "amount": "금액",
+        "net": "순자산 영향",
+        "note": "메모"
+      },
+      "sides": {
+        "asset": "자산",
+        "liability": "부채"
+      },
+      "groups": {
+        "cash": "현금 및 예금",
+        "receivables": "외상매출금",
+        "chequesIn": "받은 수표",
+        "stock": "재고",
+        "equipment": "장비 및 비품",
+        "payables": "외상매입금",
+        "chequesOut": "발행한 수표",
+        "card": "신용카드 대금",
+        "loans": "은행 대출",
+        "taxes": "세금 및 4대 보험료",
+        "wages": "미지급 급여",
+        "other": "기타"
+      }
+    }
+  },
   "journal": {
     "title": "저널",
     "markdown": "## 집중할 일\n\n- [ ] \n\n## 메모\n\n## 오늘 한 일\n"

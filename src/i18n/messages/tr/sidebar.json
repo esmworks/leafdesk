@@ -77,6 +77,10 @@
     "namePlaceholder": "Çalışma alanı adı",
     "create": "Oluştur",
     "creating": "Oluşturuluyor…",
+    "startWith": "Başlangıç",
+    "empty": "Boş",
+    "emptyDescription": "Sayfalarınızı ve veritabanlarınızı kendiniz ekleyin.",
+    "templateFailed": "Çalışma alanı oluşturuldu ama şablon içine kurulamadı. Çalışma alanında Şablonlar'dan ekleyebilirsiniz.",
     "restore": {
       "description": "Ya da bir yedek dosyasından çalışma alanını geri getirin.",
       "choose": "Yedekten geri yükle…",
