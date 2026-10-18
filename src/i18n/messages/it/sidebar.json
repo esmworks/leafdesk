@@ -77,6 +77,10 @@
     "namePlaceholder": "Nome dello spazio di lavoro",
     "create": "Crea",
     "creating": "Creazione…",
+    "startWith": "Inizia con",
+    "empty": "Vuoto",
+    "emptyDescription": "Aggiungi le tue pagine e i tuoi database.",
+    "templateFailed": "Lo spazio di lavoro è stato creato, ma non è stato possibile configurare il modello al suo interno. Puoi aggiungerlo da Modelli nello spazio di lavoro.",
     "restore": {
       "description": "Oppure recupera uno spazio di lavoro da un file di backup.",
       "choose": "Ripristina da backup…",

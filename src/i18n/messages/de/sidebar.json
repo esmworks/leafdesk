@@ -77,6 +77,10 @@
     "namePlaceholder": "Name des Workspace",
     "create": "Erstellen",
     "creating": "Wird erstellt…",
+    "startWith": "Beginnen mit",
+    "empty": "Leer",
+    "emptyDescription": "Füge deine eigenen Seiten und Datenbanken hinzu.",
+    "templateFailed": "Der Workspace wurde erstellt, aber die Vorlage konnte darin nicht eingerichtet werden. Du kannst sie im Workspace unter Vorlagen hinzufügen.",
     "restore": {
       "description": "Oder hol einen Workspace aus einer Backup-Datei zurück.",
       "choose": "Aus Backup wiederherstellen…",

@@ -1,10 +1,20 @@
 import { and, asc, eq, isNull, max, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, type PageKind } from "@/db/schema";
-import type { ViewConfig } from "@/db/schema/app";
-import { builtinTemplate, isBuiltinTemplateKey, type BuiltinTemplateKey, type BuiltinViewConfig } from "@/lib/builtin-templates";
+import { databaseView, page, type PageKind } from "@/db/schema";
+import type { FilterEntry, ViewConfig } from "@/db/schema/app";
+import {
+  builtinTemplate,
+  isBuiltinTemplateKey,
+  type BuiltinFilter,
+  type BuiltinKitDatabase,
+  type BuiltinKitProperty,
+  type BuiltinKitTemplate,
+  type BuiltinTemplateKey,
+  type BuiltinViewConfig,
+} from "@/lib/builtin-templates";
 import { DASHBOARD_BLOCK, newWidgetId, serializeDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
+import { holdsOptions } from "@/lib/property-types";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
@@ -19,12 +29,15 @@ import {
   normalizeRowProperties,
   requireDatabase,
   syncPairedRelations,
+  updateProperty,
+  updateView,
   withCode,
+  type DatabaseProperty,
 } from "@/server/databases";
 import { copyPageTree } from "@/server/duplicate";
-import { archivePage, createPage, removeOrphanFiles } from "@/server/pages";
+import { archivePage, createPage, ENGLISH_SEED_NAMES, removeOrphanFiles } from "@/server/pages";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
-import { requireTopLevel } from "@/server/workspaces";
+import { createWorkspace, requireTopLevel } from "@/server/workspaces";
 
 /**
  * Templates are pages flagged `isTemplate`:
@@ -346,24 +359,206 @@ export async function deleteTemplate(userId: string, templateId: string) {
   return { workspaceId: template.workspaceId, databaseId: template.parentId };
 }
 
-/** A template's view settings with the new database's property ids in place of their names. */
-function builtinViewConfig(config: BuiltinViewConfig, properties: { id: string; name: string }[]): ViewConfig {
+type NamedProperty = Pick<DatabaseProperty, "id" | "name" | "type" | "options">;
+
+/**
+ * A template's view settings with the new database's property ids in place of their names, and in
+ * filters on a select or status its option ids in place of option names.
+ */
+function builtinViewConfig(config: BuiltinViewConfig, properties: NamedProperty[]): ViewConfig {
   const id = (name: string | undefined) => (name === undefined ? undefined : properties.find((p) => p.name === name)?.id);
-  const { groupBy, stackBy, ...rest } = config;
+  const { groupBy, stackBy, dateBy, chartAggregate, boardAggregate, sorts, filters, calculations, ...rest } = config;
   const out: ViewConfig = { ...rest };
   // A name the database doesn't have leaves the view's own default.
   const group = id(groupBy);
   const stack = id(stackBy);
+  const date = id(dateBy);
   if (group) out.groupBy = group;
   if (stack) out.stackBy = stack;
+  if (date) out.dateBy = date;
+  const measure = chartAggregate && id(chartAggregate.property);
+  const header = boardAggregate && id(boardAggregate.property);
+  if (measure) out.chartAggregate = { fn: chartAggregate.fn, propertyId: measure };
+  if (header) out.boardAggregate = { fn: boardAggregate.fn, propertyId: header };
+  const sortRules = (sorts ?? []).flatMap((s) => {
+    const propertyId = id(s.property);
+    return propertyId ? [{ propertyId, direction: s.direction }] : [];
+  });
+  if (sortRules.length) out.sorts = sortRules;
+  const filterEntries = (filters ?? []).flatMap((f) => builtinFilter(f, properties));
+  if (filterEntries.length) out.filters = filterEntries;
+  const footers = Object.entries(calculations ?? {}).flatMap(([name, fn]) => {
+    const propertyId = id(name);
+    return propertyId ? [[propertyId, fn] as const] : [];
+  });
+  if (footers.length) out.calculations = Object.fromEntries(footers);
   return out;
+}
+
+/** A filter of a template as the view stores it; one on a property the database doesn't have is left out. */
+function builtinFilter(filter: BuiltinFilter, properties: NamedProperty[]): FilterEntry[] {
+  if ("combinator" in filter) {
+    const rules = filter.rules.flatMap((rule) => builtinFilter(rule, properties));
+    return rules.length ? [{ type: "group", combinator: filter.combinator, rules }] : [];
+  }
+  const prop = properties.find((p) => p.name === filter.property);
+  if (!prop) return [];
+  const option = (name: string) => prop.options.options?.find((o) => o.name === name)?.id;
+  let value: unknown = filter.value;
+  if (holdsOptions(prop.type) && filter.value !== undefined) {
+    value = Array.isArray(filter.value) ? filter.value.flatMap((name) => option(name) ?? []) : option(filter.value);
+  }
+  return [
+    {
+      propertyId: prop.id,
+      op: filter.op,
+      ...(value !== undefined ? { value } : {}),
+      ...(filter.days !== undefined ? { days: filter.days } : {}),
+    },
+  ];
+}
+
+/** Adds a property of a kit's database, its relation's target given by the kit's key for it. */
+async function addKitProperty(userId: string, databaseId: string, property: BuiltinKitProperty, idOf: (key: string) => string) {
+  const { name, type } = property;
+  if (property.relation) {
+    const { database, pairedName } = property.relation;
+    return addProperty(userId, databaseId, { name, type, relation: { databaseId: idOf(database), twoWay: true, pairedName } });
+  }
+  if (property.rollup) {
+    // Names the kit doesn't have make an invalid rollup, which addProperty refuses.
+    const relation = (await getProperties(databaseId)).find((p) => p.name === property.rollup!.relation && p.type === "relation");
+    const related = relation?.options.relation?.databaseId;
+    const target = related ? (await getProperties(related)).find((p) => p.name === property.rollup!.target) : undefined;
+    return addProperty(userId, databaseId, {
+      name,
+      type,
+      rollup: { relationPropertyId: relation?.id ?? "", targetPropertyId: target?.id ?? "", function: property.rollup.fn },
+    });
+  }
+  if (property.formula !== undefined) return addProperty(userId, databaseId, { name, type, formula: { expression: property.formula } });
+  const created = await addProperty(userId, databaseId, {
+    name,
+    type,
+    options: property.options?.map((o) => (type === "status" ? { name: o.name, group: o.group } : o.name)),
+    number: property.number,
+  });
+  // Options the kit gives a color keep it; the others get the usual ones.
+  const colors = new Map((property.options ?? []).flatMap((o) => (o.color ? [[o.name, o.color] as const] : [])));
+  if (colors.size) {
+    const options = (created.options.options ?? []).map((o) => ({ ...o, color: colors.get(o.name) ?? o.color }));
+    await updateProperty(userId, created.id, { options });
+  }
+  return created;
+}
+
+export type MadeFromBuiltin = {
+  /** The page to open: the template's page or database, or a kit's first part. */
+  id: string;
+  workspaceId: string;
+  /** Everything a kit made, in order (its first part included). */
+  parts?: { id: string; title: string; kind: PageKind }[];
+};
+
+/**
+ * A kit from the gallery: its pages and databases, side by side where a new page would go and in
+ * order; then the databases' properties (each relation adds its other side to the database it
+ * links to, so rollups come last, through them), their views and default row templates; then the
+ * dashboards over them. What was made goes to the trash when a step fails.
+ */
+async function createKit(
+  actor: WriteActor,
+  workspaceId: string,
+  kit: BuiltinKitTemplate,
+  { parentId, teamspaceId }: { parentId: string | null; teamspaceId?: string | null },
+): Promise<MadeFromBuiltin> {
+  const { userId } = actor;
+  if (parentId && (await requirePageAccess(userId, parentId, "edit")).kind === "database") {
+    throw withCode(new Error("A database can't contain another database"), "nestedDatabase");
+  }
+  const made: { key: string; id: string; title: string; kind: PageKind }[] = [];
+  const idOf = (key: string) => {
+    const part = made.find((m) => m.key === key);
+    if (!part) throw new Error(`The kit has no part "${key}"`);
+    return part.id;
+  };
+  try {
+    for (const part of kit.parts) {
+      const created =
+        part.kind === "page"
+          ? await createPage(actor, { workspaceId, parentId, teamspaceId, title: part.title, icon: part.icon, markdown: part.markdown })
+          : await createPage(actor, {
+              workspaceId,
+              parentId,
+              teamspaceId,
+              kind: "database",
+              title: part.title,
+              icon: part.icon,
+              seedNames: { ...ENGLISH_SEED_NAMES, table: part.views[0]?.name ?? ENGLISH_SEED_NAMES.table },
+              seedProperties: false,
+            });
+      made.push({ key: part.key, id: created.id, title: created.title, kind: created.kind });
+    }
+
+    const databases = kit.parts.filter((p): p is BuiltinKitDatabase => p.kind === "database");
+    for (const rollups of [false, true]) {
+      for (const part of databases) {
+        for (const property of part.properties) {
+          if ((property.type === "rollup") === rollups) await addKitProperty(userId, idOf(part.key), property, idOf);
+        }
+      }
+    }
+    const propertiesOf = new Map<string, DatabaseProperty[]>();
+    for (const part of databases) {
+      const databaseId = idOf(part.key);
+      const properties = await getProperties(databaseId);
+      propertiesOf.set(part.key, properties);
+      // The first view sets up the table the database started with.
+      const [first, ...others] = part.views;
+      const [table] = await db.select({ id: databaseView.id }).from(databaseView).where(eq(databaseView.databaseId, databaseId));
+      if (first && table) await updateView(userId, table.id, { config: builtinViewConfig(first.config, properties) });
+      for (const view of others) {
+        await addView(userId, databaseId, { name: view.name, type: view.type, config: builtinViewConfig(view.config, properties) });
+      }
+      if (part.rowTemplate) {
+        const template = await createRowTemplate(actor, databaseId, part.rowTemplate);
+        await setDefaultRowTemplate(userId, databaseId, template.id);
+      }
+    }
+
+    const collab = getCollab();
+    for (const part of kit.parts) {
+      if (part.kind !== "page" || !part.dashboard) continue;
+      const widgets: DashboardWidget[] = [];
+      for (const widget of part.dashboard) {
+        widgets.push({
+          id: newWidgetId(widgets),
+          databaseId: idOf(widget.database),
+          title: widget.title,
+          span: widget.span,
+          ...(widget.color ? { color: widget.color } : {}),
+          view: { type: widget.view.type, config: builtinViewConfig(widget.view.config, propertiesOf.get(widget.database) ?? []) },
+        });
+      }
+      const pageId = idOf(part.key);
+      await collab.appendBlocks(pageId, [{ id: crypto.randomUUID(), type: DASHBOARD_BLOCK, props: { widgets: serializeDashboard(widgets) } }], actor);
+      // The grid needs the room, as when a dashboard is added in the editor.
+      await collab.setPageStyle(pageId, { fullWidth: true }, actor);
+    }
+    return { id: made[0].id, workspaceId, parts: made.map(({ id, title, kind }) => ({ id, title, kind })) };
+  } catch (error) {
+    // No half-made kit left behind: what was made goes to the trash, last first.
+    for (const part of [...made].reverse()) await archivePage(userId, part.id).catch(() => {});
+    throw error;
+  }
 }
 
 /**
  * A new page from the built-in gallery (see lib/builtin-templates), in the user's language: a
  * page with its Markdown, or a database with its properties, views, default row template and a
  * few example rows. A database with a dashboard comes inside a page of its own, under the
- * dashboard. Goes where a new page would (`parentId`, else the top level).
+ * dashboard. A kit makes all its pages and databases (see createKit). Goes where a new page would
+ * (`parentId`, else the top level).
  */
 export async function createFromBuiltin(
   actor: WriteActor,
@@ -374,9 +569,10 @@ export async function createFromBuiltin(
     parentId = null,
     teamspaceId,
   }: { locale?: string; parentId?: string | null; teamspaceId?: string | null } = {},
-): Promise<{ id: string; workspaceId: string }> {
+): Promise<MadeFromBuiltin> {
   if (!isBuiltinTemplateKey(key)) throw withCode(new Error(`Unknown built-in template "${String(key)}"`), "notATemplate");
   const builtin = await builtinTemplate(key, locale);
+  if (builtin.kind === "kit") return createKit(actor, workspaceId, builtin, { parentId, teamspaceId });
   if (builtin.kind === "page") {
     const created = await createPage(actor, {
       workspaceId,
@@ -448,5 +644,26 @@ export async function createFromBuiltin(
     // No half-made copy left behind: what was made goes to the trash (the database with the page).
     if (top) await archivePage(userId, top).catch(() => {});
     throw error;
+  }
+}
+
+/**
+ * A new workspace with a template of the gallery set up in its first teamspace, for the new
+ * workspace dialog. The workspace stays when the template can't be set up (what it made goes to
+ * the trash): `pageId`, the page to open, is then null.
+ */
+export async function createWorkspaceWithBuiltin(
+  userId: string,
+  name: string,
+  key: BuiltinTemplateKey,
+  { locale }: { locale?: string } = {},
+): Promise<{ workspaceId: string; pageId: string | null }> {
+  if (!isBuiltinTemplateKey(key)) throw withCode(new Error(`Unknown built-in template "${String(key)}"`), "notATemplate");
+  const { id: workspaceId } = await createWorkspace(userId, name);
+  try {
+    return { workspaceId, pageId: (await createFromBuiltin({ userId }, workspaceId, key, { locale })).id };
+  } catch (error) {
+    console.error("[new workspace from template]", error);
+    return { workspaceId, pageId: null };
   }
 }

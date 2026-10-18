@@ -77,6 +77,10 @@
     "namePlaceholder": "ワークスペース名",
     "create": "作成",
     "creating": "作成中…",
+    "startWith": "最初の内容",
+    "empty": "空白",
+    "emptyDescription": "ページとデータベースを自分で追加します。",
+    "templateFailed": "ワークスペースは作成されましたが、テンプレートを設定できませんでした。ワークスペースの「テンプレート」から追加できます。",
     "restore": {
       "description": "または、バックアップファイルからワークスペースを復元します。",
       "choose": "バックアップから復元…",

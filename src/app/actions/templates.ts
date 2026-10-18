@@ -29,7 +29,7 @@ async function run<T>(label: string, fn: (userId: string) => Promise<T>): Promis
 
 export type TemplatePickerData = {
   templates: { id: string; title: string; icon: string | null; kind: "page" | "database"; canEdit: boolean; canDelete: boolean }[];
-  builtins: { key: BuiltinTemplateKey; title: string; description: string; icon: string; kind: "page" | "database" }[];
+  builtins: { key: BuiltinTemplateKey; title: string; description: string; icon: string; kind: "page" | "database" | "kit" }[];
 };
 
 /** The workspace's templates and the built-in gallery (in the user's language), for the picker. */
@@ -48,6 +48,15 @@ export async function listTemplatesAction(workspaceId: string) {
       builtins: builtins.map(({ key, title, description, icon, kind }) => ({ key, title, description, icon, kind })),
     };
   });
+}
+
+/** The gallery's kits in the user's language, which a new workspace can start with. */
+export async function listKitsAction() {
+  return run("list kits", async () =>
+    (await getLocale().then(builtinTemplates))
+      .filter((t) => t.kind === "kit")
+      .map(({ key, title, description, icon }) => ({ key, title, description, icon })),
+  );
 }
 
 /** `teamspaceId` (top level): a teamspace, null for a private page, undefined for the default teamspace. */

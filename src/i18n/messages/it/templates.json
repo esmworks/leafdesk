@@ -93,6 +93,144 @@
       "thanks": "Le vendite ci hanno ringraziato per la configurazione della demo"
     }
   },
+  "small-business": {
+    "title": "Piccola impresa",
+    "description": "Clienti, i preventivi che fai loro, lavori e uno stato patrimoniale, tutti collegati, con una dashboard e un piano settimanale.",
+    "currency": "EUR",
+    "dashboard": {
+      "title": "Dashboard",
+      "markdown": "> [!NOTE]\n> Lavori, preventivi, clienti e stato patrimoniale in un’unica schermata. I widget si aggiornano man mano che i database cambiano.\n\nAggiungi prima i clienti, poi i preventivi che fai loro. Quando un preventivo viene accettato, aggiungi un lavoro e collegalo al preventivo e al cliente. Registra lo stato patrimoniale con la data del giorno in cui fai il conteggio: i widget mostrano le voci di questo mese.",
+      "widgets": {
+        "openJobs": "Lavori aperti",
+        "dueJobs": "Per oggi o in ritardo",
+        "openQuotes": "Preventivi aperti",
+        "netWorth": "Patrimonio netto di questo mese",
+        "jobsByPerson": "Lavori aperti per persona e priorità",
+        "upcomingJobs": "Lavori aperti per scadenza",
+        "quotesByStatus": "Preventivi per stato",
+        "quoteFollowUps": "Follow-up dei preventivi",
+        "customersByStage": "Clienti per fase",
+        "customerFollowUps": "Follow-up dei clienti",
+        "balanceBreakdown": "Stato patrimoniale di questo mese",
+        "netWorthByDate": "Patrimonio netto per data"
+      }
+    },
+    "customers": {
+      "title": "Clienti",
+      "table": "Tutti i clienti",
+      "board": "Per fase",
+      "properties": {
+        "stage": "Fase",
+        "city": "Città",
+        "contact": "Referente",
+        "phone": "Telefono",
+        "email": "Email",
+        "nextStep": "Prossimo passo",
+        "nextStepDate": "Data del prossimo passo",
+        "quotes": "Preventivi",
+        "jobs": "Lavori",
+        "quoted": "Totale preventivato"
+      },
+      "stages": {
+        "lead": "Potenziale cliente",
+        "prospect": "In trattativa",
+        "customer": "Cliente",
+        "inactive": "Inattivo"
+      }
+    },
+    "quotes": {
+      "title": "Preventivi",
+      "table": "Tutti i preventivi",
+      "board": "Per stato",
+      "calendar": "Follow-up",
+      "properties": {
+        "customer": "Cliente",
+        "status": "Stato",
+        "amount": "Importo",
+        "followUp": "Data di follow-up",
+        "date": "Data",
+        "validUntil": "Valido fino al",
+        "preparedBy": "Preparato da",
+        "jobs": "Lavori"
+      },
+      "statuses": {
+        "draft": "Bozza",
+        "sent": "Inviato",
+        "revision": "Modifiche richieste",
+        "accepted": "Accettato",
+        "lost": "Perso"
+      },
+      "rowTemplate": {
+        "title": "Nuovo preventivo",
+        "markdown": "## Voci\n\n- \n\n## Condizioni\n\n**Pagamento:** \n\n**Consegna:** \n\n## Note\n"
+      }
+    },
+    "jobs": {
+      "title": "Lavori",
+      "table": "Tutti i lavori",
+      "board": "Bacheca",
+      "byPerson": "Per persona",
+      "calendar": "Calendario",
+      "properties": {
+        "status": "Stato",
+        "priority": "Priorità",
+        "assignee": "Responsabile",
+        "due": "Scadenza",
+        "customer": "Cliente",
+        "quote": "Preventivo",
+        "notes": "Note"
+      },
+      "statuses": {
+        "todo": "Da fare",
+        "waiting": "In attesa",
+        "inProgress": "In corso",
+        "done": "Completato"
+      },
+      "priorities": {
+        "urgent": "Urgente",
+        "high": "Alta",
+        "normal": "Normale",
+        "low": "Bassa"
+      },
+      "rowTemplate": {
+        "title": "Nuovo lavoro",
+        "markdown": "## Passaggi\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Stato patrimoniale",
+      "table": "Tutte le voci",
+      "byDate": "Per data",
+      "netWorth": "Patrimonio netto",
+      "thisMonth": "Questo mese",
+      "properties": {
+        "date": "Data",
+        "side": "Tipo",
+        "group": "Categoria",
+        "amount": "Importo",
+        "net": "Effetto netto",
+        "note": "Nota"
+      },
+      "sides": {
+        "asset": "Attivo",
+        "liability": "Passivo"
+      },
+      "groups": {
+        "cash": "Cassa e banche",
+        "receivables": "Crediti verso clienti",
+        "chequesIn": "Assegni ricevuti",
+        "stock": "Magazzino",
+        "equipment": "Attrezzature",
+        "payables": "Debiti verso fornitori",
+        "chequesOut": "Assegni emessi",
+        "card": "Carte di credito",
+        "loans": "Finanziamenti bancari",
+        "taxes": "Tasse e contributi",
+        "wages": "Stipendi da pagare",
+        "other": "Altro"
+      }
+    }
+  },
   "journal": {
     "title": "Diario",
     "markdown": "## Obiettivi\n\n- [ ] \n\n## Note\n\n## Fatto oggi\n"

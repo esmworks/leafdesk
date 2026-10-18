@@ -77,6 +77,10 @@
     "namePlaceholder": "Nombre del espacio de trabajo",
     "create": "Crear",
     "creating": "Creando…",
+    "startWith": "Empezar con",
+    "empty": "Vacío",
+    "emptyDescription": "Añade tus propias páginas y bases de datos.",
+    "templateFailed": "El espacio de trabajo se ha creado, pero no se pudo configurar la plantilla en él. Puedes añadirla desde Plantillas en el espacio de trabajo.",
     "restore": {
       "description": "O recupera un espacio de trabajo desde un archivo de copia de seguridad.",
       "choose": "Restaurar desde copia de seguridad…",

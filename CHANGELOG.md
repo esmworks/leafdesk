@@ -44,6 +44,18 @@
   after. Picking one makes a private page in your language, already a skill with its description,
   to change and share like any other. None needs setting up: each works on the page, row or text
   it is pointed at. See [Skills](README.md#skills).
+- **Small business template.** One click in the template gallery, or *Start with* in *New
+  workspace*, sets up the records a small business keeps, linked to each other: *Customers* (stage,
+  city, contact person, phone, email, the next step and when, the quotes and jobs that link to them
+  and the total quoted), *Quotes* (customer, status from draft to accepted or lost, amount,
+  follow-up date, date, valid until, prepared by), *Jobs* (status, priority, assignee, due date,
+  customer and the quote it came from) and a *Balance sheet* (each asset or liability on the day it
+  is counted, with its net effect), with boards, calendars, charts and row templates for quotes and
+  jobs; a *Dashboard* of twelve widgets over all four (open and late jobs, open quotes, this month's
+  net worth, follow-ups, jobs by person) and a *Weekly plan*. It starts without example rows, its
+  amounts in the currency of your language. A built-in template can now be such a set of pages and
+  databases (a kit, `kind: "kit"` in `list_templates`), and `create_page` lists what it made under
+  `parts`. Covered in `scripts/small-business-e2e.ts`.
 - **Workspace backups.** Owners download the whole workspace as one file in Settings → General →
   *Back up workspace*: every page with its history and comments, databases, files, teamspaces,
   groups, permissions, published pages, the site, agents, automations and daily notes. *New

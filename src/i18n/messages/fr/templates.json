@@ -93,6 +93,144 @@
       "thanks": "L’équipe commerciale nous a remerciés pour la démo"
     }
   },
+  "small-business": {
+    "title": "Petite entreprise",
+    "description": "Vos clients, les devis que vous leur faites, vos missions et un bilan, liés entre eux, avec un tableau de bord et un planning hebdomadaire.",
+    "currency": "EUR",
+    "dashboard": {
+      "title": "Tableau de bord",
+      "markdown": "> [!NOTE]\n> Les missions, les devis, les clients et le bilan sur un seul écran. Les widgets restent à jour quand les bases de données changent.\n\nAjoutez d’abord vos clients, puis les devis que vous leur faites. Quand un devis est accepté, ajoutez une mission et liez-la au devis et au client. Saisissez le bilan à la date où vous faites le point : les widgets affichent les lignes de ce mois-ci.",
+      "widgets": {
+        "openJobs": "Missions ouvertes",
+        "dueJobs": "À échéance ou en retard",
+        "openQuotes": "Devis en cours",
+        "netWorth": "Situation nette ce mois-ci",
+        "jobsByPerson": "Missions ouvertes par personne et priorité",
+        "upcomingJobs": "Missions ouvertes par échéance",
+        "quotesByStatus": "Devis par statut",
+        "quoteFollowUps": "Devis à relancer",
+        "customersByStage": "Clients par statut",
+        "customerFollowUps": "Clients à relancer",
+        "balanceBreakdown": "Bilan de ce mois-ci",
+        "netWorthByDate": "Situation nette par date"
+      }
+    },
+    "customers": {
+      "title": "Clients",
+      "table": "Tous les clients",
+      "board": "Par statut",
+      "properties": {
+        "stage": "Statut",
+        "city": "Ville",
+        "contact": "Contact",
+        "phone": "Téléphone",
+        "email": "E-mail",
+        "nextStep": "Prochaine étape",
+        "nextStepDate": "Date de la prochaine étape",
+        "quotes": "Devis",
+        "jobs": "Missions",
+        "quoted": "Total des devis"
+      },
+      "stages": {
+        "lead": "Prospect",
+        "prospect": "En discussion",
+        "customer": "Client",
+        "inactive": "Inactif"
+      }
+    },
+    "quotes": {
+      "title": "Devis",
+      "table": "Tous les devis",
+      "board": "Par statut",
+      "calendar": "Relances",
+      "properties": {
+        "customer": "Client",
+        "status": "Statut",
+        "amount": "Montant",
+        "followUp": "À relancer le",
+        "date": "Date",
+        "validUntil": "Valable jusqu’au",
+        "preparedBy": "Établi par",
+        "jobs": "Missions"
+      },
+      "statuses": {
+        "draft": "Brouillon",
+        "sent": "Envoyé",
+        "revision": "Modification demandée",
+        "accepted": "Accepté",
+        "lost": "Refusé"
+      },
+      "rowTemplate": {
+        "title": "Nouveau devis",
+        "markdown": "## Articles\n\n- \n\n## Conditions\n\n**Paiement :** \n\n**Livraison :** \n\n## Notes\n"
+      }
+    },
+    "jobs": {
+      "title": "Missions",
+      "table": "Toutes les missions",
+      "board": "Tableau",
+      "byPerson": "Par personne",
+      "calendar": "Calendrier",
+      "properties": {
+        "status": "Statut",
+        "priority": "Priorité",
+        "assignee": "Responsable",
+        "due": "Échéance",
+        "customer": "Client",
+        "quote": "Devis",
+        "notes": "Notes"
+      },
+      "statuses": {
+        "todo": "À faire",
+        "waiting": "En attente",
+        "inProgress": "En cours",
+        "done": "Terminé"
+      },
+      "priorities": {
+        "urgent": "Urgente",
+        "high": "Haute",
+        "normal": "Normale",
+        "low": "Basse"
+      },
+      "rowTemplate": {
+        "title": "Nouvelle mission",
+        "markdown": "## Étapes\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Bilan",
+      "table": "Toutes les lignes",
+      "byDate": "Par date",
+      "netWorth": "Situation nette",
+      "thisMonth": "Ce mois-ci",
+      "properties": {
+        "date": "Date",
+        "side": "Côté",
+        "group": "Poste",
+        "amount": "Montant",
+        "net": "Effet net",
+        "note": "Note"
+      },
+      "sides": {
+        "asset": "Actif",
+        "liability": "Passif"
+      },
+      "groups": {
+        "cash": "Caisse et banque",
+        "receivables": "Créances clients",
+        "chequesIn": "Chèques reçus",
+        "stock": "Stocks",
+        "equipment": "Matériel",
+        "payables": "Dettes fournisseurs",
+        "chequesOut": "Chèques émis",
+        "card": "Dettes de carte de crédit",
+        "loans": "Emprunts bancaires",
+        "taxes": "Impôts et charges sociales",
+        "wages": "Salaires dus",
+        "other": "Autre"
+      }
+    }
+  },
   "journal": {
     "title": "Journal",
     "markdown": "## Priorités\n\n- [ ] \n\n## Notes\n\n## Fait aujourd’hui\n"

@@ -48,7 +48,7 @@ import { valueText } from "@/lib/row-activity";
 import * as teamspaces from "@/server/teamspaces";
 import * as workspaces from "@/server/workspaces";
 import * as templates from "@/server/templates";
-import { isBuiltinTemplateKey } from "@/lib/builtin-templates";
+import { builtinTemplate, isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
 import { normalizeValue } from "@/lib/properties";
@@ -747,12 +747,19 @@ export async function createPage(
   }
   if (template_id) {
     let createdId: string;
+    let parts: templates.MadeFromBuiltin["parts"];
     if (template_id.startsWith("builtin:")) {
       const key = template_id.slice("builtin:".length);
       if (!isBuiltinTemplateKey(key)) throw new ToolInputError(`Unknown built-in template "${key}". Call list_templates for the keys.`);
-      createdId = (
-        await templates.createFromBuiltin(actor, location.workspaceId, key, { parentId: location.parentId, teamspaceId: location.teamspaceId })
-      ).id;
+      // A kit's pages and databases come with their own titles and bodies (its dashboard's widgets among them).
+      if ((await builtinTemplate(key, undefined)).kind === "kit" && (title !== undefined || icon !== undefined || markdown !== undefined)) {
+        throw new ToolInputError(
+          `${template_id} sets up several pages and databases, each with its own title and body: leave out title, icon and markdown, and change a part afterwards with update_page.`,
+        );
+      }
+      const made = await templates.createFromBuiltin(actor, location.workspaceId, key, { parentId: location.parentId, teamspaceId: location.teamspaceId });
+      createdId = made.id;
+      parts = made.parts;
     } else {
       const template = await pages.getPage(userId, template_id);
       if (!template.isTemplate || template.parentId) {
@@ -775,6 +782,8 @@ export async function createPage(
       parent_id: created.parentId,
       from_template: template_id,
       url: pageUrl(created.workspaceId, created.id),
+      // A kit: everything it set up, in the order of the sidebar, the page above first.
+      ...(parts && { parts: parts.map((p) => ({ id: p.id, title: pageLabel(p.title), kind: p.kind, url: pageUrl(created.workspaceId, p.id) })) }),
     };
   }
   if (title === undefined) throw new ToolInputError("Provide title (or template_id).");

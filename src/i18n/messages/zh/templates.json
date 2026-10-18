@@ -93,6 +93,144 @@
       "thanks": "销售团队感谢我们搭建的演示环境"
     }
   },
+  "small-business": {
+    "title": "小企业",
+    "description": "客户、给客户的报价、工单和资产负债表彼此关联，并附带仪表板和周计划。",
+    "currency": "CNY",
+    "dashboard": {
+      "title": "仪表板",
+      "markdown": "> [!NOTE]\n> 工单、报价、客户和资产负债表集中在一个屏幕上。组件会随数据库的变化而更新。\n\n先添加客户，再添加你给他们的报价。报价成交后，添加一张工单，并把它关联到这份报价和客户。资产负债表请按清点当天的日期录入，组件显示的是本月的记录。",
+      "widgets": {
+        "openJobs": "未完成工单",
+        "dueJobs": "到期或逾期",
+        "openQuotes": "进行中的报价",
+        "netWorth": "本月净资产",
+        "jobsByPerson": "按负责人和优先级统计的未完成工单",
+        "upcomingJobs": "按截止日期排列的未完成工单",
+        "quotesByStatus": "按状态统计的报价",
+        "quoteFollowUps": "待跟进的报价",
+        "customersByStage": "按阶段统计的客户",
+        "customerFollowUps": "待跟进的客户",
+        "balanceBreakdown": "本月资产负债表",
+        "netWorthByDate": "按日期统计的净资产"
+      }
+    },
+    "customers": {
+      "title": "客户",
+      "table": "所有客户",
+      "board": "按阶段",
+      "properties": {
+        "stage": "阶段",
+        "city": "城市",
+        "contact": "联系人",
+        "phone": "电话",
+        "email": "邮箱",
+        "nextStep": "下一步",
+        "nextStepDate": "下一步日期",
+        "quotes": "报价",
+        "jobs": "工单",
+        "quoted": "报价总额"
+      },
+      "stages": {
+        "lead": "潜在客户",
+        "prospect": "洽谈中",
+        "customer": "合作中",
+        "inactive": "休眠"
+      }
+    },
+    "quotes": {
+      "title": "报价",
+      "table": "所有报价",
+      "board": "按状态",
+      "calendar": "跟进",
+      "properties": {
+        "customer": "客户",
+        "status": "状态",
+        "amount": "金额",
+        "followUp": "跟进日期",
+        "date": "报价日期",
+        "validUntil": "有效期至",
+        "preparedBy": "报价人",
+        "jobs": "工单"
+      },
+      "statuses": {
+        "draft": "草稿",
+        "sent": "已发送",
+        "revision": "要求修改",
+        "accepted": "已成交",
+        "lost": "已丢单"
+      },
+      "rowTemplate": {
+        "title": "新报价",
+        "markdown": "## 明细\n\n- \n\n## 条款\n\n**付款：** \n\n**交付：** \n\n## 备注\n"
+      }
+    },
+    "jobs": {
+      "title": "工单",
+      "table": "所有工单",
+      "board": "看板",
+      "byPerson": "按负责人",
+      "calendar": "日历",
+      "properties": {
+        "status": "状态",
+        "priority": "优先级",
+        "assignee": "负责人",
+        "due": "截止日期",
+        "customer": "客户",
+        "quote": "报价",
+        "notes": "备注"
+      },
+      "statuses": {
+        "todo": "待办",
+        "waiting": "等待中",
+        "inProgress": "进行中",
+        "done": "已完成"
+      },
+      "priorities": {
+        "urgent": "紧急",
+        "high": "高",
+        "normal": "普通",
+        "low": "低"
+      },
+      "rowTemplate": {
+        "title": "新工单",
+        "markdown": "## 步骤\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "资产负债表",
+      "table": "所有记录",
+      "byDate": "按日期",
+      "netWorth": "净资产",
+      "thisMonth": "本月",
+      "properties": {
+        "date": "日期",
+        "side": "类别",
+        "group": "科目",
+        "amount": "金额",
+        "net": "净资产影响",
+        "note": "备注"
+      },
+      "sides": {
+        "asset": "资产",
+        "liability": "负债"
+      },
+      "groups": {
+        "cash": "现金及银行存款",
+        "receivables": "应收账款",
+        "chequesIn": "收到的支票",
+        "stock": "存货",
+        "equipment": "设备",
+        "payables": "应付账款",
+        "chequesOut": "开出的支票",
+        "card": "信用卡欠款",
+        "loans": "银行贷款",
+        "taxes": "税费和社保",
+        "wages": "应付工资",
+        "other": "其他"
+      }
+    }
+  },
   "journal": {
     "title": "日志",
     "markdown": "## 今日重点\n\n- [ ] \n\n## 笔记\n\n## 今日完成\n"
