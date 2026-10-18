@@ -124,8 +124,13 @@ async function lifecycle() {
   const backup = await second.backUp();
   assert.deepEqual(backup.errors, []);
   assert.equal(backup.files.length, 1);
-  assert.deepEqual(fs.readdirSync(backups), [path.basename(backup.files[0])]);
-  assert.match(path.basename(backup.files[0]), /^.+ \d{4}-\d\d-\d\d \d\d\.\d\d\.\d\d \[[0-9a-f]{8}\]\.zip$/);
+  const name = path.basename(backup.files[0]);
+  assert.match(name, /^.+ \d{4}-\d\d-\d\d \d\d\.\d\d\.\d\d \[[0-9a-f]{8}\]\.zip$/);
+  // On a slow computer the backup made a minute after a start may be there too: the same
+  // workspace's, and nothing half written.
+  const tag = name.slice(name.lastIndexOf(" ["));
+  assert.ok(fs.readdirSync(backups).includes(name));
+  assert.deepEqual(fs.readdirSync(backups).filter((file) => !file.endsWith(tag)), []);
   await second.stop();
 
   const other = await start(undefined, path.join(root, "other"));
