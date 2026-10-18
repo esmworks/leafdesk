@@ -222,7 +222,8 @@
   giving text, a date or a checkbox have none: one is refused, and changing a formula so it no
   longer gives a number drops its format. MCP's `add_database_property` and
   `update_database_property` take `number_format` for formulas, and `get_database` (and the REST
-  API's database schema) shows it.
+  API's database schema) shows it. The small business kit's balance sheet shows its net effect, and
+  the dashboard its net worth, in the kit's currency.
 
 ### Fixed
 

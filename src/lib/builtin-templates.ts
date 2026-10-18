@@ -104,7 +104,7 @@ export type BuiltinKitProperty = {
   name: string;
   type: PropertyType;
   options?: BuiltinOption[];
-  /** Numbers: how values show. */
+  /** Numbers and formulas giving a number: how values show. */
   number?: NumberFormat;
   /** Relations, always two-way: the kit's database (by key) it links to, and the name of the property there that links back. */
   relation?: { database: string; pairedName: string };

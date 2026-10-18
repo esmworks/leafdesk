@@ -436,7 +436,9 @@ async function addKitProperty(userId: string, databaseId: string, property: Buil
       rollup: { relationPropertyId: relation?.id ?? "", targetPropertyId: target?.id ?? "", function: property.rollup.fn },
     });
   }
-  if (property.formula !== undefined) return addProperty(userId, databaseId, { name, type, formula: { expression: property.formula } });
+  if (property.formula !== undefined) {
+    return addProperty(userId, databaseId, { name, type, formula: { expression: property.formula }, number: property.number });
+  }
   const created = await addProperty(userId, databaseId, {
     name,
     type,
