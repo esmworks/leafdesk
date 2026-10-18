@@ -970,59 +970,63 @@ export function Sidebar({
                 </>
               )}
             </Popover>
-            <IconButton
-              label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
-              title={needsServer(t("nav.inbox"))}
-              onClick={() => setInboxOpen(true)}
-              disabled={offline}
-              className="relative h-7 w-7 disabled:opacity-50"
-            >
-              <Inbox className="h-4 w-4" />
-              {unread > 0 && (
-                <span
-                  aria-hidden
-                  className="absolute -top-0.5 -inset-e-0.5 min-w-3.5 rounded-full bg-accent px-0.5 text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums"
-                >
-                  {unread > 9 ? "9+" : unread}
-                </span>
-              )}
-            </IconButton>
-            {topLevel && (
+            {/* The desktop app on macOS moves these up beside its window buttons (globals.css). */}
+            <div data-sidebar-head-actions className="flex shrink-0 items-center gap-1">
               <IconButton
-                label={t("pages.newPage")}
-                title={needsServer(t("pages.newPage"))}
-                onClick={() => create(null, "page", undefined)}
+                label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
+                title={needsServer(t("nav.inbox"))}
+                onClick={() => setInboxOpen(true)}
                 disabled={offline}
-                className="h-7 w-7 disabled:opacity-50"
+                className="relative h-7 w-7 disabled:opacity-50"
               >
-                <SquarePen className="h-4 w-4" />
-              </IconButton>
-            )}
-            {sidebar &&
-              (sidebar.collapsed ? (
-                // Floating over the page: offer to pin it back (desktop only; phones use the drawer).
-                <IconButton
-                  label={t("toggle.pin")}
-                  title={`${t("toggle.pin")} (⌘\\)`}
-                  onClick={sidebar.toggle}
-                  className="hidden h-7 w-7 md:inline-flex"
-                >
-                  <ChevronsRight className="h-4 w-4 rtl:-scale-x-100" />
-                </IconButton>
-              ) : null)}
-            {sidebar && (
-              <IconButton
-                label={t("toggle.close")}
-                title={`${t("toggle.close")} (⌘\\)`}
-                onClick={sidebar.toggle}
-                className={cn(
-                  "h-7 w-7 md:hidden md:group-hover/head:inline-flex md:focus-visible:inline-flex",
-                  sidebar.collapsed && "md:!hidden",
+                <Inbox className="h-4 w-4" />
+                {unread > 0 && (
+                  <span
+                    aria-hidden
+                    className="absolute -top-0.5 -inset-e-0.5 min-w-3.5 rounded-full bg-accent px-0.5 text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums"
+                  >
+                    {unread > 9 ? "9+" : unread}
+                  </span>
                 )}
-              >
-                <ChevronsLeft className="h-4 w-4 rtl:-scale-x-100" />
               </IconButton>
-            )}
+              {topLevel && (
+                <IconButton
+                  label={t("pages.newPage")}
+                  title={needsServer(t("pages.newPage"))}
+                  onClick={() => create(null, "page", undefined)}
+                  disabled={offline}
+                  className="h-7 w-7 disabled:opacity-50"
+                >
+                  <SquarePen className="h-4 w-4" />
+                </IconButton>
+              )}
+              {sidebar &&
+                (sidebar.collapsed ? (
+                  // Floating over the page: offer to pin it back (desktop only; phones use the drawer).
+                  <IconButton
+                    label={t("toggle.pin")}
+                    title={`${t("toggle.pin")} (⌘\\)`}
+                    onClick={sidebar.toggle}
+                    className="hidden h-7 w-7 md:inline-flex"
+                  >
+                    <ChevronsRight className="h-4 w-4 rtl:-scale-x-100" />
+                  </IconButton>
+                ) : null)}
+              {sidebar && (
+                <IconButton
+                  data-sidebar-hide
+                  label={t("toggle.close")}
+                  title={`${t("toggle.close")} (⌘\\)`}
+                  onClick={sidebar.toggle}
+                  className={cn(
+                    "h-7 w-7 md:hidden md:group-hover/head:inline-flex md:focus-visible:inline-flex",
+                    sidebar.collapsed && "md:!hidden",
+                  )}
+                >
+                  <ChevronsLeft className="h-4 w-4 rtl:-scale-x-100" />
+                </IconButton>
+              )}
+            </div>
           </div>
 
           {offline && (

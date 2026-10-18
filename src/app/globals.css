@@ -1065,6 +1065,16 @@
   &:not([dir="rtl"]) [data-sidebar] {
     padding-top: var(--window-controls-height);
   }
+  /* The sidebar's inbox, new page and hide buttons move up beside the window's buttons, at its end. */
+  &:not([dir="rtl"]) [data-sidebar] [data-sidebar-head-actions] {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0.5rem;
+    height: var(--window-controls-height);
+  }
+  &:not([dir="rtl"]) [data-sidebar] [data-sidebar-hide] {
+    display: inline-flex;
+  }
   /* Right to left the sidebar and a database row's panel take the other side. */
   &[dir="rtl"] [data-window-controls-clear],
   &:not(:has([data-sidebar-open])) main [data-window-controls-clear] {
@@ -1072,9 +1082,13 @@
   }
 }
 @media (min-width: 768px) {
-  /* Hidden, the sidebar slides out below the header row. */
+  /* Hidden, the sidebar slides out below the header row, its buttons back in its first row. */
   :root[data-window-controls]:not([data-full-screen]) [data-sidebar]:not([data-sidebar-open]) {
     padding-top: 0;
+  }
+  :root[data-window-controls]:not([data-full-screen]) [data-sidebar]:not([data-sidebar-open]) [data-sidebar-head-actions] {
+    position: static;
+    height: auto;
   }
 }
 @media (max-width: 767px) {
