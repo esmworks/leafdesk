@@ -959,7 +959,7 @@
         "noConnection": "Set up single sign-on first.",
         "dnsMismatch": "The TXT record for {detail} wasn't found or has a different value. DNS changes can take a while to show up.",
         "domainTaken": "{detail} is already verified elsewhere on this server.",
-        "connectionChanged": "The connection was changed while its domains were being verified. Check the domains and their TXT records, then verify again.",
+        "connectionChanged": "The connection was changed meanwhile, in another tab or by another owner. Check it as it is now, then try again.",
         "name": "Give the token a name of at most 100 characters.",
         "limit": "A workspace can have at most 20 SCIM tokens. Revoke one first.",
         "ownersOnly": "Only workspace owners can do this.",

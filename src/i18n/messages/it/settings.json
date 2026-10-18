@@ -959,7 +959,7 @@
         "noConnection": "Prima configura il single sign-on.",
         "dnsMismatch": "Il record TXT per {detail} non è stato trovato o ha un valore diverso. Le modifiche DNS possono richiedere un po’ di tempo per comparire.",
         "domainTaken": "{detail} è già verificato altrove su questo server.",
-        "connectionChanged": "La connessione è stata modificata mentre i suoi domini venivano verificati. Controlla i domini e i loro record TXT, poi verifica di nuovo.",
+        "connectionChanged": "La connessione è stata modificata nel frattempo, in un'altra scheda o da un altro proprietario. Controlla com'è ora, poi riprova.",
         "name": "Dai al token un nome di massimo 100 caratteri.",
         "limit": "Uno spazio di lavoro può avere al massimo 20 token SCIM. Prima revocane uno.",
         "ownersOnly": "Solo i proprietari dello spazio di lavoro possono farlo.",

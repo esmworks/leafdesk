@@ -959,7 +959,7 @@
         "noConnection": "请先设置单点登录。",
         "dnsMismatch": "未找到 {detail} 的 TXT 记录，或其值不同。DNS 更改可能需要一段时间才能生效。",
         "domainTaken": "{detail} 已在此服务器的其他地方验证。",
-        "connectionChanged": "验证域名期间连接已被更改。请检查域名及其 TXT 记录，然后重新验证。",
+        "connectionChanged": "在此期间，连接已在另一个标签页中或由另一位所有者更改。请查看它现在的状态，然后重试。",
         "name": "请为令牌命名，最多 100 个字符。",
         "limit": "一个工作区最多可以有 20 个 SCIM 令牌。请先撤销一个。",
         "ownersOnly": "只有工作区所有者可以执行此操作。",

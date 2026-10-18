@@ -206,6 +206,12 @@
 
 ### Fixed
 
+- **Saving the SSO connection no longer undoes a change made meanwhile.** A save waits for the
+  identity provider's discovery document (up to ten seconds), then wrote what it had decided from
+  the connection as it was before: domains verified in the meantime were unverified again, and
+  when another identity provider had been saved in the meantime, the old one came back with its
+  domains verified without a new check, and the sign-ins made through the other one stayed
+  instead of being ended. Such a save now fails, saying the connection changed meanwhile.
 - **Changing a property's type could undo a cell saved at the same moment.** A value saved in that
   column while the change was being made was replaced by what the older value became; a formula or
   rollup froze from the cells as they were before. The change now reads the rows when it writes
@@ -357,6 +363,13 @@
   sign-ins through one until its owners verify it again, which only the domains' owner can. Sign
   out everywhere (Server administration) the people with an address in its domains, and have them
   check their API tokens and connected apps.
+- **An email domain can no longer be verified by two workspaces at the same moment.** Proving an
+  allowed domain checked that no other workspace had it (verified for SSO or proven as an allowed
+  domain, subdomains either way) only before looking up its TXT record, and didn't take the lock
+  SSO verification checks under. So a workspace proving an allowed domain while another verified it
+  for SSO, or proved it too, could each end up with it, though a domain belongs to one workspace
+  only. Proving an allowed domain now checks again once its record is found, under the same lock.
+  Both workspaces needed the domain's TXT records, so only whoever controls its DNS could do this.
 - **Moving or removing a workspace's SSO connection revokes API tokens and connected apps.** Pointing
   the connection at another identity provider, or removing it, ended the sessions signed in through
   it, but the API tokens and connected apps of the people who signed in that way kept working. They

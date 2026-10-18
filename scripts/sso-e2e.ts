@@ -3,7 +3,8 @@
  * this script runs itself (no real identity provider involved): an owner sets up a workspace
  * connection (server actions), its domain is verified (DNS answered by a stub resolver; the real
  * lookup is checked to fail) but not when the connection changes or another workspace verifies the
- * domain while DNS is asked, "Continue with SSO" routes an email to it, the first sign-in creates
+ * domain while DNS is asked, a save that waited for the identity provider while the connection
+ * changed is refused, "Continue with SSO" routes an email to it, the first sign-in creates
  * the account and joins the workspace, addresses outside its domains are refused, an existing
  * password account is linked, "SSO only" holds back members who signed in otherwise (pages,
  * exports, server actions, collab) but not the owner, two-step verification still asks for its
@@ -65,7 +66,7 @@ const {
   workspaceMember,
   workspaceSso,
 } = await import("@/db/schema");
-const { saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
+const { discoverOidc, saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
 const { createApiToken } = await import("@/server/api/tokens");
 const { AccessError } = await import("@/server/access");
 const { domainRecordName } = await import("@/lib/sso-config");
@@ -601,7 +602,12 @@ async function main() {
   const tokenOf = async (id: string) =>
     (await db.select({ token: workspaceSso.verificationToken }).from(workspaceSso).where(eq(workspaceSso.workspaceId, id)))[0].token;
   const providerOf = async (id: string) =>
-    (await db.select({ domain: ssoProvider.domain, verified: ssoProvider.domainVerified }).from(ssoProvider).where(eq(ssoProvider.providerId, `ws-${id}`)))[0];
+    (
+      await db
+        .select({ issuer: ssoProvider.issuer, domain: ssoProvider.domain, verified: ssoProvider.domainVerified })
+        .from(ssoProvider)
+        .where(eq(ssoProvider.providerId, `ws-${id}`))
+    )[0];
   const recordFor = (domain: string, token: string) => async (name: string) => (name === domainRecordName(domain) ? [[`leafdesk-sso=${token}`]] : []);
   const acmeOidc = { protocol: "oidc" as const, issuer: `${IDP}/acme`, clientId: "leafdesk-acme", clientSecret: "acme-secret" };
   const VICTIM = `victim-${RUN}.test`;
@@ -639,6 +645,34 @@ async function main() {
   check((await providerOf(rival.workspaceId!)).verified === true, "another workspace verifies a subdomain while a domain is looked up");
   check(raced instanceof SsoError && raced.code === "domainTaken" && raced.detail === RACE, "…so the domain is refused once its record is found", String(raced));
   check((await providerOf(member0.workspaceId!)).verified !== true, "…and stays unverified");
+
+  // A save waits for the identity provider's discovery document (up to ten seconds), and decides
+  // what stays verified, and whether sign-ins are cut off, from the connection as it was before.
+  // Whatever changed it meanwhile isn't undone: the save is refused. Here another save moves the
+  // connection to another identity provider, then the domains are verified during a save.
+  const rivalId = rival.workspaceId!;
+  const acme2Oidc = { protocol: "oidc" as const, issuer: `${IDP}/acme2`, clientId: "leafdesk-acme2", clientSecret: "acme2-secret" };
+  const savedBack = await saveSsoConnection(rival.id, rivalId, { ...acmeOidc, domains: `eu.${RACE}` }, {
+    discover: async (issuer) => {
+      await saveSsoConnection(rival.id, rivalId, { ...acme2Oidc, domains: `eu.${RACE}` });
+      return discoverOidc(issuer);
+    },
+  }).catch((e: unknown) => e);
+  check(savedBack instanceof SsoError && savedBack.code === "connectionChanged", "a save that waited while another one moved the connection is refused", String(savedBack));
+  const rivalMoved = await providerOf(rivalId);
+  check(
+    rivalMoved.issuer === `${IDP}/acme2` && rivalMoved.verified !== true,
+    "…so the connection stays with the other identity provider, its domains to verify again",
+    rivalMoved,
+  );
+  const savedOver = await saveSsoConnection(rival.id, rivalId, { ...acme2Oidc, domains: `eu.${RACE}` }, {
+    discover: async (issuer) => {
+      await verifySsoDomains(rival.id, rivalId, recordFor(`eu.${RACE}`, await tokenOf(rivalId)));
+      return discoverOidc(issuer);
+    },
+  }).catch((e: unknown) => e);
+  check(savedOver instanceof SsoError && savedOver.code === "connectionChanged", "nor is a save that waited while the domains were verified", String(savedOver));
+  check((await providerOf(rivalId)).verified === true, "…which leaves them verified", await providerOf(rivalId));
 
   const [row] = await db.select({ token: workspaceSso.verificationToken }).from(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId));
   const wrongRecord = await verifySsoDomains(owner.id, workspaceId, async () => [["leafdesk-sso=wrong"]]).catch((e: unknown) => e);
