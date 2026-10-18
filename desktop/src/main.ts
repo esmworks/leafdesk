@@ -21,6 +21,7 @@ import {
   type WebContents,
   type WebPreferences,
 } from "electron";
+import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
@@ -38,8 +39,11 @@ const PAGE = path.join(APP_DIR, "pages", "app.html");
 const PAGES_URL = `${pathToFileURL(path.join(APP_DIR, "pages")).href}/`;
 const PRELOAD = path.join(import.meta.dirname, "preload.cjs");
 const ICON = path.join(APP_DIR, "build", "icon.png");
-/** The Leafdesk server local mode runs: the repository's, around the app's folder. */
-const SERVER_DIR = path.join(APP_DIR, "..");
+/**
+ * The Leafdesk server local mode runs: the one shipped in the app's resources (scripts/bundle-server.ts),
+ * or, run from the source, the repository's around the app's folder.
+ */
+const SERVER_DIR = app.isPackaged ? path.join(process.resourcesPath, "server") : path.join(APP_DIR, "..");
 /** The web app's own background (src/lib/theme.ts), so a window doesn't flash before it paints. */
 const BACKGROUND = { light: "#ffffff", dark: "#18191b" };
 const PROBE_TIMEOUT_MS = 10_000;
@@ -80,8 +84,8 @@ const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 const save = () => saveSettings(settingsFile(), settings);
 const strings = () => STRINGS[locale];
 const systemLocale = () => pickLocale(app.getPreferredSystemLanguages());
-/** Whether this app can run Leafdesk itself: one built from the source, for now; packages don't carry the server yet. */
-const localAvailable = () => !app.isPackaged;
+/** Whether this app can run Leafdesk itself: it has the server (a package built without it doesn't). */
+const localAvailable = () => fs.existsSync(path.join(SERVER_DIR, app.isPackaged ? "server.mjs" : "server.ts"));
 const isLocal = () => settings.mode === "local" && localAvailable();
 /** The origin of the pages the app shows: the connected server's, or Leafdesk's on this computer once it runs. */
 let localOrigin: string | undefined;

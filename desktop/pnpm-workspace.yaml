@@ -11,3 +11,10 @@ allowBuilds:
   '@embedded-postgres/linux-arm64': true
   '@embedded-postgres/linux-x64': true
   '@embedded-postgres/windows-x64': true
+  # Bundles the server's entry points (scripts/bundle-server.ts); its script checks its native binary.
+  esbuild: true
+# Both processors' packages of this system: an app is built for each on the same machine (Linux's
+# arm64 app on x64, scripts/after-pack.ts takes its PostgreSQL).
+supportedArchitectures:
+  os: [current]
+  cpu: [x64, arm64]

@@ -10,13 +10,15 @@ pnpm install
 pnpm start        # builds, then opens the app
 pnpm typecheck
 pnpm test         # node --test, no Electron needed
+pnpm server       # builds the server local mode runs into server/ (scripts/bundle-server.ts)
 pnpm dist         # installers for this computer's system in release/; needs a release's signing variables
 ```
 
-For an unsigned macOS app to try out (in `release/mac-arm64/`):
+For an unsigned macOS app to try out (in `release/mac-arm64/`), after `pnpm install` at the
+repository root:
 
 ```bash
-pnpm build && CSC_IDENTITY_AUTO_DISCOVERY=false pnpm exec electron-builder --mac dir --arm64 -c.mac.notarize=false -c.mac.identity=null
+pnpm build && pnpm server && CSC_IDENTITY_AUTO_DISCOVERY=false pnpm exec electron-builder --mac --arm64 --dir -c.mac.notarize=false -c.mac.identity=null
 ```
 
 To try it against a development server, start one (`pnpm dev` in the repository root) and enter
@@ -26,13 +28,21 @@ to an installed app's; start Electron with `--user-data-dir=<folder>` to keep an
 `LEAFDESK_DISABLE_UPDATES=1` to skip the update check.
 
 **On this computer** (local mode) runs Leafdesk inside the app: a PostgreSQL 18 of its own
-(`src/local-db.ts`) and the repository's server (`server.ts`, in development mode, run by Electron's
-Node), on 127.0.0.1 with a port kept from one start to the next. The first start makes the
-computer's one account (`scripts/desktop-setup.ts`, which also applies the migrations); the app
-signs in to it, so there is no sign-in page. Everything lives in `<profile>/Local`: the database,
-uploaded files, the secrets and `server.log`. It needs the repository's packages (`pnpm install` at
-the root), and its tests start the server, so `pnpm test` does too. Packaged apps don't carry the
-server yet, so they still show the mode as coming soon.
+(`src/local-db.ts`) and the Leafdesk server (run by Electron's Node), on 127.0.0.1 with a port kept
+from one start to the next. The first start makes the computer's one account
+(`scripts/desktop-setup.ts`, which also applies the migrations); the app signs in to it, so there is
+no sign-in page. Everything lives in `<profile>/Local`: the database,
+uploaded files, the secrets and `server.log`.
+
+Started from the source, the app runs the repository's `server.ts` in development mode, so it needs
+the repository's packages (`pnpm install` at the root); its tests start the server, so `pnpm test`
+does too. A packaged app runs the server `pnpm server` built: Next's standalone build of the
+repository (the compiled pages and the packages they load, laid out without links) with
+`server.ts` and the setup bundled beside it, about 185 MB. `scripts/after-pack.ts` puts it in the
+app's resources and keeps only the app's own platform's PostgreSQL. `src/local-server.test.ts`
+runs either one: `LEAFDESK_TEST_SERVER_DIR=server` for the built server with this Node, or
+`LEAFDESK_TEST_APP_RESOURCES` and `LEAFDESK_TEST_APP_EXECUTABLE` for a packaged app, as CI does on
+each platform.
 
 | File | What it does |
 | --- | --- |
@@ -47,5 +57,7 @@ server yet, so they still show the mode as coming soon.
 | `src/updates.ts` | Updates from GitHub releases |
 | `src/preload.cts` | The bridge the connect page uses (never given to server pages) |
 | `src/pages/app.ts`, `pages/` | The connect, certificate, starting and problem screens |
+| `scripts/bundle-server.ts` | Builds the server packaged apps run (`pnpm server`) |
+| `scripts/after-pack.ts` | Puts that server and the platform's PostgreSQL into the packaged app |
 
 Releases are built by `.github/workflows/desktop.yml`.

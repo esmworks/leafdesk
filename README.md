@@ -803,9 +803,18 @@ warns the first time: choose *More info*, then *Run anyway*.
 **Connecting.** On first start the app asks where your workspace is. *My own server* takes the
 server's address (`leafdesk.example.com`, or with `https://`, a port or `http://` for a server on
 your network); the app tries HTTPS first and checks that the address answers like a Leafdesk server
-(`/api/health` and the web app manifest) before it opens the sign-in page. *On this computer* and
-*Leafdesk account* are shown as coming later. *Change Server…* in the app menu (File on Windows
-and Linux) goes back to this screen; signing in again isn't needed for a server you used before.
+(`/api/health` and the web app manifest) before it opens the sign-in page. *Leafdesk account* is
+shown as coming later. *Change Server…* in the app menu (File on Windows and Linux) goes back to
+this screen; signing in again isn't needed for a server you used before.
+
+**On this computer.** *Start* runs Leafdesk inside the app, with no server to set up: a PostgreSQL
+database of its own and the Leafdesk server, reachable only from this computer (127.0.0.1). The
+first start makes the computer's one account and its workspace and signs it in, so there is no
+sign-in page and nobody else can sign up. The pages, uploaded files and the database live in the
+app's profile folder, under `Local` (`~/Library/Application Support/Leafdesk` on macOS,
+`%APPDATA%\Leafdesk` on Windows, `~/.config/Leafdesk` on Linux); quitting the app stops both
+cleanly. Email, AI and other features that need settings stay off. The app is larger for it
+(about 640 MB on macOS).
 
 **Self-signed certificates.** When the server's certificate isn't trusted by the system, the app
 shows its SHA-256 fingerprint; compare it with the server's
