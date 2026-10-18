@@ -51,6 +51,7 @@ const { startSchedules } = await import("./src/server/schedules");
 // Registers what agents' schedules do when they run.
 await import("./src/server/agents/schedules");
 const { retentionJobEnabled } = await import("./src/lib/retention");
+const { startLocalBackups } = await import("./src/server/local-backups");
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -156,6 +157,8 @@ server.listen(port, hostname, () => {
   // Deletes pages whose time in the trash is up, and old page history, once a day. Only in
   // production unless asked for: a dev server shouldn't quietly delete a developer's data.
   if (retentionJobEnabled(process.env.RETENTION_JOB, dev)) startRetention();
+  // On the desktop app's computer: backs its workspaces up into the folder it picked, once a day.
+  startLocalBackups();
 });
 
 let shuttingDown = false;
