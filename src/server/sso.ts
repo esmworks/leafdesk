@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { resolveTxt } from "node:dns/promises";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { account, scimIdentity, session, ssoProvider, workspace, workspaceSso } from "@/db/schema";
 import { env } from "@/lib/env";
@@ -50,7 +50,8 @@ export type SsoErrorCode =
   | "invalidSaml"
   | "noConnection"
   | "dnsMismatch"
-  | "domainTaken";
+  | "domainTaken"
+  | "connectionChanged";
 
 /** An expected failure an owner can act on; `code` is translated by the UI. */
 export class SsoError extends Error {
@@ -67,7 +68,10 @@ export class SsoError extends Error {
 
 // ---------------------------------------------------------------------------------------- routing
 
-/** Verified connections and their domains (verified domains are unique across connections). */
+/**
+ * Verified connections and their domains (verified domains are unique across connections: each
+ * verification checks under a lock all of them take, see verifySsoDomains).
+ */
 async function verifiedConnections() {
   return db
     .select({ providerId: ssoProvider.providerId, domain: ssoProvider.domain, workspaceId: workspaceSso.workspaceId })
@@ -199,6 +203,16 @@ async function connectionRow(workspaceId: string) {
     .where(eq(workspaceSso.workspaceId, workspaceId))
     .limit(1);
   return row ?? null;
+}
+
+type IdentityProvider = Pick<NonNullable<Awaited<ReturnType<typeof connectionRow>>>, "protocol" | "issuer" | "samlConfig">;
+
+/**
+ * Whether two states of a connection have the same identity provider behind them: the same issuer
+ * over OIDC (another client or secret is the same provider), the same settings over SAML.
+ */
+function sameIdentityProvider(a: IdentityProvider, b: IdentityProvider) {
+  return a.protocol === b.protocol && (a.protocol === "oidc" ? a.issuer === b.issuer : a.samlConfig === b.samlConfig);
 }
 
 /** The workspace's connection, secrets left out. Owners only. */
@@ -492,10 +506,7 @@ export async function saveSsoConnection(
   }
 
   const sameDomains = existing !== null && domainsFromColumn(existing.domain).join(",") === domains.join(",");
-  const sameIdentity =
-    existing !== null &&
-    existing.protocol === input.protocol &&
-    (input.protocol === "oidc" ? existing.issuer === issuer : existing.samlConfig === samlConfig);
+  const sameIdentity = existing !== null && sameIdentityProvider(existing, { protocol: input.protocol, issuer, samlConfig });
   // Only domains that stay the same, behind the same identity provider, stay verified.
   const verified = sameDomains && sameIdentity && existing.verified === true;
   const fields = {
@@ -540,11 +551,62 @@ export async function saveSsoConnection(
 }
 
 type TxtResolver = (name: string) => Promise<string[][]>;
+type Reader = Pick<typeof db, "select">;
+
+const overlapping = (a: string, b: string) => a === b || a.endsWith(`.${b}`) || b.endsWith(`.${a}`);
+
+/**
+ * The first of the domains already used for single sign-on elsewhere, subdomains either way:
+ * verified by another connection, the instance provider's (OIDC_DOMAINS), or another workspace's
+ * proven allowed domain. Null when none is.
+ */
+async function domainTakenElsewhere(reader: Reader, workspaceId: string, providerId: string, domains: string[]) {
+  const others = await reader
+    .select({ domain: ssoProvider.domain })
+    .from(ssoProvider)
+    .where(and(eq(ssoProvider.domainVerified, true), ne(ssoProvider.providerId, providerId)));
+  const taken = [
+    ...others.flatMap((o) => domainsFromColumn(o.domain)),
+    ...(env.instanceOidc?.domains ?? []),
+    ...(await allowedDomainsProvenElsewhere(workspaceId, reader)),
+  ];
+  return domains.find((domain) => taken.some((other) => overlapping(domain, other))) ?? null;
+}
+
+const domainTaken = (domain: string) => new SsoError("domainTaken", `${domain} is already used for single sign-on elsewhere`, domain);
+
+/** Every verification takes it before marking domains verified, so two can't each miss the other. */
+const VERIFICATION_LOCK = "leafdesk:sso-domain-verification";
+
+/**
+ * The connection as it is now, its rows locked until the transaction ends: the provider's first,
+ * then the workspace's, the order saveSsoConnection writes them in.
+ */
+async function lockedConnection(tx: Tx, workspaceId: string, providerId: string) {
+  const [provider] = await tx
+    .select({ issuer: ssoProvider.issuer, domain: ssoProvider.domain, samlConfig: ssoProvider.samlConfig })
+    .from(ssoProvider)
+    .where(eq(ssoProvider.providerId, providerId))
+    .for("update");
+  const [connection] = await tx
+    .select({ providerId: workspaceSso.providerId, protocol: workspaceSso.protocol, token: workspaceSso.verificationToken })
+    .from(workspaceSso)
+    .where(eq(workspaceSso.workspaceId, workspaceId))
+    .for("update");
+  return provider && connection?.providerId === providerId ? { ...provider, ...connection } : null;
+}
 
 /**
  * Verifies the connection's domains: each needs a TXT record `_leafdesk-sso.<domain>` with the
  * connection's value, and none may already be verified by another connection (or be the
  * instance provider's, or another workspace's proven allowed domain). Owners only.
+ *
+ * The lookups take as long as the domains' DNS servers like, and an owner's own servers answer
+ * when the owner wants. So once the records are found, the domains are marked verified only if
+ * the connection still has the domains, token and identity provider they were looked up for, and
+ * no other connection verified one of them meanwhile (checked under a lock every verification
+ * takes). Otherwise an owner could save someone else's domain while their own is looked up, and
+ * have it verified with it.
  */
 export async function verifySsoDomains(actorId: string, workspaceId: string, resolver: TxtResolver = resolveTxt) {
   refuseInLocalMode();
@@ -552,21 +614,8 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
   const row = await connectionRow(workspaceId);
   if (!row) throw new SsoError("noConnection", "Set up single sign-on first");
   const domains = domainsFromColumn(row.domain);
-  const others = await db
-    .select({ domain: ssoProvider.domain })
-    .from(ssoProvider)
-    .where(and(eq(ssoProvider.domainVerified, true), ne(ssoProvider.providerId, row.providerId)));
-  const taken = [
-    ...others.flatMap((o) => domainsFromColumn(o.domain)),
-    ...(env.instanceOidc?.domains ?? []),
-    ...(await allowedDomainsProvenElsewhere(workspaceId)),
-  ];
-  const overlapping = (a: string, b: string) => a === b || a.endsWith(`.${b}`) || b.endsWith(`.${a}`);
-  for (const domain of domains) {
-    if (taken.some((other) => overlapping(domain, other))) {
-      throw new SsoError("domainTaken", `${domain} is already used for single sign-on elsewhere`, domain);
-    }
-  }
+  const taken = await domainTakenElsewhere(db, workspaceId, row.providerId, domains);
+  if (taken) throw domainTaken(taken);
   const expected = domainRecordValue(row.token);
   for (const domain of domains) {
     const records = await resolver(domainRecordName(domain)).catch(() => [] as string[][]);
@@ -574,8 +623,21 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
       throw new SsoError("dnsMismatch", `No TXT record ${domainRecordName(domain)} with the expected value`, domain);
     }
   }
-  await db.update(ssoProvider).set({ domainVerified: true }).where(eq(ssoProvider.providerId, row.providerId));
-  await recordAudit({ workspaceId, actorId, action: "sso.domains_verified", target: { type: "sso", id: row.providerId }, details: { domains } });
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${VERIFICATION_LOCK}))`);
+    const now = await lockedConnection(tx, workspaceId, row.providerId);
+    if (!now) throw new SsoError("noConnection", "Set up single sign-on first");
+    if (now.domain !== row.domain || now.token !== row.token || !sameIdentityProvider(now, row)) {
+      throw new SsoError("connectionChanged", "The connection changed while its domains were being verified");
+    }
+    const takenMeanwhile = await domainTakenElsewhere(tx, workspaceId, row.providerId, domains);
+    if (takenMeanwhile) throw domainTaken(takenMeanwhile);
+    await tx.update(ssoProvider).set({ domainVerified: true }).where(eq(ssoProvider.providerId, row.providerId));
+    await recordAudit(
+      { workspaceId, actorId, action: "sso.domains_verified", target: { type: "sso", id: row.providerId }, details: { domains } },
+      tx,
+    );
+  });
   return getSsoConnection(actorId, workspaceId);
 }
 

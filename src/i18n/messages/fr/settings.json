@@ -959,6 +959,7 @@
         "noConnection": "Configurez d'abord l'authentification unique.",
         "dnsMismatch": "L'enregistrement TXT de {detail} est introuvable ou a une autre valeur. Les changements DNS peuvent mettre un moment à apparaître.",
         "domainTaken": "{detail} est déjà vérifié ailleurs sur ce serveur.",
+        "connectionChanged": "La connexion a été modifiée pendant la vérification de ses domaines. Contrôlez les domaines et leurs enregistrements TXT, puis vérifiez à nouveau.",
         "name": "Donnez au jeton un nom de 100 caractères au maximum.",
         "limit": "Un espace de travail peut avoir au plus 20 jetons SCIM. Révoquez-en un d'abord.",
         "ownersOnly": "Seuls les propriétaires de l'espace de travail peuvent faire cela.",

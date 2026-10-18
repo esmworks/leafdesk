@@ -59,8 +59,8 @@ export async function ssoVerifiedDomains(reader: Reader, workspaceId: string): P
 }
 
 /** The allowed domains other workspaces have proven by DNS (and still allow). */
-export async function allowedDomainsProvenElsewhere(workspaceId: string): Promise<string[]> {
-  const rows = await db
+export async function allowedDomainsProvenElsewhere(workspaceId: string, reader: Reader = db): Promise<string[]> {
+  const rows = await reader
     .select({ settings: workspace.settings })
     .from(workspace)
     .where(and(ne(workspace.id, workspaceId), sql`coalesce(${workspace.settings}->'allowedDomainsVerified', '[]'::jsonb) <> '[]'::jsonb`));

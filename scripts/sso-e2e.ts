@@ -2,7 +2,8 @@
  * End-to-end check of single sign-on against a running app, with a mock OpenID Connect provider
  * this script runs itself (no real identity provider involved): an owner sets up a workspace
  * connection (server actions), its domain is verified (DNS answered by a stub resolver; the real
- * lookup is checked to fail), "Continue with SSO" routes an email to it, the first sign-in creates
+ * lookup is checked to fail) but not when the connection changes or another workspace verifies the
+ * domain while DNS is asked, "Continue with SSO" routes an email to it, the first sign-in creates
  * the account and joins the workspace, addresses outside its domains are refused, an existing
  * password account is linked, "SSO only" holds back members who signed in otherwise (pages,
  * exports, server actions, collab) but not the owner, two-step verification still asks for its
@@ -560,6 +561,53 @@ async function main() {
     domains: DOMAIN,
   }).catch((e: unknown) => e);
   check(byMember instanceof AccessError, "members can't change the connection", String(byMember));
+
+  // ── Verifying while the connection changes ───────────────────────────────────────────────
+  // The TXT lookups take as long as the domains' DNS servers like, and an owner's own DNS answers
+  // as slowly as they want. Only what the records proved gets verified: not other domains saved
+  // meanwhile (an owner could claim anyone's and sign in as the people there), nor the same ones
+  // behind another identity provider, nor a domain another workspace verified in the meantime.
+  const tokenOf = async (id: string) =>
+    (await db.select({ token: workspaceSso.verificationToken }).from(workspaceSso).where(eq(workspaceSso.workspaceId, id)))[0].token;
+  const providerOf = async (id: string) =>
+    (await db.select({ domain: ssoProvider.domain, verified: ssoProvider.domainVerified }).from(ssoProvider).where(eq(ssoProvider.providerId, `ws-${id}`)))[0];
+  const recordFor = (domain: string, token: string) => async (name: string) => (name === domainRecordName(domain) ? [[`leafdesk-sso=${token}`]] : []);
+  const acmeOidc = { protocol: "oidc" as const, issuer: `${IDP}/acme`, clientId: "leafdesk-acme", clientSecret: "acme-secret" };
+  const VICTIM = `victim-${RUN}.test`;
+
+  const firstToken = await tokenOf(workspaceId);
+  const swapped = await verifySsoDomains(owner.id, workspaceId, async (name) => {
+    await saveSsoConnection(owner.id, workspaceId, { ...acmeOidc, domains: VICTIM });
+    return recordFor(DOMAIN, firstToken)(name);
+  }).catch((e: unknown) => e);
+  check(swapped instanceof SsoError && swapped.code === "connectionChanged", "domains saved while the old ones are looked up aren't verified", String(swapped));
+  const afterSwap = await providerOf(workspaceId);
+  check(afterSwap.domain === VICTIM && afterSwap.verified !== true, "…the connection keeps them unverified", afterSwap);
+  check((await lastAudit(workspaceId, "sso.domains_verified")) === null, "…the audit log records no verification");
+  const victimRouted = await authPost("/sign-in/sso", { email: `someone@${VICTIM}`, callbackURL: "/" }, new Jar());
+  check(victimRouted.status === 404 && victimRouted.body?.code === "SSO_NOT_FOUND", "…and nobody at them is sent to it", victimRouted.body);
+
+  await saveSsoConnection(owner.id, workspaceId, { ...acmeOidc, domains: DOMAIN });
+  const keptToken = await tokenOf(workspaceId);
+  const idpSwapped = await verifySsoDomains(owner.id, workspaceId, async (name) => {
+    await saveSsoConnection(owner.id, workspaceId, { protocol: "oidc", issuer: `${IDP}/acme2`, clientId: "leafdesk-acme2", clientSecret: "acme2-secret", domains: DOMAIN });
+    return recordFor(DOMAIN, keptToken)(name);
+  }).catch((e: unknown) => e);
+  check(idpSwapped instanceof SsoError && idpSwapped.code === "connectionChanged", "nor are the same domains moved to another identity provider meanwhile", String(idpSwapped));
+  check((await tokenOf(workspaceId)) === keptToken && (await providerOf(workspaceId)).verified !== true, "…though their record didn't change", await providerOf(workspaceId));
+  await saveSsoConnection(owner.id, workspaceId, { ...acmeOidc, domains: DOMAIN });
+
+  const rival = await signUp("rival");
+  const RACE = `race-${RUN}.test`;
+  await saveSsoConnection(member0.id, member0.workspaceId!, { ...acmeOidc, domains: RACE });
+  await saveSsoConnection(rival.id, rival.workspaceId!, { ...acmeOidc, domains: `eu.${RACE}` });
+  const raced = await verifySsoDomains(member0.id, member0.workspaceId!, async (name) => {
+    await verifySsoDomains(rival.id, rival.workspaceId!, recordFor(`eu.${RACE}`, await tokenOf(rival.workspaceId!)));
+    return recordFor(RACE, await tokenOf(member0.workspaceId!))(name);
+  }).catch((e: unknown) => e);
+  check((await providerOf(rival.workspaceId!)).verified === true, "another workspace verifies a subdomain while a domain is looked up");
+  check(raced instanceof SsoError && raced.code === "domainTaken" && raced.detail === RACE, "…so the domain is refused once its record is found", String(raced));
+  check((await providerOf(member0.workspaceId!)).verified !== true, "…and stays unverified");
 
   const [row] = await db.select({ token: workspaceSso.verificationToken }).from(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId));
   const wrongRecord = await verifySsoDomains(owner.id, workspaceId, async () => [["leafdesk-sso=wrong"]]).catch((e: unknown) => e);
