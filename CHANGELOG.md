@@ -35,6 +35,38 @@
   watching other pages as they edit them.
 - **Migration 0084 adds the `synced_block_reference` table** for synced blocks (see *Added*);
   nothing is rewritten. It fills in as pages with synced blocks are saved.
+- **Migration 0085 forgets single sign-on sign-ins that earlier releases left on record** (see
+  *Security*): links to accounts and sessions under a workspace's provider id (`ws-<workspace id>`)
+  that are older than the workspace's connection or whose connection is gone, and the sessions
+  signed in through those links. As when a connection is removed, the API tokens and connected
+  apps of the people they were for are revoked, in all their workspaces; the audit log doesn't
+  record it. People are linked again by their address when they next sign in through the
+  connection. To see who, before upgrading:
+
+  ```sql
+  SELECT DISTINCT u.email, x.provider_id
+  FROM (
+    SELECT user_id, provider_id, created_at FROM account WHERE provider_id LIKE 'ws-%'
+    UNION ALL
+    SELECT user_id, sso_provider_id, created_at FROM session WHERE sso_provider_id LIKE 'ws-%'
+  ) x
+  JOIN "user" u ON u.id = x.user_id
+  LEFT JOIN workspace_sso c ON c.provider_id = x.provider_id
+  WHERE c.provider_id IS NULL OR x.created_at AT TIME ZONE 'UTC' < c.created_at;
+  ```
+
+  A workspace whose connection went with the account of the owner who set it up can still have
+  *Single sign-on only* on. Without a connection it holds nobody back, unless the server has its
+  own provider (`OIDC_ISSUER`), which it then sends members to; once a new connection's domains
+  are verified it applies again. Removing a connection turns it off unless the server has its own
+  provider, which a migration can't see, so 0085 leaves it to the workspace's owners (Settings →
+  Security). These are the workspaces that have it on without a connection:
+
+  ```sql
+  SELECT w.id, w.name FROM workspace w
+  WHERE w.settings ->> 'loginMethod' = 'sso'
+    AND NOT EXISTS (SELECT 1 FROM workspace_sso c WHERE c.workspace_id = w.id);
+  ```
 
 ### Added
 
@@ -359,6 +391,16 @@
   in. Now they stay out, as does someone whose request to join was declined, unless an invitation
   to join as a member or owner is waiting for their address. An owner adding them again, or their
   identity provider over SCIM, still brings them back.
+- **Sign-ins through a workspace's earlier SSO connection are forgotten.** The SSO plugin finds a
+  person by the connection's provider id, which is always the same for a workspace, and the
+  identity provider's id for them, before it looks at the address. A connection set up again before
+  this release (after one was removed before 0.5.0, went with the account of the owner who set it
+  up, or with a workspace a backup brought back) kept the sign-ins through the one before. Whoever
+  ran its identity provider could sign in as those people, in all their workspaces, by sending their
+  ids. Migration 0085 forgets them and revokes those people's API tokens and connected apps (see
+  *Upgrading*). Releases since 0.3.0 are affected. A connection pointed at another identity provider
+  before 0.5.0 kept its sign-ins too, and the migration can't tell them from later ones: if one of
+  yours was, remove it and set it up again, which forgets everyone's sign-ins through it.
 
 ## 0.5.4 — 2026-10-17
 

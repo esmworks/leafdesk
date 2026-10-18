@@ -11,9 +11,11 @@
  * creates accounts, and removing the connection takes its provider with it. Changing the identity
  * provider behind the connection, and removing it, revokes the API tokens and connected apps of
  * everyone who signed in through it, and of nobody else; a change that keeps the identity provider
- * revokes nothing. A new connection does the same to the sign-ins still on record under the
- * workspace's provider id, so an id its identity provider sends finds only the address it vouches
- * for.
+ * revokes nothing. Someone who left or was removed stays out when a changed connection links them
+ * again, unless an owner or their identity provider (SCIM) brings them back. A new connection does
+ * the same to the sign-ins still on record under the workspace's provider id, so an id its identity
+ * provider sends finds only the address it vouches for; migration 0085 did it once to those earlier
+ * releases left (its SQL runs here).
  *
  * The app must run with the mock provider trusted and configured as the instance provider:
  *
@@ -46,10 +48,22 @@ process.env.OIDC_CLIENT_SECRET ??= "instance-secret";
 process.env.OIDC_NAME ??= "Mock IdP";
 process.env.OIDC_DOMAINS ??= "instance-sso.test";
 
-const { and, desc, eq, ilike, inArray, or } = await import("drizzle-orm");
+const { and, desc, eq, ilike, inArray, like, or, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, auditEvent, oauthClient, oauthConsent, session, ssoProvider, user, workspace, workspaceInvitation, workspaceMember, workspaceSso } =
-  await import("@/db/schema");
+const {
+  account,
+  auditEvent,
+  connectedAppUse,
+  oauthClient,
+  oauthConsent,
+  session,
+  ssoProvider,
+  user,
+  workspace,
+  workspaceInvitation,
+  workspaceMember,
+  workspaceSso,
+} = await import("@/db/schema");
 const { saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
 const { createApiToken } = await import("@/server/api/tokens");
 const { AccessError } = await import("@/server/access");
@@ -925,6 +939,107 @@ async function main() {
     oscarIn.status === 302 && oscarSession?.user.email === `oscar@${DOMAIN}` && oscarSession.user.id !== aliceId,
     "an id the new identity provider sends signs in the address it vouches for, not whoever had that id before",
     { oscarIn, user: oscarSession?.user },
+  );
+
+  // ── Sign-ins left by earlier releases (migration 0085) ───────────────────────────────────
+  // Before the cut-off above, a connection set up again kept the sign-ins through the earlier one,
+  // and a connection lost with the account of the owner who set it up kept everyone's. The
+  // migration forgets those once, as removing a connection does; its own SQL runs here, twice.
+  const [connection] = await db.select({ createdAt: workspaceSso.createdAt }).from(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId));
+  const earlier = new Date(connection.createdAt.getTime() - 60 * 60 * 1000);
+  const seedSignIn = async (userId: string, provider: string, linkedAt: Date | null, signedInAt: Date | null) => {
+    const id = `sso-e2e-${RUN}-${randomBytes(4).toString("hex")}`;
+    if (linkedAt) await db.insert(account).values({ id, accountId: `sub-${id}`, providerId: provider, userId, createdAt: linkedAt, updatedAt: linkedAt });
+    if (signedInAt) {
+      await db.insert(session).values({
+        id,
+        token: randomBytes(16).toString("hex"),
+        userId,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        createdAt: signedInAt,
+        updatedAt: signedInAt,
+        authMethod: "sso",
+        ssoProviderId: provider,
+      });
+    }
+  };
+  const signInsOf = async (userId: string, provider: string) => ({
+    links: (await db.select({ id: account.id }).from(account).where(and(eq(account.userId, userId), eq(account.providerId, provider)))).length,
+    sessions: (await db.select({ id: session.id }).from(session).where(and(eq(session.userId, userId), eq(session.ssoProviderId, provider)))).length,
+  });
+  const apiStatus = async (token: string) => {
+    const res = await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${token}` } });
+    await res.text();
+    return res.status;
+  };
+  // Peggy: linked through the earlier connection, and signed in through that link since.
+  const peggy = await signUp("peggy");
+  await seedSignIn(peggy.id, providerId, earlier, new Date());
+  const peggyAccess = await giveAccess(peggy.id, peggy.jar, "Peggy");
+  await db.insert(connectedAppUse).values({ workspaceId: peggy.workspaceId!, userId: peggy.id, appKind: "connected_app", appId: peggyAccess.app.clientId, lastUsedAt: new Date() });
+  // Sid: a session through the earlier connection, without a link.
+  const sid = await signUp("sid");
+  await seedSignIn(sid.id, providerId, null, earlier);
+  const { secret: sidToken } = await createApiToken(sid.id, { name: "SSO e2e Sid", scopes: ["pages:read"] });
+  // Ivy: a link and a session under a workspace whose connection is gone, its "SSO only" kept.
+  const ivy = await signUp("ivy");
+  const goneProvider = `ws-${ivy.workspaceId}`;
+  await seedSignIn(ivy.id, goneProvider, earlier, new Date());
+  const { secret: ivyToken } = await createApiToken(ivy.id, { name: "SSO e2e Ivy", scopes: ["pages:read"] });
+  const [ivyWs] = await db.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, ivy.workspaceId!));
+  await db.update(workspace).set({ settings: { ...ivyWs.settings, loginMethod: "sso" } }).where(eq(workspace.id, ivy.workspaceId!));
+  // Oscar signed in through the connection as it is.
+  const oscarId = oscarSession!.user.id;
+  const oscarAccess = await giveAccess(oscarId, oscar, "Oscar");
+
+  const migration = readFileSync(join("drizzle", "0085_forget_leftover_sso_sign_ins.sql"), "utf8");
+  const migrate = async () => {
+    for (const statement of migration.split("--> statement-breakpoint")) await db.execute(sql.raw(statement));
+  };
+  await migrate();
+
+  const peggyNow = await signInsOf(peggy.id, providerId);
+  check(
+    peggyNow.links === 0 && peggyNow.sessions === 0,
+    "migration 0085 forgets a sign-in older than the workspace's connection, and a later session signed in through it",
+    peggyNow,
+  );
+  const peggyAfter = await accessNow(peggyAccess);
+  const peggyUse = await db.select({ appId: connectedAppUse.appId }).from(connectedAppUse).where(eq(connectedAppUse.userId, peggy.id));
+  check(cutOff(peggyAfter) && peggyUse.length === 0, "…revoking that person's API tokens and connected apps, and forgetting when they were used", {
+    peggyAfter,
+    peggyUse,
+  });
+  const sidNow = await signInsOf(sid.id, providerId);
+  const sidApi = await apiStatus(sidToken);
+  check(sidNow.sessions === 0 && sidApi === 401, "…ends a session older than the connection, revoking its person's API tokens", { sidNow, sidApi });
+  const ivyNow = await signInsOf(ivy.id, goneProvider);
+  const ivyApi = await apiStatus(ivyToken);
+  check(ivyNow.links === 0 && ivyNow.sessions === 0 && ivyApi === 401, "…forgets the sign-ins under a connection that is gone, revoking those too", {
+    ivyNow,
+    ivyApi,
+  });
+  const [ivyWsNow] = await db.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, ivy.workspaceId!));
+  check(ivyWsNow.settings.loginMethod === "sso", "…and leaves that workspace's login method to its owners", ivyWsNow.settings);
+  const oscarNow = await signInsOf(oscarId, providerId);
+  const oscarAfter = await accessNow(oscarAccess);
+  check(
+    oscarNow.links === 1 && oscarNow.sessions > 0 && works(oscarAfter),
+    "…but keeps a sign-in through the connection as it is, with what it reaches the app with",
+    { oscarNow, oscarAfter },
+  );
+  const onRecord = async () => ({
+    links: (await db.select({ id: account.id }).from(account).where(like(account.providerId, "ws-%"))).length,
+    sessions: (await db.select({ id: session.id }).from(session).where(like(session.ssoProviderId, "ws-%"))).length,
+    oscar: await signInsOf(oscarId, providerId),
+  });
+  const beforeAgain = await onRecord();
+  await migrate();
+  const afterAgain = await onRecord();
+  check(
+    JSON.stringify(afterAgain) === JSON.stringify(beforeAgain) && works(await accessNow(oscarAccess)),
+    "running it again changes nothing",
+    { beforeAgain, afterAgain },
   );
 
   check(idpRequests.some((r) => r.endsWith("/acme/token")) && idpRequests.some((r) => r.endsWith("/acme/jwks")), "the app used the provider's token and key endpoints");
