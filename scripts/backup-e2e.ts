@@ -11,7 +11,8 @@
  *   documents decoded, and the files byte for byte;
  * - refused when it was edited to reach outside itself, and next to itself;
  * - restored on the same server after the workspace was deleted, with every row as it was, no new
- *   users, and the files the deletion queued for removal kept.
+ *   users, and the files the deletion queued for removal kept; a single sign-on connection it sets
+ *   up then forgets the sign-ins left on record under its provider id.
  *
  *   pnpm tsx scripts/backup-e2e.ts
  *
@@ -43,7 +44,7 @@ process.env.UPLOAD_DIR = join(work, PEER ? "peer-uploads" : "uploads");
 const { eq, inArray, like, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { auditEvent, file, page, pageSnapshot, session, storageDeletion, user } = await import("@/db/schema");
+const { account, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { encodeValue, idRewriter, rewriteDeep } = await import("@/lib/backup");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
@@ -456,6 +457,44 @@ async function main() {
     await files.drainStorageDeletions();
     for (const key of keys) check(await storedBytes(key), `the file cleanup leaves ${key.split("/")[1]} alone`);
     compareDumps(expectedAfterRestore(original, new Map(), new Set()), await dumpWorkspace(ws), "on the same server");
+
+    // The restored workspace's id brings back its single sign-on provider id (`ws-<id>`), under
+    // which a sign-in may still be on record from before (older versions left them when a deleted
+    // workspace's connection went with it): Alice's, with an API token of hers. The connection the
+    // restored workspace sets up forgets it, so its identity provider can't sign in as Alice.
+    const { saveSsoConnection } = await import("@/server/sso");
+    const { createApiToken } = await import("@/server/api/tokens");
+    const providerId = `ws-${ws}`;
+    const at = new Date();
+    await db.insert(account).values({ id: `${RUN}-stale`, accountId: `${RUN}-alice-at-the-old-idp`, providerId, userId: ids.alice, createdAt: at, updatedAt: at });
+    await createApiToken(ids.alice, { name: `${RUN} Alice`, scopes: ["pages:read"] });
+    const issuer = "https://idp.example.test/restored";
+    await saveSsoConnection(
+      ids.owner,
+      ws,
+      { protocol: "oidc", issuer, clientId: "restored", clientSecret: "restored-secret", domains: `${RUN}.test` },
+      {
+        discover: async () => ({
+          issuer,
+          authorizationEndpoint: `${issuer}/authorize`,
+          tokenEndpoint: `${issuer}/token`,
+          jwksEndpoint: `${issuer}/jwks`,
+          tokenEndpointAuthentication: "client_secret_basic",
+        }),
+      },
+    );
+    const stale = await db.select({ id: account.id }).from(account).where(eq(account.providerId, providerId));
+    check(stale.length === 0, "a single sign-on connection set up for the restored workspace forgets the sign-ins its id had before", stale);
+    const tokens = await db.select({ id: apiToken.id }).from(apiToken).where(eq(apiToken.userId, ids.alice));
+    const [configured] = await db
+      .select({ details: auditEvent.details })
+      .from(auditEvent)
+      .where(sql`${auditEvent.workspaceId} = ${ws} and ${auditEvent.action} = 'sso.configured'`);
+    check(
+      tokens.length === 0 && configured?.details?.created === true && configured.details.revokedApiTokens === 1,
+      "…revoking the API tokens of the people they were for, as the audit log says",
+      { tokens, configured },
+    );
 
     console.log(`\nAll ${passed} checks passed.`);
   } finally {

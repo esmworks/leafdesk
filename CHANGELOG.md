@@ -35,6 +35,9 @@
   watching other pages as they edit them.
 - **Migration 0084 adds the `synced_block_reference` table** for synced blocks (see *Added*);
   nothing is rewritten. It fills in as pages with synced blocks are saved.
+- **Migration 0085 adds a trigger** that removes the sign-ins under a single sign-on provider's id
+  (its `account` rows and the sessions it signed in) when the provider is deleted; nothing is
+  rewritten (see *Security*).
 
 ### Added
 
@@ -292,6 +295,20 @@
   asks only them, as the agent's runs already showed it; a connection's event still asks every
   owner. Only those asked see the call and answer it; a run no owner may answer runs out of time,
   sending nothing.
+- **Deleting an account cuts off the SSO connections of the workspaces it deletes.** The
+  workspaces nobody else was in went with the account, but the sign-ins through their connections
+  stayed on record, with the sessions, API tokens and connected apps of the people who had signed
+  in that way, members or not by then. They now go as when a connection is removed. A connection
+  the person had set up in a workspace they had already left no longer goes with their account
+  either, which removed it without an audit log entry and left "SSO only" holding nobody back: it
+  passes to an owner there, as it already did in the workspaces they were still in.
+- **A new SSO connection starts without earlier sign-ins under its provider id.** A workspace's
+  connection always has the same provider id, so sign-ins through an earlier one could still be on
+  record (see the previous entry), also for a deleted workspace restored from a backup. Setting up
+  a connection now removes them, ending those sessions and revoking those people's API tokens and
+  connected apps as moving the connection to another identity provider does; the audit log entry
+  says how many. Deleting a provider removes the sign-ins under its id in the database as well
+  (migration 0085).
 
 ## 0.5.4 — 2026-10-17
 

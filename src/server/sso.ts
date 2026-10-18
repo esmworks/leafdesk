@@ -408,7 +408,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
  * after the commit. The counts are for the audit log; once the transaction commits, finish with
  * afterCutOff.
  */
-async function cutOffConnection(tx: Tx, providerId: string) {
+export async function cutOffConnection(tx: Tx, providerId: string) {
   const { signedOut, people } = await forgetConnectionSignIns(tx, providerId);
   const revokedApiTokens = await revokeApiTokensIn(tx, people);
   const apps = await revokeConnectedAppsIn(tx, people);
@@ -419,7 +419,7 @@ async function cutOffConnection(tx: Tx, providerId: string) {
  * Closes the open pages of the sessions cutOffConnection ended (they would stay writable), forgets
  * when the revoked tokens and apps were used and records the apps disconnected.
  */
-async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnection>>[]) {
+export async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnection>>[]) {
   for (const { signedOut, people, apps } of cutOff) {
     for (const userId of signedOut) await disconnectEndedSessions(userId);
     for (const userId of people) {
@@ -434,7 +434,9 @@ async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnection>>[
  * identity provider behind them) asks for them to be verified again; a secret left empty keeps the
  * stored one. Sessions already signed in through the connection stay signed in while the identity
  * provider stays the same; another one signs everyone out of it and revokes what they reach the
- * app with besides (cutOffConnection).
+ * app with besides (cutOffConnection). A new connection does the same to whatever is still on
+ * record under its provider id from before (the workspace's id may have had a connection already,
+ * as a deleted workspace restored from a backup did): its identity provider is a new one too.
  */
 export async function saveSsoConnection(
   actorId: string,
@@ -498,7 +500,8 @@ export async function saveSsoConnection(
     domainVerified: verified,
   };
   const cutOff = await db.transaction(async (tx) => {
-    const cutOff = existing && !sameIdentity ? await cutOffConnection(tx, providerId) : null;
+    // A new connection is never the same identity provider (sameIdentity is false without one).
+    const cutOff = sameIdentity ? null : await cutOffConnection(tx, providerId);
     if (existing) {
       await tx.update(ssoProvider).set(fields).where(eq(ssoProvider.providerId, providerId));
       await tx
@@ -571,21 +574,28 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
 }
 
 /**
- * Removes the connection (its provider row goes with it, see the trigger in 0022_sso.sql) and
- * everyone's sign-ins through it, with their API tokens and connected apps (cutOffConnection: a new
- * connection gets the same provider id). The "SSO only" login method falls back to any method unless the instance provider remains.
- * Owners only.
+ * Removes the connection and everyone's sign-ins through it, with their API tokens and connected
+ * apps (cutOffConnection: a new connection gets the same provider id). Those are cut off before the
+ * connection goes: its provider row goes with it (the trigger in 0024_sso.sql), and the sign-ins
+ * under the provider's id with that (0085_sso_sign_ins.sql), leaving nothing to tell whose tokens
+ * to revoke. The "SSO only" login method falls back to any method unless the instance provider
+ * remains. Owners only.
  */
 export async function removeSsoConnection(actorId: string, workspaceId: string) {
   await requireMembership(actorId, workspaceId, "owner");
   const cutOff = await db.transaction(async (tx) => {
     const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
-    const removed = await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId)).returning({ providerId: workspaceSso.providerId });
-    for (const { providerId } of removed) {
+    const connections = await tx
+      .select({ providerId: workspaceSso.providerId })
+      .from(workspaceSso)
+      .where(eq(workspaceSso.workspaceId, workspaceId))
+      .for("update");
+    for (const { providerId } of connections) {
       const connection = await cutOffConnection(tx, providerId);
       cutOff.push(connection);
       await recordAudit({ workspaceId, actorId, action: "sso.removed", target: { type: "sso", id: providerId }, details: connection.counts }, tx);
     }
+    await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId));
     if (!env.instanceOidc) {
       const [row] = await tx.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, workspaceId)).limit(1);
       if (row?.settings.loginMethod === "sso") {
