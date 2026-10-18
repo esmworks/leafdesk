@@ -147,7 +147,7 @@ export default async function SettingsPage({
   const isOwner = workspace.role === "owner";
   const guest = isGuest(workspace.role);
   const managesGuests = !guest && (await canInviteGuests(user.id, workspaceId));
-  const tabs = visibleSettingsTabs({ guest, managesGuests, owner: isOwner });
+  const tabs = visibleSettingsTabs({ guest, managesGuests, owner: isOwner, localMode: env.localMode });
   // The person's own settings come first, then the workspace's (the workspace sidebar is hidden here).
   const accountTab = ACCOUNT_SETTINGS_TABS.find((name) => name === query.tab);
   // A workspace tab this person may not open is not found, the way its data routes answer, rather
@@ -282,17 +282,20 @@ async function DeleteGroup({ workspaceId, name, session }: { workspaceId: string
 }
 
 async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
+  // On one computer (lib/env.ts localMode) there is no one to sign in with SSO, provision, invite,
+  // ask for access or publish to: those settings are left out.
+  const local = env.localMode;
   const [settings, publications, forms, session, withoutTwoFactor, canUseSso, connection, scimTokens, scimManaged, domainStatus, apps, t] =
     await Promise.all([
       getWorkspaceSettings(userId, workspaceId),
-      isOwner ? listWorkspacePublications(userId, workspaceId) : null,
-      isOwner ? listWorkspaceFormPublications(userId, workspaceId) : null,
+      isOwner && !local ? listWorkspacePublications(userId, workspaceId) : null,
+      isOwner && !local ? listWorkspaceFormPublications(userId, workspaceId) : null,
       getSession(),
       isOwner ? countMembersWithoutTwoFactor(userId, workspaceId) : 0,
       ssoAvailable(workspaceId),
-      isOwner ? getSsoConnection(userId, workspaceId) : null,
-      isOwner ? listScimTokens(userId, workspaceId) : [],
-      isOwner ? scimManagedCount(workspaceId) : 0,
+      isOwner && !local ? getSsoConnection(userId, workspaceId) : null,
+      isOwner && !local ? listScimTokens(userId, workspaceId) : [],
+      isOwner && !local ? scimManagedCount(workspaceId) : 0,
       allowedDomainsStatus(userId, workspaceId),
       isOwner ? listWorkspaceApps(userId, workspaceId) : null,
       getTranslations("settings"),
@@ -310,25 +313,27 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
             ownSessionPasses={Boolean(session && isStrongSession(session))}
             withoutTwoFactor={withoutTwoFactor}
           />
-          <LoginMethodSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} available={canUseSso} />
+          {!local && <LoginMethodSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} available={canUseSso} />}
         </SettingsGroup>
       </div>
-      <SettingsGroup title={t("security.membersHeading")}>
-        <MembershipSettings
-          workspaceId={workspaceId}
-          settings={settings}
-          canEdit={isOwner}
-          mailEnabled={mailStatus() !== "disabled"}
-          domainStatus={domainStatus}
-        />
-      </SettingsGroup>
-      {isOwner && (
+      {!local && (
+        <SettingsGroup title={t("security.membersHeading")}>
+          <MembershipSettings
+            workspaceId={workspaceId}
+            settings={settings}
+            canEdit={isOwner}
+            mailEnabled={mailStatus() !== "disabled"}
+            domainStatus={domainStatus}
+          />
+        </SettingsGroup>
+      )}
+      {isOwner && !local && (
         <SettingsGroup title={t("security.sso.title")} description={t("security.sso.description")}>
           <SsoSetupDetails info={setup} />
           <SsoConnectionForm workspaceId={workspaceId} connection={connection} />
         </SettingsGroup>
       )}
-      {isOwner && (
+      {isOwner && !local && (
         <SettingsGroup title={t("security.scim.title")} description={t("security.scim.description")}>
           <ScimSettings
             workspaceId={workspaceId}
@@ -344,15 +349,19 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
           />
         </SettingsGroup>
       )}
-      <SettingsGroup title={t("security.sharingHeading")}>
-        <AccessRequestsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
-      </SettingsGroup>
-      <div>
-        <SettingsGroup title={t("security.guestsHeading")}>
-          <GuestInviteSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
-          <GuestPrivatePagesSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+      {!local && (
+        <SettingsGroup title={t("security.sharingHeading")}>
+          <AccessRequestsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </SettingsGroup>
-      </div>
+      )}
+      {!local && (
+        <div>
+          <SettingsGroup title={t("security.guestsHeading")}>
+            <GuestInviteSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+            <GuestPrivatePagesSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+          </SettingsGroup>
+        </div>
+      )}
       <SettingsGroup title={t("security.dataHeading")}>
         <ExportSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
@@ -362,9 +371,11 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
           <WorkspaceApps workspaceId={workspaceId} apps={apps.apps} total={apps.total} mode={connectedAppsMode(settings.connectedApps)} />
         </SettingsGroup>
       )}
-      <SettingsGroup title={t("security.publishingHeading")}>
-        <PublishingSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
-      </SettingsGroup>
+      {!local && (
+        <SettingsGroup title={t("security.publishingHeading")}>
+          <PublishingSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        </SettingsGroup>
+      )}
       {publications && (
         <SettingsGroup
           title={t("security.publications.title")}
@@ -444,11 +455,11 @@ async function MembersTab({
   const [members, edits, invitations, joinLink, teamspaces, groups, requests, addMembers, settings] = await Promise.all([
     listMembers(userId, workspaceId),
     lastEdits(userId, workspaceId),
-    isOwner ? listInvitations(userId, workspaceId) : [],
-    isOwner ? getJoinLink(userId, workspaceId) : null,
+    isOwner && !env.localMode ? listInvitations(userId, workspaceId) : [],
+    isOwner && !env.localMode ? getJoinLink(userId, workspaceId) : null,
     teamspacesByMember(userId, workspaceId),
     groupsByMember(userId, workspaceId),
-    isOwner ? listJoinRequests(userId, workspaceId) : [],
+    isOwner && !env.localMode ? listJoinRequests(userId, workspaceId) : [],
     memberInviteAccess(userId, workspaceId),
     getWorkspaceSettings(userId, workspaceId),
   ]);
@@ -457,7 +468,9 @@ async function MembersTab({
       workspaceId={workspaceId}
       currentUserId={userId}
       isOwner={isOwner}
-      initialTab={view === "requests" && isOwner ? "requests" : view === "invitations" && isOwner ? "invitations" : "members"}
+      initialTab={
+        !isOwner || env.localMode ? "members" : view === "requests" ? "requests" : view === "invitations" ? "invitations" : "members"
+      }
       addMembers={addMembers}
       members={members.map((m) => ({ ...m, lastEditedAt: edits.get(m.userId) ?? null }))}
       invitations={invitations}

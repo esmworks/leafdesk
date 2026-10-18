@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { LocalModeProvider } from "@/components/local-mode";
 import { AppShellSetup } from "@/components/offline/install-app";
 import { StaleDeploymentReload } from "@/components/stale-deployment";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TimeZoneCookie } from "@/components/time-zone-cookie";
 import { localeDirection } from "@/i18n/config";
 import { clientMessages } from "@/i18n/messages";
+import { env } from "@/lib/env";
 import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COLORS, THEME_COOKIE } from "@/lib/theme";
 import "./globals.css";
 
@@ -56,7 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <NextIntlClientProvider messages={clientMessages(messages)}>
           <ThemeProvider theme={theme}>
-            {children}
+            <LocalModeProvider localMode={env.localMode}>{children}</LocalModeProvider>
             <TimeZoneCookie />
             <StaleDeploymentReload />
             <AppShellSetup />

@@ -21,14 +21,25 @@ export function visibleSettingsTabs({
   guest,
   managesGuests,
   owner = false,
+  localMode = false,
 }: {
   guest: boolean;
   managesGuests: boolean;
   owner?: boolean;
+  /** Leafdesk on one computer (lib/env.ts localMode): no guests, and no site to publish. */
+  localMode?: boolean;
 }): SettingsTab[] {
   if (guest) return ["general"];
-  return SETTINGS_TABS.filter((tab) => (tab !== "guests" || managesGuests) && (!OWNER_TABS.includes(tab) || owner));
+  return SETTINGS_TABS.filter(
+    (tab) =>
+      (tab !== "guests" || managesGuests) &&
+      (!OWNER_TABS.includes(tab) || owner) &&
+      !(localMode && LOCAL_MODE_HIDDEN_TABS.includes(tab)),
+  );
 }
+
+/** Tabs that need other people or a public address, hidden when Leafdesk runs on one computer. */
+const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "site"];
 
 /**
  * The person's own settings (see components/account/account-tabs) under a workspace's Settings,

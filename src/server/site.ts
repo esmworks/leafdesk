@@ -6,6 +6,8 @@ import { accessRank, pageVisibleTo, requireMember, requireMembership, requirePag
 import { changedValues, recordAudit } from "@/server/audit";
 import { chainTo, getPublishedPage, type PublishedPage } from "@/server/publication";
 import { publishingOn } from "@/server/workspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
+import { env } from "@/lib/env";
 
 /**
  * Workspace sites: a readable address for a workspace's published pages.
@@ -65,6 +67,7 @@ export async function saveSite(
   workspaceId: string,
   input: { slug: string; title: string; homePageId: string | null },
 ): Promise<WorkspaceSiteInfo> {
+  refuseInLocalMode();
   await requireMembership(userId, workspaceId, "owner");
   const slug = String(input.slug ?? "").trim().toLowerCase();
   const problem = siteSlugProblem(slug);
@@ -128,6 +131,7 @@ export async function saveSite(
  * Publishers change their own pages from the Publish tab (publication.updatePublication).
  */
 export async function setSiteListing(userId: string, workspaceId: string, pageId: string, inSite: boolean): Promise<void> {
+  refuseInLocalMode();
   await requireMembership(userId, workspaceId, "owner");
   const [found] = await db
     .select({ visible: sql<boolean>`${accessRank(userId, sql`${page.id}`)} > 0`, archivedAt: page.archivedAt })
@@ -242,7 +246,7 @@ async function ancestorsOf(pageIds: string[]): Promise<Map<string, string[]>> {
 
 /** The site with this slug, or null. */
 export async function loadSite(slug: string): Promise<SiteContext | null> {
-  if (!isSiteKey(slug)) return null;
+  if (!isSiteKey(slug) || env.localMode) return null;
   const [site] = await db.select().from(workspaceSite).where(eq(workspaceSite.slug, slug)).limit(1);
   // Publishing turned off: the site is not found, as if it had none, until it is turned back on.
   if (!site || !(await publishingOn(site.workspaceId))) return null;
@@ -345,6 +349,7 @@ export async function getSitePage(site: SiteContext, pageId?: string, viewId?: s
  * page: what Duplicate copies from. Null otherwise.
  */
 export async function servedPublication(key: string, pageId?: string): Promise<ServedPublication | null> {
+  if (env.localMode) return null;
   if (isSiteKey(key)) {
     const site = await loadSite(key);
     const targetId = pageId ?? site?.homeId;

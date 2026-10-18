@@ -14,6 +14,7 @@ import {
   setMemberRoleAction,
   transferOwnershipAction,
 } from "@/app/actions/workspaces";
+import { useLocalMode } from "@/components/local-mode";
 import { CopyButton } from "@/components/settings/copy-button";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
@@ -107,6 +108,8 @@ export function MembersPanel({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>({ key: "name", dir: "asc" });
   const [adding, setAdding] = useState(false);
+  // On one computer nobody else joins: no join link, invitations or requests.
+  const takesPeopleIn = !useLocalMode();
 
   const shownMembers = useMemo(() => {
     const list = members.filter((m) => matches(query, m.name, m.email));
@@ -120,7 +123,7 @@ export function MembersPanel({
       <SettingsHeader title={t("heading")} description={t("description")} />
 
       <div className="space-y-10">
-        {isOwner && (
+        {isOwner && takesPeopleIn && (
           <SettingsGroup>
             <JoinLinkCard workspaceId={workspaceId} link={joinLink} asks={joinLinkAsks} />
           </SettingsGroup>
@@ -132,12 +135,12 @@ export function MembersPanel({
               <TabButton active={tab === "members"} onClick={() => setTab("members")}>
                 {t("tabs.members")} <span className="text-fg-faint">{members.length}</span>
               </TabButton>
-              {isOwner && (
+              {isOwner && takesPeopleIn && (
                 <TabButton active={tab === "invitations"} onClick={() => setTab("invitations")}>
                   {t("tabs.invitations")} <span className="text-fg-faint">{invitations.length}</span>
                 </TabButton>
               )}
-              {isOwner && (
+              {isOwner && takesPeopleIn && (
                 <TabButton active={tab === "requests"} onClick={() => setTab("requests")}>
                   {t("tabs.requests")} <span className="text-fg-faint">{requests.length}</span>
                 </TabButton>
