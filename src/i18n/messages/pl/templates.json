@@ -93,6 +93,144 @@
       "thanks": "Dział sprzedaży podziękował za przygotowanie demo"
     }
   },
+  "small-business": {
+    "title": "Mała firma",
+    "description": "Powiązane ze sobą bazy klientów, składanych im ofert, zleceń i bilansu, a także pulpit i plan tygodnia.",
+    "currency": "PLN",
+    "dashboard": {
+      "title": "Pulpit",
+      "markdown": "> [!NOTE]\n> Zlecenia, oferty, klienci i bilans na jednym ekranie. Widżety aktualizują się wraz ze zmianami w bazach danych.\n\nNajpierw dodaj klientów, potem oferty, które im składasz. Gdy oferta zostanie przyjęta, dodaj zlecenie i powiąż je z ofertą i klientem. Pozycje bilansu wpisuj z datą dnia, w którym je liczysz: widżety pokazują wpisy z bieżącego miesiąca.",
+      "widgets": {
+        "openJobs": "Otwarte zlecenia",
+        "dueJobs": "Na dziś i zaległe",
+        "openQuotes": "Otwarte oferty",
+        "netWorth": "Aktywa netto w tym miesiącu",
+        "jobsByPerson": "Otwarte zlecenia według osoby i priorytetu",
+        "upcomingJobs": "Otwarte zlecenia według terminu",
+        "quotesByStatus": "Oferty według statusu",
+        "quoteFollowUps": "Oferty do ponownego kontaktu",
+        "customersByStage": "Klienci według etapu",
+        "customerFollowUps": "Klienci do kontaktu",
+        "balanceBreakdown": "Bilans w tym miesiącu",
+        "netWorthByDate": "Aktywa netto według daty"
+      }
+    },
+    "customers": {
+      "title": "Klienci",
+      "table": "Wszyscy klienci",
+      "board": "Według etapu",
+      "properties": {
+        "stage": "Etap",
+        "city": "Miasto",
+        "contact": "Osoba kontaktowa",
+        "phone": "Telefon",
+        "email": "E-mail",
+        "nextStep": "Następny krok",
+        "nextStepDate": "Data następnego kroku",
+        "quotes": "Oferty",
+        "jobs": "Zlecenia",
+        "quoted": "Wartość ofert"
+      },
+      "stages": {
+        "lead": "Potencjalny",
+        "prospect": "W rozmowach",
+        "customer": "Klient",
+        "inactive": "Nieaktywny"
+      }
+    },
+    "quotes": {
+      "title": "Oferty",
+      "table": "Wszystkie oferty",
+      "board": "Według statusu",
+      "calendar": "Ponowne kontakty",
+      "properties": {
+        "customer": "Klient",
+        "status": "Status",
+        "amount": "Kwota",
+        "followUp": "Ponowny kontakt",
+        "date": "Data",
+        "validUntil": "Ważna do",
+        "preparedBy": "Przygotowana przez",
+        "jobs": "Zlecenia"
+      },
+      "statuses": {
+        "draft": "Szkic",
+        "sent": "Wysłana",
+        "revision": "Do poprawy",
+        "accepted": "Przyjęta",
+        "lost": "Odrzucona"
+      },
+      "rowTemplate": {
+        "title": "Nowa oferta",
+        "markdown": "## Pozycje\n\n- \n\n## Warunki\n\n**Płatność:** \n\n**Dostawa:** \n\n## Notatki\n"
+      }
+    },
+    "jobs": {
+      "title": "Zlecenia",
+      "table": "Wszystkie zlecenia",
+      "board": "Tablica",
+      "byPerson": "Według osoby",
+      "calendar": "Kalendarz",
+      "properties": {
+        "status": "Status",
+        "priority": "Priorytet",
+        "assignee": "Odpowiedzialny",
+        "due": "Termin",
+        "customer": "Klient",
+        "quote": "Oferta",
+        "notes": "Notatki"
+      },
+      "statuses": {
+        "todo": "Do zrobienia",
+        "waiting": "W oczekiwaniu",
+        "inProgress": "W toku",
+        "done": "Gotowe"
+      },
+      "priorities": {
+        "urgent": "Pilny",
+        "high": "Wysoki",
+        "normal": "Normalny",
+        "low": "Niski"
+      },
+      "rowTemplate": {
+        "title": "Nowe zlecenie",
+        "markdown": "## Kroki\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Bilans",
+      "table": "Wszystkie wpisy",
+      "byDate": "Według daty",
+      "netWorth": "Aktywa netto",
+      "thisMonth": "Bieżący miesiąc",
+      "properties": {
+        "date": "Data",
+        "side": "Strona",
+        "group": "Pozycja",
+        "amount": "Kwota",
+        "net": "Wpływ netto",
+        "note": "Uwagi"
+      },
+      "sides": {
+        "asset": "Aktywa",
+        "liability": "Zobowiązania"
+      },
+      "groups": {
+        "cash": "Kasa i bank",
+        "receivables": "Należności od klientów",
+        "chequesIn": "Otrzymane czeki",
+        "stock": "Zapasy",
+        "equipment": "Sprzęt",
+        "payables": "Zobowiązania wobec dostawców",
+        "chequesOut": "Wystawione czeki",
+        "card": "Zadłużenie na karcie kredytowej",
+        "loans": "Kredyty bankowe",
+        "taxes": "Podatki i ZUS",
+        "wages": "Wynagrodzenia do wypłaty",
+        "other": "Inne"
+      }
+    }
+  },
   "journal": {
     "title": "Dziennik",
     "markdown": "## Cel dnia\n\n- [ ] \n\n## Notatki\n\n## Zrobione dziś\n"

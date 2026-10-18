@@ -93,6 +93,144 @@
       "thanks": "営業からデモ環境の準備に感謝された"
     }
   },
+  "small-business": {
+    "title": "スモールビジネス",
+    "description": "顧客、顧客に出す見積もり、案件、貸借対照表を相互にリンク。ダッシュボードと週間計画付き。",
+    "currency": "JPY",
+    "dashboard": {
+      "title": "ダッシュボード",
+      "markdown": "> [!NOTE]\n> 案件、見積もり、顧客、貸借対照表をひとつの画面で確認できます。ウィジェットはデータベースの変更に合わせて更新されます。\n\nまず顧客を追加し、次に顧客に出す見積もりを追加します。見積もりが受注になったら、案件を追加して、その見積もりと顧客にリンクします。貸借対照表は、金額を確認した日の日付で入力します。ウィジェットには今月の記録が表示されます。",
+      "widgets": {
+        "openJobs": "未完了の案件",
+        "dueJobs": "本日期限・期限切れ",
+        "openQuotes": "進行中の見積もり",
+        "netWorth": "今月の純資産",
+        "jobsByPerson": "担当者・優先度別の未完了案件",
+        "upcomingJobs": "期限順の未完了案件",
+        "quotesByStatus": "ステータス別の見積もり",
+        "quoteFollowUps": "フォロー予定の見積もり",
+        "customersByStage": "ステージ別の顧客",
+        "customerFollowUps": "フォロー予定の顧客",
+        "balanceBreakdown": "今月の貸借対照表",
+        "netWorthByDate": "日付別の純資産"
+      }
+    },
+    "customers": {
+      "title": "顧客",
+      "table": "すべての顧客",
+      "board": "ステージ別",
+      "properties": {
+        "stage": "ステージ",
+        "city": "地域",
+        "contact": "先方担当者",
+        "phone": "電話番号",
+        "email": "メール",
+        "nextStep": "次の対応",
+        "nextStepDate": "次の対応日",
+        "quotes": "見積もり",
+        "jobs": "案件",
+        "quoted": "見積総額"
+      },
+      "stages": {
+        "lead": "見込み客",
+        "prospect": "商談中",
+        "customer": "取引中",
+        "inactive": "休眠"
+      }
+    },
+    "quotes": {
+      "title": "見積もり",
+      "table": "すべての見積もり",
+      "board": "ステータス別",
+      "calendar": "フォロー予定",
+      "properties": {
+        "customer": "顧客",
+        "status": "ステータス",
+        "amount": "金額",
+        "followUp": "フォロー予定日",
+        "date": "見積日",
+        "validUntil": "有効期限",
+        "preparedBy": "担当者",
+        "jobs": "案件"
+      },
+      "statuses": {
+        "draft": "下書き",
+        "sent": "提出済み",
+        "revision": "修正依頼",
+        "accepted": "受注",
+        "lost": "失注"
+      },
+      "rowTemplate": {
+        "title": "新しい見積もり",
+        "markdown": "## 明細\n\n- \n\n## 取引条件\n\n**支払い：** \n\n**納期：** \n\n## 備考\n"
+      }
+    },
+    "jobs": {
+      "title": "案件",
+      "table": "すべての案件",
+      "board": "ボード",
+      "byPerson": "担当者別",
+      "calendar": "カレンダー",
+      "properties": {
+        "status": "ステータス",
+        "priority": "優先度",
+        "assignee": "担当者",
+        "due": "期限",
+        "customer": "顧客",
+        "quote": "見積もり",
+        "notes": "メモ"
+      },
+      "statuses": {
+        "todo": "未着手",
+        "waiting": "保留中",
+        "inProgress": "進行中",
+        "done": "完了"
+      },
+      "priorities": {
+        "urgent": "緊急",
+        "high": "高",
+        "normal": "通常",
+        "low": "低"
+      },
+      "rowTemplate": {
+        "title": "新しい案件",
+        "markdown": "## 手順\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "貸借対照表",
+      "table": "すべての記録",
+      "byDate": "日付別",
+      "netWorth": "純資産",
+      "thisMonth": "今月",
+      "properties": {
+        "date": "日付",
+        "side": "区分",
+        "group": "科目",
+        "amount": "金額",
+        "net": "純資産への影響",
+        "note": "メモ"
+      },
+      "sides": {
+        "asset": "資産",
+        "liability": "負債"
+      },
+      "groups": {
+        "cash": "現金・預金",
+        "receivables": "売掛金",
+        "chequesIn": "受取小切手",
+        "stock": "在庫",
+        "equipment": "設備・備品",
+        "payables": "買掛金",
+        "chequesOut": "振出小切手",
+        "card": "カード未払金",
+        "loans": "銀行借入金",
+        "taxes": "税金・社会保険料",
+        "wages": "未払給与",
+        "other": "その他"
+      }
+    }
+  },
   "journal": {
     "title": "ジャーナル",
     "markdown": "## 今日のフォーカス\n\n- [ ] \n\n## メモ\n\n## 今日やったこと\n"

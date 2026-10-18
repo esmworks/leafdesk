@@ -222,6 +222,9 @@ jobs:
       - name: Templates end-to-end
         run: pnpm tsx scripts/templates-e2e.ts
 
+      - name: Small business template end-to-end
+        run: pnpm tsx scripts/small-business-e2e.ts
+
       - name: Daily notes end-to-end
         run: pnpm tsx scripts/daily-notes-e2e.ts
 

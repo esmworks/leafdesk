@@ -77,6 +77,10 @@
     "namePlaceholder": "Nazwa obszaru roboczego",
     "create": "Utwórz",
     "creating": "Tworzenie…",
+    "startWith": "Zacznij od",
+    "empty": "Pusty",
+    "emptyDescription": "Dodaj własne strony i bazy danych.",
+    "templateFailed": "Obszar roboczy został utworzony, ale nie udało się dodać do niego szablonu. Możesz go dodać w obszarze roboczym, w sekcji Szablony.",
     "restore": {
       "description": "Możesz też przywrócić obszar roboczy z pliku kopii zapasowej.",
       "choose": "Przywróć z kopii zapasowej…",

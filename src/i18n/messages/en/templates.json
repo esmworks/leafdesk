@@ -93,6 +93,144 @@
       "thanks": "Sales thanked us for the demo setup"
     }
   },
+  "small-business": {
+    "title": "Small business",
+    "description": "Customers, the quotes you give them, jobs and a balance sheet, linked to each other, with a dashboard and a weekly plan.",
+    "currency": "USD",
+    "dashboard": {
+      "title": "Dashboard",
+      "markdown": "> [!NOTE]\n> Jobs, quotes, customers and the balance sheet on one screen. The widgets follow the databases as they change.\n\nAdd your customers first, then the quotes you give them. When a quote is accepted, add a job and link it to the quote and the customer. Enter the balance sheet with the day you count it: the widgets show this month's entries.",
+      "widgets": {
+        "openJobs": "Open jobs",
+        "dueJobs": "Due or overdue",
+        "openQuotes": "Open quotes",
+        "netWorth": "Net worth this month",
+        "jobsByPerson": "Open jobs by person and priority",
+        "upcomingJobs": "Open jobs by due date",
+        "quotesByStatus": "Quotes by status",
+        "quoteFollowUps": "Quote follow-ups",
+        "customersByStage": "Customers by stage",
+        "customerFollowUps": "Customer follow-ups",
+        "balanceBreakdown": "Balance sheet this month",
+        "netWorthByDate": "Net worth by date"
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "table": "All customers",
+      "board": "By stage",
+      "properties": {
+        "stage": "Stage",
+        "city": "City",
+        "contact": "Contact person",
+        "phone": "Phone",
+        "email": "Email",
+        "nextStep": "Next step",
+        "nextStepDate": "Next step on",
+        "quotes": "Quotes",
+        "jobs": "Jobs",
+        "quoted": "Total quoted"
+      },
+      "stages": {
+        "lead": "Lead",
+        "prospect": "Prospect",
+        "customer": "Customer",
+        "inactive": "Inactive"
+      }
+    },
+    "quotes": {
+      "title": "Quotes",
+      "table": "All quotes",
+      "board": "By status",
+      "calendar": "Follow-ups",
+      "properties": {
+        "customer": "Customer",
+        "status": "Status",
+        "amount": "Amount",
+        "followUp": "Follow up on",
+        "date": "Date",
+        "validUntil": "Valid until",
+        "preparedBy": "Prepared by",
+        "jobs": "Jobs"
+      },
+      "statuses": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "revision": "Revision requested",
+        "accepted": "Accepted",
+        "lost": "Lost"
+      },
+      "rowTemplate": {
+        "title": "New quote",
+        "markdown": "## Items\n\n- \n\n## Terms\n\n**Payment:** \n\n**Delivery:** \n\n## Notes\n"
+      }
+    },
+    "jobs": {
+      "title": "Jobs",
+      "table": "All jobs",
+      "board": "Board",
+      "byPerson": "By person",
+      "calendar": "Calendar",
+      "properties": {
+        "status": "Status",
+        "priority": "Priority",
+        "assignee": "Assignee",
+        "due": "Due",
+        "customer": "Customer",
+        "quote": "Quote",
+        "notes": "Notes"
+      },
+      "statuses": {
+        "todo": "To do",
+        "waiting": "Waiting",
+        "inProgress": "In progress",
+        "done": "Done"
+      },
+      "priorities": {
+        "urgent": "Urgent",
+        "high": "High",
+        "normal": "Normal",
+        "low": "Low"
+      },
+      "rowTemplate": {
+        "title": "New job",
+        "markdown": "## Steps\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Balance sheet",
+      "table": "All entries",
+      "byDate": "By date",
+      "netWorth": "Net worth",
+      "thisMonth": "This month",
+      "properties": {
+        "date": "Date",
+        "side": "Side",
+        "group": "Group",
+        "amount": "Amount",
+        "net": "Net effect",
+        "note": "Note"
+      },
+      "sides": {
+        "asset": "Asset",
+        "liability": "Liability"
+      },
+      "groups": {
+        "cash": "Cash and bank",
+        "receivables": "Receivables",
+        "chequesIn": "Cheques received",
+        "stock": "Inventory",
+        "equipment": "Equipment",
+        "payables": "Payables",
+        "chequesOut": "Cheques issued",
+        "card": "Credit card debt",
+        "loans": "Bank loans",
+        "taxes": "Taxes and social security",
+        "wages": "Wages owed",
+        "other": "Other"
+      }
+    }
+  },
   "journal": {
     "title": "Journal",
     "markdown": "## Focus\n\n- [ ] \n\n## Notes\n\n## Done today\n"

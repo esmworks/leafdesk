@@ -93,6 +93,144 @@
       "thanks": "Vendas nos agradeceu pela configuração da demo"
     }
   },
+  "small-business": {
+    "title": "Pequena empresa",
+    "description": "Clientes, os orçamentos que você faz para eles, serviços e um balanço, vinculados entre si, com um painel e um plano semanal.",
+    "currency": "BRL",
+    "dashboard": {
+      "title": "Painel",
+      "markdown": "> [!NOTE]\n> Serviços, orçamentos, clientes e o balanço em uma só tela. Os widgets se atualizam conforme os bancos de dados mudam.\n\nAdicione primeiro seus clientes e depois os orçamentos que você faz para eles. Quando um orçamento for aprovado, adicione um serviço e vincule-o ao orçamento e ao cliente. Lance o balanço com a data do dia em que você faz a contagem: os widgets mostram os lançamentos deste mês.",
+      "widgets": {
+        "openJobs": "Serviços em aberto",
+        "dueJobs": "Para hoje ou atrasados",
+        "openQuotes": "Orçamentos em aberto",
+        "netWorth": "Patrimônio líquido deste mês",
+        "jobsByPerson": "Serviços em aberto por pessoa e prioridade",
+        "upcomingJobs": "Serviços em aberto por prazo",
+        "quotesByStatus": "Orçamentos por status",
+        "quoteFollowUps": "Orçamentos a acompanhar",
+        "customersByStage": "Clientes por etapa",
+        "customerFollowUps": "Clientes a acompanhar",
+        "balanceBreakdown": "Balanço deste mês",
+        "netWorthByDate": "Patrimônio líquido por data"
+      }
+    },
+    "customers": {
+      "title": "Clientes",
+      "table": "Todos os clientes",
+      "board": "Por etapa",
+      "properties": {
+        "stage": "Etapa",
+        "city": "Cidade",
+        "contact": "Contato",
+        "phone": "Telefone",
+        "email": "E-mail",
+        "nextStep": "Próximo passo",
+        "nextStepDate": "Data do próximo passo",
+        "quotes": "Orçamentos",
+        "jobs": "Serviços",
+        "quoted": "Total orçado"
+      },
+      "stages": {
+        "lead": "Potencial cliente",
+        "prospect": "Em negociação",
+        "customer": "Cliente",
+        "inactive": "Inativo"
+      }
+    },
+    "quotes": {
+      "title": "Orçamentos",
+      "table": "Todos os orçamentos",
+      "board": "Por status",
+      "calendar": "Acompanhamentos",
+      "properties": {
+        "customer": "Cliente",
+        "status": "Status",
+        "amount": "Valor",
+        "followUp": "Acompanhar em",
+        "date": "Data",
+        "validUntil": "Válido até",
+        "preparedBy": "Elaborado por",
+        "jobs": "Serviços"
+      },
+      "statuses": {
+        "draft": "Rascunho",
+        "sent": "Enviado",
+        "revision": "Revisão solicitada",
+        "accepted": "Aprovado",
+        "lost": "Perdido"
+      },
+      "rowTemplate": {
+        "title": "Novo orçamento",
+        "markdown": "## Itens\n\n- \n\n## Condições\n\n**Pagamento:** \n\n**Entrega:** \n\n## Observações\n"
+      }
+    },
+    "jobs": {
+      "title": "Serviços",
+      "table": "Todos os serviços",
+      "board": "Quadro",
+      "byPerson": "Por pessoa",
+      "calendar": "Calendário",
+      "properties": {
+        "status": "Status",
+        "priority": "Prioridade",
+        "assignee": "Responsável",
+        "due": "Prazo",
+        "customer": "Cliente",
+        "quote": "Orçamento",
+        "notes": "Observações"
+      },
+      "statuses": {
+        "todo": "A fazer",
+        "waiting": "Aguardando",
+        "inProgress": "Em andamento",
+        "done": "Concluído"
+      },
+      "priorities": {
+        "urgent": "Urgente",
+        "high": "Alta",
+        "normal": "Normal",
+        "low": "Baixa"
+      },
+      "rowTemplate": {
+        "title": "Novo serviço",
+        "markdown": "## Etapas\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Balanço",
+      "table": "Todos os lançamentos",
+      "byDate": "Por data",
+      "netWorth": "Patrimônio líquido",
+      "thisMonth": "Este mês",
+      "properties": {
+        "date": "Data",
+        "side": "Tipo",
+        "group": "Categoria",
+        "amount": "Valor",
+        "net": "Efeito líquido",
+        "note": "Observação"
+      },
+      "sides": {
+        "asset": "Ativo",
+        "liability": "Passivo"
+      },
+      "groups": {
+        "cash": "Caixa e bancos",
+        "receivables": "Contas a receber",
+        "chequesIn": "Cheques recebidos",
+        "stock": "Estoque",
+        "equipment": "Equipamentos",
+        "payables": "Contas a pagar",
+        "chequesOut": "Cheques emitidos",
+        "card": "Cartão de crédito",
+        "loans": "Empréstimos bancários",
+        "taxes": "Impostos e encargos sociais",
+        "wages": "Salários a pagar",
+        "other": "Outros"
+      }
+    }
+  },
   "journal": {
     "title": "Diário",
     "markdown": "## Foco\n\n- [ ] \n\n## Notas\n\n## Feito hoje\n"

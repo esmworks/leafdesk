@@ -93,6 +93,144 @@
       "thanks": "צוות המכירות הודה לנו על הכנת סביבת ההדגמה"
     }
   },
+  "small-business": {
+    "title": "עסק קטן",
+    "description": "לקוחות, הצעות המחיר שנותנים להם, עבודות ומאזן, מקושרים זה לזה, עם לוח בקרה ותוכנית שבועית.",
+    "currency": "ILS",
+    "dashboard": {
+      "title": "לוח בקרה",
+      "markdown": "> [!NOTE]\n> עבודות, הצעות מחיר, לקוחות והמאזן במסך אחד. הווידג׳טים מתעדכנים כשמסדי הנתונים משתנים.\n\nקודם מוסיפים את הלקוחות, ואחר כך את הצעות המחיר שנותנים להם. כשהצעת מחיר מאושרת, מוסיפים עבודה ומקשרים אותה להצעת המחיר וללקוח. את המאזן מזינים עם התאריך של יום הספירה: הווידג׳טים מציגים את הרשומות של החודש.",
+      "widgets": {
+        "openJobs": "עבודות פתוחות",
+        "dueJobs": "להיום או באיחור",
+        "openQuotes": "הצעות מחיר פתוחות",
+        "netWorth": "שווי נקי החודש",
+        "jobsByPerson": "עבודות פתוחות לפי אחראי ועדיפות",
+        "upcomingJobs": "עבודות פתוחות לפי תאריך יעד",
+        "quotesByStatus": "הצעות מחיר לפי סטטוס",
+        "quoteFollowUps": "הצעות מחיר למעקב",
+        "customersByStage": "לקוחות לפי שלב",
+        "customerFollowUps": "לקוחות למעקב",
+        "balanceBreakdown": "המאזן החודש",
+        "netWorthByDate": "שווי נקי לפי תאריך"
+      }
+    },
+    "customers": {
+      "title": "לקוחות",
+      "table": "כל הלקוחות",
+      "board": "לפי שלב",
+      "properties": {
+        "stage": "שלב",
+        "city": "עיר",
+        "contact": "איש קשר",
+        "phone": "טלפון",
+        "email": "אימייל",
+        "nextStep": "הצעד הבא",
+        "nextStepDate": "תאריך הצעד הבא",
+        "quotes": "הצעות מחיר",
+        "jobs": "עבודות",
+        "quoted": "סך הצעות המחיר"
+      },
+      "stages": {
+        "lead": "ליד",
+        "prospect": "לקוח פוטנציאלי",
+        "customer": "לקוח",
+        "inactive": "לא פעיל"
+      }
+    },
+    "quotes": {
+      "title": "הצעות מחיר",
+      "table": "כל הצעות המחיר",
+      "board": "לפי סטטוס",
+      "calendar": "מעקבים",
+      "properties": {
+        "customer": "לקוח",
+        "status": "סטטוס",
+        "amount": "סכום",
+        "followUp": "תאריך מעקב",
+        "date": "תאריך",
+        "validUntil": "בתוקף עד",
+        "preparedBy": "הוכן על ידי",
+        "jobs": "עבודות"
+      },
+      "statuses": {
+        "draft": "טיוטה",
+        "sent": "נשלחה",
+        "revision": "התבקשו שינויים",
+        "accepted": "אושרה",
+        "lost": "נדחתה"
+      },
+      "rowTemplate": {
+        "title": "הצעת מחיר חדשה",
+        "markdown": "## פריטים\n\n- \n\n## תנאים\n\n**תשלום:** \n\n**אספקה:** \n\n## הערות\n"
+      }
+    },
+    "jobs": {
+      "title": "עבודות",
+      "table": "כל העבודות",
+      "board": "לוח",
+      "byPerson": "לפי אחראי",
+      "calendar": "לוח שנה",
+      "properties": {
+        "status": "סטטוס",
+        "priority": "עדיפות",
+        "assignee": "אחראי",
+        "due": "תאריך יעד",
+        "customer": "לקוח",
+        "quote": "הצעת מחיר",
+        "notes": "הערות"
+      },
+      "statuses": {
+        "todo": "לביצוע",
+        "waiting": "בהמתנה",
+        "inProgress": "בתהליך",
+        "done": "הושלמה"
+      },
+      "priorities": {
+        "urgent": "דחופה",
+        "high": "גבוהה",
+        "normal": "רגילה",
+        "low": "נמוכה"
+      },
+      "rowTemplate": {
+        "title": "עבודה חדשה",
+        "markdown": "## שלבים\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "מאזן",
+      "table": "כל הרשומות",
+      "byDate": "לפי תאריך",
+      "netWorth": "שווי נקי",
+      "thisMonth": "החודש",
+      "properties": {
+        "date": "תאריך",
+        "side": "צד",
+        "group": "סעיף",
+        "amount": "סכום",
+        "net": "השפעה נטו",
+        "note": "הערה"
+      },
+      "sides": {
+        "asset": "נכס",
+        "liability": "התחייבות"
+      },
+      "groups": {
+        "cash": "מזומן ובנק",
+        "receivables": "חובות לקוחות",
+        "chequesIn": "צ׳קים שהתקבלו",
+        "stock": "מלאי",
+        "equipment": "ציוד",
+        "payables": "חובות לספקים",
+        "chequesOut": "צ׳קים שניתנו",
+        "card": "חוב כרטיסי אשראי",
+        "loans": "הלוואות בנק",
+        "taxes": "מסים וביטוח לאומי",
+        "wages": "משכורות לתשלום",
+        "other": "אחר"
+      }
+    }
+  },
   "journal": {
     "title": "יומן",
     "markdown": "## מיקוד\n\n- [ ] \n\n## הערות\n\n## הושלם היום\n"

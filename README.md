@@ -269,8 +269,10 @@ versions, upgrades and running behind a domain.
   page templates, as you pick at the bottom of the calendar. A note in the trash no longer counts:
   opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
-  from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker or a
-  wins log (a dashboard of wins by month, type, area and impact over the database that holds them).
+  from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker, a
+  wins log (a dashboard of wins by month, type, area and impact over the database that holds them)
+  or a small business: customers, the quotes given to them, jobs and a balance sheet, linked to each
+  other, with a dashboard over all four and a weekly plan. A new workspace can start with it.
   Templates stay out of the sidebar, search, trash and published sites.
 - **Comments**: select text and comment on it; reply, react, resolve and reopen threads, live for
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
@@ -2174,7 +2176,9 @@ The tools cover:
 - **Row activity:** `list_row_activity` lists who created a row and who changed what in it, newest
   first; a value AI autofill filled in has `actor: "ai"`, with the person it was worked out for in
   `by`.
-- **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`.
+- **Templates:** `list_templates`; `create_page` and `create_database_row` take a `template_id`. A
+  built-in kit (`kind: "kit"`, such as `builtin:small-business`) sets up all its pages and databases
+  at once, and `create_page` lists them under `parts`.
 - **Daily notes:** `get_or_create_daily_note` opens the user's note for a day (`date`, or today in
   `time_zone`), making it as the app would; `list_daily_notes` lists them newest first, from one day
   to another. Read-only apps can list notes but not make one.

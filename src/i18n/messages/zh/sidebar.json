@@ -77,6 +77,10 @@
     "namePlaceholder": "工作区名称",
     "create": "创建",
     "creating": "正在创建…",
+    "startWith": "初始内容",
+    "empty": "空白",
+    "emptyDescription": "自行添加页面和数据库。",
+    "templateFailed": "工作区已创建，但未能在其中设置模板。你可以在工作区的“模板”中添加。",
     "restore": {
       "description": "或者从备份文件恢复工作区。",
       "choose": "从备份恢复…",

@@ -262,6 +262,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
       parent_id: { type: ["string", "null"] },
       from_template: { type: "string" },
       url,
+      parts: {
+        type: "array",
+        items: loose({ id, title: { type: "string" }, kind: pageKind, url }),
+        description: "From a built-in kit: every page and database it set up, in the sidebar's order.",
+      },
     },
     ["id", "title", "workspace_id", "url"],
   ),
