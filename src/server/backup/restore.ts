@@ -24,6 +24,7 @@ import { agentEmail } from "@/lib/agents";
 import { decodeValue, entryKind, fileEntryPath, idRewriter, MANIFEST_PATH, parseManifest, rewriteDeep, BACKUP_VERSION, type BackupManifest, type RestoreResult } from "@/lib/backup";
 import { rewriteDocument } from "@/lib/backup-ydoc";
 import { normalizeEmail } from "@/lib/emails";
+import { env } from "@/lib/env";
 import { fileIdOf, isFileId } from "@/lib/files";
 import { isReservedEmail, isRestoredEmail, restoredEmail } from "@/lib/reserved-emails";
 import { readAiConfig } from "@/server/ai/config";
@@ -400,8 +401,19 @@ const newToken = () => randomBytes(32).toString("base64url");
 async function fitThisServer(manifest: BackupManifest, rows: Rows) {
   const [ws] = rows.get("workspace")!;
   ws.invite_link_token = null;
-  // Domains are proven by DNS for a server's own workspaces; the proof doesn't travel.
-  if (ws.settings && typeof ws.settings === "object") ws.settings = { ...(ws.settings as object), allowedDomainsVerified: [] };
+  let ssoOnlyTurnedOff = false;
+  if (ws.settings && typeof ws.settings === "object") {
+    // Domains are proven by DNS for a server's own workspaces; the proof doesn't travel.
+    const settings: Record<string, unknown> = { ...(ws.settings as object), allowedDomainsVerified: [] };
+    // Nor does single sign-on (tables.ts), which "SSO only" would wait for and then apply at once:
+    // it falls back to any method, as when a connection is removed (sso.ts), unless the instance
+    // provider signs members in here.
+    if (settings.loginMethod === "sso" && !env.instanceOidc) {
+      settings.loginMethod = "any";
+      ssoOnlyTurnedOff = true;
+    }
+    ws.settings = settings;
+  }
 
   let siteLeftOut = false;
   const sites = rows.get("workspace_site")!;
@@ -442,7 +454,7 @@ async function fitThisServer(manifest: BackupManifest, rows: Rows) {
     rows.set("page_chunk", []);
     rows.set("page_index_state", []);
   }
-  return { siteLeftOut, connectionsToReconnect: connections.length, searchIndexDropped };
+  return { siteLeftOut, connectionsToReconnect: connections.length, searchIndexDropped, ssoOnlyTurnedOff };
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -86,6 +86,7 @@
       "withoutAccount": "{count, plural, one {# Person hat} other {# Personen haben}} kein Konto auf diesem Server. Was sie geschrieben haben, bleibt unter ihrem Namen; lade sie ein, um ihnen wieder Zugriff zu geben:",
       "andMore": "und {count} weitere",
       "connections": "Bei {count, plural, one {# Verbindung} other {# Verbindungen}} musst du dich unter Einstellungen → Verbindungen erneut anmelden.",
+      "ssoOnlyTurnedOff": "Single Sign-on ist nicht Teil eines Backups, deshalb können sich Mitglieder vorerst mit jeder Methode anmelden. Richte es unter Einstellungen → Sicherheit ein und wähle dann wieder „Nur Single Sign-on“.",
       "siteLeftOut": "Die Adresse der Website ist auf diesem Server schon vergeben, deshalb wurde die Website ausgelassen. Richte sie unter Einstellungen → Website neu ein.",
       "searchIndexDropped": "Die semantische Suche baut ihren Index neu auf; danach findet sie wieder alles.",
       "open": "Workspace öffnen",

@@ -95,6 +95,7 @@ export function RestoreBackup({
         </li>
       ),
       result.connectionsToReconnect > 0 && <li key="connections">{t("connections", { count: result.connectionsToReconnect })}</li>,
+      result.ssoOnlyTurnedOff && <li key="sso">{t("ssoOnlyTurnedOff")}</li>,
       result.siteLeftOut && <li key="site">{t("siteLeftOut")}</li>,
       result.searchIndexDropped && <li key="search">{t("searchIndexDropped")}</li>,
     ].filter(Boolean);

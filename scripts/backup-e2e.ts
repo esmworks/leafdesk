@@ -2,17 +2,19 @@
  * End-to-end check of workspace backups (server/backup): a workspace with members, a teamspace, a
  * group, pages with mentions and comments in their documents, a history version, a database with
  * person, files and relation values, a view, an uploaded file, a published page, a favorite, a
- * page permission and an agent is backed up, and
+ * page permission, an agent and "SSO only" (through the server's own provider) is backed up, and
  *
  * - restored on another Leafdesk (a second database and upload folder, in a child process of this
  *   script) through the restore route, by someone with the owner's address but another id there,
  *   next to a member whose account there has another id too and a member with no account there.
  *   Every backed-up table is compared row by row with the original, people's ids mapped, the
- *   documents decoded, and the files byte for byte;
+ *   documents decoded, and the files byte for byte. That Leafdesk has no single sign-on provider of
+ *   its own, so "SSO only" falls back to any method;
  * - refused when it was edited to reach outside itself, and next to itself;
- * - restored on the same server after the workspace was deleted, with every row as it was, no new
- *   users, and the files the deletion queued for removal kept; a single sign-on connection it sets
- *   up then forgets the sign-ins left on record under its provider id.
+ * - restored on the same server after the workspace was deleted, with every row as it was ("SSO
+ *   only" too, the server's provider being there), no new users, and the files the deletion queued
+ *   for removal kept; a single sign-on connection it sets up then forgets the sign-ins left on
+ *   record under its provider id.
  *
  *   pnpm tsx scripts/backup-e2e.ts
  *
@@ -44,7 +46,7 @@ process.env.UPLOAD_DIR = join(work, PEER ? "peer-uploads" : "uploads");
 const { eq, inArray, like, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { account, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user } = await import("@/db/schema");
+const { account, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user, workspace } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { encodeValue, idRewriter, rewriteDeep } = await import("@/lib/backup");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
@@ -114,6 +116,21 @@ async function dumpWorkspace(workspaceId: string): Promise<Dump> {
       .sort((a, b) => (JSON.stringify(t.primaryKey.map((k) => a[k])) < JSON.stringify(t.primaryKey.map((k) => b[k])) ? -1 : 1));
   }
   return out;
+}
+
+/** Runs `f` on a server with its own single sign-on provider (env.instanceOidc reads these anew). */
+async function withInstanceProvider<T>(f: () => Promise<T>): Promise<T> {
+  const provider = { OIDC_ISSUER: "https://idp.example.test/instance", OIDC_CLIENT_ID: "backup-e2e", OIDC_CLIENT_SECRET: "backup-e2e-secret" };
+  const before = Object.keys(provider).map((name) => [name, process.env[name]] as const);
+  Object.assign(process.env, provider);
+  try {
+    return await f();
+  } finally {
+    for (const [name, value] of before) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  }
 }
 
 async function signedIn(userId: string) {
@@ -234,7 +251,7 @@ async function main() {
   const { publishPage } = await import("@/server/publication");
   const { createRow } = await import("@/server/templates");
   const { addTeamspaceMembers, createTeamspace } = await import("@/server/teamspaces");
-  const { addMemberAs, createWorkspace, deleteWorkspaces } = await import("@/server/workspaces");
+  const { addMemberAs, createWorkspace, deleteWorkspaces, updateWorkspaceSettings } = await import("@/server/workspaces");
   const { zipEntries, readEntry } = await import("@/server/backup/zip-reader");
   const { zipSync } = await import("fflate");
 
@@ -316,6 +333,8 @@ async function main() {
     await setPagePermission(ids.owner, child.id, ids.bob, "edit");
     await setPagePermission(ids.owner, child.id, `group:${group.id}`, "comment").catch(() => {});
     await publishPage(ids.owner, doc.id);
+    // Members sign in with single sign-on only, which needs a provider: the server's own.
+    await withInstanceProvider(() => updateWorkspaceSettings(ids.owner, ws, { loginMethod: "sso" }));
 
     // ----- Backing it up
     const plan = await planBackup(ids.owner, ws);
@@ -324,6 +343,8 @@ async function main() {
     const archive = join(work, "backup.zip");
     await pipeline(Readable.fromWeb(backupArchive(snapshot) as import("node:stream/web").ReadableStream), createWriteStream(archive));
     const original = await dumpWorkspace(ws);
+    const loginMethodOf = (dump: Dump) => (dump.workspace[0]?.settings as { loginMethod?: string } | undefined)?.loginMethod;
+    check(loginMethodOf(original) === "sso", "members of the workspace sign in with single sign-on only");
     const looseRow = original.page.find((p) => p.id === loose.id)!;
     check(looseRow.teamspace_id === null && looseRow.parent_id === null, "a top-level page is outside any teamspace");
     const filled = Object.entries(original).filter(([, rows]) => rows.length).map(([name]) => name);
@@ -343,7 +364,8 @@ async function main() {
         url.pathname = `${url.pathname}_peer`;
         return url.toString();
       })();
-    const peerEnv = { ...process.env, DATABASE_URL: peerUrl };
+    // Without a single sign-on provider of its own (an empty value outlasts one in .env).
+    const peerEnv = { ...process.env, DATABASE_URL: peerUrl, OIDC_ISSUER: "" };
     await run(["scripts/migrate.ts"], peerEnv);
     await writeFile(join(work, "peer-input.json"), JSON.stringify({ run: RUN, ownerEmail: email("owner"), aliceEmail: email("alice"), files: fileHashes }));
     await run(["scripts/backup-e2e.ts", "--peer", work], peerEnv);
@@ -357,6 +379,11 @@ async function main() {
       "the person without an account there is listed, to invite",
       out.result.withoutAccount,
     );
+    check(
+      out.result.ssoOnlyTurnedOff === true && loginMethodOf(out.dump) === "any",
+      "with no single sign-on there, “SSO only” falls back to any method, as the result says",
+      { result: out.result, settings: out.dump.workspace[0]?.settings },
+    );
     check(!out.result.siteLeftOut && out.result.connectionsToReconnect === 0, "nothing else needs setting up again", out.result);
     check(out.audit === "backup.restored", "the restore is in the audit log there");
     const placeholder = (out.placeholders as { id: string; email: string; name: string }[]).find((p) => p.id === ids.bob);
@@ -369,7 +396,7 @@ async function main() {
       [ids.owner, out.ownerId as string],
       [ids.alice, out.aliceId as string],
     ]);
-    const expected = expectedAfterRestore(original, people, new Set([ids.bob]));
+    const expected = expectedAfterRestore(original, people, new Set([ids.bob]), "any");
     compareDumps(expected, out.dump, "on another Leafdesk");
 
     // ----- Edited backups, and one next to itself
@@ -448,15 +475,21 @@ async function main() {
       await deleteWorkspaces(tx, [ws]);
     });
     check((await db.select().from(storageDeletion).where(inArray(storageDeletion.storageKey, keys))).length === 2, "deleting it queues its files for removal");
-    const back = await restoreBackup(ids.owner, archive);
+    const back = await withInstanceProvider(() => restoreBackup(ids.owner, archive));
     check(back.workspaceId === ws && back.withoutAccount.length === 0, "it restores where it was deleted, everyone with their account", back);
+    const [restored] = await db.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, ws));
+    check(
+      !back.ssoOnlyTurnedOff && restored?.settings.loginMethod === "sso",
+      "where the server has its own single sign-on provider, “SSO only” stays on",
+      { back, settings: restored?.settings },
+    );
     const [{ users: usersAfter }] = await db.select({ users: sql<number>`count(*)::int` }).from(user);
     check(usersAfter === usersBefore, "no new users (the agent's comes back as it was)", { usersBefore, usersAfter });
     check((await db.select().from(storageDeletion).where(inArray(storageDeletion.storageKey, keys))).length === 0, "the queued removals are called off");
     await db.update(storageDeletion).set({ nextAttemptAt: new Date(Date.now() - 1000) }).where(like(storageDeletion.storageKey, `${ws}/%`));
     await files.drainStorageDeletions();
     for (const key of keys) check(await storedBytes(key), `the file cleanup leaves ${key.split("/")[1]} alone`);
-    compareDumps(expectedAfterRestore(original, new Map(), new Set()), await dumpWorkspace(ws), "on the same server");
+    compareDumps(expectedAfterRestore(original, new Map(), new Set(), "sso"), await dumpWorkspace(ws), "on the same server");
 
     // The restored workspace's id brings back its single sign-on provider id (`ws-<id>`), under
     // which a sign-in may still be on record from before (older versions left them when a deleted
@@ -521,9 +554,10 @@ function run(args: string[], childEnv: NodeJS.ProcessEnv) {
 
 /**
  * What a restore makes of the backed-up rows: people's ids mapped (in documents too), people
- * without an account here out of memberships, and what belongs to a server set anew.
+ * without an account here out of memberships, the login method the server leaves, and what
+ * belongs to a server set anew.
  */
-function expectedAfterRestore(original: Dump, people: Map<string, string>, withoutAccount: Set<string>): Dump {
+function expectedAfterRestore(original: Dump, people: Map<string, string>, withoutAccount: Set<string>, loginMethod: "any" | "sso"): Dump {
   const rewrite = idRewriter(people);
   const out: Dump = {};
   for (const t of backupTables()) {
@@ -535,6 +569,7 @@ function expectedAfterRestore(original: Dump, people: Map<string, string>, witho
         const value = row[c.name];
         copy[c.name] = rewrite && c.kind !== "timestamp" && value !== null ? rewriteDeep(value, rewrite) : value;
       }
+      if (t.name === "workspace") copy.settings = { ...(copy.settings as object), loginMethod };
       return masked(t.name, copy);
     });
   }

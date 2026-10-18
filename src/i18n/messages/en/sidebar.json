@@ -86,6 +86,7 @@
       "withoutAccount": "{count, plural, one {# person has} other {# people have}} no account on this server. What they wrote stays under their name; invite them to give them access again:",
       "andMore": "and {count} more",
       "connections": "{count, plural, one {# connection needs} other {# connections need}} signing in again in Settings → Connections.",
+      "ssoOnlyTurnedOff": "Single sign-on isn't part of a backup, so members can sign in with any method for now. Set it up in Settings → Security, then choose “Single sign-on only” again.",
       "siteLeftOut": "The site's address is taken on this server, so the site was left out. Set it up again in Settings → Site.",
       "searchIndexDropped": "Semantic search builds its index again; it finds everything once that's done.",
       "open": "Open workspace",

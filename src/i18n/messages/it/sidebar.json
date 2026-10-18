@@ -86,6 +86,7 @@
       "withoutAccount": "{count, plural, one {# persona non ha} other {# persone non hanno}} un account su questo server. Ciò che hanno scritto resta a loro nome; invitale per ridare loro l’accesso:",
       "andMore": "e altri {count}",
       "connections": "{count, plural, one {# connessione richiede} other {# connessioni richiedono}} un nuovo accesso in Impostazioni → Connessioni.",
+      "ssoOnlyTurnedOff": "Il single sign-on non fa parte di un backup, quindi per ora i membri possono accedere con qualsiasi metodo. Configuralo in Impostazioni → Sicurezza, poi scegli di nuovo “Solo single sign-on”.",
       "siteLeftOut": "L’indirizzo del sito è già in uso su questo server, quindi il sito è stato escluso. Configuralo di nuovo in Impostazioni → Sito.",
       "searchIndexDropped": "La ricerca semantica ricostruisce il suo indice; al termine troverà di nuovo tutto.",
       "open": "Apri spazio di lavoro",

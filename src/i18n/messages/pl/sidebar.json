@@ -86,6 +86,7 @@
       "withoutAccount": "{count, plural, one {# osoba nie ma} few {# osoby nie mają} many {# osób nie ma} other {# osoby nie ma}} konta na tym serwerze. To, co napisały, pozostaje pod ich nazwiskiem; zaproś je, aby ponownie dać im dostęp:",
       "andMore": "i {count} więcej",
       "connections": "{count, plural, one {# połączenie wymaga} few {# połączenia wymagają} many {# połączeń wymaga} other {# połączenia wymaga}} ponownego zalogowania w sekcji Ustawienia → Połączenia.",
+      "ssoOnlyTurnedOff": "Logowanie jednokrotne nie jest częścią kopii zapasowej, więc na razie członkowie mogą logować się dowolną metodą. Skonfiguruj je w sekcji Ustawienia → Bezpieczeństwo, a potem ponownie wybierz „Tylko logowanie jednokrotne”.",
       "siteLeftOut": "Adres witryny jest już zajęty na tym serwerze, więc witryna została pominięta. Skonfiguruj ją ponownie w sekcji Ustawienia → Witryna.",
       "searchIndexDropped": "Wyszukiwanie semantyczne ponownie buduje swój indeks; po zakończeniu znajdzie wszystko.",
       "open": "Otwórz obszar roboczy",

@@ -86,6 +86,7 @@
       "withoutAccount": "{count, plural, one {# personne n’a} other {# personnes n’ont}} pas de compte sur ce serveur. Ce qu’elles ont écrit reste à leur nom ; invitez-les pour leur redonner l’accès :",
       "andMore": "et {count} de plus",
       "connections": "Il faut se reconnecter à {count, plural, one {# connexion} other {# connexions}} dans Paramètres → Connexions.",
+      "ssoOnlyTurnedOff": "L’authentification unique ne fait pas partie d’une sauvegarde, les membres peuvent donc se connecter avec n’importe quelle méthode pour l’instant. Configurez-la dans Paramètres → Sécurité, puis choisissez à nouveau « Authentification unique uniquement ».",
       "siteLeftOut": "L’adresse du site est déjà prise sur ce serveur, le site n’a donc pas été restauré. Configurez-le à nouveau dans Paramètres → Site.",
       "searchIndexDropped": "La recherche sémantique reconstruit son index ; elle retrouvera tout une fois l’opération terminée.",
       "open": "Ouvrir l’espace de travail",

@@ -86,6 +86,7 @@
       "withoutAccount": "{count} kişinin bu sunucuda hesabı yok. Yazdıkları kendi adlarıyla kalır; yeniden erişim vermek için onları davet edin:",
       "andMore": "ve {count} kişi daha",
       "connections": "{count} bağlantı için Ayarlar → Bağlantılar bölümünden yeniden oturum açmak gerekiyor.",
+      "ssoOnlyTurnedOff": "Çoklu oturum açma yedeğe dahil değildir, bu yüzden üyeler şimdilik her yöntemle giriş yapabilir. Ayarlar → Güvenlik bölümünden kurun, ardından “Yalnızca çoklu oturum açma” seçeneğini yeniden seçin.",
       "siteLeftOut": "Sitenin adresi bu sunucuda kullanımda olduğu için site dahil edilmedi. Ayarlar → Site bölümünden yeniden kurun.",
       "searchIndexDropped": "Anlamsal arama dizinini yeniden oluşturuyor; bu bitince her şeyi bulur.",
       "open": "Çalışma alanını aç",
