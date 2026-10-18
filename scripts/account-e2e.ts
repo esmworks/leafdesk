@@ -795,6 +795,19 @@ async function main() {
   const eveAfter = await apiStatus(eveToken);
   check(eveAfter === 401, "…with the API tokens of the people who signed in through it", eveAfter);
   check(!(await consentsOf(eve.id)).includes(eveApp), "…and their connected apps", await consentsOf(eve.id));
+  const [eveAppAudit] = await db
+    .select({ actorKind: auditEvent.actorKind, actorUserId: auditEvent.actorUserId, ip: auditEvent.ip, userAgent: auditEvent.userAgent, details: auditEvent.details })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, eve.workspaceId), eq(auditEvent.action, "connected_app.revoked"), eq(auditEvent.targetId, eveApp)));
+  check(
+    eveAppAudit?.actorKind === "system" &&
+      eveAppAudit.actorUserId === null &&
+      eveAppAudit.ip === null &&
+      eveAppAudit.userAgent === null &&
+      eveAppAudit.details.subjectId === eve.id,
+    "…which Eve's other workspaces record as the server's doing, on her, without Dora's address or device",
+    eveAppAudit,
+  );
   const doraAfter = await apiStatus(doraToken);
   check(doraAfter === 200, "another member's API token keeps working", doraAfter);
   const left = await db.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, [dora.workspaceId, eve.workspaceId]));

@@ -280,7 +280,9 @@
 - **Deleting a workspace revokes the API tokens and connected apps of its SSO users.** It already
   ended the sessions signed in through the workspace's SSO connection, but those people's tokens
   and apps for all their workspaces kept reaching the others. They are now revoked in the same
-  transaction; the workspace's audit log goes with it, so the server log says how many.
+  transaction; the workspace's audit log goes with it, so the server log says how many. Their
+  other workspaces record each app disconnected as done by the server, on that person, here and
+  when the connection is moved or removed, not as the person's own doing from the owner's address.
 - **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response
   run, so HTML that ever got past the sanitizers of a published page, a bookmark or a diagram
   can't run script where the session lives; frames may only come from the embed providers, and
