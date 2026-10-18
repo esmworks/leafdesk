@@ -38,6 +38,7 @@ import { AccessError, accessRank, childVisibleTo, pageVisibleTo, requireMembersh
 import { recordAudit } from "@/server/audit";
 import { deletedPropertyIds, rowCovers, type DatabaseProperty } from "@/server/databases";
 import { formulasReadingRelated } from "@/lib/derived";
+import { valueFormat } from "@/lib/number-format";
 import { computeDerived, withAllFormulaTypes } from "@/server/derived";
 import { publishedPageRefs } from "@/server/mentions";
 import { expandSyncedBlocks, syncedSources } from "@/server/synced-blocks";
@@ -864,10 +865,9 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (holdsOptions(prop.type) && stored.options) {
     options.options = stored.options.map(({ id, name, color, group }) => ({ id, name, color, ...(group ? { group } : {}) }));
   }
-  if (prop.type === "number") {
-    if (stored.number) options.number = stored.number;
-    if (stored.numberDisplay) options.numberDisplay = stored.numberDisplay;
-  }
+  if (prop.type === "number" && stored.numberDisplay) options.numberDisplay = stored.numberDisplay;
+  const number = valueFormat(prop);
+  if (number) options.number = number;
   if (prop.type === "date" && stored.date?.display) options.date = { display: stored.date.display };
   if (prop.type === "formula") options.formula = stored.formula?.type ? { type: stored.formula.type } : {};
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;

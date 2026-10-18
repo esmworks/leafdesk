@@ -3,7 +3,8 @@
  * when saved, stored with property ids (renames keep them working) and worked out on every read
  * path (snapshot, row page, filters and sorts, MCP, published pages, duplicates); rollups count
  * only the related rows the reader can see, break visibly when what they read is deleted, feed
- * formulas, and are set up over MCP by names.
+ * formulas, and are set up over MCP by names. Formulas giving a number take a number format (and
+ * rollups summing them with it); others are refused one.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/formula-e2e.ts
@@ -205,6 +206,83 @@ try {
   const queried = mcpQuery.data.rows.map((r: { title: string; properties: Values }) => [r.title, r.properties["Double cost"]]);
   check(JSON.stringify(queried) === JSON.stringify([["Build", 750], ["Secret", 15000]]), "MCP queries filter on formulas and return their values", queried);
 
+  // ---- Number formats on formulas ----
+  const euros = { format: "currency" as const, currency: "EUR", decimals: 2 };
+  const storedOptions = async (propertyId: string) =>
+    (await db.select({ options: databaseProperty.options }).from(databaseProperty).where(eq(databaseProperty.id, propertyId)))[0]?.options;
+  await updateProperty(ids.owner, cost.id, { number: euros });
+  const costShown = (await getProperties(tasks.id)).find((p) => p.id === cost.id);
+  check(
+    JSON.stringify(costShown?.options.number) === JSON.stringify(euros) && costShown?.options.formula?.expression === `prop("${hours.id}") * 50`,
+    "a formula giving a number takes a number format and keeps its expression",
+    costShown?.options,
+  );
+  check(
+    await rejects(() => updateProperty(ids.owner, label.id, { number: { format: "percent" } }), "invalidNumberFormat"),
+    "a formula giving text is refused a number format",
+  );
+  check(
+    await rejects(() => updateProperty(ids.owner, late.id, { number: euros }), "invalidNumberFormat"),
+    "…and so is one giving a checkbox",
+  );
+  check(
+    await rejects(
+      () => addProperty(ids.owner, tasks.id, { name: "Next day", type: "formula", formula: { expression: 'dateAdd(prop("Due"), 1, "days")' }, number: euros }),
+      "invalidNumberFormat",
+    ) && !(await getProperties(tasks.id)).some((p) => p.name === "Next day"),
+    "…and one giving a date, when it is added",
+  );
+  await updateProperty(ids.owner, label.id, { number: null });
+  check(!(await storedOptions(label.id))?.number, "clearing a format is fine on any formula");
+  const withTax = await addProperty(ids.owner, tasks.id, {
+    name: "With tax",
+    type: "formula",
+    formula: { expression: 'prop("Cost") * 1.2' },
+    number: { format: "currency", currency: "TRY" },
+  });
+  check(
+    withTax.options.number?.currency === "TRY" && withTax.options.formula?.expression === `prop("${cost.id}") * 1.2`,
+    "a formula is added with its format and expression both",
+    withTax.options,
+  );
+  await updateProperty(ids.owner, withTax.id, { formula: { expression: 'prop("Cost") * 1.18' }, number: euros });
+  const bothChanged = await storedOptions(withTax.id);
+  check(
+    bothChanged?.formula?.expression === `prop("${cost.id}") * 1.18` && bothChanged?.number?.currency === "EUR",
+    "a new expression and format saved together both stay",
+    bothChanged,
+  );
+  check(
+    await rejects(() => updateProperty(ids.owner, withTax.id, { formula: { expression: 'format(prop("Cost"))' }, number: euros }), "invalidNumberFormat"),
+    "a format given with an expression that gives text is refused",
+  );
+  await updateProperty(ids.owner, withTax.id, { formula: { expression: 'format(prop("Cost"))' } });
+  check(!(await storedOptions(withTax.id))?.number, "an expression that no longer gives a number drops the format", await storedOptions(withTax.id));
+  await deleteProperty(ids.owner, withTax.id);
+
+  // Percentages filter in percent points, as number properties do.
+  await updateProperty(ids.owner, ratio.id, { number: { format: "percent" } });
+  const byRatio = await listRows(ids.owner, tasks.id, { filters: [{ propertyId: ratio.id, op: "gt", value: 250 }] });
+  check(byRatio.map((r) => r.title).join() === "Design", "a formula shown as a percentage filters by the percent shown (10/3 is 333 %)", byRatio.map((r) => r.title));
+  await updateProperty(ids.owner, ratio.id, { number: null });
+
+  const mcpFormat = await callTool(ids.owner, "get_database", { database_id: tasks.id });
+  const costDescribed = mcpFormat.data.properties.find((p: { name: string }) => p.name === "Cost");
+  const labelDescribed = mcpFormat.data.properties.find((p: { name: string }) => p.name === "Label");
+  check(JSON.stringify(costDescribed?.number_format) === JSON.stringify(euros) && !("number_format" in labelDescribed), "MCP shows a formula's number format", costDescribed);
+  const mcpUsd = await callTool(ids.owner, "update_database_property", { database_id: tasks.id, property: "Double cost", number_format: { format: "currency", currency: "USD" } });
+  check(!mcpUsd.isError && mcpUsd.data.property.number_format?.currency === "USD", "MCP sets a formula's number format", mcpUsd.text);
+  const mcpOnText = await callTool(ids.owner, "update_database_property", { database_id: tasks.id, property: "Label", number_format: { format: "percent" } });
+  check(mcpOnText.isError && mcpOnText.text.includes("Only formulas that give a number"), "MCP refuses a format on a formula giving text, saying why", mcpOnText.text);
+  const mcpAddFormatted = await callTool(ids.owner, "add_database_property", {
+    database_id: tasks.id,
+    name: "Half cost",
+    type: "formula",
+    formula: 'prop("Cost") / 2',
+    number_format: euros,
+  });
+  check(!mcpAddFormatted.isError && mcpAddFormatted.data.property.number_format?.currency === "EUR", "MCP adds a formula with its format", mcpAddFormatted.text);
+
   // ---- Rollups ----
   const rel = await addProperty(ids.owner, projects.id, {
     name: "Tasks",
@@ -241,6 +319,8 @@ try {
   check(JSON.stringify(alphaValues[names.id]) === JSON.stringify(["Design", "Build", "Secret"]), "a rollup shows the linked titles", alphaValues[names.id]);
   check(alphaValues[first.id] === "2020-01-10", "a rollup finds the earliest date", alphaValues[first.id]);
   check(alphaValues[costs.id] === 5400, "a rollup calculates over a formula of the related database", alphaValues[costs.id]);
+  const costsShown = (await getProperties(projects.id)).find((p) => p.id === costs.id);
+  check(costsShown?.options.rollup?.number?.currency === "EUR", "a rollup summing a formula takes the formula's format", costsShown?.options);
   check(Math.abs((alphaValues[perHour.id] as number) - 1600 / 108) < 1e-9, "formulas are worked out after rollups", alphaValues[perHour.id]);
   check(pv.get("Beta")![total.id] === 0 && errorCode(pv.get("Beta")![perHour.id]) === "divisionByZero", "a rollup over zero hours feeds a failing formula");
 
@@ -323,6 +403,8 @@ try {
   const publishedTasks = await getPublishedPage(token, tasks.id);
   const publishedRow = publishedTasks?.database?.rows.find((r) => r.title === "Build");
   check(publishedRow?.properties[cost.id] === 350, "published databases show formula values", publishedRow);
+  const publishedCost = publishedTasks?.database?.properties.find((p) => p.id === cost.id);
+  check(publishedCost?.options.number?.currency === "EUR", "…in their number format", publishedCost);
   const publishedProjects = await getPublishedPage(token, projects.id);
   const shownTypes = publishedProjects?.database?.properties.map((p) => p.type) ?? [];
   const alphaPublished = publishedProjects?.database?.rows.find((r) => r.title === "Alpha");
@@ -353,6 +435,7 @@ try {
   check(copiedValues[copiedTotal.id] === 110, "…and works out the same value", copiedValues);
   const copiedCost = (await valuesOf(copiedTasks.id)).get("Build")![copiedTaskProps.find((p) => p.name === "Cost")!.id];
   check(copiedCost === 350, "a duplicated formula uses the copied properties", copiedCost);
+  check(copiedTaskProps.find((p) => p.name === "Cost")?.options.number?.currency === "EUR", "…and keeps its number format");
 
   // Deleting what a rollup or formula reads shows an error in every row.
   await deleteProperty(ids.owner, hours.id);
@@ -361,6 +444,12 @@ try {
   check(errorCode(pv.get("Alpha")![perHour.id]) === "referenceError", "…and so do formulas using it", pv.get("Alpha")![perHour.id]);
   tv = await valuesOf(tasks.id);
   check(errorCode(tv.get("Build")![cost.id]) === "unknownProperty", "a formula whose property was deleted shows why", tv.get("Build")![cost.id]);
+  const brokenCost = (await getProperties(tasks.id)).find((p) => p.id === cost.id);
+  check(
+    brokenCost?.options.formula?.type === "text" && !brokenCost.options.number && (await storedOptions(cost.id))?.number?.currency === "EUR",
+    "a formula that no longer gives a number shows without its format, which stays stored",
+    brokenCost?.options,
+  );
   check(errorCode(tv.get("Build")![a.id]) === "referenceError", "…and so do formulas using that formula", tv.get("Build")![a.id]);
   await deleteProperty(ids.owner, rel.id);
   pv = await valuesOf(projects.id);

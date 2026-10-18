@@ -33,7 +33,7 @@ import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
 import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
-import { calculationFormat, numberFormatOptions, numberText, readNumber } from "@/lib/number-format";
+import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
@@ -343,7 +343,8 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; val
   if (prop.type === "rollup" && typeof value === "number") return <RollupNumber prop={prop} value={value} />;
   switch (derivedType(prop)) {
     case "number":
-      return <span {...styledProps(whole, "tabular-nums")}>{typeof value === "number" ? formatNumber(value) : String(value)}</span>;
+      // A formula giving an amount or a percentage shows in its number format.
+      return <span {...styledProps(whole, "tabular-nums")}>{typeof value === "number" ? formatNumber(value, valueFormat(prop)) : String(value)}</span>;
     case "checkbox":
       return whole ? (
         <span {...styledProps(whole, "inline-flex")}>
@@ -377,10 +378,10 @@ function RollupNumber({ prop, value }: { prop: ShownProperty; value: number }) {
   if (kind !== "percent") {
     // Averages and medians rarely end evenly; two decimals are plenty, as in table footers.
     const rounded = config?.function === "average" || config?.function === "median";
-    // A sum of amounts is an amount: in the format of the number property it reads (filled in by the
-    // server, else from the related database when it's loaded here).
+    // A sum of amounts is an amount: in the format of the number property (or formula) it reads
+    // (filled in by the server, else from the related database when it's loaded here).
     const target = config && relations?.targets[config.relationPropertyId]?.properties.find((p) => p.id === config.targetPropertyId);
-    const unit = config?.number ?? (config && target?.type === "number" ? calculationFormat(config.function, target.options) : undefined);
+    const unit = config?.number ?? (config && target ? calculationFormat(config.function, { number: valueFormat(target) }) : undefined);
     return <span className="tabular-nums">{formatNumber(value, unit, rounded ? 2 : undefined)}</span>;
   }
   const text = format.number(value, { style: "percent", maximumFractionDigits: 1 });

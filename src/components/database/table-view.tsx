@@ -15,6 +15,7 @@ import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { pageLabel } from "@/lib/labels";
+import { takesNumberFormat } from "@/lib/number-format";
 import type { SubItemLine } from "@/lib/sub-items";
 import { cellText, type PasteColumn, type PastePlan } from "@/lib/table-clipboard";
 import { AiCell, useAiAutofill } from "./ai-autofill";
@@ -672,7 +673,8 @@ export function TableView({
                     setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
                     setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
                     setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
-                    setNumberFormat: fixed || p.type !== "number" ? undefined : (format) => api.setNumberFormat(p, format),
+                    setNumberFormat:
+                      fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
                     setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
                     setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                     setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),

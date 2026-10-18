@@ -38,7 +38,7 @@ import {
   STATUS_GROUPS,
   type StatusGroup,
 } from "./property-types";
-import { isPercent, toPercentPoints } from "./number-format";
+import { isPercent, toPercentPoints, valueFormat } from "./number-format";
 import { moveBeside } from "./reorder";
 
 export const SELECT_COLORS = ["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"] as const;
@@ -481,9 +481,10 @@ function liveValue(row: RowLike, key: string, prop: PropertyDef | undefined, tim
     const plain = derivedSortValue(v);
     if (derivedType(prop) === "date") return valueDay(plain, timeZone);
     // Rollup percentages are fractions (0.25); filters compare the percent people see (25). So do
-    // sums, averages… of a number property shown as a percentage.
+    // sums, averages… of a number property shown as a percentage, and formulas shown as one.
     const rollup = prop.type === "rollup" ? prop.options.rollup : undefined;
-    const percent = Boolean(rollup) && (rollupFormat(rollup?.function) === "percent" || isPercent(rollup?.number));
+    const percent =
+      (Boolean(rollup) && (rollupFormat(rollup?.function) === "percent" || isPercent(rollup?.number))) || isPercent(valueFormat(prop));
     return percent && typeof plain === "number" ? toPercentPoints(plain) : plain;
   }
   // So do numbers shown as percentages.

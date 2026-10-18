@@ -1,7 +1,8 @@
 import type { NumberFormat } from "@/db/schema/app";
 
 /**
- * Number formats of number properties: plain numbers, percentages and amounts of money. Only
+ * Number formats of number properties (and formulas giving a number): plain numbers, percentages
+ * and amounts of money. Only
  * how values show and how typed text is read; stored values stay plain numbers, so sorting,
  * calculations, CSV and MCP see them as they are. A percentage stores the fraction (0.15) and
  * shows, is typed and is filtered in percent points (15). Pure and client-safe.
@@ -95,6 +96,23 @@ export function toPercentPoints(value: number) {
 /** Percent points as the stored fraction (15 → 0.15). */
 export function fromPercentPoints(points: number) {
   return clean(points / 100);
+}
+
+/**
+ * Whether a property of `type` takes a number format: numbers, and formulas while they give a
+ * number (`formulaType`, the formula's result type). Formulas giving text, a date or a checkbox don't.
+ */
+export function takesNumberFormat(type: string, formulaType?: string) {
+  return type === "number" || (type === "formula" && formulaType === "number");
+}
+
+/**
+ * The format a property's own values show in: a number property's, or that of a formula giving a
+ * number (with its result type filled in); none for other properties. Rollups have theirs on the
+ * rollup (RollupConfig.number).
+ */
+export function valueFormat(prop: { type: string; options?: { number?: NumberFormat; formula?: { type?: string } } }): NumberFormat | undefined {
+  return takesNumberFormat(prop.type, prop.options?.formula?.type) ? prop.options?.number : undefined;
 }
 
 /** Calculations whose result is in the unit of the values (a sum of amounts is an amount); counts and shares are not. */

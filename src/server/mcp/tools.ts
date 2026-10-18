@@ -166,7 +166,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database) only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A checklist holds items that can be ticked off. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -216,7 +216,7 @@ const rollupInput = z.object({
 
 /** How number formats work, for tool descriptions. */
 const NUMBER_FORMAT_HELP =
-  'number_format sets how a number property shows its values in the app: {format: "number" | "percent" | "currency", currency (ISO 4217 code such as TRY, EUR, USD; currency only), decimals (0-8; left out, they follow the value or the currency)}. Values stay plain numbers everywhere else: a percent property stores fractions (0.15 shows as 15%) and filters compare percent points (15), as for rollup percentages.';
+  'number_format sets how a number property, or a formula whose result is a number, shows its values in the app: {format: "number" | "percent" | "currency", currency (ISO 4217 code such as TRY, EUR, USD; currency only), decimals (0-8; left out, they follow the value or the currency)}. Calculations, board totals, charts, dashboard widgets and rollups summing it show it too. Values stay plain numbers everywhere else: a percent property stores fractions (0.15 shows as 15%) and filters compare percent points (15), as for rollup percentages. A formula giving text, a date or a checkbox has no number format: one is refused, and changing a formula so it no longer gives a number drops its format.';
 const numberFormatInput = z.object({
   format: z.enum(NUMBER_FORMATS),
   currency: z.string().length(3).optional().describe("Currency only: an ISO 4217 code such as TRY, EUR or USD."),
@@ -1606,7 +1606,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .describe("Relation with two_way only: name of the property added to the related database. Defaults to this database's title."),
         formula: formulaInput.optional().describe('Formula only: the expression, e.g. prop("Price") * prop("Quantity").'),
         rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
-        number_format: numberFormatInput.optional().describe(`Number only: how values show. ${NUMBER_FORMAT_HELP}`),
+        number_format: numberFormatInput.optional().describe(`Number, or formula giving a number: how values show. ${NUMBER_FORMAT_HELP}`),
         date_options: dateOptionsInput.optional().describe(`Date only: display and reminder. ${DATE_OPTIONS_HELP}`),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
@@ -1623,7 +1623,9 @@ export function createMcpServer(principal: McpPrincipal) {
         if (type !== "formula" && formula !== undefined) throw new ToolInputError("formula only applies to formula properties.");
         if (type === "rollup" && !rollup) throw new ToolInputError("A rollup property needs rollup: {relation, property, function}.");
         if (type !== "rollup" && rollup !== undefined) throw new ToolInputError("rollup only applies to rollup properties.");
-        if (type !== "number" && number_format !== undefined) throw new ToolInputError("number_format only applies to number properties.");
+        if (type !== "number" && type !== "formula" && number_format !== undefined) {
+          throw new ToolInputError("number_format only applies to number properties and formulas giving a number.");
+        }
         if (type !== "date" && date_options !== undefined) throw new ToolInputError("date_options only applies to date properties.");
         const { properties, access } = await databases.getDatabase(userId, database_id);
         const needle = name.trim().toLowerCase();
@@ -1788,7 +1790,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, a number property's number_format (null for plain numbers) and/or a date property's date_options. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
+        `Rename a database property, change the options of a select / multi_select / status property (add, rename or remove options by name; for status also move options between the todo, in_progress and done groups), change a formula's expression, the number_format of a number property or a formula giving a number (null for plain numbers) and/or a date property's date_options. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. Changing a number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1812,7 +1814,10 @@ export function createMcpServer(principal: McpPrincipal) {
           .partial()
           .optional()
           .describe(`Rollup only: the settings to change (the others stay). ${ROLLUP_HELP}`),
-        number_format: numberFormatInput.nullable().optional().describe("Number only: how values show; null for plain numbers."),
+        number_format: numberFormatInput
+          .nullable()
+          .optional()
+          .describe("Number, or formula giving a number: how values show; null for plain numbers."),
         date_options: dateOptionsInput.optional().describe("Date only: the display and reminder to change; left-out fields stay."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
@@ -1872,7 +1877,9 @@ export function createMcpServer(principal: McpPrincipal) {
           });
         }
         if (number_format !== undefined) {
-          if (prop.type !== "number") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only numbers have a number format.`);
+          if (prop.type !== "number" && prop.type !== "formula") {
+            throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only numbers and formulas giving a number have a number format.`);
+          }
           patch.number = number_format;
         }
         if (date_options !== undefined) {

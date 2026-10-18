@@ -48,9 +48,10 @@ function useCurrencyName() {
 }
 
 /**
- * A number property's format: a plain number, a percentage or an amount in a currency, and its
- * decimal places; and whether values show as the number, a bar or a ring (with its color and what
- * a full one stands for). Each change is saved right away and only changes how values show.
+ * A number property's (or a number formula's) format: a plain number, a percentage or an amount
+ * in a currency, and its decimal places; and for number properties, whether values show as the
+ * number, a bar or a ring (with its color and what a full one stands for). Each change is saved
+ * right away and only changes how values show.
  */
 export function NumberFormatEditor({
   prop,

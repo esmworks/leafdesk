@@ -322,6 +322,15 @@ const SCHEMAS: Record<string, JsonSchema> = {
           name: { type: "string" },
           type: { type: "string" },
           id: { type: "string" },
+          result_type: { type: "string", enum: ["number", "text", "checkbox", "date"], description: "Formulas only: what the formula gives." },
+          number_format: loose(
+            {
+              format: { type: "string", enum: ["number", "percent", "currency"] },
+              currency: { type: "string", description: "ISO 4217 code; only for the currency format." },
+              decimals: { type: "integer", minimum: 0, maximum: 8 },
+            },
+            ["format"],
+          ),
           access: {
             ...propertyLevel,
             description:
@@ -337,7 +346,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           ),
         }),
         description:
-          "The first entry is the row title. access_settings (who may do what with a restricted property) is only there for users with full access to the database.",
+          "The first entry is the row title. number_format (how the app shows the values; they stay plain numbers here, a percentage as its fraction) is there for number properties and formulas giving a number that have one. access_settings (who may do what with a restricted property) is only there for users with full access to the database.",
       },
       views: { type: "array", items: loose({ id, name: { type: "string" }, type: { type: "string" } }) },
       url,

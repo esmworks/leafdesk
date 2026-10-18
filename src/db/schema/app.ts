@@ -491,8 +491,9 @@ export type RollupConfig = {
   number?: NumberFormat;
 };
 /**
- * How a number property shows its values (see lib/number-format). A percentage stores the
- * fraction (0.15 shows as 15 %); `currency` is an ISO 4217 code, set only for "currency".
+ * How a number property, or a formula giving a number, shows its values (see lib/number-format).
+ * A percentage stores the fraction (0.15 shows as 15 %); `currency` is an ISO 4217 code, set only
+ * for "currency".
  * `decimals` (0–8) fixes the decimal places; without it they follow the value (a currency's own).
  */
 export type NumberFormat = {
@@ -526,7 +527,10 @@ export type PropertyOptions = {
   relation?: RelationConfig;
   formula?: FormulaConfig;
   rollup?: RollupConfig;
-  /** Number properties: how values show; plain numbers when missing. */
+  /**
+   * Number properties and formulas giving a number: how values show; plain numbers when missing.
+   * A formula giving anything else has none (see lib/number-format valueFormat).
+   */
   number?: NumberFormat;
   /** Number properties: a bar or a ring instead of the number; the number when missing. */
   numberDisplay?: NumberDisplay;

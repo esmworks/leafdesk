@@ -306,15 +306,20 @@ function relatedResolver(related: RelatedSchemas, titleNames: string[] = []): Re
   return (databaseId, key) => fieldsOf(databaseId)?.(key);
 }
 
-/** Properties with each formula's result type filled in (see FormulaConfig.type). */
+/**
+ * Properties with each formula's result type filled in (see FormulaConfig.type). A formula that
+ * no longer gives a number (a property it reads changed) shows without the number format it had.
+ */
 export function withFormulaTypes<P extends Prop>(props: P[], related?: RelatedSchemas): P[] {
   if (!props.some((p) => p.type === "formula")) return props;
   const compiled = compileFormulas(props, related);
-  return props.map((p) =>
-    p.type === "formula"
-      ? { ...p, options: { ...p.options, formula: { expression: p.options.formula?.expression ?? "", type: compiled.get(p.id)!.type } } }
-      : p,
-  );
+  return props.map((p) => {
+    if (p.type !== "formula") return p;
+    const type = compiled.get(p.id)!.type;
+    const { number, ...rest } = p.options;
+    const options = { ...rest, ...(number && type === "number" ? { number } : {}) };
+    return { ...p, options: { ...options, formula: { expression: p.options.formula?.expression ?? "", type } } };
+  });
 }
 
 /**
