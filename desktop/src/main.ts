@@ -17,6 +17,7 @@ import {
   session,
   shell,
   systemPreferences,
+  type BrowserWindowConstructorOptions,
   type IpcMainInvokeEvent,
   type Rectangle,
   type Session,
@@ -53,6 +54,13 @@ const PROBE_TIMEOUT_MS = 10_000;
 const LOCALE_COOKIE = "NEXT_LOCALE";
 /** What the server's pages may ask for: notifications, the clipboard, full screen and the microphone (voice notes). */
 const PERMISSIONS = new Set(["notifications", "clipboard-read", "clipboard-sanitized-write", "fullscreen", "media"]);
+/**
+ * macOS: no title bar of its own; the window's buttons sit in the page's top-left corner, centered on
+ * the web app's 44px header row. The preload marks the page (`<html data-window-controls>`) so the
+ * web app keeps that corner clear and lets the top strip move the window (src/app/globals.css).
+ */
+const INSET_WINDOW_CONTROLS = process.platform === "darwin";
+const TRAFFIC_LIGHTS = { x: 16, y: 16 };
 
 /** What the app's own page shows. */
 type View =
@@ -211,7 +219,30 @@ function reportBackup(result: BackupResult) {
 }
 
 function webPreferences(): WebPreferences {
-  return { preload: PRELOAD, contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: true };
+  return {
+    preload: PRELOAD,
+    contextIsolation: true,
+    sandbox: true,
+    nodeIntegration: false,
+    spellcheck: true,
+    additionalArguments: INSET_WINDOW_CONTROLS ? ["--leafdesk-window-controls=inset"] : [],
+  };
+}
+
+/** The title bar: the system's, or on macOS none, with the window's buttons over the page. */
+function titleBar(): BrowserWindowConstructorOptions {
+  return INSET_WINDOW_CONTROLS ? { titleBarStyle: "hidden", trafficLightPosition: TRAFFIC_LIGHTS } : {};
+}
+
+/** Tells the page when the window enters or leaves full screen, where macOS hides the window's buttons. */
+function reportFullScreen(window: BrowserWindow) {
+  if (!INSET_WINDOW_CONTROLS) return;
+  const send = () => {
+    if (!window.isDestroyed()) window.webContents.send("leafdesk:full-screen", window.isFullScreen());
+  };
+  window.on("enter-full-screen", send);
+  window.on("leave-full-screen", send);
+  window.webContents.on("dom-ready", send);
 }
 
 function createWindow(bounds?: Partial<Rectangle>) {
@@ -225,8 +256,10 @@ function createWindow(bounds?: Partial<Rectangle>) {
     title: "Leafdesk",
     backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
     icon: process.platform === "linux" ? ICON : undefined,
+    ...titleBar(),
     webPreferences: webPreferences(),
   });
+  reportFullScreen(window);
   window.once("ready-to-show", () => window.show());
   // A page that never paints (a server that holds the connection open) still gets its window.
   setTimeout(() => {
@@ -393,6 +426,7 @@ function guard(contents: WebContents) {
           width: 1100,
           height: 800,
           backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
+          ...titleBar(),
           webPreferences: webPreferences(),
         },
       };
@@ -400,7 +434,10 @@ function guard(contents: WebContents) {
     if (decision === "external") void shell.openExternal(url);
     return { action: "deny" };
   });
-  contents.on("did-create-window", (child) => guard(child.webContents));
+  contents.on("did-create-window", (child) => {
+    reportFullScreen(child);
+    guard(child.webContents);
+  });
   // Signing out of Leafdesk on this computer leads to its sign-in page: the app signs in again.
   contents.on("did-navigate", (_event, url) => {
     const window = BrowserWindow.fromWebContents(contents);

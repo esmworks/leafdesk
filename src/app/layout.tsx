@@ -56,6 +56,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} dir={localeDirection(locale)} data-theme={theme ?? undefined} data-contrast={contrast ?? undefined} suppressHydrationWarning>
       <body>
+        {/* The desktop app on macOS moves its window by this strip; hidden everywhere else (globals.css). */}
+        <div aria-hidden data-window-drag />
         <NextIntlClientProvider messages={clientMessages(messages)}>
           <ThemeProvider theme={theme}>
             <LocalModeProvider localMode={env.localMode}>{children}</LocalModeProvider>

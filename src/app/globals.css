@@ -1025,3 +1025,60 @@
     color: var(--shiki-dark);
   }
 }
+
+/*
+ * The desktop app on macOS has no title bar: the window's buttons sit over the page's top-left
+ * corner, centered on the 44px header row, and that row moves the window (desktop/src/main.ts and
+ * preload.cts set <html data-window-controls>; data-full-screen when macOS hides the buttons).
+ * The sidebar (and the settings' navigation) starts below them; a header the buttons would cover (no sidebar beside it, or the
+ * sidebar on the right) leaves their width free. The region dragging the window is a strip over the
+ * whole width (the root layout's data-window-drag); what can be clicked or typed in there is cut out of it.
+ */
+:root {
+  --window-controls-height: 2.75rem;
+  --window-controls-width: 5.25rem;
+}
+[data-window-drag] {
+  display: none;
+}
+:root[data-window-controls]:not([data-full-screen]) {
+  [data-window-drag] {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    height: var(--window-controls-height);
+    pointer-events: none;
+    -webkit-app-region: drag;
+  }
+  /*
+   * Cut-outs follow the document's order, not what is drawn on top: a control scrolled up under a
+   * sticky header would still cut through it. So only what sits in the strip does: the headers
+   * that keep clear of the buttons, the sidebar, and dialogs and menus over the page.
+   */
+  :is([role="dialog"], [role="menu"], [role="listbox"]),
+  :is([data-window-controls-clear], [data-sidebar])
+    :is(button, a[href], input, textarea, select, label, summary, [contenteditable="true"], [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="separator"]) {
+    -webkit-app-region: no-drag;
+  }
+  &:not([dir="rtl"]) [data-sidebar] {
+    padding-top: var(--window-controls-height);
+  }
+  /* Right to left the sidebar and a database row's panel take the other side. */
+  &[dir="rtl"] [data-window-controls-clear],
+  &:not(:has([data-sidebar-open])) main [data-window-controls-clear] {
+    padding-left: var(--window-controls-width);
+  }
+}
+@media (min-width: 768px) {
+  /* Hidden, the sidebar slides out below the header row. */
+  :root[data-window-controls]:not([data-full-screen]) [data-sidebar]:not([data-sidebar-open]) {
+    padding-top: 0;
+  }
+}
+@media (max-width: 767px) {
+  /* Phone-sized windows show the sidebar as a drawer, so a header always starts at the left edge. */
+  :root[data-window-controls]:not([data-full-screen]) [data-window-controls-clear] {
+    padding-left: var(--window-controls-width);
+  }
+}

@@ -57,7 +57,7 @@ each platform.
 | `src/strings.ts` | The app's own texts in the web app's 16 languages |
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
 | `src/updates.ts` | Updates from GitHub releases |
-| `src/preload.cts` | The bridge the connect page uses (never given to server pages) |
+| `src/preload.cts` | The bridge the connect page uses (never given to server pages); marks every page with where the window's buttons are (macOS) |
 | `src/pages/app.ts`, `pages/` | The connect, certificate, starting and problem screens |
 | `scripts/bundle-server.ts` | Builds the server packaged apps run (`pnpm server`) |
 | `scripts/after-pack.ts` | Puts that server and the platform's PostgreSQL into the packaged app |

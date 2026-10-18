@@ -165,7 +165,7 @@ export function FloatingSidebarButton() {
   // Pages, the graph and the AI chat render the button in their own header; settings have no sidebar to open.
   if (/\/(p\/[\w-]+|graph\/?$|ai\/?$)/.test(pathname) || isSettingsPath(pathname)) return null;
   return (
-    <div className="sticky top-0 z-20 h-0">
+    <div data-window-controls-clear className="sticky top-0 z-20 h-0">
       <SidebarOpenButton className="m-2" />
     </div>
   );

@@ -840,6 +840,8 @@ export function Sidebar({
       )}
       <SidebarPeekEdge />
       <aside
+        data-sidebar
+        data-sidebar-open={(sidebar && !sidebar.collapsed) || undefined}
         // Desktop: an in-flow column the user can resize, or — when hidden — a panel that slides out
         // over the page while hovered. Phones: a drawer over the page.
         style={{ "--sidebar-w": `${sidebar?.width ?? 256}px` } as React.CSSProperties}

@@ -15,3 +15,28 @@ if (location.protocol === "file:") {
     startLocal: () => ipcRenderer.invoke("leafdesk:local"),
   });
 }
+
+/**
+ * Every page, the server's too, learns where the window's buttons are through attributes on
+ * `<html>` alone; nothing is exposed to its scripts. `data-window-controls="inset"`: macOS, no title
+ * bar, the buttons over the page's top-left corner (main.ts); `data-full-screen`: they are hidden.
+ */
+const controls = process.argv.find((arg) => arg.startsWith("--leafdesk-window-controls="))?.split("=")[1];
+if (controls) {
+  let fullScreen = false;
+  const mark = () => {
+    const root = document.documentElement;
+    if (!root) return;
+    if (root.dataset.windowControls !== controls) root.dataset.windowControls = controls;
+    if (root.hasAttribute("data-full-screen") !== fullScreen) root.toggleAttribute("data-full-screen", fullScreen);
+  };
+  // The preload runs before the page's <html> exists, and a page recovering from an error may
+  // render <html> again without the attributes.
+  new MutationObserver(mark).observe(document, { childList: true });
+  new MutationObserver(mark).observe(document, { subtree: true, attributeFilter: ["data-window-controls", "data-full-screen"] });
+  mark();
+  ipcRenderer.on("leafdesk:full-screen", (_event, value: unknown) => {
+    fullScreen = value === true;
+    mark();
+  });
+}
