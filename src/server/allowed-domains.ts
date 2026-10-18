@@ -8,6 +8,7 @@ import { verifiedAllowedDomains } from "@/lib/membership-policy";
 import { domainRecordName, domainRecordValue, domainsFromColumn, workspaceProviderId } from "@/lib/sso-config";
 import { requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
  * Proving allowed email domains (Settings > Security). An allowed domain lets its people join the
@@ -116,6 +117,7 @@ export async function allowedDomainsStatus(actorId: string, workspaceId: string)
  * proved as an allowed domain. Owners only.
  */
 export async function verifyAllowedDomain(actorId: string, workspaceId: string, domain: string, resolver: TxtResolver = resolveTxt) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const target = String(domain).trim().toLowerCase();
   const [settings, ssoDomains] = await Promise.all([settingsOf(db, workspaceId), ssoVerifiedDomains(db, workspaceId)]);

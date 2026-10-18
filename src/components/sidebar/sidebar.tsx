@@ -1008,31 +1008,6 @@ export function Sidebar({
                   <Users className="h-4 w-4" />
                 </Link>
               )}
-              {/* The workspace graph, likewise; it is drawn from the server's data. */}
-              {offline ? (
-                <button
-                  type="button"
-                  disabled
-                  aria-label={t("nav.graph")}
-                  title={needsServer(t("nav.graph"))}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted opacity-50"
-                >
-                  <Waypoints className="h-4 w-4" />
-                </button>
-              ) : (
-                <Link
-                  href={`/w/${workspaceId}/graph`}
-                  aria-label={t("nav.graph")}
-                  title={t("nav.graph")}
-                  aria-current={pathname === `/w/${workspaceId}/graph` ? "page" : undefined}
-                  className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
-                    pathname === `/w/${workspaceId}/graph` && "bg-bg-active text-fg",
-                  )}
-                >
-                  <Waypoints className="h-4 w-4" />
-                </Link>
-              )}
               {/* The skills library: guests see the skills shared with them. */}
               {!offline && (
                 <Link

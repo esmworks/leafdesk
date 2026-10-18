@@ -26,6 +26,7 @@ import { getNotificationPreferences } from "@/server/notification-preferences";
 import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import type { requireSession } from "@/server/session";
+import { env } from "@/lib/env";
 
 /**
  * The signed-in person's own settings, shown in two places: under Settings in a workspace (the
@@ -76,15 +77,18 @@ async function ProfileTab({ session }: { session: Session }) {
         <SettingsGroup title={t("profile.heading")}>
           <ProfileSettings name={overview.name} image={overview.image} />
         </SettingsGroup>
-        <SettingsGroup title={t("email.heading")}>
-          <AccountEmailSettings
-            email={overview.email}
-            emailVerified={overview.emailVerified}
-            pendingEmail={overview.pendingEmail}
-            enabled={emailChangeEnabled()}
-            proof={proof}
-          />
-        </SettingsGroup>
+        {/* On one computer the account's address is the app's own and reaches nobody: nothing to change or verify. */}
+        {!env.localMode && (
+          <SettingsGroup title={t("email.heading")}>
+            <AccountEmailSettings
+              email={overview.email}
+              emailVerified={overview.emailVerified}
+              pendingEmail={overview.pendingEmail}
+              enabled={emailChangeEnabled()}
+              proof={proof}
+            />
+          </SettingsGroup>
+        )}
         <SettingsGroup title={t("delete.heading")}>
           <DeleteAccountSettings email={overview.email} plan={plan} proof={proof} />
         </SettingsGroup>
@@ -151,7 +155,8 @@ async function PreferencesTab({ userId }: { userId: string }) {
             <>
               {ts("notifications.description")}
               {publicKey && <> {ts("notifications.pushDescription")}</>}
-              {mailStatus() === "disabled" && <> {ts("notifications.mailOff")}</>}
+              {/* On one computer email isn't offered at all, so there is nothing to explain. */}
+              {mailStatus() === "disabled" && !env.localMode && <> {ts("notifications.mailOff")}</>}
             </>
           }
         >

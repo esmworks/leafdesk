@@ -306,12 +306,14 @@ versions, upgrades and running behind a domain.
   Markdown written over MCP or the API leaves them as they are. Search, by words or by meaning,
   finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
-  pages, database relations and the page tree, laid out by how they connect. A database with
-  many rows is one point with their count until you show its rows, its rows' relations drawn as
-  one weighted edge. Hover a page to see its neighbours, click it for a card of everything it is
-  joined to, double-click to open it, or focus on one page and the pages up to three steps from
-  it, also beside the page ("Show in graph" in a page's menu); switches hide the page tree,
-  database rows and pages without connections.
+  pages, database relations and the page tree, laid out by how they connect. It is beside a page
+  ("Show in graph" in a page's menu: the page and the pages up to three steps from it), and the
+  whole workspace's graph opens from there or from search (*Graph*). The whole graph starts with
+  the pages joined by links and relations, and says how to add some when there are few; switches
+  show the page tree, database rows and pages without connections. A database with many rows is
+  one point with their count until you show its rows; a row related to a page in view is drawn on
+  its own, and the rest's relations as one weighted edge. Hover a page to see its neighbours, click
+  it for a card of everything it is joined to, double-click to open it.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
   database automation notifies you, when someone else changes a row you follow, and when a reminder
@@ -512,7 +514,7 @@ versions, upgrades and running behind a domain.
   database row whose select and multi-select properties it fills from their options. OpenAI or any
   server with an OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](#voice-notes)).
-- **Skills**: instructions your team reuses (how to review a pull request, write release notes),
+- **Skills**: instructions your team reuses (how to wrap up meeting notes, reply to a customer),
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
   `SKILL.md` (see [Skills](#skills)).
@@ -1185,8 +1187,10 @@ Then fill in the provider's details:
   email domains of the workspace.
   Changing the domains or the provider asks for verification again.
 
-A workspace has one connection. Removing it (or the workspace) removes its provider; sessions that
-came through it no longer count for "Single sign-on only".
+A workspace has one connection. Removing it, pointing it at another identity provider, or deleting
+the workspace signs out everyone who signed in through it and revokes their API tokens and
+connected apps, which reach all their workspaces; removing it (or the workspace) also removes its
+provider.
 
 Deleting the account of the last person in a workspace deletes the workspace too, and with it the
 connection: everyone who signed in through it is signed out and their API tokens and connected apps
@@ -1757,9 +1761,15 @@ templates and the pages in them can't be skills, and a copy of a skill isn't one
 access of their own: everyone sees the skills they can open, and a skill in the trash leaves every
 list until it is restored.
 
-- **Skills library**: the sidebar's skills button (next to the people and graph buttons) opens
+- **Skills library**: the sidebar's skills button (next to the people button) opens
   `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable. *New skill*
   makes a private page already marked as one.
+- **Ready-made skills**: six skills to start from (*Wrap up meeting notes*, *Weekly status summary*,
+  *Reply to a customer*, *Proofread a text*, *Triage a request*, *Executive summary*), shown in the
+  library while it is empty and under *Ready-made skills* after. Picking one makes a private page
+  in the user's language, already a skill with its description; it is an ordinary page from then
+  on. They need no setup: each works on whatever page, row or text it is pointed at. The texts are
+  in `src/i18n/messages/<locale>/skillTemplates.json`.
 - **AI chat**: `/` at the start of the empty question box (or the skills button under it) lists
   the skills; the one picked shows above the box and the next question goes to the model with its
   instructions, which the model is told to follow for that question only. They don't widen what the

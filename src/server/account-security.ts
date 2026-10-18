@@ -108,11 +108,12 @@ export async function forgetUnprovenHolder(userId: string) {
  * once the user has no session left.
  */
 export async function disconnectEndedSessions(userId: string) {
-  const live = await db
-    .select({ id: session.id })
-    .from(session)
-    .where(and(eq(session.userId, userId), gt(session.expiresAt, new Date())));
+  // It runs after what ended the sessions committed: failing here would only skip what comes next.
   try {
+    const live = await db
+      .select({ id: session.id })
+      .from(session)
+      .where(and(eq(session.userId, userId), gt(session.expiresAt, new Date())));
     await getCollab().disconnectSessions(userId, live.map((s) => s.id));
   } catch (error) {
     // Scripts and tests run without the collab server; its connections end with their tokens.

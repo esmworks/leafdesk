@@ -24,6 +24,7 @@ import { propertyAccessFor } from "@/server/property-access";
 import { publishBlocker } from "@/server/publication";
 import { storeFile, type StoredFile, type UploadInput } from "@/server/files";
 import { canPublish, publishingOn, workspacePeople } from "@/server/workspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
  * Form views: people fill in a form and each answer becomes a row of the database.
@@ -364,6 +365,7 @@ export async function formPublicationsOf(viewIds: string[]) {
 }
 
 async function assertMayPublish(userId: string, database: { workspaceId: string; archivedAt: Date | null }) {
+  refuseInLocalMode();
   if (!(await publishingOn(database.workspaceId))) {
     throw new FormError("Publishing to the web is turned off in this workspace", "publishingOff");
   }
@@ -487,7 +489,8 @@ export type PublicForm = {
  * to add rows, and its workspace with publishing on (off keeps the link for when it is back on).
  */
 async function openPublicForm(token: string) {
-  if (!token || token.length > 128) return null;
+  // Nobody reaches a public form of Leafdesk on one computer: every link is closed.
+  if (!token || token.length > 128 || env.localMode) return null;
   const [found] = await db
     .select({
       viewId: databaseView.id,

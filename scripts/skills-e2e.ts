@@ -37,6 +37,7 @@ const { isAiError } = await import("@/server/ai");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 const { getConversation, MAX_CHAT_SKILL, startChat } = await import("@/server/ai-chat");
+const { builtinSkill, builtinSkills } = await import("@/lib/builtin-skills");
 type ChatInput = import("@/server/ai-chat").ChatInput;
 
 const RUN = `skills-e2e-${Date.now().toString(36)}`;
@@ -303,6 +304,33 @@ try {
   const long = await createPage(as(owner), { workspaceId, teamspaceId: general.id, title: "Long skill", markdown: "word ".repeat(MAX_CHAT_SKILL / 4) });
   await skills.setSkill(owner, long.id, { skill: true });
   check((await refusal(() => startChat(owner, { workspaceId, message: "Hi", skillId: long.id }))) === "tooLarge", `a skill longer than ${MAX_CHAT_SKILL} characters can't be used in the chat`);
+
+
+  // ── Built-in skills ─────────────────────────────────────────────────────────────────────────
+  const wrapup = await builtinSkill("meeting-wrapup", "tr");
+  const fromBuiltin = await skills.createBuiltinSkill(alice, workspaceId, "meeting-wrapup", "tr");
+  const builtinContent = await skills.getSkillContent(alice, fromBuiltin.id);
+  check(
+    builtinContent.title === wrapup.title && builtinContent.description === wrapup.description && builtinContent.body.includes("## Adımlar"),
+    "a built-in skill becomes a skill page in the person's language, with its description and instructions",
+    builtinContent,
+  );
+  const [placed] = await db.select({ teamspaceId: page.teamspaceId, icon: page.icon }).from(page).where(eq(page.id, fromBuiltin.id));
+  check(
+    placed.teamspaceId === null && placed.icon === wrapup.icon && !(await skills.listSkills(bob, workspaceId)).some((s) => s.id === fromBuiltin.id),
+    "…a private page of whoever added it, until they share it",
+    placed,
+  );
+  check((await skills.listSkills(alice, workspaceId)).some((s) => s.id === fromBuiltin.id), "…listed in their library");
+  check((await refusal(() => skills.createBuiltinSkill(guest, workspaceId, "proofread"))) === "access", "a guest, who can't add pages at the top, can't add one");
+  check(
+    (await refusal(() => skills.createBuiltinSkill(owner, workspaceId, "no-such-skill" as never)))?.startsWith("other: Error: Unknown built-in skill"),
+    "an unknown built-in skill is refused",
+  );
+  for (const builtin of await builtinSkills("en")) check(builtin.markdown.length < MAX_CHAT_SKILL, `the built-in skill ${builtin.key} fits in the chat`);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Wrap up the notes", skillId: fromBuiltin.id });
+  check(textOf(fake.chats[0]?.messages.at(-1)?.content ?? "").includes("<skill>\n" + wrapup.markdown.split("\n")[0]), "the AI chat follows a built-in skill's instructions like any other");
 
   console.log(`\n${passed} checks passed`);
 } finally {

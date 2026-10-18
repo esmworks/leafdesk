@@ -20,6 +20,7 @@ import type { PageLevel } from "@/db/schema";
 import { AGENT_ACCESS_LEVELS } from "@/lib/agents";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { searchFold } from "@/lib/search-fold";
+import { useLocalMode } from "@/components/local-mode";
 import { PublishTab } from "./publish-tab";
 
 type Sharing = Awaited<ReturnType<typeof getSharingAction>>;
@@ -46,10 +47,13 @@ export function SharePanel({
 }) {
   const t = useTranslations("page.share");
   const [tab, setTab] = useState<"share" | "publish">("share");
+  // Leafdesk on one computer has no public address to publish to.
+  const localMode = useLocalMode();
+  const withPublish = publishable && !localMode;
   return (
     <div className="w-full md:w-[min(28rem,calc(100vw-2rem))]">
       <div className="flex gap-4 border-b border-border px-3" role="tablist">
-        {(publishable ? (["share", "publish"] as const) : (["share"] as const)).map((key) => (
+        {(withPublish ? (["share", "publish"] as const) : (["share"] as const)).map((key) => (
           <button
             key={key}
             type="button"
@@ -65,7 +69,7 @@ export function SharePanel({
           </button>
         ))}
       </div>
-      {tab === "share" ? <ShareTab pageId={pageId} currentUser={currentUser} onChange={onChange} /> : <PublishTab pageId={pageId} />}
+      {tab === "share" || !withPublish ? <ShareTab pageId={pageId} currentUser={currentUser} onChange={onChange} /> : <PublishTab pageId={pageId} />}
     </div>
   );
 }
@@ -73,6 +77,7 @@ export function SharePanel({
 function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUser: CurrentUser; onChange?: () => void }) {
   const currentUserId = currentUser.id;
   const t = useTranslations("page.share");
+  const localMode = useLocalMode();
   const tc = useTranslations("common");
   const [data, setData] = useState<Sharing | null>(null);
   const [query, setQuery] = useState("");
@@ -280,9 +285,12 @@ function ShareTab({ pageId, currentUser, onChange }: { pageId: string; currentUs
               {!candidates.length && !groupCandidates.length && !agentCandidates.length && !(invitable && data.canInvite) && (
                 <p className="px-2 py-1.5 text-sm text-fg-muted">{data.agentOptions.length ? t("noMatchesWithAgents") : t("noMatches")}</p>
               )}
-              <p className="border-t border-border px-2 pt-1.5 pb-1 text-xs text-fg-faint">
-                {data.canInvite ? t("guestHint") : t("membersOnly")}
-              </p>
+              {/* On one computer there is no one outside the workspace to share with. */}
+              {!localMode && (
+                <p className="border-t border-border px-2 pt-1.5 pb-1 text-xs text-fg-faint">
+                  {data.canInvite ? t("guestHint") : t("membersOnly")}
+                </p>
+              )}
             </div>
           )}
         </div>

@@ -46,6 +46,7 @@ import { generateTokenSecret, hashToken } from "@/server/api/tokens";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { changeGroup, createGroup, deleteGroup, GroupError } from "@/server/groups";
 import { joinAsMember, oldestOwner, removeMemberByProvider, WorkspaceError } from "@/server/workspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
  * SCIM 2.0 provisioning (/scim/v2): a workspace's identity provider adds people to the workspace,
@@ -96,6 +97,7 @@ export type ScimTokenInfo = { id: string; name: string; prefix: string; createdA
 
 /** Creates a SCIM token for the workspace and returns its secret, shown once. Owners only. */
 export async function createScimToken(actorId: string, workspaceId: string, name: string) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const clean = name.trim();
   if (!clean || clean.length > MAX_SCIM_TOKEN_NAME) {
@@ -547,6 +549,8 @@ export async function handleScimRequest(request: Request): Promise<Response> {
   const baseUrl = `${env.appUrl}${SCIM_PREFIX}`;
   const path = (url.pathname.startsWith(SCIM_PREFIX) ? url.pathname.slice(SCIM_PREFIX.length) : url.pathname).replace(/\/+$/, "") || "/";
   const method = request.method.toUpperCase();
+  // No identity provider reaches Leafdesk on one computer.
+  if (env.localMode) return errorResponse(new ScimError(404, "Not found."));
 
   const secret = /^Bearer\s+(\S+)\s*$/i.exec(request.headers.get("authorization") ?? "")?.[1];
   const principal = secret ? await verifyScimToken(secret) : null;

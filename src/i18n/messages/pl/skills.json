@@ -1,13 +1,18 @@
 {
   "metaTitle": "Umiejętności",
   "heading": "Umiejętności",
-  "description": "Instrukcje, z których twój zespół korzysta wielokrotnie, przechowywane jako strony: jak przejrzeć pull request, napisać informacje o wydaniu albo sklasyfikować błąd. Wybierz jedną na czacie AI za pomocą / lub z aplikacji AI połączonej z obszarem roboczym. Każda umiejętność to strona lub wiersz bazy danych; każdy widzi umiejętności, które może otworzyć.",
+  "description": "Instrukcje, z których twój zespół korzysta wielokrotnie, przechowywane jako strony: jak podsumować notatki ze spotkania, odpowiedzieć klientowi albo sklasyfikować zgłoszenie. Wybierz jedną na czacie AI za pomocą / lub z aplikacji AI połączonej z obszarem roboczym. Każda umiejętność to strona lub wiersz bazy danych; każdy widzi umiejętności, które może otworzyć.",
   "new": "Nowa umiejętność",
   "search": "Szukaj umiejętności",
   "count": "{count, plural, one {# umiejętność} few {# umiejętności} many {# umiejętności} other {# umiejętności}}",
   "noMatches": "Żadna umiejętność nie pasuje do wyszukiwania.",
   "emptyTitle": "Brak umiejętności",
-  "emptyHint": "Każda strona lub wiersz bazy danych może być umiejętnością: otwórz element i włącz „Użyj jako umiejętności” w menu ⋯ albo zacznij od przycisku „Nowa umiejętność”.",
+  "emptyHint": "Umiejętnością może być też każda strona lub wiersz bazy danych: otwórz element i włącz „Użyj jako umiejętności” w menu ⋯.",
+  "builtins": {
+    "heading": "Zacznij od gotowej umiejętności",
+    "hint": "Każda staje się twoją prywatną stroną: dostosuj ją do swojej pracy, a potem udostępnij zespołowi.",
+    "open": "Gotowe umiejętności"
+  },
   "noDescription": "Brak opisu",
   "inDatabase": "W bazie danych {database}",
   "updated": "Zaktualizowano {time}",

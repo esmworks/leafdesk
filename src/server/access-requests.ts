@@ -14,6 +14,7 @@ import { recordAccessRequest, signalInbox, skipShareEmail } from "@/server/notif
 import { setPagePermission, sharePageByEmail } from "@/server/permissions";
 import { mailNow } from "@/server/share-emails";
 import { canInviteGuests, workspaceSettings } from "@/server/workspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
  * Asking for access to a page from the "You don't have access" screen, and answering the request.
@@ -42,6 +43,8 @@ export function resetAccessRequestLimits() {
  * doesn't exist; a workspace that doesn't exist gets the default.
  */
 export async function accessRequestsOffered(workspaceId: string) {
+  // On one computer there is no one else to ask.
+  if (env.localMode) return false;
   return (await workspaceSettings(workspaceId)).accessRequests;
 }
 
@@ -61,6 +64,7 @@ export async function requestPageAccess(
   message?: unknown,
   defer: (work: () => Promise<void>) => void | Promise<void> = (work) => work(),
 ): Promise<AccessRequestOutcome> {
+  refuseInLocalMode();
   if (takeAll([[limiter(), userId]]) > 0) return "rateLimited";
   // Read while the request is still there: deferred work runs without it.
   const locale = await requestLocale();

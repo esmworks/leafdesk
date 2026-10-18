@@ -93,7 +93,17 @@ async function lifecycle() {
   // Straight into the account's own workspace, made when it signed up.
   const home = await fetch(`${first.origin}/`, { headers: { cookie: header }, redirect: "manual" });
   assert.equal(home.status, 307);
-  assert.match(home.headers.get("location") ?? "", /^\/w\/[0-9a-f-]{36}$/);
+  const workspace = home.headers.get("location") ?? "";
+  assert.match(workspace, /^\/w\/[0-9a-f-]{36}$/);
+  // Local mode: what needs other people or a public address is refused (src/server/local-mode.ts).
+  const scim = await fetch(`${first.origin}/scim/v2/Users`, { headers: { authorization: "Bearer scim_anything" } });
+  assert.equal(scim.status, 404, "no SCIM");
+  for (const tab of ["guests", "site"]) {
+    const settings = await fetch(`${first.origin}${workspace}/settings?tab=${tab}`, { headers: { cookie: header } });
+    assert.equal(settings.status, 404, `no ${tab} settings`);
+  }
+  const members = await fetch(`${first.origin}${workspace}/settings?tab=members`, { headers: { cookie: header } });
+  assert.equal(members.status, 200, "the members settings are there");
   await first.stop();
   await assert.rejects(fetch(`${first.origin}/api/health`), "the server stopped");
 

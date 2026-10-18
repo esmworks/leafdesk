@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { env } from "@/lib/env";
 import { findMembership } from "@/server/access";
 import { listWorkspaces } from "@/server/pages";
 import { blockedByWorkspacePolicy, policyGatePath, requireSession } from "@/server/session";
@@ -20,6 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * instance's), which signs them in again. Owners and guests never land here (see policyHold).
  */
 export default async function SsoRequiredPage({ params }: { params: Promise<{ workspaceId: string }> }) {
+  // No single sign-on when Leafdesk runs on one computer.
+  if (env.localMode) notFound();
   const session = await requireSession();
   const { workspaceId } = await params;
   if (!(await findMembership(session.user.id, workspaceId))) notFound();

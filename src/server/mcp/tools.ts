@@ -2931,67 +2931,70 @@ export function createMcpServer(principal: McpPrincipal) {
       }),
   );
 
-  server.registerTool(
-    "invite_member",
-    {
-      title: "Invite someone to a workspace",
-      description:
-        'Add a person to a workspace by email, as Settings > Members does, under the workspace\'s "Who can add members" setting: owners always can; members only when the workspace lets them, and only as members; guests never. Someone whose account has a verified address joins right away (status "added"). Anyone else (no account, or one whose address was never verified) gets an invitation (status "invited"): an email with a link that works for 7 days, when the server can send email (email_sent says whether it went out), and the link is returned so the user can share it themselves. Inviting the same address again renews the invitation. When the workspace wants members\' invitations approved, a member\'s invitation becomes a request an owner approves or declines (status "requested"); nothing is sent until then. role is member (default), owner or guest.',
-      inputSchema: z.object({
-        workspace_id: id("workspace"),
-        email: z.string().max(254).describe("The person's email address."),
-        role: z.enum(["member", "owner", "guest"]).default("member").describe("Their role in the workspace (default member)."),
-      }),
-      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
-      scopeChallenge: requireWrite,
-    },
-    write(async ({ workspace_id, email, role }) => {
-      let result: workspaces.BulkAddResult | undefined;
-      try {
-        // The same path as the members page's "Add members", with its "Who can add members"
-        // policy (server/workspaces.ts memberInviteModeFor), for one address.
-        [result] = await workspaces.addMembers(userId, workspace_id, [email], role);
-      } catch (error) {
-        if (error instanceof AccessError) {
-          throw new ToolInputError(
-            "The user can't add people to this workspace with that role: owners can; members only when the workspace's \"Who can add members\" setting lets them, and only as members; guests never. Check the workspace id and the user's role with list_workspaces.",
-          );
+  // Nobody else joins Leafdesk on one computer (lib/env.ts localMode): the tool isn't offered there.
+  if (!env.localMode) {
+    server.registerTool(
+      "invite_member",
+      {
+        title: "Invite someone to a workspace",
+        description:
+          'Add a person to a workspace by email, as Settings > Members does, under the workspace\'s "Who can add members" setting: owners always can; members only when the workspace lets them, and only as members; guests never. Someone whose account has a verified address joins right away (status "added"). Anyone else (no account, or one whose address was never verified) gets an invitation (status "invited"): an email with a link that works for 7 days, when the server can send email (email_sent says whether it went out), and the link is returned so the user can share it themselves. Inviting the same address again renews the invitation. When the workspace wants members\' invitations approved, a member\'s invitation becomes a request an owner approves or declines (status "requested"); nothing is sent until then. role is member (default), owner or guest.',
+        inputSchema: z.object({
+          workspace_id: id("workspace"),
+          email: z.string().max(254).describe("The person's email address."),
+          role: z.enum(["member", "owner", "guest"]).default("member").describe("Their role in the workspace (default member)."),
+        }),
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+        scopeChallenge: requireWrite,
+      },
+      write(async ({ workspace_id, email, role }) => {
+        let result: workspaces.BulkAddResult | undefined;
+        try {
+          // The same path as the members page's "Add members", with its "Who can add members"
+          // policy (server/workspaces.ts memberInviteModeFor), for one address.
+          [result] = await workspaces.addMembers(userId, workspace_id, [email], role);
+        } catch (error) {
+          if (error instanceof AccessError) {
+            throw new ToolInputError(
+              "The user can't add people to this workspace with that role: owners can; members only when the workspace's \"Who can add members\" setting lets them, and only as members; guests never. Check the workspace id and the user's role with list_workspaces.",
+            );
+          }
+          if (error instanceof workspaces.WorkspaceError) throw new ToolInputError(`${error.message}`);
+          throw error;
         }
-        if (error instanceof workspaces.WorkspaceError) throw new ToolInputError(`${error.message}`);
-        throw error;
-      }
-      if (!result || result.kind === "error") {
-        const reasons: Partial<Record<workspaces.WorkspaceErrorCode, string>> = {
-          invalidEmail: "That isn't a valid email address.",
-          alreadyMember: "This person is already in the workspace; list_users shows their role.",
-          tooManyRequests: "Too many invitation requests from this user; try again later.",
-        };
-        throw new ToolInputError(reasons[result?.code ?? "invalidEmail"] ?? "This person couldn't be invited.");
-      }
-      if (result.kind === "added") return { status: "added", email: result.email, role };
-      if (result.kind === "requested") {
+        if (!result || result.kind === "error") {
+          const reasons: Partial<Record<workspaces.WorkspaceErrorCode, string>> = {
+            invalidEmail: "That isn't a valid email address.",
+            alreadyMember: "This person is already in the workspace; list_users shows their role.",
+            tooManyRequests: "Too many invitation requests from this user; try again later.",
+          };
+          throw new ToolInputError(reasons[result?.code ?? "invalidEmail"] ?? "This person couldn't be invited.");
+        }
+        if (result.kind === "added") return { status: "added", email: result.email, role };
+        if (result.kind === "requested") {
+          return {
+            status: "requested",
+            email: result.email,
+            role,
+            note: "This workspace wants members' invitations approved: its owners were asked, and the invitation goes out in the user's name once one approves it.",
+          };
+        }
         return {
-          status: "requested",
+          status: "invited",
           email: result.email,
           role,
-          note: "This workspace wants members' invitations approved: its owners were asked, and the invitation goes out in the user's name once one approves it.",
+          invitation_link: result.link,
+          email_sent: result.delivery === "sent",
+          ...(result.delivery !== "sent" && {
+            note:
+              result.delivery === "off"
+                ? "This server doesn't send email. Share invitation_link with them."
+                : "Sending the invitation email failed. Share invitation_link with them.",
+          }),
         };
-      }
-      return {
-        status: "invited",
-        email: result.email,
-        role,
-        invitation_link: result.link,
-        email_sent: result.delivery === "sent",
-        ...(result.delivery !== "sent" && {
-          note:
-            result.delivery === "off"
-              ? "This server doesn't send email. Share invitation_link with them."
-              : "Sending the invitation email failed. Share invitation_link with them.",
-        }),
-      };
-    }),
-  );
+      }),
+    );
+  }
 
   server.registerTool(
     "list_trash",

@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { env } from "@/lib/env";
 import { isReservedEmail } from "@/lib/reserved-emails";
 import { type MailConfig, MailConfigError, readMailConfig } from "./config";
 
@@ -70,6 +71,8 @@ function getSetup(): Setup {
 }
 
 export function mailStatus(): MailStatus {
+  // On one computer there is no one to write to, and the setup's address reaches nobody.
+  if (env.localMode) return "disabled";
   const { config, error } = getSetup();
   if (config) return "smtp";
   if (!error && process.env.NODE_ENV !== "production") return "console";

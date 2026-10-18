@@ -1,13 +1,18 @@
 {
   "metaTitle": "Competenze",
   "heading": "Competenze",
-  "description": "Istruzioni che il tuo team riutilizza, conservate come pagine: come revisionare una pull request, scrivere le note di rilascio o smistare un bug. Scegline una nella chat IA con / oppure da un’app di IA collegata allo spazio di lavoro. Ogni competenza è una pagina o una riga di database; ognuno vede le competenze che può aprire.",
+  "description": "Istruzioni che il tuo team riutilizza, conservate come pagine: come riepilogare una riunione, rispondere a un cliente o smistare una richiesta. Scegline una nella chat IA con / oppure da un’app di IA collegata allo spazio di lavoro. Ogni competenza è una pagina o una riga di database; ognuno vede le competenze che può aprire.",
   "new": "Nuova competenza",
   "search": "Cerca competenze",
   "count": "{count, plural, one {# competenza} other {# competenze}}",
   "noMatches": "Nessuna competenza corrisponde alla ricerca.",
   "emptyTitle": "Ancora nessuna competenza",
-  "emptyHint": "Qualsiasi pagina o riga di database può diventare una competenza: aprila e attiva Usa come competenza nel suo menu ⋯, oppure iniziane una con Nuova competenza.",
+  "emptyHint": "Anche qualsiasi pagina o riga di database può diventare una competenza: aprila e attiva Usa come competenza nel suo menu ⋯.",
+  "builtins": {
+    "heading": "Inizia da una competenza pronta",
+    "hint": "Ognuna diventa una tua pagina privata: adattala al tuo lavoro, poi condividila con il tuo team.",
+    "open": "Competenze pronte"
+  },
   "noDescription": "Ancora nessuna descrizione",
   "inDatabase": "In {database}",
   "updated": "Aggiornata {time}",

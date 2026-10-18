@@ -60,6 +60,7 @@ import { CONNECTED_APPS_MODES } from "@/server/connected-app";
 import { dropFromGroups } from "@/server/groups";
 import { cutOffConnection } from "@/server/sso";
 import { dropFromTeamspaces, setUpGeneralTeamspace } from "@/server/teamspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /** "Erhan's workspace" / "Erhan'ın çalışma alanı", in the language of the sign-up request. */
 async function personalWorkspaceName(userName: string) {
@@ -401,6 +402,7 @@ export async function addMemberAs(
   email: string,
   role: WorkspaceRole,
 ): Promise<Exclude<AddMemberResult, { kind: "requested" }>> {
+  refuseInLocalMode();
   const clean = normalizeEmail(email);
   // Agents' users are added only to their own workspace, by creating the agent.
   if (isReservedEmail(clean)) throw new WorkspaceError("invalidEmail", "Agents can't be added to a workspace.");
@@ -530,6 +532,7 @@ export async function addMembers(
   emails: string[],
   role: WorkspaceRole,
 ): Promise<BulkAddResult[]> {
+  refuseInLocalMode();
   await memberInviteModeFor(actorId, workspaceId, role);
   const unique = [...new Set(emails.map(normalizeEmail).filter(Boolean))];
   if (!unique.length) throw new WorkspaceError("emailRequired", "Enter at least one email address.");
@@ -591,7 +594,7 @@ export async function revokeInvitation(actorId: string, workspaceId: string, inv
 
 /** The unexpired invitation behind a link, or null. Callers must not reveal the token elsewhere. */
 export async function findInvitation(token: string) {
-  if (!token) return null;
+  if (!token || env.localMode) return null;
   const [row] = await db
     .select({
       email: workspaceInvitation.email,
@@ -626,6 +629,7 @@ export async function invitationAllowsSignUp(token: string, email: string) {
  * so a forwarded link can't be used by someone else. Returns the workspace id.
  */
 export async function acceptInvitation(token: string, userId: string, userEmail: string) {
+  refuseInLocalMode();
   const workspaceId = await db.transaction(async (tx) => {
     const [invitation] = await tx
       .select({
@@ -680,6 +684,7 @@ export async function getJoinLink(actorId: string, workspaceId: string) {
  * working. Returns the link, or null when off. Owners only.
  */
 export async function setJoinLink(actorId: string, workspaceId: string, mode: "enable" | "disable" | "regenerate") {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const token =
     mode === "disable" ? null : mode === "regenerate" ? newToken() : sql`coalesce(${workspace.inviteLinkToken}, ${newToken()})`;
@@ -706,7 +711,7 @@ export async function setJoinLink(actorId: string, workspaceId: string, mode: "e
 
 /** The workspace behind a join link, or null. */
 export async function findJoinLink(token: string) {
-  if (!token) return null;
+  if (!token || env.localMode) return null;
   const [row] = await db
     .select({ workspaceId: workspace.id, workspaceName: workspace.name })
     .from(workspace)
@@ -744,6 +749,7 @@ async function linkDecision(
 
 /** For the join page: what opening the link would do for this signed-in person, before they choose. */
 export async function joinLinkAccess(token: string, userId: string, userEmail: string) {
+  if (env.localMode) return null;
   const [ws] = token
     ? await db.select({ id: workspace.id, settings: workspace.settings }).from(workspace).where(eq(workspace.inviteLinkToken, token)).limit(1)
     : [];
@@ -768,6 +774,7 @@ export type LinkJoinResult = { workspaceId: string; status: "joined" | "requeste
  * leaves them for the real owner of the address.
  */
 export async function joinWithLink(token: string, userId: string, userEmail: string): Promise<LinkJoinResult> {
+  refuseInLocalMode();
   const email = normalizeEmail(userEmail);
   const outcome = await db.transaction(async (tx) => {
     const [ws] = token
@@ -1282,6 +1289,7 @@ export async function updateWorkspaceSettings(
  * verified domains, or the instance has its own provider. "SSO only" needs one of them.
  */
 export async function ssoAvailable(workspaceId: string) {
+  if (env.localMode) return false;
   if (env.instanceOidc) return true;
   const [row] = await db
     .select({ one: sql<number>`1` })
@@ -1381,6 +1389,8 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
  * with them: owners always, members when the workspace allows it, guests never.
  */
 export async function canInviteGuests(userId: string, workspaceId: string) {
+  // No guests when Leafdesk runs on one computer: there is no one to bring in.
+  if (env.localMode) return false;
   const [membership, settings] = await Promise.all([getMembership(userId, workspaceId), workspaceSettings(workspaceId)]);
   if (!membership) return false;
   return membership.role === "owner" || (membership.role === "member" && settings.guestInvites === "members");
@@ -1391,6 +1401,7 @@ export async function canInviteGuests(userId: string, workspaceId: string) {
  * an owner, or not at all (null).
  */
 export async function memberInviteAccess(userId: string, workspaceId: string): Promise<"direct" | "request" | null> {
+  if (env.localMode) return null;
   const [membership, settings] = await Promise.all([getMembership(userId, workspaceId), workspaceSettings(workspaceId)]);
   const mode = memberInviteMode(membership?.role ?? null, settings);
   return mode === "denied" ? null : mode;

@@ -63,6 +63,7 @@ in English until someone translates it.
 | The app (menus, dialogs, settings, errors…) | `src/i18n/messages/<locale>/*.json`, one file per area (`page.json`, `database.json`, …) |
 | Emails (invitations, password reset, notifications) | `src/i18n/messages/<locale>/email.json` |
 | Built-in templates (Meeting notes, Weekly plan, Project tracker) | `src/i18n/messages/<locale>/templates.json` |
+| Ready-made skills (Wrap up meeting notes, Reply to a customer…) | `src/i18n/messages/<locale>/skillTemplates.json` |
 | The editor's own menus (slash menu, formatting toolbar, placeholders) | [BlockNote](https://www.blocknotejs.org)'s dictionaries, mapped in `src/i18n/blocknote/index.ts` |
 | Language names in the language picker | `LOCALE_NAMES` in `src/i18n/config.ts` |
 
@@ -86,7 +87,7 @@ by next-intl:
   needs a plural where English doesn't may add one.
 - An ASCII apostrophe right before `{` or `}` starts a quoted text in ICU and swallows the
   placeholder (`l'{name}`). Use the typographic apostrophe `’` instead.
-- In `templates.json` keep the Markdown structure (`##`, `- [ ] `, blank lines); the property and
+- In `templates.json` and `skillTemplates.json` keep the Markdown structure (`##`, `- [ ] `, blank lines); in `templates.json` the property and
   option names become the names in the created database.
 - Product and technical names stay as they are: Leafdesk, MCP, Markdown, CSV, formula function
   names, keyboard keys. The Turkish files are a complete example of what gets translated.

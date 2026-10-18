@@ -15,7 +15,9 @@ import { requireMembership, requirePageAccess } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { labelPageLinks } from "@/server/mentions";
 import { expandSyncedMarkdown } from "@/server/synced-blocks";
+import { createPage } from "@/server/pages";
 import { listWorkspaces } from "@/server/workspaces";
+import { builtinSkill, isBuiltinSkillKey, type BuiltinSkillKey } from "@/lib/builtin-skills";
 import { describeSkill, MAX_SKILL_DESCRIPTION, skillNames, skillSlug } from "@/lib/skills";
 
 export { MAX_SKILL_DESCRIPTION } from "@/lib/skills";
@@ -78,6 +80,27 @@ export async function setSkill(userId: string, pageId: string, change: { skill?:
   // Open tabs of the page and its database's views refetch the header.
   collab.broadcast(`page:${pageId}`, PAGE_HEADER_EVENT);
   if (found.parentId) collab.broadcast(`db:${found.parentId}`, "rows");
+}
+
+/**
+ * A new private page from a built-in skill (lib/builtin-skills), in the person's language, already
+ * marked as a skill with the built-in's description. Needs leave to add pages at the top of the
+ * workspace, like New skill; from then on it is theirs to change and share.
+ */
+export async function createBuiltinSkill(
+  userId: string,
+  workspaceId: string,
+  key: BuiltinSkillKey,
+  locale?: string,
+): Promise<{ id: string; workspaceId: string }> {
+  if (!isBuiltinSkillKey(key)) throw new Error(`Unknown built-in skill "${String(key)}"`);
+  const builtin = await builtinSkill(key, locale);
+  const created = await createPage(
+    { userId },
+    { workspaceId, teamspaceId: null, title: builtin.title, icon: builtin.icon, markdown: builtin.markdown },
+  );
+  await setSkill(userId, created.id, { skill: true, description: builtin.description });
+  return { id: created.id, workspaceId: created.workspaceId };
 }
 
 /** The skills of a workspace the person can open, by title. Guests get those shared with them. */

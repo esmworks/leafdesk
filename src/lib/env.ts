@@ -85,6 +85,8 @@ export const env = {
    * is missing or the subject is neither (see lib/push.ts).
    */
   get vapid() {
+    // Push services reach browsers through a public address the computer's server doesn't have.
+    if (this.localMode) return null;
     return vapidFrom(process.env);
   },
   /**
@@ -105,6 +107,15 @@ export const env = {
   /** DISABLE_SIGNUP=true closes email/password sign-up; existing accounts can still sign in. */
   get signUpDisabled() {
     return ["1", "true", "yes"].includes((process.env.DISABLE_SIGNUP ?? "").trim().toLowerCase());
+  },
+  /**
+   * LEAFDESK_LOCAL_MODE=1: Leafdesk runs on one computer for one person (the desktop app's "On
+   * this computer", desktop/src/local-server.ts). What needs other people, email or a public address
+   * is hidden and refused: SSO, SCIM, invitations and join requests, guests, publishing, email and
+   * push notifications (see server/local-mode.ts).
+   */
+  get localMode() {
+    return ["1", "true", "yes"].includes((process.env.LEAFDESK_LOCAL_MODE ?? "").trim().toLowerCase());
   },
   /** ADMIN_EMAILS: the instance administrators' addresses (see lib/instance-admin.ts). */
   get adminEmails() {

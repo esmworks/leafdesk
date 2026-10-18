@@ -38,6 +38,12 @@
 
 ### Added
 
+- **Ready-made skills.** The skills library offers six to start from: *Wrap up meeting notes*,
+  *Weekly status summary*, *Reply to a customer*, *Proofread a text*, *Triage a request* and
+  *Executive summary*. They fill the library while it is empty, and *Ready-made skills* opens them
+  after. Picking one makes a private page in your language, already a skill with its description,
+  to change and share like any other. None needs setting up: each works on the page, row or text
+  it is pointed at. See [Skills](README.md#skills).
 - **Workspace backups.** Owners download the whole workspace as one file in Settings → General →
   *Back up workspace*: every page with its history and comments, databases, files, teamspaces,
   groups, permissions, published pages, the site, agents, automations and daily notes. *New
@@ -67,7 +73,10 @@
   other sites in your browser and offline editing as in the installed web app (on HTTPS). A
   self-signed certificate can be trusted by its fingerprint. *On this computer* needs no server at
   all: the app runs Leafdesk and a database of its own on the computer, signed in to its one
-  account, and keeps the pages there. The app updates itself from GitHub releases. The macOS app is
+  account, and keeps the pages there. What needs other people, email or a public address (single
+  sign-on, SCIM, invitations and join requests, guests, publishing, email and push notifications)
+  is left out there, and its server refuses it (`LEAFDESK_LOCAL_MODE`). The app updates itself from
+  GitHub releases. The macOS app is
   signed and notarized; the Windows installer isn't signed yet. See *Desktop app* in the README.
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.
@@ -220,7 +229,8 @@
   switch away (around a focused page they still show). A row related to a page in view comes out of
   its database's bubble, so the line says which customer an order is for, unless more than 30 rows
   of that database would. With fewer than 10 links and relations in the workspace, the graph says
-  how to add them.
+  how to add them. It no longer has a button in the sidebar: it opens from a page's graph (*Show in
+  graph*, then *Open in the full graph*) or from search.
 
 ### Fixed
 
@@ -277,6 +287,12 @@
   it, but the API tokens and connected apps of the people who signed in that way kept working. They
   are now revoked with the sessions, as on a password reset, and the audit log entry says how many.
   A change that keeps the identity provider (a new client secret, other domains) revokes nothing.
+- **Deleting a workspace revokes the API tokens and connected apps of its SSO users.** It already
+  ended the sessions signed in through the workspace's SSO connection, but those people's tokens
+  and apps for all their workspaces kept reaching the others. They are now revoked in the same
+  transaction; the workspace's audit log goes with it, so the server log says how many. Their
+  other workspaces record each app disconnected as done by the server, on that person, here and
+  when the connection is moved or removed, not as the person's own doing from the owner's address.
 - **Pages have a Content-Security-Policy.** Only scripts carrying a nonce made for that response
   run, so HTML that ever got past the sanitizers of a published page, a bookmark or a diagram
   can't run script where the session lives; frames may only come from the embed providers, and
