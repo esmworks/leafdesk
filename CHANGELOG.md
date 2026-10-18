@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-### Upgrading
+## 0.6.0 — 2026-10-19
+
+### Upgrading from 0.5.4
 
 - **Leafdesk is now licensed under the GNU Affero General Public License v3.0** (AGPL-3.0-only)
   instead of the Apache License 2.0. Using it, running it for your team or your customers, and
@@ -18,11 +20,13 @@
 - **A reverse proxy that sets its own Content-Security-Policy** now adds to the app's: the browser
   enforces both, so drop the proxy's (or make sure it allows at least what the app's does, see
   `src/lib/content-security-policy.ts`).
-- **Migrations 0078 to 0081** run automatically when the container starts (from source, run
-  `pnpm db:migrate`). 0078 adds a column to `page_link`; after the upgrade the server reads each page
-  that links somewhere once, in the background, to fill in where its links are. 0079 adds the time
-  zone of calendar feeds (see *Fixed*); feeds made before it take their user's zone the next time
-  they open the feed's dialog, and count days in UTC until then.
+- **Migrations 0078 to 0085** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). Compose users who want to set `SOURCE_URL` (see *Added*) need this
+  release's `docker-compose.yml`; nothing else in it changed. 0078 adds a column to `page_link`;
+  after the upgrade the server reads each page that links somewhere once, in the background, to
+  fill in where its links are. 0079 adds the time zone of calendar feeds (see *Fixed*); feeds made
+  before it take their user's zone the next time they open the feed's dialog, and count days in
+  UTC until then.
 - **Migration 0080 rewrites the `file_text` table once** to give each document's text a search
   vector; the table holds one row per PDF or Word document read so far, so it is quick. Documents
   uploaded before this release are read for search gradually, a couple of hundred per workspace
@@ -126,8 +130,10 @@
   and the teamspaces section only for other teamspaces already there. It backs its workspaces up
   once a day into a folder of your choosing (*Documents/Leafdesk Backups* unless you pick another,
   such as one iCloud Drive or Dropbox syncs), keeping the last seven of each; any Leafdesk restores
-  them. The app updates itself from GitHub releases. The macOS app is signed and notarized; the
-  Windows installer isn't signed yet. See *Desktop app* in the README.
+  them. The app updates itself from GitHub releases. On macOS the window has no title bar: its
+  buttons sit at the top of the sidebar, beside the sidebar's own, and the top of the page drags
+  it. The macOS app is signed and notarized; the Windows installer isn't signed yet. See *Desktop
+  app* in the README.
 - **Follow database rows.** People now hear in their inbox when someone else changes a row they
   follow: its properties (a status moved, a date or an assignee changed), its title or its text.
   A row's creator, the people its person properties name, and anyone who comments or is mentioned
@@ -227,6 +233,35 @@
   API's database schema) shows it. The small business kit's balance sheet shows its net effect, and
   the dashboard its net worth, in the kit's currency.
 
+### Changed
+
+- **Wide boards and tables keep their sideways scrollbar in view.** When the columns run past the
+  window's edge, a scrollbar stays at the bottom of the window wherever you are on the page, and
+  rests under the board or table once you reach its end; it isn't there when everything fits. It
+  used to be under the last row or the longest column, so reaching the columns on the right with a
+  mouse meant scrolling all the way down first. A board also pans sideways when you drag its empty
+  floor between and below the columns.
+- **Large databases and workspaces open faster.** Who may see a database's rows is now worked out
+  once for the database wherever that gives the same answer, instead of once for every row: with
+  50,000 rows a table loads about three times faster, and a filtered or sorted query through the
+  REST API or MCP about five times faster. The search box's recently edited pages show at once in a
+  large workspace (about two seconds with 5,000 pages before).
+- **Webhooks follow the export switch.** With export turned off in Settings → Security, an
+  automation can't get a new webhook (`webhookExportOff`), and a webhook saved before sends nothing:
+  its runs and its *Test* ping fail with that code until export is turned back on. Calendar feeds
+  already stopped.
+- **AI autofill leaves out related rows and people.** Relations, rollups, people and created/edited
+  by properties, and formulas reading them, are no longer part of what autofill sends to the model:
+  they could name rows and people the readers of the filled-in text can't open. A prompt or a
+  translation source naming one is refused (`hiddenInput`).
+- **The graph opens on what pages say about each other.** The whole workspace's graph now shows
+  only the pages joined by links and relations; the page tree and pages joined to nothing are a
+  switch away (around a focused page they still show). A row related to a page in view comes out of
+  its database's bubble, so the line says which customer an order is for, unless more than 30 rows
+  of that database would. With fewer than 10 links and relations in the workspace, the graph says
+  how to add them. It no longer has a button in the sidebar: it opens from a page's graph (*Show in
+  graph*, then *Open in the full graph*) or from search.
+
 ### Fixed
 
 - **Saving the SSO connection no longer undoes a change made meanwhile.** A save waits for the
@@ -274,37 +309,6 @@
   could type, but their edits weren't saved until they reloaded the page. Their open page now takes
   them right away, the ones typed before included. Unlocking a page or restoring it from the trash
   sends the edits it held back the same way.
-
-### Changed
-
-- **Wide boards and tables keep their sideways scrollbar in view.** When the columns run past the
-  window's edge, a scrollbar stays at the bottom of the window wherever you are on the page, and
-  rests under the board or table once you reach its end; it isn't there when everything fits. It
-  used to be under the last row or the longest column, so reaching the columns on the right with a
-  mouse meant scrolling all the way down first. A board also pans sideways when you drag its empty
-  floor between and below the columns.
-- **Large databases and workspaces open faster.** Who may see a database's rows is now worked out
-  once for the database wherever that gives the same answer, instead of once for every row: with
-  50,000 rows a table loads about three times faster, and a filtered or sorted query through the
-  REST API or MCP about five times faster. The search box's recently edited pages show at once in a
-  large workspace (about two seconds with 5,000 pages before).
-- **Webhooks follow the export switch.** With export turned off in Settings → Security, an
-  automation can't get a new webhook (`webhookExportOff`), and a webhook saved before sends nothing:
-  its runs fail with that code until export is turned back on. Calendar feeds already stopped.
-- **AI autofill leaves out related rows and people.** Relations, rollups, people and created/edited
-  by properties, and formulas reading them, are no longer part of what autofill sends to the model:
-  they could name rows and people the readers of the filled-in text can't open. A prompt or a
-  translation source naming one is refused (`hiddenInput`).
-- **The graph opens on what pages say about each other.** The whole workspace's graph now shows
-  only the pages joined by links and relations; the page tree and pages joined to nothing are a
-  switch away (around a focused page they still show). A row related to a page in view comes out of
-  its database's bubble, so the line says which customer an order is for, unless more than 30 rows
-  of that database would. With fewer than 10 links and relations in the workspace, the graph says
-  how to add them. It no longer has a button in the sidebar: it opens from a page's graph (*Show in
-  graph*, then *Open in the full graph*) or from search.
-
-### Fixed
-
 - **Templates keep the access a subpage had.** Saving a subpage as a template copied only its own
   sharing, so a page closed to everyone above it could become a template the whole workspace
   opens. The entries it had from its parents are now copied onto the template too.
