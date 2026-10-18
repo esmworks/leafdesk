@@ -1185,12 +1185,14 @@ Then fill in the provider's details:
   email domains of the workspace.
   Changing the domains or the provider asks for verification again.
 
-A workspace has one connection. Removing it, or moving it to another identity provider, ends the
-sessions that came through it and revokes the API tokens and connected apps of the people who
-signed in through it, as a password reset does; deleting the workspace, or the account of the
-last person in it, removes the connection and the sign-ins through it too. A new connection starts
-with nobody linked to it: people are linked again by their verified address when they next sign in.
-The connection doesn't go with the account of the owner who set it up; another owner takes it over.
+A workspace has one connection. Removing it (or the workspace) removes its provider; sessions that
+came through it no longer count for "Single sign-on only".
+
+Deleting the account of the last person in a workspace deletes the workspace too, and with it the
+connection: everyone who signed in through it is signed out and their API tokens and connected apps
+are revoked. A new connection starts with nobody linked to it: people are linked again by their
+address when they next sign in through it (see *Existing accounts* above). A connection doesn't go
+with the account of the owner who set it up: another owner of the workspace takes it over.
 
 **How members sign in** (Settings → Security): *Any method* (default) or *Single sign-on only*.
 With single sign-on only, members whose session didn't come through the workspace's connection

@@ -1011,12 +1011,14 @@ type CutOff = Awaited<ReturnType<typeof cutOffConnection>>;
  * the transaction commits), and leaves the others the way leaving does: an owner takes over the
  * pages only this person could manage.
  *
- * A deleted workspace's single sign-on connection is cut off first, as removing it does
- * (cutOffConnection, returned for afterCutOff once the transaction commits): the people who signed
- * in through it, members or not by now, may be in other workspaces, and a backup brings the
- * workspace's id, and with it the connection's provider id, back. A connection the person set up
- * in a workspace that stays, whether or not they are still in it, passes to an owner there: the
- * SSO plugin's provider row belongs to whoever set it up, and would go with their account.
+ * A deleted workspace's single sign-on connection is cut off as removing it does (cutOffConnection,
+ * returned for afterCutOff once the transaction commits): the people who signed in through it,
+ * members or not by now, may be in other workspaces, and a backup brings the workspace's id, and
+ * with it the connection's provider id, back. That comes after the workspace's rows are deleted, so
+ * the people's token and app rows aren't locked meanwhile; the sign-ins point at the provider id
+ * without a foreign key, so they are still there. A connection the person set up in a workspace
+ * that stays, whether or not they are still in it, passes to an owner there: the SSO plugin's
+ * provider row belongs to whoever set it up, and would go with their account.
  */
 export async function withdrawFromWorkspaces(
   tx: Tx,
@@ -1043,10 +1045,11 @@ export async function withdrawFromWorkspaces(
       .select({ providerId: workspaceSso.providerId })
       .from(workspaceSso)
       .where(inArray(workspaceSso.workspaceId, deleted));
-    for (const { providerId } of connections) cutOff.push(await cutOffConnection(tx, providerId));
     const files = await tx.delete(file).where(inArray(file.workspaceId, deleted)).returning({ key: file.storageKey });
     fileKeys.push(...files.map((f) => f.key));
     await deleteWorkspaces(tx, deleted);
+    // After the workspaces are gone (see above).
+    for (const { providerId } of connections) cutOff.push(await cutOffConnection(tx, providerId));
   }
   for (const { id, role } of plan.left) {
     // Recorded while the account is still there: the event keeps their name, the id is cleared.

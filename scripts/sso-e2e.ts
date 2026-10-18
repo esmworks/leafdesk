@@ -12,7 +12,7 @@
  * everyone who signed in through it, and of nobody else; a change that keeps the identity provider
  * revokes nothing. A new connection does the same to the sign-ins still on record under the
  * workspace's provider id, so an id its identity provider sends finds only the address it vouches
- * for; and deleting a provider row deletes the sign-ins under its id.
+ * for.
  *
  * The app must run with the mock provider trusted and configured as the instance provider:
  *
@@ -799,11 +799,6 @@ async function main() {
     "an id the new identity provider sends signs in the address it vouches for, not whoever had that id before",
     { oscarIn, user: oscarSession?.user },
   );
-
-  // A provider row that goes some other way takes the sign-ins under its id along (0085).
-  await db.delete(ssoProvider).where(eq(ssoProvider.providerId, providerId));
-  const orphans = await db.select({ id: account.id }).from(account).where(eq(account.providerId, providerId));
-  check(orphans.length === 0 && (await sessionOf(oscar)) === null, "deleting a provider row deletes the sign-ins under its id", orphans);
 
   check(idpRequests.some((r) => r.endsWith("/acme/token")) && idpRequests.some((r) => r.endsWith("/acme/jwks")), "the app used the provider's token and key endpoints");
   console.log(`\n${passed} checks passed`);

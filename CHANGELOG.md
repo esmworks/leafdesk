@@ -35,9 +35,6 @@
   watching other pages as they edit them.
 - **Migration 0084 adds the `synced_block_reference` table** for synced blocks (see *Added*);
   nothing is rewritten. It fills in as pages with synced blocks are saved.
-- **Migration 0085 adds a trigger** that removes the sign-ins under a single sign-on provider's id
-  (its `account` rows and the sessions it signed in) when the provider is deleted; nothing is
-  rewritten (see *Security*).
 
 ### Added
 
@@ -307,8 +304,7 @@
   record (see the previous entry), also for a deleted workspace restored from a backup. Setting up
   a connection now removes them, ending those sessions and revoking those people's API tokens and
   connected apps as moving the connection to another identity provider does; the audit log entry
-  says how many. Deleting a provider removes the sign-ins under its id in the database as well
-  (migration 0085).
+  says how many.
 
 ## 0.5.4 — 2026-10-17
 

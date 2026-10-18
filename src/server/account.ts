@@ -620,7 +620,7 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
     console.warn("[account] could not close collab connections", error);
   }
   if (cutOff.length) {
-    // The deleted workspaces' audit logs went with them.
+    // The deleted workspaces' audit logs went with them, as did tokens for them alone (not counted).
     const tokens = cutOff.reduce((n, c) => n + c.counts.revokedApiTokens, 0);
     const apps = cutOff.reduce((n, c) => n + c.counts.revokedConnectedApps, 0);
     console.info(
