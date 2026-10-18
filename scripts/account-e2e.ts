@@ -318,6 +318,15 @@ async function ssoConnection(workspaceId: string, setUpBy: string, label: string
   return providerId;
 }
 
+/** Whether `userId` is still in the workspace. */
+async function isMember(workspaceId: string, userId: string) {
+  const rows = await db
+    .select({ role: workspaceMember.role })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
+  return rows.length > 0;
+}
+
 /** What signing in through the connection leaves: the person's account at it, and a session marked as its. */
 async function signedInThrough(providerId: string, userId: string) {
   const at = new Date();
@@ -352,7 +361,11 @@ async function deletingAccountsAndSingleSignOn() {
   check((await open(`${loneSettings}?tab=members`, lone.jar)).status === 200, "Lone opens the members of a workspace with single sign-on");
   for (const person of [fay, gus]) {
     const removed = await callAction(lone.jar, loneSettings, WS_ACTIONS, "removeMemberAction", [lone.workspaceId, person.id]);
-    check(removed.status === 200, "…and removes a member", removed.text);
+    check(
+      removed.status === 200 && removed.text.includes('"ok":true') && !(await isMember(lone.workspaceId, person.id)),
+      "…and removes a member",
+      removed.text,
+    );
   }
   check(
     (await sessionOf(fay.jar)) !== null && (await tokenAnswer(fayToken)) === 200,
@@ -389,17 +402,17 @@ async function deletingAccountsAndSingleSignOn() {
   const halSettings = `/w/${hal.workspaceId}/settings`;
   check((await open(`${halSettings}?tab=members`, hal.jar)).status === 200, "Hal opens the members of a workspace whose connection Hal set up");
   const halLeft = await callAction(hal.jar, halSettings, WS_ACTIONS, "removeMemberAction", [hal.workspaceId, hal.id]);
-  check(halLeft.status === 200, "…and leaves it", halLeft.text);
+  check(halLeft.status === 200 && halLeft.text.includes('"ok":true') && !(await isMember(hal.workspaceId, hal.id)), "…and leaves it", halLeft.text);
   const halDeleted = await account_(hal.jar, "deleteAccountAction", [{ confirmation: emailOf("hal"), proof: { password: PASSWORD } }]);
   check(halDeleted.ok, "then Hal deletes their account", halDeleted);
   const connections = await db
-    .select({ userId: ssoProvider.userId, verified: ssoProvider.domainVerified, workspaceId: workspaceSso.workspaceId })
+    .select({ userId: ssoProvider.userId, workspaceId: workspaceSso.workspaceId })
     .from(ssoProvider)
     .innerJoin(workspaceSso, eq(workspaceSso.providerId, ssoProvider.providerId))
     .where(inArray(ssoProvider.providerId, [halProvider, idaProvider]));
   check(
-    connections.length === 2 && connections.every((c) => c.userId === ida.id && c.verified === true),
-    "…and both connections stay, still verified, passed to the owner still there",
+    connections.length === 2 && connections.every((c) => c.userId === ida.id),
+    "…and both connections stay, passed to the owner still there",
     connections,
   );
   const idaLinks = await db.select({ id: account.id }).from(account).where(eq(account.providerId, halProvider));

@@ -58,7 +58,6 @@ import { turkishGenitive } from "@/lib/turkish";
 import { getCollab } from "@/server/collab/bridge";
 import { CONNECTED_APPS_MODES } from "@/server/connected-app";
 import { dropFromGroups } from "@/server/groups";
-import { cutOffConnection } from "@/server/sso";
 import { dropFromTeamspaces, setUpGeneralTeamspace } from "@/server/teamspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 
@@ -1009,8 +1008,6 @@ export async function accountDeletionPlan(userId: string): Promise<DeletionPlan>
   return planAccountDeletion(await standingsOf(db, userId));
 }
 
-type CutOff = Awaited<ReturnType<typeof cutOffConnection>>;
-
 /**
  * For deleting an account (server/account.ts), inside its transaction: unless `plan.blockers`
  * names workspaces the person is the only owner of (then nothing changes), deletes the workspaces
@@ -1018,45 +1015,44 @@ type CutOff = Awaited<ReturnType<typeof cutOffConnection>>;
  * the transaction commits), and leaves the others the way leaving does: an owner takes over the
  * pages only this person could manage.
  *
- * A deleted workspace's single sign-on connection is cut off as removing it does (cutOffConnection,
- * returned for afterCutOff once the transaction commits): the people who signed in through it,
- * members or not by now, may be in other workspaces, and a backup brings the workspace's id, and
- * with it the connection's provider id, back. That comes after the workspace's rows are deleted, so
- * the people's token and app rows aren't locked meanwhile; the sign-ins point at the provider id
- * without a foreign key, so they are still there. A connection the person set up in a workspace
- * that stays, whether or not they are still in it, passes to an owner there: the SSO plugin's
- * provider row belongs to whoever set it up, and would go with their account.
+ * The deleted workspaces' single sign-on connections are for the caller to cut off as removing one
+ * does (cutOffConnection, with the provider ids returned), last in its transaction: the people who
+ * signed in through them, members or not by now, may be in other workspaces, and a backup brings a
+ * workspace's id, and with it its connection's provider id, back. The sign-ins point at the provider
+ * id without a foreign key, so they outlive the workspace's rows. A connection the person set up in
+ * a workspace that stays, whether or not they are still in it, passes to an owner there: the SSO
+ * plugin's provider row belongs to whoever set it up, and would go with their account.
  */
 export async function withdrawFromWorkspaces(
   tx: Tx,
   userId: string,
-): Promise<{ plan: DeletionPlan; fileKeys: string[]; cutOff: CutOff[] }> {
+): Promise<{ plan: DeletionPlan; fileKeys: string[]; providerIds: string[] }> {
   const ids = (
     await tx.select({ id: workspaceMember.workspaceId }).from(workspaceMember).where(eq(workspaceMember.userId, userId))
   ).map((r) => r.id);
   // Locking the workspaces holds off people joining them (adding a member takes a key-share lock
-  // on its workspace row) and owner changes until this transaction ends. Also those whose
-  // connection they set up, so the owner who takes it over stays one.
+  // on its workspace row) until this transaction ends, and serializes it with deleting the
+  // workspace or another account in it. Also those whose connection they set up, so the owner who
+  // takes it over isn't deleting their account meanwhile.
   const locked = [...new Set([...ids, ...(await connectionsSetUpBy(tx, userId)).map((c) => c.workspaceId)])];
   if (locked.length) {
     await tx.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, locked)).orderBy(asc(workspace.id)).for("update");
   }
   const plan = planAccountDeletion(await standingsOf(tx, userId));
-  if (plan.blockers.length) return { plan, fileKeys: [], cutOff: [] };
+  if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [] };
 
   const fileKeys: string[] = [];
-  const cutOff: CutOff[] = [];
+  const providerIds: string[] = [];
   const deleted = plan.deleted.map((w) => w.id);
   if (deleted.length) {
     const connections = await tx
       .select({ providerId: workspaceSso.providerId })
       .from(workspaceSso)
       .where(inArray(workspaceSso.workspaceId, deleted));
+    providerIds.push(...connections.map((c) => c.providerId));
     const files = await tx.delete(file).where(inArray(file.workspaceId, deleted)).returning({ key: file.storageKey });
     fileKeys.push(...files.map((f) => f.key));
     await deleteWorkspaces(tx, deleted);
-    // After the workspaces are gone (see above).
-    for (const { providerId } of connections) cutOff.push(await cutOffConnection(tx, providerId));
   }
   for (const { id, role } of plan.left) {
     // Recorded while the account is still there: the event keeps their name, the id is cleared.
@@ -1074,7 +1070,7 @@ export async function withdrawFromWorkspaces(
     const heir = await oldestOwner(tx, workspaceId);
     if (heir) await tx.update(ssoProvider).set({ userId: heir }).where(eq(ssoProvider.providerId, providerId));
   }
-  return { plan, fileKeys, cutOff };
+  return { plan, fileKeys, providerIds };
 }
 
 /** The single sign-on connections whose provider row belongs to `userId`, who set them up. */

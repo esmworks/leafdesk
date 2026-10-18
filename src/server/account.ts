@@ -40,7 +40,7 @@ import { disconnectEndedSessions } from "@/server/account-security";
 import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, sendMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
-import { afterCutOff } from "@/server/sso";
+import { afterCutOff, cutOffConnection } from "@/server/sso";
 import { getStorage } from "@/server/storage";
 import { accountDeletionPlan, withdrawFromWorkspaces } from "@/server/workspaces";
 
@@ -583,14 +583,16 @@ export async function deletionPlanFor(userId: string): Promise<DeletionPlan> {
 /**
  * Deletes the account, after proof and the typed confirmation (the account's email). Refused while
  * the person is the only owner of a workspace others are in. Otherwise, in one transaction:
- * workspaces nobody else is in are deleted with their pages and files, and their single sign-on
- * connections cut off as removing one does (the sign-ins through them, and the API tokens and
- * connected apps of the people who signed in); from the others the person leaves, and an owner
- * takes over the pages only they could manage (as when leaving), and the connections the person set
- * up (see withdrawFromWorkspaces); then the user row goes, and with it (by foreign keys) their
- * sessions, sign-in methods, passkeys, two-step settings, connected apps' grants and tokens, page
- * permissions, favorites and notifications. What they wrote in shared workspaces stays, no longer
- * attributed to anyone.
+ * workspaces nobody else is in are deleted with their pages and files; from the others the person
+ * leaves, and an owner takes over the pages only they could manage (as when leaving), and the
+ * connections the person set up (see withdrawFromWorkspaces); then the user row goes, and with it
+ * (by foreign keys) their sessions, sign-in methods, passkeys, two-step settings, connected apps'
+ * grants and tokens, page permissions, favorites and notifications. What they wrote in shared
+ * workspaces stays, no longer attributed to anyone. Last, the deleted workspaces' single sign-on
+ * connections are cut off as removing one does (the sign-ins through them, and the API tokens and
+ * connected apps of the people who signed in through them), so that those people's token and app
+ * rows, in every workspace, are locked only for the end of the transaction: requests with those
+ * tokens wait for them meanwhile.
  */
 export async function deleteAccount(current: AccountSession, input: { confirmation: unknown; proof: Proof }) {
   const userId = current.user.id;
@@ -601,7 +603,7 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
   await reauthenticate(current, input.proof);
 
   const { plan, keys, cutOff } = await db.transaction(async (tx) => {
-    const { plan, fileKeys: keys, cutOff } = await withdrawFromWorkspaces(tx, userId);
+    const { plan, fileKeys: keys, providerIds } = await withdrawFromWorkspaces(tx, userId);
     if (plan.blockers.length) throw new AccountError("soleOwner", plan.blockers.map((w) => w.name));
     // Pending email changes and password reset links (Better Auth keeps the user id as the value).
     await tx.delete(verification).where(or(eq(verification.value, userId), changeRowsOf(userId)));
@@ -609,11 +611,13 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
     const own = parseAvatarUrl(gone?.image);
     if (own && own.userId === userId) keys.push(avatarStorageKey(userId, own.name));
     await queueStorageDeletion(tx, keys);
+    // Last (see above). The sign-ins point at the provider ids without a foreign key, so they are
+    // still there; this person's own went with the account.
+    const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
+    for (const providerId of providerIds) cutOff.push(await cutOffConnection(tx, providerId));
     return { plan, keys, cutOff };
   });
 
-  // Queued with the account, so the file cleanup deletes later what fails here.
-  await deleteQueued(keys).catch((error) => console.error("[account] could not remove the files", error));
   try {
     await getCollab().disconnectSessions(userId, []);
   } catch (error) {
@@ -629,5 +633,8 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
     );
     await afterCutOff(cutOff).catch((error) => console.error("[account] could not finish cutting off the single sign-on connections", error));
   }
+  // Queued with the account, so the file cleanup deletes later what fails here. After the pages
+  // above are closed: it removes the files one by one.
+  await deleteQueued(keys).catch((error) => console.error("[account] could not remove the files", error));
   return plan;
 }

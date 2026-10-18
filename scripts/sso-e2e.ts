@@ -47,7 +47,7 @@ process.env.OIDC_DOMAINS ??= "instance-sso.test";
 
 const { and, desc, eq, ilike, inArray, or } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { account, auditEvent, oauthClient, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
+const { account, auditEvent, oauthClient, oauthConsent, session, ssoProvider, user, workspace, workspaceMember, workspaceSso } = await import("@/db/schema");
 const { saveSsoConnection, verifySsoDomains, SsoError } = await import("@/server/sso");
 const { createApiToken } = await import("@/server/api/tokens");
 const { AccessError } = await import("@/server/access");
@@ -769,10 +769,23 @@ async function main() {
   // ── A new connection ─────────────────────────────────────────────────────────────────────
   // The workspace's next connection gets the same provider id. A sign-in still on record under it
   // (as older versions left them when a workspace's connection went some other way, and a backup can
-  // bring the id back): Alice's, with her id at the old identity provider, and an API token of hers.
+  // bring the id back): Alice's, with her id at the old identity provider and a session it signed
+  // in, and an API token and a connected app of hers.
   const aliceId = aliceSession.user.id;
   const at = new Date();
-  await db.insert(account).values({ id: `sso-e2e-${RUN}-stale`, accountId: subOf(`alice@${DOMAIN}`), providerId, userId: aliceId, createdAt: at, updatedAt: at });
+  const staleId = `sso-e2e-${RUN}-stale`;
+  await db.insert(account).values({ id: staleId, accountId: subOf(`alice@${DOMAIN}`), providerId, userId: aliceId, createdAt: at, updatedAt: at });
+  await db.insert(session).values({
+    id: staleId,
+    token: randomBytes(16).toString("hex"),
+    userId: aliceId,
+    expiresAt: new Date(at.getTime() + 24 * 60 * 60 * 1000),
+    createdAt: at,
+    updatedAt: at,
+    authMethod: "sso",
+    ssoProviderId: providerId,
+  });
+  await db.insert(oauthConsent).values({ id: staleId, clientId: aliceAccessAgain.app.clientId, userId: aliceId, scopes: APP_SCOPES.split(" "), createdAt: at, updatedAt: at });
   const { secret: aliceLaterToken } = await createApiToken(aliceId, { name: "SSO e2e Alice, after the connection went", scopes: ["pages:read"] });
   const recreated = await callAction(owner.jar, settingsPath, SSO_ACTIONS, "saveSsoConnectionAction", [
     workspaceId,
@@ -781,11 +794,22 @@ async function main() {
   check(recreated.text.includes('"ok":true'), "the owner sets up a connection again", recreated.text);
   const stale = await db.select({ id: account.id }).from(account).where(eq(account.providerId, providerId));
   check(stale.length === 0, "…which forgets the sign-ins still on record under its provider id", stale);
+  const staleSessions = await db.select({ id: session.id }).from(session).where(eq(session.ssoProviderId, providerId));
+  check(staleSessions.length === 0, "…ending the sessions they signed in", staleSessions);
   const laterApi = await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${aliceLaterToken}` } });
   await laterApi.text();
-  check(laterApi.status === 401, "…and revokes the API tokens of the people they were for", laterApi.status);
+  const aliceConsents = await db.select({ clientId: oauthConsent.clientId }).from(oauthConsent).where(eq(oauthConsent.userId, aliceId));
+  check(
+    laterApi.status === 401 && aliceConsents.length === 0,
+    "…and revokes the API tokens and connected apps of the people they were for",
+    { api: laterApi.status, aliceConsents },
+  );
   const recreatedAudit = await lastAudit(workspaceId, "sso.configured");
-  check(recreatedAudit?.created === true && recreatedAudit.revokedApiTokens === 1, "…recording how many in the audit log", recreatedAudit);
+  check(
+    recreatedAudit?.created === true && recreatedAudit.revokedApiTokens === 1 && recreatedAudit.revokedConnectedApps === 1,
+    "…recording how many in the audit log",
+    recreatedAudit,
+  );
 
   const [renewed] = await db.select({ token: workspaceSso.verificationToken }).from(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId));
   await verifySsoDomains(owner.id, workspaceId, async (name) => (name === domainRecordName(DOMAIN) ? [[`leafdesk-sso=${renewed.token}`]] : []));
