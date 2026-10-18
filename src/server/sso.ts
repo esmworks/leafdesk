@@ -25,7 +25,7 @@ import { afterApiTokensRevoked, revokeApiTokensIn } from "@/server/api/tokens";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { afterConnectedAppsRevoked, revokeConnectedAppsIn } from "@/server/mcp/grants";
 import { fetchRemoteFile, isBlockedAddress, readRemoteText } from "@/server/remote-fetch";
-import { joinAsMember } from "@/server/workspaces";
+import { joinAsMember, lockAsOwner } from "@/server/workspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
@@ -132,7 +132,8 @@ export async function ssoAccountCreation(providerId: string, email: string) {
 /**
  * After the first sign-in through a workspace's connection (the account is created or linked to
  * it, see auth.ts): someone with an address in its verified domains joins the workspace as a
- * member, unless they are in it already or its identity provider has deactivated them over SCIM.
+ * member, unless they are in it already, its identity provider has deactivated them over SCIM, or
+ * they left it or were kept out of it before (see joinAsMember).
  */
 export async function joinThroughSso(providerId: string, user: { id: string; email: string }) {
   const workspaceId = workspaceOfProvider(providerId);
@@ -541,6 +542,7 @@ export async function saveSsoConnection(
     domainVerified: verified,
   };
   const cutOff = await db.transaction(async (tx) => {
+    await lockAsOwner(tx, actorId, workspaceId);
     if (!sameConnection(existing, await lockedConnection(tx, workspaceId, providerId))) {
       throw new SsoError("connectionChanged", "The connection changed while it was being saved");
     }
@@ -655,6 +657,8 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
     }
   }
   await db.transaction(async (tx) => {
+    // The workspace first: a verification waiting for its workspace doesn't hold up the others.
+    await lockAsOwner(tx, actorId, workspaceId);
     await lockDomainVerification(tx, workspaceId);
     const now = await lockedConnection(tx, workspaceId, row.providerId);
     if (!now) throw new SsoError("noConnection", "Set up single sign-on first");
@@ -673,7 +677,7 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
 }
 
 /**
- * Removes the connection (its provider row goes with it, see the trigger in 0022_sso.sql) and
+ * Removes the connection (its provider row goes with it, see the trigger in 0024_sso.sql) and
  * everyone's sign-ins through it, with their API tokens and connected apps (cutOffConnection: a new
  * connection gets the same provider id). The "SSO only" login method falls back to any method unless the instance provider remains.
  * Owners only.
@@ -682,6 +686,7 @@ export async function removeSsoConnection(actorId: string, workspaceId: string) 
   refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const cutOff = await db.transaction(async (tx) => {
+    await lockAsOwner(tx, actorId, workspaceId);
     const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
     const removed = await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId)).returning({ providerId: workspaceSso.providerId });
     for (const { providerId } of removed) {
