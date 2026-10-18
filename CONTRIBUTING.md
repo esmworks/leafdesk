@@ -87,7 +87,7 @@ by next-intl:
   needs a plural where English doesn't may add one.
 - An ASCII apostrophe right before `{` or `}` starts a quoted text in ICU and swallows the
   placeholder (`l'{name}`). Use the typographic apostrophe `’` instead.
-- In `templates.json` and `skillTemplates.json` keep the Markdown structure (`##`, `- [ ] `, blank lines); the property and
+- In `templates.json` and `skillTemplates.json` keep the Markdown structure (`##`, `- [ ] `, blank lines); in `templates.json` the property and
   option names become the names in the created database.
 - Product and technical names stay as they are: Leafdesk, MCP, Markdown, CSV, formula function
   names, keyboard keys. The Turkish files are a complete example of what gets translated.
