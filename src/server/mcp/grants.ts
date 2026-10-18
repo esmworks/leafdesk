@@ -210,24 +210,38 @@ export async function revokeConnectedApp(userId: string, clientId: string, by?: 
  * its errors.
  */
 export async function revokeAllConnectedApps(userId: string) {
+  const revoked = await db.transaction((tx) => revokeConnectedAppsIn(tx, [userId]));
+  await afterConnectedAppsRevoked(userId, revoked);
+}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * revokeAllConnectedApps for these people inside the caller's transaction, so the apps are cut off
+ * together with whatever else it changes. Returns the consents it removed; once the transaction
+ * commits, pass each person's to afterConnectedAppsRevoked.
+ */
+export async function revokeConnectedAppsIn(tx: Tx, userIds: string[]) {
+  if (!userIds.length) return [];
   const now = new Date();
-  const revoked = await db.transaction(async (tx) => {
-    const consents = await tx
-      .delete(oauthConsent)
-      .where(eq(oauthConsent.userId, userId))
-      .returning({ clientId: oauthConsent.clientId, scopes: oauthConsent.scopes });
-    await tx
-      .update(oauthRefreshToken)
-      .set({ revoked: now })
-      .where(and(eq(oauthRefreshToken.userId, userId), isNull(oauthRefreshToken.revoked)));
-    await tx
-      .update(oauthAccessToken)
-      .set({ revoked: now })
-      .where(and(eq(oauthAccessToken.userId, userId), isNull(oauthAccessToken.revoked)));
-    return consents;
-  });
+  const consents = await tx
+    .delete(oauthConsent)
+    .where(inArray(oauthConsent.userId, userIds))
+    .returning({ userId: oauthConsent.userId, clientId: oauthConsent.clientId, scopes: oauthConsent.scopes });
+  await tx
+    .update(oauthRefreshToken)
+    .set({ revoked: now })
+    .where(and(inArray(oauthRefreshToken.userId, userIds), isNull(oauthRefreshToken.revoked)));
+  await tx
+    .update(oauthAccessToken)
+    .set({ revoked: now })
+    .where(and(inArray(oauthAccessToken.userId, userIds), isNull(oauthAccessToken.revoked)));
+  return consents;
+}
+
+/** After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log. Only logs its errors. */
+export async function afterConnectedAppsRevoked(userId: string, revoked: { clientId: string; scopes: string[] }[]) {
   await forgetConnectedAppUse(userId).catch((error) => console.error("[connected-apps] could not forget when apps were last used", error));
-  // After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log.
   await recordConnectedApps(userId, revoked, "connected_app.revoked").catch((error) =>
     console.error("[connected-apps] could not record disconnected apps in the audit log", error),
   );
