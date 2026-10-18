@@ -1083,11 +1083,11 @@ async function connectionsSetUpBy(reader: Pick<typeof db, "select">, userId: str
 }
 
 /**
- * Locks the workspace's row until the transaction ends, so nobody joins it and no owner changes
- * meanwhile, and checks that `userId` still owns it. Changes to its single sign-on connection take
- * it first (server/sso.ts), as deleting the workspace or the account of someone in it does: they
- * then write the connection's rows and the workspace's audit log, whose entry needs its row too,
- * and in the other order each could hold what the other waits for.
+ * Locks the workspace's row until the transaction ends, so nobody joins it meanwhile (adding a
+ * member takes a key-share lock on it), and checks that `userId` still owns it. Changes to its
+ * single sign-on connection take it first (server/sso.ts), as deleting the workspace or the account
+ * of someone in it does: they then write the connection's rows and the workspace's audit log, whose
+ * entry needs its row too, and in the other order each could hold what the other waits for.
  */
 export async function lockAsOwner(tx: Tx, userId: string, workspaceId: string) {
   const [locked] = await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
