@@ -34,6 +34,7 @@ import {
   type Tx,
   WorkspaceError,
 } from "@/server/workspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
  * Join requests (issue #56): people asking to be let into a workspace, and members asking to invite
@@ -148,6 +149,7 @@ async function fileJoinRequest(workspaceId: string, userId: string, email: strin
 
 /** A request the person asked for themselves (the join link, the switcher): rate limited per person. */
 export async function requestToJoinFrom(workspaceId: string, userId: string, email: string, source: JoinRequestSource) {
+  refuseInLocalMode();
   if ((await joinRecordOf(db, workspaceId, userId)) === "pending") return "pending" as const;
   limitRequests("join-request", REQUEST_LIMIT, userId);
   return fileJoinRequest(workspaceId, userId, email, source);
@@ -158,6 +160,7 @@ export async function requestToJoinFrom(workspaceId: string, userId: string, ema
  * request per address and workspace: asking again (or another member asking) changes nothing.
  */
 export async function requestInvitation(actorId: string, workspaceId: string, email: string, role: WorkspaceRole) {
+  refuseInLocalMode();
   limitRequests("invite-request", INVITE_REQUEST_LIMIT, actorId);
   const locale = await requestLocale();
   const [row] = await db
@@ -267,6 +270,7 @@ async function joinThroughDomain(workspaceId: string, account: Account) {
  * its domain rule says. Returns the workspaces joined. Unverified addresses do nothing.
  */
 export async function applyDomainPolicies(userId: string): Promise<string[]> {
+  if (env.localMode) return [];
   const account = await accountOf(userId);
   if (!account?.emailVerified) return [];
   const joined: string[] = [];
@@ -282,6 +286,7 @@ export type JoinableWorkspace = { id: string; name: string; icon: string | null;
 
 /** The workspaces the user's email domain lets them join or ask to join, for the workspace switcher. */
 export async function joinableWorkspaces(userId: string): Promise<JoinableWorkspace[]> {
+  if (env.localMode) return [];
   const account = await accountOf(userId);
   if (!account) return [];
   return (await domainWorkspaces(account)).flatMap((ws) => {
@@ -295,6 +300,7 @@ export async function joinableWorkspaces(userId: string): Promise<JoinableWorksp
  * Refuses (AccessError) what it didn't offer, without saying whether the workspace exists.
  */
 export async function joinFromSwitcher(userId: string, workspaceId: string): Promise<"joined" | "requested" | "pending"> {
+  refuseInLocalMode();
   const account = await accountOf(userId);
   if (!account) throw new AccessError();
   if (await findMembership(userId, workspaceId)) return "joined";
@@ -388,6 +394,7 @@ async function takePending(tx: Tx, workspaceId: string, requestId: string): Prom
  * verified, see addMemberAs), which is returned so the owner can share its link. Owners only.
  */
 export async function approveJoinRequest(actorId: string, workspaceId: string, requestId: string) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   let result: AddMemberResult | null = null;
   const request = await db.transaction(async (tx) => {
@@ -452,6 +459,7 @@ export async function approveJoinRequest(actorId: string, workspaceId: string, r
 
 /** Turns the request down; someone asking to join may ask again later (see domainAccess). Owners only. */
 export async function declineJoinRequest(actorId: string, workspaceId: string, requestId: string) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const request = await db.transaction(async (tx) => {
     const request = await takePending(tx, workspaceId, requestId);

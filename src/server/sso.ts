@@ -26,6 +26,7 @@ import { recordAudit } from "@/server/audit";
 import { afterConnectedAppsRevoked, revokeConnectedAppsIn } from "@/server/mcp/grants";
 import { fetchRemoteFile, isBlockedAddress, readRemoteText } from "@/server/remote-fetch";
 import { joinAsMember } from "@/server/workspaces";
+import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
  * Single sign-on: which provider an email signs in with, what a sign-in through a workspace's
@@ -80,6 +81,7 @@ async function verifiedConnections() {
  * provider for its domains (OIDC_DOMAINS), else the workspace connection that verified the domain.
  */
 export async function resolveSsoProvider(email: string): Promise<string | null> {
+  if (env.localMode) return null;
   const instance = env.instanceOidc;
   if (instance && emailInDomains(email, instance.domains)) return INSTANCE_SSO_PROVIDER_ID;
   const match = (await verifiedConnections()).find((c) => emailInDomains(email, domainsFromColumn(c.domain)));
@@ -88,6 +90,7 @@ export async function resolveSsoProvider(email: string): Promise<string | null> 
 
 /** Whether the sign-in page should offer "Continue with SSO" (typing an email). */
 export async function ssoSignInAvailable() {
+  if (env.localMode) return false;
   if (env.instanceOidc?.domains.length) return true;
   const [one] = await db
     .select({ id: ssoProvider.id })
@@ -442,6 +445,7 @@ export async function saveSsoConnection(
   input: SsoConnectionInput,
   deps: { discover?: (issuer: string) => Promise<OidcDiscovery> } = {},
 ) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const parsed = parseDomains(input.domains);
   if (!parsed.ok) throw new SsoError("invalidDomain", `Not a domain that can be claimed: ${parsed.invalid}`, parsed.invalid);
@@ -539,6 +543,7 @@ type TxtResolver = (name: string) => Promise<string[][]>;
  * instance provider's, or another workspace's proven allowed domain). Owners only.
  */
 export async function verifySsoDomains(actorId: string, workspaceId: string, resolver: TxtResolver = resolveTxt) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const row = await connectionRow(workspaceId);
   if (!row) throw new SsoError("noConnection", "Set up single sign-on first");
@@ -577,6 +582,7 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
  * Owners only.
  */
 export async function removeSsoConnection(actorId: string, workspaceId: string) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const cutOff = await db.transaction(async (tx) => {
     const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
@@ -602,6 +608,7 @@ export async function removeSsoConnection(actorId: string, workspaceId: string) 
 
 /** For the "SSO only" gate: the provider a member of the workspace signs in with. */
 export async function workspaceSignInProvider(workspaceId: string): Promise<{ providerId: string; name: string } | null> {
+  if (env.localMode) return null;
   const [row] = await db
     .select({ providerId: ssoProvider.providerId })
     .from(workspaceSso)

@@ -45,6 +45,8 @@ import { propertyAccessFor } from "@/server/property-access";
 import { canPublish, publishingOn } from "@/server/workspaces";
 import type { BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
 import type { EmbedTarget } from "@/lib/web-blocks";
+import { refuseInLocalMode } from "@/server/local-mode";
+import { env } from "@/lib/env";
 
 /**
  * Publish to web: a published page and its live subpages can be read by anyone holding the link
@@ -98,6 +100,8 @@ async function workspaceBlocker(userId: string, workspaceId: string): Promise<"n
 
 /** What publishing needs in the workspace, as a PublishError when it is refused. */
 async function assertWorkspaceAllows(userId: string, workspaceId: string) {
+  // Leafdesk on one computer has no public address to publish to.
+  refuseInLocalMode();
   const blocker = await workspaceBlocker(userId, workspaceId);
   if (blocker === "publishingOff") throw new PublishError("Publishing to the web is turned off in this workspace", blocker);
   if (blocker) throw new PublishError("This workspace lets only owners publish pages", blocker);
@@ -108,6 +112,7 @@ export async function publishBlocker(
   userId: string,
   pageId: string,
 ): Promise<"needsFullAccess" | "notAllowed" | "publishingOff" | null> {
+  if (env.localMode) return "publishingOff";
   let p;
   try {
     p = await requirePageAccess(userId, pageId, "full");
@@ -457,7 +462,7 @@ export async function getPublishedPage(
   viewId?: string,
   options: PublishedPageOptions = {},
 ): Promise<PublishedPage | null> {
-  if (!token || token.length > 128) return null;
+  if (!token || token.length > 128 || env.localMode) return null;
   const [root] = await db
     .select({
       id: page.id,
@@ -630,7 +635,7 @@ export async function chainTo(publisher: string, pageId: string, rootId: string)
  */
 export async function anyPagePublished(pageIds: string[]): Promise<boolean> {
   const ids = [...new Set(pageIds)];
-  if (!ids.length) return false;
+  if (!ids.length || env.localMode) return false;
   const rows = await db.execute<{ start: string; root: string; published_by: string | null }>(sql`
     with recursive up as (
       select id, parent_id, id as start, 0 as depth from ${page} where ${inArray(page.id, ids)}

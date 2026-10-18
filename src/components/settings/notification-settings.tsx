@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { setNotificationPreferenceAction } from "@/app/actions/preferences";
 import { subscribePushAction, unsubscribePushAction } from "@/app/actions/push";
+import { useLocalMode } from "@/components/local-mode";
 import { Button, Switch } from "@/components/ui";
 import type { PreferenceKind } from "@/db/schema";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
@@ -23,6 +24,7 @@ const KIND_KEYS = {
   row_update: "rowUpdate",
   page_updated: "pageUpdate",
 } as const satisfies Record<PreferenceKind, string>;
+const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
  * email and, when the server can send them (`push`), comes as a push notification; and whether
@@ -36,11 +38,14 @@ export function NotificationSettings({
   /** The server's VAPID public key and the endpoints of the user's devices; null when push is off. */
   push: { publicKey: string; endpoints: string[] } | null;
 }) {
-  const channels: NotificationChannel[] = push ? ["inbox", "email", "push"] : ["inbox", "email"];
+  // On one computer no email goes out, and nobody asks to join or for access.
+  const localMode = useLocalMode();
+  const channels: NotificationChannel[] = ["inbox", ...(localMode ? [] : ["email" as const]), ...(push ? ["push" as const] : [])];
+  const kinds = (Object.keys(KIND_KEYS) as PreferenceKind[]).filter((kind) => !(localMode && LOCAL_MODE_HIDDEN_KINDS.includes(kind)));
   return (
     <>
       {push && <PushDeviceRow publicKey={push.publicKey} endpoints={push.endpoints} />}
-      {(Object.keys(KIND_KEYS) as PreferenceKind[]).map((kind) => (
+      {kinds.map((kind) => (
         <NotificationKindRow key={kind} kind={kind} channels={channels} initial={preferences[kind]} />
       ))}
     </>

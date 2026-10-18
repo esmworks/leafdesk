@@ -135,8 +135,9 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
     const setupCode = await exited(setup);
     if (setupCode !== 0) throw new Error(`Leafdesk's setup stopped with ${setupCode}; see ${log}`);
 
-    // Nobody signs up here: the one account is made by the setup.
-    server = run("server.ts", { DISABLE_SIGNUP: "true" });
+    // Nobody signs up here: the one account is made by the setup. Local mode hides and refuses
+    // what needs other people, email or a public address (src/lib/env.ts localMode).
+    server = run("server.ts", { DISABLE_SIGNUP: "true", LEAFDESK_LOCAL_MODE: "1" });
     const serverExit = exited(server);
     const deadline = Date.now() + READY_TIMEOUT_MS;
     for (;;) {

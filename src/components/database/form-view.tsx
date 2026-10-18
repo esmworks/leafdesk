@@ -10,6 +10,7 @@ import {
   unpublishFormAction,
   type FormActionResult,
 } from "@/app/actions/forms";
+import { useLocalMode } from "@/components/local-mode";
 import { Button, cn, MenuItem, Switch } from "@/components/ui";
 import type { FormConfig, FormQuestion } from "@/db/schema/app";
 import {
@@ -197,6 +198,7 @@ function FormSharePanel({
   databaseId: string;
 }) {
   const t = useTranslations("form.share");
+  const localMode = useLocalMode();
   const [sharing, setSharing] = useState<FormSharing | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -244,104 +246,107 @@ function FormSharePanel({
           <CopyButton text={internal} label={t("copyLink")} />
         </div>
       </div>
-      <div className="p-3">
-        <div className="flex items-start gap-3">
-          <span
-            className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
-              publication ? "bg-accent/15 text-accent" : "bg-bg-hover text-fg-muted",
-            )}
-          >
-            <Globe className="h-4 w-4" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("publicTitle")}</p>
-            <p className="mt-0.5 text-xs text-fg-muted">{t("publicDescription")}</p>
+      {/* Leafdesk on one computer has no public address: the form has no public link there. */}
+      {!localMode && (
+        <div className="p-3">
+          <div className="flex items-start gap-3">
+            <span
+              className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
+                publication ? "bg-accent/15 text-accent" : "bg-bg-hover text-fg-muted",
+              )}
+            >
+              <Globe className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">{t("publicTitle")}</p>
+              <p className="mt-0.5 text-xs text-fg-muted">{t("publicDescription")}</p>
+            </div>
           </div>
-        </div>
 
-        {sharing === null && !error && <p className="mt-3 text-sm text-fg-muted">…</p>}
+          {sharing === null && !error && <p className="mt-3 text-sm text-fg-muted">…</p>}
 
-        {publication && (
-          <>
-            <div className="mt-3 flex items-center gap-1 rounded-md border border-border bg-bg-subtle p-1 ps-2">
-              <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{absolute(publication.url)}</span>
-              <CopyButton text={absolute(publication.url)} label={t("copyLink")} />
-              <a
-                href={publication.url}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={t("open")}
-                title={t("open")}
-                className="inline-flex h-7 w-7 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </div>
-            <div className="mt-3 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-sm">{t("anonymous")}</p>
-                <p className="mt-0.5 text-xs text-fg-muted">{t("anonymousDescription")}</p>
+          {publication && (
+            <>
+              <div className="mt-3 flex items-center gap-1 rounded-md border border-border bg-bg-subtle p-1 ps-2">
+                <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{absolute(publication.url)}</span>
+                <CopyButton text={absolute(publication.url)} label={t("copyLink")} />
+                <a
+                  href={publication.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={t("open")}
+                  title={t("open")}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
               </div>
-              <Switch
-                label={t("anonymous")}
-                checked={publication.anonymous}
-                disabled={busy || blocker !== null}
-                onChange={(anonymous) => void change(() => publishFormAction(view.id, anonymous))}
-              />
-            </div>
-            {hidden > 0 && <p className="mt-3 text-xs text-fg-muted">{t("hiddenQuestions", { count: hidden })}</p>}
-            {!publication.live && (
-              <div className="mt-3 rounded-md border border-border p-2">
-                <p className="text-xs text-danger">{t("stale")}</p>
+              <div className="mt-3 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm">{t("anonymous")}</p>
+                  <p className="mt-0.5 text-xs text-fg-muted">{t("anonymousDescription")}</p>
+                </div>
+                <Switch
+                  label={t("anonymous")}
+                  checked={publication.anonymous}
+                  disabled={busy || blocker !== null}
+                  onChange={(anonymous) => void change(() => publishFormAction(view.id, anonymous))}
+                />
+              </div>
+              {hidden > 0 && <p className="mt-3 text-xs text-fg-muted">{t("hiddenQuestions", { count: hidden })}</p>}
+              {!publication.live && (
+                <div className="mt-3 rounded-md border border-border p-2">
+                  <p className="text-xs text-danger">{t("stale")}</p>
+                  <Button
+                    size="sm"
+                    className="mt-2"
+                    disabled={busy || blocker !== null}
+                    onClick={() => void change(() => publishFormAction(view.id, publication.anonymous))}
+                  >
+                    {t("reactivate")}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+
+          {error ? (
+            <p role="alert" className="mt-2 text-xs text-danger">
+              {error}
+            </p>
+          ) : (
+            hint && <p className="mt-2 text-xs text-fg-muted">{t(hint)}</p>
+          )}
+
+          {sharing && (
+            <div className="mt-3">
+              {publication ? (
                 <Button
                   size="sm"
-                  className="mt-2"
-                  disabled={busy || blocker !== null}
-                  onClick={() => void change(() => publishFormAction(view.id, publication.anonymous))}
+                  className="w-full justify-center"
+                  disabled={busy || blocker === "needsFullAccess"}
+                  onClick={() => {
+                    if (confirm(t("confirmDisable"))) void change(() => unpublishFormAction(view.id));
+                  }}
                 >
-                  {t("reactivate")}
+                  {t("disable")}
                 </Button>
-              </div>
-            )}
-          </>
-        )}
-
-        {error ? (
-          <p role="alert" className="mt-2 text-xs text-danger">
-            {error}
-          </p>
-        ) : (
-          hint && <p className="mt-2 text-xs text-fg-muted">{t(hint)}</p>
-        )}
-
-        {sharing && (
-          <div className="mt-3">
-            {publication ? (
-              <Button
-                size="sm"
-                className="w-full justify-center"
-                disabled={busy || blocker === "needsFullAccess"}
-                onClick={() => {
-                  if (confirm(t("confirmDisable"))) void change(() => unpublishFormAction(view.id));
-                }}
-              >
-                {t("disable")}
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="primary"
-                className="w-full justify-center"
-                disabled={busy || blocker !== null}
-                onClick={() => void change(() => publishFormAction(view.id, false))}
-              >
-                {t("enable")}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  className="w-full justify-center"
+                  disabled={busy || blocker !== null}
+                  onClick={() => void change(() => publishFormAction(view.id, false))}
+                >
+                  {t("enable")}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
