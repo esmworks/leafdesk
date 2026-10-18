@@ -17,13 +17,13 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { eq, inArray } = await import("drizzle-orm");
+const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { apiToken, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
-const { createApiToken, revokeApiToken, listApiTokens } = await import("@/server/api/tokens");
+const { createApiToken, revokeApiToken, listApiTokens, verifyApiToken } = await import("@/server/api/tokens");
 const { API_ROUTES } = await import("@/server/api/routes");
 const { today } = await import("@/lib/journal");
 
@@ -74,6 +74,18 @@ async function api(method: string, path: string, token?: string | null, body?: u
   return { status: res.status, body: parsed, headers: res.headers };
 }
 const errorCode = (res: Res) => res.body?.error?.code;
+
+/** Whether a query on the database waits for a lock within a few seconds. */
+async function waitingForLock() {
+  for (let i = 0; i < 100; i++) {
+    const [row] = await db.execute<{ n: number }>(
+      sql`select count(*)::int as n from pg_stat_activity where wait_event_type = 'Lock' and datname = current_database()`,
+    );
+    if (row.n > 0) return true;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return false;
+}
 
 const ids = { alice: `${RUN}-alice`, bob: `${RUN}-bob` };
 const userIds = Object.values(ids);
@@ -355,6 +367,28 @@ try {
   check(revoked.status === 401 && errorCode(revoked) === "invalid_token", "a revoked token gets 401 invalid_token");
   check(!(await revokeApiToken(ids.bob, write.token.id)), "nobody can revoke someone else's token");
   check((await api("GET", "/me", W)).status === 200, "…which keeps working");
+  // Deleted while a request with it waits to record when it was used: the deletion commits first.
+  const raced = await createApiToken(ids.alice, { name: `${RUN} raced`, scopes: ["pages:read"] });
+  let deleted!: () => void;
+  let commit!: () => void;
+  const isDeleted = new Promise<void>((resolve) => (deleted = resolve));
+  const committing = new Promise<void>((resolve) => (commit = resolve));
+  const deletion = db.transaction(async (tx) => {
+    await tx.delete(apiToken).where(eq(apiToken.id, raced.token.id));
+    deleted();
+    await committing;
+  });
+  await isDeleted;
+  const racing = Promise.allSettled([verifyApiToken(raced.secret)]);
+  const waits = await waitingForLock();
+  commit();
+  await deletion;
+  const [raceResult] = await racing;
+  check(
+    waits && raceResult.status === "fulfilled" && !raceResult.value.ok && raceResult.value.reason === "invalid",
+    "a token deleted while a request waits to record its use is refused",
+    { waits, raceResult },
+  );
 
   // ------------------------------------------------------------------ errors and limits
   const unknown = await api("GET", "/nothing-here", W);

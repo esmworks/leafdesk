@@ -1083,11 +1083,13 @@ async function connectionsSetUpBy(reader: Pick<typeof db, "select">, userId: str
 }
 
 /**
- * For deleting a workspace (server/workspace-deletion.ts), inside its transaction: locks the
- * workspace, so nobody joins it and no owner changes until the transaction ends, checks that
- * `userId` still owns it, and returns the other people in it, to tell them it's gone.
+ * Locks the workspace's row until the transaction ends, so nobody joins it meanwhile (adding a
+ * member takes a key-share lock on it), and checks that `userId` still owns it. Changes to its
+ * single sign-on connection take it first (server/sso.ts), as deleting the workspace or the account
+ * of someone in it does: they then write the connection's rows and the workspace's audit log, whose
+ * entry needs its row too, and in the other order each could hold what the other waits for.
  */
-export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: string) {
+export async function lockAsOwner(tx: Tx, userId: string, workspaceId: string) {
   const [locked] = await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
   if (!locked) throw new WorkspaceError("workspaceDeleted", "The workspace was deleted meanwhile.");
   const [member] = await tx
@@ -1096,6 +1098,14 @@ export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: st
     .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
     .limit(1);
   if (member?.role !== "owner") throw new AccessError();
+}
+
+/**
+ * For deleting a workspace (server/workspace-deletion.ts), inside its transaction: locks it as its
+ * owner (lockAsOwner) and returns the other people in it, to tell them it's gone.
+ */
+export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: string) {
+  await lockAsOwner(tx, userId, workspaceId);
   return tx
     .select({ userId: user.id, email: user.email, name: user.name })
     .from(workspaceMember)
@@ -1302,13 +1312,19 @@ export async function ssoAvailable(workspaceId: string) {
  * keeps their role. Pending page invitations for their address come along, as when an owner adds
  * them. They came in on their own, so nobody invited them, unless an unexpired invitation to the
  * workspace was waiting for their address: its sender did. Returns whether they were added.
+ *
+ * Single sign-on doesn't bring back someone who left the workspace, or whom it kept out (an owner
+ * or its identity provider removed them, or an owner declined their request to join): a new
+ * connection, or one pointed at another identity provider, makes everyone's next sign-in through
+ * it their first again. An invitation to join as a member or owner does, as their identity
+ * provider does over SCIM.
  */
 export async function joinAsMember(workspaceId: string, userId: string, email: string, via: "sso" | "scim" | "domain") {
   const clean = normalizeEmail(email);
   if (isAgentEmail(clean) || (await isAgentUser(userId))) return false;
   const joined = await db.transaction(async (tx) => {
     const [invitation] = await tx
-      .select({ invitedBy: workspaceInvitation.invitedBy })
+      .select({ role: workspaceInvitation.role, invitedBy: workspaceInvitation.invitedBy })
       .from(workspaceInvitation)
       .where(
         and(
@@ -1317,6 +1333,17 @@ export async function joinAsMember(workspaceId: string, userId: string, email: s
           gt(workspaceInvitation.expiresAt, new Date()),
         ),
       );
+    if (via === "sso" && (!invitation || invitation.role === "guest")) {
+      // Waits for a removal under way, so the departure it records is read below.
+      const [member] = await tx
+        .select({ role: workspaceMember.role })
+        .from(workspaceMember)
+        .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
+        .for("update");
+      if (member) return false;
+      const record = await joinRecordOf(tx, workspaceId, userId);
+      if (record === "accepted" || record === "declined") return false;
+    }
     const rows = await tx
       .insert(workspaceMember)
       .values({ workspaceId, userId, role: "member", invitedBy: invitation?.invitedBy ?? null })
