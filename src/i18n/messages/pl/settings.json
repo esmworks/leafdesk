@@ -959,7 +959,7 @@
         "noConnection": "Najpierw skonfiguruj logowanie jednokrotne.",
         "dnsMismatch": "Nie znaleziono rekordu TXT dla {detail} lub ma on inną wartość. Zmiany DNS mogą potrzebować trochę czasu, aby stały się widoczne.",
         "domainTaken": "{detail} jest już zweryfikowana gdzie indziej na tym serwerze.",
-        "connectionChanged": "Połączenie zostało zmienione podczas weryfikacji jego domen. Sprawdź domeny i ich rekordy TXT, a następnie zweryfikuj ponownie.",
+        "connectionChanged": "Połączenie zostało w międzyczasie zmienione w innej karcie lub przez innego właściciela. Sprawdź, jak wygląda teraz, a następnie spróbuj ponownie.",
         "name": "Nadaj tokenowi nazwę o długości najwyżej 100 znaków.",
         "limit": "Obszar roboczy może mieć najwyżej 20 tokenów SCIM. Najpierw unieważnij jeden z nich.",
         "ownersOnly": "Tylko właściciele obszaru roboczego mogą to zrobić.",

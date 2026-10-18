@@ -170,7 +170,7 @@ export function SsoConnectionForm({
       try {
         const result = await action();
         if (!result.ok) {
-          // Saved by someone else meanwhile: show its domains and records as they are now.
+          // Saved or verified meanwhile, in another tab or by another owner: show it as it is now.
           if (result.error === "connectionChanged") router.refresh();
           return setError(describe(result));
         }

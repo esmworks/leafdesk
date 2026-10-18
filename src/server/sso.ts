@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { resolveTxt } from "node:dns/promises";
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { account, scimIdentity, session, ssoProvider, workspace, workspaceSso } from "@/db/schema";
 import { env } from "@/lib/env";
@@ -20,7 +20,7 @@ import {
 } from "@/lib/sso-config";
 import { requireMembership } from "@/server/access";
 import { disconnectEndedSessions } from "@/server/account-security";
-import { allowedDomainsProvenElsewhere } from "@/server/allowed-domains";
+import { allowedDomainsProvenElsewhere, lockDomainVerification } from "@/server/allowed-domains";
 import { afterApiTokensRevoked, revokeApiTokensIn } from "@/server/api/tokens";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { afterConnectedAppsRevoked, revokeConnectedAppsIn } from "@/server/mcp/grants";
@@ -69,8 +69,9 @@ export class SsoError extends Error {
 // ---------------------------------------------------------------------------------------- routing
 
 /**
- * Verified connections and their domains (verified domains are unique across connections: each
- * verification checks under a lock all of them take, see verifySsoDomains).
+ * Verified connections and their domains (verified domains are unique across connections and
+ * allowed domains: each verification checks under a lock all of them take, see
+ * lockDomainVerification).
  */
 async function verifiedConnections() {
   return db
@@ -205,7 +206,8 @@ async function connectionRow(workspaceId: string) {
   return row ?? null;
 }
 
-type IdentityProvider = Pick<NonNullable<Awaited<ReturnType<typeof connectionRow>>>, "protocol" | "issuer" | "samlConfig">;
+type ConnectionRow = NonNullable<Awaited<ReturnType<typeof connectionRow>>>;
+type IdentityProvider = Pick<ConnectionRow, "protocol" | "issuer" | "samlConfig">;
 
 /**
  * Whether two states of a connection have the same identity provider behind them: the same issuer
@@ -213,6 +215,21 @@ type IdentityProvider = Pick<NonNullable<Awaited<ReturnType<typeof connectionRow
  */
 function sameIdentityProvider(a: IdentityProvider, b: IdentityProvider) {
   return a.protocol === b.protocol && (a.protocol === "oidc" ? a.issuer === b.issuer : a.samlConfig === b.samlConfig);
+}
+
+/** Whether two reads of the connection found it the same, or found none both times. */
+function sameConnection(a: ConnectionRow | null, b: ConnectionRow | null) {
+  if (!a || !b) return a === b;
+  return (
+    a.providerId === b.providerId &&
+    a.protocol === b.protocol &&
+    a.token === b.token &&
+    a.issuer === b.issuer &&
+    a.domain === b.domain &&
+    (a.verified === true) === (b.verified === true) &&
+    a.oidcConfig === b.oidcConfig &&
+    a.samlConfig === b.samlConfig
+  );
 }
 
 /** The workspace's connection, secrets left out. Owners only. */
@@ -458,6 +475,11 @@ export async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnec
  * app with besides (cutOffConnection). A new connection does the same to whatever is still on
  * record under its provider id from before (the workspace's id may have had a connection already,
  * as a deleted workspace restored from a backup did): its identity provider is a new one too.
+ *
+ * All that is decided from the connection as it was before the identity provider was asked, which
+ * takes as long as the provider likes. A connection saved, verified or removed meanwhile isn't
+ * saved over: that could turn a verification back off, or bring an identity provider back without
+ * cutting off the sign-ins through the other one. The save fails instead (connectionChanged).
  */
 export async function saveSsoConnection(
   actorId: string,
@@ -519,6 +541,9 @@ export async function saveSsoConnection(
     domainVerified: verified,
   };
   const cutOff = await db.transaction(async (tx) => {
+    if (!sameConnection(existing, await lockedConnection(tx, workspaceId, providerId))) {
+      throw new SsoError("connectionChanged", "The connection changed while it was being saved");
+    }
     // A new connection is never the same identity provider (sameIdentity is false without one).
     const cutOff = sameIdentity ? null : await cutOffConnection(tx, providerId);
     if (existing) {
@@ -578,16 +603,19 @@ async function domainTakenElsewhere(reader: Reader, workspaceId: string, provide
 
 const domainTaken = (domain: string) => new SsoError("domainTaken", `${domain} is already used for single sign-on elsewhere`, domain);
 
-/** Every verification takes it before marking domains verified, so two can't each miss the other. */
-const VERIFICATION_LOCK = "leafdesk:sso-domain-verification";
-
 /**
  * The connection as it is now, its rows locked until the transaction ends: the provider's first,
  * then the workspace's, the order saveSsoConnection writes them in.
  */
 async function lockedConnection(tx: Tx, workspaceId: string, providerId: string) {
   const [provider] = await tx
-    .select({ issuer: ssoProvider.issuer, domain: ssoProvider.domain, samlConfig: ssoProvider.samlConfig })
+    .select({
+      issuer: ssoProvider.issuer,
+      domain: ssoProvider.domain,
+      verified: ssoProvider.domainVerified,
+      oidcConfig: ssoProvider.oidcConfig,
+      samlConfig: ssoProvider.samlConfig,
+    })
     .from(ssoProvider)
     .where(eq(ssoProvider.providerId, providerId))
     .for("update");
@@ -627,7 +655,7 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
     }
   }
   await db.transaction(async (tx) => {
-    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${VERIFICATION_LOCK}))`);
+    await lockDomainVerification(tx, workspaceId);
     const now = await lockedConnection(tx, workspaceId, row.providerId);
     if (!now) throw new SsoError("noConnection", "Set up single sign-on first");
     if (now.domain !== row.domain || now.token !== row.token || !sameIdentityProvider(now, row)) {

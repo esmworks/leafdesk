@@ -27,6 +27,7 @@ const { auditEvent, notification, ssoProvider, user, workspace, workspaceInvitat
 const { domainRecordName, workspaceProviderId } = await import("@/lib/sso-config");
 const { AccessError } = await import("@/server/access");
 const { AllowedDomainError, allowedDomainToken, allowedDomainsStatus, verifyAllowedDomain } = await import("@/server/allowed-domains");
+const { verifySsoDomains } = await import("@/server/sso");
 const {
   applyDomainPolicies,
   approveJoinRequest,
@@ -69,6 +70,8 @@ registerCollab({
 const DOMAIN = `${RUN}.example`;
 // Another, which a second workspace verifies for single sign-on.
 const SSO_DOMAIN = `sso-${RUN}.example`;
+// And one whose subdomain a third workspace verifies for single sign-on while it is looked up.
+const RACE_DOMAIN = `race-${RUN}.example`;
 
 let passed = 0;
 function check(condition: unknown, label: string, detail?: unknown): asserts condition {
@@ -120,6 +123,8 @@ const userIds = Object.values(people).map((p) => p.id);
 const workspaceId = `${RUN}-ws`;
 // Lists the same domain without being able to prove it.
 const rivalId = `${RUN}-rival`;
+// Verifies a subdomain of RACE_DOMAIN for single sign-on.
+const raceId = `${RUN}-race`;
 
 const decisionMails: { to: string; subject: string; text: string }[] = [];
 const ownerMails: { to: string; subject: string; text: string }[] = [];
@@ -367,6 +372,32 @@ try {
     isDomainError("domainTaken"),
     "another workspace can't claim a domain verified for single sign-on",
   );
+  // The record takes as long to look up as the domain's DNS servers like: a domain verified for
+  // single sign-on elsewhere meanwhile is refused once the record is found.
+  await db.insert(workspace).values({ id: raceId, name: `${RUN} race` });
+  await db.insert(workspaceMember).values({ workspaceId: raceId, userId: people.outsider.id, role: "owner" });
+  await db.insert(ssoProvider).values({
+    id: `${RUN}-race-sso`,
+    issuer: "https://idp.example",
+    userId: people.outsider.id,
+    providerId: workspaceProviderId(raceId),
+    domain: `eu.${RACE_DOMAIN}`,
+    domainVerified: false,
+  });
+  await db.insert(workspaceSso).values({ workspaceId: raceId, providerId: workspaceProviderId(raceId), protocol: "oidc", verificationToken: RUN });
+  await settings({ allowedDomains: [DOMAIN, RACE_DOMAIN] });
+  await rejects(
+    () =>
+      verifyAllowedDomain(people.owner.id, workspaceId, RACE_DOMAIN, async (name) => {
+        await verifySsoDomains(people.outsider.id, raceId, dnsWith(`eu.${RACE_DOMAIN}`, `leafdesk-sso=${RUN}`));
+        return dnsWith(RACE_DOMAIN, expected)(name);
+      }),
+    (error) => error instanceof AllowedDomainError && error.code === "domainTaken" && error.detail === RACE_DOMAIN,
+    "a domain another workspace verifies for single sign-on while its record is looked up is refused",
+  );
+  const [raced] = await db.select({ verified: ssoProvider.domainVerified }).from(ssoProvider).where(eq(ssoProvider.providerId, workspaceProviderId(raceId)));
+  check(raced?.verified === true, "…the other workspace's verification standing", raced);
+  check((await allowedDomainsStatus(people.owner.id, workspaceId)).find((d) => d.domain === RACE_DOMAIN)?.verifiedBy === null, "…and the domain stays unproven here");
   await settings({ allowedDomains: [DOMAIN] });
   check((await allowedDomainsStatus(people.owner.id, workspaceId))[0]?.verifiedBy === "dns", "changing the list keeps the proofs of the domains that stay");
 
@@ -558,7 +589,7 @@ try {
 } finally {
   setJoinRequestMailer(null);
   setShareMailer(null);
-  await db.delete(workspace).where(inArray(workspace.id, [workspaceId, rivalId]));
+  await db.delete(workspace).where(inArray(workspace.id, [workspaceId, rivalId, raceId]));
   await db.delete(user).where(inArray(user.id, userIds));
   await db.$client.end();
 }

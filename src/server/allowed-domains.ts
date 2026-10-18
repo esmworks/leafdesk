@@ -37,6 +37,7 @@ export class AllowedDomainError extends Error {
 }
 
 type Reader = Pick<typeof db, "select">;
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 type TxtResolver = (name: string) => Promise<string[][]>;
 
 /**
@@ -73,12 +74,30 @@ export async function allowedDomainsProvenElsewhere(workspaceId: string, reader:
 const overlapping = (a: string, b: string) => a === b || a.endsWith(`.${b}`) || b.endsWith(`.${a}`);
 
 /** Domains other workspaces have verified for single sign-on or proven as allowed domains. */
-async function domainsTakenElsewhere(workspaceId: string) {
-  const sso = await db
+async function domainsTakenElsewhere(workspaceId: string, reader: Reader = db) {
+  const sso = await reader
     .select({ domain: ssoProvider.domain })
     .from(ssoProvider)
     .where(and(eq(ssoProvider.domainVerified, true), ne(ssoProvider.providerId, workspaceProviderId(workspaceId))));
-  return [...sso.flatMap((r) => domainsFromColumn(r.domain)), ...(await allowedDomainsProvenElsewhere(workspaceId))];
+  return [...sso.flatMap((r) => domainsFromColumn(r.domain)), ...(await allowedDomainsProvenElsewhere(workspaceId, reader))];
+}
+
+const domainTaken = (domain: string) => new AllowedDomainError("domainTaken", `${domain} is already verified by another workspace`, domain);
+
+const VERIFICATION_LOCK = "leafdesk:sso-domain-verification";
+
+/**
+ * Taken by every verification of a workspace's email domains, for single sign-on (server/sso.ts)
+ * or as allowed domains, before it marks them verified: it then checks again that no other
+ * workspace has one of them, so two verifications can't each miss the other.
+ *
+ * The workspace's row comes first, for key share (the verification's audit entry needs a key share
+ * on it anyway): holding the lock, a verification then waits for no workspace's row, which another
+ * one waiting for the lock may hold. A caller that locks the row for update does so before this.
+ */
+export async function lockDomainVerification(tx: Tx, workspaceId: string) {
+  await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("key share");
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${VERIFICATION_LOCK}))`);
 }
 
 export type AllowedDomainStatus = {
@@ -114,7 +133,9 @@ export async function allowedDomainsStatus(actorId: string, workspaceId: string)
 /**
  * Proves one of the allowed domains: it needs a TXT record `_leafdesk-sso.<domain>` with the
  * workspace's value, and may not overlap a domain another workspace verified for single sign-on or
- * proved as an allowed domain. Owners only.
+ * proved as an allowed domain. The lookup takes as long as the domain's DNS servers like, so that
+ * is checked again once the record is found, under the lock every verification takes
+ * (lockDomainVerification). Owners only.
  */
 export async function verifyAllowedDomain(actorId: string, workspaceId: string, domain: string, resolver: TxtResolver = resolveTxt) {
   refuseInLocalMode();
@@ -125,9 +146,7 @@ export async function verifyAllowedDomain(actorId: string, workspaceId: string, 
     throw new AllowedDomainError("notListed", `${target} isn't one of the allowed domains`, target);
   }
   if (verifiedAllowedDomains({ ...settings, ssoDomains }).includes(target)) return allowedDomainsStatus(actorId, workspaceId);
-  if ((await domainsTakenElsewhere(workspaceId)).some((other) => overlapping(target, other))) {
-    throw new AllowedDomainError("domainTaken", `${target} is already verified by another workspace`, target);
-  }
+  if ((await domainsTakenElsewhere(workspaceId)).some((other) => overlapping(target, other))) throw domainTaken(target);
   const expected = domainRecordValue(allowedDomainToken(workspaceId));
   const records = await resolver(domainRecordName(target)).catch(() => [] as string[][]);
   if (!records.some((parts) => parts.join("").trim() === expected)) {
@@ -135,11 +154,14 @@ export async function verifyAllowedDomain(actorId: string, workspaceId: string, 
   }
   await db.transaction(async (tx) => {
     const [row] = await tx.select({ settings: workspace.settings }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
+    await lockDomainVerification(tx, workspaceId);
     const current = { ...DEFAULT_WORKSPACE_SETTINGS, ...row?.settings };
     // Taken off the list while DNS was asked: nothing to prove any more.
     if (!current.allowedDomains.includes(target)) {
       throw new AllowedDomainError("notListed", `${target} isn't one of the allowed domains`, target);
     }
+    // Or verified by another workspace meanwhile.
+    if ((await domainsTakenElsewhere(workspaceId, tx)).some((other) => overlapping(target, other))) throw domainTaken(target);
     const verified = [...current.allowedDomainsVerified.filter((d) => d !== target && current.allowedDomains.includes(d)), target];
     await tx
       .update(workspace)
