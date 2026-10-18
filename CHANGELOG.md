@@ -311,6 +311,14 @@
   made.
 - **Push reminders of timed dates.** A push notification for a reminder on a date with a time
   showed the time in UTC; it now shows it in the reminder's zone, as the email does.
+- **Changes to an SSO connection keep their audit log entry when an account or the workspace is
+  deleted at the same time.** Setting up, changing, verifying or removing a workspace's connection wrote the
+  connection's rows before taking the workspace's, and deleting the workspace, an account in it or
+  the account that set the connection up took them the other way round. When the two ran at once,
+  PostgreSQL broke the deadlock by cancelling one of them, which could be the change's audit log
+  entry: the change went through and the entry went missing. Changes to the connection now take
+  the workspace first, which also keeps *Verify domains* and *Remove* run at once from cancelling
+  each other.
 
 ### Security
 

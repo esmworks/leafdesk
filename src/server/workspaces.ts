@@ -1083,11 +1083,13 @@ async function connectionsSetUpBy(reader: Pick<typeof db, "select">, userId: str
 }
 
 /**
- * For deleting a workspace (server/workspace-deletion.ts), inside its transaction: locks the
- * workspace, so nobody joins it and no owner changes until the transaction ends, checks that
- * `userId` still owns it, and returns the other people in it, to tell them it's gone.
+ * Locks the workspace's row until the transaction ends, so nobody joins it and no owner changes
+ * meanwhile, and checks that `userId` still owns it. Changes to its single sign-on connection take
+ * it first (server/sso.ts), as deleting the workspace or the account of someone in it does: they
+ * then write the connection's rows and the workspace's audit log, whose entry needs its row too,
+ * and in the other order each could hold what the other waits for.
  */
-export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: string) {
+export async function lockAsOwner(tx: Tx, userId: string, workspaceId: string) {
   const [locked] = await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
   if (!locked) throw new WorkspaceError("workspaceDeleted", "The workspace was deleted meanwhile.");
   const [member] = await tx
@@ -1096,6 +1098,14 @@ export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: st
     .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)))
     .limit(1);
   if (member?.role !== "owner") throw new AccessError();
+}
+
+/**
+ * For deleting a workspace (server/workspace-deletion.ts), inside its transaction: locks it as its
+ * owner (lockAsOwner) and returns the other people in it, to tell them it's gone.
+ */
+export async function lockOwnedWorkspace(tx: Tx, userId: string, workspaceId: string) {
+  await lockAsOwner(tx, userId, workspaceId);
   return tx
     .select({ userId: user.id, email: user.email, name: user.name })
     .from(workspaceMember)

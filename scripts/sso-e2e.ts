@@ -15,7 +15,8 @@
  * again, unless an owner or their identity provider (SCIM) brings them back. A new connection does
  * the same to the sign-ins still on record under the workspace's provider id, so an id its identity
  * provider sends finds only the address it vouches for; migration 0085 did it once to those earlier
- * releases left (its SQL runs here).
+ * releases left (its SQL runs here). A change to the connection waits for an account deletion that
+ * holds the workspace, rather than deadlocking with it and losing its audit entry.
  *
  * The app must run with the mock provider trusted and configured as the instance provider:
  *
@@ -510,6 +511,18 @@ async function accessNow(access: Access) {
 }
 const works = (now: Awaited<ReturnType<typeof accessNow>>) => now.api === 200 && now.mcp === 200 && now.refreshes;
 const cutOff = (now: Awaited<ReturnType<typeof accessNow>>) => now.api === 401 && now.mcp === 401 && !now.refreshes;
+
+/** Whether a query on the database waits for a lock within a few seconds. */
+async function waitingForLock() {
+  for (let i = 0; i < 100; i++) {
+    const [row] = await db.execute<{ n: number }>(
+      sql`select count(*)::int as n from pg_stat_activity where wait_event_type = 'Lock' and datname = current_database()`,
+    );
+    if (row.n > 0) return true;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return false;
+}
 
 /** The details of the workspace's latest audit event with this action. */
 const lastAudit = async (workspaceId: string, action: string) =>
@@ -1040,6 +1053,44 @@ async function main() {
     JSON.stringify(afterAgain) === JSON.stringify(beforeAgain) && works(await accessNow(oscarAccess)),
     "running it again changes nothing",
     { beforeAgain, afterAgain },
+  );
+
+  // ── Lock order ───────────────────────────────────────────────────────────────────────────
+  // Deleting an account locks its workspaces, then hands over the connections it set up (the
+  // provider's row). A change to the connection meanwhile waits for the workspace before it writes
+  // the provider's row. In the other order the two deadlocked, and PostgreSQL cancelled the change's
+  // audit entry, which went missing without a trace.
+  const configured = async () =>
+    (
+      await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(auditEvent)
+        .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "sso.configured")))
+    )[0].n;
+  const configuredBefore = await configured();
+  let locked!: () => void;
+  let handOver!: () => void;
+  const isLocked = new Promise<void>((resolve) => (locked = resolve));
+  const handingOver = new Promise<void>((resolve) => (handOver = resolve));
+  const deletion = db.transaction(async (tx) => {
+    await tx.select({ id: workspace.id }).from(workspace).where(eq(workspace.id, workspaceId)).for("update");
+    locked();
+    await handingOver;
+    await tx.update(ssoProvider).set({ userId: owner.id }).where(eq(ssoProvider.providerId, providerId));
+  });
+  await isLocked;
+  const settled = Promise.allSettled([
+    deletion,
+    saveSsoConnection(owner.id, workspaceId, { protocol: "oidc", issuer: `${IDP}/acme2`, clientId: "leafdesk-acme2", clientSecret: "", domains: DOMAIN }),
+  ]);
+  const saveWaits = await waitingForLock();
+  handOver();
+  const outcomes = (await settled).map((o) => o.status);
+  const configuredAfter = await configured();
+  check(
+    saveWaits && outcomes.every((o) => o === "fulfilled") && configuredAfter === configuredBefore + 1,
+    "a change to the connection while an account deletion holds the workspace waits for it, and keeps its audit entry",
+    { saveWaits, outcomes, configuredBefore, configuredAfter },
   );
 
   check(idpRequests.some((r) => r.endsWith("/acme/token")) && idpRequests.some((r) => r.endsWith("/acme/jwks")), "the app used the provider's token and key endpoints");

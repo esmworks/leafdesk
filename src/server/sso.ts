@@ -25,7 +25,7 @@ import { afterApiTokensRevoked, revokeApiTokensIn } from "@/server/api/tokens";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { afterConnectedAppsRevoked, revokeConnectedAppsIn } from "@/server/mcp/grants";
 import { fetchRemoteFile, isBlockedAddress, readRemoteText } from "@/server/remote-fetch";
-import { joinAsMember } from "@/server/workspaces";
+import { joinAsMember, lockAsOwner } from "@/server/workspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
@@ -520,6 +520,7 @@ export async function saveSsoConnection(
     domainVerified: verified,
   };
   const cutOff = await db.transaction(async (tx) => {
+    await lockAsOwner(tx, actorId, workspaceId);
     // A new connection is never the same identity provider (sameIdentity is false without one).
     const cutOff = sameIdentity ? null : await cutOffConnection(tx, providerId);
     if (existing) {
@@ -628,6 +629,8 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
     }
   }
   await db.transaction(async (tx) => {
+    // The workspace first: a verification waiting for its workspace doesn't hold up the others.
+    await lockAsOwner(tx, actorId, workspaceId);
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${VERIFICATION_LOCK}))`);
     const now = await lockedConnection(tx, workspaceId, row.providerId);
     if (!now) throw new SsoError("noConnection", "Set up single sign-on first");
@@ -646,7 +649,7 @@ export async function verifySsoDomains(actorId: string, workspaceId: string, res
 }
 
 /**
- * Removes the connection (its provider row goes with it, see the trigger in 0022_sso.sql) and
+ * Removes the connection (its provider row goes with it, see the trigger in 0024_sso.sql) and
  * everyone's sign-ins through it, with their API tokens and connected apps (cutOffConnection: a new
  * connection gets the same provider id). The "SSO only" login method falls back to any method unless the instance provider remains.
  * Owners only.
@@ -655,6 +658,7 @@ export async function removeSsoConnection(actorId: string, workspaceId: string) 
   refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const cutOff = await db.transaction(async (tx) => {
+    await lockAsOwner(tx, actorId, workspaceId);
     const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
     const removed = await tx.delete(workspaceSso).where(eq(workspaceSso.workspaceId, workspaceId)).returning({ providerId: workspaceSso.providerId });
     for (const { providerId } of removed) {
