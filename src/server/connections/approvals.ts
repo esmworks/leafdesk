@@ -1,10 +1,11 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, connection, notification, workspaceAgent } from "@/db/schema";
-import { OWN_TOOLS_NAME, type AgentPendingCall, type ApprovalDecision } from "@/lib/agents";
+import { OWN_TOOLS_NAME, type AgentPendingCall, type AgentRunSource, type ApprovalDecision } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
 import { redactError } from "@/lib/redact";
-import { AccessError, ConnectedAppReadOnlyError, requireMembership, WorkspacePolicyError, workspaceOwnerIds } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, requireMembership, WorkspacePolicyError } from "@/server/access";
+import { approversOf, runsAnsweredBy } from "@/server/agents/approvers";
 import { kickAgents } from "@/server/agents/kick";
 import { recordAudit } from "@/server/audit";
 import { signalInbox } from "@/server/notifications";
@@ -13,7 +14,8 @@ import { inputSummary } from "./tools";
 
 /**
  * Approvals: a call to a connection's tool that may change something waits until an owner of
- * the workspace approves it, declines it or sends it back with a note ("Redo"). They find it in
+ * the workspace approves it, declines it or sends it back with a note ("Redo"): one of the owners
+ * the run is for (agents/approvers), as its input can quote what the run read. They find it in
  * their inbox and in the agent's runs. The first answer counts; a day without one fails the run,
  * and nothing is sent. Where they may approve it they see the call exactly as it will be sent: in
  * the agent's runs, and in the inbox only when its masked, shortened input is all of it (lib/agents
@@ -38,9 +40,9 @@ function refreshInboxes(workspaceId: string) {
   }
 }
 
-/** Tells the workspace's owners a call waits for them (an inbox item each, about the run). */
-export async function notifyApprovers(run: { id: string; workspaceId: string }, agentUserId: string) {
-  const owners = await workspaceOwnerIds(run.workspaceId);
+/** Tells the owners who answer the run's call (approversOf) that it waits for them: an inbox item each, about the run. */
+export async function notifyApprovers(run: { id: string; workspaceId: string; source: AgentRunSource }, agentUserId: string) {
+  const owners = await approversOf(run);
   if (!owners.length) return;
   const inserted = await db
     .insert(notification)
@@ -68,7 +70,7 @@ export async function decideApproval(userId: string, input: { runId: string; cal
   const note = input.note?.trim().slice(0, MAX_REDO_NOTE) ?? "";
   if (input.decision === "redo" && !note) throw new ApprovalError("invalid", "Say what should change");
   const [run] = await db
-    .select({ id: agentRun.id, workspaceId: agentRun.workspaceId, status: agentRun.status, pending: agentRun.pending, agentId: agentRun.agentId })
+    .select({ id: agentRun.id, workspaceId: agentRun.workspaceId, status: agentRun.status, pending: agentRun.pending, agentId: agentRun.agentId, source: agentRun.source })
     .from(agentRun)
     .where(eq(agentRun.id, input.runId));
   if (!run) throw new ApprovalError("notFound", "No such run");
@@ -80,6 +82,7 @@ export async function decideApproval(userId: string, input: { runId: string; cal
     }
     throw error;
   });
+  if (!(await runsAnsweredBy(userId, [run])).has(run.id)) throw new ApprovalError("forbidden", "Only the owners this run is for answer its calls");
   const decision = { decision: input.decision, userId, ...(input.decision === "redo" ? { note } : {}) };
   // Only the first answer to this very call counts, and only within its time (the sweep that fails
   // a call run out of time may not have come yet).

@@ -12,8 +12,13 @@ files:
   - pages/**
   - build/icon.png
   - package.json
-  # PostgreSQL for local mode (src/local-db.ts) stays out until the app uses it.
-  - "!node_modules/@embedded-postgres/**"
+# Local mode's PostgreSQL (src/local-db.ts) runs from outside the archive: executables can't run
+# from inside it.
+asarUnpack:
+  - node_modules/@embedded-postgres/**
+# Puts the Leafdesk server local mode runs into the resources, and leaves only the app's own
+# platform's PostgreSQL.
+afterPack: scripts/after-pack.ts
 artifactName: Leafdesk-${version}-${arch}.${ext}
 
 mac:

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * Answering an agent's call: who may (owners, held to the workspace's sign-in policies like every
- * owner's action). The database answers from queues: one for selects, one for updates.
+ * Answering an agent's call: who may (the owners the run is for, held to the workspace's sign-in
+ * policies like every owner's action). The database answers from queues: one for selects, one for updates.
  */
 const selects: unknown[][] = [];
 const updates: unknown[][] = [];
@@ -28,23 +28,36 @@ vi.mock("@/server/audit", () => ({ recordAudit: vi.fn() }));
 vi.mock("@/server/notifications", () => ({ signalInbox: vi.fn() }));
 vi.mock("@/server/push", () => ({ pushNotifications: vi.fn() }));
 vi.mock("./tools", () => ({ inputSummary: (args: unknown) => JSON.stringify(args) }));
+const answeredBy = vi.fn();
+vi.mock("@/server/agents/approvers", () => ({
+  approversOf: async () => ["owner-1"],
+  runsAnsweredBy: async (userId: string, runs: { id: string }[]) => new Set(runs.filter(() => answeredBy(userId)).map((r) => r.id)),
+}));
 
 const requireMembership = vi.fn();
 vi.mock("@/server/access", async () => {
   const actual = await vi.importActual<typeof import("@/server/access")>("@/server/access");
-  return { ...actual, requireMembership: (...args: unknown[]) => requireMembership(...args), workspaceOwnerIds: async () => ["owner-1"] };
+  return { ...actual, requireMembership: (...args: unknown[]) => requireMembership(...args) };
 });
 
 const { AccessError, TwoFactorRequiredError } = await import("@/server/access");
 const { ApprovalError, decideApproval } = await import("./approvals");
 
-const waiting = { id: "run-1", workspaceId: "ws-1", status: "awaiting_approval", agentId: "agent-1", pending: { callId: "call-1", connectionId: "conn-1", tool: "send", arguments: {}, askedAt: "" } };
+const waiting = {
+  id: "run-1",
+  workspaceId: "ws-1",
+  status: "awaiting_approval",
+  agentId: "agent-1",
+  source: { kind: "request", requestedBy: "owner-1", via: "api" },
+  pending: { callId: "call-1", connectionId: "conn-1", tool: "send", arguments: {}, askedAt: "" } };
 
 beforeEach(() => {
   selects.length = 0;
   updates.length = 0;
   update.mockClear();
   requireMembership.mockReset();
+  answeredBy.mockReset();
+  answeredBy.mockReturnValue(true);
 });
 
 describe("decideApproval", () => {
@@ -63,6 +76,17 @@ describe("decideApproval", () => {
     const error = await decideApproval("member-1", { runId: "run-1", callId: "call-1", decision: "approve" }).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ApprovalError);
     expect((error as InstanceType<typeof ApprovalError>).code).toBe("forbidden");
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("refuses an owner the run isn't for (one who can't open its row, another owner's request), taking nothing", async () => {
+    selects.push([waiting]);
+    requireMembership.mockResolvedValue({ role: "owner" });
+    answeredBy.mockReturnValue(false);
+    const error = await decideApproval("owner-2", { runId: "run-1", callId: "call-1", decision: "approve" }).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ApprovalError);
+    expect((error as InstanceType<typeof ApprovalError>).code).toBe("forbidden");
+    expect(answeredBy).toHaveBeenCalledWith("owner-2");
     expect(update).not.toHaveBeenCalled();
   });
 

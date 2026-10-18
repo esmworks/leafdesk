@@ -291,6 +291,9 @@ jobs:
       - name: Agents over the REST API end-to-end
         run: pnpm tsx scripts/agent-api-e2e.ts
 
+      - name: Who answers an agent's call end-to-end
+        run: pnpm tsx scripts/agent-approvers-e2e.ts
+
       - name: Apps that reach a workspace end-to-end
         run: pnpm tsx scripts/workspace-apps-e2e.ts
 
@@ -586,26 +589,32 @@ jobs:
   desktop:
     name: Desktop app on ${{ matrix.name }}
     # On each platform the app ships for: the local mode's tests start PostgreSQL and the Leafdesk
-    # server for real.
+    # server for real, from the repository and then from the packaged app.
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: macOS
             runner: macos-15
+            platform: --mac --arm64
+            resources: release/mac-arm64/Leafdesk.app/Contents/Resources
+            executable: release/mac-arm64/Leafdesk.app/Contents/MacOS/Leafdesk
           - name: Windows
             runner: windows-2025
+            platform: --win --x64
+            resources: release/win-unpacked/resources
+            executable: release/win-unpacked/Leafdesk.exe
           - name: Linux
             runner: ubuntu-24.04
+            platform: --linux --x64
+            resources: release/linux-unpacked/resources
+            executable: release/linux-unpacked/leafdesk-desktop
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+    timeout-minutes: 45
     defaults:
       run:
         shell: bash
         working-directory: desktop
-    env:
-      # Typecheck and unit tests only; Electron itself isn't needed.
-      ELECTRON_SKIP_BINARY_DOWNLOAD: 1
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -627,6 +636,20 @@ jobs:
         working-directory: .
       - run: pnpm typecheck
       - run: pnpm test
+
+      # The app as it ships, unsigned and not in an installer, with the built server and its PostgreSQL.
+      - run: pnpm build
+      - run: pnpm server
+      - name: Package
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          PLATFORM: ${{ matrix.platform }}
+        run: pnpm exec electron-builder $PLATFORM --dir --publish never -c.mac.identity=null -c.mac.notarize=false
+      - name: Local mode in the packaged app
+        env:
+          LEAFDESK_TEST_APP_RESOURCES: ${{ matrix.resources }}
+          LEAFDESK_TEST_APP_EXECUTABLE: ${{ matrix.executable }}
+        run: node --test src/local-server.test.ts
 
   docker:
     name: Docker image

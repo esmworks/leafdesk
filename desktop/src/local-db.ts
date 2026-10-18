@@ -31,7 +31,7 @@ export type LocalDatabase = {
   stop(): Promise<void>;
 };
 
-type Binaries = { initdb: string; pgCtl: string };
+export type Binaries = { initdb: string; pgCtl: string };
 
 /** The PostgreSQL binaries for this platform, outside the app's archive when it is packaged. */
 export function localDbBinaries(): Binaries {
@@ -41,7 +41,11 @@ export function localDbBinaries(): Binaries {
   const arches = platform === "darwin" ? [process.arch, process.arch === "arm64" ? "x64" : "arm64"] : [process.arch];
   const entry = resolveFirst(require, arches.map((arch) => `@embedded-postgres/${platform}-${arch}`));
   // electron-builder unpacks the binaries next to app.asar; executables can't run from inside it.
-  const bin = path.join(path.dirname(entry), "..", "native", "bin").replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+  return binariesIn(path.join(path.dirname(entry), "..", "native", "bin").replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`));
+}
+
+/** The binaries in a PostgreSQL `bin` folder. */
+export function binariesIn(bin: string): Binaries {
   const exe = process.platform === "win32" ? ".exe" : "";
   return { initdb: path.join(bin, `initdb${exe}`), pgCtl: path.join(bin, `pg_ctl${exe}`) };
 }

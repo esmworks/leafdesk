@@ -3,10 +3,12 @@
  * Keeping both in one process lets route handlers (MCP, server actions) write into open
  * documents through the collab service instead of racing the websocket clients.
  */
+import { existsSync, readFileSync } from "node:fs";
 import { createServer, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import crossws from "crossws/adapters/node";
 import next from "next";
+import type { NextConfig } from "next";
 import { CLIENT_IP_HEADER, clientIpFrom, describeTrustedProxies, trustedProxyCount } from "./src/lib/client-ip";
 
 try {
@@ -53,7 +55,16 @@ const { retentionJobEnabled } = await import("./src/lib/retention");
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
 
-const app = next({ dev, hostname, port });
+// The desktop app's server (desktop/scripts/bundle-server.ts) comes without next.config.ts: the
+// build's resolved config is used instead, as Next's standalone server does, so Next needn't compile
+// the config file (with the compilers that build leaves out).
+let conf: NextConfig | undefined;
+if (!dev && !existsSync("next.config.ts")) {
+  conf = (JSON.parse(readFileSync(".next/required-server-files.json", "utf8")) as { config: NextConfig }).config;
+  process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(conf);
+}
+
+const app = next({ dev, hostname, port, ...(conf && { conf }) });
 await app.prepare();
 const handleRequest = app.getRequestHandler();
 const handleNextUpgrade = app.getUpgradeHandler();

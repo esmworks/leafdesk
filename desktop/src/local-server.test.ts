@@ -1,20 +1,44 @@
 // Leafdesk on this computer for real: the setup, the server, signing in, and a restart on the same
-// port with the same session. It runs the repository's server, so it needs the repository's packages
-// too (pnpm install at the root); CI runs it on macOS, Windows and Linux (.github/workflows/ci.yml).
+// port with the same session. It runs the repository's server in development, so it needs the
+// repository's packages too (pnpm install at the root). Given a built server (LEAFDESK_TEST_SERVER_DIR,
+// scripts/bundle-server.ts), it runs that with this Node. Given a packaged app instead
+// (LEAFDESK_TEST_APP_RESOURCES, its resources folder, and LEAFDESK_TEST_APP_EXECUTABLE), it runs
+// what that app ships: its built server, run by its Electron, on its PostgreSQL. CI does both on
+// macOS, Windows and Linux (.github/workflows/ci.yml).
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
-import { hasSession, parseSetCookie, signIn, startLocalServer, type LocalServer } from "./local-server.ts";
+import { binariesIn } from "./local-db.ts";
+import { hasSession, parseSetCookie, signIn, startLocalServer, type LocalServer, type LocalServerOptions } from "./local-server.ts";
 
-const serverDir = path.join(import.meta.dirname, "..", "..");
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "leafdesk local server "));
+
+function packaged(resources: string, executable: string): Omit<LocalServerOptions, "root"> {
+  // Relative to the folder the test runs in: the server runs in a folder of its own.
+  [resources, executable] = [path.resolve(resources), path.resolve(executable)];
+  const postgres = path.join(resources, "app.asar.unpacked", "node_modules", "@embedded-postgres");
+  const [platform] = fs.readdirSync(postgres);
+  return {
+    serverDir: path.join(resources, "server"),
+    node: executable,
+    nodeEnv: { ELECTRON_RUN_AS_NODE: "1" },
+    dev: false,
+    binaries: binariesIn(path.join(postgres, platform, "native", "bin")),
+  };
+}
+const { LEAFDESK_TEST_APP_RESOURCES: resources, LEAFDESK_TEST_APP_EXECUTABLE: executable, LEAFDESK_TEST_SERVER_DIR: built } = process.env;
+const options =
+  resources && executable
+    ? packaged(resources, executable)
+    : built
+      ? { serverDir: built, node: process.execPath, dev: false }
+      : { serverDir: path.join(import.meta.dirname, "..", ".."), node: process.execPath, dev: true };
 
 // The last one started, stopped even when the test fails (else it would outlive the test).
 let running: LocalServer | null = null;
-const start = async (port?: number) =>
-  (running = await startLocalServer({ serverDir, root, port, node: process.execPath, dev: true }));
+const start = async (port?: number) => (running = await startLocalServer({ ...options, root, port }));
 
 after(async () => {
   await running?.stop().catch((error) => console.error("stopping Leafdesk:", error));
