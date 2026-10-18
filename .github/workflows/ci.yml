@@ -597,8 +597,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # macOS 26, as in desktop.yml: its default Xcode compiles the app's icon.
           - name: macOS
-            runner: macos-15
+            runner: macos-26
             platform: --mac --arm64
             resources: release/mac-arm64/Leafdesk.app/Contents/Resources
             executable: release/mac-arm64/Leafdesk.app/Contents/MacOS/Leafdesk
