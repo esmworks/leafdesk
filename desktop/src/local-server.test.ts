@@ -14,6 +14,7 @@ import { binariesIn } from "./local-db.ts";
 import { hasSession, parseSetCookie, signIn, startLocalServer, type LocalServer, type LocalServerOptions } from "./local-server.ts";
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "leafdesk local server "));
+const backups = path.join(root, "backups");
 
 function packaged(resources: string, executable: string): Omit<LocalServerOptions, "root"> {
   // Relative to the folder the test runs in: the server runs in a folder of its own.
@@ -36,12 +37,16 @@ const options =
       ? { serverDir: built, node: process.execPath, dev: false }
       : { serverDir: path.join(import.meta.dirname, "..", ".."), node: process.execPath, dev: true };
 
-// The last one started, stopped even when the test fails (else it would outlive the test).
-let running: LocalServer | null = null;
-const start = async (port?: number) => (running = await startLocalServer({ ...options, root, port }));
+// Those started, stopped even when the test fails (else they would outlive the test).
+const running: LocalServer[] = [];
+const start = async (port?: number, at = root) => {
+  const server = await startLocalServer({ ...options, root: at, port, backupFolder: backups });
+  running.push(server);
+  return server;
+};
 
 after(async () => {
-  await running?.stop().catch((error) => console.error("stopping Leafdesk:", error));
+  for (const server of running) await server.stop().catch((error) => console.error("stopping Leafdesk:", error));
   // Windows holds a folder a moment after the processes in it have exited.
   fs.rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 });
@@ -66,10 +71,11 @@ test("Set-Cookie headers, as the app's browser takes them", () => {
   });
 });
 
-test("Leafdesk runs on this computer, signs its account in, and keeps it across a restart", { timeout: 900_000 }, () =>
+test("Leafdesk runs on this computer, signs its account in, keeps it across a restart and backs it up", { timeout: 900_000 }, () =>
   lifecycle().catch((error) => {
-    const log = path.join(root, "server.log");
-    if (fs.existsSync(log)) console.error(`--- server.log\n${fs.readFileSync(log, "utf8")}`);
+    for (const server of running) {
+      if (fs.existsSync(server.log)) console.error(`--- ${server.log}\n${fs.readFileSync(server.log, "utf8")}`);
+    }
     throw error;
   }),
 );
@@ -112,5 +118,31 @@ async function lifecycle() {
   assert.equal(second.port, first.port);
   assert.equal(second.account.password, first.account.password);
   assert.ok(await hasSession(second.origin, header), "still signed in");
+
+  // A backup into the folder, which restores on another Leafdesk: here, a second one on this
+  // computer with nothing in it yet.
+  const backup = await second.backUp();
+  assert.deepEqual(backup.errors, []);
+  assert.equal(backup.files.length, 1);
+  const name = path.basename(backup.files[0]);
+  assert.match(name, /^.+ \d{4}-\d\d-\d\d \d\d\.\d\d\.\d\d \[[0-9a-f]{8}\]\.zip$/);
+  // On a slow computer the backup made a minute after a start may be there too: the same
+  // workspace's, and nothing half written.
+  const tag = name.slice(name.lastIndexOf(" ["));
+  assert.ok(fs.readdirSync(backups).includes(name));
+  assert.deepEqual(fs.readdirSync(backups).filter((file) => !file.endsWith(tag)), []);
   await second.stop();
+
+  const other = await start(undefined, path.join(root, "other"));
+  const otherCookie = (await signIn(other.origin, other.account)).map(({ name, value }) => `${name}=${value}`).join("; ");
+  const restore = await fetch(`${other.origin}/api/backups`, {
+    method: "POST",
+    headers: { cookie: otherCookie, origin: other.origin, "x-leafdesk-restore": "1", "content-type": "application/zip" },
+    body: fs.readFileSync(backup.files[0]),
+  });
+  assert.equal(restore.status, 201, await restore.clone().text());
+  const { workspaceId } = (await restore.json()) as { workspaceId: string };
+  const page = await fetch(`${other.origin}/w/${workspaceId}`, { headers: { cookie: otherCookie }, redirect: "manual" });
+  assert.equal(page.status, 200, "the restored workspace opens");
+  await other.stop();
 }

@@ -12,6 +12,7 @@
  */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { build } from "esbuild";
 
@@ -196,6 +197,11 @@ for (const [alias, name] of hashed) {
   const plain = alias.replace(/-[0-9a-f]{16}$/, "");
   if (name === alias && versionOf(alias) === versionOf(plain)) throw new Error(`${plain} is in server/node_modules twice, as ${plain} and ${alias}`);
 }
+// The parts of next the entry points import (next/headers, next/navigation): the compiled pages
+// carry their own, so the build's trace leaves them out. Filled in below, after the bundling.
+const nextPaths = new Set<string>();
+const fromRepo = createRequire(path.join(repo, "package.json"));
+const nextRoot = fs.realpathSync(path.dirname(fromRepo.resolve("next/package.json")));
 await build({
   entryPoints: { server: path.join(repo, "server.ts"), "desktop-setup": path.join(repo, "scripts", "desktop-setup.ts") },
   outdir: out,
@@ -217,7 +223,14 @@ await build({
       setup(bundler) {
         bundler.onResolve({ filter: /^[^./]/ }, ({ path: request }) => {
           const name = externals.find((external) => request === external || request.startsWith(`${external}/`));
-          if (name) return { path: (layoutName.get(name) ?? name) + request.slice(name.length), external: true };
+          if (!name) return;
+          if (name === "next" && request !== name) nextPaths.add(request);
+          const imported = (layoutName.get(name) ?? name) + request.slice(name.length);
+          // An ES module names the file it imports from a package that doesn't map its paths
+          // (`exports`), as next doesn't: next/navigation is next/navigation.js there.
+          const file = name === "next" ? path.join(nextRoot, request.slice(name.length)) : path.join(out, "node_modules", ...imported.split("/"));
+          const withExtension = request !== name && !fs.existsSync(file) && fs.existsSync(`${file}.js`);
+          return { path: withExtension ? `${imported}.js` : imported, external: true };
         });
       },
     },
@@ -234,6 +247,23 @@ await build({
     ].join("\n"),
   },
 });
+
+// What those parts need from next, traced as Next traces its own files, is added to its folder.
+{
+  const { nodeFileTrace } = fromRepo("next/dist/compiled/@vercel/nft") as {
+    nodeFileTrace(files: string[], options: { base: string; processCwd: string }): Promise<{ fileList: Set<string> }>;
+  };
+  const { fileList } = await nodeFileTrace(
+    [...nextPaths].map((request) => fromRepo.resolve(request)),
+    { base: repo, processCwd: repo },
+  );
+  for (const traced of fileList) {
+    const file = fs.realpathSync(path.join(repo, traced));
+    if (!file.startsWith(`${nextRoot}${path.sep}`)) continue;
+    const target = path.join(out, "node_modules", "next", path.relative(nextRoot, file));
+    if (!fs.existsSync(target)) fs.cpSync(file, target, { dereference: true });
+  }
+}
 
 const size = (folder: string): number =>
   fs.readdirSync(folder, { withFileTypes: true }).reduce((total, entry) => {

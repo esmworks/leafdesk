@@ -4,7 +4,12 @@ import type { Strings } from "./strings.ts";
 export const WEBSITE = "https://esmworks.github.io/leafdesk/";
 export const ISSUES = "https://github.com/esmworks/leafdesk/issues";
 
-type Actions = { changeServer: () => void; goHome: (window: BrowserWindow) => void };
+type Actions = {
+  changeServer: () => void;
+  goHome: (window: BrowserWindow) => void;
+  /** Leafdesk on this computer's backups, while it runs. */
+  backups?: { now: () => void; show: () => void; chooseFolder: () => void };
+};
 
 /** The application menu, in the app's language; macOS gets its own app menu first. */
 export function buildMenu(t: Strings, actions: Actions) {
@@ -13,6 +18,15 @@ export function buildMenu(t: Strings, actions: Actions) {
     if (window instanceof BrowserWindow) run(window);
   };
   const changeServer: MenuItemConstructorOptions = { label: t.menuChangeServer, click: () => actions.changeServer() };
+  const { backups } = actions;
+  const backupItems: MenuItemConstructorOptions[] = backups
+    ? [
+        { label: t.menuBackUpNow, click: () => backups.now() },
+        { label: t.menuShowBackups, click: () => backups.show() },
+        { label: t.menuBackupFolder, click: () => backups.chooseFolder() },
+        { type: "separator" },
+      ]
+    : [];
 
   const template: MenuItemConstructorOptions[] = [
     ...(mac
@@ -38,8 +52,8 @@ export function buildMenu(t: Strings, actions: Actions) {
     {
       label: t.menuFile,
       submenu: mac
-        ? [{ role: "close", label: t.menuCloseWindow }]
-        : [changeServer, { type: "separator" }, { role: "close", label: t.menuCloseWindow }, { role: "quit", label: t.menuQuit }],
+        ? [...backupItems, { role: "close", label: t.menuCloseWindow }]
+        : [changeServer, { type: "separator" }, ...backupItems, { role: "close", label: t.menuCloseWindow }, { role: "quit", label: t.menuQuit }],
     },
     {
       label: t.menuEdit,

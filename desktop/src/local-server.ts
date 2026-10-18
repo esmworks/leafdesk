@@ -40,7 +40,12 @@ export type LocalServerOptions = {
   dev: boolean;
   /** PostgreSQL's binaries, when not this app's own (local-db.ts, localDbBinaries). */
   binaries?: Binaries;
+  /** Where the server keeps backups of the account's workspaces (src/server/local-backups.ts). */
+  backupFolder?: string;
 };
+
+/** A backup's outcome, as the server reports it (src/server/local-backups.ts, LocalBackupResult). */
+export type BackupResult = { folder: string; files: string[]; errors: string[] };
 
 export type LocalAccount = { email: string; password: string };
 
@@ -52,6 +57,12 @@ export type LocalServer = {
   log: string;
   /** Called when the server stops without being asked to (it crashed). */
   onExit(listener: (code: number | null) => void): void;
+  /** Backs the workspaces up now, into the backup folder. */
+  backUp(): Promise<BackupResult>;
+  /** Called with each backup the server made on its own schedule. */
+  onBackup(listener: (result: BackupResult) => void): void;
+  /** Where backups go from now on. */
+  setBackupFolder(folder: string): void;
   /** Stops the server (it saves what pages still had to save), then the database. */
   stop(): Promise<void>;
 };
@@ -137,7 +148,13 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
 
     // Nobody signs up here: the one account is made by the setup. Local mode hides and refuses
     // what needs other people, email or a public address (src/lib/env.ts localMode).
-    server = run("server.ts", { DISABLE_SIGNUP: "true", LEAFDESK_LOCAL_MODE: "1" });
+    server = run("server.ts", {
+      DISABLE_SIGNUP: "true",
+      LEAFDESK_LOCAL_MODE: "1",
+      // The account whose workspaces are backed up, and where.
+      LEAFDESK_LOCAL_EMAIL: account.email,
+      ...(options.backupFolder && { LEAFDESK_BACKUP_DIR: options.backupFolder }),
+    });
     const serverExit = exited(server);
     const deadline = Date.now() + READY_TIMEOUT_MS;
     for (;;) {
@@ -164,6 +181,24 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
   void exited(running).then((code) => {
     if (!stopping) for (const listener of listeners) listener(code);
   });
+  // Backups the app asked for are answered by their id; the others the server made on schedule.
+  const backupListeners: ((result: BackupResult) => void)[] = [];
+  const asked = new Map<number, (result: BackupResult) => void>();
+  let nextId = 1;
+  running.on("message", (message: unknown) => {
+    if (!message || typeof message !== "object" || !("backup" in message)) return;
+    const { backup, id } = message as { backup: BackupResult; id?: number };
+    const answer = id === undefined ? undefined : asked.get(id);
+    if (answer) {
+      asked.delete(id!);
+      answer(backup);
+    } else if (id === undefined) for (const listener of backupListeners) listener(backup);
+  });
+  const gone = (): BackupResult => ({ folder: options.backupFolder ?? "", files: [], errors: ["Leafdesk on this computer isn't running"] });
+  void exited(running).then(() => {
+    for (const answer of asked.values()) answer(gone());
+    asked.clear();
+  });
 
   return {
     origin,
@@ -171,6 +206,17 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
     account,
     log,
     onExit: (listener) => void listeners.push(listener),
+    backUp: () =>
+      new Promise((resolve) => {
+        if (!running.connected) return resolve(gone());
+        const id = nextId++;
+        asked.set(id, resolve);
+        running.send({ backup: "now", id });
+      }),
+    onBackup: (listener) => void backupListeners.push(listener),
+    setBackupFolder: (folder) => {
+      if (running.connected) running.send({ backupFolder: folder });
+    },
     stop: () =>
       (stopping ??= (async () => {
         if (running.exitCode === null && running.signalCode === null) {
