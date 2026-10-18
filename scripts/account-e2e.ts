@@ -11,7 +11,7 @@
  * the ones nobody else is in, files and grants included. Then an owner deleting a workspace from
  * its settings: refused to a member, to a mistyped name (before the password is checked) and to a
  * wrong password, then gone with its members, files and single sign-on connection, and the sign-ins
- * through it. Creates its own @example.test users and deletes them afterwards.
+ * through it with those people's API tokens and connected apps (another member's token stays). Creates its own @example.test users and deletes them afterwards.
  *
  * Server actions are called the way the browser calls them, by id; the ids come from the running
  * app's build output (`.next`, or NEXT_DIR), so run this from the checkout the app runs from, after
@@ -755,6 +755,13 @@ async function main() {
   await db.insert(ssoProvider).values({ id: providerId, issuer: "https://idp.example.test", userId: dora.id, providerId, domain: "doomed.example.test" });
   await db.insert(workspaceSso).values({ workspaceId: doomed, providerId, protocol: "oidc", verificationToken: RUN, createdBy: dora.id });
   await db.update(session).set({ ssoProviderId: providerId }).where(eq(session.userId, eve.id));
+  // Tokens for all of their workspaces, and an app Eve connected: hers must not outlast the
+  // connection she signed in through, Dora's (who didn't) stay.
+  const eveToken = (await createApiToken(eve.id, { name: `Doomed Eve ${RUN}`, scopes: ["pages:read"] })).secret;
+  const doraToken = (await createApiToken(dora.id, { name: `Doomed Dora ${RUN}`, scopes: ["pages:read"] })).secret;
+  const eveApp = await connectApp(eve.id, "doomed");
+  const apiStatus = async (token: string) => (await fetch(`${BASE}/api/v1/me`, { headers: { authorization: `Bearer ${token}` } })).status;
+  check((await apiStatus(eveToken)) === 200 && (await apiStatus(doraToken)) === 200, "…and Eve and Dora have API tokens for all their workspaces");
 
   const settings = `/w/${doomed}/settings?tab=general`;
   check((await open(settings, dora.jar)).text.includes(">Deletes this workspace for everyone"), "an owner's settings offer to delete the workspace");
@@ -785,6 +792,11 @@ async function main() {
   check(!bytesLeft, "…and their stored bytes");
   check((await db.select({ id: ssoProvider.id }).from(ssoProvider).where(eq(ssoProvider.providerId, providerId))).length === 0, "…its single sign-on provider");
   check((await sessionOf(eve.jar)) === null, "…and the sign-ins through it");
+  const eveAfter = await apiStatus(eveToken);
+  check(eveAfter === 401, "…with the API tokens of the people who signed in through it", eveAfter);
+  check(!(await consentsOf(eve.id)).includes(eveApp), "…and their connected apps", await consentsOf(eve.id));
+  const doraAfter = await apiStatus(doraToken);
+  check(doraAfter === 200, "another member's API token keeps working", doraAfter);
   const left = await db.select({ id: workspace.id }).from(workspace).where(inArray(workspace.id, [dora.workspaceId, eve.workspaceId]));
   check(left.length === 2, "their personal workspaces stay", left);
   check((await open(settings, dora.jar)).status !== 200, "the deleted workspace's settings no longer open");

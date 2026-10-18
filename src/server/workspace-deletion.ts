@@ -8,7 +8,7 @@ import { getCollab } from "@/server/collab/bridge";
 import { deleteQueued, queueStorageDeletion } from "@/server/files";
 import { mailStatus, sendMail, workspaceDeletedEmail } from "@/server/mail";
 import { recipientLocale } from "@/server/mail/locale";
-import { forgetConnectionSignIns } from "@/server/sso";
+import { afterCutOff, cutOffConnection } from "@/server/sso";
 import { deleteWorkspaces, lockOwnedWorkspace, WorkspaceError } from "@/server/workspaces";
 
 /**
@@ -16,13 +16,15 @@ import { deleteWorkspaces, lockOwnedWorkspace, WorkspaceError } from "@/server/w
  * to confirm and the same proof as deleting the account (`reauthenticate`).
  *
  * In one transaction, with the workspace locked (nobody joins and no owner changes meanwhile):
- * everyone's sign-ins through its single sign-on connection are forgotten, as when the connection
- * is removed; then the workspace goes with everything that belongs to it (by foreign keys: members,
- * pages, databases, comments, teamspaces, groups, agents and their users, connections, tokens, its
- * audit log). Once that commits, every open editor of its pages is disconnected, the other people
- * in it are emailed, and its files are removed from storage in the background (queued in the
- * transaction, so none is forgotten when that fails). Its audit log goes with it, so the deletion is
- * written to the server log.
+ * everyone's sign-ins through its single sign-on connection are forgotten and their API tokens and
+ * connected apps revoked, as when the connection is removed (cutOffConnection: the all-workspace
+ * ones would keep reaching their other workspaces); then the workspace goes with everything that
+ * belongs to it (by foreign keys: members, pages, databases, comments, teamspaces, groups, agents
+ * and their users, connections, tokens, its audit log). Once that commits, every open editor of its pages is disconnected, the other people
+ * in it are emailed, the pages the signed-out people have open elsewhere are closed, and its files
+ * are removed from storage in the background (queued in the transaction, so none is forgotten when
+ * that fails). Its audit log goes with it, so the deletion, with how much it revoked, is written to
+ * the server log.
  */
 export async function deleteWorkspace(current: AccountSession, workspaceId: string, input: { confirmation: unknown; proof: Proof }) {
   const userId = current.user.id;
@@ -35,7 +37,7 @@ export async function deleteWorkspace(current: AccountSession, workspaceId: stri
   }
   await reauthenticate(current, input.proof);
 
-  const { keys, pageIds, people } = await db.transaction(async (tx) => {
+  const { keys, pageIds, people, cutOff } = await db.transaction(async (tx) => {
     // Deleted, or no longer theirs to delete, since the checks above: refused.
     const people = await lockOwnedWorkspace(tx, userId, workspaceId);
     // Only the open ones: those are what collab has to disconnect.
@@ -47,19 +49,26 @@ export async function deleteWorkspace(current: AccountSession, workspaceId: stri
       .select({ providerId: workspaceSso.providerId })
       .from(workspaceSso)
       .where(eq(workspaceSso.workspaceId, workspaceId));
-    for (const { providerId } of connections) await forgetConnectionSignIns(tx, providerId);
+    const cutOff: Awaited<ReturnType<typeof cutOffConnection>>[] = [];
+    for (const { providerId } of connections) cutOff.push(await cutOffConnection(tx, providerId));
     const files = await tx.delete(file).where(eq(file.workspaceId, workspaceId)).returning({ key: file.storageKey });
     await queueStorageDeletion(tx, files.map((f) => f.key));
     await deleteWorkspaces(tx, [workspaceId]);
-    return { keys: files.map((f) => f.key), pageIds: pages.map((p) => p.id), people };
+    return { keys: files.map((f) => f.key), pageIds: pages.map((p) => p.id), people, cutOff };
   });
 
-  console.info(`[workspaces] ${userId} deleted the workspace ${workspaceId} (${people.length} other people, ${keys.length} files)`);
+  const tokens = cutOff.reduce((n, c) => n + c.counts.revokedApiTokens, 0);
+  const apps = cutOff.reduce((n, c) => n + c.counts.revokedConnectedApps, 0);
+  console.info(
+    `[workspaces] ${userId} deleted the workspace ${workspaceId} (${people.length} other people, ${keys.length} files; ` +
+      `${tokens} API tokens and ${apps} connected apps of its single sign-on users revoked)`,
+  );
   try {
     await getCollab().disconnectWorkspace(workspaceId, pageIds);
   } catch (error) {
     console.warn("[workspaces] could not close collab connections", error);
   }
+  await afterCutOff(cutOff);
   tellPeople(people, row.name, current.user.name);
   // Not awaited: removing thousands of files mustn't hold up the answer. They were queued with the
   // deletion, so whatever fails here, or is cut short by a restart, the file cleanup deletes later.

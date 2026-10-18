@@ -406,9 +406,9 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
  * the sign-in policies, so they would outlast it. In the same transaction, so there is no moment
  * the sign-ins are gone and the tokens still work, and nobody to find again if the process stops
  * after the commit. The counts are for the audit log; once the transaction commits, finish with
- * afterCutOff.
+ * afterCutOff. Also what deleting the workspace does to its connections (deleteWorkspace).
  */
-async function cutOffConnection(tx: Tx, providerId: string) {
+export async function cutOffConnection(tx: Tx, providerId: string) {
   const { signedOut, people } = await forgetConnectionSignIns(tx, providerId);
   const revokedApiTokens = await revokeApiTokensIn(tx, people);
   const apps = await revokeConnectedAppsIn(tx, people);
@@ -419,7 +419,7 @@ async function cutOffConnection(tx: Tx, providerId: string) {
  * Closes the open pages of the sessions cutOffConnection ended (they would stay writable), forgets
  * when the revoked tokens and apps were used and records the apps disconnected.
  */
-async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnection>>[]) {
+export async function afterCutOff(cutOff: Awaited<ReturnType<typeof cutOffConnection>>[]) {
   for (const { signedOut, people, apps } of cutOff) {
     for (const userId of signedOut) await disconnectEndedSessions(userId);
     for (const userId of people) {
