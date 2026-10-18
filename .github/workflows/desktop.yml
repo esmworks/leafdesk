@@ -29,9 +29,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Apple silicon and Intel, signed with the Developer ID certificate and notarized.
+          # Apple silicon and Intel, signed with the Developer ID certificate and notarized. macOS 26:
+          # its default Xcode compiles the app's icon (desktop/build/icon.icon).
           - name: macOS
-            runner: macos-15
+            runner: macos-26
             platform: --mac
           # Not signed yet: Windows SmartScreen warns the first time it starts.
           - name: Windows

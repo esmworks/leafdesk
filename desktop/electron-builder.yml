@@ -23,6 +23,10 @@ artifactName: Leafdesk-${version}-${arch}.${ext}
 
 mac:
   category: public.app-category.productivity
+  # The macOS icon, made with Icon Composer: the system draws it in glass from a gradient tile and
+  # the letters layer, and makes the .icns earlier macOS versions read from it. Compiling it takes
+  # Xcode 26's actool. Windows and Linux keep build/icon.png.
+  icon: build/icon.icon
   target:
     - target: dmg
       arch: [arm64, x64]
