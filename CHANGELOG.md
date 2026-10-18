@@ -38,6 +38,12 @@
 
 ### Added
 
+- **Ready-made skills.** The skills library offers six to start from: *Wrap up meeting notes*,
+  *Weekly status summary*, *Reply to a customer*, *Proofread a text*, *Triage a request* and
+  *Executive summary*. They fill the library while it is empty, and *Ready-made skills* opens them
+  after. Picking one makes a private page in your language, already a skill with its description,
+  to change and share like any other. None needs setting up: each works on the page, row or text
+  it is pointed at. See [Skills](README.md#skills).
 - **Workspace backups.** Owners download the whole workspace as one file in Settings → General →
   *Back up workspace*: every page with its history and comments, databases, files, teamspaces,
   groups, permissions, published pages, the site, agents, automations and daily notes. *New

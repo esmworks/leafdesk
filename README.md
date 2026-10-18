@@ -512,7 +512,7 @@ versions, upgrades and running behind a domain.
   database row whose select and multi-select properties it fills from their options. OpenAI or any
   server with an OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](#voice-notes)).
-- **Skills**: instructions your team reuses (how to review a pull request, write release notes),
+- **Skills**: instructions your team reuses (how to wrap up meeting notes, reply to a customer),
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
   `SKILL.md` (see [Skills](#skills)).
@@ -1754,6 +1754,12 @@ list until it is restored.
 - **Skills library**: the sidebar's skills button (next to the people and graph buttons) opens
   `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable. *New skill*
   makes a private page already marked as one.
+- **Ready-made skills**: six skills to start from (*Wrap up meeting notes*, *Weekly status summary*,
+  *Reply to a customer*, *Proofread a text*, *Triage a request*, *Executive summary*), shown in the
+  library while it is empty and under *Ready-made skills* after. Picking one makes a private page
+  in the user's language, already a skill with its description; it is an ordinary page from then
+  on. They need no setup: each works on whatever page, row or text it is pointed at. The texts are
+  in `src/i18n/messages/<locale>/skillTemplates.json`.
 - **AI chat**: `/` at the start of the empty question box (or the skills button under it) lists
   the skills; the one picked shows above the box and the next question goes to the model with its
   instructions, which the model is told to follow for that question only. They don't widen what the

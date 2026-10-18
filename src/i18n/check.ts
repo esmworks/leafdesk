@@ -37,7 +37,7 @@ export type Issue = {
 };
 
 /** Files whose texts aren't ICU messages (Markdown, names), so only their keys are compared. */
-const PLAIN_TEXT_FILES = new Set(["templates.json"]);
+const PLAIN_TEXT_FILES = new Set(["templates.json", "skillTemplates.json"]);
 
 type Leaf = { key: string; value: unknown };
 

@@ -1,13 +1,18 @@
 {
   "metaTitle": "Skills",
   "heading": "Skills",
-  "description": "Anleitungen, die dein Team immer wieder nutzt, als Seiten: einen Pull Request prüfen, Release Notes schreiben, einen Fehler einordnen. Wähle einen im KI-Chat mit / oder in einer mit dem Workspace verbundenen KI-App. Jeder Skill ist eine Seite oder Datenbankzeile; alle sehen die Skills, die sie öffnen können.",
+  "description": "Anleitungen, die dein Team immer wieder nutzt, als Seiten: Besprechungsnotizen zusammenfassen, eine Kundennachricht beantworten, eine Anfrage einordnen. Wähle einen im KI-Chat mit / oder in einer mit dem Workspace verbundenen KI-App. Jeder Skill ist eine Seite oder Datenbankzeile; alle sehen die Skills, die sie öffnen können.",
   "new": "Neuer Skill",
   "search": "Skills durchsuchen",
   "count": "{count, plural, one {# Skill} other {# Skills}}",
   "noMatches": "Kein Skill passt zu deiner Suche.",
   "emptyTitle": "Noch keine Skills",
-  "emptyHint": "Jede Seite und jede Datenbankzeile kann ein Skill sein: Öffne sie und schalte im ⋯-Menü „Als Skill verwenden“ ein, oder beginne mit „Neuer Skill“.",
+  "emptyHint": "Auch jede Seite und jede Datenbankzeile kann ein Skill sein: Öffne sie und schalte im ⋯-Menü „Als Skill verwenden“ ein.",
+  "builtins": {
+    "heading": "Mit einem fertigen Skill beginnen",
+    "hint": "Jeder wird zu einer privaten Seite von dir: Pass ihn an deine Arbeit an und teile ihn dann mit deinem Team.",
+    "open": "Fertige Skills"
+  },
   "noDescription": "Noch keine Beschreibung",
   "inDatabase": "In {database}",
   "updated": "Aktualisiert {time}",

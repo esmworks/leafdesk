@@ -1,13 +1,18 @@
 {
   "metaTitle": "Habilidades",
   "heading": "Habilidades",
-  "description": "Las instrucciones que tu equipo reutiliza, guardadas como páginas: revisar un pull request, redactar notas de versión, clasificar un error. Elige una en el chat de IA con / o desde una app de IA conectada al espacio de trabajo. Cada habilidad es una página o una fila de base de datos; cada persona ve las habilidades que puede abrir.",
+  "description": "Las instrucciones que tu equipo reutiliza, guardadas como páginas: resumir notas de reunión, responder a un cliente, clasificar una solicitud. Elige una en el chat de IA con / o desde una app de IA conectada al espacio de trabajo. Cada habilidad es una página o una fila de base de datos; cada persona ve las habilidades que puede abrir.",
   "new": "Nueva habilidad",
   "search": "Buscar habilidades",
   "count": "{count, plural, one {# habilidad} other {# habilidades}}",
   "noMatches": "Ninguna habilidad coincide con tu búsqueda.",
   "emptyTitle": "Aún no hay habilidades",
-  "emptyHint": "Cualquier página o fila de base de datos puede ser una habilidad: ábrela y activa «Usar como habilidad» en su menú ⋯, o empieza con «Nueva habilidad».",
+  "emptyHint": "Cualquier página o fila de base de datos también puede ser una habilidad: ábrela y activa «Usar como habilidad» en su menú ⋯.",
+  "builtins": {
+    "heading": "Empieza con una habilidad lista para usar",
+    "hint": "Cada una se convierte en una página privada tuya: adáptala a tu trabajo y luego compártela con tu equipo.",
+    "open": "Habilidades listas para usar"
+  },
   "noDescription": "Aún sin descripción",
   "inDatabase": "En {database}",
   "updated": "Actualizada {time}",

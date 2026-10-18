@@ -1,13 +1,18 @@
 {
   "metaTitle": "Skills",
   "heading": "Skills",
-  "description": "Instructions your team reuses, kept as pages: how to review a pull request, write release notes or triage a bug. Pick one in the AI chat with /, or from an AI app connected to the workspace. Each skill is a page or database row; people see the skills they can open.",
+  "description": "Instructions your team reuses, kept as pages: how to wrap up meeting notes, reply to a customer or triage a request. Pick one in the AI chat with /, or from an AI app connected to the workspace. Each skill is a page or database row; people see the skills they can open.",
   "new": "New skill",
   "search": "Search skills",
   "count": "{count, plural, one {# skill} other {# skills}}",
   "noMatches": "No skill matches your search.",
   "emptyTitle": "No skills yet",
-  "emptyHint": "Any page or database row can be a skill: open it and turn on Use as skill in its ⋯ menu, or start one with New skill.",
+  "emptyHint": "Any page or database row can be a skill too: open it and turn on Use as skill in its ⋯ menu.",
+  "builtins": {
+    "heading": "Start from a ready-made skill",
+    "hint": "Each one becomes a private page of yours: change it to fit your work, then share it with your team.",
+    "open": "Ready-made skills"
+  },
   "noDescription": "No description yet",
   "inDatabase": "In {database}",
   "updated": "Updated {time}",

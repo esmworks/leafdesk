@@ -1,13 +1,18 @@
 {
   "metaTitle": "Beceriler",
   "heading": "Beceriler",
-  "description": "Ekibinin tekrar tekrar kullandığı talimatlar, sayfa olarak: bir pull request'i incelemek, sürüm notu yazmak, bir hatayı sınıflandırmak. AI sohbetinde / ile ya da çalışma alanına bağlı bir AI uygulamasından seç. Her beceri bir sayfa ya da veritabanı satırıdır; herkes açabildiği becerileri görür.",
+  "description": "Ekibinin tekrar tekrar kullandığı talimatlar, sayfa olarak: toplantı notunu toparlamak, bir müşteriye yanıt yazmak, bir talebi sınıflandırmak. AI sohbetinde / ile ya da çalışma alanına bağlı bir AI uygulamasından seç. Her beceri bir sayfa ya da veritabanı satırıdır; herkes açabildiği becerileri görür.",
   "new": "Yeni beceri",
   "search": "Becerilerde ara",
   "count": "{count, plural, one {# beceri} other {# beceri}}",
   "noMatches": "Aramanla eşleşen beceri yok.",
   "emptyTitle": "Henüz beceri yok",
-  "emptyHint": "Her sayfa ya da veritabanı satırı beceri olabilir: sayfanın ⋯ menüsünde Beceri olarak kullan'ı aç ya da Yeni beceri ile başla.",
+  "emptyHint": "Her sayfa ya da veritabanı satırı da beceri olabilir: sayfanın ⋯ menüsünde Beceri olarak kullan'ı aç.",
+  "builtins": {
+    "heading": "Hazır bir beceriyle başla",
+    "hint": "Her biri senin özel sayfan olur: işine göre değiştir, sonra ekibinle paylaş.",
+    "open": "Hazır beceriler"
+  },
   "noDescription": "Henüz açıklama yok",
   "inDatabase": "{database} içinde",
   "updated": "{time} güncellendi",

@@ -1,13 +1,18 @@
 {
   "metaTitle": "Compétences",
   "heading": "Compétences",
-  "description": "Les instructions que votre équipe réutilise, sous forme de pages : relire une pull request, rédiger des notes de version, trier un bug. Choisissez-en une dans le chat IA avec /, ou depuis une app d’IA connectée à l’espace de travail. Chaque compétence est une page ou une ligne de base de données ; chacun voit les compétences qu’il peut ouvrir.",
+  "description": "Les instructions que votre équipe réutilise, sous forme de pages : faire la synthèse d’une réunion, répondre à un client, trier une demande. Choisissez-en une dans le chat IA avec /, ou depuis une app d’IA connectée à l’espace de travail. Chaque compétence est une page ou une ligne de base de données ; chacun voit les compétences qu’il peut ouvrir.",
   "new": "Nouvelle compétence",
   "search": "Rechercher des compétences",
   "count": "{count, plural, one {# compétence} other {# compétences}}",
   "noMatches": "Aucune compétence ne correspond à votre recherche.",
   "emptyTitle": "Aucune compétence pour l’instant",
-  "emptyHint": "Toute page ou ligne de base de données peut devenir une compétence : ouvrez-la et activez « Utiliser comme compétence » dans son menu ⋯, ou commencez avec « Nouvelle compétence ».",
+  "emptyHint": "Toute page ou ligne de base de données peut aussi devenir une compétence : ouvrez-la et activez « Utiliser comme compétence » dans son menu ⋯.",
+  "builtins": {
+    "heading": "Partir d’une compétence prête à l’emploi",
+    "hint": "Chacune devient une page privée à vous : adaptez-la à votre travail, puis partagez-la avec votre équipe.",
+    "open": "Compétences prêtes à l’emploi"
+  },
   "noDescription": "Pas encore de description",
   "inDatabase": "Dans {database}",
   "updated": "Mise à jour {time}",

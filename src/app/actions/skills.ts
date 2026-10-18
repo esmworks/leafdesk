@@ -1,6 +1,7 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import type { BuiltinSkillKey } from "@/lib/builtin-skills";
 import { AccessError } from "@/server/access";
 import * as pages from "@/server/pages";
 import { requireUserId } from "@/server/session";
@@ -48,4 +49,9 @@ export async function createSkillAction(workspaceId: string) {
     await skills.setSkill(userId, created.id, { skill: true });
     return { id: created.id };
   });
+}
+
+/** A new private skill from a built-in one, in the person's language, for the library's gallery. */
+export async function createBuiltinSkillAction(workspaceId: string, key: BuiltinSkillKey) {
+  return run("create built-in skill", async (userId) => skills.createBuiltinSkill(userId, String(workspaceId), key, await getLocale()));
 }

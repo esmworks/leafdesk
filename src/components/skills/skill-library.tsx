@@ -1,26 +1,35 @@
 "use client";
 
-import { Download, Plus, Search } from "lucide-react";
+import { Download, LibraryBig, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
-import { createSkillAction } from "@/app/actions/skills";
+import { createBuiltinSkillAction, createSkillAction } from "@/app/actions/skills";
 import { markNewPage } from "@/components/page/new-page-focus";
-import { Button, Input, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, Input, PageIcon, pageLabel } from "@/components/ui";
+import type { BuiltinSkillKey } from "@/lib/builtin-skills";
 import { searchFold } from "@/lib/search-fold";
 import type { SkillSummary } from "@/server/skills";
 
-/** The skills library (/w/[id]/skills): the workspace's skills, filtered as you type. */
+export type BuiltinSkillItem = { key: BuiltinSkillKey; icon: string; title: string; description: string };
+
+/**
+ * The skills library (/w/[id]/skills): the workspace's skills, filtered as you type, and the
+ * built-in ones to start from: in place of the list while there are none, behind a button after.
+ */
 export function SkillLibrary({
   workspaceId,
   skills,
+  builtins,
   canCreate,
   exportable,
   now,
 }: {
   workspaceId: string;
   skills: SkillSummary[];
+  /** The built-in skills in their language (see lib/builtin-skills). */
+  builtins: BuiltinSkillItem[];
   /** They may add pages at the top of the workspace: New skill makes a private one there. */
   canCreate: boolean;
   /** The workspace lets people export pages, so each skill offers its SKILL.md. */
@@ -35,6 +44,7 @@ export function SkillLibrary({
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const shown = useMemo(() => {
     const words = searchFold(query).split(/\s+/).filter(Boolean);
     if (!words.length) return skills;
@@ -56,17 +66,37 @@ export function SkillLibrary({
       router.push(`/w/${workspaceId}/p/${result.data.id}`);
     });
 
+  // The new page has the built-in's title and text: it opens without focusing the title.
+  const createBuiltin = (key: BuiltinSkillKey) =>
+    startTransition(async () => {
+      setError(null);
+      const result = await createBuiltinSkillAction(workspaceId, key);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setGalleryOpen(false);
+      router.push(`/w/${workspaceId}/p/${result.data.id}`);
+    });
+
   return (
     <div className="mx-auto max-w-4xl px-4 pt-14 pb-12 md:px-6 md:pt-12">
       <header className="mb-6 flex flex-wrap items-start gap-4">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-64">
           <h1 className="text-2xl font-semibold tracking-tight">{t("heading")}</h1>
           <p className="mt-2 max-w-2xl text-sm text-fg-muted">{t("description")}</p>
         </div>
         {canCreate && (
-          <Button variant="primary" onClick={create} disabled={pending}>
-            <Plus className="h-4 w-4" /> {t("new")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {skills.length > 0 && builtins.length > 0 && (
+              <Button onClick={() => setGalleryOpen(true)} disabled={pending}>
+                <LibraryBig className="h-4 w-4" /> {t("builtins.open")}
+              </Button>
+            )}
+            <Button variant="primary" onClick={create} disabled={pending}>
+              <Plus className="h-4 w-4" /> {t("new")}
+            </Button>
+          </div>
         )}
       </header>
       {error && (
@@ -75,7 +105,32 @@ export function SkillLibrary({
         </p>
       )}
 
-      {skills.length === 0 ? (
+      {skills.length === 0 && canCreate && builtins.length > 0 ? (
+        <section aria-labelledby="builtin-skills-heading">
+          <h2 id="builtin-skills-heading" className="text-base font-medium">
+            {t("builtins.heading")}
+          </h2>
+          <p className="mt-1 text-sm text-fg-muted">{t("builtins.hint")}</p>
+          <ul className={cn("mt-4 grid gap-3 sm:grid-cols-2", pending && "pointer-events-none opacity-60")} aria-busy={pending}>
+            {builtins.map((item) => (
+              <li key={item.key}>
+                <button
+                  type="button"
+                  onClick={() => createBuiltin(item.key)}
+                  className="flex h-full w-full items-start gap-3 rounded-xl border border-border px-4 py-3 text-start hover:bg-bg-hover"
+                >
+                  <PageIcon icon={item.icon} kind="page" className="mt-0.5" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium">{item.title}</span>
+                    <span className="mt-0.5 block text-sm text-fg-muted">{item.description}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 text-sm text-fg-muted">{t("emptyHint")}</p>
+        </section>
+      ) : skills.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-fg-muted">
           <p className="font-medium text-fg">{t("emptyTitle")}</p>
           <p className="mx-auto mt-1 max-w-md">{t("emptyHint")}</p>
@@ -143,6 +198,35 @@ export function SkillLibrary({
           )}
         </>
       )}
+
+      <Dialog open={galleryOpen} onClose={() => setGalleryOpen(false)}>
+        <div className="border-b border-border px-4 py-3">
+          <h2 className="text-sm font-medium">{t("builtins.heading")}</h2>
+          <p className="mt-0.5 text-xs text-fg-muted">{t("builtins.hint")}</p>
+        </div>
+        {error && (
+          <p role="alert" className="border-b border-border px-4 py-2 text-xs text-danger">
+            {error}
+          </p>
+        )}
+        <ul className={cn("max-h-[60vh] overflow-y-auto p-1", pending && "pointer-events-none opacity-60")} aria-busy={pending}>
+          {builtins.map((item) => (
+            <li key={item.key}>
+              <button
+                type="button"
+                onClick={() => createBuiltin(item.key)}
+                className="flex w-full items-start gap-2 rounded-md px-3 py-2 text-start hover:bg-bg-hover"
+              >
+                <PageIcon icon={item.icon} kind="page" className="mt-0.5 text-sm" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm">{item.title}</span>
+                  <span className="block text-xs text-fg-muted">{item.description}</span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Dialog>
     </div>
   );
 }

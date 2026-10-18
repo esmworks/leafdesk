@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SkillLibrary } from "@/components/skills/skill-library";
+import { builtinSkills } from "@/lib/builtin-skills";
 import { AccessError } from "@/server/access";
 import { listSkills } from "@/server/skills";
 import { requireWorkspaceSession } from "@/server/session";
@@ -21,6 +22,19 @@ export default async function SkillsPage({ params }: { params: Promise<{ workspa
     throw error;
   });
   if (!skills) notFound();
-  const [topLevel, exportable] = await Promise.all([topLevelAccess(user.id, workspaceId), exportAllowed(workspaceId)]);
-  return <SkillLibrary workspaceId={workspaceId} skills={skills} canCreate={topLevel !== null} exportable={exportable} now={new Date()} />;
+  const [topLevel, exportable, builtins] = await Promise.all([
+    topLevelAccess(user.id, workspaceId),
+    exportAllowed(workspaceId),
+    getLocale().then(builtinSkills),
+  ]);
+  return (
+    <SkillLibrary
+      workspaceId={workspaceId}
+      skills={skills}
+      builtins={builtins.map(({ key, icon, title, description }) => ({ key, icon, title, description }))}
+      canCreate={topLevel !== null}
+      exportable={exportable}
+      now={new Date()}
+    />
+  );
 }
