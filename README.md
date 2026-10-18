@@ -718,7 +718,9 @@ travel: pending invitations and join requests, the invite link, SSO and SCIM set
 connected apps, notifications, the audit log, agent and automation runs, and connections'
 sign-ins (connections ask to be signed in to again). Allowed email domains must be verified again,
 a site whose address is taken on the new server is left out, and semantic search builds its index
-again when the server uses another embeddings model.
+again when the server uses another embeddings model. *Single sign-on only* comes back as *Any
+method*, to choose again once single sign-on is set up, unless the server has its own provider
+(`OIDC_ISSUER`), which members are then sent to.
 
 A backup file can be edited, so a restore trusts nothing in it: every row must belong to the
 backed-up workspace and point only at rows of the backup, and anything else refuses the whole

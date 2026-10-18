@@ -169,4 +169,9 @@ export type RestoreResult = {
   connectionsToReconnect: number;
   /** Semantic search's vectors came from another model: the pages are indexed again. */
   searchIndexDropped: boolean;
+  /**
+   * "SSO only" fell back to any method: single sign-on is set up again here, and the server has no
+   * provider of its own to send members to meanwhile.
+   */
+  ssoOnlyTurnedOff: boolean;
 };

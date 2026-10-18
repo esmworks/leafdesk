@@ -86,6 +86,7 @@
       "withoutAccount": "{count, plural, one {# pessoa não tem} other {# pessoas não têm}} conta neste servidor. O que escreveram continua no nome delas; convide-as para devolver o acesso:",
       "andMore": "e mais {count}",
       "connections": "{count, plural, one {# conexão precisa} other {# conexões precisam}} de um novo login em Configurações → Conexões.",
+      "ssoOnlyTurnedOff": "O login único não faz parte de um backup, então, por enquanto, os membros podem entrar com qualquer método. Configure-o em Configurações → Segurança e depois escolha “Só login único” de novo.",
       "siteLeftOut": "O endereço do site já está em uso neste servidor, então o site ficou de fora. Configure-o novamente em Configurações → Site.",
       "searchIndexDropped": "A pesquisa semântica está recriando o índice; quando terminar, ela encontrará tudo.",
       "open": "Abrir espaço de trabalho",
