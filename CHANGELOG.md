@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+
+- The macOS desktop app is built and signed for releases again: 0.6.0 shipped without its macOS
+  installers because signing failed on macOS 26.
+
 ## 0.6.0 — 2026-10-19
 
 ### Upgrading from 0.5.4

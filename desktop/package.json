@@ -31,7 +31,7 @@
   "devDependencies": {
     "@types/node": "24.19.2",
     "electron": "44.7.2",
-    "electron-builder": "26.15.3",
+    "electron-builder": "26.17.0",
     "esbuild": "0.28.2",
     "postgres": "3.4.9",
     "typescript": "6.0.3"
