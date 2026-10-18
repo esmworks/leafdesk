@@ -72,12 +72,14 @@ export async function listConnectedApps(userId: string): Promise<ConnectedApp[]>
 /**
  * Records in the audit log that the user connected or disconnected apps. An app reaches every
  * workspace the user is in (each one's connected-apps setting decides what it may do there), so
- * each of them records it.
+ * each of them records it. With `asSubject`, the user is named as whose apps they were rather than
+ * as who acted, for apps the server disconnected (the caller runs it as the system's).
  */
 async function recordConnectedApps(
   userId: string,
   apps: { clientId: string; scopes: string[] }[],
   action: "connected_app.connected" | "connected_app.revoked",
+  asSubject = false,
 ) {
   if (!apps.length) return;
   const [clients, workspaceIds] = await Promise.all([
@@ -96,6 +98,7 @@ async function recordConnectedApps(
         actorId: userId,
         action,
         target: { type: "connected_app" as const, id: clientId, label },
+        subject: asSubject ? { type: "user" as const, id: userId } : null,
         details: { scopes },
       }));
     }),
@@ -239,10 +242,13 @@ export async function revokeConnectedAppsIn(tx: Tx, userIds: string[]) {
   return consents;
 }
 
-/** After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log. Only logs its errors. */
-export async function afterConnectedAppsRevoked(userId: string, revoked: { clientId: string; scopes: string[] }[]) {
+/**
+ * After the commit, as revokeConnectedApp does: each app disconnected shows in the audit log. Only
+ * logs its errors. `asSubject` as for recordConnectedApps.
+ */
+export async function afterConnectedAppsRevoked(userId: string, revoked: { clientId: string; scopes: string[] }[], asSubject = false) {
   await forgetConnectedAppUse(userId).catch((error) => console.error("[connected-apps] could not forget when apps were last used", error));
-  await recordConnectedApps(userId, revoked, "connected_app.revoked").catch((error) =>
+  await recordConnectedApps(userId, revoked, "connected_app.revoked", asSubject).catch((error) =>
     console.error("[connected-apps] could not record disconnected apps in the audit log", error),
   );
 }
