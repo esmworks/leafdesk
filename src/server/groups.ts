@@ -12,6 +12,7 @@ import { cleanGroupName, GroupError } from "@/lib/groups";
 import { AccessError, isGuest, requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
+import { refuseInLocalMode } from "@/server/local-mode";
 import { listTeamspaces } from "@/server/teamspaces";
 import { handOverOrphanedPages } from "@/server/workspaces";
 
@@ -147,8 +148,9 @@ async function requireGroupable(workspaceId: string, userIds: string[]) {
   }
 }
 
-/** A new group, with these people in it. Workspace owners only. */
+/** A new group, with these people in it. Workspace owners only, and not on one computer (local mode). */
 export async function createGroup(actorId: string, workspaceId: string, name: string, userIds: string[] = []) {
+  refuseInLocalMode();
   await requireMembership(actorId, workspaceId, "owner");
   const clean = cleanGroupName(name);
   const wanted = [...new Set(userIds)];

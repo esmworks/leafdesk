@@ -18,6 +18,7 @@ import {
   type TeamspaceRole,
   type WorkspaceRole,
 } from "@/db/schema";
+import { env } from "@/lib/env";
 import { parseIcon } from "@/lib/icon";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import type { TeamspaceReach } from "@/lib/teamspace-reach";
@@ -25,6 +26,7 @@ import { AccessError, isGuest, requireMember } from "@/server/access";
 import { changedValues, recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { afterAccessChange, groupMemberIds, requireGroupIn } from "@/server/groups";
+import { refuseInLocalMode } from "@/server/local-mode";
 import { handOverOrphanedPages } from "@/server/workspaces";
 
 /**
@@ -76,8 +78,12 @@ async function creationPolicy(workspaceId: string) {
   return { ...DEFAULT_WORKSPACE_SETTINGS, ...row?.settings }.teamspaceCreation;
 }
 
-/** Whether the user may create teamspaces in the workspace: owners, and members unless restricted. */
+/**
+ * Whether the user may create teamspaces in the workspace: owners, and members unless restricted.
+ * Nobody may on one computer (lib/env.ts localMode): with one person there is no team to gather.
+ */
 export async function canCreateTeamspace(userId: string, workspaceId: string) {
+  if (env.localMode) return false;
   const membership = await requireMember(userId, workspaceId).catch(() => null);
   if (!membership) return false;
   return membership.role === "owner" || (await creationPolicy(workspaceId)) === "members";
@@ -293,6 +299,7 @@ export type TeamspaceInput = {
  * everybody is in) needs a workspace owner.
  */
 export async function createTeamspace(userId: string, workspaceId: string, input: TeamspaceInput) {
+  refuseInLocalMode();
   const membership = await requireMember(userId, workspaceId);
   if (!(await canCreateTeamspace(userId, workspaceId))) {
     throw new TeamspaceError("creationRestricted", "Only workspace owners can create teamspaces here.");

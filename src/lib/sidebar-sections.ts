@@ -4,8 +4,11 @@
  * personal workspace and a company one can look different, on every device.
  */
 
-/** The sections in their default order. */
-export const SIDEBAR_SECTIONS = ["favorites", "teamspaces", "shared", "private"] as const;
+/**
+ * The sections in their default order. "pages" is the workspace's default teamspace shown as its
+ * plain pages, which only Leafdesk on one computer does (lib/env.ts localMode); elsewhere it is empty.
+ */
+export const SIDEBAR_SECTIONS = ["favorites", "pages", "teamspaces", "shared", "private"] as const;
 export type SidebarSection = (typeof SIDEBAR_SECTIONS)[number];
 
 export type SidebarLayout = {
@@ -22,7 +25,13 @@ export const isSidebarSection = (value: unknown): value is SidebarSection => SID
 /** Every section in the layout's order. */
 export function sidebarOrder(layout: SidebarLayout): SidebarSection[] {
   const listed = (layout.order ?? []).filter(isSidebarSection);
-  return [...new Set([...listed, ...SIDEBAR_SECTIONS])];
+  const order = [...new Set([...listed, ...SIDEBAR_SECTIONS])];
+  // An order saved before "pages" existed: it goes where its teamspace was, just above the teamspaces.
+  if (!listed.includes("pages")) {
+    order.splice(order.indexOf("pages"), 1);
+    order.splice(order.indexOf("teamspaces"), 0, "pages");
+  }
+  return order;
 }
 
 /** A layout from untrusted input: unknown sections and duplicates dropped, null when it isn't one. */

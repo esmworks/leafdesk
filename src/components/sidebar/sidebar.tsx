@@ -54,6 +54,7 @@ import type { PageKind } from "@/db/schema/app";
 import { authClient } from "@/lib/auth-client";
 import { closeOfflineDocs } from "@/components/collab/socket";
 import { useIsOffline } from "@/components/offline/offline-context";
+import { useLocalMode } from "@/components/local-mode";
 import { loadSnapshot, readOfflineState, saveSnapshot, treeSnapshotKey, wipeAllOfflineData } from "@/components/offline/offline-store";
 import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { dropPushSubscription } from "@/components/settings/push-device";
@@ -89,6 +90,7 @@ const EXPANDED_KEY = "leafdesk:expanded";
 const OPEN_TEAMSPACES_KEY = "leafdesk:open-teamspaces";
 const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
+const PAGES_SECTION: SidebarSection = "pages";
 /** Top-level pages "Private" and "Shared" show before a "More" row. */
 const SECTION_LIMIT = 10;
 
@@ -187,6 +189,13 @@ export function Sidebar({
   const workspace = workspaces.find((w) => w.id === workspaceId);
   // Guests only see pages shared with them (and their own private pages) and can't move pages to the top.
   const guest = workspace?.role === "guest";
+  // On one computer (local mode) there is no team: the workspace's default teamspace, where new
+  // top-level pages go, shows as its plain "Pages", and the teamspaces section only for others
+  // made before (or restored from a backup), so none of their pages drop out of sight.
+  const localMode = useLocalMode();
+  const pagesSpace = localMode ? teamspaces.find((ts) => ts.access === "default" && !ts.archivedAt) : undefined;
+  const listedSpaces = pagesSpace ? teamspaces.filter((ts) => ts !== pagesSpace) : teamspaces;
+  const showTeamspaces = !guest && !(localMode && listedSpaces.length === 0);
 
   const offline = useIsOffline();
   const aiChat = useAiChat();
@@ -354,6 +363,7 @@ export function Sidebar({
   const sectionLabel = (key: SidebarSection) =>
     ({
       favorites: t("pages.favorites"),
+      pages: t("pages.heading"),
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
       private: t("sections.private"),
@@ -412,6 +422,7 @@ export function Sidebar({
     }
     const section = node.section;
     if (section === PRIVATE_SECTION || section === SHARED_SECTION) reveal(section);
+    else if (section === pagesSpace?.id) reveal(PAGES_SECTION);
     else {
       reveal(TEAMSPACES_GROUP);
       toggleSpace(section, true);
@@ -429,6 +440,7 @@ export function Sidebar({
       try {
         const { id } = await createPageAction({ workspaceId, parentId, kind, ...(parentId ? {} : { teamspaceId: target }) });
         if (parentId) toggle(parentId, true);
+        else if (target && target === pagesSpace?.id) fold(PAGES_SECTION, true);
         else if (target) toggleSpace(target, true);
         else if (target === null) fold(PRIVATE_SECTION, true);
         markNewPage(id);
@@ -642,7 +654,45 @@ export function Sidebar({
         </ul>
       </SectionGroup>
     ),
-    teamspaces: !guest && (
+    pages: pagesSpace && (
+      <SectionGroup
+        label={t("pages.heading")}
+        open={!isFolded(PAGES_SECTION)}
+        onToggle={() => fold(PAGES_SECTION)}
+        drop={{ section: pagesSpace.id, roots: rootsOf(pagesSpace.id), ...treeProps }}
+        actions={
+          <Popover
+            align="end"
+            trigger={({ toggle }) => (
+              <IconButton label={t("pages.newPage")} onClick={toggle} disabled={offline} className="disabled:opacity-40 disabled:hover:bg-transparent">
+                <Plus className="h-3.5 w-3.5" />
+              </IconButton>
+            )}
+          >
+            {newMenu(pagesSpace.id)}
+          </Popover>
+        }
+      >
+        {rootsOf(pagesSpace.id).length === 0 && (
+          <button
+            type="button"
+            onClick={() => create(null, "page", pagesSpace.id)}
+            disabled={offline}
+            title={needsServer(t("pages.createFirst"))}
+            className="w-full rounded-md px-2 py-1.5 text-start text-fg-muted hover:bg-bg-hover disabled:opacity-50 disabled:hover:bg-transparent"
+          >
+            {t("pages.createFirst")}
+          </button>
+        )}
+        <LimitedRoots
+          nodes={rootsOf(pagesSpace.id)}
+          all={showAll.has(pagesSpace.id)}
+          onAll={(all) => setShowAll((prev) => withMember(prev, pagesSpace.id, all))}
+          {...treeProps}
+        />
+      </SectionGroup>
+    ),
+    teamspaces: showTeamspaces && (
       <SectionGroup
         label={t("teamspaces.heading")}
         open={!isFolded(TEAMSPACES_GROUP)}
@@ -685,7 +735,7 @@ export function Sidebar({
           </Popover>
         }
       >
-        {teamspaces.length === 0 && (
+        {listedSpaces.length === 0 && (
           <Link
             href={`/w/${workspaceId}/settings?tab=teamspaces`}
             className="block rounded-md px-2 py-1.5 text-xs text-fg-muted hover:bg-bg-hover"
@@ -694,7 +744,7 @@ export function Sidebar({
           </Link>
         )}
         <ul>
-          {teamspaces.map((ts) => (
+          {listedSpaces.map((ts) => (
             <TeamspaceSection
               key={ts.id}
               teamspace={ts}
@@ -711,20 +761,22 @@ export function Sidebar({
           ))}
         </ul>
         {/* "Add new": a new teamspace, or the list to join one from. */}
-        <button
-          type="button"
-          onClick={() =>
-            canCreateTeamspace ? setTeamspaceDialog({}) : router.push(`/w/${workspaceId}/settings?tab=teamspaces`)
-          }
-          disabled={canCreateTeamspace && offline}
-          title={canCreateTeamspace ? needsServer(t("teamspaces.new")) : undefined}
-          className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
-        >
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-            <Plus className="h-3.5 w-3.5" />
-          </span>
-          <span className="truncate ps-1.5">{canCreateTeamspace ? t("teamspaces.addNew") : t("teamspaces.browse")}</span>
-        </button>
+        {!localMode && (
+          <button
+            type="button"
+            onClick={() =>
+              canCreateTeamspace ? setTeamspaceDialog({}) : router.push(`/w/${workspaceId}/settings?tab=teamspaces`)
+            }
+            disabled={canCreateTeamspace && offline}
+            title={canCreateTeamspace ? needsServer(t("teamspaces.new")) : undefined}
+            className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
+          >
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              <Plus className="h-3.5 w-3.5" />
+            </span>
+            <span className="truncate ps-1.5">{canCreateTeamspace ? t("teamspaces.addNew") : t("teamspaces.browse")}</span>
+          </button>
+        )}
       </SectionGroup>
     ),
     shared: rootsOf(SHARED_SECTION).length > 0 && (
@@ -758,7 +810,8 @@ export function Sidebar({
           )
         }
       >
-        {rootsOf(PRIVATE_SECTION).length === 0 && topLevel && (
+        {/* With "Pages" above, it asks for the first page; private pages start from "+". */}
+        {rootsOf(PRIVATE_SECTION).length === 0 && topLevel && !pagesSpace && (
           <button
             type="button"
             onClick={() => create(null, "page", null)}
@@ -1094,7 +1147,7 @@ export function Sidebar({
           ) : customizing ? (
             <CustomizeSections
               sections={sidebarOrder(layout)
-                .filter((key) => !(guest && key === TEAMSPACES_GROUP))
+                .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : true))
                 .map((key) => ({ key, label: sectionLabel(key) }))}
               hidden={hiddenSections}
               onChange={(order, hidden) => saveLayout({ order, hidden })}

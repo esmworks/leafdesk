@@ -120,8 +120,10 @@
   self-signed certificate can be trusted by its fingerprint. *On this computer* needs no server at
   all: the app runs Leafdesk and a database of its own on the computer, signed in to its one
   account, and keeps the pages there. What needs other people, email or a public address (single
-  sign-on, SCIM, invitations and join requests, guests, publishing, email and push notifications)
-  is left out there, and its server refuses it (`LEAFDESK_LOCAL_MODE`). It backs its workspaces up
+  sign-on, SCIM, invitations and join requests, guests, new teamspaces and member groups,
+  publishing, email and push notifications) is left out there, and its server refuses it
+  (`LEAFDESK_LOCAL_MODE`). The sidebar shows the workspace's General teamspace as plain *Pages*,
+  and the teamspaces section only for other teamspaces already there. It backs its workspaces up
   once a day into a folder of your choosing (*Documents/Leafdesk Backups* unless you pick another,
   such as one iCloud Drive or Dropbox syncs), keeping the last seven of each; any Leafdesk restores
   them. The app updates itself from GitHub releases. The macOS app is signed and notarized; the

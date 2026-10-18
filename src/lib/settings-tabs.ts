@@ -26,7 +26,7 @@ export function visibleSettingsTabs({
   guest: boolean;
   managesGuests: boolean;
   owner?: boolean;
-  /** Leafdesk on one computer (lib/env.ts localMode): no guests, and no site to publish. */
+  /** Leafdesk on one computer (lib/env.ts localMode): no guests, no groups of one, and no site to publish. */
   localMode?: boolean;
 }): SettingsTab[] {
   if (guest) return ["general"];
@@ -39,7 +39,7 @@ export function visibleSettingsTabs({
 }
 
 /** Tabs that need other people or a public address, hidden when Leafdesk runs on one computer. */
-const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "site"];
+const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "groups", "site"];
 
 /**
  * The person's own settings (see components/account/account-tabs) under a workspace's Settings,

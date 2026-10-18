@@ -18,6 +18,7 @@ const { AccessError } = await import("./access");
 const accessRequests = await import("./access-requests");
 const allowedDomains = await import("./allowed-domains");
 const forms = await import("./forms");
+const groups = await import("./groups");
 const joinRequests = await import("./join-requests");
 const { LocalModeError, refuseInLocalMode } = await import("./local-mode");
 const { mailStatus } = await import("./mail");
@@ -26,6 +27,7 @@ const push = await import("./push");
 const scim = await import("./scim");
 const site = await import("./site");
 const sso = await import("./sso");
+const teamspaces = await import("./teamspaces");
 const workspaces = await import("./workspaces");
 
 const VAPID = {
@@ -98,6 +100,8 @@ describe("in local mode the server refuses", () => {
     ["asking for page access", () => accessRequests.requestPageAccess("u", "p", "please")],
     ["saving a site", () => site.saveSite("u", "w", { slug: "notes", title: "Notes", homePageId: null })],
     ["listing pages in the site", () => site.setSiteListing("u", "w", "p", true)],
+    ["making teamspaces", () => teamspaces.createTeamspace("u", "w", { name: "Team" })],
+    ["making groups", () => groups.createGroup("u", "w", "Team")],
   ];
   it.each(refusals)("%s", async (_, call) => {
     await expect(call()).rejects.toBeInstanceOf(LocalModeError);
@@ -127,6 +131,7 @@ describe("in local mode nothing is public or open to others", () => {
     expect(await workspaces.joinLinkAccess("a-token", "u", "me@example.com")).toBeNull();
     expect(await workspaces.canInviteGuests("u", "w")).toBe(false);
     expect(await workspaces.memberInviteAccess("u", "w")).toBeNull();
+    expect(await teamspaces.canCreateTeamspace("u", "w")).toBe(false);
     expect(await joinRequests.joinableWorkspaces("u")).toEqual([]);
     expect(await joinRequests.applyDomainPolicies("u")).toEqual([]);
     expect(await accessRequests.accessRequestsOffered("w")).toBe(false);
@@ -146,14 +151,16 @@ describe("in local mode nothing is public or open to others", () => {
     expect(response.status).toBe(404);
   });
 
-  it("leaves the guests and site tabs out of Settings", () => {
+  it("leaves the guests, groups and site tabs out of Settings", () => {
     const tabs = visibleSettingsTabs({ guest: false, managesGuests: true, owner: true, localMode: true });
     expect(tabs).not.toContain("guests");
+    expect(tabs).not.toContain("groups");
     expect(tabs).not.toContain("site");
     expect(tabs).toContain("members");
+    expect(tabs).toContain("teamspaces");
     expect(tabs).toContain("security");
     expect(visibleSettingsTabs({ guest: false, managesGuests: true, owner: true })).toEqual(
-      expect.arrayContaining(["guests", "site"]),
+      expect.arrayContaining(["guests", "groups", "site"]),
     );
   });
 });
