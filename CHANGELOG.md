@@ -285,6 +285,13 @@
   another kind of address (by hand in the document, or by an app) shows without a link or image.
 - **Published pages check links in tables of the older form too**, and refuse image and video
   addresses like `/\example.com/…`, which browsers read as another site.
+- **An agent's call waiting for approval goes only to the owners its run is for.** Every owner got
+  it in their inbox, with its input, and could answer it, though the input can quote a row an
+  owner can't open. Now a run on a row, or a schedule's run on a database, asks only the owners
+  who can open it, and a run an owner asked for (or one of their schedules without a database)
+  asks only them, as the agent's runs already showed it; a connection's event still asks every
+  owner. Only those asked see the call and answer it; a run no owner may answer runs out of time,
+  sending nothing.
 
 ## 0.5.4 — 2026-10-17
 

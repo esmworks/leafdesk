@@ -10,7 +10,10 @@ import {
   isScheduleRun,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
+  ownerSeesRun,
+  runPageOf,
   skillStepsToAdd,
+  type AgentRunSource,
   type AgentSkillRecord,
 } from "./agents";
 import { redactValue } from "./redact";
@@ -116,5 +119,38 @@ describe("scheduled runs", () => {
 
   it("are linked to in the agent's settings", () => {
     expect(agentRunPath("ws1", "a1", "r1")).toBe("/w/ws1/settings?tab=agents&agent=a1&run=r1");
+  });
+});
+
+describe("who a run is for (sees its work and answers its call)", () => {
+  const row: AgentRunSource = { kind: "automation", automationId: "au", automationRunId: "ar", databaseId: "db", rowId: "row" };
+  const scheduled: AgentRunSource = { kind: "schedule", scheduleId: "s", scheduledBy: "o1", databaseId: "db" };
+  const asked: AgentRunSource = { kind: "request", requestedBy: "o1", via: "api" };
+  const askedOnRow: AgentRunSource = { ...asked, rowId: "row", databaseId: "db" };
+  const ownSchedule: AgentRunSource = { kind: "schedule", scheduleId: "s", scheduledBy: "o1" };
+  const event: AgentRunSource = { kind: "connection", connectionId: "c", triggerId: "t", eventId: "e" };
+
+  it("decides by the row, or the schedule's database", () => {
+    expect([row, scheduled, asked, askedOnRow, ownSchedule, event].map(runPageOf)).toEqual(["row", "db", null, "row", null, null]);
+  });
+
+  it("is a row's or a database's run for the owners who can open it", () => {
+    expect(ownerSeesRun(row, "o2", true)).toBe(true);
+    expect(ownerSeesRun(row, "o2", false)).toBe(false);
+    expect(ownerSeesRun(scheduled, "o2", true)).toBe(true);
+    expect(ownerSeesRun(scheduled, "o1", false)).toBe(false);
+  });
+
+  it("is a run an owner asked for, or set a schedule without a database for, theirs alone", () => {
+    expect(ownerSeesRun(asked, "o1", false)).toBe(true);
+    expect(ownerSeesRun(asked, "o2", false)).toBe(false);
+    expect(ownerSeesRun(askedOnRow, "o1", false)).toBe(false);
+    expect(ownerSeesRun(askedOnRow, "o2", true)).toBe(false);
+    expect(ownerSeesRun(ownSchedule, "o1", false)).toBe(true);
+    expect(ownerSeesRun(ownSchedule, "o2", false)).toBe(false);
+  });
+
+  it("is a connection's event's run every owner's", () => {
+    expect(ownerSeesRun(event, "o2", false)).toBe(true);
   });
 });

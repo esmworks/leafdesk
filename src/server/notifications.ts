@@ -36,6 +36,7 @@ import {
   workspacesHiddenFromApp,
 } from "@/server/access";
 import { loadLookups } from "@/server/activity-lookups";
+import { runsAnsweredBy } from "@/server/agents/approvers";
 import { inboxProposals } from "@/server/agents/memory";
 import { agentUserIds, isAgentUser, notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
@@ -738,13 +739,16 @@ export async function listNotifications(
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
   const [approvals, proposals, reports, updates] = await Promise.all([
-    approvalsOf(runsOf("agent_approval")),
+    approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, runsOf("agent_report")),
     rowUpdatesOf(userId, rows.filter((r) => r.kind === "row_update")),
   ]);
-  // A row update with nothing left the user may see (a property's access changed since) isn't shown.
-  const shown = rows.filter((r) => r.kind !== "row_update" || updates.has(r.id));
+  // A row update with nothing left the user may see (a property's access changed since) isn't shown,
+  // nor a call the user no longer answers (they can't open its row any more).
+  const shown = rows.filter(
+    (r) => (r.kind !== "row_update" || updates.has(r.id)) && !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
+  );
   return Promise.all(
     shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, ...row }) => ({
       ...row,
@@ -894,12 +898,16 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
   return out;
 }
 
-/** The calls these runs wait on (runs no longer waiting are left out). */
-async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>> {
+/**
+ * The calls these runs wait on, for `viewer` to answer (runs no longer waiting are left out); null
+ * for a call that waits for other owners than them (agents/approvers).
+ */
+async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string, InboxApproval | null>> {
   if (!runIds.length) return new Map();
   const runs = await db
     .select({
       id: agentRun.id,
+      source: agentRun.source,
       pending: agentRun.pending,
       // The calls to send, as the agent made them: to tell whether the masked input is all of it.
       queue: sql<AgentRunState["queue"] | null>`${agentRun.state}->'queue'`,
@@ -913,9 +921,14 @@ async function approvalsOf(runIds: string[]): Promise<Map<string, InboxApproval>
   const names = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
   );
-  const out = new Map<string, InboxApproval>();
+  const answered = await runsAnsweredBy(viewer, runs);
+  const out = new Map<string, InboxApproval | null>();
   for (const r of runs) {
     if (!r.pending) continue;
+    if (!answered.has(r.id)) {
+      out.set(r.id, null);
+      continue;
+    }
     const { input, whole } = inboxCallInput(r.pending.arguments, callToSend(r.pending, r.queue));
     out.set(r.id, {
       runId: r.id,
