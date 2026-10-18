@@ -959,6 +959,7 @@
         "noConnection": "Richte zuerst Single Sign-on ein.",
         "dnsMismatch": "Der TXT-Eintrag für {detail} wurde nicht gefunden oder hat einen anderen Wert. DNS-Änderungen können eine Weile brauchen.",
         "domainTaken": "{detail} ist auf diesem Server bereits anderswo bestätigt.",
+        "connectionChanged": "Die Verbindung wurde geändert, während ihre Domains bestätigt wurden. Prüfe die Domains und ihre TXT-Einträge und bestätige dann erneut.",
         "name": "Gib dem Token einen Namen mit höchstens 100 Zeichen.",
         "limit": "Ein Workspace kann höchstens 20 SCIM-Tokens haben. Widerrufe zuerst eines.",
         "ownersOnly": "Das können nur Inhaber des Workspaces.",

@@ -1185,7 +1185,10 @@ Then fill in the provider's details:
   domain verified by one workspace (for single sign-on or as an allowed email domain, or listed in
   `OIDC_DOMAINS`) can't be verified by another. Verified domains also count as verified allowed
   email domains of the workspace.
-  Changing the domains or the provider asks for verification again.
+  Changing the domains or the provider asks for verification again. A change saved while
+  **Verify domains** waits for DNS makes it fail and ask to verify again (only the domains and
+  provider that were looked up are verified), as does another workspace verifying one of the
+  domains meanwhile.
 
 A workspace has one connection. Removing it, pointing it at another identity provider, or deleting
 the workspace signs out everyone who signed in through it and revokes their API tokens and

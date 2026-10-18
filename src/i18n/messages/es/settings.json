@@ -959,6 +959,7 @@
         "noConnection": "Primero configura el inicio de sesión único.",
         "dnsMismatch": "No se encontró el registro TXT de {detail} o tiene otro valor. Los cambios de DNS pueden tardar un poco en verse.",
         "domainTaken": "{detail} ya está verificado en otro lugar de este servidor.",
+        "connectionChanged": "La conexión cambió mientras se verificaban sus dominios. Revisa los dominios y sus registros TXT y vuelve a verificar.",
         "name": "Ponle al token un nombre de 100 caracteres como máximo.",
         "limit": "Un espacio de trabajo puede tener como máximo 20 tokens SCIM. Revoca uno primero.",
         "ownersOnly": "Solo los propietarios del espacio de trabajo pueden hacer esto.",

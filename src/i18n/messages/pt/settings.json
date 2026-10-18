@@ -959,6 +959,7 @@
         "noConnection": "Configure o login único primeiro.",
         "dnsMismatch": "O registro TXT para {detail} não foi encontrado ou tem outro valor. Alterações de DNS podem demorar um pouco para aparecer.",
         "domainTaken": "{detail} já está verificado em outro lugar neste servidor.",
+        "connectionChanged": "A conexão foi alterada enquanto seus domínios eram verificados. Confira os domínios e seus registros TXT e verifique novamente.",
         "name": "Dê ao token um nome de no máximo 100 caracteres.",
         "limit": "Um espaço de trabalho pode ter no máximo 20 tokens SCIM. Revogue um primeiro.",
         "ownersOnly": "Só proprietários do espaço de trabalho podem fazer isso.",

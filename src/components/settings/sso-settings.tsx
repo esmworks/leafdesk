@@ -169,7 +169,11 @@ export function SsoConnectionForm({
     startTransition(async () => {
       try {
         const result = await action();
-        if (!result.ok) return setError(describe(result));
+        if (!result.ok) {
+          // Saved by someone else meanwhile: show its domains and records as they are now.
+          if (result.error === "connectionChanged") router.refresh();
+          return setError(describe(result));
+        }
         onOk?.(result.data);
         router.refresh();
       } catch {

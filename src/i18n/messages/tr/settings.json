@@ -959,6 +959,7 @@
         "noConnection": "Önce çoklu oturum açmayı kurun.",
         "dnsMismatch": "{detail} için TXT kaydı bulunamadı ya da değeri farklı. DNS değişikliklerinin görünmesi biraz sürebilir.",
         "domainTaken": "{detail} bu sunucuda zaten başka bir yerde doğrulanmış.",
+        "connectionChanged": "Alan adları doğrulanırken bağlantı değiştirildi. Alan adlarını ve TXT kayıtlarını kontrol edip yeniden doğrulayın.",
         "name": "Token'a en fazla 100 karakterlik bir ad verin.",
         "limit": "Bir çalışma alanında en fazla 20 SCIM token'ı olabilir. Önce birini iptal edin.",
         "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri yapabilir.",

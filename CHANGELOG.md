@@ -282,6 +282,37 @@
 
 ### Security
 
+- **A workspace's SSO domains are verified only as their records were checked.** *Verify domains*
+  looked up each domain's TXT record and then marked the connection verified as it was by then.
+  An owner who saved other domains while the lookup ran (their own DNS server answers when they
+  like) had those verified on the strength of their own domain's record. Anyone can own a
+  workspace, so anyone could claim another organization's domain this way and sign in, through an
+  identity provider of their own, as the people with an address there, existing accounts
+  included. Now the domains are marked verified only if the connection still has the domains,
+  record value and identity provider that were checked, and no other connection verified one of
+  them meanwhile; otherwise *Verify domains* says the connection changed and asks to verify again.
+  Releases since 0.3.0 are affected. This lists the verified connections whose domains aren't the
+  ones their last verification in the audit log names (or that have none left, events older than
+  a year being pruned):
+
+  ```sql
+  SELECT s.workspace_id, p.domain, last.details -> 'domains' AS last_verified
+  FROM workspace_sso s
+  JOIN sso_provider p ON p.provider_id = s.provider_id
+  LEFT JOIN LATERAL (
+    SELECT details FROM audit_event
+    WHERE workspace_id = s.workspace_id AND action = 'sso.domains_verified'
+    ORDER BY created_at DESC
+    LIMIT 1
+  ) last ON true
+  WHERE p.domain_verified
+    AND last.details -> 'domains' IS DISTINCT FROM to_jsonb(string_to_array(p.domain, ','));
+  ```
+
+  `UPDATE sso_provider SET domain_verified = false WHERE provider_id = 'ws-<workspace_id>'` stops
+  sign-ins through one until its owners verify it again, which only the domains' owner can. Sign
+  out everywhere (Server administration) the people with an address in its domains, and have them
+  check their API tokens and connected apps.
 - **Moving or removing a workspace's SSO connection revokes API tokens and connected apps.** Pointing
   the connection at another identity provider, or removing it, ended the sessions signed in through
   it, but the API tokens and connected apps of the people who signed in that way kept working. They
