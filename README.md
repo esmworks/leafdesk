@@ -818,6 +818,14 @@ app's profile folder, under `Local` (`~/Library/Application Support/Leafdesk` on
 cleanly. Email, AI and other features that need settings stay off. The app is larger for it
 (about 640 MB on macOS).
 
+Since the workspace lives on one computer, the app backs it up: each workspace into one file in
+`Documents/Leafdesk Backups`, when the last backup is a day old (a minute after Leafdesk starts,
+then every hour while it runs), keeping the newest seven of each. *File → Choose Backup Folder…*
+moves them, to a folder iCloud Drive, Dropbox or a network drive syncs for a copy off the computer;
+*Back Up Now* and *Show Backups* are there too. A backup restores on any Leafdesk (*Restore from
+backup…* when creating a workspace), on this computer or on a server. A scheduled backup that
+fails is reported once as a notification.
+
 **Self-signed certificates.** When the server's certificate isn't trusted by the system, the app
 shows its SHA-256 fingerprint; compare it with the server's
 (`openssl x509 -noout -fingerprint -sha256 -in cert.pem`) and choose *Trust this certificate*. The

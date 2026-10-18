@@ -8,9 +8,11 @@
 import {
   app,
   BrowserWindow,
+  dialog,
   ipcMain,
   Menu,
   nativeTheme,
+  Notification,
   screen,
   session,
   shell,
@@ -26,7 +28,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
 import { showContextMenu } from "./context-menu.ts";
-import { hasSession, signIn, startLocalServer, type LocalServer } from "./local-server.ts";
+import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
 import { decideNavigation, decideNewWindow, isServerPage } from "./navigation.ts";
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
@@ -160,8 +162,52 @@ function refreshMenu() {
       goHome: (window) => {
         if (isLocal() || settings.server) openCurrent(window);
       },
+      backups: localServer ? { now: () => void backUpNow(), show: showBackups, chooseFolder: () => void chooseBackupFolder() } : undefined,
     }),
   );
+}
+
+/** Where Leafdesk on this computer keeps its backups: the folder picked, or one in Documents. */
+const backupFolder = () => settings.backupFolder ?? path.join(app.getPath("documents"), "Leafdesk Backups");
+
+/** A backup asked for from the menu, and what came of it. */
+async function backUpNow() {
+  const server = await localServer?.catch(() => null);
+  if (!server) return;
+  const result = await server.backUp();
+  lastBackupProblem = result.errors.length ? result.errors.join("\n") : undefined;
+  const window = BrowserWindow.getFocusedWindow() ?? mainWindow;
+  const box = result.errors.length
+    ? { type: "warning" as const, message: strings().backupFailed, detail: result.errors.join("\n") }
+    : { type: "info" as const, message: strings().backupDone, detail: result.folder };
+  if (window) await dialog.showMessageBox(window, box);
+  else await dialog.showMessageBox(box);
+}
+
+function showBackups() {
+  const folder = backupFolder();
+  fs.mkdirSync(folder, { recursive: true });
+  void shell.openPath(folder);
+}
+
+async function chooseBackupFolder() {
+  const options = { defaultPath: backupFolder(), properties: ["openDirectory" as const, "createDirectory" as const] };
+  const window = BrowserWindow.getFocusedWindow() ?? mainWindow;
+  const { canceled, filePaths } = window ? await dialog.showOpenDialog(window, options) : await dialog.showOpenDialog(options);
+  if (canceled || !filePaths[0]) return;
+  settings.backupFolder = filePaths[0];
+  save();
+  (await localServer?.catch(() => null))?.setBackupFolder(filePaths[0]);
+}
+
+/** The last scheduled backup's problem, told once: the server tries again every hour. */
+let lastBackupProblem: string | undefined;
+function reportBackup(result: BackupResult) {
+  const problem = result.errors.length ? result.errors.join("\n") : undefined;
+  if (problem && problem !== lastBackupProblem && Notification.isSupported()) {
+    new Notification({ title: strings().backupFailed, body: problem }).show();
+  }
+  lastBackupProblem = problem;
 }
 
 function webPreferences(): WebPreferences {
@@ -258,15 +304,19 @@ function startLocal(): Promise<LocalServer> {
     node: process.execPath,
     nodeEnv: { ELECTRON_RUN_AS_NODE: "1" },
     dev: !app.isPackaged,
+    backupFolder: backupFolder(),
   }).then(
     (server) => {
       localOrigin = server.origin;
+      server.onBackup(reportBackup);
+      refreshMenu();
       if (settings.localPort !== server.port) {
         settings.localPort = server.port;
         save();
       }
       server.onExit((code) => {
         localServer = null;
+        refreshMenu();
         void server.stop();
         for (const window of BrowserWindow.getAllWindows()) {
           if (isServerPage(window.webContents.getURL(), server.origin)) {
@@ -290,6 +340,7 @@ async function stopLocal() {
   localServer = null;
   localOrigin = undefined;
   const server = await starting?.catch(() => null);
+  if (server) refreshMenu();
   await server?.stop().catch((error: unknown) => console.error("Leafdesk on this computer didn't stop cleanly:", error));
 }
 

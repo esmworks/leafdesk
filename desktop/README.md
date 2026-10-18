@@ -32,7 +32,9 @@ to an installed app's; start Electron with `--user-data-dir=<folder>` to keep an
 from one start to the next. The first start makes the computer's one account
 (`scripts/desktop-setup.ts`, which also applies the migrations); the app signs in to it, so there is
 no sign-in page. Everything lives in `<profile>/Local`: the database,
-uploaded files, the secrets and `server.log`.
+uploaded files, the secrets and `server.log`. The server backs the account's workspaces up into
+the backup folder (`src/server/local-backups.ts` at the root, `Documents/Leafdesk Backups` unless
+the File menu picked another), and answers the app's *Back Up Now* over its IPC channel.
 
 Started from the source, the app runs the repository's `server.ts` in development mode, so it needs
 the repository's packages (`pnpm install` at the root); its tests start the server, so `pnpm test`

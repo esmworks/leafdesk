@@ -13,6 +13,8 @@ export type Settings = {
   /** Certificates trusted for a host although this computer doesn't trust them: host → SHA-256 fingerprint. */
   trustedCertificates: Record<string, string>;
   window?: WindowState;
+  /** Where Leafdesk on this computer keeps its backups; unset is the default (main.ts, backupFolder). */
+  backupFolder?: string;
 };
 
 /** Settings kept in a JSON file; a missing or unreadable file means a first start. */
@@ -25,6 +27,7 @@ export function loadSettings(file: string): Settings {
       localPort: Number.isInteger(value.localPort) ? value.localPort : undefined,
       trustedCertificates: value.trustedCertificates && typeof value.trustedCertificates === "object" ? value.trustedCertificates : {},
       window: value.window,
+      backupFolder: typeof value.backupFolder === "string" && value.backupFolder ? value.backupFolder : undefined,
     };
   } catch {
     return { trustedCertificates: {} };
