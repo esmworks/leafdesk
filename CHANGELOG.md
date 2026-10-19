@@ -70,6 +70,21 @@
   chat again in the background so their workbooks go in. The MCP `get_file` tool reads a workbook
   as text, sheet by sheet. A workbook whose contents unpack to more than 64 MB isn't read.
 
+### Changed
+
+- **The sidebar names its buttons.** The AI chat has its own row under Home and Today. The footer
+  shows Settings and Trash by name, and a More menu next to them holds the people directory,
+  skills, templates, import and customizing the sidebar, which used to be a row of icons without
+  labels. The people directory is also in the search box's commands.
+- **The home page's recently edited pages are a list.** Eight rows instead of twelve cards, each
+  showing where the page sits (a row's database, a subpage's page) when you can open it. With
+  nothing assigned to you, "Assigned to you" is a single line rather than an empty box, and its
+  calendar button says what it does.
+- **Databases made over MCP are named in your language.** Their status and tags properties and
+  their first view used to be English whatever language you use Leafdesk in; they now match the
+  databases you make in the app.
+- In Turkish, teamspaces are now called "ekip alanı".
+
 ## 0.6.1 — 2026-10-19
 
 ### Upgrading from 0.6.0
