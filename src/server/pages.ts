@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
+import { loadMessages } from "@/i18n/messages";
 import { parseIcon } from "@/lib/icon";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { assertNotInTrash, assertPageUnlocked } from "@/lib/page-lock";
@@ -38,6 +39,7 @@ import {
   workspacesHeldBack,
 } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import { savedLocale } from "@/server/mail/locale";
 import type { AuditPagePlace } from "@/lib/audit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import {
@@ -247,7 +249,7 @@ export type DatabaseSeedNames = {
   table: string;
 };
 
-/** Used when no language is known, e.g. databases created by MCP clients. */
+/** Used when no language is known, e.g. databases created by MCP clients of people who haven't signed in since languages were saved. */
 export const ENGLISH_SEED_NAMES: DatabaseSeedNames = {
   status: "Status",
   notStarted: "Not started",
@@ -256,6 +258,24 @@ export const ENGLISH_SEED_NAMES: DatabaseSeedNames = {
   tags: "Tags",
   table: "Table",
 };
+
+/**
+ * Starter names for a database made outside the app (by an MCP client), in the language its maker
+ * last used the app in, so it reads like the databases they make in the app.
+ */
+export async function savedSeedNames(userId: string): Promise<DatabaseSeedNames> {
+  const locale = await savedLocale(userId);
+  if (!locale) return ENGLISH_SEED_NAMES;
+  const { page, views } = (await loadMessages(locale)).database;
+  return {
+    status: page.defaultGroupProperty,
+    notStarted: page.defaultGroupOptions.notStarted,
+    inProgress: page.defaultGroupOptions.inProgress,
+    done: page.defaultGroupOptions.done,
+    tags: page.defaultTagsProperty,
+    table: views.table,
+  };
+}
 
 /**
  * Pages and databases are recorded in the audit log as they are created, moved, put in the trash

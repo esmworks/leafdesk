@@ -1575,7 +1575,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database",
       description:
-        'Create a new database (a table of rows) at the top level of a workspace (in a teamspace given by teamspace_id, else private to the user) or under a page. It starts with a "Status" status property (Not started, In progress, Done) and a "Tags" multi-select; add more with add_database_property.',
+        'Create a new database (a table of rows) at the top level of a workspace (in a teamspace given by teamspace_id, else private to the user) or under a page. It starts with a status property (not started, in progress, done), a multi-select for tags and a table view, named in the language the user uses the app in (the result lists the properties); add more with add_database_property.',
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Workspace for a top-level database. Ignored when parent_id is set."),
         parent_id: z.string().optional().describe("Page to create the database under."),
@@ -1601,6 +1601,7 @@ export function createMcpServer(principal: McpPrincipal) {
           kind: "database",
           title,
           icon: icon ?? null,
+          seedNames: await pages.savedSeedNames(userId),
         });
         const { properties } = await databases.getDatabase(userId, created.id);
         return {
