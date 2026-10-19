@@ -11,6 +11,7 @@
     "agents": "Ajanlar",
     "connections": "Bağlantılar",
     "email": "E-posta",
+    "storage": "Depolama",
     "analytics": "Analitik",
     "health": "Sağlık",
     "security": "Güvenlik",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "{target} posta kutusunu bağladı",
         "mailbox_disconnected": "{target} posta kutusunun bağlantısını kesti"
       },
+      "storage": {
+        "connected": "Çalışma alanının kendi depolamasını bağladı: {target}",
+        "disconnected": "Çalışma alanının kendi depolamasının bağlantısını kesti: {target}"
+      },
       "backup": {
         "created": "Çalışma alanı yedeklendi ({count, plural, other {# sayfa}})",
         "restored": "Çalışma alanı bir yedekten geri yüklendi ({count, plural, other {# sayfa}})"
@@ -1743,6 +1748,71 @@
       "unreachable": "Posta sunucusuna ulaşılamadı. Sunucu adlarını ve portları kontrol edin.",
       "noInbox": "Posta sunucusu bir gelen kutusu göstermiyor.",
       "accessDenied": "Bunu yapmaya yetkiniz yok."
+    }
+  },
+  "storage": {
+    "description": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer. Çalışma alanına ait bir bucket bağlarsanız yeni dosyalar bu sunucu yerine oraya gider. Her dosyayı yine Leafdesk sunar, bu yüzden bucket gizli kalır: herkese açık erişim ya da tarayıcı ayarı gerekmez.",
+    "currentHeading": "Yeni dosyaların gittiği yer",
+    "instance": "Bu sunucu",
+    "instanceHint": "Dosyalar, Leafdesk'in çalıştığı sunucuda tutulur.",
+    "instanceUsage": "Kullanılan: {used} / {quota}.",
+    "instanceUsageNoQuota": "Kullanılan: {used}.",
+    "kinds": {
+      "s3": "S3 uyumlu depolama"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ya da S3 protokolünü konuşan herhangi bir depolama."
+    },
+    "status": {
+      "active": "Çalışıyor, {time} kontrol edildi",
+      "broken": "Çalışmıyor: {error}"
+    },
+    "files": "{count, plural, =0 {Henüz dosya yok} one {# dosya, {size}} other {# dosya, {size}}}",
+    "noQuota": "bu sunucunun depolama sınırı geçerli değil",
+    "olderFiles": "Bağlanmadan önce yüklenen dosyalar bu sunucuda kalır ({size}).",
+    "testAgain": "Yeniden dene",
+    "testing": "Deneniyor…",
+    "change": "Değiştir",
+    "disconnect": "Bağlantıyı kes",
+    "disconnectNote": "Yeni dosyalar yeniden bu sunucuya gider. Bucket'taki dosyalar orada kalır ve silinene kadar bu anahtarlarla oradan okunmaya devam eder.",
+    "connectHeading": "Depolama bağla",
+    "changeHeading": "Depolamayı değiştir",
+    "connectDescription": "Herhangi bir şey kaydedilmeden önce bir deneme dosyası saklanır, geri okunur ve silinir. Önceden yüklenmiş dosyalar olduğu yerde kalır.",
+    "fields": {
+      "kind": "Depolama türü",
+      "endpoint": "Endpoint",
+      "endpointHint": "Depolamanın S3 adresi, https:// ile başlar. AWS S3 için boş bırakın.",
+      "bucket": "Bucket",
+      "region": "Bölge",
+      "regionHint": "Emin değilseniz us-east-1; Cloudflare R2 için auto.",
+      "prefix": "Klasör",
+      "prefixHint": "İsteğe bağlı: dosyalar bucket içinde bu klasörün altına gider.",
+      "accessKeyId": "Erişim anahtarı kimliği",
+      "secretAccessKey": "Gizli erişim anahtarı",
+      "keysKeep": "Boş bırakırsanız mevcut anahtar korunur",
+      "keysHint": "Bu anahtarlara yalnızca bu bucket için erişim verin. Şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "pathStyle": "Bucket'a yol ile eriş",
+      "pathStyleHint": "MinIO ve AWS S3 dışındaki çoğu depolama için gerekir."
+    },
+    "test": "Bağlantıyı dene",
+    "testOk": "Çalışıyor: bir deneme dosyası gidip geri geldi.",
+    "connect": "Bağla",
+    "connecting": "Bağlanıyor…",
+    "save": "Kaydet",
+    "retiredHeading": "Önceki depolama",
+    "retiredDescription": "Daha önce bağlantısı kesilen depolamada hâlâ dosyalar var. Silinene kadar dosyalar oradan okunur.",
+    "errors": {
+      "accessDenied": "Dosyaların nerede saklanacağını yalnızca çalışma alanının sahipleri değiştirebilir.",
+      "endpoint": "Endpoint'i https://storage.example.com gibi bir web adresi olarak girin.",
+      "region": "Küçük harf, rakam ve tireden oluşan bir bölge girin, örneğin us-east-1.",
+      "bucket": "Bucket adını girin: 3 ila 63 harf, rakam, nokta, tire veya alt çizgi.",
+      "prefix": "Klasör adı yalnızca harf, rakam, tire ve alt çizgi içerebilir; klasörler eğik çizgiyle ayrılır.",
+      "accessKeyId": "Erişim anahtarı kimliğini girin.",
+      "secretAccessKey": "Gizli erişim anahtarını girin.",
+      "unavailable": "Bu tür depolama henüz bağlanamıyor.",
+      "refused": "Depolama çalışmadı: {message}",
+      "rateLimited": "Çok fazla deneme yapıldı. Birkaç dakika bekleyip yeniden deneyin.",
+      "noStorage": "Bu çalışma alanına bağlı kendi depolaması yok."
     }
   },
   "backup": {

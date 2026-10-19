@@ -11,6 +11,7 @@
     "agents": "Agenten",
     "connections": "Verbindungen",
     "email": "E-Mail",
+    "storage": "Speicher",
     "analytics": "Analysen",
     "health": "Zustand",
     "security": "Sicherheit",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "Hat das Postfach {target} verbunden",
         "mailbox_disconnected": "Hat die Verbindung zum Postfach {target} getrennt"
       },
+      "storage": {
+        "connected": "Hat den eigenen Speicher des Workspaces {target} verbunden",
+        "disconnected": "Hat die Verbindung zum eigenen Speicher des Workspaces {target} getrennt"
+      },
       "backup": {
         "created": "Hat den Workspace gesichert ({count, plural, one {# Seite} other {# Seiten}})",
         "restored": "Hat den Workspace aus einem Backup wiederhergestellt ({count, plural, one {# Seite} other {# Seiten}})"
@@ -1743,6 +1748,71 @@
       "noInbox": "Der Mailserver zeigt keinen Posteingang.",
       "accessDenied": "Du hast keinen Zugriff, um das zu tun.",
       "gone": "Diese Nachricht ist nicht mehr in dieser Zeile."
+    }
+  },
+  "storage": {
+    "description": "Wo die hochgeladenen Dateien dieses Workspaces gespeichert werden. Verbinde einen eigenen Bucket des Workspaces, und neue Dateien landen dort statt auf diesem Server. Leafdesk liefert weiterhin jede Datei selbst aus, der Bucket bleibt also privat: Öffentlicher Zugriff oder Browser-Einstellungen sind nicht nötig.",
+    "currentHeading": "Wohin neue Dateien kommen",
+    "instance": "Dieser Server",
+    "instanceHint": "Die Dateien liegen auf dem Server, auf dem Leafdesk läuft.",
+    "instanceUsage": "{used} von {quota} belegt.",
+    "instanceUsageNoQuota": "{used} belegt.",
+    "kinds": {
+      "s3": "S3-kompatibler Speicher"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO oder jeder andere Speicher, der das S3-Protokoll spricht."
+    },
+    "status": {
+      "active": "Funktioniert, geprüft {time}",
+      "broken": "Funktioniert nicht: {error}"
+    },
+    "files": "{count, plural, =0 {Noch keine Dateien} one {# Datei, {size}} other {# Dateien, {size}}}",
+    "noQuota": "für diesen Server gilt keine Speicherbegrenzung",
+    "olderFiles": "Dateien, die vor der Verbindung hochgeladen wurden, bleiben auf diesem Server ({size}).",
+    "testAgain": "Erneut testen",
+    "testing": "Wird getestet…",
+    "change": "Ändern",
+    "disconnect": "Trennen",
+    "disconnectNote": "Neue Dateien landen wieder auf diesem Server. Dateien, die schon im Bucket liegen, bleiben dort und werden weiterhin mit diesen Schlüsseln daraus gelesen, bis sie gelöscht werden.",
+    "connectHeading": "Speicher verbinden",
+    "changeHeading": "Speicher ändern",
+    "connectDescription": "Bevor etwas gespeichert wird, wird eine Testdatei abgelegt, zurückgelesen und gelöscht. Bereits hochgeladene Dateien bleiben, wo sie sind.",
+    "fields": {
+      "kind": "Art des Speichers",
+      "endpoint": "Endpunkt",
+      "endpointHint": "Die S3-Adresse des Speichers, beginnend mit https://. Für AWS S3 leer lassen.",
+      "bucket": "Bucket",
+      "region": "Region",
+      "regionHint": "Im Zweifel us-east-1; auto für Cloudflare R2.",
+      "prefix": "Ordner",
+      "prefixHint": "Optional: Die Dateien landen unter diesem Ordner des Buckets.",
+      "accessKeyId": "Zugriffsschlüssel-ID",
+      "secretAccessKey": "Geheimer Zugriffsschlüssel",
+      "keysKeep": "Leer lassen behält den aktuellen Schlüssel",
+      "keysHint": "Gib diesen Schlüsseln nur Zugriff auf diesen Bucket. Sie werden verschlüsselt gespeichert und nie wieder angezeigt.",
+      "pathStyle": "Bucket über den Pfad ansprechen",
+      "pathStyleHint": "Nötig für MinIO und die meisten Speicher außer AWS S3."
+    },
+    "test": "Verbindung testen",
+    "testOk": "Es funktioniert: Eine Testdatei ging hin und zurück.",
+    "connect": "Verbinden",
+    "connecting": "Wird verbunden…",
+    "save": "Speichern",
+    "retiredHeading": "Früherer Speicher",
+    "retiredDescription": "Zuvor getrennter Speicher enthält noch Dateien. Sie werden von dort gelesen, bis sie gelöscht werden.",
+    "errors": {
+      "accessDenied": "Nur die Inhaber des Workspaces können ändern, wo seine Dateien gespeichert werden.",
+      "endpoint": "Gib den Endpunkt als Webadresse an, etwa https://storage.example.com.",
+      "region": "Gib eine Region aus Kleinbuchstaben, Ziffern und Bindestrichen an, etwa us-east-1.",
+      "bucket": "Gib den Namen des Buckets an: 3 bis 63 Buchstaben, Ziffern, Punkte, Bindestriche oder Unterstriche.",
+      "prefix": "Ein Ordner darf nur Buchstaben, Ziffern, Bindestriche und Unterstriche enthalten, getrennt durch Schrägstriche.",
+      "accessKeyId": "Gib die Zugriffsschlüssel-ID an.",
+      "secretAccessKey": "Gib den geheimen Zugriffsschlüssel an.",
+      "unavailable": "Diese Art von Speicher kann noch nicht verbunden werden.",
+      "refused": "Der Speicher hat nicht funktioniert: {message}",
+      "rateLimited": "Zu viele Versuche. Warte ein paar Minuten und versuche es dann erneut.",
+      "noStorage": "Mit diesem Workspace ist kein eigener Speicher verbunden."
     }
   },
   "backup": {

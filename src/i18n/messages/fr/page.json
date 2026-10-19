@@ -465,7 +465,8 @@
   "upload": {
     "tooLarge": "{name} est trop volumineux. Les fichiers ne peuvent pas dépasser {limit}.",
     "quotaExceeded": "{name} n’a pas été envoyé : cet espace de travail a atteint sa limite de stockage de {limit}.",
-    "failed": "Impossible d’envoyer {name}."
+    "failed": "Impossible d’envoyer {name}.",
+    "storageFailed": "{name} n’a pas été téléversé : le stockage propre de l’espace de travail ne l’a pas accepté. Ses propriétaires peuvent en voir la raison dans Paramètres > Stockage."
   },
   "mention": {
     "people": "Personnes",

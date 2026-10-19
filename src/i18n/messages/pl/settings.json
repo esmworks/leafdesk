@@ -11,6 +11,7 @@
     "agents": "Agenci",
     "connections": "Połączenia",
     "email": "E-mail",
+    "storage": "Magazyn",
     "analytics": "Analityka",
     "health": "Stan",
     "security": "Bezpieczeństwo",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "Podłączono skrzynkę pocztową {target}",
         "mailbox_disconnected": "Odłączono skrzynkę pocztową {target}"
       },
+      "storage": {
+        "connected": "Podłączono własny magazyn obszaru roboczego {target}",
+        "disconnected": "Odłączono własny magazyn obszaru roboczego {target}"
+      },
       "backup": {
         "created": "Utworzono kopię zapasową obszaru roboczego ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})",
         "restored": "Przywrócono obszar roboczy z kopii zapasowej ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})"
@@ -1743,6 +1748,71 @@
       "noInbox": "Serwer poczty nie pokazuje żadnej skrzynki odbiorczej.",
       "accessDenied": "Nie masz dostępu, aby to zrobić.",
       "gone": "Tej wiadomości nie ma już w tym wierszu."
+    }
+  },
+  "storage": {
+    "description": "Gdzie przechowywane są pliki przesłane do tego obszaru roboczego. Podłącz własny bucket obszaru roboczego, a nowe pliki trafią tam zamiast na ten serwer. Leafdesk nadal sam udostępnia każdy plik, więc bucket pozostaje prywatny: nie jest potrzebny publiczny dostęp ani ustawienia przeglądarki.",
+    "currentHeading": "Gdzie trafiają nowe pliki",
+    "instance": "Ten serwer",
+    "instanceHint": "Pliki są przechowywane na serwerze, na którym działa Leafdesk.",
+    "instanceUsage": "Wykorzystano {used} z {quota}.",
+    "instanceUsageNoQuota": "Wykorzystano {used}.",
+    "kinds": {
+      "s3": "Magazyn zgodny z S3"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO lub dowolny inny magazyn obsługujący protokół S3."
+    },
+    "status": {
+      "active": "Działa, sprawdzono {time}",
+      "broken": "Nie działa: {error}"
+    },
+    "files": "{count, plural, =0 {Brak plików} one {# plik, {size}} few {# pliki, {size}} many {# plików, {size}} other {# pliku, {size}}}",
+    "noQuota": "nie obowiązuje żaden limit miejsca tego serwera",
+    "olderFiles": "Pliki przesłane przed podłączeniem zostają na tym serwerze ({size}).",
+    "testAgain": "Sprawdź ponownie",
+    "testing": "Sprawdzanie…",
+    "change": "Zmień",
+    "disconnect": "Odłącz",
+    "disconnectNote": "Nowe pliki znów będą trafiać na ten serwer. Pliki już znajdujące się w buckecie zostają tam i nadal są z niego odczytywane za pomocą tych kluczy, dopóki nie zostaną usunięte.",
+    "connectHeading": "Podłącz magazyn",
+    "changeHeading": "Zmień magazyn",
+    "connectDescription": "Zanim cokolwiek zostanie zapisane, plik testowy jest zapisywany, odczytywany i usuwany. Pliki już przesłane zostają tam, gdzie są.",
+    "fields": {
+      "kind": "Rodzaj magazynu",
+      "endpoint": "Punkt końcowy",
+      "endpointHint": "Adres S3 magazynu, zaczynający się od https://. Dla AWS S3 zostaw puste.",
+      "bucket": "Bucket",
+      "region": "Region",
+      "regionHint": "us-east-1, jeśli nie masz pewności; auto dla Cloudflare R2.",
+      "prefix": "Folder",
+      "prefixHint": "Opcjonalnie: pliki trafiają do tego folderu w buckecie.",
+      "accessKeyId": "Identyfikator klucza dostępu",
+      "secretAccessKey": "Tajny klucz dostępu",
+      "keysKeep": "Puste pole zachowuje obecny klucz",
+      "keysHint": "Nadaj tym kluczom dostęp tylko do tego bucketu. Są przechowywane w postaci zaszyfrowanej i nigdy więcej nie są wyświetlane.",
+      "pathStyle": "Adresuj bucket przez ścieżkę",
+      "pathStyleHint": "Wymagane w przypadku MinIO i większości magazynów innych niż AWS S3."
+    },
+    "test": "Sprawdź połączenie",
+    "testOk": "Działa: plik testowy poszedł tam i wrócił.",
+    "connect": "Podłącz",
+    "connecting": "Łączenie…",
+    "save": "Zapisz",
+    "retiredHeading": "Poprzedni magazyn",
+    "retiredDescription": "Magazyn odłączony wcześniej nadal zawiera pliki. Są z niego odczytywane, dopóki nie zostaną usunięte.",
+    "errors": {
+      "accessDenied": "Tylko właściciele obszaru roboczego mogą zmienić, gdzie przechowywane są jego pliki.",
+      "endpoint": "Wpisz punkt końcowy jako adres internetowy, np. https://storage.example.com.",
+      "region": "Wpisz region złożony z małych liter, cyfr i myślników, np. us-east-1.",
+      "bucket": "Wpisz nazwę bucketu: od 3 do 63 liter, cyfr, kropek, myślników lub podkreślników.",
+      "prefix": "Folder może zawierać tylko litery, cyfry, myślniki i podkreślniki, rozdzielone ukośnikami.",
+      "accessKeyId": "Wpisz identyfikator klucza dostępu.",
+      "secretAccessKey": "Wpisz tajny klucz dostępu.",
+      "unavailable": "Tego rodzaju magazynu nie można jeszcze podłączyć.",
+      "refused": "Magazyn nie zadziałał: {message}",
+      "rateLimited": "Zbyt wiele prób. Odczekaj kilka minut i spróbuj ponownie.",
+      "noStorage": "Do tego obszaru roboczego nie podłączono własnego magazynu."
     }
   },
   "backup": {

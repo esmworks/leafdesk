@@ -465,7 +465,8 @@
   "upload": {
     "tooLarge": "{name} 过大。文件最大为 {limit}。",
     "quotaExceeded": "{name} 未上传：此工作区已用完其 {limit} 的文件存储空间。",
-    "failed": "无法上传 {name}。"
+    "failed": "无法上传 {name}。",
+    "storageFailed": "{name} 未能上传：工作区自己的存储没有接受它。所有者可以在“设置 > 存储”中查看原因。"
   },
   "mention": {
     "people": "人员",

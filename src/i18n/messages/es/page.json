@@ -465,7 +465,8 @@
   "upload": {
     "tooLarge": "{name} es demasiado grande. Los archivos pueden ocupar como máximo {limit}.",
     "quotaExceeded": "{name} no se subió: este espacio de trabajo ha agotado sus {limit} de almacenamiento de archivos.",
-    "failed": "No se pudo subir {name}."
+    "failed": "No se pudo subir {name}.",
+    "storageFailed": "{name} no se subió: el almacenamiento propio del espacio de trabajo no lo aceptó. Sus propietarios pueden ver el motivo en Configuración > Almacenamiento."
   },
   "mention": {
     "people": "Personas",

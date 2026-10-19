@@ -11,6 +11,7 @@
     "agents": "エージェント",
     "connections": "接続",
     "email": "メール",
+    "storage": "ストレージ",
     "analytics": "分析",
     "health": "ヘルスチェック",
     "security": "セキュリティ",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "メールボックス{target}を接続しました",
         "mailbox_disconnected": "メールボックス{target}の接続を解除しました"
       },
+      "storage": {
+        "connected": "ワークスペース専用のストレージ{target}を接続しました",
+        "disconnected": "ワークスペース専用のストレージ{target}の接続を解除しました"
+      },
       "backup": {
         "created": "ワークスペースをバックアップしました（{count}ページ）",
         "restored": "バックアップからワークスペースを復元しました（{count}ページ）"
@@ -1743,6 +1748,71 @@
       "noInbox": "メールサーバーに受信トレイが表示されません。",
       "accessDenied": "この操作を行うアクセス権がありません。",
       "gone": "このメッセージはもうこの行にありません。"
+    }
+  },
+  "storage": {
+    "description": "このワークスペースにアップロードされたファイルの保存先です。ワークスペース専用のバケットを接続すると、新しいファイルはこのサーバーの代わりにそこへ保存されます。ファイルは引き続きすべて Leafdesk が配信するため、バケットは非公開のままで、公開アクセスやブラウザー側の設定は不要です。",
+    "currentHeading": "新しいファイルの保存先",
+    "instance": "このサーバー",
+    "instanceHint": "ファイルは Leafdesk が動作しているサーバーに保存されます。",
+    "instanceUsage": "{quota}のうち{used}を使用中です。",
+    "instanceUsageNoQuota": "{used}を使用中です。",
+    "kinds": {
+      "s3": "S3互換ストレージ"
+    },
+    "kindHints": {
+      "s3": "AWS S3、Cloudflare R2、Backblaze B2、MinIO、またはS3プロトコルに対応するその他のストレージ。"
+    },
+    "status": {
+      "active": "正常に動作中（{time}に確認）",
+      "broken": "動作していません: {error}"
+    },
+    "files": "{count, plural, =0 {ファイルはまだありません} other {#件のファイル、{size}}}",
+    "noQuota": "このサーバーのストレージ上限は適用されません",
+    "olderFiles": "接続前にアップロードされたファイルはこのサーバーに残ります（{size}）。",
+    "testAgain": "もう一度テスト",
+    "testing": "テスト中…",
+    "change": "変更",
+    "disconnect": "接続を解除",
+    "disconnectNote": "新しいファイルは再びこのサーバーに保存されます。バケット内のファイルはそのまま残り、削除されるまで引き続きこれらのキーで読み取られます。",
+    "connectHeading": "ストレージを接続",
+    "changeHeading": "ストレージを変更",
+    "connectDescription": "保存する前に、テストファイルを保存し、読み戻して削除します。アップロード済みのファイルは今の場所に残ります。",
+    "fields": {
+      "kind": "ストレージの種類",
+      "endpoint": "エンドポイント",
+      "endpointHint": "ストレージのS3アドレス（https:// で始まります）。AWS S3の場合は空のままにします。",
+      "bucket": "バケット",
+      "region": "リージョン",
+      "regionHint": "不明な場合は us-east-1、Cloudflare R2 の場合は auto。",
+      "prefix": "フォルダー",
+      "prefixHint": "任意: ファイルはバケット内のこのフォルダーの下に保存されます。",
+      "accessKeyId": "アクセスキーID",
+      "secretAccessKey": "シークレットアクセスキー",
+      "keysKeep": "空のままにすると現在のキーを維持します",
+      "keysHint": "これらのキーには、このバケットにのみアクセスできる権限を与えてください。キーは暗号化して保存され、再表示されません。",
+      "pathStyle": "パス形式でバケットを指定",
+      "pathStyleHint": "MinIO やAWS S3以外のほとんどのストレージで必要です。"
+    },
+    "test": "接続をテスト",
+    "testOk": "問題ありません: テストファイルを保存して読み戻せました。",
+    "connect": "接続",
+    "connecting": "接続中…",
+    "save": "保存",
+    "retiredHeading": "以前のストレージ",
+    "retiredDescription": "以前に接続を解除したストレージには、まだファイルが残っています。削除されるまで、ファイルはそこから読み取られます。",
+    "errors": {
+      "accessDenied": "ファイルの保存先を変更できるのは、ワークスペースのオーナーだけです。",
+      "endpoint": "エンドポイントは https://storage.example.com のようなWebアドレスで入力してください。",
+      "region": "リージョンは us-east-1 のように、小文字、数字、ハイフンで入力してください。",
+      "bucket": "バケット名を入力してください。3～63文字の英数字、ピリオド、ハイフン、アンダースコアが使えます。",
+      "prefix": "フォルダーに使えるのは英数字、ハイフン、アンダースコアのみです。階層はスラッシュで区切ります。",
+      "accessKeyId": "アクセスキーIDを入力してください。",
+      "secretAccessKey": "シークレットアクセスキーを入力してください。",
+      "unavailable": "この種類のストレージはまだ接続できません。",
+      "refused": "ストレージが動作しませんでした: {message}",
+      "rateLimited": "試行回数が多すぎます。数分待ってからもう一度お試しください。",
+      "noStorage": "このワークスペースには専用のストレージが接続されていません。"
     }
   },
   "backup": {

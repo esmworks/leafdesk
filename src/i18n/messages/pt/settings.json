@@ -11,6 +11,7 @@
     "agents": "Agentes",
     "connections": "Conexões",
     "email": "E-mail",
+    "storage": "Armazenamento",
     "analytics": "Análises",
     "health": "Saúde",
     "security": "Segurança",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "Conectou a caixa de e-mail {target}",
         "mailbox_disconnected": "Desconectou a caixa de e-mail {target}"
       },
+      "storage": {
+        "connected": "Conectou o armazenamento próprio do espaço de trabalho {target}",
+        "disconnected": "Desconectou o armazenamento próprio do espaço de trabalho {target}"
+      },
       "backup": {
         "created": "Fez backup do espaço de trabalho ({count, plural, one {# página} other {# páginas}})",
         "restored": "Restaurou o espaço de trabalho a partir de um backup ({count, plural, one {# página} other {# páginas}})"
@@ -1743,6 +1748,71 @@
       "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
       "accessDenied": "Você não tem acesso para fazer isso.",
       "gone": "Essa mensagem não está mais nesta linha."
+    }
+  },
+  "storage": {
+    "description": "Onde ficam os arquivos enviados deste espaço de trabalho. Conecte um bucket próprio do espaço de trabalho e os novos arquivos irão para lá, em vez de para este servidor. O Leafdesk continua entregando cada arquivo por conta própria, então o bucket permanece privado: não é preciso acesso público nem ajustes no navegador.",
+    "currentHeading": "Para onde vão os novos arquivos",
+    "instance": "Este servidor",
+    "instanceHint": "Os arquivos ficam no servidor em que o Leafdesk roda.",
+    "instanceUsage": "{used} de {quota} usados.",
+    "instanceUsageNoQuota": "{used} usados.",
+    "kinds": {
+      "s3": "Armazenamento compatível com S3"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ou qualquer outro armazenamento que fale o protocolo S3."
+    },
+    "status": {
+      "active": "Funcionando, verificado {time}",
+      "broken": "Não está funcionando: {error}"
+    },
+    "files": "{count, plural, =0 {Nenhum arquivo ainda} one {# arquivo, {size}} many {# de arquivos, {size}} other {# arquivos, {size}}}",
+    "noQuota": "nenhum limite de armazenamento deste servidor se aplica",
+    "olderFiles": "Os arquivos enviados antes da conexão ficam neste servidor ({size}).",
+    "testAgain": "Testar novamente",
+    "testing": "Testando…",
+    "change": "Alterar",
+    "disconnect": "Desconectar",
+    "disconnectNote": "Os novos arquivos voltarão a ir para este servidor. Os arquivos que já estão no bucket continuam lá e ainda são lidos dele com estas chaves até serem excluídos.",
+    "connectHeading": "Conectar armazenamento",
+    "changeHeading": "Alterar armazenamento",
+    "connectDescription": "Antes de salvar qualquer coisa, um arquivo de teste é gravado, lido de volta e excluído. Os arquivos já enviados ficam onde estão.",
+    "fields": {
+      "kind": "Tipo de armazenamento",
+      "endpoint": "Endpoint",
+      "endpointHint": "O endereço S3 do armazenamento, começando com https://. Deixe vazio para o AWS S3.",
+      "bucket": "Bucket",
+      "region": "Região",
+      "regionHint": "us-east-1 se estiver em dúvida; auto para o Cloudflare R2.",
+      "prefix": "Pasta",
+      "prefixHint": "Opcional: os arquivos ficam dentro desta pasta do bucket.",
+      "accessKeyId": "ID da chave de acesso",
+      "secretAccessKey": "Chave de acesso secreta",
+      "keysKeep": "Vazio mantém a chave atual",
+      "keysHint": "Dê a estas chaves acesso somente a este bucket. Elas são armazenadas criptografadas e nunca são exibidas de novo.",
+      "pathStyle": "Endereçar o bucket pelo caminho",
+      "pathStyleHint": "Necessário para o MinIO e para a maioria dos armazenamentos que não são o AWS S3."
+    },
+    "test": "Testar conexão",
+    "testOk": "Funciona: um arquivo de teste foi e voltou.",
+    "connect": "Conectar",
+    "connecting": "Conectando…",
+    "save": "Salvar",
+    "retiredHeading": "Armazenamento anterior",
+    "retiredDescription": "O armazenamento desconectado antes ainda guarda arquivos. Eles são lidos de lá até serem excluídos.",
+    "errors": {
+      "accessDenied": "Só os proprietários do espaço de trabalho podem alterar onde os arquivos dele são armazenados.",
+      "endpoint": "Digite o endpoint como um endereço da web, como https://storage.example.com.",
+      "region": "Digite uma região com letras minúsculas, dígitos e hifens, como us-east-1.",
+      "bucket": "Digite o nome do bucket: de 3 a 63 letras, dígitos, pontos, hifens ou sublinhados.",
+      "prefix": "Uma pasta só pode conter letras, dígitos, hifens e sublinhados, separados por barras.",
+      "accessKeyId": "Digite o ID da chave de acesso.",
+      "secretAccessKey": "Digite a chave de acesso secreta.",
+      "unavailable": "Esse tipo de armazenamento ainda não pode ser conectado.",
+      "refused": "O armazenamento não funcionou: {message}",
+      "rateLimited": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+      "noStorage": "Este espaço de trabalho não tem um armazenamento próprio conectado."
     }
   },
   "backup": {

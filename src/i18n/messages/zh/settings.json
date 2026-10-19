@@ -11,6 +11,7 @@
     "agents": "智能体",
     "connections": "连接",
     "email": "邮件",
+    "storage": "存储",
     "analytics": "分析",
     "health": "健康状况",
     "security": "安全",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "连接了邮箱 {target}",
         "mailbox_disconnected": "断开了邮箱 {target}"
       },
+      "storage": {
+        "connected": "连接了工作区自己的存储 {target}",
+        "disconnected": "断开了工作区自己的存储 {target}"
+      },
       "backup": {
         "created": "备份了工作区（{count} 个页面）",
         "restored": "从备份恢复了工作区（{count} 个页面）"
@@ -1743,6 +1748,71 @@
       "noInbox": "邮件服务器没有显示收件箱。",
       "accessDenied": "你没有执行此操作的权限。",
       "gone": "该邮件已不在这一行中。"
+    }
+  },
+  "storage": {
+    "description": "此工作区上传的文件保存的位置。连接工作区自己的存储桶后，新文件会保存到那里，而不是这台服务器。所有文件仍由 Leafdesk 自己提供，因此存储桶可以保持私有：不需要公开访问，也不需要浏览器相关设置。",
+    "currentHeading": "新文件的保存位置",
+    "instance": "这台服务器",
+    "instanceHint": "文件保存在运行 Leafdesk 的服务器上。",
+    "instanceUsage": "已使用 {used}，共 {quota}。",
+    "instanceUsageNoQuota": "已使用 {used}。",
+    "kinds": {
+      "s3": "兼容 S3 的存储"
+    },
+    "kindHints": {
+      "s3": "AWS S3、Cloudflare R2、Backblaze B2、MinIO，或任何其他支持 S3 协议的存储。"
+    },
+    "status": {
+      "active": "运行正常，{time}检查",
+      "broken": "无法使用：{error}"
+    },
+    "files": "{count, plural, =0 {还没有文件} other {# 个文件，{size}}}",
+    "noQuota": "不受这台服务器的存储限额限制",
+    "olderFiles": "连接之前上传的文件仍保留在这台服务器上（{size}）。",
+    "testAgain": "重新测试",
+    "testing": "正在测试…",
+    "change": "更改",
+    "disconnect": "断开连接",
+    "disconnectNote": "新文件将再次保存到这台服务器。存储桶中已有的文件会保留在原处，在被删除之前仍会用这些密钥从中读取。",
+    "connectHeading": "连接存储",
+    "changeHeading": "更改存储",
+    "connectDescription": "保存之前，会先存入一个测试文件，再读回并删除。已上传的文件仍留在原处。",
+    "fields": {
+      "kind": "存储类型",
+      "endpoint": "终端节点",
+      "endpointHint": "存储的 S3 地址，以 https:// 开头。AWS S3 请留空。",
+      "bucket": "存储桶",
+      "region": "区域",
+      "regionHint": "不确定时填 us-east-1；Cloudflare R2 填 auto。",
+      "prefix": "文件夹",
+      "prefixHint": "可选：文件会保存在存储桶的这个文件夹下。",
+      "accessKeyId": "访问密钥 ID",
+      "secretAccessKey": "秘密访问密钥",
+      "keysKeep": "留空则保留当前密钥",
+      "keysHint": "只授予这些密钥访问此存储桶的权限。它们会加密存储，不会再次显示。",
+      "pathStyle": "按路径访问存储桶",
+      "pathStyleHint": "MinIO 和除 AWS S3 之外的大多数存储都需要此项。"
+    },
+    "test": "测试连接",
+    "testOk": "运行正常：测试文件已成功存入并读回。",
+    "connect": "连接",
+    "connecting": "正在连接…",
+    "save": "保存",
+    "retiredHeading": "之前的存储",
+    "retiredDescription": "之前已断开连接的存储中仍有文件。在被删除之前，会继续从那里读取。",
+    "errors": {
+      "accessDenied": "只有工作区所有者可以更改其文件的存储位置。",
+      "endpoint": "请以网址形式输入终端节点，例如 https://storage.example.com。",
+      "region": "请输入由小写字母、数字和连字符组成的区域，例如 us-east-1。",
+      "bucket": "请输入存储桶名称：3 到 63 个字母、数字、点、连字符或下划线。",
+      "prefix": "文件夹只能包含字母、数字、连字符和下划线，层级之间用斜杠分隔。",
+      "accessKeyId": "请输入访问密钥 ID。",
+      "secretAccessKey": "请输入秘密访问密钥。",
+      "unavailable": "暂时还不能连接这种存储。",
+      "refused": "存储无法使用：{message}",
+      "rateLimited": "尝试次数过多。请等待几分钟后重试。",
+      "noStorage": "此工作区没有连接自己的存储。"
     }
   },
   "backup": {

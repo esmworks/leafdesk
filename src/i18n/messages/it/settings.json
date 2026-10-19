@@ -11,6 +11,7 @@
     "agents": "Agenti",
     "connections": "Connessioni",
     "email": "Email",
+    "storage": "Archiviazione",
     "analytics": "Statistiche",
     "health": "Integrità",
     "security": "Sicurezza",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "Ha collegato la casella di posta {target}",
         "mailbox_disconnected": "Ha scollegato la casella di posta {target}"
       },
+      "storage": {
+        "connected": "Ha collegato l’archiviazione propria dello spazio di lavoro {target}",
+        "disconnected": "Ha scollegato l’archiviazione propria dello spazio di lavoro {target}"
+      },
       "backup": {
         "created": "Ha eseguito il backup dello spazio di lavoro ({count, plural, one {# pagina} other {# pagine}})",
         "restored": "Ha ripristinato lo spazio di lavoro da un backup ({count, plural, one {# pagina} other {# pagine}})"
@@ -1743,6 +1748,71 @@
       "noInbox": "Il server di posta non mostra alcuna posta in arrivo.",
       "accessDenied": "Non hai l’accesso necessario per farlo.",
       "gone": "Quel messaggio non è più su questa riga."
+    }
+  },
+  "storage": {
+    "description": "Dove vengono conservati i file caricati di questo spazio di lavoro. Collega un bucket proprio dello spazio di lavoro e i nuovi file andranno lì invece che su questo server. Leafdesk continua a servire ogni file da sé, quindi il bucket resta privato: non servono accesso pubblico né impostazioni del browser.",
+    "currentHeading": "Dove vanno i nuovi file",
+    "instance": "Questo server",
+    "instanceHint": "I file sono conservati sul server su cui gira Leafdesk.",
+    "instanceUsage": "{used} di {quota} usati.",
+    "instanceUsageNoQuota": "{used} usati.",
+    "kinds": {
+      "s3": "Archiviazione compatibile con S3"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o qualsiasi altra archiviazione che parli il protocollo S3."
+    },
+    "status": {
+      "active": "Funziona, verificato {time}",
+      "broken": "Non funziona: {error}"
+    },
+    "files": "{count, plural, =0 {Ancora nessun file} one {# file, {size}} many {# di file, {size}} other {# file, {size}}}",
+    "noQuota": "non si applica alcun limite di archiviazione di questo server",
+    "olderFiles": "I file caricati prima del collegamento restano su questo server ({size}).",
+    "testAgain": "Riprova il test",
+    "testing": "Prova in corso…",
+    "change": "Cambia",
+    "disconnect": "Scollega",
+    "disconnectNote": "I nuovi file torneranno su questo server. I file già presenti nel bucket restano lì e continuano a essere letti da esso con queste chiavi finché non vengono eliminati.",
+    "connectHeading": "Collega l’archiviazione",
+    "changeHeading": "Cambia archiviazione",
+    "connectDescription": "Prima di salvare qualsiasi cosa, un file di prova viene archiviato, riletto ed eliminato. I file già caricati restano dove sono.",
+    "fields": {
+      "kind": "Tipo di archiviazione",
+      "endpoint": "Endpoint",
+      "endpointHint": "L’indirizzo S3 dell’archiviazione, che inizia con https://. Lascialo vuoto per AWS S3.",
+      "bucket": "Bucket",
+      "region": "Regione",
+      "regionHint": "us-east-1 nel dubbio; auto per Cloudflare R2.",
+      "prefix": "Cartella",
+      "prefixHint": "Facoltativo: i file vanno in questa cartella del bucket.",
+      "accessKeyId": "ID chiave di accesso",
+      "secretAccessKey": "Chiave di accesso segreta",
+      "keysKeep": "Se vuoto, mantiene la chiave attuale",
+      "keysHint": "Dai a queste chiavi accesso solo a questo bucket. Vengono archiviate cifrate e non vengono mai più mostrate.",
+      "pathStyle": "Indirizza il bucket tramite percorso",
+      "pathStyleHint": "Necessario per MinIO e per la maggior parte delle archiviazioni diverse da AWS S3."
+    },
+    "test": "Prova la connessione",
+    "testOk": "Funziona: un file di prova è andato e tornato.",
+    "connect": "Collega",
+    "connecting": "Collegamento in corso…",
+    "save": "Salva",
+    "retiredHeading": "Archiviazione precedente",
+    "retiredDescription": "Un’archiviazione scollegata in precedenza contiene ancora dei file. Vengono letti da lì finché non vengono eliminati.",
+    "errors": {
+      "accessDenied": "Solo i proprietari dello spazio di lavoro possono cambiare dove vengono conservati i suoi file.",
+      "endpoint": "Inserisci l’endpoint come indirizzo web, ad esempio https://storage.example.com.",
+      "region": "Inserisci una regione composta da lettere minuscole, cifre e trattini, ad esempio us-east-1.",
+      "bucket": "Inserisci il nome del bucket: da 3 a 63 lettere, cifre, punti, trattini o trattini bassi.",
+      "prefix": "Una cartella può contenere solo lettere, cifre, trattini e trattini bassi, separati da barre.",
+      "accessKeyId": "Inserisci l’ID della chiave di accesso.",
+      "secretAccessKey": "Inserisci la chiave di accesso segreta.",
+      "unavailable": "Questo tipo di archiviazione non può ancora essere collegato.",
+      "refused": "L’archiviazione non ha funzionato: {message}",
+      "rateLimited": "Troppi tentativi. Attendi qualche minuto, poi riprova.",
+      "noStorage": "Questo spazio di lavoro non ha un’archiviazione propria collegata."
     }
   },
   "backup": {

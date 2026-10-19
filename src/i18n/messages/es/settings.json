@@ -11,6 +11,7 @@
     "agents": "Agentes",
     "connections": "Conexiones",
     "email": "Correo",
+    "storage": "Almacenamiento",
     "analytics": "Analíticas",
     "health": "Salud",
     "security": "Seguridad",
@@ -1359,6 +1360,10 @@
         "mailbox_connected": "Conectó el buzón {target}",
         "mailbox_disconnected": "Desconectó el buzón {target}"
       },
+      "storage": {
+        "connected": "Conectó el almacenamiento propio del espacio de trabajo {target}",
+        "disconnected": "Desconectó el almacenamiento propio del espacio de trabajo {target}"
+      },
       "backup": {
         "created": "Hizo una copia de seguridad del espacio de trabajo ({count, plural, one {# página} other {# páginas}})",
         "restored": "Restauró el espacio de trabajo desde una copia de seguridad ({count, plural, one {# página} other {# páginas}})"
@@ -1743,6 +1748,71 @@
       "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada.",
       "accessDenied": "No tienes acceso para hacer esto.",
       "gone": "Ese mensaje ya no está en esta fila."
+    }
+  },
+  "storage": {
+    "description": "Dónde se guardan los archivos subidos de este espacio de trabajo. Conecta un bucket propio del espacio de trabajo y los archivos nuevos irán allí en lugar de a este servidor. Leafdesk sigue sirviendo cada archivo por sí mismo, así que el bucket sigue siendo privado: no hace falta acceso público ni ajustes del navegador.",
+    "currentHeading": "Adónde van los archivos nuevos",
+    "instance": "Este servidor",
+    "instanceHint": "Los archivos se guardan en el servidor donde se ejecuta Leafdesk.",
+    "instanceUsage": "{used} de {quota} usados.",
+    "instanceUsageNoQuota": "{used} usados.",
+    "kinds": {
+      "s3": "Almacenamiento compatible con S3"
+    },
+    "kindHints": {
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o cualquier otro almacenamiento que hable el protocolo S3."
+    },
+    "status": {
+      "active": "Funciona, comprobado {time}",
+      "broken": "No funciona: {error}"
+    },
+    "files": "{count, plural, =0 {Aún no hay archivos} one {# archivo, {size}} many {# de archivos, {size}} other {# archivos, {size}}}",
+    "noQuota": "no se aplica ningún límite de almacenamiento de este servidor",
+    "olderFiles": "Los archivos subidos antes de conectarlo se quedan en este servidor ({size}).",
+    "testAgain": "Probar de nuevo",
+    "testing": "Probando…",
+    "change": "Cambiar",
+    "disconnect": "Desconectar",
+    "disconnectNote": "Los archivos nuevos volverán a ir a este servidor. Los archivos que ya están en el bucket se quedan allí y se siguen leyendo de él con estas claves hasta que se eliminen.",
+    "connectHeading": "Conectar almacenamiento",
+    "changeHeading": "Cambiar almacenamiento",
+    "connectDescription": "Antes de guardar nada, se almacena un archivo de prueba, se vuelve a leer y se elimina. Los archivos ya subidos se quedan donde están.",
+    "fields": {
+      "kind": "Tipo de almacenamiento",
+      "endpoint": "Endpoint",
+      "endpointHint": "La dirección S3 del almacenamiento, que empieza por https://. Déjala vacía para AWS S3.",
+      "bucket": "Bucket",
+      "region": "Región",
+      "regionHint": "us-east-1 si no estás seguro; auto para Cloudflare R2.",
+      "prefix": "Carpeta",
+      "prefixHint": "Opcional: los archivos van dentro de esta carpeta del bucket.",
+      "accessKeyId": "ID de clave de acceso",
+      "secretAccessKey": "Clave de acceso secreta",
+      "keysKeep": "Si lo dejas vacío, se mantiene la clave actual",
+      "keysHint": "Da a estas claves acceso solo a este bucket. Se guardan cifradas y no se vuelven a mostrar.",
+      "pathStyle": "Dirigirse al bucket por ruta",
+      "pathStyleHint": "Necesario para MinIO y para casi cualquier almacenamiento distinto de AWS S3."
+    },
+    "test": "Probar la conexión",
+    "testOk": "Funciona: un archivo de prueba fue y volvió.",
+    "connect": "Conectar",
+    "connecting": "Conectando…",
+    "save": "Guardar",
+    "retiredHeading": "Almacenamiento anterior",
+    "retiredDescription": "El almacenamiento desconectado antes aún contiene archivos. Se leen de allí hasta que se eliminen.",
+    "errors": {
+      "accessDenied": "Solo los propietarios del espacio de trabajo pueden cambiar dónde se guardan sus archivos.",
+      "endpoint": "Escribe el endpoint como una dirección web, como https://storage.example.com.",
+      "region": "Escribe una región con letras minúsculas, dígitos y guiones, como us-east-1.",
+      "bucket": "Escribe el nombre del bucket: de 3 a 63 letras, dígitos, puntos, guiones o guiones bajos.",
+      "prefix": "Una carpeta solo puede contener letras, dígitos, guiones y guiones bajos, separados por barras.",
+      "accessKeyId": "Escribe el ID de la clave de acceso.",
+      "secretAccessKey": "Escribe la clave de acceso secreta.",
+      "unavailable": "Ese tipo de almacenamiento aún no se puede conectar.",
+      "refused": "El almacenamiento no funcionó: {message}",
+      "rateLimited": "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.",
+      "noStorage": "Este espacio de trabajo no tiene un almacenamiento propio conectado."
     }
   },
   "backup": {
