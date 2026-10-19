@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.6.1 — 2026-10-19
+
+### Upgrading from 0.6.0
+
+- Nothing to do: the server and its database are the same as in 0.6.0. This release brings the
+  macOS desktop app that 0.6.0 is missing.
+
 ### Fixed
 
 - The macOS desktop app is built and signed for releases again: 0.6.0 shipped without its macOS

@@ -551,7 +551,7 @@ docker compose up -d
 Open http://localhost:3000 and create an account. Migrations run automatically when the app
 container starts.
 
-- **Pin a version:** set `LEAFDESK_VERSION=0.6.0` in `.env`. The default is `latest`.
+- **Pin a version:** set `LEAFDESK_VERSION=0.6.1` in `.env`. The default is `latest`.
 - **Upgrade:** run `docker compose pull && docker compose up -d`. Read the *Upgrading* notes of
   each release in [CHANGELOG.md](CHANGELOG.md) first. Some migrations rewrite a large table, and
   pages can't be read or written until they finish; some releases have every page embedded again
