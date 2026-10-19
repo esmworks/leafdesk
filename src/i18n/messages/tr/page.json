@@ -61,7 +61,8 @@
     "watch": "İzle",
     "watchHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
     "mute": "Sessize al",
-    "muteHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alıyorsunuz. Durdurmak için sessize alın."
+    "muteHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alıyorsunuz. Durdurmak için sessize alın.",
+    "editMarkdown": "Markdown olarak düzenle"
   },
   "comments": {
     "aboutPage": "Bu sayfa hakkında",
@@ -146,7 +147,8 @@
       "manual": "Kaydedilen sürüm",
       "beforeAiEdit": "Yapay zekâ düzenlemesinden önce",
       "beforeAiEditBy": "{client} düzenlemesinden önce",
-      "beforeAssistantEdit": "Yapay zekâ asistanı düzenlemesinden önce"
+      "beforeAssistantEdit": "Yapay zekâ asistanı düzenlemesinden önce",
+      "beforeMarkdownEdit": "Markdown düzenlemesinden önce"
     },
     "empty": "Henüz sürüm yok. Siz düzenlerken ve bir yapay zekâ uygulaması bu sayfayı değiştirmeden önce sürümler otomatik olarak kaydedilir.",
     "restore": "Bu sürümü geri yükle",
@@ -694,5 +696,64 @@
       "removed": "Asıl senkron blok silindi"
     },
     "exportNote": "Senkron blok: {state}"
+  },
+  "markdownSource": {
+    "title": "Markdown olarak düzenle",
+    "sourceTab": "Markdown",
+    "previewTab": "Önizleme",
+    "toolbar": "Biçimlendirme",
+    "placeholder": "Markdown yazın…",
+    "close": "Kapat",
+    "retry": "Yeniden dene",
+    "unsaved": "Kaydedilmemiş değişiklikler",
+    "offline": "Çevrimdışı: kaydetmek için bağlantı gerekir",
+    "saveHint": "Sayfaya kaydet (Ctrl+S veya ⌘S)",
+    "tools": {
+      "bold": "Kalın",
+      "italic": "İtalik",
+      "code": "Satır içi kod",
+      "link": "Bağlantı",
+      "heading": "Başlık {level}",
+      "bulletList": "Madde işaretli liste",
+      "numberedList": "Numaralı liste",
+      "taskList": "Yapılacaklar listesi"
+    },
+    "errors": {
+      "noAccess": "Bu sayfayı düzenleyemezsiniz.",
+      "database": "Veritabanlarında Markdown olarak düzenlenecek metin yoktur.",
+      "trashed": "Bu sayfa çöp kutusunda.",
+      "locked": "Bu sayfa kilitli. Düzenlemek için kilidini açın.",
+      "saveFailed": "Sayfa kaydedilemedi. Biraz sonra yeniden deneyin.",
+      "failed": "Bir şeyler ters gitti. Yeniden deneyin."
+    },
+    "losses": {
+      "title": "Sayfanın bazı kısımları korunmayacak",
+      "body": "Markdown bu sayfadaki her şeyi tutamaz. Kaydetmek sayfayı Markdown'dan yeniden yazar; şunlar kaybolur:",
+      "kinds": {
+        "textColor": "Metin renkleri",
+        "backgroundColor": "Arka plan renkleri ve vurgular",
+        "alignment": "Metin hizalaması",
+        "mediaSize": "Görsel ve video boyutları",
+        "callout": "Markdown'da karşılığı olmayan bilgi kutusu renkleri ve simgeleri",
+        "textStyle": "Altı çizili gibi bazı metin biçimleri",
+        "table": "Tablo sütun genişlikleri, başlık satırları ve hücre renkleri",
+        "blockSetting": "Diğer blok ayarları",
+        "content": "Markdown'ın tutamadığı bazı içerikler"
+      },
+      "synced": "{count, plural, one {Senkron bir bloğun içindeki değişiklikleriniz: onu sayfada düzenleyin} other {# senkron bloğun içindeki değişiklikleriniz: onları sayfada düzenleyin}}",
+      "confirm": "Yine de kaydet"
+    },
+    "conflict": {
+      "title": "Bu sayfayı başka biri değiştirdi",
+      "body": "Siz Markdown'ı açtıktan sonra sayfa değişti. Sayfanın şimdiki hâlini yükleyin (buradaki değişiklikleriniz atılır) ya da kendi metninizi onun üzerine kaydedin.",
+      "reload": "Güncel sayfayı yükle",
+      "overwrite": "Benimkini üzerine kaydet"
+    },
+    "discard": {
+      "title": "Değişiklikleriniz atılsın mı?",
+      "body": "Markdown değişiklikleriniz kaydedilmedi.",
+      "keep": "Düzenlemeye devam et",
+      "confirm": "At"
+    }
   }
 }

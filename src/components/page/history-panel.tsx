@@ -88,6 +88,8 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
         return t("reasons.beforeAssistantEdit");
       case "manual":
         return t("reasons.manual");
+      case "before_markdown_edit":
+        return t("reasons.beforeMarkdownEdit");
       default:
         return s.reason;
     }

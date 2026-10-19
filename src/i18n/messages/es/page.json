@@ -61,7 +61,8 @@
     "watch": "Observar",
     "watchHint": "Entérate en tu bandeja de entrada cuando otra persona edite esta página o inicie un hilo de comentarios en ella.",
     "mute": "Silenciar",
-    "muteHint": "Te enteras en tu bandeja de entrada cuando otra persona edita esta página o inicia un hilo de comentarios en ella. Silénciala para dejar de hacerlo."
+    "muteHint": "Te enteras en tu bandeja de entrada cuando otra persona edita esta página o inicia un hilo de comentarios en ella. Silénciala para dejar de hacerlo.",
+    "editMarkdown": "Editar como Markdown"
   },
   "comments": {
     "aboutPage": "Sobre esta página",
@@ -146,7 +147,8 @@
       "manual": "Versión guardada",
       "beforeAiEdit": "Antes de la edición con IA",
       "beforeAiEditBy": "Antes de la edición de {client}",
-      "beforeAssistantEdit": "Antes de la edición con el asistente de IA"
+      "beforeAssistantEdit": "Antes de la edición con el asistente de IA",
+      "beforeMarkdownEdit": "Antes de editar en Markdown"
     },
     "empty": "Todavía no hay versiones. Las versiones se guardan automáticamente mientras editas y antes de que una app de IA cambie esta página.",
     "restore": "Restaurar esta versión",
@@ -694,5 +696,64 @@
       "removed": "El bloque sincronizado original se eliminó"
     },
     "exportNote": "Bloque sincronizado: {state}"
+  },
+  "markdownSource": {
+    "title": "Editar como Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Vista previa",
+    "toolbar": "Formato",
+    "placeholder": "Escribe Markdown…",
+    "close": "Cerrar",
+    "retry": "Reintentar",
+    "unsaved": "Cambios sin guardar",
+    "offline": "Sin conexión: guardar necesita conexión",
+    "saveHint": "Guardar en la página (Ctrl+S o ⌘S)",
+    "tools": {
+      "bold": "Negrita",
+      "italic": "Cursiva",
+      "code": "Código en línea",
+      "link": "Enlace",
+      "heading": "Encabezado {level}",
+      "bulletList": "Lista con viñetas",
+      "numberedList": "Lista numerada",
+      "taskList": "Lista de tareas"
+    },
+    "errors": {
+      "noAccess": "No puedes editar esta página.",
+      "database": "Las bases de datos no tienen texto que editar como Markdown.",
+      "trashed": "Esta página está en la papelera.",
+      "locked": "Esta página está bloqueada. Desbloquéala para editarla.",
+      "saveFailed": "No se pudo guardar la página. Inténtalo de nuevo en un momento.",
+      "failed": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "losses": {
+      "title": "Parte de esta página no se conservará",
+      "body": "Markdown no puede guardar todo lo que hay en esta página. Al guardar, la página se escribe a partir del Markdown, así que se pierde esto:",
+      "kinds": {
+        "textColor": "Colores de texto",
+        "backgroundColor": "Colores de fondo y resaltados",
+        "alignment": "Alineación del texto",
+        "mediaSize": "Tamaños de imágenes y videos",
+        "callout": "Colores e iconos de textos destacados que Markdown no puede representar",
+        "textStyle": "Parte del formato del texto, como el subrayado",
+        "table": "Anchos de columna, filas de encabezado y colores de celda de las tablas",
+        "blockSetting": "Otros ajustes de bloques",
+        "content": "Parte del contenido que Markdown no puede guardar"
+      },
+      "synced": "{count, plural, one {Tus cambios dentro de un bloque sincronizado: edítalo en la página} other {Tus cambios dentro de # bloques sincronizados: edítalos en la página}}",
+      "confirm": "Guardar de todos modos"
+    },
+    "conflict": {
+      "title": "Otra persona cambió esta página",
+      "body": "La página cambió después de que abrieras su Markdown. Carga la página tal como está ahora (se descartan tus cambios aquí) o guarda los tuyos encima.",
+      "reload": "Cargar la página actual",
+      "overwrite": "Guardar los míos encima"
+    },
+    "discard": {
+      "title": "¿Descartar los cambios?",
+      "body": "Tus cambios en el Markdown no se han guardado.",
+      "keep": "Seguir editando",
+      "confirm": "Descartar"
+    }
   }
 }

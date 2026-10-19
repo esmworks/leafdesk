@@ -72,7 +72,8 @@ export interface CollabService {
    */
   pageVersion(pageId: string): Promise<string>;
   /**
-   * Replaces the body. Snapshots first when `snapshot` is set (MCP writes). This and the other
+   * Replaces the body. Snapshots first when `snapshot` is set: `true` for MCP writes (offered for
+   * review), `"before_markdown_edit"` for a save from the Markdown source view. This and the other
    * writes of the title or body below refuse a locked page (lib/page-lock).
    */
   /**
@@ -83,7 +84,7 @@ export interface CollabService {
     pageId: string,
     markdown: string,
     actor: WriteActor,
-    snapshot?: boolean,
+    snapshot?: boolean | "before_markdown_edit",
     options?: { wikilinks?: boolean } & VersionCheck,
   ): Promise<BodyWrite | null>;
   appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean, options?: VersionCheck): Promise<BodyWrite | null>;

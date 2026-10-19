@@ -322,7 +322,7 @@ export function foldUnchanged(changes: readonly BlockChange[], context = 1): Dif
 // ---------------------------------------------------------------------------------------------
 // Who made the changes
 
-export type VersionReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual" | "current";
+export type VersionReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual" | "before_markdown_edit" | "current";
 /** `isAgent`: the user is an agent's (see server/agents), shown as an agent. */
 export type VersionActor = { reason: VersionReason; userName: string | null; clientName: string | null; isAgent?: boolean };
 export type ChangeActor = { name: string | null; client: string | null; isAgent?: true };
@@ -342,7 +342,8 @@ export function changeActors(versions: readonly VersionActor[]): ChangeActor[] {
     found.set(`${actor.name}\u0000${actor.client}`, actor);
   };
   versions.forEach((v, i) => {
-    const before = v.reason === "before_mcp_write" || v.reason === "before_restore" || v.reason === "before_ai_edit";
+    const before =
+      v.reason === "before_mcp_write" || v.reason === "before_restore" || v.reason === "before_ai_edit" || v.reason === "before_markdown_edit";
     if (before) {
       if (i < versions.length - 1) add(v);
     } else if (i > 0) {

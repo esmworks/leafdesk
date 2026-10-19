@@ -61,7 +61,8 @@
     "watch": "Surveiller",
     "watchHint": "Soyez averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires.",
     "mute": "Mettre en sourdine",
-    "muteHint": "Vous êtes averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires. Mettez-la en sourdine pour arrêter."
+    "muteHint": "Vous êtes averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires. Mettez-la en sourdine pour arrêter.",
+    "editMarkdown": "Modifier en Markdown"
   },
   "comments": {
     "aboutPage": "À propos de cette page",
@@ -146,7 +147,8 @@
       "manual": "Version enregistrée",
       "beforeAiEdit": "Avant modification par l’IA",
       "beforeAiEditBy": "Avant modification par {client}",
-      "beforeAssistantEdit": "Avant modification par l’assistant IA"
+      "beforeAssistantEdit": "Avant modification par l’assistant IA",
+      "beforeMarkdownEdit": "Avant modification en Markdown"
     },
     "empty": "Aucune version pour l’instant. Des versions sont enregistrées automatiquement pendant que vous modifiez la page et avant qu’une application d’IA ne la modifie.",
     "restore": "Restaurer cette version",
@@ -694,5 +696,64 @@
       "removed": "Le bloc synchronisé d’origine a été supprimé"
     },
     "exportNote": "Bloc synchronisé : {state}"
+  },
+  "markdownSource": {
+    "title": "Modifier en Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Aperçu",
+    "toolbar": "Mise en forme",
+    "placeholder": "Écrivez du Markdown…",
+    "close": "Fermer",
+    "retry": "Réessayer",
+    "unsaved": "Modifications non enregistrées",
+    "offline": "Hors ligne : l’enregistrement nécessite une connexion",
+    "saveHint": "Enregistrer dans la page (Ctrl+S ou ⌘S)",
+    "tools": {
+      "bold": "Gras",
+      "italic": "Italique",
+      "code": "Code en ligne",
+      "link": "Lien",
+      "heading": "Titre {level}",
+      "bulletList": "Liste à puces",
+      "numberedList": "Liste numérotée",
+      "taskList": "Liste de tâches"
+    },
+    "errors": {
+      "noAccess": "Vous ne pouvez pas modifier cette page.",
+      "database": "Les bases de données n’ont pas de texte à modifier en Markdown.",
+      "trashed": "Cette page est dans la corbeille.",
+      "locked": "Cette page est verrouillée. Déverrouillez-la pour la modifier.",
+      "saveFailed": "La page n’a pas pu être enregistrée. Réessayez dans un instant.",
+      "failed": "Un problème est survenu. Réessayez."
+    },
+    "losses": {
+      "title": "Une partie de cette page ne sera pas conservée",
+      "body": "Le Markdown ne peut pas tout contenir de cette page. L’enregistrement réécrit la page à partir du Markdown, donc ceci disparaît :",
+      "kinds": {
+        "textColor": "Couleurs du texte",
+        "backgroundColor": "Couleurs d’arrière-plan et surlignages",
+        "alignment": "Alignement du texte",
+        "mediaSize": "Tailles des images et vidéos",
+        "callout": "Couleurs et icônes d’encadrés sans équivalent en Markdown",
+        "textStyle": "Une partie de la mise en forme, comme le soulignement",
+        "table": "Largeurs de colonnes, lignes d’en-tête et couleurs de cellules des tableaux",
+        "blockSetting": "Autres réglages de blocs",
+        "content": "Du contenu que le Markdown ne peut pas contenir"
+      },
+      "synced": "{count, plural, one {Vos modifications dans un bloc synchronisé : modifiez-le plutôt dans la page} other {Vos modifications dans # blocs synchronisés : modifiez-les plutôt dans la page}}",
+      "confirm": "Enregistrer quand même"
+    },
+    "conflict": {
+      "title": "Quelqu’un d’autre a modifié cette page",
+      "body": "La page a changé après l’ouverture de son Markdown. Chargez la page telle qu’elle est maintenant (vos modifications ici sont abandonnées) ou enregistrez les vôtres par-dessus.",
+      "reload": "Charger la page actuelle",
+      "overwrite": "Enregistrer les miennes par-dessus"
+    },
+    "discard": {
+      "title": "Abandonner vos modifications ?",
+      "body": "Vos modifications du Markdown n’ont pas été enregistrées.",
+      "keep": "Continuer à modifier",
+      "confirm": "Abandonner"
+    }
   }
 }

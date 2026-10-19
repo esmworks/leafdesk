@@ -61,7 +61,8 @@
     "watch": "Obserwuj",
     "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy.",
     "mute": "Wycisz",
-    "muteHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy. Wycisz ją, aby przestać."
+    "muteHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy. Wycisz ją, aby przestać.",
+    "editMarkdown": "Edytuj jako Markdown"
   },
   "comments": {
     "aboutPage": "O tej stronie",
@@ -146,7 +147,8 @@
       "manual": "Zapisana wersja",
       "beforeAiEdit": "Przed edycją AI",
       "beforeAiEditBy": "Przed edycją przez {client}",
-      "beforeAssistantEdit": "Przed edycją asystenta AI"
+      "beforeAssistantEdit": "Przed edycją asystenta AI",
+      "beforeMarkdownEdit": "Przed edycją w Markdown"
     },
     "empty": "Brak wersji. Wersje są zapisywane automatycznie podczas edycji i zanim jakakolwiek aplikacja AI zmieni tę stronę.",
     "restore": "Przywróć tę wersję",
@@ -694,5 +696,64 @@
       "removed": "Oryginalny blok synchronizowany został usunięty"
     },
     "exportNote": "Blok synchronizowany: {state}"
+  },
+  "markdownSource": {
+    "title": "Edytuj jako Markdown",
+    "sourceTab": "Markdown",
+    "previewTab": "Podgląd",
+    "toolbar": "Formatowanie",
+    "placeholder": "Pisz w Markdown…",
+    "close": "Zamknij",
+    "retry": "Spróbuj ponownie",
+    "unsaved": "Niezapisane zmiany",
+    "offline": "Offline: zapisanie wymaga połączenia",
+    "saveHint": "Zapisz na stronie (Ctrl+S lub ⌘S)",
+    "tools": {
+      "bold": "Pogrubienie",
+      "italic": "Kursywa",
+      "code": "Kod w tekście",
+      "link": "Link",
+      "heading": "Nagłówek {level}",
+      "bulletList": "Lista punktowana",
+      "numberedList": "Lista numerowana",
+      "taskList": "Lista zadań"
+    },
+    "errors": {
+      "noAccess": "Nie możesz edytować tej strony.",
+      "database": "Bazy danych nie mają tekstu do edycji w Markdown.",
+      "trashed": "Ta strona jest w koszu.",
+      "locked": "Ta strona jest zablokowana. Odblokuj ją, aby ją edytować.",
+      "saveFailed": "Nie udało się zapisać strony. Spróbuj ponownie za chwilę.",
+      "failed": "Coś poszło nie tak. Spróbuj ponownie."
+    },
+    "losses": {
+      "title": "Część tej strony nie zostanie zachowana",
+      "body": "Markdown nie pomieści wszystkiego, co jest na tej stronie. Zapisanie przepisuje stronę z Markdown, więc znika:",
+      "kinds": {
+        "textColor": "Kolory tekstu",
+        "backgroundColor": "Kolory tła i wyróżnienia",
+        "alignment": "Wyrównanie tekstu",
+        "mediaSize": "Rozmiary obrazów i filmów",
+        "callout": "Kolory i ikony wyróżnień, których Markdown nie wyraża",
+        "textStyle": "Część formatowania tekstu, np. podkreślenie",
+        "table": "Szerokości kolumn, wiersze nagłówka i kolory komórek tabel",
+        "blockSetting": "Inne ustawienia bloków",
+        "content": "Część treści, której Markdown nie pomieści"
+      },
+      "synced": "{count, plural, one {Twoje zmiany w # bloku synchronizowanym: edytuj go na stronie} few {Twoje zmiany w # blokach synchronizowanych: edytuj je na stronie} many {Twoje zmiany w # blokach synchronizowanych: edytuj je na stronie} other {Twoje zmiany w # bloku synchronizowanego: edytuj je na stronie}}",
+      "confirm": "Zapisz mimo to"
+    },
+    "conflict": {
+      "title": "Ktoś inny zmienił tę stronę",
+      "body": "Strona zmieniła się po otwarciu jej Markdown. Wczytaj stronę w obecnej postaci (twoje zmiany tutaj zostaną odrzucone) albo zapisz swoje na niej.",
+      "reload": "Wczytaj aktualną stronę",
+      "overwrite": "Zapisz moje na niej"
+    },
+    "discard": {
+      "title": "Odrzucić zmiany?",
+      "body": "Twoje zmiany w Markdown nie zostały zapisane.",
+      "keep": "Edytuj dalej",
+      "confirm": "Odrzuć"
+    }
   }
 }

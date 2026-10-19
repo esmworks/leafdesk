@@ -780,8 +780,11 @@ export const databaseView = pgTable(
   ],
 );
 
-/** `before_ai_edit`: saved before the editor's AI writing assistant applied a suggestion. */
-export type SnapshotReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual";
+/**
+ * `before_ai_edit`: saved before the editor's AI writing assistant applied a suggestion.
+ * `before_markdown_edit`: saved before the body was written from its Markdown source.
+ */
+export type SnapshotReason = "auto" | "before_mcp_write" | "before_restore" | "before_ai_edit" | "manual" | "before_markdown_edit";
 
 export const pageSnapshot = pgTable(
   "page_snapshot",
