@@ -85,6 +85,9 @@ function sourceElement(kind: string) {
 }
 
 const contentBlockSpecs = {
+  // A styled callout is drawn from its own props: published pages and the print view write the
+  // style's look into them first (lib/callout-styles applyCalloutStyles). A title goes above the
+  // text, as text.
   callout: createBlockSpec(calloutBlockConfig, {
     render: (block) => {
       const dom = document.createElement("div");
@@ -97,7 +100,17 @@ const contentBlockSpecs = {
       }
       const contentDOM = document.createElement("div");
       contentDOM.setAttribute("data-callout-text", "");
-      dom.appendChild(contentDOM);
+      if (block.props.title) {
+        const body = document.createElement("div");
+        body.setAttribute("data-callout-body", "");
+        const title = document.createElement("div");
+        title.setAttribute("data-callout-title", "");
+        title.textContent = block.props.title;
+        body.append(title, contentDOM);
+        dom.appendChild(body);
+      } else {
+        dom.appendChild(contentDOM);
+      }
       return { dom, contentDOM };
     },
   })(),

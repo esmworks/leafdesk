@@ -828,7 +828,8 @@
     "confirmationMismatch": "To confirm, type the workspace's name exactly as shown.",
     "workspaceDeleted": "Someone deleted this workspace in the meantime.",
     "storageNoDestination": "This workspace's files are in your storage, and there is nowhere they can move to when you leave: no other owner has default storage, and this server's storage can't take them. Ask an owner to set up storage, or move the files first (Settings > Storage).",
-    "storageMoveInProgress": "This workspace's files are being moved into your storage. Wait for it to finish, then leave."
+    "storageMoveInProgress": "This workspace's files are being moved into your storage. Wait for it to finish, then leave.",
+    "invalidCalloutStyle": "A callout style couldn’t be saved: check its key, name and icon."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
@@ -1900,5 +1901,45 @@
     "button": "Back up",
     "preparing": "Preparing…",
     "disabled": "Backups are turned off together with export in Settings → Security."
+  },
+  "calloutStyles": {
+    "heading": "Callout styles",
+    "description": "Named box styles everyone can insert from the / menu. Changing a style changes every callout that uses it.",
+    "empty": "No callout styles yet.",
+    "previewText": "Text of a callout in this style.",
+    "edit": "Edit",
+    "remove": "Remove {name}",
+    "removeConfirm": "Remove the style “{name}”? Callouts using it become plain callouts.",
+    "count": "{count} of {max} styles",
+    "ownersOnly": "Only owners can change callout styles.",
+    "add": "Add style",
+    "name": "Name",
+    "key": "Key",
+    "keyHelp": "Markdown writes it as > [!{key}]. Lowercase letters, digits and dashes.",
+    "icon": "Icon",
+    "chooseIcon": "Choose",
+    "noIcon": "No icon",
+    "border": "Border",
+    "borders": {
+      "none": "None",
+      "left": "Bar along the side",
+      "full": "Full border"
+    },
+    "color": "Color",
+    "noColor": "No color",
+    "title": "Default title",
+    "titleHelp": "Shown when a callout of this style has no title of its own.",
+    "titlePlaceholder": "None",
+    "problems": {
+      "tooMany": "At most 30 styles.",
+      "key": "Use lowercase letters, digits and dashes, starting and ending with a letter or digit.",
+      "reservedKey": "This key is taken by a built-in kind (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Another style already has this key.",
+      "name": "Enter a name of up to 60 characters.",
+      "icon": "Choose one emoji, or no icon.",
+      "color": "Choose a color.",
+      "border": "Choose a border.",
+      "title": "Keep the title to 120 characters."
+    }
   }
 }

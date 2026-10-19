@@ -329,7 +329,14 @@
       "subtext": "彩色背景上带图标的文本",
       "aliases": "callout note tip warning alert box 标注 提示 注意 警告 提示框",
       "icon": "更换图标",
-      "hiddenInPrint": "打印时隐藏"
+      "hiddenInPrint": "打印时隐藏",
+      "titleField": "标注标题",
+      "titlePlaceholder": "标题",
+      "builtin": {
+        "frame": "边框"
+      },
+      "styleSubtext": "标注样式",
+      "group": "标注"
     },
     "code": {
       "language": "语言",
@@ -532,7 +539,12 @@
   },
   "blockMenu": {
     "copyLink": "复制块链接",
-    "hideInPrint": "打印时隐藏"
+    "hideInPrint": "打印时隐藏",
+    "calloutStyle": "标注样式",
+    "turnIntoCallout": "转换为标注",
+    "plainCallout": "普通标注",
+    "addTitle": "添加标题",
+    "removeTitle": "移除标题"
   },
   "pdf": {
     "untitled": "PDF",

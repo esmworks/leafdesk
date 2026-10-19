@@ -828,7 +828,8 @@
     "confirmationMismatch": "Para confirmar, escribe el nombre del espacio de trabajo tal como aparece.",
     "workspaceDeleted": "Otra persona eliminó este espacio de trabajo mientras tanto.",
     "storageNoDestination": "Los archivos de este espacio de trabajo están en tu almacenamiento y no tendrán adónde moverse cuando salgas: ningún otro propietario tiene almacenamiento predeterminado y el almacenamiento de este servidor no puede recibirlos. Pide a un propietario que configure un almacenamiento o mueve antes los archivos (Configuración > Almacenamiento).",
-    "storageMoveInProgress": "Los archivos de este espacio de trabajo se están moviendo a tu almacenamiento. Espera a que termine y después sal."
+    "storageMoveInProgress": "Los archivos de este espacio de trabajo se están moviendo a tu almacenamiento. Espera a que termine y después sal.",
+    "invalidCalloutStyle": "No se pudo guardar un estilo de destacado: revisa su clave, su nombre y su icono."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",
@@ -1900,5 +1901,45 @@
     "button": "Hacer copia",
     "preparing": "Preparando…",
     "disabled": "Las copias de seguridad se desactivan junto con la exportación en Configuración → Seguridad."
+  },
+  "calloutStyles": {
+    "heading": "Estilos de destacado",
+    "description": "Estilos de recuadro con nombre que cualquiera puede insertar desde el menú /. Cambiar un estilo cambia todos los destacados que lo usan.",
+    "empty": "Aún no hay estilos de destacado.",
+    "previewText": "Texto de un destacado con este estilo.",
+    "edit": "Editar",
+    "remove": "Quitar {name}",
+    "removeConfirm": "¿Quitar el estilo «{name}»? Los destacados que lo usan pasan a ser destacados simples.",
+    "count": "{count} de {max} estilos",
+    "ownersOnly": "Solo los propietarios pueden cambiar los estilos de destacado.",
+    "add": "Añadir estilo",
+    "name": "Nombre",
+    "key": "Clave",
+    "keyHelp": "En Markdown se escribe > [!{key}]. Minúsculas, números y guiones.",
+    "icon": "Icono",
+    "chooseIcon": "Elegir",
+    "noIcon": "Sin icono",
+    "border": "Borde",
+    "borders": {
+      "none": "Ninguno",
+      "left": "Barra lateral",
+      "full": "Borde completo"
+    },
+    "color": "Color",
+    "noColor": "Sin color",
+    "title": "Título predeterminado",
+    "titleHelp": "Se muestra cuando un destacado de este estilo no tiene título propio.",
+    "titlePlaceholder": "Ninguno",
+    "problems": {
+      "tooMany": "Como máximo 30 estilos.",
+      "key": "Usa minúsculas, números y guiones, empezando y terminando con una letra o un número.",
+      "reservedKey": "Esta clave pertenece a un tipo integrado (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Otro estilo ya usa esta clave.",
+      "name": "Escribe un nombre de hasta 60 caracteres.",
+      "icon": "Elige un emoji o ningún icono.",
+      "color": "Elige un color.",
+      "border": "Elige un borde.",
+      "title": "El título puede tener como máximo 120 caracteres."
+    }
   }
 }

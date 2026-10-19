@@ -329,7 +329,14 @@
       "subtext": "Testo con un’icona su sfondo colorato",
       "aliases": "callout note tip warning alert box riquadro nota suggerimento avviso avvertenza",
       "icon": "Cambia icona",
-      "hiddenInPrint": "Nascosto in stampa"
+      "hiddenInPrint": "Nascosto in stampa",
+      "titleField": "Titolo del riquadro",
+      "titlePlaceholder": "Titolo",
+      "builtin": {
+        "frame": "Cornice"
+      },
+      "styleSubtext": "Stile del riquadro",
+      "group": "Riquadri"
     },
     "code": {
       "language": "Linguaggio",
@@ -532,7 +539,12 @@
   },
   "blockMenu": {
     "copyLink": "Copia link al blocco",
-    "hideInPrint": "Nascondi in stampa"
+    "hideInPrint": "Nascondi in stampa",
+    "calloutStyle": "Stile del riquadro",
+    "turnIntoCallout": "Trasforma in riquadro",
+    "plainCallout": "Riquadro semplice",
+    "addTitle": "Aggiungi titolo",
+    "removeTitle": "Rimuovi titolo"
   },
   "pdf": {
     "untitled": "PDF",

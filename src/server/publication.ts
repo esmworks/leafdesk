@@ -44,6 +44,7 @@ import { publishedPageRefs } from "@/server/mentions";
 import { expandSyncedBlocks, syncedSources } from "@/server/synced-blocks";
 import { propertyAccessFor } from "@/server/property-access";
 import { canPublish, publishingOn } from "@/server/workspaces";
+import { calloutStylesOfPage } from "@/server/callout-styles";
 import type { BodyFootnote, BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
 import type { EmbedTarget } from "@/lib/web-blocks";
 import { refuseInLocalMode } from "@/server/local-mode";
@@ -708,6 +709,8 @@ async function publishedBody(
 ): Promise<PublishedBlock[]> {
   const { bodySegmentsFromYdoc } = await import("@/server/published-body");
   const segments = await bodySegmentsFromYdoc(ydoc, {
+    // The page's workspace's look for styled callouts (lib/callout-styles).
+    calloutStyles: await calloutStylesOfPage(pageId),
     // Synced blocks as their blocks: the page's own, and those of other pages that are published
     // too (with this page or on their own), as the publisher may read them. Anything else shows
     // nothing: visitors are nobody the source page was shared with.

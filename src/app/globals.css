@@ -762,6 +762,118 @@
   flex: 1;
   min-width: 0;
 }
+/* A callout's title: a line of plain text above its text (a field while the page can be edited). */
+.leafdesk-callout-body {
+  flex: 1;
+  min-width: 0;
+}
+.leafdesk-callout-title {
+  font-weight: 600;
+  line-height: 1.75rem;
+}
+input.leafdesk-callout-title-input {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+.leafdesk-callout-title-input::placeholder {
+  color: var(--fg-faint);
+}
+/* Its style's default title, until someone types one of the callout's own. */
+.leafdesk-callout-title-input[data-inherited]:not(:focus)::placeholder {
+  color: inherit;
+}
+
+/*
+ * Styled callouts (lib/callout-styles): the style's color takes the place of the callout's own,
+ * which BlockNote paints from its prop, on the block and the blocks nested under it, and its
+ * border is a bar along the start edge or a frame around them. The previews in Settings and the
+ * menus' swatches use the same rules.
+ */
+.bn-block-content[data-content-type="callout"]:has(> * .leafdesk-callout[data-callout-color], > .leafdesk-callout[data-callout-color]) {
+  background-color: transparent;
+  box-shadow: none;
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="default"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="default"] {
+  background-color: transparent;
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="gray"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="gray"] {
+  background-color: var(--bn-colors-highlights-gray-background);
+  --callout-edge: var(--bn-colors-highlights-gray-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="brown"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="brown"] {
+  background-color: var(--bn-colors-highlights-brown-background);
+  --callout-edge: var(--bn-colors-highlights-brown-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="red"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="red"] {
+  background-color: var(--bn-colors-highlights-red-background);
+  --callout-edge: var(--bn-colors-highlights-red-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="orange"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="orange"] {
+  background-color: var(--bn-colors-highlights-orange-background);
+  --callout-edge: var(--bn-colors-highlights-orange-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="yellow"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="yellow"] {
+  background-color: var(--bn-colors-highlights-yellow-background);
+  --callout-edge: var(--bn-colors-highlights-yellow-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="green"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="green"] {
+  background-color: var(--bn-colors-highlights-green-background);
+  --callout-edge: var(--bn-colors-highlights-green-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="blue"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="blue"] {
+  background-color: var(--bn-colors-highlights-blue-background);
+  --callout-edge: var(--bn-colors-highlights-blue-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="purple"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="purple"] {
+  background-color: var(--bn-colors-highlights-purple-background);
+  --callout-edge: var(--bn-colors-highlights-purple-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-color="pink"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-color="pink"] {
+  background-color: var(--bn-colors-highlights-pink-background);
+  --callout-edge: var(--bn-colors-highlights-pink-text);
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-border="left"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-border="left"] {
+  box-shadow: inset 3px 0 0 var(--callout-edge, var(--fg-faint));
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-border="left"]):dir(rtl),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-border="left"]:dir(rtl) {
+  box-shadow: inset -3px 0 0 var(--callout-edge, var(--fg-faint));
+}
+.bn-block:has(> .bn-block-content .leafdesk-callout[data-callout-border="full"]),
+:is(.leafdesk-callout-preview, .leafdesk-callout-swatch)[data-callout-border="full"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--callout-edge, var(--fg-muted)) 60%, transparent);
+}
+.leafdesk-callout-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--fg);
+}
+.leafdesk-callout-preview .leafdesk-callout-icon {
+  margin-block: 0;
+  line-height: 1.75rem;
+}
+
 /* A callout hidden in print says so on screen, and is left out of what the browser prints. */
 .leafdesk-callout-print {
   display: flex;

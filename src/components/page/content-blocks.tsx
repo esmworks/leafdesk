@@ -16,7 +16,7 @@ import {
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import katex from "katex";
-import { Info, ListTree, PrinterX, Radical, Route, Sigma, SmilePlus, Superscript, TableOfContents, Workflow } from "lucide-react";
+import { Info, ListTree, PrinterX, Radical, Route, Sigma, SmilePlus, SquareDashed, Superscript, TableOfContents, Workflow } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { listSubpagesAction } from "@/app/actions/pages";
@@ -34,8 +34,10 @@ import {
   subpagesBlockConfig,
   tocBlockConfig,
 } from "@/lib/content-blocks";
+import { resolveCallout, styledCalloutProps } from "@/lib/callout-styles";
 import { plainText } from "@/lib/content-markdown";
 import { noteParts } from "@/lib/footnotes";
+import { useCalloutStyleName, useCalloutStyles, useOfferedCalloutStyles } from "./callout-styles-context";
 import type { PageEditor } from "./embed-blocks";
 import { IconPicker } from "./icon-picker";
 import { MermaidImageView, useMermaid } from "./mermaid-diagram";
@@ -308,16 +310,72 @@ const MermaidBlock = createReactBlockSpec(mermaidBlockConfig, {
 // ---------------------------------------------------------------------------------------------
 // Callout
 
+/** The attribute the title field of a callout carries, for "Add title" to find it (callout-menu.tsx). */
+export const CALLOUT_TITLE_FIELD = "data-callout-title-for";
+
+/**
+ * A callout's title: a line of plain text above its text. While the page can be edited it is a
+ * field; a style's default title shows as the field's placeholder, in the text's color until the
+ * field is focused, so typing replaces it and emptying the field brings it back.
+ */
+function CalloutTitle({ blockId, title, fallback, editor }: { blockId: string; title: string; fallback: string; editor: PageEditor }) {
+  const t = useTranslations("page.blocks.callout");
+  if (!editor.isEditable) return title || fallback ? <div className="leafdesk-callout-title">{title || fallback}</div> : null;
+  if (!title && !fallback) return null;
+  const set = (next: string) => {
+    if (editor.getBlock(blockId)) editor.updateBlock(blockId, { props: { title: next.replace(/[\r\n]+/g, " ") } });
+  };
+  return (
+    <input
+      {...{ [CALLOUT_TITLE_FIELD]: blockId }}
+      className="leafdesk-callout-title leafdesk-callout-title-input"
+      data-inherited={!title && fallback ? "" : undefined}
+      value={title}
+      placeholder={fallback || t("titlePlaceholder")}
+      aria-label={t("titleField")}
+      maxLength={120}
+      onChange={(event) => set(event.target.value)}
+      onBlur={(event) => {
+        const clean = event.target.value.replace(/\s+/g, " ").trim();
+        if (clean !== title) set(clean);
+      }}
+      onKeyDown={(event) => {
+        // Enter or arrow down goes on to the callout's text.
+        if (event.key === "Enter" || event.key === "ArrowDown") {
+          event.preventDefault();
+          editor.setTextCursorPosition(blockId, "start");
+          editor.focus();
+        }
+      }}
+    />
+  );
+}
+
 const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
   render: function CalloutView({ block, editor, contentRef }) {
     const t = useTranslations("page.blocks.callout");
-    const icon = block.props.icon;
+    const styles = useCalloutStyles();
+    // A styled callout is drawn with its style's look (lib/callout-styles); its own icon and color
+    // only show once the style is gone.
+    const look = resolveCallout(block.props, styles);
+    const styled = look.style !== undefined;
+    const icon = look.icon;
     const setIcon = (next: string | null) => {
       if (editor.isEditable && editor.getBlock(block.id)) editor.updateBlock(block.id, { props: { icon: next ?? "" } });
     };
     return (
-      <div className="leafdesk-callout">
-        {(icon || editor.isEditable) && (
+      <div
+        className="leafdesk-callout"
+        data-callout-color={styled ? look.color : undefined}
+        data-callout-border={styled && look.border !== "none" ? look.border : undefined}
+      >
+        {styled ? (
+          icon && (
+            <div contentEditable={false} className="leafdesk-callout-icon">
+              <span className="flex h-7 w-7 items-center justify-center">{icon}</span>
+            </div>
+          )
+        ) : (icon || editor.isEditable) && (
           <div contentEditable={false} className="leafdesk-callout-icon">
             <IconPicker icon={icon || null} onChange={setIcon} disabled={!editor.isEditable}>
               {(toggle) => (
@@ -338,7 +396,12 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
             </IconPicker>
           </div>
         )}
-        <div ref={contentRef} className="leafdesk-callout-text" />
+        <div className="leafdesk-callout-body">
+          <div contentEditable={false}>
+            <CalloutTitle blockId={block.id} title={block.props.title} fallback={look.style?.title ?? ""} editor={editor as unknown as PageEditor} />
+          </div>
+          <div ref={contentRef} className="leafdesk-callout-text" />
+        </div>
         {block.props.hideInPrint && (
           <span contentEditable={false} className="leafdesk-callout-print" title={t("hiddenInPrint")} aria-label={t("hiddenInPrint")}>
             <PrinterX className="h-3.5 w-3.5" />
@@ -349,6 +412,11 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
   },
   toExternalHTML: ({ block, contentRef }) => (
     <blockquote>
+      {block.props.title && (
+        <p>
+          <strong>{block.props.title}</strong>
+        </p>
+      )}
       <p>
         {block.props.icon ? `${block.props.icon} ` : null}
         <span ref={contentRef} />
@@ -527,9 +595,15 @@ function stepIntoInline(editor: PageEditor, type: string) {
   });
 }
 
-/** Slash menu entries for the content blocks: the callout with the basic blocks, the rest with "Advanced". */
+/**
+ * Slash menu entries for the content blocks: the callout with the basic blocks, one entry per
+ * callout style (the workspace's, then the built-in ones) in a "Callouts" group, the rest with
+ * "Advanced".
+ */
 export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestionItem[] {
   const t = useTranslations("page.blocks");
+  const styles = useOfferedCalloutStyles();
+  const nameOf = useCalloutStyleName();
   return useMemo(() => {
     const basic = editor.dictionary.slash_menu.quote.group;
     const advanced = editor.dictionary.slash_menu.table.group;
@@ -550,6 +624,22 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
       item("callout", basic, <Info size={18} />, () => {
         insertOrUpdateBlockForSlashMenu(editor, { type: "callout", props: { icon: DEFAULT_CALLOUT_ICON, backgroundColor: "gray" } });
       }),
+      ...styles.map(
+        (style): DefaultReactSuggestionItem => ({
+          title: nameOf(style),
+          subtext: t("callout.styleSubtext"),
+          aliases: [style.key, ...style.key.split("-"), ...t("callout.aliases").split(" ")],
+          group: t("callout.group"),
+          icon: (
+            <span className="leafdesk-callout-swatch flex h-[18px] w-[18px] items-center justify-center rounded text-xs" data-callout-color={style.color} data-callout-border={style.border}>
+              {style.icon || <SquareDashed size={12} />}
+            </span>
+          ),
+          onItemClick: () => {
+            insertOrUpdateBlockForSlashMenu(editor, { type: "callout", props: styledCalloutProps(style) });
+          },
+        }),
+      ),
       item("math", advanced, <Sigma size={18} />, () => openSource(editor, insertOrUpdateBlockForSlashMenu(editor, { type: "math" }).id)),
       item("inlineMath", advanced, <Radical size={18} />, () => {
         editor.insertInlineContent([{ type: "inlineMath", props: {}, content: "" }], { updateSelection: true });
@@ -578,5 +668,5 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
         insertOrUpdateBlockForSlashMenu(editor, { type: "subpages" });
       }),
     ];
-  }, [editor, t]);
+  }, [editor, t, styles, nameOf]);
 }

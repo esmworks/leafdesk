@@ -329,7 +329,14 @@
       "subtext": "色付きの背景にアイコン付きのテキスト",
       "aliases": "callout note tip warning alert box コールアウト メモ ヒント 注意 警告",
       "icon": "アイコンを変更",
-      "hiddenInPrint": "印刷時に非表示"
+      "hiddenInPrint": "印刷時に非表示",
+      "titleField": "コールアウトのタイトル",
+      "titlePlaceholder": "タイトル",
+      "builtin": {
+        "frame": "枠"
+      },
+      "styleSubtext": "コールアウトのスタイル",
+      "group": "コールアウト"
     },
     "code": {
       "language": "言語",
@@ -532,7 +539,12 @@
   },
   "blockMenu": {
     "copyLink": "ブロックへのリンクをコピー",
-    "hideInPrint": "印刷時に非表示にする"
+    "hideInPrint": "印刷時に非表示にする",
+    "calloutStyle": "コールアウトのスタイル",
+    "turnIntoCallout": "コールアウトに変換",
+    "plainCallout": "通常のコールアウト",
+    "addTitle": "タイトルを追加",
+    "removeTitle": "タイトルを削除"
   },
   "pdf": {
     "untitled": "PDF",

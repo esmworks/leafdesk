@@ -329,7 +329,14 @@
       "subtext": "Текст со значком на цветном фоне",
       "aliases": "выноска заметка совет предупреждение блок callout note tip warning alert box",
       "icon": "Изменить значок",
-      "hiddenInPrint": "Скрыто при печати"
+      "hiddenInPrint": "Скрыто при печати",
+      "titleField": "Заголовок выноски",
+      "titlePlaceholder": "Заголовок",
+      "builtin": {
+        "frame": "Рамка"
+      },
+      "styleSubtext": "Стиль выноски",
+      "group": "Выноски"
     },
     "code": {
       "language": "Язык",
@@ -532,7 +539,12 @@
   },
   "blockMenu": {
     "copyLink": "Копировать ссылку на блок",
-    "hideInPrint": "Скрывать при печати"
+    "hideInPrint": "Скрывать при печати",
+    "calloutStyle": "Стиль выноски",
+    "turnIntoCallout": "Превратить в выноску",
+    "plainCallout": "Обычная выноска",
+    "addTitle": "Добавить заголовок",
+    "removeTitle": "Убрать заголовок"
   },
   "pdf": {
     "untitled": "PDF",

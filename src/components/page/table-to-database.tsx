@@ -26,6 +26,7 @@ import { tableRecords, type TableBlockContent } from "@/lib/table-to-database";
 import { useEmbedHost } from "./database-embed";
 import { placeEmbedBlock, type PageEditor } from "./embed-blocks";
 import { turnIntoSyncedBlock } from "./synced-block";
+import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -147,7 +148,8 @@ function HideInPrintItem() {
 
 /**
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
- * (delete, colors, table headers), "Copy link to block", for a callout "Hide when printing" and,
+ * (delete, colors, table headers), the callout's style (or turning a block of text into a callout,
+ * callout-menu.tsx), its title, "Copy link to block", for a callout "Hide when printing" and,
  * for a table, "Turn into database"; `onError` shows why that failed. Made once per editor: a new
  * component each render would close an open menu.
  */
@@ -160,6 +162,8 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>
         <TableRowHeaderItem>{dict.drag_handle.header_row_menuitem}</TableRowHeaderItem>
         <TableColumnHeaderItem>{dict.drag_handle.header_column_menuitem}</TableColumnHeaderItem>
+        <CalloutStyleItem />
+        <CalloutTitleItem />
         <HideInPrintItem />
         <CopyBlockLinkItem />
         <TurnIntoDatabaseItem onError={onError} />

@@ -329,7 +329,14 @@
       "subtext": "Text with an icon on a colored background",
       "aliases": "callout note tip warning alert box",
       "icon": "Change icon",
-      "hiddenInPrint": "Hidden when printing"
+      "hiddenInPrint": "Hidden when printing",
+      "titleField": "Callout title",
+      "titlePlaceholder": "Title",
+      "builtin": {
+        "frame": "Frame"
+      },
+      "styleSubtext": "Callout style",
+      "group": "Callouts"
     },
     "code": {
       "language": "Language",
@@ -532,7 +539,12 @@
   },
   "blockMenu": {
     "copyLink": "Copy link to block",
-    "hideInPrint": "Hide when printing"
+    "hideInPrint": "Hide when printing",
+    "calloutStyle": "Callout style",
+    "turnIntoCallout": "Turn into callout",
+    "plainCallout": "Plain callout",
+    "addTitle": "Add title",
+    "removeTitle": "Remove title"
   },
   "pdf": {
     "untitled": "PDF",

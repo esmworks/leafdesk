@@ -828,7 +828,8 @@
     "confirmationMismatch": "Para confirmar, digite o nome do espaço de trabalho exatamente como mostrado.",
     "workspaceDeleted": "Alguém excluiu este espaço de trabalho nesse meio-tempo.",
     "storageNoDestination": "Os arquivos deste espaço de trabalho estão no seu armazenamento, e não há para onde movê-los quando você sair: nenhum outro proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los. Peça a um proprietário que configure um armazenamento ou mova os arquivos primeiro (Configurações > Armazenamento).",
-    "storageMoveInProgress": "Os arquivos deste espaço de trabalho estão sendo movidos para o seu armazenamento. Aguarde até terminar e depois saia."
+    "storageMoveInProgress": "Os arquivos deste espaço de trabalho estão sendo movidos para o seu armazenamento. Aguarde até terminar e depois saia.",
+    "invalidCalloutStyle": "Não foi possível salvar um estilo de destaque: verifique a chave, o nome e o ícone."
   },
   "security": {
     "description": "Decida como as pessoas entram, quem pode trazer pessoas para este espaço de trabalho, o que os convidados podem fazer, o que pode sair dele (exportações, apps conectados) e quem pode publicar páginas na web. Só proprietários podem alterar estas configurações.",
@@ -1900,5 +1901,45 @@
     "button": "Fazer backup",
     "preparing": "Preparando…",
     "disabled": "Os backups são desativados junto com a exportação em Configurações → Segurança."
+  },
+  "calloutStyles": {
+    "heading": "Estilos de destaque",
+    "description": "Estilos de caixa com nome que todos podem inserir pelo menu /. Mudar um estilo muda todos os destaques que o usam.",
+    "empty": "Ainda não há estilos de destaque.",
+    "previewText": "Texto de um destaque neste estilo.",
+    "edit": "Editar",
+    "remove": "Remover {name}",
+    "removeConfirm": "Remover o estilo “{name}”? Os destaques que o usam voltam a ser destaques simples.",
+    "count": "{count} de {max} estilos",
+    "ownersOnly": "Só os proprietários podem mudar os estilos de destaque.",
+    "add": "Adicionar estilo",
+    "name": "Nome",
+    "key": "Chave",
+    "keyHelp": "No Markdown, é escrita como > [!{key}]. Letras minúsculas, números e hifens.",
+    "icon": "Ícone",
+    "chooseIcon": "Escolher",
+    "noIcon": "Sem ícone",
+    "border": "Borda",
+    "borders": {
+      "none": "Nenhuma",
+      "left": "Barra lateral",
+      "full": "Borda completa"
+    },
+    "color": "Cor",
+    "noColor": "Sem cor",
+    "title": "Título padrão",
+    "titleHelp": "Aparece quando um destaque deste estilo não tem título próprio.",
+    "titlePlaceholder": "Nenhum",
+    "problems": {
+      "tooMany": "No máximo 30 estilos.",
+      "key": "Use letras minúsculas, números e hifens, começando e terminando com uma letra ou um número.",
+      "reservedKey": "Esta chave pertence a um tipo integrado (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Outro estilo já usa esta chave.",
+      "name": "Digite um nome de até 60 caracteres.",
+      "icon": "Escolha um emoji ou nenhum ícone.",
+      "color": "Escolha uma cor.",
+      "border": "Escolha uma borda.",
+      "title": "O título pode ter no máximo 120 caracteres."
+    }
   }
 }

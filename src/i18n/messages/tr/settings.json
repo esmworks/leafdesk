@@ -828,7 +828,8 @@
     "confirmationMismatch": "Onaylamak için çalışma alanının adını gösterildiği gibi yazın.",
     "workspaceDeleted": "Bu çalışma alanını bu arada başka biri sildi.",
     "storageNoDestination": "Bu çalışma alanının dosyaları sizin depolamanızda ve siz ayrıldığınızda taşınabilecekleri bir yer yok: başka hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor. Bir sahipten depolama kurmasını isteyin ya da önce dosyaları taşıyın (Ayarlar > Depolama).",
-    "storageMoveInProgress": "Bu çalışma alanının dosyaları sizin depolamanıza taşınıyor. Bitmesini bekleyin, ardından ayrılın."
+    "storageMoveInProgress": "Bu çalışma alanının dosyaları sizin depolamanıza taşınıyor. Bitmesini bekleyin, ardından ayrılın.",
+    "invalidCalloutStyle": "Kutu stili kaydedilemedi: anahtarını, adını ve simgesini kontrol edin."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",
@@ -1900,5 +1901,45 @@
     "button": "Yedekle",
     "preparing": "Hazırlanıyor…",
     "disabled": "Yedekleme, dışa aktarmayla birlikte Ayarlar → Güvenlik bölümünden kapatılmış."
+  },
+  "calloutStyles": {
+    "heading": "Kutu stilleri",
+    "description": "Herkesin / menüsünden ekleyebileceği adlandırılmış kutu stilleri. Bir stili değiştirmek onu kullanan bütün kutuları değiştirir.",
+    "empty": "Henüz kutu stili yok.",
+    "previewText": "Bu stildeki bir kutunun metni.",
+    "edit": "Düzenle",
+    "remove": "{name} stilini kaldır",
+    "removeConfirm": "“{name}” stili kaldırılsın mı? Onu kullanan kutular düz kutuya döner.",
+    "count": "{count} / {max} stil",
+    "ownersOnly": "Kutu stillerini yalnızca sahipler değiştirebilir.",
+    "add": "Stil ekle",
+    "name": "Ad",
+    "key": "Anahtar",
+    "keyHelp": "Markdown’da > [!{key}] olarak yazılır. Küçük harf, rakam ve tire.",
+    "icon": "Simge",
+    "chooseIcon": "Seç",
+    "noIcon": "Simge yok",
+    "border": "Kenarlık",
+    "borders": {
+      "none": "Yok",
+      "left": "Yanda çizgi",
+      "full": "Tam çerçeve"
+    },
+    "color": "Renk",
+    "noColor": "Renk yok",
+    "title": "Varsayılan başlık",
+    "titleHelp": "Bu stildeki bir kutunun kendi başlığı yoksa görünür.",
+    "titlePlaceholder": "Yok",
+    "problems": {
+      "tooMany": "En fazla 30 stil olabilir.",
+      "key": "Küçük harf, rakam ve tire kullanın; harf ya da rakamla başlayıp bitsin.",
+      "reservedKey": "Bu anahtar yerleşik bir türe ait (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Bu anahtarı başka bir stil kullanıyor.",
+      "name": "En fazla 60 karakterlik bir ad girin.",
+      "icon": "Bir emoji seçin ya da simgesiz bırakın.",
+      "color": "Bir renk seçin.",
+      "border": "Bir kenarlık seçin.",
+      "title": "Başlık en fazla 120 karakter olabilir."
+    }
   }
 }

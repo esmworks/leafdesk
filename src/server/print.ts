@@ -24,6 +24,7 @@ import {
   type PublishedPage,
 } from "@/server/publication";
 import { bodySegmentsFromBlocks, type BodySegment, type PublishedPageRef } from "@/server/published-body";
+import { calloutStylesOf } from "@/server/callout-styles";
 
 /**
  * The print view (`/print/<pageId>`, the page menu's "Export as PDF"): a page, and with `subpages`
@@ -166,6 +167,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
         // Headings of every printed page share the document; the first page keeps plain anchors.
         anchorPrefix: index === 0 ? "" : `p${index + 1}-`,
         print: true,
+        calloutStyles: await calloutStylesOf(target.workspaceId),
       })
     : [];
   // Database blocks, in columns too, as the databases the reader can open. Widgets and blocks

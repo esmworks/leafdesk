@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { AiChatProvider } from "@/components/ai-chat/chat-panel";
 import { StaleClientScreen } from "@/components/collab/stale-client";
+import { CalloutStylesProvider } from "@/components/page/callout-styles-context";
 import { RowPanelProvider } from "@/components/database/row-panel";
 import { OfflineProvider } from "@/components/offline/offline-context";
 import { Sidebar } from "@/components/sidebar/sidebar";
@@ -14,6 +15,7 @@ import { getMembership } from "@/server/access";
 import { aiEnabledFor } from "@/server/ai";
 import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
+import { calloutStylesOf } from "@/server/callout-styles";
 import { joinableWorkspaces } from "@/server/join-requests";
 import { listFavorites } from "@/server/page-meta";
 import { getSidebar, listWorkspaces } from "@/server/pages";
@@ -41,7 +43,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -53,32 +55,36 @@ export default async function WorkspaceLayout({
     getSidebarLayout(user.id, workspaceId),
     memoryAvailable(workspaceId),
     aiEnabledFor(workspaceId),
+    calloutStylesOf(workspaceId),
   ]);
 
   const body = (
-    // Database rows open in a panel at the right; the page beside it keeps clear of it.
-    <RowPanelProvider workspaceId={workspaceId} user={{ id: user.id, name: user.name }}>
-      <div className="flex h-full">
-        <Sidebar
-          workspaceId={workspaceId}
-          workspaces={workspaces}
-          joinable={joinable}
-          initialTree={sidebar.tree}
-          initialTeamspaces={sidebar.teamspaces}
-          canCreateTeamspace={canCreate}
-          canCreateWorkspace={canCreateWorkspace(user)}
-          isInstanceAdmin={isInstanceAdmin(user)}
-          initialFavorites={favorites}
-          topLevel={topLevel}
-          initialLayout={sidebarLayout}
-          user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
-        />
-        <main className="min-w-0 flex-1 overflow-y-auto md:me-[var(--row-panel-width,0px)]">
-          <FloatingSidebarButton />
-          {children}
-        </main>
-      </div>
-    </RowPanelProvider>
+    // Database rows open in a panel at the right; the page beside it keeps clear of it. Every
+    // editor in the workspace draws styled callouts with its callout styles (lib/callout-styles).
+    <CalloutStylesProvider styles={calloutStyles}>
+      <RowPanelProvider workspaceId={workspaceId} user={{ id: user.id, name: user.name }}>
+        <div className="flex h-full">
+          <Sidebar
+            workspaceId={workspaceId}
+            workspaces={workspaces}
+            joinable={joinable}
+            initialTree={sidebar.tree}
+            initialTeamspaces={sidebar.teamspaces}
+            canCreateTeamspace={canCreate}
+            canCreateWorkspace={canCreateWorkspace(user)}
+            isInstanceAdmin={isInstanceAdmin(user)}
+            initialFavorites={favorites}
+            topLevel={topLevel}
+            initialLayout={sidebarLayout}
+            user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
+          />
+          <main className="min-w-0 flex-1 overflow-y-auto md:me-[var(--row-panel-width,0px)]">
+            <FloatingSidebarButton />
+            {children}
+          </main>
+        </div>
+      </RowPanelProvider>
+    </CalloutStylesProvider>
   );
 
   return (

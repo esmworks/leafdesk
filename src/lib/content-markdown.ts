@@ -23,6 +23,8 @@ import {
   type ColumnMarker,
 } from "./columns";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
+import { BLOCK_COLORS } from "./block-colors";
+import { calloutKey, calloutTitle } from "./callout-styles";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
@@ -47,6 +49,17 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  *
  *   > [!NOTE]              a callout: a GitHub alert, the kind picks the color and a
  *   > 💡 Text              leading emoji is the icon
+ *
+ *   > [!NOTE|blue] Title   a color the five kinds don't have goes after a "|" (blue, brown,
+ *   > Text                 orange, pink); text after the marker is the callout's title
+ *
+ *   > [!key] Title         a callout of the workspace's style `key` (lib/callout-styles); a
+ *   > Text                 key no style has reads back the same and draws as a plain callout
+ *
+ *   :::warning Title       read only: a container (`:::name` up to a `:::` line, nesting
+ *   Text                   allowed). info, tip, note, warning and danger are callouts of those
+ *   :::                    colors, details a toggle, frame, card and panel (with `title="…"`)
+ *                          a framed callout, any other name the style of that key
  *
  *   <!-- leafdesk:no-print -->   a callout hidden in print: this line right before its alert
  *   > [!NOTE]
@@ -164,8 +177,8 @@ export function prepareMarkdownExport<B extends MdBlock>(
   const pageText = (pageId: string) => pageTitle?.(pageId)?.trim() || "page";
   const blockMarkdown: string[] = [];
   const inlineMarkdown: string[] = [];
-  /** Callouts and quotes with nested blocks, by token: a quote has no kind. */
-  const callouts: { kind: AlertKind | null; icon: string; hideInPrint: boolean }[] = [];
+  /** Callouts and quotes with nested blocks, by token: a quote has no marker line. */
+  const callouts: { marker: string | null; icon: string; hideInPrint: boolean }[] = [];
   /** Footnotes' notes, by token; numbered in the order the Markdown has them (see finish). */
   const notes: string[] = [];
   const blockToken = (markdown: string) => `leafdesk${nonce}b${blockMarkdown.push(markdown) - 1}x`;
@@ -293,9 +306,9 @@ export function prepareMarkdownExport<B extends MdBlock>(
           if (block.type === "quote" && !children.length) return { ...block, content: inline(block.content), children };
           const i = callouts.push(
             block.type === "quote"
-              ? { kind: null, icon: "", hideInPrint: false }
+              ? { marker: null, icon: "", hideInPrint: false }
               : {
-                  kind: alertKindForColor(String(block.props?.backgroundColor ?? "")),
+                  marker: calloutMarker(block.props),
                   icon: String(block.props?.icon ?? "").trim(),
                   hideInPrint: block.props?.hideInPrint === true,
                 },
@@ -355,10 +368,10 @@ export function prepareMarkdownExport<B extends MdBlock>(
   );
   const quoteCallouts = (markdown: string): string => {
     const quoted = markdown.replace(innerCallout, (_, indent: string, i: string, text: string) => {
-      const { kind, icon, hideInPrint } = callouts[Number(i)];
+      const { marker, icon, hideInPrint } = callouts[Number(i)];
       const lines = text.replace(/\s+$/, "").split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
       if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
-      const quoted = (kind ? [`[!${kind}]`, ...lines] : lines).map((line) => `${indent}> ${line}`.trimEnd());
+      const quoted = (marker ? [marker, ...lines] : lines).map((line) => `${indent}> ${line}`.trimEnd());
       return (hideInPrint ? [`${indent}${NO_PRINT_MARKER}`, ...quoted] : quoted).join("\n");
     });
     return quoted === markdown ? markdown : quoteCallouts(quoted);
@@ -394,13 +407,28 @@ export function prepareMarkdownExport<B extends MdBlock>(
   return { blocks: replace(blocks), finish };
 }
 
+/** Colors written after the alert kind: the ones no kind stands for. */
+const MARKED_COLORS = new Set(["blue", "brown", "orange", "pink"]);
+
+/**
+ * A callout's marker line: its style's key, or the alert kind of its color (with the color after a
+ * "|" when the kind alone would lose it), then its title.
+ */
+function calloutMarker(props: Record<string, unknown> | undefined): string {
+  const title = calloutTitle(props?.title);
+  const key = calloutKey(props?.styleKey);
+  const color = String(props?.backgroundColor ?? "");
+  const name = key ?? `${alertKindForColor(color)}${MARKED_COLORS.has(color) ? `|${color}` : ""}`;
+  return `[!${name}]${title ? ` ${title}` : ""}`;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Import
 
 type Pending =
   | { type: typeof MATH_BLOCK; latex: string }
   | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK | typeof SUBPAGES_BLOCK }
-  | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string; hideInPrint: boolean }
+  | { type: typeof CALLOUT_BLOCK; color: string; styleKey: string; title: string; markdown: string; hideInPrint: boolean }
   | { type: "quote"; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
@@ -411,7 +439,8 @@ type Pending =
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
-const CALLOUT_START = new RegExp(`^( {0,3})> ?\\[!(${ALERT_KINDS.join("|")})\\][ \\t]*(.*)$`, "i");
+/** `> [!NAME|color] Title`: an alert kind or a style's key, an optional color, the title. */
+const CALLOUT_START = /^( {0,3})> ?\[!([A-Za-z0-9][A-Za-z0-9-]*)(?:\|([A-Za-z]*))?\][ \t]*(.*)$/;
 const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
 const NO_PRINT_LINE = /^ {0,3}<!--\s*leafdesk:no-print\s*-->\s*$/;
 /** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
@@ -438,7 +467,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
   const blocks: Pending[] = [];
   const inlines: string[] = [];
   const out: string[] = [];
-  const lines = markdown.split(/\r?\n/);
+  const lines = containerLines(markdown.split(/\r?\n/));
   const blockLine = (pending: Pending, indent = "") => {
     out.push("", `${indent}leafdesk${nonce}b${blocks.push(pending) - 1}x`, "");
   };
@@ -506,7 +535,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const callout = CALLOUT_START.exec(line);
     const quote = callout ? null : QUOTE_LINE.exec(line);
     if (callout || quote) {
-      const body = callout ? (callout[3].trim() ? [callout[3]] : []) : [quote![2]];
+      const body = callout ? [] : [quote![2]];
       for (;;) {
         const next = lines[i + 1];
         if (next === undefined) break;
@@ -520,10 +549,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       const markdown = body.join("\n");
       // At the quote's indent: one under a list item stays in it.
       const indent = (callout ?? quote)![1];
-      blockLine(
-        callout ? { type: CALLOUT_BLOCK, kind: callout[2].toUpperCase() as AlertKind, markdown, hideInPrint: hideNext } : { type: "quote", markdown },
-        indent,
-      );
+      blockLine(callout ? { type: CALLOUT_BLOCK, ...calloutOf(callout[2], callout[3], callout[4]), markdown, hideInPrint: hideNext } : { type: "quote", markdown }, indent);
       hideNext = false;
       continue;
     }
@@ -539,6 +565,91 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     out.push(inlineMath(line, (latex) => `leafdesk${nonce}i${inlines.push(latex) - 1}x`));
   }
   return { markdown: out.join("\n"), blocks, inlines };
+}
+
+/**
+ * A callout's marker line read: an alert kind picks the color (`[!NOTE|blue]` overrides it), any
+ * other name is a style's key, kept whether or not the workspace has that style (lib/callout-styles
+ * draws an unknown one as a plain callout). Text after the marker is the title.
+ */
+function calloutOf(name: string, color: string | undefined, title: string) {
+  const kind = name.toUpperCase();
+  const own = color && (BLOCK_COLORS as readonly string[]).includes(color.toLowerCase()) ? color.toLowerCase() : "";
+  if ((ALERT_KINDS as readonly string[]).includes(kind)) {
+    return { color: own || colorForAlertKind(kind as AlertKind), styleKey: "", title: calloutTitle(title) };
+  }
+  return { color: own || "gray", styleKey: calloutKey(name) ?? "", title: calloutTitle(title) };
+}
+
+const CONTAINER_OPEN = /^ {0,3}:{3,}[ \t]*([A-Za-z][\w-]*)[ \t]*(.*)$/;
+const CONTAINER_CLOSE = /^ {0,3}:{3,}[ \t]*$/;
+const CONTAINER_TITLE = /\btitle\s*=\s*(?:"([^"]*)"|'([^']*)')/;
+
+/** The marker of the callout a container name makes (see containerLines). */
+const CONTAINER_MARKERS: Record<string, string> = {
+  info: "NOTE|blue",
+  tip: "TIP",
+  note: "NOTE",
+  warning: "WARNING",
+  danger: "CAUTION",
+  frame: "frame",
+  card: "frame",
+  panel: "frame",
+};
+
+/**
+ * Containers (`:::name Title` … `:::`) rewritten as the forms the rest of the import reads: a
+ * `details` one as a toggle (<details>, its title the summary), any other as a callout whose
+ * quoted lines are its body. Nested containers are rewritten first; one left open ends with the
+ * Markdown. Nothing inside fenced code counts.
+ */
+function containerLines(lines: string[]): string[] {
+  if (!lines.some((line) => CONTAINER_OPEN.test(line))) return lines;
+  const out: string[] = [];
+  let fence: string | null = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const open = fence ? null : CONTAINER_OPEN.exec(line);
+    if (!open) {
+      fence = fenceAfter(fence, line);
+      out.push(line);
+      continue;
+    }
+    const body: string[] = [];
+    let depth = 1;
+    let inner: string | null = null;
+    let j = i + 1;
+    for (; j < lines.length; j++) {
+      const next = lines[j];
+      if (!inner) {
+        if (CONTAINER_OPEN.test(next)) depth++;
+        else if (CONTAINER_CLOSE.test(next) && --depth === 0) break;
+      }
+      inner = fenceAfter(inner, next);
+      body.push(next);
+    }
+    i = j;
+    const attribute = CONTAINER_TITLE.exec(open[2]);
+    const title = calloutTitle(attribute ? (attribute[1] ?? attribute[2]) : open[2].replace(/\{[^}]*\}/g, ""));
+    const inside = containerLines(body);
+    const name = open[1].toLowerCase();
+    if (name === "details") {
+      out.push("", "<details>", "<summary>", "", title, "", "</summary>", "", ...inside, "", "</details>", "");
+      continue;
+    }
+    const marker = CONTAINER_MARKERS[name] ?? calloutKey(name) ?? "NOTE";
+    out.push("", `> [!${marker}]${title ? ` ${title}` : ""}`, ...inside.map((l) => (l.trim() ? `> ${l}` : ">")), "");
+  }
+  return out;
+}
+
+/** The fence open after `line` (one opening or closing there, or the one still open). */
+function fenceAfter(fence: string | null, line: string): string | null {
+  if (fence) {
+    const closing = FENCE_CLOSE.exec(line);
+    return closing && closing[1][0] === fence[0] && closing[1].length >= fence.length ? null : fence;
+  }
+  return FENCE_OPEN.exec(line)?.[1] ?? null;
 }
 
 /** A $$ … $$ block starting at line `start` (whose text after the opening $$ is `rest`). */
@@ -729,7 +840,13 @@ export async function finishMarkdownImport<B extends MdBlock>(
         }
         return {
           type: CALLOUT_BLOCK,
-          props: { icon, backgroundColor: colorForAlertKind(pending.kind), ...(pending.hideInPrint ? { hideInPrint: true } : {}) },
+          props: {
+            icon,
+            backgroundColor: pending.color,
+            ...(pending.styleKey ? { styleKey: pending.styleKey } : {}),
+            ...(pending.title ? { title: pending.title } : {}),
+            ...(pending.hideInPrint ? { hideInPrint: true } : {}),
+          },
           content,
           children: [...(first?.children ?? []), ...inner],
         } as unknown as B;

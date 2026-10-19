@@ -828,7 +828,8 @@
     "confirmationMismatch": "Per confermare, digita il nome dello spazio di lavoro esattamente come appare.",
     "workspaceDeleted": "Nel frattempo qualcuno ha eliminato questo spazio di lavoro.",
     "storageNoDestination": "I file di questo spazio di lavoro sono nella tua archiviazione e, quando lo lasci, non c’è alcun posto in cui spostarli: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Chiedi a un proprietario di configurare un’archiviazione, oppure sposta prima i file (Impostazioni > Archiviazione).",
-    "storageMoveInProgress": "I file di questo spazio di lavoro vengono spostati nella tua archiviazione. Attendi che finisca, poi lascia lo spazio di lavoro."
+    "storageMoveInProgress": "I file di questo spazio di lavoro vengono spostati nella tua archiviazione. Attendi che finisca, poi lascia lo spazio di lavoro.",
+    "invalidCalloutStyle": "Non è stato possibile salvare uno stile di riquadro: controlla chiave, nome e icona."
   },
   "security": {
     "description": "Decidi come accedono le persone, chi può portare persone in questo spazio di lavoro, cosa possono fare gli ospiti, cosa può uscirne (esportazioni, app connesse) e chi può pubblicare pagine sul web. Solo i proprietari possono modificare queste impostazioni.",
@@ -1900,5 +1901,45 @@
     "button": "Esegui backup",
     "preparing": "Preparazione…",
     "disabled": "I backup sono disattivati insieme all’esportazione in Impostazioni → Sicurezza."
+  },
+  "calloutStyles": {
+    "heading": "Stili dei riquadri",
+    "description": "Stili di riquadro con un nome che tutti possono inserire dal menu /. Modificare uno stile modifica ogni riquadro che lo usa.",
+    "empty": "Ancora nessuno stile di riquadro.",
+    "previewText": "Testo di un riquadro in questo stile.",
+    "edit": "Modifica",
+    "remove": "Rimuovi {name}",
+    "removeConfirm": "Rimuovere lo stile “{name}”? I riquadri che lo usano tornano riquadri semplici.",
+    "count": "{count} di {max} stili",
+    "ownersOnly": "Solo i proprietari possono modificare gli stili dei riquadri.",
+    "add": "Aggiungi stile",
+    "name": "Nome",
+    "key": "Chiave",
+    "keyHelp": "In Markdown si scrive > [!{key}]. Lettere minuscole, cifre e trattini.",
+    "icon": "Icona",
+    "chooseIcon": "Scegli",
+    "noIcon": "Nessuna icona",
+    "border": "Bordo",
+    "borders": {
+      "none": "Nessuno",
+      "left": "Barra laterale",
+      "full": "Bordo completo"
+    },
+    "color": "Colore",
+    "noColor": "Nessun colore",
+    "title": "Titolo predefinito",
+    "titleHelp": "Compare quando un riquadro di questo stile non ha un titolo suo.",
+    "titlePlaceholder": "Nessuno",
+    "problems": {
+      "tooMany": "Al massimo 30 stili.",
+      "key": "Usa lettere minuscole, cifre e trattini, iniziando e finendo con una lettera o una cifra.",
+      "reservedKey": "Questa chiave appartiene a un tipo integrato (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Un altro stile usa già questa chiave.",
+      "name": "Inserisci un nome di al massimo 60 caratteri.",
+      "icon": "Scegli un’emoji o nessuna icona.",
+      "color": "Scegli un colore.",
+      "border": "Scegli un bordo.",
+      "title": "Il titolo può avere al massimo 120 caratteri."
+    }
   }
 }

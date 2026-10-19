@@ -828,7 +828,8 @@
     "confirmationMismatch": "请准确输入所示的工作区名称以确认。",
     "workspaceDeleted": "在此期间有人删除了此工作区。",
     "storageNoDestination": "此工作区的文件存放在你的存储中，而在你离开时它们没有可以移动的去处：没有其他所有者设置了默认存储，这台服务器的存储也无法接收它们。请让一位所有者设置存储，或先移动这些文件（设置 > 存储）。",
-    "storageMoveInProgress": "正在将此工作区的文件移入你的存储。请等待完成后再离开。"
+    "storageMoveInProgress": "正在将此工作区的文件移入你的存储。请等待完成后再离开。",
+    "invalidCalloutStyle": "无法保存标注样式：请检查其键、名称和图标。"
   },
   "security": {
     "description": "决定人们如何登录、谁可以将他人带入此工作区、访客可以做什么、哪些内容可以离开工作区（导出、已连接的应用），以及谁可以将页面发布到网络。只有所有者可以更改这些设置。",
@@ -1900,5 +1901,45 @@
     "button": "备份",
     "preparing": "正在准备…",
     "disabled": "备份与导出一起在“设置 → 安全”中关闭了。"
+  },
+  "calloutStyles": {
+    "heading": "标注样式",
+    "description": "有名称的方框样式，所有人都可以从 / 菜单插入。修改一个样式会改变所有使用它的标注。",
+    "empty": "还没有标注样式。",
+    "previewText": "此样式的标注文字。",
+    "edit": "编辑",
+    "remove": "删除{name}",
+    "removeConfirm": "删除样式“{name}”吗？使用它的标注会变成普通标注。",
+    "count": "{count}/{max} 个样式",
+    "ownersOnly": "只有所有者可以修改标注样式。",
+    "add": "添加样式",
+    "name": "名称",
+    "key": "键",
+    "keyHelp": "在 Markdown 中写作 > [!{key}]。可用小写字母、数字和连字符。",
+    "icon": "图标",
+    "chooseIcon": "选择",
+    "noIcon": "无图标",
+    "border": "边框",
+    "borders": {
+      "none": "无",
+      "left": "侧边竖条",
+      "full": "完整边框"
+    },
+    "color": "颜色",
+    "noColor": "无颜色",
+    "title": "默认标题",
+    "titleHelp": "当此样式的标注没有自己的标题时显示。",
+    "titlePlaceholder": "无",
+    "problems": {
+      "tooMany": "最多 30 个样式。",
+      "key": "请使用小写字母、数字和连字符，并以字母或数字开头和结尾。",
+      "reservedKey": "此键已被内置类型占用（note、tip、important、warning、caution、info、danger、details、frame、card、panel）。",
+      "duplicateKey": "其他样式已在使用此键。",
+      "name": "请输入不超过 60 个字符的名称。",
+      "icon": "请选择一个表情符号，或不使用图标。",
+      "color": "请选择颜色。",
+      "border": "请选择边框。",
+      "title": "标题最多 120 个字符。"
+    }
   }
 }

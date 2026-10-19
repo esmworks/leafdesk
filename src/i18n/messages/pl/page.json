@@ -329,7 +329,14 @@
       "subtext": "Tekst z ikoną na kolorowym tle",
       "aliases": "wyróżnienie notatka wskazówka ostrzeżenie uwaga ramka callout note tip warning alert box",
       "icon": "Zmień ikonę",
-      "hiddenInPrint": "Ukryte przy drukowaniu"
+      "hiddenInPrint": "Ukryte przy drukowaniu",
+      "titleField": "Tytuł wyróżnienia",
+      "titlePlaceholder": "Tytuł",
+      "builtin": {
+        "frame": "Ramka"
+      },
+      "styleSubtext": "Styl wyróżnienia",
+      "group": "Wyróżnienia"
     },
     "code": {
       "language": "Język",
@@ -532,7 +539,12 @@
   },
   "blockMenu": {
     "copyLink": "Kopiuj link do bloku",
-    "hideInPrint": "Ukryj przy drukowaniu"
+    "hideInPrint": "Ukryj przy drukowaniu",
+    "calloutStyle": "Styl wyróżnienia",
+    "turnIntoCallout": "Zamień na wyróżnienie",
+    "plainCallout": "Zwykłe wyróżnienie",
+    "addTitle": "Dodaj tytuł",
+    "removeTitle": "Usuń tytuł"
   },
   "pdf": {
     "untitled": "PDF",

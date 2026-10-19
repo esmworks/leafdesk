@@ -828,7 +828,8 @@
     "confirmationMismatch": "Pour confirmer, saisissez le nom de l’espace de travail exactement comme il est affiché.",
     "workspaceDeleted": "Quelqu’un a supprimé cet espace de travail entre-temps.",
     "storageNoDestination": "Les fichiers de cet espace de travail sont dans votre stockage, et ils ne pourront être déplacés nulle part si vous partez : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Demandez à un propriétaire de configurer un stockage, ou déplacez d’abord les fichiers (Paramètres > Stockage).",
-    "storageMoveInProgress": "Les fichiers de cet espace de travail sont en cours de déplacement vers votre stockage. Attendez la fin, puis quittez-le."
+    "storageMoveInProgress": "Les fichiers de cet espace de travail sont en cours de déplacement vers votre stockage. Attendez la fin, puis quittez-le.",
+    "invalidCalloutStyle": "Un style d’encadré n’a pas pu être enregistré : vérifiez sa clé, son nom et son icône."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -1900,5 +1901,45 @@
     "button": "Sauvegarder",
     "preparing": "Préparation…",
     "disabled": "Les sauvegardes sont désactivées en même temps que l’exportation dans Paramètres → Sécurité."
+  },
+  "calloutStyles": {
+    "heading": "Styles d’encadré",
+    "description": "Des styles d’encadré nommés que chacun peut insérer depuis le menu /. Modifier un style modifie chaque encadré qui l’utilise.",
+    "empty": "Aucun style d’encadré pour l’instant.",
+    "previewText": "Texte d’un encadré dans ce style.",
+    "edit": "Modifier",
+    "remove": "Supprimer {name}",
+    "removeConfirm": "Supprimer le style « {name} » ? Les encadrés qui l’utilisent redeviennent des encadrés simples.",
+    "count": "{count} sur {max} styles",
+    "ownersOnly": "Seuls les propriétaires peuvent modifier les styles d’encadré.",
+    "add": "Ajouter un style",
+    "name": "Nom",
+    "key": "Clé",
+    "keyHelp": "Écrite en Markdown sous la forme > [!{key}]. Minuscules, chiffres et tirets.",
+    "icon": "Icône",
+    "chooseIcon": "Choisir",
+    "noIcon": "Aucune icône",
+    "border": "Bordure",
+    "borders": {
+      "none": "Aucune",
+      "left": "Barre sur le côté",
+      "full": "Cadre complet"
+    },
+    "color": "Couleur",
+    "noColor": "Aucune couleur",
+    "title": "Titre par défaut",
+    "titleHelp": "Affiché quand un encadré de ce style n’a pas de titre à lui.",
+    "titlePlaceholder": "Aucun",
+    "problems": {
+      "tooMany": "30 styles au maximum.",
+      "key": "Utilisez des minuscules, des chiffres et des tirets, en commençant et en finissant par une lettre ou un chiffre.",
+      "reservedKey": "Cette clé est réservée à un type intégré (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
+      "duplicateKey": "Un autre style utilise déjà cette clé.",
+      "name": "Saisissez un nom de 60 caractères au plus.",
+      "icon": "Choisissez un émoji, ou aucune icône.",
+      "color": "Choisissez une couleur.",
+      "border": "Choisissez une bordure.",
+      "title": "Le titre ne doit pas dépasser 120 caractères."
+    }
   }
 }

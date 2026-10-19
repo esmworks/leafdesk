@@ -3,6 +3,7 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { highlightCode } from "@/lib/code-highlighter";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
+import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/callout-styles";
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
@@ -422,6 +423,23 @@ async function withFootnotes(html: string, notes: BodyFootnote[], anchorPrefix: 
   });
 }
 
+/**
+ * Gives the run's styled callouts their style's border (`data-callout-border`, which the
+ * stylesheet draws): unlike their icon, color and title, a border isn't one of their props.
+ */
+async function withCalloutBorders(html: string, styles: readonly CalloutStyle[]): Promise<string> {
+  if (!html.includes("data-style-key")) return html;
+  return editor._withJSDOM(async () => {
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    container.querySelectorAll("[data-leafdesk-callout][data-style-key]").forEach((element) => {
+      const border = findCalloutStyle(element.getAttribute("data-style-key"), styles)?.border;
+      if (border && border !== "none") element.setAttribute("data-callout-border", border);
+    });
+    return container.innerHTML;
+  });
+}
+
 async function withHighlightedCode(html: string): Promise<string> {
   if (!html.includes("<pre")) return html;
   const container = await editor._withJSDOM(async () => {
@@ -468,6 +486,12 @@ export type BodyOptions = {
   expandSynced?: (blocks: PageBlock[]) => Promise<PageBlock[]>;
   /** For the print view: callouts hidden in print are left out (with the blocks nested in them). */
   print?: boolean;
+  /**
+   * The page's workspace's callout styles (lib/callout-styles): styled callouts are drawn with
+   * their style's look. Without them only the built-in styles are known, and other styled
+   * callouts are drawn with their own props.
+   */
+  calloutStyles?: readonly CalloutStyle[];
 };
 
 /** The blocks without the callouts hidden in print, in columns and nested blocks too. */
@@ -492,9 +516,9 @@ export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: Bo
 /** The same for a body already read as blocks (from the live document, see collab `readBlocks`). */
 export async function bodySegmentsFromBlocks(
   body: PageBlock[],
-  { resolvePages, anchorPrefix = "", expandSynced, print = false }: BodyOptions = {},
+  { resolvePages, anchorPrefix = "", expandSynced, print = false, calloutStyles = [] }: BodyOptions = {},
 ): Promise<BodySegment[]> {
-  const expanded = expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body);
+  const expanded = applyCalloutStyles(expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body), calloutStyles);
   const blocks = print ? withoutHiddenInPrint(expanded) : expanded;
   const { pageIds } = bodyReferences(blocks);
   const refs = pageIds.length && resolvePages ? await resolvePages(pageIds) : new Map<string, PublishedPageRef>();
@@ -523,7 +547,10 @@ export async function bodySegmentsFromBlocks(
       const serialized = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(marked));
       run = [];
       const headed = await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor));
-      const html = await withHighlightedCode(await withFootnotes(await withBlockAnchors(headed, nonce, anchored), notes, anchorPrefix));
+      const html = await withCalloutBorders(
+        await withHighlightedCode(await withFootnotes(await withBlockAnchors(headed, nonce, anchored), notes, anchorPrefix)),
+        calloutStyles,
+      );
       if (html) segments.push({ kind: "html", html });
     };
     const standalone = async (block: PageBlock) => {
