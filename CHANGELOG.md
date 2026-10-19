@@ -69,6 +69,15 @@
   Workbooks uploaded earlier are read by the background sweep, and pages are indexed for the AI
   chat again in the background so their workbooks go in. The MCP `get_file` tool reads a workbook
   as text, sheet by sheet. A workbook whose contents unpack to more than 64 MB isn't read.
+- **Snippets.** Reusable content put in while typing: `;` and a trigger at the start of a line or
+  after a space (`;meeting`, `;log-2`), or the slash menu's *Snippets* group, inserts a snippet's
+  blocks. A one-paragraph snippet joins the line's text. `{{date}}`, `{{time}}`, `{{datetime}}`,
+  `{{me}}` and `{{page}}` are filled in for the person's language and time zone, and the caret
+  stops at `{{cursor}}`. Everyone keeps their own snippets in Settings → My account → Snippets,
+  and owners keep the workspace's in Settings → Snippets for all its members; *Save as snippet* in
+  a block's menu starts one from the page. The form previews the blocks, and lists import and export
+  JSON (also plain `[{"id", "label"}]` lists, with what was skipped and why). Up to 300 per person
+  and per workspace. MCP gets `list_snippets`. Workspace snippets are in the workspace's backup.
 
 ### Changed
 

@@ -1147,3 +1147,13 @@
   cursor: grabbing !important;
   user-select: none !important;
 }
+
+/* A snippet's preview in its form (components/snippets/snippet-preview.tsx): a narrow column of read-only blocks. */
+.snippet-preview .bn-editor {
+  padding-inline: 1rem;
+  font-size: 0.875rem;
+}
+.snippet-preview .bn-inline-content::before,
+.snippet-preview .bn-block-content::after {
+  content: none !important;
+}

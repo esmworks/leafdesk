@@ -544,6 +544,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     My account → Connected apps.
 - **REST API** under `/api/v1` with personal access tokens (read or read-write, optionally one
   workspace, optional expiry) and an OpenAPI 3.1 document (see [REST API](#rest-api)).
+- **Snippets**: content you insert while typing: `;` and a snippet's trigger in any page (or the
+  slash menu's *Snippets* group) puts in its blocks, with today's date, the time, your name and the
+  page's title filled in and the caret where the snippet says. Your own snippets, and the
+  workspace's that its owners keep, in Settings, with import and export as JSON (see
+  [Snippets](#snippets)).
 
 ## Quick start (Docker)
 
@@ -2005,6 +2010,41 @@ list until it is restored.
   then the body as Markdown with links to the app in full: the folder layout AI assistants install
   skills from.
 
+## Snippets
+
+A snippet is a piece of content you put in while typing: a meeting's headings, a dated log line, a
+sign-off. Type `;` at the start of a line or after a space, then the snippet's trigger or part of
+its title (`;meet`, `;log-2`): the menu lists the matches, your own first and then the workspace's,
+and Enter puts the snippet in. The slash menu has them too, under *Snippets*. A semicolon right
+after a word stays a semicolon.
+
+- **Where it goes**: a snippet of one paragraph joins the line's text; anything bigger takes the
+  place of an empty line or goes after the line. Its body is Leafdesk Markdown, so it can hold
+  headings, lists, to-dos, tables, callouts, links and mentions.
+- **Placeholders**, filled in when the snippet goes in: `{{date}}`, `{{time}}` and `{{datetime}}`
+  (in your language and time zone), `{{me}}` (your name), `{{page}}` (the page's title) and
+  `{{cursor}}`, where the caret stops (the first one; any others are removed).
+- **Your snippets**: Settings → My account → *Snippets*, only for you, in every workspace. Until a
+  list holds snippets other than these, it offers three examples (meeting notes, a dated log line,
+  a decision record) to add with one click.
+- **The workspace's snippets**: Settings → *Snippets*. Everyone in the workspace inserts them, next
+  to their own; owners add, change and delete them. Guests see only their own. They are part of
+  the workspace's backup; personal snippets are not.
+- **Making one**: *New snippet* in either list, or *Save as snippet* in a block's menu (the
+  handle beside it), which opens the form with that block, or the selected blocks, as Markdown.
+  The form has the title, the trigger (made from the title until you type one), the Markdown with
+  buttons for the placeholders, and a preview of the blocks it makes. *Duplicate* copies a snippet
+  under the next free trigger (`standup-2`).
+- **Rules**: a trigger is up to 32 lowercase letters, digits, `-` and `_`, unique among your own
+  snippets or the workspace's; a title is up to 120 characters and a body up to 20,000. There can
+  be 300 personal snippets per person and 300 per workspace.
+- **Import and export**: *Export* downloads `{"version": 1, "snippets": [{"trigger", "title",
+  "body"}]}`. *Import* takes such a file, or a plain list of `{"id", "label"}` objects (the
+  trigger and the text), up to 8 MB; entries whose trigger is taken, invalid or repeated, that are
+  empty or too long, or past the limit are skipped and listed with the reason.
+- **MCP**: `list_snippets` lists the snippets the user may insert, personal and the workspace's,
+  with their Markdown, so an assistant can write in the same shape.
+
 ## Agents
 
 An agent is an AI helper of a workspace with a name, an emoji, a description and instructions of
@@ -2447,6 +2487,8 @@ The tools cover:
   `update_memory` and `delete_memory` (by ids or all, also while the memory is off): the notes the
   AI chat keeps about the user, theirs alone and only while the memory is on, each showing the app
   that kept it (see [Memory](#ai-features)).
+- **Snippets:** `list_snippets` (the user's own and the workspace's, with their Markdown and what
+  the placeholders stand for; see [Snippets](#snippets)).
 
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that
 change anything, and a workspace's owners can let apps only read it, or hide it from them (see

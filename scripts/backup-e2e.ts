@@ -309,6 +309,9 @@ async function main() {
       .set({ ydoc: state, contentMarkdown: `Ask @Alice and @Bob\n\n![plan.png](${stored.url})\n\n[notes](${notes.url})` })
       .where(eq(page.id, doc.id));
     await db.insert(pageSnapshot).values({ pageId: doc.id, title: "Plans", ydoc: state, contentMarkdown: "Ask", reason: "manual", createdBy: ids.bob } as never);
+    // A workspace snippet travels with the backup; Alice's personal one belongs to her account and stays out.
+    await db.execute(sql`insert into snippet (id, workspace_id, trigger, title, body, created_by) values (gen_random_uuid(), ${ws}, 'standup', 'Standup', '## {{date}}', ${ids.bob})`);
+    await db.execute(sql`insert into snippet (id, user_id, trigger, title, body, created_by) values (gen_random_uuid(), ${ids.alice}, 'sign', 'Sign-off', 'Thanks, {{me}}', ${ids.alice})`);
 
     // A top-level page outside any teamspace with no entry for everyone (as one whose teamspace was
     // deleted): restored where it was, not in the default teamspace.

@@ -81,7 +81,7 @@ export function SnippetDialog({
   };
 
   return (
-    <Dialog open onClose={onClose} className="max-w-4xl">
+    <Dialog open onClose={onClose} className="sm:max-w-4xl">
       <form
         className="flex max-h-[80vh] flex-col"
         onSubmit={(e) => {

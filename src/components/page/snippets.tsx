@@ -157,7 +157,11 @@ export function SnippetMenu(props: InsertOptions & { enabled: boolean }) {
   const getItems = useCallback(
     async (query: string) => {
       const { snippets } = await refresh().catch(() => ({ snippets: [] as SnippetSummary[] }));
-      return matchSnippets(query, snippets).map((s) => item(s, s.scope === "workspace" ? t("workspace") : t("personal")));
+      // The menu starts a group where its items change group, so each group's matches stay together, the person's own first.
+      const matches = matchSnippets(query, snippets);
+      return [...matches.filter((s) => s.scope === "personal"), ...matches.filter((s) => s.scope === "workspace")].map((s) =>
+        item(s, s.scope === "workspace" ? t("workspace") : t("personal")),
+      );
     },
     [refresh, item, t],
   );

@@ -50,7 +50,7 @@ const matches = (query: string, s: SnippetView) => {
 const excerpt = (body: string) =>
   body
     .split("\n")
-    .map((line) => line.replace(/^[#>*\-+\s[\]x]+/i, "").trim())
+    .map((line) => line.replace(/^[#>*\-+\s[\]x]+/i, "").replace(/\*\*|__/g, "").trim())
     .find(Boolean) ?? "";
 
 /**
@@ -131,7 +131,10 @@ export function SnippetsPanel({
     }
   };
 
-  const offered = examples(t).filter((e) => !snippets.some((s) => s.trigger === e.trigger));
+  // Offered while the list holds nothing but examples, so adding one doesn't hide the others.
+  const all = examples(t);
+  const offered = all.filter((e) => !snippets.some((s) => s.trigger === e.trigger));
+  const onlyExamples = snippets.every((s) => all.some((e) => e.trigger === s.trigger));
 
   return (
     <div className="space-y-4">
@@ -230,7 +233,7 @@ export function SnippetsPanel({
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}
 
-      {canManage && !snippets.length && offered.length > 0 && (
+      {canManage && onlyExamples && offered.length > 0 && (
         <section className="space-y-2" data-snippet-examples>
           <h2 className="text-[15px] font-semibold">{ts("examplesHeading")}</h2>
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-bg-subtle/60">
