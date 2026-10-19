@@ -7,6 +7,7 @@ import { Button, cn } from "@/components/ui";
 import { fileUrl } from "@/lib/files";
 import type { SheetCells } from "@/lib/import/xlsx";
 import { columnName, XLSX_MIME } from "@/lib/xlsx";
+import { ExpandButton } from "./pdf-viewer";
 import type { SpreadsheetReply, SpreadsheetRequest } from "./spreadsheet-worker";
 
 /** Largest workbook read in place; a larger one shows its link only. */
@@ -26,6 +27,8 @@ type Props = {
   caption?: string;
   /** Offered where the reader may edit: imports a sheet of the workbook, given as a file. */
   onConvert?: (file: File) => void;
+  /** In the file viewer: the whole height it is given, without the line above the sheet. */
+  fill?: boolean;
 };
 
 /**
@@ -37,15 +40,17 @@ type Props = {
  * password-protected or old (.xls) shows its link with a note instead.
  *
  * `onConvert` offers to import a sheet as a new database: it gets the workbook as a file, as if
- * chosen in the import dialog.
+ * chosen in the import dialog. Its expand button opens the file viewer (components/file-viewer),
+ * which draws it with `fill`.
  */
 export function SpreadsheetViewer(props: Props) {
   // Another file starts over: nothing of the one before shows meanwhile.
   return <Viewer key={props.fileId} {...props} />;
 }
 
-function Viewer({ fileId, name, caption, onConvert }: Props) {
+function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
   const t = useTranslations("page.spreadsheet");
+  const tv = useTranslations("page.viewer");
   const [state, setState] = useState<State>({ status: "loading" });
   const [converting, setConverting] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -125,9 +130,17 @@ function Viewer({ fileId, name, caption, onConvert }: Props) {
   );
 
   return (
-    <div ref={box} className="w-full min-w-0" contentEditable={false} data-leafdesk-spreadsheet="">
-      <div className="flex min-w-0 items-center justify-between gap-2 pb-1.5">
+    <div
+      ref={box}
+      className={fill ? "flex h-full min-h-0 w-full min-w-0 flex-1 flex-col" : "w-full min-w-0"}
+      contentEditable={false}
+      data-leafdesk-spreadsheet=""
+      data-file-url={fileUrl(fileId)}
+      data-file-name={name}
+    >
+      <div className={cn("flex min-w-0 items-center justify-between gap-2 pb-1.5", fill && "hidden")}>
         {link}
+        <span className="flex-1" />
         {onConvert && state.status === "ready" && (
           <Button
             size="sm"
@@ -141,8 +154,9 @@ function Viewer({ fileId, name, caption, onConvert }: Props) {
             {t("convert")}
           </Button>
         )}
+        <ExpandButton url={fileUrl(fileId)} name={name} label={tv("expand")} />
       </div>
-      <div className="overflow-hidden rounded-md border border-border bg-bg">
+      <div className={cn("overflow-hidden rounded-md border border-border bg-bg", fill && "flex min-h-0 flex-1 flex-col")}>
         {state.status !== "ready" ? (
           // Not <p>: the editor resets paragraphs' padding.
           <div className="p-3 text-sm text-fg-muted" role={state.status === "loading" ? "status" : undefined}>
@@ -151,7 +165,7 @@ function Viewer({ fileId, name, caption, onConvert }: Props) {
         ) : (
           <>
             {state.cells.rows.length ? (
-              <SheetTable cells={state.cells} label={t("tableLabel", { name: label, sheet: state.sheets[state.sheet] ?? "" })} />
+              <SheetTable cells={state.cells} label={t("tableLabel", { name: label, sheet: state.sheets[state.sheet] ?? "" })} fill={fill} />
             ) : (
               <div className="p-3 text-sm text-fg-muted">{t("empty")}</div>
             )}
@@ -189,11 +203,11 @@ function Viewer({ fileId, name, caption, onConvert }: Props) {
   );
 }
 
-function SheetTable({ cells, label }: { cells: SheetCells; label: string }) {
+function SheetTable({ cells, label, fill }: { cells: SheetCells; label: string; fill: boolean }) {
   const columns = Array.from({ length: cells.width }, (_, i) => columnName(i));
   const edge = "border-b border-r border-border";
   return (
-    <div className="max-h-[min(28rem,60vh)] overflow-auto">
+    <div className={fill ? "min-h-0 flex-1 overflow-auto" : "max-h-[min(28rem,60vh)] overflow-auto"}>
       {/* Sized by its cells: the editor's own table rules (fixed layout, full width) would squeeze them. */}
       <table
         aria-label={label}
