@@ -947,7 +947,7 @@
       "full": "Bu özelliğin erişimi kısıtlı. Sizin tam erişiminiz var."
     },
     "fullAccess": {
-      "warning": "{names}{more, plural, =0 {} other { ve # kişi daha}} bu veritabanına tam erişime sahip, bu yüzden bu kurallar {count, plural, one {onu} other {onları}} etkilemiyor. Kısıtlamak için {count, plural, one {onun} other {onların}} erişimini ya da teamspace'in üye erişimini düşürün.",
+      "warning": "{names}{more, plural, =0 {} other { ve # kişi daha}} bu veritabanına tam erişime sahip, bu yüzden bu kurallar {count, plural, one {onu} other {onları}} etkilemiyor. Kısıtlamak için {count, plural, one {onun} other {onların}} erişimini ya da ekip alanının üye erişimini düşürün.",
       "share": "Veritabanının erişimini değiştir"
     }
   },

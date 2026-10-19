@@ -175,7 +175,7 @@
     "search": "Sayfa ara…",
     "empty": "Eşleşen sayfa yok.",
     "failed": "Sayfa buraya taşınamadı.",
-    "teamspaceHint": "Bu teamspace'in en üstü: üyeleri erişim kazanır",
+    "teamspaceHint": "Bu ekip alanının en üstü: üyeleri erişim kazanır",
     "private": "Özel",
     "privateHint": "Özel sayfalarınızın en üstü: yalnızca paylaşılan kişiler erişir"
   },
@@ -212,8 +212,8 @@
     "everyone": "Çalışma alanındaki herkes",
     "everyoneHint": "Üyeler, kişi bazında ne verilirse verilsin en az bu kadar erişime sahip olur. Sayfayı yalnızca eklediğiniz kişilere açmak için bunu \"Erişim yok\" yapın.",
     "everyoneIn": "{name} içindeki herkes",
-    "everyoneTeamspace": "Teamspace'teki herkes",
-    "everyoneTeamspaceHint": "Teamspace üyeleri, onlara tek tek ne verirseniz verin en az bu kadar erişim alır. Sayfayı yalnızca eklediğiniz kişilere açmak için \"Erişim yok\" seçin.",
+    "everyoneTeamspace": "Ekip alanındaki herkes",
+    "everyoneTeamspaceHint": "Ekip alanı üyeleri, onlara tek tek ne verirseniz verin en az bu kadar erişim alır. Sayfayı yalnızca eklediğiniz kişilere açmak için \"Erişim yok\" seçin.",
     "readOnly": "Paylaşım ayarlarını yalnızca tam erişimi olanlar değiştirebilir.",
     "copyLink": "Bağlantıyı kopyala",
     "copied": "Kopyalandı",
@@ -243,7 +243,7 @@
       "generic": "Paylaşım güncellenemedi.",
       "agentFullAccess": "Ajanlar bir sayfayı görüntüleyebilir, yorumlayabilir veya düzenleyebilir, ama hiçbir zaman tam erişim alamaz."
     },
-    "everyoneFromTeamspaceHint": "Teamspace belirliyor. Teamspace sahipleri ve çalışma alanı sahipleri tam erişime sahip. Bu sayfa ve alt sayfaları için ayarlamak üzere burada bir seviye seçin."
+    "everyoneFromTeamspaceHint": "Ekip alanı belirliyor. Ekip alanı sahipleri ve çalışma alanı sahipleri tam erişime sahip. Bu sayfa ve alt sayfaları için ayarlamak üzere burada bir seviye seçin."
   },
   "noAccess": {
     "metaTitle": "Erişim yok",

@@ -6,7 +6,7 @@
     "general": "Genel",
     "members": "Üyeler",
     "guests": "Misafirler",
-    "teamspaces": "Teamspace'ler",
+    "teamspaces": "Ekip alanları",
     "groups": "Gruplar",
     "agents": "Ajanlar",
     "connections": "Bağlantılar",
@@ -61,7 +61,7 @@
     "columns": {
       "user": "Kullanıcı",
       "role": "Rol",
-      "teamspaces": "Teamspace'ler",
+      "teamspaces": "Ekip alanları",
       "groups": "Gruplar",
       "joined": "Katılma",
       "lastEdited": "Son düzenleme",
@@ -79,8 +79,8 @@
       "member": "Üye",
       "guest": "Misafir"
     },
-    "teamspaceCount": "{count, plural, one {# teamspace} other {# teamspace}}",
-    "teamspacesOf": "{name} adlı üyenin teamspace'leri",
+    "teamspaceCount": "{count, plural, one {# ekip alanı} other {# ekip alanı}}",
+    "teamspacesOf": "{name} adlı üyenin ekip alanları",
     "groupCount": "{count, plural, one {# grup} other {# grup}}",
     "groupsOf": "{name} adlı üyenin grupları",
     "neverEdited": "Henüz düzenleme yok",
@@ -168,7 +168,7 @@
     "actionsFor": "{name} için işlemler",
     "makeMember": "Üye yap",
     "makeMemberTitle": "{name} üye yapılsın mı?",
-    "makeMemberBody": "{name} bundan sonra yalnızca kendisiyle paylaşılan sayfaları değil, çalışma alanının sayfalarını her üye gibi açabilir ve teamspace'lere katılabilir.",
+    "makeMemberBody": "{name} bundan sonra yalnızca kendisiyle paylaşılan sayfaları değil, çalışma alanının sayfalarını her üye gibi açabilir ve ekip alanlarına katılabilir.",
     "makeMemberConfirm": "Üye yap",
     "remove": "Çalışma alanından çıkar",
     "removeTitle": "{name} çıkarılsın mı?",
@@ -178,12 +178,12 @@
     "revokeBody": "Davet bağlantısı çalışmaz olur ve {email} ile paylaşılan sayfalar artık onu beklemez."
   },
   "teamspaces": {
-    "heading": "Teamspace'ler",
-    "description": "Teamspace'ler sayfaları ve onlar üzerinde çalışan kişileri bir araya getirir. Herkes içinde olduğu teamspace'leri kenar çubuğunda görür. Misafirler hiçbir teamspace'te olmaz; yalnızca kendileriyle paylaşılan sayfaları görürler.",
-    "newButton": "Yeni teamspace",
-    "listHeading": "Teamspace'ler",
-    "listDescription": "Erişiminiz olan tüm teamspace'leri buradan yönetin.",
-    "search": "Teamspace ara",
+    "heading": "Ekip alanları",
+    "description": "Ekip alanları sayfaları ve onlar üzerinde çalışan kişileri bir araya getirir. Herkes içinde olduğu ekip alanlarını kenar çubuğunda görür. Misafirler hiçbir ekip alanında olmaz; yalnızca kendileriyle paylaşılan sayfaları görürler.",
+    "newButton": "Yeni ekip alanı",
+    "listHeading": "Ekip alanları",
+    "listDescription": "Erişiminiz olan tüm ekip alanlarını buradan yönetin.",
+    "search": "Ekip alanı ara",
     "status": {
       "active": "Etkin",
       "archived": "Arşivlenmiş"
@@ -193,7 +193,7 @@
     "accessFilter": "Erişim",
     "anyAccess": "Tüm erişimler",
     "columns": {
-      "teamspace": "Teamspace",
+      "teamspace": "Ekip alanı",
       "owners": "Sahipler",
       "access": "Erişim",
       "updated": "Güncelleme",
@@ -202,9 +202,9 @@
     "joined": "Katıldınız",
     "memberCount": "{count, plural, one {# üye} other {# üye}}",
     "noOwners": "Sahip yok",
-    "empty": "Henüz teamspace yok.",
-    "emptyArchived": "Arşivlenmiş teamspace yok.",
-    "noMatches": "Filtrelerinize uyan teamspace yok.",
+    "empty": "Henüz ekip alanı yok.",
+    "emptyArchived": "Arşivlenmiş ekip alanı yok.",
+    "noMatches": "Filtrelerinize uyan ekip alanı yok.",
     "actionsFor": "{name} için işlemler",
     "edit": "Düzenle",
     "manageMembers": "Üyeleri yönet",
@@ -213,26 +213,26 @@
     "leave": "Ayrıl",
     "archive": "Arşivle",
     "restore": "Geri yükle",
-    "leaveTitle": "{name} teamspace'inden ayrılınsın mı?",
-    "leaveBody": "Sayfaları kenar çubuğunuzdan kalkar. Açık bir teamspace'e kendiniz yeniden katılabilirsiniz; diğerlerinde sizi sahiplerinden birinin eklemesi gerekir.",
+    "leaveTitle": "{name} ekip alanından ayrılınsın mı?",
+    "leaveBody": "Sayfaları kenar çubuğunuzdan kalkar. Açık bir ekip alanına kendiniz yeniden katılabilirsiniz; diğerlerinde sizi sahiplerinden birinin eklemesi gerekir.",
     "archiveTitle": "{name} arşivlensin mi?",
-    "archiveBody": "Herkesin kenar çubuğundan kalkar ve yeni sayfa almaz. Arşivlenmiş teamspace'lerden geri yükleyebilirsiniz.",
+    "archiveBody": "Herkesin kenar çubuğundan kalkar ve yeni sayfa almaz. Arşivlenmiş ekip alanlarından geri yükleyebilirsiniz.",
     "defaults": {
-      "heading": "Varsayılan teamspace'ler",
-      "description": "Çalışma alanındaki herkes, sonradan katılanlar da dahil, bu teamspace'lerdedir ve ayrılamaz. Biri katıldığında güncellenecek bir şey yoktur. Yeni üst düzey sayfalar en eskisine eklenir.",
-      "addPlaceholder": "Teamspace ekle…",
-      "empty": "Varsayılan teamspace yok. Yeni üst düzey sayfalar kişilerin özel sayfalarına eklenir.",
-      "removeFor": "{name} varsayılan teamspace olmasın",
-      "makeBody": "Çalışma alanındaki herkes, şimdi ve sonradan katılanlar, bu teamspace'te olur ve ayrılamaz. Sayfaları herkesin kenar çubuğunda görünür.",
+      "heading": "Varsayılan ekip alanları",
+      "description": "Çalışma alanındaki herkes, sonradan katılanlar da dahil, bu ekip alanlarındadır ve ayrılamaz. Biri katıldığında güncellenecek bir şey yoktur. Yeni üst düzey sayfalar en eskisine eklenir.",
+      "addPlaceholder": "Ekip alanı ekle…",
+      "empty": "Varsayılan ekip alanı yok. Yeni üst düzey sayfalar kişilerin özel sayfalarına eklenir.",
+      "removeFor": "{name} varsayılan ekip alanı olmasın",
+      "makeBody": "Çalışma alanındaki herkes, şimdi ve sonradan katılanlar, bu ekip alanında olur ve ayrılamaz. Sayfaları herkesin kenar çubuğunda görünür.",
       "removeBody": "Şimdilik herkes içinde kalır ama ayrılabilir; çalışma alanına sonradan katılanlar eklenmez.",
       "update": "Güncelle",
-      "confirmTitle": "Varsayılan teamspace'ler güncellensin mi?",
+      "confirmTitle": "Varsayılan ekip alanları güncellensin mi?",
       "confirmAdd": "Varsayılan olacak: {names}.",
       "confirmRemove": "Açık olacak: {names}."
     },
     "creation": {
-      "title": "Teamspace'leri yalnızca çalışma alanı sahipleri oluşturabilir",
-      "description": "Kapalıyken sahipler ve üyeler teamspace oluşturabilir. Misafirler hiçbir zaman oluşturamaz.",
+      "title": "Ekip alanlarını yalnızca çalışma alanı sahipleri oluşturabilir",
+      "description": "Kapalıyken sahipler ve üyeler ekip alanı oluşturabilir. Misafirler hiçbir zaman oluşturamaz.",
       "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri değiştirebilir."
     },
     "statusFilter": "Durum",
@@ -242,7 +242,7 @@
   },
   "groups": {
     "heading": "Gruplar",
-    "description": "Gruplar kişileri bir araya getirir; böylece bir sayfayı hepsiyle paylaşabilir ya da hepsini bir teamspace'e tek seferde ekleyebilirsiniz. Gruba katılan, grubun erişimini alır; gruptan ayrılan kaybeder. Gruplarda yalnızca sahipler ve üyeler olabilir, misafirler olamaz.",
+    "description": "Gruplar kişileri bir araya getirir; böylece bir sayfayı hepsiyle paylaşabilir ya da hepsini bir ekip alanına tek seferde ekleyebilirsiniz. Gruba katılan, grubun erişimini alır; gruptan ayrılan kaybeder. Gruplarda yalnızca sahipler ve üyeler olabilir, misafirler olamaz.",
     "ownersOnly": "Grupları yalnızca çalışma alanı sahipleri oluşturup değiştirebilir.",
     "newButton": "Yeni grup",
     "search": "Grup ara",
@@ -253,7 +253,7 @@
     "columns": {
       "group": "Grup",
       "members": "Üyeler",
-      "teamspaces": "Teamspace'ler",
+      "teamspaces": "Ekip alanları",
       "actions": "İşlemler"
     },
     "actionsFor": "{name} için işlemler",
@@ -268,7 +268,7 @@
     "create": "Grup oluştur",
     "creating": "Oluşturuluyor…",
     "deleteTitle": "{name} silinsin mi?",
-    "deleteBody": "Üyeleri kendi erişimlerini korur. Gruba sayfalarda ve teamspace'lerde verilen erişim kalkar; artık göremedikleri açık sayfalar kapanır. Yalnızca grubun yönetebildiği sayfalar size geçer.",
+    "deleteBody": "Üyeleri kendi erişimlerini korur. Gruba sayfalarda ve ekip alanlarında verilen erişim kalkar; artık göremedikleri açık sayfalar kapanır. Yalnızca grubun yönetebildiği sayfalar size geçer.",
     "provisioned": "Kimlik sağlayıcınızdan",
     "members": {
       "title": "{name} üyeleri",
@@ -370,7 +370,7 @@
     },
     "skills": {
       "description": "Beceriler, ajanın her çalışmada kendi talimatlarından sonra, bu sırayla izlediği talimat sayfalarıdır. Birinin değişikliğiyle ya da herkese açık bir formun yanıtıyla başlayan çalışma yalnızca o kişinin (ya da formu yayımlayanın) açabildiği becerileri kullanır: dahil etmek için beceriyi onlarla görüntüleme yetkisiyle paylaşın.",
-      "rule": "Ajan yalnızca çalışma alanı sahipleri dışında kimsenin düzenleyemediği becerileri izler. Sonradan bir üye, teamspace, grup, misafir ya da ajan düzenleyebilir hale gelirse çalışmalar o beceriyi atlar ve adımlarında bunu belirtir.",
+      "rule": "Ajan yalnızca çalışma alanı sahipleri dışında kimsenin düzenleyemediği becerileri izler. Sonradan bir üye, ekip alanı, grup, misafir ya da ajan düzenleyebilir hale gelirse çalışmalar o beceriyi atlar ve adımlarında bunu belirtir.",
       "list": "Ajanın becerileri",
       "empty": "Bu ajanın henüz becerisi yok.",
       "hidden": "{count, plural, one {Sizin açamadığınız # beceri daha var.} other {Sizin açamadığınız # beceri daha var.}}",
@@ -1093,7 +1093,7 @@
     }
   },
   "audit": {
-    "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, teamspace’ler ve gruplar, ayarlar, güvenlik, sayfa oluşturma, taşıma, çöpe atma ve silme, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
+    "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, ekip alanları ve gruplar, ayarlar, güvenlik, sayfa oluşturma, taşıma, çöpe atma ve silme, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
     "filters": "Denetim kaydını filtrele",
     "actor": "Kim",
     "anyone": "Herkes",
@@ -1139,7 +1139,7 @@
       "members": "Üyeler ve roller",
       "invitations": "Davetler ve katılma istekleri",
       "sharing": "Sayfa paylaşımı",
-      "teamspaces": "Teamspace’ler",
+      "teamspaces": "Ekip alanları",
       "groups": "Gruplar",
       "settings": "Çalışma alanı ayarları",
       "security": "Çoklu oturum açma ve SCIM",
@@ -1159,7 +1159,7 @@
       "guest": "misafir"
     },
     "teamspaceRoles": {
-      "owner": "teamspace sahibi",
+      "owner": "ekip alanı sahibi",
       "member": "üye"
     },
     "levels": {
@@ -1202,7 +1202,7 @@
       "guestPrivatePages": "Misafirler özel sayfa oluşturabilir",
       "publishing": "Kimler web’de yayınlayabilir",
       "requireTwoFactor": "İki adımlı doğrulamayı zorunlu kıl",
-      "teamspaceCreation": "Kimler teamspace oluşturabilir",
+      "teamspaceCreation": "Kimler ekip alanı oluşturabilir",
       "loginMethod": "Üyeler nasıl giriş yapar",
       "ai": "Yapay zekâ özellikleri",
       "aiMemory": "Yapay zekâ hafızası",
@@ -1290,15 +1290,15 @@
         "declined": "Erişim isteği reddedildi: {subject}, {target} sayfası için"
       },
       "teamspace": {
-        "created": "Teamspace oluşturuldu: {target}",
-        "updated": "Teamspace değiştirildi: {target} ({fields})",
-        "archived": "Teamspace arşivlendi: {target}",
-        "restored": "Teamspace geri getirildi: {target}",
-        "member_added": "Teamspace’e eklendi: {names}, {target} (rol: {role})",
-        "member_removed": "Teamspace’ten çıkarıldı: {subject}, {target}",
-        "role_changed": "Teamspace rolü değiştirildi: {subject}, {target} → {role}",
-        "group_added": "Teamspace’e gruplar eklendi: {names}, {target}",
-        "group_removed": "Teamspace’ten grup çıkarıldı: {subject}, {target}"
+        "created": "Ekip alanı oluşturuldu: {target}",
+        "updated": "Ekip alanı değiştirildi: {target} ({fields})",
+        "archived": "Ekip alanı arşivlendi: {target}",
+        "restored": "Ekip alanı geri getirildi: {target}",
+        "member_added": "Ekip alanına eklendi: {names}, {target} (rol: {role})",
+        "member_removed": "Ekip alanından çıkarıldı: {subject}, {target}",
+        "role_changed": "Ekip alanı rolü değiştirildi: {subject}, {target} → {role}",
+        "group_added": "Ekip alanına gruplar eklendi: {names}, {target}",
+        "group_removed": "Ekip alanından grup çıkarıldı: {subject}, {target}"
       },
       "group": {
         "created": "Grup oluşturuldu: {target}",
@@ -1430,16 +1430,16 @@
     "rowUpdateDescription": "Takip ettiğiniz bir veritabanı satırını başka biri değiştirir: oluşturduğunuz, atandığınız, yorum yaptığınız ya da bahsedildiğiniz veya takip etmeyi seçtiğiniz bir satır.",
     "rowUpdateChannel": "Takip ettiğiniz satırlar: {channel}",
     "pageUpdateTitle": "İzlediğiniz sayfalar",
-    "pageUpdateDescription": "İzlediğiniz bir sayfayı başka biri düzenler: oluşturduğunuz ya da düzenlediğiniz, izlemeyi seçtiğiniz veya izlediğiniz bir teamspace'teki bir sayfa. Aynı sayfa hakkındaki e-postalar en fazla birkaç saatte bir gelir; günde birkaç e-postadan sonra kalanlar tek bir e-postada toplanır.",
+    "pageUpdateDescription": "İzlediğiniz bir sayfayı başka biri düzenler: oluşturduğunuz ya da düzenlediğiniz, izlemeyi seçtiğiniz veya izlediğiniz bir ekip alanındaki bir sayfa. Aynı sayfa hakkındaki e-postalar en fazla birkaç saatte bir gelir; günde birkaç e-postadan sonra kalanlar tek bir e-postada toplanır.",
     "pageUpdateChannel": "İzlediğiniz sayfalar: {channel}",
     "rowEmailTitle": "Satırlardaki e-postalar",
     "rowEmailDescription": "Bir veritabanı satırına mesaj gelir: kendi posta kutunuz üzerinden ya da takip ettiğiniz veya atandığınız bir satıra. Mesaj zaten bir posta kutusunda olduğu için ayrıca e-postayla gelmez.",
     "rowEmailChannel": "Satırlardaki e-postalar: {channel}",
     "watchedHeading": "İzlenen sayfalar",
-    "watchedDescription": "İzlemeyi seçtiğiniz ya da düzenlediğiniz sayfalar ve izlediğiniz teamspace'ler. Oluşturduğunuz sayfaları da izlersiniz. İzleyenler düzenlemelerden ve yeni yorum dizilerinden haber alır.",
+    "watchedDescription": "İzlemeyi seçtiğiniz ya da düzenlediğiniz sayfalar ve izlediğiniz ekip alanları. Oluşturduğunuz sayfaları da izlersiniz. İzleyenler düzenlemelerden ve yeni yorum dizilerinden haber alır.",
     "watchedNone": "Henüz hiçbir sayfayı izlemiyorsunuz",
-    "watchedNoneDescription": "Bir sayfayı ⋯ menüsünden, bütün bir teamspace'i de kenar çubuğundaki menüsünden izleyin. Düzenlediğiniz sayfalar sizin için izlenir.",
-    "watchedTeamspace": "Bu teamspace'in tüm sayfaları · {workspace}",
+    "watchedNoneDescription": "Bir sayfayı ⋯ menüsünden, bütün bir ekip alanını da kenar çubuğundaki menüsünden izleyin. Düzenlediğiniz sayfalar sizin için izlenir.",
+    "watchedTeamspace": "Bu ekip alanının tüm sayfaları · {workspace}",
     "stopWatching": "İzlemeyi bırak"
   },
   "site": {
@@ -1896,7 +1896,7 @@
   },
   "backup": {
     "title": "Çalışma alanını yedekle",
-    "description": "Çalışma alanındaki her şeyi tek bir dosya olarak indirin; burada ya da başka bir Leafdesk'te geri yükleyebilirsiniz: geçmişleriyle sayfalar, veritabanları, yorumlar, dosyalar, teamspace'ler, gruplar ve erişimler, ajanlar ve otomasyonlar.",
+    "description": "Çalışma alanındaki her şeyi tek bir dosya olarak indirin; burada ya da başka bir Leafdesk'te geri yükleyebilirsiniz: geçmişleriyle sayfalar, veritabanları, yorumlar, dosyalar, ekip alanları, gruplar ve erişimler, ajanlar ve otomasyonlar.",
     "button": "Yedekle",
     "preparing": "Hazırlanıyor…",
     "disabled": "Yedekleme, dışa aktarmayla birlikte Ayarlar → Güvenlik bölümünden kapatılmış."

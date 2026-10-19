@@ -118,7 +118,7 @@
     "body": "{workspace} çalışma alanındaki “{page}” değişti. Yenilikleri görmek için açın; geçmişi her değişikliği gösterir.",
     "someone": "Biri",
     "action": "Sayfayı aç",
-    "optOut": "Bunları bu sayfayı izlediğiniz için alıyorsunuz: onu oluşturdunuz ya da düzenlediniz, izlemeyi seçtiniz veya teamspace'ini izliyorsunuz. Sayfanın ⋯ menüsünden sessize alın ya da bu e-postaları Hesabım > Tercihler'den kapatın.",
+    "optOut": "Bunları bu sayfayı izlediğiniz için alıyorsunuz: onu oluşturdunuz ya da düzenlediniz, izlemeyi seçtiniz veya ekip alanını izliyorsunuz. Sayfanın ⋯ menüsünden sessize alın ya da bu e-postaları Hesabım > Tercihler'den kapatın.",
     "digestSubject": "{count, plural, one {İzlediğiniz # sayfa düzenlendi} other {İzlediğiniz # sayfa düzenlendi}}",
     "digestIntro": "İzlediğiniz sayfalarla ilgili bugünkü e-postalarınızı zaten aldınız, bu yüzden bu düzenlemeler bir arada geliyor:",
     "digestPage": "{workspace} içindeki “{page}”, düzenleyen {actor}: {link}",
