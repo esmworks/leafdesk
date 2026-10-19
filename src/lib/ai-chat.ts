@@ -206,33 +206,3 @@ export function conversationTitle(message: string): string {
   const flat = message.replace(/\s+/g, " ").trim();
   return flat.length > 80 ? `${flat.slice(0, 79).trimEnd()}…` : flat;
 }
-
-export type ConversationGroup = "today" | "yesterday" | "week" | "month" | "older";
-
-/**
- * Conversations by when they were last added to, in the person's local days, newest first as they
- * come: today, yesterday, the 7 and 30 days before today, and older. Empty groups are left out.
- */
-export function groupConversations<T extends Pick<ConversationSummary, "updatedAt">>(
-  conversations: T[],
-  now: Date,
-): { group: ConversationGroup; conversations: T[] }[] {
-  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const daysBefore = (days: number) => new Date(midnight.getFullYear(), midnight.getMonth(), midnight.getDate() - days).getTime();
-  const bounds: [ConversationGroup, number][] = [
-    ["today", midnight.getTime()],
-    ["yesterday", daysBefore(1)],
-    ["week", daysBefore(7)],
-    ["month", daysBefore(30)],
-  ];
-  const groups = new Map<ConversationGroup, T[]>();
-  for (const conversation of conversations) {
-    const at = new Date(conversation.updatedAt).getTime();
-    const group = bounds.find(([, from]) => at >= from)?.[0] ?? "older";
-    groups.set(group, [...(groups.get(group) ?? []), conversation]);
-  }
-  return (["today", "yesterday", "week", "month", "older"] as const).flatMap((group) => {
-    const list = groups.get(group);
-    return list ? [{ group, conversations: list }] : [];
-  });
-}

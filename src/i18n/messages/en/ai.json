@@ -127,13 +127,6 @@
     "backToPages": "Back to pages",
     "history": "Conversations",
     "noHistory": "No conversations yet.",
-    "groups": {
-      "today": "Today",
-      "yesterday": "Yesterday",
-      "week": "Previous 7 days",
-      "month": "Previous 30 days",
-      "older": "Older"
-    },
     "untitled": "Untitled conversation",
     "deleteConversation": "Delete conversation",
     "deleteAll": "Delete all conversations",
@@ -235,7 +228,9 @@
       "edit": "Edit",
       "cancel": "Cancel",
       "retry": "Answer again"
-    }
+    },
+    "actionsFor": "Actions for {name}",
+    "greeting": "What would you like to know?"
   },
   "memory": {
     "open": "Memory",

@@ -127,13 +127,6 @@
     "backToPages": "Sayfalara dön",
     "history": "Sohbetler",
     "noHistory": "Henüz sohbet yok.",
-    "groups": {
-      "today": "Bugün",
-      "yesterday": "Dün",
-      "week": "Son 7 gün",
-      "month": "Son 30 gün",
-      "older": "Daha eski"
-    },
     "untitled": "Adsız sohbet",
     "deleteConversation": "Sohbeti sil",
     "deleteAll": "Tüm sohbetleri sil",
@@ -235,7 +228,9 @@
       "edit": "Düzenle",
       "cancel": "Vazgeç",
       "retry": "Yeniden yanıtla"
-    }
+    },
+    "actionsFor": "{name} için işlemler",
+    "greeting": "Ne öğrenmek istersin?"
   },
   "memory": {
     "open": "Hafıza",

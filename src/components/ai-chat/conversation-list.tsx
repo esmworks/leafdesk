@@ -1,10 +1,11 @@
 "use client";
 
 /**
- * The sidebar of the full-page chat: the person's conversations in place of the page tree, by when
- * they were last added to, with the way back to the pages and to a new chat.
+ * The sidebar of the full-page chat: the person's conversations in place of the page tree, newest
+ * first, with the way back to the pages and to a new chat. Deleting, one or all,
+ * is in a ⋯ menu so a stray click doesn't lose a conversation.
  */
-import { ArrowLeft, Loader2, SquarePen, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -12,8 +13,8 @@ import { useEffect, useState } from "react";
 import { deleteConversationAction } from "@/app/actions/ai";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
-import { cn, IconButton } from "@/components/ui";
-import { chatPath, groupConversations } from "@/lib/ai-chat";
+import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
+import { chatPath } from "@/lib/ai-chat";
 import { useAiChat } from "./chat-panel";
 
 export function ConversationList() {
@@ -43,64 +44,82 @@ export function ConversationList() {
   }
 
   const row = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg";
+  /** A ⋯ button opening a menu with one destructive item: two clicks, so nothing goes by accident. */
+  const deleteMenu = (label: string, item: string, onDelete: () => void, className: string) => (
+    <span className={cn("flex", className)}>
+      <Popover
+        align="end"
+        trigger={({ open, toggle }) => (
+          <IconButton label={label} aria-expanded={open} onClick={toggle} disabled={offline} className={cn("h-7 w-7 rounded-md", open && "bg-bg-active text-fg")}>
+            <MoreHorizontal className="h-4 w-4" />
+          </IconButton>
+        )}
+      >
+        {(close) => (
+          <MenuItem
+            danger
+            icon={<Trash2 className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              onDelete();
+            }}
+          >
+            {item}
+          </MenuItem>
+        )}
+      </Popover>
+    </span>
+  );
+  // Shown on hover, and while its menu is open.
+  const onHover = "opacity-0 group-hover/heading:opacity-100 focus-within:opacity-100 has-[[data-open]]:opacity-100 pointer-coarse:opacity-100";
+
   return (
     <div className="space-y-px">
       <Link href={context.backPath()} className={row}>
         <ArrowLeft className="h-4 w-4 shrink-0 rtl:-scale-x-100" />
         <span className="flex-1 truncate">{t("backToPages")}</span>
       </Link>
-      <Link href={chatPath(workspaceId)} onClick={closeDrawer} className={cn(row, !current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}>
+      {/* An action rather than a place: it isn't marked as the current item. */}
+      <Link href={chatPath(workspaceId)} onClick={closeDrawer} className={row}>
         <SquarePen className="h-4 w-4 shrink-0" />
         <span className="flex-1 truncate">{t("newChat")}</span>
       </Link>
 
-      {failed && (
-        <p role="alert" className="px-2 pt-2 text-xs text-danger">
-          {t("deleteFailed")}
-        </p>
-      )}
-      {conversations === null ? (
-        !offline && <Loader2 className="mx-2 mt-3 h-3.5 w-3.5 animate-spin text-fg-muted" aria-hidden />
-      ) : conversations.length === 0 ? (
-        <p className="px-2 pt-3 text-fg-muted">{t("noHistory")}</p>
-      ) : (
-        <>
-          {groupConversations(conversations, new Date()).map(({ group, conversations: list }) => (
-            <section key={group} aria-label={t(`groups.${group}`)} className="pt-3">
-              <h3 className="px-2 pb-0.5 text-xs font-medium text-fg-faint">{t(`groups.${group}`)}</h3>
-              <ul className="space-y-px">
-                {list.map((c) => (
-                  <li key={c.id} className="group/conversation relative">
-                    <Link
-                      href={chatPath(workspaceId, c.id)}
-                      onClick={closeDrawer}
-                      aria-current={c.id === current ? "page" : undefined}
-                      title={c.title || t("untitled")}
-                      className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
-                    >
-                      <span className="flex-1 truncate">{c.title || t("untitled")}</span>
-                    </Link>
-                    <IconButton
-                      label={t("deleteConversation")}
-                      className="absolute top-0 inset-e-0 h-7 w-7 opacity-0 group-hover/conversation:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60"
-                      disabled={offline}
-                      onClick={() => void remove(c.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </IconButton>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-          <div className="pt-3">
-            <button type="button" className={cn(row, "hover:text-danger disabled:opacity-50")} disabled={offline} onClick={() => void remove("all")}>
-              <Trash2 className="h-4 w-4 shrink-0" />
-              <span className="flex-1 truncate">{t("deleteAll")}</span>
-            </button>
-          </div>
-        </>
-      )}
+      <section aria-labelledby="conversations-heading" className="pt-3">
+        <div className="group/heading flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover">
+          <h2 id="conversations-heading" className="min-w-0 flex-1 truncate px-2 text-xs font-medium text-fg-muted">
+            {t("history")}
+          </h2>
+          {!!conversations?.length && deleteMenu(t("actionsFor", { name: t("history") }), t("deleteAll"), () => void remove("all"), onHover)}
+        </div>
+        {failed && (
+          <p role="alert" className="px-2 py-1 text-xs text-danger">
+            {t("deleteFailed")}
+          </p>
+        )}
+        {conversations === null ? (
+          !offline && <Loader2 className="mx-2 mt-2 h-3.5 w-3.5 animate-spin text-fg-muted" aria-hidden />
+        ) : conversations.length === 0 ? (
+          <p className="px-2 py-1 text-xs text-fg-faint">{t("noHistory")}</p>
+        ) : (
+          <ul className="space-y-px">
+            {conversations.map((c) => (
+              <li key={c.id} className="group/heading relative">
+                <Link
+                  href={chatPath(workspaceId, c.id)}
+                  onClick={closeDrawer}
+                  aria-current={c.id === current ? "page" : undefined}
+                  title={c.title || t("untitled")}
+                  className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+                >
+                  <span className="flex-1 truncate">{c.title || t("untitled")}</span>
+                </Link>
+                {deleteMenu(t("actionsFor", { name: c.title || t("untitled") }), t("deleteConversation"), () => void remove(c.id), cn("absolute top-0 inset-e-0", onHover))}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

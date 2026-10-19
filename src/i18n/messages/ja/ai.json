@@ -127,13 +127,6 @@
     "backToPages": "ページに戻る",
     "history": "会話",
     "noHistory": "会話はまだありません。",
-    "groups": {
-      "today": "今日",
-      "yesterday": "昨日",
-      "week": "過去7日間",
-      "month": "過去30日間",
-      "older": "それ以前"
-    },
     "untitled": "無題の会話",
     "deleteConversation": "会話を削除",
     "deleteAll": "すべての会話を削除",
@@ -235,7 +228,9 @@
       "edit": "編集",
       "cancel": "キャンセル",
       "retry": "もう一度回答"
-    }
+    },
+    "actionsFor": "{name}の操作",
+    "greeting": "何を知りたいですか？"
   },
   "memory": {
     "open": "メモリー",

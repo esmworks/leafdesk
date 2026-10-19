@@ -127,13 +127,6 @@
     "backToPages": "Torna alle pagine",
     "history": "Conversazioni",
     "noHistory": "Ancora nessuna conversazione.",
-    "groups": {
-      "today": "Oggi",
-      "yesterday": "Ieri",
-      "week": "Ultimi 7 giorni",
-      "month": "Ultimi 30 giorni",
-      "older": "Meno recenti"
-    },
     "untitled": "Conversazione senza titolo",
     "deleteConversation": "Elimina conversazione",
     "deleteAll": "Elimina tutte le conversazioni",
@@ -235,7 +228,9 @@
       "edit": "Modifica",
       "cancel": "Annulla",
       "retry": "Rispondi di nuovo"
-    }
+    },
+    "actionsFor": "Azioni per {name}",
+    "greeting": "Cosa vuoi sapere?"
   },
   "memory": {
     "open": "Memoria",

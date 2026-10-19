@@ -88,6 +88,7 @@ export function ChatThread({
   };
   // The last question can be answered again, or edited, unless its answer changed things (that
   // would make them twice).
+  const empty = page && messages.length === 0;
   const last = messages[messages.length - 1];
   const askAgain =
     !running &&
@@ -99,10 +100,26 @@ export function ChatThread({
 
   return (
     <>
-      <div ref={listRef} className={cn("min-h-0 flex-1 overflow-y-auto", page ? "px-4 py-6 md:px-8" : "px-4 py-3")} aria-live="polite">
+      <div
+        ref={listRef}
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto",
+          page ? "px-4 py-6 md:px-8" : "px-4 py-3",
+          // An empty page puts the greeting and the question box together a little above the middle.
+          empty && "flex flex-col justify-end pb-6",
+        )}
+        aria-live="polite"
+      >
         <div className={cn(page && "mx-auto w-full max-w-3xl")}>
           {messages.length === 0 ? (
-            <p className={cn("text-sm text-fg-muted", page ? "py-10 text-center" : "py-6")}>{t("intro")}</p>
+            page ? (
+              <div className="space-y-2 text-center">
+                <h2 className="text-2xl font-semibold">{t("greeting")}</h2>
+                <p className="mx-auto max-w-md text-sm text-fg-muted">{t("intro")}</p>
+              </div>
+            ) : (
+              <p className="py-6 text-sm text-fg-muted">{t("intro")}</p>
+            )
           ) : (
             <ol className={cn(page ? "space-y-6" : "space-y-4")}>
               {messages.map((m, i) => (
@@ -232,6 +249,7 @@ export function ChatThread({
         </div>
       </div>
       <MemoryDialog workspaceId={chat.workspaceId} open={memoryOpen} onClose={() => setMemoryOpen(false)} />
+      {empty && <div className="flex-[1.4]" aria-hidden />}
     </>
   );
 }

@@ -127,13 +127,6 @@
     "backToPages": "返回页面",
     "history": "对话",
     "noHistory": "还没有对话。",
-    "groups": {
-      "today": "今天",
-      "yesterday": "昨天",
-      "week": "过去 7 天",
-      "month": "过去 30 天",
-      "older": "更早"
-    },
     "untitled": "无标题对话",
     "deleteConversation": "删除对话",
     "deleteAll": "删除所有对话",
@@ -235,7 +228,9 @@
       "edit": "编辑",
       "cancel": "取消",
       "retry": "重新回答"
-    }
+    },
+    "actionsFor": "{name} 的操作",
+    "greeting": "你想了解什么？"
   },
   "memory": {
     "open": "记忆",

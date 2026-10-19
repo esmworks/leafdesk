@@ -127,13 +127,6 @@
     "backToPages": "Wróć do stron",
     "history": "Rozmowy",
     "noHistory": "Brak rozmów.",
-    "groups": {
-      "today": "Dzisiaj",
-      "yesterday": "Wczoraj",
-      "week": "Poprzednie 7 dni",
-      "month": "Poprzednie 30 dni",
-      "older": "Starsze"
-    },
     "untitled": "Rozmowa bez tytułu",
     "deleteConversation": "Usuń rozmowę",
     "deleteAll": "Usuń wszystkie rozmowy",
@@ -235,7 +228,9 @@
       "edit": "Edytuj",
       "cancel": "Anuluj",
       "retry": "Odpowiedz ponownie"
-    }
+    },
+    "actionsFor": "Działania dla {name}",
+    "greeting": "Czego chcesz się dowiedzieć?"
   },
   "memory": {
     "open": "Pamięć",

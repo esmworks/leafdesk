@@ -127,13 +127,6 @@
     "backToPages": "חזרה לדפים",
     "history": "שיחות",
     "noHistory": "אין עדיין שיחות.",
-    "groups": {
-      "today": "היום",
-      "yesterday": "אתמול",
-      "week": "7 הימים האחרונים",
-      "month": "30 הימים האחרונים",
-      "older": "ישנות יותר"
-    },
     "untitled": "שיחה ללא כותרת",
     "deleteConversation": "מחיקת השיחה",
     "deleteAll": "מחיקת כל השיחות",
@@ -235,7 +228,9 @@
       "edit": "עריכה",
       "cancel": "ביטול",
       "retry": "תשובה מחדש"
-    }
+    },
+    "actionsFor": "פעולות עבור {name}",
+    "greeting": "מה תרצו לדעת?"
   },
   "memory": {
     "open": "זיכרון",

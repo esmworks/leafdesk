@@ -80,6 +80,11 @@
   showing where the page sits (a row's database, a subpage's page) when you can open it. With
   nothing assigned to you, "Assigned to you" is a single line rather than an empty box, and its
   calendar button says what it does.
+- **The full-page AI chat starts in the middle of the page.** A new chat shows a greeting with the
+  question box right under it, both near the middle; once you ask, the box moves to the bottom.
+  The conversations beside it are one list, newest first, under a Conversations heading.
+  Deleting a conversation, or all of them, is now in a ⋯ menu rather than a button you can click
+  by accident.
 - **Databases made over MCP are named in your language.** Their status and tags properties and
   their first view used to be English whatever language you use Leafdesk in; they now match the
   databases you make in the app.

@@ -127,13 +127,6 @@
     "backToPages": "Zurück zu den Seiten",
     "history": "Unterhaltungen",
     "noHistory": "Noch keine Unterhaltungen.",
-    "groups": {
-      "today": "Heute",
-      "yesterday": "Gestern",
-      "week": "Letzte 7 Tage",
-      "month": "Letzte 30 Tage",
-      "older": "Älter"
-    },
     "untitled": "Unbenannte Unterhaltung",
     "deleteConversation": "Unterhaltung löschen",
     "deleteAll": "Alle Unterhaltungen löschen",
@@ -235,7 +228,9 @@
       "edit": "Bearbeiten",
       "cancel": "Abbrechen",
       "retry": "Neu beantworten"
-    }
+    },
+    "actionsFor": "Aktionen für {name}",
+    "greeting": "Was möchtest du wissen?"
   },
   "memory": {
     "open": "Gedächtnis",

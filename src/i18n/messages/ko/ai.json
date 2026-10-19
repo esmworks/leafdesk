@@ -127,13 +127,6 @@
     "backToPages": "페이지로 돌아가기",
     "history": "대화",
     "noHistory": "아직 대화가 없습니다.",
-    "groups": {
-      "today": "오늘",
-      "yesterday": "어제",
-      "week": "지난 7일",
-      "month": "지난 30일",
-      "older": "이전"
-    },
     "untitled": "제목 없는 대화",
     "deleteConversation": "대화 삭제",
     "deleteAll": "모든 대화 삭제",
@@ -235,7 +228,9 @@
       "edit": "편집",
       "cancel": "취소",
       "retry": "다시 답변"
-    }
+    },
+    "actionsFor": "{name} 작업",
+    "greeting": "무엇이 궁금하세요?"
   },
   "memory": {
     "open": "메모리",
