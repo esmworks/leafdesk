@@ -5,111 +5,109 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Button, cn } from "@/components/ui";
 import { fileUrl } from "@/lib/files";
-import type { SheetCells, Workbook } from "@/lib/import/xlsx";
-import { XLSX_MIME } from "@/lib/xlsx";
+import type { SheetCells } from "@/lib/import/xlsx";
+import { columnName, XLSX_MIME } from "@/lib/xlsx";
+import type { SpreadsheetReply, SpreadsheetRequest } from "./spreadsheet-worker";
 
 /** Largest workbook read in place; a larger one shows its link only. */
 const MAX_BYTES = 10 * 1024 * 1024;
+/** What its parts may unpack to (a small file can hold a huge sheet). */
+const MAX_UNPACKED_BYTES = 100 * 1024 * 1024;
 /** How much of a sheet is shown. */
 const LIMITS = { rows: 200, columns: 40 };
 
-type State =
-  | { status: "loading" | "tooLarge" | "unreadable" }
-  | { status: "ready"; book: Workbook; bytes: Uint8Array<ArrayBuffer>; sheet: number; cells: SheetCells };
-
-/** A column's letters, as spreadsheets name it: 0 → A, 26 → AA. */
-export function columnName(index: number): string {
-  let name = "";
-  for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26)) name = String.fromCharCode(65 + ((n - 1) % 26)) + name;
-  return name;
-}
+type State = { status: "loading" | "tooLarge" | "unreadable" } | { status: "ready"; sheets: string[]; sheet: number; cells: SheetCells };
 
 const NUMBER = /^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i;
+
+type Props = {
+  fileId: string;
+  name: string;
+  caption?: string;
+  /** Offered where the reader may edit: imports a sheet of the workbook, given as a file. */
+  onConvert?: (file: File) => void;
+};
 
 /**
  * An uploaded Excel workbook (.xlsx) shown in place, read-only, in the editor's file blocks and on
  * published pages: the first rows and columns of one sheet at a time, with the sheet's own row
- * numbers and column letters, and tabs for its other sheets. The bytes are read in the browser
- * with the import's reader (lib/import/xlsx) once the block comes near the screen; cells are
- * text, never markup. A workbook too large, damaged, password-protected or old (.xls) shows its
- * link with a note instead.
+ * numbers and column letters, and tabs for its other sheets. Once the block comes near the screen,
+ * a worker fetches and reads the workbook with the import's reader (see spreadsheet-worker.ts),
+ * off the page's main thread; cells are text, never markup. A workbook too large, damaged,
+ * password-protected or old (.xls) shows its link with a note instead.
  *
- * `onConvert`, where the reader may edit, offers to import a sheet as a new database: it gets the
- * workbook as a file, as if chosen in the import dialog.
+ * `onConvert` offers to import a sheet as a new database: it gets the workbook as a file, as if
+ * chosen in the import dialog.
  */
-export function SpreadsheetViewer({
-  fileId,
-  name,
-  caption,
-  onConvert,
-}: {
-  fileId: string;
-  name: string;
-  caption?: string;
-  onConvert?: (file: File) => void;
-}) {
+export function SpreadsheetViewer(props: Props) {
+  // Another file starts over: nothing of the one before shows meanwhile.
+  return <Viewer key={props.fileId} {...props} />;
+}
+
+function Viewer({ fileId, name, caption, onConvert }: Props) {
   const t = useTranslations("page.spreadsheet");
   const [state, setState] = useState<State>({ status: "loading" });
+  const [converting, setConverting] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  const worker = useRef<Worker | null>(null);
   const label = name || t("untitled");
 
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-    const read = async () => {
-      try {
-        const res = await fetch(fileUrl(fileId), { signal: controller.signal });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        if (Number(res.headers.get("content-length") ?? 0) > MAX_BYTES) {
-          controller.abort();
-          if (!cancelled) setState({ status: "tooLarge" });
-          return;
-        }
-        const bytes = new Uint8Array(await res.arrayBuffer());
-        if (bytes.byteLength > MAX_BYTES) {
-          if (!cancelled) setState({ status: "tooLarge" });
-          return;
-        }
-        const { readWorkbook } = await import("@/lib/import/xlsx");
-        const book = readWorkbook(bytes);
-        const cells = book.cells(0, LIMITS);
-        if (!cancelled) setState({ status: "ready", book, bytes, sheet: 0, cells });
-      } catch {
-        if (!cancelled) setState({ status: "unreadable" });
-      }
+    let observer: IntersectionObserver | null = null;
+    const read = () => {
+      const reader = new Worker(new URL("./spreadsheet-worker.ts", import.meta.url), { type: "module" });
+      worker.current = reader;
+      reader.onmessage = (event: MessageEvent<SpreadsheetReply>) => {
+        const reply = event.data;
+        setState(reply.type === "sheet" ? { status: "ready", sheets: reply.sheets, sheet: reply.sheet, cells: reply.cells } : { status: reply.type });
+      };
+      reader.onerror = () => setState({ status: "unreadable" });
+      reader.postMessage({
+        type: "open",
+        url: new URL(fileUrl(fileId), location.href).href,
+        maxBytes: MAX_BYTES,
+        unpackedBytes: MAX_UNPACKED_BYTES,
+        limits: LIMITS,
+      } satisfies SpreadsheetRequest);
     };
     // Read once the block comes near the screen, so a page of many workbooks doesn't fetch them all.
     const element = box.current;
-    if (!element || typeof IntersectionObserver === "undefined") {
-      void read();
-    } else {
-      const observer = new IntersectionObserver(
+    if (!element || typeof IntersectionObserver === "undefined") read();
+    else {
+      observer = new IntersectionObserver(
         (entries) => {
           if (!entries.some((e) => e.isIntersecting)) return;
-          observer.disconnect();
-          void read();
+          observer?.disconnect();
+          read();
         },
         { rootMargin: "400px" },
       );
       observer.observe(element);
-      return () => {
-        cancelled = true;
-        observer.disconnect();
-        controller.abort();
-      };
     }
     return () => {
-      cancelled = true;
-      controller.abort();
+      observer?.disconnect();
+      worker.current?.terminate();
+      worker.current = null;
     };
   }, [fileId]);
 
   const showSheet = (sheet: number) => {
     if (state.status !== "ready" || sheet === state.sheet) return;
+    worker.current?.postMessage({ type: "sheet", sheet } satisfies SpreadsheetRequest);
+  };
+
+  /** Hands the workbook to `onConvert`, fetched again (the browser keeps it cached) rather than kept in memory. */
+  const convert = async () => {
+    if (!onConvert || converting) return;
+    setConverting(true);
     try {
-      setState({ ...state, sheet, cells: state.book.cells(sheet, LIMITS) });
+      const res = await fetch(fileUrl(fileId));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      onConvert(new File([await res.blob()], name || "workbook.xlsx", { type: XLSX_MIME }));
     } catch {
       setState({ status: "unreadable" });
+    } finally {
+      setConverting(false);
     }
   };
 
@@ -136,7 +134,8 @@ export function SpreadsheetViewer({
             variant="ghost"
             className="shrink-0"
             title={t("convertTitle")}
-            onClick={() => onConvert(new File([state.bytes], name || "workbook.xlsx", { type: XLSX_MIME }))}
+            disabled={converting}
+            onClick={() => void convert()}
           >
             <TableProperties className="h-3.5 w-3.5" aria-hidden />
             {t("convert")}
@@ -152,15 +151,15 @@ export function SpreadsheetViewer({
         ) : (
           <>
             {state.cells.rows.length ? (
-              <SheetTable cells={state.cells} label={t("tableLabel", { name: label, sheet: state.book.sheets[state.sheet]?.name ?? "" })} />
+              <SheetTable cells={state.cells} label={t("tableLabel", { name: label, sheet: state.sheets[state.sheet] ?? "" })} />
             ) : (
               <div className="p-3 text-sm text-fg-muted">{t("empty")}</div>
             )}
-            {(state.book.sheets.length > 1 || state.cells.partial) && (
+            {(state.sheets.length > 1 || state.cells.partial) && (
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-t border-border bg-bg-subtle px-1.5 py-1">
-                {state.book.sheets.length > 1 && (
+                {state.sheets.length > 1 && (
                   <div role="tablist" aria-label={t("sheets")} className="flex min-w-0 flex-wrap items-center gap-0.5">
-                    {state.book.sheets.map((sheet, i) => (
+                    {state.sheets.map((sheet, i) => (
                       <button
                         key={i}
                         type="button"
@@ -172,7 +171,7 @@ export function SpreadsheetViewer({
                           i === state.sheet ? "bg-bg font-medium text-fg shadow-sm ring-1 ring-border" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
                         )}
                       >
-                        {sheet.name}
+                        {sheet}
                       </button>
                     ))}
                   </div>

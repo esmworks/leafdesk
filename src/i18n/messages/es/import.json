@@ -10,6 +10,7 @@
   },
   "destination": "Colocar dentro de",
   "topLevel": "Nivel superior del espacio de trabajo",
+  "filePage": "La página con el archivo",
   "noDestination": "No hay ninguna página a la que puedas añadir páginas.",
   "pages": {
     "help": "Los archivos Markdown se convierten en páginas y las carpetas conservan su estructura. Los archivos CSV se convierten en bases de datos y se suben las imágenes enlazadas desde las páginas.",

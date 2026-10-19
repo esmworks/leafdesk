@@ -10,6 +10,7 @@
   },
   "destination": "放在",
   "topLevel": "工作区顶层",
+  "filePage": "文件所在的页面",
   "noDestination": "没有你可以添加页面的页面。",
   "pages": {
     "help": "Markdown 文件会成为页面，文件夹会保留其结构。CSV 文件会成为数据库，页面中链接的图片会被上传。",

@@ -10,6 +10,7 @@
   },
   "destination": "Colocar em",
   "topLevel": "Nível superior do espaço de trabalho",
+  "filePage": "A página com o arquivo",
   "noDestination": "Não há nenhuma página à qual você possa adicionar páginas.",
   "pages": {
     "help": "Arquivos Markdown viram páginas e as pastas mantêm sua estrutura. Arquivos CSV viram bancos de dados, e as imagens vinculadas nas páginas são enviadas.",

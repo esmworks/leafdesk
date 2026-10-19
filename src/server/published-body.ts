@@ -194,18 +194,17 @@ export type PublishedColumn<S> = { width: number; segments: S[] };
 /** A bookmark card's details, every URL checked to be http(s). */
 export type PublishedBookmark = { url: string; title: string; description: string; image: string; favicon: string; siteName: string };
 
-/** The uploaded PDF a file block shows in place, if it holds one (see lib/files pdfFileId). */
-function pdfOf(block: PageBlock): string | null {
+/**
+ * The uploaded file a file block shows in place, if it holds one: a PDF or an Excel workbook (see
+ * lib/files pdfFileId and spreadsheetFileId).
+ */
+function inPlaceFileOf(block: PageBlock): { kind: "pdf" | "spreadsheet"; fileId: string } | null {
   if (block.type !== "file") return null;
   const props = block.props as { url?: unknown; name?: unknown };
-  return pdfFileId(props.url, props.name);
-}
-
-/** The uploaded Excel workbook a file block shows in place, if it holds one (see lib/files spreadsheetFileId). */
-function spreadsheetOf(block: PageBlock): string | null {
-  if (block.type !== "file") return null;
-  const props = block.props as { url?: unknown; name?: unknown };
-  return spreadsheetFileId(props.url, props.name);
+  const pdf = pdfFileId(props.url, props.name);
+  if (pdf) return { kind: "pdf", fileId: pdf };
+  const spreadsheet = spreadsheetFileId(props.url, props.name);
+  return spreadsheet ? { kind: "spreadsheet", fileId: spreadsheet } : null;
 }
 
 const isStandalone = (block: PageBlock) =>
@@ -217,8 +216,7 @@ const isStandalone = (block: PageBlock) =>
   block.type === BREADCRUMB_BLOCK ||
   block.type === SUBPAGES_BLOCK ||
   block.type === MERMAID_BLOCK ||
-  pdfOf(block) !== null ||
-  spreadsheetOf(block) !== null;
+  inPlaceFileOf(block) !== null;
 
 /** A bookmark or embed block as the published page draws it, or null when it has no valid URL. */
 function webSegment(block: PageBlock): BodySegment | null {
@@ -495,14 +493,12 @@ export async function bodySegmentsFromBlocks(
         segments.push(segment);
         return;
       }
-      const pdf = pdfOf(block);
-      const spreadsheet = pdf ? null : spreadsheetOf(block);
-      if (pdf || spreadsheet) {
+      const inPlace = inPlaceFileOf(block);
+      if (inPlace) {
         const props = block.props as { name?: unknown; caption?: unknown };
         await flush();
         segments.push({
-          kind: pdf ? "pdf" : "spreadsheet",
-          fileId: (pdf ?? spreadsheet)!,
+          ...inPlace,
           name: typeof props.name === "string" ? props.name : "",
           caption: typeof props.caption === "string" ? props.caption : "",
         });

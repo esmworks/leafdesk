@@ -10,6 +10,7 @@
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
+  "filePage": "La page contenant le fichier",
   "noDestination": "Il n’y a aucune page à laquelle vous pouvez ajouter des pages.",
   "pages": {
     "help": "Les fichiers Markdown deviennent des pages et les dossiers conservent leur structure. Les fichiers CSV deviennent des bases de données, et les images vers lesquelles pointent les pages sont ajoutées.",

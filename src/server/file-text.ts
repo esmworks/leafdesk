@@ -38,6 +38,11 @@ export const FILE_TEXT_LIMITS = {
   chars: 200_000,
   /** Documents indexed per page, in the order the page shows them. */
   filesPerPage: 20,
+  /**
+   * What a workbook's parts may unpack to: it is read in the server's own process, so a small file
+   * that unpacks to hundreds of megabytes isn't read at all.
+   */
+  workbookUnpackedBytes: 64 * MB,
 };
 
 /** Raise it when what is read out of a document changes (limits included): rows of an older version are read again. */
@@ -116,11 +121,12 @@ async function docxText(name: string, bytes: Uint8Array): Promise<ExtractedText>
 /**
  * The text of an Excel workbook: each worksheet's name on a line of its own, then its rows, their
  * cells between bars (an empty cell keeps its place, so columns stay apart). Reads each sheet as
- * far as the CSV import would and stops once there's text enough; throws when it can't be read.
+ * far as the CSV import would and stops once there's text enough; throws when it can't be read,
+ * or unpacks to more than FILE_TEXT_LIMITS.workbookUnpackedBytes.
  */
 export async function workbookText(bytes: Uint8Array, { chars = FILE_TEXT_LIMITS.chars }: { chars?: number } = {}): Promise<ExtractedText> {
   const [{ readWorkbook }, { CSV_MAX_COLUMNS, CSV_MAX_ROWS }] = await Promise.all([import("@/lib/import/xlsx"), import("@/lib/import/csv")]);
-  const book = readWorkbook(bytes);
+  const book = readWorkbook(bytes, { unpackedBytes: FILE_TEXT_LIMITS.workbookUnpackedBytes });
   const parts: string[] = [];
   let size = 0;
   let partial = false;
@@ -129,7 +135,7 @@ export async function workbookText(bytes: Uint8Array, { chars = FILE_TEXT_LIMITS
       partial = true;
       break;
     }
-    const cells = book.cells(index, { rows: CSV_MAX_ROWS + 1, columns: CSV_MAX_COLUMNS });
+    const cells = book.cells(index, { rows: CSV_MAX_ROWS + 1, columns: CSV_MAX_COLUMNS, chars: chars - size });
     partial ||= cells.partial;
     const lines = cells.rows.map((row) => {
       const used = row.cells.slice(0, row.cells.findLastIndex((cell) => cell.trim() !== "") + 1);

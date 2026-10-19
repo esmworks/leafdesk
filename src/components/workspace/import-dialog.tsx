@@ -86,8 +86,11 @@ export function ImportDialog({
   activeId: string | null;
   /** Where top-level imports go: a teamspace, null for private, undefined for the workspace default. */
   teamspaceId?: string | null;
-  /** A CSV file or workbook to start from (one a page shows): it opens chosen, to import as a new database. */
-  file?: File | null;
+  /**
+   * A CSV file or workbook a page shows, to start from: it opens chosen, to import as a new
+   * database under that page (`pageId`), offered even when the tree doesn't list it (a row's page).
+   */
+  file?: { file: File; pageId: string } | null;
 }) {
   const router = useRouter();
   const t = useTranslations("import");
@@ -96,6 +99,8 @@ export function ImportDialog({
 
   const flat = useMemo(() => flatten(tree), [tree]);
   const destinations = flat.filter(({ node }) => node.kind === "page" && canEdit(node));
+  // The page showing `file`, when the tree doesn't list it: offered too, by what it is.
+  const filePage = file && !destinations.some(({ node }) => node.id === file.pageId) ? file.pageId : null;
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
@@ -147,7 +152,8 @@ export function ImportDialog({
       setTab("csv");
       setCsvMode("new");
       setDatabaseId("");
-      void chooseCsv(file);
+      setDestination(file.pageId);
+      void chooseCsv(file.file);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- resets only when the dialog opens, not while the tree changes
   }, [open]);
@@ -186,7 +192,7 @@ export function ImportDialog({
     );
   }, [csv, target]);
 
-  const destinationValid = destination ? destinations.some((d) => d.node.id === destination) : topLevel;
+  const destinationValid = destination ? destination === filePage || destinations.some((d) => d.node.id === destination) : topLevel;
   const totalSize = picked.reduce((sum, p) => sum + p.file.size, 0);
   const documentsSize = documents.reduce((sum, f) => sum + f.size, 0);
 
@@ -367,11 +373,12 @@ export function ImportDialog({
   const destinationPicker = (
     <label className="block">
       <span className={labelClass}>{t("destination")}</span>
-      {destinations.length === 0 && !topLevel ? (
+      {destinations.length === 0 && !topLevel && !filePage ? (
         <p className="text-sm text-fg-muted">{t("noDestination")}</p>
       ) : (
         <select className={selectClass} value={destination} disabled={busy} onChange={(e) => setDestination(e.target.value)}>
           {topLevel && <option value="">{t("topLevel")}</option>}
+          {filePage && <option value={filePage}>{t("filePage")}</option>}
           {destinations.map(({ node, depth }) => (
             <option key={node.id} value={node.id}>
               {`${"  ".repeat(depth)}${node.icon ? `${node.icon} ` : ""}${pageLabel(node.title, tc("untitled"))}`}

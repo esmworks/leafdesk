@@ -237,6 +237,18 @@ describe("Workbook.cells", () => {
       partial: true,
     });
     expect(readWorkbook(big).cells(0, { rows: 6000, columns: 200 })).toMatchObject({ width: 101, partial: false });
+    // Text enough: the row that reaches the limit is kept, the next one isn't read.
+    expect(readWorkbook(big).cells(0, { rows: 6000, columns: 2, chars: 3 })).toMatchObject({
+      rows: [{ cells: ["0"] }, { cells: ["1"] }, { cells: ["2"] }],
+      partial: true,
+    });
+  });
+
+  it("refuses a workbook whose parts unpack to more than it may read", () => {
+    const rows = Array.from({ length: 2000 }, (_, i) => `<row r="${i + 1}"><c r="A${i + 1}"><v>${i}</v></c></row>`).join("");
+    const book = fixture({ parts: { "xl/worksheets/sheet1.xml": `<worksheet ${NS}><sheetData>${rows}</sheetData></worksheet>` } });
+    expect(failure(() => readWorkbook(book, { unpackedBytes: 20_000 }).cells(0, { rows: 10, columns: 10 }))).toBe("tooLarge");
+    expect(readWorkbook(book, { unpackedBytes: 1_000_000 }).cells(0, { rows: 10, columns: 10 }).rows).toHaveLength(10);
   });
 });
 

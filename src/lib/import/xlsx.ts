@@ -158,9 +158,13 @@ const unreadable = () => new ImportError("The workbook can't be read", "badWorkb
 /** A workbook's ZIP: parts read one at a time, all of them within one unpacked-size budget. */
 class Package {
   private names = new Map<string, string>();
-  private budget = IMPORT_LIMITS.unpackedBytes;
+  private budget: number;
 
-  constructor(private bytes: Uint8Array) {
+  constructor(
+    private bytes: Uint8Array,
+    private limit: number,
+  ) {
+    this.budget = limit;
     if (isOleFile(bytes)) {
       throw new ImportError("Only .xlsx workbooks without a password can be imported", "unsupportedWorkbook");
     }
@@ -188,7 +192,7 @@ class Package {
           if (entry.name !== name) return false;
           this.budget -= Math.max(entry.size, entry.originalSize);
           if (this.budget < 0) {
-            throw new ImportError("The unpacked files are too large to import", "tooLarge", { limit: IMPORT_LIMITS.unpackedBytes });
+            throw new ImportError("The unpacked files are too large to import", "tooLarge", { limit: this.limit });
           }
           return true;
         },
@@ -340,8 +344,11 @@ function numberText(value: number) {
 
 type Context = { strings: string[]; styles: DateKind[]; date1904: boolean };
 
-/** How much of a worksheet to read for showing it: past these, reading stops instead of failing. */
-export type SheetLimits = { rows: number; columns: number };
+/**
+ * How much of a worksheet to read for showing it: past these, reading stops instead of failing.
+ * `chars`: stop after the row that brings the cells' text to this many characters.
+ */
+export type SheetLimits = { rows: number; columns: number; chars?: number };
 
 /** A worksheet's cells as read for showing it: each row with its number in the sheet. */
 export type SheetCells = {
@@ -366,6 +373,9 @@ function sheetRecords(pkg: Package, path: string, ctx: Context, limits?: SheetLi
   const records: string[][] = [];
   const numbers: number[] = [];
   let partial = false;
+  // Characters of text in the cells read, and in the rows kept before the current one.
+  let size = 0;
+  let sizeBefore = 0;
   let row: string[] | null = null;
   let number = 0;
   let filled = false;
@@ -390,6 +400,7 @@ function sheetRecords(pkg: Package, path: string, ctx: Context, limits?: SheetLi
       }
       while (row.length < col) row.push("");
       row[col] = text;
+      size += text.length;
       filled = true;
     }
   };
@@ -399,6 +410,7 @@ function sheetRecords(pkg: Package, path: string, ctx: Context, limits?: SheetLi
       if (name === "row") {
         row = [];
         number = attrs.r && /^\d+$/.test(attrs.r) ? Number(attrs.r) : number + 1;
+        sizeBefore = size;
         filled = false;
         col = -1;
       } else if (name === "c" && row) {
@@ -426,7 +438,7 @@ function sheetRecords(pkg: Package, path: string, ctx: Context, limits?: SheetLi
         cell = null;
       } else if (name === "row" && row) {
         if (filled) {
-          if (limits && records.length >= limits.rows) {
+          if (limits && (records.length >= limits.rows || (limits.chars !== undefined && sizeBefore >= limits.chars))) {
             partial = true;
             throw STOP;
           }
@@ -532,9 +544,12 @@ export type Workbook = {
   cells(sheet: number, limits: SheetLimits): SheetCells;
 };
 
-/** Opens a workbook (.xlsx). Throws an ImportError when it can't be read or isn't one. */
-export function readWorkbook(bytes: Uint8Array): Workbook {
-  const pkg = new Package(bytes);
+/**
+ * Opens a workbook (.xlsx). Throws an ImportError when it can't be read or isn't one, or once the
+ * parts it reads unpack to more than `unpackedBytes` ("tooLarge").
+ */
+export function readWorkbook(bytes: Uint8Array, { unpackedBytes = IMPORT_LIMITS.unpackedBytes }: { unpackedBytes?: number } = {}): Workbook {
+  const pkg = new Package(bytes, unpackedBytes);
   const root = relationships(pkg, "");
   const workbookPath = [...root.values()].find((r) => r.type === "officeDocument")?.target || "xl/workbook.xml";
   const sheets: { name: string; path: string; hidden: boolean }[] = [];

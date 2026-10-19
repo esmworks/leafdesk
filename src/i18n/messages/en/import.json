@@ -10,6 +10,7 @@
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
+  "filePage": "The page with the file",
   "noDestination": "There is no page you can add pages to.",
   "pages": {
     "help": "Markdown files become pages and folders keep their structure. CSV files become databases, and images that pages link to are uploaded.",

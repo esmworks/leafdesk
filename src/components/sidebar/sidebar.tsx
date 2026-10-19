@@ -175,8 +175,8 @@ export function Sidebar({
   const [trashOpen, setTrashOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  // A workbook a page shows, to import as a database (see IMPORT_SPREADSHEET_EVENT).
-  const [importFile, setImportFile] = useState<File | null>(null);
+  // A workbook a page shows, to import as a database under that page (see IMPORT_SPREADSHEET_EVENT).
+  const [importFile, setImportFile] = useState<ImportSpreadsheetDetail | null>(null);
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -293,10 +293,10 @@ export function Sidebar({
   }, [refreshFavorites]);
   useEffect(() => {
     const onImport = (event: Event) => {
-      const { file } = (event as CustomEvent<ImportSpreadsheetDetail>).detail ?? {};
-      if (!(file instanceof File)) return;
+      const { file, pageId } = (event as CustomEvent<ImportSpreadsheetDetail>).detail ?? {};
+      if (!(file instanceof File) || typeof pageId !== "string") return;
       setDialogTarget(undefined);
-      setImportFile(file);
+      setImportFile({ file, pageId });
       setImportOpen(true);
     };
     window.addEventListener(IMPORT_SPREADSHEET_EVENT, onImport);

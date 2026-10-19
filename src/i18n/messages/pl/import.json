@@ -10,6 +10,7 @@
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
+  "filePage": "Strona z plikiem",
   "noDestination": "Nie ma strony, do której możesz dodawać strony.",
   "pages": {
     "help": "Pliki Markdown stają się stronami, a foldery zachowują swoją strukturę. Pliki CSV stają się bazami danych, a obrazy, do których linkują strony, są przesyłane.",

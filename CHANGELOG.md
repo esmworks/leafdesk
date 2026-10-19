@@ -11,8 +11,9 @@
   database.
 - **Search finds the words inside Excel workbooks.** Full-text search, the AI chat's semantic search
   and the MCP `search` read the workbooks pages show, as they read PDFs and Word documents.
-  Workbooks uploaded earlier are read by the background sweep, without a reindex. The MCP
-  `get_file` tool reads a workbook as text, sheet by sheet.
+  Workbooks uploaded earlier are read by the background sweep, and pages are indexed for the AI
+  chat again in the background so their workbooks go in. The MCP `get_file` tool reads a workbook
+  as text, sheet by sheet. A workbook whose contents unpack to more than 64 MB isn't read.
 
 ## 0.6.1 — 2026-10-19
 

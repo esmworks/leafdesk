@@ -10,6 +10,7 @@
   },
   "destination": "Inserisci in",
   "topLevel": "Livello principale dello spazio di lavoro",
+  "filePage": "La pagina con il file",
   "noDestination": "Non c’è nessuna pagina a cui puoi aggiungere pagine.",
   "pages": {
     "help": "I file Markdown diventano pagine e le cartelle mantengono la loro struttura. I file CSV diventano database e le immagini a cui le pagine rimandano vengono caricate.",

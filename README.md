@@ -1770,9 +1770,9 @@ respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out o
 page's file blocks is indexed with the page, in chunks headed "Page › file name" that point at the
 file block, so the chat can answer from a document and cite it. A document is read once and its text kept in
 `file_text`; the first 50 pages or 200,000 characters of each are read (of a workbook, each sheet's
-name and then its rows, at most 5,000 rows and 100 columns a sheet), up to 20 documents per page,
-files over 25 MB are skipped, and a scan without a text layer adds nothing. Full-text search reads
-the same text for any PDF, Word document or workbook a page shows, also one it only links to.
+name and then its rows, at most 5,000 rows and 100 columns a sheet, and none whose contents unpack
+to more than 64 MB), up to 20 documents per page, files over 25 MB are skipped, and a scan without
+a text layer adds nothing. Full-text search reads the same text for any PDF, Word document or workbook a page shows, also one it only links to.
 Documents are read whether or not the server has an embeddings model, since full-text search finds
 pages by their words too: in the background after they are uploaded, and those uploaded before
 search read them (or while the server was down) a couple of hundred at a time by a sweep that a

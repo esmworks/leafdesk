@@ -4,12 +4,13 @@ import { createFileBlockConfig, fileParse } from "@blocknote/core";
 import { createReactBlockSpec, FileBlockWrapper } from "@blocknote/react";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
+import { useEmbedHost } from "./database-embed";
 import { PdfViewer } from "./pdf-viewer";
 import { SpreadsheetViewer } from "./spreadsheet-viewer";
 
-/** Opens the import dialog with a workbook the page shows (the sidebar listens). */
-function convertSpreadsheet(file: File) {
-  window.dispatchEvent(new CustomEvent<ImportSpreadsheetDetail>(IMPORT_SPREADSHEET_EVENT, { detail: { file } }));
+/** Opens the import dialog with a workbook page `pageId` shows (the sidebar listens). */
+function convertSpreadsheet(file: File, pageId: string) {
+  window.dispatchEvent(new CustomEvent<ImportSpreadsheetDetail>(IMPORT_SPREADSHEET_EVENT, { detail: { file, pageId } }));
 }
 
 /**
@@ -24,6 +25,8 @@ export const FileBlock = createReactBlockSpec(createFileBlockConfig, {
   parse: fileParse(),
   render: function FileBlockView(props) {
     const { url, name } = props.block.props;
+    // The page the block is in, and whether it may be edited now (it follows a lock as it changes).
+    const host = useEmbedHost();
     const pdf = pdfFileId(url, name);
     const spreadsheet = pdf ? null : spreadsheetFileId(url, name);
     return (
@@ -31,7 +34,7 @@ export const FileBlock = createReactBlockSpec(createFileBlockConfig, {
         {pdf ? (
           <PdfViewer fileId={pdf} name={name} />
         ) : spreadsheet ? (
-          <SpreadsheetViewer fileId={spreadsheet} name={name} onConvert={props.editor.isEditable ? convertSpreadsheet : undefined} />
+          <SpreadsheetViewer fileId={spreadsheet} name={name} onConvert={host?.editable ? (file) => convertSpreadsheet(file, host.pageId) : undefined} />
         ) : undefined}
       </FileBlockWrapper>
     );

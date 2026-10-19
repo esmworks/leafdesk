@@ -10,6 +10,7 @@
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
+  "filePage": "Die Seite mit der Datei",
   "noDestination": "Es gibt keine Seite, der du Seiten hinzufügen kannst.",
   "pages": {
     "help": "Markdown-Dateien werden zu Seiten, und Ordner behalten ihre Struktur. CSV-Dateien werden zu Datenbanken, und Bilder, auf die Seiten verlinken, werden hochgeladen.",

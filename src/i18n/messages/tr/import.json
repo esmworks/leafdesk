@@ -10,6 +10,7 @@
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
+  "filePage": "Dosyanın bulunduğu sayfa",
   "noDestination": "Sayfa ekleyebileceğiniz bir sayfa yok.",
   "pages": {
     "help": "Markdown dosyaları sayfa olur, klasörler yapısını korur. CSV dosyaları veritabanı olur, sayfaların bağlantı verdiği görseller yüklenir.",
