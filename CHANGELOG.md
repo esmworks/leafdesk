@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## 0.6.2 — 2026-10-20
+
+### Upgrading from 0.6.1
+
+- **Download the new `docker-compose.yml`.** The bundled database now starts without
+  `COMPOSE_PROFILES`, and a short-lived `secrets` service runs before the app (see *Install with one
+  command*). An existing `.env` keeps working unchanged; `COMPOSE_PROFILES=bundled-db` no longer
+  does anything and can go. With an external database, add `BUNDLED_DB=0` to `.env`, or an unused
+  bundled database starts next to it. The new file also passes the settings for your own AI keys and
+  storage, and those listed under *Fixed*.
+- **Migrations 0086 to 0092** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). They add tables for email on rows, workspace storage and its moves, people's
+  AI accounts and snippets, and columns to `file`, `notification`, `user_preference` and
+  `workspace`; nothing large is rewritten.
+- After the upgrade the server reads Excel workbooks uploaded earlier in the background, and indexes
+  pages for the AI chat's semantic search again so their workbooks go in.
+- Your own AI keys and your own storage stay off until `OWN_AI_KEYS_ENABLED` and
+  `OWN_STORAGE_ENABLED` are set; email on rows stays off until an owner turns it on in
+  Settings → Email.
+
 ### Added
 
 - **Footnotes.** `/footnote` puts a number in the text and opens its note; hovering the number
@@ -9,14 +29,14 @@
   page lists its notes under the body (a number there goes to its place in the text), and
   published pages and the PDF list them at the end, linked both ways. Markdown, MCP and the API
   read and write them as `[^1]` with `[^1]: The note.` lines at the end, and so does the AI
-  assistant: rewriting, translating or continuing text keeps its footnotes, and its inline
-  equations, instead of running them into the sentence. Word footnotes and endnotes import as
+  assistant: rewriting, translating or continuing text keeps its footnotes, its inline
+  equations and its page mentions (which it reads with the pages' titles) instead of running them
+  into the sentence. Word footnotes and endnotes import as
   footnotes instead of a list at the end of the page.
 - **Callouts hidden when printing.** *Hide when printing* in a callout's block menu keeps it on
   screen and leaves it out of the PDF and of what the browser prints, for notes that shouldn't
   reach a printout. The callout shows a small mark while it is hidden. In Markdown it is the line
   `<!-- leafdesk:no-print -->` right before the callout.
-
 - **Your own AI keys.** With `OWN_AI_KEYS_ENABLED`, everyone can add AI accounts to their Leafdesk
   account in Settings → Apps → AI: a provider (Anthropic, OpenAI, Google Gemini, OpenCode Go or an
   OpenAI-compatible server), a model and the key, tried with a tiny request before it is kept and
@@ -142,15 +162,20 @@
   opening, closing or stepping through rows with J and K no longer redraws every card of a large
   board, table or calendar: only the row that was open and the one now open change.
 - **Dragging cards on a large board or calendar is smooth.** Moving a card over columns or days
-  used to redraw every card at each step; now only the card being dragged changes.
+  used to redraw every card at each step; now only the card being dragged changes. Once a change
+  is saved, only the rows it touched redraw, where a board of 400 cards redrew all of them.
 - **Docker installs start sooner.** The bundled database is checked every second while it starts
   instead of every five, so the app no longer waits out a whole interval before migrating, and the
   app's health check runs every two seconds during its start.
-- **The bundled database runs without `COMPOSE_PROFILES`.** Upgrading: download the new
-  `docker-compose.yml`; an existing `.env` keeps working unchanged. `COMPOSE_PROFILES=bundled-db`
-  no longer does anything. With an external database, add `BUNDLED_DB=0` to `.env`, or an unused
-  bundled database starts next to it. `.env.example` now lists the settings most often changed
-  first.
+- **The bundled database runs without `COMPOSE_PROFILES`** (see *Upgrading from 0.6.1*), and an
+  external one is chosen with `EXTERNAL_DATABASE_URL` and `BUNDLED_DB=0`. `.env.example` now lists
+  the settings most often changed first.
+
+### Fixed
+
+- `docker-compose.yml` passes `ADMIN_EMAILS`, `WORKSPACE_CREATION`, single sign-on for the whole
+  server (`OIDC_*`, `SSO_TRUSTED_ORIGINS`), `AI_EMBEDDINGS_MIN_SIMILARITY` and `RETENTION_JOB` to
+  the app. Set in `.env`, they used to have no effect under Compose.
 
 ## 0.6.1 — 2026-10-19
 

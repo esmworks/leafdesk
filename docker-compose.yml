@@ -82,6 +82,16 @@ services:
       LEAFDESK_SECRETS_DIR: /secrets
       DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
       SESSION_MAX_AGE_DAYS: ${SESSION_MAX_AGE_DAYS:-}
+      # Server administrators beside the first account, and who may create workspaces (see .env.example).
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      WORKSPACE_CREATION: ${WORKSPACE_CREATION:-}
+      # Single sign-on for the whole server: off unless issuer, client id and secret are set (see the README).
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_NAME: ${OIDC_NAME:-}
+      OIDC_DOMAINS: ${OIDC_DOMAINS:-}
+      SSO_TRUSTED_ORIGINS: ${SSO_TRUSTED_ORIGINS:-}
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
       SOURCE_URL: ${SOURCE_URL:-}
       SMTP_URL: ${SMTP_URL:-}
@@ -112,6 +122,13 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-}
       S3_PREFIX: ${S3_PREFIX:-}
+      # People's own storage for workspaces' uploads: off unless OWN_STORAGE_ENABLED=true (see the README).
+      OWN_STORAGE_ENABLED: ${OWN_STORAGE_ENABLED:-}
+      STORAGE_ALLOWED_HOSTS: ${STORAGE_ALLOWED_HOSTS:-}
+      STORAGE_GDRIVE_CLIENT_ID: ${STORAGE_GDRIVE_CLIENT_ID:-}
+      STORAGE_GDRIVE_CLIENT_SECRET: ${STORAGE_GDRIVE_CLIENT_SECRET:-}
+      STORAGE_DROPBOX_CLIENT_ID: ${STORAGE_DROPBOX_CLIENT_ID:-}
+      STORAGE_DROPBOX_CLIENT_SECRET: ${STORAGE_DROPBOX_CLIENT_SECRET:-}
       EXPORT_MAX_PAGES: ${EXPORT_MAX_PAGES:-}
       EXPORT_MAX_FILES_MB: ${EXPORT_MAX_FILES_MB:-}
       # Requests per minute: per API token, and per user on /mcp (0 = no limit), and the origins
@@ -146,6 +163,7 @@ services:
       AI_EMBEDDINGS_BASE_URL: ${AI_EMBEDDINGS_BASE_URL:-}
       AI_EMBEDDINGS_API_KEY: ${AI_EMBEDDINGS_API_KEY:-}
       AI_EMBEDDINGS_DIMENSIONS: ${AI_EMBEDDINGS_DIMENSIONS:-}
+      AI_EMBEDDINGS_MIN_SIMILARITY: ${AI_EMBEDDINGS_MIN_SIMILARITY:-}
       AI_MAX_INPUT_CHARS: ${AI_MAX_INPUT_CHARS:-}
       AI_MAX_OUTPUT_TOKENS: ${AI_MAX_OUTPUT_TOKENS:-}
       AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-}
@@ -161,6 +179,12 @@ services:
       STT_MAX_SECONDS: ${STT_MAX_SECONDS:-}
       STT_MAX_MB: ${STT_MAX_MB:-}
       STT_TIMEOUT_SECONDS: ${STT_TIMEOUT_SECONDS:-}
+      # People's own AI keys: off unless OWN_AI_KEYS_ENABLED=true (see the README).
+      OWN_AI_KEYS_ENABLED: ${OWN_AI_KEYS_ENABLED:-}
+      AI_ONLY_OWN_KEYS: ${AI_ONLY_OWN_KEYS:-}
+      AI_ALLOWED_HOSTS: ${AI_ALLOWED_HOSTS:-}
+      # Daily cleanup of the trash and old page history: on in production unless set to off.
+      RETENTION_JOB: ${RETENTION_JOB:-}
     # Lets AI_BASE_URL=http://host.docker.internal:11434/v1 reach Ollama or LM Studio on the host (Linux too).
     extra_hosts:
       - "host.docker.internal:host-gateway"
