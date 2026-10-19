@@ -39,6 +39,14 @@ jobs:
         ports:
           - 1025:1025
           - 8025:8025
+      # A member's mailbox, read and sent from by the row mail e2e.
+      greenmail:
+        image: greenmail/standalone:2.1.14
+        env:
+          GREENMAIL_OPTS: -Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled
+        ports:
+          - 3025:3025
+          - 3143:3143
     env:
       APP_URL: http://localhost:3000
       DATABASE_URL: postgres://leafdesk:leafdesk@localhost:5432/leafdesk
@@ -193,6 +201,12 @@ jobs:
       # it makes itself.
       - name: Push notifications end-to-end
         run: pnpm tsx scripts/push-e2e.ts
+
+      # Mail on database rows, read from and sent through the GreenMail service above.
+      - name: Row email end-to-end
+        run: pnpm tsx scripts/row-mail-e2e.ts
+        env:
+          MAIL_ALLOWED_HOSTS: 127.0.0.1
 
       # The service worker in headless Chrome (preinstalled on the runner), against a stand-in server
       # the script starts on 127.0.0.1. Ubuntu 24.04's AppArmor keeps Chrome's sandbox from making

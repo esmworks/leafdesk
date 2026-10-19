@@ -10,6 +10,7 @@
     "groups": "Gruppen",
     "agents": "Agenten",
     "connections": "Verbindungen",
+    "email": "E-Mail",
     "analytics": "Analysen",
     "health": "Zustand",
     "security": "Sicherheit",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Wer Mitglieder hinzufügen kann",
       "allowedDomains": "Zugelassene E-Mail-Domains",
       "domainJoin": "Wenn sich jemand aus diesen Domains anmeldet",
-      "joinRequests": "Wer um Beitritt bitten kann"
+      "joinRequests": "Wer um Beitritt bitten kann",
+      "email": "E-Mails in Zeilen"
     },
     "values": {
       "on": "An",
@@ -1352,6 +1354,11 @@
         "tool_called": "Hat „{tool}“ bei „{target}“ aufgerufen ({outcome})",
         "approval_decided": "Aufruf von „{tool}“ bei „{target}“ durch den Agenten „{agent}“: {decision}"
       },
+      "mail": {
+        "databases_changed": "Hat die Datenbanken festgelegt, in denen E-Mails landen: {names}",
+        "mailbox_connected": "Hat das Postfach {target} verbunden",
+        "mailbox_disconnected": "Hat die Verbindung zum Postfach {target} getrennt"
+      },
       "backup": {
         "created": "Hat den Workspace gesichert ({count, plural, one {# Seite} other {# Seiten}})",
         "restored": "Hat den Workspace aus einem Backup wiederhergestellt ({count, plural, one {# Seite} other {# Seiten}})"
@@ -1413,6 +1420,9 @@
     "pageUpdateTitle": "Seiten, die du beobachtest",
     "pageUpdateDescription": "Jemand anderes bearbeitet eine Seite, die du beobachtest: eine, die du erstellt oder bearbeitet hast, beobachten wolltest oder die in einem Teamspace liegt, den du beobachtest. E-Mails zur selben Seite kommen höchstens alle paar Stunden, und nach einigen am Tag kommt der Rest gesammelt in einer E-Mail.",
     "pageUpdateChannel": "Seiten, die du beobachtest: {channel}",
+    "rowEmailTitle": "E-Mails in Zeilen",
+    "rowEmailDescription": "Eine Nachricht kommt in einer Datenbankzeile an: über dein eigenes Postfach oder in einer Zeile, der du folgst oder der du zugewiesen bist. Sie liegt schon in einem Postfach, deshalb kommt sie nie noch einmal per E-Mail.",
+    "rowEmailChannel": "E-Mails in Zeilen: {channel}",
     "watchedHeading": "Beobachtete Seiten",
     "watchedDescription": "Seiten, die du beobachten wolltest oder bearbeitet hast, und Teamspaces, die du beobachtest. Seiten, die du erstellt hast, beobachtest du ebenfalls. Beobachtende erfahren von Bearbeitungen und neuen Kommentar-Threads.",
     "watchedNone": "Du beobachtest noch keine Seiten",
@@ -1650,6 +1660,87 @@
       "redo": "Mit Notiz zurückschicken…",
       "notWhole": "Dieser Aufruf ist länger als hier gezeigt oder enthält hier maskierte Werte. Öffne seinen Durchlauf, um alles zu sehen, was gesendet würde, bevor du ihn freigibst.",
       "openRun": "Zum Freigeben den Durchlauf öffnen"
+    }
+  },
+  "email": {
+    "description": "E-Mails mit den Personen in deinen Datenbanken landen in deren Zeilen: Wer eine Zeile sehen kann, liest ihre E-Mails dort und beantwortet sie aus dem eigenen Postfach.",
+    "enabled": "E-Mails in Zeilen",
+    "enabledHint": "Mitglieder verbinden unten ihr eigenes Postfach. Vollständig gelesen werden nur E-Mails, deren Gegenüber die E-Mail-Adresse einer Zeile ist; alles andere bleibt im Postfach.",
+    "ownersOnly": "Das können nur Inhaber ändern.",
+    "databasesHeading": "Wo E-Mails landen",
+    "databasesDescription": "Eine Nachricht kommt in die Zeile, deren E-Mail-Eigenschaft die Adresse des Gegenübers enthält, und zwar in der ersten dieser Datenbanken, in der genau eine Zeile passt. Antworten folgen ihrem Verlauf.",
+    "databasesNone": "Noch keine Datenbanken",
+    "databasesNoneHint": "Füge eine Datenbank mit einer E-Mail-Eigenschaft hinzu, etwa deine Kunden oder Kontakte.",
+    "moveUp": "Früher prüfen",
+    "moveDown": "Später prüfen",
+    "removeDatabase": "E-Mails nicht mehr dieser Datenbank zuordnen",
+    "addressProperties": "Adressen stehen in",
+    "addDatabase": "Datenbank hinzufügen",
+    "addDatabaseHint": "Datenbanken mit einer E-Mail-Eigenschaft.",
+    "chooseDatabase": "Datenbank auswählen",
+    "mailboxHeading": "Dein Postfach",
+    "mailboxDescription": "Das Postfach, das du für diesen Workspace nutzt. Daraus werden E-Mails mit den Personen in den Datenbanken oben gelesen, und was du in Zeilen schreibst, wird von dort gesendet. Deine anderen Workspaces sehen es nicht.",
+    "syncedAt": "gelesen {time}",
+    "change": "Ändern",
+    "disconnect": "Trennen",
+    "connect": "Testen und verbinden",
+    "testing": "Wird getestet…",
+    "consent": "Mir ist klar, dass E-Mails mit den Personen in diesen Datenbanken, die über dieses Postfach gesendet oder empfangen werden, in ihren Zeilen für alle sichtbar sind, die diese Zeilen sehen können.",
+    "status": {
+      "ok": "Verbunden",
+      "connecting": "Wird verbunden",
+      "error": {
+        "blocked": "Der Mailserver liegt in einem privaten Netz, das dieser Server nicht erreicht.",
+        "notFound": "Der Name des Mailservers wurde nicht gefunden.",
+        "auth": "Der Mailserver hat den Benutzernamen oder das Passwort abgelehnt. Prüfe das App-Passwort.",
+        "tls": "Es konnte keine sichere Verbindung zum Mailserver hergestellt werden.",
+        "unreachable": "Der Mailserver ist gerade nicht erreichbar.",
+        "noInbox": "Der Mailserver zeigt keinen Posteingang."
+      }
+    },
+    "fields": {
+      "address": "E-Mail-Adresse",
+      "displayName": "Name in ausgehenden E-Mails",
+      "provider": "E-Mail-Anbieter",
+      "chooseProvider": "Auswählen…",
+      "otherProvider": "Andere (IMAP und SMTP)",
+      "imap": "Eingehend (IMAP)",
+      "smtp": "Ausgehend (SMTP)",
+      "host": "Server",
+      "port": "Port",
+      "tls": "TLS",
+      "username": "Benutzername",
+      "usernamePlaceholder": "Meist die E-Mail-Adresse",
+      "password": "App-Passwort",
+      "passwordKeep": "Leer lassen, um das aktuelle zu behalten",
+      "passwordHelp": "Ein App-Passwort, das du für Leafdesk erstellt hast, nicht das Passwort, mit dem du dich anmeldest. Es wird verschlüsselt gespeichert und nie wieder angezeigt."
+    },
+    "providerHelp": {
+      "google": "Auch für Adressen von Google Workspace mit eigener Domain. Erstelle in deinem Google-Konto unter Sicherheit ein App-Passwort (die Bestätigung in zwei Schritten muss aktiviert sein).",
+      "yandex": "Erstelle in den Einstellungen deiner Yandex ID ein App-Passwort für E-Mail.",
+      "zoho": "Aktiviere in den Einstellungen von Zoho Mail den IMAP-Zugriff und erstelle ein App-Passwort."
+    },
+    "membersHeading": "Postfächer der Mitglieder",
+    "membersDescription": "Wer in diesem Workspace ein Postfach verbunden hat. Was darin liegt, sieht nur dessen Inhaber.",
+    "memberStatus": {
+      "connecting": "Wird verbunden",
+      "ok": "Verbunden",
+      "error": "Funktioniert nicht"
+    },
+    "errors": {
+      "disabled": "E-Mails in Zeilen sind in diesem Workspace ausgeschaltet.",
+      "invalid": "Einige Angaben sind ungültig. Prüfe sie und versuche es erneut.",
+      "consent": "Bestätige, dass E-Mails in Zeilen für alle sichtbar sind, die diese Zeilen sehen können.",
+      "noMailbox": "Verbinde zuerst dein Postfach unter Einstellungen > E-Mail.",
+      "rateLimited": "Dein Postfach hat in dieser Stunde so viel gesendet, wie es darf. Versuche es später erneut.",
+      "notFound": "Der Name des Mailservers wurde nicht gefunden.",
+      "blocked": "Der Mailserver liegt in einem privaten Netz, das dieser Server nicht erreicht.",
+      "auth": "Der Mailserver hat den Benutzernamen oder das Passwort abgelehnt. Prüfe das App-Passwort.",
+      "tls": "Es konnte keine sichere Verbindung zum Mailserver hergestellt werden.",
+      "unreachable": "Der Mailserver war nicht erreichbar. Prüfe die Servernamen und Ports.",
+      "noInbox": "Der Mailserver zeigt keinen Posteingang.",
+      "accessDenied": "Du hast keinen Zugriff, um das zu tun.",
+      "gone": "Diese Nachricht ist nicht mehr in dieser Zeile."
     }
   },
   "backup": {
