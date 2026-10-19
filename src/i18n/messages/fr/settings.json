@@ -1370,6 +1370,10 @@
       "backup": {
         "created": "A sauvegardé l’espace de travail ({count, plural, one {# page} other {# pages}})",
         "restored": "A restauré l’espace de travail à partir d’une sauvegarde ({count, plural, one {# page} other {# pages}})"
+      },
+      "ai_account": {
+        "attached": "A associé l’IA de l’espace de travail au compte IA {target}",
+        "detached": "A dissocié l’IA de l’espace de travail du compte IA {target}"
       }
     },
     "decisions": {

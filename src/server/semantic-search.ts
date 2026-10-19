@@ -6,6 +6,10 @@
  *
  * The query's embedding is cached briefly and limited per person (search runs as they type); when
  * the model can't be reached or the limit is reached, search quietly falls back to full text.
+ *
+ * Each workspace searches with its own embeddings model (its own AI account's or the server's): a
+ * search across workspaces embeds the query once per AI account and model, each paid for by one of
+ * that account's workspaces, and ranks every group's chunks against its own vector.
  */
 import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
@@ -14,7 +18,7 @@ import type { PageKind } from "@/db/schema";
 import { sharedLimiter } from "@/lib/rate-limit";
 import type { SearchKind } from "@/lib/search-query";
 import { pageVisibleTo, workspacesHeldBack } from "@/server/access";
-import { embed, embeddingModel, embeddingsEnabled, minSimilarity } from "@/server/ai";
+import { aiTargetFor, embed, embeddingModelFor, embeddingsEnabled, minSimilarityFor } from "@/server/ai";
 import { maybeSweep } from "@/server/semantic-index";
 import { passageOf, vectorLiteral } from "@/server/semantic-text";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
@@ -46,10 +50,8 @@ type Cache = Map<string, number[]>;
 const CACHE_KEY = "__leafdeskQueryVectors";
 const cache = ((globalThis as Record<string, unknown>)[CACHE_KEY] ??= new Map()) as Cache;
 
-/** The query's embedding, or null when it can't be had now (limit, provider trouble). */
-async function queryVector(userId: string, query: string, workspaceId: string | null): Promise<number[] | null> {
-  const model = embeddingModel();
-  if (!model) return null;
+/** The query's embedding by `workspaceId`'s model, or null when it can't be had now (limit, provider trouble). */
+async function queryVector(userId: string, query: string, workspaceId: string, model: string): Promise<number[] | null> {
   const key = `${model}\u0000${query}`;
   const hit = cache.get(key);
   if (hit) {
@@ -111,19 +113,42 @@ export function inSubtree(rootId: string, alias = "p"): SQL {
 }
 
 /**
- * The indexed chunks of `pageIds` (of the current model), by page. No access checks: only for
- * pages a search just found for the reader.
+ * The indexed chunks of `pageIds` (of their workspace's current model), by page. No access checks:
+ * only for pages a search just found for the reader.
  */
 export async function chunksOfPages(pageIds: string[]): Promise<Map<string, { blockId: string | null; position: number; text: string }[]>> {
-  const model = embeddingModel();
   const out = new Map<string, { blockId: string | null; position: number; text: string }[]>();
-  if (!model || !pageIds.length) return out;
-  const rows = await db
-    .select({ pageId: pageChunk.pageId, blockId: pageChunk.blockId, position: pageChunk.position, text: pageChunk.text })
-    .from(pageChunk)
-    .where(and(inArray(pageChunk.pageId, pageIds), eq(pageChunk.model, model)));
-  for (const { pageId, ...chunk } of rows) out.set(pageId, [...(out.get(pageId) ?? []), chunk]);
+  if (!pageIds.length || !embeddingsEnabled()) return out;
+  const pages = await db.select({ id: page.id, workspaceId: page.workspaceId }).from(page).where(inArray(page.id, pageIds));
+  const byWorkspace = new Map<string, string[]>();
+  for (const p of pages) byWorkspace.set(p.workspaceId, [...(byWorkspace.get(p.workspaceId) ?? []), p.id]);
+  for (const [workspaceId, ids] of byWorkspace) {
+    const model = await embeddingModelFor(workspaceId);
+    if (!model) continue;
+    const rows = await db
+      .select({ pageId: pageChunk.pageId, blockId: pageChunk.blockId, position: pageChunk.position, text: pageChunk.text })
+      .from(pageChunk)
+      .where(and(inArray(pageChunk.pageId, ids), eq(pageChunk.model, model)));
+    for (const { pageId, ...chunk } of rows) out.set(pageId, [...(out.get(pageId) ?? []), chunk]);
+  }
   return out;
+}
+
+/**
+ * The searchable workspaces grouped by what embeds their queries: one AI account (or the server's
+ * settings) and model per group, with its similarity threshold.
+ */
+async function embeddingGroups(workspaceIds: string[]) {
+  const groups = new Map<string, { model: string; minSimilarity: number; workspaceIds: string[] }>();
+  for (const id of workspaceIds) {
+    const [target, model] = await Promise.all([aiTargetFor(id), embeddingModelFor(id)]);
+    if (!target || !model) continue;
+    const key = `${target.accountId ?? "instance"}\u0000${model}`;
+    const group = groups.get(key);
+    if (group) group.workspaceIds.push(id);
+    else groups.set(key, { model, minSimilarity: await minSimilarityFor(id), workspaceIds: [id] });
+  }
+  return [...groups.values()];
 }
 
 /** Where a search looks: under pages (any of them), and at pages of some kinds (see lib/search-query). */
@@ -163,15 +188,29 @@ export async function semanticSearch(
   { workspaceId, limit = 20, ...scope }: { workspaceId?: string; limit?: number } & SearchScope = {},
 ): Promise<SemanticHit[]> {
   const q = query.trim();
-  const model = embeddingModel();
-  if (!embeddingsEnabled() || !model || q.length < MIN_SEMANTIC_QUERY) return [];
+  if (!embeddingsEnabled() || q.length < MIN_SEMANTIC_QUERY) return [];
   const workspaces = await searchableWorkspaces(userId, workspaceId);
   if (!workspaces.length) return [];
+  const groups = await embeddingGroups(workspaces);
   // Lazy backfill: pages the index missed get indexed in the background.
-  for (const id of workspaces) maybeSweep(id);
-  const vector = await queryVector(userId, q, workspaceId ?? null);
-  if (!vector) return [];
+  for (const group of groups) for (const id of group.workspaceIds) maybeSweep(id);
+  const hits: SemanticHit[] = [];
+  for (const group of groups) {
+    // Paid for by the workspace searched in, else the group's first.
+    const payer = workspaceId && group.workspaceIds.includes(workspaceId) ? workspaceId : group.workspaceIds[0];
+    const vector = await queryVector(userId, q, payer, group.model);
+    if (vector) hits.push(...(await rankGroup(userId, vector, { ...group, limit }, scope)));
+  }
+  return hits.sort((a, b) => b.score - a.score || b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, limit);
+}
 
+/** The best `limit` pages of a group of workspaces that share one model, ranked against its query vector. */
+async function rankGroup(
+  userId: string,
+  vector: number[],
+  { model, minSimilarity, workspaceIds: workspaces, limit }: { model: string; minSimilarity: number; workspaceIds: string[]; limit: number },
+  scope: SearchScope,
+): Promise<SemanticHit[]> {
   const rows = await db.execute<{
     page_id: string;
     block_id: string | null;
@@ -204,7 +243,7 @@ export async function semanticSearch(
     ),
     best as (
       select distinct on (page_id) page_id, block_id, text, score from ranked
-      where score >= ${minSimilarity()}
+      where score >= ${minSimilarity}
       order by page_id, score desc
     )
     select b.page_id, b.block_id, b.text, b.score, p.workspace_id, p.teamspace_id,

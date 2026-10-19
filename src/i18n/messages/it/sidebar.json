@@ -154,7 +154,9 @@
     "reportDone": "La sua esecuzione pianificata è terminata.",
     "reportFailed": "La sua esecuzione pianificata non è riuscita. Aprila per vedere perché.",
     "reportHidden": "La sua esecuzione pianificata è terminata, su un database che non puoi aprire.",
-    "reportGone": "L’esecuzione non è più conservata."
+    "reportGone": "L’esecuzione non è più conservata.",
+    "aiAccountTitle": "Account IA rimosso",
+    "aiAccountDetached": "L’IA dello spazio di lavoro non funziona più con la chiave di {actor}. Scegli un altro account IA nelle Impostazioni."
   },
   "templates": {
     "title": "Modelli",

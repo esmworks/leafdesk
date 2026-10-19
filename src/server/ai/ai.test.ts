@@ -248,19 +248,19 @@ describe("AI interface (faux provider)", () => {
     disableAi();
     expect(isEnabled()).toBe(false);
     expect(aiInfo()).toBeNull();
-    expect(() => stream({ feature: "test", messages: [{ role: "user", content: "hi" }] })).toThrow(AiError);
-    await expect(complete({ feature: "test", messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ code: "disabled" });
+    expect(() => stream({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] })).toThrow(AiError);
+    await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ code: "disabled" });
   });
 
   it("completes and streams text with usage", async () => {
     installFauxAi(({ prompt, system }) => `echo:${prompt}|${system}`);
     expect(isEnabled()).toBe(true);
-    const result = await complete({ feature: "test", system: "sys", messages: [{ role: "user", content: "hello" }] });
+    const result = await complete({ feature: "test", workspaceId: "w1", system: "sys", messages: [{ role: "user", content: "hello" }] });
     expect(result.text).toBe("echo:hello|sys");
     expect(result.stopReason).toBe("stop");
     expect(result.usage.outputTokens).toBeGreaterThan(0);
 
-    const s = stream({ feature: "test", messages: [{ role: "user", content: "streamed" }] });
+    const s = stream({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "streamed" }] });
     let text = "";
     for await (const event of s) text += event.delta;
     expect(text).toBe("echo:streamed|");
@@ -271,7 +271,7 @@ describe("AI interface (faux provider)", () => {
     installFauxAi(() => {
       throw new Error("invalid x-api-key");
     });
-    await expect(complete({ feature: "test", messages: [{ role: "user", content: "x" }] })).rejects.toMatchObject({
+    await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x" }] })).rejects.toMatchObject({
       code: "provider",
       message: expect.stringContaining("invalid x-api-key"),
     });
@@ -279,14 +279,14 @@ describe("AI interface (faux provider)", () => {
 
   it("refuses oversized prompts before sending", () => {
     installFauxAi(() => "never", { config: { maxInputChars: 10 } });
-    expect(() => stream({ feature: "test", messages: [{ role: "user", content: "x".repeat(11) }] })).toThrow(
+    expect(() => stream({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x".repeat(11) }] })).toThrow(
       expect.objectContaining({ code: "tooLarge" }),
     );
   });
 
   it("limits requests per person", async () => {
     installFauxAi(() => "ok", { config: { userPerMinute: 2 } });
-    const ask = () => complete({ feature: "test", userId: `limit-user-${process.pid}`, messages: [{ role: "user", content: "x" }] });
+    const ask = () => complete({ feature: "test", workspaceId: "w1", userId: `limit-user-${process.pid}`, messages: [{ role: "user", content: "x" }] });
     await ask();
     await ask();
     await expect(ask()).rejects.toMatchObject({ code: "rateLimited" });
@@ -295,12 +295,12 @@ describe("AI interface (faux provider)", () => {
   it("cancels on abort and times out", async () => {
     installFauxAi(() => "a long answer ".repeat(50), { tokensPerSecond: 20 });
     const controller = new AbortController();
-    const s = stream({ feature: "test", messages: [{ role: "user", content: "x" }], signal: controller.signal });
+    const s = stream({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x" }], signal: controller.signal });
     setTimeout(() => controller.abort(), 30);
     await expect(s.result()).rejects.toMatchObject({ code: "aborted" });
 
     installFauxAi(() => "slow ".repeat(100), { tokensPerSecond: 5, config: { timeoutMs: 50 } });
-    await expect(complete({ feature: "test", messages: [{ role: "user", content: "x" }] })).rejects.toMatchObject({ code: "timeout" });
+    await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x" }] })).rejects.toMatchObject({ code: "timeout" });
   });
 
   it("passes tools and returns tool calls for the caller to run", async () => {
@@ -314,11 +314,12 @@ describe("AI interface (faux provider)", () => {
       },
     ]);
     const tools = [{ name: "search_pages", description: "Search", parameters: { type: "object", properties: { query: { type: "string" } } } }];
-    const first = await complete({ feature: "chat", messages: [{ role: "user", content: "find tea" }], tools });
+    const first = await complete({ feature: "chat", workspaceId: "w1", messages: [{ role: "user", content: "find tea" }], tools });
     expect(first.stopReason).toBe("tool_use");
     expect(first.toolCalls).toEqual([{ id: "call-1", name: "search_pages", arguments: { query: "tea" } }]);
     const second = await complete({
       feature: "chat",
+      workspaceId: "w1",
       tools,
       messages: [
         { role: "user", content: "find tea" },
@@ -332,10 +333,10 @@ describe("AI interface (faux provider)", () => {
   it("embeds through the configured backend", async () => {
     disableAi();
     expect(embeddingsEnabled()).toBe(false);
-    await expect(embed(["a"], { feature: "test" })).rejects.toMatchObject({ code: "disabled" });
+    await expect(embed(["a"], { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "disabled" });
     installFauxAi(() => "", { embed: async (texts) => texts.map((t) => [t.length, 1]) });
     expect(embeddingsEnabled()).toBe(true);
-    expect(await embed(["ab", "c"], { feature: "test" })).toEqual([
+    expect(await embed(["ab", "c"], { feature: "test", workspaceId: "w1" })).toEqual([
       [2, 1],
       [1, 1],
     ]);

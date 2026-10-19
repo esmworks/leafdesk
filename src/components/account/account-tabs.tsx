@@ -1,6 +1,7 @@
 import { Info, KeyRound, Plug, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { AiAccountsGroup } from "@/components/account/ai-accounts-group";
 import { AccountEmailSettings } from "@/components/account/email-settings";
 import { AboutLeafdesk } from "@/components/account/about";
 import { DeleteAccountSettings } from "@/components/account/delete-account";
@@ -61,6 +62,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
       <div className="space-y-10">
         <AccountStorage initial={storage} notice={storageNoticeOf(query)} />
         <ConnectedApps />
+        {env.ownAiKeysEnabled && <AiAccountsGroup />}
         <McpInstructions />
         <ApiTokens />
       </div>

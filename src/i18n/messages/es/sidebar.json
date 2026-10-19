@@ -154,7 +154,9 @@
     "reportDone": "Su ejecución programada terminó.",
     "reportFailed": "Su ejecución programada falló. Ábrela para ver por qué.",
     "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",
-    "reportGone": "La ejecución ya no se conserva."
+    "reportGone": "La ejecución ya no se conserva.",
+    "aiAccountTitle": "Cuenta de IA quitada",
+    "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}. Elige otra cuenta de IA en Configuración."
   },
   "templates": {
     "title": "Plantillas",

@@ -267,5 +267,81 @@
       "notFound": "该笔记已不存在。",
       "off": "此工作区已关闭 AI 记忆。"
     }
+  },
+  "accounts": {
+    "heading": "AI",
+    "description": "你自己的 AI 提供方密钥。添加一次密钥，即可让你拥有的工作区的 AI 使用它运行：AI 在那里做的一切，无论为哪位成员还是在后台，都计费到此密钥。其他任何地方都不会使用它。",
+    "add": "添加 AI 账户",
+    "empty": "还没有 AI 账户。",
+    "default": "新工作区的默认账户",
+    "keyHint": "以 {hint} 结尾的密钥",
+    "embeddingsValue": "搜索：{model}",
+    "sttValue": "语音：{model}",
+    "status": {
+      "active": "正常，检查于 {time}",
+      "broken": "无法使用：{error}"
+    },
+    "usedBy": "使用者：{names}",
+    "unused": "尚未被任何工作区使用。请在工作区的“设置 > 常规 > AI”中选择它。",
+    "test": "测试",
+    "testing": "正在测试…",
+    "change": "更改",
+    "makeDefault": "设为默认",
+    "remove": "移除",
+    "removeNote": "密钥会从此服务器中删除。",
+    "removeNoteUsed": "密钥会从此服务器中删除。{count, plural, =1 {使用它的工作区将改用服务器的 AI，或不再有 AI；其所有者会收到通知。} other {使用它的 # 个工作区将改用服务器的 AI，或不再有 AI；它们的所有者会收到通知。}}",
+    "save": "测试并保存",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "OpenAI 兼容服务器"
+    },
+    "fields": {
+      "provider": "提供方",
+      "label": "名称",
+      "labelHint": "可选，用于区分账户",
+      "baseUrl": "服务器地址",
+      "baseUrlHint": "服务器的 API 根地址，通常以 /v1 结尾。必须是公开的 https 地址。",
+      "model": "模型",
+      "modelHint": "模型名称，与提供方的写法完全一致。",
+      "apiKey": "API 密钥",
+      "apiKeyOptional": "API 密钥（如果服务器需要）",
+      "apiKeyKeep": "已保存的密钥以 {hint} 结尾；留空则保持不变",
+      "embeddingsModel": "嵌入模型",
+      "embeddingsModelHint": "可选。在使用此账户的工作区中开启语义搜索。",
+      "sttModel": "语音转文字模型",
+      "sttModelHint": "可选。在使用此账户的工作区中开启语音笔记。",
+      "keyHint": "保存时会发送一个简短请求来检查密钥。密钥会加密存储，不会再次显示。"
+    },
+    "errors": {
+      "disabled": "此服务器不接受你自己的 AI 密钥。",
+      "providerRequired": "请选择提供方。",
+      "modelRequired": "请填写模型名称。",
+      "baseUrlRequired": "请填写服务器地址。",
+      "baseUrlInvalid": "无法使用此地址：{message}",
+      "keyRequired": "请粘贴 API 密钥。",
+      "keyTooLong": "密钥太长。",
+      "notFound": "此 AI 账户已不存在。",
+      "tooMany": "你的 AI 账户数量已达上限。请先移除一个。",
+      "testFailed": "测试请求失败：{message}",
+      "ownersOnly": "只有工作区所有者可以选择其 AI 账户。"
+    },
+    "workspace": {
+      "title": "AI 账户",
+      "sourceMine": "使用你的账户 {label}（{provider}，{model}）运行。AI 费用计入你的密钥。",
+      "sourceTheirs": "使用 {name} 的账户 {label}（{provider}，{model}）运行。AI 费用计入 {name} 的密钥。",
+      "sourceInstance": "使用此服务器的 AI 运行。",
+      "sourceOff": "没有 AI 账户：在所有者选择账户之前，此工作区的 AI 处于关闭状态。",
+      "sourceOffOnlyOwn": "没有 AI 账户：在此服务器上，AI 只能使用所有者自己的密钥运行。",
+      "noAccounts": "你没有自己的 AI 账户。",
+      "addOne": "添加一个",
+      "ownersOnly": "只有所有者可以更改此设置，且各自只能选择自己的账户。",
+      "noneInstance": "无（此服务器的 AI）",
+      "noneOff": "无（AI 已关闭）",
+      "theirsOption": "{label}（{name}）",
+      "brokenOption": "{label}（无法使用）"
+    }
   }
 }

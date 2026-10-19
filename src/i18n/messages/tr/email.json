@@ -243,7 +243,9 @@
     "reportDone": "Zamanlanmış çalışması bitti",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu",
     "untitled": "Adsız",
-    "snooze": "1 saat ertele"
+    "snooze": "1 saat ertele",
+    "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
+    "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor."
   },
   "workspaceDeleted": {
     "subject": "{workspace} silindi",

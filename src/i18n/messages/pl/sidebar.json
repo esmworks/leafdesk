@@ -154,7 +154,9 @@
     "reportDone": "Zaplanowane uruchomienie zakończyło się.",
     "reportFailed": "Zaplanowane uruchomienie nie powiodło się. Otwórz je, aby zobaczyć dlaczego.",
     "reportHidden": "Zaplanowane uruchomienie zakończyło się w bazie danych, której nie możesz otworzyć.",
-    "reportGone": "To uruchomienie nie jest już przechowywane."
+    "reportGone": "To uruchomienie nie jest już przechowywane.",
+    "aiAccountTitle": "Usunięto konto AI",
+    "aiAccountDetached": "AI obszaru roboczego nie działa już na kluczu użytkownika {actor}. Wybierz inne konto AI w Ustawieniach."
   },
   "templates": {
     "title": "Szablony",

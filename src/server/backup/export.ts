@@ -26,6 +26,7 @@ import {
   type BackupPerson,
 } from "@/lib/backup";
 import { requireMembership } from "@/server/access";
+import { aiTargetFor } from "@/server/ai";
 import { readAiConfig } from "@/server/ai/config";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
@@ -200,7 +201,8 @@ export async function snapshotWorkspace(plan: BackupPlan): Promise<BackupSnapsho
     );
 
     const people = await peopleOf([...userIds]);
-    const ai = readAiConfig();
+    // The model the workspace's chunks were made with: its own AI account's, or the server's.
+    const ai = (await aiTargetFor(workspaceId))?.config ?? readAiConfig({});
     const manifest: BackupManifest = {
       format: BACKUP_FORMAT,
       version: BACKUP_VERSION,

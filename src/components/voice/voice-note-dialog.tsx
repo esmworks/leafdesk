@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { snapshotBeforeVoiceNoteAction } from "@/app/actions/ai";
 import { Button, Dialog, IconButton } from "@/components/ui";
+import { editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import { demoteHeadings, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits } from "@/lib/voice-notes";
 import type { PageEditor } from "@/components/page/embed-blocks";
 import { VoiceNoteRecorder } from "./voice-note-recorder";
@@ -23,8 +24,8 @@ type AnyBlock = PageEditor["document"][number];
 export type VoiceNote = { open: () => void; dialog: ReactNode };
 
 /** The blocks a written-up note becomes: its title, the note, and the transcript in a toggle. */
-function noteBlocks(editor: PageEditor, draft: VoiceNoteDraft, transcriptLabel: string): AnyBlock[] {
-  const body = editor.tryParseMarkdownToBlocks(demoteHeadings(draft.markdown)) as AnyBlock[];
+async function noteBlocks(editor: PageEditor, draft: VoiceNoteDraft, transcriptLabel: string): Promise<AnyBlock[]> {
+  const body = (await editorMarkdownToBlocks(editor, demoteHeadings(draft.markdown), { appUrl: window.location.origin })) as AnyBlock[];
   return [
     ...(draft.title ? [{ type: "heading", props: { level: 2 }, content: draft.title } as unknown as AnyBlock] : []),
     ...body,
@@ -68,7 +69,7 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
       const saved = await snapshotBeforeVoiceNoteAction(pageId).catch(() => null);
       if (!saved?.ok) return failed(saved?.error ?? t("errors.insert"));
       try {
-        const blocks = noteBlocks(editor, draft, t("transcriptToggle"));
+        const blocks = await noteBlocks(editor, draft, t("transcriptToggle"));
         const anchor = editor.getBlock(at) as AnyBlock | undefined;
         const document = editor.document as AnyBlock[];
         if (!anchor) editor.insertBlocks(blocks as never, document[document.length - 1], "after");

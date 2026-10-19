@@ -1,5 +1,5 @@
 {
-  "id": "fc7f91c8-ccf0-408a-b6bd-21a8df69eb61",
+  "id": "234304f6-fbc4-4128-87f3-a0bd31ec7e9c",
   "prevId": "e78f486a-f7d3-421b-be23-4fa6bb673ce3",
   "version": "7",
   "dialect": "postgresql",
@@ -3111,6 +3111,12 @@
           "notNull": true,
           "default": "'{}'::jsonb"
         },
+        "ai_account_id": {
+          "name": "ai_account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -3127,7 +3133,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "workspace_ai_account_id_ai_account_id_fk": {
+          "name": "workspace_ai_account_id_ai_account_id_fk",
+          "tableFrom": "workspace",
+          "tableTo": "ai_account",
+          "columnsFrom": [
+            "ai_account_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "workspace_invite_link_token_unique": {
@@ -4782,7 +4802,7 @@
       "checkConstraints": {
         "notification_subject_check": {
           "name": "notification_subject_check",
-          "value": "\"notification\".\"kind\" in ('join_request', 'agent_approval', 'agent_memory', 'agent_report') or \"notification\".\"page_id\" is not null"
+          "value": "\"notification\".\"kind\" in ('join_request', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached') or \"notification\".\"page_id\" is not null"
         }
       },
       "isRLSEnabled": false
@@ -6218,156 +6238,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.storage_account": {
-      "name": "storage_account",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "config": {
-          "name": "config",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "credentials": {
-          "name": "credentials",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_default": {
-          "name": "is_default",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'active'"
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_error_at": {
-          "name": "last_error_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verified_at": {
-          "name": "verified_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "storage_account_user_idx": {
-          "name": "storage_account_user_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "storage_account_default_idx": {
-          "name": "storage_account_default_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"storage_account\".\"is_default\" and \"storage_account\".\"status\" <> 'disconnected'",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "storage_account_user_id_user_id_fk": {
-          "name": "storage_account_user_id_user_id_fk",
-          "tableFrom": "storage_account",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "storage_account_kind_check": {
-          "name": "storage_account_kind_check",
-          "value": "\"storage_account\".\"kind\" in ('s3', 'gdrive', 'dropbox')"
-        },
-        "storage_account_status_check": {
-          "name": "storage_account_status_check",
-          "value": "\"storage_account\".\"status\" in ('active', 'broken', 'disconnected')"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.storage_deletion": {
       "name": "storage_deletion",
       "schema": "",
@@ -6392,12 +6262,6 @@
         },
         "storage_object_id": {
           "name": "storage_object_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "move_id": {
-          "name": "move_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -6445,21 +6309,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "storage_deletion_move_idx": {
-          "name": "storage_deletion_move_idx",
-          "columns": [
-            {
-              "expression": "move_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -6475,19 +6324,6 @@
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
-        },
-        "storage_deletion_move_id_storage_move_id_fk": {
-          "name": "storage_deletion_move_id_storage_move_id_fk",
-          "tableFrom": "storage_deletion",
-          "tableTo": "storage_move",
-          "columnsFrom": [
-            "move_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -6501,331 +6337,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.storage_move": {
-      "name": "storage_move",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from_storage_ids": {
-          "name": "from_storage_ids",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to_server": {
-          "name": "to_server",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "to_account_id": {
-          "name": "to_account_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to_storage_id": {
-          "name": "to_storage_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'queued'"
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "leaver_id": {
-          "name": "leaver_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "files": {
-          "name": "files",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "moved": {
-          "name": "moved",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "failed": {
-          "name": "failed",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "locked_until": {
-          "name": "locked_until",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "started_by": {
-          "name": "started_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "dismissed": {
-          "name": "dismissed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "finished_at": {
-          "name": "finished_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "storage_move_workspace_idx": {
-          "name": "storage_move_workspace_idx",
-          "columns": [
-            {
-              "expression": "workspace_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "storage_move_open_idx": {
-          "name": "storage_move_open_idx",
-          "columns": [
-            {
-              "expression": "workspace_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"storage_move\".\"status\" in ('queued', 'running')",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "storage_move_workspace_id_workspace_id_fk": {
-          "name": "storage_move_workspace_id_workspace_id_fk",
-          "tableFrom": "storage_move",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "storage_move_to_account_id_storage_account_id_fk": {
-          "name": "storage_move_to_account_id_storage_account_id_fk",
-          "tableFrom": "storage_move",
-          "tableTo": "storage_account",
-          "columnsFrom": [
-            "to_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "storage_move_to_storage_id_workspace_storage_id_fk": {
-          "name": "storage_move_to_storage_id_workspace_storage_id_fk",
-          "tableFrom": "storage_move",
-          "tableTo": "workspace_storage",
-          "columnsFrom": [
-            "to_storage_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "storage_move_leaver_id_user_id_fk": {
-          "name": "storage_move_leaver_id_user_id_fk",
-          "tableFrom": "storage_move",
-          "tableTo": "user",
-          "columnsFrom": [
-            "leaver_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "storage_move_started_by_user_id_fk": {
-          "name": "storage_move_started_by_user_id_fk",
-          "tableFrom": "storage_move",
-          "tableTo": "user",
-          "columnsFrom": [
-            "started_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "storage_move_status_check": {
-          "name": "storage_move_status_check",
-          "value": "\"storage_move\".\"status\" in ('queued', 'running', 'done', 'failed', 'blocked')"
-        },
-        "storage_move_reason_check": {
-          "name": "storage_move_reason_check",
-          "value": "\"storage_move\".\"reason\" in ('manual', 'left', 'removed', 'accountDeleted', 'disconnected')"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.storage_oauth": {
-      "name": "storage_oauth",
-      "schema": "",
-      "columns": {
-        "state": {
-          "name": "state",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "data": {
-          "name": "data",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "storage_oauth_user_id_user_id_fk": {
-          "name": "storage_oauth_user_id_user_id_fk",
-          "tableFrom": "storage_oauth",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "storage_oauth_workspace_id_workspace_id_fk": {
-          "name": "storage_oauth_workspace_id_workspace_id_fk",
-          "tableFrom": "storage_oauth",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -6846,12 +6357,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "storage_account_id": {
-          "name": "storage_account_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "kind": {
           "name": "kind",
           "type": "text",
@@ -6864,12 +6369,36 @@
           "primaryKey": false,
           "notNull": true
         },
+        "credentials": {
+          "name": "credentials",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "status": {
           "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'active'"
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_error_at": {
+          "name": "last_error_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_by": {
           "name": "created_by",
@@ -6908,21 +6437,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "workspace_storage_account_idx": {
-          "name": "workspace_storage_account_idx",
-          "columns": [
-            {
-              "expression": "storage_account_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -6937,19 +6451,6 @@
             "id"
           ],
           "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "workspace_storage_storage_account_id_storage_account_id_fk": {
-          "name": "workspace_storage_storage_account_id_storage_account_id_fk",
-          "tableFrom": "workspace_storage",
-          "tableTo": "storage_account",
-          "columnsFrom": [
-            "storage_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
           "onUpdate": "no action"
         },
         "workspace_storage_created_by_user_id_fk": {
@@ -6976,9 +6477,86 @@
         },
         "workspace_storage_status_check": {
           "name": "workspace_storage_status_check",
-          "value": "\"workspace_storage\".\"status\" in ('active', 'disconnected')"
+          "value": "\"workspace_storage\".\"status\" in ('active', 'broken', 'disconnected')"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.workspace_storage_oauth": {
+      "name": "workspace_storage_oauth",
+      "schema": "",
+      "columns": {
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "workspace_storage_oauth_workspace_id_workspace_id_fk": {
+          "name": "workspace_storage_oauth_workspace_id_workspace_id_fk",
+          "tableFrom": "workspace_storage_oauth",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "workspace_storage_oauth_user_id_user_id_fk": {
+          "name": "workspace_storage_oauth_user_id_user_id_fk",
+          "tableFrom": "workspace_storage_oauth",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.page_link": {
@@ -9072,6 +8650,180 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ai_account": {
+      "name": "ai_account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_url": {
+          "name": "base_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "api_key": {
+          "name": "api_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "key_hint": {
+          "name": "key_hint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "embeddings_model": {
+          "name": "embeddings_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stt_model": {
+          "name": "stt_model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_error_at": {
+          "name": "last_error_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ai_account_user_idx": {
+          "name": "ai_account_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ai_account_default_idx": {
+          "name": "ai_account_default_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"ai_account\".\"is_default\"",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ai_account_user_id_user_id_fk": {
+          "name": "ai_account_user_id_user_id_fk",
+          "tableFrom": "ai_account",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ai_account_provider_check": {
+          "name": "ai_account_provider_check",
+          "value": "\"ai_account\".\"provider\" in ('anthropic', 'openai', 'google', 'opencode-go', 'openai-compatible')"
+        },
+        "ai_account_status_check": {
+          "name": "ai_account_status_check",
+          "value": "\"ai_account\".\"status\" in ('active', 'broken')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.audit_event": {

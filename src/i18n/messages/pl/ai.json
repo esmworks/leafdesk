@@ -267,5 +267,81 @@
       "notFound": "Tej notatki już nie ma.",
       "off": "Pamięć AI jest wyłączona w tym obszarze roboczym."
     }
+  },
+  "accounts": {
+    "heading": "AI",
+    "description": "Twoje własne klucze dostawców AI. Dodaj klucz raz i uruchamiaj na nim AI obszarów roboczych, których jesteś właścicielem: wszystko, co AI tam robi, dla każdego członka i w tle, jest rozliczane na ten klucz. Nic innego go nie używa.",
+    "add": "Dodaj konto AI",
+    "empty": "Nie ma jeszcze kont AI.",
+    "default": "Domyślne dla nowych obszarów roboczych",
+    "keyHint": "klucz kończący się na {hint}",
+    "embeddingsValue": "wyszukiwanie: {model}",
+    "sttValue": "głos: {model}",
+    "status": {
+      "active": "Działa, sprawdzono {time}",
+      "broken": "Nie działa: {error}"
+    },
+    "usedBy": "Używane przez: {names}",
+    "unused": "Jeszcze nieużywane przez żaden obszar roboczy. Wybierz je w obszarze roboczym w sekcji Ustawienia > Ogólne > AI.",
+    "test": "Testuj",
+    "testing": "Testowanie…",
+    "change": "Zmień",
+    "makeDefault": "Ustaw jako domyślne",
+    "remove": "Usuń",
+    "removeNote": "Klucz zostanie usunięty z tego serwera.",
+    "removeNoteUsed": "Klucz zostanie usunięty z tego serwera. {count, plural, one {Obszar roboczy, który go używa, wróci do AI serwera albo zostanie bez AI; jego właściciele zostaną powiadomieni.} few {# obszary robocze, które go używają, wrócą do AI serwera albo zostaną bez AI; ich właściciele zostaną powiadomieni.} many {# obszarów roboczych, które go używają, wróci do AI serwera albo zostanie bez AI; ich właściciele zostaną powiadomieni.} other {# obszaru roboczego, które go używają, wróci do AI serwera albo zostanie bez AI; ich właściciele zostaną powiadomieni.}}",
+    "save": "Testuj i zapisz",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "Serwer zgodny z OpenAI"
+    },
+    "fields": {
+      "provider": "Dostawca",
+      "label": "Nazwa",
+      "labelHint": "Opcjonalnie, aby odróżnić konta",
+      "baseUrl": "Adres serwera",
+      "baseUrlHint": "Główny adres API serwera, zwykle kończący się na /v1. Musi to być publiczny adres https.",
+      "model": "Model",
+      "modelHint": "Nazwa modelu dokładnie w takiej postaci, w jakiej zapisuje ją dostawca.",
+      "apiKey": "Klucz API",
+      "apiKeyOptional": "Klucz API (jeśli serwer go wymaga)",
+      "apiKeyKeep": "Zapisany klucz kończy się na {hint}; zostaw puste, aby go zachować",
+      "embeddingsModel": "Model embeddingów",
+      "embeddingsModelHint": "Opcjonalnie. Włącza wyszukiwanie semantyczne w obszarach roboczych korzystających z tego konta.",
+      "sttModel": "Model zamiany mowy na tekst",
+      "sttModelHint": "Opcjonalnie. Włącza notatki głosowe w obszarach roboczych korzystających z tego konta.",
+      "keyHint": "Zapisanie wysyła jedno krótkie żądanie, aby sprawdzić klucz. Klucz jest przechowywany w postaci zaszyfrowanej i nigdy więcej nie jest wyświetlany."
+    },
+    "errors": {
+      "disabled": "Ten serwer nie przyjmuje własnych kluczy AI.",
+      "providerRequired": "Wybierz dostawcę.",
+      "modelRequired": "Podaj nazwę modelu.",
+      "baseUrlRequired": "Podaj adres serwera.",
+      "baseUrlInvalid": "Nie można użyć tego adresu: {message}",
+      "keyRequired": "Wklej klucz API.",
+      "keyTooLong": "Klucz jest za długi.",
+      "notFound": "To konto AI już nie istnieje.",
+      "tooMany": "Masz już maksymalną liczbę kont AI. Najpierw usuń jedno.",
+      "testFailed": "Żądanie testowe nie powiodło się: {message}",
+      "ownersOnly": "Tylko właściciele obszaru roboczego mogą wybrać jego konto AI."
+    },
+    "workspace": {
+      "title": "Konto AI",
+      "sourceMine": "Działa na twoim koncie {label} ({provider}, {model}). Korzystanie z AI jest rozliczane na twój klucz.",
+      "sourceTheirs": "Działa na koncie {label} użytkownika {name} ({provider}, {model}). Korzystanie z AI jest rozliczane na klucz tej osoby.",
+      "sourceInstance": "Działa na AI tego serwera.",
+      "sourceOff": "Brak konta AI: AI jest wyłączona w tym obszarze roboczym, dopóki właściciel nie wybierze konta.",
+      "sourceOffOnlyOwn": "Brak konta AI: na tym serwerze AI działa tylko na własnym kluczu właściciela.",
+      "noAccounts": "Nie masz własnego konta AI.",
+      "addOne": "Dodaj konto",
+      "ownersOnly": "Tylko właściciele mogą to zmienić, każdy przy użyciu własnych kont.",
+      "noneInstance": "Brak (AI tego serwera)",
+      "noneOff": "Brak (AI wyłączona)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (nie działa)"
+    }
   }
 }

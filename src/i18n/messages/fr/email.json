@@ -243,7 +243,9 @@
     "reportDone": "Son exécution planifiée est terminée",
     "reportFailed": "Son exécution planifiée a échoué",
     "untitled": "Sans titre",
-    "snooze": "Reporter d’1 heure"
+    "snooze": "Reporter d’1 heure",
+    "aiAccountTitle": "Compte IA supprimé",
+    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}."
   },
   "workspaceDeleted": {
     "subject": "{workspace} a été supprimé",

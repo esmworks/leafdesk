@@ -267,5 +267,81 @@
       "notFound": "That note isn't there anymore.",
       "off": "The AI memory is turned off in this workspace."
     }
+  },
+  "accounts": {
+    "heading": "AI",
+    "description": "Your own AI provider keys. Add a key once and run the AI of workspaces you own on it: everything AI does there, for every member and in the background, is billed to this key. Nothing else uses it.",
+    "add": "Add AI account",
+    "empty": "No AI accounts yet.",
+    "default": "Default for new workspaces",
+    "keyHint": "key ending in {hint}",
+    "embeddingsValue": "search: {model}",
+    "sttValue": "voice: {model}",
+    "status": {
+      "active": "Working, checked {time}",
+      "broken": "Not working: {error}"
+    },
+    "usedBy": "Used by {names}",
+    "unused": "Not used by any workspace yet. Choose it in a workspace's Settings > General > AI.",
+    "test": "Test",
+    "testing": "Testing…",
+    "change": "Change",
+    "makeDefault": "Make default",
+    "remove": "Remove",
+    "removeNote": "The key is deleted from this server.",
+    "removeNoteUsed": "The key is deleted from this server. {count, plural, one {The workspace using it falls back to the server's AI, or has none; its owners are told.} other {The # workspaces using it fall back to the server's AI, or have none; their owners are told.}}",
+    "save": "Test and save",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "OpenAI-compatible server"
+    },
+    "fields": {
+      "provider": "Provider",
+      "label": "Name",
+      "labelHint": "Optional, to tell accounts apart",
+      "baseUrl": "Server address",
+      "baseUrlHint": "The API root of the server, usually ending in /v1. It must be a public https address.",
+      "model": "Model",
+      "modelHint": "The model's name exactly as the provider writes it.",
+      "apiKey": "API key",
+      "apiKeyOptional": "API key (if the server needs one)",
+      "apiKeyKeep": "Saved key ending in {hint}; leave empty to keep it",
+      "embeddingsModel": "Embeddings model",
+      "embeddingsModelHint": "Optional. Turns on semantic search in the workspaces on this account.",
+      "sttModel": "Speech to text model",
+      "sttModelHint": "Optional. Turns on voice notes in the workspaces on this account.",
+      "keyHint": "Saving sends one short request to check the key. The key is stored encrypted and never shown again."
+    },
+    "errors": {
+      "disabled": "This server doesn't take your own AI keys.",
+      "providerRequired": "Choose a provider.",
+      "modelRequired": "Name the model.",
+      "baseUrlRequired": "Give the server's address.",
+      "baseUrlInvalid": "This address can't be used: {message}",
+      "keyRequired": "Paste the API key.",
+      "keyTooLong": "The key is too long.",
+      "notFound": "This AI account no longer exists.",
+      "tooMany": "You have as many AI accounts as you can have. Remove one first.",
+      "testFailed": "The test request failed: {message}",
+      "ownersOnly": "Only the workspace's owners can choose its AI account."
+    },
+    "workspace": {
+      "title": "AI account",
+      "sourceMine": "Runs on your account {label} ({provider}, {model}). Its AI is billed to your key.",
+      "sourceTheirs": "Runs on {name}'s account {label} ({provider}, {model}). Its AI is billed to their key.",
+      "sourceInstance": "Runs on this server's AI.",
+      "sourceOff": "No AI account: AI is off in this workspace until an owner chooses one.",
+      "sourceOffOnlyOwn": "No AI account: on this server, AI only runs on an owner's own key.",
+      "noAccounts": "You have no AI account of your own.",
+      "addOne": "Add one",
+      "ownersOnly": "Only owners can change this, each with their own accounts.",
+      "noneInstance": "None (this server's AI)",
+      "noneOff": "None (AI off)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (not working)"
+    }
   }
 }

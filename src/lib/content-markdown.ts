@@ -151,9 +151,17 @@ const TOKEN_LINE = (nonce: string) => new RegExp(`^([ \\t]*)leafdesk${nonce}b(\\
 export function prepareMarkdownExport<B extends MdBlock>(
   blocks: B[],
   nonce: string,
-  /** The page's workspace, for the links page mentions are written as. */
-  { workspaceId = "-" }: { workspaceId?: string } = {},
+  {
+    workspaceId = "-",
+    pageTitle,
+  }: {
+    /** The page's workspace, for the links page mentions are written as. */
+    workspaceId?: string;
+    /** The text of a link to a page (its title, when the reader knows it); "page" without one. */
+    pageTitle?: (pageId: string) => string | undefined;
+  } = {},
 ) {
+  const pageText = (pageId: string) => pageTitle?.(pageId)?.trim() || "page";
   const blockMarkdown: string[] = [];
   const inlineMarkdown: string[] = [];
   /** Callouts and quotes with nested blocks, by token: a quote has no kind. */
@@ -201,7 +209,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
       if (node?.type === MENTION) {
         const props = mentionProps((node as { props?: unknown }).props);
         const markdown =
-          props.kind === "page" ? (props.pageId ? pageLinkMarkdown("page", workspaceId, props.pageId, props.blockId) : "") : mentionText(props);
+          props.kind === "page" ? (props.pageId ? pageLinkMarkdown(pageText(props.pageId), workspaceId, props.pageId, props.blockId) : "") : mentionText(props);
         return { type: "text", text: `leafdesk${nonce}i${inlineMarkdown.push(markdown) - 1}x`, styles: {} };
       }
       if (node?.type === FOOTNOTE) {
@@ -266,7 +274,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
           // A link to a block of a page ("Link to page" only): a synced page shows the whole page.
           const at = block.type === SYNCED_PAGE_BLOCK ? "" : String(block.props?.blockId ?? "");
           const marker = block.type === SYNCED_PAGE_BLOCK ? SYNCED_PAGE_MARKER : PAGE_LINK_MARKER;
-          return paragraph(blockToken(pageId ? `${pageLinkMarkdown("page", workspaceId, pageId, at)} ${marker}` : ""));
+          return paragraph(blockToken(pageId ? `${pageLinkMarkdown(pageText(pageId), workspaceId, pageId, at)} ${marker}` : ""));
         }
         case SYNCED_BLOCK: {
           // Its blocks between its marker lines (lib/synced-blocks): a source page's reader passes

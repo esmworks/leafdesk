@@ -41,7 +41,15 @@ export const AUDIT_CATEGORIES = {
     "teamspace.group_removed",
   ],
   groups: ["group.created", "group.renamed", "group.deleted", "group.members_added", "group.members_removed"],
-  settings: ["workspace.renamed", "workspace.settings_changed", "storage.connected", "storage.disconnected", "storage.moved"],
+  settings: [
+    "workspace.renamed",
+    "workspace.settings_changed",
+    "storage.connected",
+    "storage.disconnected",
+    "storage.moved",
+    "ai_account.attached",
+    "ai_account.detached",
+  ],
   security: [
     "sso.configured",
     "sso.domains_verified",
@@ -139,6 +147,7 @@ export type AuditTargetType =
   | "connected_app"
   | "join_link"
   | "storage"
+  | "ai_account"
   | "site"
   | "connection"
   | "mailbox";

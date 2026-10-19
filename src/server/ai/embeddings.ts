@@ -21,7 +21,7 @@ export async function fetchEmbeddings(
     const input = texts.slice(i, i + BATCH);
     let res: Response;
     try {
-      res = await fetch(`${config.baseUrl}/embeddings`, {
+      res = await (config.fetch ?? fetch)(`${config.baseUrl}/embeddings`, {
         method: "POST",
         signal,
         headers: {

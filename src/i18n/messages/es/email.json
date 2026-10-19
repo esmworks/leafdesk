@@ -243,7 +243,9 @@
     "reportDone": "Su ejecución programada terminó",
     "reportFailed": "Su ejecución programada falló",
     "untitled": "Sin título",
-    "snooze": "Posponer 1 hora"
+    "snooze": "Posponer 1 hora",
+    "aiAccountTitle": "Cuenta de IA quitada",
+    "aiAccountDetached": "La IA del espacio de trabajo ya no funciona con la clave de {actor}."
   },
   "workspaceDeleted": {
     "subject": "{workspace} se ha eliminado",

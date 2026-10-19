@@ -28,6 +28,7 @@ import { GroupsPanel } from "@/components/settings/groups-panel";
 import { GuestsPanel } from "@/components/settings/guests-panel";
 import { HealthPanel } from "@/components/settings/health-panel";
 import { AiSettings } from "@/components/settings/ai-settings";
+import { WorkspaceAiAccount } from "@/components/settings/workspace-ai-account";
 import { MailSettings } from "@/components/settings/mail-settings";
 import { StorageSettings } from "@/components/settings/storage-settings";
 import { DeleteWorkspaceRow } from "@/components/settings/delete-workspace";
@@ -88,7 +89,8 @@ import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
-import { aiInfo, embeddingModel } from "@/server/ai";
+import { aiInfoFor } from "@/server/ai";
+import { workspaceAiView } from "@/server/ai-accounts";
 import { workspaceAnalytics } from "@/server/analytics";
 import { auditActors, listAuditEvents } from "@/server/audit";
 import { listWorkspaceFormPublications } from "@/server/forms";
@@ -280,18 +282,28 @@ async function StorageTab({ workspaceId, userId, isAdmin, notice }: { workspaceI
   );
 }
 
-/** Settings > General > AI: the workspace's switch and the server's provider (see server/ai). */
+/**
+ * Settings > General > AI: the workspace's switch, the AI account it runs on (with own keys, see
+ * server/ai-accounts.ts) and its provider (see server/ai).
+ */
 async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [settings, t] = await Promise.all([getWorkspaceSettings(userId, workspaceId), getTranslations("ai.settings")]);
+  const [settings, t, info, account] = await Promise.all([
+    getWorkspaceSettings(userId, workspaceId),
+    getTranslations("ai.settings"),
+    aiInfoFor(workspaceId),
+    workspaceAiView(userId, workspaceId),
+  ]);
   return (
     <SettingsGroup title={t("heading")} description={t("description")} className="mt-10">
+      {account && <WorkspaceAiAccount workspaceId={workspaceId} initial={account} accountsHref={`/w/${workspaceId}/settings?tab=apps`} />}
       <AiSettings
+        key={info?.accountId ?? "instance"}
         workspaceId={workspaceId}
         enabled={settings.ai !== false}
         memory={settings.aiMemory !== false}
         canEdit={isOwner}
-        provider={aiInfo()}
-        embeddings={embeddingModel()}
+        provider={info && { provider: info.provider, model: info.model }}
+        embeddings={info?.embeddings ?? null}
       />
     </SettingsGroup>
   );
@@ -566,7 +578,7 @@ async function AgentsTab({
     isOwner ? getLocale().then(builtinAgents) : [],
     isOwner ? proposedNoteCounts(userId, workspaceId) : {},
   ]);
-  const ai = !aiInfo() ? "unavailable" : settings.ai === false ? "off" : "on";
+  const ai = !(await aiInfoFor(workspaceId)) ? "unavailable" : settings.ai === false ? "off" : "on";
   return (
     <AgentsPanel
       workspaceId={workspaceId}

@@ -1370,6 +1370,10 @@
       "backup": {
         "created": "ワークスペースをバックアップしました（{count}ページ）",
         "restored": "バックアップからワークスペースを復元しました（{count}ページ）"
+      },
+      "ai_account": {
+        "attached": "ワークスペースのAIをAIアカウント{target}に接続しました",
+        "detached": "ワークスペースのAIとAIアカウント{target}の接続を解除しました"
       }
     },
     "decisions": {

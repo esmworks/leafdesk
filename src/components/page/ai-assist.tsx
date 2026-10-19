@@ -36,7 +36,9 @@ import { snapshotBeforeAiEditAction } from "@/app/actions/ai";
 import { cn } from "@/components/ui";
 import { AI_LANGUAGES, isAiErrorCode, type EditorAction } from "@/lib/ai";
 import { CALLOUT_BLOCK } from "@/lib/content-blocks";
+import { editorBlocksToMarkdown, editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import type { PageEditor } from "./embed-blocks";
+import { knownPageTitle } from "./mentions";
 import { isRtl } from "@/components/direction";
 
 type AnyBlock = PageEditor["document"][number];
@@ -190,15 +192,16 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
   const open = useCallback(
     (action?: "continue" | "summarize") => {
       if (!enabled) return;
-      const captured = captureTarget(editor);
-      if (!captured) return;
-      setTarget(captured);
-      setResult("");
-      setInstruction("");
-      setNotice(null);
-      if (captured.text) showSelection(true);
-      if (action) void run({ action }, captured);
-      else setPhase({ step: "menu" });
+      void captureTarget(editor).then((captured) => {
+        if (!captured) return;
+        setTarget(captured);
+        setResult("");
+        setInstruction("");
+        setNotice(null);
+        if (captured.text) showSelection(true);
+        if (action) void run({ action }, captured);
+        else setPhase({ step: "menu" });
+      });
     },
     [editor, enabled, run, showSelection],
   );
@@ -243,16 +246,18 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
         return;
       }
       try {
+        const blocks = (await editorMarkdownToBlocks(editor, markdown, { appUrl: window.location.origin })) as AnyBlock[];
         let placed = how;
         if (how === "replace") {
           const range = currentRange(editor, target);
           if (range) {
             const { state, view } = { state: editor.prosemirrorState, view: editor.prosemirrorView };
             view?.dispatch(state.tr.setSelection(TextSelection.create(state.doc, range.from, range.to)));
-            editor.pasteMarkdown(markdown);
+            // The editor's own HTML, which keeps footnotes and equations (pasted Markdown wouldn't).
+            if (blocks.length) editor.pasteHTML(editor.blocksToFullHTML(blocks as never), true);
           } else placed = "below";
         }
-        if (placed === "below") insertBelow(editor, target.blockId, markdown, phase.action === "summarize");
+        if (placed === "below") insertBelow(editor, target.blockId, blocks, phase.action === "summarize");
         if (placed !== how) {
           setPhase({ step: "notice", message: t("assistant.selectionChanged") });
           showSelection(false);
@@ -497,18 +502,18 @@ function PanelIconButton({
 
 // ------------------------------------------------------------------------------ editor glue
 
-function captureTarget(editor: PageEditor): Target | null {
+async function captureTarget(editor: PageEditor): Promise<Target | null> {
   const view = editor.prosemirrorView;
   if (!view) return null;
   const state = editor.prosemirrorState;
   const selection = state.selection;
   const hasSelection = selection instanceof TextSelection && !selection.empty && state.doc.textBetween(selection.from, selection.to, "\n").trim() !== "";
-  let text = "";
+  let selected: AnyBlock[] = [];
   let plain = "";
   let range: Target["range"] = null;
   let blocks: AnyBlock[] = [];
   if (hasSelection) {
-    text = editor.blocksToMarkdownLossy(editor.getSelectionCutBlocks().blocks as never).trim();
+    selected = editor.getSelectionCutBlocks().blocks as AnyBlock[];
     plain = state.doc.textBetween(selection.from, selection.to, "\n");
     blocks = (editor.getSelection()?.blocks ?? []) as AnyBlock[];
     const binding = ySyncPluginKey.getState(state)?.binding;
@@ -527,11 +532,14 @@ function captureTarget(editor: PageEditor): Target | null {
   const top = topLevelOf(editor, block.id);
   const document = editor.document as AnyBlock[];
   const index = document.findIndex((b) => b.id === top);
-  const before = editor.blocksToMarkdownLossy(document.slice(0, index + 1) as never).trim();
   const coords = view.coordsAtPos(hasSelection ? selection.to : selection.head);
   const start = view.coordsAtPos(hasSelection ? selection.from : selection.head);
   // The panel opens from where the text starts: its right edge there when the line runs right to left.
   const left = isRtl(view.dom) ? start.right - Math.min(PANEL_WIDTH, window.innerWidth - 16) : start.left;
+  // Everything above is read before the Markdown is written, while the selection is still the one opened on.
+  const markdown = (list: AnyBlock[]) => editorBlocksToMarkdown(editor, list, { pageTitle: knownPageTitle }).then((md) => md.trim());
+  const text = selected.length ? await markdown(selected) : "";
+  const before = await markdown(document.slice(0, index + 1));
   return { text, plain, range, before, blockId: block.id, top: coords.bottom + 8, left };
 }
 
@@ -569,8 +577,8 @@ function currentRange(editor: PageEditor, target: Target): { from: number; to: n
  * Adds the answer after the block (in place of it when it's an empty line, like where the slash
  * menu was opened). A page summary of one paragraph goes into a callout.
  */
-function insertBelow(editor: PageEditor, blockId: string, markdown: string, summary: boolean) {
-  let blocks = editor.tryParseMarkdownToBlocks(markdown) as AnyBlock[];
+function insertBelow(editor: PageEditor, blockId: string, parsed: AnyBlock[], summary: boolean) {
+  let blocks = parsed;
   if (!blocks.length) return;
   if (summary && blocks.length === 1 && blocks[0].type === "paragraph") {
     blocks = [{ type: CALLOUT_BLOCK, content: blocks[0].content } as AnyBlock];

@@ -243,7 +243,9 @@
     "reportDone": "其定时运行已完成",
     "reportFailed": "其定时运行失败",
     "untitled": "无标题",
-    "snooze": "稍后 1 小时提醒"
+    "snooze": "稍后 1 小时提醒",
+    "aiAccountTitle": "AI 账户已移除",
+    "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。"
   },
   "workspaceDeleted": {
     "subject": "{workspace} 已被删除",

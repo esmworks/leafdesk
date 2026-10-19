@@ -270,10 +270,14 @@ export const NOTIFICATION_KINDS = [
   "agent_approval",
   "agent_memory",
   "agent_report",
+  "ai_account_detached",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
-/** Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, or a scheduled run's report. */
-export const OWNER_KINDS = ["agent_approval", "agent_memory", "agent_report"] as const satisfies readonly NotificationKind[];
+/**
+ * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
+ * scheduled run's report, or the AI account the workspace ran on gone.
+ */
+export const OWNER_KINDS = ["agent_approval", "agent_memory", "agent_report", "ai_account_detached"] as const satisfies readonly NotificationKind[];
 export type OwnerKind = (typeof OWNER_KINDS)[number];
 export const isOwnerKind = (kind: string): kind is OwnerKind => (OWNER_KINDS as readonly string[]).includes(kind);
 /** Kinds people choose to hear about (not OWNER_KINDS). */
@@ -298,7 +302,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * no page, gone once no proposal of the run waits any more. "agent_report": agent `actorId`'s run
  * `agentRunId`, which one of its schedules started, finished; it tells the owner who set the
  * schedule what the run did or why it failed, and has no page. "row_email": message `rowEmailId`
- * landed on row `pageId`, through the mailbox of `actorId` (null when it is the user's own). Unread ones are dropped when the change is
+ * landed on row `pageId`, through the mailbox of `actorId` (null when it is the user's own).
+ * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
+ * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */
@@ -367,8 +373,11 @@ export const notification = pgTable(
     index("notification_snoozed_idx").on(t.snoozedUntil).where(sql`${t.snoozedUntil} is not null`),
     // A run that proposes notes tells each owner once.
     uniqueIndex("notification_agent_memory_idx").on(t.agentRunId, t.userId).where(sql`${t.kind} = 'agent_memory'`),
-    // Only join requests and agents' approvals, notes and reports are about no page (access requests are about the page asked for).
-    check("notification_subject_check", sql`${t.kind} in ('join_request', 'agent_approval', 'agent_memory', 'agent_report') or ${t.pageId} is not null`),
+    // Only join requests, agents' approvals, notes and reports, and a detached AI account are about no page (access requests are about the page asked for).
+    check(
+      "notification_subject_check",
+      sql`${t.kind} in ('join_request', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached') or ${t.pageId} is not null`,
+    ),
   ],
 );
 

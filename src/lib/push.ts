@@ -138,6 +138,8 @@ export function pushLink(item: PushItem): string {
   }
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "agent_report") return item.report ? agentRunPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
+  // The workspace's AI account is chosen in Settings > General.
+  if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
   return `/w/${item.workspaceId}/p/${item.pageId}${item.kind === "comment" && item.threadId ? commentHash(item.threadId) : ""}`;
@@ -174,6 +176,9 @@ export function pushPayload(
     if (!item.report) return null;
     title = t("reportTitle", { agent: item.report.agentName || actor });
     line = item.report.status === "failed" ? t("reportFailed") : t("reportDone");
+  } else if (item.kind === "ai_account_detached") {
+    title = t("aiAccountTitle");
+    line = t("aiAccountDetached", { actor });
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");
     line = item.requestKind === "invite" ? t("inviteRequest", { actor, email: item.requestEmail ?? "" }) : t("joinRequest", { actor });

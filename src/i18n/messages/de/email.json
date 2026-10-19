@@ -243,7 +243,9 @@
     "reportDone": "Sein geplanter Lauf ist fertig",
     "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen",
     "untitled": "Ohne Titel",
-    "snooze": "1 Stunde zurückstellen"
+    "snooze": "1 Stunde zurückstellen",
+    "aiAccountTitle": "KI-Konto entfernt",
+    "aiAccountDetached": "Die KI des Workspaces läuft nicht mehr über den Schlüssel von {actor}."
   },
   "workspaceDeleted": {
     "subject": "{workspace} wurde gelöscht",

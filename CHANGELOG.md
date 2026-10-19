@@ -8,13 +8,25 @@
   shows the note. Notes are plain text, and footnotes count in the order the page has them. The
   page lists its notes under the body (a number there goes to its place in the text), and
   published pages and the PDF list them at the end, linked both ways. Markdown, MCP and the API
-  read and write them as `[^1]` with `[^1]: The note.` lines at the end. Word footnotes and
-  endnotes import as footnotes instead of a list at the end of the page.
+  read and write them as `[^1]` with `[^1]: The note.` lines at the end, and so does the AI
+  assistant: rewriting, translating or continuing text keeps its footnotes, and its inline
+  equations, instead of running them into the sentence. Word footnotes and endnotes import as
+  footnotes instead of a list at the end of the page.
 - **Callouts hidden when printing.** *Hide when printing* in a callout's block menu keeps it on
   screen and leaves it out of the PDF and of what the browser prints, for notes that shouldn't
   reach a printout. The callout shows a small mark while it is hidden. In Markdown it is the line
   `<!-- leafdesk:no-print -->` right before the callout.
 
+- **Your own AI keys.** With `OWN_AI_KEYS_ENABLED`, everyone can add AI accounts to their Leafdesk
+  account in Settings → Apps → AI: a provider (Anthropic, OpenAI, Google Gemini, OpenCode Go or an
+  OpenAI-compatible server), a model and the key, tried with a tiny request before it is kept and
+  never shown again, plus optional models for semantic search and voice notes. A workspace runs all
+  its AI on one owner's account, picked in Settings → General → AI; a new workspace takes its
+  creator's default account, so one key serves all of someone's workspaces. Without an account a
+  workspace uses the server's AI settings, or has no AI with `AI_ONLY_OWN_KEYS`. When the account's
+  owner leaves or removes it, the workspace falls back and its other owners are told. Semantic search
+  indexes each workspace with its own embeddings model. An OpenAI-compatible server must be on a
+  public https address unless listed in `AI_ALLOWED_HOSTS`.
 - **Email on database rows.** Owners turn it on in Settings → Email and pick the databases mail
   lands on, in order, with the email properties that hold addresses; each member connects their
   own mailbox for that workspace (Google Workspace and Gmail, Yandex, Zoho or any IMAP and SMTP

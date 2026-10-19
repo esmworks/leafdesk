@@ -1370,6 +1370,10 @@
       "backup": {
         "created": "备份了工作区（{count} 个页面）",
         "restored": "从备份恢复了工作区（{count} 个页面）"
+      },
+      "ai_account": {
+        "attached": "让工作区的 AI 使用 AI 账户 {target} 运行",
+        "detached": "停止让工作区的 AI 使用 AI 账户 {target} 运行"
       }
     },
     "decisions": {

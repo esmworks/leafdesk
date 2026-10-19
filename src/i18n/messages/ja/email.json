@@ -243,7 +243,9 @@
     "reportDone": "スケジュールされた実行が完了しました",
     "reportFailed": "スケジュールされた実行が失敗しました",
     "untitled": "無題",
-    "snooze": "1時間スヌーズ"
+    "snooze": "1時間スヌーズ",
+    "aiAccountTitle": "AIアカウントが削除されました",
+    "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。"
   },
   "workspaceDeleted": {
     "subject": "{workspace}が削除されました",

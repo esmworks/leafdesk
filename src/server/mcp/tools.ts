@@ -1077,6 +1077,20 @@ export function createMcpServer(principal: McpPrincipal) {
                 url: r ? `${env.appUrl}${agentRunPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
               };
             }
+            // The workspace's own AI account is gone: owners attach another in the app.
+            if (n.kind === "ai_account_detached") {
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `The workspace's AI no longer runs on ${who}'s own AI account (they left the workspace or removed it); it uses the server's AI if there is one, and an owner can attach their own AI account in Settings > General`,
+                actor: n.actorName,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}/w/${n.workspaceId}/settings`,
+              };
+            }
             // Join requests are about the workspace, not a page; owners decide them in the app.
             if (n.kind === "join_request" || n.pageId === null) {
               return {

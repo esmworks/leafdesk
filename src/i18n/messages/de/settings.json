@@ -1370,6 +1370,10 @@
       "backup": {
         "created": "Hat den Workspace gesichert ({count, plural, one {# Seite} other {# Seiten}})",
         "restored": "Hat den Workspace aus einem Backup wiederhergestellt ({count, plural, one {# Seite} other {# Seiten}})"
+      },
+      "ai_account": {
+        "attached": "Hat die KI des Workspaces auf das KI-Konto {target} umgestellt",
+        "detached": "Hat die KI des Workspaces vom KI-Konto {target} getrennt"
       }
     },
     "decisions": {

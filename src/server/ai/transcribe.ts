@@ -27,7 +27,7 @@ export async function fetchTranscription(
   signal.throwIfAborted();
   let res: Response;
   try {
-    res = await fetch(`${config.baseUrl}/audio/transcriptions`, {
+    res = await (config.fetch ?? fetch)(`${config.baseUrl}/audio/transcriptions`, {
       method: "POST",
       signal,
       headers: {

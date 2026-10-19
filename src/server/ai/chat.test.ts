@@ -206,14 +206,14 @@ describe("tool calls over an OpenAI-compatible server", () => {
     });
     const tools = [{ name: "search_pages", description: "Search", parameters: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } }];
     const messages: AiMessage[] = [{ role: "user", content: "Where do we go?" }];
-    const first = stream({ feature: "test", messages, tools });
+    const first = stream({ feature: "test", workspaceId: "w1", messages, tools });
     const firstResult = await first.result();
     expect(firstResult.stopReason).toBe("tool_use");
     expect(firstResult.toolCalls).toEqual([{ id: expect.any(String), name: "search_pages", arguments: { query: "north" } }]);
     expect(fake.chats[0].tools?.map((t) => t.function.name)).toEqual(["search_pages"]);
 
     messages.push(firstResult.message, { role: "tool", toolCallId: firstResult.toolCalls[0].id, name: "search_pages", content: "north" });
-    const second = stream({ feature: "test", messages, tools });
+    const second = stream({ feature: "test", workspaceId: "w1", messages, tools });
     let text = "";
     for await (const e of second) text += e.delta;
     expect(text).toBe("Found: north [1]");
@@ -224,7 +224,7 @@ describe("tool calls over an OpenAI-compatible server", () => {
 
   it("embeds with a separately configured embeddings endpoint and no chat provider", async () => {
     setAiEnv({ AI_EMBEDDINGS_MODEL: "fake-embed", AI_EMBEDDINGS_BASE_URL: fake.baseUrl, AI_EMBEDDINGS_API_KEY: "local" });
-    const [vector] = await embed(["car"], { feature: "test" });
+    const [vector] = await embed(["car"], { feature: "test", workspaceId: "w1" });
     expect(vector).toHaveLength(256);
     expect(fake.embedded.at(-1)).toBe("car");
   });

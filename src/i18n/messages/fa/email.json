@@ -243,7 +243,9 @@
     "reportDone": "اجرای زمان‌بندی‌شده آن تمام شد",
     "reportFailed": "اجرای زمان‌بندی‌شده آن ناموفق بود",
     "untitled": "بدون عنوان",
-    "snooze": "تعویق 1 ساعته"
+    "snooze": "تعویق 1 ساعته",
+    "aiAccountTitle": "حساب هوش مصنوعی حذف شد",
+    "aiAccountDetached": "هوش مصنوعی فضای کاری دیگر با کلید {actor} اجرا نمی‌شود."
   },
   "workspaceDeleted": {
     "subject": "{workspace} حذف شد",

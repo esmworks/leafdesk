@@ -21,7 +21,7 @@ const { db } = await import("@/db");
 const { workspace } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { describeAiSetup, embeddingModel } = await import("@/server/ai");
+const { describeAiSetup, embeddingsEnabled } = await import("@/server/ai");
 const index = await import("@/server/semantic-index");
 
 const { hocuspocus, service } = createCollab();
@@ -29,8 +29,8 @@ registerCollab(service);
 
 try {
   console.log(describeAiSetup());
-  if (!embeddingModel()) {
-    console.error("No embeddings model: set AI_EMBEDDINGS_MODEL (see the README's AI section).");
+  if (!embeddingsEnabled()) {
+    console.error("No embeddings model: set AI_EMBEDDINGS_MODEL, or OWN_AI_KEYS_ENABLED for accounts that name one (see the README's AI section).");
     process.exitCode = 1;
   } else {
     const named = process.argv.slice(2);

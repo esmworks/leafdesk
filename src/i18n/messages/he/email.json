@@ -243,7 +243,9 @@
     "reportDone": "ההרצה המתוזמנת שלו הסתיימה",
     "reportFailed": "ההרצה המתוזמנת שלו נכשלה",
     "untitled": "ללא כותרת",
-    "snooze": "דחייה בשעה"
+    "snooze": "דחייה בשעה",
+    "aiAccountTitle": "חשבון AI הוסר",
+    "aiAccountDetached": "ה־AI של סביבת העבודה כבר לא פועל על המפתח של {actor}."
   },
   "workspaceDeleted": {
     "subject": "{workspace} נמחקה",

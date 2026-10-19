@@ -1370,6 +1370,10 @@
       "backup": {
         "created": "Çalışma alanı yedeklendi ({count, plural, other {# sayfa}})",
         "restored": "Çalışma alanı bir yedekten geri yüklendi ({count, plural, other {# sayfa}})"
+      },
+      "ai_account": {
+        "attached": "Çalışma alanının yapay zekâsını bir yapay zekâ hesabına bağladı: {target}",
+        "detached": "Çalışma alanının yapay zekâsını yapay zekâ hesabından ayırdı: {target}"
       }
     },
     "decisions": {

@@ -32,6 +32,8 @@ export type AiChatConfig = {
   /** Overrides the provider's endpoint; required for openai-compatible. */
   baseUrl: string | null;
   apiKey: string | null;
+  /** Requests go through this instead of the global fetch (a person's own server, see fetch.ts). */
+  fetch?: typeof fetch;
 };
 
 export type AiEmbeddingsConfig = {
@@ -46,6 +48,7 @@ export type AiEmbeddingsConfig = {
    * counts as similar depends on the model; see AI_EMBEDDINGS_MIN_SIMILARITY in the README.
    */
   minSimilarity: number;
+  fetch?: typeof fetch;
 };
 
 export const DEFAULT_MIN_SIMILARITY = 0.3;
@@ -69,6 +72,7 @@ export type AiSttConfig = {
   /** Largest audio file one request may send. */
   maxBytes: number;
   timeoutMs: number;
+  fetch?: typeof fetch;
 };
 
 export type AiLimits = {
@@ -221,15 +225,64 @@ function readSttConfig(env: Env, chat: AiChatConfig | null, problems: string[]):
     problems.push("STT_API_KEY is required with STT_PROVIDER=openai");
     return null;
   }
+  return { provider, model, baseUrl, apiKey, ...readSttLimits(env, problems) };
+}
+
+/** How long and large recordings may be, and how long transcribing one may take. */
+export function readSttLimits(env: Env, problems: string[]) {
   return {
-    provider,
-    model,
-    baseUrl,
-    apiKey,
     maxSeconds: positive(env, "STT_MAX_SECONDS", 600, problems),
     maxBytes: positive(env, "STT_MAX_MB", 25, problems) * 1024 * 1024,
     timeoutMs: positive(env, "STT_TIMEOUT_SECONDS", 120, problems) * 1000,
   };
+}
+
+/** What an own AI account (server/ai-accounts.ts) holds, its key opened. */
+export type AiAccountSettings = {
+  provider: Exclude<AiProviderKind, "ollama" | "lmstudio">;
+  model: string;
+  /** openai-compatible only; ignored for hosted providers, which have fixed endpoints. */
+  baseUrl: string | null;
+  apiKey: string | null;
+  embeddingsModel: string | null;
+  sttModel: string | null;
+};
+
+/**
+ * The settings a workspace's AI runs on when it uses an own AI account: its chat model, and
+ * embeddings and speech to text at the same provider with the same key when the account names
+ * models for them (never the server's: one account pays for all of a workspace's AI). The server's
+ * limits still apply. Requests to a typed base URL go through `guardedFetch`.
+ */
+export function accountAiConfig(account: AiAccountSettings, guardedFetch: typeof fetch, env: Env = process.env): AiConfig {
+  const problems: string[] = [];
+  const base = readAiConfig(env);
+  const typed = account.provider === "openai-compatible";
+  const chat: AiChatConfig = {
+    provider: account.provider,
+    model: account.model,
+    baseUrl: typed ? account.baseUrl : null,
+    apiKey: account.apiKey,
+    ...(typed ? { fetch: guardedFetch } : {}),
+  };
+  const embeddingsUrl = inheritedEmbeddingsUrl(chat);
+  const embeddings: AiEmbeddingsConfig | null =
+    account.embeddingsModel && embeddingsUrl
+      ? { model: account.embeddingsModel, baseUrl: embeddingsUrl, apiKey: account.apiKey, dimensions: null, minSimilarity: DEFAULT_MIN_SIMILARITY, fetch: guardedFetch }
+      : null;
+  const sttUrl = account.provider === "openai" ? HOSTED_EMBEDDING_URLS.openai! : typed ? account.baseUrl : null;
+  const stt: AiSttConfig | null =
+    account.sttModel && sttUrl
+      ? {
+          provider: typed ? "openai-compatible" : "openai",
+          model: account.sttModel,
+          baseUrl: sttUrl,
+          apiKey: account.apiKey,
+          ...readSttLimits(env, problems),
+          fetch: guardedFetch,
+        }
+      : null;
+  return { chat, embeddings, stt, limits: base.limits, problems };
 }
 
 function similarity(env: Env, problems: string[]) {

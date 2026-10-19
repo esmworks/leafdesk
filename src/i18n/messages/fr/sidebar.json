@@ -154,7 +154,9 @@
     "reportDone": "Son exécution planifiée est terminée.",
     "reportFailed": "Son exécution planifiée a échoué. Ouvrez-la pour voir pourquoi.",
     "reportHidden": "Son exécution planifiée est terminée, sur une base de données que vous ne pouvez pas ouvrir.",
-    "reportGone": "L’exécution n’est plus conservée."
+    "reportGone": "L’exécution n’est plus conservée.",
+    "aiAccountTitle": "Compte IA supprimé",
+    "aiAccountDetached": "L’IA de l’espace de travail ne fonctionne plus avec la clé de {actor}. Choisissez un autre compte IA dans Paramètres."
   },
   "templates": {
     "title": "Modèles",

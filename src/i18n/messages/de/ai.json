@@ -267,5 +267,81 @@
       "notFound": "Diese Notiz gibt es nicht mehr.",
       "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet."
     }
+  },
+  "accounts": {
+    "heading": "KI",
+    "description": "Deine eigenen Schlüssel für KI-Anbieter. Füge einen Schlüssel einmal hinzu und lass die KI der Workspaces, deren Eigentümer du bist, darüber laufen: Alles, was die KI dort tut, für jedes Mitglied und im Hintergrund, wird über diesen Schlüssel abgerechnet. Nichts anderes nutzt ihn.",
+    "add": "KI-Konto hinzufügen",
+    "empty": "Noch keine KI-Konten.",
+    "default": "Standard für neue Workspaces",
+    "keyHint": "Schlüssel endet auf {hint}",
+    "embeddingsValue": "Suche: {model}",
+    "sttValue": "Sprache: {model}",
+    "status": {
+      "active": "Funktioniert, geprüft {time}",
+      "broken": "Funktioniert nicht: {error}"
+    },
+    "usedBy": "Genutzt von {names}",
+    "unused": "Noch von keinem Workspace genutzt. Wähle es in einem Workspace unter Einstellungen > Allgemein > KI.",
+    "test": "Testen",
+    "testing": "Wird getestet…",
+    "change": "Ändern",
+    "makeDefault": "Als Standard festlegen",
+    "remove": "Entfernen",
+    "removeNote": "Der Schlüssel wird von diesem Server gelöscht.",
+    "removeNoteUsed": "Der Schlüssel wird von diesem Server gelöscht. {count, plural, one {Der Workspace, der ihn nutzt, fällt auf die KI des Servers zurück oder hat keine mehr; seine Eigentümer werden benachrichtigt.} other {Die # Workspaces, die ihn nutzen, fallen auf die KI des Servers zurück oder haben keine mehr; ihre Eigentümer werden benachrichtigt.}}",
+    "save": "Testen und speichern",
+    "providers": {
+      "anthropic": "Anthropic",
+      "openai": "OpenAI",
+      "google": "Google Gemini",
+      "opencode-go": "OpenCode Go",
+      "openai-compatible": "OpenAI-kompatibler Server"
+    },
+    "fields": {
+      "provider": "Anbieter",
+      "label": "Name",
+      "labelHint": "Optional, um Konten auseinanderzuhalten",
+      "baseUrl": "Serveradresse",
+      "baseUrlHint": "Die API-Basisadresse des Servers, meist mit /v1 am Ende. Sie muss eine öffentliche https-Adresse sein.",
+      "model": "Modell",
+      "modelHint": "Der Name des Modells, genau so, wie der Anbieter ihn schreibt.",
+      "apiKey": "API-Schlüssel",
+      "apiKeyOptional": "API-Schlüssel (falls der Server einen braucht)",
+      "apiKeyKeep": "Gespeicherter Schlüssel endet auf {hint}; leer lassen, um ihn zu behalten",
+      "embeddingsModel": "Embedding-Modell",
+      "embeddingsModelHint": "Optional. Schaltet die semantische Suche in den Workspaces mit diesem Konto ein.",
+      "sttModel": "Spracherkennungsmodell",
+      "sttModelHint": "Optional. Schaltet Sprachnotizen in den Workspaces mit diesem Konto ein.",
+      "keyHint": "Beim Speichern wird eine kurze Anfrage gesendet, um den Schlüssel zu prüfen. Der Schlüssel wird verschlüsselt gespeichert und nie wieder angezeigt."
+    },
+    "errors": {
+      "disabled": "Dieser Server nimmt keine eigenen KI-Schlüssel an.",
+      "providerRequired": "Wähle einen Anbieter.",
+      "modelRequired": "Gib das Modell an.",
+      "baseUrlRequired": "Gib die Adresse des Servers an.",
+      "baseUrlInvalid": "Diese Adresse kann nicht verwendet werden: {message}",
+      "keyRequired": "Füge den API-Schlüssel ein.",
+      "keyTooLong": "Der Schlüssel ist zu lang.",
+      "notFound": "Dieses KI-Konto gibt es nicht mehr.",
+      "tooMany": "Du hast schon die höchstmögliche Zahl an KI-Konten. Entferne zuerst eines.",
+      "testFailed": "Die Testanfrage ist fehlgeschlagen: {message}",
+      "ownersOnly": "Nur die Eigentümer des Workspaces können sein KI-Konto wählen."
+    },
+    "workspace": {
+      "title": "KI-Konto",
+      "sourceMine": "Läuft über dein Konto {label} ({provider}, {model}). Die KI wird über deinen Schlüssel abgerechnet.",
+      "sourceTheirs": "Läuft über das Konto {label} von {name} ({provider}, {model}). Die KI wird über den Schlüssel von {name} abgerechnet.",
+      "sourceInstance": "Läuft über die KI dieses Servers.",
+      "sourceOff": "Kein KI-Konto: KI ist in diesem Workspace aus, bis ein Eigentümer eines wählt.",
+      "sourceOffOnlyOwn": "Kein KI-Konto: Auf diesem Server läuft KI nur über den eigenen Schlüssel eines Eigentümers.",
+      "noAccounts": "Du hast kein eigenes KI-Konto.",
+      "addOne": "Eines hinzufügen",
+      "ownersOnly": "Nur Eigentümer können das ändern, jeweils mit ihren eigenen Konten.",
+      "noneInstance": "Keines (KI dieses Servers)",
+      "noneOff": "Keines (KI aus)",
+      "theirsOption": "{label} ({name})",
+      "brokenOption": "{label} (funktioniert nicht)"
+    }
   }
 }

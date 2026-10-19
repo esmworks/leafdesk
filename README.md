@@ -1801,6 +1801,56 @@ everything on your machines.
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size assumed for OpenAI-compatible and local models |
 
+### Your own AI keys
+
+A server open to people it doesn't pay AI for can let them bring their own provider key. It is
+**off** unless `OWN_AI_KEYS_ENABLED=true`; while it is off there is nothing to see and every
+workspace runs on the server's `AI_*` settings, as above.
+
+With it on, everyone gets **Settings → Apps → AI** in their account, where they add an AI account
+once: a provider (Anthropic, OpenAI, Google Gemini, OpenCode Go or an OpenAI-compatible server at
+an address), a model, the key, and optionally an embeddings model (OpenAI, Google, OpenAI-compatible)
+for semantic search and a speech-to-text model (OpenAI, OpenAI-compatible) for voice notes. Before
+it is saved, Leafdesk sends it a tiny request (and one embedding, when it names a model for them);
+an account it can't reach isn't kept. The key is stored encrypted (`LEAFDESK_ENCRYPTION_KEY`) and
+never shown again, only its last four characters. Accounts can be tested again, changed (leaving the
+key empty keeps it, as long as provider and address stay the same), made the default and removed.
+Local providers (`ollama`, `lmstudio`) can't be chosen: their default address is the server's own
+machine.
+
+A workspace runs **all** of its AI on one account, so one person pays for it: an owner picks one of
+their own accounts in **Settings → General → AI** (or none), and a workspace someone creates runs
+on their default account from the start. One account can serve as many of its owner's workspaces as
+they like. Everyone in the workspace sees whose account it is; only its owner can attach it, and any
+owner can take it off. Each request uses, in order:
+
+1. the workspace's account, while its owner is still a member (not a guest);
+2. the server's `AI_*` settings, unless `AI_ONLY_OWN_KEYS=true` keeps them from workspaces;
+3. nothing: AI is off in that workspace.
+
+So `AI_ONLY_OWN_KEYS=true` lets the server keep an `AI_*` key for itself without any workspace
+spending it. When the account's owner leaves the workspace, removes the account or deletes their
+Leafdesk account, the workspace falls back down that list and its other owners get a notification.
+A request the provider refuses for its key marks the account as not working, with the provider's
+answer, in its owner's settings until a request works again or **Test** succeeds.
+
+Semantic search indexes each workspace with the embeddings model its AI runs on, and changing the
+account (or the account's embeddings model) indexes that workspace again in the background; search
+across workspaces compares each one's pages with its own model. Without an embeddings model,
+search is full-text search, as without AI.
+
+An OpenAI-compatible server's address is one a person typed, so it is held to the rules
+connections follow: https only, a public address only (checked when the request is made, and the
+connection pinned to it), and no redirects. List servers on your own network in `AI_ALLOWED_HOSTS`
+(comma-separated, a host name or host:port; plain http allowed for those), e.g.
+`AI_ALLOWED_HOSTS=vllm:8000`. The limits above (`AI_MAX_INPUT_CHARS`, `AI_RATE_LIMIT`…) hold for
+own accounts too.
+
+```bash
+OWN_AI_KEYS_ENABLED=true
+AI_ONLY_OWN_KEYS=true   # optional: the server's AI_* key serves no workspace
+```
+
 ### Voice notes
 
 People record a note, it is written down (speech to text), and the chat model writes it up as a

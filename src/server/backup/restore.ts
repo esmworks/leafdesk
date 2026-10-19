@@ -408,6 +408,8 @@ const newToken = () => randomBytes(32).toString("base64url");
 async function fitThisServer(manifest: BackupManifest, rows: Rows) {
   const [ws] = rows.get("workspace")!;
   ws.invite_link_token = null;
+  // An own AI account is someone's on the old server (and its key never leaves it).
+  ws.ai_account_id = null;
   let ssoOnlyTurnedOff = false;
   if (ws.settings && typeof ws.settings === "object") {
     // Domains are proven by DNS for a server's own workspaces; the proof doesn't travel.
@@ -453,7 +455,8 @@ async function fitThisServer(manifest: BackupManifest, rows: Rows) {
     connection.event_secret = seal(newEventSecret());
   }
 
-  const here = readAiConfig().embeddings;
+  // A restored workspace has no AI account of its own yet (see below): the server's model, if workspaces may use it.
+  const here = env.aiOnlyOwnKeys ? null : readAiConfig().embeddings;
   const there = manifest.embeddings;
   const sameModel = Boolean(here && there && here.model === there.model && (here.dimensions ?? null) === there.dimensions);
   const searchIndexDropped = !sameModel && rows.get("page_chunk")!.length > 0;

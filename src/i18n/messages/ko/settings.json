@@ -1370,6 +1370,10 @@
       "backup": {
         "created": "워크스페이스를 백업했습니다(페이지 {count}개)",
         "restored": "백업에서 워크스페이스를 복원했습니다(페이지 {count}개)"
+      },
+      "ai_account": {
+        "attached": "워크스페이스의 AI를 AI 계정 {target}에 연결했습니다",
+        "detached": "워크스페이스의 AI와 AI 계정 {target}의 연결을 해제했습니다"
       }
     },
     "decisions": {
