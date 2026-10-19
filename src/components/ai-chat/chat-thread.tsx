@@ -9,11 +9,11 @@
  * box's place until the person decides.
  */
 import {
+  ArrowUp,
   Brain,
   Check,
   ChevronDown,
   ChevronRight,
-  CircleStop,
   Copy,
   Eye,
   Hand,
@@ -21,7 +21,7 @@ import {
   Pencil,
   RotateCcw,
   ScrollText,
-  SendHorizontal,
+  Square,
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -89,6 +89,11 @@ export function ChatThread({
   // The last question can be answered again, or edited, unless its answer changed things (that
   // would make them twice).
   const empty = page && messages.length === 0;
+  const sendButton = cn(
+    "inline-flex shrink-0 items-center justify-center rounded-full bg-fg text-bg transition-colors hover:bg-fg/85",
+    "disabled:bg-bg-active disabled:text-fg-faint disabled:hover:bg-bg-active",
+    page ? "h-8 w-8" : "h-7 w-7",
+  );
   const last = messages[messages.length - 1];
   const askAgain =
     !running &&
@@ -171,7 +176,10 @@ export function ChatThread({
                 e.preventDefault();
                 send();
               }}
-              className={cn("relative rounded-lg border border-border bg-bg px-2 py-1.5 focus-within:border-accent", page && "px-3 py-2 shadow-sm")}
+              className={cn(
+                "relative border border-border bg-bg transition-colors focus-within:border-fg-faint",
+                page ? "rounded-2xl px-3 pt-2.5 pb-2 shadow-[0_2px_12px_rgb(0_0_0/0.06)]" : "rounded-xl px-2 py-1.5",
+              )}
             >
               <SkillList picker={skills} />
               {chat.skill && (
@@ -208,7 +216,10 @@ export function ChatThread({
                 disabled={Boolean(blocked)}
                 placeholder={t("placeholder")}
                 aria-label={t("placeholder")}
-                className="block max-h-40 min-h-7 w-full resize-none bg-transparent py-1 text-sm outline-none placeholder:text-fg-faint disabled:opacity-60"
+                className={cn(
+                  "block max-h-40 min-h-7 w-full resize-none bg-transparent py-1 outline-none placeholder:text-fg-faint disabled:opacity-60",
+                  page ? "px-1 text-[15px] leading-6" : "text-sm",
+                )}
               />
               {/* The highlighted skill, for screen readers: the list itself is under the mouse. */}
               {skills.open && skills.shown.length > 0 && (
@@ -216,7 +227,7 @@ export function ChatThread({
                   {skills.shown[Math.min(skills.active, skills.shown.length - 1)]?.title}
                 </span>
               )}
-              <div className="flex items-center justify-between gap-2">
+              <div className={cn("flex items-center justify-between gap-2", page && "mt-1")}>
                 <div className="flex items-center gap-0.5">
                   <ModePicker mode={chat.mode} onChange={chat.setMode} />
                   <IconButton
@@ -232,14 +243,21 @@ export function ChatThread({
                     <ScrollText className="h-4 w-4" />
                   </IconButton>
                 </div>
+                {/* Filled while there is something to send (or to stop), quiet otherwise. */}
                 {running ? (
-                  <IconButton label={t("stop")} className="h-7 w-7" onClick={chat.stop}>
-                    <CircleStop className="h-4 w-4" />
-                  </IconButton>
+                  <button type="button" aria-label={t("stop")} title={t("stop")} className={sendButton} onClick={chat.stop}>
+                    <Square className="h-3 w-3 fill-current" />
+                  </button>
                 ) : (
-                  <IconButton label={t("send")} type="submit" className="h-7 w-7" disabled={Boolean(blocked) || !input.trim() || skills.open}>
-                    <SendHorizontal className="h-4 w-4 rtl:-scale-x-100" />
-                  </IconButton>
+                  <button
+                    type="submit"
+                    aria-label={t("send")}
+                    title={t("send")}
+                    className={sendButton}
+                    disabled={Boolean(blocked) || !input.trim() || skills.open}
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </button>
                 )}
               </div>
             </form>
