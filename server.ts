@@ -52,6 +52,8 @@ const { startSchedules } = await import("./src/server/schedules");
 await import("./src/server/agents/schedules");
 const { retentionJobEnabled } = await import("./src/lib/retention");
 const { startLocalBackups } = await import("./src/server/local-backups");
+const { startRowMailSync } = await import("./src/server/row-mail/sync");
+const { startRowMailSender } = await import("./src/server/row-mail/send");
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -159,6 +161,9 @@ server.listen(port, hostname, () => {
   if (retentionJobEnabled(process.env.RETENTION_JOB, dev)) startRetention();
   // On the desktop app's computer: backs its workspaces up into the folder it picked, once a day.
   startLocalBackups();
+  // Reads members' mailboxes for mail that belongs on rows, and sends what was written on rows.
+  startRowMailSync();
+  startRowMailSender();
 });
 
 let shuttingDown = false;

@@ -78,6 +78,9 @@ export const AUDIT_CATEGORIES = {
     "automation.created",
     "automation.updated",
     "automation.deleted",
+    "mail.databases_changed",
+    "mail.mailbox_connected",
+    "mail.mailbox_disconnected",
   ],
   agents: ["agent.created", "agent.updated", "agent.archived", "agent.run_requested", "agent.schedule_set", "agent.schedule_removed"],
   connections: [
@@ -136,7 +139,8 @@ export type AuditTargetType =
   | "connected_app"
   | "join_link"
   | "site"
-  | "connection";
+  | "connection"
+  | "mailbox";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {

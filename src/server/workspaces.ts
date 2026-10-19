@@ -10,6 +10,7 @@ import {
   databaseView,
   DEFAULT_WORKSPACE_SETTINGS,
   file,
+  mailbox,
   page,
   pageInvitation,
   passkey,
@@ -967,6 +968,8 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     // the workspace's context: they go with them.
     await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, targetId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, targetId)));
+    // Their mailbox in the workspace (and its password) goes too; the mail it brought stays on rows.
+    await tx.delete(mailbox).where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, targetId)));
     // An allowed email domain doesn't bring them back on their next sign-in; someone an owner
     // removed can't come back through it on their own either, only ask (see domainAccess).
     await rememberDeparture(tx, workspaceId, targetId, actorId === targetId ? "accepted" : "declined", actorId);

@@ -5,6 +5,7 @@ import {
   ContactRound,
   Globe,
   HeartPulse,
+  Mail,
   Plug,
   ScrollText,
   Settings,
@@ -26,6 +27,7 @@ import { GroupsPanel } from "@/components/settings/groups-panel";
 import { GuestsPanel } from "@/components/settings/guests-panel";
 import { HealthPanel } from "@/components/settings/health-panel";
 import { AiSettings } from "@/components/settings/ai-settings";
+import { MailSettings } from "@/components/settings/mail-settings";
 import { DeleteWorkspaceRow } from "@/components/settings/delete-workspace";
 import { LeaveWorkspaceRow } from "@/components/settings/leave-workspace";
 import { MembersPanel } from "@/components/settings/members-panel";
@@ -75,6 +77,7 @@ import { proofSetupOf } from "@/server/account";
 import { connectedAppsMode } from "@/server/connected-app";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
+import { getMailSettings } from "@/server/row-mail/settings";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
@@ -122,6 +125,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   groups: UsersRound,
   agents: Bot,
   connections: Plug,
+  email: Mail,
   analytics: ChartColumn,
   health: HeartPulse,
   security: Shield,
@@ -229,6 +233,7 @@ export default async function SettingsPage({
               notice={query.signedIn === "1" ? "signedIn" : query.connectionError === "oauthFailed" ? "oauthFailed" : undefined}
             />
           )}
+          {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
@@ -239,6 +244,17 @@ export default async function SettingsPage({
         </div>
       </div>
     </div>
+  );
+}
+
+/** Settings > Email: email on rows (see server/row-mail). */
+async function EmailTab({ workspaceId, userId }: { workspaceId: string; userId: string }) {
+  const [view, t] = await Promise.all([getMailSettings(userId, workspaceId), getTranslations("settings")]);
+  return (
+    <>
+      <SettingsHeader title={t("nav.email")} description={t("email.description")} />
+      <MailSettings workspaceId={workspaceId} initial={view} />
+    </>
   );
 }
 

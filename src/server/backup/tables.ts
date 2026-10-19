@@ -71,6 +71,9 @@ export const BACKED_UP: Record<string, Scope> = {
   connection_trigger: ofConnections,
   journal: own,
   daily_note: own,
+  mail_database: own,
+  row_email: own,
+  row_email_attachment: (ws) => sql`row_email_id in (select id from row_email where workspace_id = ${ws})`,
 };
 
 /** The table of a workspace's members and their roles. */
@@ -119,6 +122,7 @@ export const LEFT_OUT: Record<string, string> = {
   row_update_pending: "emails waiting to go out",
   page_update_pending: "emails waiting to go out",
   page_update_email: "emails waiting to go out",
+  mailbox: "members' mailboxes and their passwords, connected again on the new server",
 };
 
 export type BackupColumn = {

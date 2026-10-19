@@ -10,6 +10,7 @@
     "groups": "Gruplar",
     "agents": "Ajanlar",
     "connections": "Bağlantılar",
+    "email": "E-posta",
     "analytics": "Analitik",
     "health": "Sağlık",
     "security": "Güvenlik",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Kimler üye ekleyebilir",
       "allowedDomains": "İzin verilen e-posta alan adları",
       "domainJoin": "Bu alan adlarından biri giriş yaptığında",
-      "joinRequests": "Kimler katılmak için istek gönderebilir"
+      "joinRequests": "Kimler katılmak için istek gönderebilir",
+      "email": "Satırlarda e-posta"
     },
     "values": {
       "on": "Açık",
@@ -1351,6 +1353,11 @@
         "deleted": "“{target}” bağlantısını kaldırdı",
         "tool_called": "“{target}” üzerinde “{tool}” çağırdı ({outcome})",
         "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}"
+      },
+      "mail": {
+        "databases_changed": "E-postaların düştüğü veritabanlarını belirledi: {names}",
+        "mailbox_connected": "{target} posta kutusunu bağladı",
+        "mailbox_disconnected": "{target} posta kutusunun bağlantısını kesti"
       },
       "backup": {
         "created": "Çalışma alanı yedeklendi ({count, plural, other {# sayfa}})",
@@ -1653,6 +1660,87 @@
       "redo": "Notla geri gönder…",
       "notWhole": "Bu çağrı burada gösterilenden uzun ya da burada gizlenen değerler içeriyor. Onaylamadan önce gönderilecek her şeyi görmek için çalışmasını açın.",
       "openRun": "Onaylamak için çalışmayı aç"
+    }
+  },
+  "email": {
+    "description": "Veritabanlarınızdaki kişilerle yazışmalar onların satırlarına düşer: bir satırı görebilen herkes e-postalarını orada okur ve kendi posta kutusundan yanıtlar.",
+    "enabled": "Satırlarda e-posta",
+    "enabledHint": "Üyeler kendi posta kutularını aşağıdan bağlar. Yalnızca karşı tarafı bir satırın e-posta adresi olan mesajlar bütünüyle okunur; gerisi posta kutusunda kalır.",
+    "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
+    "databasesHeading": "E-postaların düştüğü yer",
+    "databasesDescription": "Bir mesaj, karşı tarafın adresi e-posta özelliğinde bulunan satıra gider; bu veritabanlarından tam olarak bir satırın eşleştiği ilkinde. Yanıtlar kendi yazışmalarını izler.",
+    "databasesNone": "Henüz veritabanı yok",
+    "databasesNoneHint": "Müşteriler ya da kişiler gibi e-posta özelliği olan bir veritabanı ekleyin.",
+    "moveUp": "Daha önce dene",
+    "moveDown": "Daha sonra dene",
+    "removeDatabase": "Bu veritabanıyla e-posta eşleştirmeyi bırak",
+    "addressProperties": "Adreslerin bulunduğu özellikler",
+    "addDatabase": "Veritabanı ekle",
+    "addDatabaseHint": "E-posta özelliği olan veritabanları.",
+    "chooseDatabase": "Bir veritabanı seçin",
+    "mailboxHeading": "Posta kutunuz",
+    "mailboxDescription": "Bu çalışma alanı için kullandığınız posta kutusu. Yukarıdaki veritabanlarındaki kişilerle yazışmalar için okunur, satırlarda yazdıklarınız da buradan gönderilir. Diğer çalışma alanlarınız onu görmez.",
+    "syncedAt": "{time} okundu",
+    "change": "Değiştir",
+    "disconnect": "Bağlantıyı kes",
+    "connect": "Dene ve bağla",
+    "testing": "Deneniyor…",
+    "consent": "Bu posta kutusundan gönderilen ya da ona gelen, bu veritabanlarındaki kişilerle yazışmaların, o satırları görebilen herkese satırlarında görüneceğini anlıyorum.",
+    "status": {
+      "ok": "Bağlı",
+      "connecting": "Bağlanıyor",
+      "error": {
+        "blocked": "Posta sunucusu özel bir ağda; bu sunucu oraya ulaşmıyor.",
+        "notFound": "Posta sunucusunun adı bulunamadı.",
+        "auth": "Posta sunucusu kullanıcı adını ya da şifreyi kabul etmedi. Uygulama şifresini kontrol edin.",
+        "tls": "Posta sunucusuyla güvenli bağlantı kurulamadı.",
+        "unreachable": "Posta sunucusuna şu an ulaşılamıyor.",
+        "noInbox": "Posta sunucusu bir gelen kutusu göstermiyor."
+      }
+    },
+    "fields": {
+      "address": "E-posta adresi",
+      "displayName": "Giden e-postalardaki ad",
+      "provider": "E-posta sağlayıcısı",
+      "chooseProvider": "Seçin…",
+      "otherProvider": "Diğer (IMAP ve SMTP)",
+      "imap": "Gelen (IMAP)",
+      "smtp": "Giden (SMTP)",
+      "host": "Sunucu",
+      "port": "Port",
+      "tls": "TLS",
+      "username": "Kullanıcı adı",
+      "usernamePlaceholder": "Genellikle e-posta adresi",
+      "password": "Uygulama şifresi",
+      "passwordKeep": "Mevcut şifreyi korumak için boş bırakın",
+      "passwordHelp": "Giriş yaptığınız şifre değil, Leafdesk için oluşturulmuş bir uygulama şifresi. Şifreli saklanır ve bir daha gösterilmez."
+    },
+    "providerHelp": {
+      "google": "Kendi alan adınızdaki Google Workspace adresleri için de. Google hesabınızda Güvenlik altında bir uygulama şifresi oluşturun (2 Adımlı Doğrulama açık olmalı).",
+      "yandex": "Yandex ID ayarlarınızda e-posta için bir uygulama şifresi oluşturun.",
+      "zoho": "Zoho Mail ayarlarında IMAP erişimini açın ve bir uygulama şifresi oluşturun."
+    },
+    "membersHeading": "Üyelerin posta kutuları",
+    "membersDescription": "Bu çalışma alanında posta kutusu bağlamış olanlar. İçindekileri sahibinden başkası görmez.",
+    "memberStatus": {
+      "connecting": "Bağlanıyor",
+      "ok": "Bağlı",
+      "error": "Çalışmıyor"
+    },
+    "errors": {
+      "disabled": "Bu çalışma alanında satırlarda e-posta kapalı.",
+      "invalid": "Bilgilerin bazıları geçerli değil. Kontrol edip yeniden deneyin.",
+      "consent": "Satırlardaki e-postaların o satırları görebilen herkese görüneceğini onaylayın.",
+      "noMailbox": "Önce Ayarlar > E-posta'dan posta kutunuzu bağlayın.",
+      "rateLimited": "Posta kutunuz bu saat içinde gönderebileceği kadarını gönderdi. Daha sonra yeniden deneyin.",
+      "gone": "Bu mesaj artık bu satırda değil.",
+      "notFound": "Posta sunucusunun adı bulunamadı.",
+      "blocked": "Posta sunucusu özel bir ağda; bu sunucu oraya ulaşmıyor.",
+      "auth": "Posta sunucusu kullanıcı adını ya da şifreyi kabul etmedi. Uygulama şifresini kontrol edin.",
+      "tls": "Posta sunucusuyla güvenli bağlantı kurulamadı.",
+      "unreachable": "Posta sunucusuna ulaşılamadı. Sunucu adlarını ve portları kontrol edin.",
+      "noInbox": "Posta sunucusu bir gelen kutusu göstermiyor.",
+      "accessDenied": "Bunu yapmaya yetkiniz yok."
     }
   },
   "backup": {

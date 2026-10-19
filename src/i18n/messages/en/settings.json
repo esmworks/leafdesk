@@ -10,6 +10,7 @@
     "groups": "Groups",
     "agents": "Agents",
     "connections": "Connections",
+    "email": "Email",
     "analytics": "Analytics",
     "health": "Health",
     "security": "Security",
@@ -1209,7 +1210,8 @@
       "memberInvites": "Who can add members",
       "allowedDomains": "Allowed email domains",
       "domainJoin": "When someone from these domains signs in",
-      "joinRequests": "Who can ask to join"
+      "joinRequests": "Who can ask to join",
+      "email": "Email on rows"
     },
     "values": {
       "on": "On",
@@ -1351,6 +1353,11 @@
         "deleted": "Removed the connection “{target}”",
         "tool_called": "Called “{tool}” on “{target}” ({outcome})",
         "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”"
+      },
+      "mail": {
+        "databases_changed": "Set the databases email lands on: {names}",
+        "mailbox_connected": "Connected the mailbox {target}",
+        "mailbox_disconnected": "Disconnected the mailbox {target}"
       },
       "backup": {
         "created": "Backed up the workspace ({count, plural, one {# page} other {# pages}})",
@@ -1653,6 +1660,87 @@
       "redo": "Send back with a note…",
       "notWhole": "This call is longer than shown here, or holds values masked here. Open its run to see all of what would be sent before approving it.",
       "openRun": "Open the run to approve"
+    }
+  },
+  "email": {
+    "description": "Mail with the people in your databases lands on their rows: everyone who can see a row reads its mail there and answers it from their own mailbox.",
+    "enabled": "Email on rows",
+    "enabledHint": "Members connect their own mailbox below. Only mail whose other party is a row's email address is ever read whole; the rest stays in the mailbox.",
+    "ownersOnly": "Only owners can change this.",
+    "databasesHeading": "Where mail lands",
+    "databasesDescription": "A message goes to the row whose email property holds the other party's address, in the first of these databases where exactly one row does. Replies follow their thread.",
+    "databasesNone": "No databases yet",
+    "databasesNoneHint": "Add a database with an email property, such as your customers or contacts.",
+    "moveUp": "Try earlier",
+    "moveDown": "Try later",
+    "removeDatabase": "Stop matching mail to this database",
+    "addressProperties": "Addresses are in",
+    "addDatabase": "Add a database",
+    "addDatabaseHint": "Databases with an email property.",
+    "chooseDatabase": "Choose a database",
+    "mailboxHeading": "Your mailbox",
+    "mailboxDescription": "The mailbox you use for this workspace. It is read for mail with the people in the databases above, and what you write on rows is sent from it. Your other workspaces don't see it.",
+    "syncedAt": "read {time}",
+    "change": "Change",
+    "disconnect": "Disconnect",
+    "connect": "Test and connect",
+    "testing": "Testing…",
+    "consent": "I understand that mail with the people in these databases, sent or received through this mailbox, shows on their rows to everyone who can see those rows.",
+    "status": {
+      "ok": "Connected",
+      "connecting": "Connecting",
+      "error": {
+        "blocked": "The mail server is on a private network, which this server doesn't reach.",
+        "notFound": "The mail server's name wasn't found.",
+        "auth": "The mail server refused the user name or password. Check the app password.",
+        "tls": "A secure connection to the mail server couldn't be made.",
+        "unreachable": "The mail server can't be reached right now.",
+        "noInbox": "The mail server shows no inbox."
+      }
+    },
+    "fields": {
+      "address": "Email address",
+      "displayName": "Name on outgoing mail",
+      "provider": "Mail provider",
+      "chooseProvider": "Choose…",
+      "otherProvider": "Other (IMAP and SMTP)",
+      "imap": "Incoming (IMAP)",
+      "smtp": "Outgoing (SMTP)",
+      "host": "Server",
+      "port": "Port",
+      "tls": "TLS",
+      "username": "User name",
+      "usernamePlaceholder": "Usually the email address",
+      "password": "App password",
+      "passwordKeep": "Leave empty to keep the current one",
+      "passwordHelp": "An app password made for Leafdesk, not the password you sign in with. It is kept encrypted and never shown again."
+    },
+    "providerHelp": {
+      "google": "Also for Google Workspace addresses on your own domain. Make an app password in your Google account under Security (2-Step Verification must be on).",
+      "yandex": "Make an app password for mail in your Yandex ID settings.",
+      "zoho": "Turn on IMAP access in Zoho Mail's settings and make an app password."
+    },
+    "membersHeading": "Members' mailboxes",
+    "membersDescription": "Who has connected a mailbox in this workspace. Nobody but its owner sees what is in it.",
+    "memberStatus": {
+      "connecting": "Connecting",
+      "ok": "Connected",
+      "error": "Not working"
+    },
+    "errors": {
+      "disabled": "Email on rows is off in this workspace.",
+      "invalid": "Some of the details aren't valid. Check them and try again.",
+      "consent": "Confirm that mail on rows shows to everyone who can see them.",
+      "noMailbox": "Connect your mailbox in Settings > Email first.",
+      "rateLimited": "Your mailbox has sent as much as it may this hour. Try again later.",
+      "notFound": "The mail server's name wasn't found.",
+      "blocked": "The mail server is on a private network, which this server doesn't reach.",
+      "auth": "The mail server refused the user name or password. Check the app password.",
+      "tls": "A secure connection to the mail server couldn't be made.",
+      "unreachable": "The mail server couldn't be reached. Check the server names and ports.",
+      "noInbox": "The mail server shows no inbox.",
+      "accessDenied": "You don't have access to do this.",
+      "gone": "That message isn't on this row any more."
     }
   },
   "backup": {
