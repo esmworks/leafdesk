@@ -344,9 +344,16 @@ export async function beginStorageOAuth(userId: string, kind: unknown, workspace
   return { url: authorizationUrl(kind, app, { state, challenge, redirectUri: storageOAuthRedirectUrl() }) };
 }
 
-/** Where a sign-in begun with `state` came from, for sending the browser back whatever became of it; null when unknown. */
-export async function storageOAuthReturnOf(state: string): Promise<{ workspaceId: string | null } | null> {
-  const [found] = await db.select({ workspaceId: storageOauth.workspaceId }).from(storageOauth).where(eq(storageOauth.state, state)).limit(1);
+/**
+ * Where `userId`'s sign-in begun with `state` came from, for sending the browser back whatever
+ * became of it; null when unknown (or someone else began it).
+ */
+export async function storageOAuthReturnOf(state: string, userId: string): Promise<{ workspaceId: string | null } | null> {
+  const [found] = await db
+    .select({ workspaceId: storageOauth.workspaceId })
+    .from(storageOauth)
+    .where(and(eq(storageOauth.state, state), eq(storageOauth.userId, userId)))
+    .limit(1);
   return found ?? null;
 }
 
@@ -365,8 +372,12 @@ async function accountLocationFor(kind: OAuthStorageKind, credentials: OAuthCred
  * and to the workspace it was begun from, when one was. Returns that workspace.
  */
 export async function completeStorageOAuth(userId: string, input: { state: string; code: string }): Promise<{ workspaceId: string | null }> {
-  const [pending] = await db.delete(storageOauth).where(eq(storageOauth.state, input.state)).returning();
-  if (!pending || pending.userId !== userId || pending.createdAt.getTime() < Date.now() - OAUTH_STATE_MS || !isOAuthStorageKind(pending.kind)) {
+  // Only the person who began it uses it up: someone else's attempt leaves it for them.
+  const [pending] = await db
+    .delete(storageOauth)
+    .where(and(eq(storageOauth.state, input.state), eq(storageOauth.userId, userId)))
+    .returning();
+  if (!pending || pending.createdAt.getTime() < Date.now() - OAUTH_STATE_MS || !isOAuthStorageKind(pending.kind)) {
     throw new StorageSettingsError("oauthFailed", "This sign-in expired or was begun by someone else; begin it again");
   }
   requireOwnStorage();

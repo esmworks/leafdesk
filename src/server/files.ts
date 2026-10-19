@@ -7,15 +7,16 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { file, fileReference, page, propertyPermission, storageDeletion } from "@/db/schema";
+import { file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
+import { sameLocation } from "@/lib/workspace-storage";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
 import { queueDocument } from "@/server/file-text";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
 import { StorageError, uploadLimits } from "@/server/storage";
-import { refOf, removeRetiredStorage, storageFor, storageOf, storageResolver, type StoredObject } from "@/server/storage/workspace";
+import { loadTargets, refOf, removeRetiredStorage, storageFor, storageOf, storageResolver, targetLocation, type StoredObject } from "@/server/storage/workspace";
 
 /**
  * Uploaded files (images, video, audio and attachments in page bodies, and the values of files
@@ -465,15 +466,51 @@ export async function queueStorageDeletion(tx: Tx | typeof db, objects: QueuedOb
 }
 
 /**
- * Deletes the queued objects from their storage now, each with its queue entry. An object the
- * storage refuses to delete (or whose storage can't be reached) stays queued and is tried again
- * later (`drainStorageDeletions`): a minute after the first failure, then twice as long after each
- * one, up to a day. Returns how many went.
+ * The queued objects a file is stored as now: a file with the same key in the same storage, or in
+ * another place over the same location (the same bucket connected again as a new account). Their
+ * entries are stale (the file came back to where an old copy was queued for deletion, or another
+ * worker's copy is the one a file points at), and the objects must stay.
+ */
+async function stillStored(objects: StoredObject[]): Promise<Set<StoredObject>> {
+  const live = new Set<StoredObject>();
+  const keys = [...new Set(objects.map((o) => o.key))];
+  const rows: { key: string; storageId: string | null }[] = [];
+  for (let i = 0; i < keys.length; i += 1000) {
+    rows.push(...(await db.select({ key: file.storageKey, storageId: file.storageId }).from(file).where(inArray(file.storageKey, keys.slice(i, i + 1000)))));
+  }
+  if (!rows.length) return live;
+  const placeIds = [...new Set([...rows, ...objects].map((o) => o.storageId).filter((id): id is string => Boolean(id)))];
+  const locations = new Map(placeIds.length ? (await loadTargets(inArray(workspaceStorage.id, placeIds))).map((t) => [t.id, targetLocation(t)]) : []);
+  for (const object of objects) {
+    const stored = rows.some((row) => {
+      if (row.key !== object.key) return false;
+      if (row.storageId === object.storageId) return true;
+      const a = row.storageId ? locations.get(row.storageId) : undefined;
+      const b = object.storageId ? locations.get(object.storageId) : undefined;
+      return Boolean(a && b && sameLocation(a, b));
+    });
+    if (stored) live.add(object);
+  }
+  return live;
+}
+
+/**
+ * Deletes the queued objects from their storage now, each with its queue entry. An object a file
+ * is stored as now isn't deleted, only taken off the queue (see stillStored). An object the storage
+ * refuses to delete (or whose storage can't be reached) stays queued and is tried again later
+ * (`drainStorageDeletions`): a minute after the first failure, then twice as long after each one,
+ * up to a day. Returns how many went.
  */
 export async function deleteQueued(objects: QueuedObject[]): Promise<number> {
   const resolve = storageResolver();
   const done: StoredObject[] = [];
-  for (const object of objects.map(asStored)) {
+  const stored = objects.map(asStored);
+  const live = await stillStored(stored);
+  for (const object of stored) {
+    if (live.has(object)) {
+      done.push(object);
+      continue;
+    }
     try {
       const storage = await resolve(object);
       await storage.delete({ key: object.key, objectId: object.objectId ?? null });

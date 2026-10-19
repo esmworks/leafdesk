@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   const denied = url.searchParams.get("error");
   if (!state || (!code && !denied)) return Response.redirect(`${env.appUrl}/`, 302);
   // Read before finishing: finishing uses the sign-in up, whether or not it works.
-  const back = await storageOAuthReturnOf(state);
+  const back = await storageOAuthReturnOf(state, session.user.id);
   const settings = (workspaceId: string | null, outcome: string) =>
     workspaceId ? `${env.appUrl}/w/${workspaceId}/settings?tab=storage&${outcome}` : `${env.appUrl}/account?tab=apps&${outcome}`;
   try {

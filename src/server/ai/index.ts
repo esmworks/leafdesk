@@ -271,10 +271,16 @@ export async function embeddingModelFor(workspaceId: string): Promise<string | n
   return modelOf(await aiTargetFor(workspaceId));
 }
 
+/** The embeddings model of a target already looked up (see embeddingModelFor). */
+export const embeddingModelOf = (target: AiTarget | null) => modelOf(target);
+
 /** How similar a passage must be to a query to count as a semantic match in the workspace (see config.ts). */
 export async function minSimilarityFor(workspaceId: string): Promise<number> {
-  return (await aiTargetFor(workspaceId))?.config.embeddings?.minSimilarity ?? DEFAULT_MIN_SIMILARITY;
+  return minSimilarityOf(await aiTargetFor(workspaceId));
 }
+
+/** minSimilarityFor for a target already looked up. */
+export const minSimilarityOf = (target: AiTarget | null) => target?.config.embeddings?.minSimilarity ?? DEFAULT_MIN_SIMILARITY;
 
 /**
  * Whether speech to text could be on somewhere (voice notes' shortcut in the app's manifest);

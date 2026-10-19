@@ -6,7 +6,7 @@ import { env } from "@/lib/env";
 import { sameLocation, type MoveDestinationView, type MoveReason, type StorageMoveView } from "@/lib/workspace-storage";
 import { ownersInOrder, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
-import { drainStorageDeletions, removeStored } from "@/server/files";
+import { drainStorageDeletions, removeStored, workspaceUsage } from "@/server/files";
 import { startSweep } from "@/server/sweep";
 import { lockWorkspaceStorage, makeCurrent, placeFor, refuseDuringMove } from "./accounts";
 import { StorageError, type StorageDriver } from "./driver";
@@ -24,15 +24,18 @@ import { currentTarget, loadTargets, probeStorage, refOf, removeRetiredStorage, 
  * when that is S3 (never the server's disk: workspaces' files mustn't fill it) and the files fit the
  * workspace's quota there (UPLOAD_WORKSPACE_QUOTA_MB). The destination takes the workspace's new
  * uploads from the start. Each file is streamed across with the drivers and its row pointed at the
- * copy right away, a few at a time, so every file stays readable throughout; the old copies are
+ * copy right away, one at a time, so every file stays readable throughout; the old copies are
  * queued for deletion held by the move, and deleted only once every file is across. A move picks up
  * where it was after a restart, and one with files it couldn't copy can be tried again.
  */
 
-/** Files per round: each round's rows are written, and the move's lease renewed, before the next. */
+/** Files read from the database at a time. */
 const BATCH = 20;
-/** How long a worker holds a move before another server may take it over. */
+/** How long a worker holds a move before another server may take it over: renewed with every file. */
 const LEASE_MS = 5 * 60_000;
+
+/** The worker's lease on a move ran out and another worker took the move over: this one stops. */
+class LeaseLost extends Error {}
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 type Reader = Pick<typeof db, "select">;
@@ -97,6 +100,16 @@ async function bytesIn(reader: Reader, workspaceId: string, storageIds: string[]
     .from(file)
     .where(and(eq(file.workspaceId, workspaceId), inArray(file.storageId, storageIds)));
   return Number(row?.bytes ?? 0);
+}
+
+/**
+ * Whether files may still go to the storage account: it isn't disconnected, and the person it
+ * belongs to is still an owner of the workspace (files never go to storage of someone who left).
+ */
+async function mayTakeFiles(reader: Reader, accountId: string, workspaceId: string) {
+  const [account] = await reader.select({ userId: storageAccount.userId, status: storageAccount.status }).from(storageAccount).where(eq(storageAccount.id, accountId));
+  if (!account?.userId || account.status === "disconnected") return false;
+  return (await ownersInOrder(reader, workspaceId)).includes(account.userId);
 }
 
 // ---------------------------------------------------------------------- Planning
@@ -309,7 +322,11 @@ export async function retryMove(userId: string, workspaceId: string, moveId: str
     .where(and(eq(storageMove.id, moveId), eq(storageMove.workspaceId, workspaceId)));
   if (!move || (move.status !== "failed" && move.status !== "blocked")) throw new StorageSettingsError("noMove");
   await refuseDuringMove(workspaceId);
-  let destination: MoveDestination | null = move.toServer ? { toServer: true } : move.toAccountId ? { toAccountId: move.toAccountId } : null;
+  let destination: MoveDestination | null = move.toServer
+    ? { toServer: true }
+    : move.toAccountId && (await mayTakeFiles(db, move.toAccountId, workspaceId))
+      ? { toAccountId: move.toAccountId }
+      : null;
   if (!destination) {
     // Blocked: somewhere may have turned up since (an owner's default storage, room on the server).
     const ids = move.fromStorageIds ?? [];
@@ -322,10 +339,13 @@ export async function retryMove(userId: string, workspaceId: string, moveId: str
     });
     if (!destination) throw new StorageSettingsError("noDestination", await nameOf(db, workspaceId));
   }
+  const sameAccount = "toAccountId" in destination && destination.toAccountId === move.toAccountId;
   await db
     .update(storageMove)
     .set({
       status: "queued",
+      // Somewhere else now: its place is made anew, connected by the owner trying again.
+      ...(sameAccount ? {} : { toStorageId: null, startedBy: userId }),
       toServer: "toServer" in destination,
       toAccountId: "toAccountId" in destination ? destination.toAccountId : null,
       lastError: null,
@@ -374,10 +394,13 @@ export async function latestMove(workspaceId: string): Promise<StorageMoveView |
 
 // ---------------------------------------------------------------------- Running them
 
-/** Takes the next move that is due (queued, or running on a server whose lease ran out). */
-async function claim(): Promise<typeof storageMove.$inferSelect | null> {
+type Claimed = { move: typeof storageMove.$inferSelect; lease: string };
+
+/** Takes the next move that is due (queued, or running on a server whose lease ran out), under a new lease. */
+async function claim(): Promise<Claimed | null> {
+  const lease = crypto.randomUUID();
   const rows = await db.execute<{ id: string }>(sql`
-    update ${storageMove} set status = 'running', locked_until = now() + ${`${LEASE_MS} milliseconds`}::interval, updated_at = now()
+    update ${storageMove} set status = 'running', locked_until = now() + ${`${LEASE_MS} milliseconds`}::interval, lease_id = ${lease}, updated_at = now()
     where id = (
       select id from ${storageMove}
       where status in ('queued', 'running') and (locked_until is null or locked_until < now())
@@ -389,16 +412,32 @@ async function claim(): Promise<typeof storageMove.$inferSelect | null> {
   const id = rows[0]?.id;
   if (!id) return null;
   const [move] = await db.select().from(storageMove).where(eq(storageMove.id, id));
-  return move ?? null;
+  return move ? { move, lease } : null;
+}
+
+/** The move while `lease` still holds it: every write a worker makes to its move is limited to this. */
+const held = ({ move, lease }: Claimed) => and(eq(storageMove.id, move.id), eq(storageMove.leaseId, lease));
+
+/**
+ * Renews the worker's lease on its move, counting `moved` more files moved; throws LeaseLost when
+ * another worker took the move over. Inside a transaction, it holds the move until that commits.
+ */
+async function renew(writer: Tx | typeof db, claimed: Claimed, moved = 0) {
+  const [row] = await writer
+    .update(storageMove)
+    .set({ lockedUntil: sql`now() + ${`${LEASE_MS} milliseconds`}::interval`, moved: sql`${storageMove.moved} + ${moved}` })
+    .where(held(claimed))
+    .returning({ id: storageMove.id });
+  if (!row) throw new LeaseLost();
 }
 
 /** Moves every move that is due, one after the other. Returns how many finished. */
 export async function runDueMoves(): Promise<number> {
   let finished = 0;
   for (;;) {
-    const move = await claim();
-    if (!move) return finished;
-    if (await runMove(move)) finished++;
+    const claimed = await claim();
+    if (!claimed) return finished;
+    if (await runMove(claimed)) finished++;
   }
 }
 
@@ -409,7 +448,8 @@ type Destination = { storageId: string | null; driver: StorageDriver; target: St
  * tried, and made where the workspace's new uploads go; or, for the server's storage, the
  * workspace's own storage disconnected so new uploads go to the server's.
  */
-async function prepare(move: typeof storageMove.$inferSelect): Promise<Destination> {
+async function prepare(claimed: Claimed): Promise<Destination> {
+  const { move } = claimed;
   if (move.toServer) {
     if (instanceStorage().kind !== "s3") throw new StorageError("The server's storage isn't S3: workspaces' files don't move onto its disk");
     await db.transaction(async (tx) => {
@@ -427,18 +467,22 @@ async function prepare(move: typeof storageMove.$inferSelect): Promise<Destinati
     });
     return { storageId: null, driver: instanceStorage(), target: null };
   }
+  if (!move.toAccountId) throw new StorageError("The storage the files were to go to was disconnected");
+  if (!(await mayTakeFiles(db, move.toAccountId, move.workspaceId))) {
+    throw new StorageError("The storage the files were to go to was disconnected, or its owner isn't an owner of the workspace any more");
+  }
   if (move.toStorageId) {
     const [target] = await loadTargets(eq(workspaceStorage.id, move.toStorageId));
     if (target) return { storageId: target.id, driver: await storageOf({ storageId: target.id }), target };
   }
-  if (!move.toAccountId) throw new StorageError("The storage the files were to go to was disconnected");
   const [account] = await db.select().from(storageAccount).where(eq(storageAccount.id, move.toAccountId));
   if (!account || account.status === "disconnected" || !account.userId) throw new StorageError("The storage the files were to go to was disconnected");
   const made = await placeFor(account, move.workspaceId);
   const { id } = await db.transaction(async (tx) => {
     await lockWorkspaceStorage(tx, move.workspaceId);
     const result = await makeCurrent(tx, { workspaceId: move.workspaceId, account: made.account, place: made.place, userId: move.startedBy });
-    await tx.update(storageMove).set({ toStorageId: result.id }).where(eq(storageMove.id, move.id));
+    const [mine] = await tx.update(storageMove).set({ toStorageId: result.id }).where(held(claimed)).returning({ id: storageMove.id });
+    if (!mine) throw new LeaseLost();
     return result;
   });
   const [target] = await loadTargets(eq(workspaceStorage.id, id));
@@ -455,15 +499,18 @@ function movable(move: typeof storageMove.$inferSelect, destinationId: string | 
 }
 
 /** Runs one move as far as it goes. Returns whether it finished. */
-async function runMove(move: typeof storageMove.$inferSelect): Promise<boolean> {
+async function runMove(claimed: Claimed): Promise<boolean> {
+  const { move } = claimed;
   try {
-    const destination = await prepare(move);
+    const destination = await prepare(claimed);
     const where = movable(move, destination.storageId);
     const [{ remaining }] = await db.select({ remaining: sql<number>`count(*)::int` }).from(file).where(where);
-    await db
+    const [counted] = await db
       .update(storageMove)
-      .set({ files: move.moved + Number(remaining), failed: 0, lastError: null })
-      .where(eq(storageMove.id, move.id));
+      .set({ files: sql`${storageMove.moved} + ${Number(remaining)}`, failed: 0, lastError: null })
+      .where(held(claimed))
+      .returning({ id: storageMove.id });
+    if (!counted) throw new LeaseLost();
     const sources = new Map<string | null, Promise<{ driver: StorageDriver; target: StorageTarget | null }>>();
     const sourceOf = (storageId: string | null) => {
       let found = sources.get(storageId);
@@ -477,7 +524,6 @@ async function runMove(move: typeof storageMove.$inferSelect): Promise<boolean> 
       return found;
     };
     let cursor = "";
-    let moved = 0;
     let failed = 0;
     let lastError: string | null = null;
     for (;;) {
@@ -489,48 +535,53 @@ async function runMove(move: typeof storageMove.$inferSelect): Promise<boolean> 
         .limit(BATCH);
       if (!batch.length) break;
       for (const row of batch) {
+        // Before copying anything: a worker whose move was taken over stops here.
+        await renew(db, claimed);
         try {
-          if (await moveFile(move.id, row, await sourceOf(row.storageId), destination)) moved++;
+          await moveFile(claimed, row, await sourceOf(row.storageId), destination);
         } catch (error) {
+          if (error instanceof LeaseLost) throw error;
           failed++;
           lastError = `${row.name}: ${(error instanceof Error ? error.message : String(error)).slice(0, 500)}`;
           console.warn(`[storage] move ${move.id} couldn't copy file ${row.id}`, error instanceof Error ? error.message : error);
         }
       }
       cursor = batch[batch.length - 1].id;
-      await db
-        .update(storageMove)
-        .set({ moved: sql`${storageMove.moved} + ${moved}`, failed, lastError, lockedUntil: new Date(Date.now() + LEASE_MS) })
-        .where(eq(storageMove.id, move.id));
-      move.moved += moved;
-      moved = 0;
+      await db.update(storageMove).set({ failed, lastError }).where(held(claimed));
     }
     const [{ left }] = await db.select({ left: sql<number>`count(*)::int` }).from(file).where(where);
     if (Number(left) > 0) {
       await db
         .update(storageMove)
         .set({ status: "failed", failed: Number(left), lastError: lastError ?? "Some files changed while they were moved; try again", lockedUntil: null, finishedAt: new Date() })
-        .where(eq(storageMove.id, move.id));
+        .where(held(claimed));
       return false;
     }
     // Every file is across: the old copies may go now.
     await db.transaction(async (tx) => {
-      await tx.update(storageDeletion).set({ moveId: null }).where(eq(storageDeletion.moveId, move.id));
-      await tx
+      const [done] = await tx
         .update(storageMove)
         .set({ status: "done", failed: 0, lastError: null, lockedUntil: null, finishedAt: new Date() })
-        .where(eq(storageMove.id, move.id));
+        .where(held(claimed))
+        .returning({ id: storageMove.id });
+      if (!done) throw new LeaseLost();
+      await tx.update(storageDeletion).set({ moveId: null }).where(eq(storageDeletion.moveId, move.id));
     });
     // Before the next move, so a move waited for (settleMoves) has also deleted the old copies.
     await cleanUpAfter();
     return true;
   } catch (error) {
+    if (error instanceof LeaseLost) {
+      // Another worker has the move now and carries on with it.
+      console.warn(`[storage] move ${move.id} of workspace ${move.workspaceId} was taken over by another worker`);
+      return false;
+    }
     const message = (error instanceof Error ? error.message : String(error)).slice(0, 1000);
     console.warn(`[storage] move ${move.id} of workspace ${move.workspaceId} stopped`, message);
     await db
       .update(storageMove)
       .set({ status: "failed", lastError: message, lockedUntil: null, finishedAt: new Date() })
-      .where(eq(storageMove.id, move.id))
+      .where(held(claimed))
       .catch(() => undefined);
     return false;
   }
@@ -538,16 +589,19 @@ async function runMove(move: typeof storageMove.$inferSelect): Promise<boolean> 
 
 /**
  * Copies one file to the destination and points its row there, unless the file changed meanwhile
- * (deleted, or moved by someone else): then the copy is deleted again. The old copy is queued for
- * deletion, held by the move. Files already at the same place (two accounts for the same bucket)
- * are only pointed there. Returns whether the file moved.
+ * (deleted, or moved by someone else): then the copy is deleted again, as it is when pointing the
+ * row fails. The old copy is queued for deletion, held by the move. Files already at the same place
+ * (two accounts for the same bucket) are only pointed there. The row is pointed only while the
+ * worker still holds the move (counting the file), and onto the server's storage only while the
+ * workspace's files fit its quota there. Throws LeaseLost when the move was taken over: the copy
+ * stays then, as the worker that has the move now writes the same object.
  */
 async function moveFile(
-  moveId: string,
+  claimed: Claimed,
   row: typeof file.$inferSelect,
   source: { driver: StorageDriver; target: StorageTarget | null },
   destination: Destination,
-): Promise<boolean> {
+): Promise<void> {
   const unchanged = and(
     eq(file.id, row.id),
     row.storageId ? eq(file.storageId, row.storageId) : isNull(file.storageId),
@@ -555,9 +609,16 @@ async function moveFile(
   );
   const same = source.target && destination.target && sameLocation(targetLocation(source.target), targetLocation(destination.target));
   if (same) {
-    const [pointed] = await db.update(file).set({ storageId: destination.storageId }).where(unchanged).returning({ id: file.id });
-    return Boolean(pointed);
+    await db.transaction(async (tx) => {
+      const [pointed] = await tx.update(file).set({ storageId: destination.storageId }).where(unchanged).returning({ id: file.id });
+      await renew(tx, claimed, pointed ? 1 : 0);
+    });
+    return;
   }
+  const workspaceId = claimed.move.workspaceId;
+  const quota = destination.storageId === null ? uploadLimits().workspaceQuotaBytes : Infinity;
+  const overQuota = () => new StorageError("The workspace's files would pass its quota on the server's storage");
+  if (quota !== Infinity && (await workspaceUsage(workspaceId)) + row.size > quota) throw overQuota();
   const body = await source.driver.get(refOf(row));
   if (!body) throw new StorageError("The file isn't in its storage any more");
   const objectId =
@@ -565,18 +626,30 @@ async function moveFile(
       size: row.size,
       contentType: row.contentType,
     })) || null;
-  const pointed = await db.transaction(async (tx) => {
-    const [updated] = await tx.update(file).set({ storageId: destination.storageId, storageObjectId: objectId }).where(unchanged).returning({ id: file.id });
-    if (updated) {
-      await tx
-        .insert(storageDeletion)
-        .values({ storageId: row.storageId, storageKey: row.storageKey, storageObjectId: row.storageObjectId, moveId })
-        .onConflictDoNothing();
-    }
-    return Boolean(updated);
-  });
-  if (!pointed) await removeStored([{ storageId: destination.storageId, key: row.storageKey, objectId }]);
-  return pointed;
+  const copy = { storageId: destination.storageId, key: row.storageKey, objectId };
+  let pointed: boolean;
+  try {
+    pointed = await db.transaction(async (tx) => {
+      if (quota !== Infinity) {
+        // As uploads do (files.storeFile): one at a time per workspace past this point, so the sum is current.
+        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:file-quota:${workspaceId}`}))`);
+        if ((await workspaceUsage(workspaceId, tx)) + row.size > quota) throw overQuota();
+      }
+      const [updated] = await tx.update(file).set({ storageId: destination.storageId, storageObjectId: objectId }).where(unchanged).returning({ id: file.id });
+      if (updated) {
+        await tx
+          .insert(storageDeletion)
+          .values({ storageId: row.storageId, storageKey: row.storageKey, storageObjectId: row.storageObjectId, moveId: claimed.move.id })
+          .onConflictDoNothing();
+      }
+      await renew(tx, claimed, updated ? 1 : 0);
+      return Boolean(updated);
+    });
+  } catch (error) {
+    if (!(error instanceof LeaseLost)) await removeStored([copy]);
+    throw error;
+  }
+  if (!pointed) await removeStored([copy]);
 }
 
 async function cleanUpAfter() {
@@ -588,24 +661,26 @@ async function cleanUpAfter() {
   }
 }
 
-let running: Promise<number> | null = null;
+/** The moves this server is running: one per process, however many copies of this module it loaded. */
+const RUNNING_KEY = "__leafdeskStorageMoves";
+const runs = ((globalThis as Record<string, unknown>)[RUNNING_KEY] ??= { running: null }) as { running: Promise<number> | null };
 
 /** Runs the moves that are due now, unless this server is at it already. */
 export function kickMoves(): void {
-  if (running) return;
-  running = runDueMoves()
+  if (runs.running) return;
+  runs.running = runDueMoves()
     .catch((error) => {
       console.error("[storage] moving files failed", error);
       return 0;
     })
     .finally(() => {
-      running = null;
+      runs.running = null;
     });
 }
 
 /** Waits for the moves this server is running (tests, and deleting an account). */
 export async function settleMoves(): Promise<void> {
-  while (running) await running;
+  while (runs.running) await runs.running;
 }
 
 let stop: (() => void) | null = null;

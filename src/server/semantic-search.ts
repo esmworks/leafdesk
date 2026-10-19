@@ -18,7 +18,7 @@ import type { PageKind } from "@/db/schema";
 import { sharedLimiter } from "@/lib/rate-limit";
 import type { SearchKind } from "@/lib/search-query";
 import { pageVisibleTo, workspacesHeldBack } from "@/server/access";
-import { aiTargetFor, embed, embeddingModelFor, embeddingsEnabled, minSimilarityFor } from "@/server/ai";
+import { aiTargetFor, embed, embeddingModelFor, embeddingModelOf, embeddingsEnabled, minSimilarityOf } from "@/server/ai";
 import { maybeSweep } from "@/server/semantic-index";
 import { passageOf, vectorLiteral } from "@/server/semantic-text";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
@@ -138,15 +138,16 @@ export async function chunksOfPages(pageIds: string[]): Promise<Map<string, { bl
  * The searchable workspaces grouped by what embeds their queries: one AI account (or the server's
  * settings) and model per group, with its similarity threshold.
  */
-async function embeddingGroups(workspaceIds: string[]) {
+export async function embeddingGroups(workspaceIds: string[]) {
   const groups = new Map<string, { model: string; minSimilarity: number; workspaceIds: string[] }>();
   for (const id of workspaceIds) {
-    const [target, model] = await Promise.all([aiTargetFor(id), embeddingModelFor(id)]);
+    const target = await aiTargetFor(id);
+    const model = embeddingModelOf(target);
     if (!target || !model) continue;
     const key = `${target.accountId ?? "instance"}\u0000${model}`;
     const group = groups.get(key);
     if (group) group.workspaceIds.push(id);
-    else groups.set(key, { model, minSimilarity: await minSimilarityFor(id), workspaceIds: [id] });
+    else groups.set(key, { model, minSimilarity: minSimilarityOf(target), workspaceIds: [id] });
   }
   return [...groups.values()];
 }

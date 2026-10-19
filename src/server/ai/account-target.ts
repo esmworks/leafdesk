@@ -56,9 +56,12 @@ export async function workspaceAiAccount(workspaceId: string): Promise<Workspace
   };
 }
 
-/** Whether a provider's failure says the key itself is refused (rather than a passing problem). */
+/**
+ * Whether a provider's failure says the key itself is refused, rather than a passing problem or a
+ * model the key may not use (a 403 is usually that: the key still works for other models).
+ */
 export function refusesKey(message: string) {
-  return /\b(401|403)\b|unauthori[sz]ed|forbidden|invalid[_ ](api[_ ])?key|incorrect api key|authentication/i.test(message);
+  return /\b401\b|unauthori[sz]ed|invalid[_ -]?(x-)?api[_ -]?key|incorrect api key|api key not valid|authentication_error/i.test(message);
 }
 
 /** Records that the provider refused the account's key: shown in its owner's settings. */

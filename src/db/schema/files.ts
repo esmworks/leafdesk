@@ -141,6 +141,11 @@ export const storageMove = pgTable(
     lastError: text("last_error"),
     /** A worker has it until then (renewed as it goes), so two servers don't move the same files. */
     lockedUntil: timestamp("locked_until", { withTimezone: true }),
+    /**
+     * Which worker holds the move: set anew whenever one takes it, so a worker whose lease ran out
+     * and was taken over notices (its writes name its lease) and stops.
+     */
+    leaseId: text("lease_id"),
     startedBy: text("started_by").references(() => user.id, { onDelete: "set null" }),
     /** Owners closed the notice of a finished, failed or blocked move. */
     dismissed: boolean("dismissed").notNull().default(false),
@@ -188,7 +193,7 @@ export const file = pgTable(
     referencedAt: timestamp("referenced_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("file_workspace_idx").on(t.workspaceId), index("file_page_idx").on(t.pageId), index("file_storage_idx").on(t.storageId)],
+  (t) => [index("file_workspace_idx").on(t.workspaceId), index("file_page_idx").on(t.pageId), index("file_storage_idx").on(t.storageId), index("file_storage_key_idx").on(t.storageKey)],
 );
 
 /**

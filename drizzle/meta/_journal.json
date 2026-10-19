@@ -638,6 +638,13 @@
       "when": 1792435671190,
       "tag": "0090_storage_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1792437692316,
+      "tag": "0091_storage_move_lease",
+      "breakpoints": true
     }
   ]
 }
