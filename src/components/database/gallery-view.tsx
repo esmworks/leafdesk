@@ -2,7 +2,7 @@
 
 import { Ellipsis, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { cn, MenuItem, MenuSeparator, PageIcon } from "@/components/ui";
 import type { CardSize } from "@/db/schema/app";
 import { pageLabel } from "@/lib/labels";
@@ -14,7 +14,7 @@ import { Floating, useFloating } from "./floating";
 import { OpenRowItems } from "./open-row-items";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useRowOpener, type RowOpener } from "./row-panel-context";
+import { openRowProps, useIsOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -46,7 +46,16 @@ export function GalleryView({
   const coverProp = coverProperty(view.config, properties);
   const withCover = source === "first_image" || coverProp !== null;
   const coverOf = (row: Row) => (coverProp ? (firstImageFile(row.properties[coverProp.id])?.url ?? null) : (row.cover ?? null));
-  const cardProps = properties.filter((p) => !isHiddenInView(view, p));
+  // The cards get props that stay the same while another card's title is edited.
+  const cardProps = useMemo(() => properties.filter((p) => !isHiddenInView(view, p)), [properties, view]);
+  const onCardTitle = useCallback(
+    (row: Row, title: string) => {
+      stopEditing();
+      if (title !== row.title) quick.save(row.id, title);
+    },
+    [stopEditing, quick],
+  );
+  const onCardDelete = useCallback((rowId: string) => void api.deleteRow(rowId), [api]);
 
   const add = async () => {
     await createNew(() => api.createRow());
@@ -69,12 +78,9 @@ export function GalleryView({
               coverClass={withCover ? COVER_HEIGHT[size] : null}
               readOnly={readOnly}
               editTitle={editTitleOf === row.id}
-              typed={typed}
-              onTitle={(title) => {
-                stopEditing();
-                if (title !== row.title) quick.save(row.id, title);
-              }}
-              onDelete={() => api.deleteRow(row.id)}
+              typed={editTitleOf === row.id ? typed : undefined}
+              onTitle={onCardTitle}
+              onDelete={onCardDelete}
             />
           ))}
           {!readOnly && (
@@ -97,7 +103,7 @@ export function GalleryView({
   );
 }
 
-function GalleryCard({
+const GalleryCard = memo(function GalleryCard({
   workspaceId,
   row,
   props,
@@ -120,11 +126,12 @@ function GalleryCard({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  onTitle: (title: string) => void;
-  onDelete: () => void;
+  onTitle: (row: Row, title: string) => void;
+  onDelete: (rowId: string) => void;
 }) {
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
   // A cover that fails to load leaves the plain cover area instead of a broken image.
   const [failed, setFailed] = useState<string | null>(null);
@@ -141,7 +148,7 @@ function GalleryCard({
       }}
       className={cn(
         "board-card group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg",
-        opener.current === row.id && "outline-2 outline-accent/60",
+        isOpen && "outline-2 outline-accent/60",
       )}
     >
       {coverClass && (
@@ -168,7 +175,7 @@ function GalleryCard({
       )}
       <div className="min-w-0 px-3 py-2.5">
         {editTitle ? (
-          <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+          <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
         ) : (
           <div className="flex min-w-0 gap-1.5 pe-6 text-sm leading-5 font-medium">
             {row.icon && (!coverClass || cover) && <span className="shrink-0">{row.icon}</span>}
@@ -191,13 +198,13 @@ function GalleryCard({
         <RowMenu
           opener={opener}
           rowId={row.id}
-          onDelete={onDelete}
+          onDelete={() => onDelete(row.id)}
           className={cn("absolute inset-e-1.5", coverClass ? "top-1.5" : "top-2")}
         />
       )}
     </div>
   );
-}
+});
 
 /** The "…" menu on gallery cards and list rows: open the row, or move it to the trash. */
 export function RowMenu({

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuickAdd } from "./quick-add";
 import type { Property, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -40,6 +40,11 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
   const capture = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => () => capture.current?.remove(), []);
+  // The same function across renders, so views can hand their cards callbacks that don't change.
+  const stopEditing = useCallback(() => {
+    capture.current?.remove();
+    setEditing(null);
+  }, []);
 
   const create = async (run: () => Promise<string | null>) => {
     if (busy.current) return;
@@ -95,9 +100,6 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
     create,
     /** Names a row from its title editor (`quick.save`): the title without what quick add took, and those values. */
     quick,
-    stopEditing: () => {
-      capture.current?.remove();
-      setEditing(null);
-    },
+    stopEditing,
   };
 }

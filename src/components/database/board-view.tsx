@@ -2,7 +2,7 @@
 
 import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useContext, useEffect, useRef, useState, type DragEvent } from "react";
+import { Fragment, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { Button, cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { holdsPeople } from "@/lib/property-types";
@@ -29,7 +29,7 @@ import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { HIDE_SCROLLBAR, StickyScrollbar, useDragPan } from "./scroll-x";
-import { openRowProps, useRowOpener } from "./row-panel-context";
+import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { PropertyTypeIcon } from "./property-icons";
 import { useFormatResult } from "./table-calculations";
 import { useNewRow } from "./use-new-row";
@@ -78,7 +78,37 @@ export function BoardView({
   const scroller = useRef<HTMLDivElement>(null);
   useDragPan(scroller, !!groupBy);
 
-  if (!groupBy) {
+  // A drag redraws the board at each move over a column: the cards get only props that stay the
+  // same then (the grouping, their properties, callbacks taking the row), so only the dragged one redraws.
+  const cardProps = useMemo(
+    () => (groupBy ? properties.filter((p) => p.id !== groupBy.id && !isHiddenInView(view, p)) : []),
+    [properties, groupBy, view],
+  );
+  const arranged = useMemo(
+    () => (groupBy ? arrangeGroups(groupRowsBy(rows, groupBy, view.config, groupContext), view.config) : null),
+    [rows, groupBy, view.config, groupContext],
+  );
+  const onCardTitle = useCallback(
+    (row: Row, title: string) => {
+      stopEditing();
+      if (title !== row.title) quick.save(row.id, title);
+    },
+    [stopEditing, quick],
+  );
+  const onCardDelete = useCallback((rowId: string) => void api.deleteRow(rowId), [api]);
+  const onCardDragStart = useCallback((e: DragEvent<HTMLDivElement>, rowId: string, from: string) => {
+    e.dataTransfer.setData("text/plain", rowId);
+    e.dataTransfer.effectAllowed = "move";
+    setDragId(rowId);
+    setDragFrom(from);
+  }, []);
+  const onCardDragEnd = useCallback(() => {
+    setDragId(null);
+    setDragFrom(null);
+    setDrop(null);
+  }, []);
+
+  if (!groupBy || !arranged) {
     return (
       <div className="page-gutter">
         <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-border px-6 py-10">
@@ -97,15 +127,11 @@ export function BoardView({
     );
   }
 
-  const cardProps = properties.filter((p) => p.id !== groupBy.id && !isHiddenInView(view, p));
   const measure = boardMeasure(view.config, properties);
   const setBoardAggregate = (boardAggregate: ChartAggregate | undefined) =>
     void api.updateView(view, { config: { ...view.config, boardAggregate } });
   const groupKey = (g: Group<Row>) => g.key;
-  const { ordered, shown, hidden: hiddenGroups } = arrangeGroups(
-    groupRowsBy(rows, groupBy, view.config, groupContext),
-    view.config,
-  );
+  const { ordered, shown, hidden: hiddenGroups } = arranged;
   const groups = [...shown];
   // The "no value" column only earns space when it has cards; while dragging a card it appears at
   // the end (so the other columns don't shift) as a place to clear the value.
@@ -273,6 +299,7 @@ export function BoardView({
               dragId !== null && drop?.group === key && (manualOrder || !group.rows.some((r) => r.id === dragId));
             const colFrom = dragCol === null ? -1 : groups.findIndex((g) => groupKey(g) === dragCol);
             const lineAt = colDrop !== null && colDrop !== colFrom && colDrop !== colFrom + 1 ? colDrop : null;
+            let visibleCount = 0;
             return (
               <section
                 key={key || "__none"}
@@ -378,39 +405,29 @@ export function BoardView({
                   onDrop={(e) => onDrop(e, group)}
                 >
                   {group.rows.map((row) => {
-                    const visibleIndex = group.rows.filter((r) => r.id !== dragId).findIndex((r) => r.id === row.id);
+                    // Where the row stands among the column's cards other than the dragged one.
+                    const visibleIndex = row.id === dragId ? -1 : visibleCount++;
                     return (
                       <div key={row.id}>
-                        {dropping && manualOrder && drop.index === visibleIndex && row.id !== dragId && <DropLine />}
+                        {dropping && manualOrder && drop.index === visibleIndex && <DropLine />}
                         <Card
                           workspaceId={workspaceId}
                           row={row}
+                          group={key}
                           props={cardProps}
                           readOnly={readOnly}
                           dragging={dragId === row.id}
                           editTitle={editTitleOf === row.id}
-                          typed={typed}
-                          onTitle={(title) => {
-                            stopEditing();
-                            if (title !== row.title) quick.save(row.id, title);
-                          }}
-                          onDelete={() => api.deleteRow(row.id)}
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData("text/plain", row.id);
-                            e.dataTransfer.effectAllowed = "move";
-                            setDragId(row.id);
-                            setDragFrom(key);
-                          }}
-                          onDragEnd={() => {
-                            setDragId(null);
-                            setDragFrom(null);
-                            setDrop(null);
-                          }}
+                          typed={editTitleOf === row.id ? typed : undefined}
+                          onTitle={onCardTitle}
+                          onDelete={onCardDelete}
+                          onDragStart={onCardDragStart}
+                          onDragEnd={onCardDragEnd}
                         />
                       </div>
                     );
                   })}
-                  {dropping && manualOrder && drop.index >= group.rows.filter((r) => r.id !== dragId).length && <DropLine />}
+                  {dropping && manualOrder && drop.index >= visibleCount && <DropLine />}
                   {canAdd(group) && (
                     <button
                       type="button"
@@ -744,9 +761,10 @@ function DropLine() {
   return <div className="mb-2 h-0.5 rounded bg-accent" />;
 }
 
-function Card({
+const Card = memo(function Card({
   workspaceId,
   row,
+  group,
   props,
   readOnly,
   dragging,
@@ -759,20 +777,23 @@ function Card({
 }: {
   workspaceId: string;
   row: Row;
+  /** The column the card is in: a card with several values shows in several. */
+  group: string;
   props: Property[];
   readOnly?: boolean;
   dragging: boolean;
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  onTitle: (title: string) => void;
-  onDelete: () => void;
-  onDragStart: (e: DragEvent<HTMLDivElement>) => void;
+  onTitle: (row: Row, title: string) => void;
+  onDelete: (rowId: string) => void;
+  onDragStart: (e: DragEvent<HTMLDivElement>, rowId: string, group: string) => void;
   onDragEnd: () => void;
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const isOpen = useIsOpenRow(opener, row.id);
   const menu = useFloating<HTMLButtonElement>();
   const shown = shownValues(props, row);
 
@@ -781,17 +802,17 @@ function Card({
       data-card={row.id}
       {...openRowProps(opener, row.id, !editTitle)}
       draggable={!readOnly && !editTitle}
-      onDragStart={onDragStart}
+      onDragStart={(e) => onDragStart(e, row.id, group)}
       onDragEnd={onDragEnd}
       onClick={(e) => !editTitle && opener.open(row.id, e)}
       className={cn(
         "board-card group relative cursor-pointer rounded-lg px-3 py-2.5",
         dragging && "opacity-40",
-        opener.current === row.id && "outline-2 outline-accent/60",
+        isOpen && "outline-2 outline-accent/60",
       )}
     >
       {editTitle ? (
-        <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+        <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
       ) : (
         <div className="flex gap-1.5 pe-6 text-sm leading-5 font-medium">
           {row.icon && <span className="shrink-0">{row.icon}</span>}
@@ -831,7 +852,7 @@ function Card({
               icon={<Trash2 className="h-3.5 w-3.5" />}
               onClick={() => {
                 menu.close();
-                onDelete();
+                onDelete(row.id);
               }}
             >
               {tc("delete")}
@@ -841,7 +862,7 @@ function Card({
       )}
     </div>
   );
-}
+});
 
 /**
  * A card's or a row's title editor; a new row's (inside its view's QuickAddContext) shows what quick

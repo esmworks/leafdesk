@@ -24,6 +24,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useBlockFocus } from "./block-focus";
 import { commentUsersAction } from "@/app/actions/comments";
 import { useDirection } from "@/components/direction";
+import { EditorFiles } from "./editor-files";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { AskAiToolbarButton, useAiAssist, useAiSlashItems, type AiAssist } from "./ai-assist";
 import { useVoiceNote, useVoiceSlashItems, type VoiceNote } from "@/components/voice/voice-note-dialog";
@@ -314,6 +315,7 @@ export default function CollabEditor({
                 />
               )}
               {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
+              <EditorFiles editor={editor} editable={editable} />
             </BlockNoteView>
             {/* A synced page's notes are listed on its own page. */}
             {!nested && <FootnoteList editor={editor} />}

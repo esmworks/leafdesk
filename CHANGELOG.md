@@ -69,6 +69,16 @@
   Workbooks uploaded earlier are read by the background sweep, and pages are indexed for the AI
   chat again in the background so their workbooks go in. The MCP `get_file` tool reads a workbook
   as text, sheet by sheet. A workbook whose contents unpack to more than 64 MB isn't read.
+- **File viewer.** Uploaded files open full screen without downloading them: from an image (a
+  click on a read-only or published page; the expand button or a double click while editing), a
+  file block's name, the expand button of a PDF or workbook, and a files & media property. ← and →
+  go through the other files of the page or cell, Esc closes, + − and 0 zoom; on a phone, swipe
+  between files and pinch to zoom. Images (SVG included, as a picture whose scripts don't run)
+  zoom and pan, PDFs and workbooks fill the screen, video and audio play, Word documents show
+  their text, tables and pictures, CSV and TSV show as a table of their first 1,000 rows, Markdown
+  shows formatted without its raw HTML or remote pictures, JSON and code show colored, and other
+  text shows as is (the first 2 MB). Anything else shows its name, type and size with a download
+  button.
 - **Snippets.** Reusable content put in while typing: `;` and a trigger at the start of a line or
   after a space (`;meeting`, `;log-2`), or the slash menu's *Snippets* group, inserts a snippet's
   blocks. A one-paragraph snippet joins the line's text. `{{date}}`, `{{time}}`, `{{datetime}}`,
@@ -98,6 +108,11 @@
   their first view used to be English whatever language you use Leafdesk in; they now match the
   databases you make in the app.
 - In Turkish, teamspaces are now called "ekip alanı".
+- **Opening a row beside a view is quicker.** The row panel slides in from the edge it sits on, and
+  opening, closing or stepping through rows with J and K no longer redraws every card of a large
+  board, table or calendar: only the row that was open and the one now open change.
+- **Dragging cards on a large board or calendar is smooth.** Moving a card over columns or days
+  used to redraw every card at each step; now only the card being dragged changes.
 
 ## 0.6.1 — 2026-10-19
 

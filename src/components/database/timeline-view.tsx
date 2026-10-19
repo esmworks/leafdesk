@@ -45,7 +45,7 @@ import { GroupLabel, useGroupContext, useGroupName } from "./group-label";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useRowOpener } from "./row-panel-context";
+import { openRowProps, useOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { useToday, useViewerTimeZone } from "./use-today";
 import type { Property, Row, View } from "./types";
@@ -102,6 +102,7 @@ export function TimelineView({
   const tc = useTranslations("common");
   const format = useFormatter();
   const opener = useRowOpener(workspaceId);
+  const openRow = useOpenRow(opener);
   const { viewerId } = usePeople();
   const narrow = useMediaQuery("(max-width: 640px)");
   const scroller = useRef<HTMLDivElement>(null);
@@ -394,7 +395,7 @@ export function TimelineView({
           color ? `opt-${color}` : "board-card",
           canMove(row) ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
           drag?.rowId === row.id && drag.moved && "z-10 shadow-md ring-2 ring-accent/50",
-          opener.current === row.id && "outline-2 outline-accent/60",
+          openRow === row.id && "outline-2 outline-accent/60",
         )}
       >
         {inside && (
@@ -476,7 +477,7 @@ export function TimelineView({
         }}
         className={cn(
           "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-2 hover:bg-bg-hover",
-          opener.current === row.id && "bg-bg-hover",
+          openRow === row.id && "bg-bg-hover",
         )}
         style={subItems.nested ? { paddingLeft: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
       >
