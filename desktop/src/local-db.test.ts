@@ -93,5 +93,6 @@ async function lifecycle() {
   assert.equal((await sql`select count(*)::int as n from "user"`)[0].n, 1);
   await sql.end();
   await fourth.stop();
+  running = null;
   assert.equal(fs.existsSync(path.join(root, "data", "postmaster.pid")), false, "stopped cleanly");
 }
