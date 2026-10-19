@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { page, workspace } from "@/db/schema";
 import { storedCalloutStyles, type CalloutStyle } from "@/lib/callout-styles";
@@ -21,4 +21,11 @@ export async function calloutStylesOfPage(pageId: string): Promise<CalloutStyle[
     .where(eq(page.id, pageId))
     .limit(1);
   return storedCalloutStyles(row?.settings.calloutStyles);
+}
+
+/** The styles of several workspaces at once, by workspace id (one with none is left out). */
+export async function calloutStylesOfWorkspaces(workspaceIds: string[]): Promise<Map<string, CalloutStyle[]>> {
+  if (!workspaceIds.length) return new Map();
+  const rows = await db.select({ id: workspace.id, settings: workspace.settings }).from(workspace).where(inArray(workspace.id, workspaceIds));
+  return new Map(rows.map((row) => [row.id, storedCalloutStyles(row.settings.calloutStyles)]));
 }

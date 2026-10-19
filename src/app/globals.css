@@ -792,9 +792,9 @@ input.leafdesk-callout-title-input {
 
 /*
  * Styled callouts (lib/callout-styles): the style's color takes the place of the callout's own,
- * which BlockNote paints from its prop, on the block and the blocks nested under it, and its
- * border is a bar along the start edge or a frame around them. The previews in Settings and the
- * menus' swatches use the same rules.
+ * which BlockNote paints from its prop on the callout's content, and its border is a bar along the
+ * start edge or a frame around it. The previews in Settings and the menus' swatches use the same
+ * rules.
  */
 .bn-block-content[data-content-type="callout"]:has(> * .leafdesk-callout[data-callout-color], > .leafdesk-callout[data-callout-color]) {
   background-color: transparent;

@@ -101,7 +101,7 @@ const workspaces = vi.hoisted(() => {
 });
 vi.mock("@/server/workspaces", () => workspaces);
 
-const calloutStyles = vi.hoisted(() => ({ calloutStylesOf: vi.fn(async (_workspaceId: string): Promise<unknown[]> => []), calloutStylesOfPage: vi.fn(async () => []) }));
+const calloutStyles = vi.hoisted(() => ({ calloutStylesOfWorkspaces: vi.fn(async (_ids: string[]) => new Map<string, unknown[]>()) }));
 vi.mock("@/server/callout-styles", () => calloutStyles);
 
 const notifications = vi.hoisted(() => ({ listNotifications: vi.fn() }));
@@ -618,14 +618,15 @@ describe("workspaces", () => {
       { id: "ws-1", name: "Team", icon: null, role: "owner" },
       { id: "ws-2", name: "Club", icon: null, role: "member" },
     ]);
-    calloutStyles.calloutStylesOf.mockImplementation(async (id: string) =>
-      id === "ws-1" ? [{ key: "decision", name: "Decision", icon: "✅", color: "green", border: "left", title: "Decided" }] : [],
+    calloutStyles.calloutStylesOfWorkspaces.mockResolvedValue(
+      new Map([["ws-1", [{ key: "decision", name: "Decision", icon: "✅", color: "green", border: "left", title: "Decided" }]]]),
     );
     const r = await callTool(reader, "list_workspaces", {});
     expect(r.data.workspaces).toEqual([
       { id: "ws-1", name: "Team", role: "owner", callout_styles: [{ key: "decision", name: "Decision", title: "Decided" }] },
       { id: "ws-2", name: "Club", role: "member" },
     ]);
+    expect(calloutStyles.calloutStylesOfWorkspaces).toHaveBeenCalledTimes(1);
   });
 });
 
