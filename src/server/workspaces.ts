@@ -1225,6 +1225,7 @@ const SETTING_VALUES: {
   export: [true, false],
   connectedApps: CONNECTED_APPS_MODES,
   accessRequests: [true, false],
+  email: [false, true],
 };
 
 /**

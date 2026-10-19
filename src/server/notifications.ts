@@ -11,6 +11,7 @@ import {
   notification,
   OWNER_KINDS,
   page,
+  rowEmail,
   user,
   workspace,
   workspaceAgent,
@@ -42,6 +43,7 @@ import { agentUserIds, isAgentUser, notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
 import { mailStatus } from "@/server/mail";
 import { requestLocale } from "@/server/mail/locale";
+import { rowMailAccess } from "@/server/row-mail/access";
 import { inboxKinds } from "@/server/notification-preferences";
 import { propertyAccessFor } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
@@ -512,6 +514,26 @@ export async function recordPageUpdate(actorId: string, workspaceId: string, pag
   }
 }
 
+/**
+ * Tells `userIds` (the mailbox's owner, the row's followers and people; see server/row-mail) that
+ * message `rowEmailId` came in on row `rowId`. Nothing is emailed: the message is in a mailbox
+ * already. Never throws.
+ */
+export async function recordRowEmail(workspaceId: string, rowId: string, rowEmailId: string, userIds: string[]) {
+  const recipients = [...new Set(userIds)];
+  if (!recipients.length) return;
+  try {
+    const inserted = await db
+      .insert(notification)
+      .values(recipients.map((userId) => ({ userId, workspaceId, kind: "row_email" as const, pageId: rowId, rowEmailId })))
+      .returning({ id: notification.id });
+    signal(workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("could not record row email notifications", error);
+  }
+}
+
 const unreadShare = (userId: string, pageId: string) =>
   and(
     eq(notification.kind, "page_shared"),
@@ -555,7 +577,14 @@ export type InboxItem = {
   report: InboxAgentReport | null;
   /** Row updates: what changed in the row, of what the user may see in it now. */
   rowUpdate: InboxRowUpdate | null;
+  /** Row emails: the message that came in on the row (`pageId`). */
+  rowEmail: InboxRowEmail | null;
 };
+
+export type InboxRowEmail = { id: string; from: string; subject: string; snippet: string };
+
+/** How much of a message's text the inbox shows. */
+const EMAIL_SNIPPET_CHARS = 160;
 
 /** A change of a row someone follows, as the inbox shows it: "Status: To do → Done". */
 export type InboxRowChange = {
@@ -625,8 +654,8 @@ const actor = alias(user, "actor");
  * leave for an owner (none has a page) only while the user owns the workspace; snoozed ones not
  * until their time. Null when every kind is off. Expects `page` left-joined.
  */
-async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | null> {
-  const kinds = await inboxKinds(userId);
+async function inboxFilter(userId: string, workspaceId?: string, only?: NotificationKind[]): Promise<SQL | null> {
+  const kinds = (await inboxKinds(userId)).filter((k) => !only || only.includes(k));
   if (!kinds.length) return null;
   return and(
     eq(notification.userId, userId),
@@ -634,6 +663,11 @@ async function inboxFilter(userId: string, workspaceId?: string): Promise<SQL | 
     inArray(notification.kind, kinds),
     // Snoozed ones come back by themselves (deliverSnoozed); until then they aren't there.
     or(isNull(notification.snoozedUntil), lte(notification.snoozedUntil, sql`now()`)),
+    // A message hidden from its row leaves the inbox too.
+    or(
+      ne(notification.kind, "row_email"),
+      sql`exists (select 1 from ${rowEmail} where ${rowEmail.id} = ${notification.rowEmailId} and ${rowEmail.status} <> 'hidden')`,
+    ),
     or(
       and(
         isNotNull(page.id),
@@ -665,12 +699,13 @@ export async function listNotifications(
     unreadOnly = false,
     limit = INBOX_LIMIT,
     ids: only,
-  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[] } = {},
+    kinds,
+  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[]; kinds?: NotificationKind[] } = {},
 ): Promise<InboxItem[]> {
   if (only && !only.length) return [];
   if (workspaceId) await requireMembership(userId, workspaceId);
   const [filter, hidden] = await Promise.all([
-    inboxFilter(userId, workspaceId),
+    inboxFilter(userId, workspaceId, kinds),
     workspaceId || only ? new Set<string>() : workspacesHiddenFromApp(userId),
   ]);
   if (!filter) return [];
@@ -704,6 +739,7 @@ export async function listNotifications(
       rowCreatedBy: page.createdBy,
       rowProperties: page.properties,
       changes: notification.changes,
+      rowEmailId: notification.rowEmailId,
     })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
@@ -738,21 +774,27 @@ export async function listNotifications(
     return inviting.get(id)!;
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
-  const [approvals, proposals, reports, updates] = await Promise.all([
+  const [approvals, proposals, reports, updates, emails] = await Promise.all([
     approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, runsOf("agent_report")),
     rowUpdatesOf(userId, rows.filter((r) => r.kind === "row_update")),
+    rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
   // nor a call the user no longer answers (they can't open its row any more).
   const shown = rows.filter(
-    (r) => (r.kind !== "row_update" || updates.has(r.id)) && !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
+    (r) =>
+      (r.kind !== "row_update" || updates.has(r.id)) &&
+      // Nor a message the user may no longer read (the email property's access changed since).
+      (r.kind !== "row_email" || emails.has(r.id)) &&
+      !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
   );
   return Promise.all(
-    shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, ...row }) => ({
+    shown.map(async ({ readAt, actorEmail, requestId, requestMessage, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, ...row }) => ({
       ...row,
       rowUpdate: updates.get(row.id) ?? null,
+      rowEmail: emails.get(row.id) ?? null,
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,
@@ -769,6 +811,32 @@ export async function listNotifications(
           : null,
     })),
   );
+}
+
+/** The messages these row emails in `viewer`'s inbox are about, of those they may still read. */
+async function rowEmailsOf(viewer: string, rows: { id: string; pageId: string | null; rowEmailId: string | null }[]) {
+  const out = new Map<string, InboxRowEmail>();
+  const ids = rows.flatMap((r) => (r.rowEmailId ? [r.rowEmailId] : []));
+  if (!ids.length) return out;
+  const messages = await db
+    .select({ id: rowEmail.id, rowId: rowEmail.rowId, fromAddress: rowEmail.fromAddress, fromName: rowEmail.fromName, subject: rowEmail.subject, text: rowEmail.text })
+    .from(rowEmail)
+    .where(inArray(rowEmail.id, ids));
+  const byId = new Map(messages.map((m) => [m.id, m]));
+  const readable = new Map<string, Promise<boolean>>();
+  for (const r of rows) {
+    const message = r.rowEmailId ? byId.get(r.rowEmailId) : undefined;
+    if (!message) continue;
+    if (!readable.has(message.rowId)) readable.set(message.rowId, rowMailAccess(viewer, message.rowId).then(Boolean));
+    if (!(await readable.get(message.rowId))) continue;
+    out.set(r.id, {
+      id: message.id,
+      from: message.fromName?.trim() || message.fromAddress,
+      subject: message.subject,
+      snippet: message.text.replace(/\s+/g, " ").trim().slice(0, EMAIL_SNIPPET_CHARS),
+    });
+  }
+  return out;
 }
 
 /**
@@ -945,13 +1013,13 @@ async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string
   return out;
 }
 
-export async function listInbox(userId: string, workspaceId: string): Promise<InboxItem[]> {
-  return listNotifications(userId, { workspaceId });
+export async function listInbox(userId: string, workspaceId: string, kinds?: NotificationKind[]): Promise<InboxItem[]> {
+  return listNotifications(userId, { workspaceId, kinds });
 }
 
-export async function unreadCount(userId: string, workspaceId: string) {
+export async function unreadCount(userId: string, workspaceId: string, kinds?: NotificationKind[]) {
   await requireMembership(userId, workspaceId);
-  const filter = await inboxFilter(userId, workspaceId);
+  const filter = await inboxFilter(userId, workspaceId, kinds);
   if (!filter) return 0;
   const [row] = await db
     .select({ n: count() })

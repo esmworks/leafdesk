@@ -25,7 +25,7 @@ const config = (phase: string): NextConfig => ({
     images: { unoptimized: true },
   }),
   // Loaded by the custom server too; keep one copy of each in the process.
-  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "web-push"],
+  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "web-push", "imapflow", "mailparser"],
   experimental: {
     // Dev only: with the debug channel React waits for debug data sent over the HMR websocket
     // before it hydrates or applies a navigation. The custom server restarts on every server

@@ -2,10 +2,16 @@
 
 import { listInbox, markRead, snoozeNotification, unreadCount } from "@/server/notifications";
 import { requireUserId } from "@/server/session";
+import { workspaceSettings } from "@/server/workspaces";
 
-export async function listInboxAction(workspaceId: string) {
+/**
+ * The inbox, or only the email that came in on rows (`tab` "email"), and whether the workspace has
+ * email on rows turned on (the Email tab shows only then).
+ */
+export async function listInboxAction(workspaceId: string, tab: "all" | "email" = "all") {
   const userId = await requireUserId();
-  return listInbox(userId, workspaceId);
+  const [items, settings] = await Promise.all([listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined), workspaceSettings(workspaceId)]);
+  return { items, email: settings.email };
 }
 
 export async function unreadCountAction(workspaceId: string) {

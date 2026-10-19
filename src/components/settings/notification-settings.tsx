@@ -23,8 +23,11 @@ const KIND_KEYS = {
   automation: "automation",
   row_update: "rowUpdate",
   page_updated: "pageUpdate",
+  row_email: "rowEmail",
 } as const satisfies Record<PreferenceKind, string>;
 const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
+/** Kinds never sent by email: the email itself is already in the member's mailbox. */
+const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email"];
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
  * email and, when the server can send them (`push`), comes as a push notification; and whether
@@ -46,7 +49,12 @@ export function NotificationSettings({
     <>
       {push && <PushDeviceRow publicKey={push.publicKey} endpoints={push.endpoints} />}
       {kinds.map((kind) => (
-        <NotificationKindRow key={kind} kind={kind} channels={channels} initial={preferences[kind]} />
+        <NotificationKindRow
+          key={kind}
+          kind={kind}
+          channels={EMAILLESS_KINDS.includes(kind) ? channels.filter((c) => c !== "email") : channels}
+          initial={preferences[kind]}
+        />
       ))}
     </>
   );

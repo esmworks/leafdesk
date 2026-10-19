@@ -1117,6 +1117,8 @@ export function createMcpServer(principal: McpPrincipal) {
                             ? `${who} changed "${title}" in ${pageLabel(n.databaseTitle)}, a row the user follows`
                           : n.kind === "page_updated"
                             ? `${who} edited "${title}", a page the user watches (get_page shows it now; list_page_history what changed)`
+                          : n.kind === "row_email"
+                            ? `Email from ${n.rowEmail?.from ?? "someone"} came in on "${title}" in ${pageLabel(n.databaseTitle)}`
                           : n.kind === "automation"
                             ? n.reminderDate
                               ? `Automation "${n.automationName ?? ""}": "${title}" in ${pageLabel(n.databaseTitle)} reached the date it waits for (${n.reminderDate})`
@@ -1128,6 +1130,7 @@ export function createMcpServer(principal: McpPrincipal) {
               ...(n.kind === "assignment" ? { database: pageLabel(n.databaseTitle), property: n.propertyName } : {}),
               ...(n.kind === "automation" ? { database: pageLabel(n.databaseTitle), automation: n.automationName } : {}),
               ...(n.kind === "reminder" ? { date: n.reminderDate } : {}),
+              ...(n.kind === "row_email" && n.rowEmail ? { database: pageLabel(n.databaseTitle), email: { from: n.rowEmail.from, subject: n.rowEmail.subject } } : {}),
               ...(n.kind === "row_update" && n.rowUpdate
                 ? {
                     database: pageLabel(n.databaseTitle),

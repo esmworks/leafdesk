@@ -5,6 +5,7 @@
 
 import { agentMemoryPath, agentRunPath } from "./agents";
 import { commentHash } from "./comments";
+import { rowEmailHash } from "./mail";
 import { canSnooze } from "./snooze";
 import { isTimeZone } from "./time-zone";
 
@@ -123,6 +124,8 @@ export type PushItem = {
   report: { agentId: string; runId: string; agentName: string; status: string } | null;
   /** Row updates: which values changed (a null property is the title), and whether the body. */
   rowUpdate: { changes: { property: { name: string } | null }[]; body: boolean } | null;
+  /** Row emails: the message and who it is from. */
+  rowEmail?: { id: string; from: string } | null;
 };
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
@@ -136,6 +139,7 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "agent_report") return item.report ? agentRunPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
+  if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
   return `/w/${item.workspaceId}/p/${item.pageId}${item.kind === "comment" && item.threadId ? commentHash(item.threadId) : ""}`;
 }
 
@@ -205,6 +209,10 @@ export function pushPayload(
       }
       case "page_updated":
         line = t("pageUpdated", { actor });
+        break;
+      case "row_email":
+        // Who wrote, not the subject: a lock screen shows it to whoever holds the device.
+        line = t("rowEmail", { from: item.rowEmail?.from || t("someone") });
         break;
       default:
         line = t("assignment", { actor, property: item.propertyName ?? "" });

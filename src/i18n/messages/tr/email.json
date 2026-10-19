@@ -230,6 +230,7 @@
     "rowUpdateTitle": "başlık",
     "rowUpdateBody": "metin",
     "pageUpdated": "{actor} bu sayfayı düzenledi",
+    "rowEmail": "{from} e-posta gönderdi",
     "someone": "Biri",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

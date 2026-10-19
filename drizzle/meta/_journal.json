@@ -603,6 +603,13 @@
       "when": 1792330785612,
       "tag": "0085_forget_leftover_sso_sign_ins",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1792423546086,
+      "tag": "0086_row_email",
+      "breakpoints": true
     }
   ]
 }

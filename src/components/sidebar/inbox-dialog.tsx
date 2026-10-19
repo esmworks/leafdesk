@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, CalendarClock, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, CalendarClock, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -22,7 +22,9 @@ import type { InboxAccessRequest, InboxItem, InboxRowUpdate } from "@/server/not
  * changed in the rows they follow and, for
  * owners, join requests and agents' calls that wait for approval, newest first; opening one marks
  * it read. Access requests and agents' calls can be answered right here, and the others snoozed:
- * they leave the inbox and come back unread when the time is up.
+ * they leave the inbox and come back unread when the time is up. Where email on rows is on, the
+ * Email tab shows only the messages that came in on rows; opening one opens its row, where it is
+ * read and answered.
  */
 export function InboxDialog({
   workspaceId,
@@ -45,19 +47,26 @@ export function InboxDialog({
   const tc = useTranslations("common");
   const [items, setItems] = useState<InboxItem[] | null>(null);
   const [error, setError] = useState(false);
+  const [tab, setTab] = useState<"all" | "email">("all");
+  const [emailTab, setEmailTab] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     let current = true;
     setError(false);
-    listInboxAction(workspaceId).then(
-      (list) => current && setItems(list),
+    listInboxAction(workspaceId, tab).then(
+      (list) => {
+        if (!current) return;
+        setItems(list.items);
+        setEmailTab(list.email);
+        if (!list.email && tab === "email") setTab("all");
+      },
       () => current && setError(true),
     );
     return () => {
       current = false;
     };
-  }, [open, workspaceId, version]);
+  }, [open, workspaceId, version, tab]);
 
   const markRead = async (ids?: string[]) => {
     setItems((list) => list?.map((item) => (!ids || ids.includes(item.id) ? { ...item, read: true } : item)) ?? list);
@@ -87,7 +96,32 @@ export function InboxDialog({
   return (
     <Dialog open={open} onClose={onClose}>
       <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-        <span className="flex-1 text-sm font-medium">{t("title")}</span>
+        <span className="text-sm font-medium">{t("title")}</span>
+        <span className="flex-1">
+          {emailTab && (
+            <span role="tablist" aria-label={t("tabs")} className="ms-2 inline-flex gap-0.5">
+              {(["all", "email"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === value}
+                  className={cn(
+                    "rounded-md px-2 py-0.5 text-sm text-fg-muted hover:bg-bg-hover",
+                    tab === value && "bg-bg-hover text-fg",
+                  )}
+                  onClick={() => {
+                    if (tab === value) return;
+                    setItems(null);
+                    setTab(value);
+                  }}
+                >
+                  {value === "all" ? t("tabAll") : t("tabEmail")}
+                </button>
+              ))}
+            </span>
+          )}
+        </span>
         {unread.length > 0 && (
           <Button size="sm" variant="ghost" onClick={() => void markRead()}>
             {t("markAllRead")}
@@ -100,7 +134,9 @@ export function InboxDialog({
         </p>
       )}
       <ul className="max-h-[60vh] overflow-y-auto p-1">
-        {items?.length === 0 && <li className="px-3 py-6 text-center text-sm text-fg-muted">{t("empty")}</li>}
+        {items?.length === 0 && (
+          <li className="px-3 py-6 text-center text-sm text-fg-muted">{tab === "email" ? t("emptyEmail") : t("empty")}</li>
+        )}
         {items?.map((item) => (
           <li key={item.id} className="relative">
             <button
@@ -137,6 +173,11 @@ export function InboxDialog({
                     <>
                       <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                       <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
+                    </>
+                  ) : item.kind === "row_email" ? (
+                    <>
+                      <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                      <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
                     </>
                   ) : item.pageId === null ? (
                     <>
@@ -187,6 +228,8 @@ export function InboxDialog({
                             ? t("rowUpdate", { actor: item.actorName || t("someone") })
                           : item.kind === "page_updated"
                             ? t("pageUpdated", { actor: item.actorName || t("someone") })
+                          : item.kind === "row_email"
+                            ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })
                           : item.kind === "automation"
                             ? item.reminderDate
                               ? t("automationDatePassed", { name: item.automationName ?? "" })
@@ -195,6 +238,12 @@ export function InboxDialog({
                   {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
                 </span>
                 {item.rowUpdate && <RowUpdateChanges update={item.rowUpdate} />}
+                {item.rowEmail && (
+                  <span className="mt-1 block text-xs leading-5 text-fg-muted">
+                    <bdi className="block truncate text-fg">{item.rowEmail.subject || t("noSubject")}</bdi>
+                    {item.rowEmail.snippet && <bdi className="line-clamp-2 block break-words">{item.rowEmail.snippet}</bdi>}
+                  </span>
+                )}
               </span>
               <time
                 dateTime={new Date(item.createdAt).toISOString()}

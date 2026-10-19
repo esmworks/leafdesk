@@ -130,6 +130,12 @@ export type WorkspaceSettings = {
    * instead of adding them right away.
    */
   joinRequests: "nobody" | "allowed_domains" | "anyone_with_link";
+  /**
+   * Email on database rows (see server/row-mail): members may connect their own mailbox, and mail
+   * whose other party is a row's email address in one of the workspace's mail databases lands on
+   * that row. Off until an owner turns it on.
+   */
+  email: boolean;
 };
 
 export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
@@ -150,6 +156,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   allowedDomainsVerified: [],
   domainJoin: "join",
   joinRequests: "nobody",
+  email: false,
 };
 
 export const workspace = pgTable("workspace", {

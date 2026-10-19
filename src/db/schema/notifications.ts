@@ -5,6 +5,7 @@ import { agentRun } from "./agents";
 import { databaseProperty, page, teamspace, workspace, workspaceJoinRequest } from "./app";
 import { session, user } from "./auth";
 import { databaseAutomation } from "./automations";
+import { rowEmail } from "./mail";
 import { accessRequest } from "./permissions";
 
 /** Account-wide choices that follow the user across browsers (the interface language doesn't). */
@@ -59,6 +60,13 @@ export const userPreference = pgTable("user_preference", {
   /** Show edits to the pages I watch in my inbox. */
   pageUpdateInbox: boolean("page_update_inbox").notNull().default(true),
   /**
+   * Email on database rows (server/row-mail): show mail that lands on my rows in my inbox. No email
+   * goes out about it: the mail itself is in a mailbox already (`rowEmailEmails` is kept for the
+   * shape every kind has, and unused).
+   */
+  rowEmailInbox: boolean("row_email_inbox").notNull().default(true),
+  rowEmailEmails: boolean("row_email_emails").notNull().default(false),
+  /**
    * Push notifications per kind, to the devices that turned them on (see push_subscription). They
    * follow the inbox: a kind turned off there sends no push either, whatever these say, so by
    * default push is on exactly for what shows in the inbox, and each kind can be silenced on its own.
@@ -73,6 +81,7 @@ export const userPreference = pgTable("user_preference", {
   automationPush: boolean("automation_push").notNull().default(true),
   rowUpdatePush: boolean("row_update_push").notNull().default(true),
   pageUpdatePush: boolean("page_update_push").notNull().default(true),
+  rowEmailPush: boolean("row_email_push").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -257,6 +266,7 @@ export const NOTIFICATION_KINDS = [
   "automation",
   "row_update",
   "page_updated",
+  "row_email",
   "agent_approval",
   "agent_memory",
   "agent_report",
@@ -287,7 +297,8 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * `agentRunId` proposed notes for its memory (server/agents/memory.ts); one per owner and run, with
  * no page, gone once no proposal of the run waits any more. "agent_report": agent `actorId`'s run
  * `agentRunId`, which one of its schedules started, finished; it tells the owner who set the
- * schedule what the run did or why it failed, and has no page. Unread ones are dropped when the change is
+ * schedule what the run did or why it failed, and has no page. "row_email": message `rowEmailId`
+ * landed on row `pageId`, through the mailbox of `actorId` (null when it is the user's own). Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */
@@ -343,6 +354,8 @@ export const notification = pgTable(
      * (the inbox checks again), masked like the row's activity.
      */
     changes: jsonb("changes").$type<RowUpdate>(),
+    /** Row email: the message that landed on row `pageId` (received into `actorId`'s mailbox, when not the user's own). */
+    rowEmailId: text("row_email_id").references(() => rowEmail.id, { onDelete: "cascade" }),
   },
   (t) => [
     index("notification_inbox_idx").on(t.userId, t.workspaceId, t.createdAt),
@@ -350,6 +363,7 @@ export const notification = pgTable(
     // Answering a request deletes its notifications through the foreign key.
     index("notification_access_request_idx").on(t.accessRequestId),
     index("notification_agent_run_idx").on(t.agentRunId),
+    index("notification_row_email_idx").on(t.rowEmailId).where(sql`${t.rowEmailId} is not null`),
     index("notification_snoozed_idx").on(t.snoozedUntil).where(sql`${t.snoozedUntil} is not null`),
     // A run that proposes notes tells each owner once.
     uniqueIndex("notification_agent_memory_idx").on(t.agentRunId, t.userId).where(sql`${t.kind} = 'agent_memory'`),

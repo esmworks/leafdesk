@@ -72,6 +72,18 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * MAIL_ALLOWED_HOSTS: mail servers (host names, or host:port) members' mailboxes may be on even
+   * though they are on a private network or a local name, and may talk to without TLS (a mail
+   * server on the same machine or in the office, say); comma-separated. Every other mailbox is
+   * reached only on public addresses, over TLS.
+   */
+  get mailAllowedHosts() {
+    return (process.env.MAIL_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
+  /**
    * CONNECTION_OAUTH_CLIENTS: OAuth apps the instance registered with services of the connection
    * catalog that don't let Leafdesk register itself (Slack, HubSpot…), so owners needn't make their
    * own: `slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID` (see connectionOAuthClientsFrom).
