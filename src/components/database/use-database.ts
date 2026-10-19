@@ -35,6 +35,7 @@ import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfi
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { withoutDeleted } from "@/lib/deleted-schema";
+import { keepUnchanged } from "@/lib/keep-unchanged";
 import type { DependencyInput } from "@/lib/dependencies";
 import { compileFormulas, evaluateRow, mergeResults, relatedSchemasFrom, type CompiledFormula } from "@/lib/derived";
 import { moveGroupValue } from "@/lib/grouping";
@@ -115,7 +116,9 @@ export function useDatabase(
     }
     setLoadError(null);
     setOfflineCopyFrom(null);
-    setSnapshot(res.data);
+    // Rows and schema that didn't change keep their objects, so memoized cards and cells only
+    // redraw where the write landed.
+    setSnapshot((s) => (s ? keepUnchanged(s, res.data) : res.data));
     if (offlineUser) void saveSnapshot(offlineUser, snapshotKey, res.data);
   }, [databaseId, covers, message, offlineUser, snapshotKey]);
 

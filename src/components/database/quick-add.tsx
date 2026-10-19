@@ -56,8 +56,11 @@ export function useQuickAdd(api: DatabaseApi, view: View, properties: Property[]
     [locale, today, active, targets, ignored],
   );
 
-  /** Forgets the parts kept in the title: each new row's title starts without any. */
-  const reset = useCallback(() => setIgnored(new Set()), []);
+  /**
+   * Forgets the parts kept in the title: each new row's title starts without any. With none kept it
+   * changes nothing, so the cards' title callbacks stay the same and the cards don't redraw.
+   */
+  const reset = useCallback(() => setIgnored((old) => (old.size ? new Set() : old)), []);
 
   /** Names the new row `text`: the title without the recognised parts, and their values set. */
   const save = useCallback(
