@@ -44,7 +44,7 @@ import { publishedPageRefs } from "@/server/mentions";
 import { expandSyncedBlocks, syncedSources } from "@/server/synced-blocks";
 import { propertyAccessFor } from "@/server/property-access";
 import { canPublish, publishingOn } from "@/server/workspaces";
-import type { BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { BodyFootnote, BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
 import type { EmbedTarget } from "@/lib/web-blocks";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { env } from "@/lib/env";
@@ -385,6 +385,7 @@ export type PublishedBlock =
   | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
   | { kind: "dashboard"; widgets: PublishedWidget[] }
+  | { kind: "footnotes"; notes: BodyFootnote[] }
   | {
       kind: "embed";
       type: EmbedBlockType;

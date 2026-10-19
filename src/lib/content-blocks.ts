@@ -1,8 +1,8 @@
 import { defaultProps } from "@blocknote/core";
 
 /**
- * Content blocks beyond BlockNote's own: callouts, equations (block and inline), Mermaid diagrams,
- * a table of contents, a breadcrumb and a list of subpages.
+ * Content blocks beyond BlockNote's own: callouts, equations (block and inline), footnotes, Mermaid
+ * diagrams, a table of contents, a breadcrumb and a list of subpages.
  *
  * Like the database blocks (lib/embed-blocks), the configs here are shared by the editor (React
  * specs, components/page/content-blocks.tsx) and the server (plain specs, server/blocknote.ts).
@@ -16,6 +16,7 @@ import { defaultProps } from "@blocknote/core";
 export const CALLOUT_BLOCK = "callout";
 export const MATH_BLOCK = "math";
 export const INLINE_MATH = "inlineMath";
+export const FOOTNOTE = "footnote";
 export const MERMAID_BLOCK = "mermaid";
 export const TOC_BLOCK = "tableOfContents";
 export const BREADCRUMB_BLOCK = "breadcrumb";
@@ -25,7 +26,9 @@ export const DEFAULT_CALLOUT_ICON = "💡";
 
 /**
  * A callout: an icon and text on a colored background. The color is BlockNote's own background
- * color prop (the block menu's "Colors" changes it); new callouts start gray.
+ * color prop (the block menu's "Colors" changes it); new callouts start gray. One hidden in print
+ * shows on screen but is left out of the print view and of whatever the browser prints (BlockNote
+ * writes the prop as `data-hide-in-print`), for notes that shouldn't reach a PDF.
  */
 export const calloutBlockConfig = {
   type: CALLOUT_BLOCK,
@@ -33,6 +36,7 @@ export const calloutBlockConfig = {
     textColor: defaultProps.textColor,
     backgroundColor: defaultProps.backgroundColor,
     icon: { default: DEFAULT_CALLOUT_ICON },
+    hideInPrint: { default: false },
   },
   content: "inline",
 } as const;
@@ -42,6 +46,13 @@ export const mathBlockConfig = { type: MATH_BLOCK, propSchema: {}, content: "pla
 
 /** An equation inside a line of text: its LaTeX source is the node's text. */
 export const inlineMathConfig = { type: INLINE_MATH, propSchema: {}, content: "plain" } as const;
+
+/**
+ * A footnote: a numbered mark in the text whose note is the node's text, so the note travels with
+ * the sentence it belongs to (copied, moved or deleted with it). Numbers aren't stored: footnotes
+ * count in the order the page has them, and the page lists the notes at its end.
+ */
+export const footnoteConfig = { type: FOOTNOTE, propSchema: {}, content: "plain" } as const;
 
 /** A Mermaid diagram: its source is the block's text. */
 export const mermaidBlockConfig = { type: MERMAID_BLOCK, propSchema: {}, content: "plain" } as const;

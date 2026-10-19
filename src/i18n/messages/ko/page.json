@@ -328,7 +328,8 @@
       "title": "콜아웃",
       "subtext": "색상 배경 위에 아이콘과 함께 표시되는 텍스트",
       "aliases": "callout note tip warning alert box 콜아웃 메모 팁 경고 알림 상자",
-      "icon": "아이콘 변경"
+      "icon": "아이콘 변경",
+      "hiddenInPrint": "인쇄 시 숨김"
     },
     "code": {
       "language": "언어",
@@ -349,6 +350,16 @@
       "placeholder": "새 수식",
       "sourcePlaceholder": "x^2",
       "error": "수식 오류"
+    },
+    "footnote": {
+      "title": "각주",
+      "subtext": "페이지 끝에 번호가 매겨진 주석",
+      "aliases": "footnote 각주 주석 출처 인용 참고",
+      "placeholder": "새 각주",
+      "sourcePlaceholder": "주석 내용",
+      "list": "각주",
+      "goTo": "본문의 각주로 이동",
+      "back": "본문으로 돌아가기"
     },
     "mermaid": {
       "title": "Mermaid 다이어그램",
@@ -520,7 +531,8 @@
     "morePages": "페이지 {count}개 더 보기"
   },
   "blockMenu": {
-    "copyLink": "블록 링크 복사"
+    "copyLink": "블록 링크 복사",
+    "hideInPrint": "인쇄 시 숨기기"
   },
   "pdf": {
     "untitled": "PDF",

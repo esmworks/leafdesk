@@ -328,7 +328,8 @@
       "title": "בלוק הדגשה",
       "subtext": "טקסט עם סמל על רקע צבעוני",
       "aliases": "הדגשה הערה טיפ אזהרה התראה תיבה callout note tip warning alert box",
-      "icon": "החלפת הסמל"
+      "icon": "החלפת הסמל",
+      "hiddenInPrint": "מוסתר בהדפסה"
     },
     "code": {
       "language": "שפה",
@@ -349,6 +350,16 @@
       "placeholder": "משוואה חדשה",
       "sourcePlaceholder": "x^2",
       "error": "שגיאה במשוואה"
+    },
+    "footnote": {
+      "title": "הערת שוליים",
+      "subtext": "הערה ממוספרת בסוף העמוד",
+      "aliases": "footnote הערת שוליים הערה מקור ציטוט הפניה",
+      "placeholder": "הערת שוליים חדשה",
+      "sourcePlaceholder": "טקסט ההערה",
+      "list": "הערות שוליים",
+      "goTo": "מעבר להערה בטקסט",
+      "back": "חזרה לטקסט"
     },
     "mermaid": {
       "title": "תרשים Mermaid",
@@ -520,7 +531,8 @@
     "morePages": "{count, plural, one {הצגת עוד דף אחד} two {הצגת עוד שני דפים} other {הצגת עוד # דפים}}"
   },
   "blockMenu": {
-    "copyLink": "העתקת קישור לבלוק"
+    "copyLink": "העתקת קישור לבלוק",
+    "hideInPrint": "הסתרה בהדפסה"
   },
   "pdf": {
     "untitled": "PDF",

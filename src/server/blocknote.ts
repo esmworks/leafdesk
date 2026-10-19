@@ -15,6 +15,7 @@ import katex from "katex";
 import {
   breadcrumbBlockConfig,
   calloutBlockConfig,
+  footnoteConfig,
   inlineMathConfig,
   KATEX_OPTIONS,
   mathBlockConfig,
@@ -23,7 +24,7 @@ import {
   tocBlockConfig,
 } from "@/lib/content-blocks";
 import { columnBlockSpecs, groupColumns } from "@/lib/columns";
-import { finishMarkdownImport, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
+import { finishMarkdownImport, footnoteMarkdown, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
 import {
   carryOverMentions,
   mentionConfig,
@@ -132,6 +133,19 @@ const inlineMath = createInlineContentSpec(inlineMathConfig, {
 });
 
 /**
+ * A footnote on the server: its note as the node's text. In HTML it is a mark holding the note,
+ * which published pages number and list at the end (see published-body.ts).
+ */
+const footnote = createInlineContentSpec(footnoteConfig, {
+  meta: { code: true },
+  render: () => {
+    const dom = document.createElement("span");
+    dom.setAttribute("data-leafdesk-footnote", "");
+    return { dom, contentDOM: dom };
+  },
+});
+
+/**
  * A mention on the server: people and dates as their text, pages as nothing (their title isn't the
  * mention's to show). Published pages resolve mentions before serializing (see published-body.ts).
  */
@@ -159,7 +173,7 @@ export const pageSchema = BlockNoteSchema.create({
     syncedBlock: createBlockSpec(syncedBlockConfig, marker("syncedBlock"))(),
     ...columnBlockSpecs(),
   },
-  inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, mention },
+  inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, footnote, mention },
   styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs },
 });
 
@@ -222,8 +236,9 @@ async function parseMarkdown(markdown: string, context: MentionContext): Promise
 /**
  * Blocks for Markdown written into a page (MCP, new pages), given the page's current blocks.
  * Reference lines become database blocks; see mergeReferencedBlocks for what carries over. Column
- * markers become column lists (lib/columns groupColumns). People
- * and dates mentioned before keep their mention's identity (see carryOverMentions).
+ * markers become column lists (lib/columns groupColumns), and footnotes come back with their notes
+ * (lib/content-markdown footnoteMarkdown). People and dates mentioned before keep their mention's
+ * identity (see carryOverMentions).
  */
 export async function markdownToBlocks(
   markdown: string,
@@ -238,13 +253,15 @@ export async function markdownToBlocks(
     carryOver?: boolean;
   } & MentionContext = {},
 ): Promise<PageBlock[]> {
+  // Footnotes first: their notes sit at the end, apart from the blocks that refer to them.
+  const notes = footnoteMarkdown(markdown, randomBytes(6).toString("hex"));
   // A synced block's blocks are never written from Markdown: only its begin line counts.
   const parts = await Promise.all(
-    splitMarkdownReferences(collapseSyncedRegions(markdown)).map(async (part) =>
+    splitMarkdownReferences(collapseSyncedRegions(notes.markdown)).map(async (part) =>
       "markdown" in part ? { blocks: await parseMarkdown(part.markdown, context) } : part,
     ),
   );
-  const blocks = groupColumns(mergeReferencedBlocks(parts, existing, { keepMissingInline }));
+  const blocks = groupColumns(notes.restore(mergeReferencedBlocks(parts, existing, { keepMissingInline })));
   if (keepMissingInline && context.pageId) blocks.push(...missingSources(blocks, existing, context.pageId));
   carryOverMentions(blocks, carryOver ? existing : []);
   // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines

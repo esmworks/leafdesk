@@ -158,10 +158,21 @@ describe("reading a Word document", () => {
     expect(shape(blocks.slice(1))).toEqual(["paragraph: Mixed code"]);
   });
 
-  it("adds footnotes at the end as a list", async () => {
-    const { blocks } = await read(docx({ body: paragraph([run("Claim"), footnoteReference(1)]), footnotes: ["The source."] }));
-    expect(shape(blocks)).toEqual(["paragraph: Claim[1]", "numberedListItem: The source."]);
-    // The reference keeps its superscript but not its in-page link, and the back link is gone.
+  it("turns footnotes into the page's footnotes, each holding its note", async () => {
+    const { blocks } = await read(
+      docx({
+        body: paragraph([run("Claim"), footnoteReference(1), run(" and more"), footnoteReference(2)]),
+        footnotes: ["The source & co.", "Second <one>."],
+      }),
+    );
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].content).toEqual([
+      { type: "text", text: "Claim", styles: {} },
+      { type: "footnote", props: {}, content: "The source & co." },
+      { type: "text", text: " and more", styles: {} },
+      { type: "footnote", props: {}, content: "Second <one>." },
+    ]);
+    // No list of notes at the end, no in-page links and no back links.
     expect(JSON.stringify(blocks)).not.toContain("#footnote");
     expect(JSON.stringify(blocks)).not.toContain("↑");
   });

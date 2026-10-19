@@ -328,7 +328,8 @@
       "title": "Bilgi kutusu",
       "subtext": "Renkli arka plan üzerinde simgeli metin",
       "aliases": "callout bilgi kutusu not ipucu uyarı kutu",
-      "icon": "Simgeyi değiştir"
+      "icon": "Simgeyi değiştir",
+      "hiddenInPrint": "Yazdırırken gizli"
     },
     "code": {
       "language": "Dil",
@@ -349,6 +350,16 @@
       "placeholder": "Yeni denklem",
       "sourcePlaceholder": "x^2",
       "error": "Denklem hatası"
+    },
+    "footnote": {
+      "title": "Dipnot",
+      "subtext": "Sayfanın sonunda numaralı bir not",
+      "aliases": "footnote dipnot not kaynak atıf referans",
+      "placeholder": "Yeni dipnot",
+      "sourcePlaceholder": "Not metni",
+      "list": "Dipnotlar",
+      "goTo": "Metindeki dipnota git",
+      "back": "Metne dön"
     },
     "mermaid": {
       "title": "Mermaid diyagramı",
@@ -520,7 +531,8 @@
     "morePages": "{count} sayfa daha göster"
   },
   "blockMenu": {
-    "copyLink": "Bloğun bağlantısını kopyala"
+    "copyLink": "Bloğun bağlantısını kopyala",
+    "hideInPrint": "Yazdırırken gizle"
   },
   "pdf": {
     "untitled": "PDF",

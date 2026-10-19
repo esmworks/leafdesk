@@ -328,7 +328,8 @@
       "title": "Encadré",
       "subtext": "Du texte avec une icône sur un fond coloré",
       "aliases": "callout note tip warning alert box encadré astuce avertissement alerte bloc",
-      "icon": "Changer l’icône"
+      "icon": "Changer l’icône",
+      "hiddenInPrint": "Masqué à l’impression"
     },
     "code": {
       "language": "Langage",
@@ -349,6 +350,16 @@
       "placeholder": "Nouvelle équation",
       "sourcePlaceholder": "x^2",
       "error": "Erreur d’équation"
+    },
+    "footnote": {
+      "title": "Note de bas de page",
+      "subtext": "Une note numérotée en fin de page",
+      "aliases": "footnote note bas de page source citation référence",
+      "placeholder": "Nouvelle note",
+      "sourcePlaceholder": "Texte de la note",
+      "list": "Notes",
+      "goTo": "Aller à la note dans le texte",
+      "back": "Retour au texte"
     },
     "mermaid": {
       "title": "Diagramme Mermaid",
@@ -520,7 +531,8 @@
     "morePages": "{count, plural, one {Afficher # autre page} other {Afficher # autres pages}}"
   },
   "blockMenu": {
-    "copyLink": "Copier le lien vers le bloc"
+    "copyLink": "Copier le lien vers le bloc",
+    "hideInPrint": "Masquer à l’impression"
   },
   "pdf": {
     "untitled": "PDF",

@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Footnotes.** `/footnote` puts a number in the text and opens its note; hovering the number
+  shows the note. Notes are plain text, and footnotes count in the order the page has them. The
+  page lists its notes under the body (a number there goes to its place in the text), and
+  published pages and the PDF list them at the end, linked both ways. Markdown, MCP and the API
+  read and write them as `[^1]` with `[^1]: The note.` lines at the end. Word footnotes and
+  endnotes import as footnotes instead of a list at the end of the page.
+- **Callouts hidden when printing.** *Hide when printing* in a callout's block menu keeps it on
+  screen and leaves it out of the PDF and of what the browser prints, for notes that shouldn't
+  reach a printout. The callout shows a small mark while it is hidden. In Markdown it is the line
+  `<!-- leafdesk:no-print -->` right before the callout.
+
 - **Email on database rows.** Owners turn it on in Settings → Email and pick the databases mail
   lands on, in order, with the email properties that hold addresses; each member connects their
   own mailbox for that workspace (Google Workspace and Gmail, Yandex, Zoho or any IMAP and SMTP

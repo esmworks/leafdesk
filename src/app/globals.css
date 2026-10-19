@@ -762,6 +762,45 @@
   flex: 1;
   min-width: 0;
 }
+/* A callout hidden in print says so on screen, and is left out of what the browser prints. */
+.leafdesk-callout-print {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 1.75rem;
+  color: var(--fg-faint);
+  user-select: none;
+}
+@media print {
+  .bn-block:has(> .bn-block-content[data-hide-in-print="true"]) {
+    display: none;
+  }
+}
+
+/*
+ * Footnotes (components/page/content-blocks.tsx) count in the order the editor shows them. Each
+ * editor counts its own: a synced page or block inside a page numbers its notes apart.
+ */
+.bn-editor {
+  counter-reset: leafdesk-footnote;
+}
+.leafdesk-footnote-ref {
+  counter-increment: leafdesk-footnote;
+  padding-inline: 1px;
+  color: var(--accent);
+  font-size: 0.75em;
+  font-weight: 500;
+}
+.leafdesk-footnote-ref::after {
+  content: counter(leafdesk-footnote);
+}
+.bn-editor[contenteditable="true"] .leafdesk-footnote-ref {
+  cursor: pointer;
+}
+/* A note is prose, not source code: the popup writes it in the page's typeface. */
+[data-inline-content-type="footnote"] .bn-source-block-popup :is(pre, code) {
+  font-family: var(--page-font, inherit);
+}
 
 /*
  * Writing direction in the editor. Each block of text carries its own `dir` (block-direction.ts),

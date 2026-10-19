@@ -38,7 +38,7 @@ import { THREADS_MAP, type CommentAnchor } from "@/lib/comments";
 import { CommentsPanel } from "./comments-panel";
 import { CommentAuth, ServerThreadStore } from "./comment-store";
 import { useColumnSlashItems } from "./columns";
-import { PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
+import { FootnoteList, PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
 import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
 import { writePageStyle } from "@/lib/page-style";
 import { PAGE_LINK_BLOCK, SYNCED_PAGE_BLOCK } from "@/lib/mentions";
@@ -303,6 +303,8 @@ export default function CollabEditor({
               )}
               {commentsOpen && <CommentsPanel onClose={onCloseComments} />}
             </BlockNoteView>
+            {/* A synced page's notes are listed on its own page. */}
+            {!nested && <FootnoteList editor={editor} />}
           </DirectionProvider>
           {assistant.panel}
           {voiceNote.dialog}

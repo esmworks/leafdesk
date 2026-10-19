@@ -182,8 +182,37 @@ export async function docxToHtml(name: string, data: Uint8Array): Promise<{ html
 
 /** The links mammoth adds from each footnote back to where it is referenced: nowhere to go on a page. */
 const BACK_LINK = /\s*<a href="#(?:footnote|endnote)-ref-[^"]*">↑<\/a>/g;
-/** The space Word writes between a note's number (which mammoth leaves out) and its text. */
-const NOTE_START = /(<li id="(?:footnote|endnote)-[^"]*"><p>)\s+/g;
+/** A footnote's or endnote's note, in the list mammoth writes at the end of the document. */
+const NOTE_ITEM = /<li id="((?:footnote|endnote)-[^"]*)">([\s\S]*?)<\/li>/g;
+/** Where the text refers to a note: its number, linking to the note. */
+const NOTE_REFERENCE = /<sup><a href="#((?:footnote|endnote)-[^"]*)" id="(?:footnote|endnote)-ref-[^"]*">[^<]*<\/a><\/sup>/g;
+
+/**
+ * Word's footnotes and endnotes as the page's footnotes: each reference becomes a footnote holding
+ * its note (in the editor's own HTML for one, see lib/content-blocks), and the list of notes at the
+ * end goes. A note's text is kept as text: its formatting and links don't fit in a footnote.
+ */
+function notesInPlace(html: string): string {
+  const notes = new Map<string, string>();
+  const listed = html.replace(NOTE_ITEM, (_, id: string, inner: string) => {
+    // mammoth escapes the text, so without the tags what is left is still HTML text.
+    const text = inner
+      .replace(BACK_LINK, "")
+      .replace(/<\/p>\s*<p>/g, " ")
+      .replace(/<[^>]*>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    notes.set(id, text);
+    return "";
+  });
+  return listed
+    .replace(/<ol>\s*<\/ol>/g, "")
+    .replace(NOTE_REFERENCE, (reference, id: string) => {
+      const note = notes.get(id);
+      return note ? `<span data-inline-content-type="footnote">${note}</span>` : reference;
+    })
+    .replace(BACK_LINK, "");
+}
 
 const count = (blocks: PageBlock[]): number => blocks.reduce((sum, b) => sum + 1 + count(b.children ?? []), 0);
 
@@ -194,7 +223,7 @@ const count = (blocks: PageBlock[]): number => blocks.reduce((sum, b) => sum + 1
 export async function docxBlocks(name: string, html: string): Promise<{ title: string | null; blocks: PageBlock[] }> {
   let parsed: PageBlock[];
   try {
-    parsed = (await serverEditor.tryParseHTMLToBlocks(html.replace(BACK_LINK, "").replace(NOTE_START, "$1"))) as PageBlock[];
+    parsed = (await serverEditor.tryParseHTMLToBlocks(notesInPlace(html))) as PageBlock[];
   } catch {
     throw new ImportError(`“${name}” can't be read as a Word document`, "badDocx", { name });
   }

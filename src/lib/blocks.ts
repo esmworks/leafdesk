@@ -1,3 +1,4 @@
+import { FOOTNOTE } from "./content-blocks";
 import { MENTION, mentionPlainText } from "./mentions";
 
 /** Minimal structural view of BlockNote blocks; enough to extract searchable text. */
@@ -20,6 +21,8 @@ function inlineText(nodes: InlineNode[] | string | undefined, pageText?: PageMen
   return nodes
     .map((n) => {
       if (typeof n.text === "string") return n.text;
+      // A footnote's note is set apart from the sentence it marks, so their words don't run together.
+      if (n.type === FOOTNOTE) return ` ${inlineText(n.content, pageText)} `;
       if (n.type !== MENTION) return inlineText(n.content, pageText);
       const props = n.props as { kind?: unknown; pageId?: unknown } | undefined;
       if (pageText && props?.kind === "page" && typeof props.pageId === "string") return pageText(props.pageId);
