@@ -16,7 +16,8 @@
     "templates": "Modelos",
     "import": "Importar",
     "graph": "Grafo",
-    "skills": "Habilidades"
+    "skills": "Habilidades",
+    "more": "Mais"
   },
   "toggle": {
     "open": "Abrir barra lateral",

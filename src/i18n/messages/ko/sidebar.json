@@ -16,7 +16,8 @@
     "templates": "템플릿",
     "import": "가져오기",
     "graph": "그래프",
-    "skills": "스킬"
+    "skills": "스킬",
+    "more": "더 보기"
   },
   "toggle": {
     "open": "사이드바 열기",

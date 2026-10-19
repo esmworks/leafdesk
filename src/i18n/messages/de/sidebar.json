@@ -16,7 +16,8 @@
     "templates": "Vorlagen",
     "import": "Importieren",
     "graph": "Graph",
-    "skills": "Skills"
+    "skills": "Skills",
+    "more": "Mehr"
   },
   "toggle": {
     "open": "Seitenleiste öffnen",

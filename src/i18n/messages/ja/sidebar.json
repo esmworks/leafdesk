@@ -16,7 +16,8 @@
     "templates": "テンプレート",
     "import": "インポート",
     "graph": "グラフ",
-    "skills": "スキル"
+    "skills": "スキル",
+    "more": "その他"
   },
   "toggle": {
     "open": "サイドバーを開く",

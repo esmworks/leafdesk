@@ -16,7 +16,8 @@
     "templates": "Şablonlar",
     "import": "İçe aktar",
     "graph": "Grafik",
-    "skills": "Beceriler"
+    "skills": "Beceriler",
+    "more": "Diğer"
   },
   "toggle": {
     "open": "Kenar çubuğunu aç",

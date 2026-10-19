@@ -16,7 +16,8 @@
     "templates": "模板",
     "import": "导入",
     "graph": "关系图",
-    "skills": "技能"
+    "skills": "技能",
+    "more": "更多"
   },
   "toggle": {
     "open": "打开侧边栏",

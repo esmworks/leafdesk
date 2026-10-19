@@ -1063,67 +1063,9 @@ export function Sidebar({
             <kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">⌘K</kbd>
           </button>
           <div className="mt-1.5 space-y-px">
-            <div className="group/home flex items-center gap-0.5">
-              <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
-                {t("nav.home")}
-              </SidebarButton>
-              {/* The people directory, like the members list, isn't for guests. */}
-              {!guest && (
-                <Link
-                  href={`/w/${workspaceId}/people`}
-                  aria-label={t("nav.people")}
-                  title={t("nav.people")}
-                  aria-current={pathname === `/w/${workspaceId}/people` ? "page" : undefined}
-                  className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
-                    pathname === `/w/${workspaceId}/people` && "bg-bg-active text-fg",
-                  )}
-                >
-                  <Users className="h-4 w-4" />
-                </Link>
-              )}
-              {/* The skills library: guests see the skills shared with them. */}
-              {!offline && (
-                <Link
-                  href={`/w/${workspaceId}/skills`}
-                  aria-label={t("nav.skills")}
-                  title={t("nav.skills")}
-                  aria-current={pathname === `/w/${workspaceId}/skills` ? "page" : undefined}
-                  className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
-                    pathname === `/w/${workspaceId}/skills` && "bg-bg-active text-fg",
-                  )}
-                >
-                  <ScrollText className="h-4 w-4" />
-                </Link>
-              )}
-              {/* The full-page AI chat sits beside Home as an icon, keeping the list above the pages short. */}
-              {aiChat &&
-                (offline ? (
-                  <button
-                    type="button"
-                    disabled
-                    aria-label={tAi("open")}
-                    title={needsServer(tAi("open"))}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted opacity-50"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </button>
-                ) : (
-                  <Link
-                    href={chatPath(workspaceId)}
-                    aria-label={tAi("open")}
-                    title={tAi("open")}
-                    aria-current={onChatPage ? "page" : undefined}
-                    className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
-                      onChatPage && "bg-bg-active text-fg",
-                    )}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </Link>
-                ))}
-            </div>
+            <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
+              {t("nav.home")}
+            </SidebarButton>
             {/* Daily notes are private top-level pages, so only for those who may add them. */}
             {topLevel && (
               <DailyNotesCalendarButton
@@ -1142,6 +1084,17 @@ export function Sidebar({
                 }
               />
             )}
+            {/* The full-page AI chat; the people directory and skills are in the footer's "More" menu. */}
+            {aiChat &&
+              (offline ? (
+                <SidebarButton icon={<Sparkles className="h-4 w-4" />} disabled title={needsServer(tAi("open"))}>
+                  {tAi("open")}
+                </SidebarButton>
+              ) : (
+                <SidebarButton icon={<Sparkles className="h-4 w-4" />} href={chatPath(workspaceId)} active={onChatPage}>
+                  {tAi("open")}
+                </SidebarButton>
+              ))}
             {dailyNoteError && (
               <p role="alert" className="px-2 text-xs text-danger">
                 {dailyNoteError}
@@ -1189,36 +1142,83 @@ export function Sidebar({
             href={`/w/${workspaceId}/settings`}
             active={pathname.startsWith(`/w/${workspaceId}/settings`)}
           />
-          {/* Templates live here rather than in the page tree; making pages from them needs the top level. */}
-          {topLevel && (
-            <FooterButton
-              icon={<LayoutTemplate className="h-4 w-4" />}
-              label={t("nav.templates")}
-              onClick={() => openTemplates(undefined)}
-              disabled={offline}
-              title={needsServer(t("nav.templates"))}
-            />
-          )}
-          <FooterButton
-            icon={<SlidersHorizontal className="h-4 w-4" />}
-            label={t("customize.open")}
-            onClick={() => setCustomizing(!customizing)}
-            active={customizing}
-          />
-          <FooterButton
-            icon={<Upload className="h-4 w-4" />}
-            label={t("nav.import")}
-            onClick={() => openImport(undefined)}
-            disabled={offline}
-            title={needsServer(t("nav.import"))}
-          />
           <FooterButton
             icon={<Trash2 className="h-4 w-4" />}
             label={t("nav.trash")}
             onClick={() => setTrashOpen(true)}
             disabled={offline}
-            title={needsServer(t("nav.trash"))}
+            title={offline ? needsServer(t("nav.trash")) : undefined}
           />
+          {/* What is opened now and then: named in a menu rather than as a row of bare icons. */}
+          <Popover
+            side="top"
+            align="end"
+            wrapperClassName="ms-auto"
+            trigger={({ open, toggle }) => (
+              <IconButton
+                label={t("nav.more")}
+                onClick={toggle}
+                aria-expanded={open}
+                className={cn("h-8 w-8 rounded-md", (open || customizing) && "bg-bg-active text-fg")}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </IconButton>
+            )}
+          >
+            {(close) => {
+              const go = (run: () => void) => () => {
+                close();
+                run();
+              };
+              return (
+                <>
+                  {/* The people directory, like the members list, isn't for guests. */}
+                  {!guest && (
+                    <MenuItem
+                      icon={<Users className="h-4 w-4" />}
+                      active={pathname === `/w/${workspaceId}/people`}
+                      onClick={go(() => router.push(`/w/${workspaceId}/people`))}
+                    >
+                      {t("nav.people")}
+                    </MenuItem>
+                  )}
+                  {/* The skills library: guests see the skills shared with them. */}
+                  <MenuItem
+                    icon={<ScrollText className="h-4 w-4" />}
+                    active={pathname === `/w/${workspaceId}/skills`}
+                    disabled={offline}
+                    title={offline ? needsServer(t("nav.skills")) : undefined}
+                    onClick={go(() => router.push(`/w/${workspaceId}/skills`))}
+                  >
+                    {t("nav.skills")}
+                  </MenuItem>
+                  <MenuSeparator />
+                  {/* Templates live here rather than in the page tree; making pages from them needs the top level. */}
+                  {topLevel && (
+                    <MenuItem
+                      icon={<LayoutTemplate className="h-4 w-4" />}
+                      disabled={offline}
+                      title={offline ? needsServer(t("nav.templates")) : undefined}
+                      onClick={go(() => openTemplates(undefined))}
+                    >
+                      {t("nav.templates")}
+                    </MenuItem>
+                  )}
+                  <MenuItem
+                    icon={<Upload className="h-4 w-4" />}
+                    disabled={offline}
+                    title={offline ? needsServer(t("nav.import")) : undefined}
+                    onClick={go(() => openImport(undefined))}
+                  >
+                    {t("nav.import")}
+                  </MenuItem>
+                  <MenuItem icon={<SlidersHorizontal className="h-4 w-4" />} pressed={customizing} onClick={go(() => setCustomizing(!customizing))}>
+                    {t("customize.open")}
+                  </MenuItem>
+                </>
+              );
+            }}
+          </Popover>
         </div>
       </aside>
       {/* Outside the aside: its slide transform would otherwise anchor these fixed dialogs. */}
@@ -1243,6 +1243,9 @@ export function Sidebar({
                 { id: "graph", label: t("nav.graph"), icon: <Waypoints className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/graph`) },
                 { id: "skills", label: t("nav.skills"), icon: <ScrollText className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/skills`) },
               ]
+            : []),
+          ...(!guest
+            ? [{ id: "people", label: t("nav.people"), icon: <Users className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/people`) }]
             : []),
           { id: "inbox", label: t("nav.inbox"), icon: <Inbox className="h-4 w-4" />, run: () => setInboxOpen(true) },
           { id: "settings", label: t("nav.settings"), icon: <Settings className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/settings`) },
@@ -1676,7 +1679,7 @@ function SidebarButton({
   );
 }
 
-/** An icon in the sidebar's bottom bar; its name shows as a tooltip. */
+/** A named button in the sidebar's bottom bar. */
 function FooterButton({
   icon,
   label,
@@ -1692,21 +1695,27 @@ function FooterButton({
   onClick?: () => void;
   active?: boolean;
   disabled?: boolean;
-  /** Tooltip instead of the label, e.g. why it is disabled. */
+  /** Tooltip, e.g. why it is disabled. */
   title?: string;
 }) {
   const className = cn(
-    "flex h-8 w-8 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg",
+    "flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-fg-muted hover:bg-bg-hover hover:text-fg",
     "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg-muted",
     active && "bg-bg-active text-fg hover:bg-bg-active",
   );
+  const content = (
+    <>
+      <span className="shrink-0">{icon}</span>
+      <span className="truncate">{label}</span>
+    </>
+  );
   return href ? (
-    <Link href={href} aria-label={label} title={title ?? label} aria-current={active ? "page" : undefined} className={className}>
-      {icon}
+    <Link href={href} title={title} aria-current={active ? "page" : undefined} className={className}>
+      {content}
     </Link>
   ) : (
-    <button type="button" aria-label={label} title={title ?? label} onClick={onClick} disabled={disabled} className={className}>
-      {icon}
+    <button type="button" title={title} onClick={onClick} disabled={disabled} className={className}>
+      {content}
     </button>
   );
 }

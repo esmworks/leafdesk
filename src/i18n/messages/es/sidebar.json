@@ -16,7 +16,8 @@
     "templates": "Plantillas",
     "import": "Importar",
     "graph": "Grafo",
-    "skills": "Habilidades"
+    "skills": "Habilidades",
+    "more": "Más"
   },
   "toggle": {
     "open": "Abrir barra lateral",

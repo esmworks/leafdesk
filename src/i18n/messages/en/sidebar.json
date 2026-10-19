@@ -16,7 +16,8 @@
     "templates": "Templates",
     "import": "Import",
     "graph": "Graph",
-    "skills": "Skills"
+    "skills": "Skills",
+    "more": "More"
   },
   "toggle": {
     "open": "Open sidebar",

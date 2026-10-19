@@ -16,7 +16,8 @@
     "templates": "Szablony",
     "import": "Importuj",
     "graph": "Graf",
-    "skills": "Umiejętności"
+    "skills": "Umiejętności",
+    "more": "Więcej"
   },
   "toggle": {
     "open": "Otwórz pasek boczny",
