@@ -21,6 +21,11 @@
   its answer. Files already stored stay where they are, also when the workspace disconnects or
   switches buckets; deleting the workspace deletes them from every bucket. Endpoints are reached
   only over https on public addresses; `STORAGE_ALLOWED_HOSTS` lists storage on a private network.
+- **Google Drive and Dropbox as a workspace's storage.** Owners can also sign in to Google Drive or
+  Dropbox in Settings → Storage. Drive files go in a folder Leafdesk makes (the `drive.file` scope:
+  it sees nothing else), Dropbox files in the app's own folder. Expired sign-ins are refreshed and
+  kept; a revoked one shows the storage as not working until someone signs in again. The server's
+  administrator registers the apps once (`STORAGE_GDRIVE_*`, `STORAGE_DROPBOX_*`).
 - **Excel workbooks show in place.** An .xlsx file in a page shows its cells read-only, with the
   sheet's row numbers and column letters and a tab for each sheet (the first 200 rows and 40
   columns of a sheet; workbooks up to 10 MB). Published pages show them too. *Turn into a

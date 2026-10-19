@@ -1,13 +1,11 @@
 import type { LookupAddress } from "node:dns";
-import { request as httpRequest, type RequestOptions } from "node:http";
-import { request as httpsRequest } from "node:https";
 import { isIP } from "node:net";
-import type { Readable } from "node:stream";
 import { AwsClient, AwsV4Signer } from "aws4fetch";
 import { Agent, fetch as undiciFetch, type Dispatcher, type RequestInit as UndiciRequestInit } from "undici";
 import { guardedLookup } from "../connections/fetch";
 import { isBlockedAddress } from "../ssrf";
 import { assertKey, keyOf, StorageError, type StorageDriver } from "./driver";
+import { sendStream } from "./stream-upload";
 
 export type S3Config = {
   bucket: string;
@@ -160,7 +158,13 @@ export function s3Driver(config: S3Config): StorageDriver {
       });
       const signed = await signer.sign();
       // A fresh connection through the guarded lookup: never a pooled one made without the check.
-      await sendStream(signed.url, signed.headers, body, guarded ? { agent: false, lookup: guardedLookup(config.guard!.resolve) as never } : {});
+      const answer = await sendStream(signed.url, { method: "PUT", headers: Object.fromEntries(signed.headers.entries()) }, body, {
+        what: "S3 PUT",
+        ...(guarded ? { agent: false, lookup: guardedLookup(config.guard!.resolve) as never } : {}),
+      });
+      if (answer.status < 200 || answer.status >= 300) {
+        throw new StorageError(`S3 PUT failed: ${answer.status} ${describeError(answer.body.slice(0, 2000))}`, answer.status);
+      }
     },
 
     async get(ref, range) {
@@ -211,40 +215,4 @@ async function snippet(res: Response, limit = 300): Promise<string> {
     await reader.cancel().catch(() => undefined);
   }
   return Buffer.concat(chunks).toString("utf8").slice(0, limit);
-}
-
-/**
- * PUTs a stream with the signed headers. Node's http client, not fetch: S3 wants a Content-Length
- * on uploads (it refuses chunked bodies), which fetch won't set for a stream.
- */
-function sendStream(url: URL, headers: Headers, body: Readable, options: Pick<RequestOptions, "agent" | "lookup">): Promise<void> {
-  return new Promise((resolvePut, reject) => {
-    const send = url.protocol === "https:" ? httpsRequest : httpRequest;
-    const req = send(url, { method: "PUT", headers: Object.fromEntries(headers.entries()), ...options }, (res) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk: Buffer) => {
-        if (Buffer.concat(chunks).length < 2000) chunks.push(chunk);
-      });
-      res.on("end", () => {
-        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) resolvePut();
-        else {
-          const status = res.statusCode ?? 0;
-          reject(new StorageError(`S3 PUT failed: ${status} ${describeError(Buffer.concat(chunks).toString("utf8").slice(0, 2000))}`, status));
-        }
-      });
-      res.on("error", reject);
-    });
-    // The body's own failure (a file that couldn't be read) is no fault of the storage's.
-    let bodyError: Error | null = null;
-    req.setTimeout(5 * 60 * 1000, () => req.destroy(new StorageError("S3 PUT timed out")));
-    req.on("error", (error) => {
-      if (bodyError || error instanceof StorageError) reject(bodyError ?? error);
-      else reject(new StorageError(`S3 PUT failed: ${error.message}`, null, { cause: error }));
-    });
-    body.on("error", (error) => {
-      bodyError = error;
-      req.destroy(error);
-    });
-    body.pipe(req);
-  });
 }

@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { S3StorageInput, StorageSettingsView } from "@/lib/workspace-storage";
 import { AccessError } from "@/server/access";
-import { connectStorage, disconnectStorage, retestStorage, StorageSettingsError, testStorage } from "@/server/storage/settings";
+import { beginStorageOAuth, connectStorage, disconnectStorage, retestStorage, StorageSettingsError, testStorage } from "@/server/storage/settings";
 import { requireUserId } from "@/server/session";
 
 // Settings > Storage (see server/storage/settings.ts), for owners. Expected failures come back
@@ -36,6 +36,11 @@ export async function testStorageAction(workspaceId: string, kind: string, input
 
 export async function connectStorageAction(workspaceId: string, kind: string, input: S3StorageInput): Promise<ActionResult<StorageSettingsView>> {
   return run((userId) => connectStorage(userId, workspaceId, kind, input));
+}
+
+/** Begins signing in to Google Drive or Dropbox: the address to send the browser to. */
+export async function beginStorageOAuthAction(workspaceId: string, kind: string): Promise<ActionResult<{ url: string }>> {
+  return run((userId) => beginStorageOAuth(userId, workspaceId, kind));
 }
 
 export async function retestStorageAction(workspaceId: string): Promise<ActionResult<StorageSettingsView>> {

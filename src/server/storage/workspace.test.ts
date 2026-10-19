@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
   updates: [] as Record<string, unknown>[],
   made: [] as unknown[],
   driver: null as unknown,
+  sessions: [] as { kind: string; credentials: unknown; persist?: (credentials: unknown) => Promise<void> }[],
 }));
 
 vi.mock("@/db", () => {
@@ -26,19 +27,39 @@ vi.mock("@/db", () => {
       delete: () => chain(),
       update: () => ({
         set: (values: Record<string, unknown>) => ({
-          where: async () => {
+          where: () => {
             state.updates.push(values);
+            return Object.assign(Promise.resolve(), { returning: async () => [{ id: "target-1" }] });
           },
         }),
       }),
     },
   };
 });
-vi.mock("@/server/secret-box", () => ({ openJson: (sealed: string) => JSON.parse(sealed) }));
+vi.mock("@/server/secret-box", () => ({ openJson: (sealed: string) => JSON.parse(sealed), sealJson: (value: unknown) => JSON.stringify(value) }));
 vi.mock("./s3", () => ({
   s3Driver: (config: unknown) => {
     state.made.push(config);
     return state.driver;
+  },
+}));
+vi.mock("./gdrive", () => ({
+  gdriveDriver: (config: { folderId: string }) => {
+    state.made.push({ kind: "gdrive", folderId: config.folderId });
+    return state.driver;
+  },
+}));
+vi.mock("./dropbox", () => ({
+  dropboxDriver: () => {
+    state.made.push({ kind: "dropbox" });
+    return state.driver;
+  },
+}));
+vi.mock("./oauth-session", () => ({
+  OAUTH_PROVIDERS: { gdrive: { name: "Google Drive" }, dropbox: { name: "Dropbox" } },
+  oauthSession: (kind: string, _app: unknown, credentials: unknown, options: { persist?: (credentials: unknown) => Promise<void> }) => {
+    state.sessions.push({ kind, credentials, persist: options.persist });
+    return {};
   },
 }));
 
@@ -78,6 +99,7 @@ beforeEach(() => {
   state.rows = [];
   state.updates = [];
   state.made = [];
+  state.sessions = [];
   state.driver = fakeDriver(async () => null);
   setStorage(instance);
   vi.stubEnv("UPLOAD_WORKSPACE_QUOTA_MB", "1");
@@ -102,18 +124,22 @@ describe("storageFor", () => {
     expect(upload.storageId).toBe("target-1");
     expect(upload.quotaBytes).toBe(Infinity);
     expect(upload.driver.kind).toBe("s3");
+    // Made on its first request.
+    expect(state.made).toEqual([]);
+    await upload.driver.get("ws-1/abc");
     expect(state.made).toEqual([
       expect.objectContaining({ bucket: "files", endpoint: "https://s.example.com", accessKeyId: "key", guard: { allowedHosts: ["minio:9000"] } }),
     ]);
   });
 
   it("makes a target's driver once, and again when its keys change", async () => {
+    const read = async () => (await storageFor("ws-1")).driver.get("ws-1/abc");
     state.rows = [target()];
-    await storageFor("ws-1");
-    await storageFor("ws-1");
+    await read();
+    await read();
     expect(state.made).toHaveLength(1);
     state.rows = [target({ credentials: JSON.stringify({ accessKeyId: "new", secretAccessKey: "secret" }) })];
-    await storageFor("ws-1");
+    await read();
     expect(state.made).toHaveLength(2);
   });
 });
@@ -162,6 +188,48 @@ describe("a workspace's storage", () => {
     state.rows = [target()];
     await (await storageOf({ storageId: "target-1" })).delete("ws-1/abc");
     expect(state.updates).toEqual([]);
+  });
+});
+
+describe("Drive and Dropbox targets", () => {
+  const drive = (over: Record<string, unknown> = {}) =>
+    target({
+      kind: "gdrive",
+      config: { accountId: "perm-1", account: "owner@example.com", folderId: "folder-1", folderName: "Leafdesk (Acme)" },
+      credentials: JSON.stringify({ refreshToken: "refresh", accessToken: "a", expiresAt: 1 }),
+      ...over,
+    });
+
+  it("are driven in their folder, signed in as the server's app", async () => {
+    vi.stubEnv("STORAGE_GDRIVE_CLIENT_ID", "client");
+    vi.stubEnv("STORAGE_GDRIVE_CLIENT_SECRET", "secret");
+    vi.stubEnv("STORAGE_DROPBOX_CLIENT_ID", "client");
+    vi.stubEnv("STORAGE_DROPBOX_CLIENT_SECRET", "secret");
+    state.rows = [drive()];
+    await (await storageFor("ws-1")).driver.get("ws-1/abc");
+    state.rows = [target({ id: "target-2", kind: "dropbox", config: { accountId: "dbid:1", account: "owner@example.com" }, credentials: JSON.stringify({ refreshToken: "r" }) })];
+    await (await storageOf({ storageId: "target-2" })).get("ws-1/abc");
+    expect(state.made).toEqual([{ kind: "gdrive", folderId: "folder-1" }, { kind: "dropbox" }]);
+    expect(state.sessions.map((s) => [s.kind, s.credentials])).toEqual([
+      ["gdrive", { refreshToken: "refresh", accessToken: "a", expiresAt: 1 }],
+      ["dropbox", { refreshToken: "r" }],
+    ]);
+  });
+
+  it("keep a refreshed sign-in, only over the one they began with", async () => {
+    vi.stubEnv("STORAGE_GDRIVE_CLIENT_ID", "client");
+    vi.stubEnv("STORAGE_GDRIVE_CLIENT_SECRET", "secret");
+    state.rows = [drive()];
+    await (await storageFor("ws-1")).driver.get("ws-1/abc");
+    await state.sessions[0].persist!({ refreshToken: "refresh", accessToken: "b", expiresAt: 2 });
+    expect(state.updates).toEqual([{ credentials: JSON.stringify({ refreshToken: "refresh", accessToken: "b", expiresAt: 2 }) }]);
+  });
+
+  it("are marked broken once the server has no app for them", async () => {
+    state.rows = [drive()];
+    const driver = await storageOf({ storageId: "target-1" });
+    await expect(driver.get("ws-1/abc")).rejects.toThrow(/no Google Drive app/);
+    expect(state.updates[0]).toMatchObject({ lastError: "This server has no Google Drive app set up any more" });
   });
 });
 

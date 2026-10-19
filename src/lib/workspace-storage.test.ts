@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeEndpoint, parseS3Input, sameS3Location, StorageInputError } from "./workspace-storage";
+import { locationTitle, normalizeEndpoint, parseS3Input, sameLocation, sameS3Location, StorageInputError, storageNoticeOf, type StorageLocation } from "./workspace-storage";
 
 const keys = { accessKeyId: "AKIA123", secretAccessKey: "s3cr3t" };
 const fieldOf = (fn: () => unknown) => {
@@ -62,5 +62,47 @@ describe("sameS3Location", () => {
     expect(sameS3Location(a, { ...a, prefix: null })).toBe(false);
     expect(sameS3Location(a, { ...a, bucket: "abd" })).toBe(false);
     expect(sameS3Location(a, { ...a, endpoint: "https://t.example.com" })).toBe(false);
+  });
+});
+
+describe("sameLocation", () => {
+  const s3: StorageLocation = { kind: "s3", config: { endpoint: null, region: "us-east-1", bucket: "abc", prefix: null, forcePathStyle: false } };
+  const drive: StorageLocation = { kind: "gdrive", config: { accountId: "p1", account: "a@example.com", folderId: "f1", folderName: "Leafdesk (Acme)" } };
+  const dropbox: StorageLocation = { kind: "dropbox", config: { accountId: "dbid:1", account: "a@example.com" } };
+
+  it("is the same Drive folder of the same account, whatever the names", () => {
+    expect(sameLocation(drive, { kind: "gdrive", config: { ...drive.config, account: "renamed@example.com", folderName: "Other" } })).toBe(true);
+    expect(sameLocation(drive, { kind: "gdrive", config: { ...drive.config, folderId: "f2" } })).toBe(false);
+    expect(sameLocation(drive, { kind: "gdrive", config: { ...drive.config, accountId: "p2" } })).toBe(false);
+  });
+
+  it("is the same Dropbox account", () => {
+    expect(sameLocation(dropbox, { kind: "dropbox", config: { accountId: "dbid:1", account: "new@example.com" } })).toBe(true);
+    expect(sameLocation(dropbox, { kind: "dropbox", config: { accountId: "dbid:2", account: "a@example.com" } })).toBe(false);
+  });
+
+  it("is never another kind", () => {
+    expect(sameLocation(s3, s3)).toBe(true);
+    expect(sameLocation(drive, dropbox)).toBe(false);
+    expect(sameLocation(s3, dropbox)).toBe(false);
+  });
+
+  it("names each kind in one line", () => {
+    expect(locationTitle(s3)).toBe("abc · s3.amazonaws.com");
+    expect(locationTitle({ kind: "s3", config: { endpoint: "https://r2.example.com", region: "auto", bucket: "abc", prefix: "lf", forcePathStyle: true } })).toBe("abc/lf · r2.example.com");
+    expect(locationTitle(drive)).toBe("Leafdesk (Acme) · a@example.com");
+    expect(locationTitle(dropbox)).toBe("a@example.com");
+  });
+});
+
+describe("storageNoticeOf", () => {
+  it("says how the sign-in the browser came back from went", () => {
+    expect(storageNoticeOf({})).toBeUndefined();
+    expect(storageNoticeOf({ storageConnected: "1" })).toBe("connected");
+    expect(storageNoticeOf({ storageError: "refused" })).toBe("refused");
+    expect(storageNoticeOf({ storageError: "notConfigured" })).toBe("notConfigured");
+    expect(storageNoticeOf({ storageError: "connected" })).toBe("oauthFailed");
+    expect(storageNoticeOf({ storageError: ["refused"] })).toBe("oauthFailed");
+    expect(storageNoticeOf({ storageError: "<script>" })).toBe("oauthFailed");
   });
 });

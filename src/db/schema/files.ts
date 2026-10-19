@@ -23,7 +23,7 @@ export const workspaceStorage = pgTable(
     workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "set null" }),
     kind: text("kind").$type<StorageKind>().notNull(),
     config: jsonb("config").$type<StorageConfig>().notNull(),
-    /** Sealed JSON: an S3 access key pair (later kinds: an OAuth refresh token). */
+    /** Sealed JSON: an S3 access key pair, or what signing in to Drive or Dropbox gave (OAuthCredentials). */
     credentials: text("credentials").notNull(),
     /** `broken` after the storage refused a request (revoked keys, a deleted bucket); `active` again after one succeeds. */
     status: text("status").$type<StorageStatus>().notNull().default("active"),
@@ -44,6 +44,24 @@ export const workspaceStorage = pgTable(
     check("workspace_storage_status_check", sql`${t.status} in ('active', 'broken', 'disconnected')`),
   ],
 );
+
+/**
+ * A sign-in to a storage provider an owner began (Settings > Storage > Google Drive or Dropbox),
+ * until the browser comes back with its `state` (server/storage/settings.ts). Used once; ones older
+ * than fifteen minutes are void. `data` is sealed: the PKCE verifier.
+ */
+export const workspaceStorageOauth = pgTable("workspace_storage_oauth", {
+  state: text("state").primaryKey(),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspace.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  kind: text("kind").$type<StorageKind>().notNull(),
+  data: text("data").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 /**
  * An uploaded file (see server/files.ts). The bytes live in the storage driver under `storageKey`;

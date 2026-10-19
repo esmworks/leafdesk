@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "이 워크스페이스에 업로드된 파일이 보관되는 곳입니다. 워크스페이스 전용 버킷을 연결하면 새 파일이 이 서버 대신 그곳에 저장됩니다. 모든 파일은 계속 Leafdesk가 직접 제공하므로 버킷은 비공개로 유지됩니다. 공개 액세스나 브라우저 설정은 필요하지 않습니다.",
+    "description": "이 워크스페이스에 업로드된 파일이 보관되는 곳입니다. 워크스페이스 전용 저장소(S3 호환 버킷, Google Drive 또는 Dropbox)를 연결하면 새 파일이 이 서버 대신 그곳에 저장됩니다. 모든 파일은 계속 Leafdesk가 직접 제공하므로 저장소는 비공개로 유지되며, 공개 액세스나 공유 설정이 필요 없습니다.",
     "currentHeading": "새 파일이 저장되는 곳",
     "instance": "이 서버",
     "instanceHint": "파일은 Leafdesk가 실행되는 서버에 보관됩니다.",
     "instanceUsage": "{quota} 중 {used} 사용 중입니다.",
     "instanceUsageNoQuota": "{used} 사용 중입니다.",
     "kinds": {
-      "s3": "S3 호환 저장소"
+      "s3": "S3 호환 저장소",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO 또는 S3 프로토콜을 지원하는 다른 저장소."
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO 또는 S3 프로토콜을 지원하는 다른 저장소.",
+      "gdrive": "파일은 Leafdesk가 내 Drive에 만드는 폴더에 저장됩니다. Leafdesk는 그곳에 자신이 만든 파일만 볼 수 있고, Drive의 다른 것은 볼 수 없습니다.",
+      "dropbox": "파일은 내 Dropbox의 Leafdesk 앱 폴더(앱 아래)에 저장됩니다. Leafdesk는 그 밖의 것은 볼 수 없습니다."
     },
     "status": {
       "active": "정상 작동 중, {time} 확인",
@@ -1774,7 +1778,7 @@
     "testing": "테스트 중…",
     "change": "변경",
     "disconnect": "연결 해제",
-    "disconnectNote": "새 파일은 다시 이 서버에 저장됩니다. 버킷에 이미 있는 파일은 그대로 남아 있으며, 삭제될 때까지 이 키로 계속 읽습니다.",
+    "disconnectNote": "새 파일은 다시 이 서버에 저장됩니다. 해당 저장소에 이미 있는 파일은 그대로 남아 있으며 삭제될 때까지 계속 그곳에서 읽힙니다.",
     "connectHeading": "저장소 연결",
     "changeHeading": "저장소 변경",
     "connectDescription": "저장하기 전에 테스트 파일을 저장하고, 다시 읽은 뒤 삭제합니다. 이미 업로드한 파일은 그대로 유지됩니다.",
@@ -1812,7 +1816,19 @@
       "unavailable": "이 종류의 저장소는 아직 연결할 수 없습니다.",
       "refused": "저장소가 작동하지 않았습니다: {message}",
       "rateLimited": "시도 횟수가 너무 많습니다. 몇 분 기다린 후 다시 시도하세요.",
-      "noStorage": "이 워크스페이스에는 전용 저장소가 연결되어 있지 않습니다."
+      "noStorage": "이 워크스페이스에는 전용 저장소가 연결되어 있지 않습니다.",
+      "notConfigured": "이 서버는 해당 종류의 저장소용으로 설정되지 않았습니다.",
+      "oauthFailed": "로그인하지 못해 아무것도 변경되지 않았습니다. 다시 시도하세요."
+    },
+    "signIn": "{provider}에 로그인",
+    "signInAgain": "{provider}에 다시 로그인",
+    "signingIn": "여는 중…",
+    "signInHint": "{provider}에서 로그인한 뒤 이곳으로 돌아옵니다. 저장하기 전에 테스트 파일을 저장하고, 다시 읽고, 삭제합니다.",
+    "notConfigured": "이 서버는 아직 {provider}용으로 설정되지 않았습니다. 관리자가 {provider}에 앱을 등록하고 {vars}을(를) 설정해야 합니다.",
+    "dismiss": "닫기",
+    "notices": {
+      "connected": "연결되었습니다. 이제부터 새 파일은 그곳에 저장됩니다.",
+      "refused": "로그인했지만 그곳에 테스트 파일을 저장할 수 없어 아무것도 변경되지 않았습니다. 나중에 다시 시도하세요."
     }
   },
   "backup": {

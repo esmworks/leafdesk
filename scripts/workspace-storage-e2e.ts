@@ -161,7 +161,7 @@ try {
   check(wrongKey?.startsWith("refused: S3 PUT failed: 403"), "wrong keys are refused with what the storage said", wrongKey);
   check((await failure(() => settings.testStorage(ids.owner, own, "s3", s3Input()))) === null, "a host on STORAGE_ALLOWED_HOSTS can be tested");
   const connected = await settings.connectStorage(ids.owner, own, "s3", s3Input());
-  check(connected.current?.status === "active" && connected.current.config.bucket === bucket, "an owner connects the bucket", connected.current);
+  check(connected.current?.status === "active" && connected.current.kind === "s3" && connected.current.config.bucket === bucket, "an owner connects the bucket", connected.current);
   check(!JSON.stringify(connected).includes(secretAccessKey), "the settings never show the keys");
   const [target] = await targetsOf(own);
   check(target.credentials.startsWith("sb1.") && !target.credentials.includes(secretAccessKey), "the keys are stored sealed");
@@ -231,7 +231,7 @@ try {
   const same = await settings.connectStorage(ids.owner, own, "s3", s3Input({ accessKeyId: "", secretAccessKey: "", forcePathStyle: true }));
   check(same.current?.id === target.id, "connecting the same bucket again (keys kept) changes the connection in place");
   const switched = await settings.connectStorage(ids.owner, own, "s3", s3Input({ bucket: otherBucket, prefix: "" }));
-  check(switched.current?.id !== target.id && switched.current?.config.bucket === otherBucket, "another bucket takes over");
+  check(switched.current?.id !== target.id && switched.current?.kind === "s3" && switched.current.config.bucket === otherBucket, "another bucket takes over");
   check(switched.retired.length === 1 && switched.retired[0].id === target.id && switched.retired[0].files === 1, "the earlier one is listed with the file it holds", switched.retired);
   check((await getFile(third.id)).status === 200, "…which is still served from there");
   const fourth = await upload(ids.owner, doc.id, "fourth.bin", bytes(500, 9));

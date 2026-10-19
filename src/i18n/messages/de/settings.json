@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "Wo die hochgeladenen Dateien dieses Workspaces gespeichert werden. Verbinde einen eigenen Bucket des Workspaces, und neue Dateien landen dort statt auf diesem Server. Leafdesk liefert weiterhin jede Datei selbst aus, der Bucket bleibt also privat: Öffentlicher Zugriff oder Browser-Einstellungen sind nicht nötig.",
+    "description": "Wo die hochgeladenen Dateien dieses Workspaces gespeichert werden. Verbinde eigenen Speicher des Workspaces (einen S3-kompatiblen Bucket, Google Drive oder Dropbox), und neue Dateien landen dort statt auf diesem Server. Leafdesk liefert weiterhin jede Datei selbst aus, der Speicher bleibt also privat: Öffentlicher Zugriff oder Freigaben sind nicht nötig.",
     "currentHeading": "Wohin neue Dateien kommen",
     "instance": "Dieser Server",
     "instanceHint": "Die Dateien liegen auf dem Server, auf dem Leafdesk läuft.",
     "instanceUsage": "{used} von {quota} belegt.",
     "instanceUsageNoQuota": "{used} belegt.",
     "kinds": {
-      "s3": "S3-kompatibler Speicher"
+      "s3": "S3-kompatibler Speicher",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO oder jeder andere Speicher, der das S3-Protokoll spricht."
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO oder jeder andere Speicher, der das S3-Protokoll spricht.",
+      "gdrive": "Dateien landen in einem Ordner, den Leafdesk in deinem Drive anlegt. Leafdesk sieht dort nur die Dateien, die es selbst angelegt hat, sonst nichts in deinem Drive.",
+      "dropbox": "Dateien landen im App-Ordner von Leafdesk in deiner Dropbox (unter Apps). Leafdesk sieht nichts außerhalb davon."
     },
     "status": {
       "active": "Funktioniert, geprüft {time}",
@@ -1774,7 +1778,7 @@
     "testing": "Wird getestet…",
     "change": "Ändern",
     "disconnect": "Trennen",
-    "disconnectNote": "Neue Dateien landen wieder auf diesem Server. Dateien, die schon im Bucket liegen, bleiben dort und werden weiterhin mit diesen Schlüsseln daraus gelesen, bis sie gelöscht werden.",
+    "disconnectNote": "Neue Dateien landen wieder auf diesem Server. Dateien, die schon in diesem Speicher liegen, bleiben dort und werden weiterhin daraus gelesen, bis sie gelöscht werden.",
     "connectHeading": "Speicher verbinden",
     "changeHeading": "Speicher ändern",
     "connectDescription": "Bevor etwas gespeichert wird, wird eine Testdatei abgelegt, zurückgelesen und gelöscht. Bereits hochgeladene Dateien bleiben, wo sie sind.",
@@ -1812,7 +1816,19 @@
       "unavailable": "Diese Art von Speicher kann noch nicht verbunden werden.",
       "refused": "Der Speicher hat nicht funktioniert: {message}",
       "rateLimited": "Zu viele Versuche. Warte ein paar Minuten und versuche es dann erneut.",
-      "noStorage": "Mit diesem Workspace ist kein eigener Speicher verbunden."
+      "noStorage": "Mit diesem Workspace ist kein eigener Speicher verbunden.",
+      "notConfigured": "Dieser Server ist für diese Art von Speicher nicht eingerichtet.",
+      "oauthFailed": "Die Anmeldung hat nicht geklappt, daher wurde nichts geändert. Versuche es noch einmal."
+    },
+    "signIn": "Bei {provider} anmelden",
+    "signInAgain": "Erneut bei {provider} anmelden",
+    "signingIn": "Wird geöffnet…",
+    "signInHint": "Du meldest dich bei {provider} an und kommst hierher zurück. Bevor etwas gespeichert wird, wird eine Testdatei abgelegt, zurückgelesen und gelöscht.",
+    "notConfigured": "Dieser Server ist noch nicht für {provider} eingerichtet. Die Administration muss eine App bei {provider} registrieren und {vars} setzen.",
+    "dismiss": "Schließen",
+    "notices": {
+      "connected": "Verbunden. Neue Dateien landen ab jetzt dort.",
+      "refused": "Du hast dich angemeldet, aber dort konnte keine Testdatei abgelegt werden, daher wurde nichts geändert. Versuche es später noch einmal."
     }
   },
   "backup": {

@@ -80,6 +80,7 @@ import { connectedAppsMode } from "@/server/connected-app";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { getMailSettings } from "@/server/row-mail/settings";
+import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
 import { getStorageSettings } from "@/server/storage/settings";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
@@ -238,7 +239,7 @@ export default async function SettingsPage({
             />
           )}
           {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
-          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} />}
+          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
@@ -264,12 +265,12 @@ async function EmailTab({ workspaceId, userId }: { workspaceId: string; userId: 
 }
 
 /** Settings > Storage, for owners: where the workspace's uploads are kept (see server/storage/settings.ts). */
-async function StorageTab({ workspaceId, userId }: { workspaceId: string; userId: string }) {
+async function StorageTab({ workspaceId, userId, notice }: { workspaceId: string; userId: string; notice?: StorageNotice }) {
   const [view, t] = await Promise.all([getStorageSettings(userId, workspaceId), getTranslations("settings")]);
   return (
     <>
       <SettingsHeader title={t("nav.storage")} description={t("storage.description")} />
-      <StorageSettings workspaceId={workspaceId} initial={view} />
+      <StorageSettings workspaceId={workspaceId} initial={view} notice={notice} />
     </>
   );
 }

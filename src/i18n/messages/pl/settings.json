@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "Gdzie przechowywane są pliki przesłane do tego obszaru roboczego. Podłącz własny bucket obszaru roboczego, a nowe pliki trafią tam zamiast na ten serwer. Leafdesk nadal sam udostępnia każdy plik, więc bucket pozostaje prywatny: nie jest potrzebny publiczny dostęp ani ustawienia przeglądarki.",
+    "description": "Miejsce, w którym przechowywane są pliki przesłane do tego obszaru roboczego. Podłącz własną pamięć obszaru roboczego (zasobnik zgodny z S3, Google Drive lub Dropbox), a nowe pliki trafią tam zamiast na ten serwer. Leafdesk nadal sam udostępnia każdy plik, więc pamięć pozostaje prywatna: nie jest potrzebny publiczny dostęp ani udostępnianie.",
     "currentHeading": "Gdzie trafiają nowe pliki",
     "instance": "Ten serwer",
     "instanceHint": "Pliki są przechowywane na serwerze, na którym działa Leafdesk.",
     "instanceUsage": "Wykorzystano {used} z {quota}.",
     "instanceUsageNoQuota": "Wykorzystano {used}.",
     "kinds": {
-      "s3": "Magazyn zgodny z S3"
+      "s3": "Magazyn zgodny z S3",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO lub dowolny inny magazyn obsługujący protokół S3."
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO lub dowolny inny magazyn obsługujący protokół S3.",
+      "gdrive": "Pliki trafiają do folderu, który Leafdesk tworzy na Twoim Dysku. Leafdesk widzi tylko pliki, które sam tam utworzył, nic więcej z Twojego Dysku.",
+      "dropbox": "Pliki trafiają do folderu aplikacji Leafdesk w Twoim Dropboxie (w Aplikacje). Leafdesk nie widzi niczego poza nim."
     },
     "status": {
       "active": "Działa, sprawdzono {time}",
@@ -1774,7 +1778,7 @@
     "testing": "Sprawdzanie…",
     "change": "Zmień",
     "disconnect": "Odłącz",
-    "disconnectNote": "Nowe pliki znów będą trafiać na ten serwer. Pliki już znajdujące się w buckecie zostają tam i nadal są z niego odczytywane za pomocą tych kluczy, dopóki nie zostaną usunięte.",
+    "disconnectNote": "Nowe pliki znów będą trafiać na ten serwer. Pliki, które już są w tej pamięci, zostają tam i nadal są z niej odczytywane, dopóki nie zostaną usunięte.",
     "connectHeading": "Podłącz magazyn",
     "changeHeading": "Zmień magazyn",
     "connectDescription": "Zanim cokolwiek zostanie zapisane, plik testowy jest zapisywany, odczytywany i usuwany. Pliki już przesłane zostają tam, gdzie są.",
@@ -1812,7 +1816,19 @@
       "unavailable": "Tego rodzaju magazynu nie można jeszcze podłączyć.",
       "refused": "Magazyn nie zadziałał: {message}",
       "rateLimited": "Zbyt wiele prób. Odczekaj kilka minut i spróbuj ponownie.",
-      "noStorage": "Do tego obszaru roboczego nie podłączono własnego magazynu."
+      "noStorage": "Do tego obszaru roboczego nie podłączono własnego magazynu.",
+      "notConfigured": "Ten serwer nie jest skonfigurowany dla tego rodzaju pamięci.",
+      "oauthFailed": "Logowanie się nie powiodło, więc nic nie zostało zmienione. Spróbuj ponownie."
+    },
+    "signIn": "Zaloguj się do {provider}",
+    "signInAgain": "Zaloguj się ponownie do {provider}",
+    "signingIn": "Otwieranie…",
+    "signInHint": "Logujesz się w {provider} i wracasz tutaj. Zanim cokolwiek zostanie zapisane, plik testowy jest zapisywany, odczytywany i usuwany.",
+    "notConfigured": "Ten serwer nie jest jeszcze skonfigurowany dla {provider}. Administrator musi zarejestrować aplikację w {provider} i ustawić {vars}.",
+    "dismiss": "Zamknij",
+    "notices": {
+      "connected": "Połączono. Od teraz nowe pliki trafiają tam.",
+      "refused": "Zalogowano, ale nie udało się tam zapisać pliku testowego, więc nic nie zostało zmienione. Spróbuj ponownie później."
     }
   },
   "backup": {

@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "此工作区上传的文件保存的位置。连接工作区自己的存储桶后，新文件会保存到那里，而不是这台服务器。所有文件仍由 Leafdesk 自己提供，因此存储桶可以保持私有：不需要公开访问，也不需要浏览器相关设置。",
+    "description": "此工作区上传的文件的存放位置。连接工作区自己的存储（兼容 S3 的存储桶、Google Drive 或 Dropbox）后，新文件会存到那里，而不是这台服务器。每个文件仍由 Leafdesk 自己提供，因此存储保持私有：无需公开访问或共享。",
     "currentHeading": "新文件的保存位置",
     "instance": "这台服务器",
     "instanceHint": "文件保存在运行 Leafdesk 的服务器上。",
     "instanceUsage": "已使用 {used}，共 {quota}。",
     "instanceUsageNoQuota": "已使用 {used}。",
     "kinds": {
-      "s3": "兼容 S3 的存储"
+      "s3": "兼容 S3 的存储",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3、Cloudflare R2、Backblaze B2、MinIO，或任何其他支持 S3 协议的存储。"
+      "s3": "AWS S3、Cloudflare R2、Backblaze B2、MinIO，或任何其他支持 S3 协议的存储。",
+      "gdrive": "文件会存到 Leafdesk 在你的 Drive 中创建的文件夹里。Leafdesk 只能看到它在那里创建的文件，看不到你 Drive 中的其他内容。",
+      "dropbox": "文件会存到你 Dropbox 中 Leafdesk 的应用文件夹（位于“应用”下）。Leafdesk 看不到该文件夹之外的任何内容。"
     },
     "status": {
       "active": "运行正常，{time}检查",
@@ -1774,7 +1778,7 @@
     "testing": "正在测试…",
     "change": "更改",
     "disconnect": "断开连接",
-    "disconnectNote": "新文件将再次保存到这台服务器。存储桶中已有的文件会保留在原处，在被删除之前仍会用这些密钥从中读取。",
+    "disconnectNote": "新文件会重新存到这台服务器。已在该存储中的文件会留在那里，并在被删除之前继续从那里读取。",
     "connectHeading": "连接存储",
     "changeHeading": "更改存储",
     "connectDescription": "保存之前，会先存入一个测试文件，再读回并删除。已上传的文件仍留在原处。",
@@ -1812,7 +1816,19 @@
       "unavailable": "暂时还不能连接这种存储。",
       "refused": "存储无法使用：{message}",
       "rateLimited": "尝试次数过多。请等待几分钟后重试。",
-      "noStorage": "此工作区没有连接自己的存储。"
+      "noStorage": "此工作区没有连接自己的存储。",
+      "notConfigured": "这台服务器未为这种存储进行设置。",
+      "oauthFailed": "登录未成功，因此没有做任何更改。请重试。"
+    },
+    "signIn": "登录 {provider}",
+    "signInAgain": "重新登录 {provider}",
+    "signingIn": "正在打开…",
+    "signInHint": "你会在 {provider} 登录，然后回到这里。保存任何内容之前，会先写入一个测试文件、读回并删除。",
+    "notConfigured": "这台服务器尚未为 {provider} 进行设置。管理员需要在 {provider} 注册一个应用并设置 {vars}。",
+    "dismiss": "关闭",
+    "notices": {
+      "connected": "已连接。从现在起，新文件会存到那里。",
+      "refused": "你已登录，但无法在那里存入测试文件，因此没有做任何更改。请稍后再试。"
     }
   },
   "backup": {

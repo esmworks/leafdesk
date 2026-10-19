@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer. Çalışma alanına ait bir bucket bağlarsanız yeni dosyalar bu sunucu yerine oraya gider. Her dosyayı yine Leafdesk sunar, bu yüzden bucket gizli kalır: herkese açık erişim ya da tarayıcı ayarı gerekmez.",
+    "description": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer. Çalışma alanına ait bir depolama (S3 uyumlu bir bucket, Google Drive ya da Dropbox) bağlarsanız yeni dosyalar bu sunucu yerine oraya gider. Her dosyayı yine Leafdesk sunar, bu yüzden depolama gizli kalır: herkese açık erişim ya da paylaşım gerekmez.",
     "currentHeading": "Yeni dosyaların gittiği yer",
     "instance": "Bu sunucu",
     "instanceHint": "Dosyalar, Leafdesk'in çalıştığı sunucuda tutulur.",
     "instanceUsage": "Kullanılan: {used} / {quota}.",
     "instanceUsageNoQuota": "Kullanılan: {used}.",
     "kinds": {
-      "s3": "S3 uyumlu depolama"
+      "s3": "S3 uyumlu depolama",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ya da S3 protokolünü konuşan herhangi bir depolama."
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ya da S3 protokolünü konuşan herhangi bir depolama.",
+      "gdrive": "Dosyalar Leafdesk'in Drive'ınızda açtığı bir klasöre gider. Leafdesk yalnızca orada kendi oluşturduğu dosyaları görebilir, Drive'ınızdaki başka hiçbir şeyi göremez.",
+      "dropbox": "Dosyalar Dropbox'ınızda Leafdesk'in uygulama klasörüne (Apps altında) gider. Leafdesk bu klasörün dışındaki hiçbir şeyi göremez."
     },
     "status": {
       "active": "Çalışıyor, {time} kontrol edildi",
@@ -1774,7 +1778,7 @@
     "testing": "Deneniyor…",
     "change": "Değiştir",
     "disconnect": "Bağlantıyı kes",
-    "disconnectNote": "Yeni dosyalar yeniden bu sunucuya gider. Bucket'taki dosyalar orada kalır ve silinene kadar bu anahtarlarla oradan okunmaya devam eder.",
+    "disconnectNote": "Yeni dosyalar yeniden bu sunucuya gider. O depolamadaki dosyalar orada kalır ve silinene kadar oradan okunmaya devam eder.",
     "connectHeading": "Depolama bağla",
     "changeHeading": "Depolamayı değiştir",
     "connectDescription": "Herhangi bir şey kaydedilmeden önce bir deneme dosyası saklanır, geri okunur ve silinir. Önceden yüklenmiş dosyalar olduğu yerde kalır.",
@@ -1812,7 +1816,19 @@
       "unavailable": "Bu tür depolama henüz bağlanamıyor.",
       "refused": "Depolama çalışmadı: {message}",
       "rateLimited": "Çok fazla deneme yapıldı. Birkaç dakika bekleyip yeniden deneyin.",
-      "noStorage": "Bu çalışma alanına bağlı kendi depolaması yok."
+      "noStorage": "Bu çalışma alanına bağlı kendi depolaması yok.",
+      "notConfigured": "Bu sunucu bu tür bir depolama için ayarlanmamış.",
+      "oauthFailed": "Oturum açma işe yaramadı, bu yüzden hiçbir şey değişmedi. Yeniden deneyin."
+    },
+    "signIn": "{provider} ile oturum aç",
+    "signInAgain": "{provider} ile yeniden oturum aç",
+    "signingIn": "Açılıyor…",
+    "signInHint": "{provider} üzerinde oturum açıp buraya dönersiniz. Bir şey kaydedilmeden önce bir deneme dosyası yazılır, geri okunur ve silinir.",
+    "notConfigured": "Bu sunucu henüz {provider} için ayarlanmadı. Yöneticisinin {provider} üzerinde bir uygulama kaydedip {vars} değerlerini ayarlaması gerekiyor.",
+    "dismiss": "Kapat",
+    "notices": {
+      "connected": "Bağlandı. Yeni dosyalar bundan sonra oraya gidecek.",
+      "refused": "Oturum açıldı ama oraya bir deneme dosyası yazılamadı, bu yüzden hiçbir şey değişmedi. Daha sonra yeniden deneyin."
     }
   },
   "backup": {

@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "Dónde se guardan los archivos subidos de este espacio de trabajo. Conecta un bucket propio del espacio de trabajo y los archivos nuevos irán allí en lugar de a este servidor. Leafdesk sigue sirviendo cada archivo por sí mismo, así que el bucket sigue siendo privado: no hace falta acceso público ni ajustes del navegador.",
+    "description": "Dónde se guardan los archivos subidos a este espacio de trabajo. Conecta un almacenamiento propio del espacio de trabajo (un bucket compatible con S3, Google Drive o Dropbox) y los archivos nuevos irán allí en lugar de a este servidor. Leafdesk sigue sirviendo cada archivo por sí mismo, así que el almacenamiento sigue siendo privado: no hace falta acceso público ni compartir nada.",
     "currentHeading": "Adónde van los archivos nuevos",
     "instance": "Este servidor",
     "instanceHint": "Los archivos se guardan en el servidor donde se ejecuta Leafdesk.",
     "instanceUsage": "{used} de {quota} usados.",
     "instanceUsageNoQuota": "{used} usados.",
     "kinds": {
-      "s3": "Almacenamiento compatible con S3"
+      "s3": "Almacenamiento compatible con S3",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o cualquier otro almacenamiento que hable el protocolo S3."
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o cualquier otro almacenamiento que hable el protocolo S3.",
+      "gdrive": "Los archivos van a una carpeta que Leafdesk crea en tu Drive. Leafdesk solo puede ver los archivos que creó allí, nada más de tu Drive.",
+      "dropbox": "Los archivos van a la carpeta de la app de Leafdesk en tu Dropbox (dentro de Aplicaciones). Leafdesk no puede ver nada fuera de ella."
     },
     "status": {
       "active": "Funciona, comprobado {time}",
@@ -1774,7 +1778,7 @@
     "testing": "Probando…",
     "change": "Cambiar",
     "disconnect": "Desconectar",
-    "disconnectNote": "Los archivos nuevos volverán a ir a este servidor. Los archivos que ya están en el bucket se quedan allí y se siguen leyendo de él con estas claves hasta que se eliminen.",
+    "disconnectNote": "Los archivos nuevos volverán a este servidor. Los archivos que ya están en ese almacenamiento se quedan allí y se siguen leyendo desde él hasta que se eliminen.",
     "connectHeading": "Conectar almacenamiento",
     "changeHeading": "Cambiar almacenamiento",
     "connectDescription": "Antes de guardar nada, se almacena un archivo de prueba, se vuelve a leer y se elimina. Los archivos ya subidos se quedan donde están.",
@@ -1812,7 +1816,19 @@
       "unavailable": "Ese tipo de almacenamiento aún no se puede conectar.",
       "refused": "El almacenamiento no funcionó: {message}",
       "rateLimited": "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.",
-      "noStorage": "Este espacio de trabajo no tiene un almacenamiento propio conectado."
+      "noStorage": "Este espacio de trabajo no tiene un almacenamiento propio conectado.",
+      "notConfigured": "Este servidor no está configurado para ese tipo de almacenamiento.",
+      "oauthFailed": "No se pudo iniciar sesión, así que no se cambió nada. Vuelve a intentarlo."
+    },
+    "signIn": "Iniciar sesión en {provider}",
+    "signInAgain": "Volver a iniciar sesión en {provider}",
+    "signingIn": "Abriendo…",
+    "signInHint": "Inicias sesión en {provider} y vuelves aquí. Antes de guardar nada, se guarda un archivo de prueba, se vuelve a leer y se elimina.",
+    "notConfigured": "Este servidor aún no está configurado para {provider}. Su administrador debe registrar una app en {provider} y definir {vars}.",
+    "dismiss": "Cerrar",
+    "notices": {
+      "connected": "Conectado. A partir de ahora los archivos nuevos van allí.",
+      "refused": "Iniciaste sesión, pero no se pudo guardar un archivo de prueba allí, así que no se cambió nada. Vuelve a intentarlo más tarde."
     }
   },
   "backup": {

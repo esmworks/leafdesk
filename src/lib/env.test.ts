@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { env } from "./env";
+import { env, storageOAuthAppsFrom } from "./env";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -30,5 +30,25 @@ describe("env.authSecret", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("BETTER_AUTH_SECRET", "build-only-placeholder-not-used-at-runtime-000000");
     expect(env.authSecret).toBe("build-only-placeholder-not-used-at-runtime-000000");
+  });
+});
+
+describe("storageOAuthAppsFrom", () => {
+  it("has an app for each kind with both its id and secret", () => {
+    expect(storageOAuthAppsFrom({})).toEqual({});
+    expect(
+      storageOAuthAppsFrom({
+        STORAGE_GDRIVE_CLIENT_ID: " id.apps.googleusercontent.com ",
+        STORAGE_GDRIVE_CLIENT_SECRET: "gsecret",
+        STORAGE_DROPBOX_CLIENT_ID: "dkey",
+        STORAGE_DROPBOX_CLIENT_SECRET: "",
+      }),
+    ).toEqual({ gdrive: { clientId: "id.apps.googleusercontent.com", clientSecret: "gsecret" } });
+  });
+
+  it("is read from the environment", () => {
+    vi.stubEnv("STORAGE_DROPBOX_CLIENT_ID", "dkey");
+    vi.stubEnv("STORAGE_DROPBOX_CLIENT_SECRET", "dsecret");
+    expect(env.storageOAuthApps.dropbox).toEqual({ clientId: "dkey", clientSecret: "dsecret" });
   });
 });

@@ -1,27 +1,55 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import { connectStorageAction, disconnectStorageAction, retestStorageAction, testStorageAction } from "@/app/actions/storage";
+import { useEffect, useState } from "react";
+import { beginStorageOAuthAction, connectStorageAction, disconnectStorageAction, retestStorageAction, testStorageAction } from "@/app/actions/storage";
 import { Button, cn, Input } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
 import { relativeTime } from "@/lib/relative-time";
-import { AVAILABLE_STORAGE_KINDS, type StorageKind, type StorageSettingsView, type StorageView } from "@/lib/workspace-storage";
+import {
+  AVAILABLE_STORAGE_KINDS,
+  isOAuthStorageKind,
+  locationTitle,
+  type OAuthStorageKind,
+  type StorageKind,
+  type StorageNotice,
+  type StorageSettingsView,
+  type StorageView,
+} from "@/lib/workspace-storage";
 import { SettingsGroup, SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
 /**
  * Settings > Storage, for owners: where the workspace's uploads go (this server, or storage the
  * workspace brought), how that storage is doing, and the form that connects or changes it. Files
- * keep being served by Leafdesk, so the storage stays private.
+ * keep being served by Leafdesk, so the storage stays private. Google Drive and Dropbox are
+ * connected by signing in there; the browser comes back with a `notice` of how it went.
  */
-export function StorageSettings({ workspaceId, initial }: { workspaceId: string; initial: StorageSettingsView }) {
+export function StorageSettings({ workspaceId, initial, notice }: { workspaceId: string; initial: StorageSettingsView; notice?: StorageNotice }) {
   const [view, setView] = useState(initial);
   const [editing, setEditing] = useState(false);
+  const [shownNotice, setShownNotice] = useState(notice);
   const t = useTranslations("settings.storage");
+
+  // Shown once: reloading the page shouldn't say it again.
+  useEffect(() => {
+    if (notice) window.history.replaceState(null, "", `${window.location.pathname}?tab=storage`);
+  }, [notice]);
 
   return (
     <div className="space-y-10">
+      {shownNotice && (
+        <p
+          role="status"
+          className={cn("flex items-start gap-2 rounded-md border px-3 py-2 text-sm", shownNotice === "connected" ? "border-border text-fg-muted" : "border-danger/40 text-danger")}
+        >
+          <span className="flex-1">{shownNotice === "connected" || shownNotice === "refused" ? t(`notices.${shownNotice}`) : t(`errors.${shownNotice}`)}</span>
+          <button type="button" className="text-fg-faint hover:text-fg" aria-label={t("dismiss")} onClick={() => setShownNotice(undefined)}>
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </p>
+      )}
       <CurrentGroup workspaceId={workspaceId} view={view} onChange={setView} onEdit={() => setEditing(true)} />
       {(!view.current || editing) && (
         <SettingsGroup title={view.current ? t("changeHeading") : t("connectHeading")} description={t("connectDescription")}>
@@ -30,6 +58,7 @@ export function StorageSettings({ workspaceId, initial }: { workspaceId: string;
             key={view.current?.id ?? "new"}
             workspaceId={workspaceId}
             current={view.current}
+            oauthReady={view.oauthReady}
             onCancel={view.current ? () => setEditing(false) : undefined}
             onSaved={(next) => {
               setView(next);
@@ -49,9 +78,7 @@ export function StorageSettings({ workspaceId, initial }: { workspaceId: string;
   );
 }
 
-const hostOf = (target: StorageView) => (target.config.endpoint ? new URL(target.config.endpoint).host : "s3.amazonaws.com");
-const targetTitle = (target: StorageView) =>
-  `${target.config.bucket}${target.config.prefix ? `/${target.config.prefix}` : ""} · ${hostOf(target)}`;
+const targetTitle = (target: StorageView) => locationTitle(target);
 
 function FilesLine({ target }: { target: StorageView }) {
   const t = useTranslations("settings.storage");
@@ -99,7 +126,7 @@ function CurrentGroup({
       <SettingsRow
         title={
           <>
-            <span className="block text-xs font-normal text-fg-muted">{current.kind === "s3" ? t("kinds.s3") : current.kind}</span>
+            <span className="block text-xs font-normal text-fg-muted">{t(`kinds.${current.kind}`)}</span>
             {targetTitle(current)}
           </>
         }
@@ -168,21 +195,121 @@ function CurrentGroup({
   );
 }
 
-/** Connects storage, or changes the connected one (its keys may be left empty to keep them). */
+/**
+ * Connects storage, or changes the connected one: an S3 bucket's settings and keys (left empty to
+ * keep the current ones), or a sign-in to Drive or Dropbox.
+ */
 function StorageForm({
+  workspaceId,
+  current,
+  oauthReady,
+  onCancel,
+  onSaved,
+}: {
+  workspaceId: string;
+  current: StorageView | null;
+  oauthReady: OAuthStorageKind[];
+  onCancel?: () => void;
+  onSaved: (view: StorageSettingsView) => void;
+}) {
+  const t = useTranslations("settings.storage");
+  const [kind, setKind] = useState<StorageKind>(current?.kind ?? "s3");
+
+  return (
+    <div className="space-y-4 px-5 py-4">
+      {AVAILABLE_STORAGE_KINDS.length > 1 && (
+        <fieldset className="space-y-1">
+          <legend className="text-sm font-medium">{t("fields.kind")}</legend>
+          {AVAILABLE_STORAGE_KINDS.map((k) => (
+            <label key={k} className="flex items-center gap-2 text-sm">
+              <input type="radio" name="storage-kind" checked={kind === k} onChange={() => setKind(k)} />
+              {t(`kinds.${k}`)}
+            </label>
+          ))}
+        </fieldset>
+      )}
+      <p className="text-sm text-fg-muted">{t(`kindHints.${kind}`)}</p>
+      {isOAuthStorageKind(kind) ? (
+        <SignInForm
+          workspaceId={workspaceId}
+          kind={kind}
+          ready={oauthReady.includes(kind)}
+          again={current?.kind === kind}
+          onCancel={onCancel}
+        />
+      ) : (
+        <S3Form workspaceId={workspaceId} current={current?.kind === "s3" ? current : null} onCancel={onCancel} onSaved={onSaved} />
+      )}
+    </div>
+  );
+}
+
+const PROVIDERS: Record<OAuthStorageKind, { name: string; vars: string }> = {
+  gdrive: { name: "Google Drive", vars: "STORAGE_GDRIVE_CLIENT_ID, STORAGE_GDRIVE_CLIENT_SECRET" },
+  dropbox: { name: "Dropbox", vars: "STORAGE_DROPBOX_CLIENT_ID, STORAGE_DROPBOX_CLIENT_SECRET" },
+};
+
+/** Sends the browser to Drive or Dropbox to sign in; it comes back to this tab (see api/storage/oauth). */
+function SignInForm({ workspaceId, kind, ready, again, onCancel }: { workspaceId: string; kind: OAuthStorageKind; ready: boolean; again: boolean; onCancel?: () => void }) {
+  const t = useTranslations("settings.storage");
+  const tc = useTranslations("common");
+  const { pending, error, run } = useAction();
+  const [leaving, setLeaving] = useState(false);
+  const provider = PROVIDERS[kind];
+
+  return (
+    <div className="space-y-4">
+      {ready ? (
+        <p className="text-sm text-fg-muted">{t("signInHint", { provider: provider.name })}</p>
+      ) : (
+        <p className="text-sm text-fg-muted">{t("notConfigured", { provider: provider.name, vars: provider.vars })}</p>
+      )}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex flex-wrap justify-end gap-2">
+        {onCancel && (
+          <Button variant="ghost" disabled={pending || leaving} onClick={onCancel}>
+            {tc("cancel")}
+          </Button>
+        )}
+        <Button
+          variant="primary"
+          disabled={!ready || pending || leaving}
+          onClick={() =>
+            run(
+              () => beginStorageOAuthAction(workspaceId, kind),
+              ({ url }) => {
+                setLeaving(true);
+                window.location.assign(url);
+              },
+            )
+          }
+        >
+          {pending || leaving ? t("signingIn") : again ? t("signInAgain", { provider: provider.name }) : t("signIn", { provider: provider.name })}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** An S3-compatible bucket's settings and keys. */
+function S3Form({
   workspaceId,
   current,
   onCancel,
   onSaved,
 }: {
   workspaceId: string;
-  current: StorageView | null;
+  current: (StorageView & { kind: "s3" }) | null;
   onCancel?: () => void;
   onSaved: (view: StorageSettingsView) => void;
 }) {
   const t = useTranslations("settings.storage");
   const tc = useTranslations("common");
-  const [kind, setKind] = useState<StorageKind>(current?.kind ?? "s3");
+  const kind = "s3";
   const [endpoint, setEndpoint] = useState(current?.config.endpoint ?? "");
   const [region, setRegion] = useState(current?.config.region ?? "");
   const [bucket, setBucket] = useState(current?.config.bucket ?? "");
@@ -204,24 +331,12 @@ function StorageForm({
 
   return (
     <form
-      className="space-y-4 px-5 py-4"
+      className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         save.run(() => connectStorageAction(workspaceId, kind, input()), onSaved);
       }}
     >
-      {AVAILABLE_STORAGE_KINDS.length > 1 && (
-        <fieldset className="space-y-1">
-          <legend className="text-sm font-medium">{t("fields.kind")}</legend>
-          {AVAILABLE_STORAGE_KINDS.map((k) => (
-            <label key={k} className="flex items-center gap-2 text-sm">
-              <input type="radio" name="storage-kind" checked={kind === k} onChange={() => edited(setKind)(k)} />
-              {k === "s3" ? t("kinds.s3") : k}
-            </label>
-          ))}
-        </fieldset>
-      )}
-      {kind === "s3" && <p className="text-sm text-fg-muted">{t("kindHints.s3")}</p>}
       <label className="block space-y-1">
         <span className="text-sm font-medium">{t("fields.endpoint")}</span>
         <Input

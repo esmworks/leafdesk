@@ -1751,17 +1751,21 @@
     }
   },
   "storage": {
-    "description": "Dove vengono conservati i file caricati di questo spazio di lavoro. Collega un bucket proprio dello spazio di lavoro e i nuovi file andranno lì invece che su questo server. Leafdesk continua a servire ogni file da sé, quindi il bucket resta privato: non servono accesso pubblico né impostazioni del browser.",
+    "description": "Dove vengono conservati i file caricati in questo spazio di lavoro. Collega uno spazio di archiviazione proprio dello spazio di lavoro (un bucket compatibile con S3, Google Drive o Dropbox) e i nuovi file andranno lì invece che su questo server. Leafdesk continua a servire ogni file da sé, quindi l'archiviazione resta privata: non servono accesso pubblico né condivisioni.",
     "currentHeading": "Dove vanno i nuovi file",
     "instance": "Questo server",
     "instanceHint": "I file sono conservati sul server su cui gira Leafdesk.",
     "instanceUsage": "{used} di {quota} usati.",
     "instanceUsageNoQuota": "{used} usati.",
     "kinds": {
-      "s3": "Archiviazione compatibile con S3"
+      "s3": "Archiviazione compatibile con S3",
+      "gdrive": "Google Drive",
+      "dropbox": "Dropbox"
     },
     "kindHints": {
-      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o qualsiasi altra archiviazione che parli il protocollo S3."
+      "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o qualsiasi altra archiviazione che parli il protocollo S3.",
+      "gdrive": "I file vanno in una cartella che Leafdesk crea nel tuo Drive. Leafdesk vede solo i file che ha creato lì, nient'altro del tuo Drive.",
+      "dropbox": "I file vanno nella cartella dell'app di Leafdesk nel tuo Dropbox (in App). Leafdesk non vede nulla al di fuori di essa."
     },
     "status": {
       "active": "Funziona, verificato {time}",
@@ -1774,7 +1778,7 @@
     "testing": "Prova in corso…",
     "change": "Cambia",
     "disconnect": "Scollega",
-    "disconnectNote": "I nuovi file torneranno su questo server. I file già presenti nel bucket restano lì e continuano a essere letti da esso con queste chiavi finché non vengono eliminati.",
+    "disconnectNote": "I nuovi file andranno di nuovo su questo server. I file già presenti in quell'archiviazione restano lì e continuano a essere letti da lì finché non vengono eliminati.",
     "connectHeading": "Collega l’archiviazione",
     "changeHeading": "Cambia archiviazione",
     "connectDescription": "Prima di salvare qualsiasi cosa, un file di prova viene archiviato, riletto ed eliminato. I file già caricati restano dove sono.",
@@ -1812,7 +1816,19 @@
       "unavailable": "Questo tipo di archiviazione non può ancora essere collegato.",
       "refused": "L’archiviazione non ha funzionato: {message}",
       "rateLimited": "Troppi tentativi. Attendi qualche minuto, poi riprova.",
-      "noStorage": "Questo spazio di lavoro non ha un’archiviazione propria collegata."
+      "noStorage": "Questo spazio di lavoro non ha un’archiviazione propria collegata.",
+      "notConfigured": "Questo server non è configurato per quel tipo di archiviazione.",
+      "oauthFailed": "L'accesso non è riuscito, quindi non è cambiato nulla. Riprova."
+    },
+    "signIn": "Accedi a {provider}",
+    "signInAgain": "Accedi di nuovo a {provider}",
+    "signingIn": "Apertura…",
+    "signInHint": "Accedi su {provider} e torni qui. Prima di salvare qualcosa, un file di prova viene archiviato, riletto ed eliminato.",
+    "notConfigured": "Questo server non è ancora configurato per {provider}. Il suo amministratore deve registrare un'app su {provider} e impostare {vars}.",
+    "dismiss": "Chiudi",
+    "notices": {
+      "connected": "Collegato. D'ora in poi i nuovi file vanno lì.",
+      "refused": "Hai effettuato l'accesso, ma non è stato possibile archiviare un file di prova lì, quindi non è cambiato nulla. Riprova più tardi."
     }
   },
   "backup": {

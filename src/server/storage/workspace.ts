@@ -4,10 +4,13 @@ import { and, eq, isNull, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { file, storageDeletion, workspaceStorage } from "@/db/schema";
 import { env } from "@/lib/env";
-import type { S3Credentials, StorageConfig, StorageKind } from "@/lib/workspace-storage";
-import { openJson } from "@/server/secret-box";
+import { locationOf, type OAuthCredentials, type OAuthStorageKind, type S3Credentials, type StorageCredentials, type StorageLocation } from "@/lib/workspace-storage";
+import { openJson, sealJson } from "@/server/secret-box";
 import { StorageError, type ObjectRef, type StorageDriver } from "./driver";
+import { dropboxDriver } from "./dropbox";
+import { gdriveDriver } from "./gdrive";
 import { instanceStorage, uploadLimits } from "./index";
+import { OAUTH_PROVIDERS, oauthSession } from "./oauth-session";
 import { s3Driver } from "./s3";
 
 /**
@@ -24,19 +27,36 @@ import { s3Driver } from "./s3";
 
 export type StorageTarget = typeof workspaceStorage.$inferSelect;
 
-/** A driver for a target's config and credentials: its endpoint is one someone typed, so guarded. */
-export function targetDriver(kind: StorageKind, config: StorageConfig, credentials: S3Credentials): StorageDriver {
-  if (kind !== "s3") throw new StorageError(`${kind} storage isn't available yet`);
-  return s3Driver({
-    bucket: config.bucket,
-    endpoint: config.endpoint ?? undefined,
-    region: config.region,
-    accessKeyId: credentials.accessKeyId,
-    secretAccessKey: credentials.secretAccessKey,
-    forcePathStyle: config.forcePathStyle,
-    prefix: config.prefix ?? undefined,
-    guard: { allowedHosts: env.storageAllowedHosts },
-  });
+export type TargetDriverOptions = {
+  /** Keeps credentials a sign-in refreshed (OAuth kinds); none while a target is only being tried. */
+  persist?: (credentials: OAuthCredentials) => Promise<void>;
+};
+
+/**
+ * A driver for a target's kind, config and credentials. An S3 endpoint is one someone typed, so
+ * guarded; Drive and Dropbox are reached at their own fixed addresses, signed in as the instance's
+ * app for them (STORAGE_GDRIVE_* / STORAGE_DROPBOX_*).
+ */
+export function targetDriver(location: StorageLocation, credentials: StorageCredentials, options: TargetDriverOptions = {}): StorageDriver {
+  if (location.kind === "s3") {
+    const { config } = location;
+    const keys = credentials as S3Credentials;
+    return s3Driver({
+      bucket: config.bucket,
+      endpoint: config.endpoint ?? undefined,
+      region: config.region,
+      accessKeyId: keys.accessKeyId,
+      secretAccessKey: keys.secretAccessKey,
+      forcePathStyle: config.forcePathStyle,
+      prefix: config.prefix ?? undefined,
+      guard: { allowedHosts: env.storageAllowedHosts },
+    });
+  }
+  const app = env.storageOAuthApps[location.kind];
+  if (!app) throw new StorageError(`This server has no ${OAUTH_PROVIDERS[location.kind].name} app set up any more`);
+  const session = oauthSession(location.kind, app, credentials as OAuthCredentials, { persist: options.persist });
+  if (location.kind === "gdrive") return gdriveDriver({ folderId: location.config.folderId, session });
+  return dropboxDriver({ session });
 }
 
 type Cached = { fingerprint: string; driver: StorageDriver };
@@ -51,11 +71,23 @@ function cache(): Map<string, Cached> {
 
 function cachedDriver(target: StorageTarget): StorageDriver {
   const fingerprint = createHash("sha256")
-    .update(JSON.stringify([target.kind, target.config, target.credentials, env.storageAllowedHosts]))
+    .update(JSON.stringify([target.kind, target.config, target.credentials, env.storageAllowedHosts, env.storageOAuthApps[target.kind as OAuthStorageKind] ?? null]))
     .digest("base64url");
   const found = cache().get(target.id);
   if (found?.fingerprint === fingerprint) return found.driver;
-  const driver = targetDriver(target.kind, target.config, openJson<S3Credentials>(target.credentials));
+  let sealed = target.credentials;
+  const driver = targetDriver(locationOf(target), openJson<StorageCredentials>(target.credentials), {
+    // Only over the credentials this driver began with: never over a newer sign-in's.
+    async persist(credentials) {
+      const next = sealJson(credentials);
+      const [kept] = await db
+        .update(workspaceStorage)
+        .set({ credentials: next })
+        .where(and(eq(workspaceStorage.id, target.id), eq(workspaceStorage.credentials, sealed)))
+        .returning({ id: workspaceStorage.id });
+      if (kept) sealed = next;
+    },
+  });
   cache().set(target.id, { fingerprint, driver });
   return driver;
 }
@@ -88,10 +120,12 @@ async function markWorking(id: string) {
 
 /** The target's driver, reporting how its requests go (see above). */
 function watched(target: StorageTarget): StorageDriver {
-  const inner = cachedDriver(target);
-  const report = async <T>(request: () => Promise<T>): Promise<T> => {
+  // Made on the first request, so a target that can't have a driver (its app was taken off the
+  // server) is reported like one that refuses.
+  const inner = () => cachedDriver(target);
+  const report = async <T>(request: (driver: StorageDriver) => Promise<T>): Promise<T> => {
     try {
-      const result = await request();
+      const result = await request(inner());
       if (target.status === "broken") await markWorking(target.id).catch(() => undefined);
       return result;
     } catch (error) {
@@ -100,10 +134,10 @@ function watched(target: StorageTarget): StorageDriver {
     }
   };
   return {
-    kind: inner.kind,
-    put: (key, body, info) => report(() => inner.put(key, body, info)),
-    get: (ref, range) => report(() => inner.get(ref, range)),
-    delete: (ref) => report(() => inner.delete(ref)),
+    kind: target.kind,
+    put: (key, body, info) => report((driver) => driver.put(key, body, info)),
+    get: (ref, range) => report((driver) => driver.get(ref, range)),
+    delete: (ref) => report((driver) => driver.delete(ref)),
   };
 }
 
