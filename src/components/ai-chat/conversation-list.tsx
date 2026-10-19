@@ -2,10 +2,10 @@
 
 /**
  * The sidebar of the full-page chat: the person's conversations in place of the page tree, newest
- * first, with the way back to the pages and to a new chat. Deleting, one or all,
- * is in a ⋯ menu so a stray click doesn't lose a conversation.
+ * first. The way back to the pages and a new chat are above it, where Home is on other pages.
+ * Deleting, one or all, is in a ⋯ menu so a stray click doesn't lose a conversation.
  */
-import { ArrowLeft, Loader2, MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
+import { Loader2, MoreHorizontal, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -75,17 +75,7 @@ export function ConversationList() {
 
   return (
     <div className="space-y-px">
-      <Link href={context.backPath()} className={row}>
-        <ArrowLeft className="h-4 w-4 shrink-0 rtl:-scale-x-100" />
-        <span className="flex-1 truncate">{t("backToPages")}</span>
-      </Link>
-      {/* An action rather than a place: it isn't marked as the current item. */}
-      <Link href={chatPath(workspaceId)} onClick={closeDrawer} className={row}>
-        <SquarePen className="h-4 w-4 shrink-0" />
-        <span className="flex-1 truncate">{t("newChat")}</span>
-      </Link>
-
-      <section aria-labelledby="conversations-heading" className="pt-3">
+      <section aria-labelledby="conversations-heading">
         <div className="group/heading flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover">
           <h2 id="conversations-heading" className="min-w-0 flex-1 truncate px-2 text-xs font-medium text-fg-muted">
             {t("history")}

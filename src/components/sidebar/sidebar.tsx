@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   Bell,
   BellOff,
   CalendarCheck,
@@ -1063,8 +1064,18 @@ export function Sidebar({
             <kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">⌘K</kbd>
           </button>
           <div className="mt-1.5 space-y-px">
-            {/* In the full-page chat its list has the way back to the pages instead. */}
-            {!onChatPage && (
+            {/* The full-page chat has the way back to the pages and a new chat here instead. */}
+            {onChatPage && aiChat ? (
+              <>
+                <SidebarButton icon={<ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />} href={aiChat.backPath()}>
+                  {tAi("backToPages")}
+                </SidebarButton>
+                {/* Only the address's `?c=` changes, so a phone's drawer is closed here. */}
+                <SidebarButton icon={<SquarePen className="h-4 w-4" />} href={chatPath(workspaceId)} onClick={sidebar?.close}>
+                  {tAi("newChat")}
+                </SidebarButton>
+              </>
+            ) : (
               <>
                 <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
                   {t("nav.home")}
@@ -1674,7 +1685,7 @@ function SidebarButton({
     </>
   );
   return href ? (
-    <Link href={href} className={className}>
+    <Link href={href} className={className} onClick={onClick}>
       {content}
     </Link>
   ) : (
