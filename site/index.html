@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Leafdesk: open-source, self-hosted pages and databases with an MCP server</title>
-<meta name="description" content="Leafdesk is an open-source workspace you run on your own server: pages, databases and realtime collaboration, with a built-in MCP server so Claude and other AI assistants can work in your workspace after you approve them.">
+<meta name="description" content="Leafdesk is an open-source workspace you run on your own server or in its desktop app on your computer: pages, databases and realtime collaboration, with a built-in MCP server so Claude and other AI assistants can work in your workspace after you approve them.">
 <link rel="canonical" href="https://esmworks.github.io/leafdesk/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
@@ -34,12 +34,12 @@
   "description": "Open-source, self-hosted workspace of pages and databases with realtime collaboration and a built-in MCP server, so AI assistants can search, read and edit your workspace securely over OAuth.",
   "url": "https://esmworks.github.io/leafdesk/",
   "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Linux, macOS, Windows (Docker); any modern web browser",
+  "operatingSystem": "macOS, Windows, Linux; any modern web browser",
   "softwareVersion": "0.6.1",
   "license": "https://www.gnu.org/licenses/agpl-3.0.html",
   "image": "https://esmworks.github.io/leafdesk/img/og.png",
-  "screenshot": "https://esmworks.github.io/leafdesk/img/board-light.jpg",
-  "downloadUrl": "https://github.com/esmworks/leafdesk",
+  "screenshot": ["https://esmworks.github.io/leafdesk/img/board-light.jpg", "https://esmworks.github.io/leafdesk/img/desktop-light.webp"],
+  "downloadUrl": "https://github.com/esmworks/leafdesk/releases/latest",
   "sameAs": "https://github.com/esmworks/leafdesk",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
@@ -190,6 +190,16 @@
   .copy:hover { background: var(--bg-hover); }
   .note { color: var(--fg-muted); font-size: 15px; margin-top: 16px; }
 
+  .downloads { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+  .downloads .btn { font-size: 14px; padding: 9px 14px; }
+  /* Window screenshots keep the window's own rounded corners; the shadow follows them. */
+  .window img { filter: drop-shadow(0 18px 36px rgba(15, 23, 20, 0.16)) drop-shadow(0 0 1px rgba(15, 23, 20, 0.35)); }
+  @media (prefers-color-scheme: dark) {
+    .window img { filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.25)); }
+  }
+  .window.start img { width: min(100%, 420px); margin: 0 auto; }
+  .window.wide { display: block; margin-top: 64px; }
+
   .faq { display: grid; gap: 8px; max-width: 820px; }
   .faq details { border: 1px solid var(--border); border-radius: 8px; padding: 0 20px; background: var(--bg); }
   .faq summary { cursor: pointer; padding: 18px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
@@ -223,6 +233,7 @@
       <a class="opt" href="#features">Features</a>
       <a class="opt" href="#ai">AI assistants</a>
       <a class="opt" href="#agents">Agents</a>
+      <a class="opt" href="#download">Download</a>
       <a class="opt" href="#self-host">Self-host</a>
       <a href="https://github.com/esmworks/leafdesk">GitHub</a>
     </nav>
@@ -232,17 +243,18 @@
 <main>
   <div class="wrap hero">
     <h1>The open-source workspace you host yourself</h1>
-    <p class="lead">Pages, databases and realtime collaboration on your own server, with a built-in
-      MCP server so Claude and other AI assistants can search, read and edit your workspace, only
-      after you approve them.</p>
+    <p class="lead">Pages, databases and realtime collaboration on your own server or right on your
+      computer, with a built-in MCP server so Claude and other AI assistants can search, read and
+      edit your workspace, only after you approve them.</p>
     <div class="ctas">
-      <a class="btn primary" href="#self-host">Get started</a>
+      <a class="btn primary" href="#download">Download the app</a>
+      <a class="btn" href="#self-host">Run it on a server</a>
       <a class="btn" href="https://github.com/esmworks/leafdesk">
         <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         View on GitHub
       </a>
     </div>
-    <p class="meta">Free and open source under AGPL-3.0 · Runs with Docker Compose · Your data in your PostgreSQL · In 16 languages</p>
+    <p class="meta">Free and open source under AGPL-3.0 · Desktop app for macOS, Windows and Linux · Docker Compose for your server · In 16 languages</p>
 
     <div class="shot">
       <picture>
@@ -411,11 +423,54 @@
     </div>
   </section>
 
+  <section id="download">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <h2>A desktop app, with or without a server</h2>
+          <p class="sub">Run Leafdesk on your own computer with nothing to set up, or open your team's
+            server in a window of its own.</p>
+          <ul class="checks">
+            <li><strong>No server needed:</strong> choose <em>On this computer</em> and Leafdesk runs
+              inside the app, with a database of its own. Your pages and files stay on the computer.</li>
+            <li><strong>Backed up every day</strong> into one file per workspace, in a folder you choose,
+              such as one iCloud Drive or Dropbox keeps in sync.</li>
+            <li><strong>Room to grow:</strong> a backup restores on any Leafdesk, so the workspace moves
+              to a server when a team joins.</li>
+            <li><strong>Or connect to your server,</strong> and your team's workspace opens in a window
+              of its own, with links to other sites opening in your browser.</li>
+          </ul>
+          <div class="downloads" aria-label="Download the desktop app">
+            <a class="btn" data-asset="arm64.dmg" href="https://github.com/esmworks/leafdesk/releases/latest">macOS, Apple silicon</a>
+            <a class="btn" data-asset="x64.dmg" href="https://github.com/esmworks/leafdesk/releases/latest">macOS, Intel</a>
+            <a class="btn" data-asset=".exe" href="https://github.com/esmworks/leafdesk/releases/latest">Windows</a>
+            <a class="btn" data-asset="x86_64.AppImage" href="https://github.com/esmworks/leafdesk/releases/latest">Linux</a>
+          </div>
+          <p class="note"><span id="release-version">The latest release</span> on GitHub. The macOS app
+            is signed and notarized, and the apps update themselves. The Windows installer isn't
+            signed yet, so Windows warns the first time: choose <em>More info</em>, then
+            <em>Run anyway</em>.</p>
+        </div>
+        <picture class="window start">
+          <source media="(prefers-color-scheme: dark)" srcset="img/desktop-start-dark.webp">
+          <img src="img/desktop-start.webp" width="1240" height="1560" loading="lazy"
+               alt="The desktop app's first screen, asking where the workspace should live: My own server, On this computer, or a Leafdesk account (coming soon)">
+        </picture>
+      </div>
+      <picture class="window wide">
+        <source media="(prefers-color-scheme: dark)" srcset="img/desktop-dark.webp">
+        <img src="img/desktop-light.webp" width="1600" height="935" loading="lazy"
+             alt="The Leafdesk desktop app on macOS running on the computer itself: a small business dashboard with open jobs, open quotes and the balance sheet">
+      </picture>
+    </div>
+  </section>
+
   <section id="self-host">
     <div class="wrap">
-      <h2>Up and running in a minute</h2>
-      <p class="sub">One <code>docker compose up</code> on your own server. Leafdesk and PostgreSQL run
-        side by side, and your pages and files stay with you.</p>
+      <h2>Up and running on your server in a minute</h2>
+      <p class="sub">For a team, one <code>docker compose up</code> on your own server. Leafdesk and
+        PostgreSQL run side by side, your pages and files stay with you, and everyone signs in from the
+        browser, the desktop app or their phone.</p>
       <div class="code">
         <button class="copy" type="button" data-copy="quickstart">Copy</button>
 <pre id="quickstart"><code>mkdir leafdesk &amp;&amp; cd leafdesk
@@ -439,7 +494,15 @@ docker compose up -d</code></pre>
         <details>
           <summary>Is Leafdesk free?</summary>
           <p>Yes. Leafdesk is open source under the AGPL-3.0 license, with no paid tier and no
-            limits on pages, members or storage. You only pay for the server you run it on.</p>
+            limits on pages, members or storage. You only pay for the server you run it on, if you
+            use one.</p>
+        </details>
+        <details>
+          <summary>Do I need a server?</summary>
+          <p>Not for yourself. In the desktop app, <em>On this computer</em> runs Leafdesk on your
+            Mac, Windows or Linux computer with nothing to set up, and backs it up every day. It is
+            for one person on one computer: for a team, or to reach it from your phone, run it on a
+            server with Docker and restore a backup there.</p>
         </details>
         <details>
           <summary>Can I move my workspace from Notion?</summary>
@@ -466,7 +529,8 @@ docker compose up -d</code></pre>
         <details>
           <summary>Where is my data stored?</summary>
           <p>In your own PostgreSQL database, with uploaded files on disk or in S3-compatible
-            storage you choose. Leafdesk doesn't send your pages anywhere else unless you turn on an AI provider.</p>
+            storage you choose; with the desktop app on your computer, in the app's own folder there.
+            Leafdesk doesn't send your pages anywhere else unless you turn on an AI provider.</p>
         </details>
         <details>
           <summary>Which languages does it support?</summary>
@@ -484,10 +548,11 @@ docker compose up -d</code></pre>
   <section class="cta-band">
     <div class="wrap">
       <h2>Run your own workspace</h2>
-      <p class="sub" style="margin: 0 auto;">Star the project, try it with Docker, or open an issue
-        with what you need.</p>
+      <p class="sub" style="margin: 0 auto;">Download the app, try it with Docker, star the project,
+        or open an issue with what you need.</p>
       <div class="ctas">
-        <a class="btn primary" href="https://github.com/esmworks/leafdesk">Star on GitHub</a>
+        <a class="btn primary" href="#download">Download the app</a>
+        <a class="btn" href="https://github.com/esmworks/leafdesk">Star on GitHub</a>
         <a class="btn" href="https://github.com/esmworks/leafdesk/releases">Release notes</a>
       </div>
     </div>
@@ -517,6 +582,25 @@ docker compose up -d</code></pre>
       });
     });
   });
+
+  // The download buttons point at the latest release's page; once GitHub says which files it has,
+  // they point at the files, and the one for this computer is highlighted.
+  (function () {
+    var buttons = document.querySelectorAll("[data-asset]");
+    var ua = navigator.userAgent;
+    var mine = /Windows/.test(ua) ? ".exe" : /Linux/.test(ua) && !/Android/.test(ua) ? "x86_64.AppImage" : /Mac/.test(ua) && !/iPhone|iPad/.test(ua) ? "arm64.dmg" : null;
+    buttons.forEach(function (b) { if (b.dataset.asset === mine) b.classList.add("primary"); });
+    fetch("https://api.github.com/repos/esmworks/leafdesk/releases/latest")
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (release) {
+        buttons.forEach(function (b) {
+          var asset = release.assets.find(function (a) { return a.name.slice(-b.dataset.asset.length) === b.dataset.asset; });
+          if (asset) b.href = asset.browser_download_url;
+        });
+        document.getElementById("release-version").textContent = "Leafdesk " + release.tag_name.replace(/^v/, "");
+      })
+      .catch(function () {});
+  })();
 </script>
 </body>
 </html>
