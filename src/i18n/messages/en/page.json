@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "This browser can't show PDFs here. Open the file to read it."
   },
+  "spreadsheet": {
+    "untitled": "Workbook",
+    "download": "Download",
+    "loading": "Reading the workbook…",
+    "tooLarge": "This workbook is too large to show here. Download it to open it.",
+    "unreadable": "This workbook can't be shown here: it may be damaged, password-protected or an old .xls file. Download it to open it.",
+    "empty": "This sheet is empty.",
+    "sheets": "Sheets",
+    "tableLabel": "{name}, sheet {sheet}",
+    "partial": "First {rows} rows and {columns} columns shown",
+    "convert": "Turn into a database",
+    "convertTitle": "Import a sheet of this workbook as a new database"
+  },
   "print": {
     "print": "Print or save as PDF",
     "back": "Back to page",

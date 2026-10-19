@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "Dieser Browser kann PDFs hier nicht anzeigen. Öffne die Datei, um sie zu lesen."
   },
+  "spreadsheet": {
+    "untitled": "Arbeitsmappe",
+    "download": "Herunterladen",
+    "loading": "Arbeitsmappe wird gelesen…",
+    "tooLarge": "Diese Arbeitsmappe ist zu groß, um sie hier anzuzeigen. Lade sie herunter, um sie zu öffnen.",
+    "unreadable": "Diese Arbeitsmappe kann hier nicht angezeigt werden: Sie ist vielleicht beschädigt, passwortgeschützt oder eine alte .xls-Datei. Lade sie herunter, um sie zu öffnen.",
+    "empty": "Dieses Blatt ist leer.",
+    "sheets": "Blätter",
+    "tableLabel": "{name}, Blatt {sheet}",
+    "partial": "Die ersten {rows} Zeilen und {columns} Spalten werden angezeigt",
+    "convert": "In eine Datenbank umwandeln",
+    "convertTitle": "Ein Blatt dieser Arbeitsmappe als neue Datenbank importieren"
+  },
   "print": {
     "print": "Drucken oder als PDF speichern",
     "back": "Zurück zur Seite",

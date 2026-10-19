@@ -161,18 +161,20 @@ describe("published page body", () => {
     ]);
   });
 
-  it("shows uploaded PDFs in place and keeps other files as links", async () => {
+  it("shows uploaded PDFs and workbooks in place and keeps other files as links", async () => {
     const id = "AbCdEfGhIjKlMnOpQrStUv_-";
     const state = await ydocFrom([
       { type: "paragraph", content: "before" },
       { type: "file", props: { url: `/api/files/${id}`, name: "Report.pdf", caption: "Q3" } },
+      { type: "file", props: { url: `/api/files/${id}`, name: "Teklif.xlsx", caption: "" } },
       { type: "file", props: { url: `/api/files/${id}`, name: "data.csv", caption: "" } },
       { type: "file", props: { url: "https://example.com/other.pdf", name: "other.pdf", caption: "" } },
     ]);
     const segments = await bodySegmentsFromYdoc(state);
-    expect(segments.map((s) => s.kind)).toEqual(["html", "pdf", "html"]);
+    expect(segments.map((s) => s.kind)).toEqual(["html", "pdf", "spreadsheet", "html"]);
     expect(segments[1]).toEqual({ kind: "pdf", fileId: id, name: "Report.pdf", caption: "Q3" });
-    const rest = segments[2].kind === "html" ? segments[2].html : "";
+    expect(segments[2]).toEqual({ kind: "spreadsheet", fileId: id, name: "Teklif.xlsx", caption: "" });
+    const rest = segments[3].kind === "html" ? segments[3].html : "";
     expect(rest).toContain("data.csv");
     expect(rest).toContain("other.pdf");
   });

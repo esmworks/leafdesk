@@ -2017,6 +2017,25 @@ describe("get_file", () => {
     expect(data.text).toContain("Quote 2026-114 total 48500 EUR");
   });
 
+  it("reads an Excel workbook's sheets as text", async () => {
+    const { toXlsx } = await import("@/lib/xlsx");
+    const book = Buffer.from(toXlsx([["Ürün", "Fiyat"], ["Kompresör", 1500]], { name: "Teklif" }));
+    for (const [name, contentType] of [
+      ["teklif.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+      ["teklif.xlsx", "application/octet-stream"],
+    ]) {
+      files.fileForApp.mockResolvedValue(stored({ name, contentType, size: book.length }));
+      files.readStored.mockResolvedValue(book);
+      const { isError, data } = await callTool(reader, "get_file", { file: FILE_ID });
+      expect(isError).toBe(false);
+      expect(data.text).toBe("Teklif\nÜrün | Fiyat\nKompresör | 1500");
+      expect(data.partial).toBeUndefined();
+    }
+    files.fileForApp.mockResolvedValue(stored({ name: "broken.xlsx", contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    files.readStored.mockResolvedValue(Buffer.from("not a workbook"));
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/workbook couldn't be read/);
+  });
+
   it("describes files it can't show, too large ones and unreadable PDFs without reading them", async () => {
     files.fileForApp.mockResolvedValue(stored({ name: "offer.docx", contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }));
     expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/can't show this kind/);

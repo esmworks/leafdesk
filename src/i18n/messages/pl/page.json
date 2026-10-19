@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "Ta przeglądarka nie może tu wyświetlać plików PDF. Otwórz plik, aby go przeczytać."
   },
+  "spreadsheet": {
+    "untitled": "Skoroszyt",
+    "download": "Pobierz",
+    "loading": "Odczytywanie skoroszytu…",
+    "tooLarge": "Ten skoroszyt jest za duży, aby go tu pokazać. Pobierz go, aby go otworzyć.",
+    "unreadable": "Tego skoroszytu nie można tu pokazać: może być uszkodzony, chroniony hasłem lub być starym plikiem .xls. Pobierz go, aby go otworzyć.",
+    "empty": "Ten arkusz jest pusty.",
+    "sheets": "Arkusze",
+    "tableLabel": "{name}, arkusz {sheet}",
+    "partial": "Pokazano pierwsze wiersze ({rows}) i kolumny ({columns})",
+    "convert": "Zamień w bazę danych",
+    "convertTitle": "Zaimportuj arkusz z tego skoroszytu jako nową bazę danych"
+  },
   "print": {
     "print": "Drukuj lub zapisz jako PDF",
     "back": "Wróć do strony",

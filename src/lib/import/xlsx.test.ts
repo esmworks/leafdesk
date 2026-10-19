@@ -209,6 +209,37 @@ describe("readWorkbook", () => {
   });
 });
 
+describe("Workbook.cells", () => {
+  it("reads a sheet's cells as they stand, each row with its number", () => {
+    const sheet = readWorkbook(fixture()).cells(0, { rows: 100, columns: 100 });
+    expect(sheet.width).toBe(7);
+    expect(sheet.partial).toBe(false);
+    expect(sheet.rows.map((r) => r.number)).toEqual([1, 2, 5, 6]);
+    expect(sheet.rows[0].cells).toEqual(["Name", "Done", "Due", "Points", "", "Notes", "Weight"]);
+    // Leading empty columns keep their place: the second sheet starts in column B.
+    expect(readWorkbook(fixture()).cells(1, { rows: 100, columns: 100 }).rows).toEqual([
+      { number: 2, cells: ["", "Idea"] },
+      { number: 3, cells: ["", "Fly"] },
+    ]);
+  });
+
+  it("stops at its limits instead of failing, and says so", () => {
+    const rows = Array.from({ length: 6000 }, (_, i) => `<row r="${i + 1}"><c r="A${i + 1}"><v>${i}</v></c><c r="CW${i + 1}"><v>1</v></c></row>`).join("");
+    const big = fixture({ parts: { "xl/worksheets/sheet1.xml": `<worksheet ${NS}><sheetData>${rows}</sheetData></worksheet>` } });
+    const sheet = readWorkbook(big).cells(0, { rows: 3, columns: 2 });
+    expect(sheet).toEqual({
+      rows: [
+        { number: 1, cells: ["0"] },
+        { number: 2, cells: ["1"] },
+        { number: 3, cells: ["2"] },
+      ],
+      width: 1,
+      partial: true,
+    });
+    expect(readWorkbook(big).cells(0, { rows: 6000, columns: 200 })).toMatchObject({ width: 101, partial: false });
+  });
+});
+
 describe("workbookTable", () => {
   it("imports the first sheet and reports the others as left out", () => {
     const warnings = new WarningList();

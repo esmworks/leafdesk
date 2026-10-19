@@ -382,6 +382,7 @@ export type PublishedBlock =
   | { kind: "bookmark"; bookmark: PublishedBookmark }
   | { kind: "webEmbed"; url: string; embed: EmbedTarget }
   | { kind: "pdf"; fileId: string; name: string; caption: string }
+  | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
   | { kind: "dashboard"; widgets: PublishedWidget[] }
   | {

@@ -527,6 +527,19 @@
     "frameTitle": "PDF：{name}",
     "noPreview": "此浏览器无法在这里显示 PDF。请打开文件阅读。"
   },
+  "spreadsheet": {
+    "untitled": "工作簿",
+    "download": "下载",
+    "loading": "正在读取工作簿…",
+    "tooLarge": "此工作簿太大，无法在此显示。请下载后打开。",
+    "unreadable": "此工作簿无法在此显示：它可能已损坏、受密码保护或是旧的 .xls 文件。请下载后打开。",
+    "empty": "此工作表为空。",
+    "sheets": "工作表",
+    "tableLabel": "{name}，工作表 {sheet}",
+    "partial": "显示前 {rows} 行和前 {columns} 列",
+    "convert": "转换为数据库",
+    "convertTitle": "将此工作簿中的一个工作表导入为新数据库"
+  },
   "print": {
     "print": "打印或另存为 PDF",
     "back": "返回页面",

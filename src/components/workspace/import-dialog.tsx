@@ -74,6 +74,7 @@ export function ImportDialog({
   topLevel,
   activeId,
   teamspaceId,
+  file,
 }: {
   workspaceId: string;
   open: boolean;
@@ -85,6 +86,8 @@ export function ImportDialog({
   activeId: string | null;
   /** Where top-level imports go: a teamspace, null for private, undefined for the workspace default. */
   teamspaceId?: string | null;
+  /** A CSV file or workbook to start from (one a page shows): it opens chosen, to import as a new database. */
+  file?: File | null;
 }) {
   const router = useRouter();
   const t = useTranslations("import");
@@ -140,6 +143,12 @@ export function ImportDialog({
     setError(null);
     setResult(null);
     setBusy(false);
+    if (file) {
+      setTab("csv");
+      setCsvMode("new");
+      setDatabaseId("");
+      void chooseCsv(file);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- resets only when the dialog opens, not while the tree changes
   }, [open]);
 

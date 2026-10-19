@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Added
+
+- **Excel workbooks show in place.** An .xlsx file in a page shows its cells read-only, with the
+  sheet's row numbers and column letters and a tab for each sheet (the first 200 rows and 40
+  columns of a sheet; workbooks up to 10 MB). Published pages show them too. *Turn into a
+  database* opens the import with the workbook chosen, to import one of its sheets as a new
+  database.
+- **Search finds the words inside Excel workbooks.** Full-text search, the AI chat's semantic search
+  and the MCP `search` read the workbooks pages show, as they read PDFs and Word documents.
+  Workbooks uploaded earlier are read by the background sweep, without a reindex. The MCP
+  `get_file` tool reads a workbook as text, sheet by sheet.
+
 ## 0.6.1 — 2026-10-19
 
 ### Upgrading from 0.6.0

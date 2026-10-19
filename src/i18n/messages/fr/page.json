@@ -527,6 +527,19 @@
     "frameTitle": "PDF : {name}",
     "noPreview": "Ce navigateur ne peut pas afficher de PDF ici. Ouvrez le fichier pour le lire."
   },
+  "spreadsheet": {
+    "untitled": "Classeur",
+    "download": "Télécharger",
+    "loading": "Lecture du classeur…",
+    "tooLarge": "Ce classeur est trop volumineux pour être affiché ici. Téléchargez-le pour l'ouvrir.",
+    "unreadable": "Ce classeur ne peut pas être affiché ici : il est peut-être endommagé, protégé par mot de passe ou au format .xls ancien. Téléchargez-le pour l'ouvrir.",
+    "empty": "Cette feuille est vide.",
+    "sheets": "Feuilles",
+    "tableLabel": "{name}, feuille {sheet}",
+    "partial": "Les {rows} premières lignes et {columns} premières colonnes sont affichées",
+    "convert": "Convertir en base de données",
+    "convertTitle": "Importer une feuille de ce classeur comme nouvelle base de données"
+  },
   "print": {
     "print": "Imprimer ou enregistrer en PDF",
     "back": "Retour à la page",

@@ -174,7 +174,7 @@ export async function storeFile(
       await db.delete(file).where(eq(file.id, id));
       throw error;
     }
-    // A PDF or Word document is read in the background, so search finds its words.
+    // A PDF, Word document or Excel workbook is read in the background, so search finds its words.
     queueDocument({ id, name, contentType, size: spooled.size, storageKey });
     return { id, url: fileUrl(id), name, contentType, size: spooled.size, pageId, workspaceId };
   } finally {

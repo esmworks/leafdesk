@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PropertyDisplay } from "@/components/database/property-cell";
@@ -6,6 +6,7 @@ import { PropertyTypeIcon } from "@/components/database/property-icons";
 import { PublishedMermaid } from "@/components/page/mermaid-diagram";
 import { HeadingList, SubpageList, Trail } from "@/components/page/page-outline";
 import { PdfViewer } from "@/components/page/pdf-viewer";
+import { SpreadsheetViewer } from "@/components/page/spreadsheet-viewer";
 import { BookmarkCard, EmbedFrame } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
 import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS, widgetBoxClass } from "@/lib/dashboard";
@@ -75,11 +76,12 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [tc, tb, tw, tp, td] = await Promise.all([
+  const [tc, tb, tw, tp, ts, td] = await Promise.all([
     getTranslations("common"),
     getTranslations("page.blocks"),
     getTranslations("page.web"),
     getTranslations("page.pdf"),
+    getTranslations("page.spreadsheet"),
     getTranslations("page.dashboard"),
   ]);
   const untitled = tc("untitled");
@@ -196,18 +198,25 @@ export async function PublishedBody({
           </div>
         );
       case "pdf":
+      case "spreadsheet":
         return (
           <div key={i} className={cn("my-2", pad, styles.keep)}>
             {print ? (
               <div className="rounded-md border border-border px-3.5 py-3">
                 <p className="flex min-w-0 items-center gap-1.5 text-sm font-medium">
-                  <FileText className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
-                  <span className="break-words">{block.name || tp("untitled")}</span>
+                  {block.kind === "pdf" ? (
+                    <FileText className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
+                  ) : (
+                    <FileSpreadsheet className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
+                  )}
+                  <span className="break-words">{block.name || (block.kind === "pdf" ? tp("untitled") : ts("untitled"))}</span>
                 </p>
                 {block.caption && <p className="pt-1.5 text-sm text-fg-muted">{block.caption}</p>}
               </div>
-            ) : (
+            ) : block.kind === "pdf" ? (
               <PdfViewer fileId={block.fileId} name={block.name} caption={block.caption} />
+            ) : (
+              <SpreadsheetViewer fileId={block.fileId} name={block.name} caption={block.caption} />
             )}
           </div>
         );

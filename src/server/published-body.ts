@@ -7,7 +7,7 @@ import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLO
 import { plainText } from "@/lib/content-markdown";
 import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
-import { pdfFileId } from "@/lib/files";
+import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
@@ -183,6 +183,8 @@ export type BodySegment =
   | { kind: "webEmbed"; url: string; embed: EmbedTarget }
   /** A file block holding an uploaded PDF, shown in place (see components/page/pdf-viewer.tsx). */
   | { kind: "pdf"; fileId: string; name: string; caption: string }
+  /** A file block holding an uploaded Excel workbook, its cells shown in place (see components/page/spreadsheet-viewer.tsx). */
+  | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
   /** Columns side by side (stacked on narrow screens), each with its own segments. */
   | { kind: "columns"; columns: PublishedColumn<BodySegment>[] };
 
@@ -199,6 +201,13 @@ function pdfOf(block: PageBlock): string | null {
   return pdfFileId(props.url, props.name);
 }
 
+/** The uploaded Excel workbook a file block shows in place, if it holds one (see lib/files spreadsheetFileId). */
+function spreadsheetOf(block: PageBlock): string | null {
+  if (block.type !== "file") return null;
+  const props = block.props as { url?: unknown; name?: unknown };
+  return spreadsheetFileId(props.url, props.name);
+}
+
 const isStandalone = (block: PageBlock) =>
   block.type === COLUMN_LIST_BLOCK ||
   isEmbedBlockType(block.type) ||
@@ -208,7 +217,8 @@ const isStandalone = (block: PageBlock) =>
   block.type === BREADCRUMB_BLOCK ||
   block.type === SUBPAGES_BLOCK ||
   block.type === MERMAID_BLOCK ||
-  pdfOf(block) !== null;
+  pdfOf(block) !== null ||
+  spreadsheetOf(block) !== null;
 
 /** A bookmark or embed block as the published page draws it, or null when it has no valid URL. */
 function webSegment(block: PageBlock): BodySegment | null {
@@ -486,12 +496,13 @@ export async function bodySegmentsFromBlocks(
         return;
       }
       const pdf = pdfOf(block);
-      if (pdf) {
+      const spreadsheet = pdf ? null : spreadsheetOf(block);
+      if (pdf || spreadsheet) {
         const props = block.props as { name?: unknown; caption?: unknown };
         await flush();
         segments.push({
-          kind: "pdf",
-          fileId: pdf,
+          kind: pdf ? "pdf" : "spreadsheet",
+          fileId: (pdf ?? spreadsheet)!,
           name: typeof props.name === "string" ? props.name : "",
           caption: typeof props.caption === "string" ? props.caption : "",
         });

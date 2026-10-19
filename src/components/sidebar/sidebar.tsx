@@ -59,6 +59,7 @@ import { loadSnapshot, readOfflineState, saveSnapshot, treeSnapshotKey, wipeAllO
 import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { dropPushSubscription } from "@/components/settings/push-device";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
+import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
@@ -174,6 +175,8 @@ export function Sidebar({
   const [trashOpen, setTrashOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  // A workbook a page shows, to import as a database (see IMPORT_SPREADSHEET_EVENT).
+  const [importFile, setImportFile] = useState<File | null>(null);
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -288,6 +291,17 @@ export function Sidebar({
     window.addEventListener(FAVORITES_EVENT, refreshFavorites);
     return () => window.removeEventListener(FAVORITES_EVENT, refreshFavorites);
   }, [refreshFavorites]);
+  useEffect(() => {
+    const onImport = (event: Event) => {
+      const { file } = (event as CustomEvent<ImportSpreadsheetDetail>).detail ?? {};
+      if (!(file instanceof File)) return;
+      setDialogTarget(undefined);
+      setImportFile(file);
+      setImportOpen(true);
+    };
+    window.addEventListener(IMPORT_SPREADSHEET_EVENT, onImport);
+    return () => window.removeEventListener(IMPORT_SPREADSHEET_EVENT, onImport);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -551,6 +565,7 @@ export function Sidebar({
 
   function openImport(target: Target) {
     setDialogTarget(target);
+    setImportFile(null);
     setImportOpen(true);
   }
 
@@ -1252,12 +1267,16 @@ export function Sidebar({
       <ImportDialog
         workspaceId={workspaceId}
         open={importOpen}
-        onClose={() => setImportOpen(false)}
+        onClose={() => {
+          setImportOpen(false);
+          setImportFile(null);
+        }}
         tree={tree}
         topLevel={Boolean(topLevel)}
         // From a section's menu it starts at that section's top rather than at the open page.
         activeId={dialogTarget === undefined ? activeId : null}
         teamspaceId={dialogTarget}
+        file={importFile}
       />
       <TeamspaceDialog
         workspaceId={workspaceId}

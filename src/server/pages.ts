@@ -859,7 +859,7 @@ export async function searchPages(userId: string, query: string, options: Search
  * (page.searchVector) through its index, and access is checked in rank order only until `limit`
  * pages pass, so a search costs about the same in a workspace of any size.
  *
- * A page is also found when a PDF or Word document its body shows has every word (each document
+ * A page is also found when a PDF, Word document or Excel workbook its body shows has every word (each document
  * on its own, not words spread over the page and its documents), below the pages that have them
  * in their own text; the hit then names the document and its snippet comes from it.
  */
@@ -898,7 +898,7 @@ export async function fullTextSearch(
     : sql`(case when p.title ilike ${like} then 2 else 0 end) + ts_rank(p.search_vector, ${words}, 1)`;
   const matches = q ? sql`p.search_vector @@ ${words}` : sql`true`;
   const inWorkspaces = sql.join(workspaces.map((w) => sql`${w}`), sql`, `);
-  // Pages whose body shows a PDF or Word document with the words (file-text.ts), through a
+  // Pages whose body shows a PDF, Word document or Excel workbook with the words (file-text.ts), through a
   // reference its readers may read it by: the rule semantic search indexes documents by
   // (file-text.pageDocuments), so the document's words find nothing someone couldn't read there.
   // Its vector has no weight, so a page matching in its own text ranks above one matching only in

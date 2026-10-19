@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "Este navegador não consegue exibir PDFs aqui. Abra o arquivo para lê-lo."
   },
+  "spreadsheet": {
+    "untitled": "Pasta de trabalho",
+    "download": "Baixar",
+    "loading": "Lendo a pasta de trabalho…",
+    "tooLarge": "Esta pasta de trabalho é grande demais para ser mostrada aqui. Baixe-a para abri-la.",
+    "unreadable": "Esta pasta de trabalho não pode ser mostrada aqui: pode estar danificada, protegida por senha ou ser um arquivo .xls antigo. Baixe-a para abri-la.",
+    "empty": "Esta planilha está vazia.",
+    "sheets": "Planilhas",
+    "tableLabel": "{name}, planilha {sheet}",
+    "partial": "Mostrando as primeiras {rows} linhas e {columns} colunas",
+    "convert": "Transformar em banco de dados",
+    "convertTitle": "Importar uma planilha desta pasta de trabalho como um novo banco de dados"
+  },
   "print": {
     "print": "Imprimir ou salvar como PDF",
     "back": "Voltar para a página",

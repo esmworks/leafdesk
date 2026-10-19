@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "Este navegador no puede mostrar archivos PDF aquí. Abre el archivo para leerlo."
   },
+  "spreadsheet": {
+    "untitled": "Libro",
+    "download": "Descargar",
+    "loading": "Leyendo el libro…",
+    "tooLarge": "Este libro es demasiado grande para mostrarlo aquí. Descárgalo para abrirlo.",
+    "unreadable": "Este libro no se puede mostrar aquí: puede estar dañado, protegido con contraseña o ser un archivo .xls antiguo. Descárgalo para abrirlo.",
+    "empty": "Esta hoja está vacía.",
+    "sheets": "Hojas",
+    "tableLabel": "{name}, hoja {sheet}",
+    "partial": "Se muestran las primeras {rows} filas y {columns} columnas",
+    "convert": "Convertir en base de datos",
+    "convertTitle": "Importar una hoja de este libro como una base de datos nueva"
+  },
   "print": {
     "print": "Imprimir o guardar como PDF",
     "back": "Volver a la página",

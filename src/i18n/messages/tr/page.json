@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "Bu tarayıcı PDF'leri burada gösteremiyor. Okumak için dosyayı açın."
   },
+  "spreadsheet": {
+    "untitled": "Çalışma kitabı",
+    "download": "İndir",
+    "loading": "Çalışma kitabı okunuyor…",
+    "tooLarge": "Bu çalışma kitabı burada gösterilemeyecek kadar büyük. Açmak için indirin.",
+    "unreadable": "Bu çalışma kitabı burada gösterilemiyor: bozuk, parola korumalı ya da eski bir .xls dosyası olabilir. Açmak için indirin.",
+    "empty": "Bu sayfa boş.",
+    "sheets": "Sayfalar",
+    "tableLabel": "{name}, {sheet} sayfası",
+    "partial": "İlk {rows} satır ve {columns} sütun gösteriliyor",
+    "convert": "Veritabanına çevir",
+    "convertTitle": "Bu çalışma kitabının bir sayfasını yeni bir veritabanı olarak içe aktar"
+  },
   "print": {
     "print": "Yazdır veya PDF olarak kaydet",
     "back": "Sayfaya dön",

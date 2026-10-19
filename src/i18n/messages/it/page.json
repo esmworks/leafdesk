@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "Questo browser non può mostrare i PDF qui. Apri il file per leggerlo."
   },
+  "spreadsheet": {
+    "untitled": "Cartella di lavoro",
+    "download": "Scarica",
+    "loading": "Lettura della cartella di lavoro…",
+    "tooLarge": "Questa cartella di lavoro è troppo grande per essere mostrata qui. Scaricala per aprirla.",
+    "unreadable": "Questa cartella di lavoro non può essere mostrata qui: potrebbe essere danneggiata, protetta da password o un vecchio file .xls. Scaricala per aprirla.",
+    "empty": "Questo foglio è vuoto.",
+    "sheets": "Fogli",
+    "tableLabel": "{name}, foglio {sheet}",
+    "partial": "Sono mostrate le prime {rows} righe e {columns} colonne",
+    "convert": "Trasforma in database",
+    "convertTitle": "Importa un foglio di questa cartella di lavoro come nuovo database"
+  },
   "print": {
     "print": "Stampa o salva come PDF",
     "back": "Torna alla pagina",

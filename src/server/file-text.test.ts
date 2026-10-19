@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { toXlsx } from "@/lib/xlsx";
 import { docx, paragraph } from "./import/docx-fixtures";
 import {
   documentKind,
@@ -10,6 +11,7 @@ import {
   fileBlocks,
   joinText,
   pageDocuments,
+  workbookText,
   type FileTextRow,
   type FileTextStore,
 } from "./file-text";
@@ -60,6 +62,9 @@ describe("which files are documents", () => {
     expect(documentKind("Application/PDF; charset=binary", "x")).toBe("pdf");
     expect(documentKind("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "x")).toBe("docx");
     expect(documentKind("application/octet-stream", "Notes.DOCX")).toBe("docx");
+    expect(documentKind("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "x")).toBe("xlsx");
+    expect(documentKind("application/zip", "Teklif.XLSX")).toBe("xlsx");
+    expect(documentKind("application/vnd.ms-excel", "old.xls")).toBeNull();
     expect(documentKind("image/png", "fake.pdf")).toBeNull();
     expect(documentKind("text/plain", "a.docx")).toBeNull();
   });
@@ -97,6 +102,7 @@ describe("reading documents", () => {
     expect(await extractText("pdf", "scan.pdf", pdf(["", ""]))).toEqual({ text: "", pages: 2, partial: false });
     expect(await extractText("pdf", "broken.pdf", new TextEncoder().encode("%PDF-1.4 nothing here"))).toBeNull();
     expect(await extractText("docx", "broken.docx", new TextEncoder().encode("not a zip"))).toBeNull();
+    expect(await extractText("xlsx", "broken.xlsx", new TextEncoder().encode("not a zip"))).toBeNull();
   });
 
   it("reads a Word document as the import does", async () => {
@@ -106,6 +112,31 @@ describe("reading documents", () => {
       pages: null,
       partial: false,
     });
+  });
+});
+
+describe("reading workbooks", () => {
+  it("reads each sheet's name and rows, cells between bars", async () => {
+    const data = toXlsx([
+      ["Ürün", "Adet", "Fiyat", "Not"],
+      ["Kompresör  K-12", 2, 1500, null],
+      ["Fan", null, 240.5, "acil"],
+      [{ date: "2026-10-12" }, true, null, null],
+    ], { name: "Teklif" });
+    expect(await extractText("xlsx", "teklif.xlsx", data)).toEqual({
+      text: "Teklif\nÜrün | Adet | Fiyat | Not\nKompresör K-12 | 2 | 1500\nFan | | 240.5 | acil\n2026-10-12 | TRUE",
+      pages: null,
+      partial: false,
+    });
+  });
+
+  it("stops once there's text enough and says so", async () => {
+    const rows = Array.from({ length: 50 }, (_, i) => [`Row ${i + 1}`, "word ".repeat(10)]);
+    const out = await workbookText(toXlsx(rows), { chars: 200 });
+    expect(out.partial).toBe(true);
+    expect(out.text.length).toBeLessThanOrEqual(200);
+    expect(out.text).toContain("Row 1 |");
+    expect(out.text).not.toContain("Row 50");
   });
 });
 

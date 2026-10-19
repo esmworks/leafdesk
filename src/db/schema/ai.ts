@@ -90,7 +90,7 @@ export const pageIndexState = pgTable(
 );
 
 /**
- * The text of an uploaded PDF or Word document, as search finds it (see server/file-text.ts): read
+ * The text of an uploaded PDF, Word document or Excel workbook, as search finds it (see server/file-text.ts): read
  * once per file and kept, since a stored file's bytes never change.
  * `contentHash` is the sha256 of the bytes, so the same document uploaded again elsewhere isn't read
  * again either. `text` is empty when the file has none to give (a scan, a damaged or locked file);

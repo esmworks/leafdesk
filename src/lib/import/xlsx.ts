@@ -7,7 +7,8 @@ import { ImportError, type WarningList } from "./result";
  * Reading Excel workbooks (.xlsx) for import: one worksheet's cells as the records a CSV file
  * would give (see lib/import/csv), so the CSV import guesses types, title columns and yes/no words
  * the same way. Pure and without a DOM, so the import dialog previews a workbook with the same
- * code the server imports it with.
+ * code the server imports it with. Workbooks attached to pages are read with it too: shown in
+ * their file blocks (Workbook.cells) and read for search (server/file-text).
  *
  * Only what values need is read: the workbook's sheets (and its 1904 date system), the shared
  * strings, which cell styles are dates and times, and each cell's value (a formula's last
@@ -339,13 +340,34 @@ function numberText(value: number) {
 
 type Context = { strings: string[]; styles: DateKind[]; date1904: boolean };
 
+/** How much of a worksheet to read for showing it: past these, reading stops instead of failing. */
+export type SheetLimits = { rows: number; columns: number };
+
+/** A worksheet's cells as read for showing it: each row with its number in the sheet. */
+export type SheetCells = {
+  rows: { number: number; cells: string[] }[];
+  /** Columns from A to the last one with anything in it (within the limits). */
+  width: number;
+  /** Rows or columns past the limits were left out. */
+  partial: boolean;
+};
+
+/** Thrown from inside the XML walk to stop it once a sheet has been read as far as wanted. */
+const STOP = Symbol("stop");
+
 /**
  * A worksheet's rows as records: rows with nothing in them left out, every record as wide as the
- * widest. Stops with the CSV import's errors once a row or column is past its limits.
+ * widest. Without `limits`, stops with the CSV import's errors once a row or column is past its
+ * limits; with them, leaves out what is past them and says so (`partial`).
  */
-function sheetRecords(pkg: Package, path: string, ctx: Context): string[][] {
+function sheetRecords(pkg: Package, path: string, ctx: Context): string[][];
+function sheetRecords(pkg: Package, path: string, ctx: Context, limits: SheetLimits): SheetCells;
+function sheetRecords(pkg: Package, path: string, ctx: Context, limits?: SheetLimits): string[][] | SheetCells {
   const records: string[][] = [];
+  const numbers: number[] = [];
+  let partial = false;
   let row: string[] | null = null;
+  let number = 0;
   let filled = false;
   let col = -1;
   let cell: { type: string; style: number } | null = null;
@@ -359,7 +381,11 @@ function sheetRecords(pkg: Package, path: string, ctx: Context): string[][] {
     if (!cell || !row) return;
     const text = cellText(cell.type, cell.style, value, inline, ctx);
     if (text !== "") {
-      if (col >= CSV_MAX_COLUMNS) {
+      if (limits && col >= limits.columns) {
+        partial = true;
+        return;
+      }
+      if (!limits && col >= CSV_MAX_COLUMNS) {
         throw new ImportError(`CSV files can have at most ${CSV_MAX_COLUMNS} columns`, "tooManyColumns", { limit: CSV_MAX_COLUMNS });
       }
       while (row.length < col) row.push("");
@@ -368,10 +394,11 @@ function sheetRecords(pkg: Package, path: string, ctx: Context): string[][] {
     }
   };
 
-  const found = pkg.scan(path, {
+  const handler: XmlHandler = {
     open(name, attrs) {
       if (name === "row") {
         row = [];
+        number = attrs.r && /^\d+$/.test(attrs.r) ? Number(attrs.r) : number + 1;
         filled = false;
         col = -1;
       } else if (name === "c" && row) {
@@ -399,19 +426,31 @@ function sheetRecords(pkg: Package, path: string, ctx: Context): string[][] {
         cell = null;
       } else if (name === "row" && row) {
         if (filled) {
-          if (records.length > CSV_MAX_ROWS) {
+          if (limits && records.length >= limits.rows) {
+            partial = true;
+            throw STOP;
+          }
+          if (!limits && records.length > CSV_MAX_ROWS) {
             throw new ImportError(`CSV files can have at most ${CSV_MAX_ROWS} rows`, "tooManyRows", { limit: CSV_MAX_ROWS });
           }
           records.push(row);
+          numbers.push(number);
           width = Math.max(width, row.length);
         }
         row = null;
       }
     },
-  });
+  };
+  let found: boolean;
+  try {
+    found = pkg.scan(path, handler);
+  } catch (error) {
+    if (error !== STOP) throw error;
+    found = true;
+  }
   if (!found) throw unreadable();
   for (const r of records) while (r.length < width) r.push("");
-  return records;
+  return limits ? { rows: records.map((cells, i) => ({ number: numbers[i], cells })), width, partial } : records;
 }
 
 /** The column of a cell reference ("C7" → 2); null when it isn't one. */
@@ -489,6 +528,8 @@ export type Workbook = {
   sheets: WorkbookSheet[];
   /** A worksheet's cells as a table, the header its first row with anything in it. */
   table(sheet: number): CsvTable;
+  /** A worksheet's cells as they stand, for showing or reading it: as far as `limits` go. */
+  cells(sheet: number, limits: SheetLimits): SheetCells;
 };
 
 /** Opens a workbook (.xlsx). Throws an ImportError when it can't be read or isn't one. */
@@ -516,13 +557,21 @@ export function readWorkbook(bytes: Uint8Array): Workbook {
 
   const byType = (type: string) => [...rels.values()].find((r) => r.type === type)?.target;
   let ctx: Context | null = null;
+  const open = (index: number) => {
+    const sheet = visible[index];
+    if (!sheet) throw new ImportError("The workbook has no such sheet", "badRequest");
+    ctx ??= { strings: sharedStrings(pkg, byType("sharedStrings")), styles: dateStyles(pkg, byType("styles")), date1904 };
+    return { path: sheet.path, ctx };
+  };
   return {
     sheets: visible.map(({ name }) => ({ name })),
     table(index) {
-      const sheet = visible[index];
-      if (!sheet) throw new ImportError("The workbook has no such sheet", "badRequest");
-      ctx ??= { strings: sharedStrings(pkg, byType("sharedStrings")), styles: dateStyles(pkg, byType("styles")), date1904 };
-      return recordsTable(sheetRecords(pkg, sheet.path, ctx), { guarded: false });
+      const { path, ctx } = open(index);
+      return recordsTable(sheetRecords(pkg, path, ctx), { guarded: false });
+    },
+    cells(index, limits) {
+      const { path, ctx } = open(index);
+      return sheetRecords(pkg, path, ctx, limits);
     },
   };
 }

@@ -432,7 +432,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](#file-uploads)). Uploaded PDFs show
-  in place, and search finds pages by the words of the PDFs and Word documents they show.
+  in place, and so do Excel workbooks (.xlsx), read-only, a sheet at a time; an editor can turn one
+  into a database. Search finds pages by the words of the PDFs, Word documents and Excel workbooks
+  they show.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -1764,12 +1766,13 @@ indexes everything at once, e.g. after setting `AI_EMBEDDINGS_MODEL` or changing
 respect `AI_CONCURRENCY` and `AI_WORKSPACE_RATE_LIMIT`. Trashed pages drop out of results at once
 (their chunks stay for a restore); deleted pages take their chunks with them.
 
-**Attached documents.** The text of PDFs and Word documents (.docx) in a page's file blocks is
-indexed with the page, in chunks headed "Page › file name" that point at the file block, so the
-chat can answer from a document and cite it. A document is read once and its text kept in
-`file_text`; the first 50 pages or 200,000 characters of each are read, up to 20 documents per
-page, files over 25 MB are skipped, and a scan without a text layer adds nothing. Full-text search
-reads the same text for any PDF or Word document a page shows, also one it only links to.
+**Attached documents.** The text of PDFs, Word documents (.docx) and Excel workbooks (.xlsx) in a
+page's file blocks is indexed with the page, in chunks headed "Page › file name" that point at the
+file block, so the chat can answer from a document and cite it. A document is read once and its text kept in
+`file_text`; the first 50 pages or 200,000 characters of each are read (of a workbook, each sheet's
+name and then its rows, at most 5,000 rows and 100 columns a sheet), up to 20 documents per page,
+files over 25 MB are skipped, and a scan without a text layer adds nothing. Full-text search reads
+the same text for any PDF, Word document or workbook a page shows, also one it only links to.
 Documents are read whether or not the server has an embeddings model, since full-text search finds
 pages by their words too: in the background after they are uploaded, and those uploaded before
 search read them (or while the server was down) a couple of hundred at a time by a sweep that a
@@ -2167,7 +2170,7 @@ to treat it as data, never as instructions.
 
 The tools cover:
 
-- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs and Word documents pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
+- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs, Word documents and Excel workbooks pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
 - **Workspace health:** `check_workspace` lists broken links, pages nothing links to, empty and
   long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
   that fix each (it changes nothing itself).
@@ -2215,8 +2218,8 @@ The tools cover:
   `property`, to a row's files & media property) from a public URL or base64 data, when the user
   also grants the `files:write` permission. Files properties can only be set to files already
   uploaded to the workspace. URLs that lead to
-  private or loopback addresses are refused. `get_file` reads a file back: text files and PDFs (their
-  text layer) as text, PNG, JPEG, GIF and WebP images as images, anything else as a description with
+  private or loopback addresses are refused. `get_file` reads a file back: text files, PDFs (their
+  text layer) and Excel workbooks (each sheet's rows, cells between bars) as text, PNG, JPEG, GIF and WebP images as images, anything else as a description with
   its link. It needs no extra permission: the user reads a file when they can see a page showing it.
 - **Databases:** `get_database`, `query_database`, `create_database`, `create_database_row`,
   `create_database_rows`, `update_database_row`, `update_database_rows`, `add_database_property`

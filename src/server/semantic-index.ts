@@ -9,7 +9,7 @@
  *   indexed, or indexed with another model or CHUNKER_VERSION): started lazily by searches in the workspace, at most
  *   every SWEEP_INTERVAL_MS, and by `pnpm search:index` for a full backfill.
  *
- * The text of PDFs and Word documents the page shows goes in too (file-text.ts), read once per file.
+ * The text of PDFs, Word documents and Excel workbooks the page shows goes in too (file-text.ts), read once per file.
  * Only chunks whose text changed are embedded again. Jobs run at most AI_CONCURRENCY at a time,
  * each workspace within its own allowance of AI_WORKSPACE_RATE_LIMIT embedding requests a minute
  * (jobs wait for their turn). Nothing is embedded while the server has no embeddings model or the

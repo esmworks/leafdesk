@@ -1,5 +1,5 @@
 /**
- * The text of PDFs and Word documents attached to pages, for search. Full-text search finds a page
+ * The text of PDFs, Word documents and Excel workbooks attached to pages, for search. Full-text search finds a page
  * by the words of the documents its body shows (file_text.search_vector, see pages.fullTextSearch).
  * For semantic search, each file block of a page that shows such a document adds its text to the
  * page's index (semantic-text.chunkPage), so the AI chat can answer from inside the document and
@@ -43,17 +43,22 @@ export const FILE_TEXT_LIMITS = {
 /** Raise it when what is read out of a document changes (limits included): rows of an older version are read again. */
 export const EXTRACTOR_VERSION = 1;
 
-export type DocumentKind = "pdf" | "docx";
+export type DocumentKind = "pdf" | "docx" | "xlsx";
 
 const DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const XLSX_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 /** Which kind of document a stored file is, by the type the server recorded for it; null for anything else. */
 export function documentKind(contentType: string, name: string): DocumentKind | null {
   const type = contentType.split(";")[0].trim().toLowerCase();
   if (type === "application/pdf") return "pdf";
   if (type === DOCX_TYPE) return "docx";
-  // Some browsers send a Word document as a generic ZIP or bytes; its name says what it is.
-  if ((type === "application/octet-stream" || type === "application/zip") && /\.docx$/i.test(name.trim())) return "docx";
+  if (type === XLSX_TYPE) return "xlsx";
+  // Some browsers send an Office document as a generic ZIP or bytes; its name says what it is.
+  if (type === "application/octet-stream" || type === "application/zip") {
+    if (/\.docx$/i.test(name.trim())) return "docx";
+    if (/\.xlsx$/i.test(name.trim())) return "xlsx";
+  }
   return null;
 }
 
@@ -108,10 +113,40 @@ async function docxText(name: string, bytes: Uint8Array): Promise<ExtractedText>
   return { ...joinText([title ?? "", blocksToPlainText(blocks as BlockLike[])].filter(Boolean)), pages: null };
 }
 
+/**
+ * The text of an Excel workbook: each worksheet's name on a line of its own, then its rows, their
+ * cells between bars (an empty cell keeps its place, so columns stay apart). Reads each sheet as
+ * far as the CSV import would and stops once there's text enough; throws when it can't be read.
+ */
+export async function workbookText(bytes: Uint8Array, { chars = FILE_TEXT_LIMITS.chars }: { chars?: number } = {}): Promise<ExtractedText> {
+  const [{ readWorkbook }, { CSV_MAX_COLUMNS, CSV_MAX_ROWS }] = await Promise.all([import("@/lib/import/xlsx"), import("@/lib/import/csv")]);
+  const book = readWorkbook(bytes);
+  const parts: string[] = [];
+  let size = 0;
+  let partial = false;
+  for (const [index, sheet] of book.sheets.entries()) {
+    if (size > chars) {
+      partial = true;
+      break;
+    }
+    const cells = book.cells(index, { rows: CSV_MAX_ROWS + 1, columns: CSV_MAX_COLUMNS });
+    partial ||= cells.partial;
+    const lines = cells.rows.map((row) => {
+      const used = row.cells.slice(0, row.cells.findLastIndex((cell) => cell.trim() !== "") + 1);
+      return used.map((cell) => cell.replace(/\s+/g, " ").trim()).join(" | ");
+    });
+    const text = [sheet.name, ...lines].join("\n");
+    parts.push(text);
+    size += text.length;
+  }
+  const joined = joinText(parts, { chars });
+  return { text: joined.text, partial: joined.partial || partial, pages: null };
+}
+
 /** A document's text, or null when it can't be read at all. */
 export async function extractText(kind: DocumentKind, name: string, bytes: Uint8Array): Promise<ExtractedText | null> {
   try {
-    return kind === "pdf" ? await pdfText(bytes) : await docxText(name, bytes);
+    return kind === "pdf" ? await pdfText(bytes) : kind === "docx" ? await docxText(name, bytes) : await workbookText(bytes);
   } catch {
     return null;
   }
@@ -170,7 +205,7 @@ const dbStore: FileTextStore = {
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 /**
- * The text of a stored PDF or Word document, read once and kept (see the top of this module); null
+ * The text of a stored PDF, Word document or Excel workbook, read once and kept (see the top of this module); null
  * when it isn't such a document, is too large, has no text or can't be read.
  */
 export async function documentText(found: StoredDocument, store: FileTextStore = dbStore): Promise<{ text: string; partial: boolean } | null> {
@@ -288,7 +323,7 @@ const readQueue = ((globalThis as Record<string, unknown>)[QUEUE_KEY] ??= {
 } satisfies ReadQueue) as ReadQueue;
 
 /**
- * Reads a PDF or Word document in the background (documentText), so full-text search finds its
+ * Reads a PDF, Word document or Excel workbook in the background (documentText), so full-text search finds its
  * words whether or not semantic search runs: called once a document is uploaded (files.storeFile)
  * and by sweepDocuments. Anything else, a document too large to read, or one already queued, is
  * left alone. One document at a time per process, since a PDF is parsed in the server's own
@@ -347,8 +382,8 @@ export async function sweepDocuments(workspaceId: string, { force = false }: { f
         isNull(fileText.fileId),
         lte(file.size, FILE_TEXT_LIMITS.bytes),
         or(
-          sql`${type} in ('application/pdf', ${DOCX_TYPE})`,
-          and(sql`${type} in ('application/octet-stream', 'application/zip')`, ilike(file.name, "%.docx")),
+          sql`${type} in ('application/pdf', ${DOCX_TYPE}, ${XLSX_TYPE})`,
+          and(sql`${type} in ('application/octet-stream', 'application/zip')`, or(ilike(file.name, "%.docx"), ilike(file.name, "%.xlsx"))),
         ),
         exists(db.select({ one: sql`1` }).from(fileReference).where(eq(fileReference.fileId, file.id))),
         after ? sql`(${file.createdAt}, ${file.id}) < (${after.createdAt}, ${after.id})` : undefined,

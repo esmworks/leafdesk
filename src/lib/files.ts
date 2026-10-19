@@ -100,9 +100,22 @@ export function firstImageFile(value: unknown): FileValue | null {
  * the viewer loads `pdfViewUrl`, which the file route serves only for files that really are PDFs.
  */
 export function pdfFileId(url: unknown, name: unknown): string | null {
+  return uploadedFileId(url, name, /\.pdf$/i);
+}
+
+/**
+ * The uploaded Excel workbook (.xlsx) a file block shows, by its URL and name as for pdfFileId.
+ * The viewer reads the file's bytes itself (lib/import/xlsx), so one that isn't a workbook
+ * whatever its name says shows as unreadable.
+ */
+export function spreadsheetFileId(url: unknown, name: unknown): string | null {
+  return uploadedFileId(url, name, /\.xlsx$/i);
+}
+
+function uploadedFileId(url: unknown, name: unknown, extension: RegExp): string | null {
   if (typeof url !== "string" || typeof name !== "string") return null;
   const match = /^\/api\/files\/([A-Za-z0-9_-]{24})$/.exec(url.trim());
-  return match && /\.pdf$/i.test(name.trim()) ? match[1] : null;
+  return match && extension.test(name.trim()) ? match[1] : null;
 }
 
 /**

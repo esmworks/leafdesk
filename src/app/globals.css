@@ -844,9 +844,13 @@
   justify-content: center;
 }
 
-/* A file block showing a PDF in place takes the full width, not just its file name's. */
-.bn-block-content[data-content-type="file"] .bn-file-block-content-wrapper:has([data-leafdesk-pdf]) {
+/*
+ * A file block showing a PDF or a workbook in place takes the full width, not just its file
+ * name's; a workbook's wide sheet scrolls inside it instead of widening the block.
+ */
+.bn-block-content[data-content-type="file"] .bn-file-block-content-wrapper:has([data-leafdesk-pdf], [data-leafdesk-spreadsheet]) {
   width: 100%;
+  min-width: 0;
 }
 
 /*

@@ -527,6 +527,19 @@
     "frameTitle": "PDF: {name}",
     "noPreview": "이 브라우저에서는 PDF를 여기에 표시할 수 없습니다. 파일을 열어 확인하세요."
   },
+  "spreadsheet": {
+    "untitled": "통합 문서",
+    "download": "다운로드",
+    "loading": "통합 문서를 읽는 중…",
+    "tooLarge": "이 통합 문서는 너무 커서 여기에 표시할 수 없습니다. 다운로드하여 여세요.",
+    "unreadable": "이 통합 문서는 여기에 표시할 수 없습니다. 손상되었거나 암호로 보호되었거나 오래된 .xls 파일일 수 있습니다. 다운로드하여 여세요.",
+    "empty": "이 시트는 비어 있습니다.",
+    "sheets": "시트",
+    "tableLabel": "{name}, {sheet} 시트",
+    "partial": "처음 {rows}개 행과 {columns}개 열을 표시합니다",
+    "convert": "데이터베이스로 변환",
+    "convertTitle": "이 통합 문서의 시트를 새 데이터베이스로 가져오기"
+  },
   "print": {
     "print": "인쇄 또는 PDF로 저장",
     "back": "페이지로 돌아가기",
