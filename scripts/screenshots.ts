@@ -1,25 +1,25 @@
 /**
- * Takes the screenshots the README and the website show, and the website's social preview image,
- * from a small workspace this script makes ("Acme Inc."): a board of nine launch tasks with the
- * workspace's pages beside it, in the light and the dark scheme, in headless Chrome against a
- * running server. Run it again after the interface's look changes.
+ * Takes the board screenshots the README and the website show, from a small workspace this script
+ * makes ("Acme Inc."): a board of nine launch tasks with the workspace's pages beside it, in the
+ * light and the dark scheme, in headless Chrome against a running server. Run it again after the
+ * interface's look changes.
  *
  *   pnpm build && pnpm start          # one terminal
  *   pnpm tsx scripts/screenshots.ts   # another
  *
- * Writes .github/screenshots/board-{light,dark}.png (1440×900 at 2×, the README),
- * site/img/board-{light,dark}.jpg (1600×1000, the website) and site/img/og.png (1200×630, the
- * social preview: the headline beside the light board). The workspace is made again on each run;
- * its owner is screenshots@example.test, who can't sign in (the script makes the session). The
- * script writes the new pages' live documents itself, which is safe with the server running: no
- * one has them open yet.
+ * Writes .github/screenshots/board-{light,dark}.png (1440×900 at 2×, the README) and
+ * site/img/board-{light,dark}.jpg (1600×1000, the website); scripts/social-preview.ts makes the
+ * social preview images. The workspace is made again on each run; its owner is
+ * screenshots@example.test, who can't sign in (the script makes the session). The script writes
+ * the new pages' live documents itself, which is safe with the server running: no one has them
+ * open yet.
  *
  * Env: APP_URL (default http://localhost:3000), DATABASE_URL and BETTER_AUTH_SECRET (read from .env
  * when present; the server's own), CHROME_PATH (default: Google Chrome on macOS).
  */
 import { spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { makeSignature } from "better-auth/crypto";
@@ -221,40 +221,6 @@ try {
   await board("dark", 2, "png", ".github/screenshots/board-dark.png");
   await board("light", 1600 / 1440, "jpeg", "site/img/board-light.jpg");
   await board("dark", 1600 / 1440, "jpeg", "site/img/board-dark.jpg");
-
-  // The social preview: the website's headline beside the light board, which runs off the edge.
-  const logo = readFileSync(join(root, "site/brand/leafdesk-logo.svg"), "utf8");
-  const shot = readFileSync(join(root, ".github/screenshots/board-light.png")).toString("base64");
-  const html = `<!doctype html><html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
-  body { position: relative; background: linear-gradient(90deg, #ffffff 45%, #f3f4f2 100%); color: #1f2328;
-    font-family: "Inter", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  .logo { position: absolute; left: 64px; top: 68px; height: 46px; }
-  .logo svg { height: 46px; width: auto; display: block; }
-  h1 { position: absolute; left: 64px; top: 152px; width: 470px; margin: 0; font-size: 50px; line-height: 1.08;
-    letter-spacing: -0.025em; font-weight: 700; }
-  p { position: absolute; left: 64px; top: 330px; width: 460px; margin: 0; font-size: 23px; line-height: 1.45; color: #59636e; }
-  .link { position: absolute; left: 64px; bottom: 52px; font-size: 20px; font-weight: 500; color: #2f7d4f; }
-  img { position: absolute; left: 590px; top: 72px; width: 900px; border-radius: 10px 0 0 0;
-    box-shadow: 0 0 0 1px rgba(31, 35, 40, 0.08), 0 18px 50px rgba(31, 35, 40, 0.16); }
-</style></head><body>
-<div class="logo">${logo}</div>
-<h1>The open-source workspace you host yourself</h1>
-<p>Realtime collaboration and a built-in MCP server for Claude and other AI assistants.</p>
-<div class="link">github.com/esmworks/leafdesk</div>
-<img src="data:image/png;base64,${shot}" alt="">
-</body></html>`;
-  const file = join(profile, "og.html");
-  writeFileSync(file, html);
-  await tab("Emulation.setDeviceMetricsOverride", { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
-  await tab("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
-  await tab("Page.navigate", { url: `file://${file}` });
-  await until(`document.readyState === "complete" && document.fonts.status === "loaded" && document.querySelector("img").complete`, "the preview");
-  const { data } = await tab<{ data: string }>("Page.captureScreenshot", { format: "png" });
-  writeFileSync(join(root, "site/img/og.png"), Buffer.from(data, "base64"));
-  console.log("wrote site/img/og.png");
   socket.close();
 } finally {
   const exited = new Promise((r) => chrome.once("exit", r));
