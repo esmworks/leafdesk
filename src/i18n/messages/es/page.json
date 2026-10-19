@@ -328,7 +328,8 @@
       "title": "Texto destacado",
       "subtext": "Texto con un icono sobre un fondo de color",
       "aliases": "callout destacado nota consejo aviso advertencia alerta cuadro",
-      "icon": "Cambiar icono"
+      "icon": "Cambiar icono",
+      "hiddenInPrint": "Oculto al imprimir"
     },
     "code": {
       "language": "Lenguaje",
@@ -349,6 +350,16 @@
       "placeholder": "Nueva ecuación",
       "sourcePlaceholder": "x^2",
       "error": "Error en la ecuación"
+    },
+    "footnote": {
+      "title": "Nota al pie",
+      "subtext": "Una nota numerada al final de la página",
+      "aliases": "footnote nota al pie fuente cita referencia",
+      "placeholder": "Nueva nota al pie",
+      "sourcePlaceholder": "Texto de la nota",
+      "list": "Notas al pie",
+      "goTo": "Ir a la nota en el texto",
+      "back": "Volver al texto"
     },
     "mermaid": {
       "title": "Diagrama Mermaid",
@@ -519,7 +530,8 @@
     "morePages": "{count, plural, one {Mostrar # página más} other {Mostrar # páginas más}}"
   },
   "blockMenu": {
-    "copyLink": "Copiar enlace al bloque"
+    "copyLink": "Copiar enlace al bloque",
+    "hideInPrint": "Ocultar al imprimir"
   },
   "pdf": {
     "untitled": "PDF",

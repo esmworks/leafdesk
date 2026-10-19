@@ -328,7 +328,8 @@
       "title": "标注",
       "subtext": "彩色背景上带图标的文本",
       "aliases": "callout note tip warning alert box 标注 提示 注意 警告 提示框",
-      "icon": "更换图标"
+      "icon": "更换图标",
+      "hiddenInPrint": "打印时隐藏"
     },
     "code": {
       "language": "语言",
@@ -349,6 +350,16 @@
       "placeholder": "新公式",
       "sourcePlaceholder": "x^2",
       "error": "公式错误"
+    },
+    "footnote": {
+      "title": "脚注",
+      "subtext": "页面末尾的编号注释",
+      "aliases": "footnote 脚注 注释 来源 引用 参考 jiaozhu",
+      "placeholder": "新脚注",
+      "sourcePlaceholder": "注释内容",
+      "list": "脚注",
+      "goTo": "转到正文中的脚注",
+      "back": "返回正文"
     },
     "mermaid": {
       "title": "Mermaid 图表",
@@ -519,7 +530,8 @@
     "morePages": "再显示 {count} 个页面"
   },
   "blockMenu": {
-    "copyLink": "复制块链接"
+    "copyLink": "复制块链接",
+    "hideInPrint": "打印时隐藏"
   },
   "pdf": {
     "untitled": "PDF",

@@ -10,6 +10,7 @@ import { SpreadsheetViewer } from "@/components/page/spreadsheet-viewer";
 import { BookmarkCard, EmbedFrame } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
 import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS, widgetBoxClass } from "@/lib/dashboard";
+import { noteParts } from "@/lib/footnotes";
 import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
@@ -166,6 +167,31 @@ export async function PublishedBody({
               link={(anchor) => ({ href: `#${anchor}` })}
             />
           </div>
+        );
+      case "footnotes":
+        return (
+          <section key={i} aria-label={tb("footnote.list")} className={cn("mt-8 text-sm text-fg-muted", pad)}>
+            <ol className="space-y-1 border-t border-border pt-3">
+              {block.notes.map((note, n) => (
+                <li key={note.anchor} id={note.anchor} className="flex gap-2">
+                  <a href={`#${note.refAnchor}`} title={tb("footnote.back")} className="min-w-5 shrink-0 tabular-nums text-fg no-underline hover:text-accent">
+                    {n + 1}.
+                  </a>
+                  <span className="min-w-0 [overflow-wrap:anywhere]">
+                    {noteParts(note.text).map((part, j) =>
+                      "url" in part ? (
+                        <a key={j} href={part.url} rel="noopener noreferrer nofollow" className="text-accent underline underline-offset-2">
+                          {part.url}
+                        </a>
+                      ) : (
+                        part.text
+                      ),
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
         );
       case "breadcrumb":
         return (

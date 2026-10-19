@@ -328,7 +328,8 @@
       "title": "کادر برجسته",
       "subtext": "متن با یک نماد روی پس‌زمینه رنگی",
       "aliases": "کادر برجسته یادداشت نکته هشدار callout note tip warning alert box",
-      "icon": "تغییر نماد"
+      "icon": "تغییر نماد",
+      "hiddenInPrint": "هنگام چاپ پنهان"
     },
     "code": {
       "language": "زبان",
@@ -349,6 +350,16 @@
       "placeholder": "معادله جدید",
       "sourcePlaceholder": "x^2",
       "error": "خطای معادله"
+    },
+    "footnote": {
+      "title": "پانویس",
+      "subtext": "یادداشتی شماره‌دار در پایان صفحه",
+      "aliases": "footnote پانویس یادداشت منبع ارجاع",
+      "placeholder": "پانویس تازه",
+      "sourcePlaceholder": "متن یادداشت",
+      "list": "پانویس‌ها",
+      "goTo": "رفتن به پانویس در متن",
+      "back": "بازگشت به متن"
     },
     "mermaid": {
       "title": "نمودار Mermaid",
@@ -519,7 +530,8 @@
     "morePages": "نمایش {count} صفحهٔ دیگر"
   },
   "blockMenu": {
-    "copyLink": "کپی لینک بلوک"
+    "copyLink": "کپی لینک بلوک",
+    "hideInPrint": "پنهان هنگام چاپ"
   },
   "pdf": {
     "untitled": "PDF",

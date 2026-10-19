@@ -165,6 +165,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
         resolvePages: (ids) => printRefs(userId, ids),
         // Headings of every printed page share the document; the first page keeps plain anchors.
         anchorPrefix: index === 0 ? "" : `p${index + 1}-`,
+        print: true,
       })
     : [];
   // Database blocks, in columns too, as the databases the reader can open. Widgets and blocks

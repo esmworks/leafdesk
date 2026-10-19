@@ -328,7 +328,8 @@
       "title": "Callout",
       "subtext": "Text with an icon on a colored background",
       "aliases": "callout note tip warning alert box",
-      "icon": "Change icon"
+      "icon": "Change icon",
+      "hiddenInPrint": "Hidden when printing"
     },
     "code": {
       "language": "Language",
@@ -349,6 +350,16 @@
       "placeholder": "New equation",
       "sourcePlaceholder": "x^2",
       "error": "Equation error"
+    },
+    "footnote": {
+      "title": "Footnote",
+      "subtext": "A numbered note at the end of the page",
+      "aliases": "footnote note reference source citation",
+      "placeholder": "New footnote",
+      "sourcePlaceholder": "Note text",
+      "list": "Footnotes",
+      "goTo": "Go to the footnote in the text",
+      "back": "Back to the text"
     },
     "mermaid": {
       "title": "Mermaid diagram",
@@ -519,7 +530,8 @@
     "morePages": "{count, plural, one {Show # more page} other {Show # more pages}}"
   },
   "blockMenu": {
-    "copyLink": "Copy link to block"
+    "copyLink": "Copy link to block",
+    "hideInPrint": "Hide when printing"
   },
   "pdf": {
     "untitled": "PDF",

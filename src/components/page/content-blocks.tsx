@@ -1,6 +1,10 @@
 "use client";
 
-import { SourceBlockWithPreviewExtension, insertOrUpdateBlockForSlashMenu } from "@blocknote/core/extensions";
+import {
+  SourceBlockWithPreviewExtension,
+  SourceInlineContentWithPreviewExtension,
+  insertOrUpdateBlockForSlashMenu,
+} from "@blocknote/core/extensions";
 import {
   createReactBlockSpec,
   createReactInlineContentSpec,
@@ -8,10 +12,11 @@ import {
   SourceBlockWithPreview,
   SourceInlineContentWithPreview,
   useEditorChange,
+  useEditorState,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import katex from "katex";
-import { Info, ListTree, Radical, Route, Sigma, SmilePlus, TableOfContents, Workflow } from "lucide-react";
+import { Info, ListTree, PrinterX, Radical, Route, Sigma, SmilePlus, Superscript, TableOfContents, Workflow } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { listSubpagesAction } from "@/app/actions/pages";
@@ -20,6 +25,8 @@ import {
   breadcrumbBlockConfig,
   calloutBlockConfig,
   DEFAULT_CALLOUT_ICON,
+  FOOTNOTE,
+  footnoteConfig,
   inlineMathConfig,
   KATEX_OPTIONS,
   mathBlockConfig,
@@ -28,6 +35,7 @@ import {
   tocBlockConfig,
 } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
+import { noteParts } from "@/lib/footnotes";
 import type { PageEditor } from "./embed-blocks";
 import { IconPicker } from "./icon-picker";
 import { MermaidImageView, useMermaid } from "./mermaid-diagram";
@@ -159,6 +167,109 @@ const InlineMath = createReactInlineContentSpec(inlineMathConfig, {
 });
 
 // ---------------------------------------------------------------------------------------------
+// Footnotes
+
+/**
+ * A footnote: its number in the text, the note in a popup while it's edited, like an equation's
+ * source. The number is a CSS counter (globals.css): footnotes count in the order the editor shows
+ * them, which is the order the list under the page has them (FootnoteList).
+ */
+const Footnote = createReactInlineContentSpec(footnoteConfig, {
+  meta: { code: true, hasPreview: true },
+  render: function FootnoteView({ inlineContent, editor, node, getPos, contentRef }) {
+    const t = useTranslations("page.blocks.footnote");
+    const note = plainText(inlineContent.content);
+    return (
+      <SourceInlineContentWithPreview
+        editor={editor}
+        node={node}
+        getPos={getPos}
+        contentRef={contentRef}
+        source={note}
+        preview={<sup className="leafdesk-footnote-ref" title={note} />}
+        emptySourcePlaceholder={t("placeholder")}
+        sourcePlaceholder={t("sourcePlaceholder")}
+      />
+    );
+  },
+  // Elsewhere (copied out of the editor) the note follows its sentence in brackets.
+  toExternalHTML: ({ inlineContent }) => <sup>[{plainText(inlineContent.content)}]</sup>,
+});
+
+type Note = { pos: number; size: number; text: string };
+
+function notesOf(editor: PageEditor): Note[] {
+  const notes: Note[] = [];
+  editor.prosemirrorState.doc.descendants((node, pos) => {
+    if (node.type.name !== FOOTNOTE) return true;
+    if (node.textContent.trim()) notes.push({ pos, size: node.nodeSize, text: node.textContent });
+    return false;
+  });
+  return notes;
+}
+
+const sameNotes = (a: Note[], b: Note[]) => a.length === b.length && a.every((n, i) => n.pos === b[i].pos && n.text === b[i].text);
+
+/**
+ * The page's footnotes under its body, numbered as the text numbers them. A note's number moves to
+ * its place in the text; for people who may edit, that opens the note too. Empty footnotes have no
+ * number and aren't listed.
+ */
+export function FootnoteList({ editor }: { editor: PageEditor }) {
+  const t = useTranslations("page.blocks.footnote");
+  // Every transaction, the collaborative document's first load included (a change event misses it).
+  const notes = useEditorState({ editor, selector: () => notesOf(editor), equalityFn: (a, b) => !!b && sameNotes(a, b) });
+  const go = useCallback(
+    (note: Note) => {
+      const view = editor.prosemirrorView;
+      if (!view) return;
+      const dom = view.nodeDOM(note.pos);
+      if (dom instanceof HTMLElement) dom.scrollIntoView({ block: "center" });
+      if (!editor.isEditable) return;
+      // Inside the note's text: the selection being there is what opens its popup.
+      editor.getExtension(SourceInlineContentWithPreviewExtension)?.store.setState({ selected: note.pos });
+      const { selection } = view.state;
+      const TextSelection = selection.constructor as unknown as {
+        create: (doc: typeof view.state.doc, pos: number) => typeof selection;
+      };
+      view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, note.pos + note.size - 1)));
+      view.focus();
+    },
+    [editor],
+  );
+  if (!notes.length) return null;
+  return (
+    <section aria-label={t("list")} className="mx-4 mt-6 border-t border-border pt-3 text-sm text-fg-muted md:mx-[54px]">
+      <ol className="space-y-1">
+        {notes.map((note, i) => (
+          <li key={note.pos} className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => go(note)}
+              title={t("goTo")}
+              className="min-w-5 shrink-0 rounded text-start tabular-nums text-fg hover:text-accent"
+            >
+              {i + 1}.
+            </button>
+            <span className="min-w-0 [overflow-wrap:anywhere]">
+              {noteParts(note.text).map((part, j) =>
+                "url" in part ? (
+                  <a key={j} href={part.url} target="_blank" rel="noopener noreferrer nofollow" className="text-accent underline underline-offset-2">
+                    {part.url}
+                  </a>
+                ) : (
+                  part.text
+                ),
+              )}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------
 // Mermaid
 
 const MermaidBlock = createReactBlockSpec(mermaidBlockConfig, {
@@ -228,6 +339,11 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
           </div>
         )}
         <div ref={contentRef} className="leafdesk-callout-text" />
+        {block.props.hideInPrint && (
+          <span contentEditable={false} className="leafdesk-callout-print" title={t("hiddenInPrint")} aria-label={t("hiddenInPrint")}>
+            <PrinterX className="h-3.5 w-3.5" />
+          </span>
+        )}
       </div>
     );
   },
@@ -378,7 +494,7 @@ export const contentBlockSpecs = {
   subpages: SubpagesBlock(),
 };
 
-export const contentInlineSpecs = { inlineMath: InlineMath };
+export const contentInlineSpecs = { inlineMath: InlineMath, footnote: Footnote };
 
 /**
  * Opens the source popup of a new equation or diagram, so its source can be typed right away. A
@@ -391,6 +507,26 @@ function openSource(editor: PageEditor, blockId: string) {
   editor.getExtension(SourceBlockWithPreviewExtension)?.store.setState((state) => ({ ...state, popupOpen: blockId }));
 }
 
+/**
+ * Steps into the source of the inline node just inserted before the cursor (an equation, a
+ * footnote), which opens its popup. After the Enter that picked the slash menu item: inside the
+ * node, Enter steps back out of it.
+ */
+function stepIntoInline(editor: PageEditor, type: string) {
+  setTimeout(() => {
+    const view = editor.prosemirrorView;
+    const { selection } = view.state;
+    if (selection.$from.nodeBefore?.type.name !== type) return;
+    // Inserting leaves a text selection; its class makes the one inside the node (the app doesn't
+    // depend on prosemirror-state itself).
+    const TextSelection = selection.constructor as unknown as {
+      create: (doc: typeof view.state.doc, pos: number) => typeof selection;
+    };
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, selection.from - 1)));
+    view.focus();
+  });
+}
+
 /** Slash menu entries for the content blocks: the callout with the basic blocks, the rest with "Advanced". */
 export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestionItem[] {
   const t = useTranslations("page.blocks");
@@ -398,7 +534,7 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
     const basic = editor.dictionary.slash_menu.quote.group;
     const advanced = editor.dictionary.slash_menu.table.group;
     const item = (
-      key: "callout" | "math" | "inlineMath" | "mermaid" | "toc" | "breadcrumb" | "subpages",
+      key: "callout" | "math" | "inlineMath" | "footnote" | "mermaid" | "toc" | "breadcrumb" | "subpages",
       group: string,
       icon: React.JSX.Element,
       onItemClick: () => void,
@@ -417,20 +553,17 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
       item("math", advanced, <Sigma size={18} />, () => openSource(editor, insertOrUpdateBlockForSlashMenu(editor, { type: "math" }).id)),
       item("inlineMath", advanced, <Radical size={18} />, () => {
         editor.insertInlineContent([{ type: "inlineMath", props: {}, content: "" }], { updateSelection: true });
-        // Step into the new equation's source (the cursor is just after it), which opens its popup.
-        // After the Enter that picked the item: inside an equation, Enter steps back out of it.
-        setTimeout(() => {
-          const view = editor.prosemirrorView;
-          const { selection } = view.state;
-          if (selection.$from.nodeBefore?.type.name !== "inlineMath") return;
-          // Inserting leaves a text selection; its class makes the one inside the equation (the
-          // app doesn't depend on prosemirror-state itself).
-          const TextSelection = selection.constructor as unknown as {
-            create: (doc: typeof view.state.doc, pos: number) => typeof selection;
-          };
-          view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, selection.from - 1)));
-          view.focus();
-        });
+        stepIntoInline(editor, "inlineMath");
+      }),
+      item("footnote", advanced, <Superscript size={18} />, () => {
+        // A footnote's number sits right after the word it marks: the space typed before the "/"
+        // (which only opens the menu after one) goes.
+        const view = editor.prosemirrorView;
+        const { $from, empty } = view.state.selection;
+        const before = $from.parent.textBetween(Math.max(0, $from.parentOffset - 2), $from.parentOffset, undefined, "￼");
+        if (empty && /^\S $/.test(before)) view.dispatch(view.state.tr.delete($from.pos - 1, $from.pos));
+        editor.insertInlineContent([{ type: FOOTNOTE, props: {}, content: "" }], { updateSelection: true });
+        stepIntoInline(editor, FOOTNOTE);
       }),
       item("mermaid", advanced, <Workflow size={18} />, () =>
         openSource(editor, insertOrUpdateBlockForSlashMenu(editor, { type: "mermaid" }).id),

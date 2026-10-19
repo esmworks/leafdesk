@@ -328,7 +328,8 @@
       "title": "تنبيه",
       "subtext": "نص مع أيقونة على خلفية ملونة",
       "aliases": "callout note tip warning alert box تنبيه ملاحظة نصيحة تحذير مربع",
-      "icon": "تغيير الأيقونة"
+      "icon": "تغيير الأيقونة",
+      "hiddenInPrint": "مخفي عند الطباعة"
     },
     "code": {
       "language": "اللغة",
@@ -349,6 +350,16 @@
       "placeholder": "معادلة جديدة",
       "sourcePlaceholder": "x^2",
       "error": "خطأ في المعادلة"
+    },
+    "footnote": {
+      "title": "حاشية سفلية",
+      "subtext": "ملاحظة مرقمة في نهاية الصفحة",
+      "aliases": "footnote حاشية ملاحظة مصدر اقتباس مرجع",
+      "placeholder": "حاشية جديدة",
+      "sourcePlaceholder": "نص الملاحظة",
+      "list": "الحواشي",
+      "goTo": "الانتقال إلى الحاشية في النص",
+      "back": "العودة إلى النص"
     },
     "mermaid": {
       "title": "مخطط Mermaid",
@@ -519,7 +530,8 @@
     "morePages": "{count, plural, one {عرض صفحة أخرى} two {عرض صفحتين أخريين} few {عرض # صفحات أخرى} many {عرض # صفحة أخرى} other {عرض # صفحة أخرى}}"
   },
   "blockMenu": {
-    "copyLink": "نسخ رابط الكتلة"
+    "copyLink": "نسخ رابط الكتلة",
+    "hideInPrint": "إخفاء عند الطباعة"
   },
   "pdf": {
     "untitled": "PDF",

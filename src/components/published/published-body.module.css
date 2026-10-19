@@ -334,6 +334,24 @@
   min-width: 0;
 }
 
+/* A callout hidden in print (the print view leaves it out already; this is for the browser's own printing). */
+@media print {
+  .body [data-hide-in-print="true"] {
+    display: none;
+  }
+}
+
+/* Footnote numbers (see withFootnotes in published-body.ts); their notes are listed at the end. */
+.body [data-footnote-ref] {
+  padding-inline: 1px;
+  font-size: 0.75em;
+  font-weight: 500;
+}
+.body [data-footnote-ref] a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 /* Equations rendered by KaTeX on the server. */
 .body [data-leafdesk-math="block"] {
   overflow-x: auto;

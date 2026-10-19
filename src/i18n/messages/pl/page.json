@@ -328,7 +328,8 @@
       "title": "Wyróżnienie",
       "subtext": "Tekst z ikoną na kolorowym tle",
       "aliases": "wyróżnienie notatka wskazówka ostrzeżenie uwaga ramka callout note tip warning alert box",
-      "icon": "Zmień ikonę"
+      "icon": "Zmień ikonę",
+      "hiddenInPrint": "Ukryte przy drukowaniu"
     },
     "code": {
       "language": "Język",
@@ -349,6 +350,16 @@
       "placeholder": "Nowe równanie",
       "sourcePlaceholder": "x^2",
       "error": "Błąd równania"
+    },
+    "footnote": {
+      "title": "Przypis",
+      "subtext": "Numerowana uwaga na końcu strony",
+      "aliases": "footnote przypis uwaga źródło cytat odnośnik",
+      "placeholder": "Nowy przypis",
+      "sourcePlaceholder": "Treść przypisu",
+      "list": "Przypisy",
+      "goTo": "Przejdź do przypisu w tekście",
+      "back": "Wróć do tekstu"
     },
     "mermaid": {
       "title": "Diagram Mermaid",
@@ -519,7 +530,8 @@
     "morePages": "{count, plural, one {Pokaż jeszcze # stronę} few {Pokaż jeszcze # strony} many {Pokaż jeszcze # stron} other {Pokaż jeszcze # strony}}"
   },
   "blockMenu": {
-    "copyLink": "Kopiuj link do bloku"
+    "copyLink": "Kopiuj link do bloku",
+    "hideInPrint": "Ukryj przy drukowaniu"
   },
   "pdf": {
     "untitled": "PDF",

@@ -28,7 +28,8 @@ import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
  * lib/web-blocks), and uploaded PDFs, which the page shows in place. Equations are serialized: KaTeX builds them on the server (see server/blocknote.ts).
  * Code blocks are colored here too, the way the editor colors them (see lib/code-highlighter).
  * Columns come back as a segment holding each column's own segments, so everything above works
- * inside them too. Blocks with text carry an anchor, so a link to one block (`#block-<id>`) opens
+ * inside them too. Footnotes are numbered in the order the page has them, columns included, and
+ * their notes come back as a last segment (see withFootnotes). Blocks with text carry an anchor, so a link to one block (`#block-<id>`) opens
  * the page there (see withBlockAnchors).
  */
 
@@ -186,7 +187,15 @@ export type BodySegment =
   /** A file block holding an uploaded Excel workbook, its cells shown in place (see components/page/spreadsheet-viewer.tsx). */
   | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
   /** Columns side by side (stacked on narrow screens), each with its own segments. */
-  | { kind: "columns"; columns: PublishedColumn<BodySegment>[] };
+  | { kind: "columns"; columns: PublishedColumn<BodySegment>[] }
+  /** The notes of the body's footnotes, in order: always the last segment, and only when there are some. */
+  | { kind: "footnotes"; notes: BodyFootnote[] };
+
+/**
+ * A footnote of the body: its note, the id of its number in the text (`refAnchor`) and the id of
+ * the note in the list (`anchor`), which link to each other.
+ */
+export type BodyFootnote = { anchor: string; refAnchor: string; text: string };
 
 /** A column of a published page: its share of the row (see lib/columns) and what it shows. */
 export type PublishedColumn<S> = { width: number; segments: S[] };
@@ -379,6 +388,40 @@ const SHIKI_COLOR = /^#[0-9a-f]{3,8}$/i;
  * and a color is only written when it is a hex color. Code in plain text or a language we don't
  * color stays as it is.
  */
+/**
+ * Numbers the footnotes of a run's HTML (the server writes each as an element holding its note, see
+ * server/blocknote.ts), carrying on from `notes`: each becomes its number, linking to its note,
+ * and the note goes into `notes`. A footnote without a note is left out, as the editor leaves it
+ * unnumbered.
+ */
+async function withFootnotes(html: string, notes: BodyFootnote[], anchorPrefix: string): Promise<string> {
+  if (!html.includes("data-leafdesk-footnote")) return html;
+  return editor._withJSDOM(async () => {
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    container.querySelectorAll("[data-leafdesk-footnote]").forEach((element) => {
+      const text = (element.textContent ?? "").trim();
+      if (!text) {
+        element.remove();
+        return;
+      }
+      const n = notes.length + 1;
+      const note = { anchor: `${anchorPrefix}footnote-${n}`, refAnchor: `${anchorPrefix}footnote-ref-${n}`, text };
+      notes.push(note);
+      const sup = document.createElement("sup");
+      sup.setAttribute("id", note.refAnchor);
+      sup.setAttribute("data-footnote-ref", "");
+      const link = document.createElement("a");
+      link.setAttribute("href", `#${note.anchor}`);
+      link.setAttribute("title", text);
+      link.textContent = String(n);
+      sup.append(link);
+      element.replaceWith(sup);
+    });
+    return container.innerHTML;
+  });
+}
+
 async function withHighlightedCode(html: string): Promise<string> {
   if (!html.includes("<pre")) return html;
   const container = await editor._withJSDOM(async () => {
@@ -423,7 +466,17 @@ export type BodyOptions = {
   anchorPrefix?: string;
   /** Replaces synced blocks with what the reader may see of them (server/synced-blocks); without it they show nothing. */
   expandSynced?: (blocks: PageBlock[]) => Promise<PageBlock[]>;
+  /** For the print view: callouts hidden in print are left out (with the blocks nested in them). */
+  print?: boolean;
 };
+
+/** The blocks without the callouts hidden in print, in columns and nested blocks too. */
+function withoutHiddenInPrint(blocks: PageBlock[]): PageBlock[] {
+  return blocks.flatMap((block): PageBlock[] => {
+    if (block.type === CALLOUT_BLOCK && (block.props as { hideInPrint?: unknown }).hideInPrint === true) return [];
+    return [block.children?.length ? ({ ...block, children: withoutHiddenInPrint(block.children) } as PageBlock) : block];
+  });
+}
 
 export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: BodyOptions = {}): Promise<BodySegment[]> {
   if (!state || state.byteLength === 0) return [];
@@ -439,13 +492,16 @@ export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: Bo
 /** The same for a body already read as blocks (from the live document, see collab `readBlocks`). */
 export async function bodySegmentsFromBlocks(
   body: PageBlock[],
-  { resolvePages, anchorPrefix = "", expandSynced }: BodyOptions = {},
+  { resolvePages, anchorPrefix = "", expandSynced, print = false }: BodyOptions = {},
 ): Promise<BodySegment[]> {
-  const blocks = expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body);
+  const expanded = expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body);
+  const blocks = print ? withoutHiddenInPrint(expanded) : expanded;
   const { pageIds } = bodyReferences(blocks);
   const refs = pageIds.length && resolvePages ? await resolvePages(pageIds) : new Map<string, PublishedPageRef>();
   // Every heading of the page, filled in as the runs are written; tables of contents share it.
   const headings: BodyHeading[] = [];
+  // Every footnote of the page, numbered as the runs are written, columns included.
+  const notes: BodyFootnote[] = [];
   /** The segments of a list of blocks: the body, or a column's blocks. */
   const segmentsOf = async (blocks: PageBlock[]): Promise<BodySegment[]> => {
     const segments: BodySegment[] = [];
@@ -467,7 +523,7 @@ export async function bodySegmentsFromBlocks(
       const serialized = emptyLinesAsBreaks(await editor.blocksToHTMLLossy(marked));
       run = [];
       const headed = await withHeadingAnchors(serialized, inRun.map((heading) => heading.anchor));
-      const html = await withHighlightedCode(await withBlockAnchors(headed, nonce, anchored));
+      const html = await withHighlightedCode(await withFootnotes(await withBlockAnchors(headed, nonce, anchored), notes, anchorPrefix));
       if (html) segments.push({ kind: "html", html });
     };
     const standalone = async (block: PageBlock) => {
@@ -540,7 +596,9 @@ export async function bodySegmentsFromBlocks(
     await flush();
     return segments;
   };
-  return await segmentsOf(blocks);
+  const segments = await segmentsOf(blocks);
+  if (notes.length) segments.push({ kind: "footnotes", notes });
+  return segments;
 }
 
 /**

@@ -328,7 +328,8 @@
       "title": "Callout",
       "subtext": "Text mit Symbol auf farbigem Hintergrund",
       "aliases": "callout note tip warning alert box hinweis notiz tipp warnung kasten",
-      "icon": "Symbol ändern"
+      "icon": "Symbol ändern",
+      "hiddenInPrint": "Beim Drucken ausgeblendet"
     },
     "code": {
       "language": "Sprache",
@@ -349,6 +350,16 @@
       "placeholder": "Neue Gleichung",
       "sourcePlaceholder": "x^2",
       "error": "Fehler in der Gleichung"
+    },
+    "footnote": {
+      "title": "Fußnote",
+      "subtext": "Eine nummerierte Anmerkung am Ende der Seite",
+      "aliases": "footnote fußnote anmerkung quelle zitat verweis",
+      "placeholder": "Neue Fußnote",
+      "sourcePlaceholder": "Text der Anmerkung",
+      "list": "Fußnoten",
+      "goTo": "Zur Fußnote im Text",
+      "back": "Zurück zum Text"
     },
     "mermaid": {
       "title": "Mermaid-Diagramm",
@@ -519,7 +530,8 @@
     "morePages": "{count, plural, one {# weitere Seite anzeigen} other {# weitere Seiten anzeigen}}"
   },
   "blockMenu": {
-    "copyLink": "Link zum Block kopieren"
+    "copyLink": "Link zum Block kopieren",
+    "hideInPrint": "Beim Drucken ausblenden"
   },
   "pdf": {
     "untitled": "PDF",

@@ -4,6 +4,7 @@ import {
   BREADCRUMB_BLOCK,
   CALLOUT_BLOCK,
   colorForAlertKind,
+  FOOTNOTE,
   INLINE_MATH,
   leadingEmoji,
   MATH_BLOCK,
@@ -46,6 +47,9 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  *
  *   > [!NOTE]              a callout: a GitHub alert, the kind picks the color and a
  *   > 💡 Text              leading emoji is the icon
+ *
+ *   <!-- leafdesk:no-print -->   a callout hidden in print: this line right before its alert
+ *   > [!NOTE]
  *   >
  *   > * Nested             the blocks nested under a callout or a quote are quoted with its
  *                          text (BlockNote would write them after the quote); read back, the
@@ -77,6 +81,10 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  *
  *   Text with $e^{i\pi}$   an inline equation (Pandoc's rules: no space inside the dollars, and
  *                          no digit right after the closing one, so "$5 and $10" stays text)
+ *
+ *   Text with a note.[^1]  a footnote: numbered in the order the page has them, the notes
+ *   …                      written at the end ("[^1]: The note."), one line each (see
+ *   [^1]: The note.        footnoteMarkdown for how they're read back)
  *
  *   x<sup>2</sup>, H<sub>2</sub>O   superscript and subscript text (lib/text-scripts); BlockNote's
  *                          parser reads the tags as HTML, so only the export needs help
@@ -131,6 +139,9 @@ const scriptOf = (node: Inline): TextScript | undefined =>
 
 const withoutScripts = (styles: Inline["styles"]) => Object.fromEntries(Object.entries(styles ?? {}).filter(([style]) => !isScript(style)));
 
+/** The line written right before a callout hidden in print. */
+const NO_PRINT_MARKER = "<!-- leafdesk:no-print -->";
+
 const TOKEN_LINE = (nonce: string) => new RegExp(`^([ \\t]*)leafdesk${nonce}b(\\d+)x[ \\t]*$`, "gm");
 
 /**
@@ -146,7 +157,9 @@ export function prepareMarkdownExport<B extends MdBlock>(
   const blockMarkdown: string[] = [];
   const inlineMarkdown: string[] = [];
   /** Callouts and quotes with nested blocks, by token: a quote has no kind. */
-  const callouts: { kind: AlertKind | null; icon: string }[] = [];
+  const callouts: { kind: AlertKind | null; icon: string; hideInPrint: boolean }[] = [];
+  /** Footnotes' notes, by token; numbered in the order the Markdown has them (see finish). */
+  const notes: string[] = [];
   const blockToken = (markdown: string) => `leafdesk${nonce}b${blockMarkdown.push(markdown) - 1}x`;
   const dollarToken = `leafdesk${nonce}dx`;
 
@@ -190,6 +203,11 @@ export function prepareMarkdownExport<B extends MdBlock>(
         const markdown =
           props.kind === "page" ? (props.pageId ? pageLinkMarkdown("page", workspaceId, props.pageId, props.blockId) : "") : mentionText(props);
         return { type: "text", text: `leafdesk${nonce}i${inlineMarkdown.push(markdown) - 1}x`, styles: {} };
+      }
+      if (node?.type === FOOTNOTE) {
+        // A note is one line; an empty footnote writes nothing.
+        const note = plainText(node.content).replace(/\s*\n\s*/g, " ").trim();
+        return { type: "text", text: note ? `leafdesk${nonce}f${notes.push(note) - 1}x` : "", styles: {} };
       }
       if (node?.type !== INLINE_MATH) return node;
       // $…$ can't span lines; an empty equation writes nothing.
@@ -267,8 +285,12 @@ export function prepareMarkdownExport<B extends MdBlock>(
           if (block.type === "quote" && !children.length) return { ...block, content: inline(block.content), children };
           const i = callouts.push(
             block.type === "quote"
-              ? { kind: null, icon: "" }
-              : { kind: alertKindForColor(String(block.props?.backgroundColor ?? "")), icon: String(block.props?.icon ?? "").trim() },
+              ? { kind: null, icon: "", hideInPrint: false }
+              : {
+                  kind: alertKindForColor(String(block.props?.backgroundColor ?? "")),
+                  icon: String(block.props?.icon ?? "").trim(),
+                  hideInPrint: block.props?.hideInPrint === true,
+                },
           );
           const content = inline(block.content);
           const start = { type: "text", text: `leafdesk${nonce}c${i - 1}x`, styles: {} };
@@ -325,29 +347,41 @@ export function prepareMarkdownExport<B extends MdBlock>(
   );
   const quoteCallouts = (markdown: string): string => {
     const quoted = markdown.replace(innerCallout, (_, indent: string, i: string, text: string) => {
-      const { kind, icon } = callouts[Number(i)];
+      const { kind, icon, hideInPrint } = callouts[Number(i)];
       const lines = text.replace(/\s+$/, "").split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
       if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
-      return (kind ? [`[!${kind}]`, ...lines] : lines)
-        .map((line) => `${indent}> ${line}`.trimEnd())
-        .join("\n");
+      const quoted = (kind ? [`[!${kind}]`, ...lines] : lines).map((line) => `${indent}> ${line}`.trimEnd());
+      return (hideInPrint ? [`${indent}${NO_PRINT_MARKER}`, ...quoted] : quoted).join("\n");
     });
     return quoted === markdown ? markdown : quoteCallouts(quoted);
   };
 
+  /**
+   * Footnotes numbered in the order the Markdown has them (not their tokens': a callout's nested
+   * blocks are prepared before its text), their notes at the end.
+   */
+  const withNotes = (markdown: string) => {
+    const written: string[] = [];
+    const out = markdown.replace(new RegExp(`leafdesk${nonce}f(\\d+)x`, "g"), (_, i: string) => `[^${written.push(notes[Number(i)])}]`);
+    if (!written.length) return out;
+    return `${out.replace(/\s+$/, "")}\n\n${written.map((note, n) => `[^${n + 1}]: ${note}`).join("\n")}\n`;
+  };
+
   const finish = (markdown: string) =>
-    // Block lines before callouts: inside a callout they'd no longer start their line.
-    quoteCallouts(
-      markdown.replace(TOKEN_LINE(nonce), (_, indent: string, i: string) =>
-        blockMarkdown[Number(i)]
-          .split("\n")
-          .map((line) => (line ? indent + line : line))
-          .join("\n"),
-      ),
-    )
-      .replace(new RegExp(`leafdesk${nonce}(e?)(sup|sub)x`, "g"), (_, end: string, tag: string) => `<${end ? "/" : ""}${tag}>`)
-      .replace(new RegExp(`leafdesk${nonce}i(\\d+)x`, "g"), (_, i: string) => inlineMarkdown[Number(i)])
-      .replaceAll(dollarToken, () => "\\$");
+    withNotes(
+      // Block lines before callouts: inside a callout they'd no longer start their line.
+      quoteCallouts(
+        markdown.replace(TOKEN_LINE(nonce), (_, indent: string, i: string) =>
+          blockMarkdown[Number(i)]
+            .split("\n")
+            .map((line) => (line ? indent + line : line))
+            .join("\n"),
+        ),
+      )
+        .replace(new RegExp(`leafdesk${nonce}(e?)(sup|sub)x`, "g"), (_, end: string, tag: string) => `<${end ? "/" : ""}${tag}>`)
+        .replace(new RegExp(`leafdesk${nonce}i(\\d+)x`, "g"), (_, i: string) => inlineMarkdown[Number(i)])
+        .replaceAll(dollarToken, () => "\\$"),
+    );
 
   return { blocks: replace(blocks), finish };
 }
@@ -358,7 +392,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
 type Pending =
   | { type: typeof MATH_BLOCK; latex: string }
   | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK | typeof SUBPAGES_BLOCK }
-  | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string }
+  | { type: typeof CALLOUT_BLOCK; kind: AlertKind; markdown: string; hideInPrint: boolean }
   | { type: "quote"; markdown: string }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
@@ -371,6 +405,7 @@ const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
 const CALLOUT_START = new RegExp(`^( {0,3})> ?\\[!(${ALERT_KINDS.join("|")})\\][ \\t]*(.*)$`, "i");
 const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
+const NO_PRINT_LINE = /^ {0,3}<!--\s*leafdesk:no-print\s*-->\s*$/;
 /** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
 const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\||(?:[*_-][ \t]*){3,}$|=+[ \t]*$)/;
 const MATH_OPEN = /^ {0,3}\$\$(.*)$/;
@@ -400,6 +435,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     out.push("", `${indent}leafdesk${nonce}b${blocks.push(pending) - 1}x`, "");
   };
   let fence: string | null = null;
+  let hideNext = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (fence) {
@@ -444,6 +480,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       else blockLine({ type: BOOKMARK_BLOCK, url: webUrl, title: (web[1] ?? "").replace(/\\(.)/g, "$1").trim() });
       continue;
     }
+    // The marker of a callout hidden in print, right before the callout; anywhere else it stays a line.
+    if (NO_PRINT_LINE.test(line) && CALLOUT_START.test(lines[i + 1] ?? "")) {
+      hideNext = true;
+      continue;
+    }
     const pageLink = PAGE_LINK_LINE.exec(line);
     const linked = pageLink ? linkedPageRef(pageLink[1], appUrl) : null;
     if (linked) {
@@ -471,7 +512,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       const markdown = body.join("\n");
       // At the quote's indent: one under a list item stays in it.
       const indent = (callout ?? quote)![1];
-      blockLine(callout ? { type: CALLOUT_BLOCK, kind: callout[2].toUpperCase() as AlertKind, markdown } : { type: "quote", markdown }, indent);
+      blockLine(
+        callout ? { type: CALLOUT_BLOCK, kind: callout[2].toUpperCase() as AlertKind, markdown, hideInPrint: hideNext } : { type: "quote", markdown },
+        indent,
+      );
+      hideNext = false;
       continue;
     }
     const math = MATH_OPEN.exec(line);
@@ -676,7 +721,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         }
         return {
           type: CALLOUT_BLOCK,
-          props: { icon, backgroundColor: colorForAlertKind(pending.kind) },
+          props: { icon, backgroundColor: colorForAlertKind(pending.kind), ...(pending.hideInPrint ? { hideInPrint: true } : {}) },
           content,
           children: [...(first?.children ?? []), ...inner],
         } as unknown as B;
@@ -703,4 +748,161 @@ export async function finishMarkdownImport<B extends MdBlock>(
     return out;
   };
   return walk(blocks);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Footnotes in Markdown
+
+const NOTE_DEFINITION = /^ {0,3}\[\^([^\]\s]+)\]:[ \t]?(.*)$/;
+const NOTE_CONTINUATION = /^(?: {4}|\t)[ \t]*(\S.*)$/;
+const NOTE_REFERENCE = /\[\^([^\]\s]+)\]/g;
+
+/**
+ * The footnotes of Markdown, read before the rest of it: each `[^id]` with a note (`[^id]: The
+ * note.`, anywhere on a line of its own, its lines indented by four spaces continuing it) becomes a
+ * token, and the notes' lines leave the Markdown. A reference without a note stays as it is, and so
+ * does a note nothing refers to; nothing inside code counts. `restore` turns the tokens of parsed
+ * blocks into footnotes (in a link's text, where a footnote can't go, back into `[^id]`). The same
+ * note referred to twice is two footnotes, each holding it.
+ */
+export function footnoteMarkdown(markdown: string, nonce: string) {
+  const lines = markdown.split(/\r?\n/);
+  const defined = new Map<string, { text: string; from: number; to: number }>();
+  const code = codeLines(lines);
+  for (let i = 0; i < lines.length; i++) {
+    const start = code.has(i) ? null : NOTE_DEFINITION.exec(lines[i]);
+    if (!start) continue;
+    const text = [start[2].trim()];
+    let to = i;
+    for (let j = i + 1; j < lines.length; j++) {
+      const more = NOTE_CONTINUATION.exec(lines[j]) ?? (!lines[j].trim() ? null : undefined);
+      if (more) {
+        text.push(more[1].trim());
+        to = j;
+        continue;
+      }
+      // A blank line goes on with the note only when an indented line follows it.
+      if (more === null && NOTE_CONTINUATION.test(lines[j + 1] ?? "")) continue;
+      break;
+    }
+    // The first note of an id counts, as in other Markdown readers.
+    if (!defined.has(start[1])) defined.set(start[1], { text: text.join(" ").replace(/\s+/g, " ").trim(), from: i, to });
+    i = to;
+  }
+  if (!defined.size) return { markdown, restore: <B extends MdBlock>(blocks: B[]) => blocks };
+
+  const ids: string[] = [];
+  const used = new Set<string>();
+  const out: string[] = [];
+  const skipped = new Set<number>();
+  // References first, so the notes no reference uses can keep their lines.
+  const replaced = lines.map((line, i) => {
+    if (code.has(i) || [...defined.values()].some((d) => i >= d.from && i <= d.to)) return line;
+    return outsideCodeSpans(line, (text) =>
+      text.replace(NOTE_REFERENCE, (match, id: string, offset: number) => {
+        const note = defined.get(id);
+        if (!note || !note.text || text[offset - 1] === "\\") return match;
+        used.add(id);
+        return `leafdesk${nonce}n${ids.push(id) - 1}x`;
+      }),
+    );
+  });
+  for (const [id, d] of defined) if (used.has(id)) for (let i = d.from; i <= d.to; i++) skipped.add(i);
+  replaced.forEach((line, i) => {
+    if (!skipped.has(i)) out.push(line);
+  });
+
+  const token = new RegExp(`leafdesk${nonce}n(\\d+)x`, "g");
+  const noteOf = (i: string) => defined.get(ids[Number(i)])!.text;
+  const split = (node: Inline): Inline[] => {
+    if (node?.type !== "text" || typeof node.text !== "string" || !node.text.includes(`leafdesk${nonce}n`)) return [node];
+    const parts: Inline[] = [];
+    let last = 0;
+    for (const match of node.text.matchAll(token)) {
+      if (match.index > last) parts.push({ ...node, text: node.text.slice(last, match.index) });
+      parts.push({ type: FOOTNOTE, props: {}, content: noteOf(match[1]) } as Inline);
+      last = match.index + match[0].length;
+    }
+    if (last < node.text.length) parts.push({ ...node, text: node.text.slice(last) });
+    return parts;
+  };
+  const literal = (text: string) => text.replace(token, (_, i: string) => `[^${ids[Number(i)]}]`);
+  const inline = (content: unknown): unknown => {
+    if (typeof content === "string") return literal(content);
+    if (Array.isArray(content)) {
+      return content.flatMap((node: Inline) => {
+        if (node?.type === "link" && Array.isArray(node.content)) {
+          return [{ ...node, content: node.content.map((n: Inline) => (typeof n.text === "string" ? { ...n, text: literal(n.text) } : n)) }];
+        }
+        // An inline equation's source is text only.
+        if (typeof node?.content === "string") return [{ ...node, content: literal(node.content) }];
+        return split(node);
+      });
+    }
+    if (isObject(content) && content.type === "tableContent" && Array.isArray(content.rows)) {
+      return {
+        ...content,
+        rows: content.rows.map((row: { cells?: unknown[] }) => ({
+          ...row,
+          cells: (row.cells ?? []).map((cell) =>
+            Array.isArray(cell) ? inline(cell) : isObject(cell) ? { ...cell, content: inline(cell.content) } : cell,
+          ),
+        })),
+      };
+    }
+    return content;
+  };
+  // An equation, a diagram or a code block holds text only: a reference in it goes back as it was.
+  const plain = (content: unknown) =>
+    typeof content === "string" ? literal(content) : Array.isArray(content) ? content.map((n: Inline) => (typeof n?.text === "string" ? { ...n, text: literal(n.text) } : n)) : content;
+  const restore = <B extends MdBlock>(blocks: B[]): B[] =>
+    blocks.map((block) => ({
+      ...block,
+      content: PLAIN_BLOCKS.has(block.type) ? plain(block.content) : inline(block.content),
+      children: block.children?.length ? restore(block.children as B[]) : block.children,
+    }));
+  return { markdown: out.join("\n"), restore };
+}
+
+const PLAIN_BLOCKS = new Set(["codeBlock", MATH_BLOCK, MERMAID_BLOCK]);
+
+/** The lines inside fenced code (the fences too). */
+function codeLines(lines: string[]): Set<number> {
+  const code = new Set<number>();
+  let fence: string | null = null;
+  lines.forEach((line, i) => {
+    if (fence) {
+      code.add(i);
+      const closing = FENCE_CLOSE.exec(line);
+      if (closing && closing[1][0] === fence[0] && closing[1].length >= fence.length) fence = null;
+      return;
+    }
+    const opening = FENCE_OPEN.exec(line);
+    if (opening) {
+      fence = opening[1];
+      code.add(i);
+    }
+  });
+  return code;
+}
+
+/** `line` with `edit` applied to its text outside code spans. */
+function outsideCodeSpans(line: string, edit: (text: string) => string): string {
+  if (!line.includes("`")) return edit(line);
+  let out = "";
+  let text = "";
+  let i = 0;
+  while (i < line.length) {
+    if (line[i] !== "`") {
+      text += line[i++];
+      continue;
+    }
+    const run = /^`+/.exec(line.slice(i))![0];
+    const close = line.indexOf(run, i + run.length);
+    const end = close < 0 ? i + run.length : close + run.length;
+    out += edit(text) + line.slice(i, end);
+    text = "";
+    i = end;
+  }
+  return out + edit(text);
 }

@@ -17,6 +17,7 @@ import {
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { tableToDatabaseAction } from "@/app/actions/embeds";
+import { CALLOUT_BLOCK } from "@/lib/content-blocks";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
 import { SYNCED_BLOCK } from "@/lib/synced-blocks";
 import { copyText } from "@/components/settings/copy-button";
@@ -121,10 +122,34 @@ function CopyBlockLinkItem() {
 }
 
 /**
+ * "Hide when printing" in a callout's side menu: the callout stays on screen but is left out of the
+ * print view and of what the browser prints (see lib/content-blocks).
+ */
+function HideInPrintItem() {
+  const Components = useComponentsContext()!;
+  const editor = useBlockNoteEditor() as unknown as PageEditor;
+  const block = useExtensionState(SideMenuExtension, { editor, selector: (state) => state?.block });
+  const t = useTranslations("page.blockMenu");
+  if (!block || block.type !== CALLOUT_BLOCK || !editor.isEditable) return null;
+  const hidden = Boolean((block.props as { hideInPrint?: boolean }).hideInPrint);
+  return (
+    <Components.Generic.Menu.Item
+      className="bn-menu-item"
+      checked={hidden}
+      onClick={() => {
+        if (editor.getBlock(block.id)) editor.updateBlock(block.id, { props: { hideInPrint: !hidden } });
+      }}
+    >
+      {t("hideInPrint")}
+    </Components.Generic.Menu.Item>
+  );
+}
+
+/**
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
- * (delete, colors, table headers), "Copy link to block" and, for a table, "Turn into database";
- * `onError` shows why that failed. Made once per editor: a new component each render would close
- * an open menu.
+ * (delete, colors, table headers), "Copy link to block", for a callout "Hide when printing" and,
+ * for a table, "Turn into database"; `onError` shows why that failed. Made once per editor: a new
+ * component each render would close an open menu.
  */
 export function pageSideMenu(onError: (message: string) => void): FC<SideMenuProps> {
   function PageDragHandleMenu() {
@@ -135,6 +160,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>
         <TableRowHeaderItem>{dict.drag_handle.header_row_menuitem}</TableRowHeaderItem>
         <TableColumnHeaderItem>{dict.drag_handle.header_column_menuitem}</TableColumnHeaderItem>
+        <HideInPrintItem />
         <CopyBlockLinkItem />
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />

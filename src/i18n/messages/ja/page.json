@@ -328,7 +328,8 @@
       "title": "コールアウト",
       "subtext": "色付きの背景にアイコン付きのテキスト",
       "aliases": "callout note tip warning alert box コールアウト メモ ヒント 注意 警告",
-      "icon": "アイコンを変更"
+      "icon": "アイコンを変更",
+      "hiddenInPrint": "印刷時に非表示"
     },
     "code": {
       "language": "言語",
@@ -349,6 +350,16 @@
       "placeholder": "新しい数式",
       "sourcePlaceholder": "x^2",
       "error": "数式エラー"
+    },
+    "footnote": {
+      "title": "脚注",
+      "subtext": "ページの最後に番号付きの注を付けます",
+      "aliases": "footnote 脚注 注 出典 引用 参照 きゃくちゅう",
+      "placeholder": "新しい脚注",
+      "sourcePlaceholder": "注の本文",
+      "list": "脚注",
+      "goTo": "本文の脚注へ移動",
+      "back": "本文に戻る"
     },
     "mermaid": {
       "title": "Mermaid図",
@@ -519,7 +530,8 @@
     "morePages": "さらに{count}ページを表示"
   },
   "blockMenu": {
-    "copyLink": "ブロックへのリンクをコピー"
+    "copyLink": "ブロックへのリンクをコピー",
+    "hideInPrint": "印刷時に非表示にする"
   },
   "pdf": {
     "untitled": "PDF",

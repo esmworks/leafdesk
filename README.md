@@ -96,8 +96,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   stays at 16px, so the phone doesn't zoom in when you start typing. Restoring an older version
   keeps the current style. Databases always use the full width. With the comments panel open, a
   page moves left of it (and narrows when the window is too small) instead of running under it.
-- **Rich blocks**: callouts, LaTeX equations (block and inline, KaTeX), Mermaid diagrams with a
-  live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
+- **Rich blocks**: callouts (one can be hidden when printing: it stays on screen and is left out
+  of PDFs), LaTeX equations (block and inline, KaTeX), footnotes (`/footnote` puts a number in the
+  text and the note in a popup; the page lists its notes at the end, on published pages and in PDFs
+  too, and hovering a number shows its note), Mermaid diagrams with a live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
   seeing those they may open; a page with one doesn't list them again at its end when published or
   printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
@@ -446,8 +448,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   page. A heading (or Title paragraph) at the very top becomes the page's title, otherwise the file
   name does. Headings (levels past the third as the third), bold, italic, underline,
   strikethrough, links (web and email only), bulleted and numbered lists with their nesting, tables
-  with a header row, quotes, monospace paragraphs (as code) and footnotes (as a list at the end)
-  come along; pictures inside the document are uploaded to the page. Pictures linked from outside
+  with a header row, quotes, monospace paragraphs (as code) and footnotes and endnotes (as the
+  page's footnotes, their notes as plain text) come along; pictures inside the document are uploaded to the page. Pictures linked from outside
   the document, of types pages don't show (such as Windows metafiles) or over the upload limit are
   left out and listed in the result; comments and page breaks are dropped. Old `.doc` files need
   saving as `.docx` first. A document is read in a separate worker with a time and memory limit,
@@ -750,8 +752,9 @@ restore checks them against the server's per-workspace storage limit.
 "Export as PDF" in the page menu opens the page's print view (`/print/<page id>`) in a new tab
 and, once its images and diagrams have loaded, the browser's print dialog: choose "Save as PDF"
 as the destination. The print view draws the page the way published pages do (headings, tables,
-code, images, callouts, equations, Mermaid diagrams, database blocks) and is always light, also in
-dark mode. Code and tables wrap to the page width, headings stay with the text after them, and
+code, images, callouts, equations, Mermaid diagrams, database blocks, footnotes with their notes at
+the end) and is always light, also in dark mode. Callouts set to *Hide when printing* in their block
+menu are left out, with the blocks nested in them. Code and tables wrap to the page width, headings stay with the text after them, and
 each page starts with its title. Links to other pages print as their titles. "Include subpages"
 in the view's bar adds the pages under it (up to 100), each starting on a new sheet; database
 rows print in their database's table. It shows what the person printing can see, like the page
@@ -2244,6 +2247,10 @@ The tools cover:
   about the whole page, as agents write them, comes back with `about_page: true` and no quote.
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date (see `src/lib/mentions.ts`).
+- **Footnotes and print-hidden callouts:** a footnote is `[^1]` in the text with its note on a line
+  of its own (`[^1]: The note.`), the notes written at the end of the body; a callout hidden in
+  print has the line `<!-- leafdesk:no-print -->` right before its alert (see
+  `src/lib/content-markdown.ts`).
 - **Inbox:** `list_notifications`, when the user also grants the `notifications:read` permission.
   `watch_page` watches or mutes a page (follows or stops following a row); `get_page` shows
   `watching`.
