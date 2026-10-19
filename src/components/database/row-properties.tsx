@@ -32,6 +32,7 @@ import { PropertyTypeIcon } from "./property-icons";
 import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { RowActivity } from "./row-activity";
+import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
 import type { DerivedInput, PersonRef, Property, RelationInput, RelationTarget } from "./types";
 
@@ -368,6 +369,7 @@ export function RowProperties({
                   <AddPropertyRow onCreate={addProperty} onCreateAutofill={aiEnabled ? addAutofillProperty : undefined} />
                 )}
                 {error && <p className="mt-2 px-1 text-xs text-danger">{error}</p>}
+                {!offline && <RowEmails rowId={rowId} />}
                 {!offline && <RowActivity rowId={rowId} signal={changes} />}
               </div>
             </AiAutofillProvider>

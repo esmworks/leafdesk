@@ -1,8 +1,8 @@
 import { and, desc, eq, inArray, lt, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { mailbox, rowEmail, rowEmailAttachment, user } from "@/db/schema";
+import { mailbox, mailDatabase, page, rowEmail, rowEmailAttachment, user } from "@/db/schema";
 import { fileUrl } from "@/lib/files";
-import { ROW_EMAIL_PAGE, type RowEmailView } from "@/lib/mail";
+import { normalizeAddress, ROW_EMAIL_PAGE, type RowEmailView } from "@/lib/mail";
 import { AccessError } from "@/server/access";
 import { workspaceSettings } from "@/server/workspaces";
 import { rowMailAccess } from "./access";
@@ -21,6 +21,8 @@ export type RowEmailList = {
   canSend: boolean;
   /** The viewer's mailbox's address, which replies go out from. */
   from: string | null;
+  /** The row's own addresses (its matched email properties), for a new message's To. */
+  addresses: string[];
 };
 
 export async function listRowEmails(userId: string, rowId: string, before?: string | null): Promise<RowEmailList | null> {
@@ -53,13 +55,17 @@ export async function listRowEmails(userId: string, rowId: string, before?: stri
           ),
         )
     : [];
-  const [settings, [own]] = await Promise.all([
+  const [settings, [own], [row], [matched]] = await Promise.all([
     workspaceSettings(access.workspaceId),
     db
       .select({ address: mailbox.address })
       .from(mailbox)
       .where(and(eq(mailbox.workspaceId, access.workspaceId), eq(mailbox.userId, userId))),
+    db.select({ properties: page.properties }).from(page).where(eq(page.id, rowId)),
+    db.select({ propertyIds: mailDatabase.propertyIds }).from(mailDatabase).where(eq(mailDatabase.databaseId, access.databaseId)),
   ]);
+  const values = (row?.properties ?? {}) as Record<string, unknown>;
+  const addresses = [...new Set((matched?.propertyIds ?? []).map((id) => normalizeAddress(values[id])).filter((a): a is string => !!a))];
   return {
     emails: shown.map(({ email, owner, sender }) => ({
       id: email.id,
@@ -83,6 +89,7 @@ export async function listRowEmails(userId: string, rowId: string, before?: stri
     more: rows.length > ROW_EMAIL_PAGE,
     canSend: settings.email && !!own && atLeastEdit(access.level),
     from: own?.address ?? null,
+    addresses,
   };
 }
 
