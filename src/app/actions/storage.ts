@@ -2,7 +2,6 @@
 
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import { isInstanceAdmin } from "@/lib/instance-admin";
 import type { S3StorageInput, StorageAccountsView, StorageSettingsView } from "@/lib/workspace-storage";
 import { AccessError } from "@/server/access";
 import {
@@ -18,6 +17,7 @@ import {
 } from "@/server/storage/accounts";
 import { dismissMove, retryMove, startManualMove } from "@/server/storage/moves";
 import { disconnectStorage, getStorageSettings, retestStorage, StorageSettingsError } from "@/server/storage/settings";
+import { instanceAdmin } from "@/server/first-admin";
 import { getSession } from "@/server/session";
 
 // A workspace's Settings > Storage (see server/storage/settings.ts), for owners, and the storage
@@ -44,8 +44,9 @@ async function run<T>(fn: (userId: string, session: Session) => Promise<T>): Pro
 }
 
 /** The workspace's storage settings again, after a change. */
-const settingsOf = (userId: string, session: Session, workspaceId: string) => getStorageSettings(userId, workspaceId, { isAdmin: isInstanceAdmin(session.user) });
-const accountsOf = (userId: string, session: Session) => getStorageAccounts(userId, { isAdmin: isInstanceAdmin(session.user) });
+const settingsOf = async (userId: string, session: Session, workspaceId: string) =>
+  getStorageSettings(userId, workspaceId, { isAdmin: await instanceAdmin(session.user) });
+const accountsOf = async (userId: string, session: Session) => getStorageAccounts(userId, { isAdmin: await instanceAdmin(session.user) });
 
 // ---------------------------------------------------------------------- One's own storage accounts
 

@@ -43,14 +43,11 @@ Try it in a minute:
 ```bash
 mkdir leafdesk && cd leafdesk
 curl -fsSLO https://raw.githubusercontent.com/esmworks/leafdesk/main/docker-compose.yml
-curl -fsSL https://raw.githubusercontent.com/esmworks/leafdesk/main/.env.example -o .env
-# set BETTER_AUTH_SECRET in .env to the output of: openssl rand -base64 32
-# and POSTGRES_PASSWORD to the output of: openssl rand -hex 24
 docker compose up -d
 ```
 
-Then open http://localhost:3000 and create an account. See [Quick start](#quick-start-docker) for
-versions, upgrades and running behind a domain.
+Then open http://localhost:3000 and create an account; the first one administers the server. See
+[Quick start](#quick-start-docker) for settings, versions, upgrades and running behind a domain.
 
 Just for yourself, with no server: download the desktop app from the
 [latest release](https://github.com/esmworks/leafdesk/releases/latest) (`.dmg` for macOS, `.exe`
@@ -570,19 +567,28 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 
 Prebuilt images for amd64 and arm64 are published to
 [GitHub Container Registry](https://github.com/esmworks/leafdesk/pkgs/container/leafdesk) for every release.
-You only need two files:
+You only need the compose file:
 
 ```bash
 mkdir leafdesk && cd leafdesk
 curl -fsSLO https://raw.githubusercontent.com/esmworks/leafdesk/main/docker-compose.yml
-curl -fsSL https://raw.githubusercontent.com/esmworks/leafdesk/main/.env.example -o .env
-# set BETTER_AUTH_SECRET in .env to the output of: openssl rand -base64 32
-# and POSTGRES_PASSWORD to the output of: openssl rand -hex 24
 docker compose up -d
 ```
 
-Open http://localhost:3000 and create an account. Migrations run automatically when the app
-container starts.
+Open http://localhost:3000 and create an account. The first account created on a new server is
+its administrator (see [Instance administrators](#instance-administrators)), and sign-up stays
+open to anyone who can reach the server until you close it (below). Migrations run automatically
+when the app container starts.
+
+Nothing has to be edited first. On its first start, the short-lived `secrets` service makes a
+random auth secret (`BETTER_AUTH_SECRET`) and a random password for the bundled PostgreSQL into the
+`secrets` volume, readable only by the app and the database, and never replaces them; a second
+`docker compose up -d` uses the same ones. Back up that volume along with `pgdata`: without the
+auth secret every sign-in ends and connections' stored tokens can't be opened. Settings go into a
+file named `.env` next to `docker-compose.yml` (see
+[.env.example](https://github.com/esmworks/leafdesk/blob/main/.env.example): the common ones come
+first), followed by `docker compose up -d`. A `BETTER_AUTH_SECRET` or `POSTGRES_PASSWORD` set there
+takes precedence over the generated one.
 
 - **Pin a version:** set `LEAFDESK_VERSION=0.6.1` in `.env`. The default is `latest`.
 - **Upgrade:** run `docker compose pull && docker compose up -d`. Read the *Upgrading* notes of
@@ -590,9 +596,16 @@ container starts.
   pages can't be read or written until they finish; some releases have every page embedded again
   for semantic search. On a large server, upgrade at a quiet time. Coming from 0.2.0
   (released under the previous name), first follow its upgrade notes.
+- **Upgrading an install whose `.env` sets `BETTER_AUTH_SECRET` and `POSTGRES_PASSWORD`** (every
+  install before one-command setup): download the new `docker-compose.yml` and run
+  `docker compose up -d`. The `.env` keeps working unchanged; its values take precedence over the
+  generated ones. `COMPOSE_PROFILES=bundled-db` no longer does anything and can go. With an
+  external database (`EXTERNAL_DATABASE_URL`), add `BUNDLED_DB=0`, or an unused bundled database
+  starts next to it.
 - **Build from source:** clone the repository and run `docker compose up -d --build`.
 
-To stop new sign-ups after creating your own account, set `DISABLE_SIGNUP=true` and restart.
+To stop new sign-ups after creating your own account, set `DISABLE_SIGNUP=true` in `.env` and run
+`docker compose up -d`. Server administration shows whether sign-up is open.
 You can still bring people in: in Settings → Members, add their email. If they have no account
 yet (or its address isn't verified), you get an invitation link to send them. The link works for
 7 days and lets only that email sign up, even while sign-up is closed. The workspace join link (Settings → Members → Add members
@@ -643,9 +656,9 @@ Ctrl+C exits at once. Browsers keep what they hadn't sent and send it again when
 
 ### Use an external PostgreSQL
 
-The compose file runs PostgreSQL 18 only while `COMPOSE_PROFILES=bundled-db` is set in `.env`.
-To use a database you already run, remove that line and set `EXTERNAL_DATABASE_URL` to its
-connection URL. The `db` service is then not created.
+The compose file runs PostgreSQL 18 as its `db` service. To use a database you already run, set
+`EXTERNAL_DATABASE_URL` to its connection URL and `BUNDLED_DB=0` in `.env`; the `db` service is then
+not started.
 
 ## File uploads
 
@@ -1304,9 +1317,16 @@ pnpm auth:reset-2fa person@example.com
 
 ## Instance administrators
 
-Whoever runs the server can name the accounts that administer it. There is no role in the
-database: the list below is the only source, and an account counts only once its email address
-is verified.
+The first account created on a new server is its administrator, so whoever installs Leafdesk can
+manage it right away. It stays one for good, verified address or not, even if it changes its
+address; deleting it hands the role to nobody. Only an account that no other account predates
+gets it: on a server that had accounts before this rule, nobody does, and of accounts signing up
+at the same moment exactly one does. Its owner sees a note about it, and about closing sign-up,
+after signing up.
+
+Beyond that, whoever runs the server names the accounts that administer it. There is no role to
+hand out in the database: the list below is the only other source, and an account in it counts
+only once its email address is verified.
 
 | Variable | Description |
 |---|---|
@@ -2642,7 +2662,7 @@ Requirements: Node.js 24 and pnpm 11 (via `corepack enable`), plus Docker for Po
 
 ```bash
 pnpm install
-cp .env.example .env      # set BETTER_AUTH_SECRET, and POSTGRES_PASSWORD (also in DATABASE_URL)
+cp .env.example .env      # set BETTER_AUTH_SECRET, and POSTGRES_PASSWORD (also in DATABASE_URL; unset, the db gets a random one)
 docker compose up -d db
 pnpm db:migrate
 pnpm dev                  # http://localhost:3000

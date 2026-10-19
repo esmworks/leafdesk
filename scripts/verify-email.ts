@@ -7,13 +7,15 @@
  *
  *   pnpm auth:verify-email person@example.com
  *
- * Env: DATABASE_URL (read from .env when present).
+ * Env: DATABASE_URL (read from .env when present, or made from a Docker install's secret files).
  */
-export {};
+import { applySecretFiles } from "../src/lib/secret-files";
 
 try {
   process.loadEnvFile();
 } catch {}
+// In a Docker install without DATABASE_URL, the bundled database's (lib/secret-files.ts).
+applySecretFiles();
 
 const { eq, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");

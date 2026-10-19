@@ -106,6 +106,18 @@
   alerts don't have; MCP's `list_workspaces` and the API list the style keys. Markdown imports read
   `:::info`, `:::tip`, `:::warning`, `:::danger`, `:::details`, `:::card` and other `:::`
   containers as callouts, toggles and framed boxes, nested ones too.
+- **Install with one command.** Download `docker-compose.yml`, run `docker compose up -d`, open
+  http://localhost:3000 and create the first account: no `.env` to write first. On its first
+  start a short-lived `secrets` service makes a random auth secret and bundled-database password
+  into the `secrets` volume (readable only by the app and the database, never replaced), and the
+  app and database read them from there. `BETTER_AUTH_SECRET`, `POSTGRES_PASSWORD` and
+  `EXTERNAL_DATABASE_URL` in `.env` take precedence as before, and production still refuses a short
+  or example auth secret.
+- **The first account administers a new server.** It gets Server administration without
+  `ADMIN_EMAILS` (which works as before) and a note, after signing up, on where to close sign-up.
+  Only an account no other account predates gets it, so servers that already have accounts are
+  unchanged, and of accounts signing up at the same moment exactly one does. Server
+  administration now shows whether sign-up is open and how to close it.
 
 ### Changed
 
@@ -131,6 +143,14 @@
   board, table or calendar: only the row that was open and the one now open change.
 - **Dragging cards on a large board or calendar is smooth.** Moving a card over columns or days
   used to redraw every card at each step; now only the card being dragged changes.
+- **Docker installs start sooner.** The bundled database is checked every second while it starts
+  instead of every five, so the app no longer waits out a whole interval before migrating, and the
+  app's health check runs every two seconds during its start.
+- **The bundled database runs without `COMPOSE_PROFILES`.** Upgrading: download the new
+  `docker-compose.yml`; an existing `.env` keeps working unchanged. `COMPOSE_PROFILES=bundled-db`
+  no longer does anything. With an external database, add `BUNDLED_DB=0` to `.env`, or an unused
+  bundled database starts next to it. `.env.example` now lists the settings most often changed
+  first.
 
 ## 0.6.1 — 2026-10-19
 

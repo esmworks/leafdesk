@@ -36,7 +36,7 @@ EXPOSE 3000
 # answering already means it started on a migrated database. Orchestrators that replace unhealthy
 # containers (Docker Swarm) would otherwise replace this one while the database is down, which
 # can't bring the database back. docker-compose.yml overrides this with /api/health/ready.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --start-interval=2s --retries=3 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health',{signal:AbortSignal.timeout(4000)}).then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
 # Apply pending migrations, then start Next + the collaboration server in one process.
 CMD ["sh", "-c", "tsx scripts/migrate.ts && exec tsx server.ts"]

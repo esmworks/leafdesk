@@ -70,7 +70,6 @@ import { storedCalloutStyles } from "@/lib/callout-styles";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
-import { isInstanceAdmin } from "@/lib/instance-admin";
 import {
   ACCOUNT_SETTINGS_TABS,
   accountTabForSettings,
@@ -82,6 +81,7 @@ import {
 import { AccessError, isGuest } from "@/server/access";
 import { proofSetupOf } from "@/server/account";
 import { connectedAppsMode } from "@/server/connected-app";
+import { instanceAdmin } from "@/server/first-admin";
 import { builtinAgents } from "@/server/agents/builtin";
 import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { getMailSettings } from "@/server/row-mail/settings";
@@ -176,7 +176,7 @@ export default async function SettingsPage({
   // than quietly showing General: the link isn't broken for them, the tab isn't theirs.
   if (isSettingsTab(query.tab) && !tabs.includes(query.tab)) notFound();
   const tab: SettingsTab | AccountSettingsTab = accountTab ?? tabs.find((name) => name === query.tab) ?? "general";
-  const [t, ta] = await Promise.all([getTranslations("settings"), getTranslations("account")]);
+  const [t, ta, isAdmin] = await Promise.all([getTranslations("settings"), getTranslations("account"), instanceAdmin(user)]);
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
 
   return (
@@ -192,8 +192,8 @@ export default async function SettingsPage({
                 const account = accountTabForSettings(name);
                 return { href: href(name), label: ta(`nav.${account}`), icon: ACCOUNT_ICONS[account], active: tab === name };
               }),
-              // Instance admins (ADMIN_EMAILS) reach the server's administration from here too.
-              ...(isInstanceAdmin(user)
+              // Instance admins reach the server's administration from here too.
+              ...(isAdmin
                 ? [{ href: `/admin?from=${encodeURIComponent(workspaceId)}`, label: ta("nav.admin"), icon: ShieldCheck }]
                 : []),
             ],
@@ -254,7 +254,7 @@ export default async function SettingsPage({
             />
           )}
           {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
-          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isInstanceAdmin(user)} notice={storageNoticeOf(query)} />}
+          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isAdmin} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}

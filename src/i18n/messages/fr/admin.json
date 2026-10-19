@@ -67,5 +67,19 @@
     "notFound": "Ce compte est introuvable.",
     "noPassword": "Ce compte n'a pas de mot de passe ; il se connecte autrement.",
     "self": "Changez votre propre mot de passe sur la page de votre compte."
+  },
+  "descriptionFirstAccount": "Les comptes de ce serveur, leurs sessions et leurs mots de passe. Vous voyez cette page parce que votre compte a été le premier sur ce serveur.",
+  "signUp": {
+    "heading": "Inscription",
+    "open": "Tout le monde peut s'inscrire",
+    "openDescription": "Toute personne qui peut ouvrir l'adresse de ce serveur peut créer un compte. Pour fermer les inscriptions, réglez DISABLE_SIGNUP=true sur le serveur (avec Docker, dans le fichier .env à côté de docker-compose.yml, puis lancez docker compose up -d). Les comptes existants peuvent toujours se connecter, et les personnes que vous invitez peuvent toujours rejoindre.",
+    "closed": "Les inscriptions sont fermées",
+    "closedDescription": "Réglé avec DISABLE_SIGNUP sur le serveur. Les comptes existants peuvent toujours se connecter, et les personnes invitées peuvent toujours rejoindre avec leur lien d'invitation."
+  },
+  "firstAdmin": {
+    "title": "Vous administrez ce serveur",
+    "body": "Votre compte est le premier ici, l'Administration du serveur vous revient donc. Toute personne qui atteint cette adresse peut encore s'inscrire ; l'Administration du serveur explique comment fermer les inscriptions.",
+    "open": "Administration du serveur",
+    "dismiss": "Fermer"
   }
 }

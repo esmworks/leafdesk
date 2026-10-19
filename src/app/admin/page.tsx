@@ -7,6 +7,7 @@ import { AdminSessionControls, AdminUsersTable } from "@/components/admin/admin-
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { Input } from "@/components/ui";
 import { env } from "@/lib/env";
+import { firstAdminId } from "@/server/first-admin";
 import { checkInstanceAdmin, countLiveSessions, listInstanceUsers } from "@/server/instance-admin";
 import { mailStatus } from "@/server/mail";
 import { listWorkspaces } from "@/server/pages";
@@ -19,9 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * The instance admin page: the server's accounts, signing them out and asking them for a new
- * password (see server/instance-admin.ts), and how workspace creation is set. Only for the
- * addresses in ADMIN_EMAILS; everyone else, signed in or not, gets a 404, so the page gives
- * nothing away. Outside /w/ like the account page, so no workspace policy stands in the way.
+ * password (see server/instance-admin.ts), and how workspace creation and sign-up are set. Only for
+ * the addresses in ADMIN_EMAILS and the server's first account; everyone else, signed in or not,
+ * gets a 404, so the page gives nothing away. Outside /w/ like the account page, so no workspace
+ * policy stands in the way.
  *
  * `?q=` searches names and emails (a plain form, on the server); `?from=<workspace id>` is where
  * "Back" goes.
@@ -32,13 +34,14 @@ export default async function AdminPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const [session, query] = await Promise.all([getSession(), searchParams]);
-  if (!checkInstanceAdmin(session)) notFound();
+  if (!session || !(await checkInstanceAdmin(session))) notFound();
   const q = typeof query.q === "string" ? query.q : "";
-  const [{ users, total }, liveSessions, workspaces, t] = await Promise.all([
+  const [{ users, total }, liveSessions, workspaces, t, firstAdmin] = await Promise.all([
     listInstanceUsers(session, q),
     countLiveSessions(session),
     listWorkspaces(session.user.id),
     getTranslations("admin"),
+    firstAdminId(),
   ]);
   const from = workspaces.find((w) => w.id === query.from) ?? workspaces[0];
   const emailReset = mailStatus() === "smtp";
@@ -64,12 +67,19 @@ export default async function AdminPage({
 
       <main className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
         <div className="mx-auto max-w-5xl">
-          <SettingsHeader title={t("title")} description={t("description")} />
+          <SettingsHeader title={t("title")} description={firstAdmin === session.user.id ? t("descriptionFirstAccount") : t("description")} />
           <div className="space-y-10">
             <SettingsGroup title={t("workspaces.heading")}>
               <SettingsRow
                 title={env.workspaceCreation === "admins" ? t("workspaces.admins") : t("workspaces.everyone")}
                 description={t("workspaces.description")}
+              />
+            </SettingsGroup>
+
+            <SettingsGroup title={t("signUp.heading")}>
+              <SettingsRow
+                title={env.signUpDisabled ? t("signUp.closed") : t("signUp.open")}
+                description={env.signUpDisabled ? t("signUp.closedDescription") : t("signUp.openDescription")}
               />
             </SettingsGroup>
 

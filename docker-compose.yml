@@ -1,22 +1,63 @@
 services:
-  # Bundled PostgreSQL, started only while COMPOSE_PROFILES includes `bundled-db` (see .env.example).
-  # To use an external database instead, drop the profile and set EXTERNAL_DATABASE_URL.
+  # Makes what a first start needs, once, into the `secrets` volume: a random auth secret (unless
+  # BETTER_AUTH_SECRET is set) and the bundled database's password (POSTGRES_PASSWORD when set,
+  # random otherwise). A file that is there is never replaced. Back the volume up with the
+  # database: a lost auth secret ends every sign-in and locks connections' sealed tokens.
+  secrets:
+    image: busybox:1.38.0
+    restart: "no"
+    environment:
+      AUTH_SECRET_SET: ${BETTER_AUTH_SECRET:+yes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes:
+      - secrets:/secrets
+    command:
+      - sh
+      - -euc
+      - |
+        cd /secrets
+        umask 077
+        # Letters and digits only: the password goes into a URL.
+        random() { tr -dc A-Za-z0-9 < /dev/urandom | head -c "$$1"; }
+        if [ -z "$$AUTH_SECRET_SET" ] && [ ! -s auth-secret ]; then
+          random 64 > auth-secret.new && mv auth-secret.new auth-secret
+          echo "made a random auth secret"
+        fi
+        if [ ! -s postgres-password ]; then
+          if [ -n "$$POSTGRES_PASSWORD" ]; then printf %s "$$POSTGRES_PASSWORD"; else random 48; fi > postgres-password.new
+          mv postgres-password.new postgres-password
+          echo "made the bundled database's password"
+        fi
+        # The app runs as node (uid 1000); the database as postgres (gid 70), which reads only its password.
+        if [ -e auth-secret ]; then chown 1000:1000 auth-secret && chmod 0400 auth-secret; fi
+        chown 1000:70 postgres-password && chmod 0440 postgres-password
+
+  # Bundled PostgreSQL. To use an external database instead, set EXTERNAL_DATABASE_URL and
+  # BUNDLED_DB=0 (see .env.example).
   db:
     image: postgres:18-alpine
-    profiles: [bundled-db]
+    scale: ${BUNDLED_DB:-1}
     restart: unless-stopped
+    depends_on:
+      secrets:
+        condition: service_completed_successfully
     environment:
       POSTGRES_USER: leafdesk
-      # Read only when the volume is first created; required below, where the app connects with it.
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      # Read only when the volume is first created; the app connects with the same file.
+      POSTGRES_PASSWORD_FILE: /secrets/postgres-password
       POSTGRES_DB: leafdesk
     volumes:
       - pgdata:/var/lib/postgresql
+      - secrets:/secrets:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U leafdesk"]
+      # Over TCP: while the volume is first set up, a temporary server answers on the socket only.
+      test: ["CMD-SHELL", "pg_isready -U leafdesk -h 127.0.0.1"]
       interval: 5s
       timeout: 3s
       retries: 10
+      # Checked every second while it starts, so the app doesn't wait a whole interval.
+      start_period: 30s
+      start_interval: 1s
 
   app:
     # Prebuilt image from GitHub Container Registry; `docker compose up --build` builds from source instead.
@@ -25,14 +66,20 @@ services:
     pull_policy: missing
     restart: unless-stopped
     depends_on:
+      secrets:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
         required: false
     environment:
       APP_URL: ${APP_URL:-http://localhost:3000}
-      # Not DATABASE_URL: in .env that one points at localhost for `pnpm dev`.
-      DATABASE_URL: ${EXTERNAL_DATABASE_URL:-postgres://leafdesk:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env for the bundled database, letters and digits only (openssl rand -hex 24). A database created without one has the password leafdesk}@db:5432/leafdesk}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env (openssl rand -base64 32)}
+      # Not DATABASE_URL: in .env that one points at localhost for `pnpm dev`. Unset, the app
+      # connects to the bundled database with POSTGRES_PASSWORD, or the password in `secrets`.
+      DATABASE_URL: ${EXTERNAL_DATABASE_URL:-}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      # Unset, the random one in the `secrets` volume (src/lib/secret-files.ts).
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      LEAFDESK_SECRETS_DIR: /secrets
       DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
       SESSION_MAX_AGE_DAYS: ${SESSION_MAX_AGE_DAYS:-}
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
@@ -119,6 +166,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - uploads:/app/data/uploads
+      - secrets:/secrets:ro
     # Healthy once the app serves requests, reaches the database and has its migrations (see the
     # README). Replaces the image's own check, which asks only whether the server answers; nothing
     # here restarts on it, `docker compose ps` shows it. The image has node, not curl.
@@ -131,11 +179,13 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      # Migrations run before the server starts listening.
+      # Migrations run before the server starts listening; checked every 2 seconds meanwhile.
       start_period: 60s
+      start_interval: 2s
     ports:
       - "${PORT:-3000}:3000"
 
 volumes:
   pgdata:
   uploads:
+  secrets:

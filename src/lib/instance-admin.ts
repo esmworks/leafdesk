@@ -1,8 +1,9 @@
 /**
  * Instance administrators: whoever runs the server names them in `ADMIN_EMAILS` (comma-separated,
- * case-insensitive). There is no role in the database, so a self-hoster can't lock themselves out
- * by demoting the last admin, and changing who is one takes an edit of the environment and a
- * restart, like any other server setting.
+ * case-insensitive). There is no role to hand out in the database, so a self-hoster can't lock
+ * themselves out by demoting the last admin, and changing who is one takes an edit of the
+ * environment and a restart, like any other server setting. The one exception is the first account
+ * of a new server, which is an administrator too, for good (server/first-admin.ts).
  *
  * Only a verified address counts. Email and password sign-up never verifies one, so anyone could
  * register an account with the admin's address before its owner does; it becomes an admin only
@@ -20,14 +21,21 @@ export function adminEmailsFrom(value: string | undefined): ReadonlySet<string> 
   );
 }
 
-export type AdminCandidate = { email?: string | null; emailVerified?: boolean | null } | null | undefined;
+export type AdminCandidate = { id?: string | null; email?: string | null; emailVerified?: boolean | null } | null | undefined;
 
-/** Whether this account is an instance administrator (see the file comment). */
+/**
+ * Whether this account is an instance administrator (see the file comment): a verified address in
+ * ADMIN_EMAILS, or the first account's id (server/first-admin.ts finds it; on the server, ask
+ * `instanceAdmin` there rather than this).
+ */
 export function isInstanceAdmin(
   user: AdminCandidate,
   adminEmails: ReadonlySet<string> = adminEmailsFrom(process.env.ADMIN_EMAILS),
+  firstAdminId: string | null = null,
 ): boolean {
-  if (!user || user.emailVerified !== true || typeof user.email !== "string") return false;
+  if (!user) return false;
+  if (firstAdminId && typeof user.id === "string" && user.id === firstAdminId) return true;
+  if (user.emailVerified !== true || typeof user.email !== "string") return false;
   return adminEmails.has(user.email.trim().toLowerCase());
 }
 
@@ -51,6 +59,7 @@ export function canCreateWorkspace(
   user: AdminCandidate,
   policy: WorkspaceCreation = workspaceCreationFrom(process.env.WORKSPACE_CREATION),
   adminEmails?: ReadonlySet<string>,
+  firstAdminId: string | null = null,
 ): boolean {
-  return policy === "everyone" || isInstanceAdmin(user, adminEmails);
+  return policy === "everyone" || isInstanceAdmin(user, adminEmails, firstAdminId);
 }

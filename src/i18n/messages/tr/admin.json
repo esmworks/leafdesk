@@ -67,5 +67,19 @@
     "notFound": "Bu hesap bulunamadı.",
     "noPassword": "Bu hesabın parolası yok; başka bir yolla giriş yapıyor.",
     "self": "Kendi parolanızı hesap sayfanızdan değiştirin."
+  },
+  "descriptionFirstAccount": "Bu sunucudaki hesaplar, oturumları ve parolaları. Bu sayfayı, bu sunucudaki ilk hesap sizinki olduğu için görüyorsunuz.",
+  "signUp": {
+    "heading": "Kayıt",
+    "open": "Herkes kaydolabilir",
+    "openDescription": "Bu sunucunun adresini açabilen herkes hesap oluşturabilir. Kaydı kapatmak için sunucuda DISABLE_SIGNUP=true ayarlayın (Docker ile: docker-compose.yml'nin yanındaki .env dosyasına yazıp docker compose up -d çalıştırın). Mevcut hesaplar yine giriş yapabilir, davet ettiğiniz kişiler yine katılabilir.",
+    "closed": "Kayıt kapalı",
+    "closedDescription": "Sunucuda DISABLE_SIGNUP ile ayarlanır. Mevcut hesaplar yine giriş yapabilir, davet ettiğiniz kişiler davet bağlantılarıyla yine katılabilir."
+  },
+  "firstAdmin": {
+    "title": "Bu sunucuyu siz yönetiyorsunuz",
+    "body": "Buradaki ilk hesap sizinki, bu yüzden Sunucu yönetimi size ait. Bu adrese ulaşabilen herkes hâlâ kaydolabilir; nasıl kapatılacağı Sunucu yönetiminde.",
+    "open": "Sunucu yönetimi",
+    "dismiss": "Kapat"
   }
 }

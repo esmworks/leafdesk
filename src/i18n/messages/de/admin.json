@@ -67,5 +67,19 @@
     "notFound": "Dieses Konto wurde nicht gefunden.",
     "noPassword": "Dieses Konto hat kein Passwort; es meldet sich anders an.",
     "self": "Ändern Sie Ihr eigenes Passwort auf Ihrer Kontoseite."
+  },
+  "descriptionFirstAccount": "Die Konten auf diesem Server, ihre Sitzungen und Passwörter. Sie sehen diese Seite, weil Ihr Konto das erste auf diesem Server war.",
+  "signUp": {
+    "heading": "Registrierung",
+    "open": "Jeder kann sich registrieren",
+    "openDescription": "Wer die Adresse dieses Servers öffnen kann, kann ein Konto anlegen. Um die Registrierung zu schließen, setzen Sie DISABLE_SIGNUP=true auf dem Server (mit Docker in der .env-Datei neben docker-compose.yml, danach docker compose up -d). Bestehende Konten können sich weiter anmelden, und von Ihnen Eingeladene können weiter beitreten.",
+    "closed": "Die Registrierung ist geschlossen",
+    "closedDescription": "Wird auf dem Server mit DISABLE_SIGNUP festgelegt. Bestehende Konten können sich weiter anmelden, und Eingeladene können über ihren Einladungslink weiter beitreten."
+  },
+  "firstAdmin": {
+    "title": "Sie verwalten diesen Server",
+    "body": "Ihr Konto ist das erste hier, deshalb gehört die Serververwaltung Ihnen. Wer diese Adresse erreicht, kann sich noch registrieren; wie Sie das schließen, steht in der Serververwaltung.",
+    "open": "Serververwaltung",
+    "dismiss": "Schließen"
   }
 }
