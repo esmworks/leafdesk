@@ -37,15 +37,14 @@ export async function AssignedSection({
   return (
     <section className="space-y-3" aria-labelledby="assigned-heading">
       <div className="flex items-center justify-between gap-2">
-        <h2 id="assigned-heading" className="text-sm font-semibold">
+        <h2 id="assigned-heading" className="shrink-0 text-sm font-semibold">
           {t("assigned")}
         </h2>
         <AssignedCalendarFeedButton workspaceId={workspaceId} />
       </div>
       {!assigned.groups.length && (
-        <p className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-fg-muted">
-          {t("assignedEmpty")}
-        </p>
+        // A standing section, empty for most people most days: a line, not a box that calls for action.
+        <p className="text-sm text-fg-muted">{t("assignedEmpty")}</p>
       )}
       {assigned.groups.map((group) => (
         <div key={group.key} className="space-y-1.5">

@@ -30,19 +30,32 @@ export function CalendarFeedButton({ viewId }: { viewId: string }) {
 
 /** The same for the rows assigned to the viewer across the workspace (the home page's list). */
 export function AssignedCalendarFeedButton({ workspaceId }: { workspaceId: string }) {
-  return <FeedButton of={{ workspaceId }} />;
+  return <FeedButton of={{ workspaceId }} labelled />;
 }
 
-function FeedButton({ of }: { of: FeedOf }) {
+/** In a view's toolbar it is an icon; beside a heading it says what it does. */
+function FeedButton({ of, labelled }: { of: FeedOf; labelled?: boolean }) {
   const t = useTranslations("database.calendar.feed");
   const offline = useIsOffline();
   const [open, setOpen] = useState(false);
   if (offline) return null;
   return (
     <>
-      <IconButton label={t("open")} onClick={() => setOpen(true)} className="h-7 w-7 rounded-md">
-        <CalendarSync className="h-4 w-4" />
-      </IconButton>
+      {labelled ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          title={t("open")}
+          className="flex h-7 min-w-0 items-center gap-1.5 rounded-md px-2 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <CalendarSync className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{t("open")}</span>
+        </button>
+      ) : (
+        <IconButton label={t("open")} onClick={() => setOpen(true)} className="h-7 w-7 rounded-md">
+          <CalendarSync className="h-4 w-4" />
+        </IconButton>
+      )}
       {open && <CalendarFeedDialog of={of} onClose={() => setOpen(false)} />}
     </>
   );
