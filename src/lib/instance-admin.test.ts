@@ -53,6 +53,19 @@ describe("isInstanceAdmin", () => {
     expect(isInstanceAdmin(verified(""))).toBe(false);
   });
 
+  it("counts the server's first account by id, verified or not, next to ADMIN_EMAILS", () => {
+    const none = adminEmailsFrom("");
+    expect(isInstanceAdmin({ id: "first", email: "owner@example.com", emailVerified: false }, none, "first")).toBe(true);
+    expect(isInstanceAdmin({ id: "second", email: "owner@example.com", emailVerified: true }, none, "first")).toBe(false);
+    // Not by address: another account can't take it by signing up with the first one's.
+    expect(isInstanceAdmin({ id: "other", email: "owner@example.com" }, none, "first")).toBe(false);
+    expect(isInstanceAdmin({ email: "owner@example.com", emailVerified: true }, none, "first")).toBe(false);
+    // ADMIN_EMAILS still works with a first account, and without one nobody is named by id.
+    expect(isInstanceAdmin(verified("ada@example.com"), admins, "first")).toBe(true);
+    expect(isInstanceAdmin({ id: "first", email: "x@example.com", emailVerified: true }, none, null)).toBe(false);
+    expect(isInstanceAdmin({ id: "", email: "x@example.com" }, none, "")).toBe(false);
+  });
+
   it("reads ADMIN_EMAILS by default", () => {
     vi.stubEnv("ADMIN_EMAILS", "Ada@Example.com");
     expect(isInstanceAdmin(verified("ada@example.com"))).toBe(true);
@@ -72,6 +85,12 @@ describe("workspace creation", () => {
     expect(workspaceCreationFrom("ADMINS")).toBe("admins");
     expect(workspaceCreationFrom("admin")).toBe("admins");
     expect(workspaceCreationFrom("nobody")).toBe("admins");
+  });
+
+  it("lets the first account create workspaces under `admins`", () => {
+    const none = adminEmailsFrom("");
+    expect(canCreateWorkspace({ id: "first", email: "owner@example.com" }, "admins", none, "first")).toBe(true);
+    expect(canCreateWorkspace({ id: "second", email: "b@example.com" }, "admins", none, "first")).toBe(false);
   });
 
   it("lets everyone create workspaces by default, only verified admins with `admins`", () => {

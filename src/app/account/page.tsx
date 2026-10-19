@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, ACCOUNT_TABS, AccountTabContent, type AccountTab } from "@/components/account/account-tabs";
 import { SettingsNav } from "@/components/settings/settings-nav";
-import { isInstanceAdmin } from "@/lib/instance-admin";
 import { settingsTabForAccount } from "@/lib/settings-tabs";
+import { instanceAdmin } from "@/server/first-admin";
 import { listWorkspaces } from "@/server/pages";
 import { blockedByWorkspacePolicy, requireSession } from "@/server/session";
 
@@ -27,7 +27,7 @@ export default async function AccountPage({
 }) {
   const [session, query] = await Promise.all([requireSession(), searchParams]);
   const tab: AccountTab = ACCOUNT_TABS.find((name) => name === query.tab) ?? "profile";
-  const [workspaces, t] = await Promise.all([listWorkspaces(session.user.id), getTranslations("account")]);
+  const [workspaces, t, isAdmin] = await Promise.all([listWorkspaces(session.user.id), getTranslations("account"), instanceAdmin(session.user)]);
   const from = workspaces.find((w) => w.id === query.from) ?? workspaces[0];
   if (from && !(await blockedByWorkspacePolicy(session, from.id))) {
     // A sign-in to storage came back here: what it says goes along.
@@ -51,8 +51,8 @@ export default async function AccountPage({
                 icon: ACCOUNT_ICONS[name],
                 active: tab === name,
               })),
-              // Instance admins (ADMIN_EMAILS) reach the server's administration from here too.
-              ...(isInstanceAdmin(session.user)
+              // Instance admins reach the server's administration from here too.
+              ...(isAdmin
                 ? [{ href: from ? `/admin?from=${encodeURIComponent(from.id)}` : "/admin", label: t("nav.admin"), icon: ShieldCheck }]
                 : []),
             ],

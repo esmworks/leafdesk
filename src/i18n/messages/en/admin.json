@@ -67,5 +67,19 @@
     "notFound": "That account wasn't found.",
     "noPassword": "This account has no password; it signs in another way.",
     "self": "Change your own password on your account page."
+  },
+  "descriptionFirstAccount": "The accounts on this server, their sessions and their passwords. You see this page because yours was the first account on this server.",
+  "signUp": {
+    "heading": "Sign-up",
+    "open": "Anyone can sign up",
+    "openDescription": "Anyone who can open this server's address can create an account. To close sign-up, set DISABLE_SIGNUP=true on the server (with Docker, in the .env file next to docker-compose.yml, then run docker compose up -d). Existing accounts can still sign in, and people you invite can still join.",
+    "closed": "Sign-up is closed",
+    "closedDescription": "Set with DISABLE_SIGNUP on the server. Existing accounts can still sign in, and people you invite can still join through their invitation link."
+  },
+  "firstAdmin": {
+    "title": "You administer this server",
+    "body": "Yours is the first account here, so Server administration is yours. Anyone who can reach this address can still sign up; Server administration shows how to close it.",
+    "open": "Server administration",
+    "dismiss": "Dismiss"
   }
 }

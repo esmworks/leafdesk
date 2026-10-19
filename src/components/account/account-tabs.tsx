@@ -28,8 +28,8 @@ import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import type { requireSession } from "@/server/session";
 import { env } from "@/lib/env";
-import { isInstanceAdmin } from "@/lib/instance-admin";
 import { storageNoticeOf } from "@/lib/workspace-storage";
+import { instanceAdmin } from "@/server/first-admin";
 import { getStorageAccounts } from "@/server/storage/accounts";
 import { AccountStorage } from "@/components/settings/account-storage";
 
@@ -55,7 +55,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
   if (tab === "about") return <AboutLeafdesk />;
-  const [t, storage] = await Promise.all([getTranslations("account"), getStorageAccounts(session.user.id, { isAdmin: isInstanceAdmin(session.user) })]);
+  const [t, storage] = await Promise.all([getTranslations("account"), instanceAdmin(session.user).then((isAdmin) => getStorageAccounts(session.user.id, { isAdmin }))]);
   return (
     <>
       <SettingsHeader title={t("nav.apps")} description={t("apps.description")} />

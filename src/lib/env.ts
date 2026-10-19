@@ -31,7 +31,7 @@ export const env = {
     const secret = required("BETTER_AUTH_SECRET");
     if (process.env.NODE_ENV === "production" && (secret === EXAMPLE_AUTH_SECRET || secret.length < MIN_AUTH_SECRET_CHARS)) {
       throw new Error(
-        `BETTER_AUTH_SECRET must be a random value of at least ${MIN_AUTH_SECRET_CHARS} characters, not the example from .env.example (make one with: openssl rand -base64 32)`,
+        `BETTER_AUTH_SECRET must be a random value of at least ${MIN_AUTH_SECRET_CHARS} characters, not the example from .env.example (make one with: openssl rand -base64 32, or leave it unset under docker compose to use a generated one)`,
       );
     }
     return secret;

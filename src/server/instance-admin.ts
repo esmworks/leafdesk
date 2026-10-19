@@ -4,12 +4,14 @@ import { account, session, user } from "@/db/schema";
 import { isInstanceAdmin } from "@/lib/instance-admin";
 import { notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
+import { firstAdminId, instanceAdmin } from "@/server/first-admin";
 import { workspaceCounts } from "@/server/workspaces";
 
 /**
- * What an instance administrator (ADMIN_EMAILS, see lib/instance-admin.ts) does on /admin: look
- * up the server's accounts, sign one or everyone out, and make one or everyone with a password
- * choose a new one at their next sign-in (see server/required-password.ts).
+ * What an instance administrator (ADMIN_EMAILS or the server's first account, see
+ * lib/instance-admin.ts) does on /admin: look up the server's accounts, sign one or everyone out,
+ * and make one or everyone with a password choose a new one at their next sign-in (see
+ * server/required-password.ts).
  *
  * Every function checks the caller itself, so a server action can't skip it. Signing out ends
  * browser sessions and their live collaboration connections; apps connected over MCP and REST
@@ -32,12 +34,13 @@ export type AdminSession = {
 };
 
 /** Anyone but an instance admin gets "not found", as if there were nothing here. */
-function assertAdmin(current: AdminSession | null | undefined): asserts current is AdminSession {
-  if (!current || !isInstanceAdmin(current.user)) throw new AdminError("notFound");
+async function assertAdmin(caller: AdminSession | null | undefined): Promise<AdminSession> {
+  if (!caller || !(await instanceAdmin(caller.user))) throw new AdminError("notFound");
+  return caller;
 }
 
-export function checkInstanceAdmin(current: AdminSession | null | undefined): current is AdminSession {
-  return !!current && isInstanceAdmin(current.user);
+export async function checkInstanceAdmin(current: AdminSession | null | undefined): Promise<boolean> {
+  return !!current && (await instanceAdmin(current.user));
 }
 
 export type InstanceUser = {
@@ -66,10 +69,10 @@ const likeEscape = (text: string) => text.replace(/[\\%_]/g, "\\$&");
 
 /** Accounts whose name or email contains `query` (all of them without one), by name. */
 export async function listInstanceUsers(
-  current: AdminSession | null | undefined,
+  caller: AdminSession | null | undefined,
   query = "",
 ): Promise<{ users: InstanceUser[]; total: number }> {
-  assertAdmin(current);
+  await assertAdmin(caller);
   const q = query.trim().slice(0, 200);
   // Agents' users are no accounts anyone signs in to: they are managed in their workspaces.
   const where = and(
@@ -98,7 +101,7 @@ export async function listInstanceUsers(
       .limit(USER_LIST_LIMIT),
     db.select({ total: sql<number>`count(*)::int` }).from(user).where(where),
   ]);
-  const workspaces = await workspaceCounts(rows.map((row) => row.id));
+  const [workspaces, firstAdmin] = await Promise.all([workspaceCounts(rows.map((row) => row.id)), firstAdminId()]);
   return {
     total,
     users: rows.map((row) => ({
@@ -108,7 +111,7 @@ export async function listInstanceUsers(
       lastActiveAt: row.lastActiveAt ? new Date(row.lastActiveAt) : null,
       twoFactorEnabled: row.twoFactorEnabled === true,
       passwordResetRequired: row.passwordResetRequired === true,
-      isAdmin: isInstanceAdmin(row),
+      isAdmin: isInstanceAdmin(row, undefined, firstAdmin),
     })),
   };
 }
@@ -135,8 +138,8 @@ async function targetOf(userId: string) {
 }
 
 /** Signs one account out on every device. For the admin's own account, this browser stays signed in. */
-export async function signOutUser(current: AdminSession | null | undefined, userId: string) {
-  assertAdmin(current);
+export async function signOutUser(caller: AdminSession | null | undefined, userId: string) {
+  const current = await assertAdmin(caller);
   const target = await targetOf(userId);
   const own = target.id === current.user.id;
   const gone = await db
@@ -149,8 +152,8 @@ export async function signOutUser(current: AdminSession | null | undefined, user
 }
 
 /** Signs every account out on every device, except the admin in this browser. */
-export async function signOutEveryone(current: AdminSession | null | undefined) {
-  assertAdmin(current);
+export async function signOutEveryone(caller: AdminSession | null | undefined) {
+  const current = await assertAdmin(caller);
   const gone = await db.delete(session).where(ne(session.id, current.session.id)).returning({ userId: session.userId });
   const users = new Set(gone.map((s) => s.userId));
   await disconnect(users, current);
@@ -163,8 +166,8 @@ export async function signOutEveryone(current: AdminSession | null | undefined) 
  * Refused for accounts without a password (they sign in some other way, which stays as it is),
  * and for the admin's own (they change theirs on the account page).
  */
-export async function requirePasswordReset(current: AdminSession | null | undefined, userId: string) {
-  assertAdmin(current);
+export async function requirePasswordReset(caller: AdminSession | null | undefined, userId: string) {
+  const current = await assertAdmin(caller);
   const target = await targetOf(userId);
   if (target.id === current.user.id) throw new AdminError("self");
   const flagged = await db
@@ -179,8 +182,8 @@ export async function requirePasswordReset(current: AdminSession | null | undefi
 }
 
 /** The same for every account with a password but the admin's own. Returns how many there were. */
-export async function requirePasswordResetForEveryone(current: AdminSession | null | undefined) {
-  assertAdmin(current);
+export async function requirePasswordResetForEveryone(caller: AdminSession | null | undefined) {
+  const current = await assertAdmin(caller);
   const flagged = await db
     .update(user)
     .set({ passwordResetRequired: true })
@@ -203,8 +206,8 @@ function withPassword(userId: typeof user.id) {
 }
 
 /** Live sessions on the whole server, for the admin page. */
-export async function countLiveSessions(current: AdminSession | null | undefined) {
-  assertAdmin(current);
+export async function countLiveSessions(caller: AdminSession | null | undefined) {
+  await assertAdmin(caller);
   const [{ total }] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(session)

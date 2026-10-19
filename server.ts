@@ -10,10 +10,13 @@ import crossws from "crossws/adapters/node";
 import next from "next";
 import type { NextConfig } from "next";
 import { CLIENT_IP_HEADER, clientIpFrom, describeTrustedProxies, trustedProxyCount } from "./src/lib/client-ip";
+import { applySecretFiles } from "./src/lib/secret-files";
 
 try {
   process.loadEnvFile();
 } catch {}
+// A Docker install's generated secrets, where the environment sets none (lib/secret-files.ts).
+applySecretFiles();
 
 const dev = process.env.NODE_ENV !== "production";
 const port = Number(process.env.PORT ?? 3000);

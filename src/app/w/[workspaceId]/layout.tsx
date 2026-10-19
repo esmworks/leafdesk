@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { FirstAdminNotice } from "@/components/admin/first-admin-notice";
 import { AiChatProvider } from "@/components/ai-chat/chat-panel";
 import { StaleClientScreen } from "@/components/collab/stale-client";
 import { RowPanelProvider } from "@/components/database/row-panel";
@@ -7,6 +8,7 @@ import { OfflineProvider } from "@/components/offline/offline-context";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { FloatingSidebarButton, SidebarProvider } from "@/components/sidebar/sidebar-context";
 import { requestedPageId } from "@/lib/access-requests";
+import { env } from "@/lib/env";
 import { canCreateWorkspace, isInstanceAdmin } from "@/lib/instance-admin";
 import { USER_MARKER } from "@/lib/offline";
 import { parseSidebarCookie, SIDEBAR_COOKIE } from "@/lib/sidebar-layout";
@@ -14,6 +16,7 @@ import { getMembership } from "@/server/access";
 import { aiEnabledFor } from "@/server/ai";
 import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
+import { firstAdminId } from "@/server/first-admin";
 import { joinableWorkspaces } from "@/server/join-requests";
 import { listFavorites } from "@/server/page-meta";
 import { getSidebar, listWorkspaces } from "@/server/pages";
@@ -41,7 +44,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, firstAdmin] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -53,6 +56,7 @@ export default async function WorkspaceLayout({
     getSidebarLayout(user.id, workspaceId),
     memoryAvailable(workspaceId),
     aiEnabledFor(workspaceId),
+    firstAdminId(),
   ]);
 
   const body = (
@@ -66,8 +70,8 @@ export default async function WorkspaceLayout({
           initialTree={sidebar.tree}
           initialTeamspaces={sidebar.teamspaces}
           canCreateTeamspace={canCreate}
-          canCreateWorkspace={canCreateWorkspace(user)}
-          isInstanceAdmin={isInstanceAdmin(user)}
+          canCreateWorkspace={canCreateWorkspace(user, undefined, undefined, firstAdmin)}
+          isInstanceAdmin={isInstanceAdmin(user, undefined, firstAdmin)}
           initialFavorites={favorites}
           topLevel={topLevel}
           initialLayout={sidebarLayout}
@@ -77,6 +81,8 @@ export default async function WorkspaceLayout({
           <FloatingSidebarButton />
           {children}
         </main>
+        {/* The first account of a new server: it administers it, and sign-up is still open. */}
+        {firstAdmin === user.id && !env.signUpDisabled && <FirstAdminNotice workspaceId={workspaceId} />}
       </div>
     </RowPanelProvider>
   );

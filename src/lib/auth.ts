@@ -21,6 +21,7 @@ import {
 } from "@/lib/auth-options";
 import { isReservedAccount } from "@/server/agents/users";
 import { forgetUnprovenHolder } from "@/server/account-security";
+import { claimFirstAdmin } from "@/server/first-admin";
 import { connectedAppAuditPlugin } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetEmail, sendMail, verificationEmail } from "@/server/mail";
@@ -177,6 +178,8 @@ function createAuth() {
         create: {
           before: beforeUserCreate,
           after: async (user, ctx) => {
+            // The first account of a new server administers it (server/first-admin.ts).
+            await claimFirstAdmin(user.id).catch((error) => console.error("could not check for the first administrator", error));
             await rememberSignInLocale(user.id, ctx);
             // A workspace connection's sign-in joins that workspace instead (account.create.after).
             if (workspaceOfProvider(ssoProviderOf(ctx))) return;

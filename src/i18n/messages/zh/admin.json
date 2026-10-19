@@ -67,5 +67,19 @@
     "notFound": "未找到该账户。",
     "noPassword": "此账户没有密码；它通过其他方式登录。",
     "self": "请在你的账户页面中更改自己的密码。"
+  },
+  "descriptionFirstAccount": "此服务器上的账户、它们的会话和密码。你能看到此页面，是因为你的账户是此服务器上的第一个账户。",
+  "signUp": {
+    "heading": "注册",
+    "open": "任何人都可以注册",
+    "openDescription": "任何能打开此服务器地址的人都可以创建账户。要关闭注册，请在服务器上设置 DISABLE_SIGNUP=true（使用 Docker 时，写入 docker-compose.yml 旁边的 .env 文件，然后运行 docker compose up -d）。现有账户仍可登录，你邀请的人仍可加入。",
+    "closed": "注册已关闭",
+    "closedDescription": "通过服务器上的 DISABLE_SIGNUP 设置。现有账户仍可登录，受邀者仍可通过邀请链接加入。"
+  },
+  "firstAdmin": {
+    "title": "你是此服务器的管理员",
+    "body": "你的账户是这里的第一个账户，因此服务器管理归你。任何能访问此地址的人仍可注册；服务器管理页面说明了如何关闭注册。",
+    "open": "服务器管理",
+    "dismiss": "关闭"
   }
 }

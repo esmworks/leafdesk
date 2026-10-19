@@ -56,6 +56,7 @@ import {
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
 import { ssoVerifiedDomains } from "@/server/allowed-domains";
 import { changedValues, recordAudit } from "@/server/audit";
+import { firstAdminId } from "@/server/first-admin";
 import type { QueuedObject } from "@/server/files";
 import { joinRecordOf, rememberDeparture, requestInvitation, requestToJoinFrom, settleJoinRequest } from "@/server/join-requests";
 import { turkishGenitive } from "@/lib/turkish";
@@ -162,12 +163,11 @@ export class WorkspaceError extends Error {
  */
 export async function mayCreateWorkspace(userId: string) {
   if (env.workspaceCreation === "everyone") return true;
-  const [row] = await db
-    .select({ email: user.email, emailVerified: user.emailVerified })
-    .from(user)
-    .where(eq(user.id, userId))
-    .limit(1);
-  return canCreateWorkspace(row, env.workspaceCreation);
+  const [[row], firstAdmin] = await Promise.all([
+    db.select({ id: user.id, email: user.email, emailVerified: user.emailVerified }).from(user).where(eq(user.id, userId)).limit(1),
+    firstAdminId(),
+  ]);
+  return canCreateWorkspace(row, env.workspaceCreation, undefined, firstAdmin);
 }
 
 export async function createWorkspace(userId: string, name: string) {
