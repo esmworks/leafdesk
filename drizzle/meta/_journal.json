@@ -610,6 +610,13 @@
       "when": 1792423546086,
       "tag": "0086_row_email",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1792427939466,
+      "tag": "0087_workspace_storage",
+      "breakpoints": true
     }
   ]
 }

@@ -190,7 +190,9 @@ export default function CollabEditor({
             ? tu("tooLarge", { name, limit })
             : data?.code === "quotaExceeded"
               ? tu("quotaExceeded", { name, limit })
-              : tu("failed", { name }),
+              : data?.code === "storageFailed"
+                ? tu("storageFailed", { name })
+                : tu("failed", { name }),
         );
         throw new Error(`Upload failed (${res.status})`);
       }

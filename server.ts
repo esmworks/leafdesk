@@ -32,10 +32,10 @@ const { describeMailSetup } = await import("./src/server/mail");
 const { startAssignmentEmails } = await import("./src/server/assignments");
 const { startShareEmails } = await import("./src/server/share-emails");
 const { startFileCleanup } = await import("./src/server/files");
-const { getStorage } = await import("./src/server/storage");
+const { instanceStorage } = await import("./src/server/storage");
 
 // Fails fast on a half-configured S3 setup instead of at the first upload.
-console.log(`file storage: ${getStorage().kind}`);
+console.log(`file storage: ${instanceStorage().kind}`);
 const { startLinkPlacesBackfill, startReminders } = await import("./src/server/mentions");
 const { startSnoozes } = await import("./src/server/notifications");
 const { startRowUpdates } = await import("./src/server/row-follow");

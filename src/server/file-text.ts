@@ -164,7 +164,15 @@ export async function extractText(kind: DocumentKind, name: string, bytes: Uint8
 const { searchVector: _searchVector, ...fileTextColumns } = getTableColumns(fileText);
 
 export type FileTextRow = Omit<typeof fileText.$inferSelect, "searchVector">;
-export type StoredDocument = { id: string; name: string; contentType: string; size: number; storageKey: string };
+export type StoredDocument = {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  storageKey: string;
+  storageId: string | null;
+  storageObjectId: string | null;
+};
 
 /** Where the cache reads and writes, and how a document is read (replaced in tests). */
 export type FileTextStore = {
@@ -203,7 +211,7 @@ const dbStore: FileTextStore = {
   },
   async read(found) {
     const { readStored } = await import("@/server/files");
-    return readStored(found as Parameters<typeof readStored>[0]);
+    return readStored(found);
   },
   extract: extractText,
 };
@@ -379,7 +387,16 @@ export async function sweepDocuments(workspaceId: string, { force = false }: { f
   const after = readQueue.cursor.get(workspaceId);
   const type = sql`lower(trim(split_part(${file.contentType}, ';', 1)))`;
   const rows = await db
-    .select({ id: file.id, name: file.name, contentType: file.contentType, size: file.size, storageKey: file.storageKey, createdAt: file.createdAt })
+    .select({
+      id: file.id,
+      name: file.name,
+      contentType: file.contentType,
+      size: file.size,
+      storageKey: file.storageKey,
+      storageId: file.storageId,
+      storageObjectId: file.storageObjectId,
+      createdAt: file.createdAt,
+    })
     .from(file)
     .leftJoin(fileText, and(eq(fileText.fileId, file.id), eq(fileText.extractorVersion, EXTRACTOR_VERSION)))
     .where(

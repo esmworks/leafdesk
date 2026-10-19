@@ -1,19 +1,34 @@
 /** The workspace settings tabs, in the order the settings navigation shows them. */
-export const SETTINGS_TABS = ["general", "members", "guests", "teamspaces", "groups", "agents", "connections", "email", "analytics", "health", "security", "audit", "site"] as const;
+export const SETTINGS_TABS = [
+  "general",
+  "members",
+  "guests",
+  "teamspaces",
+  "groups",
+  "agents",
+  "connections",
+  "email",
+  "storage",
+  "analytics",
+  "health",
+  "security",
+  "audit",
+  "site",
+] as const;
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
 
 export const isSettingsTab = (value: unknown): value is SettingsTab =>
   typeof value === "string" && (SETTINGS_TABS as readonly string[]).includes(value);
 
 /** Tabs only the workspace's owners get. */
-const OWNER_TABS: readonly SettingsTab[] = ["connections", "analytics", "audit"];
+const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics", "audit"];
 
 /**
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
  * leaving it. The guests themselves are for those who may bring guests in (`canInviteGuests`:
  * owners, and members when Settings > Security lets them). Analytics, which counts what each
  * person did, the audit log, which says who changed what, and connections to outside services
- * (their credentials are the workspace's) are for owners. Email is for everyone but guests: owners
+ * (their credentials are the workspace's) and where the workspace's files are stored are for owners. Email is for everyone but guests: owners
  * choose where mail lands, each member connects their own mailbox. Agents are listed to
  * members too (they pick them in automations); only owners change them. The health check covers
  * the pages each person can open, so owners and members get it alike.

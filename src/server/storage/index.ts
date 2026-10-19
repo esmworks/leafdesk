@@ -3,7 +3,7 @@ import type { StorageDriver } from "./driver";
 import { localDriver } from "./local";
 import { s3Driver } from "./s3";
 
-export type { StorageDriver } from "./driver";
+export { keyOf, StorageError, type ObjectRef, type StorageDriver } from "./driver";
 
 /** Where uploads go on disk when no S3 bucket is set; gitignored, a volume in Docker. */
 export const DEFAULT_UPLOAD_DIR = "./data/uploads";
@@ -61,14 +61,17 @@ export function driverFromEnv(env: Record<string, string | undefined> = process.
 
 const KEY = "__leafdeskStorage";
 
-/** The process-wide driver (shared by server.ts and Next's route bundles through a global). */
-export function getStorage(): StorageDriver {
+/**
+ * The instance's own storage (shared by server.ts and Next's route bundles through a global): for
+ * avatars, and for the files of workspaces that bring none (see ./workspace.ts, storageFor).
+ */
+export function instanceStorage(): StorageDriver {
   const holder = globalThis as Record<string, unknown>;
   holder[KEY] ??= driverFromEnv();
   return holder[KEY] as StorageDriver;
 }
 
-/** Tests: use this driver instead of the one from the environment. */
+/** Tests: use this driver as the instance's storage instead of the one from the environment. */
 export function setStorage(driver: StorageDriver | null) {
   (globalThis as Record<string, unknown>)[KEY] = driver ?? undefined;
 }

@@ -84,6 +84,17 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * STORAGE_ALLOWED_HOSTS: hosts (names, or host:port) a workspace's own S3-compatible storage may
+   * be on even though they are on a private network, a local name or plain http (MinIO on the same
+   * machine, say); comma-separated. Every other endpoint is reached only on public https addresses.
+   */
+  get storageAllowedHosts() {
+    return (process.env.STORAGE_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
+  /**
    * CONNECTION_OAUTH_CLIENTS: OAuth apps the instance registered with services of the connection
    * catalog that don't let Leafdesk register itself (Slack, HubSpot…), so owners needn't make their
    * own: `slack=CLIENT_ID:CLIENT_SECRET,discord=CLIENT_ID` (see connectionOAuthClientsFrom).

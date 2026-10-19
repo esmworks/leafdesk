@@ -141,7 +141,7 @@ describe("reading workbooks", () => {
 });
 
 describe("the document text cache", () => {
-  const FILE = { id: "file-1", name: "report.pdf", contentType: "application/pdf", size: 1000, storageKey: "ws/file-1" };
+  const FILE = { id: "file-1", name: "report.pdf", contentType: "application/pdf", size: 1000, storageKey: "ws/file-1", storageId: null, storageObjectId: null };
   const BYTES = new TextEncoder().encode("the bytes");
   const HASH = createHash("sha256").update(BYTES).digest("hex");
 
@@ -225,6 +225,8 @@ describe("a page's documents", () => {
     contentType: "application/pdf",
     size: 10,
     storageKey: `ws/${ID(n)}`,
+    storageId: null,
+    storageObjectId: null,
     ...over,
   });
   const store = (): FileTextStore => ({

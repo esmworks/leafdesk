@@ -41,7 +41,7 @@ import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, 
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
 import { afterCutOff, cutOffConnection } from "@/server/sso";
-import { getStorage } from "@/server/storage";
+import { instanceStorage } from "@/server/storage";
 import { accountDeletionPlan, withdrawFromWorkspaces } from "@/server/workspaces";
 
 /**
@@ -265,7 +265,7 @@ export async function setAvatar(userId: string, bytes: Uint8Array) {
   const name = avatarName(randomBytes(16).toString("hex"), format);
   const key = avatarStorageKey(userId, name);
   const { Readable } = await import("node:stream");
-  await getStorage().put(key, Readable.from([Buffer.from(bytes)]), { size: bytes.byteLength, contentType: AVATAR_TYPES[format] });
+  await instanceStorage().put(key, Readable.from([Buffer.from(bytes)]), { size: bytes.byteLength, contentType: AVATAR_TYPES[format] });
   const url = avatarUrl(userId, name);
   const previous = await db.transaction(async (tx) => {
     const [old] = await tx.select({ image: user.image }).from(user).where(eq(user.id, userId)).for("update");

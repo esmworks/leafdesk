@@ -54,6 +54,7 @@ import {
 import { isAgentUser, notAgentUser } from "@/server/agents/users";
 import { ssoVerifiedDomains } from "@/server/allowed-domains";
 import { changedValues, recordAudit } from "@/server/audit";
+import type { QueuedObject } from "@/server/files";
 import { joinRecordOf, rememberDeparture, requestInvitation, requestToJoinFrom, settleJoinRequest } from "@/server/join-requests";
 import { turkishGenitive } from "@/lib/turkish";
 import { getCollab } from "@/server/collab/bridge";
@@ -1029,7 +1030,7 @@ export async function accountDeletionPlan(userId: string): Promise<DeletionPlan>
 export async function withdrawFromWorkspaces(
   tx: Tx,
   userId: string,
-): Promise<{ plan: DeletionPlan; fileKeys: string[]; providerIds: string[] }> {
+): Promise<{ plan: DeletionPlan; fileKeys: QueuedObject[]; providerIds: string[] }> {
   const ids = (
     await tx.select({ id: workspaceMember.workspaceId }).from(workspaceMember).where(eq(workspaceMember.userId, userId))
   ).map((r) => r.id);
@@ -1044,7 +1045,7 @@ export async function withdrawFromWorkspaces(
   const plan = planAccountDeletion(await standingsOf(tx, userId));
   if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [] };
 
-  const fileKeys: string[] = [];
+  const fileKeys: QueuedObject[] = [];
   const providerIds: string[] = [];
   const deleted = plan.deleted.map((w) => w.id);
   if (deleted.length) {
@@ -1053,8 +1054,11 @@ export async function withdrawFromWorkspaces(
       .from(workspaceSso)
       .where(inArray(workspaceSso.workspaceId, deleted));
     providerIds.push(...connections.map((c) => c.providerId));
-    const files = await tx.delete(file).where(inArray(file.workspaceId, deleted)).returning({ key: file.storageKey });
-    fileKeys.push(...files.map((f) => f.key));
+    const files = await tx
+      .delete(file)
+      .where(inArray(file.workspaceId, deleted))
+      .returning({ key: file.storageKey, storageId: file.storageId, objectId: file.storageObjectId });
+    fileKeys.push(...files);
     await deleteWorkspaces(tx, deleted);
   }
   for (const { id, role } of plan.left) {

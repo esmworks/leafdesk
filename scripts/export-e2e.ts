@@ -37,7 +37,7 @@ const { setPagePermission } = await import("@/server/permissions");
 const { createRowTemplate } = await import("@/server/templates");
 const { AccessError } = await import("@/server/access");
 const files = await import("@/server/files");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const exporter = await import("@/server/export");
 
 const RUN = `export-e2e-${Date.now().toString(36)}`;
@@ -351,7 +351,7 @@ try {
 } finally {
   // Stored bytes first: deleting the workspace removes the rows that name them.
   const stored = await db.select({ key: file.storageKey }).from(file).where(inArray(file.workspaceId, [workspaceId, otherWorkspace]));
-  for (const { key } of stored) await getStorage().delete(key).catch(() => {});
+  for (const { key } of stored) await instanceStorage().delete(key).catch(() => {});
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId, otherWorkspace]));
   await db.delete(user).where(inArray(user.id, userIds));
   hocuspocus.closeConnections();
@@ -360,6 +360,6 @@ try {
 
 async function storedBytes(fileId: string) {
   const [row] = await db.select().from(file).where(eq(file.id, fileId));
-  const body = await getStorage().get(row.storageKey);
+  const body = await instanceStorage().get(row.storageKey);
   return Buffer.from(await new Response(body).arrayBuffer());
 }

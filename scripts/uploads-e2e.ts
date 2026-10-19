@@ -44,7 +44,7 @@ const { setPagePermission } = await import("@/server/permissions");
 const { publishPage, unpublishPage } = await import("@/server/publication");
 const { AccessError } = await import("@/server/access");
 const files = await import("@/server/files");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { FILES_SCOPE, READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
@@ -94,7 +94,7 @@ const canRead = async (userId: string | null, fileId: string) => (await files.fi
 const refsOf = async (fileId: string) =>
   (await db.select({ pageId: fileReference.pageId }).from(fileReference).where(eq(fileReference.fileId, fileId))).map((r) => r.pageId);
 const stored = async (key: string) => {
-  const body = await getStorage().get(key);
+  const body = await instanceStorage().get(key);
   return body ? Buffer.from(await new Response(body).arrayBuffer()) : null;
 };
 const fileRow = async (id: string) => (await db.select().from(file).where(eq(file.id, id)))[0] ?? null;

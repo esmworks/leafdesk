@@ -465,7 +465,8 @@
   "upload": {
     "tooLarge": "{name} is too large. Files can be at most {limit}.",
     "quotaExceeded": "{name} wasn't uploaded: this workspace has used its {limit} of file storage.",
-    "failed": "Couldn't upload {name}."
+    "failed": "Couldn't upload {name}.",
+    "storageFailed": "{name} wasn't uploaded: the workspace's own storage didn't take it. Its owners can see why in Settings > Storage."
   },
   "mention": {
     "people": "People",

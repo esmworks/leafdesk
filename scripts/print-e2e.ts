@@ -36,7 +36,7 @@ const { setPagePermission } = await import("@/server/permissions");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
 const files = await import("@/server/files");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const { printDocument } = await import("@/server/print");
 
 const RUN = `print-e2e-${Date.now().toString(36)}`;
@@ -259,7 +259,7 @@ try {
   console.log(`\n${passed} checks passed`);
 } finally {
   const stored = await db.select({ key: file.storageKey }).from(file).where(inArray(file.workspaceId, [workspaceId, otherWorkspace]));
-  for (const { key } of stored) await getStorage().delete(key).catch(() => {});
+  for (const { key } of stored) await instanceStorage().delete(key).catch(() => {});
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId, otherWorkspace]));
   await db.delete(user).where(inArray(user.id, userIds));
   hocuspocus.closeConnections();

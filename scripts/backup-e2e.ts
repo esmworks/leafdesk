@@ -54,7 +54,7 @@ const { env } = await import("@/lib/env");
 const { EMPTY_MENTION } = await import("@/lib/mentions");
 const { restoredEmail } = await import("@/lib/reserved-emails");
 const { registerCollab } = await import("@/server/collab/bridge");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const { backupTables } = await import("@/server/backup/tables");
 type Row = Record<string, unknown>;
 type Dump = Record<string, Row[]>;
@@ -76,7 +76,7 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
 const sha = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 async function storedBytes(key: string) {
-  const body = await getStorage().get(key);
+  const body = await instanceStorage().get(key);
   if (!body) return null;
   const chunks: Buffer[] = [];
   for await (const chunk of Readable.fromWeb(body as import("node:stream/web").ReadableStream)) chunks.push(chunk as Buffer);

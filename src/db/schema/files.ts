@@ -1,6 +1,49 @@
-import { bigint, boolean, index, integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { bigint, bigserial, boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex } from "drizzle-orm/pg-core";
+import type { StorageConfig, StorageKind, StorageStatus } from "../../lib/workspace-storage";
 import { page, workspace } from "./app";
 import { user } from "./auth";
+
+/**
+ * Storage a workspace brings itself for its uploads (see server/storage/workspace.ts), instead of
+ * the instance's own (STORAGE_DRIVER / UPLOAD_DIR / S3_*). `config` holds what isn't secret (an S3
+ * endpoint and bucket); `credentials` is sealed (server/secret-box) and never leaves the server.
+ *
+ * A workspace uploads to at most one target at a time: the one that isn't `disconnected`. A
+ * disconnected target still reads and deletes the files stored on it, so it stays until no file and
+ * no queued deletion names it; the hourly cleanup then removes it. So does a deleted workspace's
+ * (`workspaceId` set null), once its files are gone from it.
+ */
+export const workspaceStorage = pgTable(
+  "workspace_storage",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "set null" }),
+    kind: text("kind").$type<StorageKind>().notNull(),
+    config: jsonb("config").$type<StorageConfig>().notNull(),
+    /** Sealed JSON: an S3 access key pair (later kinds: an OAuth refresh token). */
+    credentials: text("credentials").notNull(),
+    /** `broken` after the storage refused a request (revoked keys, a deleted bucket); `active` again after one succeeds. */
+    status: text("status").$type<StorageStatus>().notNull().default("active"),
+    lastError: text("last_error"),
+    lastErrorAt: timestamp("last_error_at", { withTimezone: true }),
+    /** When a test object last went there and back (on connecting, or Test again). */
+    verifiedAt: timestamp("verified_at", { withTimezone: true }).notNull(),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    uniqueIndex("workspace_storage_current_idx").on(t.workspaceId).where(sql`${t.status} <> 'disconnected'`),
+    check("workspace_storage_kind_check", sql`${t.kind} in ('s3', 'gdrive', 'dropbox')`),
+    check("workspace_storage_status_check", sql`${t.status} in ('active', 'broken', 'disconnected')`),
+  ],
+);
 
 /**
  * An uploaded file (see server/files.ts). The bytes live in the storage driver under `storageKey`;
@@ -19,6 +62,10 @@ export const file = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
     pageId: text("page_id").references(() => page.id, { onDelete: "set null" }),
     storageKey: text("storage_key").notNull(),
+    /** The workspace's own storage the bytes are in; null for the instance's. */
+    storageId: text("storage_id").references(() => workspaceStorage.id, { onDelete: "restrict" }),
+    /** The storage's own id for the object, where it addresses objects by id rather than by key. */
+    storageObjectId: text("storage_object_id"),
     name: text("name").notNull(),
     contentType: text("content_type").notNull(),
     size: bigint("size", { mode: "number" }).notNull(),
@@ -27,7 +74,7 @@ export const file = pgTable(
     referencedAt: timestamp("referenced_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("file_workspace_idx").on(t.workspaceId), index("file_page_idx").on(t.pageId)],
+  (t) => [index("file_workspace_idx").on(t.workspaceId), index("file_page_idx").on(t.pageId), index("file_storage_idx").on(t.storageId)],
 );
 
 /**
@@ -60,17 +107,24 @@ export const fileReference = pgTable(
  * Stored objects to delete (see server/files.ts, `removeStored`). Whatever removes a file's row adds
  * its key here in the same transaction, so the bytes can't outlive the row unnoticed: the cleanup
  * deletes the object and then this row, and an object storage refused stays here to be tried again
- * later, also after a restart.
+ * later, also after a restart. An object is its key in its storage: the instance's (`storageId`
+ * null) or a workspace's own, which the entry keeps from being removed until it is done.
  */
 export const storageDeletion = pgTable(
   "storage_deletion",
   {
-    storageKey: text("storage_key").primaryKey(),
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    storageId: text("storage_id").references(() => workspaceStorage.id, { onDelete: "restrict" }),
+    storageKey: text("storage_key").notNull(),
+    storageObjectId: text("storage_object_id"),
     attempts: integer("attempts").notNull().default(0),
     /** Not before then: later after each failure. */
     nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }).notNull().defaultNow(),
     lastError: text("last_error"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("storage_deletion_next_attempt_idx").on(t.nextAttemptAt)],
+  (t) => [
+    index("storage_deletion_next_attempt_idx").on(t.nextAttemptAt),
+    unique("storage_deletion_object_key").on(t.storageId, t.storageKey).nullsNotDistinct(),
+  ],
 );

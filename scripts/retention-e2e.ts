@@ -30,7 +30,7 @@ const { registerCollab } = await import("@/server/collab/bridge");
 const { storeFile } = await import("@/server/files");
 const { deleteTrashedPages, listTrash } = await import("@/server/pages");
 const { runRetention } = await import("@/server/retention");
-const { getStorage } = await import("@/server/storage");
+const { instanceStorage } = await import("@/server/storage");
 const { updateWorkspaceSettings, workspaceSettings, WorkspaceError } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
 
@@ -77,7 +77,7 @@ async function existing(...pageIds: string[]) {
 }
 
 async function stored(key: string) {
-  const body = await getStorage().get(key);
+  const body = await instanceStorage().get(key);
   if (!body) return false;
   await body.cancel();
   return true;
@@ -264,7 +264,7 @@ try {
 } finally {
   // The files table goes with the workspaces; their bytes don't.
   const left = await db.select({ key: file.storageKey }).from(file).where(inArray(file.workspaceId, workspaceIds));
-  for (const { key } of left) await getStorage().delete(key).catch(() => {});
+  for (const { key } of left) await instanceStorage().delete(key).catch(() => {});
   await db.delete(workspace).where(inArray(workspace.id, workspaceIds));
   await db.delete(user).where(inArray(user.id, userIds));
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();

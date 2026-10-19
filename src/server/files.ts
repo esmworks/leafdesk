@@ -14,11 +14,15 @@ import { queueDocument } from "@/server/file-text";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
-import { getStorage, type StorageDriver, uploadLimits } from "@/server/storage";
+import { StorageError, uploadLimits } from "@/server/storage";
+import { refOf, removeRetiredStorage, storageFor, storageOf, storageResolver, type StoredObject } from "@/server/storage/workspace";
 
 /**
  * Uploaded files (images, video, audio and attachments in page bodies, and the values of files
  * properties of database rows).
+ *
+ * Where: in the workspace's own storage while it has one connected, the instance's otherwise (see
+ * storage/workspace.ts); a file stays where it was stored. Only the instance's storage has a quota.
  *
  * Storing: uploading needs edit access to the page the file goes on. Files for a row's files
  * property are uploaded to the row itself; files attached to a form answer are held by the form's
@@ -56,7 +60,7 @@ import { getStorage, type StorageDriver, uploadLimits } from "@/server/storage";
 export class FileError extends Error {
   constructor(
     message: string,
-    readonly code: "tooLarge" | "quotaExceeded" | "notAllowed" | "badRequest" | "fetchFailed",
+    readonly code: "tooLarge" | "quotaExceeded" | "notAllowed" | "badRequest" | "fetchFailed" | "storageFailed",
     /** The limit that was hit, in bytes, for tooLarge and quotaExceeded. */
     readonly limit?: number,
   ) {
@@ -77,12 +81,12 @@ export type StoredFile = {
 
 export type FileRow = typeof file.$inferSelect;
 
-/** Bytes the workspace's files take up. */
-export async function workspaceUsage(workspaceId: string): Promise<number> {
-  const [row] = await db
+/** Bytes the workspace's files take up in the instance's storage (what its quota counts). */
+export async function workspaceUsage(workspaceId: string, tx: Tx | typeof db = db): Promise<number> {
+  const [row] = await tx
     .select({ used: sql<string>`coalesce(sum(${file.size}), 0)` })
     .from(file)
-    .where(eq(file.workspaceId, workspaceId));
+    .where(and(eq(file.workspaceId, workspaceId), isNull(file.storageId)));
   return Number(row?.used ?? 0);
 }
 
@@ -137,11 +141,14 @@ export async function storeFile(
   const name = cleanFileName(input.name);
   const contentType = contentTypeFor(input.contentType, name);
 
-  const { maxFileBytes, workspaceQuotaBytes } = uploadLimits();
+  const { maxFileBytes } = uploadLimits();
+  const target = await storageFor(workspaceId);
+  const workspaceQuotaBytes = target.quotaBytes;
+  const quota = workspaceQuotaBytes !== Infinity;
   const tooLarge = () => new FileError(`Files can be at most ${formatBytes(maxFileBytes)}`, "tooLarge", maxFileBytes);
   const overQuota = () =>
     new FileError(`This workspace has used its ${formatBytes(workspaceQuotaBytes)} of file storage`, "quotaExceeded", workspaceQuotaBytes);
-  const room = workspaceQuotaBytes - (await workspaceUsage(workspaceId));
+  const room = quota ? workspaceQuotaBytes - (await workspaceUsage(workspaceId)) : Infinity;
   const declared = input.declaredSize ?? null;
   if (declared !== null && declared > maxFileBytes) throw tooLarge();
   if (room <= 0 || (declared !== null && declared > room)) throw overQuota();
@@ -158,24 +165,33 @@ export async function storeFile(
   try {
     const id = randomBytes(18).toString("base64url");
     const storageKey = `${workspaceId}/${id}`;
+    const storageId = target.storageId;
     await db.transaction(async (tx) => {
-      // One upload at a time per workspace gets past this point, so the sum below is current.
-      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:file-quota:${workspaceId}`}))`);
-      const [row] = await tx
-        .select({ used: sql<string>`coalesce(sum(${file.size}), 0)` })
-        .from(file)
-        .where(eq(file.workspaceId, workspaceId));
-      if (Number(row?.used ?? 0) + spooled.size > workspaceQuotaBytes) throw overQuota();
-      await tx.insert(file).values({ id, workspaceId, pageId, storageKey, name, contentType, size: spooled.size, uploadedBy });
+      if (quota) {
+        // One upload at a time per workspace gets past this point, so the sum below is current.
+        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:file-quota:${workspaceId}`}))`);
+        if ((await workspaceUsage(workspaceId, tx)) + spooled.size > workspaceQuotaBytes) throw overQuota();
+      }
+      await tx.insert(file).values({ id, workspaceId, pageId, storageKey, storageId, name, contentType, size: spooled.size, uploadedBy });
     });
+    let storageObjectId: string | null = null;
     try {
-      await getStorage().put(storageKey, createReadStream(/*turbopackIgnore: true*/ spooled.path), { size: spooled.size, contentType });
+      const put = await target.driver.put(storageKey, createReadStream(/*turbopackIgnore: true*/ spooled.path), { size: spooled.size, contentType });
+      if (put) {
+        storageObjectId = put;
+        await db.update(file).set({ storageObjectId }).where(eq(file.id, id));
+      }
     } catch (error) {
       await db.delete(file).where(eq(file.id, id));
+      // The workspace's own storage refused it: say so (Settings > Storage shows why).
+      if (storageId && error instanceof StorageError) {
+        console.warn(`[files] the storage of workspace ${workspaceId} refused an upload`, error.message);
+        throw new FileError("The workspace's storage didn't take the file", "storageFailed");
+      }
       throw error;
     }
     // A PDF, Word document or Excel workbook is read in the background, so search finds its words.
-    queueDocument({ id, name, contentType, size: spooled.size, storageKey });
+    queueDocument({ id, name, contentType, size: spooled.size, storageKey, storageId, storageObjectId });
     return { id, url: fileUrl(id), name, contentType, size: spooled.size, pageId, workspaceId };
   } finally {
     await rm(spooled.dir, { recursive: true, force: true });
@@ -376,8 +392,8 @@ export async function fileForApp(userId: string, fileId: string): Promise<FileRo
 }
 
 /** A stored file's bytes; null when the storage has nothing under its key. Read whole: callers bound `found.size` first. */
-export async function readStored(found: FileRow): Promise<Buffer | null> {
-  const body = await getStorage().get(found.storageKey);
+export async function readStored(found: Pick<FileRow, "storageKey" | "storageId" | "storageObjectId">): Promise<Buffer | null> {
+  const body = await (await storageOf(found)).get(refOf(found));
   if (!body) return null;
   const chunks: Uint8Array[] = [];
   for await (const chunk of body) chunks.push(chunk);
@@ -408,33 +424,62 @@ async function pagesShowing(found: FileRow): Promise<string[]> {
 }
 
 /**
+ * An object to delete: a bare key is one of the instance's storage (avatars); a file's is where the
+ * file was stored (`fileObject`).
+ */
+export type QueuedObject = string | StoredObject;
+
+const asStored = (object: QueuedObject): StoredObject => (typeof object === "string" ? { storageId: null, key: object } : object);
+
+/** Where a file's bytes are, for queueing their deletion. */
+export const fileObject = (row: { storageKey: string; storageId: string | null; storageObjectId?: string | null }): StoredObject => ({
+  storageId: row.storageId,
+  key: row.storageKey,
+  objectId: row.storageObjectId ?? null,
+});
+
+/** The columns `fileObject` needs, for `returning`. */
+export const fileObjectColumns = { storageKey: file.storageKey, storageId: file.storageId, storageObjectId: file.storageObjectId };
+
+/** The queue entry of one object: its key in its storage. */
+const entryOf = ({ storageId, key }: StoredObject) =>
+  and(eq(storageDeletion.storageKey, key), storageId ? eq(storageDeletion.storageId, storageId) : isNull(storageDeletion.storageId));
+
+/**
  * Queues stored objects for deletion (see `storageDeletion`). Called in the transaction that removes
  * their rows, so no object is left behind unrecorded when deleting it fails or the server stops
  * first. `deleteQueued` or the cleanup (`drainStorageDeletions`) deletes them afterwards.
  */
-export async function queueStorageDeletion(tx: Tx | typeof db, keys: string[]) {
-  for (let i = 0; i < keys.length; i += 1000) {
+export async function queueStorageDeletion(tx: Tx | typeof db, objects: QueuedObject[]) {
+  for (let i = 0; i < objects.length; i += 1000) {
     await tx
       .insert(storageDeletion)
-      .values(keys.slice(i, i + 1000).map((storageKey) => ({ storageKey })))
+      .values(
+        objects.slice(i, i + 1000).map((object) => {
+          const { storageId, key, objectId } = asStored(object);
+          return { storageId, storageKey: key, storageObjectId: objectId ?? null };
+        }),
+      )
       .onConflictDoNothing();
   }
 }
 
 /**
- * Deletes the queued objects `keys` from storage now, each with its queue entry. An object the
- * storage refuses to delete stays queued and is tried again later (`drainStorageDeletions`): a
- * minute after the first failure, then twice as long after each one, up to a day. Returns how many
- * went.
+ * Deletes the queued objects from their storage now, each with its queue entry. An object the
+ * storage refuses to delete (or whose storage can't be reached) stays queued and is tried again
+ * later (`drainStorageDeletions`): a minute after the first failure, then twice as long after each
+ * one, up to a day. Returns how many went.
  */
-export async function deleteQueued(keys: string[], storage: StorageDriver = getStorage()): Promise<number> {
-  const done: string[] = [];
-  for (const key of keys) {
+export async function deleteQueued(objects: QueuedObject[]): Promise<number> {
+  const resolve = storageResolver();
+  const done: StoredObject[] = [];
+  for (const object of objects.map(asStored)) {
     try {
-      await storage.delete(key);
-      done.push(key);
+      const storage = await resolve(object);
+      await storage.delete({ key: object.key, objectId: object.objectId ?? null });
+      done.push(object);
     } catch (error) {
-      console.error(`[files] couldn't delete ${key} from storage; will try again`, error);
+      console.error(`[files] couldn't delete ${object.key} from storage; will try again`, error);
       await db
         .update(storageDeletion)
         .set({
@@ -442,11 +487,22 @@ export async function deleteQueued(keys: string[], storage: StorageDriver = getS
           nextAttemptAt: sql`now() + least(interval '1 minute' * power(2, ${storageDeletion.attempts}), interval '1 day')`,
           lastError: String(error).slice(0, 1000),
         })
-        .where(eq(storageDeletion.storageKey, key));
+        .where(entryOf(object));
     }
   }
-  for (let i = 0; i < done.length; i += 1000) {
-    await db.delete(storageDeletion).where(inArray(storageDeletion.storageKey, done.slice(i, i + 1000)));
+  const byStorage = new Map<string | null, string[]>();
+  for (const { storageId, key } of done) byStorage.set(storageId, [...(byStorage.get(storageId) ?? []), key]);
+  for (const [storageId, keys] of byStorage) {
+    for (let i = 0; i < keys.length; i += 1000) {
+      await db
+        .delete(storageDeletion)
+        .where(
+          and(
+            inArray(storageDeletion.storageKey, keys.slice(i, i + 1000)),
+            storageId ? eq(storageDeletion.storageId, storageId) : isNull(storageDeletion.storageId),
+          ),
+        );
+    }
   }
   return done.length;
 }
@@ -455,11 +511,11 @@ export async function deleteQueued(keys: string[], storage: StorageDriver = getS
  * Deletes stored objects that no row records (any more): queued first, so a failure is retried.
  * Never throws: the change that made them unneeded is done already.
  */
-export async function removeStored(keys: string[]) {
-  if (!keys.length) return;
+export async function removeStored(objects: QueuedObject[]) {
+  if (!objects.length) return;
   try {
-    await queueStorageDeletion(db, keys);
-    await deleteQueued(keys);
+    await queueStorageDeletion(db, objects);
+    await deleteQueued(objects);
   } catch (error) {
     console.error("[files] couldn't delete files from storage", error);
   }
@@ -474,7 +530,7 @@ const DELETION_BATCH = 100;
  * null when another server is at it right now (a session lock, released with the connection if the
  * process dies midway).
  */
-export async function drainStorageDeletions(storage: StorageDriver = getStorage()): Promise<{ deleted: number; failed: number } | null> {
+export async function drainStorageDeletions(): Promise<{ deleted: number; failed: number } | null> {
   const connection = await db.$client.reserve();
   try {
     const [row] = await connection<{ locked: boolean }[]>`select pg_try_advisory_lock(hashtext(${DELETION_LOCK})) as locked`;
@@ -485,12 +541,12 @@ export async function drainStorageDeletions(storage: StorageDriver = getStorage(
       for (;;) {
         // A failure moves its entry past now(), so each round takes new ones and this ends.
         const due = await db
-          .select({ key: storageDeletion.storageKey })
+          .select({ key: storageDeletion.storageKey, storageId: storageDeletion.storageId, objectId: storageDeletion.storageObjectId })
           .from(storageDeletion)
           .where(lte(storageDeletion.nextAttemptAt, sql`now()`))
           .orderBy(asc(storageDeletion.nextAttemptAt))
           .limit(DELETION_BATCH);
-        const went = await deleteQueued(due.map((d) => d.key), storage);
+        const went = await deleteQueued(due);
         deleted += went;
         failed += due.length - went;
         if (due.length < DELETION_BATCH) return { deleted, failed };
@@ -519,9 +575,10 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
         ),
       )
-      .returning({ key: file.storageKey });
-    await queueStorageDeletion(tx, gone.map((g) => g.key));
-    return gone.map((g) => g.key);
+      .returning(fileObjectColumns);
+    const objects = gone.map(fileObject);
+    await queueStorageDeletion(tx, objects);
+    return objects;
   });
   await deleteQueued(keys);
   return keys.length;
@@ -543,9 +600,10 @@ export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, wo
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
         ),
       )
-      .returning({ key: file.storageKey });
-    await queueStorageDeletion(tx, gone.map((g) => g.key));
-    return gone.map((g) => g.key);
+      .returning(fileObjectColumns);
+    const objects = gone.map(fileObject);
+    await queueStorageDeletion(tx, objects);
+    return objects;
   });
   await deleteQueued(keys);
   return keys.length;
@@ -554,7 +612,8 @@ export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, wo
 let sweeper: NodeJS.Timeout | null = null;
 
 /**
- * Runs both cleanups, then the deletions still queued, a minute after start and hourly after that
+ * Runs both cleanups, then the deletions still queued (and forgets workspace storage left empty), a
+ * minute after start and hourly after that
  * (server.ts).
  */
 export function startFileCleanup() {
@@ -568,6 +627,9 @@ export function startFileCleanup() {
       if (queued?.deleted || queued?.failed) {
         console.log(`[files] deleted ${queued.deleted} queued objects from storage, ${queued.failed} to try again later`);
       }
+      // Workspace storage that holds nothing any more (disconnected, or of a deleted workspace).
+      const retired = await removeRetiredStorage();
+      if (retired) console.log(`[files] forgot ${retired} workspace storage connections nothing is stored in any more`);
     } catch (error) {
       console.error("[files] cleanup failed", error);
     }
