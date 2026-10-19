@@ -33,6 +33,8 @@ import { sharedLimiter, takeAll } from "@/lib/rate-limit";
 import { verifyTotp } from "@/lib/totp";
 import { getCollab } from "@/server/collab/bridge";
 import { deleteQueued, queueStorageDeletion, removeStored } from "@/server/files";
+import { kickMoves } from "@/server/storage/moves";
+import { removeRetiredStorage } from "@/server/storage/workspace";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 import { revokeAllApiTokens } from "@/server/api/tokens";
@@ -600,11 +602,13 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
   // Before the proof, so a blocked deletion doesn't use up a code.
   const preview = await deletionPlanFor(userId);
   if (preview.blockers.length) throw new AccountError("soleOwner", preview.blockers.map((w) => w.name));
+  if (preview.storageStuck?.length) throw new AccountError("storageStuck", preview.storageStuck.map((w) => w.name));
   await reauthenticate(current, input.proof);
 
   const { plan, keys, cutOff } = await db.transaction(async (tx) => {
     const { plan, fileKeys: keys, providerIds } = await withdrawFromWorkspaces(tx, userId);
     if (plan.blockers.length) throw new AccountError("soleOwner", plan.blockers.map((w) => w.name));
+    if (plan.storageStuck?.length) throw new AccountError("storageStuck", plan.storageStuck.map((w) => w.name));
     // Pending email changes and password reset links (Better Auth keeps the user id as the value).
     await tx.delete(verification).where(or(eq(verification.value, userId), changeRowsOf(userId)));
     const [gone] = await tx.delete(user).where(eq(user.id, userId)).returning({ image: user.image });
@@ -636,5 +640,9 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
   // Queued with the account, so the file cleanup deletes later what fails here. After the pages
   // above are closed: it removes the files one by one.
   await deleteQueued(keys).catch((error) => console.error("[account] could not remove the files", error));
+  // Files of shared workspaces in their storage move now; their storage accounts (no one's by now)
+  // keep serving them until then, and those nothing needs any more go with their credentials.
+  kickMoves();
+  await removeRetiredStorage().catch((error) => console.error("[account] could not forget the storage accounts", error));
   return plan;
 }

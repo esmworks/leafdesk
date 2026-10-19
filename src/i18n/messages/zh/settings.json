@@ -826,7 +826,9 @@
     "creationRestricted": "只有服务器管理员可以创建工作区。",
     "agentUser": "这是一个智能体，而不是人。请在该智能体自己的设置中更改或归档它。",
     "confirmationMismatch": "请准确输入所示的工作区名称以确认。",
-    "workspaceDeleted": "在此期间有人删除了此工作区。"
+    "workspaceDeleted": "在此期间有人删除了此工作区。",
+    "storageNoDestination": "此工作区的文件存放在你的存储中，而在你离开时它们没有可以移动的去处：没有其他所有者设置了默认存储，这台服务器的存储也无法接收它们。请让一位所有者设置存储，或先移动这些文件（设置 > 存储）。",
+    "storageMoveInProgress": "正在将此工作区的文件移入你的存储。请等待完成后再离开。"
   },
   "security": {
     "description": "决定人们如何登录、谁可以将他人带入此工作区、访客可以做什么、哪些内容可以离开工作区（导出、已连接的应用），以及谁可以将页面发布到网络。只有所有者可以更改这些设置。",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "断开了邮箱 {target}"
       },
       "storage": {
-        "connected": "连接了工作区自己的存储 {target}",
-        "disconnected": "断开了工作区自己的存储 {target}"
+        "connected": "开始将新文件存到 {target}",
+        "disconnected": "停止将新文件存到 {target}",
+        "moved": "开始将工作区的文件移动到 {target}"
       },
       "backup": {
         "created": "备份了工作区（{count} 个页面）",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "此工作区上传的文件的存放位置。连接工作区自己的存储（兼容 S3 的存储桶、Google Drive 或 Dropbox）后，新文件会存到那里，而不是这台服务器。每个文件仍由 Leafdesk 自己提供，因此存储保持私有：无需公开访问或共享。",
+    "description": "此工作区上传的文件的存放位置：这台服务器，或某位所有者连接到自己账户的存储（兼容 S3 的存储桶、Google Drive 或 Dropbox）。每个文件仍由 Leafdesk 自己提供，因此存储保持私有：成员无需在那里拥有账户，也无需公开访问或共享。",
     "currentHeading": "新文件的保存位置",
     "instance": "这台服务器",
     "instanceHint": "文件保存在运行 Leafdesk 的服务器上。",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3、Cloudflare R2、Backblaze B2、MinIO，或任何其他支持 S3 协议的存储。",
-      "gdrive": "文件会存到 Leafdesk 在你的 Drive 中创建的文件夹里。Leafdesk 只能看到它在那里创建的文件，看不到你 Drive 中的其他内容。",
-      "dropbox": "文件会存到你 Dropbox 中 Leafdesk 的应用文件夹（位于“应用”下）。Leafdesk 看不到该文件夹之外的任何内容。"
+      "gdrive": "文件会存到 Leafdesk 在你的 Drive 中创建的 Leafdesk 文件夹里，每个工作区一个子文件夹。Leafdesk 只能看到它在那里创建的文件，看不到你 Drive 中的其他内容。",
+      "dropbox": "文件会存到你 Dropbox 中 Leafdesk 的应用文件夹（位于“应用”下），每个工作区一个子文件夹。Leafdesk 看不到该文件夹之外的任何内容。"
     },
     "status": {
       "active": "运行正常，{time}检查",
@@ -1776,12 +1779,8 @@
     "olderFiles": "连接之前上传的文件仍保留在这台服务器上（{size}）。",
     "testAgain": "重新测试",
     "testing": "正在测试…",
-    "change": "更改",
     "disconnect": "断开连接",
-    "disconnectNote": "新文件会重新存到这台服务器。已在该存储中的文件会留在那里，并在被删除之前继续从那里读取。",
-    "connectHeading": "连接存储",
-    "changeHeading": "更改存储",
-    "connectDescription": "保存之前，会先存入一个测试文件，再读回并删除。已上传的文件仍留在原处。",
+    "disconnectNote": "新文件会重新存到这台服务器。已在该存储中的文件会留在那里，并在被删除或移走之前继续从那里读取。",
     "fields": {
       "kind": "存储类型",
       "endpoint": "终端节点",
@@ -1793,10 +1792,12 @@
       "prefixHint": "可选：文件会保存在存储桶的这个文件夹下。",
       "accessKeyId": "访问密钥 ID",
       "secretAccessKey": "秘密访问密钥",
-      "keysKeep": "留空则保留当前密钥",
       "keysHint": "只授予这些密钥访问此存储桶的权限。它们会加密存储，不会再次显示。",
       "pathStyle": "按路径访问存储桶",
-      "pathStyleHint": "MinIO 和除 AWS S3 之外的大多数存储都需要此项。"
+      "pathStyleHint": "MinIO 和除 AWS S3 之外的大多数存储都需要此项。",
+      "label": "名称",
+      "labelPlaceholder": "公司存储桶",
+      "labelHint": "此存储在 Leafdesk 中的名称。可选。"
     },
     "test": "测试连接",
     "testOk": "运行正常：测试文件已成功存入并读回。",
@@ -1804,7 +1805,7 @@
     "connecting": "正在连接…",
     "save": "保存",
     "retiredHeading": "之前的存储",
-    "retiredDescription": "之前已断开连接的存储中仍有文件。在被删除之前，会继续从那里读取。",
+    "retiredDescription": "此工作区以前使用过、其中仍有文件的存储。在被删除或移走之前，会继续从那里读取。",
     "errors": {
       "accessDenied": "只有工作区所有者可以更改其文件的存储位置。",
       "endpoint": "请以网址形式输入终端节点，例如 https://storage.example.com。",
@@ -1816,19 +1817,77 @@
       "unavailable": "暂时还不能连接这种存储。",
       "refused": "存储无法使用：{message}",
       "rateLimited": "尝试次数过多。请等待几分钟后重试。",
-      "noStorage": "此工作区没有连接自己的存储。",
+      "noStorage": "此工作区没有将文件存放在自己的存储中。",
       "notConfigured": "这台服务器未为这种存储进行设置。",
-      "oauthFailed": "登录未成功，因此没有做任何更改。请重试。"
+      "oauthFailed": "登录未成功，因此没有做任何更改。请重试。",
+      "disabled": "这台服务器不允许任何人连接自己的存储。",
+      "noAccount": "该存储未连接到你的账户。",
+      "accountDisconnected": "该存储已断开连接。",
+      "moveInProgress": "正在移动此工作区的文件。请等待完成。",
+      "noDestination": "{workspace} 的文件没有可以移动的去处：没有其他所有者设置了默认存储，这台服务器的存储也无法接收它们。",
+      "serverRefused": "这台服务器的存储无法接收此工作区的文件：它不是 S3，或者文件超出了该工作区在那里的配额。",
+      "noMove": "该移动任务已不存在。"
     },
     "signIn": "登录 {provider}",
-    "signInAgain": "重新登录 {provider}",
     "signingIn": "正在打开…",
     "signInHint": "你会在 {provider} 登录，然后回到这里。保存任何内容之前，会先写入一个测试文件、读回并删除。",
-    "notConfigured": "这台服务器尚未为 {provider} 进行设置。管理员需要在 {provider} 注册一个应用并设置 {vars}。",
+    "notConfigured": "未提供 {provider}：要提供它，请在 {provider} 注册一个应用，并在服务器上设置 {vars}。",
     "dismiss": "关闭",
     "notices": {
       "connected": "已连接。从现在起，新文件会存到那里。",
       "refused": "你已登录，但无法在那里存入测试文件，因此没有做任何更改。请稍后再试。"
+    },
+    "descriptionOff": "此工作区上传的文件的存放位置。部分文件位于这台服务器停止提供自有存储之前连接的存储中；无法再连接新的存储。",
+    "brokenHelp": "在它恢复正常之前，存放在那里的文件无法读取。如果该存储已永久消失，请从备份恢复工作区。",
+    "owner": {
+      "mine": "你的存储“{label}”",
+      "other": "{name} 的存储",
+      "gone": "已离开 Leafdesk 的用户的存储"
+    },
+    "stopUsing": "停止使用",
+    "useHeading": "将文件存到你的存储",
+    "useOtherHeading": "使用其他存储",
+    "useDescription": "新文件会存到你连接到账户的存储中，放在此工作区专用的文件夹里。在做任何更改之前，会先存入一个测试文件，再读回并删除。已上传的文件会留在原处，直到你移动它们。",
+    "useAccount": "你的存储",
+    "use": "用于新文件",
+    "connectNew": "连接其他存储",
+    "move": {
+      "heading": "移动文件",
+      "description": "在工作区照常运行的同时，将此工作区的所有文件分批复制到其他存储，然后从原位置删除。新文件从一开始就会存到那里。",
+      "to": "移动到",
+      "server": "这台服务器的存储",
+      "confirm": "要将此工作区的所有文件移动到 {destination} 吗？从现在起，新文件会存到那里。",
+      "start": "移动文件",
+      "queued": "文件即将移动到 {destination}。",
+      "running": "正在将文件移动到 {destination}：已移动 {moved} 个，共 {files} 个。",
+      "done": "{files, plural, =0 {完成：新文件现在会存到 {destination}。} other {已将 # 个文件移动到 {destination}。}}",
+      "failed": "有 {failed, plural, other {# 个文件}}无法移动到 {destination}：{error}",
+      "blocked": "存放此工作区文件的存储即将不可用，但文件没有可以移动的去处：没有所有者设置了默认存储，这台服务器的存储也无法接收它们。目前仍会从那里读取这些文件。请先设置存储，然后重试。",
+      "retry": "重试",
+      "backupHint": "无法再从其存储中读取的文件，可以通过恢复工作区的备份找回。",
+      "reasons": {
+        "left": "存放这些文件的存储属于已离开此工作区的人。",
+        "removed": "存放这些文件的存储属于已被移出此工作区的人。",
+        "accountDeleted": "存放这些文件的存储属于已删除其 Leafdesk 账户的人。",
+        "disconnected": "存放这些文件的存储已被其所有者断开连接。"
+      }
+    },
+    "accounts": {
+      "heading": "已连接的存储",
+      "description": "连接一次即可在你拥有的工作区中使用的存储：兼容 S3 的存储桶、Google Drive 或 Dropbox。每个工作区会在那里获得自己的文件夹；其他成员通过 Leafdesk 读取其中的文件，无需拥有该存储的账户。对于共享工作区，建议使用团队拥有的存储（公司存储桶或共享账户）：如果你离开工作区，其文件就必须移走。",
+      "descriptionOff": "你之前连接的存储。这台服务器已不再允许任何人连接新的存储；正在使用它的工作区会继续正常运行。",
+      "connect": "连接存储",
+      "connected": "已连接。可在工作区的“设置 > 存储”中选择它，或将其设为默认。",
+      "none": "尚未连接任何存储。文件会存到这台服务器。",
+      "default": "新工作区的默认存储",
+      "setDefault": "设为默认",
+      "unsetDefault": "取消默认",
+      "rename": "重命名",
+      "disconnected": "已断开连接：在其文件被移走或删除之前仍会从中读取",
+      "usedBy": "使用它的工作区：{workspaces}",
+      "unused": "还没有工作区使用它。",
+      "disconnectUsed": "这些工作区将不再把新文件存到那里。能移动的文件会移到另一位所有者的存储中；其余文件在被移走或删除之前仍会从那里读取。",
+      "disconnectUnused": "没有工作区使用它。Leafdesk 会清除该存储及其密钥。"
     }
   },
   "backup": {

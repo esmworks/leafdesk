@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { locationTitle, normalizeEndpoint, parseS3Input, sameLocation, sameS3Location, StorageInputError, storageNoticeOf, type StorageLocation } from "./workspace-storage";
+import { availableStorageKinds, cleanAccountLabel, defaultAccountLabel, locationOf, locationTitle, normalizeEndpoint, parseS3Input, sameLocation, sameS3Location, StorageInputError, storageNoticeOf, type StorageLocation } from "./workspace-storage";
 
 const keys = { accessKeyId: "AKIA123", secretAccessKey: "s3cr3t" };
 const fieldOf = (fn: () => unknown) => {
@@ -104,5 +104,38 @@ describe("storageNoticeOf", () => {
     expect(storageNoticeOf({ storageError: "connected" })).toBe("oauthFailed");
     expect(storageNoticeOf({ storageError: ["refused"] })).toBe("oauthFailed");
     expect(storageNoticeOf({ storageError: "<script>" })).toBe("oauthFailed");
+  });
+});
+
+describe("availableStorageKinds", () => {
+  it("is nothing while own storage is off", () => {
+    expect(availableStorageKinds(false, ["gdrive", "dropbox"])).toEqual([]);
+  });
+
+  it("is S3 always, and Drive or Dropbox only once the server has an app for them", () => {
+    expect(availableStorageKinds(true, [])).toEqual(["s3"]);
+    expect(availableStorageKinds(true, ["dropbox"])).toEqual(["s3", "dropbox"]);
+    expect(availableStorageKinds(true, ["gdrive", "dropbox"])).toEqual(["s3", "gdrive", "dropbox"]);
+  });
+});
+
+describe("a storage account and its places", () => {
+  const drive = { kind: "gdrive" as const, config: { accountId: "p1", account: "a@example.com", rootFolderId: "root" } };
+
+  it("puts each workspace in its own Drive folder of the one account", () => {
+    const one = locationOf(drive, { folderId: "f1", folderName: "Leafdesk (One)" });
+    const two = locationOf(drive, { folderId: "f2", folderName: "Leafdesk (Two)" });
+    expect(one).toEqual({ kind: "gdrive", config: { ...drive.config, folderId: "f1", folderName: "Leafdesk (One)" } });
+    expect(sameLocation(one, two)).toBe(false);
+    expect(sameLocation(one, locationOf(drive, { folderId: "f1", folderName: "Renamed" }))).toBe(true);
+  });
+
+  it("is named after its bucket or account unless given a name", () => {
+    expect(defaultAccountLabel(drive)).toBe("a@example.com");
+    expect(defaultAccountLabel({ kind: "s3", config: { endpoint: null, region: "us-east-1", bucket: "files", prefix: null, forcePathStyle: false } })).toBe("files");
+    expect(cleanAccountLabel("  Team   files ", "x")).toBe("Team files");
+    expect(cleanAccountLabel("   ", "files")).toBe("files");
+    expect(cleanAccountLabel(42, "files")).toBe("files");
+    expect(cleanAccountLabel("x".repeat(100), "files")).toHaveLength(80);
   });
 });

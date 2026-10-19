@@ -52,3 +52,19 @@ describe("storageOAuthAppsFrom", () => {
     expect(env.storageOAuthApps.dropbox).toEqual({ clientId: "dkey", clientSecret: "dsecret" });
   });
 });
+
+describe("ownStorageEnabled", () => {
+  it("is off unless turned on", () => {
+    vi.stubEnv("OWN_STORAGE_ENABLED", "");
+    expect(env.ownStorageEnabled).toBe(false);
+    vi.stubEnv("OWN_STORAGE_ENABLED", "false");
+    expect(env.ownStorageEnabled).toBe(false);
+    vi.stubEnv("OWN_STORAGE_ENABLED", "0");
+    expect(env.ownStorageEnabled).toBe(false);
+    for (const on of ["1", "true", " TRUE ", "yes"]) {
+      vi.stubEnv("OWN_STORAGE_ENABLED", on);
+      expect(env.ownStorageEnabled).toBe(true);
+    }
+  });
+});
+

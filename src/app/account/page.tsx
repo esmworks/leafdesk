@@ -30,7 +30,9 @@ export default async function AccountPage({
   const [workspaces, t] = await Promise.all([listWorkspaces(session.user.id), getTranslations("account")]);
   const from = workspaces.find((w) => w.id === query.from) ?? workspaces[0];
   if (from && !(await blockedByWorkspacePolicy(session, from.id))) {
-    redirect(`/w/${from.id}/settings?tab=${settingsTabForAccount(tab)}`);
+    // A sign-in to storage came back here: what it says goes along.
+    const notice = ["storageConnected", "storageError"].flatMap((name) => (typeof query[name] === "string" ? [`&${name}=${encodeURIComponent(query[name])}`] : [])).join("");
+    redirect(`/w/${from.id}/settings?tab=${settingsTabForAccount(tab)}${notice}`);
   }
   const suffix = from && from.id !== workspaces[0]?.id ? `&from=${encodeURIComponent(from.id)}` : "";
 
@@ -59,7 +61,7 @@ export default async function AccountPage({
       />
       <main className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
         <div className="mx-auto max-w-3xl">
-          <AccountTabContent tab={tab} session={session} />
+          <AccountTabContent tab={tab} session={session} query={query} />
         </div>
       </main>
     </div>

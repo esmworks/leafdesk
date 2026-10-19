@@ -58,6 +58,9 @@ import type { QueuedObject } from "@/server/files";
 import { joinRecordOf, rememberDeparture, requestInvitation, requestToJoinFrom, settleJoinRequest } from "@/server/join-requests";
 import { turkishGenitive } from "@/lib/turkish";
 import { getCollab } from "@/server/collab/bridge";
+import { attachDefaultStorage } from "@/server/storage/accounts";
+import { StorageSettingsError } from "@/server/storage/errors";
+import { kickMoves, planMovesAway } from "@/server/storage/moves";
 import { CONNECTED_APPS_MODES } from "@/server/connected-app";
 import { dropFromGroups } from "@/server/groups";
 import { dropFromTeamspaces, setUpGeneralTeamspace } from "@/server/teamspaces";
@@ -90,14 +93,16 @@ async function generalTeamspaceName() {
  */
 export async function createPersonalWorkspace(userId: string, userName: string) {
   const [name, general] = await Promise.all([personalWorkspaceName(userName), generalTeamspaceName()]);
-  await db.transaction(async (tx) => {
+  const created = await db.transaction(async (tx) => {
     const [ws] = await tx
       .insert(workspace)
       .values({ name })
       .returning({ id: workspace.id });
     await tx.insert(workspaceMember).values({ workspaceId: ws.id, userId, role: "owner" });
     await setUpGeneralTeamspace(tx, ws.id, userId, general);
+    return ws;
   });
+  await attachDefaultStorage(userId, created.id);
 }
 
 export type WorkspaceErrorCode =
@@ -126,7 +131,11 @@ export type WorkspaceErrorCode =
   /** Deleting the workspace: someone else deleted it meanwhile. */
   | "workspaceDeleted"
   /** The person is an agent's user: agents are changed in their own settings. */
-  | "agentUser";
+  | "agentUser"
+  /** Leaving: the person's storage holds the workspace's files and there is nowhere they may move to. */
+  | "storageNoDestination"
+  /** Leaving: the workspace's files are being moved into the person's storage right now. */
+  | "storageMoveInProgress";
 
 /**
  * An expected failure the user can act on. `code` is stable and translated by the UI; the
@@ -166,12 +175,15 @@ export async function createWorkspace(userId: string, name: string) {
   const clean = name.trim().slice(0, 80);
   if (!clean) throw new WorkspaceError("nameRequired", "Give the workspace a name.");
   const general = await generalTeamspaceName();
-  return db.transaction(async (tx) => {
+  const created = await db.transaction(async (tx) => {
     const [ws] = await tx.insert(workspace).values({ name: clean }).returning({ id: workspace.id });
     await tx.insert(workspaceMember).values({ workspaceId: ws.id, userId, role: "owner" });
     await setUpGeneralTeamspace(tx, ws.id, userId, general);
     return ws;
   });
+  // Someone with a default storage account keeps the new workspace's files there from the start.
+  await attachDefaultStorage(userId, created.id);
+  return created;
 }
 
 /** How many workspaces each of these accounts is in, as a guest too (the instance admin's list). */
@@ -957,6 +969,9 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     if (current.role === "owner" && (await countOwners(workspaceId, tx)) <= 1) {
       throw new WorkspaceError("lastOwnerRemove", "A workspace needs at least one owner. Make someone else an owner first.");
     }
+    // Files of the workspace kept in their storage move to an owner's, before they are out. Someone
+    // leaving can't while there is nowhere for them to go; someone removed is, and owners are told.
+    await moveFilesAway(tx, targetId, workspaceId, actorId === targetId ? "left" : "removed", actorId);
     await tx
       .delete(workspaceMember)
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, targetId)));
@@ -985,7 +1000,27 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
       tx,
     );
   });
+  kickMoves();
   await getCollab().disconnectUser(targetId, workspaceId);
+}
+
+/**
+ * Queues moving the workspace's files out of `userId`'s storage (see storage/moves.ts) as they
+ * leave (refused when the files have nowhere to go) or are removed (going ahead, with a blocked
+ * move for owners to see).
+ */
+async function moveFilesAway(tx: Tx, userId: string, workspaceId: string, reason: "left" | "removed", actorId: string | null) {
+  try {
+    await planMovesAway(tx, { userId, workspaceIds: [workspaceId], reason, actorId, mode: reason === "left" ? "refuse" : "block" });
+  } catch (error) {
+    if (error instanceof StorageSettingsError && error.code === "noDestination") {
+      throw new WorkspaceError("storageNoDestination", "This workspace's files are in your storage and there is nowhere they can move to.");
+    }
+    if (error instanceof StorageSettingsError && error.code === "moveInProgress") {
+      throw new WorkspaceError("storageMoveInProgress", "This workspace's files are being moved into your storage. Wait for it to finish.");
+    }
+    throw error;
+  }
 }
 
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -1009,7 +1044,12 @@ async function standingsOf(reader: Pick<typeof db, "select">, userId: string): P
 
 /** What deleting `userId`'s account would do to each of their workspaces (see lib/account.ts). */
 export async function accountDeletionPlan(userId: string): Promise<DeletionPlan> {
-  return planAccountDeletion(await standingsOf(db, userId));
+  const plan = planAccountDeletion(await standingsOf(db, userId));
+  if (!plan.left.length) return plan;
+  // Files of the workspaces they leave that are in their storage move first, where they can.
+  const { moving, stuck } = await planMovesAway(db, { userId, workspaceIds: plan.left.map((w) => w.id), reason: "accountDeleted", actorId: userId, mode: "preview" });
+  const named = (ids: string[]) => plan.left.filter((w) => ids.includes(w.id)).map(({ id, name }) => ({ id, name }));
+  return { ...plan, storageMoves: named(moving), storageStuck: named(stuck) };
 }
 
 /**
@@ -1044,6 +1084,19 @@ export async function withdrawFromWorkspaces(
   }
   const plan = planAccountDeletion(await standingsOf(tx, userId));
   if (plan.blockers.length) return { plan, fileKeys: [], providerIds: [] };
+  // Files of the workspaces they leave that are in their storage move to an owner's (or the
+  // server's) once this commits; their storage account outlives them until the moves are done.
+  // Refused (rolling everything back) when some have nowhere to go.
+  if (plan.left.length) {
+    try {
+      await planMovesAway(tx, { userId, workspaceIds: plan.left.map((w) => w.id), reason: "accountDeleted", actorId: userId, mode: "refuse" });
+    } catch (error) {
+      if (error instanceof StorageSettingsError && (error.code === "noDestination" || error.code === "moveInProgress")) {
+        return { plan: { ...plan, storageStuck: plan.left.filter((w) => w.name === error.detail).map(({ id, name }) => ({ id, name })) }, fileKeys: [], providerIds: [] };
+      }
+      throw error;
+    }
+  }
 
   const fileKeys: QueuedObject[] = [];
   const providerIds: string[] = [];
@@ -1394,6 +1447,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
       .for("update");
     if (!current) return false;
     if (current.role === "owner") throw new WorkspaceError("lastOwnerRemove", "Owners are managed in the app");
+    await moveFilesAway(tx, userId, workspaceId, "removed", null);
     await tx.delete(workspaceMember).where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, userId)));
     // Their AI chat conversations quote the workspace's pages, and what it remembers about them is
     // the workspace's context: they go with the membership.
@@ -1411,7 +1465,10 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     return true;
 
   });
-  if (removed) await getCollab().disconnectUser(userId, workspaceId);
+  if (removed) {
+    kickMoves();
+    await getCollab().disconnectUser(userId, workspaceId);
+  }
   return removed;
 }
 

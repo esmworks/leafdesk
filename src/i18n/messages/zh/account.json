@@ -119,7 +119,10 @@
     "deleting": "正在删除…",
     "blockedTitle": "请先移交你的工作区",
     "blockedBody": "你是一些有其他人的工作区的唯一所有者。请将其他人设为每个工作区的所有者（设置 > 成员），或移除其他人，然后再删除你的账户。",
-    "blockedList": "需要移交的工作区："
+    "blockedList": "需要移交的工作区：",
+    "storageStuckBody": "你将离开的工作区中有文件存放在你自己的存储里，而它们没有可以移动的去处：没有其他所有者设置了默认存储，这台服务器的存储也无法接收它们。请让一位所有者设置存储，或移动这些文件（设置 > 存储），然后再删除你的账户。",
+    "storageStuckList": "文件无处可去的工作区：",
+    "storageMovesList": "它们在你存储中的文件会先移到一位所有者的存储中（在此之前仍由你的存储提供）："
   },
   "confirmEmail": {
     "metaTitle": "确认邮箱地址",
@@ -157,6 +160,7 @@
     "avatarType": "请使用 PNG、JPEG、WebP 或 GIF 图片。",
     "avatarTooLarge": "图片过大（最大 2 MB）。",
     "samePassword": "请选择与旧密码不同的密码。",
-    "resetStepExpired": "此步骤已过期。请重新使用旧密码登录。"
+    "resetStepExpired": "此步骤已过期。请重新使用旧密码登录。",
+    "storageStuck": "{workspaces} 的文件存放在你的存储中，没有可以移动的去处。请让其所有者设置存储，或先移动这些文件。"
   }
 }

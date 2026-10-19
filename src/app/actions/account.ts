@@ -45,7 +45,7 @@ async function run<T>(fn: () => Promise<T>): Promise<AccountResult<T>> {
     if (!(error instanceof AccountError)) throw error;
     const t = await getTranslations("account.errors");
     const message =
-      error.code === "soleOwner" ? t("soleOwner", { workspaces: error.workspaces.join(", ") }) : t(error.code);
+      error.code === "soleOwner" || error.code === "storageStuck" ? t(error.code, { workspaces: error.workspaces.join(", ") }) : t(error.code);
     return { ok: false, error: message, code: error.code };
   }
 }

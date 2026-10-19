@@ -41,7 +41,7 @@ export const AUDIT_CATEGORIES = {
     "teamspace.group_removed",
   ],
   groups: ["group.created", "group.renamed", "group.deleted", "group.members_added", "group.members_removed"],
-  settings: ["workspace.renamed", "workspace.settings_changed", "storage.connected", "storage.disconnected"],
+  settings: ["workspace.renamed", "workspace.settings_changed", "storage.connected", "storage.disconnected", "storage.moved"],
   security: [
     "sso.configured",
     "sso.domains_verified",

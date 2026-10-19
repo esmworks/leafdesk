@@ -119,7 +119,10 @@
     "deleting": "Excluindo…",
     "blockedTitle": "Transfira seus espaços de trabalho primeiro",
     "blockedBody": "Você é o único proprietário de espaços de trabalho em que há outras pessoas. Torne outra pessoa proprietária de cada um (Configurações > Membros) ou remova as demais e depois exclua sua conta.",
-    "blockedList": "Espaços de trabalho a transferir:"
+    "blockedList": "Espaços de trabalho a transferir:",
+    "storageStuckBody": "Os arquivos de espaços de trabalho dos quais você sairia estão no seu próprio armazenamento, e não há para onde movê-los: nenhum outro proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los. Peça a um proprietário que configure um armazenamento ou mova os arquivos (Configurações > Armazenamento) e depois exclua sua conta.",
+    "storageStuckList": "Espaços de trabalho cujos arquivos não têm para onde ir:",
+    "storageMovesList": "Os arquivos deles no seu armazenamento vão primeiro para o armazenamento de um proprietário (até lá, seu armazenamento continua a servi-los):"
   },
   "confirmEmail": {
     "metaTitle": "Confirmar endereço de e-mail",
@@ -157,6 +160,7 @@
     "avatarType": "Use uma imagem PNG, JPEG, WebP ou GIF.",
     "avatarTooLarge": "A foto é grande demais (no máximo 2 MB).",
     "samePassword": "Escolha uma senha diferente da antiga.",
-    "resetStepExpired": "Esta etapa expirou. Entre com sua senha antiga de novo."
+    "resetStepExpired": "Esta etapa expirou. Entre com sua senha antiga de novo.",
+    "storageStuck": "Os arquivos de {workspaces} estão no seu armazenamento e não têm para onde ser movidos. Peça aos proprietários que configurem um armazenamento ou mova os arquivos primeiro."
   }
 }

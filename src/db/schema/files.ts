@@ -1,18 +1,66 @@
 import { sql } from "drizzle-orm";
 import { bigint, bigserial, boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex } from "drizzle-orm/pg-core";
-import type { StorageConfig, StorageKind, StorageStatus } from "../../lib/workspace-storage";
+import type { AccountConfig, MoveReason, MoveStatus, PlaceConfig, StorageKind, StorageStatus } from "../../lib/workspace-storage";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
 /**
- * Storage a workspace brings itself for its uploads (see server/storage/workspace.ts), instead of
- * the instance's own (STORAGE_DRIVER / UPLOAD_DIR / S3_*). `config` holds what isn't secret (an S3
- * endpoint and bucket); `credentials` is sealed (server/secret-box) and never leaves the server.
+ * Storage someone connected to their Leafdesk account for workspaces' uploads (see
+ * server/storage/accounts.ts), instead of the instance's own (STORAGE_DRIVER / UPLOAD_DIR / S3_*):
+ * an S3-compatible bucket, a Google Drive or a Dropbox. Connected once, used by every workspace its
+ * owner attaches it to, each in a place of its own there (`workspace_storage`). `config` holds what
+ * isn't secret (an endpoint and bucket, the Drive account); `credentials` is sealed
+ * (server/secret-box) and never leaves the server.
  *
- * A workspace uploads to at most one target at a time: the one that isn't `disconnected`. A
- * disconnected target still reads and deletes the files stored on it, so it stays until no file and
+ * `disconnected` once its owner disconnected it, and when their Leafdesk account is gone
+ * (`userId` null): no workspace may start using it, but it keeps serving the files still stored on
+ * it until they are moved or deleted; the hourly cleanup then removes it with its credentials.
+ */
+export const storageAccount = pgTable(
+  "storage_account",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    kind: text("kind").$type<StorageKind>().notNull(),
+    config: jsonb("config").$type<AccountConfig>().notNull(),
+    /** Sealed JSON: an S3 access key pair, or what signing in to Drive or Dropbox gave (OAuthCredentials). */
+    credentials: text("credentials").notNull(),
+    /** What its owner calls it: the bucket or the account's address at first. */
+    label: text("label").notNull(),
+    /** New workspaces its owner makes use it from the start. At most one per person. */
+    isDefault: boolean("is_default").notNull().default(false),
+    /** `broken` after the storage refused a request (revoked keys, a deleted bucket); `active` again after one succeeds. */
+    status: text("status").$type<StorageStatus>().notNull().default("active"),
+    lastError: text("last_error"),
+    lastErrorAt: timestamp("last_error_at", { withTimezone: true }),
+    /** When a test object last went there and back (on connecting, or Test again). */
+    verifiedAt: timestamp("verified_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("storage_account_user_idx").on(t.userId),
+    uniqueIndex("storage_account_default_idx").on(t.userId).where(sql`${t.isDefault} and ${t.status} <> 'disconnected'`),
+    check("storage_account_kind_check", sql`${t.kind} in ('s3', 'gdrive', 'dropbox')`),
+    check("storage_account_status_check", sql`${t.status} in ('active', 'broken', 'disconnected')`),
+  ],
+);
+
+/**
+ * A workspace's place in a storage account (see server/storage/workspace.ts): its Drive folder, or
+ * (for a bucket or a Dropbox) just the account, the workspace's keys starting with its id. Files
+ * and queued deletions point at this row (`storage_id`), so it is kept while they do.
+ *
+ * A workspace uploads to at most one place at a time: the one that isn't `disconnected`. A
+ * disconnected place still reads and deletes the files stored there, so it stays until no file and
  * no queued deletion names it; the hourly cleanup then removes it. So does a deleted workspace's
- * (`workspaceId` set null), once its files are gone from it.
+ * (`workspaceId` set null), once its files are gone from it. How the storage is doing (working,
+ * refusing) is its account's.
  */
 export const workspaceStorage = pgTable(
   "workspace_storage",
@@ -21,16 +69,14 @@ export const workspaceStorage = pgTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "set null" }),
+    storageAccountId: text("storage_account_id")
+      .notNull()
+      .references(() => storageAccount.id, { onDelete: "restrict" }),
+    /** Its account's kind, kept here too. */
     kind: text("kind").$type<StorageKind>().notNull(),
-    config: jsonb("config").$type<StorageConfig>().notNull(),
-    /** Sealed JSON: an S3 access key pair, or what signing in to Drive or Dropbox gave (OAuthCredentials). */
-    credentials: text("credentials").notNull(),
-    /** `broken` after the storage refused a request (revoked keys, a deleted bucket); `active` again after one succeeds. */
-    status: text("status").$type<StorageStatus>().notNull().default("active"),
-    lastError: text("last_error"),
-    lastErrorAt: timestamp("last_error_at", { withTimezone: true }),
-    /** When a test object last went there and back (on connecting, or Test again). */
-    verifiedAt: timestamp("verified_at", { withTimezone: true }).notNull(),
+    config: jsonb("config").$type<PlaceConfig>().notNull(),
+    status: text("status").$type<"active" | "disconnected">().notNull().default("active"),
+    /** Who attached it to the workspace. */
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -40,28 +86,78 @@ export const workspaceStorage = pgTable(
   },
   (t) => [
     uniqueIndex("workspace_storage_current_idx").on(t.workspaceId).where(sql`${t.status} <> 'disconnected'`),
+    index("workspace_storage_account_idx").on(t.storageAccountId),
     check("workspace_storage_kind_check", sql`${t.kind} in ('s3', 'gdrive', 'dropbox')`),
-    check("workspace_storage_status_check", sql`${t.status} in ('active', 'broken', 'disconnected')`),
+    check("workspace_storage_status_check", sql`${t.status} in ('active', 'disconnected')`),
   ],
 );
 
 /**
- * A sign-in to a storage provider an owner began (Settings > Storage > Google Drive or Dropbox),
- * until the browser comes back with its `state` (server/storage/settings.ts). Used once; ones older
- * than fifteen minutes are void. `data` is sealed: the PKCE verifier.
+ * A sign-in to a storage provider someone began (connecting Google Drive or Dropbox to their
+ * account), until the browser comes back with its `state` (server/storage/accounts.ts). Used once;
+ * ones older than fifteen minutes are void. `workspaceId`: the workspace it was begun from, which
+ * then starts using it. `data` is sealed: the PKCE verifier.
  */
-export const workspaceStorageOauth = pgTable("workspace_storage_oauth", {
+export const storageOauth = pgTable("storage_oauth", {
   state: text("state").primaryKey(),
-  workspaceId: text("workspace_id")
-    .notNull()
-    .references(() => workspace.id, { onDelete: "cascade" }),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   kind: text("kind").$type<StorageKind>().notNull(),
+  workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "cascade" }),
   data: text("data").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Moving a workspace's files from where they are to another storage (see server/storage/moves.ts):
+ * to a storage account (`toAccountId`, then its place `toStorageId` once made) or to the instance's
+ * storage (`toServer`). The files go a few at a time, each row pointed at its copy as soon as it is
+ * there, so the workspace keeps working throughout; the old copies are deleted only once every file
+ * is across (their queued deletions wait for it, `storage_deletion.move_id`). It picks up where it
+ * was after a restart. `fromStorageIds`: the places whose files go; null for every file not at the
+ * destination yet.
+ */
+export const storageMove = pgTable(
+  "storage_move",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    fromStorageIds: text("from_storage_ids").array(),
+    toServer: boolean("to_server").notNull().default(false),
+    toAccountId: text("to_account_id").references(() => storageAccount.id, { onDelete: "set null" }),
+    toStorageId: text("to_storage_id").references(() => workspaceStorage.id, { onDelete: "set null" }),
+    status: text("status").$type<MoveStatus>().notNull().default("queued"),
+    reason: text("reason").$type<MoveReason>().notNull(),
+    /** Whose storage it moves away from, when that person went (left, removed, deleted their account). */
+    leaverId: text("leaver_id").references(() => user.id, { onDelete: "set null" }),
+    files: integer("files").notNull().default(0),
+    moved: integer("moved").notNull().default(0),
+    failed: integer("failed").notNull().default(0),
+    lastError: text("last_error"),
+    /** A worker has it until then (renewed as it goes), so two servers don't move the same files. */
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
+    startedBy: text("started_by").references(() => user.id, { onDelete: "set null" }),
+    /** Owners closed the notice of a finished, failed or blocked move. */
+    dismissed: boolean("dismissed").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("storage_move_workspace_idx").on(t.workspaceId, t.createdAt),
+    uniqueIndex("storage_move_open_idx").on(t.workspaceId).where(sql`${t.status} in ('queued', 'running')`),
+    check("storage_move_status_check", sql`${t.status} in ('queued', 'running', 'done', 'failed', 'blocked')`),
+    check("storage_move_reason_check", sql`${t.reason} in ('manual', 'left', 'removed', 'accountDeleted', 'disconnected')`),
+  ],
+);
 
 /**
  * An uploaded file (see server/files.ts). The bytes live in the storage driver under `storageKey`;
@@ -135,6 +231,8 @@ export const storageDeletion = pgTable(
     storageId: text("storage_id").references(() => workspaceStorage.id, { onDelete: "restrict" }),
     storageKey: text("storage_key").notNull(),
     storageObjectId: text("storage_object_id"),
+    /** The move this old copy was left behind by: not deleted until that move has every file across. */
+    moveId: text("move_id").references(() => storageMove.id, { onDelete: "set null" }),
     attempts: integer("attempts").notNull().default(0),
     /** Not before then: later after each failure. */
     nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }).notNull().defaultNow(),
@@ -143,6 +241,7 @@ export const storageDeletion = pgTable(
   },
   (t) => [
     index("storage_deletion_next_attempt_idx").on(t.nextAttemptAt),
+    index("storage_deletion_move_idx").on(t.moveId),
     unique("storage_deletion_object_key").on(t.storageId, t.storageKey).nullsNotDistinct(),
   ],
 );

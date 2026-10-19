@@ -1,12 +1,12 @@
 /**
- * Storage a workspace brings itself for its uploads (see server/storage/workspace.ts). Shared by
- * the client and the server.
+ * Storage people bring themselves for workspaces' uploads (see server/storage/workspace.ts): a
+ * storage account is connected once, on someone's account, and each workspace that uses it gets
+ * its own place there. Shared by the client and the server.
  */
 
-/** Kinds of storage a workspace can bring. Only those in AVAILABLE_STORAGE_KINDS can be connected yet. */
+/** Kinds of storage someone can connect. */
 export const STORAGE_KINDS = ["s3", "gdrive", "dropbox"] as const;
 export type StorageKind = (typeof STORAGE_KINDS)[number];
-export const AVAILABLE_STORAGE_KINDS: readonly StorageKind[] = ["s3", "gdrive", "dropbox"];
 
 /**
  * Kinds connected by signing in to the provider (OAuth) rather than by typing keys. Each needs an
@@ -30,11 +30,17 @@ export type S3StorageConfig = {
   forcePathStyle: boolean;
 };
 
-/** A folder Leafdesk made in someone's Google Drive (it sees only the files it made, `drive.file`). */
-export type GDriveStorageConfig = {
+/** The Google Drive account signed in to (Leafdesk sees only the files it made there, `drive.file`). */
+export type GDriveAccountConfig = {
   /** The Drive account: its stable id (`permissionId`) and address, for showing and telling apart. */
   accountId: string;
   account: string;
+  /** The "Leafdesk" folder made on connecting, which workspaces' folders go in; absent for older connections. */
+  rootFolderId?: string | null;
+};
+
+/** A folder Leafdesk made in someone's Google Drive for one workspace: its account, and the folder. */
+export type GDriveStorageConfig = GDriveAccountConfig & {
   folderId: string;
   folderName: string;
 };
@@ -48,14 +54,31 @@ export type DropboxStorageConfig = {
 /** What isn't secret about a target, by kind. */
 export type StorageConfig = S3StorageConfig | GDriveStorageConfig | DropboxStorageConfig;
 
+/** What isn't secret about a connected storage account, by kind (`storage_account.config`). */
+export type AccountConfig = S3StorageConfig | GDriveAccountConfig | DropboxStorageConfig;
+
+/**
+ * A workspace's own place in a storage account (`workspace_storage.config`): its Drive folder.
+ * Nothing for a bucket or a Dropbox: every key starts with the workspace's id (`<workspace>/<file>`),
+ * which keeps the workspaces using the same bucket or Dropbox apart already.
+ */
+export type PlaceConfig = { folderId?: string; folderName?: string };
+
 /** A target's kind with its config, told apart by `kind`. */
 export type StorageLocation =
   | { kind: "s3"; config: S3StorageConfig }
   | { kind: "gdrive"; config: GDriveStorageConfig }
   | { kind: "dropbox"; config: DropboxStorageConfig };
 
-/** A stored kind and config as the location they make (the database keeps them apart). */
-export const locationOf = (target: { kind: StorageKind; config: StorageConfig }) => ({ kind: target.kind, config: target.config }) as StorageLocation;
+/** A storage account's kind and config with a workspace's place in it: the location they make. */
+export const locationOf = (account: { kind: StorageKind; config: AccountConfig }, place: PlaceConfig = {}) =>
+  ({ kind: account.kind, config: { ...account.config, ...place } }) as StorageLocation;
+
+/** A storage account as the location it is before any workspace has a place there. */
+export type AccountLocation =
+  | { kind: "s3"; config: S3StorageConfig }
+  | { kind: "gdrive"; config: GDriveAccountConfig }
+  | { kind: "dropbox"; config: DropboxStorageConfig };
 
 /** What an owner types to connect an S3-compatible bucket. */
 export type S3StorageInput = {
@@ -81,6 +104,12 @@ export type StorageCredentials = S3Credentials | OAuthCredentials;
 /** A target as Settings > Storage shows it. */
 export type StorageView = StorageLocation & {
   id: string;
+  /** The storage account it is a place in, and whose it is (null: their Leafdesk account is gone). */
+  accountId: string;
+  accountLabel: string;
+  ownerName: string | null;
+  /** Whether it is the viewer's own storage account. */
+  mine: boolean;
   status: StorageStatus;
   lastError: string | null;
   lastErrorAt: string | null;
@@ -90,7 +119,33 @@ export type StorageView = StorageLocation & {
   bytes: number;
 };
 
+/** Why files are moved from one storage to another (see server/storage/moves.ts). */
+export const MOVE_REASONS = ["manual", "left", "removed", "accountDeleted", "disconnected"] as const;
+export type MoveReason = (typeof MOVE_REASONS)[number];
+/** `blocked`: a move was needed (its storage's owner went) but there was nowhere it may go. */
+export type MoveStatus = "queued" | "running" | "done" | "failed" | "blocked";
+
+/** A move of a workspace's files as Settings > Storage shows it. */
+export type StorageMoveView = {
+  id: string;
+  status: MoveStatus;
+  reason: MoveReason;
+  /** Where the files go: a storage account (by its label), or the server's storage. */
+  destination: { kind: "server" } | { kind: StorageKind; label: string };
+  files: number;
+  moved: number;
+  failed: number;
+  lastError: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+};
+
+/** Somewhere an owner may move the workspace's files to (see server/storage/moves.ts). */
+export type MoveDestinationView = { kind: "server" } | { kind: StorageKind; accountId: string; label: string };
+
 export type StorageSettingsView = {
+  /** Whether people may connect storage of their own here (OWN_STORAGE_ENABLED). */
+  ownStorage: boolean;
   /** Where new uploads go; null for the instance's storage. */
   current: StorageView | null;
   /** Targets disconnected earlier that still hold files (still read from there). */
@@ -98,12 +153,48 @@ export type StorageSettingsView = {
   /** Bytes in the instance's storage, and its quota for the workspace (null: none). */
   instanceUsed: number;
   instanceQuota: number | null;
-  /** The sign-in kinds this instance has an app for (the others can't be connected here). */
-  oauthReady: OAuthStorageKind[];
+  /** The viewer's own storage accounts the workspace could use (when own storage is on). */
+  accounts: StorageAccountView[];
+  /** The kinds the viewer could connect here (see availableStorageKinds). */
+  kinds: StorageKind[];
+  /** Kinds this instance has no app for, named with what to set: only for the server's administrators. */
+  unconfigured: OAuthStorageKind[];
+  /** The latest move of the workspace's files, while it runs or until someone dismisses it. */
+  move: StorageMoveView | null;
+  /** Where an owner may move the files now. */
+  destinations: MoveDestinationView[];
 };
 
+/** A connected storage account as the account settings show it. */
+export type StorageAccountView = AccountLocation & {
+  id: string;
+  label: string;
+  isDefault: boolean;
+  status: StorageStatus;
+  lastError: string | null;
+  verifiedAt: string;
+  /** The workspaces using it (or still holding files there), by name. */
+  workspaces: { id: string; name: string; current: boolean }[];
+};
+
+export type StorageAccountsView = {
+  ownStorage: boolean;
+  accounts: StorageAccountView[];
+  kinds: StorageKind[];
+  unconfigured: OAuthStorageKind[];
+};
+
+/**
+ * The kinds someone may connect: none while own storage is off; with it on, an S3-compatible
+ * bucket always, and Drive or Dropbox once the instance has an app for them.
+ */
+export function availableStorageKinds(enabled: boolean, oauthReady: readonly OAuthStorageKind[]): StorageKind[] {
+  if (!enabled) return [];
+  return STORAGE_KINDS.filter((kind) => kind === "s3" || oauthReady.includes(kind));
+}
+
 /** What Settings > Storage says after a sign-in to Drive or Dropbox sent the browser back. */
-export const STORAGE_NOTICES = ["connected", "refused", "oauthFailed", "notConfigured", "rateLimited", "unavailable"] as const;
+export const STORAGE_NOTICES = ["connected", "refused", "oauthFailed", "notConfigured", "rateLimited", "unavailable", "disabled"] as const;
 export type StorageNotice = (typeof STORAGE_NOTICES)[number];
 
 /** The notice the query of the page the browser came back to asks for (an unknown error: a failed sign-in). */
@@ -171,7 +262,7 @@ export function sameLocation(a: StorageLocation, b: StorageLocation): boolean {
 }
 
 /** A target as one line: bucket and host, Drive folder and account, or Dropbox account. */
-export function locationTitle(location: StorageLocation): string {
+export function locationTitle(location: StorageLocation | AccountLocation): string {
   switch (location.kind) {
     case "s3": {
       const { config } = location;
@@ -179,8 +270,19 @@ export function locationTitle(location: StorageLocation): string {
       return `${config.bucket}${config.prefix ? `/${config.prefix}` : ""} · ${host}`;
     }
     case "gdrive":
-      return `${location.config.folderName} · ${location.config.account}`;
+      return "folderName" in location.config && location.config.folderName ? `${location.config.folderName} · ${location.config.account}` : location.config.account;
     case "dropbox":
       return location.config.account;
   }
+}
+
+/** The name a storage account gets when it is connected (it can be renamed): the bucket, or the account. */
+export function defaultAccountLabel(location: AccountLocation): string {
+  return location.kind === "s3" ? location.config.bucket : location.config.account;
+}
+
+/** A storage account's name as someone typed it: trimmed, at most 80 characters, never empty. */
+export function cleanAccountLabel(value: unknown, fallback: string): string {
+  const label = typeof value === "string" ? value.trim().replace(/\s+/g, " ").slice(0, 80) : "";
+  return label || fallback;
 }

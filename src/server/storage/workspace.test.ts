@@ -17,7 +17,7 @@ const state = vi.hoisted(() => ({
 vi.mock("@/db", () => {
   const chain = () => {
     const query: Record<string, unknown> = {};
-    for (const name of ["from", "where", "limit", "returning"]) query[name] = () => query;
+    for (const name of ["from", "innerJoin", "where", "limit", "returning"]) query[name] = () => query;
     query.then = (resolve: (rows: unknown[]) => unknown, reject: (error: unknown) => unknown) => Promise.resolve(state.rows).then(resolve, reject);
     return query;
   };
@@ -69,20 +69,36 @@ const { probeStorage, storageFor, storageOf } = await import("./workspace");
 
 const instance: StorageDriver = { kind: "local", put: async () => {}, get: async () => null, delete: async () => {} };
 
-const target = (over: Record<string, unknown> = {}) => ({
-  id: "target-1",
-  workspaceId: "ws-1",
-  kind: "s3",
-  config: { endpoint: "https://s.example.com", region: "us-east-1", bucket: "files", prefix: null, forcePathStyle: true },
-  credentials: JSON.stringify({ accessKeyId: "key", secretAccessKey: "secret" }),
-  status: "active",
-  lastError: null,
-  lastErrorAt: null,
-  verifiedAt: new Date(),
-  createdBy: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  ...over,
+/** A workspace's place in a storage account, as `loadTargets` reads it (the place and its account). */
+const target = ({ account = {}, ...place }: Record<string, unknown> & { account?: Record<string, unknown> } = {}) => ({
+  place: {
+    id: "target-1",
+    workspaceId: "ws-1",
+    storageAccountId: "account-1",
+    kind: "s3",
+    config: {},
+    status: "active",
+    createdBy: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...place,
+  },
+  account: {
+    id: "account-1",
+    userId: "user-1",
+    kind: "s3",
+    config: { endpoint: "https://s.example.com", region: "us-east-1", bucket: "files", prefix: null, forcePathStyle: true },
+    credentials: JSON.stringify({ accessKeyId: "key", secretAccessKey: "secret" }),
+    label: "files",
+    isDefault: false,
+    status: "active",
+    lastError: null,
+    lastErrorAt: null,
+    verifiedAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...account,
+  },
 });
 
 /** A driver whose requests answer as `behave` says. */
@@ -138,7 +154,7 @@ describe("storageFor", () => {
     await read();
     await read();
     expect(state.made).toHaveLength(1);
-    state.rows = [target({ credentials: JSON.stringify({ accessKeyId: "new", secretAccessKey: "secret" }) })];
+    state.rows = [target({ account: { credentials: JSON.stringify({ accessKeyId: "new", secretAccessKey: "secret" }) } })];
     await read();
     expect(state.made).toHaveLength(2);
   });
@@ -179,7 +195,7 @@ describe("a workspace's storage", () => {
   });
 
   it("is active again after a request works", async () => {
-    state.rows = [target({ status: "broken", lastError: "S3 GET failed: 403" })];
+    state.rows = [target({ account: { status: "broken", lastError: "S3 GET failed: 403" } })];
     const driver = await storageOf({ storageId: "target-1" });
     await driver.delete("ws-1/abc");
     expect(state.updates).toEqual([{ status: "active", lastError: null, lastErrorAt: null }]);
@@ -195,8 +211,12 @@ describe("Drive and Dropbox targets", () => {
   const drive = (over: Record<string, unknown> = {}) =>
     target({
       kind: "gdrive",
-      config: { accountId: "perm-1", account: "owner@example.com", folderId: "folder-1", folderName: "Leafdesk (Acme)" },
-      credentials: JSON.stringify({ refreshToken: "refresh", accessToken: "a", expiresAt: 1 }),
+      config: { folderId: "folder-1", folderName: "Leafdesk (Acme)" },
+      account: {
+        kind: "gdrive",
+        config: { accountId: "perm-1", account: "owner@example.com", rootFolderId: "root-1" },
+        credentials: JSON.stringify({ refreshToken: "refresh", accessToken: "a", expiresAt: 1 }),
+      },
       ...over,
     });
 
@@ -207,7 +227,13 @@ describe("Drive and Dropbox targets", () => {
     vi.stubEnv("STORAGE_DROPBOX_CLIENT_SECRET", "secret");
     state.rows = [drive()];
     await (await storageFor("ws-1")).driver.get("ws-1/abc");
-    state.rows = [target({ id: "target-2", kind: "dropbox", config: { accountId: "dbid:1", account: "owner@example.com" }, credentials: JSON.stringify({ refreshToken: "r" }) })];
+    state.rows = [
+      target({
+        id: "target-2",
+        kind: "dropbox",
+        account: { id: "account-2", kind: "dropbox", config: { accountId: "dbid:1", account: "owner@example.com" }, credentials: JSON.stringify({ refreshToken: "r" }) },
+      }),
+    ];
     await (await storageOf({ storageId: "target-2" })).get("ws-1/abc");
     expect(state.made).toEqual([{ kind: "gdrive", folderId: "folder-1" }, { kind: "dropbox" }]);
     expect(state.sessions.map((s) => [s.kind, s.credentials])).toEqual([

@@ -543,7 +543,8 @@ export async function drainStorageDeletions(): Promise<{ deleted: number; failed
         const due = await db
           .select({ key: storageDeletion.storageKey, storageId: storageDeletion.storageId, objectId: storageDeletion.storageObjectId })
           .from(storageDeletion)
-          .where(lte(storageDeletion.nextAttemptAt, sql`now()`))
+          // Old copies a move left behind wait for it to have every file across.
+          .where(and(lte(storageDeletion.nextAttemptAt, sql`now()`), isNull(storageDeletion.moveId)))
           .orderBy(asc(storageDeletion.nextAttemptAt))
           .limit(DELETION_BATCH);
         const went = await deleteQueued(due);

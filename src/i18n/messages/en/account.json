@@ -119,7 +119,10 @@
     "deleting": "Deleting…",
     "blockedTitle": "Hand over your workspaces first",
     "blockedBody": "You are the only owner of workspaces other people are in. Make someone else an owner of each (Settings > Members), or remove the others, then delete your account.",
-    "blockedList": "Workspaces to hand over:"
+    "blockedList": "Workspaces to hand over:",
+    "storageStuckBody": "Files of workspaces you would leave are in your own storage, and there is nowhere they can move to: no other owner has default storage, and this server's storage can't take them. Ask an owner to set up storage, or move the files (Settings > Storage), then delete your account.",
+    "storageStuckList": "Workspaces whose files have nowhere to go:",
+    "storageMovesList": "Their files in your storage move to an owner's storage first (your storage keeps serving them until then):"
   },
   "confirmEmail": {
     "metaTitle": "Confirm email address",
@@ -157,6 +160,7 @@
     "avatarType": "Use a PNG, JPEG, WebP or GIF image.",
     "avatarTooLarge": "The picture is too large (2 MB at most).",
     "samePassword": "Choose a password different from the old one.",
-    "resetStepExpired": "This step has expired. Sign in with your old password again."
+    "resetStepExpired": "This step has expired. Sign in with your old password again.",
+    "storageStuck": "The files of {workspaces} are in your storage and have nowhere to move to. Ask their owners to set up storage, or move the files first."
   }
 }

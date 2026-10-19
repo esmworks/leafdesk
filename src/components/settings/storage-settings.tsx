@@ -3,39 +3,56 @@
 import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { beginStorageOAuthAction, connectStorageAction, disconnectStorageAction, retestStorageAction, testStorageAction } from "@/app/actions/storage";
-import { Button, cn, Input } from "@/components/ui";
+import {
+  disconnectStorageAction,
+  dismissMoveAction,
+  moveFilesAction,
+  retestStorageAction,
+  retryMoveAction,
+  storageSettingsAction,
+  attachStorageAccountAction,
+} from "@/app/actions/storage";
+import { Button, cn, selectClass } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
 import { relativeTime } from "@/lib/relative-time";
-import {
-  AVAILABLE_STORAGE_KINDS,
-  isOAuthStorageKind,
-  locationTitle,
-  type OAuthStorageKind,
-  type StorageKind,
-  type StorageNotice,
-  type StorageSettingsView,
-  type StorageView,
-} from "@/lib/workspace-storage";
+import { locationTitle, type MoveDestinationView, type StorageMoveView, type StorageNotice, type StorageSettingsView, type StorageView } from "@/lib/workspace-storage";
 import { SettingsGroup, SettingsRow } from "./section";
+import { StorageConnectForm } from "./storage-connect";
 import { useAction } from "./workspace-settings";
 
 /**
- * Settings > Storage, for owners: where the workspace's uploads go (this server, or storage the
- * workspace brought), how that storage is doing, and the form that connects or changes it. Files
- * keep being served by Leafdesk, so the storage stays private. Google Drive and Dropbox are
- * connected by signing in there; the browser comes back with a `notice` of how it went.
+ * Settings > Storage, for owners: where the workspace's uploads go (this server, or storage one of
+ * its owners connected to their account), how that storage is doing, using one of one's own
+ * storage accounts instead (or connecting one), and moving the files from one to the other.
+ * Files keep being served by Leafdesk, so the storage stays private and members need no account
+ * there. Google Drive and Dropbox are connected by signing in there; the browser comes back with
+ * a `notice` of how it went.
  */
 export function StorageSettings({ workspaceId, initial, notice }: { workspaceId: string; initial: StorageSettingsView; notice?: StorageNotice }) {
   const [view, setView] = useState(initial);
-  const [editing, setEditing] = useState(false);
   const [shownNotice, setShownNotice] = useState(notice);
   const t = useTranslations("settings.storage");
+  const moving = view.move?.status === "queued" || view.move?.status === "running";
 
   // Shown once: reloading the page shouldn't say it again.
   useEffect(() => {
     if (notice) window.history.replaceState(null, "", `${window.location.pathname}?tab=storage`);
   }, [notice]);
+
+  // While files move, the progress is read again every few seconds.
+  useEffect(() => {
+    if (!moving) return;
+    const timer = setInterval(async () => {
+      const result = await storageSettingsAction(workspaceId).catch(() => null);
+      if (result?.ok) setView(result.data);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [moving, workspaceId]);
+
+  const reload = async () => {
+    const result = await storageSettingsAction(workspaceId).catch(() => null);
+    if (result?.ok) setView(result.data);
+  };
 
   return (
     <div className="space-y-10">
@@ -50,27 +67,25 @@ export function StorageSettings({ workspaceId, initial, notice }: { workspaceId:
           </button>
         </p>
       )}
-      <CurrentGroup workspaceId={workspaceId} view={view} onChange={setView} onEdit={() => setEditing(true)} />
-      {(!view.current || editing) && (
-        <SettingsGroup title={view.current ? t("changeHeading") : t("connectHeading")} description={t("connectDescription")}>
-          <StorageForm
-            // A fresh form for each storage it changes.
-            key={view.current?.id ?? "new"}
-            workspaceId={workspaceId}
-            current={view.current}
-            oauthReady={view.oauthReady}
-            onCancel={view.current ? () => setEditing(false) : undefined}
-            onSaved={(next) => {
-              setView(next);
-              setEditing(false);
-            }}
-          />
-        </SettingsGroup>
-      )}
+      {view.move && <MoveNotice workspaceId={workspaceId} move={view.move} onChange={setView} />}
+      <CurrentGroup workspaceId={workspaceId} view={view} onChange={setView} moving={moving} />
+      {view.ownStorage && !moving && <UseGroup workspaceId={workspaceId} view={view} onChange={setView} onConnected={reload} />}
+      {!moving && view.destinations.length > 0 && <MoveGroup workspaceId={workspaceId} destinations={view.destinations} onChange={setView} />}
       {view.retired.length > 0 && (
         <SettingsGroup title={t("retiredHeading")} description={t("retiredDescription")}>
           {view.retired.map((target) => (
-            <SettingsRow key={target.id} title={targetTitle(target)} description={<FilesLine target={target} />} />
+            <SettingsRow
+              key={target.id}
+              title={locationTitle(target)}
+              description={
+                <>
+                  <span className="block">
+                    <FilesLine target={target} />
+                  </span>
+                  <OwnerLine target={target} />
+                </>
+              }
+            />
           ))}
         </SettingsGroup>
       )}
@@ -78,25 +93,20 @@ export function StorageSettings({ workspaceId, initial, notice }: { workspaceId:
   );
 }
 
-const targetTitle = (target: StorageView) => locationTitle(target);
-
 function FilesLine({ target }: { target: StorageView }) {
   const t = useTranslations("settings.storage");
   return <>{t("files", { count: target.files, size: formatBytes(target.bytes) })}</>;
 }
 
+/** Whose storage it is: the viewer's own, an owner's by name, or someone's who has left Leafdesk. */
+function OwnerLine({ target }: { target: StorageView }) {
+  const t = useTranslations("settings.storage");
+  const text = target.mine ? t("owner.mine", { label: target.accountLabel }) : target.ownerName ? t("owner.other", { name: target.ownerName }) : t("owner.gone");
+  return <span className="block">{text}</span>;
+}
+
 /** Where new uploads go now, with what can be done about it. */
-function CurrentGroup({
-  workspaceId,
-  view,
-  onChange,
-  onEdit,
-}: {
-  workspaceId: string;
-  view: StorageSettingsView;
-  onChange: (view: StorageSettingsView) => void;
-  onEdit: () => void;
-}) {
+function CurrentGroup({ workspaceId, view, onChange, moving }: { workspaceId: string; view: StorageSettingsView; onChange: (view: StorageSettingsView) => void; moving: boolean }) {
   const t = useTranslations("settings.storage");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -121,22 +131,23 @@ function CurrentGroup({
     );
   }
 
+  const broken = current.status !== "active";
   return (
     <SettingsGroup title={t("currentHeading")}>
       <SettingsRow
         title={
           <>
             <span className="block text-xs font-normal text-fg-muted">{t(`kinds.${current.kind}`)}</span>
-            {targetTitle(current)}
+            {locationTitle(current)}
           </>
         }
         description={
           <>
-            <span className={cn("block", current.status === "broken" && "text-danger")}>
-              {current.status === "broken"
-                ? t("status.broken", { error: current.lastError ?? "" })
-                : t("status.active", { time: relativeTime(current.verifiedAt, locale) })}
+            <span className={cn("block", broken && "text-danger")}>
+              {broken ? t("status.broken", { error: current.lastError ?? "" }) : t("status.active", { time: relativeTime(current.verifiedAt, locale) })}
             </span>
+            {broken && <span className="block text-danger">{t("brokenHelp")}</span>}
+            <OwnerLine target={current} />
             <span className="block">
               <FilesLine target={current} /> · {t("noQuota")}
             </span>
@@ -149,16 +160,13 @@ function CurrentGroup({
           </>
         }
         control={
-          confirming ? null : (
+          confirming || moving ? null : (
             <div className="flex flex-wrap gap-2">
               <Button size="sm" disabled={pending} onClick={() => run(() => retestStorageAction(workspaceId), onChange)}>
                 {pending ? t("testing") : t("testAgain")}
               </Button>
-              <Button size="sm" disabled={pending} onClick={onEdit}>
-                {t("change")}
-              </Button>
               <Button size="sm" variant="ghost" disabled={pending} onClick={() => setConfirming(true)}>
-                {t("disconnect")}
+                {t("stopUsing")}
               </Button>
             </div>
           )
@@ -185,7 +193,7 @@ function CurrentGroup({
                   )
                 }
               >
-                {t("disconnect")}
+                {t("stopUsing")}
               </Button>
             </div>
           </div>
@@ -195,237 +203,182 @@ function CurrentGroup({
   );
 }
 
-/**
- * Connects storage, or changes the connected one: an S3 bucket's settings and keys (left empty to
- * keep the current ones), or a sign-in to Drive or Dropbox.
- */
-function StorageForm({
+/** Using one of one's own storage accounts for the workspace's new uploads, or connecting one. */
+function UseGroup({
   workspaceId,
-  current,
-  oauthReady,
-  onCancel,
-  onSaved,
+  view,
+  onChange,
+  onConnected,
 }: {
   workspaceId: string;
-  current: StorageView | null;
-  oauthReady: OAuthStorageKind[];
-  onCancel?: () => void;
-  onSaved: (view: StorageSettingsView) => void;
+  view: StorageSettingsView;
+  onChange: (view: StorageSettingsView) => void;
+  onConnected: () => void;
 }) {
   const t = useTranslations("settings.storage");
-  const [kind, setKind] = useState<StorageKind>(current?.kind ?? "s3");
+  const { pending, error, run } = useAction();
+  const usable = view.accounts.filter((a) => a.status !== "disconnected" && a.id !== (view.current?.mine ? view.current.accountId : null));
+  const [chosen, setChosen] = useState(usable[0]?.id ?? "");
+  const [connecting, setConnecting] = useState(usable.length === 0);
+  if (!view.kinds.length && !usable.length) return null;
 
   return (
-    <div className="space-y-4 px-5 py-4">
-      {AVAILABLE_STORAGE_KINDS.length > 1 && (
-        <fieldset className="space-y-1">
-          <legend className="text-sm font-medium">{t("fields.kind")}</legend>
-          {AVAILABLE_STORAGE_KINDS.map((k) => (
-            <label key={k} className="flex items-center gap-2 text-sm">
-              <input type="radio" name="storage-kind" checked={kind === k} onChange={() => setKind(k)} />
-              {t(`kinds.${k}`)}
-            </label>
-          ))}
-        </fieldset>
+    <SettingsGroup title={view.current ? t("useOtherHeading") : t("useHeading")} description={t("useDescription")}>
+      {usable.length > 0 && !connecting && (
+        <div className="space-y-3 px-5 py-4">
+          <label className="block space-y-1">
+            <span className="text-sm font-medium">{t("useAccount")}</span>
+            <select className={selectClass} value={chosen} onChange={(e) => setChosen(e.target.value)}>
+              {usable.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.label} · {t(`kinds.${a.kind}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {error && (
+            <p role="alert" className="text-sm text-danger">
+              {error}
+            </p>
+          )}
+          <div className="flex flex-wrap justify-end gap-2">
+            {view.kinds.length > 0 && (
+              <Button variant="ghost" disabled={pending} onClick={() => setConnecting(true)}>
+                {t("connectNew")}
+              </Button>
+            )}
+            <Button variant="primary" disabled={pending || !chosen} onClick={() => run(() => attachStorageAccountAction(workspaceId, chosen), onChange)}>
+              {pending ? t("testing") : t("use")}
+            </Button>
+          </div>
+        </div>
       )}
-      <p className="text-sm text-fg-muted">{t(`kindHints.${kind}`)}</p>
-      {isOAuthStorageKind(kind) ? (
-        <SignInForm
+      {connecting && view.kinds.length > 0 && (
+        <StorageConnectForm
+          kinds={view.kinds}
+          unconfigured={view.unconfigured}
           workspaceId={workspaceId}
-          kind={kind}
-          ready={oauthReady.includes(kind)}
-          again={current?.kind === kind}
-          onCancel={onCancel}
+          onConnected={onConnected}
+          onCancel={usable.length ? () => setConnecting(false) : undefined}
         />
-      ) : (
-        <S3Form workspaceId={workspaceId} current={current?.kind === "s3" ? current : null} onCancel={onCancel} onSaved={onSaved} />
       )}
-    </div>
+    </SettingsGroup>
   );
 }
 
-const PROVIDERS: Record<OAuthStorageKind, { name: string; vars: string }> = {
-  gdrive: { name: "Google Drive", vars: "STORAGE_GDRIVE_CLIENT_ID, STORAGE_GDRIVE_CLIENT_SECRET" },
-  dropbox: { name: "Dropbox", vars: "STORAGE_DROPBOX_CLIENT_ID, STORAGE_DROPBOX_CLIENT_SECRET" },
-};
+const destinationKey = (d: MoveDestinationView) => (d.kind === "server" ? "server" : d.accountId);
 
-/** Sends the browser to Drive or Dropbox to sign in; it comes back to this tab (see api/storage/oauth). */
-function SignInForm({ workspaceId, kind, ready, again, onCancel }: { workspaceId: string; kind: OAuthStorageKind; ready: boolean; again: boolean; onCancel?: () => void }) {
+/** Moving every file of the workspace somewhere else: one of one's storage accounts, or the server's storage. */
+function MoveGroup({ workspaceId, destinations, onChange }: { workspaceId: string; destinations: MoveDestinationView[]; onChange: (view: StorageSettingsView) => void }) {
   const t = useTranslations("settings.storage");
   const tc = useTranslations("common");
   const { pending, error, run } = useAction();
-  const [leaving, setLeaving] = useState(false);
-  const provider = PROVIDERS[kind];
+  const [chosen, setChosen] = useState(destinationKey(destinations[0]));
+  const [confirming, setConfirming] = useState(false);
+  const destination = destinations.find((d) => destinationKey(d) === chosen) ?? destinations[0];
+  const name = (d: MoveDestinationView) => (d.kind === "server" ? t("move.server") : `${d.label} · ${t(`kinds.${d.kind}`)}`);
 
   return (
-    <div className="space-y-4">
-      {ready ? (
-        <p className="text-sm text-fg-muted">{t("signInHint", { provider: provider.name })}</p>
-      ) : (
-        <p className="text-sm text-fg-muted">{t("notConfigured", { provider: provider.name, vars: provider.vars })}</p>
-      )}
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
-      <div className="flex flex-wrap justify-end gap-2">
-        {onCancel && (
-          <Button variant="ghost" disabled={pending || leaving} onClick={onCancel}>
-            {tc("cancel")}
-          </Button>
+    <SettingsGroup title={t("move.heading")} description={t("move.description")}>
+      <div className="space-y-3 px-5 py-4">
+        <label className="block space-y-1">
+          <span className="text-sm font-medium">{t("move.to")}</span>
+          <select
+            className={selectClass}
+            value={chosen}
+            onChange={(e) => {
+              setChosen(e.target.value);
+              setConfirming(false);
+            }}
+          >
+            {destinations.map((d) => (
+              <option key={destinationKey(d)} value={destinationKey(d)}>
+                {name(d)}
+              </option>
+            ))}
+          </select>
+        </label>
+        {confirming && <p className="text-sm text-fg-muted">{t("move.confirm", { destination: name(destination) })}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
         )}
-        <Button
-          variant="primary"
-          disabled={!ready || pending || leaving}
-          onClick={() =>
-            run(
-              () => beginStorageOAuthAction(workspaceId, kind),
-              ({ url }) => {
-                setLeaving(true);
-                window.location.assign(url);
-              },
-            )
-          }
-        >
-          {pending || leaving ? t("signingIn") : again ? t("signInAgain", { provider: provider.name }) : t("signIn", { provider: provider.name })}
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          {confirming && (
+            <Button variant="ghost" disabled={pending} onClick={() => setConfirming(false)}>
+              {tc("cancel")}
+            </Button>
+          )}
+          <Button
+            variant={confirming ? "primary" : "secondary"}
+            disabled={pending}
+            onClick={() => {
+              if (!confirming) return setConfirming(true);
+              run(() => moveFilesAction(workspaceId, destination.kind === "server" ? { server: true } : { accountId: destination.accountId }), (next) => {
+                setConfirming(false);
+                onChange(next);
+              });
+            }}
+          >
+            {t("move.start")}
+          </Button>
+        </div>
       </div>
-    </div>
+    </SettingsGroup>
   );
 }
 
-/** An S3-compatible bucket's settings and keys. */
-function S3Form({
-  workspaceId,
-  current,
-  onCancel,
-  onSaved,
-}: {
-  workspaceId: string;
-  current: (StorageView & { kind: "s3" }) | null;
-  onCancel?: () => void;
-  onSaved: (view: StorageSettingsView) => void;
-}) {
+/** How the latest move of the workspace's files is going, or how it ended. */
+function MoveNotice({ workspaceId, move, onChange }: { workspaceId: string; move: StorageMoveView; onChange: (view: StorageSettingsView) => void }) {
   const t = useTranslations("settings.storage");
-  const tc = useTranslations("common");
-  const kind = "s3";
-  const [endpoint, setEndpoint] = useState(current?.config.endpoint ?? "");
-  const [region, setRegion] = useState(current?.config.region ?? "");
-  const [bucket, setBucket] = useState(current?.config.bucket ?? "");
-  const [prefix, setPrefix] = useState(current?.config.prefix ?? "");
-  const [pathStyle, setPathStyle] = useState(current?.config.forcePathStyle ?? true);
-  const [accessKeyId, setAccessKeyId] = useState("");
-  const [secretAccessKey, setSecretAccessKey] = useState("");
-  const [tested, setTested] = useState(false);
-  const test = useAction();
-  const save = useAction();
-  const pending = test.pending || save.pending;
-  const input = () => ({ endpoint, region, bucket, prefix, forcePathStyle: pathStyle, accessKeyId, secretAccessKey });
-  const keysOptional = Boolean(current);
-  const ready = bucket.trim() && (keysOptional || (accessKeyId.trim() && secretAccessKey.trim()));
-  const edited = <T,>(set: (value: T) => void) => (value: T) => {
-    set(value);
-    setTested(false);
-  };
+  const { pending, error, run } = useAction();
+  const destination = move.destination.kind === "server" ? t("move.server") : move.destination.label;
+  const trouble = move.status === "failed" || move.status === "blocked";
+  const text = (() => {
+    switch (move.status) {
+      case "queued":
+        return t("move.queued", { destination });
+      case "running":
+        return t("move.running", { destination, moved: move.moved, files: move.files });
+      case "done":
+        return t("move.done", { destination, files: move.moved });
+      case "failed":
+        return t("move.failed", { destination, failed: move.failed, error: move.lastError ?? "" });
+      case "blocked":
+        return t("move.blocked");
+    }
+  })();
 
   return (
-    <form
-      className="space-y-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        save.run(() => connectStorageAction(workspaceId, kind, input()), onSaved);
-      }}
-    >
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">{t("fields.endpoint")}</span>
-        <Input
-          type="url"
-          value={endpoint}
-          onChange={(e) => edited(setEndpoint)(e.target.value)}
-          placeholder="https://storage.example.com"
-          autoComplete="off"
-          spellCheck={false}
-        />
-        <span className="block text-xs text-fg-muted">{t("fields.endpointHint")}</span>
-      </label>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.bucket")}</span>
-          <Input value={bucket} required onChange={(e) => edited(setBucket)(e.target.value)} autoComplete="off" spellCheck={false} />
-        </label>
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.region")}</span>
-          <Input value={region} onChange={(e) => edited(setRegion)(e.target.value)} placeholder="us-east-1" autoComplete="off" spellCheck={false} />
-          <span className="block text-xs text-fg-muted">{t("fields.regionHint")}</span>
-        </label>
-      </div>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">{t("fields.prefix")}</span>
-        <Input value={prefix} onChange={(e) => edited(setPrefix)(e.target.value)} placeholder="leafdesk" autoComplete="off" spellCheck={false} />
-        <span className="block text-xs text-fg-muted">{t("fields.prefixHint")}</span>
-      </label>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.accessKeyId")}</span>
-          <Input
-            value={accessKeyId}
-            required={!keysOptional}
-            onChange={(e) => edited(setAccessKeyId)(e.target.value)}
-            placeholder={keysOptional ? t("fields.keysKeep") : undefined}
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </label>
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.secretAccessKey")}</span>
-          <Input
-            type="password"
-            value={secretAccessKey}
-            required={!keysOptional}
-            onChange={(e) => edited(setSecretAccessKey)(e.target.value)}
-            placeholder={keysOptional ? t("fields.keysKeep") : undefined}
-            autoComplete="new-password"
-          />
-        </label>
-      </div>
-      <p className="text-xs text-fg-muted">{t("fields.keysHint")}</p>
-      <label className="flex items-start gap-2 text-sm">
-        <input type="checkbox" className="mt-0.5" checked={pathStyle} onChange={(e) => edited(setPathStyle)(e.target.checked)} />
-        <span>
-          {t("fields.pathStyle")}
-          <span className="block text-xs text-fg-muted">{t("fields.pathStyleHint")}</span>
-        </span>
-      </label>
-      {(test.error || save.error) && (
-        <p role="alert" className="text-sm text-danger">
-          {save.error ?? test.error}
+    <div role="status" className={cn("space-y-2 rounded-md border px-3 py-2 text-sm", trouble ? "border-danger/40" : "border-border")}>
+      <p className={cn(trouble ? "text-danger" : "text-fg-muted")}>
+        {move.reason !== "manual" && <span className="block text-xs">{t(`move.reasons.${move.reason}`)}</span>}
+        {text}
+      </p>
+      {move.status === "running" && move.files > 0 && (
+        <div className="h-1.5 overflow-hidden rounded bg-fg/10" aria-hidden>
+          <div className="h-full bg-accent" style={{ width: `${Math.min(100, Math.round((move.moved / move.files) * 100))}%` }} />
+        </div>
+      )}
+      {trouble && <p className="text-xs text-fg-muted">{t("move.backupHint")}</p>}
+      {error && (
+        <p role="alert" className="text-danger">
+          {error}
         </p>
       )}
-      {tested && !test.error && !save.error && (
-        <p role="status" className="text-sm text-fg-muted">
-          {t("testOk")}
-        </p>
-      )}
-      <div className="flex flex-wrap justify-end gap-2">
-        {onCancel && (
-          <Button variant="ghost" disabled={pending} onClick={onCancel}>
-            {tc("cancel")}
+      {(trouble || move.status === "done") && (
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => dismissMoveAction(workspaceId, move.id), onChange)}>
+            {t("dismiss")}
           </Button>
-        )}
-        <Button
-          disabled={pending || !ready}
-          onClick={() => {
-            setTested(false);
-            test.run(() => testStorageAction(workspaceId, kind, input()), () => setTested(true));
-          }}
-        >
-          {test.pending ? t("testing") : t("test")}
-        </Button>
-        <Button type="submit" variant="primary" disabled={pending || !ready}>
-          {save.pending ? t("connecting") : current ? t("save") : t("connect")}
-        </Button>
-      </div>
-    </form>
+          {trouble && (
+            <Button size="sm" disabled={pending} onClick={() => run(() => retryMoveAction(workspaceId, move.id), onChange)}>
+              {t("move.retry")}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

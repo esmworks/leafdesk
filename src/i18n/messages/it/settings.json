@@ -826,7 +826,9 @@
     "creationRestricted": "Solo gli amministratori del server possono creare spazi di lavoro.",
     "agentUser": "Questo è un agente, non una persona. Modificalo o archivialo nelle impostazioni dell’agente.",
     "confirmationMismatch": "Per confermare, digita il nome dello spazio di lavoro esattamente come appare.",
-    "workspaceDeleted": "Nel frattempo qualcuno ha eliminato questo spazio di lavoro."
+    "workspaceDeleted": "Nel frattempo qualcuno ha eliminato questo spazio di lavoro.",
+    "storageNoDestination": "I file di questo spazio di lavoro sono nella tua archiviazione e, quando lo lasci, non c’è alcun posto in cui spostarli: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Chiedi a un proprietario di configurare un’archiviazione, oppure sposta prima i file (Impostazioni > Archiviazione).",
+    "storageMoveInProgress": "I file di questo spazio di lavoro vengono spostati nella tua archiviazione. Attendi che finisca, poi lascia lo spazio di lavoro."
   },
   "security": {
     "description": "Decidi come accedono le persone, chi può portare persone in questo spazio di lavoro, cosa possono fare gli ospiti, cosa può uscirne (esportazioni, app connesse) e chi può pubblicare pagine sul web. Solo i proprietari possono modificare queste impostazioni.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "Ha scollegato la casella di posta {target}"
       },
       "storage": {
-        "connected": "Ha collegato l’archiviazione propria dello spazio di lavoro {target}",
-        "disconnected": "Ha scollegato l’archiviazione propria dello spazio di lavoro {target}"
+        "connected": "Ha iniziato a conservare i nuovi file in {target}",
+        "disconnected": "Ha smesso di conservare i nuovi file in {target}",
+        "moved": "Ha iniziato a spostare i file dello spazio di lavoro in {target}"
       },
       "backup": {
         "created": "Ha eseguito il backup dello spazio di lavoro ({count, plural, one {# pagina} other {# pagine}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "Dove vengono conservati i file caricati in questo spazio di lavoro. Collega uno spazio di archiviazione proprio dello spazio di lavoro (un bucket compatibile con S3, Google Drive o Dropbox) e i nuovi file andranno lì invece che su questo server. Leafdesk continua a servire ogni file da sé, quindi l'archiviazione resta privata: non servono accesso pubblico né condivisioni.",
+    "description": "Dove vengono conservati i file caricati in questo spazio di lavoro: su questo server o in un’archiviazione che uno dei suoi proprietari ha collegato al proprio account (un bucket compatibile con S3, Google Drive o Dropbox). Leafdesk continua a servire ogni file da sé, quindi l’archiviazione resta privata: i membri non hanno bisogno di un account lì e non servono accesso pubblico né condivisioni.",
     "currentHeading": "Dove vanno i nuovi file",
     "instance": "Questo server",
     "instanceHint": "I file sono conservati sul server su cui gira Leafdesk.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO o qualsiasi altra archiviazione che parli il protocollo S3.",
-      "gdrive": "I file vanno in una cartella che Leafdesk crea nel tuo Drive. Leafdesk vede solo i file che ha creato lì, nient'altro del tuo Drive.",
-      "dropbox": "I file vanno nella cartella dell'app di Leafdesk nel tuo Dropbox (in App). Leafdesk non vede nulla al di fuori di essa."
+      "gdrive": "I file vanno in una cartella Leafdesk che Leafdesk crea nel tuo Drive, con una cartella per ogni spazio di lavoro. Leafdesk vede solo i file che ha creato lì, nient’altro del tuo Drive.",
+      "dropbox": "I file vanno nella cartella dell’app di Leafdesk nel tuo Dropbox (in App), con una cartella per ogni spazio di lavoro. Leafdesk non vede nulla al di fuori di essa."
     },
     "status": {
       "active": "Funziona, verificato {time}",
@@ -1776,12 +1779,8 @@
     "olderFiles": "I file caricati prima del collegamento restano su questo server ({size}).",
     "testAgain": "Riprova il test",
     "testing": "Prova in corso…",
-    "change": "Cambia",
     "disconnect": "Scollega",
-    "disconnectNote": "I nuovi file andranno di nuovo su questo server. I file già presenti in quell'archiviazione restano lì e continuano a essere letti da lì finché non vengono eliminati.",
-    "connectHeading": "Collega l’archiviazione",
-    "changeHeading": "Cambia archiviazione",
-    "connectDescription": "Prima di salvare qualsiasi cosa, un file di prova viene archiviato, riletto ed eliminato. I file già caricati restano dove sono.",
+    "disconnectNote": "I nuovi file andranno di nuovo su questo server. I file già presenti in quell’archiviazione restano lì e continuano a essere letti da lì finché non vengono eliminati o spostati.",
     "fields": {
       "kind": "Tipo di archiviazione",
       "endpoint": "Endpoint",
@@ -1793,10 +1792,12 @@
       "prefixHint": "Facoltativo: i file vanno in questa cartella del bucket.",
       "accessKeyId": "ID chiave di accesso",
       "secretAccessKey": "Chiave di accesso segreta",
-      "keysKeep": "Se vuoto, mantiene la chiave attuale",
       "keysHint": "Dai a queste chiavi accesso solo a questo bucket. Vengono archiviate cifrate e non vengono mai più mostrate.",
       "pathStyle": "Indirizza il bucket tramite percorso",
-      "pathStyleHint": "Necessario per MinIO e per la maggior parte delle archiviazioni diverse da AWS S3."
+      "pathStyleHint": "Necessario per MinIO e per la maggior parte delle archiviazioni diverse da AWS S3.",
+      "label": "Nome",
+      "labelPlaceholder": "Bucket aziendale",
+      "labelHint": "Come chiami questa archiviazione in Leafdesk. Facoltativo."
     },
     "test": "Prova la connessione",
     "testOk": "Funziona: un file di prova è andato e tornato.",
@@ -1804,7 +1805,7 @@
     "connecting": "Collegamento in corso…",
     "save": "Salva",
     "retiredHeading": "Archiviazione precedente",
-    "retiredDescription": "Un’archiviazione scollegata in precedenza contiene ancora dei file. Vengono letti da lì finché non vengono eliminati.",
+    "retiredDescription": "Un’archiviazione usata in precedenza da questo spazio di lavoro contiene ancora dei file. Vengono letti da lì finché non vengono eliminati o spostati.",
     "errors": {
       "accessDenied": "Solo i proprietari dello spazio di lavoro possono cambiare dove vengono conservati i suoi file.",
       "endpoint": "Inserisci l’endpoint come indirizzo web, ad esempio https://storage.example.com.",
@@ -1816,19 +1817,77 @@
       "unavailable": "Questo tipo di archiviazione non può ancora essere collegato.",
       "refused": "L’archiviazione non ha funzionato: {message}",
       "rateLimited": "Troppi tentativi. Attendi qualche minuto, poi riprova.",
-      "noStorage": "Questo spazio di lavoro non ha un’archiviazione propria collegata.",
+      "noStorage": "Questo spazio di lavoro non conserva file in un’archiviazione propria.",
       "notConfigured": "Questo server non è configurato per quel tipo di archiviazione.",
-      "oauthFailed": "L'accesso non è riuscito, quindi non è cambiato nulla. Riprova."
+      "oauthFailed": "L'accesso non è riuscito, quindi non è cambiato nulla. Riprova.",
+      "disabled": "Questo server non permette a nessuno di collegare un’archiviazione propria.",
+      "noAccount": "Quell’archiviazione non è collegata al tuo account.",
+      "accountDisconnected": "Quell’archiviazione è stata scollegata.",
+      "moveInProgress": "I file di questo spazio di lavoro sono in fase di spostamento. Attendi che finisca.",
+      "noDestination": "I file di {workspace} non hanno un posto in cui essere spostati: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli.",
+      "serverRefused": "L’archiviazione di questo server non può accogliere i file di questo spazio di lavoro: non è S3, oppure non rientrano nella quota dello spazio di lavoro lì.",
+      "noMove": "Quello spostamento non esiste più."
     },
     "signIn": "Accedi a {provider}",
-    "signInAgain": "Accedi di nuovo a {provider}",
     "signingIn": "Apertura…",
     "signInHint": "Accedi su {provider} e torni qui. Prima di salvare qualcosa, un file di prova viene archiviato, riletto ed eliminato.",
-    "notConfigured": "Questo server non è ancora configurato per {provider}. Il suo amministratore deve registrare un'app su {provider} e impostare {vars}.",
+    "notConfigured": "{provider} non è disponibile: per offrirlo, registra un’app su {provider} e imposta {vars} sul server.",
     "dismiss": "Chiudi",
     "notices": {
       "connected": "Collegato. D'ora in poi i nuovi file vanno lì.",
       "refused": "Hai effettuato l'accesso, ma non è stato possibile archiviare un file di prova lì, quindi non è cambiato nulla. Riprova più tardi."
+    },
+    "descriptionOff": "Dove vengono conservati i file caricati in questo spazio di lavoro. Alcuni si trovano in un’archiviazione collegata prima che questo server smettesse di offrire archiviazioni proprie; non è possibile collegarne di nuove.",
+    "brokenHelp": "I file conservati lì non possono essere letti finché non torna a funzionare. Se l’archiviazione non esiste più, ripristina lo spazio di lavoro da un backup.",
+    "owner": {
+      "mine": "La tua archiviazione “{label}”",
+      "other": "Archiviazione di {name}",
+      "gone": "Archiviazione di qualcuno che ha lasciato Leafdesk"
+    },
+    "stopUsing": "Smetti di usarla",
+    "useHeading": "Conserva i file nella tua archiviazione",
+    "useOtherHeading": "Usa un’altra archiviazione",
+    "useDescription": "I nuovi file vanno in un’archiviazione che hai collegato al tuo account, in una cartella propria di questo spazio di lavoro. Prima di qualsiasi modifica, un file di prova viene archiviato, riletto ed eliminato. I file già caricati restano dove sono finché non li sposti.",
+    "useAccount": "La tua archiviazione",
+    "use": "Usa per i nuovi file",
+    "connectNew": "Collega un’altra archiviazione",
+    "move": {
+      "heading": "Sposta i file",
+      "description": "Copia ogni file di questo spazio di lavoro in un’altra archiviazione, pochi alla volta, mentre lo spazio di lavoro continua a funzionare, poi li elimina da dove si trovavano. I nuovi file vanno lì fin da subito.",
+      "to": "Sposta in",
+      "server": "Archiviazione di questo server",
+      "confirm": "Spostare ogni file di questo spazio di lavoro in {destination}? D’ora in poi i nuovi file vanno lì.",
+      "start": "Sposta i file",
+      "queued": "I file stanno per essere spostati in {destination}.",
+      "running": "Spostamento dei file in {destination}: {moved} di {files}.",
+      "done": "{files, plural, =0 {Fatto: ora i nuovi file vanno in {destination}.} one {# file spostato in {destination}.} many {# di file spostati in {destination}.} other {# file spostati in {destination}.}}",
+      "failed": "{failed, plural, one {# file non è stato spostato} many {# di file non sono stati spostati} other {# file non sono stati spostati}} in {destination}: {error}",
+      "blocked": "L’archiviazione che contiene i file di questo spazio di lavoro sta per essere rimossa e non c’è alcun posto in cui spostarli: nessun proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Per ora continuano a essere letti da lì. Configura un’archiviazione, poi riprova.",
+      "retry": "Riprova",
+      "backupHint": "I file che non possono più essere letti dalla loro archiviazione si recuperano ripristinando un backup dello spazio di lavoro.",
+      "reasons": {
+        "left": "L’archiviazione che contiene questi file appartiene a qualcuno che ha lasciato lo spazio di lavoro.",
+        "removed": "L’archiviazione che contiene questi file appartiene a qualcuno che è stato rimosso dallo spazio di lavoro.",
+        "accountDeleted": "L’archiviazione che contiene questi file appartiene a qualcuno che ha eliminato il proprio account Leafdesk.",
+        "disconnected": "L’archiviazione che contiene questi file è stata scollegata dal suo proprietario."
+      }
+    },
+    "accounts": {
+      "heading": "Archiviazioni collegate",
+      "description": "Archiviazioni che colleghi una volta e usi negli spazi di lavoro di cui sei proprietario: un bucket compatibile con S3, Google Drive o Dropbox. Ogni spazio di lavoro vi ha una cartella propria; gli altri membri leggono i suoi file tramite Leafdesk e non hanno bisogno di un account presso l’archiviazione. Per gli spazi di lavoro condivisi, preferisci un’archiviazione del tuo team (un bucket aziendale o un account condiviso): se ne lasci uno, i suoi file devono essere spostati.",
+      "descriptionOff": "Archiviazioni che hai collegato in precedenza. Questo server non permette più a nessuno di collegarne di nuove; gli spazi di lavoro che le usano continuano a funzionare.",
+      "connect": "Collega un’archiviazione",
+      "connected": "Collegata. Sceglila in Impostazioni > Archiviazione di uno spazio di lavoro, oppure rendila predefinita.",
+      "none": "Nessuna archiviazione ancora collegata. I file vanno su questo server.",
+      "default": "Predefinita per i nuovi spazi di lavoro",
+      "setDefault": "Rendi predefinita",
+      "unsetDefault": "Rimuovi come predefinita",
+      "rename": "Rinomina",
+      "disconnected": "Scollegata: continua a essere letta finché i suoi file non vengono spostati o eliminati",
+      "usedBy": "Usata da: {workspaces}",
+      "unused": "Nessuno spazio di lavoro la usa ancora.",
+      "disconnectUsed": "Questi spazi di lavoro smettono di mettere lì i nuovi file. I loro file vengono spostati nell’archiviazione di un altro proprietario dove possibile; gli altri continuano a essere letti da lì finché non vengono spostati o eliminati.",
+      "disconnectUnused": "Nessuno spazio di lavoro la usa. Leafdesk la dimentica insieme alle sue chiavi."
     }
   },
   "backup": {

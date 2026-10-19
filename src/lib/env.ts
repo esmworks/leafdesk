@@ -85,6 +85,15 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * OWN_STORAGE_ENABLED=true lets people connect storage of their own (an S3-compatible bucket,
+   * Google Drive, Dropbox) and keep workspaces' uploads there instead of the server's storage. Off
+   * by default: every upload goes to the server's storage (S3_* or UPLOAD_DIR). Turned off later,
+   * workspaces already connected keep reading and uploading there; only new connections are refused.
+   */
+  get ownStorageEnabled() {
+    return ["1", "true", "yes"].includes((process.env.OWN_STORAGE_ENABLED ?? "").trim().toLowerCase());
+  },
+  /**
    * STORAGE_ALLOWED_HOSTS: hosts (names, or host:port) a workspace's own S3-compatible storage may
    * be on even though they are on a private network, a local name or plain http (MinIO on the same
    * machine, say); comma-separated. Every other endpoint is reached only on public https addresses.

@@ -662,44 +662,77 @@ day), so no bytes stay behind with nothing pointing at them.
 
 ### A workspace's own storage
 
-Owners can keep a workspace's uploads in storage of their own instead of the server's: in
-**Settings → Storage**, connect an S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2,
-MinIO and the like) with its endpoint, region, bucket, an optional folder, and an access key that
-may put, get and delete objects there. Before anything is saved, Leafdesk stores a test file,
-reads it back whole and in part, and deletes it. From then on the workspace's new uploads go to the
-bucket and count against no `UPLOAD_WORKSPACE_QUOTA_MB` (the per-file limit still applies); other
-workspaces keep the server's storage and its quota.
+By default every upload goes to the server's storage (S3 or `UPLOAD_DIR`, see above). Setting
+`OWN_STORAGE_ENABLED=true` lets people keep the files of workspaces they own in storage of their
+own instead. While it is off (the default) nobody can connect or attach storage and nothing about
+it is shown, except to workspaces connected before it was turned off: those keep storing and
+serving their files there, and the server's startup line says how many there are.
 
+**Connected once, used in every workspace.** Storage is connected to one's own account, under
+**Account → Apps → Connected storage**: an S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze
+B2, MinIO and the like) with its endpoint, region, bucket, an optional folder, and an access key
+that may put, get and delete objects there, or a sign-in to Google Drive or Dropbox (below). Before
+anything is saved, Leafdesk stores a test file, reads it back whole and in part, and deletes it.
+The first storage one connects becomes their default, which new workspaces they make (also by
+restoring a backup) use from the start. In a workspace's **Settings → Storage**, an owner
+picks one of their own storage accounts for it, or connects another there; each workspace gets a
+place of its own in it (a folder of its own in Drive, its own key prefix in a bucket or Dropbox).
+Only the person whose storage it is can attach it to a workspace; the other owners see whose it
+is. Connected storage can be renamed, tried again, made the default or disconnected; disconnecting
+asks first and names the workspaces still using it.
+
+From then on the workspace's new uploads go there and count against no `UPLOAD_WORKSPACE_QUOTA_MB`
+(the per-file limit still applies); other workspaces keep the server's storage and its quota.
 Files are still served by Leafdesk at `/api/files/<id>` with the same access checks, so the bucket
-stays private: no public access, presigned links or CORS settings are needed. The keys are stored
-encrypted (`LEAFDESK_ENCRYPTION_KEY`) and never shown again. A request the bucket refuses (revoked
-keys, a deleted bucket) marks the storage as not working, with the storage's answer, in Settings →
-Storage; uploads then fail instead of landing on the server, and the next request that works, or
-**Test again**, clears it.
+stays private: no public access, presigned links or CORS settings are needed, and the workspace's
+other members need no account with the storage. The keys are stored encrypted
+(`LEAFDESK_ENCRYPTION_KEY`) and never shown again. A request the storage refuses (revoked keys, a
+deleted bucket, a revoked sign-in) marks it as not working, with the storage's answer, in both
+settings, where the workspace's owners are told to try it again or restore the files from a backup;
+uploads then fail instead of landing on the server, and the next request that works, or **Test
+again**, clears it.
 
-Nothing is moved: files uploaded before the bucket was connected stay on the server, and files in
-a bucket stay there when the workspace switches to another bucket or disconnects (new uploads then
-go to the server again). They are read from there, with that bucket's keys, until they are deleted;
-a bucket that holds none of the workspace's files any more is forgotten, keys and all. Deleting a
-workspace deletes its files from every bucket they are in. A workspace backup carries its files'
-bytes but not the connection: a restored workspace stores them on the new server.
+**Files move when the storage's owner goes.** When the person whose storage holds a workspace's
+files leaves the workspace, is removed from it, deletes their Leafdesk account or disconnects the
+storage, the files are moved in the background: to the default storage of the workspace's
+longest-standing other owner that has one that works, or else to the server's storage, but only
+when that is S3 and the files fit the workspace's quota there. They are never copied onto the
+server's own disk. With nowhere to go, leaving (or deleting one's account) is refused with the
+workspace named, so they can ask an owner to set up storage or move the files first; someone
+removed is removed anyway, and the owners see the move blocked until there is somewhere to go and
+they try it again. Owners can also move all of a workspace's files themselves, under **Move
+files**, to their own storage or (when it may take them) the server's.
 
-The endpoint is one an owner typed, so it is held to the rules connections follow: https only, a
+A move streams each file across and points it at the copy a few files at a time, so every file
+stays readable throughout, and the storage being left keeps serving files and taking new uploads
+(with the leaver's credentials, also after their account is deleted) until the destination takes
+over. The old copies are deleted only once every file is across. Progress and any file that
+couldn't be copied show in Settings → Storage, where a failed move can be tried again; a move
+picks up where it was after a restart. Storage that holds none of a workspace's files any more is
+forgotten, keys and all. Deleting a workspace deletes its files from every storage they are in. A
+workspace backup carries its files' bytes but not the storage: a restored workspace uses its
+restorer's default storage for new uploads, and stores the restored files on the server.
+
+For a shared workspace, prefer storage that belongs to the team (a company bucket, or the Drive of
+an account the team controls) over someone's personal Drive: files then stay put when people
+come and go. A personal Drive or Dropbox suits a workspace one keeps to oneself.
+
+The endpoint is one a person typed, so it is held to the rules connections follow: https only, a
 public address only (the address is checked when connecting and the connection pinned to it), and
 no redirects. List storage on your own network in `STORAGE_ALLOWED_HOSTS` (comma-separated, a host
 name or host:port; plain http allowed for those), e.g. `STORAGE_ALLOWED_HOSTS=minio:9000`.
 
 #### Google Drive and Dropbox
 
-An owner can also choose **Google Drive** or **Dropbox** in Settings → Storage and sign in there;
-the browser comes back to Settings → Storage, and the storage is tried with a test file before it
-is kept, as for a bucket. Leafdesk asks for as little as it can:
+One can also sign in to **Google Drive** or **Dropbox**, from Account → Apps or from a
+workspace's Settings → Storage; the browser comes back where it began, and the storage is tried
+with a test file before it is kept, as for a bucket. Leafdesk asks for as little as it can:
 
 - **Google Drive** with the `drive.file` scope: Leafdesk sees only the files and folders it made.
-  It makes a folder "Leafdesk (<workspace name>)" in the owner's Drive and keeps the workspace's
-  files there; signing in again to the same account keeps the same folder.
-- **Dropbox** as an *App folder* app: Leafdesk reaches only `Apps/<your app's name>` and keeps the
-  workspace's files there by their path in the app folder.
+  It makes a folder "Leafdesk" in the person's Drive and in it a folder "Leafdesk (<workspace
+  name>)" for each workspace using it; signing in again to the same account keeps the same folders.
+- **Dropbox** as an *App folder* app: Leafdesk reaches only `Apps/<your app's name>` and keeps each
+  workspace's files there under the workspace's own path.
 
 Each needs an app the server's administrator registers once, with
 `<APP_URL>/api/storage/oauth/callback` as its redirect URI:
@@ -711,11 +744,12 @@ Each needs an app the server's administrator registers once, with
   `account_info.read`, `files.content.read` and `files.content.write`. Set its app key and secret
   as `STORAGE_DROPBOX_CLIENT_ID` and `STORAGE_DROPBOX_CLIENT_SECRET`.
 
-Until both values of one are set, the form shows that kind with a note naming them. The sign-in's
+Drive and Dropbox are offered only once both values of one are set (S3 always is, while own
+storage is on); until then the server's administrators, and only they, see a note naming them. The sign-in's
 tokens are stored encrypted; access tokens are refreshed as they run out and the refreshed ones
 kept. When the owner revokes Leafdesk's access in their Google or Dropbox account (or the app's
 values change), the storage shows as not working, with the provider's answer, until someone signs
-in again from Settings → Storage. Uploads are streamed, with no file held in memory; a Dropbox file
+in again. Uploads are streamed, with no file held in memory; a Dropbox file
 over 150 MiB goes up in 8 MiB parts.
 
 ## Export

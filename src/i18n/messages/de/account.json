@@ -119,7 +119,10 @@
     "deleting": "Wird gelöscht…",
     "blockedTitle": "Übergib zuerst deine Workspaces",
     "blockedBody": "Du bist der einzige Inhaber von Workspaces, in denen noch andere Personen sind. Mach in jedem jemand anderen zum Inhaber (Einstellungen > Mitglieder) oder entferne die anderen und lösche dann dein Konto.",
-    "blockedList": "Zu übergebende Workspaces:"
+    "blockedList": "Zu übergebende Workspaces:",
+    "storageStuckBody": "Dateien von Workspaces, die du verlassen würdest, liegen in deinem eigenen Speicher und können nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Bitte einen Inhaber, Speicher einzurichten, oder verschiebe die Dateien (Einstellungen > Speicher) und lösche dann dein Konto.",
+    "storageStuckList": "Workspaces, deren Dateien nirgendwohin können:",
+    "storageMovesList": "Ihre Dateien in deinem Speicher ziehen zuerst in den Speicher eines Inhabers um (bis dahin liefert dein Speicher sie weiter aus):"
   },
   "confirmEmail": {
     "metaTitle": "E-Mail-Adresse bestätigen",
@@ -157,6 +160,7 @@
     "avatarType": "Verwende ein PNG-, JPEG-, WebP- oder GIF-Bild.",
     "avatarTooLarge": "Das Bild ist zu groß (höchstens 2 MB).",
     "samePassword": "Wählen Sie ein anderes Passwort als das alte.",
-    "resetStepExpired": "Dieser Schritt ist abgelaufen. Melden Sie sich erneut mit Ihrem alten Passwort an."
+    "resetStepExpired": "Dieser Schritt ist abgelaufen. Melden Sie sich erneut mit Ihrem alten Passwort an.",
+    "storageStuck": "Die Dateien von {workspaces} liegen in deinem Speicher und können nirgendwohin verschoben werden. Bitte ihre Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst."
   }
 }

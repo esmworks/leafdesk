@@ -119,7 +119,10 @@
     "deleting": "Eliminazione…",
     "blockedTitle": "Prima cedi i tuoi spazi di lavoro",
     "blockedBody": "Sei l’unico proprietario di spazi di lavoro in cui ci sono altre persone. Nomina un altro proprietario per ciascuno (Impostazioni > Membri) o rimuovi gli altri, poi elimina il tuo account.",
-    "blockedList": "Spazi di lavoro da cedere:"
+    "blockedList": "Spazi di lavoro da cedere:",
+    "storageStuckBody": "I file degli spazi di lavoro che lasceresti sono nella tua archiviazione e non c’è alcun posto in cui spostarli: nessun altro proprietario ha un’archiviazione predefinita e l’archiviazione di questo server non può accoglierli. Chiedi a un proprietario di configurare un’archiviazione, oppure sposta i file (Impostazioni > Archiviazione), poi elimina il tuo account.",
+    "storageStuckList": "Spazi di lavoro i cui file non hanno dove andare:",
+    "storageMovesList": "I loro file nella tua archiviazione vengono prima spostati nell’archiviazione di un proprietario (fino ad allora la tua archiviazione continua a servirli):"
   },
   "confirmEmail": {
     "metaTitle": "Conferma indirizzo email",
@@ -157,6 +160,7 @@
     "avatarType": "Usa un’immagine PNG, JPEG, WebP o GIF.",
     "avatarTooLarge": "L’immagine è troppo grande (massimo 2 MB).",
     "samePassword": "Scegli una password diversa da quella precedente.",
-    "resetStepExpired": "Questo passaggio è scaduto. Accedi di nuovo con la vecchia password."
+    "resetStepExpired": "Questo passaggio è scaduto. Accedi di nuovo con la vecchia password.",
+    "storageStuck": "I file di {workspaces} sono nella tua archiviazione e non hanno un posto in cui essere spostati. Chiedi ai loro proprietari di configurare un’archiviazione, oppure sposta prima i file."
   }
 }

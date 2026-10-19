@@ -3,7 +3,7 @@ import type { AddressInfo } from "node:net";
 import { Readable } from "node:stream";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { StorageError } from "./driver";
-import { driveAccount, driveFolder, gdriveDriver } from "./gdrive";
+import { driveAccount, driveFolder, driveRootFolder, gdriveDriver } from "./gdrive";
 import { oauthSession } from "./oauth-session";
 
 /**
@@ -54,8 +54,16 @@ function handle(req: IncomingMessage, body: Buffer): { status: number; headers?:
   if (url.pathname === "/drive/v3/files" && req.method === "GET") {
     const q = url.searchParams.get("q") ?? "";
     const workspace = appProperty(q, "leafdeskWorkspace");
+    const root = appProperty(q, "leafdeskRoot");
     const key = appProperty(q, "leafdeskKey");
-    const found = [...files.values()].filter((f) => (workspace ? f.appProperties?.leafdeskWorkspace === workspace : f.appProperties?.leafdeskKey === key));
+    const folder = /^'([^']+)' in parents/.exec(q)?.[1];
+    const found = [...files.values()].filter((f) =>
+      workspace
+        ? f.appProperties?.leafdeskWorkspace === workspace
+        : root
+          ? f.appProperties?.leafdeskRoot === root
+          : f.appProperties?.leafdeskKey === key && (!folder || f.parents.includes(folder)),
+    );
     return { status: 200, body: { files: found.map((f) => ({ id: f.id, name: f.name })) } };
   }
   if (url.pathname === "/drive/v3/files" && req.method === "POST") {
@@ -211,5 +219,23 @@ describe("driveAccount and driveFolder", () => {
     expect(files.get(made.folderId)).toMatchObject({ mimeType: "application/vnd.google-apps.folder", appProperties: { leafdeskWorkspace: "ws-1" } });
     expect(await driveFolder(session(), "ws-1", "Leafdesk (Renamed)", endpoints())).toEqual(made);
     expect((await driveFolder(session(), "ws-2", "Leafdesk (Other)", endpoints())).folderId).not.toBe(made.folderId);
+  });
+
+  it("serves two workspaces from one Drive, each in its own folder inside the account's Leafdesk folder", async () => {
+    const root = await driveRootFolder(session(), endpoints());
+    expect(await driveRootFolder(session(), endpoints())).toEqual(root);
+    const one = await driveFolder(session(), "ws-1", "Leafdesk (One)", endpoints(), root.folderId);
+    const two = await driveFolder(session(), "ws-2", "Leafdesk (Two)", endpoints(), root.folderId);
+    expect(files.get(one.folderId)!.parents).toEqual([root.folderId]);
+    expect(files.get(two.folderId)!.parents).toEqual([root.folderId]);
+    const first = gdriveDriver({ folderId: one.folderId, session: session(), endpoints: endpoints() });
+    const second = gdriveDriver({ folderId: two.folderId, session: session(), endpoints: endpoints() });
+    await put(first, "ws-1/abc", "one");
+    await put(second, "ws-2/abc", "two");
+    expect(await text(await first.get("ws-1/abc"))).toBe("one");
+    expect(await text(await second.get("ws-2/abc"))).toBe("two");
+    // Each folder holds only its own workspace's file.
+    expect(await first.get("ws-2/abc")).toBeNull();
+    expect([...files.values()].filter((f) => f.parents.includes(one.folderId)).map((f) => f.name)).toEqual(["ws-1_abc"]);
   });
 });

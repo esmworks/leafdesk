@@ -119,7 +119,10 @@
     "deleting": "Usuwanie…",
     "blockedTitle": "Najpierw przekaż swoje obszary robocze",
     "blockedBody": "Jesteś jedynym właścicielem obszarów roboczych, do których należą inne osoby. Ustaw w każdym z nich kogoś innego jako właściciela (Ustawienia > Członkowie) lub usuń pozostałe osoby, a potem usuń konto.",
-    "blockedList": "Obszary robocze do przekazania:"
+    "blockedList": "Obszary robocze do przekazania:",
+    "storageStuckBody": "Pliki obszarów roboczych, które opuścisz, są w twoim własnym magazynie i nie ma dokąd ich przenieść: żaden inny właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć. Poproś właściciela o skonfigurowanie magazynu albo przenieś pliki (Ustawienia > Magazyn), a potem usuń konto.",
+    "storageStuckList": "Obszary robocze, których pliki nie mają dokąd trafić:",
+    "storageMovesList": "Ich pliki z twojego magazynu zostaną najpierw przeniesione do magazynu właściciela (do tego czasu twój magazyn nadal je udostępnia):"
   },
   "confirmEmail": {
     "metaTitle": "Potwierdź adres e-mail",
@@ -157,6 +160,7 @@
     "avatarType": "Użyj obrazu PNG, JPEG, WebP lub GIF.",
     "avatarTooLarge": "Zdjęcie jest za duże (najwyżej 2 MB).",
     "samePassword": "Wybierz hasło inne niż poprzednie.",
-    "resetStepExpired": "Ten krok wygasł. Zaloguj się ponownie starym hasłem."
+    "resetStepExpired": "Ten krok wygasł. Zaloguj się ponownie starym hasłem.",
+    "storageStuck": "Pliki tych obszarów roboczych są w twoim magazynie i nie mają dokąd zostać przeniesione: {workspaces}. Poproś ich właścicieli o skonfigurowanie magazynu albo najpierw przenieś pliki."
   }
 }

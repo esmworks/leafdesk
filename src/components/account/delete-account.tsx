@@ -52,7 +52,8 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
   const [typed, setTyped] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const blocked = plan.blockers.length > 0;
+  const stuck = plan.storageStuck ?? [];
+  const blocked = plan.blockers.length > 0 || stuck.length > 0;
   const matches = typed.trim().toLowerCase() === email.toLowerCase();
 
   return (
@@ -60,8 +61,18 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
       {blocked ? (
         <div className="space-y-4 p-5">
           <h2 className="text-base font-semibold">{t("blockedTitle")}</h2>
-          <p className="text-sm text-fg-muted">{t("blockedBody")}</p>
-          <WorkspaceList title={t("blockedList")} items={plan.blockers} />
+          {plan.blockers.length > 0 && (
+            <>
+              <p className="text-sm text-fg-muted">{t("blockedBody")}</p>
+              <WorkspaceList title={t("blockedList")} items={plan.blockers} />
+            </>
+          )}
+          {stuck.length > 0 && (
+            <>
+              <p className="text-sm text-fg-muted">{t("storageStuckBody")}</p>
+              <WorkspaceList title={t("storageStuckList")} items={stuck} />
+            </>
+          )}
           <div className="flex justify-end">
             <Button variant="primary" onClick={onClose}>
               {tc("close")}
@@ -89,6 +100,7 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
           <p className="text-sm text-fg-muted">{t("dialogBody")}</p>
           <WorkspaceList title={t("deletedList")} items={plan.deleted} />
           <WorkspaceList title={t("leftList")} items={plan.left} />
+          <WorkspaceList title={t("storageMovesList")} items={plan.storageMoves ?? []} />
           <label className="block space-y-1.5">
             <span className="text-sm text-fg-muted">{t("typeEmail", { email })}</span>
             <Input

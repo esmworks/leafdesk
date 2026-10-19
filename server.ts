@@ -36,6 +36,14 @@ const { instanceStorage } = await import("./src/server/storage");
 
 // Fails fast on a half-configured S3 setup instead of at the first upload.
 console.log(`file storage: ${instanceStorage().kind}`);
+const { countOwnStorageWorkspaces, startStorageMoves } = await import("./src/server/storage/moves");
+if (!env.ownStorageEnabled) {
+  // Turned off after workspaces connected storage of their own: they keep using it.
+  const kept = await countOwnStorageWorkspaces();
+  console.log(`own storage: off (OWN_STORAGE_ENABLED)${kept ? `; ${kept} workspaces keep their files in storage connected earlier` : ""}`);
+} else {
+  console.log("own storage: on");
+}
 const { startLinkPlacesBackfill, startReminders } = await import("./src/server/mentions");
 const { startSnoozes } = await import("./src/server/notifications");
 const { startRowUpdates } = await import("./src/server/row-follow");
@@ -135,6 +143,7 @@ server.listen(port, hostname, () => {
   startAssignmentEmails();
   startShareEmails();
   startFileCleanup();
+  startStorageMoves();
   startReminders();
   // Links indexed before "Linked from" kept each linking block get theirs, then this stops.
   startLinkPlacesBackfill();

@@ -826,7 +826,9 @@
     "creationRestricted": "Nur die Administratoren des Servers können Workspaces anlegen.",
     "agentUser": "Das ist ein Agent, keine Person. Ändere oder archiviere ihn in den Einstellungen des Agenten.",
     "confirmationMismatch": "Gib zur Bestätigung den Namen des Workspace genau so ein, wie er angezeigt wird.",
-    "workspaceDeleted": "Jemand hat diesen Workspace inzwischen gelöscht."
+    "workspaceDeleted": "Jemand hat diesen Workspace inzwischen gelöscht.",
+    "storageNoDestination": "Die Dateien dieses Workspaces liegen in deinem Speicher, und wenn du ihn verlässt, können sie nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Bitte einen Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst (Einstellungen > Speicher).",
+    "storageMoveInProgress": "Die Dateien dieses Workspaces werden gerade in deinen Speicher verschoben. Warte, bis das abgeschlossen ist, und verlasse den Workspace dann."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "Hat die Verbindung zum Postfach {target} getrennt"
       },
       "storage": {
-        "connected": "Hat den eigenen Speicher des Workspaces {target} verbunden",
-        "disconnected": "Hat die Verbindung zum eigenen Speicher des Workspaces {target} getrennt"
+        "connected": "Hat begonnen, neue Dateien in {target} abzulegen",
+        "disconnected": "Hat aufgehört, neue Dateien in {target} abzulegen",
+        "moved": "Hat begonnen, die Dateien des Workspaces nach {target} zu verschieben"
       },
       "backup": {
         "created": "Hat den Workspace gesichert ({count, plural, one {# Seite} other {# Seiten}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "Wo die hochgeladenen Dateien dieses Workspaces gespeichert werden. Verbinde eigenen Speicher des Workspaces (einen S3-kompatiblen Bucket, Google Drive oder Dropbox), und neue Dateien landen dort statt auf diesem Server. Leafdesk liefert weiterhin jede Datei selbst aus, der Speicher bleibt also privat: Öffentlicher Zugriff oder Freigaben sind nicht nötig.",
+    "description": "Wo die hochgeladenen Dateien dieses Workspaces liegen: auf diesem Server oder in Speicher, den einer seiner Inhaber mit seinem Konto verbunden hat (ein S3-kompatibler Bucket, Google Drive oder Dropbox). Leafdesk liefert weiterhin jede Datei selbst aus, der Speicher bleibt also privat: Mitglieder brauchen dort kein Konto, und öffentlicher Zugriff oder Freigaben sind nicht nötig.",
     "currentHeading": "Wohin neue Dateien kommen",
     "instance": "Dieser Server",
     "instanceHint": "Die Dateien liegen auf dem Server, auf dem Leafdesk läuft.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO oder jeder andere Speicher, der das S3-Protokoll spricht.",
-      "gdrive": "Dateien landen in einem Ordner, den Leafdesk in deinem Drive anlegt. Leafdesk sieht dort nur die Dateien, die es selbst angelegt hat, sonst nichts in deinem Drive.",
-      "dropbox": "Dateien landen im App-Ordner von Leafdesk in deiner Dropbox (unter Apps). Leafdesk sieht nichts außerhalb davon."
+      "gdrive": "Dateien landen in einem Leafdesk-Ordner, den Leafdesk in deinem Drive anlegt, mit einem Ordner für jeden Workspace. Leafdesk sieht dort nur die Dateien, die es selbst angelegt hat, sonst nichts in deinem Drive.",
+      "dropbox": "Dateien landen im App-Ordner von Leafdesk in deiner Dropbox (unter Apps), mit einem Ordner für jeden Workspace. Leafdesk sieht nichts außerhalb davon."
     },
     "status": {
       "active": "Funktioniert, geprüft {time}",
@@ -1776,12 +1779,8 @@
     "olderFiles": "Dateien, die vor der Verbindung hochgeladen wurden, bleiben auf diesem Server ({size}).",
     "testAgain": "Erneut testen",
     "testing": "Wird getestet…",
-    "change": "Ändern",
     "disconnect": "Trennen",
-    "disconnectNote": "Neue Dateien landen wieder auf diesem Server. Dateien, die schon in diesem Speicher liegen, bleiben dort und werden weiterhin daraus gelesen, bis sie gelöscht werden.",
-    "connectHeading": "Speicher verbinden",
-    "changeHeading": "Speicher ändern",
-    "connectDescription": "Bevor etwas gespeichert wird, wird eine Testdatei abgelegt, zurückgelesen und gelöscht. Bereits hochgeladene Dateien bleiben, wo sie sind.",
+    "disconnectNote": "Neue Dateien landen wieder auf diesem Server. Dateien, die schon in diesem Speicher liegen, bleiben dort und werden weiterhin daraus gelesen, bis sie gelöscht oder verschoben werden.",
     "fields": {
       "kind": "Art des Speichers",
       "endpoint": "Endpunkt",
@@ -1793,10 +1792,12 @@
       "prefixHint": "Optional: Die Dateien landen unter diesem Ordner des Buckets.",
       "accessKeyId": "Zugriffsschlüssel-ID",
       "secretAccessKey": "Geheimer Zugriffsschlüssel",
-      "keysKeep": "Leer lassen behält den aktuellen Schlüssel",
       "keysHint": "Gib diesen Schlüsseln nur Zugriff auf diesen Bucket. Sie werden verschlüsselt gespeichert und nie wieder angezeigt.",
       "pathStyle": "Bucket über den Pfad ansprechen",
-      "pathStyleHint": "Nötig für MinIO und die meisten Speicher außer AWS S3."
+      "pathStyleHint": "Nötig für MinIO und die meisten Speicher außer AWS S3.",
+      "label": "Name",
+      "labelPlaceholder": "Firmen-Bucket",
+      "labelHint": "Wie du diesen Speicher in Leafdesk nennst. Optional."
     },
     "test": "Verbindung testen",
     "testOk": "Es funktioniert: Eine Testdatei ging hin und zurück.",
@@ -1804,7 +1805,7 @@
     "connecting": "Wird verbunden…",
     "save": "Speichern",
     "retiredHeading": "Früherer Speicher",
-    "retiredDescription": "Zuvor getrennter Speicher enthält noch Dateien. Sie werden von dort gelesen, bis sie gelöscht werden.",
+    "retiredDescription": "Speicher, den dieser Workspace früher verwendet hat und der noch Dateien enthält. Sie werden von dort gelesen, bis sie gelöscht oder verschoben werden.",
     "errors": {
       "accessDenied": "Nur die Inhaber des Workspaces können ändern, wo seine Dateien gespeichert werden.",
       "endpoint": "Gib den Endpunkt als Webadresse an, etwa https://storage.example.com.",
@@ -1816,19 +1817,77 @@
       "unavailable": "Diese Art von Speicher kann noch nicht verbunden werden.",
       "refused": "Der Speicher hat nicht funktioniert: {message}",
       "rateLimited": "Zu viele Versuche. Warte ein paar Minuten und versuche es dann erneut.",
-      "noStorage": "Mit diesem Workspace ist kein eigener Speicher verbunden.",
+      "noStorage": "Dieser Workspace hat keine Dateien in eigenem Speicher.",
       "notConfigured": "Dieser Server ist für diese Art von Speicher nicht eingerichtet.",
-      "oauthFailed": "Die Anmeldung hat nicht geklappt, daher wurde nichts geändert. Versuche es noch einmal."
+      "oauthFailed": "Die Anmeldung hat nicht geklappt, daher wurde nichts geändert. Versuche es noch einmal.",
+      "disabled": "Auf diesem Server kann niemand eigenen Speicher verbinden.",
+      "noAccount": "Dieser Speicher ist nicht mit deinem Konto verbunden.",
+      "accountDisconnected": "Dieser Speicher wurde getrennt.",
+      "moveInProgress": "Die Dateien dieses Workspaces werden gerade verschoben. Warte, bis das abgeschlossen ist.",
+      "noDestination": "Die Dateien von {workspace} können nirgendwohin verschoben werden: Kein anderer Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen.",
+      "serverRefused": "Der Speicher dieses Servers kann die Dateien dieses Workspaces nicht aufnehmen: Er ist kein S3-Speicher, oder sie passen dort nicht in das Kontingent des Workspaces.",
+      "noMove": "Diese Verschiebung gibt es nicht mehr."
     },
     "signIn": "Bei {provider} anmelden",
-    "signInAgain": "Erneut bei {provider} anmelden",
     "signingIn": "Wird geöffnet…",
     "signInHint": "Du meldest dich bei {provider} an und kommst hierher zurück. Bevor etwas gespeichert wird, wird eine Testdatei abgelegt, zurückgelesen und gelöscht.",
-    "notConfigured": "Dieser Server ist noch nicht für {provider} eingerichtet. Die Administration muss eine App bei {provider} registrieren und {vars} setzen.",
+    "notConfigured": "{provider} wird nicht angeboten: Registriere eine App bei {provider} und setze {vars} auf dem Server, um es anzubieten.",
     "dismiss": "Schließen",
     "notices": {
       "connected": "Verbunden. Neue Dateien landen ab jetzt dort.",
       "refused": "Du hast dich angemeldet, aber dort konnte keine Testdatei abgelegt werden, daher wurde nichts geändert. Versuche es später noch einmal."
+    },
+    "descriptionOff": "Wo die hochgeladenen Dateien dieses Workspaces liegen. Einige liegen in Speicher, der verbunden wurde, bevor dieser Server eigenen Speicher nicht mehr angeboten hat; Neues kann nicht verbunden werden.",
+    "brokenHelp": "Dort gespeicherte Dateien können erst wieder gelesen werden, wenn der Speicher wieder funktioniert. Ist er endgültig weg, stelle den Workspace aus einer Sicherung wieder her.",
+    "owner": {
+      "mine": "Dein Speicher „{label}“",
+      "other": "Speicher von {name}",
+      "gone": "Speicher einer Person, die Leafdesk verlassen hat"
+    },
+    "stopUsing": "Nicht mehr verwenden",
+    "useHeading": "Dateien in deinem Speicher ablegen",
+    "useOtherHeading": "Anderen Speicher verwenden",
+    "useDescription": "Neue Dateien landen in Speicher, den du mit deinem Konto verbunden hast, in einem eigenen Ordner dieses Workspaces. Bevor sich etwas ändert, wird eine Testdatei abgelegt, zurückgelesen und gelöscht. Bereits hochgeladene Dateien bleiben, wo sie sind, bis du sie verschiebst.",
+    "useAccount": "Dein Speicher",
+    "use": "Für neue Dateien verwenden",
+    "connectNew": "Anderen Speicher verbinden",
+    "move": {
+      "heading": "Dateien verschieben",
+      "description": "Kopiert alle Dateien dieses Workspaces nach und nach in anderen Speicher, während der Workspace weiterläuft, und löscht sie danach am alten Ort. Neue Dateien landen von Anfang an dort.",
+      "to": "Verschieben nach",
+      "server": "Speicher dieses Servers",
+      "confirm": "Alle Dateien dieses Workspaces nach {destination} verschieben? Neue Dateien landen ab jetzt dort.",
+      "start": "Dateien verschieben",
+      "queued": "Die Dateien werden gleich nach {destination} verschoben.",
+      "running": "Dateien werden nach {destination} verschoben: {moved} von {files}.",
+      "done": "{files, plural, =0 {Fertig: Neue Dateien landen jetzt in {destination}.} one {# Datei nach {destination} verschoben.} other {# Dateien nach {destination} verschoben.}}",
+      "failed": "{failed, plural, one {# Datei konnte} other {# Dateien konnten}} nicht nach {destination} verschoben werden: {error}",
+      "blocked": "Der Speicher mit den Dateien dieses Workspaces fällt weg, und es gibt keinen Ort, an den sie verschoben werden dürfen: Kein Inhaber hat einen Standardspeicher, und der Speicher dieses Servers kann sie nicht aufnehmen. Vorerst werden sie weiterhin daraus gelesen. Richte Speicher ein und versuche es dann erneut.",
+      "retry": "Erneut versuchen",
+      "backupHint": "Dateien, die sich nicht mehr aus ihrem Speicher lesen lassen, bekommst du zurück, indem du eine Sicherung des Workspaces wiederherstellst.",
+      "reasons": {
+        "left": "Der Speicher mit diesen Dateien gehört einer Person, die den Workspace verlassen hat.",
+        "removed": "Der Speicher mit diesen Dateien gehört einer Person, die aus dem Workspace entfernt wurde.",
+        "accountDeleted": "Der Speicher mit diesen Dateien gehört einer Person, die ihr Leafdesk-Konto gelöscht hat.",
+        "disconnected": "Der Speicher mit diesen Dateien wurde von seinem Inhaber getrennt."
+      }
+    },
+    "accounts": {
+      "heading": "Verbundener Speicher",
+      "description": "Speicher, den du einmal verbindest und in den Workspaces verwendest, deren Inhaber du bist: ein S3-kompatibler Bucket, Google Drive oder Dropbox. Jeder Workspace bekommt dort einen eigenen Ordner; andere Mitglieder lesen seine Dateien über Leafdesk und brauchen kein Konto bei dem Speicher. Nimm für gemeinsame Workspaces lieber Speicher, der deinem Team gehört (einen Firmen-Bucket oder ein gemeinsames Konto): Wenn du einen davon verlässt, müssen seine Dateien umziehen.",
+      "descriptionOff": "Speicher, den du früher verbunden hast. Auf diesem Server kann niemand mehr neuen Speicher verbinden; Workspaces, die ihn verwenden, funktionieren weiter.",
+      "connect": "Speicher verbinden",
+      "connected": "Verbunden. Wähle ihn in einem Workspace unter Einstellungen > Speicher aus oder mach ihn zu deinem Standard.",
+      "none": "Noch kein Speicher verbunden. Dateien landen auf diesem Server.",
+      "default": "Standard für neue Workspaces",
+      "setDefault": "Als Standard festlegen",
+      "unsetDefault": "Nicht mehr Standard",
+      "rename": "Umbenennen",
+      "disconnected": "Getrennt: wird weiterhin gelesen, bis seine Dateien verschoben oder gelöscht sind",
+      "usedBy": "Verwendet von: {workspaces}",
+      "unused": "Noch von keinem Workspace verwendet.",
+      "disconnectUsed": "Diese Workspaces legen dort keine neuen Dateien mehr ab. Ihre Dateien ziehen, wo möglich, in den Speicher eines anderen Inhabers um; die übrigen werden weiterhin daraus gelesen, bis sie verschoben oder gelöscht werden.",
+      "disconnectUnused": "Kein Workspace verwendet ihn. Leafdesk vergisst ihn und seine Schlüssel."
     }
   },
   "backup": {

@@ -826,7 +826,9 @@
     "creationRestricted": "Obszary robocze mogą tworzyć tylko administratorzy serwera.",
     "agentUser": "To jest agent, a nie osoba. Zmień go lub zarchiwizuj w ustawieniach agenta.",
     "confirmationMismatch": "Aby potwierdzić, wpisz nazwę obszaru roboczego dokładnie tak, jak jest wyświetlana.",
-    "workspaceDeleted": "Ktoś w międzyczasie usunął ten obszar roboczy."
+    "workspaceDeleted": "Ktoś w międzyczasie usunął ten obszar roboczy.",
+    "storageNoDestination": "Pliki tego obszaru roboczego są w Twoim magazynie i po Twoim odejściu nie ma dokąd ich przenieść: żaden inny właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć. Poproś właściciela o skonfigurowanie magazynu albo najpierw przenieś pliki (Ustawienia > Magazyn).",
+    "storageMoveInProgress": "Pliki tego obszaru roboczego są właśnie przenoszone do Twojego magazynu. Poczekaj, aż to się zakończy, a potem opuść obszar roboczy."
   },
   "security": {
     "description": "Zdecyduj, jak osoby się logują, kto może wprowadzać osoby do tego obszaru roboczego, co mogą robić goście, co może go opuszczać (eksporty, połączone aplikacje) i kto może publikować strony w internecie. Tylko właściciele mogą zmieniać te ustawienia.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "Odłączono skrzynkę pocztową {target}"
       },
       "storage": {
-        "connected": "Podłączono własny magazyn obszaru roboczego {target}",
-        "disconnected": "Odłączono własny magazyn obszaru roboczego {target}"
+        "connected": "Rozpoczęto przechowywanie nowych plików w: {target}",
+        "disconnected": "Zakończono przechowywanie nowych plików w: {target}",
+        "moved": "Rozpoczęto przenoszenie plików obszaru roboczego do: {target}"
       },
       "backup": {
         "created": "Utworzono kopię zapasową obszaru roboczego ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "Miejsce, w którym przechowywane są pliki przesłane do tego obszaru roboczego. Podłącz własną pamięć obszaru roboczego (zasobnik zgodny z S3, Google Drive lub Dropbox), a nowe pliki trafią tam zamiast na ten serwer. Leafdesk nadal sam udostępnia każdy plik, więc pamięć pozostaje prywatna: nie jest potrzebny publiczny dostęp ani udostępnianie.",
+    "description": "Miejsce, w którym przechowywane są pliki przesłane do tego obszaru roboczego: ten serwer albo magazyn, który jeden z jego właścicieli podłączył do swojego konta (zasobnik zgodny z S3, Google Drive lub Dropbox). Leafdesk nadal sam udostępnia każdy plik, więc magazyn pozostaje prywatny: członkowie nie potrzebują w nim konta i nie jest potrzebny publiczny dostęp ani udostępnianie.",
     "currentHeading": "Gdzie trafiają nowe pliki",
     "instance": "Ten serwer",
     "instanceHint": "Pliki są przechowywane na serwerze, na którym działa Leafdesk.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO lub dowolny inny magazyn obsługujący protokół S3.",
-      "gdrive": "Pliki trafiają do folderu, który Leafdesk tworzy na Twoim Dysku. Leafdesk widzi tylko pliki, które sam tam utworzył, nic więcej z Twojego Dysku.",
-      "dropbox": "Pliki trafiają do folderu aplikacji Leafdesk w Twoim Dropboxie (w Aplikacje). Leafdesk nie widzi niczego poza nim."
+      "gdrive": "Pliki trafiają do folderu Leafdesk, który Leafdesk tworzy na Twoim Dysku, z osobnym folderem dla każdego obszaru roboczego. Leafdesk widzi tylko pliki, które sam tam utworzył, nic więcej z Twojego Dysku.",
+      "dropbox": "Pliki trafiają do folderu aplikacji Leafdesk w Twoim Dropboxie (w Aplikacje), z osobnym folderem dla każdego obszaru roboczego. Leafdesk nie widzi niczego poza nim."
     },
     "status": {
       "active": "Działa, sprawdzono {time}",
@@ -1776,12 +1779,8 @@
     "olderFiles": "Pliki przesłane przed podłączeniem zostają na tym serwerze ({size}).",
     "testAgain": "Sprawdź ponownie",
     "testing": "Sprawdzanie…",
-    "change": "Zmień",
     "disconnect": "Odłącz",
-    "disconnectNote": "Nowe pliki znów będą trafiać na ten serwer. Pliki, które już są w tej pamięci, zostają tam i nadal są z niej odczytywane, dopóki nie zostaną usunięte.",
-    "connectHeading": "Podłącz magazyn",
-    "changeHeading": "Zmień magazyn",
-    "connectDescription": "Zanim cokolwiek zostanie zapisane, plik testowy jest zapisywany, odczytywany i usuwany. Pliki już przesłane zostają tam, gdzie są.",
+    "disconnectNote": "Nowe pliki znów będą trafiać na ten serwer. Pliki, które już są w tym magazynie, zostają tam i nadal są z niego odczytywane, dopóki nie zostaną usunięte lub przeniesione.",
     "fields": {
       "kind": "Rodzaj magazynu",
       "endpoint": "Punkt końcowy",
@@ -1793,10 +1792,12 @@
       "prefixHint": "Opcjonalnie: pliki trafiają do tego folderu w buckecie.",
       "accessKeyId": "Identyfikator klucza dostępu",
       "secretAccessKey": "Tajny klucz dostępu",
-      "keysKeep": "Puste pole zachowuje obecny klucz",
       "keysHint": "Nadaj tym kluczom dostęp tylko do tego bucketu. Są przechowywane w postaci zaszyfrowanej i nigdy więcej nie są wyświetlane.",
       "pathStyle": "Adresuj bucket przez ścieżkę",
-      "pathStyleHint": "Wymagane w przypadku MinIO i większości magazynów innych niż AWS S3."
+      "pathStyleHint": "Wymagane w przypadku MinIO i większości magazynów innych niż AWS S3.",
+      "label": "Nazwa",
+      "labelPlaceholder": "Bucket firmowy",
+      "labelHint": "Jak nazywasz ten magazyn w Leafdesk. Opcjonalnie."
     },
     "test": "Sprawdź połączenie",
     "testOk": "Działa: plik testowy poszedł tam i wrócił.",
@@ -1804,7 +1805,7 @@
     "connecting": "Łączenie…",
     "save": "Zapisz",
     "retiredHeading": "Poprzedni magazyn",
-    "retiredDescription": "Magazyn odłączony wcześniej nadal zawiera pliki. Są z niego odczytywane, dopóki nie zostaną usunięte.",
+    "retiredDescription": "Magazyn, którego ten obszar roboczy używał wcześniej, nadal zawiera pliki. Są z niego odczytywane, dopóki nie zostaną usunięte lub przeniesione.",
     "errors": {
       "accessDenied": "Tylko właściciele obszaru roboczego mogą zmienić, gdzie przechowywane są jego pliki.",
       "endpoint": "Wpisz punkt końcowy jako adres internetowy, np. https://storage.example.com.",
@@ -1816,19 +1817,77 @@
       "unavailable": "Tego rodzaju magazynu nie można jeszcze podłączyć.",
       "refused": "Magazyn nie zadziałał: {message}",
       "rateLimited": "Zbyt wiele prób. Odczekaj kilka minut i spróbuj ponownie.",
-      "noStorage": "Do tego obszaru roboczego nie podłączono własnego magazynu.",
+      "noStorage": "Ten obszar roboczy nie przechowuje plików we własnym magazynie.",
       "notConfigured": "Ten serwer nie jest skonfigurowany dla tego rodzaju pamięci.",
-      "oauthFailed": "Logowanie się nie powiodło, więc nic nie zostało zmienione. Spróbuj ponownie."
+      "oauthFailed": "Logowanie się nie powiodło, więc nic nie zostało zmienione. Spróbuj ponownie.",
+      "disabled": "Ten serwer nie pozwala nikomu podłączać własnych magazynów.",
+      "noAccount": "Ten magazyn nie jest podłączony do Twojego konta.",
+      "accountDisconnected": "Ten magazyn został odłączony.",
+      "moveInProgress": "Pliki tego obszaru roboczego są właśnie przenoszone. Poczekaj, aż to się zakończy.",
+      "noDestination": "Pliki obszaru roboczego {workspace} nie mają dokąd zostać przeniesione: żaden inny właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć.",
+      "serverRefused": "Magazyn tego serwera nie może przyjąć plików tego obszaru roboczego: to nie jest S3 albo pliki nie mieszczą się w limicie obszaru roboczego.",
+      "noMove": "To przenoszenie już nie istnieje."
     },
     "signIn": "Zaloguj się do {provider}",
-    "signInAgain": "Zaloguj się ponownie do {provider}",
     "signingIn": "Otwieranie…",
     "signInHint": "Logujesz się w {provider} i wracasz tutaj. Zanim cokolwiek zostanie zapisane, plik testowy jest zapisywany, odczytywany i usuwany.",
-    "notConfigured": "Ten serwer nie jest jeszcze skonfigurowany dla {provider}. Administrator musi zarejestrować aplikację w {provider} i ustawić {vars}.",
+    "notConfigured": "{provider} nie jest dostępny: aby go udostępnić, zarejestruj aplikację w {provider} i ustaw {vars} na serwerze.",
     "dismiss": "Zamknij",
     "notices": {
       "connected": "Połączono. Od teraz nowe pliki trafiają tam.",
       "refused": "Zalogowano, ale nie udało się tam zapisać pliku testowego, więc nic nie zostało zmienione. Spróbuj ponownie później."
+    },
+    "descriptionOff": "Miejsce, w którym przechowywane są pliki przesłane do tego obszaru roboczego. Część z nich jest w magazynie podłączonym, zanim ten serwer przestał oferować własne magazyny; nie można podłączyć nowego.",
+    "brokenHelp": "Plików zapisanych w tym magazynie nie można odczytać, dopóki znów nie zacznie działać. Jeśli magazyn zniknął na dobre, przywróć obszar roboczy z kopii zapasowej.",
+    "owner": {
+      "mine": "Twój magazyn „{label}”",
+      "other": "Magazyn użytkownika {name}",
+      "gone": "Magazyn osoby, która opuściła Leafdesk"
+    },
+    "stopUsing": "Przestań używać",
+    "useHeading": "Przechowuj pliki we własnym magazynie",
+    "useOtherHeading": "Użyj innego magazynu",
+    "useDescription": "Nowe pliki trafiają do magazynu podłączonego do Twojego konta, do osobnego folderu tego obszaru roboczego. Zanim cokolwiek się zmieni, plik testowy jest zapisywany, odczytywany i usuwany. Pliki już przesłane zostają tam, gdzie są, dopóki ich nie przeniesiesz.",
+    "useAccount": "Twój magazyn",
+    "use": "Używaj dla nowych plików",
+    "connectNew": "Podłącz inny magazyn",
+    "move": {
+      "heading": "Przenieś pliki",
+      "description": "Kopiuje wszystkie pliki tego obszaru roboczego do innego magazynu, po kilka naraz, podczas gdy obszar roboczy działa dalej, a potem usuwa je z poprzedniego miejsca. Nowe pliki trafiają tam od samego początku.",
+      "to": "Przenieś do",
+      "server": "Magazyn tego serwera",
+      "confirm": "Przenieść wszystkie pliki tego obszaru roboczego? Cel: {destination}. Od teraz nowe pliki trafiają tam.",
+      "start": "Przenieś pliki",
+      "queued": "Pliki zaraz zostaną przeniesione (cel: {destination}).",
+      "running": "Przenoszenie plików (cel: {destination}): {moved} z {files}.",
+      "done": "{files, plural, =0 {Gotowe: nowe pliki trafiają teraz do nowego miejsca ({destination}).} one {Przeniesiono # plik (cel: {destination}).} few {Przeniesiono # pliki (cel: {destination}).} many {Przeniesiono # plików (cel: {destination}).} other {Przeniesiono # pliku (cel: {destination}).}}",
+      "failed": "{failed, plural, one {Nie udało się przenieść # pliku} few {Nie udało się przenieść # plików} many {Nie udało się przenieść # plików} other {Nie udało się przenieść # pliku}} (cel: {destination}): {error}",
+      "blocked": "Magazyn, w którym są pliki tego obszaru roboczego, przestanie być dostępny, a nie ma dokąd ich przenieść: żaden właściciel nie ma domyślnego magazynu, a magazyn tego serwera nie może ich przyjąć. Na razie nadal są z niego odczytywane. Skonfiguruj magazyn, a potem spróbuj ponownie.",
+      "retry": "Spróbuj ponownie",
+      "backupHint": "Pliki, których nie da się już odczytać z ich magazynu, można odzyskać, przywracając kopię zapasową obszaru roboczego.",
+      "reasons": {
+        "left": "Magazyn, w którym są te pliki, należy do osoby, która opuściła obszar roboczy.",
+        "removed": "Magazyn, w którym są te pliki, należy do osoby, która została usunięta z obszaru roboczego.",
+        "accountDeleted": "Magazyn, w którym są te pliki, należy do osoby, która usunęła swoje konto Leafdesk.",
+        "disconnected": "Magazyn, w którym są te pliki, został odłączony przez właściciela."
+      }
+    },
+    "accounts": {
+      "heading": "Podłączone magazyny",
+      "description": "Magazyny, które podłączasz raz i których używasz w obszarach roboczych, których jesteś właścicielem: zasobnik zgodny z S3, Google Drive lub Dropbox. Każdy obszar roboczy ma tam własny folder; pozostali członkowie odczytują jego pliki przez Leafdesk i nie potrzebują konta w tym magazynie. We wspólnych obszarach roboczych lepiej używać magazynu należącego do zespołu (firmowego zasobnika lub wspólnego konta): jeśli opuścisz taki obszar, jego pliki trzeba będzie przenieść.",
+      "descriptionOff": "Magazyny podłączone wcześniej. Ten serwer nie pozwala już nikomu podłączać nowych magazynów; obszary robocze, które z nich korzystają, działają dalej.",
+      "connect": "Podłącz magazyn",
+      "connected": "Połączono. Wybierz go w obszarze roboczym w Ustawienia > Magazyn albo ustaw jako domyślny.",
+      "none": "Nie podłączono jeszcze żadnego magazynu. Pliki trafiają na ten serwer.",
+      "default": "Domyślny dla nowych obszarów roboczych",
+      "setDefault": "Ustaw jako domyślny",
+      "unsetDefault": "Usuń jako domyślny",
+      "rename": "Zmień nazwę",
+      "disconnected": "Odłączony: nadal odczytywany, dopóki jego pliki nie zostaną przeniesione lub usunięte",
+      "usedBy": "Używany przez: {workspaces}",
+      "unused": "Żaden obszar roboczy jeszcze go nie używa.",
+      "disconnectUsed": "Te obszary robocze przestaną zapisywać tam nowe pliki. Ich pliki zostaną przeniesione do magazynu innego właściciela, jeśli to możliwe; pozostałe są nadal z niego odczytywane, dopóki nie zostaną przeniesione lub usunięte.",
+      "disconnectUnused": "Żaden obszar roboczy go nie używa. Leafdesk zapomni go wraz z jego kluczami."
     }
   },
   "backup": {

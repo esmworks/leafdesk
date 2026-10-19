@@ -826,7 +826,9 @@
     "creationRestricted": "Çalışma alanlarını yalnızca sunucunun yöneticileri oluşturabilir.",
     "agentUser": "Bu bir ajan, kişi değil. Ajanın kendi ayarlarından değiştirin ya da arşivleyin.",
     "confirmationMismatch": "Onaylamak için çalışma alanının adını gösterildiği gibi yazın.",
-    "workspaceDeleted": "Bu çalışma alanını bu arada başka biri sildi."
+    "workspaceDeleted": "Bu çalışma alanını bu arada başka biri sildi.",
+    "storageNoDestination": "Bu çalışma alanının dosyaları sizin depolamanızda ve siz ayrıldığınızda taşınabilecekleri bir yer yok: başka hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor. Bir sahipten depolama kurmasını isteyin ya da önce dosyaları taşıyın (Ayarlar > Depolama).",
+    "storageMoveInProgress": "Bu çalışma alanının dosyaları sizin depolamanıza taşınıyor. Bitmesini bekleyin, ardından ayrılın."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "{target} posta kutusunun bağlantısını kesti"
       },
       "storage": {
-        "connected": "Çalışma alanının kendi depolamasını bağladı: {target}",
-        "disconnected": "Çalışma alanının kendi depolamasının bağlantısını kesti: {target}"
+        "connected": "Yeni dosyaları şurada tutmaya başladı: {target}",
+        "disconnected": "Yeni dosyaları şurada tutmayı bıraktı: {target}",
+        "moved": "Çalışma alanının dosyalarını şuraya taşımaya başladı: {target}"
       },
       "backup": {
         "created": "Çalışma alanı yedeklendi ({count, plural, other {# sayfa}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer. Çalışma alanına ait bir depolama (S3 uyumlu bir bucket, Google Drive ya da Dropbox) bağlarsanız yeni dosyalar bu sunucu yerine oraya gider. Her dosyayı yine Leafdesk sunar, bu yüzden depolama gizli kalır: herkese açık erişim ya da paylaşım gerekmez.",
+    "description": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer: bu sunucu ya da sahiplerinden birinin kendi hesabına bağladığı bir depolama (S3 uyumlu bir bucket, Google Drive ya da Dropbox). Her dosyayı yine Leafdesk sunar, bu yüzden depolama gizli kalır: üyelerin orada hesabı olması gerekmez, herkese açık erişim ya da paylaşım da gerekmez.",
     "currentHeading": "Yeni dosyaların gittiği yer",
     "instance": "Bu sunucu",
     "instanceHint": "Dosyalar, Leafdesk'in çalıştığı sunucuda tutulur.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ya da S3 protokolünü konuşan herhangi bir depolama.",
-      "gdrive": "Dosyalar Leafdesk'in Drive'ınızda açtığı bir klasöre gider. Leafdesk yalnızca orada kendi oluşturduğu dosyaları görebilir, Drive'ınızdaki başka hiçbir şeyi göremez.",
-      "dropbox": "Dosyalar Dropbox'ınızda Leafdesk'in uygulama klasörüne (Apps altında) gider. Leafdesk bu klasörün dışındaki hiçbir şeyi göremez."
+      "gdrive": "Dosyalar, Leafdesk'in Drive'ınızda açtığı Leafdesk klasörüne, her çalışma alanı için ayrı bir klasöre gider. Leafdesk yalnızca orada kendi oluşturduğu dosyaları görebilir, Drive'ınızdaki başka hiçbir şeyi göremez.",
+      "dropbox": "Dosyalar Dropbox'ınızda Leafdesk'in uygulama klasörüne (Apps altında), her çalışma alanı için ayrı bir klasöre gider. Leafdesk bu klasörün dışındaki hiçbir şeyi göremez."
     },
     "status": {
       "active": "Çalışıyor, {time} kontrol edildi",
@@ -1776,12 +1779,8 @@
     "olderFiles": "Bağlanmadan önce yüklenen dosyalar bu sunucuda kalır ({size}).",
     "testAgain": "Yeniden dene",
     "testing": "Deneniyor…",
-    "change": "Değiştir",
     "disconnect": "Bağlantıyı kes",
-    "disconnectNote": "Yeni dosyalar yeniden bu sunucuya gider. O depolamadaki dosyalar orada kalır ve silinene kadar oradan okunmaya devam eder.",
-    "connectHeading": "Depolama bağla",
-    "changeHeading": "Depolamayı değiştir",
-    "connectDescription": "Herhangi bir şey kaydedilmeden önce bir deneme dosyası saklanır, geri okunur ve silinir. Önceden yüklenmiş dosyalar olduğu yerde kalır.",
+    "disconnectNote": "Yeni dosyalar yeniden bu sunucuya gider. O depolamadaki dosyalar orada kalır ve silinene ya da taşınana kadar oradan okunmaya devam eder.",
     "fields": {
       "kind": "Depolama türü",
       "endpoint": "Endpoint",
@@ -1793,10 +1792,12 @@
       "prefixHint": "İsteğe bağlı: dosyalar bucket içinde bu klasörün altına gider.",
       "accessKeyId": "Erişim anahtarı kimliği",
       "secretAccessKey": "Gizli erişim anahtarı",
-      "keysKeep": "Boş bırakırsanız mevcut anahtar korunur",
       "keysHint": "Bu anahtarlara yalnızca bu bucket için erişim verin. Şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
       "pathStyle": "Bucket'a yol ile eriş",
-      "pathStyleHint": "MinIO ve AWS S3 dışındaki çoğu depolama için gerekir."
+      "pathStyleHint": "MinIO ve AWS S3 dışındaki çoğu depolama için gerekir.",
+      "label": "Ad",
+      "labelPlaceholder": "Şirket bucket'ı",
+      "labelHint": "Bu depolamaya Leafdesk'te verdiğiniz ad. İsteğe bağlı."
     },
     "test": "Bağlantıyı dene",
     "testOk": "Çalışıyor: bir deneme dosyası gidip geri geldi.",
@@ -1804,7 +1805,7 @@
     "connecting": "Bağlanıyor…",
     "save": "Kaydet",
     "retiredHeading": "Önceki depolama",
-    "retiredDescription": "Daha önce bağlantısı kesilen depolamada hâlâ dosyalar var. Silinene kadar dosyalar oradan okunur.",
+    "retiredDescription": "Bu çalışma alanının daha önce kullandığı ve hâlâ dosya barındıran depolama. Dosyalar silinene ya da taşınana kadar oradan okunur.",
     "errors": {
       "accessDenied": "Dosyaların nerede saklanacağını yalnızca çalışma alanının sahipleri değiştirebilir.",
       "endpoint": "Endpoint'i https://storage.example.com gibi bir web adresi olarak girin.",
@@ -1816,19 +1817,77 @@
       "unavailable": "Bu tür depolama henüz bağlanamıyor.",
       "refused": "Depolama çalışmadı: {message}",
       "rateLimited": "Çok fazla deneme yapıldı. Birkaç dakika bekleyip yeniden deneyin.",
-      "noStorage": "Bu çalışma alanına bağlı kendi depolaması yok.",
+      "noStorage": "Bu çalışma alanı hiçbir dosyasını kendi depolamasında tutmuyor.",
       "notConfigured": "Bu sunucu bu tür bir depolama için ayarlanmamış.",
-      "oauthFailed": "Oturum açma işe yaramadı, bu yüzden hiçbir şey değişmedi. Yeniden deneyin."
+      "oauthFailed": "Oturum açma işe yaramadı, bu yüzden hiçbir şey değişmedi. Yeniden deneyin.",
+      "disabled": "Bu sunucu kimsenin kendi depolamasını bağlamasına izin vermiyor.",
+      "noAccount": "Bu depolama hesabınıza bağlı değil.",
+      "accountDisconnected": "Bu depolamanın bağlantısı kesildi.",
+      "moveInProgress": "Bu çalışma alanının dosyaları taşınıyor. Bitmesini bekleyin.",
+      "noDestination": "{workspace} çalışma alanının dosyalarının taşınabileceği bir yer yok: başka hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor.",
+      "serverRefused": "Bu sunucunun depolaması bu çalışma alanının dosyalarını alamıyor: S3 değil ya da dosyalar oradaki çalışma alanı kotasına sığmıyor.",
+      "noMove": "Bu taşıma artık yok."
     },
     "signIn": "{provider} ile oturum aç",
-    "signInAgain": "{provider} ile yeniden oturum aç",
     "signingIn": "Açılıyor…",
     "signInHint": "{provider} üzerinde oturum açıp buraya dönersiniz. Bir şey kaydedilmeden önce bir deneme dosyası yazılır, geri okunur ve silinir.",
-    "notConfigured": "Bu sunucu henüz {provider} için ayarlanmadı. Yöneticisinin {provider} üzerinde bir uygulama kaydedip {vars} değerlerini ayarlaması gerekiyor.",
+    "notConfigured": "{provider} sunulmuyor: sunmak için {provider} üzerinde bir uygulama kaydedin ve sunucuda {vars} değerlerini ayarlayın.",
     "dismiss": "Kapat",
     "notices": {
       "connected": "Bağlandı. Yeni dosyalar bundan sonra oraya gidecek.",
       "refused": "Oturum açıldı ama oraya bir deneme dosyası yazılamadı, bu yüzden hiçbir şey değişmedi. Daha sonra yeniden deneyin."
+    },
+    "descriptionOff": "Bu çalışma alanının yüklenen dosyalarının tutulduğu yer. Bazıları, bu sunucu kişilerin kendi depolamasını sunmayı bırakmadan önce bağlanmış bir depolamada duruyor; yeni bir şey bağlanamaz.",
+    "brokenHelp": "Orada saklanan dosyalar, depolama yeniden çalışana kadar okunamaz. Depolama kalıcı olarak gittiyse çalışma alanını bir yedekten geri yükleyin.",
+    "owner": {
+      "mine": "Sizin depolamanız: “{label}”",
+      "other": "{name} adlı kişinin depolaması",
+      "gone": "Leafdesk'ten ayrılmış birinin depolaması"
+    },
+    "stopUsing": "Kullanmayı bırak",
+    "useHeading": "Dosyaları kendi depolamanızda tutun",
+    "useOtherHeading": "Başka bir depolama kullan",
+    "useDescription": "Yeni dosyalar, hesabınıza bağladığınız depolamada bu çalışma alanına ait bir klasöre gider. Herhangi bir şey değişmeden önce bir deneme dosyası saklanır, geri okunur ve silinir. Önceden yüklenmiş dosyalar siz taşıyana kadar olduğu yerde kalır.",
+    "useAccount": "Depolamanız",
+    "use": "Yeni dosyalar için kullan",
+    "connectNew": "Başka bir depolama bağla",
+    "move": {
+      "heading": "Dosyaları taşı",
+      "description": "Bu çalışma alanının tüm dosyalarını, çalışma alanı çalışmaya devam ederken birkaçar birkaçar başka bir depolamaya kopyalar, ardından eski yerlerinden siler. Yeni dosyalar baştan oraya gider.",
+      "to": "Taşınacağı yer",
+      "server": "Bu sunucunun depolaması",
+      "confirm": "Bu çalışma alanının tüm dosyaları {destination} konumuna taşınsın mı? Yeni dosyalar bundan sonra oraya gider.",
+      "start": "Dosyaları taşı",
+      "queued": "Dosyalar birazdan {destination} konumuna taşınacak.",
+      "running": "Dosyalar {destination} konumuna taşınıyor: {moved} / {files}.",
+      "done": "{files, plural, =0 {Tamam: yeni dosyalar artık {destination} konumuna gidiyor.} one {# dosya {destination} konumuna taşındı.} other {# dosya {destination} konumuna taşındı.}}",
+      "failed": "{failed, plural, one {# dosya} other {# dosya}} {destination} konumuna taşınamadı: {error}",
+      "blocked": "Bu çalışma alanının dosyalarını tutan depolama kaldırılıyor ve dosyaların taşınabileceği bir yer yok: hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor. Şimdilik oradan okunmaya devam ediyorlar. Bir depolama kurun, ardından yeniden deneyin.",
+      "retry": "Yeniden dene",
+      "backupHint": "Artık depolamasından okunamayan dosyalar, çalışma alanının bir yedeği geri yüklenerek geri gelir.",
+      "reasons": {
+        "left": "Bu dosyaları tutan depolama, çalışma alanından ayrılan birine ait.",
+        "removed": "Bu dosyaları tutan depolama, çalışma alanından çıkarılan birine ait.",
+        "accountDeleted": "Bu dosyaları tutan depolama, Leafdesk hesabını silen birine ait.",
+        "disconnected": "Bu dosyaları tutan depolamanın bağlantısı sahibi tarafından kesildi."
+      }
+    },
+    "accounts": {
+      "heading": "Bağlı depolamalar",
+      "description": "Bir kez bağlayıp sahibi olduğunuz çalışma alanlarında kullandığınız depolama: S3 uyumlu bir bucket, Google Drive ya da Dropbox. Her çalışma alanına orada ayrı bir klasör açılır; diğer üyeler dosyalarını Leafdesk üzerinden okur ve o depolamada hesaba ihtiyaç duymaz. Paylaşılan çalışma alanları için ekibinize ait bir depolamayı (şirket bucket'ı ya da ortak hesap) tercih edin: birinden ayrılırsanız dosyalarının taşınması gerekir.",
+      "descriptionOff": "Daha önce bağladığınız depolamalar. Bu sunucu artık kimsenin yeni depolama bağlamasına izin vermiyor; bunları kullanan çalışma alanları çalışmaya devam eder.",
+      "connect": "Depolama bağla",
+      "connected": "Bağlandı. Bir çalışma alanında Ayarlar > Depolama bölümünden seçin ya da varsayılanınız yapın.",
+      "none": "Henüz bağlı depolama yok. Dosyalar bu sunucuya gider.",
+      "default": "Yeni çalışma alanları için varsayılan",
+      "setDefault": "Varsayılan yap",
+      "unsetDefault": "Varsayılandan çıkar",
+      "rename": "Yeniden adlandır",
+      "disconnected": "Bağlantı kesildi: dosyaları taşınana ya da silinene kadar oradan okunmaya devam eder",
+      "usedBy": "Kullanan: {workspaces}",
+      "unused": "Henüz hiçbir çalışma alanı kullanmıyor.",
+      "disconnectUsed": "Bu çalışma alanları oraya yeni dosya koymayı bırakır. Dosyaları, mümkün olduğunda başka bir sahibin depolamasına taşınır; diğerleri taşınana ya da silinene kadar oradan okunmaya devam eder.",
+      "disconnectUnused": "Hiçbir çalışma alanı kullanmıyor. Leafdesk bu depolamayı ve anahtarlarını unutur."
     }
   },
   "backup": {

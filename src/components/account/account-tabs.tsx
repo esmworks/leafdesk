@@ -27,6 +27,10 @@ import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import type { requireSession } from "@/server/session";
 import { env } from "@/lib/env";
+import { isInstanceAdmin } from "@/lib/instance-admin";
+import { storageNoticeOf } from "@/lib/workspace-storage";
+import { getStorageAccounts } from "@/server/storage/accounts";
+import { AccountStorage } from "@/components/settings/account-storage";
 
 /**
  * The signed-in person's own settings, shown in two places: under Settings in a workspace (the
@@ -45,16 +49,17 @@ export const ACCOUNT_ICONS: Record<AccountTab, LucideIcon> = {
 
 type Session = Awaited<ReturnType<typeof requireSession>>;
 
-export async function AccountTabContent({ tab, session }: { tab: AccountTab; session: Session }) {
+export async function AccountTabContent({ tab, session, query = {} }: { tab: AccountTab; session: Session; query?: Record<string, string | string[] | undefined> }) {
   if (tab === "profile") return <ProfileTab session={session} />;
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
   if (tab === "about") return <AboutLeafdesk />;
-  const t = await getTranslations("account");
+  const [t, storage] = await Promise.all([getTranslations("account"), getStorageAccounts(session.user.id, { isAdmin: isInstanceAdmin(session.user) })]);
   return (
     <>
       <SettingsHeader title={t("nav.apps")} description={t("apps.description")} />
       <div className="space-y-10">
+        <AccountStorage initial={storage} notice={storageNoticeOf(query)} />
         <ConnectedApps />
         <McpInstructions />
         <ApiTokens />

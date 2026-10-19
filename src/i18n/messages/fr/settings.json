@@ -826,7 +826,9 @@
     "creationRestricted": "Seuls les administrateurs du serveur peuvent créer des espaces de travail.",
     "agentUser": "C’est un agent, pas une personne. Modifiez-le ou archivez-le dans les réglages de l’agent.",
     "confirmationMismatch": "Pour confirmer, saisissez le nom de l’espace de travail exactement comme il est affiché.",
-    "workspaceDeleted": "Quelqu’un a supprimé cet espace de travail entre-temps."
+    "workspaceDeleted": "Quelqu’un a supprimé cet espace de travail entre-temps.",
+    "storageNoDestination": "Les fichiers de cet espace de travail sont dans votre stockage, et ils ne pourront être déplacés nulle part si vous partez : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Demandez à un propriétaire de configurer un stockage, ou déplacez d’abord les fichiers (Paramètres > Stockage).",
+    "storageMoveInProgress": "Les fichiers de cet espace de travail sont en cours de déplacement vers votre stockage. Attendez la fin, puis quittez-le."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "A déconnecté la boîte mail {target}"
       },
       "storage": {
-        "connected": "A connecté le stockage propre de l’espace de travail {target}",
-        "disconnected": "A déconnecté le stockage propre de l’espace de travail {target}"
+        "connected": "A commencé à conserver les nouveaux fichiers dans {target}",
+        "disconnected": "A cessé de conserver les nouveaux fichiers dans {target}",
+        "moved": "A commencé à déplacer les fichiers de l’espace de travail vers {target}"
       },
       "backup": {
         "created": "A sauvegardé l’espace de travail ({count, plural, one {# page} other {# pages}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "L'endroit où sont conservés les fichiers téléversés dans cet espace de travail. Connectez un stockage propre à l'espace de travail (un bucket compatible S3, Google Drive ou Dropbox) et les nouveaux fichiers y iront au lieu de ce serveur. Leafdesk continue de servir lui-même chaque fichier, le stockage reste donc privé : aucun accès public ni partage n'est nécessaire.",
+    "description": "L’endroit où sont conservés les fichiers téléversés dans cet espace de travail : ce serveur, ou un stockage qu’un de ses propriétaires a connecté à son compte (un bucket compatible S3, Google Drive ou Dropbox). Leafdesk continue de servir lui-même chaque fichier, le stockage reste donc privé : les membres n’y ont besoin d’aucun compte, et aucun accès public ni partage n’est nécessaire.",
     "currentHeading": "Où vont les nouveaux fichiers",
     "instance": "Ce serveur",
     "instanceHint": "Les fichiers sont conservés sur le serveur où Leafdesk s’exécute.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ou tout autre stockage qui parle le protocole S3.",
-      "gdrive": "Les fichiers vont dans un dossier que Leafdesk crée dans votre Drive. Leafdesk ne voit que les fichiers qu'il y a créés, rien d'autre de votre Drive.",
-      "dropbox": "Les fichiers vont dans le dossier d'application de Leafdesk dans votre Dropbox (sous Applications). Leafdesk ne voit rien en dehors."
+      "gdrive": "Les fichiers vont dans un dossier Leafdesk que Leafdesk crée dans votre Drive, avec un dossier par espace de travail. Leafdesk ne voit que les fichiers qu’il y a créés, rien d’autre de votre Drive.",
+      "dropbox": "Les fichiers vont dans le dossier d’application de Leafdesk dans votre Dropbox (sous Applications), avec un dossier par espace de travail. Leafdesk ne voit rien en dehors."
     },
     "status": {
       "active": "Fonctionne, vérifié {time}",
@@ -1776,12 +1779,8 @@
     "olderFiles": "Les fichiers téléversés avant la connexion restent sur ce serveur ({size}).",
     "testAgain": "Tester à nouveau",
     "testing": "Test en cours…",
-    "change": "Modifier",
     "disconnect": "Déconnecter",
-    "disconnectNote": "Les nouveaux fichiers iront de nouveau sur ce serveur. Les fichiers déjà dans ce stockage y restent et continuent d'y être lus jusqu'à leur suppression.",
-    "connectHeading": "Connecter un stockage",
-    "changeHeading": "Modifier le stockage",
-    "connectDescription": "Avant tout enregistrement, un fichier de test est stocké, relu puis supprimé. Les fichiers déjà téléversés restent où ils sont.",
+    "disconnectNote": "Les nouveaux fichiers iront de nouveau sur ce serveur. Les fichiers déjà dans ce stockage y restent et continuent d’y être lus jusqu’à leur suppression ou leur déplacement.",
     "fields": {
       "kind": "Type de stockage",
       "endpoint": "Point de terminaison",
@@ -1793,10 +1792,12 @@
       "prefixHint": "Facultatif : les fichiers sont placés sous ce dossier du bucket.",
       "accessKeyId": "ID de clé d’accès",
       "secretAccessKey": "Clé d’accès secrète",
-      "keysKeep": "Vide, la clé actuelle est conservée",
       "keysHint": "Donnez à ces clés l’accès à ce bucket uniquement. Elles sont stockées chiffrées et ne sont plus jamais affichées.",
       "pathStyle": "Adresser le bucket par le chemin",
-      "pathStyleHint": "Nécessaire pour MinIO et la plupart des stockages autres qu’AWS S3."
+      "pathStyleHint": "Nécessaire pour MinIO et la plupart des stockages autres qu’AWS S3.",
+      "label": "Nom",
+      "labelPlaceholder": "Bucket de l’entreprise",
+      "labelHint": "Le nom que vous donnez à ce stockage dans Leafdesk. Facultatif."
     },
     "test": "Tester la connexion",
     "testOk": "Ça fonctionne : un fichier de test a fait l’aller-retour.",
@@ -1804,7 +1805,7 @@
     "connecting": "Connexion en cours…",
     "save": "Enregistrer",
     "retiredHeading": "Stockage précédent",
-    "retiredDescription": "Un stockage déconnecté auparavant contient encore des fichiers. Ils sont lus depuis celui-ci jusqu’à leur suppression.",
+    "retiredDescription": "Un stockage que cet espace de travail utilisait auparavant et qui contient encore des fichiers. Ils y sont lus jusqu’à leur suppression ou leur déplacement.",
     "errors": {
       "accessDenied": "Seuls les propriétaires de l’espace de travail peuvent modifier l’emplacement de ses fichiers.",
       "endpoint": "Saisissez le point de terminaison sous forme d’adresse web, comme https://storage.example.com.",
@@ -1816,19 +1817,77 @@
       "unavailable": "Ce type de stockage ne peut pas encore être connecté.",
       "refused": "Le stockage n’a pas fonctionné : {message}",
       "rateLimited": "Trop de tentatives. Patientez quelques minutes, puis réessayez.",
-      "noStorage": "Aucun stockage propre n’est connecté à cet espace de travail.",
+      "noStorage": "Cet espace de travail ne conserve aucun fichier dans un stockage propre.",
       "notConfigured": "Ce serveur n'est pas configuré pour ce type de stockage.",
-      "oauthFailed": "La connexion n'a pas abouti, donc rien n'a changé. Réessayez."
+      "oauthFailed": "La connexion n'a pas abouti, donc rien n'a changé. Réessayez.",
+      "disabled": "Ce serveur ne permet à personne de connecter son propre stockage.",
+      "noAccount": "Ce stockage n’est pas connecté à votre compte.",
+      "accountDisconnected": "Ce stockage a été déconnecté.",
+      "moveInProgress": "Les fichiers de cet espace de travail sont en cours de déplacement. Attendez la fin.",
+      "noDestination": "Les fichiers de {workspace} ne peuvent être déplacés nulle part : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir.",
+      "serverRefused": "Le stockage de ce serveur ne peut pas accueillir les fichiers de cet espace de travail : ce n’est pas du S3, ou ils dépassent le quota de l’espace de travail.",
+      "noMove": "Ce déplacement n’existe plus."
     },
     "signIn": "Se connecter à {provider}",
-    "signInAgain": "Se reconnecter à {provider}",
     "signingIn": "Ouverture…",
     "signInHint": "Vous vous connectez sur {provider} puis revenez ici. Avant tout enregistrement, un fichier de test est stocké, relu puis supprimé.",
-    "notConfigured": "Ce serveur n'est pas encore configuré pour {provider}. Son administrateur doit enregistrer une application auprès de {provider} et définir {vars}.",
+    "notConfigured": "{provider} n’est pas proposé : enregistrez une application auprès de {provider} et définissez {vars} sur le serveur pour le proposer.",
     "dismiss": "Fermer",
     "notices": {
       "connected": "Connecté. Les nouveaux fichiers y vont désormais.",
       "refused": "Vous vous êtes connecté, mais aucun fichier de test n'a pu y être stocké, donc rien n'a changé. Réessayez plus tard."
+    },
+    "descriptionOff": "L’endroit où sont conservés les fichiers téléversés dans cet espace de travail. Certains se trouvent dans un stockage connecté avant que ce serveur cesse de proposer un stockage personnel ; rien de nouveau ne peut être connecté.",
+    "brokenHelp": "Les fichiers qui y sont stockés ne peuvent pas être lus tant qu’il ne fonctionne pas de nouveau. Si le stockage a définitivement disparu, restaurez l’espace de travail à partir d’une sauvegarde.",
+    "owner": {
+      "mine": "Votre stockage « {label} »",
+      "other": "Stockage de {name}",
+      "gone": "Stockage d’une personne qui a quitté Leafdesk"
+    },
+    "stopUsing": "Ne plus utiliser",
+    "useHeading": "Conserver les fichiers dans votre stockage",
+    "useOtherHeading": "Utiliser un autre stockage",
+    "useDescription": "Les nouveaux fichiers vont dans un stockage que vous avez connecté à votre compte, dans un dossier propre à cet espace de travail. Avant tout changement, un fichier de test est stocké, relu puis supprimé. Les fichiers déjà téléversés restent où ils sont jusqu’à ce que vous les déplaciez.",
+    "useAccount": "Votre stockage",
+    "use": "Utiliser pour les nouveaux fichiers",
+    "connectNew": "Connecter un autre stockage",
+    "move": {
+      "heading": "Déplacer les fichiers",
+      "description": "Copie tous les fichiers de cet espace de travail vers un autre stockage, quelques-uns à la fois, pendant que l’espace de travail continue de fonctionner, puis les supprime de leur ancien emplacement. Les nouveaux fichiers y vont dès le départ.",
+      "to": "Déplacer vers",
+      "server": "Le stockage de ce serveur",
+      "confirm": "Déplacer tous les fichiers de cet espace de travail vers {destination} ? Les nouveaux fichiers y iront désormais.",
+      "start": "Déplacer les fichiers",
+      "queued": "Les fichiers vont être déplacés vers {destination}.",
+      "running": "Déplacement des fichiers vers {destination} : {moved} sur {files}.",
+      "done": "{files, plural, =0 {Terminé : les nouveaux fichiers vont désormais vers {destination}.} one {# fichier déplacé vers {destination}.} many {# de fichiers déplacés vers {destination}.} other {# fichiers déplacés vers {destination}.}}",
+      "failed": "{failed, plural, one {# fichier n’a pas pu être déplacé} many {# de fichiers n’ont pas pu être déplacés} other {# fichiers n’ont pas pu être déplacés}} vers {destination} : {error}",
+      "blocked": "Le stockage qui contient les fichiers de cet espace de travail va disparaître, et ils ne peuvent être déplacés nulle part : aucun propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Ils y sont encore lus pour l’instant. Configurez un stockage, puis réessayez.",
+      "retry": "Réessayer",
+      "backupHint": "Les fichiers qui ne peuvent plus être lus depuis leur stockage reviennent en restaurant une sauvegarde de l’espace de travail.",
+      "reasons": {
+        "left": "Le stockage qui contient ces fichiers appartient à une personne qui a quitté l’espace de travail.",
+        "removed": "Le stockage qui contient ces fichiers appartient à une personne qui a été retirée de l’espace de travail.",
+        "accountDeleted": "Le stockage qui contient ces fichiers appartient à une personne qui a supprimé son compte Leafdesk.",
+        "disconnected": "Le stockage qui contient ces fichiers a été déconnecté par son propriétaire."
+      }
+    },
+    "accounts": {
+      "heading": "Stockages connectés",
+      "description": "Des stockages que vous connectez une fois et utilisez dans les espaces de travail dont vous êtes propriétaire : un bucket compatible S3, Google Drive ou Dropbox. Chaque espace de travail y reçoit son propre dossier ; les autres membres lisent ses fichiers via Leafdesk et n’ont besoin d’aucun compte chez ce stockage. Pour les espaces de travail partagés, préférez un stockage qui appartient à votre équipe (un bucket de l’entreprise ou un compte partagé) : si vous en quittez un, ses fichiers doivent être déplacés.",
+      "descriptionOff": "Des stockages que vous avez connectés auparavant. Ce serveur ne permet plus à personne de connecter un nouveau stockage ; les espaces de travail qui les utilisent continuent de fonctionner.",
+      "connect": "Connecter un stockage",
+      "connected": "Connecté. Choisissez-le dans Paramètres > Stockage d’un espace de travail, ou faites-en votre stockage par défaut.",
+      "none": "Aucun stockage connecté pour l’instant. Les fichiers vont sur ce serveur.",
+      "default": "Par défaut pour les nouveaux espaces de travail",
+      "setDefault": "Définir par défaut",
+      "unsetDefault": "Ne plus utiliser par défaut",
+      "rename": "Renommer",
+      "disconnected": "Déconnecté : toujours lu jusqu’au déplacement ou à la suppression de ses fichiers",
+      "usedBy": "Utilisé par : {workspaces}",
+      "unused": "Aucun espace de travail ne l’utilise encore.",
+      "disconnectUsed": "Ces espaces de travail cessent d’y placer de nouveaux fichiers. Leurs fichiers sont déplacés vers le stockage d’un autre propriétaire lorsque c’est possible ; les autres y sont encore lus jusqu’à leur déplacement ou leur suppression.",
+      "disconnectUnused": "Aucun espace de travail ne l’utilise. Leafdesk l’oublie, ainsi que ses clés."
     }
   },
   "backup": {

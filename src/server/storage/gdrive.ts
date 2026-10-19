@@ -65,16 +65,36 @@ export async function driveAccount(session: OAuthSession, endpoints: Partial<GDr
 
 /**
  * The folder the workspace's files go in: the one Leafdesk made for it in this Drive before (found
- * by its appProperties, so signing in again keeps it), or a new one named `name`.
+ * by its appProperties, so signing in again keeps it, wherever it was moved), or a new one named
+ * `name`, in `parentId` (the account's Leafdesk folder) when given.
  */
 export async function driveFolder(
   session: OAuthSession,
   workspaceId: string,
   name: string,
   endpoints: Partial<GDriveEndpoints> = {},
+  parentId?: string | null,
+): Promise<{ folderId: string; folderName: string }> {
+  return findOrMakeFolder(session, { key: "leafdeskWorkspace", value: workspaceId }, name, parentId ?? null, endpoints);
+}
+
+/**
+ * The "Leafdesk" folder of this Drive, which the workspaces' folders go in: the one made on
+ * connecting it before, or a new one.
+ */
+export async function driveRootFolder(session: OAuthSession, endpoints: Partial<GDriveEndpoints> = {}): Promise<{ folderId: string; folderName: string }> {
+  return findOrMakeFolder(session, { key: "leafdeskRoot", value: "1" }, "Leafdesk", null, endpoints);
+}
+
+async function findOrMakeFolder(
+  session: OAuthSession,
+  marker: { key: string; value: string },
+  name: string,
+  parentId: string | null,
+  endpoints: Partial<GDriveEndpoints>,
 ): Promise<{ folderId: string; folderName: string }> {
   const api = endpoints.api ?? DRIVE.api;
-  const q = `mimeType=${quoted(FOLDER_TYPE)} and trashed=false and appProperties has { key='leafdeskWorkspace' and value=${quoted(workspaceId)} }`;
+  const q = `mimeType=${quoted(FOLDER_TYPE)} and trashed=false and appProperties has { key=${quoted(marker.key)} and value=${quoted(marker.value)} }`;
   const found = await apiRequest("Google Drive", () =>
     session.authorized((token) =>
       fetch(`${api}/drive/v3/files?${new URLSearchParams({ q, spaces: "drive", fields: "files(id,name)", pageSize: "1" })}`, { headers: { authorization: `Bearer ${token}` } }),
@@ -88,7 +108,7 @@ export async function driveFolder(
       fetch(`${api}/drive/v3/files?fields=id,name`, {
         method: "POST",
         headers: { authorization: `Bearer ${token}`, "content-type": "application/json; charset=UTF-8" },
-        body: JSON.stringify({ name, mimeType: FOLDER_TYPE, appProperties: { leafdeskWorkspace: workspaceId } }),
+        body: JSON.stringify({ name, mimeType: FOLDER_TYPE, appProperties: { [marker.key]: marker.value }, ...(parentId && { parents: [parentId] }) }),
       }),
     ),
   );

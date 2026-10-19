@@ -826,7 +826,9 @@
     "creationRestricted": "Só os administradores do servidor podem criar espaços de trabalho.",
     "agentUser": "Este é um agente, não uma pessoa. Altere-o ou arquive-o nas configurações do próprio agente.",
     "confirmationMismatch": "Para confirmar, digite o nome do espaço de trabalho exatamente como mostrado.",
-    "workspaceDeleted": "Alguém excluiu este espaço de trabalho nesse meio-tempo."
+    "workspaceDeleted": "Alguém excluiu este espaço de trabalho nesse meio-tempo.",
+    "storageNoDestination": "Os arquivos deste espaço de trabalho estão no seu armazenamento, e não há para onde movê-los quando você sair: nenhum outro proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los. Peça a um proprietário que configure um armazenamento ou mova os arquivos primeiro (Configurações > Armazenamento).",
+    "storageMoveInProgress": "Os arquivos deste espaço de trabalho estão sendo movidos para o seu armazenamento. Aguarde até terminar e depois saia."
   },
   "security": {
     "description": "Decida como as pessoas entram, quem pode trazer pessoas para este espaço de trabalho, o que os convidados podem fazer, o que pode sair dele (exportações, apps conectados) e quem pode publicar páginas na web. Só proprietários podem alterar estas configurações.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "Desconectou a caixa de e-mail {target}"
       },
       "storage": {
-        "connected": "Conectou o armazenamento próprio do espaço de trabalho {target}",
-        "disconnected": "Desconectou o armazenamento próprio do espaço de trabalho {target}"
+        "connected": "Passou a guardar os novos arquivos em {target}",
+        "disconnected": "Deixou de guardar os novos arquivos em {target}",
+        "moved": "Começou a mover os arquivos do espaço de trabalho para {target}"
       },
       "backup": {
         "created": "Fez backup do espaço de trabalho ({count, plural, one {# página} other {# páginas}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "Onde ficam os arquivos enviados a este espaço de trabalho. Conecte um armazenamento próprio do espaço de trabalho (um bucket compatível com S3, Google Drive ou Dropbox) e os novos arquivos vão para lá em vez deste servidor. O Leafdesk continua servindo cada arquivo ele mesmo, então o armazenamento continua privado: não é preciso acesso público nem compartilhamento.",
+    "description": "Onde ficam os arquivos enviados a este espaço de trabalho: neste servidor ou em um armazenamento que um dos proprietários conectou à própria conta (um bucket compatível com S3, Google Drive ou Dropbox). O Leafdesk continua servindo cada arquivo ele mesmo, então o armazenamento continua privado: os membros não precisam de conta lá, e não é preciso acesso público nem compartilhamento.",
     "currentHeading": "Para onde vão os novos arquivos",
     "instance": "Este servidor",
     "instanceHint": "Os arquivos ficam no servidor em que o Leafdesk roda.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO ou qualquer outro armazenamento que fale o protocolo S3.",
-      "gdrive": "Os arquivos vão para uma pasta que o Leafdesk cria no seu Drive. O Leafdesk só vê os arquivos que criou ali, nada mais do seu Drive.",
-      "dropbox": "Os arquivos vão para a pasta do app Leafdesk no seu Dropbox (em Aplicativos). O Leafdesk não vê nada fora dela."
+      "gdrive": "Os arquivos vão para uma pasta Leafdesk que o Leafdesk cria no seu Drive, com uma pasta para cada espaço de trabalho. O Leafdesk só vê os arquivos que criou ali, nada mais do seu Drive.",
+      "dropbox": "Os arquivos vão para a pasta do app Leafdesk no seu Dropbox (em Aplicativos), com uma pasta para cada espaço de trabalho. O Leafdesk não vê nada fora dela."
     },
     "status": {
       "active": "Funcionando, verificado {time}",
@@ -1776,12 +1779,8 @@
     "olderFiles": "Os arquivos enviados antes da conexão ficam neste servidor ({size}).",
     "testAgain": "Testar novamente",
     "testing": "Testando…",
-    "change": "Alterar",
     "disconnect": "Desconectar",
-    "disconnectNote": "Os novos arquivos voltarão para este servidor. Os arquivos que já estão nesse armazenamento ficam lá e continuam sendo lidos de lá até serem excluídos.",
-    "connectHeading": "Conectar armazenamento",
-    "changeHeading": "Alterar armazenamento",
-    "connectDescription": "Antes de salvar qualquer coisa, um arquivo de teste é gravado, lido de volta e excluído. Os arquivos já enviados ficam onde estão.",
+    "disconnectNote": "Os novos arquivos voltarão para este servidor. Os arquivos que já estão nesse armazenamento ficam lá e continuam sendo lidos de lá até serem excluídos ou movidos.",
     "fields": {
       "kind": "Tipo de armazenamento",
       "endpoint": "Endpoint",
@@ -1793,10 +1792,12 @@
       "prefixHint": "Opcional: os arquivos ficam dentro desta pasta do bucket.",
       "accessKeyId": "ID da chave de acesso",
       "secretAccessKey": "Chave de acesso secreta",
-      "keysKeep": "Vazio mantém a chave atual",
       "keysHint": "Dê a estas chaves acesso somente a este bucket. Elas são armazenadas criptografadas e nunca são exibidas de novo.",
       "pathStyle": "Endereçar o bucket pelo caminho",
-      "pathStyleHint": "Necessário para o MinIO e para a maioria dos armazenamentos que não são o AWS S3."
+      "pathStyleHint": "Necessário para o MinIO e para a maioria dos armazenamentos que não são o AWS S3.",
+      "label": "Nome",
+      "labelPlaceholder": "Bucket da empresa",
+      "labelHint": "Como você chama este armazenamento no Leafdesk. Opcional."
     },
     "test": "Testar conexão",
     "testOk": "Funciona: um arquivo de teste foi e voltou.",
@@ -1804,7 +1805,7 @@
     "connecting": "Conectando…",
     "save": "Salvar",
     "retiredHeading": "Armazenamento anterior",
-    "retiredDescription": "O armazenamento desconectado antes ainda guarda arquivos. Eles são lidos de lá até serem excluídos.",
+    "retiredDescription": "Um armazenamento que este espaço de trabalho usava antes ainda guarda arquivos. Eles são lidos de lá até serem excluídos ou movidos.",
     "errors": {
       "accessDenied": "Só os proprietários do espaço de trabalho podem alterar onde os arquivos dele são armazenados.",
       "endpoint": "Digite o endpoint como um endereço da web, como https://storage.example.com.",
@@ -1816,19 +1817,77 @@
       "unavailable": "Esse tipo de armazenamento ainda não pode ser conectado.",
       "refused": "O armazenamento não funcionou: {message}",
       "rateLimited": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
-      "noStorage": "Este espaço de trabalho não tem um armazenamento próprio conectado.",
+      "noStorage": "Este espaço de trabalho não guarda arquivos em um armazenamento próprio.",
       "notConfigured": "Este servidor não está configurado para esse tipo de armazenamento.",
-      "oauthFailed": "Não foi possível entrar, então nada mudou. Tente de novo."
+      "oauthFailed": "Não foi possível entrar, então nada mudou. Tente de novo.",
+      "disabled": "Este servidor não permite que ninguém conecte um armazenamento próprio.",
+      "noAccount": "Esse armazenamento não está conectado à sua conta.",
+      "accountDisconnected": "Esse armazenamento foi desconectado.",
+      "moveInProgress": "Os arquivos deste espaço de trabalho estão sendo movidos. Aguarde até terminar.",
+      "noDestination": "Os arquivos de {workspace} não têm para onde ser movidos: nenhum outro proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los.",
+      "serverRefused": "O armazenamento deste servidor não pode receber os arquivos deste espaço de trabalho: ele não é S3, ou os arquivos não cabem na cota do espaço de trabalho lá.",
+      "noMove": "Essa movimentação não existe mais."
     },
     "signIn": "Entrar no {provider}",
-    "signInAgain": "Entrar no {provider} de novo",
     "signingIn": "Abrindo…",
     "signInHint": "Você entra no {provider} e volta para cá. Antes de salvar qualquer coisa, um arquivo de teste é gravado, lido de volta e excluído.",
-    "notConfigured": "Este servidor ainda não está configurado para o {provider}. O administrador precisa registrar um app no {provider} e definir {vars}.",
+    "notConfigured": "O {provider} não está disponível: para oferecê-lo, registre um app no {provider} e defina {vars} no servidor.",
     "dismiss": "Fechar",
     "notices": {
       "connected": "Conectado. A partir de agora, os novos arquivos vão para lá.",
       "refused": "Você entrou, mas não foi possível gravar um arquivo de teste lá, então nada mudou. Tente de novo mais tarde."
+    },
+    "descriptionOff": "Onde ficam os arquivos enviados a este espaço de trabalho. Alguns estão em um armazenamento conectado antes de este servidor deixar de oferecer armazenamento próprio; não é possível conectar nenhum novo.",
+    "brokenHelp": "Os arquivos guardados lá não podem ser lidos até ele voltar a funcionar. Se o armazenamento deixou de existir de vez, restaure o espaço de trabalho a partir de um backup.",
+    "owner": {
+      "mine": "Seu armazenamento “{label}”",
+      "other": "Armazenamento de {name}",
+      "gone": "Armazenamento de alguém que saiu do Leafdesk"
+    },
+    "stopUsing": "Deixar de usar",
+    "useHeading": "Guardar os arquivos no seu armazenamento",
+    "useOtherHeading": "Usar outro armazenamento",
+    "useDescription": "Os novos arquivos vão para um armazenamento que você conectou à sua conta, em uma pasta própria deste espaço de trabalho. Antes de qualquer mudança, um arquivo de teste é gravado, lido de volta e excluído. Os arquivos já enviados ficam onde estão até você movê-los.",
+    "useAccount": "Seu armazenamento",
+    "use": "Usar para novos arquivos",
+    "connectNew": "Conectar outro armazenamento",
+    "move": {
+      "heading": "Mover arquivos",
+      "description": "Copia todos os arquivos deste espaço de trabalho para outro armazenamento, alguns de cada vez, enquanto o espaço de trabalho continua funcionando, e depois os exclui de onde estavam. Os novos arquivos vão para lá desde o início.",
+      "to": "Mover para",
+      "server": "Armazenamento deste servidor",
+      "confirm": "Mover todos os arquivos deste espaço de trabalho para {destination}? A partir de agora, os novos arquivos vão para lá.",
+      "start": "Mover arquivos",
+      "queued": "Os arquivos estão prestes a ser movidos para {destination}.",
+      "running": "Movendo arquivos para {destination}: {moved} de {files}.",
+      "done": "{files, plural, =0 {Pronto: agora os novos arquivos vão para {destination}.} one {# arquivo movido para {destination}.} many {# de arquivos movidos para {destination}.} other {# arquivos movidos para {destination}.}}",
+      "failed": "{failed, plural, one {# arquivo não pôde ser movido} many {# de arquivos não puderam ser movidos} other {# arquivos não puderam ser movidos}} para {destination}: {error}",
+      "blocked": "O armazenamento que guarda os arquivos deste espaço de trabalho vai deixar de existir, e não há para onde movê-los: nenhum proprietário tem um armazenamento padrão, e o armazenamento deste servidor não pode recebê-los. Por enquanto, eles continuam sendo lidos de lá. Configure um armazenamento e tente novamente.",
+      "retry": "Tentar novamente",
+      "backupHint": "Os arquivos que não podem mais ser lidos do armazenamento deles voltam quando você restaura um backup do espaço de trabalho.",
+      "reasons": {
+        "left": "O armazenamento que guarda estes arquivos pertence a alguém que saiu do espaço de trabalho.",
+        "removed": "O armazenamento que guarda estes arquivos pertence a alguém que foi removido do espaço de trabalho.",
+        "accountDeleted": "O armazenamento que guarda estes arquivos pertence a alguém que excluiu a própria conta do Leafdesk.",
+        "disconnected": "O armazenamento que guarda estes arquivos foi desconectado pelo proprietário."
+      }
+    },
+    "accounts": {
+      "heading": "Armazenamentos conectados",
+      "description": "Armazenamentos que você conecta uma vez e usa nos espaços de trabalho de que é proprietário: um bucket compatível com S3, Google Drive ou Dropbox. Cada espaço de trabalho ganha uma pasta própria lá; os outros membros leem os arquivos dele pelo Leafdesk e não precisam de conta no armazenamento. Para espaços de trabalho compartilhados, prefira um armazenamento da sua equipe (um bucket da empresa ou uma conta compartilhada): se você sair de um deles, os arquivos dele precisam ser movidos.",
+      "descriptionOff": "Armazenamentos que você conectou antes. Este servidor não permite mais que ninguém conecte novos armazenamentos; os espaços de trabalho que os usam continuam funcionando.",
+      "connect": "Conectar armazenamento",
+      "connected": "Conectado. Escolha-o em Configurações > Armazenamento de um espaço de trabalho ou torne-o o seu padrão.",
+      "none": "Nenhum armazenamento conectado ainda. Os arquivos vão para este servidor.",
+      "default": "Padrão para novos espaços de trabalho",
+      "setDefault": "Tornar padrão",
+      "unsetDefault": "Remover como padrão",
+      "rename": "Renomear",
+      "disconnected": "Desconectado: continua sendo lido até os arquivos dele serem movidos ou excluídos",
+      "usedBy": "Usado por: {workspaces}",
+      "unused": "Nenhum espaço de trabalho o usa ainda.",
+      "disconnectUsed": "Estes espaços de trabalho deixam de colocar novos arquivos lá. Os arquivos deles vão para o armazenamento de outro proprietário quando possível; os demais continuam sendo lidos de lá até serem movidos ou excluídos.",
+      "disconnectUnused": "Nenhum espaço de trabalho o usa. O Leafdesk o esquece, junto com as chaves."
     }
   },
   "backup": {

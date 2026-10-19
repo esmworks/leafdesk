@@ -826,7 +826,9 @@
     "creationRestricted": "Only the server's administrators can create workspaces.",
     "agentUser": "This is an agent, not a person. Change or archive it in the agent's own settings.",
     "confirmationMismatch": "To confirm, type the workspace's name exactly as shown.",
-    "workspaceDeleted": "Someone deleted this workspace in the meantime."
+    "workspaceDeleted": "Someone deleted this workspace in the meantime.",
+    "storageNoDestination": "This workspace's files are in your storage, and there is nowhere they can move to when you leave: no other owner has default storage, and this server's storage can't take them. Ask an owner to set up storage, or move the files first (Settings > Storage).",
+    "storageMoveInProgress": "This workspace's files are being moved into your storage. Wait for it to finish, then leave."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
@@ -1361,8 +1363,9 @@
         "mailbox_disconnected": "Disconnected the mailbox {target}"
       },
       "storage": {
-        "connected": "Connected the workspace's own storage {target}",
-        "disconnected": "Disconnected the workspace's own storage {target}"
+        "connected": "Started keeping new files in {target}",
+        "disconnected": "Stopped keeping new files in {target}",
+        "moved": "Started moving the workspace's files to {target}"
       },
       "backup": {
         "created": "Backed up the workspace ({count, plural, one {# page} other {# pages}})",
@@ -1751,7 +1754,7 @@
     }
   },
   "storage": {
-    "description": "Where this workspace's uploaded files are kept. Connect storage of the workspace's own (an S3-compatible bucket, Google Drive or Dropbox) and new files go there instead of this server. Leafdesk still serves every file itself, so the storage stays private: no public access or sharing is needed.",
+    "description": "Where this workspace's uploaded files are kept: this server, or storage one of its owners connected to their account (an S3-compatible bucket, Google Drive or Dropbox). Leafdesk still serves every file itself, so the storage stays private: members need no account there, and no public access or sharing is needed.",
     "currentHeading": "Where new files go",
     "instance": "This server",
     "instanceHint": "Files are kept on the server Leafdesk runs on.",
@@ -1764,8 +1767,8 @@
     },
     "kindHints": {
       "s3": "AWS S3, Cloudflare R2, Backblaze B2, MinIO, or any other storage that speaks the S3 protocol.",
-      "gdrive": "Files go in a folder Leafdesk makes in your Drive. Leafdesk can only see the files it made there, nothing else in your Drive.",
-      "dropbox": "Files go in Leafdesk's app folder in your Dropbox (under Apps). Leafdesk can't see anything outside it."
+      "gdrive": "Files go in a Leafdesk folder Leafdesk makes in your Drive, with a folder for each workspace. Leafdesk can only see the files it made there, nothing else in your Drive.",
+      "dropbox": "Files go in Leafdesk's app folder in your Dropbox (under Apps), with a folder for each workspace. Leafdesk can't see anything outside it."
     },
     "status": {
       "active": "Working, checked {time}",
@@ -1776,12 +1779,8 @@
     "olderFiles": "Files uploaded before it was connected stay on this server ({size}).",
     "testAgain": "Test again",
     "testing": "Testing…",
-    "change": "Change",
     "disconnect": "Disconnect",
-    "disconnectNote": "New files will go to this server again. Files already in that storage stay there and are still read from it until they are deleted.",
-    "connectHeading": "Connect storage",
-    "changeHeading": "Change storage",
-    "connectDescription": "Before anything is saved, a test file is stored, read back and deleted. Files already uploaded stay where they are.",
+    "disconnectNote": "New files will go to this server again. Files already in that storage stay there and are still read from it until they are deleted or moved.",
     "fields": {
       "kind": "Kind of storage",
       "endpoint": "Endpoint",
@@ -1793,10 +1792,12 @@
       "prefixHint": "Optional: files go under this folder of the bucket.",
       "accessKeyId": "Access key ID",
       "secretAccessKey": "Secret access key",
-      "keysKeep": "Empty keeps the current key",
       "keysHint": "Give these keys access to this bucket only. They are stored encrypted and never shown again.",
       "pathStyle": "Address the bucket by path",
-      "pathStyleHint": "Needed for MinIO and most storage other than AWS S3."
+      "pathStyleHint": "Needed for MinIO and most storage other than AWS S3.",
+      "label": "Name",
+      "labelPlaceholder": "Company bucket",
+      "labelHint": "What you call this storage in Leafdesk. Optional."
     },
     "test": "Test connection",
     "testOk": "It works: a test file went there and back.",
@@ -1804,7 +1805,7 @@
     "connecting": "Connecting…",
     "save": "Save",
     "retiredHeading": "Earlier storage",
-    "retiredDescription": "Storage disconnected before that still holds files. They are read from there until they are deleted.",
+    "retiredDescription": "Storage this workspace used before that still holds files. They are read from there until they are deleted or moved.",
     "errors": {
       "accessDenied": "Only the workspace's owners can change where its files are stored.",
       "endpoint": "Enter the endpoint as a web address, like https://storage.example.com.",
@@ -1816,19 +1817,77 @@
       "unavailable": "That kind of storage can't be connected yet.",
       "refused": "The storage didn't work: {message}",
       "rateLimited": "Too many tries. Wait a few minutes, then try again.",
-      "noStorage": "This workspace has no storage of its own connected.",
+      "noStorage": "This workspace keeps no files in storage of its own.",
       "notConfigured": "This server isn't set up for that kind of storage.",
-      "oauthFailed": "Signing in didn't work, so nothing was changed. Try again."
+      "oauthFailed": "Signing in didn't work, so nothing was changed. Try again.",
+      "disabled": "This server doesn't let anyone connect storage of their own.",
+      "noAccount": "That storage isn't connected to your account.",
+      "accountDisconnected": "That storage was disconnected.",
+      "moveInProgress": "This workspace's files are being moved. Wait for it to finish.",
+      "noDestination": "The files of {workspace} have nowhere to move to: no other owner has default storage, and this server's storage can't take them.",
+      "serverRefused": "This server's storage can't take this workspace's files: it isn't S3, or they don't fit the workspace's quota there.",
+      "noMove": "That move isn't there any more."
     },
     "signIn": "Sign in to {provider}",
-    "signInAgain": "Sign in to {provider} again",
     "signingIn": "Opening…",
     "signInHint": "You sign in at {provider} and come back here. Before anything is saved, a test file is stored, read back and deleted.",
-    "notConfigured": "This server isn't set up for {provider} yet. Its administrator needs to register an app with {provider} and set {vars}.",
+    "notConfigured": "{provider} isn't offered: register an app with {provider} and set {vars} on the server to offer it.",
     "dismiss": "Dismiss",
     "notices": {
       "connected": "Connected. New files go there from now on.",
       "refused": "You signed in, but a test file couldn't be stored there, so nothing was changed. Try again later."
+    },
+    "descriptionOff": "Where this workspace's uploaded files are kept. Some are in storage connected before this server stopped offering storage of one's own; nothing new can be connected.",
+    "brokenHelp": "Files stored there can't be read until it works again. If the storage is gone for good, restore the workspace from a backup.",
+    "owner": {
+      "mine": "Your storage “{label}”",
+      "other": "{name}'s storage",
+      "gone": "Storage of someone who has left Leafdesk"
+    },
+    "stopUsing": "Stop using",
+    "useHeading": "Keep files in your storage",
+    "useOtherHeading": "Use other storage",
+    "useDescription": "New files go to storage you connected to your account, in a folder of this workspace's own. Before anything changes, a test file is stored, read back and deleted. Files already uploaded stay where they are until you move them.",
+    "useAccount": "Your storage",
+    "use": "Use for new files",
+    "connectNew": "Connect other storage",
+    "move": {
+      "heading": "Move files",
+      "description": "Copies every file of this workspace to other storage, a few at a time, while the workspace keeps working, then deletes them from where they were. New files go there from the start.",
+      "to": "Move to",
+      "server": "This server's storage",
+      "confirm": "Move every file of this workspace to {destination}? New files go there from now on.",
+      "start": "Move files",
+      "queued": "Files are about to move to {destination}.",
+      "running": "Moving files to {destination}: {moved} of {files}.",
+      "done": "{files, plural, =0 {Done: new files go to {destination} now.} one {Moved # file to {destination}.} other {Moved # files to {destination}.}}",
+      "failed": "{failed, plural, one {# file} other {# files}} couldn't be moved to {destination}: {error}",
+      "blocked": "The storage holding this workspace's files is going away, and there is nowhere they may move to: no owner has default storage, and this server's storage can't take them. They are still read from it for now. Set up storage, then try again.",
+      "retry": "Try again",
+      "backupHint": "Files that can't be read from their storage any more come back by restoring a backup of the workspace.",
+      "reasons": {
+        "left": "The storage holding these files belongs to someone who left the workspace.",
+        "removed": "The storage holding these files belongs to someone who was removed from the workspace.",
+        "accountDeleted": "The storage holding these files belongs to someone who deleted their Leafdesk account.",
+        "disconnected": "The storage holding these files was disconnected by its owner."
+      }
+    },
+    "accounts": {
+      "heading": "Connected storage",
+      "description": "Storage you connect once and use in the workspaces you own: an S3-compatible bucket, Google Drive or Dropbox. Each workspace gets a folder of its own there; other members read its files through Leafdesk and need no account with the storage. For shared workspaces, prefer storage your team owns (a company bucket or shared account): if you leave one, its files have to move.",
+      "descriptionOff": "Storage you connected earlier. This server no longer lets anyone connect new storage; workspaces using this keep working.",
+      "connect": "Connect storage",
+      "connected": "Connected. Choose it in a workspace's Settings > Storage, or make it your default.",
+      "none": "No storage connected yet. Files go to this server.",
+      "default": "Default for new workspaces",
+      "setDefault": "Make default",
+      "unsetDefault": "Not default",
+      "rename": "Rename",
+      "disconnected": "Disconnected: still read from until its files are moved or deleted",
+      "usedBy": "Used by: {workspaces}",
+      "unused": "No workspace uses it yet.",
+      "disconnectUsed": "These workspaces stop putting new files there. Their files move to another owner's storage where they can; the others are still read from it until they are moved or deleted.",
+      "disconnectUnused": "No workspace uses it. Leafdesk forgets it and its keys."
     }
   },
   "backup": {

@@ -82,6 +82,7 @@ import { allowedDomainsStatus } from "@/server/allowed-domains";
 import { getMailSettings } from "@/server/row-mail/settings";
 import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
 import { getStorageSettings } from "@/server/storage/settings";
+import { hasOwnStorage } from "@/server/storage/workspace";
 import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { listConnections } from "@/server/connections/manage";
@@ -156,7 +157,11 @@ export default async function SettingsPage({
   const isOwner = workspace.role === "owner";
   const guest = isGuest(workspace.role);
   const managesGuests = !guest && (await canInviteGuests(user.id, workspaceId));
-  const tabs = visibleSettingsTabs({ guest, managesGuests, owner: isOwner, localMode: env.localMode });
+  const hasOwnStorageFor = isOwner && !env.ownStorageEnabled ? await hasOwnStorage(workspaceId) : true;
+  const tabs = visibleSettingsTabs({ guest, managesGuests, owner: isOwner, localMode: env.localMode }).filter(
+    // Storage is about storage of one's own: with it off, only for a workspace that has some from before.
+    (name) => name !== "storage" || env.ownStorageEnabled || !isOwner || hasOwnStorageFor,
+  );
   // The person's own settings come first, then the workspace's (the workspace sidebar is hidden here).
   const accountTab = ACCOUNT_SETTINGS_TABS.find((name) => name === query.tab);
   // A workspace tab this person may not open is not found, the way its data routes answer, rather
@@ -194,7 +199,7 @@ export default async function SettingsPage({
 
       <div className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
         <div className="mx-auto max-w-3xl">
-          {accountTab && <AccountTabContent tab={accountTabForSettings(accountTab)} session={session} />}
+          {accountTab && <AccountTabContent tab={accountTabForSettings(accountTab)} session={session} query={query} />}
           {tab === "general" && (
             <>
               <SettingsHeader title={t("nav.general")} description={t("workspace.description")} />
@@ -239,7 +244,7 @@ export default async function SettingsPage({
             />
           )}
           {tab === "email" && <EmailTab workspaceId={workspaceId} userId={user.id} />}
-          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} notice={storageNoticeOf(query)} />}
+          {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isInstanceAdmin(user)} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "health" && <HealthTab workspaceId={workspaceId} userId={user.id} months={query.months} />}
           {tab === "security" && <SecurityTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
@@ -265,11 +270,11 @@ async function EmailTab({ workspaceId, userId }: { workspaceId: string; userId: 
 }
 
 /** Settings > Storage, for owners: where the workspace's uploads are kept (see server/storage/settings.ts). */
-async function StorageTab({ workspaceId, userId, notice }: { workspaceId: string; userId: string; notice?: StorageNotice }) {
-  const [view, t] = await Promise.all([getStorageSettings(userId, workspaceId), getTranslations("settings")]);
+async function StorageTab({ workspaceId, userId, isAdmin, notice }: { workspaceId: string; userId: string; isAdmin: boolean; notice?: StorageNotice }) {
+  const [view, t] = await Promise.all([getStorageSettings(userId, workspaceId, { isAdmin }), getTranslations("settings")]);
   return (
     <>
-      <SettingsHeader title={t("nav.storage")} description={t("storage.description")} />
+      <SettingsHeader title={t("nav.storage")} description={view.ownStorage ? t("storage.description") : t("storage.descriptionOff")} />
       <StorageSettings workspaceId={workspaceId} initial={view} notice={notice} />
     </>
   );

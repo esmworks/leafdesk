@@ -119,7 +119,10 @@
     "deleting": "Siliniyor…",
     "blockedTitle": "Önce çalışma alanlarınızı devredin",
     "blockedBody": "Başka kişilerin de bulunduğu çalışma alanlarının tek sahibisiniz. Her birinde başka birini sahip yapın (Ayarlar > Üyeler) veya diğerlerini çıkarın, ardından hesabınızı silin.",
-    "blockedList": "Devredilecek çalışma alanları:"
+    "blockedList": "Devredilecek çalışma alanları:",
+    "storageStuckBody": "Ayrılacağınız çalışma alanlarının dosyaları sizin kendi depolamanızda ve taşınabilecekleri bir yer yok: başka hiçbir sahibin varsayılan depolaması yok, bu sunucunun depolaması da onları alamıyor. Bir sahipten depolama kurmasını isteyin ya da dosyaları taşıyın (Ayarlar > Depolama), ardından hesabınızı silin.",
+    "storageStuckList": "Dosyalarının gidecek yeri olmayan çalışma alanları:",
+    "storageMovesList": "Sizin depolamanızdaki dosyaları önce bir sahibin depolamasına taşınır (o zamana kadar dosyaları sizin depolamanız sunmaya devam eder):"
   },
   "confirmEmail": {
     "metaTitle": "E-posta adresini onayla",
@@ -157,6 +160,7 @@
     "avatarType": "PNG, JPEG, WebP veya GIF görsel kullanın.",
     "avatarTooLarge": "Fotoğraf çok büyük (en fazla 2 MB).",
     "samePassword": "Eskisinden farklı bir parola seçin.",
-    "resetStepExpired": "Bu adımın süresi doldu. Eski parolanızla yeniden giriş yapın."
+    "resetStepExpired": "Bu adımın süresi doldu. Eski parolanızla yeniden giriş yapın.",
+    "storageStuck": "Şu çalışma alanlarının dosyaları sizin depolamanızda ve taşınabilecekleri bir yer yok: {workspaces}. Sahiplerinden depolama kurmalarını isteyin ya da önce dosyaları taşıyın."
   }
 }

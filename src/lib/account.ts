@@ -22,6 +22,8 @@ export type AccountErrorCode =
   | "emailTaken"
   | "confirmationMismatch"
   | "soleOwner"
+  /** Files of shared workspaces are in the person's own storage and have nowhere to move to. */
+  | "storageStuck"
   | "currentSession"
   | "sessionNotFound"
   | "avatarType"
@@ -100,6 +102,12 @@ export type DeletionPlan = {
    * managed. With the role they leave, for the workspace's audit log.
    */
   left: { id: string; name: string; role: WorkspaceStanding["role"] }[];
+  /**
+   * Of those, the ones whose files are in the person's own storage: moved to an owner's storage
+   * (or the server's) first. `storageStuck` have nowhere to move them: deleting is refused.
+   */
+  storageMoves?: { id: string; name: string }[];
+  storageStuck?: { id: string; name: string }[];
 };
 
 /**

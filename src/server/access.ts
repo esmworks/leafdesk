@@ -337,6 +337,16 @@ export async function findMembership(userId: string, workspaceId: string) {
   return row ?? null;
 }
 
+/** The workspace's owners, longest-standing first (whose storage its files move to, see storage/moves.ts). */
+export async function ownersInOrder(reader: Pick<typeof db, "select">, workspaceId: string): Promise<string[]> {
+  const rows = await reader
+    .select({ userId: workspaceMember.userId })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.role, "owner")))
+    .orderBy(workspaceMember.createdAt);
+  return rows.map((r) => r.userId);
+}
+
 /** Anyone in the workspace, guests included: for reads that filter pages by `pageVisibleTo`. */
 export async function requireMembership(userId: string, workspaceId: string, role?: WorkspaceRole) {
   const membership = await getMembership(userId, workspaceId);

@@ -119,7 +119,10 @@
     "deleting": "Suppression…",
     "blockedTitle": "Transférez d’abord vos espaces de travail",
     "blockedBody": "Vous êtes le seul propriétaire d’espaces de travail dont d’autres personnes sont membres. Nommez quelqu’un d’autre propriétaire de chacun d’eux (Paramètres > Membres) ou retirez les autres membres, puis supprimez votre compte.",
-    "blockedList": "Espaces de travail à transférer :"
+    "blockedList": "Espaces de travail à transférer :",
+    "storageStuckBody": "Des fichiers d’espaces de travail que vous quitteriez sont dans votre propre stockage, et ils ne peuvent être déplacés nulle part : aucun autre propriétaire n’a de stockage par défaut, et le stockage de ce serveur ne peut pas les accueillir. Demandez à un propriétaire de configurer un stockage, ou déplacez les fichiers (Paramètres > Stockage), puis supprimez votre compte.",
+    "storageStuckList": "Espaces de travail dont les fichiers n’ont nulle part où aller :",
+    "storageMovesList": "Leurs fichiers dans votre stockage sont d’abord déplacés vers le stockage d’un propriétaire (votre stockage continue de les servir d’ici là) :"
   },
   "confirmEmail": {
     "metaTitle": "Confirmer l’adresse e-mail",
@@ -157,6 +160,7 @@
     "avatarType": "Utilisez une image PNG, JPEG, WebP ou GIF.",
     "avatarTooLarge": "La photo est trop volumineuse (2 Mo maximum).",
     "samePassword": "Choisissez un mot de passe différent de l'ancien.",
-    "resetStepExpired": "Cette étape a expiré. Reconnectez-vous avec votre ancien mot de passe."
+    "resetStepExpired": "Cette étape a expiré. Reconnectez-vous avec votre ancien mot de passe.",
+    "storageStuck": "Les fichiers de {workspaces} sont dans votre stockage et ne peuvent être déplacés nulle part. Demandez à leurs propriétaires de configurer un stockage, ou déplacez d’abord les fichiers."
   }
 }
