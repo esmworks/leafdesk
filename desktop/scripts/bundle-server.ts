@@ -158,8 +158,23 @@ function layOutPackages(top: string): Map<string, string> {
     drain();
     names.set(alias, kept);
   }
+
+  // Packages left external that no compiled page loads (mailparser, which only the server's mail
+  // sync imports): the trace leaves them out, so they come from the repository's own.
+  for (const name of externals) {
+    if (placed.get(top)?.has(name)) continue;
+    queue.push({ name, source: resolveLink(path.join(repo, "node_modules", ...name.split("/"))), chain: [top] });
+  }
+  drain();
   return names;
 }
+// The packages the compiled pages leave external are those laid out below; the entry points import
+// the same copies, by the same names, so each is one module for both (yjs must be: the pages and the
+// collaboration server share documents). Everything else the entry points import, they carry.
+const { config } = JSON.parse(fs.readFileSync(path.join(next, "required-server-files.json"), "utf8")) as {
+  config: { serverExternalPackages: string[] };
+};
+const externals = ["next", ...config.serverExternalPackages];
 const hashed = layOutPackages(path.join(out, "node_modules"));
 // The compiled pages load those packages by the names they now have.
 const renamed = [...hashed].filter(([alias, name]) => alias !== name);
@@ -175,13 +190,6 @@ if (renamed.length) {
   }
 }
 
-// The packages the compiled pages leave external are those laid out above; the entry points import
-// the same copies, by the same names, so each is one module for both (yjs must be: the pages and the
-// collaboration server share documents). Everything else the entry points import, they carry.
-const { config } = JSON.parse(fs.readFileSync(path.join(next, "required-server-files.json"), "utf8")) as {
-  config: { serverExternalPackages: string[] };
-};
-const externals = ["next", ...config.serverExternalPackages];
 const layoutName = new Map([...hashed].map(([alias, name]) => [alias.replace(/-[0-9a-f]{16}$/, ""), name]));
 // Checked here rather than when the app first uses them: which packages the build leaves to be laid
 // out follows Next's trace, and a hashed name is one folder with its own name only where pnpm links
