@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title}（副本）",
+  "errors": {
+    "triggerRequired": "请为片段设置触发词。",
+    "triggerInvalid": "触发词最多 {max} 个字符，可使用小写字母、数字、连字符和下划线。",
+    "triggerTaken": "这里的另一个片段已经使用了该触发词。",
+    "titleTooLong": "标题最多 {max} 个字符。",
+    "bodyRequired": "请写下片段要插入的内容。",
+    "bodyTooLong": "片段最多 {max} 个字符。",
+    "tooMany": "这里最多可以有 {max} 个片段。请删除一些后再添加。",
+    "notFound": "这个片段已不存在。",
+    "ownersOnly": "只有工作区的所有者可以更改它的片段。",
+    "accessDenied": "你无权访问这些片段。",
+    "importInvalid": "这不是片段文件。请使用 Leafdesk 的导出文件，或包含 id 和 label 的对象列表。",
+    "importTooLarge": "文件太大，无法导入。"
+  },
+  "menu": {
+    "group": "片段",
+    "personal": "我的片段",
+    "workspace": "工作区片段",
+    "insertFailed": "无法插入该片段。{error}"
+  },
+  "save": {
+    "menuItem": "保存为片段",
+    "saved": "已保存。输入 ;{trigger} 即可插入。"
+  },
+  "form": {
+    "newTitle": "新建片段",
+    "editTitle": "编辑片段",
+    "title": "标题",
+    "titlePlaceholder": "会议记录",
+    "trigger": "触发词",
+    "triggerPlaceholder": "huiyi",
+    "triggerHint": "在页面中输入 ;{trigger}，或在 / 菜单的“片段”下找到它。",
+    "target": "保存到",
+    "targetPersonal": "我的片段（仅自己可见）",
+    "targetWorkspace": "{workspace}（工作区所有人）",
+    "body": "内容（Markdown）",
+    "bodyPlaceholder": "## 议程\n- ",
+    "placeholders": "插入时自动填入：",
+    "placeholder": {
+      "date": "今天的日期",
+      "time": "当前时间",
+      "datetime": "今天的日期和时间",
+      "me": "你的名字",
+      "page": "页面的标题",
+      "cursor": "光标所在的位置"
+    },
+    "length": "{count} / {max} 个字符",
+    "preview": "预览",
+    "previewPage": "页面标题",
+    "previewEmpty": "片段插入的内容块会显示在这里。",
+    "create": "创建片段"
+  },
+  "settings": {
+    "personalDescription": "输入时可以插入的内容片段：在任意页面输入 ; 和片段的触发词，或在 / 菜单的“片段”下选择。只有你能看到这些片段。",
+    "workspaceDescription": "工作区所有人在输入时都可以插入的片段，与各自的片段并用。由所有者添加和更改。",
+    "ownersOnly": "只有工作区的所有者可以添加和更改它的片段。",
+    "search": "搜索片段",
+    "new": "新建片段",
+    "import": "导入",
+    "importing": "正在导入…",
+    "export": "导出",
+    "count": "{count} / {max}",
+    "noMatches": "没有匹配的片段。",
+    "empty": "还没有片段。",
+    "emptyOwner": "还没有片段。可以从示例开始，或创建你自己的片段。",
+    "examplesHeading": "示例",
+    "addExample": "添加",
+    "actionsFor": "{title} 的操作",
+    "edit": "编辑",
+    "duplicate": "复制",
+    "delete": "删除",
+    "deleteTitle": "删除“{title}”？",
+    "deleteBody": "已插入该片段的页面会保留其文字。",
+    "imported": "{count, plural, =0 {没有添加片段。} other {已添加 # 个片段。}}",
+    "skipped": "{count, plural, other {已跳过 # 个：}}",
+    "skip": {
+      "triggerRequired": "没有触发词",
+      "triggerInvalid": "触发词不可用",
+      "titleTooLong": "标题过长",
+      "bodyRequired": "内容为空",
+      "bodyTooLong": "内容过长",
+      "duplicate": "文件中重复",
+      "exists": "触发词已被使用",
+      "tooMany": "超出上限"
+    },
+    "untitledTrigger": "（无触发词）",
+    "importFailed": "无法导入。{error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "huiyi",
+      "title": "会议记录",
+      "attendees": "参会人员",
+      "agenda": "议程",
+      "notes": "记录",
+      "actions": "待办事项"
+    },
+    "log": {
+      "trigger": "rizhi",
+      "title": "带日期的日志行"
+    },
+    "decision": {
+      "trigger": "jueding",
+      "title": "决策记录",
+      "heading": "决策",
+      "date": "日期",
+      "decidedBy": "决策人",
+      "context": "背景",
+      "options": "考虑过的方案",
+      "outcome": "我们的决定",
+      "consequences": "影响"
+    }
+  }
+}

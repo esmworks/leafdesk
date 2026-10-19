@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (copie)",
+  "errors": {
+    "triggerRequired": "Donnez un déclencheur à l’extrait.",
+    "triggerInvalid": "Un déclencheur compte jusqu’à {max} caractères : lettres minuscules, chiffres, tirets et tirets bas.",
+    "triggerTaken": "Un autre extrait d’ici a déjà ce déclencheur.",
+    "titleTooLong": "Un titre compte jusqu’à {max} caractères.",
+    "bodyRequired": "Écrivez ce que l’extrait insère.",
+    "bodyTooLong": "Un extrait compte jusqu’à {max} caractères.",
+    "tooMany": "Il peut y avoir jusqu’à {max} extraits ici. Supprimez-en pour en ajouter.",
+    "notFound": "Cet extrait n’existe plus.",
+    "ownersOnly": "Seuls les propriétaires de l’espace de travail modifient ses extraits.",
+    "accessDenied": "Vous n’avez pas accès à ces extraits.",
+    "importInvalid": "Ce n’est pas un fichier d’extraits. Utilisez un export Leafdesk ou une liste d’objets avec id et label.",
+    "importTooLarge": "Le fichier est trop volumineux pour être importé."
+  },
+  "menu": {
+    "group": "Extraits",
+    "personal": "Mes extraits",
+    "workspace": "Extraits de l’espace de travail",
+    "insertFailed": "Impossible d’insérer l’extrait. {error}"
+  },
+  "save": {
+    "menuItem": "Enregistrer comme extrait",
+    "saved": "Enregistré. Tapez ;{trigger} pour l’insérer."
+  },
+  "form": {
+    "newTitle": "Nouvel extrait",
+    "editTitle": "Modifier l’extrait",
+    "title": "Titre",
+    "titlePlaceholder": "Notes de réunion",
+    "trigger": "Déclencheur",
+    "triggerPlaceholder": "reunion",
+    "triggerHint": "Tapez ;{trigger} dans une page, ou trouvez-le sous Extraits dans le menu /.",
+    "target": "Enregistrer dans",
+    "targetPersonal": "Mes extraits (vous seul)",
+    "targetWorkspace": "{workspace} (tous les membres de l’espace de travail)",
+    "body": "Contenu (Markdown)",
+    "bodyPlaceholder": "## Ordre du jour\n- ",
+    "placeholders": "Rempli à l’insertion :",
+    "placeholder": {
+      "date": "La date du jour",
+      "time": "L’heure actuelle",
+      "datetime": "La date du jour et l’heure",
+      "me": "Votre nom",
+      "page": "Le titre de la page",
+      "cursor": "L’endroit où va le curseur"
+    },
+    "length": "{count} sur {max} caractères",
+    "preview": "Aperçu",
+    "previewPage": "Titre de la page",
+    "previewEmpty": "Les blocs insérés par l’extrait s’affichent ici.",
+    "create": "Créer l’extrait"
+  },
+  "settings": {
+    "personalDescription": "Des morceaux de contenu que vous insérez en tapant : tapez ; puis le déclencheur d’un extrait dans n’importe quelle page, ou choisissez-le sous Extraits dans le menu /. Vous seul les voyez.",
+    "workspaceDescription": "Des extraits que tous les membres de l’espace de travail peuvent insérer en tapant, en plus des leurs. Les propriétaires les ajoutent et les modifient.",
+    "ownersOnly": "Seuls les propriétaires de l’espace de travail ajoutent et modifient ses extraits.",
+    "search": "Rechercher des extraits",
+    "new": "Nouvel extrait",
+    "import": "Importer",
+    "importing": "Import en cours…",
+    "export": "Exporter",
+    "count": "{count} sur {max}",
+    "noMatches": "Aucun extrait ne correspond.",
+    "empty": "Aucun extrait pour l’instant.",
+    "emptyOwner": "Aucun extrait pour l’instant. Commencez par un exemple ou créez le vôtre.",
+    "examplesHeading": "Exemples",
+    "addExample": "Ajouter",
+    "actionsFor": "Actions pour {title}",
+    "edit": "Modifier",
+    "duplicate": "Dupliquer",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer « {title} » ?",
+    "deleteBody": "Les pages où il a été inséré gardent leur texte.",
+    "imported": "{count, plural, =0 {Aucun extrait ajouté.} one {# extrait ajouté.} other {# extraits ajoutés.}}",
+    "skipped": "{count, plural, one {# ignoré :} other {# ignorés :}}",
+    "skip": {
+      "triggerRequired": "pas de déclencheur",
+      "triggerInvalid": "déclencheur non autorisé",
+      "titleTooLong": "titre trop long",
+      "bodyRequired": "vide",
+      "bodyTooLong": "trop long",
+      "duplicate": "en double dans le fichier",
+      "exists": "déclencheur déjà utilisé",
+      "tooMany": "au-delà de la limite"
+    },
+    "untitledTrigger": "(pas de déclencheur)",
+    "importFailed": "Impossible d’importer. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "reunion",
+      "title": "Notes de réunion",
+      "attendees": "Participants",
+      "agenda": "Ordre du jour",
+      "notes": "Notes",
+      "actions": "Actions à mener"
+    },
+    "log": {
+      "trigger": "journal",
+      "title": "Ligne de journal datée"
+    },
+    "decision": {
+      "trigger": "decision",
+      "title": "Fiche de décision",
+      "heading": "Décision",
+      "date": "Date",
+      "decidedBy": "Décidé par",
+      "context": "Contexte",
+      "options": "Options envisagées",
+      "outcome": "Ce que nous avons décidé",
+      "consequences": "Conséquences"
+    }
+  }
+}

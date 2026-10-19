@@ -9,7 +9,8 @@
     "preferences": "Tercihler",
     "apps": "Bağlı uygulamalar",
     "about": "Hakkında",
-    "admin": "Sunucu yönetimi"
+    "admin": "Sunucu yönetimi",
+    "snippets": "Parçacıklar"
   },
   "apps": {
     "description": "Leafdesk'i sizin adınıza kullanmasına izin verdiğiniz uygulamalar, örneğin MCP ile bağlanan yapay zekâ asistanları. Bulunduğunuz tüm çalışma alanlarına erişirler."

@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (copia)",
+  "errors": {
+    "triggerRequired": "Ponle un activador al fragmento.",
+    "triggerInvalid": "Un activador tiene hasta {max} letras minúsculas, dígitos, guiones y guiones bajos.",
+    "triggerTaken": "Otro fragmento de aquí ya tiene este activador.",
+    "titleTooLong": "Un título tiene hasta {max} caracteres.",
+    "bodyRequired": "Escribe lo que inserta el fragmento.",
+    "bodyTooLong": "Un fragmento tiene hasta {max} caracteres.",
+    "tooMany": "Aquí puede haber hasta {max} fragmentos. Elimina algunos para añadir más.",
+    "notFound": "Este fragmento ya no existe.",
+    "ownersOnly": "Solo los propietarios del espacio de trabajo cambian sus fragmentos.",
+    "accessDenied": "No tienes acceso a estos fragmentos.",
+    "importInvalid": "Este no es un archivo de fragmentos. Usa una exportación de Leafdesk o una lista de objetos con id y label.",
+    "importTooLarge": "El archivo es demasiado grande para importarlo."
+  },
+  "menu": {
+    "group": "Fragmentos",
+    "personal": "Mis fragmentos",
+    "workspace": "Fragmentos del espacio de trabajo",
+    "insertFailed": "No se pudo insertar el fragmento. {error}"
+  },
+  "save": {
+    "menuItem": "Guardar como fragmento",
+    "saved": "Guardado. Escribe ;{trigger} para insertarlo."
+  },
+  "form": {
+    "newTitle": "Nuevo fragmento",
+    "editTitle": "Editar fragmento",
+    "title": "Título",
+    "titlePlaceholder": "Notas de reunión",
+    "trigger": "Activador",
+    "triggerPlaceholder": "reunion",
+    "triggerHint": "Escribe ;{trigger} en una página o búscalo en Fragmentos, en el menú /.",
+    "target": "Guardar en",
+    "targetPersonal": "Mis fragmentos (solo tú)",
+    "targetWorkspace": "{workspace} (todos en el espacio de trabajo)",
+    "body": "Contenido (Markdown)",
+    "bodyPlaceholder": "## Orden del día\n- ",
+    "placeholders": "Se rellena al insertar:",
+    "placeholder": {
+      "date": "La fecha de hoy",
+      "time": "La hora actual",
+      "datetime": "La fecha de hoy y la hora",
+      "me": "Tu nombre",
+      "page": "El título de la página",
+      "cursor": "Dónde queda el cursor"
+    },
+    "length": "{count} de {max} caracteres",
+    "preview": "Vista previa",
+    "previewPage": "Título de la página",
+    "previewEmpty": "Los bloques que inserta el fragmento aparecen aquí.",
+    "create": "Crear fragmento"
+  },
+  "settings": {
+    "personalDescription": "Piezas de contenido que insertas mientras escribes: escribe ; y el activador de un fragmento en cualquier página, o elígelo en Fragmentos, en el menú /. Solo tú los ves.",
+    "workspaceDescription": "Fragmentos que todos en el espacio de trabajo pueden insertar mientras escriben, junto a los suyos. Los propietarios los añaden y los cambian.",
+    "ownersOnly": "Solo los propietarios del espacio de trabajo añaden y cambian sus fragmentos.",
+    "search": "Buscar fragmentos",
+    "new": "Nuevo fragmento",
+    "import": "Importar",
+    "importing": "Importando…",
+    "export": "Exportar",
+    "count": "{count} de {max}",
+    "noMatches": "Ningún fragmento coincide.",
+    "empty": "Aún no hay fragmentos.",
+    "emptyOwner": "Aún no hay fragmentos. Empieza con un ejemplo o crea el tuyo.",
+    "examplesHeading": "Ejemplos",
+    "addExample": "Añadir",
+    "actionsFor": "Acciones para {title}",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "delete": "Eliminar",
+    "deleteTitle": "¿Eliminar «{title}»?",
+    "deleteBody": "Las páginas en las que se insertó conservan su texto.",
+    "imported": "{count, plural, =0 {No se añadió ningún fragmento.} one {# fragmento añadido.} other {# fragmentos añadidos.}}",
+    "skipped": "{count, plural, one {# omitido:} other {# omitidos:}}",
+    "skip": {
+      "triggerRequired": "sin activador",
+      "triggerInvalid": "activador no permitido",
+      "titleTooLong": "título demasiado largo",
+      "bodyRequired": "vacío",
+      "bodyTooLong": "demasiado largo",
+      "duplicate": "dos veces en el archivo",
+      "exists": "activador ya en uso",
+      "tooMany": "por encima del límite"
+    },
+    "untitledTrigger": "(sin activador)",
+    "importFailed": "No se pudo importar. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "reunion",
+      "title": "Notas de reunión",
+      "attendees": "Asistentes",
+      "agenda": "Orden del día",
+      "notes": "Notas",
+      "actions": "Tareas pendientes"
+    },
+    "log": {
+      "trigger": "registro",
+      "title": "Línea de registro con fecha"
+    },
+    "decision": {
+      "trigger": "decision",
+      "title": "Registro de decisión",
+      "heading": "Decisión",
+      "date": "Fecha",
+      "decidedBy": "Decidido por",
+      "context": "Contexto",
+      "options": "Opciones consideradas",
+      "outcome": "Lo que decidimos",
+      "consequences": "Consecuencias"
+    }
+  }
+}

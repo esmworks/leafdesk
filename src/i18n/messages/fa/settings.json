@@ -16,7 +16,8 @@
     "health": "سلامت",
     "security": "امنیت",
     "audit": "گزارش رویدادها",
-    "site": "سایت"
+    "site": "سایت",
+    "snippets": "قطعه‌متن‌ها"
   },
   "workspace": {
     "heading": "فضای کاری",

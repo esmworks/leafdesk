@@ -16,7 +16,8 @@
     "health": "Salud",
     "security": "Seguridad",
     "audit": "Registro de auditoría",
-    "site": "Sitio"
+    "site": "Sitio",
+    "snippets": "Fragmentos"
   },
   "workspace": {
     "heading": "Espacio de trabajo",

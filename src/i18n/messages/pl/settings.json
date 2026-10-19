@@ -16,7 +16,8 @@
     "health": "Stan",
     "security": "Bezpieczeństwo",
     "audit": "Dziennik inspekcji",
-    "site": "Witryna"
+    "site": "Witryna",
+    "snippets": "Fragmenty"
   },
   "workspace": {
     "heading": "Obszar roboczy",

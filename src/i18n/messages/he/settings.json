@@ -16,7 +16,8 @@
     "health": "תקינות",
     "security": "אבטחה",
     "audit": "יומן ביקורת",
-    "site": "אתר"
+    "site": "אתר",
+    "snippets": "קטעים"
   },
   "workspace": {
     "heading": "סביבת עבודה",

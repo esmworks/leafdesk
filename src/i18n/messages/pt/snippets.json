@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (cópia)",
+  "errors": {
+    "triggerRequired": "Dê um gatilho ao trecho.",
+    "triggerInvalid": "Um gatilho tem até {max} caracteres: letras minúsculas, dígitos, hifens e sublinhados.",
+    "triggerTaken": "Outro trecho aqui já tem este gatilho.",
+    "titleTooLong": "Um título tem até {max} caracteres.",
+    "bodyRequired": "Escreva o que o trecho insere.",
+    "bodyTooLong": "Um trecho tem até {max} caracteres.",
+    "tooMany": "Pode haver até {max} trechos aqui. Exclua alguns para adicionar mais.",
+    "notFound": "Este trecho não existe mais.",
+    "ownersOnly": "Só os proprietários do espaço de trabalho alteram os trechos dele.",
+    "accessDenied": "Você não tem acesso a estes trechos.",
+    "importInvalid": "Este não é um arquivo de trechos. Use uma exportação do Leafdesk ou uma lista de objetos com id e label.",
+    "importTooLarge": "O arquivo é grande demais para importar."
+  },
+  "menu": {
+    "group": "Trechos",
+    "personal": "Meus trechos",
+    "workspace": "Trechos do espaço de trabalho",
+    "insertFailed": "Não foi possível inserir o trecho. {error}"
+  },
+  "save": {
+    "menuItem": "Salvar como trecho",
+    "saved": "Salvo. Digite ;{trigger} para inseri-lo."
+  },
+  "form": {
+    "newTitle": "Novo trecho",
+    "editTitle": "Editar trecho",
+    "title": "Título",
+    "titlePlaceholder": "Notas da reunião",
+    "trigger": "Gatilho",
+    "triggerPlaceholder": "reuniao",
+    "triggerHint": "Digite ;{trigger} em uma página ou encontre-o em Trechos no menu /.",
+    "target": "Salvar em",
+    "targetPersonal": "Meus trechos (só você)",
+    "targetWorkspace": "{workspace} (todos no espaço de trabalho)",
+    "body": "Conteúdo (Markdown)",
+    "bodyPlaceholder": "## Pauta\n- ",
+    "placeholders": "Preenchido ao inserir:",
+    "placeholder": {
+      "date": "A data de hoje",
+      "time": "A hora atual",
+      "datetime": "A data de hoje e a hora",
+      "me": "Seu nome",
+      "page": "O título da página",
+      "cursor": "Onde fica o cursor"
+    },
+    "length": "{count} de {max} caracteres",
+    "preview": "Pré-visualização",
+    "previewPage": "Título da página",
+    "previewEmpty": "Os blocos que o trecho insere aparecem aqui.",
+    "create": "Criar trecho"
+  },
+  "settings": {
+    "personalDescription": "Pedaços de conteúdo que você insere enquanto digita: digite ; e o gatilho de um trecho em qualquer página, ou escolha-o em Trechos no menu /. Só você vê estes.",
+    "workspaceDescription": "Trechos que todos no espaço de trabalho podem inserir enquanto digitam, além dos próprios. Os proprietários os adicionam e alteram.",
+    "ownersOnly": "Só os proprietários do espaço de trabalho adicionam e alteram os trechos dele.",
+    "search": "Pesquisar trechos",
+    "new": "Novo trecho",
+    "import": "Importar",
+    "importing": "Importando…",
+    "export": "Exportar",
+    "count": "{count} de {max}",
+    "noMatches": "Nenhum trecho corresponde.",
+    "empty": "Ainda não há trechos.",
+    "emptyOwner": "Ainda não há trechos. Comece com um exemplo ou crie o seu.",
+    "examplesHeading": "Exemplos",
+    "addExample": "Adicionar",
+    "actionsFor": "Ações para {title}",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "delete": "Excluir",
+    "deleteTitle": "Excluir “{title}”?",
+    "deleteBody": "As páginas em que foi inserido mantêm o texto.",
+    "imported": "{count, plural, =0 {Nenhum trecho adicionado.} one {# trecho adicionado.} other {# trechos adicionados.}}",
+    "skipped": "{count, plural, one {# ignorado:} other {# ignorados:}}",
+    "skip": {
+      "triggerRequired": "sem gatilho",
+      "triggerInvalid": "gatilho não permitido",
+      "titleTooLong": "título longo demais",
+      "bodyRequired": "vazio",
+      "bodyTooLong": "longo demais",
+      "duplicate": "duas vezes no arquivo",
+      "exists": "gatilho já em uso",
+      "tooMany": "acima do limite"
+    },
+    "untitledTrigger": "(sem gatilho)",
+    "importFailed": "Não foi possível importar. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "reuniao",
+      "title": "Notas da reunião",
+      "attendees": "Participantes",
+      "agenda": "Pauta",
+      "notes": "Notas",
+      "actions": "Ações a fazer"
+    },
+    "log": {
+      "trigger": "registro",
+      "title": "Linha de registro com data"
+    },
+    "decision": {
+      "trigger": "decisao",
+      "title": "Registro de decisão",
+      "heading": "Decisão",
+      "date": "Data",
+      "decidedBy": "Decidido por",
+      "context": "Contexto",
+      "options": "Opções consideradas",
+      "outcome": "O que decidimos",
+      "consequences": "Consequências"
+    }
+  }
+}

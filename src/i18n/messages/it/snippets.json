@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (copia)",
+  "errors": {
+    "triggerRequired": "Assegna un attivatore al frammento.",
+    "triggerInvalid": "Un attivatore è lungo fino a {max} caratteri: lettere minuscole, cifre, trattini e trattini bassi.",
+    "triggerTaken": "Un altro frammento qui ha già questo attivatore.",
+    "titleTooLong": "Un titolo può avere fino a {max} caratteri.",
+    "bodyRequired": "Scrivi cosa inserisce il frammento.",
+    "bodyTooLong": "Un frammento può avere fino a {max} caratteri.",
+    "tooMany": "Qui possono esserci fino a {max} frammenti. Eliminane alcuni per aggiungerne altri.",
+    "notFound": "Questo frammento non esiste più.",
+    "ownersOnly": "Solo i proprietari dello spazio di lavoro ne modificano i frammenti.",
+    "accessDenied": "Non hai accesso a questi frammenti.",
+    "importInvalid": "Questo non è un file di frammenti. Usa un’esportazione di Leafdesk o un elenco di oggetti con id e label.",
+    "importTooLarge": "Il file è troppo grande per essere importato."
+  },
+  "menu": {
+    "group": "Frammenti",
+    "personal": "I miei frammenti",
+    "workspace": "Frammenti dello spazio di lavoro",
+    "insertFailed": "Impossibile inserire il frammento. {error}"
+  },
+  "save": {
+    "menuItem": "Salva come frammento",
+    "saved": "Salvato. Scrivi ;{trigger} per inserirlo."
+  },
+  "form": {
+    "newTitle": "Nuovo frammento",
+    "editTitle": "Modifica frammento",
+    "title": "Titolo",
+    "titlePlaceholder": "Note della riunione",
+    "trigger": "Attivatore",
+    "triggerPlaceholder": "riunione",
+    "triggerHint": "Scrivi ;{trigger} in una pagina, oppure trovalo in Frammenti nel menu /.",
+    "target": "Salva in",
+    "targetPersonal": "I miei frammenti (solo tu)",
+    "targetWorkspace": "{workspace} (tutti nello spazio di lavoro)",
+    "body": "Contenuto (Markdown)",
+    "bodyPlaceholder": "## Ordine del giorno\n- ",
+    "placeholders": "Compilato all’inserimento:",
+    "placeholder": {
+      "date": "La data di oggi",
+      "time": "L’ora attuale",
+      "datetime": "La data di oggi e l’ora",
+      "me": "Il tuo nome",
+      "page": "Il titolo della pagina",
+      "cursor": "Dove va il cursore"
+    },
+    "length": "{count} di {max} caratteri",
+    "preview": "Anteprima",
+    "previewPage": "Titolo della pagina",
+    "previewEmpty": "I blocchi inseriti dal frammento compaiono qui.",
+    "create": "Crea frammento"
+  },
+  "settings": {
+    "personalDescription": "Pezzi di contenuto che inserisci mentre scrivi: digita ; e l’attivatore di un frammento in qualsiasi pagina, oppure sceglilo in Frammenti nel menu /. Solo tu li vedi.",
+    "workspaceDescription": "Frammenti che tutti nello spazio di lavoro possono inserire mentre scrivono, insieme ai propri. I proprietari li aggiungono e li modificano.",
+    "ownersOnly": "Solo i proprietari dello spazio di lavoro ne aggiungono e modificano i frammenti.",
+    "search": "Cerca frammenti",
+    "new": "Nuovo frammento",
+    "import": "Importa",
+    "importing": "Importazione in corso…",
+    "export": "Esporta",
+    "count": "{count} di {max}",
+    "noMatches": "Nessun frammento corrisponde.",
+    "empty": "Ancora nessun frammento.",
+    "emptyOwner": "Ancora nessun frammento. Parti da un esempio o creane uno tuo.",
+    "examplesHeading": "Esempi",
+    "addExample": "Aggiungi",
+    "actionsFor": "Azioni per {title}",
+    "edit": "Modifica",
+    "duplicate": "Duplica",
+    "delete": "Elimina",
+    "deleteTitle": "Eliminare “{title}”?",
+    "deleteBody": "Le pagine in cui è stato inserito mantengono il loro testo.",
+    "imported": "{count, plural, =0 {Nessun frammento aggiunto.} one {# frammento aggiunto.} other {# frammenti aggiunti.}}",
+    "skipped": "{count, plural, one {# saltato:} other {# saltati:}}",
+    "skip": {
+      "triggerRequired": "nessun attivatore",
+      "triggerInvalid": "attivatore non consentito",
+      "titleTooLong": "titolo troppo lungo",
+      "bodyRequired": "vuoto",
+      "bodyTooLong": "troppo lungo",
+      "duplicate": "due volte nel file",
+      "exists": "attivatore già in uso",
+      "tooMany": "oltre il limite"
+    },
+    "untitledTrigger": "(nessun attivatore)",
+    "importFailed": "Impossibile importare. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "riunione",
+      "title": "Note della riunione",
+      "attendees": "Partecipanti",
+      "agenda": "Ordine del giorno",
+      "notes": "Note",
+      "actions": "Azioni da fare"
+    },
+    "log": {
+      "trigger": "registro",
+      "title": "Riga di registro con data"
+    },
+    "decision": {
+      "trigger": "decisione",
+      "title": "Registro della decisione",
+      "heading": "Decisione",
+      "date": "Data",
+      "decidedBy": "Deciso da",
+      "context": "Contesto",
+      "options": "Opzioni valutate",
+      "outcome": "Cosa abbiamo deciso",
+      "consequences": "Conseguenze"
+    }
+  }
+}

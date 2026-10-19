@@ -6,6 +6,7 @@ export const SETTINGS_TABS = [
   "teamspaces",
   "groups",
   "agents",
+  "snippets",
   "connections",
   "email",
   "storage",
@@ -59,15 +60,16 @@ const LOCAL_MODE_HIDDEN_TABS: readonly SettingsTab[] = ["guests", "groups", "sit
 
 /**
  * The person's own settings (see components/account/account-tabs) under a workspace's Settings,
- * named so they don't clash with the workspace tabs: the account's "security" is "accountSecurity".
+ * named so they don't clash with the workspace tabs: the account's "security" is "accountSecurity",
+ * its "snippets" (the person's own) "mySnippets".
  */
-export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "apps", "about"] as const;
+export const ACCOUNT_SETTINGS_TABS = ["profile", "accountSecurity", "preferences", "mySnippets", "apps", "about"] as const;
 export type AccountSettingsTab = (typeof ACCOUNT_SETTINGS_TABS)[number];
 
 export function accountTabForSettings(tab: AccountSettingsTab) {
-  return tab === "accountSecurity" ? "security" : tab;
+  return tab === "accountSecurity" ? "security" : tab === "mySnippets" ? "snippets" : tab;
 }
 
-export function settingsTabForAccount(tab: "profile" | "security" | "preferences" | "apps" | "about"): AccountSettingsTab {
-  return tab === "security" ? "accountSecurity" : tab;
+export function settingsTabForAccount(tab: "profile" | "security" | "preferences" | "snippets" | "apps" | "about"): AccountSettingsTab {
+  return tab === "security" ? "accountSecurity" : tab === "snippets" ? "mySnippets" : tab;
 }

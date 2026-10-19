@@ -16,7 +16,8 @@
     "health": "السلامة",
     "security": "الأمان",
     "audit": "سجل التدقيق",
-    "site": "الموقع"
+    "site": "الموقع",
+    "snippets": "المقتطفات"
   },
   "workspace": {
     "heading": "مساحة العمل",

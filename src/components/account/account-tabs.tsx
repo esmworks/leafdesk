@@ -1,4 +1,4 @@
-import { Info, KeyRound, Plug, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
+import { Info, KeyRound, Plug, SlidersHorizontal, TextQuote, UserRound, type LucideIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AiAccountsGroup } from "@/components/account/ai-accounts-group";
@@ -32,18 +32,21 @@ import { isInstanceAdmin } from "@/lib/instance-admin";
 import { storageNoticeOf } from "@/lib/workspace-storage";
 import { getStorageAccounts } from "@/server/storage/accounts";
 import { AccountStorage } from "@/components/settings/account-storage";
+import { SnippetsPanel } from "@/components/snippets/snippets-panel";
+import { listSnippets } from "@/server/snippets";
 
 /**
  * The signed-in person's own settings, shown in two places: under Settings in a workspace (the
  * usual way in) and on the account page (/account), which stays open outside any workspace to
  * someone a workspace's two-step policy holds back or who has no workspace at all.
  */
-export const ACCOUNT_TABS = ["profile", "security", "preferences", "apps", "about"] as const;
+export const ACCOUNT_TABS = ["profile", "security", "preferences", "snippets", "apps", "about"] as const;
 export type AccountTab = (typeof ACCOUNT_TABS)[number];
 export const ACCOUNT_ICONS: Record<AccountTab, LucideIcon> = {
   profile: UserRound,
   security: KeyRound,
   preferences: SlidersHorizontal,
+  snippets: TextQuote,
   apps: Plug,
   about: Info,
 };
@@ -55,6 +58,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
   if (tab === "about") return <AboutLeafdesk />;
+  if (tab === "snippets") return <SnippetsTab userId={session.user.id} name={session.user.name} />;
   const [t, storage] = await Promise.all([getTranslations("account"), getStorageAccounts(session.user.id, { isAdmin: isInstanceAdmin(session.user) })]);
   return (
     <>
@@ -66,6 +70,17 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
         <McpInstructions />
         <ApiTokens />
       </div>
+    </>
+  );
+}
+
+/** The person's own snippets (server/snippets.ts), the same in every workspace. */
+async function SnippetsTab({ userId, name }: { userId: string; name: string }) {
+  const [list, t, ts] = await Promise.all([listSnippets(userId, { kind: "personal" }), getTranslations("account"), getTranslations("snippets.settings")]);
+  return (
+    <>
+      <SettingsHeader title={t("nav.snippets")} description={ts("personalDescription")} />
+      <SnippetsPanel workspace={null} canManage initial={list} me={name} />
     </>
   );
 }

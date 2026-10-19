@@ -42,6 +42,7 @@ import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
 import * as skills from "@/server/skills";
+import * as snippets from "@/server/snippets";
 import { skillSlug } from "@/lib/skills";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { valueText } from "@/lib/row-activity";
@@ -376,6 +377,9 @@ export const inputs = {
   }),
   listSkills: z.object({
     workspace_id: z.string().optional().describe("Only this workspace's skills. Leave out for every workspace."),
+  }),
+  listSnippets: z.object({
+    workspace_id: z.string().optional().describe("Only the user's own snippets and this workspace's. Leave out for every workspace."),
   }),
   getSkill: z.object({
     skill: z.string().min(1).describe("The skill's name (from list_skills) or title, or its page id or link."),
@@ -1594,6 +1598,33 @@ export async function listSkills(ctx: OperationContext, { workspace_id }: Args<"
   return {
     skills: list.map((s) => skillOut(s, workspaces)),
     ...(list.length ? {} : { note: "No skills yet. Any page or database row can be made a skill with set_skill." }),
+  };
+}
+
+/**
+ * The user's snippets and those of their workspaces (where they are an owner or member), with
+ * their Markdown bodies as stored: placeholders such as {{date}} are filled in by the editor.
+ */
+export async function listSnippets(ctx: OperationContext, { workspace_id }: Args<"listSnippets">) {
+  const all = await pages.listWorkspaces(ctx.userId);
+  const workspaceId = workspace_id ? idFromLink("workspace_id", workspace_id) : undefined;
+  if (workspaceId && !all.some((w) => w.id === workspaceId)) {
+    throw new ToolInputError("No workspace with that id. Call list_workspaces to see the user's workspaces.");
+  }
+  const shown = workspaceId ? all.filter((w) => w.id === workspaceId) : all;
+  const names = new Map(shown.map((w) => [w.id, w.name]));
+  const list = await snippets.snippetsForWorkspaces(ctx.userId, [...names.keys()]);
+  return {
+    snippets: list.map((s) => ({
+      trigger: s.trigger,
+      title: s.title,
+      scope: s.scope,
+      ...(s.workspaceId ? { workspace_id: s.workspaceId, workspace: names.get(s.workspaceId) ?? "" } : {}),
+      markdown: s.body,
+    })),
+    placeholders:
+      "{{date}}, {{time}}, {{datetime}}: now, in the user's language and time zone; {{me}}: the user's name; {{page}}: the page's title; {{cursor}}: where the caret goes (drop it when writing the snippet into a page).",
+    ...(list.length ? {} : { note: "No snippets yet. People add them in Leafdesk under Settings > Snippets." }),
   };
 }
 

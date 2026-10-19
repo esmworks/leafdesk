@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (kopia)",
+  "errors": {
+    "triggerRequired": "Nadaj fragmentowi wyzwalacz.",
+    "triggerInvalid": "Wyzwalacz ma do {max} znaków: małe litery, cyfry, łączniki i podkreślenia.",
+    "triggerTaken": "Inny fragment tutaj ma już ten wyzwalacz.",
+    "titleTooLong": "Tytuł może mieć do {max} znaków.",
+    "bodyRequired": "Napisz, co fragment wstawia.",
+    "bodyTooLong": "Fragment może mieć do {max} znaków.",
+    "tooMany": "Może tu być do {max} fragmentów. Usuń kilka, aby dodać kolejne.",
+    "notFound": "Tego fragmentu już nie ma.",
+    "ownersOnly": "Tylko właściciele obszaru roboczego zmieniają jego fragmenty.",
+    "accessDenied": "Nie masz dostępu do tych fragmentów.",
+    "importInvalid": "To nie jest plik z fragmentami. Użyj eksportu z Leafdesk lub listy obiektów z polami id i label.",
+    "importTooLarge": "Plik jest za duży, aby go zaimportować."
+  },
+  "menu": {
+    "group": "Fragmenty",
+    "personal": "Moje fragmenty",
+    "workspace": "Fragmenty obszaru roboczego",
+    "insertFailed": "Nie udało się wstawić fragmentu. {error}"
+  },
+  "save": {
+    "menuItem": "Zapisz jako fragment",
+    "saved": "Zapisano. Wpisz ;{trigger}, aby go wstawić."
+  },
+  "form": {
+    "newTitle": "Nowy fragment",
+    "editTitle": "Edytuj fragment",
+    "title": "Tytuł",
+    "titlePlaceholder": "Notatki ze spotkania",
+    "trigger": "Wyzwalacz",
+    "triggerPlaceholder": "spotkanie",
+    "triggerHint": "Wpisz ;{trigger} na stronie albo znajdź go w sekcji Fragmenty w menu /.",
+    "target": "Zapisz w",
+    "targetPersonal": "Moje fragmenty (tylko ty)",
+    "targetWorkspace": "{workspace} (wszyscy w obszarze roboczym)",
+    "body": "Treść (Markdown)",
+    "bodyPlaceholder": "## Agenda\n- ",
+    "placeholders": "Uzupełniane przy wstawianiu:",
+    "placeholder": {
+      "date": "Dzisiejsza data",
+      "time": "Aktualna godzina",
+      "datetime": "Dzisiejsza data i godzina",
+      "me": "Twoje imię i nazwisko",
+      "page": "Tytuł strony",
+      "cursor": "Gdzie trafia kursor"
+    },
+    "length": "{count} z {max} znaków",
+    "preview": "Podgląd",
+    "previewPage": "Tytuł strony",
+    "previewEmpty": "Bloki wstawiane przez fragment pojawią się tutaj.",
+    "create": "Utwórz fragment"
+  },
+  "settings": {
+    "personalDescription": "Kawałki treści wstawiane podczas pisania: wpisz ; i wyzwalacz fragmentu na dowolnej stronie albo wybierz go w sekcji Fragmenty w menu /. Widzisz je tylko ty.",
+    "workspaceDescription": "Fragmenty, które wszyscy w obszarze roboczym mogą wstawiać podczas pisania, obok własnych. Właściciele je dodają i zmieniają.",
+    "ownersOnly": "Tylko właściciele obszaru roboczego dodają i zmieniają jego fragmenty.",
+    "search": "Szukaj fragmentów",
+    "new": "Nowy fragment",
+    "import": "Importuj",
+    "importing": "Importowanie…",
+    "export": "Eksportuj",
+    "count": "{count} z {max}",
+    "noMatches": "Brak pasujących fragmentów.",
+    "empty": "Nie ma jeszcze fragmentów.",
+    "emptyOwner": "Nie ma jeszcze fragmentów. Zacznij od przykładu albo utwórz własny.",
+    "examplesHeading": "Przykłady",
+    "addExample": "Dodaj",
+    "actionsFor": "Akcje dla: {title}",
+    "edit": "Edytuj",
+    "duplicate": "Duplikuj",
+    "delete": "Usuń",
+    "deleteTitle": "Usunąć „{title}”?",
+    "deleteBody": "Strony, na których go wstawiono, zachowują swój tekst.",
+    "imported": "{count, plural, =0 {Nie dodano żadnych fragmentów.} one {Dodano # fragment.} few {Dodano # fragmenty.} many {Dodano # fragmentów.} other {Dodano # fragmentu.}}",
+    "skipped": "{count, plural, one {# pominięty:} few {# pominięte:} many {# pominiętych:} other {# pominiętego:}}",
+    "skip": {
+      "triggerRequired": "brak wyzwalacza",
+      "triggerInvalid": "niedozwolony wyzwalacz",
+      "titleTooLong": "za długi tytuł",
+      "bodyRequired": "pusty",
+      "bodyTooLong": "za długi",
+      "duplicate": "dwa razy w pliku",
+      "exists": "wyzwalacz jest już używany",
+      "tooMany": "ponad limit"
+    },
+    "untitledTrigger": "(brak wyzwalacza)",
+    "importFailed": "Nie udało się zaimportować. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "spotkanie",
+      "title": "Notatki ze spotkania",
+      "attendees": "Uczestnicy",
+      "agenda": "Agenda",
+      "notes": "Notatki",
+      "actions": "Zadania do wykonania"
+    },
+    "log": {
+      "trigger": "dziennik",
+      "title": "Wiersz dziennika z datą"
+    },
+    "decision": {
+      "trigger": "decyzja",
+      "title": "Zapis decyzji",
+      "heading": "Decyzja",
+      "date": "Data",
+      "decidedBy": "Decyzję podjął(-ęła)",
+      "context": "Kontekst",
+      "options": "Rozważane opcje",
+      "outcome": "Co postanowiliśmy",
+      "consequences": "Konsekwencje"
+    }
+  }
+}

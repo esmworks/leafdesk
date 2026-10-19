@@ -9,7 +9,8 @@
     "preferences": "환경설정",
     "apps": "연결된 앱",
     "about": "정보",
-    "admin": "서버 관리"
+    "admin": "서버 관리",
+    "snippets": "스니펫"
   },
   "apps": {
     "description": "사용자를 대신해 Leafdesk를 사용하도록 허용한 앱입니다(예: MCP로 연결된 AI 어시스턴트). 이 앱은 참여 중인 모든 워크스페이스에 접근할 수 있습니다."

@@ -424,6 +424,7 @@ async function main() {
     "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_connections",
     "add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory", "set_agent_connection_tools",
     "list_skills", "get_skill", "set_skill", "list_memory", "add_memory", "update_memory", "delete_memory",
+    "list_snippets",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
   const getPageTool = list.message.result.tools.find((t: { name: string }) => t.name === "get_page");

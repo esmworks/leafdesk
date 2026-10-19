@@ -9,7 +9,8 @@
     "preferences": "Preferences",
     "apps": "Connected apps",
     "about": "About",
-    "admin": "Server administration"
+    "admin": "Server administration",
+    "snippets": "Snippets"
   },
   "apps": {
     "description": "Apps you have allowed to use Leafdesk on your behalf, for example AI assistants connected over MCP. They reach every workspace you are in."

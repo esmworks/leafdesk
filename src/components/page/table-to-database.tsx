@@ -25,6 +25,7 @@ import { blockPath } from "@/lib/mentions";
 import { tableRecords, type TableBlockContent } from "@/lib/table-to-database";
 import { useEmbedHost } from "./database-embed";
 import { placeEmbedBlock, type PageEditor } from "./embed-blocks";
+import { SaveAsSnippetItem } from "./snippets";
 import { turnIntoSyncedBlock } from "./synced-block";
 
 // Tables being turned into a database: a second click waits for the first.
@@ -147,8 +148,9 @@ function HideInPrintItem() {
 
 /**
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
- * (delete, colors, table headers), "Copy link to block", for a callout "Hide when printing" and,
- * for a table, "Turn into database"; `onError` shows why that failed. Made once per editor: a new
+ * (delete, colors, table headers), "Copy link to block", for a callout "Hide when printing",
+ * for a table "Turn into database", "Turn into synced block" and "Save as snippet"; `onError` shows
+ * why a change failed. Made once per editor: a new
  * component each render would close an open menu.
  */
 export function pageSideMenu(onError: (message: string) => void): FC<SideMenuProps> {
@@ -164,6 +166,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <CopyBlockLinkItem />
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />
+        <SaveAsSnippetItem />
       </DragHandleMenu>
     );
   }

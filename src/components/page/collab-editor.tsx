@@ -58,6 +58,8 @@ import { useColorSlashItems } from "./slash-colors";
 import { withTextScriptButtons } from "./text-scripts";
 import { withSideAlignButtons } from "./align-buttons";
 import { pageSideMenu } from "./table-to-database";
+import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } from "./snippets";
+import { readDocTitle } from "@/lib/collab-title";
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -244,6 +246,10 @@ export default function CollabEditor({
   // Links to a passage (the AI chat's citations) scroll to its block: the page's own blocks.
   useBlockFocus(!nested);
 
+  // `;` and the slash menu insert snippets, "Save as snippet" in the block menu makes one (snippets.tsx).
+  const pageTitle = () => readDocTitle(pageDoc.doc) ?? crumbs.at(-1)?.title ?? "";
+  const snippets = useSnippets({ editor, workspaceId, me: user.name, pageTitle, onError: setEmbedError, editable, offline, nested });
+
   // The editor's menus and its block handles follow the interface language's direction: right to
   // left, the handles sit to the right of the blocks and submenus open to the left.
   const dir = useDirection();
@@ -275,7 +281,11 @@ export default function CollabEditor({
                 pointer: the page's own. A synced page's blocks are added with "/" instead, and the
                 page's handle moves the synced page as a whole.
               */}
-              {!nested && <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />}
+              {!nested && (
+                <SaveAsSnippetContext.Provider value={snippets.save}>
+                  <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                </SaveAsSnippetContext.Provider>
+              )}
               <SlashMenu
                 editor={editor}
                 onCreateError={setEmbedError}
@@ -286,7 +296,9 @@ export default function CollabEditor({
                 doc={pageDoc.doc}
                 assistant={ai && editable && !offline ? assistant : null}
                 voiceNote={voice && editable && !offline ? voiceNote : null}
+                snippets={snippets.menu}
               />
+              <SnippetMenu {...snippets.menu} />
               {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
@@ -309,6 +321,7 @@ export default function CollabEditor({
           {assistant.panel}
           {voiceNote.dialog}
         </PageTrailProvider>
+        {snippets.dialog}
         {embedError && (
           <div role="alert" className="mx-4 mt-2 md:mx-[54px] flex items-center gap-2 rounded-md border border-border bg-bg-subtle px-3 py-1.5 text-sm">
             <span className="flex-1 text-danger">{embedError}</span>
@@ -372,6 +385,7 @@ function SlashMenu({
   doc,
   assistant,
   voiceNote,
+  snippets,
 }: {
   editor: PageEditor;
   onCreateError: (message: string) => void;
@@ -386,6 +400,8 @@ function SlashMenu({
   assistant: AiAssist | null;
   /** Voice notes, when available: "Voice note" joins the AI entries. */
   voiceNote: VoiceNote | null;
+  /** Inserting snippets: their group lists every one the person can use. */
+  snippets: Parameters<typeof useSnippetSlashItems>[0];
 }) {
   const embedItems = useEmbedSlashItems(editor, { onCreateError, onPickDatabase, onDashboard });
   const contentItems = useContentSlashItems(editor);
@@ -398,6 +414,7 @@ function SlashMenu({
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
   const voiceItems = useVoiceSlashItems(voiceNote?.open ?? noop, voiceNote !== null);
+  const snippetItems = useSnippetSlashItems(snippets);
   return (
     <SuggestionMenuController
       triggerCharacter="/"
@@ -412,6 +429,7 @@ function SlashMenu({
             ...syncedPageItems,
             ...syncedBlockItems,
             ...colorItems(),
+            ...snippetItems,
             ...aiItems,
             ...voiceItems,
           ]),

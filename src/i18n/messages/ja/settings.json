@@ -16,7 +16,8 @@
     "health": "ヘルスチェック",
     "security": "セキュリティ",
     "audit": "監査ログ",
-    "site": "サイト"
+    "site": "サイト",
+    "snippets": "スニペット"
   },
   "workspace": {
     "heading": "ワークスペース",

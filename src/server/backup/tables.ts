@@ -74,6 +74,8 @@ export const BACKED_UP: Record<string, Scope> = {
   mail_database: own,
   row_email: own,
   row_email_attachment: (ws) => sql`row_email_id in (select id from row_email where workspace_id = ${ws})`,
+  // The workspace's own snippets; people's personal ones have no workspace and stay out.
+  snippet: own,
 };
 
 /** The table of a workspace's members and their roles. */

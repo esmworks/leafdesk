@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (kopya)",
+  "errors": {
+    "triggerRequired": "Parçacığa bir tetikleyici verin.",
+    "triggerInvalid": "Tetikleyici en fazla {max} karakterdir: küçük harf, rakam, kısa çizgi ve alt çizgi.",
+    "triggerTaken": "Burada bu tetikleyiciyi kullanan başka bir parçacık var.",
+    "titleTooLong": "Başlık en fazla {max} karakter olabilir.",
+    "bodyRequired": "Parçacığın ne ekleyeceğini yazın.",
+    "bodyTooLong": "Bir parçacık en fazla {max} karakter olabilir.",
+    "tooMany": "Burada en fazla {max} parçacık olabilir. Yenilerini eklemek için bazılarını silin.",
+    "notFound": "Bu parçacık artık yok.",
+    "ownersOnly": "Çalışma alanının parçacıklarını yalnızca sahipleri değiştirebilir.",
+    "accessDenied": "Bu parçacıklara erişiminiz yok.",
+    "importInvalid": "Bu bir parçacık dosyası değil. Leafdesk'ten dışa aktarılmış bir dosya ya da id ve label alanları olan nesnelerden oluşan bir liste kullanın.",
+    "importTooLarge": "Dosya içe aktarmak için çok büyük."
+  },
+  "menu": {
+    "group": "Parçacıklar",
+    "personal": "Parçacıklarım",
+    "workspace": "Çalışma alanının parçacıkları",
+    "insertFailed": "Parçacık eklenemedi. {error}"
+  },
+  "save": {
+    "menuItem": "Parçacık olarak kaydet",
+    "saved": "Kaydedildi. Eklemek için ;{trigger} yazın."
+  },
+  "form": {
+    "newTitle": "Yeni parçacık",
+    "editTitle": "Parçacığı düzenle",
+    "title": "Başlık",
+    "titlePlaceholder": "Toplantı notları",
+    "trigger": "Tetikleyici",
+    "triggerPlaceholder": "toplanti",
+    "triggerHint": "Bir sayfada ;{trigger} yazın ya da / menüsünde Parçacıklar altında bulun.",
+    "target": "Kaydedileceği yer",
+    "targetPersonal": "Parçacıklarım (yalnızca siz)",
+    "targetWorkspace": "{workspace} (çalışma alanındaki herkes)",
+    "body": "İçerik (Markdown)",
+    "bodyPlaceholder": "## Gündem\n- ",
+    "placeholders": "Eklenirken doldurulur:",
+    "placeholder": {
+      "date": "Bugünün tarihi",
+      "time": "Şu anki saat",
+      "datetime": "Bugünün tarihi ve saat",
+      "me": "Adınız",
+      "page": "Sayfanın başlığı",
+      "cursor": "İmlecin duracağı yer"
+    },
+    "length": "{count} / {max} karakter",
+    "preview": "Önizleme",
+    "previewPage": "Sayfa başlığı",
+    "previewEmpty": "Parçacığın ekleyeceği bloklar burada görünür.",
+    "create": "Parçacığı oluştur"
+  },
+  "settings": {
+    "personalDescription": "Yazarken eklediğiniz içerik parçaları: herhangi bir sayfada ; ve parçacığın tetikleyicisini yazın ya da / menüsünde Parçacıklar altından seçin. Bunları yalnızca siz görürsünüz.",
+    "workspaceDescription": "Çalışma alanındaki herkesin kendi parçacıklarının yanında yazarken ekleyebileceği parçacıklar. Sahipler ekler ve değiştirir.",
+    "ownersOnly": "Çalışma alanının parçacıklarını yalnızca sahipleri ekler ve değiştirir.",
+    "search": "Parçacıklarda ara",
+    "new": "Yeni parçacık",
+    "import": "İçe aktar",
+    "importing": "İçe aktarılıyor…",
+    "export": "Dışa aktar",
+    "count": "{count} / {max}",
+    "noMatches": "Eşleşen parçacık yok.",
+    "empty": "Henüz parçacık yok.",
+    "emptyOwner": "Henüz parçacık yok. Bir örnekle başlayın ya da kendinizinkini oluşturun.",
+    "examplesHeading": "Örnekler",
+    "addExample": "Ekle",
+    "actionsFor": "{title} işlemleri",
+    "edit": "Düzenle",
+    "duplicate": "Çoğalt",
+    "delete": "Sil",
+    "deleteTitle": "“{title}” silinsin mi?",
+    "deleteBody": "Eklendiği sayfalardaki metin olduğu gibi kalır.",
+    "imported": "{count, plural, =0 {Hiç parçacık eklenmedi.} other {# parçacık eklendi.}}",
+    "skipped": "{count, plural, other {# tanesi atlandı:}}",
+    "skip": {
+      "triggerRequired": "tetikleyici yok",
+      "triggerInvalid": "tetikleyici geçersiz",
+      "titleTooLong": "başlık çok uzun",
+      "bodyRequired": "boş",
+      "bodyTooLong": "çok uzun",
+      "duplicate": "dosyada iki kez var",
+      "exists": "tetikleyici zaten kullanılıyor",
+      "tooMany": "sınırın üstünde"
+    },
+    "untitledTrigger": "(tetikleyici yok)",
+    "importFailed": "İçe aktarılamadı. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "toplanti",
+      "title": "Toplantı notları",
+      "attendees": "Katılanlar",
+      "agenda": "Gündem",
+      "notes": "Notlar",
+      "actions": "Yapılacaklar"
+    },
+    "log": {
+      "trigger": "kayit",
+      "title": "Tarihli kayıt satırı"
+    },
+    "decision": {
+      "trigger": "karar",
+      "title": "Karar kaydı",
+      "heading": "Karar",
+      "date": "Tarih",
+      "decidedBy": "Karar veren",
+      "context": "Bağlam",
+      "options": "Değerlendirilen seçenekler",
+      "outcome": "Verilen karar",
+      "consequences": "Sonuçları"
+    }
+  }
+}

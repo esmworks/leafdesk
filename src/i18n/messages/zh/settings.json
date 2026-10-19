@@ -16,7 +16,8 @@
     "health": "健康状况",
     "security": "安全",
     "audit": "审计日志",
-    "site": "站点"
+    "site": "站点",
+    "snippets": "片段"
   },
   "workspace": {
     "heading": "工作区",

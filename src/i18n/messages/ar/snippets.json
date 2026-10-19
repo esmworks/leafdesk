@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (نسخة)",
+  "errors": {
+    "triggerRequired": "أعطِ المقتطف مُشغّلًا.",
+    "triggerInvalid": "يتكوّن المشغّل من {max} حرفًا على الأكثر: أحرف لاتينية صغيرة وأرقام وواصلات وشرطات سفلية.",
+    "triggerTaken": "هناك مقتطف آخر هنا يستخدم هذا المشغّل بالفعل.",
+    "titleTooLong": "يصل طول العنوان إلى {max} حرفًا على الأكثر.",
+    "bodyRequired": "اكتب ما يدرجه المقتطف.",
+    "bodyTooLong": "يصل طول المقتطف إلى {max} حرفًا على الأكثر.",
+    "tooMany": "يمكن أن توجد هنا {max} مقتطفًا على الأكثر. احذف بعضها لإضافة المزيد.",
+    "notFound": "لم يعد هذا المقتطف موجودًا.",
+    "ownersOnly": "مالكو مساحة العمل وحدهم يغيّرون مقتطفاتها.",
+    "accessDenied": "ليس لديك صلاحية الوصول إلى هذه المقتطفات.",
+    "importInvalid": "هذا ليس ملف مقتطفات. استخدم ملفًا مصدَّرًا من Leafdesk أو قائمة من الكائنات تحتوي على id وlabel.",
+    "importTooLarge": "الملف كبير جدًا للاستيراد."
+  },
+  "menu": {
+    "group": "المقتطفات",
+    "personal": "مقتطفاتي",
+    "workspace": "مقتطفات مساحة العمل",
+    "insertFailed": "تعذّر إدراج المقتطف. {error}"
+  },
+  "save": {
+    "menuItem": "حفظ كمقتطف",
+    "saved": "تم الحفظ. اكتب ;{trigger} لإدراجه."
+  },
+  "form": {
+    "newTitle": "مقتطف جديد",
+    "editTitle": "تعديل المقتطف",
+    "title": "العنوان",
+    "titlePlaceholder": "ملاحظات الاجتماع",
+    "trigger": "المشغّل",
+    "triggerPlaceholder": "ijtimaa",
+    "triggerHint": "اكتب ;{trigger} في صفحة، أو اعثر عليه ضمن المقتطفات في قائمة /.",
+    "target": "الحفظ في",
+    "targetPersonal": "مقتطفاتي (لك وحدك)",
+    "targetWorkspace": "{workspace} (كل من في مساحة العمل)",
+    "body": "المحتوى (Markdown)",
+    "bodyPlaceholder": "## جدول الأعمال\n- ",
+    "placeholders": "يُملأ عند الإدراج:",
+    "placeholder": {
+      "date": "تاريخ اليوم",
+      "time": "الوقت الحالي",
+      "datetime": "تاريخ اليوم والوقت",
+      "me": "اسمك",
+      "page": "عنوان الصفحة",
+      "cursor": "مكان المؤشر"
+    },
+    "length": "{count} من {max} حرفًا",
+    "preview": "معاينة",
+    "previewPage": "عنوان الصفحة",
+    "previewEmpty": "تظهر هنا الكتل التي يدرجها المقتطف.",
+    "create": "إنشاء مقتطف"
+  },
+  "settings": {
+    "personalDescription": "قطع محتوى تدرجها أثناء الكتابة: اكتب ; ومشغّل المقتطف في أي صفحة، أو اخترها ضمن المقتطفات في قائمة /. أنت وحدك ترى هذه المقتطفات.",
+    "workspaceDescription": "مقتطفات يمكن لكل من في مساحة العمل إدراجها أثناء الكتابة، إلى جانب مقتطفاتهم الخاصة. يضيفها المالكون ويغيّرونها.",
+    "ownersOnly": "مالكو مساحة العمل وحدهم يضيفون مقتطفاتها ويغيّرونها.",
+    "search": "البحث في المقتطفات",
+    "new": "مقتطف جديد",
+    "import": "استيراد",
+    "importing": "جارٍ الاستيراد…",
+    "export": "تصدير",
+    "count": "{count} من {max}",
+    "noMatches": "لا توجد مقتطفات مطابقة.",
+    "empty": "لا توجد مقتطفات بعد.",
+    "emptyOwner": "لا توجد مقتطفات بعد. ابدأ بمثال أو أنشئ مقتطفك الخاص.",
+    "examplesHeading": "أمثلة",
+    "addExample": "إضافة",
+    "actionsFor": "إجراءات لـ {title}",
+    "edit": "تعديل",
+    "duplicate": "تكرار",
+    "delete": "حذف",
+    "deleteTitle": "حذف «{title}»؟",
+    "deleteBody": "تحتفظ الصفحات التي أُدرج فيها بنصها.",
+    "imported": "{count, plural, =0 {لم تُضف أي مقتطفات.} one {أُضيف مقتطف واحد.} two {أُضيف مقتطفان.} few {أُضيفت # مقتطفات.} many {أُضيف # مقتطفًا.} other {أُضيف # مقتطف.}}",
+    "skipped": "{count, plural, zero {تم تخطي #:} one {تم تخطي #:} two {تم تخطي #:} few {تم تخطي #:} many {تم تخطي #:} other {تم تخطي #:}}",
+    "skip": {
+      "triggerRequired": "بلا مشغّل",
+      "triggerInvalid": "المشغّل غير مسموح",
+      "titleTooLong": "العنوان طويل جدًا",
+      "bodyRequired": "فارغ",
+      "bodyTooLong": "طويل جدًا",
+      "duplicate": "مكرر في الملف",
+      "exists": "المشغّل مستخدم بالفعل",
+      "tooMany": "فوق الحد"
+    },
+    "untitledTrigger": "(بلا مشغّل)",
+    "importFailed": "تعذّر الاستيراد. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "ijtimaa",
+      "title": "ملاحظات الاجتماع",
+      "attendees": "الحاضرون",
+      "agenda": "جدول الأعمال",
+      "notes": "الملاحظات",
+      "actions": "المهام المطلوبة"
+    },
+    "log": {
+      "trigger": "sijil",
+      "title": "سطر سجل مؤرخ"
+    },
+    "decision": {
+      "trigger": "qarar",
+      "title": "سجل القرار",
+      "heading": "القرار",
+      "date": "التاريخ",
+      "decidedBy": "اتخذه",
+      "context": "السياق",
+      "options": "الخيارات المدروسة",
+      "outcome": "ما قررناه",
+      "consequences": "النتائج"
+    }
+  }
+}

@@ -16,7 +16,8 @@
     "health": "Стан",
     "security": "Безпека",
     "audit": "Журнал аудиту",
-    "site": "Сайт"
+    "site": "Сайт",
+    "snippets": "Сніпети"
   },
   "workspace": {
     "heading": "Робочий простір",

@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (Kopie)",
+  "errors": {
+    "triggerRequired": "Gib dem Textbaustein ein Kürzel.",
+    "triggerInvalid": "Ein Kürzel hat bis zu {max} Zeichen: Kleinbuchstaben, Ziffern, Bindestriche und Unterstriche.",
+    "triggerTaken": "Ein anderer Textbaustein hier hat dieses Kürzel bereits.",
+    "titleTooLong": "Ein Titel darf bis zu {max} Zeichen lang sein.",
+    "bodyRequired": "Schreibe, was der Textbaustein einfügt.",
+    "bodyTooLong": "Ein Textbaustein darf bis zu {max} Zeichen lang sein.",
+    "tooMany": "Hier sind bis zu {max} Textbausteine möglich. Lösche einige, um weitere hinzuzufügen.",
+    "notFound": "Diesen Textbaustein gibt es nicht mehr.",
+    "ownersOnly": "Nur die Inhaber des Workspace ändern dessen Textbausteine.",
+    "accessDenied": "Du hast keinen Zugriff auf diese Textbausteine.",
+    "importInvalid": "Das ist keine Datei mit Textbausteinen. Verwende einen Leafdesk-Export oder eine Liste von Objekten mit id und label.",
+    "importTooLarge": "Die Datei ist zu groß zum Importieren."
+  },
+  "menu": {
+    "group": "Textbausteine",
+    "personal": "Meine Textbausteine",
+    "workspace": "Textbausteine des Workspace",
+    "insertFailed": "Der Textbaustein konnte nicht eingefügt werden. {error}"
+  },
+  "save": {
+    "menuItem": "Als Textbaustein speichern",
+    "saved": "Gespeichert. Tippe ;{trigger}, um ihn einzufügen."
+  },
+  "form": {
+    "newTitle": "Neuer Textbaustein",
+    "editTitle": "Textbaustein bearbeiten",
+    "title": "Titel",
+    "titlePlaceholder": "Besprechungsnotizen",
+    "trigger": "Kürzel",
+    "triggerPlaceholder": "besprechung",
+    "triggerHint": "Tippe ;{trigger} auf einer Seite oder finde ihn unter Textbausteine im /-Menü.",
+    "target": "Speichern in",
+    "targetPersonal": "Meine Textbausteine (nur du)",
+    "targetWorkspace": "{workspace} (alle im Workspace)",
+    "body": "Inhalt (Markdown)",
+    "bodyPlaceholder": "## Tagesordnung\n- ",
+    "placeholders": "Beim Einfügen ausgefüllt:",
+    "placeholder": {
+      "date": "Heutiges Datum",
+      "time": "Die aktuelle Uhrzeit",
+      "datetime": "Heutiges Datum und Uhrzeit",
+      "me": "Dein Name",
+      "page": "Der Titel der Seite",
+      "cursor": "Wohin der Cursor kommt"
+    },
+    "length": "{count} von {max} Zeichen",
+    "preview": "Vorschau",
+    "previewPage": "Seitentitel",
+    "previewEmpty": "Die Blöcke, die der Textbaustein einfügt, erscheinen hier.",
+    "create": "Textbaustein erstellen"
+  },
+  "settings": {
+    "personalDescription": "Inhalte, die du beim Tippen einfügst: Tippe auf einer beliebigen Seite ; und das Kürzel eines Textbausteins oder wähle ihn unter Textbausteine im /-Menü. Nur du siehst diese.",
+    "workspaceDescription": "Textbausteine, die alle im Workspace beim Tippen einfügen können, zusätzlich zu ihren eigenen. Inhaber fügen sie hinzu und ändern sie.",
+    "ownersOnly": "Nur die Inhaber des Workspace fügen dessen Textbausteine hinzu und ändern sie.",
+    "search": "Textbausteine durchsuchen",
+    "new": "Neuer Textbaustein",
+    "import": "Importieren",
+    "importing": "Wird importiert…",
+    "export": "Exportieren",
+    "count": "{count} von {max}",
+    "noMatches": "Keine Textbausteine gefunden.",
+    "empty": "Noch keine Textbausteine.",
+    "emptyOwner": "Noch keine Textbausteine. Beginne mit einem Beispiel oder erstelle einen eigenen.",
+    "examplesHeading": "Beispiele",
+    "addExample": "Hinzufügen",
+    "actionsFor": "Aktionen für {title}",
+    "edit": "Bearbeiten",
+    "duplicate": "Duplizieren",
+    "delete": "Löschen",
+    "deleteTitle": "„{title}“ löschen?",
+    "deleteBody": "Seiten, in die er eingefügt wurde, behalten ihren Text.",
+    "imported": "{count, plural, =0 {Keine Textbausteine hinzugefügt.} one {# Textbaustein hinzugefügt.} other {# Textbausteine hinzugefügt.}}",
+    "skipped": "{count, plural, one {# übersprungen:} other {# übersprungen:}}",
+    "skip": {
+      "triggerRequired": "kein Kürzel",
+      "triggerInvalid": "Kürzel nicht erlaubt",
+      "titleTooLong": "Titel zu lang",
+      "bodyRequired": "leer",
+      "bodyTooLong": "zu lang",
+      "duplicate": "doppelt in der Datei",
+      "exists": "Kürzel bereits vergeben",
+      "tooMany": "über dem Limit"
+    },
+    "untitledTrigger": "(kein Kürzel)",
+    "importFailed": "Import fehlgeschlagen. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "besprechung",
+      "title": "Besprechungsnotizen",
+      "attendees": "Teilnehmende",
+      "agenda": "Tagesordnung",
+      "notes": "Notizen",
+      "actions": "Aufgaben"
+    },
+    "log": {
+      "trigger": "protokoll",
+      "title": "Protokollzeile mit Datum"
+    },
+    "decision": {
+      "trigger": "entscheidung",
+      "title": "Entscheidungsprotokoll",
+      "heading": "Entscheidung",
+      "date": "Datum",
+      "decidedBy": "Entschieden von",
+      "context": "Kontext",
+      "options": "Erwogene Optionen",
+      "outcome": "Was wir entschieden haben",
+      "consequences": "Folgen"
+    }
+  }
+}

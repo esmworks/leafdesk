@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (copy)",
+  "errors": {
+    "triggerRequired": "Give the snippet a trigger.",
+    "triggerInvalid": "A trigger is up to {max} lowercase letters, digits, hyphens and underscores.",
+    "triggerTaken": "Another snippet here already has this trigger.",
+    "titleTooLong": "A title is up to {max} characters.",
+    "bodyRequired": "Write what the snippet inserts.",
+    "bodyTooLong": "A snippet is up to {max} characters.",
+    "tooMany": "There can be up to {max} snippets here. Delete some to add more.",
+    "notFound": "This snippet is gone.",
+    "ownersOnly": "Only the workspace's owners change its snippets.",
+    "accessDenied": "You don't have access to these snippets.",
+    "importInvalid": "This isn't a snippets file. Use a Leafdesk export, or a list of objects with an id and a label.",
+    "importTooLarge": "The file is too large to import."
+  },
+  "menu": {
+    "group": "Snippets",
+    "personal": "My snippets",
+    "workspace": "Workspace snippets",
+    "insertFailed": "Couldn't insert the snippet. {error}"
+  },
+  "save": {
+    "menuItem": "Save as snippet",
+    "saved": "Saved. Type ;{trigger} to insert it."
+  },
+  "form": {
+    "newTitle": "New snippet",
+    "editTitle": "Edit snippet",
+    "title": "Title",
+    "titlePlaceholder": "Meeting notes",
+    "trigger": "Trigger",
+    "triggerPlaceholder": "meeting",
+    "triggerHint": "Type ;{trigger} in a page, or find it under Snippets in the / menu.",
+    "target": "Save to",
+    "targetPersonal": "My snippets (only you)",
+    "targetWorkspace": "{workspace} (everyone in the workspace)",
+    "body": "Content (Markdown)",
+    "bodyPlaceholder": "## Agenda\n- ",
+    "placeholders": "Filled in when inserted:",
+    "placeholder": {
+      "date": "Today's date",
+      "time": "The time now",
+      "datetime": "Today's date and the time",
+      "me": "Your name",
+      "page": "The page's title",
+      "cursor": "Where the caret goes"
+    },
+    "length": "{count} of {max} characters",
+    "preview": "Preview",
+    "previewPage": "Page title",
+    "previewEmpty": "The blocks the snippet inserts show here.",
+    "create": "Create snippet"
+  },
+  "settings": {
+    "personalDescription": "Pieces of content you insert while typing: type ; and a snippet's trigger in any page, or pick it under Snippets in the / menu. Only you see these.",
+    "workspaceDescription": "Snippets everyone in the workspace can insert while typing, next to their own. Owners add and change them.",
+    "ownersOnly": "Only the workspace's owners add and change its snippets.",
+    "search": "Search snippets",
+    "new": "New snippet",
+    "import": "Import",
+    "importing": "Importing…",
+    "export": "Export",
+    "count": "{count} of {max}",
+    "noMatches": "No snippets match.",
+    "empty": "No snippets yet.",
+    "emptyOwner": "No snippets yet. Start with an example, or create your own.",
+    "examplesHeading": "Examples",
+    "addExample": "Add",
+    "actionsFor": "Actions for {title}",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "deleteTitle": "Delete “{title}”?",
+    "deleteBody": "Pages it was inserted into keep their text.",
+    "imported": "{count, plural, =0 {No snippets added.} one {# snippet added.} other {# snippets added.}}",
+    "skipped": "{count, plural, one {# skipped:} other {# skipped:}}",
+    "skip": {
+      "triggerRequired": "no trigger",
+      "triggerInvalid": "trigger not allowed",
+      "titleTooLong": "title too long",
+      "bodyRequired": "empty",
+      "bodyTooLong": "too long",
+      "duplicate": "twice in the file",
+      "exists": "trigger already in use",
+      "tooMany": "over the limit"
+    },
+    "untitledTrigger": "(no trigger)",
+    "importFailed": "Couldn't import. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "meeting",
+      "title": "Meeting notes",
+      "attendees": "Attendees",
+      "agenda": "Agenda",
+      "notes": "Notes",
+      "actions": "Action items"
+    },
+    "log": {
+      "trigger": "log",
+      "title": "Dated log line"
+    },
+    "decision": {
+      "trigger": "decision",
+      "title": "Decision record",
+      "heading": "Decision",
+      "date": "Date",
+      "decidedBy": "Decided by",
+      "context": "Context",
+      "options": "Options considered",
+      "outcome": "What we decided",
+      "consequences": "Consequences"
+    }
+  }
+}

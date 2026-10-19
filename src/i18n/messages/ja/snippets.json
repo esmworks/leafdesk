@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title}（コピー）",
+  "errors": {
+    "triggerRequired": "スニペットにトリガーを設定してください。",
+    "triggerInvalid": "トリガーは{max}文字までの小文字、数字、ハイフン、アンダースコアで指定できます。",
+    "triggerTaken": "ここにある別のスニペットがすでにこのトリガーを使っています。",
+    "titleTooLong": "タイトルは{max}文字までです。",
+    "bodyRequired": "スニペットが挿入する内容を入力してください。",
+    "bodyTooLong": "スニペットは{max}文字までです。",
+    "tooMany": "ここに置けるスニペットは{max}個までです。追加するには、いくつか削除してください。",
+    "notFound": "このスニペットは存在しません。",
+    "ownersOnly": "ワークスペースのスニペットを変更できるのはオーナーだけです。",
+    "accessDenied": "これらのスニペットにアクセスする権限がありません。",
+    "importInvalid": "スニペットのファイルではありません。Leafdeskのエクスポートか、idとlabelを持つオブジェクトのリストを使ってください。",
+    "importTooLarge": "ファイルが大きすぎてインポートできません。"
+  },
+  "menu": {
+    "group": "スニペット",
+    "personal": "自分のスニペット",
+    "workspace": "ワークスペースのスニペット",
+    "insertFailed": "スニペットを挿入できませんでした。{error}"
+  },
+  "save": {
+    "menuItem": "スニペットとして保存",
+    "saved": "保存しました。;{trigger}と入力すると挿入できます。"
+  },
+  "form": {
+    "newTitle": "新しいスニペット",
+    "editTitle": "スニペットを編集",
+    "title": "タイトル",
+    "titlePlaceholder": "会議メモ",
+    "trigger": "トリガー",
+    "triggerPlaceholder": "kaigi",
+    "triggerHint": "ページで;{trigger}と入力するか、/メニューのスニペットから探せます。",
+    "target": "保存先",
+    "targetPersonal": "自分のスニペット（自分だけ）",
+    "targetWorkspace": "{workspace}（ワークスペースの全員）",
+    "body": "内容（Markdown）",
+    "bodyPlaceholder": "## 議題\n- ",
+    "placeholders": "挿入時に置き換わるもの：",
+    "placeholder": {
+      "date": "今日の日付",
+      "time": "現在の時刻",
+      "datetime": "今日の日付と時刻",
+      "me": "あなたの名前",
+      "page": "ページのタイトル",
+      "cursor": "カーソルが移動する位置"
+    },
+    "length": "{count} / {max}文字",
+    "preview": "プレビュー",
+    "previewPage": "ページのタイトル",
+    "previewEmpty": "スニペットが挿入するブロックがここに表示されます。",
+    "create": "スニペットを作成"
+  },
+  "settings": {
+    "personalDescription": "入力中に挿入できる内容です。どのページでも;とスニペットのトリガーを入力するか、/メニューのスニペットから選べます。自分だけに表示されます。",
+    "workspaceDescription": "ワークスペースの全員が、自分のスニペットに加えて入力中に挿入できるスニペットです。追加と変更はオーナーが行います。",
+    "ownersOnly": "ワークスペースのスニペットを追加・変更できるのはオーナーだけです。",
+    "search": "スニペットを検索",
+    "new": "新しいスニペット",
+    "import": "インポート",
+    "importing": "インポート中…",
+    "export": "エクスポート",
+    "count": "{count} / {max}",
+    "noMatches": "一致するスニペットはありません。",
+    "empty": "スニペットはまだありません。",
+    "emptyOwner": "スニペットはまだありません。例から始めるか、自分で作成してください。",
+    "examplesHeading": "例",
+    "addExample": "追加",
+    "actionsFor": "{title}の操作",
+    "edit": "編集",
+    "duplicate": "複製",
+    "delete": "削除",
+    "deleteTitle": "「{title}」を削除しますか？",
+    "deleteBody": "挿入済みのページのテキストはそのまま残ります。",
+    "imported": "{count, plural, =0 {追加されたスニペットはありません。} other {#個のスニペットを追加しました。}}",
+    "skipped": "{count, plural, other {#件をスキップ：}}",
+    "skip": {
+      "triggerRequired": "トリガーなし",
+      "triggerInvalid": "使用できないトリガー",
+      "titleTooLong": "タイトルが長すぎます",
+      "bodyRequired": "空",
+      "bodyTooLong": "長すぎます",
+      "duplicate": "ファイル内で重複",
+      "exists": "トリガーは使用済み",
+      "tooMany": "上限超過"
+    },
+    "untitledTrigger": "（トリガーなし）",
+    "importFailed": "インポートできませんでした。{error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "kaigi",
+      "title": "会議メモ",
+      "attendees": "出席者",
+      "agenda": "議題",
+      "notes": "メモ",
+      "actions": "アクションアイテム"
+    },
+    "log": {
+      "trigger": "rogu",
+      "title": "日付つきのログ行"
+    },
+    "decision": {
+      "trigger": "ketsudan",
+      "title": "意思決定の記録",
+      "heading": "決定事項",
+      "date": "日付",
+      "decidedBy": "決定者",
+      "context": "背景",
+      "options": "検討した選択肢",
+      "outcome": "決定した内容",
+      "consequences": "影響"
+    }
+  }
+}

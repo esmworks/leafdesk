@@ -16,7 +16,8 @@
     "health": "Health",
     "security": "Security",
     "audit": "Audit log",
-    "site": "Site"
+    "site": "Site",
+    "snippets": "Snippets"
   },
   "workspace": {
     "heading": "Workspace",

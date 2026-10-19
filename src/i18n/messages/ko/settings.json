@@ -16,7 +16,8 @@
     "health": "상태 점검",
     "security": "보안",
     "audit": "감사 로그",
-    "site": "사이트"
+    "site": "사이트",
+    "snippets": "스니펫"
   },
   "workspace": {
     "heading": "워크스페이스",

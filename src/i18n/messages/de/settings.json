@@ -16,7 +16,8 @@
     "health": "Zustand",
     "security": "Sicherheit",
     "audit": "Audit-Log",
-    "site": "Website"
+    "site": "Website",
+    "snippets": "Textbausteine"
   },
   "workspace": {
     "heading": "Workspace",

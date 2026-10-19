@@ -12,6 +12,7 @@ import {
   Settings,
   Shield,
   ShieldCheck,
+  TextQuote,
   Users,
   UsersRound,
   type LucideIcon,
@@ -62,6 +63,7 @@ import { WorkspaceApps } from "@/components/settings/workspace-apps";
 import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
 import { WorkspaceNameForm } from "@/components/settings/workspace-settings";
+import { SnippetsPanel } from "@/components/snippets/snippets-panel";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
@@ -103,6 +105,7 @@ import { listScimTokens, scimManagedCount } from "@/server/scim";
 import { getSsoConnection, ssoSetupInfo } from "@/server/sso";
 import { getSession, requireWorkspaceSession, type requireSession } from "@/server/session";
 import { getSite } from "@/server/site";
+import { listSnippets } from "@/server/snippets";
 import { canCreateTeamspace, listTeamspaces, teamspacesByMember } from "@/server/teamspaces";
 import {
   canInviteGuests,
@@ -131,6 +134,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   teamspaces: Boxes,
   groups: UsersRound,
   agents: Bot,
+  snippets: TextQuote,
   connections: Plug,
   email: Mail,
   storage: HardDrive,
@@ -237,6 +241,7 @@ export default async function SettingsPage({
               agentTab={query.agentTab === "memory" || query.agentTab === "schedules" ? query.agentTab : undefined}
             />
           )}
+          {tab === "snippets" && <SnippetsTab workspaceId={workspaceId} workspaceName={workspace.name} userId={user.id} name={user.name} isOwner={isOwner} />}
           {tab === "connections" && (
             <ConnectionsTab
               workspaceId={workspaceId}
@@ -257,6 +262,33 @@ export default async function SettingsPage({
         </div>
       </div>
     </div>
+  );
+}
+
+/** Settings > Snippets: the workspace's shared snippets; members use them, owners change them (server/snippets.ts). */
+async function SnippetsTab({
+  workspaceId,
+  workspaceName,
+  userId,
+  name,
+  isOwner,
+}: {
+  workspaceId: string;
+  workspaceName: string;
+  userId: string;
+  name: string;
+  isOwner: boolean;
+}) {
+  const [list, t, ts] = await Promise.all([
+    listSnippets(userId, { kind: "workspace", workspaceId }),
+    getTranslations("settings"),
+    getTranslations("snippets.settings"),
+  ]);
+  return (
+    <>
+      <SettingsHeader title={t("nav.snippets")} description={ts("workspaceDescription")} />
+      <SnippetsPanel workspace={{ id: workspaceId, name: workspaceName }} canManage={isOwner} initial={list} me={name} />
+    </>
   );
 }
 

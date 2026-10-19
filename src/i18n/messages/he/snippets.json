@@ -1,0 +1,116 @@
+{
+  "copyTitle": "{title} (עותק)",
+  "errors": {
+    "triggerRequired": "תנו לקטע קיצור.",
+    "triggerInvalid": "קיצור הוא עד {max} תווים: אותיות לטיניות קטנות, ספרות, מקפים וקווים תחתונים.",
+    "triggerTaken": "לקטע אחר כאן כבר יש את הקיצור הזה.",
+    "titleTooLong": "כותרת היא עד {max} תווים.",
+    "bodyRequired": "כתבו מה הקטע מוסיף.",
+    "bodyTooLong": "קטע הוא עד {max} תווים.",
+    "tooMany": "אפשר להחזיק כאן עד {max} קטעים. מחקו כמה כדי להוסיף עוד.",
+    "notFound": "הקטע הזה כבר לא קיים.",
+    "ownersOnly": "רק הבעלים של סביבת העבודה משנים את הקטעים שלה.",
+    "accessDenied": "אין לכם גישה לקטעים האלה.",
+    "importInvalid": "זה לא קובץ של קטעים. השתמשו בייצוא מ־Leafdesk או ברשימת אובייקטים עם id ו־label.",
+    "importTooLarge": "הקובץ גדול מדי לייבוא."
+  },
+  "menu": {
+    "group": "קטעים",
+    "personal": "הקטעים שלי",
+    "workspace": "קטעי סביבת העבודה",
+    "insertFailed": "לא ניתן היה להוסיף את הקטע. {error}"
+  },
+  "save": {
+    "menuItem": "שמירה כקטע",
+    "saved": "נשמר. הקלידו ;{trigger} כדי להוסיף אותו."
+  },
+  "form": {
+    "newTitle": "קטע חדש",
+    "editTitle": "עריכת קטע",
+    "title": "כותרת",
+    "titlePlaceholder": "סיכום פגישה",
+    "trigger": "קיצור",
+    "triggerPlaceholder": "pgisha",
+    "triggerHint": "הקלידו ;{trigger} בדף, או מצאו אותו תחת קטעים בתפריט /.",
+    "target": "שמירה ב",
+    "targetPersonal": "הקטעים שלי (רק אתם)",
+    "targetWorkspace": "{workspace} (כל מי שבסביבת העבודה)",
+    "body": "תוכן (Markdown)",
+    "bodyPlaceholder": "## סדר יום\n- ",
+    "placeholders": "מתמלא בעת ההוספה:",
+    "placeholder": {
+      "date": "התאריך של היום",
+      "time": "השעה עכשיו",
+      "datetime": "התאריך של היום והשעה",
+      "me": "השם שלכם",
+      "page": "כותרת הדף",
+      "cursor": "לאן יגיע הסמן"
+    },
+    "length": "{count} מתוך {max} תווים",
+    "preview": "תצוגה מקדימה",
+    "previewPage": "כותרת הדף",
+    "previewEmpty": "הבלוקים שהקטע מוסיף יוצגו כאן.",
+    "create": "יצירת קטע"
+  },
+  "settings": {
+    "personalDescription": "פיסות תוכן שאתם מוסיפים תוך כדי הקלדה: הקלידו ; ואת הקיצור של קטע בכל דף, או בחרו אותו תחת קטעים בתפריט /. רק אתם רואים אותם.",
+    "workspaceDescription": "קטעים שכל מי שבסביבת העבודה יכול להוסיף תוך כדי הקלדה, לצד הקטעים שלו. בעלים מוסיפים ומשנים אותם.",
+    "ownersOnly": "רק הבעלים של סביבת העבודה מוסיפים ומשנים את הקטעים שלה.",
+    "search": "חיפוש קטעים",
+    "new": "קטע חדש",
+    "import": "ייבוא",
+    "importing": "מייבא…",
+    "export": "ייצוא",
+    "count": "{count} מתוך {max}",
+    "noMatches": "אין קטעים תואמים.",
+    "empty": "עדיין אין קטעים.",
+    "emptyOwner": "עדיין אין קטעים. התחילו מדוגמה, או צרו קטע משלכם.",
+    "examplesHeading": "דוגמאות",
+    "addExample": "הוספה",
+    "actionsFor": "פעולות עבור {title}",
+    "edit": "עריכה",
+    "duplicate": "שכפול",
+    "delete": "מחיקה",
+    "deleteTitle": "למחוק את “{title}”?",
+    "deleteBody": "דפים שהוא הוכנס אליהם שומרים על הטקסט שלהם.",
+    "imported": "{count, plural, =0 {לא נוספו קטעים.} one {נוסף קטע אחד.} two {נוספו # קטעים.} other {נוספו # קטעים.}}",
+    "skipped": "{count, plural, one {דילגנו על #:} two {דילגנו על #:} other {דילגנו על #:}}",
+    "skip": {
+      "triggerRequired": "אין קיצור",
+      "triggerInvalid": "הקיצור אינו מותר",
+      "titleTooLong": "הכותרת ארוכה מדי",
+      "bodyRequired": "ריק",
+      "bodyTooLong": "ארוך מדי",
+      "duplicate": "פעמיים בקובץ",
+      "exists": "הקיצור כבר בשימוש",
+      "tooMany": "מעל המגבלה"
+    },
+    "untitledTrigger": "(אין קיצור)",
+    "importFailed": "הייבוא נכשל. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "pgisha",
+      "title": "סיכום פגישה",
+      "attendees": "משתתפים",
+      "agenda": "סדר יום",
+      "notes": "הערות",
+      "actions": "משימות לביצוע"
+    },
+    "log": {
+      "trigger": "yoman",
+      "title": "שורת יומן עם תאריך"
+    },
+    "decision": {
+      "trigger": "hachlata",
+      "title": "תיעוד החלטה",
+      "heading": "החלטה",
+      "date": "תאריך",
+      "decidedBy": "מי החליט",
+      "context": "הקשר",
+      "options": "אפשרויות שנשקלו",
+      "outcome": "מה החלטנו",
+      "consequences": "השלכות"
+    }
+  }
+}
