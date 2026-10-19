@@ -1,6 +1,7 @@
 "use client";
 
 import { lazy, Suspense, useCallback, useState, type MouseEvent, type ReactNode } from "react";
+import type { UrlKind } from "@/lib/file-viewer";
 import { FILE_ROUTE, fileIdOf, fileUrl } from "@/lib/files";
 
 /**
@@ -13,8 +14,12 @@ import { FILE_ROUTE, fileIdOf, fileUrl } from "@/lib/files";
  * FileViewerArea find the files in the DOM.
  */
 
-/** A file the viewer shows: its URL (`/api/files/<id>`), name, and stored type when known. */
-export type ViewerFile = { url: string; name: string; type?: string };
+/**
+ * A file the viewer shows: its URL (`/api/files/<id>`), name, stored type when known, and what the
+ * place it opens from shows it as (an image block, a PDF viewer), when that is one of the kinds the
+ * viewer can show before asking the file route (see lib/file-viewer knownFormat).
+ */
+export type ViewerFile = { url: string; name: string; type?: string; shows?: UrlKind };
 
 const FileViewer = lazy(() => import("./file-viewer"));
 
@@ -62,8 +67,11 @@ function fileOf(element: Element): ViewerFile | null {
   const name =
     attr("data-file-name") ??
     (element.closest("[data-name]")?.getAttribute("data-name") || attr("alt") || (element.tagName === "A" ? element.textContent?.trim() : "") || "");
-  return { url, name };
+  return { url, name, shows: element.hasAttribute("data-leafdesk-pdf") ? "pdf" : SHOWN_AS[element.tagName] };
 }
+
+/** What an element showing a file shows it as (a PDF viewer is marked `data-leafdesk-pdf`). */
+const SHOWN_AS: Record<string, UrlKind | undefined> = { IMG: "image", VIDEO: "video", AUDIO: "audio" };
 
 /** The uploaded files `root` shows, in document order, each once. */
 export function filesIn(root: Element): ViewerFile[] {

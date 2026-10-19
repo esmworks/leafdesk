@@ -6,7 +6,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type 
 import { createPortal } from "react-dom";
 import { useDirection } from "@/components/direction";
 import { cn } from "@/components/ui";
-import { probeResult, viewerFormat } from "@/lib/file-viewer";
+import { knownFormat, probeResult, viewerFormat } from "@/lib/file-viewer";
 import { formatBytes, isSafeInline } from "@/lib/files";
 import { ImageStage, MAX_ZOOM, MIN_ZOOM, type ZoomControl } from "./image-stage";
 import { FilePreview } from "./previews";
@@ -22,7 +22,9 @@ import type { ViewerFile } from "./index";
  * zoom an image. Focus stays inside while it is open and goes back where it was when it closes.
  *
  * What a file is comes from the file route itself: a one-byte range request answers with its
- * stored type, size and name (blocks keep only a URL and a name).
+ * stored type, size and name (blocks keep only a URL and a name). An image, video, audio or PDF
+ * whose kind the page already knows (a files value's stored type, an image block) shows without
+ * waiting for that answer, which then fills in the details; anything else waits for it.
  */
 
 export type Probe = { status: "loading" } | { status: "missing" } | { status: "ready"; size: number | null; type: string; name: string | null };
@@ -74,8 +76,9 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
 
   const name = (probe.status === "ready" && probe.name) || file.name || t("untitled");
   const type = probe.status === "ready" ? probe.type : (file.type ?? "");
-  const format = viewerFormat(name, type || file.type);
-  const isImage = probe.status === "ready" && format.kind === "image";
+  // Before the answer, only what the page knows decides; once it comes, the stored type does.
+  const format = probe.status === "ready" ? viewerFormat(name, type || file.type) : probe.status === "loading" ? knownFormat(file.name, file.type, file.shows) : null;
+  const isImage = format?.kind === "image";
 
   // Focus moves in on open and back to where it was on close; the page behind doesn't scroll.
   useLayoutEffect(() => {
@@ -139,7 +142,7 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
 
   const details = probe.status === "ready" ? [type || t("unknownType"), probe.size != null ? formatBytes(probe.size) : null].filter(Boolean).join(" · ") : "";
   // Only where the browser shows the same thing: a .ts stored as video/mp2t is code here, not a video.
-  const opensInBrowser = probe.status === "ready" && isSafeInline(type) && ["image", "video", "audio", "pdf"].includes(format.kind);
+  const opensInBrowser = probe.status === "ready" && format != null && isSafeInline(type) && ["image", "video", "audio", "pdf"].includes(format.kind);
   const headerButton =
     "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white disabled:opacity-40";
   const Previous = dir === "rtl" ? ChevronRight : ChevronLeft;
@@ -218,10 +221,10 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
           </button>
         )}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col px-0 pb-0 sm:px-16 sm:pb-4">
-          {probe.status === "loading" ? (
-            <Message role="status">{t("loading")}</Message>
-          ) : probe.status === "missing" ? (
+          {probe.status === "missing" ? (
             <Message>{t("unavailable")}</Message>
+          ) : !format ? (
+            <Message role="status">{t("loading")}</Message>
           ) : format.kind === "image" ? (
             <ImageStage
               key={file.url}
@@ -234,7 +237,7 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
               failed={<Message>{t("imageFailed")}</Message>}
             />
           ) : (
-            <FilePreview key={file.url} file={file} name={name} format={format} size={probe.size} type={type} />
+            <FilePreview key={file.url} file={file} name={name} format={format} size={probe.status === "ready" ? probe.size : null} type={type} />
           )}
         </div>
         {count > 1 && (

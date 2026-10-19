@@ -4,6 +4,7 @@ import {
   decodeBytes,
   dispositionName,
   extensionOf,
+  knownFormat,
   looksLikeHeader,
   prettyJson,
   previewText,
@@ -83,6 +84,46 @@ describe("viewerFormat", () => {
     expect(viewerFormat("photo.heic", "image/heic")).toEqual({ kind: "other" });
     expect(viewerFormat("slides.pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation")).toEqual({ kind: "other" });
     expect(viewerFormat("", "")).toEqual({ kind: "other" });
+  });
+});
+
+describe("knownFormat", () => {
+  it("shows images, video, audio and PDFs at once by a stored type the page knows", () => {
+    expect(knownFormat("photo.png", "image/png")).toEqual({ kind: "image" });
+    expect(knownFormat("drawing.svg", "image/svg+xml")).toEqual({ kind: "image" });
+    expect(knownFormat("clip.mp4", "video/mp4; codecs=avc1")).toEqual({ kind: "video" });
+    expect(knownFormat("song.mp3", "audio/mpeg")).toEqual({ kind: "audio" });
+    expect(knownFormat("report.pdf", "application/pdf")).toEqual({ kind: "pdf" });
+  });
+
+  it("waits for the file route when the type is unknown and no block says what it shows", () => {
+    expect(knownFormat("photo.png", "")).toBeNull();
+    expect(knownFormat("photo.png", OCTET)).toBeNull();
+    expect(knownFormat("photo.png", undefined)).toBeNull();
+  });
+
+  it("waits for text, which needs the size, and for what has no preview", () => {
+    expect(knownFormat("notes.txt", "text/plain")).toBeNull();
+    expect(knownFormat("table.csv", "text/csv")).toBeNull();
+    // Named as code, read as code: not a video, whatever the type says.
+    expect(knownFormat("app.ts", "video/mp2t")).toBeNull();
+    expect(knownFormat("book.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).toBeNull();
+    expect(knownFormat("archive.zip", "application/zip")).toBeNull();
+    expect(knownFormat("photo.heic", "image/heic")).toBeNull();
+  });
+
+  it("goes by the block showing the file when the type is unknown", () => {
+    expect(knownFormat("photo", "", "image")).toEqual({ kind: "image" });
+    expect(knownFormat("clip.mov", OCTET, "video")).toEqual({ kind: "video" });
+    expect(knownFormat("song", "", "audio")).toEqual({ kind: "audio" });
+    expect(knownFormat("report.pdf", "", "pdf")).toEqual({ kind: "pdf" });
+  });
+
+  it("lets a known stored type, or a name read as text, overrule the block", () => {
+    expect(knownFormat("notes", "text/plain", "image")).toBeNull();
+    expect(knownFormat("clip.ts", "", "video")).toBeNull();
+    expect(knownFormat("readme.md", "", "image")).toBeNull();
+    expect(knownFormat("cover.png", "image/png", "video")).toEqual({ kind: "image" });
   });
 });
 

@@ -116,6 +116,28 @@ export function viewerFormat(name: string, type: string | null | undefined): Vie
   return { kind: "other" };
 }
 
+/** Kinds a viewer loads straight from the file's URL: the browser's image, video and audio, the PDF viewer. */
+export type UrlKind = "image" | "video" | "audio" | "pdf";
+const URL_KINDS: ReadonlySet<ViewerKind> = new Set<UrlKind>(["image", "video", "audio", "pdf"]);
+
+/**
+ * The format to show a file in before the file route answers what it is (see probeResult), when
+ * what the page already knows decides it: the stored type (a files value keeps one), or else the
+ * kind the block showing the file shows it as (`shows`: an image block shows an image). Only kinds
+ * loaded by URL qualify; null means waiting for the answer: text needs the size, the other
+ * previews show the details it gives. A stored type the page knows wins over the block, and a
+ * name that reads as text (a `.ts` in a video block) waits too, as the stored type may agree.
+ */
+export function knownFormat(name: string, type: string | null | undefined, shows?: UrlKind | null): ViewerFormat | null {
+  const stored = (type ?? "").split(";")[0].trim().toLowerCase();
+  if (stored !== "" && stored !== "application/octet-stream") {
+    const format = viewerFormat(name, stored);
+    return URL_KINDS.has(format.kind) ? format : null;
+  }
+  if (!shows || TEXT_KINDS.has(viewerFormat(name, "").kind)) return null;
+  return { kind: shows };
+}
+
 const MB = 1024 * 1024;
 
 /** How much of a text file the viewer reads; a longer file shows its start and says so. */

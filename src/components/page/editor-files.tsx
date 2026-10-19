@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { plainClick, uploadedPath, useFileViewer, type ViewerFile } from "@/components/file-viewer";
+import type { UrlKind } from "@/lib/file-viewer";
+import { pdfFileId } from "@/lib/files";
 import type { PageEditor } from "./embed-blocks";
 
 /**
@@ -22,6 +24,12 @@ type Block = { id: string; type: string; props: Record<string, unknown>; childre
 
 const FILE_BLOCKS = new Set(["image", "video", "audio", "file"]);
 
+/** What a file block shows its file as: its own kind, or a file block's PDF viewer (as file-block.tsx decides). */
+function shownAs(block: Block, name: string): UrlKind | undefined {
+  if (block.type === "image" || block.type === "video" || block.type === "audio") return block.type;
+  return pdfFileId(block.props.url, name) ? "pdf" : undefined;
+}
+
 /** The uploaded files the editor's blocks show, in document order, each with the block showing it. */
 function editorFiles(blocks: Block[]): (ViewerFile & { blockId: string })[] {
   const found: (ViewerFile & { blockId: string })[] = [];
@@ -32,7 +40,8 @@ function editorFiles(blocks: Block[]): (ViewerFile & { blockId: string })[] {
         const url = typeof block.props.url === "string" && block.props.url.trim().startsWith("/") ? uploadedPath(block.props.url) : null;
         if (url && !seen.has(url)) {
           seen.add(url);
-          found.push({ url, name: typeof block.props.name === "string" ? block.props.name : "", blockId: block.id });
+          const name = typeof block.props.name === "string" ? block.props.name : "";
+          found.push({ url, name, shows: shownAs(block, name), blockId: block.id });
         }
       }
       if (block.children?.length) walk(block.children);
