@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { Button, cn, PageIcon } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import type { CalendarMode } from "@/db/schema/app";
@@ -122,6 +122,39 @@ export function CalendarView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, phone, firstWeekDay]);
 
+  // A drag redraws the calendar at each move over a day or hour: the entries get only props that
+  // stay the same then (their properties, callbacks taking the row), so only the dragged one redraws.
+  const hiddenProps = view.config.hidden;
+  const entryProps = useMemo(() => {
+    const hidden = new Set(hiddenProps ?? []);
+    return properties.filter((p) => p.id !== dateBy?.id && !hidden.has(p.id));
+  }, [properties, dateBy, hiddenProps]);
+  const onEntryTitle = useCallback(
+    (row: Row, title: string) => {
+      stopEditing();
+      if (title !== row.title) quick.save(row.id, title);
+    },
+    [stopEditing, quick],
+  );
+  const onEntryDragStart = useCallback(
+    (e: DragEvent<HTMLDivElement>, rowId: string) => {
+      e.dataTransfer.setData("text/plain", rowId);
+      e.dataTransfer.effectAllowed = "move";
+      setDragId(rowId);
+      // The day under the pointer, so a date over several days keeps its place under it.
+      const event = events.find((ev) => ev.id === rowId);
+      const under = document
+        .elementsFromPoint(e.clientX, e.clientY)
+        .find((el): el is HTMLElement => el instanceof HTMLElement && el.dataset.day !== undefined);
+      grabOffset.current = event && under ? Math.max(0, Number(under.dataset.day) - event.start) : 0;
+    },
+    [events],
+  );
+  const endDrag = useCallback(() => {
+    setDragId(null);
+    setDropAt(null);
+  }, []);
+
   if (!dateBy) {
     return (
       <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-border px-6 py-10">
@@ -139,8 +172,6 @@ export function CalendarView({
     );
   }
 
-  const hidden = new Set(view.config.hidden ?? []);
-  const entryProps = properties.filter((p) => p.id !== dateBy.id && !hidden.has(p.id));
   const undated = rows.filter((r) => !parseDateValue(r.properties[dateBy.id]));
   const canAdd = !readOnly && access.canEditValues(dateBy.id);
   const todayDay = dayNumber(today);
@@ -166,10 +197,6 @@ export function CalendarView({
   const addAt = (day: number, minutes: number) =>
     createNew(() => api.createRow({ properties: { [dateBy.id]: new Date(zonedInstant(day, minutes, timeZone)).toISOString() } }));
 
-  const endDrag = () => {
-    setDragId(null);
-    setDropAt(null);
-  };
   /** Moves the dragged row's date: `place` gives its new value from its event (none for a row without a date). */
   const drop = (e: DragEvent<HTMLElement>, place: (value: unknown, event: RowEvent | undefined) => string | null) => {
     e.preventDefault();
@@ -224,22 +251,9 @@ export function CalendarView({
       readOnly={readOnly || access.valueAccess(row, dateBy.id) !== "edit"}
       dragging={dragId === row.id}
       editTitle={editTitleOf === row.id}
-      typed={typed}
-      onTitle={(title) => {
-        stopEditing();
-        if (title !== row.title) quick.save(row.id, title);
-      }}
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", row.id);
-        e.dataTransfer.effectAllowed = "move";
-        setDragId(row.id);
-        // The day under the pointer, so a date over several days keeps its place under it.
-        const event = events.find((ev) => ev.id === row.id);
-        const under = document
-          .elementsFromPoint(e.clientX, e.clientY)
-          .find((el): el is HTMLElement => el instanceof HTMLElement && el.dataset.day !== undefined);
-        grabOffset.current = event && under ? Math.max(0, Number(under.dataset.day) - event.start) : 0;
-      }}
+      typed={editTitleOf === row.id ? typed : undefined}
+      onTitle={onEntryTitle}
+      onDragStart={onEntryDragStart}
       onDragEnd={endDrag}
     />
   );
@@ -643,7 +657,7 @@ function PhoneDays({
   );
 }
 
-function CalendarEntry({
+const CalendarEntry = memo(function CalendarEntry({
   workspaceId,
   row,
   props,
@@ -674,8 +688,8 @@ function CalendarEntry({
   editTitle: boolean;
   /** Typed before the title editor opened. */
   typed?: string;
-  onTitle: (title: string) => void;
-  onDragStart: (e: DragEvent<HTMLDivElement>) => void;
+  onTitle: (row: Row, title: string) => void;
+  onDragStart: (e: DragEvent<HTMLDivElement>, rowId: string) => void;
   onDragEnd: () => void;
 }) {
   const tc = useTranslations("common");
@@ -688,7 +702,7 @@ function CalendarEntry({
       tabIndex={0}
       {...openRowProps(opener, row.id, !editTitle)}
       draggable={!readOnly && !editTitle}
-      onDragStart={onDragStart}
+      onDragStart={(e) => onDragStart(e, row.id)}
       onDragEnd={onDragEnd}
       onClick={(e) => !editTitle && opener.open(row.id, e)}
       onKeyDown={(e) => {
@@ -704,7 +718,7 @@ function CalendarEntry({
       )}
     >
       {editTitle ? (
-        <CardTitleInput initial={typed || row.title} onDone={onTitle} />
+        <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
       ) : (
         <div className={cn("flex min-w-0 items-center", block ? "flex-wrap gap-x-1" : "gap-1")}>
           {time && <span className="shrink-0 tabular-nums text-fg-muted">{time}</span>}
@@ -725,4 +739,4 @@ function CalendarEntry({
       )}
     </div>
   );
-}
+});

@@ -92,6 +92,8 @@
 - **Opening a row beside a view is quicker.** The row panel slides in from the edge it sits on, and
   opening, closing or stepping through rows with J and K no longer redraws every card of a large
   board, table or calendar: only the row that was open and the one now open change.
+- **Dragging cards on a large board or calendar is smooth.** Moving a card over columns or days
+  used to redraw every card at each step; now only the card being dragged changes.
 
 ## 0.6.1 — 2026-10-19
 
