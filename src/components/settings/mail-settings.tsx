@@ -182,6 +182,13 @@ function MailboxGroup({ workspaceId, mailbox, onChange }: { workspaceId: string;
             <>
               <span className={cn(mailbox.status === "error" && "text-danger")}>{status}</span>
               {mailbox.syncedAt && <> · {t("syncedAt", { time: relativeTime(mailbox.syncedAt, locale) })}</>}
+              {mailbox.folders.inbox && (
+                <span className="mt-1 block">
+                  {mailbox.folders.sent
+                    ? t("folders", { inbox: mailbox.folders.inbox, sent: mailbox.folders.sent })
+                    : t("noSentFolder", { inbox: mailbox.folders.inbox })}
+                </span>
+              )}
               {error && <span className="block text-danger">{error}</span>}
             </>
           }

@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Sua caixa de e-mail",
     "mailboxDescription": "A caixa de e-mail que você usa neste espaço de trabalho. Ela é lida em busca de e-mails com as pessoas dos bancos de dados acima, e o que você escreve nas linhas é enviado por ela. Seus outros espaços de trabalho não a veem.",
     "syncedAt": "lida {time}",
+    "folders": "Lê o correio recebido em {inbox} e o enviado em {sent}.",
+    "noSentFolder": "Lê o correio recebido em {inbox}. Não foi encontrada uma pasta de enviados: o que enviar do seu próprio programa de email não aparecerá nas linhas, e o email enviado das linhas não será guardado na sua caixa.",
     "change": "Alterar",
     "disconnect": "Desconectar",
     "connect": "Testar e conectar",

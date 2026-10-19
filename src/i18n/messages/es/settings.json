@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Tu buzón",
     "mailboxDescription": "El buzón que usas para este espacio de trabajo. Se lee en busca de correos con las personas de las bases de datos de arriba, y lo que escribes en las filas se envía desde él. Tus otros espacios de trabajo no lo ven.",
     "syncedAt": "leído {time}",
+    "folders": "Lee el correo entrante de {inbox} y el enviado de {sent}.",
+    "noSentFolder": "Lee el correo entrante de {inbox}. No se encontró una carpeta de enviados: lo que envíes desde tu propio programa de correo no aparecerá en las filas, y el correo enviado desde las filas no se guardará en tu buzón.",
     "change": "Cambiar",
     "disconnect": "Desconectar",
     "connect": "Probar y conectar",

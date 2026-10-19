@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Dein Postfach",
     "mailboxDescription": "Das Postfach, das du für diesen Workspace nutzt. Daraus werden E-Mails mit den Personen in den Datenbanken oben gelesen, und was du in Zeilen schreibst, wird von dort gesendet. Deine anderen Workspaces sehen es nicht.",
     "syncedAt": "gelesen {time}",
+    "folders": "Liest eingehende Mails aus {inbox} und gesendete aus {sent}.",
+    "noSentFolder": "Liest eingehende Mails aus {inbox}. Es wurde kein Ordner für gesendete Mails gefunden: Was Sie aus Ihrem eigenen Mailprogramm senden, erscheint nicht in den Zeilen, und aus Zeilen gesendete Mails werden nicht in Ihrem Postfach gespeichert.",
     "change": "Ändern",
     "disconnect": "Trennen",
     "connect": "Testen und verbinden",

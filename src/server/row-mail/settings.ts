@@ -39,6 +39,7 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
       smtpSecure: m.smtpSecure,
     },
     username: m.username,
+    folders: { inbox: m.folders.inbox?.path ?? null, sent: m.folders.sent?.path ?? null },
     status: m.status,
     statusError: m.statusError,
     syncedAt: m.syncedAt?.toISOString() ?? null,

@@ -134,6 +134,8 @@ export type MailboxView = {
   displayName: string | null;
   servers: MailboxServers;
   username: string;
+  /** The folders read, as the server names them; no sent folder means only incoming mail is read. */
+  folders: { inbox: string | null; sent: string | null };
   status: MailboxStatus;
   statusError: string | null;
   syncedAt: string | null;

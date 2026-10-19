@@ -962,7 +962,11 @@ stopped, headers first. A message goes on a row when an earlier message of its t
 or else when the other party's address is in a matched email property of exactly one row of a
 database, trying the databases in order; it is fetched whole only then, so mail that has nothing
 to do with the workspace never leaves the mail server. Only rows the mailbox's owner can see
-count. A message that reached two members' mailboxes shows once.
+count. A message that reached two members' mailboxes shows once. The sent folder is the one the
+server marks as sent or, when it marks none, one named like it in any of Leafdesk's languages (Sent,
+Sent Items, Gönderilenler…) at the top or right under the inbox. Settings show which folders are
+read, and say so when no sent folder was found: then mail sent from the member's own mail program
+doesn't reach rows, and mail written on rows isn't saved in the mailbox.
 
 Under a row's properties, the Email section lists its messages for everyone who can see the row
 and its address. Whoever may edit the row and has a mailbox writes a new message or a reply there,

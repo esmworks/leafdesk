@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Votre boîte mail",
     "mailboxDescription": "La boîte mail que vous utilisez pour cet espace de travail. Elle est lue pour les e-mails échangés avec les personnes des bases de données ci-dessus, et ce que vous écrivez sur les lignes est envoyé depuis elle. Vos autres espaces de travail ne la voient pas.",
     "syncedAt": "lue {time}",
+    "folders": "Lit le courrier reçu dans {inbox} et le courrier envoyé dans {sent}.",
+    "noSentFolder": "Lit le courrier reçu dans {inbox}. Aucun dossier d'envoi n'a été trouvé : ce que vous envoyez depuis votre propre logiciel de messagerie n'apparaîtra pas sur les lignes, et le courrier envoyé depuis les lignes ne sera pas enregistré dans votre boîte.",
     "change": "Modifier",
     "disconnect": "Déconnecter",
     "connect": "Tester et connecter",

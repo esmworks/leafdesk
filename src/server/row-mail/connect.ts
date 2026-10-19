@@ -116,9 +116,60 @@ export function connectError(error: unknown): MailConnectError {
 }
 
 /**
- * Checks both directions: signs in to IMAP and finds the inbox (and the sent folder, if the server
- * names one), then signs in to SMTP. Returns where each folder stands now, so reading starts with
- * the mail that comes after.
+ * Names a sent folder goes by when the server doesn't mark it as one, in the languages Leafdesk
+ * speaks. The IMAP client already knows many from their names; these cover the ones it misses
+ * (Gönderilenler, 보낸편지함, 已傳送…) and the common ones besides.
+ */
+const SENT_FOLDER_NAMES = [
+  ...["Sent", "Sent Items", "Sent Messages", "Sent Mail", "Sent Mails", "Sent Email"],
+  ...["Gönderilenler", "Gönderilmiş Öğeler", "Gönderilen Öğeler", "Gönderilmiş", "Gönderilen", "Gönderilmiş Postalar", "Gönderilen Postalar"],
+  ...["Gesendet", "Gesendete Objekte", "Gesendete Elemente", "Gesendete Nachrichten"],
+  ...["Enviados", "Elementos enviados", "Mensajes enviados", "Correo enviado"],
+  ...["Envoyés", "Éléments envoyés", "Messages envoyés"],
+  ...["Inviati", "Inviata", "Posta inviata", "Elementi inviati", "Messaggi inviati"],
+  ...["Enviadas", "Itens enviados", "Mensagens enviadas"],
+  ...["Wysłane", "Elementy wysłane", "Wiadomości wysłane"],
+  ...["Отправленные", "Отправленные письма", "Отправленные элементы"],
+  ...["Надіслані", "Відправлені", "Надіслані елементи", "Відправлені елементи"],
+  ...["المرسلة", "العناصر المرسلة", "البريد المرسل", "المرسل"],
+  ...["ارسال شده", "موارد ارسال شده", "فرستاده شده", "ارسالی"],
+  ...["נשלחו", "נשלח", "פריטים שנשלחו", "דואר שנשלח"],
+  ...["送信済み", "送信済みアイテム", "送信済みメール", "送信済みトレイ"],
+  ...["보낸 편지함", "보낸 메일함", "보낸 메일", "보낸 항목"],
+  ...["已发送", "已发送邮件", "已发邮件", "已发送项目", "已發送", "已傳送", "已傳送郵件", "寄件備份", "已寄出"],
+];
+
+/** A folder name as compared: case, accents, spaces, dashes and invisible marks don't count. */
+const folderKey = (name: string) =>
+  name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\p{M}\s​-‏._-]+/gu, "");
+
+const SENT_FOLDER_RANK = new Map(SENT_FOLDER_NAMES.map((name, i) => [folderKey(name), i] as const).reverse());
+
+type ListedFolder = { path: string; name: string; parent: string[]; flags: Set<string>; specialUse?: string };
+
+/**
+ * The sent folder by its name, for servers that don't mark one: a folder at the top or right under
+ * the inbox (INBOX.Sent, INBOX/Sent), never one deeper down, which is somebody's own filing.
+ */
+export function guessSentFolder<T extends ListedFolder>(listed: T[]): T | undefined {
+  const candidates = listed.flatMap((folder) => {
+    const rank = SENT_FOLDER_RANK.get(folderKey(folder.name));
+    const depth = folder.parent.length;
+    if (rank === undefined || folder.specialUse || folder.flags.has("\\Noselect") || folder.flags.has("\\NonExistent")) return [];
+    if (depth > 1 || (depth === 1 && folder.parent[0].toUpperCase() !== "INBOX")) return [];
+    return [{ folder, depth, rank }];
+  });
+  candidates.sort((a, b) => a.depth - b.depth || a.rank - b.rank);
+  return candidates[0]?.folder;
+}
+
+/**
+ * Checks both directions: signs in to IMAP and finds the inbox and the sent folder (marked by the
+ * server, or by its name), then signs in to SMTP. Returns where each folder stands now, so reading
+ * starts with the mail that comes after.
  */
 export async function testMailbox(credentials: MailCredentials): Promise<MailboxFolders> {
   const client = await openImap(credentials);
@@ -127,7 +178,7 @@ export async function testMailbox(credentials: MailCredentials): Promise<Mailbox
     const listed = await client.list();
     const inbox = listed.find((f) => f.specialUse === "\\Inbox" || f.path.toUpperCase() === "INBOX");
     if (!inbox) throw new MailConnectError("noInbox", "The server lists no inbox");
-    const sent = listed.find((f) => f.specialUse === "\\Sent");
+    const sent = listed.find((f) => f.specialUse === "\\Sent") ?? guessSentFolder(listed);
     for (const [key, folder] of [["inbox", inbox], ["sent", sent]] as const) {
       if (!folder) continue;
       const status = await client.status(folder.path, { uidNext: true, uidValidity: true });

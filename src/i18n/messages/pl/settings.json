@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Twoja skrzynka pocztowa",
     "mailboxDescription": "Skrzynka pocztowa, której używasz w tym obszarze roboczym. Są z niej czytane e-maile z osobami z powyższych baz danych, a to, co piszesz w wierszach, jest z niej wysyłane. Twoje inne obszary robocze jej nie widzą.",
     "syncedAt": "odczytano {time}",
+    "folders": "Czyta pocztę przychodzącą z {inbox} i wysłaną z {sent}.",
+    "noSentFolder": "Czyta pocztę przychodzącą z {inbox}. Nie znaleziono folderu wysłanych: wiadomości wysłane z Twojego programu pocztowego nie pojawią się w wierszach, a wysłane z wierszy nie zostaną zapisane w Twojej skrzynce.",
     "change": "Zmień",
     "disconnect": "Odłącz",
     "connect": "Sprawdź i podłącz",

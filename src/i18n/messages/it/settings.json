@@ -1681,6 +1681,8 @@
     "mailboxHeading": "La tua casella di posta",
     "mailboxDescription": "La casella di posta che usi per questo spazio di lavoro. Viene letta per le email con le persone dei database qui sopra, e ciò che scrivi sulle righe viene inviato da lì. Gli altri tuoi spazi di lavoro non la vedono.",
     "syncedAt": "letta {time}",
+    "folders": "Legge la posta in arrivo da {inbox} e quella inviata da {sent}.",
+    "noSentFolder": "Legge la posta in arrivo da {inbox}. Non è stata trovata una cartella della posta inviata: ciò che invii dal tuo programma di posta non comparirà sulle righe e la posta inviata dalle righe non verrà salvata nella tua casella.",
     "change": "Cambia",
     "disconnect": "Scollega",
     "connect": "Prova e collega",

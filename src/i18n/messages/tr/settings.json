@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Posta kutunuz",
     "mailboxDescription": "Bu çalışma alanı için kullandığınız posta kutusu. Yukarıdaki veritabanlarındaki kişilerle yazışmalar için okunur, satırlarda yazdıklarınız da buradan gönderilir. Diğer çalışma alanlarınız onu görmez.",
     "syncedAt": "{time} okundu",
+    "folders": "Gelen postayı {inbox} klasöründen, gönderilen postayı {sent} klasöründen okur.",
+    "noSentFolder": "Gelen postayı {inbox} klasöründen okur. Gönderilen posta klasörü bulunamadı: kendi posta programınızdan gönderdikleriniz satırlarda görünmez, satırlardan gönderilenler de posta kutunuza kaydedilmez.",
     "change": "Değiştir",
     "disconnect": "Bağlantıyı kes",
     "connect": "Dene ve bağla",

@@ -6,8 +6,10 @@
  * (not someone who may not see the address); mail with nobody in the databases is never fetched
  * whole; the first database in order where exactly one row matches wins; a reply written on the
  * row goes out from the member's mailbox in its thread, and an answer to it lands on the row by
- * its thread even from another address; the copy in the sent folder isn't taken twice; hiding a
- * message takes it off the row and out of the inbox; a member who leaves loses their mailbox.
+ * its thread even from another address; the copy in the sent folder isn't taken twice; a sent
+ * folder the server doesn't mark is found by its name, and a mailbox without one still connects
+ * and says so; hiding a message takes it off the row and out of the inbox; a member who leaves
+ * loses their mailbox.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   docker run -d --name leafdesk-greenmail -p 3025:3025 -p 3143:3143 \
@@ -283,6 +285,23 @@ try {
   check(!(await listRowEmails(ids.owner, acme.id))!.emails.some((e) => e.id === threaded.id), "a hidden message leaves the row");
   check(!(await told(ids.follower)).some((n) => n.rowEmail?.id === threaded.id), "and the inbox");
   check(!(await hideRowEmail(ids.follower, received.id).then(() => true).catch(() => false)), "only its mailbox's owner, its sender or full access may hide one");
+
+  // Sent folders the server doesn't mark are found by their name
+  const prepare = async (address: string, folder?: string) => {
+    const client = new ImapFlow({ host: HOST, port: IMAP_PORT, secure: false, auth: { user: address, pass: "x" }, logger: false });
+    await client.connect();
+    if (folder) await client.mailboxCreate(folder).catch(() => {});
+    await client.logout();
+  };
+  const ece = `ece.${RUN}@leafdesk.test`;
+  const can = `can.${RUN}@leafdesk.test`;
+  await prepare(ece, "Gönderilenler");
+  await prepare(can);
+  const turkish = await connect(ids.hidden, ece);
+  check(turkish.folders.inbox === "INBOX" && turkish.folders.sent === "Gönderilenler", "a sent folder the server doesn't mark is found by its name", turkish.folders);
+  check((await getMailSettings(ids.hidden, workspaceId)).mailbox?.folders.sent === "Gönderilenler", "and its owner sees which folders are read");
+  const noSent = await connect(ids.follower, can);
+  check(noSent.status === "ok" && noSent.folders.inbox === "INBOX" && noSent.folders.sent === null, "a mailbox without a sent folder still connects, and says it has none", noSent);
 
   // Leaving
   await removeMember(ids.owner, workspaceId, ids.member);

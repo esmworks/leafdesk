@@ -1681,6 +1681,8 @@
     "mailboxHeading": "Your mailbox",
     "mailboxDescription": "The mailbox you use for this workspace. It is read for mail with the people in the databases above, and what you write on rows is sent from it. Your other workspaces don't see it.",
     "syncedAt": "read {time}",
+    "folders": "Reads incoming mail from {inbox} and sent mail from {sent}.",
+    "noSentFolder": "Reads incoming mail from {inbox}. No sent folder was found, so mail you send from your own mail program won't show on rows, and mail sent from rows won't be saved in your mailbox.",
     "change": "Change",
     "disconnect": "Disconnect",
     "connect": "Test and connect",
