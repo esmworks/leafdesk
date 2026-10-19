@@ -29,7 +29,7 @@ import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { HIDE_SCROLLBAR, StickyScrollbar, useDragPan } from "./scroll-x";
-import { openRowProps, useRowOpener } from "./row-panel-context";
+import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { PropertyTypeIcon } from "./property-icons";
 import { useFormatResult } from "./table-calculations";
 import { useNewRow } from "./use-new-row";
@@ -773,6 +773,7 @@ function Card({
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const isOpen = useIsOpenRow(opener, row.id);
   const menu = useFloating<HTMLButtonElement>();
   const shown = shownValues(props, row);
 
@@ -787,7 +788,7 @@ function Card({
       className={cn(
         "board-card group relative cursor-pointer rounded-lg px-3 py-2.5",
         dragging && "opacity-40",
-        opener.current === row.id && "outline-2 outline-accent/60",
+        isOpen && "outline-2 outline-accent/60",
       )}
     >
       {editTitle ? (

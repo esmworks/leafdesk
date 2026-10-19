@@ -10,7 +10,7 @@ import { CardTitleInput } from "./board-view";
 import { RowMenu } from "./gallery-view";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useRowOpener } from "./row-panel-context";
+import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
@@ -122,6 +122,7 @@ function ListRow({
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
   const row = line.row;
+  const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
   const label = pageLabel(row.title, tc("untitled"));
   return (
@@ -129,7 +130,7 @@ function ListRow({
       role="listitem"
       className={cn(
         "group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover",
-        opener.current === row.id && "bg-bg-hover",
+        isOpen && "bg-bg-hover",
       )}
       style={nested ? { paddingInlineStart: 4 + line.depth * SUB_ITEM_INDENT } : undefined}
     >

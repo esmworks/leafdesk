@@ -34,7 +34,7 @@ import { CalculationRow } from "./table-calculations";
 import { useRelations } from "./relation-context";
 import { OpenRowItems } from "./open-row-items";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useRowOpener, type RowOpener } from "./row-panel-context";
+import { openRowProps, useOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useCellGrid } from "./use-cell-grid";
 import type { ShownValue } from "./use-database";
 import { useNewRow } from "./use-new-row";
@@ -121,6 +121,7 @@ export function TableView({
   const t = useTranslations("database");
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const openRow = useOpenRow(opener);
   const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const today = useToday();
   const { viewerId, people } = usePeople();
@@ -357,7 +358,7 @@ export function TableView({
   const renderRow = (line: SubItemLine<Row>, group: Group<Row> | undefined, at: number, index: number) => {
     const row = line.row;
     // The row open in the panel beside the table is tinted like a selected one.
-    const selected = selection.isSelected(row.id) || opener.current === row.id;
+    const selected = selection.isSelected(row.id) || openRow === row.id;
     const label = pageLabel(row.title, tc("untitled"));
     return (
       <tr

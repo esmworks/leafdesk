@@ -3,7 +3,7 @@
 import { Check, ChevronDown, ChevronUp, Link2, Maximize2, TriangleAlert, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { loadRowPanelAction, rowPanelStampAction, type RowPanelPage } from "@/app/actions/row-panel";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { useChannel } from "@/components/collab/use-channel";
@@ -24,7 +24,7 @@ import {
 } from "@/lib/row-panel";
 import { isEditable } from "@/lib/shortcuts";
 import { inlineSign } from "@/components/direction";
-import { RowPanelContext, type RowOrigin, type RowPanelHost } from "./row-panel-context";
+import { createOpenRowStore, RowPanelContext, type RowOrigin, type RowPanelHost } from "./row-panel-context";
 import { RowProperties } from "./row-properties";
 
 const pagePath = (workspaceId: string, pageId: string) => `/w/${workspaceId}/p/${pageId}`;
@@ -146,7 +146,12 @@ export function RowPanelProvider({
   // Views say when their rows change, so the panel's previous and next rows follow.
   const [orderVersion, rowsChanged] = useReducer((n: number) => n + 1, 0);
 
-  const value = useMemo<RowPanelHost>(() => ({ rowId, available, open, rowsChanged }), [rowId, available, open]);
+  // The views learn which row is open through this store (see useIsOpenRow): the host stays the
+  // same object as rows open and close, so the views beside the panel don't redraw every row.
+  const [openRow] = useState(() => createOpenRowStore(rowId));
+  useLayoutEffect(() => openRow.set(rowId), [openRow, rowId]);
+
+  const value = useMemo<RowPanelHost>(() => ({ openRow, available, open, rowsChanged }), [openRow, available, open]);
 
   const [width, setWidth] = useState<number>(ROW_PANEL_WIDTH.default);
   const [viewport, setViewport] = useState(1440);

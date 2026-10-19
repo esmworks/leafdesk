@@ -1,16 +1,42 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { createContext, useContext, useMemo, type MouseEvent } from "react";
+import { createContext, useContext, useMemo, useSyncExternalStore, type MouseEvent } from "react";
 import { opensNewTab } from "@/lib/row-panel";
 
 /** Where a row was opened from: its view (`data-row-source`) and the element that opened it. */
 export type RowOrigin = { source: Element | null; trigger: HTMLElement | null };
 
+/**
+ * The row open in the panel, as the address says. Read through a subscription rather than with the
+ * host: a view's rows ask only whether they are the open one, so moving to another row redraws the
+ * two rows it concerns, not the whole view.
+ */
+export type OpenRowStore = {
+  get: () => string | null;
+  subscribe: (onChange: () => void) => () => void;
+};
+
+export function createOpenRowStore(initial: string | null): OpenRowStore & { set: (rowId: string | null) => void } {
+  let rowId = initial;
+  const listeners = new Set<() => void>();
+  return {
+    get: () => rowId,
+    set: (next) => {
+      if (next === rowId) return;
+      rowId = next;
+      for (const listener of listeners) listener();
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => void listeners.delete(listener);
+    },
+  };
+}
+
 /** The row panel of the workspace's pages (row-panel.tsx), for the views on them. */
 export type RowPanelHost = {
-  /** The row open in the panel, as the address says. */
-  rowId: string | null;
+  /** The row open in the panel. */
+  openRow: OpenRowStore;
   /** Rows can open in the panel here: not on phones, where they open as pages. */
   available: boolean;
   /** Opens a row in the panel, in place of the one open there. */
@@ -46,8 +72,6 @@ export type RowOpener = {
   openPage: (rowId: string) => void;
   /** Rows open in the panel (else as pages). */
   inPanel: boolean;
-  /** The row open in the panel, to mark in the view. */
-  current: string | null;
 };
 
 export const RowOpenerContext = createContext<RowOpener | null>(null);
@@ -57,21 +81,47 @@ export function openInNewTab(href: string) {
   window.open(href, "_blank", "noopener");
 }
 
-/** The view's way of opening rows; outside a database page, rows open as pages. */
+/**
+ * The view's way of opening rows; outside a database page, rows open as pages. Views always sit in
+ * one (database-page.tsx gives them its opener): the fallback doesn't read the router, which would
+ * redraw every row of a view at each change of the address, a row opening beside it among them.
+ */
 export function useRowOpener(workspaceId: string): RowOpener {
   const opener = useContext(RowOpenerContext);
-  const router = useRouter();
   const fallback = useMemo<RowOpener>(() => {
     const href = (rowId: string) => `/w/${workspaceId}/p/${rowId}`;
+    const go = (rowId: string) => window.location.assign(href(rowId));
     return {
       href,
-      open: (rowId, event) => (event && opensNewTab(event) ? openInNewTab(href(rowId)) : router.push(href(rowId))),
-      openPage: (rowId) => router.push(href(rowId)),
+      open: (rowId, event) => (event && opensNewTab(event) ? openInNewTab(href(rowId)) : go(rowId)),
+      openPage: go,
       inPanel: false,
-      current: null,
     };
-  }, [workspaceId, router]);
+  }, [workspaceId]);
   return opener ?? fallback;
+}
+
+const noRow = () => null;
+const noSubscription = () => () => {};
+
+/** The row open in the panel beside the view, to mark in it; null while its rows open as pages. */
+export function useOpenRow(opener: RowOpener): string | null {
+  const store = useRowPanel()?.openRow;
+  return useSyncExternalStore(
+    store?.subscribe ?? noSubscription,
+    opener.inPanel && store ? store.get : noRow,
+    noRow,
+  );
+}
+
+/** Whether `rowId` is the row open in the panel beside the view: changes only for that row. */
+export function useIsOpenRow(opener: RowOpener, rowId: string): boolean {
+  const store = useRowPanel()?.openRow;
+  return useSyncExternalStore(
+    store?.subscribe ?? noSubscription,
+    () => opener.inPanel && store?.get() === rowId,
+    () => false,
+  );
 }
 
 /** Props of an element that opens a row on click: also with the middle button, into a new tab. */

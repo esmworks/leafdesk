@@ -89,6 +89,9 @@
   their first view used to be English whatever language you use Leafdesk in; they now match the
   databases you make in the app.
 - In Turkish, teamspaces are now called "ekip alanı".
+- **Opening a row beside a view is quicker.** The row panel slides in from the edge it sits on, and
+  opening, closing or stepping through rows with J and K no longer redraws every card of a large
+  board, table or calendar: only the row that was open and the one now open change.
 
 ## 0.6.1 — 2026-10-19
 

@@ -1057,6 +1057,32 @@
 }
 
 /*
+ * The row panel (components/database/row-panel.tsx) slides in from the edge it sits on: the right,
+ * or the left when right to left. Moving to another row keeps the panel, so only opening slides.
+ */
+@keyframes leafdesk-panel-in {
+  from {
+    translate: 100% 0;
+  }
+}
+@keyframes leafdesk-panel-in-rtl {
+  from {
+    translate: -100% 0;
+  }
+}
+[data-row-panel] {
+  animation: leafdesk-panel-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[dir="rtl"] [data-row-panel] {
+  animation-name: leafdesk-panel-in-rtl;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-row-panel] {
+    animation: none;
+  }
+}
+
+/*
  * Colored code on published pages and in the print view (server/published-body.ts): each token
  * carries a color for light and one for dark backgrounds. Print stays light.
  */

@@ -14,7 +14,7 @@ import { Floating, useFloating } from "./floating";
 import { OpenRowItems } from "./open-row-items";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useRowOpener, type RowOpener } from "./row-panel-context";
+import { openRowProps, useIsOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
@@ -125,6 +125,7 @@ function GalleryCard({
 }) {
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
   // A cover that fails to load leaves the plain cover area instead of a broken image.
   const [failed, setFailed] = useState<string | null>(null);
@@ -141,7 +142,7 @@ function GalleryCard({
       }}
       className={cn(
         "board-card group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg",
-        opener.current === row.id && "outline-2 outline-accent/60",
+        isOpen && "outline-2 outline-accent/60",
       )}
     >
       {coverClass && (

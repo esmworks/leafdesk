@@ -27,7 +27,7 @@ import { CalendarFeedButton } from "./calendar-feed";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
-import { openRowProps, useRowOpener } from "./row-panel-context";
+import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { useToday, useViewerTimeZone } from "./use-today";
 import type { Property, Row, View } from "./types";
@@ -680,6 +680,7 @@ function CalendarEntry({
 }) {
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row).slice(0, MAX_ENTRY_PROPS);
   return (
     <div
@@ -699,7 +700,7 @@ function CalendarEntry({
         after && "rounded-e-none border-e-0",
         block && "h-full overflow-hidden py-0.5",
         dragging && "opacity-40",
-        opener.current === row.id && "outline-2 outline-accent/60",
+        isOpen && "outline-2 outline-accent/60",
       )}
     >
       {editTitle ? (

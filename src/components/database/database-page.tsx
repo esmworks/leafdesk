@@ -3,7 +3,7 @@
 import { Plus, TriangleAlert, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui";
 import { useDocumentViewName } from "@/components/page/document-title";
 import { markNewPage } from "@/components/page/new-page-focus";
@@ -37,6 +37,17 @@ import { AiAutofillProvider, type AiAutofillContextValue } from "./ai-autofill";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest } from "./view-bar";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
+
+// The page redraws with every change of its address, a row opening beside the view among them;
+// a view, with its hundreds of rows, only when what it's given changes.
+const MemoBoardView = memo(BoardView);
+const MemoCalendarView = memo(CalendarView);
+const MemoChartView = memo(ChartView);
+const MemoFormView = memo(FormView);
+const MemoGalleryView = memo(GalleryView);
+const MemoListView = memo(ListView);
+const MemoTableView = memo(TableView);
+const MemoTimelineView = memo(TimelineView);
 
 /** A database shown inside a page body (see components/page/embed-blocks). */
 export type DatabaseEmbed = {
@@ -212,7 +223,8 @@ export function DatabasePage({
   const sourceRef = useRef<HTMLDivElement>(null);
   const inPanel = Boolean(rowPanel?.available) && !!view && opensRows(view.type) && openRowsOf(view.config) === "panel" && !offline;
   const openRowTo = rowPanel?.open;
-  const openRowId = rowPanel?.rowId ?? null;
+  // The same opener while rows open and close beside the view: its rows ask which one is open
+  // themselves (useIsOpenRow), so a row opening doesn't redraw the whole view.
   const opener = useMemo<RowOpener>(() => {
     const href = (rowId: string) => `/w/${workspaceId}/p/${rowId}`;
     return {
@@ -225,9 +237,8 @@ export function DatabasePage({
       },
       openPage: (rowId) => router.push(href(rowId)),
       inPanel,
-      current: inPanel ? openRowId : null,
     };
-  }, [workspaceId, inPanel, openRowTo, openRowId, router]);
+  }, [workspaceId, inPanel, openRowTo, router]);
   // The panel's previous and next rows follow the view.
   const rowsChanged = rowPanel?.rowsChanged;
   useEffect(() => {
@@ -239,6 +250,51 @@ export function DatabasePage({
     () => (snapshot ? orderProperties(snapshot.properties, view?.config.propertyOrder) : []),
     [snapshot, view?.config.propertyOrder],
   );
+
+  // What the views are given stays the same from one render of the page to the next (see MemoBoardView).
+  const setConfig = useCallback((v: View, config: ViewConfig) => baseApi.updateView(v, { config }), [baseApi]);
+  const properties = snapshot?.properties;
+  // Adds a rule on the column with its first operator, like the filter menu's "Add filter".
+  const filterBy = useCallback(
+    (v: View, columnId: string) => {
+      const prop = properties?.find((p) => p.id === columnId);
+      const filters = [...(v.config.filters ?? []), { propertyId: columnId, op: filterOperators(prop ? valueType(prop) : "title")[0].op }];
+      void setConfig(v, { ...v.config, filters });
+      setFilterRequest((r) => ({ id: (r?.id ?? 0) + 1, viewId: v.id, filters: filters.length }));
+    },
+    [properties, setConfig],
+  );
+  const filterViewBy = useCallback((columnId: string) => void (view && filterBy(view, columnId)), [view, filterBy]);
+
+  const createGroupProperty = useCallback(async () => {
+    const lower = (s: string) => s.toLocaleLowerCase(locale);
+    const names = new Set((properties ?? []).map((p) => lower(p.name)));
+    const status = t("page.defaultGroupProperty");
+    const name = names.has(lower(status)) ? t("page.defaultGroupPropertyFallback") : status;
+    const created = await api.addProperty(name, "select", [
+      t("page.defaultGroupOptions.notStarted"),
+      t("page.defaultGroupOptions.inProgress"),
+      t("page.defaultGroupOptions.done"),
+    ]);
+    if (created && (view?.type === "board" || view?.type === "table" || view?.type === "chart")) {
+      await setConfig(view, { ...view.config, groupBy: created.id });
+    }
+  }, [locale, properties, t, api, view, setConfig]);
+
+  const createDateProperty = useCallback(async () => {
+    const lower = (s: string) => s.toLocaleLowerCase(locale);
+    const names = new Set((properties ?? []).map((p) => lower(p.name)));
+    // A timeline takes a new date property as its start, or as its end once it has a start.
+    const asEnd = view?.type === "timeline" && !!timelineDates(view, properties ?? []).start;
+    const base = t(asEnd ? "calendar.defaultEndProperty" : "calendar.defaultDateProperty");
+    let name = base;
+    for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
+    const created = await api.addProperty(name, "date");
+    if (created && view?.type === "calendar") await setConfig(view, { ...view.config, dateBy: created.id });
+    if (created && view?.type === "timeline") {
+      await setConfig(view, { ...view.config, ...(asEnd ? { endDateBy: created.id } : { dateBy: created.id }) });
+    }
+  }, [locale, properties, t, api, view, setConfig]);
 
   if (!snapshot) {
     return (
@@ -258,7 +314,6 @@ export function DatabasePage({
     );
   }
 
-  const setConfig = (v: View, config: ViewConfig) => baseApi.updateView(v, { config });
   // Deleted properties and views, for those who may change the schema (as deleting them took).
   const deletedSchema =
     !readOnly && !locked && !linked
@@ -268,13 +323,6 @@ export function DatabasePage({
           onChanged: () => void api.refetch(),
         }
       : undefined;
-  // Adds a rule on the column with its first operator, like the filter menu's "Add filter".
-  const filterBy = (v: View, columnId: string) => {
-    const prop = snapshot.properties.find((p) => p.id === columnId);
-    const filters = [...(v.config.filters ?? []), { propertyId: columnId, op: filterOperators(prop ? valueType(prop) : "title")[0].op }];
-    void setConfig(v, { ...v.config, filters });
-    setFilterRequest((r) => ({ id: (r?.id ?? 0) + 1, viewId: v.id, filters: filters.length }));
-  };
   // Automations belong to the database, not to a page showing one of its views; full access only.
   const canManageAutomations = Boolean(snapshot.canManageAccess) && !readOnly && !linked;
 
@@ -286,36 +334,6 @@ export function DatabasePage({
     for (let i = 2; taken.has(name); i++) name = `${base} ${i}`;
     const created = await api.addView(name, type);
     if (created) selectView(created.id);
-  };
-
-  const createGroupProperty = async () => {
-    const lower = (s: string) => s.toLocaleLowerCase(locale);
-    const names = new Set(snapshot.properties.map((p) => lower(p.name)));
-    const status = t("page.defaultGroupProperty");
-    const name = names.has(lower(status)) ? t("page.defaultGroupPropertyFallback") : status;
-    const created = await api.addProperty(name, "select", [
-      t("page.defaultGroupOptions.notStarted"),
-      t("page.defaultGroupOptions.inProgress"),
-      t("page.defaultGroupOptions.done"),
-    ]);
-    if (created && (view?.type === "board" || view?.type === "table" || view?.type === "chart")) {
-      await setConfig(view, { ...view.config, groupBy: created.id });
-    }
-  };
-
-  const createDateProperty = async () => {
-    const lower = (s: string) => s.toLocaleLowerCase(locale);
-    const names = new Set(snapshot.properties.map((p) => lower(p.name)));
-    // A timeline takes a new date property as its start, or as its end once it has a start.
-    const asEnd = view?.type === "timeline" && !!timelineDates(view, snapshot.properties).start;
-    const base = t(asEnd ? "calendar.defaultEndProperty" : "calendar.defaultDateProperty");
-    let name = base;
-    for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
-    const created = await api.addProperty(name, "date");
-    if (created && view?.type === "calendar") await setConfig(view, { ...view.config, dateBy: created.id });
-    if (created && view?.type === "timeline") {
-      await setConfig(view, { ...view.config, ...(asEnd ? { endDateBy: created.id } : { dateBy: created.id }) });
-    }
   };
 
   /** "New": from the default row template when there is one; the menu beside it picks another or none. */
@@ -476,7 +494,7 @@ export function DatabasePage({
                         )}
                       </div>
                     ) : view.type === "form" ? (
-                      <FormView
+                      <MemoFormView
                         key={view.id}
                         view={view}
                         properties={snapshot.properties}
@@ -487,7 +505,7 @@ export function DatabasePage({
                         preview={formPreview}
                       />
                     ) : view.type === "board" ? (
-                      <BoardView
+                      <MemoBoardView
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -498,7 +516,7 @@ export function DatabasePage({
                         onCreateGroupProperty={createGroupProperty}
                       />
                     ) : view.type === "gallery" ? (
-                      <GalleryView
+                      <MemoGalleryView
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -507,7 +525,7 @@ export function DatabasePage({
                         readOnly={readOnly}
                       />
                     ) : view.type === "list" ? (
-                      <ListView
+                      <MemoListView
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -517,7 +535,7 @@ export function DatabasePage({
                         readOnly={readOnly}
                       />
                     ) : view.type === "timeline" ? (
-                      <TimelineView
+                      <MemoTimelineView
                         key={view.id}
                         workspaceId={workspaceId}
                         view={view}
@@ -530,7 +548,7 @@ export function DatabasePage({
                         onCreateDateProperty={createDateProperty}
                       />
                     ) : view.type === "chart" ? (
-                      <ChartView
+                      <MemoChartView
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}
@@ -541,7 +559,7 @@ export function DatabasePage({
                       />
                     ) : view.type === "calendar" ? (
                       <div className="page-gutter">
-                        <CalendarView
+                        <MemoCalendarView
                           workspaceId={workspaceId}
                           view={view}
                           properties={viewProperties}
@@ -553,7 +571,7 @@ export function DatabasePage({
                         />
                       </div>
                     ) : (
-                      <TableView
+                      <MemoTableView
                         workspaceId={workspaceId}
                         databaseId={databaseId}
                         view={view}
@@ -568,7 +586,7 @@ export function DatabasePage({
                         searched={search.trim() !== ""}
                         guest={guest}
                         exportable={exportable}
-                        onFilter={(columnId) => filterBy(view, columnId)}
+                        onFilter={filterViewBy}
                       />
                     )}
                   </div>
